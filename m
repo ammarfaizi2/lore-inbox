@@ -1,96 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268410AbTBWRTS>; Sun, 23 Feb 2003 12:19:18 -0500
+	id <S268364AbTBWRSR>; Sun, 23 Feb 2003 12:18:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268471AbTBWRTS>; Sun, 23 Feb 2003 12:19:18 -0500
-Received: from mail.ithnet.com ([217.64.64.8]:26636 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S268410AbTBWRTP>;
-	Sun, 23 Feb 2003 12:19:15 -0500
-Date: Sun, 23 Feb 2003 18:29:14 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Arjan van de Ven <arjan@fenrus.demon.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-pre4: PDC ide driver problems with shared interrupts
-Message-Id: <20030223182914.0fd9947d.skraw@ithnet.com>
-In-Reply-To: <1046012671.1964.2.camel@laptop.fenrus.com>
-References: <20030202153009$2e0d@gated-at.bofh.it>
-	<20030205181006$107c@gated-at.bofh.it>
-	<20030205181006$7bb8@gated-at.bofh.it>
-	<20030205181006$455c@gated-at.bofh.it>
-	<20030205181006$5dba@gated-at.bofh.it>
-	<20030205181006$3358@gated-at.bofh.it>
-	<200302061451.h16Epl0Z001134@pc.skynet.be>
-	<20030223153316.262a201e.skraw@ithnet.com>
-	<1046012671.1964.2.camel@laptop.fenrus.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S268410AbTBWRSR>; Sun, 23 Feb 2003 12:18:17 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48962 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S268364AbTBWRSQ>; Sun, 23 Feb 2003 12:18:16 -0500
+To: Rik van Riel <riel@imladris.surriel.com>
+Cc: Hanna Linder <hannal@us.ibm.com>, "" <lse-tech@lists.sourceforge.net>,
+       "" <linux-kernel@vger.kernel.org>
+Subject: Re: Minutes from Feb 21 LSE Call
+References: <96700000.1045871294@w-hlinder>
+	<m1smufn7xu.fsf@frodo.biederman.org>
+	<Pine.LNX.4.50L.0302231126380.2206-100000@imladris.surriel.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 23 Feb 2003 10:28:04 -0700
+In-Reply-To: <Pine.LNX.4.50L.0302231126380.2206-100000@imladris.surriel.com>
+Message-ID: <m1of52nbyz.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Feb 2003 16:04:31 +0100
-Arjan van de Ven <arjan@fenrus.demon.nl> wrote:
+Rik van Riel <riel@imladris.surriel.com> writes:
 
-> On Sun, 2003-02-23 at 15:33, Stephan von Krawczynski wrote:
-> > On Thu, 06 Feb 2003 15:51:47 +0100
-> > Hans Lambrechts <hans.lambrechts@skynet.be> wrote:
-> > 
-> > > Stephan von Krawczynski wrote:
-> > > 
-> > > <---snip--->
-> > > 
-> > > > 
-> > > >            CPU0       CPU1
-> > > >   0:      71158          0    IO-APIC-edge  timer
-> > > >   1:        941          0    IO-APIC-edge  keyboard
-> > > >   2:          0          0          XT-PIC  cascade
-> > > >  12:      33166          0    IO-APIC-edge  PS/2 Mouse
-> > > >  15:          4          0    IO-APIC-edge  ide1
+> On Sat, 22 Feb 2003, Eric W. Biederman wrote:
 > 
-> <snip>
+> > Note: rmap chains can be restricted to an arbitrary length, or an
+> > arbitrary total count trivially. All you have to do is allow a fixed
+> > limit on the number of people who can map a page simultaneously.
+> >
+> > The selection of which chain to unmap can be a bit tricky but is
+> > relatively straight forward.  Why doesn't someone who is seeing
+> > this just hack this up?
 > 
-> > I am sorry, but this patch is:
-> > a) already included in 2.4.21-pre4 (which I run)
-> > b) does therefore obviously not help
-> > 
-> > Any other suggestions? 
-> 
-> could you give the irqbalance daemon from
-> 
-> http://people.redhat.com/arjanv/irqbalance/irqbalance-0.06.tar.gz
-> 
-> a try ?
+> I'm not sure how useful this feature would be. 
 
-Hella Arjan,
+The problem.  There is no upper bound to how many rmap
+entries there can be at one time.  And the unbounded
+growth can overwhelm a machine.
 
-I tried it and it looks as if it performs as expected:
+The goal is to provide an overall system cap on the number
+of rmap entries.
 
-           CPU0       CPU1       
-  0:    1288917      35375    IO-APIC-edge  timer
-  1:       8917        244    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
- 12:     350644        552    IO-APIC-edge  PS/2 Mouse
- 15:          6          0    IO-APIC-edge  ide1
- 17:     426082       7881   IO-APIC-level  ide2, ide3
- 18:     329936        919   IO-APIC-level  eth0, eth1
- 20:         43          0   IO-APIC-level  aic7xxx
- 21:   10439503          0   IO-APIC-level  eth2
- 22:    1596851     122119   IO-APIC-level  aic7xxx
- 23:         16          0   IO-APIC-level  aic7xxx
- 25:       1304         36   IO-APIC-level  HiSax
- 26:          0          0   IO-APIC-level  EMU10K1
-NMI:          0          0 
-LOC:    1324228    1324203 
-ERR:          0
-MIS:          0
+> Also,
+> there are a bunch of corner cases in which you cannot
+> limit the number of processes mapping a page, think
+> about eg. mlock, nonlinear vmas and anonymous memory.
 
-Within a few minutes I see the above. The only thing left: I am not able to
-produce interrupts from eth2 (tg3) on CPU1. I have not looked at the daemons
-policies so far, so maybe this is normal...
-It looks interesting. Did you decribe it somewhere?
--- 
-Regards,
-Stephan
+Unless something has changed for nonlinear vmas, and anonymous
+memory we have been storing enough information to recover
+the page in the page tables for ages.  
 
+For mlock we want a cap on the number of pages that are locked,
+so it should not be a problem.  But even then we don't have to
+guarantee the page is constantly in the processes page table, simply
+that the mlocked page is never swapped out.
+
+> All in all I suspect that the cost of such a feature
+> might be higher than any benefits.
+
+Cost?  What Cost?
+
+The simple implementation is to walk the page lists and unmap 
+the pages that are least likely to be used next.
+
+This is not something new.  We have been doing this in 2.4.x and
+before for years.  Before it just never freed up rmap entries, as well
+as preparing a page to be paged out.
+
+Eric

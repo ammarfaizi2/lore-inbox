@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310349AbSCBIGB>; Sat, 2 Mar 2002 03:06:01 -0500
+	id <S310348AbSCBIFT>; Sat, 2 Mar 2002 03:05:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310352AbSCBIFv>; Sat, 2 Mar 2002 03:05:51 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:29715 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S310349AbSCBIFs>;
-	Sat, 2 Mar 2002 03:05:48 -0500
-Date: Fri, 1 Mar 2002 23:58:47 -0800
+	id <S310349AbSCBIFJ>; Sat, 2 Mar 2002 03:05:09 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:28691 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S310348AbSCBIE4>;
+	Sat, 2 Mar 2002 03:04:56 -0500
+Date: Fri, 1 Mar 2002 23:57:55 -0800
 From: Greg KH <greg@kroah.com>
-To: Sandino Araico =?iso-8859-1?Q?S=E1nchez?= <sandino@sandino.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17,2.4.18 ide-scsi+usb-storage+devfs Oops
-Message-ID: <20020302075847.GE20536@kroah.com>
-In-Reply-To: <3C7EA7CB.C36D0211@sandino.net>
+To: Nathan Walp <faceprint@faceprint.com>
+Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OOPS] 2.5.5-dj2
+Message-ID: <20020302075755.GD20536@kroah.com>
+In-Reply-To: <20020228221845.GA6682@faceprint.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3C7EA7CB.C36D0211@sandino.net>
+In-Reply-To: <20020228221845.GA6682@faceprint.com>
 User-Agent: Mutt/1.3.26i
 X-Operating-System: Linux 2.2.20 (i586)
 Reply-By: Sat, 02 Feb 2002 05:03:18 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 28, 2002 at 03:57:31PM -0600, Sandino Araico Sánchez wrote:
-> The Oops happens after I use the ide-scsi module with my CDRW and then I
-> plug the Zip USB in.
+On Thu, Feb 28, 2002 at 05:18:48PM -0500, Nathan Walp wrote:
+> got this either unplugging and plugging my usb printer from the hub, or
+> turning it on and off (don't remember the exact timing).  
 
-Can you run the oops through ksymoops and send it to us?
+Were you sending data to the printer at the time?
+
+And does this also happen on 2.5.6-pre2?
 
 thanks,
 

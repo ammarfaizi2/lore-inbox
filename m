@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265223AbUAZVMW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 16:12:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUAZVMW
+	id S265287AbUAZVO7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 16:14:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265268AbUAZVO7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 16:12:22 -0500
-Received: from out010pub.verizon.net ([206.46.170.133]:48314 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S265223AbUAZVMV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 16:12:21 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: gkrellm reports cpu temp*10! linux-athlon kernel=2.6.2-rc1-mm2
-Date: Mon, 26 Jan 2004 16:12:17 -0500
-User-Agent: KMail/1.6
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 26 Jan 2004 16:14:59 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:59339 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S265258AbUAZVO4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 16:14:56 -0500
+Date: Mon, 26 Jan 2004 13:02:42 -0800 (PST)
+Message-Id: <20040126.130242.74547942.davem@redhat.com>
+To: bunk@fs.tum.de
+Cc: jt@hpl.hp.com, marcelo.tosatti@cyclades.com,
+       irda-users@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, linux-net@vger.kernel.org
+Subject: Re: [2.4 patch] fix via-ircc.c .text.exit error
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20040126210126.GG513@fs.tum.de>
+References: <20040125004030.GE6441@fs.tum.de>
+	<20040126192836.GA17134@bougret.hpl.hp.com>
+	<20040126210126.GG513@fs.tum.de>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200401261612.17942.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [151.205.53.166] at Mon, 26 Jan 2004 15:12:20 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all;
+   From: Adrian Bunk <bunk@fs.tum.de>
+   Date: Mon, 26 Jan 2004 22:01:26 +0100
 
-I just rebooted 2 days ago to 2.6.2-rc1-mm2, and I just now noticed 
-that gkrellm is reporting my cpu at 680C.  Thats about 10x what its 
-running at, still warm at 68C, but functional for 2 years now.  I 
-didn't have this error under 2.6.1-rc2-mm4.
- 
-Any idea what patch to back out?  And where to get it?
+   On Mon, Jan 26, 2004 at 11:28:36AM -0800, Jean Tourrilhes wrote:
+   > 	Thanks you Adrian. Yes, I must confess that I never test
+   > non-modular build (because it doesn't work).
+   
+   Are you saying it might compile statically, but it won't work?
+   
+It won't link because many IRDA drivers erroneously don't
+mark their module_{init,exit}() routines static, thus
+symbols conflict.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty: soap,
-ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+I'm fixing that now.

@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311614AbSCUNR2>; Thu, 21 Mar 2002 08:17:28 -0500
+	id <S311641AbSCUNUI>; Thu, 21 Mar 2002 08:20:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311724AbSCUNRJ>; Thu, 21 Mar 2002 08:17:09 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11272 "EHLO
+	id <S311721AbSCUNT6>; Thu, 21 Mar 2002 08:19:58 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14088 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S311614AbSCUNRA>; Thu, 21 Mar 2002 08:17:00 -0500
-Subject: Re: Linux 2.4.19-pre3-ac1
-To: mfedyk@matchmail.com (Mike Fedyk)
-Date: Thu, 21 Mar 2002 13:32:11 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        zwane@linux.realnet.co.sz (Zwane Mwaikambo),
-        MrChuoi@yahoo.com (MrChuoi),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <20020321051101.GA2673@matchmail.com> from "Mike Fedyk" at Mar 20, 2002 09:11:01 PM
+	id <S311641AbSCUNTq>; Thu, 21 Mar 2002 08:19:46 -0500
+Subject: Re: Creating a per-task kernel space for kmap, user pagetables, et al
+To: nahshon@actcom.co.il
+Date: Thu, 21 Mar 2002 13:34:25 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), hch@infradead.org (Christoph Hellwig),
+        Martin.Bligh@us.ibm.com (Martin J. Bligh),
+        andrea@suse.de (Andrea Arcangeli), hugh@veritas.com (Hugh Dickins),
+        riel@conectiva.com.br (Rik van Riel),
+        dmccr@us.ibm.com (Dave McCracken),
+        linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <200203210421.g2L4Lwx22756@lmail.actcom.co.il> from "Itai Nahshon" at Mar 21, 2002 06:21:45 AM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16o2fr-0005Ba-00@the-village.bc.nu>
+Message-Id: <E16o2i1-0005Bu-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Committed_AS:     2228 kB
->                   ^^^^
-> 		 This was down to ~500k before mutt was started.
+> Truely I thought that putting everything in "current" in Linux was
+> more of a design decision and not something that's derived from
+> the '86 architecture.
 
-That looks much better. If you want to do an absolute sanity test build a 
-non SMP kernel without SYSVIPC support, but with the accounting validation
-turned on (mm/memory.c I believe I stuck it in) and it'll burp in the log
-whenever it finds an error in the tally
+It is - I said Linux8086 not Linux 80386.
+
+Alan
+

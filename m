@@ -1,106 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288575AbSAHXet>; Tue, 8 Jan 2002 18:34:49 -0500
+	id <S288579AbSAHXjj>; Tue, 8 Jan 2002 18:39:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288579AbSAHXel>; Tue, 8 Jan 2002 18:34:41 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:62963 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S288575AbSAHXe1>;
-	Tue, 8 Jan 2002 18:34:27 -0500
-Date: Wed, 9 Jan 2002 00:34:24 +0100
+	id <S288582AbSAHXja>; Tue, 8 Jan 2002 18:39:30 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:17396 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S288579AbSAHXjP>;
+	Tue, 8 Jan 2002 18:39:15 -0500
+Date: Wed, 9 Jan 2002 00:39:01 +0100
 From: David Weinehall <tao@acc.umu.se>
-To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [Announcement] linux-2.0.40-rc1
-Message-ID: <20020109003424.S5235@khan.acc.umu.se>
+To: Greg KH <greg@kroah.com>
+Cc: jtv <jtv@xs4all.nl>, Vladimir Kondratiev <vladimir.kondratiev@intel.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: __FUNCTION__
+Message-ID: <20020109003901.T5235@khan.acc.umu.se>
+In-Reply-To: <3C3B664B.3060103@intel.com> <20020108220149.GA15816@kroah.com> <20020108235649.A26154@xs4all.nl> <20020108231147.GA16313@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.4i
+In-Reply-To: <20020108231147.GA16313@kroah.com>; from greg@kroah.com on Tue, Jan 08, 2002 at 03:11:47PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uhhhm, ok, no big objections to -pre3 arose, but
-Daniel Phillips found a naughty little bug in ext2fs. However,
-Ville and Samuli have run quite a few tests with Daniel's patch,
-and cannot seem to trigger the bug any longer.
+On Tue, Jan 08, 2002 at 03:11:47PM -0800, Greg KH wrote:
+> On Tue, Jan 08, 2002 at 11:56:49PM +0100, jtv wrote:
+> > 
+> > Don't have a C99 spec, but here's what info gcc has to say about it:
+> > 
+> > [...description of "function names" extension as currently found in gcc...]
+> > 
+> >    Note that these semantics are deprecated, and that GCC 3.2 will
+> > handle `__FUNCTION__' and `__PRETTY_FUNCTION__' the same way as
+> > `__func__'.  `__func__' is defined by the ISO standard C99:
+> 
+> Any reason _why_ they would want to break tons of existing code in this
+> manner?  Just the fact that the __func__ symbol is there to use?
+> 
+> Since the C99 spec does not state anything about __FUNCTION__, changing
+> it from the current behavior does not seem like a wise thing to do.
+> 
+> Any pointers to someone to complain to, or is there no chance for
+> reversal?
 
-Hence I'm declaring this the first release candidate for 2.0.40.
-Try it out, please.
-
-
-2.0.40-rc1
-
-o	Fix possible vmalloc bug for		(Ralf Baechle)
-	architectures with virtually
-	indexed caches
-o	Micro-optimization in vmalloc		(Ralf Baechle)
-o	Fix group descriptor corruption		(Daniel Phillips,
-	in ext2fs				 Ville Herva,
-						 Samuli Kärkkäinen)
-o	Fix some missing includes		(me)
-o	Change array-size from 0 to 1 for	(me)
-	two arrays in the symbol-table
-	in include/linux/module.h
-o	Fix type of struct timeval xtime in	(me)
-	include/linux/sched.h
-o	Fix warnings in include/linux/skbuff.h	(me)
-o	Fix a few typos in Configure.help	(me)
-o	Various small whitespace changes	(me)
-	and fixes of strange indentation
-	| I know some of you won't like this
-	| and I don't give a damn ;-)
-
-2.0.40-pre3
-
-o	Fix typo in sched.c			(Tim Sutherland)
-	| this time for real; I applied this
-	| patch to the wrong kernel-tree last
-	| time, hence the reject
-o	IDE probe patch for some ATAPI drives	(Geert Van der Plas)
-
-2.0.40-pre2
-
-o	Make pci2000 compile			(Joseph Martin)
-o	Use KERNELRELEASE in module		(me)
-	installpath as well
-o	Removed unused variable in		(me)
-	ext2/super.c
-o	Fixed warning in ext2/dir.c		(me)
-o	Fix a blunder of my own in		(me)
-	arch/kernel/i386/traps.c
-o	Fix typo in sched.c			(Tim Sutherland)
-o	Fix bug in mkdep.c			(Tim Sutherland)
-o	Fix bug in autoirq.c			(Michael Deutschmann)
-o	Add allocation debugging code		(Michael Deutschmann)
-o	Fix bugs in the math-emu code		(Bill Metzenthen,
-						 Michael Deutschmann)
-
-2.0.40-pre1
-
-o	Fixed the ordering of			(Philipp Rumpf)
-	watchdog initialising, to make sure
-	hardware watchdogs takes precedence
-	over the softdog driver
-o	Fix the CREDITS-entry for		(Kai Petzke)
-	Kai Petzke
-o	Updated the MAINTAINERS-file a little	(me)
-o	Fix "dumpable"-race			(Solar Designer)
-o	Fix theoretical exploit in printk	(Solar Designer)
-o	Backported checkconfig.pl,		(me)
-	checkhelp.pl and checkincludes.pl
-	from v2.4
-o	Backported support for tags and		(me)
-	TAGS
-o	Added an extra-version entry to		(me)
-	the version#, to keep track of
-	the prepatches etc.
-o	Fix all occurences of			(me)
-	#endif BLABLA type; don't forget
-	that it should be /* BLABLA */ !!!
+Because the want people to stop using a gcc-specific way and start
+using the C99-mandated way instead?! Very sane imho.
 
 
-
-Regards: David Weinehall
+/David Weinehall
   _                                                                 _
  // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
 //  Maintainer of the v2.0 kernel   //  Dance across the winter sky //

@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270572AbRHITqr>; Thu, 9 Aug 2001 15:46:47 -0400
+	id <S270568AbRHITq5>; Thu, 9 Aug 2001 15:46:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270571AbRHITqh>; Thu, 9 Aug 2001 15:46:37 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:53515 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S270568AbRHITqb>; Thu, 9 Aug 2001 15:46:31 -0400
-Message-ID: <3B72E9FA.883833D8@zip.com.au>
-Date: Thu, 09 Aug 2001 12:52:26 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ulrich Windl <Ulrich.Windl@rz.uni-regensburg.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: FYI (2.4.4) on a HP Netserver LD Pro
-In-Reply-To: <3B728283.10458.105A5C8@localhost>
+	id <S270571AbRHITqs>; Thu, 9 Aug 2001 15:46:48 -0400
+Received: from runningman.mobilixnet.dk ([212.97.204.27]:50184 "EHLO
+	runningman.mobilixnet.dk") by vger.kernel.org with ESMTP
+	id <S270568AbRHITqi>; Thu, 9 Aug 2001 15:46:38 -0400
+Date: Thu, 9 Aug 2001 21:46:45 +0200
+From: Eirikur Hjartarson <eiki.hjartarson@wanadoo.dk>
+To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.7-ac10
+Message-ID: <20010809214645.A510@pluto.home>
+Reply-To: eiki.hjartarson@wanadoo.dk
+In-Reply-To: <20010808195133.A22469@lightning.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010808195133.A22469@lightning.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.19i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Windl wrote:
-> 
-> Hello,
-> 
-> I have some odd boot messages (new since switching from kernel 2.2 to
-> 2.4) for the HP Netserver LD Pro (Pentium Pro 200MHz). I'd like to know
-> if there is a hardware or configuration problem, or whether it's "just
-> normal" (the "reserved twice").
-> 
-> Messages:
-> <4>Linux version 2.4.4-4GB (root@Pentium.suse.de) (gcc version 2.95.3
-> 20010315 \
-> (SuSE)) #1 Wed May 16 00:37:55 GMT 2001
-> <6>BIOS-provided physical RAM map:
-> <4> BIOS-e820: 0000000000000000 - 000000000009ec00 (usable)
-> <4> BIOS-e820: 000000000009ec00 - 00000000000a0000 (reserved)
-> <4> BIOS-e820: 00000000000f1cb4 - 0000000000100000 (reserved)
-> <4> BIOS-e820: 0000000000100000 - 0000000004000000 (usable)
-> <4> BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
-> <4> BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
-> <4> BIOS-e820: 00000000ffff1cb4 - 0000000100000000 (reserved)
-> <4>Scan SMP from c0000000 for 1024 bytes.
-> <4>Scan SMP from c009fc00 for 1024 bytes.
-> <4>Scan SMP from c00f0000 for 65536 bytes.
-> <4>found SMP MP-table at 000fd8d0
-> <4>hm, page 000fd000 reserved twice.
-> <4>hm, page 000fe000 reserved twice.
-> <4>hm, page 0009e000 reserved twice.
-> <4>hm, page 0009f000 reserved twice.
+On Wed, Aug 08, 2001 at 07:51:34PM +0100, Alan Cox wrote:
+> ...
+> o	Fix a bug in access() checks on X_OK with	(Christoph Hellwig)
+> 	DAC ovveride
 
-It's "just normal".  The MP-table parsing code reserves space
-for the MP table and then parses the table.  But the table
-also reserves its own space.
+root can no longer execute files it does not have access to, e.g.
 
--
+pluto -# id
+uid=0(root) gid=0(root) groups=0(root)
+pluto -# ls -l /sbin/getty
+-r-x------    1 bin      bin         32784 Aug  8 06:54 /sbin/getty
+pluto -# /sbin/getty
+bash: /sbin/getty: Permission denied
+pluto -# chmod go+rx /sbin/getty
+pluto -# /sbin/getty
+pluto -#
+
+Regards,
+-- 
+Eiki

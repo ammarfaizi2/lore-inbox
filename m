@@ -1,64 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289181AbSANKNW>; Mon, 14 Jan 2002 05:13:22 -0500
+	id <S289182AbSANKRE>; Mon, 14 Jan 2002 05:17:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289182AbSANKNM>; Mon, 14 Jan 2002 05:13:12 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:26247 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S289181AbSANKM7> convert rfc822-to-8bit;
-	Mon, 14 Jan 2002 05:12:59 -0500
-Date: Mon, 14 Jan 2002 01:55:03 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Christian =?iso-8859-1?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE-Patches
-In-Reply-To: <E16Q2hl-0003im-00@mrvdom02.kundenserver.de>
-Message-ID: <Pine.LNX.4.10.10201140153480.19068-100000@master.linux-ide.org>
+	id <S289184AbSANKQw>; Mon, 14 Jan 2002 05:16:52 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:1804 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S289182AbSANKQk>; Mon, 14 Jan 2002 05:16:40 -0500
+Message-ID: <3C42AD48.FCFD6056@zip.com.au>
+Date: Mon, 14 Jan 2002 02:04:56 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Stephan von Krawczynski <skraw@ithnet.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, zippel@linux-m68k.org, rml@tech9.net,
+        ken@canit.se, arjan@fenrus.demon.nl, landley@trommello.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <E16PvKx-00005L-00@the-village.bc.nu>,
+		<200201140033.BAA04292@webserver.ithnet.com>
+		<E16PvKx-00005L-00@the-village.bc.nu> <20020114104532.59950d86.skraw@ithnet.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stephan von Krawczynski wrote:
+> 
+> ...
+> Unfortunately me have neither of those. This would mean I cannot benefit from
+> _these_ patches, but instead would need _others_ (like tulip or
+> name-one-of-the-rest-of-the-drivers) to see _some_ effect you tell me I
+> _should_ see (I currently see _none_). How do you argue then against the
+> statement: we need patches for /drivers/net/*.c ?? I do not expect 3c59x.c to
+> be particularly bad in comparison to tulip/*.c or lets say via-rhine.c, do you?
+> 
 
-If it was not so true, it might be funny.
+In 3c59x.c, probably the biggest problem will be the call to issue_and_wait()
+in boomerang_start_xmit().  On a LAN which is experiencing heavy collision rates
+this can take as long as 2,000 PCI cycles (it's quite rare, and possibly an
+erratum).  It is called under at least two spinlocks.
 
---a
+In via-rhine, wait_for_reset() can busywait for up to ten milliseconds.
+via_rhine_tx_timeout() calls it from under a spinlock.
 
-On Mon, 14 Jan 2002, Christian Bornträger wrote:
+In eepro100.c, wait_for_cmd_done() can busywait for one millisecond
+and is called multiple times under spinlock.
 
-> Sometimes I got the impression, that we missed a patch.....
-> 
-> ;-)
-> 
-> <cynism>
-> 
-> --- linux/MAINTAINERS   Fri Dec 21 18:41:53 2001
-> +++ neu/MAINTAINERS     Mon Jan 14 09:36:56 2002
-> @@ -704,14 +704,14 @@
->  S:      Supported
-> 
->  IDE DRIVER [GENERAL]
-> -P:     Andre Hedrick
-> -M:     andre@linux-ide.org
-> -M:     andre@aslab.com
-> -M:     andre@suse.com
-> -L:     linux-kernel@vger.kernel.org
-> -W:     http://www.kernel.org/pub/linux/kernel/people/hedrick/
-> -W:     http://www.linux-ide.org/
-> -S:     Supported
-> +P:     Linus, Marcello
-> +M:     /dev/null
-> +M:     /dev/null
-> +M:     /dev/null
-> +L:     /dev/null
-> +W:     empty
-> +W:     empty
-> +S:     Ignored
-> 
->  IDE/ATAPI CDROM DRIVER
->  P:     Jens Axboe
-> 
-> </cynism>
->
 
+
+Preemption will help _some_ of this, but by no means all, or enough.
+
+-

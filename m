@@ -1,96 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268894AbTGJDXw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 23:23:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268896AbTGJDXw
+	id S268882AbTGJDe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 23:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268875AbTGJDe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 23:23:52 -0400
-Received: from auth22.inet.co.th ([203.150.14.104]:60934 "EHLO
-	auth22.inet.co.th") by vger.kernel.org with ESMTP id S268894AbTGJDXt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 23:23:49 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: Russell King <rmk@arm.linux.org.uk>, Daniel Ritz <daniel.ritz@gmx.ch>
-Subject: 2.5.74-mm3 yenta-socket oops back
-Date: Thu, 10 Jul 2003 11:27:30 +0800
-User-Agent: KMail/1.5.2
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-pcmcia <linux-pcmcia@lists.infradead.org>
-References: <200307060039.34263.daniel.ritz@gmx.ch> <20030706231551.B16820@flint.arm.linux.org.uk>
-In-Reply-To: <20030706231551.B16820@flint.arm.linux.org.uk>
-X-OS: KDE 3 on GNU/Linux
+	Wed, 9 Jul 2003 23:34:28 -0400
+Received: from fed1mtao05.cox.net ([68.6.19.126]:3496 "EHLO fed1mtao05.cox.net")
+	by vger.kernel.org with ESMTP id S268882AbTGJDeE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 23:34:04 -0400
+Message-ID: <3F0CE21B.2050309@hawton.org>
+Date: Wed, 09 Jul 2003 20:48:43 -0700
+From: Daniel <daniel@hawton.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] do_generic_direct_write: bad flag check
+References: <Pine.LNX.4.55L.0307091918400.5325@freak.distro.conectiva> <20030709231348.GC18564@werewolf.able.es> <Pine.LNX.4.55L.0307100028320.6629@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.55L.0307100028320.6629@freak.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307101127.32590.mflt1@micrologica.com.hk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.74-mm3 yenta-socket oopsed on the first boot at the same spot. 
 
-I have successfully used both patches below with -mm1.
 
-Regards
-Michael
+Marcelo Tosatti wrote:
 
-On Monday 07 July 2003 06:15, Russell King wrote:
+> 
+> On Thu, 10 Jul 2003, J.A. Magallon wrote:
+> 
+> 
+>>On 07.10, Marcelo Tosatti wrote:
+>>
+>>>Hi,
+>>>
+>>>Here goes -pre4. It contains a lot of updates and fixes.
+>>>
+>>
+>>--- linux-2.4.22-pre2-jam1/mm/filemap.c.orig	2003-06-28 01:55:36.000000000 +0200
+>>+++ linux-2.4.22-pre2-jam1/mm/filemap.c	2003-06-28 01:55:45.000000000 +0200
+>>@@ -3223,7 +3223,7 @@
+>> 	if (err != 0 || count == 0)
+>> 		goto out;
+>>
+>>-	if (!file->f_flags & O_DIRECT)
+>>+	if (!(file->f_flags & O_DIRECT))
+>> 		BUG();
+>>
+>> 	remove_suid(inode);
+>>
+>>...but sure the fix in -ac is better.
+> 
+> 
+> What is the difference between the fix in -ac and yours?
 
-> michael, can you try this one?
-
-Daniel's patch:
-
---- 1.50/drivers/pcmcia/cs.c    Mon Jun 30 22:22:30 2003
-+++ edited/cs.c Sat Jul  5 23:58:07 2003
-@@ -338,13 +338,13 @@
-        socket->erase_busy.next = socket->erase_busy.prev = &socket->erase_busy;
-        INIT_LIST_HEAD(&socket->cis_cache);
-        spin_lock_init(&socket->lock);
--
--       init_socket(socket);
--
-        init_completion(&socket->thread_done);
-        init_waitqueue_head(&socket->thread_wait);
-        init_MUTEX(&socket->skt_sem);
-        spin_lock_init(&socket->thread_lock);
-+
-+       init_socket(socket);
-+
-        ret = kernel_thread(pccardd, socket, CLONE_KERNEL);
-        if (ret < 0)
-                return ret;
-
-and my patch (may apply with some offset, which I'm about to check
-into bk anyway):
-
---- linux/drivers/pcmcia/cs.c.old       Fri Jul  4 10:21:50 2003
-+++ linux/drivers/pcmcia/cs.c   Sun Jul  6 23:04:10 2003
-@@ -870,11 +870,13 @@
- 
- void pcmcia_parse_events(struct pcmcia_socket *s, u_int events)
- {
--       spin_lock(&s->thread_lock);
--       s->thread_events |= events;
--       spin_unlock(&s->thread_lock);
-+       if (s->thread) {
-+               spin_lock(&s->thread_lock);
-+               s->thread_events |= events;
-+               spin_unlock(&s->thread_lock);
- 
--       wake_up(&s->thread_wait);
-+               wake_up(&s->thread_wait);
-+       }
- } /* pcmcia_parse_events */
-
--- 
-Powered by linux-2.5.74-mm3. Compiled with gcc-2.95-3 - mature and rock solid
-
-My current linux related activities:
-- 2.5 yenta_socket testing
-- Test development and testing of swsusp for 2.4/2.5 and ACPI S3 of 2.5 kernel 
-- Everyday usage of 2.5 kernel
-
-More info on 2.5 kernel: http://www.codemonkey.org.uk/post-halloween-2.5.txt
-More info on swsusp: http://sourceforge.net/projects/swsusp/
+There's a difference??  Looks the same to me.  Unless there is part of 
+the patch we don't see.
 

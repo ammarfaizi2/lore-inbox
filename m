@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261576AbRERWNM>; Fri, 18 May 2001 18:13:12 -0400
+	id <S261578AbRERWSm>; Fri, 18 May 2001 18:18:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261577AbRERWNC>; Fri, 18 May 2001 18:13:02 -0400
-Received: from 209.102.21.2 ([209.102.21.2]:23055 "EHLO dragnet.seagull.net")
-	by vger.kernel.org with ESMTP id <S261576AbRERWMx>;
-	Fri, 18 May 2001 18:12:53 -0400
-Message-ID: <3B059E86.93415132@goingware.com>
-Date: Fri, 18 May 2001 18:13:28 -0400
-From: "Michael D. Crawford" <crawford@goingware.com>
-Organization: GoingWare Inc. - Expert Software Development and Consulting
-X-Mailer: Mozilla 4.76 (Macintosh; U; PPC)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Linux Quality Database on Newsforge
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S261589AbRERWSc>; Fri, 18 May 2001 18:18:32 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:9062 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261578AbRERWSO>; Fri, 18 May 2001 18:18:14 -0400
+Date: Fri, 18 May 2001 18:18:14 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200105182218.f4IMIE910681@devserv.devel.redhat.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: CML2 design philosophy heads-up
+In-Reply-To: <mailman.990207420.8659.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.990207420.8659.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-chromatic has written a very nice article on the Linux Quality database
-at Newsforge:
+> > As for the language CML2 is written in, surely C would work just as well as
+> > Python if the config-ruleset file is in a known format.  GCC is required
+> > for the kernel to build, I don't see why anything else should be required
+> > simply to configure it.
+> 
+> Menuconfig is fairly popular, and requires curses.. etc. etc.  There isn't
+> a configurator which doesn't require something more than gcc is there?
 
-Linux Quality Database: One man's quest for kernel quality
-http://www.newsforge.com/article.pl?sid=01/05/17/204213&mode=thread
+I always do "vi .config", then "make oldconfig", because it is very
+convinient, simple, and flexible way to do it. For instance, it is
+very easy to store a pile of configs for different kernels, very
+easy do diff them (with -u and without).
 
-The site itself is at http://linuxquality.sunsite.dk/
+I do not have Python installed on any of my machines.
 
-You will see it is still in the planning stages.  Life has been quite
-hectic these last months, but I am making slow progress and I'm starting
-to get more time now.  I have written a couple of articles you may find
-useful, one on testing the kernel and the other on testing web
-applications.  The kernel testing article is at:
+The right way to handle the CML2 problem, IMHO, is to have a
+C implementation of Python part without curses, tcl, and other crap.
+Half of ESR's justification is "dynatic loading of components and
+recovery from failure to load them", which goes away if we
+do not support extras like curses. Another half was GC, which
+is just a convinience for a project of CML's size.
 
-Using Test Suites to Validate the Linux Kernel
-http://linuxquality.sunsite.dk/articles/testsuites/
-
-Best,
-
-Michael D. Crawford
-GoingWare Inc. - Expert Software Development and Consulting
-http://www.goingware.com/
-crawford@goingware.com
-
-    Tilting at Windmills for a Better Tomorrow.
+-- Pete

@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbUCQAQF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 19:16:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbUCQAQF
+	id S261865AbUCQATV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 19:19:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbUCQATV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 19:16:05 -0500
-Received: from alt.aurema.com ([203.217.18.57]:1924 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id S261863AbUCQAQA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 19:16:00 -0500
-Message-ID: <405798B2.5090601@aurema.com>
-Date: Wed, 17 Mar 2004 11:15:46 +1100
-From: Peter Williams <peterw@aurema.com>
-Organization: Aurema Pty Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Tue, 16 Mar 2004 19:19:21 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:36826 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261865AbUCQATT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 19:19:19 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Subject: Re: Status HPT374 (HighPoint 1540) Sata in 2.6
+Date: Wed, 17 Mar 2004 01:27:33 +0100
+User-Agent: KMail/1.5.3
+References: <405786EC.5000803@matchmail.com> <40578F31.5090700@matchmail.com> <405796B0.9070906@matchmail.com>
+In-Reply-To: <405796B0.9070906@matchmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Jeff Garzik <jgarzik@pobox.com>
 MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: finding out the value of HZ from userspace
-References: <1zkOe-Uc-17@gated-at.bofh.it> <1zl7M-1eJ-43@gated-at.bofh.it>	<1zn9p-3mW-5@gated-at.bofh.it> <1znj5-3wM-15@gated-at.bofh.it>	<1AaWr-655-7@gated-at.bofh.it>	<m3fzc9o7bc.fsf@averell.firstfloor.org>	<40569655.2030802@aurema.com>	<20040316061611.GA77627@colin2.muc.de>	<40578A87.8030501@aurema.com> <20040316235658.GA70879@colin2.muc.de>
-In-Reply-To: <20040316235658.GA70879@colin2.muc.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200403170127.33424.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
->>These programs could (and should) use sysconfig(_SC_CLK_TCK) to find out 
->>how many ticks there are in a second so this does not constitute a good 
->>reason for USER_HZ not being equal to HZ.
-> 
-> 
-> These programs are usually shell scripts that initialise some sysctls.
 
-Which ones?  Top and ps don't appear to be scripts on my system (Red Hat 
-9.0).
+I think that it may work with drivers/ide/hpt366.c
 
-> It's not easy to call sysconf from there.
+AFAIK HPT374 is PATA only chipset and SATA support in HighPoint 1540
+is achieved by using PATA-SATA bridges.
 
-A small utility program would suffice.
-
-> Also we tend to avoid breaking
-> things that would fail silently instead of failing with an obvious error 
-> message.  This would be such a case. Silent breakage is an extremly bad
-> thing.
-
-This is the responsibility of the authors of the programs in question 
-not the kernel.
-
-Peter
--- 
-Dr Peter Williams, Chief Scientist                peterw@aurema.com
-Aurema Pty Limited                                Tel:+61 2 9698 2322
-PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
-79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
+On Wednesday 17 of March 2004 01:07, Mike Fedyk wrote:
+> Mike Fedyk wrote:
+> > Hmm, it looks like it's "supported by at latest 2.4.21-pre5", but it
+> > doesn't give details, or what SATA features are (or not) supported.
+> > Though, what Jeff said probably overrides this...
+>
+> Oh, I remember now...
+>
+> Jeff said that back in 2003, and that's why I posted in the first place.
+>
+> Jeff, so if you have any details on the status of support for these
+> cards in the 2.6 kernel (or with patches).
+>
+> Thanks,
+>
+> Mike
 

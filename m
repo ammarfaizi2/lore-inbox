@@ -1,140 +1,145 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262674AbTDQXHk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 19:07:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbTDQXHk
+	id S262673AbTDQXIY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 19:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbTDQXIX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 19:07:40 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:38700 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S262674AbTDQXHh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 19:07:37 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200304172319.h3HNJXJ31933@devserv.devel.redhat.com>
-Subject: Linux 2.5.67-ac2
-To: linux-kernel@vger.kernel.org
-Date: Thu, 17 Apr 2003 19:19:33 -0400 (EDT)
-X-Mailer: ELM [version 2.5 PL6]
+	Thu, 17 Apr 2003 19:08:23 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:21132 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262673AbTDQXIM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 19:08:12 -0400
+Date: Fri, 18 Apr 2003 01:19:55 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andre Hedrick <andre@linux-ide.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.67-ac1 IDE - fix Taskfile IOCTLs
+In-Reply-To: <Pine.SOL.4.30.0304180052130.20946-100000@mion.elka.pw.edu.pl>
+Message-ID: <Pine.SOL.4.30.0304180119200.22161-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Next set of updates. Cautionary words still appy.
 
-Handle with care, no naked flames, do not inhale....
+tf-ioctls-1.diff:
 
-Linux 2.5.67-ac2
-o	Remove now unrequired identity hack for proc	(me)
-o	Resync with Linus -bk8 snapshot
-o	Merge core H8300 updates			(Yoshinori Sato)
-o	Merge summit ID strings				(James Cleverdon)
-o	Input layer typo fixes				(Randy Dunlap)
-o	Update Intermezzo maintainer info		(Jörn Engle)
-o	Further C99 initializer updates for audio	(Art Haas)
-o	Fix sound driver crashes with pnp		(Daniel Ritz)
-o	Rio requires uaccess.h	(Bug #566)		(Bob Miller)
-o	Sx requires uaccess.h				(John Kim)
-o	Minor ipmi fixes				(Corey Minyard)
-o	z2ram compile fix				(Geert Uytterhoeven)
-o	Fix an SMP boot bug in -ac			(Osamu Tomita)
-o	Unbreak visws					(Andrey Panin)
-o	Switch ide-cs to pcmcia_driver			(Christoph Hellwig)
-o	Fix the trackpoint problem on Dell8100		(Arne Koewing)
-o	Add another broken bios to the list
+# Fix PIO handlers for Taskfile ioctls.
+#
+# Detailed changelog:
+# - fix process_that_request_first() for rq->buffer (non-bio) based requests
+# - set rq->hard_nr_sectors and rq->hard_cur_sectors in ide_diag_taskfile()
+# - use ide_rq_offset() in ide_map_buffer() and remove task_rq_offset()
+# - fix PIO handlers for rq->buffer based requests
+#
+# Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
 
-Linux 2.5.67-ac1
-o	Fix the problem with Serverworks bootup when	(Robert Hentosh,
-	the BIOS forced PIO modes			 me)
-o	BIO walking functions 			(Bartlomiej Zolnierkiewicz &
-o	BIO walking code documentation		 Suparna Bhattacharya)
-o	Fix ide taskfile for new prehandlers	(Bartlomiej Zolnierkiewicz)
-o	Fix ide taskfile DMA read/write		(Bartlomiej Zolnierkiewicz)
-o	Remove old style non taskfile PIO 	(Bartlomiej Zolnierkiewicz)
-o	Clean up duplicated IDE code		(Bartlomiej Zolnierkiewicz)
-o	Huge update to DVB 				(Michael Hunold)
-	| This reconciles a large fork in DVB development
-o	Fix build for PC164 Alpha			(Marc Zyngier)
-o	Clean up PCI_INTERRUPT_LINE in IDE		(me)
-o	Fix mdelay problem on PPC			(Paul Mackerras)
-o	Add pc9800.h header				(Osamu Tomita)
-o	Add pc9800 uni map files (not console code)	(Osamu Tomita)
-o	Resync 2.4 and 2.5 opl3sa2 support		(Daniel Ritz)
-o	Fix missing include for copy*user in cpufreq	(me)
-o	Fix slip for new module locking on ldisc	(me)
-o	Update lp486e to new style locking etc		(me)
-o	Update 3c574_cs to new style locking		(me)
-o	Clean up scc locking for 2.5			(me)
-o	Merge 2.5.67
-o	Fix mtd build					(me)
-o	FIx 3c505 build					(me)
+diff -uNr linux-2.5.67-ac1/drivers/block/ll_rw_blk.c linux/drivers/block/ll_rw_blk.c
+--- linux-2.5.67-ac1/drivers/block/ll_rw_blk.c	Thu Apr 17 17:46:53 2003
++++ linux/drivers/block/ll_rw_blk.c	Thu Apr 17 17:47:33 2003
+@@ -2265,9 +2265,11 @@
+ 		nsect = min_t(unsigned int, req->current_nr_sectors,
+ 			      nr_sectors);
+ 		req->current_nr_sectors -= nsect;
+-		req->nr_bio_sectors -= nsect;
+ 		nr_sectors -= nsect;
+-		blk_rq_next_segment(req);
++		if (req->bio) {
++			req->nr_bio_sectors -= nsect;
++			blk_rq_next_segment(req);
++		}
+ 	}
+ 	return 1;
+ }
+diff -uNr linux-2.5.67-ac1/drivers/ide/ide-taskfile.c linux/drivers/ide/ide-taskfile.c
+--- linux-2.5.67-ac1/drivers/ide/ide-taskfile.c	Thu Apr 17 20:03:36 2003
++++ linux/drivers/ide/ide-taskfile.c	Thu Apr 17 20:10:59 2003
+@@ -406,6 +406,11 @@
+ 	while (rq->hard_bio != rq->bio)
+ 		if (!DRIVER(drive)->end_request(drive, 1, bio_sectors(rq->hard_bio)))
+ 			return ide_stopped;
++	/* Complete rq->buffer based request (ioctls). */
++	if (!rq->bio && !rq->nr_sectors) {
++		ide_end_drive_cmd(drive, stat, HWIF(drive)->INB(IDE_ERROR_REG));
++		return ide_stopped;
++	}
 
-Linux 2.5.66-ac2
-o	Resync with Linus -bk8
-o	Fix modules build				(me)
-o	Fix arch syscalls to return long		(Randy Dunlap)
-o	USBfs kerneldoc					(David Brownell)
-o	More i2c updates				(Greg Kroah Hartmann)
-	| FIxes several driver compiles
-o	Fix IDE locking/phase handling on timeout	(Manfred Spraul)
-o	C99 initialisers for DMAsound			(Maciej Soltysiak)
-o	C99 initialisers for OSS audio			(Maciej Soltysiak)
-o	C99 intialisers for emu10k1			(Maciej Soltysiak)
-o	Move dead MOD_ calls from floppy driver		(Bob Miller)
-o	Fix macmace abuse of GFP_DMA			(Matthew Wilcox)
-o	Improve hpt kconfig entry			(Adrian Bunk)
-o	Generic HDLC updates				(Krzysztof Halasa)
-o	Fix es968 kmalloc parameters			(Pablo Meinchini)
-o	Fix als100 kmalloc parameters			(Pablo Meinchini)
-o	PC98xx updates to existing merge		(Osamu Tomita)
-	| Keyboard, ALSA, floppy
-o	Fix misc_register fail path for upd4990a	(Stephan Maciej)
-o	Fix pegasus endian bug				(Paul Mackerras)
-o	Wireless needs __init				(Paul Mackerras)
-o	Fix gus compilation when built in (lock		(Peter Waechtler)
-	clash)
-o	Sony PI driver update				(Stelian Pop)
-o	Spelling fixes for Alpha			(Steven Cole)
-o	Spelling fixes for x86-64			(Steven Cole)
-o	Add a "blank now" key mapping			(Pavel Machek)
-o	Remove 23 bogus includes of version.h		(Burton Windle)
-o	Fix cs4232 build				(Daniel Ritz)
-o	Update v850 architecture			(Miles Bader)
-o	Fix taint mishandling for AMD CPU		(Manfred Spraul)
-o	Fix compile of dt019x audio			(John Kim)
-o	Kill "compatmac"				(Adrian Bunk)
-o	Fix via82cxxx_audio build			(me)
-o	Fix acpi build					(me)
-o	Resync with bk9
-o	Fix oprofile build				(John Levon)
-o	PnP updates					(Adam Belay)
-o	Fix visws framebuffer compile			(Andrey Panin)
-o	Avoid LBA48 modes on disks that don't need	(Jens Axboe)
-	them (saves a 2nd command cycle on each I/O
-	as suggested by Mark Lord)
-o	Clean up ide list handling for drives		(Alexander Atanasov)
-o	Remove present check from drivers (now		(Alexander Atanasov)
-	handled by the list stuff)
-o	Fix SMP boot timer oops				(me)
-	| Thanks to Steven Cole for pinning this down to
-	| 5 lines of change
-o	Port ltpc driver to spinlocks			(me)
-o	Fix cadet driver missing symbol			(me)
-o	Fix cops driver locking				(me)
-o	Fix arcnet.c locking				(me)
+ 	rq->errors = 0;
+ 	task_sectors(drive, rq, 1, PIO_IN);
+@@ -452,6 +457,11 @@
+ 	while (rq->hard_bio != rq->bio)
+ 		if (!DRIVER(drive)->end_request(drive, 1, bio_sectors(rq->hard_bio)))
+ 			return ide_stopped;
++	/* Complete rq->buffer based request (ioctls). */
++	if (!rq->bio && !rq->nr_sectors) {
++		ide_end_drive_cmd(drive, stat, HWIF(drive)->INB(IDE_ERROR_REG));
++		return ide_stopped;
++	}
 
-Linux 2.5.66-ac1
-o	Fix up ESI handling in esp.c			(me)
-	| Lots more needs fixing in this driver yet
-o	Merge Linus 2.5.66
-o	Fix cramfs compile problems			(Jeremy Brown, me)
-o	Fix mad16 breakage				(Adrian Bunk)
-o	Iphase fixes port to 2.5			(Chas Williams,
-							 Eric Leblond)
-o	Fix ipc/msg race				(Manfred Spraul)
-o	Let hdparm know about speed change fails	(Jens Axboe)
-o	Don't issue WIN_SET_MAX on older drivers	(Jens Axboe)
-	(Breaks some Samsung)
-o	Resync with Linus bk3 snapshot
+ 	rq->errors = 0;
+ 	do {
+@@ -510,6 +520,11 @@
+ 	while (rq->hard_bio != rq->bio)
+ 		if (!DRIVER(drive)->end_request(drive, 1, bio_sectors(rq->hard_bio)))
+ 			return ide_stopped;
++	/* Complete rq->buffer based request (ioctls). */
++	if (!rq->bio && !rq->nr_sectors) {
++		ide_end_drive_cmd(drive, stat, HWIF(drive)->INB(IDE_ERROR_REG));
++		return ide_stopped;
++	}
+
+ 	/* Still data left to transfer. */
+ 	ide_set_handler(drive, &task_out_intr, WAIT_WORSTCASE, NULL);
+@@ -569,6 +584,11 @@
+ 	while (rq->hard_bio != rq->bio)
+ 		if (!DRIVER(drive)->end_request(drive, 1, bio_sectors(rq->hard_bio)))
+ 			return ide_stopped;
++	/* Complete rq->buffer based request (ioctls). */
++	if (!rq->bio && !rq->nr_sectors) {
++		ide_end_drive_cmd(drive, stat, HWIF(drive)->INB(IDE_ERROR_REG));
++		return ide_stopped;
++	}
+
+ 	/* Still data left to transfer. */
+ 	ide_set_handler(drive, &task_mulout_intr, WAIT_WORSTCASE, NULL);
+@@ -953,10 +973,11 @@
+ 	if (args->command_type != IDE_DRIVE_TASK_NO_DATA) {
+ 		if (data_size == 0)
+ 			rq.current_nr_sectors = rq.nr_sectors = (args->hobRegister[IDE_NSECTOR_OFFSET_HOB] << 8) | args->tfRegister[IDE_NSECTOR_OFFSET];
+-		/*	rq.hard_cur_sectors	*/
+ 		else
+ 			rq.current_nr_sectors = rq.nr_sectors = data_size / SECTOR_SIZE;
+-		/*	rq.hard_cur_sectors	*/
++
++		rq.hard_nr_sectors = rq.nr_sectors;
++		rq.hard_cur_sectors = rq.current_nr_sectors;
+ 	}
+
+ 	if (args->tf_out_flags.all == 0) {
+diff -uNr linux-2.5.67-ac1/include/linux/ide.h linux/include/linux/ide.h
+--- linux-2.5.67-ac1/include/linux/ide.h	Thu Apr 17 17:46:53 2003
++++ linux/include/linux/ide.h	Thu Apr 17 18:01:18 2003
+@@ -840,12 +840,6 @@
+ #define ide_rq_offset(rq) \
+ 	(((rq)->hard_cur_sectors - (rq)->current_nr_sectors) << 9)
+
+-/*
+- * taskfiles really should use hard_cur_sectors as well!
+- */
+-#define task_rq_offset(rq) \
+-	(((rq)->nr_sectors - (rq)->current_nr_sectors) * SECTOR_SIZE)
+-
+ static inline void *ide_map_buffer(struct request *rq, unsigned long *flags)
+ {
+ 	/*
+@@ -857,7 +851,7 @@
+ 	/*
+ 	 * task request
+ 	 */
+-	return rq->buffer + task_rq_offset(rq);
++	return rq->buffer + ide_rq_offset(rq);
+ }
+
+ static inline void ide_unmap_buffer(struct request *rq, char *buffer, unsigned long *flags)
 

@@ -1,61 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264037AbTDWNr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 09:47:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264040AbTDWNr4
+	id S264043AbTDWNwv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 09:52:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264044AbTDWNwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 09:47:56 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:44439 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S264037AbTDWNrx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 09:47:53 -0400
-Date: Wed, 23 Apr 2003 15:49:40 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Better docs for boot-up code
-Message-ID: <20030423134940.GA308@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Wed, 23 Apr 2003 09:52:51 -0400
+Received: from USAMAIL2.conoco.com ([12.31.208.227]:36366 "EHLO
+	usamail2.conoco.com") by vger.kernel.org with ESMTP id S264043AbTDWNwt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 09:52:49 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: 2.4.21-pre5 : hw tcp v4 csum failed
+Date: Wed, 23 Apr 2003 09:04:50 -0500
+Message-ID: <5CA6F03EF05E0046AC5594562398B916D32EB6@POEXMB3.conoco.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.4.21-pre5 : hw tcp v4 csum failed
+Thread-Index: AcMI7BkXXYWGEJ95RASEpAiAfCcA0gADKUYQ
+From: "Heflin, Roger A." <Roger.A.Heflin@conocophillips.com>
+To: =?iso-8859-1?Q?Philippe_Gramoull=E9?= 
+	<philippe.gramoulle@mmania.com>
+Cc: <linux-poweredge@dell.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 23 Apr 2003 14:04:51.0454 (UTC) FILETIME=[4EE549E0:01C309A1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-This adds some nice docs for boot-up code. Please apply,
+We have a number of 2650's running 2.4.21pre4 and don't appear to be
+getting that error, we have not tried pre5 as of yet.
 
-							Pavel
-Index: linux/arch/i386/boot/setup.S
-===================================================================
---- linux.orig/arch/i386/boot/setup.S	2003-04-22 00:04:32.000000000 +0200
-+++ linux/arch/i386/boot/setup.S	2003-04-21 22:40:53.000000000 +0200
-@@ -893,6 +893,9 @@
- 	movw	%cs, %si
- 	subw	$DELTA_INITSEG, %si
- 	shll	$4, %esi			# Convert to 32-bit pointer
-+
-+# jump to startup_32 in arch/i386/kernel/head.S
-+#	
- # NOTE: For high loaded big kernels we need a
- #	jmpi    0x100000,__BOOT_CS
- #
-Index: linux/arch/i386/kernel/trampoline.S
-===================================================================
---- linux.orig/arch/i386/kernel/trampoline.S	2003-04-22 00:04:32.000000000 +0200
-+++ linux/arch/i386/kernel/trampoline.S	2003-03-30 20:01:55.000000000 +0200
-@@ -4,6 +4,8 @@
-  *
-  *	4 Jan 1997 Michael Chastain: changed to gnu as.
-  *
-+ *	This is only used for booting secondary CPUs in SMP machine
-+ *
-  *	Entry: CS:IP point to the start of our code, we are 
-  *	in real mode with no stack, but the rest of the 
-  *	trampoline page to make our stack and everything else
+Our tg3 version is 1.2a.
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+			Roger
+
+> -----Original Message-----
+> From:	Philippe Gramoullé [SMTP:philippe.gramoulle@mmania.com]
+> Sent:	Tuesday, April 22, 2003 11:13 AM
+> To:	jgarzik@pobox.com
+> Cc:	linux-poweredge@dell.com; linux-kernel@vger.kernel.org
+> Subject:	2.4.21-pre5 : hw tcp v4 csum failed
+> 
+> 
+> Hello,
+> 
+> I just saw that we've been having those messages on at least 4 DELL 2650 ( running tg3 driver version 1.4c)
+> running busy FTP servers ( all in the same load balanced FTP farm )
+> 
+> ftp1 # egrep -c "hw tcp v4 csum failed" /var/log/kern.log
+> 1846
+> 
+> for the last 3 days.
+> 
+> The box is running 2.4.21-pre5.
+> 
+> Is this a known problem ? ( i've seen that driver 1.5 is available BTW)
+> or more likely a network issue ?
+> 
+> Thanks,
+> 
+> Philippe
+> 
+> _______________________________________________
+> Linux-PowerEdge mailing list
+> Linux-PowerEdge@dell.com
+> http://lists.us.dell.com/mailman/listinfo/linux-poweredge
+> Please read the FAQ at http://lists.us.dell.com/faq or search the list archives at http://lists.us.dell.com/htdig/

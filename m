@@ -1,116 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269613AbUJSXHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270156AbUJTHLA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269613AbUJSXHV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 19:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269615AbUJSXGw
+	id S270156AbUJTHLA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 03:11:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270148AbUJTHHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 19:06:52 -0400
-Received: from mail.kroah.org ([69.55.234.183]:63369 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270084AbUJSWqX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 18:46:23 -0400
-X-Fake: the user-agent is fake
-Subject: Re: [PATCH] PCI fixes for 2.6.9
-User-Agent: Mutt/1.5.6i
-In-Reply-To: <10982257383185@kroah.com>
-Date: Tue, 19 Oct 2004 15:42:18 -0700
-Message-Id: <10982257381647@kroah.com>
+	Wed, 20 Oct 2004 03:07:20 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:12461 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S270170AbUJTHA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 03:00:26 -0400
+Date: Wed, 20 Oct 2004 09:00:17 +0200
+From: Harald Welte <laforge@gnumonks.org>
+To: Jeff Chua <jeffchua@silk.corp.fedex.com>
+Cc: Stephen Hemminger <shemminger@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org, LARTC@mailman.ds9a.nl
+Subject: Re: [ANNOUNCE] iproute2 2.6.9-041019
+Message-ID: <20041020070017.GA19899@sunbeam.de.gnumonks.org>
+References: <41758014.4080502@osdl.org> <Pine.LNX.4.61.0410200805110.8475@boston.corp.fedex.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0410200805110.8475@boston.corp.fedex.com>
+User-Agent: Mutt/1.5.6+20040907i
+X-Spam-Score: -4.8 (----)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1997.37.52, 2004/10/06 13:46:10-07:00, paulus@samba.org
 
-[PATCH] PPC64: Add pcibios_remove_root_bus
+--+QahgC5+KEYLbs62
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-From: John Rose <johnrose@austin.ibm.com>
+On Wed, Oct 20, 2004 at 08:21:10AM +0800, Jeff Chua wrote:
+>=20
+> On Tue, 19 Oct 2004, Stephen Hemminger wrote:
+>=20
+> >Now that 2.6.9 is final. Here is an update of the iproute2 utilities that
+>=20
+>=20
+> can't compile Got the following error. Linux is 2.6.9. Gcc is 2.95.3.
 
-The following patch creates pcibios_remove_root_bus(), which performs
-the ppc64-specific actions for removal of PCI Host Bridges.  This call
-is invoked by the RPA DLPAR driver upon PHB removal.
+I'll take care of this. sorry fort he inconvenience.
 
-Signed-off-by: John Rose <johnrose@austin.ibm.com>
-Signed-off-by: Paul Mackerras <paulus@samba.org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+> Thanks,
+> Jeff.
 
+--=20
+- Harald Welte <laforge@gnumonks.org>               http://www.gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+Programming is like sex: One mistake and you have to support it your lifeti=
+me
 
- arch/ppc64/kernel/pSeries_pci.c |   48 ++++++++++++++++++++++++++++++++++++++++
- include/asm-ppc64/pci-bridge.h  |    2 +
- 2 files changed, 50 insertions(+)
+--+QahgC5+KEYLbs62
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-diff -Nru a/arch/ppc64/kernel/pSeries_pci.c b/arch/ppc64/kernel/pSeries_pci.c
---- a/arch/ppc64/kernel/pSeries_pci.c	2004-10-19 15:22:56 -07:00
-+++ b/arch/ppc64/kernel/pSeries_pci.c	2004-10-19 15:22:56 -07:00
-@@ -472,6 +472,54 @@
- 		remap_bus_range(hose->bus);
- }
- 
-+
-+/* RPA-specific bits for removing PHBs */
-+int pcibios_remove_root_bus(struct pci_controller *phb)
-+{
-+	struct pci_bus *b = phb->bus;
-+	struct resource *res;
-+	int rc, i;
-+
-+	res = b->resource[0];
-+	if (!res->flags) {
-+		printk(KERN_ERR "%s: no IO resource for PHB %s\n", __FUNCTION__,
-+				b->name);
-+		return 1;
-+	}
-+
-+	rc = unmap_bus_range(b);
-+	if (rc) {
-+		printk(KERN_ERR "%s: failed to unmap IO on bus %s\n",
-+			__FUNCTION__, b->name);
-+		return 1;
-+	}
-+
-+	if (release_resource(res)) {
-+		printk(KERN_ERR "%s: failed to release IO on bus %s\n",
-+				__FUNCTION__, b->name);
-+		return 1;
-+	}
-+
-+	for (i = 1; i < 3; ++i) {
-+		res = b->resource[i];
-+		if (!res->flags && i == 0) {
-+			printk(KERN_ERR "%s: no MEM resource for PHB %s\n",
-+				__FUNCTION__, b->name);
-+			return 1;
-+		}
-+		if (res->flags && release_resource(res)) {
-+			printk(KERN_ERR
-+			       "%s: failed to release IO %d on bus %s\n",
-+				__FUNCTION__, i, b->name);
-+			return 1;
-+		}
-+	}
-+
-+	list_del(&phb->list_node);
-+	return 0;
-+}
-+EXPORT_SYMBOL(pcibios_remove_root_bus);
-+
- static void __init pSeries_request_regions(void)
- {
- 	struct device_node *i8042;
-diff -Nru a/include/asm-ppc64/pci-bridge.h b/include/asm-ppc64/pci-bridge.h
---- a/include/asm-ppc64/pci-bridge.h	2004-10-19 15:22:56 -07:00
-+++ b/include/asm-ppc64/pci-bridge.h	2004-10-19 15:22:56 -07:00
-@@ -90,6 +90,8 @@
- extern void pci_process_bridge_OF_ranges(struct pci_controller *hose,
- 					 struct device_node *dev, int primary);
- 
-+extern int pcibios_remove_root_bus(struct pci_controller *phb);
-+
- /* Use this macro after the PCI bus walk for max performance when it
-  * is known that sysdata is correct.
-  */
+iD8DBQFBdg0BXaXGVTD0i/8RAglWAJ9cCOmYHE7pY2yG8wLtL+BH6Ps+vACaA9s3
+nEBgFCfKmTLjtgm+Dk5/X0I=
+=Scj1
+-----END PGP SIGNATURE-----
 
+--+QahgC5+KEYLbs62--

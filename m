@@ -1,114 +1,145 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272038AbRHVQBd>; Wed, 22 Aug 2001 12:01:33 -0400
+	id <S272039AbRHVQDd>; Wed, 22 Aug 2001 12:03:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272037AbRHVQBY>; Wed, 22 Aug 2001 12:01:24 -0400
-Received: from johnson.mail.mindspring.net ([207.69.200.177]:34093 "EHLO
-	johnson.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S272038AbRHVQBQ>; Wed, 22 Aug 2001 12:01:16 -0400
-Date: Wed, 22 Aug 2001 11:01:30 -0500
-From: Tim Walberg <twalberg@mindspring.com>
-To: Travis Shirk <travis@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Locking Up
-Message-ID: <20010822110130.A20693@mindspring.com>
-Reply-To: Tim Walberg <twalberg@mindspring.com>
-Mail-Followup-To: Tim Walberg <twalberg@mindspring.com>,
-	Travis Shirk <travis@pobox.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0108220938390.1152-100000@puddy.travisshirk.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OgqxwSJOaUobr8KG"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0108220938390.1152-100000@puddy.travisshirk.net> from Travis Shirk on 08/22/2001 10:46
-X-PGP-RSA-Key: 0x0C8BA2FD at www.pgp.com (pgp.ai.mit.edu)
-X-PGP-RSA-Fingerprint: FC08 4026 8A62 C72F 90A9 FA33 6EEA 542D
-X-PGP-DSS-Key: 0x6DAB2566 at www.pgp.com (pgp.ai.mit.edu)
-X-PGP-DSS-Fingerprint: 4E1B CD33 46D0 F383 1579  1CCA C3E5 9C8F 6DAB 2566
-X-URL: http://www.concentric.net/~twalberg
+	id <S272040AbRHVQDX>; Wed, 22 Aug 2001 12:03:23 -0400
+Received: from [217.10.198.166] ([217.10.198.166]:5760 "EHLO
+	www.igreconline.com") by vger.kernel.org with ESMTP
+	id <S272039AbRHVQDO>; Wed, 22 Aug 2001 12:03:14 -0400
+Date: Wed, 22 Aug 2001 19:07:36 +0300
+Message-Id: <200108221607.f7MG7a501809@www.igreconline.com>
+From: "Octavian Cerna" <tavy@igreconline.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Bug in sendto() causes OOPS when using RAW sockets
+X-Mailer: NeoMail 1.23
+X-IPAddress: 212.93.134.61
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=NEOMAIL_ATT_0.374205518121929"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
---OgqxwSJOaUobr8KG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+------=NEOMAIL_ATT_0.374205518121929
+Content-Type: text/plain; charset=iso-8859-2
 
-Not much help debugging it, but I can say I've seen the same
-thing numerous times on kernels 2.4.[4678] and various -ac
-patches (as well as stock kernels). I've tried disabling certain
-"newer" features (kernel pppoe for example) and upgrading some
-of the other software on the box that was suspect due to it being
-relatively active at the time of crash (samba, X, etc.) but have
-had no luck yet. I wish I had a serial console to plug in to
-see if that turned anything up, because SysRQ doesn't even respond.
+ 
+Hi,
+ 
+Studying the implementation of raw IPv4 sockets I found that calling
+sendto() on a raw socket with a NULL socket address generates a kernel
+OOPS.
+ 
+I checked this on kernel 2.4.3, but I also checked the sources in CVS on
+vger -- the bug is still there.
+ 
+The problem is that raw_sendmsg() in net/ipv4/raw.c blindly assumes that
+msg_name is valid if msg_namelen is non-zero. I found that sys_sendto()
+doesn't  correctly build the msghdr structure if the socket address is
+NULL.
+ 
+I attached a small patch to fix this issue, a C program for testing the
+problem and my OOPS log.
+ 
+ 
+Best Regards,
+ 
+Octavian Cerna
+IGREC Labs
 
-On a lighter note, I'm currently running 2.4.8-ac2, and while
-the problem isn't gone, it does seem to be less frequent, so I'm
-thinking I might try moving to a later 2.4.8-ac or even 2.4.9 if
-I get the time this weekend.
+------=NEOMAIL_ATT_0.374205518121929
+Content-Type: application/octet-stream;
+	name="sendto.diff"
+Content-Transfer-Encoding: base64
 
-I didn't see this at all on 2.4.2, which I ran for a couple
-months, so my guess is it's related to something that changed
-in 2.4.3 (which I skipped) and 2.4.4, but I haven't had the time
-to even consider an exhaustive search through all those possibilities.
+LS0tIGxpbnV4LW9yaWcvbmV0L3NvY2tldC5jCVN1biBBcHIgMjkgMjE6MjU6NTEgMjAwMQorKysg
+bGludXgvbmV0L3NvY2tldC5jCVdlZCBBdWcgMjIgMTg6MDA6NDEgMjAwMQpAQCAtMTIwMywxMyAr
+MTIwMywxNCBAQAogCW1zZy5tc2dfaW92bGVuPTE7CiAJbXNnLm1zZ19jb250cm9sPU5VTEw7CiAJ
+bXNnLm1zZ19jb250cm9sbGVuPTA7Ci0JbXNnLm1zZ19uYW1lbGVuPWFkZHJfbGVuOworCW1zZy5t
+c2dfbmFtZWxlbj0wOwogCWlmKGFkZHIpCiAJewogCQllcnIgPSBtb3ZlX2FkZHJfdG9fa2VybmVs
+KGFkZHIsIGFkZHJfbGVuLCBhZGRyZXNzKTsKIAkJaWYgKGVyciA8IDApCiAJCQlnb3RvIG91dF9w
+dXQ7CiAJCW1zZy5tc2dfbmFtZT1hZGRyZXNzOworCQltc2cubXNnX25hbWVsZW49YWRkcl9sZW47
+CiAJfQogCWlmIChzb2NrLT5maWxlLT5mX2ZsYWdzICYgT19OT05CTE9DSykKIAkJZmxhZ3MgfD0g
+TVNHX0RPTlRXQUlUOwo=
 
-Good luck, and let me know if you find anything...
+------=NEOMAIL_ATT_0.374205518121929
+Content-Type: application/octet-stream;
+	name="sendto.c"
+Content-Transfer-Encoding: base64
 
-				tw
+I2luY2x1ZGUgPHN5cy9zb2NrZXQuaD4KI2luY2x1ZGUgPG5ldGluZXQvaW4uaD4KI2luY2x1ZGUg
+PHN0ZGlvLmg+CiNpbmNsdWRlIDxlcnJuby5oPgoKaW50IG1haW4gKCkKewogIGNoYXIgYnVmZmVy
+WzY0XTsgIAogIGludCBmZCA9IHNvY2tldCAoUEZfSU5FVCwgU09DS19SQVcsIElQUFJPVE9fUkFX
+KTsKICBpZiAoZmQgPCAwKQogICAgewogICAgICBmcHJpbnRmIChzdGRlcnIsICJDYW4ndCBjcmVh
+dGUgcmF3IHNvY2tldDogJXNcbiIsIHN0cmVycm9yIChlcnJubykpOwogICAgICByZXR1cm4gMTsK
+ICAgIH0KICAgIAogIC8qIE9uIGEgYnVnZ3kga2VybmVsIHRoZSBuZXh0IGxpbmUgZ2VuZXJhdGVz
+IGFuIG9vcHMsIAogICAgIG9uIGEgZml4ZWQga2VybmVsIGl0IHJldHVybnMgLTEgd2l0aCBlcnJu
+byA9PSBFSU5WQUwuICovCiAgc2VuZHRvIChmZCwgYnVmZmVyLCA2NCwgMCwgTlVMTCwgMTYpOyAg
+CiAgcHJpbnRmICgic2VuZHRvKCkgPT4gJXNcbiIsIHN0cmVycm9yIChlcnJubykpOwogIAogIGNs
+b3NlIChmZCk7Cn0K
 
-On 08/22/2001 09:46 -0600, Travis Shirk wrote:
->>	Hello,
->>=09
->>	Ever since I upgraded to the 2.4.x (currently running 2.4.8)
->>	kernels, my machine has been locking up every other day
->>	or so.  Does anyone have any hints/tips for figuring out
->>	what is going on.
->>=09
->>	The symptons are total lock-up of the machine.  No mouse
->>	movement, all GUI monoitors freeze, and I cannot switch to a
->>	virtual console.  I'm not able to ping the locked machine or
->>	ssh/telnet into it either.  So I'm left wondering....how and
->>	the hell to I debug this problem.  It'd be nice to have some
->>	more information to go on or post to the list.
->>=09
->>	I'm running on a dual PIII 850, and this problem occurs with
->>	2.4.7 and 2.4.8.
->>=09
->>	Any suggestions?
->>=09
->>	Travis
->>=09
->>	--=20
->>	Travis Shirk <travis at pobox dot com>
->>	Mathematics is God and Knuth is our prophet.
->>=09
->>	-
->>	To unsubscribe from this list: send the line "unsubscribe linux-kernel" =
-in
->>	the body of a message to majordomo@vger.kernel.org
->>	More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>	Please read the FAQ at  http://www.tux.org/lkml/
-End of included message
+------=NEOMAIL_ATT_0.374205518121929
+Content-Type: application/octet-stream;
+	name="sendto.oops"
+Content-Transfer-Encoding: base64
 
+QXVnIDIyIDE1OjU1OjE4IGxvY2FsaG9zdCBrZXJuZWw6ICA8MT5VbmFibGUgdG8gaGFuZGxlIGtl
+cm5lbCBOVUxMIHBvaW50ZXIgZGVyZWZlcmVuY2UgYXQgdmlydHVhbCBhZGRyZXNzIDAwMDAwMDAw
+CkF1ZyAyMiAxNTo1NToxOCBsb2NhbGhvc3Qga2VybmVsOiBjMDIwMjA1NgpBdWcgMjIgMTU6NTU6
+MTggbG9jYWxob3N0IGtlcm5lbDogT29wczogMDAwMApBdWcgMjIgMTU6NTU6MTggbG9jYWxob3N0
+IGtlcm5lbDogQ1BVOiAgICAwCkF1ZyAyMiAxNTo1NToxOCBsb2NhbGhvc3Qga2VybmVsOiBFSVA6
+ICAgIDAwMTA6W3Jhd19zZW5kbXNnKzg2LzcyMF0KQXVnIDIyIDE1OjU1OjE4IGxvY2FsaG9zdCBr
+ZXJuZWw6IEVJUDogICAgMDAxMDpbPGMwMjAyMDU2Pl0KQXVnIDIyIDE1OjU1OjE4IGxvY2FsaG9z
+dCBrZXJuZWw6IEVGTEFHUzogMDAwMTAyMTIKQXVnIDIyIDE1OjU1OjE4IGxvY2FsaG9zdCBrZXJu
+ZWw6IGVheDogMDAwMDAwMTAgICBlYng6IDAwMDAwMDAwICAgZWN4OiAwMDAwMDAwMCAgIGVkeDog
+Y2MyYzdlY2MKQXVnIDIyIDE1OjU1OjE4IGxvY2FsaG9zdCBrZXJuZWw6IGVzaTogY2ZhMGJkZDgg
+ICBlZGk6IGMwN2JiODQwICAgZWJwOiBjZmEwYmRkOCAgIGVzcDogY2ZhMGJjZTgKQXVnIDIyIDE1
+OjU1OjE4IGxvY2FsaG9zdCBrZXJuZWw6IGRzOiAwMDE4ICAgZXM6IDAwMTggICBzczogMDAxOApB
+dWcgMjIgMTU6NTU6MTggbG9jYWxob3N0IGtlcm5lbDogUHJvY2VzcyBzZW5kdG8gKHBpZDogMTIx
+NzUsIHN0YWNrcGFnZT1jZmEwYjAwMCkKQXVnIDIyIDE1OjU1OjE4IGxvY2FsaG9zdCBrZXJuZWw6
+IFN0YWNrOiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMiBjYjQ4MzljMCAwMDAwMDAwMSAwMDAw
+MDAwMCAwODA0ODAwMCBjM2EyOWJjMCAKQXVnIDIyIDE1OjU1OjE4IGxvY2FsaG9zdCBrZXJuZWw6
+ICAgICAgICA0MDAwMDAwMCBjZmEwYmQ1NCAwMDAwMDMwNyAwMDAwMTQyZCAwMzA3MDAwMCBjMDE4
+MjE2MyBjZmEwYmQ1NCBjZmYxNWMwMCAKQXVnIDIyIDE1OjU1OjE4IGxvY2FsaG9zdCBrZXJuZWw6
+ICAgICAgICAwMDAwMDMwNyAwMDAwMTQyZCAwMzA3MmZmZSAwMDAwMjAzMyBjZmEwYmUzOCBjMDEz
+ODc0NiAwMDAwMDMwNyBjZmEwYmU0YyAKQXVnIDIyIDE1OjU1OjE4IGxvY2FsaG9zdCBrZXJuZWw6
+IENhbGwgVHJhY2U6IFtqb3VybmFsX2VuZCsxOS8zMl0gW2JyZWFkKzIyLzExMl0gW2luZXRfc2Vu
+ZG1zZys1MS82NF0gW3N5c19zZW5kdG8rMzkzLzQ0OF0gW3ZzcHJpbnRmKzkwOC85NjBdIApBdWcg
+MjIgMTU6NTU6MTggbG9jYWxob3N0IGtlcm5lbDogQ2FsbCBUcmFjZTogWzxjMDE4MjE2Mz5dIFs8
+YzAxMzg3NDY+XSBbPGMwMjA4ZDgzPl0gWzxjMDFkNDVhOT5dIFs8YzAyMTFjYmM+XSAKQXVnIDIy
+IDE1OjU1OjE4IGxvY2FsaG9zdCBrZXJuZWw6ICAgIFs8YzAxNDg5NzQ+XSBbPGMwMjExZDAyPl0g
+WzxjMDFkMzY5ZD5dIFs8YzAxMmVhY2I+XSBbPGMwMWQ1MDYzPl0gWzxjMDEyNDQ0ND5dIApBdWcg
+MjIgMTU6NTU6MTggbG9jYWxob3N0IGtlcm5lbDogICAgWzxjMDE0YWRiYT5dIFs8YzAxMTJlYzA+
+XSBbPGMwMTEzMDFhPl0gWzxmZmZmMDAwMT5dIFs8YzAxMGJkMTQ+XSBbPGMwMTMzZTU2Pl0gCkF1
+ZyAyMiAxNTo1NToxOCBsb2NhbGhvc3Qga2VybmVsOiAgICBbPGMwMTA2ZDgzPl0gCkF1ZyAyMiAx
+NTo1NToxOCBsb2NhbGhvc3Qga2VybmVsOiBDb2RlOiA2NiA4MyAzYiAwMiA3NCAzNiBhMSBjMCBl
+OSAyYSBjMCA0MCBhMyBjMCBlOSAyYSBjMCA0OCA3NSAxOSAKCj4+RUlQOyBjMDIwMjA1NiA8cmF3
+X3NlbmRtc2crNTYvMmQwPiAgIDw9PT09PQpUcmFjZTsgYzAxODIxNjMgPGpvdXJuYWxfZW5kKzEz
+LzIwPgpUcmFjZTsgYzAxMzg3NDYgPGJyZWFkKzE2LzcwPgpUcmFjZTsgYzAyMDhkODMgPGluZXRf
+c2VuZG1zZyszMy80MD4KVHJhY2U7IGMwMWQ0NWE5IDxzeXNfc2VuZHRvKzE4OS8xYzA+ClRyYWNl
+OyBjMDIxMWNiYyA8dnNwcmludGYrMzhjLzNjMD4KVHJhY2U7IGMwMTQ4OTc0IDxkX2FsbG9jKzE0
+LzE3MD4KVHJhY2U7IGMwMjExZDAyIDxzcHJpbnRmKzEyLzIwPgpUcmFjZTsgYzAxZDM2OWQgPHNv
+Y2tfbWFwX2ZkK2VkLzE2MD4KVHJhY2U7IGMwMTJlYWNiIDxfX2FsbG9jX3BhZ2VzKzZiLzM0MD4K
+VHJhY2U7IGMwMWQ1MDYzIDxzeXNfc29ja2V0Y2FsbCszNzMvNjQwPgpUcmFjZTsgYzAxMjQ0NDQg
+PGhhbmRsZV9tbV9mYXVsdCs2NC9kMD4KVHJhY2U7IGMwMTRhZGJhIDxfX21hcmtfaW5vZGVfZGly
+dHkrMmEvNzA+ClRyYWNlOyBjMDExMmVjMCA8ZG9fcGFnZV9mYXVsdCswLzUyMD4KVHJhY2U7IGMw
+MTEzMDFhIDxkb19wYWdlX2ZhdWx0KzE1YS81MjA+ClRyYWNlOyBmZmZmMDAwMSA8RU5EX09GX0NP
+REUrMmY1YmYyZmIvPz8/Pz4KVHJhY2U7IGMwMTBiZDE0IDxvbGRfbW1hcCtmNC8xMzA+ClRyYWNl
+OyBjMDEzM2U1NiA8c3lzX2Nsb3NlKzg2L2EwPgpUcmFjZTsgYzAxMDZkODMgPHN5c3RlbV9jYWxs
+KzMzLzM4PgpDb2RlOyAgYzAyMDIwNTYgPHJhd19zZW5kbXNnKzU2LzJkMD4KMDAwMDAwMDAgPF9F
+SVA+OgpDb2RlOyAgYzAyMDIwNTYgPHJhd19zZW5kbXNnKzU2LzJkMD4gICA8PT09PT0KICAgMDog
+ICA2NiA4MyAzYiAwMiAgICAgICAgICAgICAgIGNtcHcgICAkMHgyLCglZWJ4KSAgIDw9PT09PQpD
+b2RlOyAgYzAyMDIwNWEgPHJhd19zZW5kbXNnKzVhLzJkMD4KICAgNDogICA3NCAzNiAgICAgICAg
+ICAgICAgICAgICAgIGplICAgICAzYyA8X0VJUCsweDNjPiBjMDIwMjA5MiA8cmF3X3NlbmRtc2cr
+OTIvMmQwPgpDb2RlOyAgYzAyMDIwNWMgPHJhd19zZW5kbXNnKzVjLzJkMD4KICAgNjogICBhMSBj
+MCBlOSAyYSBjMCAgICAgICAgICAgIG1vdiAgICAweGMwMmFlOWMwLCVlYXgKQ29kZTsgIGMwMjAy
+MDYxIDxyYXdfc2VuZG1zZys2MS8yZDA+CiAgIGI6ICAgNDAgICAgICAgICAgICAgICAgICAgICAg
+ICBpbmMgICAgJWVheApDb2RlOyAgYzAyMDIwNjIgPHJhd19zZW5kbXNnKzYyLzJkMD4KICAgYzog
+ICBhMyBjMCBlOSAyYSBjMCAgICAgICAgICAgIG1vdiAgICAlZWF4LDB4YzAyYWU5YzAKQ29kZTsg
+IGMwMjAyMDY3IDxyYXdfc2VuZG1zZys2Ny8yZDA+CiAgMTE6ICAgNDggICAgICAgICAgICAgICAg
+ICAgICAgICBkZWMgICAgJWVheApDb2RlOyAgYzAyMDIwNjggPHJhd19zZW5kbXNnKzY4LzJkMD4K
+ICAxMjogICA3NSAxOSAgICAgICAgICAgICAgICAgICAgIGpuZSAgICAyZCA8X0VJUCsweDJkPiBj
+MDIwMjA4MyA8cmF3X3NlbmRtc2crODMvMmQwPgoK
 
-
---=20
-twalberg@mindspring.com
-
---OgqxwSJOaUobr8KG
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: PGP 6.5.1i
-
-iQA/AwUBO4PXV8PlnI9tqyVmEQLCyQCg1xDoAS5EEf87cvsc9bkw2471nXcAoPLR
-ILkEn4onP75h/M8bgNQKMzCy
-=sRdc
------END PGP SIGNATURE-----
-
---OgqxwSJOaUobr8KG--
+------=NEOMAIL_ATT_0.374205518121929--

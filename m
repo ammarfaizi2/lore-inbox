@@ -1,56 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262829AbUCPKnN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 05:43:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbUCPKnN
+	id S262774AbUCPKqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 05:46:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263441AbUCPKqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 05:43:13 -0500
-Received: from fw.osdl.org ([65.172.181.6]:57811 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262829AbUCPKnJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 05:43:09 -0500
-Date: Tue, 16 Mar 2004 02:43:09 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Kristian Soerensen <ks@cs.auc.dk>
+	Tue, 16 Mar 2004 05:46:24 -0500
+Received: from zwering.adsl.utwente.nl ([130.89.225.193]:2193 "EHLO
+	arzie-2.adsl.utwente.nl") by vger.kernel.org with ESMTP
+	id S262774AbUCPKqW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 05:46:22 -0500
+Message-ID: <4056DAFD.6020902@dds.nl>
+Date: Tue, 16 Mar 2004 11:46:21 +0100
+From: Robert Zwerus <arzie@dds.nl>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040308)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: torvalds@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] Recovering ext3 - recovery.c: assertion failed,
- attempted to kill init
-Message-Id: <20040316024309.53da4f50.akpm@osdl.org>
-In-Reply-To: <1079430906.19929.10.camel@homer.cs.auc.dk>
-References: <1079430906.19929.10.camel@homer.cs.auc.dk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] Trivial spelling corrections to arch/i386/Kconfig
+Content-Type: multipart/mixed;
+ boundary="------------020007030500040701020105"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kristian Soerensen <ks@cs.auc.dk> wrote:
->
-> After (hard) power cycling a computer, running linux-2.6.3*, the
->  filsystem (ext3) sould be recovered at boot. However I get the following
->  message from the kernel. I have tried booting the redhat
->  kernel-2.4.20-30.9 - but with the same result.
-> 
->  * The kernel was patched with our Umbrella LSM module, but however _no_
->  changes were made to the filesystem.
-> 
-> ...
-> 
->  Assertion failure in jread() at fs/jbd/recovery.c:140: "offset <
->  journal->j_maxlen"
+This is a multi-part message in MIME format.
+--------------020007030500040701020105
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-A wrecked journal superblock or log block.  Never seen that before.
+Hi Linus and kernel folks,
 
-See if e2fsck can fix it up.  If not, see if you can get e2fsck to remove
-the journal with
+Attached a patch with some spelling corrections. Please merge, thanks!
+-- 
+A Dieu,
+  Robert Zwerus - e-mail: arzie@dds.nl
+  ICQ UIN: 3943443 - MSN: robert_zwerus@hotmail.com
 
-	tune2fs -O ^has_journal /dev/hdXX
+--------------020007030500040701020105
+Content-Type: text/x-patch;
+ name="arch_i386_Kconfig.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="arch_i386_Kconfig.patch"
 
-then fsck it, then create a new journal with
+--- Kconfig.orig	2004-03-16 11:39:00.953920334 +0100
++++ Kconfig	2004-03-16 11:35:58.698807155 +0100
+@@ -837,12 +837,12 @@ config EFI
+ 	kernel should continue to boot on existing non-EFI platforms.
+ 
+ config IRQBALANCE
+- 	bool "Enable kernel irq balancing"
++ 	bool "Enable kernel IRQ balancing"
+ 	depends on SMP && X86_IO_APIC
+ 	default y
+ 	help
+- 	  The defalut yes will allow the kernel to do irq load balancing.
+-	  Saying no will keep the kernel from doing irq load balancing.
++ 	  The default yes will allow the kernel to do IRQ load balancing.
++	  Saying no will keep the kernel from doing IRQ load balancing.
+ 
+ config HAVE_DEC_LOCK
+ 	bool
+@@ -861,7 +861,7 @@ config REGPARM
+ 	depends on EXPERIMENTAL
+ 	default n
+ 	help
+-	Compile the kernel with -mregparm=3. This uses an different ABI
++	Compile the kernel with -mregparm=3. This uses a different ABI
+ 	and passes the first three arguments of a function call in registers.
+ 	This will probably break binary only modules.
+ 
 
-	tune2fs -j /dev/hdXX
-
-As for the assertion failure: yes, that's fairly bad form.  I'll fix that
-up to simply fail the mount.
-
+--------------020007030500040701020105--

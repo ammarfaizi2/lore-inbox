@@ -1,73 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261450AbSJIH7M>; Wed, 9 Oct 2002 03:59:12 -0400
+	id <S261415AbSJIH4w>; Wed, 9 Oct 2002 03:56:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261456AbSJIH7L>; Wed, 9 Oct 2002 03:59:11 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:13835 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261450AbSJIH7K>; Wed, 9 Oct 2002 03:59:10 -0400
-Date: Wed, 9 Oct 2002 09:04:44 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: =?iso-8859-1?Q?Nicol=E1s_Lichtmaier?= <nick@technisys.com.ar>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.41 does not build: 8250.c: icount has incomplete type.
-Message-ID: <20021009090444.A18753@flint.arm.linux.org.uk>
-References: <3DA3DFE5.5060507@technisys.com.ar>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DA3DFE5.5060507@technisys.com.ar>; from nick@technisys.com.ar on Wed, Oct 09, 2002 at 04:51:01AM -0300
+	id <S261450AbSJIH4w>; Wed, 9 Oct 2002 03:56:52 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:46979 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S261415AbSJIH4v>;
+	Wed, 9 Oct 2002 03:56:51 -0400
+Date: Wed, 9 Oct 2002 10:12:50 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.40-mm2
+In-Reply-To: <3DA30B28.8070504@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0210091009020.6815-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 09, 2002 at 04:51:01AM -0300, Nicolás Lichtmaier wrote:
->     gcc -Wp,-MD,drivers/serial/.8250.o.d -D__KERNEL__ -Iinclude -Wall
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
-> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
-> -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include
-> -DMODULE   -DKBUILD_BASENAME=8250 -DEXPORT_SYMTAB  -c -o
-> drivers/serial/8250.o drivers/serial/8250.c
-> In file included from drivers/serial/8250.c:34:
-> include/linux/serialP.h:50: field `icount' has incomplete type
-> make[3]: *** [drivers/serial/8250.o] Error 1
-> make[2]: *** [drivers/serial] Error 2
-> make[1]: *** [drivers] Error 2
-> make[1]: Leaving directory `/home/nick/soft/linux-2.5.41'
-> make: *** [stamp-build] Error 2
 
-This should fix it.  Committing and sending this patch is currently
-waiting on Hu Gang to confirm that the second hunk fixes his problem.
+On Tue, 8 Oct 2002, Dave Hansen wrote:
 
-I'm working towards getting rid of serialP.h in 8250.c; its been the
-cause of several problems that have configuration-specific thus far.
-We really shouldn't need anything from that header.
+> Hehe.  That'll teach me to be optimistic.  This is unprocessed, but the
+> EIP in tvec_bases should tell the whole story.  Something _nasty_ is
+> going on.
 
-===== drivers/serial/8250.c 1.13 vs edited =====
---- 1.13/drivers/serial/8250.c	Sun Oct  6 00:01:53 2002
-+++ edited/drivers/serial/8250.c	Wed Oct  9 09:00:53 2002
-@@ -31,8 +31,8 @@
- #include <linux/console.h>
- #include <linux/sysrq.h>
- #include <linux/serial_reg.h>
--#include <linux/serialP.h>
- #include <linux/serial.h>
-+#include <linux/serialP.h>
- #include <linux/delay.h>
+could you try BK-curr with/without my latest patch? Linus and Vojtech
+found and fixed a bug in the keyboard code that caused timer tasklet
+oopses.
+
+if it still keeps crashing then please add a printk like this:
+
+	if (!fn)
+		printk("Bad: NULL timer fn of timer %p (data %p).\n", 
+				timer, data);
+	else
+		fn(data)
+
+it's the fn's NULL-ness that causes the crashes, right?
+
+	Ingo
+
+--- linux/kernel/timer.c.orig	2002-10-08 12:39:46.000000000 +0200
++++ linux/kernel/timer.c	2002-10-08 12:49:50.000000000 +0200
+@@ -266,29 +266,31 @@
+ int del_timer_sync(timer_t *timer)
+ {
+ 	tvec_base_t *base = tvec_bases;
+-	int i, ret;
++	int i, ret = 0;
  
- #include <asm/io.h>
-@@ -1635,7 +1635,7 @@
- 	if (up->port.type != PORT_RSA && res_rsa)
- 		release_resource(res_rsa);
+-	ret = del_timer(timer);
++del_again:
++	ret += del_timer(timer);
  
--	if (up->port.type == PORT_UNKNOWN)
-+	if (up->port.type == PORT_UNKNOWN && res_std)
- 		release_resource(res_std);
+-	for (i = 0; i < NR_CPUS; i++) {
++	for (i = 0; i < NR_CPUS; i++, base++) {
+ 		if (!cpu_online(i))
+ 			continue;
+ 		if (base->running_timer == timer) {
+ 			while (base->running_timer == timer) {
+ 				cpu_relax();
+-				preempt_disable();
+-				preempt_enable();
++				preempt_check_resched();
+ 			}
+ 			break;
+ 		}
+-		base++;
+ 	}
++	if (timer_pending(timer))
++		goto del_again;
++
+ 	return ret;
+ }
+ #endif
+ 
+ 
+-static void cascade(tvec_base_t *base, tvec_t *tv)
++static int cascade(tvec_base_t *base, tvec_t *tv)
+ {
+ 	/* cascade all the timers from tv up one level */
+ 	struct list_head *head, *curr, *next;
+@@ -310,7 +312,8 @@
+ 		curr = next;
+ 	}
+ 	INIT_LIST_HEAD(head);
+-	tv->index = (tv->index + 1) & TVN_MASK;
++
++	return tv->index = (tv->index + 1) & TVN_MASK;
  }
  
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+ /***
+@@ -322,26 +325,18 @@
+  */
+ static inline void __run_timers(tvec_base_t *base)
+ {
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&base->lock, flags);
++	spin_lock_irq(&base->lock);
+ 	while ((long)(jiffies - base->timer_jiffies) >= 0) {
+ 		struct list_head *head, *curr;
+ 
+ 		/*
+ 		 * Cascade timers:
+ 		 */
+-		if (!base->tv1.index) {
+-			cascade(base, &base->tv2);
+-			if (base->tv2.index == 1) {
+-				cascade(base, &base->tv3);
+-				if (base->tv3.index == 1) {
+-					cascade(base, &base->tv4);
+-					if (base->tv4.index == 1)
+-						cascade(base, &base->tv5);
+-				}
+-			}
+-		}
++		if (!base->tv1.index &&
++			(cascade(base, &base->tv2) == 1) &&
++				(cascade(base, &base->tv3) == 1) &&
++					cascade(base, &base->tv4) == 1)
++			cascade(base, &base->tv5);
+ repeat:
+ 		head = base->tv1.vec + base->tv1.index;
+ 		curr = head->next;
+@@ -370,7 +365,7 @@
+ #if CONFIG_SMP
+ 	base->running_timer = NULL;
+ #endif
+-	spin_unlock_irqrestore(&base->lock, flags);
++	spin_unlock_irq(&base->lock);
+ }
+ 
+ /******************************************************************/
 

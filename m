@@ -1,56 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131669AbRDMURE>; Fri, 13 Apr 2001 16:17:04 -0400
+	id <S131733AbRDMUTf>; Fri, 13 Apr 2001 16:19:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131691AbRDMUQz>; Fri, 13 Apr 2001 16:16:55 -0400
-Received: from ike-ext.ab.videon.ca ([206.75.216.35]:15859 "HELO
-	ike-ext.ab.videon.ca") by vger.kernel.org with SMTP
-	id <S131669AbRDMUQi>; Fri, 13 Apr 2001 16:16:38 -0400
-Date: Fri, 13 Apr 2001 14:16:36 -0600 (MDT)
-From: Jason Gunthorpe <jgg@debian.org>
-To: Philippe Troin <phil@fifi.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Lost O_NONBLOCK (Bug?)
-In-Reply-To: <87wv8p70xb.fsf@tantale.fifi.org>
-Message-ID: <Pine.LNX.3.96.1010413141220.7113E-100000@wakko.deltatee.com>
+	id <S131691AbRDMUT0>; Fri, 13 Apr 2001 16:19:26 -0400
+Received: from dystopia.lab43.org ([209.217.122.210]:16078 "EHLO
+	dystopia.lab43.org") by vger.kernel.org with ESMTP
+	id <S131733AbRDMUTP>; Fri, 13 Apr 2001 16:19:15 -0400
+Date: Fri, 13 Apr 2001 16:16:58 -0400 (EDT)
+From: Rod Stewart <stewart@dystopia.lab43.org>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: <linux-kernel@vger.kernel.org>, Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: 8139too: defunct threads
+In-Reply-To: <3AD61258.4E8567D8@uow.edu.au>
+Message-ID: <Pine.LNX.4.33.0104131611400.8043-100000@dystopia.lab43.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 12 Apr 2001, Philippe Troin wrote:
+On Thu, 12 Apr 2001, Andrew Morton wrote:
+> Rod Stewart wrote:
+> >
+> > On Thu, 12 Apr 2001, Andrew Morton wrote:
+> > > Rod Stewart wrote:
+> > > >
+> > > > Hello,
+> > > >
+> > > > Using the 8139too driver, 0.9.15c, we have noticed that we get a defunct
+> > > > thread for each device we have; if the driver is built into the kernel.
+> > > > If the driver is built as a module, no defunct threads appear.
+> > >
+> > > What is the parent PID for the defunct tasks?  zero?
+> >
+> > According to ps, 1
+>
+> Ah.  Of course.  All (or most) kernel initialisation is
+> done by PID 1.  Search for "kernel_thread" in init/main.c
+>
+> So it seems that in your setup, process 1 is not reaping
+> children, which is why this hasn't been reported before.
+> Is there something unusual about your setup?
 
-> Apt I guess ? It has a very strange behavior when backgrounded...
+I found the difference which causes this.  If I build my kernel with
+IP_PNP (IP: kernel level autoconfiguration) support I get a defunt thread
+for each 8139too device.  If I don't build with IP_PNP support I don't get
+any, defunct ethernet threads.
 
-Not really, just want it tries to run dpkg it hangs.
+This make any sense?  Here is the relevant diff from a working config to a
+bad one:
+[root@stewart-nw34 conf]# diff -u config-p5-good config-p6-bad
+--- config-p5-good      Fri Apr 13 16:07:10 2001
++++ config-p6-bad       Fri Apr 13 16:12:21 2001
+@@ -173,7 +173,9 @@
+# CONFIG_IP_ROUTE_TOS is not set
+# CONFIG_IP_ROUTE_VERBOSE is not set
+# CONFIG_IP_ROUTE_LARGE_TABLES is not set
+-# CONFIG_IP_PNP is not set
++CONFIG_IP_PNP=y
++# CONFIG_IP_PNP_BOOTP is not set
++# CONFIG_IP_PNP_RARP is not set
+CONFIG_NET_IPIP=m
+CONFIG_NET_IPGRE=m
+# CONFIG_NET_IPGRE_BROADCAST is not set
 
-> > The last read was after the process was forgrounded. The read waits
-> > forever, the non-block flag seems to have gone missing. It is also a
-> > little odd I think that it repeated to get SIGTTIN which was never
-> > actually delivered to the program.. Shouldn't SIGTTIN suspend the process?
- 
-> Strace can perturbate signal delivery, especially for terminal-related
-> signals, I wouldn't trust it...
-
-I know, the problem still happens without strace.
-
-> O_NONBLOCK is not lost... Attempting to read from the controlling tty
-> even from a O_NONBLOCK descriptor will trigger SIGTTIN.
-
-I don't really care about the SIGTTIN, what bugs me is that the read that
-happens after the process has been foregrounded blocks - and that should
-not be.
-
-> Why not use tcflush(STDIN_FILENO, TCIFLUSH) rather than using
-> O_NONBLOCK ?
-
-Mm, thats probably better.
- 
-> But why would you want to flush stdin if you're in the background ?
-
-Well, overall, I don't even want to fork if I'm in the background. Getting
-suspsended before forking is perfectly fine.
-
-Jason
+Thanks,
+-Rms
 

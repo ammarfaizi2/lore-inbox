@@ -1,85 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264751AbUD2VOa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264733AbUD2VIA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264751AbUD2VOa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 17:14:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264700AbUD2VLe
+	id S264733AbUD2VIA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 17:08:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264644AbUD2UrB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 17:11:34 -0400
-Received: from fw.osdl.org ([65.172.181.6]:15331 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264868AbUD2VLE (ORCPT
+	Thu, 29 Apr 2004 16:47:01 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:30090 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S264981AbUD2UmB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 17:11:04 -0400
-Date: Thu, 29 Apr 2004 14:10:41 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Giuliano Colla <copeca@copeca.dsnet.it>
-cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-       hsflinux@lists.mbsi.ca, Rusty Russell <rusty@rustcorp.com.au>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [hsflinux] [PATCH] Blacklist binary-only modules lying about
- their license
-In-Reply-To: <40914C35.1030802@copeca.dsnet.it>
-Message-ID: <Pine.LNX.4.58.0404291404100.1629@ppc970.osdl.org>
-References: <408DC0E0.7090500@gmx.net> <40914C35.1030802@copeca.dsnet.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 29 Apr 2004 16:42:01 -0400
+Date: Thu, 29 Apr 2004 13:36:13 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: nickpiggin@yahoo.com.au, jgarzik@pobox.com, akpm@osdl.org,
+       brettspamacct@fastclick.com, linux-kernel@vger.kernel.org
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+Message-Id: <20040429133613.791f9f9b.pj@sgi.com>
+In-Reply-To: <200404292001.i3TK1BYe005147@eeyore.valparaiso.cl>
+References: <40904A84.2030307@yahoo.com.au>
+	<200404292001.i3TK1BYe005147@eeyore.valparaiso.cl>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> How on earth is the kernel supposed to know that for this one particular
+> job you don't care if it takes 3 hours instead of 10 minutes,
 
+I'd pay ten bucks (yeah, I'm a cheapskate) for an option that I could
+twiddle that would mark my nightly updatedb and backup jobs as ones to
+use reduced memory footprint (both for file caching and backing user
+virtual address space), even if it took much longer.
 
-On Thu, 29 Apr 2004, Giuliano Colla wrote:
-> 
-> Let's try not to be ridiculous, please.
+So, rather than protest in mock outrage that it's impossible for the
+kernel to know this, instead answer the question as stated in all
+seriousness ... well ... how _could_ the kernel know, and what _could_
+the kernel do if it knew.  What mechanism(s) would be needed so that
+the kernel could restrict a jobs memory usage?
 
-It's not abotu being ridiculous. It's about honoring peoples copyrights.
+Heh - indeed perhaps the answer is closer than I realize.  For SGI's big
+NUMA boxes, managing memory placement is sufficiently critical that we
+are inventing or encouraging ways (such as Andi Kleen's numa stuff) to
+control memory placement per node per job.  Perhaps this needs to be
+extended to portions of a node (this job can only use 1 Gb of the memory
+on that 2 Gb node) and to other memory uses (file cache, not just user
+space memory).
 
-> As an end user, if I buy a full fledged modem, I get some amount of 
-> proprietary, non GPL, code  which executes within the board or the 
-> PCMCIA card of the modem. The GPL driver may even support the 
-> functionality of downloading a new version of *proprietary* code into 
-> the flash Eprom of the device. The GPL linux driver interfaces with it, 
-> and all is kosher.
-
-Indeed. Everything is kosher, because the other piece of hardware and 
-software has _nothing_ to do with the kernel. It's not linked into it, it 
-cannot reasonably corrupt internal kernel data structures with random 
-pointer bugs, and in general you can think of firmware as part of the 
-_hardware_, not the software of the machine.
-
-> On the other hand, I have the misfortune of being stuck with a 
-> soft-modem, roughly the *same* proprietary code is provided as a binary 
-> file, and a linux driver (source provided) interfaces with it. In that 
-> case the kernel is flagged as "tainted".
-
-It is flagged as tainted, because your argument that it is "the same code" 
-is totally BOGUS AND UNTRUE!
-
-In the binary kernel module case, a bug in the code corrupts random data 
-structures, or accesses kernel internals without holding the proper locks, 
-or does a million other things wrong, BECAUSE A KERNEL MODULE IS VERY 
-INTIMATELY LINKED WITH THE KERNEL.
-
-A kernel module is _not_ a separate work, and can in _no_ way be seen as 
-"part of the hardware". It's very much a part of the _kernel_. And the 
-kernel developers require that such code be GPL'd so that it can be fixed, 
-or if there's a valid argument that it's not a derived work and not GPL'd, 
-then the kernel developers who have to support the end result mess most 
-definitely do need to know about the taint.
-
-You are not the first (and sadly, you likely won't be the last) person to 
-equate binary kernel modules with binary firmware. And I tell you that 
-such a comparison is ABSOLUTE CRAPOLA. There's a damn big difference 
-between running firmware on another chip behind a PCI bus, and linking 
-into the kernel directly.
-
-And if you don't see that difference, then you are either terminally 
-stupid, or you have some ulterior reason to claim that they are the same 
-case even though they clearly are NOT.
-
-> Can you honestly tell apart the two cases, if you don't make a it a case 
-> of "religion war"?
-
-It has absolutely nothing to do with religion.
-
-		Linus
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVDDVeY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVDDViz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261417AbVDDVeY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 17:34:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbVDDVcm
+	id S261413AbVDDViz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 17:38:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbVDDVby
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 17:32:42 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:57094 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261417AbVDDVPg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 17:15:36 -0400
-Date: Mon, 4 Apr 2005 23:15:31 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] create a kstrdup library function
-Message-ID: <20050404211531.GH4087@stusta.de>
-References: <42519911.508@grupopie.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42519911.508@grupopie.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 4 Apr 2005 17:31:54 -0400
+Received: from host201.dif.dk ([193.138.115.201]:6405 "EHLO
+	diftmgw2.backbone.dif.dk") by vger.kernel.org with ESMTP
+	id S261421AbVDDV3K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 17:29:10 -0400
+Date: Mon, 4 Apr 2005 23:31:35 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: David Howells <dhowells@redhat.com>
+Subject: [PATCH] no need to cast pointer to (void *) when passing it to
+ kfree()
+Message-ID: <Pine.LNX.4.62.0504042326220.2496@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains a small bug:
 
-<--  snip  -->
-
-...
-WARNING: /lib/modules/2.6.12-rc1-mm4/kernel/net/sunrpc/sunrpc.ko needs 
-unknown symbol kstrdup
-WARNING: /lib/modules/2.6.12-rc1-mm4/kernel/net/ipv6/ipv6.ko needs 
-unknown symbol kstrdup
-WARNING: /lib/modules/2.6.12-rc1-mm4/kernel/drivers/parport/parport.ko 
-needs unknown symbol kstrdup
-WARNING: /lib/modules/2.6.12-rc1-mm4/kernel/drivers/md/dm-mod.ko needs 
-unknown symbol kstrdup
-
-<--  snip  -->
+kfree() takes a void pointer argument, no need to cast.
 
 
-Obvious fix:
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+--- linux-2.6.12-rc1-mm4-orig/mm/nommu.c	2005-03-31 21:20:08.000000000 +0200
++++ linux-2.6.12-rc1-mm4/mm/nommu.c	2005-04-04 23:25:23.000000000 +0200
+@@ -761,7 +761,7 @@ static void put_vma(struct vm_area_struc
+ 			if (!(vma->vm_flags & (VM_IO | VM_SHARED)) && vma->vm_start) {
+ 				realalloc -= kobjsize((void *) vma->vm_start);
+ 				askedalloc -= vma->vm_end - vma->vm_start;
+-				kfree((void *) vma->vm_start);
++				kfree(vma->vm_start);
+ 			}
+ 
+ 			realalloc -= kobjsize(vma);
 
 
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.12-rc1-mm4-modular/lib/string.c.old	2005-04-04 23:07:33.000000000 +0200
-+++ linux-2.6.12-rc1-mm4-modular/lib/string.c	2005-04-04 23:09:50.000000000 +0200
-@@ -619,3 +619,4 @@
- 		memcpy(buf, s, len);
- 	return buf;
- }
-+EXPORT_SYMBOL(kstrdup);

@@ -1,90 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265824AbUFSFIB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265825AbUFSFUy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265824AbUFSFIB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 01:08:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265825AbUFSFIB
+	id S265825AbUFSFUy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 01:20:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265828AbUFSFUy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 01:08:01 -0400
-Received: from fw.osdl.org ([65.172.181.6]:6349 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265824AbUFSFH6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 01:07:58 -0400
-Date: Fri, 18 Jun 2004 22:02:53 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] save kernel version in .config file
-Message-Id: <20040618220253.6a7577f4.rddunlap@osdl.org>
-In-Reply-To: <20040619040717.GA32209@alpha.home.local>
-References: <20040617220651.0ceafa91.rddunlap@osdl.org>
-	<20040618053455.GF29808@alpha.home.local>
-	<20040618205602.GC4441@mars.ravnborg.org>
-	<20040618150535.6a421bdb.rddunlap@osdl.org>
-	<20040619040717.GA32209@alpha.home.local>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 19 Jun 2004 01:20:54 -0400
+Received: from mail017.syd.optusnet.com.au ([211.29.132.168]:12255 "EHLO
+	mail017.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265825AbUFSFUw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 01:20:52 -0400
+Message-ID: <40D3CD2D.5040004@kolivas.org>
+Date: Sat, 19 Jun 2004 15:20:45 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7a (X11/20040614)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.7-ck1
+References: <200406162122.51430.kernel@kolivas.org> <1087576093.2057.1.camel@teapot.felipe-alfaro.com> <200406191348.57383.kernel@kolivas.org>
+In-Reply-To: <200406191348.57383.kernel@kolivas.org>
+Content-Type: multipart/mixed;
+ boundary="------------000202020801010502030104"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Jun 2004 06:07:17 +0200 Willy Tarreau wrote:
+This is a multi-part message in MIME format.
+--------------000202020801010502030104
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-| On Fri, Jun 18, 2004 at 03:05:35PM -0700, Randy.Dunlap wrote:
-|  
-| > OK, I've added date, based on Sam's comments, but someone tell me,
-| > when/why does filesystem-timestamp not work for this?
-| 
-| Oh, there may be lots of reasons. The first one which comes to my mind is
-| when I archive several config files in a same directory, I rarely think
-| about adding '-a' to cp to preserve the dates. And when you're experimenting
-| with a kernel and you're at the 20th at the end of the day, the date in the
-| config file is often more reliable than yourself to keep track of what you
-| have tried.
+Con Kolivas wrote:
+> On Sat, 19 Jun 2004 02:28, Felipe Alfaro Solana wrote:
+> 
+>>On Wed, 2004-06-16 at 21:22 +1000, Con Kolivas wrote:
+>>
+>>>-----BEGIN PGP SIGNED MESSAGE-----
+>>>Hash: SHA1
+>>>
+>>>Patchset update. The focus of this patchset is on system responsiveness
+>>>with emphasis on desktops, but the scope of scheduler changes now makes
+>>>this patch suitable to servers as well.
+>>
+>>I've found some interaction problems between, what I think it's, the
+>>staircase scheduler and swsusp. With vanilla 2.6.7, swsusp is able to
+>>save ~9000 pages to disk in less than 5 seconds, where as 2.6.7-ck1
+>>takes more than 1 minute to save the same amount of pages when
+>>suspending to disk.
+> 
+> 
+> If you're using -ck1 it may even be the autoswappiness. Try disabling that and 
+> setting a static value for swappiness. If it still exhibits the problem then 
+> it's probably a bug somewhere in staircase. While the overall design is 
+> finished (it doesn't really lend itself to tuning), surely there are bugs I 
+> haven't sorted out even though there are no serious bugs or stability issues 
+> that have come up. I'm auditing the code as we speak.
 
-I see.
+You might want to try the attached patch which addresses an issue with 
+kernel threads that is going into staircase 7.1
 
-| Thanks,
-| Willy
-| 
-| PS: do you think this could be done easily to 2.4 too ?
+Con
 
-It's trivial for 'make menuconfig' (bash scripting) [below].
-OTOH, I won't look at the tcl/tk 'xconfig' stuff...
+--------------000202020801010502030104
+Content-Type: text/x-troff-man;
+ name="from-2.6.7-ck1_to_staircase7.1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="from-2.6.7-ck1_to_staircase7.1"
 
---
-~Randy
-
-
-
-linux-2.4.26
-
-Save kernel version and config file date in config file.
-
-diffstat:=
- scripts/Menuconfig |    5 +++++
- 1 files changed, 5 insertions(+)
-
-diff -Naurp ./scripts/Menuconfig~config_version ./scripts/Menuconfig
---- ./scripts/Menuconfig~config_version	2002-08-02 17:39:46.000000000 -0700
-+++ ./scripts/Menuconfig	2004-06-18 21:57:47.000000000 -0700
-@@ -1275,13 +1275,18 @@ save_configuration () {
+--- linux-2.6.7-ck2pre/kernel/sched.c	2004-06-19 15:12:15.280924354 +1000
++++ linux-2.6.7-ck1/kernel/sched.c	2004-06-19 14:58:08.000000000 +1000
+@@ -334,8 +334,7 @@ static int effective_prio(task_t *p)
  
- 	CONFIG=.tmpconfig
- 	CONFIG_H=.tmpconfig.h
-+	DATTIM=`date`
- 
- 	echo "#" >$CONFIG
- 	echo "# Automatically generated by make menuconfig: don't edit" >>$CONFIG
-+	echo "# Linux kernel version: $kernel_version" >>$CONFIG
-+	echo "# $DATTIM" >>$CONFIG
- 	echo "#" >>$CONFIG
- 
- 	echo "/*" >$CONFIG_H
- 	echo " * Automatically generated by make menuconfig: don't edit" >>$CONFIG_H
-+	echo " * Linux kernel version: $kernel_version" >>$CONFIG_H
-+	echo " * $DATTIM" >>$CONFIG_H
- 	echo " */" >>$CONFIG_H
- 	echo "#define AUTOCONF_INCLUDED" >> $CONFIG_H
- 
+ 	if (used_slice < first_slice)
+ 		return prio;
+-	if (p->mm)
+-		prio += 1 + (used_slice - first_slice) / rr;
++	prio += 1 + (used_slice - first_slice) / rr;
+ 	if (prio > MAX_PRIO - 2)
+ 		prio = MAX_PRIO - 2;
+ 	return prio;
+
+--------------000202020801010502030104--

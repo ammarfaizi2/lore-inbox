@@ -1,103 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316822AbSFIGDS>; Sun, 9 Jun 2002 02:03:18 -0400
+	id <S317564AbSFIGQn>; Sun, 9 Jun 2002 02:16:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317332AbSFIGDR>; Sun, 9 Jun 2002 02:03:17 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:31238 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S316822AbSFIGDQ>;
-	Sun, 9 Jun 2002 02:03:16 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200206090603.g5963FA458690@saturn.cs.uml.edu>
-Subject: Re: [patch] fat/msdos/vfat crud removal
-To: hirofumi@mail.parknet.co.jp (OGAWA Hirofumi)
-Date: Sun, 9 Jun 2002 02:03:15 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org, chaffee@cs.berkeley.edu
-In-Reply-To: <87d6v1doq3.fsf@devron.myhome.or.jp> from "OGAWA Hirofumi" at Jun 09, 2002 02:07:32 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S317565AbSFIGQm>; Sun, 9 Jun 2002 02:16:42 -0400
+Received: from [209.237.59.50] ([209.237.59.50]:51908 "EHLO
+	zinfandel.topspincom.com") by vger.kernel.org with ESMTP
+	id <S317564AbSFIGQm>; Sun, 9 Jun 2002 02:16:42 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PCI DMA to small buffers on cache-incoherent arch
+In-Reply-To: <52lm9p9tdz.fsf@topspin.com>
+	<20020608.175325.63815788.davem@redhat.com>
+	<52d6v19r9n.fsf@topspin.com>
+	<20020608.222903.122223122.davem@redhat.com>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 08 Jun 2002 23:16:38 -0700
+Message-ID: <528z5p9dtl.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi writes:
-> "Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
->> OGAWA Hirofumi writes:
->>> "Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
+>>>>> "David" == David S Miller <davem@redhat.com> writes:
 
->>>> - * Conversion from and to little-endian byte order. (no-op on i386/i486)
->>>> - *
->>>> - * Naming: Ca_b_c, where a: F = from, T = to, b: LE = little-endian,
->>>> - * BE = big-endian, c: W = word (16 bits), L = longword (32 bits)
->>>> - */
->>>> -
->>>> -#define CF_LE_W(v) le16_to_cpu(v)
->>>> -#define CF_LE_L(v) le32_to_cpu(v)
->>>> -#define CT_LE_W(v) cpu_to_le16(v)
->>>> -#define CT_LE_L(v) cpu_to_le32(v)
->>>
->>> Personally I think this patch makes code readable. But please don't
->>> remove Cx_LE_x macros. Cx_LE_x is used from dosfsck.
->>
->> Then the macros should be put in dosfsck, which is not
->> part of the kernel.
->
-> Why do we throw away backward compatible?
+    Roland> Just to make sure I'm reading this correctly, you're
+    Roland> saying that as long as a buffer is OK for DMA, it should
+    Roland> be OK to use a sub-cache-line chunk as a DMA buffer via
+    Roland> pci_map_single(), and accessing the rest of the cache line
+    Roland> should be OK at any time before, during and after the DMA.
+   
+    David> Yes.
+   
+    Roland> What alternate implementation are you proposing?
 
-1. app source code isn't supposed to use raw kernel headers
-2. existing executables are not affected
-3. the 2.5.xx series has already broken much more
-4. it's crud for the kernel; it's crud for user code
-5. the kernel shouldn't contain misc. user app code
+    David> For non-cacheline aligned chunks in the range "start" to
+    David> "end" you must perform a cache writeback and invalidate. To
+    David> preserve the data outside of the DMA range.
 
->>> -	logical_sector_size =
->>> -		le16_to_cpu(get_unaligned((unsigned short *) &b->sector_size));
->>> +	logical_sector_size = le16_to_cpu(get_unaligned((u16*)&b->sector_size));
->>
->> I notice lots of casts in the code. It would be better to
->> use the correct types to begin with.
->
-> No, this field is aliment problem.
+Doesn't this still have a problem if you touch data in the same cache
+line as the DMA buffer after the pci_map but before the DMA takes
+place?  The CPU will pull the cache line back in and it might not see
+the data the DMA brought in.
 
-Use the packed attribute on the struct, along with
-the right types. I don't think you need get_unaligned
-with a packed struct, because gcc will know that it
-needs to emit code for unaligned data.
+It seems to me that to be totally safe, pci_unmap would have to save
+the non-aligned part outside the buffer to temporary storage, do an
+invalidate, and then copy back the non-aligned part.
 
-At the very least you can get rid of the cast.
+In any case if this is what pci_map is supposed to do then we have to
+fix up several architectures at least...
 
-Before:
-logical_sector_size = le16_to_cpu(get_unaligned((u16*)&b->sector_size));
-
-After:
-logical_sector_size = le16_to_cpu(b->sector_size);
-
-The new struct:
-
-/* Note the end: __attribute__ ((packed)) */
-struct fat_boot_sector {
-        char    ignored[3];     /* Boot strap short or near jump */
-        __u64   system_id;      /* Name - can be used to special case
-                                   partition manager volumes */
-        __u16   sector_size;    /* bytes per logical sector */
-        __u8    cluster_size;   /* sectors/cluster */
-        __u16   reserved;       /* reserved sectors */
-        __u8    fats;           /* number of FATs */
-        __u16   dir_entries;    /* root directory entries */
-        __u16   sectors;        /* number of sectors */
-        __u8    media;          /* media code */
-        __u16   fat_length;     /* sectors/FAT */
-        __u16   secs_track;     /* sectors per track */
-        __u16   heads;          /* number of heads */
-        __u32   hidden;         /* hidden sectors (unused) */
-        __u32   total_sect;     /* number of sectors (if sectors == 0) */
-
-        /* The following fields are only used by FAT32 */
-        __u32   fat32_length;   /* sectors/FAT */
-        __u16   flags;          /* bit 8: fat mirroring, low 4: active fat */
-        __u16   version;        /* major, minor filesystem version */
-        __u32   root_cluster;   /* first cluster in root directory */
-        __u16   info_sector;    /* filesystem info sector */
-        __u16   backup_boot;    /* backup boot sector */
-        __u16   reserved2[6];   /* Unused */
-} __attribute__ ((packed)) ;
+Thanks,
+  Roland

@@ -1,140 +1,191 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131697AbQJ2Nrp>; Sun, 29 Oct 2000 08:47:45 -0500
+	id <S131707AbQJ2OS1>; Sun, 29 Oct 2000 09:18:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131707AbQJ2Nrf>; Sun, 29 Oct 2000 08:47:35 -0500
-Received: from enterprise.cistron.net ([195.64.68.33]:25098 "EHLO
-	enterprise.cistron.net") by vger.kernel.org with ESMTP
-	id <S131697AbQJ2Nr0>; Sun, 29 Oct 2000 08:47:26 -0500
-From: miquels@cistron.nl (Miquel van Smoorenburg)
-Subject: Re: PROBLEM: DELL PERC/Megaraid RAID driver in Linux 2.2.18pre17 hang
-Date: 29 Oct 2000 13:47:37 GMT
-Organization: Cistron Internet Services B.V.
-Message-ID: <8th9pp$atm$1@enterprise.cistron.net>
-In-Reply-To: <E36790918FA6D411856500508BD3B2CA1A42@eusegotmail1b.eu.intermec.com> <E13pYpR-0005QZ-00@the-village.bc.nu>
-X-Trace: enterprise.cistron.net 972827257 11190 195.64.65.201 (29 Oct 2000 13:47:37 GMT)
-X-Complaints-To: abuse@cistron.nl
-To: linux-kernel@vger.kernel.org
+	id <S131726AbQJ2OSR>; Sun, 29 Oct 2000 09:18:17 -0500
+Received: from dialup183.canberra.net.au ([203.33.188.55]:12036 "EHLO
+	didi.localnet") by vger.kernel.org with ESMTP id <S131707AbQJ2OSG>;
+	Sun, 29 Oct 2000 09:18:06 -0500
+Message-ID: <027a01c041b2$9892de40$0200a8c0@W2K>
+From: "Nick Piggin" <s3293115@student.anu.edu.au>
+To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <001801c041a3$1c9538b0$0200a8c0@W2K>
+Subject: Re: [patch]  BSD process accounting: new locking
+Date: Mon, 30 Oct 2000 01:14:46 +1100
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0277_01C0420E.CB3FB820"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E13pYpR-0005QZ-00@the-village.bc.nu>,
-Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
->Yep - known problem. AMI have one more pre patch to sort it our Im going back
->to the older driver
+This is a multi-part message in MIME format.
 
-I've tried the AMI patch and it appears to work. I'm now running
-2.2.18pre18 + fix to ideprobe.c + ami megaraid fix and it looks OK
+------=_NextPart_000_0277_01C0420E.CB3FB820
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-Here's the patch.
+> I have attached a very small patch (test9) to remove the kernel lock from
+> kernel/acct.c. If I am missing something major (a brain?), I apologise in
+> advance. I have tested this on my UP x86 with spinlock debugging. I would
+> appreciate comments or an explanation of why this can't be done if you
+have
+> the time. Thanks.
+>
+> Nick
+>
 
---- linux-2.2.18pre11/drivers/scsi/megaraid.c	Fri Sep 29 15:29:31 2000
-+++ megaraid/megaraid.c Wed Oct 25 11:40:51 2000
-@@ -9,7 +9,7 @@
-  *		as published by the Free Software Foundation; either version
-  *		2 of the License, or (at your option) any later version.
-  *
-- * Version : 1b08b
-+ * Version : v1.11a
-  *
-  * Description: Linux device driver for AMI MegaRAID controller
-  *
-@@ -179,7 +179,9 @@
-  *	I)  Version number changed from 1.10c to 1.11
-  *  II)	DCMD_WRITE_CONFIG(0x0D) command in the driver changed from
-  *	scatter/gather list mode to direct pointer mode..
-- *
-+ *
-+ * Version 1.11a
-+ *	Initlization bug fixed
-  * BUGS:
-  *	Some older 2.1 kernels (eg. 2.1.90) have a bug in pci.c that
-  *	fails to detect the controller as a pci device on the system.
-@@ -194,7 +196,7 @@
- #define CRLFSTR "\n"
- #define IOCTL_CMD_NEW	0x81
+Maybe there was a possibility of a race when acct_auto_close calls sys_acct
+in the last patch. If so, this should fix it.
 
--#define MEGARAID_VERSION "v1.11 (Aug 23, 2000)"
-+#define MEGARAID_VERSION "v1.11a (Oct 24, 2000)"
- #define MEGARAID_IOCTL_VERSION 108
+Nick.
 
- #include <linux/config.h>
-@@ -1842,8 +1844,8 @@
-   while ((pdev = pci_find_device (pciVendor, pciDev, pdev))) {
+------=_NextPart_000_0277_01C0420E.CB3FB820
+Content-Type: application/octet-stream;
+	name="bsdacct2.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="bsdacct2.patch"
 
- #ifdef DELL_MODIFICATION
--    if (pci_enable_device(pdev))
--	continue;
-+    if (pci_enable_device(pdev))
-+	continue;
- #endif
-     pciBus = pdev->bus->number;
-     pciDevFun = pdev->devfn;
-@@ -1889,7 +1891,11 @@
-				"megaraid: to protect your data, please upgrade your firmware to version\n"
-				"megaraid: 3.10 or later, available from the Dell Technical Support web\n"
-				"megaraid: site at\n"
-+#ifdef DELL_MODIFICATION
-				"http://support.dell.com/us/en/filelib/download/index.asp?fileid=2940\n");
-+#else
-+				"http://support.dell.com/us/en/filelib/download/index.asp?fileid=2489\n");
-+#endif
-			continue;
-			}
-		}
-@@ -1914,16 +1920,32 @@
-     megaIrq  = pdev->irq;
- #else
+--- linux/kernel/acct.c	Mon Oct 30 01:02:56 2000=0A=
++++ v2.4.0-test9/linux/kernel/acct.c	Mon Oct 30 01:05:40 2000=0A=
+@@ -41,6 +41,10 @@=0A=
+  *	Oh, fsck... Oopsable SMP race in do_process_acct() - we must hold=0A=
+  * ->mmap_sem to walk the vma list of current->mm. Nasty, since it leaks=0A=
+  * a struct file opened for write. Fixed. 2/6/2000, AV.=0A=
++ *=0A=
++ *  2000-10-27 Modified by Nick Piggin to remove usage of the big kernel=0A=
++ *             lock in favour of local spinlocks=0A=
++ *=0A=
+  */=0A=
+ =0A=
+ #include <linux/config.h>=0A=
+@@ -77,6 +81,7 @@=0A=
+ static struct file *acct_file;=0A=
+ static struct timer_list acct_timer;=0A=
+ static void do_acct_process(long, struct file *);=0A=
++static spinlock_t acct_lock =3D SPIN_LOCK_UNLOCKED;=0A=
+ =0A=
+ /*=0A=
+  * Called whenever the timer says to check the free space.=0A=
+@@ -95,11 +100,11 @@=0A=
+ 	int res;=0A=
+ 	int act;=0A=
+ =0A=
+-	lock_kernel();=0A=
++        spin_lock(&acct_lock);=0A=
+ 	res =3D acct_active;=0A=
+ 	if (!file || !acct_needcheck)=0A=
+-		goto out;=0A=
+-	unlock_kernel();=0A=
++		goto out_unlock;=0A=
++        spin_unlock(&acct_lock);=0A=
+ =0A=
+ 	/* May block */=0A=
+ 	if (vfs_statfs(file->f_dentry->d_inode->i_sb, &sbuf))=0A=
+@@ -113,14 +118,14 @@=0A=
+ 		act =3D 0;=0A=
+ =0A=
+ 	/*=0A=
+-	 * If some joker switched acct_file under us we'ld better be=0A=
++	 * If some joker switched acct_file under us we'd better be=0A=
+ 	 * silent and _not_ touch anything.=0A=
+ 	 */=0A=
+-	lock_kernel();=0A=
++        spin_lock(&acct_lock);=0A=
+ 	if (file !=3D acct_file) {=0A=
+ 		if (act)=0A=
+ 			res =3D act>0;=0A=
+-		goto out;=0A=
++		goto out_unlock;=0A=
+ 	}=0A=
+ =0A=
+ 	if (acct_active) {=0A=
+@@ -140,8 +145,8 @@=0A=
+ 	acct_timer.expires =3D jiffies + ACCT_TIMEOUT*HZ;=0A=
+ 	add_timer(&acct_timer);=0A=
+ 	res =3D acct_active;=0A=
+-out:=0A=
+-	unlock_kernel();=0A=
++out_unlock:=0A=
++        spin_unlock(&acct_lock); =0A=
+ 	return res;=0A=
+ }=0A=
+ =0A=
+@@ -182,7 +187,7 @@=0A=
+ 	}=0A=
+ =0A=
+ 	error =3D 0;=0A=
+-	lock_kernel();=0A=
++        spin_lock(&acct_lock);=0A=
+ 	if (acct_file) {=0A=
+ 		old_acct =3D acct_file;=0A=
+ 		del_timer(&acct_timer);=0A=
+@@ -200,7 +205,7 @@=0A=
+ 		acct_timer.expires =3D jiffies + ACCT_TIMEOUT*HZ;=0A=
+ 		add_timer(&acct_timer);=0A=
+ 	}=0A=
+-	unlock_kernel();=0A=
++        spin_unlock(&acct_lock);=0A=
+ 	if (old_acct) {=0A=
+ 		do_acct_process(0,old_acct);=0A=
+ 		filp_close(old_acct, NULL);=0A=
+@@ -214,10 +219,24 @@=0A=
+ =0A=
+ void acct_auto_close(kdev_t dev)=0A=
+ {=0A=
+-	lock_kernel();=0A=
+-	if (acct_file && acct_file->f_dentry->d_inode->i_dev =3D=3D dev)=0A=
+-		sys_acct(NULL);=0A=
+-	unlock_kernel();=0A=
++        struct file *old_acct;=0A=
++=0A=
++        spin_lock(&acct_lock);=0A=
++	if (acct_file && acct_file->f_dentry->d_inode->i_dev =3D=3D dev) {=0A=
++=0A=
++                /* Run the same code as sys_acct(NULL) here. This =
+simplifies locking */=0A=
++                old_acct =3D acct_file;=0A=
++                del_timer(&acct_timer);=0A=
++                acct_active =3D 0;=0A=
++                acct_needcheck =3D 0;=0A=
++                acct_file =3D NULL;=0A=
++=0A=
++                spin_unlock(&acct_lock);=0A=
++=0A=
++                do_acct_process(0, old_acct);=0A=
++                filp_close(old_acct, NULL);=0A=
++        } else =0A=
++                spin_unlock(&acct_lock);=0A=
+ }=0A=
+ =0A=
+ /*=0A=
+@@ -348,15 +367,15 @@=0A=
+ int acct_process(long exitcode)=0A=
+ {=0A=
+ 	struct file *file =3D NULL;=0A=
+-	lock_kernel();=0A=
++        spin_lock(&acct_lock);=0A=
+ 	if (acct_file) {=0A=
+ 		file =3D acct_file;=0A=
+ 		get_file(file);=0A=
+-		unlock_kernel();=0A=
++                spin_unlock(&acct_lock);=0A=
+ 		do_acct_process(exitcode, acct_file);=0A=
+ 		fput(file);=0A=
+ 	} else=0A=
+-		unlock_kernel();=0A=
++                spin_unlock(&acct_lock);=0A=
+ 	return 0;=0A=
+ }=0A=
+ =0A=
 
--    megaBase = pci_resource_start (pdev, 0);
-+#ifdef DELL_MODIFICATION
-+    megaBase = pci_resource_start (pdev, 0);
-+#else
-+    megaBase = pdev->resource[0].start;
-+#endif
-     megaIrq  = pdev->irq;
- #endif
+------=_NextPart_000_0277_01C0420E.CB3FB820--
 
-     pciIdx++;
-
--    if (flag & BOARD_QUARTZ)
--	megaBase = (long) ioremap (megaBase, 128);
--    else
--	megaBase += 0x10;
-+#ifdef DELL_MODIFICATION
-+    if (flag & BOARD_QUARTZ)
-+	megaBase = (long) ioremap (megaBase, 128);
-+    else
-+	megaBase += 0x10;
-+#else
-+    if (flag & BOARD_QUARTZ) {
-+
-+      megaBase &= PCI_BASE_ADDRESS_MEM_MASK;
-+      megaBase = (long) ioremap (megaBase, 128);
-+    }
-+    else {
-+      megaBase &= PCI_BASE_ADDRESS_IO_MASK;
-+      megaBase += 0x10;
-+    }
-+#endif
-
-     /* Initialize SCSI Host structure */
-     host = scsi_register (pHostTmpl, sizeof (mega_host_config));
-@@ -2087,8 +2109,7 @@
-	  remove_proc_entry("config", megaCfg->controller_proc_dir_entry);
-	  remove_proc_entry("mailbox", megaCfg->controller_proc_dir_entry);
-	   for (i = 0; i < numCtlrs; i++) {
--		char buf[12];
--		memset(buf,0,12);
-+		char buf[12] ={0};
-		sprintf(buf,"%d",i);
-		remove_proc_entry(buf,mega_proc_dir_entry);
-	 }
-
-
-Mike.
--- 
-People get the operating system they deserve.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

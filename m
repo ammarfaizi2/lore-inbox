@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264459AbTIDAh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 20:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264460AbTIDAh2
+	id S264471AbTIDAyj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 20:54:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264478AbTIDAyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 20:37:28 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:14574 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264459AbTIDAh0
+	Wed, 3 Sep 2003 20:54:39 -0400
+Received: from dyn-ctb-210-9-244-61.webone.com.au ([210.9.244.61]:10500 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S264471AbTIDAyi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 20:37:26 -0400
-Date: Wed, 3 Sep 2003 17:36:33 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Larry McVoy <lm@bitmover.com>, "Brown, Len" <len.brown@intel.com>,
-       Giuliano Pochini <pochini@shiny.it>, linux-kernel@vger.kernel.org
-Subject: Re: Scaling noise
-Message-ID: <20030904003633.GA5227@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Larry McVoy <lm@bitmover.com>, "Brown, Len" <len.brown@intel.com>,
-	Giuliano Pochini <pochini@shiny.it>, linux-kernel@vger.kernel.org
-References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com> <20030903173213.GC5769@work.bitmover.com> <89360000.1062613076@flay>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <89360000.1062613076@flay>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+	Wed, 3 Sep 2003 20:54:38 -0400
+Message-ID: <3F568D42.1070004@cyberone.com.au>
+Date: Thu, 04 Sep 2003 10:54:26 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Cliff White <cliffw@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: UP Regression (was) Re: Scaling noise
+References: <200309031551.h83Fpu413835@mail.osdl.org>
+In-Reply-To: <200309031551.h83Fpu413835@mail.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 03, 2003 at 11:17:56AM -0700, Martin J. Bligh wrote:
-> Errm, IBM is gambling with _their_ money, as are others such as HP,
-> and they're making big iron.
 
-But making very little money off of it.  I'd love to get revenue numbers
-as a function of time for >8 processor SMP boxes.  I'll bet my left nut 
-that the numbers are going down.  They have to be, CPUs are fast enough
-to handle most problems, clustering has worked for lots of big companies
-like Google, Amazon, Yahoo, and the HPC market has been flat for years.
-So where's the growth?  Nowhere I can see.  If I'm not seeing it, show
-me the data.  I may be a pain in the ass but I'll change my mind instantly
-when you show me data that says something different than what I believe.
-So far, all I've seen is people having fun proving that their ego is
-bigger than the next guys, no real data.  Come on, you'd love nothing
-better than to prove me wrong.  Do it.  Or admit that you can't.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+
+Cliff White wrote:
+
+>[snip]
+>.
+>
+>>I don't think anyone advocates sacrificing UP performance for 32 ways, but
+>>as he says it can happen .1% at a time.
+>>
+>>But it looks like 2.6 will scale well to 16 way and higher. I wonder if
+>>there are many regressions from 2.4 or 2.2 on small systems.
+>>
+>>
+>>
+>On the Scalable Test Platform, running osdl-aim-7,  for the
+>UP case, 2.4 is a bit better than 2.6, this is consistent across
+>many runs. For SMP, 2.6 is better, but the delta is rather
+>small, until we get to 8 CPUS. We have a lot of un-parsed data from other
+>tests - might be some trends there also.
+>See http://developer.osdl.org/cliffw/reaim/index.html 
+>2.4 kernels are at the bottom of the page.
+>
+
+Forgive my ignorance of your benchmarks, but this might very well
+be HZ == 1000?
+
+

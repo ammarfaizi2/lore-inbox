@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263008AbTI2WIE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 18:08:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263009AbTI2WIE
+	id S261984AbTI2WOx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 18:14:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbTI2WOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 18:08:04 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:56337 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263008AbTI2WIB
+	Mon, 29 Sep 2003 18:14:53 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:21125 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261984AbTI2WOv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 18:08:01 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: PROBLEM: kernel 2.6-test5 rmmod: kernel NULL pointer dereference
-Date: 29 Sep 2003 21:58:34 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bla9ua$49p$1@gatekeeper.tmr.com>
-References: <35776.10.0.0.50.1064747073.squirrel@mail.hackaholic.org> <20030928131511.A2490@ss1000.ms.mff.cuni.cz>
-X-Trace: gatekeeper.tmr.com 1064872714 4409 192.168.12.62 (29 Sep 2003 21:58:34 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Mon, 29 Sep 2003 18:14:51 -0400
+Date: Mon, 29 Sep 2003 23:13:46 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Andi Kleen <ak@colin2.muc.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Athlon Prefetch workaround for 2.6.0test6
+Message-ID: <20030929221346.GA25171@mail.jlokier.co.uk>
+References: <20030929125629.GA1746@averell> <20030929170323.GC21798@mail.jlokier.co.uk> <20030929174910.GA90905@colin2.muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030929174910.GA90905@colin2.muc.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030928131511.A2490@ss1000.ms.mff.cuni.cz>,
-Rudo Thomas  <thomr9am@ss1000.ms.mff.cuni.cz> wrote:
-| > I wrote a CD so I did a modprobe ide-scsi ..
-| 
-| I believe you should not be using ide-scsi in 2.6.0-test at all. ide-cd should
-| suffice if you have recent cdrtools.
+Andi Kleen wrote:
+> I guess they should be added to the AMD64 version too. It ignores
+> all bases, but I'm not sure if the CPU catches the case where the linear
+> address computation wraps.
 
-You are correct that recent cdrecord can use devices without ide-scsi,
-but if you are running both 2.4 and 2.6 your really avoid a lot of
-config changes to just use ide-scsi all the time. And for other ATAPI
-devices ide-scsi is still easier than rewriting applications to use the
-new interface. SCSI-only code works with fewer portability issues.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+The linear address is _allowed_ to wrap on x86, and there are real
+DOS-era programs which take advantage of this.  It is used to create
+the illusion of access to high addresses, by making them wrap to low
+ones which can be mapped.
+
+Some DOS extenders did this so that 32-bit programs could access BIOS
+and video memory in the same DS segment as normal code, despite having
+a large segment base address so that null pointers would be trapped by
+page protection.
+
+Of course no linux programs do this :)
+(Well, maybe some do under DOSEMU?)
+
+So it seems quite likely that the AMD64 CPU simply allows wrapping in
+the linear address calculation.
+
+-- Jamie

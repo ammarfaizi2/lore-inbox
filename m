@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317388AbSFRMAD>; Tue, 18 Jun 2002 08:00:03 -0400
+	id <S317389AbSFRMMZ>; Tue, 18 Jun 2002 08:12:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317389AbSFRMAC>; Tue, 18 Jun 2002 08:00:02 -0400
-Received: from kim.it.uu.se ([130.238.12.178]:19343 "EHLO kim.it.uu.se")
-	by vger.kernel.org with ESMTP id <S317388AbSFRMAC>;
-	Tue, 18 Jun 2002 08:00:02 -0400
-From: Mikael Pettersson <mikpe@csd.uu.se>
+	id <S317390AbSFRMMY>; Tue, 18 Jun 2002 08:12:24 -0400
+Received: from mta03bw.bigpond.com ([139.134.6.86]:25339 "EHLO
+	mta03bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S317389AbSFRMMY>; Tue, 18 Jun 2002 08:12:24 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: Adrian Bunk <bunk@fs.tum.de>, Linus Torvalds <torvalds@transmeta.com>,
+       <greg@kroah.com>, NAGANO Daisuke <breeze.nagano@nifty.ne.jp>
+Subject: Re: [2.5 patch] drivers/usb/class/usb-midi.c must include linux/version.h
+Date: Tue, 18 Jun 2002 22:08:17 +1000
+User-Agent: KMail/1.4.5
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.NEB.4.44.0206171706550.1866-100000@mimas.fachschaften.tu-muenchen.de>
+In-Reply-To: <Pine.NEB.4.44.0206171706550.1866-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15631.8381.516022.263531@kim.it.uu.se>
-Date: Tue, 18 Jun 2002 13:59:57 +0200
-To: Seth Goldberg <Seth.Goldberg@Sun.COM>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: genksyms not doing its job?
-In-Reply-To: <Pine.GSO.4.44.0206171700170.197503-100000@limud.sfbay.sun.com>
-References: <Pine.GSO.4.44.0206171700170.197503-100000@limud.sfbay.sun.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200206182208.17139.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seth Goldberg writes:
- >   I was wondering if anyone was also experiencing a problem in generating
- > kernel symbols for the 2.5.22 kernel.  I am notificing quite a few ksyms
- > that have not been properly generated (e.g. "sprintf_R__ver_sprintf"
- > instead of "sprintf_Rsmp_xxxxxxxx").  Please pardon me if this is a FAQ,
- > but I have installed the lated modutils and am still experiencing this
- > problem.
+On Tue, 18 Jun 2002 01:11, Adrian Bunk wrote:
+> Line 109 is:
+>   #if LINUX_VERSION_CODE  >= KERNEL_VERSION(2,4,14)
+>
+>
+> The fix is simple:
+>
+> --- drivers/usb/class/usb-midi.c~	Mon Jun 17 04:31:24 2002
+> +++ drivers/usb/class/usb-midi.c	Mon Jun 17 16:36:36 2002
+> @@ -38,6 +38,7 @@
+>  #include <linux/poll.h>
+>  #include <linux/sound.h>
+>  #include <linux/init.h>
+> +#include <linux/version.h>
+>  #include <asm/semaphore.h>
+Why are we even doing this tes for a driver in the kernelt? Dump the test (and 
+the include) for the in-kernel version.
 
-Known problem. See yesterday's "2.5.22 broke modversions" thread,
-or get the fix from:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102432431618537&w=2
-
-/Mikael
+Brad
+-- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.

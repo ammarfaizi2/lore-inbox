@@ -1,118 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263163AbUEGJjg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263375AbUEGJq7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263163AbUEGJjg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 05:39:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263252AbUEGJjg
+	id S263375AbUEGJq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 05:46:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbUEGJq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 05:39:36 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:45255 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263163AbUEGJjc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 05:39:32 -0400
-Date: Fri, 7 May 2004 11:39:21 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Cache queue_congestion_on/off_threshold
-Message-ID: <20040507093921.GD21109@suse.de>
-References: <20040505233426.704926da.akpm@osdl.org> <200405062029.i46KT5F13603@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405062029.i46KT5F13603@unix-os.sc.intel.com>
+	Fri, 7 May 2004 05:46:59 -0400
+Received: from mail-4.tiscali.it ([195.130.225.150]:37671 "EHLO
+	mail-4.tiscali.it") by vger.kernel.org with ESMTP id S263375AbUEGJq5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 05:46:57 -0400
+Date: Fri, 7 May 2004 10:45:47 +0100
+Message-ID: <4098726F00007C83@mail-4.tiscali.it>
+From: shadak_shari@tiscali.it
+Subject: Goodday Friend,
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 06 2004, Chen, Kenneth W wrote:
-> >>>> Andrew Morton wrote on Wednesday, May 05, 2004 11:34 PM
-> > Jens Axboe <axboe@suse.de> wrote:
-> > >
-> > > Do you have any numbers at all for this? I'd say these calculations are
-> > >  severly into the noise area when submitting io.
-> >
-> > The difference will not be measurable, but I think the patch makes sense
-> > regardless of what the numbers say.
-> 
-> Even though it is in the noise range that can't be easily measured, they are
-> indeed in the positive territory.  If I stack 5 of these little things, we
-> actually measured positive gain on a large db workload.
+Goodday Friend,
+  I'm SHADAK SHARI,an Indian citizen,but made fame in Iraq.I've been into
+business for the past 10 years.I became a great man when i had a licence
+to be an international crude oil maketer 6 years Ago.
+  I've helped so many orphange homes,needy homes and the less priviledge
+accross the African continents,with the wealth God gave to me.The last comflicts
+that happened in Iraq made me to loose all i've worked for.I loosed entirely
+all i've worked for.Now i can't hear again ,and my left leg has been amputated.
+     The doctor said i've a little more time to stay in this planet.My good
+friend,i want you to do me a favour.I kept some amount af money with a security
+company in Europe and Asia Amounting to about $4.6M and $3.2M respectively
+in a Methalic sealed box. I want you to take the place of my next of Kin,my
+only surviving kid is just too young to handle this.She is just 5 years
+old now.I'm doing this based on the short time i've on Earth.I'm an old
+man.Please this should be confidencial between you and me. If this transaction
+is sucessful,which i believe it will,20% is yours,10% will be for all the
+expenses and 70% should be used in setting up an orphanage home that will
+be named after my late wife's name, who bears the same name with my little
+girl.This orphange home 'll be taken care off by you,till my daughter comes
+of Age. My lawyer is already aware of this.Pls get back to me Urgently for
+more instructions.
+Best Regards,
+SHADAK SHARI.
 
-I somehow still find that very hard to believe, it's a branch and a
-couple of cycles.
 
-> There isn't anything absurd in 2.6 kernel, however, I hate to say that we
-> consistently see performance regression with latest 2.6 kernel compare to
-> best 2.4 based kernel under heavy db workload on 4-way SMP platform. (2.6
-> rocks on numa platform that 2.4 doesn't even have a chance to compete).
-> 
-> Some of the examples are:
-> 
-> (1) it's cheaper to find out whether a queue is empty or not by calling
->     elv_queue_empty() instead of using heavier elv_next_request().
-> (2) it's better to check queue empty before calling into q->request_fn()
-> 
-> 
-> diff -Nurp linux-2.6.6-rc3/drivers/block/ll_rw_blk.c linux-2.6.6-rc3.ken/drivers/block/ll_rw_blk.c
-> --- linux-2.6.6-rc3/drivers/block/ll_rw_blk.c	2004-05-06 13:03:14.000000000 -0700
-> +++ linux-2.6.6-rc3.ken/drivers/block/ll_rw_blk.c	2004-05-06 13:04:04.000000000 -0700
-> @@ -1128,7 +1128,7 @@ static inline void __generic_unplug_devi
->  	/*
->  	 * was plugged, fire request_fn if queue has stuff to do
->  	 */
-> -	if (elv_next_request(q))
-> +	if (!elv_queue_empty(q))
->  		q->request_fn(q);
->  }
-> 
-> @@ -1237,7 +1237,8 @@ void blk_run_queue(struct request_queue
-> 
->  	spin_lock_irqsave(q->queue_lock, flags);
->  	blk_remove_plug(q);
-> -	q->request_fn(q);
-> +	if (!elv_queue_empty(q))
-> +		q->request_fn(q);
->  	spin_unlock_irqrestore(q->queue_lock, flags);
->  }
+__________________________________________________________________
+Tiscali ADSL libera la velocita'!
+Attiva Senza Canone entro il 17 maggio: navighi a 1,5 euro l'ora per i primi
+3 mesi,se scegli il modem e' tuo in comodato gratuito e in piu' hai gratis
+SuperMail per 12 mesi. Non aspettare, attivala subito!
+http://abbonati.tiscali.it/adsl/prodotti/640Kbps/
 
-This looks great, should be merged right away.
 
-> (3) can we allocate request structure up front in __make_request?
->     For I/O that cannot be merged, the elevator code executes twice
->     in __make_request.
-> 
-> 
-> diff -Nurp linux-2.6.6-rc3/drivers/block/ll_rw_blk.c linux-2.6.6-rc3.ken/drivers/block/ll_rw_blk.c
-> --- linux-2.6.6-rc3/drivers/block/ll_rw_blk.c	2004-05-06 13:03:14.000000000 -0700
-> +++ linux-2.6.6-rc3.ken/drivers/block/ll_rw_blk.c	2004-05-06 13:11:39.000000000 -0700
-> @@ -2154,15 +2154,14 @@ static int __make_request(request_queue_
-> 
->  	ra = bio->bi_rw & (1 << BIO_RW_AHEAD);
-> 
-> +	/* Grab a free request from the freelist */
-> +	freereq = get_request(q, rw, GFP_ATOMIC);
-> +
->  again:
->  	spin_lock_irq(q->queue_lock);
-> 
-> -	if (elv_queue_empty(q)) {
-> +	if (elv_queue_empty(q))
->  		blk_plug_device(q);
-> -		goto get_rq;
-> -	}
-> -	if (barrier)
-> -		goto get_rq;
-> 
->  	el_ret = elv_merge(q, &req, bio);
->  	switch (el_ret) {
-
-Actually, with the good working batching we might get away with killing
-freereq completely. Have you tested that (if not, could you?)
-
-> Some more, I will post in another thread.
-
-Can you please remember to cc in initial posts as well, I don't want to
-always hunt for your findings. Thanks.
-
--- 
-Jens Axboe
 

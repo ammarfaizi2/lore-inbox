@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262782AbSJOITV>; Tue, 15 Oct 2002 04:19:21 -0400
+	id <S263356AbSJOIjc>; Tue, 15 Oct 2002 04:39:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263276AbSJOITV>; Tue, 15 Oct 2002 04:19:21 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:28609 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S262782AbSJOITU>; Tue, 15 Oct 2002 04:19:20 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Tue, 15 Oct 2002 10:22:57 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel List <linux-kernel@vger.kernel.org>,
-       Chris Cheney <ccheney@cheney.cx>
-Subject: [trivial patch] Re: bttv driver in 2.5.42-bk2
-Message-ID: <20021015082256.GA11469@bytesex.org>
-References: <20021015054228.GA5074@cheney.cx>
+	id <S263362AbSJOIjc>; Tue, 15 Oct 2002 04:39:32 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:31980 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S263356AbSJOIjb>;
+	Tue, 15 Oct 2002 04:39:31 -0400
+Date: Tue, 15 Oct 2002 10:21:52 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Cc: Austin Gonyou <austin@coremetrics.com>, linux-lvm@sistina.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-lvm] Re: [PATCH] 2.5 version of device mapper submission
+Message-ID: <20021015082152.GA4827@suse.de>
+References: <1034453946.15067.22.camel@irongate.swansea.linux.org.uk> <1034614756.29775.5.camel@UberGeek.coremetrics.com> <20021014175608.GA14963@fib011235813.fsnet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021015054228.GA5074@cheney.cx>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20021014175608.GA14963@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 15, 2002 at 12:42:28AM -0500, Chris Cheney wrote:
-> I wanted to let you know that it appears that bttv no longer compiles in
-> 2.5.42-bk2 (in case you weren't aware of that fact yet).
+On Mon, Oct 14 2002, Joe Thornber wrote:
+> 10.patch
+>   [Device-mapper]
+>   Add call to blk_queue_bounce() at the beginning of the request function.
 
-Thanks, hadn't noticed yet.  It is just a missing include, fix below.
+What on earth for? I also see that you are setting BLK_BOUNCE_HIGH as
+the bounce limit unconditionally for your queue. Puzzled.
 
-  Gerd
+When does dm even have to touch the data in the bio?
 
-==============================[ cut here ]==============================
---- drivers/media/video/bttv-driver.c.fix	Tue Oct 15 10:19:17 2002
-+++ drivers/media/video/bttv-driver.c	Tue Oct 15 10:19:34 2002
-@@ -31,6 +31,7 @@
- #include <linux/kernel.h>
- #include <linux/sched.h>
- #include <linux/interrupt.h>
-+#include <linux/init.h>
- #include <linux/kdev_t.h>
- 
- #include <asm/io.h>
+-- 
+Jens Axboe
+

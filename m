@@ -1,80 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265152AbUHCHwi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265211AbUHCH76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265152AbUHCHwi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 03:52:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265211AbUHCHwi
+	id S265211AbUHCH76 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 03:59:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265230AbUHCH76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 03:52:38 -0400
-Received: from pengo.systems.pipex.net ([62.241.160.193]:34965 "EHLO
-	pengo.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S265152AbUHCHwc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 03:52:32 -0400
-Message-ID: <410F443A.7050707@tungstengraphics.com>
-Date: Tue, 03 Aug 2004 08:52:26 +0100
-From: Keith Whitwell <keith@tungstengraphics.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ian Romanick <idr@us.ibm.com>
-Cc: Dave Jones <davej@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
-       "DRI developer's list" <dri-devel@lists.sourceforge.net>
-Subject: Re: DRM code reorganization
-References: <20040802155312.56128.qmail@web14923.mail.yahoo.com> <410E81C3.2070804@us.ibm.com> <20040802185746.GA12724@redhat.com> <410E9FEE.60108@us.ibm.com> <20040802204553.GC12724@redhat.com> <410ED3F7.7090809@us.ibm.com>
-In-Reply-To: <410ED3F7.7090809@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 3 Aug 2004 03:59:58 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:64650 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S265211AbUHCH7z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 03:59:55 -0400
+Date: Tue, 3 Aug 2004 00:58:24 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: ak@suse.de, lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: [PATCH] subset zonelists and big numa friendly
+ mempolicy MPOL_MBIND
+Message-Id: <20040803005824.77358caf.pj@sgi.com>
+In-Reply-To: <20040802191407.24e301e0.pj@sgi.com>
+References: <20040802233516.11477.10063.34205@sam.engr.sgi.com>
+	<20040803020805.060620fa.ak@suse.de>
+	<20040802191407.24e301e0.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Romanick wrote:
+Earlier, I (pj) wrote:
+> It has poor cache performance on big iron.  For a modest job on a big
+> system, the allocator has to walk down an average of 128 out of 256 zone
+> pointers in the list, derefencing each one into the zone struct, then
+> into the struct pglist_data, before it finds one that matches an allowed
+> node id. That's a nasty memory footprint for a hot code path.
 
-> I think this is the right place to start.  A couple of these look easier 
-> to get rid of than others.  __HAVE_MTRR and __HAVE_AGP are enabled in 
-> every driver except ffb.  It should be easy enough to get rid of them. 
-> It looks like __HAVE_RELEASE, __HAVE_DMA_READY, __HAVE_DMA_FLUSH, 
-> __HAVE_DMA_QUIESCENT, and __HAVE_MULTIPLE_DMA_QUEUES (which looks broken 
-> anyway) should also be low-hanging fruit.
+This paragraph is B.S.  Most tasks are running on CPUs that are on nodes
+whose memory they are allowed to use.  That node is at the front of the
+local zonelist, and they get their memory on the first node they look.
 
-We've actually managed to do a fair bit of cleanup already - if you look at 
-the gamma driver, there's a lot of stuff in there which used to be shared but 
-ifdef'ed out between all the drivers.  The __HAVE_MULTIPLE_DMA_QUEUES macro is 
-a remnant of this, but I think you'll break gamma when you try & remove it.
+Damn ... hate it when that happens ;).
 
-It used to be the case that 50% of the #if hoo-hah was just to try & keep the 
-gamma driver working.  I don't know how true this is anymore, though.
+Still, either MPOL_BIND needs a more numa friendly set of zonelists
+having a differently sorted list for each node in the set, or it's
+usefulness for binding to more than one or a few very close nodes, if
+you care about memory performance, falls off quickly as the number of
+nodes increases.  As you well know, any such numa-friendly set of sorted
+zonelists will require space on the Order of N**2, for N the node count,
+given the NULL-terminated linear list form in which they must be handed
+to __alloc_pages.
 
-> If we get that far, I think the next step would be to replace the 
-> DRIVER_* macros with a table of function pointers that would get passed 
-> around.  Since I doubt any of those uses are performance critical, that 
-> should be fine.
-> 
-> Then we can start looking at data structure refactoring.
-> 
->>  > >If this kind of abuse wasn't so widespread, abstracting this code
->>  > >out into shared sections and driver specific parts would be a lot
->>  > >simpler. Sadly, this is the tip of the iceberg.
->>  >  > I think it comes down to the fact that the original DRM 
->> developers  > wanted templates.  C doesn't have them, so they did the 
->> "next best" thing.
->>
->> I vaguelly recall the code at one point not looking quite 'so bad',
->> it just grew and grew into this monster.  I'm sure it was done originally
->> with the best of intentions, but it seems someone along the line got
->> a bit carried away.
-> 
-> 
-> There was a point when a *lot* of the device-dependent code was still in 
-> the OS-dependent directories.  This is how the i810 and i830 drivers 
-> still are.  I think as more of the code got moved into the 
-> OS-independent directory, it got less pleasant to read.
+I suspect that the English phrase you are searching for now to tell me
+is "if it hurts, don't use it ;)."  That is, you are clearly advising me
+not to use MPOL_BIND if I need a fancy zonelist sort.
 
-Not a great deal changed as drivers got moved to shared/ -- things like 
-copy_from_user() got replaced by DRM_COPY_FROM_USER(), etc, but that's about 
-as far as it went.  The template abstractions haven't really changed a great 
-deal with the introduction of freebsd support.  If anything, code has been 
-simplified by moving the gamma-specific code out of the shared templates and 
-into gamma_* files.
+The place I ran into the most complexity doing this in the 2.4 kernel
+was in the per-memory region binding.  You're dealing with this in the
+2.6 kernels, and when you get to stuff like shared memory and huge
+pages, it's not easy.  At least the vma splitting code is better in
+2.6 than it was in 2.4.   Whatever I do for cpusets must _not_ duplicate
+your virtual address range specific work (mbind).  Too much detail to be
+done twice.
 
-Keith
+Andi wrote:
+> My first reaction that if you really want to do that, just pass
+> the policy node bitmap to alloc_pages and try_to_free_pages
+> and use the normal per node zone list with the bitmap as filter. 
 
+Pass in, or add to task_struct?  I can imagine adding a:
 
+	nodemask_t mems_allowed;
+
+to task_struct, and ending up with a CONFIG_CPUSET enabled macro called
+in a few places in __alloc_pages() and try_to_free_pages() that amounts
+to:
+
+	if (!in_interrupt())
+		if (!node_isset(z->zone_pgdat->node_id, current->mems_allowed))
+			continue;
+
+In any event, cpusets provides the larger "container" on bigger numa
+systems, and mbind/mempolicy provides the more detailed, and vma
+specific, placement within the container (or within the entire system
+if cpusets not configured).
+
+I'll try coding this up and see how it looks.
+
+I welcome your further comments.
+
+Thank-you.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

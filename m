@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316569AbSFJVHN>; Mon, 10 Jun 2002 17:07:13 -0400
+	id <S316250AbSFJVKn>; Mon, 10 Jun 2002 17:10:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316339AbSFJVFg>; Mon, 10 Jun 2002 17:05:36 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:35333 "EHLO
+	id <S316217AbSFJVKm>; Mon, 10 Jun 2002 17:10:42 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:35845 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S316300AbSFJVCJ>; Mon, 10 Jun 2002 17:02:09 -0400
-Date: Mon, 10 Jun 2002 16:57:13 -0400 (EDT)
+	id <S316258AbSFJVKk>; Mon, 10 Jun 2002 17:10:40 -0400
+Date: Mon, 10 Jun 2002 17:05:59 -0400 (EDT)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Nick Evgeniev <nick@octet.spb.ru>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-pre8-ac5 ide & raid0 bugs
-In-Reply-To: <Pine.LNX.4.10.10206081305390.1190-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.3.96.1020610164828.23851A-100000@gatekeeper.tmr.com>
+To: Rick Bressler <rickb@mushroom.ca.boeing.com>
+cc: linux-kernel@vger.kernel.org, rml@tech9.net
+Subject: Re: [PATCH] scheduler hints
+In-Reply-To: <200206060046.g560kJi04034@mushroom.ca.boeing.com>
+Message-ID: <Pine.LNX.3.96.1020610165913.23851B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 8 Jun 2002, Andre Hedrick wrote:
+On Wed, 5 Jun 2002, Rick Bressler wrote:
 
+> > So I went ahead and implemented scheduler hints on top of the O(1)
+> > scheduler. 
 > 
-> Because there is an entire set of new calls to deal with cfa or flash.
-> It really takes a new subdriver.
+> > Other hints could be "I am interactive" or "I am a batch (i.e. cpu hog)
+> > task" or "I am cache hot: try to keep me on this CPU". 
+> 
+> Sequent had an interesting hint they cooked up with Oracle. (Or maybe it
+> was the other way around.)  As I recall they called it 'twotask.'
+> Essentially Oracle clients processes spend a lot of time exchanging
+> information with its server process. It usually makes sense to bind them
+> to the same CPU in an SMP (and especially NUMA) machine.  (Probably
+> obvious to most of the folks on the group, but it is generally lots
+> better to essentially communicate through the cache and local memory
+> than across the NUMA bus.)
 
-Could you clarifiy that to either (a) "the kernel is now broken
-completely for CF," (b) "use the non-kernel 3.1.33 pcmcia," or (c) "use
-XXX." It's not clear to me if you are stating that CF no longer works at
-all, not longer works with taskfile, no longer works but pcmcia separate
-modules do, or that I need some other software "new subdriver" not in the
-kernel or pcmcia package.
-
-I'm not matching any of those to uni laptops working with kernel plus OLD
-pcmcia support for pcmcia in kernel, and SMP not working with any
-combination of recent kernel (plain, -jam, -ac, -aa, with patches, etc)
-and any pcmcia.
+Are you really saying that you think serializing all the clients through a
+single processor will gain more than than you lose by not using all the
+other CPUs for clients?
  
-> On Tue, 4 Jun 2002, Bill Davidsen wrote:
-> 
-> > On Wed, 29 May 2002, Nick Evgeniev wrote:
+> As I recall it made a significant difference in Oracle performance, and
+> would probably also translate to similar performance in many situations
+> where you had a client and server process doing lots of interaction in
+> an SMP environment.
 
-> > > I wrote about ide problems with 2.4.19-pre8 a few days ago (it just trashed
-> > > filesystem in a couple hours) & I was told to try 2.4.19-pre8-ac5 it was a
-> > > little bit better though every 5-8 hours I've got ide errors in log (at
-> > > least it didn't crash my reiserfs volumes yet):
-> > 
-> > I see a lot of the 0x58 with taskfile enabled, are you doing that? I even
-> > see it mounting an "IDE" compact flash! I ran out of time to try w/o
-> > taskfile_io.
+I've certainly seen a "significant difference" between uni and SMP, but it
+was always in the other direction. Is this particular to some hardware, or
+running multiple servers somehow? I'm only fmailiar with Linux, AIX and
+Solaris, maybe this is Sequent magic? Or were you talking about having
+only one client total on the machine and just making that run fast?
 
 -- 
 bill davidsen <davidsen@tmr.com>
   CTO, TMR Associates, Inc
 Doing interesting things with little computers since 1979.
-
 

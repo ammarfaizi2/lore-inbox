@@ -1,73 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290025AbSAWU3E>; Wed, 23 Jan 2002 15:29:04 -0500
+	id <S290056AbSAWUae>; Wed, 23 Jan 2002 15:30:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290047AbSAWU2y>; Wed, 23 Jan 2002 15:28:54 -0500
-Received: from ida.rowland.org ([192.131.102.52]:58628 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id <S290025AbSAWU2s>;
-	Wed, 23 Jan 2002 15:28:48 -0500
-Date: Wed, 23 Jan 2002 15:28:46 -0500 (EST)
-From: Alan Stern <stern@rowland.org>
-To: Andrew Morton <akpm@zip.com.au>
-cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Daemonize() should re-parent its caller
-In-Reply-To: <3C4F1325.C65001EE@zip.com.au>
-Message-ID: <Pine.LNX.4.33L2.0201231522450.1300-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290048AbSAWUaY>; Wed, 23 Jan 2002 15:30:24 -0500
+Received: from gumby.it.wmich.edu ([141.218.23.21]:9363 "EHLO
+	gumby.it.wmich.edu") by vger.kernel.org with ESMTP
+	id <S290047AbSAWUaK> convert rfc822-to-8bit; Wed, 23 Jan 2002 15:30:10 -0500
+Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+To: Hans-Peter Jansen <hpj@urpla.net>
+Cc: Daniel Nofftz <nofftz@castor.uni-trier.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020123201626.2EDEF1458@shrek.lisa.de>
+In-Reply-To: <Pine.LNX.4.40.0201221801210.11025-100000@infcip10.uni-trier.de> 
+	<20020123201626.2EDEF1458@shrek.lisa.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/1.0.1 
+Date: 23 Jan 2002 15:29:30 -0500
+Message-Id: <1011817776.22707.4.camel@psuedomode>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jan 2002, Andrew Morton wrote:
-
-> Alan Stern wrote:
+On Wed, 2002-01-23 at 15:16, Hans-Peter Jansen wrote:
+> On Tuesday, 22. January 2002 18:15, Daniel Nofftz wrote:
+> > hi there!
 > >
-> > Consider the question: what happens when a kernel thread dies?  For
-> > the most part this doesn't come up, since most kernel threads stay
-> > alive as long as the system is up.  But when a kernel thread dies, the
-> > same thing happens as with any other thread: it becomes a zombie, and
-> > its exit_signal (if any) is posted to its parent.
+> [...]
 > >
-> > ...
+> > if the patch gets a good feedback, maybe it is something for the official
+> > kernel tree ?
 > >
-> > But a more elegant and economical solution is to have the daemonize()
-> > routine automatically re-parent its caller to be a child of init
-> > (assuming the caller's parent isn't init already).  At the same time,
-> > the caller's exit_signal should be set to SIGCHLD.  This would
-> > definitely solve the problem, and it is unlikely to introduce any
-> > incompatibilities with existing code.
-> >
->
-> Yes.   There's a function in the 2.4 series called reparent_to_init()
-> whch does this.  Typically a kernel thread will call that immediately
-> after calling daemonize().  It _should_ solve any problem which you're
-> observing.  Could you please test that, and if it fixes the problem
-> which you're seeing, send a patch to the USB maintainers?
->
-> Perhaps we should unconditionally call reparent_to_init() from within
-> daemonize().  I wimped out on doing that because of the possibility
-> of strangely breaking something.
->
-> Really, an audit of all callers of kernel_thread() is needed, and
-> most of them should would end up using reparent_to_init().  Difficult
-> to do in the 2.4 context, so we should only do this when and where
-> problems are demonstrated.
->
-> (But you Cc'ed Alan.  Are you using 2.2.x?)
+> > daniel
+> 
+> Hi Daniel & folks,
+> 
+> just tried your patch on my (diskless) asus a7v133 (kt133) with 1.2 GHz
+> Athlon. I normally had 14% base load spend in apmd-idled and a CPU temp.
+> of 45°C. After getting it to work, I see a base load of around 1% (mostly 
+> spend in artsd), but CPU is only 1°-2° less now :-( I hoped, it it
+> would be more). Nevertheless, it is a very important patch nowadays where
+> temperature is the last technical barrier, and energy saving an economic
+> necessity.
+> 
+> Many thanks and greetings from Berlin to Trier ;)
+>   Hans-Peter
 
-Andrew:
+1-2 degrees is within the sensor's deviation.   Either you dont have it
+working correctly or it doesn't work at all in your case.   
 
-Thanks for your help.  I wasn't aware of the existence of
-reparent_to_init() -- I wish I knew of some way to find out about all
-these little things that get added and changed in various versions of the
-kernel.  Anyway, I'll check it out, and if it works I'll send a patch to
-the USB and the SCSI maintainers.
-
-(In fact, I'm using both 2.2 and 2.4.  I Cc'ed Alan Cox because it was
-suggested that he would be interested, as the original proposer of
-daemonize() -- I don't know if that's true or no.  If you're not
-interested, Alan, I apologize for bothering you.)
-
-Alan Stern
-
+You also need acpi idle calls, not just apm.   now this is just my guess
+but apm idle calls might either mess things up or be disabled if acpi
+idle calls are used and disconnecting the cpu... either way  you can't
+have this patch work and apm work at the same time.  
 

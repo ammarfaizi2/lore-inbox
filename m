@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262814AbSJaR3z>; Thu, 31 Oct 2002 12:29:55 -0500
+	id <S262824AbSJaRaE>; Thu, 31 Oct 2002 12:30:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262824AbSJaR3z>; Thu, 31 Oct 2002 12:29:55 -0500
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:42489 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S262814AbSJaR3y>; Thu, 31 Oct 2002 12:29:54 -0500
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Thu, 31 Oct 2002 10:33:11 -0700
-To: Christoph Hellwig <hch@infradead.org>, Nikita Danilov <Nikita@Namesys.COM>,
-       Linus Torvalds <Torvalds@Transmeta.COM>,
-       Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
-       Reiserfs mail-list <Reiserfs-List@Namesys.COM>
-Subject: Re: [PATCH]: reiser4 [5/8] export remove_from_page_cache()
-Message-ID: <20021031173311.GA23959@clusterfs.com>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Nikita Danilov <Nikita@Namesys.COM>,
-	Linus Torvalds <Torvalds@Transmeta.COM>,
-	Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
-	Reiserfs mail-list <Reiserfs-List@Namesys.COM>
-References: <15809.21559.295852.205720@laputa.namesys.com> <20021031161826.A9747@infradead.org> <15809.22856.534975.384956@laputa.namesys.com> <20021031163104.A9845@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021031163104.A9845@infradead.org>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S262878AbSJaRaE>; Thu, 31 Oct 2002 12:30:04 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:52199 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S262824AbSJaRaC>; Thu, 31 Oct 2002 12:30:02 -0500
+Date: Thu, 31 Oct 2002 10:36:15 -0700
+Message-Id: <200210311736.g9VHaF820663@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Stephen Wille Padnos <stephen.willepadnos@verizon.net>,
+       Dax Kelson <dax@gurulabs.com>, Chris Wedgwood <cw@f00f.org>,
+       Rik van Riel <riel@conectiva.com.br>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: What's left over.
+In-Reply-To: <Pine.GSO.4.21.0210311126450.16688-100000@weyl.math.psu.edu>
+References: <3DC15931.9030601@verizon.net>
+	<Pine.GSO.4.21.0210311126450.16688-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 31, 2002  16:31 +0000, Christoph Hellwig wrote:
-> On Thu, Oct 31, 2002 at 07:24:40PM +0300, Nikita Danilov wrote:
-> > Reiser4 stores meta-data in a huge balanced tree. This tree is kept
-> > (partially) in the page cache. All pages in this tree are attached to
-> > "fake" inode. Sometimes you need to remove node from the tree. At this
-> > moment page has to be removed from the fake inode mapping.
+Alexander Viro writes:
+> On Thu, 31 Oct 2002, Stephen Wille Padnos wrote:
 > 
-> What about chaing truncate_inode_pages to take an additional len
-> argument so you don't have to remove all pages past an offset?
+> > >Then give them all the same account and be done with that.  Effect will
+> > >be the same.
+> > 
+> > Unless I'm missing something, that only works if all the users need 
+> > *exactly* the same permissions to all files, which isn't a good assumption.
+> 
+> That's the point.  In practice shared writable access to a directory
+> can be easily elevated to full control of each others' accounts,
+         ^^^^^^
+While that may be true in theory, in practice it's not necessarily the
+case. Many people don't have the expertise to make use of such
+exploits. And before you say that they can download a pre-cooked
+exploit kit, let me tell you that there are plenty of people who don't
+have the time or inclination to do that.
 
-That would be what we have been calling "punch", and is quite useful
-for putting holes in files (i.e. making them sparse again).  This
-can be used for InterMezzo (among other things) so that the KML log
-file can be growing at the end, but being punched out at the start
-so it doesn't use up a lot of disk space.
+I've seen you talk about these kinds of things before, and you always
+seem to be talking about the typical nightmarish undergrad CS lab
+where the kids spend all their time trying to crack each other and the
+system. And I'm not saying that these don't exist: I've seen it.
 
-Not that I'm holding my breath on getting this in the kernel, but
-it is definitely useful.
+But there are other environments (say a research lab with grad
+students, post-docs and faculty) where the inhabitants either don't
+have the skills or don't have the interest in cracking accounts.
+Everyone is too busy doing their own research. Cracking the mysteries
+of the universe seems to be more interesting.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+So group write access and ACL's *can* lead to wanton cracking, but for
+many environments it's not an issue. For many, the dangers lie outside
+the firewall, not inside.
 
+Note that I'm not specifically advocating ACL's, I'm just letting you
+know that the problem you're concerned about is, for good reason, not
+a problem for everyone.
+
+I will note that one appealing aspect of ACL's is that they do not
+require administrator intervention. That's good for a user who just
+wants to set something up without having to wait for the sysadmin.
+It's also good for the sysadmin (excepting control freaks) who doesn't
+want to do things that the users can (or should) actually be doing by
+themselves.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

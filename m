@@ -1,70 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267436AbTCEPsW>; Wed, 5 Mar 2003 10:48:22 -0500
+	id <S267429AbTCEPrf>; Wed, 5 Mar 2003 10:47:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267433AbTCEPsU>; Wed, 5 Mar 2003 10:48:20 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:15502 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S267431AbTCEPsP>; Wed, 5 Mar 2003 10:48:15 -0500
-Date: Wed, 5 Mar 2003 09:58:40 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: chas williams <chas@locutus.cmf.nrl.navy.mil>
-cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][ATM] make atm (and clip) modular + try_module_get() 
-In-Reply-To: <200303051443.h25EhlGi006161@locutus.cmf.nrl.navy.mil>
-Message-ID: <Pine.LNX.4.44.0303050952010.31461-100000@chaos.physics.uiowa.edu>
+	id <S267431AbTCEPrf>; Wed, 5 Mar 2003 10:47:35 -0500
+Received: from meryl.it.uu.se ([130.238.12.42]:41722 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id <S267429AbTCEPre>;
+	Wed, 5 Mar 2003 10:47:34 -0500
+From: Mikael Pettersson <mikpe@user.it.uu.se>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15974.7817.474141.453202@gargle.gargle.HOWL>
+Date: Wed, 5 Mar 2003 16:58:01 +0100
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Unable to boot a raw kernel image :??
+In-Reply-To: <3E661C1D.904@zytor.com>
+References: <20021129132126.GA102@DervishD>
+	<3DF08DD0.BA70DA62@gmx.de>
+	<b453er$qo7$1@cesium.transmeta.com>
+	<15974.6329.574794.597753@gargle.gargle.HOWL>
+	<3E661C1D.904@zytor.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Mar 2003, chas williams wrote:
+H. Peter Anvin writes:
+ > Mikael Pettersson wrote:
+ > > 
+ > > FWIW, I still use bzdisk images frequently, and the 1MB limit really
+ > > is a serious problem for 2.5 kernels, and 2.4 kernels build with gcc-3.
+ > > I'm currently using a patched kernel where `make bzdisk' invokes a
+ > > user-specified script, which in my case goes roughly like:
+ > > 
+ > 
+ > If you get my nobootsect patch:
+ > 
+ > ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/nobootsect-2.5.63-bk7-1.diff
+ > 
+ > ... you will find something similar, but a bit more fleshed out.
+ > 
+ > This is the patch I'm trying to get Linus to accept.
 
-> In message <Pine.LNX.4.44.0303031825240.16397-100000@chaos.physics.uiowa.edu>,K
-> ai Germaschewski writes:
-> >Not terribly important, but you can write this as:
-> >obj-$(CONFIG_ATM)	+= atm.o
-> >atm-y			+= addr.o pvc.o signaling.o svc.o ...
-> >atm-$(CONFIG_PROC_FS)	+= proc.o
-> 
-> after looking at some other examples, i guess i like this even better:
-> 
-> 
-> ipcommon-obj-$(subst m,y,$(CONFIG_ATM_CLIP)) := ipcommon.o
-> ipcommon-obj-$(subst m,y,$(CONFIG_NET_SCH_ATM)) := ipcommon.o
-> 
-> atm-objs        := addr.o pvc.o signaling.o svc.o common.o atm_misc.o raw.o resources.o $(ipcommon-obj-y)
-> 
-> obj-$(CONFIG_ATM) += atm.o
-> atm-$(CONFIG_PROC_FS) += proc.o
+That's similar to what you posted to LKML a while ago, and
+it has the limitations of requiring mountable /dev/fd0, which
+needs a magic entry in /etc/fstab ("user" privs, not "owner"),
+and MS-DOS FS support in the kernel used for the build.
 
-Well, this is IMO confusing since now you're using two different ways to 
-add to atm.o in the same Makefile.
+Those are the limitations I want to avoid. Do put this in a script
+in the kernel, but please allow the user to override it via $PATH.
 
-The preferred way would be:
-
-obj-$(CONFIG_ATM) += atm.o
-
-atm-y := addr.o pvc.o signaling.o svc.o common.o atm_misc.o raw.o resources.o
-atm-$(subst m,y,$(CONFIG_ATM_CLIP))	+= ipcommon.o
-atm-$(subst m,y,$(CONFIG_NET_SCH_ATM))	+= ipcommon.o
-atm-$(CONFIG_PROC_FS)			+= proc.o
-
-You could write this as
-
-obj-$(CONFIG_ATM) += atm.o
-
-atm-obj-$(subst m,y,$(CONFIG_ATM_CLIP))		+= ipcommon.o
-atm-obj-$(subst m,y,$(CONFIG_NET_SCH_ATM))	+= ipcommon.o
-atm-obj-$(CONFIG_PROC_FS)			+= proc.o
-atm-objs := addr.o pvc.o signaling.o svc.o common.o atm_misc.o raw.o \
-	 resources.o $(atm-obj-y)
-
-But I'd really like you to use the former. I know this is currently 
-handled inconsistently throughout the Makefiles, at some point I'll 
-hopefully get around to converting things to the "new-style" above.
-
---Kai
-
-
+/Mikael

@@ -1,51 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275081AbTHGFjy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 01:39:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275080AbTHGFjy
+	id S275076AbTHGFhN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 01:37:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275078AbTHGFhM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 01:39:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:60089 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S275081AbTHGFju (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 01:39:50 -0400
-Date: Wed, 6 Aug 2003 22:38:20 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: russ@ashlandhome.net
-Subject: Re: Fw: 2.6.0: lp not working
-Message-Id: <20030806223820.5578d282.rddunlap@osdl.org>
-In-Reply-To: <20030806130452.722d7fb2.rddunlap@osdl.org>
-References: <20030806130452.722d7fb2.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 7 Aug 2003 01:37:12 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:63157
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S275076AbTHGFgG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 01:36:06 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: 2.6.0-test2-mm3 osdl-aim-7 regression
+Date: Thu, 7 Aug 2003 15:41:06 +1000
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <200308061910.h76JAYw16323@mail.osdl.org> <200308071240.54863.kernel@kolivas.org> <3F31DF98.6020908@cyberone.com.au>
+In-Reply-To: <3F31DF98.6020908@cyberone.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308071541.06091.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-| Date: Tue, 5 Aug 2003 22:43:17 -0700 (PDT)
-| From: Russell Whitaker <russ@ashlandhome.net>
-| To: linux-kernel@vger.kernel.org
-| Subject: 2.6.0: lp not working
-| 
-| 
-| Hi
-| Edited lilo.conf so I can boot either kernel-2.6.0-test2
-| (default) or kernel-2.4.21, using hda1.
-| 
-| lpr a small file, no print. ctrl-alt-del and rebooted using
-| 2.4.21, file printed. Checked the two config files and could
-| not find any difference in this area.
-| 
-| Printer is a Panasonic dot-matrix running in text mode.
-| Also using patch bk5.
+On Thu, 7 Aug 2003 15:11, Nick Piggin wrote:
+> What is the need for this round robining? Don't processes get a calculated
+> timeslice anyway?
 
-Is "Parallel Printer support" built into your kernel or built as a
-module?  If built as a module, are you sure that the module is
-loaded?  If modular, please provide contents of /proc/modules
-when you try to print.
+Nice to see you taking an unhealthy interest in the scheduler tweaks Nick. 
+This issue has been discussed before but it never hurts to review things. 
+I've uncc'ed the rest of the people in case we get carried away again. First 
+let me show you Ingo's comment in the relevant code section:
 
---
-~Randy
+		 * Prevent a too long timeslice allowing a task to monopolize
+		 * the CPU. We do this by splitting up the timeslice into
+		 * smaller pieces.
+		 *
+		 * Note: this does not mean the task's timeslices expire or
+		 * get lost in any way, they just might be preempted by
+		 * another task of equal priority. (one with higher
+		 * priority would have preempted this task already.) We
+		 * requeue this task to the end of the list on this priority
+		 * level, which is in essence a round-robin of tasks with
+		 * equal priority.
+
+I was gonna say second blah blah but I think the first paragraph explains the 
+issue. 
+
+Must we do this? No. 
+
+Should we? Probably. 
+
+How frequently should we do it? Once again I'll quote Ingo who said it's a 
+difficult question to answer. 
+
+The more frequently you round robin the lower the scheduler latency between 
+SCHED_OTHER tasks of the same priority. However, the longer the timeslice the 
+more benefit you get from cpu cache. Where is the sweet spot? Depends on the 
+hardware and your usage requirements of course, but Ingo has empirically 
+chosen 25ms after 50ms seemed too long. Basically cache trashing becomes a 
+real problem with timeslices below ~7ms on modern hardware in my limited 
+testing. A minor quirk in Ingo's original code means _occasionally_ a task 
+will be requeued with <3ms to go. It will be interesting to see if fixing 
+this (which O12.2+ does) makes a big difference or whether we need to 
+reconsider how frequently (if at all) we round robin tasks.  
+
+Con
+

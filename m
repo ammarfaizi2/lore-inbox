@@ -1,73 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135834AbRDYH6x>; Wed, 25 Apr 2001 03:58:53 -0400
+	id <S135838AbRDYJzd>; Wed, 25 Apr 2001 05:55:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135835AbRDYH6k>; Wed, 25 Apr 2001 03:58:40 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:44296 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S135834AbRDYH6V>; Wed, 25 Apr 2001 03:58:21 -0400
-Message-ID: <3AE68367.FF945378@idb.hist.no>
-Date: Wed, 25 Apr 2001 09:57:27 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: no, en
+	id <S135839AbRDYJzY>; Wed, 25 Apr 2001 05:55:24 -0400
+Received: from energy.pdb.sbs.de ([192.109.2.19]:18963 "EHLO energy.pdb.sbs.de")
+	by vger.kernel.org with ESMTP id <S135838AbRDYJzI>;
+	Wed, 25 Apr 2001 05:55:08 -0400
+Message-ID: <09BE2D952F35D411ABAF009027B6B1D37984ED@abg0971e.abg.fsc.net>
+From: "Mulder, Tjeerd" <Tjeerd.Mulder@fujitsu-siemens.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with DHCP when using tokenring on 2.4.x
+Date: Wed, 25 Apr 2001 11:57:37 +0200
 MIME-Version: 1.0
-To: imel96@trustix.co.id
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Single user linux
-In-Reply-To: <Pine.LNX.4.33.0104242029140.16230-100000@tessy.trustix.co.id>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-imel96@trustix.co.id wrote:
+The problem is probably caused by a change that was made around
+kernel 2.3.29. The hardware type of a tokenring adapter was changed
+from ARPHRD_IEEE802 to ARPHRD_IEEE802_TR. That breaks pump and the
+ISC dhcp package. So pump from RH6.2 certainly won't work.
 
-> thank you very much fyi.
-> if just you tried to understand it a little further:
-> i didn't change all uid/gid to 0!
-> 
-> why? so with that radical patch, users will still have
-> uid/gid so programs know the user's profile.
-> 
-> if everyone had 0/0 uid/gid, pine will open /var/spool/mail/root,
-> etc.
+Fixing the ISC dhcp package is easy. Maybe it has been fixed
+on the ISC site by now. Don't know about pump. 
+ 
 
-So you want multi-user to distinguish users, but no login sequence 
-with typing of passwords & username.  
+Patch for the ISC package:
 
-You can have all that without changing the kernel!
-Linux distributions runs things like login and getty by default,
-but you don't have to do that.  
+--- dhcp-3.0b2pl11/common/discover.c.org	Mon Jan  8 17:38:18 2001
++++ dhcp-3.0b2pl11/common/discover.c	Mon Jan  8 17:23:56 2001
+@@ -407,7 +407,11 @@
+ #ifndef HAVE_ARPHRD_IEEE802
+ # define ARPHRD_IEEE802 HTYPE_IEEE802
+ #endif
++#ifdef ARPHRD_IEEE802_TR
++		      case ARPHRD_IEEE802_TR:
++#else
+ 		      case ARPHRD_IEEE802:
++#endif
+ 			tmp -> hw_address.hlen = 7;
+ 			tmp -> hw_address.hbuf [0] = ARPHRD_IEEE802;
+ 			memcpy (&tmp -> hw_address.hbuf [1], sa.sa_data, 6);
 
-If you run linux on a device not perceived as a computer,
-consider this:
 
-1. Run whatever daemons you need as root or under daemon usernames,
-depending on what privileges they need.
 
-2. Run the user interface program (X or whatever) as a user,
-not root.  No, they don't need a password for that.  Just
-start it from inittab, with a wrapper program that su's to the
-appropriate user without asking for passwords.
+--
+======================================================================
+Tjeerd Mulder                ! mailto:tjeerd.mulder@fujitsu-siemens.com
+Fujitsu Siemens Computers    !
+FSC PO PC RD MDE             !
+Buergermeister Ulrichstr 100 ! Phone: +49 821 804 3549
+86199 Augsburg               ! Fax  : +49 821 804 3934
+======================================================================
 
-3. If the user really need root for anything, such as changing
-device configuration, use a suid configuration program.  No
-password needed with that approach.  You probably want
-a configuration program anyway as your "dumb" users probably 
-don't know how to edit files in /etc anyway.  Making 
-it suid is no extra work.
 
-Now you have both the security of linux and the ease of use of a
-password-less system.  Part of linux stability comes from the
-fact that ordinary users cannot do anything.  Crashing the
-machine is easy as root, but an appliance user don't need
-to be root for normal use.  And the special cases which need
-it can be handled by suid programs that cannot do "anything",
-just the purpose they are written for.
-
-Linux is very configurable even without patching the kernel.
-A general rule is that no kernel patches is accepted for
-problems that are easily solvable with simple programs.
-
-Helge Hafting

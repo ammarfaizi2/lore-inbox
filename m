@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267438AbUH3GdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267452AbUH3Gdn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267438AbUH3GdG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 02:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267461AbUH3GdF
+	id S267452AbUH3Gdn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 02:33:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267457AbUH3Gdk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 02:33:05 -0400
-Received: from nysv.org ([213.157.66.145]:24778 "EHLO nysv.org")
-	by vger.kernel.org with ESMTP id S267438AbUH3GdC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 02:33:02 -0400
-Date: Mon, 30 Aug 2004 09:31:16 +0300
-To: Hubert Chan <hubert@uhoreg.ca>
-Cc: reiserfs-list@namesys.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
+	Mon, 30 Aug 2004 02:33:40 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13216 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267452AbUH3Gdf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 02:33:35 -0400
+Date: Mon, 30 Aug 2004 07:33:31 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Hans Reiser <reiser@namesys.com>, flx@msu.ru, Paul Jackson <pj@sgi.com>,
+       riel@redhat.com, ninja@slaphack.com, diegocg@teleline.es,
+       jamie@shareable.org, christophe@saout.de,
+       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
+       spam@tnonline.net, Andrew Morton <akpm@osdl.org>, wichert@wiggy.net,
+       jra@samba.org, hch@lst.de,
+       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
+       linux-kernel@vger.kernel.org, flx@namesys.com,
+       reiserfs-list@namesys.com
 Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040830063116.GF26192@nysv.org>
-References: <Pine.LNX.4.44.0408272158560.10272-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.58.0408271902410.14196@ppc970.osdl.org> <20040828170515.GB24868@hh.idb.hist.no> <Pine.LNX.4.58.0408281038510.2295@ppc970.osdl.org> <4131074D.7050209@namesys.com> <Pine.LNX.4.58.0408282159510.2295@ppc970.osdl.org> <4131A3B2.30203@namesys.com> <20040829104413.GE871@zip.com.au> <87fz65wt82.fsf@uhoreg.ca>
+Message-ID: <20040830063331.GI16297@parcelfarce.linux.theplanet.co.uk>
+References: <41323751.5000607@namesys.com> <20040829212700.GA16297@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408291431070.2295@ppc970.osdl.org> <1093821430.8099.49.camel@lade.trondhjem.org> <Pine.LNX.4.58.0408291641070.2295@ppc970.osdl.org> <1093830135.8099.181.camel@lade.trondhjem.org> <Pine.LNX.4.58.0408291919450.2295@ppc970.osdl.org> <20040830030157.GE16297@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408292042380.2295@ppc970.osdl.org> <20040830044637.GF16297@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87fz65wt82.fsf@uhoreg.ca>
-User-Agent: Mutt/1.5.6i
-From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
+In-Reply-To: <20040830044637.GF16297@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 29, 2004 at 05:05:17PM -0400, Hubert Chan wrote:
->Reiserfs list, and I don't think there was much consensus that came out
+On Mon, Aug 30, 2004 at 05:46:37AM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> Arguments about O_NOFOLLOW on the intermediate stages are bullshit, IMNSHO -
+> if they want to make some parts of tree inaccessible, they should simply
+> mkdir /tmp/FOAD; chmod 0 /tmp/FOAD; mount --bind /tmp/FOAD <blocked path>
+> in the namespace their daemon is running in.  And forget all that crap
+> about filtering pathnames and blocking symlinks on intermediate stages
+> (the latter is obviously worthless without the former since one can simply
+> substitute the symlink body in the pathname).
 
-It's like Gentoo users and patch sets ;)
+Ehh...  After looking at that for a while...  No, it's not that simple
+and removing the stuff that way won't do what these guys want, at least
+not without something else.  Frankly, what I've seen worries me a lot -
+it looks like there is a missing primitive here that would be saner
+than this sort of filtering.
 
->of it.  Currently for Reiser4, AFAIK, the "metas" name is a compile-time
->option that you can change by changing a #define, if you're worried
->about name clashes.
-
-http://mjt.nysv.org/reiser/reiser4.metas.patch
-
--- 
-mjt
-
+It appears that most of this stuff would be covered by a fast way to tell
+if the resulting object belongs to given subtree.  That could be arranged
+(not without some changes, but doable), but I'm not sure that it's enough
+to cover the stuff they are really trying to do.  It does look like an
+interesting problem and current solutions certainly suck.  And I very
+much doubt that "do a lookup if it doesn't run into anything that could
+be too tricky for our pathname-based checks, otherwise let's do it step-by-step
+from userland" is the right approach here.

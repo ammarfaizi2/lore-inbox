@@ -1,76 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268520AbUH3QRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268534AbUH3QRZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268520AbUH3QRN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 12:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268534AbUH3QRN
+	id S268534AbUH3QRZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 12:17:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268535AbUH3QRZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 12:17:13 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:53339 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S268520AbUH3QRL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 12:17:11 -0400
-Date: Mon, 30 Aug 2004 18:18:54 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Christoph Hellwig <hch@mx20.domainteam.dk>, sam@ravnborg.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] read EXTRAVERSION from file
-Message-ID: <20040830161854.GA24580@mars.ravnborg.org>
-Mail-Followup-To: Christoph Hellwig <hch@mx20.domainteam.dk>,
-	sam@ravnborg.org, linux-kernel@vger.kernel.org
-References: <20040830151405.GA18836@lst.de>
+	Mon, 30 Aug 2004 12:17:25 -0400
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:53886 "EHLO linux.local")
+	by vger.kernel.org with ESMTP id S268534AbUH3QRW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 12:17:22 -0400
+Date: Mon, 30 Aug 2004 09:13:28 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Kaigai Kohei <kaigai@ak.jp.nec.com>,
+       "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
+       "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>,
+       James Morris <jmorris@redhat.com>
+Subject: Re: [PATCH]SELinux performance improvement by RCU (Re: RCU issue with SELinux)
+Message-ID: <20040830161328.GC1243@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp> <1093014789.16585.186.camel@moss-spartans.epoch.ncsc.mil> <042b01c489ab$8a871ce0$f97d220a@linux.bs1.fc.nec.co.jp> <1093361844.1800.150.camel@moss-spartans.epoch.ncsc.mil> <024501c48a89$12d30b30$f97d220a@linux.bs1.fc.nec.co.jp> <1093449047.6743.186.camel@moss-spartans.epoch.ncsc.mil> <02b701c48b41$b6b05100$f97d220a@linux.bs1.fc.nec.co.jp> <1093526652.9280.104.camel@moss-spartans.epoch.ncsc.mil> <066f01c48e82$f4ec3530$f97d220a@linux.bs1.fc.nec.co.jp> <1093880119.5447.87.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040830151405.GA18836@lst.de>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1093880119.5447.87.camel@moss-spartans.epoch.ncsc.mil>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 30, 2004 at 05:14:05PM +0200, Christoph Hellwig wrote:
-> The're an very interesting patch in the Debian tree still from the time
-> where Herbert Xu mentioned it, it allows creating a file .extraversion
-> in the toplevel kernel directory and the Makefile will set EXTRAVERSION
-> to it's contents.  This has the nice advantage of keeping an
-> extraversion pre-tree instead of having to patch the Makefile and
-> getting rejects everytime you pull a new tree (or BK refuses to touch
-> the Makefile).
+On Mon, Aug 30, 2004 at 11:35:19AM -0400, Stephen Smalley wrote:
+> On Mon, 2004-08-30 at 07:17, Kaigai Kohei wrote:
+> > I fixed the take-3 patch according to your and Paul's suggestions.
+> > 
+> > The attached take-4 patches replace the avc_lock in security/selinux/avc.c
+> > by the lock-less read access with RCU.
 > 
-> The only thing I'm not fully comfortable is the .extraversion name, I
-> think I'd prefer a user-visible name.
-> 
-> Any other comments on this one?
-> 
-> --- kernel-source-2.6.6/Makefile	2004-05-10 19:47:45.000000000 +1000
-> +++ kernel-source-2.6.6-1/Makefile	2004-05-10 22:21:02.000000000 +1000
-> @@ -151,6 +151,9 @@
->  
->  export srctree objtree VPATH TOPDIR
->  
-> +ifeq ($(EXTRAVERSION),)
-> +EXTRAVERSION := $(shell [ ! -f .extraversion ] || cat .extraversion)
-> +endif
->  KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
+> Thanks.  Was there a reason you didn't move the rcu_read_lock call after
+> the avc_insert call per the suggestion of Paul McKenney, or was that
+> just an oversight?  No need to send a new patch, just ack whether or not
+> you meant to switch the order there.
 
-This would fail for 2.6.8.1 for instance. Or at least the '1' that Linus 
-added would be part of the final EXTRAVERSION.
+One reason might be because I called it out in the text of my message,
+but failed to put it in my patch.  :-/  Of course, if there is some reason
+why moving the rcu_read_lock() call is bad, I would like to know for
+my own education.
 
-Ian Wienand <ianw@gelato.unsw.edu.au> posted a patch some time ago that
-introduces LOCALVERSION - it's in my queue but not applied since it
-needs some rework. And documentation also.
-That should be easy to extend to read the file localversion.
-
-I would then prefer something like:
-If exists $(srctree)/localversion read file and append to LOCALVERSION
-If exists $(objtree)/localversion read file and append to LOCALVERSION
-
-
-Example for a debian patched kernel src tree:
-
-srctree:
-localversion <= contains -deb-unstb-7.9
-objtree:
-localversion <= contains -smp-p4
-
-Resulting in a kernelversion equals: 2.6.8-rc1-deb-unstb-7.9-smp-p4
-
-	Sam
+						Thanx, Paul

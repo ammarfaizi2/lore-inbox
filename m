@@ -1,146 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263270AbSK0Prg>; Wed, 27 Nov 2002 10:47:36 -0500
+	id <S263026AbSK0PpX>; Wed, 27 Nov 2002 10:45:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263280AbSK0Prf>; Wed, 27 Nov 2002 10:47:35 -0500
-Received: from heaven.kiyaviakrym.com.ua ([212.109.36.227]:16900 "EHLO
-	heaven.kiyavia.crimea.ua") by vger.kernel.org with ESMTP
-	id <S263270AbSK0Pra>; Wed, 27 Nov 2002 10:47:30 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Prev. mail
-Message-Id: <20021127155439.922D7E012@heaven.kiyavia.crimea.ua>
-Date: Wed, 27 Nov 2002 17:54:39 +0200 (EET)
-From: fuzk@heaven.kiyavia.crimea.ua
+	id <S263039AbSK0PpX>; Wed, 27 Nov 2002 10:45:23 -0500
+Received: from windsormachine.com ([206.48.122.28]:37640 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S263026AbSK0PpW>; Wed, 27 Nov 2002 10:45:22 -0500
+Date: Wed, 27 Nov 2002 10:52:34 -0500 (EST)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: <fuzk@heaven.kiyavia.crimea.ua>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Subj: BUG in 2.4.19
+In-Reply-To: <20021127154644.155C3E012@heaven.kiyavia.crimea.ua>
+Message-ID: <Pine.LNX.4.33.0211271052100.18401-100000@router.windsormachine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good evening!
+On Wed, 27 Nov 2002 fuzk@heaven.kiyavia.crimea.ua wrote:
 
-Problem: the system hangs
-The additional information: troubles with controller on hd (hardware problem)
+> Good day!
+>
+> It is not important that hardware does not work correctly,
+> important that in 2.4.18 all works, and in 2.4.19 - does not works!
 
-After recompiling kernel 2.4.18 with patch 2.4.19 wtere was a trouble:
-The system hangs after loading in place 'Partition check'. Fragment dmesg:
+I'm having difficulty reading your mind for some reason, I think the
+Atlantic Ocean is getting in the way.
 
-In kernel 2.4.19 it was so:
-
-hda: WDC AC33200L, ATA DISK drive
-hdc: SAMSUNG SV0511D, ATA DISK drive
-hdd: SAMSUNG SCR-2430, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 6346368 sectors (3249 MB) w/256KiB Cache, CHS=787/128/63, UDMA(33)
-hdc: 9965088 sectors (5102 MB) w/472KiB Cache, CHS=9886/16/63, UDMA(33)
-hdd: ATAPI 20X CD-ROM drive, 0kB Cache, DMA
-Uniform CD-ROM driver Revision: 3.12
-ide-floppy driver 0.97.sv
-Partition check:
- hda: hda1
- hdc:           /* hdc: <-- trouble */
-
-
-In kernel 2.4.18 it was so:
-
-hda: WDC AC33200L, ATA DISK drive
-hdc: SAMSUNG SV0511D, ATA DISK drive
-hdd: SAMSUNG SCR-2430, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 6346368 sectors (3249 MB) w/256KiB Cache, CHS=787/128/63, UDMA(33)
-hdc: 9965088 sectors (5102 MB) w/472KiB Cache, CHS=9886/16/63, UDMA(33)
-hdd: ATAPI 20X CD-ROM drive, 0kB Cache, DMA
-Uniform CD-ROM driver Revision: 3.12
-ide-floppy driver 0.97.sv
-Partition check:
- hda: hda1
- hdc:hdc: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hdc: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-hdc: drive not ready for command
- [PTBL] [620/255/63] hdc1 hdc2 hdc3
-hdc: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hdc: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-hdc: drive not ready for command
-hdc: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hdc: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-hdc: drive not ready for command
-hdc: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hdc: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-hdc: drive not ready for command
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: mounted filesystem with ordered data mode.
-VFS: Mounted root (ext3 filesystem) readonly.
-
-/* 
-# ...and so on... 
-#
-# It works!!! Why does not work in 2.4.19 ???
-*/
-
-Other information that might be relevant to the problem:
-
-root@electris (17:05:09):/# cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 5
-model name      : Celeron (Covington)
-stepping        : 0
-cpu MHz         : 267.276
-cache size      : 32 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr
-bogomips        : 532.48
-
-root@electris (17:05:15):/# lspci
-00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 02)
-00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 02)
-00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
-00:10.0 Multimedia audio controller: ESS Technology ES1969 Solo-1 Audiodrive (rev 02)
-00:11.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
-01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage IIC AGP (rev 3a)
-
-root@electris (17:29:18):/# cat /proc/devices
-Character devices:
-  1 mem
-  2 pty
-  3 ttyp
-  4 ttyS
-  5 cua
-  7 vcs
- 10 misc
- 14 sound
- 29 fb
-109 lvm
-128 ptm
-129 ptm
-136 pts
-137 pts
-162 raw
-
-Block devices:
-  1 ramdisk
-  2 fd
-  3 ide0
-  7 loop
-  9 md
- 22 ide1
- 43 nbd
- 58 lvm
-
-
-I hope I help you. :,)
+What is the problem?
 

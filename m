@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262049AbUCSJEr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 04:04:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbUCSJEq
+	id S262035AbUCSJLy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 04:11:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbUCSJLy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 04:04:46 -0500
-Received: from mail.shareable.org ([81.29.64.88]:32142 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262049AbUCSJEj
+	Fri, 19 Mar 2004 04:11:54 -0500
+Received: from mail.shareable.org ([81.29.64.88]:33166 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262035AbUCSJLw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 04:04:39 -0500
-Date: Fri, 19 Mar 2004 09:04:31 +0000
+	Fri, 19 Mar 2004 04:11:52 -0500
+Date: Fri, 19 Mar 2004 09:11:48 +0000
 From: Jamie Lokier <jamie@shareable.org>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: unionfs
-Message-ID: <20040319090431.GB2650@mail.shareable.org>
-References: <20040315235243.GA21416@wohnheim.fh-wedel.de> <200403161618.i2GGITKK004831@eeyore.valparaiso.cl>
+Message-ID: <20040319091148.GC2650@mail.shareable.org>
+References: <20040315235243.GA21416@wohnheim.fh-wedel.de> <200403161618.i2GGITKK004831@eeyore.valparaiso.cl> <20040316171038.GA27046@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200403161618.i2GGITKK004831@eeyore.valparaiso.cl>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040316171038.GA27046@wohnheim.fh-wedel.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
-> Besides, the people asking for this mostly really
-> want version control, or get what they want from symlink farms.
+Jörn Engel wrote:
+> And version control is something I actually want to be done inside the
+> kernel, at least to some degree.  People already use kernel support,
+> although it sucks (cp -lr anyone?).  Looks like the alternatives suck
+> even more, so your point is void.
 
-No.  Version control does not address the requirement: to have 30
-checked out kernel trees, each with compiled images, because you're
-actually working on 30 trees, sharing files to save time and space,
-and normal shell commands in each directory not accidentally affecting
-the others.
+Fwiw, I much prefer your COW hard links to something where I have to
+mount a new filesystem every time I "copy" a tree, and have to redo
+those mounts each time I reboot, have a big ugly mess in "df" output,
+what "du" get confused, and "rsync" has no hope of dealing with them
+sensibly.
 
-I have not heard of any version control system which offers that.
-Perhaps one based around a virtual filesystem could.
+I also don't mind if copying isn't implemented in the kernel.  I'm ok
+with programs reporting an error that they couldn't write to a file
+because it was linked readonly.  At least that removes the danger of
+accidental overwriting, and I can either fix it by hand or use an
+LD_PRELOAD library which detects that error code from open() and
+copies the file.
 
-Symlink farms do not solve it either.  They have the same problem as
-hard links: namely, it is too easy to accidentally modify a file in
-one tree while intending to modify only in another, plus they
-introduce a whole bunch of other problems.
+Even if vi and Emacs, which make it temptingly easy to ignore normal
+read-only protection, were changed to be aware of and bypass the
+read-only link attribute, they'd do the right thing: the attribute
+expresses the _intent_ that removing it should always be done by
+copying the file, whereas with hard links that intent isn't clear.
+(Emacs has backup-by-copying-when-linked, but that isn't too helpful
+because sometimes you want writing to a linked file to change both places).
 
-This idea of COW links is to solve one quite specific problem:
-creating the illusion that large trees are copied and independent, so
-that editors and compilers and makefiles and so on affect them
-independently, while doing so fast and small, and allowing programs
-which compare files (such as version control and diff) to know when
-two files' contents are identical efficiently.
+So my vote is for the very simple COW hard link attribute, and leave
+the rest to userspace.
 
+Thanks!
 -- Jamie

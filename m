@@ -1,101 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbTIYNnY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 09:43:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbTIYNnY
+	id S261245AbTIYNti (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 09:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbTIYNth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 09:43:24 -0400
-Received: from 24-216-47-19.charter.com ([24.216.47.19]:14558 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id S261227AbTIYNnV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 09:43:21 -0400
-Date: Thu, 25 Sep 2003 09:43:14 -0400
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: "Dave Gilbert (Home)" <gilbertd@treblig.org>
-Cc: "Norris, Brent" <bnorris@Edmonson.k12.ky.us>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: 128G Limit in Reiserfs? Or the Kernel? Or something else?
-Message-ID: <20030925134314.GE32614@rdlg.net>
-Mail-Followup-To: "Dave Gilbert (Home)" <gilbertd@treblig.org>,
-	"Norris, Brent" <bnorris@Edmonson.k12.ky.us>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-References: <9A8F8D67DC8ED311BF3E0008C7B9A0ADBAA86E@E151000N0> <3F72EC23.6070403@treblig.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="T7mxYSe680VjQnyC"
-Content-Disposition: inline
-In-Reply-To: <3F72EC23.6070403@treblig.org>
-User-Agent: Mutt/1.5.4i
+	Thu, 25 Sep 2003 09:49:37 -0400
+Received: from 202-47-55-78.adsl.gil.com.au ([202.47.55.78]:25730 "HELO
+	longlandclan.hopto.org") by vger.kernel.org with SMTP
+	id S261245AbTIYNtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 09:49:36 -0400
+Message-ID: <3F72F1F6.1040007@longlandclan.hopto.org>
+Date: Thu, 25 Sep 2003 23:47:34 +1000
+From: Stuart Longland <stuartl@longlandclan.hopto.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5b) Gecko/20030827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nicolas Mailhot <Nicolas.Mailhot@laposte.net>
+CC: Adrian Bunk <bunk@fs.tum.de>, Vojtech Pavlik <vojtech@suse.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PS2 keyboard & mice mandatory again ?
+References: <1064428364.1673.11.camel@rousalka.dyndns.org>	 <20030925074656.GA22543@ucw.cz>	 <1064477341.13077.7.camel@ulysse.olympe.o2t>	 <20030925111547.GL15696@fs.tum.de> <1064491863.17990.10.camel@ulysse.olympe.o2t>
+In-Reply-To: <1064491863.17990.10.camel@ulysse.olympe.o2t>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---T7mxYSe680VjQnyC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Nicolas Mailhot wrote:
+| Le jeu 25/09/2003 à 13:15, Adrian Bunk a écrit :
+|
+|>On Thu, Sep 25, 2003 at 10:11:45AM +0200, Nicolas Mailhot wrote:
+|>
+|>>Great, now a standard mass-market computer is an embedded device. I can
+|>>(and will) certainly do it, but this looks like a ticking bomb to me.
+|>>...
+|>
+|>What does it cost if an unneeded driver is included in your kernel?
+|>Perhaps a few kB?
+|
+|
+| And all the bugs of the unneeded driver.
+| I didn't notice this because I have the habit to run diff between my old
+| and new config. I noticed it because on 2.6.0-test-bk9 or 10 I had my
+| boot logs full of warnings associated to PS/2 input.
+|
 
+I presonally would like to be able to choose if I want to use the PS/2
+driver or not.  Mainly because a couple of machines I have here, use the
+old AT keyboard (DIN-5 connection, not PS/2 or USB), and have <128MB
+RAM.  For instance, how many 386 computers have you seen with at least
+32MB RAM & PS/2 or USB sockets? [1]
 
+(And yes, I probably would be crazy enough to go put Linux 2.6 on to a
+386, I've considered installing Gentoo on one actually -- just to see
+how long it takes :-D)
 
-I have about 2 filesystems currently at 600Gig.
+Footnotes:
+1. I've only seen one exception to this, that is one old (also dead)
+Olivetti 386 laptop which had PS/2 keyboard & mouse sockets.
 
-Reiser has no inodes so I guarantee your out but it's irrelevant.
-What does df -k actually show?  You sure you don't have a process with
-an open log file that's been removed?
-
-Thus spake Dave Gilbert (Home) (gilbertd@treblig.org):
-
-> Norris, Brent wrote:
-> >I seem to have hit an odd limit, that I didn't think existed.  I have a=
-=20
-> >250G
-> >WD IDE hard drive that I have just installed.  Since I couldn't put a Ex=
-t3
-> >filesystem on it (mount wouldn't recognize it) I decided to put a Reiser=
-FS
-> >filesystem on it.  Since I have done that I have added 128G of data to t=
-he
-> >drive.  Now when I attempt to copy more data to it I get an error that=
-=20
-> >there
-> >is no more space on the drive.
->=20
-> Reiser can definitly do larger file systems than that (I have a Reiser=20
-> file system with over 300GB on).
->=20
-> Its worth trying a df -i to make sure you haven't run out of inodes -=20
-> but then you say you can create empty files.
->=20
-> Dave
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-Life is not a destination, it's a journey.
-  Microsoft produces 15 car pileups on the highway.
-    Don't stop traffic to stand and gawk at the tragedy.
-
---T7mxYSe680VjQnyC
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
+- --
++-------------------------------------------------------------+
+| Stuart Longland           stuartl at longlandclan.hopto.org |
+| Brisbane Mesh Node: 719             http://stuartl.cjb.net/ |
+| I haven't lost my mind - it's backed up on a tape somewhere |
+| Griffith Student No:           Course: Bachelor/IT (Nathan) |
++-------------------------------------------------------------+
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Version: GnuPG v1.2.2 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iD8DBQE/cvDy8+1vMONE2jsRAvpeAKCKqeNRowmxqmvPGGdLDi0ZjTa5QgCghQhJ
-VwvJtJSYmRRMmyxu2jLgMPE=
-=z469
+iD8DBQE/cvH2IGJk7gLSDPcRAogxAJ98vnGjv28e66WfQeB/1vGvsJpcdQCcClTN
+irImF4+gNHZq2yi0CTbeTQI=
+=9If5
 -----END PGP SIGNATURE-----
 
---T7mxYSe680VjQnyC--

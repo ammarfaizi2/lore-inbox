@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262454AbUDPHMM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 03:12:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbUDPHMM
+	id S262580AbUDPHW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 03:22:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbUDPHW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 03:12:12 -0400
-Received: from vtens.prov-liege.be ([193.190.122.60]:26792 "EHLO
-	mesepl.epl.prov-liege.be") by vger.kernel.org with ESMTP
-	id S262454AbUDPHML (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 03:12:11 -0400
-To: <linux-kernel@vger.kernel.org>
-Subject: NFS export ... again
-From: <fabian.frederick@prov-liege.be>
-Date: Fri, 16 Apr 2004 09:05:50 +0200
-Reply-To: <fabian.frederick@prov-liege.be>
-X-Priority: 3 (Normal)
-X-Originating-Ip: [10.10.0.15]
-X-Mailer: NOCC v0.9.5
+	Fri, 16 Apr 2004 03:22:59 -0400
+Received: from postfix3-2.free.fr ([213.228.0.169]:59550 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S262580AbUDPHW6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 03:22:58 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: Sam Ravnborg <sam@ravnborg.org>,
+       Axel Weiss <aweiss@informatik.hu-berlin.de>
+Subject: Re: compiling external modules
+Date: Fri, 16 Apr 2004 09:22:56 +0200
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <200404152305.49456.aweiss@informatik.hu-berlin.de> <20040415215907.GD2656@mars.ravnborg.org>
+In-Reply-To: <20040415215907.GD2656@mars.ravnborg.org>
+MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8bit
-Message-Id: <S262454AbUDPHML/20040416071211Z+2733@vger.kernel.org>
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404160922.56151.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond, Chris,
+> When I get some spare time I will try to come up with a simpler example.
 
-     AFAICS, nfsd/export code already does some nfs cache poll through RPC to generate /proc/nfs/exports .... But content appears broken to me as it relates progressive mounting points but never umounts.We only have to fix this in my opinion ... or maybe I'm lured by multi-versioning there ... 
+Please do, that would be very helpful, especially if it works for both 2.4 and
+2.6.
 
-Regards,
-Fabian
+All the best,
 
-___________________________________
-
-
-
+Duncan.

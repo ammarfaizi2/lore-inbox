@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268537AbUJDVS6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268524AbUJDVEZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268537AbUJDVS6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 17:18:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268575AbUJDVS6
+	id S268524AbUJDVEZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 17:04:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268527AbUJDVEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 17:18:58 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:40190 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S268537AbUJDVSy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 17:18:54 -0400
-Date: Mon, 04 Oct 2004 14:19:37 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-cc: kernel-janitors@lists.osdl.org, greg@kroah.com, hannal@us.ibm.com,
-       geert@linux-m68k.org, zippel@linux-m68k.org
-Subject: [PATCH 2.6] hades-pci.c: replace pci_find_device with pci_get_device
-Message-ID: <280230000.1096924777@w-hlinder.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Mon, 4 Oct 2004 17:04:25 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23562 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S268524AbUJDVEX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 17:04:23 -0400
+Date: Mon, 4 Oct 2004 22:04:19 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Alex Williamson <alex.williamson@hp.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] set membase in serial8250_request_port
+Message-ID: <20041004220419.C21216@flint.arm.linux.org.uk>
+Mail-Followup-To: Alex Williamson <alex.williamson@hp.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <1096916062.4510.20.camel@tdi>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1096916062.4510.20.camel@tdi>; from alex.williamson@hp.com on Mon, Oct 04, 2004 at 12:54:22PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 04, 2004 at 12:54:22PM -0600, Alex Williamson wrote:
+> 
+>    I'm running into a problem that seems to be caused by this really old
+> changeset:
+> 
+> http://linux.bkbits.net:8080/linux-2.5/cset@3d9f67f2BWvXiLsZCFwD-8s_E9AN6A
+> 
+> When I run 'setserial /dev/ttyS1 uart 16450' on an ia64 system w/ MMIO
+> UARTs, I get a NAT consumption oops from the kernel.  The problem is
+> that this code path calls serial8250_release_port() where the membase
+> gets cleared.  However, the subsequent call to serial8250_request_port()
+> doesn't restore membase, causing a read from a bad address.  I don't see
+> many users of the UPF_IOREMAP flag, so I think the solution is to simply
+> make the remap case symmetric to the unmap case.  Patch below.  Thanks,
 
-As pci_find_device is going away I have replaced this call with pci_get_device.
-If anyone has access to a Hades Atari clone to test this one I would appreciate it..
+Mostly correct reasoning, but the solution is wrong.  Consider what
+happens if we call request_port where we have set mapbase and pre-
+initialised membase for a memory mapped port (eg, PCI card.)
 
-Hanna Linder
-IBM Linux Technology Center
+This would cause us to re-ioremap the mapbase, which is wrong.  We
+must obey the UPF_IOREMAP flag here.  Note also that this fix you're
+reverting will break 8250 for PPC people...
 
-Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+Could you give further information about the problem you're seeing?
+Bear in mind that I know precisely zero about ia64 oopsen so you'll
+probably have to explain it to me in detail.
 
----
-diff -Nrup linux-2.6.9-rc3-mm2cln/arch/m68k/atari/hades-pci.c linux-2.6.9-rc3-mm2patch/arch/m68k/atari/hades-pci.c
---- linux-2.6.9-rc3-mm2cln/arch/m68k/atari/hades-pci.c	2004-09-29 20:04:57.000000000 -0700
-+++ linux-2.6.9-rc3-mm2patch/arch/m68k/atari/hades-pci.c	2004-10-04 13:30:44.120362824 -0700
-@@ -311,7 +311,7 @@ static void __init hades_fixup(int pci_m
- 	 * Go through all devices, fixing up irqs as we see fit:
- 	 */
- 
--	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL)
-+	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL)
- 	{
- 		if (dev->class >> 16 != PCI_BASE_CLASS_BRIDGE)
- 		{
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

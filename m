@@ -1,272 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271917AbSISRHu>; Thu, 19 Sep 2002 13:07:50 -0400
+	id <S271638AbSISRPJ>; Thu, 19 Sep 2002 13:15:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271932AbSISRHu>; Thu, 19 Sep 2002 13:07:50 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27912 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S271917AbSISRHq>;
-	Thu, 19 Sep 2002 13:07:46 -0400
-Message-ID: <3D8A056C.2000605@mandrakesoft.com>
-Date: Thu, 19 Sep 2002 13:12:12 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S271851AbSISRPJ>; Thu, 19 Sep 2002 13:15:09 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:4994 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S271638AbSISRPH>; Thu, 19 Sep 2002 13:15:07 -0400
+Date: Thu, 19 Sep 2002 13:22:35 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Brian Gerst <bgerst@didntduck.org>
+cc: dvorak <dvorak@xs4all.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Syscall changes registers beyond %eax, on linux-i386
+In-Reply-To: <3D8A04C0.6050508@didntduck.org>
+Message-ID: <Pine.LNX.3.95.1020919131927.15141A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Donald Becker <becker@scyld.com>
-CC: netdev@oss.sgi.com, Jason Lunz <lunz@falooley.org>,
-       Richard Gooch <rgooch@ras.ucalgary.ca>,
-       "Patrick R. McManus" <mcmanus@ducksong.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       edward_peng@dlink.com.tw
-Subject: PATCH: sundance #2
-References: <Pine.LNX.4.44.0209190903050.29420-100000@beohost.scyld.com>
-Content-Type: multipart/mixed;
- boundary="------------010400030102010602030107"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010400030102010602030107
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 19 Sep 2002, Brian Gerst wrote:
 
-Thanks to Donald for his comments.  This patch addresses the first of 
-his two emails.
+> Richard B. Johnson wrote:
+> > On Thu, 19 Sep 2002, dvorak wrote:
+> > 
+> > 
+> >>Hi,
+> >>
+> >>recently i came across a situation were on linux-i386 not only %eax was
+> >>altered after a syscall but also %ebx. I tracked this problem down, to
+> >>gcc re-using a variable passed to a function.
+> >>
+> >>This was found on a debian system with a 2.4.17 kernel compiled with gcc
+> >>2.95.2 and verified on another system, kernel 2.4.18 compiled with 2.95.4 
+> >>Attached is small program to test for this 'bug'
+> >>
+> >>a syscall gets his data off the stack, the stack looks like:
+> >>
+> >>saved(edx)
+> >>saved(ecx)
+> >>saved(ebx)
+> >>return_addres 	(somewhere in entry.S)
+> >>
+> >>When the syscall is called.
+> >>
+> >>the register came there through use of 'SAVE_ALL'.
+> >>
+> >>After the syscall returns these registers are restored using RESTORE_ALL
+> >>and execution is transferred to userland again.
+> >>
+> >>A short snippet of sys_poll, with irrelavant data removed.
+> >>
+> >>sys_poll(struct pollfd *ufds, .. , ..) {
+> >>    ...
+> >>    ufds++;
+> >>    ...
+> >>}
+> >>
+> >>It seems that gcc in certain cases optimizes in such a way that it changes
+> >>the variable ufds as placed on the stack directly. Which results in saved(ebx)
+> >>being overwritten and thus in a changed %ebx on return from the system call.
+> >>
+> > 
+> > 
+> > The 'C' compiler must make room on the stack for any local
+> > variables except register types. If it was doing as you state, you
+> > couldn't even execute a "hello world" program. Further, the local
+> > variables are after the return address. It would screw up the return
+> > address and you'd go off into hyper-space upon return.
+> > 
+> > 
+> > 
+> >>I don't know if this is considered a bug, and if it is, from whom.
+> >>If it's not a bug it means low-level userland programs need to be rewritten
+> >>to store all registers on a syscall and restore them on return.
+> >>
+> > 
+> > 
+> > No. Various 'C' implementers have standardized calling methods even
+> > though it's not part of the 'C' standard. gcc and others assume that
+> > a called procedure is not going to change any segments or index registers.
+> > There are various optimization things, like "-fcaller-saves" where the
+> > called procedure can destroy anything. You may be using something that
+> > was wrongly compiled using that switch.
+> > 
+> >  
+> > 
+> >>It shouldn't be a bug in gcc, since the C-standard doesn't talk about how to 
+> >>pass variables and stuff. So it seems like a kernel(-gcc-interaction) bug.
+> >>
+> >>To solve this issue 2 solutions spring to mind
+> >>1) add a flag to gcc to tell it that it shouldn't do this optimization, this
+> >>   won't work with the gcc's already out there.
+> >>2) When calling a syscall explicitly push all variable an extra time, since
+> >>   the code in entry.S doesn't know the amount of variables to a syscall it
+> >>   needs to push all theoretical 6 parameters every time, a not so nice
+> >>   overhead.
+> >>
+> >>
+> > 
+> > 
+> > There is a bug in some other code. Try this. It will show
+> > that ebx is not being killed in a syscall. You can prove
+> > that this code works by changing ebx to eax, which will
+> > get destroyed and print "Broken" before exit.
+> 
+> The bug is only with _some_ syscalls, and getpid() is not one of them, 
+> so your example is flawed.  It happens when a syscall modifies one of 
+> it's parameter values.  The solution is to assign the parameter to a 
+> local variable before modifying it.
+> 
 
-This patch is _cumulative_ with the last one I sent (sundance 1.04), so 
-do not discard that one.
+Well which one?  Here is an ioctl(). It certainly modifies one
+of its parameter values.
 
-Again additional testing is appreciated.  Keep the feedback coming, 
-there will be more sundance bugfixes (patch #3, #4, etc.)
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <termios.h>
 
-	Jeff
+void barf(void);
+void barf()
+{
+    puts("Broken\n");
+    exit(0);
+}
+int main()
+{
+    struct termios t;
+
+    __asm__ __volatile__("movl	$0xdeadface, %ebx\n");
+    (void)ioctl(0, TCGETS, &t); 
+    (void)getpid();
+    __asm__ __volatile__("cmpl	$0xdeadface, %ebx\n"
+                         "jnz   barf\n");
+
+    return 0;
+}
 
 
+Until you can show the syscall that doesn't follow the correct
+rules, then my example is not flawed. In fact a modified example can
+be used to find any broken calls.
 
---------------010400030102010602030107
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
 
-diff -Nru a/drivers/net/sundance.c b/drivers/net/sundance.c
---- a/drivers/net/sundance.c	Thu Sep 19 13:05:53 2002
-+++ b/drivers/net/sundance.c	Thu Sep 19 13:05:53 2002
-@@ -18,26 +18,34 @@
- 	http://www.scyld.com/network/sundance.html
- 
- 
--	Version 1.01a (jgarzik):
-+	Version LK1.01a (jgarzik):
- 	- Replace some MII-related magic numbers with constants
- 
--	Version 1.02 (D-Link):
-+	Version LK1.02 (D-Link):
- 	- Add new board to PCI ID list
- 	- Fix multicast bug
- 	
--	Version 1.03 (D-Link):
-+	Version LK1.03 (D-Link):
- 	- New Rx scheme, reduce Rx congestion
- 	- Option to disable flow control
- 	
--	Version 1.04 (D-Link):
-+	Version LK1.04 (D-Link):
- 	- Tx timeout recovery
- 	- More support for ethtool.
- 
-+	Version LK1.04a (jgarzik):
-+	- Remove unused/constant members from struct pci_id_info
-+	(which then allows removal of 'drv_flags' from private struct)
-+	- If no phy is found, fail to load that board
-+	- Always start phy id scan at id 1 to avoid problems (Donald Becker)
-+	- Autodetect where mii_preable_required is needed,
-+	default to not needed.  (Donald Becker)
-+
- */
- 
- #define DRV_NAME	"sundance"
--#define DRV_VERSION	"1.04"
--#define DRV_RELDATE	"19-Aug-2002"
-+#define DRV_VERSION	"1.01+LK1.04a"
-+#define DRV_RELDATE	"19-Sep-2002"
- 
- 
- /* The user-configurable values.
-@@ -72,6 +80,12 @@
- */
- #define MAX_UNITS 8	
- static char *media[MAX_UNITS];
-+
-+/* Set iff a MII transceiver on any interface requires mdio preamble.
-+   This only set with older tranceivers, so the extra
-+   code size of a per-interface flag is not worthwhile. */
-+static int mii_preamble_required = 0;
-+
- /* Operational parameters that are set at compile time. */
- 
- /* Keep the ring sizes a power of two for compile efficiency.
-@@ -145,11 +159,14 @@
- MODULE_PARM(rx_copybreak, "i");
- MODULE_PARM(media, "1-" __MODULE_STRING(MAX_UNITS) "s");
- MODULE_PARM(flowctrl, "i");
-+MODULE_PARM(mii_preamble_required, "i");
- MODULE_PARM_DESC(max_interrupt_work, "Sundance Alta maximum events handled per interrupt");
- MODULE_PARM_DESC(mtu, "Sundance Alta MTU (all boards)");
- MODULE_PARM_DESC(debug, "Sundance Alta debug level (0-5)");
- MODULE_PARM_DESC(rx_copybreak, "Sundance Alta copy breakpoint for copy-only-tiny-frames");
- MODULE_PARM_DESC(flowctrl, "Sundance Alta flow control [0|1]");
-+MODULE_PARM_DESC(mii_preamble_required, "Set to send a preamble before MII management transactions");
-+
- /*
- 				Theory of Operation
- 
-@@ -225,20 +242,6 @@
- */
- 
- 
--enum pci_id_flags_bits {
--        /* Set PCI command register bits before calling probe1(). */
--        PCI_USES_IO=1, PCI_USES_MEM=2, PCI_USES_MASTER=4,
--        /* Read and map the single following PCI BAR. */
--        PCI_ADDR0=0<<4, PCI_ADDR1=1<<4, PCI_ADDR2=2<<4, PCI_ADDR3=3<<4,
--        PCI_ADDR_64BITS=0x100, PCI_NO_ACPI_WAKE=0x200, PCI_NO_MIN_LATENCY=0x400,
--};
--enum chip_capability_flags {CanHaveMII=1, };
--#ifdef USE_IO_OPS
--#define PCI_IOTYPE (PCI_USES_MASTER | PCI_USES_IO  | PCI_ADDR0)
--#else
--#define PCI_IOTYPE (PCI_USES_MASTER | PCI_USES_MEM | PCI_ADDR1)
--#endif
--
- static struct pci_device_id sundance_pci_tbl[] __devinitdata = {
- 	{0x1186, 0x1002, 0x1186, 0x1002, 0, 0, 0},
- 	{0x1186, 0x1002, 0x1186, 0x1003, 0, 0, 1},
-@@ -250,31 +253,20 @@
- };
- MODULE_DEVICE_TABLE(pci, sundance_pci_tbl);
- 
-+enum {
-+	netdev_io_size = 128
-+};
-+
- struct pci_id_info {
-         const char *name;
--        struct match_info {
--                int     pci, pci_mask, subsystem, subsystem_mask;
--                int revision, revision_mask;                            /* Only 8 bits. */
--        } id;
--        enum pci_id_flags_bits pci_flags;
--        int io_size;                            /* Needed for I/O region check or ioremap(). */
--        int drv_flags;                          /* Driver use, intended as capability flags. */
- };
- static struct pci_id_info pci_id_tbl[] = {
--	{"D-Link DFE-550TX FAST Ethernet Adapter", {0x10021186, 0xffffffff,},
--	 PCI_IOTYPE, 128, CanHaveMII},
--	{"D-Link DFE-550FX 100Mbps Fiber-optics Adapter",
--	 {0x10031186, 0xffffffff,},
--	 PCI_IOTYPE, 128, CanHaveMII},
--	{"D-Link DFE-580TX 4 port Server Adapter", {0x10121186, 0xffffffff,},
--	 PCI_IOTYPE, 128, CanHaveMII},
--	{"D-Link DFE-530TXS FAST Ethernet Adapter", {0x10021186, 0xffffffff,},
--	 PCI_IOTYPE, 128, CanHaveMII},
--	{"D-Link DL10050-based FAST Ethernet Adapter",
--	 {0x10021186, 0xffffffff,},
--	 PCI_IOTYPE, 128, CanHaveMII},
--	{"Sundance Technology Alta", {0x020113F0, 0xffffffff,},
--	 PCI_IOTYPE, 128, CanHaveMII},
-+	{"D-Link DFE-550TX FAST Ethernet Adapter"},
-+	{"D-Link DFE-550FX 100Mbps Fiber-optics Adapter"},
-+	{"D-Link DFE-580TX 4 port Server Adapter"},
-+	{"D-Link DFE-530TXS FAST Ethernet Adapter"},
-+	{"D-Link DL10050-based FAST Ethernet Adapter"},
-+	{"Sundance Technology Alta"},
- 	{0,},			/* 0 terminated list. */
- };
- 
-@@ -430,7 +422,7 @@
- 	/* Frequently used values: keep some adjacent for cache effect. */
- 	spinlock_t lock;
- 	spinlock_t rx_lock;					/* Group with Tx control cache line. */
--	int chip_id, drv_flags;
-+	int chip_id;
- 	unsigned int cur_rx, dirty_rx;		/* Producer/consumer ring indices */
- 	unsigned int rx_buf_sz;				/* Based on MTU+slack. */
- 	struct netdev_desc *last_tx;		/* Last Tx descriptor used. */
-@@ -447,7 +439,6 @@
- 	spinlock_t mcastlock;				/* SMP lock multicast updates. */
- 	u16 mcast_filter[4];
- 	/* MII transceiver section. */
--	int mii_cnt;						/* MII device addresses. */
- 	u16 advertising;					/* NWay media advertisement */
- 	unsigned char phys[MII_CNT];		/* MII device addresses, only first one used. */
- 	struct pci_dev *pci_dev;
-@@ -521,7 +512,7 @@
- 	ioaddr = pci_resource_start(pdev, 0);
- #else
- 	ioaddr = pci_resource_start(pdev, 1);
--	ioaddr = (long) ioremap (ioaddr, pci_id_tbl[chip_idx].io_size);
-+	ioaddr = (long) ioremap (ioaddr, netdev_io_size);
- 	if (!ioaddr)
- 		goto err_out_res;
- #endif
-@@ -535,7 +526,6 @@
- 
- 	np = dev->priv;
- 	np->chip_id = chip_idx;
--	np->drv_flags = pci_id_tbl[chip_idx].drv_flags;
- 	np->pci_dev = pdev;
- 	spin_lock_init(&np->lock);
- 	tasklet_init(&np->rx_tasklet, rx_poll, (unsigned long)dev);
-@@ -579,21 +569,28 @@
- 	if (1) {
- 		int phy, phy_idx = 0;
- 		np->phys[0] = 1;		/* Default setting */
--		for (phy = 0; phy < 32 && phy_idx < MII_CNT; phy++) {
--			int mii_status = mdio_read(dev, phy, 1);
-+		mii_preamble_required++;
-+		for (phy = 1; phy < 32 && phy_idx < MII_CNT; phy++) {
-+			int mii_status = mdio_read(dev, phy, MII_BMSR);
- 			if (mii_status != 0xffff  &&  mii_status != 0x0000) {
- 				np->phys[phy_idx++] = phy;
--				np->advertising = mdio_read(dev, phy, 4);
-+				np->advertising = mdio_read(dev, phy, MII_ADVERTISE);
-+				if ((mii_status & 0x0040) == 0)
-+					mii_preamble_required++;
- 				printk(KERN_INFO "%s: MII PHY found at address %d, status "
- 					   "0x%4.4x advertising %4.4x.\n",
- 					   dev->name, phy, mii_status, np->advertising);
- 			}
- 		}
--		np->mii_cnt = phy_idx;
--		if (phy_idx == 0)
--			printk(KERN_INFO "%s: No MII transceiver found!, ASIC status %x\n",
-+		mii_preamble_required--;
-+
-+		if (phy_idx == 0) {
-+			printk(KERN_INFO "%s: No MII transceiver found, aborting.  ASIC status %x\n",
- 				   dev->name, readl(ioaddr + ASICCtrl));
-+			goto err_out_unmap_rx;
-+		}
- 	}
-+
- 	/* Parse override configuration */
- 	np->an_enable = 1;
- 	if (card_idx < MAX_UNITS) {
-@@ -700,11 +697,6 @@
- 	The maximum data clock rate is 2.5 Mhz.  The minimum timing is usually
- 	met by back-to-back 33Mhz PCI cycles. */
- #define mdio_delay() readb(mdio_addr)
--
--/* Set iff a MII transceiver on any interface requires mdio preamble.
--   This only set with older tranceivers, so the extra
--   code size of a per-interface flag is not worthwhile. */
--static const char mii_preamble_required = 1;
- 
- enum mii_reg_bits {
- 	MDIO_ShiftClk=0x0001, MDIO_Data=0x0002, MDIO_EnbOutput=0x0004,
-
---------------010400030102010602030107--
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

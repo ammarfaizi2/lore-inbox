@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261383AbTD3Qio (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 12:38:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbTD3Qio
+	id S262226AbTD3Qle (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 12:41:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262227AbTD3Qld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 12:38:44 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:61858 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S261383AbTD3Qin (ORCPT
+	Wed, 30 Apr 2003 12:41:33 -0400
+Received: from [66.62.77.7] ([66.62.77.7]:12450 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id S262226AbTD3Qlc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 12:38:43 -0400
-Date: Wed, 30 Apr 2003 18:51:03 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: P?l Halvorsen <paalh@ifi.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sendfile
-Message-ID: <20030430165103.GA3060@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	P?l Halvorsen <paalh@ifi.uio.no>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.51.0304301604330.12087@sondrio.ifi.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.51.0304301604330.12087@sondrio.ifi.uio.no>
-User-Agent: Mutt/1.3.28i
+	Wed, 30 Apr 2003 12:41:32 -0400
+Date: Wed, 30 Apr 2003 10:53:52 -0600 (MDT)
+From: Dax Kelson <dax@gurulabs.com>
+X-X-Sender: dkelson@mooru.gurulabs.com
+To: Larry McVoy <lm@bitmover.com>
+Cc: "Downing, Thomas" <Thomas.Downing@ipc.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+In-Reply-To: <20030430135919.GB32300@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0304301047050.23589-100000@mooru.gurulabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 30, 2003 at 04:28:32PM +0200, P?l Halvorsen wrote:
-> Hi!
-> 
-> Does sendfile support UDP connections (SOCK_DGRAM)?
+On Wed, 30 Apr 2003, Larry McVoy wrote:
 
-Try it. I bet it doesn't do so, and certainly not usably. Blasting UDP
-frames is seldomly useful without checks, like NFS performs.
+> Your post shows that you think that the reaction is bad and you even say
+> that the reaction is likely.  You vigourously disagree with my conclusions
+> as to why the reaction is happening, I see that.  OK, so let's try it
+> with a question rather than a statement: why are things like the DMCA and
+> DRM happening?  It isn't the open source guys pushing those, obviously,
+> it's the corporations.  So why are they doing it?
 
-> Does sendfile remove ALL in-memory data copy operations?
+DRM/DMCA do nothing to address reimplementation (it can't, see all 
+previous posts on how it is a LEGAL activity).
 
-Depends. With some network adaptors it might. Definition of 'zero-copy' is
-somewhat misty. Some variants of zero-copy would actually be called
-'one-copy' or 'minus-one-copy' in other contexts.
+In my observation, DRM/DMCA addresses unauthorized audio and video content
+copying.
 
-Regards,
+So, if Open Source is all about reimplementation, and DRM/DMCA is about 
+"protecting" audio/video content, where is the connection?
 
-bert
+Larry, this is the point YOU are missing. 
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Dax
+

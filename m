@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129047AbQKIBEn>; Wed, 8 Nov 2000 20:04:43 -0500
+	id <S129097AbQKIBGd>; Wed, 8 Nov 2000 20:06:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129097AbQKIBEe>; Wed, 8 Nov 2000 20:04:34 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:15242 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129047AbQKIBEW>;
-	Wed, 8 Nov 2000 20:04:22 -0500
-Date: Wed, 8 Nov 2000 16:49:19 -0800
-Message-Id: <200011090049.QAA17420@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <E13teE4-0000XI-00@the-village.bc.nu> (message from Alan Cox on
-	Wed, 8 Nov 2000 23:01:50 +0000 (GMT))
-Subject: Re: Linux 2.4.0test11pre1ac1
-In-Reply-To: <E13teE4-0000XI-00@the-village.bc.nu>
+	id <S129423AbQKIBGX>; Wed, 8 Nov 2000 20:06:23 -0500
+Received: from firewall.cobalt.com ([63.77.128.251]:41710 "EHLO
+	jfayre.cobalt.com") by vger.kernel.org with ESMTP
+	id <S129097AbQKIBGS>; Wed, 8 Nov 2000 20:06:18 -0500
+Date: Wed, 8 Nov 2000 17:30:46 -0800 (PST)
+From: Jason Fayre <jfayre@cobalt.com>
+To: linux-kernel@vger.rutgers.edu
+Subject: Linux 2.4 on Cobalt MiPS servers
+Message-ID: <Pine.LNX.4.20.0011081729190.1663-100000@jfayre.cobalt.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Wed, 8 Nov 2000 23:01:50 +0000 (GMT)
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Hello,
+Does the 2.4 series compile on Cobalt Networks MIPS-based servers?  There
+is a cobalt directory under the arch/mips directory.
 
-   o	Fix incorrect runtime panics in some scsi drivers
 
-In drivers/scsi/fcal.c you correctly free "ages", in the
-equivalent drivers/scsi/pluto.c fix you forget to do this.
 
-Later,
-David S. Miller
-davem@redhat.com
+-----
+Jason Fayre
+Escalation Engineer
+Cobalt Networks, Inc.
+http://www.cobalt.com/support
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282815AbRLTJeY>; Thu, 20 Dec 2001 04:34:24 -0500
+	id <S282814AbRLTJby>; Thu, 20 Dec 2001 04:31:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282823AbRLTJeO>; Thu, 20 Dec 2001 04:34:14 -0500
-Received: from olinz-dsl-1316.utaonline.at ([212.152.239.38]:41455 "EHLO
-	falke.mail") by vger.kernel.org with ESMTP id <S282815AbRLTJeH>;
-	Thu, 20 Dec 2001 04:34:07 -0500
-Message-ID: <3C21AE53.F0CF0F20@falke.mail>
-Date: Thu, 20 Dec 2001 10:24:35 +0100
-From: Thomas Winischhofer <tw@webit.com>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en,en-GB,en-US,de-AT,de-DE,de-CH,sv
+	id <S282815AbRLTJbo>; Thu, 20 Dec 2001 04:31:44 -0500
+Received: from sun.fadata.bg ([80.72.64.67]:28425 "HELO fadata.bg")
+	by vger.kernel.org with SMTP id <S282814AbRLTJbY>;
+	Thu, 20 Dec 2001 04:31:24 -0500
+To: kaih@khms.westfalen.de (Kai Henningsen)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The direction linux is taking
+In-Reply-To: <20011218161844.P5235@khan.acc.umu.se>
+	<F25YXU6KJQcxQv8rcyN00007eb5@hotmail.com>
+	<Pine.LNX.4.33.0112180622320.28881-100000@shell1.aracnet.com>
+	<20011218161844.P5235@khan.acc.umu.se> <876674fszw.fsf@fadata.bg>
+	<8FFPeDtXw-B@khms.westfalen.de>
+From: Momchil Velikov <velco@fadata.bg>
+In-Reply-To: <8FFPeDtXw-B@khms.westfalen.de>
+Date: 20 Dec 2001 11:30:29 +0200
+Message-ID: <871yhqp7be.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: xpert@XFree86.Org, linux-kernel@vger.kernel.org
-Subject: Re: SiS 630 - framebuffer fixed
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-MDRemoteIP: 10.0.0.13
-X-Return-Path: tw@webit.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Kai" == Kai Henningsen <kaih@khms.westfalen.de> writes:
 
-Hi again.
+Kai> velco@fadata.bg (Momchil Velikov)  wrote on 18.12.01 in <876674fszw.fsf@fadata.bg>:
+>> >>>>> "David" == David Weinehall <tao@acc.umu.se> writes:
+>> 
+David> We'd also kill off all the advantages that the bazaar-style
+>> development
+>> 
+>> Bazaaar-style development ? What bazaar-style development ? Last I
+>> heard most discussions are held in private and many key people don't
+>> read lkml.
 
-After a few feedbacks on the framebuffer driver, I will do the
-following:
+Kai> So? That's never been an essential ingredient of bazaar-style development  
+Kai> (though it can, of course, be rather useful).
 
-1) For testing reasons, I will include my BIOS in the driver code. 
+Are you sure you don't confuse "bazaar" with "shared source". Or SCSL ?
 
-The reason for this is that I saw that the machines in question partly
-have old video BIOSes (mine has a 2.xx.x while I saw one guy with
-1.06.x; that old BIOS isn't even detected as a VESA BIOS).
-
-By this measure, I will be able to estimate whether or not the whole
-matter is actually BIOS related or not. If it is, you all may get
-lucky...!
-
-I am aware that this is no permanent solution for copyright reasons, but
-for testing it will do.
-
-2) Further, I will include code to write the video BIOS of a machine to
-disk. All people testing this are being asked to send that file to me
-then. 
-
-Unfortunately, I have to work today, so don't count on a new version
-today.
-
-Thomas
-
-PS: To all people testing the driver (or the X driver): Please send me
-the logs! Some of you actually forgot to do that....
-
--- 
-Thomas Winischhofer
-Vienna/Austria                  Check it out:
-mailto:tw@webit.com              http://www.webit.com/tw
+I'd suggest you read the relevant writing, especially the sentences,
+which contain the phrase "beta-testers".
 

@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317399AbSIEKwz>; Thu, 5 Sep 2002 06:52:55 -0400
+	id <S317400AbSIEKxs>; Thu, 5 Sep 2002 06:53:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317400AbSIEKwz>; Thu, 5 Sep 2002 06:52:55 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:9960 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317399AbSIEKwz>;
-	Thu, 5 Sep 2002 06:52:55 -0400
-Date: Thu, 05 Sep 2002 03:50:08 -0700 (PDT)
-Message-Id: <20020905.035008.84077522.davem@redhat.com>
-To: green@namesys.com
-Cc: szepe@pinerecords.com, mason@suse.com, reiser@namesys.com,
-       shaggy@austin.ibm.com, marcelo@conectiva.com.br,
-       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
-       linuxjfs@us.ibm.com
-Subject: Re: [reiserfs-dev] Re: [PATCH] sparc32: wrong type of nlink_t
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020905135442.A19682@namesys.com>
-References: <20020905054008.GH24323@louise.pinerecords.com>
-	<20020904.223651.79770866.davem@redhat.com>
-	<20020905135442.A19682@namesys.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S317402AbSIEKxs>; Thu, 5 Sep 2002 06:53:48 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:27899
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317400AbSIEKxs>; Thu, 5 Sep 2002 06:53:48 -0400
+Subject: Re: 2.4.x (including -ac) SiS agp not recognized
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Murray J. Root" <murrayr@brain.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020905013149.GA31910@Master.Wizards>
+References: <20020905013149.GA31910@Master.Wizards>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 05 Sep 2002 11:59:11 +0100
+Message-Id: <1031223551.6178.4.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Oleg Drokin <green@namesys.com>
-   Date: Thu, 5 Sep 2002 13:54:42 +0400
-   
-   Ok, since I really like this approach, below is the patch (for 2.4) that
-   demonstrates my solution.
+On Thu, 2002-09-05 at 02:31, Murray J. Root wrote:
+> SiS645DX chipset:
+> 
+> Sep  2 03:28:17 Master kernel: Linux agpgart interface v0.99 (c) Jeff Hartmann
+> Sep  2 03:28:17 Master kernel: agpgart: Maximum main memory to use for agp memory: 816M
+> Sep  2 03:28:17 Master kernel: agpgart: Unsupported SiS chipset (device id: 0646), you might want to
+>  try agp_try_unsupported=1.
+> Sep  2 03:28:17 Master kernel: agpgart: no supported devices found.
 
-I like it.  Now we just need a JFS version, shouldn't bee too
-hard :-)
+Try insmod agpgart agp_try_unsupported=1 and see if it works. (it may
+crash if not)
 
-Franks a lot,
-David S. Miller
-davem@redhat.com

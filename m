@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261518AbSJIUGC>; Wed, 9 Oct 2002 16:06:02 -0400
+	id <S261899AbSJIULL>; Wed, 9 Oct 2002 16:11:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261907AbSJIUGC>; Wed, 9 Oct 2002 16:06:02 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:44421 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261518AbSJIUGB>;
-	Wed, 9 Oct 2002 16:06:01 -0400
-Date: Wed, 9 Oct 2002 16:11:42 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [bk/patch] driver model update: device_unregister()
-In-Reply-To: <Pine.LNX.4.44.0210091241050.24067-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0210091550150.8980-100000@weyl.math.psu.edu>
+	id <S261903AbSJIULL>; Wed, 9 Oct 2002 16:11:11 -0400
+Received: from blueberrysolutions.com ([195.165.170.195]:11413 "EHLO
+	blueberrysolutions.com") by vger.kernel.org with ESMTP
+	id <S261899AbSJIULK>; Wed, 9 Oct 2002 16:11:10 -0400
+Date: Wed, 9 Oct 2002 23:16:44 +0300 (EEST)
+From: Tony Glader <Tony.Glader@blueberrysolutions.com>
+X-X-Sender: teg@blueberrysolutions.com
+To: Chris Wright <chris@wirex.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: capable()-function
+In-Reply-To: <20021009121615.B25392@figure1.int.wirex.com>
+Message-ID: <Pine.LNX.4.44.0210092314260.785-100000@blueberrysolutions.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 9 Oct 2002, Chris Wright wrote:
 
+> You could dump something like this before the capable() call:
+> 
+> printk(KERN_DEBUG "%s:(%d) eff: 0x%x\n", current->comm, current->pid,
+> 						cap_t(current->cap_effective));
 
-On Wed, 9 Oct 2002, Linus Torvalds wrote:
+Ok. I got following result:
 
-> As to the "can_unload()" thing, I really suspect that the reason it shows 
-> up is because module unloading is fundamentally broken - again regardless 
-> of any driverfs issues. Talk to Rusty some day about it ;)
+ÿÿ:(12290) eff: 0x0
 
-I did and I'm less than impressed by his arguments.  Filesystem module
-unloading works fine, thank you very much.  There we have explicit points
-where thing becomes busy and ceases to be such.  And IMNSHO it's the right
-way to deal with that stuff, rather than delving into quiescrap.  Rusty
-deals with modules that are one step removed from "make down_write() modular"
-so it's hardly a surprise that unloading gets hairy...
+Is the eff-value current capabilities? Why it is zero? The task who called 
+it (cardmgr) was owned by root.
 
-Notice that for partitions (and even more so for superblocks) we are talking
-about _way_ more than "if it's busy, it can't be removed".  Unlike PCI and
-friends, here we have non-trivial locking and driverfs accesses changing
-refcount would need to play nice with that.
-
-Sigh...  Screw it.  Tell me what directory tree you want for block
-device and I'll do that, ugly or not ;-/  I really don't like the
-direction it's going, but it's your tree and since it hadn't reached
-my fork threshold yet...
-
+-- 
+* Tony Glader 
 

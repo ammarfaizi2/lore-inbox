@@ -1,87 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132605AbRDUNZh>; Sat, 21 Apr 2001 09:25:37 -0400
+	id <S132625AbRDUOEK>; Sat, 21 Apr 2001 10:04:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132611AbRDUNZ2>; Sat, 21 Apr 2001 09:25:28 -0400
-Received: from rm05-24-167-185-21.ce.mediaone.net ([24.167.185.21]:57269 "EHLO
-	calvin.localdomain") by vger.kernel.org with ESMTP
-	id <S132605AbRDUNZU>; Sat, 21 Apr 2001 09:25:20 -0400
-Date: Sat, 21 Apr 2001 08:25:14 -0500
-From: Tim Walberg <tewalberg@mediaone.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: A question about MMX.
-Message-ID: <20010421082514.H20020@mediaone.net>
-Reply-To: Tim Walberg <tewalberg@mediaone.net>
-Mail-Followup-To: Tim Walberg <tewalberg@mediaone.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0104211353450.14048-100000@ns1.aniela.eu.org>
+	id <S132627AbRDUOEB>; Sat, 21 Apr 2001 10:04:01 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:44377 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S132625AbRDUODy>; Sat, 21 Apr 2001 10:03:54 -0400
+Date: Sat, 21 Apr 2001 16:03:27 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "D . W . Howells" <dhowells@astarte.free-online.co.uk>,
+        dhowells@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: x86 rwsem in 2.4.4pre[234] are still buggy [was Re: rwsem benchmarks [Re: generic rwsem [Re: Alpha "process table hang"]]]
+Message-ID: <20010421160327.A17757@athlon.random>
+In-Reply-To: <20010420191710.A32159@athlon.random> <Pine.LNX.4.31.0104201639070.6299-100000@penguin.transmeta.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JF+ytOk7PH04NsRm"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0104211353450.14048-100000@ns1.aniela.eu.org> from lk@aniela.eu.org on 04/21/2001 05:55
-X-PGP-RSA-Key: 0x0C8BA2FD at www.pgp.com (pgp.ai.mit.edu)
-X-PGP-RSA-Fingerprint: FC08 4026 8A62 C72F 90A9 FA33 6EEA 542D
-X-PGP-DSS-Key: 0x6DAB2566 at www.pgp.com (pgp.ai.mit.edu)
-X-PGP-DSS-Fingerprint: 4E1B CD33 46D0 F383 1579  1CCA C3E5 9C8F 6DAB 2566
-X-URL: http://www.concentric.net/~twalberg
+In-Reply-To: <Pine.LNX.4.31.0104201639070.6299-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Apr 20, 2001 at 04:45:32PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 20, 2001 at 04:45:32PM -0700, Linus Torvalds wrote:
+> I would suggest the following:
+> 
+>  - the generic semaphores should use the lock that already exists in the
+>    wait-queue as the semaphore spinlock.
 
---JF+ytOk7PH04NsRm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ok, that is what my generic code does.
 
-MMX **is** potentially used in the md (RAID-5) code for parity
-calculation, IIRC, though. That's about the only place that I
-can think of that it's used, but I don't claim to know the
-inner workings of the entire kernel, either...
+>  - the generic semaphores should _not_ drop the lock. Right now it drops
+>    the semaphore lock when it goes into the slow path, only to re-aquire
+>    it. This is due to bad interfacing with the generic slow-path routines.
 
-			tw
+My generic code doesn't drop the lock.
 
+>    I suspect that this lock-drop is why Andrea sees problems with the
+>    generic semaphores. The changes to "count" and "sleeper" aren't
+>    actually atomic, because we don't hold the lock over them all. And
+>    re-using the lock means that we don't need the two levels of
+>    spinlocking for adding ourselves to the wait queue. Easily done by just
+>    moving the locking _out_ of the wait-queue helper functions, no?
 
-On 04/21/2001 13:55 +0300, lk@aniela.eu.org wrote:
->>=09
->>	I have a Intel Pentium MMX machine and it acts as a mailserver, webserve=
-r,
->>	ftp and I use X on it. I would like to know if the MMX instructions are
->>	used by the kernel in this operations or not (networking, X etc.).
->>=09
->>=09
->>	Thank you,
->>=09
->>	/me
->>=09
->>	-
->>	To unsubscribe from this list: send the line "unsubscribe linux-kernel" =
-in
->>	the body of a message to majordomo@vger.kernel.org
->>	More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>	Please read the FAQ at  http://www.tux.org/lkml/
-End of included message
+Basically yes, however for the wakeup I wrote a dedicated routine that
+knows how to do the wake-all-next-readers or wake-next-writer (it is not
+the same helper function of sched.c).
 
+>  - the generic semaphores are entirely out-of-line, and are just declared
+>    universally as regular FASTCALL() functions.
 
+This is what I implemented originally but then I moved the fast path inline
+for the fast-path benchmark reasons. I think in real life it doesn't matter
+much if the fast path is inline or not.
 
---=20
-+--------------------------+------------------------------+
-| Tim Walberg              | tewalberg@mediaone.net       |
-| 828 Marshall Ct.         | www.concentric.net/~twalberg |
-| Palatine, IL 60074       |                              |
-+--------------------------+------------------------------+
+> The fast-path x86 code looks ok to me. The debugging stuff makes it less
+> readable than it should be, I suspect, and is probably not worth it at
+> this stage. The users of rw-semaphores are so well-defined (and so well
+> debugged) that the debugging code only makes the code harder to follow
+> right now.
 
---JF+ytOk7PH04NsRm
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+yes I agree, infact I added the ->magic check only to catch uninitialized
+semaphores (and this one doesn't hurt readability that much).
 
------BEGIN PGP SIGNATURE-----
-Version: PGP 6.5.1i
+> Comments?  Andrea? Your patches have looked ok, but I absoutely refuse to
+> see the non-inlined fast-path for reasonable x86 hardware..
 
-iQA/AwUBOuGKOcPlnI9tqyVmEQJ1iACgrVO5FaEAhddjfR/4FsS0YIX6OqoAoIH5
-Afsq3JkSF8UpQNz3wlalWQmN
-=k/nT
------END PGP SIGNATURE-----
+In my last patch the fast path is inline as said above but it is not in asm yet
+because I couldn't get convinced it was right code. I plan to return looking
+into the rwsem soon. I also seen David fixed the bug and dropped the buggy
+rwsem-spin.h, so I suggest to merge his code for now, after a very short look
+it seems certainly better than pre5.
 
---JF+ytOk7PH04NsRm--
+Andrea

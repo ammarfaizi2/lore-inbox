@@ -1,37 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268852AbUHLWmj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268847AbUHLWnJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268852AbUHLWmj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 18:42:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268850AbUHLWmh
+	id S268847AbUHLWnJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 18:43:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268850AbUHLWms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 18:42:37 -0400
-Received: from apollo.tuxdriver.com ([24.172.12.4]:53265 "EHLO
-	ra.tuxdriver.com") by vger.kernel.org with ESMTP id S268844AbUHLWko
+	Thu, 12 Aug 2004 18:42:48 -0400
+Received: from apollo.tuxdriver.com ([24.172.12.4]:53777 "EHLO
+	ra.tuxdriver.com") by vger.kernel.org with ESMTP id S268847AbUHLWk6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 18:40:44 -0400
-Date: Thu, 12 Aug 2004 17:37:16 -0400
+	Thu, 12 Aug 2004 18:40:58 -0400
+Date: Thu, 12 Aug 2004 17:37:29 -0400
 From: "John W. Linville" <linville@tuxdriver.com>
-Message-Id: <200408122137.i7CLbGU13688@ra.tuxdriver.com>
+Message-Id: <200408122137.i7CLbTa13693@ra.tuxdriver.com>
 To: linux-kernel@vger.kernel.org
-Subject: [patch] 2.6 -- add IOI Media Bay to SCSI quirk list
+Subject: [patch] 2.4 -- add IOI Media Bay to SCSI quirk list
 Cc: linux-scsi@vger.kernel.org, James.Bottomley@SteelEye.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch to add IOI Media Bay 4-in-1 media reader to the SCSI quirk list...
-
-"It works for me!"  Pretty simple patch, really...
-
-John
-
-diff -urNp linux-2.6.5-1.358/drivers/scsi/scsi_devinfo.c linux/drivers/scsi/scsi_devinfo.c
---- linux-2.6.5-1.358/drivers/scsi/scsi_devinfo.c	2004-05-08 08:56:41.000000000 -0400
-+++ linux/drivers/scsi/scsi_devinfo.c	2004-08-11 06:08:00.000000000 -0400
-@@ -155,6 +155,7 @@ static struct {
- 	{"HP", "C1557A", NULL, BLIST_FORCELUN},
- 	{"IBM", "AuSaV1S2", NULL, BLIST_FORCELUN},
+diff -urNp linux-2.4.orig/drivers/scsi/scsi_scan.c linux-2.4/drivers/scsi/scsi_scan.c
+--- linux-2.4.orig/drivers/scsi/scsi_scan.c	2004-08-12 18:31:17.592759000 -0400
++++ linux-2.4/drivers/scsi/scsi_scan.c	2004-08-12 18:33:35.847741768 -0400
+@@ -189,6 +189,7 @@ static struct dev_info device_list[] =
+ 	{"HITACHI", "DF500", "*", BLIST_SPARSELUN},
+ 	{"HITACHI", "DF600", "*", BLIST_SPARSELUN},
  	{"IBM", "ProFibre 4000R", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
-+	{"IOI", "Media Bay", NULL, BLIST_FORCELUN},
- 	{"iomega", "jaz 1GB", "J.86", BLIST_NOTQ | BLIST_NOLUN},
- 	{"IOMEGA", "Io20S         *F", NULL, BLIST_KEY},
- 	{"INSITE", "Floptical   F*8I", NULL, BLIST_KEY},
++	{"IOI", "Media Bay", "*", BLIST_FORCELUN},
+ 	{"HITACHI", "OPEN-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},  /* HITACHI XP Arrays */
+ 	{"HITACHI", "DISK-SUBSYSTEM", "*", BLIST_SPARSELUN | BLIST_LARGELUN},  /* HITACHI 9960 */
+ 	{"WINSYS","FLASHDISK G6", "*", BLIST_SPARSELUN},

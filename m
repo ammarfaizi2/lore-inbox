@@ -1,62 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265067AbTFUByy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 21:54:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265069AbTFUByy
+	id S265069AbTFUC0U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 22:26:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265070AbTFUC0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 21:54:54 -0400
-Received: from msgbas1x.cos.agilent.com ([192.25.240.36]:43457 "EHLO
-	msgbas1x.cos.agilent.com") by vger.kernel.org with ESMTP
-	id S265067AbTFUByx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 21:54:53 -0400
-Message-ID: <334DD5C2ADAB9245B60F213F49C5EBCD05D551C3@axcs03.cos.agilent.com>
-From: yiding_wang@agilent.com
+	Fri, 20 Jun 2003 22:26:20 -0400
+Received: from main.gmane.org ([80.91.224.249]:55937 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265069AbTFUC0T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 22:26:19 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.70/71 kernel compiler and loading issues
-Date: Fri, 20 Jun 2003 20:08:53 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+From: Jan Rychter <jan@rychter.com>
+Subject: Re: [PATCH] Initial Vector Fix for loop.c.
+Date: Fri, 20 Jun 2003 19:18:26 -0700
+Message-ID: <m2ptl8cgwd.fsf@tnuctip.rychter.com>
+References: <20030620090612.GA1322@ghanima.endorphin.org.suse.lists.linux.kernel> <p73u1al3xlw.fsf@oldwotan.suse.de>
+ <20030620101452.GA2233@ghanima.endorphin.org>
+ <20030620102455.GC26678@wotan.suse.de>
+ <20030620103538.GA28711@wohnheim.fh-wedel.de>
+ <20030620105120.GA2450@ghanima.endorphin.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Portable Code, linux)
+X-Spammers-Please: blackholeme@rychter.com
+Cancel-Lock: sha1:1neL5Fxg9Ulwa65UnP+LXl7rrsg=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Team,
+--=-=-=
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-I also tried 2.5.70 kernel on the same system, the compiler error is the same (The message is "Unknown Pseudo-op:  '.incbin'").
+Fruhwirth Clemens <clemens@endorphin.org> writes:
+> On Fri, Jun 20, 2003 at 12:35:38PM +0200, J=F6rn Engel wrote:
+[...]
+> > If we can avoid the pain completely, use that better fix instead,
+> > even if it isn't ready before 2.7, and ignore the problem until
+> > then.
+> No please, I don't wanna patch my kernel for another 2
+> years. Andrew Morton is right when he puts this issue on his
+> must-fix list.
 
-Then I loaded these two kernels on another SuperMicro 2 PIII CPU system. It has RH Linux 9.0 (2.4.20-8) on it.  Both kernel compiled OK.  However, reboot with new kernel hung system at the point of:
-Uncompressing Linux ... Ok, booting the kernel.
+FWIW, I've been patching my kernels for who knows how long now with this
+fix. And I know other people who have been doing the same.
 
-System boot won't proceed.  This happens to both 2.5.70 and 2.5.71.
+Clemens is right, it's really needed.
 
-The process of build and reboot new kernel is same as what I did for previous few kernel.  From 2.5.70 README file, this process doesn't seem to be changed.  I wonder someone may know the issue and have solution already.
+=2D-J.
 
-Any help is appreciated!  Thanks!
+--=-=-=
+Content-Type: application/pgp-signature
 
-Eddie
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-> -----Original Message-----
-> From: WANG,YIDING (A-SanJose,ex1) 
-> Sent: Friday, June 20, 2003 3:05 PM
-> To: linux-kernel@vger. kernel. org (E-mail)
-> Subject: Linux-2.5.71 kernel compile error
-> 
-> 
-> Team,
-> 
-> I got failure on compiling the kernel in one of SuperMicro 
-> signle CPU system.  It has a Linux 2.4.2 on it.  
-> The message is "Unknown Pseudo-op:  '.incbin'"
-> 
-> The file brings the trouble is arch/i386/kernel/vsyscall.S.
-> 
-> I think it must be a configuration problem but don't know 
-> which one is causing the trouble. I am using menuconfig to 
-> change the configuration.
-> 
-> Any suggestion?
-> 
-> Thanks!
-> 
-> Eddie 
+iD8DBQA+88B6Lth4/7/QhDoRAtVPAKCwHys4aovzYnbTnEe/ZkltgOKbSQCeKzW3
+78iZXv6Uu0N9uMz83DmV9hg=
+=e+tD
+-----END PGP SIGNATURE-----
+--=-=-=--
+

@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVASHy4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVASH5e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261625AbVASHy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 02:54:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbVASHxu
+	id S261650AbVASH5e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 02:57:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVASHzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 02:53:50 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51391 "EHLO
+	Wed, 19 Jan 2005 02:55:50 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52159 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261625AbVASHdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 02:33:19 -0500
+	id S261630AbVASHdX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 02:33:23 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <fastboot@lists.osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH 20/29] x86_64-crashkernel
+Subject: [PATCH 27/29] crashdump-routines-for-copying-dump-pages
 Date: Wed, 19 Jan 2005 0:31:37 -0700
-Message-ID: <x86-64-crashkernel-11061198971876@ebiederm.dsl.xmission.com>
+Message-ID: <crashdump-routines-for-copying-dump-pages-1106119897713@ebiederm.dsl.xmission.com>
 X-Mailer: patch-bomb.pl@ebiederm.dsl.xmission.com
-In-Reply-To: <x86-64-kexec-11061198973999@ebiederm.dsl.xmission.com>
+In-Reply-To: <crashdump-memory-preserving-reboot-using-kexec-11061198972518@ebiederm.dsl.xmission.com>
 References: <overview-11061198973484@ebiederm.dsl.xmission.com>
 	<x86-rename-apic-mode-exint-11061198973109@ebiederm.dsl.xmission.com>
 	<x86-local-apic-fix-11061198972413@ebiederm.dsl.xmission.com>
@@ -37,100 +37,125 @@ References: <overview-11061198973484@ebiederm.dsl.xmission.com>
 	<x86-crashkernel-1106119897532@ebiederm.dsl.xmission.com>
 	<x86-64-machine-shutdown-11061198972282@ebiederm.dsl.xmission.com>
 	<x86-64-kexec-11061198973999@ebiederm.dsl.xmission.com>
+	<x86-64-crashkernel-11061198971876@ebiederm.dsl.xmission.com>
+	<kexec-ppc-support-11061198973302@ebiederm.dsl.xmission.com>
+	<x86-crash-shutdown-nmi-shootdown-11061198973234@ebiederm.dsl.xmission.com>
+	<x86-crash-shutdown-snapshot-registers-11061198972173@ebiederm.dsl.xmission.com>
+	<x86-crash-shutdown-apic-shutdown-11061198971134@ebiederm.dsl.xmission.com>
+	<crashdump-documentation-11061198972662@ebiederm.dsl.xmission.com>
+	<crashdump-memory-preserving-reboot-using-kexec-11061198972518@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is the x86_64 implementation of the crashkernel option.  It reserves
-a window of memory very early in the bootup process, so we never use
-it for anything but the kernel to switch to when the running
-kernel panics.
+kernel/crash.c has been renamed kernel/crash_dump.c to clarify it's purpose.
 
-In addition to reserving this memory a resource structure is registered
-so looking at /proc/iomem it is clear what happened to that memory.
+From: Hariprasad Nellitheertha <hari@in.ibm.com>
 
-ISSUES:
-Is it possible to implement this in a architecture generic way?
-What should be done with architectures that always use an iommu and
-thus don't report their RAM memory resources in /proc/iomem?
+This patch provides the interfaces necessary to read the dump contents,
+treating it as a high memory device.
 
+Signed off by Hariprasad Nellitheertha <hari@in.ibm.com>
 
 Signed-off-by: Eric Biederman <ebiederm@xmission.com>
 ---
 
- e820.c  |    4 ++++
- setup.c |   27 +++++++++++++++++++++++++++
- 2 files changed, 31 insertions(+)
+ arch/i386/mm/highmem.c     |   18 ++++++++++++++++++
+ include/asm-i386/highmem.h |    1 +
+ include/linux/highmem.h    |    1 +
+ kernel/crash_dump.c        |   33 +++++++++++++++++++++++++++++++++
+ 4 files changed, 53 insertions(+)
 
-diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86_64-kexec/arch/x86_64/kernel/e820.c linux-2.6.11-rc1-mm1-nokexec-x86_64-crashkernel/arch/x86_64/kernel/e820.c
---- linux-2.6.11-rc1-mm1-nokexec-x86_64-kexec/arch/x86_64/kernel/e820.c	Tue Jan 18 22:44:10 2005
-+++ linux-2.6.11-rc1-mm1-nokexec-x86_64-crashkernel/arch/x86_64/kernel/e820.c	Tue Jan 18 23:14:34 2005
-@@ -10,6 +10,7 @@
- #include <linux/bootmem.h>
- #include <linux/ioport.h>
- #include <linux/string.h>
-+#include <linux/kexec.h>
- #include <asm/page.h>
- #include <asm/e820.h>
- #include <asm/proto.h>
-@@ -204,6 +205,9 @@
- 			 */
- 			request_resource(res, &code_resource);
- 			request_resource(res, &data_resource);
-+#ifdef CONFIG_KEXEC
-+			request_resource(res, &crashk_res);
-+#endif
- 		}
- 	}
+diff -uNr linux-2.6.11-rc1-mm1-nokexec-crashdump-memory-preserving-reboot-using-kexec/arch/i386/mm/highmem.c linux-2.6.11-rc1-mm1-nokexec-crashdump-routines-for-copying-dump-pages/arch/i386/mm/highmem.c
+--- linux-2.6.11-rc1-mm1-nokexec-crashdump-memory-preserving-reboot-using-kexec/arch/i386/mm/highmem.c	Fri Jan 14 04:32:22 2005
++++ linux-2.6.11-rc1-mm1-nokexec-crashdump-routines-for-copying-dump-pages/arch/i386/mm/highmem.c	Tue Jan 18 23:16:41 2005
+@@ -74,6 +74,24 @@
+ 	preempt_check_resched();
  }
-diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86_64-kexec/arch/x86_64/kernel/setup.c linux-2.6.11-rc1-mm1-nokexec-x86_64-crashkernel/arch/x86_64/kernel/setup.c
---- linux-2.6.11-rc1-mm1-nokexec-x86_64-kexec/arch/x86_64/kernel/setup.c	Fri Jan 14 04:32:23 2005
-+++ linux-2.6.11-rc1-mm1-nokexec-x86_64-crashkernel/arch/x86_64/kernel/setup.c	Tue Jan 18 23:14:34 2005
-@@ -40,6 +40,7 @@
- #include <linux/acpi.h>
- #include <linux/kallsyms.h>
- #include <linux/edd.h>
-+#include <linux/kexec.h>
- #include <asm/mtrr.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
-@@ -321,6 +322,27 @@
- 		if (!memcmp(from, "noexec=", 7))
- 			nonx_setup(from + 7);
  
-+#ifdef CONFIG_KEXEC
-+		/* crashkernel=size@addr specifies the location to reserve for
-+		 * a crash kernel.  By reserving this memory we guarantee
-+		 * that linux never set's it up as a DMA target.
-+		 * Useful for holding code to do something appropriate
-+		 * after a kernel panic.
-+		 */
-+		else if (!memcmp(from, "crashkernel=", 12)) {
-+			unsigned long size, base;
-+			size = memparse(from+12, &from);
-+			if (*from == '@') {
-+				base = memparse(from+1, &from);
-+				/* FIXME: Do I want a sanity check 
-+				 * to validate the memory range? 
-+				 */
-+				crashk_res.start = base;
-+				crashk_res.end   = base + size - 1;
-+			}
-+		}
-+#endif
++/* This is the same as kmap_atomic() but can map memory that doesn't
++ * have a struct page associated with it.
++ */
++void *kmap_atomic_pfn(unsigned long pfn, enum km_type type)
++{
++	enum fixed_addresses idx;
++	unsigned long vaddr;
 +
- 	next_char:
- 		c = *(from++);
- 		if (!c)
-@@ -574,6 +596,11 @@
- 			    (unsigned long)(end_pfn << PAGE_SHIFT));
- 			initrd_start = 0;
- 		}
-+	}
-+#endif
-+#ifdef CONFIG_KEXEC
-+	if (crashk_res.start != crashk_res.end) {
-+		reserve_bootmem(crashk_res.start, crashk_res.end - crashk_res.start + 1);
- 	}
- #endif
- 	paging_init();
++	inc_preempt_count();
++
++	idx = type + KM_TYPE_NR*smp_processor_id();
++	vaddr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
++	set_pte(kmap_pte-idx, pfn_pte(pfn, kmap_prot));
++	__flush_tlb_one(vaddr);
++
++	return (void*) vaddr;
++}
++
+ struct page *kmap_atomic_to_page(char *ptr)
+ {
+ 	unsigned long idx, vaddr = (unsigned long)ptr;
+diff -uNr linux-2.6.11-rc1-mm1-nokexec-crashdump-memory-preserving-reboot-using-kexec/include/asm-i386/highmem.h linux-2.6.11-rc1-mm1-nokexec-crashdump-routines-for-copying-dump-pages/include/asm-i386/highmem.h
+--- linux-2.6.11-rc1-mm1-nokexec-crashdump-memory-preserving-reboot-using-kexec/include/asm-i386/highmem.h	Fri Jan 14 04:32:27 2005
++++ linux-2.6.11-rc1-mm1-nokexec-crashdump-routines-for-copying-dump-pages/include/asm-i386/highmem.h	Tue Jan 18 23:16:41 2005
+@@ -72,6 +72,7 @@
+ void kunmap(struct page *page);
+ char *kmap_atomic(struct page *page, enum km_type type);
+ void kunmap_atomic(char *kvaddr, enum km_type type);
++void *kmap_atomic_pfn(unsigned long pfn, enum km_type type);
+ struct page *kmap_atomic_to_page(char *ptr);
+ 
+ #define flush_cache_kmaps()	do { } while (0)
+diff -uNr linux-2.6.11-rc1-mm1-nokexec-crashdump-memory-preserving-reboot-using-kexec/include/linux/highmem.h linux-2.6.11-rc1-mm1-nokexec-crashdump-routines-for-copying-dump-pages/include/linux/highmem.h
+--- linux-2.6.11-rc1-mm1-nokexec-crashdump-memory-preserving-reboot-using-kexec/include/linux/highmem.h	Fri Jan 14 04:32:27 2005
++++ linux-2.6.11-rc1-mm1-nokexec-crashdump-routines-for-copying-dump-pages/include/linux/highmem.h	Tue Jan 18 23:16:41 2005
+@@ -28,6 +28,7 @@
+ 
+ #define kmap_atomic(page, idx)	 ((char *)page_address(page))
+ #define kunmap_atomic(addr, idx) do { char *p = addr; (void)p; } while (0)
++#define kmap_atomic_pfn(pfn, idx)	page_address(pfn_to_page(pfn))
+ #define kmap_atomic_to_page(ptr) virt_to_page(ptr)
+ 
+ #endif /* CONFIG_HIGHMEM */
+diff -uNr linux-2.6.11-rc1-mm1-nokexec-crashdump-memory-preserving-reboot-using-kexec/kernel/crash_dump.c linux-2.6.11-rc1-mm1-nokexec-crashdump-routines-for-copying-dump-pages/kernel/crash_dump.c
+--- linux-2.6.11-rc1-mm1-nokexec-crashdump-memory-preserving-reboot-using-kexec/kernel/crash_dump.c	Tue Jan 18 23:16:24 2005
++++ linux-2.6.11-rc1-mm1-nokexec-crashdump-routines-for-copying-dump-pages/kernel/crash_dump.c	Tue Jan 18 23:16:41 2005
+@@ -8,6 +8,39 @@
+ #include <linux/smp_lock.h>
+ #include <linux/errno.h>
+ #include <linux/proc_fs.h>
++#include <linux/bootmem.h>
++#include <linux/highmem.h>
++#include <linux/crash_dump.h>
++
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+ 
++/*
++ * Copy a page from "oldmem". For this page, there is no pte mapped
++ * in the current kernel. We stitch up a pte, similar to kmap_atomic.
++ */
++ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
++				size_t csize, int userbuf)
++{
++	void *page, *vaddr;
++
++	if (!csize)
++		return 0;
++
++	page = kmalloc(PAGE_SIZE, GFP_KERNEL);
++
++	vaddr = kmap_atomic_pfn(pfn, KM_PTE0);
++	copy_page(page, vaddr);
++	kunmap_atomic(vaddr, KM_PTE0);
++
++	if (userbuf) {
++		if (copy_to_user(buf, page, csize)) {
++			kfree(page);
++			return -EFAULT;
++		}
++	} else
++		memcpy(buf, page, csize);
++	kfree(page);
++
++	return 0;
++}

@@ -1,50 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVABVmW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVABVsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbVABVmW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 16:42:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVABVmW
+	id S261151AbVABVsL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 16:48:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbVABVsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 16:42:22 -0500
-Received: from holomorphy.com ([207.189.100.168]:64405 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261337AbVABVmT (ORCPT
+	Sun, 2 Jan 2005 16:48:11 -0500
+Received: from fw.osdl.org ([65.172.181.6]:44439 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261151AbVABVsG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 16:42:19 -0500
-Date: Sun, 2 Jan 2005 13:42:11 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Maciej Soltysiak <solt2@dns.toxicfilms.tv>, linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Message-ID: <20050102214211.GM29332@holomorphy.com>
-References: <1697129508.20050102210332@dns.toxicfilms.tv> <20050102203615.GL29332@holomorphy.com> <20050102212427.GG2818@pclin040.win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050102212427.GG2818@pclin040.win.tue.nl>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Sun, 2 Jan 2005 16:48:06 -0500
+Message-ID: <41D86A8E.9090400@osdl.org>
+Date: Sun, 02 Jan 2005 13:41:34 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jim Nelson <james4765@cwazy.co.uk>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Coywolf Qi Hunt <coywolf@gmail.com>,
+       Jesper Juhl <juhl-lkml@dif.dk>, David Howells <dhowells@redhat.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: printk loglevel policy?
+References: <Pine.LNX.4.61.0412310259230.4725@dragon.hygekrogen.localhost>	 <2cd57c9004123018203b7e38ef@mail.gmail.com> <1104675855.15004.56.camel@localhost.localdomain> <41D84503.2040808@cwazy.co.uk>
+In-Reply-To: <41D84503.2040808@cwazy.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 02, 2005 at 10:24:27PM +0100, Andries Brouwer wrote:
-> You are an optimist. I think reality is different.
-> You change some stuff. The bad mistakes are discovered very soon.
-> Some subtler things or some things that occur only in special
-> configurations or under special conditions or just with
-> very low probability may not be noticed until much later.
-> So, your changes have a wake behind them that is wide the first
-> few days and becomes thinner and thinner over time. Nontrivial
-> changes may have bugs discovered after two or three years.
-> If a kernel is set apart and called "stable", then it is not,
-> but it will become more and more stable over time, until after
-> two or three years only very few unknown problems are encountered.
-> If you come with a new kernel every month, then you get
-> the stability that the "stable" kernel has after less than a month,
-> which is not particularly stable.
+Jim Nelson wrote:
+> Alan Cox wrote:
+> 
+>> On Gwe, 2004-12-31 at 02:20, Coywolf Qi Hunt wrote:
+>>
+>>> Hi all,
+>>> Recently, I've seen a lot of add loglevel to printk patches. grep 
+>>> 'printk("' -r | wc shows me 2433. There are probably 2433 printk
+>>> need to patch, is it?  What's this printk loglevel policy, all these
+>>
+>>
+>>
+>> You would need to work out which were at the start of a newline - most
+>> of them are probably just fine and valid
+>>
+> 
+> That reminds me of a question I've had inthe back of my head.  When you 
+> have a SMP system wouldn't it be possible to have:
+> 
+> CPU 1 (running func1)    CPU 2 (running func2)
+>  |             |
+>  printk ("foo...");     |
+>  |            printk ("bleh\n");
+>  printk ("finished\n);     |
+>             printk ("readout from bleh\n";
+> 
+> Is that possible?  Especially if the process on CPU 1 slept on a 
+> semaphore or something similar?
+> 
+> Or does printk() do some tracking that I didn't see as to where in the 
+> kernel the strings are coming from?
 
-This is not optimism. This is experience. Every ``stable'' kernel I've
-seen is a pile of incredibly stale code where vi'ing any file in it
-instantly reveals numerous months or years old bugs fixed upstream.
-What is gained in terms of reducing the risk of regressions is more
-than lost by the loss of critical examination and by a long longshot.
+That kind of garbled output has been known to happen, but
+the <console_sem> is supposed to prevent that (along with
+zap_locks() in kernel/printk.c).
 
--- wli
+If it still happens, it needs to be fixed.
+David Howells (RH) has posted patches that fix it.
+
+-- 
+~Randy

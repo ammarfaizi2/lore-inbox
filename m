@@ -1,88 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283054AbRLIFuC>; Sun, 9 Dec 2001 00:50:02 -0500
+	id <S283052AbRLIFrV>; Sun, 9 Dec 2001 00:47:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283055AbRLIFtw>; Sun, 9 Dec 2001 00:49:52 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:2015 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S283054AbRLIFts>;
-	Sun, 9 Dec 2001 00:49:48 -0500
-Date: Sun, 9 Dec 2001 00:49:45 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk,
+	id <S283054AbRLIFrM>; Sun, 9 Dec 2001 00:47:12 -0500
+Received: from mtiwmhc23.worldnet.att.net ([204.127.131.48]:25294 "EHLO
+	mtiwmhc23.worldnet.att.net") by vger.kernel.org with ESMTP
+	id <S283052AbRLIFqz>; Sun, 9 Dec 2001 00:46:55 -0500
+Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
+From: Cory Bell <cory.bell@usa.net>
+To: Pavel Machek <pavel@suse.cz>
+Cc: John Clemens <john@deater.net>,
+        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
         linux-kernel@vger.kernel.org
-Subject: Re: Linux/Pro  -- clusters
-In-Reply-To: <Pine.LNX.4.33.0112082021190.1457-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0112090020460.9091-100000@binet.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <20011207213313.A176@elf.ucw.cz>
+In-Reply-To: <Pine.LNX.4.33.0112060938340.32381-100000@pianoman.cluster.toy>
+	<1007685691.6675.1.camel@localhost.localdomain> 
+	<20011207213313.A176@elf.ucw.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 08 Dec 2001 21:37:31 -0800
+Message-Id: <1007876254.17062.0.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2001-12-07 at 12:33, Pavel Machek wrote:
 
+> Hey, this gross hack fixed USB on HP OmniBook xe3. Good! (Perhaps you
+> know what interrupt is right for maestro3, also on omnibook? ;-).
 
-On Sat, 8 Dec 2001, Linus Torvalds wrote:
+On my Pavilion (and the other 5400's as far as I can tell), maestro's on
+irq 5. Wanna send me a "dump_pirq" and a "lspci -vvvxxx"? Could you try
+the patch below (inspired by/stolen from Kai Germaschewski)? Also, the
+newest acpi patch will print out the acpi irq routing table - might have
+your info. You can tell if the patch below had any effect because it
+will say it ASSIGNED IRQ XX instead of FOUND.
 
-> > I am sure also Al will tell you that there is no problem.
+I believe the Omnibook XEs and the Pavilion N5400's are very similar
+hardware. Several of the drivers I've seen on HP's website appear to
+apply to both. If you want to help get the BIOS updated (the root cause,
+IMHO), please call HP support and reference case number 1429683616 (that
+9 may be a 4 - my handwriting is horrible). That's the case I logged
+with thim about the broken PIR table (USB irq showing 9; being 11) and
+failure to enable sse on athlon 4/duron/xp chips.
 
-<raised brows>  What gave you such impression?  IIRC, I've described
-the problems several months ago.  Three words: object freeing policy.
+Thanks for the info!
 
-> To me, touching a few hundred files, even if it's almost a
-> search-and-replace operation is always painful. Much more painful than
-> touching just one subsystem..
+-Cory
 
-Less painful, in that case.
-
-kdev_t will have to stay what it is right now.  We _still_ don't have
-clear lifetime logics for char_device (BTW, patches for long-living
-cache on bdev side might be worth resurrecting them).
-
-We can switch to _use_ of pointers to block_device and char_device, but
-we can't turn kdev_t into such pointer and expect it to work correctly.
-
-So this "touching just one subsystem" would involve a shitload of very
-tricky audits of said few hundred files.   I'll take straightforward
-search-and-replace job over that any day, thank you very much.
-
-As for kdev_t...  Eventually it will die out.  Arguments about code
-duplication on maintaining caches are BS - especially since we will
-end up with different allocation/freeing rules and thus almost definitely
-different locking.
-
-IOW, for what I care the strategy for 2.5 should be:
-	* reduce amount of places where we pass kdev_t around while there
-is better alternative.   E.g. for bread() and friends in filesystems it's
-definitely struct superblock.
-	* supply struct block_device * to the rest of places where we
-are passing block devices around.
-	* switch i_rdev to dev_t.
-	* kill uses of kdev_t for block devices completely.
-
-Character devices are both simpler and harder - we have fewer places using
-them, but we have no clean release point due to the games played by
-subsystems that replace ->f_op on a live struct file.
-
-Andries, believe me, I understand the attractiveness of "let's use sma
-t macros to hide the complexity of chage", but that will do us no good since
-the real complexity will bite us anyway when we start chasing dangling pointers
-and having fun with races.
-
-The fundamental reason why we can't replace kdev_t with pointer and hope
-to survive is that YOU DON'T FREE NUMBERS.  Integer is an integer - it's
-always valid.  We will need to free the structures and _that_ is where the
-problems will start.
-
-Witness the fun with iput() changes around 2.4.15 - they were needed exactly
-because we used to be sloppy and left inodes in cache for too long; after
-the ->i_sb was garbage.  That had been fixed - we finally have sane rules
-for inode lifetime and these rules guarantee that we won't have junk floating
-around.
-
-For kdev_t situation is much more complex than for superblocks.  More
-objects refering to them, different locking situation for these objects,
-etc.
-
-Blind turning kdev_t into a pointer to dynamically allocated structure
-is a recipe for a huge fuckup.  Sorry, but we'll have to do honest work.
+The "honor the irq mask" approach (works on my machine):
+--- /home/cbell/linux-2.4/arch/i386/kernel/pci-irq.c	Fri Dec  7 01:51:41 2001
++++ /home/cbell/linux-2.4-test/arch/i386/kernel/pci-irq.c	Sat Dec  8 21:04:37 2001
+@@ -581,6 +581,7 @@
+ 	 * reported by the device if possible.
+ 	 */
+ 	newirq = dev->irq;
++	if (!((1 << newirq) & mask)) newirq = 0;
+ 	if (!newirq && assign) {
+ 		for (i = 0; i < 16; i++) {
+ 			if (!(mask & (1 << i)))
+@@ -599,7 +600,7 @@
+ 		irq = pirq & 0xf;
+ 		DBG(" -> hardcoded IRQ %d\n", irq);
+ 		msg = "Hardcoded";
+-	} else if (r->get && (irq = r->get(pirq_router_dev, dev, pirq))) {
++	} else if (r->get && (irq = r->get(pirq_router_dev, dev, pirq) && ((1 << irq) & mask))) {
+ 		DBG(" -> got IRQ %d\n", irq);
+ 		msg = "Found";
+ 	} else if (newirq && r->set && (dev->class >> 8) != PCI_CLASS_DISPLAY_VGA) {
+@@ -633,7 +634,7 @@
+ 			continue;
+ 		if (info->irq[pin].link == pirq) {
+ 			/* We refuse to override the dev->irq information. Give a warning! */
+-		    	if (dev2->irq && dev2->irq != irq) {
++		    	if (dev2->irq && dev2->irq != irq && ((1 << dev2->irq) & mask)) {
+ 		    		printk(KERN_INFO "IRQ routing conflict for %s, have irq %d, want irq %d\n",
+ 				       dev2->slot_name, dev2->irq, irq);
+ 		    		continue;
 

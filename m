@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312619AbSEaARl>; Thu, 30 May 2002 20:17:41 -0400
+	id <S313113AbSEaATa>; Thu, 30 May 2002 20:19:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312938AbSEaARk>; Thu, 30 May 2002 20:17:40 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:3720 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S312619AbSEaARi>;
-	Thu, 30 May 2002 20:17:38 -0400
-Date: Fri, 31 May 2002 10:16:52 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, Linus <torvalds@transmeta.com>
-Cc: Trivial Kernel Patches <trivial@rustcorp.com.au>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Laurent Latil <laurent@latil.nom.fr>
-Subject: [PATCH] APM patch for idle_period handling
-Message-Id: <20020531101652.246d7fcc.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S313087AbSEaAT3>; Thu, 30 May 2002 20:19:29 -0400
+Received: from [64.76.155.18] ([64.76.155.18]:47310 "EHLO alumno.inacap.cl")
+	by vger.kernel.org with ESMTP id <S312938AbSEaAT0>;
+	Thu, 30 May 2002 20:19:26 -0400
+Date: Thu, 30 May 2002 20:13:45 -0400 (CLT)
+From: Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>
+To: Alan Cox <alan@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19pre9-ac3
+In-Reply-To: <200205302322.g4UNMne06371@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.44.0205302011030.5254-100000@alumno.inacap.cl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo, Linus,
 
-This patch from Laurent Latil <laurent@latil.nom.fr> fixes a copy
-and paste error.  The patch applies to 2.4.19-pre9 and 2.5.19 (with
-some offsets).
+It is supposed to create a file named patch-intel_815-2.4.19-pre8-ac5
+in the root dir?
 
-Please apply.
+Best regards
+
+On Thu, 30 May 2002, Alan Cox wrote:
+
+> [+ indicates stuff that went to Marcelo, o stuff that has not,
+>  * indicates stuff that is merged in mainstream now, X stuff that proved
+>    bad and was dropped out]
+> 
 
 -- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Robinson Maureira Castillo
+Asesor DAI
+INACAP
 
---- linux-2.4.18/arch/i386/kernel/apm.c	Mon Apr  1 12:12:48 2002
-+++ linux/arch/i386/kernel/apm.c	Wed May 22 20:51:35 2002
-@@ -1788,7 +1788,7 @@
- 			idle_threshold = simple_strtol(str + 15, NULL, 0);
- 		if ((strncmp(str, "idle-period=", 12) == 0) ||
- 		    (strncmp(str, "idle_period=", 12) == 0))
--			idle_threshold = simple_strtol(str + 15, NULL, 0);
-+			idle_period = simple_strtol(str + 12, NULL, 0);
- 		invert = (strncmp(str, "no-", 3) == 0) ||
- 			(strncmp(str, "no_", 3) == 0);
- 		if (invert)

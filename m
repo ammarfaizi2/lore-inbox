@@ -1,59 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbUKNS6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbUKNTsb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbUKNS6f (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 13:58:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbUKNS6f
+	id S261343AbUKNTsb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 14:48:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbUKNTsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 13:58:35 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:62155 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261334AbUKNS6d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 13:58:33 -0500
-Message-ID: <4197AACF.9090303@colorfullife.com>
-Date: Sun, 14 Nov 2004 19:58:23 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andries Brouwer <aebr@win.tue.nl>, Andries.Brouwer@cwi.nl,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] __init in mm/slab.c
-References: <E1CTDXF-0006mU-00@bkwatch.colorfullife.com> <419714B8.3030804@colorfullife.com> <20041114111551.GA8680@pclin040.win.tue.nl> <Pine.LNX.4.58.0411141823460.2216@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0411141823460.2216@ppc970.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 14 Nov 2004 14:48:30 -0500
+Received: from mailer.campus.mipt.ru ([194.85.82.4]:41688 "EHLO
+	mailer.campus.mipt.ru") by vger.kernel.org with ESMTP
+	id S261343AbUKNTsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 14:48:25 -0500
+Date: Sun, 14 Nov 2004 23:06:17 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Jan Dittmer <jdittmer@ppp0.net>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] matrox w1: fix integer to pointer conversion warnings
+Message-ID: <20041114230617.5ce14ce9@zanzibar.2ka.mipt.ru>
+In-Reply-To: <41974A6C.20302@ppp0.net>
+References: <41974A6C.20302@ppp0.net>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Sun, 14 Nov 2004 13:07:08 +0100
+Jan Dittmer <jdittmer@ppp0.net> wrote:
 
->On Sun, 14 Nov 2004, Andries Brouwer wrote:
->  
->
->>So yesterday's series of __init patches is not because there were
->>bugs, but because it is desirable to have the situation where
->>static inspection of the object code shows absence of references
->>to .init stuff. Much better than having to reason that there is
->>a reference but that it will not be used.
->>    
->>
->
->And I agree heartily with this. I love static checking (after all, that's 
->all that sparse does), and if you can make sure that there is one less 
->thing to be worried about, all the better.
->
->Of course, another option to just removing/fixing the __init is to have 
->some way to let the static checker know things are ok, but in this case, 
->especially with fairly small data structures, it seems much easier to just 
->make the checker happy.
->
->  
->
-I agree, but a comment would have been nice. Now there are two identical 
-structures that are used for the same purpose, one __init, one not __init.
+> Get rid of some pointer to integer conversion warnings
+> in the matrox w1 bus driver.
 
-I'd bet that sooner or later someone will ask why.
+I believe it should be done using __iomem * conversation.
+I will create a patch later.
 
---
-    Manfred
+Thank you.
+
+> Signed-off-by: Jan Dittmer <jdittmer@ppp0.net>
+> 
+> diff -Nru a/drivers/w1/matrox_w1.c b/drivers/w1/matrox_w1.c
+> --- a/drivers/w1/matrox_w1.c	2004-11-14 13:03:45 +01:00
+> +++ b/drivers/w1/matrox_w1.c	2004-11-14 13:03:45 +01:00
+> @@ -78,11 +78,12 @@
+> 
+>  struct matrox_device
+>  {
+> -	unsigned long base_addr;
+> -	unsigned long port_index, port_data;
+> +	char *base_addr;
+> +	char *port_index, *port_data;
+>  	u8 data_mask;
+> 
+> -	unsigned long phys_addr, virt_addr;
+> +	unsigned long phys_addr;
+> +	char *virt_addr;
+>  	unsigned long found;
+> 
+>  	struct w1_bus_master *bus_master;
+> @@ -181,8 +182,7 @@
+> 
+>  	dev->phys_addr = pci_resource_start(pdev, 1);
+> 
+> -	dev->virt_addr =
+> -		(unsigned long) ioremap_nocache(dev->phys_addr, 16384);
+> +	dev->virt_addr = ioremap_nocache(dev->phys_addr, 16384);
+>  	if (!dev->virt_addr) {
+>  		dev_err(&pdev->dev, "%s: failed to ioremap(0x%lx, %d).\n",
+>  			__func__, dev->phys_addr, 16384);
+
+
+	Evgeniy Polyakov
+
+Only failure makes us experts. -- Theo de Raadt

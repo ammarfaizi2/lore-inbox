@@ -1,26 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281841AbRLVScx>; Sat, 22 Dec 2001 13:32:53 -0500
+	id <S281887AbRLVSdd>; Sat, 22 Dec 2001 13:33:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286823AbRLVSco>; Sat, 22 Dec 2001 13:32:44 -0500
-Received: from f5.law4.hotmail.com ([216.33.149.5]:56594 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S281841AbRLVScd>;
-	Sat, 22 Dec 2001 13:32:33 -0500
+	id <S286823AbRLVSdY>; Sat, 22 Dec 2001 13:33:24 -0500
+Received: from f81.law4.hotmail.com ([216.33.149.81]:5650 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S281887AbRLVSdL>;
+	Sat, 22 Dec 2001 13:33:11 -0500
 X-Originating-IP: [205.231.90.227]
 From: "victor1 torres" <camel_3@hotmail.com>
 To: alan@lxorguk.ukuu.org.uk
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: Concerning a driver rewrite (NOT THE KERNEL)
-Date: Sat, 22 Dec 2001 18:32:27 +0000
+Date: Sat, 22 Dec 2001 18:33:05 +0000
 Mime-Version: 1.0
 Content-Type: text/plain; format=flowed
-Message-ID: <F5vKRNZSPGNkY5TetpI0000e262@hotmail.com>
-X-OriginalArrivalTime: 22 Dec 2001 18:32:27.0460 (UTC) FILETIME=[01D92040:01C18B17]
+Message-ID: <F81QYrVjYKtWfN3vSAM0000e0d9@hotmail.com>
+X-OriginalArrivalTime: 22 Dec 2001 18:33:05.0434 (UTC) FILETIME=[187B7FA0:01C18B17]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Alan-
-Than you in advance Alan.
+Thank you in advance Alan. I would appreciate it.
+Victor
 
  > You driver also seems to be assuming the sound
  > driver has initialised the codec bus and codecs.) How could I fix it if 
@@ -43,6 +44,5 @@ give you a hand
 
 
 _________________________________________________________________
-MSN Photos is the easiest way to share and print your photos: 
-http://photos.msn.com/support/worldwide.aspx
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp.
 

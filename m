@@ -1,84 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318169AbSIAXjW>; Sun, 1 Sep 2002 19:39:22 -0400
+	id <S318166AbSIAXsc>; Sun, 1 Sep 2002 19:48:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318166AbSIAXjW>; Sun, 1 Sep 2002 19:39:22 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:52440 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S318165AbSIAXjU>; Sun, 1 Sep 2002 19:39:20 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Date: Mon, 2 Sep 2002 09:43:33 +1000
+	id <S318168AbSIAXsc>; Sun, 1 Sep 2002 19:48:32 -0400
+Received: from dsl-213-023-021-067.arcor-ip.net ([213.23.21.67]:58754 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318166AbSIAXsc>;
+	Sun, 1 Sep 2002 19:48:32 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: [RFC] [PATCH] Include LRU in page count
+Date: Mon, 2 Sep 2002 01:33:06 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org
+References: <3D644C70.6D100EA5@zip.com.au> <E17ld5N-0004cg-00@starship> <3D729DD3.AE3681C9@zip.com.au>
+In-Reply-To: <3D729DD3.AE3681C9@zip.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15730.42533.481161.627180@notabene.cse.unsw.edu.au>
-cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: PATCH - change to blkdev->queue calling triggers BUG in md.c
-X-Mailer: VM 7.07 under Emacs 21.2.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17leDK-0004dA-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 02 September 2002 01:08, Andrew Morton wrote:
+> Daniel Phillips wrote:
+> > Note that I changed the spin_lock in page_cache_release to a trylock, maybe
+> > it's worth checking out the effect on contention.  With a little head
+> > scratching we might be able to get rid of the spin_lock in lru_cache_add as
+> > well.  That leaves (I think) just the two big scan loops.  I've always felt
+> > it's silly to run more than one of either at the same time anyway.
+> 
+> No way.  Take a look at http://samba.org/~anton/linux/2.5.30/
+> 
+> That's 8-way power4, the workload is "dd from 7 disks
+> dd if=/dev/sd* of=/dev/null bs=1024k".
+> 
+> The CPU load in this situation was dominated by the VM.  The LRU list and page
+> reclaim.  Spending more CPU in lru_cache_add() than in copy_to_user() is
+> pretty gross.
 
-Changeset 1.573 (just prior to 2.5.33 release) changed the calling
-sequence for blk_dev[major].queue so that it is now called before the 
-bd_op->open function is called.
-This triggers a BUG in md.c which checked that the device was open
-whenever ->queue was called.  Patch below removes the BUG.
+Are we looking at the same thing?  The cpu load there is dominated by cpu_idle,
+89%.  Anyway, if your point is that it makes sense to run shrink_cache or
+refill_inactive in parallel, I don't see it because they'll serialize on the
+lru lock anyway.  What would make sense is to make shink_cache nonblocking.
 
-I'm actually a little disappointed by this change.  I was hoping that
-the ->queue might get changed to be passed a 'struct block_device *'
-instead of a 'kdev_t' so that the device driver would only have to
-interpret the device number in one place: the open.  But now that
-->queue is called before ->open, that wouldn't help.
+> My approach was to keep the existing design and warm it up, rather than to
+> redesign.
 
-I don't suppose it would make sense to do the default:
-	if (!bdev->bd_queue) {
-		struct blk_dev_struct *p = blk_dev + major(dev);
-		bdev->bd_queue = &p->request_queue;
-	}
-bit where it is now, and leave the:
-		if (p->queue)
-			bdev->bd_queue =  p->queue(dev);
+Yup.
 
-bit until after the open?  It would keep floppy happy, and make me
-happy too, but I'm not sure that it is actually 'right'...
-
-Anyway, here is the patch that stops md from BUGging out.
-
-NeilBrown
-
-### Comments for ChangeSet
-Remove BUG in md.c that change in 2.5.33 triggers.
-
-Since 2.5.33, the blk_dev[].queue is called without
-the device open, so md_queue_proc can no-longer assume
-that the device is open.
-
-
- ----------- Diffstat output ------------
- ./drivers/md/md.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
-
---- ./drivers/md/md.c	2002/09/01 23:27:10	1.1
-+++ ./drivers/md/md.c	2002/09/01 23:28:27	1.2
-@@ -3157,11 +3157,11 @@ request_queue_t * md_queue_proc(kdev_t d
- {
- 	mddev_t *mddev = mddev_find(minor(dev));
- 	request_queue_t *q = BLK_DEFAULT_QUEUE(MAJOR_NR);
--	if (!mddev || atomic_read(&mddev->active)<2)
--		BUG();
--	if (mddev->pers)
--		q = &mddev->queue;
--	mddev_put(mddev); /* the caller must hold a reference... */
-+	if (mddev) {
-+		if (mddev->pers)
-+			q = &mddev->queue;
-+		mddev_put(mddev);
-+	}
- 	return q;
- }
- 
+-- 
+Daniel

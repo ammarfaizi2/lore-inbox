@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288921AbSBEFs3>; Tue, 5 Feb 2002 00:48:29 -0500
+	id <S288342AbSBEFz6>; Tue, 5 Feb 2002 00:55:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288748AbSBEFsI>; Tue, 5 Feb 2002 00:48:08 -0500
-Received: from [65.169.83.229] ([65.169.83.229]:31360 "EHLO
-	hst000004380um.kincannon.olemiss.edu") by vger.kernel.org with ESMTP
-	id <S288342AbSBEFsD>; Tue, 5 Feb 2002 00:48:03 -0500
-Date: Mon, 4 Feb 2002 23:47:09 -0600
-From: Benjamin Pharr <ben@benpharr.com>
-To: linux-kernel@vger.kernel.org
-Subject: choice Help Sections
-Message-ID: <20020205054709.GA3245@hst000004380um.kincannon.olemiss.edu>
+	id <S288748AbSBEFzs>; Tue, 5 Feb 2002 00:55:48 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:32772 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S288342AbSBEFz2>;
+	Tue, 5 Feb 2002 00:55:28 -0500
+Date: Mon, 4 Feb 2002 21:53:09 -0800
+From: Greg KH <greg@kroah.com>
+To: Clifford Kite <ckite@ev1.net>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel zombie threads after module removal.
+Message-ID: <20020205055309.GH31025@kroah.com>
+In-Reply-To: <Pine.LNX.4.21.0202042005220.12873-200000@corncob.localhost.tld>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.4.18-pre8
-X-PGP-ID: 0x6859792C
-X-PGP-Key: http://www.benpharr.com/public_key.asc
-X-PGP-Fingerprint: 7BF0 E432 3365 C1FC E0E3  0BE2 44E1 3E1E 6859 792C
+In-Reply-To: <Pine.LNX.4.21.0202042005220.12873-200000@corncob.localhost.tld>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Tue, 08 Jan 2002 02:46:16 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has anyone else noticed the availability of only one help section in
-"choice" blocks when using make menuconfig (and others maybe?)? 
+On Mon, Feb 04, 2002 at 08:51:40PM -0600, Clifford Kite wrote:
+> This problem occurs in the kernels 2.4.5-ac9 and 2.4.12, with basic USB
+> support compiled into both the kernels.  After removing the usb-storage.o
+> and the SCSI sd_mod.o modules two zombie kernel treads remain:
+> 
+> root  2985  0.0  0.0  0  0  ?  Z  12:07  0:00 [usb-storage-0 <defunct>]
+> root  2986  0.0  0.0  0  0  ?  Z  12:07  0:00 [scsi_eh_0 <defunct>]
 
-The best example of this is selection of "Processor family". No matter
-which option is highlighted when Help is selected, it always gives the
-help for CONFIG_M386.
+These are usb-storage zombies, and I think the latest 2.4.18-pre tree
+has a fix for them.  If not, please contact the usb-storage maintainer,
+as he would be the proper person for this.
 
-I thought this was possibly by design until I checked
-Documentation/Configure.help and found help sections for the other CPU
-families. 
+thanks,
 
-Ben Pharr
-
+greg k-h

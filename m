@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263477AbUJ2URy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263499AbUJ2T5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263477AbUJ2URy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 16:17:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263525AbUJ2UNm
+	id S263499AbUJ2T5x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 15:57:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263477AbUJ2TzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 16:13:42 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:23185 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S263508AbUJ2UJs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 16:09:48 -0400
-Subject: [PATCH] radeonfb: more initializer fixes
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.61.0410292046380.23014@waterleaf.sonytel.be>
-References: <200410281712.i9SHCxDe025312@hera.kernel.org>
-	 <Pine.GSO.4.61.0410292046380.23014@waterleaf.sonytel.be>
-Date: Fri, 29 Oct 2004 23:11:01 +0300
-Message-Id: <1099080661.9569.0.camel@localhost>
+	Fri, 29 Oct 2004 15:55:19 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12550 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263500AbUJ2TvV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 15:51:21 -0400
+Date: Fri, 29 Oct 2004 20:51:06 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       linux-arch@vger.kernel.org
+Subject: Re: kbuild/all archs: Sanitize creating offsets.h
+Message-ID: <20041029205106.H31627@flint.arm.linux.org.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, linux-arch@vger.kernel.org
+References: <20041028185917.GA9004@mars.ravnborg.org> <20041028204430.C11436@flint.arm.linux.org.uk> <20041028215959.GA17314@mars.ravnborg.org> <20041028220024.D11436@flint.arm.linux.org.uk> <20041028234549.GB17314@mars.ravnborg.org> <20041029212852.GA16634@mars.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041029212852.GA16634@mars.ravnborg.org>; from sam@ravnborg.org on Fri, Oct 29, 2004 at 11:28:52PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use 8-bit palette entries for radeonfb and avoid zero-initialization
-as suggested by Geert Uytterhoeven.
+On Fri, Oct 29, 2004 at 11:28:52PM +0200, Sam Ravnborg wrote:
+> On Fri, Oct 29, 2004 at 01:45:49AM +0200, Sam Ravnborg wrote:
+> > On Thu, Oct 28, 2004 at 10:00:24PM +0100, Russell King wrote:
+> > > > Did you apply the patch that enabled kbuild files to be named Kbuild?
+> > > > It looks like this patch is missing.
+> > > 
+> > > I applied three patches.  The first was "kbuild: Prefer Kbuild as name of
+> > > the kbuild files"
+> > > 
+> > > > If you did apply the patch could you please check if the asm->asm-arm
+> > > > symlink exists when the error happens and that a file named Kbuild is
+> > > > located in the directory: include/asm-arm/
+> > 
+> > OK - I see it now.
+> > It's in i386 also - I will have a fix ready tomorrow. Thanks for testing!
+> 
+> Fix attached - next time I better check O= support myself.
+> Russell - I would be glad if you could test this version. There is 
+> some symlink handling for arm I like to see tested.
 
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
----
+Getting better, but still not right:
 
- radeon_monitor.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+make -f /home/rmk/bk/linux-2.6-rmk/scripts/Makefile.build obj=include/asm-arm
+  SYMLINK include/asm-arm/arch -> include/asm-arm/arch-rpc
+mkdir -p include/asm-arm
+ln -fsn /home/rmk/bk/linux-2.6-rmk/include/asm-arm/arch-rpc include/asm-arm/arch
+  arm-linux-gcc -Wp,-MD,include/asm-arm/.offsets.s.d -nostdinc -iwithprefix include -D__KERNEL__ -Iinclude -Iinclude2 -I/home/rmk/bk/linux-2.6-rmk/include -I/home/rmk/bk/linux-2.6-rmk/include/asm-arm -Iinclude/asm-arm -Wall -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Os -fno-omit-frame-pointer -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mlittle-endian -mapcs-32 -D__LINUX_ARM_ARCH__=3 -march=armv3 -mtune=strongarm110 -malignment-traps -msoft-float -Uarm -Wdeclaration-after-statement -I/home/rmk/bk/linux-2.6-rmk/ -I arch/arm/kernel  -DKBUILD_BASENAME=offsets -DKBUILD_MODNAME=offsets -S -o include/asm-arm/offsets.s /home/rmk/bk/linux-2.6-rmk/include/asm-arm/offsets.c
+set -e; echo '  CHK     include/asm-arm/constants.h'; mkdir -p include/asm-arm/;        (set -e; echo "#ifndef __ASM_OFFSETS_H__"; echo "#define __ASM_OFFSETS_H__"; echo "/*"; echo " * DO NOT MODIFY."; echo " *"; echo " * This file was generated by arch/arm/Makefile"; echo " *"; echo " */"; echo ""; sed -ne "/^->/{s:^->\([^ ]*\) [\$#]*\([^ ]*\) \(.*\):#define \1 \2 /* \3 */:; s:->::; p;}"; echo ""; echo "#endif" )  < include/asm-arm/offsets.s > include/asm-arm/constants.h.tmp; if [ -r include/asm-arm/constants.h ] && cmp -s include/asm-arm/constants.h include/asm-arm/constants.h.tmp; then rm -f include/asm-arm/constants.h.tmp; else echo '  UPD     include/asm-arm/constants.h'; mv -f include/asm-arm/constants.h.tmp include/asm-arm/constants.h; fi
+  CHK     include/asm-arm/constants.h
+  UPD     include/asm-arm/constants.h
+make[2]: *** No rule to make target `include/asm-arm/include/asm-arm/.arch', needed by `__build'.  Stop.
+make[1]: *** [prepare0] Error 2
+make: *** [_all] Error 2
 
-Index: 2.6.10-rc1-mm1/drivers/video/aty/radeon_monitor.c
-===================================================================
---- 2.6.10-rc1-mm1.orig/drivers/video/aty/radeon_monitor.c	2004-10-29 11:07:54.000000000 +0300
-+++ 2.6.10-rc1-mm1/drivers/video/aty/radeon_monitor.c	2004-10-29 23:02:58.854952680 +0300
-@@ -12,9 +12,9 @@
- 	.xres_virtual	= 640,
- 	.yres_virtual	= 480,
- 	.bits_per_pixel = 8,
--	.red		= { 0, 6, 0 },
--	.green		= { 0, 6, 0 },
--	.blue		= { 0, 6, 0 },
-+	.red		= { .length = 8 },
-+	.green		= { .length = 8 },
-+	.blue		= { .length = 8 },
- 	.activate	= FB_ACTIVATE_NOW,
- 	.height		= -1,
- 	.width		= -1,
+Removing "include/asm-arm/" from the always := line in asm-arm/Kbuild
+appears to fix this.
 
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

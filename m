@@ -1,69 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264487AbRFIUeO>; Sat, 9 Jun 2001 16:34:14 -0400
+	id <S264486AbRFIUn0>; Sat, 9 Jun 2001 16:43:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264486AbRFIUeE>; Sat, 9 Jun 2001 16:34:04 -0400
-Received: from [32.97.182.102] ([32.97.182.102]:63458 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264485AbRFIUd5>;
-	Sat, 9 Jun 2001 16:33:57 -0400
-Importance: Normal
-Subject: Re: Please test: workaround to help swapoff behaviour
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Mike Galbraith <mikeg@wen-online.de>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Derek Glidden <dglidden@illusionary.com>,
-        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-        Stephen Tweedie <sct@redhat.com>
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF2FF3269C.90D4688C-ON85256A66.006DEAFA@pok.ibm.com>
-From: "Bulent Abali" <abali@us.ibm.com>
-Date: Sat, 9 Jun 2001 16:32:29 -0400
-X-MIMETrack: Serialize by Router on D01ML233/01/M/IBM(Build V508_06042001 |June 4, 2001) at
- 06/09/2001 04:31:32 PM
+	id <S264488AbRFIUnR>; Sat, 9 Jun 2001 16:43:17 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:52496 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264486AbRFIUnL>; Sat, 9 Jun 2001 16:43:11 -0400
+Date: Sat, 9 Jun 2001 13:42:10 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: linux-kernel@vger.kernel.org, Dawson Engler <engler@csl.Stanford.EDU>
+Subject: Re: [CHECKER] a couple potential deadlocks in 2.4.5-ac8
+In-Reply-To: <Pine.GSO.4.21.0106091524420.19361-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0106091339090.26520-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Sat, 9 Jun 2001, Alexander Viro wrote:
+> 
+> True, but... I can easily see the situation when ->foo() and ->bar()
+> both call a helper function which needs BKL for a small piece of code.
 
+I'd hope that we can fix the small helper functions to not need BKL -
+there are already many circumstances where you can't use the BKL anyway
+(ie you already hold a spinlock - I'd really like to have the rule that
+the BKL is the "outermost" of all spinlocks, as we could in theory some
+day use it as a point to schedule away on BKL contention).
 
->Bulent,
->
->Could you please check if 2.4.6-pre2+the schedule patch has better
->swapoff behaviour for you?
+> ObUnrelated: fs/super.c is getting to the point where it naturally
+> falls into two files - one that deals with mount cache and all things
+> vfsmount-related, mount tree manipulations, etc. and another that deals
+> with superblocks. Mind if I split the thing?
 
-Marcelo,
+Sure. As long as there is some sane naming and not too many new non-static
+functions. Maybe just "fs/mount.c" for the vfsmount caches etc.
 
-It works as expected.  Doesn't lockup the box however swapoff keeps burning
-the CPU cycles.  It took 4 1/2 minutes to swapoff about 256MB of swap
-content.  Shutdown took just as long.  I was hoping that shutdown would
-kill the swapoff process but it doesn't.  It just hangs there.  Shutdown
-is the common case.  Therefore, swapoff needs to be optimized for
-shutdowns.
-You could imagine users frustration waiting for a shutdown when there are
-gigabytes in the swap.
-
-So to summarize, schedule patch is better than nothing but falls far short.
-I would put it in 2.4.6.  Read on.
-
-----------
-
-The problem is with the try_to_unuse() algorithm which is very inefficient.
-I searched the linux-mm archives and Tweedie was on to this. This is what
-he wrote:  "it is much cheaper to find a swap entry for a given page than
-to find the swap cache page for a given swap entry." And he posted a
-patch http://mail.nl.linux.org/linux-mm/2001-03/msg00224.html
-His patch is in the Redhat 7.1 kernel 2.4.2-2 and not in 2.4.5.
-
-But in any case I believe the patch will not work as expected.
-It seems to me that he is calling the function check_orphaned_swap(page)
-in the wrong place.  He is calling the function while scanning the
-active_list in refill_inactive_scan().  The problem with that is if you
-wait
-60 seconds or longer the orphaned swap pages will move from active
-to inactive lists. Therefore the function will miss the orphans in inactive
-lists.  Any comments?
-
-
+		Linus
 

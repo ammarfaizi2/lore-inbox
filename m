@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262955AbTGFRqt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 13:46:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263084AbTGFRqt
+	id S263103AbTGFRyk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 13:54:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbTGFRyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 13:46:49 -0400
-Received: from c180224.adsl.hansenet.de ([213.39.180.224]:42390 "EHLO
-	sfhq.hn.org") by vger.kernel.org with ESMTP id S262955AbTGFRqs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 13:46:48 -0400
-Message-ID: <3F0863EA.9030900@portrix.net>
-Date: Sun, 06 Jul 2003 20:01:14 +0200
-From: Jan Dittmer <j.dittmer@portrix.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030524 Debian/1.3.1-1.he-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: yoshfuji@linux-ipv6.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Unable to handle NULL point when doing lsof
-References: <3F0539E5.6030905@portrix.net> <20030704.173441.71640872.yoshfuji@linux-ipv6.org>
-In-Reply-To: <20030704.173441.71640872.yoshfuji@linux-ipv6.org>
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
+	Sun, 6 Jul 2003 13:54:40 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:47331 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263103AbTGFRyj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 13:54:39 -0400
+Date: Sun, 6 Jul 2003 20:08:51 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Bernardo Innocenti <bernie@develer.com>
+Cc: Philippe Elie <phil.el@wanadoo.fr>, linux-kernel@vger.kernel.org,
+       Richard Henderson <rth@twiddle.net>
+Subject: Re: SPAM[RBL] Re: C99 types VS Linus types
+Message-ID: <20030706200851.A22328@ucw.cz>
+References: <200307060703.58533.bernie@develer.com> <3F0814B1.1000401@wanadoo.fr> <200307061937.26519.bernie@develer.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200307061937.26519.bernie@develer.com>; from bernie@develer.com on Sun, Jul 06, 2003 at 07:37:26PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-YOSHIFUJI Hideaki / ???? wrote:
-> In article <3F0539E5.6030905@portrix.net> (at Fri, 04 Jul 2003 10:25:09 +0200), Jan Dittmer <j.dittmer@portrix.net> says:
-> 
-> 
->>Just executing lsof gives a segmentation fault.
->>This is 2.5.73-mm3 and reproducable on dual p3 and single p3-800.
->>Will try 2.5.74-mm1 now.
-> 
-> 
-> Please try http://bugme.osdl.org/attachment.cgi?id=476&action=view
-> Thanks.
-> 
+On Sun, Jul 06, 2003 at 07:37:26PM +0200, Bernardo Innocenti wrote:
 
-Yes this fixes it for me on both platforms.
+> On Sunday 06 July 2003 14:23, Philippe Elie wrote:
+> 
+>  > alpha user space .h define uint64_t as unsigned long,
+>  > include/asm-alpha/types.h defines it as unsigned long long.
+> 
+>  Why is that? Isn't uint64_t supposed to be _always_ a 64bit
+> unsigned integer? Either the kernel or the user space might
+> be doing the wrong thing...
+> 
+>  I've Cc'd the Alpha mantainer to make him aware of this
+> problem.
 
-Thanks,
-
-Jan
+I suppose both an 'unsigned long' and 'unsigned long long' are 64-bit
+entities on the Alpha (which is a 64-bit architecture).
 
 -- 
-Linux rubicon 2.5.74-mm2-jd4 #1 SMP Sun Jul 6 09:55:20 CEST 2003 i686
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,62 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132027AbRDPTmp>; Mon, 16 Apr 2001 15:42:45 -0400
+	id <S132038AbRDPTr0>; Mon, 16 Apr 2001 15:47:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131985AbRDPTmZ>; Mon, 16 Apr 2001 15:42:25 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:6419 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S131983AbRDPTmO>;
-	Mon, 16 Apr 2001 15:42:14 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200104161942.f3GJg4r401708@saturn.cs.uml.edu>
-Subject: Re: Bug in EZ-Drive remapping code (ide.c)
-To: Andries.Brouwer@cwi.nl
-Date: Mon, 16 Apr 2001 15:42:04 -0400 (EDT)
-Cc: acahalan@cs.uml.edu, Jochen.Hoenicke@informatik.uni-oldenburg.de,
-        andre@linux-ide.org, linux-kernel@vger.kernel.org
-In-Reply-To: <UTC200104160831.KAA196012.aeb@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl" at Apr 16, 2001 10:31:48 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S132039AbRDPTrR>; Mon, 16 Apr 2001 15:47:17 -0400
+Received: from anime.net ([63.172.78.150]:29971 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S132038AbRDPTrI>;
+	Mon, 16 Apr 2001 15:47:08 -0400
+Date: Mon, 16 Apr 2001 12:47:03 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: via udma100 fix
+In-Reply-To: <Pine.LNX.4.10.10104160950000.19043-200000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.30.0104161246100.31101-100000@anime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer writes:
->From acahalan@saturn.cs.uml.edu Mon Apr 16 08:35:09 2001
->>Andries.Brouwer writes:
+On Mon, 16 Apr 2001, Andre Hedrick wrote:
+> On Mon, 16 Apr 2001, Dan Hollis wrote:
+> > Technical discussion of the workaround (in german):
+> > http://home.tiscalinet.de/au-ja/review-kt133a-4.html
+> This was sent to me the other day, is this waht you are talking about?
 
->>> What one wants is to remap access to sector 0 to sector 1,
->>> and leave all other sectors alone. Thus, if someone asks
->>> for sectors 0 1 2 3 4, she should get sectors 1 1 2 3 4.
->>
->> No, because then you can't write to the real first sector.
->> Assuming translation is good, 1 0 2 3 4 is a better order.
->> Then "dd if=/dev/zero of=/dev/hda bs=1k count=999" will get
->> rid of all this crap. Otherwise, killing it is difficult.
->
-> If you use EZdrive and damage its code, then probably you
-> cannot boot anymore, or lose access to your data.
-> Killing it must be difficult.
+Yes, is any of the information applicable to your via driver?
 
-The above dd command wipes out out the partition table anyway,
-with or without EZdrive. I think it also kills the EZdrive code.
-
-EZdrive tends to come installed by default, to support DOS and
-similar crufty Microsoft bits. For a pure Linux system it should
-be removed.
-
-What you are arguing for is protecting root from himself.
-You want to limit the rope, but this is silly as the partitions
-themselves are still completely unprotected.
-
-The "1 0 2 3 4" order is nicely 1-to-1, unlike the other orders.
-
-> EZdrive provides uninstall code itself, but if you really want,
-> boot with "hda=noremap", and then your dd command will erase
-> both EZdrive and your precious data.
-
-This is a pain. The fdisk program ought to have a "wipe EZdisk"
-option. More generally, it ought to let the user wipe everything
-of a similar nature, by both brute force and by copying the second
-sector over the first.
+-Dan
 

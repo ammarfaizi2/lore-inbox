@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267461AbUBSB6M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 20:58:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267454AbUBSB5X
+	id S267058AbUBRXBk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 18:01:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267066AbUBRXBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 20:57:23 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:49559 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S267453AbUBSB4W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 20:56:22 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: ACPI and ISA IRQ 9, Linux 2.4
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Thu, 19 Feb 2004 02:19:33 +0100
-Message-ID: <m3isi3n9wa.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
+	Wed, 18 Feb 2004 18:01:40 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:11790 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267058AbUBRXBM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 18:01:12 -0500
+Date: Wed, 18 Feb 2004 23:00:55 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>, tovalds@osdl.org
+Cc: Christoph Hellwig <hch@infradead.org>, paulmck@us.ibm.com,
+       arjanv@redhat.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Non-GPL export of invalidate_mmap_range
+Message-ID: <20040218230055.A14889@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, tovalds@osdl.org, paulmck@us.ibm.com,
+	arjanv@redhat.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20040216190927.GA2969@us.ibm.com> <20040217073522.A25921@infradead.org> <20040217124001.GA1267@us.ibm.com> <20040217161929.7e6b2a61.akpm@osdl.org> <1077108694.4479.4.camel@laptop.fenrus.com> <20040218140021.GB1269@us.ibm.com> <20040218211035.A13866@infradead.org> <20040218150607.GE1269@us.ibm.com> <20040218222138.A14585@infradead.org> <20040218145132.460214b5.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040218145132.460214b5.akpm@osdl.org>; from akpm@osdl.org on Wed, Feb 18, 2004 at 02:51:32PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Feb 18, 2004 at 02:51:32PM -0800, Andrew Morton wrote:
+> a) Does the export make technical sense?  Do filesystems have
+>    legitimate need for access to this symbol?
+> 
+> (really, a) is sufficient grounds, but for real-world reasons:)
+> 
+> b) Does the IBM filsystem meet the kernel's licensing requirements?
+> 
+> 
+> It appears that the answers are a): yes and b) probably.
 
-I think this is a known problem, but I don't know how to fix it:
+Well, the answer to b) is most likely not.  I see it very hard to argue to
+have something like gpfs not beeing a derived work.  The glue code they
+had online certainly looked very much like a derived work, and if the new
+version got better they wouldn't have any reason to remove it from the
+website, right?
 
-I have a dual Pentium-2 machine (non-SCSI Asus P2B-D), latest BIOS with
-ACPI etc. It has an ISA card (serial port) using IRQ 9 (I can't change
-the IRQ). It works fine without ACPI, Linux 2.4 lists IRQ 9 as
-APIC edge-triggered.
+> Please, feel free to add additional criteria.  We could also ask "do we
+> want to withhold this symbols to encourage IBM to GPL the filesystem" or
+> "do we simply refuse to export any symbol which is not used by any GPL
+> software" (if so, why?).
 
-With acpi=force (due to BIOS date) IRQ 9 is used by ACPI. /proc/interrupts
-lists it as APIC level-triggered, and the ISA card no longer generates
-interrupts.
+Yes.  Andrew, please read the GPL, it's very clear about derived works.
+Then please tell me why you think gpfs is not a derived work.
 
-IRQ 9 is set to "ISA" in BIOS setup. acpi_irq_isa=9 doesn't help.
+> But at the end of the day, if we decide to not export this symbol, we owe
+> Paul a good, solid reason, yes?
 
-Is is possible to fix it? Or is it just impossible to use ISA IRQ 9
-with ACPI?
+Yes.  We've traditionally not exported symbols unless we had an intree user,
+and especially not if it's for a module that's not GPL licensed.
 
-More details available on request, of course.
--- 
-Krzysztof Halasa, B*FH
+We had this discussion with Linus a few time, maybe he can comment again to
+make it clear.

@@ -1,68 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264361AbUBOILp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 03:11:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbUBOILp
+	id S264376AbUBOISP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 03:18:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264391AbUBOISP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 03:11:45 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:27264 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S264361AbUBOILh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 03:11:37 -0500
-Date: Sun, 15 Feb 2004 09:11:35 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: sting sting <zstingx@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: keyboard  and mouse driver module and lsmod in 2.6
-Message-ID: <20040215081135.GC314@ucw.cz>
-References: <Sea2-F67YP0QzBxhJTA00015551@hotmail.com>
+	Sun, 15 Feb 2004 03:18:15 -0500
+Received: from wblv-254-118.telkomadsl.co.za ([165.165.254.118]:151 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S264376AbUBOISD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 03:18:03 -0500
+Subject: Re: [BK PATCHES] 2.6.x libata update
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: akpm@osdl.org, torvalds@osdl.org,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       Jon Smirl <jonsmirl@yahoo.com>
+In-Reply-To: <402E85EE.70801@pobox.com>
+References: <20040213184316.GA28871@gtf.org>
+	 <1076700491.22542.38.camel@nosferatu.lan>  <402D3B97.70005@pobox.com>
+	 <1076783378.27648.3.camel@nosferatu.lan>  <402E85EE.70801@pobox.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-LbcXLv+T9T1TfZ/fLetI"
+Message-Id: <1076833119.27648.15.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Sea2-F67YP0QzBxhJTA00015551@hotmail.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 15 Feb 2004 10:18:39 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 15, 2004 at 09:19:46AM +0200, sting sting wrote:
-> Hello ,
-> In 2.4, when you performed lsmod after boot (and after entering  X Windows)
-> , if you had performed lsmod you had found that "keybdev" and "mousedev"  
-> modules
-> are loaded in momeory.
-> 
-> in 2.4, the  keybdev.c was under
-> /linux-2.4-xxx/drivers/input/keybdev.c
-> 
-> Now, in 2.6 ,there is no keybdev.c and I assume there is also no keybdev.o 
-> (am I right?
-> I am not sure).
-> On the other hand there is both /drivers/char/keyboard.c
-> in 2.6 and 2.4 .
-> 
-> My question is :
-> in 2.6, after boot and after starting x windows, when typing lsmod -
-> what should be the parallel of keybdev.o ?
-> 
-> (I don't have in my 2.6, under /lib/modules/..., keybdev.o ; was I wrong
-> in my configuration?)
-> 
-> even that I have no keybdev.o in my 2.6, ye the keyboard responds (at least
-> for some minutes in the beginning).
-> Or in 2.6 the keyboard driver is part of the kernel?).
 
-In 2.6 keybdev.c is gone and it's functionality was put into keyboard.c
+--=-LbcXLv+T9T1TfZ/fLetI
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> and also - what is the parallel of mousedev.o ?
-> I ***DO**** have mosedev.o under /drivers/input/mosedev.o but ***NOT*** 
-> under
-> the /lib/modules/2.6.0./.....
-> 
-> and also lsmod does not show mousedv.
+On Sat, 2004-02-14 at 22:32, Jeff Garzik wrote:
+> Martin Schlemmer wrote:
+> > Yep, it still breaks it.  I get a dma timeout on heavy disk access,
+> > and then things start to freeze (or do not start at all).  Seems
+> > Jon is hitting the same issue with -bk4.
+>=20
+> Thanks for re-verifying.  The buggy patch is now reverted upstream, and=20
+> I'll be looking into another way to fix the "too many interrupts on=20
+> ICH5" problem.
+>=20
 
-mousedev on the other hand is still present in 2.6. Maybe you just did
-not enable it.
+Stupid question - its not maybe fixed in later revisions of the
+controller (also those this breaks)?  I never had the heavy interrupts
+problem some seems to have ...
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+--
+ # cat /proc/interrupts
+           CPU0       CPU1
+  0:   64547502   64536877    IO-APIC-edge  timer
+  2:          0          0          XT-PIC  cascade
+  8:       6702        945    IO-APIC-edge  rtc
+  9:          0          0   IO-APIC-level  acpi
+ 14:        244        142    IO-APIC-edge  ide0
+ 15:         35         62    IO-APIC-edge  ide1
+169:    1287568    1399519   IO-APIC-level  libata, uhci_hcd, eth0
+177:     746886     747222   IO-APIC-level  Intel ICH5
+185:    5637855    5624744   IO-APIC-level  uhci_hcd, uhci_hcd, nvidia
+193:          0          0   IO-APIC-level  uhci_hcd
+201:          0          0   IO-APIC-level  ehci_hcd
+NMI:          0          0
+LOC:  129049693  129049832
+ERR:          0
+MIS:          0
+--
+
+(yes, with the patch it happens without nvidia as well)
+
+--
+  Bus  0, device  31, function  1:
+    IDE interface: Intel Corp. 82801EB Ultra ATA Storage Controller (rev 2)=
+.
+      IRQ 169.
+      I/O at 0xfc00 [0xfc0f].
+      Non-prefetchable 32 bit memory at 0x40000000 [0x400003ff].
+  Bus  0, device  31, function  2:
+    IDE interface: Intel Corp. 82801EB Ultra ATA Storage Controller (rev 2)=
+.
+      IRQ 169.
+      I/O at 0xefe0 [0xefe7].
+      I/O at 0xefac [0xefaf].
+      I/O at 0xefa0 [0xefa7].
+      I/O at 0xefa8 [0xefab].
+      I/O at 0xef90 [0xef9f].
+--
+
+
+--=20
+Martin Schlemmer
+
+--=-LbcXLv+T9T1TfZ/fLetI
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBALytfqburzKaJYLYRAlzAAKCMP8r2zy6+/azEHZq/VtcPDeS7aACeIHZc
+hCOIEupXiOOW5oZpeLdZeDo=
+=3s/l
+-----END PGP SIGNATURE-----
+
+--=-LbcXLv+T9T1TfZ/fLetI--
+

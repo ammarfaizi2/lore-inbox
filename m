@@ -1,54 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264125AbUDBRck (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 12:32:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264131AbUDBRck
+	id S264126AbUDBRse (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 12:48:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264131AbUDBRse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 12:32:40 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:32700 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S264125AbUDBRci (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 12:32:38 -0500
-Date: Fri, 2 Apr 2004 19:32:42 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove the warning from arch/i386/boot/setup.S
-Message-ID: <20040402173242.GC26140@wohnheim.fh-wedel.de>
+	Fri, 2 Apr 2004 12:48:34 -0500
+Received: from tench.street-vision.com ([212.18.235.100]:4772 "EHLO
+	tench.street-vision.com") by vger.kernel.org with ESMTP
+	id S264126AbUDBRsa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 12:48:30 -0500
+Subject: Re: Undecoded Interrupt with SiL3112 IDE?
+From: Justin Cormack <justin@street-vision.com>
+To: Johannes Deisenhofer <joe@bndlg.de>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <406DA2DD.6040700@bndlg.de>
+References: <406DA2DD.6040700@bndlg.de>
+Content-Type: text/plain
+Message-Id: <1080928106.30729.140.camel@lotte.street-vision.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 02 Apr 2004 18:48:26 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not sure how many people tried to fix this before, but it's still in
-2.6.4.  And guess what, we depend on undocumented behaviour, so I'd
-prefer to make this dependency explicit.
+siimage driver has buggy interrupt handling - have seen similar
+behaviour. It appears to be unmaintained. Recommend using libata
+instead.
 
-Jörn
+Justin
 
--- 
-Mundie uses a textbook tactic of manipulation: start with some
-reasonable talk, and lead the audience to an unreasonable conclusion.
--- Bruce Perens
 
-The warning is correct, the calculated value for ramdisk_max would be
-0xb7ffffff instead of 0x37ffffff.  Truncating 0xb7ffffff to 0x37ffffff
-is desired behaviour, so we should do it explicitly.
+On Fri, 2004-04-02 at 18:29, Johannes Deisenhofer wrote:
+> Hi,
+> 
+> I have a recent problem with my sil3112 onboard SATA adapter.
+> 
+> Starting after a while (sometimes after hours of uptime), i get this every few 
+> seconds:
+> 
+> ----- snip -----
+> irq 18: nobody cared!
+> Call Trace:
+>   [<c0108f03>] __report_bad_irq+0x33/0x90
+>   [<c0108fe0>] note_interrupt+0x50/0x80
+>   [<c01091e9>] do_IRQ+0xa9/0x130
+>   [<c0105030>] default_idle+0x0/0x30
+>   [<c010795c>] common_interrupt+0x18/0x20
+>   [<c0105030>] default_idle+0x0/0x30
+>   [<c0105053>] default_idle+0x23/0x30
+>   [<c01050de>] cpu_idle+0x2e/0x40
+>   [<c0103055>] _stext+0x55/0x60
+>   [<c04e66f5>] start_kernel+0x155/0x160
+> 
+> handlers:
+> [<c02ae9f0>] (ide_intr+0x0/0x180)
+> [<c02ae9f0>] (ide_intr+0x0/0x180)
+> Disabling IRQ #18
+> ----- snip -----
+> 
+> This started recently (without changes in hardware or software) and drags down 
+> my machine quite a bit. No hangs / data losses, however.
+> 
+> - There is always an interrupt storm (about 100000 IRQ in ca. 1 sec) on IRQ 18 
+> when this message is logged.
+> - kernel 2.6.5-rc2
+> - siimage driver (not libata)
+> - two SATA drives on adapter, ST3120026AS and WDC WD1200JD-00FYB0
+> - Asus A7N8X board (nforce2 chipset), latest bios
+> - There is only the onboard SATA adapter on this IRQ. I've pulled the PCI card 
+> physically sharing the same IRQ line.
+> - Same problem with kernel 2.4, although it handles it less gracefully (system 
+>   freezes for some time).
+> - Disabling ACPI doesn't change a thing (IRQ #11 will be disabled, then)
+> - System has otherwise been stable.
+> - After reboot, problem will disappear for a while
+> 
+> I suspect some unhandled error condition of the sil chip. After disconnecting 
+> and reseating both SATA connectors, problems disappeared for two days. 
+> Coincidence?
+> 
+> Anything I can test before I go and buy new cables?
+> 
+>  From lspci -v -xxxx
+> 
+> 01:0b.0 RAID bus controller: CMD Technology Inc Silicon Image SiI 3112 
+> SATARaid Controller (rev 01)
+>          Subsystem: CMD Technology Inc: Unknown device 6112
+>          Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 18
+>          I/O ports at 9800 [size=8]
+>          I/O ports at 9c00 [size=4]
+>          I/O ports at a000 [size=8]
+>          I/O ports at a400 [size=4]
+>          I/O ports at a800 [size=16]
+>          Memory at de005000 (32-bit, non-prefetchable) [size=512]
+>          Expansion ROM at <unassigned> [disabled] [size=512K]
+>          Capabilities: [60] Power Management version 2
+> 00: 95 10 12 31 07 00 b0 02 01 00 04 01 01 20 00 00
+> 10: 01 98 00 00 01 9c 00 00 01 a0 00 00 01 a4 00 00
+> 20: 01 a8 00 00 00 50 00 de 00 00 00 00 95 10 12 61
+> 30: 00 00 00 00 60 00 00 00 00 00 00 00 0b 01 00 00
+> 40: 02 00 00 00 00 82 08 ba 00 00 00 00 00 00 00 00
+> 50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 60: 01 00 22 06 00 40 00 64 00 00 00 00 00 00 00 00
+> 70: 00 00 20 00 00 e0 d5 37 00 00 20 00 00 c0 d5 37
+> 80: 03 00 00 00 03 00 00 00 00 00 10 00 da a9 50 7e
+> 90: 00 fc 01 01 0f ff 00 00 00 00 00 18 00 00 00 00
+> a0: 01 60 8a 32 8a 32 dd 62 c1 10 92 43 01 40 09 40
+> b0: 01 60 8a 32 8a 32 dd 62 c1 10 92 43 02 40 09 40
+> c0: 84 01 00 00 13 01 00 00 00 00 00 00 00 00 00 00
+> d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 
+> 
+> P.S.: I'm not on the linux-kernel list, but I read the archives
+> 
+> Jo
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
- setup.S |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
-
---- linux-2.6.1/arch/i386/boot/setup.S~initrd_warning	2004-03-09 11:37:29.000000000 +0100
-+++ linux-2.6.1/arch/i386/boot/setup.S	2004-03-09 11:38:59.000000000 +0100
-@@ -162,7 +162,8 @@
- 					# can be located anywhere in
- 					# low memory 0x10000 or higher.
- 
--ramdisk_max:	.long MAXMEM-1		# (Header version 0x0203 or later)
-+ramdisk_max:	.long (MAXMEM-1) & 0x7fffffff
-+					# (Header version 0x0203 or later)
- 					# The highest safe address for
- 					# the contents of an initrd
- 

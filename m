@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261705AbTCQOkv>; Mon, 17 Mar 2003 09:40:51 -0500
+	id <S261694AbTCQOpO>; Mon, 17 Mar 2003 09:45:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261714AbTCQOkv>; Mon, 17 Mar 2003 09:40:51 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:53149 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261705AbTCQOks>; Mon, 17 Mar 2003 09:40:48 -0500
-Date: Mon, 17 Mar 2003 06:51:40 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 465] New: 2.5.64: devfs OOPS in delete_partition() w/ usb_storage: devfs_put() poisoned pointer
-Message-ID: <21410000.1047912700@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S261696AbTCQOpO>; Mon, 17 Mar 2003 09:45:14 -0500
+Received: from 12-211-138-234.client.attbi.com ([12.211.138.234]:61774 "EHLO
+	vlad.geekizoid.com") by vger.kernel.org with ESMTP
+	id <S261694AbTCQOpM>; Mon, 17 Mar 2003 09:45:12 -0500
+Reply-To: <vlad@geekizoid.com>
+From: "Vlad@geekizoid.com" <vlad@geekizoid.com>
+To: "'Oliver Xymoron'" <oxymoron@waste.org>
+Cc: "'Lkml \(E-mail\)'" <linux-kernel@vger.kernel.org>
+Subject: RE: Never ever send Pavel private mail unless you want him to publish it.
+Date: Mon, 17 Mar 2003 08:56:01 -0600
+Message-ID: <01d301c2ec95$53dc3d60$0200a8c0@wsl3>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <20030317062117.GU29032@waste.org>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Please respond in private, if you must respond at all.  Peter declared this
+whole thing offtopic, so this will be my last response to the list.
 
-http://bugme.osdl.org/show_bug.cgi?id=465
+> -----Original Message-----
+> From: Oliver Xymoron [mailto:oxymoron@waste.org]
+> Sent: Monday, March 17, 2003 12:21 AM
+> To: Vlad@geekizoid.com
+> Cc: 'Lkml (E-mail)'
+> Subject: Re: Never ever send Pavel private mail unless you want him to
+> publish it.
+> On Sun, Mar 16, 2003 at 10:37:49PM -0600, Vlad@geekizoid.com wrote:
+> > Well, you have your opinion, I have mine.
+> > I think we can agree at least that what he did was unethical.
+> Hardly. If people send me anything threatening via email, legal or
+> otherwise, they have already kissed any form of 'etiquette' goodbye
+> and can expect it to show up on the web promptly. And yes, what Larry
+> wrote to Pavel certainly had an implied threat of legal action,
+> whether or not he had any sort of case.
 
-           Summary: 2.5.64: devfs OOPS in delete_partition() w/ usb_storage:
-                    devfs_put() poisoned pointer
-    Kernel Version: 2.5.64
-            Status: NEW
-          Severity: normal
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: andi@lisas.de
+Hardly.  I view it much more like an attempt to "stir the pot"
+intentionally.  He knew that popular sentiment was against Larry, and did
+this with the intent to make Larry look worse.  He accomplished that, and I
+think it was intentional.  Anyway, I'll stop here.  I'm trying very hard to
+respect Peter's declaration that this is off-topic in LKML which is why I
+stoped cc'ing the list before.
 
+--
 
-Distribution: Debian unstable
-Hardware Environment: Dell Inspiron 8000 w/ USB 2.0 2.5" HDD case on USB 1.1
-Software Environment: gcc 3.2.3, devfsd 1.3.25-12
-Problem Description:
-OOPS at delete_partition() when using fdisk to delete all 10 partitions and then
-add two partitions.
-
-Steps to reproduce:
-Connect an EagleTec USB 2.0 external 2.5" HDD case w/ an IBM DJSA-220 to a Dell
-Inspiron 8000 USB 1.1 connector.
-modprobe sd_mod manually.
-Run fdisk /dev/hda, then delete all 10 partitions and add two partitions, one
-FAT32 type c (10000MB), one Linux type 83 (8000MB).
-Then "w"rite the partitions. BOOM.
-
+ /"\                         / For information and quotes, email us at
+ \ /  ASCII RIBBON CAMPAIGN / info@lrsehosting.com
+  X   AGAINST HTML MAIL    / http://www.lrsehosting.com/
+ / \  AND POSTINGS        / vlad@lrsehosting.com
+------------------------------------------------
 

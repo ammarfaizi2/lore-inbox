@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261631AbSJNOP7>; Mon, 14 Oct 2002 10:15:59 -0400
+	id <S261629AbSJNOPz>; Mon, 14 Oct 2002 10:15:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261650AbSJNOP5>; Mon, 14 Oct 2002 10:15:57 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:62178 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261631AbSJNOPw>;
-	Mon, 14 Oct 2002 10:15:52 -0400
-Date: Mon, 14 Oct 2002 15:22:36 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: "Eric S. Raymond" <esr@thyrsus.com>, Rob Landley <landley@trommello.org>,
-       Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Fwd: Re: lk maintainers
-Message-ID: <20021014142236.GA6342@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"Eric S. Raymond" <esr@thyrsus.com>,
-	Rob Landley <landley@trommello.org>,
-	Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-	linux-kernel@vger.kernel.org
-References: <20021014131201.CFDA4397@merlin.webofficenow.com> <20021014131521.GA17710@thyrsus.com>
+	id <S261650AbSJNOPy>; Mon, 14 Oct 2002 10:15:54 -0400
+Received: from msp-65-29-16-62.mn.rr.com ([65.29.16.62]:46774 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S261629AbSJNOPv>; Mon, 14 Oct 2002 10:15:51 -0400
+Date: Mon, 14 Oct 2002 09:20:48 -0500
+From: Shawn <core@enodev.com>
+To: Christoph Hellwig <hch@infradead.org>,
+       Michael Clark <michael@metaparadigm.com>,
+       Mark Peloquin <markpeloquin@hotmail.com>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com, evms-devel@lists.sourceforge.net
+Subject: Re: [Evms-devel] Re: Linux v2.5.42
+Message-ID: <20021014092048.A27417@q.mn.rr.com>
+References: <F87rkrlMjzmfv2NkkSD000144a9@hotmail.com> <3DA969F0.1060109@metaparadigm.com> <20021013144926.B16668@infradead.org> <3DA98E48.9000001@metaparadigm.com> <20021013163551.A18184@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021014131521.GA17710@thyrsus.com>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021013163551.A18184@infradead.org>; from hch@infradead.org on Sun, Oct 13, 2002 at 04:35:51PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 14, 2002 at 09:15:21AM -0400, Eric S. Raymond wrote:
- > > On Thu, Oct 10, 2002 at 08:07:08AM -0200, Denis Vlasenko wrote:
- > > > Eric S. Raymond <esr@thyrsus.com> [5 feb 2002]
- > > > 	Send kernel configuration bug reports and suggestions to me.
- > > > 	Also I'll be more than happy to accept help enties for kernel config
- > > > 	options (Configure.help).
- > > 
- > > Isn't this Steven P. Cole <elenstev@mesatop.com> now? Or is Eric
- > > still responsive to patches?
- > 
- > Linus stopped taking Configure.help patches.  It therefore doesn't matter
- > whether I am "responsive" or or not.
+On 10/13, Christoph Hellwig said something like:
+> On Sun, Oct 13, 2002 at 11:16:24PM +0800, Michael Clark wrote:
+> > On 10/13/02 21:49, Christoph Hellwig wrote:
+> > > On Sun, Oct 13, 2002 at 08:41:20PM +0800, Michael Clark wrote:
+> _I_ don't want to get EVMS in, sorry.  I _do_ want a proper volume
+> managment framework, but I can live with it not beeing in before 2.8.
 
-Likely because it doesn't exist any more. Steven Cole did a pretty good
-job at updating the numerous Config.help's after the two diverged.
+I think this is where you're going to get the most disagreement.
 
-		Dave
+It was included in mainline, then it just goes away? Linus has no
+obligation at all to include anything, but a lot of people depend
+on it.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+Yeah yeah, distros can include it at will, but mainline inclusion is the
+best way to get large exposure and testing to the thing.
+
+Having said all that, given that your premises are true regarding the
+code design problems you have with EVMS, you have a valid point about
+including it in mainline. The question is, is this good enough to ignore
+having a logical device management system?!?
+
+--
+Shawn Leas
+core@enodev.com
+
+I put my air conditioner in backwards.  It got cold outside.
+The weatherman on TV was confused.  "It was supposed to be hot
+today."
+						-- Stephen Wright

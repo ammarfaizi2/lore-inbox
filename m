@@ -1,66 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262086AbTIHI45 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 04:56:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbTIHI44
+	id S262160AbTIHI6g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 04:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTIHI6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 04:56:56 -0400
-Received: from users.linvision.com ([62.58.92.114]:33974 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id S262086AbTIHI4z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 04:56:55 -0400
-Date: Mon, 8 Sep 2003 10:56:41 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Oleg Drokin <green@namesys.com>
-Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Hans Reiser <reiser@namesys.com>,
-       linux-kernel@vger.kernel.org, Nikita Danilov <god@namesys.com>
-Subject: Re: First impressions of reiserfs4
-Message-ID: <20030908105639.B26722@bitwizard.nl>
-References: <slrnbl12sv.i4g.erik@bender.home.hensema.net> <3F50D986.6080707@namesys.com> <20030831191419.A23940@bitwizard.nl> <20030908081206.GA17718@namesys.com>
+	Mon, 8 Sep 2003 04:58:35 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:41861 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262122AbTIHI54 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 04:57:56 -0400
+Date: Mon, 8 Sep 2003 10:58:02 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Sven =?iso-8859-1?Q?K=F6hler?= <skoehler@upb.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [blockdevices/NBD] huge read/write-operations are splitted by the kernel
+Message-ID: <20030908085802.GH840@suse.de>
+References: <bjgh6a$82o$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20030908081206.GA17718@namesys.com>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <bjgh6a$82o$1@sea.gmane.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 08, 2003 at 12:12:06PM +0400, Oleg Drokin wrote:
-> Hello!
+On Mon, Sep 08 2003, Sven Köhler wrote:
+> Hi,
 > 
-> On Sun, Aug 31, 2003 at 07:14:19PM +0200, Rogier Wolff wrote:
+> i discussed a problem of the NBD-protocl with Pavel Machek. The problem 
+> i saw is that there is no maximum for the length field in the requests 
+> that the NBD kernel module sends to the NBD server. Well, this length 
+> field is the length field from the read/write-operation that the kernel 
+> delegates to the blockdevice-implementation.
+> I did some tests tests like
+>   dd if=dev/nbd/0 of=/dev/null bs=10M
+> and our NBD-server implementation printed out the length field of each 
+> reqeust. There was a very regular pattern like
+>   0x1fc00 (127KB)
+>   0x00400 (1KB)
+>   0x1fc00
+>   0x00400
+>   ...
+> Well, can anybody explain that to me?
+> (why so "little" 1KB requests? but that's not important)
 > 
-> > Would it be possible to do something like: "pretend that there
-> > are always 100 million inodes free", and then report sensible
-> > numbers to "df -i"? 
+> Well, i also tested
+>   dd if=dev/nbd/0 of=/dev/null bs=1
+> which means that the device will be read in chunks of 1byte.
+> The result was the same: 127KB, 1KB, 127KB, 1KB...
 > 
-> This won't work. No sensible numbers would be there.
+> I guess the caching layer is inbetween, and will devide the huge 10MB 
+> requests into smaller 127KB ones, as well as joining the small 1byte 
+> requests by using read-ahead i guess.
+> Perhaps you could tell me how i can turn off caching. Than i will test 
+> again without the cache.
 > 
-> > There  is no installation program that will fail with: "Sorry, 
-> > you only have 100 million inodes free, this program will need
-> > 132 million after installation", and it allows me a quick way 
-> > of counting the number of actual files on the disk.... 
-> 
-> You cannot. statfs(2) only exports "Total number of inodes on disk" and
-> "number of free inodes on disk" values for fs. df substracts one from another one
-> to get "number of inodes in use".
+> The thing i want to know is, if there is any part of the kernel that 
+> gaarantees that a read/write requests will not be bigger that a certain 
+> value. If there is no such upper limit, the NBD itself would need to 
+> split things up which might become a complicated task. This task need to 
+> be done, because it can become very difficult for the NBD server to 
+> handle huge values, and one huge requests will block all other pending 
+> small ones due to limitations of the NBD protocol.
 
-So, you report "oids_in_use + 100M" as total and "100M" as free inodes 
-on disk. Voila!
+You'll probably find that if you bump the max_sectors count if your
+drive to 256 from 255 (that is the default if you haven't set it), then
+you'll see 128kb chunks all the time.
 
-We're using a Unix operating system which has a bunch of standard 
-interfaces. The fun about using those is that lots of stuff "just works"
-even if it wasn't designed to do exactly what you are doing right
-now. So even if "df" wasn't designed to work on NFS, it still works.
-
-But now we're going to get a new "df" which grabs the sysfs info and
-uses that. But it won't work on reiserfs5, as the interface changes
-again. 
-
-		Roger. 
+See max_sectors[] array.
 
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****
+Jens Axboe
+

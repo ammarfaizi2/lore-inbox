@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318340AbSHFHV2>; Tue, 6 Aug 2002 03:21:28 -0400
+	id <S317817AbSHEXq1>; Mon, 5 Aug 2002 19:46:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318384AbSHFHV2>; Tue, 6 Aug 2002 03:21:28 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:38153 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S318340AbSHFHV1>;
-	Tue, 6 Aug 2002 03:21:27 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200208060724.g767Om3178569@saturn.cs.uml.edu>
-Subject: Re: BIG files & file systems
-To: adilger@clusterfs.com (Andreas Dilger)
-Date: Tue, 6 Aug 2002 03:24:48 -0400 (EDT)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan), rddunlap@osdl.org (Randy.Dunlap),
-       matti.aarnio@zmailer.org (Matti Aarnio),
-       hch@infradead.org (Christoph Hellwig),
-       braam@clusterfs.com (Peter J. Braam), linux-kernel@vger.kernel.org
-In-Reply-To: <20020806051950.GD22933@clusterfs.com> from "Andreas Dilger" at Aug 05, 2002 11:19:50 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S318208AbSHEXq1>; Mon, 5 Aug 2002 19:46:27 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:33750 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317817AbSHEXq0>;
+	Mon, 5 Aug 2002 19:46:26 -0400
+Date: Mon, 05 Aug 2002 16:48:06 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] NUMA-Q relocate early ioremap
+Message-ID: <348510000.1028591286@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger writes:
+This moves the early ioremap call to after cpu_online_map is initialized.
+Note everything is wrapped in clustered_apic_mode, so should be safe.
+Tested on NUMA-Q and std 2-way SMP through LTP.
 
-> I would also have to add another footnote to this, if people start
-> talking about limits on 64-bit and >4kB page size systems.  ext2/3 can
-> support multiple block sizes (limited by the hardware page size), and
-> actually supporting larger block sizes has only been restricted for
-> cross-platform compatibility reasons.
+Please apply,
 
-This looks pretty silly if you think about it. We support
-both 8 kB UFS and 64 kB FAT16 already.
+Martin.
 
-> Having 16kB block size would allow a maximum of 64TB for a single
-> filesystem.  The per-file limit would be over 256TB.
+diff -Nur linux-2.5.25-vanilla/arch/i386/kernel/smpboot.c linux-2.5.25-patched/arch/i386/kernel/smpboot.c
+--- virgin-2.5.25/arch/i386/kernel/smpboot.c	Fri Jul  5 16:42:23 2002
++++ linux-2.5.25-ioremap/arch/i386/kernel/smpboot.c	Fri Jul 12 15:55:20 2002
+@@ -968,16 +968,6 @@
+ {
+ 	int apicid, cpu, bit;
+ 
+-        if (clustered_apic_mode && (numnodes > 1)) {
+-                printk("Remapping cross-quad port I/O for %d quads\n",
+-			numnodes);
+-                printk("xquad_portio vaddr 0x%08lx, len %08lx\n",
+-                        (u_long) xquad_portio, 
+-			(u_long) numnodes * XQUAD_PORTIO_LEN);
+-                xquad_portio = ioremap (XQUAD_PORTIO_BASE, 
+-			numnodes * XQUAD_PORTIO_LEN);
+-        }
+-
+ #ifdef CONFIG_MTRR
+ 	/*  Must be done before other processors booted  */
+ 	mtrr_init_boot_cpu ();
+@@ -1075,6 +1065,16 @@
+ 
+ 	if (GET_APIC_ID(apic_read(APIC_ID)) != boot_cpu_physical_apicid)
+ 		BUG();
++
++        if (clustered_apic_mode && (numnodes > 1)) {
++                printk("Remapping cross-quad port I/O for %d quads\n",
++			numnodes);
++                printk("xquad_portio vaddr 0x%08lx, len %08lx\n",
++                        (u_long) xquad_portio, 
++			(u_long) numnodes * XQUAD_PORTIO_LEN);
++                xquad_portio = ioremap (XQUAD_PORTIO_BASE, 
++			numnodes * XQUAD_PORTIO_LEN);
++        }
+ 
+ 	/*
+ 	 * Scan the CPU present map and fire up the other CPUs via do_boot_cpu
 
-Um, yeah, 64 TB of data with 192 TB of holes!
-I really don't think you should count a file
-that won't fit on your filesystem.
-
-It's one thing to say ext2 is ready for when
-the block devices grow. It's another thing to
-talk about files that can't possibly fit without
-changing the filesystem layout.
-
-> In reality, we will probably implement extent-based allocation for
-> ext3 when we start getting into filesystems that large, which has been
-> discussed among the ext2/ext3 developers already.
-
-It's nice to have a simple filesystem. If you turn ext2/ext3
-into an XFS/JFS competitor, then what is left? Just minix fs?

@@ -1,33 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135919AbRDTSFt>; Fri, 20 Apr 2001 14:05:49 -0400
+	id <S131806AbRDTSRB>; Fri, 20 Apr 2001 14:17:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135905AbRDTSFh>; Fri, 20 Apr 2001 14:05:37 -0400
-Received: from www.ansp.br ([143.108.25.7]:48146 "HELO www.ansp.br")
-	by vger.kernel.org with SMTP id <S135904AbRDTSFV>;
-	Fri, 20 Apr 2001 14:05:21 -0400
-Message-ID: <3AE07A5A.C5BBE59C@ansp.br>
-Date: Fri, 20 Apr 2001 15:05:14 -0300
-From: Marcus Ramos <marcus@ansp.br>
-Organization: Fapesp
-X-Mailer: Mozilla 4.73 [en] (X11; I; FreeBSD 4.1-RELEASE i386)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: What is the precision of usleep ?
+	id <S131832AbRDTSQu>; Fri, 20 Apr 2001 14:16:50 -0400
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:20297 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S131806AbRDTSQr>; Fri, 20 Apr 2001 14:16:47 -0400
+Date: Fri, 20 Apr 2001 20:17:09 +0200
+From: Hans-Joachim Baader <hjb@pro-linux.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.4-pre5 compile error
+Message-ID: <20010420201709.H25081@mandel.hjb.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.13-current-20010108i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-I am using usleep in an application under RH7 kernel 2.4.2. However,
-when I bring its argument down to 20 miliseconds (20.000 microseconds)
-or less, this seems to be ignored by the function (or the machine's hw
-timer), which behaves as if 20 ms where its lowest acceptable value. How
-can I measure the precision of usleep in my box ? I am currently using
-an Dell GX110 PIII 866 MHz.
+in case it isn't already known:
 
-Thanks in advance.
-Marcus.
+isdn_net.c: In function `isdn_ciscohdlck_dev_ioctl':
+isdn_net.c:1455: structure has no member named `cisco_keepalive_period'
+
+
+Relevant config:
+
+#
+# ISDN subsystem
+#
+CONFIG_ISDN=m
+CONFIG_ISDN_PPP=y
+CONFIG_ISDN_PPP_VJ=y
+CONFIG_ISDN_MPP=y
+CONFIG_ISDN_PPP_BSDCOMP=m
+CONFIG_ISDN_AUDIO=y
+CONFIG_ISDN_TTY_FAX=y
+
+#
+# ISDN feature submodules
+#
+CONFIG_ISDN_DRV_LOOP=m
+CONFIG_ISDN_DIVERSION=m
+
+#
+# Passive ISDN cards
+#
+CONFIG_ISDN_DRV_HISAX=m
+CONFIG_HISAX_EURO=y
+# CONFIG_DE_AOC is not set
+# CONFIG_HISAX_NO_SENDCOMPLETE is not set
+# CONFIG_HISAX_NO_LLC is not set
+# CONFIG_HISAX_NO_KEYPAD is not set
+# CONFIG_HISAX_1TR6 is not set
+# CONFIG_HISAX_NI1 is not set
+# CONFIG_HISAX_16_0 is not set
+CONFIG_HISAX_16_3=y
+# CONFIG_HISAX_TELESPCI is not set
+# CONFIG_HISAX_S0BOX is not set
+# CONFIG_HISAX_AVM_A1 is not set
+# CONFIG_HISAX_FRITZPCI is not set
+# CONFIG_HISAX_AVM_A1_PCMCIA is not set
+# CONFIG_HISAX_ELSA is not set
+# CONFIG_HISAX_IX1MICROR2 is not set
+# CONFIG_HISAX_DIEHLDIVA is not set
+# CONFIG_HISAX_ASUSCOM is not set
+# CONFIG_HISAX_TELEINT is not set
+# CONFIG_HISAX_HFCS is not set
+# CONFIG_HISAX_SEDLBAUER is not set
+# CONFIG_HISAX_SPORTSTER is not set
+# CONFIG_HISAX_MIC is not set
+# CONFIG_HISAX_NETJET is not set
+# CONFIG_HISAX_NETJET_U is not set
+# CONFIG_HISAX_NICCY is not set
+# CONFIG_HISAX_ISURF is not set
+# CONFIG_HISAX_HSTSAPHIR is not set
+# CONFIG_HISAX_BKM_A4T is not set
+# CONFIG_HISAX_SCT_QUADRO is not set
+# CONFIG_HISAX_GAZEL is not set
+# CONFIG_HISAX_HFC_PCI is not set
+# CONFIG_HISAX_W6692 is not set
+# CONFIG_HISAX_HFC_SX is not set
+# CONFIG_HISAX_SEDLBAUER_CS is not set
+# CONFIG_HISAX_ELSA_CS is not set
+
+#
+# Active ISDN cards
+#
+# CONFIG_ISDN_DRV_ICN is not set
+# CONFIG_ISDN_DRV_PCBIT is not set
+# CONFIG_ISDN_DRV_SC is not set
+# CONFIG_ISDN_DRV_ACT2000 is not set
+# CONFIG_ISDN_DRV_EICON is not set
+# CONFIG_ISDN_CAPI is not set
+# CONFIG_HYSDN is not set
+# CONFIG_HYSDN_CAPI is not set
+
+Regards,
+hjb
+-- 
+Pro-Linux - Germany's largest volunteer Linux support site
+http://www.pro-linux.de/

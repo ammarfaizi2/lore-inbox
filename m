@@ -1,39 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130090AbRAKK2O>; Thu, 11 Jan 2001 05:28:14 -0500
+	id <S130983AbRAKK2p>; Thu, 11 Jan 2001 05:28:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130337AbRAKK2E>; Thu, 11 Jan 2001 05:28:04 -0500
-Received: from ns1.crl.go.jp ([133.243.3.1]:31106 "EHLO ns1.crl.go.jp")
-	by vger.kernel.org with ESMTP id <S130090AbRAKK14>;
-	Thu, 11 Jan 2001 05:27:56 -0500
-Date: Thu, 11 Jan 2001 19:27:47 +0900 (JST)
-From: Tom Holroyd <tomh@po.crl.go.jp>
-To: kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.4.0prerelease -- lack of IO error on bad swap IO
-Message-ID: <Pine.LNX.4.30.0101111918540.13260-100000@holly.crl.go.jp>
+	id <S130913AbRAKK2j>; Thu, 11 Jan 2001 05:28:39 -0500
+Received: from relay02.valueweb.net ([216.219.253.236]:30477 "EHLO
+	relay02.valueweb.net") by vger.kernel.org with ESMTP
+	id <S130337AbRAKK2Z>; Thu, 11 Jan 2001 05:28:25 -0500
+Message-ID: <3A5D8B10.D244D58F@opersys.com>
+From: Karim Yaghmour <karym@opersys.com>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test10 ppc)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: John Levon <moz@compsoc.man.ac.uk>
+CC: linux-kernel@vger.kernel.org, linuxperf@nl.linux.org
+Subject: Re: [ANNOUNCE] oprofile profiler
+In-Reply-To: <Pine.LNX.4.21.0101101813160.4135-100000@mrworry.compsoc.man.ac.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Date: Thu, 11 Jan 2001 05:27:43 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had a misconfigured swap partition: it went 480 blocks beyond the end of
-the disk (last partition, SCSI, OSF/1 disklabels, Alpha).  mkswap -c
-reported bad pages, and the kernel said IO error in the log on the last
-mumble blocks.
 
-When this system started to swap, the processes would just go into the D
-state, and then vmstat, ps, top, et al. would go D.  Now, of course the
-problem was that the swap partition was bigger than the physical media,
-but there was no error message at all, just procs stuck in D.
+Hello John,
 
-Probably there should be an error message, or something.
+This is really interesting. Great stuff.
 
-Dr. Tom Holroyd
-"I am, as I said, inspired by the biological phenomena in which
-chemical forces are used in repetitious fashion to produce all
-kinds of weird effects (one of which is the author)."
-	-- Richard Feynman, _There's Plenty of Room at the Bottom_
+As Alan had once suggested, it would be very interesting to have this
+information correlated with the content of the traces collected using
+the Linux Trace Toolkit (www.opersys.com/LTT). For instance, you could see
+how many cache faults the read() or write() operation of your application
+generated and other unique info. It would also be possible to enhance
+the post-mortem analysis done by LTT to take in account this data.
+You could also use LTT's dynamic event creation mechanism to log the
+profiling data as part of the trace.
 
+There are definitely opportunities for interfacing/integrating here.
+
+Let me know what you think.
+
+Best regards
+
+Karim
+
+John Levon wrote:
+> 
+> oprofile is a low-overhead statistical profiler capable of
+> instruction-grain profiling of the kernel (including interrupt handlers),
+> modules, and user-space libraries and binaries.
+> 
+> It uses the Intel P6 performance counters as a source of interrupts to
+> trigger the accounting handler in a manner similar to that of Digital's
+> DCPI. All running processes, and the kernel, are profiled by default. The
+> profiles can be extracted at any time with a simple utility. The system
+> consists of a kernel module and a simple background daemon.
+> 
+> Typical overhead is around 3 or 4 percent. Worst case overhead on a
+> Pentium II 350 UP system is around 10-15%
+> 
+> You can read a little more about oprofile, and download a very alpha
+> version at :
+> 
+> http://oprofile.sourceforge.net/
+> 
+> oprofile is released under the GNU GPL.
+> 
+> thanks
+> john
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+
+-- 
+===================================================
+                 Karim Yaghmour
+               karym@opersys.com
+          Operating System Consultant
+ (Linux kernel, real-time and distributed systems)
+===================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbUJ3U3V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbUJ3Ult@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261310AbUJ3U3V (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 16:29:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbUJ3U3V
+	id S261243AbUJ3Ult (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 16:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbUJ3Uls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 16:29:21 -0400
-Received: from mail.gmx.net ([213.165.64.20]:22695 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261310AbUJ3U3S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 16:29:18 -0400
-X-Authenticated: #4399952
-Date: Sat, 30 Oct 2004 22:29:15 +0200
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Paul Davis <paul@linuxaudiosystems.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-Message-ID: <20041030222915.2ed03b30@mango.fruits.de>
-In-Reply-To: <1099166715.1434.1.camel@krustophenia.net>
-References: <20041029172243.GA19630@elte.hu>
-	<20041029203619.37b54cba@mango.fruits.de>
-	<20041029204220.GA6727@elte.hu>
-	<20041029233117.6d29c383@mango.fruits.de>
-	<20041029212545.GA13199@elte.hu>
-	<1099086166.1468.4.camel@krustophenia.net>
-	<20041029214602.GA15605@elte.hu>
-	<1099091566.1461.8.camel@krustophenia.net>
-	<20041030115808.GA29692@elte.hu>
-	<1099158570.1972.5.camel@krustophenia.net>
-	<20041030191725.GA29747@elte.hu>
-	<20041030214738.1918ea1d@mango.fruits.de>
-	<1099166715.1434.1.camel@krustophenia.net>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Sat, 30 Oct 2004 16:41:48 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8881 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261243AbUJ3Ulp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 16:41:45 -0400
+Date: Sat, 30 Oct 2004 21:41:44 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: parisc-linux@parisc-linux.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] stifb bugfixes against 2.6.10-rc1-bk9
+Message-ID: <20041030204144.GK8958@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Oct 2004 16:05:14 -0400
-Lee Revell <rlrevell@joe-job.com> wrote:
 
-> So maybe the bug is not related to scheduling of SCHED_FIFO threads, but
-> that we are missing IRQs.  I think this would explain the choppy
-> playback with mplayer (it uses the RTC and does not run SCHED_FIFO).
+ - Fix "sti= parameter ignored by stifb" bug (Stuart Brady)
+ - Fix the STI crash with HCRX-24 in 32bpp mode (Helge Deller)
 
-I wonder about what X11 is doing. Is it maybe doing some locking which is
-"out of line" for RP or something? I mean the RP patches touch everything
-that accesses hw directly with the exception of X11, right? [/me never
-grokked how X fits into linux' driver model anyways]
+diff -urpNX dontdiff linux-2.6.10-rc1-bk9/drivers/video/stifb.c parisc-2.6-bk/drivers/video/stifb.c
+--- linux-2.6.10-rc1-bk9/drivers/video/stifb.c	Fri Oct 22 15:40:35 2004
++++ parisc-2.6-bk/drivers/video/stifb.c	Sat Oct 30 09:31:49 2004
+@@ -112,6 +112,7 @@ struct stifb_info {
+ 	ngle_rom_t ngle_rom;
+ 	struct sti_struct *sti;
+ 	int deviceSpecificConfig;
++	u32 pseudo_palette[16];
+ };
+ 
+ static int __initdata bpp = 8;	/* parameter from modprobe */
+@@ -1030,6 +1031,14 @@ stifb_setcolreg(u_int regno, u_int red, 
+ 				/* 0x100 is same as used in WRITE_IMAGE_COLOR() */
+ 		START_COLORMAPLOAD(fb, lutBltCtl.all);
+ 		SETUP_FB(fb);
++
++		/* info->var.bits_per_pixel == 32 */
++		if (regno < 16) 
++		  ((u32 *)(info->pseudo_palette))[regno] =
++			(red   << info->var.red.offset)   |
++			(green << info->var.green.offset) |
++			(blue  << info->var.blue.offset);
++
+ 	} else {
+ 		/* cleanup colormap hardware */
+ 		FINISH_IMAGE_COLORMAP_ACCESS(fb);
+@@ -1327,6 +1336,7 @@ stifb_init_fb(struct sti_struct *sti, in
+ 	info->screen_base = (void*) REGION_BASE(fb,1);
+ 	info->flags = FBINFO_DEFAULT;
+ 	info->currcon = -1;
++	info->pseudo_palette = &fb->pseudo_palette;
+ 
+ 	/* This has to been done !!! */
+ 	fb_alloc_cmap(&info->cmap, 256, 0);
+@@ -1383,6 +1393,7 @@ int __init
+ stifb_init(void)
+ {
+ 	struct sti_struct *sti;
++	struct sti_struct *def_sti;
+ 	int i;
+ 	
+ #ifndef MODULE
+@@ -1397,9 +1408,19 @@ stifb_init(void)
+ 		return -ENXIO;
+ 	}
+ 	
++	def_sti = sti_get_rom(0);
++	if (def_sti) {
++		for (i = 1; i < MAX_STI_ROMS; i++) {
++			sti = sti_get_rom(i);
++			if (sti == def_sti && bpp > 0)
++				stifb_force_bpp[i] = bpp;
++		}
++		stifb_init_fb(def_sti, stifb_force_bpp[i]);
++	}
++
+ 	for (i = 1; i < MAX_STI_ROMS; i++) {
+ 		sti = sti_get_rom(i);
+-		if (!sti)
++		if (!sti || sti==def_sti)
+ 			break;
+ 		if (bpp > 0)
+ 			stifb_force_bpp[i] = bpp;
 
-flo
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,70 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265708AbSKFPi2>; Wed, 6 Nov 2002 10:38:28 -0500
+	id <S265717AbSKFPlj>; Wed, 6 Nov 2002 10:41:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265715AbSKFPi2>; Wed, 6 Nov 2002 10:38:28 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3595 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265708AbSKFPi1>; Wed, 6 Nov 2002 10:38:27 -0500
-Date: Wed, 6 Nov 2002 07:45:20 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Voyager subarchitecture for 2.5.46 
-In-Reply-To: <200211061503.gA6F3DW02053@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0211060729210.2393-100000@home.transmeta.com>
+	id <S265726AbSKFPlj>; Wed, 6 Nov 2002 10:41:39 -0500
+Received: from mg01.austin.ibm.com ([192.35.232.18]:49600 "EHLO
+	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S265717AbSKFPli>; Wed, 6 Nov 2002 10:41:38 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <corryk@us.ibm.com>
+Organization: IBM
+To: Lars Marowsky-Bree <lmb@suse.de>, evms-devel@lists.sourceforge.net
+Subject: Re: EVMS announcement
+Date: Wed, 6 Nov 2002 09:08:43 -0600
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+References: <02110516191004.07074@boiler> <20021106001607.GJ27832@marowsky-bree.de>
+In-Reply-To: <20021106001607.GJ27832@marowsky-bree.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <02110609084300.06245@boiler>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 05 November 2002 18:16, Lars Marowsky-Bree wrote:
+> Now, an interesting question is whether the md modules etc will simply be
+> continued to be used or whether they'll make use of the DM engine too? Can
+> they be made "plugins" to DM or the EVMS framework?
 
-On Wed, 6 Nov 2002, J.E.J. Bottomley wrote:
-> 
-> There are certain architectures (voyager is the only one currently supported, 
-> but I suspect the Numa machines will have this too) where the TSC cannot be 
-> used for cross CPU timings because the processors are driven by separate 
-> clocks and may even have different clock speeds.
+I think the MD kernel modules certainly *could* be ported to the dev-mapper 
+framework. But right now, from EVMS's standpoint, there is no need to force 
+that change just yet. If it is determined in the future that that would be a 
+better direction to go, for us it would just mean re-coding the user-space MD 
+plugin to talk to dev-mapper instead of the MD driver. But a lot of work has 
+gone into the MD driver during 2.5, so I would personally think such a change 
+won't happen until at least 2.7.
 
-I disagree.
+> Or even, could EVMS (in
+> theory) parse the meta-data from a legacy md device and just setup a DM
+> mapping for it? That would appeal to me quite a bit. I really need to start
+> reading up on it...
 
-We should use the TSC everywhere (if it exists, of course), and the fact
-that two CPU's don't run synchronized shouldn't matter.
+The pretty much exactly what does/will happen, except EVMS will talk to the 
+MD driver now (maybe DM in the future).
 
-The solution is to make all the TSC calibration and offsets be per-CPU.  
-That should be fairly trivial, since we _already_ do the calibration
-per-CPU anyway for bogomips (for no good reason except the whole process
-is obviously just a funny thing to do, which is the point of bogomips).
-
-The only even half-way "interesting" case I see is a udelay() getting
-preempted, and I suspect most of those already run non-preemptable, so in
-the short run we could just force that with preempt_off()/on() inside
-udelay().
-
-In the long run we probably do _not_ want to do that nonpreemptable
-udelay(), but even that is debatable (anybody who is willing to be
-preempted should not have been using udelay() in the first place, but
-actually sleeping - and people who use udelay() for things like IO port
-accesses etc almost certainly won't mind not being moved across CPU's).
-
-Let's face it, we don't have that many tsc-related data structures. What, 
-we have:
-
- - loops_per_jiffy, which is already a per-CPU thing, used by udelay()
- - fast_gettimeoffset_quotient - which is global right now and shouldn't 
-   be.
- - delay_at_last_interrupt. See previous.
- - possibly even all of xtime and all the NTP stuff
-
-It's clearly stupid in the long run to depend on the TSC synchronization.
-We should consider different CPU's to be different clock-domains, and just
-synchronize them using the primitives we already have (hey, people can use
-ntp to synchronize over networks quite well, and that's without the kind
-of synchronization primitives that we have within the same box).
-
-Anybody willin gto look into this? I suspect the numa people should be
-more motivated than most of us.. You still want fast gettimeofday() on
-NUMA too..
-
-		Linus
-
+-- 
+Kevin Corry
+corryk@us.ibm.com
+http://evms.sourceforge.net/

@@ -1,198 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261861AbUKMRkI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261853AbUKMRpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbUKMRkI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 12:40:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbUKMRjL
+	id S261853AbUKMRpN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 12:45:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbUKMRpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 12:39:11 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:31129 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S261853AbUKMRgz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 12:36:55 -0500
-Date: Sat, 13 Nov 2004 18:36:50 +0100 (MET)
-From: <Andries.Brouwer@cwi.nl>
-Message-Id: <200411131736.iADHaoB20668@apps.cwi.nl>
-To: akpm@osdl.org, torvalds@osdl.org
-Subject: [PATCH] __init for inflate.c
-Cc: linux-kernel@vger.kernel.org
+	Sat, 13 Nov 2004 12:45:13 -0500
+Received: from natsmtp00.rzone.de ([81.169.145.165]:17893 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S261853AbUKMRo5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Nov 2004 12:44:57 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] deprecate sleep_on()
+Date: Sat, 13 Nov 2004 17:41:02 +0100
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_hkjlB3FLJuOIDBn";
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200411131741.06415.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In do_mounts_rd.c and initramfs.c there are many references
-from .text to .text.init because of the inclusion of lib/inflate.c.
-The below adds INIT markup in lib/inflate.c.
 
-diff -uprN -X /linux/dontdiff a/init/do_mounts_rd.c b/init/do_mounts_rd.c
---- a/init/do_mounts_rd.c	2004-10-30 21:44:07.000000000 +0200
-+++ b/init/do_mounts_rd.c	2004-11-13 18:08:10.000000000 +0100
-@@ -309,14 +309,15 @@ static int crd_infd, crd_outfd;
- #define Tracecv(c,x)
- 
- #define STATIC static
-+#define INIT __init
- 
--static int  fill_inbuf(void);
--static void flush_window(void);
--static void *malloc(size_t size);
--static void free(void *where);
--static void error(char *m);
--static void gzip_mark(void **);
--static void gzip_release(void **);
-+static int  __init fill_inbuf(void);
-+static void __init flush_window(void);
-+static void __init *malloc(size_t size);
-+static void __init free(void *where);
-+static void __init error(char *m);
-+static void __init gzip_mark(void **);
-+static void __init gzip_release(void **);
- 
- #include "../lib/inflate.c"
- 
-diff -uprN -X /linux/dontdiff a/init/initramfs.c b/init/initramfs.c
---- a/init/initramfs.c	2004-08-26 22:05:44.000000000 +0200
-+++ b/init/initramfs.c	2004-11-13 18:40:56.000000000 +0100
-@@ -372,11 +372,12 @@ static long bytes_out;
- #define Tracecv(c,x)
- 
- #define STATIC static
-+#define INIT __init
- 
--static void flush_window(void);
--static void error(char *m);
--static void gzip_mark(void **);
--static void gzip_release(void **);
-+static void __init flush_window(void);
-+static void __init error(char *m);
-+static void __init gzip_mark(void **);
-+static void __init gzip_release(void **);
- 
- #include "../lib/inflate.c"
- 
-diff -uprN -X /linux/dontdiff a/lib/inflate.c b/lib/inflate.c
---- a/lib/inflate.c	2004-04-08 13:18:03.000000000 +0200
-+++ b/lib/inflate.c	2004-11-13 18:17:14.000000000 +0100
-@@ -118,6 +118,10 @@ static char rcsid[] = "#Id: inflate.c,v 
- #include "gzip.h"
- #define STATIC
- #endif /* !STATIC */
+--Boundary-02=_hkjlB3FLJuOIDBn
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+The use of sleep_on() and related functions has been discouraged
+since before 2.4.0. Marking the calls deprecated hopefully
+helps us phasing out the few remaining users. With this patch
+we get eight new warnings in i386 defconfig, most of which
+are about code that looks suspicious.
+
+With i386 allmodconfig, I get new warnings in a total of 81 files,
+mostly obscure device drivers.
+
+=3D=3D=3D=3D=3D include/linux/wait.h 1.27 vs edited =3D=3D=3D=3D=3D
+=2D-- 1.27/include/linux/wait.h	Tue Oct 19 11:40:20 2004
++++ edited/include/linux/wait.h	Sun Nov  7 16:26:13 2004
+@@ -304,12 +304,35 @@
+  * They are racy.  DO NOT use them, use the wait_event* interfaces above. =
+=20
+  * We plan to remove these interfaces during 2.7.
+  */
+=2Dextern void FASTCALL(sleep_on(wait_queue_head_t *q));
+=2Dextern long FASTCALL(sleep_on_timeout(wait_queue_head_t *q,
+=2D				      signed long timeout));
+=2Dextern void FASTCALL(interruptible_sleep_on(wait_queue_head_t *q));
+=2Dextern long FASTCALL(interruptible_sleep_on_timeout(wait_queue_head_t *q,
+=2D						    signed long timeout));
++void FASTCALL(__sleep_on(wait_queue_head_t *q));
++long FASTCALL(__sleep_on_timeout(wait_queue_head_t *q, signed long timeout=
+));
++void FASTCALL(__interruptible_sleep_on(wait_queue_head_t *q));
++long FASTCALL(__interruptible_sleep_on_timeout(wait_queue_head_t *q,
++					    signed long timeout));
 +
-+#ifndef INIT
-+#define INIT
-+#endif
- 	
- #define slide window
- 
-@@ -139,15 +143,15 @@ struct huft {
- 
- 
- /* Function prototypes */
--STATIC int huft_build OF((unsigned *, unsigned, unsigned, 
-+STATIC int INIT huft_build OF((unsigned *, unsigned, unsigned, 
- 		const ush *, const ush *, struct huft **, int *));
--STATIC int huft_free OF((struct huft *));
--STATIC int inflate_codes OF((struct huft *, struct huft *, int, int));
--STATIC int inflate_stored OF((void));
--STATIC int inflate_fixed OF((void));
--STATIC int inflate_dynamic OF((void));
--STATIC int inflate_block OF((int *));
--STATIC int inflate OF((void));
-+STATIC int INIT huft_free OF((struct huft *));
-+STATIC int INIT inflate_codes OF((struct huft *, struct huft *, int, int));
-+STATIC int INIT inflate_stored OF((void));
-+STATIC int INIT inflate_fixed OF((void));
-+STATIC int INIT inflate_dynamic OF((void));
-+STATIC int INIT inflate_block OF((int *));
-+STATIC int INIT inflate OF((void));
- 
- 
- /* The inflate algorithm uses a sliding 32 K byte window on the uncompressed
-@@ -272,7 +276,7 @@ STATIC const int dbits = 6;          /* 
- STATIC unsigned hufts;         /* track memory usage */
- 
- 
--STATIC int huft_build(
-+STATIC int INIT huft_build(
- 	unsigned *b,            /* code lengths in bits (all assumed <= BMAX) */
- 	unsigned n,             /* number of codes (assumed <= N_MAX) */
- 	unsigned s,             /* number of simple-valued codes (0..s-1) */
-@@ -491,7 +495,7 @@ DEBG("huft7 ");
- 
- 
- 
--STATIC int huft_free(
-+STATIC int INIT huft_free(
- 	struct huft *t         /* table to free */
- 	)
- /* Free the malloc'ed tables built by huft_build(), which makes a linked
-@@ -513,7 +517,7 @@ STATIC int huft_free(
++static inline void __deprecated
++sleep_on(wait_queue_head_t *q)
++{
++	return __sleep_on(q);
++}
++
++static inline long __deprecated
++sleep_on_timeout(wait_queue_head_t *q, signed long timeout)
++{
++	return __sleep_on_timeout(q, timeout);
++}
++
++static inline void __deprecated
++interruptible_sleep_on(wait_queue_head_t *q)
++{
++	return __interruptible_sleep_on(q);
++}
++
++static inline long __deprecated
++interruptible_sleep_on_timeout(wait_queue_head_t *q, signed long timeout)
++{
++	return __interruptible_sleep_on_timeout(q, timeout);
++}
+=20
+ /*
+  * Waitqueues which are removed from the waitqueue_head at wakeup time
+=3D=3D=3D=3D=3D kernel/sched.c 1.377 vs edited =3D=3D=3D=3D=3D
+=2D-- 1.377/kernel/sched.c	Sun Oct 31 17:38:43 2004
++++ edited/kernel/sched.c	Sun Nov  7 16:28:40 2004
+@@ -2867,7 +2867,7 @@
+ 	__remove_wait_queue(q, &wait);			\
+ 	spin_unlock_irqrestore(&q->lock, flags);
+=20
+=2Dvoid fastcall __sched interruptible_sleep_on(wait_queue_head_t *q)
++void fastcall __sched __interruptible_sleep_on(wait_queue_head_t *q)
+ {
+ 	SLEEP_ON_VAR
+=20
+@@ -2878,9 +2878,10 @@
+ 	SLEEP_ON_TAIL
  }
- 
- 
--STATIC int inflate_codes(
-+STATIC int INIT inflate_codes(
- 	struct huft *tl,    /* literal/length decoder tables */
- 	struct huft *td,    /* distance decoder tables */
- 	int bl,             /* number of bits decoded by tl[] */
-@@ -628,7 +632,7 @@ STATIC int inflate_codes(
- 
- 
- 
--STATIC int inflate_stored(void)
-+STATIC int INIT inflate_stored(void)
- /* "decompress" an inflated type 0 (stored) block. */
+=20
+=2DEXPORT_SYMBOL(interruptible_sleep_on);
++EXPORT_SYMBOL(__interruptible_sleep_on);
+=20
+=2Dlong fastcall __sched interruptible_sleep_on_timeout(wait_queue_head_t *=
+q, long timeout)
++long fastcall __sched
++__interruptible_sleep_on_timeout(wait_queue_head_t *q, long timeout)
  {
-   unsigned n;           /* number of bytes in block */
-@@ -689,7 +693,7 @@ DEBG("<stor");
- /*
-  * We use `noinline' here to prevent gcc-3.5 from using too much stack space
-  */
--STATIC int noinline inflate_fixed(void)
-+STATIC int noinline INIT inflate_fixed(void)
- /* decompress an inflated type 1 (fixed Huffman codes) block.  We should
-    either replace this with a custom decoder, or at least precompute the
-    Huffman tables. */
-@@ -745,7 +749,7 @@ DEBG("<fix");
- /*
-  * We use `noinline' here to prevent gcc-3.5 from using too much stack space
-  */
--STATIC int noinline inflate_dynamic(void)
-+STATIC int noinline INIT inflate_dynamic(void)
- /* decompress an inflated type 2 (dynamic Huffman codes) block. */
+ 	SLEEP_ON_VAR
+=20
+@@ -2893,9 +2894,9 @@
+ 	return timeout;
+ }
+=20
+=2DEXPORT_SYMBOL(interruptible_sleep_on_timeout);
++EXPORT_SYMBOL(__interruptible_sleep_on_timeout);
+=20
+=2Dvoid fastcall __sched sleep_on(wait_queue_head_t *q)
++void fastcall __sched __sleep_on(wait_queue_head_t *q)
  {
-   int i;                /* temporary variables */
-@@ -926,7 +930,7 @@ DEBG("dyn7 ");
- 
- 
- 
--STATIC int inflate_block(
-+STATIC int INIT inflate_block(
- 	int *e                  /* last block flag */
- 	)
- /* decompress an inflated block */
-@@ -977,7 +981,7 @@ STATIC int inflate_block(
- 
- 
- 
--STATIC int inflate(void)
-+STATIC int INIT inflate(void)
- /* decompress an inflated entry */
+ 	SLEEP_ON_VAR
+=20
+@@ -2906,9 +2907,9 @@
+ 	SLEEP_ON_TAIL
+ }
+=20
+=2DEXPORT_SYMBOL(sleep_on);
++EXPORT_SYMBOL(__sleep_on);
+=20
+=2Dlong fastcall __sched sleep_on_timeout(wait_queue_head_t *q, long timeou=
+t)
++long fastcall __sched __sleep_on_timeout(wait_queue_head_t *q, long timeou=
+t)
  {
-   int e;                /* last block flag */
-@@ -1039,7 +1043,7 @@ static ulg crc;		/* initialized in makec
-  * gzip-1.0.3/makecrc.c.
-  */
- 
--static void
-+static void INIT
- makecrc(void)
+ 	SLEEP_ON_VAR
+=20
+@@ -2921,7 +2922,7 @@
+ 	return timeout;
+ }
+=20
+=2DEXPORT_SYMBOL(sleep_on_timeout);
++EXPORT_SYMBOL(__sleep_on_timeout);
+=20
+ void set_user_nice(task_t *p, long nice)
  {
- /* Not copyrighted 1990 Mark Adler	*/
-@@ -1087,7 +1091,7 @@ makecrc(void)
- /*
-  * Do the uncompression!
-  */
--static int gunzip(void)
-+static int INIT gunzip(void)
- {
-     uch flags;
-     unsigned char magic[2]; /* magic header */
+
+
+--Boundary-02=_hkjlB3FLJuOIDBn
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBljkh5t5GS2LDRf4RAlNXAJsFmzAJaeLVkj1wfQ489FcRIQK0rQCfczMG
+wnL19nSlgRwx+lSHoRIbTpA=
+=lKmw
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_hkjlB3FLJuOIDBn--

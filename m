@@ -1,47 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264129AbUDBTfo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 14:35:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264163AbUDBTfo
+	id S264164AbUDBTnm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 14:43:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264168AbUDBTnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 14:35:44 -0500
-Received: from mproxy.gmail.com ([216.239.56.244]:23197 "HELO mproxy.gmail.com")
-	by vger.kernel.org with SMTP id S264129AbUDBTfg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 14:35:36 -0500
-Message-ID: <2B32499D.222B761B@mail.gmail.com>
-Date: Fri, 2 Apr 2004 11:28:55 -0800
-From: Ross Biro <ross.biro@gmail.com>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] cowlinks v2
-Illegal-Object: Syntax error in Cc: address found on vger.kernel.org:
-	Cc:	=?ISO-8859-1?Q?=20=22J=F6rn?= Engel" <joern@wohnheim.fh-wedel.de>, mj@ucw.cz, jack@ucw.cz, "Patrick J.LoPresti" <patl@users.sourceforge.net>, linux-kernel@vger.kernel.org"
-			^												     ^	      ^-missing closing '"' in token
-		|												      \-missing end of address
-		\-extraneous tokens in address
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20040320083411.GA25934@wohnheim.fh-wedel.de> <s5gznab4lhm.fsf@patl=users.sf.net> <20040320152328.GA8089@wohnheim.fh-wedel.de> <20040329171245.GB1478@elf.ucw.cz> <s5g7jx31int.fsf@patl=users.sf.net> <20040329231635.GA374@elf.ucw.cz> <20040402165440.GB24861@wohnheim.fh-wedel.de> <20040402180128.GA363@elf.ucw.cz> <20040402181707.GA28112@wohnheim.fh-wedel.de> <20040402182357.GB410@elf.ucw.cz>
+	Fri, 2 Apr 2004 14:43:42 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:64423 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S264164AbUDBTnj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 14:43:39 -0500
+To: root@chaos.analogic.com
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Ben Greear <greearb@candelatech.com>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: sched_yield() version 2.4.24
+References: <Pine.LNX.4.53.0403301138260.6967@chaos>
+	<4069AED1.4020102@nortelnetworks.com>
+	<4069B3CC.1040904@candelatech.com>
+	<200403302140.05820.vda@port.imtp.ilyichevsk.odessa.ua>
+	<Pine.LNX.4.53.0403301526100.7833@chaos>
+	<Pine.LNX.4.53.0403310846290.10546@chaos>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 31 Mar 2004 17:05:24 -0700
+In-Reply-To: <Pine.LNX.4.53.0403310846290.10546@chaos>
+Message-ID: <m1ekr836m3.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Apr 2004 20:23:58 +0200, Pavel Machek <pavel@ucw.cz> wrote:
-> > > > If you really want cowlinks and hardlinks to be intermixed freely, I'd
-> > > > happily agree with you as soon as you can define the behaviour for all
-> > > > possible cases in a simple document and none of them make me scared
-> > > > again.  Show me that it is possible and makes sense.
+"Richard B. Johnson" <root@chaos.analogic.com> writes:
 
-Maybe it's easiest to view the proposed copyfile() as being
-semantically equivalent to cp from the point of view of anything above
-the actual file system (modulo running out of space at weird times)
+> On Tue, 30 Mar 2004, Richard B. Johnson wrote:
+> 
+> > On Tue, 30 Mar 2004, Denis Vlasenko wrote:
+> >
+> > > On Tuesday 30 March 2004 19:52, Ben Greear wrote:
+> > > > Chris Friesen wrote:
+> > > > > The cpu util accounting code in kernel/timer.c hasn't changed in 2.4
+> > > > > since 2002.  Must be somewhere else.
+> > > > >
+> > > > > Anyone else have any ideas?
+> > > >
+> > > > As another sample point, I have fired up about 100 processes with
+> > > > each process having 10+ threads.  On my dual-xeon, I see maybe 15
+> > > > processes shown as 99% CPU in 'top'.  System load was near 25
+> > > > when I was looking, but the machine was still quite responsive.
+> > >
+> > > There was a top bug with exactly this symptom. Fixed.
+> > > I use procps-2.0.18.
+> > >
+> > Wonderful!  Now, where do I find the sources now that RedHat has
+> > gone "commercial" and is keeping everything secret?
+> >
+> > I followed the http://sources.redhat.com/procps/  instructions
+> > __exactly__ and get this:
+> >
+> > Script started on Tue Mar 30 15:27:02 2004
+> > quark:/home/johnson/foo[1] cvs -d :pserver:anoncvs@sources.redhat.com:/procps
+> login anoncvs
+> 
+> > Logging in to :pserver:anoncvs@sources.redhat.com:2401/procps
+> > CVS password:
+> > /procps: no such repository
+> > quark:/home/johnson/foo[2] exit
+> > Script done on Tue Mar 30 15:28:32 2004
+> >
+> 
+> The RedHat server was apparently broken yesterday. There were many
+> persons who tried to get the source. Eventually Burton Windle
+> sent me a copy of the source, that he had previously acquired,
+> after he tried to access it also.
+> 
+> I compiled the source and the problem persists. Any task that
+> executes sched_yield() will get "charged" for the time that it
+> has given away. This is not correct. Maybe it is not correctable,
+> but it is still not correct. In addition to it being "unfair",
+> it messes up the totals because tasks that are using the CPU time
+> given up, also get charged.
 
-Then all the questions are easy to answer, and it would also be
-possible to implement copyfile at the VFS layer as cp for file systems
-that don't support it.
+Could it be that there are no other process with equal or greater
+priority so that the process calling sched_yield gets called again?
 
-Of course, it gets more interesting if you try to do it at the block
-level instead of at the file level.  For ext2, you could just reserve
-a block #, say -1, to mean take the data from the master cow file, and
-anything else is treated normally.  You would need a deamon to make
-sure you were still saving space though.
+Eric

@@ -1,80 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132366AbQLHXIA>; Fri, 8 Dec 2000 18:08:00 -0500
+	id <S132467AbQLHXIB>; Fri, 8 Dec 2000 18:08:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132467AbQLHXHv>; Fri, 8 Dec 2000 18:07:51 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:45573 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132366AbQLHXHl>; Fri, 8 Dec 2000 18:07:41 -0500
-Date: Fri, 8 Dec 2000 14:36:59 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Christoph Rohland <cr@sap.com>
-cc: linux-kernel@vger.kernel.org, ch.rohland@gmx.net
-Subject: Re: [PATCH,preliminary] cleanup shm handling
-In-Reply-To: <m3snnyo92i.fsf@linux.local>
-Message-ID: <Pine.LNX.4.10.10012081430580.31310-100000@penguin.transmeta.com>
+	id <S132658AbQLHXHu>; Fri, 8 Dec 2000 18:07:50 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:51973 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S132467AbQLHXHp>; Fri, 8 Dec 2000 18:07:45 -0500
+Message-ID: <3A3162A0.825FA107@Hell.WH8.TU-Dresden.De>
+Date: Fri, 08 Dec 2000 23:37:20 +0100
+From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Organization: Dept. Of Computer Science, Dresden University Of Technology
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en, de-DE
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ion Badulescu <ionut@cs.columbia.edu>
+CC: Andrey Savochkin <saw@saw.sw.com.sg>, linux-kernel@vger.kernel.org
+Subject: Re: eepro100 driver update for 2.4
+In-Reply-To: <Pine.LNX.4.21.0012081254360.26353-100000@age.cs.columbia.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On 8 Dec 2000, Christoph Rohland wrote:
+Ion Badulescu wrote:
 > 
-> Linus Torvalds <torvalds@transmeta.com> writes:
-> > On 8 Dec 2000, Christoph Rohland wrote:
-> > > 
-> > > here is my first shot for cleaning up the shm handling. It did
-> > > survive some basic testing but is not ready for inclusion.
-> > 
-> > The only comment I have right now is that you probably should not
-> > mark the page dirty in "nopage" - theoretically somebody might have
-> > a sparse mapping and depend on zero pages for the ones that aren't
-> > touched. It's better to delay the dirty marking until swapout() (and
-> > write(), when that is implemented), so that we don't needlessly
-> > create swap entries for zero pages.
-> 
-> OK. I simply copied that from shm.c without thinking. Actually I do
-> not yet understand the implications of it. (I never thought that I
-> would get so deeply involved into these issues and still struggle
-> often with the details)
+> Ok. Can you send me the entire dump? Also, it would be helpful if you
+> could try to determine when exactly it happens (upon insmod, upon ifconfig
+> up, or upon receiving some packets later).
 
-Basically, a clean page will just get dropped by the VM, because it knows
-it can always re-create the contents. 
+I have the eepro driver compiled into a monolithic kernel. After rebooting
+a couple dozen times trying to find a pattern I can't see one, except for
+one fact worth noticing.
 
-So let's assume that you do a large mmap(MAP_SHARED) (or IPC shmem
-mapping), and you populate your VM space with pages by just reading from
-it. This is not common, but it does happen - things like sparse files
-where just the fact that nothing has been written to a certain location is
-information in itself.
+As long as the network cable is pulled, everything's groovy. Kernel boots
+nicely without triggering it, ifconfig doesn't trigger it, route doesn't
+trigger it, but putting the cable in, immediately triggers it upon packet
+traffic.
 
-Now, assume you run out of memory. With your current patch, we'd start
-moving these zero-filled pages to the inode cache and write them out:
-first we'd drop the entries from the page tables, then we'd call
-"writepage()" to write the page to disk.
+* put cable in *
 
-If, instead, you don't mark the page dirty immediately, but you wait until
-somebody does a write, or until the VM layer informs you through the
-"swapout()" function that somebody had a dirty page table entry, what
-would happen is that (because nobody actually wrote to the page yet) it
-would just get dropped from the VM space, and writepage() would never be
-called.
+eth0: card reports no RX buffers.
+eth0: card reports no resources.
+eth0: card reports no RX buffers.
+eth0: card reports no resources.
 
-> > Other than that the approach at least looks reasonable. And cleaner
-> > than what we currently have.
-> 
-> Only reasonable? :-(
+:> ifconfig eth0 down
 
-I did not have time to give it a good check, and "reasonable" is the
-highest praise I'll give without having checked that there aren't any real
-gotchas.
+eth0: 0 multicast blocks dropped.
 
-I certainly think that this is the right way to do things. I haven't had
-time to check whether it's perfect.
+Is it worth analyzing packet traffic and comparing with the timestamps in
+syslog to see what kind of packet triggers it, or whether any packet
+triggers it?
 
-		Linus
+> Stupid question: are you sure this is not due to the DNS server being
+> unreachable?...
 
+Maybe due to the issues with the NIC. All interesting hosts are now
+in /etc/hosts, so we'll see.
+
+
+Other stuff that might be of interest:
+
+PCI Info:
+
+  Bus  0, device  13, function  0:
+    Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 8).
+      IRQ 9.
+      Master Capable.  Latency=32.  Min Gnt=8.Max Lat=56.
+      Non-prefetchable 32 bit memory at 0xd4800000 [0xd4800fff].
+      I/O at 0x9800 [0x983f].
+      Non-prefetchable 32 bit memory at 0xd4000000 [0xd40fffff].               
+
+Card shares IRQ 9 with 2 other devices:
+
+    irq  9:       620 acpi, bttv, eth0
+
+Need any other info?
+
+-Udo.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

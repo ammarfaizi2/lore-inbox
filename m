@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291477AbSCIHOu>; Sat, 9 Mar 2002 02:14:50 -0500
+	id <S291333AbSCIINc>; Sat, 9 Mar 2002 03:13:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291340AbSCIHOj>; Sat, 9 Mar 2002 02:14:39 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:61645 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S292429AbSCIHO0>;
-	Sat, 9 Mar 2002 02:14:26 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-Cc: frankeh@watson.ibm.com, arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: furwocks: Fast Userspace Read/Write Locks 
-In-Reply-To: Your message of "Fri, 08 Mar 2002 10:21:08 BST."
-             <3C888284.8030206@loewe-komp.de> 
-Date: Sat, 09 Mar 2002 15:50:37 +1100
-Message-Id: <E16jYor-0003Ty-00@wagner.rustcorp.com.au>
+	id <S292429AbSCIINW>; Sat, 9 Mar 2002 03:13:22 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33042 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S291333AbSCIINF>; Sat, 9 Mar 2002 03:13:05 -0500
+Date: Sat, 9 Mar 2002 08:12:55 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Rik van Riel <riel@conectiva.com.br>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: bk://linux.bkbits.net/linux-2.5
+Message-ID: <20020309081255.A26922@flint.arm.linux.org.uk>
+In-Reply-To: <15497.26229.778087.419723@argo.ozlabs.ibm.com> <Pine.LNX.4.44L.0203082333380.2181-100000@imladris.surriel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44L.0203082333380.2181-100000@imladris.surriel.com>; from riel@conectiva.com.br on Fri, Mar 08, 2002 at 11:35:11PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3C888284.8030206@loewe-komp.de> you write:
-> Rusty Russell wrote:
-> > To clarify: I'd love this, but rwlocks in the kernel aren't even
-> > vaguely fair.  With a steady stream of overlapping readers, a writer
-> > will never get the lock.
-> > 
-> > Hope that clarifies,
-> 
-> 
-> But you talk about the current implementation, don't you?
-> Is there something to prevent an implementation of rwlocks in the
-> kernel, where a wrlock will lock (postponed) further rdlock requests?
+On Fri, Mar 08, 2002 at 11:35:11PM -0300, Rik van Riel wrote:
+> For now I've put up the 2.5 tree on bk://linuxvm.bkbits.net/linus-2.5
 
-It's proven hard to do without performance impact.  Also, we can't do
-rw semaphores in a single word: you need two.
+Jeff also does this - http://gkernel.bkbits.net/linus-2.5
 
-Disproving me by implementation VERY welcome!
+Seems a little wasteful to have multiple trees of the same thing available
+from the same place.
 
-Hope that helps,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

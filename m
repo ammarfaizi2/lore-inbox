@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267259AbUJVOAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269696AbUJVODC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267259AbUJVOAs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 10:00:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269960AbUJVOAr
+	id S269696AbUJVODC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 10:03:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269935AbUJVODC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 10:00:47 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:55560 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S269958AbUJVN75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 09:59:57 -0400
-Date: Fri, 22 Oct 2004 15:59:24 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, kkeil@suse.de, kai.germaschewski@gmx.de
-Cc: linux-kernel@vger.kernel.org, isdn4linux@listserv.isdn4linux.de
-Subject: [patch] 2.6.9-mm1: ISDN hisax_fcpcipnp.c: kill unused variable
-Message-ID: <20041022135924.GD2831@stusta.de>
-References: <20041022032039.730eb226.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041022032039.730eb226.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 22 Oct 2004 10:03:02 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:25047 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S269696AbUJVOC4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 10:02:56 -0400
+Message-ID: <41791302.5030305@adaptec.com>
+Date: Fri, 22 Oct 2004 10:02:42 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: "K.R. Foley" <kr@cybsft.com>, "J.A. Magallon" <jamagallon@able.es>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc3-mm3 fails to detect aic7xxx
+References: <1097178019.24355.39.camel@localhost> <1097188963l.6408l.2l@werewolf.able.es> <41661013.9090700@cybsft.com> <41668346.6090109@adaptec.com> <20041022135800.GA8254@elte.hu>
+In-Reply-To: <20041022135800.GA8254@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Oct 2004 14:02:52.0543 (UTC) FILETIME=[D263E8F0:01C4B83F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following compile warning comes from Linus' tree:
+Have you tried this with the latest scsi-misc-2.6 tree?  The PCI
+table patches are there.
 
-<--  snip  -->
+If you have _and_ it still does not work, can you send output of
+"lspci -vn"?
 
-...
-  CC      drivers/isdn/hisax/hisax_fcpcipnp.o
-...
-drivers/isdn/hisax/hisax_fcpcipnp.c: In function `hisax_fcpcipnp_init':
-drivers/isdn/hisax/hisax_fcpcipnp.c:999: warning: unused variable `pci_nr_found'
-...
-
-<--  snip  -->
+Thanks,
+	Luben
 
 
-Since all uses of this variable were removed, I'd suggest the patch 
-below to remove the variable itself.
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.9-mm1-full/drivers/isdn/hisax/hisax_fcpcipnp.c.old	2004-10-22 15:53:46.000000000 +0200
-+++ linux-2.6.9-mm1-full/drivers/isdn/hisax/hisax_fcpcipnp.c	2004-10-22 15:55:02.000000000 +0200
-@@ -996,7 +996,7 @@
- 
- static int __init hisax_fcpcipnp_init(void)
- {
--	int retval, pci_nr_found;
-+	int retval;
- 
- 	printk(KERN_INFO "hisax_fcpcipnp: Fritz!Card PCI/PCIv2/PnP ISDN driver v0.0.1\n");
- 
+Ingo Molnar wrote:
+> * Luben Tuikov <luben_tuikov@adaptec.com> wrote:
+> 
+> 
+>>>>>backing out bk-scsi.patch seems to fix it.  I believe this worked in
+>>>>>2.6.9-rc3-mm2.
+> 
+> 
+>>>Mine doesn't without backing out those patches :) See my other post 
+>>>about this.
+>>>
+>>>04:05.0 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
+>>>04:05.1 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
+>>
+>>You can see you have different chips.  It's the IDs.
+>>I'll come up with something shortly.
+> 
+> 
+> Same adapter, same problem here:
+> 
+>  03:04.0 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
+>  03:04.1 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
+> 
+> any patch i could try (other than backing out the whole SCSI patch)? 
+> 
+> 	Ingo
 

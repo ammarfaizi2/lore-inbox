@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263949AbTFHVhV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 17:37:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263952AbTFHVhV
+	id S263930AbTFHVhH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 17:37:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263949AbTFHVhH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 17:37:21 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9486 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263949AbTFHVhU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 17:37:20 -0400
-Date: Sun, 8 Jun 2003 22:50:55 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: greendisease <jaboutboul@gentoo.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linksys WRT54G and the GPL
-Message-ID: <20030608225055.E9520@flint.arm.linux.org.uk>
-Mail-Followup-To: Davide Libenzi <davidel@xmailserver.org>,
-	greendisease <jaboutboul@gentoo.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <8FD91C2E-99F1-11D7-A998-000A95689082@gentoo.org> <Pine.LNX.4.55.0306081402140.3604@bigblue.dev.mcafeelabs.com>
+	Sun, 8 Jun 2003 17:37:07 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:49424 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S263930AbTFHVhF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 17:37:05 -0400
+Date: Sun, 8 Jun 2003 23:47:11 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Clayton Weaver <cgweav@email.com>
+Cc: willy@w.ods.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21-rc7
+Message-ID: <20030608214711.GA4584@alpha.home.local>
+References: <20030608201700.3850.qmail@email.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.55.0306081402140.3604@bigblue.dev.mcafeelabs.com>; from davidel@xmailserver.org on Sun, Jun 08, 2003 at 02:08:39PM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <20030608201700.3850.qmail@email.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 08, 2003 at 02:08:39PM -0700, Davide Libenzi wrote:
-> IANAL, but in many coutries the fact that you didn't know is not an
-> excuse. When you integrate alien parts in your products you become
-> responsible and you have to be sure about all aspects that arise.
+ 
+> Note that "nodma" is unnecessary on this
+> same box running kernel 2.4.19-rc2. Why would
+> 2.4.21-rcX need it? To pin down whether the
+> problem is in the ide dma code or some other
+> part of the ide code?
 
-What if, when you obtained said parts, it came with a license which
-appeared to be genuine, but in fact was illegally changed in a country
-which has not signed up to the copyright treaty?  (I believe this may
-be part of the story here.)  I believe that you'd need a good copyright
-lawyer, and it may depend upon local law.
+exactly, because DMA needs more conditions than PIO to run at all
+and even more to run reliably. There are lots of cases where DMA
+doesn't work while PIO does.
+ 
+> It does not die more easily with 2.4.19-rc2
+> (in my opinion). It dies in a threads context
+> but not in a forks context, where the threads
+> and the forks are doing the same i/o to/from
+> the same controller/disk (different versions
+> of same program).
+>
+> I have also seen it freeze with an unlucky
+> mouse click in XFree86 4.0 under 2.4.19-rc2,
+> so I did not assume that the threads hang
+> was necessarily ide-relevant. Something
+> disk i/o intensive was merely what it
+> happened to be doing with those threads,
+> but that problem seemed to me more thread
+> related than ide related. (Guess I'll have
+> to spawn a bunch of threads doing some other
+> kind of i/o to test that assumption.)
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+OK, but a freeze isn't acceptable anyway, whatever you were doing,
+because it always means a bug somewhere.
+
+Cheers,
+Willy
+
+PS: your lines were shorter this way :-)
 

@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbUKKUdR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262353AbUKKUgg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262337AbUKKUdR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 15:33:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbUKKUdR
+	id S262353AbUKKUgg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 15:36:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbUKKUgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 15:33:17 -0500
-Received: from fw.osdl.org ([65.172.181.6]:28299 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262337AbUKKUdO (ORCPT
+	Thu, 11 Nov 2004 15:36:36 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:47032 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262353AbUKKUge (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 15:33:14 -0500
-Date: Thu, 11 Nov 2004 12:32:51 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, davidm@snapgear.com, linux-kernel@vger.kernel.org,
-       uclinux-dev@uclinux.org
-Subject: Re: [PATCH] Bit operations
-Message-Id: <20041111123251.653eb082.akpm@osdl.org>
-In-Reply-To: <29033.1100177349@redhat.com>
-References: <200411081432.iA8EWfnc023411@warthog.cambridge.redhat.com>
-	<29033.1100177349@redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 11 Nov 2004 15:36:34 -0500
+Date: Thu, 11 Nov 2004 22:38:08 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Gunther Persoons <gunther_persoons@spymac.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-0
+Message-ID: <20041111213808.GA5453@elte.hu>
+References: <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041111144414.GA8881@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells <dhowells@redhat.com> wrote:
->
-> 
-> Hi Andrew,
-> 
-> > The attached patch provides an out-of-line implementation of find_next_bit()
-> > and rearranges linux/bitops.h to avoid a dependency loop between inline
-> > functions in there and in asm/bitops.h trying to include one another.
-> 
-> Is there any reason you dropped the part of this patch that rearranged
-> linux/bitops.h? asm/bitops.h may need generic_ffs() for implementing
-> sched_find_first_bit(), and obviously asm/bitops.h can't include
-> linux/bitops.h.
 
-I was doing a reject fixup and restored the thing back in what seemed a
-better place.  Of course, had it been commented, that wouldn't have
-happened.  It is commented now.
+found the bug that i think caused the freezes and deadlocks reported by 
+Mark and Gunther. Here's the announcement of a debug feature:
 
+>  - debugging helper: the /proc/sys/kernel/debug_direct_keyboard flag 
+>    (default: 0) will hack the keyboard IRQ into being direct. NOTE: the 
+>    keyboard in this mode should only be used to access SysRq 
+>    functionality that is not possible via the threaded keyboard handler. 
+>    The direct keyboard IRQ can crash the system.
+
+it turns out i accidentally left debug_direct_keyboard default-enabled
+... no wonder it caused lockups!
+
+	Ingo

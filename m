@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268161AbTB1VOq>; Fri, 28 Feb 2003 16:14:46 -0500
+	id <S263333AbTB1VNB>; Fri, 28 Feb 2003 16:13:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268165AbTB1VOq>; Fri, 28 Feb 2003 16:14:46 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:6924 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S268161AbTB1VOo>;
-	Fri, 28 Feb 2003 16:14:44 -0500
-Date: Fri, 28 Feb 2003 22:25:04 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 423] New: make -j X bzImage gives a warning
-Message-ID: <20030228212504.GA21843@mars.ravnborg.org>
-Mail-Followup-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <347860000.1046465385@flay>
+	id <S268140AbTB1VNB>; Fri, 28 Feb 2003 16:13:01 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:54537 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S263333AbTB1VNA>;
+	Fri, 28 Feb 2003 16:13:00 -0500
+Date: Fri, 28 Feb 2003 13:14:41 -0800
+From: Greg KH <greg@kroah.com>
+To: kernel1@jsl.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Keyspan USB/Serial Drivers for 2.4.20/2.4.21-pre4
+Message-ID: <20030228211441.GC29266@kroah.com>
+References: <20030221000647.GA26468@kroah.com> <200302211728.h1LHSS720755@jsl.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <347860000.1046465385@flay>
+In-Reply-To: <200302211728.h1LHSS720755@jsl.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 28, 2003 at 12:49:45PM -0800, Martin J. Bligh wrote:
-> http://bugme.osdl.org/show_bug.cgi?id=423
+On Fri, Feb 21, 2003 at 09:28:28AM -0800, System Administrator wrote:
 > 
->            Summary: make -j X bzImage gives a warning
->     Kernel Version: 2.5.63
->             Status: NEW
->           Severity: low	
->              Owner: zippel@linux-m68k.org
-
-Feel free to bug me with kbuild related issues.
-In this area Roman is 'only' taking care of kconfig & related issues AFAIK.
-
-> make -j X bzImage gives a warning:
+> Please excuse my mistakes.  That was my very first post to the list even
+> though I've been reading it for many years.  I wasn't entirely sure how to
+> get this out there.  I'm glad you noticed it Greg :)
 > 
-> make[1]: warning: jobserver unavailable: using -j1.  Add `+' to parent make
-> rule.
+> You're right.  the Config.in file didn't need all those changes.  I mistakedly
+> diffed against the wrong file.
 > 
-> Can we get rid of this one way or the other?
+> The 49WLC device works fine with this patch.  I have not tested the MPR but
+> it should work too.
+> 
+> Below is a better patch.
 
-I have tried before - no luck.
-This one happens due to a $(Q)$(MAKE) used as part of a $(if
-construct in the top-level Makefile.
-See around line 335 - 345.
-It requires more than trivial changes to get rid of this one.
+Thanks, I've applied this patch (and the firmware files) to my 2.4 and
+2.5 trees, and will be sending them onward soon.
 
-	Sam
+greg k-h

@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319083AbSHMSK4>; Tue, 13 Aug 2002 14:10:56 -0400
+	id <S319045AbSHMR5j>; Tue, 13 Aug 2002 13:57:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319085AbSHMSK4>; Tue, 13 Aug 2002 14:10:56 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:20186 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S319083AbSHMSKz>;
-	Tue, 13 Aug 2002 14:10:55 -0400
-Date: Tue, 13 Aug 2002 20:14:53 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] exit_free(), 2.5.31-A0
-In-Reply-To: <Pine.LNX.4.44.0208130834320.5192-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0208132009390.5990-100000@localhost.localdomain>
+	id <S319043AbSHMR44>; Tue, 13 Aug 2002 13:56:56 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11023 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319028AbSHMRz5>;
+	Tue, 13 Aug 2002 13:55:57 -0400
+Message-ID: <3D594B75.F4AF41F4@zip.com.au>
+Date: Tue, 13 Aug 2002 11:09:57 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Christoph Hellwig <hch@infradead.org>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: [patch 2/21] reduced locking in buffer.c
+References: <3D561473.40A53C0D@zip.com.au> <Pine.LNX.4.44.0208131032210.7411-100000@home.transmeta.com> <3D5947B7.EDE01C2E@zip.com.au> <20020813185213.A17449@infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christoph Hellwig wrote:
+> 
+> On Tue, Aug 13, 2002 at 10:53:59AM -0700, Andrew Morton wrote:
+> > I have discussed it with David - he said it's OK in 2.5, but
+> > not in 2.4, and he has eyeballed the diff.
+> >
+> > However there's another thing to think about:
+> >
+> >       local_irq_disable();
+> >       atomic_inc();
+> >
+> > If the architecture implements atomic_inc with spinlocks, this will
+> > schedule with interrupts off with CONFIG_PREEMPT=y, I expect.
+> >
+> > I can fix that with a preempt_disable() in there, but ick.
+> 
+> Is there a reason you can't just use brlocks?
 
-I was actually surprised to see how much effort it takes on the glibc side
-to solve this (admittedly conceptually hard) problem without any kernel
-help - it's ugly and slow, and still not completely tight. By providing
-this 'exit and free stack' capability we can help tremendously.
+I didn't use brlocks in the initial code because I wanted the lock
+in the same cacheline as the data it's locking.
 
-the thing that makes it special and hard is the completely shared VM.  
-There's just no way for a thread to 'get rid of itself' atomically and
-also exit in the same round, without extensive locking and signal passing.
-Linux actually has a very very fast clone()+exit() codepath, lets make it
-possible for usespace to use it.
+And this code removes the locking altogether.
 
-in essence the 'exit and send notification signal' thing now became a
-simple word written into userspace. Should this be a more formal thing -
-userspace mailboxes for the kernel to put events into? I think that might
-be a bit overboard though.
-
-	Ingo
-
+I suspect the lock traffic is in the noise compared with all the
+get_bh, brelse, set_bit and clear_bit operations but it's a start.
+We don't have a tool to measure those other things ;)

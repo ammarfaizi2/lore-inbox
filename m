@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262364AbTJNVyH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 17:54:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTJNVyG
+	id S262429AbTJNV5v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 17:57:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262536AbTJNV5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 17:54:06 -0400
-Received: from GOL139579-1.gw.connect.com.au ([203.63.118.157]:15015 "EHLO
-	goldweb.com.au") by vger.kernel.org with ESMTP id S262364AbTJNVyE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 17:54:04 -0400
-Date: Wed, 15 Oct 2003 07:53:58 +1000 (EST)
-From: Michael Still <mikal@stillhq.com>
-To: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: make htmldocs
-In-Reply-To: <20031014164124.A2600@beton.cybernet.src>
-Message-ID: <Pine.LNX.4.44.0310150738430.24022-100000@diskbox.stillhq.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 14 Oct 2003 17:57:51 -0400
+Received: from hockin.org ([66.35.79.110]:58380 "EHLO www.hockin.org")
+	by vger.kernel.org with ESMTP id S262429AbTJNV5u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 17:57:50 -0400
+Date: Tue, 14 Oct 2003 14:44:37 -0700
+From: Tim Hockin <thockin@hockin.org>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: sankar <san_madhav@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Question on atomic_inc/dec
+Message-ID: <20031014214437.GA30302@hockin.org>
+References: <A20D5638D741DD4DBAAB80A95012C0AED78649@orsmsx409.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <A20D5638D741DD4DBAAB80A95012C0AED78649@orsmsx409.jf.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Oct 2003, [iso-8859-2] Karel Kulhavý wrote:
+On Tue, Oct 14, 2003 at 02:17:49PM -0700, Perez-Gonzalez, Inaky wrote:
+> It will be in include/asm/atomic.h; however, it is not wise to
+> use directly the kernel stuff unless you are coding kernel stuff.
 
-> > http://freshmeat.net/projects/docbook-utils/
-> 
-> Tried this. It wants jade. Installed jade. jade is a X Window
-> System appliaction. During compilation of
-> docbook-utils-0.6.13 I got a message:
-> Gtk-WARNING **: cannot open display:
+Is there any reason NOT to use the atomic ops in user-space?  I mean, are
+they privileged on some architectures, or ...?  It seems like some
+user-space apps might really benefit from simple atomic ops.  Or at least,
+kernel-coders writing in userspace could sure use simple atomic ops :)
 
-Ahhh. Wrong jade. Checkout http://www.jclark.com/jade/ instead.
-
-Mikal
+Tim
 
 -- 
-
-Michael Still (mikal@stillhq.com) | "All my life I've had one dream,
-http://www.stillhq.com            |  to achieve my many goals"
-UTC + 10                          |    -- Homer Simpson
-
+Notice that as computers are becoming easier and easier to use,
+suddenly there's a big market for "Dummies" books.  Cause and effect,
+or merely an ironic juxtaposition of unrelated facts?
 

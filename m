@@ -1,52 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262639AbREOF6n>; Tue, 15 May 2001 01:58:43 -0400
+	id <S262647AbREOGOQ>; Tue, 15 May 2001 02:14:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262643AbREOF6e>; Tue, 15 May 2001 01:58:34 -0400
-Received: from [195.180.174.169] ([195.180.174.169]:2176 "EHLO idun.neukum.org")
-	by vger.kernel.org with ESMTP id <S262639AbREOF60>;
-	Tue, 15 May 2001 01:58:26 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
-To: "H. Peter Anvin" <hpa@transmeta.com>, Alexander Viro <viro@math.psu.edu>
-Subject: Re: LANANA: To Pending Device Number Registrants
-Date: Tue, 15 May 2001 07:56:35 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0105141852140.19333-100000@weyl.math.psu.edu> <3B006229.EA65A868@transmeta.com>
-In-Reply-To: <3B006229.EA65A868@transmeta.com>
-MIME-Version: 1.0
-Message-Id: <01051507563500.01598@idun>
-Content-Transfer-Encoding: 7BIT
+	id <S262649AbREOGOG>; Tue, 15 May 2001 02:14:06 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:43674 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S262647AbREOGOB>; Tue, 15 May 2001 02:14:01 -0400
+Date: Tue, 15 May 2001 00:13:23 -0600
+Message-Id: <200105150613.f4F6DNW22399@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Getting FS access events
+In-Reply-To: <Pine.LNX.4.21.0105142054180.23578-100000@penguin.transmeta.com>
+In-Reply-To: <200105142319.f4ENJpf19203@vindaloo.ras.ucalgary.ca>
+	<Pine.LNX.4.21.0105142054180.23578-100000@penguin.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 15. May 2001 00:54, H. Peter Anvin wrote:
-> Alexander Viro wrote:
-> > On Mon, 14 May 2001, Alan Cox wrote:
-> > > > > Except that Linus wont hand out major numbers, which means I can't
-> > > > > even boot simply off such a device. I bet the vendors in question
-> > > > > dont think the sun shines out of linus backside any more.
-> > > >
-> > > > Not really. Special-casing for mounting root is trivially solvable.
-> > > > BTDT, and you've reviewed the patch.
-> > >
-> > > And lilo ?
-> >
-> > LILO uses BIOS, for fsck sake. It couldn't care less for device numbers
-> > on the kernel side. Ask Andries how much do they have in common with
-> > BIOS drive numbers.
->
-> That's not the issue.  LILO takes whatever you pass to root= and converts
-> it to a device number at /sbin/lilo time.  An idiotic practice on the
-> part of LILO, in my opinion, that ought to have been fixed a long time
-> ago.
+Linus Torvalds writes:
+> 
+> On Mon, 14 May 2001, Richard Gooch wrote:
+> > 
+> > Is there some fundamental reason why a buffer cache can't ever be
+> > fast?
+> 
+> Yes.
+> 
+> Or rather, there is a fundamental reason why we must NEVER EVER look at
+> the buffer cache: it is not coherent with the page cache. 
+> 
+> And keeping it coherent would be _extremely_ expensive. How do we
+> know? Because we used to do that. Remember the small mindcraft
+> benchmark? Yup. Double copies all over the place, double lookups, double
+> everything.
+> 
+> You could think: "oh, we only need to look up the buffer cache when we
+> create a new page cache mapping, so..".
+> 
+> You'd be wrong. We'd need to go the other way too: every time we create a
+> new buffer cache entry, we'd need to make sure that it isn't mapped
+> somewhere in the page cache (impossible), or otherwise we'd do the wrong
+> thing sometimes (ie we might have two dirty copies, and we wouldn't know
+> _which_ one is valid etc).
+> 
+> Aliasing is bad. Don't do it.
 
-And happily passes a "root=" argument through "append=" for the kernel to 
-evaluate.
+OK, this (combined with the other message) explains why we want to
+keep away from the buffer cache. Thanks.
 
-	Regards
-		Oliver
+> You know, the mark of intelligence is realizing when you're making
+> the same mistake over and over and over again, and not hitting your
+> head in the wall five hundred times before you understand that it's
+> not a clever thing to do.
+
+But you didn't have to add this. Please note that I asked why not use
+the buffer cache. I didn't proclaim that it was the ideal solution. I
+did say what benefits it had, but I didn't assert that the benefits
+outweighed the disadvantages.
+
+> Please show some intelligence.
+
+Well, frankly, I think I have. Things are obvious when you know them
+already. Even if I'm ignorant, I'm not stupid!
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

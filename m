@@ -1,60 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269203AbUI2Xyg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269206AbUI2X6L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269203AbUI2Xyg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 19:54:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269207AbUI2Xyg
+	id S269206AbUI2X6L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 19:58:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269207AbUI2X6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 19:54:36 -0400
-Received: from mail.kroah.org ([69.55.234.183]:15579 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S269203AbUI2Xyc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 19:54:32 -0400
-Date: Wed, 29 Sep 2004 16:53:53 -0700
-From: Greg KH <greg@kroah.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: patrakov@ums.usu.ru, linux-kernel@vger.kernel.org
-Subject: Re: udev is too slow creating devices
-Message-ID: <20040929235353.GA27192@kroah.com>
-References: <414C9003.9070707@softhome.net> <1095568704.6545.17.camel@gaston> <414D42F6.5010609@softhome.net> <20040919140034.2257b342.Ballarin.Marc@gmx.de> <414D96EF.6030302@softhome.net> <20040919171456.0c749cf8.Ballarin.Marc@gmx.de> <cikaf1$e60$1@sea.gmane.org> <20040919173035.GA2345@kroah.com> <20040929163828.4d06010b.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040929163828.4d06010b.rddunlap@osdl.org>
-User-Agent: Mutt/1.5.6i
+	Wed, 29 Sep 2004 19:58:11 -0400
+Received: from astra.telenet-ops.be ([195.130.132.58]:56781 "EHLO
+	astra.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S269206AbUI2X6A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 19:58:00 -0400
+Message-ID: <415B4C07.9090401@verwilst.be>
+Date: Thu, 30 Sep 2004 01:57:59 +0200
+From: Bart Verwilst <bart@verwilst.be>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: nl, nl-be, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Compilation error: 2.4.27
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 29, 2004 at 04:38:28PM -0700, Randy.Dunlap wrote:
-> On Sun, 19 Sep 2004 10:30:35 -0700 Greg KH wrote:
-> 
-> | On Sun, Sep 19, 2004 at 10:00:52PM +0600, Alexander E. Patrakov wrote:
-> | > 
-> | > OK. The fact is that, when mounting the root filesystem, the kernel can 
-> | > (?) definitely say "there is no such device, and it's useless to wait 
-> | > for it--so I panic". Is it possible to duplicate this logic in the case 
-> | > with udev and modprobe? If so, it should be built into a common place 
-> | > (either the kernel or into modprobe), but not into all apps.
-> | 
-> | No, we need to just change the kernel to sit and spin for a while if the
-> | root partition is not found.  This is the main problem right now for
-> | booting off of a USB device (or any other "slow" to discover device.)
-> | It's a known kernel issue, and there are patches for 2.4 for this, but
-> | no one has taken the time to update them for 2.6.
-> 
-> (I'm way behind, and I was hoping this thread would die, but:)
-> 
-> I've seen 2.6 patches for booting from USB or IEEE1394.
+Hi!
 
-Where?
+Could anybody help me out with this problem: I'm having a compilation 
+error.. Any ideas somebody?
 
-> Is there a fair chance of getting something for USB/1394 booting
-> merged?  (other than by using initrd)
 
-I want to see this work, as lots of people bug me about this when I meet
-them with the comment, "Oh, you're the USB maintainer, how come I can't
-boot off of my USB flash key," which causes me to turn and run away very
-fast...
 
-thanks,
+Installed linux # make bzImage
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.27/include -Wall 
+-Wstrict-prototypes -Wno-
+trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer 
+-pipe -mpref
+erred-stack-boundary=2 -march=i686   -DKBUILD_BASENAME=main -c -o 
+init/main.o in
+it/main.c
+In file included from /usr/src/linux-2.4.27/include/linux/config.h:4,
+                 from init/main.c:14:
+/usr/src/linux-2.4.27/include/linux/autoconf.h:687: parse error before 
+')' token
+In file included from /usr/src/linux-2.4.27/include/linux/proc_fs.h:5,
+                 from init/main.c:15:
+/usr/src/linux-2.4.27/include/linux/slab.h:52: parse error before '*' token
+/usr/src/linux-2.4.27/include/linux/slab.h:52: warning: type defaults to 
+`int' in declaration of `kmem_find_general_cachep'
+/usr/src/linux-2.4.27/include/linux/slab.h:52: warning: data definition 
+has no type or storage class
+/usr/src/linux-2.4.27/include/linux/slab.h:53: parse error before '*' token
+/usr/src/linux-2.4.27/include/linux/slab.h:54: parse error before 
+"kmem_cache_t"
+/usr/src/linux-2.4.27/include/linux/slab.h:54: warning: function 
+declaration isn't a prototype
+/usr/src/linux-2.4.27/include/linux/slab.h:55: parse error before 
+"kmem_cache_t"
+/usr/src/linux-2.4.27/include/linux/slab.h:55: warning: function 
+declaration isn't a prototype
+/usr/src/linux-2.4.27/include/linux/slab.h:55: warning: type defaults to 
+`int' in declaration of `kmem_cache_create'
+/usr/src/linux-2.4.27/include/linux/slab.h:55: warning: data definition 
+has no type or storage class
+/usr/src/linux-2.4.27/include/linux/slab.h:56: parse error before '*' token
+/usr/src/linux-2.4.27/include/linux/slab.h:56: warning: function 
+declaration isn't a prototype
+/usr/src/linux-2.4.27/include/linux/slab.h:57: parse error before '*' token
+/usr/src/linux-2.4.27/include/linux/slab.h:57: warning: function 
+declaration isn't a prototype
+/usr/src/linux-2.4.27/include/linux/slab.h:58: parse error before '*' token
+/usr/src/linux-2.4.27/include/linux/slab.h:58: warning: function 
+declaration isn't a prototype
+/usr/src/linux-2.4.27/include/linux/slab.h:59: parse error before '*' token
+/usr/src/linux-2.4.27/include/linux/slab.h:59: warning: function 
+declaration isn't a prototype
+/usr/src/linux-2.4.27/include/linux/slab.h:60: parse error before '*' token
+/usr/src/linux-2.4.27/include/linux/slab.h:60: warning: function 
+declaration isn't a prototype
+/usr/src/linux-2.4.27/include/linux/slab.h:68: parse error before '*' token
+/usr/src/linux-2.4.27/include/linux/slab.h:68: warning: type defaults to 
+`int' in declaration of `vm_area_cachep'
+/usr/src/linux-2.4.27/include/linux/slab.h:68: warning: data definition 
+has no type or storage class
+/usr/src/linux-2.4.27/include/linux/slab.h:69: parse error before '*' token
+/usr/src/linux-2.4.27/include/linux/slab.h:69: warning: type defaults to 
+`int' in declaration of `mm_cachep'
+/usr/src/linux-2.4.27/include/linux/slab.h:69: warning: data definition 
+has no type or storage class
+/usr/src/linux-2.4.27/include/linux/slab.h:70: parse error before '*' token
+/usr/src/linux-2.4.27/include/linux/slab.h:70: warning: type defaults to 
+`int' in declaration of `names_cachep'
+/usr/src/linux-2.4.27/include/linux/slab.h:70: warning: data definition 
+has no type or storage class
+/usr/src/linux-2.4.27/include/linux/slab.h:71: parse error before '*' token
+/usr/src/linux-2.4.27/include/linux/slab.h:71: warning: type defaults to 
+`int' in declaration of `files_cachep'
+/usr/src/linux-2.4.27/include/linux/slab.h:71: warning: data definition 
+has no type or storage class
+/usr/src/linux-2.4.27/include/linux/slab.h:72: parse error before '*' token
+/usr/src/linux-2.4.27/include/linux/slab.h:72: warning: type defaults to 
+`int' in declaration of `filp_cachep'
+/usr/src/linux-2.4.27/include/linux/slab.h:72: warning: data definition 
+has no type or storage class
+/usr/src/linux-2.4.27/include/linux/slab.h:73: parse error before '*' token
+/usr/src/linux-2.4.27/include/linux/slab.h:73: warning: type defaults to 
+`int' in declaration of `dquot_cachep'
+/usr/src/linux-2.4.27/include/linux/slab.h:73: warning: data definition 
+has no type or storage class
+/usr/src/linux-2.4.27/include/linux/slab.h:74: parse error before '*' token
+/usr/src/linux-2.4.27/include/linux/slab.h:74: warning: type defaults to 
+`int' in declaration of `bh_cachep'
+/usr/src/linux-2.4.27/include/linux/slab.h:74: warning: data definition 
+has no type or storage class
+/usr/src/linux-2.4.27/include/linux/slab.h:75: parse error before '*' token
+/usr/src/linux-2.4.27/include/linux/slab.h:75: warning: type defaults to 
+`int' in declaration of `fs_cachep'
+/usr/src/linux-2.4.27/include/linux/slab.h:75: warning: data definition 
+has no type or storage class
+/usr/src/linux-2.4.27/include/linux/slab.h:76: parse error before '*' token
+/usr/src/linux-2.4.27/include/linux/slab.h:76: warning: type defaults to 
+`int' in declaration of `sigact_cachep'
+/usr/src/linux-2.4.27/include/linux/slab.h:76: warning: data definition 
+has no type or storage class
+make: *** [init/main.o] Error 1
 
-greg k-h
+
+
+Thanks a lot in advance!
+
+Kind regards,
+
+Bart Verwilst

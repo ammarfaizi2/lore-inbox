@@ -1,87 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263340AbUFCLkp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263937AbUFCLnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263340AbUFCLkp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 07:40:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263932AbUFCLko
+	id S263937AbUFCLnt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 07:43:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263942AbUFCLnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 07:40:44 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:58121 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S263340AbUFCLkm
+	Thu, 3 Jun 2004 07:43:49 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:52096 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263937AbUFCLnp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 07:40:42 -0400
-Date: Thu, 3 Jun 2004 21:40:29 +1000
-To: David Coe <davidc@debian.org>, 252391@bugs.debian.org
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Bug#252391: kernel-source-2.6.6: Assertion failure in journal_flush() ... "!journal->j_running_transaction"
-Message-ID: <20040603114029.GA7912@gondor.apana.org.au>
-References: <20040603034037.70176BA0E0@zona.someotherplace.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040603034037.70176BA0E0@zona.someotherplace.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Thu, 3 Jun 2004 07:43:45 -0400
+Date: Thu, 3 Jun 2004 07:42:56 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Stuart Young <cef-lkml@optusnet.com.au>
+cc: linux-kernel@vger.kernel.org,
+       Markus Lidel <Markus.Lidel@shadowconnect.com>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Problem with ioremap which returns NULL in 2.6 kernel
+In-Reply-To: <200406031241.27669.cef-lkml@optusnet.com.au>
+Message-ID: <Pine.LNX.4.53.0406030735460.3377@chaos>
+References: <40BC788A.3020103@shadowconnect.com> <40BDF1AC.7070209@shadowconnect.com>
+ <Pine.LNX.4.53.0406021144280.559@chaos> <200406031241.27669.cef-lkml@optusnet.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 02, 2004 at 11:40:37PM -0400, David Coe wrote:
-> Package: kernel-source-2.6.6
-> Version: 2.6.6-1
-> Severity: normal
-> 
-> I've been using a locally-compiled kernel from this source since May
-> 17, without problems; tonight when I tried to "mount -o remount,ro
-> /usr" I got the following failure, after which I was unable to sync or
-> kill any processes -- a hard reboot "fixed" it, ext3 recovered cleanly.
+On Thu, 3 Jun 2004, Stuart Young wrote:
 
-... 
+> On Thu, 3 Jun 2004 01:45, Richard B. Johnson wrote:
+> > I asked for the output of `cat /proc/pci` . Unless I get that
+> > information, I can't find the length of the allocation.
+>
+> Is there no way to to get this information out of lspci (eg: lspci -vv)? This
+> is particularly annoying since /proc/pci is depreciated. I know a number of
+> people who simply don't bother turning it on anymore. If there is information
+> in /proc/pci that isn't available through lspci somehow, then I'd call that a
+> nasty regression, which needs to be fixed.
+>
+> Are you sure on this Richard? (No disrespect intended, just want to confirm
+> things).
+>
+> --
+>  Stuart Young (aka Cef)
+>  cef-lkml@optusnet.com.au is for LKML and related email only
+>
 
-> A search of the ext3-users mailing list turned up a previous
-> discussion of a similar problem, which was apparently left
-> unresolved (or at least that thread ended inconclusively) -- see
->   https://www.redhat.com/archives/ext3-users/2003-May/msg00093.html
-> which suggests where the problem is.  I see that
-> ext3_mark_recovery_complete() still doesn't call
-> journal_lock_updates(), as that thread suggests it should.  I haven't
-> researched further yet.
+Well.. Here is `cat /proc/pci`
 
-Yes that code does look racy.
 
-Andrew, what's stopping a journal_start() from setting j_running_transaction
-just before the last spin_lock(&journal->j_state_lock) that guards the
-J_ASSERT that was hit below?
- 
-> Jun  2 21:33:15 zona kernel: Assertion failure in journal_flush() at fs/jbd/journal.c:1309: "!journal->j_running_transaction"
-> Jun  2 21:33:15 zona kernel: ------------[ cut here ]------------
-> Jun  2 21:33:15 zona kernel: kernel BUG at fs/jbd/journal.c:1309!
-> Jun  2 21:33:15 zona kernel: invalid operand: 0000 [#1]
-> Jun  2 21:33:15 zona kernel: SMP 
-> Jun  2 21:33:15 zona kernel: CPU:    1
-> Jun  2 21:33:15 zona kernel: EIP:    0060:[journal_flush+228/460]    Not tainted
-> Jun  2 21:33:15 zona kernel: EFLAGS: 00010216   (2.6.6zona-06009se) 
-> Jun  2 21:33:15 zona kernel: EIP is at journal_flush+0xe4/0x1cc
-> Jun  2 21:33:15 zona kernel: eax: 00000064   ebx: 000016e3   ecx: 00000000   edx: c03548ac
-> Jun  2 21:33:15 zona kernel: esi: e716ba00   edi: 00000000   ebp: ce5d3f6c   esp: ce5d3ebc
-> Jun  2 21:33:15 zona kernel: ds: 007b   es: 007b   ss: 0068
-> Jun  2 21:33:15 zona kernel: Process mount (pid: 5202, threadinfo=ce5d2000 task=e13f4390)
-> Jun  2 21:33:15 zona kernel: Stack: c02f45c0 c02f4c80 c02f44b5 0000051d c02f4c60 e716be00 e6e0b400 e716be00 
-> Jun  2 21:33:15 zona kernel:        c018161b e716ba00 e716bc00 c01818ea e716be00 e6e0b400 e716be00 e716be50 
-> Jun  2 21:33:15 zona kernel:        ce5d3f6c c0147c1b c014c784 e716be00 ce5d3f24 c8412000 e716be00 e716be40 
-> Jun  2 21:33:15 zona kernel: Call Trace:
-> Jun  2 21:33:15 zona kernel:  [ext3_mark_recovery_complete+23/76] ext3_mark_recovery_complete+0x17/0x4c
-> Jun  2 21:33:15 zona kernel:  [ext3_remount+198/296] ext3_remount+0xc6/0x128
-> Jun  2 21:33:15 zona kernel:  [fs_may_remount_ro+51/114] fs_may_remount_ro+0x33/0x72
-> Jun  2 21:33:15 zona kernel:  [do_remount_sb+152/200] do_remount_sb+0x98/0xc8
-> Jun  2 21:33:15 zona kernel:  [do_remount+112/188] do_remount+0x70/0xbc
-> Jun  2 21:33:15 zona kernel:  [do_mount+293/392] do_mount+0x125/0x188
-> Jun  2 21:33:15 zona kernel:  [copy_mount_options+85/164] copy_mount_options+0x55/0xa4
-> Jun  2 21:33:15 zona kernel:  [sys_mount+189/320] sys_mount+0xbd/0x140
-> Jun  2 21:33:15 zona kernel:  [sysenter_past_esp+82/113] sysenter_past_esp+0x52/0x71
-> Jun  2 21:33:15 zona kernel: 
-> Jun  2 21:33:15 zona kernel: Code: 0f 0b 1d 05 b5 44 2f c0 83 c4 14 83 7e 34 00 74 29 68 a0 4c 
--- 
-Visit Openswan at http://www.openswan.org/
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Script started on Thu Jun  3 07:38:33 2004
+quark:/home/johnson[1] cat /proc/pci
+PCI devices found:
+  Bus  0, device   0, function  0:
+    Host bridge: Intel Corp. 430VX - 82437VX TVX [Triton VX] (rev 2).
+      Master Capable.  Latency=24.
+  Bus  0, device   7, function  0:
+    ISA bridge: Intel Corp. 82371SB PIIX3 ISA [Natoma/Triton II] (rev 1).
+  Bus  0, device   7, function  1:
+    IDE interface: Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II] (rev 0).
+      Master Capable.  Latency=16.
+      I/O at 0xffa0 [0xffaf].
+  Bus  0, device  13, function  0:
+    SCSI storage controller: BusLogic BT-946C (BA80C30) [MultiMaster 10] (rev 8).
+      IRQ 10.
+      Master Capable.  Latency=24.  Min Gnt=8.Max Lat=8.
+      I/O at 0xfff4 [0xfff7].
+      Non-prefetchable 32 bit memory at 0xffbef000 [0xffbeffff].
+  Bus  0, device  14, function  0:
+    VGA compatible controller: S3 Inc. 86c325 [ViRGE] (rev 6).
+      IRQ 11.
+      Master Capable.  Latency=24.  Min Gnt=4.Max Lat=255.
+      Non-prefetchable 32 bit memory at 0xf8000000 [0xfbffffff].
+  Bus  0, device  16, function  0:
+    Ethernet controller: 3Com Corporation 3c905 100BaseTX [Boomerang] (rev 0).
+      IRQ 9.
+      Master Capable.  Latency=24.  Min Gnt=3.Max Lat=8.
+      I/O at 0xff00 [0xff3f].
+
+
+Now lspci 'interprets' stuff. The interpretation may not be correct.
+For instance, you think that your device wants 64 Megabytes. This is,
+like, unheard of except for screen controllers and they are basically
+broken because 64 megabytes can't be accessed at any one time. Large
+allocations should be paged, but a page register costs a nickel
+in the FPGA so vendors being cheap, cheap, grab a lot of your
+address-space.
+
+quark:/home/johnson[2] /sbin/lspci -v
+00:00.0 Host bridge: Intel Corp. 430VX - 82437VX TVX [Triton VX] (rev 02)
+	Flags: bus master, medium devsel, latency 24
+
+00:07.0 ISA bridge: Intel Corp. 82371SB PIIX3 ISA [Natoma/Triton II] (rev 01)
+	Flags: bus master, medium devsel, latency 0
+
+00:07.1 IDE interface: Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II] (prog-if 80 [Master])
+	Flags: medium devsel
+	I/O ports at ffa0 [size=16]
+
+00:0d.0 SCSI storage controller: BusLogic BT-946C (BA80C30) [MultiMaster 10] (rev 08)
+	Subsystem: BusLogic BT-946C (BA80C30) [MultiMaster 10]
+	Flags: bus master, fast devsel, latency 24, IRQ 10
+	I/O ports at fff4 [size=4]
+	Memory at ffbef000 (32-bit, non-prefetchable) [size=4K]
+	Expansion ROM at <unassigned> [disabled] [size=32K]
+
+00:0e.0 VGA compatible controller: S3 Inc. 86c325 [ViRGE] (rev 06) (prog-if 00 [VGA])
+	Flags: bus master, VGA palette snoop, medium devsel, latency 24, IRQ 11
+	Memory at f8000000 (32-bit, non-prefetchable) [size=64M]
+	Expansion ROM at <unassigned> [disabled] [size=64K]
+
+00:10.0 Ethernet controller: 3Com Corporation 3c905 100BaseTX [Boomerang]
+	Flags: bus master, medium devsel, latency 24, IRQ 9
+	I/O ports at ff00 [size=64]
+	Expansion ROM at <unassigned> [disabled] [size=64K]
+
+quark:/home/johnson[3] exit
+Script done on Thu Jun  3 07:39:00 2004
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

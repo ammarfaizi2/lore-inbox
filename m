@@ -1,40 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266191AbSL1Jm0>; Sat, 28 Dec 2002 04:42:26 -0500
+	id <S266183AbSL1JtL>; Sat, 28 Dec 2002 04:49:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266183AbSL1JmZ>; Sat, 28 Dec 2002 04:42:25 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:49412 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S266173AbSL1JmY>; Sat, 28 Dec 2002 04:42:24 -0500
-Date: Sat, 28 Dec 2002 09:50:27 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Samuel Flory <sflory@rackable.com>, "Justin T. Gibbs" <gibbs@scsiguy.com>,
-       Janet Morgan <janetmor@us.ibm.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] aic7xxx bouncing over 4G
-Message-ID: <20021228095027.A29971@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Samuel Flory <sflory@rackable.com>,
-	"Justin T. Gibbs" <gibbs@scsiguy.com>,
-	Janet Morgan <janetmor@us.ibm.com>, linux-scsi@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <200212210012.gBL0Cng21338@eng2.beaverton.ibm.com> <176730000.1040430221@aslan.btc.adaptec.com> <3E03BB0D.5070605@rackable.com> <Pine.LNX.4.50L.0212280331110.30646-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.50L.0212280331110.30646-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Sat, Dec 28, 2002 at 03:32:44AM -0200
+	id <S266199AbSL1JtL>; Sat, 28 Dec 2002 04:49:11 -0500
+Received: from durendal.skynet.be ([195.238.3.91]:46811 "EHLO
+	durendal.skynet.be") by vger.kernel.org with ESMTP
+	id <S266183AbSL1JtK> convert rfc822-to-8bit; Sat, 28 Dec 2002 04:49:10 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Hans Lambrechts <hans.lambrechts@skynet.be>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21-pre2: CPU0 handles all interrupts
+Date: Sat, 28 Dec 2002 10:56:58 +0100
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212281056.58419.hans.lambrechts@skynet.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 28, 2002 at 03:32:44AM -0200, Marcelo Tosatti wrote:
-> >     I've been using both drivers for some time with no issues.  Or maybe
-> > you'd prefer Alan put it in his tree 1st?
-> 
-> Ho, hum, I prefer getting it tested in -ac for a while first.
+Hi
 
-Doesn't make much sense for aic79xx which is a new driver (= not changing
-existing code at all) and already shipped by the commercial distros for ages..
+with kernel 2.4.21-pre2:
 
+pc:~ # cat /proc/interrupts
+           CPU0       CPU1
+  0:      29372          0    IO-APIC-edge  timer
+  1:        504          0    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  8:          2          0    IO-APIC-edge  rtc
+  9:          0          0    IO-APIC-edge  acpi
+ 12:       8078          0    IO-APIC-edge  PS/2 Mouse
+ 14:          7          0    IO-APIC-edge  ide0
+ 16:       8690          0   IO-APIC-level  aic7xxx
+ 18:        241          0   IO-APIC-level  eth0
+NMI:          0          0
+LOC:      29276      29275
+ERR:          0
+MIS:          0
+
+Booting with "noapic" or "acpi=off" doesn't make a difference.
+With kernel 2.4.20 both CPU's handled the same amount of interrupts.
+I haven't checked this with 2.4.21-pre1.
+
+The CPU's are PIII@500
+
+pc:~ # lspci
+00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge 
+(rev 03)
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 
+03)
+00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
+00:0b.0 SCSI storage controller: Adaptec AIC-7880U (rev 01)
+00:11.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
+RTL-8139/8139C/8139C+ (rev 10)
+01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 
+1X/2X (rev 5c)
+
+please cc me because I'm not on the list

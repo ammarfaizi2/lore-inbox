@@ -1,49 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291044AbSAaMgK>; Thu, 31 Jan 2002 07:36:10 -0500
+	id <S291050AbSAaMu1>; Thu, 31 Jan 2002 07:50:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291045AbSAaMgC>; Thu, 31 Jan 2002 07:36:02 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:49163 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S291044AbSAaMfo>;
-	Thu, 31 Jan 2002 07:35:44 -0500
-Date: Thu, 31 Jan 2002 13:35:16 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: "Robbert Kouprie" <robbert@jvb.tudelft.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NIC lockup in 2.4.17 (SMP/APIC/Intel 82557)
-Message-Id: <20020131133516.68c78352.skraw@ithnet.com>
-In-Reply-To: <002a01c1a9ee$1b6ddd20$020da8c0@nitemare>
-In-Reply-To: <20020130220659.29bd66f5.skraw@ithnet.com>
-	<002a01c1a9ee$1b6ddd20$020da8c0@nitemare>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S291051AbSAaMuT>; Thu, 31 Jan 2002 07:50:19 -0500
+Received: from p3E9BFD09.dip.t-dialin.net ([62.155.253.9]:517 "EHLO
+	srv.sistina.com") by vger.kernel.org with ESMTP id <S291050AbSAaMuD>;
+	Thu, 31 Jan 2002 07:50:03 -0500
+Date: Thu, 31 Jan 2002 13:45:33 +0100
+From: "Heinz J . Mauelshagen" <mauelshagen@sistina.com>
+To: linux-kernel@vger.kernel.org
+Cc: mge@sistina.com
+Subject: Re: [ANNOUNCE] LVM reimplementation ready for beta testing
+Message-ID: <20020131134533.A10295@sistina.com>
+Reply-To: mauelshagen@sistina.com
+In-Reply-To: <20020130202254.A7364@fib011235813.fsnet.co.uk> <20020131010119.GB858@ufies.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020131010119.GB858@ufies.org>; from christophe.barbe.ml@online.fr on Wed, Jan 30, 2002 at 08:01:20PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Jan 2002 01:27:47 +0100
-"Robbert Kouprie" <robbert@jvb.tudelft.nl> wrote:
-
-> Thanks for your reaction Stephan, but I seriously doubt the change below
-> would fix the problem... Also, as the problem appears randomly, and
-> usually after some uptime, I obviously can not know about it being fixed
-> if I constantly upgrade the kernel. I'd rather wait and see if it
-> appears again in time after I did a kernel upgrade, and not trying every
-> -pre while there's no mention on the mailing list of such bug being
-> fixed.
+On Wed, Jan 30, 2002 at 08:01:20PM -0500, christophe barbé wrote:
+> On Wed, Jan 30, 2002 at 08:22:54PM +0000, Joe Thornber wrote:
+> > The new kernel driver (known as "device-mapper") supports volume
+> > management in general and is no longer Linux LVM specific.
+> > As such it is a separate package from LVM2 which you will need
+> > to download and install before building LVM2.
+> > 
+> >  ftp://ftp.sistina.com/pub/LVM2/device-mapper/device-mapper-beta1.tgz
 > 
-> Anyway, I just rebooted with 2.4.18-pre7-ac1, we'll see if it helps.
+> I was so curious of the new license that could have been created by sistina
+> that I try to download the driver but it seems not possible at this
+> time.
+> 
+> So let me guess ... SPL2 ?
+> Oh no, the sistina way, you want some free debugging before switching
+> from GPL to SPL.
 
-Hello Robert,
+Thanks for these untenable guesses ;-)
 
-Well, I know the changes to the driver are rather ... small :-)
-But on the other hand, I would not be all that sure that the bug is a
-hundred percent related to the driver itself.
-I run a working config with eepro100-driver, btw.
+LVM2 and the device-mapper are GPL/LGPL.
+
+Sistina decided to offer this to the community and to keep it under
+the FSF licenses.
+
+This has been stated on the Linux LVM lists before.
+
+OTOH we need to survive as a company and therefore will implement
+comercial enhancements which will BTW enable us to do support and
+further development of the above free software.
+
+> 
+> Christophe
+> 
+> -- 
+> Christophe Barbé <christophe.barbe@ufies.org>
+> GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
+> 
+> As every cat owner knows, nobody owns a cat.
+> --Ellen Perry Berkeley
+
 
 Regards,
-Stephan
+Heinz    -- The LVM Guy --
 
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+Heinz Mauelshagen                                 Sistina Software Inc.
+Senior Consultant/Developer                       Am Sonnenhang 11
+                                                  56242 Marienrachdorf
+                                                  Germany
+Mauelshagen@Sistina.com                           +49 2626 141200
+                                                       FAX 924446
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

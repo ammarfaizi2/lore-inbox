@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132389AbRDCRrA>; Tue, 3 Apr 2001 13:47:00 -0400
+	id <S132398AbRDCRx7>; Tue, 3 Apr 2001 13:53:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132392AbRDCRqt>; Tue, 3 Apr 2001 13:46:49 -0400
-Received: from platan.vc.cvut.cz ([147.32.240.81]:44806 "EHLO
-	platan.vc.cvut.cz") by vger.kernel.org with ESMTP
-	id <S132389AbRDCRqd>; Tue, 3 Apr 2001 13:46:33 -0400
-Message-ID: <3ACA0C40.3F25E5A5@vc.cvut.cz>
-Date: Tue, 03 Apr 2001 10:45:36 -0700
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac28-4g i686)
-X-Accept-Language: cz, cs, en
-MIME-Version: 1.0
-To: Elmer Joandi <elmer@linking.ee>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.3 SMP: nfs stale handle, fb dualhead hardlock, G400/450 
- misnaming
-In-Reply-To: <Pine.LNX.4.21.0104031152270.21867-100000@ns.linking.ee>
+	id <S132392AbRDCRxt>; Tue, 3 Apr 2001 13:53:49 -0400
+Received: from ghost.btnet.cz ([62.80.85.74]:50443 "HELO ghost.btnet.cz")
+	by vger.kernel.org with SMTP id <S132398AbRDCRx3>;
+	Tue, 3 Apr 2001 13:53:29 -0400
+Date: Tue, 3 Apr 2001 19:52:08 +0200
+From: clock@ghost.btnet.cz
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The 53c400a
+Message-ID: <20010403195208.A12046@ghost.btnet.cz>
+In-Reply-To: <20010329210453.B4209@ghost.btnet.cz> <E14kBff-0006kK-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14kBff-0006kK-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Apr 02, 2001 at 10:15:28PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Elmer Joandi wrote:
+On Mon, Apr 02, 2001 at 10:15:28PM +0100, Alan Cox wrote:
+> Not in the near future.
 
-> 2. Hard lockup:
->         G450, I set con2fb, switch consoles some times and there it comes.
->         swithc between X and single console is OK.
+Never mind. I realized three things:
 
-Did you boot with 'video=scrollback:0' ? You must ;-)
- 
-> 3. seems that I have G450 and linux shows it as G400.
->         bash-2.04$ /sbin/lspci:
->         01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 82)
->         /proc/pci:
->          VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 130).
+a) my 53c400 card must be initialized first by DOS driver to be detected by Linux kernel
 
-rev < 128 => G400, rev >= 128 => G450. Ask Matrox why they did so stupid
-thing.
- 
->         G400 drivers also work, but matroxset aint switching second head
->         to monitor output, neither does anything else. It remains blank.
+b) The scanner initialization lasts about 4 minutes. And scanning is very slow
+even if I increase the kernel buffer to the max. as described in the SANE doc.
 
-Secondary output on G400 is in monitor mode by default. Are you sure
-that you
-insmodded all needed modules to kernel? i2c-matrox, matroxfb_maven,
-matroxfb_crtc2, ...
-If you do not know which ones, just build everything into kernel - and
-do not forget
-about i2c bit-banging as documented in documentation...
-								Petr Vandrovec
-								vandrove@vc.cvut.cz
+c) Using an adaptec SCSI adapter works just fine: scanner initializes
+immediately, card is recognized even without DOS and the scanning is much
+faster.
+
+-- 
+Karel Kulhavy                     http://atrey.karlin.mff.cuni.cz/~clock

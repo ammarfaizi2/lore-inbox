@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbULFVfW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbULFViM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261662AbULFVfW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 16:35:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbULFVfW
+	id S261663AbULFViM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 16:38:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbULFViM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 16:35:22 -0500
-Received: from 209-128-68-125.bayarea.net ([209.128.68.125]:27796 "EHLO
-	hera.kernel.org") by vger.kernel.org with ESMTP id S261662AbULFVfP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 16:35:15 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: [PATCH] aic7xxx large integer
-Date: Mon, 6 Dec 2004 21:35:05 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <cp2ja9$i88$1@terminus.zytor.com>
-References: <41B222BE.9020205@sombragris.com> <41B24542.7010803@sombragris.com> <1102208526.6052.87.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1102368905 18697 127.0.0.1 (6 Dec 2004 21:35:05 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Mon, 6 Dec 2004 21:35:05 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+	Mon, 6 Dec 2004 16:38:12 -0500
+Received: from mail.dif.dk ([193.138.115.101]:2246 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261663AbULFVhu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 16:37:50 -0500
+Date: Mon, 6 Dec 2004 22:47:56 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Riina Kikas <riinak@ut.ee>
+Cc: linux-kernel@vger.kernel.org, mroos@ut.ee
+Subject: Re: [PATCH 2.6] clean-up: fixes "shadows global", "unused parameter"
+ warnings
+In-Reply-To: <Pine.SOC.4.61.0412062253040.21075@math.ut.ee>
+Message-ID: <Pine.LNX.4.61.0412062230580.3378@dragon.hygekrogen.localhost>
+References: <Pine.SOC.4.61.0412062253040.21075@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <1102208526.6052.87.camel@localhost>
-By author:    Robert Love <rml@novell.com>
-In newsgroup: linux.dev.kernel
->
-> On Sun, 2004-12-05 at 00:16 +0100, Miguel Angel Flores wrote:
-> 
-> > I post the patch very quickly :(. The original code finally seems OK. My 
-> > controller is not working with 39 bit addressing, although I can't find 
-> > why the compiler warns. Maybe the length of dma_addr_t type, in the 
-> > 2.6.9 the type of the mask_39bit variable is bus_addr_t.
-> 
-> The compiler warns because you are putting a 64-bit value (an unsigned
-> long long) in a 32-bit value (a u32).
-> 
-> There is definitely a problem on non-highmem compiled kernels, there is
-> no doubt of that.  The concern was that your suggested fix is not right.
-> 
-> Assuming that a 39-bit value is really wanted, the type either needs to
-> be changed to a dma64_addr_t or the value needs to change at
-> compile-time to a suitable 32-bit variant when !CONFIG_HIGHMEM64G.
-> 
-> Without knowing what the driver is doing, I have no idea.
-> 
+On Mon, 6 Dec 2004, Riina Kikas wrote:
 
-I suspect that what the driver wants is a mask that is a valid DMA
-address no wider than 39 bits (because that's all the hardware can
-do.)
+> This patch fixes warnings "declaration of `prefetch' shadows a global
+> declaration"
+> (occuring on line 141) and "unused parameter `addr'" (occuring on line 136)
+> 
+> Signed-off-by: Riina Kikas <Riina.Kikas@mail.ee>
+> 
+> --- a/arch/i386/mm/fault.c	2004-12-02 21:30:30.000000000 +0000
+> +++ b/arch/i386/mm/fault.c	2004-12-02 21:30:59.000000000 +0000
+> @@ -133,12 +133,12 @@
+>   * Sometimes AMD Athlon/Opteron CPUs report invalid exceptions on prefetch.
+>   * Check that here and ignore it.
+>   */
+> -static int __is_prefetch(struct pt_regs *regs, unsigned long addr)
+> +static int __is_prefetch(struct pt_regs *regs)
 
-If so, I would assume (dma_addr_t)0x7FFFFFFFFFULL is probably the
-right thing; it will be truncated to a 32-bit mask if only 32-bit
-addressing is available.
+If you make that change, at least also change the caller of __is_prefetch
+As the patch stands it will break the build of fault.c - I suspect you 
+didn't compile test it.??
 
-	-hpa
+Also, addr gets passed in to is_prefetch() from several different 
+locations before it gets passed on to __is_prefetch() - are you sure it's 
+correct to just remove the function argument - can you prove that it does 
+no harm? could it be that the correct fix would be to actually use it for 
+something instead?  I don't know the code enough to be able to answer 
+that, but I think it's a good question that needs to be answered.
+
+What kernel source is this against? it doesn't seem to apply to my 
+2.6.10-rc3-bk2 tree here.
+
+
+-- 
+Jesper Juhl 
+
+

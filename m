@@ -1,24 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264477AbUBEBEP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 20:04:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264476AbUBEBDG
+	id S264442AbUBEBEO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 20:04:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264477AbUBEBCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 20:03:06 -0500
-Received: from fw.osdl.org ([65.172.181.6]:35792 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265111AbUBDXxd (ORCPT
+	Wed, 4 Feb 2004 20:02:49 -0500
+Received: from fw.osdl.org ([65.172.181.6]:11658 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265205AbUBEAyy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 18:53:33 -0500
-Date: Wed, 4 Feb 2004 15:54:52 -0800
+	Wed, 4 Feb 2004 19:54:54 -0500
+Date: Wed, 4 Feb 2004 16:56:20 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: "La Monte H.P. Yarroll" <piggy@timesys.com>
-Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org, amitkale@emsyssoft.com
-Subject: Re: kgdb support in vanilla 2.6.2
-Message-Id: <20040204155452.49c1eba8.akpm@osdl.org>
-In-Reply-To: <402182B8.7030900@timesys.com>
-References: <20040204230133.GA8702@elf.ucw.cz>
-	<20040204152137.500e8319.akpm@osdl.org>
-	<402182B8.7030900@timesys.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: mbligh@aracnet.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       kmannth@us.ibm.com
+Subject: Re: [Bugme-new] [Bug 2019] New: Bug from the mm subsystem involving
+ X  (fwd)
+Message-Id: <20040204165620.3d608798.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0402041639420.2086@home.osdl.org>
+References: <51080000.1075936626@flay>
+	<Pine.LNX.4.58.0402041539470.2086@home.osdl.org>
+	<60330000.1075939958@flay>
+	<64260000.1075941399@flay>
+	<Pine.LNX.4.58.0402041639420.2086@home.osdl.org>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,48 +30,39 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"La Monte H.P. Yarroll" <piggy@timesys.com> wrote:
+Linus Torvalds <torvalds@osdl.org> wrote:
 >
-> Andrew Morton wrote:
 > 
-> >Pavel Machek <pavel@ucw.cz> wrote:
-> >  
-> >
-> >>It seems that some kgdb support is in 2.6.2-linus:
-> >>    
-> >>
-> >
-> >Lots of architectures have had in-kernel kgdb support for a long time. 
-> >Just none of the three which I use :(
-> >
-> >I wouldn't support inclusion of i386 kgdb until it has had a lot of
-> >cleanup, possible de-featuritisification and some thought has been applied
-> >to splitting it into arch and generic bits.  It's quite a lot of work.
-> >  
-> >
 > 
-> Amit has started at least the third activity--he has split much of kgdb
-> into arch and generic bits.
-
-Yes.
-
-> Could you elaborate a little on the first two?
+> On Wed, 4 Feb 2004, Martin J. Bligh wrote:
+> > 
+> > Oh hell ... I remember what's wrong with this whole bit. pfn_valid is
+> > used inconsistently in different places, IIRC. Linus / Andrew ... what
+> > do you actually want it to mean? Some things seem to use it to say
+> > "the memory here is valid accessible RAM", some things "there is a 
+> > valid struct page for this pfn". I was aiming for the latter, but a
+> > few other arches seemed to disagree.
+> > 
+> > Could I get a ruling on this? ;-)
 > 
-> What major kinds of cleanup are we talking about?  Style issues?
-
-Coding style compliance, reduction of ifdefs, etc.  Reduction of patch
-footprint.  There are a few features in the patch in -mm which I am not
-aware of anyone having used.
-
-> What features (or classes of features) do you find excessive?  Would
-> it be sufficient to add a few config items to control subfeatures
-> of kgdb?
+> It _definitely_ means "there is a valid 'struct page' for this pfn". 
 > 
+> To test for "there is RAM" here, you need to first check that the pfn is
+> valid, and then you can check what the page type is (usually that would be
+> PageReserved(), but it could be a highmem check or something like that
+> too).
 
-People have added timestamping infrastructure, stack overflow testing and
-inbuilt assertion frameworks to various gdb stubs at various times.  We
-need to take a look at such things and really convice ourselves that
-they're worthwhile.  Personally, I'd only be interested in the basic stub.
+pfn_valid() could become quite expensive indeed, and it lies on super-duper
+hotpaths.
 
-I need to take a look at Amit's current patch - it sounds good.
+An alternative which is less conceptually clean but should work in this
+case is to mark all vma's which were created by /dev/mem mappings as VM_IO,
+and test that in remap_page_range().
+
+The marking of mmap_mem() vma's as VM_IO has been in -mm for four months. 
+But I didn't changelog it at the time and I've forgotten why I wrote it
+(really).  It's something to do with get_user_pages() against a mapping of
+/dev/mem :(
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2-rc3/2.6.2-rc3-mm1/broken-out/get_user_pages-handle-VM_IO.patch
 

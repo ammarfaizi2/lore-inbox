@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271746AbTGXWGB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 18:06:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271747AbTGXWGB
+	id S271748AbTGXWLl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 18:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271749AbTGXWLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 18:06:01 -0400
-Received: from u195-95-85-177.dialup.planetinternet.be ([195.95.85.177]:2820
-	"EHLO jebril.pi.be") by vger.kernel.org with ESMTP id S271746AbTGXWGA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 18:06:00 -0400
-Message-Id: <200307242217.h6OMHPFk002164@jebril.pi.be>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
-To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-cc: nick black <dank@suburbanjihad.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1 + matroxfb = unuusable VC 
-In-Reply-To: Your message of "Thu, 24 Jul 2003 01:50:00 +0200."
-             <816FF467B0D@vcnet.vc.cvut.cz> 
-Date: Fri, 25 Jul 2003 00:17:25 +0200
-From: "Michel Eyckmans (MCE)" <mce@pi.be>
+	Thu, 24 Jul 2003 18:11:41 -0400
+Received: from ns.suse.de ([213.95.15.193]:38929 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S271748AbTGXWLj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 18:11:39 -0400
+Date: Fri, 25 Jul 2003 00:25:31 +0200
+From: Stefan Reinauer <stepan@openbios.info>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Switching to the OSL License, in a dual way.
+Message-ID: <20030724222531.GA19055@suse.de>
+References: <NBFFHOEKJOIDDEAA@whowhere.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <NBFFHOEKJOIDDEAA@whowhere.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.20-4GB-athlon on an i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Dean McEwan <dean.mcewan@eudoramail.com> [030724 13:51]:
+> you, but after reading the diary where he says one 
+> particular type of scum of the universe can trade their 
+> photos as far as he's concerned. Eurrggh. I feel dirty 
 
-> Are you sure it was matroxfb and not DRI what changed?
+RMS> All of these acts should be legal as long as no one is coerced.
 
-Actually, no. I've been stuck at 2.5.46 for *ages* due to a never ending 
-succession of driver issues (still not all solved by the way). 2.5.72 was 
-the next kernel I could actually try to use. A lot of change takes place
-over that many kernel revisions.
+Does that one not explicitly exclude what you are talking about?
 
-But "never mind" (although... :-), because...
+It's also wise to take not everything for serious that is written by
+some dude. ;)
 
->  Anyway, can you try applying matroxfb-2.5.72.gz from 
-> ftp://platan.vc.cvut.cz/pub/linux/matrox-latest to your tree (you can
-> enable only matroxfb after patching, no other fbdev will work) and retry
-> tests?
+> inside for calling myself a "GPL FUNDAMETALIST" to him and
+> the community.
+ 
+Fundamentalists should always feel dirty. In so far this is pretty ok.
 
-YES! No more ghost X image, no more white rectangles, no more sudden 
-jump scrolling, and a backspace key that actually works again. Please 
-do consider pushing (some of) this to Linus for inclusion into the 
-2.6.0.test series!
+Stefan
 
-Thanks,
-
- MCE

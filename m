@@ -1,89 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbVCVQnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbVCVQo6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbVCVQnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 11:43:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261423AbVCVQnQ
+	id S261423AbVCVQo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 11:44:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVCVQo6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 11:43:16 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:13067 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261422AbVCVQnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 11:43:11 -0500
-Date: Tue, 22 Mar 2005 16:37:09 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: nickpiggin@yahoo.com.au, davem@davemloft.net, tony.luck@intel.com,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] freepgt: free_pgtables use vma list
-In-Reply-To: <20050322034053.311b10e6.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0503221617440.8666@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com> 
-    <20050322034053.311b10e6.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Tue, 22 Mar 2005 11:44:58 -0500
+Received: from ncc1701.cistron.net ([62.216.30.38]:42986 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S261423AbVCVQou
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 11:44:50 -0500
+From: Paul Slootman <paul+nospam@wurtel.net>
+Subject: md: bug in file drivers/md/md.c, line 1513
+Date: Tue, 22 Mar 2005 16:44:49 +0000 (UTC)
+Organization: Wurtelization
+Message-ID: <d1pi21$gjq$1@news.cistron.nl>
+X-Trace: ncc1701.cistron.net 1111509889 17018 83.68.3.130 (22 Mar 2005 16:44:49 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Mar 2005, Andrew Morton wrote:
-> 
-> With these six patches the ppc64 is hitting the BUG in exit_mmap():
-> 
->         BUG_ON(mm->nr_ptes);    /* This is just debugging */
-> 
-> fairly early in boot.
+This is on kernel 2.6.11, mdadm 1.4.0
 
-So ppc64 is in the same boat as sparc64 (yet ia64 okay so far).
+The system has MD devices that are auto-configured on boot.
 
-Sorry, I'm still clueless.
+However, there are also devices connected via another SCSI adapter
+(actually, a Qlogic QLA2300). I'm using a module for that. As the
+auto-configure only runs at boot (or rather, when the md subsystem is
+started).  I wanted to restart a raid-0 device that I had previously
+created. I did:
 
-I cannot see those arches doing pte_allocs outside their vmas,
-that of course could cause it.  And nr_ptes is initialized to 0
-once by memset and again by assignment, so it should be starting
-out even zeroer than most fields.
+	mdadm --run /dev/md10
 
-I should probably be paying more attention to the repellent
-notion that my code is broken.
+as a simple attempt to see what would happen. What happened was the
+error message in the subject, and a "COMPLETE RAID STATE PRINTOUT"...
+In that output there is a line "md10:", the next line is
+"md1: <sde1><sdd1><sdc1><sdb1><sda1>".
 
-If you and David could try the lame patch below,
-it'll at least give us a slight clue of where to be looking -
-every mm exiting with nr_ptes 1 means something different from
-every mm exiting with nr_ptes -1 means something different from
-occasional mms exiting with nr_ptes something positive.
 
-I'm not sure whether the patch would ever get to show a more
-interesting proc name than "?".
+Admittedly the usage may be wrong, but having the kernel say "bug" can't
+be right :-)
 
-And does memory leak away into lost pagetables if you continue
-running, or does it actually carry on running fine, and the
-problem appear to be with the BUG_ON itself?
 
-Thanks,
-Hugh
+Paul Slootman
 
---- freepgt6/mm/mmap.c	2005-03-22 04:28:40.000000000 +0000
-+++ testing/mm/mmap.c	2005-03-22 15:45:00.000000000 +0000
-@@ -1896,6 +1896,7 @@ EXPORT_SYMBOL(do_brk);
- /* Release all mmaps. */
- void exit_mmap(struct mm_struct *mm)
- {
-+	static unsigned long good_mms, bad_mms;
- 	struct mmu_gather *tlb;
- 	struct vm_area_struct *vma = mm->mmap;
- 	unsigned long nr_accounted = 0;
-@@ -1931,7 +1932,14 @@ void exit_mmap(struct mm_struct *mm)
- 		vma = next;
- 	}
- 
--	BUG_ON(mm->nr_ptes);	/* This is just debugging */
-+	if (mm->nr_ptes && bad_mms < 250) {
-+		printk(KERN_ERR "exit_mmap: %s nr_ptes %ld good_mms %lu\n",
-+			current->mm == mm? current->comm: "?",
-+			(long)mm->nr_ptes, good_mms);
-+		good_mms = 0;
-+		bad_mms++;
-+	} else
-+		good_mms++;
- }
- 
- /* Insert vm structure into process list sorted by address

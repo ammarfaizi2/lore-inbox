@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbTENJT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 05:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbTENJT7
+	id S261562AbTENJYf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 05:24:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbTENJYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 05:19:59 -0400
-Received: from pat.uio.no ([129.240.130.16]:28905 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261365AbTENJT6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 05:19:58 -0400
-MIME-Version: 1.0
+	Wed, 14 May 2003 05:24:35 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57359 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261570AbTENJYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 05:24:34 -0400
+Date: Wed, 14 May 2003 10:34:58 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Alex Riesen <alexander.riesen@synopsys.COM>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: 2.5.69+bk: "irq 15: nobody cared!" on a Compaq Armada 1592DT
+Message-ID: <20030514103458.D26687@flint.arm.linux.org.uk>
+Mail-Followup-To: Zwane Mwaikambo <zwane@linuxpower.ca>,
+	Alex Riesen <alexander.riesen@synopsys.COM>,
+	linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+References: <20030513134907.GF32559@Synopsys.COM> <Pine.LNX.4.50.0305131020070.5420-100000@montezuma.mastecende.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16066.3376.21917.112570@charged.uio.no>
-Date: Wed, 14 May 2003 11:32:32 +0200
-To: Andrew Morton <akpm@digeo.com>
-Cc: tytso@mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] htree nfs fix
-In-Reply-To: <20030514021229.35e74ccd.akpm@digeo.com>
-References: <16065.35997.348432.385925@charged.uio.no>
-	<20030513174425.2bc49803.akpm@digeo.com>
-	<16066.1778.401988.753875@charged.uio.no>
-	<20030514021229.35e74ccd.akpm@digeo.com>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: Please contact postmaster@uio.no for more information
-X-UiO-MailScanner: Found to be clean
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.50.0305131020070.5420-100000@montezuma.mastecende.com>; from zwane@linuxpower.ca on Tue, May 13, 2003 at 02:23:40PM -0400
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Andrew Morton <akpm@digeo.com> writes:
+On Tue, May 13, 2003 at 02:23:40PM -0400, Zwane Mwaikambo wrote:
+> Bugger, this is due to yenta_probe_irq.
 
-    >> Either we have to agree that we break legacy 32-bit getdents()
-    >> and treat all cookies as signed 32/64-bit, or we break
-    >> getdents64(), and treat all cookies as unsigned. (This applies
-    >> to both 2.5.x and 2.4.x)
-    >>
+Umm, but this is yee standard old interrupt probing - calling
+probe_irq_on() and causing interrupts to be generated.
 
-     > Or we do nothing.
+This seems to be something that these IRQ changes completely missed;
+interrupt probing does not register interrupt handlers, so "retval"
+in handle_IRQ_event will always be zero, and we'll always produce
+these complaints.  I'm sure there's lots of other older drivers using
+IRQ probing which are going to suffer in a similar way.
 
-     > What would you recommend?
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-I frankly don't care. I consider the current situation to be a direct
-result of glibc's abuse of getdents64() starting in glibc-2.2. If they
-had used 32-bit interfaces for the 32-bit readdir() they way they did
-in glibc-2.1 then there would be no 'NFS problem' for people to bitch
-about.
-
-Cheers,
-  Trond

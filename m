@@ -1,37 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268382AbRHCKZh>; Fri, 3 Aug 2001 06:25:37 -0400
+	id <S268511AbRHCKlj>; Fri, 3 Aug 2001 06:41:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268511AbRHCKZ0>; Fri, 3 Aug 2001 06:25:26 -0400
-Received: from hank-fep7-0.inet.fi ([194.251.242.202]:41614 "EHLO
-	fep07.tmt.tele.fi") by vger.kernel.org with ESMTP
-	id <S268382AbRHCKZM>; Fri, 3 Aug 2001 06:25:12 -0400
-Message-ID: <3B6A7B1A.AA4C7F38@pp.inet.fi>
-Date: Fri, 03 Aug 2001 13:21:14 +0300
-From: Jari Ruusu <jari.ruusu@pp.inet.fi>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19aa2 i686)
+	id <S268712AbRHCKlT>; Fri, 3 Aug 2001 06:41:19 -0400
+Received: from rcum.uni-mb.si ([164.8.2.10]:8966 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S268511AbRHCKlQ>;
+	Fri, 3 Aug 2001 06:41:16 -0400
+Date: Fri, 03 Aug 2001 12:41:23 +0200
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Re: Linux can't find partitions , again
+To: david.balazic@uni.mb.si
+Message-id: <3B6A7FD3.15549CB0@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
 X-Accept-Language: en
-MIME-Version: 1.0
-To: Matthew M <matthew.macleod@btinternet.com>
-CC: astor@fast.no, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] crypto fix for 2.4.7
-In-Reply-To: <m15SRKI-000CbBC@Wasteland>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3B6A739A.7D6197CD@uni-mb.si>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew M wrote:
-> This patch fixes crypto support in recent kernels, I know it works with
-> 2.4.7, but I have had no time to test with other kernel versions > 2.4.3.
-> Should do though, so please try and tell. Remember, its not the "official"
-> patch, just a test!
+Please, LKML people only reply to LKML ( and me ),
+ignore the redhat address.
+Redhat people , do the opposite.
 
-International crypto patch is far more broken than that. For more
-information see these linux-crypto posts by me:
+Seems that my mail server discloses "BCC:" fields if there is no "To:" field ...
+Sorry.
 
-    http://mail.nl.linux.org/linux-crypto/2001-07/msg00181.html
-    http://mail.nl.linux.org/linux-crypto/2001-07/msg00189.html
-        
-Regards,
-Jari Ruusu <jari.ruusu@pp.inet.fi>
+David Balazic wrote:
+> 
+> Hi!
+> 
+> Yesterday I did "nothing" (*) and then linux didn't boot anymore.
+> It couldn't mount the root FS.
+> After I fixed that , it couldn't turn on the swap partition.
+> 
+> This really pisses me off ! ( I am cool now, you should see me yesterday )
+> 
+> The problem was that the partitions were renumbered "randomly"
+> and linux just can not deal with that. Before linux named the root FS
+> partition hda6, but now he names it hda7. Off course the kernel still looks
+> for hda6 and fails. After I fix LILO , it boots, but fails to turn on the swap
+> as it was renamed from hda7 to hda5. I edit /etc/fstab and all is well.
+> Until next time.
+> 
+> This has bitten me and my neighbour enough times that I wrote a kernel patch
+> to fix ( 99% fix ) the first problem ( root-FS ) and I don't write kernel patches
+> every week !
+> I didn't address the second problem ( swap ).
+> 
+> The patch works by scanning all known partitions for a matching ext2 UUID ( or label ).
+> Maybe a simpler solution would be to search the partition list for a particular
+> disk ( hda ) for a partition which has a particular (start,size) pair ? ( less disk access,
+> FS-type neutral , would work for the swap problem too )
+> 
+> Patch available at
+> http://linux-patches.rock-projects.com/v2.2-f/uuid.html
+> 
+> Opinions ?
+> 
+> * - I created a partition on the free part of the disk, but after a minute
+> I changed my mind an deleted it. I used the Disk Administrator tools undwr win2000
+> 
+> --
+> David Balazic
+> --------------
+> "Be excellent to each other." - Bill & Ted
+> - - - - - - - - - - - - - - - - - - - - - -
+> 
+> _______________________________________________
+> Testers-list mailing list
+> Testers-list@redhat.com
+
+
+-- 
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -

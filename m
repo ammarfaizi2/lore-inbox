@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262578AbTDBHq3>; Wed, 2 Apr 2003 02:46:29 -0500
+	id <S262587AbTDBH50>; Wed, 2 Apr 2003 02:57:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262587AbTDBHq3>; Wed, 2 Apr 2003 02:46:29 -0500
-Received: from Mail1.KONTENT.De ([81.88.34.36]:62682 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id <S262578AbTDBHq2>;
-	Wed, 2 Apr 2003 02:46:28 -0500
-From: Oliver Neukum <oliver@neukum.org>
-Reply-To: oliver@neukum.name
-To: linux-kernel@vger.kernel.org
-Subject: 'rmmod ipip' kills box
-Date: Wed, 2 Apr 2003 09:57:50 +0200
-User-Agent: KMail/1.5
+	id <S262845AbTDBH50>; Wed, 2 Apr 2003 02:57:26 -0500
+Received: from dial-ctb05128.webone.com.au ([210.9.245.128]:49162 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id <S262587AbTDBH5Z>;
+	Wed, 2 Apr 2003 02:57:25 -0500
+Message-ID: <3E8A9A83.1070704@cyberone.com.au>
+Date: Wed, 02 Apr 2003 18:08:35 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Jens Axboe <axboe@suse.de>
+CC: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@digeo.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 2.5.66-mm2 with contest
+References: <200304021324.10799.kernel@kolivas.org> <3E8A6227.7080209@cyberone.com.au> <20030402074227.GH901@suse.de> <3E8A97D6.3000603@cyberone.com.au> <20030402075822.GB2925@suse.de>
+In-Reply-To: <20030402075822.GB2925@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304020957.50704.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jens Axboe wrote:
 
-kernel 2.4.18 UP, compiled for 4GB highmem but not used, K6 CPU
-insmod version 2.4.12
-rmmod ipip killed the box dead. No further info, somebody had to press
-the reset button. Down time on this box is awkward.
-
-	Regards
-		Oliver
+>On Wed, Apr 02 2003, Nick Piggin wrote:
+>
+>>Thanks for doing that, Jens. Any CPU measurements on the hash
+>>goodness that you did for deadline?
+>>
+>
+>Nope none yet, in fact Andrew's profile numbers show very little time
+>spent inside the io scheduler hash as it is. It feels like the right
+>thing to do though, even if the hash doesn't eat that much time.
+>
+I agree - especially as we want a smaller hash and with
+more requests.
 

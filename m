@@ -1,91 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262901AbTJUAjX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 20:39:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbTJUAjX
+	id S262854AbTJUAql (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 20:46:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbTJUAql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 20:39:23 -0400
-Received: from wblv-241-59.telkomadsl.co.za ([165.165.241.59]:35714 "EHLO
-	nosferatu.lan") by vger.kernel.org with ESMTP id S262901AbTJUAjI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 20:39:08 -0400
-Subject: Re: [ANNOUNCE] udev 003 release
-From: Martin Schlemmer <azarah@gentoo.org>
-Reply-To: azarah@gentoo.org
-To: Greg KH <greg@kroah.com>
-Cc: clemens@dwf.com, linux-hotplug-devel@lists.sourceforge.net,
-       KML <linux-kernel@vger.kernel.org>, reg@orion.dwf.com
-In-Reply-To: <20031017182754.GA10714@kroah.com>
-References: <20031017055652.GA7712@kroah.com>
-	 <200310171757.h9HHvGiY006997@orion.dwf.com>
-	 <20031017181923.GA10649@kroah.com>  <20031017182754.GA10714@kroah.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-92N1f9R6uFrmRMiAwRRL"
-Message-Id: <1066696767.10221.164.camel@nosferatu.lan>
+	Mon, 20 Oct 2003 20:46:41 -0400
+Received: from h80ad257c.async.vt.edu ([128.173.37.124]:1920 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262854AbTJUAqi (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 20:46:38 -0400
+Message-Id: <200310210046.h9L0kHFg001918@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Andrew Morton <akpm@osdl.org>
+Cc: schlicht@uni-mannheim.de, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.0-test8-mm1 
+In-Reply-To: Your message of "Mon, 20 Oct 2003 17:27:32 PDT."
+             <20031020172732.6b6b3646.akpm@osdl.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20031020020558.16d2a776.akpm@osdl.org> <200310201811.18310.schlicht@uni-mannheim.de> <20031020144836.331c4062.akpm@osdl.org> <200310210001.08761.schlicht@uni-mannheim.de> <200310210014.h9L0EZFP003073@turing-police.cc.vt.edu>
+            <20031020172732.6b6b3646.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 21 Oct 2003 02:39:27 +0200
+Content-Type: multipart/signed; boundary="==_Exmh_1887342736P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 20 Oct 2003 20:46:17 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1887342736P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <1901.1066697159.1@turing-police.cc.vt.edu>
 
---=-92N1f9R6uFrmRMiAwRRL
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Mon, 20 Oct 2003 17:27:32 PDT, Andrew Morton said:
+> Valdis.Kletnieks@vt.edu wrote:
+> >
+> > This ring any bells?  What you want tested? etc etc....
+> 
+> Can you try disabling all fbdev stuff in config?
 
-On Mon, 2003-10-20 at 12:07, Greg KH wrote:
-> On Fri, Oct 17, 2003 at 11:19:23AM -0700, Greg KH wrote:
-> >=20
-> > Ah, yeah, udev seg faults right now for partitions.  Let me try to trac=
-k
-> > down the bug, give me a bit of time...
->=20
-> Here's a patch that fixes the partition logic for me.  Sorry about this, =
-I
-> need to make sure to test partitions more next time.
->=20
+OK.. That booted just fine, didn't hang in pty_init, didn't hit the
+WARN_ON added to fs_inoce.c.
 
-This works fine for me, thanks.
+So we have:
 
-Three questions if you do not mind:
+works:
+#  CONFIG_FB is not set
 
-1)  Is it possible to maintain naming of tarball/version ?  Meaning,
-    say we forget about the 003 version, could the next be 0.4, or even
-    0.3.1 or whatever ?  Just changing makes trying to keep packages
-    sane a hassle.  Thanks :)
+Doesn't work:
+CONFIG_FB=y
+CONFIG_FB_VESA=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_PCI_CONSOLE=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_MONO=y
+CONFIG_LOGO_LINUX_VGA16=y
+CONFIG_LOGO_LINUX_CLUT224=y
 
-2)  Is the libsysfs included later than that in sysfsutils-0_2_0.tar.gz?
-    If not, any idea if/when udev will start following official
-    libsysfs?  Yes, not a biggie, but it would be nice to have
-    sysfsutils its own package :)
-
-3)  Any plans to have namedev support wildcarts ?  Like:
-
-  dsp*:root:audio:0660
-  audio*:root:audio:0660
-  midi*:root:audio:0660
-  mixer*:root:audio:0660
-
-
-Thanks!
-
---=20
-
-Martin Schlemmer
+I've not had a chance to play binary search on those options yet..  Graphics
+card is an NVidia GeForce 440Go, and was previous working just fine with
+framebuffer over on vc1-6 and NVidia's driver on an XFree86 on vc7. (OK, I
+admit I didn't stress test the framebuffer side much past "penguins and
+scroiled text"...)
 
 
-
-
---=-92N1f9R6uFrmRMiAwRRL
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+--==_Exmh_1887342736P
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQA/lIA/qburzKaJYLYRAhHhAJ9u5AOLah7GRusK9Z3Zc4UrJAwPagCghGhN
-anOkuLvKbr177VqsvdQ4kKI=
-=JRW9
+iD8DBQE/lIHYcC3lWbTT17ARApF3AKDgMlT3xPJBvSwCVvIfzCeKvTOQaACgreus
+1D0iOzxbeyt9kyEK/ZKdzME=
+=Chp5
 -----END PGP SIGNATURE-----
 
---=-92N1f9R6uFrmRMiAwRRL--
-
+--==_Exmh_1887342736P--

@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263187AbTDVPFu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 11:05:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263199AbTDVPFu
+	id S263197AbTDVPCo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 11:02:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263198AbTDVPCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 11:05:50 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:16862
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263187AbTDVPFt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 11:05:49 -0400
-Subject: Re: What's the deal McNeil? Bad interactive behavior in X w/ RH's
-	2.4.18
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Michael B Allen <mba2000@ioplex.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030422034821.6a57acc0.mba2000@ioplex.com>
-References: <20030422034821.6a57acc0.mba2000@ioplex.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051021190.14881.18.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 22 Apr 2003 11:02:43 -0400
+Received: from havoc.daloft.com ([64.213.145.173]:38798 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S263197AbTDVPCi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 11:02:38 -0400
+Date: Tue, 22 Apr 2003 11:14:43 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: boot messages
+Message-ID: <20030422151443.GA25026@gtf.org>
+References: <UTC200304221245.h3MCjp122735.aeb@smtp.cwi.nl> <20030422130135.GA16465@gtf.org> <20030422072023.5fa430b6.rddunlap@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 22 Apr 2003 15:19:50 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030422072023.5fa430b6.rddunlap@osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-04-22 at 08:48, Michael B Allen wrote:
-> I asked about this on kernelnewbies but the only response was something
-> regarding some kind of change to the 'elevator code' but they didn't
-> know of a solution.
-
-Its actually probably not that
+On Tue, Apr 22, 2003 at 07:20:23AM -0700, Randy.Dunlap wrote:
+> | changed between 2.4 and 2.5.  I consider this a bug, and welcome patches
+> | to fix it.  Note, though, that the recent PCI probe order fixes that
+> | went in via Andrew Morton may have addressed this issue for some people.
 > 
-> I would like very much for this behavior to go away as it is extremely
-> annoying. If there is a patch please let me know where I can get it.
+> Patch has already been posted 2 times.
 
-See the Red Hat 8 errata. 
+Out of sight, out of mind.  :)
+
+I am also wondering how link order and PCI detection order are affecting
+things, so re-testing without patches on 2.5.68-bk3 would be useful, for
+those having problems.
+
+Re-send the patch against 2.5.68-bk3 if the problem persists...
+
+	Jeff
+
+
 

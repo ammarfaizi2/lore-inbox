@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268650AbRGZS5T>; Thu, 26 Jul 2001 14:57:19 -0400
+	id <S268658AbRGZTjR>; Thu, 26 Jul 2001 15:39:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268652AbRGZS5J>; Thu, 26 Jul 2001 14:57:09 -0400
-Received: from lightning.hereintown.net ([207.196.96.3]:60355 "EHLO
-	lightning.hereintown.net") by vger.kernel.org with ESMTP
-	id <S268650AbRGZS5C>; Thu, 26 Jul 2001 14:57:02 -0400
-Date: Thu, 26 Jul 2001 15:11:20 -0400 (EDT)
-From: Chris Meadors <clubneon@hereintown.net>
-To: Andreas Dilger <adilger@turbolinux.com>
-cc: Christopher Allen Wing <wingc@engin.umich.edu>,
-        "sentry21@cdslash.net" <sentry21@cdslash.net>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Theodore Y. Ts'o" <tytso@mit.edu>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Weird ext2fs immortal directory bug (all-in-one)
-In-Reply-To: <200107261821.f6QIL4017990@lynx.adilger.int>
-Message-ID: <Pine.LNX.4.31.0107261502020.3437-100000@rc.priv.hereintown.net>
+	id <S268659AbRGZTjH>; Thu, 26 Jul 2001 15:39:07 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:5643 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268657AbRGZTi4>; Thu, 26 Jul 2001 15:38:56 -0400
+Date: Thu, 26 Jul 2001 12:37:00 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Richard A Nelson <cowboy@vnet.ibm.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: ext3-2.4-0.9.4
+In-Reply-To: <Pine.LNX.4.33.0107261429190.19887-100000@badlands.lexington.ibm.com>
+Message-ID: <Pine.LNX.4.33.0107261233000.1062-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, 26 Jul 2001, Andreas Dilger wrote:
 
-> It should actually assume that such inodes are corrupt, and either just
-> delete them at e2fsck time, or at least clear the "bad" parts of the inode
-> before sticking it in lost+found.
+On Thu, 26 Jul 2001, Richard A Nelson wrote:
+>
+> In looking at the synchronous directory options, I'm unsure as to
+> the 'real' status wrt fsync() on a directory:
+> 	1) Does fsync() of a directory work on most/all current FS?
 
-I had this happen to me once before.  I did something bad, and when I
-started my machine up again, I got a couple of files in lost+found.  I
-couldn't delete two of them.
+Modulo bugs, yes.
 
-I posted my trouble here, and I got many of the same hints I've seen given
-this time around.
+Now, there's another issue, of course: if you have an important mail-spool
+on some of the less tested filesystems, I would consider you crazy
+regardless of fsync() working ;). I don't think anybody has ever verified
+that fsync() (or much anything else wrt writing) does the right thing on
+NTFS, for example.
 
-What just made me think, is you just said that e2fsck should clean up this
-problem before putting it in lost+found.  That is probally a good idea.
-But it was also half way to my solution.  e2fsck did know there was
-something wrong with the inodes, but since it marked the disk clean the
-first time it was run it wouldn't bother looking over the disk upon
-farther reboots.  I wasn't comfortable with figuring out how to use
-debugfs, so I just left the 2 bad files there.  Until I did something
-else silly and another fsck was forced.  Upon being run the second time
-e2fsck did notice something out of order and fixed up the files so I could
-delete them.
+> 	2) Does it work on 2.2.x as well as 2.4.x?
 
-So yes, e2fsck probally should have noticed the problem the first time
-through and not written a funky file to lost+found.  But this might be a
-possible solution for the orginal poster of the message.  Just force a
-check right now and see if it gets fixed.
+Yes. However, there may be performance issues. As with just about
+anything, we didn't start optimizing things until it became a real issue,
+and in some cases at least historically the filesystems fell back on just
+doing a whole "fsync_dev()" if they had nothing better to do.
 
--Chris
--- 
-Two penguins were walking on an iceberg.  The first penguin said to the
-second, "you look like you are wearing a tuxedo."  The second penguin
-said, "I might be..."                         --David Lynch, Twin Peaks
+I think later 2.2.x kernels (ie the ones past the point where Alan took
+over) probably have the fsync() optimizations at least for ext2.
+
+		Linus
 

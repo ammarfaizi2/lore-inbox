@@ -1,65 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262494AbRENU5c>; Mon, 14 May 2001 16:57:32 -0400
+	id <S262491AbRENVAc>; Mon, 14 May 2001 17:00:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262492AbRENU5M>; Mon, 14 May 2001 16:57:12 -0400
-Received: from gso56-168-043.triad.rr.com ([66.56.168.43]:65158 "EHLO
-	hlclabs.dynip.com") by vger.kernel.org with ESMTP
-	id <S262491AbRENU5J>; Mon, 14 May 2001 16:57:09 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Mike Harmon <mikeharmon@usa.net>
-Organization: Harmon Liles Computer Labs
-To: torvalds@transmeta.com
-Subject: [PATCH] Future Domain SCSI controller fix for 2.4.x
-Date: Mon, 14 May 2001 17:07:32 -0400
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org, faith@cs.unc.edu, linux-scsi@vger.kernel.org
+	id <S262490AbRENVAW>; Mon, 14 May 2001 17:00:22 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:11018 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S262491AbRENVAI>; Mon, 14 May 2001 17:00:08 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Date: Tue, 15 May 2001 06:55:01 +1000 (EST)
 MIME-Version: 1.0
-Message-Id: <01051417073200.06553@hlclabs.dynip.com>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15104.17957.253821.765483@notabene.cse.unsw.edu.au>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <viro@math.psu.edu>
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: message from Linus Torvalds on Monday May 14
+In-Reply-To: <3B003EFC.61D9C16A@mandrakesoft.com>
+	<Pine.LNX.4.31.0105141328020.22874-100000@penguin.transmeta.com>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday May 14, torvalds@transmeta.com wrote:
+> 
+> End of discussion.
+> 
+> 		Linus
+> 
 
-Hi, the driver for this card seems to have missed out on one of the changes 
-to the SCSI layer between 2.2 and 2.4.  Specifically, scsi_set_pci_device 
-now wants an entire SCSI host object, instead of just the pci_dev part.   
-Without the patch, we get a null kernel pointer dereference when the driver 
-is initialized.  With the single-line update, the driver works again.  I've 
-also included a patch to change an udelay loop into the equivalent mdelay 
-call for code readability purposes.  These are both against 2.4.4; please 
-apply.
+...and start of education please...
 
--- 
-Email:  mikeharmon@usa.net
+I want to create a new block device - it is a different interface to
+the software-raid code that allows the arrays to be partitioned using
+normal partition tables.
 
+So I need a major number - to give to devfs_register_blkdev at least.
+You don't want me to have a hardcoded one (which is fine) so I need a
+dynamically allocated one - yes?
 
---- linux-2.4.4/drivers/scsi/fdomain.old	Mon May 14 16:33:11 2001
-+++ linux-2.4.4/drivers/scsi/fdomain.c	Fri May  4 11:07:41 2001
- 
- inline static void fdomain_make_bus_idle( void )
-@@ -971,7 +969,7 @@
-    	return 0;
-    shpnt->irq = interrupt_level;
-    shpnt->io_port = port_base;
--   scsi_set_pci_device(shpnt->pci_dev, pdev);
-+   scsi_set_pci_device(shpnt, pdev);
-    shpnt->n_io_port = 0x10;
-    print_banner( shpnt );
+This means that we need some analogue to {get,put}_unnamed_dev that
+manages a range of dynamically allocated majors.
+Is there such a beast already, or does someone need to write it?
+What range(s) should be used for block devices? 
 
- 
---- linux-2.4.4/drivers/scsi/fdomain.old	Mon May 14 16:33:11 2001
-+++ linux-2.4.4/drivers/scsi/fdomain.c	Fri May  4 11:07:41 2001
-@@ -587,9 +587,7 @@
- 
- static void do_pause( unsigned amount )	/* Pause for amount*10 
-milliseconds */
- {
--   do {
--	udelay(10*1000);
--   } while (--amount);
-+   mdelay(10*amount);
- }
+Am I missing something obvious here?
 
-ê2¯@2
+NeilBrown

@@ -1,151 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVAMRzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVAMR4U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261314AbVAMRzH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 12:55:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVAMRxf
+	id S261273AbVAMR4U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 12:56:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVAMRzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 12:53:35 -0500
-Received: from rproxy.gmail.com ([64.233.170.201]:12926 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261256AbVAMRwS (ORCPT
+	Thu, 13 Jan 2005 12:55:38 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:3036 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261278AbVAMRxw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 12:52:18 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=D9ZK7YGLCJA0WmbdCdTkchHk0h4VQoUBj26TXavx2F+OCiQFKsAGxGNS+iZGJ6cVtTyKzlLC/2eKOt2EiiR6t20+YGeKQ4/Xa4dRhmpietvcM0+KAdKifHfQtXxqY/7tmhIsVAkuwaK5d8Zc3pjRZbfgUz/0ujLF0OLLbQXhNYU=
-Message-ID: <d120d50005011309526326afef@mail.gmail.com>
-Date: Thu, 13 Jan 2005 12:52:14 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH 0/16] New set of input patches
-Cc: linux-input@atrey.karlin.mff.cuni.cz, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050113153644.GA18939@ucw.cz>
+	Thu, 13 Jan 2005 12:53:52 -0500
+Date: Thu, 13 Jan 2005 09:53:39 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
+       pbadari@us.ibm.com, markv@us.ibm.com, gregkh@us.ibm.com,
+       tytso@us.ibm.com, suparna@in.ibm.com
+Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
+Message-ID: <20050113175339.GE1269@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20050106190538.GB1618@us.ibm.com> <1105039259.4468.9.camel@laptopd505.fenrus.org> <20050106201531.GJ1292@us.ibm.com> <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk> <20050106210408.GM1292@us.ibm.com> <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050107010119.GS1292@us.ibm.com> <20050113025157.GA2849@us.ibm.com> <1105601758.6031.6.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <200412290217.36282.dtor_core@ameritech.net>
-	 <20050113153644.GA18939@ucw.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1105601758.6031.6.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Jan 2005 16:36:44 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> On Wed, Dec 29, 2004 at 02:17:36AM -0500, Dmitry Torokhov wrote:
-> >
-> > 01-i8042-panicblink-cleanup.patch
-> >       Move panicblink parameter definition together with the rest of i8042
-> >       module parameters, add description and entry in kernel-parameters.txt
+On Thu, Jan 13, 2005 at 08:35:58AM +0100, Arjan van de Ven wrote:
+> On Wed, 2005-01-12 at 18:51 -0800, Paul E. McKenney wrote:
+> > On Thu, Jan 06, 2005 at 05:01:19PM -0800, Paul E. McKenney wrote:
+> > > On Thu, Jan 06, 2005 at 09:24:17PM +0000, Al Viro wrote:
+> > > > "Use recursive bindings instead of trying to take over the entire mount tree
+> > > > and mirroring it within your fs code.  And do that explicitly from userland".
+> > > 
+> > > Thank you for the pointer!  By this, you mean do mount operations in
+> > > conjunction with namespaces, right?
+> > > 
+> > > I will follow up with more detail as I learn more.  The current issue
+> > > seems to be with removeable devices.  Their users want to be accessing
+> > > a particular version, but still see a memory stick that was subsequently
+> > > mounted outside of the view.  Straightforward use of mounts and namespaces
+> > > would prevent the memory stick from being visible to users that were
+> > > already in view.
+> > 
+> > OK, after much thrashing, here is what the ClearCase users need.
+> > Sorry for the length -- the first few paragraphs gives the flavor of
+> > it and the rest goes into more detail with examples.
+> > 
+> > Thoughts?
+> > 
 > 
-> I think I prefer the DELAY definition to be outside the function. Other
-> than that the patch is OK.
- 
-Will do.
+> Interesting; so clearcase mvfs currently extends the linux VFS to do all
+> this.... It would be very interesting to get these extensions to linux
+> posted on this mailing list in patch form, since it could well be a nice
+> generic enhancement of linux. (Assuming Al doesn't go WTF over the code
+> of course :-)
 
-> > 02-serio-start-stop.patch
-> >       Add serio start() and stop() methods to serio structure that are
-> >       called when serio port is about to be fully registered and when
-> >       serio port is about to be unregistered. These methods are useful
-> >       for drivers that share interrupt among several serio ports. In this
-> >       case interrupt can not be enabled/disabled in open/close methods
-> >       and it is very hard to determine if interrupt shoudl be ignored or
-> >       passed on.
-> 
-> > 03-i8042-use-start-stop.patch
-> >       Make use of new serio start/stop methods to safely activate and
-> >       deactivate ports. Also unify as much as possible port handling
-> >       between KBD, AUX and MUX ports. Rename i8042_values into i8042_port.
-> 
-> Would we need this at all if we made the port registration completely
-> asynchronous, only binding devices to ports _after_ the port is
-> completely registered?
-> 
-> I'm rather reluctant to add even more callbacks.
-> 
+Just given the interfaces it makes use of, I would guess that Al would
+more than go WTF over the current code.  Most would probably say that the
+current code does not extend Linux VFS, but rather subverts it.  Plus it
+was written by people without any history of Linux-kernel development,
+so one would anticipate much heartburn over style and usage issues.  ;-)
 
-The problem is not with binding devices, it is with mostly with
-sharing the same IRQ between different ports.
+All that aside, if you really really want to see it, I will see what I
+can do about getting it to you.
 
-Look at the MUX case, you have 4 ports all sharing the same IRQ. At
-startup i8042 enables all on-chip ports and registers them with
-serio_register_port(). When first serio driver class i8042_open it
-installs IRQ handler. All 4 ports are enabled now (because we want to
-do hot-plug) but, especially with async. serio registration, only the
-first is fully registered with serio subsystem. If data was to come
-from any other port the shared IRQ handler will call serio_reconnect
-on half-alive port. The similar issues happen when you try to
-unregister port.
-
-With start/stop methods allow serop core signal driver that the port
-is fully registered and now is safe to use. If IRQ is not shared
-between ports one can safely register/unregister handler in open/close
-methods (at the expense of hotplug device support) but with shared IRQ
-you need additional callbacks.
-
-> > 04-serio-suppress-dup-events.patch
-> >       Do not submit serio event into event queue if there is already one
-> >       of the same type for the same port in front of it. Also look for
-> >       duplicat events once event is processed. This should help with
-> >       disconnected ports generating alot of data and consuming memory for
-> >       events when kseriod gets behind and prevents constant rescans.
-> >       This also allows to remove special check for 0xaa in reconnect path
-> >       of interrupt handler known to cause problems with Toshibas keyboards.
-> 
-> Ok. Since we'll be usually scanning an empty list, this shouldn't add
-> any overhead.
-
-Plus serio events are rare so unless there are "runaway" serio interrupt this
-patch tries to procet from there shoudl not be pretty much any overhead.
-
-> Btw, why do we need _both_ to scan for duplicate events on event
-> completion and check at event insert time? One should be enough - if we
-> always check, then we cannot have duplicate events and if we always are
-> able to deal with them, we don't have to care ...
-
-A duplicate event can be queued while kseriod was processing current event,
-checking for a dupe is cheaper then doing duplicate work we'd just done and
-the lis is mostr likely empty anyway.
-
-> 
-> Already merged.
-> 
-> > 09-i8042-sysfs-permissions.patch
-> >       Fix braindamage in sysfs permissions for 'debug' option.
-> 
-> OK.
-
-This one has already been merged as well I think.
-
-> 
-> > 14-serio-id-match.patch
-> >       Replace serio's type field with serio_id structure and
-> >       add ids table to serio drivers. This will allow splitting
-> >       initial matching and probing routines for better sysfs
-> >       integration.
-> 
-> OK. Maybe we should add a new SPIOCSTYPE ioctl to pass the structure
-> directly.
-
-I am not sure it is needed ATM and I am a bit fuzzy on 32/64 bit ioctl
-issues so I'll leave it alone for now ;)
- 
-> 
-> > 15-serio-bus-cleanup.patch
-> >       Make serio implementation more in line with standard
-> >       driver model implementations by removing explicit device
-> >       and driver list manipulations and introducing bus_match
-> >       function. serio_register_port is always asynchronous to
-> >       allow freely registering child ports. When deregistering
-> >       serio core still takes care of destroying children ports
-> >       first.
-> 
-> OK. I suppose the synchronous unregister variant is needed for module
-> unload? I suppose refcounting would be enough there ...
-
-I don't see how. Kobject refcounting protects data structures but not
-code and I can't bump up module's reference count in module_exit
-function to delay its removal and we do not want to take module's
-reference for every registered port otherwise unload will not be
-possible. That's why synchronous removal method is needed.
-
--- 
-Dmitry
+							Thanx, Paul

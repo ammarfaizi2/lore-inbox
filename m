@@ -1,64 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVARF4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVARG0q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbVARF4R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 00:56:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVARF4R
+	id S261248AbVARG0q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 01:26:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVARG0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 00:56:17 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:14816 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261238AbVARF4P (ORCPT
+	Tue, 18 Jan 2005 01:26:46 -0500
+Received: from zasran.com ([198.144.206.234]:46747 "EHLO jojda.zasran.com")
+	by vger.kernel.org with ESMTP id S261248AbVARG0k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 00:56:15 -0500
-Date: Tue, 18 Jan 2005 11:29:34 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com,
-       rusty@rustcorp.com.au, dipankar@in.ibm.com
-Subject: Re: [patch] mm: Reimplementation of dynamic percpu memory allocator
-Message-ID: <20050118055934.GB3143@impedimenta.in.ibm.com>
-References: <20050113083412.GA7567@impedimenta.in.ibm.com> <20050113005730.0e10b2d9.akpm@osdl.org> <20050114150519.GA3189@impedimenta.in.ibm.com> <20050114013425.77ad7c3f.akpm@osdl.org> <20050117182735.GA2322@impedimenta.in.ibm.com> <20050117141117.4606b58a.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050117141117.4606b58a.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 18 Jan 2005 01:26:40 -0500
+Message-ID: <41ECAC1E.9010003@bigfoot.com>
+Date: Mon, 17 Jan 2005 22:26:38 -0800
+From: Erik Steffl <steffl@bigfoot.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Eric Mudama <edmudama@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SATA disk dead? ATA: abnormal status 0x59 on port 0xE407
+References: <1105830698.15835.16.camel@localhost.localdomain>	 <41EB3F80.5050400@tmr.com> <41EB5ECC.1020105@bigfoot.com>	 <200501170914.46344.m.watts@eris.qinetiq.com> <311601c9050117170161e65147@mail.gmail.com>
+In-Reply-To: <311601c9050117170161e65147@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 17, 2005 at 02:11:17PM -0800, Andrew Morton wrote:
-> Ravikiran G Thirumalai <kiran@in.ibm.com> wrote:
-> >
-> >  > So...  is it not possible to enhance vmalloc() for node-awareness, then
-> >  > just use it?
-> >  > 
-> > 
-> >  Memory for block management (free lists, bufctl lists) is also resident 
-> >  in one block.  A typical block in this allocator looks like this:
-> > 
+Eric Mudama wrote:
+> we don't use security torx screws, we use normal ones on our boards.
 > 
-> I still don't get it.  It is possible to calculate the total size of the
-> block beforehand, yes?  So why not simply vmalloc_numa() a block of that
-> size then populate it?
+> I wouldn't recommend swapping boards, since the code stored on the
+> physical media, the opti tables, and the asic on the board were all
+> processed together at one point and are specific to each other.  The
+> new board may not work properly with the heads in the other drive, and
+> could even cause damage, if both drives were several sigma to opposite
+> sides of each other in the spectrum of passing drives, or had a
+> different head vendor, etc.
+> 
+> If the data already appears lost and you've run out of other options,
+> it may prove useful to attempt writing to the entire device without
+> attempting reads.  If the drive then reads normally after that, the
+> damage was probably incurred in some transient fashion (excessive
+> vibration or heat, etc) and the replacement data may eliminate the
+> failures.
+> 
+> Either way, however, I would probably recommend just RMA'ing the
+> drives.  We should be able to get you a replacement in a few days from
+> the time you fill out the form.
 
-I should be excited to add a new api ;), but, then we would have something
-like:
- 
-void *vmalloc_numa(unsigned long size, unsigned long extra)
+   it's DiamondMax 9 (manufactured june 13 2003), those had only one 
+year warranty so unfortunately I can't return it (just checked it on 
+maxtor.com).
 
-which would 
-1. Allocate (size * NR_CPUS + extra) worth of va space (vm_struct)
-2. Allocate node local pages amounting to 'size' for each possible cpu
-3. Allocate pages for 'extra'
-4. Mapping 'size' amount of pages allocated for cpus to corresponding 
-   va space beginning from  vm_struct.addr to 
-  (vm_struct.addr + NR_CPUS * size - 1) 
-5. Map vm_struct.addr + NR_CPUS * size to pages allocated for extra in (3).
+   trying to write to it (cat /dev/hdb6 > /dev/sda) but getting exactly 
+same messages (ATA: abnormal status 0x59 on port 0xE407). Looks like the 
+drive does not respond to anything at all (I tried to turn off computer 
+completely, even disconnecting it (while powered off)).
 
-It is the need for this 'extra' -- the block management memory, which made me 
-think against a common api outside the allocator.  If you feel vmalloc_numa 
-is the right approach, I will make a patch to put it in vmalloc.c in the 
-next iteration.
+here's the full set of messages (the same set repeats every 30s or so):
 
-Thanks,
-Kiran
+Jan 17 22:22:48 jojda kernel: ata2: command 0x35 timeout, stat 0x59 
+host_stat 0x21
+Jan 17 22:22:48 jojda kernel: ata2: status=0x59 { DriveReady 
+SeekComplete DataRequest Error }
+Jan 17 22:22:48 jojda kernel: ata2: error=0x40 { UncorrectableError }
+Jan 17 22:22:48 jojda kernel: scsi1: ERROR on channel 0, id 0, lun 0, 
+CDB: Write (10) 00 00 00 00 15 00 03 eb 00
+Jan 17 22:22:48 jojda kernel: Current sda: sense key Medium Error
+Jan 17 22:22:48 jojda kernel: Additional sense: Unrecovered read error - 
+auto reallocate failed
+Jan 17 22:22:48 jojda kernel: end_request: I/O error, dev sda, sector 21
+Jan 17 22:22:48 jojda kernel: ATA: abnormal status 0x59 on port 0xE407
+Jan 17 22:22:48 jojda last message repeated 2 times
 
+	erik

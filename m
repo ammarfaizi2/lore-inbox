@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267175AbSLaGsP>; Tue, 31 Dec 2002 01:48:15 -0500
+	id <S267173AbSLaHAJ>; Tue, 31 Dec 2002 02:00:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267174AbSLaGsO>; Tue, 31 Dec 2002 01:48:14 -0500
-Received: from dp.samba.org ([66.70.73.150]:41090 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267175AbSLaGsM>;
-	Tue, 31 Dec 2002 01:48:12 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Overzealous permenant mark removed 
-In-reply-to: Your message of "Mon, 30 Dec 2002 11:40:43 -0000."
-             <20021230114043.GD11633@suse.de> 
-Date: Tue, 31 Dec 2002 17:55:03 +1100
-Message-Id: <20021231065637.7FFC02C09E@lists.samba.org>
+	id <S267177AbSLaHAJ>; Tue, 31 Dec 2002 02:00:09 -0500
+Received: from packet.digeo.com ([12.110.80.53]:34454 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267173AbSLaHAI>;
+	Tue, 31 Dec 2002 02:00:08 -0500
+Message-ID: <3E11426A.4ABE66B5@digeo.com>
+Date: Mon, 30 Dec 2002 23:08:26 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Con Kolivas <conman@kolivas.net>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] vm swappiness with contest
+References: <200212271646.01487.conman@kolivas.net> <200212311724.05416.conman@kolivas.net> <3E113B25.534BEBE4@digeo.com> <200212311757.50916.conman@kolivas.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 31 Dec 2002 07:08:27.0387 (UTC) FILETIME=[6A8D74B0:01C2B09B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20021230114043.GD11633@suse.de> you write:
-> On Fri, Dec 27, 2002 at 07:44:41PM +1100, Rusty Russell wrote:
+Con Kolivas wrote:
 > 
->  > Name: Modules without init functions don't need exit functions
->  > D: If modules don't use module_exit(), they cannot be unloaded.  This
->  > D: safety mechanism should not apply for modules which don't use
->  > D: module_init() (implying they have nothing to clean up anyway).
-> 
-> Just a heads up, as this bit me with agpgart which had a module_init()
-> but no module_exit() and then found itself un-unloadable[1].
-> I don't know if agpgart found itself in the unique position of doing
-> this (It only really used its _init function to clear some vars,
-> and printk a banner), but its something to keep an eye out for.
+> ...
+> post usemem:
+> MemTotal:       257296 kB
+> MemFree:         86168 kB
+> Buffers:           392 kB
+> Cached:           2244 kB
+> SwapCached:        632 kB
+> Active:         159484 kB
+> Inactive:         1380 kB
+> HighTotal:           0 kB
+> HighFree:            0 kB
+> LowTotal:       257296 kB
+> LowFree:         86168 kB
+> SwapTotal:     4194272 kB
+> SwapFree:      4192668 kB
+> Dirty:              60 kB
+> Writeback:           0 kB
+> Mapped:           1768 kB
+> Slab:             6748 kB
+> Committed_AS:     6588 kB
+> PageTables:        196 kB
+> ReverseMaps:       619
 
-The banner, well, you know Linus' position on printing banners 8)
+OK, thanks.   It's a memory leak.
 
-The rest seems superfluous:
+Could you please send me a detailed description of how to
+set about reproducing this?
 
-int __init agp_init(void)
-{
-	static int already_initialised=0;
-
-	if (already_initialised!=0)
-		return 0;
-
-	already_initialised = 1;
-
-	memset(&agp_bridge, 0, sizeof(struct agp_bridge_data));
-	agp_bridge.type = NOT_SUPPORTED;
-
-	printk(KERN_INFO "Linux agpgart interface v%d.%d (c) Dave Jones\n",
-	       AGPGART_VERSION_MAJOR, AGPGART_VERSION_MINOR);
-	return 0;
-}
-
-Hope that helps,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+When you say "I ran contest for a few days till I recreated the problem
+and it did recur.", does this imply that the leak was really slowly
+increasing, or does it imply that everything was fine for a few days
+uptime and then it sudddenly leaked a large amount of memory?

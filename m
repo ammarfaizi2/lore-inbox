@@ -1,48 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266236AbRF3SNI>; Sat, 30 Jun 2001 14:13:08 -0400
+	id <S266237AbRF3SPI>; Sat, 30 Jun 2001 14:15:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266237AbRF3SM6>; Sat, 30 Jun 2001 14:12:58 -0400
-Received: from hera.society.de ([195.227.57.7]:19717 "EHLO hera.society.de")
-	by vger.kernel.org with ESMTP id <S266236AbRF3SMr>;
-	Sat, 30 Jun 2001 14:12:47 -0400
-Date: Sat, 30 Jun 2001 20:12:36 +0200
-From: Bernfried Molte <bbm@studioorange.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.6-pre8 build error of aic7xxx
-Message-Id: <20010630201236.69fcdddd.bbm@studioorange.de>
-In-Reply-To: <lxbsn5lwl5.fsf@pixie.isr.ist.utl.pt>
-In-Reply-To: <lxbsn5lwl5.fsf@pixie.isr.ist.utl.pt>
-Organization: Studioorange
-X-Mailer: Sylpheed version 0.5.0pre2 (GTK+ 1.2.8; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	id <S266238AbRF3SO6>; Sat, 30 Jun 2001 14:14:58 -0400
+Received: from bureau6.utcc.utoronto.ca ([128.100.132.16]:39099 "EHLO
+	bureau6.utcc.utoronto.ca") by vger.kernel.org with ESMTP
+	id <S266237AbRF3SOs>; Sat, 30 Jun 2001 14:14:48 -0400
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: USB Keyboard errors with 2.4.5-ac
+Message-ID: <993924866.3b3e17024c1c3@webmail1.ns.utoronto.ca>
+Date: Sat, 30 Jun 2001 14:14:26 -0400 (EDT)
+From: hiufungeric.tse@utoronto.ca
+In-Reply-To: <3B3CBA86.355500A@inet.com> <20010630194835.A730@borg.pp.se>
+In-Reply-To: <20010630194835.A730@borg.pp.se>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30 Jun 2001 18:13:42 +0100
-Rodrigo Ventura <yoda@isr.ist.utl.pt> wrote:
+hei,
 
->         I got the following build error of aic7xxx drivers, with
-> kernel 2.4.6-pre8:
-> 
-> ----------------------------------------------------------------------
-> [...]
-> make[2]: Entering directory `/usr/src/linux/drivers/scsi'
-> make -C aic7xxx
-> make[3]: Entering directory `/usr/src/linux/drivers/scsi/aic7xxx'
-> make all_targets
-> make[4]: Entering directory `/usr/src/linux/drivers/scsi/aic7xxx'
-> make -C aicasm
-> make[5]: Entering directory `/usr/src/linux/drivers/scsi/aic7xxx/aicasm'
-> gcc -I/usr/include -I. -ldb aicasm_gram.c aicasm_scan.c aicasm.c aicasm_symbol.c -o aicasm
-> /usr/i486-linux/bin/ld: cannot open -ldb: No such file or directory
-> collect2: ld returned 1 exit status
-> make[5]: *** [aicasm] Error 1
-> [...]
-> ----------------------------------------------------------------------
+I got a compiler source and would like to port it to linux platform later, what 
+Linux specific directories/ methods I would need for this porting? Any 
+documemtation available?
 
-may be a 'make mrproper' solves your problem,
-
-bernfried molte
+thanks a lot
+eric

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286756AbSAXNE0>; Thu, 24 Jan 2002 08:04:26 -0500
+	id <S288019AbSAXORn>; Thu, 24 Jan 2002 09:17:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287626AbSAXNER>; Thu, 24 Jan 2002 08:04:17 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:41234 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S286756AbSAXND7>; Thu, 24 Jan 2002 08:03:59 -0500
-Message-Id: <200201241300.g0OD0AE10822@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Pavel Machek <pavel@suse.cz>, Alexander Viro <viro@math.psu.edu>
-Subject: Re: force umount [was Re: [STATUS 2.5]  January 18, 2002]
-Date: Thu, 24 Jan 2002 15:00:12 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Pavel Machek <pavel@suse.cz>, Jakob ?stergaard <jakob@unthought.net>,
-        Ville Herva <vherva@twilight.cs.hut.fi>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020123113122.GC965@elf.ucw.cz> <Pine.GSO.4.21.0201231751470.19120-100000@weyl.math.psu.edu> <20020124122919.GA2135@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020124122919.GA2135@atrey.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S288047AbSAXORd>; Thu, 24 Jan 2002 09:17:33 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:49800 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S288019AbSAXOR3>;
+	Thu, 24 Jan 2002 09:17:29 -0500
+Date: Thu, 24 Jan 2002 06:16:05 -0800 (PST)
+Message-Id: <20020124.061605.131916581.davem@redhat.com>
+To: jes@wildopensource.com
+Cc: adam@yggdrasil.com, linux-acenic@sunsite.dk, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.5.3-pre4/drivers/acenic.c: pci_unmap_addr_set not
+ defined for x86
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <15440.5902.755260.764642@trained-monkey.org>
+In-Reply-To: <15440.4044.565375.681853@trained-monkey.org>
+	<20020124.054626.15688749.davem@redhat.com>
+	<15440.5902.755260.764642@trained-monkey.org>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Can I kill the processes accessing busy
-> > > filesystems? [That was big point of force umount, I believe.]
-> >
-> > Huh?  If process is killable - it's killable.  What does it have to
-> > --force?
->
-> Following situation used to be common and "not a bug":
->
-> process a tries to read /nfs/foo, but nfs server dies.
->
-> kill -9 a does not kill a.
->
-> It used to be "not a bug" before. Can we declare it a bug after umount
-> /nfs --force?
+   From: Jes Sorensen <jes@wildopensource.com>
+   Date: Thu, 24 Jan 2002 09:15:42 -0500
+   
+   Considering a) it's just a few keystrokes to add a CC: line, b) it's the
+   driver authors who are the first to get the bug reports, then yes it
+   seems like a very reasonable request.
 
-After more than a year on lkml I still don't understand why it's not a bug.
-Anyway, I always mount NFS with hard,intr and my processes are killable...
---
-vda
+This list actually is the first place the reports typically
+go to.
+
+I'm a responsible maintainer, when I add a problem, I always go back
+and fix it or revert my changes.  I never disappear after making
+these kinds of changes.

@@ -1,106 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265153AbUAMUsv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 15:48:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265555AbUAMUsv
+	id S265563AbUAMUlu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 15:41:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265592AbUAMUlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 15:48:51 -0500
-Received: from colino.net ([62.212.100.143]:57340 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S265153AbUAMUrB (ORCPT
+	Tue, 13 Jan 2004 15:41:50 -0500
+Received: from [212.28.208.94] ([212.28.208.94]:55305 "HELO dewire.com")
+	by vger.kernel.org with SMTP id S265563AbUAMUls (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 15:47:01 -0500
-Date: Tue, 13 Jan 2004 21:46:13 +0100
-From: Colin Leroy <colin@colino.net>
-To: linux-kernel@vger.kernel.org
-Cc: linuxppc-dev@lists.linuxppc.org
-Subject: [PATCH] Re: cdc-acm problems
-Message-Id: <20040113214613.07998ff6.colin@colino.net>
-In-Reply-To: <20040113130529.03f5dbac.colin@colino.net>
-References: <20040113130529.03f5dbac.colin@colino.net>
-Organization: 
-X-Mailer: Sylpheed version 0.9.5claws (GTK+ 2.2.4; powerpc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Tue__13_Jan_2004_21_46_13_+0100_W1.8w7h12)fM?=.B"
+	Tue, 13 Jan 2004 15:41:48 -0500
+From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Autofs question (try 2)
+Date: Tue, 13 Jan 2004 21:41:45 +0100
+User-Agent: KMail/1.5.3
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401132141.45772.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hi,
 
---Multipart_Tue__13_Jan_2004_21_46_13_+0100_W1.8w7h12)fM?=.B
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+The first message was cut short, sorry
 
+I grabbed the auto.smb script for mounting samba/windows shares. One of the flaws is that I'd
+like to get around is that it must be configured as root and most importantly that I don't see who 
+is requesting the mount. I was thinking along the line of mounting shares in /cifs/$USER/servers/share
+or simply mounting the share for the first user using the mount point (essentially single user machines
+anyway).
 
-> I have problems with cdc-acm killing ohci. I tried to narrow down the problem, 
-> but didn't get far. 
-> Basically `killall -HUP pppd` gives (in dmesg):
-> 
-> drivers/usb/class/cdc-acm.c: acm_ctrl_irq - urb shutting down with status: -2
-> ohci_hcd 0001:01:1b.1: OHCI Unrecoverable Error, disabled
-> ohci_hcd 0001:01:1b.1: HC died; cleaning up
-> usb 4-1: USB disconnect, address 2
-> bus usb: remove device 4-1:1.0
-> bus usb: remove device 4-1:1.1
-> bus usb: remove device 4-1
+the auto.smb script is running as root and I printed some info in root.c at the revalidate
 
-After having looked some more hours, it looks like acm_tty_close() unlinks 
-urbs too soon or something like that... The attached patch fixes it for me 
-(I don't think it's really clean, but it may help ?)
+Jan 12 18:49:06 h6n2fls33o811 kernel: autofs4_root_revalidate, uid=505 name=10.1.1.4
+Jan 12 18:49:06 h6n2fls33o811 automount[22233]: attempting to mount entry /cifs/10.1.1.4
+Jan 12 18:49:06 h6n2fls33o811 kernel: autofs4_root_revalidate, uid=0 name=10.1.1.4
+Jan 12 18:49:06 h6n2fls33o811 logger: uid=0(root) gid=0(root) grupper=0(root)
+Jan 12 18:49:07 h6n2fls33o811 kernel: autofs4_root_revalidate, uid=0 name=10.1.1.4
+Jan 12 18:49:08 h6n2fls33o811 last message repeated 10 times
+and lots more from mounting with uid=0
 
--- 
-Colin
+Is there any simple way of passing the first uid to the automounter?
 
---Multipart_Tue__13_Jan_2004_21_46_13_+0100_W1.8w7h12)fM?=.B
-Content-Type: text/plain;
- name="cdc-acm.diff"
-Content-Disposition: attachment;
- filename="cdc-acm.diff"
-Content-Transfer-Encoding: 7bit
+-- robin
 
-Index: drivers/usb/class/cdc-acm.c
-===================================================================
-RCS file: /home/cvsroot/linuxppc/drivers/usb/class/cdc-acm.c,v
-retrieving revision 1.1.1.1
-diff -u -u -r1.1.1.1 cdc-acm.c
---- drivers/usb/class/cdc-acm.c	8 Jan 2004 11:25:51 -0000	1.1.1.1
-+++ drivers/usb/class/cdc-acm.c	13 Jan 2004 20:40:39 -0000
-@@ -157,6 +157,7 @@
- 	unsigned int minor;				/* acm minor number */
- 	unsigned char throttle;				/* throttled by tty layer */
- 	unsigned char clocal;				/* termios CLOCAL */
-+	unsigned int finish_remove;			/* finish removing */
- };
- 
- static struct usb_driver acm_driver;
-@@ -214,8 +215,16 @@
- 		goto exit;
- 	}
- 
--	if (!ACM_READY(acm))
-+	if (!ACM_READY(acm)) {
-+		if (acm->finish_remove) {
-+			dbg("unlinking urbs");
-+			usb_unlink_urb(acm->ctrlurb);
-+			usb_unlink_urb(acm->writeurb);
-+			usb_unlink_urb(acm->readurb);
-+			return;			
-+		}
- 		goto exit;
-+	}
- 
- 	switch (dr->bRequest) {
- 
-@@ -382,9 +391,7 @@
- 	if (!--acm->used) {
- 		if (acm->dev) {
- 			acm_set_control(acm, acm->ctrlout = 0);
--			usb_unlink_urb(acm->ctrlurb);
--			usb_unlink_urb(acm->writeurb);
--			usb_unlink_urb(acm->readurb);
-+			acm->finish_remove = 1;
- 		} else {
- 			tty_unregister_device(acm_tty_driver, acm->minor);
- 			acm_table[acm->minor] = NULL;
-
---Multipart_Tue__13_Jan_2004_21_46_13_+0100_W1.8w7h12)fM?=.B--

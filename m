@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262602AbTAEEMk>; Sat, 4 Jan 2003 23:12:40 -0500
+	id <S262580AbTAEEMc>; Sat, 4 Jan 2003 23:12:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262789AbTAEEMk>; Sat, 4 Jan 2003 23:12:40 -0500
-Received: from boo-mda02.boo.net ([216.200.67.22]:23559 "EHLO
-	boo-mda02.boo.net") by vger.kernel.org with ESMTP
-	id <S262602AbTAEEMi> convert rfc822-to-8bit; Sat, 4 Jan 2003 23:12:38 -0500
-Message-Id: <3.0.6.32.20030104233111.007ed3c0@boo.net>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Sat, 04 Jan 2003 23:31:11 -0500
-To: linux-mm@kvack.org
-From: Jason Papadopoulos <jasonp@boo.net>
-Subject: [PATCH] rewritten page coloring for 2.4.20 kernel
-Cc: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	id <S262602AbTAEEMc>; Sat, 4 Jan 2003 23:12:32 -0500
+Received: from mgr2.xmission.com ([198.60.22.202]:47082 "EHLO
+	mgr2.xmission.com") by vger.kernel.org with ESMTP
+	id <S262580AbTAEEMc>; Sat, 4 Jan 2003 23:12:32 -0500
+Message-ID: <3E17B253.8000700@xmission.com>
+Date: Sat, 04 Jan 2003 21:19:31 -0700
+From: Frank Jacobberger <f1j1@xmission.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021218
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: ehci-hcd.o still a problem kernels > 2.4.20?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm noticing the following in kernels > 2.4.20:
 
-Hello. After a year in stasis, I've completely rebuilt my kernel
-patch that implements page coloring. Improvements include:
+I'm getting an odd error when kernel boots that the ehci-hcd.o.gz can't 
+load..
 
-- Page coloring is now hardwired into the kernel. The hash
-  queues now use bootmem, and page coloring is always on. The
-  patch still creates /proc/page_color for statistics, but that
-  will go away in time.
+or if doing an insmod ehci-hcd I get:
 
-- Automatic detection of external cache size on many architectures.
-  I have no idea if any of this code works, since I don't have any
-  of the target machines. The preferred way to initialize the coloring
-  is by passing "page_color=<external cache size in kB>" as a boot 
-  argument.
+insmod ehci-hcd
+Using /lib/modules/2.4.20-2.5/kernel/drivers/usb/hcd/ehci-hcd.o.gz
+/lib/modules/2.4.20-2.5/kernel/drivers/usb/hcd/ehci-hcd.o.gz: 
+init_module: No such device
 
-- NUMA-safe, discontig-safe
+Dmesg and everything else points to it loading:
 
-Right now the actual page coloring algorithm is the same as in previous
-patches, and performs the same. In the next few weeks I'll be trying new
-ideas that will hopefully reduce fragmentation and increase performance.
-This is an early attempt to get some feedback on mistakes I may have made.
+hcd.c: ehci-hcd @ 00:1d.7, Intel Corp. 82801DB USB EHCI Controller
 
-lmbench shows no real gains or losses compared to an unpatched kernel; 
-some of the page fault and protection fault times are slightly slower, but
-it's close to the rounding error over five lmbench runs. 
+and:
 
-Here are all the performance results I have for the patch:
+Doing an lspci bears this out:
 
-1. Compile of 2.4.20 kernel with gcc 3.1.1 on 466MHz DS10 Alphaserver with
-   2MB cache: repeatable 1% speedup (573 sec vs. 579 sec)
+00:1d.7 USB Controller: Intel Corp. 82801DB USB EHCI Controller (rev 02)
 
-2. 1000x1000 matrix multiply: 10% speedup on Athlon II with 512kB cache
-   (Dieter Nützel)
+No idea why the kernel is balking at boot and not logging this to kernel 
+messages!
 
-3. Without page coloring, the alpha gets 80% of max theoretical bandwidth
-   for working sets at most 1/8 the size of its L2 cache. For larger working
-   sets than that the achieved bandwidth is only 30%-50% of max. With page
-   coloring, the 80% figure applies to the entire L2 cache.
+Any more ideas on a good fix for this?
 
-4. FFTW (alpha): 30% speedup for 64k-point FFTs, 20% speedup for 1M-point FFTs 
+Anyone interested can chime in on RH bugzilla #79210
 
-Patch is available at
+Thanks,
 
-www.boo.net/~jasonp/page_color-2.4.20-20030104.patch
+Frank
 
-Thanks in advance for any feedback.
-jasonp

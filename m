@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266587AbTGFB65 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 21:58:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266589AbTGFB65
+	id S266589AbTGFCOP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 22:14:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266592AbTGFCOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 21:58:57 -0400
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:50847 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S266587AbTGFB64 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 21:58:56 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Jamie Lokier <jamie@shareable.org>
-Subject: Re: 2.5.74-mm1
-Date: Sun, 6 Jul 2003 04:14:34 +0200
-User-Agent: KMail/1.5.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Sat, 5 Jul 2003 22:14:14 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:62868 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S266589AbTGFCOO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 22:14:14 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 5 Jul 2003 19:21:02 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Daniel Phillips <phillips@arcor.de>
+cc: Jamie Lokier <jamie@shareable.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        linux-mm@kvack.org
-References: <20030703023714.55d13934.akpm@osdl.org> <200307060010.26002.phillips@arcor.de> <20030706012857.GA29544@mail.jlokier.co.uk>
-In-Reply-To: <20030706012857.GA29544@mail.jlokier.co.uk>
+Subject: Re: 2.5.74-mm1
+In-Reply-To: <200307060414.34827.phillips@arcor.de>
+Message-ID: <Pine.LNX.4.55.0307051918310.4599@bigblue.dev.mcafeelabs.com>
+References: <20030703023714.55d13934.akpm@osdl.org> <200307060010.26002.phillips@arcor.de>
+ <20030706012857.GA29544@mail.jlokier.co.uk> <200307060414.34827.phillips@arcor.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307060414.34827.phillips@arcor.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 06 July 2003 03:28, Jamie Lokier wrote:
-> Daniel Phillips wrote:
-> > What are you going to do if you have one
-> > application you want to take priority, re-nice the other 50?
->
-> Is that effective?  It might be just the trick.
+On Sun, 6 Jul 2003, Daniel Phillips wrote:
 
-Point.
-
-> > > Something I've often thought would fix this is to allow normal users
-> > > to set negative priority which is limited to using X% of the CPU -
-> > > i.e. those tasks would have their priority raised if they spent more
-> > > than a small proportion of their time using the CPU.
+> On Sunday 06 July 2003 03:28, Jamie Lokier wrote:
 > >
-> > That's essentially SCHED_RR.  As I mentioned above, it's not clear
-> > to me why SCHED_RR requires superuser privilege, since the amount of
-> > CPU you can burn that way is bounded.  Well, the total of all
-> > SCHED_RR processes would need to be bounded as well, which is
-> > straightforward.
+> > Your last point is most important.  At the moment, a SCHED_RR process
+> > with a bug will basically lock up the machine, which is totally
+> > inappropriate for a user app.
 >
-> Your last point is most important.  At the moment, a SCHED_RR process
-> with a bug will basically lock up the machine, which is totally
-> inappropriate for a user app.
+> How does the lockup come about?  As defined, a single SCHED_RR process could
+> lock up only its own slice of CPU, as far as I can see.
 
-How does the lockup come about?  As defined, a single SCHED_RR process could 
-lock up only its own slice of CPU, as far as I can see.
+They're de-queued and re-queue in the active array w/out having dynamic
+priority adjustment (like POSIX states). This means that any task with
+lower priority will starve if the RR task will not release the CPU.
 
-Regards,
 
-Daniel
+
+- Davide
 

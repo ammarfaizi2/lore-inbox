@@ -1,73 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135239AbRECVRp>; Thu, 3 May 2001 17:17:45 -0400
+	id <S135240AbRECVYP>; Thu, 3 May 2001 17:24:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135240AbRECVRg>; Thu, 3 May 2001 17:17:36 -0400
-Received: from web4402.mail.yahoo.com ([216.115.105.32]:64273 "HELO
-	web4402.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S135239AbRECVRY>; Thu, 3 May 2001 17:17:24 -0400
-Message-ID: <20010503211723.28010.qmail@web4402.mail.yahoo.com>
-Date: Thu, 3 May 2001 14:17:23 -0700 (PDT)
-From: techorix <techorix@yahoo.com>
-Subject: Kernel-Error with my Chipset/HD-Combination using DMA
-To: linux-kernel@vger.kernel.org
-Cc: andre@linux-ide.org
+	id <S135249AbRECVYF>; Thu, 3 May 2001 17:24:05 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:46319 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S135245AbRECVXz>; Thu, 3 May 2001 17:23:55 -0400
+Date: Thu, 3 May 2001 22:24:42 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Ken Brownfield <brownfld@irridia.com>,
+        "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.4 Kernel - ASUS CUV4X-DLS Question
+In-Reply-To: <E14vPq2-0006B1-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0105032206260.3039-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-after changing from 2.2.17 - kernel (where no such
-issues were noticeable) to 2.2.19 (with 'enable
-dma-support' etc compiled into kernel) 
-Would be very nice if you could tell me if the error
-is related to my harddrive (hardware) or is maybe a
-kernel-bug and at which version it should be fixed.
-Regards,
-Michael
+On Thu, 3 May 2001, Alan Cox wrote on APIC problems in 2.4:
+> There are five cases I am seeing
+> 1.	Serverworks total APIC hose ups.
+> 	Fix: remove OSB4 or use -ac tree
+> 2.	440BX and similar boards losing interrupts on some drivers
+> 	Fix: use -ac
+> 3.	APIC errors notably checksum errors. 
+> 	Fix: buy properly manufactured hardware
+> 4.	Hangs on boot with the CUV4XD and a couple of other boards.
+> 	Still a mystery
+> 5.	Incorrect PCI IRQ routing
+> 	Fix: Mostly get a board with a correct BIOS. There are a couple of 
+> 	cases people are looking at - some are fixed in 2.4.4 and -ac
+> 	where magic IRQ lines are not visible directly in PCI space
 
-ps. here all relevant information i could gather/think
-of:
+Doesn't 2.4.1-ac1 onwards contain:
 
-Here's the error's output (get it at bootup):
+o	Workaround code for APIC problems with ne2k	(Maciej Rozycki)
+	| this will break original 82489DX devices for now
+	| ie _very_ early dual pentium boards
 
-hda: dma_intr: status=0x51 { DriveReady SeekComplete
-Error }
-hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+Got good reviews at the time, and I thought it was more general than
+ne2k.  I don't remember it going forward to Linus (but I've not looked).
 
-Well
-hdparm -d 1 -c 1 works (were disabled after bootup)
-BUT: error seems to be more often then
+Hugh
 
-lspci shows this:
-
-00:00.0 Host bridge: Acer Laboratories Inc. [ALi]
-M1541 (rev 04)
-00:01.0 PCI bridge: Acer Laboratories Inc. [ALi] M5243
-(rev 04)
-00:0f.0 IDE interface: Acer Laboratories Inc. [ALi]
-M5229 IDE (rev c1)
-
-hdparm -i this:
-/dev/hda:
-
- Model=ST330630A, FwRev=3.21, SerialNo=3CK0EYZM
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs
-RotSpdTol>.5% }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=0
- BuffType=unknown, BuffSize=2048kB, MaxMultSect=16,
-MultSect=off
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes,
-LBAsects=59777640
- IORDY=on/off, tPIO={min:240,w/IORDY:120},
-tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4 
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3
-udma4 
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Auctions - buy the things you want at great prices
-http://auctions.yahoo.com/

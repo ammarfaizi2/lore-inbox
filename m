@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268021AbUIBJE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267979AbUIBJFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268021AbUIBJE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 05:04:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268030AbUIBJE5
+	id S267979AbUIBJFb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 05:05:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268026AbUIBJFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 05:04:57 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:22733 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S268021AbUIBJEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 05:04:55 -0400
-Message-ID: <4136E23A.30902@namesys.com>
-Date: Thu, 02 Sep 2004 02:04:58 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+	Thu, 2 Sep 2004 05:05:31 -0400
+Received: from wasp.net.au ([203.190.192.17]:51668 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S267979AbUIBJFU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 05:05:20 -0400
+Message-ID: <4136E277.6000408@wasp.net.au>
+Date: Thu, 02 Sep 2004 13:05:59 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 0.7+ (X11/20040730)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives
-References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <20040902002431.GN31934@mail.shareable.org> <413694E6.7010606@slaphack.com> <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org> <4136A14E.9010303@slaphack.com> <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org> <4136C876.5010806@namesys.com> <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Greg Stark <gsstark@mit.edu>
+CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Crashed Drive, libata wedges when trying to recover data
+References: <87oekpvzot.fsf@stark.xeocode.com>
+In-Reply-To: <87oekpvzot.fsf@stark.xeocode.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Greg Stark wrote:
 
->
->But _my_ point is, no user program is going to take _advantage_ of
->anything that only one filesystem on one system offers.
->
->So there's no point.
->
->I
->
-Filesystem diversity will only be crippling for Linux if you choose for 
-it to be so.
+> Any clue what I need to do to achieve this? Is this a bug because this isn't a
+> well-travelled code-path? (Dead drives not being something you can conjure up
+> on demand)? Or is this indicative of more problems than just a crashed drive?
+> 
+> This is on a stock 2.6.6 kernel tree, btw.
+> 
+
+Known issue, fixed in 2.6.9-rc1. Apply this to 2.6.6 and your good to go.
+
+Regards,
+Brad
+
+brad@srv:/usr/src$ diff -u temp/linux-2.6.8.1/drivers/scsi/libata-scsi.c 
+linux-2.6.8.1/drivers/scsi/libata-scsi.c
+--- temp/linux-2.6.8.1/drivers/scsi/libata-scsi.c       2004-08-14 14:55:19.000000000 +0400
++++ linux-2.6.8.1/drivers/scsi/libata-scsi.c    2004-08-18 01:04:11.000000000 +0400
+@@ -213,6 +213,7 @@
+
+         ap = (struct ata_port *) &host->hostdata[0];
+         ap->ops->eng_timeout(ap);
++       host->host_failed--;
+
+         DPRINTK("EXIT\n");
+         return 0;
+
+T

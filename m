@@ -1,88 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317911AbSFSPfz>; Wed, 19 Jun 2002 11:35:55 -0400
+	id <S317910AbSFSPlM>; Wed, 19 Jun 2002 11:41:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317912AbSFSPfy>; Wed, 19 Jun 2002 11:35:54 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:53069 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S317911AbSFSPfx>; Wed, 19 Jun 2002 11:35:53 -0400
-Date: Wed, 19 Jun 2002 11:35:43 -0400
-From: Doug Ledford <dledford@redhat.com>
-To: Nick Papadonis <nick@coelacanth.com>
-Cc: linux-kernel@vger.kernel.org, gibbs@scsiguy.com
-Subject: Re: AIC7XXX + v2.4.18 problems?
-Message-ID: <20020619113543.A8854@redhat.com>
-Mail-Followup-To: Nick Papadonis <nick@coelacanth.com>,
-	linux-kernel@vger.kernel.org, gibbs@scsiguy.com
-References: <m3k7ov2tly.fsf@noop.bombay>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <m3k7ov2tly.fsf@noop.bombay>; from nick@coelacanth.com on Wed, Jun 19, 2002 at 11:09:13AM -0400
+	id <S317912AbSFSPlL>; Wed, 19 Jun 2002 11:41:11 -0400
+Received: from mm02snlnto.sandia.gov ([132.175.109.21]:14352 "HELO
+	mm02snlnto.sandia.gov") by vger.kernel.org with SMTP
+	id <S317910AbSFSPlL>; Wed, 19 Jun 2002 11:41:11 -0400
+X-Server-Uuid: 95b8ca9b-fe4b-44f7-8977-a6cb2d3025ff
+Message-ID: <03781128C7B74B4DBC27C55859C9D73809840643@es06snlnt>
+From: "Shipman, Jeffrey E" <jeshipm@sandia.gov>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: GPL module question
+Date: Wed, 19 Jun 2002 09:41:10 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-Filter-Version: 1.8 (sass2426)
+X-WSS-ID: 110E7A1D3350099-01-01
+Content-Type: text/plain; 
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 19, 2002 at 11:09:13AM -0400, Nick Papadonis wrote:
-> Is anyone else having problems with the AIC7XXX driver using a AHA-29160
-> controller?  I believe my kernel is going into a unrecoverable spin-lock 
-> when there is high SCSI load.  I'm assuming this because the keyboard 
-> lights still function and network still replies to pings.
+I hope this is not off-topic. If it is, please point
+me in the right direction.
 
-A spinlock deadlock causes the machine to be *totally* unresponsive (aka, 
-no keyboard led changes and no pings) (at least, this is true of the scsi 
-subsystem spinlocks).
+I'm currently writing a Linux Kernel module. Does
+this have to be under the GPL because it uses kernel
+routines? I really don't know of a way around
+using kernel routines because that's whatcha gotta
+do inside the kernel. :)
 
-> In addition the 'st' driver returns with unrecoverable errors when 
-> trying to tar to tape.  This usually occurs after a few hundred 
-> megabytes have been pushed through a device.
+Hopefully this won't be an issue (it's not classified
+material or anything). I'm still waiting for my
+manager to get back to me on it.
 
-Hmmm...the tape drive isn't listed in your output below.
+Jeff Shipman - CCD
+Sandia National Laboratories
+(505) 844-1158 / MS-1372
 
-> My setup is :
->    - AHA-29160N controller
->    - Internal 50 PIN / SCSI-2 port in use
->    - See below for connected drives
-
-It appears that you have the two hard drives connected to this 50 pin 
-port.  That's not good.  The drives should be connected to the LVD port 
-via a good LVD cable with LVD terminator, the CD-ROM should be on the 50 
-pin port, and the tape (which I'm assuming is external and not a new LVD 
-tape drive but an older narrow tape drive using a 50 pin connecter) should 
-either be on the same cable as the CD-ROM (via an internal/external cable 
-adapter) or on the 50pin port on the back of the card (but only if the 
-port on the back of the card is not an LVD capable port, but is instead a 
-SE port wired together with the internal 50 pin port).  Hooking them up 
-the way you have them is asking for trouble because your high end disks 
-are being forced to operate in a very degraded performance state.
-
-> Channel A Target 0 Negotiation Settings
->         User: 40.000MB/s transfers (40.000MHz DT, offset 255)
->         Goal: 20.000MB/s transfers (20.000MHz, offset 31)
->         Curr: 20.000MB/s transfers (20.000MHz, offset 31)
-
-See, disk 1 is being forced all the way fown to narrow, ultra speeds.
-
-> Channel A Target 2 Negotiation Settings
->         User: 160.000MB/s transfers (80.000MHz DT, offset 255, 16bit)
->         Goal: 20.000MB/s transfers (20.000MHz, offset 15)
->         Curr: 20.000MB/s transfers (20.000MHz, offset 15)
-
-Same here, narrow ultra speeds.  Both of these disks should likely be 
-running in wide ultra2 speeds or better (this second one might not do 
-ultra2, I couldn't tell by the model number, but I suspect it does).
-
-> Channel A Target 3 Negotiation Settings
->         User: 160.000MB/s transfers (80.000MHz DT, offset 255, 16bit)
->         Goal: 40.000MB/s transfers (40.000MHz, offset 127)
->         Curr: 3.300MB/s transfers
-
-Async transfers (the cd-rom).  This should *not* be on the same cable as 
-the disks.
-
--- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  

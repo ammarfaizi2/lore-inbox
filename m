@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267986AbTAHXyr>; Wed, 8 Jan 2003 18:54:47 -0500
+	id <S267995AbTAHX56>; Wed, 8 Jan 2003 18:57:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267992AbTAHXyq>; Wed, 8 Jan 2003 18:54:46 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36875 "EHLO
+	id <S267996AbTAHX56>; Wed, 8 Jan 2003 18:57:58 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55563 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267986AbTAHXyq>; Wed, 8 Jan 2003 18:54:46 -0500
-Date: Wed, 8 Jan 2003 16:02:24 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: levon@movementarian.org, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] /proc/sys/kernel/pointer_size
-In-Reply-To: <20030108.150303.130044451.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0301081601300.1096-100000@penguin.transmeta.com>
+	id <S267995AbTAHX55>; Wed, 8 Jan 2003 18:57:57 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Killing off the boot sector (was: [STATUS 2.5]  January 8, 2002)
+Date: 8 Jan 2003 16:06:27 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <aviee3$2gs$1@cesium.transmeta.com>
+References: <avi06f$89g$1@cesium.transmeta.com> <200301082123.h08LNXSY003383@darkstar.example.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <200301082123.h08LNXSY003383@darkstar.example.net>
+By author:    John Bradford <john@grabjohn.com>
+In newsgroup: linux.dev.kernel
+> 
+> Shouldn't that part stay, incase somebody boots a machine from a
+> floppy, and leaves it running for hours?
+> 
 
-On Wed, 8 Jan 2003, David S. Miller wrote:
->    
-> oprofile can perfectly legitimately be used to monitor 32-bit binaries
-> running on under a 64-bit kernel environment.  In fact I expect such
-> exercises to be very instructive.  Anton Blanchard has done this
-> already on ppc64.
+No; interrupts are enabled so the BIOS will time out the floppy and
+turn off the motor if necessary.  The only reason Linux (sort of)
+needs that code is because the kernel takes control away from the
+BIOS.  I say "sort of" because it really only matters if the kernel
+doesn't have a floppy driver.
 
-That's not the _point_.
-
-Oprofile is a system binary, and as such you might as well use a 64-bit 
-oprofile.
-
-Of y ou can use am /etc/systype file that contains information.
-
-BUT WE DON'T ADD CRAP TO THE KERNEL!
-
-That's final.
-
-		Linus
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272514AbRH3WEr>; Thu, 30 Aug 2001 18:04:47 -0400
+	id <S272516AbRH3WG1>; Thu, 30 Aug 2001 18:06:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272518AbRH3WEh>; Thu, 30 Aug 2001 18:04:37 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:27380
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S272514AbRH3WEc>; Thu, 30 Aug 2001 18:04:32 -0400
-Date: Thu, 30 Aug 2001 15:04:44 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Reiserfs: how to mount without journal replay?
-Message-ID: <20010830150444.C1451@mikef-linux.matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010826130858.A39@toy.ucw.cz> <15246.11218.125243.775849@gargle.gargle.HOWL> <20010830225323.A18630@atrey.karlin.mff.cuni.cz> <3B8EAD35.5695B30B@namesys.com> <20010830235005.B9330@bug.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010830235005.B9330@bug.ucw.cz>
-User-Agent: Mutt/1.3.20i
+	id <S272519AbRH3WGR>; Thu, 30 Aug 2001 18:06:17 -0400
+Received: from oboe.it.uc3m.es ([163.117.139.101]:27914 "EHLO oboe.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S272516AbRH3WGF>;
+	Thu, 30 Aug 2001 18:06:05 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200108302206.f7UM6MG26122@oboe.it.uc3m.es>
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <20010830224927.A16981@itsolve.co.uk> from "Mark Zealey" at "Aug
+ 30, 2001 10:49:27 pm"
+To: "Mark Zealey" <mark@itsolve.co.uk>
+Date: Fri, 31 Aug 2001 00:06:22 +0200 (MET DST)
+CC: linux-kernel@vger.kernel.org
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 30, 2001 at 11:50:05PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > > Then suse's  use of reiserfs is pretty b0rken. Putting reiserfsck on /
-> > > partition is pretty useless -- if it crashes during mount you can't
-> > > repair it.
+"Mark Zealey wrote:"
+> On Thu, Aug 30, 2001 at 11:32:55PM +0200, Peter T. Breuer wrote:
+> >     unsafe_min_or_max_at_line_##__LINE__()
 > > 
-> > Every filesystem has this problem, if the root directory gets hosed you have to
-> > use the CDROM.
-> > Booting from CDROM with SuSE is not such a problem.
-> 
-> ext2 is willing to mount ro even with known inconsistencies. SuSE 7.1
-> does not come with 'live filesystem' and install cd does not have
-> reiserfsck on it. Too bad. You have to install somewhere to be able to
-> run reiserfsck on suse7.1.
+> umm, no, the ## is removed and you are left with:
+> undefined reference to `unsafe_min_or_max_at_line___LINE__'
 
-Hmm.  Is there any chance of *not* replaying the log on mount-ro, and using
-a combination of on disk meta-data, and journal?
+Not sure about that ... I'm willing to believe you, but even so surely
+it would be possible to get round with the usual kind of cpp fiddle?
+Something like
+
+    #define LINE(x,y) x##y
+    ...
+    LINE(unsafe_min_or_max_at_line_,__LINE__)()
+
+> The best I can think of would be something like:
+> asm(".unsafe_use_of_min_or_max_in_" __FUNCTION__)
+> 
+> which would not give you the line number, as the line number is only avalable in
+
+  #define stringify(x) #x
+  asm(".unsafe_use_of_min_or_max_at_line_" stringify(__LINE__))
+
+> integer form, I doubt you will be able to get that very well. The assembler will
+
+Peter

@@ -1,17 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262772AbTCRWO3>; Tue, 18 Mar 2003 17:14:29 -0500
+	id <S262592AbTCRWQM>; Tue, 18 Mar 2003 17:16:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262837AbTCRWO2>; Tue, 18 Mar 2003 17:14:28 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:3588 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262772AbTCRWMB>;
-	Tue, 18 Mar 2003 17:12:01 -0500
-Date: Sat, 15 Mar 2003 23:12:14 +0100
+	id <S262591AbTCRWQM>; Tue, 18 Mar 2003 17:16:12 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:2052 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262736AbTCRWMN>;
+	Tue, 18 Mar 2003 17:12:13 -0500
+Date: Tue, 18 Mar 2003 21:25:24 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>,
-       alan@redhat.com
-Subject: sys32_ioctl: kill code duplication
-Message-ID: <20030315221214.GA2102@elf.ucw.cz>
+To: sfr@canb.auug.org.au, kernel list <linux-kernel@vger.kernel.org>
+Subject: sys32_ioctl -> compact_sys_ioctl patches
+Message-ID: <20030318202524.GA132@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,18 +21,20 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-This kills code duplication in sys32_ioctl. It should work on x86-64
-and sparc64; other architecture maintainers said that "anything that
-moves code out of arch/*/kernel/ioctl32.c is welcome" or similar.
+I tried posting ioctl32 patches to Linus several times, and got
+nothing back.
 
-Linus, what is required to make it go in?
+Patches were tested at x86-64 and sparc64, and general attitude seems
+to be "anything that gets code out of ioctl32.c is welcome".
 
-Alan, would you be willing to let this be merged through you?
+Do you think you could try to push them through?
 
 								Pavel
 
---- clean/arch/ia64/ia32/ia32_entry.S	2003-02-11 17:40:34.000000000 +0100
-+++ linux/arch/ia64/ia32/ia32_entry.S	2003-03-06 22:12:04.000000000 +0100
+%patch
+Index: linux-quilt/arch/ia64/ia32/ia32_entry.S
+--- .pc/ioc/arch/ia64/ia32/ia32_entry.S	2003-03-18 18:34:08.000000000 +0100
++++ arch/ia64/ia32/ia32_entry.S	2003-03-18 17:22:21.000000000 +0100
 @@ -252,7 +252,7 @@
  	data8 sys_acct
  	data8 sys_umount	  /* recycled never used phys( */
@@ -43,9 +44,10 @@ Alan, would you be willing to let this be merged through you?
  	data8 sys32_fcntl	  /* 55 */
  	data8 sys32_ni_syscall	  /* old mpx syscall holder */
  	data8 sys_setpgid
---- clean/arch/ia64/ia32/ia32_ioctl.c	2003-02-11 17:40:34.000000000 +0100
-+++ linux/arch/ia64/ia32/ia32_ioctl.c	2003-03-06 22:12:04.000000000 +0100
-@@ -295,221 +295,3 @@
+Index: linux-quilt/arch/ia64/ia32/ia32_ioctl.c
+--- .pc/ioc/arch/ia64/ia32/ia32_ioctl.c	2003-03-18 18:34:08.000000000 +0100
++++ arch/ia64/ia32/ia32_ioctl.c	2003-03-18 17:22:21.000000000 +0100
+@@ -293,221 +293,3 @@
  	}
  	return err;
  }
@@ -267,8 +269,9 @@ Alan, would you be willing to let this be merged through you?
 -	printk(KERN_ERR "%x:unimplemented IA32 ioctl system call\n", cmd);
 -	return -EINVAL;
 -}
---- clean/arch/mips64/kernel/ioctl32.c	2003-01-17 23:12:19.000000000 +0100
-+++ linux/arch/mips64/kernel/ioctl32.c	2003-03-06 22:12:04.000000000 +0100
+Index: linux-quilt/arch/mips64/kernel/ioctl32.c
+--- .pc/ioc/arch/mips64/kernel/ioctl32.c	2003-03-18 18:34:09.000000000 +0100
++++ arch/mips64/kernel/ioctl32.c	2003-03-16 18:51:04.000000000 +0100
 @@ -822,70 +822,3 @@
  
  #define NR_IOCTL32_HANDLERS	(sizeof(ioctl32_handler_table) /	\
@@ -340,8 +343,9 @@ Alan, would you be willing to let this be merged through you?
 -}
 -
 -__initcall(init_ioctl32);
---- clean/arch/mips64/kernel/scall_o32.S	2002-12-18 22:20:52.000000000 +0100
-+++ linux/arch/mips64/kernel/scall_o32.S	2003-03-06 22:12:04.000000000 +0100
+Index: linux-quilt/arch/mips64/kernel/scall_o32.S
+--- .pc/ioc/arch/mips64/kernel/scall_o32.S	2003-03-18 18:34:09.000000000 +0100
++++ arch/mips64/kernel/scall_o32.S	2003-03-18 17:22:23.000000000 +0100
 @@ -287,7 +287,7 @@
  	sys	sys_acct	0
  	sys	sys_umount	2
@@ -351,8 +355,9 @@ Alan, would you be willing to let this be merged through you?
  	sys	sys32_fcntl	3			/* 4055 */
  	sys	sys_ni_syscall	2
  	sys	sys_setpgid	2
---- clean/arch/parisc/kernel/ioctl32.c	2003-02-24 22:33:42.000000000 +0100
-+++ linux/arch/parisc/kernel/ioctl32.c	2003-03-06 22:12:04.000000000 +0100
+Index: linux-quilt/arch/parisc/kernel/ioctl32.c
+--- .pc/ioc/arch/parisc/kernel/ioctl32.c	2003-03-18 18:34:09.000000000 +0100
++++ arch/parisc/kernel/ioctl32.c	2003-03-16 18:51:04.000000000 +0100
 @@ -3697,146 +3697,3 @@
  COMPATIBLE_IOCTL(PA_PERF_OFF)
  COMPATIBLE_IOCTL(PA_PERF_VERSION)
@@ -500,8 +505,22 @@ Alan, would you be willing to let this be merged through you?
 -out2:
 -	return error;
 -}
---- clean/arch/ppc64/kernel/ioctl32.c	2003-03-06 23:25:19.000000000 +0100
-+++ linux/arch/ppc64/kernel/ioctl32.c	2003-03-06 23:27:35.000000000 +0100
+Index: linux-quilt/arch/parisc/kernel/syscall.S
+--- .pc/ioc/arch/parisc/kernel/syscall.S	2003-03-18 18:34:09.000000000 +0100
++++ arch/parisc/kernel/syscall.S	2003-03-18 17:26:18.000000000 +0100
+@@ -407,8 +407,7 @@
+ 	ENTRY_SAME(umount)
+ 	/* struct sockaddr... */
+ 	ENTRY_SAME(getpeername)
+-	/* This one's a huge ugly mess */
+-	ENTRY_DIFF(ioctl)
++	ENTRY_COMP(ioctl)
+ 	ENTRY_COMP(fcntl)		/* 55 */
+ 	ENTRY_SAME(socketpair)
+ 	ENTRY_SAME(setpgid)
+Index: linux-quilt/arch/ppc64/kernel/ioctl32.c
+--- .pc/ioc/arch/ppc64/kernel/ioctl32.c	2003-03-18 18:34:09.000000000 +0100
++++ arch/ppc64/kernel/ioctl32.c	2003-03-16 18:51:04.000000000 +0100
 @@ -4474,129 +4474,3 @@
  HANDLE_IOCTL(BLKBSZSET_32, do_blkbszset),
  HANDLE_IOCTL(BLKGETSIZE64_32, do_blkgetsize64),
@@ -632,19 +651,23 @@ Alan, would you be willing to let this be merged through you?
 -out2:
 -	return error;
 -}
---- clean/arch/ppc64/kernel/misc.S	2003-02-24 22:33:44.000000000 +0100
-+++ linux/arch/ppc64/kernel/misc.S	2003-03-06 22:12:04.000000000 +0100
-@@ -556,7 +556,7 @@
+Index: linux-quilt/arch/ppc64/kernel/misc.S
+--- .pc/ioc/arch/ppc64/kernel/misc.S	2003-03-18 18:34:09.000000000 +0100
++++ arch/ppc64/kernel/misc.S	2003-03-18 17:26:33.000000000 +0100
+@@ -556,8 +556,8 @@
  	.llong .sys_acct
  	.llong .sys32_umount
  	.llong .sys_ni_syscall		/* old lock syscall */
 -	.llong .sys32_ioctl
+-	.llong .compat_sys_fcntl	/* 55 */
 +	.llong .compat_sys_ioctl
- 	.llong .sys32_fcntl		/* 55 */
++	.llong .compat_sys_fcntl		/* 55 */
  	.llong .sys_ni_syscall		/* old mpx syscall */
  	.llong .sys32_setpgid
---- clean/arch/s390x/kernel/ioctl32.c	2003-01-17 23:12:20.000000000 +0100
-+++ linux/arch/s390x/kernel/ioctl32.c	2003-03-06 22:12:04.000000000 +0100
+ 	.llong .sys_ni_syscall		/* old ulimit syscall */
+Index: linux-quilt/arch/s390x/kernel/ioctl32.c
+--- .pc/ioc/arch/s390x/kernel/ioctl32.c	2003-03-18 18:34:09.000000000 +0100
++++ arch/s390x/kernel/ioctl32.c	2003-03-16 18:51:04.000000000 +0100
 @@ -971,113 +971,3 @@
  
  #define NR_IOCTL32_HANDLERS	(sizeof(ioctl32_handler_table) /	\
@@ -759,8 +782,9 @@ Alan, would you be willing to let this be merged through you?
 -}
 -
 -__initcall(init_ioctl32);
---- clean/arch/s390x/kernel/wrapper32.S	2003-02-24 22:33:45.000000000 +0100
-+++ linux/arch/s390x/kernel/wrapper32.S	2003-03-06 22:12:04.000000000 +0100
+Index: linux-quilt/arch/s390x/kernel/wrapper32.S
+--- .pc/ioc/arch/s390x/kernel/wrapper32.S	2003-03-18 18:34:09.000000000 +0100
++++ arch/s390x/kernel/wrapper32.S	2003-03-18 17:22:24.000000000 +0100
 @@ -225,7 +225,7 @@
  	llgfr	%r2,%r2			# unsigned int
  	llgfr	%r3,%r3			# unsigned int
@@ -768,10 +792,11 @@ Alan, would you be willing to let this be merged through you?
 -	jg	sys32_ioctl		# branch to system call
 +	jg	compat_sys_ioctl		# branch to system call
  
- 	.globl  sys32_fcntl_wrapper 
- sys32_fcntl_wrapper:
---- clean/arch/sparc64/kernel/ioctl32.c	2003-03-06 23:25:20.000000000 +0100
-+++ linux/arch/sparc64/kernel/ioctl32.c	2003-03-06 23:27:36.000000000 +0100
+ 	.globl  compat_sys_fcntl_wrapper 
+ compat_sys_fcntl_wrapper:
+Index: linux-quilt/arch/sparc64/kernel/ioctl32.c
+--- .pc/ioc/arch/sparc64/kernel/ioctl32.c	2003-03-18 18:34:09.000000000 +0100
++++ arch/sparc64/kernel/ioctl32.c	2003-03-18 17:22:25.000000000 +0100
 @@ -11,6 +11,7 @@
  #include <linux/config.h>
  #include <linux/types.h>
@@ -780,7 +805,7 @@ Alan, would you be willing to let this be merged through you?
  #include <linux/kernel.h>
  #include <linux/sched.h>
  #include <linux/smp.h>
-@@ -678,7 +679,7 @@
+@@ -679,7 +680,7 @@
  	return (void *) (usp - len);
  }
  
@@ -789,7 +814,7 @@ Alan, would you be willing to let this be merged through you?
  {
  	struct ifreq *u_ifreq64;
  	struct ifreq32 *u_ifreq32 = (struct ifreq32 *) arg;
-@@ -4274,16 +4275,14 @@
+@@ -4275,16 +4276,14 @@
  #define BNEPGETCONNLIST	_IOR('B', 210, int)
  #define BNEPGETCONNINFO	_IOR('B', 211, int)
  
@@ -813,7 +838,7 @@ Alan, would you be willing to let this be merged through you?
  
  IOCTL_TABLE_START
  /* List here exlicitly which ioctl's are known to have
-@@ -5218,134 +5217,3 @@
+@@ -5220,134 +5219,3 @@
  HANDLE_IOCTL(BLKBSZSET_32, do_blkbszset)
  HANDLE_IOCTL(BLKGETSIZE64_32, do_blkgetsize64)
  IOCTL_TABLE_END
@@ -948,9 +973,10 @@ Alan, would you be willing to let this be merged through you?
 -out2:
 -	return error;
 -}
---- clean/arch/sparc64/kernel/sparc64_ksyms.c	2003-03-06 23:25:20.000000000 +0100
-+++ linux/arch/sparc64/kernel/sparc64_ksyms.c	2003-03-06 23:27:36.000000000 +0100
-@@ -89,7 +89,7 @@
+Index: linux-quilt/arch/sparc64/kernel/sparc64_ksyms.c
+--- .pc/ioc/arch/sparc64/kernel/sparc64_ksyms.c	2003-03-18 18:34:09.000000000 +0100
++++ arch/sparc64/kernel/sparc64_ksyms.c	2003-03-18 17:22:25.000000000 +0100
+@@ -90,7 +90,7 @@
  extern int svr4_getcontext(svr4_ucontext_t *uc, struct pt_regs *regs);
  extern int svr4_setcontext(svr4_ucontext_t *uc, struct pt_regs *regs);
  extern int sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg);
@@ -959,7 +985,7 @@ Alan, would you be willing to let this be merged through you?
  extern int (*handle_mathemu)(struct pt_regs *, struct fpustate *);
  extern long sparc32_open(const char * filename, int flags, int mode);
  extern int register_ioctl32_conversion(unsigned int cmd, int (*handler)(unsigned int, unsigned int, unsigned long, struct file *));
-@@ -318,7 +318,7 @@
+@@ -325,7 +325,7 @@
  EXPORT_SYMBOL(svr4_setcontext);
  EXPORT_SYMBOL(prom_cpu_nodes);
  EXPORT_SYMBOL(sys_ioctl);
@@ -968,8 +994,9 @@ Alan, would you be willing to let this be merged through you?
  EXPORT_SYMBOL(sparc32_open);
  #endif
  
---- clean/arch/sparc64/kernel/sunos_ioctl32.c	2003-02-24 22:33:46.000000000 +0100
-+++ linux/arch/sparc64/kernel/sunos_ioctl32.c	2003-03-06 22:12:04.000000000 +0100
+Index: linux-quilt/arch/sparc64/kernel/sunos_ioctl32.c
+--- .pc/ioc/arch/sparc64/kernel/sunos_ioctl32.c	2003-03-18 18:34:09.000000000 +0100
++++ arch/sparc64/kernel/sunos_ioctl32.c	2003-03-16 18:51:04.000000000 +0100
 @@ -92,7 +92,7 @@
  
  extern asmlinkage int sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg);
@@ -1112,8 +1139,9 @@ Alan, would you be willing to let this be merged through you?
  	/* so stupid... */
  	ret = (ret == -EINVAL ? -EOPNOTSUPP : ret);
  out:
---- clean/arch/sparc64/kernel/systbls.S	2003-02-24 22:33:46.000000000 +0100
-+++ linux/arch/sparc64/kernel/systbls.S	2003-03-06 22:12:04.000000000 +0100
+Index: linux-quilt/arch/sparc64/kernel/systbls.S
+--- .pc/ioc/arch/sparc64/kernel/systbls.S	2003-03-18 18:34:09.000000000 +0100
++++ arch/sparc64/kernel/systbls.S	2003-03-18 17:22:25.000000000 +0100
 @@ -29,7 +29,7 @@
  	.word sys_chown, sys_sync, sys_kill, compat_sys_newstat, sys32_sendfile
  /*40*/	.word compat_sys_newlstat, sys_dup, sys_pipe, compat_sys_times, sys_getuid
@@ -1123,8 +1151,9 @@ Alan, would you be willing to let this be merged through you?
  	.word sys_reboot, sys32_mmap2, sys_symlink, sys_readlink, sys32_execve
  /*60*/	.word sys_umask, sys_chroot, compat_sys_newfstat, sys_fstat64, sys_getpagesize
  	.word sys_msync, sys_vfork, sys32_pread64, sys32_pwrite64, sys_geteuid
---- clean/arch/sparc64/solaris/ioctl.c	2002-12-11 23:33:58.000000000 +0100
-+++ linux/arch/sparc64/solaris/ioctl.c	2003-03-06 22:12:04.000000000 +0100
+Index: linux-quilt/arch/sparc64/solaris/ioctl.c
+--- .pc/ioc/arch/sparc64/solaris/ioctl.c	2003-03-18 18:34:10.000000000 +0100
++++ arch/sparc64/solaris/ioctl.c	2003-03-16 18:51:04.000000000 +0100
 @@ -23,6 +23,7 @@
  #include <linux/netdevice.h>
  #include <linux/mtio.h>
@@ -1220,8 +1249,9 @@ Alan, would you be willing to let this be merged through you?
  	case 52: /* SIOCGETNAME */
  	case 53: /* SIOCGETPEER */
  		{
---- clean/arch/sparc64/solaris/timod.c	2002-11-19 16:46:00.000000000 +0100
-+++ linux/arch/sparc64/solaris/timod.c	2003-03-06 22:12:04.000000000 +0100
+Index: linux-quilt/arch/sparc64/solaris/timod.c
+--- .pc/ioc/arch/sparc64/solaris/timod.c	2003-03-18 18:34:10.000000000 +0100
++++ arch/sparc64/solaris/timod.c	2003-03-16 18:51:04.000000000 +0100
 @@ -29,8 +29,6 @@
  
  extern asmlinkage int sys_ioctl(unsigned int fd, unsigned int cmd, 
@@ -1231,8 +1261,9 @@ Alan, would you be willing to let this be merged through you?
  asmlinkage int solaris_ioctl(unsigned int fd, unsigned int cmd, u32 arg);
  
  static spinlock_t timod_pagelock = SPIN_LOCK_UNLOCKED;
---- clean/arch/x86_64/ia32/ia32_ioctl.c	2003-03-06 23:25:21.000000000 +0100
-+++ linux/arch/x86_64/ia32/ia32_ioctl.c	2003-03-06 23:27:37.000000000 +0100
+Index: linux-quilt/arch/x86_64/ia32/ia32_ioctl.c
+--- .pc/ioc/arch/x86_64/ia32/ia32_ioctl.c	2003-03-18 18:34:10.000000000 +0100
++++ arch/x86_64/ia32/ia32_ioctl.c	2003-03-16 18:51:04.000000000 +0100
 @@ -680,7 +680,7 @@
  	return (void *)regs->rsp - len; 
  }
@@ -1481,19 +1512,21 @@ Alan, would you be willing to let this be merged through you?
 -	return error;
 -}
 -
---- clean/arch/x86_64/ia32/ia32entry.S	2003-02-18 12:24:31.000000000 +0100
-+++ linux/arch/x86_64/ia32/ia32entry.S	2003-03-06 22:12:04.000000000 +0100
+Index: linux-quilt/arch/x86_64/ia32/ia32entry.S
+--- .pc/ioc/arch/x86_64/ia32/ia32entry.S	2003-03-18 18:34:10.000000000 +0100
++++ arch/x86_64/ia32/ia32entry.S	2003-03-18 17:27:43.000000000 +0100
 @@ -254,7 +254,7 @@
  	.quad sys_acct
  	.quad sys_umount			/* new_umount */
  	.quad ni_syscall			/* old lock syscall holder */
 -	.quad sys32_ioctl
 +	.quad compat_sys_ioctl
- 	.quad sys32_fcntl64		/* 55 */
+ 	.quad compat_sys_fcntl64		/* 55 */
  	.quad ni_syscall			/* old mpx syscall holder */
  	.quad sys_setpgid
---- clean/fs/compat.c	2003-01-17 23:10:00.000000000 +0100
-+++ linux/fs/compat.c	2003-03-09 22:39:06.000000000 +0100
+Index: linux-quilt/fs/compat.c
+--- .pc/ioc/fs/compat.c	2003-03-18 18:34:10.000000000 +0100
++++ fs/compat.c	2003-03-18 17:22:47.000000000 +0100
 @@ -4,7 +4,11 @@
   *  Kernel compatibililty routines for e.g. 32 bit syscall support
   *  on 64 bit kernels.
@@ -1520,11 +1553,10 @@ Alan, would you be willing to let this be merged through you?
  
  #include <asm/uaccess.h>
  
-@@ -159,3 +169,214 @@
- out:
+@@ -130,6 +140,217 @@
  	return error;
  }
-+
+ 
 +
 +/* ioctl32 stuff, used by sparc64, parisc, s390x, ppc64, x86_64 */
 +
@@ -1735,8 +1767,13 @@ Alan, would you be willing to let this be merged through you?
 +out2:
 +	return error;
 +}
---- clean/include/linux/ioctl32.h	2002-10-20 16:22:47.000000000 +0200
-+++ linux/include/linux/ioctl32.h	2003-03-06 22:12:05.000000000 +0100
++
+ static int get_compat_flock(struct flock *kfl, struct compat_flock *ufl)
+ {
+ 	if (!access_ok(VERIFY_READ, ufl, sizeof(*ufl)) ||
+Index: linux-quilt/include/linux/ioctl32.h
+--- .pc/ioc/include/linux/ioctl32.h	2003-03-18 18:34:10.000000000 +0100
++++ include/linux/ioctl32.h	2003-03-16 18:51:04.000000000 +0100
 @@ -19,5 +19,10 @@
  
  extern int unregister_ioctl32_conversion(unsigned int cmd);
@@ -1748,18 +1785,31 @@ Alan, would you be willing to let this be merged through you?
 +};
  
  #endif
---- clean/arch/parisc/kernel/syscall.S	2003-02-18 12:24:28.000000000 +0100
-+++ linux/arch/parisc/kernel/syscall.S	2003-03-11 00:16:20.000000000 +0100
-@@ -407,8 +407,7 @@
- 	ENTRY_SAME(umount)
- 	/* struct sockaddr... */
- 	ENTRY_SAME(getpeername)
--	/* This one's a huge ugly mess */
--	ENTRY_DIFF(ioctl)
-+	ENTRY_COMP(ioctl)
- 	/* struct flock? */
- 	ENTRY_DIFF(fcntl)		/* 55 */
- 	ENTRY_SAME(socketpair)
+
+%diffstat
+ arch/ia64/ia32/ia32_entry.S         |    2 
+ arch/ia64/ia32/ia32_ioctl.c         |  218 ----------------------------------
+ arch/mips64/kernel/ioctl32.c        |   67 ----------
+ arch/mips64/kernel/scall_o32.S      |    2 
+ arch/parisc/kernel/ioctl32.c        |  143 ----------------------
+ arch/parisc/kernel/syscall.S        |    3 
+ arch/ppc64/kernel/ioctl32.c         |  126 --------------------
+ arch/ppc64/kernel/misc.S            |    4 
+ arch/s390x/kernel/ioctl32.c         |  110 -----------------
+ arch/s390x/kernel/wrapper32.S       |    2 
+ arch/sparc64/kernel/ioctl32.c       |  150 +----------------------
+ arch/sparc64/kernel/sparc64_ksyms.c |    4 
+ arch/sparc64/kernel/sunos_ioctl32.c |   52 ++++----
+ arch/sparc64/kernel/systbls.S       |    2 
+ arch/sparc64/solaris/ioctl.c        |   47 +++----
+ arch/sparc64/solaris/timod.c        |    2 
+ arch/x86_64/ia32/ia32_ioctl.c       |  226 ------------------------------------
+ arch/x86_64/ia32/ia32entry.S        |    2 
+ fs/compat.c                         |  223 +++++++++++++++++++++++++++++++++++
+ include/linux/ioctl32.h             |    5 
+ 20 files changed, 299 insertions(+), 1091 deletions(-)
+
+
 
 -- 
 When do you have a heart between your knees?

@@ -1,76 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266689AbUJAVrk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266793AbUJAVrk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266689AbUJAVrk (ORCPT <rfc822;willy@w.ods.org>);
+	id S266793AbUJAVrk (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 1 Oct 2004 17:47:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUJAVPc
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266631AbUJAVPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 17:15:32 -0400
-Received: from fw.osdl.org ([65.172.181.6]:43186 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266674AbUJAUzf (ORCPT
+	Fri, 1 Oct 2004 17:15:41 -0400
+Received: from fw.osdl.org ([65.172.181.6]:53678 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266517AbUJAUwN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 16:55:35 -0400
-Date: Fri, 1 Oct 2004 13:59:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
-       Chris Mason <mason@suse.com>
-Subject: Re: 2.6.9-rc2-mm4 ps hang ?
-Message-Id: <20041001135927.11527420.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0410012102510.9068-100000@localhost.localdomain>
-References: <20041001120926.4d6f58d5.akpm@osdl.org>
-	<Pine.LNX.4.44.0410012102510.9068-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Oct 2004 16:52:13 -0400
+Date: Fri, 1 Oct 2004 13:51:39 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+cc: haveblue@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: Loops in the Signed-off-by process
+In-Reply-To: <20041001134017.3f1c6d62.pj@sgi.com>
+Message-ID: <Pine.LNX.4.58.0410011350490.2403@ppc970.osdl.org>
+References: <1096658717.3684.980.camel@localhost> <Pine.LNX.4.58.0410011233370.2403@ppc970.osdl.org>
+ <20041001134017.3f1c6d62.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
+
+
+On Fri, 1 Oct 2004, Paul Jackson wrote:
 >
-> lock_page inside mmap_sem a ranking bug?  Please recant!
+> The protocol for adding an Acked-by line mystifies me a little.
+> 
+> If I submit a patch after having a good discussion of it with
+> Joe Blow, is it appropriate for me to add an Acked-by line for
+> Joe on my own, or should I get his consent (or know him well
+> enough to know he consents) or should I only so add if Joe
+> asks me to?
 
-generic_file_buffered_write() can take mmap_sem for reading while holding a
-page lock.  In that rare case where the page gets unmapped even though we
-manually faulted it in.
+The "acked-by" thing doesn't mean anything, so you should just use your 
+own judgement. 
 
-Now, that's lock_page->down_read versus down_read->lock_page which I
-_think_ is safe, due to down_read semantics.  Even if a third thread is
-waiting for a down_write.
+> In other words, does the presence of such a line commit Joe
+> to any position on the patch, beyond perhaps not being too
+> annoyed if he gets queries on it.
 
-Except filemap_nopage() does lock_page too, so we have
+Nope. The annoyance factor is the only factor to take into account.
 
-	lock_page->down_read->lock_page
-
-as well.
-
-All this does mean that down_write cannot nest either inside or outside
-lock_page.
-
-The bigger problem is ext3 and reiser3 transaction start/stop.  It is
-equivalent to a down()/up() operation and we get the ranking for that
-inconsistent too.  Both wrt lock_page and wrt, I think, down_read(mmap_sem).
-
-generic_file_buffered_write() does, effectively
-
-	lock_page
-	->transaction_start
-          ->fault
-	  ->down_read(mmap_sem)
-	    ->lock_page
-
-and over in do_mmap_pgoff() we nest transaction start inside
-down_write(mmap_sem):
-
-	do_mmap_pgoff
-	->down_write(mmap_sem)
-	->generic_file_mmap
-	  ->file_accessed
-	    ->mark_inode_dirty
-	      ->transaction start
-
-It's all a bit of a mess.  Chris Mason and I have discussed it on and off. 
-I think Chris has a workload which actually does trigger a deadlock.
-
-Maybe dropping and retaking mmap_sem in generic_file_mmap would be a
-sufficient stopgap.
+		Linus

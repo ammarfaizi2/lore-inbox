@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129826AbQKFRZz>; Mon, 6 Nov 2000 12:25:55 -0500
+	id <S129838AbQKFR2z>; Mon, 6 Nov 2000 12:28:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129869AbQKFRZp>; Mon, 6 Nov 2000 12:25:45 -0500
-Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:44275 "EHLO
-	passion.cygnus") by vger.kernel.org with ESMTP id <S129867AbQKFRZl>;
-	Mon, 6 Nov 2000 12:25:41 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <03da01c04816$8b178a30$650201c0@guidelet> 
-In-Reply-To: <03da01c04816$8b178a30$650201c0@guidelet>  <200011061631.eA6GVkw07051@pincoya.inf.utfsm.cl> <6590.973530406@redhat.com> 
-To: "Alon Ziv" <alonz@usa.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page] 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 06 Nov 2000 17:25:37 +0000
-Message-ID: <8453.973531537@redhat.com>
+	id <S129915AbQKFR2p>; Mon, 6 Nov 2000 12:28:45 -0500
+Received: from d14144.dtk.chello.nl ([213.46.14.144]:11910 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S129838AbQKFR23>;
+	Mon, 6 Nov 2000 12:28:29 -0500
+Message-Id: <m13sq4H-000OY7C@amadeus.home.nl>
+Date: Mon, 6 Nov 2000 18:28:25 +0100 (CET)
+From: arjan@fenrus.demon.nl (Arjan van de Ven)
+To: rob@sysgo.de
+cc: linux-kernel@vger.kernel.org
+Subject: Re: unresolved reference to hd_init (2.4.0-test10, ll_rw_blk.c)
+X-Newsgroups: fenrus.linux.kernel
+In-Reply-To: <00110618154301.11022@rob>
+User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre19 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <00110618154301.11022@rob> you wrote:
+> Hi,
 
-alonz@usa.net said:
-> The best solution to the sound driver issue, IMHO, is still entirely
-> userspace--- just no-one has written it yet. What we should do: 1.
-> Before auto-unload of the driver, run a small utility which will read
-> mixer settings
->    and save them somewhere 2. When auto-loading the driver, use driver
-> arguments which are initialized from the
->    settings saved above
+> I just ran into a small problem trying to build the 2.4.0-test10 kernel with
+> only the "Old hard disk (MFM/RLL/IDE) driver" enabled. The following patch
+> fixed this for me, (though I'm not sure I haven't broken anything else with it).
 
-That could work, although it may be better to make it more generic and 
-capable of handling any form of data. 
+The real patch would be:
 
-Any form of persistent storage would do - and if it can be handled entirely
-in userspace, all the better. I merely pointed out that Keith's 
-inter_module_xxx could provide this quite cleanly. Others disputed that it 
-was required at all.
+diff -ur /mnt/raid/1/linux-2.4.0-test10pre6/drivers/ide/Makefile linux/drivers/ide/Makefile
+--- /mnt/raid/1/linux-2.4.0-test10pre6/drivers/ide/Makefile	Sun Oct 29 14:14:29 2000
++++ linux/drivers/ide/Makefile	Sat Oct 28 12:00:44 2000
+@@ -31,7 +31,7 @@
+ ide-obj-$(CONFIG_BLK_DEV_FALCON_IDE)	+= falconide.o
+ ide-obj-$(CONFIG_BLK_DEV_GAYLE)		+= gayle.o
+ ide-obj-$(CONFIG_BLK_DEV_Q40IDE)	+= q40ide.o
+-ide-obj-$(CONFIG_BLK_DEV_HD)		+= hd.o
++obj-$(CONFIG_BLK_DEV_HD)		+= hd.o
+ ide-obj-$(CONFIG_BLK_DEV_HPT34X)	+= hpt34x.o
+ ide-obj-$(CONFIG_BLK_DEV_HPT366)	+= hpt366.o
+ ide-obj-$(CONFIG_BLK_DEV_HT6560B)	+= ht6560b.o
 
---
-dwmw2
 
-
+Greetings,
+   Arjan van de Ven
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

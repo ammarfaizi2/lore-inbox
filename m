@@ -1,78 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270655AbTHJUsV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 16:48:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270667AbTHJUsV
+	id S270667AbTHJUsn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 16:48:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270677AbTHJUsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 16:48:21 -0400
-Received: from kknd.mweb.co.za ([196.2.45.79]:26336 "EHLO kknd.mweb.co.za")
-	by vger.kernel.org with ESMTP id S270655AbTHJUsT (ORCPT
+	Sun, 10 Aug 2003 16:48:43 -0400
+Received: from waste.org ([209.173.204.2]:43438 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S270667AbTHJUsj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 16:48:19 -0400
-Date: Sun, 10 Aug 2003 22:48:53 +0200
-From: Bongani Hlope <bonganilinux@mweb.co.za>
-To: Bob Gill <gillb4@telusplanet.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test3 responsible for atomic blast!
-Message-Id: <20030810224853.4a291e6e.bonganilinux@mweb.co.za>
-In-Reply-To: <1060547281.6445.13.camel@localhost.localdomain>
-References: <1060547281.6445.13.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.4claws (GTK+ 1.2.10; i586-mandrake-linux-gnu)
+	Sun, 10 Aug 2003 16:48:39 -0400
+Date: Sun, 10 Aug 2003 15:48:28 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Stig Brautaset <stig@brautaset.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test3: Debug: sleeping function called from invalid context at include/asm/uaccess.h:473
+Message-ID: <20030810204828.GA31810@waste.org>
+References: <20030810161951.GA1009@brautaset.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="l?=.vn9Q?CU_r._s"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030810161951.GA1009@brautaset.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---l?=.vn9Q?CU_r._s
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-
-On Sun, 10 Aug 2003 14:28:01 -0600
-Bob Gill <gillb4@telusplanet.net> wrote:
-
-> The really good news is 2.6.0-test3 is *much* more efficient at
-> delivering error messages than earlier versions!  
-> The following is from /var/log/messages:
-
-8<
-
-> unknown_bootoption+0x0/0xfa
-> Aug 10 14:07:38 localhost kernel:
-> Aug 10 14:07:38 localhost kernel: bad: scheduling while atomic!
-> Aug 10 14:07:38 localhost kernel: Call Trace:
-> Aug 10 14:07:38 localhost kernel:  [<c0105000>] rest_init+0x0/0xf5
-> Aug 10 14:07:38 localhost kernel:  [<c011d729>] schedule+0x6e4/0x6e9
-> Aug 10 14:07:38 localhost kernel:  [<c0107269>] default_idle+0x0/0x2c
-> Aug 10 14:07:38 localhost kernel:  [<c0105000>] rest_init+0x0/0xf5
-> Aug 10 14:07:38 localhost kernel:  [<c0107269>] default_idle+0x0/0x2c
-> Aug 10 14:07:38 localhost kernel:  [<c0105000>] rest_init+0x0/0xf5
-> Aug 10 14:07:38 localhost kernel:  [<c0107308>] cpu_idle+0x38/0x3a
-> Aug 10 14:07:38 localhost kernel:  [<c039672a>] start_kernel+0x1bd/0x215
-> Aug 10 14:07:38 localhost kernel:  [<c039643f>]
-> unknown_bootoption+0x0/0xfa
+On Sun, Aug 10, 2003 at 05:19:51PM +0100, Stig Brautaset wrote:
+> Hi, I just got this message on a 2.6.0-test3 kernel:
 > 
-> ... the bad: scheduling while atomic!  keeps blasting away at my screen
-> until I shutdown.  I *do* shutdown right away before the system decides
-> to really hang (and take out my root partition on next startup like it
-> has done when I get these atomic crashes).  Long before any real testing
-> begins, nasty bugs like this have to go!
+> Debug: sleeping function called from invalid context at include/asm/uaccess.h:473
+> Call Trace:
+>  [<c0117c01>] __might_sleep+0x61/0x80
+>  [<c010ba18>] save_v86_state+0x68/0x210
+>  [<c01362f5>] generic_file_aio_write+0x85/0xb0
+>  [<c010c547>] handle_vm86_fault+0xb7/0xa10
+>  [<c0181a2f>] ext3_file_write+0x3f/0xd0
+>  [<c010a330>] do_general_protection+0x0/0xa0
+>  [<c0109625>] error_code+0x2d/0x38
+>  [<c010947b>] syscall_call+0x7/0xb
 > 
-> 
-> -- 
-> Bob Gill <gillb4@telusplanet.net>
+> I'm unsure what other information is needed, if any. 
+> I'm not on list, so CC me on replies please.
 
-The system wont really hang (and take out you root partition) disable CONFIG_DEBUG_SPINLOCK_SLEEP (kernel hacking -> Sleep-inside-spinlock checking) on you .config if you want them to go away. 
+This looks like the vm86 fault I described earlier. For some reason
+vm86 mode writes part of its state out to userspace in its fault
+handler and I can't find anything that guarantees that won't double
+fault. Anyone?
 
---l?=.vn9Q?CU_r._s
-Content-Type: application/pgp-signature
+It might be useful to know what video driver you're using and whether
+or not you use Wine, Dosemu, or anything similar. Being able to
+reproduce it easily would be handy too.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/Nq+/+pvEqv8+FEMRAkBNAJ4gFdYBzJxp7eNddfVoQquRnl6jegCfZVcU
-RFGDiTvJ3vbRkxFhENEAvMw=
-=Zc2t
------END PGP SIGNATURE-----
-
---l?=.vn9Q?CU_r._s--
+-- 
+Matt Mackall : http://www.selenic.com : of or relating to the moon

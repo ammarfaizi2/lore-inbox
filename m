@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262722AbTCPSeo>; Sun, 16 Mar 2003 13:34:44 -0500
+	id <S262732AbTCPSgq>; Sun, 16 Mar 2003 13:36:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262724AbTCPSeo>; Sun, 16 Mar 2003 13:34:44 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:36111 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S262722AbTCPSen>;
-	Sun, 16 Mar 2003 13:34:43 -0500
-Date: Sun, 16 Mar 2003 19:45:32 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Maxime <x@organigramme.net>
-Cc: linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>
-Subject: Re: PROBLEM: make bzImage fails when LANG set
-Message-ID: <20030316184532.GB892@mars.ravnborg.org>
-Mail-Followup-To: Maxime <x@organigramme.net>,
-	linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>
-References: <3E74AC1C.8010901@organigramme.net>
+	id <S262730AbTCPSgq>; Sun, 16 Mar 2003 13:36:46 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:35549
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262729AbTCPSgo>; Sun, 16 Mar 2003 13:36:44 -0500
+Subject: Re: RS485 communicatio
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Ed Vance <EdV@macrolink.com>, "'Linux PPP'" <linuxppp@indiainfo.com>,
+       linux-serial@vger.kernel.org,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030315194646.GB367@elf.ucw.cz>
+References: <11E89240C407D311958800A0C9ACF7D1A33DDF@EXCHANGE>
+	 <20030315194646.GB367@elf.ucw.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047844625.21346.1.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E74AC1C.8010901@organigramme.net>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 16 Mar 2003 19:57:06 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 16, 2003 at 11:53:48AM -0500, Maxime wrote:
-> 2
+On Sat, 2003-03-15 at 19:46, Pavel Machek wrote:
+> > I believe Point-to-Point Protocol only supports point-to-point symmetric
+> > links. Don't think there is any multi-point support in the protocol. IIRC,
+> > PPP also requires a full duplex link, which is not available on an RS-485
+> > link with more than two stations, even if it is a 4-wire link. 
 > 
-> Notice it is in french.  I search on the web for similar problem, and 
-> find a few examples, all in foreing language.  Nobody seemed to know how 
-> to solve this.  I then remembered I added these lines to my /etc/profile:
+> Get scarabd (I don't know *where* it is), it can run TCP/IP over slip over
+> half-duplex link. Performance is not too good.
 
-Keith Owens once posted this snippet:
--nostdinc $(shell LANG=C $(CC) -print-search-dirs | sed -ne 's/install:+\(.*\)/-I \1include/gp')
+Robin O'Leary wrote most of it, so its probably somewhere like
+caderus.co.uk
 
-Try searching for "How to do -nostdinc?".
+Half duplex performance is fine at a sensible speed and with decent
+reliability. On radio will collisions its a lot less pretty
 
-	Sam

@@ -1,68 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263885AbTLBClK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 21:41:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264120AbTLBClK
+	id S264282AbTLBDA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 22:00:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264289AbTLBDA0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 21:41:10 -0500
-Received: from out005pub.verizon.net ([206.46.170.143]:28582 "EHLO
-	out005.verizon.net") by vger.kernel.org with ESMTP id S263885AbTLBClF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 21:41:05 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
-To: Mike Fedyk <mfedyk@matchmail.com>
-Subject: Re: amanda vs 2.6
-Date: Mon, 1 Dec 2003 21:41:01 -0500
-User-Agent: KMail/1.5.1
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Nick Piggin <piggin@cyberone.com.au>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-References: <200311261212.10166.gene.heskett@verizon.net> <200311291214.33130.gene.heskett@verizon.net> <20031201184357.GI1566@mis-mike-wstn.matchmail.com>
-In-Reply-To: <20031201184357.GI1566@mis-mike-wstn.matchmail.com>
+	Mon, 1 Dec 2003 22:00:26 -0500
+Received: from mra03.ex.eclipse.net.uk ([212.104.129.88]:32946 "EHLO
+	mra03.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
+	id S264282AbTLBDAW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 22:00:22 -0500
+From: Ian Hastie <ianh@iahastie.clara.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6] Missing L2-cache after warm boot
+Date: Tue, 2 Dec 2003 03:00:11 +0000
+User-Agent: KMail/1.5.4
+References: <87ptf8bpnd.fsf@echidna.jochen.org>
+In-Reply-To: <87ptf8bpnd.fsf@echidna.jochen.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200312012141.01223.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [151.205.54.127] at Mon, 1 Dec 2003 20:41:03 -0600
+Message-Id: <200312020300.13067.ianh@iahastie.local.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 01 December 2003 13:43, Mike Fedyk wrote:
->On Sat, Nov 29, 2003 at 12:14:33PM -0500, Gene Heskett wrote:
->> Another data point about this, still unsolved problem:
->>
->> The number of times I can do an 'su amanda' then exit, and redo
->> the it seem to be somewhat random,  One test I managed to get to
->> the 4th su
+On Monday 01 Dec 2003 14:04, Jochen Hein wrote:
+> I'm running 2.6.0-test11 on an older Thinkpad 390E,
+> When booting into 2.6.0-test11 after running Windows2000 I get:
+
+Do any of the previous test releases show this problem?  How are you booting  
+Linux?  Full warm boot via the BIOS or some loadlin kind of boot?  If it's 
+via the BIOS then does that show the L2 cache as being present?
+
+> When booting cold the boot messages are:
+
+Presumably from switch on.
+
+> /proc/cpuinfo contains (after warm boot):
+> processor       : 0
+> vendor_id       : GenuineIntel
+> cpu family      : 6
+> model           : 6
+> model name      : Mobile Pentium II
+> stepping        : 10
+> cpu MHz         : 298.598
+> cache size      : 256 KB
+
+And shows as 0 after warm boot?
+
+> fdiv_bug        : no
+> hlt_bug         : no
+> f00f_bug        : no
+> coma_bug        : no
+> fpu             : yes
+> fpu_exception   : yes
+> cpuid level     : 2
+> wp              : yes
+> flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov
+> pat pse36 mmx fxsr bogomips        : 587.77
 >
->Did you try to 'strace su amanda'?
+> Is there any way to find out, why the second level cache isn't
+> detected after a warm boot?
 
-Yes, about 25-30 times just now, without any failures... WTH ??
+My immediate thought was a BIOS problem.  IBM's web site doesn't say any BIOS 
+updates fix L2 cache related problems, but then it doesn't seem to use 
+technical descriptions like that.  It says the latest BIOS is 1.55 - R01_C9.
 
->What version of glibc are you running?
+http://www-1.ibm.com/support/docview.wss?rs=0&uid=psg1MIGR-4F3VKB&loc=en_US
 
->2.3.2-4
-
->What distro and version?
-
-Formerly rh8.0 with almost all updates, eg if its still an rpm, I let 
-update do it.  Hand built stuffs like cups and sane are newer than 
-8.0, as is the currently working kde-3.1.1a.  Obviously I don't let 
-up2date anywhere near that stuff.
-
-On 'verify'ing the glibc install, gnorpm complains about 
-/etc/localtime's link status.  Other than that, its clean ANAICT.
+Or maybe it's possible that something in MS Windows 2000 is turning off the L2 
+cache and it isn't getting reactivated by the warm boot?  What happens when 
+you do a cold boot to Linux then reboot from there?
 
 -- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+Ian.
 

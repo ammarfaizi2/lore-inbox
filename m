@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261447AbSI2RVW>; Sun, 29 Sep 2002 13:21:22 -0400
+	id <S261327AbSI2RaL>; Sun, 29 Sep 2002 13:30:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261521AbSI2RVV>; Sun, 29 Sep 2002 13:21:21 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:2067 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261447AbSI2RVV>; Sun, 29 Sep 2002 13:21:21 -0400
-Date: Sun, 29 Sep 2002 18:26:43 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andi Kleen <ak@muc.de>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Use __attribute__((malloc)) for gcc 3.2
-Message-ID: <20020929182643.C8564@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andi Kleen <ak@muc.de>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-References: <20020929152731.GA10631@averell>
-Mime-Version: 1.0
+	id <S261357AbSI2RaL>; Sun, 29 Sep 2002 13:30:11 -0400
+Received: from lightning.adam.com.au ([203.2.124.20]:35336 "HELO
+	lightning.adam.com.au") by vger.kernel.org with SMTP
+	id <S261327AbSI2RaK>; Sun, 29 Sep 2002 13:30:10 -0400
+Message-ID: <3D973D15.3FFC1B04@adam.com.au>
+Date: Mon, 30 Sep 2002 03:19:09 +0930
+From: David Lloyd <lloy0076@adam.com.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-SGI_XFS_1.1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Richard Cooper <richard.cooper26@verizon.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 
+References: <002301c267a0$8af5ad60$0100a8c0@DES>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020929152731.GA10631@averell>; from ak@muc.de on Sun, Sep 29, 2002 at 05:27:31PM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 29, 2002 at 05:27:31PM +0200, Andi Kleen wrote:
-> -extern pgd_t *pgd_alloc(struct mm_struct *);
-> +extern pgd_t *pgd_alloc(struct mm_struct *) malloc_function;
 
-Anz chance you could make that __malloc?  That how the other
-atrributes in the kernel (e.g. __init/__exit) work.
+I don't suppose you've read this message on the bottom of every message:
 
-> +/* Function allocates new memory and return cannot alias with anything */
-> +#define malloc_function __attribute__((malloc))
-> +/* Never inline */
-> +#define noinline __attribute__((noinline))
-> +#else
-> +#define malloc_function
-> +#define noinline
-> +#endif
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Dito for __noinline?  And IMHO compiler.h is the better place for this.
+Spamassassin kills my main computer whilst processing Kernel list
+messages. This one just makes you look like a Spammer :-(
 
-BTW, do you have any stats on the better optimization?
+DSL
+-- 
+Qualcuno no mi basta.
+  Vivere cercando il grande amore.
+  Vivere come se mai dovessimo morire.
+(Anastasio, Valli e Travato)

@@ -1,46 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263275AbTE0EMb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 00:12:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbTE0EMb
+	id S263322AbTE0ESg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 00:18:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263328AbTE0ESg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 00:12:31 -0400
-Received: from holomorphy.com ([66.224.33.161]:17613 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263275AbTE0EM3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 00:12:29 -0400
-Date: Mon, 26 May 2003 21:22:18 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Andrew Morton <akpm@digeo.com>, davem@redhat.com, andrea@suse.de,
-       davidsen@tmr.com, haveblue@us.ibm.com, habanero@us.ibm.com,
-       mbligh@aracnet.com, linux-kernel@vger.kernel.org
-Subject: Re: userspace irq balancer
-Message-ID: <20030527042218.GG8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>,
-	Andrew Morton <akpm@digeo.com>, davem@redhat.com, andrea@suse.de,
-	davidsen@tmr.com, haveblue@us.ibm.com, habanero@us.ibm.com,
-	mbligh@aracnet.com, linux-kernel@vger.kernel.org
-References: <20030527000639.GA3767@dualathlon.random> <20030526.171527.35691510.davem@redhat.com> <20030527004115.GD3767@dualathlon.random> <20030526.174841.116378513.davem@redhat.com> <20030527015307.GC8978@holomorphy.com> <20030526185920.64e9751f.akpm@digeo.com> <20030527021002.GD8978@holomorphy.com> <Pine.LNX.4.50.0305262212070.2265-100000@montezuma.mastecende.com> <20030527024419.GF8978@holomorphy.com> <Pine.LNX.4.50.0305262241520.2265-100000@montezuma.mastecende.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0305262241520.2265-100000@montezuma.mastecende.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Tue, 27 May 2003 00:18:36 -0400
+Received: from adsl-67-122-203-155.dsl.snfc21.pacbell.net ([67.122.203.155]:1195
+	"EHLO ext.storadinc.com") by vger.kernel.org with ESMTP
+	id S263322AbTE0ESc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 00:18:32 -0400
+Message-ID: <3ED2EA26.9060100@storadinc.com>
+Date: Mon, 26 May 2003 21:31:34 -0700
+From: manish <manish@storadinc.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+References: <3ED2DE86.2070406@storadinc.com> <Pine.LNX.4.55L.0305270103220.32094@freak.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 May 2003, William Lee Irwin III wrote:
->> It's done to acknowledge every interrupt. Also, there is additional
->> cost associated with bouncing the lock's cacheline.
+Marcelo Tosatti wrote:
 
-On Mon, May 26, 2003 at 10:45:20PM -0400, Zwane Mwaikambo wrote:
-> Bah, determining owning ioapic of an irq would get too ugly, you can have 
-> the same irq connected to multiple ioapics so which to lock?
+>
+>On Mon, 26 May 2003, manish wrote:
+>
+>>Hello !
+>>
+>>I am running the 2.4.20 kernel on a system with 3.5 GB RAM and dual CPU.
+>>I am running bonnie accross four drives in parallel:
+>>
+>>bonnie -s 1000 -d /<dir-name>
+>>
+>>bdflush settings on this system:
+>>
+>>[root@dyn-10-123-130-235 vm]# cat bdflush
+>>2       50      32      100     50      300     1       0       0
+>>
+>>All the bonnie process and any other process (like df, ps -ef etc.) are
+>>hung in __lock_page. Breaking into kdb, I observe the following for one
+>>such bonnie process:
+>>
+>>schedule(..)
+>>__lock_page(..)
+>>lock_page(..)
+>>do_generic_file_read(..)
+>>generic_file_read(..)
+>>
+>>After this, the processes never exit the hang. At times, a couple of
+>>bonnie processes complete but the hang still occurs with the remaining
+>>processes and with the other processes.
+>>
+>>I tried out the 2.5.33 kernel (one of the 2.5 series) and observed that
+>>the hang does not occur. If I run, two bonnie processes, they never get
+>>stuck. Actually, if I run 4 parallel mke2fs, they too get stuck.
+>>
+>>Any clues where this could be happening?
+>>
+>
+>Hi,
+>
+>Are you sure there is no disk activity ?
+>
+>Run vmstat and check that, please.
+>
+Hello !
 
-It tends to be all or one, detectable with IO_APIC_IRQ().
+My bad. This is one of the kernels that had modified the IO subsystem to 
+replace the io_request_lock with a finer grained host_lock and queue_lock.
+
+I also noticed that the hang occurs when the settings of bdflush are the 
+following:
+
+root@dyn-10-123-130-235 vm]# cat bdflush
+30      50      32      100     50      300     60      0       0
+
+Thanks
+-Manish
 
 
--- wli
+
+
+

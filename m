@@ -1,44 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262768AbUC3F1P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 00:27:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263121AbUC3F1P
+	id S263127AbUC3Fes (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 00:34:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbUC3Fes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 00:27:15 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:64742 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262768AbUC3F1O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 00:27:14 -0500
-Date: Tue, 30 Mar 2004 06:27:18 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
+	Tue, 30 Mar 2004 00:34:48 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:18373 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263127AbUC3Feq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 00:34:46 -0500
+Date: Tue, 30 Mar 2004 11:05:15 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
 To: Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [andrea@suse.de: Re: 2.6.5-rc2-aa vma merging]
-In-Reply-To: <20040329223307.GH3808@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0403300613280.20766-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Cc: Dipankar Sarma <dipankar@in.ibm.com>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, Robert Olsson <Robert.Olsson@data.slu.se>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, Dave Miller <davem@redhat.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Andrew Morton <akpm@osdl.org>,
+       rusty@au1.ibm.com
+Subject: Re: route cache DoS testing and softirqs
+Message-ID: <20040330053515.GA4815@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20040329184550.GA4540@in.ibm.com> <20040329222926.GF3808@dualathlon.random> <20040330050614.GA4669@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040330050614.GA4669@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Mar 2004, Andrea Arcangeli wrote:
-> On Mon, Mar 29, 2004 at 08:44:25PM +0100, Hugh Dickins wrote:
+On Tue, Mar 30, 2004 at 10:36:14AM +0530, Srivatsa Vaddagiri wrote:
+> kthread_stop does:
 > 
-> > So I assume that what's there is needed, and the example below
-> > does looks plausible enough: add page, fill it, protect it, ...
+> 	1. kthread_stop_info.k = k;
+>         2. wake_up_process(k);
 > 
-> this will work perfect, absolutely perfect. You didn't read my code well
-> enough.
+> and if ksoftirqd were to do :
+> 
+> 	a. while (!kthread_should_stop()) {
+>         b.         __set_current_state(TASK_INTERRUPTIBLE);
+>         c.         schedule();
+>            }
+> 
+> 
+> There is a (narrow) possibility here that a) happens _after_ 1) as well as 
+> b) _after_ 2).
 
-Sure, and I most certainly haven't read your future code well enough.
-Your present implementation, one vma per page (in that real case where
-vmas are properly merged by mainline or anonmm), is far from perfect.
+hmm .. I meant a) happening _before_ 1) and b) happening _after_ 2) ..
 
-anon_vma has surprised me more than once by working smoothly just
-where I thought it must go wrong.  Please do surprise me again:
-write that code and post the patch which resolves this doubt.
+> 
+>         a. __set_current_state(TASK_INTERRUPTIBLE);
+> 	b. while (!kthread_should_stop()) {
+>         c.         schedule();
+>         d.         __set_current_state(TASK_INTERRUPTIBLE);
+>            }
+> 
+>         e. __set_current_state(TASK_RUNNING);
+> 
+> In this case, even if b) happens _after_ 1) and c) _after_ 2), 
 
-Thanks,
-Hugh
+Again I meant "even if b) happens _before_ 1) and c) _after_ 2) !!
 
+> schedule simply returns immediately because task's state would have been set 
+> to TASK_RUNNING by 2). It goes back to the kthread_should_stop() check and 
+> exits!
+
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

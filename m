@@ -1,65 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261886AbVCQUR1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVCQUXd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261886AbVCQUR1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 15:17:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbVCQUR1
+	id S261324AbVCQUXd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 15:23:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVCQUXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 15:17:27 -0500
-Received: from everest.2mbit.com ([24.123.221.2]:28817 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S261922AbVCQUNV (ORCPT
+	Thu, 17 Mar 2005 15:23:33 -0500
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:56027 "EHLO mta1.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S261324AbVCQUXa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 15:13:21 -0500
-Message-ID: <4239E4CC.7050007@lovecn.org>
-Date: Fri, 18 Mar 2005 04:13:00 +0800
-From: Coywolf Qi Hunt <coywolf@lovecn.org>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-os@analogic.com
-CC: "Peter W. Morreale" <peter_w_morreale@hotmail.com>,
-       linux-kernel@vger.kernel.org
-References: <BAY101-F3858D9AE9F3222CAB9AB3CC1490@phx.gbl> <Pine.LNX.4.61.0503171401030.22694@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0503171401030.22694@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Broken-Reverse-DNS: no host name for for IP address 221.201.199.142
-X-Scan-Signature: 0c1945f502a06f7766c9348c347b6b03
-X-SA-Exim-Connect-IP: 221.201.199.142
-X-SA-Exim-Mail-From: coywolf@lovecn.org
-Subject: Re: Kernel memory limits?
-X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
-	*      [score: 0.0000]
-	*  4.0 RCVD_IN_AHBL_CNKR RBL: AHBL: sender is listed in the AHBL China/Korea blocks
-	*      [221.201.199.142 listed in cnkrbl.ahbl.org]
-X-SA-Exim-Version: 4.2 (built Sun, 13 Feb 2005 18:23:43 -0500)
+	Thu, 17 Mar 2005 15:23:30 -0500
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, linux-kernel@vger.kernel.org,
+       garloff@suse.de, ak@suse.de, Ian.Pratt@cl.cam.ac.uk
+Subject: Re: 2.6.11 vs 2.6.10 slowdown on i686
+In-Reply-To: Your message of "Thu, 17 Mar 2005 23:37:24 +1100."
+             <42397A04.2060703@yahoo.com.au> 
+Date: Thu, 17 Mar 2005 20:23:23 +0000
+From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Message-Id: <E1DC1Wd-00011q-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os wrote:
-> On Thu, 17 Mar 2005, Peter W. Morreale wrote:
-> 
->> (I did not see this addressed in the FAQs...)
->>
->> How much physical memory can the 2.4.26 kernel address in kernel 
->> context on x86?
->>
-> 
-> All of it.
-> 
->> What about DMA memory?
->>
-> 
-> All of it, too. The old DMA controller(s) could only address 16 MB
-> because that's all the page-registers allowed. Bus-mastering DMA
-> off the PCI/Bus has no such limitation. Most have DMA controllers
-> that use scatter-lists so RAM doesn't even have to be contiguous,
-> only properly allocated (in pages) and nailed down with no caching.
-> 
 
-Kernel Image itself resides at physical address 1M. Is this kernel image
-area a hole to the old DMA range? Thanks.
+> There are some changes in the current -bk tree (which are a
+> bit in-flux at the moment) which introduce some optimisations.
+> 
+> They should bring 2-level performance close to par with 2.6.10.
+> If not, complain again :)
+
+The good news is that with a BK snapshot from today
+[md5key=4238cb8e36_Z5Cgys8rTovspboIJpw] performance is rather
+improved relative to 2.6.11 :
+
+ fork: 166 -> 187   -13%
+ exec: 857 -> 909   -6%
+
+Rather better than -40%, but still not brilliant.
+
+Any more improvements in the pipeline?
+
+Ian
 
 
-	Coywolf
+
+------------------------------------------------------------------------------
+Host                 OS  Mhz null null      open slct sig  sig  fork exec sh  
+                             call  I/O stat clos TCP  inst hndl proc proc proc
+--------- ------------- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+commando-  Linux 2.6.10 2400 0.49 0.57 2.06 3.06 19.6 0.89 2.70 166. 857. 2972
+commando-  Linux 2.6.12 2400 0.49 0.60 2.37 3.43 20.9 0.91 2.64 187. 909. 3076
+
+Context switching - times in microseconds - smaller is better
+-------------------------------------------------------------------------
+Host                 OS  2p/0K 2p/16K 2p/64K 8p/16K 8p/64K 16p/16K 16p/64K
+                         ctxsw  ctxsw  ctxsw ctxsw  ctxsw   ctxsw   ctxsw
+--------- ------------- ------ ------ ------ ------ ------ ------- -------
+commando-  Linux 2.6.10 7.5800 4.3300 8.1900 5.1100   33.1 8.37000    41.9
+commando-  Linux 2.6.12 7.7400 7.9200 8.3700 5.1600   27.0 9.32000    36.5
+
+*Local* Communication latencies in microseconds - smaller is better
+---------------------------------------------------------------------
+Host                 OS 2p/0K  Pipe AF     UDP  RPC/   TCP  RPC/ TCP
+                        ctxsw       UNIX         UDP         TCP conn
+--------- ------------- ----- ----- ---- ----- ----- ----- ----- ----
+commando-  Linux 2.6.10 7.750  19.4 21.3  37.2  45.5  42.5  53.2  76.
+commando-  Linux 2.6.12 7.740  18.2 23.1  37.4  45.6  42.6  54.9  80.
+
+File & VM system latencies in microseconds - smaller is better
+-------------------------------------------------------------------------------
+Host                 OS   0K File      10K File     Mmap    Prot   Page   100fd
+                        Create Delete Create Delete Latency Fault  Fault  selct
+--------- ------------- ------ ------ ------ ------ ------- ----- ------- -----
+commando-  Linux 2.6.10   39.3   16.2   92.7   35.2   122.0 1.200 2.14310  18.3
+commando-  Linux 2.6.12   38.7   16.4   94.1   35.1   148.0 1.029 2.25100  18.0
+
+*Local* Communication bandwidths in MB/s - bigger is better
+-----------------------------------------------------------------------------
+Host                OS  Pipe AF    TCP  File   Mmap  Bcopy  Bcopy  Mem   Mem
+                             UNIX      reread reread (libc) (hand) read write
+--------- ------------- ---- ---- ---- ------ ------ ------ ------ ---- -----
+commando-  Linux 2.6.10 313. 440. 222. 1551.7 1528.5  549.1  566.8 1550 784.8
+commando-  Linux 2.6.12 556. 477. 224. 1540.3 1551.4  566.5  566.6 1551 786.2
 
 

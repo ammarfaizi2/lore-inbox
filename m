@@ -1,80 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266292AbTATRLx>; Mon, 20 Jan 2003 12:11:53 -0500
+	id <S266285AbTATRUZ>; Mon, 20 Jan 2003 12:20:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266286AbTATRLx>; Mon, 20 Jan 2003 12:11:53 -0500
-Received: from durendal.skynet.be ([195.238.3.91]:33314 "EHLO
-	durendal.skynet.be") by vger.kernel.org with ESMTP
-	id <S266292AbTATRLu> convert rfc822-to-8bit; Mon, 20 Jan 2003 12:11:50 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hans Lambrechts <hans.lambrechts@skynet.be>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21pre3 smp_affinity, very strange
-Date: Mon, 20 Jan 2003 17:41:02 +0100
-User-Agent: KMail/1.4.3
-References: <200301191645.03034.hans.lambrechts@skynet.be> <1043002445.1479.8.camel@laptop.fenrus.com>
-In-Reply-To: <1043002445.1479.8.camel@laptop.fenrus.com>
+	id <S266286AbTATRUZ>; Mon, 20 Jan 2003 12:20:25 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:10909 "EHLO
+	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
+	id <S266285AbTATRUZ>; Mon, 20 Jan 2003 12:20:25 -0500
+Date: Mon, 20 Jan 2003 18:29:25 +0100 (CET)
+From: <folkert@vanheusden.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: tool for testing how fast your kernel can rename files :-)
+Message-ID: <Pine.LNX.4.33.0301201826120.13207-100000@muur.intranet.vanheusden.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301201741.02782.hans.lambrechts@skynet.be>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Manfred and Arjan for responding, and for the solution :-)
+Hi,
 
-My box works now as before.
+This night, while half a-sleep I thought it is usefull to have a tool
+which creates a number of files in a directory and then starts to randomly
+rename them. During this, it should output how much it has done and how
+many renames per second it did.
+5 minutes back I programmed such a program, you can download it from:
+http://www.vanheusden.com/Linux/rename_test-1.0.tgz
 
-pc:~ # cat /proc/interrupts
-           CPU0       CPU1
-  0:       5894       5418    IO-APIC-edge  timer
-  1:         57         40    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  8:          0          2    IO-APIC-edge  rtc
-  9:          0          0    IO-APIC-edge  acpi
- 12:        283        223    IO-APIC-edge  PS/2 Mouse
- 14:          4          3    IO-APIC-edge  ide0
- 16:       4044       3976   IO-APIC-level  aic7xxx
- 18:         50         42   IO-APIC-level  eth0
-NMI:      11227      11227
-LOC:      11204      11203
-ERR:          0
-MIS:          0
+But now, fully awake with at least 8 cups of coffee in my system I cannot
+think of anything usefull this program is actually doing.
+Well, maybe to test if something gets corrupted allong the way?
 
-Patch attached at the bottom of the page. If any comments, please cc me.
- 
-On Sunday 19 January 2003 19:54, you wrote:
-> > Did the APIC or mpparse changes cause this?
->
-> +#ifdef CONFIG_X86_CLUSTERED_APIC
-> +static inline int target_cpus(void)
-> +{
-> +       static int cpu;
-> +       switch(clustered_apic_mode){
-> +               case CLUSTERED_APIC_NUMAQ:
-> +                       /* Broadcast intrs to local quad only. */
-> +                       return APIC_BROADCAST_ID_APIC;
-> +               case CLUSTERED_APIC_XAPIC:
-> +                       /*round robin the interrupts*/
-> +                       cpu = (cpu+1)%smp_num_cpus;
-> +                       return cpu_to_physical_apicid(cpu);
-> +               default:
-> +       }
-> +       return cpu_online_map;
-> +}
-> +#else
-> +#define target_cpus() (0x01)
-> +#endif
-> (2.4.21-pre3)
-> that's wrong.....  0x01 -> 0xFF and it should be fixed
+Oh well.
 
---- linux/include/asm-i386/smpboot.h    2003-01-20 16:45:13.000000000 +0100
-+++ linux/include/asm-i386/smpboot.h.orig       2003-01-20 16:44:05.000000000 +0100
-@@ -116,6 +116,6 @@
-        return cpu_online_map;
- }
- #else
--#define target_cpus() (0xFFFFFFFF)
-+#define target_cpus() (0x01)
- #endif
- #endif
+
+Folkert van Heusden
+www.vanheusden.com
 

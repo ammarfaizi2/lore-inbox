@@ -1,70 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264732AbSJRGOH>; Fri, 18 Oct 2002 02:14:07 -0400
+	id <S264619AbSJRGMK>; Fri, 18 Oct 2002 02:12:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264770AbSJRGOH>; Fri, 18 Oct 2002 02:14:07 -0400
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:7409 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S264732AbSJRGOG>; Fri, 18 Oct 2002 02:14:06 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Fri, 18 Oct 2002 00:17:01 -0600
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: Benjamin LaHaise <bcrl@redhat.com>, Andi Kleen <ak@muc.de>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] statfs64 no longer missing
-Message-ID: <20021018061701.GA18925@clusterfs.com>
-Mail-Followup-To: Peter Chubb <peter@chubb.wattle.id.au>,
-	Benjamin LaHaise <bcrl@redhat.com>, Andi Kleen <ak@muc.de>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	linux-kernel@vger.kernel.org
-References: <20021016140658.GA8461@averell> <shs7kgipiym.fsf@charged.uio.no> <15789.64263.606518.921166@wombat.chubb.wattle.id.au> <20021017000111.GA25054@averell> <20021017154102.D30332@redhat.com> <15791.21383.361727.533851@wombat.chubb.wattle.id.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15791.21383.361727.533851@wombat.chubb.wattle.id.au>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S264666AbSJRGMJ>; Fri, 18 Oct 2002 02:12:09 -0400
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:42472 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S264619AbSJRGMI>;
+	Fri, 18 Oct 2002 02:12:08 -0400
+Message-ID: <3DAFA79C.7070907@candelatech.com>
+Date: Thu, 17 Oct 2002 23:18:04 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: atai@atai.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Tigon3 driver problem with raw socket on 2.4.20-pre10-ac2
+References: <20021018044402.42069.qmail@web10508.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 18, 2002  10:19 +1000, Peter Chubb wrote:
-> -int fat_statfs(struct super_block *sb,struct statfs *buf)
-> +int fat_statfs(struct super_block *sb, struct kstatfs *buf)
->  {
->  	int free,nr;
->         
->  	if (MSDOS_SB(sb)->cvf_format &&
->  	    MSDOS_SB(sb)->cvf_format->cvf_statfs)
->  		return MSDOS_SB(sb)->cvf_format->cvf_statfs(sb,buf,
-> -						sizeof(struct statfs));
-> +						sizeof(struct kstatfs));
+Andy Tai wrote:
+> Hi, I am having problem with the (ethernet) Tigon3
+> driver with Linux kernel 2.4.20-pre10-ac2.  If a
+> program busily sends packets out on a raw socket
+> (PF_PACKET, SOCK_RAW) on a Tigon3-chipset-based
+> ethernet card (Neargear GA302T), the machine (AMD
+> Athlon CPU, KT333 motherboard) locks up hard after a
+> while.  No kernel panic or other error messages.  If I
+> use a Intel PRO1000 card with the e1000 driver and
+> identical same hardware and program otherwise, no lock
+> up problem and the packets are sent properly.  Thus
+> this indicates the problem is in the Tigon3 driver.
+> 
+> Thanks for any info on solving this problem.
 
-How about
- 		return MSDOS_SB(sb)->cvf_format->cvf_statfs(sb, buf,
-							    sizeof(*buf));
-> +struct statfs64 {
-> +	long f_type;
-> +	long f_bsize;
-> +	long long f_blocks;
-> +	long long f_bfree;
-> +	long long f_bavail;
-> +	long long f_files;
-> +	long long f_ffree;
-> +	__kernel_fsid_t f_fsid;
-> +	long f_namelen;
-> +	long f_frsize;
-> +	long f_spare[5];
->  };
+I also had problems on an DUAL-AMD board, and also with a single
+AMD board (SMP kernel though).  It works without problems in a P-IV
+board though.  I compiled my kernels for Athlon target, and the P-IV
+for the P-IV processor specifically.  I wonder if using a generic
+x386 kernel would fix something...
 
-Wasn't Dave Miller just saying that passing "long" between user-space
-and the kernel is just a bad idea?  Should we use "__u32" and "__u64"
-here instead?
+Let me know what you find out!
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
 

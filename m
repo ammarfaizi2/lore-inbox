@@ -1,63 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbTH0SeS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 14:34:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTH0SeS
+	id S261873AbTH0ShX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 14:37:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbTH0ShX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 14:34:18 -0400
-Received: from www.13thfloor.at ([212.16.59.250]:33750 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S261337AbTH0SeQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 14:34:16 -0400
-Date: Wed, 27 Aug 2003 20:34:28 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: UP optimizations ..
-Message-ID: <20030827183428.GA18614@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: Mikael Pettersson <mikpe@csd.uu.se>,
-	linux-kernel@vger.kernel.org,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
-References: <20030827160315.GD26817@www.13thfloor.at> <16204.62914.298711.293389@gargle.gargle.HOWL>
+	Wed, 27 Aug 2003 14:37:23 -0400
+Received: from mailwasher.lanl.gov ([192.16.0.25]:3281 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S261873AbTH0ShW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 14:37:22 -0400
+Subject: Re: 2.6.0-test4-mm2
+From: Steven Cole <elenstev@mesatop.com>
+To: Christian Axelsson <smiler@lanil.mine.nu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Hans Reiser <reiser@namesys.com>
+In-Reply-To: <3F4CAB0B.2030705@lanil.mine.nu>
+References: <20030826221053.25aaa78f.akpm@osdl.org>
+	 <3F4CAB0B.2030705@lanil.mine.nu>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1061999696.1670.66.camel@spc9.esa.lanl.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <16204.62914.298711.293389@gargle.gargle.HOWL>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 27 Aug 2003 09:54:56 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 27, 2003 at 08:17:38PM +0200, Mikael Pettersson wrote:
-> Herbert =?iso-8859-1?Q?P=F6tzl?= writes:
->  > 
->  > Hi Mikael!
->  > Hi Marcelo!
->  > 
->  > stumbled repeatedly over the patches (or what remained of them)
->  > from Mikael?, replacing task->processor and friends by inline
->  > functions task_cpu(task), to eliminate them on UP systems ...
->  > 
->  > my questions: 
->  >  - is there an up to date patchset?
+On Wed, 2003-08-27 at 06:58, Christian Axelsson wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> Yes, I've kept it up to date. In fact I've been using it in
-> every single 2.4 kernel I've built for the last 18+ months.
-> Lately also on ppc32 and x86-64.
-> 
-> Below is the current UP micro-optimisation patch set for 2.4.22.
-> It changes p->processor, p->cpus_allowed, and p->cpus_runnable
-> accesses (reads and writes) to use inline functions. In UP kernels
-> these reduce to doing nothing or returning a constant.
-> 
-> To keep the patch small, it doesn't change accesses in SMP-only code.
-> (This is also the reason why p->cpus_runnable only has a wrapper for
-> updates, since all reads are in SMP-only code.)
+> Is there any work beeing done on getting reiser4 into mm?
+> I havent tried it myself yet but Ive heard of colliding code in scheduler.
 
-good to know ... will use it in my patchset (now with reference ;)
-let me know if you add/fix something ...
+There are some rejects when applying yesterday's reiser4 snapshot.
 
-thanks for the patch,
-Herbert
+[steven@spc9 linux-2.6.0-test4-mm2]$ patch -p1 <../reiser4.diff
+patching file arch/i386/kernel/entry.S
+Hunk #1 FAILED at 879.
+1 out of 1 hunk FAILED -- saving rejects to file arch/i386/kernel/entry.S.rej
+patching file fs/Kconfig
+patching file fs/Makefile
+patching file fs/buffer.c
+Hunk #1 succeeded at 262 (offset 23 lines).
+patching file fs/fs-writeback.c
+patching file fs/inode.c
+patching file fs/jbd/transaction.c
+patching file fs/sysfs/inode.c
+patching file include/asm-i386/unistd.h
+Hunk #1 FAILED at 278.
+Hunk #2 succeeded at 398 (offset 2 lines).
+1 out of 2 hunks FAILED -- saving rejects to file include/asm-i386/unistd.h.rej
+patching file include/linux/fs.h
+Hunk #2 succeeded at 871 (offset 15 lines).
+Hunk #3 succeeded at 1249 (offset 21 lines).
+patching file include/linux/init_task.h
+Hunk #1 FAILED at 107.
+1 out of 1 hunk FAILED -- saving rejects to file include/linux/init_task.h.rej
+patching file include/linux/jbd.h
+patching file include/linux/mm.h
+patching file include/linux/sched.h
+Hunk #1 succeeded at 307 (offset 3 lines).
+Hunk #2 succeeded at 469 (offset 6 lines).
+patching file include/linux/writeback.h
+patching file kernel/ksyms.c
 
-> /Mikael
+The rest of the reiser4.diff applied OK from this point.
+
+Getting reiser4 into mm might be helpful.
+
+Steven
+
+

@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135598AbRDSIwT>; Thu, 19 Apr 2001 04:52:19 -0400
+	id <S135597AbRDSIyT>; Thu, 19 Apr 2001 04:54:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135596AbRDSIwJ>; Thu, 19 Apr 2001 04:52:09 -0400
-Received: from irmgard.exp-math.uni-essen.de ([132.252.150.18]:24330 "EHLO
-	irmgard.exp-math.uni-essen.de") by vger.kernel.org with ESMTP
-	id <S135595AbRDSIwD>; Thu, 19 Apr 2001 04:52:03 -0400
-Date: Thu, 19 Apr 2001 10:52:00 +0200 (MESZ)
-From: "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Dynamic TCP reserved ports allocated in which range?
-Message-Id: <Pine.A32.3.95.1010419104422.13922A-100000@werner.exp-math.uni-essen.de>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135599AbRDSIyK>; Thu, 19 Apr 2001 04:54:10 -0400
+Received: from smtp2.libero.it ([193.70.192.52]:8149 "EHLO smtp2.libero.it")
+	by vger.kernel.org with ESMTP id <S135597AbRDSIx6>;
+	Thu, 19 Apr 2001 04:53:58 -0400
+Message-ID: <3ADEA746.D3A44511@alsa-project.org>
+Date: Thu, 19 Apr 2001 10:52:22 +0200
+From: Abramo Bagnara <abramo@alsa-project.org>
+Organization: Opera Unica
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i586)
+X-Accept-Language: it, en
+MIME-Version: 1.0
+To: Alon Ziv <alonz@nolaviz.org>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Mike Kravetz <mkravetz@sequent.com>,
+        Ulrich Drepper <drepper@cygnus.com>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: light weight user level semaphores
+In-Reply-To: <Pine.LNX.4.31.0104171200220.933-100000@penguin.transmeta.com> <m33db680h8.fsf@otr.mynet.cygnus.com> <023c01c0c8a9$a4bb9940$910201c0@zapper>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi List(s)
+Alon Ziv wrote:
+> 
+> Hmm...
+> I already started (long ago, and abandoned since due to lack of time :-( )
+> down another path; I'd like to resurrect it...
+> 
+> My lightweight-semaphores were actually even simpler in userspace:
+> * the userspace struct was just a signed count and a file handle.
+> * Uncontended case is exactly like Linus' version (i.e., down() is decl +
+> js, up() is incl()).
+> * The contention syscall was (in my implementation) an ioctl on the FH; the
+> FH was a special one, from a private syscall (although with the new VFS I'd
+> have written it as just another specialized FS, or even referred into the
+> SysVsem FS).
+> 
+> So, there is no chance for user corruption of kernel data (as it just ain't
+> there...); and the contended-case cost is probably equivalent (VFS cost vs.
+> validation).
 
-For a firewall setup I need to know in which range applications like
-rsh, or better yet the rresvport() libc function allocate reserved ports.
+This would also permit:
+- to have poll()
+- to use mmap() to obtain the userspace area
 
-Do I have to expect ports in the whole 1..1024 range (maybe omitting those
-already in use by other servers) or is only a limited range used (like
-512-1023).
+It would become something very near to sacred Unix dogmas ;-)
 
-Thanks in advance,
-Michael.
+-- 
+Abramo Bagnara                       mailto:abramo@alsa-project.org
 
-P.S.
-Yes, I know I shouldn't allow such things through a firewall, but I have
-to (at least for now) and it's also not into the internet but only between
-internal departments.
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy
 
---
-
-Michael Weller: eowmob@exp-math.uni-essen.de, eowmob@ms.exp-math.uni-essen.de,
-or even mat42b@spi.power.uni-essen.de. If you encounter an eowmob account on
-any machine in the net, it's very likely it's me.
-
+ALSA project               http://www.alsa-project.org
+It sounds good!

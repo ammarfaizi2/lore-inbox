@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264196AbUFBVYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264208AbUFBVZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264196AbUFBVYv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 17:24:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264211AbUFBVYv
+	id S264208AbUFBVZF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 17:25:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264211AbUFBVZA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 17:24:51 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17849 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264196AbUFBVXQ
+	Wed, 2 Jun 2004 17:25:00 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22201 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264208AbUFBVYq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 17:23:16 -0400
-Message-ID: <40BE4537.5030101@pobox.com>
-Date: Wed, 02 Jun 2004 17:23:03 -0400
+	Wed, 2 Jun 2004 17:24:46 -0400
+Message-ID: <40BE458D.4050408@pobox.com>
+Date: Wed, 02 Jun 2004 17:24:29 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
 X-Accept-Language: en-us, en
@@ -27,16 +27,10 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Alan Cox wrote:
 > Most of our drivers don't work bigendian. If you want it bigendian you
-> can find someone to do it because I don't have the hardware to verify
-> bigendian and currently there probably isnt a single big endian user of this
-> chip on the planet.
 
 
-Well, there probably isn't a single user of this entire driver on the 
-planet outside of VIA and RH, yet.
-
-I got the gbit part on a PCI card, and AFAIK via 10/100 stuffs have 
-always appeared on PCI cards as well as on-board ("LOM").
+As an additional rebuttal, most of the PCI drivers people care about do 
+work on big-endian...
 
 	Jeff
 

@@ -1,84 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268745AbUI2RlZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268735AbUI2Rna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268745AbUI2RlZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 13:41:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268735AbUI2RlZ
+	id S268735AbUI2Rna (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 13:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268751AbUI2Rna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 13:41:25 -0400
-Received: from open.hands.com ([195.224.53.39]:41350 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S268756AbUI2RlJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 13:41:09 -0400
-Date: Wed, 29 Sep 2004 18:52:04 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] to allow sys_pread64 and sys_pwrite64 to be used from modules
-Message-ID: <20040929175204.GA6488@lkcl.net>
-References: <20040929125835.GA6764@lkcl.net>
+	Wed, 29 Sep 2004 13:43:30 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:5335 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268735AbUI2Rn1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 13:43:27 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm4-S7
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, rl@hellgate.ch
+In-Reply-To: <20040928000516.GA3096@elte.hu>
+References: <1094683020.1362.219.camel@krustophenia.net>
+	 <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu>
+	 <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu>
+	 <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu>
+	 <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu>
+	 <20040924074416.GA17924@elte.hu>  <20040928000516.GA3096@elte.hu>
+Content-Type: text/plain
+Message-Id: <1096479806.1600.13.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040929125835.GA6764@lkcl.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 29 Sep 2004 13:43:27 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-scratch that: i found that vfs_read along with filp_open and filp_close
-would do the job.
-
-having a ball :)
-
-On Wed, Sep 29, 2004 at 01:58:35PM +0100, Luke Kenneth Casson Leighton wrote:
-> i do not know if this does any damage (and i'm going to find out!)
+On Mon, 2004-09-27 at 20:05, Ingo Molnar wrote:
+> i've released the -S7 VP patch:
 > 
-> i seek to use these two functions from an experimental kernel module: i
-> get warnings about "symbol not found" without this patch:
-> 
-> 
-> Index: fs/read_write.c
-> ===================================================================
-> RCS file: /cvsroot/selinux/nsa/linux-2.6/fs/read_write.c,v
-> retrieving revision 1.1.1.6
-> diff -u -3 -p -u -r1.1.1.6 read_write.c
-> --- fs/read_write.c	18 Jun 2004 19:30:06 -0000	1.1.1.6
-> +++ fs/read_write.c	29 Sep 2004 12:45:31 -0000
-> @@ -318,6 +318,7 @@ asmlinkage ssize_t sys_pread64(unsigned 
->  
->  	return ret;
->  }
-> +EXPORT_SYMBOL_GPL(sys_pread64);
->  
->  asmlinkage ssize_t sys_pwrite64(unsigned int fd, const char __user *buf,
->  			      size_t count, loff_t pos)
-> @@ -337,6 +338,7 @@ asmlinkage ssize_t sys_pwrite64(unsigned
->  
->  	return ret;
->  }
-> +EXPORT_SYMBOL_GPL(sys_pwrite64);
->  
->  /*
->   * Reduce an iovec's length in-place.  Return the resulting number of segments
-> 
-> 
-> -- 
-> --
-> Truth, honesty and respect are rare commodities that all spring from
-> the same well: Love.  If you love yourself and everyone and everything
-> around you, funnily and coincidentally enough, life gets a lot better.
-> --
-> <a href="http://lkcl.net">      lkcl.net      </a> <br />
-> <a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm4-S7
 > 
 
--- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+I think I might be seeing the mysterious network problems that K. R.
+Foley reported.  The symptoms are that Evolution often fails to download
+mail with various errors like "Interrupted system call", "Connection
+reset by peer".  I can't rule out a bug in Evolution, but this did not
+seem to happen with 2.6.8.1.
+
+These problems could also be related to the changes to the via-rhine
+driver.  ISTR that when the VP patches were based on 2.6.8.1, I applied
+the patches from -mm4 affecting via-rhine, and that was when the problem
+was introduced.
+
+I will try backing these out and see if the problem goes away.
+
+Lee
 

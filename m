@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264453AbSIQSi3>; Tue, 17 Sep 2002 14:38:29 -0400
+	id <S264452AbSIQSl4>; Tue, 17 Sep 2002 14:41:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264471AbSIQSi2>; Tue, 17 Sep 2002 14:38:28 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:48398 "EHLO
+	id <S264472AbSIQSl4>; Tue, 17 Sep 2002 14:41:56 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:48910 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S264453AbSIQSi1>; Tue, 17 Sep 2002 14:38:27 -0400
-Date: Tue, 17 Sep 2002 14:34:38 -0400 (EDT)
+	id <S264452AbSIQSlz>; Tue, 17 Sep 2002 14:41:55 -0400
+Date: Tue, 17 Sep 2002 14:39:43 -0400 (EDT)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Russell King <rmk@arm.linux.org.uk>
+To: jbradford@dial.pipex.com
 cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Hi is this critical??
-In-Reply-To: <20020917120937.B28438@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.3.96.1020917142400.11859B-100000@gatekeeper.tmr.com>
+In-Reply-To: <200209171202.g8HC2vpm001844@darkstar.example.net>
+Message-ID: <Pine.LNX.3.96.1020917143456.11859C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Sep 2002, Russell King wrote:
+On Tue, 17 Sep 2002 jbradford@dial.pipex.com wrote:
 
-> On Tue, Sep 17, 2002 at 11:41:44AM +0100, Alan Cox wrote:
-> > On Tue, 2002-09-17 at 09:20, Andre Hedrick wrote:
-> > > MORONS that think the drive vendors are not clued into the issue.
-> > > I have to read and vote on NASTY proposals, whose intent is to check for
-> > > G-Force damage.  If you think that record is not findable, even if you
-> > 
-> > Sounds good news for honest users. What it does want though is the
-> > ability of users to check that data when the disk arrives, because we
-> > have delivery people, and they think that if looks like a box its
-> > probably a football.
-> 
-> No.  Sounds _bad_ news for honest users.  Lets be realistic here.
-> Parcel company uses package as a football, then delivers it.
-> 
-> How many parcel companies will wait while you unpack the hard drive,
-> dismantle your machine, connect the drive, power it up and check to
-> see if the drive has suffered too much shock?
 
-First, there are cheap "tell-tale" indicators which can be attached to the
-contents of the container where you can see them as soon as you open the
-package. That the vendors ship without them tells you they have found that
-it's cheaper to eat a few DOA units than spend even a few cents on proof.
+> I want to file a patent on using hard disks as footballs.  I claim prior
+> art, because I kicked a, (non-functional), disk across a room in front
+> of the person who owned it, (with their permission), about five years
+> ago, and they would verify that. 
 
-Second, having attached such a device to an old hard drive and repacked
-it, I dropped it from eye level (about two meters) on a hardwoord floor.
-The 5G triggered, the 20G didn't. Many drives will take 20G power off, so
-you really need to beat on the package to do harm. Tossing it into a truck
-or dropping it a foot onto a conveyor belt is unlikely to cause damage.
-Yes, anything is possible.
+Sorry, prior art exists. When iomega (the ZIP people) first shipped, they
+brought out a unit to demo. They pulled the media out, tossed it against
+the far wall, kicked it back, wiped it and ran from it. Then lifted the
+front of the case about two inches and dropped it. 
 
-Finally, I have returned a number of drives, and at least WD has just
-asked for the serial number so they could check the build date. I'm told
-Seagate is also good on that, asking only about power surges, etc. Someone
-else always seems to deal with that, so that's lack of complaint, not
-experience.
+In those days the "hard drives" were the same size, 10MB (sic), and the
+heads would crash if a mouse farted in the next room. Bought a bunch, and
+had very few problems.
+
+> Incidently unlimited permission is granted to use disks containing only
+> GNU/Linux software as footballs without royalties.  All other usage of
+> disks as footballs will be considered on a per case basis. 
+
+I would be inclined to allow this for Windows drives instead. They contain
+no useful data.
 
 -- 
 bill davidsen <davidsen@tmr.com>

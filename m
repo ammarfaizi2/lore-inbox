@@ -1,55 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263700AbTDTVOH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 17:14:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263704AbTDTVOH
+	id S263698AbTDTVMn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 17:12:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263700AbTDTVMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 17:14:07 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2200 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263700AbTDTVOF
+	Sun, 20 Apr 2003 17:12:42 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:10914 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263698AbTDTVMl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 17:14:05 -0400
-Date: Sun, 20 Apr 2003 22:26:07 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Andries.Brouwer@cwi.nl
-Cc: aebr@win.tue.nl, linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [CFT] more kdev_t-ectomy
-Message-ID: <20030420212607.GJ10374@parcelfarce.linux.theplanet.co.uk>
-References: <UTC200304202117.h3KLHH217162.aeb@smtp.cwi.nl>
-Mime-Version: 1.0
+	Sun, 20 Apr 2003 17:12:41 -0400
+Date: Sun, 20 Apr 2003 14:06:20 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 607] New: NTFS - dir.c errors during compile 
+Message-ID: <7610000.1050872780@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <UTC200304202117.h3KLHH217162.aeb@smtp.cwi.nl>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 20, 2003 at 11:17:17PM +0200, Andries.Brouwer@cwi.nl wrote:
- 
-> Given a number, one can copy it around freely, without the need
-> to obtain a reference each time one copies it.
-> Many of these numbers are just copied around and never used.
-> In such a case, refcounting is a real waste of time.
 
-Excuse me, but "copied around and never used" is by definition a real
-waste of time.  And proper fix is neither "keep it" nor "replace with
-pointer".  It's "kill it".
+http://bugme.osdl.org/show_bug.cgi?id=607
 
->     By now all uses of mk_kdev()/major()/minor()/MAJOR()/MINOR() in the drivers
->     are either trivially removable or represent very real problems.  And it's
->     not that there was a lot of them - in my current tree there's ~85 instances
->     of kdev_t in the source.  And only one of them (->i_rdev) is widely used -
->     ~500 instances, most of them go away as soon as CIDR patch gets merged.
->     The rest is part noise, part real bugs that need to be fixed anyway
->     (~40--80 of those).
-> 
-> Yes, I tend to agree. Funny that you do not mention MKDEV - that was
-> the thing I worked on eliminating long ago.
+           Summary: NTFS - dir.c errors during compile
+    Kernel Version: 2.5.68
+            Status: NEW
+          Severity: normal
+             Owner: bugme-janitors@lists.osdl.org
+         Submitter: sureddin@attbi.com
 
-No, I do not mention it.  And for a good reason.  It's the only constructor
-for constant values of dev_t.  You could keep every such value in two
-fields, but then you get all their uses go in pairs and starting with
-MKDEV().  Or have lookup code play with MAJOR()/MINOR() for no good
-reason whatsoever.
 
-MKDEV(<constant>,<constant>) is a valid thing, as far as I'm concerned.
+Distribution: SuSE 8.2
+Hardware Environment: PIII - 550
+Software Environment: GCC 3.3 pre
+Problem Description: /fs/ntfs/dir.c fails to compile
+
+Steps to reproduce: 
+Configure Filesystems->DOS/FAT/NT filesystems->NTFS file system support (Read
+only) as in-kernel or module.  Error occurs either way. 
+
+  gcc -Wp,-MD,fs/ntfs/.dir.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe
+-mpreferred-stack-boundary=2 -march=pentium3 -Iinclude/asm-i386/mach-default
+-nostdinc -iwithprefix include  -DNTFS_VERSION=\"2.1.0\"  -DKBUILD_BASENAME=dir
+-DKBUILD_MODNAME=ntfs -c -o fs/ntfs/dir.o fs/ntfs/dir.c
+In file included from fs/ntfs/inode.h:29,
+                 from fs/ntfs/debug.h:30,
+                 from fs/ntfs/ntfs.h:40,
+                 from fs/ntfs/dir.c:24:
+fs/ntfs/layout.h:299: warning: declaration does not declare anything
+fs/ntfs/layout.h:1449: warning: declaration does not declare anything
+fs/ntfs/layout.h:1465: warning: declaration does not declare anything
+fs/ntfs/layout.h:1714: warning: declaration does not declare anything
+fs/ntfs/layout.h:1891: warning: declaration does not declare anything
+fs/ntfs/layout.h:2051: warning: declaration does not declare anything
+fs/ntfs/layout.h:2063: warning: declaration does not declare anything
+fs/ntfs/dir.c: In function `ntfs_lookup_inode_by_name':
+fs/ntfs/dir.c:117: error: structure has no member named `length'
+fs/ntfs/dir.c:121: error: structure has no member named `key_length'
+fs/ntfs/dir.c:128: error: structure has no member named `flags'
+fs/ntfs/dir.c:162: error: structure has no member named `indexed_file'
+fs/ntfs/dir.c:171: error: structure has no member named `indexed_file'
+fs/ntfs/dir.c:214: error: structure has no member named `indexed_file'
+fs/ntfs/dir.c:268: error: structure has no member named `flags'
+fs/ntfs/dir.c:287: error: structure has no member named `length'
+fs/ntfs/dir.c:370: error: structure has no member named `length'
+fs/ntfs/dir.c:374: error: structure has no member named `key_length'
+fs/ntfs/dir.c:386: error: structure has no member named `flags'
+fs/ntfs/dir.c:420: error: structure has no member named `indexed_file'
+fs/ntfs/dir.c:429: error: structure has no member named `indexed_file'
+fs/ntfs/dir.c:472: error: structure has no member named `indexed_file'
+fs/ntfs/dir.c:524: error: structure has no member named `flags'
+fs/ntfs/dir.c:535: error: structure has no member named `length'
+fs/ntfs/dir.c: In function `ntfs_filldir':
+fs/ntfs/dir.c:1019: error: structure has no member named `indexed_file'
+fs/ntfs/dir.c:1023: error: structure has no member named `indexed_file'
+fs/ntfs/dir.c:1045: error: structure has no member named `indexed_file'
+fs/ntfs/dir.c: In function `ntfs_readdir':
+fs/ntfs/dir.c:1152: error: structure has no member named `length'
+fs/ntfs/dir.c:1158: error: structure has no member named `key_length'
+fs/ntfs/dir.c:1161: error: structure has no member named `flags'
+fs/ntfs/dir.c:1238: warning: comparison between signed and unsigned
+fs/ntfs/dir.c:1329: error: structure has no member named `length'
+fs/ntfs/dir.c:1336: error: structure has no member named `key_length'
+fs/ntfs/dir.c:1339: error: structure has no member named `flags'
+fs/ntfs/dir.c: In function `ntfs_dir_open':
+fs/ntfs/dir.c:1410: warning: comparison between signed and unsigned
+make[2]: *** [fs/ntfs/dir.o] Error 1
+make[1]: *** [fs/ntfs] Error 2
+make: *** [fs] Error 2
+linux:/usr/src/linux-2.5.68 #
+
+

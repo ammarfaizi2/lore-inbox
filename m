@@ -1,65 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276665AbRJGUCD>; Sun, 7 Oct 2001 16:02:03 -0400
+	id <S276659AbRJGUQf>; Sun, 7 Oct 2001 16:16:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276659AbRJGUBx>; Sun, 7 Oct 2001 16:01:53 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:23288 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S276653AbRJGUBi>; Sun, 7 Oct 2001 16:01:38 -0400
-Message-ID: <3BC0B2E0.C6421F8F@mvista.com>
-Date: Sun, 07 Oct 2001 12:54:08 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Mike Kravetz <kravetz@us.ibm.com>, Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Context switch times
-In-Reply-To: <E15pFor-0004sC-00@fenrus.demon.nl> <200110042139.f94Ld5r09675@vindaloo.ras.ucalgary.ca> <20011004.145239.62666846.davem@redhat.com> <20011004175526.C18528@redhat.com> <9piokt$8v9$1@penguin.transmeta.com> <20011004164102.E1245@w-mikek2.des.beaverton.ibm.com> <20011005024526.E724@athlon.random> <20011004213507.B1032@w-mikek2.sequent.com> <20011007195928.D726@athlon.random>
+	id <S276661AbRJGUQZ>; Sun, 7 Oct 2001 16:16:25 -0400
+Received: from quattro-eth.sventech.com ([205.252.89.20]:27150 "EHLO
+	quattro.sventech.com") by vger.kernel.org with ESMTP
+	id <S276659AbRJGUQG>; Sun, 7 Oct 2001 16:16:06 -0400
+Date: Sun, 7 Oct 2001 16:19:03 -0400
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: Simon Kirby <sim@netnation.com>
+Cc: Greg KH <greg@kroah.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.11-pre5
+Message-ID: <20011007161903.H14479@sventech.com>
+In-Reply-To: <Pine.LNX.4.33.0110071148380.7382-100000@penguin.transmeta.com> <20011007121851.A1137@netnation.com> <20011007153433.G14479@sventech.com> <20011007124038.A22923@netnation.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011007124038.A22923@netnation.com>; from sim@netnation.com on Sun, Oct 07, 2001 at 12:40:38PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
+On Sun, Oct 07, 2001, Simon Kirby <sim@netnation.com> wrote:
+> On Sun, Oct 07, 2001 at 03:34:33PM -0400, Johannes Erdfelt wrote:
 > 
-> On Thu, Oct 04, 2001 at 09:35:07PM -0700, Mike Kravetz wrote:
-> > [..] the pipe routines only call
-> > the non-synchronous form of wake_up. [..]
+> > > hub.c: USB new device connect on bus1/2, assigned device number 2
+> > > usb_control/bulk_msg: timeout
+> > > usb.c: USB device not accepting new address=2 (error=-110)
+> > 
+> > Could you give me the output of /proc/interrupts?
 > 
-> Ok I see, I overlooked that when we don't need to block we wakeup-async.
+>            CPU0       CPU1
+>   0:      71555      64454    IO-APIC-edge  timer
+>   1:       1355       1274    IO-APIC-edge  keyboard
+>   2:          0          0          XT-PIC  cascade
+>   5:          0          0    IO-APIC-edge  NE2000
+>  14:       4157       5136    IO-APIC-edge  ide0
+>  15:          2         19    IO-APIC-edge  ide1
+>  16:       2462       2381   IO-APIC-level  eth0
+>  17:          0          0   IO-APIC-level  Trident 4DWave NX
+>  18:          1          1   IO-APIC-level  bttv
+>  19:       2330       2467   IO-APIC-level  aic7xxx, usb-uhci
+> NMI:          0          0
+> LOC:     135894     135912
+> ERR:          0
+> MIS:          0
 > 
-> So first of all it would be interesting to change the token passed
-> thorugh the pipe so that it always fills in the PAGE_SIZE pipe buffer so
-> that the task goes to sleep before reading from the next pipe in the
-> ring.
+> > Do you see any other messages in dmesg?
 > 
-> And if we want to optimize the current benchmark (with the small token that
-> triggers the async-wakeup and it always goes to sleep in read() rather
-> than write()) we'd need to invalidate a basic point of the scheduler
-> that have nothing to do with IPI reschedule, the point to invalidate is
-> that if the current task (the one that is running wake_up()) has a small
-> avg_slice we'd better not reschedule the wakenup task on a new idle cpu
-> but we'd better wait the current task to go away instead. 
-
-A couple of questions: 
-
-1.) Do you want to qualify that the wake_up is not from an interrupt?
-
-2.) Having done this AND the task doesn't block THIS time, do we wait
-for the slice to end or is some other "dead man" timer needed?
-
-George
-
-
-Unless I'm
-> missing something this should fix lmbench in its current implementation.
+> Here is an entire "insmod uhci" output:
 > 
-> Andrea
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> uhci.c: USB Universal Host Controller Interface driver v1.1
+> uhci.c: USB UHCI at I/O 0xb400, IRQ 19
+> usb.c: new USB bus registered, assigned bus number 1
+> hub.c: USB hub found
+> hub.c: 2 ports detected
+> hub.c: USB new device connect on bus1/2, assigned device number 2
+> usb_control/bulk_msg: timeout
+> usb.c: USB device not accepting new address=2 (error=-110)
+> hub.c: USB new device connect on bus1/2, assigned device number 3
+> usb_control/bulk_msg: timeout
+> usb.c: USB device not accepting new address=3 (error=-110)
+> 
+> > What UHCI controller is this? (lspci -v)
+> 
+> 00:04.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01) (prog-if 00 [UHCI])
+>         Flags: bus master, medium devsel, latency 32, IRQ 19
+>         I/O ports at b400 [size=32]
+> 
+> It's on an ASUS P2B-DS (with broken USB resistor shorted).
+
+Ahh, could you replace this line:
+
+        pci_write_config_word(uhci->dev, USBLEGSUP, 0);
+
+with this:
+
+        pci_write_config_word(uhci->dev, USBLEGSUP, USBLEGSUP_DEFAULT);
+
+and try again?
+
+JE
+

@@ -1,91 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278808AbRKDFsD>; Sun, 4 Nov 2001 00:48:03 -0500
+	id <S278908AbRKDF5E>; Sun, 4 Nov 2001 00:57:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278908AbRKDFry>; Sun, 4 Nov 2001 00:47:54 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:22798 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S278808AbRKDFrp>; Sun, 4 Nov 2001 00:47:45 -0500
-Message-Id: <200111040547.fA45ldY64666@aslan.scsiguy.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: linux-kernel@vger.kernel.org, groudier@club-internet.fr
-Subject: Re: Adaptec vs Symbios performance 
-In-Reply-To: Your message of "Sun, 04 Nov 2001 04:50:43 +0100."
-             <200111040350.EAA22275@webserver.ithnet.com> 
-Date: Sat, 03 Nov 2001 22:47:39 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S279794AbRKDF4q>; Sun, 4 Nov 2001 00:56:46 -0500
+Received: from bitmover.com ([192.132.92.2]:43924 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S278908AbRKDF4e>;
+	Sun, 4 Nov 2001 00:56:34 -0500
+Date: Sat, 3 Nov 2001 21:56:34 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Bernd Eckenfels <ecki@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CVS / Bug Tracking System
+Message-ID: <20011103215634.A10051@work.bitmover.com>
+Mail-Followup-To: Bernd Eckenfels <ecki@lina.inka.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <flk.1004824861.fsf@jens.unfaehig.de> <E160Epp-0008Sa-00@calista.inka.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E160Epp-0008Sa-00@calista.inka.de>; from ecki@lina.inka.de on Sun, Nov 04, 2001 at 05:24:37AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Can you re-comment from todays point of view?                         
+(I'm the BitKeeper guy in case someone doesn't know.)
 
-I believe that if you were to set the tag depth in the new aic7xxx
-driver to a level similar to either the symbios or the old aic7xxx
-driver, that the problem you describe would go away.  The driver
-will only perform internal queuing if a device cannot handle the
-original queue depth exported to the SCSI mid-layer.  Since the
-mid-layer provides no mechanism for proper, dynamic, throttling,
-queuing at the driver level will always be required when the driver
-determines that a target cannot accept additional commands.  The default
-used by the older driver, 8, seems to work for most drives.  So, no
-internal queuing is required.  If you are really concerned about
-interrupt latency, this will also be a win as you will reduce your
-transaction throughput and thus the frequency of interrupts seen
-by the controller.
+On Sun, Nov 04, 2001 at 05:24:37AM +0100, Bernd Eckenfels wrote:
+> Some architectures and branches are kept in Source control. Like sparc, xfs.
+> Also the complete kernel is available in bitkeeper. Linux does not see a
+> reason to have his version in the CVS. And since he is the only commiter it
+> is quite valid for him to choose the tool he wants to use.
 
->> I won't comment on whether deferring this work until outside of     
->> an interrupt context would help your "problem" until I understand   
->> what you are complaining about. 8-)                                 
->                                                                      
->In a nutshell:                                                        
->a) long lasting interrupt workloads prevent normal process activity   
->(creating latency and sticky behaviour)                               
+Linus has toyed with using BitKeeper but has always found some fault with
+it (we're not complaining, we tend to agree with his complaints and fix 
+them as fast as we can).  It's still not as good as he wants so I'm not
+sure if he'll take it for a spin for 2.5 or not.
 
-Deferring the work to outside of interrupt context will not, in
-general, allow non-kernel processes to run any sooner.  Only interrupt
-handlers that don't block on the io-request lock (may it die a horrible
-death) would be allowed to pre-empt this activity.  Even in this case,
-there will be times, albeit much shorter, that this interrupt
-will be blocked by the per-controller spin-lock used to protect
-driver data structures and access to the card's registers.
+> It is is not your problem to merge them. Alan and Linus are doing that. And
+> they are fine without CVS. 
 
-If your processes are really feeling sluggish, you are probably doing
-*a lot* of I/O.  The only thing that might help is some interrupt
-coalessing algorithm in the aic7xxx driver's firmware.  Since these
-chips do not have an easily utilized timer facility any such algorithm
-would be tricky to implement.  I've thought about it, but not enough
-to implement it yet.
+One thing we have been doing is working on merge tools.  Some of our users
+have really nasty merge problems and need better merge technology.  We've
+come up with something that we think is very good.  You can see a screen
+shot at
+	
+	http://www.bitkeeper.com/gifs/fm3new.gif
 
->b) long lasting interrupt workloads play bad on other interrupt users 
->(e.g. on the same shared interrupt)                                   
+and if you'd like to take it for a test drive, we've put up just the stuff
+you need at
 
-Sure.  As the comment suggests, the driver should use a bottom half
-handler or whatever new deferral mechanism is currently the rage
-in Linux.  When I first ported the driver, it was targeted to be a
-module, suitable for a driver diskette, to replace the old driver.
-Things have changed since then, and this area should be revisited.
-Internal queuing was not required in the original FreeBSD driver and
-this is something the mid-layer should do on a driver's behalf, but
-I've already ranted enough about that.
+	http://www.bitkeeper.com/promerge.tgz
 
->I can see _both_ comparing aic with symbios.                          
+You don't need BitKeeper installed to run it, but if you do then as you move
+through the diffs, the checkin comments for the affected lines will show
+up in the top two windows (very handy when you are scratching your head and
+wondering why did someone change this).
 
-I'm not sure that you would see much of a difference if you set the
-symbios driver to use 253 commands per-device.  I haven't looked at
-the sym driver for some time, but last I remember it does not use
-a bottom half handler and handles queue throttling internally.  It
-may perform less work at interrupt time than the aic7xxx driver if 
-locally queued I/O is compiled into a format suitable for controller
-consumption rather than queue the ScsiCmnd structure provided by
-the mid-layer.  The aic7xxx driver has to convert a ScsiCmnd into a
-controller data structure to service an internal queue and this can
-take a bit of time.
+It takes a little getting used to and it could sure use some docs, but we
+have compared this to other graphical merge tools out there and think we
+have the best of the lot.  It takes advantage of some unique information
+we can extract from the data in the revision control system; unless you
+have a very similar revision engine, it's impossible to do as well as we
+do.  And for you poor PPC BK guys, yeah, we know that the original merge
+tool sucked.  You'll like this better.
 
-I would be interresting if there is a disparity in the TPS numbers
-and tag depths in your comparisons.  Higher tag depth usually means
-higher TPS which may also mean less interactive response from the
-system.  All things being equal, I would expect the sym and aic7xxx
-drivers to perform about the same.
-
---
-Justin
+Anyway, getting back to Linus & Co, and for that matter, open source
+efforts in general, they typically have a somewhat different model
+than BK.  In BK today, before you can push up a change you have to merge
+it with whatever is in the tree to which you are sending the change.
+In other words, each user merges rather than the maintainer.  We're well
+aware that not everyone likes this model so we're working on a small set
+of changes so that users can push their changes to the maintainer and the
+maintainer merges them.  This makes merge tools even more important to
+the maintainers, so if you give the filemerge a try and have suggestions
+for improvements, we'd love to hear them.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264977AbUELF2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264978AbUELFcY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264977AbUELF2y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 01:28:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264978AbUELF2y
+	id S264978AbUELFcY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 01:32:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264979AbUELFcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 01:28:54 -0400
-Received: from wl-193.226.227-253-szolnok.dunaweb.hu ([193.226.227.253]:49618
-	"EHLO szolnok.dunaweb.hu") by vger.kernel.org with ESMTP
-	id S264977AbUELF2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 01:28:53 -0400
-Message-ID: <40A1B5A7.9020805@freemail.hu>
-Date: Wed, 12 May 2004 07:27:03 +0200
-From: Zoltan Boszormenyi <zboszor@freemail.hu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.4.1) Gecko/20031114
-X-Accept-Language: hu, en-US
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Serial ATA (SATA) on Linux status report
-References: <40A0A4EC.8050705@freemail.hu> <40A16E21.9080201@pobox.com>
-In-Reply-To: <40A16E21.9080201@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 12 May 2004 01:32:24 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:30870 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S264978AbUELFcW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 01:32:22 -0400
+Message-Id: <200405120532.i4C5WCF25908@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Jens Axboe'" <axboe@suse.de>
+Cc: "'Andrew Morton'" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: Cache queue_congestion_on/off_threshold
+Date: Tue, 11 May 2004 22:32:11 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcQ2m1knKuI+GyGUQ/2vuwEjqRbhuwBRVpWg
+In-Reply-To: <20040510143024.GF14403@suse.de>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik írta:
-> Zoltan Boszormenyi wrote:
->> Could it be that Region 1 of the Promise controller contains
->> the PATA I/O ports? Then it could be driven with a drivers/ide
->> driver... Maybe common locking is needed between sata_promise.c
->> and a driver for it's PATA side, I don't know.
-> 
-> 
-> Nope, the PATA ports are stuck in the same place as the SATA ports...
-> 
->     Jeff
+>>>> Jens Axboe wrote on Monday, May 10, 2004 7:30 AM
+> > >
+> > > Actually, with the good working batching we might get away with killing
+> > > freereq completely. Have you tested that (if not, could you?)
+> >
+> > Sorry, I'm clueless on "good working batching".  If you could please give
+> > me some pointers, I will definitely test it.
+>
+> Something like this.
+>
+> --- linux-2.6.6/drivers/block/ll_rw_blk.c~	2004-05-10 16:23:45.684726955 +0200
+> +++ linux-2.6.6/drivers/block/ll_rw_blk.c	2004-05-10 16:29:04.333792268 +0200
+> @@ -2138,8 +2138,8 @@
+>
+>  static int __make_request(request_queue_t *q, struct bio *bio)
+>  {
+> -	struct request *req, *freereq = NULL;
+>  	int el_ret, rw, nr_sectors, cur_nr_sectors, barrier, ra;
+> +	struct request *req;
+>  	sector_t sector;
+>
+>
+> [snip] ...
 
-Then the solution could be be that drivers/ide/ide.c generic
-functions must be bridged/duplicated (short term) or moved (long term)
-to libata. And maybe in 2.7 drivers/ide ll drivers are rewritten
-(again) to use it from there.
+I'm still working on this.  With this patch, several processes stuck
+in "D" state and never finish.  Suspect it's the barrier thing, it
+jumps through blk_plug_device() and might goof up the queue afterwards.
 
-Best regards,
-Zoltán Böszörményi
+- Ken
+
 

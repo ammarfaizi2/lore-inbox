@@ -1,115 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264491AbTFQAoU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 20:44:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264493AbTFQAoT
+	id S264493AbTFQAot (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 20:44:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264494AbTFQAot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 20:44:19 -0400
-Received: from holomorphy.com ([66.224.33.161]:59038 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264491AbTFQAoR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 20:44:17 -0400
-Date: Mon, 16 Jun 2003 17:58:07 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.71-bk2-wli-1
-Message-ID: <20030617005807.GR20413@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
+	Mon, 16 Jun 2003 20:44:49 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:63877
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S264493AbTFQAoq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 20:44:46 -0400
+Date: Tue, 17 Jun 2003 02:59:16 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Larry Auton <lkml@winux.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: direct i/o problem with 2.4.21
+Message-ID: <20030617005916.GP1571@dualathlon.random>
+References: <16110.17820.740483.866151@eagle.skarven.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <16110.17820.740483.866151@eagle.skarven.net>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Available from:
-ftp://ftp.kernel.org/pub/linux/kernel/people/wli/kernels/2.5.71/linux-2.5.71-bk2-wli-1.bz2
+On Mon, Jun 16, 2003 at 06:33:00PM -0400, Larry Auton wrote:
+> > Message-ID: <16107.26375.67524.817817@nv.winux.com>
+> > Date:   Sat, 14 Jun 2003 14:18:47 -0400
+> > To:     linux-kernel@vger.kernel.org
+> > From:   Larry Auton <lkml@winux.com>
+> > Subject: direct i/o problem with 2.4.20 and 2.4.21rc7
+> >
+> > I have an application that requires direct i/o to thousands of files.
+> > On 2.4.19 the open's would eventually fail (at around 7200 files).
+> > On 2.4.20 and 2.4.21rc7 the machine hangs.
+> > 
+> > Here's a sample program to do the deed:
+> > 
+> >     wget http://www.skarven.net/lda/crashme.c
+> >     cc -o crashme crashme.c     # compile it
+> >     ./crashme 4000              # OK
+> >     ./crashme 9999              # CRASH
+> > 
+> > It's a little obfuscated to eliminate the need for root privileges to
+> > mess with rlimit. It simply opens a bunch of files with O_DIRECT and,
+> > when enough files are open, the system will hang.
+> > 
+> > The system hangs when '/proc/slabinfo' reports that 'kiobuf' reaches 
+> > just over 7230 active objects. I don't believe that this problem is
+> > specific to any particular file system as the failure occurs when
+> > using both ext2 and reiserfs.
+> > 
+> > Larry Auton
+> 
+> The hang I reported on 2.4.21rc7 persists in the released version 2.4.21.
 
-applies incrementally atop the bk2 snapshot.
+can you try to reproduce with 2.4.21rc8aa1? (you can apply my full patch
+to 21 final too of course since rc8 is the same as final) The fix for
+this that also fixes the performance problem with rawio from the same
+file but multiple fd is already in tree since several months, we should
+push it into mainline ASAP. The basic idea of the patch that moves the
+bh allocation flood down to the slab to take advantage of a shared
+shrinkable cache was developed at intel AFIK.
 
-So, where does one get a fanbase, anyway? NFI. Here's at least an
-attempt to acquire one, with desktop-oriented goodies to speed up
-top(1), apparently to the point where top(1) barely even registers
-on its own cpu usage reports even with 1s refreshes (900MHz P-III).
-It might also vaguely help people instrument heavy multitasking loads.
+the single patch is this but I doubt it would apply cleanly as 90% of
+the other patches:
 
-For what it's worth, the O(1) proc_pid_statm() patch also restores some
-of the old 2.4.x fields whose support was removed from 2.5.x.
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.21rc8aa1/9996_kiobuf-slab-1
 
+so you can make a quick test with the full 2.4.21rc8aa1.gz applied.
 
-Merged:
-- flow.c compilefix
-	Well, I didn't really do any of the work, but at least I don't
-	have to carry it around anymore.
+as for the hang, that's because the vm in mainline probably isn't
+capable of returning -ENOMEM from syscalls under a zone normal shortage
+(previously it wouldn't touch the vm side because it used vmalloc that
+returns -ENOMEM w/o entering the VM). With the vm in my tree you
+shouldn't experience hangs even w/o the fix for the kiobuf bh flood
+allocation patch applied.
 
-
-Changes since 2.5.71-wli-1:
-
-+ O(1) proc_pid_readdir()
-	originally due to Manfred Spraul; figures out its position from
-	a small pid hashtable rearrangement
-
-+ O(1) proc_pid_statm()
-	originally due to Ben LaHaise (I think); keeps count of the various
-	proc_pid_statm() counters whenever twiddling ptes.
-
-+ non-i386 highpmd fixes
-	write stubs for non-i386 pmd twiddling functions
-
-+ highpmd fixes
-	a few mm/memory.c functions forgot to pass pmd pointers by reference
-
-+ O(1) buffered_rmqueue() fixes
-	correct small typo in CONFIG_SOFTWARE_SUSPEND code touched by it
-
-+ i386 pagetable cache fixes
-	Correct failure to reset tlb->freed, which resulted in wildly wrong
-	mm->rss counts. Also define FREE_PTE_NR so CONFIG_PREEMPT compiles.
-
-
-All 12 patches:
-
-O(1) rmqueue_bulk()
-	Implement deferred coalescing with list-of-lists -structured order 0
-	deferred queues so buffered_rmqueue() in O(1) expected time.
-
-lowmem_page_address() microoptimization
-	use page_to_pfn() to inherit its arch-specific microoptimizations
-
-highpmd
-	shove pmd's into highmem, by brute force
-
-trivial /proc/ BKL removals
-	Kill off some blatantly unnecessary BKL-grabbing in /proc/
-
-i386 pagetable cache
-	Resurrect the i386 pagetable cache
-
-pgd_ctor
-	Use slab ctors for i386 pgd's, and be safe with AGP and highpmd
-
-O(1) proc_pid_readdir()
-	originally due to Manfred Spraul; figures out its position from
-	a small pid hashtable rearrangement
-
-O(1) proc_pid_statm()
-	originally due to Ben LaHaise (I think); keeps count of the various
-	proc_pid_statm() counters whenever twiddling ptes.
-
-non-i386 highpmd fixes
-	write stubs for non-i386 pmd twiddling functions
-
-highpmd fixes
-	a few mm/memory.c functions forgot to pass pmd pointers by reference
-
-O(1) buffered_rmqueue() fixes
-	correct small typo in CONFIG_SOFTWARE_SUSPEND code touched by it
-
-i386 pagetable cache fixes
-	Correct failure to reset tlb->freed, which resulted in wildly wrong
-	mm->rss counts. Also define FREE_PTE_NR so CONFIG_PREEMPT compiles.
-
-
--- wli
+Andrea

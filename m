@@ -1,64 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290904AbSASCg4>; Fri, 18 Jan 2002 21:36:56 -0500
+	id <S290906AbSASCl0>; Fri, 18 Jan 2002 21:41:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290905AbSASCgq>; Fri, 18 Jan 2002 21:36:46 -0500
-Received: from insws8502.gs.com ([204.4.182.11]:14248 "HELO insws8502.gs.com")
-	by vger.kernel.org with SMTP id <S290904AbSASCgf>;
-	Fri, 18 Jan 2002 21:36:35 -0500
-Message-Id: <FBC7494738B7D411BD7F00902798761908BFF31F@gsny49e.ny.fw.gs.com>
-From: "Ahmed, Zameer" <Zameer.Ahmed@gs.com>
-To: linux-kernel@vger.kernel.org
-Cc: "'zameer.ahmed@gs.com'" <Zameer.Ahmed@gs.com>
-Subject: High uptime but unpredicatble behaviour (machine slowing), any way to fix without rebooting?
-Date: Fri, 18 Jan 2002 21:36:32 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S290907AbSASClQ>; Fri, 18 Jan 2002 21:41:16 -0500
+Received: from ip210-55-103-15.dyndns.win.co.nz ([210.55.103.15]:10967 "HELO
+	volcano.kiwa.co.nz") by vger.kernel.org with SMTP
+	id <S290906AbSASClO>; Fri, 18 Jan 2002 21:41:14 -0500
+Date: Sat, 19 Jan 2002 15:40:59 +1300
+From: Nicholas Lee <nj.lee@plumtree.co.nz>
+To: Ville Herva <vherva@niksula.hut.fi>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Disk corruption - Abit KT7, 2.2.19+ide patches
+Message-ID: <20020119024059.GD1568@inktiger.kiwa.co.nz>
+Mail-Followup-To: Nicholas Lee <nj.lee@plumtree.co.nz>,
+	Ville Herva <vherva@niksula.hut.fi>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020115202302.GA598@inktiger.kiwa.co.nz> <20020115205116.GH51648@niksula.cs.hut.fi> <20020115211032.GC598@inktiger.kiwa.co.nz> <20020115214049.GI51648@niksula.cs.hut.fi> <20020115220211.GE598@inktiger.kiwa.co.nz> <000f01c19e18$469a3700$0501a8c0@psuedogod> <20020116070710.GT51774@niksula.cs.hut.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020116070710.GT51774@niksula.cs.hut.fi>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
-	I am running machine having 2.2.12 kernel and its been running under
-moderate loads for 313 days. But now I find the kernel behaving errtically
-including dumping core while running top and recovering sometimes. Any idea
-why the machine has such a high system load? I would want to make this
-machine run more longer time than to reboot. It would be a shame to reboot
-the machine. 
+On Wed, Jan 16, 2002 at 09:07:11AM +0200, Ville Herva wrote:
 
-Any suggestions most welcome.
+> Oh, I check some time ago. Sorry for baing vague, but as I said, we expect
+> to post more info in a couple of days. 
+> 
+> The card was in a slot that shares an IQR with something called "serial bus
+> controller" (and USB gadget, I gather.) It's _not_ in the slot that shares
+> the IRQ with (both) HPT370 controllers.
+> 
+> USB is disabled in BIOS and in kernel config. Ansolutely no USB devices
+> attached.
+> 
+> No. I'm pretty positive this is a case of Via PCI being flaky.
 
-Thanks
-Zameer A.
+I opened the box, and yes the NIC was in PCI slot 3. I moved it to slot
+1 and I'll patch up the bad blocks on that drive and see if it happens
+again. 
 
+Of course it took several months this time, and it's likely I'll be
+upgrading that machine to 2.4. So the new drivers in 2.4 might handle
+the buggy chipset.
 
-% uname -a
-Linux cow.jany.gs.com 2.2.12 #7 SMP Tue Dec 7 16:43:39 EST 1999 i686 unknown
+-- 
+Nicholas Lee - nj.lee at plumtree.co dot nz, somewhere on the fish Maui caught.
+gpg. 8072 4F86 EDCD 4FC1 18EF  5BDD 07B0 9597 6D58 D70C            icq. 1612865 
 
-  9:33pm  up 313 days,  6:33,  1 user,  load average: 0.00, 0.10, 0.08
-67 processes: 66 sleeping, 1 running, 0 zombie, 0 stopped
-CPU0 states:  0.0% user, 100.0% system,  0.0% nice,  0.0% idle
-CPU1 states:  0.0% user, 100.0% system,  0.0% nice,  0.0% idle
-Mem:   971864K av,  848148K used,  123716K free,   65196K shrd,  341820K
-buff
-Swap: 1542200K av,    5172K used, 1537028K free                   31960K
-cached
-
-  PID USER     PRI  NI  SIZE  RSS SHARE LC STAT %CPU %MEM   TIME COMMAND
-22009 ahmedz    11   0   896  896   684  0 R     6.4  0.0   0:00 top
-11085 procmon    1   0 89980  87M 12008  1 S     2.1  9.2   1:48 secexpr
-    1 root       0   0   164  116    92  1 S     0.0  0.0   0:05 init
-    2 root       0   0     0    0     0  1 SW    0.0  0.0   0:09 kflushd
-    3 root       0   0     0    0     0  0 SW    0.0  0.0  24:54 kupdate
-    4 root       0   0     0    0     0  1 SW    0.0  0.0   0:00 kpiod
-    5 root       0   0     0    0     0  1 SW    0.0  0.0  12:59 kswapd
-  391 bin        0   0   136   92    76  0 S     0.0  0.0   0:01 portmap
-  437 root       0   0   396  384   296  1 S     0.0  0.0   3:19 syslogd
-  447 root       0   0   448  168   136  0 S     0.0  0.0   0:03 klogd
-  461 daemon     0   0   140  104    76  0 S     0.0  0.0   0:01 atd
-  474 root       0   0   152  108    80  1 S     0.0  0.0   1:23 crond
-  487 root       0   0   148   96    36  1 S     0.0  0.0   0:03 inetd
-  500 root       0   0  1052  480   356  1 S     0.0  0.0  17:54 named
-  513 root       0   0   292  268   168  1 S     0.0  0.0  94:27 routed
-  528 root       0   0  1356 1356  1164  0 S     0.0  0.1  50:55 xntpd
+                         Quixotic Eccentricity

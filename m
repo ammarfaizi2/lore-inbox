@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbUCAUr2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 15:47:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbUCAUr2
+	id S261432AbUCAU4L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 15:56:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbUCAU4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 15:47:28 -0500
-Received: from fw.osdl.org ([65.172.181.6]:50638 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261429AbUCAUrZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 15:47:25 -0500
-Date: Mon, 1 Mar 2004 12:47:23 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Cc: Nigel Kukard <nkukard@lbsd.net>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.3] Sysfs breakage - tun.ko
-Message-ID: <20040301124723.P22989@build.pdx.osdl.net>
-References: <4043938C.9090504@lbsd.net> <40439B03.4000505@backtobasicsmgmt.com>
+	Mon, 1 Mar 2004 15:56:11 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:11435 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S261432AbUCAU4J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 15:56:09 -0500
+Date: Mon, 1 Mar 2004 20:54:26 +0000
+From: Dave Jones <davej@redhat.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, yi.zhu@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [start_kernel] Suggest to move parse_args() before trap_init()
+Message-ID: <20040301205426.GA5862@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
+	Andrew Morton <akpm@osdl.org>, yi.zhu@intel.com,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0403011721220.2367-100000@mazda.sh.intel.com> <20040301025637.338f41cf.akpm@osdl.org> <p73vfloz45t.fsf@verdi.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <40439B03.4000505@backtobasicsmgmt.com>; from kpfleming@backtobasicsmgmt.com on Mon, Mar 01, 2004 at 01:20:19PM -0700
+In-Reply-To: <p73vfloz45t.fsf@verdi.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Kevin P. Fleming (kpfleming@backtobasicsmgmt.com) wrote:
-> Nigel Kukard wrote:
-> 
-> > --- drivers/net/tun.c.old   2004-02-27 18:18:55.000000000 +0200
-> > +++ drivers/net/tun.c       2004-02-27 18:19:02.000000000 +0200
-> > @@ -605,7 +605,7 @@
-> > 
-> >  static struct miscdevice tun_miscdev = {
-> >         .minor = TUN_MINOR,
-> > -       .name = "net/tun",
-> > +       .name = "tun",
-> >         .fops = &tun_fops
-> >  };
-> 
-> This changed back and forth since the tun driver was added to the 
-> kernel; making this change will cause the devfs path to the tun node to 
-> change, and userspace applications expect it to be at /dev/misc/net/tun, 
-> whether that's right or wrong.
+On Mon, Mar 01, 2004 at 09:46:38PM +0100, Andi Kleen wrote:
 
-Why don't you use:
-	.devfs_name = "net/tun",
+ > > I think the only problem with this is if we get a fault during
+ > > parse_args(), the kernel flies off into outer space.  So you lose some
+ > > debuggability when using an early console.
+ > > 
+ > > But 2.4 does trap_init() after parse_args() and nobody has complained, as
+ > > did 2.6 until recently.  So the change is probably OK.
+ > 
+ > The standard way to fix this is to add an explicit check for lapic
+ > to the early argument parsing in setup.c (but keep the __setup so that
+ > no unknown argument is reported).
 
-Or fix userspace apps?  Or switch to udev with devfs rules emulated and a
-rule for the tun/tap driver?
+This just got me thinking of a sort-of related problem.
+Some laptops hang when local apic is enabled, and we couldn't
+blacklist them in 2.4 due to us not doing the dmi scan early enough.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Did that get fixed in 2.6 ?
+
+		Dave

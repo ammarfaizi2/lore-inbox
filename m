@@ -1,66 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129187AbQKJFIq>; Fri, 10 Nov 2000 00:08:46 -0500
+	id <S129296AbQKJFJQ>; Fri, 10 Nov 2000 00:09:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129296AbQKJFIg>; Fri, 10 Nov 2000 00:08:36 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:19470 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129187AbQKJFI2>;
-	Fri, 10 Nov 2000 00:08:28 -0500
-Message-ID: <3A0B8295.7606DA1F@mandrakesoft.com>
-Date: Fri, 10 Nov 2000 00:07:33 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: John Kacur <jkacur@home.com>, linux-kernel@vger.kernel.org
-Subject: Re: test11-pre2 compile error undefined reference to `bust_spinlocks'
-In-Reply-To: <23327.973832257@kao2.melbourne.sgi.com>
+	id <S130217AbQKJFJJ>; Fri, 10 Nov 2000 00:09:09 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:25099 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S129296AbQKJFI6>; Fri, 10 Nov 2000 00:08:58 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: John Kacur <jkacur@home.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: test11-pre2 compile error undefined reference to `bust_spinlocks' 
+In-Reply-To: Your message of "Fri, 10 Nov 2000 00:32:49 CDT."
+             <3A0B8881.F444DF5@home.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Fri, 10 Nov 2000 16:08:20 +1100
+Message-ID: <23569.973832900@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> Index: 0-test11-pre2.1/arch/i386/kernel/traps.c
-> --- 0-test11-pre2.1/arch/i386/kernel/traps.c Fri, 10 Nov 2000 13:10:37 +1100 kaos (linux-2.4/A/c/1_traps.c 1.1.2.2.1.1.2.1.2.3.1.2.3.1.1.2 644)
-> +++ 0-test11-pre2.1(w)/arch/i386/kernel/traps.c Fri, 10 Nov 2000 15:56:54 +1100 kaos (linux-2.4/A/c/1_traps.c 1.1.2.2.1.1.2.1.2.3.1.2.3.1.1.2 644)
-> @@ -382,6 +382,17 @@ static void unknown_nmi_error(unsigned c
->         printk("Do you have a strange power saving mode enabled?\n");
->  }
-> 
-> +/*
-> + * Unlock any spinlocks which will prevent us from getting the
-> + * message out (timerlist_lock is acquired through the
-> + * console unblank code)
-> + */
-> +void bust_spinlocks(void)
-> +{
-> +       spin_lock_init(&console_lock);
-> +       spin_lock_init(&timerlist_lock);
-> +}
-> +
->  #if CONFIG_X86_IO_APIC
-> 
->  int nmi_watchdog = 1;
-> @@ -396,17 +407,6 @@ __setup("nmi_watchdog=", setup_nmi_watch
-> 
->  extern spinlock_t console_lock, timerlist_lock;
->  static spinlock_t nmi_print_lock = SPIN_LOCK_UNLOCKED;
+On Fri, 10 Nov 2000 00:32:49 -0500, 
+John Kacur <jkacur@home.com> wrote:
+>When attempting to compile test11-pre2, I get the following compile
+>error.
+>
+>arch/i386/mm/mm.o: In function `do_page_fault':
+>arch/i386/mm/mm.o(.text+0x781): undefined reference to `bust_spinlocks'
+>make: *** [vmlinux] Error 1
 
-Did you actually try this?  You are moving bust_spinlocks above the
-'extern spinlock_t' declarations intended for it.
+Oops, wrong patch.
 
-My solution was to move the 'extern spinlock_t ...' also :)
+Index: 0-test11-pre2.1/arch/i386/kernel/traps.c
+--- 0-test11-pre2.1/arch/i386/kernel/traps.c Fri, 10 Nov 2000 13:10:37 +1100 kaos (linux-2.4/A/c/1_traps.c 1.1.2.2.1.1.2.1.2.3.1.2.3.1.1.2 644)
++++ 0-test11-pre2.1(w)/arch/i386/kernel/traps.c Fri, 10 Nov 2000 16:06:48 +1100 kaos (linux-2.4/A/c/1_traps.c 1.1.2.2.1.1.2.1.2.3.1.2.3.1.1.2 644)
+@@ -382,6 +382,18 @@ static void unknown_nmi_error(unsigned c
+ 	printk("Do you have a strange power saving mode enabled?\n");
+ }
+ 
++extern spinlock_t console_lock, timerlist_lock;
++/*
++ * Unlock any spinlocks which will prevent us from getting the
++ * message out (timerlist_lock is acquired through the
++ * console unblank code)
++ */
++void bust_spinlocks(void)
++{
++	spin_lock_init(&console_lock);
++	spin_lock_init(&timerlist_lock);
++}
++
+ #if CONFIG_X86_IO_APIC
+ 
+ int nmi_watchdog = 1;
+@@ -394,19 +406,7 @@ static int __init setup_nmi_watchdog(cha
+ 
+ __setup("nmi_watchdog=", setup_nmi_watchdog);
+ 
+-extern spinlock_t console_lock, timerlist_lock;
+ static spinlock_t nmi_print_lock = SPIN_LOCK_UNLOCKED;
+-
+-/*
+- * Unlock any spinlocks which will prevent us from getting the
+- * message out (timerlist_lock is aquired through the
+- * console unblank code)
+- */
+-void bust_spinlocks(void)
+-{
+-	spin_lock_init(&console_lock);
+-	spin_lock_init(&timerlist_lock);
+-}
+ 
+ inline void nmi_watchdog_tick(struct pt_regs * regs)
+ {
 
-	Jeff
-
-
--- 
-Jeff Garzik             |
-Building 1024           | Would you like a Twinkie?
-MandrakeSoft            |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

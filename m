@@ -1,72 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265306AbTL3Txa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 14:53:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265732AbTL3Txa
+	id S265920AbTL3Tz2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 14:55:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265923AbTL3Tz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 14:53:30 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35599 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265306AbTL3TxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 14:53:06 -0500
-Date: Tue, 30 Dec 2003 19:53:03 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: 2.6.0-test6: APM unable to suspend (the 2.6.0-test2 saga continues)
-Message-ID: <20031230195303.F13556@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Vojtech Pavlik <vojtech@suse.cz>
-References: <20031005171055.A21478@flint.arm.linux.org.uk> <20031228174622.A20278@flint.arm.linux.org.uk> <20031228182545.B20278@flint.arm.linux.org.uk> <Pine.LNX.4.58.0312281248190.11299@home.osdl.org> <20031230114324.A1632@flint.arm.linux.org.uk> <20031230165042.B13556@flint.arm.linux.org.uk> <20031230181741.D13556@flint.arm.linux.org.uk> <Pine.LNX.4.58.0312301045170.2065@home.osdl.org> <20031230194003.E13556@flint.arm.linux.org.uk>
+	Tue, 30 Dec 2003 14:55:28 -0500
+Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:58333 "EHLO
+	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
+	id S265920AbTL3TzP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 14:55:15 -0500
+Date: Tue, 30 Dec 2003 12:56:32 -0700
+From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.0 - Watchdog patches (BK consistency checks)
+Message-ID: <20031230195632.GB6992@bounceswoosh.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030906125136.A9266@infomag.infomag.iguana.be> <Pine.LNX.4.58.0312291226400.2113@home.osdl.org> <20031230004907.GA29143@merlin.emma.line.org> <200312300836.16559.edt@aei.ca> <20031230131350.A32120@hexapodia.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031230194003.E13556@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Tue, Dec 30, 2003 at 07:40:03PM +0000
+In-Reply-To: <20031230131350.A32120@hexapodia.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 30, 2003 at 07:40:03PM +0000, Russell King wrote:
-> On Tue, Dec 30, 2003 at 10:47:10AM -0800, Linus Torvalds wrote:
-> > On Tue, 30 Dec 2003, Russell King wrote:
-> > > 
-> > > - i8042_noaux=1 - this doesn't seem to make any difference, although
-> > >   this does appear to leave the CTR set as 0x65, which appears to be
-> > >   the BIOS-set value.
-> > 
-> > Doesn't that leave the kbd mask the same? In particular, it still sets the 
-> > "disable" bit, aka I8042_CTR_KBDDIS later on..
-> 
-> Seems to.  With noaux unset, CTR is set to 0x47.
-> 
-> > What happens if you just define I8042_CTR_KBDDIS to zero?
-> 
-> That still causes suspend to fail.  I've separately tested I8042_CTR_KBDINT
-> set to zero as well, and that still causes failure.
+On Tue, Dec 30 at 13:13, Andy Isaacson wrote:
+>On Tue, Dec 30, 2003 at 08:36:15AM -0500, Ed Tomlinson wrote:
+>The consistency check definitely should not take 15 minutes.  It should
+>be (much) less than 30 seconds.  What is the hardware you're running on?
+>
+>I'm running on an Athlon 2 GHz (XP 2400+) with 512MB and a 7200RPM IDE
+>disk, and I can do a complete clone (with full data copy and consistency
+>check) of the 2.4 tree in 1:40.  That was with cold caches; with the
+>sfile copies and "checkout:get", a half-gig isn't enough to cache
+>everything.  The consistency check is about 19 seconds (bk -r check -acv).
 
-I just tried this change to i8042.c, and suspend magically started
-working.
+For what it is worth:
 
-@@ -814,8 +815,8 @@
-        i8042_port_register(&i8042_kbd_values, &i8042_kbd_port);
-  
-        init_timer(&i8042_timer);
--       i8042_timer.function = i8042_timer_func;
--       mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
-+//     i8042_timer.function = i8042_timer_func;
-+//     mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
-  
-        register_reboot_notifier(&i8042_notifier);
-  
-So it looks like i8042 could do with hooking some power management
-to disable this timer before suspend and resume it afterwards.
+AMD Duron 950MHz, 768MB RAM
+7200RPM 80GB Quantum Viper IDE drive, 26% full
 
-Vojtech?
+phat-penguin:~/src/linux-2.5> time bk -r check -acv
+100% |=================================================================| OK
+42.710u 5.770s 2:04.63 38.8%    0+0k 0+0io 74078pf+0w
+
+over 2 minutes of wall time, 42 seconds of "user" time... (if I'm reading it right), without primed disk caches.
+
+The 2nd run, half a minute later:
+
+phat-penguin:~/src/linux-2.5> time bk -r check -acv
+100% |=================================================================| OK
+41.900u 3.080s 0:45.53 98.7%    0+0k 0+0io 74078pf+0w
+
+
+...would appear to show that BK's checksumming, on my system, is
+constrained near 41 seconds of calculation time, and the difference
+between the user and the wall-clock time is basically time spent
+waiting for the disk to do all its reads.
+
+
+I guess in that case, it'd be interesting to see what the user and
+wall times were for the original poster who reported a 15+ minute
+integrity check.
+
+--eric
+
+
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Eric D. Mudama
+edmudama@mail.bounceswoosh.org
+

@@ -1,118 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266263AbRG2Wam>; Sun, 29 Jul 2001 18:30:42 -0400
+	id <S266220AbRG2W3w>; Sun, 29 Jul 2001 18:29:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266736AbRG2Wad>; Sun, 29 Jul 2001 18:30:33 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:62224 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S266263AbRG2WaP>;
-	Sun, 29 Jul 2001 18:30:15 -0400
-Date: Mon, 30 Jul 2001 01:30:11 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Oliver Kowalke <oliver.kowalke@t-online.de>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: sendto generates SIGSEGV
-Message-ID: <20010730013011.D2650@mea-ext.zmailer.org>
-In-Reply-To: <01072923272900.32616@p3x2lx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01072923272900.32616@p3x2lx>; from oliver.kowalke@t-online.de on Sun, Jul 29, 2001 at 11:27:29PM +0200
+	id <S266263AbRG2W3m>; Sun, 29 Jul 2001 18:29:42 -0400
+Received: from ns3.keyaccesstech.com ([209.47.245.85]:56591 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S266220AbRG2W3f>; Sun, 29 Jul 2001 18:29:35 -0400
+Date: Sun, 29 Jul 2001 18:29:42 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: DMA problem (?) w/ 2.4.6-xfs and ServerWorks OSB4 Chipset
+In-Reply-To: <01072916503504.04012@bozo>
+Message-ID: <Pine.LNX.4.33.0107291827520.8254-100000@terbidium.openservices.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sun, Jul 29, 2001 at 11:27:29PM +0200, Oliver Kowalke wrote:
-> From:	oliver.kowalke@t-online.de (Oliver Kowalke)
-> To:	linux-kernel@vger.kernel.org
-> Subject: sendto generates SIGSEGV
-> Date:	Sun, 29 Jul 2001 23:27:29 +0200
+On Sun, 29 Jul 2001, Marvin Justice wrote:
 
-  Two hours ago you asked this very same question at the  linux-net -list.
-  At how many lists you are asking this ?
+> On an unrelated topic the Serverworks LE chipset does not seem to be capable
+> of handling 4GB of RAM, despite what the board vendors claim in their specs.
+> When a 4th 1G stick is added the system gets really slow --- like maybe
+> cacheing is disabled. We've seen this on both Tyan and SuperMicro boards. The
+> HE chipset seems to be ok.
+>
+> Marvin Justice
 
-> Hi,
-> 
-> I've written an c++ class which wrappes a socket.. With function writen() 
-> you can write to an TCP and UDP socket ( TCP : pointer to stuct sockaddr == 
-> NULL; UDP :  pointer to struct sockaddr != NULL). If I use this function 
-> with TCP sockets all works. If I call this function for an UDP socket it 
-> generates an SIGSEGV signal.
-> What is wrong?
+I believe I remember a thread some time ago regarding the fact that
+sometimes caching only works for a certain maximum amount of memory. It could
+very well be that this is the case.
 
-    You are presenting incomplete source, and worse, incomplete
-  debug trace.   Furthermore, this really does not look like KERNEL
-  problem, which makes it  Out-of-Topic  issue at these lists.
+-- 
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
 
-  From certain signature features in the very scant debug data, I would
-  venture to think that you are running it at Solaris, and debugging
-  it there.
-
-  Do yourself a favour and learn to use debuggers, and compile for
-  debugging.   ``Backtrace'' or ``where'' (or whatever the debugger
-  of your choice calls it) is your friend in most cases.
-
-
-  Syscall trace may give you also some clues in some cases.
-  At Solaris see: 'man truss'.  At Linux see: 'man strace'.
-
-  If you can show  strace  output with SIGSEGV during a network syscall,
-  now THAT would be most appropriate at the   linux-net   list.
-
-> with regards,
-> Oliver
-
-    /Matti Aarnio
-
-> ssize_t writen( const void * vptr, size_t n, struct sockaddr * to)
-> {
->         size_t          nleft = n;
->         ssize_t         nwritten;
->         const char      *ptr = static_cast< const char * >( vptr);
->         
->         struct sigaction new_sa;
->         struct sigaction old_sa;
->         
->         new_sa.sa_handler = SIG_IGN;
->         ::sigemptyset( & new_sa.sa_mask);
->         new_sa.sa_flags = 0;
->         ::sigaction( SIGPIPE, & new_sa, & old_sa);              
-> 
->         while ( nleft > 0)
->         {
-> 
->                 if ( ( nwritten = ::sendto( m_handle, ptr, nleft, 0, to, sizeof * to) )<=0)
->                 {
->                         if ( errno == EINTR)
->                                 nwritten = 0;   // and call sendto() again
->                         else if ( errno == EPIPE)
->                         {
->                                 ::sigaction( SIGPIPE, & old_sa, 0);
-> 
->                                 return -1;              // write to sock with no readers (peer has the sock closed)
-> 
->                         }
->                         else
->                         {
->                                 ::sigaction( SIGPIPE, & old_sa, 0);
->                                 throw; // error
->                         }
->                 }
-> 
->                 nleft -= nwritten;
->                 ptr   += nwritten;
->         }
->         ::sigaction( SIGPIPE, & old_sa, 0);     // set to its previous action
-> 
->         return n;
-> }
-> 
-> here the output of the generated core file:
-> 
-> Core was generated by 'lt-ogx 192.168.1.3 10000'.
-> Program terminated with signal 11, Segmentation fault.
-> rw_common (): write: Success.
-> warning: unable to get global thread event mask
-> [New Thread 1024 (LWP 32350)]
-> rw_common (): write: Success.
-> warning: stop_or_attach_thread: generic error
-> #0 0x0 in ?? ()

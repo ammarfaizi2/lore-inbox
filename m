@@ -1,109 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbUAFJjd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 04:39:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261758AbUAFJjd
+	id S261812AbUAFKLt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 05:11:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbUAFKLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 04:39:33 -0500
-Received: from debian4.unizh.ch ([130.60.73.144]:55748 "EHLO
-	albatross.madduck.net") by vger.kernel.org with ESMTP
-	id S261735AbUAFJjb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 04:39:31 -0500
-Date: Tue, 6 Jan 2004 10:39:26 +0100
-From: martin f krafft <madduck@madduck.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: problem booting aic7xxx-old with reiserfs
-Message-ID: <20040106093926.GA5904@piper.madduck.net>
-Mail-Followup-To: martin f krafft <madduck@madduck.net>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <1aMb6-3Fs-37@gated-at.bofh.it> <20040106084152.7B47D52003@chello062178157104.9.14.vie.surfer.at> <20040106084728.GA3094@piper.madduck.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
-Content-Disposition: inline
-In-Reply-To: <20040106084728.GA3094@piper.madduck.net>
-X-OS: Debian GNU/Linux testing/unstable kernel 2.6.0-piper i686
-X-Mailer: Mutt 1.5.4i (2003-03-19)
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-User-Agent: Mutt/1.5.4i
+	Tue, 6 Jan 2004 05:11:49 -0500
+Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:27918 "EHLO
+	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
+	id S261812AbUAFKLr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 05:11:47 -0500
+Message-ID: <3FFA8AEE.5090007@kolumbus.fi>
+Date: Tue, 06 Jan 2004 12:16:14 +0200
+From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@colin2.muc.de>
+CC: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@muc.de>,
+       David Hinds <dhinds@sonic.net>, linux-kernel@vger.kernel.org
+Subject: Re: PCI memory allocation bug with CONFIG_HIGHMEM
+References: <1aJdi-7TH-25@gated-at.bofh.it> <m37k054uqu.fsf@averell.firstfloor.org> <Pine.LNX.4.58.0401051937510.2653@home.osdl.org> <20040106040546.GA77287@colin2.muc.de> <Pine.LNX.4.58.0401052100380.2653@home.osdl.org> <20040106081203.GA44540@colin2.muc.de> <3FFA7BB9.1030803@kolumbus.fi> <20040106094442.GB44540@colin2.muc.de>
+In-Reply-To: <20040106094442.GB44540@colin2.muc.de>
+X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
+ 18, 2001) at 06.01.2004 12:13:53,
+	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
+ 22, 2002) at 06.01.2004 12:13:01,
+	Serialize complete at 06.01.2004 12:13:01
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---zhXaljGHf11kAtnf
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-also sprach martin f krafft <madduck@madduck.net> [2004.01.06.0947 +0100]:
-> I tried that, but at first, the driver spat out thousands of lines
-> of errors before the kernel failed to mount the root filesystem, and
-> then upon reboot, I still got various errors related to SCSI. When
-> I looked in the description of the aic7xxx drivers, I only found the
-> 294x covered by the old driver.
+Andi Kleen wrote:
 
-I tried the new driver again, and there were no thousand lines.
-However, I did get error messages:
+>On Tue, Jan 06, 2004 at 11:11:21AM +0200, Mika Penttil? wrote:
+>  
+>
+>>Andi Kleen wrote:
+>>
+>>    
+>>
+>>>>If you ahve a proper e820 map, then it should work correctly, with 
+>>>>anything that is RAM being marked as such (or being marked as "reserved").
+>>>>  
+>>>>
+>>>>        
+>>>>
+>>>Every e820 map i've seen did not have the AGP aperture marked reserved.
+>>>
+>>>      
+>>>
+>>Why should it? It's not ram, and the aperture is marked as reserved 
+>>while doing PCI resource assignment/reservation.
+>>    
+>>
+>
+>It implies that you cannot just put your IO mappings
+>into any holes. Because something else like the aperture may 
+>be already there.
+>
 
-  scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.35
-          <Adaptec 2940 Ultra SCSI adapter>
-          aic7880: Ultra Single Channel A, SCSI Id=3D7, 16/253 SCBs
+But AGP aperture is controlled with the standard APBASE pci base 
+register, so you always know where it is, can relocate it and reserve 
+address space for it. Of course there may exist other uncontrollable hw, 
+which may cause problems.
 
-  scsi0:A:0:0: DV failed to configure device.  Please file a bug report aga=
-inst th
-  is driver.
-  (scsi0:A:1): 20.000MB/s transfers (20.000MHz, offset 15)
-  (scsi0:A:0): 20.000MB/s transfers (20.000MHz, offset 15)
-    Vendor: QUANTUM   Model: FIREBALL ST4.3S   Rev: 0F0C
-    Type:   Direct-Access                      ANSI SCSI revision: 02
-  scsi0:A:0:0: Tagged Queuing enabled.  Depth 32
-    Vendor: NEC       Model: CD-ROM DRIVE:465  Rev: 1.03
-    Type:   CD-ROM                             ANSI SCSI revision: 02
-    Vendor: PHILIPS   Model: CDD2600           Rev: 1.07
-    Type:   CD-ROM                             ANSI SCSI revision: 02
-  SCSI device sda: 8519216 512-byte hdwr sectors (4362 MB)
-  SCSI device sda: drive cache: write through
-  sda: sda1 sda2 sda3 < sda5 sda6 sda7 >
-  Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-  sr0: scsi3-mmc drive: 14x/32x cd/rw xa/form2 cdda tray
-  Uniform CD-ROM driver Revision: 3.12
-  Attached scsi CD-ROM sr0 at scsi0, channel 0, id 1, lun 0
-  sr1: scsi-1 drive
-  Attached scsi CD-ROM sr1 at scsi0, channel 0, id 2, lun 0
-  Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 0
-  Attached scsi generic sg1 at scsi0, channel 0, id 1, lun 0,  type 5
-  Attached scsi generic sg2 at scsi0, channel 0, id 2, lun 0,  type 5
+>
+>In my opinion it would have been cleaner if the aperture had always
+>an reserved entry in the e820 map. Or better all usable holes get
+>an special entry. Then you could actually reliable allocate IO space
+> on your own. Currently it's just impossible.
+>
+>-Andi
+>  
+>
+--Mika
 
-It says I should file a bug report. First, I'd like to investigate
-this on this mailing list.
 
-Do you have a clue what this is about? The system seems to boot
-fine, and it appears to be working.
-
-Thanks,
-
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
-=20
-"when in doubt, parenthesize. at the very least it will let some
- poor schmuck bounce on the % key in vi."
-                                                         -- larry wall
-
---zhXaljGHf11kAtnf
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/+oJOIgvIgzMMSnURAiwGAKCxdq7XeHt+4Sk7XPoJVab1Afl0bgCg142J
-uB+T9akUqlWO0oSwta6sURU=
-=WByD
------END PGP SIGNATURE-----
-
---zhXaljGHf11kAtnf--

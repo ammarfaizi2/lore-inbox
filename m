@@ -1,88 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267599AbUIXAIF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267451AbUIXANp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267599AbUIXAIF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 20:08:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267592AbUIXAFY
+	id S267451AbUIXANp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 20:13:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267602AbUIXAJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 20:05:24 -0400
-Received: from mail.kroah.org ([69.55.234.183]:21680 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267343AbUIXACq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 20:02:46 -0400
-Date: Thu, 23 Sep 2004 16:31:47 -0700
-From: Greg KH <greg@kroah.com>
-To: Jan Dittmer <jdittmer@ppp0.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Is there a user space pci rescan method?
-Message-ID: <20040923233147.GK14868@kroah.com>
-References: <E8F8DBCB0468204E856114A2CD20741F2C13E2@mail.local.ActualitySystems.com> <415211A8.8040907@ppp0.net> <20040923002649.GA28259@kroah.com> <4152E606.3070609@ppp0.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4152E606.3070609@ppp0.net>
-User-Agent: Mutt/1.5.6i
+	Thu, 23 Sep 2004 20:09:46 -0400
+Received: from dsl254-100-205.nyc1.dsl.speakeasy.net ([216.254.100.205]:30400
+	"EHLO memeplex.com") by vger.kernel.org with ESMTP id S267578AbUIXAFM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 20:05:12 -0400
+From: "Andrew A." <aathan-linux-kernel-1542@cloakmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Consistent kernel hang during heavy TCP connection handling load
+Date: Thu, 23 Sep 2004 20:05:04 -0400
+Message-ID: <OMEGLKPBDPDHAGCIBHHJIEFDEIAA.aathan-linux-kernel-1542@cloakmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Importance: Normal
+In-Reply-To: <NFBBICMEBHKIKEFBPLMCOEPOIHAA.aathan-linux-kernel-1542@cloakmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 23, 2004 at 05:04:38PM +0200, Jan Dittmer wrote:
-> Greg KH wrote:
-> > On Thu, Sep 23, 2004 at 01:58:32AM +0200, Jan Dittmer wrote:
-> > 
-> >>Dave Aubin wrote:
-> >>
-> >>>Hi,
-> >>>
-> >>>  I know very little about hotplug, but does make sense.
-> >>>How do you motivate a hotplug insertion event?  Or should
-> >>>I just go read the /docs on hotplugging?  Any help is
-> >>>Appreciated:)
-> >>
-> >>There is a "fake" hotplug driver which works for normal pci. But last
-> >>time I looked at it, it did only support hot disabling, not hot enabling
-> >>- but this surely can be fixed.
-> > 
-> > 
-> > Yes, hot "enabling" has been left for someone to add to the driver, if
-> > you read the comments in it :)
-> > 
-> 
-> I read them and started playing around with this driver. So echoing 0 in
->  /sys/bus/pci/slots/*/power disables the pci device. The problem I see
-> is, that the tree with the device is disappearing. So how am I supposed
-> to re-enable the device.
 
-You need to add another sysfs file called "rescan" or something.
-Writing to that file will cause the kernel to rescan pci space, and add
-any devices it finds that are not already present.  The code to do that
-can be taken from the pci startup code in the kernel today.
+I would not normally quote an an entire message, but it contains data relevant to this problem.
 
-> I've no real hotplug hardware to play with, so I'm bound to reading
-> the source code in drivers/pci/hotplug and testing with fakephp.
+The hang below occurs even outside of GDB, and also occurs after upgrading the kernel:
 
-That's fine.  You don't need real hotplug pci hardware to use fakephp,
-that's what the driver is for :)
+Linux bbox.memeplex.com 2.6.8-1.521 #1 Mon Aug 16 09:01:18 EDT 2004 i686 i686 i386 GNU/Linux
 
-> I found your utility pcihpview (v0.5) which searches for
-> /sys/bus/pci/hotplug_slots. But grepping the kernel tree doesn't show
-> any mentioning of it - so I suppose it is outdated.
 
-That's a 2.4 interface.  I need to get a new version of that program out
-there that works for 2.6 one of these days (the bk version of the
-program has this support already in it, if you want to mess with
-that...)
 
-> Is there anywhere a current article (or Documentation/pci_hotplug.txt)
-> about the state of PCI hotplug and how this is supposed to work?
+Can anyone please give me a clue/pointer to tools/techniques that might help identify where in the kernel the hang occurs?  The
+system is so completely unresponsive when this occurs that I cannot provide any forensic data.
 
-Not really, sorry.
+Does anyone's experience show that these types of hangs might occur purely as the result of use (or mis-use) of the pthreads
+library?  I'm looking for hints about what parts of my code to review.
 
-> ps: Meanwhile I found dummyphp on the pcihpd mailinglist. This doesn't
-> remove the device from /sys/bus/pci/slots/*/power . Still I'd like
-> to know the offical way.
+There could easily be erroneous calls to pthread_detach(), pthread_join(), close(), and other system calls involved.
 
-That's the driver that I based fakephp on.  It's a good starting point
-for what it sounds like you want to do.
+Thanks,
+Andrew Athan
 
-Hope this helps,
 
-greg k-h
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Andrew A.
+Sent: Wednesday, September 22, 2004 3:17 PM
+To: linux-kernel@vger.kernel.org
+Subject: Consisten kernel hang during heavy TCP connection handling load
+
+
+
+
+I have written a pair of applications the server side of which consistently causes my Linux Fedora Core 2 system to become
+completely unresponsive; all consoles hang, and it no longer services network connections.
+
+The applications engage in the rapid opening and closing of TCP connections.  The server side is multithreaded (# threads approx 5).
+It services the connections by dumping data into them from a file.  The client side reads no data.  The server then receives EAGAIN
+from send(...,MSG_NOWAIT) calls, and issues 5ms sleep before resending on any particular TCP connection.  It loops up to 20 times
+waiting for the the connection to become unblocked.  The applications are running within GDB, and threads *are* created/destroyed
+during the process.
+
+I will change the application to use select() rather than sleeping on a blocked pipe.  However, I don't think it's a "good thing"
+that the machine hangs so completely.
+
+I looked for tools to help catch the kernel before it goes la-la (assuming it's the kernel going la-la), but got
+frustrated/ran-out-of-time.  E.g., lkcd seems defunct.
+
+If pointed in the right direction, I would be happy to perform further forensics after re-creating the hang.  I am also in the
+process of upgrading the kernel to see if that resolves the problem.
+
+Andrew Athan
+
+
+
+
+uname -a:
+
+Linux bbox.memeplex.com 2.6.6-1.435 #1 Mon Jun 14 09:09:07 EDT 2004 i686 i686 i386 GNU/Linux
+
+lsmod:
+
+Module                  Size  Used by
+snd_mixer_oss          13824  2
+snd_via82xx            20644  3
+snd_ac97_codec         54788  1 snd_via82xx
+snd_pcm                69256  1 snd_via82xx
+snd_timer              17284  1 snd_pcm
+snd_page_alloc          8072  2 snd_via82xx,snd_pcm
+gameport                3328  1 snd_via82xx
+snd_mpu401_uart         4864  1 snd_via82xx
+snd_rawmidi            17444  1 snd_mpu401_uart
+snd_seq_device          6152  1 snd_rawmidi
+snd                    39396  10
+snd_mixer_oss,snd_via82xx,snd_ac97_codec,snd_pcm,snd_timer,snd_mpu401_uart,snd_rawmidi,snd_seq_device
+soundcore               6112  3 snd
+ipt_mark                1408  2
+ipt_MARK                1664  14
+cls_u32                 5508  2
+cls_fw                  3200  2
+sch_sfq                 4352  9
+sch_htb                18048  1
+iptable_mangle          2176  1
+ip_tables              13568  3 ipt_mark,ipt_MARK,iptable_mangle
+nfsd                  159488  9
+exportfs                4224  1 nfsd
+lockd                  47816  2 nfsd
+parport_pc             19392  1
+lp                      8236  0
+parport                29640  2 parport_pc,lp
+autofs4                12932  0
+sunrpc                109924  19 nfsd,lockd
+via_rhine              15752  0
+mii                     3584  1 via_rhine
+floppy                 47440  0
+sg                     27680  0
+scsi_mod               91984  1 sg
+microcode               4768  0
+dm_mod                 32800  0
+ehci_hcd               22916  0
+uhci_hcd               24472  0
+button                  4632  0
+battery                 6924  0
+asus_acpi               8984  0
+ac                      3340  0
+r128                   85796  2
+ipv6                  184672  18
+ext3                  103656  2
+jbd                    40728  1 ext3
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+

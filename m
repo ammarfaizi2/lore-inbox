@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129477AbQLLJET>; Tue, 12 Dec 2000 04:04:19 -0500
+	id <S129960AbQLLKIA>; Tue, 12 Dec 2000 05:08:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129977AbQLLJEK>; Tue, 12 Dec 2000 04:04:10 -0500
-Received: from nas1-133.kmp.club-internet.fr ([213.44.17.133]:9975 "EHLO
-	microsoft.com") by vger.kernel.org with ESMTP id <S129844AbQLLJD7>;
-	Tue, 12 Dec 2000 04:03:59 -0500
-Message-Id: <200012120828.JAA04872@microsoft.com>
-Subject: 2.2.18pre24 spurious diskchanges
-From: Xavier Bestel <xavier.bestel@free.fr>
+	id <S130121AbQLLKHv>; Tue, 12 Dec 2000 05:07:51 -0500
+Received: from [212.172.23.17] ([212.172.23.17]:6916 "EHLO mail.plan9.de")
+	by vger.kernel.org with ESMTP id <S129960AbQLLKHk>;
+	Tue, 12 Dec 2000 05:07:40 -0500
+Date: Tue, 12 Dec 2000 10:36:53 +0100
+From: Marc Lehmann <pcg@goof.com>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-X-Mailer: Evolution 0.6 (Developer Preview)
-Date: 12 Dec 2000 07:28:27 -0100
+Subject: recursive exports && linux nfs
+Message-ID: <20001212103652.A13501@cerebro.laendle>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Operating-System: Linux version 2.2.18 (root@cerebro) (gcc version pgcc-2.95.2 19991024 (release)) 
+X-Copyright: copyright 2000 Marc Alexander Lehmann - all rights reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi ;)
 
-on my ide CDROm I get, roughly each 2 seconds, disk changes although the
-drive is empty and I don't touch it:
+I am trying to export the whole filesystem hierarchy on one of my servers
+(this includes /fs, which is an automounted directory using autofs).
 
-Dec 12 08:57:43 localhost kernel: VFS: Disk change detected on device
-ide0(3,64) 
-Dec 12 08:58:14 localhost last message repeated 16 times
-Dec 12 08:59:16 localhost last message repeated 31 times
-Dec 12 09:00:17 localhost last message repeated 30 times
-Dec 12 09:01:19 localhost last message repeated 31 times
-Dec 12 09:02:21 localhost last message repeated 31 times
-etc ...
+Now I have two problems:
 
+1) exporting: exportfs does not really exports filesystems that are
+   not present when exportfs is being called (some of my filesystems
+   are only available temporarily). Also, exportfs of course forces the mount
+   of all filesystems that are mountable, which can take considerable time.
 
-Xav
+2) using: I can do cd /nfs/fs, but the directoy is always empty, and when I
+   try to step into a subdirectory I always get "No such file or directory".
+
+I am using linux-2.2.18, nfsv3 + nfs-utils-0.2.1.
+
+Thanks a lot for any insights, even if this means "this is not supported"
+;)
+
+-- 
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@opengroup.org |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263216AbUJ2Amr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263278AbUJ2A7G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263216AbUJ2Amr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 20:42:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263274AbUJ2AlB
+	id S263278AbUJ2A7G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 20:59:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263248AbUJ2A6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 20:41:01 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:41734 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263224AbUJ2AWd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 20:22:33 -0400
-Date: Fri, 29 Oct 2004 02:22:01 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: sri@us.ibm.com
-Cc: lksctp-developers@lists.sourceforge.net, davem@davemloft.net,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] sctp/outqueue.c: remove an unused function
-Message-ID: <20041029002201.GQ29142@stusta.de>
-References: <20041028230353.GW3207@stusta.de>
-Mime-Version: 1.0
+	Thu, 28 Oct 2004 20:58:13 -0400
+Received: from smtp3.akamai.com ([63.116.109.25]:23037 "EHLO smtp3.akamai.com")
+	by vger.kernel.org with ESMTP id S263255AbUJ2Azx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 20:55:53 -0400
+Message-ID: <41819514.C25D7A51@akamai.com>
+Date: Thu, 28 Oct 2004 17:55:48 -0700
+From: Prasanna Meda <pmeda@akamai.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, davem@redhat.com
+Subject: Re: rcv_wnd = init_cwnd*mss
+References: <DB2C167D8FFDEA45B8FC0B1B75E3EE154A3B08@usca1ex-priv1.sanmateo.corp.akamai.com> <20041028165658.753eee50.davem@davemloft.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041028230353.GW3207@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ this time without the problems due to a digital signature... ]
+"David S. Miller" wrote:
 
-The patch below removes an unused function from net/sctp/outqueue.c
+> On Wed, 27 Oct 2004 23:15:48 -0700
+> "Meda, Prasanna" <pmeda@akamai.com> wrote:
+>
+> > Thanks, still it is unclear to me why are we
+> > downsizing the advertised window(rcv_wnd) to cwnd?
+> > To defeat disobeying sender, or something like below?
+>
+> There is never any reason to advertise a receive window
+> larger than the initial congestion window of the sender
+> could ever be.
+>
+> Setting it properly like this also makes sure that we do
+> receive window update events at just the right place as
+> the sender starts sending us the initial data frames.
+
+That makes sense!
+
+But are we coping with cwnd increase on sender?
+Looks rcv rwnd s updated by only 1 pkt at time.
 
 
-diffstat output:
- net/sctp/outqueue.c |   10 ----------
- 1 files changed, 10 deletions(-)
+Thanks,
+Prasanna.
 
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm1-full/net/sctp/outqueue.c.old	2004-10-28 23:52:37.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/net/sctp/outqueue.c	2004-10-28 23:52:50.000000000 +0200
-@@ -98,16 +98,6 @@
- 	return;
- }
- 
--/* Insert a chunk behind chunk 'pos'. */
--static inline void sctp_outq_insert_data(struct sctp_outq *q,
--					 struct sctp_chunk *ch,
--					 struct sctp_chunk *pos)
--{
--	__skb_insert((struct sk_buff *)ch, (struct sk_buff *)pos->prev,
--		     (struct sk_buff *)pos, pos->list);
--	q->out_qlen += ch->skb->len;
--}
--
- /*
-  * SFR-CACC algorithm:
-  * D) If count_of_newacks is greater than or equal to 2

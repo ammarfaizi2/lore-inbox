@@ -1,65 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265966AbUBCKxE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 05:53:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265971AbUBCKxE
+	id S265984AbUBCK6B (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 05:58:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265983AbUBCK5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 05:53:04 -0500
-Received: from mail002.syd.optusnet.com.au ([211.29.132.32]:47788 "EHLO
-	mail002.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265966AbUBCKxA convert rfc822-to-8bit (ORCPT
+	Tue, 3 Feb 2004 05:57:50 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:22710 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S265974AbUBCK5s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 05:53:00 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] 2.6.1 Hyperthread smart "nice" 2
-Date: Tue, 3 Feb 2004 21:52:46 +1100
-User-Agent: KMail/1.6
+	Tue, 3 Feb 2004 05:57:48 -0500
+Date: Tue, 3 Feb 2004 11:58:01 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Con Kolivas <kernel@kolivas.org>
 Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
        Jos Hulzink <josh@stack.nl>
-References: <200401291917.42087.kernel@kolivas.org> <200402022027.10151.kernel@kolivas.org> <20040202103122.GA29402@elte.hu>
-In-Reply-To: <20040202103122.GA29402@elte.hu>
-MIME-Version: 1.0
+Subject: Re: [PATCH] 2.6.1 Hyperthread smart "nice" 2
+Message-ID: <20040203105758.GA7783@elte.hu>
+References: <200401291917.42087.kernel@kolivas.org> <200402022027.10151.kernel@kolivas.org> <20040202103122.GA29402@elte.hu> <200402032152.46481.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200402032152.46481.kernel@kolivas.org>
+In-Reply-To: <200402032152.46481.kernel@kolivas.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: SpamAssassin 2.60
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Feb 2004 21:31, Ingo Molnar wrote:
-> * Con Kolivas <kernel@kolivas.org> wrote:
-> > What this one does is the following; If there is a "nice" difference
-> > between tasks running on logical cores of the same cpu, the more
-> > "nice" one will run a proportion of time equal to the timeslice it
-> > would have been given relative to the less "nice" task.  ie a nice 19
-> > task running on one core and the nice 0 task running on the other core
-> > will let the nice 0 task run continuously (102ms is normal timeslice)
-> > and the nice 19 task will only run for the last 10ms of time the nice
-> > 0 task is running. This makes for a much more balanced resource
-> > distribution, gives significant preference to the higher priority
-> > task, but allows them to benefit from running on both logical cores.
->
-> this is a really good rule conceptually - the higher prio task will get
-> at least as much raw (unshared) physical CPU slice as it would get
-> without HT.
 
-Glad you agree.
+* Con Kolivas <kernel@kolivas.org> wrote:
 
->From the anandtech website a description of the P4 Prescott (next generation 
-IA32) with hyperthreading shows this with the new SSE3 instruction set:
+> At least it appears Intel are well aware of the priority problem, but
+> full priority support across logical cores is not likely. However I
+> guess these new instructions are probably enough to work with if
+> someone can do the coding.
 
-"Finally we have the two thread synchronization instructions – monitor and 
-mwait. These two instructions work hand in hand to improve Hyper Threading 
-performance. The instructions work by determining whether a thread being sent 
-to the core is the OS’ idle thread or other non-productive threads generated 
-by device drivers and then instructing the core to worry about those threads 
-after working on whatever more useful thread it is working on at the time."
+these instructions can be used in the idle=poll code instead of rep-nop. 
+This way idle-wakeup can be done via the memory bus in essence, and the
+idle threads wont waste CPU time. (right now idle=poll wastes lots of
+cycles on HT boxes and is thus unusable.)
 
-At least it appears Intel are well aware of the priority problem, but full 
-priority support across logical cores is not likely. However I guess these 
-new instructions are probably enough to work with if someone can do the 
-coding.
+for lowprio tasks they are of little use, unless you modify gcc to
+sprinkle mwait yields all around the 'lowprio code' - not very practical
+i think.
 
-Con
+	Ingo

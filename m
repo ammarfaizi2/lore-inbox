@@ -1,85 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261406AbUCHXnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 18:43:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbUCHXnZ
+	id S261414AbUCHXrf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 18:47:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbUCHXrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 18:43:25 -0500
-Received: from smtp05.web.de ([217.72.192.209]:5386 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S261406AbUCHXnW (ORCPT
+	Mon, 8 Mar 2004 18:47:35 -0500
+Received: from mail.kroah.org ([65.200.24.183]:15493 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261417AbUCHXpG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 18:43:22 -0500
-From: Thomas Schlichter <thomas.schlichter@web.de>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] fix warning about duplicate 'const'
-Date: Tue, 9 Mar 2004 00:43:18 +0100
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_ZUQTALwnphfQXII"
-Message-Id: <200403090043.21043.thomas.schlichter@web.de>
+	Mon, 8 Mar 2004 18:45:06 -0500
+Date: Mon, 8 Mar 2004 13:32:41 -0800
+From: Greg KH <greg@kroah.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, "James H. Cloos Jr." <cloos@jhcloos.com>
+Subject: Re: evbug.ko
+Message-ID: <20040308213241.GE16396@kroah.com>
+References: <m3n06x4o0q.fsf@lugabout.jhcloos.org> <200403042238.13924.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200403042238.13924.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 04, 2004 at 10:38:13PM -0500, Dmitry Torokhov wrote:
+> On Wednesday 03 March 2004 04:30 pm, James H. Cloos Jr. wrote:
+> > Any idea what might modprobe evbug.ko w/o operator intervention?
+> > 
+> 
+> It's new hotplug scripts. Put modules you do not want to be automatically
+> loaded even if they think they have hardware/facilities to bind to into
+> /etc/hotplug/blacklist
+> 
+> I, for example, have evbug, joydev, tsdev and eth1394 there.
+> 
+> Greg, any chance adding evbug to the default version of hotplug package?
 
---Boundary-00=_ZUQTALwnphfQXII
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Care to send me a patch for it?
 
-Hi,
+thanks,
 
-attached is a patch which fixes following wanings:
-
-drivers/ide/ide-tape.c: In function `idetape_setup':
-drivers/ide/ide-tape.c:4701: Warnung: duplicate `const'
-drivers/video/matrox/matroxfb_g450.c: In function `g450_compute_bwlevel':
-drivers/video/matrox/matroxfb_g450.c:129: Warnung: duplicate `const'
-drivers/video/matrox/matroxfb_g450.c:130: Warnung: duplicate `const'
-drivers/video/matrox/matroxfb_maven.c: In function `maven_compute_bwlevel':
-drivers/video/matrox/matroxfb_maven.c:347: Warnung: duplicate `const'
-drivers/video/matrox/matroxfb_maven.c:348: Warnung: duplicate `const'
-
-This is done by removing the 'const' from the temporary variables of the min() 
-and max() macros. For me it seems to have no negative impact, so please 
-consider applying...
-
-Best regards
-   Thomas Schlichter
-
---Boundary-00=_ZUQTALwnphfQXII
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="fix-duplicate-const-warning.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="fix-duplicate-const-warning.diff"
-
---- linux-2.6.4-rc2/include/linux/kernel.h.orig	2004-03-04 07:16:34.000000000 +0100
-+++ linux-2.6.4-rc2/include/linux/kernel.h	2004-03-09 00:34:21.980935992 +0100
-@@ -168,15 +168,15 @@ extern void dump_stack(void);
-  * "unnecessary" pointer comparison.
-  */
- #define min(x,y) ({ \
--	const typeof(x) _x = (x);	\
--	const typeof(y) _y = (y);	\
--	(void) (&_x == &_y);		\
-+	typeof(x) _x = (x);	\
-+	typeof(y) _y = (y);	\
-+	(void) (&_x == &_y);	\
- 	_x < _y ? _x : _y; })
- 
- #define max(x,y) ({ \
--	const typeof(x) _x = (x);	\
--	const typeof(y) _y = (y);	\
--	(void) (&_x == &_y);		\
-+	typeof(x) _x = (x);	\
-+	typeof(y) _y = (y);	\
-+	(void) (&_x == &_y);	\
- 	_x > _y ? _x : _y; })
- 
- /*
-
---Boundary-00=_ZUQTALwnphfQXII--
-
+greg k-h

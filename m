@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262077AbSIYTZv>; Wed, 25 Sep 2002 15:25:51 -0400
+	id <S262071AbSIYTSN>; Wed, 25 Sep 2002 15:18:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262080AbSIYTZv>; Wed, 25 Sep 2002 15:25:51 -0400
-Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:58035 "EHLO
-	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S262077AbSIYTZu>; Wed, 25 Sep 2002 15:25:50 -0400
-Message-ID: <3D920EAE.2020602@informatik.tu-chemnitz.de>
-Date: Wed, 25 Sep 2002 21:29:50 +0200
-From: Janek Neubert <janek.neubert@informatik.tu-chemnitz.de>
-Reply-To: Janek Neubert <janek.neubert@informatik.tu-chemnitz.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: de, en
+	id <S262072AbSIYTSN>; Wed, 25 Sep 2002 15:18:13 -0400
+Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:37769 "EHLO
+	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S262071AbSIYTSL>; Wed, 25 Sep 2002 15:18:11 -0400
+Date: Wed, 25 Sep 2002 16:23:09 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Mark Veltzer <mark@veltzer.org>
+cc: Mark Mielke <mark@mark.mielke.cc>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Peter Svensson <petersv@psv.nu>
+Subject: Re: Offtopic: (was Re: [ANNOUNCE] Native POSIX Thread Library 0.1)
+In-Reply-To: <200209251929.g8PJTPN05751@www.veltzer.org>
+Message-ID: <Pine.LNX.4.44L.0209251621000.22735-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel Error with i845G
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.3 (/)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *17uHsI-0003ws-00*aqPNb.vDC8M*
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 25 Sep 2002, Mark Veltzer wrote:
 
-i have a bought an EPOX board (4G4A+) with Intel i845G chipset. While i was 
-trying a 2.4.18 kernel, the machine stops after "Ok, booting the kernel ...". I 
-have to use the lilo command mem=<memory without shared graphic ram>M in 
-megabytes. All kernels newer than 2.4.3 cause this error. Since version 2.4.19, 
-this solution is unusable. I think, this is a kernel problem, because i know 
-from other people having the same problem, but other boards with i845G. I need 
-the 2.4.19 to use my HPT372. Please help and finf the error.
+> This is terrific!!! How come something like this was not merged in
+> earlier ?!? This seems like an absolute neccesity!!! I'm willing to test
+> it if that is what is needed to get it merged.
 
-I think the problem is a failure in the routine getting the size of memory from 
-BIOS. Linux thinks, i have 640k!!! RAM. Only the mem-parameter can solve it.
+You can grab the fair scheduler patch from my home page:
 
-Thx
+	http://surriel.com/patches/
 
-janek
+> What does Linus and others feel about this and most importantly when
+> will see it in ? (Hopefully in this development cycle).
 
-p.s. please send a cc to my email, i haven't subscribed this list
+I have no idea what Linus and others think about this patch,
+but I know I'll need to forward-port the thing to the O(1)
+scheduler first, we can ask them after that is done ;)
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
 

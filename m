@@ -1,35 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129815AbQLLPqd>; Tue, 12 Dec 2000 10:46:33 -0500
+	id <S131523AbQLLPsD>; Tue, 12 Dec 2000 10:48:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131523AbQLLPqY>; Tue, 12 Dec 2000 10:46:24 -0500
-Received: from kweetal.tue.nl ([131.155.2.7]:21536 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S129815AbQLLPqM>;
-	Tue, 12 Dec 2000 10:46:12 -0500
-Message-ID: <20001212161544.A2134@win.tue.nl>
-Date: Tue, 12 Dec 2000 16:15:44 +0100
-From: Guest section DW <dwguest@win.tue.nl>
-To: Matthias Czapla <dermatsch@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: cdrom doesnt work anymore with 2.4
-In-Reply-To: <20001212141704.A225@st3>
+	id <S131951AbQLLPrx>; Tue, 12 Dec 2000 10:47:53 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60430 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S131523AbQLLPrk>;
+	Tue, 12 Dec 2000 10:47:40 -0500
+Date: Tue, 12 Dec 2000 15:17:08 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: torvalds@transmeta.com
+Cc: linux-kbuild@torque.net, linux-kernel@vger.kernel.org
+Subject: [PATCH] make config w/ Pentium-II
+Message-ID: <20001212151708.A6915@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20001212141704.A225@st3>; from Matthias Czapla on Tue, Dec 12, 2000 at 02:17:04PM +0100
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 12, 2000 at 02:17:04PM +0100, Matthias Czapla wrote:
 
-> I have a quite old cdrom drive, called Cyberdrive 240D. With linux 2.2.17
-> it worked with soemtimes odd behavior, but it worked.
-> With 2.4.0-test11 I can mount cdroms in it but if I want to access it (eg.
-> ls, cd...) I get messages like:
-> _isofs_bmap: block >= EOF (1096810496, 2048)
-> or 
-> _isofs_bmap: block < 0
+I built 2.4.0-test10 for my laptop and got caught out by `make config'.
+When I typed `Pentium-II' for my CPU type, it selected Pentium-III and
+my kernel wouldn't boot.  To prevent errors of this type, please apply
+this patch.  As a bonus, `Celeron' will now work as an answer too.
 
-Fixed in 2.4.0-test12.
+Please apply.
+
+diff -urNX dontdiff linux/scripts/Configure linux-test10/scripts/Configure
+--- linux/scripts/Configure	Mon Oct 30 22:44:29 2000
++++ linux-test10/scripts/Configure	Tue Dec 12 03:39:41 2000
+@@ -479,11 +479,14 @@
+ 		while [ -n "$1" ]; do
+ 			name=$(echo $1 | tr a-z A-Z)
+ 			case "$name" in
+-				"$ans"* )
+-					if [ "$name" = "$ans" ]; then
+-						val="$2"
+-						break	# stop on exact match
+-					fi
++				"$ans"* | */"$ans"* )
++					case "$name" in
++						"$ans" | */"$ans"/* | \
++						"$ans"/* | */"$ans" )
++							val="$2"
++							break # exact match
++						;;
++					esac
+ 					if [ -n "$val" ]; then
+ 						echo;echo \
+ 		"  Sorry, \"$ans\" is ambiguous; please enter a longer string."
+
+-- 
+Revolutions do not require corporate support.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

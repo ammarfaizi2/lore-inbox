@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318858AbSIIUVD>; Mon, 9 Sep 2002 16:21:03 -0400
+	id <S318866AbSIIUVQ>; Mon, 9 Sep 2002 16:21:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318866AbSIIUVD>; Mon, 9 Sep 2002 16:21:03 -0400
-Received: from h195202190178.med.cm.kabsi.at ([195.202.190.178]:17822 "EHLO
-	phobos.hvrlab.org") by vger.kernel.org with ESMTP
-	id <S318858AbSIIUVC>; Mon, 9 Sep 2002 16:21:02 -0400
-Subject: Re: Patch?: linux-2.5.33/drivers/block/loop.c update
-From: Herbert Valerio Riedel <hvr@hvrlab.org>
-To: "Adam J. Richter" <adam@yggdrasil.com>
+	id <S318868AbSIIUVQ>; Mon, 9 Sep 2002 16:21:16 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:46575
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318866AbSIIUVP>; Mon, 9 Sep 2002 16:21:15 -0400
+Subject: Re: oops on 2.4.20-pre5-ac2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dan Eaton <dan.eaton@rlx.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020909052047.A1157@baldur.yggdrasil.com>
-References: <20020909052047.A1157@baldur.yggdrasil.com>
+In-Reply-To: <1031596139.25426.184.camel@dan>
+References: <1031596139.25426.184.camel@dan>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 09 Sep 2002 22:25:37 +0200
-Message-Id: <1031603138.2243.19.camel@janus.txd.hvrlab.org>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 09 Sep 2002 21:28:14 +0100
+Message-Id: <1031603294.29715.20.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-09-09 at 14:20, Adam J. Richter wrote:
-> have time to retest for a little while, so I thought I ought to post
-> this update in case anyone else wants to comment or test.
+Thats a very very strange machine 8). Your diagnosis is correct. We are
+assuming conventional PC north bridge behaviour. I take it this is your
+blade systems. 
 
-I've integrated adam's loop.diff into
+As far as I can make out from the ALi docs you can't get an ALi north
+bridge at anywhere but 0:0.0 in which case making the check
 
-http://www.kernel.org/pub/linux/kernel/crypto/v2.5/patch-int-2.5.33.2.bz2
+       if(north && north->vendor == ...)
 
-in case anyone wants an all-in-one patch...
-
-regards,
--- 
-Herbert Valerio Riedel       /    Phone: (EUROPE) +43-1-58801-18840
-Email: hvr@hvrlab.org       /    Finger hvr@gnu.org for GnuPG Public Key
-GnuPG Key Fingerprint: 7BB9 2D6C D485 CE64 4748  5F65 4981 E064 883F
-4142
+should do the trick.
 

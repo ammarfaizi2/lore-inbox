@@ -1,95 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261650AbTIYBoY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 21:44:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbTIYBoY
+	id S261656AbTIYCTT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 22:19:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbTIYCTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 21:44:24 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:8206 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S261650AbTIYBoW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 21:44:22 -0400
-Date: Thu, 25 Sep 2003 09:44:16 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-X-X-Sender: <raven@wombat.indigo.net.au>
-To: Mike Waychison <michael.waychison@sun.com>
-cc: Arjan van de Ven <arjanv@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Maneesh Soni <maneesh@in.ibm.com>,
-       autofs mailing list <autofs@linux.kernel.org>,
-       Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] autofs4 deadlock during expire - kernel 2.6
-In-Reply-To: <3F71BE3D.6030501@sun.com>
-Message-ID: <Pine.LNX.4.33.0309250924160.18646-100000@wombat.indigo.net.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 24 Sep 2003 22:19:19 -0400
+Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:37849 "EHLO
+	avocet.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S261656AbTIYCTR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 22:19:17 -0400
+Date: Wed, 24 Sep 2003 22:22:18 -0400
+To: linux-kernel@vger.kernel.org
+Cc: solt@dns.toxicfilms.tv
+Subject: Re: Minimizing the Kernel
+Message-ID: <20030925022218.GA20302@rushmore>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Sep 2003, Mike Waychison wrote:
+> Hmm, has anyone tried -Os with gcc3+ ?
+> Maybe that'd be good for size optimization?
 
->
-> I think the deadlock itself needs to be properly identified.
->
-> Could you explain where the deadlock is actually occuring?  I briefed
-> over the automount 4 code as well as autofs4 and I don't see the
-> deadlock.  The 'owner' in the case of an expiry will be a child process
-> of the daemon, within a call to ioctl(EXPIRE_MULTI), correct?  Having it
-> be released from the waitqueue first should not affect flow of execution
-> and released from deadlock.
+2.6.0-test3 compiled with gcc-3.3.1 and redhat 7.2's
+gcc-2.96-112.  gcc-3.3.1 saves about 275k text (10%).
+-Os is more effective on gcc-3.3.1 than 2.96.
+These were all built with the same .config.
 
-Yes. I am having trouble defining the actual problem also.
+size vmlinux-*
+   text    data     bss     dec     hex filename
+2120419  449928  131748 2702095  293b0f vmlinux-3.3.1-Os
+2124890  449928  131748 2706566  294c86 vmlinux-3.3.1-Os-falign=2
+2334482  457304  125952 2917738  2c856a vmlinux-2.96-112-Os
+2405382  449960  131748 2987090  2d9452 vmlinux-3.3.1
+2408343  457332  125952 2991627  2da60b vmlinux-2.96-112
 
-I believe that the deadlock occures because of the sequence of calls
-between the expire and Naultilus, each execution path taking and releasing
-the BKL.
+Most frequently saved instruction with gcc-3.3.1 -Os is nop.
 
-I will try and get more evidence as I work on it.
+This was on x86.  The -falign=2 version had -falign-functions=2
+-falign-jumps=2 -falign-labels=2 -falign-loops=2.  I believe the
+default with -Os is no alignment (i.e. -falign-*=0).
 
->
-> I don't see how having it wake up before before any other racing
-> processes solves anything.
+I benchmarked those compilers/options on a K6/2.  You could wade
+through http://home.earthlink.net/~rwhron/kernel/bigbox.html
+to see all the results.  
 
-I thought this was a side effect of the O(1) scheduler and that the
-design of the wait handling left it open to a sequence of calls problem.
-I first got the impression that it was related to the scheduler (and
-felt that it was a deadlock) when I bumped the priority of the expire to
-see what would happen and it work fine every time I tried it.
+Quick summary:
+gcc-3.3.1 -Os -falign=2 was best for most LMbench tests.  
+For other benchmarks that wasn't always true.  K6/2 has small
+L1 cache (32+32K)  L2 cache is 1M, but not much faster than RAM
+on my box.
 
->
-> I think Arjan is right in that the race is do to the nautilus process
-> entering the sleep_on after the a call to wake_up(&wq->queue).  I don't
+These generalizations can be made:
+1) gcc-3.3.1 -Os kernel code is about 10% smaller than gcc-2.96 -Os.
+2) Actual memory savings is not 10%, because dynamic structure
+   sizes don't change.
+3) gcc-3.3.1 takes significantly longer to compile source.
 
-That needs fixing for sure, apart from anything else.
-
-> know if a change to using a workqueue is best..   how about refactoring
-> that chunk of code to use wait_event_interruptible on the queue, which
-> should be clear of any waitqueue/sleep_on races.
-
-Exaclty what I thought after pondering Arjans' mail last night.
-The expire must be interruptible.
-This will show if there actually is a timing problem (I hope).
-
->
-> >
-> >
-> > OK so maybe I should have suggestions instead of comments.
-> >
-> > Please elaborate.
-> >
->
-> How about you try out this quick patch I threw together.
-
-Oops. Replied without looking at the patch.
-
-I'll check it out after work tonight.
-
-Thanks to all for the help.
+YMMV
 
 -- 
-
-   ,-._|\    Ian Kent
-  /      \   Perth, Western Australia
-  *_.--._/   E-mail: raven@themaw.net
-        v    Web: http://themaw.net/
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
 

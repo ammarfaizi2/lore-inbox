@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264441AbUAXIS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 03:18:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264442AbUAXIS4
+	id S266890AbUAXI30 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 03:29:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266891AbUAXI30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 03:18:56 -0500
-Received: from dsl081-085-091.lax1.dsl.speakeasy.net ([64.81.85.91]:34433 "EHLO
-	mrhankey.megahappy.net") by vger.kernel.org with ESMTP
-	id S264441AbUAXISz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 03:18:55 -0500
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.2-rc1-mm2] drivers/usb/storage/dpcm.c
-Cc: akpm@osdl.org, linux-usb-devel@lists.sourceforge.net,
-       mdharm-usb@one-eyed-alien.net
-Message-Id: <20040124081801.D163013A354@mrhankey.megahappy.net>
-Date: Sat, 24 Jan 2004 00:18:01 -0800 (PST)
-From: driver@megahappy.net (Bryan Whitehead)
+	Sat, 24 Jan 2004 03:29:26 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:2432 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S266890AbUAXI3Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 03:29:24 -0500
+Date: Sat, 24 Jan 2004 09:29:31 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Panagiotis Issaris <panagiotis.issaris@mech.kuleuven.ac.be>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       akpm@zip.com.au
+Subject: Re: [patch] Graphire3 support
+Message-ID: <20040124082931.GD274@ucw.cz>
+References: <4011BFD7.7030308@mech.kuleuven.ac.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4011BFD7.7030308@mech.kuleuven.ac.be>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 24, 2004 at 01:44:07AM +0100, Panagiotis Issaris wrote:
 
-Fix warning for unused var "ret".
+> Hi,
+> 
+> I got a Wacom Graphire3 for my birthday and unfortunately it didn't 
+> work. After some playing around, I noticed the 2.6 kernel needs a few 
+> small modifications to make it work.
+> 
+> This simple patch adds support for the Wacom Graphire 3.  It applies 
+> fine to both 2.6.2-rc1-mm2 and 2.6.2-rc1.
 
---- drivers/usb/storage/dpcm.c.orig     2004-01-24 00:05:42.092064312 -0800
-+++ drivers/usb/storage/dpcm.c  2004-01-24 00:07:06.262268496 -0800
-@@ -56,7 +56,8 @@
-     /*
-      * LUN 0 corresponds to the CompactFlash card reader.
-      */
--    return usb_stor_CB_transport(srb, us);
-+    ret = usb_stor_CB_transport(srb, us);
-+    break;
-  
- #ifdef CONFIG_USB_STORAGE_SDDR09
-   case 1:
-@@ -72,11 +73,13 @@
-     ret = sddr09_transport(srb, us);
-     srb->device->lun = 1; us->srb->device->lun = 1;
-  
--    return ret;
-+    break;
- #endif
-  
-   default:
-     US_DEBUGP("dpcm_transport: Invalid LUN %d\n", srb->device->lun);
--    return USB_STOR_TRANSPORT_ERROR;
-+    ret = USB_STOR_TRANSPORT_ERROR;
-+    break;
-   }
-+  return ret;
- }
+Thanks, applied to my tree. I suppose you'll be able to find it in
+2.6.3.
 
-
---
-Bryan Whitehead
-driver@megahappy.net
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

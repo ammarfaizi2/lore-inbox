@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264010AbTE3WNv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 18:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264008AbTE3WNv
+	id S264041AbTE3WTq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 18:19:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264090AbTE3WTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 18:13:51 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:24056 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264026AbTE3WNs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 18:13:48 -0400
-Date: Sat, 31 May 2003 00:27:02 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Fabio Bracci <fabio@hoendiep.ath.cx>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.5.70 compilation fails
-Message-ID: <20030530222701.GC2536@fs.tum.de>
-References: <Pine.LNX.4.53.0305302318530.31546@hoendiep.ath.cx>
+	Fri, 30 May 2003 18:19:46 -0400
+Received: from main.gmane.org ([80.91.224.249]:16082 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264092AbTE3WTp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 18:19:45 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Brian J. Murrell" <brian@interlinx.bc.ca>
+Subject: Re: local apic timer ints not working with vmware: nolocalapic
+Date: Fri, 30 May 2003 18:14:37 -0400
+Message-ID: <pan.2003.05.30.22.14.35.511205@interlinx.bc.ca>
+References: <2C8EEAE5E5C@vcnet.vc.cvut.cz> <20030528173432.GA21379@linux.interlinx.bc.ca> <Pine.LNX.4.50.0305281341160.1982-100000@montezuma.mastecende.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0305302318530.31546@hoendiep.ath.cx>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 30, 2003 at 11:32:21PM +0200, Fabio Bracci wrote:
+On Wed, 28 May 2003 13:42:13 -0400, Zwane Mwaikambo wrote:
 > 
-> [1.] One line summary of the problem:
-> 	The compilation of the kernel 2.5.70 fails
-> [2.] Full description of the problem/report:
-> 	While making the bzImage, the process exits with the following
-> messages:
-> ...
->   CC      arch/i386/lib/usercopy.o
->   AS      arch/i386/lib/getuser.o
->   CC      arch/i386/lib/memcpy.o
->   CC      arch/i386/lib/strstr.o
->   CC      arch/i386/lib/dec_and_lock.o
->   AR      arch/i386/lib/lib.a
->   CPP     arch/i386/vmlinux.lds.s
->   GEN     .version
->   CHK     include/linux/compile.h
->   UPD     include/linux/compile.h
->   CC      init/version.o
->   LD      init/built-in.o
->   LD      vmlinux
-> sound/built-in.o(.text+0x9abb): In function `snd_rawmidi_dev_register':
-> : undefined reference to `snd_seq_device_new'
-> make: *** [vmlinux] Error 1
->...
+> I submitted a patch for nolapic before...
 
-Please send your .config.
+Did you get any response as to whether it was going to be accepted into
+the kernel or not?
 
-TIA
-Adrian
+The unfortunate thing is that even this sort of fix will not help my
+situation.  The reason being (which I only discovered by accident when I
+set "dont_enable_local_apic = 1" rather than "dont_use_local_apic_timer"
+and it didn't correct the booting problem) is that it seems that even if
+the local apic is set disabled by setting dont_enable_local_apic = 1 in
+arch/i386/kernel/apic.c, setup_APIC_clocks() is still called.
 
--- 
+So the jist is that using the local apic timer feature is not dependent on
+using the local apic, as per the dont_enable_local_apic and
+dont_use_local_apic_timer flags in arch/i386/kernel/apic.c.  Maybe this is
+wrong, I dunno unfortunately.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+I don't know anything about this APIC stuff so I don't know if that is
+correct or not, but it is what happens.
+
+Thanx for the input though, much appreciated,
+
+b.
+
 

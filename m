@@ -1,35 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264538AbUHDMOX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264571AbUHDMPZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264538AbUHDMOX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 08:14:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264571AbUHDMOX
+	id S264571AbUHDMPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 08:15:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264577AbUHDMPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 08:14:23 -0400
-Received: from web50603.mail.yahoo.com ([206.190.38.90]:36972 "HELO
-	web50603.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264538AbUHDMOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 08:14:22 -0400
-Message-ID: <20040804121421.75040.qmail@web50603.mail.yahoo.com>
-Date: Wed, 4 Aug 2004 05:14:21 -0700 (PDT)
-From: Jeba Anandhan A <jeba_career@yahoo.com>
-Subject: Kernel Newbie -Like to be involve in any kernel project
-To: linux-kernel@vger.kernel.org
+	Wed, 4 Aug 2004 08:15:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:24018 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264571AbUHDMPN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 08:15:13 -0400
+Date: Wed, 4 Aug 2004 08:14:56 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@dhcp83-102.boston.redhat.com
+To: Liu Tao <liutao@safe-mail.net>
+cc: arjanv@redhat.com, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Add a writer prior lock methord for rwlock
+In-Reply-To: <4110BA81.4030309@safe-mail.net>
+Message-ID: <Pine.LNX.4.44.0408040814240.7628-100000@dhcp83-102.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi ,
-i am a.jeba anandhan ,kernel newbie.i wish to be
-kernel expert.i have some level of knowledge in kernel
-APIS and concepts.i like to do kernel projects.so i
-request you people who are all doing projects in
-kernel permit me to work with you.
+On Wed, 4 Aug 2004, Liu Tao wrote:
 
-thanking you,
-a.jeba anandhan
+> write_forcelock() should be used to avoid readers starve writers, or for
+> writers to update shared data as far as possiable, since it prevents new
+> readers acquire the lock while it's waiting for existing readers release
+> their locks.
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Looks like it should deadlock if you have multiple CPUs
+trying to upgrade from a read lock to a write lock
+simultaneously...
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

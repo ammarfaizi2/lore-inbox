@@ -1,45 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268228AbUJWGHK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266250AbUJWGGg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268228AbUJWGHK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 02:07:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266821AbUJWGCh
+	id S266250AbUJWGGg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 02:06:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268282AbUJWGDO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 02:02:37 -0400
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:65199 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268282AbUJWGAh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 02:00:37 -0400
-Message-ID: <4179F381.5090200@yahoo.com.au>
-Date: Sat, 23 Oct 2004 16:00:33 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Alastair Stevens <alastair@altruxsolutions.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-ck1: swap mayhem under UT2004
-References: <200410222346.32823.alastair@altruxsolutions.co.uk> <41799FE0.1020403@kolivas.org> <4179ED80.5090800@yahoo.com.au> <4179EE45.9080409@kolivas.org>
-In-Reply-To: <4179EE45.9080409@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 23 Oct 2004 02:03:14 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:29189 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S266250AbUJWFz2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 01:55:28 -0400
+Date: Sat, 23 Oct 2004 07:52:12 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: espenfjo@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: My thoughts on the "new development model"
+Message-ID: <20041023055212.GA21206@alpha.home.local>
+References: <7aaed09104102213032c0d7415@mail.gmail.com> <7aaed09104102214521e90c27c@mail.gmail.com> <20041022225703.GJ19761@alpha.home.local> <20041023014004.GG22558@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041023014004.GG22558@stusta.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
+Hi Adrian,
 
-> 
-> Lurking on the gentoo forums will reveal this:
-> http://forums.gentoo.org/viewtopic.php?t=239686&postdays=0&postorder=asc&start=50 
-> 
-> 
-> Cheers
-> Con
+On Sat, Oct 23, 2004 at 03:40:04AM +0200, Adrian Bunk wrote:
+ 
+> 2.6.9 -> 2.6.10-rc1:
+> - 4 days
+> - > 15 MB patches
 
-Hmm thanks.
+I firmly agree, and that's one of the reasons I still don't use 2.6. This
+could be avoided with a shorter release cycle with far less new features
+for each version (a bit like openbsd does), because about every maintainer
+would have a valid base to work on for the next release or the one after,
+and would not try to push unstable code in the "stable" kernel. Today, lots
+of people are certain that 2.8 (or 3.0) won't be out before 3 or 4 years. So
+if they want their code released soon, they push it hard in the current
+mainline :-(
 
-Alastair, can you compile sysrq support into the kernel, and
-press Alt+SysRq+M when kswapd is going crazy. Then send me
-the output of `dmesg`. That would be very helpful.
+> It's a bit optimistic to call this amount of change "stabilizing".
 
-Nick
+What really frightens me is that judging from the changelogs, it really
+looks like cleanups, bug fixes and sometimes core changes... This gives
+a terrible idea of previous release code !
+
+> 2.6 is corrently more a development kernel than a stable kernel.
+
+That's how I present it to friends and customers too ;-) To others, I simply
+say that it's the new stable kernel, and I observe how it works for them :-)
+
+> The last bug I observed personally was the problem with suspending when 
+> using CONFIG_REGPARM=y together with Roland's waitid patch which was 
+> added in 2.6.9-rc2. If I'd used 2.6.9 with the same .config as 2.6.8.1, 
+> this was simple one more bug...
+
+Each time I try a new release, I barely find it extremely slow and unstable,
+and I don't know where to start from to report broken things... Unfortunately
+I don't have enough time to spend on bug reports these days so I stick to a
+stable 2.4.
+
+> IMHO Andrew+Linus should open a short-living 2.7 tree soon and Andrew 
+> (or someone else) should maintain a 2.6 tree with less changes (like 
+> Marcelo did and does with 2.4).
+
+Yes, but not until the core is stabilized. Otherwise, ever changing features
+and exports will discourage driver maintainers from backporting fixes.
+
+Willy
+ 

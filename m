@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261844AbTILSlX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 14:41:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbTILSlW
+	id S261840AbTILSWh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 14:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbTILSVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 14:41:22 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64920 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261844AbTILSkL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 14:40:11 -0400
-Message-ID: <3F6212FD.5000702@pobox.com>
-Date: Fri, 12 Sep 2003 14:39:57 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Fri, 12 Sep 2003 14:21:13 -0400
+Received: from [65.248.4.67] ([65.248.4.67]:18651 "EHLO verdesmares.com")
+	by vger.kernel.org with ESMTP id S261839AbTILSUv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 14:20:51 -0400
+Message-ID: <000f01c3795b$03b22fe0$980210ac@forumci.com.br>
+From: "Breno" <brenosp@brasilsec.com.br>
+To: "Chris Wright" <chrisw@osdl.org>
+Cc: "Kernel List" <linux-kernel@vger.kernel.org>
+References: <004801c390bd$55cca700$f8e4a7c8@bsb.virtua.com.br> <20030912104114.B21503@build.pdx.osdl.net>
+Subject: Re: Stack size
+Date: Fri, 12 Sep 2003 15:23:47 -0300
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Adrian Bunk <bunk@fs.tum.de>, ebiederm@xmission.com, akpm@osdl.org,
-       richard.brunner@amd.com, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-References: <99F2150714F93F448942F9A9F112634C0638B196@txexmtae.amd.com>	<20030911012708.GD3134@wotan.suse.de>	<20030910184414.7850be57.akpm@osdl.org>	<20030911014716.GG3134@wotan.suse.de>	<3F60837D.7000209@pobox.com>	<20030911162634.64438c7d.ak@suse.de>	<3F6087FC.7090508@pobox.com>	<m1vfrxlxol.fsf@ebiederm.dsl.xmission.com>	<20030912195606.24e73086.ak@suse.de>	<3F62098F.9030300@pobox.com>	<20030912182216.GK27368@fs.tum.de> <20030912202851.3529e7e7.ak@suse.de>
-In-Reply-To: <20030912202851.3529e7e7.ak@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-XTmail: http://www.verdesmares.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> That's obsolete and could be removed. All 3dnow! code is dynamically patched depending on the CPUID.
+Is there a test in kernel to know how much memory is consumed by stack ?
+
+Breno
+----- Original Message -----
+From: "Chris Wright" <chrisw@osdl.org>
+To: "Breno" <brenosp@brasilsec.com.br>
+Cc: "Kernel List" <linux-kernel@vger.kernel.org>
+Sent: Friday, September 12, 2003 2:41 PM
+Subject: Re: Stack size
 
 
-Ug.  Why compile in 3dnow code when you don't need it?  There is a 
-sizeable number of processors without 3dnow...
-
-	Jeff
-
-
+> [Hey, any chance you could join us in September? ;-) "Date:   Sun, 12 Oct
+> 2003 13:35:33 +0100"]
+>
+> * Breno (brenosp@brasilsec.com.br) wrote:
+> > What happen when stack increase more than 8mb ?
+>
+> Memory corruption.
+> -chris
+> --
+> Linux Security Modules     http://lsm.immunix.org
+http://lsm.bkbits.net
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266987AbRGICMA>; Sun, 8 Jul 2001 22:12:00 -0400
+	id <S266971AbRGICMU>; Sun, 8 Jul 2001 22:12:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266972AbRGICLv>; Sun, 8 Jul 2001 22:11:51 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:29850 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S266971AbRGICLe>; Sun, 8 Jul 2001 22:11:34 -0400
-Date: Sun, 8 Jul 2001 22:09:36 -0400
-From: Bill Nottingham <notting@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: loosing interrupt 12 under Linux-2.4.[2-6]
-Message-ID: <20010708220936.A18680@nostromo.devel.redhat.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <15177.2338.86751.734801@gargle.gargle.HOWL>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15177.2338.86751.734801@gargle.gargle.HOWL>; from nkiesel@tbdnetworks.com on Sun, Jul 08, 2001 at 06:30:10PM -0700
+	id <S266972AbRGICMK>; Sun, 8 Jul 2001 22:12:10 -0400
+Received: from water.CC.McGill.CA ([132.206.27.29]:59369 "EHLO
+	water.cc.mcgill.ca") by vger.kernel.org with ESMTP
+	id <S266971AbRGICL4>; Sun, 8 Jul 2001 22:11:56 -0400
+Date: Sun, 8 Jul 2001 01:01:01 -0400 (EDT)
+From: Felix Braun <Felix.Braun@McGill.ca>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Random lockups with kernels 2.4.6-pre8+
+In-Reply-To: <Pine.LNX.4.33L2.0107051621170.888-100000@eressea.in-berlin.de>
+Message-ID: <Pine.LNX.4.33L2.0107080056170.833-100000@eressea.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Norbert Kiesel (nkiesel@tbdnetworks.com) said: 
-> I had the same problem under 2.4.2 and 2.4.5.  However 2.2.x worked
-> fine (about 6 month ago; haven't used the laptop for a while and
-> during upgrade to RH-7.1 accidentically removed the old installation,
-> so there is curently no 2.2 kernel).
-> 
-> Sometimes, Linux won't recognize the mouse even on startup (i.e. no
-> interrupt 12 at all).  Rebooting fixes this normally.
-> 
-> Any ideas?
+Hi there,
 
-Got a PnP sound card?
+just in case anybody cares: the lockup behaviour that I observed starting
+mozilla 0.9.2 on kernels 2.4.6-pre8 and 2.4.6-final does not occur on
+2.4.6-ac2 (haven't tried with 2.4.7-preX). Appearently, I was the only one
+experiencing that problem anyway. Ah well, I won't complain now that
+evertything is working.
 
-Bill
+Cheers Felix
+

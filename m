@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262790AbTIJM2R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 08:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262796AbTIJM2Q
+	id S262849AbTIJMgz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 08:36:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbTIJMgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 08:28:16 -0400
-Received: from us01smtp2.synopsys.com ([198.182.44.80]:32986 "EHLO
-	kiruna.synopsys.com") by vger.kernel.org with ESMTP id S262790AbTIJM2Q
+	Wed, 10 Sep 2003 08:36:55 -0400
+Received: from us01smtp1.synopsys.com ([198.182.44.79]:10960 "EHLO
+	boden.synopsys.com") by vger.kernel.org with ESMTP id S262849AbTIJMgy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 08:28:16 -0400
-Date: Wed, 10 Sep 2003 14:28:10 +0200
+	Wed, 10 Sep 2003 08:36:54 -0400
+Date: Wed, 10 Sep 2003 14:36:49 +0200
 From: Alex Riesen <alexander.riesen@synopsys.COM>
 To: Luca Veraldi <luca.veraldi@katamail.com>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Efficient IPC mechanism on Linux
-Message-ID: <20030910122810.GA28990@Synopsys.COM>
+Message-ID: <20030910123649.GA29117@Synopsys.COM>
 Reply-To: alexander.riesen@synopsys.COM
 Mail-Followup-To: Luca Veraldi <luca.veraldi@katamail.com>,
 	linux-kernel <linux-kernel@vger.kernel.org>
-References: <00f201c376f8$231d5e00$beae7450@wssupremo> <20030909175821.GL16080@Synopsys.COM> <001d01c37703$8edc10e0$36af7450@wssupremo> <20030910064508.GA25795@Synopsys.COM> <015601c3777c$8c63b2e0$5aaf7450@wssupremo> <20030910115259.GA28632@Synopsys.COM> <03ae01c37795$063561a0$5aaf7450@wssupremo> <20030910121143.GA28858@Synopsys.COM> <03fb01c37797$33f706a0$5aaf7450@wssupremo>
+References: <20030909175821.GL16080@Synopsys.COM> <001d01c37703$8edc10e0$36af7450@wssupremo> <20030910064508.GA25795@Synopsys.COM> <015601c3777c$8c63b2e0$5aaf7450@wssupremo> <20030910115259.GA28632@Synopsys.COM> <03ae01c37795$063561a0$5aaf7450@wssupremo> <20030910121143.GA28858@Synopsys.COM> <03fb01c37797$33f706a0$5aaf7450@wssupremo> <20030910122810.GA28990@Synopsys.COM> <043901c37798$23be1520$5aaf7450@wssupremo>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <03fb01c37797$33f706a0$5aaf7450@wssupremo>
+In-Reply-To: <043901c37798$23be1520$5aaf7450@wssupremo>
 Organization: Synopsys, Inc.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luca Veraldi, Wed, Sep 10, 2003 14:29:37 +0200:
-> > it is widely accepted one.
+Luca Veraldi, Wed, Sep 10, 2003 14:36:19 +0200:
+> > but it does imply "tested". And widely used. And well-known.
 > 
-> Widely accepted does not necessary implies clear.
-> 
+> And inefficient, too.
 
-but it does imply "tested". And widely used. And well-known.
+yes, probably. Until proven. What exactly wrong with api?
+
+> Sorry, but I use theory not popular convention to judge.
+
+I personally do not see deficiencies of the mentioned apis.
 

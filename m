@@ -1,65 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265852AbUFIRFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265851AbUFIRFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265852AbUFIRFl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 13:05:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265855AbUFIRFl
+	id S265851AbUFIRFh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 13:05:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265855AbUFIRFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 13:05:41 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:31216 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S265852AbUFIRFg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 13:05:36 -0400
-Message-ID: <40C74388.20301@namesys.com>
-Date: Wed, 09 Jun 2004 10:06:16 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>
-CC: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: [STACK] >3k call path in reiserfs
-References: <20040609122226.GE21168@wohnheim.fh-wedel.de>	 <1086784264.10973.236.camel@watt.suse.com> <1086800028.10973.258.camel@watt.suse.com>
-In-Reply-To: <1086800028.10973.258.camel@watt.suse.com>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 9 Jun 2004 13:05:37 -0400
+Received: from holomorphy.com ([207.189.100.168]:55941 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265851AbUFIRFf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 13:05:35 -0400
+Date: Wed, 9 Jun 2004 10:05:28 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.7-rc3-mm1
+Message-ID: <20040609170528.GR1444@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <20040609015001.31d249ca.akpm@osdl.org> <200406091335.15566.norberto+linux-kernel@bensa.ath.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406091335.15566.norberto+linux-kernel@bensa.ath.cx>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason wrote:
+On Wed, Jun 09, 2004 at 01:35:15PM -0300, Norberto Bensa wrote:
+>   CC      drivers/pci/msi.o
+> drivers/pci/msi.c: In function `msi_address_init':
+> drivers/pci/msi.c:265: error: invalid operands to binary <<
+> make[2]: *** [drivers/pci/msi.o] Error 1
+> make[1]: *** [drivers/pci] Error 2
+> make: *** [drivers] Error 2
+> The offending line is:
+> 
+>         msi_address->lo_address.value |= (MSI_TARGET_CPU << MSI_TARGET_CPU_SHIFT);
 
->On Wed, 2004-06-09 at 08:31, Chris Mason wrote:
->  
->
->>On Wed, 2004-06-09 at 08:22, Jörn Engel wrote:
->>    
->>
->>>reiserfs has some stack-hungry functions as well.  Could you put them
->>>on a diet?
->>>
->>>      
->>>
->>Yes, we should be able to fix things by getting rid of some of the
->>inlines in a few spots (some funcs are much too large for inlining). 
->>I'll send a patch out this morning.
->>    
->>
->
->No such luck, the real offender is having tree balance structs on the
->stack.  We need to switch to kmalloc for those, which will be mean some
->extra work to make sure we don't schedule at the wrong time.
->
->In other words, not the trivial patch I was hoping for, but I'm cooking
->one up.
->
->-chris
->
->
->
->
->  
->
-Can you give me some background on whether this is causing real problems 
-for real users?
+The MSI writers have a lot to answer for. Could you test this?
+
+Thanks.
+
+Index: mm1-2.6.7-rc3/drivers/pci/msi.c
+===================================================================
+--- mm1-2.6.7-rc3.orig/drivers/pci/msi.c	2004-06-07 12:14:59.000000000 -0700
++++ mm1-2.6.7-rc3/drivers/pci/msi.c	2004-06-09 10:04:21.000000000 -0700
+@@ -254,7 +254,8 @@
+ 
+ static void msi_address_init(struct msg_address *msi_address)
+ {
+-	unsigned int	dest_id;
++	unsigned int dest_id;
++	cpumask_t msi_target_cpu = MSI_TARGET_CPU;
+ 
+ 	memset(msi_address, 0, sizeof(struct msg_address));
+ 	msi_address->hi_address = (u32)0;
+@@ -262,7 +263,7 @@
+ 	msi_address->lo_address.u.dest_mode = MSI_DEST_MODE;
+ 	msi_address->lo_address.u.redirection_hint = MSI_REDIRECTION_HINT_MODE;
+ 	msi_address->lo_address.u.dest_id = dest_id;
+-	msi_address->lo_address.value |= (MSI_TARGET_CPU << MSI_TARGET_CPU_SHIFT);
++	msi_address->lo_address.value |= any_online_cpu(msi_target_cpu) << MSI_TARGET_CPU_SHIFT;
+ }
+ 
+ static int assign_msi_vector(void)
+Index: mm1-2.6.7-rc3/include/asm-i386/msi.h
+===================================================================
+--- mm1-2.6.7-rc3.orig/include/asm-i386/msi.h	2004-06-07 12:14:42.000000000 -0700
++++ mm1-2.6.7-rc3/include/asm-i386/msi.h	2004-06-09 09:50:04.000000000 -0700
+@@ -14,7 +14,7 @@
+ #define MSI_TARGET_CPU_SHIFT		12
+ 
+ #ifdef CONFIG_SMP
+-#define MSI_TARGET_CPU		logical_smp_processor_id()
++#define MSI_TARGET_CPU		cpumask_of_cpu(logical_smp_processor_id())
+ #else
+ #define MSI_TARGET_CPU		TARGET_CPUS
+ #endif

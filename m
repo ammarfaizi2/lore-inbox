@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265534AbSJSGuV>; Sat, 19 Oct 2002 02:50:21 -0400
+	id <S265536AbSJSGxJ>; Sat, 19 Oct 2002 02:53:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265536AbSJSGuU>; Sat, 19 Oct 2002 02:50:20 -0400
-Received: from findaloan-online.cc ([216.209.85.42]:26890 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S265534AbSJSGuU>;
-	Sat, 19 Oct 2002 02:50:20 -0400
-Date: Sat, 19 Oct 2002 02:56:24 -0400
+	id <S265538AbSJSGxJ>; Sat, 19 Oct 2002 02:53:09 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:29962 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S265536AbSJSGxI>;
+	Sat, 19 Oct 2002 02:53:08 -0400
+Date: Sat, 19 Oct 2002 02:59:16 -0400
 From: Mark Mielke <mark@mark.mielke.cc>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Dan Kegel <dank@kegel.com>, John Myers <jgmyers@netscape.com>,
-       Benjamin LaHaise <bcrl@redhat.com>,
+To: John Myers <jgmyers@netscape.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       Benjamin LaHaise <bcrl@redhat.com>, Dan Kegel <dank@kegel.com>,
        Shailabh Nagar <nagar@watson.ibm.com>,
        linux-kernel <linux-kernel@vger.kernel.org>,
        linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
@@ -18,26 +18,24 @@ Cc: Dan Kegel <dank@kegel.com>, John Myers <jgmyers@netscape.com>,
        Linus Torvalds <torvalds@transmeta.com>,
        Stephen Tweedie <sct@redhat.com>
 Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
-Message-ID: <20021019065624.GA17553@mark.mielke.cc>
-References: <20021018185528.GC13876@mark.mielke.cc> <Pine.LNX.4.44.0210181209510.1537-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <20021019065916.GB17553@mark.mielke.cc>
+References: <Pine.LNX.4.44.0210181241300.1537-100000@blue1.dev.mcafeelabs.com> <3DB0AD79.30401@netscape.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210181209510.1537-100000@blue1.dev.mcafeelabs.com>
+In-Reply-To: <3DB0AD79.30401@netscape.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 18, 2002 at 12:16:48PM -0700, Davide Libenzi wrote:
-> These functions are taken from the really simple example http server used
-> to test/compare /dev/epoll with poll()/select()/rt-sig//dev/poll :
+On Fri, Oct 18, 2002 at 05:55:21PM -0700, John Myers wrote:
+> So whether or not a proposed set of epoll semantics is consistent with 
+> your Platonic ideal of "use the fd until EAGAIN" is simply not an issue. 
+> What matters is what works best in practice.
 
-They still represent an excessive complicated model that attempts to
-implement /dev/epoll the same way that one would implement poll()/select().
-
-Sometimes the answer isn't emulation, or comparability.
-
-Sometimes the answer is innovation.
+>From this side of the fence: One vote for "use the fd until EAGAIN" being
+flawed. If I wanted a method of monopolizing the event loop with real time
+priorities, I would implement real time priorities within the event loop.
 
 mark
 

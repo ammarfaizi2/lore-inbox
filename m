@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265527AbTFMUqt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 16:46:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265528AbTFMUqs
+	id S265528AbTFMUvP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 16:51:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265530AbTFMUvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 16:46:48 -0400
-Received: from windsormachine.com ([206.48.122.28]:44305 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id S265527AbTFMUqr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 16:46:47 -0400
-Date: Fri, 13 Jun 2003 17:00:35 -0400 (EDT)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: 3ware and two drive hardware raid1
-In-Reply-To: <49562.10.10.10.1.1055537200.squirrel@www.greenhydrant.com>
-Message-ID: <Pine.LNX.4.33.0306131657250.10271-100000@router.windsormachine.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 13 Jun 2003 16:51:15 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:64013 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S265528AbTFMUvO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 16:51:14 -0400
+Date: Fri, 13 Jun 2003 23:05:00 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: Dave Jones <davej@codemonkey.org.uk>, Andries Brouwer <aebr@win.tue.nl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: open(.. O_DIRECT ..) difference in between Linux and FreeBSD ..
+Message-ID: <20030613230500.A3253@pclin040.win.tue.nl>
+References: <20030612111437.GE28900@mea-ext.zmailer.org> <20030612151704.A2588@pclin040.win.tue.nl> <20030612145814.GB14795@suse.de> <20030612150909.GI28900@mea-ext.zmailer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030612150909.GI28900@mea-ext.zmailer.org>; from matti.aarnio@zmailer.org on Thu, Jun 12, 2003 at 06:09:09PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Jun 2003, David Rees wrote:
+On Thu, Jun 12, 2003 at 06:09:09PM +0300, Matti Aarnio wrote:
+> On Thu, Jun 12, 2003 at 03:58:14PM +0100, Dave Jones wrote:
 
-> Mike Dresser said:
-> > On Fri, 13 Jun 2003, Stephan von Krawczynski wrote:
-> >> I can confirm that the 3dm daemon is very handy. Especially the media
-> >> scan is highly recommended, as it finds problems on areas where there
-> >> is no production data yet. So there always is a good chance for
-> >> replacement before actual failure.
-> >
-> > The tw_cli has a similar function, in that you can maint verify c# u#
->
-> Were you using it to confirm the status of your disks?
+[all clipped - later]
 
-Yes.
+I was reminded of the following quote:
 
-The other Windows PC onsite that I was working on turned out to be
-rebooting randomly.  When I investigated, turned out that it's the battery
-backup.  Unplug the battery backup, and a few seconds later(maybe 10), the
-computer would reboot.
+  "The thing that has always disturbed me about O_DIRECT is that the whole
+  interface is just stupid, and was probably designed by a deranged monkey
+  on some serious mind-controlling substances."
 
-Based on that damaged batterybackup, and that it just started doing it
-yesterday morning, I'd say we had a lightning hit on the two buildings,
-especially since we had a storm that night.
-
-Both drives in the backup server were damaged, one was completely dead,
-the other was barely running.  I was able to copy off all but about 10
-files, of which all of it was easily replaceable anyways.
-
-The drives were functional before the lightning hit.
-
-Mike
+I'll add that to the BUGS section.
 

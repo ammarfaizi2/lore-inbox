@@ -1,91 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbULYVni@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbULYWDh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261579AbULYVni (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 16:43:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbULYVni
+	id S261575AbULYWDh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 17:03:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbULYWDh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 16:43:38 -0500
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:57044 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261581AbULYVnT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 16:43:19 -0500
-From: Juergen Krause <Krause.J@gmx.de>
-Reply-To: Krause.J@gmx.de
-To: linux-kernel@vger.kernel.org
-Subject: kernel 2.6.10: promise sx6000 not detected by i2o_block
-Date: Sat, 25 Dec 2004 22:44:48 +0100
-User-Agent: KMail/1.7.1
+	Sat, 25 Dec 2004 17:03:37 -0500
+Received: from [213.85.13.118] ([213.85.13.118]:18563 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S261575AbULYWDf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Dec 2004 17:03:35 -0500
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Robert_Hentosh@Dell.com,
+       Con Kolivas <kernel@kolivas.org>
+Subject: Re: [PATCH][1/2] adjust dirty threshold for lowmem-only mappings
+References: <Pine.LNX.4.61.0412201013080.13935@chimarrao.boston.redhat.com>
+	<20041220125443.091a911b.akpm@osdl.org>
+	<Pine.LNX.4.61.0412231420260.5468@chimarrao.boston.redhat.com>
+	<20041224160136.GG4459@dualathlon.random>
+	<Pine.LNX.4.61.0412241118590.11520@chimarrao.boston.redhat.com>
+	<20041224164024.GK4459@dualathlon.random>
+	<Pine.LNX.4.61.0412241711180.11520@chimarrao.boston.redhat.com>
+	<20041225020707.GQ13747@dualathlon.random>
+	<Pine.LNX.4.61.0412251253090.18130@chimarrao.boston.redhat.com>
+	<20041225190710.GZ771@holomorphy.com>
+From: Nikita Danilov <nikita@clusterfs.com>
+Date: Sun, 26 Dec 2004 01:03:14 +0300
+In-Reply-To: <20041225190710.GZ771@holomorphy.com> (William Lee Irwin, III's
+ message of "Sat, 25 Dec 2004 11:07:10 -0800")
+Message-ID: <m1652q2fz1.fsf@clusterfs.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.5 (chayote, linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412252244.48875.Krause.J@gmx.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+William Lee Irwin III <wli@holomorphy.com> writes:
 
-I am happy to see that kernel 2.6 supports the promise sx6000,
-but my controller isn't detected by the kernel.
+> On Sat, 25 Dec 2004, Andrea Arcangeli wrote:
+>>> the first place? If that happens it means you're under a lowmem
+>>> shortage, something you apparently ruled out when you said
+>>> lowmem_reserve couldn't help your workload.
+>
+> On Sat, Dec 25, 2004 at 12:59:10PM -0500, Rik van Riel wrote:
+>> Let me explain a 3rd time:
+> [...]
+>> If you have any more questions as to why the bug happens, don't
+>> hesitate to ask and I'll explain you why this problem happens.
+>
+> This is an old and well-known problem.
+>
+> Lifting the artificial lowmem restrictions on blockdev mappings
+> (thereby nuking mapping->gfp_mask altogether) would resolve a number of
+> problems, not that anything making that much sense could ever happen.
 
-Infos about my computer:
-AMD Athlon(tm) 64 Processor 3200+
-ASUS A8V Deluxe
+mapping->gfp_mask is used for other things beyond specifying a
+zonelist. For example, file systems want all allocations inside a
+transaction to be done with GFP_NOFS, which forces GFP_NOFS in
+mapping->gfp_mask of meta-data address_spaces.
 
-Infos about controller:
-Promise SX6000
-firmware: 1.20.0.27
+>
+>
+> -- wli
 
-lspci output:
-0000:00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0282
-0000:00:00.1 Host bridge: VIA Technologies, Inc.: Unknown device 1282
-0000:00:00.2 Host bridge: VIA Technologies, Inc.: Unknown device 2282
-0000:00:00.3 Host bridge: VIA Technologies, Inc.: Unknown device 3282
-0000:00:00.4 Host bridge: VIA Technologies, Inc.: Unknown device 4282
-0000:00:00.7 Host bridge: VIA Technologies, Inc.: Unknown device 7282
-0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI bridge [K8T800 South]
-0000:00:07.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 80)
-0000:00:0a.0 Ethernet controller: Marvell Technology Group Ltd. Gigabit Ethernet Controller (rev 13)
-0000:00:0b.0 Network controller: AVM Audiovisuelles MKTG & Computer System GmbH B1 ISDN
-0000:00:0c.0 PCI bridge: Intel Corp. 80960RM [i960RM Bridge] (rev 02)
-0000:00:0c.1 Class ff00: Intel Corp. 80960RM [i960RM Microprocessor] (rev 02)
-0000:00:0e.0 SCSI storage controller: Adaptec AHA-2930CU (rev 03)
-0000:00:0f.0 RAID bus controller: VIA Technologies, Inc. VIA VT6420 SATA RAID Controller (rev 80)
-0000:00:0f.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
-0000:00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
-0000:00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
-0000:00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
-0000:00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
-0000:00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
-0000:00:11.0 ISA bridge: VIA Technologies, Inc. VT8237 ISA bridge [KT600/K8T800 South]
-0000:00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235/8237 AC97 Audio Controller (rev 60)
-0000:00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
-0000:00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
-0000:00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
-0000:00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
-0000:02:00.0 VGA compatible controller: nVidia Corporation NV5M64 [RIVA TNT2 Model 64/Model 64 Pro] (rev 15)
-
-the attached 5 harddrives are configured as 1 raid5 group, so I load following i2o modules
-
-i2o_core
-i2o_proc
-i2o_block
-
-syslog entries when i2o modules are loaded:
-
-Dec 25 21:28:26 server I2O Core - (C) Copyright 1999 Red Hat Software
-Dec 25 21:28:26 server i2o: max_drivers=4
-Dec 25 21:28:26 server I2O Block Storage OSM v0.9
-Dec 25 21:28:26 server (c) Copyright 1999-2001 Red Hat Software.
-Dec 25 21:28:26 server block-osm: registered device at major 80
-
-I running gentoo linux with udev-050, 
-
-The controller works fine under linux 2.4 with the promise driver (1.34.0.1) and under windows xp.
-
-Do I anything wrong or is the Promise sx6000 support still broken?
-
-Regards,
-Juergen Krause
-
+Nikita.

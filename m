@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290075AbSBFFRo>; Wed, 6 Feb 2002 00:17:44 -0500
+	id <S290070AbSBFFM4>; Wed, 6 Feb 2002 00:12:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290080AbSBFFRe>; Wed, 6 Feb 2002 00:17:34 -0500
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:23044
+	id <S290075AbSBFFMo>; Wed, 6 Feb 2002 00:12:44 -0500
+Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:21252
 	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S290075AbSBFFRS>; Wed, 6 Feb 2002 00:17:18 -0500
-Message-Id: <5.1.0.14.2.20020206001038.00ab7490@whisper.qrpff.net>
+	id <S290070AbSBFFMh>; Wed, 6 Feb 2002 00:12:37 -0500
+Message-Id: <5.1.0.14.2.20020206000744.00ac8da8@whisper.qrpff.net>
 X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 06 Feb 2002 00:12:51 -0500
-To: linux-kernel@vger.kernel.org
+Date: Wed, 06 Feb 2002 00:08:09 -0500
+To: "Brenneke, Matthew Jeffrey (UMR-Student)" <mbrennek@umr.edu>,
+        "Rik van Riel" <riel@conectiva.com.br>
 From: Stevie O <stevie@qrpff.net>
-Subject: Re: windows is more secure than linux!!
-In-Reply-To: <B0C77D98347F826499A03C1FE22DE33B@william.fitzgerald2.beer.
- com>
+Subject: RE: windows is more secure than linux!!
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <E0DDC0FF6CE82349A014D7498C36CEE02B5ACE@umr-mail2.umr.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:47 AM 2/6/2002 +2400, william fitzgerald wrote:
->hi all,
+At 03:13 PM 2/5/2002 -0600, Brenneke, Matthew Jeffrey (UMR-Student) wrote:
+> > Lies, damn lies & statistics.
+> >
+> > regards,
+> >
+> > Rik
 >
->some of you might find this interesting others
->disheartening
->
->www.shortnews.com/shownews.cfm?id=16886&u_id=623
+>42.3454% of statistics are completely made up
 
-
-Face it guys, statistics don't lie:
-
-[Windows]
-Bugs in Windows XP system services resulting in a security hole: 1 (UnPnP)
-
-[Linux]
-Bugs in wu-ftpd and BIND: billions
-
-
-
-Linux is so way worse!
-
-
-
-what? wu-ftpd isnt linux? yes it is! its on freshmeat!
+yeah, 17.3% of all people know that
 
 
 --

@@ -1,59 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291869AbSBTOMp>; Wed, 20 Feb 2002 09:12:45 -0500
+	id <S291863AbSBTOOP>; Wed, 20 Feb 2002 09:14:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291863AbSBTOM0>; Wed, 20 Feb 2002 09:12:26 -0500
-Received: from mailout6-0.nyroc.rr.com ([24.92.226.125]:45820 "EHLO
-	mailout6.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S291859AbSBTOMU>; Wed, 20 Feb 2002 09:12:20 -0500
-Subject: Re: Problems with Radeon Framebuffer
-From: James D Strandboge <jstrand1@rochester.rr.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020220123931.281e070a.hanno@gmx.de>
-In-Reply-To: <20020219234939.0d8597fb.hanno@gmx.de>
-	<DF415341-25A3-11D6-B291-000393843900@metaparadigm.com> 
-	<20020220123931.281e070a.hanno@gmx.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 20 Feb 2002 09:12:15 -0500
-Message-Id: <1014214335.11442.58.camel@hedwig.strandboge.cxm>
-Mime-Version: 1.0
+	id <S291868AbSBTOOH>; Wed, 20 Feb 2002 09:14:07 -0500
+Received: from dsl-213-023-038-089.arcor-ip.net ([213.23.38.89]:10657 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S291863AbSBTOOC>;
+	Wed, 20 Feb 2002 09:14:02 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [RFC] Page table sharing
+Date: Wed, 20 Feb 2002 15:18:30 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Rik van Riel <riel@conectiva.com.br>, dmccr@us.ibm.com,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+        Robert Love <rml@tech9.net>, mingo@redhat.com,
+        Andrew Morton <akpm@zip.com.au>, manfred@colorfullife.com,
+        wli@holomorphy.com
+In-Reply-To: <Pine.LNX.4.21.0202191801430.15103-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.21.0202191801430.15103-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16dXZm-0001Lv-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-02-20 at 06:39, Hanno Boeck wrote:
-> > Did you have vesafb compiled in also (can tell by looking at the entire 
-> > dmesg)? This would explain why radeonfb can't map the framebuffer 
-> > memory. If so, try again without vesafb compiled in.
+On February 19, 2002 07:11 pm, Hugh Dickins wrote:
+> On Tue, 19 Feb 2002, Linus Torvalds wrote:
+> > On Tue, 19 Feb 2002, Daniel Phillips wrote:
+> > > >
+> > > > At that point you might as well make the TLB shootdown global (ie you keep
+> > > > track of a mask of CPU's whose TLB's you want to kill, and any pmd that
+> > > > has count > 1 just makes that mask be "all CPU's").
+> > >
+> > > How do we know when to do the global tlb flush?
+> > 
+> > See above.
+> > 
+> > Basically, the algorithm is:
+> > 
+> > 	invalidate_cpu_mask = 0;
+> > 
+> > 	.. for each page swapped out ..
+> > 
+> > 		pte = ptep_get_and_clear(ptep);
+> > 		save_pte_and_mm(pte_page(pte));
+> > 		mask = mm->cpu_vm_mask;
+> > 		if (page_count(pmd_page) > 1)
+> > 			mask = ~0UL;
+> > 		invalidate_cpu_mask |= mask;
+> > 
+> > and then at the end you just do
+> > 
+> > 	flush_tlb_cpus(invalidate_cpu_mask);
+> > 	for_each_page_saved() {
+> > 		free_page(page);
+> > 	}
+> > 
+> > (yeah, yeah, add cache coherency etc).
 > 
-> If I do that, my console is completely black!
-> I don't have a console any more. I can only run Xfree.
-> 
-> So that doesn't help either.
-> 
-> Btw, this is what lspci -v says about my graphics card:
-> 
-> 01:00.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M6 LY (prog-if 00 [VGA])
-> 	Subsystem: Sony Corporation: Unknown device 80e7
-> 	Flags: stepping, fast Back2Back, 66Mhz, medium devsel, IRQ 9
-> 	Memory at d8000000 (32-bit, prefetchable) [size=128M]
-> 	I/O ports at 3000 [size=256]
-> 	Memory at d0100000 (32-bit, non-prefetchable) [size=64K]
-> 	Expansion ROM at <unassigned> [disabled] [size=128K]
-> 	Capabilities: [58] AGP version 2.0
-> 	Capabilities: [50] Power Management version 2
+> It's a little worse than this, I think.  Propagating pte_dirty(pte) to
+> set_page_dirty(page) cannot be done until after the flush_tlb_cpus,
 
-Not this this answers your question, but I can say that this card works
-with vesafb by passing 'vga=834' to the kernel-- I do that on a laptop
-with the same chip.  But if I enable the frame buffer using this method,
-I can't use the radeon driver in XFree86.  But, the radeon driver isn't
-stable enough for me so I don't mind not using it.  Haven't tried
-XFree86 4.2 yet though (or radeonfb for that matter).
+You mean, because somebody might re-dirty an already cleaned page?  Or are
+you driving at something more subtle?
 
-Jamie Strandboge
+> if the ptes are writable: and copy_page_range is not setting "cow", so not
+> write protecting, when it's a shared writable mapping.  Easy answer is
+> to scrap "cow" there and always do the write protection; but I doubt
+> that's the correct answer.
+
+Nope.  For shared mmaps you'd get tons of unecessary faults.
+
+> swap_out could keep an array of pointers to
+> ptes, to propagate dirty after flushing TLB and before freeing pages,
+> but that's not very pretty.
+
+It's not horrible, not worse than the already-existing tlb_remove_page
+code anyway.  I think we're not stopped here, just slowed down for some
+head scratching.
+
 -- 
-Email:        jstrand1@rochester.rr.com
-GPG/PGP ID:   26384A3A
-Fingerprint:  D9FF DF4A 2D46 A353 A289  E8F5 AA75 DCBE 2638 4A3A
-
+Daniel

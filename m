@@ -1,84 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbUEAIfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUEAJQR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262031AbUEAIfN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 04:35:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262046AbUEAIfM
+	id S262062AbUEAJQR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 05:16:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbUEAJQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 04:35:12 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:32814 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262031AbUEAIfA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 04:35:00 -0400
-Date: Sat, 1 May 2004 01:33:04 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: akpm@osdl.org, jreiser@BitWagon.com, mike@navi.cx, pageexec@freemail.hu,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       "Raj, Ashok" <ashok.raj@intel.com>
-Subject: Re: arch/ia64/ia32/binfmt_elf32.c: elf32_map() broken ia64 build
- _and_ boot
-Message-Id: <20040501013304.32a750d3.pj@sgi.com>
-In-Reply-To: <20040426185633.7969ca0d.pj@sgi.com>
-References: <20040426185633.7969ca0d.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 1 May 2004 05:16:17 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:32980 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S262062AbUEAJQP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 May 2004 05:16:15 -0400
+Date: Sat, 1 May 2004 11:15:52 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: "Robert M. Stockmann" <stock@stokkie.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+Message-ID: <20040501091552.GB29089@louise.pinerecords.com>
+References: <Pine.LNX.4.44.0404272317390.11727-100000@hubble.stokkie.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0404272317390.11727-100000@hubble.stokkie.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's worse than I realized when I started this lkml thread (now adding
-linux-ia64 to cc list because I likely need ia64 maintainers assistance).
+On Apr-27 2004, Tue, 23:34 +0200
+Robert M. Stockmann <stock@stokkie.net> wrote:
 
-Not only don't the bssprot patches in Andrew's 2.6.6-rc2-mm2 not build,
-they don't boot on SGI's SN2 ia64 with sn2_defconfig.  If I remove these
-4 bssprot patches, then 2.6.6-rc2-mm2 builds (with the easy build fixes
-already understood earlier this week) and boots on SN2 ia64 with
-sn2_defconfig.
+> > Hmm. At least with -sdt=c99 it should be trivial, with something like
+> > 
+> > #define __MODULE_INFO(tag, name, info) \
+> > static struct { int len; const char value[] } \
+> > __module_cat(name,__LINE__) __attribute_used__ \
+> > __attribute__((section(".modinfo"),unused)) = \
+> > { sizeof(__stringify(tag) "=" info), \
+> > __stringify(tag) "=" info }
+> > 
+> > doing the job.
+> > 
+> > That should make it pretty easy to parse the .modinfo section too.
+> > 
+> > Linus
+> 
+> Its a joke anyway gcc3.x allows this to happen.
 
-The 4 patches in question are named in Andrews 2.6.6-rc2-mm2 series file:
+Why?  Initializing a char pointer to a byte stream that contains a NUL
+is perfectly legal C.
 
-   bssprot.patch
-   bssprot-sparc-fix.patch
-   bssprot-cleanup.patch
-   bssprot-more-fixes.patch
+> As i posted on the gcc mailinglist some time ago :
+[snip]
+> checking version of gcc... 2.95.3, bad
+> configure: error: Please upgrade your gcc compiler to gcc-2.96+ or gcc-3+ 
+> version! Earlier compiler versions will NOT work as these do not support 
+> unnamed/annonymous structures and unions which are used heavily in linux-ntfs.
+> [jackson:stock]:(~/src/ntfsprogs-1.8.4)$
+> 
+> Aha, unnamed/annonymous structures and unions .....
+> 
+> Well thats briljant... in 2 years time all Open Source code will be unnamed
+> and anonymous in the form of propiatary .o modules, and Linus will still
+> be happy to deliver his /usr/src/linux/kernel subtree of the Linux
+[snip]
 
-If I apply the cheap bssprot fix, changing the signature of the function
-elf32_map() in arch/ia64/ia32/binfmt_elf32.c as noted earlier in this
-lkml thread, then yes I can build it, including these patches, for
-sn2_defconfig.
-
-But trying to boot the resulting kernel on an SGI SN2 system fails.  The
-boot successfully prints out:
-
-  Freeing unused kernel memory: 336kB freed
-
-but freezes prior to displaying the next line expected:
-
-  INIT: version 2.85 booting
-
-I have to reset instead at this point.
-
-On this system the program /sbin/init is the following type:
-
-  /sbin/init: ELF 64-bit LSB executable, IA-64, version 1 (SYSV),
-  for GNU/Linux 2.4.0, dynamically linked (uses shared libs), stripped
-
-JFReiser posted a few days ago on this lkml thread a partial analysis of
-what would be required to complete this bssprot patch for ia64.
-
-Now the job is a little bigger - not only complete the patch (required
-to fix some bss protections that matter at least to Wine, but also get
-it to boot again, on SN2 hardware, probably on white box ia64 hardware
-as well.
-
-This is not something I can do in a reasonable time, and I do not
-have the liberty of taking an unreasonable time for this.
-
-... seeking asistance ... who might be able to assist further here?
+Well, what was the GCC folks' response?  I'd place my bet on
+"Do you even know what an unnamed structure/union is?"
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Tomas Szepe <szepe@pinerecords.com>

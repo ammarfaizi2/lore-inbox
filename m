@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272796AbTHEQ0n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 12:26:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272837AbTHEQ0n
+	id S272521AbTHEQSW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 12:18:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270169AbTHEQSW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 12:26:43 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:44195 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S272796AbTHEQ0S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 12:26:18 -0400
-Date: Tue, 5 Aug 2003 18:26:04 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Ducrot Bruno <poup@poupinou.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [TRIVIAL] sanitize power management config menus, take two
-Message-ID: <20030805162604.GF18982@louise.pinerecords.com>
-References: <20030805072631.GC5876@louise.pinerecords.com> <20030805161117.GA1511@poupinou.org> <20030805161505.GD18982@louise.pinerecords.com> <20030805162428.GB1511@poupinou.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030805162428.GB1511@poupinou.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 5 Aug 2003 12:18:22 -0400
+Received: from dm4-153.slc.aros.net ([66.219.220.153]:62937 "EHLO cyprus")
+	by vger.kernel.org with ESMTP id S272521AbTHEQSU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 12:18:20 -0400
+Message-ID: <3F2FD8C8.7080507@aros.net>
+Date: Tue, 05 Aug 2003 10:18:16 -0600
+From: Lou Langholtz <ldl@aros.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Randy Dunlap <rddunlap@osdl.org>, Leann Ogasawara <ogasawara@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] revert to static = {0}
+References: <Pine.LNX.4.44.0308051638040.1471-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0308051638040.1471-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [poup@poupinou.org]
+Hugh Dickins wrote:
+
+>Please revert to static zero initialization of a const: when thus
+>initialized it's linked into a readonly cacheline shared between cpus;
+>otherwise it's linked into bss, likely to be in a dirty cacheline
+>bouncing between cpus.
+>
+>--- 2.6.0-test2-bk/mm/shmem.c	Tue Aug  5 15:57:31 2003
+>+++ linux/mm/shmem.c	Tue Aug  5 16:16:55 2003
+>@@ -296,7 +296,7 @@
+> 	struct shmem_sb_info *sbinfo = SHMEM_SB(inode->i_sb);
+> 	struct page *page = NULL;
+> 	swp_entry_t *entry;
+>-	static const swp_entry_t unswapped;
+>+	static const swp_entry_t unswapped = {0};
 > 
-> > o  only enable cpufreq options if power management is selected
-> > o  don't put cpufreq options in a separate submenu
-> 
-> Yes, but what I do not understand is why cpufreq need power management.
+> 	if (sgp != SGP_WRITE &&
+> 	    ((loff_t) index << PAGE_CACHE_SHIFT) >= i_size_read(inode))
+>  
+>
+If this static zero initialization makes it into the kernel distro for 
+the given reason, please also add a comment sharing your above mentioned 
+reasoning.
 
-Because it is a power management option. :)
-
-CONFIG_PM is a dummy option, it does not link any code into the kernel
-by itself.
-
--- 
-Tomas Szepe <szepe@pinerecords.com>

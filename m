@@ -1,68 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262848AbVAKVIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262618AbVAKVLC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262848AbVAKVIT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 16:08:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262846AbVAKVHp
+	id S262618AbVAKVLC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 16:11:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262743AbVAKVIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 16:07:45 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:49331 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262836AbVAKVGw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 16:06:52 -0500
-Subject: [PATCH] missing dependency for drivers/net/tun.c
-From: Steve French <smfltc@us.ibm.com>
-To: maxk@qualcomm.com, linux-kernel@vger.kernel.org
-Cc: underley@underley.eu.org
-Content-Type: multipart/mixed; boundary="=-haeYdBlFrhztqGnfrFAh"
-Organization: IBM - Linux Technology Center
-Message-Id: <1105477572.12905.16.camel@stevef95.austin.ibm.com>
+	Tue, 11 Jan 2005 16:08:47 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:64437 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262841AbVAKVHU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 16:07:20 -0500
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+From: Lee Revell <rlrevell@joe-job.com>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Paul Davis <paul@linuxaudiosystems.com>, Matt Mackall <mpm@selenic.com>,
+       Chris Wright <chrisw@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, arjanv@redhat.com, mingo@elte.hu,
+       alan@lxorguk.ukuu.org.uk, Con Kolivas <kernel@kolivas.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <87oefw3p7m.fsf@sulphur.joq.us>
+References: <200501111305.j0BD58U2000483@localhost.localdomain>
+	 <87oefw3p7m.fsf@sulphur.joq.us>
+Content-Type: text/plain
+Date: Tue, 11 Jan 2005 16:07:15 -0500
+Message-Id: <1105477636.4295.47.camel@krustophenia.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 11 Jan 2005 15:06:12 -0600
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-01-11 at 10:28 -0600, Jack O'Quin wrote:
+> Paul Davis <paul@linuxaudiosystems.com> writes:
+> 
+> >>Rlimits are neither UID/GID or PAM-specific. They fit well within
+> >>the general model of UNIX security, extending an existing mechanism
+> >>rather than adding a completely new one. That PAM happens to be the
+> >>way rlimits are usually administered may be unfortunate, yes, but it
+> >>doesn't mean that rlimits is the wrong way.
+> 
+> PAM is how most GNU/Linux systems manage rlimits.  It is very UID/GID
+> oriented.  So from the sysadmin perspective, claiming that rlimits is
+> "better" or "easier to manage" than "GID hacks" is bogus.
+> 
 
---=-haeYdBlFrhztqGnfrFAh
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Sorry, I have to agree with Matt, let's just use PAM.  Maybe I have been
+a Linux admin for too long but I don't think PAM is so bad.  Yes it
+could be better documented but if this was a showstopper then no one
+would use Linux at all.  It's not like every naive user will have to
+figure out PAM now, the audio oriented distributions will just set it up
+right by default.  And if people want to use the mainstream distros to
+do audio work OOTB, they'll just have to bug their vendor about it.
 
-drivers/net/tun.c has a missing dependency on enabling the crc32
-libraries in kernel config.   With tun enabled and crc32 disabled "make
-bzImage" (the linking step) fails. For example:
+> > agreed, although i note with interest the flap over RLIMIT_MEMLOCK
+> > being made accessible to unprivileged users by people working on
+> > grsecurity. 
+> 
+> :-)
 
-drivers/built-in.o(.text+0x656f1): In function `add_multi':
-linux-2.5cifs/drivers/net/tun.c:112: undefined reference to `crc32_le'
-drivers/built-in.o(.text+0x656f9):linux-2.5cifs/drivers/net/tun.c:112:
-undefined reference to `bitreverse'
+But we are not talking about unprivileged users.  Do not take
+"unprivileged" to mean "nonroot".  We need an easy mechanism for root to
+tell the kernel 'the following users get to do things that could
+potentially lock up the system'.  No general purpose Linux distro would
+ship with this enabled by default for everyone.  But, to quote another
+LKML thread 'you can't prevent root from doing stupid things because
+that would also keep him from doing clever things'.
 
-Line 112:
+It's a fine line between stupid and clever.
 
-	        int bit_nr = ether_crc(ETH_ALEN, addr) >> 26;
+Lee
 
-is a call to the ether_crc macro which maps to the bitreverse function
-which is only exported if you enable:
-	library functions -> CRC32 functions 
-in kernel config.  The following would fix it.
-
-
-
-
---=-haeYdBlFrhztqGnfrFAh
-Content-Disposition: attachment; filename=tun-config.patch
-Content-Type: text/plain; name=tun-config.patch; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
---- drivers/net/Kconfig.old	2005-01-11 14:59:51.540023800 -0600
-+++ drivers/net/Kconfig	2005-01-11 15:00:48.126421360 -0600
-@@ -84,6 +84,7 @@
- config TUN
- 	tristate "Universal TUN/TAP device driver support"
- 	depends on NETDEVICES
-+	select CRC32
- 	---help---
- 	  TUN/TAP provides packet reception and transmission for user space
- 	  programs.  It can be viewed as a simple Point-to-Point or Ethernet
-
---=-haeYdBlFrhztqGnfrFAh--
 

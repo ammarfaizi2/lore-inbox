@@ -1,72 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263422AbTEITgK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 15:36:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263427AbTEITgK
+	id S263436AbTEITix (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 15:38:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263438AbTEITix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 15:36:10 -0400
-Received: from [65.244.37.61] ([65.244.37.61]:60289 "EHLO
-	WSPNYCON1IPC.corp.root.ipc.com") by vger.kernel.org with ESMTP
-	id S263422AbTEITgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 15:36:09 -0400
-Message-ID: <170EBA504C3AD511A3FE00508BB89A92020CD8B9@exnanycmbx4.ipc.com>
-From: "Downing, Thomas" <Thomas.Downing@ipc.com>
-To: Andy Pfiffer <andyp@osdl.org>, walt <wa1ter@hotmail.com>
-Cc: Torrey Hoffman <thoffman@arnor.net>, Giuliano Pochini <pochini@shiny.it>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: RE: ALSA busted in 2.5.69
-Date: Fri, 9 May 2003 15:48:08 -0400 
+	Fri, 9 May 2003 15:38:53 -0400
+Received: from lineaAP162.velocom.com.ar ([200.59.47.162]:3848 "EHLO
+	soraya.nixe.com") by vger.kernel.org with ESMTP id S263436AbTEITiu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 15:38:50 -0400
+Date: Fri, 9 May 2003 16:42:44 -0300 (ART)
+From: Alan Glait <aglait@nixe.com>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel problems
+Message-ID: <Pine.LNX.4.10.10305091637200.2732-100000@soraya.nixe.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------Original Message-----
-From: Andy Pfiffer [mailto:andyp@osdl.org]
-> On Fri, 2003-05-09 at 11:14, walt wrote:
->> Torrey Hoffman wrote:
->> > On Fri, 2003-05-09 at 01:09, Giuliano Pochini wrote:
->> > 
->> >>On 08-May-2003 Torrey Hoffman wrote:
->> >>
->> >>>ALSA isn't working for me in 2.5.69.  It appears to be because
->> >>>/proc/asound/dev is missing the control devices.
->> > ...
->> >>If you are not using devfs, you need to create the devices. There is a
->> >>script in the ALSA-driver package to do that. Otherwise I can't help
->> >>you because I never tried devfs and linux 2.5.x.
->> > 
->> > No.  /dev/snd is a symbolic link to /proc/asound/dev,
->> > and that symbolic link was created by the script you mention.
->> > (I am not using devfs.)
->
-> I'm not using devfs, and I've had no luck getting ALSA to work on my
-> i810-audio system.  OSS works fine.
->
-> Is there a step-by-step writeup available for morons like me that
-> haven't gotten ALSA working?
->
-> Thanks,
-> Andy
+Hi ! 
+Iam compiling a 2.4.20 in a RH 7 ... in Pentium III ... 
+It work a time .. .when crash with:
+Unable to handle kernel paging request at virtual address 00005700
+ printing eip:
+00005700
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<00005700>]    Not tainted
+EFLAGS: 00010202
+eax: 00000001   ebx: c0290300   ecx: c8000000   edx: 00000057
+esi: 00000057   edi: c5743900   ebp: c71b5da0   esp: c4d1de9c
+ds: 0018   es: 0018   ss: 0018
+Process kwm (pid: 1225, stackpage=c4d1d000)
+Stack: c10b36c4 c01257d6 c0290300 00000001 40240864 00000000 c71b5da0
+c56e3c80
+       c0125bcb c71b5da0 c56e3c80 40240864 c5743900 00005700 00000000
+c40aa150
+       c4d1df58 00000000 00000040 c4d1df0c c4d1c000 00000000 00003213
+c71b5da0
+Call Trace:    [<c01257d6>] [<c0125bcb>] [<c0114656>] [<c014208a>]
+[<c01bc418>]
+  [<c0134f33>] [<c01144d0>] [<c0106ed4>]
 
-I have i810 working on my machine -
+Code:  Bad EIP value.
+ <1>Unable to handle kernel paging request at virtual address 00003800
+ printing eip:
+00003800
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<00003800>]    Not tainted
+EFLAGS: 00010203
+eax: 00000000   ebx: c0290300   ecx: c8000000   edx: 0001025d
+esi: 00000038   edi: c10d22d8   ebp: 40016000   esp: c4d1dca4
+ds: 0018   es: 0018   ss: 0018
+Process kwm (pid: 1225, stackpage=c4d1d000)
+Stack: c10d22d8 c012fa20 c0290300 c0290300 c0290300 c01300bf c10d22d8
+00003800
+       00001000 00000000 c0124859 00003800 00000000 c5743058 00000000
+40017000
+       c4d02400 40016000 00000000 40017000 c4d02400 00000006 c0197d45
+00000006
+Call Trace:    [<c012fa20>] [<c01300bf>] [<c0124859>] [<c0197d45>]
+[<c0135b96>]
+  [<c0127231>] [<c0116961>] [<c011aa9f>] [<c01144be>] [<c01073fd>]
+[<c0114867>]
+  [<c01bf33b>] [<c01bf476>] [<c01f76f2>] [<c01bf18c>] [<c01144d0>]
+[<c0106ed4>]
+  [<c01257d6>] [<c0125bcb>] [<c0114656>] [<c014208a>] [<c01bc418>]
+[<c0134f33>]
+  [<c01144d0>] [<c0106ed4>]
 
-1.) You may have already done this - but here it is:  Go to
-www.alsa-project.org, under "New Users" click on "Supported Soundcars"
-On this page, find the Intel i810 listing, and click on "Details".
-Follow all instructions _carefully_.  (I created the devices by
-hand - this script didn't work correctly for me.)  Make sure that
-both the char-major-14 and char-major-116 devices exist. (14 is OSS
-and 116 is ALSA.)  Make sure the aliases are correct in modprobe.conf.
+Code:  Bad EIP value.
+ <1>Unable to handle kernel paging request at virtual address 00003700
+ printing eip:
+00003700
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<00003700>]    Not tainted
+EFLAGS: 00010203
+eax: 00000000   ebx: c0290300   ecx: c8000000   edx: 0001025e
+esi: 00000037   edi: c1122718   ebp: c1122770   esp: c6999e0c
+ds: 0018   es: 0018   ss: 0018
+Process klogd (pid: 343, stackpage=c6999000)
+Stack: c1122718 c012fa20 c0290300 c0290300 c0290300 c01300bf c1122718
+00003700
+       00004000 00003000 c0124859 00003700 00000002 c6f7c504 00000000
+40142000
+       c699a400 4013e000 00000000 40142000 c699a400 000001f0 c70f7014
+00000046
+Call Trace:    [<c012fa20>] [<c01300bf>] [<c0124859>] [<c0135b96>]
+[<c0127231>]
+  [<c0116961>] [<c011aa9f>] [<c011fb14>] [<c0106c53>] [<c01bc4be>]
+[<c0135023>]
+  [<c011b551>] [<c01144d0>] [<c0106e04>]
 
-2.) After that, (or if you've already done that), use amixer to look
-at and set the sound controls for your card.  NOTE:  the i810 driver
-has a "gotcha".  To set the volume for the line out jack on you PC
-you will probably have to use the "Headphone" mixer control.  That
-little curve ball stumped me till somebody else dropped me the hint.
+Code:  Bad EIP value.
 
-3.) If all that still doesn'te work, post again.
 
-td
+I change options of the procesor, add drivers for the VIA mother, but it
+doesnt work good .... 
+can you help me .. ?? 
+
+ThanX 
+
+

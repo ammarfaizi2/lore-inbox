@@ -1,47 +1,149 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129026AbRBHAhQ>; Wed, 7 Feb 2001 19:37:16 -0500
+	id <S129047AbRBHAiq>; Wed, 7 Feb 2001 19:38:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129047AbRBHAhG>; Wed, 7 Feb 2001 19:37:06 -0500
-Received: from mercury.nildram.co.uk ([195.112.4.37]:17938 "EHLO
-	mercury.nildram.co.uk") by vger.kernel.org with ESMTP
-	id <S129026AbRBHAgy>; Wed, 7 Feb 2001 19:36:54 -0500
-Message-ID: <3A81E707.1060705@magenta-netlogic.com>
-Date: Thu, 08 Feb 2001 00:23:35 +0000
-From: Tony Hoyle <tmh@magenta-netlogic.com>
-Organization: Magenta Logic
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.1 i686; en-US; m18) Gecko/20010126
-X-Accept-Language: en
+	id <S129282AbRBHAig>; Wed, 7 Feb 2001 19:38:36 -0500
+Received: from mail.heymax.com ([63.96.5.101]:58896 "EHLO heymax.com")
+	by vger.kernel.org with ESMTP id <S129047AbRBHAiY>;
+	Wed, 7 Feb 2001 19:38:24 -0500
+From: "Jason Ford" <jason@heymax.com>
+To: "Byron Stanoszek" <gandalf@winds.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: aacraid 2.4.0 kernel
+Date: Wed, 7 Feb 2001 19:37:38 -0500
+Message-ID: <PNEPLDDEADCDEBANKDDHMEGPCAAA.jason@heymax.com>
 MIME-Version: 1.0
-To: "Grover, Andrew" <andrew.grover@intel.com>
-CC: linux-kernel@vger.kernel.org,
-        "Acpi-linux (E-mail)" <acpi@phobos.fachschaften.tu-muenchen.de>
-Subject: Re: ACPI slowdown...
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E8905DE666@orsmsx35.jf.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+In-Reply-To: <Pine.LNX.4.21.0102071746060.7611-100000@winds.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
+X-MDRemoteIP: 10.0.1.21
+X-Return-Path: jason@heymax.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grover, Andrew wrote:
+Byron,
 
-> Since you have a symtomatic system, if you're willing to do some testing to
-> either prove or disprove your theory (that entering C2/C3 interrupts enabled
-> helps things) I would greatly appreciate it.
+I got your patch to compile in fine however it still exhibits the same
+behavior that the older patches did. It looks like the commands sent to the
+controller are still not working correctly as the new subsystem in the
+kernel was rewritten.
 
-Leaving interrupts enabled does help a little, but the machine is still 
-unusably slow, so it's not the fix.
+This is the error I get in my messages file when trying to copy from one
+disk partition to another one.
 
- 
-> Also, the next ACPI update will let you disable using this code for idle (so
-> we have some breathing room while we fix it) and will print some more C
-> state info on boot, because although you don't say, it sounds like you have
-> a desktop system, which usually don't support C2/C3, and so should not be
-> trying to enter them.
+Feb  7 19:32:11 bass kernel: SCSI disk error : host 0 channel 0 id 0 lun 0
+return code = 1
+Feb  7 19:32:11 bass kernel:  I/O error: dev 08:08, sector 657672
+Feb  7 19:32:11 bass kernel:
+Feb  7 19:32:11 bass kernel:
+Feb  7 19:32:11 bass kernel: AacHba_`DoScsiWrite: WRITE request is larger
+than 64K
+Feb  7 19:32:11 bass kernel: AacHba_DoScsiWrite: ByteCount: 69632
+Feb  7 19:32:11 bass kernel: AacHba_DoScsiWrite: SG ELEMENTS: 16
+Feb  7 19:32:11 bass kernel: Dump SG Element Size...
+Feb  7 19:32:11 bass kernel: SG Segment 0: 4096
+Feb  7 19:32:11 bass kernel: SG Segment 1: 4096
+Feb  7 19:32:11 bass kernel: SG Segment 2: 4096
+Feb  7 19:32:11 bass kernel: SG Segment 3: 4096
+Feb  7 19:32:11 bass kernel: SG Segment 4: 4096
+Feb  7 19:32:11 bass kernel: SG Segment 5: 4096
+Feb  7 19:32:11 bass kernel: SG Segment 6: 4096
+Feb  7 19:32:11 bass kernel: SG Segment 7: 8192
+Feb  7 19:32:11 bass kernel: SG Segment 8: 4096
+Feb  7 19:32:11 bass kernel: SG Segment 9: 4096
+Feb  7 19:32:11 bass kernel: SG Segment 10: 4096
+Feb  7 19:32:11 bass kernel: SG Segment 11: 4096
+Feb  7 19:32:11 bass kernel: SG Segment 12: 4096
+Feb  7 19:32:11 bass kernel: SG Segment 13: 4096
+Feb  7 19:32:11 bass kernel: SG Segment 14: 4096
+Feb  7 19:32:11 bass kernel: SG Segment 15: 4096
+Feb  7 19:32:11 bass kernel:
+Feb  7 19:32:12 bass kernel:
+Feb  7 19:32:12 bass kernel: SCSI disk error : host 0 channel 0 id 0 lun 0
+return code = 1
+Feb  7 19:32:12 bass kernel:  I/O error: dev 08:08, sector 665864
+Feb  7 19:32:12 bass kernel:
+Feb  7 19:32:12 bass kernel:
+Feb  7 19:32:12 bass kernel: AacHba_`DoScsiWrite: WRITE request is larger
+than 64K
+Feb  7 19:32:12 bass kernel: AacHba_DoScsiWrite: ByteCount: 69632
+Feb  7 19:32:12 bass kernel: AacHba_DoScsiWrite: SG ELEMENTS: 16
+Feb  7 19:32:12 bass kernel: Dump SG Element Size...
+Feb  7 19:32:12 bass kernel: SG Segment 0: 4096
+Feb  7 19:32:12 bass kernel: SG Segment 1: 4096
+Feb  7 19:32:12 bass kernel: SG Segment 2: 4096
+Feb  7 19:32:12 bass kernel: SG Segment 3: 4096
+Feb  7 19:32:12 bass kernel: SG Segment 4: 4096
+Feb  7 19:32:12 bass kernel: SG Segment 5: 4096
+Feb  7 19:32:12 bass kernel: SG Segment 6: 4096
+Feb  7 19:32:12 bass kernel: SG Segment 7: 4096
+Feb  7 19:32:12 bass kernel: SG Segment 8: 8192
+Feb  7 19:32:12 bass kernel: SG Segment 9: 4096
+Feb  7 19:32:12 bass kernel: SG Segment 10: 4096
+Feb  7 19:32:12 bass kernel: SG Segment 11: 4096
+Feb  7 19:32:12 bass kernel: SG Segment 12: 4096
+Feb  7 19:32:12 bass kernel: SG Segment 13: 4096
+Feb  7 19:32:12 bass kernel: SG Segment 14: 4096
+Feb  7 19:32:12 bass kernel: SG Segment 15: 4096
+Feb  7 19:32:12 bass kernel:
+Feb  7 19:32:12 bass kernel:
 
-Disabling the idle code definitely fixes it.
+so on and so on.. Am I doing something wrong?
 
-Tony
+Thanks for your reply post..
+
+Jason
+
+
+-----Original Message-----
+From: Byron Stanoszek [mailto:gandalf@winds.org]
+Sent: Wednesday, February 07, 2001 5:48 PM
+To: Jason Ford
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: aacraid 2.4.0 kernel
+
+
+On Wed, 7 Feb 2001, Jason Ford wrote:
+
+> I see in the archives of this mailing list that someone was working on the
+> aacraid driver for the 2.4 kernel however that post was almost 2 months
+old.
+> I know Alan Cox denied inclusion of the driver due to the poor nature it
+was
+> written for the 2.2 tree. Every post that I have seen so far has just said
+> that Adaptec is working on it. However, I am sure there are many people
+out
+> there like myself that have to support this card in enviroments that would
+> be benifical to upgrade to 2.4 kernel. I am not a part of this list
+however
+> have been scouring through geocrawler.com archives of this list everyday
+for
+> the last month hoping and waiting.
+
+While it's totally unofficial, I have a patch for aacraid 1.0.6 for
+2.4.1-ac5.
+I have not tested it yet, but it compiles cleanly. I'd like to hear any
+results
+(good or bad) you have on it.
+
+You can find it at:
+
+  ftp://ftp.winds.org/linux/patches/2.4.1/aacraid-2.4.1-1.0.6.patch
+
+Regards,
+ Byron
+
+--
+Byron Stanoszek                         Ph: (330) 644-3059
+Systems Programmer                      Fax: (330) 644-8110
+Commercial Timesharing Inc.             Email: byron@comtime.com
 
 
 -

@@ -1,78 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267624AbTAQSJM>; Fri, 17 Jan 2003 13:09:12 -0500
+	id <S267627AbTAQSTc>; Fri, 17 Jan 2003 13:19:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267625AbTAQSJM>; Fri, 17 Jan 2003 13:09:12 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:58619 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267624AbTAQSJL>;
-	Fri, 17 Jan 2003 13:09:11 -0500
-Subject: Re: [patch] sched-2.5.59-A2
-From: Michael Hohnbaum <hohnbaum@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Erich Focht <efocht@ess.nec.de>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Christoph Hellwig <hch@infradead.org>, Robert Love <rml@tech9.net>,
-       Andrew Theurer <habanero@us.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.44.0301171607510.10244-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0301171607510.10244-100000@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 17 Jan 2003 10:19:37 -0800
-Message-Id: <1042827580.27149.379.camel@dyn9-47-17-164.beaverton.ibm.com>
-Mime-Version: 1.0
+	id <S267628AbTAQSTc>; Fri, 17 Jan 2003 13:19:32 -0500
+Received: from [132.69.253.254] ([132.69.253.254]:57550 "HELO
+	vipe.technion.ac.il") by vger.kernel.org with SMTP
+	id <S267627AbTAQSTb>; Fri, 17 Jan 2003 13:19:31 -0500
+Date: Fri, 17 Jan 2003 20:28:26 +0200 (IST)
+From: Shlomi Fish <shlomif@vipe.technion.ac.il>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: David Woodhouse <dwmw2@infradead.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: ANN: LKMB (Linux Kernel Module Builder) version 0.1.16
+In-Reply-To: <20030117180001.GA1860@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.33L2.0301172027310.25073-100000@vipe.technion.ac.il>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-01-17 at 07:11, Ingo Molnar wrote:
+On Fri, 17 Jan 2003, Sam Ravnborg wrote:
 
-> agreed, i've attached the -B0 patch that does this. The balancing rates
-> are 1 msec, 2 msec, 200 and 400 msec (idle-local, idle-global, busy-local,
-> busy-global).
-> 
-> 	Ingo
+> On Fri, Jan 17, 2003 at 07:00:58PM +0200, Shlomi Fish wrote:
+> >
+> > Do you mean I'll need a live Linux kernel to build the kernel module
+> > package?
+>
+> Yes, you fundamentally need the full kernel to compile a module.
+> Modules may refer to different headers, and some may even be arch specific.
+>
+> The trick dwmw2 gave you is the only _sane_ way to build a module.
+>
 
-Ran this patch on a 4 node (16 CPU, 16 GB memory) NUMAQ.  Results don't
-look encouraging.  I would suggest not applying this patch until the
-degradation is worked out.
+Yes I gathered it from him and #kernelnewbies. In the future I want
+CLAN to be able to package entire kernels. But I'll guess I'll cross the
+bridge when I get there, and there's no need to overengineer now.
 
-stock59 = linux 2.5.59
-ingo59 = linux 2.5.59 with Ingo's B0 patch
+Regards,
 
-Kernbench:
-                        Elapsed       User     System        CPU
-             stock59    29.668s   283.762s    82.286s      1233%
-              ingo59    37.736s   338.162s   153.486s    1302.6%
+	Shlomi Fish
 
-Schedbench 4:
-                        AvgUser    Elapsed  TotalUser   TotalSys
-             stock59       0.00      24.44      68.07       0.78
-              ingo59       0.00      62.14     163.32       1.93
+> 	Sam
+>
 
-Schedbench 8:
-                        AvgUser    Elapsed  TotalUser   TotalSys
-             stock59       0.00      48.26     246.75       1.64
-              ingo59       0.00      68.17     376.85       6.42
 
-Schedbench 16:
-                        AvgUser    Elapsed  TotalUser   TotalSys
-             stock59       0.00      56.51     845.26       2.98
-              ingo59       0.00     114.38    1337.65      18.89
 
-Schedbench 32:
-                        AvgUser    Elapsed  TotalUser   TotalSys
-             stock59       0.00     116.95    1806.33       6.23
-              ingo59       0.00     243.46    3515.09      43.92
+----------------------------------------------------------------------
+Shlomi Fish        shlomif@vipe.technion.ac.il
+Home Page:         http://t2.technion.ac.il/~shlomif/
 
-Schedbench 64:
-                        AvgUser    Elapsed  TotalUser   TotalSys
-             stock59       0.00     237.29    3634.59      15.71
-              ingo59       0.00     688.31   10605.40     102.71
-
--- 
-
-Michael Hohnbaum                      503-578-5486
-hohnbaum@us.ibm.com                   T/L 775-5486
+He who re-invents the wheel, understands much better how a wheel works.
 

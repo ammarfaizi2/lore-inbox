@@ -1,85 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262098AbVC1Woj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261903AbVC1WrO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262098AbVC1Woj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 17:44:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbVC1Woj
+	id S261903AbVC1WrO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 17:47:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbVC1WrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 17:44:39 -0500
-Received: from fire.osdl.org ([65.172.181.4]:988 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262098AbVC1Wof (ORCPT
+	Mon, 28 Mar 2005 17:47:13 -0500
+Received: from fire.osdl.org ([65.172.181.4]:31453 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261903AbVC1WrK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 17:44:35 -0500
-Date: Mon, 28 Mar 2005 14:44:30 -0800
+	Mon, 28 Mar 2005 17:47:10 -0500
+Date: Mon, 28 Mar 2005 14:46:34 -0800
 From: Chris Wright <chrisw@osdl.org>
-To: Ali Akcaagac <aliakc@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel OOOPS in 2.6.11.6
-Message-ID: <20050328224430.GO28536@shell0.pdx.osdl.net>
-References: <1112008141.17962.1.camel@localhost>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Chris Wright <chrisw@osdl.org>, Pekka Enberg <penberg@cs.helsinki.fi>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/9] isofs: unobfuscate rock.c
+Message-ID: <20050328224634.GO30522@shell0.pdx.osdl.net>
+References: <ie2p3m.2u2ccu.3z4p19m1j53m9pob6l5ceeebq.refire@cs.helsinki.fi> <20050328200252.GN28536@shell0.pdx.osdl.net> <20050328223048.GA2741@pclin040.win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1112008141.17962.1.camel@localhost>
+In-Reply-To: <20050328223048.GA2741@pclin040.win.tue.nl>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ali Akcaagac (aliakc@web.de) wrote:
-> And happy easter to you all. Just got this while trying to delete some
-> files on my system.
+* Andries Brouwer (aebr@win.tue.nl) wrote:
+> On Mon, Mar 28, 2005 at 12:02:52PM -0800, Chris Wright wrote:
+> > * Pekka Enberg (penberg@cs.helsinki.fi) wrote:
+> > > This patch removes macro obfuscation from fs/isofs/rock.c and cleans it up
+> > > a bit to make it more readable and maintainable. There are no functional
+> > > changes, only cleanups. I have only tested this lightly but it passes
+> > > mount and read on small Rock Ridge enabled ISO image.
+> > 
+> > You might want to look at current -mm.  Andrew has a series or 13 or so
+> > patches that do very similar cleanup.  Perhaps you could start from there?
+> 
+> Good! When Linus asked I audited rock.c and also did rather similar polishing -
+> it happens automatically if one looks at this code. But it seems everybody is
+> doing this right now, so I must wait a few weeks and see what got into Linus'
+> tree. Linus plugged many but not all holes. (Maybe you did more?)
 
-I'm curious, what was the virtual address the kernel was "Unable to handle..."
-That part was left off this bug report.
-
-> :  printing eip:
-> : c021f089
-> : *pde = 00000000
-> : Oops: 0000 [#1]
-> : PREEMPT 
-> : Modules linked in: snd_seq_midi snd_emu10k1_synth snd_emux_synth
-> snd_seq_virmidi snd_seq_midi_event snd_seq_midi_emul snd_seq snd_emu10k1
-> snd_rawmidi snd_seq_device snd_ac97_codec snd_pcm snd_timer
-> snd_page_alloc snd_util_mem snd_hwdep snd soundcore parport_pc lp
-> parport 8139too mii crc32
-> : CPU:    0
-> : EIP:    0060:[linvfs_open+89/160]    Not tainted VLI
-> : EFLAGS: 00010282   (2.6.11.6) 
-> : EIP is at linvfs_open+0x59/0xa0
-
-Nothing in the -stable series has changed either XFS or the core vfs
-path on during file open.  Without a chance of reproducing or any more
-information, it'll be tough to make much progress here.
-
-> : eax: 00000000   ebx: c77ac06c   ecx: 00000001   edx: c021f030
-> : esi: 00000000   edi: c77ac050   ebp: dffe41a0   esp: c2d95f14
-> : ds: 007b   es: 007b   ss: 0068
-> : Process mc (pid: 17862, threadinfo=c2d94000 task=d18d2a80)
-> : Stack: c01561a9 dffe41a0 d73504c0 00000000 c77ac06c c015446b c77ac06c
-> d73504c0 
-> :        00000001 ffffffe9 00008000 00008000 dc364000 c2d94000 c015426c
-> cbcdff54 
-> :        dffe41a0 00008000 c2d95f60 cbcdff54 dffe41a0 bfffeef0 0d00ad72
-> 00300001 
-> : Call Trace:
-> :  [get_empty_filp+89/208] get_empty_filp+0x59/0xd0
-> :  [dentry_open+491/672] dentry_open+0x1eb/0x2a0
-> :  [filp_open+92/112] filp_open+0x5c/0x70
-> :  [get_unused_fd+123/224] get_unused_fd+0x7b/0xe0
-> :  [sys_open+73/144] sys_open+0x49/0x90
-> :  [syscall_call+7/11] syscall_call+0x7/0xb
-> : Code: 5b 3c b8 01 00 00 00 e8 c6 42 ef ff b8 00 e0 ff ff 21 e0 8b 40
-> 08 a8 08 75 4d 85 f6 7c 0a 7f 32 81 fb ff ff ff 7f 77 2a 8b 47 14 <8b>
-> 50 08 c7 44 24 04 00 00 00 00 89 04 24 ff 52 04 8b 5c 24 08 
-
-Best I can tell, you hit this:
-
- mov    0x8(%eax),%edx
-
-with eax == 00000000.  This corresponds to a vp->v_fops (or rather
-vp->v_bh.bh_first->bd_ops) deref.  So, looks like the vnode has a
-NULL v_bh.bh_first (which looks like it's meant to be used to mean
-uninitialized).  May check with XFS folks if they've seen this type
-of bug.
+I plugged one more (in 2.6.11.6 and in Linus' tree), and Andrew plugged
+yet another (last patch in his iso/rock cleanup series).  More eyes
+the better.
 
 thanks,
 -chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

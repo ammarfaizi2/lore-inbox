@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266154AbUFYBhi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266156AbUFYBmJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266154AbUFYBhi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 21:37:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266156AbUFYBhh
+	id S266156AbUFYBmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 21:42:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266155AbUFYBmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 21:37:37 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:11915 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S266154AbUFYBhG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 21:37:06 -0400
-Subject: Re: [RFC] Patch to allow distributed flock
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Ken Preslan <kpreslan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040625000720.GA13755@potassium.msp.redhat.com>
-References: <20040624231057.GA13033@potassium.msp.redhat.com>
-	 <1088121132.8906.29.camel@lade.trondhjem.org>
-	 <20040625000720.GA13755@potassium.msp.redhat.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1088127425.8906.40.camel@lade.trondhjem.org>
+	Thu, 24 Jun 2004 21:42:09 -0400
+Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:51113 "HELO
+	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266156AbUFYBl7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 21:41:59 -0400
+Subject: Re: [PATCH] fs/isofs/inode.c, 2-4GB files rejected on DVDs
+From: Jason Mancini <xorbe@sbcglobal.net>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040624150122.GB5068@apps.cwi.nl>
+References: <1088073870.17691.8.camel@xorbe.dyndns.org>
+	 <20040624150122.GB5068@apps.cwi.nl>
+Content-Type: text/plain
+Date: Thu, 24 Jun 2004 18:41:50 -0700
+Message-Id: <1088127710.12345.1.camel@xorbe.dyndns.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 24 Jun 2004 21:37:05 -0400
+X-Mailer: Evolution 1.5.9.2-2mdk 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På to , 24/06/2004 klokka 20:07, skreiv Ken Preslan:
+On Thu, 2004-06-24 at 17:01 +0200, Andries Brouwer wrote:
+> More in particular, I read ISO 9660 section 7.3.3 as talking about
+> unsigned integers. Only in 7.1.2 do signed integers occur.
+> So, I suppose changing isonum_733 to return unsigned should suffice.
+> 
+> Could you test the below?
+> 
+> Andries
 
-> If the FS is managing the posix locks and/or flocks, is there really a
-> reason to acquire the VFS versions of the locks too?  As long as there is
-> some bit set that tells the VFS to call down into the FS to unlock the
-> locks on process exit, keeping both sets of locks seems wasteful.
-> What am I missing?
+Ok I did, the patch seems to work great!  Thanks!
+-Jason Mancini
 
-The only reason we care in NFS is in order to be able to deal with
-server reboot recovery -- which requires you to have an extensive list
-of all locks that are held -- and, as you note above, in order to ensure
-that locks are all cleared upon process exit.
 
-For flock() locks, I agree: you can probably whittle that information
-down to a single bit per open file. For POSIX locks, you need the byte
-ranges and lockowner/pid information too...
-
-Cheers,
-  Trond

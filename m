@@ -1,70 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264315AbTKMPYM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 10:24:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264317AbTKMPYM
+	id S264324AbTKMP2C (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 10:28:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264328AbTKMP2B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 10:24:12 -0500
-Received: from 200-232-137-125.dsl.telesp.net.br ([200.232.137.125]:24364 "HELO
-	TmpStr") by vger.kernel.org with SMTP id S264315AbTKMPYE (ORCPT
+	Thu, 13 Nov 2003 10:28:01 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:47083 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264324AbTKMP1b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 10:24:04 -0500
-Illegal-Object: Syntax error in Reply-To: address found on vger.kernel.org:
-	Reply-To:	"ITN  =?ISO-8859-1?Q?=20Inform=E1tica=22?= <nmedbr@yahoo.com.br>"
-			^-missing closing '"' in token
-Illegal-Object: Syntax error in From: address found on vger.kernel.org:
-	From:	"ITN  =?ISO-8859-1?Q?=20Inform=E1tica=22?= <nmedbr@yahoo.com.br>"
-			^-missing closing '"' in token
-From: linux-kernel-owner@vger.kernel.org
-To: "" <linux-kernel@vger.kernel.org>
-Organization: 
-X-Priority: 3
-X-MSMail-Priority: Normal
-Subject: =?ISO-8859-1?Q?=20Redu=E7=E3o?= dos gastos  =?ISO-8859-1?Q?=20Telef=F4nicos?= 
+	Thu, 13 Nov 2003 10:27:31 -0500
+Date: Thu, 13 Nov 2003 16:27:29 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Pascal Schmidt <der.eremit@email.de>, Bill Davidsen <davidsen@tmr.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+Message-ID: <20031113152729.GL4441@suse.de>
+References: <20031113143521.GK4441@suse.de> <Pine.LNX.4.44.0311130712120.8093-100000@home.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Date: Thu, 13 Nov 2003 13:24:02 -0200
-Message-Id: <S264315AbTKMPYE/20031113152404Z+4112@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0311130712120.8093-100000@home.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reduzimos a conta de telefone de sua empresa. 
+On Thu, Nov 13 2003, Linus Torvalds wrote:
+> 
+> On Thu, 13 Nov 2003, Jens Axboe wrote:
+> 
+> > On Thu, Nov 13 2003, Pascal Schmidt wrote:
+> > >  
+> > > My patch from yesterday should handle that situation. 
+> > > cdrom_get_last_written is allowed to override the capacity from
+> > > cdrom_read_capacity.
+> > 
+> > Yep, that is fine.
+> 
+> Well, there is a good argument for not bothering with the 
+> "cdrom_get_last_written" at all: the SCSI layer never does anything like 
+> that as far as I can see, so arguably everybody who ever used ide-scsi 
+> would only ever have seen the READ_CAPACITY command be used. And nobody 
+> ever complained about bad capacitites as far as I can remember..
+> 
+> But I might have missed something in the SCSI driver. But I actually see a
+> 
+> 		if (cdrom_get_last_written(..)
+> 
+> in sr.c, and it's been #if 0'ed out since before the Bitkeeper tree 
+> started. And that code definitely does the READ_CAPACITY first.
+> 
+> The "sd.c" code (which is what a MO device would use) obviously doesn't do 
+> cdrom_get_last_written either - it just does a READ_CAPACITY. (Well, it 
+> does a READ_CAPACITY_16 if it hits a really big disk, but that only hits 
+> if the disk has more than 4G sectors, so we can ignore it for CD-ROM's for 
+> a while.
+> 
+> So I'd argue for just dropping the cdrom_get_last_written() call entirely.
 
-Empregamos softwares e dispositivos de nossa propriedade além de 
-capital intelectual para reduzir a sua conta de telefone em pouco tempo.
+Your argument isn't very good, imo. I was the one that added the
+cdrom_get_last_written() calls, because with the pktcdvd written media
+reading the toc or using READ_CAPACITY just didn't work.
 
-Reduzimos Celular, DDD e DDI significativamente. Somos revendedores 
-autorizados Intelbrás, Panasonic e Siemens.
+For MO drives, DVD-RAM, and that sort of thing there's no argument -
+read capacity is the way to go. For CDROMs it's not so clear.
 
-A certeza de redução é tão garantida que os custos de consultoria são 
-uma porcentagem economia feita. Se não houver economia, não há 
-custo algum. 
-
-Utilizamos nossos equipamentos, não há investimento em equipamentos 
-por sua empresa.
-
-Sugerimos tarifas R$0,10/minuto de qualquer telefone do Brasil para 
-telefones nas cidades RJ-SP-BH e R$0,25/minuto de qualquer cidade 
-para qualquer telefone no brasil e para os EUA por R$0,09 o minuto.
-
-Temos Autorização da Anatel para operar serviços Voip Corporativos - 
-Tarifas para ligações Empresa - Empresa.
-
-Gateways Voip 2 potas por US$ 320,00 instalado no Brasil
-
-Mais informações 
-
-wintarif@yahoo.com.br
-11.9871.1089
-11.3083.0835
-
-Acesse www.itn.com.br e conheça produtos e serviços de redução de 
-contas Telefônicas
-
-
-
-
-Informamos redução de contas em Telefonia. Caso queira remover essa 
-responda esse email com REMOVE LIST1 no assunto do email.
-
+-- 
+Jens Axboe
 

@@ -1,70 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262575AbUJ0R1Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262556AbUJ0R32@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262575AbUJ0R1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 13:27:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbUJ0R0r
+	id S262556AbUJ0R32 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 13:29:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbUJ0R0d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 13:26:47 -0400
-Received: from mail4.utc.com ([192.249.46.193]:3473 "EHLO mail4.utc.com")
-	by vger.kernel.org with ESMTP id S262558AbUJ0RVp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 13:21:45 -0400
-Message-ID: <417FD915.304@cybsft.com>
-Date: Wed, 27 Oct 2004 12:21:25 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
-References: <20041025104023.GA1960@elte.hu> <417D4B5E.4010509@cybsft.com>	 <20041025203807.GB27865@elte.hu> <417E2CB7.4090608@cybsft.com>	 <20041027002455.GC31852@elte.hu> <417F16BB.3030300@cybsft.com>	 <20041027132926.GA7171@elte.hu> <417FB7F0.4070300@cybsft.com>	 <20041027150548.GA11233@elte.hu>	 <1098889994.1448.14.camel@krustophenia.net>	 <20041027151701.GA11736@elte.hu> <1098897241.8596.5.camel@krustophenia.net>
-In-Reply-To: <1098897241.8596.5.camel@krustophenia.net>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Oct 2004 13:26:33 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:61844 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S262548AbUJ0RSW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 13:18:22 -0400
+Date: Wed, 27 Oct 2004 19:17:48 +0200
+From: kladit@t-online.de (Klaus Dittrich)
+To: linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] 2.6.10.rc1.bk6 /lib/kobject_uevent.c buffer issues
+Message-ID: <20041027171748.GA23243@xeon2.local.here>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-ID: X7RAUOZcoevJiMd+iggZLkfdAe8Ii1YlKZHGqxz+d0xgHSn8hHFI6S
+X-TOI-MSGID: 55dc6b3d-4cf2-4a8c-92aa-5f88add7959e
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Wed, 2004-10-27 at 17:17 +0200, Ingo Molnar wrote:
-> 
->>>Here is a more up to date version of the rtc-debug patch:
->>>
->>>http://lkml.org/lkml/2004/9/9/307
->>>
->>>There is still a bit of 2.4 cruft in there but it works well.  Maybe
->>>this could be included in future patches.
->>
->>the most natural point of inclusion would be Andrew's -mm tree i think
->>:-)
->>
-> 
-> 
-> Well I suspect from looking at the comments :-) that he would not
-> include it in its current form due to the way it just checks whether the
-> process opening the RTC is called "amlat" and updates the RTC histogram
-> if so.  I am not sure what a clean way to do this would be, maybe an
-> ioctl()?
-> 
-> Anyway I am generating a cleaned up version of the patch agaqinst
-> 2.6.9-mm1.
-> 
-> Lee
-> 
 
-Actually if you are cleaning it up anyway, could you fix it to work with 
-Ingo's changes to rtc.c? If not I will be glad to do it. Up until one of 
-the last couple of versions of RT PREEMPT it applied cleanly, but I just 
-tried it and it failed.
+What speaks against allocating the buffer in kset_hotplug_ops.hotplug()
+and adding the env variables later in a more consistent way by calls to
+add_hotplug_env_var()?
 
-kr
+-- 
+Klaus

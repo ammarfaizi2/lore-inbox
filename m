@@ -1,59 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270767AbTHOUWo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 16:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270772AbTHOUWo
+	id S270772AbTHOUXL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 16:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270801AbTHOUXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 16:22:44 -0400
-Received: from mailhost.NMT.EDU ([129.138.4.52]:29600 "EHLO mailhost.nmt.edu")
-	by vger.kernel.org with ESMTP id S270767AbTHOUWn (ORCPT
+	Fri, 15 Aug 2003 16:23:11 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:23559 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S270772AbTHOUXH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 16:22:43 -0400
-Date: Fri, 15 Aug 2003 14:22:35 -0600
-From: Val Henson <val@nmt.edu>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: "David S. Miller" <davem@redhat.com>, daw@mozart.cs.berkeley.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
-Message-ID: <20030815202235.GB13384@speare5-1-14>
-References: <20030809173329.GU31810@waste.org> <20030813032038.GA1244@think> <20030813040614.GP31810@waste.org> <20030814165320.GA2839@speare5-1-14> <bhgoj9$9ab$1@abraham.cs.berkeley.edu> <20030815001713.GD5333@speare5-1-14> <20030815093003.A2784@pclin040.win.tue.nl> <20030815004004.52f94f9a.davem@redhat.com> <20030815095503.C2784@pclin040.win.tue.nl>
+	Fri, 15 Aug 2003 16:23:07 -0400
+Date: Fri, 15 Aug 2003 22:23:04 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Pete Nishimoto <Peter.Nishimoto@Sun.COM>
+Cc: andrea@suse.de, linux-kernel@vger.kernel.org, Peten@ekb.East.Sun.COM
+Subject: Re: possible auto-partition bug? (linux-2.4.20-8)
+Message-ID: <20030815222304.A3272@pclin040.win.tue.nl>
+References: <5.2.1.1.2.20030815135013.01b05bf8@oscarmayer.east.sun.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030815095503.C2784@pclin040.win.tue.nl>
-User-Agent: Mutt/1.4.1i
-X-Favorite-Color: Polka dot
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <5.2.1.1.2.20030815135013.01b05bf8@oscarmayer.east.sun.com>; from Peter.Nishimoto@Sun.COM on Fri, Aug 15, 2003 at 01:55:59PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 15, 2003 at 09:55:03AM +0200, Andries Brouwer wrote:
-> The lemma that you believe in, applied to x and z, says
-> 
->  entropy(x) >= entropy(x xor z)
->  entropy(z) >= entropy(x xor z)
-[snip]
-> This "lemma", formulated in this generality, is just plain nonsense.
+On Fri, Aug 15, 2003 at 01:55:59PM -0400, Pete Nishimoto wrote:
 
-Indeed.  In the context of x = first 80 bits of SHA-1 hash, y = second
-80 bits of SHA-1 hash, we are assuming that the entropy of x and y are
-basically equal.  Then xoring them together gives us no benefit over
-taking just one or the other, and may reduce the entropy if the output
-of SHA-1 is correlated between the two halves in any way (which seems
-more likely than not).
+>          My name is Pete Nishimoto and I work for Sun Microsystems
+>          as a linux device driver developer, currently working with
+>          RedHat 9.0 (2.4.20-8) and I believe I have found a problem
+>          with the partitioning logic and the pager, which I've
+>          detailed below.  I look forward to any replies/comments
+>          and thanks in advance to all who review/read this.
 
-Including a little more context, then:
+Hi. You sent a long story, but at first sight it seems not relevant
+for this linux-kernel mailing list.
 
-If entropy(x) == entropy(y), then:
+A disk is made by a manufacturer, and has a number of sectors that we
+must regard as given. If a filesystem is created on this disk then
+often the disk size will turn out not to be precisely an integral
+number of filesystem blocks.
 
-entropy(x) >= entropy(x xor y)
-entropy(y) >= entropy(x xor y)
+Many people first partition the disk in some more or less arbitrary way.
+Partitions may belong to other operating systems. Again we have no control.
 
-Amusingly, someone already worked their way backwards from my post
-without the benefit of any context to find that it implied that
-entropy(x) == entropy(y).  I should know better than to assume that
-people have read the entire thread before posting.
+In short, absolutely nothing is wrong if a disk, or a partition, has a size
+that is not an integral number of filesystem blocks.
 
-Apologies to Matt for sidetracking the discussion.  He has come up
-with a nice solution despite our kibitzing.
+You talk about badblocks, but that is a userspace utility. If something
+is wrong with it, that is not a kernel matter. Moreover, this utility
+allows one to specify blocksize and last block to test.
 
--VAL
+So - the relevance to the kernel is not clear to me.
+
+Concerning "RedHat 9.0 (2.4.20-8)" - discussion about vendor specific kernels
+is probably best done on vendor lists.
+
+Andries
+

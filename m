@@ -1,79 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264015AbTDNWW7 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 18:22:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264017AbTDNWW4 (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 18:22:56 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:31872 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264015AbTDNWWt convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 18:22:49 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Stekloff <dsteklof@us.ibm.com>
-To: Patrick Mochel <mochel@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: [patch] printk subsystems
-Date: Mon, 14 Apr 2003 15:33:18 -0700
-User-Agent: KMail/1.4.1
-Cc: Martin Hicks <mort@wildopensource.com>, <hpa@zytor.com>, <pavel@ucw.cz>,
-       <jes@wildopensource.com>, <linux-kernel@vger.kernel.org>,
-       <wildos@sgi.com>
-References: <Pine.LNX.4.44.0304141325010.14087-100000@cherise>
-In-Reply-To: <Pine.LNX.4.44.0304141325010.14087-100000@cherise>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200304141533.18779.dsteklof@us.ibm.com>
+	id S264041AbTDNWdZ (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 18:33:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264046AbTDNWdZ (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 18:33:25 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:36843 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264041AbTDNWdW (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 18:33:22 -0400
+Date: Mon, 14 Apr 2003 15:44:38 -0700
+From: Greg KH <greg@kroah.com>
+To: oliver@neukum.name
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] /sbin/hotplug multiplexor
+Message-ID: <20030414224438.GB6411@kroah.com>
+References: <20030414190032.GA4459@kroah.com> <200304142343.17802.oliver@neukum.org> <20030414215221.GA5989@kroah.com> <200304150019.26809.oliver@neukum.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200304150019.26809.oliver@neukum.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 14 April 2003 11:33 am, Patrick Mochel wrote:
-> > I don't like the #define DEBUG approach.  It's useless for users; it's a
-> > developer debug tool.  It won't allow some support staff to ask users to
-> > enable module debugging (or subsystem debugging) and see what gets
-> > printed.
->
-> Agreed. Having a runtime-tweakable field would be very handy, and
-> something that's been requested many times over.
->
-> > Martin, you are ahead of my schedule, but I was planning to use sysfs
-> > to add a 'debug' flag/file that could be dynamically altered on a
-> > per-module basis.
->
-> Something I've pondered in the past is a per-subsystem (as in struct
-> subsystem) debug field and log buffer. When the subsystem is registered, a
-> sysfs 'debug' file is created, from which the user can set the noisiness
-> level.
+On Tue, Apr 15, 2003 at 12:19:26AM +0200, Oliver Neukum wrote:
+> Am Montag, 14. April 2003 23:52 schrieb Greg KH:
+> > On Mon, Apr 14, 2003 at 11:43:17PM +0200, Oliver Neukum wrote:
+> > > > > Well, for a little elegance you might introduce subdirectories for
+> > > > > each type of hotplug event and use only them.
+> > > >
+> > > > No, that's for the individual scripts/programs to decide.  For example,
+> > > > that's what the current hotplug scripts do, but that's not at all what
+> > > > the udev program wants to do.
+> > >
+> > > So have them put a symlink into each subdirectory. This is the way it's
+> > > done for init since times immemorial.
+> >
+> > But the number of different "types" keeps growing.  For some programs
+> > (like udev) they really don't care about the type, and if you add a new
+> > type, it still works just fine.  Other programs do care about the type,
+> > so they can look at it and make a judgement based on it.
+> 
+> How can that be? What kind of thing should care about both
+> device addition and routing changes in the same way?
 
+No, udev doesn't care about routing changes.  But there isn't enough
+hardcoded logic in it to care about the different subsystems, so it
+wants to figure out that it shouldn't care about an event all on its
+own.
 
-Would the debug level be for the entire subsystem? Do you think people would 
-like to be able to set debug/logging level per driver or device, and not just 
-subsystem? 
+> Not needlessly exposing scripts to event types they are not written
+> to handle is an advantage.
 
-Is debugging level here the same as logging level? 
+Ok, I like Arnd's proposal of a "default" directory.  Maybe I should
+change that to "all" as no one better create a subsystem or driver class
+in the kernel called "all" :)
 
-I like the idea of having logging levels, which include debug, defined by 
-subsystem. Each subsystem will have separate requirements for logging. 
-Networking, for instance, already has the NETIF_MSG* levels defined in 
-netdevice.h that can be set with Ethtool. I can see, for example, having the 
-msg_enable not in the private data as it is now but in the subsystem or class 
-structure for that device, such as in struct net_device. This could easily be 
-exported through sysfs. 
+thanks,
 
-Thanks,
-
-Dan
-
-
-> From there, each subsystem can specify the size of a log buffer, which
-> would be allocated also when the subsystem is registered. Messages from
-> the subsystem, and kobjects belonging to it, would be copied into the
-> local log buffer.
->
-> Wrapper functions can be created, similar to the dev_* functions, which
-> take a kobject as the first parameter. From this, the subsystem and log
-> buffer, can be derived (or rather, passed to a lower-level helper).
->
-> This all falls under the 'gee-whiz-this-might-be-neat' category, and may
-> inherently suck; I haven't tried it. Doing the core code is < 1 day's
-> work, though there would be nothing that actually used it..
->
->
-> 	-pat
-
+greg k-h

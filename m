@@ -1,76 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261938AbTKGXHm (ORCPT <rfc822;willy@w.ods.org>);
+	id S261930AbTKGXHm (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 7 Nov 2003 18:07:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbTKGWXm
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbTKGWXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:23:42 -0500
-Received: from fmr04.intel.com ([143.183.121.6]:56036 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S264072AbTKGLDn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 06:03:43 -0500
-Subject: Re: Shared ACPI/USB IRQ working in 2.6 but not in 2.4
-From: Len Brown <len.brown@intel.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
-       David van Hoose <david.vanhoose@comcast.net>
-In-Reply-To: <Pine.LNX.4.44.0311060949340.7886-100000@logos.cnet>
-References: <Pine.LNX.4.44.0311060949340.7886-100000@logos.cnet>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1068203016.2684.976.camel@dhcppc4>
+	Fri, 7 Nov 2003 17:23:35 -0500
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:34986 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S263945AbTKGIhB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 03:37:01 -0500
+Message-Id: <5.1.0.14.2.20031107093114.00a8bec8@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 07 Nov 2003 09:36:10 +0100
+To: linux-kernel@vger.kernel.org
+From: margitsw@t-online.de (Margit Schubert-While)
+Subject: 2.4.23pre mm/slab.c error
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 07 Nov 2003 06:03:36 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Seen: false
+X-ID: SmEBjsZa8e0GW06NM-t+iMUzsUT4pVyH8Eb6g2dpjx5vHez09G7TQb
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The details of this issue are here:
+At lines 1786 to 1793 in mm/slab.c we have :
+                 while (p != &searchp->slabs_free) {
+#if DEBUG
+                         slabp = list_entry(p, slab_t, list);
 
-http://bugzilla.kernel.org/show_bug.cgi?id=1283
+                         if (slabp->inuse)
+                                 BUG();
+#endif
+                         full_free++;
 
-Looks like the IOAPIC is in a different state in 2.4 and 2.6 before ACPI
-programs it.  Also 2.6 has sis_apic_bug code that 2.4 does not -- though
-I don't know yet if it actually runs on this box.
+I think the "slabp =" should be above the "#if DEBUG".
+Or ?
 
-cheers,
--Len
+Margit
 
-On Thu, 2003-11-06 at 07:05, Marcelo Tosatti wrote:
-> Hi, 
-> 
-> David van Hoose started having problems with USB on 2.4.23-pre5. USB
-> device and acpi were now using irq 20:
-> 
-> host/usb-ohci.c: USB OHCI at membase 0xe081a000, IRQ 20
-> 
-> /proc/interrupts:
-> 
-> 20:          1   IO-APIC-level  acpi, usb-ohci 
-> 
-> 
-> Which makes the USB device not work.
-> 
-> With -pre4 the USB device was using interrupt 9, because acpi failed to 
-> find the correct IRQ:
-> 
-> pci_irq-0302 [18] acpi_pci_irq_derive   : Unable to derive IRQ for  device 00:03.0 
-> PCI: No IRQ known for interrupt pin A of device 00:03.0 
-> host/usb-ohci.c: USB OHCI at membase 0xe081a000, IRQ 9 
-> 
-> Now 2.6 assigns interrupt 20 to acpi and usb-ohci just like in
-> 2.4.23-pre5+, but the USB device works!
-> 
-> Anyone has an idea why the interrupt sharing works with 2.6 but not with
-> 2.4?
-> 
->  
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 

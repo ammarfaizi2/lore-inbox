@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312419AbSDCW1u>; Wed, 3 Apr 2002 17:27:50 -0500
+	id <S312425AbSDCW3u>; Wed, 3 Apr 2002 17:29:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312427AbSDCW1b>; Wed, 3 Apr 2002 17:27:31 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:3340 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S312419AbSDCW1U>; Wed, 3 Apr 2002 17:27:20 -0500
-Date: Thu, 4 Apr 2002 00:27:22 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Warn users about machines with non-working WP bit
-Message-ID: <20020403222722.GB29825@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020403215457.GA1050@elf.ucw.cz> <3CAB8133.1AAF5338@didntduck.org>
+	id <S312420AbSDCW3k>; Wed, 3 Apr 2002 17:29:40 -0500
+Received: from [12.150.248.132] ([12.150.248.132]:52786 "EHLO
+	dhcp-177.hsv.redhat.com") by vger.kernel.org with ESMTP
+	id <S312425AbSDCW30>; Wed, 3 Apr 2002 17:29:26 -0500
+Date: Wed, 3 Apr 2002 16:28:10 -0600
+From: Tommy Reynolds <reynolds@redhat.com>
+To: "Eric Sandeen" <sandeen@sgi.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        marcelo@conectiva.com.br
+Subject: Re: [PATCH] kmem_cache_zalloc()
+Message-Id: <20020403162810.2c24ba60.reynolds@redhat.com>
+In-Reply-To: <1017871982.25556.7.camel@stout.americas.sgi.com>
+Organization: Red Hat Software, Inc. / Embedded Development
+X-Mailer: Sylpheed version 0.7.4cvs29 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+X-Message-Flag: Outlook Virus Warning: Reboot within 12 seconds or risk loss of all files and data!
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Uttered "Eric Sandeen" <sandeen@sgi.com>, spoke thus:
 
-> > This might be good idea, as those machines are not safe for multiuser
-> > systems.
-> > 
-> > --- clean.2.5/arch/i386/mm/init.c       Sun Mar 10 20:06:31 2002
-> > +++ linux/arch/i386/mm/init.c   Mon Mar 11 21:49:14 2002
-> > @@ -383,7 +383,7 @@
-> >         local_flush_tlb();
-> > 
-> >         if (!boot_cpu_data.wp_works_ok) {
-> > -               printk("No.\n");
-> > +               printk("No (that's security hole).\n");
-> >  #ifdef CONFIG_X86_WP_WORKS_OK
-> >                 panic("This kernel doesn't support CPU's with broken WP. Recompile it for a 386!");
-> >  #endif
-> > 
-> >                                                                         Pavel
+>  In short, we're using a kmem_cache_zalloc() function in XFS which just
+>  does kmem_cache_alloc + memset.
 > 
-> The "bug" is really the lack of a feature present on 486+ cpus.  A 386
-> will allow the kernel to write to a write-protected user page (but not a
-> write-protected kernel page).  In user mode, write protect works as it
-> should.  The kernel works around this by doing extra checks when writing
-> to user pages (check the *_user() functions).  It is not a security
+>  We'd like to incorporate this into the kernel proper, and several others
+>  chimed in that it would be useful, so here's the patch.  If it's a no-go
+>  with you, we can roll this functionality back under fs/xfs to reduce our
+>  changes in the mainline kernel.
 
-It is, because those checks are racy when clone() is in use. Linus
-stated that few times.
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+Why not use the constructor function interface to kmem_cache_create that is
+_already_ in the kernel API?

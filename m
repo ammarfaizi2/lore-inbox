@@ -1,57 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262215AbTCRMeZ>; Tue, 18 Mar 2003 07:34:25 -0500
+	id <S262214AbTCRMaA>; Tue, 18 Mar 2003 07:30:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262289AbTCRMeZ>; Tue, 18 Mar 2003 07:34:25 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:29175 "HELO
+	id <S262215AbTCRMaA>; Tue, 18 Mar 2003 07:30:00 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:31991 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S262215AbTCRMeY>; Tue, 18 Mar 2003 07:34:24 -0500
-Date: Tue, 18 Mar 2003 13:45:16 +0100
+	id <S262214AbTCRM36>; Tue, 18 Mar 2003 07:29:58 -0500
+Date: Tue, 18 Mar 2003 13:40:50 +0100
 From: Adrian Bunk <bunk@fs.tum.de>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Remaining occurances of DEVFS_FL_AUTO_DEVNUM in 2.5.65
-Message-ID: <20030318124516.GC18135@fs.tum.de>
-References: <Pine.LNX.4.44.0303171429040.2827-100000@penguin.transmeta.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jochen Friedrich <jochen@scram.de>, trivial@rustcorp.com.au,
+       linux-kernel@vger.kernel.org
+Subject: [2.5 patch] fix the compilation of drivers/net/tokenring/tms380tr.c (fwd)
+Message-ID: <20030318124049.GB18135@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303171429040.2827-100000@penguin.transmeta.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 17, 2003 at 02:31:01PM -0800, Linus Torvalds wrote:
->...
-> Summary of changes from v2.5.64 to v2.5.65
-> ============================================
->...
-> Christoph Hellwig <hch@lst.de>:
->...
->   o remaining bits of DEVFS_FL_AUTO_DEVNUM
->...
 
-The following files in 2.5.65 still contain DEVFS_FL_AUTO_DEVNUM:
+The patch in the mail forwarded below is still needed in 2.5.65.
 
-arch/ia64/sn/io/xbow.c:                        0, DEVFS_FL_AUTO_DEVNUM,
-arch/ia64/sn/io/sn2/pcibr/pcibr_dvr.c:                0, DEVFS_FL_AUTO_DEVNUM,
-arch/ia64/sn/io/sn2/xbow.c:             DEVFS_FL_AUTO_DEVNUM, 0, 0,
-arch/ia64/sn/io/sn2/klgraph.c:          0, DEVFS_FL_AUTO_DEVNUM,
-arch/ia64/sn/io/klgraph.c:          0, DEVFS_FL_AUTO_DEVNUM,
-arch/ia64/sn/io/klgraph.c:          0, DEVFS_FL_AUTO_DEVNUM,
-arch/ia64/sn/io/klgraph.c:          0, DEVFS_FL_AUTO_DEVNUM,
-arch/ia64/sn/io/sn1/pcibr.c:                0, DEVFS_FL_AUTO_DEVNUM,
-arch/ia64/sn/io/ifconfig_net.c:                 0, DEVFS_FL_AUTO_DEVNUM,
-arch/ia64/sn/io/ioconfig_bus.c:                 0, DEVFS_FL_AUTO_DEVNUM,
-arch/ia64/sn/io/hcl.c:                  0, DEVFS_FL_AUTO_DEVNUM,
-drivers/media/dvb/dvb-core/dvbdev.c:    #define DVB_DEVFS_FLAGS          (DEVFS_FL_DEFAULT|DEVFS_FL_AUTO_DEVNUM)
+Please apply
+Adrian
 
 
-The last one causes a compile error on i386 with CONFIG_DVB_DEVFS_ONLY 
-enabled.
+----- Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
+
+Date: Wed, 5 Mar 2003 21:34:50 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jochen Friedrich <jochen@scram.de>, trivial@rustcorp.com.au
+Subject: [2.5 patch] fix the compilation of drivers/net/tokenring/tms380tr.c
+
+Since 2.5.61 compilation of drivers/net/tokenring/tms380tr.c fails with 
+the following error:
+
+<--  snip  -->
+
+...
+  gcc -Wp,-MD,drivers/net/tokenring/.tms380tr.o.d -D__KERNEL__ -Iinclude 
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 
+-Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
+-DKBUILD_BASENAME=tms380tr -DKBUILD_MODNAME=tms380tr -c -o 
+drivers/net/tokenring/tms380tr.o drivers/net/tokenring/tms380tr.c
+drivers/net/tokenring/tms380tr.c: In function `tms380tr_open':
+drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
+drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
+drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
+drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
+drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
+drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
+drivers/net/tokenring/tms380tr.c: In function `tms380tr_init_adapter':
+drivers/net/tokenring/tms380tr.c:1461: warning: long unsigned int format, different type arg (arg3)
+make[3]: *** [drivers/net/tokenring/tms380tr.o] Error 1
+
+<--  snip  -->
 
 
-cu
+The following patch by Jochen Friedrich fixes both the compile error and 
+the warning:
+
+
+--- linux-2.5.64-notfull/drivers/net/tokenring/tms380tr.c.old	2003-03-05 21:22:59.000000000 +0100
++++ linux-2.5.64-notfull/drivers/net/tokenring/tms380tr.c	2003-03-05 21:27:18.000000000 +0100
+@@ -257,7 +257,7 @@
+ 	int err;
+ 	
+ 	/* init the spinlock */
+-	spin_lock_init(tp->lock);
++	spin_lock_init(&tp->lock);
+ 
+ 	/* Reset the hardware here. Don't forget to set the station address. */
+ 
+@@ -1458,7 +1458,7 @@
+ 	if(tms380tr_debug > 3)
+ 	{
+ 		printk(KERN_DEBUG "%s: buffer (real): %lx\n", dev->name, (long) &tp->scb);
+-		printk(KERN_DEBUG "%s: buffer (virt): %lx\n", dev->name, (long) ((char *)&tp->scb - (char *)tp) + tp->dmabuffer);
++		printk(KERN_DEBUG "%s: buffer (virt): %lx\n", dev->name, (long) ((char *)&tp->scb - (char *)tp) + (long) tp->dmabuffer);
+ 		printk(KERN_DEBUG "%s: buffer (DMA) : %lx\n", dev->name, (long) tp->dmabuffer);
+ 		printk(KERN_DEBUG "%s: buffer (tp)  : %lx\n", dev->name, (long) tp);
+ 	}
+
+
+
+
+Please apply
 Adrian
 
 -- 
@@ -60,4 +98,7 @@ Adrian
         of the darkness. There had been need of rain for many days.
        "Only a promise," Lao Er said.
                                        Pearl S. Buck - Dragon Seed
+
+
+----- End forwarded message -----
 

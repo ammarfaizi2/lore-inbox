@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311112AbSCHUun>; Fri, 8 Mar 2002 15:50:43 -0500
+	id <S311119AbSCHU6X>; Fri, 8 Mar 2002 15:58:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311115AbSCHUug>; Fri, 8 Mar 2002 15:50:36 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:60670 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S311112AbSCHUuW>; Fri, 8 Mar 2002 15:50:22 -0500
-Date: Fri, 08 Mar 2002 12:49:37 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Samuel Ortiz <sortiz@dbear.engr.sgi.com>
-cc: Andrea Arcangeli <andrea@suse.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] stop null ptr deference in __alloc_pages
-Message-ID: <12160000.1015620577@flay>
-In-Reply-To: <Pine.LNX.4.33.0203081207360.18968-100000@dbear.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.33.0203081207360.18968-100000@dbear.engr.sgi.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S311120AbSCHU6P>; Fri, 8 Mar 2002 15:58:15 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15117 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S311119AbSCHU6I>; Fri, 8 Mar 2002 15:58:08 -0500
+Date: Fri, 8 Mar 2002 12:57:33 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Hubertus Franke <frankeh@watson.ibm.com>,
+        Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
+In-Reply-To: <E16jRAU-0007QU-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0203081252450.1412-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you applied an SGI patch that makes the zonelist contain all the zones
-> of your machine, then the zonelist should not be NULL.
-> If you allocate memory with gfp_mask & GFP_ZONEMASK == GFP_NORMAL from a
-> HIGHMEM only node, then the first entry on the corresponding zonelist
-> should be the first NORMAL zone on some other node.
-> Am I missing something here ?
 
-You're missing the fact that I'm missing the SGI patch ;-)
+On Fri, 8 Mar 2002, Alan Cox wrote:
+> 
+> Can we go to cache line alignment - for an array of locks thats clearly
+> advantageous
 
-M.
+I disagree about the "clearly". Firstly, the cacheline alignment is CPU 
+dependent, so on some CPU's it's 32 bytes (or even 16), on others it is 
+128 bytes. 
+
+Secondly, a lot of locking is actually done inside a single thread, and
+false sharing doesn't happen much - so keeping the locks dense can be
+quite advantageous.
+
+The cases where false sharing _does_ happen and are a problem should be 
+for the application writer to worry about, not for the kernel to force.
+
+So I think 8 bytes is plenty fine enough - with 16 bytes a remote 
+possibility (I don't think it is needed, but it gives you som epadding for 
+future expansion). And people who have arrays and find false sharing to be 
+a problem can fix it themselves.
+
+I personally don't find arrays of locks very common. It's much more common
+to have arrays of data structures that _contain_ locks (eg things like
+having hash tables etc with a per-hashchain lock) and then those container 
+structures may want to be cacheline aligned, but the locks themselves 
+should not need to be.
+
+		Linus
 

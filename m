@@ -1,66 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262123AbREPXHM>; Wed, 16 May 2001 19:07:12 -0400
+	id <S262127AbREPXOm>; Wed, 16 May 2001 19:14:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262124AbREPXHC>; Wed, 16 May 2001 19:07:02 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:22996 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262123AbREPXGt>;
-	Wed, 16 May 2001 19:06:49 -0400
-Date: Wed, 16 May 2001 19:06:47 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rootfs (part 1)
-In-Reply-To: <9duuh1$mes$1@cesium.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0105161850200.26191-100000@weyl.math.psu.edu>
+	id <S262129AbREPXOc>; Wed, 16 May 2001 19:14:32 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:9185 "HELO havoc.gtf.org")
+	by vger.kernel.org with SMTP id <S262127AbREPXOW>;
+	Wed, 16 May 2001 19:14:22 -0400
+Message-ID: <3B0309CB.1346D25F@mandrakesoft.com>
+Date: Wed, 16 May 2001 19:14:19 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jonathan Lundell <jlundell@pobox.com>
+Cc: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>,
+        LINUX Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ((struct pci_dev*)dev)->resource[...].start
+In-Reply-To: <6B1DF6EEBA51D31182F200902740436802678ED4@mail-in.comverse-in.com>
+	 <3B02F30F.5D05C77E@mandrakesoft.com> <p05100306b728b73efd94@[10.128.7.49]>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On 16 May 2001, H. Peter Anvin wrote:
-
-> Followup to:  <Pine.GSO.4.21.0105161434420.26191-100000@weyl.math.psu.edu>
-> By author:    Alexander Viro <viro@math.psu.edu>
-> In newsgroup: linux.dev.kernel
-> > 
-> > Well, since all I actually use in the full variant of patch is sys_mknod(),
-> > sys_chdir() and sys_mkdir()... IMO tmpfs is an overkill here. Maybe we
-> > really need minimal rootfs in the kernel (no regular files) and let
-> > ramfs, tmpfs, whatever-device-fs use it as a library.
-> > 
+Jonathan Lundell wrote:
 > 
-> One thing that I thought was really spiffy was someone who had done
-> patches to populate a ramfs from a tarball loaded via the initrd
-> bootloader protocol... call it "initial ramfs."  It allowed a whole
-> lot of cleanup -- the "initrd" isn't magic anymore (instead use
-> pivot_root), and it gets rid of the rd stuff.  At the same time it
-> does allow the full flexibility of a fullblown filesystem that can be
-> populated with arbitrary contents.
+> At 5:37 PM -0400 2001-05-16, Jeff Garzik wrote:
+> >This is not a safe assumption, because the OS may reprogram the PCI BARs
+> >at certain times.  The rule is:  ALWAYS read from dev->resource[] unless
+> >you are a bus driver (PCI bridges, for example, need to assign
+> >resources).
+> 
+> Would you please elaborate? If I understand what you're saying, you
+> can't rely on the "pointer" returned by ioremap() because the OS
+> might reprogram the relevant BAR out from under you. So one would
+> need to know: when does a driver have to re-ioremap() due to the BAR
+> having been (potentially) changed? I'd expect the answer to be: for
+> all practical purposes never.
 
-In full variant of patch I don't _have_ mount_root(9). It's done by
-mount(2). Period. Initrd or not. Notice that rootfs stays absolute root
-forever - it's much more convenient for fs/super.c, since you can get rid
-of many kludges that way. So I'm not too happy about populating rootfs with
-tons of files. BTW, loading initrd is done by open(2), read(2) and write(2) -
-none of this fake struct file business anymore.
+no-no-no.  I DON'T mean that OS will reprogram the BARs underneath you.
 
-So late-boot stuff (mounting root, unpacking initrd, mounting devfs if
-asked to, loading initrd from floppies,  moving initrd around - the whole
-whorehouse) is actually done by sane, normal system calls. And it's
-very easy to expand - I refused to apply any fancy patches simply because
-I wanted 100% compatibility with all existing boot setups, no matter
-how silly they are. If behaviour is absent in Linus' tree - sorry.
-However, playing with that stuff becomes much easier - essentially it's
-a userland code. You have an empty, writable fs, your root and cwd are
-on it, you can do any system calls you want.
+Only that it is the responsibility of the OS to program the BARs, and
+that you should be getting the BAR info out of dev->resource[].
 
-So if you want this untar-into-ramfs - well, more power to you. I'd
-recommend to use a separate instance of ramfs for that, though, so that
-you could easily get rid of it afterwards. Again, at that point you
-have normal userland environment, so doing whatever you want to do
-doesn't require any kernel-specific stuff. Write as if you were adding
-your code to the beginning of /sbin/init.
+Note only does this make the code much cleaner, but this gives us a lot
+more flexibility about when and how we program the PCI bus.  The PCI
+driver only needs to know the location and size of the region it needs
+to access.  If the OS, in the future, has to support some weird IOMMU or
+PCI mapping capabilities, we don't have to go through and change all the
+drivers which are suddenly broken by this new hardware... we just change
+it in one canonical place: the PCI core.  (at this point the lecture
+turns into why APIs exist and should be used, and it gets more boring
+from there...)
 
+-- 
+Jeff Garzik      | Game called on account of naked chick
+Building 1024    |
+MandrakeSoft     |

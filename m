@@ -1,29 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291429AbSAaXph>; Thu, 31 Jan 2002 18:45:37 -0500
+	id <S291425AbSAaXrr>; Thu, 31 Jan 2002 18:47:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291431AbSAaXp1>; Thu, 31 Jan 2002 18:45:27 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:23314 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S291429AbSAaXpN>; Thu, 31 Jan 2002 18:45:13 -0500
-Date: Thu, 31 Jan 2002 15:44:27 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
-cc: linux-m68k@lists.linux-m68k.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] amiga input api drivers
-In-Reply-To: <Pine.LNX.4.33.0201312216460.10027-100000@phobos.fachschaften.tu-muenchen.de>
-Message-ID: <Pine.LNX.4.10.10201311542370.5906-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291430AbSAaXrh>; Thu, 31 Jan 2002 18:47:37 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:3200 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S291425AbSAaXrV>;
+	Thu, 31 Jan 2002 18:47:21 -0500
+Date: Thu, 31 Jan 2002 15:45:47 -0800 (PST)
+Message-Id: <20020131.154547.74749379.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: vandrove@vc.cvut.cz, torvalds@transmeta.com, garzik@havoc.gtf.org,
+        linux-kernel@vger.kernel.org, paulus@samba.org, davidm@hpl.hp.com,
+        ralf@gnu.org
+Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <E16WQYs-0003Ux-00@the-village.bc.nu>
+In-Reply-To: <20020131.145904.41634460.davem@redhat.com>
+	<E16WQYs-0003Ux-00@the-village.bc.nu>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: Thu, 31 Jan 2002 23:24:10 +0000 (GMT)
 
-> > +	scancode = scancode >> 1;	/* lowest bit is release bit */
-> > +	down = scancode & 1;
-> 
-> Shouldn't that be the other way 'round?
+   > As a side note, this thing is so tiny (less than 4K on sparc64!) so
+   > why don't we just include it unconditionally instead of having all
+   > of this "turn it on for these drivers" stuff?
+   
+   Because 100 4K drivers suddenly becomes 0.5Mb.
 
-I don't know. Anyone?
+However this isn't a driver, the crc library stuff is more akin to
+"strlen()".  Are you suggesting to provide a CONFIG_STRINGOPS=n
+too?  I wish you luck building that kernel :-)
+
 

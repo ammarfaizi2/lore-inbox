@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272448AbRIKN0k>; Tue, 11 Sep 2001 09:26:40 -0400
+	id <S268145AbRIKNlO>; Tue, 11 Sep 2001 09:41:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272418AbRIKN0a>; Tue, 11 Sep 2001 09:26:30 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:2828 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S268100AbRIKN0R>; Tue, 11 Sep 2001 09:26:17 -0400
-Date: Tue, 11 Sep 2001 15:26:26 +0200
-From: Jan Kara <jack@suse.cz>
-To: Juan Pablo Abuyeres <jpabuyer@tecnoera.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9-ac10 + reiserfs + quota
-Message-ID: <20010911152626.V28691@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.33.0109101955150.6080-100000@baltazar.tecnoera.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.LNX.4.33.0109101955150.6080-100000@baltazar.tecnoera.com>; from jpabuyer@tecnoera.com on Mon, Sep 10, 2001 at 08:04:45PM -0400
+	id <S272451AbRIKNlF>; Tue, 11 Sep 2001 09:41:05 -0400
+Received: from rainbow.transtec.de ([153.94.51.2]:2322 "EHLO
+	rainbow.transtec.de") by vger.kernel.org with ESMTP
+	id <S272458AbRIKNkv> convert rfc822-to-8bit; Tue, 11 Sep 2001 09:40:51 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-ID: <15192.23109.233454.680461@gargle.gargle.HOWL>
+Date: Fri, 20 Jul 2001 18:20:21 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: qlogicfc driver
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+From: Roland Fehrenbacher <Roland.Fehrenbacher@transtec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+Update to my previous post:
 
-> 	I just compiled 2.4.9-ac10 with reiserfs support. Now I need to
-> set up quota, but watching
-> http://www.namesys.com/pub/reiserfs-for-2.4/quota-for-3.6/ I realized
-> there's no quota patch for this kernel version yet..... so what should I
-> do??
-  -ac kernels contain new quota code so you can use new reiserfs quota
-support from ftp://atrey.karlin.mff.cuni.cz/pub/local/jack/quota/reiserfs.
-Currently the best patch for you should be for 2.4.0-pre4 (something like
-reiserquota-patch-2.4.0-pre4-3.diff.gz) I should make patch for 2.4.9-ac10
-soon too. But there's one possible deadlock in the code Chris Mason is working
-on (I think he's got to testing now :)) so maybe it'd be better to wait for
-a few days for the patch without deadlocks...
+If I force a SCSI scan using
 
-								Honza
+echo "scsi add-single-device 0 0 0 1" > /proc/scsi/scsi
 
---
-Jan Kara <jack@suse.cz>
-SuSE Labs
+the device is detected correctly. So it seems like a problem in the SCSI
+scanning code.
+
+Cheers,
+
+Roland
+
+----
+Roland Fehrenbacher
+transtec AG
+Waldhörnlestrasse 18
+D-72072 Tübingen
+Tel.: +49(0)7071/703-320
+Fax: +49(0)7071/703-90320
+EMail: Roland.Fehrenbacher@transtec.de
+http://www.transtec.de

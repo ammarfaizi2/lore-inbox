@@ -1,70 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269447AbUHZTSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269505AbUHZT15@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269447AbUHZTSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 15:18:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269435AbUHZTOt
+	id S269505AbUHZT15 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 15:27:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269504AbUHZT1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 15:14:49 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51680 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269338AbUHZTNb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 15:13:31 -0400
-Date: Thu, 26 Aug 2004 20:13:23 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Rik van Riel <riel@redhat.com>, Diego Calleja <diegocg@teleline.es>,
-       jamie@shareable.org, christophe@saout.de, christer@weinigel.se,
-       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
-       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
+	Thu, 26 Aug 2004 15:27:55 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:30640 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S269499AbUHZT0r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 15:26:47 -0400
 Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826191323.GY21964@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.44.0408261356330.27909-100000@chimarrao.boston.redhat.com> <200408262128.41326.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.58.0408261132150.2304@ppc970.osdl.org>
+From: Lee Revell <rlrevell@joe-job.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Andrew Morton <akpm@osdl.org>, hch@lst.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>, flx@namesys.com,
+       torvalds@osdl.org, reiserfs-list@namesys.com
+In-Reply-To: <412DAC59.4010508@namesys.com>
+References: <20040824202521.GA26705@lst.de>	<412CEE38.1080707@namesys.com>
+	 <20040825152805.45a1ce64.akpm@osdl.org>	<412D9FE6.9050307@namesys.com>
+	 <20040826014542.4bfe7cc3.akpm@osdl.org>  <412DAC59.4010508@namesys.com>
+Content-Type: text/plain
+Message-Id: <1093548414.5678.74.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408261132150.2304@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 26 Aug 2004 15:26:55 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[reposted in thread]
-
-On Thu, Aug 26, 2004 at 11:46:33AM -0700, Linus Torvalds wrote:
-> Note that we could try this out with existing filesystems with very 
-> minimal changes:
+On Thu, 2004-08-26 at 05:24, Hans Reiser wrote:
+> Andrew Morton wrote:
+> >
+> >And describe the "plugin" system.  Why does the filesystem need such a
+> >thing (other filesystems get their features via `patch -p1')?
+> >  
+> >
+> It takes 6 months or more to become competent to change a usual 
+> filesystem.  Creating a new reiser4 plugin is a weekend programmer fun 
+> hack to do.  Weekend programmers matter, because they tend to have 
+> clever ideas based on understanding a need they have.   How many people 
+> can easily add new features to ext3 or reiserfs V3?  Very few. 
 > 
->  - make directory bind mounts work on top of files ("graft_tree()")
->  - make open_namei() and friend _not_ do the mount-point following for the 
->    last component if it's a non-directory.
->  - probably some trivial fixups I haven't thought about. There might be 
->    some places that use "S_ISDIR()" to check for whether something can be 
->    looked up, but the main path walking already just checks whether there
->    is a ".lookup" operation or not.
+> What happens if you need a disk format change?
 > 
-> This would already allow people to "try out" how different applications 
-> would react to a file that can show up both as a directory and a file. The 
-> patch might end up being less than 25 lines or so, the difficulty is in 
-> finding all the right places.
+> Well, in V4, you can easily compose a plugin from plugin methods of 
+> other plugins, write a little piece of code with the one thing you want 
+> different, and add it in.  Disk format changes, no big deal, add a new 
+> disk format plugin, or a new item plugin, or a new node plugin, etc., 
+> and you got your new format.
+> 
 
-The real issue is what to do with unlink() et.al. on these guys.  Note
-that "unlink is OK if all we have there is a bunch of directory mounts"
-won't work well - we have no good way to check that condition.
+OK, real world example.  My roommate has an AKAI MPC-2000, a very
+popular hardware sampler from the 90's.  The disk format is known,there
+are a few utilities to edit the disks on a PC and extract the PCM
+samples, but there are no tools to mount it on a modern PC.  Are you
+saying that, since I know the MPC disk format, I could write a reiser4
+plugin to mount an MPC drive?
 
-Even funnier one is what we do if we have directory mounted there *and*
-have something mounted on stuff in that directory.
+If so, then Hans has an excellent point.  Users do want this kind of
+thing, and it is worth having to fix tar et al.
 
-Yes, that's one of the probable directions for such stuff, but there's a
-lot of fun semantics questions and answers to them will matter a lot.
+Lee 
 
-Hey, if we lose the "can't unlink/rmdir/rename over something that is
-a mountpoint in other life" - I'm happy and we can get a lot of much
-more interesting stuff to work.  It will take some work (e.g. making
-sure we can find all vfsmounts over given mountpoint and sorting out
-the locking issues, which won't be trivial), but the main obstacle in
-that direction is not in architecture - it's in SuS and tradition; as
-the matter of fact, our life would be much easier if we stopped trying
-to give -EBUSY here and just dissolved all subtrees mounted on anything
-that has that dentry.

@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313924AbSEHNIF>; Wed, 8 May 2002 09:08:05 -0400
+	id <S315606AbSEIEOF>; Thu, 9 May 2002 00:14:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313988AbSEHNIE>; Wed, 8 May 2002 09:08:04 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:33807 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S313924AbSEHNID>; Wed, 8 May 2002 09:08:03 -0400
-Date: Tue, 7 May 2002 21:56:28 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Gerrit Huizenga <gh@us.ibm.com>
-cc: Clifford White <ctwhite@us.ibm.com>, <linux-kernel@vger.kernel.org>,
-        <oliendm@us.ibm.com>
-Subject: Re: x86 question: Can a process have > 3GB memory? 
-In-Reply-To: <E175F87-0004pa-00@w-gerrit2>
-Message-ID: <Pine.LNX.4.44L.0205072155220.32261-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S315607AbSEIEOE>; Thu, 9 May 2002 00:14:04 -0400
+Received: from mta03-svc.ntlworld.com ([62.253.162.43]:898 "EHLO
+	mta03-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S315606AbSEIEOE>; Thu, 9 May 2002 00:14:04 -0400
+Message-ID: <3CD81676.90909@notnowlewis.co.uk>
+Date: Tue, 07 May 2002 19:01:26 +0100
+From: mikeH <mikeH@notnowlewis.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020502
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: lost interrupt hell - Plea for Help
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 May 2002, Gerrit Huizenga wrote:
+Hi all,
 
-> Hey Cliff, we are planning to implement virtwin() if you remember that
-> from PTX.  AWE on NT was derived from the same work.  There should soon
-> be some discussion about it on lse-tech@lists.sourceforge.net or I can
-> give you some more data...
+*bang*
 
-Please implement it in userspace, using large POSIX shared memory
-segments and mmaping / munmapping them as needed.
+*bang*
 
-This seems like a special enough case to keep it out of the kernel
-entirely. If there's something not efficient enough we could work
-on optimising the whole mmap & munmap path...
+Hear that? Its my head, against the wall. ;)
 
-cheers,
+I am trying to convert my audio cds to mp3, which involves first ripping 
+the track as a wav.
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+I have two drives, one Creative DVD 5x, one LG CDRW drive.
+My chipet is VIA K7 266 pro, 1.2ghz duron.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+I have tried every combination of master / slave between the two drives, 
+the drives on their own, scsi emulation through ide-scsi, purely as IDE 
+drives, ommitting ide cdrom support from teh kernel completely and only 
+using ide-scsi... every time I try to get a track ripped, dmesg fills up 
+with hdX: lost interrupt.
+
+If I try to rip from the DVD drive, the system hangs and its reset 
+button time.
+
+I am using 2.4.18.
+
+Can anyone tell me where I'm going wrong? Is there anything from my 
+system you need to see to help me?
+
+Many thanks,
+
+mikeH
 

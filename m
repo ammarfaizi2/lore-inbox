@@ -1,65 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278660AbRLIAsp>; Sat, 8 Dec 2001 19:48:45 -0500
+	id <S278932AbRLIAsp>; Sat, 8 Dec 2001 19:48:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277380AbRLIAsf>; Sat, 8 Dec 2001 19:48:35 -0500
-Received: from mailrelay.netcologne.de ([194.8.194.96]:42372 "EHLO
-	mailrelay.netcologne.de") by vger.kernel.org with ESMTP
-	id <S277228AbRLIAsU>; Sat, 8 Dec 2001 19:48:20 -0500
-Message-ID: <009a01c1804b$31621aa0$30d8fea9@ecce>
-From: "[MOc]cda*mirabilos" <mirabilos@netcologne.de>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <200112090039.BAA25399@webserver.ithnet.com>
-Subject: Re: Typedefs / gcc / HIGHMEM
-Date: Sun, 9 Dec 2001 00:48:17 -0000
+	id <S278660AbRLIAsf>; Sat, 8 Dec 2001 19:48:35 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:10254
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S277380AbRLIAsX>; Sat, 8 Dec 2001 19:48:23 -0500
+Date: Sat, 8 Dec 2001 16:44:02 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Ben Pharr - Lists <ben-lists@benpharr.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE SeekComplete Error
+In-Reply-To: <5.1.0.14.0.20011128173852.00a28440@sunset.olemiss.edu>
+Message-ID: <Pine.LNX.4.10.10112081642530.15878-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ha, I always wondered what this u64 is all about :-)
-> Honestly, this whole datatyping is gone completely mad since the 16-32
-> bit  change. In my opinion
-> byte is 8 bit
-> short is 16 bit
-> long is 32 bit
-> <callwhatyouwant> is 64 bit (I propose long2 for expression of bitsize
-> long * 2).
-> <callwhatyouwant2> is 128 bit (Ha, right I would call it long4)
 
-There's the bit types:
-u_int8_t (unsigned char)
-u_int16_t (unsigned short int)
-...
+That just means the device aborted the command and it does not support
+setfeatures opt codes for changing the transfer rates.
 
-int8_t (signed char)
-int16_t (signed short int)
-...
+Andre Hedrick
+Linux ATA Development
 
-size_t and register_t
-If I understand these correctly, size_t is the size of a pointer
-(ptrdiff_t on linux?) and register_t is signed size_t.
 
-These are common along GNU and BSD systems,
-just #ifdef __BIT_TYPES_DEFINED__
-For porting issues, many Win32 headers have them as now,
-and for DOS16 and DOS32 they're easy.
+On Wed, 28 Nov 2001, Ben Pharr - Lists wrote:
 
-> char is the standard representation of chars in the corresponding
-> environment, currently sizeof(byte).
-> int is the same and should move from 16 bit to 32 bit to 64 bit
-> depending on the machine. I mean whats the use of an int register in a
-> 64bit environment, when datatype int is only of size 32 bit? This is
-> _shit_.
-
-ACK.
-
--mirabilos
-
+> I have been getting a DriveReady SeekComplete Error at bootup from my CD 
+> burner. Below are the excerpts from dmesg. I have a script that turns off 
+> DMA on the writer, but it hasn't been reached yet when this error occurs. 
+> This occurred on my first boot of 2.4.17-pre1, but I'm not positive it 
+> hasn't been happening with earlier kernels. I doesn't seem to be causing 
+> any problems.
+> 
+> Ben Pharr
+> 
+> 
+> Uniform Multi-Platform E-IDE driver Revision: 6.31
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> PIIX4: IDE controller on PCI bus 00 dev f9
+> PIIX4: chipset revision 2
+> PIIX4: not 100% native mode: will probe irqs later
+>      ide0: BM-DMA at 0x1800-0x1807, BIOS settings: hda:DMA, hdb:pio
+>      ide1: BM-DMA at 0x1808-0x180f, BIOS settings: hdc:DMA, hdd:pio
+> hda: QUANTUM FIREBALLlct15 20, ATA DISK drive
+> hdc: SAMSUNG DVD-ROM SD-612, ATAPI CD/DVD-ROM drive
+> hdd: SAMSUNG CD-R/RW SW-408B, ATAPI CD/DVD-ROM drive
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> ide1 at 0x170-0x177,0x376 on irq 15
+> hda: 39876480 sectors (20417 MB) w/418KiB Cache, CHS=2482/255/63, UDMA(33)
+> hdc: ATAPI 32X DVD-ROM drive, 512kB Cache, UDMA(33)
+> Uniform CD-ROM driver Revision: 3.12
+> Partition check:
+>   hda: hda1 hda2 hda4
+> 
+> SCSI subsystem driver Revision: 1.00
+> hdd: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
+> hdd: set_drive_speed_status: error=0x04
+> scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+>    Vendor: SAMSUNG   Model: CD-R/RW SW-408B   Rev: BS02
+>    Type:   CD-ROM                             ANSI SCSI revision: 02
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

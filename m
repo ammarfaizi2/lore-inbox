@@ -1,217 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbVCHOvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbVCHO6z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261368AbVCHOvU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 09:51:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVCHOvU
+	id S261376AbVCHO6z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 09:58:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVCHO6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 09:51:20 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:2469 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S261368AbVCHOuu (ORCPT
+	Tue, 8 Mar 2005 09:58:55 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:50854 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S261376AbVCHO6v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 09:50:50 -0500
-Date: Tue, 8 Mar 2005 18:16:12 +0300
+	Tue, 8 Mar 2005 09:58:51 -0500
+Date: Tue, 8 Mar 2005 18:24:17 +0300
 From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: linux-kernel@vger.kernel.org, Fruhwirth Clemens <clemens@endorphin.org>,
-       Herbert Xu <herbert@gondor.apana.org.au>, cryptoapi@lists.logix.cz,
-       James Morris <jmorris@redhat.com>, David Miller <davem@davemloft.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [1/5] bd: Asynchronous block device
-Message-ID: <20050308181612.1cb38b5d@zanzibar.2ka.mipt.ru>
-In-Reply-To: <11102278582250@2ka.mipt.ru>
-References: <1110227858283@2ka.mipt.ru>
-	<11102278582250@2ka.mipt.ru>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: James Morris <jmorris@redhat.com>, linux-kernel@vger.kernel.org,
+       cryptoapi@lists.logix.cz, David Miller <davem@davemloft.net>,
+       Herbert Xu <herbert@gondor.apana.org.au>, Andrew Morton <akpm@osdl.org>,
+       Fruhwirth Clemens <clemens@endorphin.org>
+Subject: Re: [0/many] Acrypto - asynchronous crypto layer for linux kernel
+ 2.6
+Message-ID: <20050308182417.27984ae1@zanzibar.2ka.mipt.ru>
+In-Reply-To: <DB5F652C-8FE0-11D9-A2CF-000393ACC76E@mac.com>
+References: <11102278521318@2ka.mipt.ru>
+	<1FA9E37C-8F90-11D9-A2CF-000393ACC76E@mac.com>
+	<20050308123714.07d68b90@zanzibar.2ka.mipt.ru>
+	<ACAE2383-8FCC-11D9-A2CF-000393ACC76E@mac.com>
+	<20050308160747.2ffc842c@zanzibar.2ka.mipt.ru>
+	<DB5F652C-8FE0-11D9-A2CF-000393ACC76E@mac.com>
 Reply-To: johnpol@2ka.mipt.ru
 Organization: MIPT
 X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Tue, 08 Mar 2005 17:50:12 +0300 (MSK)
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Tue, 08 Mar 2005 17:58:15 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 8 Mar 2005 09:46:30 -0500
+Kyle Moffett <mrmacman_g4@mac.com> wrote:
 
-Small morning patch for bd_fd filter which closes "major security vulnerability"
- described at http://off.net/~jme/loopdev_vul.html
+> On Mar 08, 2005, at 08:07, Evgeniy Polyakov wrote:
+> > On Tue, 8 Mar 2005 07:22:01 -0500 Kyle Moffett <mrmacman_g4@mac.com> 
+> > wrote:
+> >> I'm not exactly familiar with asynchronous block device, but I'm
+> >> guessing that it would need to get its crypto keys from the user
+> >> somehow, no?  If so, then the best way of managing them is via
+> >> the key/keyring infrastructure.  From the point of view of other
+> >> kernel systems, it's basically a set of BLOB<=>task associations
+> >> that supports a reasonable inheritance and permissions model.
+> >
+> > Above setup may be implemeted for the userspace/kernelspace 
+> > application,
+> > which requires continuous access to the key material from the both 
+> > sides,
+> > but asynchronous block device (and existing cryptoloop and dm-crypt) 
+> > use
+> > different model, when controlling userspace application only one time
+> > provides required key material(using ioctl) and exits, but key material
+> > remains in kernelspace in device's private area.
+> 
+> The above application works perfectly with the design of the keyring
+> system.  A process (An init-script or something) creates a "key" either
+> with a file or through some complex method that only user-space needs to
+> care about, then it calls the keyctl syscall to create an in-kernel key
+> with the data BLOB.  The kernel module that registered the key-type (IE:
+> symmetric128 or something like that) verifies that the data is valid and
+> attaches it to a key data-structure.
+> 
+> Later, when you want to use the key for acrypto, cryptoloop, dm-crypt, 
+> etc,
+> you would just pass the key-ID instead of a custom binary format, and 
+> the
+> acrypto layer would just add a reference to the key in its own structure
+> and increment the refcount.
 
-Author's quite: "about 3 years ago i published a paper describing how an attacker would be able
-to modify the content of the encrypted device without being detected."
+Acrypto does not actually know about keys, ivs and other.
+It is layer between crypto devices(which require key) and crypto consumers
+(which provide the key).
+One may fill key and iv sg as NULL and put them to the private area, 
+and then create approprite crypto device, which will obtain them from there,
+but not using key/iv sgs.
+Acrypto do not use such information.
 
-Small archive of the descussion at: http://mail.nl.linux.org/linux-crypto/2005-01/msg00040.html
-
-It is provideed to show how easy is bd filters creation.
-
-Thank you for your attention :)
-
-P.S. userspace ubd.c patch is not attached, it is 32 lines copy/allocation.
-
---- orig/bd_fd.c
-+++ mod/bd_fd.c
-@@ -29,6 +29,7 @@
- #include <linux/init.h>
- #include <linux/fs.h>
- #include <linux/file.h>
-+#include <linux/crypto.h>
+Of course, one may patch bd_acrypto.c/cryptoloop.c/dm_crypt.c 
+to use above schema, but it is too complex for the model used,
+but nevertheless it can be used, I do not disput against it 
+in bd_acrypto/cryptoloop/dm_crypt.
  
- #include "bd.h"
- #include "bd_filter.h"
-@@ -37,6 +38,7 @@
- static int bd_fd_transfer(struct bd_transfer *);
- static int bd_fd_init(struct bd_device *, struct bd_filter *);
- static void bd_fd_fini(struct bd_device *, struct bd_filter *);
-+static int bd_fd_check_media(struct bd_device *dev, struct bd_filter *f, int size);
- 
- static struct bd_main_filter fd_filter = 
- {
-@@ -126,9 +128,11 @@
- {
-        struct bd_fd_private *p;
-                struct bd_fd_user *u = f->priv;
--       int err;
-+       int err, size;
-+
-+       size = f->priv_size - sizeof(*u);
- 
--       p = kmalloc(sizeof(*p), GFP_KERNEL);
-+       p = kmalloc(sizeof(*p) + size, GFP_KERNEL);
-        if (!p) {
-                dprintk("Failed to allocate new bd_fd priavte structure in dev=%s, filter=%s.\n", 
-                                dev->name, f->mf->name);
-@@ -136,8 +140,11 @@
-        }
- 
-        memset(p, 0, sizeof(*p));
--
-        memcpy(&p->u, u, sizeof(p->u));
-+       if (size) {
-+               p->hmac = (u8 *)(p+1);
-+               memcpy(p->hmac, u+1, size);
-+       }
- 
-        dprintk("%s: filter=%s, flags=%08x.\n", __func__, f->mf->name, f->mf->flags);
-        
-@@ -152,8 +159,11 @@
-        err = bd_set_fd(dev, p);
-        if (err)
-                return err;
-+
-+       if (size)
-+               err = bd_fd_check_media(dev, f, size);
-        
--       return 0;
-+       return err;
- }
- 
- static void bd_fd_fini(struct bd_device *dev, struct bd_filter *f)
-@@ -305,6 +315,93 @@
-        return err;
- }
- 
-+static void bd_fd_complete(struct bd_transfer *t)
-+{
-+}
-+#define SHA512_DIGEST_SIZE 64
-+static int bd_fd_check_media(struct bd_device *dev, struct bd_filter *f, int size)
-+{
-+       struct crypto_tfm *tfm;
-+       int err, i; 
-+       loff_t storage_size, pos;
-+       struct bd_fd_private *p = f->priv;
-+       struct page *pg;
-+       struct bd_transfer t;
-+       u8 hmac[SHA512_DIGEST_SIZE];
-+       u8 scratch[SHA512_DIGEST_SIZE];
-+       struct scatterlist sg;
-+
-+       if (size != SHA512_DIGEST_SIZE)
-+               return -EINVAL;
-+       
-+       tfm = crypto_alloc_tfm("sha512", 0);
-+       if (!tfm) {
-+               dprintk("Failed to create sha512 tfm for device %s.\n", dev->name);
-+               return -ENODEV;
-+       }
-+
-+       storage_size = bd_get_size(dev, p);
-+       if (!storage_size) {
-+               dprintk("Storage size of %s is %llu.\n", dev->name, storage_size);
-+               err = -EINVAL;
-+               goto err_out_free_tfm;
-+       }
-+
-+       pg = alloc_pages(GFP_KERNEL, 0);
-+       if (!pg) {
-+               dprintk("Failed to get free scratch page for device %s.\n", dev->name);
-+               err = -ENOMEM;
-+               goto err_out_free_tfm;
-+       }
-+
-+       memset(&t, 0, sizeof(t));
-+
-+       for (pos=0; pos<storage_size;) {
-+               t.src.page = pg;
-+               t.src.off = 0;
-+               t.src.size = (storage_size - pos > PAGE_SIZE)?PAGE_SIZE:(storage_size - pos);
-+               t.cmd = READ;
-+               t.pos = pos;
-+               t.f = f;
-+               t.f->complete = bd_fd_complete;
-+               
-+               file_bd_read(&t);
-+
-+               pos += PAGE_SIZE;
-+
-+               sg.page = pg;
-+               sg.offset = 0;
-+               sg.length = PAGE_SIZE;
-+
-+               crypto_digest_digest(tfm, &sg, 1, scratch);
-+
-+               for (i=0; i<sizeof(hmac); ++i) {
-+                       hmac[i] ^= scratch[i];
-+               }
-+       }
-+
-+       __free_pages(pg, 0);
-+
-+err_out_free_tfm:
-+       crypto_free_tfm(tfm);
-+
-+       err = memcmp(hmac, p->hmac, sizeof(hmac));
-+
-+       printk("Calculated: ");
-+       for (i=0; i<sizeof(hmac); ++i) {
-+               printk("%02x ", hmac[i]);
-+       }
-+       printk("\n");
-+       printk("Provided  : ");
-+       for (i=0; i<sizeof(hmac); ++i) {
-+               printk("%02x ", p->hmac[i]);
-+       }
-+       printk("\n");
-+               
-+       return err;
-+}
-+
-+
- int __devinit bd_fd_init_dev(void)
- {
-        int err;
-
-
---- orig/bd_fd.h
-+++ mod/bd_fd.h
-@@ -34,6 +34,8 @@
-        struct bd_fd_user       u;
- 
-        struct file             *file;
-+
-+       u8                      *hmac;
- };
- 
- #endif /* __KERNEL__ */
-
+> Cheers,
+> Kyle Moffett
+> 
+> -----BEGIN GEEK CODE BLOCK-----
+> Version: 3.12
+> GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+> L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+> PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+> !y?(-)
+> ------END GEEK CODE BLOCK------
+> 
 
 
 	Evgeniy Polyakov

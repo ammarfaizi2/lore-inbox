@@ -1,49 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264101AbTDNWhj (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 18:37:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264108AbTDNWhj (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 18:37:39 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:33293
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S264101AbTDNWhh 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 18:37:37 -0400
-Subject: Re: [RFC][2.5 patch] K6-II/K6-II: enable X86_USE_3DNOW
-From: Robert Love <rml@tech9.net>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030414222110.GK9640@fs.tum.de>
-References: <20030414222110.GK9640@fs.tum.de>
+	id S264068AbTDNWfZ (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 18:35:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264081AbTDNWfZ (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 18:35:25 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:3471 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264068AbTDNWfQ (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 18:35:16 -0400
+Subject: Re: readprofile ; Meaning of "Length of procedure"
+From: Andy Pfiffer <andyp@osdl.org>
+To: Shesha@asu.edu
+Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+In-Reply-To: <Pine.GSO.4.21.0304141517040.3054-100000@general2.asu.edu>
+References: <Pine.GSO.4.21.0304141517040.3054-100000@general2.asu.edu>
 Content-Type: text/plain
 Organization: 
-Message-Id: <1050359780.3664.114.camel@localhost>
+Message-Id: <1050360396.1192.20.camel@andyp.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
-Date: 14 Apr 2003 18:36:20 -0400
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 14 Apr 2003 15:46:37 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-04-14 at 18:21, Adrian Bunk wrote:
+On Mon, 2003-04-14 at 15:17, Shesha@asu.edu wrote:
+>  Hello Linux ppl,
+>  
+>  I have copuple of questions, I request you to share the information if you
+> know ....
 
-> If my patch is wrong and this is a RTFM please give me a hint where to 
-> find the "M".
+I have a partial answer.
 
-Patch looks right...
+> --
+> 1
+> --
+>  In the readprofile man page load=(# of clk ticks) / (length of the procedure)
+>  
+>  What does "length of procedure" means.
 
-> Questions:
-> Is it really correct to enable CONFIG_X86_USE_3DNOW?
+My understanding after a quick read of the source is that "length of the
+procedure" means the length, in bytes, of the function.  For most
+architectures, there is not a correlation between lines of code in
+assembler and number of executable bytes.
 
-If you are right that the K6-2 and K6-3D support 3DNow!, then yes.  At
-least its "correct" but it may not be optimal: I seem to recall 3DNow
-memory copies were not worthwhile on anything before an Athlon.  Double
-check that, though.
+On ARM all instructions are 4 bytes long (not counting "Thumb" style
+instruction encoding), but that does not mean 1 line of assembler source
+code is equal to 4 bytes worth of instructions.
 
-> Is the -march=k6-2 correct?
+As far as I can tell, the "length of the procedure" is determined by the
+difference between sucessive symbols found in System.map:
 
-Yes.  Even if the above is true, splitting the K6 out like this is
-useful for the extra -march here.  It certainly does not hurt (picking
-the original K6 will give proper support for the whole family, in
-needed).
+        .
+        .
+        .
+        c0109414 T sys_fork
+        c010943c T sys_clone
+        c0109474 T sys_vfork
+        c01094a0 T sys_execve
+        .
+        .
+        .
 
-	Robert Love
+sys_clone(), on my system, is 56 bytes long, including any alignment
+padding (0xc0109474-0xc010943c = 56).
+
+
+
+> Does that mean the # of ASM lines of
+>  the procedure code? What is the units of the load. It cannot be %. because 
+> -----------------------------------------------------------
+>  152495 default_idle                             3176.9792 
+> -----------------------------------------------------------
+>  the above line indicates,  more than 100% of times CPU is idle. This cannot
+> happen.
+
+It is not a percentage.  The value is computed by:
+
+	"load" = ticks_attributed_to_the_proc / length_of_proc
+
+>From your example above:
+
+	3176.9792 = 152495 / length_of_proc
+
+therefore length_of_proc = 48 bytes.  48 looks reasonable when cross
+checked with my x86 system (default_idle() is 52 bytes long on my
+system).
+
+
+>  What value of the procedure load is considered to be a potential CPU
+> intensive procedure/ high load procedure.
+
+There is no magic number.  However, from the readprofile man page, some
+likely "high load" candidates could be found by:
+
+	readprofile | sort -nr +2 | head -20
+
+
+Regards,
+Andy
 

@@ -1,152 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266267AbUAVNda (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 08:33:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266276AbUAVNda
+	id S264586AbUAVQ4t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 11:56:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbUAVQ4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 08:33:30 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:13217 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S266267AbUAVNdK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 08:33:10 -0500
-Date: Thu, 22 Jan 2004 14:33:07 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: linux-kernel@vger.kernel.org, linux-joystick@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 2.6] ns558.c check_region -> request_region
-Message-ID: <20040122133307.GA7584@ucw.cz>
-References: <20031231215857.GB745@penguin.localdomain> <20040101091226.GA1108@penguin.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040101091226.GA1108@penguin.localdomain>
-User-Agent: Mutt/1.5.4i
+	Thu, 22 Jan 2004 11:56:49 -0500
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:43151 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S264586AbUAVQ4r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 11:56:47 -0500
+Message-ID: <401000C1.9010901@blue-labs.org>
+Date: Thu, 22 Jan 2004 11:56:33 -0500
+From: David Ford <david+hb@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040121
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jes Sorensen <jes@wildopensource.com>
+CC: Zan Lynx <zlynx@acm.org>, Andreas Jellinghaus <aj@dungeon.inka.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Confirmation Spam Blocking was: List 'linux-dvb' closed
+ to public posts
+References: <ecartis-01212004203954.14209.1@mail.convergence2.de>	<20040121194315.GE9327@redhat.com>	<Pine.LNX.4.58.0401211155300.2123@home.osdl.org>	<1074717499.18964.9.camel@localhost.localdomain>	<20040121211550.GK9327@redhat.com>	<20040121213027.GN23765@srv-lnx2600.matchmail.com>	<pan.2004.01.21.23.40.00.181984@dungeon.inka.de>	<1074731162.25704.10.camel@localhost.localdomain> <yq0hdyo15gt.fsf@wildopensource.com>
+In-Reply-To: <yq0hdyo15gt.fsf@wildopensource.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 01, 2004 at 10:12:26AM +0100, Marcel Sebek wrote:
-> On Wed, Dec 31, 2003 at 10:58:57PM +0100, Marcel Sebek wrote:
-> > 
-> > This patch modifies ns558.c to use request_region instead of
-> > check_region:
-> > 
-> > 
-> 
-> The old version doesn't release region before requesting for new.
+Considering that Bayesian filters are useless against the new spam that 
+is proliferating these days, that's laughable.  Spam now comes with a 
+good 5-10K of random dictionary words.
 
-This one looks OK, applied.
+I use challenge-response and the only spam that gets to my inbox now 
+comes from lists.  I pre-listed all my buddies in my whitelist, only new 
+senders that I'm not yet aware of have to go thru the challenge process.
 
-> Here's an updated patch:
-> 
-> diff -urN linux-2.6/drivers/input/gameport/ns558.c linux-2.6-new/drivers/input/gameport/ns558.c
-> --- linux-2.6/drivers/input/gameport/ns558.c	2003-08-23 13:57:35.000000000 +0200
-> +++ linux-2.6-new/drivers/input/gameport/ns558.c	2004-01-01 10:06:23.000000000 +0100
-> @@ -77,7 +77,7 @@
->   * No one should be using this address.
->   */
->  
-> -	if (check_region(io, 1))
-> +	if (!request_region(io, 1, "ns558-isa"))
->  		return;
->  
->  /*
-> @@ -89,7 +89,8 @@
->  	outb(~c & ~3, io);
->  	if (~(u = v = inb(io)) & 3) {
->  		outb(c, io);
-> -		return;
-> +		i = 0;
-> +		goto out;
->  	}
->  /*
->   * After a trigger, there must be at least some bits changing.
-> @@ -99,7 +100,8 @@
->  
->  	if (u == v) {
->  		outb(c, io);
-> -		return;
-> +		i = 0;
-> +		goto out;
->  	}
->  	wait_ms(3);
->  /*
-> @@ -110,7 +112,8 @@
->  	for (i = 0; i < 1000; i++)
->  		if ((u ^ inb(io)) & 0xf) {
->  			outb(c, io);
-> -			return;
-> +			i = 0;
-> +			goto out;
->  		}
->  /* 
->   * And now find the number of mirrors of the port.
-> @@ -118,7 +121,9 @@
->  
->  	for (i = 1; i < 5; i++) {
->  
-> -		if (check_region(io & (-1 << i), (1 << i)))	/* Don't disturb anyone */
-> +		release_region(io & (-1 << (i-1)), (1 << (i-1)));
-> +
-> +		if (!request_region(io & (-1 << i), (1 << i), "ns558-isa"))	/* Don't disturb anyone */
->  			break;
->  
->  		outb(0xff, io & (-1 << i));
-> @@ -126,18 +131,25 @@
->  			if (inb(io & (-1 << i)) != inb((io & (-1 << i)) + (1 << i) - 1)) b++;
->  		wait_ms(3);
->  
-> -		if (b > 300)					/* We allow 30% difference */
-> +		if (b > 300) {					/* We allow 30% difference */
-> +			release_region(io & (-1 << i), (1 << i));
->  			break;
-> +		}
->  	}
->  
->  	i--;
->  
-> +	if (i != 4) {
-> +		if (!request_region(io & (-1 << i), (1 << i), "ns558-isa"))
-> +			return;
-> +	}
-> +
->  	if (!(port = kmalloc(sizeof(struct ns558), GFP_KERNEL))) {
->  		printk(KERN_ERR "ns558: Memory allocation failed.\n");
-> -		return;
-> +		goto out;
->  	}
-> -       	memset(port, 0, sizeof(struct ns558));
-> -	
-> +	memset(port, 0, sizeof(struct ns558));
-> +
->  	port->type = NS558_ISA;
->  	port->size = (1 << i);
->  	port->gameport.io = io;
-> @@ -148,8 +160,6 @@
->  	sprintf(port->phys, "isa%04x/gameport0", io & (-1 << i));
->  	sprintf(port->name, "NS558 ISA");
->  
-> -	request_region(io & (-1 << i), (1 << i), "ns558-isa");
-> -
->  	gameport_register_port(&port->gameport);
->  
->  	printk(KERN_INFO "gameport: NS558 ISA at %#x", port->gameport.io);
-> @@ -157,6 +167,9 @@
->  	printk(" speed %d kHz\n", port->gameport.speed);
->  
->  	list_add(&port->node, &ns558_list);
-> +	return;
-> +out:
-> +	release_region(io & (-1 << i), (1 << i));
->  }
->  
->  #ifdef CONFIG_PNP
-> 
-> -- 
-> Marcel Sebek
-> jabber: sebek@jabber.cz                     ICQ: 279852819
-> linux user number: 307850                 GPG ID: 5F88735E
-> GPG FP: 0F01 BAB8 3148 94DB B95D  1FCA 8B63 CA06 5F88 735E
-> 
+If you can't handle clicking on a link to authorize your email, then I'm 
+not interested in your email. If that tiny few seconds  of effort is a 
+waste of your time, then writing your email to me was also a waste of 
+your time.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Getting well over 900 spams a day on average, almost double on mondays, 
+just isn't my cup of tea.  There is no one solution to spam.  I 
+pre-filter with spamassassin using all it's tools, anything scoring high 
+automatically gets /dev/nulled.  Those include bayesian, pattern 
+matches, DNSBL, etc. Next I attempt to filter viruses and the like.  The 
+remainder goes through TMDA.
+
+Spamassassin cuts it down to less than 100 typically, and of that, about 
+50 are on the border.  TMDA takes care of the rest.  The majority of 
+spam making it through SA is the dictionary attack spam.  My 
+retro-impact on spam is minimized.
+
+It's getting really annoying because spammers are taking input emails 
+like LKML and making word lists out of the emails.
+
+Hmm, 900 spams in my mailbox, or half a dozen due to lists.  I'll take 
+the second.
+
+David
+
+Jes Sorensen wrote:
+
+>>>>>>"Zan" == Zan Lynx <zlynx@acm.org> writes:
+>>>>>>            
+>>>>>>
+>
+>Zan> On Wed, 2004-01-21 at 16:40, Andreas Jellinghaus wrote:
+>  
+>
+>>>On Wed, 21 Jan 2004 21:44:37 +0000, Mike Fedyk wrote: > What do you
+>>>think about individual email (non-list) using a confirmation >
+>>>based spam blocking system.
+>>>
+>>>for personal email it is plain asocial. it tells me that a person
+>>>does not want to receive mail from me.
+>>>      
+>>>
+>
+>Zan> For me, that isn't what it says at all.  It tells me that he or
+>Zan> she is tired of receiving and sorting all of the spam every day.
+>Zan> Since I feel exactly the same way about spam, I cooperate and
+>Zan> reply with a confirmation.
+>
+>I've had people pull the authentication game on me before. I just
+>stopped replying to them, waste of my time.
+>
+>Fixing the spam problem is a lot easier without losing contact with
+>all your friends in the proces:, train your Bayesian filters and be
+>done with it. Mine were a mess, deleted all the data and fed 10 days
+>of spam and some proper mail through sa-learn. Since then I have seen
+>1 spam make it through during the last week, it used to be 20-40/day
+>(and some 200-300/day caught by the filters).
+>
+>  
+>

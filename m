@@ -1,113 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265101AbSJaCAu>; Wed, 30 Oct 2002 21:00:50 -0500
+	id <S265102AbSJaCCN>; Wed, 30 Oct 2002 21:02:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265102AbSJaCAu>; Wed, 30 Oct 2002 21:00:50 -0500
-Received: from mtao-m01.ehs.aol.com ([64.12.52.73]:1924 "EHLO
-	mtao-m01.ehs.aol.com") by vger.kernel.org with ESMTP
-	id <S265101AbSJaCAt>; Wed, 30 Oct 2002 21:00:49 -0500
-Date: Wed, 30 Oct 2002 18:07:07 -0800
-From: John Gardiner Myers <jgmyers@netscape.com>
-Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
-In-reply-to: <Pine.LNX.4.44.0210291839190.1457-100000@blue1.dev.mcafeelabs.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-aio@kvack.org, lse-tech@lists.sourceforge.net
-Message-id: <3DC0904B.1070009@netscape.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2b)
- Gecko/20021016
-References: <Pine.LNX.4.44.0210291839190.1457-100000@blue1.dev.mcafeelabs.com>
+	id <S265103AbSJaCCN>; Wed, 30 Oct 2002 21:02:13 -0500
+Received: from dp.samba.org ([66.70.73.150]:57259 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265102AbSJaCCL>;
+	Wed, 30 Oct 2002 21:02:11 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: What's left over.
+Date: Thu, 31 Oct 2002 13:07:15 +1100
+Message-Id: <20021031020836.E576E2C09F@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
+Hi Linus,
 
->John, your first post about epoll was "the interface has a bug, please
->do not merge it".
->
-My first post about epoll pointed out how it was designed for single 
-threaded callers and concluded:
+	Here is the list of features which have are being actively
+pushed, not NAK'ed, and are not in 2.5.45.  There are 13 of them, as
+appropriate for Halloween.
 
-I certainly hope /dev/epoll itself doesn't get accepted into the kernel, 
-the interface is error prone.  Registering interest in a condition when 
-the condition is already true should immediately generate an event, the 
-epoll interface did not do that last time I saw it discussed.  This 
-deficiency in the interface requires callers to include more complex 
-workaround code and is likely to result in subtle, hard to diagnose bugs.
+	Most were submitted repeatedly *well* before the freeze.  It'd
+be nice for you to give feedback, and decide which ones (if any) are
+still up for review.
 
-I did not say "the interface has a bug", I said that the interface is 
-error prone.  This is a deficiency that should be fixed before the 
-interface is added to the kernel.
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
->Sorry, what prevents you in coding that ? If you, instead of ranting
->because epoll does not fit your personal idea of event notification, took
->a look to the example http server used for the test ( coroutine based )
->you'll see that does exactly that.
->
-You posted code which you claimed was "even more cleaner and simmetric" 
-(sic) because it fell through to the do_use_fd() code instead of putting 
-the do_use_fd() code in an else clause.  A callback scheme is akin to 
-the if/else structure.  To adapt the first code to a callback scheme, 
-the accept callback has to somehow arrange to call the do_use_fd() 
-callback before returning to the event loop.  This requirement is subtle 
-and asymmetric.
+From: http://www.kernel.org/pub/linux/kernel/people/rusty/2.6-not-in-yet/
 
->I really don't believe this. Are you just trolling or what ? It is clear
->that your acceptor routine has to do a little more work than that in a
->real program.
->
-Basically, you spawn off another coroutine.  That complicates the "fall 
-through to do_use_fd()" logic in the first code by requiring an external 
-facility not required by the second code.  The second code could simply 
-have the accept code loop until EAGAIN.
+Rusty's Remarkably Unreliable List of Pending 2.6 Features
+[aka. Rusty's Snowball List]
 
->Doh ! John, did you actually read the code ?
->
-Yes, indeed.
+A: Author
+M: lkml posting describing patch
+D: Download URL
+S: Size of patch, number of files altered (source/config), number of new files.
+X: Impact summary (only parts of patch which alter existing source files, not config/make files)
+T: Diffstat of whole patch
+N: Random notes
 
->Could you compare AIO level
->of intrusion inside the kernel code with the epoll one ?
->
-Aio poll extends the existing set of poll notification hooks with a 
-callback mechanism.  It then plugs into this callback mechanism in order 
-to deliver events.  The end result is that the same notification hooks 
-are used for classic poll and aio poll.  When aio poll is not being 
-used, there is no additional performance penalty other than a slightly 
-larger poll_table_entry and poll_table_page.
+In rough order of invasiveness (number of altered source files):
 
-Epoll creates a new callback mechanism and plugs into this new callback 
-mechansim.  It adds a new set of notification hooks which feed into this 
-new callback mechansim.  The end result is that there is one set of 
-notification hooks for classic poll and another set for epoll.  When 
-epoll is not being used, the poll and socket code makes an additional 
-set of checks to see that nobody has registered interest through the new 
-callback mechanism.
+In-kernel Module Loader and Unified parameter support
+A: Rusty Russell
+D: http://www.kernel.org/pub/linux/kernel/people/rusty/patches/Module/
+S: 841 kbytes, 302/36 files altered, 22 new
+T: Diffstat
+X: Summary patch (598k)
+N: Requires new modutils
 
-> It fits _exactly_
->the rt-signal hooks. One of the design goals for me was to add almost
->nothing on the main path. You can lookup here for a quick compare between
->aio poll and epoll for a test where events delivery efficency does matter
->( pipetest ) :
->
-This is a comparison of the cost of using epoll to the cost of using aio 
-in one particular situation.  It is irrelevant to the point I was making.
+Fbdev Rewrite
+A: James Simmons
+M: http://www.uwsg.iu.edu/hypermail/linux/kernel/0111.3/1267.html
+D: http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+S: 4852 kbytes, 168/29 files altered, 124 new
+T: Diffstat
+X: Summary patch (182k)
 
->Now, I don't believe that a real world app will exchange 300000 tokens per
->second through a pipe, but this help you to understand the efficency of
->the epoll event notification subsystem.
->  
->
-My understanding of the efficiency of the epoll event notification 
-subsystem is:
+Linux Trace Toolkit (LTT)
+A: Karim Yaghmour
+M: http://www.uwsg.iu.edu/hypermail/linux/kernel/0204.1/0832.html
+M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103491640202541&w=2
+M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103423004321305&w=2
+M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103247532007850&w=2
+D: http://opersys.com/ftp/pub/LTT/ExtraPatches/patch-ltt-linux-2.5.44-vanilla-021026-2.2.bz2
+S: 257 kbytes, 67/4 files altered, 9 new
+T: Diffstat
+X: Summary patch (90k)
 
-1) Unlike the current aio poll, it amortizes the cost of interest 
-registration/deregistration across multiple events for a given connection.
+statfs64
+A: Peter Chubb
+M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103490436228016&w=2
+D: http://marc.theaimsgroup.com/?l=linux-kernel&m=103490436228016&w=2
+S: 42 kbytes, 53/0 files altered, 1 new
+T: Diffstat
+X: Summary patch (32k)
 
-2) It declares multithreaded use out of scope, making optimizations that 
-are only appropriate for use by single threaded callers.
+ext2/ext3 ACLs and Extended Attributes
+A: Ted Ts'o
+M: http://lists.insecure.org/lists/linux-kernel/2002/Oct/6787.html
+B: bk://extfs.bkbits.net/extfs-2.5-update
+D: http://thunk.org/tytso/linux/extfs-2.5/
+S: 497 kbytes, 96/34 files altered, 34 new
+T: Diffstat
+X: Summary patch (167k)
 
+ucLinux Patch (MMU-less support)
+A: Greg Ungerer
+M: http://lwn.net/Articles/11016/
+D: http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc3.patch.gz
+S: 2218 kbytes, 25/34 files altered, 429 new
+T: Diffstat
+X: Summary patch (40k)
 
+Crash Dumping (LKCD)
+A: Matt Robinson, LKCD team
+M: http://lists.insecure.org/lists/linux-kernel/2002/Oct/8552.html
+D: http://lkcd.sourceforge.net/download/latest/
+S: 18479 kbytes, 18/10 files altered, 10 new
+T: Diffstat
+X: Summary patch (18k)
+
+POSIX Timer API
+A: George Anzinger
+M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103553654329827&w=2
+D: http://unc.dl.sourceforge.net/sourceforge/high-res-timers/hrtimers-posix-2.5.44-1.0.patch
+S: 66 kbytes, 18/2 files altered, 4 new
+T: Diffstat
+X: Summary patch (21k)
+
+Hotplug CPU Removal Support
+A: Rusty Russell
+D: http://www.kernel.org/pub/linux/kernel/people/rusty/patches/Hotcpu/hotcpu-cpudown.patch.gz
+S: 32 kbytes, 16/0 files altered, 0 new
+T: Diffstat
+X: Summary patch (29k)
+
+Hires Timers
+A: George Anzinger
+M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103557676007653&w=2
+M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103557677207693&w=2
+M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103558349714128&w=2
+D: http://unc.dl.sourceforge.net/sourceforge/high-res-timers/hrtimers-core-2.5.44-1.0.patch http://unc.dl.sourceforge.net/sourceforge/high-res-timers/hrtimers-i386-2.5.44-1.0.patch http://unc.dl.sourceforge.net/sourceforge/high-res-timers/hrtimers-hrposix-2.5.44-1.1.patch
+S: 132 kbytes, 15/4 files altered, 10 new
+T: Diffstat
+X: Summary patch (44k)
+N: Requires POSIX Timer API patch
+
+EVMS
+A: EVMS Team
+M: http://www.uwsg.iu.edu/hypermail/linux/kernel/0208.0/0109.html
+D: http://evms.sourceforge.net/patches/2.5.44/
+S: 1101 kbytes, 7/10 files altered, 44 new
+T: Diffstat
+X: Summary patch (4k)
+
+initramfs
+A: Al Viro
+M: http://www.cs.helsinki.fi/linux/linux-kernel/2001-30/0110.html
+D: ftp://ftp.math.psu.edu/pub/viro/N0-initramfs-C21
+S: 16 kbytes, 5/1 files altered, 2 new
+T: Diffstat
+X: Summary patch (5k)
+
+Kernel Probes
+A: Vamsi Krishna S
+M: lists.insecure.org/linux-kernel/2002/Aug/1299.html
+D: http://www.kernel.org/pub/linux/kernel/people/rusty/patches/Misc/kprobes.patch.gz
+S: 18 kbytes, 4/2 files altered, 4 new
+T: Diffstat
+X: Summary patch (5k)

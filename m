@@ -1,78 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318787AbSH1Idn>; Wed, 28 Aug 2002 04:33:43 -0400
+	id <S318783AbSH1IbV>; Wed, 28 Aug 2002 04:31:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318790AbSH1Idn>; Wed, 28 Aug 2002 04:33:43 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:58896 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S318787AbSH1Idm>; Wed, 28 Aug 2002 04:33:42 -0400
-Date: Wed, 28 Aug 2002 10:36:29 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: puw@cola.enlightnet.local
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: jaharkes@cs.cmu.edu, <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: Loop devices under NTFS
-In-Reply-To: <200208280149.SAA07234@baldur.yggdrasil.com>
-Message-ID: <Pine.LNX.4.44.0208280956070.26490-100000@cola.enlightnet.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318785AbSH1IbV>; Wed, 28 Aug 2002 04:31:21 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:47376 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318783AbSH1IbV>; Wed, 28 Aug 2002 04:31:21 -0400
+Date: Wed, 28 Aug 2002 09:35:39 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.5.32
+Message-ID: <20020828093539.A22004@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.33.0208271239580.2564-100000@penguin.transmeta.com> <Pine.LNX.4.33.0208271239580.2564-100000@penguin.transmeta.com> <20020827202250.GA24265@debian> <6e0.3d6be706.b5d05@gzp1.gzp.hu> <20020828061827.GB27967@lug-owl.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020828061827.GB27967@lug-owl.de>; from jbglaw@lug-owl.de on Wed, Aug 28, 2002 at 08:18:27AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Aug 2002, Adam J. Richter wrote:
-
-> On Tue, 27 Aug 2002 at 13:26:44 -0400, Jan Harkes wrote:
-> >Not all filesystems use generic_read/generic_write. If they did we
-> >wouldn't need those calls in the fops structure.
+On Wed, Aug 28, 2002 at 08:18:27AM +0200, Jan-Benedict Glaw wrote:
+> On Tue, 2002-08-27 20:54:30 -0000, Gabor Z. Papp <gzp@myhost.mynet>
+> wrote in message <6e0.3d6be706.b5d05@gzp1.gzp.hu>:
+> >   gcc -Wp,-MD,./.8250.o.d -D__KERNEL__ -I/usr/src/linux-2.5.32-gzp3/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -nostdinc -iwithprefix include -DMODULE -include /usr/src/linux-2.5.32-gzp3/include/linux/modversions.h   -DKBUILD_BASENAME=8250 -DEXPORT_SYMTAB  -c -o 8250.o 8250.c
+> > In file included from 8250.c:34:
+> > /usr/src/linux-2.5.32-gzp3/include/linux/serialP.h:50: field `icount' has incomplete type
 > 
-> 	My loop.c patch supports files that do not provide
-> aops->{prepare,commit}_write (derived from changes by Jari Ruusu
-> and Andrew Morton).
-> 
-> 	Christoph was arguing that even if the file provides
-> aops->{prepare,commit}_write, that there could be a problem using it.
-> I am looking for a clear example of that.  I don't see the problem
-> with using this facility if you first check that it is provided.
+> Header file problem. In serialP.h, right at the beginning, there's a
+> version check, which unfortunately is in wrong direction. No sources
+> available, no patch...
 
-smbfs has aops but when used with the current loop.c it corrupts the file
-it is using. I can't say that the error is in loop.c but it is the only
-way I can trigger the corruption and the smbfs aops (locking) aren't all
-that different from the nfs ones.
+It generally helps to search the list archives:
 
-Here is an example:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102833316026209&w=2
 
-# dd if=/dev/zero of=/opt/src/smbfs/share/iozone.tmp bs=1024 count=200000
-(/opt/src/smbfs/share is exported by a localhost samba as tmp)
-# mount -t -o guest //localhost/tmp /mnt/smb
-# losetup /dev/loop0 /mnt/smb/iozone.tmp
-# mke2fs /dev/loop0
-# mount /dev/loop0 /mnt/tmp
-# cp -a ~puw/src/linux/linux-2.4.18/* /mnt/tmp
-<something>: Input/Output error
-# dmesg
-EXT2-fs error (device loop(7,0)): read_block_bitmap: Cannot read block 
-bitmap - block_group = 0, block_bitmap = 3
-EXT2-fs error (device loop(7,0)): read_block_bitmap: Cannot read block 
-bitmap - block_group = 21, block_bitmap = 172033
-
-I can't say that I understand the problem, and maybe it can be explained
-by a need for revalidate as Christoph said earlier in this thread. But
-there should be no size changes and any revalidate shouldn't change
-anything.
-
-When I asked what a filesystem must do to support loop on linux-fsdevel
-(May) AM suggested changing loop to use file->read/write (yes, he cleverly
-avoided answering my question :).
-
-I made an ugly patch and it fixed the corruption (but broke encryption) to
-see if anyone cared about loop. Jari does so he took the idea and included
-it with the other things he wants from loop.
-
-
-Maybe this problem is caused by loop.c not using the aops correctly and
-maybe it is an example of what layering violation can do. I wish I
-understood this well enough to make it a clear example.
-
-/Urban
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

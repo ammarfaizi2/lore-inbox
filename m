@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265773AbUJASI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265800AbUJASI6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265773AbUJASI6 (ORCPT <rfc822;willy@w.ods.org>);
+	id S265800AbUJASI6 (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 1 Oct 2004 14:08:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265800AbUJASGL
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265996AbUJASFr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 14:06:11 -0400
-Received: from mail.kroah.org ([69.55.234.183]:47289 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265971AbUJASBU (ORCPT
+	Fri, 1 Oct 2004 14:05:47 -0400
+Received: from mail.kroah.org ([69.55.234.183]:49849 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265800AbUJASBX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 14:01:20 -0400
-Date: Fri, 1 Oct 2004 11:01:01 -0700
+	Fri, 1 Oct 2004 14:01:23 -0400
+Date: Fri, 1 Oct 2004 10:53:12 -0700
 From: Greg KH <greg@kroah.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Andrew Morton <akpm@osdl.org>, "J.A. Magallon" <jamagallon@able.es>,
-       linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: 2.6.9-rc2-mm4
-Message-ID: <20041001180101.GC14015@kroah.com>
-References: <20040926181021.2e1b3fe4.akpm@osdl.org> <1096586774l.5206l.1l@werewolf.able.es> <20040930170505.6536197c.akpm@osdl.org> <200410010030.39826.dtor_core@ameritech.net>
+To: Thomas Stewart <thomas@stewarts.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: udev remove event not sent untill the device is closed
+Message-ID: <20041001175312.GB14015@kroah.com>
+References: <200409272252.36016.thomas@stewarts.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200410010030.39826.dtor_core@ameritech.net>
+In-Reply-To: <200409272252.36016.thomas@stewarts.org.uk>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 01, 2004 at 12:30:39AM -0500, Dmitry Torokhov wrote:
-> On Thursday 30 September 2004 07:05 pm, Andrew Morton wrote:
-> > > One other question. Isn't /dev/input/mice supposed to be a multiplexor
-> > > for mice ? I think I remember some time when I could have both a PS2 and
-> > > a USB mouse connected and X pointer followed both. Now if I boot with the
-> > > USB mouse plugged, the PS2 one does not work. If I boot with usb unplugged
-> > > and plug it after boot, both work; usb mouse works fine, and PS2 just
-> > > jumps half screen each time I move it, and with big delays.
-> > > 
-> > 
+On Mon, Sep 27, 2004 at 10:52:36PM +0100, Thomas Stewart wrote:
+> Hi,
 > 
-> I bet it's USB legacy emulation topic again. Try loading USB modules first
-> and then psmouse, should help.
+> I'm running 2.6.8.1 with udev-031. I have a usb2serial converter which has a 
+> udev rule to give it a persistent name in my dev tree. I want to run a script 
+> when the converter is attached, and another when the converter is removed.
 > 
-> Vojtech, what is the status of USB handoff patches. I have seen several
-> variants and so far heard only success stories from people using them. Can
-> we have them in kernel proper?
+> I tried both the /etc/hotplug.d and /etc/dev.d methods to do this (I like the 
+> dev.d method better as I can use my persistent device name). Unfortunately I 
+> ran into problems.
+> 
+> I'm catching the tty event as it sets $DEVPATH to something useful 
+> (e.g. /devices/sys/class/tty/ttyUSB0). And then running a different script 
+> depending on $ACTION.
+> 
+> I made a short script to do this, and put it in /etc/dev.d/default/ttyUSB.dev:
+> #!/bin/sh
+> test "$1" != "tty" && exit
+> test "$ACTION" == "add"    && /usr/local/bin/on
+> test "$ACTION" == "remove" && /usr/local/bin/off
+> 
+> (I removed the various error checking that actually makes sure the tty event 
+> in question was actually the serial converter, and not some other device.)
+> 
+> This works fine, I can add and remove the converter to my hearts content and 
+> both scripts run accordingly.
+> 
+> However, if I attach the device, open it with say a "cat /dev/ttyUSB0" and 
+> then remove the device. No tty events get sent untill I kill the cat.
 
-They are already in the -mm tree, but they need to be explicitly enabled
-with a boot command line option to have the handoff happen.
+This is because the tty device remains until the last userspace process
+releases the device.  You might want to trigger your script off of the
+removal of the USB device instead.
 
-thanks,
+Hope this helps,
 
 greg k-h

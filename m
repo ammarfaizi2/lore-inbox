@@ -1,66 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292688AbSCRUFp>; Mon, 18 Mar 2002 15:05:45 -0500
+	id <S291948AbSCRUQZ>; Mon, 18 Mar 2002 15:16:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292733AbSCRUFZ>; Mon, 18 Mar 2002 15:05:25 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48137 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S292688AbSCRUFO>; Mon, 18 Mar 2002 15:05:14 -0500
-Date: Mon, 18 Mar 2002 12:04:05 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Cort Dougan <cort@fsmlabs.com>
-cc: Paul Mackerras <paulus@samba.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: 7.52 second kernel compile
-In-Reply-To: <20020318124215.C4155@host110.fsmlabs.com>
-Message-ID: <Pine.LNX.4.33.0203181146070.4783-100000@home.transmeta.com>
+	id <S292730AbSCRUQQ>; Mon, 18 Mar 2002 15:16:16 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56593 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291948AbSCRUQI>; Mon, 18 Mar 2002 15:16:08 -0500
+Subject: Re: PCI drivers - memory mapped vs. I/O ports
+To: EdV@macrolink.com (Ed Vance)
+Date: Mon, 18 Mar 2002 20:32:09 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org ('linux-kernel')
+In-Reply-To: <11E89240C407D311958800A0C9ACF7D13A7715@EXCHANGE> from "Ed Vance" at Mar 18, 2002 11:50:41 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16n3ne-0005xI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> If a PCI device can be programmed equally well via I/O port space or memory
+> space, what are the reasons to chose one space over the other when writing
+> the driver?
 
+mmio is posted on a PC i/o ports are not. That means you have to be more
+careful but also means that
 
-On Mon, 18 Mar 2002, Cort Dougan wrote:
->
-> I have a counter-proposal.  How about a hardware tlb load (if we must have
-> one) that does the right thing?
+	write
+	write
+	write
+	read
 
-Well, I actually hink that an x86 comes fairly close.
-
-Hashes simply do not do the right thing. You cannot do a speculative load
-from a hash, and the hash overhead gets _bigger_ for TLB loads that miss
-(ie they optimize for the hit case, which is the wrong optimization if the
-on-chip TLB is big enough - and since Moore's law says that the on-chip
-TLB _will_ be big enough, that's just stupid).
-
-Basic premise in caching: hardware gets better, and misses go down.
-
-Which implies that misses due to cache contention are misses that go away
-over time, while forced misses (due to program startup etc) matter more
-and more over time.
-
-Ergo, you want to make build-up fast, because that's where you can't avoid
-the work by trivially just making your caches bigger. So you want to have
-architecture support for aggressive TLB pre-loading.
-
-> I still think there are some clever tricks one could do with the VSID's to
-> get a much saner system that the current hash table.  It would take some
-> serious work I think but the results could be worthwhile.  By carefully
-> choosing the VSID scatter algorithm and the size of the hash table I think
-> one could get a much better access method.
-
-But the whole point of _scattering_ is so incredibly broken in itself!
-Don't do it.
-
-You can load many TLB entries in one go, if you just keep them close-by to
-each other. Load them into a prefetch-buffer (so that you don't dirty your
-real TLB with speculative TLB loads), and since there tends to be locality
-to TLB's, you've just automatically speeded up your hardware walker.
-
-In contrast, a hash algorithm automatically means that you cannot sanely
-do this _trivial_ optimization.
-
-Face it, hashes are BAD for things like this.
-
-		Linus
+is a lot faster
 

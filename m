@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267362AbUHMU1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267357AbUHMU1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267362AbUHMU1y (ORCPT <rfc822;willy@w.ods.org>);
+	id S267357AbUHMU1y (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 13 Aug 2004 16:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267477AbUHMUZp
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267411AbUHMUZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 16:25:45 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:19895 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267447AbUHMUUB (ORCPT
+	Fri, 13 Aug 2004 16:25:39 -0400
+Received: from [66.45.74.15] ([66.45.74.15]:30170 "EHLO sluggardy.net")
+	by vger.kernel.org with ESMTP id S267477AbUHMUVD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 16:20:01 -0400
-Date: Fri, 13 Aug 2004 13:18:35 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: sam@ravnborg.org, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: __crc_* symbols in System.map
-Message-Id: <20040813131835.4ea29bba.davem@redhat.com>
-In-Reply-To: <20040813181042.GA9006@mars.ravnborg.org>
-References: <20040811205529.1ff86e9d.davem@redhat.com>
-	<20040812050136.GA7246@mars.ravnborg.org>
-	<20040812000558.220d7e5d.davem@redhat.com>
-	<20040813180239.GA7571@mars.ravnborg.org>
-	<20040813181042.GA9006@mars.ravnborg.org>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 13 Aug 2004 16:21:03 -0400
+Message-ID: <411D2227.2060500@sluggardy.net>
+Date: Fri, 13 Aug 2004 13:18:47 -0700
+From: Nick Palmer <nick@sluggardy.net>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040405)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Manfred Spraul <manfred@colorfullife.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: select implementation not POSIX compliant?
+References: <411A8646.1030205@colorfullife.com>
+In-Reply-To: <411A8646.1030205@colorfullife.com>
+X-Enigmail-Version: 0.83.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Aug 2004 20:10:42 +0200
-Sam Ravnborg <sam@ravnborg.org> wrote:
+Manfred Spraul wrote:
 
-> On Fri, Aug 13, 2004 at 08:02:39PM +0200, Sam Ravnborg wrote:
-> > 
-> > $NM -n $1 | grep  '\( [aUw] \)\|\(__crc_\)' > $2
-> 
-> The missing -v ito grep was just to check if you were awake :-(
+ > Could you post the test case for this behavior: I assume your test app
+ > is buggy: a select call that is executed after close returned must
+ > return EBADF, everything else would be a bug.
 
-Final version looks good to me. :-)
-Thanks Sam.
+Actually Solaris and Linux are consistent in terms of the behavior of
+select in this respect. I suspect that the first select is blocking the
+socket from being used at all, so the second select can't tell that it
+is closed.
+
+ > Regarding your main point: The return result from select/poll is
+ > undefined in Linux if you close a descriptor while another thread polls
+ > or selects it.
+ > This is consistent with the behavior of other Unices - for example HP UX
+ > kills the process if you replace a descriptor that is being polled with
+ > dup2.
+
+Right, hence my feeling that select is over all fairly broken. The big
+difference between Solaris and Linux though is that close will call
+recv* calls to return on Solaris, and close doesn't do that on Linux.
+The work around is to use shutdown on Linux before calling close. This
+also works on Solaris, though it makes the recv set errno differently.
+
+Thanks for looking at this issue,
+-Nick

@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271188AbTHRCaH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 22:30:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271189AbTHRCaH
+	id S271201AbTHRDJ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 23:09:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271205AbTHRDJ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 22:30:07 -0400
-Received: from holomorphy.com ([66.224.33.161]:50148 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S271188AbTHRCaE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 22:30:04 -0400
-Date: Sun, 17 Aug 2003 19:31:07 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Stefan Foerster <stefan@stefan-foerster.de>, linux-kernel@vger.kernel.org
-Subject: Re: Very bad interactivity with 2.6.0 and SCSI disks (aic7xxx)
-Message-ID: <20030818023107.GU32488@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Stefan Foerster <stefan@stefan-foerster.de>,
-	linux-kernel@vger.kernel.org
-References: <20030818013243.GB21665@in-ws-001.cid-net.de> <20030817192103.798994d8.akpm@osdl.org>
+	Sun, 17 Aug 2003 23:09:26 -0400
+Received: from smtp017.mail.yahoo.com ([216.136.174.114]:55054 "HELO
+	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S271201AbTHRDJY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 23:09:24 -0400
+Date: Mon, 18 Aug 2003 00:07:47 -0300
+From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.22-rc2-ac3
+Message-Id: <20030818000747.60b8cf17.vmlinuz386@yahoo.com.ar>
+In-Reply-To: <200308162139.h7GLdW415121@devserv.devel.redhat.com>
+References: <200308162139.h7GLdW415121@devserv.devel.redhat.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i486-slackware-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030817192103.798994d8.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Foerster <stefan@stefan-foerster.de> wrote:
->> But as soon as I do a
->>  while true; do dd if=/dev/zero of=test bs=1024 count=1048576 ; rm test
->>  ; done
->>  on my SCSI disk, the system becomes completely unusuable after a few
->>  seconds.
+On Sat, 16 Aug 2003 17:39:32 -0400 (EDT), Alan Cox wrote:
+>Linux 2.4.22-rc2-ac3
+>o	Finish off the core IDE hotplug support		(me)
+>	| If your hardware supports it you can now
+>	| hdparm -b0 /dev/hdc  change drive hdparm -b1 /dev/hdc
+>o	Fix problem with wan Config.in			(Adrian Bunk)
+>o	Fix NTFS warnings				(Gerardo Exequiel Pozzi)
+>o	Add a 3com ident to the tulip driver		(Ion Badulescu)
+>o	Clip drives when LBA48 isn't available		(Jan Niehusmann, 
+>							 Andries Brouwer)
+>o	Update megaraid2 driver				(Atul Mukker, Haruo
+>							 Tomita)
+>	| Plus remove some escaped volatiles
+>
 
-On Sun, Aug 17, 2003 at 07:21:03PM -0700, Andrew Morton wrote:
-> I've been running an aic7xx-based desktop on 2.5/2.6 for ages, no
-> such problems.
-> A kernel profile would be needed to diagnose this.  You could use
-> readprofile, but as it may be an interrupt problem, the NMI-based oprofile
-> output would be better.
+nice,! thank you very much to consider my patch,
 
-39160 here, also no such issue.
+at the moment I am proving ac3 like with the previous ones in my system,
+and everything works perfect.
+
+PD: I am working at the moment to correct all warnings __ FUNCTION __
+that finds (1500).
 
 
--- wli
+chau,
+ djgera
+
+
+-- 
+Gerardo Exequiel Pozzi ( djgera )
+http://www.vmlinuz.com.ar http://www.djgera.com.ar
+KeyID: 0x1B8C330D
+Key fingerprint = 0CAA D5D4 CD85 4434 A219  76ED 39AB 221B 1B8C 330D

@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129375AbRBVUgQ>; Thu, 22 Feb 2001 15:36:16 -0500
+	id <S130065AbRBVUkG>; Thu, 22 Feb 2001 15:40:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129382AbRBVUgH>; Thu, 22 Feb 2001 15:36:07 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:38962 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S129375AbRBVUfz>; Thu, 22 Feb 2001 15:35:55 -0500
-Date: Thu, 22 Feb 2001 14:32:17 -0600 (CST)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2ac1
-In-Reply-To: <Pine.NEB.4.33.0102221729550.25273-100000@gaia.fachschaften.tu-muenchen.de>
-Message-ID: <Pine.LNX.3.96.1010222143120.4774E-100000@mandrakesoft.mandrakesoft.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129994AbRBVUj5>; Thu, 22 Feb 2001 15:39:57 -0500
+Received: from [199.239.160.155] ([199.239.160.155]:64780 "EHLO
+	tenchi.datarithm.net") by vger.kernel.org with ESMTP
+	id <S129688AbRBVUjn>; Thu, 22 Feb 2001 15:39:43 -0500
+Date: Thu, 22 Feb 2001 12:39:40 -0800
+From: Robert Read <rread@datarithm.net>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] use correct include dir for build tools
+Message-ID: <20010222123940.A20319@tenchi.datarithm.net>
+Mail-Followup-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Feb 2001, Adrian Bunk wrote:
-> Hi Alan,
-> 
-> is it possible that you send a list of all the changes in 2.4.2ac1
-> compared to plain 2.4.2?
+Linus,
 
-I doubt Alan has time for requests like this (but more power to him, if
-he does)...
+Please apply one line patch to the top level Makefile.  This points
+the build tools at the correct linux include dir.
 
-His patch is diff'd against 2.4.2, so just look at the patch.  I do this
-for a quick summary of files changes:
-
-bzgrep '^--- linux' alans-patch.bz2 | less
-
+diff -ru linux/Makefile linux-makefile/Makefile
+--- linux/Makefile      Wed Feb 21 16:54:15 2001
++++ linux-makefile/Makefile     Thu Feb 22 12:34:57 2001
+@@ -16,7 +16,7 @@
+ FINDHPATH      = $(HPATH)/asm $(HPATH)/linux $(HPATH)/scsi $(HPATH)/net
+ 
+ HOSTCC         = gcc
+-HOSTCFLAGS     = -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
++HOSTCFLAGS     = -I$(HPATH) -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
+ 
+ CROSS_COMPILE  =
 

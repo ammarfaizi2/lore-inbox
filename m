@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318756AbSG0Nt7>; Sat, 27 Jul 2002 09:49:59 -0400
+	id <S318759AbSG0NyH>; Sat, 27 Jul 2002 09:54:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318758AbSG0Nt6>; Sat, 27 Jul 2002 09:49:58 -0400
-Received: from smtprelay7.dc2.adelphia.net ([64.8.50.39]:24973 "EHLO
-	smtprelay7.dc2.adelphia.net") by vger.kernel.org with ESMTP
-	id <S318756AbSG0Nt5>; Sat, 27 Jul 2002 09:49:57 -0400
-Message-ID: <00ac01c23574$f1687b30$6a01a8c0@wa1hco>
-From: "jeff millar" <wa1hco@adelphia.net>
-To: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0207241803410.4293-100000@home.transmeta.com> <00a501c2338c$25365170$6a01a8c0@wa1hco> <004401c23463$df58a350$6a01a8c0@wa1hco>
-Subject: 2.5.27-28-29 linker error: "undefined reference to local symbols in discarded section .text.exit"
-Date: Sat, 27 Jul 2002 09:53:09 -0400
+	id <S318760AbSG0NyH>; Sat, 27 Jul 2002 09:54:07 -0400
+Received: from dsl-213-023-021-146.arcor-ip.net ([213.23.21.146]:55015 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318759AbSG0NyG>;
+	Sat, 27 Jul 2002 09:54:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Jesse Barnes <jbarnes@sgi.com>, martin@dalecki.de
+Subject: Re: [PATCH] lock assertion macros for 2.5.28
+Date: Sat, 27 Jul 2002 15:59:00 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <20020725233047.GA782991@sgi.com> <3D40DA00.9080603@evision.ag> <20020726174039.GB793866@sgi.com>
+In-Reply-To: <20020726174039.GB793866@sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17YS61-0005Ke-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ld fails to build vmlinux for all the recent v2.5 kernels.  ld complains
-about
+On Friday 26 July 2002 19:40, Jesse Barnes wrote:
+> On Fri, Jul 26, 2002 at 07:11:28AM +0200, Marcin Dalecki wrote:
+> > Well one one place? Every single implementation of the request_fn
+> > method from the request_queue_t needs to hold some
+> > lock associated with the queue in question.
+> > 
+> > In fact you will find ASSERT_LOCK macros sparnkled through the scsi code 
+> > already right now. BTW> ASSERT_HOLDS would sound a bit more
+> > familiar to some of us.
+> > 
+> > This minor issue asside I think that your idea is a good thing.
+> 
+> Thanks for the pointer.  I'll change those assertions over in the
+> next revision.
 
-    In function `parport_ieee1284_epp_write_data':
-    /usr/src/v2.5.29/include/asm/io.h:400:
-    undefined reference to `local symbols in discarded section .text.exit'
+The scsi version is not the same, it's going to need to be changed to
+this sensible version.
 
-The machine is Redhat 7.3 on an Athlon, most of the recent Redhat updates.
-It's up to date with .../Documentation/Changes
-I've tried make mrproper
-I've tried switching between modules and compiled-in, modules get further
-=========================================
-$tail /usr/src/linux/make.out
-make[1]: Leaving directory `/usr/src/v2.5.28/init'
-  ld -m elf_i386 -T arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o
-arch/i386/kernel/init
-_task.o init/init.o --start-group arch/i386/kernel/kernel.o
-arch/i386/mm/mm.o kernel/kernel.o mm
-/mm.o fs/fs.o ipc/ipc.o security/built-in.o
-/usr/src/v2.5.28/arch/i386/lib/lib.a lib/lib.a /usr/
-src/v2.5.28/arch/i386/lib/lib.a drivers/built-in.o sound/sound.o
-arch/i386/pci/pci.o net/network
-.o --end-group -o vmlinux
-drivers/built-in.o(.data+0x5174): undefined reference to `local symbols in
-discarded section .te
-xt.exit'
-make: *** [vmlinux] Error 1
+The original name is better and shorter.  I doubt there is anybody who
+will not know immediately what MUST_HOLD(&lock) means.
 
+-- 
+Daniel

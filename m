@@ -1,85 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262964AbTDBW6S>; Wed, 2 Apr 2003 17:58:18 -0500
+	id <S263184AbTDBXNZ>; Wed, 2 Apr 2003 18:13:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263177AbTDBW6S>; Wed, 2 Apr 2003 17:58:18 -0500
-Received: from [12.47.58.55] ([12.47.58.55]:2310 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id <S262964AbTDBW6R>;
-	Wed, 2 Apr 2003 17:58:17 -0500
-Date: Wed, 2 Apr 2003 15:09:03 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.66-mm2] Fix page_convert_anon locking issues
-Message-Id: <20030402150903.21765844.akpm@digeo.com>
-In-Reply-To: <80300000.1049320593@baldur.austin.ibm.com>
-References: <8910000.1049303582@baldur.austin.ibm.com>
-	<20030402132939.647c74a6.akpm@digeo.com>
-	<80300000.1049320593@baldur.austin.ibm.com>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Apr 2003 23:09:36.0592 (UTC) FILETIME=[EE14CD00:01C2F96C]
+	id <S263185AbTDBXNZ>; Wed, 2 Apr 2003 18:13:25 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:15340 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S263184AbTDBXNY>;
+	Wed, 2 Apr 2003 18:13:24 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: ISA vs PCI interrupt handling
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 03 Apr 2003 01:20:45 +0200
+Message-ID: <m3n0j8lc4y.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave McCracken <dmccr@us.ibm.com> wrote:
->
-> The sequence is the following:
+Hi,
 
-Boy you owe me a big fat comment on top of this one.
+A simple question: there are drivers for ISA and PCI devices. The IRQ
+handlers are registered with request_irq(flags = 0) or
+request_irq(SA_SHIRQ) for PCI.
 
-> 1.  take a copy of the reference to the page (the pgd or pmd entry)
-> 2.  validate the copy
-> 3.  establish a pointer into the page
-> 4.  pull the data from the page (pmd or pte entry)
-> 5.  validate the original reference again
-> 6.  use the data
-> 
-> This guarantees that the data is from a page that's still valid, since the
-> pgd or pmd entry are cleared when the page is released.  We're helped by
-> the fact that for an invalid page we can simply return failure.
+In both cases, the device raises an IRQ line and the handler is called.
+Does the handler have to make sure the device has lowered the IRQ?
+I mean, in situation where the handler terminates with the IRQ line
+being still active, will the handler be called again, or will the
+driver deadlock? Does is behave differently on ISA and PCI?
 
-+	if (page_to_pfn(page) != pte_pfn(*pte))
-+		goto out_unmap;
-+
-+	if (addr)
-+		*addr = address;
-+
 
-	==>munmap here
+Many network drivers use something like this:
 
-+	return pte;
+static void
+net_rx(struct net_device *dev)
+{
+        int boguscount = 10;
+        do {
+                do_something();
+        } while (--boguscount);
+}
 
-i_shared_sem won't stop that.  The pte points into thin air, and may now
-point at a value which looks like our page.
+Will such an IRQ handler work correctly after boguscount reaches 0?
+Or is it just a protection against runaway devices, and it's normal
+that they die from it (possibly recovering through a timer)?
 
-> > But then again, why is it not possible to just do:
-> > 
-> > 	list_for_each_entry(vma, &mapping->i_mmap, shared) {
-> > 		if (!pte_chain)
-> > 			pte_chain = pte_chain_alloc(GFP_KERNEL);
-> > 		spin_lock(&mm->page_table_lock);
-> > 		pte = find_pte(vma, page, NULL);
-> > 		if (pte)
-> > 			pte_chain = page_add_rmap(page, pte, pte_chain);
-> > 		spin_unlock(&mm->page_table_lock);
-> > 	}
-> > 
-> > 	pte_chain_free(pte_chain);
-> > 	up(&mapping->i_shared_sem);
-> > 
-> > ?
-> 
-> Because the page is in transition from !PageAnon to PageAnon.
 
-These are file-backed pages.  So what does PageAnon really mean?
+My experiments with ISA devices show that after the handler terminates
+without i.e. handling all requests, the IRQ line is stuck at +5V
+(= logical "active" level) and the handler isn't called anymore.
 
-> We have to
-> hold the pte_chain lock during the entire transition in case someone else
-> tries to do something like page_remove_rmap, which would break.
-
-How about setting PageAnon at the _start_ of the operation? 
-page_remove_rmap() will cope with that OK.
-
+Or does that mean the IRQ is edge-triggered, and the handler is being
+called just once a low-to-high edge is detected?
+-- 
+Krzysztof Halasa
+Network Administrator

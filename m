@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130662AbRCEU7d>; Mon, 5 Mar 2001 15:59:33 -0500
+	id <S130666AbRCEVAX>; Mon, 5 Mar 2001 16:00:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130663AbRCEU7X>; Mon, 5 Mar 2001 15:59:23 -0500
-Received: from snowstorm.mail.pipex.net ([158.43.192.97]:21444 "HELO
-	snowstorm.mail.pipex.net") by vger.kernel.org with SMTP
-	id <S130662AbRCEU7I>; Mon, 5 Mar 2001 15:59:08 -0500
-To: linux-kernel@vger.kernel.org
-From: Trevor-Hemsley@dial.pipex.com (Trevor Hemsley)
-Date: Mon, 05 Mar 2001 20:11:17
-Subject: Re: 2.4.2 broke in-kernel ide_cs support
-X-Mailer: ProNews/2 V1.51.ib103
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010305205914Z130662-407+1559@vger.kernel.org>
+	id <S130664AbRCEVAP>; Mon, 5 Mar 2001 16:00:15 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:35595 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S130663AbRCEVAB>;
+	Mon, 5 Mar 2001 16:00:01 -0500
+Date: Mon, 5 Mar 2001 14:00:51 -0700
+From: Cort Dougan <cort@fsmlabs.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Question about IRQ_PENDING/IRQ_REPLAY
+Message-ID: <20010305140050.G14772@ftsoj.fsmlabs.com>
+In-Reply-To: <20010303144856.A18389@ftsoj.fsmlabs.com> <19350127143809.22288@smtp.wanadoo.fr> <20010304230707.L2565@ftsoj.fsmlabs.com> <980l3v$7ct$1@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <980l3v$7ct$1@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Mar 05, 2001 at 10:15:27AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Mar 2001 08:14:42, Pavel Machek <pavel@suse.cz> wrote:
+We have about 12 interrupt controllers we end up using on PPC.  I'm
+suspicious of any effort to base Linux/PPC generic interrupt control code
+paths on a software architecture that's been tested with 3.  More to the
+point, we get ASIC's that roll in a standard interrupt controller and add
+some "improvements" at the same time.
 
-> 
-> I do not yet know details, but it worked in 2.4.1 and it does not work
-> now:
->  
-> Mar  5 09:12:05 bug cardmgr[69]: initializing socket 1
-> Mar  5 09:12:05 bug cardmgr[69]: socket 1: ATA/IDE Fixed Disk
-> Mar  5 09:12:05 bug cardmgr[69]: module //pcmcia/ide_cs.o not
-> available
-> Mar  5 09:12:06 bug cardmgr[69]: get dev info on socket 1 failed:
-> Resource temporarily unavailable
->                                                                 Pavel
-> ((Module not available is okay, it should be compiled into kernel))
+As for SMP, I'm sure x86 has seen a lot more testing.  I'm not going to
+sacrifice time-tested stability so we can look just like x86 and get clean
+SMP locking.  We've lost stability already because of some PPC folks'
+excitement at getting us to behave like x86 in irq.c.
 
-/etc/pcmcia/config refers to ide_cs but module is ide-cs. I've edited 
-/etc/pcmcia/config and changed all ide_cs to ide-cs and it works.
+As for a generic irq.c, as a guiding light, I'm all for it.  It'll
+certainly help work with RTLinux.  It'll also help new architectures by
+giving them a snap-together port construction kit.  I'm still not going to
+sacrifice stability in the short-term for this nice feature in the
+long-run.  I'm pretty sure we agree on this.
 
--- 
-Trevor Hemsley, Brighton, UK.
-Trevor-Hemsley@dial.pipex.com
+} Most of arch/i386/kernel/irq.c should really be fairly generic, and the
+} fact is that a lot of the issues are a lot more subtle than most people
+} really end up realizing.  I got really tired of seeing the same old SMP
+} problems that had long since been fixed on x86 show up on other
+} architectures. 
+} 
+} So the plan is to have at least a framework for allowing other
+} architectures to use a common irq.c if they want to. Probably not force
+} it down peoples throats, because this is an area where the differences
+} can be _so_ large that it might not be worth it for everybody. But I
+} seriously doubt that PPC is all that different.
+} 
+} And I seriously doubt that PPC SMP irq handling has gotten _nearly_ the
+} amount of testing and hard work that the x86 counterpart has. Things
+} like support for CPU affinity, per-irq spinlocks, etc etc.
+} 
+} Now, I'm not saying that irq.c would necessarily work as-is. It probably
+} doesn't support all the things that other architectures might need (but
+} with three completely different irq controllers on just standard PCs
+} alone, I bet it supports most of it), and I know ia64 wants to extend it
+} to be more spread out over different CPU's, but most of the high-level
+} stuff probably _can_ and should be fairly common.

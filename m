@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130038AbRDFBDT>; Thu, 5 Apr 2001 21:03:19 -0400
+	id <S130317AbRDFBJl>; Thu, 5 Apr 2001 21:09:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130317AbRDFBDJ>; Thu, 5 Apr 2001 21:03:09 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:58641 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S130038AbRDFBCz>; Thu, 5 Apr 2001 21:02:55 -0400
-Date: Fri, 6 Apr 2001 00:34:38 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Pavel Machek <pavel@suse.cz>
-cc: Robert-Velisav MICIOVICI <roby@dexter.allieddomecq.ro>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [WISHLIST] Addition of suspend patch into 2.5?
-In-Reply-To: <20010402144053.B34@(none)>
-Message-ID: <Pine.LNX.3.96.1010406002842.18417A-100000@artax.karlin.mff.cuni.cz>
+	id <S130448AbRDFBJb>; Thu, 5 Apr 2001 21:09:31 -0400
+Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:11280 "HELO
+	sh0n.net") by vger.kernel.org with SMTP id <S130317AbRDFBJY>;
+	Thu, 5 Apr 2001 21:09:24 -0400
+Date: Thu, 5 Apr 2001 21:08:43 -0400 (EDT)
+From: Shawn Starr <spstarr@sh0n.net>
+To: Jeff Chua <jeffchua@silk.corp.fedex.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: gcc-2.95.3
+In-Reply-To: <Pine.LNX.4.33.0104060847200.965-100000@boston.corp.fedex.com>
+Message-ID: <Pine.LNX.4.30.0104052108390.17272-100000@coredump.sh0n.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Any idea if suspend/hybernation will be in future kernels?
-> 
-> I'd like it included, too. Some toshiba laptops support sleep but not
-> suspend, and battery runs out within few hours if it was low before
-> suspend. That's bad.
-> 
-> And the patch was pretty clean last time I checked.
-> 								Pavel
+You should be ok :)
 
-Clean? I think it is impossible to write hibernation properly without
-adding suspend/resume hooks to all drivers. And I doubt anybody is able to
-do it.
+On Fri, 6 Apr 2001, Jeff Chua wrote:
 
-If we don't rewrite all drivers, hibernation will be just a 'cool feature'
-that doesn't work most time.
-
-Mikulas
+>
+> Does anybody have bad experience with gcc-2.95.3?
+>
+> I'm using gcc-2.95.2 with linux 2.4.3 and have no problem with it.
+>
+>
+> Thanks,
+> Jeff
+> [ jchua@fedex.com ]
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 

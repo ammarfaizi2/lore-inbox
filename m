@@ -1,50 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269961AbRHEOSh>; Sun, 5 Aug 2001 10:18:37 -0400
+	id <S269964AbRHEOYJ>; Sun, 5 Aug 2001 10:24:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269964AbRHEOS2>; Sun, 5 Aug 2001 10:18:28 -0400
-Received: from weta.f00f.org ([203.167.249.89]:44176 "EHLO weta.f00f.org")
-	by vger.kernel.org with ESMTP id <S269961AbRHEOSY>;
-	Sun, 5 Aug 2001 10:18:24 -0400
-Date: Mon, 6 Aug 2001 02:19:17 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: asmith@14inverleith.freeserve.co.uk
-Cc: szonyi calin <caszonyi@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: (OT) university studies?
-Message-ID: <20010806021917.C21919@weta.f00f.org>
-In-Reply-To: <20010803143201.76293.qmail@web13903.mail.yahoo.com> <Pine.LNX.4.33.0108051222530.14422-100000@vtrl22.vtrl.co.uk>
-Mime-Version: 1.0
+	id <S269965AbRHEOX7>; Sun, 5 Aug 2001 10:23:59 -0400
+Received: from pD9504018.dip.t-dialin.net ([217.80.64.24]:34033 "HELO
+	ozean.schottelius.org") by vger.kernel.org with SMTP
+	id <S269964AbRHEOXs>; Sun, 5 Aug 2001 10:23:48 -0400
+Message-ID: <3B6D56C5.1AA10E84@pcsystems.de>
+Date: Sun, 05 Aug 2001 16:23:01 +0200
+From: Nico Schottelius <nicos@pcsystems.de>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 3c509: broken(verified)
+In-Reply-To: <E15TNpL-0007rV-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0108051222530.14422-100000@vtrl22.vtrl.co.uk>
-User-Agent: Mutt/1.3.20i
-X-No-Archive: Yes
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 05, 2001 at 12:32:59PM +0100, asmith@14inverleith.freeserve.co.uk wrote:
+Alan Cox wrote:
 
-    When you posted your initial message I thought you were thinking
-    of software.  Windows products are I believe full of bugs
-    basically because the source is not available for scrutiny.
+> > The driver for the 3c509 of 2.4.7 is broken:
+> > It is impossible to set the transmitter type.
+> > modprobe 3c509 xcvr=X, where X is
+> > 0,1,2,3,4 doesn't make a difference.
+>
+> Looking at the code it should set the type fine. The only bug I can see is
+> that it will report the default type set in the eeprom not the type you
+> asked.
+>
+> If thats the case (please check) then its trivial to fix
 
-Bah! I wish open-source advocates would leave this alone or at least
-qualify things a bit better.
+While I tried to setup the driver I always let one machine
+outside ping it.
+
+It is not just the message.
+
+ozean:~ # modprobe 3c509 ; ifconfig eth1 192.168.4.17 up
+
+eth1: 3c5x9 at 0x360, BNC port, address  00 60 97 39 43 b9, IRQ 5.
+3c509.c:1.18 12Mar2001 becker@scyld.com
+http://www.scyld.com/network/3c509.html
+
+- the light on the hub keeps off, no ping answer
+
+ozean:~ # ifconfig eth1 down ; rmmod 3c509;
+
+ozean:~ # modprobe 3c509 xcvr=4 debug=4
+
+## xcvr=4 is TP (found on scyld.com/network/3c509.html)
 
 
-Yes, code scrutiny is often a good thing, but it doesn't make your
-code bug free necessarily.  Sendmail and bind are good examples here
-of code that is (was) widely deployed, had many eyes on it --- and yet
-sucked in terrible ways :)
+3c509.c:1.18 12Mar2001 becker@scyld.com
+http://www.scyld.com/network/3c509.html
+eth1: Setting Rx mode to 1 addresses.
+  3c509 EEPROM word 7 0x6d50.
+  3c509 EEPROM word 0 0x0060.
+  3c509 EEPROM word 1 0x9739.
+  3c509 EEPROM word 2 0x43b9.
+  3c509 EEPROM word 8 0xc096.
+  3c509 EEPROM word 9 0x5000.
 
-Plenty of other 'available source' packages have had nasties, such as
-wu-ftpd, mutt, pine, lynx and nntpcache.
+eth1: 3c5x9 at 0x360, BNC port, address  00 60 97 39 43 b9, IRQ 5.
+3c509.c:1.18 12Mar2001 becker@scyld.com
+http://www.scyld.com/network/3c509.html
+  3c509 EEPROM word 7 0xffff.
+eth1: Opening, IRQ 5     status@36e 0000.
+eth1: Opened 3c509  IRQ 5  status 2000.
+eth1: Setting Rx mode to 1 addresses.
 
-Every now and then (like once or twice a year), someone finds a nasty
-in Linux too....
+ozean:~ # ifconfig eth1 192.168.4.17 up
+
+- ping does not work, no light is seen
 
 
+That's it! The cable & the hub are okay.
 
 
+Nico
 
-  --cw
+

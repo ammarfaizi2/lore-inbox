@@ -1,84 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263267AbTLIHCk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 02:02:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263281AbTLIHCk
+	id S263258AbTLIHBc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 02:01:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263267AbTLIHBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 02:02:40 -0500
-Received: from k-kdom.nishanet.com ([65.125.12.2]:33540 "EHLO
-	mail2k.k-kdom.nishanet.com") by vger.kernel.org with ESMTP
-	id S263267AbTLIHCh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 02:02:37 -0500
-Message-ID: <3FD577E7.9040809@nishanet.com>
-Date: Tue, 09 Dec 2003 02:21:11 -0500
-From: Bob <recbo@nishanet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031014 Thunderbird/0.3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
-References: <200312081536.26022.andrew@walrond.org>	<20031208154256.GV19856@holomorphy.com>	<3FD4CC7B.8050107@nishanet.com>	<20031208233755.GC31370@kroah.com> <20031209061728.28bfaf0f.witukind@nsbm.kicks-ass.org>
-In-Reply-To: <20031209061728.28bfaf0f.witukind@nsbm.kicks-ass.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 9 Dec 2003 02:01:32 -0500
+Received: from quechua.inka.de ([193.197.184.2]:65192 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S263258AbTLIHBb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 02:01:31 -0500
+Subject: Re: State of devfs in 2.6?
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20031208233428.GA31370@kroah.com>
+References: <200312081536.26022.andrew@walrond.org>
+	 <20031208154256.GV19856@holomorphy.com>
+	 <pan.2003.12.08.23.04.07.111640@dungeon.inka.de>
+	 <20031208233428.GA31370@kroah.com>
+Content-Type: text/plain
+Organization: small linux home
+Message-Id: <1070953338.7668.6.camel@simulacron>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 09 Dec 2003 08:02:19 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Witukind wrote:
+On Tue, 2003-12-09 at 00:34, Greg KH wrote:
+> You have 15 floppy devices connected to your box?  All floppy devices
+> should show up in /sys/block.
 
->On Mon, 8 Dec 2003 15:37:55 -0800
->Greg KH <greg@kroah.com> wrote:
->
->  
->
->>On Mon, Dec 08, 2003 at 02:09:47PM -0500, Bob wrote:
->>    
->>
->>>William Lee Irwin III wrote:
->>>
->>>      
->>>
->>>>On Mon, Dec 08, 2003 at 03:36:26PM +0000, Andrew Walrond wrote:
->>>>
->>>>
->>>>        
->>>>
->>>>>Whats the general feeling about devfs now? I remember Christoph
->>>>>          
->>>>>
->>>>and >others making some nasty remarks about it 6months ago or so,
->>>>but later >noted christoph doing some slashing and burning thereof.
->>>>        
->>>>
->>>>>Is it 'nice' yet? 
->>>>>Andrew Walrond
->>>>>  
->>>>>
->>>>>          
->>>>>
->>>>I would say it's deprecated at the very least. sysfs and udev are
->>>>supposed to provide equivalent functionality, albeit by a somewhat
->>>>different mechanism.
->>>>        
->>>>
->
->>From the udev FAQ:
->
->Q: But udev will not automatically load a driver if a /dev node is opened
->   when it is not present like devfs will do.
->A: If you really require this functionality, then use devfs.  It is still
->   present in the kernel.
->
->Will it have this 'equivalent functionality' some day?
->
->
->  
->
-Shouldn't hotplug handle it?
+No, 16 devices are normal, sysfs has only one:
+aj@simulacron:~/torrent/j-tv/download$ ls /dev/floppy/
+0       0u1120  0u1600  0u1722  0u1760  0u1920  0u720  0u820
+0u1040  0u1440  0u1680  0u1743  0u1840  0u360   0u800  0u830
+aj@simulacron:~/torrent/j-tv/download$ find /sys/block/fd* -name dev
+/sys/block/fd0/dev
 
-hotplug and udev and sysfsutils are together at
-http://www.kernel.org/pub/linux/utils/kernel/hotplug
-so hotplug is part of the sysfs and udev program.
+Are those floppy devices obsolete? fdformat was the only app to use
+them anyway, I guess. (Not that I use my floppy, I simply noticed
+the change.)
 
--Bob D
+> > I wouldn't call udev deprecated, unless a newer kernel has the
+> > essential devices, too.
+> 
+> You mean s/udev/devfs/ right?  :)
+
+oops, sorry.
+
+> > and
+> > re-introducing makedev for devices not represented
+> > in sysfs doesn't sound very nice either. So 2.8.* might be a nice time
+> > frame for dropping devfs, or at least give sysfs and udev a few months
+> > to catch up on the issues mentioned.
+> 
+> Regardless of the state of udev, devfs has insolvable problems and you
+> should not use it.  End of story.
+
+how many bug reports did you see in the last three months of people
+having problems with devfs? I don't doubt the problems in theory, but
+but I simply haven't seen them happening. Most users seem quite happy.
+
+Andreas
 

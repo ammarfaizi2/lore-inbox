@@ -1,79 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261264AbUCBDBX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 22:01:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbUCBDBX
+	id S261528AbUCBDI6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 22:08:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbUCBDI6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 22:01:23 -0500
-Received: from main.gmane.org ([80.91.224.249]:57550 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261264AbUCBDBV (ORCPT
+	Mon, 1 Mar 2004 22:08:58 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:7492 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S261528AbUCBDI4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 22:01:21 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Mike <Mike@kordik.net>
-Subject: Re: [PATCH] Re: 2.6.3-bk9 QA testing: firewire good, USB printing dead
-Date: Mon, 01 Mar 2004 22:01:18 -0500
-Message-ID: <pan.2004.03.02.03.01.15.267828@kordik.net>
-References: <1077933682.14653.23.camel@wave.gentoo.org> <20040228021040.GA14836@kroah.com> <20040229095139.GH3149@suse.de> <20040301074348.GA7646@ip68-4-255-84.oc.oc.cox.net>
+	Mon, 1 Mar 2004 22:08:56 -0500
+Date: Mon, 1 Mar 2004 19:08:16 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: jsimmons@infradead.org, arief_m_utama@telkomsel.co.id,
+       linux-kernel@vger.kernel.org
+Subject: Re: Radeon Framebuffer Driver in 2.6.3?
+Message-Id: <20040301190816.5ed4e241.pj@sgi.com>
+In-Reply-To: <1078187189.21575.165.camel@gaston>
+References: <Pine.LNX.4.44.0403020019340.7718-100000@phoenix.infradead.org>
+	<1078187189.21575.165.camel@gaston>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: user-0c936ii.cable.mindspring.com
-User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Feb 2004 23:43:48 -0800, Barry K. Nathan wrote:
+ > we have 2 choices
 
-> Does this patch (following my signature) fix the printer hangs? (It does
-> for me.)
-> 
-> BTW, it's also an attachment on OSDL bugzilla #2221:
-> http://bugme.osdl.org/show_bug.cgi?id=2221
-> 
-> -Barry K. Nathan <barryn@pobox.com>
-> 
-> diff -ruN linux-2.6.3-bk2/drivers/usb/class/usblp.c
-> linux-2.6.3-bk2-bkn1/drivers/usb/class/usblp.c ---
-> linux-2.6.3-bk2/drivers/usb/class/usblp.c	2004-02-29 23:18:26.000000000
-> -0800 +++ linux-2.6.3-bk2-bkn1/drivers/usb/class/usblp.c	2004-02-29
-> 23:17:24.000000000 -0800 @@ -603,7 +603,7 @@
->  {
->  	DECLARE_WAITQUEUE(wait, current);
->  	struct usblp *usblp = file->private_data;
-> -	int timeout, err = 0, transfer_length; +	int timeout, err = 0,
-> transfer_length = 0;
->  	size_t writecount = 0;
->  
->  	while (writecount < count) {
-> @@ -654,6 +654,16 @@
->  			continue;
->  		}
->  
-> +		/* We must increment writecount here, and not at the +		 * end of the
-> loop. Otherwise, the final loop iteration may +		 * be skipped, leading
-> to incomplete printer output. +		 */
-> +		writecount += transfer_length;
-> +		if (writecount == count) {
-> +			up (&usblp->sem);
-> +			break;
-> +		}
-> +
->  		transfer_length=(count - writecount); if (transfer_length >
->  		USBLP_BUF_SIZE)
->  			transfer_length = USBLP_BUF_SIZE;
-> @@ -677,8 +687,6 @@
->  			break;
->  		}
->  		up (&usblp->sem);
-> -
-> -		writecount += transfer_length;
->  	}
->  
->  	return count;
-I also applied this patch to 2.6.4-rc1-mm1 and my printer problem seems to
-be solved. This is the first time in two weeks that printing has worked
-properly for me. Thx :)
+Hare-brained idea for 3rd choice - a pair of memcmp's, one on the early
+part of struct fb_var_screeninfo before the activate field, the 2nd on
+the remainder of that struct, after the activate field.
 
+#include <stddef.h>
+
+/*
+ * Compare two structs of type TYPE, except for structure member MEMBER.
+ * Return is < 0, 0 or > 0, just like memcmp().
+ */
+
+#define memcmp_all_but(s1, s2, TYPE, MEMBER)		\
+	do { 						\
+		return _memcmp_all_but(			\
+			s1, s2, sizeof(TYPE),		\
+			offsetof(TYPE, MEMBER),		\
+			sizeof((TYPE *)0)->MEMBER);	\
+	} while (0)
+
+/*
+ * Same as memcmp(s1, s2, n), except excludes the 'msz' bytes
+ * starting at 'moffset' bytes from the comparison.  The 'm'
+ * in 'msz', and 'moffset' stands for Member of structure.
+ */
+
+int _memcmp_all_but(const void *s1, const void *s2, size_t n, moffset, msz)
+{
+	int i;
+	i = memcmp(s1, s2, moffset);
+	if (i != 0)
+		return i;
+	return memcmp((char *)s1+moffset+msz, (char *)s2+moffset+msz, n-moffset-msz)
+}
+
+...
+
+	if ((var->activate & FB_ACTIVATE_FORCE) ||
+		memcmp_all_but(&info->var, var, struct fb_var_screeninfo, activate)) {
+
+...
+
+The above code is untried, untested, and probably insane.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262983AbUCMDkJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 22:40:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263039AbUCMDj6
+	id S262821AbUCMDj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 22:39:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263016AbUCMDj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 22:39:58 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:41175 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263016AbUCMDjz (ORCPT
+	Fri, 12 Mar 2004 22:39:26 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:2007 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262821AbUCMDjX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 22:39:55 -0500
-Message-ID: <405283C5.5060702@sgi.com>
-Date: Fri, 12 Mar 2004 21:45:09 -0600
+	Fri, 12 Mar 2004 22:39:23 -0500
+Message-ID: <40528383.10305@sgi.com>
+Date: Fri, 12 Mar 2004 21:44:03 -0600
 From: Ray Bryant <raybry@sgi.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
 X-Accept-Language: en-us, en

@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261268AbUBYLll (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 06:41:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbUBYLll
+	id S261271AbUBYLlo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 06:41:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbUBYLlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 06:41:41 -0500
-Received: from gate.crashing.org ([63.228.1.57]:13494 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261268AbUBYLlk (ORCPT
+	Wed, 25 Feb 2004 06:41:44 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:65531 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261271AbUBYLlk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 25 Feb 2004 06:41:40 -0500
-Subject: Re: new driver (hvcs) review request and sysfs questions
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: Dave Boutcher <sleddog@us.ibm.com>, Ryan Arnold <rsa@us.ibm.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, boutcher@us.ibm.com,
-       Hollis Blanchard <hollisb@us.ibm.com>
-In-Reply-To: <20040225042224.GA5135@kroah.com>
-References: <1077667227.21201.73.camel@SigurRos.rchland.ibm.com>
-	 <20040225012845.GA3909@kroah.com> <opr3woijnwl6e53g@us.ibm.com>
-	 <20040225042224.GA5135@kroah.com>
-Content-Type: text/plain
-Message-Id: <1077708874.22213.13.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 25 Feb 2004 22:34:34 +1100
-Content-Transfer-Encoding: 7bit
+Date: Wed, 25 Feb 2004 12:41:25 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Otto Solares <solca@guug.org>
+cc: James Simmons <jsimmons@infradead.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] fbdv/fbcon pending problems
+In-Reply-To: <20040225031553.GC17390@guug.org>
+Message-ID: <Pine.GSO.4.58.0402251240140.24169@waterleaf.sonytel.be>
+References: <20040224214106.GA17390@guug.org>
+ <Pine.LNX.4.44.0402250118210.24952-100000@phoenix.infradead.org>
+ <20040225031553.GC17390@guug.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-02-25 at 15:22, Greg KH wrote:
-> On Tue, Feb 24, 2004 at 09:12:09PM -0600, Dave Boutcher wrote:
-> > 
-> > It is also true that it is unlike the representation of most other things 
-> > in sysfs, so perhaps this is the time to change before it gets too baked 
-> > into things.
-> 
-> I agree.  Is there any reason we _have_ to stick with the OF names?  It
-> seems to me to make more sense here not to, to make it more like the
-> rest of the kernel.
-> 
-> That is, if the address after the @ is unique.  Is that always the case?
+On Tue, 24 Feb 2004, Otto Solares wrote:
+> On Wed, Feb 25, 2004 at 01:21:39AM +0000, James Simmons wrote:
+> > > On the other side i see a lot of effort in the fbdev acceleration,
+> > > it is nice but that effort should be better spent on fixing the layer,
+> > > imo, the only user for acceleration is fbcon, any userland app that
+> > > use fbdev disables that acceleration so it can map the vmem and ioregs,
+> > > and do it's own voodoo if it wants acceleration.  That acceleration
+> > > is not "exported" to user space.  I am working in a open source project
+> > > that uses mesa-solo with fbdev and many limitations from the layer
+> > > itself have been seen.
+> >
+> > That is true so far for fillrect and copyarea functions. Imageblit will be
+> > used for read and writes on /dev/fbX. Also it is used for software
+> > cursors.
+>
+> But if acceleration is not disabled you can't map the vmem and io regions.
 
-That is the problem... I didn't check my OF spec, but I do remember
-clearly cases where the "unit address" isn't unique... This happens
-typically at the root of the device-tree, or with pseudo devices,
-where you can have several entries with an @0 unit address. However,
-I yet have to see that for things that are worth putting into sysfs ;)
+I don't expect an app that mmap()s mmio to read/write from /dev/fb* at the same
+time. So I see no problem disabling accelerated read/write while mmio is
+mapped.
 
-One thing though is that it's only unique at a given level of
-hierarchy. The Unit Address in OF has no meaning outside of the
-context of the parent bus. That may be just fine for sysfs, but
-if I take as an example the PCI devices, they do have a globally
-unique ID here with the domain number.
+Gr{oetje,eeting}s,
 
-Ben.
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

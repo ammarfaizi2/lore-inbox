@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318919AbSG1HWY>; Sun, 28 Jul 2002 03:22:24 -0400
+	id <S318918AbSG1HWE>; Sun, 28 Jul 2002 03:22:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318930AbSG1HWX>; Sun, 28 Jul 2002 03:22:23 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53253 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318919AbSG1HU7>;
-	Sun, 28 Jul 2002 03:20:59 -0400
-Message-ID: <3D439E1C.5B5BC34B@zip.com.au>
-Date: Sun, 28 Jul 2002 00:32:44 -0700
+	id <S318929AbSG1HWC>; Sun, 28 Jul 2002 03:22:02 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52229 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318918AbSG1HUv>;
+	Sun, 28 Jul 2002 03:20:51 -0400
+Message-ID: <3D439E15.9827B189@zip.com.au>
+Date: Sun, 28 Jul 2002 00:32:37 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3-ac3 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 4/13] show_free_areas() cleanup
+Subject: [patch 3/13] use a slab cache for pte_chains
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,218 +22,243 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Cleanup to show_free_areas() from Bill Irwin:
+Patch from Bill Irwin.
 
-show_free_areas() and show_free_areas_core() is a mess.
-(1) it uses a bizarre and ugly form of list iteration to walk buddy lists
-        use standard list functions instead
-(2) it prints the same information repeatedly once per-node
-        rationalize the braindamaged iteration logic
-(3) show_free_areas_node() is useless and not called anywhere
-        remove it entirely
-(4) show_free_areas() itself just calls show_free_areas_core()
-        remove show_free_areas_core() and do the stuff directly
-(5) SWAP_CACHE_INFO is always #defined, remove it
-(6) INC_CACHE_INFO() doesn't use the do { } while (0) construct
+It removes the custom pte_chain allocator in mm/rmap.c and replaces it
+with a slab cache.
 
-This patch also includes Matthew Dobson's patch which removes
-mm/numa.c:node_lock.  The consensus is that it doesn't do anything now
-that show_free_areas_node() isn't there.
+"This patch
+ (1) eliminates the pte_chain_freelist_lock and all contention on it
+ (2) gives the VM the ability to recover unused pte_chain pages
+
+ Anton Blanchard has reported (1) from prior incarnations of this patch.
+ Craig Kulesa has reported (2) in combination with slab-on-LRU patches.
+
+ I've left OOM detection out of this patch entirely as upcoming patches
+ will do real OOM handling for pte_chains and all the code changed anyway."
 
 
 
- include/linux/mm.h   |    1 
- include/linux/swap.h |    3 --
- mm/numa.c            |   16 +----------
- mm/page_alloc.c      |   73 ++++++++++++++++++++-------------------------------
- mm/swap_state.c      |    6 ----
- 5 files changed, 33 insertions(+), 66 deletions(-)
 
---- 2.5.29/include/linux/mm.h~show_free_areas	Sat Jul 27 23:39:03 2002
-+++ 2.5.29-akpm/include/linux/mm.h	Sat Jul 27 23:49:02 2002
-@@ -327,7 +327,6 @@ static inline void set_page_zone(struct 
- extern struct page *mem_map;
+
+ fs/proc/proc_misc.c        |    6 +--
+ include/linux/page-flags.h |    3 -
+ init/main.c                |    4 +-
+ mm/page_alloc.c            |    3 -
+ mm/rmap.c                  |   82 +++++++++------------------------------------
+ 5 files changed, 23 insertions(+), 75 deletions(-)
+
+--- 2.5.29/fs/proc/proc_misc.c~pte_chain_slab	Sat Jul 27 23:39:01 2002
++++ 2.5.29-akpm/fs/proc/proc_misc.c	Sat Jul 27 23:49:00 2002
+@@ -161,8 +161,7 @@ static int meminfo_read_proc(char *page,
+ 		"Dirty:        %8lu kB\n"
+ 		"Writeback:    %8lu kB\n"
+ 		"PageTables:   %8lu kB\n"
+-		"PteChainTot:  %8lu kB\n"
+-		"PteChainUsed: %8lu kB\n",
++		"ReverseMaps:  %8lu\n",
+ 		K(i.totalram),
+ 		K(i.freeram),
+ 		K(i.sharedram),
+@@ -179,8 +178,7 @@ static int meminfo_read_proc(char *page,
+ 		K(ps.nr_dirty),
+ 		K(ps.nr_writeback),
+ 		K(ps.nr_page_table_pages),
+-		K(ps.nr_pte_chain_pages),
+-		ps.used_pte_chains_bytes >> 10
++		ps.nr_reverse_maps
+ 		);
  
- extern void show_free_areas(void);
--extern void show_free_areas_node(pg_data_t *pgdat);
+ 	return proc_calc_metrics(page, start, off, count, eof, len);
+--- 2.5.29/include/linux/page-flags.h~pte_chain_slab	Sat Jul 27 23:39:01 2002
++++ 2.5.29-akpm/include/linux/page-flags.h	Sat Jul 27 23:49:02 2002
+@@ -79,8 +79,7 @@ extern struct page_state {
+ 	unsigned long nr_active;	/* on active_list LRU */
+ 	unsigned long nr_inactive;	/* on inactive_list LRU */
+ 	unsigned long nr_page_table_pages;
+-	unsigned long nr_pte_chain_pages;
+-	unsigned long used_pte_chains_bytes;
++	unsigned long nr_reverse_maps;
+ } ____cacheline_aligned_in_smp page_states[NR_CPUS];
  
- extern int fail_writepage(struct page *);
- struct page * shmem_nopage(struct vm_area_struct * vma, unsigned long address, int unused);
---- 2.5.29/include/linux/swap.h~show_free_areas	Sat Jul 27 23:39:03 2002
-+++ 2.5.29-akpm/include/linux/swap.h	Sat Jul 27 23:39:03 2002
-@@ -176,10 +176,7 @@ int rw_swap_page_sync(int rw, swp_entry_
- /* linux/mm/page_alloc.c */
- 
- /* linux/mm/swap_state.c */
--#define SWAP_CACHE_INFO
--#ifdef SWAP_CACHE_INFO
- extern void show_swap_cache_info(void);
--#endif
- extern int add_to_swap_cache(struct page *, swp_entry_t);
- extern int add_to_swap(struct page *);
- extern void __delete_from_swap_cache(struct page *page);
---- 2.5.29/mm/numa.c~show_free_areas	Sat Jul 27 23:39:03 2002
-+++ 2.5.29-akpm/mm/numa.c	Sat Jul 27 23:49:01 2002
-@@ -44,17 +44,6 @@ struct page * alloc_pages_node(int nid, 
- 
- #define LONG_ALIGN(x) (((x)+(sizeof(long))-1)&~((sizeof(long))-1))
- 
--static spinlock_t node_lock = SPIN_LOCK_UNLOCKED;
+ extern void get_page_state(struct page_state *ret);
+--- 2.5.29/init/main.c~pte_chain_slab	Sat Jul 27 23:39:01 2002
++++ 2.5.29-akpm/init/main.c	Sat Jul 27 23:39:01 2002
+@@ -70,7 +70,7 @@ extern void sbus_init(void);
+ extern void sysctl_init(void);
+ extern void signals_init(void);
+ extern void buffer_init(void);
 -
--void show_free_areas_node(pg_data_t *pgdat)
--{
--	unsigned long flags;
++extern void pte_chain_init(void);
+ extern void radix_tree_init(void);
+ extern void free_initmem(void);
+ 
+@@ -432,7 +432,7 @@ asmlinkage void __init start_kernel(void
+ 	mem_init();
+ 	kmem_cache_sizes_init();
+ 	pgtable_cache_init();
 -
--	spin_lock_irqsave(&node_lock, flags);
--	show_free_areas_core(pgdat);
--	spin_unlock_irqrestore(&node_lock, flags);
--}
--
- /*
-  * Nodes can be initialized parallely, in no particular order.
-  */
-@@ -106,11 +95,10 @@ struct page * _alloc_pages(unsigned int 
- #ifdef CONFIG_NUMA
- 	temp = NODE_DATA(numa_node_id());
- #else
--	spin_lock_irqsave(&node_lock, flags);
--	if (!next) next = pgdat_list;
-+	if (!next)
-+		next = pgdat_list;
- 	temp = next;
- 	next = next->node_next;
--	spin_unlock_irqrestore(&node_lock, flags);
- #endif
- 	start = temp;
- 	while (temp) {
---- 2.5.29/mm/page_alloc.c~show_free_areas	Sat Jul 27 23:39:03 2002
-+++ 2.5.29-akpm/mm/page_alloc.c	Sat Jul 27 23:49:01 2002
-@@ -602,12 +602,11 @@ void si_meminfo(struct sysinfo *val)
-  * We also calculate the percentage fragmentation. We do this by counting the
-  * memory on each free list with the exception of the first item on the list.
-  */
--void show_free_areas_core(pg_data_t *pgdat)
-+void show_free_areas(void)
- {
-- 	unsigned int order;
--	unsigned type;
--	pg_data_t *tmpdat = pgdat;
-+	pg_data_t *pgdat;
- 	struct page_state ps;
-+	int type;
++	pte_chain_init();
+ 	mempages = num_physpages;
  
- 	get_page_state(&ps);
- 
-@@ -615,20 +614,20 @@ void show_free_areas_core(pg_data_t *pgd
- 		K(nr_free_pages()),
- 		K(nr_free_highpages()));
- 
--	while (tmpdat) {
--		zone_t *zone;
--		for (zone = tmpdat->node_zones;
--			       	zone < tmpdat->node_zones + MAX_NR_ZONES; zone++)
--			printk("Zone:%s freepages:%6lukB min:%6lukB low:%6lukB " 
--				       "high:%6lukB\n", 
--					zone->name,
--					K(zone->free_pages),
--					K(zone->pages_min),
--					K(zone->pages_low),
--					K(zone->pages_high));
--			
--		tmpdat = tmpdat->node_next;
--	}
-+	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next)
-+		for (type = 0; type < MAX_NR_ZONES; ++type) {
-+			zone_t *zone = &pgdat->node_zones[type];
-+			printk("Zone:%s "
-+				"freepages:%6lukB "
-+				"min:%6lukB "
-+				"low:%6lukB " 
-+				"high:%6lukB\n", 
-+				zone->name,
-+				K(zone->free_pages),
-+				K(zone->pages_min),
-+				K(zone->pages_low),
-+				K(zone->pages_high));
-+		}
- 
- 	printk("( Active:%lu inactive:%lu dirty:%lu writeback:%lu free:%u )\n",
- 		ps.nr_active,
-@@ -637,40 +636,28 @@ void show_free_areas_core(pg_data_t *pgd
- 		ps.nr_writeback,
- 		nr_free_pages());
- 
--	for (type = 0; type < MAX_NR_ZONES; type++) {
--		struct list_head *head, *curr;
--		zone_t *zone = pgdat->node_zones + type;
-- 		unsigned long nr, total, flags;
-+	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next)
-+		for (type = 0; type < MAX_NR_ZONES; type++) {
-+			list_t *elem;
-+			zone_t *zone = &pgdat->node_zones[type];
-+ 			unsigned long nr, flags, order, total = 0;
-+
-+			if (!zone->size)
-+				continue;
- 
--		total = 0;
--		if (zone->size) {
- 			spin_lock_irqsave(&zone->lock, flags);
--		 	for (order = 0; order < MAX_ORDER; order++) {
--				head = &(zone->free_area + order)->free_list;
--				curr = head;
-+			for (order = 0; order < MAX_ORDER; order++) {
- 				nr = 0;
--				for (;;) {
--					curr = curr->next;
--					if (curr == head)
--						break;
--					nr++;
--				}
--				total += nr * (1 << order);
-+				list_for_each(elem, &zone->free_area[order].free_list)
-+					++nr;
-+				total += nr << order;
- 				printk("%lu*%lukB ", nr, K(1UL) << order);
- 			}
- 			spin_unlock_irqrestore(&zone->lock, flags);
-+			printk("= %lukB)\n", K(total));
- 		}
--		printk("= %lukB)\n", K(total));
--	}
- 
--#ifdef SWAP_CACHE_INFO
- 	show_swap_cache_info();
--#endif	
--}
--
--void show_free_areas(void)
--{
--	show_free_areas_core(pgdat_list);
+ 	fork_init(mempages);
+--- 2.5.29/mm/page_alloc.c~pte_chain_slab	Sat Jul 27 23:39:01 2002
++++ 2.5.29-akpm/mm/page_alloc.c	Sat Jul 27 23:49:03 2002
+@@ -567,8 +567,7 @@ void get_page_state(struct page_state *r
+ 		ret->nr_active += ps->nr_active;
+ 		ret->nr_inactive += ps->nr_inactive;
+ 		ret->nr_page_table_pages += ps->nr_page_table_pages;
+-		ret->nr_pte_chain_pages += ps->nr_pte_chain_pages;
+-		ret->used_pte_chains_bytes += ps->used_pte_chains_bytes;
++		ret->nr_reverse_maps += ps->nr_reverse_maps;
+ 	}
  }
  
- /*
---- 2.5.29/mm/swap_state.c~show_free_areas	Sat Jul 27 23:39:03 2002
-+++ 2.5.29-akpm/mm/swap_state.c	Sat Jul 27 23:39:03 2002
-@@ -42,8 +42,7 @@ struct address_space swapper_space = {
- 	private_list:	LIST_HEAD_INIT(swapper_space.private_list),
+--- 2.5.29/mm/rmap.c~pte_chain_slab	Sat Jul 27 23:39:01 2002
++++ 2.5.29-akpm/mm/rmap.c	Sat Jul 27 23:39:01 2002
+@@ -23,6 +23,8 @@
+ #include <linux/mm.h>
+ #include <linux/pagemap.h>
+ #include <linux/swapops.h>
++#include <linux/slab.h>
++#include <linux/init.h>
+ 
+ #include <asm/pgalloc.h>
+ #include <asm/rmap.h>
+@@ -50,10 +52,10 @@ struct pte_chain {
+ 	pte_t * ptep;
  };
  
--#ifdef SWAP_CACHE_INFO
--#define INC_CACHE_INFO(x)	(swap_cache_info.x++)
-+#define INC_CACHE_INFO(x)	do { swap_cache_info.x++; } while (0)
++static kmem_cache_t	*pte_chain_cache;
+ static inline struct pte_chain * pte_chain_alloc(void);
+ static inline void pte_chain_free(struct pte_chain *, struct pte_chain *,
+ 		struct page *);
+-static void alloc_new_pte_chains(void);
  
- static struct {
- 	unsigned long add_total;
-@@ -61,9 +60,6 @@ void show_swap_cache_info(void)
- 		swap_cache_info.find_success, swap_cache_info.find_total,
- 		swap_cache_info.noent_race, swap_cache_info.exist_race);
+ /**
+  * page_referenced - test if the page was referenced
+@@ -148,6 +150,7 @@ void page_add_rmap(struct page * page, p
+ 	}
+ 
+ 	pte_chain_unlock(page);
++	inc_page_state(nr_reverse_maps);
  }
--#else
--#define INC_CACHE_INFO(x)	do { } while (0)
--#endif
  
- int add_to_swap_cache(struct page *page, swp_entry_t entry)
+ /**
+@@ -210,9 +213,9 @@ void page_remove_rmap(struct page * page
+ #endif
+ 
+ out:
++	dec_page_state(nr_reverse_maps);
+ 	pte_chain_unlock(page);
+ 	return;
+-			
+ }
+ 
+ /**
+@@ -357,27 +360,6 @@ int try_to_unmap(struct page * page)
+  ** functions.
+  **/
+ 
+-struct pte_chain * pte_chain_freelist;
+-spinlock_t pte_chain_freelist_lock = SPIN_LOCK_UNLOCKED;
+-
+-/* Maybe we should have standard ops for singly linked lists ... - Rik */
+-static inline void pte_chain_push(struct pte_chain * pte_chain)
+-{
+-	pte_chain->ptep = NULL;
+-	pte_chain->next = pte_chain_freelist;
+-	pte_chain_freelist = pte_chain;
+-}
+-
+-static inline struct pte_chain * pte_chain_pop(void)
+-{
+-	struct pte_chain *pte_chain;
+-
+-	pte_chain = pte_chain_freelist;
+-	pte_chain_freelist = pte_chain->next;
+-	pte_chain->next = NULL;
+-
+-	return pte_chain;
+-}
+ 
+ /**
+  * pte_chain_free - free pte_chain structure
+@@ -393,15 +375,12 @@ static inline struct pte_chain * pte_cha
+ static inline void pte_chain_free(struct pte_chain * pte_chain,
+ 		struct pte_chain * prev_pte_chain, struct page * page)
  {
+-	mod_page_state(used_pte_chains_bytes, -sizeof(struct pte_chain));
+ 	if (prev_pte_chain)
+ 		prev_pte_chain->next = pte_chain->next;
+ 	else if (page)
+ 		page->pte.chain = pte_chain->next;
+ 
+-	spin_lock(&pte_chain_freelist_lock);
+-	pte_chain_push(pte_chain);
+-	spin_unlock(&pte_chain_freelist_lock);
++	kmem_cache_free(pte_chain_cache, pte_chain);
+ }
+ 
+ /**
+@@ -411,47 +390,20 @@ static inline void pte_chain_free(struct
+  * pte_chain structures as required.
+  * Caller needs to hold the page's pte_chain_lock.
+  */
+-static inline struct pte_chain * pte_chain_alloc()
++static inline struct pte_chain *pte_chain_alloc(void)
+ {
+-	struct pte_chain * pte_chain;
+-
+-	spin_lock(&pte_chain_freelist_lock);
+-
+-	/* Allocate new pte_chain structs as needed. */
+-	if (!pte_chain_freelist)
+-		alloc_new_pte_chains();
+-
+-	/* Grab the first pte_chain from the freelist. */
+-	pte_chain = pte_chain_pop();
+-
+-	spin_unlock(&pte_chain_freelist_lock);
+-
+-	mod_page_state(used_pte_chains_bytes, sizeof(struct pte_chain));
+-	return pte_chain;
++	return kmem_cache_alloc(pte_chain_cache, GFP_ATOMIC);
+ }
+ 
+-/**
+- * alloc_new_pte_chains - convert a free page to pte_chain structures
+- *
+- * Grabs a free page and converts it to pte_chain structures. We really
+- * should pre-allocate these earlier in the pagefault path or come up
+- * with some other trick.
+- *
+- * Note that we cannot use the slab cache because the pte_chain structure
+- * is way smaller than the minimum size of a slab cache allocation.
+- * Caller needs to hold the pte_chain_freelist_lock
+- */
+-static void alloc_new_pte_chains()
++void __init pte_chain_init(void)
+ {
+-	struct pte_chain * pte_chain = (void *) get_zeroed_page(GFP_ATOMIC);
+-	int i = PAGE_SIZE / sizeof(struct pte_chain);
++	pte_chain_cache = kmem_cache_create(	"pte_chain",
++						sizeof(struct pte_chain),
++						0,
++						0,
++						NULL,
++						NULL);
+ 
+-	if (pte_chain) {
+-		inc_page_state(nr_pte_chain_pages);
+-		for (; i-- > 0; pte_chain++)
+-			pte_chain_push(pte_chain);
+-	} else {
+-		/* Yeah yeah, I'll fix the pte_chain allocation ... */
+-		panic("Fix pte_chain allocation, you lazy bastard!\n");
+-	}
++	if (!pte_chain_cache)
++		panic("failed to create pte_chain cache!\n");
+ }
 
 .

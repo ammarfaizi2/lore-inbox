@@ -1,32 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263457AbSJHT7H>; Tue, 8 Oct 2002 15:59:07 -0400
+	id <S263534AbSJHT47>; Tue, 8 Oct 2002 15:56:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263526AbSJHT4Y>; Tue, 8 Oct 2002 15:56:24 -0400
-Received: from tapu.f00f.org ([66.60.186.129]:56040 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S263527AbSJHT4G>;
-	Tue, 8 Oct 2002 15:56:06 -0400
-Date: Tue, 8 Oct 2002 13:01:47 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Robert Love <rml@tech9.net>
-Cc: linux-kernel@vger.kernel.org, akpm@digeo.com
-Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
-Message-ID: <20021008200147.GB5162@tapu.f00f.org>
-References: <1034044736.29463.318.camel@phantasy> <20021008183824.GA4494@tapu.f00f.org> <1034102950.30670.1433.camel@phantasy> <20021008190513.GA4728@tapu.f00f.org> <1034104637.29468.1483.camel@phantasy> <20021008195223.GA5040@tapu.f00f.org> <1034107190.29467.1533.camel@phantasy>
-Mime-Version: 1.0
+	id <S262676AbSJHTwS>; Tue, 8 Oct 2002 15:52:18 -0400
+Received: from web21401.mail.yahoo.com ([216.136.232.71]:50531 "HELO
+	web21401.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261763AbSJHTwH>; Tue, 8 Oct 2002 15:52:07 -0400
+Message-ID: <20021008195746.52445.qmail@web21401.mail.yahoo.com>
+Date: Tue, 8 Oct 2002 12:57:46 -0700 (PDT)
+From: Ankit <ankitsl@yahoo.com>
+Subject: Re: PATCH: fix imm compile
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <E17yzdM-0004u9-00@the-village.bc.nu>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1034107190.29467.1533.camel@phantasy>
-User-Agent: Mutt/1.4i
-X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 08, 2002 at 03:59:50PM -0400, Robert Love wrote:
+iam using this driver to fetch me some memory in
+my user space application by calling mmap with the
+file descriptor got by opening the device file for
+this driver.
+mmap(0, length, flags, flags, fd, offset)
 
-> 20% increase in kernel compilation is amazingly nice, for free.
+and the mmap entry point in the driver is implemented
+as below:
 
-Results like this make pretty good arguments :)
+In the implementation, it tries to write an index into
+the first four bytes, which i use to store in my
+internal structures( to later reference it through the
+index), before zeroing out the buffer. But the index
+is always -1.
+
+I dont understand the part where its getting the
+physical address to map.
+whats the high_memory and whats the PAGE_OFFSET.
+Can you help me in understanding what exactly is the
+mmap() doing here and
+if its doing it right.
 
 
-  --cw
+himem_buf_allocated = 0;
+
+int xxx_mmap(struct file *filp,
+		  struct vm_area_struct *vma)
+{
+  unsigned long size;
+  char * virt_addr;
+  int		index;
+
+  size = vma->vm_end - vma->vm_start;
+  if ((size % PAGE_SIZE) != 0){
+    size = (size / PAGE_SIZE) * PAGE_SIZE + PAGE_SIZE;
+  }
+
+  /* himem_buf_size is 0x80000000 */
+  if (size + himem_buf_allocated >= himem_buf_size){
+    
+    return -ENOMEM;
+  }
+  
+  /* himem_buf is calculated as high_memory -
+PAGE_OFFSET */
+  umem_addr = himem_buf + himem_buf_allocated;
+  if (umem_addr == 0){
+    return -ENOMEM;
+  }
+  himem_buf_allocated += size;
+  
+
+  virt_addr = ioremap((unsigned long)umem_addr,
+PAGE_SIZE);  
+  if (virt_addr == 0){
+    return -ENOMEM;
+  }
+  /* write the index into the first 4 bytes */
+  writel(index, (uint32_t *)virt_addr);
+
+    /* the values of index and *(virt_addr) do not 
+       match.   *(virt_addr) is always -1 .
+       Is something wrong here    */
+    dbg_printf(0,"index is %d, *(virt_addr) is %d\n",
+index,(int)readl(virt_addr));
+  iounmap(virt_addr);
+
+   
+
+  remap_page_range(vma->vm_start, (ulong)umem_addr, 
+		   vma->vm_end - vma->vm_start, vma->vm_page_prot);
+
+  return 0;
+}
+
+
+__________________________________________________
+Do you Yahoo!?
+Faith Hill - Exclusive Performances, Videos & More
+http://faith.yahoo.com

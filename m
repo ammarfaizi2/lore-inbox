@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317360AbSGRIiP>; Thu, 18 Jul 2002 04:38:15 -0400
+	id <S317345AbSGRIpb>; Thu, 18 Jul 2002 04:45:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317364AbSGRIiP>; Thu, 18 Jul 2002 04:38:15 -0400
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:54922 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S317360AbSGRIiO>; Thu, 18 Jul 2002 04:38:14 -0400
-Date: Thu, 18 Jul 2002 10:41:11 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-Subject: Re: Breakage with "usb-storage: catch bad commands"
-Message-ID: <20020718084111.GA2326@tahoe.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-References: <20020716140722.GM7955@tahoe.alcove-fr> <20020716103503.B14269@one-eyed-alien.net> <20020717090554.GB14581@tahoe.alcove-fr> <20020717102939.A25228@one-eyed-alien.net>
+	id <S317421AbSGRIpb>; Thu, 18 Jul 2002 04:45:31 -0400
+Received: from tolkor.SGI.COM ([192.48.180.13]:30941 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S317345AbSGRIpb>;
+	Thu, 18 Jul 2002 04:45:31 -0400
+Subject: O_DIRECT read and holes in 2.5.26
+From: Stephen Lord <lord@sgi.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 18 Jul 2002 03:43:08 -0500
+Message-Id: <1026981790.1258.17.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020717102939.A25228@one-eyed-alien.net>
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 17, 2002 at 10:29:39AM -0700, Matthew Dharm wrote:
 
-> Hrm.. interesting.
-> 
-> It appears that when we probe for a device, we issue a proper INQUIRY.
-> But, when we probe LUN != 0, we then send a bogus or semi-bogus INQUIRY.
-> I'll have to look into this more.
+Andrew, 
 
-Ok, I'll temporarly disable the BUG_ON() waiting for a fix.
+Did you realize that the new O_DIRECT code in 2.5 cannot read over holes
+in a file. The old code filled the user buffer with zeros, the new code
+returned EINVAL if the getblock function returns an unmapped buffer.
+With this exception, XFS does work with the new code - with more cpu
+overhead than before due to the once per page getblock calls.
 
-Thanks.
+Steve
 
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+
+

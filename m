@@ -1,30 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315183AbSEFU7v>; Mon, 6 May 2002 16:59:51 -0400
+	id <S315191AbSEFVHO>; Mon, 6 May 2002 17:07:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315185AbSEFU7t>; Mon, 6 May 2002 16:59:49 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:43670 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S315183AbSEFU7o>;
-	Mon, 6 May 2002 16:59:44 -0400
-Date: Mon, 06 May 2002 13:48:16 -0700 (PDT)
-Message-Id: <20020506.134816.67493266.davem@redhat.com>
-To: cloos@jhcloos.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.19-pre8 (bk) nfsroot.c
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <m3k7qhdmh8.fsf@lugabout.jhcloos.org>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S315192AbSEFVHN>; Mon, 6 May 2002 17:07:13 -0400
+Received: from quechua.inka.de ([212.227.14.2]:45944 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S315191AbSEFVHM>;
+	Mon, 6 May 2002 17:07:12 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: modversion.h improvement suggestion
+In-Reply-To: <E174OQu-0007H2-00@smtp.web.de> <8447.1020642180@ocs3.intra.ocs.com.au>
+Organization: private Linux site, southern Germany
+Date: Mon, 06 May 2002 23:03:34 +0200
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E174pdv-0001rU-00@bigred.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "James H. Cloos Jr." <cloos@jhcloos.com>
-   Date: 06 May 2002 16:56:19 -0400
-   
-   Got missed in the 2.4 bk tree when in_ntoa was replaced by NIPQUAD.
-   
-   As you can see from the patch, it already is in 2.5.
+> The build instructions for third party modules should say something
+> like
+>
+>   If your kernel was built with CONFIG_MODVERSIONS=y then add these
+>   flags to the build for this module
+>
+>   -DMODVERSIONS -include kernel_source_tree/linux/modversions.h
 
-I already sent Marcelo this fix.  Thanks.
+or even better, pick up the _complete_ compilation rule from the
+kernel Makefile, since this is (unfortunately) by now the only way to
+get all compiler options right.
+
+I do it this way (in a configure.in for an external module):
+KSRC is the kernel source location.
+
+  cp $KSRC/Makefile conftest.make
+  echo -e "conftest.CC:" >>conftest.make
+  echo -e "\t@echo \$(CC)" >>conftest.make
+  echo -e "conftest.CFLAGS:" >>conftest.make
+  echo -e "\t@echo \$(CFLAGS) \$(MODFLAGS)" >>conftest.make
+  here=`pwd`
+  NKCC=`cd $KSRC; $MAKE -s -f $here/conftest.make conftest.CC`
+  NKCFLAGS=`cd $KSRC; $MAKE -s -f $here/conftest.make conftest.CFLAGS`
+
+i.e. copy the main Makefile, add a few rules to just echo the flags,
+and then invoke it in the original place (since it depends on that).
+We should really have a more elegant way to extract this info from the
+main Makefile.
+
+> In any case, modversions.h will disappear in kbuild 2.5.
+
+which leaves hope this issue will be addressed...
+
+Olaf
+
+
+

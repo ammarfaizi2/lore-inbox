@@ -1,84 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266858AbUG1Jle@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266851AbUG1Jrb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266858AbUG1Jle (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 05:41:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266851AbUG1Jle
+	id S266851AbUG1Jrb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 05:47:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266854AbUG1Jrb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 05:41:34 -0400
-Received: from smtp.sys.beep.pl ([195.245.198.13]:27152 "EHLO smtp.sys.beep.pl")
-	by vger.kernel.org with ESMTP id S266860AbUG1Jl2 convert rfc822-to-8bit
+	Wed, 28 Jul 2004 05:47:31 -0400
+Received: from mailr.eris.qinetiq.com ([128.98.1.9]:34520 "HELO
+	qinetiq-tim.net") by vger.kernel.org with SMTP id S266851AbUG1Jr2 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 05:41:28 -0400
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       Corey Minyard <minyard@mvista.com>
-Subject: [PATCH]: convert ipmi_watchdog to also use module option nowayout as it's done in other watchdog drivers
-Date: Wed, 28 Jul 2004 11:41:13 +0200
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>
+	Wed, 28 Jul 2004 05:47:28 -0400
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: linux-kernel@vger.kernel.org
+Subject: mke2fs -j goes nuts on 3Ware 8506-4LP
+Date: Wed, 28 Jul 2004 10:50:19 +0100
+User-Agent: KMail/1.6.1
 MIME-Version: 1.0
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
+Content-Type: Text/Plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200407281141.13362.arekm@pld-linux.org>
-X-Spam-Score: 0.0 (/)
-X-Spam-Report: Points assigned by spam scoring system to this email. Note that message
-	is treated as spam ONLY if X-Spam-Flag header is set to YES.
-	If you have any report questions, see report postmaster@beep.pl for details.
-	Content analysis details:   (0.0 points, 25.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-X-Authenticated-Id: arekm 
+Message-Id: <200407281050.24958.m.watts@eris.qinetiq.com>
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.26.0.10; VDF: 6.26.0.48; host: mailr.qinetiq-tim.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Convert ipmi_watchdog to also use module option ,,nowayout'' as it's done in other watchdog drivers.
-
-Signed-off-by: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-
---- linux.org/drivers/char/ipmi/ipmi_watchdog.c.org 2004-07-28 11:29:47.300755696 +0200
-+++ linux/drivers/char/ipmi/ipmi_watchdog.c     2004-07-28 11:33:25.537578656 +0200
-@@ -129,6 +129,12 @@
- #define        WDIOC_GET_PRETIMEOUT     _IOW(WATCHDOG_IOCTL_BASE, 22, int)
- #endif
-
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+static int nowayout = 1;
-+#else
-+static int nowayout = 0;
-+#endif
-+
- static ipmi_user_t watchdog_user = NULL;
-
- /* Default the timeout to 10 seconds. */
-@@ -175,6 +181,8 @@
- module_param(start_now, int, 0);
- MODULE_PARM_DESC(start_now, "Set to 1 to start the watchdog as"
-                 "soon as the driver is loaded.");
-+module_param(nowayout, int, 0);
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
-
- /* Default state of the timer. */
- static unsigned char ipmi_watchdog_state = WDOG_TIMEOUT_NONE;
-@@ -704,10 +712,10 @@
- {
-        if (iminor(ino)==WATCHDOG_MINOR)
-        {
--#ifndef CONFIG_WATCHDOG_NOWAYOUT
--               ipmi_watchdog_state = WDOG_TIMEOUT_NONE;
--               ipmi_set_timeout(IPMI_SET_TIMEOUT_NO_HB);
--#endif
-+               if (!nowayout) {
-+                       ipmi_watchdog_state = WDOG_TIMEOUT_NONE;
-+                       ipmi_set_timeout(IPMI_SET_TIMEOUT_NO_HB);
-+               }
-                ipmi_wdog_open = 0;
-        }
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
--- 
-Arkadiusz Mi¶kiewicz     CS at FoE, Wroclaw University of Technology
-arekm.pld-linux.org, 1024/3DB19BBD, JID: arekm.jabber.org, PLD/Linux
+I have a 3Ware 8506-4LP controller with 4 250GB Maxtor SATA drives, in a 
+raid-5 configuration (64K blocks)
+System is:
+Dual Opteron 246 (2GHz)
+2GB RAM
+Tyan S2875 motherboard
+
+Kernel: 2.6.8-rc2 (pre-empt is ON)
+Rest of OS: Mandrake 10.0 AMD64 edition.
+
+When I execute a mke2fs -j /dev/sda7  to format a 600GB partition on the raid 
+as ext3, the system slows to a crawl.
+
+Basically, the inode creation goes fine for the first 1000 nodes or so, then 
+starts slowing to about 1 node per second.
+
+According to 'top' the systems 'buffers' value is almost all my ram and both 
+cpus are at almost 100% in I/O wait.
+
+The system load will start to climb and it eventually hit ~15 before I got 
+bored and rebotoed.
+
+X is totally unresponsive although 'top' does refresh occasionally in a 
+konsole.
+
+
+I do understand that the 3Ware 8506 cards arent exactly stellar at raid-5 (we 
+see ~22MB/sec write and upto 80MB/sec read if we're lucky) but surely a 
+simple format of a filesystem shouldn't tie up the system like this?
+
+Would a different card (3Ware 9500 series or LSI Logic MegaRAID) help here?
+
+Cheers,
+
+Mark.
+
+P.S. As I write this, I'm doing an sa-learn (spamassassin) over 14k messages 
+and the system is a little sluggish even though gkrellm is only showing 
+~1MB/sec on the 3Ware, so I'm guessing these are just pants cards in general.
+Periodically runnung 'sync' helps for a while but it fades again after that.
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ Trusted Information Management
+Trusted Solutions and Services group
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBB3bgBn4EFUVUIO0RAsi1AKDdSQCoGU3XZgQfo7h6yVoYgJxfewCgjdW/
+lQyWsb7xGk1ZCntcDAp8C20=
+=hJon
+-----END PGP SIGNATURE-----

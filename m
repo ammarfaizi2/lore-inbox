@@ -1,32 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288021AbSAHNjY>; Tue, 8 Jan 2002 08:39:24 -0500
+	id <S288027AbSAHNpe>; Tue, 8 Jan 2002 08:45:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288022AbSAHNjF>; Tue, 8 Jan 2002 08:39:05 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14609 "EHLO
+	id <S288028AbSAHNpY>; Tue, 8 Jan 2002 08:45:24 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17169 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288021AbSAHNi4>; Tue, 8 Jan 2002 08:38:56 -0500
-Subject: Re: Two hdds on one channel - why so slow?
-To: petro@auctionwatch.com (Petro)
-Date: Tue, 8 Jan 2002 13:50:08 +0000 (GMT)
-Cc: stevie@qrpff.net (Stevie O), jfbeam@bluetronic.net (Ricky Beam),
-        hahn@physics.mcmaster.ca (Mark Hahn),
-        linux-kernel@vger.kernel.org (Linux Kernel Mail List)
-In-Reply-To: <20020107201938.GB1227@auctionwatch.com> from "Petro" at Jan 07, 2002 12:19:38 PM
+	id <S288027AbSAHNpI>; Tue, 8 Jan 2002 08:45:08 -0500
+Subject: Re: [PATCH][RFC] Lightweight user-level semaphores
+To: matthew@hairy.beasts.org (Matthew Kirkwood)
+Date: Tue, 8 Jan 2002 13:56:30 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0201071902070.5064-101000@sphinx.mythic-beasts.com> from "Matthew Kirkwood" at Jan 07, 2002 08:05:41 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16Nwdk-0006SG-00@the-village.bc.nu>
+Message-Id: <E16Nwju-0006TB-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, Jan 07, 2002 at 03:11:22AM -0500, Stevie O wrote:
-> > You're all DEAD WRONG.
-> > IDE and SCSI both suck!
-> > The way of the future is punch cards!
+>  * I don't do the:
 > 
->     Are there any drivers for a paper-tape reader? 
+> 	if (kfs->user_address != fs)
+> 		goto bad_sem;
+> 
+>    because it doesn't seem to add anything, and prevents
+>    putting these locks in a non-fixed file or SysV SHM
+>    map.
 
-2.2 S/390 code seems to have one
+The security side of it is basically non existant anyway. If you can map it
+you can play naughty. If I decide to do raw I/O DMA directly into that
+segment you either litter the kernel with special cases or accept that
+if you do stupid things it breaks. 
+
+I'm for the latter 8)
+
+> +static inline struct ksem *get_ksem(struct fast_sem *s)
+> +{
+> +	struct ksem *r = (struct ksem*)s->__opaque_ksem;
+> +	if(!r) return NULL;
+> +	if(r->magic != FS_SIG_MAGIC) return NULL;
+
+Bang, dead, raw hardware access - game over. You can't dereference the
+untrusted pointer to check if its valid, even to look at it. Wouldn't it
+be easier and safer to create a two page map, where page 0 is the r/w
+objects and page 1 is mapped r/o or kernel private and consists of identical 
+sized objects ? Then its a case of offset from page start + array bias.
+
+> +	struct ksem *s;
+> +	s = kmalloc(sizeof(*s), GFP_KERNEL);
+
+if(s==NULL) check missing
+ 
+
+Alan

@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264353AbUATEPw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 23:15:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264394AbUATEPw
+	id S262827AbUATEib (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 23:38:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbUATEib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 23:15:52 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:539 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S264353AbUATEPu (ORCPT
+	Mon, 19 Jan 2004 23:38:31 -0500
+Received: from fw.osdl.org ([65.172.181.6]:25246 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262827AbUATEia (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 23:15:50 -0500
-Date: Mon, 19 Jan 2004 20:15:58 -0800
-From: Paul Jackson <pj@sgi.com>
-To: joe.korty@ccur.com
-Cc: colpatch@us.ibm.com, akpm@osdl.org, paulus@samba.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bitmap parsing/printing routines, version 4
-Message-Id: <20040119201558.5aa60752.pj@sgi.com>
-In-Reply-To: <20040120035756.GA15703@tsunami.ccur.com>
-References: <20040114150331.02220d4d.pj@sgi.com>
-	<20040115002703.GA20971@tsunami.ccur.com>
-	<20040114204009.3dc4c225.pj@sgi.com>
-	<20040115081533.63c61d7f.akpm@osdl.org>
-	<20040115181525.GA31086@tsunami.ccur.com>
-	<20040115161732.458159f5.pj@sgi.com>
-	<400873EC.2000406@us.ibm.com>
-	<20040117063618.GA14829@tsunami.ccur.com>
-	<20040117183929.GA24185@tsunami.ccur.com>
-	<400C4966.2030803@us.ibm.com>
-	<20040120035756.GA15703@tsunami.ccur.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 19 Jan 2004 23:38:30 -0500
+Date: Mon, 19 Jan 2004 20:38:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: markw@osdl.org
+Cc: piggin@cyberone.com.au, linux-kernel@vger.kernel.org
+Subject: Re: DBT-2 anticipatory scheduler and filesystem results with 2.6.1
+Message-Id: <20040119203845.332cd5df.akpm@osdl.org>
+In-Reply-To: <200401200005.i0K05do05666@mail.osdl.org>
+References: <200401200005.i0K05do05666@mail.osdl.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Unlike Andrew, I do believe one can have too many comments. 
+markw@osdl.org wrote:
+>
+>  I ran some dbt-2 tests against 5 filesystems with 2.6.1-mm4 and 2.6.1. I
+>  see a degradation from 0 to 7% in throughput. 
 
-How about keeping the comments somewhat separate from the code?
+-mm4 also had readahead changes which will adversely impact database-style
+workloads.  I'd suggest that you revert
 
-Let the code tell its own story, for those who want to read code.  Let
-the comments explain the overall goals and strategy, and perhaps a key
-detail or two that might be confusing.
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1/2.6.1-mm4/broken-out/readahead-revert-lazy-readahead.patch
 
-But don't intermingle the two line by line.  They are as two different
-languages, that speak to different people, and different parts of the
-brain of the bi-lingual.
+and retest.
 
-Make it visually easy for each reader to filter out the 'other stuff.'
+We reverted lazy readahead because it broke NFS linear reads and was doing
+the wrong thing anyway.  We need to come up with something else for
+database-style workloads.
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,80 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315491AbSIDWAN>; Wed, 4 Sep 2002 18:00:13 -0400
+	id <S315540AbSIDWRK>; Wed, 4 Sep 2002 18:17:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315472AbSIDWAM>; Wed, 4 Sep 2002 18:00:12 -0400
-Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:48654 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S315458AbSIDWAK>; Wed, 4 Sep 2002 18:00:10 -0400
-Date: Wed, 4 Sep 2002 15:04:42 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Greg KH <greg@kroah.com>
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Feiya 5-in-1 Card Reader
-Message-ID: <20020904150442.N13478@one-eyed-alien.net>
-Mail-Followup-To: Greg KH <greg@kroah.com>, Andries.Brouwer@cwi.nl,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-	linux-usb-devel@lists.sourceforge.net
-References: <UTC200208312329.g7VNTwF11470.aeb@smtp.cwi.nl> <20020904214402.GA8368@kroah.com>
+	id <S315709AbSIDWRK>; Wed, 4 Sep 2002 18:17:10 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:11904 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S315540AbSIDWRI>;
+	Wed, 4 Sep 2002 18:17:08 -0400
+Date: Wed, 4 Sep 2002 15:21:35 -0700
+From: Bob Miller <rem@osdl.org>
+To: "Juan M. de la Torre" <jmtorre@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Questions on semaphores
+Message-ID: <20020904152135.A2047@doc.pdx.osdl.net>
+References: <20020904212931.GA2014@apocalipsis>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="6yHiY5vv/BiPjcMt"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020904214402.GA8368@kroah.com>; from greg@kroah.com on Wed, Sep 04, 2002 at 02:44:02PM -0700
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2002 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020904212931.GA2014@apocalipsis>; from jmtorre@gmx.net on Wed, Sep 04, 2002 at 11:29:31PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Sep 04, 2002 at 11:29:31PM +0200, Juan M. de la Torre wrote:
+> 
+>  Hi people, I have two question regarding the i386 semaphore implementation
+>  in kernel 2.4.19. 
+>  
+>  Please dont blame me if they are too obvius; i'm a newbie in kernel hacking
+>  :)
+> 
+>  The functions __down, __down_interruptible and __down_trylock (defined
+>  in arch/i386/kernel/semaphore.c) use the global spinlock
+>  'semaphore_lock' to access some fields of the semaphore they are
+>  working on:
+>  
+>  1) Is there any reason to do this?
 
---6yHiY5vv/BiPjcMt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It was easy to do.
 
-I'd like to hold off a few more days while I try to find out what the
-'secret sauce' that the other OSes use for a device like this.
+>  2) Wouldn't it be more scalable to use a per-semaphore lock instead a
+>     global spinlock?
+> 
 
-Oh, and I don't think the INQUIRY changes co-mingled in with the other
-stuff is really any good.
+Yes it would be more scalable, but not as much as you would think.
+The __down, __down_interruptible and __down_trylock code only gets
+invoked when the semaphore is contended  for.
 
-Matt
+>  The function __down_trylock try to get the spinlock using
+>  spin_lock_irqsave, instead of using spin_lock_irq:
+> 
+>  1) why? :)
+> 
 
-On Wed, Sep 04, 2002 at 02:44:02PM -0700, Greg KH wrote:
-> On Sun, Sep 01, 2002 at 01:29:58AM +0200, Andries.Brouwer@cwi.nl wrote:
-> >=20
-> > Without the patch the kernel crashes, or insmod usb-storage hangs.
-> > With the patch the CF part of the device works perfectly.
->=20
-> Matt, is it ok with you for me to add this patch to the tree?
->=20
-> thanks,
->=20
-> greg k-h
+The __down_trylock() code can be called with another lock held.  The
+spin_lock_irqsave()/spin_lock_irqrestore() interface is used to restore
+the irq value for the lock that may already be held.
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
+>  Thanks in advance,
+>  Juanma
+> 
+The code in the 2.5 tree was changed a while back to use the spinlock in
+the wait_queue_head_t to replace the global semaphore spin lock.  So, this
+has been "FIXED" in 2.5.
 
-YOU SEE!!?? It's like being born with only one nipple!
-					-- Erwin
-User Friendly, 10/19/1998
-
---6yHiY5vv/BiPjcMt
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9doN6IjReC7bSPZARAgc3AJ0QnlKmhIgzYkylEDPh5Go9t2FQJwCeO0q2
-eHp9jIP4fJas27cC863lBYI=
-=8rWx
------END PGP SIGNATURE-----
-
---6yHiY5vv/BiPjcMt--
+-- 
+Bob Miller					Email: rem@osdl.org
+Open Source Development Lab			Phone: 503.626.2455 Ext. 17

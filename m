@@ -1,36 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265255AbUHMNQ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265250AbUHMNVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265255AbUHMNQ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 09:16:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265275AbUHMNQz
+	id S265250AbUHMNVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 09:21:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265275AbUHMNVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 09:16:55 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:13017 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S265255AbUHMNP3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 09:15:29 -0400
-Subject: Re: Any news on a higher performance sata_sil SIL_QUIRK_MOD15WRITE
-	workaround?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Clem Taylor <clemtaylor@comcast.net>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <411C4130.4000303@comcast.net>
-References: <411AFD2C.5060701@comcast.net> <411B118B.4040802@pobox.com>
-	 <411C4130.4000303@comcast.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092399186.24406.15.camel@localhost.localdomain>
+	Fri, 13 Aug 2004 09:21:25 -0400
+Received: from 104.engsoc.carleton.ca ([134.117.69.104]:15074 "EHLO
+	certainkey.com") by vger.kernel.org with ESMTP id S265250AbUHMNVW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 09:21:22 -0400
+Date: Fri, 13 Aug 2004 09:15:33 -0400
+From: Jean-Luc Cooke <jlcooke@certainkey.com>
+To: linux-kernel@vger.kernel.org
+Subject: [jlcooke@certainkey.com: Re: SHA-0]
+Message-ID: <20040813131533.GI2192@certainkey.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 13 Aug 2004 13:13:08 +0100
+Content-Type: multipart/mixed; boundary="B4IIlcmfBL/1gGOG"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-08-13 at 05:18, Clem Taylor wrote:
-> I tried, my contact at Seagate doesn't seem to be with them anymore (I 
-> haven't worked in the storage space in quite some time).
 
-I was told the affected drive list was non-disclosure. At that point I
-got bored of playing the game.
+--B4IIlcmfBL/1gGOG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+
+
+--B4IIlcmfBL/1gGOG
+Content-Type: message/rfc822
+Content-Disposition: inline
+
+Date: Fri, 13 Aug 2004 09:13:50 -0400
+From: Jean-Luc Cooke <jlcooke@certainkey.com>
+To: James Morris <jmorris@redhat.com>
+Cc: lkml@vger.kernel.org
+Subject: Re: SHA-0
+Message-ID: <20040813131350.GH2192@certainkey.com>
+References: <Xine.LNX.4.44.0408122311240.20474-100000@dhcp83-76.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Xine.LNX.4.44.0408122311240.20474-100000@dhcp83-76.boston.redhat.com>
+User-Agent: Mutt/1.5.6+20040523i
+
+No it does not...we think...
+
+SHA-0 is the nick-name for the first draft of SHA put forward by NIST/NSA of
+the US Gov't.  Cryptographers got up in arms about how it had a "lazy bit" (a
+bit that does not effect the output of the hash) and how it did not have
+enough rounds.
+
+So, they named the "first" SHA SHA-0 because it wasn't good enough.  And
+SHA-1 the "first released" SHA.  SHA-1 was designed to be stronger than
+SHA-0 in at least one of the ways SHA-0 was recently exploited.
+
+Still, this is a very interesting development in the field of hash function
+cryptanalysis.  Biham should be co-presenting a paper explain how they did
+it soon.  They give allusion to a possible attack on SHA-1...but I hear it's
+still theoretical.
+
+SHA-256 is looking better.  Though SHA-1 is still strong enough, it may not
+last to its 2012 "expiry date" for vulnerabilities to collision attacks set
+by Lenstra/Verheul in (1).
+
+Cheers,
+
+JLC
+
+(1) Selecting Cryptographic Key Sizes</a> by Arjen K. Lenstra, Eric R. Verheul
+    <http://www.cacr.math.uwaterloo.ca/conferences/1999/ecc99/lenstra.doc>
+
+On Thu, Aug 12, 2004 at 11:12:03PM -0400, James Morris wrote:
+> Hi Jean-Luc,
+> 
+> I read on sci.crypt about the SHA-0 collision, do you know if this casts 
+> doubt on SHA-1?
+> 
+> - James
+> -- 
+> James Morris
+> <jmorris@redhat.com>
+> 
+
+--B4IIlcmfBL/1gGOG--

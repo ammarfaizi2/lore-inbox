@@ -1,64 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271270AbTHMAVz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 20:21:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271276AbTHMAVx
+	id S271330AbTHMAkx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 20:40:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271331AbTHMAkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 20:21:53 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:50150 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S271270AbTHMAVt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 20:21:49 -0400
-Date: Tue, 12 Aug 2003 17:24:50 -0700
-From: Mike Anderson <andmike@us.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Andries Brouwer <aebr@win.tue.nl>,
-       linux-scsi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [PATCH] oops in sd_shutdown
-Message-ID: <20030813002450.GA8712@beaverton.ibm.com>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	Andries Brouwer <aebr@win.tue.nl>, linux-scsi@vger.kernel.org,
-	linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.53.0308111426570.16008@thevillage.soulcatcher> <20030812002844.B1353@pclin040.win.tue.nl> <20030812075353.A18547@infradead.org> <20030812213549.GA2158@kroah.com>
+	Tue, 12 Aug 2003 20:40:53 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40930 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271330AbTHMAkv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 20:40:51 -0400
+Date: Tue, 12 Aug 2003 17:37:42 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: greg@kroah.com, willy@debian.org, davem@redhat.com,
+       linux-kernel@vger.kernel.org,
+       kernel-janitor-discuss@lists.sourceforge.net
+Subject: Re: C99 Initialisers
+Message-Id: <20030812173742.6e17f7d7.rddunlap@osdl.org>
+In-Reply-To: <3F3986ED.1050206@pobox.com>
+References: <20030812020226.GA4688@zip.com.au>
+	<1060654733.684.267.camel@localhost>
+	<20030812023936.GE3169@parcelfarce.linux.theplanet.co.uk>
+	<20030812053826.GA1488@kroah.com>
+	<20030812112729.GF3169@parcelfarce.linux.theplanet.co.uk>
+	<20030812180158.GA1416@kroah.com>
+	<3F397FFB.9090601@pobox.com>
+	<20030812171407.09f31455.rddunlap@osdl.org>
+	<3F3986ED.1050206@pobox.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030812213549.GA2158@kroah.com>
-X-Operating-System: Linux 2.0.32 on an i486
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH [greg@kroah.com] wrote:
-> On Tue, Aug 12, 2003 at 07:53:53AM +0100, Christoph Hellwig wrote:
-> > On Tue, Aug 12, 2003 at 12:28:44AM +0200, Andries Brouwer wrote:
-> > > I see an Oops in the SCSI code, caused by the fact that sdkp is NULL
-> > > in sd_shutdown. "How can that be?", you will ask - dev->driver_data was set
-> > > in sd_probe. But in my case sd_probe never finished. An insmod usb-storage
-> > > hangs forever, or at least for more than six hours, giving ample opportunity
-> > > to observe this race between sd_probe and sd_shutdown.
-> > > (Of course sd_probe hangs in sd_revalidate disk.)
-> > 
-> > Well, this same problem could show upb in any other driver.  Could
-> > you instead send a patch to Pat that the driver model never calls
-> > the shutdown method for a driver that hasn't finished ->probe?
-> 
-> I think it already will not do that due to taking the bus->subsys.rwsem
-> before calling either probe() or remove().
-> 
+On Tue, 12 Aug 2003 20:31:41 -0400 Jeff Garzik <jgarzik@pobox.com> wrote:
 
-Is the shutdown being called directly? The shutdown call is protected by
-a different rwsem. Depending on the call graph setting dev->driver on
-return of probe may provide a solution. I have not looked at all probe
-routines to understand if this would cause any bad side effects.
+| Randy.Dunlap wrote:
+| > On Tue, 12 Aug 2003 20:02:03 -0400 Jeff Garzik <jgarzik@pobox.com> wrote:
+| > 
+| > | Greg KH wrote:
+| > | > In the end, it's up to the maintainer of the driver what they want to
+| >                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| > | > do.  So, Jeff and David, here's a patch against the latest 2.6.0-test3
+| > | > tg3.c that converts the pci_device_id table to C99 initializers.  If you
+| > | > want to, please apply it.
+| > 
+| > I strongly agree with Greg's comment above.
+| > | 
+| > | it expands a few lines to a bazillion :(   I would rather leave it as 
+| > | is...  you'll find several PCI ethernet drivers with pci_device_id 
+| > | entries that fit entirely on one line, and I think that compactness has 
+| > | value at least to me.
+| > 
+| > However, I would change for readability.  Maybe not my readability,
+| > but for all others who read and try to help maintain all of Linux
+| > source code.
+| 
+| 
+| I find the compact form quite readable, and comfortable on the eyes. 
 
-Andries,
-	Can you send the oops output?
+and since you are the drivers/net/ maintainer, you can make the decision.
+However, in the end, it's not just about you.  You are the primary
+maintainer but not the only user or maintainer of those drivers.
 
--andmike
+| Users don't seem to complain, either.  I get compact-form pci_device_id 
+| patches from Joe Sixpack quite often :)
+| 
+| Expanding this device id struct to use C99 initializers isn't terribly 
+| scalable:  once you get past just a few ids, you bloat up the source 
+| code considerably.  I would much rather move the PCI ids out of the 
+| drivers altogether, into some metadata file(s) in the kernel source 
+| tree, than bloat up tg3, tulip, e100, and the other PCI id-heavy 
+| drivers' source code.
+
+That last few lines certainly sounds desirable.
+
 --
-Michael Anderson
-andmike@us.ibm.com
-
+~Randy				For Linux-2.6, see:
+http://www.kernel.org/pub/linux/kernel/people/davej/misc/post-halloween-2.5.txt

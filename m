@@ -1,123 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266805AbUJNS3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266807AbUJNS33@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266805AbUJNS3b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 14:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266793AbUJNS25
+	id S266807AbUJNS33 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 14:29:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266837AbUJNS3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 14:28:57 -0400
-Received: from rproxy.gmail.com ([64.233.170.207]:32571 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S266805AbUJNRfj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 13:35:39 -0400
-Message-ID: <265e388f041014103573dad0f9@mail.gmail.com>
-Date: Thu, 14 Oct 2004 12:35:38 -0500
-From: Vx Glenn <VxGlenn@gmail.com>
-Reply-To: Vx Glenn <VxGlenn@gmail.com>
-To: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: select, jiffies, and SIGALRM
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <005d01c4b19d$de6e2a00$6601a8c0@northbrook>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 14 Oct 2004 14:29:09 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:62472 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S266838AbUJNRir (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 13:38:47 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: TimO <hairballmt@mcn.net>, "Richard B. Johnson" <root@chaos.analogic.com>
+Subject: Re: Linux-2.6.8 Hates DOS partitions
+Date: Thu, 14 Oct 2004 20:38:05 +0300
+User-Agent: KMail/1.5.4
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0410131329110.3818@chaos.analogic.com> <20041013213519.GA3379@pclin040.win.tue.nl> <416D15BB.9020002@mcn.net>
+In-Reply-To: <416D15BB.9020002@mcn.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
-References: <fa.g84jc6u.73qi0a@ifi.uio.no>
-	 <005d01c4b19d$de6e2a00$6601a8c0@northbrook>
+Content-Disposition: inline
+Message-Id: <200410142038.05141.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the insight. I looked more closely at the trace I have and
-I see the POSIX timer is adversely affected by the wrap-around of the
-jiffies counter.
-
-getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={2146931,
-982728}}) = 0
-getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={2146931,
-962731}}) = 0
-getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={2146931,
-962731}}) = 0
-getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={131, 601993}}) = 0
-getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={131, 601993}}) = 0
-getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={131, 601993}}) = 0
-getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={131, 599993}}) = 0
-getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={131, 599993}}) = 0
-
-And when the SIGALRM fires, the app does not handle it.
-
-My next question is, should the POSIX timer be affected like this? I
-guess if it uses the jiffies counter, like everything else, it
-probably would.
-
-
-
-On Wed, 13 Oct 2004 21:28:26 -0600, Robert Hancock <hancockr@shaw.ca> wrote:
-> I see calls to getitimer, so I'm assuming it's also using setitimer. SIGALRM
-> is what you get when those timers go off - if it's not handling that, that's
-> a bug, but presumably the timer is in there for a reason..
+> Having experienced a similar but not exact situation; I'm going to
+> suggest that your BIOS is to blame.  (AMI?)  If you hadn't already
+> done a MBR restore; I would have suggested for you to remove the ATA
+> disk to see if you could once again boot to DOS.  You might remove
+> it anyway to see if a boot from DOS floppy will again allow you to
+> 'see' the DOS D:\ partition.
+>    My situation actually arose from a motherboard swap; AOpen/Award/K7
+> --> GByte/AMI/AthlonXP.  Linux booted fine and ran for 2 weeks with-
+> out problem.  I could even see/read all the DOS/VFAT partitions just
+> fine.  It wasn't until I went to boot Win98 that I noticed the prob-
+> lem(Invalid system disk).  Booting from a floppy showed a "Drive not
+> ready" for C:(hda2); D:(hdc1) looked fine but became corrupt as soon
+> as I wrote to it, and E:(hdc2) didn't even show.  I made sure to
+> transfer the IDE settings exactly but no amount of war would allow
+> both systems to boot from the same hard drive(ATA)on the GByte/AMI
+> board and I eventually managed to trash the Linux / as well.  Another
+> motherboard with an Award/Pheonix Bios, a little restoration and all
+> is once again right with the(my) world.
 > 
-> 
-> 
-> 
-> ----- Original Message -----
-> From: "Vx Glenn" <VxGlenn@gmail.com>
-> Newsgroups: fa.linux.kernel
-> To: <linux-net@vger.kernel.org>; <linux-kernel@vger.kernel.org>
-> Sent: Wednesday, October 13, 2004 10:13 AM
-> Subject: select, jiffies, and SIGALRM
-> 
-> > Hi all,
-> >
-> > I am seeing an issue relating to the jiffies counter wrapping around
-> > at 0x7FFFFFFF.
-> >
-> > This is a legacy application, and when it runs on 32-bit Unix-Like
-> > OS's, the application silently dies without leaving core after 248
-> > days.
-> >
-> > I was able to manipulate the jiffies counter and run the application.
-> > I was able to reproduce the problem. I captured an strace log, and I
-> > see that SIGALRM (alarm clock) is raised after select times out
-> > (because of no data).
-> >
-> > I can add a signal handler to intercept the SIGALRM. But my question
-> > is, why should the signal be raised?
-> >
-> > ---[ strace.log ]---
-> > select(1024, [3 4 5 6], NULL, NULL, {0, 320000}) = 0 (Timeout)
-> > getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={0, 684895}})
-> > = 0
-> > adjtimex({modes=32769, offset=0, freq=0, maxerror=16384000,
-> > esterror=16384000, status=64, constant=2, precision=1,
-> > tolerance=33554432, time={1097551596, 43475}}) = 5
-> > getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={0, 684895}})
-> > = 0
-> > select(1024, [3 4 5 6], NULL, NULL, {1, 0}) = ? ERESTARTNOHAND (To be
-> > restarted)
-> > --- SIGALRM (Alarm clock) @ 0 (0) ---
-> > Process 4881 detached
-> > ---[ eof strace.log ]---
-> >
-> >
-> > Anyone have any ideas?
-> >
-> >
-> > --
-> > You're not your Job;
-> > You're not the contents of your wallet.
-> > You're the all singing all dancing crap of the world
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> oh, YMMV   :)
 
+Hehe. I have a HP box here which insists that there are 240 heads
+on large IDE drives, not typical 255. This wreaks havoc when I
+try to swap disks between this box and some saner one. Most OSes
+do not boot after swap.
 
--- 
-Get Firefox 
-http://getfirefox.com
+Of special note is total brain damage of NT4 bootloader.
+Boot sector contains plain simple divide overflow bug and
+even when fixed, the same bug is apparently present in NTLDR.
+Result: cannot boot if NTLDR or kernel file is farther than 2Gb
+from disk beginning.
+--
+vda
+

@@ -1,85 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292813AbSBVLsI>; Fri, 22 Feb 2002 06:48:08 -0500
+	id <S292847AbSBVMJj>; Fri, 22 Feb 2002 07:09:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292844AbSBVLr7>; Fri, 22 Feb 2002 06:47:59 -0500
-Received: from elin.scali.no ([62.70.89.10]:29201 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S292813AbSBVLrt>;
-	Fri, 22 Feb 2002 06:47:49 -0500
-Message-ID: <3C763036.36BB8072@scali.com>
-Date: Fri, 22 Feb 2002 12:49:10 +0100
-From: Steffen Persvold <sp@scali.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13win4lin i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-CC: "David S. Miller" <davem@redhat.com>, jgarzik@mandrakesoft.com,
-        linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-Subject: Re: ioremap()/PCI sickness in 2.4.18-rc2
-In-Reply-To: <20020220.093034.112623671.davem@redhat.com> <Pine.LNX.4.30.0202201940480.20082-100000@elin.scali.no> <20020220133619.A729@vger.timpanogas.org>
-Content-Type: text/plain; charset=us-ascii
+	id <S292848AbSBVMJa>; Fri, 22 Feb 2002 07:09:30 -0500
+Received: from smtp1.ndsu.NoDak.edu ([134.129.111.146]:14346 "EHLO
+	smtp1.ndsu.nodak.edu") by vger.kernel.org with ESMTP
+	id <S292847AbSBVMJW>; Fri, 22 Feb 2002 07:09:22 -0500
+Subject: Re: BCM5700 Gbit driver in 2.2.xx kernel
+From: Reid Hekman <reid.hekman@ndsu.nodak.edu>
+To: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>
+Cc: john.eskes@npol.politie.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <3C763886.28101.59805C@localhost>
+In-Reply-To: <F5D980430D3ED511A26A08000674A94619B669@npolldap.npol.politie.nl> 
+	<3C763886.28101.59805C@localhost>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 22 Feb 2002 06:09:16 -0600
+Message-Id: <1014379759.19835.41.camel@zeus>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jeff V. Merkey" wrote:
-> 
-> On Wed, Feb 20, 2002 at 07:44:58PM +0100, Steffen Persvold wrote:
-> > On Wed, 20 Feb 2002, David S. Miller wrote:
-> >
-> > >    From: Jeff Garzik <jgarzik@mandrakesoft.com>
-> > >    Date: Wed, 20 Feb 2002 12:26:12 -0500
-> > >
-> > >    type abuse aside, and alpha bugs aside, this looks ok... what is the
-> > >    value of as->msize?
-> > >
-> > > Jeff and Jeff, the problem is one of two things:
-> > >
-> > > 1) when you have ~2GB of memory the vmalloc pool is very small
-> > >    and this it the same place ioremap allocations come from
-> > >
-> > > 2) the BIOS or Linus is not assigning resources of the device
-> > >    properly, or it simple can't because the available PCI MEM space
-> > >    with this much memory is too small
-> > >
-> > > I note that one of the resources of the card is 16MB or so.
-> >
-> > Hi guys,
-> >
-> > There is actually no need to have all three regions mapped at all times is
-> > there Jeff ? In the Scali ICM driver we actually doesn't ioremap() the
-> > prefetchable space at all because this is done with the mmap() method to
-> > the userspace clients. If you have a kernel space client though ioremap()
-> > is used, but only the parts of it that is needed (based on the number of
-> > nodes in the cluser and the shared memory size per node).
-> >
-> > Regards,
-> >
-> 
-> I am not using the adapters in user space, I am using them in kernel
-> space with a distributed RAID agent and file system.  This is a general
-> issue with Hugo's SISCI and IRM drivers and Linux.  They all need to work
-> in every configuration.  If it works with less than 1 GB is should work
-> with > 1GB of memory.
-> 
-> I am looking through get_vm_area() since this is where the bug is.  Your
-> Scali drivers are not the Dolphin released IRM/SISCI but custom drivers
-> you guys sell with **YOUR** software versions, and they are far from
-> general purpose.
-> 
+On Fri, 2002-02-22 at 05:24, Pedro M. Rodrigues wrote:
+>    Probably John Eskes is the just messenger. These silly and huge signatures are 
+> crawling all over the place. 
 
-Jeff,
+Still, the party sending the message is responsible for initiating the
+transmission of this legal mumbo jumbo. By using a service
+provider(employers included) that attach these sorts of messages the
+sender is implicitly assenting to abide by such disclaimers of rights
+and responsibilities. Whether the disclaimer is valid or not is
+irrelevant; if a party submitting a message to a list meant for public
+and open discourse, personally or on behalf of his/her employer tries to
+foist rude and/or onerous legal claims on said message, especially with
+disregard to bandwidth and etiquette, they should fully expect to be
+booted or blocked from the list.
 
-I really don't think you're in a position to say wether the Scali driver is
-general purpose or not, but in any case this issue is OT. My point is that it
-is not a good idea to keep the prefetchable area mapped at all times. The ICM
-driver also has kernel clients (e.g. a ethernet emulation driver) and they only
-ioremap() the areas which is needed based upon the number of nodes in the
-cluster they communicate with (and only a few Kbytes is mapped from each node). 
+> If they didn't have internal policies, who would have? :)
+
+Policies are fine. Nobody has anything against policy. If, however, that
+policy dictates that one is forced to append a load of crap on every
+transmission to a public mailing list, then the list admin has every
+right to blacklist that person. It doesn't matter that the sender may
+have no control over the appended boilerplate. If the sender doesn't
+agree with or ignores his provider's/employer's policy it's his
+responsibility to get the policy changed or not use such a crap
+provider. There are plenty of decent free email providers out there that
+don't pull this kind of crap, so I'd suggest using one of those instead.
+
+If a submitter to linux-kernel with such nasty and crude legalese is
+required to do so on company business in some official capacity, then
+I'd say they have more serious problems than getting blacklisted.
+
+Sorry for the offtopic post, I just had to get that off my chest. The
+only way to get people to stop pulling stupid-disclaimer-tricks is to
+call them on it and not be afraid to get a little rough.
 
 Regards,
--- 
-  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best
- mailto:sp@scali.com |  http://www.scali.com  | performing MPI implementation:
-Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.13.8 -
-Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >320MBytes/s and <4uS latency
+Reid
+

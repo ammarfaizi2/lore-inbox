@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268164AbUHFP7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265724AbUHFQDX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268164AbUHFP7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 11:59:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268173AbUHFP6N
+	id S265724AbUHFQDX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 12:03:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUHFQCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 11:58:13 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42898 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268140AbUHFPtv
+	Fri, 6 Aug 2004 12:02:47 -0400
+Received: from mail01.hpce.nec.com ([193.141.139.228]:6613 "EHLO
+	mail01.hpce.nec.com") by vger.kernel.org with ESMTP id S268153AbUHFP5w
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 11:49:51 -0400
-Message-ID: <4113A839.40603@pobox.com>
-Date: Fri, 06 Aug 2004 11:48:09 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Fri, 6 Aug 2004 11:57:52 -0400
+From: Erich Focht <efocht@hpce.nec.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Date: Fri, 6 Aug 2004 17:55:40 +0200
+User-Agent: KMail/1.6.2
+Cc: lse-tech@lists.sourceforge.net, Paul Jackson <pj@sgi.com>, akpm@osdl.org,
+       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
+       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
+       colpatch@us.ibm.com, Simon.Derr@bull.net, ak@suse.de, sivanich@sgi.com
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <200408061730.06175.efocht@hpce.nec.com> <267050000.1091806507@[10.10.2.4]>
+In-Reply-To: <267050000.1091806507@[10.10.2.4]>
 MIME-Version: 1.0
-To: Mark Lord <lkml@rtr.ca>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Todd Poynor <tpoynor@mvista.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       tim.bird@am.sony.com, dsingleton@mvista.com
-Subject: Re: [PATCH] Configure IDE probe delays
-References: <20040730191100.GA22201@slurryseal.ddns.mvista.com> <1091226922.5083.13.camel@localhost.localdomain> <410AEDC8.6030901@pobox.com> <410FCF9A.0@rtr.ca>
-In-Reply-To: <410FCF9A.0@rtr.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408061755.41016.efocht@hpce.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
-> I'm the dude responsible for the infamous "50 milliseconds" here.
+On Friday 06 August 2004 17:35, Martin J. Bligh wrote:
+> > I'd vote for cpusets going in soon. CKRM could be extended by
+> > a cpusets controller which should be pretty trivial when using the
+> > infrastructure of this patch. It simply needs to create classes
+> > (cpusets) and attach processes to them. The enforcement of resources
+> > happens automatically. When CKRM is mature to enter the kernel, one
+> > could drop /dev/cpusets in favor of the CKRM way of doing it.
 > 
-> I agree that (1) it is overkill, (2) it could be optimised,
-> and (3) it is very very non-standard.
-> 
-> But it also works extraordinarilly well.  I still am very active
-> with ATA and SATA driver development, and the basic Linux IDE probe
-> works for me on vendor hardware where their own standards-specific
-> routines sometimes fail (even in their windows drivers).
-> 
-> If possible, it would be best to let it be, and over time it will
-> be less and less important as SATA and kin take over the universe.
+> But I think that's dangerous. It's very hard to get rid of existing user
+> interfaces ... I'd much rather we sorted out what we're doing BEFORE
+> putting either in the kernel.
 
-Honestly, this is what I would prefer:  leave drivers/ide probing alone. 
-    As we say in the South, "if it ain't broke, don't fix it"
+So the user interfaces should be adapted before? I think this is
+simple and then the elimination of /dev/cpusets in favor of /rcfs is
+just deletion of code plus a simbolic link. The classes and cpusets
+are both directories. The files in cpusets are: 
+ - cpus: list of CPUs in that cpuset
+ - mems: list of Memory Nodes in that cpuset
+ - cpu_exclusive flag: is cpu placement exclusive?
+ - mem_exclusive flag: is memory placement exclusive?
+ - tasks: list of tasks (by pid) attached to that cpuset
+The files in a CKRM class directory:
+ - stats   : statistics (not needed for cpusets)
+ - shares  : could contain cpus, mems, cpu_exclusive, mem_exclusive
+ - members : same as reading /dev/cpusets/.../tasks
+ - target  : same as writing /dev/cpusets/.../tasks
 
-Long term, migrate to libata which should provide quite rapid PATA probing.
+Changing the "shares" would mean something like
+  echo "cpus +6-10" > .../shares
 
+Just an idea...
 
-> One possibility here would be to augment it with reset signature probing,
-> and/or a cyl-high read/write test.  These could speed things up for
-> more mainstream cases.  But I'm not going to touch what's there myself!
-
-libata already does this :)
-
-	Jeff
-
+Regards,
+Erich
 

@@ -1,37 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131658AbRAQJjg>; Wed, 17 Jan 2001 04:39:36 -0500
+	id <S129985AbRAQJnq>; Wed, 17 Jan 2001 04:43:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131775AbRAQJj1>; Wed, 17 Jan 2001 04:39:27 -0500
-Received: from [172.16.18.67] ([172.16.18.67]:39555 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S131658AbRAQJjI>; Wed, 17 Jan 2001 04:39:08 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <200101162111.f0GLBNb14141@webber.adilger.net> 
-In-Reply-To: <200101162111.f0GLBNb14141@webber.adilger.net> 
-To: Andreas Dilger <adilger@turbolinux.com>
-Cc: Venkatesh Ramamurthy <Venkateshr@ami.com>,
-        "'Bryan Henderson'" <hbryan@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux not adhering to BIOS Drive boot order? 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 17 Jan 2001 09:38:47 +0000
-Message-ID: <20276.979724327@redhat.com>
+	id <S131620AbRAQJng>; Wed, 17 Jan 2001 04:43:36 -0500
+Received: from stud3.tuwien.ac.at ([193.170.75.13]:17163 "EHLO
+	stud3.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id <S129985AbRAQJnV>; Wed, 17 Jan 2001 04:43:21 -0500
+Date: Wed, 17 Jan 2001 10:43:13 +0100 (MET)
+From: Stefan Ring <e9725446@student.tuwien.ac.at>
+To: "Mike A. Harris" <mharris@opensourceadvocate.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.0.37 crashes immediately
+In-Reply-To: <Pine.LNX.4.31.0101162302550.722-100000@asdf.capslock.lan>
+Message-ID: <Pine.HPX.4.10.10101171041430.18039-100000@stud3.tuwien.ac.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Holy ancient and unsupported kernel + distribution batman.  ;o)
+> 
+> Have you tried 2.0.39 (said with a slight grin)  ;o)
 
-adilger@turbolinux.com said:
->  One reason why this may NOT ever make it into the kernel is that I
-> know "kernel poking at devices" is really frowned upon. 
-
-A possible alternative is to specify drives by serial number. 
-
---
-dwmw2
-
+Ahh, it was my fault. I forgot about binutils. Strange enough, 2.0.36
+worked and 2.0.37 not. There is no change to the Changes file between
+these two versions, however.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

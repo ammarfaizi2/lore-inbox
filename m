@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262881AbSKMWr6>; Wed, 13 Nov 2002 17:47:58 -0500
+	id <S263270AbSKMWrp>; Wed, 13 Nov 2002 17:47:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262924AbSKMWr5>; Wed, 13 Nov 2002 17:47:57 -0500
-Received: from packet.digeo.com ([12.110.80.53]:49345 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262881AbSKMWr4>;
-	Wed, 13 Nov 2002 17:47:56 -0500
-Message-ID: <3DD2D830.5914E698@digeo.com>
-Date: Wed, 13 Nov 2002 14:54:40 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: oops with 2.5.47-mm2
-References: <20021113211539.21064.qmail@linuxmail.org>
-Content-Type: text/plain; charset=us-ascii
+	id <S262924AbSKMWro>; Wed, 13 Nov 2002 17:47:44 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:4011 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262881AbSKMWrn>; Wed, 13 Nov 2002 17:47:43 -0500
+Subject: Re: local APIC may cause XFree86 hang
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <15826.53818.621879.661253@kim.it.uu.se>
+References: <15826.53818.621879.661253@kim.it.uu.se>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Nov 2002 22:54:41.0038 (UTC) FILETIME=[A6751AE0:01C28B67]
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 13 Nov 2002 23:19:29 +0000
+Message-Id: <1037229569.11996.205.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paolo Ciarrocchi wrote:
-> 
-> Hi Andrew,
-> I can reproduce an oops simply running fillmem 400
-> 
-> kernel is 2.5.47-mm2
-> fs is ext3.
-> 
-> ..
-> >>EIP; c012e137 <get_fs_type+7/30>   <=====
+On Wed, 2002-11-13 at 22:29, Mikael Pettersson wrote:
+> Does XFree86 (its core or particular drivers) use vm86() to
+> invoke, possibly graphics card specific, BIOS code?
+> That would explain the hangs I got. The fix would be to
+> disable the local APIC around vm86()'s BIOS calls, just like
+> we now disable it before APM suspend.
 
-Sorry, don't know.  It doesn't happen here.  It looks like the
-filesystem registration code was affected by the recent modules improvement.
+It does yes
 
-If you can reproduce it, could you please test 2.5.47 plus 
-just the -bk changes?  They are in
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.47/2.5.47-mm2/broken-out/linus.patch

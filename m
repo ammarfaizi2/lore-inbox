@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131813AbRCUW4y>; Wed, 21 Mar 2001 17:56:54 -0500
+	id <S131830AbRCUXMo>; Wed, 21 Mar 2001 18:12:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131817AbRCUW4o>; Wed, 21 Mar 2001 17:56:44 -0500
-Received: from viper.haque.net ([64.0.249.226]:21646 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S131813AbRCUW4e>;
-	Wed, 21 Mar 2001 17:56:34 -0500
-Date: Wed, 21 Mar 2001 17:55:43 -0500 (EST)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: Andreas Dilger <adilger@turbolinux.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: ext2_unlink fun
-In-Reply-To: <200103212128.f2LLSRx20724@webber.adilger.int>
-Message-ID: <Pine.LNX.4.32.0103211750020.31946-100000@viper.haque.net>
+	id <S131821AbRCUXMX>; Wed, 21 Mar 2001 18:12:23 -0500
+Received: from ns-inetext.inet.com ([199.171.211.140]:17572 "EHLO
+	ns-inetext.inet.com") by vger.kernel.org with ESMTP
+	id <S131819AbRCUXMU>; Wed, 21 Mar 2001 18:12:20 -0500
+Message-ID: <3AB9352A.71E42C38@inet.com>
+Date: Wed, 21 Mar 2001 17:11:38 -0600
+From: Eli Carter <eli.carter@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.5-15 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Patrick O'Rourke" <orourke@missioncriticallinux.com>
+CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <3AB9313C.1020909@missioncriticallinux.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Mar 2001, Andreas Dilger wrote:
+Patrick O'Rourke wrote:
+> 
+> Since the system will panic if the init process is chosen by
+> the OOM killer, the following patch prevents select_bad_process()
+> from picking init.
+> 
+> Pat
+> 
+> --- xxx/linux-2.4.3-pre6/mm/oom_kill.c  Tue Nov 14 13:56:46 2000
+> +++ linux-2.4.3-pre6/mm/oom_kill.c      Wed Mar 21 15:25:03 2001
+> @@ -123,7 +123,7 @@
+> 
+>          read_lock(&tasklist_lock);
+>          for_each_task(p) {
+> -               if (p->pid) {
+> +               if (p->pid && p->pid != 1) {
+>                          int points = badness(p);
+>                          if (points > maxpoints) {
+>                                  chosen = p;
+> 
 
-> > debugfs:  stat 199908231702.txt
-> > Inode: 1343489   Type: bad type    Mode:  0000   Flags: 0x0
-> > Version/Generation: 0
-> > User:     0   Group:     0   Size: 0
-> > File ACL: 0    Directory ACL: 0
-> > Links: 0   Blockcount: 0
-> > Fragment:  Address: 0    Number: 0    Size: 0
-> > ctime: 0x00000000 -- Wed Dec 31 19:00:00 1969
-> > atime: 0x00000000 -- Wed Dec 31 19:00:00 1969
-> > mtime: 0x00000000 -- Wed Dec 31 19:00:00 1969
-> > BLOCKS:
->
-> Maybe you really _are_ having I/O errors?  That would explain the zero'd
-> inode table and the I/O error messages.
+Having not looked at the code... Why not "if( p->pid > 1 )"?  (Or can
+p->pid can be negative?!, um, typecast to unsigned...)
 
-*shrug* Maybe. This is beyond the scope of what I know but I'm trying to
-learn.
-
-If no one else wants anything, I'll be reformatting that partition
-tonight after seeing what fsck does.
-
--- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
-
+Eli
+-----------------------.           Rule of Accuracy: When working toward
+Eli Carter             |            the solution of a problem, it always 
+eli.carter(at)inet.com `------------------ helps if you know the answer.

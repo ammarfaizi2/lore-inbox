@@ -1,84 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268102AbTB1SWi>; Fri, 28 Feb 2003 13:22:38 -0500
+	id <S268095AbTB1SVM>; Fri, 28 Feb 2003 13:21:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268105AbTB1SWi>; Fri, 28 Feb 2003 13:22:38 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:5770 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S268102AbTB1SWg>; Fri, 28 Feb 2003 13:22:36 -0500
-Date: Fri, 28 Feb 2003 10:32:55 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 421] New: Panic from detach_pid 
-Message-ID: <30210000.1046457175@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S268096AbTB1SVM>; Fri, 28 Feb 2003 13:21:12 -0500
+Received: from ns.suse.de ([213.95.15.193]:50956 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S268095AbTB1SVL>;
+	Fri, 28 Feb 2003 13:21:11 -0500
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Bug 420] New: Divide by zero (/proc/sys/net/ipv4/neigh/DEV/base_reachable_time)
+References: <27440000.1046453828@[10.10.2.4].suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 28 Feb 2003 19:31:31 +0100
+In-Reply-To: "Martin J. Bligh"'s message of "28 Feb 2003 18:41:31 +0100"
+Message-ID: <p733cm86yv0.fsf@amdsimf.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=421
+"Martin J. Bligh" <mbligh@aracnet.com> writes:
+> 
+>     echo 0 > /proc/sys/net/ipv4/neigh/DEV/base_reachable_time
+> 
+>   But neigh_rand_reach_time() divide by its argument.
+> 
+>     unsigned long neigh_rand_reach_time(unsigned long base)
+>     {
+> 	return (net_random() % base) + (base>>1);
+>     }
 
-           Summary: Panic from detach_pid
-    Kernel Version: 2.5.63
-            Status: NEW
-          Severity: blocking
-             Owner: rml@tech9.net
-         Submitter: jkenefic@us.ibm.com
+Don't do that then. The sysctl is root-only. There are lots of ways to
+break the system by writing bogus values into root only configuration
+options. That is why they are root only
 
+I would close the report as WONTFIX.
 
-Distribution: 
- RedHat 8.0
-
-Hardware Environment:  
- x86 8 processor system with 12Gb ram 
- 2 30gb scsi, intel pro 1000
- and 5 client systems
-
-Software Environment:  
- MySql server on 8-way, version 3.23.52-3
- dbgrinder.pl from ltp.sf.net on clients
-
-Problem Description:
- A MySql database server running on an 8-way x86 system with load
- driven from 5 clients (7 instances of dbgrinder.pl on each system)
- produces the following panic.
-
-oops   :  0002
-cpu    :  5
-eip    :  0060:[<c0131254>] Not tainted
-eflags :  00010046
-eip is at detach_pid + 0x1c/0xd4
-
-eax: 6b6b6b6b ebx: 00000002 ecx: 6b6b6b6b edx: 6b6b6b6b
-esi: edce6720 edi: 00004570 ebp: e0a05f1c exp: e0a05f10
-ds: 007b es: 007b ss: 0068
-
-Process mysqld (pid: 919, threadinfo=e0a04000 task=cafb7380)
-Stack: edce6720 edce6720 00004570 e0a05f28 c01210d9 edcd6720 e0a05f44 c012127a
-       edce6720 edce6720 edce6720 00000000 edce6729 e0a05f64 c0122dfa edce6720
-       cafb741c edce67c4 edce6720 00000000 00000246 e0a05fbc c0123143 edce6720
-
-Call Trace:
-[<c01210d9>] --unhash_process +0x39/0x14c
-[<c012127a>] release_task +0x8e/0x1a0
-[<c0122dfa>] wait_task_zombie +0x19a/0x1b4
-[<c0123143>] sys_wait4 +0x137/0x264
-[<c011b518>] default_wake_function +0x0/0x1c
-[<c0109297>] syscall_call +0x7/0xb
-
-Code: 89 50 04 89 02 f0 ff 49 04 0f 94 c0 84 c0 0f 84 98 00 00 00
-<6> Note: mysqld[919] exited with preempt_count 1
-
-
-Steps to reproduce:
-
- 1.)Install and start up Mysql on server,
- 2.)Install dbgrinder.pl on 5 client systems
-    Note: this will require DBI and DBD:mysql from cpan.org
- 3.)Execute 7 instances of dbgringer.pl on each client all 
-    pointed at the server, within 1 hour the server will panic
-
-
+-Andi

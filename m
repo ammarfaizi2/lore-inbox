@@ -1,98 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292370AbSBYWop>; Mon, 25 Feb 2002 17:44:45 -0500
+	id <S292375AbSBYWlz>; Mon, 25 Feb 2002 17:41:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292378AbSBYWnY>; Mon, 25 Feb 2002 17:43:24 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38661 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292370AbSBYWl5>; Mon, 25 Feb 2002 17:41:57 -0500
-Subject: Linux 2.2.21pre3
+	id <S292368AbSBYWll>; Mon, 25 Feb 2002 17:41:41 -0500
+Received: from [208.48.139.185] ([208.48.139.185]:10920 "HELO
+	forty.greenhydrant.com") by vger.kernel.org with SMTP
+	id <S292370AbSBYWkX>; Mon, 25 Feb 2002 17:40:23 -0500
+Date: Mon, 25 Feb 2002 14:40:15 -0800
+From: David Rees <dbr@greenhydrant.com>
 To: linux-kernel@vger.kernel.org
-Date: Mon, 25 Feb 2002 22:56:42 +0000 (GMT)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Message-Id: <E16fU30-0006cD-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.4.18 - Full tarball is OK
+Message-ID: <20020225144015.A32006@greenhydrant.com>
+Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200202252149.g1PLnwe13182@directcommunications.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200202252149.g1PLnwe13182@directcommunications.net>; from chris@directcommunications.net on Mon, Feb 25, 2002 at 09:49:58PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This merges the main backlog stuff as a big chunk. There are some small but
-important fixes left for pre4 then I want to aim for a 2.2.21 about March
-10th or so
+On Mon, Feb 25, 2002 at 09:49:58PM +0000, Chris Funderburg wrote:
+> 
+> FYI - The full tarball already has the missing patch...
+> 
+> So, I think, it's only patch-2.4.18 that has the problem...
 
-2.2.21pre3
-o	Fix a case where a non blocking tty write could	(Peter Benie)
-	get stuck
-o	Fix non blocking midi close on es1370, es1371	(me)
-	sonicvibes right this time 
-o	Fix menu/xconfig warnings			(René Scharfe)
-o	Fix non blocking midi close on cmpci, cs4281,	(me)
-	esssolo, trident.
-o	Add eepro100VE ident				(Hanno Boeck)
-o	Fix DRM oops case				(Herbert Xu)
-o	Fix an oops causing datagram AF_UNIX race	(Paul Menage)
-o	Support newer geodes using new CPUID properly	(Hiroshi Miura)
-o	Fix up RTC build for non pmac ppc boxes		(Tom Rini)
-o	Fix MCE address reporting			(Pete Wyckoff)
-o	Vibra16 docs update				(Neale Banks)
-o	Eicon include file fix				(Herbert Xu)
-o	ISDN loop and header fixes			(Kai Germaschewski)
-o	Fix eepro100 out of memory during init path	(Neale Banks)
-o	Fix BSD partition table handling breakage	(Andries Brouwer)
-o	Add WD XD signature to xd driver		(Paul)
-o	3Ware driver update				(Adam Radford)
-o	S/390 debugging updates				(Carsten Otte)
-o	S/390 DASD updates				(Carsten Otte)
-o	S/390 CIO updates				(Carsten Otte)
-o	Update USB serial, belkin, digi_acceleport,	(Greg Kroah-Hartmann)
-	empeg, ftdsio, edgeport, keyspan, mctu232,
-	omninet, prolific, visor
-o	Cyberjack USB driver				(Matthias Bruestle)
-o	USB ir dongle driver				(Greg Kroah-Hartmann)
-o	Support very large FAT file systems		(Vijay Kumar)
-o	Backport 2.4 modversions build fix		(Mikael Pettersson)
-o	Backport 2.4 es1371 init for new revs		(Julian Anastasov)
-o	3c507 driver fixes				(Mark Mackenzie)
-o	ext2 obscure group descriptor corruption fix	(Daniel Phillips,
-							 Al Viro)
-o	Correct a problem where rpciod didnt give up	(Andreas Haumer)
-	its current dir
+Uh, no, it doesn't.  Using linux-2.4.18.tar.bz2 dated Feb 25, 2002 11:40am:
 
-2.2.21pre2
-o	Fix non blocking midi close on es1370, es1371	(me)
-	sonicvibes
-o	Update osst driver				(Willem Riede)
-o	Update machine check support in 2.2 to match 2.4(Dave Jones)
-o	Additional P4, Rise, Winchip handling for setup	(Dave Jones)
-o	Fix extended MMX initialisation on Cyrix MII	(me)
-o	Backport a lot of x86 setup (cache size etc)	(Dave Jones)
-o	ISDN cleanups					(Kai Germaschewski)
-o	Backport eicon driver fixes			(Kai Germaschewski)
-o	ISDN ppp fixes					(Andre Beck)
-o	Fix timeout handling in eicon driver		(Kai Germaschewski)
-o	Fix null pointer bug in isdnloop		(Kai Germaschewski)
-o	Menuconfig refresh fixup			(Willy Tarreau)
-o	Modular ati frame buffer build fix		(Krzysztof Taraszka)
-o	Backport VIA chipset fixes to 2.2		(me)
-o	Make DCD high->low work on SX16 with CLOCAL set	(Ado Arnolds)
-
-2.2.21pre1
-o	Fix potential corruption with vmalloc on	(Ralf Baechle)
-	virtually cached boxes
-o	Small PPC build fixups				(Tom Rini)
-o	zImage booting fix				(Kalev Soikonen)
-o	EIO on NFS read fixup				(Trond Myklebust)
-o	Update 3ware raid driver			(Adam Radford)
-o	page_alloc race fix				(Andrea Arcangeli)
-o	Update USB maintainers				(Greg Kroah-Hartmann)
-o	bttv clipcount=0 fix				(Solar Designer)
-o	Fix multiple eepro driver bugs			(Aris)
-o	Sym53c8xx queue handling fix			(Gerard Roudier)
-o	Update SubmittingDrivers document		(Michal Svec)
-o	8139too performance tune			(Jens David)
-o	procfs follow link return fix			(Solar Designer)
-o	Backport SEM_UNDO overflow fix from 2.4		(Leonid Igolnik)
-o	VM86 fixes					(Manfred Spraul)
-o	Fix alpha build					(Kim Heino)
+diff -urN linux-2.4.18-rc4/Makefile linux-2.4.18/Makefile
+--- linux-2.4.18-rc4/Makefile	Mon Feb 25 14:35:52 2002
++++ linux-2.4.18/Makefile	Mon Feb 25 11:37:52 2002
+@@ -1,7 +1,7 @@
+ VERSION = 2
+ PATCHLEVEL = 4
+ SUBLEVEL = 18
+-EXTRAVERSION = -rc4
++EXTRAVERSION =
+ 
+ KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
+ 
+diff -urN linux-2.4.18-rc4/fs/binfmt_elf.c linux-2.4.18/fs/binfmt_elf.c
+--- linux-2.4.18-rc4/fs/binfmt_elf.c	Mon Feb 25 14:35:55 2002
++++ linux-2.4.18/fs/binfmt_elf.c	Mon Feb 25 11:38:08 2002
+@@ -564,9 +564,6 @@
+ 			// printk(KERN_WARNING "ELF: Ambiguous type, using
+ELF\n");
+ 			interpreter_type = INTERPRETER_ELF;
+ 		}
+-	} else {
+-		/* Executables without an interpreter also need a
+personality  */
+-		SET_PERSONALITY(elf_ex, ibcs2_interpreter);
+ 	}
+ 
+ 	/* OK, we are done with that, now set up the arg stuff,

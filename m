@@ -1,129 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262396AbVBLFtm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262398AbVBLGQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262396AbVBLFtm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 00:49:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVBLFtm
+	id S262398AbVBLGQy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 01:16:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbVBLGQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 00:49:42 -0500
-Received: from gizmo03ps.bigpond.com ([144.140.71.13]:63372 "HELO
-	gizmo03ps.bigpond.com") by vger.kernel.org with SMTP
-	id S262410AbVBLFs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 00:48:26 -0500
-Message-ID: <420D98A3.3060508@bigpond.net.au>
-Date: Sat, 12 Feb 2005 16:48:19 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: nagar@watson.ibm.com
-CC: ckrm-tech <ckrm-tech@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ckrm-e17
-References: <41F92A48.2010100@watson.ibm.com>
-In-Reply-To: <41F92A48.2010100@watson.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 12 Feb 2005 01:16:54 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:50317 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262398AbVBLGQw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Feb 2005 01:16:52 -0500
+Date: Fri, 11 Feb 2005 22:16:10 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Chandra Seetharaman <sekharan@us.ibm.com>
+Cc: colpatch@us.ibm.com, dino@in.ibm.com, mbligh@aracnet.com,
+       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, Simon.Derr@bull.net, ak@suse.de,
+       sivanich@sgi.com
+Subject: Re: [ckrm-tech] Re: [Lse-tech] [PATCH] cpusets - big numa cpu and
+ memory placement
+Message-Id: <20050211221610.46bbbd3d.pj@sgi.com>
+In-Reply-To: <20050212013744.GC22159@chandralinux.beaverton.ibm.com>
+References: <20041003083936.7c844ec3.pj@sgi.com>
+	<834330000.1096847619@[10.10.2.4]>
+	<1097014749.4065.48.camel@arrakis>
+	<420800F5.9070504@us.ibm.com>
+	<20050208095440.GA3976@in.ibm.com>
+	<42090C42.7020700@us.ibm.com>
+	<20050208124234.6aed9e28.pj@sgi.com>
+	<20050209175928.GA5710@chandralinux.beaverton.ibm.com>
+	<20050211024606.GB19997@chandralinux.beaverton.ibm.com>
+	<20050211012112.4913a3e2.pj@sgi.com>
+	<20050212013744.GC22159@chandralinux.beaverton.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shailabh Nagar wrote:
-> Version e17 of the Class-based Kernel Resource Management
-> is now available for download from
-> 
-> http://sourceforge.net/project/showfiles.php?group_id=85838&package_id=94608 
-> 
->     
-> The major updates since the previous version include:
-> 1. Numerous bugfixes
-> 2. Control over rate of process forks through the numtasks controller.
-> The rate of forking is a single systemwide parameter affecting all 
-> classes. Existing share-based control over total number of forks allowed 
-> per class remains the same.
-> 3. Interface change: The "target" file has been removed from the RCFS 
-> interface. The same functionality can now be obtained by writing to the 
-> "members" file of any class.
-> 
-> Files released:
-> 
-> ckrm-e17.2610.patch
->     Combined patch against 2.6.10. Includes the numtasks and          
-> listenaq controllers.
-> e17-incr.tar.bz2
->     Tarball of broken down patches. First 10 patches constitute
->     the e16 release and subsequent ones contain the updates since
->     then.
-> cpu.ckrm-e17.v10.patch
->     CPU controller.
-> 
-> 
-> Still to come:
-> 
-> memory controller
-> I/O controller
-> test packages
-> 
-> 
-> Please note that updates to CKRM based on the feedback from lkml on
-> the previous release (http://lkml.org/lkml/2004/11/29/152) are in 
-> progress and will be included in the next release.
-> 
-> Testing and feedback welcome.
+I agree with 97% of what you write, Chandra.
 
-At line 3887 of cpu.ckrm-e17.v10.patch you add the line:
 
-		set_task_cpu(p,this_cpu);
+> one more level of indirection(instead of task->cpuset->cpus_allowed
+> it will be task->taskclass->res[CPUSET]->cpus_allowed).
 
-to the middle of the function wake_up_new_task() resulting in the 
-following code:
+No -- two more levels of indirection (task->cpus_allowed becomes
+task->taskclass->res[CPUSET]->cpus_allowed).
 
-	} else {
-		this_rq = cpu_rq(this_cpu);
 
-		/*
-		 * Not the local CPU - must adjust timestamp. This should
-		 * get optimised away in the !CONFIG_SMP case.
-		 */
-		p->sdu.ingosched.timestamp = (p->sdu.ingosched.timestamp - 
-this_rq->timestamp_last_tick)
-					+ rq->timestamp_last_tick;
-		set_task_cpu(p,this_cpu);
-		__activate_task(p, rq);
-		if (TASK_PREEMPTS_CURR(p, rq))
-			resched_task(rq->curr);
+> But, for your purposes or our discussions one would need only 3 modules
+> of the above (core, rcfs and taskclass). 
 
-		schedstat_inc(rq, wunt_moved);
-		/*
-		 * Parent and child are on different CPUs, now get the
-		 * parent runqueue to update the parent's ->sdu.ingosched.sleep_avg:
-		 */
-		task_rq_unlock(rq, &flags);
-		this_rq = task_rq_lock(current, &flags);
-	}
+Ok.  That was not obvious to me until now.  If there is a section in
+your documentation that explains this, and addresses the needs and
+motivations of someone trying to reuse portions of CKRM in such a
+manner, I missed it.  Whatever ...
 
-where "rq" has been set by the return value of "task_rq_lock(p, 
-&flags)", and the test "(cpu == this_cpu)" has failed with "cpu" set to 
-"task_cpu(p)".  The result of this when the CKRM CPU code is not 
-configured into the build is that "p" will be queued on a runqueue that 
-is not in agreement with "p->thread_info->cpu" which in turn will lead 
-to future use of "task_rq_lock()" locking the wrong run queue and 
-eventually triggering some form of race condition.
+In any case, on the issue that matters to me right now, we agree:
 
-If CKRM CPU is configured into the build the results are less drastic as 
-they only result in "nr_running" being incremented for the wrong run 
-queue.  However, even this will have adverse scheduling effects as it 
-will probably confuse the load balancing code.  Another potentially 
-confusing thing with this code (when CKRM CPU is configured in) is that 
-__activate_task() does NOT queue "p" on "rq" but on the queue found by 
-the call "get_task_lrq(p)".
+> It won't be a happy, productive marriage.
 
-The recommended fix for this problem would be to withdraw the:
+Good.  Thanks.  Good luck to you.
 
-		set_task_cpu(p,this_cpu);
+> PS to everyone else: Wow, you have lot of patience :)
 
-Peter
-PS I reported this to the ckrm-tech list 5 days ago but it was ignored.
+For sure.
+
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401

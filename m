@@ -1,63 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270794AbUJUSaR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270805AbUJUSwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270794AbUJUSaR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 14:30:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270797AbUJUSZ6
+	id S270805AbUJUSwo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 14:52:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270820AbUJUStw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 14:25:58 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:11904 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S270692AbUJUSVm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 14:21:42 -0400
-Date: Thu, 21 Oct 2004 14:21:25 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Module compilation
-In-Reply-To: <20041021201545.GA16474@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.61.0410211415560.14971@chaos.analogic.com>
-References: <Pine.LNX.4.61.0410201034590.12062@chaos.analogic.com>
- <20041021201545.GA16474@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 21 Oct 2004 14:49:52 -0400
+Received: from nwkea-mail-1.sun.com ([192.18.42.13]:59788 "EHLO
+	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
+	id S270797AbUJUSov (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 14:44:51 -0400
+Subject: 2.6.9-bk6 initramfs build failure with separate object dir
+From: Tom Duffy <Thomas.Duffy.99@alumni.brown.edu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: sam@ravnborg.org.sun.com
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-+Wdl3qegcXQYeWMmd4AE"
+Date: Thu, 21 Oct 2004 11:43:42 -0700
+Message-Id: <1098384222.2389.22.camel@duffman>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-1) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Oct 2004, Sam Ravnborg wrote:
 
-> On Wed, Oct 20, 2004 at 10:36:00AM -0400, Richard B. Johnson wrote>
->> ...but it's not CFLAGS that needs to be modified, it's
->> a named variable that doesn't exist yet, perhaps "USERDEF",
->> or "DEFINES".
->
-> Reading the above I cannot what amkes you say that EXTRA_CFLAGS
-> or CFLAGS_module.o cannot be used?
-> Is it the name you do not like or is it some fnctionality
-> you are missing?
->
+--=-+Wdl3qegcXQYeWMmd4AE
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The name is wrong! There are zillions of ways to obtain the
-functionality. Currently we need to piggy-back definitions
-onto compiler flags.
 
-Compiler flags are things like "-Wall" and "-O2", that tell
-the compiler what to do. We need a name to use for definitions,
-"-Dxxx", that #define constants (dynamically at compile-time)
-in the code. Right now, -DMODULE and -D__KERNEL__ are piggybacked
-onto CFLAGS. There really should be a variable called something
-else like DEFINES and it should be exported.
+[tduffy@duffman linux-2.6.9-bk-openib]$ make O=3D/build1/tduffy/openib-work=
+/build/bk/3.4/x86_64/
+  Using /build1/tduffy/openib-work/linux-2.6.9-bk-openib as source for kern=
+el
+  CHK     include/linux/version.h
+make[2]: `arch/x86_64/kernel/asm-offsets.s' is up to date.
+  CHK     include/asm-x86_64/offset.h
+  CHK     include/linux/compile.h
+  GEN_INITRAMFS_LIST usr/initramfs_list
+Using shipped usr/initramfs_list
+  CPIO    usr/initramfs_data.cpio
+ERROR: unable to open 'usr/initramfs_list': No such file or directory
 
->> I see that the normal "defines" is a constant
->> called "CHECKFLAGS", so this isn't appropriate for user
->> modification.
-> CHECKFLAGS is only used when you use "make C=1" - to pass options
-> to sparse.
->
-> 	Sam
->
+Usage:
+        ./usr/gen_init_cpio <cpio_list>
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 GrumpyMips).
-                  98.36% of all statistics are fiction.
+<cpio_list> is a file containing newline separated entries that
+describe the files to be included in the initramfs archive:
+
+# a comment
+file <name> <location> <mode> <uid> <gid>
+dir <name> <mode> <uid> <gid>
+nod <name> <mode> <uid> <gid> <dev_type> <maj> <min>
+
+<name>      name of the file/dir/nod in the archive
+<location>  location of the file in the current filesystem
+<mode>      mode/permissions of the file
+<uid>       user id (0=3Droot)
+<gid>       group id (0=3Droot)
+<dev_type>  device type (b=3Dblock, c=3Dcharacter)
+<maj>       major number of nod
+<min>       minor number of nod
+
+example:
+# A simple initramfs
+dir /dev 0755 0 0
+nod /dev/console 0600 0 0 c 5 1
+dir /root 0700 0 0
+dir /sbin 0755 0 0
+file /sbin/kinit /usr/src/klibc/kinit/kinit 0755 0 0
+make[2]: *** [usr/initramfs_data.cpio] Error 1
+make[1]: *** [usr] Error 2
+make: *** [_all] Error 2
+
+
+--=-+Wdl3qegcXQYeWMmd4AE
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBeANedY502zjzwbwRAryZAJ9e2L4NM8o8nrkCCBDs9SCkpDbAtwCdGBWR
+SU42WJlwgWM9xVOO+w8de7A=
+=ljnm
+-----END PGP SIGNATURE-----
+
+--=-+Wdl3qegcXQYeWMmd4AE--

@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264283AbUEIJbs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264326AbUEIJgz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264283AbUEIJbs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 May 2004 05:31:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264325AbUEIJbs
+	id S264326AbUEIJgz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 May 2004 05:36:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264328AbUEIJgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 May 2004 05:31:48 -0400
-Received: from smtp.mailix.net ([216.148.213.132]:5186 "EHLO smtp.mailix.net")
-	by vger.kernel.org with ESMTP id S264283AbUEIJbr (ORCPT
+	Sun, 9 May 2004 05:36:55 -0400
+Received: from fw.osdl.org ([65.172.181.6]:62679 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264326AbUEIJgx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 May 2004 05:31:47 -0400
-Date: Sun, 9 May 2004 11:31:39 +0200
-From: Alex Riesen <fork0@users.sourceforge.net>
-To: Len Brown <len.brown@intel.com>
-Cc: Bob Gill <gillb4@telusplanet.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-ID: <20040509093139.GA1377@steel.home>
-Reply-To: Alex Riesen <fork0@users.sourceforge.net>
-Mail-Followup-To: Alex Riesen <fork0@users.sourceforge.net>,
-	Len Brown <len.brown@intel.com>, Bob Gill <gillb4@telusplanet.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <A6974D8E5F98D511BB910002A50A6647615FAE21@hdsmsx403.hd.intel.com> <1084071367.2326.62.camel@dhcppc4>
+	Sun, 9 May 2004 05:36:53 -0400
+Date: Sun, 9 May 2004 02:36:21 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Peter J. Braam" <braam@clusterfs.com>
+Cc: intermezzo-devel@lists.sourceforge.net, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org, anton@samba.org
+Subject: Re: 9/10 intermezzos prefer eating memory
+Message-Id: <20040509023621.00e9c1f8.akpm@osdl.org>
+In-Reply-To: <20040509090249.A78D03100BD@moraine.clusterfs.com>
+References: <1083486146.3842.1.camel@laptop.fenrus.com>
+	<20040509090249.A78D03100BD@moraine.clusterfs.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <1084071367.2326.62.camel@dhcppc4>
-User-Agent: Mutt/1.5.6i
-X-SA-Exim-Mail-From: fork0@users.sourceforge.net
-Subject: Re: hdc: lost interrupt ide-cd: cmd 0x3 timed out ...
-Content-Type: text/plain; charset=us-ascii
-X-Spam-Report: *  0.5 RCVD_IN_NJABL_DIALUP RBL: NJABL: dialup sender did non-local SMTP
-	*      [80.140.216.160 listed in dnsbl.njabl.org]
-	*  0.1 RCVD_IN_NJABL RBL: Received via a relay in dnsbl.njabl.org
-	*      [80.140.216.160 listed in dnsbl.njabl.org]
-	*  0.1 RCVD_IN_SORBS RBL: SORBS: sender is listed in SORBS
-	*      [80.140.216.160 listed in dnsbl.sorbs.net]
-	*  2.5 RCVD_IN_DYNABLOCK RBL: Sent directly from dynamic IP address
-	*      [80.140.216.160 listed in dnsbl.sorbs.net]
-X-SA-Exim-Version: 3.1 (built Thu Oct 23 13:26:47 PDT 2003)
-X-SA-Exim-Scanned: Yes
-X-uvscan-result: clean (1BMkeq-0001LT-Rn)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Len Brown, Sun, May 09, 2004 04:56:07 +0200:
-> On Fri, 2004-05-07 at 15:41, Bob Gill wrote:
-> > OK, great!  Adding acpi=noirq to the kernel line made the lost
-> > interrupt problem go away.
+"Peter J. Braam" <braam@clusterfs.com> wrote:
+>
+>  
+> Hi Andrew, 
 > 
-> Bob, Alex,
-> (or anybody else with a SIS-961 that now requires acpi=noirq),
+> I would just like to say that I have no difficulties with intermezzo being
+> rm -rf'd.  There are probably only a handful of users.   
 > 
-> I need some info to find out why your system recently broke.
+> In the past 4 years nobody has supported InterMezzo sufficiently for it to
+> become successful. I have been fortunate to get really good support for the
+> Lustre project.  So I have focussed on that.  Lustre 1.X has become really
+> solid.
+> 
+> The disconnected operation, caching and mirroring functionality of
+> InterMezzo will become available in Lustre as a new feature in version 2.  
+> 
+> So I see no point in keeping InterMezzo if it is a nuisance.  
+> 
+> I am also entirely happy to ask my one part time InterMezzo programmer to do
+> a better job of repeatedly sending pathes until they are in.
+> 
+> Please guide me along.  Thanks!
 > 
 
-will do as soon as I get access to the box again. Monday, that is
+Thanks - such opportunities are all too rare.
 
+Are there any distro people out there who have a significant Intermezzo
+user base, or who see any problems with this?

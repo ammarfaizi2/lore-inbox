@@ -1,79 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263798AbUEMGgR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263828AbUEMGlL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263798AbUEMGgR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 02:36:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263831AbUEMGgR
+	id S263828AbUEMGlL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 02:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263776AbUEMGlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 02:36:17 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:21921 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S263798AbUEMGgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 02:36:09 -0400
-Date: Thu, 13 May 2004 15:35:05 +0900
-From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-Subject: Re: [ANNOUNCE] [PATCH] Node Hotplug Support
-In-reply-to: <1084413887.974.7.camel@nighthawk>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: tokunaga.keiich@jp.fujitsu.com, linux-kernel@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net,
-       lhns-devel@lists.sourceforge.net
-Message-id: <20040513153505.21c5fc15.tokunaga.keiich@jp.fujitsu.com>
-Organization: FUJITSU LIMITED
-MIME-version: 1.0
-X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20040508003904.63395ca7.tokunaga.keiich@jp.fujitsu.com>
- <1083944945.23559.1.camel@nighthawk>
- <20040510104725.7c9231ee.tokunaga.keiich@jp.fujitsu.com>
- <1084167941.28602.478.camel@nighthawk>
- <20040513102751.48c61d48.tokunaga.keiich@jp.fujitsu.com>
- <1084413887.974.7.camel@nighthawk>
+	Thu, 13 May 2004 02:41:11 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:47025 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S263828AbUEMGk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 02:40:58 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: hch@infradead.org, rddunlap@osdl.org, davidm@hpl.hp.com,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
+       drepper@redhat.com
+Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
+References: <m13c66qicb.fsf@ebiederm.dsl.xmission.com>
+	<40A243C8.401@redhat.com> <m1brktod3f.fsf@ebiederm.dsl.xmission.com>
+	<40A2517C.4040903@redhat.com>
+	<m17jvhoa6g.fsf@ebiederm.dsl.xmission.com>
+	<20040512143233.0ee0405a.rddunlap@osdl.org>
+	<16546.41076.572371.307153@napali.hpl.hp.com>
+	<20040512152815.76280eac.akpm@osdl.org>
+	<16546.42537.765495.231960@napali.hpl.hp.com>
+	<20040512161603.44c50cec.akpm@osdl.org>
+	<20040513053051.A5286@infradead.org>
+	<m1lljwsvxr.fsf@ebiederm.dsl.xmission.com>
+	<20040512232009.6b241152.akpm@osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 13 May 2004 00:39:05 -0600
+In-Reply-To: <20040512232009.6b241152.akpm@osdl.org>
+Message-ID: <m1brksesqe.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 May 2004 19:04:47 -0700
-Dave Hansen <haveblue@us.ibm.com> wrote:
+Andrew Morton <akpm@osdl.org> writes:
 
-> On Wed, 2004-05-12 at 18:27, Keiichiro Tokunaga wrote:
-> > On Sun, 09 May 2004 22:45:42 -0700
-> > Dave Hansen <haveblue@us.ibm.com> wrote:
-> > 
-> > > On Sun, 2004-05-09 at 18:47, Keiichiro Tokunaga wrote:
-> > > > There is no NUMA support in the current code yet.  I'll post a
-> > > > rough patch to show my idea soon.  I'm thinking to regard a
-> > > > container device that has PXM as a NUMA node so far.
-> > > 
-> > > Don't you think it would be a good idea to work with some of the current
-> > > code, instead of trying to wrap around it?  
-> > 
-> > Are you saying that LHNS should use the current NUMA code
-> > (or coming code in the future) to support NUMA node hotplug?
+> ebiederm@xmission.com (Eric W. Biederman) wrote:
+> >
+> > So if kexec could actually get a reserved system call number that
+> >  would be the best solution I have seen in this thread.
 > 
-> Absolutely.  Why do we need wrappers when we can offline entire nodes
-> with 6-line shell scripts?  The CPU hotplug interfaces are here today
-> and the memory stuff will be here soon.  Perhaps you could help with the
-> NUMA part.
+> I have no problem with that - it's a major feature, vendors will, I assume,
+> ship it so it's worth blowing the four bytes to pin the ABI down for
+> everyone.
 > 
-> #!/bin/sh
-> NODENUM=$1
-> NODEDIR=/sys/devices/system/node/node${NODENUM}
-> for i in $NODEDIR/cpu* $NODEDIR/memory*; do
-> 	echo 0 > $i/control/online
-> fi
-> echo 0 > $NODEDIR/control/online
+> >  Andrew how close are we to a point where we can look at kexec inclusion?
 > 
-> We don't currently export bus to node mappings in sysfs, but we have
-> them in the kernel, so that won't be too hard to export as well.  
+> Well it's not exactly head-of-queue.  Do any vendors actually intend to
+> ship it?
 
-LHNS is focusing on "container device hotplug". Container device
-could contain CPUs, memory, and/or IO devices.  Container device
-could contain only IO devices.  In this case, LHNS cannot use
-$NODED/control/online (NUMA stuff) for the container device.
+I know of a few products kexec is embedded in already.  As for the
+general purpose distro's I don't know.
 
-By the way, what happen when you issue
-"echo 0 > $NODEDIR/control/online"?  Can you detach it
-from the system after echo-ing?
-
-Thanks,
-Kei
+Eric

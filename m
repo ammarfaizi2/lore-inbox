@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272667AbRHaLUM>; Fri, 31 Aug 2001 07:20:12 -0400
+	id <S272666AbRHaLSm>; Fri, 31 Aug 2001 07:18:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272668AbRHaLUC>; Fri, 31 Aug 2001 07:20:02 -0400
-Received: from mail.loewe-komp.de ([62.156.155.230]:22798 "EHLO
-	mail.loewe-komp.de") by vger.kernel.org with ESMTP
-	id <S272667AbRHaLTr>; Fri, 31 Aug 2001 07:19:47 -0400
-Message-ID: <3B8F7304.33BAE89A@loewe-komp.de>
-Date: Fri, 31 Aug 2001 13:20:36 +0200
-From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-Organization: LOEWE. Hannover
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.9-ac3 i686)
-X-Accept-Language: de, en
+	id <S272667AbRHaLSc>; Fri, 31 Aug 2001 07:18:32 -0400
+Received: from t2.redhat.com ([199.183.24.243]:64252 "EHLO
+	host140.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S272666AbRHaLS0>; Fri, 31 Aug 2001 07:18:26 -0400
+Date: Fri, 31 Aug 2001 12:18:25 +0100 (BST)
+From: Bernd Schmidt <bernds@redhat.com>
+X-X-Sender: <bernds@host140.cambridge.redhat.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Herbert Rosmanith <herp@wildsau.idv-edu.uni-linz.ac.at>,
+        <linux-kernel@vger.kernel.org>, <ptb@it.uc3m.es>
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <Pine.LNX.3.95.1010830171614.18406A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.33.0108311216360.27988-100000@host140.cambridge.redhat.com>
 MIME-Version: 1.0
-To: umesh jaiswal <umesh_j123@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: how to know to which file in kernel the  patch can be applied?
-In-Reply-To: <F78EdcWCJ2geAvaFI7J00002fb5@hotmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-umesh jaiswal wrote:
-> 
-> Dear sir ...
->    I have applied  a linux-2_2_16_diff.htm patch which I have downloaded
-> from kgdb site for remote kernel debugging by giving the command
->             cd /usr/src/linun2.2.16
->            $[linux] patch p0 < linux-2_2_16_diff.htm
-> 
-> But after appling the above  patch  command the console giving the massage :
-> type the file name you want to patch.
->   I don't know sir which file I have to patch for remote kernel debugging
-> support on my development machine .pls help me out.
-> 
+On Thu, 30 Aug 2001, Richard B. Johnson wrote:
+> #define MIN(a, b) ((unsigned int)(a) < (unsigned int)(b) ? (a) : (b))
 
-Most of the patches assume that your current working directory is
-/usr/src
-If you are in /usr/src/linux*  try "patch -p1 <patch"
-You can browse the patch with less and see at the "diff" line what
-the expected hierachy looks like
+> [root@blackhole /root]# sh -v xxx.sh
+> #!/bin/bash
+> cat >/tmp/xxx.c <<EOF
+> gcc -Wall -Wsign-compare -c -o /dev/null /tmp/xxx.c
+> /tmp/xxx.c: In function `main':
+> /tmp/xxx.c:9: warning: signed and unsigned type in conditional expression
+> rm -f /tmp/xxx.c
+> gcc --version
+> 2.96
+>
+> As you can see, the casts are !!!IGNORED!!! in gcc 2.96.
+
+Nope.  The warning refers to the use of a and b in the right-hand side of
+the conditional.  You have a type mismatch in the two arms of the
+expression.
+
+
+Bernd
+

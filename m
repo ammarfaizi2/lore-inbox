@@ -1,54 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270615AbRHWWCU>; Thu, 23 Aug 2001 18:02:20 -0400
+	id <S270619AbRHWWMl>; Thu, 23 Aug 2001 18:12:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270624AbRHWWCB>; Thu, 23 Aug 2001 18:02:01 -0400
-Received: from ppp-165.51.triton.net ([216.65.165.51]:28807 "HELO
-	tabris.domedata.com") by vger.kernel.org with SMTP
-	id <S270615AbRHWWB7>; Thu, 23 Aug 2001 18:01:59 -0400
-Message-ID: <3B857D61.3000108@lycosmail.com>
-Date: Thu, 23 Aug 2001 18:02:09 -0400
-From: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [Very-OT] Best Mobo to get for Linux 2.4.x
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S270624AbRHWWMb>; Thu, 23 Aug 2001 18:12:31 -0400
+Received: from wet-pants.ximian.com ([141.154.95.105]:7296 "EHLO wet-pants")
+	by vger.kernel.org with ESMTP id <S270619AbRHWWMX>;
+	Thu, 23 Aug 2001 18:12:23 -0400
+Subject: mmap() return value when length == 0
+From: jacob berkman <jacob@ximian.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99 (Preview Release)
+Date: 23 Aug 2001 18:12:54 -0400
+Message-Id: <998604774.796.10.camel@wet-pants>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you don't want to answer this, then just ignore it, but help would be 
-greatly appreciated.
+hello,
 
-I'm expecting to sell my system soon and then buy a new system.
+on linux (2.4.9 and 2.2.18), the mmap() syscall will return NULL if the
+length argument is 0 rather than returning MAP_FAILED (-1).  this is
+different than both solaris and hp-ux, and the linux man page doesn't
+indicate that it should do this.
 
-My current vendor is micropro.com (yes. restricting, but let's just say 
-that my dad is paying for it, and this is his current vendor)
+so, is this indeed the desired behaviour or a longstanding bug?
 
-Looking for an AMD T-Bird 1.2 GHz.
-
-I need suggestions on which mobo to get.
-
-I'm assuming that there is no support for the ALi MAGiK1, so my options 
-are limited to the VIA KT{133,266}or the AMD 760, and unfortunately as 
-of today, my vendor doesn't have any mobos w/ the KT266.
-
-Oh well, that's life.
-
-As I can only use one vendor, and _can_ customize but not build my own 
-from scratch, I have only a few options.
-
-DDR
-IWill KA266
-Asus A7A266
-
-straight 266FSB
-IWill KK266-PLUS
-Abit KT7A
-Asus A7V-133
-
-TIA
-Adam
+thanks,
+jacob
 

@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280725AbRLRMB3>; Tue, 18 Dec 2001 07:01:29 -0500
+	id <S281504AbRLRMLA>; Tue, 18 Dec 2001 07:11:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281360AbRLRMBK>; Tue, 18 Dec 2001 07:01:10 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:47377 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S280725AbRLRMBH>;
-	Tue, 18 Dec 2001 07:01:07 -0500
-Date: Tue, 18 Dec 2001 10:01:04 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "David S. Miller" <davem@redhat.com>
-Cc: SteveW@ACM.org, jschlst@samba.org, ncorbic@sangoma.com, eis@baty.hanse.de,
-        dag@brattli.net, torvalds@transmeta.com, marcelo@conectiva.com.br,
-        netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC 2] cleaning up struct sock
-Message-ID: <20011218100104.A2000@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"David S. Miller" <davem@redhat.com>, SteveW@ACM.org,
-	jschlst@samba.org, ncorbic@sangoma.com, eis@baty.hanse.de,
-	dag@brattli.net, torvalds@transmeta.com, marcelo@conectiva.com.br,
-	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20011210230810.C896@conectiva.com.br> <20011210.231826.55509210.davem@redhat.com> <20011218033552.B910@conectiva.com.br> <20011217.225134.91313099.davem@redhat.com>
-Mime-Version: 1.0
+	id <S281552AbRLRMKu>; Tue, 18 Dec 2001 07:10:50 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:7691 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S281504AbRLRMKh>; Tue, 18 Dec 2001 07:10:37 -0500
+Message-ID: <3C1F323F.ED6AE4F4@idb.hist.no>
+Date: Tue, 18 Dec 2001 13:10:39 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.1-pre10 i686)
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com, linux-kernel@vger.kernel.org
+Subject: Re: Mounting a in-ROM filesystem efficiently
+In-Reply-To: <Pine.LNX.3.95.1011217081551.19476A-100000@chaos.analogic.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011217.225134.91313099.davem@redhat.com>
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Dec 17, 2001 at 10:51:34PM -0800, David S. Miller escreveu:
->    From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
->    Date: Tue, 18 Dec 2001 03:35:52 -0200
+"Richard B. Johnson" wrote:
+
 > 
->    the only thing that still has to be done is to remove things
->    like daddr, saddr, rcv_saddr, dport, sport and other ipv4 specific members
->    of struct sock
-> 
-> Actually, I'd like to keep the first couple cache lines of struct
-> sock the way it is :-(  For hash lookups the identity + the hash next
-> pointer fit perfectly in one cache line on nearly all platforms.
+> Security isn't a problem with embedded systems because everything
+> that could possibly be done is handled with a "monitor". There is
+> no shell. If there is no way to execute some foreign executable,
+> you don't have a security issue unless some dumb alleged software
+> engineer added some back-doors to the monitor.
 
-fair
- 
-> Which brings me to...
->    
->    Please let me know if this is something acceptable for 2.5.
-> 
-> What kind of before/after effect do you see in lat_tcp/lat_connect
-> (from lmbench) runs?
+A hacker don't need a /bin/sh or any other onboard software
+to exploit some security flaw.  Assume someone discover that
+your embedded box is vulnerable to a buffer overflow attack
+of the type usually used to get a root shell.  Then they
+discover that running /bin/sh don't work.  What to do?  They
+simply put a simple little shell _in_ the buffer overflow
+code itself.  A hacker don't need to call anything, all he need
+can be downloaded as part of the exploit code.  
 
-Will see today, I concentrated on the cleanup part trying not to harm
-performance  by following the suggestions for the first patch (i.e., just one
-allocation, etc). I'll test it later today, at the lab, UP and SMP (4 and 8
-way) and submit the results here.
+If the room for exploit code is thight - use a two-stage approach.
+The exploit then consists of code that download the rest of the
+code into some other RAM outside the tiny buffer.
 
-Apart from possible performance problems, does the patch looks OK?
+No "dangerous" utilities on board doesn't mean the box is safe at
+all.  The buffer overflow code could contain code for 
+continuing the attack on other boxes, or anything else.
 
-- Arnaldo
+Helge Hafting

@@ -1,29 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261688AbTFOAyd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 20:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbTFOAyd
+	id S261678AbTFOBAf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 21:00:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbTFOBAf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 20:54:33 -0400
-Received: from nycsmtp4out-eri0.rdc-nyc.rr.com ([24.29.99.227]:31189 "EHLO
-	nycsmtp4out-eri0.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id S261688AbTFOAyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 20:54:33 -0400
-Message-ID: <3EEBC759.9070103@sixbit.org>
-Date: Sat, 14 Jun 2003 21:09:45 -0400
-From: John Weber <weber@sixbit.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [linux 2.5.71] Unresolved symbol malloc_sizes
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 14 Jun 2003 21:00:35 -0400
+Received: from smtp.terra.es ([213.4.129.129]:9076 "EHLO tsmtp1.mail.isp")
+	by vger.kernel.org with ESMTP id S261678AbTFOBAe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jun 2003 21:00:34 -0400
+Date: Sun, 15 Jun 2003 03:14:21 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.70-mm9
+Message-Id: <20030615031421.1ed6640a.diegocg@teleline.es>
+In-Reply-To: <20030613013337.1a6789d9.akpm@digeo.com>
+References: <20030613013337.1a6789d9.akpm@digeo.com>
+X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get warnings that __kmalloc and malloc_sizes are undefined in all the 
-drivers that I build as modules in 2.5.71.  This is not solely a matter 
-of including slab.h either.  The orinoco_cs driver, for example, 
-includes slab.h and I still get this error.  Any pointers?
+On Fri, 13 Jun 2003 01:33:37 -0700
+Andrew Morton <akpm@digeo.com> wrote:
 
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.70/2.5.70-mm9/
+
+
+I had the following messages: (ide, ext3 without any option, SMP, AS, JBD
+debugging enabled):
+
+VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
+    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:DMA
+hda: Maxtor 6Y060L0, ATA DISK drive
+anticipatory scheduling elevator
+[...]
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: mounted filesystem with ordered data mode.
+VFS: Mounted root (ext3 filesystem) readonly.
+[...]
+EXT3 FS 2.4-0.9.16, 02 Dec 2001 on hda5, internal journal
+[...]
+
+__mark_inode_dirty: this cannot happen
+__mark_inode_dirty: this cannot happen
+__mark_inode_dirty: this cannot happen
+__mark_inode_dirty: this cannot happen
+PPP: VJ decompression error
+PPP: VJ decompression error
+PPP: VJ decompression error
+__mark_inode_dirty: this cannot happen
+__mark_inode_dirty: this cannot happen
+__mark_inode_dirty: this cannot happen
+__mark_inode_dirty: this cannot happen
+__mark_inode_dirty: this cannot happen
+__mark_inode_dirty: this cannot happen
+invalid via82xx_cur_ptr, using last valid pointer
+invalid via82xx_cur_ptr, using last valid pointer
+invalid via82xx_cur_ptr, using last valid pointer
+PPP: VJ decompression error

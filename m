@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312827AbSCZX1u>; Tue, 26 Mar 2002 18:27:50 -0500
+	id <S312832AbSCZXaa>; Tue, 26 Mar 2002 18:30:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312838AbSCZX1l>; Tue, 26 Mar 2002 18:27:41 -0500
-Received: from ns1.baby-dragons.com ([199.33.245.254]:25745 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S312827AbSCZX1a>; Tue, 26 Mar 2002 18:27:30 -0500
-Date: Tue, 26 Mar 2002 18:27:12 -0500 (EST)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+	id <S312836AbSCZXaV>; Tue, 26 Mar 2002 18:30:21 -0500
+Received: from ns.suse.de ([213.95.15.193]:23047 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S312832AbSCZXaG>;
+	Tue, 26 Mar 2002 18:30:06 -0500
+Date: Wed, 27 Mar 2002 00:30:00 +0100
+From: Dave Jones <davej@suse.de>
 To: "David S. Miller" <davem@redhat.com>
-cc: linux-atm-general@lists.sourceforge.net,
-        Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ATM locking fix.
-In-Reply-To: <20020326.145202.122762468.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0203261825410.12942-100000@filesrv1.baby-dragons.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: greearb@candelatech.com, linux-kernel@vger.kernel.org
+Subject: Re: up-to-date bk repository?
+Message-ID: <20020327003000.C7501@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	"David S. Miller" <davem@redhat.com>, greearb@candelatech.com,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3CA0FEF7.90003@candelatech.com> <20020326.151104.118632068.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 26, 2002 at 03:11:04PM -0800, David S. Miller wrote:
+ > 
+ > echo -n >include/asm-i386/proc_fs.h
 
-	Hello Dave ,  I have attached the linux-atm list so they can see
-	what you have found .  Hth ,  JimL
+*blink* asm specific proc_fs stuff ?
 
-On Tue, 26 Mar 2002, David S. Miller wrote:
+s/asm/linux/ in the #include surely ?
 
->
-> I'm applying this patch with some minor cleanups of my own.
->
-> I went and then checked around for atm_find_dev() users to
-> make sure they held the atm_dev_lock, and I discovered several pieces
-> of "hidden treasure".
->
-> Firstly, have a look at net/atm/common.c:atm_ioctl() and how it
-> accesses userspace while holding atm_dev_lock.  That is just the
-> tip of the iceberg.
->
-> ATM sorely needs a maintainer.  Any of the kernel janitors want to
-> learn how ATM works? :-))))
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
-
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

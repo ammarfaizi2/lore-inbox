@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264677AbUFSUye@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264685AbUFSU5l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264677AbUFSUye (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 16:54:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264685AbUFSUye
+	id S264685AbUFSU5l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 16:57:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262873AbUFSU5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 16:54:34 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:64493 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S264677AbUFSUyc (ORCPT
+	Sat, 19 Jun 2004 16:57:41 -0400
+Received: from mail.xor.ch ([212.55.210.163]:34579 "HELO mail.xor.ch")
+	by vger.kernel.org with SMTP id S264685AbUFSU5k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 16:54:32 -0400
-Date: Sat, 19 Jun 2004 22:52:53 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Jari Ruusu <jariruusu@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Stop the Linux kernel madness
-Message-ID: <20040619205253.GO28927@marowsky-bree.de>
-References: <40D232AD.4020708@opensound.com> <mailman.1087541100.18231.linux-kernel2news@redhat.com> <20040618124716.183669f8@lembas.zaitcev.lan> <40D46B6C.9618B196@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <40D46B6C.9618B196@users.sourceforge.net>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+	Sat, 19 Jun 2004 16:57:40 -0400
+Message-ID: <40D4A8BF.DFDB48AC@orpatec.ch>
+Date: Sat, 19 Jun 2004 22:57:36 +0200
+From: Otto Wyss <otto.wyss@orpatec.ch>
+Reply-To: otto.wyss@orpatec.ch
+X-Mailer: Mozilla 4.78 (Macintosh; U; PPC)
+X-Accept-Language: de,en
+MIME-Version: 1.0
+To: "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: How to check for the framebuffer device and the right kernel module
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-06-19T19:35:56,
-   Jari Ruusu <jariruusu@users.sourceforge.net> said:
+I've written a simple app which checks if the framebuffer device is
+correct installed (see
+"http://wyodesktop.sourceforge.net/index.php?page=checkapp.html"). I do
+it by more less just using the device. My little check app is working
+but shouldn't there be a more correct way?
 
-> Last time I checked, SUSE kernels include " characters in EXTRAVERSION
-> and KERNELRELEASE Makefile strings. Those " characters need to be
-> filtered out before EXTRAVERSION and KERNELRELEASE strings can be
-> used.
-> 
-> Just another SUSE sillyness.
+I'm also not sure what results are produced when the device exists but
+without the right kernel module. How can I check for a kernel module to
+inform the user about it?
 
-What kind of crap 've you been smokin'? Sue your dealer.
+O. Wyss
 
-
-With all due respect,
-    Lars Marowsky-Brée <lmb@suse.de>
+PS. I welcome any feedback (e-mail) how this little app behaves on
+anyones system.
 
 -- 
-High Availability & Clustering	      \ ever tried. ever failed. no matter.
-SUSE Labs			      | try again. fail again. fail better.
-Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
-
+See a huge pile of work at "http://wyodesktop.sourceforge.net/"

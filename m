@@ -1,346 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261986AbVCHBMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbVCHBVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261986AbVCHBMY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 20:12:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVCHBJq
+	id S262008AbVCHBVm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 20:21:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261993AbVCHBRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 20:09:46 -0500
-Received: from gate.crashing.org ([63.228.1.57]:36517 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261864AbVCHBER (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 20:04:17 -0500
-Subject: [PATCH] radeonfb: PLL access workaround
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Cc: Alessandro Suardi <alessandro.suardi@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, Dave Airlie <airlied@linux.ie>
-Content-Type: text/plain
-Date: Tue, 08 Mar 2005 11:59:57 +1100
-Message-Id: <1110243597.13594.224.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Mar 2005 20:17:43 -0500
+Received: from natpreptil.rzone.de ([81.169.145.163]:51633 "EHLO
+	natpreptil.rzone.de") by vger.kernel.org with ESMTP id S261954AbVCHBOo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 20:14:44 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Albert Cahalan <albert@users.sf.net>
+Subject: Re: [patch] inotify for 2.6.11
+Date: Tue, 8 Mar 2005 02:00:11 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       hch@infradead.org, rml@novell.com, ttb@tentacle.dhs.org,
+       torvalds@osdl.org
+References: <1110165231.1967.16.camel@cube>
+In-Reply-To: <1110165231.1967.16.camel@cube>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200503080200.14101.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Maandag 07 März 2005 04:13, Albert Cahalan wrote:
+> Christoph Hellwig writes:
+> > See the review I sent.  Write is exactly the right interface for that kind
+> > of thing.  For comment vs argument either put the number first so we don't
+> > have the problem of finding a delinator that isn't a valid filename, or
+> > use '\0' as such.
+> 
+> That's just putrid. You've proposed an interface that
+> combines the worst of ASCII with the worst of binary.
 
-So you remember all those weird lockups at boot that happened in late
-2.6.11-rc with radeonfb. I posted a "workaround" which just moved code
-around a bit and it appeared to work. I finally got some real infos
-about the problem from ATI, and it seems my "workaround" is not very
-safe and there are other potential issues realted to HW bugs when
-accessing the PLL registers.
+I guess it's possible to avoid the need for passing the command at all.
+The read data already has a format that mixes binary and variable-length
+ascii data, so write could use a data structure similar (or even identical)
+to the one used there, e.g.
 
-This patch implements all of these workarounds (and puts back the code
-where it was before my previous fix). 
+struct inotify_watch_request {
+ __u32  mask;  /* watch mask */
+ __u32  len;  /* length (including nulls) of name */
+ char  name[0]; /* stub for name */
+};
 
-Please test and let me know if it works. If it's fine, then it should go
-to -mm, and eventually after a while, to a 2.6.11.x update.
+This can replace both INOTIFY_WATCH and INOTIFY_IGNORE, if you simply
+define a zero mask as a special value for ignore. FIONREAD is a
+well-established interface, so I don't think it's necessary to replace
+this.
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Adding plain old syscalls is rather nice actually.
+> It's only a pain at first, while waiting for glibc
+> to catch up.
 
-Index: linux-work/drivers/video/aty/radeonfb.h
-===================================================================
---- linux-work.orig/drivers/video/aty/radeonfb.h	2005-03-08 11:30:37.000000000 +1100
-+++ linux-work/drivers/video/aty/radeonfb.h	2005-03-08 11:52:52.000000000 +1100
-@@ -22,11 +22,6 @@
- 
- #include <video/radeon.h>
- 
--/* Some weird black magic use by Apple driver that we don't use for
-- * now --BenH
-- */
--#undef HAS_PLL_M9_GPIO_MAGIC
--
- /***************************************************************
-  * Most of the definitions here are adapted right from XFree86 *
-  ***************************************************************/
-@@ -312,7 +307,6 @@
- 	int			is_mobility;
- 	int			is_IGP;
- 	int			R300_cg_workaround;
--	int			m9p_workaround;
- 	int			reversed_DAC;
- 	int			reversed_TMDS;
- 	struct panel_info	panel_info;
-@@ -397,6 +391,11 @@
- 
- #define OUTREGP(addr,val,mask)	_OUTREGP(rinfo, addr, val,mask)
- 
-+/* This function is required to workaround a hardware bug in some (all?)
-+ * revisions of the R300.  This workaround should be called after every
-+ * CLOCK_CNTL_INDEX register access.  If not, register reads afterward
-+ * may not be correct.
-+ */
- static inline void R300_cg_workardound(struct radeonfb_info *rinfo)
- {
- 	u32 save, tmp;
-@@ -407,35 +406,36 @@
- 	OUTREG(CLOCK_CNTL_INDEX, save);
- }
- 
-+/*
-+ * PLL accesses suffer from various HW issues on the different chip
-+ * families. Some R300's need the above workaround, rv200 & friends
-+ * need a couple of dummy reads after any write of CLOCK_CNTL_INDEX,
-+ * and some RS100/200 need a dummy read before writing to
-+ * CLOCK_CNTL_INDEX as well. Instead of testing every chip revision,
-+ * we just unconditionally do  the workarounds at once since PLL
-+ * accesses are far from beeing performance critical. Except for R300
-+ * one which stays separate for now
-+ */
-+
-+static inline void radeon_pll_workaround_before(struct radeonfb_info *rinfo)
-+{
-+	(void)INREG(CRTC_GEN_CNTL);	
-+}
-+
-+static inline void radeon_pll_workaround_after(struct radeonfb_info *rinfo)
-+{
-+	(void)INREG(CLOCK_CNTL_DATA); 
-+	(void)INREG(CRTC_GEN_CNTL); 
-+}
- 
- static inline u32 __INPLL(struct radeonfb_info *rinfo, u32 addr)
- {
- 	u32 data;
--#ifdef HAS_PLL_M9_GPIO_MAGIC
--	u32 sv[3];
--
--	if (rinfo->m9p_workaround) {
--		sv[0] = INREG(0x19c);
--		sv[1] = INREG(0x1a0);
--		sv[2] = INREG(0x198);
--		OUTREG(0x198, 0);
--		OUTREG(0x1a0, 0);
--		OUTREG(0x19c, 0);
--	}
--#endif /* HAS_PLL_M9_GPIO_MAGIC */
- 
-+	radeon_pll_workaround_before(rinfo);
- 	OUTREG8(CLOCK_CNTL_INDEX, addr & 0x0000003f);
--	data = (INREG(CLOCK_CNTL_DATA));
--
--#ifdef HAS_PLL_M9_GPIO_MAGIC
--	if (rinfo->m9p_workaround) {
--		(void)INREG(CRTC_GEN_CNTL);
--		data = INREG(CLOCK_CNTL_DATA);
--		OUTREG(0x19c, sv[0]);
--		OUTREG(0x1a0, sv[1]);
--		OUTREG(0x198, sv[2]);
--	}
--#endif /* HAS_PLL_M9_GPIO_MAGIC */
-+	radeon_pll_workaround_after(rinfo);
-+	data = INREG(CLOCK_CNTL_DATA);
- 	if (rinfo->R300_cg_workaround)
- 		R300_cg_workardound(rinfo);
- 	return data;
-@@ -455,32 +455,16 @@
- #define INPLL(addr)		_INPLL(rinfo, addr)
- 
- 
--static inline void __OUTPLL(struct radeonfb_info *rinfo, unsigned int index, u32 val)
-+static inline void __OUTPLL(struct radeonfb_info *rinfo, unsigned int index,
-+			    u32 val)
- {
--#ifdef HAS_PLL_M9_GPIO_MAGIC
--	u32 sv[3];
--
--	if (rinfo->m9p_workaround) {
--		sv[0] = INREG(0x19c);
--		sv[1] = INREG(0x1a0);
--		sv[2] = INREG(0x198);
--		OUTREG(0x198, 0);
--		OUTREG(0x1a0, 0);
--		OUTREG(0x19c, 0);
--		mdelay(1);
--	}
--#endif /* HAS_PLL_M9_GPIO_MAGIC */
- 
-+	radeon_pll_workaround_before(rinfo);
- 	OUTREG8(CLOCK_CNTL_INDEX, (index & 0x0000003f) | 0x00000080);
-+	radeon_pll_workaround_after(rinfo);
- 	OUTREG(CLOCK_CNTL_DATA, val);
--
--#ifdef HAS_PLL_M9_GPIO_MAGIC
--	if (rinfo->m9p_workaround) {
--		OUTREG(0x19c, sv[0]);
--		OUTREG(0x1a0, sv[1]);
--		OUTREG(0x198, sv[2]);
--	}
--#endif /* HAS_PLL_M9_GPIO_MAGIC */
-+	if (rinfo->R300_cg_workaround)
-+		R300_cg_workardound(rinfo);
- }
- 
- static inline void _OUTPLL(struct radeonfb_info *rinfo, unsigned int index, u32 val)
-Index: linux-work/drivers/video/aty/radeon_base.c
-===================================================================
---- linux-work.orig/drivers/video/aty/radeon_base.c	2005-03-08 11:30:37.000000000 +1100
-+++ linux-work/drivers/video/aty/radeon_base.c	2005-03-08 11:49:10.000000000 +1100
-@@ -530,7 +530,11 @@
-         break;
- 	}
- 
-+	radeon_pll_workaround_before(rinfo);
- 	ppll_div_sel = INREG8(CLOCK_CNTL_INDEX + 1) & 0x3;
-+	radeon_pll_workaround_after(rinfo);
-+	if (rinfo->R300_cg_workaround)
-+		R300_cg_workardound(rinfo);
- 
- 	n = (INPLL(PPLL_DIV_0 + ppll_div_sel) & 0x7ff);
- 	m = (INPLL(PPLL_REF_DIV) & 0x3ff);
-@@ -1168,7 +1172,11 @@
- 	save->vclk_ecp_cntl = INPLL(VCLK_ECP_CNTL);
- 
- 	/* PLL regs */
-+	radeon_pll_workaround_before(rinfo);
- 	save->clk_cntl_index = INREG(CLOCK_CNTL_INDEX) & ~0x3f;
-+	radeon_pll_workaround_after(rinfo);
-+	if (rinfo->R300_cg_workaround)
-+		R300_cg_workardound(rinfo);
- 	save->ppll_div_3 = INPLL(PPLL_DIV_3);
- 	save->ppll_ref_div = INPLL(PPLL_REF_DIV);
- }
-@@ -1195,9 +1203,13 @@
- 			/* We still have to force a switch to selected PPLL div thanks to
- 			 * an XFree86 driver bug which will switch it away in some cases
- 			 * even when using UseFDev */
-+			radeon_pll_workaround_before(rinfo);
- 			OUTREGP(CLOCK_CNTL_INDEX,
- 				mode->clk_cntl_index & PPLL_DIV_SEL_MASK,
- 				~PPLL_DIV_SEL_MASK);
-+			radeon_pll_workaround_after(rinfo);
-+			if (rinfo->R300_cg_workaround)
-+				R300_cg_workardound(rinfo);
-             		return;
- 		}
- 	}
-@@ -1211,9 +1223,13 @@
- 		~(PPLL_RESET | PPLL_ATOMIC_UPDATE_EN | PPLL_VGA_ATOMIC_UPDATE_EN));
- 
- 	/* Switch to selected PPLL divider */
-+	radeon_pll_workaround_before(rinfo);
- 	OUTREGP(CLOCK_CNTL_INDEX,
- 		mode->clk_cntl_index & PPLL_DIV_SEL_MASK,
- 		~PPLL_DIV_SEL_MASK);
-+	radeon_pll_workaround_after(rinfo);
-+	if (rinfo->R300_cg_workaround)
-+		R300_cg_workardound(rinfo);
- 
- 	/* Set PPLL ref. div */
- 	if (rinfo->family == CHIP_FAMILY_R300 ||
-@@ -2359,6 +2375,15 @@
- 	radeon_save_state (rinfo, &rinfo->init_state);
- 	memcpy(&rinfo->state, &rinfo->init_state, sizeof(struct radeon_regs));
- 
-+	/* Setup Power Management capabilities */
-+	if (default_dynclk < -1) {
-+		/* -2 is special: means  ON on mobility chips and do not
-+		 * change on others
-+		 */
-+		radeonfb_pm_init(rinfo, rinfo->is_mobility ? 1 : -1);
-+	} else
-+		radeonfb_pm_init(rinfo, default_dynclk);
-+
- 	pci_set_drvdata(pdev, info);
- 
- 	/* Register with fbdev layer */
-@@ -2369,13 +2394,6 @@
- 		goto err_unmap_fb;
- 	}
- 
--	/* Setup Power Management capabilities */
--	if (default_dynclk < -1) {
--		/* -2 is special: means  ON on mobility chips and do not change on others */
--		radeonfb_pm_init(rinfo, rinfo->is_mobility ? 1 : -1);
--	} else
--		radeonfb_pm_init(rinfo, default_dynclk);
--
- #ifdef CONFIG_MTRR
- 	rinfo->mtrr_hdl = nomtrr ? -1 : mtrr_add(rinfo->fb_base_phys,
- 						 rinfo->video_ram,
-Index: linux-work/drivers/video/aty/radeon_pm.c
-===================================================================
---- linux-work.orig/drivers/video/aty/radeon_pm.c	2005-03-04 17:22:13.000000000 +1100
-+++ linux-work/drivers/video/aty/radeon_pm.c	2005-03-08 11:47:11.000000000 +1100
-@@ -1372,8 +1372,12 @@
- 
- 	/* Reconfigure SPLL charge pump, VCO gain, duty cycle */
- 	tmp = INPLL(pllSPLL_CNTL);
-+	radeon_pll_workaround_before(rinfo);
- 	OUTREG8(CLOCK_CNTL_INDEX, pllSPLL_CNTL + PLL_WR_EN);
-+	radeon_pll_workaround_after(rinfo);
- 	OUTREG8(CLOCK_CNTL_DATA + 1, (tmp >> 8) & 0xff);
-+	if (rinfo->R300_cg_workaround)
-+		R300_cg_workardound(rinfo);
- 
- 	/* Set SPLL feedback divider */
- 	tmp = INPLL(pllM_SPLL_REF_FB_DIV);
-@@ -1405,8 +1409,12 @@
- 
- 	/* Reconfigure MPLL charge pump, VCO gain, duty cycle */
- 	tmp = INPLL(pllMPLL_CNTL);
-+	radeon_pll_workaround_before(rinfo);
- 	OUTREG8(CLOCK_CNTL_INDEX, pllMPLL_CNTL + PLL_WR_EN);
-+	radeon_pll_workaround_after(rinfo);
- 	OUTREG8(CLOCK_CNTL_DATA + 1, (tmp >> 8) & 0xff);
-+	if (rinfo->R300_cg_workaround)
-+		R300_cg_workardound(rinfo);
- 
- 	/* Set MPLL feedback divider */
- 	tmp = INPLL(pllM_SPLL_REF_FB_DIV);
-@@ -1524,8 +1532,12 @@
- {
- 	u32 tmp;
- 
-+	radeon_pll_workaround_before(rinfo);
- 	OUTREG8(CLOCK_CNTL_INDEX, pllHTOTAL_CNTL + PLL_WR_EN);
-+	radeon_pll_workaround_after(rinfo);
- 	OUTREG8(CLOCK_CNTL_DATA, 0);
-+	if (rinfo->R300_cg_workaround)
-+		R300_cg_workardound(rinfo);
- 
- 	tmp = INPLL(pllVCLK_ECP_CNTL);
- 	OUTPLL(pllVCLK_ECP_CNTL, tmp | 0x80);
-@@ -1540,12 +1552,12 @@
- 	 * probably useless since we already did it ...
- 	 */
- 	tmp = INPLL(pllPPLL_CNTL);
-+	radeon_pll_workaround_before(rinfo);
- 	OUTREG8(CLOCK_CNTL_INDEX, pllSPLL_CNTL + PLL_WR_EN);
-+	radeon_pll_workaround_after(rinfo);
- 	OUTREG8(CLOCK_CNTL_DATA + 1, (tmp >> 8) & 0xff);
--
--	/* Not sure what was intended here ... */
--	tmp = INREG(CLOCK_CNTL_INDEX);
--	OUTREG(CLOCK_CNTL_INDEX, tmp);
-+	if (rinfo->R300_cg_workaround)
-+		R300_cg_workardound(rinfo);
- 
- 	/* Restore our "reference" PPLL divider set by firmware
- 	 * according to proper spread spectrum calculations
-@@ -1569,7 +1581,11 @@
- 	mdelay(5);
- 
- 	/* Switch pixel clock to firmware default div 0 */
-+	radeon_pll_workaround_before(rinfo);
- 	OUTREG8(CLOCK_CNTL_INDEX+1, 0);
-+	radeon_pll_workaround_after(rinfo);
-+	if (rinfo->R300_cg_workaround)
-+		R300_cg_workardound(rinfo);
- }
- 
- static void radeon_pm_m10_reconfigure_mc(struct radeonfb_info *rinfo)
-@@ -2752,8 +2768,6 @@
- 		if (!strcmp(rinfo->of_node->name, "ATY,ViaParent")) {
- 			rinfo->reinit_func = radeon_reinitialize_M9P;
- 			rinfo->pm_mode |= radeon_pm_off;
--			/* Workaround not used for now */
--			rinfo->m9p_workaround = 1;
- 		}
- 
- 		/* If any of the above is set, we assume the machine can sleep/resume.
+Yes, that might be a workable interface as well, but don't mix syscalls
+with a misc device then. Instead, you might build on something like
+futexfs, with syscalls replacing both ioctl and read:
 
+int inotify_open(int flags);
+int inotify_watch(int fd, unsigned mask, char *name);
+int inotify_ignore(int fd, int wd);
+int inotify_getevents(int fd, int max_events, struct inotify_event *);
 
+ Arnd <><

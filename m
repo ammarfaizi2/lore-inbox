@@ -1,588 +1,129 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293426AbSCECBm>; Mon, 4 Mar 2002 21:01:42 -0500
+	id <S293485AbSCECMd>; Mon, 4 Mar 2002 21:12:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293367AbSCECBJ>; Mon, 4 Mar 2002 21:01:09 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:28843 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S293330AbSCEB77>; Mon, 4 Mar 2002 20:59:59 -0500
-Date: Mon, 04 Mar 2002 18:01:17 -0800
-From: Hanna Linder <hannal@us.ibm.com>
-To: davej@suse.de, torvalds@transmeta.com, viro@math.psu.edu
-cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: [PATCH] 2.5.5-dj2 - Fast Walk Dcache to Decrease Cacheline Bouncing
-Message-ID: <33110000.1015293677@w-hlinder.des>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S293490AbSCECMY>; Mon, 4 Mar 2002 21:12:24 -0500
+Received: from huitzilopochtli.presidencia.gob.mx ([200.57.34.35]:40652 "EHLO
+	huitzilopochtli.presidencia.gob.mx") by vger.kernel.org with ESMTP
+	id <S293485AbSCECML>; Mon, 4 Mar 2002 21:12:11 -0500
+Message-ID: <3C84294C.AE1E8CE9@sandino.net>
+Date: Mon, 04 Mar 2002 20:11:24 -0600
+From: Sandino Araico =?iso-8859-1?Q?S=E1nchez?= <sandino@sandino.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: es-MX, es, es-ES, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17,2.4.18 ide-scsi+usb-storage+devfs Oops
+In-Reply-To: <3C7EA7CB.C36D0211@sandino.net> <20020302075847.GE20536@kroah.com>
+Content-Type: multipart/mixed;
+ boundary="------------6B43C47FD26D40E1CBB2C618"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------6B43C47FD26D40E1CBB2C618
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
-I would like you to consider this patch for inclusion in 2.5.6. 
+Greg KH wrote:
 
-What it does:
+> On Thu, Feb 28, 2002 at 03:57:31PM -0600, Sandino Araico Sánchez wrote:
+> > The Oops happens after I use the ide-scsi module with my CDRW and then I
+> > plug the Zip USB in.
+>
+> Can you run the oops through ksymoops and send it to us?
+>
 
-The simple part combines path_init and path_walk into one function
-path_lookup. Which was a simple cleanup of the code. The more complex 
-part is changing link_path_walk and cached_lookup to hold the dcache_lock 
-instead of incrementing the d_count reference counter while walking 
-the path as long as the desired dentry's are found in the dcache. Dave
-Olien wrote permission_exec_lite. These ideas came from Al Viro to decrease 
-cacheline bouncing.
+ksymoops output attached.
 
-Performance benefits running dbench with 16 clients 10 times on an 8-way SMP:
-
-On 2.5.5-dj2 it 
-	-reduces TOTAL system spinlock contention from 8.7 to 6.5
-	-reduces TOTAL system MAX HOLD time from 37ms to 17ms
-	-reduces lru_list_lock spinning from 31.4% to 5.7%
-	-reduces lru_list_lock contention from 38.3% to 15.4%
-
-Testing:
-
-It compiles and boots and runs as well or better as the clean 2.5.5-dj2 kernel.
-I have run it on my T21 laptop and my 8-way SMP system.
-
-Please let me know if there are any changes I can make or tests I can
-run to increase the chance of it being accepted.
-
-Thanks.
-
-Hanna Linder (hannal@us.ibm.com)
-IBM Linux Technology Center
-
------------
-diff -Nru --exclude-from=dontdiff linux-2.5.5-dj2/fs/dcache.c linux-2.5.5-fastwalk/fs/dcache.c
---- linux-2.5.5-dj2/fs/dcache.c	Mon Mar  4 15:56:20 2002
-+++ linux-2.5.5-fastwalk/fs/dcache.c	Fri Mar  1 16:21:40 2002
-@@ -705,13 +705,23 @@
-  
- struct dentry * d_lookup(struct dentry * parent, struct qstr * name)
- {
-+	struct dentry *dentry = NULL;
-+
-+	spin_lock(&dcache_lock);
-+	dentry = __d_lookup(parent,name);
-+	spin_unlock(&dcache_lock);
-+	return dentry;
-+}
-+
-+struct dentry * __d_lookup(struct dentry * parent, struct qstr * name)  
-+{
-+
- 	unsigned int len = name->len;
- 	unsigned int hash = name->hash;
- 	const unsigned char *str = name->name;
- 	struct list_head *head = d_hash(parent,hash);
- 	struct list_head *tmp;
- 
--	spin_lock(&dcache_lock);
- 	tmp = head->next;
- 	for (;;) {
- 		struct dentry * dentry = list_entry(tmp, struct dentry, d_hash);
-@@ -733,10 +743,8 @@
- 		}
- 		__dget_locked(dentry);
- 		dentry->d_vfs_flags |= DCACHE_REFERENCED;
--		spin_unlock(&dcache_lock);
- 		return dentry;
- 	}
--	spin_unlock(&dcache_lock);
- 	return NULL;
- }
- 
-diff -Nru --exclude-from=dontdiff linux-2.5.5-dj2/fs/exec.c linux-2.5.5-fastwalk/fs/exec.c
---- linux-2.5.5-dj2/fs/exec.c	Tue Feb 19 18:11:00 2002
-+++ linux-2.5.5-fastwalk/fs/exec.c	Fri Mar  1 16:21:40 2002
-@@ -347,8 +347,7 @@
- 	struct file *file;
- 	int err = 0;
- 
--	if (path_init(name, LOOKUP_FOLLOW|LOOKUP_POSITIVE, &nd))
--		err = path_walk(name, &nd);
-+	err = path_lookup(name, LOOKUP_FOLLOW|LOOKUP_POSITIVE, &nd);
- 	file = ERR_PTR(err);
- 	if (!err) {
- 		inode = nd.dentry->d_inode;
-diff -Nru --exclude-from=dontdiff linux-2.5.5-dj2/fs/namei.c linux-2.5.5-fastwalk/fs/namei.c
---- linux-2.5.5-dj2/fs/namei.c	Mon Mar  4 15:56:22 2002
-+++ linux-2.5.5-fastwalk/fs/namei.c	Fri Mar  1 16:21:40 2002
-@@ -268,8 +268,41 @@
- static struct dentry * cached_lookup(struct dentry * parent, struct qstr * name, int flags)
- {
- 	struct dentry * dentry = d_lookup(parent, name);
-+	
-+	if (dentry && dentry->d_op && dentry->d_op->d_revalidate) {
-+		if (!dentry->d_op->d_revalidate(dentry, flags) && !d_invalidate(dentry)) {
-+			dput(dentry);
-+			dentry = NULL;
-+		}
-+	}
-+	return dentry;
-+}
- 
-+/*for fastwalking*/
-+static inline void undo_locked(struct nameidata *nd)
-+{
-+	if(nd->flags & LOOKUP_LOCKED){
-+		dget(nd->dentry);
-+		mntget(nd->mnt);
-+		spin_unlock(&dcache_lock);
-+		nd->flags &= ~LOOKUP_LOCKED;
-+	}
-+}
-+
-+/*
-+ * For fast path lookup while holding the dcache_lock. 
-+ * SMP-safe
-+ */
-+static struct dentry * cached_lookup_nd(struct nameidata * nd, struct qstr * name, int flags)
-+{
-+	struct dentry * dentry = NULL;
-+	if(!nd->flags & LOOKUP_LOCKED)
-+		return cached_lookup(nd->dentry, name, flags);
-+	
-+	dentry = __d_lookup(nd->dentry, name);
-+	
- 	if (dentry && dentry->d_op && dentry->d_op->d_revalidate) {
-+		undo_locked(nd);
- 		if (!dentry->d_op->d_revalidate(dentry, flags) && !d_invalidate(dentry)) {
- 			dput(dentry);
- 			dentry = NULL;
-@@ -279,6 +312,34 @@
- }
- 
- /*
-+ * Short-cut version of permission(), for calling by
-+ * path_walk(), when dcache lock is held.  Combines parts
-+ * of permission() and vfs_permission(), and tests ONLY for
-+ * MAY_EXEC permission.
-+ *
-+ * If appropriate, check DAC only.  If not appropriate, or
-+ * short-cut DAC fails, then call permission() to do more
-+ * complete permission check.
-+ */
-+static inline int exec_permission_lite(struct inode *inode)
-+{
-+	umode_t	mode = inode->i_mode;
-+
-+	if ((inode->i_op && inode->i_op->permission))
-+		return -EACCES;
-+
-+	if (current->fsuid == inode->i_uid)
-+		mode >>= 6;
-+	else if (in_group_p(inode->i_gid))
-+		mode >>= 3;
-+
-+	if (mode & MAY_EXEC)
-+		return 0;
-+
-+	return -EACCES;
-+}
-+
-+/*
-  * This is called when everything else fails, and we actually have
-  * to go to the low-level filesystem to find out what we should do..
-  *
-@@ -472,7 +533,9 @@
- 		struct qstr this;
- 		unsigned int c;
- 
--		err = permission(inode, MAY_EXEC);
-+		err = exec_permission_lite(inode);
-+		if(err)
-+			err = permission(inode, MAY_EXEC);
- 		dentry = ERR_PTR(err);
-  		if (err)
- 			break;
-@@ -507,6 +570,7 @@
- 			case 2:	
- 				if (this.name[1] != '.')
- 					break;
-+				undo_locked(nd);
- 				follow_dotdot(nd);
- 				inode = nd->dentry->d_inode;
- 				/* fallthrough */
-@@ -523,16 +587,20 @@
- 				break;
- 		}
- 		/* This does the actual lookups.. */
--		dentry = cached_lookup(nd->dentry, &this, LOOKUP_CONTINUE);
-+		dentry = cached_lookup_nd(nd, &this, LOOKUP_CONTINUE);
- 		if (!dentry) {
-+			undo_locked(nd);
- 			dentry = real_lookup(nd->dentry, &this, LOOKUP_CONTINUE);
- 			err = PTR_ERR(dentry);
- 			if (IS_ERR(dentry))
- 				break;
- 		}
- 		/* Check mountpoints.. */
--		while (d_mountpoint(dentry) && __follow_down(&nd->mnt, &dentry))
--			;
-+		if(d_mountpoint(dentry)){
-+			undo_locked(nd);
-+			while (d_mountpoint(dentry) && __follow_down(&nd->mnt, &dentry))
-+				;
-+		}
- 
- 		err = -ENOENT;
- 		inode = dentry->d_inode;
-@@ -543,6 +611,7 @@
- 			goto out_dput;
- 
- 		if (inode->i_op->follow_link) {
-+			undo_locked(nd);
- 			err = do_follow_link(dentry, nd);
- 			dput(dentry);
- 			if (err)
-@@ -555,7 +624,8 @@
- 			if (!inode->i_op)
- 				break;
- 		} else {
--			dput(nd->dentry);
-+			if (!nd->flags & LOOKUP_LOCKED)
-+				dput(nd->dentry);
- 			nd->dentry = dentry;
- 		}
- 		err = -ENOTDIR; 
-@@ -575,6 +645,7 @@
- 			case 2:	
- 				if (this.name[1] != '.')
- 					break;
-+				undo_locked(nd);
- 				follow_dotdot(nd);
- 				inode = nd->dentry->d_inode;
- 				/* fallthrough */
-@@ -586,7 +657,8 @@
- 			if (err < 0)
- 				break;
- 		}
--		dentry = cached_lookup(nd->dentry, &this, 0);
-+		dentry = cached_lookup_nd(nd, &this, 0);
-+		undo_locked(nd); 
- 		if (!dentry) {
- 			dentry = real_lookup(nd->dentry, &this, 0);
- 			err = PTR_ERR(dentry);
-@@ -644,11 +716,14 @@
- 			}
- 		}
- return_base:
-+		undo_locked(nd);
- 		return 0;
- out_dput:
-+		undo_locked(nd);
- 		dput(dentry);
- 		break;
- 	}
-+	undo_locked(nd);
- 	path_release(nd);
- return_err:
- 	return err;
-@@ -755,6 +830,36 @@
- 	return 1;
- }
- 
-+int path_lookup(const char *name, unsigned int flags, struct nameidata *nd)
-+{
-+	nd->last_type = LAST_ROOT; /* if there are only slashes... */
-+	nd->flags = flags;
-+	if (*name=='/'){
-+		read_lock(&current->fs->lock);
-+		if (current->fs->altroot && !(nd->flags & LOOKUP_NOALT)) {
-+			nd->mnt = mntget(current->fs->altrootmnt);
-+			nd->dentry = dget(current->fs->altroot);
-+			read_unlock(&current->fs->lock);
-+			if (__emul_lookup_dentry(name,nd))
-+				return 0;
-+			read_lock(&current->fs->lock);
-+		}
-+		spin_lock(&dcache_lock); /*to avoid cacheline bouncing with d_count*/
-+		nd->mnt = current->fs->rootmnt;
-+		nd->dentry = current->fs->root;
-+		read_unlock(&current->fs->lock);
-+	}
-+	else{
-+		read_lock(&current->fs->lock);
-+		spin_lock(&dcache_lock);
-+		nd->mnt = current->fs->pwdmnt;
-+		nd->dentry = current->fs->pwd;
-+		read_unlock(&current->fs->lock);
-+	}
-+	nd->flags |= LOOKUP_LOCKED;
-+	return (path_walk(name, nd));
-+}
-+
- /*
-  * Restricted form of lookup. Doesn't follow links, single-component only,
-  * needs parent already locked. Doesn't follow mounts.
-@@ -845,8 +950,7 @@
- 	err = PTR_ERR(tmp);
- 	if (!IS_ERR(tmp)) {
- 		err = 0;
--		if (path_init(tmp, flags, nd))
--			err = path_walk(tmp, nd);
-+		err = path_lookup(tmp, flags, nd);
- 		putname(tmp);
- 	}
- 	return err;
-@@ -1037,8 +1141,7 @@
- 	 * The simplest case - just a plain lookup.
- 	 */
- 	if (!(flag & O_CREAT)) {
--		if (path_init(pathname, lookup_flags(flag), nd))
--			error = path_walk(pathname, nd);
-+		error = path_lookup(pathname, lookup_flags(flag), nd);
- 		if (error)
- 			return error;
- 		dentry = nd->dentry;
-@@ -1048,8 +1151,7 @@
- 	/*
- 	 * Create - we need to know the parent.
- 	 */
--	if (path_init(pathname, LOOKUP_PARENT, nd))
--		error = path_walk(pathname, nd);
-+	error = path_lookup(pathname, LOOKUP_PARENT, nd);
- 	if (error)
- 		return error;
- 
-@@ -1299,8 +1401,7 @@
- 	if (IS_ERR(tmp))
- 		return PTR_ERR(tmp);
- 
--	if (path_init(tmp, LOOKUP_PARENT, &nd))
--		error = path_walk(tmp, &nd);
-+	error = path_lookup(tmp, LOOKUP_PARENT, &nd);
- 	if (error)
- 		goto out;
- 	dentry = lookup_create(&nd, 0);
-@@ -1360,8 +1461,7 @@
- 		struct dentry *dentry;
- 		struct nameidata nd;
- 
--		if (path_init(tmp, LOOKUP_PARENT, &nd))
--			error = path_walk(tmp, &nd);
-+		error = path_lookup(tmp, LOOKUP_PARENT, &nd);
- 		if (error)
- 			goto out;
- 		dentry = lookup_create(&nd, 1);
-@@ -1452,8 +1552,7 @@
- 	if(IS_ERR(name))
- 		return PTR_ERR(name);
- 
--	if (path_init(name, LOOKUP_PARENT, &nd))
--		error = path_walk(name, &nd);
-+	error = path_lookup(name, LOOKUP_PARENT, &nd);
- 	if (error)
- 		goto exit;
- 
-@@ -1524,8 +1623,7 @@
- 	if(IS_ERR(name))
- 		return PTR_ERR(name);
- 
--	if (path_init(name, LOOKUP_PARENT, &nd))
--		error = path_walk(name, &nd);
-+	error = path_lookup(name, LOOKUP_PARENT, &nd);
- 	if (error)
- 		goto exit;
- 	error = -EISDIR;
-@@ -1588,8 +1686,7 @@
- 		struct dentry *dentry;
- 		struct nameidata nd;
- 
--		if (path_init(to, LOOKUP_PARENT, &nd))
--			error = path_walk(to, &nd);
-+		error = path_lookup(to, LOOKUP_PARENT, &nd);
- 		if (error)
- 			goto out;
- 		dentry = lookup_create(&nd, 0);
-@@ -1666,12 +1763,10 @@
- 		struct nameidata nd, old_nd;
- 
- 		error = 0;
--		if (path_init(from, LOOKUP_POSITIVE, &old_nd))
--			error = path_walk(from, &old_nd);
-+		error = path_lookup(from, LOOKUP_POSITIVE, &old_nd);
- 		if (error)
- 			goto exit;
--		if (path_init(to, LOOKUP_PARENT, &nd))
--			error = path_walk(to, &nd);
-+		error = path_lookup(to, LOOKUP_PARENT, &nd);
- 		if (error)
- 			goto out;
- 		error = -EXDEV;
-@@ -1848,14 +1943,11 @@
- 	struct dentry * trap;
- 	struct nameidata oldnd, newnd;
- 
--	if (path_init(oldname, LOOKUP_PARENT, &oldnd))
--		error = path_walk(oldname, &oldnd);
--
-+	error = path_lookup(oldname, LOOKUP_PARENT, &oldnd);
- 	if (error)
- 		goto exit;
- 
--	if (path_init(newname, LOOKUP_PARENT, &newnd))
--		error = path_walk(newname, &newnd);
-+	error = path_lookup(newname, LOOKUP_PARENT, &newnd);
- 	if (error)
- 		goto exit1;
- 
-diff -Nru --exclude-from=dontdiff linux-2.5.5-dj2/fs/namespace.c linux-2.5.5-fastwalk/fs/namespace.c
---- linux-2.5.5-dj2/fs/namespace.c	Mon Mar  4 15:56:22 2002
-+++ linux-2.5.5-fastwalk/fs/namespace.c	Fri Mar  1 16:22:14 2002
-@@ -368,8 +368,7 @@
- 	if (IS_ERR(kname))
- 		goto out;
- 	retval = 0;
--	if (path_init(kname, LOOKUP_POSITIVE|LOOKUP_FOLLOW, &nd))
--		retval = path_walk(kname, &nd);
-+	retval = path_lookup(kname, LOOKUP_POSITIVE|LOOKUP_FOLLOW, &nd); 
- 	putname(kname);
- 	if (retval)
- 		goto out;
-@@ -497,8 +496,7 @@
- 		return err;
- 	if (!old_name || !*old_name)
- 		return -EINVAL;
--	if (path_init(old_name, LOOKUP_POSITIVE|LOOKUP_FOLLOW, &old_nd))
--		err = path_walk(old_name, &old_nd);
-+	err = path_lookup(old_name, LOOKUP_POSITIVE|LOOKUP_FOLLOW, &old_nd);
- 	if (err)
- 		return err;
- 
-@@ -564,8 +562,7 @@
- 		return -EPERM;
- 	if (!old_name || !*old_name)
- 		return -EINVAL;
--	if (path_init(old_name, LOOKUP_POSITIVE|LOOKUP_FOLLOW, &old_nd))
--		err = path_walk(old_name, &old_nd);
-+	err = path_lookup(old_name, LOOKUP_POSITIVE|LOOKUP_FOLLOW, &old_nd);
- 	if (err)
- 		return err;
- 
-@@ -731,8 +728,7 @@
- 	flags &= ~(MS_NOSUID|MS_NOEXEC|MS_NODEV);
- 
- 	/* ... and get the mountpoint */
--	if (path_init(dir_name, LOOKUP_FOLLOW|LOOKUP_POSITIVE, &nd))
--		retval = path_walk(dir_name, &nd);
-+	retval = path_lookup(dir_name, LOOKUP_FOLLOW|LOOKUP_POSITIVE, &nd);
- 	if (retval)
- 		return retval;
- 
-@@ -924,8 +920,7 @@
- 	if (IS_ERR(name))
- 		goto out0;
- 	error = 0;
--	if (path_init(name, LOOKUP_POSITIVE|LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &new_nd))
--		error = path_walk(name, &new_nd);
-+	error = path_lookup(name, LOOKUP_POSITIVE|LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &new_nd);
- 	putname(name);
- 	if (error)
- 		goto out0;
-@@ -938,8 +933,7 @@
- 	if (IS_ERR(name))
- 		goto out1;
- 	error = 0;
--	if (path_init(name, LOOKUP_POSITIVE|LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &old_nd))
--		error = path_walk(name, &old_nd);
-+	error = path_lookup(name, LOOKUP_POSITIVE|LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &old_nd);
- 	putname(name);
- 	if (error)
- 		goto out1;
-diff -Nru --exclude-from=dontdiff linux-2.5.5-dj2/fs/open.c linux-2.5.5-fastwalk/fs/open.c
---- linux-2.5.5-dj2/fs/open.c	Tue Feb 19 18:10:54 2002
-+++ linux-2.5.5-fastwalk/fs/open.c	Fri Mar  1 16:21:40 2002
-@@ -368,8 +368,7 @@
- 		goto out;
- 
- 	error = 0;
--	if (path_init(name,LOOKUP_POSITIVE|LOOKUP_FOLLOW|LOOKUP_DIRECTORY,&nd))
--		error = path_walk(name, &nd);
-+	error = path_lookup(name,LOOKUP_POSITIVE|LOOKUP_FOLLOW|LOOKUP_DIRECTORY,&nd);
- 	putname(name);
- 	if (error)
- 		goto out;
-@@ -427,9 +426,8 @@
- 	if (IS_ERR(name))
- 		goto out;
- 
--	path_init(name, LOOKUP_POSITIVE | LOOKUP_FOLLOW |
-+	error = path_lookup(name, LOOKUP_POSITIVE | LOOKUP_FOLLOW |
- 		      LOOKUP_DIRECTORY | LOOKUP_NOALT, &nd);
--	error = path_walk(name, &nd);	
- 	putname(name);
- 	if (error)
- 		goto out;
-diff -Nru --exclude-from=dontdiff linux-2.5.5-dj2/fs/super.c linux-2.5.5-fastwalk/fs/super.c
---- linux-2.5.5-dj2/fs/super.c	Mon Mar  4 15:56:25 2002
-+++ linux-2.5.5-fastwalk/fs/super.c	Fri Mar  1 16:21:40 2002
-@@ -710,8 +710,7 @@
- 	/* What device it is? */
- 	if (!dev_name || !*dev_name)
- 		return ERR_PTR(-EINVAL);
--	if (path_init(dev_name, LOOKUP_FOLLOW|LOOKUP_POSITIVE, &nd))
--		error = path_walk(dev_name, &nd);
-+	error = path_lookup(dev_name, LOOKUP_FOLLOW|LOOKUP_POSITIVE, &nd);
- 	if (error)
- 		return ERR_PTR(error);
- 	inode = nd.dentry->d_inode;
-diff -Nru --exclude-from=dontdiff linux-2.5.5-dj2/include/linux/dcache.h linux-2.5.5-fastwalk/include/linux/dcache.h
---- linux-2.5.5-dj2/include/linux/dcache.h	Mon Mar  4 15:56:27 2002
-+++ linux-2.5.5-fastwalk/include/linux/dcache.h	Fri Mar  1 16:21:40 2002
-@@ -221,6 +221,7 @@
- 
- /* appendix may either be NULL or be used for transname suffixes */
- extern struct dentry * d_lookup(struct dentry *, struct qstr *);
-+extern struct dentry * __d_lookup(struct dentry *, struct qstr *);
- 
- /* validate "insecure" dentry pointer */
- extern int d_validate(struct dentry *, struct dentry *);
-diff -Nru --exclude-from=dontdiff linux-2.5.5-dj2/include/linux/fs.h linux-2.5.5-fastwalk/include/linux/fs.h
---- linux-2.5.5-dj2/include/linux/fs.h	Mon Mar  4 15:56:27 2002
-+++ linux-2.5.5-fastwalk/include/linux/fs.h	Fri Mar  1 16:21:40 2002
-@@ -1271,6 +1271,7 @@
-  *  - require a directory
-  *  - ending slashes ok even for nonexistent files
-  *  - internal "there are more path compnents" flag
-+ *  - locked when lookup done with dcache_lock held
-  */
- #define LOOKUP_FOLLOW		(1)
- #define LOOKUP_DIRECTORY	(2)
-@@ -1278,6 +1279,8 @@
- #define LOOKUP_POSITIVE		(8)
- #define LOOKUP_PARENT		(16)
- #define LOOKUP_NOALT		(32)
-+#define LOOKUP_LOCKED		(64)
-+
- /*
-  * Type of the last component on LOOKUP_PARENT
-  */
-@@ -1307,6 +1310,7 @@
- extern int FASTCALL(__user_walk(const char *, unsigned, struct nameidata *));
- extern int FASTCALL(path_init(const char *, unsigned, struct nameidata *));
- extern int FASTCALL(path_walk(const char *, struct nameidata *));
-+extern int FASTCALL(path_lookup(const char *, unsigned, struct nameidata *));
- extern int FASTCALL(link_path_walk(const char *, struct nameidata *));
- extern void path_release(struct nameidata *);
- extern int follow_down(struct vfsmount **, struct dentry **);
-diff -Nru --exclude-from=dontdiff linux-2.5.5-dj2/kernel/ksyms.c linux-2.5.5-fastwalk/kernel/ksyms.c
---- linux-2.5.5-dj2/kernel/ksyms.c	Mon Mar  4 15:56:33 2002
-+++ linux-2.5.5-fastwalk/kernel/ksyms.c	Fri Mar  1 16:21:40 2002
-@@ -145,6 +145,7 @@
- EXPORT_SYMBOL(lookup_mnt);
- EXPORT_SYMBOL(path_init);
- EXPORT_SYMBOL(path_walk);
-+EXPORT_SYMBOL(path_lookup);
- EXPORT_SYMBOL(path_release);
- EXPORT_SYMBOL(__user_walk);
- EXPORT_SYMBOL(lookup_one_len);
+--
+Sandino Araico Sánchez
+>drop table internet;
+OK, 135454265363565609860398636678346496 rows affected.
+"oh fuck" --fluxrad
 
 
-	
+
+--------------6B43C47FD26D40E1CBB2C618
+Content-Type: text/plain; charset=us-ascii;
+ name="Oops-2002-03-04.ksymoops"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="Oops-2002-03-04.ksymoops"
+
+ksymoops 2.3.4 on i686 2.4.18.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.18/ (default)
+     -m /usr/src/linux/System.map (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Warning (expand_objects): object /lib/modules/2.4.18/kernel/sound/acore/oss/snd-pcm-oss.o for module snd-pcm-oss has changed since load
+Warning (expand_objects): object /lib/modules/2.4.18/kernel/sound/acore/snd-pcm.o for module snd-pcm has changed since load
+Warning (expand_objects): object /lib/modules/2.4.18/kernel/sound/acore/seq/oss/snd-seq-oss.o for module snd-seq-oss has changed since load
+Warning (expand_objects): object /lib/modules/2.4.18/kernel/sound/acore/seq/snd-seq-midi-event.o for module snd-seq-midi-event has changed since load
+Warning (expand_objects): object /lib/modules/2.4.18/kernel/sound/acore/seq/snd-seq.o for module snd-seq has changed since load
+Warning (expand_objects): object /lib/modules/2.4.18/kernel/sound/acore/snd-timer.o for module snd-timer has changed since load
+Warning (expand_objects): object /lib/modules/2.4.18/kernel/sound/acore/seq/snd-seq-device.o for module snd-seq-device has changed since load
+Warning (expand_objects): object /lib/modules/2.4.18/kernel/sound/acore/oss/snd-mixer-oss.o for module snd-mixer-oss has changed since load
+Warning (expand_objects): object /lib/modules/2.4.18/kernel/sound/acore/snd.o for module snd has changed since load
+Warning (compare_ksyms_lsmod): module sr_mod is in lsmod but not in ksyms, probably no symbols exported
+Warning (compare_maps): ksyms_base symbol acpi_fadt_R__ver_acpi_fadt not found in System.map.  Ignoring ksyms_base entry
+Warning (compare_maps): ksyms_base symbol acpi_gbl_FADT_R__ver_acpi_gbl_FADT not found in System.map.  Ignoring ksyms_base entry
+Invalid operand: 0000
+CPU:    0
+EIP: 0010: [<c01565f0>] Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010282
+eax: 0000000d ebx: d010d8e0 ecx: dd384000 edx: 00000001
+esi: cd0d1a14 edi: c49a7d60 ebp: bfffe4cc esp: c1b7bf18
+ds: 0018 es: 0018 ss: 0018
+Process rmmod (pid: 24039, stackpage=c1b76000)
+Stack: c0244807 c02447ea c02447e0 d010d8e0 d010d8e0 c01575d8 d010d8e0 d010d2e0
+        d010d8e0 cd0d1a14 e090b362 d010d8e0 cd0d1a00 00000000 e0d5d3be cd0d1a14
+        00000600 00000000 c49a7d60 d010dee0 e0d5ea80 c01c544a c49a7d60 e0d5c000
+Call Trace: [<c01575d8>] [<e0d5d424>] [<e0d5d3be>] [<e0d5ea80>] [<c01c544a>] [<c01c555e>] [<e0d5ea80>] [<e0d5d424>] [<e0d5ea80>] [<c011980f>] [<c0118b12>]
+        [<c0106e23>]
+Code: 0f 0b 83 c4 10 f0 ff 4b 04 0f 94 c0 84 c0 0f 84 93 00 00 00 
+
+>>EIP; c01565f0 <devfs_put+30/dc>   <=====
+Trace; c01575d8 <devfs_unregister+30/38>
+Trace; e0d5d424 <[usb-uhci]__module_license+9099/fcd5>
+Trace; e0d5d3be <[usb-uhci]__module_license+9033/fcd5>
+Trace; e0d5ea80 <[usb-uhci]__module_license+a6f5/fcd5>
+Trace; c01c544a <scsi_unregister_device+52/d4>
+Trace; c01c555e <scsi_unregister_module+36/3c>
+Trace; e0d5ea80 <[usb-uhci]__module_license+a6f5/fcd5>
+Trace; e0d5d424 <[usb-uhci]__module_license+9099/fcd5>
+Trace; e0d5ea80 <[usb-uhci]__module_license+a6f5/fcd5>
+Trace; c011980f <free_module+17/b4>
+Trace; c0118b12 <sys_delete_module+126/234>
+Trace; c0106e23 <system_call+33/38>
+Code;  c01565f0 <devfs_put+30/dc>
+00000000 <_EIP>:
+Code;  c01565f0 <devfs_put+30/dc>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c01565f2 <devfs_put+32/dc>
+   2:   83 c4 10                  add    $0x10,%esp
+Code;  c01565f5 <devfs_put+35/dc>
+   5:   f0 ff 4b 04               lock decl 0x4(%ebx)
+Code;  c01565f9 <devfs_put+39/dc>
+   9:   0f 94 c0                  sete   %al
+Code;  c01565fc <devfs_put+3c/dc>
+   c:   84 c0                     test   %al,%al
+Code;  c01565fe <devfs_put+3e/dc>
+   e:   0f 84 93 00 00 00         je     a7 <_EIP+0xa7> c0156697 <devfs_put+d7/dc>
 
 
+13 warnings issued.  Results may not be reliable.
+
+--------------6B43C47FD26D40E1CBB2C618--
 

@@ -1,54 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261275AbTEKTD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 15:03:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbTEKTD0
+	id S261174AbTEKTTa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 15:19:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbTEKTTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 15:03:26 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:33359 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP id S261275AbTEKTDZ
+	Sun, 11 May 2003 15:19:30 -0400
+Received: from smtp1.clear.net.nz ([203.97.33.27]:12237 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S261174AbTEKTT1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 15:03:25 -0400
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Use correct x86 reboot vector
-References: <Pine.LNX.4.44.0305102043320.28287-100000@home.transmeta.com>
-	<200305111137.29743.josh@stack.nl>
-	<20030511140144.GA5602@mail.jlokier.co.uk>
-	<Pine.LNX.4.50.0305111033590.7563-100000@blue1.dev.mcafeelabs.com>
-	<m1fznl74f9.fsf@frodo.biederman.org>
-	<Pine.LNX.4.50.0305111119590.7563-100000@blue1.dev.mcafeelabs.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 11 May 2003 13:12:51 -0600
-In-Reply-To: <Pine.LNX.4.50.0305111119590.7563-100000@blue1.dev.mcafeelabs.com>
-Message-ID: <m1smrl5mbw.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 11 May 2003 15:19:27 -0400
+Date: Mon, 12 May 2003 07:28:13 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: [PATCH] restore sysenter MSRs at resume
+In-reply-to: <20030511190822.GA1181@atrey.karlin.mff.cuni.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Linus Torvalds <torvalds@transmeta.com>, mikpe@csd.uu.se,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1052681292.1869.5.camel@laptop-linux>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <200305101641.h4AGfEVE002970@harpo.it.uu.se>
+ <Pine.LNX.4.44.0305111158500.12955-100000@home.transmeta.com>
+ <20030511190822.GA1181@atrey.karlin.mff.cuni.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi <davidel@xmailserver.org> writes:
+Ok. I haven't updated it for 2.5.69 version, but it doesn't look like
+any changes are required. Here is the relevant part of the full swsusp
+patch.
 
-> On Sun, 11 May 2003, Eric W. Biederman wrote:
+Regards,
+
+Nigel
+
+On Mon, 2003-05-12 at 07:08, Pavel Machek wrote:
+> Hi!
 > 
-> > The remapping is quite common but it usually happens that after bootup:
-> > 0xf0000-0xfffff is shadowed RAM.  While 0xffff0000-0xffffffff still points
-> > to the rom chip.
-> >
-> > Now if someone could tell me how to do a jump to 0xffff0000:0xfff0 in real
-> > mode I would find that very interesting.
+> Nigel, perhaps this is the right time for retransmitting the mtrr
+> patch?
 > 
-> Have you ever heard about unreal mode ? But I do not think that a reset
-> has to start over there. I do not think that exist hw/sw that expect that
-> reset address to be 0xfffffff0 instead of 0x000ffff0, since they map the
-> same content.
+> 					Pavel
+> > 
+> > On Sat, 10 May 2003 mikpe@csd.uu.se wrote:
+> > > 
+> > > This patch should be better. It changes apm.c to invoke
+> > > suspend.c's save and restore processor state procedures
+> > > around suspends, which fixes the SYSENTER MSR problem.
+> > 
+> > Applied.
+> > 
+> > However, the fact that the SYSENTER MSR needs to be restored makes me
+> > suspect that the other MSR/MTRR also will need restoring. I don't see 
+> > where we'd be doing that, but it sounds to me like it should be done here 
+> > too..
+> > 
+> > 		Linus
 
-There is some software at least that knows the difference.  I have seen short
-jumps in a couple of BIOS's.  But a reset is very different from a
-reboot.  As memory must be reinitialized etc.  So I think going to
-0xffff0000:0xfff0 would be a very bad idea if the intent is to get a
-reliable reboot.
+diff -ruN linux-2.5.68/arch/i386/kernel/cpu/mtrr/main.c linux-2.5.68-swsusp1925/arch/i386/kernel/cpu/mtrr/main.c
+--- linux-2.5.68/arch/i386/kernel/cpu/mtrr/main.c	2003-01-15 17:00:38.000000000 +1300
++++ linux-2.5.68-swsusp1925/arch/i386/kernel/cpu/mtrr/main.c	2003-04-25 14:13:05.000000000 +1200
+@@ -35,6 +35,7 @@
+ #include <linux/init.h>
+ #include <linux/pci.h>
+ #include <linux/smp.h>
++#include <linux/suspend.h>
+ 
+ #include <asm/mtrr.h>
+ 
+@@ -644,6 +645,65 @@
+     "write-protect",            /* 5 */
+     "write-back",               /* 6 */
+ };
+-
++ 
++#ifdef SOFTWARE_SUSPEND_MTRR
++struct mtrr_suspend_state
++{
++     mtrr_type ltype;
++     unsigned long lbase;
++     unsigned int lsize;
++};
++/* We return a pointer ptr on an area of *ptr bytes
++   beginning at ptr+sizeof(int)
++   This buffer has to be saved in some way during suspension */
++int *mtrr_suspend(void)
++{
++     int i, len;
++     int *ptr = NULL;
++     static struct mtrr_suspend_state *mtrr_suspend_buffer=NULL;
++     
++     if(!mtrr_suspend_buffer)
++     {
++	  len = num_var_ranges * sizeof (struct mtrr_suspend_state) + sizeof(int);
++	  ptr = kmalloc (len, GFP_KERNEL);
++	  if (ptr == NULL)
++	       return(NULL);
++	  *ptr = len;
++	  ptr++;
++	  mtrr_suspend_buffer = (struct mtrr_suspend_state *)ptr;
++	  ptr--;
++     }
++     for (i = 0; i < num_var_ranges; ++i,mtrr_suspend_buffer++)
++	  mtrr_if->get (i,
++		       &(mtrr_suspend_buffer->lbase),
++		       &(mtrr_suspend_buffer->lsize),
++		       &(mtrr_suspend_buffer->ltype));
++     return(ptr);
++}
++
++/* We restore mtrrs from buffer ptr */
++void mtrr_resume(int *ptr)
++{
++     int i, len;
++     struct mtrr_suspend_state *mtrr_suspend_buffer;
++     
++     len = num_var_ranges * sizeof (struct mtrr_suspend_state) + sizeof(int);
++     if(*ptr != len)
++     {
++	  printk ("mtrr: Resuming failed due to different number of MTRRs\n");
++	  return;
++     }
++     ptr++;
++     mtrr_suspend_buffer=(struct mtrr_suspend_state *)ptr;
++     for (i = 0; i < num_var_ranges; ++i,mtrr_suspend_buffer++)     
++	  if (mtrr_suspend_buffer->lsize)	  
++	       set_mtrr(i,
++			mtrr_suspend_buffer->lbase,
++			mtrr_suspend_buffer->lsize,
++			mtrr_suspend_buffer->ltype);
++}
++EXPORT_SYMBOL(mtrr_suspend);
++EXPORT_SYMBOL(mtrr_resume);
++#endif
+ core_initcall(mtrr_init);
+ 
 
 
-Eric
+

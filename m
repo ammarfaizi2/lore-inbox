@@ -1,42 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262478AbTCMRn7>; Thu, 13 Mar 2003 12:43:59 -0500
+	id <S262503AbTCMRuH>; Thu, 13 Mar 2003 12:50:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262482AbTCMRn7>; Thu, 13 Mar 2003 12:43:59 -0500
-Received: from ip5.searssiding.com ([216.54.166.5]:56279 "EHLO
-	encc2.encore.com") by vger.kernel.org with ESMTP id <S262478AbTCMRn6>;
-	Thu, 13 Mar 2003 12:43:58 -0500
-Message-ID: <3E70C6B8.C5D98C1C@compro.net>
-Date: Thu, 13 Mar 2003 12:58:16 -0500
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-lcrs i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: uaca@alumni.uv.es
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: is irq smp affinity good for anything?
-References: <20030311140458.GA15465@pusa.informat.uv.es> <Pine.LNX.4.44.0303112047240.15753-100000@coffee.psychology.mcmaster.ca> <20030312101116.GB12206@pusa.informat.uv.es> <3E7076E1.6F7C74B1@compro.net> <20030313154726.GB24636@pusa.informat.uv.es>
-Content-Type: text/plain; charset=us-ascii
+	id <S262504AbTCMRuH>; Thu, 13 Mar 2003 12:50:07 -0500
+Received: from NODE-1.HOSTING-NETWORK.COM ([66.186.193.1]:41746 "HELO
+	unix113.hosting-network.com") by vger.kernel.org with SMTP
+	id <S262503AbTCMRuF>; Thu, 13 Mar 2003 12:50:05 -0500
+X-Comments: BlackMail headers - Mail to abuse@featureprice.com to report spam.
+X-Authenticated-Connect: 63.109.146.2
+X-Authenticated-Timestamp: 13:11:33(EST) on March 13, 2003
+X-HELO-From: rohan.arnor.net
+X-Mail-From: <thoffman@arnor.net>
+X-Sender-IP-Address: 63.109.146.2
+Subject: Re: Oops in firewire (2.4.21-pre5 with 2.4.21-pre4 firewire driver)
+From: Torrey Hoffman <thoffman@arnor.net>
+To: Ben Collins <bcollins@debian.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030313061144.GV563@phunnypharm.org>
+References: <1047517628.1172.8.camel@rohan.arnor.net> 
+	<20030313061144.GV563@phunnypharm.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 13 Mar 2003 10:00:45 -0800
+Message-Id: <1047578447.1039.43.camel@rohan.arnor.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-uaca@alumni.uv.es wrote:
-> 
-> Thanks so much for your comments
-> 
-> Yes... maybe there is also cache pingpong because common locks are in
-> different cpus... I'will try it
-> 
-> do you know what's the best/less intrusive patch that allows
-> task cpu binding?
-             <---
-Probably the least intrusive can be gotten here:
+On Wed, 2003-03-12 at 22:11, Ben Collins wrote:
+> On Wed, Mar 12, 2003 at 05:06:23PM -0800, Torrey Hoffman wrote:
+[ohci1394 / sbp2 problems] 
 
-http://www.kernel.org/pub/linux/kernel/people/rml/cpu-affinity/
+> I'd suggest with trying the latest BK cset patch (which fixes -pre5 and
+> also fixes some things in general).
 
-Or the O(1) schedular patches. That is a little more intrusive though.
+Thanks for the response.
 
-Mark
+Last night I (finally) installed bitkeeper, pulled the latest 2.4 tree,
+and gave it a try.  It seems to have solved the problem on my single CPU
+machine.  I will try my SMP machine tonight and see how things go there.
+
+I run reiserfs on my firewire drives but ext3 on some other partitions. 
+These oops have often occurred when doing rsync's between the reiserfs
+on firewire and an ext3 or reiserfs partition on a regular disk or raid5
+setup.  
+
+On my SMP machine this morning (using Red Hat's 2.4.18-18smp kernel) I
+had a similar oops with references to kjournald under a heavy firewire
+load.   The machine didn't die, and after the bus resets completed, the
+rsync from the firewire drive continued.  
+
+These oopses have been very reproducible while loading ohci1394, and
+sometimes while transferring data after loading.  They don't occur if
+the sbp2 device is not attached.   I have hacked my rc.sysinit script to
+always load the drivers, since Red Hat's autodetection stuff there quit
+working around 2.4.18-17, and as long as the device isn't attached
+2.4.18-24 boots fine and loads the drivers.
+
+Up until installing 2.4-bk last night, I normally booted to Red Hat's
+2.4.18-24 kernel, except when I need to use firewire. 2.4.18-24 doesn't
+work at all for me under firewire, and 2.4.18-18 "mostly" works.)
+
+Anyway, I will upgrade all my machines to the latest -bk snapshot and
+will be back with more bug reports if I see any glitches...
+
+Hopefully Red Hat will update their official kernel with the firewire
+fixes.  And fix their rc.sysinit script too, while they are at it.  (No,
+I haven't submitted a bugzilla report yet, will do so if -bk fixes
+things for me...)
+
+Thanks again,
+
+Torrey Hoffman
+
+
+> 
+> > I got an oops while loading the driver.  I will continue to experiment
+> > with recent kernels, and try to find a bitkeeper snapshot with the
+> > latest firewire fixes.  Any suggestions are welcome.
+> 
+> > >>EIP; c016e639 <__journal_remove_checkpoint+39/90>   <=====
+> 
+> This happened in the kjournald thread context. I'm not sure it is
+> ieee1394 related, but it is suspect that it happened in the middle of
+> handling an ieee1394 bus reset.
+> 
+> Is this reproducible when loading the ohci1394 driver? If so, does it
+> occur when you turn off hotplug (IOW, don't load sbp2 driver) or if the
+> sbp2 device is not attached?
+> 
+> -- 
+> Debian     - http://www.debian.org/
+> Linux 1394 - http://www.linux1394.org/
+> Subversion - http://subversion.tigris.org/
+> Deqo       - http://www.deqo.com/
+> 
+
+

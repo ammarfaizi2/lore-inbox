@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129473AbRB0UIw>; Tue, 27 Feb 2001 15:08:52 -0500
+	id <S129814AbRB0UNW>; Tue, 27 Feb 2001 15:13:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129814AbRB0UIn>; Tue, 27 Feb 2001 15:08:43 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:37049 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129473AbRB0UIg>;
-	Tue, 27 Feb 2001 15:08:36 -0500
-Date: Tue, 27 Feb 2001 15:08:32 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: linux-fsdevel@vger.kernel.org
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][CFT] per-process namespaces for Linux
-In-Reply-To: <Pine.GSO.4.21.0102261137540.79-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0102271500110.4105-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129819AbRB0UNE>; Tue, 27 Feb 2001 15:13:04 -0500
+Received: from fdsl76.dnvr.uswest.net ([209.180.253.77]:64521 "EHLO
+	willie.n0ano.com") by vger.kernel.org with ESMTP id <S129814AbRB0UMx>;
+	Tue, 27 Feb 2001 15:12:53 -0500
+Date: Tue, 27 Feb 2001 12:59:48 -0700
+From: Don Dugger <ddugger@willie.n0ano.com>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: binfmt_script and ^M
+Message-ID: <20010227125948.A26290@willie.n0ano.com>
+In-Reply-To: <27525795B28BD311B28D00500481B7601F0F2D@ftrs1.intranet.ftr.nl> <20010227143823.A25058@cistron.nl> <20010227202059.C11060@pcep-jamie.cern.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.4us
+In-Reply-To: <20010227202059.C11060@pcep-jamie.cern.ch>; from Jamie Lokier on Tue, Feb 27, 2001 at 08:20:59PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Isn't `perl' overkill?  Why not just:
 
+	tr -d '\r'
 
- 	New version uploaded on ftp.math.psu.edu/pub/viro/namespaces-d-S2.gz
+On Tue, Feb 27, 2001 at 08:20:59PM +0100, Jamie Lokier wrote:
+> Ivo Timmermans wrote:
+> > > _should_ it work with the \r in it?
+> > 
+> > IMHO, yes.  This set of files were created on Windows, then zipped and
+> > uploaded to a Linux server, unpacked.  This does not change the \r.
+> 
+> Use `fromdos' to convert the files.  Or this little Perl gem, which
+> takes a list of files or standard input as argument:
+> 
+> #!/usr/bin/perl -pi
+> s/\r\n$/\n/
+> 
+> -- Jamie
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Changes:
-	* fixed an idiotic bug in get_filesystem_info() that din't 
-unfortunately) show up on UP.
-	* nosuid/nodev/noexec work in any combinations (had been b0rken in
-previous version).
-	* fixed multiple-mount (had been b0rken; --bind worked, but attempt
-to mount the device you've already had mounted did bad things).
-	* sanity checks for mount --move were missing. Fixed.
-	* Assorted cleanups.
-
-Folks, please help with testing.
- 							Cheers,
-								Al
-
+-- 
+Don Dugger
+"Censeo Toto nos in Kansa esse decisse." - D. Gale
+n0ano@valinux.com
+Ph: 303/938-9838

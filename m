@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbTLTVm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 16:42:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbTLTVm3
+	id S261731AbTLTWUi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 17:20:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbTLTWUi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 16:42:29 -0500
-Received: from modemcable178.89-70-69.mc.videotron.ca ([69.70.89.178]:60290
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261552AbTLTVm1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 16:42:27 -0500
-Date: Sat, 20 Dec 2003 16:41:37 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: Armin <Zoup@zoup.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       unki@netshadow.at
-Subject: Re: FrameBuffer Problem With 2.6.0
-In-Reply-To: <2CA1166592F@vcnet.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.58.0312190917520.2147@montezuma.fsmlabs.com>
-References: <2CA1166592F@vcnet.vc.cvut.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 20 Dec 2003 17:20:38 -0500
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:43181 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S261731AbTLTWUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 17:20:37 -0500
+Date: Sat, 20 Dec 2003 23:20:34 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6 vs 2.4 regression when running gnomemeeting
+Message-ID: <20031220222034.GA2040@merlin.emma.line.org>
+Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1071864709.1044.172.camel@localhost> <1071885178.1044.227.camel@localhost> <3FE3B61C.4070204@cyberone.com.au> <200312201355.08116.kernel@kolivas.org> <1071891168.1044.256.camel@localhost> <3FE3C6FC.7050401@cyberone.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FE3C6FC.7050401@cyberone.com.au>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Dec 2003, Petr Vandrovec wrote:
+On Sat, 20 Dec 2003, Nick Piggin wrote:
 
-> On 18 Dec 03 at 23:29, Armin wrote:
-> > On Thursday 18 December 2003 00:35, Andreas Unterkircher wrote:
-> > > I had similar the same Problem... i fixed it when i also put the
+> >/dev/hda:
+> >multcount    =  0 (off)
+> >IO_support   =  0 (default 16-bit)
+> >unmaskirq    =  0 (off)
+> >using_dma    =  1 (on)
+> >keepsettings =  0 (off)
+> >readonly     =  0 (off)
+> >readahead    = 256 (on)
+> >geometry     = 65535/16/63, sectors = 117210240, start = 0
 > >
-> > i have compile kernel with vga fonts , Still are not working ...
->
-> And did you enable framebuffer console support in Device Drivers ->
-> Graphics Support -> Console display driver support -> Framebuffer Console
-> Support ? It looks to me like that you did not enabled this, and so you
-> get hardware in graphics mode (when fbdev loads), but no text there (as
-> there is no fbcon in your kernel). 2.6.x kernel has strange idea
-> that non-embedded users need fbdev without fbcon by default...
->
-> I'm not aware about any problems with matroxfb driver in Linus kernel
-> except that you should use 'video=matroxfb:nopan' to avoid problems
-> with default resolution XXXx65536 (or clip vyres yourself to reasonable
-> value). Of course all 2.6.x fbdev limits apply also to matroxfb driver.
-> If you want interface compatible with 2.4.x, you'll have to get patch
-> from ftp://platan.vc.cvut.cz/pub/linux/matrox-latest/matroxfb-2.6.0.gz
-> (only vgacon, matroxfb and vesafb are tested).
+> 
+> This might be a problem - try turning unmaskirq on, and possibly
+> 32-bit IO support on (hdparm -u1 -c1 /dev/hda). I think there is
+> a remote possibility that doing this will corrupt your data just
 
-I'm fielding a bug report from someone which is related to the EDID
-changes here;
+Does 32-bit I/O support make a difference for DMA transfers at all or
+just for PIO?
 
-http://bugzilla.kernel.org/show_bug.cgi?id=1458
+-- 
+Matthias Andree
 
-Do you think they may be related?
+Encrypt your mail: my GnuPG key ID is 0x052E7D95

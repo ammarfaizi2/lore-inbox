@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285395AbRLGDbC>; Thu, 6 Dec 2001 22:31:02 -0500
+	id <S285389AbRLGDiQ>; Thu, 6 Dec 2001 22:38:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285393AbRLGDaw>; Thu, 6 Dec 2001 22:30:52 -0500
-Received: from zok.sgi.com ([204.94.215.101]:157 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S285389AbRLGDan>;
-	Thu, 6 Dec 2001 22:30:43 -0500
+	id <S285397AbRLGDiH>; Thu, 6 Dec 2001 22:38:07 -0500
+Received: from [198.99.130.100] ([198.99.130.100]:58497 "EHLO karaya.com")
+	by vger.kernel.org with ESMTP id <S285389AbRLGDhy>;
+	Thu, 6 Dec 2001 22:37:54 -0500
+Message-Id: <200112070440.fB74e9G05294@karaya.com>
 X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] 2.4.17-pre5 oops on floppy type 6
+To: Adam Keys <akeys@post.cis.smu.edu>
+cc: Larry McVoy <lm@bitmover.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SMP/cc Cluster description 
+In-Reply-To: Your message of "Thu, 06 Dec 2001 20:49:58 CST."
+             <20011207024919.MBX24045.rwcrmhc53.attbi.com@there> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 07 Dec 2001 14:30:30 +1100
-Message-ID: <23771.1007695830@kao2.melbourne.sgi.com>
+Date: Thu, 06 Dec 2001 23:40:09 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-IBM Thinkpads i1200/1300 with USB floppy (type 6) oops in
-drivers/block/floppy.c register_devfs_entries().  Off by one bug when
-comparing an index with the array size.
+akeys@post.cis.smu.edu said:
+>  it seemed to me that you could easily  simulate what you want with
+> lots of UML's talking to each other. I think you  would need to create
+> some kind of device that uses a file or a shared memory  segment as
+> the cluster's memory. 
 
-Index: 17-pre5.1/drivers/block/floppy.c
---- 17-pre5.1/drivers/block/floppy.c Fri, 07 Dec 2001 09:35:49 +1100 kaos (linux-2.4/c/c/40_floppy.c 1.2.1.1.1.5 644)
-+++ 17-pre5.1(w)/drivers/block/floppy.c Fri, 07 Dec 2001 14:27:37 +1100 kaos (linux-2.4/c/c/40_floppy.c 1.2.1.1.1.5 644)
-@@ -3917,7 +3917,7 @@ static void __init register_devfs_entrie
-     {NULL, t360, t1200, t3in+5+8, t3in+5, t3in, t3in};
- 
-     base_minor = (drive < 4) ? drive : (124 + drive);
--    if (UDP->cmos <= NUMBER(default_drive_params)) {
-+    if (UDP->cmos < NUMBER(default_drive_params)) {
- 	i = 0;
- 	do {
- 	    char name[16];
+Yeah, there is already support for mapping in a random file and using that
+as UML memory, so that would be used for the cluster interconnect for any
+cluster emulations you wanted to run with UML.
+
+> Actually, I think that (shared memory) is  how
+> Jeff had intended on implementing SMP in UML anyway.
+
+No, at least not any shared memory that's not already there.  UML uses a 
+host process for each UML process, and UML kernel data and text are
+shared between all these host processes.  SMP just means having more than
+one host process runnable at a time.  Each runnable process on the host
+is a virtual processor.
+
+> At this point I
+> don't think UML supports SMP though I know of at least one person who
+> was  attempting it.
+
+It doesn't yet.  Someone is (or was), but I haven't heard a peep from him in
+at least a month.  So this is starting to look like another little project
+which got quickly going but just as quickly abandoned.
+
+				Jeff
 

@@ -1,42 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129858AbQKOLd1>; Wed, 15 Nov 2000 06:33:27 -0500
+	id <S129571AbQKOLd1>; Wed, 15 Nov 2000 06:33:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130127AbQKOLdR>; Wed, 15 Nov 2000 06:33:17 -0500
-Received: from quechua.inka.de ([212.227.14.2]:57888 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S129858AbQKOLdJ>;
+	id <S129858AbQKOLdS>; Wed, 15 Nov 2000 06:33:18 -0500
+Received: from quechua.inka.de ([212.227.14.2]:57632 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S129571AbQKOLdJ>;
 	Wed, 15 Nov 2000 06:33:09 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: More modutils: It's probably worse.
-In-Reply-To: <8us4ji$dbl$1@cesium.transmeta.com> <11900.974244463@ocs3.ocs-net>
+Subject: Re: NetWare Changing IP Port 524
+In-Reply-To: <CDB246E6CB3@vcnet.vc.cvut.cz> <3A11A0AB.92B1109D@timpanogas.org> <20001114205629.B5133@xi.linuxpower.cx> <3A11EEF4.349E5511@timpanogas.org>
 Organization: private Linux site, southern Germany
-Date: Wed, 15 Nov 2000 11:43:54 +0100
+Date: Wed, 15 Nov 2000 11:33:32 +0100
 From: Olaf Titz <olaf@bigred.inka.de>
-Message-Id: <E13w02k-000172-00@g212.hadiko.de>
+Message-Id: <E13vzsj-00015b-00@g212.hadiko.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The original exploit had nothing to do with filenames masquerading as
-> options, it was: ping6 -I ';chmod o+w .'.  Then somebody pointed out
+> this problem is that it would give any internet hackers the ability to
+> discover the network topology (including which servers host NDS master
+> and replica databases).  Not very secure.  The concern for Petr is if in
 
-Why is there any reason that a shell should be invoked anywhere in the
-request_module->modprobe->insmod chain?
-If implemented correctly, this attack should have the same result as
-insmod ';chmod o+w .' (and it should not matter if it gets renamed so
-that the actual command executed is insmod 'netdevice-;chmod o+w .')
-
-> The problem is the combination of kernel code passing user space
-> parameters through unchanged (promoting user input to root)
-
-Which means that all parts of the chain which deal with possible user
-input in elevated privilege mode must do input validation. This means
-the kernel _and_ modprobe in my book.
-
-> plus the
-> modprobe meta expansion algorithm.
-
-and I see no reason why modprobe should do any such thing, apart from
-configurations dealt with in modules.conf anyway.
+If knowing the server makes it vulnerable, the server has other
+problems still. Treating addresses and topology as secret is STO.
 
 Olaf
 -

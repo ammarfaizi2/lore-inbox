@@ -1,92 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266958AbUAXQIy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 11:08:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266960AbUAXQIy
+	id S266969AbUAXQap (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 11:30:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266968AbUAXQap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 11:08:54 -0500
-Received: from ms-smtp-01-smtplb.ohiordc.rr.com ([65.24.5.135]:28039 "EHLO
-	ms-smtp-01-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
-	id S266958AbUAXQIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 11:08:52 -0500
-Message-ID: <40129898.6020702@borgerding.net>
-Date: Sat, 24 Jan 2004 11:08:56 -0500
-From: Mark Borgerding <mark@borgerding.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [OFFTOPIC]   "smack the penguin"  2.4 vs 2.6
-References: <401177DB.8010901@nortelnetworks.com> <20040124095208.GA20489@zombie.inka.de> <401284CD.7080006@borgerding.net>
-In-Reply-To: <401284CD.7080006@borgerding.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 24 Jan 2004 11:30:45 -0500
+Received: from smtp1.libero.it ([193.70.192.51]:40904 "EHLO smtp1.libero.it")
+	by vger.kernel.org with ESMTP id S266961AbUAXQak (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 11:30:40 -0500
+Date: Sat, 24 Jan 2004 17:31:00 +0100
+From: "Angelo Dell'Aera" <buffer@antifork.org>
+To: Linux-Net <linux-net@vger.kernel.org>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: ppp_async problem?
+Message-Id: <20040124173100.7ae8f7f8.buffer@antifork.org>
+Organization: Antifork Research, Inc.
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-PGP-Program: GNU Privacy Guard (http://www.gnupg.org)
+X-PGP-PublicKey: http://buffer.antifork.org/privacy/buffer-gpg.asc
+X-PGP-Fingerprint: 48CC B0D8 C394 CD30 355F E36D A4E3 48CF 19C1 5CA2
+X-Operating-System: GNU-Linux
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Borgerding wrote:
-
-> Eduard Bloch wrote:
->
->> #include <hallo.h>
->> * Chris Friesen [Fri, Jan 23 2004, 02:36:59PM]:
->>  
->>
->>> Diversion for friday afternoon...how far can you get?
->>>
->>> Personal best is 586
->>>   
->>
->>
->> Which means that you are playing it either on a Windows box (what a
->> shame) or cheating somehow or you have a 5Ghz box or something else is
->> wrong on regular Linux systems. I do not any Linux user who got
->> more than 325.5 with the Linux version of the Shockwave plugin.
->>  
->>
->
-> Sounds like 3/4 of the programmers I've ever worked with --  if they 
-> can't figure out how to do it, then it can't be done and anyone who 
-> says otherwise must be lying or cheating.
->
->
-> Still, it does seem like the game is much less predictable on some 
-> systems.  I have a linux laptop that plays it quite nicely (thus the 
-> 593.4 I reported earlier).  I tried it on my desktop at home, and it 
-> was very jerky.
->
-> The two systems are pretty comparable.
->
-> For anyone who cares: here's the main differences with laptop (good) 
-> on the left and the desktop (bad) on the right:
->
-> Mozilla: 1.5 on both, build dates 20031107 vs 20031007
-> Flash Version:    6.0.79.0   vs   6.0.69.0
-> CPU:   Pent M 1700   vs Athlon XP 2100+
-> Video: ATI Radeon M9 vs Matrox G400      <=== I think this is the problem
-> Kernel: 2.4.21 (debian) vs 2.6.1
->
-> I am going to reboot to check against the 2.4 kernel. Who knows? Maybe 
-> there will be a pingu bug report against the 2.6 kernel series.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
-... doesn't seem the same.
+While booting I saw this. The call trace is repeated few times.
+I reported it just one time. The kernel is 2.6.1. 
 
-It appears that 2.4.22 may be better suited to penguin abuse than 2.6.1.
+PPP generic driver version 2.4.2
+PPP BSD Compression module registered
+PPP Deflate Compression module registered
+Badness in local_bh_enable at kernel/softirq.c:121
+Call Trace:
+ [<c01222fd>] local_bh_enable+0x8d/0x90
+ [<e2b36c12>] ppp_async_push+0xa2/0x1a0 [ppp_async]
+ [<e2b364d1>] ppp_asynctty_wakeup+0x31/0x70 [ppp_async]
+ [<c0203d65>] uart_flush_buffer+0x75/0x80
+ [<c01df277>] do_tty_hangup+0x487/0x4f0
+ [<c012df7f>] worker_thread+0x1ff/0x2e0
+ [<c01dedf0>] do_tty_hangup+0x0/0x4f0
+ [<c011ac30>] default_wake_function+0x0/0x20
+ [<c01091b2>] ret_from_fork+0x6/0x14
+ [<c011ac30>] default_wake_function+0x0/0x20
+ [<c012dd80>] worker_thread+0x0/0x2e0
+ [<c01070d9>] kernel_thread_helper+0x5/0xc
 
-I rebooted my desktop to 2.4.22.  Within a minute,  I tied my record 
-from the laptop.
-( http://www.borgerding.net/pingu_proof.png )
+Regards.
 
-Still, the results are far from scientific or conclusive.  I need some 
-objective smackage.
-Maybe I will try a blind study with my nieces tonight.  I'll reboot the 
-machine into either 2.4.22 or 2.6.1 and record their scores.
+- --
 
-Coming soon to a techie-site near you, "Pingumark 2004".
+Angelo Dell'Aera 'buffer' 
+Antifork Research, Inc.	  	http://buffer.antifork.org
 
-- Mark Borgerding
+PGP information in e-mail header
 
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQFAEp3EpONIzxnBXKIRAn79AJ9T8PukmxUToQ7bSj/TKYOioZqbwQCeNvQi
+AusiTLjI1CrZVrV1TE58rI4=
+=XuYc
+-----END PGP SIGNATURE-----

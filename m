@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266517AbUHBN1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266485AbUHBNik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266517AbUHBN1N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 09:27:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266514AbUHBN1N
+	id S266485AbUHBNik (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 09:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266498AbUHBNik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 09:27:13 -0400
-Received: from zero.aec.at ([193.170.194.10]:60172 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S266517AbUHBN1H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 09:27:07 -0400
-To: Peter Williams <pwil3058@bigpond.net.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] V-3.0 Single Priority Array O(1) CPU Scheduler
- Evaluation
-References: <2oEEn-197-9@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Mon, 02 Aug 2004 15:27:03 +0200
-In-Reply-To: <2oEEn-197-9@gated-at.bofh.it> (Peter Williams's message of
- "Mon, 02 Aug 2004 08:40:07 +0200")
-Message-ID: <m3isc1smag.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 2 Aug 2004 09:38:40 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:54025 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266485AbUHBNij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 09:38:39 -0400
+Date: Mon, 2 Aug 2004 14:38:25 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>, dipankar@in.ibm.com,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [patchset] Lockfree fd lookup 1 of 5
+Message-ID: <20040802143825.A5073@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ravikiran G Thirumalai <kiran@in.ibm.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Greg KH <greg@kroah.com>, dipankar@in.ibm.com,
+	viro@parcelfarce.linux.theplanet.co.uk
+References: <20040802101053.GB4385@vitalstatistix.in.ibm.com> <20040802101350.GC4385@vitalstatistix.in.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040802101350.GC4385@vitalstatistix.in.ibm.com>; from kiran@in.ibm.com on Mon, Aug 02, 2004 at 03:43:52PM +0530
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams <pwil3058@bigpond.net.au> writes:
+On Mon, Aug 02, 2004 at 03:43:52PM +0530, Ravikiran G Thirumalai wrote:
+> Here's the first patch.  This patch 'shrinks' struct kref by removing
+> the release pointer in the struct kref.  GregKH has applied this to his tree
 
-> Version 3 of the various single priority array scheduler patches for
-> 2.6.7, 2.6.8-rc2 and 2.6.8-rc2-mm1 kernels are now available for
-> download and evaluation:
-
-[...] So many schedulers. It is hard to chose one for testing.
-
-Do you have one you prefer and would like to be tested especially? 
-
-Perhaps a few standard benchmark numbers for the different ones 
-(e.g. volanomark or hackbench or the OSDL SDL tests) would make it 
-easier to preselect.
-
-Have you considered submitting one to -mm* for wider testing?
-
--Andi 
+What's the advantage of this kref API over opencoded atomic_t usage?
 

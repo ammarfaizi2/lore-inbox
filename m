@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267341AbUIARYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267344AbUIARYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267341AbUIARYP (ORCPT <rfc822;willy@w.ods.org>);
+	id S267344AbUIARYP (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 1 Sep 2004 13:24:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267353AbUIAPzq
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267367AbUIAPzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 11:55:46 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:57266 "EHLO
+	Wed, 1 Sep 2004 11:55:17 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:2483 "EHLO
 	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S267356AbUIAPvq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 11:51:46 -0400
-Date: Wed, 1 Sep 2004 16:51:18 +0100
-Message-Id: <200409011551.i81FpIUd000585@delerium.codemonkey.org.uk>
+	id S267353AbUIAPvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 11:51:47 -0400
+Date: Wed, 1 Sep 2004 16:51:23 +0100
+Message-Id: <200409011551.i81FpNha000690@delerium.codemonkey.org.uk>
 From: Dave Jones <davej@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Clean up failure path in DAC960
+Subject: [PATCH] Fix NULL dereference in OSS v_midi driver
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-
-1. If the ScatterGatherPool allocation fails, its pointless
-   trying to allocate a RequestSensePool.
-2. Free up the ScatterGatherPool if the RequestSensePool allocation fails.
 
 Spotted with the source checker from Coverity.com.
 
 Signed-off-by: Dave Jones <davej@redhat.com>
 
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/block/DAC960.c linux-2.6/drivers/block/DAC960.c
---- bk-linus/drivers/block/DAC960.c	2004-06-04 12:08:32.000000000 +0100
-+++ linux-2.6/drivers/block/DAC960.c	2004-06-07 11:07:03.000000000 +0100
-@@ -288,12 +288,17 @@ static boolean DAC960_CreateAuxiliaryStr
- 		Controller->PCIDevice,
- 	DAC960_V2_ScatterGatherLimit * sizeof(DAC960_V2_ScatterGatherSegment_T),
- 	sizeof(DAC960_V2_ScatterGatherSegment_T), 0);
-+      if (ScatterGatherPool == NULL)
-+	    return DAC960_Failure(Controller,
-+			"AUXILIARY STRUCTURE CREATION (SG)");
-       RequestSensePool = pci_pool_create("DAC960_V2_RequestSense",
- 		Controller->PCIDevice, sizeof(DAC960_SCSI_RequestSense_T),
- 		sizeof(int), 0);
--      if (ScatterGatherPool == NULL || RequestSensePool == NULL)
-+      if (RequestSensePool == NULL) {
-+	    pci_pool_destroy(ScatterGatherPool);
- 	    return DAC960_Failure(Controller,
- 			"AUXILIARY STRUCTURE CREATION (SG)");
-+      }
-       Controller->ScatterGatherPool = ScatterGatherPool;
-       Controller->V2.RequestSensePool = RequestSensePool;
-     }
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/sound/oss/v_midi.c linux-2.6/sound/oss/v_midi.c
+--- bk-linus/sound/oss/v_midi.c	2004-06-03 13:40:31.000000000 +0100
++++ linux-2.6/sound/oss/v_midi.c	2004-06-03 13:43:00.000000000 +0100
+@@ -90,11 +90,12 @@ static void v_midi_close (int dev)
+ static int v_midi_out (int dev, unsigned char midi_byte)
+ {
+ 	vmidi_devc *devc = midi_devs[dev]->devc;
+-	vmidi_devc *pdevc = midi_devs[devc->pair_mididev]->devc;
++	vmidi_devc *pdevc;
+ 
+ 	if (devc == NULL)
+-		return -(ENXIO);
++		return -ENXIO;
+ 
++	pdevc = midi_devs[devc->pair_mididev]->devc;
+ 	if (pdevc->input_opened > 0){
+ 		if (MIDIbuf_avail(pdevc->my_mididev) > 500)
+ 			return 0;

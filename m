@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263258AbUDUPzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263252AbUDUQEs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263258AbUDUPzH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 11:55:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263252AbUDUPzH
+	id S263252AbUDUQEs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 12:04:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263307AbUDUQEs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 11:55:07 -0400
-Received: from jericho.provo.novell.com ([137.65.81.173]:53790 "EHLO
-	jericho.provo.novell.com") by vger.kernel.org with ESMTP
-	id S263258AbUDUPzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 11:55:03 -0400
-From: Charles Coffing <ccoffing@novell.com>
-Organization: Novell, Inc.
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] unbalanced try_get_module/put_module in cpufreq
-Date: Wed, 21 Apr 2004 10:47:02 -0600
-User-Agent: KMail/1.5.4
-Cc: Dominik Brodowski <linux@brodo.de>
+	Wed, 21 Apr 2004 12:04:48 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:59653 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S263252AbUDUQEr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 12:04:47 -0400
+Date: Thu, 22 Apr 2004 00:08:29 +0800 (WST)
+From: raven@themaw.net
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc2-mm1
+In-Reply-To: <20040421014544.37942eb4.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0404220005120.16711@donald.themaw.net>
+References: <20040421014544.37942eb4.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404211047.02906.ccoffing@novell.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-0.2, required 8,
+	IN_REP_TO, NO_REAL_NAME, REFERENCES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-This patch is against 2.6.5.  There's a small bug in cpufreq_add_dev:  If kmalloc fails, try_get_module() is not balanced by a module_put().
+Looks like there's no IDS defined for the Creator cards on sparc.
 
-Thanks,
-Charles
+If only I could build a kernel on my little Ultra. Sigh.
+I don't even have to fight the kids to use it.
 
-
-diff -pu linux-2.6.5.orig/drivers/cpufreq/cpufreq.c linux-2.6.5/drivers/cpufreq/cpufreq.c
---- linux-2.6.5.orig/drivers/cpufreq/cpufreq.c	2004-04-03 20:36:26.000000000 -0700
-+++ linux-2.6.5/drivers/cpufreq/cpufreq.c	2004-04-20 12:38:53.110191544 -0600
-@@ -361,7 +361,10 @@ static int cpufreq_add_dev (struct sys_d
- 
- 	policy = kmalloc(sizeof(struct cpufreq_policy), GFP_KERNEL);
- 	if (!policy)
-+	{
-+		module_put(cpufreq_driver->owner);
- 		return -ENOMEM;
-+	}
- 	memset(policy, 0, sizeof(struct cpufreq_policy));
- 
- 	policy->cpu = cpu;
+In file included from drivers/char/drm/ffb_drv.c:336:
+drivers/char/drm/drm_drv.h:545: error: `DRIVER_PCI_IDS' undeclared here 
+(not in a function)
+drivers/char/drm/drm_drv.h:545: error: initializer element is not constant
+drivers/char/drm/drm_drv.h:545: error: (near initialization for 
+`ffb_pciidlist[0 ]')
+drivers/char/drm/ffb_drv.c:225: warning: `ffb_count_card_instances' 
+defined but not used
 

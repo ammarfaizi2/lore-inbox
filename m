@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314150AbSDVNI1>; Mon, 22 Apr 2002 09:08:27 -0400
+	id <S314164AbSDVNJ6>; Mon, 22 Apr 2002 09:09:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314164AbSDVNI0>; Mon, 22 Apr 2002 09:08:26 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33540 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314150AbSDVNIZ>; Mon, 22 Apr 2002 09:08:25 -0400
-Date: Mon, 22 Apr 2002 14:08:19 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Skip Ford <skip.ford@verizon.net>, linux-kernel@vger.kernel.org
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-Message-ID: <20020422140818.A4736@flint.arm.linux.org.uk>
-In-Reply-To: <20020421044616.5beae559.spyro@armlinux.org> <20020421043811.BHIC5495.out020.verizon.net@pool-141-150-235-204.delv.east.verizon.net> <20020421093103.A19904@flint.arm.linux.org.uk> <E16zH1z-0001Ei-00@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S314187AbSDVNJ5>; Mon, 22 Apr 2002 09:09:57 -0400
+Received: from cambot.suite224.net ([209.176.64.2]:11268 "EHLO suite224.net")
+	by vger.kernel.org with ESMTP id <S314164AbSDVNJ4>;
+	Mon, 22 Apr 2002 09:09:56 -0400
+Message-ID: <002001c1e9ff$a884eae0$4df583d0@pcs686>
+From: "Matthew D. Pitts" <mpitts@suite224.net>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020421044616.5beae559.spyro@armlinux.org> <20020421053143.4ef9f810.spyro@armlinux.org> <20020420.212017.22963738.davem@redhat.com> <E16zGuQ-0001Eb-00@starship>
+Subject: Impressions of 2.5.8
+Date: Mon, 22 Apr 2002 09:14:38 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 21, 2002 at 03:05:27PM +0200, Daniel Phillips wrote:
-> On Sunday 21 April 2002 10:31, Russell King wrote:
-> > We have hourly snapshots, thanks to the work David Woodhouse and
-> > Rik van Riel did at a moments notice.  Does this satisfy your
-> > concerns above?
-> 
-> Interesting.  How does that work, exactly?
+Fellow Linux Hackers,
 
-If you want details of this, go grab the publically accessible
-scripts that these guys worked on.  Just don't ask me.
+Saturday I downloaded kernel 2.5.8. After compiling it last night, I have to
+say that I am quite pleased with how it works on my computer. I don't care
+what SCM is used, as long as the kernel quality continues to be this good.
 
-I'm no longer interested in this BK anti BK crap.  Take it elsewhere.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Matthew.
 

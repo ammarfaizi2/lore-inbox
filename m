@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261410AbRETEbW>; Sun, 20 May 2001 00:31:22 -0400
+	id <S261423AbRETFYW>; Sun, 20 May 2001 01:24:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261411AbRETEbM>; Sun, 20 May 2001 00:31:12 -0400
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:58120 "HELO
-	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S261410AbRETEa7>; Sun, 20 May 2001 00:30:59 -0400
-Date: Sun, 20 May 2001 16:30:41 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Pavel Machek <pavel@suse.cz>, Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Getting FS access events
-Message-ID: <20010520163041.A6260@metastasis.f00f.org>
-In-Reply-To: <20010515161750.B38@toy.ucw.cz> <Pine.LNX.4.21.0105191238040.14472-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S261467AbRETFYL>; Sun, 20 May 2001 01:24:11 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:11950 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S261423AbRETFXw>;
+	Sun, 20 May 2001 01:23:52 -0400
+Message-ID: <3B0754E2.6D2A6AFD@mandrakesoft.com>
+Date: Sun, 20 May 2001 01:23:46 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        netdev@oss.sgi.com
+Subject: ethtool and pre4
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0105191238040.14472-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, May 19, 2001 at 12:39:18PM -0700
-X-No-Archive: Yes
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 19, 2001 at 12:39:18PM -0700, Linus Torvalds wrote:
+pre4 is out, and a couple ethernet drivers have gained support for
+ethtool.  In order to take advantage of the new support, you can
+download ethtool 1.2 from
 
-    Note that "resume from disk" does _not_ have to necessarily
-    resume kernel data structures. It is enough if it just resumes
-    the caches etc.
+	http://sf.net/projects/gkernel/
 
-For speeding up a boot process, sure... but for suspend/resume on a
-laptop --- why would you bother?
+or check it out of CVS (instruction at the above URL).
 
-    Don't get _too_ hung up about the power-management kind of
-    "invisible suspend/resume" sequence where you resume the whole
-    kernel state.
-
-I'm confused. I've always wondered that before you suspend the state
-of a machine to disk, why we just don't throw away unnecessary data
-like anything not actively referenced.
-
-
-
-  --cw
+-- 
+Jeff Garzik      | "Do you have to make light of everything?!"
+Building 1024    | "I'm extremely serious about nailing your
+MandrakeSoft     |  step-daughter, but other than that, yes."

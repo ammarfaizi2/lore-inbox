@@ -1,48 +1,29 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317474AbSFMF5o>; Thu, 13 Jun 2002 01:57:44 -0400
+	id <S317476AbSFMF7c>; Thu, 13 Jun 2002 01:59:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317476AbSFMF5n>; Thu, 13 Jun 2002 01:57:43 -0400
-Received: from gusi.leathercollection.ph ([202.163.192.10]:15535 "EHLO
-	gusi.leathercollection.ph") by vger.kernel.org with ESMTP
-	id <S317474AbSFMF5m>; Thu, 13 Jun 2002 01:57:42 -0400
-Date: Thu, 13 Jun 2002 13:57:33 +0800 (PHT)
-From: Federico Sevilla III <jijo@free.net.ph>
-X-X-Sender: jijo@kalabaw
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: BugTraq Mailing List <bugtraq@securityfocus.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: rlimits and non overcommit (was: Very large font size ...)
-In-Reply-To: <E17INKZ-0000gV-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.44.0206131352510.3677-100000@kalabaw>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317480AbSFMF7b>; Thu, 13 Jun 2002 01:59:31 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:38361 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317476AbSFMF7a>;
+	Thu, 13 Jun 2002 01:59:30 -0400
+Date: Wed, 12 Jun 2002 22:55:02 -0700 (PDT)
+Message-Id: <20020612.225502.69296808.davem@redhat.com>
+To: rusty@rustcorp.com.au
+Cc: akpm@zip.com.au, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        k-suganuma@mvj.biglobe.ne.jp
+Subject: Re: [PATCH] 2.5.21 Nonlinear CPU support
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020613150119.16115952.rusty@rustcorp.com.au>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
-(cc BugTraq and LKML)
+   From: Rusty Russell <rusty@rustcorp.com.au>
+   Date: Thu, 13 Jun 2002 15:01:19 +1000
 
-On Thu, 13 Jun 2002 at 06:39, Alan Cox wrote:
-> > check to prevent such large sizes from crashing X and/or the X Font
-> > Server, I'm alarmed by (1) the way the X font server allows itself to
-> > be crashed like this, and (2) the way the entire Linux kernel seems to
-> > have been unable to handle the situation. While having a central
-> > company or
->
-> So turn on the features to conrol it. Set rlimits on the xfs server and
-> enable non overcommit (-ac kernel)
+   +/* This code sucks.  But you should have seen it before! --RR */
 
-I am using SGI's XFS, and I think they follow Marcelo's kernels for the
-2.4 series, at the moment. Are there any plans of getting non overcommit
-from your tree into Marcelo's?
-
-TIA. :)
-
- --> Jijo
-
--- 
-Federico Sevilla III   :  <http://jijo.free.net.ph/>
-Network Administrator  :  The Leather Collection, Inc.
-GnuPG Key ID           :  0x93B746BE
-
+Applied :-)

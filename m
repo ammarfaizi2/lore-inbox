@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264156AbTF0Ktz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 06:49:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264158AbTF0Ktz
+	id S264158AbTF0Kws (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 06:52:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264178AbTF0Kws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 06:49:55 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:45956
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264156AbTF0Kty (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 06:49:54 -0400
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Robert White <rwhite@casabyte.com>,
-       Stephan von Krawczynski <skraw@ithnet.com>, wa@almesberger.net,
-       miquels@cistron-office.nl,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030626205221.GC14299@work.bitmover.com>
-References: <20030626125053.1391e59f.skraw@ithnet.com>
-	 <PEEPIDHAKMCGHDBJLHKGOEGEDBAA.rwhite@casabyte.com>
-	 <20030626205221.GC14299@work.bitmover.com>
-Content-Type: text/plain
+	Fri, 27 Jun 2003 06:52:48 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:55364 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S264158AbTF0Kws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 06:52:48 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200306271107.h5RB72x32196@devserv.devel.redhat.com>
+Subject: Re: O_DIRECT
+To: sct@redhat.com (Stephen C. Tweedie)
+Date: Fri, 27 Jun 2003 07:07:02 -0400 (EDT)
+Cc: alan@redhat.com (Alan Cox), sct@redhat.com (Stephen Tweedie),
+       linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <1056710121.2418.19.camel@sisko.scot.redhat.com> from "Stephen C. Tweedie" at Meh 27, 2003 11:35:21 
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1056711658.3174.31.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 27 Jun 2003 12:00:58 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-06-26 at 21:52, Larry McVoy wrote:
-> Who do you want to have as your doctor?  Someone who has done it for 20
-> years or someone who is observing other doctors?  Repeat for any other
-> profession, sport, discipline, whatever.
+> Ouch ouch ouch, there's nasty merge conflict between the O_DIRECT patch
+> and an existing 64-bit rlimit chunk in -ac3.  You really, really want
+> the change below. :-)  Marcelo's tree appears OK, and this is a common
+> code path for all filesystems in -ac, so it matches the failure patterns
+> that far.
 
-It is routine for just trained doctors to spot problems missed by other
-doctors, to know about alternate ways of handling the problems and to be
-very concious of their limitations thus better in some cases.
-
-There is a lovely quote  "Powertools are at their most dangerous when
-you know you have mastered them"
-
-
+Ouch indeed - ok thats good, that means its not the O_DIRECT stuff. Thanks
+for figuring it out

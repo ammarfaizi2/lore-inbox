@@ -1,81 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264077AbTFCUFH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 16:05:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264091AbTFCUFG
+	id S264115AbTFCUNC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 16:13:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264135AbTFCUNB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 16:05:06 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:17423 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S264077AbTFCUFF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 16:05:05 -0400
-Date: Tue, 3 Jun 2003 22:18:31 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Paul <set@pobox.com>, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Config issue (CONFIG_X86_TSC) Re: Linux 2.4.21-rc6
-Message-ID: <20030603201831.GK30457@lug-owl.de>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>,
-	Paul <set@pobox.com>, Marcelo Tosatti <marcelo@conectiva.com.br>
-References: <Pine.LNX.4.55L.0305282019160.321@freak.distro.conectiva> <20030603194537.GO22874@squish.home.loc>
+	Tue, 3 Jun 2003 16:13:01 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:57562 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S264115AbTFCUM7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 16:12:59 -0400
+Date: Tue, 3 Jun 2003 15:26:56 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Jocelyn Mayer <jma@netgem.com>
+Cc: Georg Nikodym <georgn@somanetworks.com>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] ieee1394 sbp2 driver is broken for kernel >= 2.4.21-rc2
+Message-ID: <20030603192656.GE10102@phunnypharm.org>
+References: <1054582582.4967.48.camel@jma1.dev.netgem.com> <20030602163443.2bd531fb.georgn@somanetworks.com> <1054588832.4967.77.camel@jma1.dev.netgem.com> <20030603113636.GX10102@phunnypharm.org> <1054663917.4967.99.camel@jma1.dev.netgem.com> <20030603185421.GB10102@phunnypharm.org> <1054671619.4951.139.camel@jma1.dev.netgem.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="T4Djgzn3z2HSNnx0"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030603194537.GO22874@squish.home.loc>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
+In-Reply-To: <1054671619.4951.139.camel@jma1.dev.netgem.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> - Please take a look at this session:
+> First, I reboot the Ibook:
 
---T4Djgzn3z2HSNnx0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You didn't read a damn thing.
 
-On Tue, 2003-06-03 15:45:37 -0400, Paul <set@pobox.com>
-wrote in message <20030603194537.GO22874@squish.home.loc>:
-> Marcelo Tosatti <marcelo@conectiva.com.br>, on Wed May 28, 2003 [09:55:39=
- PM] said:
-> > Here goes -rc6. I've decided to delay 2.4.21 a bit and try Andrew's fix
-> > for the IO stalls/deadlocks.
-> >=20
-> > Please test it.
-> >=20
-> 	Hi;
->=20
-> 	It seems if I run 'make menuconfig', and the only change
-> I make is to change the processor type from its default to
-> 486, "CONFIG_X86_TSC=3Dy", remains in the .config, which results
-> in a kernel that wont boot on a 486.
-> 	Running 'make oldconfig' seems to fix it up, though...
+Look, things changed around rc2. They changed because the old way of
+sbp2 that allowed sbp2 devices to be detected on module load caused
+oopses. It was very buggy and very bad. Even the old logic didn't work
+when you loaded sbp2 and _then_ plugged the device in.
 
-Yeah, that's a but hitting i80386 also, I had sent a patch for that some
-time ago to LKML. There's simply some CONFIG_X86_TSC=3Dn missing in the
-case of i486 and i486.
+I HAVE NOT once said anything about fucking /sbin/hotplug, nor the
+kernel's idea of CONFIG_HOTPLUG. I just said "hotplug", which is a
+generic term for being able to insert devices after the bus has already
+been scanned for them. So stop bring up either of the two previous
+notions that you may have.
 
-MfG, JBG
+Your behavior is expected, even if it changed and is inconvient to you.
+This time, _really_ read the linux1394-devel mailing list archives. And
+just get the damn script and use it. If you had ever really used sbp2
+previously and wanted to plug/unplug devices without unloading/reloading
+sbp2.o, you would already realize that the script was a must for 2.4.
+Then again, if you had been unloading/loading sbp2 you would have also
+hit the oopses I mentioned before.
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
-
---T4Djgzn3z2HSNnx0
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+3QKXHb1edYOZ4bsRAkoBAJ9LSRZ7BGDfROLSIz7MJv15amD0TwCfZheo
-zzizgYlJ4yDC29JdnnHQd8s=
-=xOXH
------END PGP SIGNATURE-----
-
---T4Djgzn3z2HSNnx0--
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

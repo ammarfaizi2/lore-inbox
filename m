@@ -1,292 +1,520 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbUJWSDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261224AbUJWQMZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261263AbUJWSDe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 14:03:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbUJWSDe
+	id S261224AbUJWQMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 12:12:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbUJWQMZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 14:03:34 -0400
-Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:526 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261264AbUJWSAw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 14:00:52 -0400
-Date: Sat, 23 Oct 2004 20:02:15 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: LM Sensors <sensors@stimpy.netroedge.com>
-Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: More on SMBus multiplexing
-Message-Id: <20041023200215.38e375a1.khali@linux-fr.org>
-Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 23 Oct 2004 12:12:25 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:59149 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261224AbUJWQJu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 12:09:50 -0400
+Date: Sat, 23 Oct 2004 18:09:15 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] pm3fb: remove kernel 2.2 code (fwd)
+Message-ID: <20041023160915.GD5110@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-The more I think of Mark Hoffman's proposal to handle SMBus
-multiplexing, the more I think he pointed us to the right direction.
-However, I now wonder if things aren't even more simple than we first
-thought.
+FYI:
+The patch forwarded below still applies against 2.6.9-mm1 (yew, I know 
+the driver is marked as BROKEN).
 
-The main idea is to remove the physical adapter from the i2c adapters
-list, and add virtual busses instead. We already have the possibility to
-do that right now. The second thing Mark proposed was to lock the
-physical SMBus. While it may sound safer, I don't think it is really
-necessary. The sole fact of removing it from the main list will
-disconnect all chip clients, and clients loaded later won't see the
-physical bus anymore. The only way to attach a client to the SMBus would
-be to do it manually. Certainly it could hurt if someone would do that
-(because it would interfer with the virtual busses) but it happens that
-nobody does this (the whole thing is based on the idea that the core
-will automatically connect all clients from the client lists with all
-adapters from the adapters list).
 
-What are we trying to protect us from with this "exclusive client" idea
-exactly? It will always be possible to run raw commands on the physical
-bus anyway, just call adapter.algo->smbus_xfer. There is no way we can
-protect us against that. So I think we are trying to protect us from an
-event that will never happen and that the protection can be circumvented
-by someone with enough motivation anyway. Much work for nothing, IMHO.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-If we forget about that bus locking and exclusive client access, I don't
-think that anything is missing from the i2c core. All we need is
-i2c_{add,del}_adapter, and possibly a way to find an adapter from its id
-(I didn't find something like i2c_find_adapter, did I miss it?). I'm not
-even sure that this is needed though. A possible approach is to have the
-main smbus driver export its i2c_adapter structure, so that the virtual
-smbus driver can access it. This also automagically creates a dependancy
-between both modules, and ensures that loading the vitual bus driver
-will load the main bus driver first.
 
-Note that this approach (as Mark's original one, but contrary to my
-original one) would require a couple changes to sensors-detect. It
-should really only be a matter of adding the correct entries in the pci
-devices list though. However, this could be made unnecessary by
-requesting the second module after loading the first one, using
-request_module(). I tried, it works, I just don't know if we want to do
-it or not. The drawback is that it makes a few board-specific changes to
-the main module.
 
-As a side note, the concept of "exclusive access" for a multiplexer
-client also raises issues in the case one SMBus would host more that one
-multiplexer chip directly at its "root" level. I see no reason why this
-would be technically impossible, yet Mark's original model wouldn't
-support it. I guess it would be possible to emulate it as if the second
-multiplexer was located behind the first one, but this would certainly
-make things more complex.
+----- Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
 
-Of course, as with Mark's approach, we have the benefit of having two
-separated module, no code duplication and little to very little change
-to the original driver, depending on whether we implement the autoload
-mechanism or not, for a maximum maintainabilty (so that's better than
-my proposal for the amd756-s4882 driver in 2.4/CVS, even after taking
-Mark's comment into account).
+Date:	Sun, 8 Feb 2004 02:06:09 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: James Simmons <jsimmons@infradead.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] pm3fb: remove kernel 2.2 code
 
-I was about to commit my i2c-amd756-s4882 module to the lm_sensors CVS
-repository, but now I think that I'll try that new approach instead of
-my brutal code inclusion, which works but isn't really clean, to say the
-least.
+The patch below removes kernel 2.2 code from pm3fb.{c,h}.
 
-As a kind of proof of concept, I did a fake i2c-i801-vaio module to
-virtualize the SMBus on my laptop (although it doesn't have a mux chip).
-It works just OK as far as I can tell. Of course the code is stupidly
-useless (the virtual adapter doesn't do anything more than dumbly
-redirect the calls to the physical bus), and lacks the mux client
-registration part, since there is no such chip. I think that the idea is
-clear though, and at least now we have code to comment on ;)
+It also removes KERNEL_2_4 and KERNEL_2_5 since all places where this 
+was used had a
+  #if (defined KERNEL_2_4) || (defined KERNEL_2_5)
 
-Thanks.
+diffstat output:
+ drivers/video/pm3fb.c |  287 +++++++-----------------------------------
+ include/video/pm3fb.h |   40 -----
+ 2 files changed, 54 insertions(+), 273 deletions(-)
 
-Index: kernel/busses/Module.mk
-===================================================================
-RCS file: /home/cvs/lm_sensors2/kernel/busses/Module.mk,v
-retrieving revision 1.48
-diff -u -r1.48 Module.mk
---- kernel/busses/Module.mk	16 Apr 2004 20:56:53 -0000	1.48
-+++ kernel/busses/Module.mk	23 Oct 2004 18:24:17 -0000
-@@ -48,6 +48,7 @@
- endif
- ifneq ($(shell if grep -q '^CONFIG_I2C_I801=y' $(LINUX)/.config; then echo 1; fi),1)
- KERNELBUSSESTARGETS += $(MODULE_DIR)/i2c-i801.o
-+KERNELBUSSESTARGETS += $(MODULE_DIR)/i2c-i801-vaio.o
- endif
- ifneq ($(shell if grep -q '^CONFIG_I2C_I810=y' $(LINUX)/.config; then echo 1; fi),1)
- KERNELBUSSESTARGETS += $(MODULE_DIR)/i2c-i810.o
-Index: kernel/busses/i2c-i801-vaio.c
-===================================================================
-RCS file: kernel/busses/i2c-i801-vaio.c
-diff -N kernel/busses/i2c-i801-vaio.c
---- /dev/null	1 Jan 1970 00:00:00 -0000
-+++ kernel/busses/i2c-i801-vaio.c	23 Oct 2004 18:24:17 -0000
-@@ -0,0 +1,93 @@
-+#include <linux/module.h>
-+#include <linux/pci.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/i2c.h>
-+#include "version.h"
+Please apply
+Adrian
+
+
+--- linux-2.6.2-mm1/include/video/pm3fb.h.old	2004-02-07 21:50:06.000000000 +0100
++++ linux-2.6.2-mm1/include/video/pm3fb.h	2004-02-07 22:01:37.000000000 +0100
+@@ -1119,34 +1119,6 @@
+ /* ***** pm3fb useful define and macro ***** */
+ /* ***************************************** */
+ 
+-/* kernel -specific definitions */
+-/* what kernel is this ? */
+-#if ((LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)))
+-#define KERNEL_2_5
+-#endif
+-
+-#if ((LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)))
+-#define KERNEL_2_4
+-#endif
+-
+-#if ((LINUX_VERSION_CODE >= KERNEL_VERSION(2,2,0)) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,3,0))) 
+-#define KERNEL_2_2
+-/* pci_resource_start, available in 2.2.18 */
+-#include <linux/kcomp.h>
+-#ifdef CONFIG_FB_OF
+-#define SUPPORT_FB_OF
+-#endif
+-#endif
+-
+-#if (!defined(KERNEL_2_2)) && (!defined(KERNEL_2_4)) && (!defined(KERNEL_2_5))
+-#error "Only kernel 2.2.x, kernel 2.4.y and kernel 2.5.z might work"
+-#endif
+-
+-/* not sure if/why it's needed. doesn't work without on my PowerMac... */
+-#ifdef __BIG_ENDIAN
+-#define MUST_BYTESWAP
+-#endif
+-
+ /* permedia3 -specific definitions */
+ #define PM3_SCALE_TO_CLOCK(pr, fe, po) ((2 * PM3_REF_CLOCK * fe) / (pr * (1 << (po))))
+ 
+@@ -1203,19 +1175,9 @@
+ /* ******************************************** */
+ /* ***** A bunch of register-access macro ***** */
+ /* ******************************************** */
+-#ifdef KERNEL_2_2
+-#ifdef MUST_BYTESWAP /* we are writing big_endian to big_endian through a little_endian macro */
+-#define PM3_READ_REG(r) __swab32(readl((l_fb_info->vIOBase + r)))
+-#define PM3_WRITE_REG(r, v) writel(__swab32(v), (l_fb_info->vIOBase + r))
+-#else /* MUST_BYTESWAP */
+-#define PM3_WRITE_REG(r, v) writel(v, (l_fb_info->vIOBase + r))
+-#define PM3_READ_REG(r) readl((l_fb_info->vIOBase + r))
+-#endif /* MUST_BYTESWAP */
+-#endif /* KERNEL_2_2 */
+-#if (defined KERNEL_2_4) || (defined KERNEL_2_5) /* native-endian access */
 +
-+extern struct i2c_adapter i801_adapter;
-+
-+static s32 i801_vaio_access(struct i2c_adapter * adap, u16 addr,
-+		       unsigned short flags, char read_write, u8 command,
-+		       int size, union i2c_smbus_data * data)
-+{
-+	return i801_adapter.algo->smbus_xfer(adap, addr, flags,
-+		read_write, command, size, data);
-+}
-+
-+static struct i2c_algorithm smbus_algorithm = {
-+	.name		= "Non-I2C SMBus adapter",
-+	.id		= I2C_ALGO_SMBUS,
-+	.smbus_xfer	= i801_vaio_access,
-+};
-+
-+struct i2c_adapter i801_vaio_adapter = {
-+	.owner		= THIS_MODULE,
-+	.id		= I2C_ALGO_SMBUS | I2C_HW_SMBUS_I801,
-+	.algo		= &smbus_algorithm,
-+	.name		= "unset",
-+};
-+
-+static int __init i2c_i801_vaio_init(void)
-+{
-+	int err;
-+
-+	printk(KERN_INFO "i2c-i801-vaio version %s (%s)\n", LM_VERSION,
-+	       LM_DATE);
-+
-+	if (pci_find_subsys(PCI_VENDOR_ID_INTEL,
-+			    PCI_DEVICE_ID_INTEL_82801CA_3,
-+			    PCI_VENDOR_ID_SONY, 0x80e7, NULL) == NULL) {
-+		return -ENODEV;
-+	}
-+
-+	err = i2c_del_adapter(&i801_adapter);
-+	if (err) {
-+		printk(KERN_ERR "i2c-i801-vaio: Failed to delete physical "
-+		       "adapter\n");
-+		return err;
-+	}
-+
-+	/* Attach mux chip to main adapter here */
-+
-+	smbus_algorithm.functionality = i801_adapter.algo->functionality;
-+	snprintf(i801_vaio_adapter.name, 32, "SMBus I801 virtual adapter");
-+
-+	err = i2c_add_adapter(&i801_vaio_adapter);
-+	if (err) {
-+		printk(KERN_ERR "i2c-i801-vaio: Failed to add virtual "
-+		       "adapter\n");
-+		i2c_add_adapter(&i801_adapter);
-+		return err;
-+	}
-+
-+	return 0;
-+}
-+
-+static void __exit i2c_i801_vaio_exit(void)
-+{
-+	int err;
-+	
-+	err = i2c_del_adapter(&i801_vaio_adapter);
-+	if (err) {
-+		printk(KERN_ERR "i2c-i801-vaio: Failed to delete virtual "
-+		       "adapter\n");
-+		return;
-+	}
-+
-+	/* Detach mux chip from main adapter here */
-+
-+	i2c_add_adapter(&i801_adapter);
-+	if (err) {
-+		printk(KERN_ERR "i2c-i801-vaio: Failed to add physical "
-+		       "adapter back\n");
-+		return;
-+	}
-+}
-+
-+MODULE_AUTHOR("Jean Delvare <khali@linux-fr.org");
-+MODULE_DESCRIPTION("I801 SMBus multiplexing");
-+MODULE_LICENSE("GPL");
-+
-+module_init(i2c_i801_vaio_init);
-+module_exit(i2c_i801_vaio_exit);
-Index: kernel/busses/i2c-i801.c
-===================================================================
-RCS file: /home/cvs/lm_sensors2/kernel/busses/i2c-i801.c,v
-retrieving revision 1.36
-diff -u -r1.36 i2c-i801.c
---- kernel/busses/i2c-i801.c	22 May 2004 04:02:19 -0000	1.36
-+++ kernel/busses/i2c-i801.c	23 Oct 2004 18:24:18 -0000
-@@ -49,6 +49,7 @@
- #include <linux/ioport.h>
- #include <linux/init.h>
- #include <linux/i2c.h>
-+#include <linux/kmod.h>
- #include <asm/io.h>
- #include "version.h"
- #include "sensors_compat.h"
-@@ -548,7 +549,7 @@
- 	.functionality	= i801_func,
+ #define PM3_WRITE_REG(r, v) fb_writel(v, (l_fb_info->vIOBase + r))
+ #define PM3_READ_REG(r) fb_readl((l_fb_info->vIOBase + r))
+-#endif /* KERNEL_2_4 or KERNEL_2_5 */
+ 
+ 
+ #define depth2bpp(d) ((d + 7L) & ~7L)
+--- linux-2.6.2-mm1/drivers/video/pm3fb.c.old	2004-02-07 21:53:04.000000000 +0100
++++ linux-2.6.2-mm1/drivers/video/pm3fb.c	2004-02-07 22:03:22.000000000 +0100
+@@ -137,9 +137,6 @@
+ 	unsigned long use_current;
+ 	struct pm3fb_par *current_par;
+ 	struct pci_dev *dev;    /* PCI device */
+-#ifdef SUPPORT_FB_OF
+-	struct device_node *dn; /* OF node for the PCI device */
+-#endif /* SUPPORT_FB_OF */
+ 	unsigned long board_type; /* index in the cardbase */
+ 	unsigned char *fb_base;	/* framebuffer memory base */
+ 	u32 fb_size;		/* framebuffer memory size */
+@@ -665,20 +662,6 @@
+ 
+ 
+ /* the struct that hold them together */
+-#ifdef KERNEL_2_2
+-struct fbgen_hwswitch pm3fb_switch = {
+-	pm3fb_detect, pm3fb_encode_fix, pm3fb_decode_var, pm3fb_encode_var,
+-	pm3fb_get_par, pm3fb_set_par, pm3fb_getcolreg, pm3fb_setcolreg,
+-	pm3fb_pan_display, pm3fb_blank, pm3fb_set_disp
+-};
+-
+-static struct fb_ops pm3fb_ops = {
+-	fbgen_get_fix, fbgen_get_var, fbgen_set_var,
+-	fbgen_get_cmap, fbgen_set_cmap, fbgen_pan_display, pm3fb_ioctl,
+-	    NULL, NULL
+-};
+-#endif /* KERNEL_2_2 */
+-#if (defined KERNEL_2_4) || (defined KERNEL_2_5)
+ struct fbgen_hwswitch pm3fb_switch = {
+ 	pm3fb_detect, pm3fb_encode_fix, pm3fb_decode_var, pm3fb_encode_var,
+ 	pm3fb_get_par, pm3fb_set_par, pm3fb_getcolreg, 
+@@ -697,7 +680,7 @@
+ 	.fb_blank =	fbgen_blank,
+ 	.fb_ioctl =	pm3fb_ioctl,
  };
+-#endif /* KERNEL_2_4 or KERNEL_2_5 */
++
+ #ifdef PM3FB_USE_ACCEL
+ #ifdef FBCON_HAS_CFB32
+ static struct display_switch pm3fb_cfb32 = {
+@@ -1451,26 +1434,11 @@
  
--static struct i2c_adapter i801_adapter = {
-+struct i2c_adapter i801_adapter = {
- 	.owner		= THIS_MODULE,
- 	.id		= I2C_ALGO_SMBUS | I2C_HW_SMBUS_I801,
- 	.algo		= &smbus_algorithm,
-@@ -558,6 +559,12 @@
- static struct pci_device_id i801_ids[] __devinitdata = {
+ 	/* pm3 split up memory, replicates, and do a lot of nasty stuff IMHO ;-) */
+ 	for (i = 0; i < 32; i++) {
+-#ifdef KERNEL_2_2
+-#ifdef MUST_BYTESWAP
+-		writel(__swab32(i * 0x00345678),
+-		       (l_fb_info->v_fb + (i * 1048576)));
+-#else
+-		writel(i * 0x00345678, (l_fb_info->v_fb + (i * 1048576)));
+-#endif
+-		mb();
+-#ifdef MUST_BYTESWAP
+-		temp1 = __swab32(readl((l_fb_info->v_fb + (i * 1048576))));
+-#else
+-		temp1 = readl((l_fb_info->v_fb + (i * 1048576)));
+-#endif
+-#endif	/* KERNEL_2_2 */
+-#if (defined KERNEL_2_4) || (defined KERNEL_2_5)
+ 		fb_writel(i * 0x00345678,
+ 			  (l_fb_info->v_fb + (i * 1048576)));
+ 		mb();
+ 		temp1 = fb_readl((l_fb_info->v_fb + (i * 1048576)));
+-#endif /* KERNEL_2_4 or KERNEL_2_5 */
++
+ 		/* Let's check for wrapover, write will fail at 16MB boundary */
+ 		if (temp1 == (i * 0x00345678))
+ 			memsize = i;
+@@ -1489,31 +1457,6 @@
+ 		}
+ 
+ 		for (i = 32; i < 64; i++) {
+-#ifdef KERNEL_2_2
+-#ifdef MUST_BYTESWAP
+-			writel(__swab32(i * 0x00345678),
+-			       (l_fb_info->v_fb + (i * 1048576)));
+-#else
+-			writel(i * 0x00345678,
+-			       (l_fb_info->v_fb + (i * 1048576)));
+-#endif
+-			mb();
+-#ifdef MUST_BYTESWAP
+-			temp1 =
+-			    __swab32(readl
+-				     ((l_fb_info->v_fb + (i * 1048576))));
+-			temp2 =
+-			    __swab32(readl
+-				     ((l_fb_info->v_fb +
+-				       ((i - 32) * 1048576))));
+-#else
+-			temp1 = readl((l_fb_info->v_fb + (i * 1048576)));
+-			temp2 =
+-			    readl((l_fb_info->v_fb +
+-				   ((i - 32) * 1048576)));
+-#endif
+-#endif /* KERNEL_2_2 */
+-#if (defined KERNEL_2_4) || (defined KERNEL_2_5)
+ 			fb_writel(i * 0x00345678,
+ 				  (l_fb_info->v_fb + (i * 1048576)));
+ 			mb();
+@@ -1522,7 +1465,6 @@
+ 			temp2 =
+ 			    fb_readl((l_fb_info->v_fb +
+ 				      ((i - 32) * 1048576)));
+-#endif /* KERNEL_2_4 or KERNEL_2_5 */
+ 			if ((temp1 == (i * 0x00345678)) && (temp2 == 0))	/* different value, different RAM... */
+ 				memsize = i;
+ 			else
+@@ -1565,16 +1507,7 @@
+ 
+ 	for (i = 0; i < (l_fb_info->fb_size / sizeof(u32)) ; i++) /* clear entire FB memory to black */
  	{
- 		.vendor =	PCI_VENDOR_ID_INTEL,
-+		.device =	PCI_DEVICE_ID_INTEL_82801CA_3,
-+		.subvendor =	PCI_VENDOR_ID_SONY,
-+		.subdevice =	0x80e7,
-+	},
-+	{
-+		.vendor =	PCI_VENDOR_ID_INTEL,
- 		.device =	PCI_DEVICE_ID_INTEL_82801AA_3,
- 		.subvendor =	PCI_ANY_ID,
- 		.subdevice =	PCI_ANY_ID,
-@@ -609,6 +616,7 @@
- 
- static int __devinit i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- {
-+	int err;
- 
- 	if (i801_setup(dev)) {
- 		dev_warn(dev,
-@@ -618,7 +626,14 @@
- 
- 	snprintf(i801_adapter.name, 32,
- 		"SMBus I801 adapter at %04x", i801_smba);
--	return i2c_add_adapter(&i801_adapter);
-+	if ((err = i2c_add_adapter(&i801_adapter)))
-+		return err;
-+
-+	if (dev->subsystem_vendor == PCI_VENDOR_ID_SONY
-+	 && dev->subsystem_device == 0x80e7)
-+	 	request_module("i2c-i801-vaio");
-+
-+	return 0;
+-#ifdef KERNEL_2_2
+-#ifdef MUST_BYTESWAP
+-		writel(__swab32(cc), (l_fb_info->v_fb + (i * sizeof(u32))));
+-#else
+-		writel(cc, (l_fb_info->v_fb + (i * sizeof(u32))));
+-#endif
+-#endif
+-#if (defined KERNEL_2_4) || (defined KERNEL_2_5)
+ 		fb_writel(cc, (l_fb_info->v_fb + (i * sizeof(u32))));
+-#endif
+ 	}
  }
  
- static void __devexit i801_remove(struct pci_dev *dev)
-@@ -651,5 +666,7 @@
- MODULE_DESCRIPTION("I801 SMBus driver");
- MODULE_LICENSE("GPL");
- 
-+EXPORT_SYMBOL(i801_adapter);
+@@ -3424,89 +3357,63 @@
+ 	for (i = 0; i < PM3_MAX_BOARD; i++) {
+ 		l_fb_info = &(fb_info[i]);
+ 		if ((l_fb_info->dev) && (!disable[i])) {	/* PCI device was found and not disabled by user */
+-#ifdef SUPPORT_FB_OF
+-			struct device_node *dp =
+-			    find_pci_device_OFnode(l_fb_info->dev->bus->
+-						   number,
+-						   l_fb_info->dev->devfn);
+-
+-			if ((dp) && (!strncmp(dp->name, "formacGA12", 10))) {
+-				/* do nothing, init of board is done in pm3fb_of_init */
+-			} else {
+-#endif
+-				DPRINTK(2,
+-					"found @%lx Vendor %lx Device %lx ; base @ : %lx - %lx - %lx - %lx - %lx - %lx, irq %ld\n",
+-					(unsigned long) l_fb_info->dev,
+-					(unsigned long) l_fb_info->dev->
+-					vendor,
+-					(unsigned long) l_fb_info->dev->
+-					device,
+-					(unsigned long)
+-					pci_resource_start(l_fb_info->dev,
+-							   0),
+-					(unsigned long)
+-					pci_resource_start(l_fb_info->dev,
+-							   1),
+-					(unsigned long)
+-					pci_resource_start(l_fb_info->dev,
+-							   2),
+-					(unsigned long)
+-					pci_resource_start(l_fb_info->dev,
+-							   3),
+-					(unsigned long)
+-					pci_resource_start(l_fb_info->dev,
+-							   4),
+-					(unsigned long)
+-					pci_resource_start(l_fb_info->dev,
+-							   5),
+-					(unsigned long) l_fb_info->dev->
+-					irq);
+-
+-				l_fb_info->pIOBase =
+-				    (unsigned char *)
+-				    pci_resource_start(l_fb_info->dev, 0);
++			DPRINTK(2,
++				"found @%lx Vendor %lx Device %lx ; base @ : %lx - %lx - %lx - %lx - %lx - %lx, irq %ld\n",
++				(unsigned long) l_fb_info->dev,
++				(unsigned long) l_fb_info->dev->vendor,
++				(unsigned long) l_fb_info->dev->device,
++				(unsigned long)
++				pci_resource_start(l_fb_info->dev, 0),
++				(unsigned long)
++				pci_resource_start(l_fb_info->dev, 1),
++				(unsigned long)
++				pci_resource_start(l_fb_info->dev, 2),
++				(unsigned long)
++				pci_resource_start(l_fb_info->dev, 3),
++				(unsigned long)
++				pci_resource_start(l_fb_info->dev, 4),
++				(unsigned long)
++				pci_resource_start(l_fb_info->dev, 5),
++				(unsigned long) l_fb_info->dev->irq);
 +
- module_init(i2c_i801_init);
- module_exit(i2c_i801_exit);
++			l_fb_info->pIOBase =
++			    (unsigned char *)
++			    pci_resource_start(l_fb_info->dev, 0);
+ #ifdef __BIG_ENDIAN
+-				l_fb_info->pIOBase += PM3_REGS_SIZE;
++			l_fb_info->pIOBase += PM3_REGS_SIZE;
+ #endif
+-				l_fb_info->vIOBase = (unsigned char *) -1;
+-				l_fb_info->p_fb =
+-				    (unsigned char *)
+-				    pci_resource_start(l_fb_info->dev, 1);
+-				l_fb_info->v_fb = (unsigned char *) -1;
++			l_fb_info->vIOBase = (unsigned char *) -1;
++			l_fb_info->p_fb =
++			    (unsigned char *)
++			    pci_resource_start(l_fb_info->dev, 1);
++			l_fb_info->v_fb = (unsigned char *) -1;
+ 
+-#if (defined KERNEL_2_4) || (defined KERNEL_2_5) 	/* full resource management, new in linux-2.4.x */
+-				if (!request_mem_region
+-				    ((unsigned long)l_fb_info->p_fb, 64 * 1024 * 1024, /* request full aperture size */
+-				     "pm3fb")) {
+-					printk
+-					    (KERN_ERR "pm3fb: Error: couldn't request framebuffer memory, board #%ld\n",
+-					     l_fb_info->board_num);
+-					continue;
+-				}
+ 				if (!request_mem_region
+-				    ((unsigned long)l_fb_info->pIOBase, PM3_REGS_SIZE,
+-				     "pm3fb I/O regs")) {
+-					printk
+-					    (KERN_ERR "pm3fb: Error: couldn't request IObase memory, board #%ld\n",
+-					     l_fb_info->board_num);
+-					continue;
+-				}
+-#endif /* KERNEL_2_4 or KERNEL_2_5 */
+-				if (forcesize[l_fb_info->board_num])
+-					l_fb_info->fb_size = forcesize[l_fb_info->board_num];
+-				
+-				l_fb_info->fb_size =
+-				    pm3fb_size_memory(l_fb_info);
++			    ((unsigned long)l_fb_info->p_fb, 64 * 1024 * 1024, /* request full aperture size */
++			     "pm3fb")) {
++				printk
++				    (KERN_ERR "pm3fb: Error: couldn't request framebuffer memory, board #%ld\n",
++				     l_fb_info->board_num);
++				continue;
++			}
++			if (!request_mem_region
++			    ((unsigned long)l_fb_info->pIOBase, PM3_REGS_SIZE,
++			     "pm3fb I/O regs")) {
++				printk
++				    (KERN_ERR "pm3fb: Error: couldn't request IObase memory, board #%ld\n",
++				     l_fb_info->board_num);
++				continue;
++			}
++			if (forcesize[l_fb_info->board_num])
++				l_fb_info->fb_size = forcesize[l_fb_info->board_num];
+ 
++			l_fb_info->fb_size =
++			    pm3fb_size_memory(l_fb_info);
+ 				if (l_fb_info->fb_size) {
+-					(void) pci_enable_device(l_fb_info->dev);
+-					pm3fb_common_init(l_fb_info);
+-				} else
+-					printk(KERN_ERR "pm3fb: memory problem, not enabling board #%ld\n", l_fb_info->board_num);
+-				
+-#ifdef SUPPORT_FB_OF
+-			}
+-#endif /* SUPPORT_FB_OF */
++				(void) pci_enable_device(l_fb_info->dev);
++				pm3fb_common_init(l_fb_info);
++			} else
++				printk(KERN_ERR "pm3fb: memory problem, not enabling board #%ld\n", l_fb_info->board_num);				
+ 		}
+ 	}
+ }
+@@ -3590,12 +3497,7 @@
+ /* ***** standard FB API init functions ***** */
+ /* ****************************************** */
+ 
+-#if (defined KERNEL_2_4) || (defined KERNEL_2_5)
+ int __init pm3fb_setup(char *options)
+-#endif
+-#ifdef KERNEL_2_2
+-__initfunc(void pm3fb_setup(char *options, int *ints))
+-#endif
+ {
+ 	long opsi = strlen(options);
+ 
+@@ -3606,17 +3508,10 @@
+ 		PM3_OPTIONS_SIZE) ? PM3_OPTIONS_SIZE : (opsi + 1));
+ 	g_options[PM3_OPTIONS_SIZE - 1] = 0;
+ 
+-#if (defined KERNEL_2_4) || (defined KERNEL_2_5)
+ 	return (0);
+-#endif
+ }
+ 
+-#if (defined KERNEL_2_4) || (defined KERNEL_2_5)
+ int __init pm3fb_init(void)
+-#endif
+-#ifdef KERNEL_2_2
+-__initfunc(void pm3fb_init(void))
+-#endif
+ {
+ 	DTRACE;
+ 
+@@ -3629,82 +3524,8 @@
+ 	if (!fb_info[0].dev) {	/* not even one board ??? */
+ 		DPRINTK(1, "No PCI Permedia3 board detected\n");
+ 	}
+-#if (defined KERNEL_2_4) || (defined KERNEL_2_5)
+ 	return (0);
+-#endif
+-}
+-
+-#ifdef SUPPORT_FB_OF		/* linux-2.2.x only */
+-__initfunc(void pm3fb_of_init(struct device_node *dp))
+-{
+-	struct pm3fb_info *l_fb_info = NULL;
+-	unsigned long i;
+-	long bn = -1;
+-	struct device_node *dn;
+-
+-	DTRACE;
+-
+-	DPRINTK(2, "OpenFirmware board : %s\n", dp->full_name);
+-
+-	for (i = 0; i < dp->n_addrs; i++) {
+-		DPRINTK(2, "MemRange : 0x%08x - 0x%x\n",
+-			dp->addrs[i].address, dp->addrs[i].size);
+-	}
+-
+-	for (i = 0; i < PM3_MAX_BOARD; i++) {	/* find which PCI board is the OF device */
+-		if (fb_info[i].dev) {
+-			dn = find_pci_device_OFnode(fb_info[i].dev->bus->
+-						    number,
+-						    fb_info[i].dev->devfn);
+-			if (dn == dp) {
+-				if (bn == -1)
+-					bn = i;
+-				else {
+-					DPRINTK(1,
+-						"Error: Multiple PCI device for a single OpenFirmware node\n");
+-				}
+-			}
+-		}
+-	}
+-
+-	if (bn == -1) {
+-		DPRINTK(1, "Warning: non-PCI Permedia3 found\n");
+-		i = 0;
+-		while (fb_info[i].dev && (i < PM3_MAX_BOARD))
+-			i++;
+-		if (i < PM3_MAX_BOARD)
+-			bn = i;
+-		else {
+-			printk
+-			    (KERN_ERR "pm3fb: Error: Couldn't find room for OpenFirmware device");
+-			return;
+-		}
+-	}
+-
+-	l_fb_info = &(fb_info[bn]);
+-
+-	l_fb_info->dn = dp;
+-
+-	l_fb_info->pIOBase = (unsigned char *) dp->addrs[3].address;
+-#ifdef __BIG_ENDIAN
+-	l_fb_info->pIOBase += PM3_REGS_SIZE;
+-#endif
+-	l_fb_info->vIOBase = (unsigned char *) -1;
+-	l_fb_info->p_fb = (unsigned char *) dp->addrs[1].address;
+-	l_fb_info->v_fb = (unsigned char *) -1;
+-
+-	l_fb_info->fb_size = pm3fb_size_memory(l_fb_info);	/* (unsigned long)dp->addrs[1].size; *//* OF is a liar ! it claims 256 Mb */
+-
+-	DPRINTK(2,
+-		"OpenFirmware board (#%ld) : IOBase 0x%08lx, p_fb 0x%08lx, fb_size %d KB\n",
+-		bn, (unsigned long) l_fb_info->pIOBase,
+-		(unsigned long) l_fb_info->p_fb, l_fb_info->fb_size >> 10);
+-
+-	l_fb_info->use_current = 1;	/* will use current mode by default */
+-
+-	pm3fb_common_init(l_fb_info);
+ }
+-#endif /* SUPPORT_FB_OF */
+ 
+ /* ************************* */
+ /* **** Module support ***** */
+@@ -3808,14 +3629,12 @@
+ 				if (l_fb_info->vIOBase !=
+ 				    (unsigned char *) -1) {
+ 					pm3fb_unmapIO(l_fb_info);
+-#if (defined KERNEL_2_4) || (defined KERNEL_2_5)
+ 					release_mem_region(l_fb_info->p_fb,
+ 							   l_fb_info->
+ 							   fb_size);
+ 					release_mem_region(l_fb_info->
+ 							   pIOBase,
+ 							   PM3_REGS_SIZE);
+-#endif /* KERNEL_2_4 or KERNEL_2_5 */
+ 				}
+ 				unregister_framebuffer(&l_fb_info->gen.
+ 						       info);
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
 
 
-
--- 
-Jean Delvare
-http://khali.linux-fr.org/

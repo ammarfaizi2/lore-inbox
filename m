@@ -1,93 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262100AbUFAPLp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265054AbUFAPP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262100AbUFAPLp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 11:11:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUFAPLp
+	id S265054AbUFAPP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 11:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUFAPP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 11:11:45 -0400
-Received: from mail-ext.curl.com ([66.228.88.132]:19984 "HELO
-	mail-ext.curl.com") by vger.kernel.org with SMTP id S262100AbUFAPKb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 11:10:31 -0400
-To: Sean Estabrooks <seanlkml@sympatico.ca>
-Cc: szepe@pinerecords.com, Andries.Brouwer@cwi.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.x partition breakage and dual booting
-References: <40BA2213.1090209@pobox.com>
-	<20040530183609.GB5927@pclin040.win.tue.nl>
-	<40BA2E5E.6090603@pobox.com> <20040530200300.GA4681@apps.cwi.nl>
-	<s5g8yf9ljb3.fsf@patl=users.sf.net>
-	<20040531180821.GC5257@louise.pinerecords.com>
-	<s5gaczonzej.fsf@patl=users.sf.net>
-	<20040531170347.425c2584.seanlkml@sympatico.ca>
-From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Message-ID: <s5gfz9f2vok.fsf@patl=users.sf.net>
-Date: 01 Jun 2004 11:10:27 -0400
-In-Reply-To: <20040531170347.425c2584.seanlkml@sympatico.ca>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Tue, 1 Jun 2004 11:15:29 -0400
+Received: from [213.239.201.226] ([213.239.201.226]:41924 "EHLO
+	mail.shadowconnect.com") by vger.kernel.org with ESMTP
+	id S265054AbUFAPO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 11:14:58 -0400
+Message-ID: <40BC9EF7.4060502@shadowconnect.com>
+Date: Tue, 01 Jun 2004 17:21:27 +0200
+From: Markus Lidel <Markus.Lidel@shadowconnect.com>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problem with ioremap which returns NULL in 2.6 kernel
+References: <40BC788A.3020103@shadowconnect.com> <20040601142122.GA7537@havoc.gtf.org>
+In-Reply-To: <20040601142122.GA7537@havoc.gtf.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sean Estabrooks <seanlkml@sympatico.ca> writes:
+Hello,
 
-> Just don't alter partition table entries of non Linux partitions?  
+Jeff Garzik wrote:
+>>could someone help me with a ioremap problem. If there are two 
+>>controllers plugged in, the ioremap request for the first controller is 
+>>successfull, but the second returns NULL. Here is the output of the driver:
+>>i2o: Checking for PCI I2O controllers...
+>>i2o: I2O controller on bus 0 at 72.
+>>i2o: PCI I2O controller at 0xD0000000 size=134217728
+>>I2O: MTRR workaround for Intel i960 processor
+>>i2o/iop0: Installed at IRQ17
+>>i2o: I2O controller on bus 0 at 96.
+>>i2o: PCI I2O controller at 0xD8000000 size=134217728
+>>i2o: Unable to map controller.
+> If "size=xxxx" indicates the size you are remapping, then that's
 
-I have not been very clear, so let me try once more.
+Yep, it is...
 
-Yes, using the existing partition table geometry will work if you
-install Windows before you install Linux.  But it will fail if you do
-things the other way around.
+> probably too large an area to be remapping.  Try remapping only the
+> memory area needed, and not the entire area.
 
-I am suggesting an approach which will work either way; namely,
-determine the Windows-compatible geometry and use it.
+Is there a way, to increase the size, which could be remapped, or is 
+there a way, to find out what is the maximum size which could be remapped?
 
-The Windows-compatible geometry is the one reported by the "legacy
-INT13 BIOS interface"; i.e., INT13/AH=08h.
+Thank you very much for the fast answer!
 
-Because this legacy BIOS interface can only be invoked from real mode,
-Linux 2.2.x and 2.4.x tried to infer the legacy geometry by parsing
-CMOS tables.  This did not always work, both because the tables are
-poorly specified and buggy and vendor-specific, and because it
-requires mapping between BIOS disk numbers and Linux devices, which is
-tricky.  So the old code was gutted for 2.6.x, and now the kernel
-simply reports the geometry as reported by the disk controller.
-(Linux itself does not care about the geometry, because it does
-everything in "linear" mode.)
 
-This means partitions created under Linux are incompatible with
-Windows, unless you get lucky and your BIOS uses (or can be configured
-to use) the geometry reported by the controller.
+Best regards,
 
-Now, starting with 2.6.5 Linux actually invokes INT13/AH=08h during
-real-mode startup and stashes the values away.  They are available via
-Dell's EDD module.  So, to find the Windows-compatible geometry, you
-simply:
 
-  modprobe edd
-  cat /sys/firmware/edd/int13_dev80/{legacy_heads,legacy_sectors}
+Markus Lidel
+------------------------------------------
+Markus Lidel (Senior IT Consultant)
 
-(And add 1 to the "heads" value because the legacy BIOS interface is
-freaky.)
+Shadow Connect GmbH
+Carl-Reisch-Weg 12
+D-86381 Krumbach
+Germany
 
-There is just one catch.  This assumes BIOS device 80h (the boot
-device) is the disk you care about.  If not, you need to figure out
-which BIOS device corresponds to the disk you do care about.  This is
-the hard part, but it is not THAT hard, because the /sys/firmware/edd
-interface exposes lots of information which will help you deduce this
-correspondence.  It exports the extended (controller) geometry, the
-disk size, and the MBR signature (see
-http://seclists.org/lists/linux-kernel/2004/Jan/5257.html).  For a
-sufficiently modern (EDD 3.0) BIOS, it will even include the exact
-information (PCI device etc.) identifying the disk.
+Phone:  +49 82 82/99 51-0
+Fax:    +49 82 82/99 51-11
 
-This is not surprising, because the EDD module was specifically
-designed with this mapping goal in mind; one of Dell's interests is
-automatically finding the boot disk on systems with lots of drives.
-
-So, if we write a decent library routine to map between BIOS device
-numbers and Linux devices, then we will be finished, and everything
-will work fine no matter which OS the user installs first.
-
- - Pat
+E-Mail: Markus.Lidel@shadowconnect.com
+URL:    http://www.shadowconnect.com

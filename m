@@ -1,55 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262022AbVATBbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbVATBpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262022AbVATBbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 20:31:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbVATBbQ
+	id S262028AbVATBpX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 20:45:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbVATBpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 20:31:16 -0500
-Received: from mail.joq.us ([67.65.12.105]:7077 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S262022AbVATBbO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 20:31:14 -0500
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       rlrevell@joe-job.com, paul@linuxaudiosystems.com,
-       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
-       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt
- scheduling
-References: <41EEE1B1.9080909@kolivas.org> <41EF00ED.4070908@kolivas.org>
-From: "Jack O'Quin" <joq@io.com>
-Date: Wed, 19 Jan 2005 19:32:47 -0600
-In-Reply-To: <41EF00ED.4070908@kolivas.org> (Con Kolivas's message of "Thu,
- 20 Jan 2005 11:53:01 +1100")
-Message-ID: <873bwwga0w.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Wed, 19 Jan 2005 20:45:22 -0500
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:61369 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262029AbVATBoM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 20:44:12 -0500
+Message-ID: <41EF0CE5.7080305@yahoo.com.au>
+Date: Thu, 20 Jan 2005 12:44:05 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: David Howells <dhowells@redhat.com>
+CC: Dominik Brodowski <linux@dominikbrodowski.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 2/4] interruptible rwsem operations (i386, core)
+References: <20050119213834.GC8471@dominikbrodowski.de> <24595.1106176220@redhat.com>
+In-Reply-To: <24595.1106176220@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> writes:
+David Howells wrote:
+> Dominik Brodowski <linux@dominikbrodowski.de> wrote:
+> 
+> 
+>>Add functions down_read_interruptible, and down_write_interruptible to rw
+>>semaphores. Implement these for i386.
+>>...
+> 
+> 
+>>+static inline int
+>>+rwsem_down_interruptible_failed_common(struct rw_semaphore *sem,
+>>+			struct rwsem_waiter *waiter, signed long adjustment)
+>>+{
+>>...
+> 
+> 
+> I wonder if you should check to see if there are any readers that can be woken
+> up if a sleeping writer is interrupted, but I can't think of a simple way to
+> do it.
+> 
+> 
 
-> Con Kolivas wrote:
->
-> Here are my results with SCHED_ISO v2 on a pentium-M 1.7Ghz (all
-> powersaving features off):
->
-> Increasing iso_cpu did not change the results.
->
-> At least in my testing on my hardware, v2 is working as advertised. I
-> need results from more hardware configurations to know if priority
-> support is worth adding or not.
+I think it will, won't it?
 
-Excellent.  Judging by the DSP Load, your machine seems to run almost
-twice as fast as my 1.5GHz Athlon (surprising).  You might want to try
-pushing it a bit harder by running more clients (2nd parameter,
-default is 20).
+>>-struct rw_semaphore fastcall __sched *
+>>-rwsem_down_read_failed(struct rw_semaphore *sem)
+>>+void fastcall __sched rwsem_down_read_failed(struct rw_semaphore *sem)
+> 
+> 
+> Please don't.
+> 
+> 
+>>@@ -199,14 +253,33 @@ rwsem_down_read_failed(struct rw_semapho
+>> 				RWSEM_WAITING_BIAS - RWSEM_ACTIVE_BIAS);
+>> 
+>> 	rwsemtrace(sem, "Leaving rwsem_down_read_failed");
+>>-	return sem;
+> 
+> 
+> Ditto.
+> 
+> 
+>>-struct rw_semaphore fastcall __sched *
+>>-rwsem_down_write_failed(struct rw_semaphore *sem)
+>>+void fastcall __sched rwsem_down_write_failed(struct rw_semaphore *sem)
+> 
+> 
+> Ditto.
+> 
+> 
+>>@@ -216,10 +289,31 @@ rwsem_down_write_failed(struct rw_semaph
+>> 	rwsem_down_failed_common(sem, &waiter, -RWSEM_ACTIVE_BIAS);
+>> 
+>> 	rwsemtrace(sem, "Leaving rwsem_down_write_failed");
+>>-	return sem;
+> 
+> 
+> Ditto.
+> 
+> 
+>>@@ -99,11 +103,12 @@ static inline void __down_read(struct rw
+>> {
+>> 	__asm__ __volatile__(
+>> 		"# beginning down_read\n\t"
+>>-LOCK_PREFIX	"  incl      (%%eax)\n\t" /* adds 0x00000001, returns the old value */
+>>+LOCK_PREFIX	"  incl      %0\n\t" /* adds 0x00000001, returns the old value */
+> 
+> 
+> Ditto.
+> 
+> 
+>> 		"  js        2f\n\t" /* jump if we weren't granted the lock */
+>> 		"1:\n\t"
+>> 		LOCK_SECTION_START("")
+>> 		"2:\n\t"
+>>+		"  movl      %2,%%eax\n\t"
+> 
+> 
+> Splat.
+> 
+> 
+>> 		"  pushl     %%ecx\n\t"
+>> 		"  pushl     %%edx\n\t"
+>> 		"  call      rwsem_down_read_failed\n\t"
+> 
+> 
+> Splat.
+> 
+> 
+>>@@ -113,11 +118,41 @@ LOCK_PREFIX	"  incl      (%%eax)\n\t" /*
+>> 		LOCK_SECTION_END
+>> 		"# ending down_read\n\t"
+>> 		: "=m"(sem->count)
+>>-		: "a"(sem), "m"(sem->count)
+>>+		: "m"(sem->count), "m"(sem)
+>> 		: "memory", "cc");
+>> }
+> 
+> 
+> You appear to be corrupting EAX.
+> 
+> 
+>>+static inline int __down_read_interruptible(struct rw_semaphore *sem)
+> 
+> 
+> Will corrupt EAX.
+> 
 
-Are you getting fairly consistent results running SCHED_ISO
-repeatedly?  That worked better for me after I fixed that bug in JACK
-0.99.47, but I think there is still more variance than with
-SCHED_FIFO.
--- 
-  joq
+I'll fix these up. You're right by the looks.
+
+> 
+>> 		"# beginning down_write\n\t"
+>>-LOCK_PREFIX	"  xadd      %%edx,(%%eax)\n\t" /* subtract 0x0000ffff, returns the old value */
+>>+LOCK_PREFIX	"  xadd      %%edx,%0\n\t" /* subtract 0x0000ffff, returns the old value */
+> 
+> 
+> Again, please don't. It's a lot more readable when it mentions EAX directly,
+> plus it's also independent of constraint reordering.
+> 
+
+OK I suppose so...
+

@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268833AbRG0LMC>; Fri, 27 Jul 2001 07:12:02 -0400
+	id <S267754AbRG0LTX>; Fri, 27 Jul 2001 07:19:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268832AbRG0LLw>; Fri, 27 Jul 2001 07:11:52 -0400
-Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:52353 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S268835AbRG0LLe>; Fri, 27 Jul 2001 07:11:34 -0400
-Message-ID: <3B614BDB.BE13848B@randomlogic.com>
-Date: Fri, 27 Jul 2001 04:09:15 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-Organization: Akamai Technologies, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: TYan K7 Thunder: AMD-760 MP support
+	id <S268705AbRG0LTM>; Fri, 27 Jul 2001 07:19:12 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:53766 "HELO dvmwest.gt.owl.de")
+	by vger.kernel.org with SMTP id <S267754AbRG0LSw>;
+	Fri, 27 Jul 2001 07:18:52 -0400
+Date: Fri, 27 Jul 2001 13:18:58 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linx Kernel Source tree and metrics
+Message-ID: <20010727131858.H11840@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010727095757Z268814-721+5010@vger.kernel.org> <15201.17117.641766.521810@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15201.17117.641766.521810@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Fri, Jul 27, 2001 at 08:30:53PM +1000
+X-Operating-System: Linux mail 2.4.5 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
->From what I've seen in the 2.4-2 kernel (RH 7.1 stock kernel), the
-AMD-760 MP chipset is not directly supported. It looks as though the
-Host bridge, PCI bridge, ISA bridge, IDE, and AGP all have different
-ID's than what the drivers are looking for, and since they don't match a
-known AMD ID, they fall back to generic support, which works OK for some
-things (like AGP), but I suspect that my ATA100 is not fully functional
-and I can't access the Winbond chip through the ISA bridge (the SMBus is
-not detected).
+On Fri, Jul 27, 2001 at 08:30:53PM +1000, Neil Brown wrote:
+> On Friday July 27, puckwork@madz.net wrote:
+> > >> > > The URL is:
+> > >> >
+> > >> > > http://24.5.14.144:3000/linux-kernel
+> > 
+> > http://keroon.dmz.dreampark.com:3000/linux-kernel/
+> > 
+> > Can't be found (DNS-Error)
 
-NOTE: Looking at AMDs Rev. documents, the current version of the chipset
-probably has different IDs than pre-production boards did. My chips are
-(fortunately, because the previous versions had non-functional AGP and
-other issues) the newest release as per their documentation.
+The problem is that the HTTP server on given IP address responds with
+its *name* in the URL. This means that $WEBBROWSER uses the name in
+its next connection attempt (-> load any given frame).
 
-Do the newer kernel releases support the 760 MP chipset? Will they
-anytime soon? (If not I will see if I can put it in myself.)
+So one has to add "24.5.14.144 keroon.dmz.dreampark.com" to /etc/hosts
+to use it...
 
-Thanks,
+MfG, JBG
 
-PGA
-
--- 
-Paul G. Allen
-UNIX Admin II/Network Security
-Akamai Technologies, Inc.
-www.akamai.com

@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263304AbUCRXWj (ORCPT <rfc822;willy@w.ods.org>);
+	id S263299AbUCRXWj (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 18 Mar 2004 18:22:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263284AbUCRXVm
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263313AbUCRXVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 18:21:42 -0500
-Received: from waste.org ([209.173.204.2]:46479 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S263306AbUCRXKP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 18:10:15 -0500
-Date: Thu, 18 Mar 2004 17:10:06 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
-       Tom Rini <trini@kernel.crashing.org>
-Subject: [CFT] inflate.c rework arch testing needed
-Message-ID: <20040318231006.GK11010@waste.org>
+	Thu, 18 Mar 2004 18:21:50 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:35715
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263299AbUCRXJA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 18:09:00 -0500
+Date: Fri, 19 Mar 2004 00:09:50 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc1-aa1
+Message-ID: <20040318230950.GB2050@dualathlon.random>
+References: <20040318221447.GA3248@dualathlon.random> <Pine.LNX.4.44.0403182234090.16863-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <Pine.LNX.4.44.0403182234090.16863-100000@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've reworked the mess that is lib/inflate.c, including:
+On Thu, Mar 18, 2004 at 10:37:55PM +0000, Hugh Dickins wrote:
+> On Thu, 18 Mar 2004, Andrea Arcangeli wrote:
+> > 
+> > The fix is simple: always set and clear PG_anon under the page_map_lock,
+> > this will avoid the race since all ClearPageAnon already runs under the
+> > page_map_lock. I will implement and test in a few hours.
+> > 
+> > ... I find this more robust.
+> 
+> Absolutely, that's what I did too.  My old page_add_rmap had anon flag,
+> but the new patches have page_add_anon_rmap and page_add_obj_rmap.
 
-- proper formatting
-- killing a ton of legacy code
-- cleaning up IO and CRC handling
-- eliminating all the global variables
-- using __init for the core kernel
-- proper linking rather than the #include "../lib/inflate.c" hack
-- lots of minor cleanups along the way
+I remebered you had the anon param too, though I didn't realize it was
+for this reason :/
 
-This drops a ton of support code from all the users of this code as
-well:
-
- arch/arm/boot/compressed/Makefile    |    5
- arch/arm/boot/compressed/misc.c      |  244 --
- arch/i386/boot/compressed/Makefile   |    6
- arch/i386/boot/compressed/misc.c     |  224 --
- arch/x86_64/boot/compressed/Makefile |    6
- arch/x86_64/boot/compressed/misc.c   |  212 --
- include/linux/inflate.h              |    9
- init/do_mounts_rd.c                  |  129 -
- init/initramfs.c                     |  139 -
- lib/Makefile                         |    4
- lib/inflate.c                        | 3047 ++++++++++++++++-----------------
- 11 files changed, 1688 insertions(+), 2337 deletions(-)
-
-I've converted only some of the users, and currently only tested x86.
-Additional x86 testing as well as testing my current ARM and x86_64
-support and doing the fixups for the other arches would be
-appreciated.
-
-Current patch rollup against 2.6.5-rc1 is at:
-
- http://selenic.com/inflate-work.patch.bz2
-
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+the reason why I go with the parameter is that sometime I've a single
+call at the end of the function with the same new_page, but sometime
+it has to be considered anonymous sometime not. So I couldn't split out
+the interface with _anon/_file suffixes with some #define and remove the
+0/1 numbering ugliness.

@@ -1,78 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265844AbRHAJHu>; Wed, 1 Aug 2001 05:07:50 -0400
+	id <S266040AbRHAJKA>; Wed, 1 Aug 2001 05:10:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265810AbRHAJHl>; Wed, 1 Aug 2001 05:07:41 -0400
-Received: from rainbow.transtec.de ([153.94.51.2]:25349 "EHLO
-	rainbow.transtec.de") by vger.kernel.org with ESMTP
-	id <S265844AbRHAJHa>; Wed, 1 Aug 2001 05:07:30 -0400
-From: Roland Fehrenbacher <rfehrenb@transtec.de>
+	id <S266150AbRHAJJu>; Wed, 1 Aug 2001 05:09:50 -0400
+Received: from [213.96.224.204] ([213.96.224.204]:19719 "HELO manty.net")
+	by vger.kernel.org with SMTP id <S266040AbRHAJJo>;
+	Wed, 1 Aug 2001 05:09:44 -0400
+Date: Wed, 1 Aug 2001 11:09:48 +0200
+From: Santiago Garcia Mantinan <manty@manty.net>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+Cc: bao.ha@srs.gov, aris@conectiva.com.br, dupuis@lei.ucl.ac.be
+Subject: Problems trying to use a Intel EtherExpress Pro/10
+Message-ID: <20010801110948.A762@man.beta.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15207.47005.173877.328503@gargle.gargle.HOWL>
-Date: Wed, 1 Aug 2001 10:02:37 +0200
-Subject: Patch for scsi_scan.c (was: qlogicfc driver)
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-it seems nobody was interested in the thread qlogicfc. Here is a patch for
-scsi_scan.c (against the 2.4.7 version) which solves the problem described in
-the last few messages of the qlogicfc thread. It is absolutely necessary for
-sparse_lun devices with LUN 0 not present.
+I have a couple of Intel NICs based on chip FA82595TX, the NIC model is
+650092, wich is not listed on Intel's site. Anyway, it is recogniced on both
+2.2.19 and 2.4.7 as an Intel EtherExpress Pro/10 ISA, I can ifconfig it and
+everything, but when I try to use it, I get either no packets sent, none
+received, or packets sent but also a lot of errors and carrier, anyway, I
+never get to receive a packet.
 
-Please review the patch, and if approved, include it in the kernel.
+I have tried both cards on different IO ports, different irqs and different
+machines, I have disconected the flash as I have read on the code that this
+could cause problems, but nothing helps.
 
-Cheers,
+Anybody has any idea of how to solve this?
 
-Roland
+Thanks in advance!
 
---- scsi_scan.c.orig    Mon Jul 23 09:24:53 2001
-+++ scsi_scan.c Thu Jul 26 16:29:14 2001
-@@ -153,6 +153,8 @@
-        {"DELL", "PSEUDO DEVICE .",   "*", BLIST_SPARSELUN}, // Dell PV 530F
-        {"DELL", "PV530F",    "*", BLIST_SPARSELUN}, // Dell PV 530F
-        {"EMC", "SYMMETRIX", "*", BLIST_SPARSELUN},
-+       {"CMD", "CRA-7280", "*", BLIST_SPARSELUN},   // CMD RAID Controller
-+       {"Zzyzx", "RocketStor 500S", "*", BLIST_SPARSELUN}, // Zzyzx RocketStor Raid
-        {"SONY", "TSL",       "*", BLIST_FORCELUN},  // DDS3 & DDS4 autoloaders
-        {"DELL", "PERCRAID", "*", BLIST_FORCELUN},
-        {"HP", "NetRAID-4M", "*", BLIST_FORCELUN},
-@@ -565,20 +567,26 @@
-        }
- 
-        /*
--        * Check the peripheral qualifier field - this tells us whether LUNS
--        * are supported here or not.
-+        * Check for SPARSELUN before checking the peripheral qualifier,
-+        * so sparse lun devices are completely scanned.
-         */
--       if ((scsi_result[0] >> 5) == 3) {
--               scsi_release_request(SRpnt);
--               return 0;       /* assume no peripheral if any sort of error */
--       }
- 
-        /*
-         * Get any flags for this device.  
-         */
-        bflags = get_device_flags (scsi_result);
- 
--
-+       if (bflags & BLIST_SPARSELUN) {
-+         *sparse_lun = 1;
-+       }
-+       /*
-+        * Check the peripheral qualifier field - this tells us whether LUNS
-+        * are supported here or not.
-+        */
-+       if ((scsi_result[0] >> 5) == 3) {
-+               scsi_release_request(SRpnt);
-+               return 0;       /* assume no peripheral if any sort of error */
-+       }
-         /*   The Toshiba ROM was "gender-changed" here as an inline hack.
-              This is now much more generic.
-              This is a mess: What we really want is to leave the scsi_result
+Regards...
+-- 
+Manty/BestiaTester -> http://manty.net

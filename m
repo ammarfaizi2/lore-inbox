@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265357AbUAYX2o (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 18:28:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265359AbUAYX2o
+	id S265336AbUAYXOs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 18:14:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265339AbUAYXOs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 18:28:44 -0500
-Received: from auemail2.lucent.com ([192.11.223.163]:949 "EHLO
-	auemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S265357AbUAYX2b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 18:28:31 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16404.20728.437157.703001@gargle.gargle.HOWL>
-Date: Sun, 25 Jan 2004 18:27:52 -0500
-From: "John Stoffel" <stoffel@lucent.com>
-To: DaMouse Networks <damouse@ntlworld.com>
+	Sun, 25 Jan 2004 18:14:48 -0500
+Received: from fw.osdl.org ([65.172.181.6]:65252 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265336AbUAYXOq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 18:14:46 -0500
+Date: Sun, 25 Jan 2004 15:14:54 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Matthias Andree <matthias.andree@gmx.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2-rc1-mm3 crashes
-In-Reply-To: <20040125231933.09f317d0@EozVul.WORKGROUP>
-References: <20040125231933.09f317d0@EozVul.WORKGROUP>
-X-Mailer: VM 7.14 under Emacs 20.6.1
+Subject: Re: 2.6.2-rc in BK: Oops loading parport_pc.
+Message-Id: <20040125151454.70b5011e.akpm@osdl.org>
+In-Reply-To: <20040125115129.GA10387@merlin.emma.line.org>
+References: <20040125115129.GA10387@merlin.emma.line.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matthias Andree <matthias.andree@gmx.de> wrote:
+>
+>  Loading the parport_pc modules crashes in 2.6.2-rc; I have recently done
+>  a "bk pull" and enabled some PNP options, among them ISA PNP.
 
-DaMouse> I put 2.6.2-rc1-mm3 on my CPU over the last 12hrs or so and
-DaMouse> it keeps just randomly dying, I can't see anything in
-DaMouse> syslog. Running X, HT and Links 2.1pre11 at the time. nvidia
-DaMouse> kernel module loaded. Any ideas on how to debug this?
+Often this is because some other, unrelated module left things registered
+after it was removed.  Or otherwise wrecked shared data structures.
 
-Run without the nVidia module and see what happens.  Since it's closed
-source, no kernel developer will help until the problem is repeated
-without that modules loaded.
+So what you ned to do is to take careful note of what other modules were
+loaded and unloaded leading up to the crash, and suspect those.
 
-John
+There is one known problem in this area: unloading 8250_pnp will wreck the
+kobject tree.  Try
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2-rc1/2.6.2-rc1-mm3/broken-out/8250_pnp-cleanup.patch
+
+

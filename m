@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265594AbUA0WGa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 17:06:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265634AbUA0WGa
+	id S265630AbUA0WP6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 17:15:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265631AbUA0WP6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 17:06:30 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:16302 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S265594AbUA0WGZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 17:06:25 -0500
-To: marcelo.tosatti@cyclades.com
-Cc: lkml <linux-kernel@vger.kernel.org>, kkeil@suse.de,
-       kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de
-Subject: [TRIVIAL PATCH] 2.4 make dep and hisax/Makefile md5sum warning fix
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Tue, 27 Jan 2004 22:13:19 +0100
-Message-ID: <m3y8rtccy8.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+	Tue, 27 Jan 2004 17:15:58 -0500
+Received: from 104.engsoc.carleton.ca ([134.117.69.104]:46244 "EHLO
+	quickman.certainkey.com") by vger.kernel.org with ESMTP
+	id S265630AbUA0WPz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 17:15:55 -0500
+Date: Tue, 27 Jan 2004 17:12:29 -0500
+From: Jean-Luc Cooke <jlcooke@certainkey.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] crypto/sha256.c crypto/sha512.c
+Message-ID: <20040127221229.GA16413@certainkey.com>
+References: <20040127193945.GA15559@certainkey.com> <Xine.LNX.4.44.0401271514150.4185-100000@thoron.boston.redhat.com> <20040127202225.GA15808@certainkey.com> <20040127130504.1c760026.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040127130504.1c760026.davem@redhat.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+I updated the faster_sha2.c to include a quick performance test, same URL.
 
-Hi,
+The Ch/sec and Maj/sec can't be easily compared, however instruction
+count can to some extent.
 
-The following patch suppresses the "md5sum: WARNING: 1 of 13 computed
-checksums did NOT match" warning from make dep.
+http://jlcooke.ca/lkml/faster_sha2_x86.s
+http://jlcooke.ca/lkml/faster_sha2_ppc.s
+http://jlcooke.ca/lkml/faster_sha2_alpha.s
+http://jlcooke.ca/lkml/faster_sha2_sparc.s
 
-The "md5sum -c" status is still used by the drivers (some certification
-requirement for ISDN equipment in Germany).
+Hope this helps, I'll know better next time I ask for patch-blessing.  :)
 
-Unless they are objections please apply to 2.4 kernel tree. Thanks.
+JLC
+
+
+On Tue, Jan 27, 2004 at 01:05:04PM -0800, David S. Miller wrote:
+> On Tue, 27 Jan 2004 15:22:25 -0500
+> Jean-Luc Cooke <jlcooke@certainkey.com> wrote:
+> 
+> > The Ch() and Maj() operations are used a lot in sha256/512.
+> 
+> Your analysis is great, but James was really asking for numbers :-)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
 -- 
-Krzysztof Halasa, B*FH
-
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: attachment; filename=hisax-md5sum-2.4.25pre7.patch
-
---- linux-2.4.orig/drivers/isdn/hisax/Makefile	2003-06-13 16:51:34.000000000 +0200
-+++ linux-2.4/drivers/isdn/hisax/Makefile	2004-01-27 22:05:31.000000000 +0100
-@@ -66,7 +66,7 @@
- obj-$(CONFIG_HISAX_FRITZ_PCIPNP)        += hisax_isac.o hisax_fcpcipnp.o
- obj-$(CONFIG_USB_AUERISDN)	        += isdnhdlc.o
- 
--CERT := $(shell md5sum -c md5sums.asc >> /dev/null;echo $$?)
-+CERT := $(shell md5sum --status -c md5sums.asc >> /dev/null;echo $$?)
- CFLAGS_cert.o := -DCERTIFICATION=$(CERT)
- 
- include $(TOPDIR)/Rules.make
-
---=-=-=--
+http://www.certainkey.com
+Suite 4560 CTTC
+1125 Colonel By Dr.
+Ottawa ON, K1S 5B6

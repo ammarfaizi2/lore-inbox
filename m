@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268657AbUGXO7a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268664AbUGXPBT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268657AbUGXO7a (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 10:59:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268658AbUGXO73
+	id S268664AbUGXPBT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 11:01:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268663AbUGXPBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 10:59:29 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:53188 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S268657AbUGXO72 (ORCPT
+	Sat, 24 Jul 2004 11:01:19 -0400
+Received: from quechua.inka.de ([193.197.184.2]:51908 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S268662AbUGXPBN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 10:59:28 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: root@chaos.analogic.com
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, jamagallon@able.es,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.27+stdarg+gcc-3.4.1 
-In-reply-to: Your message of "Sat, 24 Jul 2004 09:19:04 -0400."
-             <Pine.LNX.4.53.0407240915260.2402@chaos> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 25 Jul 2004 00:59:22 +1000
-Message-ID: <18199.1090681162@ocs3.ocs.com.au>
+	Sat, 24 Jul 2004 11:01:13 -0400
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
+Subject: Re: [PATCH] Delete cryptoloop
+Date: Sat, 24 Jul 2004 17:11:54 +0200
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+Message-Id: <pan.2004.07.24.15.11.53.260222@dungeon.inka.de>
+References: <Pine.LNX.4.58.0407211609230.19655@devserv.devel.redhat.com> <20040721230044.20fdc5ec.akpm@osdl.org> <4411.24.6.231.172.1090470409.squirrel@24.6.231.172> <20040722014649.309bc26f.akpm@osdl.org> <4546.24.6.231.172.1090476838.squirrel@24.6.231.172> <20040722113625.GA386@lain.chroot.de>
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Jul 2004 09:19:04 -0400 (EDT), 
-"Richard B. Johnson" <root@chaos.analogic.com> wrote:
->> >gcc -D__KERNEL__ -nostdinc -iwithprefix include
->                     ^^^^^^^_______
->
->This will prevent it from using its private copy of stdarg.h.
->
->There needs to be one in the -I<include-path>
+I'ma happy user of dm-crypt since march, too.
+No problems here.
 
-No.  -iwithprefix include picks up the private path.  It is probably a
-misconfigured gcc, but I am waiting on detailed diagnostics to be sure.
+However I wonder: can people switch to a 2.4.*
+kernel if they are using dm-crypt? Even if the
+disk format is compatible, the software used
+to setup the decrypted access is different.
+I guess for / partitions people need to use
+loop-crypt, if they want to use 2.4.* and 2.6.*
+kernels?
+
+Andreas
 

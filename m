@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131590AbRDPWyN>; Mon, 16 Apr 2001 18:54:13 -0400
+	id <S132396AbRDPW6C>; Mon, 16 Apr 2001 18:58:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132396AbRDPWyD>; Mon, 16 Apr 2001 18:54:03 -0400
-Received: from lange.hostnamen.sind-doof.de ([212.15.192.219]:60178 "HELO
-	xena.sind-doof.de") by vger.kernel.org with SMTP id <S131590AbRDPWxp>;
-	Mon, 16 Apr 2001 18:53:45 -0400
-Date: Tue, 17 Apr 2001 00:38:11 +0200
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Let init know user wants to shutdown
-Message-ID: <20010417003811.A4385@kallisto.sind-doof.de>
-Mail-Followup-To: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
-	Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010416232748.A385@bug.ucw.cz> <Pine.LNX.4.31.0104162336450.27343-100000@phobos.fachschaften.tu-muenchen.de>
+	id <S132398AbRDPW5w>; Mon, 16 Apr 2001 18:57:52 -0400
+Received: from quattro.sventech.com ([205.252.248.110]:37895 "HELO
+	quattro.sventech.com") by vger.kernel.org with SMTP
+	id <S132396AbRDPW5m>; Mon, 16 Apr 2001 18:57:42 -0400
+Date: Mon, 16 Apr 2001 18:57:41 -0400
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: FAVRE Gregoire <greg@ulima.unil.ch>, linux-kernel@vger.kernel.org
+Subject: Re: USB with 2.4.3-ac{1,3,7} without devfs
+Message-ID: <20010416185740.Y4295@sventech.com>
+In-Reply-To: <20010417004248.A19914@ulima.unil.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.31.0104162336450.27343-100000@phobos.fachschaften.tu-muenchen.de>; from Simon.Richter@phobos.fachschaften.tu-muenchen.de on Mon, Apr 16, 2001 at 11:44:20PM +0200
-X-Operating-System: Debian GNU/Linux (Linux 2.4.3-ac5-int1-nf20010413-dc1 i686)
-X-Disclaimer: Are you really taking me serious?
+X-Mailer: Mutt 0.95.4i
+In-Reply-To: <20010417004248.A19914@ulima.unil.ch>; from FAVRE Gregoire on Tue, Apr 17, 2001 at 12:42:48AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+You should probably bring up things like this on the Linux USB list.
 
-On Mon, Apr 16, 2001 at 11:44:20PM +0200, Simon Richter wrote:
+On Tue, Apr 17, 2001, FAVRE Gregoire <greg@ulima.unil.ch> wrote:
+> Under 2.4.3 I manage uploading photo from my Digital IXUS using USB_UHCI
+> with s10h, but under ac series, I don't manage, only other things I have
+> changed is removing devfs which I don't need in fact...
+[snip]
+> And as I power on my camera:
 > 
-> Okay, but at least take a better signal than SIGINT, probably one that the
-> init maintainers like so it gets adopted faster (or extend SIGPWR).
+> hub.c: USB new device connect on bus1/1, assigned device number 2
+> usb_control/bulk_msg: timeout
+> usb.c: USB device not accepting new address=2 (error=-110)
+> hub.c: USB new device connect on bus1/1, assigned device number 3
+> usb_control/bulk_msg: timeout
+> usb.c: USB device not accepting new address=3 (error=-110)
 
-Extending SIGPWR will break inits not yet supporting the extensions,
-so this is IMO not an option. There should be used some other signal
-which is simply ignored by an old init.
+What does /proc/interrupts show for the 2.4.3-ac7 case?
 
-If we are actually introducing this new signal, maybe we should in
-turn also provide for a generic init signalling API which could
-be used later by other subsystems also? The distribution of such
-events to other userspace processes (if there are some that want to
-receive a subset of the events) can be perfectly done by init, so we
-should IMO keep this stuff out of the kernel (I don't think that the
-processing of such events will ever be performance critical).
+[snip]
+> I don't think, because under 2.4.3 with devfs, /dev/usb is empty...
+> 
+> Thanks you in advance for your help,
 
-Andreas
--- 
-Of course you can't flap your arms and fly to the moon.  After a while you'd
-run out of air to push against.
+s10sh doesn't use anything under /dev, it's all under /proc/bus/usb,
+however, you are having a problem before it gets to s10sh at all.
+
+JE
 

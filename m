@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264768AbTE1PaI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 11:30:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264769AbTE1PaI
+	id S264769AbTE1Pbt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 11:31:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264770AbTE1Pbt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 11:30:08 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:26535 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id S264768AbTE1PaH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 11:30:07 -0400
-Date: Wed, 28 May 2003 16:45:39 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Ravikiran G Thirumalai <kiran@in.ibm.com>
-cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Inline vm_acct_memory
-In-Reply-To: <20030528110552.GF5604@in.ibm.com>
-Message-ID: <Pine.LNX.4.44.0305281631030.1240-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Wed, 28 May 2003 11:31:49 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:26633 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S264769AbTE1Pbs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 11:31:48 -0400
+Date: Wed, 28 May 2003 19:44:27 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Two patches - ptrace single stepping + modpost.c
+Message-ID: <20030528194427.A16019@jurassic.park.msu.ru>
+References: <20030528125853.A30380@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030528125853.A30380@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Wed, May 28, 2003 at 12:58:53PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 May 2003, Ravikiran G Thirumalai wrote:
-> I found that inlining vm_acct_memory speeds up vm_enough_memory.  
-> Since vm_acct_memory is only called by vm_enough_memory,
+On Wed, May 28, 2003 at 12:58:53PM +0100, Russell King wrote:
+> Other architectures which use similar schemes (eg, alpha) might also
+> like this; it looks like Alpha may be a little buggy; it appears
+> to carry the single stepping status across signal handling.  What
+> happens if the debugger decides to disable single stepping when
+> the debugged process receives a signal?
 
-No, linux/mman.h declares
+Alpha was buggy, indeed. Hopefully fixed in current bk.
+However, we don't need special flag for single stepping - we use
+thread_info->bpt_nsaved as such flag.
 
-static inline void vm_unacct_memory(long pages)
-{
-	vm_acct_memory(-pages);
-}
-
-and I count 18 callsites for vm_unacct_memory.
-
-I'm no judge of what's worth inlining, but Andrew is widely known
-and feared as The Scourge of Inliners, so I'd advise you to hide...
-
-Hugh
-
+Ivan.

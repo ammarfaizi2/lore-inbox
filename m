@@ -1,89 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264336AbRFGGjj>; Thu, 7 Jun 2001 02:39:39 -0400
+	id <S264341AbRFGGp7>; Thu, 7 Jun 2001 02:45:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264341AbRFGGj3>; Thu, 7 Jun 2001 02:39:29 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:45100 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S264336AbRFGGjT>; Thu, 7 Jun 2001 02:39:19 -0400
-To: LA Walsh <law@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Break 2.4 VM in five easy steps
-In-Reply-To: <3B1E4CD0.D16F58A8@illusionary.com>
-	<3b204fe5.4014698@mail.mbay.net> <3B1E5316.F4B10172@illusionary.com>
-	<m1wv6p5uqp.fsf@frodo.biederman.org> <3B1EA748.6B9C1194@sgi.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 07 Jun 2001 00:35:36 -0600
-In-Reply-To: <3B1EA748.6B9C1194@sgi.com>
-Message-ID: <m1g0dc6blz.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S264344AbRFGGpt>; Thu, 7 Jun 2001 02:45:49 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:42881 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id <S264341AbRFGGpl>; Thu, 7 Jun 2001 02:45:41 -0400
+Date: Wed, 6 Jun 2001 23:47:29 -0700 (PDT)
+From: "Matt D. Robinson" <yakker@aparity.com>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: "David S. Miller" <davem@redhat.com>,
+        "La Monte H.P. Yarroll" <piggy@em.cig.mot.com>,
+        <linux-kernel@vger.kernel.org>, <sctp-developers-list@cig.mot.com>
+Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregister
+ table
+In-Reply-To: <200106070620.f576KaI23581@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.LNX.4.30.0106062345100.3846-100000@nakedeye.aparity.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LA Walsh <law@sgi.com> writes:
+Richard Gooch wrote:
+> > Maybe they just want some more of those RedHat stock options ...
+>
+> How dare you! This isn't about RedHat stock options. I don't have any
+> myself, and people like Alan and Dave have shown their integrity and
+> their commitment to the community and don't deserve to have mud slung
+> at them. Maybe the problem is that you're trying to push a proprietary
+> product, and want the kernel to be changed to suit your narrow,
+> commercial interests, and the "gatekeepers" aren't rolling out the red
+> carpet for you.
 
-> "Eric W. Biederman" wrote:
-> 
-> > The hard rule will always be that to cover all pathological cases swap
-> > must be greater than RAM.  Because in the worse case all RAM will be
-> > in thes swap cache.  That this is more than just the worse case in 2.4
-> > is problematic.  I.e. In the worst case:
-> > Virtual Memory = RAM + (swap - RAM).
-> 
-> Hmmm....so my 512M laptop only really has 256M?  Um...I regularlly run
-> more than 256M of programs.  I don't want it to swap -- its a special, weird
-> condition if I do start swapping.  I don't want to waste 1G of HD (5%) for
-> something I never want to use.  IRIX runs just fine with swap<RAM.  In
-> Irix, your Virtual Memory = RAM + swap.  Seems like the Linux kernel requires
-> more swap than other old OS's (SunOS3 (virtual mem = min(mem,swap)).
-> I *thought* I remember that restriction being lifted in SunOS4 when they
-> upgraded the VM.  Even though I worked there for 6 years, that was
-> 6 years ago...
+Just for the record ...
 
-There are cetain scenario's where you can't avoid virtual mem =
-min(RAM,swap). Which is what I was trying to say, (bad formula).  What
-happens is that pages get referenced  evenly enough and quickly enough
-that you simply cannot reuse the on disk pages.  Basically in the
-worst case all of RAM is pretty much in flight doing I/O.  This is
-true of all paging systems.
+	^options ...^& :)
 
-However just because in the worst case virtual mem = min(RAM,swap), is
-no reason other cases should use that much swap.  If you are doing a
-lot of swapping it is more efficient to plan on mem = min(RAM,swap) as
-well, because frequently you can save on I/O operations by simply
-reusing the existing swap page.
+I didn't think it was required.  Back to my little world where people
+can actually get along and work together to make things better and
+can forget about self-interest, egos, and having to defeat some greater
+evil, even for a little while.
 
-> 
-> > You can't improve the worst case.  We can improve the worst case that
-> > many people are facing.
-> 
-> ---
->     Other OS's don't have this pathological 'worst case' scenario.  Even
-> my Windows [vm]box seems to operate fine with swap<MEM.  On IRIX,
-> virtual space closely approximates physical + disk memory.
+( ... )
 
-It's a theoretical worst case and they all have it.  In practice it is
-very hard to find a work load where practically every page in the
-system is close to the I/O point howerver.
+--Matt
 
-Except for removing pages that aren't used paging with swap < RAM is
-not useful.  Simply removing pages that aren't in active use but might
-possibly be used someday is a common case, so it is worth supporting.
+>                                 Regards,
+>
+>                                         Richard....
 
-> 
-> > It's worth complaining about.  It is also worth digging into and find
-> > out what the real problem is.  I have a hunch that this hole
-> > conversation on swap sizes being irritating is hiding the real
-> > problem.
-> 
-> ---
->     Okay, admission of ignorance.  When we speak of "swap space",
-> is this term inclusive of both demand paging space and
-> swap-out-entire-programs space or one or another?
-
-Linux has no method to swap out an entire program so when I speak of
-swapping I'm actually thinking paging.
-
-Eric

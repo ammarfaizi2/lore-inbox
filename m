@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264763AbUD1MQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264770AbUD1MlR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264763AbUD1MQY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 08:16:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264764AbUD1MQY
+	id S264770AbUD1MlR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 08:41:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264765AbUD1MlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 08:16:24 -0400
-Received: from mail.admin.cablespeed.com ([216.15.205.68]:1513 "EHLO
-	admin.cablespeed.com") by vger.kernel.org with ESMTP
-	id S264763AbUD1MQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 08:16:22 -0400
-Subject: Undeliverable mail: Re: Here is the document
-From: MAILER-DAEMON@admin.cablespeed.com
-To: <linux-kernel@vger.kernel.org>
-Date: Wed, 28 Apr 2004 07:16:21 -0500
-Message-ID: <receipt-13992241@admin.cablespeed.com>
+	Wed, 28 Apr 2004 08:41:17 -0400
+Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:30643 "HELO
+	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264770AbUD1MlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 08:41:11 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: logitech mouseMan wheel doesn't work with 2.6.5
+Date: Wed, 28 Apr 2004 07:41:08 -0500
+User-Agent: KMail/1.6.1
+Cc: Erik Steffl <steffl@bigfoot.com>
+References: <40853060.2060508@bigfoot.com> <200404281022.23878.kim@holviala.com> <408F697D.2010906@bigfoot.com>
+In-Reply-To: <408F697D.2010906@bigfoot.com>
 MIME-Version: 1.0
-Content-Type: multipart/report; report-type="delivery-status"; boundary="_===13992241====admin.cablespeed.com===_"
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404280741.08665.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If I may chime in...
 
---_===13992241====admin.cablespeed.com===_
-Content-Type: text/plain; charset="utf-8"
+On Wednesday 28 April 2004 03:21 am, Erik Steffl wrote:
+ 
+> input: ImPS/2 Logitech Wheel Mouse on isa0060/serio1
+> input: ExPS/2 Generic Explorer Mouse on isa0060/serio1
+> input: PS2++ Logitech Mouse on isa0060/serio1
+> input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
+> input: ExPS/2 Generic Explorer Mouse on isa0060/serio1
+> input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
+> input: PS2++ Logitech Mouse on isa0060/serio1
+> input: PS/2 Generic Mouse on isa0060/serio1
+> input: PS/2 Generic Mouse on isa0060/serio1
+> input: ExPS/2 Generic Explorer Mouse on isa0060/serio1
+> 
 
-Failed to deliver to ''
-Virus(es) found.
-document_full.pif is infected with W32/Netsky.d@MM
-Viruses: 1
-Trojans: 0
-Jokes: 0
-Tests: 0
+So your mouse pretty much can work with any protocol... Now could you please
+re-load the module without any parameters and post the output of
+"cat /proc/bus/input/devices"
 
-Captured by Cablespeed new Virus protection. See http:/www.mdm.net/web/support for details on other email improvements/>
+Also compile evbug module, insert it in the kernel (with psmouse loaded as
+well), hit all buttons again and post the excerpt of dmesg with evbug data.
+I want to make sure that your button is not identified correctly as opposed
+to some data lost in protocol transformation.
 
+What protocol are you using in XFree?
 
-
---_===13992241====admin.cablespeed.com===_
-Content-Type: message/delivery-status
-
-Reporting-MTA: dns; admin.cablespeed.com
-
-Original-Recipient: rfc822;<>
-Final-Recipient: system;<>
-Action: failed
-Status: 5.0.0
-
---_===13992241====admin.cablespeed.com===_
-Content-Type: text/rfc822-headers
-
-Received: from [81.249.114.215] (HELO cablespeed.com)
-  by admin.cablespeed.com (CommuniGate Pro SMTP 4.1.8)
-  with ESMTP id 13992284 for gkondos@cablespeed.com; Wed, 28 Apr 2004 07:16:18 -0500
-From: linux-kernel@vger.kernel.org
-To: gkondos@cablespeed.com
-Subject: Re: Here is the document
-Date: Wed, 28 Apr 2004 08:16:15 -0400
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0007_000049BA.00003043"
-X-Priority: 3
-X-MSMail-Priority: Normal
-Message-ID: <auto-000013992284@admin.cablespeed.com>
-
---_===13992241====admin.cablespeed.com===_--
+-- 
+Dmitry

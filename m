@@ -1,56 +1,31 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261738AbVCNTPj (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 14 Mar 2005 14:15:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVCNTPj
+	id S262618AbVCPO7l (ORCPT <rfc822;ralf@linux-mips.org>);
+	Wed, 16 Mar 2005 09:59:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbVCPO7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 14:15:39 -0500
-Received: from mail.mylife.com.ph ([202.124.137.125]:62223 "EHLO mylife.ph")
-	by vger.kernel.org with ESMTP id S261733AbVCNTPb (ORCPT
+	Wed, 16 Mar 2005 09:59:40 -0500
+Received: from [211.36.37.49] ([211.36.37.49]:7571 "HELO mail.qsv19.com")
+	by vger.kernel.org with SMTP id S262614AbVCPO6t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 14:15:31 -0500
-Message-ID: <1110856146.423651d24d17c@mylife.ph>
-Date: Tue, 15 Mar 2005 11:09:06 +0800
-From: Baba Usman <bbausman@mylife.ph>
-To: bbausman@mylife.ph
-Subject: Contract Offer.
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2
-X-Originating-IP: 212.247.71.12
+	Wed, 16 Mar 2005 09:58:49 -0500
+Date: 16 Mar 2005 19:56:06 +0900
+Message-ID: <20050316105606.23918.qmail@mail.qsv19.com>
+From: info@qsv19.com
+To: linux-kernel@vger.kernel.org
+Subject: =?ISO-8859-1?Q?=20=1B$B!z%j%K%e!<%=22%?= =?ISO-8859-1?Q?k!&%*!<%W%s$7$^$?=
+	=?ISO-8859-1?Q?7$=3F!z=1B(B?=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261738AbVCNTPj@vger.kernel.org>
-
->From The Desk Of Baba Usman
-Reply-To:bab_usman@yahoo.com
-
-For Your Attention, 
-
-The Managing Director/Owner
-
-My name is BABA USMAN, and this is an urgent contract invitation from Iraq. My
-benefactor at the new American controlled Iraq ministry has mandated me to seek
-for your cooperation in a multi-million dollars worth of supply contract on
-Building/Medical/Textile and General Ship equipments. Please if you can assist
-us, then kindly contact me via My E-mail {bab_usman@yahoo.com}(PLEASE MAKE SURE
-TO SEND EMAIL ONLY DETAILING YOUR DIRECT TELEPHONE,FAX NUMBERS AND EXCLUSIVE
-EMAIL based on your company abilities).
-
-As soon as we recieve these, I shall get back to you with all details
-exclusively.
-
-NB:80% upfront for all supplies.
-
-Regards,
-
-BABA USMAN.
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262618AbVCPO7l@vger.kernel.org>
 
 
+東京限定でオープンして好評だった無料掲示板サイト”東京ラブストーリー”が全国
+版にてリニューアルオープンしました。相手のアドレス見放題で完全な無料。今まで
+楽しめなかった方、怪しいサイトやさくらばかりでお嘆きのあなたに・・・。芸能人
+やＡＶ女優など関連の業界から広告宣伝しています。みんなで捜してみてね。あっと
+ビックリ玉手箱！男性・女性も完全無料です。
 
+東京ラブストーリー（ＰＣ・携帯両対応）
+http://loves.qsv20.com/
 
-
-
-
-----------------------------------------------------------------
-This message was sent using IMP, the Internet Messaging Program.
+《ご注意》18歳未満の方や援助交際などの利用や投稿は一切出来ません。

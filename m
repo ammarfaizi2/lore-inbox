@@ -1,38 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262108AbVCAXGm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262081AbVCAXIH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262108AbVCAXGm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 18:06:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbVCAXGm
+	id S262081AbVCAXIH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 18:08:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbVCAXIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 18:06:42 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:38629
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262078AbVCAXGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 18:06:40 -0500
-Date: Tue, 1 Mar 2005 15:04:13 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: rddunlap@osdl.org, linux-kernel@vger.kernel.org,
-       ultralinux@vger.kernel.org
-Subject: Re: SPARC64: Modular floppy?
-Message-Id: <20050301150413.31d0b533.davem@davemloft.net>
-In-Reply-To: <200503011926.j21JQ5dP007149@laptop11.inf.utfsm.cl>
-References: <4224A592.1050909@osdl.org>
-	<200503011926.j21JQ5dP007149@laptop11.inf.utfsm.cl>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 1 Mar 2005 18:08:06 -0500
+Received: from colin2.muc.de ([193.149.48.15]:51464 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262081AbVCAXHu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 18:07:50 -0500
+Date: 2 Mar 2005 00:07:49 +0100
+Date: Wed, 2 Mar 2005 00:07:49 +0100
+From: Andi Kleen <ak@muc.de>
+To: Bernd Schubert <bernd-schubert@web.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       nfs@lists.sourceforge.net
+Subject: Re: x86_64: 32bit emulation problems
+Message-ID: <20050301230749.GA79861@muc.de>
+References: <200502282154.08009.bernd.schubert@pci.uni-heidelberg.de> <200503012207.02915.bernd-schubert@web.de> <20050301214832.GA44624@muc.de> <200503012330.42154.bernd-schubert@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503012330.42154.bernd-schubert@web.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 01 Mar 2005 16:26:05 -0300
-Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+> stat64("/mnt/test/yp", {st_mode=S_IFDIR|0755, st_size=2704, ...}) = 0
 
-> Right. But where? I was thinking under arch/sparc64/drivers/floppy.S or
-> such. And then there would need to be some make magic for it to get picked
-> up and included only for sparc64. Sounds doable, if somewhat messy.
+It returns 0. No error.  Someone else in user space must be adding the EOVERFLOW.
+glibc code does quite a lot of strange things with stat, perhaps
+it comes from there.
 
-Sparc 32-bit has the same problem btw.  It's a direct IRQ handler that
-doesn't need to save any trap state.
+> write(2, "err = -1\n", 9err = -1
+> )               = 9
+> write(2, "stat for /mnt/test/yp failed \n", 30stat for /mnt/test/yp failed
+> ) = 30
+> write(2, "ernno: 75 (Value too large for d"..., 50ernno: 75 (Value too large 
+> for defined data type)
+> ) = 50
+> exit_group(0)                           = ?
+
+-Andi
+

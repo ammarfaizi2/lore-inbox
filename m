@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262217AbUKWFBB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262196AbUKWFRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262217AbUKWFBB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 00:01:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbUKWEtH
+	id S262196AbUKWFRz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 00:17:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbUKWFAy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 23:49:07 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:10146 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262345AbUKVTF2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 14:05:28 -0500
-Date: Mon, 22 Nov 2004 20:05:25 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Hans Reiser <reiser@namesys.com>
-cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: file as a directory
-In-Reply-To: <41A23566.6080903@namesys.com>
-Message-ID: <Pine.LNX.4.53.0411222002380.21595@yvahk01.tjqt.qr>
-References: <2c59f00304112205546349e88e@mail.gmail.com>
- <200411221759.iAMHx7QJ005491@turing-police.cc.vt.edu> <41A23566.6080903@namesys.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+	Tue, 23 Nov 2004 00:00:54 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:54458
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262212AbUKWE55 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 23:57:57 -0500
+Date: Mon, 22 Nov 2004 20:40:52 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Pradeep Anbumani <pradeepdreams@gmail.com>
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: ACK Flooding
+Message-Id: <20041122204052.581ba69b.davem@davemloft.net>
+In-Reply-To: <19f134cc04112220125461595d@mail.gmail.com>
+References: <19f134cc04112220125461595d@mail.gmail.com>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>(Hint - "file as directory" broke a number of programs that didn't
->>expect that a file *could* be a directory, when run on a reiser4
->>filesystem...)
->
->It broke extraordinarily few.
+On Tue, 23 Nov 2004 09:42:18 +0530
+Pradeep Anbumani <pradeepdreams@gmail.com> wrote:
 
-(The fewer the better.)
+> If anybody could tell me what changes had to be made to get the
+> desired output..the desired output is TCP as per the conventional
+> behaviour has to increase the transmission rate as it gets more
+> duplicate acknowledgements....
 
-That's good news, and frankly, I did not expect anything else. That's because
-either programs definitely know that "it" is a file/directory because they just
-mkdir'ed or so, or they implement correct error checks, e.g. the user just
-created a directory and we check back (i.e. race protection).
+If you send a 100 ACKs you won't get this behavior.
+Once you give more ACKs than the other end has packets
+to send (or more than the congestion window can fit)
+the sender just waits for a timer based timeout before
+it retransmits more data.
 
-What I am worried about is the opendir() libc call, which AFAIK does this:
-  fd = open("directory", myflags | O_DIRECTORY)
-
-OTOH, I'm not worried, because it should be the user's duty to check whether
-directory really is one or not. Anything else is sloppy programming.
-(Exception: taking argv[xx] from the user)
-
-
-Cheers,
-Jan Engelhardt
--- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de
+So what you code causes to happen is after the first data segment
+is sent, you crazily spit out 100 ACKs, the send has a tiny
+congestion window (now 2 segments) so at most it can send 2
+packets back in response to all of those ACKs.

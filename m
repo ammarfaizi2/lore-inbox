@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265243AbTBOVcv>; Sat, 15 Feb 2003 16:32:51 -0500
+	id <S265222AbTBOVan>; Sat, 15 Feb 2003 16:30:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265250AbTBOVcv>; Sat, 15 Feb 2003 16:32:51 -0500
-Received: from packet.digeo.com ([12.110.80.53]:59053 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265243AbTBOVcu>;
-	Sat, 15 Feb 2003 16:32:50 -0500
-Date: Sat, 15 Feb 2003 13:43:20 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Arador <diegocg@teleline.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5: system time goes up to 100%
-Message-Id: <20030215134320.39bafc6e.akpm@digeo.com>
-In-Reply-To: <20030215222229.10b56e5f.diegocg@teleline.es>
-References: <20030215222229.10b56e5f.diegocg@teleline.es>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S265238AbTBOVan>; Sat, 15 Feb 2003 16:30:43 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56582 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265222AbTBOVam>;
+	Sat, 15 Feb 2003 16:30:42 -0500
+Message-ID: <3E4EB3BA.9010600@pobox.com>
+Date: Sat, 15 Feb 2003 16:40:10 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Roger Luethi <rl@hellgate.ch>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: [0/4][via-rhine] Improvements
+References: <20030215111705.GA11127@k3.hellgate.ch>
+In-Reply-To: <20030215111705.GA11127@k3.hellgate.ch>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Feb 2003 21:42:40.0061 (UTC) FILETIME=[29C8D6D0:01C2D53B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arador <diegocg@teleline.es> wrote:
->
-> Hi, i've the following case (more info provided below):
+Roger Luethi wrote:
+> Here comes a batch of patches for the via-rhine driver. Please apply.
 > 
-> procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
->  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
->  0  1  44268 124776  10380  64736    5    8    93    37  600   281   11  2 85  3
->  1  0  44268 124160  10584  64736    0    0   196   196 1750  1518  1 41 49  9
-> ...
-> 8209527 total                                      4,5041
-> 8035501 default_idle                             100443,7625
->  39060 ext3_find_entry                           35,9007
->  19200 serial_in                                171,4286
->  18957 check_poison_obj                         131,6458
+> via-rhine is still hardly usable on the most common Rhine hardware; it
+> can't sustain 100Mbps traffic. The changes presented here improve the
+> situation considerably; they fix a number of real problems and have been
+> tested for regression (alas, by few people).
 
-That all looks OK.  Your machine is waiting on disk I/O.
 
-We changed the representation of the cpu states in /proc a while ago and I
-have a vague feeling that this has caused some versions of the userspace
-tools to confuse disk-wait with system time.
-
-Try grabbing the latest vmstat from procps.sourceforge.net
+applied to 2.4, as well.
 

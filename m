@@ -1,57 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319458AbSIGJcl>; Sat, 7 Sep 2002 05:32:41 -0400
+	id <S319462AbSIGJvH>; Sat, 7 Sep 2002 05:51:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319462AbSIGJcl>; Sat, 7 Sep 2002 05:32:41 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:62169 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S319458AbSIGJck>; Sat, 7 Sep 2002 05:32:40 -0400
-Date: Sat, 7 Sep 2002 11:37:17 +0200
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ide drive dying?
-Message-Id: <20020907113717.128b0797.us15@os.inf.tu-dresden.de>
-In-Reply-To: <3D79C719.8020706@fugmann.dhs.org>
-References: <200209061722.g86HMuPp004452@darkstar.example.net>
-	<200209062122.31597.devilkin-lkml@blindguardian.org>
-	<3D79C719.8020706@fugmann.dhs.org>
-Organization: Disorganized
-X-Mailer: Sylpheed version 0.8.2claws (GTK+ 1.2.10; )
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
+	id <S319463AbSIGJvH>; Sat, 7 Sep 2002 05:51:07 -0400
+Received: from coruscant.franken.de ([193.174.159.226]:33468 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id <S319462AbSIGJvG>; Sat, 7 Sep 2002 05:51:06 -0400
+Date: Sat, 7 Sep 2002 11:51:25 +0200
+From: Harald Welte <laforge@gnumonks.org>
+To: Lee Van Dyke <VandykeL@masirv.com>
+Cc: linux-kernel@vger.kernel.org,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: Wanted: netfilter:arptables working example.
+Message-ID: <20020907115125.M9675@sunbeam.de.gnumonks.org>
+References: <3D78AC8F.8050409@masirv.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.0XEb:9LC)LpzXk"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TnYVF1hk1c8rpHiF"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <3D78AC8F.8050409@masirv.com>; from VandykeL@masirv.com on Fri, Sep 06, 2002 at 06:24:31AM -0700
+X-Operating-System: Linux sunbeam.de.gnumonks.org 2.4.19-pre10-newnat-pptp
+X-Date: Today is Pungenday, the 24th day of Bureaucracy in the YOLD 3168
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.0XEb:9LC)LpzXk
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-On Sat, 07 Sep 2002 11:30:01 +0200 Anders Fugmann (AF) wrote:
+--TnYVF1hk1c8rpHiF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-AF> You can download the firmware programs from 
-AF> http://anders.fugmann.dhs.org/ibm. There are both upgrade for 75GXP and 
-AF> 60GXP, or you could contact IBM for the firmware upgrade - They are not 
-AF> available on the ibm site. The programs are Windows thingies, which 
-AF> creates a floppy to be booted.
+On Fri, Sep 06, 2002 at 06:24:31AM -0700, Lee Van Dyke wrote:
+> Wanted: netfilter arptables working example.
+>=20
+> I've looked throught the archives and am unable to find any examples.
 
-They are on the IBM site, but a bit hard to find:
+there is none.  david miller has introduced netfilter hooks to arp and port=
+ed
+iptables to arp (called arptables).  However, there is no userspace program
+for configuration (yet?).
 
-http://www-1.ibm.com/support/docview.wss?rs=0&uid=psg1MIGR-39082
+--=20
+Live long and prosper
+- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M+=
+=20
+V-- PS++ PE-- Y++ PGP++ t+ 5-- !X !R tv-- b+++ !DI !D G+ e* h--- r++ y+(*)
 
--Udo.
-
---=.0XEb:9LC)LpzXk
+--TnYVF1hk1c8rpHiF
 Content-Type: application/pgp-signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-iD8DBQE9ecjQnhRzXSM7nSkRAoQGAJ9+T5cfK5rkkqLhCtAdJ/d1FPdk5wCfSnnN
-2zzo/w8lVueMzN4lb7YYLJQ=
-=X5Zg
+iD8DBQE9ecwcXaXGVTD0i/8RApS8AKCoqk1JFyPR/g24lvgZOCw+WclA1gCfQYLo
+zkcP9ZgbEBk6XYEZtuBlxe8=
+=5Wxb
 -----END PGP SIGNATURE-----
 
---=.0XEb:9LC)LpzXk--
+--TnYVF1hk1c8rpHiF--

@@ -1,80 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293603AbSDBAAl>; Mon, 1 Apr 2002 19:00:41 -0500
+	id <S312731AbSDBASf>; Mon, 1 Apr 2002 19:18:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312724AbSDBAAV>; Mon, 1 Apr 2002 19:00:21 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:39943 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S293603AbSDBAAT>;
-	Mon, 1 Apr 2002 19:00:19 -0500
-Date: Mon, 1 Apr 2002 15:58:15 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Questions about /proc/stat
-In-Reply-To: <Pine.LNX.4.33.0204011532060.4450-100000@shell1.aracnet.com>
-Message-ID: <Pine.LNX.4.33L2.0204011556100.13412-100000@dragon.pdx.osdl.net>
+	id <S312734AbSDBASZ>; Mon, 1 Apr 2002 19:18:25 -0500
+Received: from dyn-212-129-51-155.ppp.libertysurf.fr ([212.129.51.155]:40329
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S312731AbSDBASP>; Mon, 1 Apr 2002 19:18:15 -0500
+Date: Tue, 2 Apr 2002 02:14:24 +0200 (CEST)
+From: Rui Sousa <rui.p.m.sousa@clix.pt>
+X-X-Sender: rsousa@localhost.localdomain
+To: Adam Huffman <bloch@verdurin.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops in emu10k1 driver
+In-Reply-To: <20020401224514.GC2718@asus.verdurin.priv>
+Message-ID: <Pine.LNX.4.44.0204020206050.1503-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Apr 2002, M. Edward (Ed) Borasky wrote:
+On Mon, 1 Apr 2002, Adam Huffman wrote:
 
-| On Mon, 1 Apr 2002, Randy.Dunlap wrote:
-|
-| > Of course the basic answer is something like
-| >   Try cscope
-|
-| I can't find this -- does it come with Red Hat??
+Hi,
 
-it's at cscope.sf.net
+First of all, which kernel are you using?
+I believe I already fixed this bug in CVS but I haven't
+received any confirmation. Can you give it a try?
+You can get the CVS repository at:
 
-| > or
-| >   cd /usr/src/linux
-| >   grep -r "kstat.p" * | more
-|
-| This worked.
-|
-| >
-| > Using the latter one:
-| >
-| > | 1. Why are kstat.pgpgin and kstat.pgpgout shifted right / halved?
-| >
-| > I had wondered that also, so you made me look.
-| >
-| > pgpgin and pgpgout are maintained (counted) in units of 512-byte
-| > blocks but displayed in /proc/stat in 1 KB (KiB :) blocks by shifting
-| > right by 1.
-|
-| Yes ... that I managed to figure out. Seems strange that pgpgin/out are
-| in units of kilobytes and pswpin/out are in units of pages, though. Just
-| another little hole that needs plugging in the documentation.
-|
-| > | 2. Are the "page" and "swap" numbers mutually exclusive? That is, if a
-| > | page is brought in from swap and counted in kstat.pswpin, is it also
-| > | counted in kstat.pgpgin? I found the places in the code where the counts
-| > | are incremented, but I couldn't tell if the swapin routine calls the
-| > | block driver or not.
-|
-| > No, "page" and "swap" counts are not mutually exclusive.
-| > Both paths call submit_bh().
-| >
-[snippage]
-|
-| Ah ... so every page to/from swap is counted in pswpin/out (as a page)
-| and again in pgpgin/out as half-kilobytes :-). Incidentally, I also
-| followed the third fork in this road, the one which derives the "blocks"
-| read and written per device that show up in /proc/stat. Those "blocks"
-| turn out to be 512 bytes long.
+http://sourceforge.net/cvs/?group_id=44773
 
-Do you mean this line or something else?
-  disk_io: (3,0):(616296,386142,7120356,230154,3010882)
+Then edit the config file and point it to your kernel source,
+make, make install. That should be it.
 
-| of some high-frequency (every 15 seconds) samples of I/O data. Thanks!!
+Otherwise (when I get your kernel version) I can send you a
+patch to try out.
 
-Sure, no problem.
+Rui Sousa
 
--- 
-~Randy
+> On Mon, 01 Apr 2002, Alan Cox wrote:
+> 
+> > > VMware died when I put an audio CD into my DVD drive.  I wouldn't have
+> > > mentioned it here but for the fact that there was an Oops and when
+> > > decoded it pointed to the emu10k1 driver:
+> > 
+> > Yes but we don't know what vmware has been doing. Please try the same thing
+> > a few times without vmware running
+> > 
+> > > kernel BUG at audio.c:1474!
+> > > invalid operand: 0000
+> > 
+> > 
+> > This one does look like a real bug in the emu10k driver, rather than a
+> > vmware caused funny
+> 
+> Haven't been able to reproduce it with the VMware modules removed.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,81 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269460AbUIRMoV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269470AbUIRNGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269460AbUIRMoV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 08:44:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269464AbUIRMoV
+	id S269470AbUIRNGS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 09:06:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269464AbUIRNFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 08:44:21 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:5280 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S269460AbUIRMoB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 08:44:01 -0400
-Subject: Re: nproc: So?
-From: Albert Cahalan <albert@users.sf.net>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040917175130.GA7050@k3.hellgate.ch>
-References: <1095440131.3874.4626.camel@cube>
-	 <20040917175130.GA7050@k3.hellgate.ch>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1095511212.4973.8.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 18 Sep 2004 08:40:12 -0400
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Sep 2004 09:05:50 -0400
+Received: from colo.khms.westfalen.de ([213.239.196.208]:42390 "EHLO
+	colo.khms.westfalen.de") by vger.kernel.org with ESMTP
+	id S269470AbUIRNFq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Sep 2004 09:05:46 -0400
+Date: 18 Sep 2004 11:46:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <9H7p12YXw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.58.0409160652460.2333@ppc970.osdl.org>
+Subject: Re: Being more careful about iospace accesses..
+X-Mailer: CrossPoint v3.12d.kh14 R/C435
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+References: <Pine.LNX.4.58.0409081543320.5912@ppc970.osdl.org> <Pine.LNX.4.58.0409151546400.2333@ppc970.osdl.org> <1095337514.9144.2344.camel@imladris.demon.co.uk> <1095337514.9144.2344.camel@imladris.demon.co.uk> <Pine.LNX.4.58.0409160652460.2333@ppc9
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-17 at 13:51, Roger Luethi wrote:
-> On Fri, 17 Sep 2004 12:55:32 -0400, Albert Cahalan wrote:
+torvalds@osdl.org (Linus Torvalds)  wrote on 16.09.04 in <Pine.LNX.4.58.0409160652460.2333@ppc970.osdl.org>:
 
-> > The nicest think about netlink is, i think, that it might make
-> > a practical interface for incremental update. As processes run
-> > or get modified, monitoring apps might get notified. I did not
-> > see mention of this being implemented, and I would take quite 
-> > some time to support it, so it's a long-term goal. (of course,
-> > people can always submit procps patches to support this)
-> 
-> Sounds like what wli and I have discussed as differential updates
-> a few weeks ago. I agree that would be nice, for now the goal was
-> to suggest something that's cleaner and faster than procfs.
-> Extensions are easy to add later.
+> On Thu, 16 Sep 2004, David Woodhouse wrote:
+>
+> > On Wed, 2004-09-15 at 16:26 -0700, Linus Torvalds wrote:
+> > >  - if you want to go outside that bitwise type, you have to convert it
+> > >    properly first. For example, if you want to add a constant to a
+> > >    __le16 type, you can do so, but you have to use the proper sequence:
+> > >
+> > > 	__le16 sum, a, b;
+> > >
+> > > 	sum = a + b;	/* INVALID! "warning: incompatible types for operation
+> > > (+)" */ 	sum = cpu_to_le16(le16_to_cpu(a) + le16_to_cpu(b));	/* Ok */
+> > >
+> > > See?
+> >
+> > Yeah right, that latter case is _so_ much more readable
+>
+> It's not about readability.
+>
+> It's about the first case being WRONG!
 
-To me, this looks like the killer feature. You could even
-skip the regular process info. Simply return process identification
-cookies that could be passed into a separate syscall to get
-the information.
+... in general.
 
-> > I doubt that it is good to break down the data into so many
-> > different items. It seems sensible to break down the data by 
-> > locking requirements. 
-> 
-> True if you consider a static set of fields that never changes. Problematic
-> otherwise, because as soon as you start grouping fields together, you need
-> an agreement between kernel and user-space on the contents of these groups.
+And on the machines where it works (le machines), I'd certainly expect  
+those conversion functions to be trivially eliminated by the compiler (ie,  
+they're either trivial macros or trivial inline functions).
 
-I suppose this is small potatoes compared to the overhead
-of dealing with ASCII, but individual field handling would
-be a bit slower.
+> > I'd really quite like to see the real compiler know about endianness,
+> > too.
 
-For initial libproc support, I'd start by requesting info
-in groups that match what /proc provides today.
+Well, these day, optimizers often can recognize the usual endianness  
+conversion idioms, so the compiler still gets a chance at inserting your  
+load-with-swap or whatever.
 
-> > I could use an opaque per-process cookie for process identification.
-> > This would protect from PID reuse, and might allow for faster
-> > lookup. Perhaps it contains: PID, address of task_struct, and the
-> > system-wide or per-cpu fork count from process creation.
-> 
-> Agreed, that would be useful. And it would be easy to integrate with
-> nproc. Just add a field to return the cookie and a selector based on
-> cookies rather than PIDs.
-> 
-> > Something like the stat() syscall would be pretty decent.
-> 
-> You lost me there.
-
-The stat() call simply fills in a struct. Given a per-process
-cookie (or a PID if you tolerate the race conditions), a syscall
-similar to stat() could fill in a struct.
-
-
+MfG Kai

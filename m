@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261584AbTCTQBK>; Thu, 20 Mar 2003 11:01:10 -0500
+	id <S261525AbTCTQKS>; Thu, 20 Mar 2003 11:10:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261585AbTCTQBK>; Thu, 20 Mar 2003 11:01:10 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:23517 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261584AbTCTQBJ>; Thu, 20 Mar 2003 11:01:09 -0500
-Date: Thu, 20 Mar 2003 08:11:58 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       Jes Sorensen <jes@wildopensource.com>
-cc: Jeff Garzik <garzik@pobox.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fixup warning for acenic
-Message-ID: <9590000.1048176717@[10.10.2.4]>
-In-Reply-To: <20030320160440.A14435@infradead.org>
-References: <14240000.1048146629@[10.10.2.4]> <m365qenioq.fsf@trained-monkey.org> <20030320160440.A14435@infradead.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S261530AbTCTQKS>; Thu, 20 Mar 2003 11:10:18 -0500
+Received: from avscan1.sentex.ca ([199.212.134.11]:60166 "EHLO
+	avscan1.sentex.ca") by vger.kernel.org with ESMTP
+	id <S261525AbTCTQKR>; Thu, 20 Mar 2003 11:10:17 -0500
+Message-ID: <02e201c2eefd$1abe2240$294b82ce@connecttech.com>
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: "Andrzej Krzysztofowicz" <ankry@green.mif.pg.gda.pl>,
+       "kernel list" <linux-kernel@vger.kernel.org>
+References: <200303201615.h2KGF3r2002546@green.mif.pg.gda.pl>
+Subject: Re: Non-__init functions calling __init functions
+Date: Thu, 20 Mar 2003 11:23:55 -0500
+Organization: Connect Tech Inc.
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4920.2300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.4.9 of course has the newstyle pci interface! And actual hotplug
-> PCI support also is in all today singnificant 2.4.9 forks (RH..).
-> 
-> There's even some shim to emulate the pci_driver style interface on
-> 2.2.
-> 
-> Anyway, this table has another use, it's used by userland ools like
-> installers for selecting the right driver for a given pci device.  So
-> even if it seems unused from kernelspace it has a use.
+From: "Andrzej Krzysztofowicz" <ankry@green.mif.pg.gda.pl>
+> From: "Stuart MacDonald" <stuartm@connecttech.com>
+> > This is always a bug isn't it?
+>
+> ... unless they are guaranteed to be called in the init context only.
 
-Are they kmem diving? Or parsing source code? 
+In which case those functions should also be marked __init so they can
+be reclaimed, correct? So it's the reciprocal bug.
 
-Thanks,
+..Stu
 
-M.
+

@@ -1,71 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261434AbTI3NxI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 09:53:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbTI3NxH
+	id S261491AbTI3Nru (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 09:47:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbTI3Nru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 09:53:07 -0400
-Received: from chaos.sr.unh.edu ([132.177.249.105]:63193 "EHLO
-	chaos.sr.unh.edu") by vger.kernel.org with ESMTP id S261434AbTI3NxD
+	Tue, 30 Sep 2003 09:47:50 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:23540 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S261491AbTI3Nrs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 09:53:03 -0400
-Date: Tue, 30 Sep 2003 09:50:14 -0400 (EDT)
-From: Kai Germaschewski <kai.germaschewski@unh.edu>
-X-X-Sender: kai@chaos.sr.unh.edu
-To: "David S. Miller" <davem@redhat.com>
-cc: David Woodhouse <dwmw2@infradead.org>, <bunk@fs.tum.de>,
-       <acme@conectiva.com.br>, <netdev@oss.sgi.com>, <pekkas@netcore.fi>,
-       <lksctp-developers@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: [2.6 patch] disallow modular IPv6
-In-Reply-To: <20030930022410.08c5649c.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0309300940030.4956-100000@chaos.sr.unh.edu>
+	Tue, 30 Sep 2003 09:47:48 -0400
+Content-Type: text/plain;
+  charset="CP 1252"
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: "kartikey bhatt" <kartik_me@hotmail.com>, diegocg@teleline.es
+Subject: Re: Can't X be elemenated?
+Date: Tue, 30 Sep 2003 08:34:12 -0500
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+References: <Law11-F60EhrkMNYwoy0001cb7a@hotmail.com>
+In-Reply-To: <Law11-F60EhrkMNYwoy0001cb7a@hotmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <03093008341200.16194@tabby>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Sep 2003, David S. Miller wrote:
+On Tuesday 30 September 2003 03:09, kartikey bhatt wrote:
+> your graphics card (hw) is resource that needs to be managed by OS.
+> leaving it to 3rd party developers is an *adhoc* solution, *a stark immoral
+> choice*.
+> my friend gotta new AMD athlon with nvidia gforce 32mb shared memory,
 
-> I think they are the same.  It's module building depending upon the
-> kernel image being up to date.
-> 
-> modules: vmlinux image
-> 	... blah blah blah
-> 
-> or however you want to express it in the makefiles.
+Nvidia doesn't support Linux.
 
-I strongly disagree with this. What the makefiles currently do is correct, 
-i.e. if you "make modules" you'll only get updated modules, you didn't ask 
-for an updated vmlinux, and so you don't get it. The module you get is 
-built correctly, i.e. you'd get the same result if you had rebuilt vmlinux 
-before, since the building of the module does not depend on a "correct" 
-vmlinux at all.
+> but he is on the mercy of X people to get full support for it.
 
-If in just about any project you type "make some_object.o", you don't 
-expect make to recompile and rebuild the rest of the project, either, you 
-ask it to 'make' something, and will build exactly that something and the 
-prerequisites necessary to get it right.
+Nvidia doesn't support X either.
 
-A sidenote is that if you are using modversions, building the modules
-correctly needs versioning information from vmlinux, so in that case we
-need vmlinux to be up-to-date. And that's why in this case vmlinux will be
-rebuilt first (if something changed) - otherwise the modules you were
-asking for wouldn't be correct. But the fact the you get an updated
-vmlinux is just a side-effect, you didn't ask for it, and thus you can't
-rely on it.
+> for now he has to do with generic i810 driver?
+> any answer for that.
 
-Think about the meaning of "make".
+The problem with nvidia is that they will NOT release information on 
+programming their graphics board.
 
+Without the information, no code.
+No code, no driver.
+No driver, no support.
 
-With respect to the actual discussion, my opinion is that it's desirable 
-to have the core kernel not change depending on whether or not something 
-is compiled modular, but I believe there are cases which justify an 
-exception, and IPv6 seems to be one of them. Modversions will catch this
-and prevent the user from inserting the module and accidentally crash the 
-system, so I think it's all fine.
+Want a fix? talk to nvidia.
 
+> my question is can't X be eleminated by providing support for
+> graphics drivers and other routines at kernel  level?
 
---Kai
+Sure - Already has been done.
 
+There IS a framebuffer implementation of graphics display. And X already
+supports it.
 
+If you are talking about nvidia support.... talk to nvidia.

@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317302AbSGNVFq>; Sun, 14 Jul 2002 17:05:46 -0400
+	id <S317304AbSGNVGu>; Sun, 14 Jul 2002 17:06:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317304AbSGNVFp>; Sun, 14 Jul 2002 17:05:45 -0400
-Received: from esteel10.client.dti.net ([209.73.14.10]:31174 "EHLO
+	id <S317305AbSGNVGt>; Sun, 14 Jul 2002 17:06:49 -0400
+Received: from esteel10.client.dti.net ([209.73.14.10]:33222 "EHLO
 	shookay.newview.com") by vger.kernel.org with ESMTP
-	id <S317302AbSGNVFo>; Sun, 14 Jul 2002 17:05:44 -0400
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+	id <S317304AbSGNVGr>; Sun, 14 Jul 2002 17:06:47 -0400
+Date: Sun, 14 Jul 2002 17:09:25 -0400
+From: Mathieu Chouquet-Stringer <mathieu@newview.com>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: IDE/ATAPI in 2.5
-References: <200207142004.g6EK4LaV019433@burner.fokus.gmd.de>
-	<1026683982.13885.85.camel@irongate.swansea.linux.org.uk>
-From: Mathieu Chouquet-Stringer <mathieu@newview.com>
-Date: 14 Jul 2002 17:07:50 -0400
-In-Reply-To: <1026683982.13885.85.camel@irongate.swansea.linux.org.uk>
-Message-ID: <xltbs9aj9w9.fsf@shookay.newview.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+Message-ID: <20020714170925.A20352@shookay.newview.com>
+Mail-Followup-To: Mathieu Chouquet-Stringer <mathieu@newview.com>,
+	Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
+References: <xltznwujc0u.fsf@shookay.newview.com> <Pine.LNX.4.33.0207141704280.21492-100000@coffee.psychology.mcmaster.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0207141704280.21492-100000@coffee.psychology.mcmaster.ca>; from hahn@physics.mcmaster.ca on Sun, Jul 14, 2002 at 05:05:46PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-alan@lxorguk.ukuu.org.uk (Alan Cox) writes:
-> Intriguing. Something horrible is happening on your system to see 98%
-> system time off a bus mastering DMA controller. It should only look like
-> that on things like an AHA152x 
+On Sun, Jul 14, 2002 at 05:05:46PM -0400, Mark Hahn wrote:
+> > So I would say Joerg is right... :-(
+> 
+> providing a strawman does not make and argument correct.
+> we've known that ext2/3 (like ffs and many other FSs)
+> simply is not designed for large directories.
+> 
+> the big mystery is why Jeorg thought this was relevant to the atapi flamefest.
 
-Well, to be frank, I wouldn't blame the scsi subsystem: the disk is almost
-idle and procinfo -d gives an average of 6 irqs (using the default 5 sec
-delay between 2 updates)...
+I think you're right.
+
 -- 
 Mathieu Chouquet-Stringer              E-Mail : mathieu@newview.com
     It is exactly because a man cannot do a thing that he is a

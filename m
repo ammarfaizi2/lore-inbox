@@ -1,53 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264374AbUBOIZP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 03:25:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264383AbUBOIZP
+	id S264363AbUBOIYN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 03:24:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264374AbUBOIYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 03:25:15 -0500
-Received: from papadoc.bayour.com ([212.214.70.53]:9406 "EHLO
-	papadoc.bayour.com") by vger.kernel.org with ESMTP id S264374AbUBOIZD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 03:25:03 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Adaptec ARO-1130CA-C
-References: <20040214085247.A20697@lists.us.dell.com>
-	<20040214150400.GA70742@hollin.btc.adaptec.com>
-X-PGP-Fingerprint: B7 92 93 0E 06 94 D6 22  98 1F 0B 5B FE 33 A1 0B
-X-PGP-Key-ID: 0x788CD1A9
-X-URL: http://www.bayour.com/
-From: Turbo Fredriksson <turbo@bayour.com>
-Organization: Bah!
-Date: 15 Feb 2004 09:24:58 +0100
-In-Reply-To: <20040214150400.GA70742@hollin.btc.adaptec.com>
-Message-ID: <8765e8wy05.fsf@papadoc.bayour.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
+	Sun, 15 Feb 2004 03:24:13 -0500
+Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:50866 "EHLO
+	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S264363AbUBOIYH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 03:24:07 -0500
+Date: Sun, 15 Feb 2004 03:24:05 -0500
+From: Marc Heckmann <mh@nadir.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: oops w/ 2.6.2-mm1 on ppc32
+Message-ID: <20040215082404.GA1761@nadir.org>
+References: <20040215074140.GA3840@nadir.org> <1076831383.6958.38.camel@gaston>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1076831383.6958.38.camel@gaston>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Scott Long <scott_long@btc.adaptec.com>:
-
-> On Sat, Feb 14, 2004 at 09:52:47AM -0500, Matt Domsch wrote:
-> > On Sat, Feb 14, 2004 at 03:11:33PM +0100, Turbo Fredriksson wrote:
-> > > So the question is: IS it (my RAIDport II card) supported by the
-> > > aacraid driver, in either 2.4 _or_ (if need be) the 2.6 kernels?
+On Sun, Feb 15, 2004 at 06:49:43PM +1100, Benjamin Herrenschmidt wrote:
+> On Sun, 2004-02-15 at 18:41, Marc Heckmann wrote:
+> > It happened while the machine was waking up from sleep. There were no
+> > UDF or ISO filesystems mounted at the time, in fact, there wasn't even
+> > a cd in the drive. The "autorun" process was running though (polls the
+> > cdrom drive, to see if a disc has been inserted...). There were some
+> > request timeouts on the cdrom drive (hdc) just before, it went to
+> > sleep (system was idle at the time, I wasn't even at home).
 > > 
-> > To the best of my knowledge, no, aacraid does not support any of the
-> > RAIDport cards.
-> > 
+> > Here is the kernel output before and after the machine went to sleep. The Oops
+> > is at the bottom.
 > 
-> That is correct, the AAA and ARO products are not supported by the
-> aacraid nor dpti20 drivers, nor any other linux driver, open source or
-> otherwise.
+> Looks like CD went berserk, and something didn't deal with the
+> error correctly... I don't know those code path in there
+> very well... Can you paste more of the ide-cd errors,
+> those are weird.
 
-Is there a reason why not? Other than 'non-one have the time' etc that is...
-I would _REALLY APRECIATE_ if someone took the time to write one...
+the last cd related errors were half a month ago. As a side note, the
+cdrom drive in this powerbook G3 (Lombard) only really worked right,
+if at all, 50% (or less) of the time in 2.6 (it's fine in 2.4). It
+does seem to work now (maybe due to the pmac patches in -mm?) though.
+I'll continue to test the drive after more uptime and a few
+sleep/wakeup cycles.
 
-I'm most liklely NOT up to it, I'm not that good a programmer (never done
-any serious kernel hacking since 1.3 or thereabouts).
 
+Jan 31 00:01:30 claw kernel: ide-cd: cmd 0x3 timed out
+Jan 31 00:01:30 claw kernel: hdc: irq timeout: status=0xd0 { Busy }
+Jan 31 00:01:30 claw kernel: hdc: irq timeout: error=0xd0LastFailedSense 0x0d
+Jan 31 00:01:30 claw kernel: hdc: DMA disabled
+Jan 31 00:02:00 claw kernel: hdc: ATAPI reset timed-out, status=0x80
+Jan 31 00:02:21 claw su(pam_unix)[10335]: session closed for user root
+Jan 31 00:02:30 claw kernel: ide1: reset timed-out, status=0x80
+Jan 31 00:02:30 claw kernel: hdc: status timeout: status=0x80 { Busy }
+Jan 31 00:02:30 claw kernel: hdc: status timeout: error=0x80LastFailedSense 0x08
+Jan 31 00:02:30 claw kernel: hdc: drive not ready for command
+Jan 31 00:03:00 claw kernel: hdc: ATAPI reset timed-out, status=0x80
+Jan 31 00:03:30 claw kernel: ide1: reset timed-out, status=0x80
+Jan 31 00:03:31 claw kernel: end_request: I/O error, dev hdc, sector 4291125764
+Jan 31 00:03:31 claw kernel: end_request: I/O error, dev hdc, sector 4548260
+Jan 31 00:03:31 claw kernel: end_request: I/O error, dev hdc, sector 4548036
+Jan 31 00:03:31 claw kernel: UDF-fs: No partition found (1)
+Jan 31 00:03:31 claw kernel: end_request: I/O error, dev hdc, sector 4547076
+Jan 31 00:03:31 claw kernel: isofs_fill_super: bread failed, dev=hdc, iso_blknum=1136
+769, block=1136769
 
-If someone cared, I could even lend the mb/raid card to whomever wanted/had
-the time to do it...
+-m

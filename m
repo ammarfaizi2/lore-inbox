@@ -1,62 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266039AbUAFABD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 19:01:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266015AbUAEX67
+	id S266002AbUAEXvS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 18:51:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266046AbUAEXsB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 18:58:59 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:33527 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266024AbUAEX4x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 18:56:53 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Christophe Saout <christophe@saout.de>
-Subject: Re: Possibly wrong BIO usage in ide_multwrite
-Date: Tue, 6 Jan 2004 00:59:52 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <1072977507.4170.14.camel@leto.cs.pocnet.net> <200401051808.49010.bzolnier@elka.pw.edu.pl> <20040105225117.GA5841@leto.cs.pocnet.net>
-In-Reply-To: <20040105225117.GA5841@leto.cs.pocnet.net>
+	Mon, 5 Jan 2004 18:48:01 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:50696 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266008AbUAEXpC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 18:45:02 -0500
+Date: Mon, 5 Jan 2004 23:44:58 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Norman Diamond <ndiamond@wta.att.ne.jp>
+cc: Thomas Molina <tmolina@cablespeed.com>, <dan@eglifamily.dnsalias.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Blank Screen in 2.6.0
+In-Reply-To: <00d401c3ce7a$a302fd80$98ee4ca5@DIAMONDLX60>
+Message-ID: <Pine.LNX.4.44.0401052344130.7347-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401060059.52833.bzolnier@elka.pw.edu.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 of January 2004 23:51, Christophe Saout wrote:
-> Remember? Can bio be NULL somewhere? Or what do you mean? It's our
-> scratchpad and ide_multwrite never puts a NULL bio on it.
 
-After last sector of the whole transfer is processed ide_multwrite() will set
-it to NULL.  Next IRQ is only ACK of previous datablock, no transfer happens.
+> Are you serious?  It really is true that vga= isn't supposed to work in
+> 2.6.0, but there is something to do with RedHat 7.3 which caused vga= to
+> continue to work in 2.6.0 with that distro only?  Then why hasn't the vga=
+> parameter been removed entirely?
 
-> > Otherwise I patch is OK for me.
->
-> Ok, take two.
->
-> I also did legacy/pdc4030.c, it's more or less the same though I'm not
-> able to test it.
+vga= still works with the vesa framebuffer. There is a small bug that is 
+causing all the problems.
 
-Looks OK.
-
-> @@ -333,14 +332,17 @@
->  			 *	we can end the original request.
->  			 */
->  			if (!rq->nr_sectors) {	/* all done? */
-> +				bio->bi_idx = bio->bi_vcnt - rq->nr_cbio_segments;
->  				rq = hwgroup->rq;
->  				ide_end_request(drive, 1, rq->nr_sectors);
->  				return ide_stopped;
->  			}
->  		}
->  		/* the original code did this here (?) */
-> +		bio->bi_idx = bio->bi_vcnt - rq->nr_cbio_segments;
->  		return ide_stopped;
-
-Move it before the comment.
-
---bart
 

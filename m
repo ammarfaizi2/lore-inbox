@@ -1,32 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261293AbVCWIsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVCWI6O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261293AbVCWIsb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 03:48:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbVCWIsb
+	id S261497AbVCWI6O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 03:58:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262884AbVCWI6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 03:48:31 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:32690 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261293AbVCWIs2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 03:48:28 -0500
-Date: Wed, 23 Mar 2005 09:48:18 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Yichen Xie <yxie@cs.stanford.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: memory leak in net/sched/ipt.c?
-In-Reply-To: <Pine.LNX.4.61.0503230011090.4207@kaki.stanford.edu>
-Message-ID: <Pine.LNX.4.61.0503230947300.12812@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0503230011090.4207@kaki.stanford.edu>
+	Wed, 23 Mar 2005 03:58:14 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12717 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261497AbVCWI6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 03:58:11 -0500
+Message-ID: <42412F94.7040603@pobox.com>
+Date: Wed, 23 Mar 2005 03:57:56 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: bert hubert <ahu@ds9a.nl>
+CC: Netdev <netdev@oss.sgi.com>,
+       "akpm @ osdl. org Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: netdev-2.6 queue updated
+References: <4240E35C.2090203@pobox.com> <20050323075525.GA25273@outpost.ds9a.nl>
+In-Reply-To: <20050323075525.GA25273@outpost.ds9a.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is the memory block allocated on line 315 leaked every time tcp_ipt_dump is
-> called?
+bert hubert wrote:
+> On Tue, Mar 22, 2005 at 10:32:44PM -0500, Jeff Garzik wrote:
+> 
+>>Wireless update, and various minor fixes.
+>>
+>>BK URL, patch URL, and changelog attached.
+> 
+> 
+> Jeff, akpm can you predict if this will make 2.6.12? Especially the wireless
+> & hostap stuff.
 
-What kernel version?
+2.6.12 is in release candidate status, which means only bug fixes.
+
+	Jeff
 
 
-Jan Engelhardt
--- 
+

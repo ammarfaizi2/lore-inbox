@@ -1,63 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264881AbUIOLMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264915AbUIOLRH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264881AbUIOLMa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 07:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264997AbUIOLM3
+	id S264915AbUIOLRH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 07:17:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265029AbUIOLRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 07:12:29 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:22994 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S264881AbUIOLM1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 07:12:27 -0400
-Date: Wed, 15 Sep 2004 13:10:59 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Stelian Pop <stelian@popies.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC, 2.6] a simple FIFO implementation
-Message-ID: <20040915111059.GA24818@thundrix.ch>
-References: <20040913135253.GA3118@crusoe.alcove-fr> <20040915102003.GA21917@sd291.sivit.org>
+	Wed, 15 Sep 2004 07:17:07 -0400
+Received: from gprs214-49.eurotel.cz ([160.218.214.49]:18817 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S264915AbUIOLRA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 07:17:00 -0400
+Date: Wed, 15 Sep 2004 13:16:46 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       Len Brown <len.brown@intel.com>
+Cc: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>
+Subject: Cleanup macro abuse in battery.c
+Message-ID: <20040915111646.GA19675@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YZ5djTAD1cGYuMQK"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040915102003.GA21917@sd291.sivit.org>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---YZ5djTAD1cGYuMQK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ACPI likes to abuse #define's quite a lot. This kills one of worst
+offenders. Please apply,
+								Pavel
 
-Salut,
+--- clean-mm/drivers/acpi/battery.c	2004-08-24 09:03:30.000000000 +0200
++++ linux-mm/drivers/acpi/battery.c	2004-09-15 13:00:50.000000000 +0200
+@@ -49,8 +49,6 @@
+ #define ACPI_BATTERY_FILE_ALARM		"alarm"
+ #define ACPI_BATTERY_NOTIFY_STATUS	0x80
+ #define ACPI_BATTERY_NOTIFY_INFO	0x81
+-#define ACPI_BATTERY_UNITS_WATTS	"mW"
+-#define ACPI_BATTERY_UNITS_AMPS		"mA"
+ 
+ 
+ #define _COMPONENT		ACPI_BATTERY_COMPONENT
+@@ -378,7 +376,7 @@
+ 		goto end;
+ 	}
+ 
+-	units = bif->power_unit ? ACPI_BATTERY_UNITS_AMPS : ACPI_BATTERY_UNITS_WATTS;
++	units = bif->power_unit ? "mA" : "mW";
+ 					
+ 	if (bif->design_capacity == ACPI_BATTERY_VALUE_UNKNOWN)
+ 		p += sprintf(p, "design capacity:         unknown\n");
+@@ -471,7 +469,7 @@
+ 
+ 	/* Battery Units */
+ 
+-	units = battery->flags.power_unit ? ACPI_BATTERY_UNITS_AMPS : ACPI_BATTERY_UNITS_WATTS;
++	units = battery->flags.power_unit ? "mA" : "mW";
+ 
+ 	/* Battery Status (_BST) */
+ 
+@@ -557,7 +555,7 @@
+ 
+ 	/* Battery Units */
+ 	
+-	units = battery->flags.power_unit ? ACPI_BATTERY_UNITS_AMPS : ACPI_BATTERY_UNITS_WATTS;
++	units = battery->flags.power_unit ? "mA" : "mW";
+ 
+ 	/* Battery Alarm */
+ 
 
-On Wed, Sep 15, 2004 at 12:20:03PM +0200, Stelian Pop wrote:
-> Two days later, I've got no comments at all.
->=20
-> Is this because the idea or the implementation are just stupid ?
-
-I will look at it Real Soon Now[tm] and consider it. But at the moment
-I'm aborad.
-
-			    Tonnerre
-
-
---YZ5djTAD1cGYuMQK
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
-
-iD8DBQFBSCNC/4bL7ovhw40RArPmAKCkr3yzjlpQASLw5DbJf8s3jjSEoQCfV+IY
-/ITgH9/Z0OxliW2artXNk44=
-=G8u6
------END PGP SIGNATURE-----
-
---YZ5djTAD1cGYuMQK--
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,71 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262394AbTB0JY0>; Thu, 27 Feb 2003 04:24:26 -0500
+	id <S262289AbTB0Ja2>; Thu, 27 Feb 2003 04:30:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262420AbTB0JY0>; Thu, 27 Feb 2003 04:24:26 -0500
-Received: from unthought.net ([212.97.129.24]:31872 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S262394AbTB0JYZ>;
-	Thu, 27 Feb 2003 04:24:25 -0500
-Date: Thu, 27 Feb 2003 10:34:42 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
-Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 7/8] dm: __LOW macro fix no. 2
-Message-ID: <20030227093442.GC4239@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Joe Thornber <joe@fib011235813.fsnet.co.uk>,
-	Linux Mailing List <linux-kernel@vger.kernel.org>
-References: <20030226170537.GA8289@fib011235813.fsnet.co.uk> <20030226171249.GG8369@fib011235813.fsnet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030226171249.GG8369@fib011235813.fsnet.co.uk>
-User-Agent: Mutt/1.3.28i
+	id <S262420AbTB0Ja2>; Thu, 27 Feb 2003 04:30:28 -0500
+Received: from [202.181.238.133] ([202.181.238.133]:18832 "EHLO debian.org.hk")
+	by vger.kernel.org with ESMTP id <S262289AbTB0Ja2>;
+	Thu, 27 Feb 2003 04:30:28 -0500
+Message-ID: <3E5DDCE7.2040100@linux.org.hk>
+Date: Thu, 27 Feb 2003 17:39:51 +0800
+From: Ben Lau <benlau@linux.org.hk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-pre5
+References: <Pine.LNX.4.53L.0302270314050.1433@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.53L.0302270314050.1433@freak.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 26, 2003 at 05:12:49PM +0000, Joe Thornber wrote:
-> Another fix for the __LOW macro.
-> 
-> When dm_table and dm_target structures are initialized, the "limits" fields 
-> (struct io_restrictions) are initialized to zero (e.g. in dm_table_add_target()
-> in dm-table.c). However, zero is not a useable value in these fields. The
-> request queue will never let an I/O through, regardless of how small it might
-> be, if max_sectors is set to zero (see generic_make_request in ll_rw_blk.c).
-> This change to the __LOW() macro sets these fields correctly when they are
-> first initialized.  [Kevin Corry]
-> 
-> --- diff/drivers/md/dm-table.c	2003-02-26 16:10:02.000000000 +0000
-> +++ source/drivers/md/dm-table.c	2003-02-26 16:10:19.000000000 +0000
-> @@ -79,7 +79,7 @@
->  }
->  
->  #define __HIGH(l, r) if (*(l) < (r)) *(l) = (r)
-> -#define __LOW(l, r) if (*(l) > (r)) *(l) = (r)
-> +#define __LOW(l, r) if (*(l) == 0 || *(l) > (r)) *(l) = (r)
+Hi,
 
-As someone else suggested, it would be good style to just use the
-existing min() and max() macros.
+   I have tried to compile the -pre5 with IEEE1394
+support and i got the following error:
 
-Special-casing like the above is a recipe for disaster - having a
-macro named "__LOW" which actually translates to  "min() unless left
-argument is zero in which case we do a max() instead" is going to get
-someone in trouble one day.
+ gcc -D__KERNEL__ -I/usr/src/2.4.21pre5/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i386
+-DMODULE  -nostdinc -iwithprefix include -DKBUILD_BASENAME=raw1394  -c
+-o raw1394.o raw1394.c
+ In file included from raw1394.c:50:
+ raw1394.h:167: field `tq' has incomplete type
+ raw1394.c: In function `__alloc_pending_request':
+ raw1394.c:110: warning: implicit declaration of function `HPSB_INIT_WORK'
+ raw1394.c:118: confused by earlier errors, bailing out
+ make[2]: *** [raw1394.o] Error 1
+ make[2]: Leaving directory `/usr/src/2.4.21pre5/drivers/ieee1394'
+ make[1]: *** [_modsubdir_ieee1394] Error 2
+ make[1]: Leaving directory `/usr/src/2.4.21pre5/drivers'
+ make: *** [_mod_drivers] Error 2
 
-I'd say use "min()" and if there are places in the code where you want
-min() unless that will be zero, then make that condition *explicit* at
-those places in the code.
+The definition of hpsb_queue_struct was missing
+in the -pre5. I found that it did exist on -pre4
 
-If you want a magic "usually_min_but_sometimes_max()" macro, then make
-it's *name* reflect it's voodoo propeties.
+/usr/src/2.4.21pre4/drivers/ieee1394/ieee1394_types.h:45:#define
+hpsb_queue_struct tq_struct
 
-Just my 0.02 Euro
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263645AbTLURXY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 12:23:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbTLURXY
+	id S263776AbTLUReY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 12:34:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263832AbTLUReY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 12:23:24 -0500
-Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:33806 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S263645AbTLURXT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 12:23:19 -0500
-Date: Sun, 21 Dec 2003 18:24:06 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6] fix file reference in sym53c8xx_2 help
-Message-Id: <20031221182406.20965c70.khali@linux-fr.org>
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 21 Dec 2003 12:34:24 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:14863 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S263776AbTLUReX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 12:34:23 -0500
+Date: Sun, 21 Dec 2003 18:34:17 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Marcel Holtmann <marcel@holtmann.org>
+cc: Randy Dunlap <rddunlap@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Difference between select and enable in Kconfig
+In-Reply-To: <1072027326.2684.72.camel@pegasus>
+Message-ID: <Pine.LNX.4.58.0312211830260.27544@serv>
+References: <1071974814.2684.41.camel@pegasus>  <20031220205433.195037e8.rddunlap@osdl.org>
+ <1072027326.2684.72.camel@pegasus>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, hi all,
+Hi,
 
-A very simple patch against 2.6.0 follows, which fixes an improper file
-reference in the scsi sym53c8xx_2 driver help text. The referenced
-documentation file was moved in 2.5.48 but the help text was not updated
-accordingly.
+On Sun, 21 Dec 2003, Marcel Holtmann wrote:
 
-Please apply.
-And thanks a lot for the excellent work :)
+> > 			case P_SELECT:
+> > 				sym2 = prop_get_symbol(prop);
+> > 				if ((sym->type != S_BOOLEAN && sym->type != S_TRISTATE) ||
+> > 				    (sym2->type != S_BOOLEAN && sym2->type != S_TRISTATE))
+> > 					fprintf(stderr, "%s:%d:warning: enable is only allowed with boolean and tristate symbols\n",
+> > 					                                ~~~~~~
+>
+> so both options achieve the same result. Why do we have two different
+> options for the same stuff? Should we not remove one?
 
---- linux-2.6.0/drivers/scsi/Kconfig.orig	Sun Dec 21 17:35:00 2003
-+++ linux-2.6.0/drivers/scsi/Kconfig	Sun Dec 21 17:36:34 2003
-@@ -903,7 +903,7 @@
- 	  language.  It does not support LSI53C10XX Ultra-320 PCI-X SCSI
- 	  controllers; you need to use the Fusion MPT driver for that.
- 
--	  Please read <file:drivers/scsi/sym53c8xx_2/Documentation.txt> for more
-+	  Please read <file:Documentation/scsi/sym53c8xx_2.txt> for more
- 	  information.
- 
- config SCSI_SYM53C8XX_DMA_ADDRESSING_MODE
+It was called first 'enable' and later renamed into 'select', which is now
+the official version, so 'enable' could be indeed removed.
 
-
--- 
-Jean Delvare
-http://www.ensicaen.ismra.fr/~delvare/
+bye, Roman

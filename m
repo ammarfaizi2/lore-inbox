@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280672AbRKFXP7>; Tue, 6 Nov 2001 18:15:59 -0500
+	id <S280667AbRKFXPi>; Tue, 6 Nov 2001 18:15:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280671AbRKFXPu>; Tue, 6 Nov 2001 18:15:50 -0500
-Received: from ns.suse.de ([213.95.15.193]:62729 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S280670AbRKFXPk>;
-	Tue, 6 Nov 2001 18:15:40 -0500
-Date: Wed, 7 Nov 2001 00:15:37 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Benjamin LaHaise <bcrl@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Using %cr2 to reference "current"
-In-Reply-To: <E161FL2-00027E-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0111070012430.16759-100000@Appserv.suse.de>
+	id <S280670AbRKFXP2>; Tue, 6 Nov 2001 18:15:28 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7439 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280667AbRKFXPP>; Tue, 6 Nov 2001 18:15:15 -0500
+Subject: Re: Linux kernel 2.4 and TCP terminations per second.
+To: imran.badr@cavium.com
+Date: Tue, 6 Nov 2001 23:22:24 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <017001c16701$3de5c0a0$3b10a8c0@IMRANPC> from "Imran Badr" at Nov 06, 2001 12:25:56 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E161FY0-0002AE-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Nov 2001, Alan Cox wrote:
+> Does anybody know , what is the maximum number of TCP (http)
+> terminations/per second a server (single/dual/.. processor)  in todays
+> market can do, without much CPU load. The server would be running linux
+> kernel 2.4 and apache web server.
 
-> > If this is done, it should perhaps be done on only on certain x86s,
-> > as some show the results go the other way. For example, the Cyrix III..
-> Do we have many SMP Cyrix III's ?
+If you are running any kind of high performance connections/second load then
+you dont run apache. That isnt what apache is good at
 
-I wish :)  Today no, tomorrow only VIA knows.
-I just used that as an example that it may not be a win everywhere.
-A better example perhaps was the P5 case Ricky posted, which as you
-know, are seen in the real world in SMP.
-
-regards,
-
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+thttpd will do 2000/sec on a decent box. zeus (non free) more, and tux
+(kernel http accelerator) holds some records

@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbUAFI7r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 03:59:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbUAFI7q
+	id S261563AbUAFIvk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 03:51:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbUAFIvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 03:59:46 -0500
-Received: from null.rsn.bth.se ([194.47.142.3]:64446 "EHLO null.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S261595AbUAFI7p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 03:59:45 -0500
-Subject: Re: PPTP_CONNECTRACK_NAT for latest kernel?
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Ed Weinberg <nylug@q5comm.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1073358444.22610.126.camel@ed.q>
-References: <1073358444.22610.126.camel@ed.q>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5kcQ0cd/a84p9/hfC/Bg"
-Message-Id: <1073379580.31821.27.camel@tux.rsn.bth.se>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 06 Jan 2004 09:59:40 +0100
+	Tue, 6 Jan 2004 03:51:40 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:14491 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S261563AbUAFIvh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 03:51:37 -0500
+Message-ID: <3FFA7717.7080808@namesys.com>
+Date: Tue, 06 Jan 2004 11:51:35 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jesper Juhl <juhl-lkml@dif.dk>
+CC: "Tigran A. Aivazian" <tigran@veritas.com>,
+       Hans Reiser <reiserfs-dev@namesys.com>,
+       Daniel Pirkl <daniel.pirkl@email.cz>,
+       Russell King <rmk@arm.linux.org.uk>, Will Dyson <will_dyson@pobox.com>,
+       linux-kernel@vger.kernel.org, nikita@namesys.com
+Subject: Re: Suspected bug infilesystems (UFS,ADFS,BEFS,BFS,ReiserFS) related
+ to sector_t being unsigned, advice requested
+References: <Pine.LNX.4.56.0401052343350.7407@jju_lnx.backbone.dif.dk>
+In-Reply-To: <Pine.LNX.4.56.0401052343350.7407@jju_lnx.backbone.dif.dk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jesper Juhl wrote:
 
---=-5kcQ0cd/a84p9/hfC/Bg
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>
+>
+>The problem is what seems (to me, but I could be dead wrong) to be invalid
+>use of variables of type sector_t.
+>
+>  
+>
+thanks.  nikita, please clean.
 
-On Tue, 2004-01-06 at 04:07, Ed Weinberg wrote:
-> is there a PPTP_CONNECTRACK_NAT patch for the latest 2.4 kernel?  I have
-> not found one later than 2.4.22 in CVS...unless I am looking in the
-> wrong place.
+-- 
+Hans
 
-Please download patch-o-matic from http://netfilter.org and read the
-instructions. The pptp-conntrack-nat.patch in there should work against
-2.4.24 and it has the latest bugfixes (note: do _not_ apply the patch
-with the 'patch' command by hand, the 'runme' script does some other
-magic as well)
 
---=20
-/Martin
-
---=-5kcQ0cd/a84p9/hfC/Bg
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQA/+nj8Wm2vlfa207ERAmEaAJ97bh+VflxklNwR28xRjHbf9RKxewCeMaP/
-S0u4y4wC5wOk+fL5zZ2ywl0=
-=lMcF
------END PGP SIGNATURE-----
-
---=-5kcQ0cd/a84p9/hfC/Bg--

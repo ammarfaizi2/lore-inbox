@@ -1,27 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263985AbTCUW2N>; Fri, 21 Mar 2003 17:28:13 -0500
+	id <S262001AbTCUWqG>; Fri, 21 Mar 2003 17:46:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263688AbTCUW1h>; Fri, 21 Mar 2003 17:27:37 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:40579
-	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263674AbTCUSLa>; Fri, 21 Mar 2003 13:11:30 -0500
-Date: Fri, 21 Mar 2003 19:26:44 GMT
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200303211926.h2LJQiij025765@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: fc4 doesnt need __NO_VERSION__ any more
+	id <S262062AbTCUWqF>; Fri, 21 Mar 2003 17:46:05 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:42379 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262001AbTCUWqE>;
+	Fri, 21 Mar 2003 17:46:04 -0500
+Subject: 2.5.65-osdl1
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Open Source Devlopment Lab
+Message-Id: <1048287427.1115.15.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 21 Mar 2003 14:57:07 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/fc4/fc_syms.c linux-2.5.65-ac2/drivers/fc4/fc_syms.c
---- linux-2.5.65/drivers/fc4/fc_syms.c	2003-02-10 18:38:50.000000000 +0000
-+++ linux-2.5.65-ac2/drivers/fc4/fc_syms.c	2003-03-14 00:52:15.000000000 +0000
-@@ -2,7 +2,6 @@
-  * We should not even be trying to compile this if we are not doing
-  * a module.
-  */
--#define __NO_VERSION__
- #include <linux/config.h>
- #include <linux/module.h>
- 
+http://prdownloads.sourceforge.net/osdldcl/patch-2.5.65-osdl1.bz2?download
+
+or OSDL Patch Lifecycle Manager (http://www.osdl.org/cgi-bin/plm/)
+	osdl-2.5.65-1	PLM # 1719
+
+
+New:
+o Atomic 64 bit i_size access		(Daniel McNeil)
+o Expanded dev_t enabling		(Andres Brouwer)
+
+Existing merged:
+o Cpu Hot Plug				(Zwane Mwaikambo)
+o Pentium Performance Counters		(Mikael Pettersson)
+o Linux Kernel Crash Dump (LKCD)        (Matt Robinson, LKCD team)
+o Linux Trace Toolkit (LTT)             (Karim Yaghmour)
+o Kernel Config (ikconfig)		(Randy Dunlap)
+o Improved boot time TSC synchronization (Jim Houston)
+o RCU statistics               		(Dipankar Sarma)
+o Scheduler tunables            	(Robert Love)
+
+
+Deleted:
+o Alternate disk schedulers	- see -mm tree for these
+o Flock fix for SAP		- merged
+
+
+
+
+

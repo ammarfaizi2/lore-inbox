@@ -1,60 +1,112 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317170AbSFLUff>; Wed, 12 Jun 2002 16:35:35 -0400
+	id <S317299AbSFLUlP>; Wed, 12 Jun 2002 16:41:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317299AbSFLUfe>; Wed, 12 Jun 2002 16:35:34 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:29446 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S317170AbSFLUfd>; Wed, 12 Jun 2002 16:35:33 -0400
-Date: Wed, 12 Jun 2002 16:30:10 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Nick Evgeniev <nick@octet.spb.ru>,
-        linux-kernel@vger.kernel.org
-Subject: Re: linux 2.4.19-preX IDE bugs
-In-Reply-To: <Pine.LNX.4.10.10206121130160.15604-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.3.96.1020612160915.337C-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317322AbSFLUlO>; Wed, 12 Jun 2002 16:41:14 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:54837 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S317299AbSFLUlN>; Wed, 12 Jun 2002 16:41:13 -0400
+Message-Id: <5.1.0.14.2.20020612213746.045b7b60@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 12 Jun 2002 21:41:56 +0100
+To: Andreas Dilger <adilger@clusterfs.com>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: [PATCH] 2.5.21 Nonlinear CPU support
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, Rusty Russell <rusty@rustcorp.com.au>,
+        torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        k-suganuma@mvj.biglobe.ne.jp, Andrew Morton <akpm@zip.com.au>
+In-Reply-To: <20020612193921.GA682@clusterfs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Jun 2002, Andre Hedrick wrote:
+At 20:39 12/06/02, Andreas Dilger wrote:
+>On Jun 12, 2002  19:34 +0100, Anton Altaparmakov wrote:
+> > At 18:36 12/06/02, Andreas Dilger wrote:
+> > >1) Allocate an array of NULL pointers which is NR_CPUs in size (you could
+> > >   do this all the time, as it would only be a few bytes)
+> >
+> > Yes, that is fine.
+> >
+> > >2) If you need to do decompression on a cpu you check the array entry
+> > >   for that CPU and if is NULL you vmalloc() the decompression buffers 
+> once
+> > >   for that CPU.  This avoid vmalloc() overhead for each read.
+> >
+> > The vmalloc() sleeps and by the time you get control back you are 
+> executing
+> > on a different CPU. Ooops. The only valid way of treating per-cpu data is:
+> >
+> > - disable preemption
+> > - get the cpu number = START OF CRITICAL SECTION: no sleep/schedule allowed
+> > - do work using the cpu number
+> > - reenable preemption = END OF CRITICAL SECTION
+> >
+> > The only thing that could possibly be used inside the critical region is
+> > kmalloc(GFP_ATOMIC) but we are allocating 64kiB so that is not an option.
+> > (It would fail very quickly due to memory fragmentation, the order of the
+> > allocation is too high.)
+>
+>Well, then you can still do the one-time allocation for that CPU slot,
+>and re-check the CPU number after vmalloc() returns.  If it is different
+>(or always, for that matter) then you jump back to the "is the array for
+>this CPU allocated" check until the array _is_ allocated for that CPU
+>and you don't need to allocate it (so you won't sleep).  At most you
+>will need to loop once for each available CPU if you are unlucky enough
+>to be rescheduled to a different CPU after each call to vmalloc().
+>
+>Like:
+>         int cpunum = this_cpu();
+>         char *newbuf = NULL;
+>
+>         while (unlikely(NTFS_SB(sb)->s_compr_array[cpunum] == NULL)) {
 
-> The hardware changed and the interrupt parser feature that stablized the
-> old chipsets under SMP is gone.  The new chipsets (20268 and above) do not
-> have a location with sticky bits.  So in some cases I expect things to go
-> south, but in general they should not.  Otherwise promise would be all
-> over the issue.
+Um are you suggesting compression buffers to be per mounted volume? That 
+would be more wasteful than the current approach of one buffer per CPU 
+globally for all of ntfs driver.
 
-  Okay, thanks, that clarifies it, and if I read it right this may be a
-permanent restriction. If the system is running noapic so the ints all go
-to CPU0 does that help the situation? In a sane system I agree with Alan
-that this is not a performance hit, or at least not significant.
- 
-> > On Wed, 12 Jun 2002, Alan Cox wrote:
+>                 newbuf = vmalloc(NTFS_DECOMPR_BUFFER_SIZE);
+>
+>                 /* Re-check the buffer case we slept in vmalloc() and
+>                 * someone else already allocated a buffer for "this" CPU.
+>                 */
+>                 if (likely(NTFS_SB(sb)->s_compr_array[cpunum] == NULL)) {
+>                         NTFS_SB(sb)->s_compr_array[cpunum] = newbuf;
+>                         newbuf = NULL;
+>                 }
+>                 cpunum = this_cpu();
+>         }
+>         /* Hmm, we slept in vmalloc and we don't need the new buffer */
+>         if (unlikely(newbuf != NULL))
+>                 vfree(newbuf);
 
-> > > Then I suggest you give up computing, because PC hardware doesnt make
-> > > your grade. BTW the general open promise bugs *dont* include data
-> > > corruption so I suspect it may be your h/w thats hosed.
+vfree() at a guess (I may be completely wrong on that one in which case I 
+appologize!) can also sleep so that breaks that scheme.
 
-> Andre Hedrick
-> LAD Storage Consulting Group
+> > >3) Any allocated buffers are freed in the same manner they are now -
+> > >   when the last compressed volume is unmounted.  There may be some or
+> > >   all entries that are still NULL.
+> > >
+> > >This also avoids allocating buffers when there are no files which are
+> > >actually compressed.
+> >
+> > True it does, but unfortunately it doesn't work. )-:
+>
+>Now it does... ;-).
 
-Guys, I wasn't questioning anyone's competence, just agreeing with the
-original poster that if this is going to be an ongoing issue of stability
-it might be held back for a version until there is time to either program
-around it or characterize the conditions under which it causes problems. 
-And if that means that I can't trust it SMP, I don't think I'm a bad guy
-to suggest the config drop the driver if SMP support is selected.
+Perhaps. But if doing something like that I might as well use the present 
+approach and just allocate all buffers at once if they haven't been 
+allocated yet and be done with it. Then no vfree()s are needed either and 
+then it really does work. (-;
 
-I don't mind moving a card to another system, and even if I didn't have
-another system I would rather not take that particular risk. And if it
-won't work reliably SMP then perhaps Promise should be taking some action.
-There are SMP W2k machines out there, too. 
+Anton
+
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

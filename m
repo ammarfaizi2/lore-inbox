@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbVCMXpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVCMXxR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261589AbVCMXpo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 18:45:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVCMXpo
+	id S261590AbVCMXxR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 18:53:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVCMXxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 18:45:44 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:23205 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261589AbVCMXpj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 18:45:39 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.11: keyboard stopped working after memory upgrade
-Date: Mon, 14 Mar 2005 00:48:28 +0100
-User-Agent: KMail/1.7.1
-Cc: Pavel Machek <pavel@ucw.cz>
-References: <200503121421.03983.rjw@sisk.pl> <20050313183635.GD1427@elf.ucw.cz> <200503132020.36968.rjw@sisk.pl>
-In-Reply-To: <200503132020.36968.rjw@sisk.pl>
+	Sun, 13 Mar 2005 18:53:17 -0500
+Received: from fire.osdl.org ([65.172.181.4]:24246 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261590AbVCMXxN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 18:53:13 -0500
+Date: Sun, 13 Mar 2005 15:54:55 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+cc: Stas Sergeev <stsp@aknet.ru>, Alan Cox <alan@redhat.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: [patch] x86: fix ESP corruption CPU bug
+In-Reply-To: <20050313231734.GA22635@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.58.0503131552010.2822@ppc970.osdl.org>
+References: <42348474.7040808@aknet.ru> <20050313201020.GB8231@elf.ucw.cz>
+ <4234A8DD.9080305@aknet.ru> <Pine.LNX.4.58.0503131306450.2822@ppc970.osdl.org>
+ <20050313231734.GA22635@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503140048.29115.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, 13 of March 2005 20:20, Rafael J. Wysocki wrote: 
-> On Sunday, 13 of March 2005 19:36, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > I'm just having a weird problem with 2.6.11.  Namely, the keyboard stopped
-> > > working after I'd added more RAM to the box (Asus L5D notebok, x86-64
-> > > kernel).  It works on 2.6.11-mm1.
-> > 
-> > Custom DSDT? DSDTs are known to depend on ammount of memory...
+
+
+On Mon, 14 Mar 2005, Pavel Machek wrote:
 > 
-> Yes, but the very same DSDT works fine on 2.6.11-mm[13].  Just for the record. :-)
+> What about flag similar to _TIF_SYSCALL_TRACE (call it
+> _TIF_THIS_BEAST_USES_V86 or something), and only do the tests in the
+> slowpath if it is set? As normal applications do not use v86, we could
+> make this 0 instructions in syscall fast path...
 
-Evidently, without the custom DSDT the keyboard works fine on 2.6.11 too.
+It wouldn't help you. You'd need to mix in two of the values anyway, so at 
+most you'd save one instruction. And the cost would be that anything that 
+has ever used vm86 mode (can you say "X server"?) would be slower. Not a 
+good trade-off.
 
-Greets,
-Rafael
+Oh, I guess you could clear the flag when you know there's no vm86 state
+anywhere (easy enough, those things never nest), but then it still comes
+back to "extra complexity that you can get wrong, just to save a single
+"mov" instruction - that "mov" may have partial-register-stall issues, 
+but still..).
 
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+		Linus

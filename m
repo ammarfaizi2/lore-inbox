@@ -1,43 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312275AbSDCR2K>; Wed, 3 Apr 2002 12:28:10 -0500
+	id <S312269AbSDCRcA>; Wed, 3 Apr 2002 12:32:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312269AbSDCR2B>; Wed, 3 Apr 2002 12:28:01 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31492 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312275AbSDCR1u>; Wed, 3 Apr 2002 12:27:50 -0500
-Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Wed, 3 Apr 2002 18:43:10 +0100 (BST)
-Cc: arjanv@redhat.com (Arjan van de Ven), hugh@veritas.com (Hugh Dickins),
-        mingo@redhat.com (Ingo Molnar),
-        stelian.pop@fr.alcove.com (Stelian Pop), linux-kernel@vger.kernel.org
-In-Reply-To: <20020403182118.A10959@dualathlon.random> from "Andrea Arcangeli" at Apr 03, 2002 06:21:18 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S312277AbSDCRbu>; Wed, 3 Apr 2002 12:31:50 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:16136 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S312269AbSDCRbl>;
+	Wed, 3 Apr 2002 12:31:41 -0500
+Date: Wed, 3 Apr 2002 09:29:28 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Sridhar N <srin@symonds.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Stepping through entry.S
+In-Reply-To: <02040307072600.03031@srin.homelinux.net>
+Message-ID: <Pine.LNX.4.33L2.0204030858010.22448-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16soms-0004Au-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  EXPORT_SYMBOL(vfree);
->  EXPORT_SYMBOL(__vmalloc);
-> -EXPORT_SYMBOL_GPL(vmalloc_to_page);
-> +EXPORT_SYMBOL(vmalloc_to_page);
+On Wed, 3 Apr 2002, Sridhar N wrote:
 
-The authors of that code made it GPL. You have no right to change that. Its
-exactly the same as someone taking all your code and making it binary only.
+| Hello (recycled)
 
-You are
-	-	subverting a digital rights management system
-			[5 years jail in the USA]
-	-	breaking a license
+| 	I was trying to trace the handling of the system calls, and to step through
+| the entry.S on i386 machine.  I basically used this:
+|
+| 	srin_entryS_debug_mesg: 		#My addition
+| 		.asciz "some relevant message\n"
+| 		ALIGN
+| 	tracesys:			#haven't changed anything here..
+| 		.
+| 		.
+| 		.
+| 		jae tracesys_exit
+| 		pushl $srin_entryS_debug_mesg		#just this
+| 		call SYMBOL_NAME(printk)	# and this
+| 		call *SYMBOL_NAME(sys_call_table)(,%eax,4)
+| 		movl %eax,EAX(%esp)		# save the return value
+| 	tracesys_exit:
+|
+| Shouldn't this call printk everytime a system call is made or atleast crash
+| the kernel if something is dead wrong ? ( It isn't .. everything seems normal
+| as though the printk isn't there )  Also,  how can  i know the values in the
+| specific registers in that file ? Specifically, whenever a system call is
+| made, what registers store what values ? I'm using kernel 2.4.7 on a K6-2.
 
-but worse than that you are ignoring the basic moral rights of the authors
-of that code.
+The tracesys: label (code) is only used if ptrace is enabled for
+the task.  Is it enabled?  If not, you aren't executing this code
+at all.
 
-Alan
+	testb $0x02,tsk_ptrace(%ebx)	# PT_TRACESYS
+	jne tracesys
 
+For the register interface, AFAIK, see the gcc docs, such as
+Extensions to the C Language Family:
+  http://gcc.gnu.org/onlinedocs/gcc-2.95.3/gcc_4.html
+and search for /regparm/ .
+<quote>
+regparm (number)
+ On the Intel 386, the regparm attribute causes the compiler to pass up
+ to number integer arguments in registers EAX, EDX, and ECX instead of
+ on the stack. Functions that take a variable number of arguments will
+ continue to be passed all of their arguments on the stack.
+</quote>
+Someone please correct or add to this.  :)
+
+-- 
+~Randy
 

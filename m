@@ -1,56 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272366AbTGYWTP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 18:19:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272367AbTGYWTO
+	id S272368AbTGYW16 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 18:27:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272369AbTGYW16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 18:19:14 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:45069 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S272366AbTGYWTN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 18:19:13 -0400
-Date: Fri, 25 Jul 2003 15:34:20 -0700
-From: jw schultz <jw@pegasys.ws>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 -> 2.2 differences?
-Message-ID: <20030725223420.GD25838@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <20030725142434.GS32585@rdlg.net>
+	Fri, 25 Jul 2003 18:27:58 -0400
+Received: from pc-62-31-11-105-bf.blueyonder.co.uk ([62.31.11.105]:11190 "HELO
+	prozac") by vger.kernel.org with SMTP id S272368AbTGYW15 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 18:27:57 -0400
+Subject: Re: [PATCH] Remove module reference counting.
+From: Gianni Tedesco <gianni@scaramanga.co.uk>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: davem@redhat.com, arjanv@redhat.com, torvalds@transmeta.com,
+       greg@kroah.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20030725173900.D7DE12C2A9@lists.samba.org>
+References: <20030725173900.D7DE12C2A9@lists.samba.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-azJ76A2Q3pwYmEyLGYtw"
+Message-Id: <1059172995.16255.6.camel@sherbert>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030725142434.GS32585@rdlg.net>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: This message may contain content offensive to Atheists and servants of false gods.  Read at your own risk.
+X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
+Date: 25 Jul 2003 23:43:16 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 25, 2003 at 10:24:34AM -0400, Robert L. Harris wrote:
-> 
-> 
-> With all the SCO fun going on I have people asking me what functionality
-> we would loose if we rolled from 2.4.21 kernel to the last known stable
-> 2.2 kernel.
-> 
-> Yes, weathering the lawsuit mess and all is a good plan but I'm still
-> being asked for this information.  Does anyone have a link listing what
->  kind of functionality would be lost, performance impact (p3 and athalon
-> machines), etc?
 
-You could start with Joe Pranevich's "Wonderful World of
-Linux 2.4" at
-http://linuxtoday.com/news_story.php3?ltsn=1999-10-03-001-05-NW-LF
+--=-azJ76A2Q3pwYmEyLGYtw
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-There have been a number of improvements and features added
-since but any 2.2 -> 2.4 features summary should indicate
-much of what you would loose in a 2.4 -> 2.2 transition.
+On Thu, 2003-07-24 at 19:00, Rusty Russell wrote:
+> 	If module removal is to be a rare and unusual event, it
+> doesn't seem so sensible to go to great lengths in the code to handle
+> just that case.  In fact, it's easier to leave the module memory in
+> place, and not have the concept of parts of the kernel text (and some
+> types of kernel data) vanishing.
+
+Wasn't the idea once banded about of a 2-stage unload that went
+something like:
+
+1. ->cleanup() - unregister IRQ handlers, timers, etc.
+2. Quiesce the system
+3. Safe to unload
+
+surely if nothing is registered and all CPUs do a voluntary schedule()
+then there can be no chance of calling back in to the module.
+
+LOL. Or am I kidding myself here? :)
+
+--=20
+// Gianni Tedesco (gianni at scaramanga dot co dot uk)
+lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
+8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
 
 
+--=-azJ76A2Q3pwYmEyLGYtw
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-		Remember Cernan and Schmitt
+iD8DBQA/IbKDkbV2aYZGvn0RAjMIAJ9bzykEGIBBslYqvuuRCNMIES9f8wCfRatC
+ExZaTg2ju35heH5/Hv9FNVI=
+=j980
+-----END PGP SIGNATURE-----
+
+--=-azJ76A2Q3pwYmEyLGYtw--
+

@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276097AbRJaXsd>; Wed, 31 Oct 2001 18:48:33 -0500
+	id <S276057AbRJaXwn>; Wed, 31 Oct 2001 18:52:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276118AbRJaXsX>; Wed, 31 Oct 2001 18:48:23 -0500
-Received: from pc-62-31-92-167-az.blueyonder.co.uk ([62.31.92.167]:56559 "EHLO
-	kushida.jlokier.co.uk") by vger.kernel.org with ESMTP
-	id <S276097AbRJaXsQ>; Wed, 31 Oct 2001 18:48:16 -0500
-Date: Wed, 31 Oct 2001 23:47:07 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Cort Dougan <cort@fsmlabs.com>
-Cc: Craig Milo Rogers <rogers@ISI.EDU>, Larry McVoy <lm@bitmover.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Timur Tabi <ttabi@interactivesi.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Module Licensing?
-Message-ID: <20011031234707.A9542@kushida.jlokier.co.uk>
-In-Reply-To: <20011031092228.J1506@work.bitmover.com> <4986.1004558101@ISI.EDU> <20011031144244.R607@ftsoj.fsmlabs.com>
+	id <S276135AbRJaXwf>; Wed, 31 Oct 2001 18:52:35 -0500
+Received: from apollo.wizard.ca ([204.244.205.22]:1298 "HELO apollo.wizard.ca")
+	by vger.kernel.org with SMTP id <S276118AbRJaXwY>;
+	Wed, 31 Oct 2001 18:52:24 -0500
+Subject: Re: 2.4.14-pre6
+From: Michael Peddemors <michael@wizard.ca>
+To: Dax Kelson <dax@gurulabs.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0110311640090.8361-100000@mooru.gurulabs.com>
+In-Reply-To: <Pine.LNX.4.33.0110311640090.8361-100000@mooru.gurulabs.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13 (Preview Release)
+Date: 31 Oct 2001 15:57:47 -0800
+Message-Id: <1004572667.11209.62.camel@mistress>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011031144244.R607@ftsoj.fsmlabs.com>; from cort@fsmlabs.com on Wed, Oct 31, 2001 at 02:42:44PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cort Dougan wrote:
-> The GPL 2.0 uses language that makes it pretty clear that it was meant to
-> describe the source code, not the object module.
+On Wed, 2001-10-31 at 15:40, Dax Kelson wrote:
+> On Wed, 31 Oct 2001, Erik Andersen wrote:
+> 
+> > How about ext3 for 2.4.14?
+> 
+> Seconded.
+> 
 
-The GPL describes _both_ the source and object code forms of the program.
+As much as I would like to ext3 get in, NOT IN THIS RELEASE please...
+Don't put anything else in, until what we got works.. Hit him up on
+2.4.15 :)
 
-See section 3, "You may copy and distribute the Program (...) in _object
-code or executable form_ under the terms of sections 1 and 2 above
-provided that you _also do one of the following:_ ..."
+-- 
+"Catch the Magic of Linux..."
+--------------------------------------------------------
+Michael Peddemors - Senior Consultant
+LinuxAdministration - Internet Services
+NetworkServices - Programming - Security
+Wizard IT Services http://www.wizard.ca
+Linux Support Specialist - http://www.linuxmagic.com
+--------------------------------------------------------
+(604)589-0037 Beautiful British Columbia, Canada
 
-The terms to be followed for object code and executable form are given
-explicitly in section 3.
-
-> It uses "source code" to refer to what is licensed under the GPL
-> several times.
-
-Actually, section 0 defines what is licensed: "This License applies to
-any _program_ or other work which contains a notice placed by the
-copyright holder saying it may be distributed under the terms of this
-General Public License.
-
-If we are picky, you are right that this does not appear to refer to an
-object module _if_ the object module doesn't contain the license notice.
-(This may perhaps be unfortunate wording in the GPL (IANAL either)).
-(Lucky that newer kernel modules _do_ contain a license notice, isn't it?)
-
-But if you take that strict interpretation, you have _no_ right to copy
-or distribute the object module anyway, except as granted by the license
-on the accompanying source code.
-
-In other words, the GPL doesn't have to "apply" to the object module to
-deny you the right to copy it.  You start with no right to copy the
-object module _at all_, except as granted by the copyright owners.
-
--- Jamie

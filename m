@@ -1,192 +1,209 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbUHTHkg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUHTHmb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263003AbUHTHkg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 03:40:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUHTHkg
+	id S263117AbUHTHmb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 03:42:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUHTHma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 03:40:36 -0400
-Received: from chilli.pcug.org.au ([203.10.76.44]:18653 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S263003AbUHTHk2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 03:40:28 -0400
-Date: Fri, 20 Aug 2004 17:38:50 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
+	Fri, 20 Aug 2004 03:42:30 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:1463 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S263117AbUHTHlf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 03:41:35 -0400
+Subject: Re: 2.6.8.1-mm2
+From: Rusty Russell <rusty@rustcorp.com.au>
 To: Andrew Morton <akpm@osdl.org>
-Cc: jgarzik@pobox.com, Jens Axboe <axboe@suse.de>,
-       ppc64-dev <linuxppc64-dev@lists.linuxppc.org>,
-       LKML <linux-kernel@vger.kernel.org>, olh@suse.de
-Subject: Re: [PATCH] PPC64 iSeries virtual DVD-RAM
-Message-Id: <20040820173850.652694ba.sfr@canb.auug.org.au>
-In-Reply-To: <20040609061227.GR13836@suse.de>
-References: <20040608224646.529860f4.sfr@canb.auug.org.au>
-	<40C5E0CD.8060107@pobox.com>
-	<20040609115035.2167efee.sfr@canb.auug.org.au>
-	<20040609061227.GR13836@suse.de>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Cc: Nathan Lynch <nathanl@austin.ibm.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Srivatsa Vaddagiri <vatsa@in.ibm.com>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <20040819181603.700a9a0e.akpm@osdl.org>
+References: <20040819014204.2d412e9b.akpm@osdl.org>
+	 <1092964083.4946.7.camel@biclops.private.network>
+	 <20040819181603.700a9a0e.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1092987650.28849.349.camel@bach>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Fri__20_Aug_2004_17_38_50_+1000_SPu6rO.5ikYPiZN/"
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 20 Aug 2004 17:40:51 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Fri__20_Aug_2004_17_38_50_+1000_SPu6rO.5ikYPiZN/
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+On Fri, 2004-08-20 at 11:16, Andrew Morton wrote:
+> Nathan Lynch <nathanl@austin.ibm.com> wrote:
+> >
+> > > +dont-sleep-after-were-out-of-task-list.patch
+> > > 
+> > >  CPU hotplug race fix
+> > 
+> > I don't mean to be a pain, but this patch does not fix the bug I
+> > reported.
 
-Hi Andrew,
+Nathan, can you revert that, and apply this?  This actually fixes the
+might_sleep problem, and should fix at least the problem Vatsa saw.  If
+it doesn't solve your problem, we need to look again.
 
-This patch adds the ability to use DVD-RAM drives to the iSeries virtual
-cdrom driver.  This version adresses (hopefully) Jens comments on the
-previous one.
+Thanks,
+Rusty.
 
-The patch is against 2.6.8.1 but sould apply to just about anything. 
-Please apply to your tree and Linus'.  There is no clash with the patches
-that Paulus has been sending you.
+Name: Don't Sleep After We're Out Of Task List
+Status: Booted on 2.6.8.1-mm1
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au> (authored)
+Version: -mm
 
-Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Ingo recently accidentally broke CPU hotplug by enabling preemption
+around release_task(), which can be called on the current task if the
+parent isn't interested.  This is because release_task() can now
+sleep.
 
-diff -ruNp 2.6.8.1/drivers/cdrom/viocd.c 2.6.8.1-dvdram.1/drivers/cdrom/viocd.c
---- 2.6.8.1/drivers/cdrom/viocd.c	2004-08-19 17:02:02.000000000 +1000
-+++ 2.6.8.1-dvdram.1/drivers/cdrom/viocd.c	2004-08-20 00:38:40.000000000 +1000
-@@ -121,7 +121,10 @@ struct capability_entry {
+The problem is, the task can be preempted and then the CPU can go
+down: it's not in the task list any more, and so it won't get migrated
+after the CPU goes down.  It stays on the down CPU, which triggers a
+BUG_ON.
+
+We have had previous problems with tasks releasing themselves:
+oprofile has a comment about it, and we had the case of trying to
+deliver SIGXCPU in the timer tick to the current task which had called
+release_task().  I tried shuffling release_task off the
+finish_arch_switch, but that can't sleep either.  I tried using rcu,
+but same problem.  Finally, I just use a workqueue and a per-cpu list,
+which also guarantees the task has actually finished running.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .29294-linux-2.6.8.1-mm1/include/linux/sched.h .29294-linux-2.6.8.1-mm1.updated/include/linux/sched.h
+--- .29294-linux-2.6.8.1-mm1/include/linux/sched.h	2004-08-17 11:32:33.000000000 +1000
++++ .29294-linux-2.6.8.1-mm1.updated/include/linux/sched.h	2004-08-20 12:18:37.000000000 +1000
+@@ -590,6 +591,8 @@ struct task_struct {
+ 	struct rw_semaphore pagg_sem;
+ #endif
+ 
++	/* Delayed cleanup on death of task with uncaring parent. */
++	struct list_head death;
  };
  
- static struct capability_entry capability_table[] __initdata = {
--	{ "6330", CDC_LOCK | CDC_DVD_RAM },
-+	{ "6330", CDC_LOCK | CDC_DVD_RAM | CDC_RAM },
-+	{ "6331", CDC_LOCK | CDC_DVD_RAM | CDC_RAM },
-+	{ "6333", CDC_LOCK | CDC_DVD_RAM | CDC_RAM },
-+	{ "632A", CDC_LOCK | CDC_DVD_RAM | CDC_RAM },
- 	{ "6321", CDC_LOCK },
- 	{ "632B", 0 },
- 	{ NULL  , CDC_LOCK },
-@@ -332,10 +335,19 @@ static int send_request(struct request *
- 	struct disk_info *diskinfo = req->rq_disk->private_data;
- 	u64 len;
- 	dma_addr_t dmaaddr;
-+	int direction;
-+	u16 cmd;
- 	struct scatterlist sg;
- 
- 	BUG_ON(req->nr_phys_segments > 1);
--	BUG_ON(rq_data_dir(req) != READ);
-+
-+	if (rq_data_dir(req) == READ) {
-+		direction = DMA_FROM_DEVICE;
-+		cmd = viomajorsubtype_cdio | viocdread;
-+	} else {
-+		direction = DMA_TO_DEVICE;
-+		cmd = viomajorsubtype_cdio | viocdwrite;
-+	}
- 
-         if (blk_rq_map_sg(req->q, req, &sg) == 0) {
- 		printk(VIOCD_KERN_WARNING
-@@ -343,7 +355,7 @@ static int send_request(struct request *
- 		return -1;
- 	}
- 
--	if (dma_map_sg(diskinfo->dev, &sg, 1, DMA_FROM_DEVICE) == 0) {
-+	if (dma_map_sg(diskinfo->dev, &sg, 1, direction) == 0) {
- 		printk(VIOCD_KERN_WARNING "error allocating sg tce\n");
- 		return -1;
- 	}
-@@ -351,8 +363,7 @@ static int send_request(struct request *
- 	len = sg_dma_len(&sg);
- 
- 	hvrc = HvCallEvent_signalLpEventFast(viopath_hostLp,
--			HvLpEvent_Type_VirtualIo,
--			viomajorsubtype_cdio | viocdread,
-+			HvLpEvent_Type_VirtualIo, cmd,
- 			HvLpEvent_AckInd_DoAck,
- 			HvLpEvent_AckType_ImmediateAck,
- 			viopath_sourceinst(viopath_hostLp),
-@@ -457,6 +468,41 @@ static int viocd_lock_door(struct cdrom_
- 	return 0;
+ static inline pid_t process_group(struct task_struct *tsk)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .29294-linux-2.6.8.1-mm1/kernel/exit.c .29294-linux-2.6.8.1-mm1.updated/kernel/exit.c
+--- .29294-linux-2.6.8.1-mm1/kernel/exit.c	2004-08-17 11:32:33.000000000 +1000
++++ .29294-linux-2.6.8.1-mm1.updated/kernel/exit.c	2004-08-20 14:50:25.000000000 +1000
+@@ -51,6 +51,41 @@ static void __unhash_process(struct task
+ 	REMOVE_LINKS(p);
  }
  
-+static int viocd_packet(struct cdrom_device_info *cdi,
-+		struct packet_command *cgc)
++/* Keventd handles tasks whose parent won't ever release_task them. */
++static DEFINE_PER_CPU(struct list_head, unreleased_tasks);
++static DEFINE_PER_CPU(struct work_struct, release_task_work);
++
++static void release_tasks(void *tasks)
 +{
-+	unsigned int buflen = cgc->buflen;
-+	int ret = -EIO;
++	struct task_struct *tsk, *next;
++	LIST_HEAD(list);
 +
-+	switch (cgc->cmd[0]) {
-+	case GPCMD_READ_DISC_INFO:
-+		{
-+			disc_information *di = (disc_information *)cgc->buffer;
++	write_lock_irq(&tasklist_lock);
++	list_splice_init((struct list_head *)tasks, &list);
++	write_unlock_irq(&tasklist_lock);
 +
-+			if (buflen >= 2) {
-+				di->disc_information_length = cpu_to_be16(1);
-+				ret = 0;
-+			}
-+			if (buflen >= 3)
-+				di->erasable =
-+					(cdi->ops->capability & ~cdi->mask
-+					 & (CDC_DVD_RAM | CDC_RAM)) != 0;
-+		}
-+		break;
-+	default:
-+		if (cgc->sense) {
-+			/* indicate Unknown code */
-+			cgc->sense->sense_key = 0x05;
-+			cgc->sense->asc = 0x20;
-+			cgc->sense->ascq = 0x00;
-+		}
-+		break;
++	list_for_each_entry_safe(tsk, next, &list, death) {
++		BUG_ON(!(tsk->flags & PF_DEAD));
++		/* I don't *think* this should happen... --RR */
++		WARN_ON(tsk->state != TASK_DEAD);
++		list_del(&tsk->death);
++		release_task(tsk);
 +	}
-+
-+	cgc->stat = ret;
-+	return ret;
 +}
 +
- /* This routine handles incoming CD LP events */
- static void vio_handle_cd_event(struct HvLpEvent *event)
++static __init int init_release_tasks(void)
++{
++	unsigned int i;
++
++	for_each_cpu(i) {
++		INIT_LIST_HEAD(&per_cpu(unreleased_tasks, i));
++		INIT_WORK(&per_cpu(release_task_work, i), release_tasks,
++			  &per_cpu(unreleased_tasks, i));
++	}
++	return 0;
++}
++core_initcall(init_release_tasks);
++
+ void release_task(struct task_struct * p)
  {
-@@ -510,6 +556,7 @@ return_complete:
- 	case viocdclose:
- 		break;
+ 	int zap_leader;
+@@ -656,7 +691,6 @@ static inline void forget_original_paren
+  */
+ static void exit_notify(struct task_struct *tsk)
+ {
+-	int state;
+ 	struct task_struct *t;
+ 	struct list_head ptrace_dead, *_p, *_n;
  
-+	case viocdwrite:
- 	case viocdread:
- 		/*
- 		 * Since this is running in interrupt mode, we need to
-@@ -518,7 +565,8 @@ return_complete:
- 		di = &viocd_diskinfo[bevent->disk];
- 		spin_lock_irqsave(&viocd_reqlock, flags);
- 		dma_unmap_single(di->dev, bevent->token, bevent->len,
--				DMA_FROM_DEVICE);
-+				((event->xSubtype & VIOMINOR_SUBTYPE_MASK) == viocdread)
-+				?  DMA_FROM_DEVICE : DMA_TO_DEVICE);
- 		req = (struct request *)bevent->event.xCorrelationToken;
- 		rwreq--;
+@@ -753,47 +787,37 @@ static void exit_notify(struct task_stru
+ 		do_notify_parent(tsk, SIGCHLD);
+ 	}
  
-@@ -555,7 +603,8 @@ static struct cdrom_device_ops viocd_dop
- 	.release = viocd_release,
- 	.media_changed = viocd_media_changed,
- 	.lock_door = viocd_lock_door,
--	.capability = CDC_CLOSE_TRAY | CDC_OPEN_TRAY | CDC_LOCK | CDC_SELECT_SPEED | CDC_SELECT_DISC | CDC_MULTI_SESSION | CDC_MCN | CDC_MEDIA_CHANGED | CDC_PLAY_AUDIO | CDC_RESET | CDC_IOCTLS | CDC_DRIVE_STATUS | CDC_GENERIC_PACKET | CDC_CD_R | CDC_CD_RW | CDC_DVD | CDC_DVD_R | CDC_DVD_RAM
-+	.generic_packet = viocd_packet,
-+	.capability = CDC_CLOSE_TRAY | CDC_OPEN_TRAY | CDC_LOCK | CDC_SELECT_SPEED | CDC_SELECT_DISC | CDC_MULTI_SESSION | CDC_MCN | CDC_MEDIA_CHANGED | CDC_PLAY_AUDIO | CDC_RESET | CDC_IOCTLS | CDC_DRIVE_STATUS | CDC_GENERIC_PACKET | CDC_CD_R | CDC_CD_RW | CDC_DVD | CDC_DVD_R | CDC_DVD_RAM | CDC_RAM
- };
+-	state = TASK_ZOMBIE;
+-	if (tsk->exit_signal == -1 && tsk->ptrace == 0)
+-		state = TASK_DEAD;
+-	else
+-		tsk->state = state;
+-	/*
+-	 * Clear these here so that update_process_times() won't try to deliver
+-	 * itimer, profile or rlimit signals to this task while it is in late exit.
+-	 */
+-	tsk->it_virt_value = 0;
+-	tsk->it_prof_value = 0;
+-	tsk->rlim[RLIMIT_CPU].rlim_cur = RLIM_INFINITY;
++	tsk->flags |= PF_DEAD;
++	if (tsk->exit_signal == -1 && tsk->ptrace == 0) {
++		/* Uncaring parent: keventd will do the final release_task */
++		tsk->state = TASK_DEAD;
++		list_add(&tsk->death, &__get_cpu_var(unreleased_tasks));
++		schedule_work(&__get_cpu_var(release_task_work));
++	} else
++		tsk->state = TASK_ZOMBIE;
  
- static int __init find_capability(const char *type)
+ 	/*
+-	 * Get a reference to it so that we can set the state
+-	 * as the last step. The state-setting only matters if the
+-	 * current task is releasing itself, to trigger the final
+-	 * put_task_struct() in finish_task_switch(). (thread self-reap)
++	 * In the preemption case it must be impossible for the task
++	 * to get runnable again, so use "_raw_" unlock to keep
++	 * preempt_count elevated until we schedule().  Also, this
++	 * ensures that keventd won't release this task until
++	 * after we schedule().
++	 *
++	 * To avoid deadlock on SMP, interrupts must be unmasked.  If we
++	 * don't, subsequently called functions (e.g, wait_task_inactive()
++	 * via release_task()) will spin, with interrupt flags
++	 * unwittingly blocked, until the other task sleeps.  That task
++	 * may itself be waiting for smp_call_function() to answer and
++	 * complete, and with interrupts blocked that will never happen.
+ 	 */
+-	get_task_struct(tsk);
+-
+-	write_unlock_irq(&tasklist_lock);
++	_raw_write_unlock(&tasklist_lock);
++	local_irq_enable();
+ 
+ 	list_for_each_safe(_p, _n, &ptrace_dead) {
+ 		list_del_init(_p);
+ 		t = list_entry(_p,struct task_struct,ptrace_list);
+ 		release_task(t);
+ 	}
+-
+-	/* If the process is dead, release it - nobody will wait for it */
+-	if (state == TASK_DEAD) {
+-		release_task(tsk);
+-		write_lock_irq(&tasklist_lock);
+-		tsk->state = state;
+-		_raw_write_unlock(&tasklist_lock);
+-		local_irq_enable();
+-	} else
+-		preempt_disable();
+-
+-	tsk->flags |= PF_DEAD;
+-	put_task_struct(tsk);
+ }
+ 
+ asmlinkage NORET_TYPE void do_exit(long code)
 
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 
---Signature=_Fri__20_Aug_2004_17_38_50_+1000_SPu6rO.5ikYPiZN/
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBJaqK4CJfqux9a+8RAnI8AJ0fZ4n6BQjYuLzg+p9j3j+c5jBamQCfa2E4
-KAGS6wJmQu1mtWyeJ92I59s=
-=oMVO
------END PGP SIGNATURE-----
-
---Signature=_Fri__20_Aug_2004_17_38_50_+1000_SPu6rO.5ikYPiZN/--

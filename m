@@ -1,86 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267602AbUIXBVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267661AbUIXBVq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267602AbUIXBVM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 21:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267598AbUIXBSF
+	id S267661AbUIXBVq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 21:21:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267585AbUIXBVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 21:18:05 -0400
-Received: from ctb-mesg2.saix.net ([196.25.240.74]:21996 "EHLO
-	ctb-mesg2.saix.net") by vger.kernel.org with ESMTP id S267686AbUIXAyn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 20:54:43 -0400
-Subject: Re: 2.6.9-rc2-mm2 [u]
-From: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040922131210.6c08b94c.akpm@osdl.org>
-References: <20040922131210.6c08b94c.akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-rPYpLcGNrp4IG8baO312"
-Date: Fri, 24 Sep 2004 02:53:58 +0200
-Message-Id: <1095987238.11535.4.camel@nosferatu.lan>
+	Thu, 23 Sep 2004 21:21:35 -0400
+Received: from ozlabs.org ([203.10.76.45]:24462 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S267661AbUIXBUZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 21:20:25 -0400
+Date: Fri, 24 Sep 2004 11:17:51 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Paul Jackson <pj@sgi.com>, simon.derr@bull.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [rfc][patch] 1/2 Additional cpuset features
+Message-ID: <20040924011751.GA20592@krispykreme>
+References: <Pine.LNX.4.58.0409101036090.2891@daphne.frec.bull.fr> <20040911010808.2b283c9a.pj@sgi.com> <Pine.LNX.4.58.0409231238350.11694@server.home> <20040923164139.506d65d3.pj@sgi.com> <Pine.LNX.4.58.0409231651550.17168@server.home>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0409231651550.17168@server.home>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
+Hi,
 
---=-rPYpLcGNrp4IG8baO312
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> > But the jist of the matter is simple.  Just as we (SGI) did with
+> > cpumemsets and perfmon on 2.4 kernels, so should we do with cpusets and
+> > perfmon on 2.6 kernels.  And that is to perform this translation in
+> > perfmon code.  Is it only SGI's dplace that requires the cpuset-relative
+> > numbering?
+> 
+> pfmon, sched_setaffinity, dplace. And this is only what I saw today.
+> Might develop into a longer list. The 2.4 solutions were rather
+> complicated.
 
-On Wed, 2004-09-22 at 13:12 -0700, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc2/2=
-.6.9-rc2-mm2/
->=20
-> - Added Bart's bk-ide-dev tree to the -mm external tree lineup.
->=20
-> - Added Peter Williams' Single Priority Array (SPA) O(1) CPU Scheduler, a=
-ka
->   the "zaphod" cpu scheduler.
->=20
->   It has a number of tunables and lots of documentation - see the changel=
-og
->   entry in zaphod-scheduler.patch for details.
->=20
-> - This kernel doesn't work on ia64 (instant reboot).  But neither does
->   2.6.9-rc2, nor current Linus -bk.  Is it just me?
->=20
-> - Added the kexec-based crashdump code.  This is the code which uses kexe=
-c
->   to jump into a new mini-kernel when the main kernel crashes.  Userspace=
- code
->   in that mini-kernel then dumps the main kernel's memory to disk.  These=
- new
->   patches provide the bits and pieces which the mini-kernel needs to be a=
-ble
->   to get at the main kernel's memory.
->=20
->   There seem to be no hints as to how to get all this working - that will
->   come.
->=20
-> - Found (and fixed) the bug which was causing those
->   ext3-goes-readonly-under-load problems.  It was in the new wait/wakeup =
-code.
->=20
+Are pfmon and dplace SGI specific? sched_affinity users already have to
+deal with potentially discontiguous cpu maps. Ive been teaching IBM
+applications about this fact as I find problems.
 
-I have a p4 ht box at home (smp kernel with smt enabled), and with this
-I seem to get zombie processes (nautilus a few times now).
+> > The kernel-user boundary should stick to a single, system-wide, numbering
+> > of CPUs.
+> 
+> That leads to lots of complicated scripts doing logical -> physical
+> translation with the danger of access or attempting accesses to not
+> allowed CPUs. It may be easier to contain tasks into a range of cpus if
+> the CPUs in use are easily enumerable.
 
---=20
-Martin Schlemmer
+I would think you could write this in your userspace library.
 
---=-rPYpLcGNrp4IG8baO312
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+> The patch would allow the use of the existing tools as if the machine
+> only had N cpus (as you said a soft partitioning of the machine). If
+> scripts are to be used with the current approach then they need to know
+> about all the CPUs in the system and perform the mapping. Its going to be
+> a nightmare to develop scripts that partition off a 512 cpu cluster
+> appropriately and that track the physical cpu numbers instead of the cpu
+> number within the cpuset.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+What happens when an application (or user) looks in /proc/cpuinfo?
+And how does /sys/.../cpus match? Also what happens when you hotplug out 
+a cpu and your memory map becomes discontiguous? 
 
-iD8DBQBBU3AmqburzKaJYLYRAgFpAJ0YtHb4z8C45/ddH6TF++vY9YXzlQCghkR3
-7545KjON0pW4vVm5WlctsPs=
-=/5+W
------END PGP SIGNATURE-----
-
---=-rPYpLcGNrp4IG8baO312--
-
+Anton

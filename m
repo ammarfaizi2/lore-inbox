@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264668AbUH0M4p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264919AbUH0NFX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264668AbUH0M4p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 08:56:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbUH0M4p
+	id S264919AbUH0NFX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 09:05:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264923AbUH0NFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 08:56:45 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:57285 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S264668AbUH0M4l
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 08:56:41 -0400
-X-Qmail-Scanner-Mail-From: solt@dns.toxicfilms.tv via dns
-X-Qmail-Scanner-Rcpt-To: linux-kernel@vger.kernel.org
-X-Qmail-Scanner: 1.23 (Clear:RC:0(150.254.37.14):. Processed in 0.031201 secs)
-Date: Fri, 27 Aug 2004 14:56:40 +0200
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-X-Mailer: SecureBat! Lite (v2.10.02) Personal
-Reply-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-X-Priority: 3 (Normal)
-Message-ID: <581631760.20040827145640@dns.toxicfilms.tv>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] README - Explain new 2.6.xx.x bug-fix release numbering scheme
-In-Reply-To: <412F2B79.40609@linux-user.net>
-References: <412F2B79.40609@linux-user.net>
+	Fri, 27 Aug 2004 09:05:23 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:26116 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S264919AbUH0NFR convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 09:05:17 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Wouter Van Hemel <wouter-kernel@fort-knox.rave.org>
+Subject: Re: kernel 2.6.8 pwc patches and counterpatches
+Date: Fri, 27 Aug 2004 16:04:35 +0300
+X-Mailer: KMail [version 1.4]
+Cc: linux-kernel@vger.kernel.org
+References: <33193.151.37.215.244.1093530681.squirrel@webmail.azzurra.org> <200408270917.47656.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.61.0408271445120.578@senta.theria.org>
+In-Reply-To: <Pine.LNX.4.61.0408271445120.578@senta.theria.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200408271604.35400.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 27 August 2004 15:47, Wouter Van Hemel wrote:
+> On Fri, 27 Aug 2004, Denis Vlasenko wrote:
+> > Code is under GPL. You can add it back anyday. It's less work than
+> > writing such a long email.
+>
+> I just happen to be better at writing rants than writing drivers. :)
 
-DA> +   As of kernel 2.6.8 there was a bug-fix release numbering scheme
-DA> +   introduced. In such cases a fourth number is added to the release
-DA> +   version, eg. 2.6.8.1. When patching from a 2.6.xx(.x) release to a
-DA> +   newer version, patches are to be applied against the original
-DA> +   release, eg. 2.6.8 and not the bug-fix release 2.6.8.1. Old patches
-DA> +   can be reversed by adding the "-R" option to patch.
-DA> +
-How about giving an example like:
+You don't need to write anything. Just put *existing* driver back.
+It's doable even if you never ever wrote 'hello world' C program.
 
-    To apply a bugfix release patch:
-    # cd /usr/src/linux-2.6.8
-    # patch -p1 <../patch-2.6.8.1
+> If the maintainer wants it pulled, I feel it would be stealing to add it
+> back into the kernel without his approval. Perhaps we could rewrite the
+> driver and merge it with some other webcam driver projects.
 
-    To apply a new release on a bugfix tree:
-    # cd /usr/src/linux-2.6.8.1
-    # patch -p1 -R <../patch-2.6.8.1
-    # patch -p1 <../patch-2.6.9
-
-Examples are always good.
-    
-Regards,
-Maciej
-
-
+This is the problem. It is far easier to _feel_ something
+than to _do_ something.
+-- 
+vda

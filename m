@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265915AbRF3Ngi>; Sat, 30 Jun 2001 09:36:38 -0400
+	id <S265973AbRF3NdI>; Sat, 30 Jun 2001 09:33:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265954AbRF3Ng2>; Sat, 30 Jun 2001 09:36:28 -0400
-Received: from eising.k-net.dtu.dk ([130.225.71.229]:43716 "EHLO
-	eising.k-net.dk") by vger.kernel.org with ESMTP id <S265915AbRF3NgJ>;
-	Sat, 30 Jun 2001 09:36:09 -0400
-Date: Sat, 30 Jun 2001 15:39:12 +0200
-From: Martin Clausen <martin@ostenfeld.dk>
-To: linux-kernel@vger.kernel.org
-Subject: Maximum socket buffer sizes
-Message-ID: <20010630153912.C1352@ostenfeld.dk>
-Reply-To: Martin Clausen <martin@ostenfeld.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S265954AbRF3Nc7>; Sat, 30 Jun 2001 09:32:59 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:16009 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S265915AbRF3Ncq>; Sat, 30 Jun 2001 09:32:46 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sat, 30 Jun 2001 06:32:36 -0700
+Message-Id: <200106301332.GAA14600@adam.yggdrasil.com>
+To: alan@lxorguk.ukuu.org.uk
+Subject: Re: linux-2.4.6-pre6: numerous dep_{bool,tristate} $CONFIG_ARCH_xxx bugs
+Cc: kaos@ocs.com.au, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>> 	Argh!  I just accidentally sent and older version of my
+>> patch.  Here is the current version.  Sorry about that.
 
-What are the maximum socket buffer sizes for:
+>This just breaks stuff
 
-net.core.rmem.*
-net.core.wmem.*
-net.core.optmem_max
+>> +for var in $(cat arch/*/config.in |
+>> +	     egrep -w -v '^[ 	]*int' |
+>> +             tr '   $"' '\n\n\n' |
+>> +	     egrep '^CONFIG_[A-Z0-9_]*$' |
+>> +	     sort -u) ; do
+>> +	define_bool "$var" "n"
+>> +done
+>> +set -f
+>>  
 
-As far as i can tell these are ones to adjust when "tuning" 
-e.g. the netlink sockets between the kernel and userspace?
+>You've changed the entire semantics of dep_tristate by doing this
 
-I have not been able to find this information anywhere...
+	Please provide a real example.
 
-Best regards
-Martin
+	As far as I can tell, the only change would be to make
+dep_tristate behave the way it was expected to, as in
+drives/sound/Config.in:
 
--- 
-Failure is not an option. It comes bundled with your Microsoft product.
+      dep_tristate '    Netwinder WaveArtist' CONFIG_SOUND_WAVEARTIST $CONFIG_SOUND_OSS $CONFIG_ARCH_NETWINDER
+
+	The current, unintended, behavior is to allow this module to be
+built all all non-ARM architectures (and probably bomb out), as well
+as the intended architecture of ARM-Netwinder, and not any other ARM
+platforms.  The intended behavior, and the one that you would get with
+either my change or Keith's is to only allow this module to be built
+for ARM-Netwinder.
+
+
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262619AbUKLVa1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262624AbUKLVbv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262619AbUKLVa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 16:30:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbUKLVa1
+	id S262624AbUKLVbv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 16:31:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262620AbUKLVaf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 16:30:27 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:42709 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262619AbUKLVaV (ORCPT
+	Fri, 12 Nov 2004 16:30:35 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:60288 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262621AbUKLVaW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 16:30:21 -0500
-Date: Fri, 12 Nov 2004 13:20:09 -0800
+	Fri, 12 Nov 2004 16:30:22 -0500
+Date: Fri, 12 Nov 2004 12:49:25 -0800
 From: Greg KH <greg@kroah.com>
-To: Gabriel Paubert <paubert@iram.es>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+To: Milton Miller <miltonm@bga.com>
+Cc: Maneesh Soni <maneesh@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: Recent I2C "dead code removal" breaks pmac sound.
-Message-ID: <20041112212008.GA2256@kroah.com>
-References: <20041111180902.GA8697@iram.es> <20041111182228.GA23236@kroah.com> <20041112122215.GA19147@iram.es>
+Subject: Re: sysfs backing store error path confusion
+Message-ID: <20041112204925.GE1711@kroah.com>
+References: <200411050749.iA57nXlP076996@sullivan.realtime.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041112122215.GA19147@iram.es>
+In-Reply-To: <200411050749.iA57nXlP076996@sullivan.realtime.net>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 12, 2004 at 01:22:15PM +0100, Gabriel Paubert wrote:
-> > Put the function back, and change the pmac.h file to delete the #define,
-> > and replace the snd_pmac_keywest_write function with a real call to
-> > i2c_smbus_write_block_data so things like this don't happen again.
-> > 
-> > Care to write a patch to do this?
+On Fri, Nov 05, 2004 at 01:49:34AM -0600, Milton Miller wrote:
 > 
-> It follows, along with an update of the include/linux/i2c.h to only
-> declare functions that actually exist, but grepping the whole sound
-> subtree shows that at least sound/oss/dmasound/tas_common.h defines 
-> a few inline functions that call i2c_smbus_write_{byte,block}_data.
+> On Nov 3, 2004, at 3:42 PM, Greg KH wrote:
 > 
-> It might be reasonable to split it into two ChangeSets, that's
-> your call.
+> |On Tue, Nov 02, 2004 at 10:03:34AM -0600, Maneesh Soni wrote:
+> ||On Tue, Nov 02, 2004 at 02:46:58AM -0600, Milton Miller wrote:
+> |||sysfs_new_dirent returns ERR_PTR(-ENOMEM) if kmalloc fails but the callers
+> |||were expecting NULL.  
+> ||
+> ||Thanks for spotting this. But as you said, I will prefer to change the callee.
+> ||How about this patch? 
+> ..
+> ||-		return -ENOMEM;
+> ||+		return NULL;
+> |
+> |Actually, this needs to be a 0, not NULL, otherwise the compiler
+> |complains with a warning.  I've fixed it up and applied it.
+> |
+> |thanks,
+> |
+> |greg k-h
 > 
-> Compiled, booted, tested and CC'ed to BenH just in case.
+> I wondered why greg thought the type was wrong.   After it was merged I 
+> realized that the wrong function was changed.  Here's an attempt to fix
+> both errors.
+> 
+> milton
 
 Applied, thanks.
 

@@ -1,41 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261894AbRE0MD3>; Sun, 27 May 2001 08:03:29 -0400
+	id <S261913AbRE0MOB>; Sun, 27 May 2001 08:14:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261913AbRE0MDU>; Sun, 27 May 2001 08:03:20 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:52744 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S261894AbRE0MDN>; Sun, 27 May 2001 08:03:13 -0400
-Date: Sun, 27 May 2001 14:02:49 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Peter Klotz <peter.klotz@aon.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem compiling kernel 2.4.5 with gcc 2.96
-Message-ID: <20010527140249.F22468@arthur.ubicom.tudelft.nl>
-In-Reply-To: <01052713530300.01775@localhost.localdomain>
-Mime-Version: 1.0
+	id <S261918AbRE0MNv>; Sun, 27 May 2001 08:13:51 -0400
+Received: from ns2.radioschefer.ch ([62.2.224.35]:58118 "EHLO
+	ns2.radioschefer.ch") by vger.kernel.org with ESMTP
+	id <S261913AbRE0MNl>; Sun, 27 May 2001 08:13:41 -0400
+Message-ID: <3B10ECF2.220E1DFB@bluewin.ch>
+Date: Sun, 27 May 2001 14:02:58 +0200
+From: Stephan Brauss <sbrauss@bluewin.ch>
+X-Mailer: Mozilla 4.75 [de]C-CCK-MCD DT  (Win95; U)
+X-Accept-Language: de
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.4 kernel freeze
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01052713530300.01775@localhost.localdomain>; from peter.klotz@aon.at on Sun, May 27, 2001 at 01:53:03PM +0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 27, 2001 at 01:53:03PM +0200, Peter Klotz wrote:
-> When creating the modules (make modules) for my 2.4.5 kernel the compilation 
-> aborts with the following error messages. The problem seems to be related 
-> with Video for Linux and the Iomega Buz Driver.
-
-buz.c is broken, you need 2.4.5-ac1 for it.
-
-
-Erik
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+> Any other hints are welcome (other than the noapic, which didn't help).
+My system is always completely dead as soon as I start a larger (interrupt
+driven?) data transfer to/from any (? I tested with two different NICs and a Promise
+Ultra100) PCI card in slot 4 or 5. And it seems that it really only occurs 
+in slots 4 and 5... To get rid of it, I switched to 2.2.19.

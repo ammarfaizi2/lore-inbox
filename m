@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269717AbSISBQt>; Wed, 18 Sep 2002 21:16:49 -0400
+	id <S269725AbSISBjS>; Wed, 18 Sep 2002 21:39:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269720AbSISBQt>; Wed, 18 Sep 2002 21:16:49 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:49905
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S269717AbSISBQt>; Wed, 18 Sep 2002 21:16:49 -0400
-Subject: Re: 2.4.20-pre7-ac2 compile and IrDA
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Alexander Hoogerhuis <alexh@ihatent.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m3bs6uyerj.fsf_-_@lapper.ihatent.com>
-References: <200209190222.33276.duncan.sands@math.u-psud.fr>
-	<3D891BD1.8F774946@digeo.com>  <m3bs6uyerj.fsf_-_@lapper.ihatent.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 19 Sep 2002 02:25:56 +0100
-Message-Id: <1032398756.24835.29.camel@irongate.swansea.linux.org.uk>
+	id <S269727AbSISBjS>; Wed, 18 Sep 2002 21:39:18 -0400
+Received: from krusty.dt.E-Technik.uni-dortmund.de ([129.217.163.1]:37387 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S269725AbSISBjR>; Wed, 18 Sep 2002 21:39:17 -0400
+Date: Thu, 19 Sep 2002 03:44:17 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Pointer: connect to 127.x.y.z succeeds
+Message-ID: <20020919014417.GD12590@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-09-19 at 02:00, Alexander Hoogerhuis wrote:
-> 2.4.20-pre7-ac2 has a problem compiling the irtty module:
-> 
-> make[3]: Entering directory `/home/alexh/src/linux/linux-2.4-ac-test/drivers/net/irda'
-> gcc -D__KERNEL__ -I/home/alexh/src/linux/linux-2.4-ac-test/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include /home/alexh/src/linux/linux-2.4-ac-test/include/linux/modversions.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=irtty  -c -o irtty.o irtty.c
-> irtty.c: In function `irtty_set_dtr_rts':
-> irtty.c:761: `TIOCM_MODEM_BITS' undeclared (first use in this function)
-> irtty.c:761: (Each undeclared identifier is reported only once
-> irtty.c:761: for each function it appears in.)
->
+There's a slight difference between Linux and FreeBSD. Assume each is
+configured so that the loopback device is 127.0.0.1/8. Linux will then
+accept a connect to 127.126.125.124, FreeBSD will instead say
+EADDRNOTAVAIL:
 
-What architecture - its defined for x86 definitely
+     "49 EADDRNOTAVAIL Cannot assign requested address.  Normally results
+     from an attempt to create a socket with an address not on this
+     machine." (FreeBSD 4.7-PRERELEASE errno(2) man page)
 
+While the routing decision seems right with automatic routes, it's
+strange that Linux accepts a connection on an IP that is not configured.
+Would it be feasible that Linux looks at the destination IP before
+accepting a connection on the lo interface?
+
+
+This may also be related to the issue raised some time ago that Linux
+lets you connect to any local IP from any interface by default, so that
+eth0 clients can connect to the eth2 IP even when the route is removed.
+I believe Felix von Leitner complained about this behaviour.
+
+
+I'd appreciate documentation pointers on this discussion as I believe
+this has been mentioned before, yet I don't recall enough to feed Google
+with a decent search.
+
+-- 
+Matthias Andree

@@ -1,75 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135321AbRDWP0E>; Mon, 23 Apr 2001 11:26:04 -0400
+	id <S135346AbRDWP0E>; Mon, 23 Apr 2001 11:26:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135346AbRDWPZv>; Mon, 23 Apr 2001 11:25:51 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:53175 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S135293AbRDWPYS>;
-	Mon, 23 Apr 2001 11:24:18 -0400
-Message-ID: <3AE44925.307069E4@mandrakesoft.com>
-Date: Mon, 23 Apr 2001 11:24:21 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jesper Juhl <juhl@eisenstein.dk>
+	id <S135293AbRDWPZw>; Mon, 23 Apr 2001 11:25:52 -0400
+Received: from leng.mclure.org ([64.81.48.142]:64776 "EHLO
+	leng.internal.mclure.org") by vger.kernel.org with ESMTP
+	id <S135310AbRDWPYZ>; Mon, 23 Apr 2001 11:24:25 -0400
+Date: Mon, 23 Apr 2001 08:24:05 -0700
+From: Manuel McLure <manuel@mclure.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pedantic code cleanup - am I wasting my time with this?
-In-Reply-To: <3AE449A3.3050601@eisenstein.dk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: Kernel hang on multi-threaded X process crash
+Message-ID: <20010423082405.C979@ulthar.internal.mclure.org>
+In-Reply-To: <20010422230014.A979@ulthar.internal.mclure.org> <E14rcnO-0007fb-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <E14rcnO-0007fb-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Apr 23, 2001 at 02:38:11 -0700
+X-Mailer: Balsa 1.1.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-> 
-> Hi people,
-> 
-> I'm reading through various pieces of source code to try and get an
-> understanding of how the kernel works (with the hope that I'll
-> eventually be able to contribute something really usefull, but you've
-> got to start somewhere ;)
-> 
-> While reading through the source I've stumbled across various bits and
-> pieces that are not exactely wrong, but not strictly correct either. I
-> was wondering if I would be wasting my time by cleaning this up or if it
-> would actually be appreciated. One example of these things is the patch
-> below:
-> 
-> --- linux-2.4.3-vanilla/include/linux/rtnetlink.h       Sun Apr 22
-> 02:29:20 2001
-> +++ linux-2.4.3/include/linux/rtnetlink.h       Mon Apr 23 17:09:02 2001
-> @@ -112,7 +112,7 @@
->          RTN_PROHIBIT,           /* Administratively prohibited  */
->          RTN_THROW,              /* Not in this table            */
->          RTN_NAT,                /* Translate this address       */
-> -       RTN_XRESOLVE,           /* Use external resolver        */
-> +       RTN_XRESOLVE            /* Use external resolver        */
->   };
-> 
->   #define RTN_MAX RTN_XRESOLVE
-> @@ -278,7 +278,7 @@
->   #define RTAX_CWND RTAX_CWND
->          RTAX_ADVMSS,
->   #define RTAX_ADVMSS RTAX_ADVMSS
-> -       RTAX_REORDERING,
-> +       RTAX_REORDERING
->   #define RTAX_REORDERING RTAX_REORDERING
->   };
-> 
-> @@ -501,7 +501,7 @@
->          TCA_OPTIONS,
->          TCA_STATS,
->          TCA_XSTATS,
-> -       TCA_RATE,
-> +       TCA_RATE
 
-These patches increase the possibility of errors when adding future
-items to these lists.
+On 2001.04.23 02:38 Alan Cox wrote:
+> Strange trace but it looks like a bug in the -ac experimental
+> multithreaded
+> core dump patches. I've got a couple of other reports consistent with
+> them
+> being broken somewhere 
+> 
+> Does it have to be something like mozilla (xmms also probably breaks it)
+> that
+> does this. If so I suspect its specific to multithreaded apps and its a
+> bug
+> in the core dump changes.
+> 
+> If so I guess I revert them
 
+Both mozilla and aviplay (which are both multithreaded) trigger this - I
+haven't tried with xmms. Simpler programs like xclock or cat don't trigger
+it.
+
+To answer the question in your other email, I don't have DRI enabled (since
+tdfx.o won't load for me due to rwsem fixes - see other thread).
+
+Thanks for your help.
 -- 
-Jeff Garzik      | The difference between America and England is that
-Building 1024    | the English think 100 miles is a long distance and
-MandrakeSoft     | the Americans think 100 years is a long time.
-                 |      (random fortune)
+Manuel A. McLure KE6TAW | ...for in Ulthar, according to an ancient
+<manuel@mclure.org>     | and significant law, no man may kill a cat.
+<http://www.mclure.org> |             -- H.P. Lovecraft
+

@@ -1,76 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267602AbTB1IS2>; Fri, 28 Feb 2003 03:18:28 -0500
+	id <S267573AbTB1IYH>; Fri, 28 Feb 2003 03:24:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267573AbTB1IS1>; Fri, 28 Feb 2003 03:18:27 -0500
-Received: from packet.digeo.com ([12.110.80.53]:11669 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267602AbTB1IS0>;
-	Fri, 28 Feb 2003 03:18:26 -0500
-Date: Fri, 28 Feb 2003 00:29:35 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org, cliffw@osdl.org, akpm@zip.com.au,
-       slpratt@austin.ibm.com, levon@movementarian.org, haveblue@us.ibm.com
-Subject: Re: [PATCH] documentation for basic guide to profiling
-Message-Id: <20030228002935.256ffa98.akpm@digeo.com>
-In-Reply-To: <8550000.1046419962@[10.10.2.4]>
-References: <8550000.1046419962@[10.10.2.4]>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Feb 2003 08:28:39.0514 (UTC) FILETIME=[652D03A0:01C2DF03]
+	id <S267622AbTB1IYH>; Fri, 28 Feb 2003 03:24:07 -0500
+Received: from ns.suse.de ([213.95.15.193]:41740 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S267573AbTB1IYF>;
+	Fri, 28 Feb 2003 03:24:05 -0500
+To: torvalds@transmeta.com (Linus Torvalds)
+Cc: linux-kernel@vger.kernel.org, lse-tech@projects.sourceforge.net
+Subject: Re: [PATCH] New dcache / inode hash tuning patch
+References: <20030226164904.GA21342@wotan.suse.de.suse.lists.linux.kernel> <b3m5sd$1ad$1@penguin.transmeta.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 28 Feb 2003 09:34:24 +0100
+In-Reply-To: torvalds@transmeta.com's message of "28 Feb 2003 00:24:06 +0100"
+Message-ID: <p73n0kg7qi7.fsf@amdsimf.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
-> ...
-> +get readprofile binary fixed for 2.5 / akpm's 2.5 patch from 
-> +ftp://ftp.kernel.org/pub/linux/       people/mbligh/tools/readprofile/
+torvalds@transmeta.com (Linus Torvalds) writes:
 
-                                  kernel/
+[please read the whole post before answering. thanks]
 
-> +add "profile=2" to the kernel command line.
-> +
-> +clear		echo 2 > /proc/profile
-> +		<test>
-> +dump output	readprofile -m /boot/System.map > catured_profile
+>    But quite frankly, if the hash list heads are actually noticeable
+>    memory users, the hash is likely to be _way_ too big. The list heads
+>    are _much_ smaller than the entries they point to, the hash list just
+>    shouldn't be big enough that it really matters.
 
-util-linux-2.11z (at least) has the fixed readprofile.
+On big machines it is currently 1+MB. IMHO this is way too big.
 
-Of course, installing standard util-linux turns your boot process
-into a complete mess because vendors have added incompatible features
-to their versions.  But it seems to struggle through.
+> 
+>  - hash list cache footprint
+> 
+>    Again: the hash head array itself is at least dense in the cache, and
+>    each entry is _much_ smaller than the actual data structures it
+>    points to.  So even if you improve the hash heads to be better from a
+>    cache standpoint, you're only getting a very small percentage of the
+>    real cache costs. 
 
-> +Oprofile
-> +--------
-> +get source (I use 0.5) from http://oprofile.sourceforge.net/
-> +add "poll=idle" to the kernel command line 
-> +Configure with CONFIG_PROFILING=y and CONFIG_OPROFILE=y & reboot on new kernel
-> +./configure --with-kernel-support
-> +make install
-> +
-> +One time setup (pick appropriate one for your CPU):
-> +P3		opcontrol --setup --vmlinux=/boot/vmlinux \
-> +		--ctr0-event=CPU_CLK_UNHALTED --ctr0-count=100000
-> +Athalon		opcontrol --setup --vmlinux=/boot/vmlinux \
+It would be possible to cache line optimize the layout of struct dentry
+in addition. May be an interesting add-on project for someone...
+But for lookup walking even one cache line - the one containing d_hash -
+should be needed. Unless d_hash is unlucky enough to cross a cache
+line for its two members ... but I doubt that.
 
-   Athlon
+> 
+>    So let's say that the cache costs of the dcache is 4% (according to
+>    the oprofile run), then saving a few procent of that is not actually
+>    going to be noticeable at a user level.
+> 
+> And the downsides of the hash list is that addition/removal is costlier
+> due to the conditionals, and a non-conditional version (a common
 
-> +		--ctr0-event=RETIRED_INSNS --ctr0-count=100000
-> +P4		opcontrol --setup --vmlinux=/boot/vmlinux \
-> +		--ctr0-event=GLOBAL_POWER_EVENTS \
-> +		--ctr0-unit-mask=1 --ctr0-count=100000
-> +
-> +start daemon	opcontrol --start-daemon
-> +clear		opcontrol --reset
-> +start		opcontrol --start
-> +		<test>
-> +stop		opcontrol --stop
-> +dump output	oprofpp -dl -i /boot/vmlinux  >  output_file
-> +
+But the list walking is faster.  Testing for NULL generates much better 
+code on i386 than having to dedicate a register for storing the head
+to test against. List walking happens more often than insertion/deletion.
 
-OK.  Might be worth adding a pointer to this in REPORTING-BUGS, but
-nobody reads that anyway.
+I believe the conditionals are completely left in the noise compared
+to the cache misses the two pointer head version causes. You can execute
+a lot of conditionals in the time needed to serve one cache miss!
 
+Please take a look at the x86 assembly generated by list_for_each
+vs hlist_for_each. hlist_for_each looks much nicer, especially when you
+can use the register normally wasted on the head for something else
+in the loop body.
+
+In case of dcache rcu it also made things simpler/faster because it didn't
+require the complicated is_bucket race breaker check.
+
+> In other words: it may be that our current dentry hashes are too big,
+> and that is certainly worth fixing if so.  But the "hlist" approach very
+> fundamentally cannot really help the _real_ problem very much, and it
+> will (slightly) hurt the case where the hashes are actually cached. 
+
+I admit it is a kind of micro optimization, but I believe it is an useful
+one. Frankly wasting two pointers for a hash bucket in a potentially
+big hash table is just s*d.
+
+> 
+> So I really think that the only longterm fix is to make the lookup data
+> structures be "local" to the base of the lookup, in order to get away
+> from the inherently non-local nature of the current hash lookups. 
+
+Yes, that may be a good idea. I don't have time to work on this though.
+
+Still even with local lookups single pointer buckets will likely help ;)
+
+Also isn't it a bit late in the 2.5 cycle to think about such radical
+changes like local lookup? It sounds more like a nice 2.7 project.  I
+believe my patch with a bit more tweaking (my current 64K hash table
+seems to be too small) is suitable even for an soon to be stable
+kernel.
+
+Also my patch had some other changes that I believe should be included
+anyways because they're independent and improvement. It replaces the
+max_dentries race break hack with a better algorithm to detect cycles on walk.
+
+Also it does more prefetches while list walking which I believe to be 
+useful.
+
+-Andi

@@ -1,33 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266982AbUBMMof (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 07:44:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266986AbUBMMof
+	id S266959AbUBMMhn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 07:37:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266964AbUBMMhn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 07:44:35 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50638 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266982AbUBMMoe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 07:44:34 -0500
-Date: Fri, 13 Feb 2004 12:44:32 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Andrew Morton <akpm@osdl.org>
-Cc: Giuliano Pochini <pochini@shiny.it>, mhf@linuxmail.org,
-       linux-kernel@vger.kernel.org
+	Fri, 13 Feb 2004 07:37:43 -0500
+Received: from gaia.cela.pl ([213.134.162.11]:57614 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S266959AbUBMMhl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 07:37:41 -0500
+Date: Fri, 13 Feb 2004 13:37:34 +0100 (CET)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Junio C Hamano <junkio@cox.net>, Michael Frank <mhf@linuxmail.org>,
+       linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: PATCH, RFC: 2.6 Documentation/Codingstyle
-Message-ID: <20040213124432.GB8858@parcelfarce.linux.theplanet.co.uk>
-References: <200402130615.10608.mhf@linuxmail.org> <XFMail.20040213095802.pochini@shiny.it> <20040213011012.12645046.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040213011012.12645046.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200402130918.45587.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.44.0402131322280.12513-100000@gaia.cela.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 13, 2004 at 01:10:12AM -0800, Andrew Morton wrote:
- 
-> Yes, 80 cols sucks and the world would be a better place had CodingStyle
-> mandated 96 columns five years ago.  But it didn't happen.
+You haven't made your point with this post.
 
-Well, IBM had tried that once (System/3), but it didn't stick ;-)
+Dots are meant to end sentences not lines.
+If a line is not a sentence there's no point in adding a period. Period.
+However if a message is basically a sentence then like any sentence it 
+should end with a period.  There's no philosophy to this.
+
+The majority of kernel messages aren't sentences and thus are dot-free. 
+Some however are, and these usually look better with the ending periods.  
+However, whether these ending periods are necessary depends mainly on the 
+length of the sentence, on whether they end with numerals or acronyms and 
+a matter of personal taste.
+
+On Fri, 13 Feb 2004, vda wrote:
+
+> On Friday 13 February 2004 08:41, Junio C Hamano wrote:
+> 
+> > MF> +Periods terminating kernel messages are deprecated
+> > MF> +Usage of the apostrophe <'> in kernel messages is deprecated
+> >
+> > I do not think encouraging bad spelling like above has reached
+> > community consensus.  Personally I do not like those sloppy
+> > grammar ("donts" and missing period at the end of the sentence).
+> 
+> 126MB LOWMEM available
+> Detected 1196.031 MHz processor
+> Intel machine check architecture supported
+> POSIX conformance testing by UNIFIX
+> PCI: Probing PCI hardware
+
+In your post only the above could be considered sentences and even then
+most are really too short, or end with numerals or acronyms which make
+dots look stupid.  Personally I'd think the "Intel machine check
+architecture supported." message looks better with a period and I'd leave
+all the rest alone.  Nevertheless, all 5 of the above could possibly end 
+with periods, the rest never.
+
+De gusto non est disputandum - cheers,
+MaZe.
+
+

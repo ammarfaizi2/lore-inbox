@@ -1,46 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135660AbRECCVB>; Wed, 2 May 2001 22:21:01 -0400
+	id <S135532AbRECC3l>; Wed, 2 May 2001 22:29:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135664AbRECCUv>; Wed, 2 May 2001 22:20:51 -0400
-Received: from durandal.simons-rock.edu ([64.210.108.44]:64274 "HELO
-	durandal.simons-rock.edu") by vger.kernel.org with SMTP
-	id <S135660AbRECCUf>; Wed, 2 May 2001 22:20:35 -0400
-Mime-Version: 1.0
-Message-Id: <p04320402b7166eda68f2@[64.210.111.70]>
-Date: Wed, 2 May 2001 22:20:33 -0400
+	id <S135694AbRECC3c>; Wed, 2 May 2001 22:29:32 -0400
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:63059 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S135532AbRECC3V>; Wed, 2 May 2001 22:29:21 -0400
+Subject: Linux syscall speed -- was X15 rootin-tootin webserver
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
 To: linux-kernel@vger.kernel.org
-From: peterius@durandal.simons-rock.edu
-Subject: memory and current macro
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+In-Reply-To: <4.3.2.7.2.20010503091459.028524e8@171.69.43.101>
+In-Reply-To: <3AEC8562.887CFA72@chromium.com> 
+	<4.3.2.7.2.20010503091459.028524e8@171.69.43.101>
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 02 May 2001 22:29:20 -0400
+Message-Id: <988856961.6355.1.camel@gromit>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	I've been trying to write a device driver and I've found two 
-problems.  First, the current macro.  I wanted to get the uid of the 
-calling process but "current->uid" does NOT work it returns some 
-other number.  Same with "current->pid" and many others.  I figured 
-these numbers weren't random and decided to print out a particular 
-processes's descriptor and check out what was going on.  I found that 
-"&(current->uid)" is 0x1d lower than the address that holds the user 
-id.  In addition, adding 0x1d to that address added it twice???  So 
-to get the uid I ended up adding half...or "&(current->uid) + 0x0f". 
-Does anyone know why this is?  I have an i686 processor, IBM thinkpad 
-570e laptop, Debian 2.2, kernel version 2.4.2.
+According to tests performed at IBM:
 
-	Second problem might not have anything to do with my device 
-driver at all.  It seems that applications on my laptop know longer 
-free memory they have allocated.  I thought it was my module.  I 
-check "free" for the memory available, "insmod" my module, check 
-"free" again, "rmmod" it.  Each time the amount of free memory goes 
-down.  Even when I remove the module.  Then I found that all other 
-processes do this also, from ftp to ls or cd.  Then I start getting 
-really bad segmentation errors in almost every process I try to run. 
-And at the top, they say, usually, "kernel BUG page_alloc.c line:xx". 
-I'm worried I've corrupted something or I don't know.  I looked this 
-up in the source but I don't know why everything is triggering it. 
-Are there any known memory allocation or freeing problems with kernel 
-2.4.2?
+http://www-106.ibm.com/developerworks/linux/library/l-rt1/
 
-								- Peter
+Linux's sycalls are a little more than twice as fast as those of Windows
+2000. 0.75usec vs 2.0msec. Not too shabby. And this "magic page" idea
+means it may get faster.
+
+-M
+

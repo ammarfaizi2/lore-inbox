@@ -1,52 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266609AbSL2NTF>; Sun, 29 Dec 2002 08:19:05 -0500
+	id <S266627AbSL2OaX>; Sun, 29 Dec 2002 09:30:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266615AbSL2NTF>; Sun, 29 Dec 2002 08:19:05 -0500
-Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:22689 "EHLO
-	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S266609AbSL2NTE>; Sun, 29 Dec 2002 08:19:04 -0500
-Subject: Re: Radeonfb and the new kernel 2.4.21
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: messor <krystian@poczta.fm>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0212291048490.190-100000@slackware.linux.net>
-References: <Pine.LNX.4.44.0212291048490.190-100000@slackware.linux.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 29 Dec 2002 14:29:24 +0100
-Message-Id: <1041168564.583.18.camel@zion>
-Mime-Version: 1.0
+	id <S266638AbSL2OaX>; Sun, 29 Dec 2002 09:30:23 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:62596 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S266627AbSL2OaW>;
+	Sun, 29 Dec 2002 09:30:22 -0500
+Date: Sun, 29 Dec 2002 15:37:18 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: tulip-users@lists.sourceforge.net,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: 21041 transmit timed out
+Message-ID: <Pine.GSO.4.21.0212291526390.17067-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-12-29 at 11:08, messor wrote:
-> 
-> Hi,
-> Could I request about something ???
-> In Poland in last few days we have a very hard
-> conversation about radeonfb. Some people have
-> a huge problem with that. They can force radeonfb
-> to work, but they cannot change display timings.
-> Using fbset cause monitor to turn off.
-> We know that the answer is in Alans Cox kernel 2.4.20-rc2-ac3.
-> Could I request to include some solution to the
-> new kernel 2.4.21 or something like that ????
-> 
-> I hope my terrible english will not provoke You
-> to forget about this e-mail.
 
-Can you try the version in my PowerMac tree ?
+Apparently this problem is still present in 2.4.20. It's been many months ago I
+saw it, though.
 
-You can get it via rsync via
+| NETDEV WATCHDOG: eth0: transmit timed out
+| eth0: 21041 transmit timed out, status fc6908c5, CSR12 000051c8, CSR13 ffff0001, CSR14 ffffffff, resetting...
+| eth0: 21143 100baseTx sensed media.
+        ^^^^^^^^^^^^^^^
+ifconfig down/up fixed the problem.
 
-rsync rsync.penguinppc.org::linux-2.4-benh/drivers/video/radeonfb.c .
-rsync rsync.penguinppc.org::linux-2.4-benh/drivers/video/radeon.h .
+lspci output:
 
-If not, then I'll have to check again what's in Alan's version. You can
-also bug the maintainer (Ani Joshi), you may be lucky... :)
+| 00:04.0 Ethernet controller: Digital Equipment Corporation DECchip 21041 [Tulip Pass 3] (rev 21)
+| 	Subsystem: D-Link System Inc DE-530+
+| 	Flags: bus master, medium devsel, latency 0, IRQ 29
+| 	I/O ports at 1080 [size=128]
+| 	Memory at c1080000 (32-bit, non-prefetchable) [size=128]
+| 	Expansion ROM at c11c0000 [disabled] [size=256K]
 
-Ben.
+Driver startup output:
 
+| Linux Tulip driver version 0.9.15-pre12 (Aug 9, 2002)
+| PCI: Enabling device 00:04.0 (0000 -> 0003)
+| tulip0: 21041 Media table, default media 0800 (Autosense).
+| tulip0:  21041 media #0, 10baseT.
+| tulip0:  21041 media #4, 10baseT-FDX.
+| tulip0:  21041 media #1, 10base2.
+| eth0: Digital DC21041 Tulip rev 33 at 0xc9855000, 21041 mode, 00:80:C8:5A:F8:5B, IRQ 29.
+
+Machine is a PPC box (CHRP LongTrail).
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

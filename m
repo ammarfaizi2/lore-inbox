@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319858AbSINHmd>; Sat, 14 Sep 2002 03:42:33 -0400
+	id <S319860AbSINIYA>; Sat, 14 Sep 2002 04:24:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319859AbSINHmd>; Sat, 14 Sep 2002 03:42:33 -0400
-Received: from sv1.valinux.co.jp ([202.221.173.100]:64522 "HELO
-	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S319858AbSINHmd>;
-	Sat, 14 Sep 2002 03:42:33 -0400
-Date: Sat, 14 Sep 2002 16:39:33 +0900 (JST)
-Message-Id: <20020914.163933.132924824.taka@valinux.co.jp>
-To: akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org, janetmor@us.ibm.com
-Subject: Re: [patch] readv/writev rework
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <3D82C0F1.8733207D@digeo.com>
-References: <20020913.101826.32726068.taka@valinux.co.jp>
-	<3D815C04.A08CB5D9@digeo.com>
-	<3D82C0F1.8733207D@digeo.com>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S319861AbSINIYA>; Sat, 14 Sep 2002 04:24:00 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:61701 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S319860AbSINIX7>; Sat, 14 Sep 2002 04:23:59 -0400
+Date: Sat, 14 Sep 2002 10:28:06 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: puw@cola.enlightnet.local
+To: Andreas Steinmetz <ast@domdv.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: compile warning fix for smb_debug.h
+In-Reply-To: <3D8222A9.8010409@domdv.de>
+Message-ID: <Pine.LNX.4.44.0209141023420.32154-100000@cola.enlightnet.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Fri, 13 Sep 2002, Andreas Steinmetz wrote:
 
-Brilliant!
-It's great than I expected.
+> Hi,
+> attached is a fix for gcc 3.2 deprecated usage warnings for __FUNCTION__ 
+> in smb_debug.h. As gcc 2.95.3 doesn't issue the warning and can't handle 
+> the new macro there's a macro selection based on the compiler major 
+> version. Patch is against 2.4.20pre7.
 
-> > So Janet's patch made a 15% improvement with this test.  Yours
-> > dropped it 50% again.
-> > 
-> 
-> I've retested with your latest patch.
-> 
->                    2.5.34-mm4-taka2
-> write                  55.543
-> fwrite                 12.625
-> fwrite_unlocked        11.389
-> writev                  9.219
-> 
-> So that's another 70% speedup on top of yesterday's 100%, and kernel
-> beats glibc ;)
+Why not just take the version from 2.5?
+Or is there a problem with this one too and gcc2.95.3?
 
-Thanks for your testing my patch and your detailed explanation.
+#ifdef SMBFS_PARANOIA
+# define PARANOIA(f, a...) printk(KERN_NOTICE "%s: " f, __FUNCTION__ , ## a)
+#else
+# define PARANOIA(f, a...) do { ; } while(0)
+#endif
 
-Hirokazu Takahashi.
+etc.
+
+Note the extra space ...
+
+/Urban
+

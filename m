@@ -1,165 +1,311 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261732AbTCGTV4>; Fri, 7 Mar 2003 14:21:56 -0500
+	id <S261720AbTCGT2u>; Fri, 7 Mar 2003 14:28:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261734AbTCGTV4>; Fri, 7 Mar 2003 14:21:56 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:7647 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S261732AbTCGTVt>;
-	Fri, 7 Mar 2003 14:21:49 -0500
-Date: Fri, 7 Mar 2003 20:31:55 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Mike Galbraith <efault@gmx.de>, Andrew Morton <akpm@digeo.com>,
-       Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] "interactivity changes", sched-2.5.64-B2
-In-Reply-To: <Pine.LNX.4.44.0303071104210.2521-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0303072024220.17370-100000@localhost.localdomain>
+	id <S261728AbTCGT2u>; Fri, 7 Mar 2003 14:28:50 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:46556 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S261720AbTCGT2o>;
+	Fri, 7 Mar 2003 14:28:44 -0500
+Message-ID: <3E68F552.1010807@colorfullife.com>
+Date: Fri, 07 Mar 2003 20:38:58 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@digeo.com>
+CC: Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org
+Subject: Re: Oops: 2.5.64 check_obj_poison for 'size-64'
+References: <Pine.LNX.4.50.0303062358130.17080-100000@montezuma.mastecende.com>	<20030306222328.14b5929c.akpm@digeo.com>	<Pine.LNX.4.50.0303070221470.18716-100000@montezuma.mastecende.com>	<20030306233517.68c922f9.akpm@digeo.com>	<Pine.LNX.4.50.0303070351060.18716-100000@montezuma.mastecende.com> <20030307010539.3c0a14a3.akpm@digeo.com>
+In-Reply-To: <20030307010539.3c0a14a3.akpm@digeo.com>
+Content-Type: multipart/mixed;
+ boundary="------------060405000203080404060107"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------060405000203080404060107
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-the attached patch (against your tree) fixes the SMP locking bug. The
-patch also includes some other stuff i already added to my tree by that
-time:
+Andrew Morton wrote:
 
- - only update the priority and do a requeueing if the sleep average has
-   changed. (this does not happen for pure CPU hogs or pure interactive
-   tasks, so no need to requeue/recalc-prio in that case.) [All the 
-   necessary values are available at that point already, so gcc should
-   have an easy job making this branch really cheap.]
+>This is a bad, bad bug.  How are you triggering it?
+>
+>Manfred, would it be possible to add builtin_return_address(0) into each
+>object, so we can find out who did the initial kmalloc (or kfree, even)?
+>
+>It'll probably require CONFIG_FRAME_POINTER.
+>  
+>
+No, CONFIG_FRAME_POINTER is only needed for __builtin_return_address(x, 
+x>0). _address(0) always works.
 
- - do not do a full task activation in the migration-thread path - that is
-   supposed to be near-atomic anyway.
+I've attached a patch that records the last kfree address and prints 
+that if a poison check fails.
 
- - fix up comments
+Zwane, could you try to reproduce the bug?
 
-i solved the SMP locking bug by moving the requeueing outside of
-try_to_wake_up(). It does not matter that the priority update is not
-atomically done now, since the current process wont do anything inbetween.  
-(well, it could get preempted in a preemptible kernel, but even that wont
-do any harm.)
+If this doesn't help, we must implement the brute force approach: Use 
+one page for each object and unmap it with change_page_addr from the 
+linear mapping. Solaris can do that to hunt such bugs.
 
-did a quick testcompile & testboot on an SMP box, appears to work.
+patch against 2.5.64+use_after_free_check.patch.
 
-	Ingo
+--
+    Manfred
 
---- linux/kernel/sched.c.orig	
-+++ linux/kernel/sched.c	
-@@ -321,10 +321,7 @@ static int effective_prio(task_t *p)
- }
+--------------060405000203080404060107
+Content-Type: text/plain;
+ name="patch-slab-caller"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-slab-caller"
+
+// $Header$
+// Kernel Version:
+//  VERSION = 2
+//  PATCHLEVEL = 5
+//  SUBLEVEL = 64
+//  EXTRAVERSION =
+--- 2.5/include/linux/slab.h	2003-02-10 20:27:29.000000000 +0100
++++ build-2.5/include/linux/slab.h	2003-03-07 20:08:54.000000000 +0100
+@@ -37,6 +37,7 @@
+ #define	SLAB_HWCACHE_ALIGN	0x00002000UL	/* align objs on a h/w cache lines */
+ #define SLAB_CACHE_DMA		0x00004000UL	/* use GFP_DMA memory */
+ #define SLAB_MUST_HWCACHE_ALIGN	0x00008000UL	/* force alignment */
++#define SLAB_STORE_USER		0x00010000UL	/* store the last owner for bug hunting */
  
- /*
-- * activate_task - move a task to the runqueue.
+ /* flags passed to a constructor func */
+ #define	SLAB_CTOR_CONSTRUCTOR	0x001UL		/* if not set, then deconstructor */
+--- 2.5/mm/slab.c	2003-03-07 20:30:51.000000000 +0100
++++ build-2.5/mm/slab.c	2003-03-07 20:33:17.000000000 +0100
+@@ -114,7 +114,7 @@
+ # define CREATE_MASK	(SLAB_DEBUG_INITIAL | SLAB_RED_ZONE | \
+ 			 SLAB_POISON | SLAB_HWCACHE_ALIGN | \
+ 			 SLAB_NO_REAP | SLAB_CACHE_DMA | \
+-			 SLAB_MUST_HWCACHE_ALIGN)
++			 SLAB_MUST_HWCACHE_ALIGN | SLAB_STORE_USER)
+ #else
+ # define CREATE_MASK	(SLAB_HWCACHE_ALIGN | SLAB_NO_REAP | \
+ 			 SLAB_CACHE_DMA | SLAB_MUST_HWCACHE_ALIGN)
+@@ -280,9 +280,7 @@
+ #endif
+ };
+ 
+-/* internal c_flags */
+-#define	CFLGS_OFF_SLAB	0x010000UL	/* slab management in own cache */
 -
-- * Also update all the scheduling statistics stuff. (sleep average
-- * calculation, priority modifiers, etc.)
-+ * __activate_task - move a task to the runqueue.
-  */
- static inline void __activate_task(task_t *p, runqueue_t *rq)
- {
-@@ -332,9 +329,16 @@ static inline void __activate_task(task_
- 	nr_running_inc(rq);
++#define CFLGS_OFF_SLAB		(0x80000000UL)
+ #define	OFF_SLAB(x)	((x)->flags & CFLGS_OFF_SLAB)
+ 
+ #define BATCHREFILL_LIMIT	16
+@@ -764,6 +762,9 @@
+ 		addr += BYTES_PER_WORD;
+ 		size -= 2*BYTES_PER_WORD;
+ 	}
++	if (cachep->flags & SLAB_STORE_USER) {
++		size -= BYTES_PER_WORD;
++	}
+ 	memset(addr, val, size);
+ 	*(unsigned char *)(addr+size-1) = POISON_END;
  }
- 
--static inline void activate_task(task_t *p, runqueue_t *rq)
-+/*
-+ * activate_task - move a task to the runqueue and do priority recalculation
-+ *
-+ * Update all the scheduling statistics stuff. (sleep average
-+ * calculation, priority modifiers, etc.)
-+ */
-+static inline int activate_task(task_t *p, runqueue_t *rq)
- {
- 	unsigned long sleep_time = jiffies - p->last_run;
-+	int requeue_waker = 0;
- 
- 	if (sleep_time) {
- 		int sleep_avg;
-@@ -357,23 +361,25 @@ static inline void activate_task(task_t 
- 		 */
- 		if (sleep_avg > MAX_SLEEP_AVG) {
- 			if (!in_interrupt()) {
--				prio_array_t *array = current->array;
--				BUG_ON(!array);
- 				sleep_avg += current->sleep_avg - MAX_SLEEP_AVG;
- 				if (sleep_avg > MAX_SLEEP_AVG)
- 					sleep_avg = MAX_SLEEP_AVG;
- 
--				current->sleep_avg = sleep_avg;
--				dequeue_task(current, array);
--				current->prio = effective_prio(current);
--				enqueue_task(current, array);
-+				if (current->sleep_avg != sleep_avg) {
-+					current->sleep_avg = sleep_avg;
-+					requeue_waker = 1;
-+				}
- 			}
- 			sleep_avg = MAX_SLEEP_AVG;
- 		}
--		p->sleep_avg = sleep_avg;
--		p->prio = effective_prio(p);
-+		if (p->sleep_avg != sleep_avg) {
-+			p->sleep_avg = sleep_avg;
-+			p->prio = effective_prio(p);
+@@ -791,11 +792,21 @@
+ 		addr += BYTES_PER_WORD;
+ 		size -= 2*BYTES_PER_WORD;
+ 	}
++	if (cachep->flags & SLAB_STORE_USER) {
++		size -= BYTES_PER_WORD;
++	}
+ 	end = fprob(addr, size);
+ 	if (end) {
+ 		int s;
+ 		printk(KERN_ERR "Slab corruption: start=%p, expend=%p, "
+ 				"problemat=%p\n", addr, addr+size-1, end);
++		if (cachep->flags & SLAB_STORE_USER) {
++			if (cachep->flags & SLAB_RED_ZONE)
++				printk(KERN_ERR "Last user: [<%p>]\n", *(void**)(addr+size+BYTES_PER_WORD));
++			else
++				printk(KERN_ERR "Last user: [<%p>]\n", *(void**)(addr+size));
++
 +		}
+ 		printk(KERN_ERR "Data: ");
+ 		for (s = 0; s < size; s++) {
+ 			if (((char*)addr)[s] == POISON_BEFORE)
+@@ -831,16 +842,19 @@
+ 	int i;
+ 	for (i = 0; i < cachep->num; i++) {
+ 		void *objp = slabp->s_mem + cachep->objsize * i;
++		int objlen = cachep->objsize;
+ 
+ 		if (cachep->flags & SLAB_POISON)
+ 			check_poison_obj(cachep, objp);
++		if (cachep->flags & SLAB_STORE_USER)
++			objlen -= BYTES_PER_WORD;
+ 
+ 		if (cachep->flags & SLAB_RED_ZONE) {
+ 			if (*((unsigned long*)(objp)) != RED_INACTIVE)
+ 				slab_error(cachep, "start of a freed object "
+ 							"was overwritten");
+-			if (*((unsigned long*)(objp + cachep->objsize -
+-					BYTES_PER_WORD)) != RED_INACTIVE)
++			if (*((unsigned long*)(objp + objlen - BYTES_PER_WORD))
++				       	!= RED_INACTIVE)
+ 				slab_error(cachep, "end of a freed object "
+ 							"was overwritten");
+ 			objp += BYTES_PER_WORD;
+@@ -929,7 +943,7 @@
+ 		 * do not red zone large object, causes severe
+ 		 * fragmentation.
+ 		 */
+-		flags |= SLAB_RED_ZONE;
++		flags |= SLAB_RED_ZONE|SLAB_STORE_USER;
+ 	flags |= SLAB_POISON;
+ #endif
+ #endif
+@@ -966,6 +980,10 @@
+ 		flags &= ~SLAB_HWCACHE_ALIGN;
+ 		size += 2*BYTES_PER_WORD;	/* words for redzone */
  	}
- 	__activate_task(p, rq);
-+
-+	return requeue_waker;
++	if (flags & SLAB_STORE_USER) {
++		flags &= ~SLAB_HWCACHE_ALIGN;
++		size += BYTES_PER_WORD;		/* word for kfree caller address */
++	}
+ #endif
+ 	align = BYTES_PER_WORD;
+ 	if (flags & SLAB_HWCACHE_ALIGN)
+@@ -1322,15 +1340,20 @@
+ 	for (i = 0; i < cachep->num; i++) {
+ 		void* objp = slabp->s_mem+cachep->objsize*i;
+ #if DEBUG
++		int objlen = cachep->objsize;
+ 		/* need to poison the objs? */
+ 		if (cachep->flags & SLAB_POISON)
+ 			poison_obj(cachep, objp, POISON_BEFORE);
++		if (cachep->flags & SLAB_STORE_USER) {
++			objlen -= BYTES_PER_WORD;
++			((unsigned long*)(objp+objlen))[0] = 0;
++		}
+ 
+ 		if (cachep->flags & SLAB_RED_ZONE) {
+ 			*((unsigned long*)(objp)) = RED_INACTIVE;
+-			*((unsigned long*)(objp + cachep->objsize -
+-					BYTES_PER_WORD)) = RED_INACTIVE;
+ 			objp += BYTES_PER_WORD;
++			objlen -= 2* BYTES_PER_WORD;
++			*((unsigned long*)(objp + objlen)) = RED_INACTIVE;
+ 		}
+ 		/*
+ 		 * Constructors are not allowed to allocate memory from
+@@ -1341,14 +1364,13 @@
+ 			cachep->ctor(objp, cachep, ctor_flags);
+ 
+ 		if (cachep->flags & SLAB_RED_ZONE) {
++			if (*((unsigned long*)(objp + objlen)) != RED_INACTIVE)
++				slab_error(cachep, "constructor overwrote the"
++							" end of an object");
+ 			objp -= BYTES_PER_WORD;
+ 			if (*((unsigned long*)(objp)) != RED_INACTIVE)
+ 				slab_error(cachep, "constructor overwrote the"
+ 							" start of an object");
+-			if (*((unsigned long*)(objp + cachep->objsize -
+-					BYTES_PER_WORD)) != RED_INACTIVE)
+-				slab_error(cachep, "constructor overwrote the"
+-							" end of an object");
+ 		}
+ #else
+ 		if (cachep->ctor)
+@@ -1490,11 +1512,12 @@
+ #endif 
  }
  
- /*
-@@ -486,8 +492,8 @@ void kick_if_running(task_t * p)
-  */
- static int try_to_wake_up(task_t * p, unsigned int state, int sync)
+-static inline void *cache_free_debugcheck (kmem_cache_t * cachep, void * objp)
++static inline void *cache_free_debugcheck (kmem_cache_t * cachep, void * objp, void *caller)
  {
-+	int success = 0, requeue_waker = 0;
- 	unsigned long flags;
--	int success = 0;
- 	long old_state;
- 	runqueue_t *rq;
+ #if DEBUG
+ 	struct page *page;
+ 	unsigned int objnr;
++	int objlen = cachep->objsize;
+ 	struct slab *slabp;
  
-@@ -513,7 +519,7 @@ repeat_lock_task:
- 			if (sync)
- 				__activate_task(p, rq);
- 			else {
--				activate_task(p, rq);
-+				requeue_waker = activate_task(p, rq);
- 				if (p->prio < rq->curr->prio)
- 					resched_task(rq->curr);
- 			}
-@@ -523,6 +529,21 @@ repeat_lock_task:
+ 	kfree_debugcheck(objp);
+@@ -1503,16 +1526,21 @@
+ 	BUG_ON(GET_PAGE_CACHE(page) != cachep);
+ 	slabp = GET_PAGE_SLAB(page);
+ 
++	if (cachep->flags & SLAB_STORE_USER) {
++		objlen -= BYTES_PER_WORD;
++	}
+ 	if (cachep->flags & SLAB_RED_ZONE) {
+ 		objp -= BYTES_PER_WORD;
+ 		if (xchg((unsigned long *)objp, RED_INACTIVE) != RED_ACTIVE)
+ 			slab_error(cachep, "double free, or memory before"
+ 						" object was overwritten");
+-		if (xchg((unsigned long *)(objp+cachep->objsize -
+-				BYTES_PER_WORD), RED_INACTIVE) != RED_ACTIVE)
++		if (xchg((unsigned long *)(objp+objlen-BYTES_PER_WORD), RED_INACTIVE) != RED_ACTIVE)
+ 			slab_error(cachep, "double free, or memory after "
+ 						" object was overwritten");
  	}
- 	task_rq_unlock(rq, &flags);
++	if (cachep->flags & SLAB_STORE_USER) {
++		*((void**)(objp+objlen)) = caller;
++	}
  
-+	/*
-+	 * We have to do this outside the other spinlock, the two
-+	 * runqueues might be different:
-+	 */
-+	if (requeue_waker) {
-+		prio_array_t *array;
+ 	objnr = (objp-slabp->s_mem)/cachep->objsize;
+ 
+@@ -1665,22 +1693,31 @@
+ 
+ static inline void *
+ cache_alloc_debugcheck_after(kmem_cache_t *cachep,
+-			unsigned long flags, void *objp)
++			unsigned long flags, void *objp, void *caller)
+ {
+ #if DEBUG
++	int objlen = cachep->objsize;
 +
-+		rq = task_rq_lock(current, &flags);
-+		array = current->array;
-+		dequeue_task(current, array);
-+		current->prio = effective_prio(current);
-+		enqueue_task(current, array);
-+		task_rq_unlock(rq, &flags);
+ 	if (!objp)	
+ 		return objp;
+ 	if (cachep->flags & SLAB_POISON)
+ 		check_poison_obj(cachep, objp);
++	if (cachep->flags & SLAB_STORE_USER) {
++		objlen -= BYTES_PER_WORD;
++		*((void **)(objp+objlen)) = caller;
 +	}
 +
- 	return success;
+ 	if (cachep->flags & SLAB_RED_ZONE) {
+ 		/* Set alloc red-zone, and check old one. */
+-		if (xchg((unsigned long *)objp, RED_ACTIVE) != RED_INACTIVE)
++		if (xchg((unsigned long *)objp, RED_ACTIVE) != RED_INACTIVE) {
+ 			slab_error(cachep, "memory before object was "
+ 						"overwritten");
+-		if (xchg((unsigned long *)(objp+cachep->objsize -
+-			  BYTES_PER_WORD), RED_ACTIVE) != RED_INACTIVE)
++		}
++		if (xchg((unsigned long *)(objp+objlen - BYTES_PER_WORD),
++				       	RED_ACTIVE) != RED_INACTIVE) {
+ 			slab_error(cachep, "memory after object was "
+ 						"overwritten");
++		}
+ 		objp += BYTES_PER_WORD;
+ 	}
+ 	if (cachep->ctor && cachep->flags & SLAB_POISON) {
+@@ -1715,7 +1752,7 @@
+ 		objp = cache_alloc_refill(cachep, flags);
+ 	}
+ 	local_irq_restore(save_flags);
+-	objp = cache_alloc_debugcheck_after(cachep, flags, objp);
++	objp = cache_alloc_debugcheck_after(cachep, flags, objp, __builtin_return_address(0));
+ 	return objp;
  }
  
-@@ -2360,7 +2381,7 @@ repeat:
- 			set_task_cpu(p, cpu_dest);
- 			if (p->array) {
- 				deactivate_task(p, rq_src);
--				activate_task(p, rq_dest);
-+				__activate_task(p, rq_dest);
- 				if (p->prio < rq_dest->curr->prio)
- 					resched_task(rq_dest->curr);
- 			}
+@@ -1822,7 +1859,7 @@
+ 	struct array_cache *ac = ac_data(cachep);
+ 
+ 	check_irq_off();
+-	objp = cache_free_debugcheck(cachep, objp);
++	objp = cache_free_debugcheck(cachep, objp, __builtin_return_address(0));
+ 
+ 	if (likely(ac->avail < ac->limit)) {
+ 		STATS_INC_FREEHIT(cachep);
+
+--------------060405000203080404060107--
 

@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263228AbUAIRRV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 12:17:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbUAIRRV
+	id S263345AbUAIRSm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 12:18:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbUAIRRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 12:17:21 -0500
-Received: from iron-c-1.tiscali.it ([212.123.84.81]:12577 "EHLO
-	mailr-1.tiscali.it") by vger.kernel.org with ESMTP id S263228AbUAIRRS
+	Fri, 9 Jan 2004 12:17:24 -0500
+Received: from 204.Red-213-96-224.pooles.rima-tde.net ([213.96.224.204]:60946
+	"EHLO betawl.net") by vger.kernel.org with ESMTP id S263221AbUAIRRS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 9 Jan 2004 12:17:18 -0500
-Date: Fri, 9 Jan 2004 18:17:33 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] New FBDev patch
-Message-ID: <20040109171733.GA13027@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-References: <Pine.LNX.4.44.0401082108080.12797-100000@phoenix.infradead.org>
+Date: Fri, 9 Jan 2004 18:17:15 +0100
+From: Santiago Garcia Mantinan <manty@manty.net>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ALSA in 2.6 failing to find the OPL chip of the sb cards
+Message-ID: <20040109171715.GA933@man.manty.net>
+References: <20040107212916.GA978@man.manty.net> <s5hy8sixsor.wl@alsa2.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0401082108080.12797-100000@phoenix.infradead.org>
-User-Agent: Mutt/1.4i
+In-Reply-To: <s5hy8sixsor.wl@alsa2.suse.de>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Thu, Jan 08, 2004 at 10:03:54PM +0000, James Simmons ha scritto: 
-> 
-> This is the latest patch against 2.6.0-rc3. Give it a try.
-> 
-> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+> compile with CONFIG_SND_DEBUG and CONFIG_SND_VERBOSE_PRINTK.
+> if it's in snd_opl3_detect(), "OPL2/3 chip not detected at ..."
+> message should appear (together with other message in
+> snd_opl3_detect()).
 
-> <kronos@kronoz.cjb.net> (03/09/17 1.1267.40.1)
->    Add new API framebuffer_alloc and framebuffer_release.
->    
->    Framebuffer info structure (ie. struct fb_info) must be obtained from
->    framebuffer_alloc. When it is no longer needed (after unregister_framebuffer
->    and clean up) it can be released using framebuffer_release.
->    
->    If the framebuffer is not registered yet (eg. on error path) then fb_info must
->    be released via kfree. 
+I have tested now with 2.6.1 with vanilla driver (0.9.7) and also with 1.0.1
+using the patch that Jaroslav posted yesterday available at
+ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-bk-2004-01-08.patch.gz
+and got the same result as before, these are the messages for 1.0.1:
 
+pnp: Device 00:01.00 activated.
+ALSA sound/isa/sb/sb16.c:313: pnp SB16: port=0x220, mpu port=0x330, fm port=0x388
+ALSA sound/isa/sb/sb16.c:315: pnp SB16: dma1=1, dma2=5, irq=10
+ALSA sound/isa/sb/sb_common.c:133: SB [0x220]: DSP chip found, version = 4.13
+ALSA sound/drivers/opl3/opl3_lib.c:133: OPL3: stat1 = 0xff
+ALSA sound/drivers/opl3/opl3_lib.c:444: OPL2/3 chip not detected at 0x388/0x38a
+ALSA sound/isa/sb/sb16.c:489: sb16: no OPL device at 0x388-0x38a
 
-Are we sure that we want this for 2.6? Greg KH has a much less intrusive
-patch, maybe you should take that instead and keep my work 2.7.
+Hope it helps.
 
-If you decide to go with framebuffer_alloc then I have more patches for
-you ;)
-
-Luca
+Regards...
 -- 
-Reply-To: kronos@kronoz.cjb.net
-Home: http://kronoz.cjb.net
-I went to God just to see
-And I was looking at me
-Saw heaven and hell were lies
-When I'm God everyone dies
+Manty/BestiaTester -> http://manty.net

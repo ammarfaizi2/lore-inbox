@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270809AbTHFQhc (ORCPT <rfc822;willy@w.ods.org>);
+	id S270760AbTHFQhc (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 6 Aug 2003 12:37:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270760AbTHFQgH
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270763AbTHFQgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 12:36:07 -0400
-Received: from [213.4.129.129] ([213.4.129.129]:42723 "EHLO tsmtp6.mail.isp")
-	by vger.kernel.org with ESMTP id S270206AbTHFQeM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 12:34:12 -0400
-Date: Wed, 6 Aug 2003 18:34:10 +0200
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
-To: Hans Reiser <reiser@namesys.com>
-Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: Filesystem Tests
-Message-Id: <20030806183410.49edfa89.diegocg@teleline.es>
-In-Reply-To: <3F310B6D.6010608@namesys.com>
-References: <3F306858.1040202@mrs.umn.edu>
-	<20030805224152.528f2244.akpm@osdl.org>
-	<3F310B6D.6010608@namesys.com>
-X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Wed, 6 Aug 2003 12:36:01 -0400
+Received: from mail.kroah.org ([65.200.24.183]:130 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270760AbTHFQfT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 12:35:19 -0400
+Date: Wed, 6 Aug 2003 09:35:29 -0700
+From: Greg KH <greg@kroah.com>
+To: Ruben Puettmann <ruben@puettmann.net>
+Cc: linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net
+Subject: Re: [Linux-usb-users] 2.4.22-pre10-ac1 after resume from suspend usb not aviable
+Message-ID: <20030806163529.GB6209@kroah.com>
+References: <20030805143254.GA5844@puettmann.net> <20030806055732.GC6966@kroah.com> <20030806090525.GA10564@puettmann.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030806090525.GA10564@puettmann.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Wed, 06 Aug 2003 18:06:37 +0400 Hans Reiser <reiser@namesys.com> escribió:
-
-> I don't think ext2 is a serious option for servers of the sort that 
-> Linux specializes in, which is probably why he didn't measure it.
-
-Why?
-
+On Wed, Aug 06, 2003 at 11:05:26AM +0200, Ruben Puettmann wrote:
+> On Tue, Aug 05, 2003 at 10:57:32PM -0700, Greg KH wrote:
+> > On Tue, Aug 05, 2003 at 04:32:54PM +0200, Ruben Puettmann wrote:
+> > > 
+> > > Suspend works if radeonfb is not loaded. But after resume from suspend
+> > > all USB devices are not aviable. If I try to start the hotplug manager
+> > > new I got this Errors: 
+> > 
+> > Try unloading all usb drivers before suspending, that should work
+> > better.
+> > 
 > 
-> reiser4 cpu consumption is still dropping rapidly as others and I find 
-> kruft in the code and remove it.  Major kruft remains still.
+> That can not be the solution. It's a not nice workaround.
 
-Cool.
+Heh, that's the only sure way to do this reliably right now for 2.4,
+sorry.
+
+greg k-h

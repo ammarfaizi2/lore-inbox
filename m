@@ -1,103 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbVCRDpK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVCREAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261450AbVCRDpK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 22:45:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVCRDop
+	id S261220AbVCREAS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 23:00:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbVCREAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 22:44:45 -0500
-Received: from ozlabs.org ([203.10.76.45]:62180 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261461AbVCRDnY (ORCPT
+	Thu, 17 Mar 2005 23:00:18 -0500
+Received: from soundwarez.org ([217.160.171.123]:38799 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S261220AbVCREAF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 22:43:24 -0500
-MIME-Version: 1.0
+	Thu, 17 Mar 2005 23:00:05 -0500
+Date: Fri, 18 Mar 2005 05:00:02 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: linux-kernel@vger.kernel.org
+Cc: Greg KH <greg@kroah.com>
+Subject: [PATCH 1/6] kobject/hotplug split - kobject add/remove
+Message-ID: <20050318040002.GA498@vrfy.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16954.18811.500766.244979@cargo.ozlabs.ibm.com>
-Date: Fri, 18 Mar 2005 14:22:35 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-Cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org, ak@muc.de, Greg KH <greg@kroah.com>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: RE: PCI Error Recovery API Proposal. (WAS:: [PATCH/RFC]
-	PCIErrorRecovery)
-In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E5024080FDBA3@orsmsx404.amr.corp.intel.com>
-References: <C7AB9DA4D0B1F344BF2489FA165E5024080FDBA3@orsmsx404.amr.corp.intel.com>
-X-Mailer: VM 7.19 under Emacs 21.3.1
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nguyen, Tom L writes:
+kobject_add() and kobject_del() don't emit hotplug events anymore.
+The user should do it itself if it has finished populating the device
+directory.
 
-> Is EEH a PCI-SIG specification? Is EEH specs available in public?
+Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
 
-No and no (not yet anyway).
+===== lib/kobject.c 1.58 vs edited =====
+--- 1.58/lib/kobject.c	2005-03-09 18:04:09 +01:00
++++ edited/lib/kobject.c	2005-03-18 02:17:18 +01:00
+@@ -184,8 +184,6 @@ int kobject_add(struct kobject * kobj)
+ 		unlink(kobj);
+ 		if (parent)
+ 			kobject_put(parent);
+-	} else {
+-		kobject_hotplug(kobj, KOBJ_ADD);
+ 	}
+ 
+ 	return error;
+@@ -207,7 +205,8 @@ int kobject_register(struct kobject * ko
+ 			printk("kobject_register failed for %s (%d)\n",
+ 			       kobject_name(kobj),error);
+ 			dump_stack();
+-		}
++		} else
++			kobject_hotplug(kobj, KOBJ_ADD);
+ 	} else
+ 		error = -EINVAL;
+ 	return error;
+@@ -301,7 +300,6 @@ int kobject_rename(struct kobject * kobj
+ 
+ void kobject_del(struct kobject * kobj)
+ {
+-	kobject_hotplug(kobj, KOBJ_REMOVE);
+ 	sysfs_remove_dir(kobj);
+ 	unlink(kobj);
+ }
+@@ -314,6 +312,7 @@ void kobject_del(struct kobject * kobj)
+ void kobject_unregister(struct kobject * kobj)
+ {
+ 	pr_debug("kobject %s: unregistering\n",kobject_name(kobj));
++	kobject_hotplug(kobj, KOBJ_REMOVE);
+ 	kobject_del(kobj);
+ 	kobject_put(kobj);
+ }
 
-> It seems that a PCI-PCI bridge per slot is hardware implementation
-> specific. The fact that the PCI-PCI Bridge can isolate the slot is
-> hardware feature specific.
-
-Well, it's a common feature across all current IBM PPC64 machines.
-
-> PCI Express AER driver uses similar concept of determining whether the
-> driver is AER-aware or not except that PCI Express AER is independent
-> from firmware support.
-
-Don't worry about the firmware; the driver won't have to interact with
-firmware itself, that's the job of the ppc64-specific platform code.
-
-> Where does the platform code reside and where does it log the error?
-
-By platform code I meant the code under the arch directory that knows
-the details of the I/O topology of the machine, how to access the PCI
-host bridges, etc.  How and where it logs the error is a platform
-policy; on IBM ppc64 machines we have an error log daemon for this
-purpose, which can do things like log the error to a file or send it
-to another machine.
-
-> In PCI Express if the driver is not AER-aware the fatal error message is
-> reported by its upstream switch, the AER driver obtains comprehensive
-> error information from the upstream switch (like EEH platform code
-> obtains error information from the firmware). Since the driver is not
-> AER-aware, the fatal error is reported to user to make a policy decision
-> since the PCI Express does not have a hot-plug event for the slot like
-> EEH platform. 
-
-If there is a permanent failure of an upstream link, then maybe
-generating unplug events for the devices below it would be a useful
-thing to do.
-
-> So it looks like the hot-plug capability of the driver is being used in
-> lieu of specific callbacks to freeze and thaw IO in the case of a
-> non-aware driver.  If the driver does not support hot-plug then the
-> error is just logged.  Do you leave the slot isolated or perform error
-> recovery anyway?
-
-The choice is really to leave the slot isolated or to panic the
-system.  Leaving the slot isolated risks having the driver loop in an
-interrupt routine or deliver bad data to userspace, so we currently
-panic the system.
-
-> On a fatal error the interface is down.  No matter what the driver
-
-Which interface do you mean here?
-
-> supports (AER aware, EEH aware, unaware) all IO is likely to fail.
-> Resetting a bus in a point-to-point environment like PCI Express or EEH
-> (as you describe) should have little adverse effect.  The risk is the
-> bus reset will cause a card reset and the driver must understand to
-> re-initialize the card.  A link reset in PCI Express will not cause a
-> card reset.  We assume the driver will reset its card if necessary.
-
-How will the driver reset its card?
-
-> In PCI Express the AER driver obtains fatal error information from the
-> upstream switch driver. We can use the same API with message =
-> PCIERR_ERROR_RECOVER to notify the endpoint driver, which is maybe
-> unaware of the fatal error reported by its upstream device. Mostly the
-> driver will respond with PCIERR_RESULT_NEED_RESET.
-
-Sounds fine.
-
-Paul.

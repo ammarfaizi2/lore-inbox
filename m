@@ -1,137 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268182AbUHQLPJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265410AbUHQLR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268182AbUHQLPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 07:15:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265410AbUHQLPI
+	id S265410AbUHQLR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 07:17:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268184AbUHQLR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 07:15:08 -0400
-Received: from fep01fe.ttnet.net.tr ([212.156.4.130]:57821 "EHLO
-	fep01.ttnet.net.tr") by vger.kernel.org with ESMTP id S268184AbUHQLNk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 07:13:40 -0400
-Message-ID: <4121E829.4090801@ttnet.net.tr>
-Date: Tue, 17 Aug 2004 14:12:41 +0300
-From: "O.Sezer" <sezeroz@ttnet.net.tr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: tr, en-us, en
-MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
-Subject: Re: [PATCH 2.4] blacklist a device in usb-storage
-References: <mailman.1092508141.32379.linux-kernel2news@redhat.com><20040815235204.0e9ec874@lembas.zaitcev.lan><412066BC.9040503@ttnet.net.tr><20040816080751.733c188d@lembas.zaitcev.lan><4120D8B1.6040000@ttnet.net.tr>
-	 <20040816153243.7e050372@lembas.zaitcev.lan>
-In-Reply-To: <20040816153243.7e050372@lembas.zaitcev.lan>
-Content-Type: multipart/mixed;
-	boundary="------------010903020606070507060808"
-X-ESAFE-STATUS: Mail clean
-X-ESAFE-DETAILS: Clean
+	Tue, 17 Aug 2004 07:17:26 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:54225 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S265410AbUHQLPi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 07:15:38 -0400
+Date: Tue, 17 Aug 2004 13:14:59 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200408171114.i7HBExCu028332@burner.fokus.fraunhofer.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1 Mis-detect CRDW as CDROM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010903020606070507060808
-Content-Type: text/plain;
-	charset=us-ascii;
-	format=flowed
-Content-Transfer-Encoding: 7bit
+>If the programs must be set suid, is that safe? In the past I was
+>always told that setting e.g. cdrecord suid was a possible security issue.
+>But I really don't understand enough of the new security model in the
+>kernel to judge if that's right or wrong...
 
-Pete Zaitcev wrote:
-[...]
->> >>EIP; e0d24da0 <[sr_mod]sr_registered+22deec/22e1ac>   <=====
-> 
-> 
->>Trace; e0a3b9cf <[usb-uhci]process_interrupt+21f/260>
->>Trace; e0a3bde4 <[usb-uhci]process_urb+254/260>
->>Trace; e0207ee9 <_end+1fe721a5/2064e31c>
->>Trace; e0a3be87 <[usb-uhci]uhci_interrupt+97/170>
->>Trace; c010a848 <handle_IRQ_event+48/80>
->>Trace; c010aa33 <do_IRQ+83/f0>
->>Trace; c0107150 <default_idle+0/40>
->>Trace; c01071f4 <cpu_idle+34/40>
-> 
-> 
-> Hmm. This looks fishy, because sr_registered is not a function.
+Judging from the number of reports, I would guess that the Linux kernel is
+much more insecure than cdrecord.
 
-Yeah it's not reliable :/  How about [snd-seq-midi].data.end
-(the finding if don't I don't unload any modules. After every
-module unload the finding changes.)
+What some people did (chmod on /dev/ entries) was definitely always a bigger
+security risk than running cdrecord suid root.
 
-> Does the same happen after "echo /bin/true > /proc/sys/kernel/hotplug"?
+What SuSE tries (writing a resource manager) is also a bigger security risk
+then cdrecord itself (at least as long as it is not done decently).
 
-Doesn't change anything:
-Do the "echo /bin/true > /proc/sys/kernel/hotplug", plug the
-disk, manually do "/sbin/modprobe usb-storage", watch the same
-scene about interrupts etc, unplug the disk (this time no
-hotplug magic is in effect), "/sbin/modprobe -r usb-storage"
-and panic. I guess the device is never released from the scsi
-layer??? The attached file has the panic info (unreliable as
-before; and yes it's nvidia-tainted, but nvidia is irrelevant
-it happens reliably all the time).
+There has been only one expliot for cdrecord so far and a fix has been available
+within hours (long before the exploit has been made public). There has been
+one additional possible buffer overflow (reported by the author of the SuSE 
+resource manager who did not respond after I told him why the SuSE resource 
+manager is a security risk).
 
- > Maybe your hotplug setup yanks a module. I heard some crazy distro
- > did that on unplug.
+Cdrecord has been converted to run with effective id 0 only in the start up 
+phase 1.5 years ago. It has been enabled to work with Sun's security 
+enhancements (euid 0 is needed for ioctl USCSI) 8 months ago.
 
-This is Redhat-9, using hotplug-2004_04_01-4 from rawhide.
-I remember the very same failures when I was using Mandrake9.0,
-so the distro change doesn't seem to make a difference (yet).
+If Linux believes that there should be enhanced security similar to Solaris and 
+if Linux is a true open Source business, then I would expect that there is 
+cooperation. If I change things in e.g. mkisofs or cdrecord that could result
+in problems for my "users", I send a notification mail to the XCDRoast & k3b 
+authors early enough.
 
-I still strongly beleive that we need a blacklisting mechanism
-for crazy cases like this.
+If Linux plans to implement incompatible changes, I would expect that 
+"important users" are informed in advance so that it is possible to discuss the 
+problems an to have a planned smooth migration. As this did not happen, the 
+change needs to be called a bug. This is even more obvious if we take into 
+account that cdrtools curently is in code freeze state as a 2.01-final will 
+come the next days.
 
-Regards,
-Ozkan Sezer
+For this reason, I would recommend that Linux immediately goes back to the old
+behavior and informs "important users". A change that has effects that are as
+widely as this one should not be tried again within the next 3 months. Then 
+there is a change to have a smooth migration......
 
---------------010903020606070507060808
-Content-Type: text/plain;
-	name="panic-2.log"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="panic-2.log"
-
-ksymoops 2.4.5 on i686 2.4.27-acx2.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.27-acx2 (specified)
-     -m /boot/System.map-2.4.27-acx2 (default)
-
-Warning (compare_maps): mismatch on symbol _nv000173rm  , nvidia says e0f24100, /lib/modules/2.4.27-acx2/nvidia/nvidia.o says e0f23ee0.  Ignoring /lib/modules/2.4.27-acx2/nvidia/nvidia.o entry
-CPU: 0
-EIP: 0010: [<e0f4ada0>]  Tainted: P
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010286
-eax: db949164   ebx: ffffffac   ecx: 00000003   edx: ffffffac
-esi: 00000000   edi: de6a9c74   ebp: db6fbf18   esp: db6fbef4
-ds: 0018   es: 0018   ss: 0018
-Process swapper: (pid: 9027, stackpage= db6f6000)
-Stack:  e0a3b9cf  de6a9c74  de6a9c74  db949164
-        c17593c0  db949164  c1617ef0  c1617ed4
-        de6a9c74  db6fbf48  e0a3bde4  c1617ed4
-        de6a9c74  0000b708  c12551a0  00000286
-        00000000  00000000  c1617ef0  00000001
-        c1617ed4  db6fbf78  e0a3be87  c1617ed4
-Call Trace: [<e0a3b9cf>]  [<e0a3bde4>]  [<e0a3be87>]
-        [<c010a848>]   [<c010aa33>]
-Code: Bad EIP value
+BTW: I try to inform my "important users" more than a year before I introduce
+important changes.
 
 
->>EIP; e0f4ada0 <[nvidia].data.end+3e69/1016129>   <=====
 
->>eax; db949164 <_end+1b5b3420/2064e31c>
->>ebx; ffffffac <END_OF_CODE+1e0436ac/????>
->>edx; ffffffac <END_OF_CODE+1e0436ac/????>
->>edi; de6a9c74 <_end+1e313f30/2064e31c>
->>ebp; db6fbf18 <_end+1b3661d4/2064e31c>
->>esp; db6fbef4 <_end+1b3661b0/2064e31c>
+Jörg
 
-Trace; e0a3b9cf <[usb-uhci]process_interrupt+21f/260>
-Trace; e0a3bde4 <[usb-uhci]process_urb+254/260>
-Trace; e0a3be87 <[usb-uhci]uhci_interrupt+97/170>
-Trace; c010a848 <handle_IRQ_event+48/80>
-Trace; c010aa33 <do_IRQ+83/f0>
-
-<0>Kernel panic: Aiee, killing interrupt handler!
-
-1 warning issued.  Results may not be reliable.
-
---------------010903020606070507060808--
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

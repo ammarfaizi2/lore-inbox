@@ -1,69 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271785AbTGRTzT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 15:55:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271794AbTGRTzS
+	id S270302AbTGRTwA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 15:52:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270352AbTGRTwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 15:55:18 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:59560 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S271785AbTGRTzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 15:55:03 -0400
-Subject: Re: Bitkeeper
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: rms@gnu.org
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E19dbGS-00026T-9R@fencepost.gnu.org>
-References: <E19dbGS-00026T-9R@fencepost.gnu.org>
-Content-Type: text/plain
-Message-Id: <1058558982.2479.28.camel@aurora.localdomain>
+	Fri, 18 Jul 2003 15:52:00 -0400
+Received: from mail.egps.com ([38.119.130.6]:37649 "EHLO egps.com")
+	by vger.kernel.org with ESMTP id S270365AbTGRTvv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 15:51:51 -0400
+Date: Fri, 18 Jul 2003 16:06:43 -0400
+From: Nachman Yaakov Ziskind <awacs@egps.com>
+To: linux-kernel@vger.kernel.org
+Subject: DVD-RAM crashing system
+Message-ID: <20030718160643.A21755@egps.egps.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 18 Jul 2003 16:09:42 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-07-18 at 15:51, Richard Stallman wrote:
->     > If you are trying to copy BK, give it up.  We'll simply follow in the
->     > footsteps of every other company faced with this sort of thing and change
->     > the protocol every 6 months.  Since you would be chasing us you can never
->     > catch up.  If you managed to stay close then we'd put digital signatures
->     > into the protocol to prevent your clone from interoperating with BK.
-> 
-> I think it would be appropriate at this point to write a free client
-> that talks with Bitkeeper, and for Linux developers to start switching
-> to that from Bitkeeper.  At that point, McVoy will face a hard choice:
-> if he carries out these threats, he risks alienating the community
-> that he hopes will market Bitkeeper for him.
+... bought a Dell Poweredge 600 box with RH 7.3 (2.4.18-4 #1)
+pre-installed, and SCSI hard disks. Added a Matsushita DVD-RAM
+LF-D311 atapi dvd-ram (that, along with a cd-rom, are the only
+IDE devices).
 
-I can't believe I am going to do this.  Especially, where most of my
-contributions to OSS/Free Software are not known on this list and the
-argument is stupid.
+Now, when I do a full backup (as opposed to a differential; I'm
+using Microlite's BackupEdge, a Super-Tar), the machine
+(sometimes) hangs with the error message:
 
-McVoy, changing the protocol would be extremely stupid.  However, it is
-your product, so do as you wish.
+"Serverworks OSB4 in impossible state.
+Disable UDMA or if you are using Seagate then try switching disk
+types on this controller. Please report this event to osb4-
+bug@ide.cabal.tm 
+OSB4: continuing might cause disk corruption."
 
-Stallman, believe it or not, you used to be someone I looked up to a
-great deal.  I still think some of your ideas are great and I would love
-to see the entire world as open source.  However, to encourage people to
-do things that are known to antagonize others is crazy.  CVS is crap.  I
-haven't used Bitkeeper but I have tried a lot of others, and they are
-junk.  So, if Bitkeeper is as good as Linus et al think it is, then it
-would be insane to do anything to ruin the relationship they have with
-Bitkeeper.  Ideology is great, but it does have to be tempered and meted
-out so that it can be implemented in a way that brings the most good to
-everyone.  At this point, ticking off McVoy will likely do the opposite.
+RH support advised me to remove "ide0=ata66 ide1=ata66" from the
+kernel line in /boot/grub/grub.conf, add "ide-nodma" and reboot.
+No joy. Note the following kernel messages at boot-up:
 
-McVoy, thank you for helping Linus, Cox, Miller et al scale better.  As
-I have said before, I hope there is some way your software can become
-more open, but I will leave that up to you and your team to figure out
-when and how.
+Jul 18 02:31:52 gemach kernel: Kernel command line: ro
+root=/dev/sda9 hda=ide-scsi ide=nodma
+Jul 18 02:31:52 gemach kernel: ide_setup: hda=ide-scsi
+Jul 18 02:31:54 gemach kernel: ide0: BM-DMA at 0x08b0-0x08b7,
+BIOS settings: hda:pio, hdb:pio
+Jul 18 02:31:55 gemach kernel: ide1: BM-DMA at 0x08b8-0x08bf,
+BIOS settings: hdc:DMA, hdd:pio
+Jul 18 02:31:55 gemach kernel: hda: MATSHITADVD-RAM LF-D311,
+ATAPI CD/DVD-ROM drive
+Jul 18 02:31:55 gemach kernel: hdc: GCR-8481B, ATAPI CD/DVD-ROM
+drive
+Jul 18 02:31:35 gemach rc.sysinit: Setting hard drive parameters
+for hdc: succeeded
+Jul 18 02:31:59 gemach kernel: hdc: ATAPI 48X CD-ROM drive, 128kB
+Cache
+Jul 18 02:31:59 gemach kernel: hda: driver not present
+Jul 18 02:31:59 gemach kernel: hda: DMA disabled
+Jul 18 02:31:59 gemach kernel: hdc: DMA disabled
+Jul 18 02:31:59 gemach kernel: hdc: DMA disabled
 
-Have a good one everyone.
+According to the RH technician, 
 
-Trever
---
-"All this technology has somehow made you a stranger in your own land."
--- Robert M. Pirsig
+"Unfortunately this may be beyond a software resolution. On the
+machine I last saw this error on (it was not a Dell) the chipset
+would not accept commands that disabled DMA properly. By issuing
+the normal commands to disable DMA, then checking in various
+parts of the /proc filesystem, you would find parts of the
+kernel that believe DMA to be disabled, and other parts that
+believe DMA enabled- thus an 'impossible state'."
 
+Anyone out there with tips on how to resolve this? Perhaps I can
+force the kernel to think that DMA has been disabled?
+
+Thanks in advance, and please cc: me at awacs@egps.com.
+
+-- 
+_________________________________________
+Nachman Yaakov Ziskind, EA, LLM         awacs@egps.com
+Attorney and Counselor-at-Law           http://yankel.com
+Economic Group Pension Services         http://egps.com
+Actuaries and Employee Benefit Consultants

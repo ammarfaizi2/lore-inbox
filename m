@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266094AbTFWSrV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 14:47:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266091AbTFWSrT
+	id S266097AbTFWStj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 14:49:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266098AbTFWStj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 14:47:19 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:33805 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S266102AbTFWSqw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 14:46:52 -0400
-Subject: Re: O(1) scheduler & interactivity improvements
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: John Bradford <john@grabjohn.com>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030623163234.GA1184@hh.idb.hist.no>
-References: <200306231244.h5NCiE1Q000920@81-2-122-30.bradfords.org.uk>
-	 <20030623163234.GA1184@hh.idb.hist.no>
-Content-Type: text/plain
-Message-Id: <1056394844.587.10.camel@teapot.felipe-alfaro.com>
+	Mon, 23 Jun 2003 14:49:39 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:53489 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266097AbTFWStf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 14:49:35 -0400
+Date: Mon, 23 Jun 2003 21:03:35 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [2.5 patch] postfix a constant in efi.h with ULL
+Message-ID: <20030623190335.GJ3710@fs.tum.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 23 Jun 2003 21:00:45 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-23 at 18:32, Helge Hafting wrote:
-> > Well, no, opaque window moving is fine if the CPU isn't at 100%.  If
-> > it is, I'd rather see choppy window movements than have a server
-> > application starved of CPU.  That's just my preference, though.
-> > 
-> That could be an interesting hack to a window manager - 
-> don't start the move in opaque mode when the load is high.
+The patch below postfixes a constant in efi.h with ULL, on 32 bit archs 
+this constant is too big for an int.
 
-But there are so many window managers floating out there...
+cu
+Adrian
 
+--- linux-2.5.73-not-full/fs/partitions/efi.h.old	2003-06-23 21:01:29.000000000 +0200
++++ linux-2.5.73-not-full/fs/partitions/efi.h	2003-06-23 21:01:42.000000000 +0200
+@@ -40,7 +40,7 @@
+ #define EFI_PMBR_OSTYPE_EFI_GPT 0xEE
+ 
+ #define GPT_BLOCK_SIZE 512
+-#define GPT_HEADER_SIGNATURE 0x5452415020494645L
++#define GPT_HEADER_SIGNATURE 0x5452415020494645ULL
+ #define GPT_HEADER_REVISION_V1 0x00010000
+ #define GPT_PRIMARY_PARTITION_TABLE_LBA 1
+ 

@@ -1,15 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263494AbRFKPBg>; Mon, 11 Jun 2001 11:01:36 -0400
+	id <S263584AbRFKPC4>; Mon, 11 Jun 2001 11:02:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263536AbRFKPB0>; Mon, 11 Jun 2001 11:01:26 -0400
-Received: from web3505.mail.yahoo.com ([216.115.111.72]:49164 "HELO
+	id <S263536AbRFKPCg>; Mon, 11 Jun 2001 11:02:36 -0400
+Received: from web3505.mail.yahoo.com ([216.115.111.72]:4878 "HELO
 	web3505.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S263494AbRFKPBM>; Mon, 11 Jun 2001 11:01:12 -0400
-Message-ID: <20010611150111.7747.qmail@web3505.mail.yahoo.com>
-Date: Mon, 11 Jun 2001 16:01:11 +0100 (BST)
+	id <S263404AbRFKPC1>; Mon, 11 Jun 2001 11:02:27 -0400
+Message-ID: <20010611150226.7989.qmail@web3505.mail.yahoo.com>
+Date: Mon, 11 Jun 2001 16:02:26 +0100 (BST)
 From: =?iso-8859-1?q?Mich=E8l=20Alexandre=20Salim?= 
 	<salimma1@yahoo.co.uk>
+Subject: Clock drift with Transmeta Crusoe
 To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -43,6 +44,9 @@ out?
 Regards,
 
 Michel
+
+PS sorry for the previous post without subject, hit
+the send button accidentally
 
 ____________________________________________________________
 Do You Yahoo!?

@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264908AbTANV0y>; Tue, 14 Jan 2003 16:26:54 -0500
+	id <S264910AbTANVbR>; Tue, 14 Jan 2003 16:31:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264910AbTANV0y>; Tue, 14 Jan 2003 16:26:54 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:6151 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S264908AbTANV0x>; Tue, 14 Jan 2003 16:26:53 -0500
-Date: Tue, 14 Jan 2003 13:32:35 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Larry McVoy <lm@bitmover.com>
-cc: Richard Stallman <rms@gnu.org>, root@chaos.analogic.com,
-       pollard@admin.navo.hpc.mil, R.E.Wolff@BitWizard.nl, jalvo@mbay.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-In-Reply-To: <20030114190600.GC19154@work.bitmover.com>
-Message-ID: <Pine.LNX.4.10.10301141328000.23438-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S264920AbTANVbR>; Tue, 14 Jan 2003 16:31:17 -0500
+Received: from holomorphy.com ([66.224.33.161]:10120 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S264910AbTANVbR>;
+	Tue, 14 Jan 2003 16:31:17 -0500
+Date: Tue, 14 Jan 2003 13:40:07 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: anyone have a 16-bit x86 early_printk?
+Message-ID: <20030114214007.GH919@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel@vger.kernel.org
+References: <20030114113036.GG940@holomorphy.com> <485650000.1042560472@titus>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <485650000.1042560472@titus>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At some point in the past, I wrote:
+>> I'm trying to get a box to boot and it appears to drop dead before
+>> start_kernel(). Would anyone happen to have an early_printk() analogue
+>> for 16-bit x86 code?
 
-Oh, let him continue ... at least there is not a blue dress hidden.
-The last person in public to parse "is", is now gone.
-At this rate, all he will have is a mountain to preach from, as all the
-support around him will drop.
+On Tue, Jan 14, 2003 at 08:07:53AM -0800, Martin J. Bligh wrote:
+> See arch/i386/boot/compressed/misc.c - there's a puts() routine in 
+> there that should work for most things OK.
 
-Cheers,
+Hmm, I wonder why that was never mentioned by some others...
 
-Andre Hedrick
-LAD Storage Consulting Group
+At any rate, it suffices for me.
 
-On Tue, 14 Jan 2003, Larry McVoy wrote:
 
-> Please, just go away.  Nobody here buys what you are peddling.  Many of
-> us, myself included, are simply disgusted at your pathetic attempt to
-> hijack the work of others for your own goals.  By now you should be
-> starting to realize that your rants are doing damage to your cause.
-> Every time you post, someone follows up with "I used to respect and
-> admire the goals of the FSF and now I don't".  You come back with "It's a
-> shame that *others* have made you do that" and apparently you are blind
-> to the fact that it is *your actions* which are making your supporters
-> drop like flies.
-> 
-> Please stop.
-> -- 
-> ---
-> Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+Bill

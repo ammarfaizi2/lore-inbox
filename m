@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263903AbTKHAdg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 19:33:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbTKGWFZ
+	id S264145AbTKGWC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 17:02:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264562AbTKGV7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:05:25 -0500
-Received: from mail.convergence.de ([212.84.236.4]:25034 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S264511AbTKGRcK
+	Fri, 7 Nov 2003 16:59:40 -0500
+Received: from AGrenoble-101-1-5-128.w80-11.abo.wanadoo.fr ([80.11.136.128]:45777
+	"EHLO awak") by vger.kernel.org with ESMTP id S264003AbTKGJrR convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 12:32:10 -0500
-Date: Fri, 7 Nov 2003 18:32:05 +0100
-From: Johannes Stezenbach <js@convergence.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] ioctl compile warnings in userspace
-Message-ID: <20031107173205.GA4425@convergence.de>
-Mail-Followup-To: Johannes Stezenbach <js@convergence.de>,
-	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+	Fri, 7 Nov 2003 04:47:17 -0500
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
+Cc: bill davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3FAAB8B5.6060901@gmx.de>
+References: <3FA69CDF.5070908@gmx.de> <3FA8C916.3060702@gmx.de>
+	 <20031105095457.GG1477@suse.de> <3FA8CA87.2070201@gmx.de>
+	 <boe68a$f3g$1@gatekeeper.tmr.com>  <3FAAB8B5.6060901@gmx.de>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1068198396.5597.62.camel@nomade>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 07 Nov 2003 10:46:37 +0100
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Le jeu 06/11/2003 à 22:10, Prakash K. Cheemplavam a écrit :
+> c) That scsi gets selected when using usbfs seams to be some sort of 
+> wrapper being used...(just guessing without actually knowing the code). 
+> WOuld be nice if a note in the kernel menuconfig or alike would be left 
+> so that one doesn't have to wonder... But IIRC usbfs will be dropped anyway.
 
-Debian unstable now has glibc 2.3.2 and includes kernel headers
-from "2.5.999-test7-bk-8".
+SCSI is not used for usbfs. It's simply the protocol for USB storage
+devices (same case as FireWire/IEEE1394 storage devices). So it won't
+get dropped any sooner. As SATA devices may be using SCSI in linux soon,
+it even could be always selected.
 
-$ gcc --version
-gcc (GCC) 3.3.2 (Debian)
+	Xav
 
-
-When compiling my DVB test programs I get warnings like:
-
-  test_stc.c:64: warning: signed and unsigned type in conditional expression
-
-with test_stc.c:64 being:
-
-        if (ioctl(dmxfd, DMX_GET_STC, &stc) == -1) {
-
-Patch below fixes it for i386, but there are more platforms
-which need fixing.
-
-
-diff -ru linux-2.6.0-test9-bk8/include/asm-i386/ioctl.h linux-2.6.0-test9-bk8-fix/include/asm-i386/ioctl.h
---- linux-2.6.0-test9-bk8/include/asm-i386/ioctl.h	2003-11-07 18:03:23.000000000 +0100
-+++ linux-2.6.0-test9-bk8-fix/include/asm-i386/ioctl.h	2003-11-07 18:03:53.000000000 +0100
-@@ -53,7 +53,7 @@
- 	 ((size) << _IOC_SIZESHIFT))
- 
- /* provoke compile error for invalid uses of size argument */
--extern int __invalid_size_argument_for_IOC;
-+extern unsigned int __invalid_size_argument_for_IOC;
- #define _IOC_TYPECHECK(t) \
- 	((sizeof(t) == sizeof(t[1]) && \
- 	  sizeof(t) < (1 << _IOC_SIZEBITS)) ? \
-
-
-Johannes

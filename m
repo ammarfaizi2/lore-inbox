@@ -1,146 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131395AbRATC4w>; Fri, 19 Jan 2001 21:56:52 -0500
+	id <S135918AbRATC6w>; Fri, 19 Jan 2001 21:58:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135412AbRATC4m>; Fri, 19 Jan 2001 21:56:42 -0500
-Received: from exit1.i-55.com ([204.27.97.1]:10695 "EHLO exit1.i-55.com")
-	by vger.kernel.org with ESMTP id <S131395AbRATC4b>;
-	Fri, 19 Jan 2001 21:56:31 -0500
-Message-ID: <3A68FC79.679DA671@mailhost.cs.rose-hulman.edu>
-Date: Fri, 19 Jan 2001 20:48:25 -0600
-From: Leslie Donaldson <donaldlf@hermes.cs.rose-hulman.edu>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test12 alpha)
-X-Accept-Language: en
+	id <S135412AbRATC6n>; Fri, 19 Jan 2001 21:58:43 -0500
+Received: from [129.94.172.186] ([129.94.172.186]:12796 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S135918AbRATC6b>; Fri, 19 Jan 2001 21:58:31 -0500
+Date: Sat, 20 Jan 2001 13:58:38 +1100 (EST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@localhost.localdomain>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: <linux-kernel@vger.kernel.org>,
+        Rajagopal Ananthanarayanan <ananth@sgi.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: [RFC] generic IO write clustering 
+In-Reply-To: <Pine.LNX.4.21.0101192142060.6167-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.31.0101201355560.1071-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Jeff Hartmann <jhartmann@valinux.com>
-CC: Leslie Donaldson <donaldlf@hermes.cs.rose-hulman.edu>,
-        "Justin T. Gibbs" <gibbs@scsiguy.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Patch for aic7xxx 2.4.0 test12 hang
-In-Reply-To: <200101191756.f0JHuns30179@aslan.scsiguy.com> <3A6881F9.17F7B9F6@mailhost.cs.rose-hulman.edu> <3A68AAEC.7@valinux.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Hartmann wrote:
-> 
-> >> There is also a known issue with U160 modes and the currently
-> >> embedded aic7xxx driver.
-> >
-> >
-> > That's true the problem is the TCQ command seems to be sequencing wrong.
-> >
-> >
-> >> You might want to try the Adaptec
-> >> supported driver from here:
-> >>
-> >> http://people.FreeBSD.org/~gibbs/linux/
-> >>
-> >> 6.09 BETA should be released later today.
-> 
-> Just a little FYI, I wanted to point out that 6.08 BETA fixed a problem
-> I've been having since the 2.4.0-test series on a machine with the
-> following adaptec integrated controller:
->    Bus  4, device   7, function  0:
->      SCSI storage controller: Adaptec 7899P (rev 1).
->        IRQ 19.
->        Master Capable.  Latency=64.  Min Gnt=40.Max Lat=25.
->        I/O at 0x5000 [0x50ff].
->        Non-prefetchable 64 bit memory at 0xf7e00000 [0xf7e00fff].
->    Bus  4, device   7, function  1:
->      SCSI storage controller: Adaptec 7899P (#2) (rev 1).
->        IRQ 16.
->        Master Capable.  Latency=64.  Min Gnt=40.Max Lat=25.
->        I/O at 0x5400 [0x54ff].
->        Non-prefetchable 64 bit memory at 0xf7f00000 [0xf7f00fff].
-> 
-> This is an Ultra160 controller I believe (or at least thats what it says
-> during bootup.)
-> 
-> Before I applied this patch it would print garbage for the
-> Vendor/Rev/Type/ANSI SCSI revision of my hard disk.  With this patch it
-> does not.
-> 
-> I unfortunately know very little about SCSI drivers, so I can't say
-> exactly what causes this problem with the stock 2.4.0 adaptec driver.
-> 
-> -Jeff
+On Fri, 19 Jan 2001, Marcelo Tosatti wrote:
 
-  This sounds like the segate bios problem that Justin Gibbs refered to.
-I have
-two Western Digital enteprise drives that had the same problem. The
-problem
-that I was fighting was a Tagged Queue Command (or at least that is how
-it is manifesting. This only occurs under heavy disk load for me.
+> The write clustering issue has already been discussed (mainly at Miami)
+> and the agreement, AFAIK, was to implement the write clustering at the
+> per-address-space writepage() operation.
+>
+> IMO there are some problems if we implement the write clustering in this
+> level:
+>
+>   - The filesystem does not have information (and should not have) about
+>     limiting cluster size depending on memory shortage.
 
-My system is a 667 Alpha with a 64 bit PCI bus Feeding the 64 bit
-Adaptec card.
-(I note this cause I only know of one intel board with a 64 bit pci bus
-and
- dual cpus' (found it on Tom's site back in November from the Tapei ??
-computer
-  conference.)
+Is there ever a reason NOT to do the best possible IO
+clustering at write time ?
 
-Well the problem seems to be that a command is flying and another is
-then issued
-causeing and overflow of the buffer causing the kernel to issue a
-recurssive failure.
+Remember that disk writes do not cost memory and have
+no influence on the resident set ... completely unlike
+read clustering, which does need to be limited.
 
-Error was
+>   - By doing the write clustering at a higher level, we avoid a ton of
+>     filesystems duplicating the code.
+>
+> So what I suggest is to add a "cluster" operation to struct address_space
+> which can be used by the VM code to know the optimal IO transfer unit in
+> the storage device. Something like this (maybe we need an async flag but
+> thats a minor detail now):
+>
+>         int (*cluster)(struct page *, unsigned long *boffset,
+> 		unsigned long *poffset);
 
-(scsi:1:0:0:0) Data overrun detected in Data-Out phase tag 5;
-Have seen Data Phase. Length=0, Num SGS=0
-Unable to handle kernel paging request at virtual address
-003ffc0000006000
-bzip2(8065): Oops 1
+Makes sense, except that I don't see how (or why) the _VM_
+should "know the optimal IO transfer unit". This sounds more
+like a job for the IO subsystem and/or the filesystem, IMHO.
 
-Then some NULL pointer stuff in the kernel.
+> "page" is from where the filesystem code should start its search
+> for contiguous pages. boffset and poffset are passed by the VM
+> code to know the logical "backwards offset" (number of
+> contiguous pages going backwards from "page") and "forward
+> offset" (cont pages going forward from "page") in the inode.
 
-Well the drive worked with no problem under the adaptec 3960UW
-controller
-so I finally caught the oops and played some with the TCQ logic.
+Yes, this makes a LOT of sense. I really like a pagecache
+helper function so the filesystems can build their writeout
+clusters easier.
 
-The process that caused this was a rpm --rebuild of XFree. Something
-which I have been doing lately as I am trying to get 4.0.2 to work
-correctly. sigh.
+regards,
 
-I configured my patch to disable the TCQ logic only on 160M controllers
-after other reports
-of this problem. So far all the feed back says this fixed their problems
-so that is were
-I focused my attention.
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-Unfortuently emacs is segfaulting left and right these days so it has
-slowed down my work a lot.
-(rawhide systems do have a few ummm unstabilitys.)
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
-I will try out the latest code sonnn and see if it crashes or works for
-we and let everyone know.
-My primary concern was to try to get a patch into 2.4.1 that at least
-stops the kernel crashes.
-Dosen't fix the problem but stops people from having an unstable
-machine.
-
-Well back to downloading.
-
-Leslie Donaldson.
-
-P.S. Thanks for all the input. It has been very helpful.
-
-
--- 
-/----------------------------\ Current Contractor: None
-|    Leslie F. Donaldson     | Current Customer  : None
-|    Computer Contractor     | Skills:
-Unix/OS9/VMS/Linux/SUN-OS/C/C++/assembly
-| Have Computer will travel. | WWW  :
-http://www.cs.rose-hulman.edu/~donaldlf
-\----------------------------/ Email: mail://donaldlf@cs.rose-hulman.edu
-Goth Code V1.1: GoCS$$ TYg(T6,T9) B11Bk!^1 C6b-- P0(1,7) M+ a24 n---
-b++:+
-                H6'11" g m---- w+ r+++ D--~!% h+ s10 k+++ R-- Ssw
-LusCA++
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132897AbRBEGJA>; Mon, 5 Feb 2001 01:09:00 -0500
+	id <S129030AbRBEGOl>; Mon, 5 Feb 2001 01:14:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132912AbRBEGIu>; Mon, 5 Feb 2001 01:08:50 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:21009 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S132897AbRBEGIi>; Mon, 5 Feb 2001 01:08:38 -0500
-From: Anton Blanchard <anton@linuxcare.com.au>
-Date: Mon, 5 Feb 2001 17:06:43 +1100
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: Rusty Russell <rusty@linuxcare.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Hot swap CPU support for 2.4.1
-Message-ID: <20010205170643.A8721@linuxcare.com>
-In-Reply-To: <E14PcpU-0004U1-00@halfway> <20010205065029.K430@marowsky-bree.de>
-Mime-Version: 1.0
+	id <S129044AbRBEGOc>; Mon, 5 Feb 2001 01:14:32 -0500
+Received: from sgi.SGI.COM ([192.48.153.1]:59465 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S129030AbRBEGOU>;
+	Mon, 5 Feb 2001 01:14:20 -0500
+Message-ID: <3A7E4454.82DDB73C@sgi.com>
+Date: Sun, 04 Feb 2001 22:12:36 -0800
+From: LA Walsh <law@sgi.com>
+Organization: Trust Technology, SGI
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.4.2-pre1 i686)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jens Axboe <axboe@suse.de>
+Subject: 2.4.2-test1 better on disk lock/freezups
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010205065029.K430@marowsky-bree.de>; from lmb@suse.de on Mon, Feb 05, 2001 at 06:50:29AM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In trying to apply Jens's patch I upgraded to 2.4.2-pre1.  The figures on it(242-p1) look
+better at this point: a vmstat dump, same data...notice this time it only took maybe 45
+seconds to write out the data.  I also got better interactive performance.
+So write speed is up to about 3.5Mb/s.  Fastest reads using 'hdparm' are in the 12-14Mb/s
+range.  Sooo...IDE hdparm block dev read vs. file writes...3-4:1 ratio?
+
+I honestly have little clue as to what would be considered 'good' numbers.
+
+Note the maximum 'system freeze' seems under 10 seconds now -- alot more 
+tolerable.  
+
+Note also, this was without my applying Jens's patch -- as I could not figure out how
+to get it to apply cleanly  :-(.
+
+
+ 0  0  0      0  77564  80220 280164   0   0     0   348  287  1367  10   7  83
+ 0  0  1      0  77560  80220 280164   0   0     0   304  193   225   0   1  99
+ 0  1  1      0  77572  80220 280156   0   0     0   162  241   354   4   2  95
+ 0  1  1      0  77572  80220 280156   0   0     0   156  218   182   0   1  99
+ 1  1  1      0  77560  80220 280164   0   0     0   165  217   218   0   1  99
+ 0  1  1      0  77328  80220 280164   0   0     0   134  213   215   1   1  97
+ 0  1  1      0  77328  80220 280164   0   0     0   138  217   177   0   1  98
+ 0  1  1      0  77328  80220 280164   0   0     0   206  215   178   0   1  99
+ 0  1  1      0  77332  80220 280164   0   0     0   166  219   206   1   1  98
+ 0  0  0      0  85632  80220 280172   0   0    14    12  192   360   1   1  98
  
-> Rusty, what would be needed to "hot-add" CPUs ?
-
-The PPC version at the moment simply locks a cpu in the idle loop
-with __cli(); while(1); for cpu down and jumps out of it for cpu up.
-Good for testing but not very useful. After talking to paulus we
-will use the RTAS cpu stop and cpu start.
-
-In order to bring a new cpu up you will need to duplicate a lot of
-the stuff in smp_boot_cpus or else just set up all NR_CPUS of these
-structures (eg NR_CPUS idle threads etc) at boot time.
-
-Anton
+-- 
+Linda A Walsh                    | Trust Technology, Core Linux, SGI
+law@sgi.com                      | Voice: (650) 933-5338
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

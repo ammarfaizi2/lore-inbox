@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263880AbTEOJHi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 05:07:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263891AbTEOJHi
+	id S263875AbTEOJFq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 05:05:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263880AbTEOJFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 05:07:38 -0400
-Received: from nmail1.systems.pipex.net ([62.241.160.130]:60840 "EHLO
-	nmail1.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S263880AbTEOJHh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 05:07:37 -0400
-To: Robert Love <rml@tech9.net>
-Subject: Re: 2.6 must-fix list, v2
-Message-ID: <1052990397.3ec35bbd5e008@netmail.pipex.net>
-Date: Thu, 15 May 2003 10:19:57 +0100
-From: "Shaheed R. Haque" <srhaque@iee.org>
-Cc: shaheed <srhaque@iee.org>, Felipe Alfaro Solana <yo@felipe-alfaro.com>,
-       Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
-References: <1050146434.3e97f68300fff@netmail.pipex.net>  <1052910149.586.3.camel@teapot.felipe-alfaro.com>  <1052927975.883.9.camel@icbm>  <200305142201.59912.srhaque@iee.org> <1052946917.883.25.camel@icbm>
-In-Reply-To: <1052946917.883.25.camel@icbm>
-MIME-Version: 1.0
+	Thu, 15 May 2003 05:05:46 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:49891 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263875AbTEOJFq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 05:05:46 -0400
+Date: Thu, 15 May 2003 02:20:00 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: dmccr@us.ibm.com, mika.penttila@kolumbus.fi, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Race between vmtruncate and mapped areas?
+Message-Id: <20030515022000.0eb9db29.akpm@digeo.com>
+In-Reply-To: <20030515085519.GV1429@dualathlon.random>
+References: <154080000.1052858685@baldur.austin.ibm.com>
+	<20030513181018.4cbff906.akpm@digeo.com>
+	<18240000.1052924530@baldur.austin.ibm.com>
+	<20030514103421.197f177a.akpm@digeo.com>
+	<82240000.1052934152@baldur.austin.ibm.com>
+	<20030515004915.GR1429@dualathlon.random>
+	<20030515013245.58bcaf8f.akpm@digeo.com>
+	<20030515085519.GV1429@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: PIPEX NetMail 2.2.0-pre13
-X-PIPEX-username: aozw65%dsl.pipex.com
-X-Originating-IP: 195.166.116.245
-X-Usage: Use of PIPEX NetMail is subject to the PIPEX Terms and Conditions of use
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 May 2003 09:18:30.0638 (UTC) FILETIME=[F36B50E0:01C31AC2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Quoting Robert Love <rml@tech9.net>:
-
-> More important to me is getting it into Red Hat and SuSE. I have heard
-> encouring words from Matt Wilson at Red Hat about schedutils possibly
-> going into Rawhide soon. It would not hurt to let Red Hat/SuSE/whoever
-> know that schedutils is something their customers want.
+Andrea Arcangeli <andrea@suse.de> wrote:
 >
-> Both Red Hat and SuSE's kernels have the CPU affinity system calls
-> merged, so you do not need to wait until 2.6 is out to use them.
+> and it's still racy
 
-These are the distros I am interested in too. I knew it was in RH AS/ES, but 
-are you saying it is in RH9.0? That would be good news.
+damn, and it just booted ;)
 
-On the technical point, I tried out taskset in rc.sysinit, and as you said, it 
-works just fine. On reflection, I feel that editing rc.sysinit is not the right 
-answer given the confidence/competence level of our customers' typical 
-sysadmins: but I can see that a carefully crafted rc5.d/S00aaaaa script could 
-set the affinity of the executing shell, and its parent(s) upto init to fix all 
-subsequent rcN.d children in the desired manner.
+I'm just a little bit concerned over the ever-expanding inode.  Do you
+think the dual sequence numbers can be replaced by a single generation
+counter?
 
-I do suspect that other commercial users will also baulk at editing rc.sysint, 
-and so have to brew the same rcN.d solution. Now, the rcN.d script hackery 
-would be greatly simplified if taskset had a mode of "set the affinity of the 
-identified process, and all its parent processes upto init". Would you accept a 
-patch to taskset along those lines?
-
-I think that would be a very acceptable, easy to deploy, solution.
-
-Thoughts? Shaheed
+I do think that we should push the revalidate operation over into the vm_ops. 
+That'll require an extra arg to ->nopage, but it has a spare one anyway (!).
 
 

@@ -1,70 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314496AbSEQFD5>; Fri, 17 May 2002 01:03:57 -0400
+	id <S314557AbSEQFQi>; Fri, 17 May 2002 01:16:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314557AbSEQFD4>; Fri, 17 May 2002 01:03:56 -0400
-Received: from [213.196.40.44] ([213.196.40.44]:19110 "EHLO blackstar.nl")
-	by vger.kernel.org with ESMTP id <S314496AbSEQFDz>;
-	Fri, 17 May 2002 01:03:55 -0400
-Date: Thu, 16 May 2002 23:45:39 +0200 (CEST)
-From: <bvermeul@devel.blackstar.nl>
-To: Norman Walsh <ndw@nwalsh.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel PCMCIA/CardBus on a Tecra 8200
-In-Reply-To: <874rh8jl2o.fsf@nwalsh.com>
-Message-ID: <Pine.LNX.4.33.0205162339200.26976-100000@devel.blackstar.nl>
+	id <S315423AbSEQFQh>; Fri, 17 May 2002 01:16:37 -0400
+Received: from [210.176.202.14] ([210.176.202.14]:50829 "EHLO
+	mail.shaolinmicro.com") by vger.kernel.org with ESMTP
+	id <S314557AbSEQFQg>; Fri, 17 May 2002 01:16:36 -0400
+Message-ID: <3CE49230.40607@shaolinmicro.com>
+Date: Fri, 17 May 2002 13:16:32 +0800
+From: David Chow <davidchow@shaolinmicro.com>
+Organization: Shaolin Microsystems Ltd.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020501
+X-Accept-Language: zh_TW, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, deanna_bonds@adaptec.com
+Subject: complain about dpt_2o driver and CPU time
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Anyway, with 2.4.18 (of my own construction) on a Debian (woody) box
-> with Kernel PCMCIA/CardBus support, booting reports
-> 
-> Linux Kernel Card Services 3.1.22
->   options:  [pci] [cardbus] [pm]
-> PCI: Enabling device 02:0c.0 (0000 -> 0002)
-> PCI: Found IRQ 11 for device 02:0c.0
-> PCI: Sharing IRQ 11 with 01:00.0
-> PCI: Sharing IRQ 11 with 02:0d.0
-> PCI: Enabling device 02:0d.0 (0000 -> 0002)
-> PCI: Found IRQ 11 for device 02:0d.0
-> PCI: Sharing IRQ 11 with 01:00.0
-> PCI: Sharing IRQ 11 with 02:0c.0
-> PCI: Enabling device 02:0d.1 (0000 -> 0002)
-> PCI: Found IRQ 11 for device 02:0d.1
-> PCI: Sharing IRQ 11 with 00:1f.2
-> PCI: Sharing IRQ 11 with 02:07.0
-> Yenta IRQ list 0000, PCI irq11
-> Socket status: 30000011
-> Yenta IRQ list 04b8, PCI irq11
-> Socket status: 30000007
-> Yenta IRQ list 04b8, PCI irq11
-> Socket status: 30000007
-> 
-> which looks ok (to my naive eyes). But when booting finishes and I run
-> 'cardctl ident' (from pcmcia-cs 3.1.33, I suppose), I get:
-> 
-> Socket 0:
-> cs: warning: no high memory space available!
-> cs: unable to map card memory!
-> Socket 1:
-> cs: unable to map card memory!
-> Socket 2:
-> cs: unable to map card memory!
+Dear Deanna and others,
 
-I've seen these messages before. Check config.opts, and make sure it's 
-valid. When in doubt, reinstall pcmcia-cs from woody.
-That seemed to fix the problem I had.
+I am using the ASR2100 RAID card and running 2.4.17 Linux . It seems the 
+card is very slow in RAID5 computation. I use 5x18GB 10,000rpm seagate 
+drives. The card orginal comes with a 32MB ECC SD RAM as cache buffer. I 
+feel that the card is very slow, the test with Bonnie shows 1810KB/sec 
+with CPU load less than 2%. This shows the CPU time is idle, but the 
+load average go up to around 13-14 . This means the dpt_i2o driver is 
+probably not written very good in releasing the cpu time (call to 
+schedule()) on blocking calls, probably in some IO waiting routines(I am 
+not sure), or it is holding some big locks in a slow place. The CPU is 
+sitting there doing nothing, but this behaviour always block my NFS 
+clients ("server not responding, still trying") and the machine looks 
+like dead not even response to a console keyboard input. Can you tell me 
+about what is going on or who else is suffering from the same result? I 
+would like to do some improvement of the driver, or the card is really 
+that slow? My 10year old SCSI drive (no raid) runs 2200Kb/sec and is 
+even faster than this Ultra-160 SCSI i960 RAID with 32MB cache. If this 
+is the case, I will just throw it away and use my onboard Ultra-160 
+connector with software RAID which runs faster(at least). This is almost 
+unusable for even small workgroup server.
 
-Regards,
-
-Bas Vermeulen
-
--- 
-"God, root, what is difference?" 
-	-- Pitr, User Friendly
-
-"God is more forgiving." 
-	-- Dave Aronson
+regards,
+David
 

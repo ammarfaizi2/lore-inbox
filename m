@@ -1,28 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130532AbRCLSNp>; Mon, 12 Mar 2001 13:13:45 -0500
+	id <S130519AbRCLSXP>; Mon, 12 Mar 2001 13:23:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130534AbRCLSNf>; Mon, 12 Mar 2001 13:13:35 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:27921 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S130532AbRCLSNT>;
-	Mon, 12 Mar 2001 13:13:19 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200103121812.VAA09627@ms2.inr.ac.ru>
-Subject: Re: Feedback for fastselect and one-copy-pipe
-To: manfred@colorfullife.COM (Manfred Spraul)
-Date: Mon, 12 Mar 2001 21:12:33 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3AACFC6A.67E570AA@colorfullife.com> from "Manfred Spraul" at Mar 12, 1 08:15:01 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S130523AbRCLSXF>; Mon, 12 Mar 2001 13:23:05 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:50948
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S130519AbRCLSWu>; Mon, 12 Mar 2001 13:22:50 -0500
+Date: Mon, 12 Mar 2001 10:22:19 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Thomas Lau <lkthomas@hkicable.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: How can I get promise FastTrak 66 work in kernel?
+In-Reply-To: <01030502025800.97230@cm61-18-16-156.hkcable.com.hk>
+Message-ID: <Pine.LNX.4.10.10103121022021.2632-100000@master.linux-ide.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> * davem's patch breaks apps that assume that write(,PIPE_BUF) after
-> poll(POLLOUT) never blocks, even for blocking pipes.
+FastTrak will not work, but Ultra will.
 
-Pardon, but PIPE_BUF <= PAGE_SIZE yet, so that fears have no reasons.
+On Mon, 5 Mar 2001, Thomas Lau wrote:
 
-Alexey
+> anyone have idea?
+> I am helping my friend to ask this question, Thanks
+> I mean kernel 2.4.1
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
+

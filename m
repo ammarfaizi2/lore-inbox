@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130198AbRAHUpp>; Mon, 8 Jan 2001 15:45:45 -0500
+	id <S131083AbRAHUqF>; Mon, 8 Jan 2001 15:46:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131211AbRAHUpf>; Mon, 8 Jan 2001 15:45:35 -0500
-Received: from cannet.com ([206.156.188.2]:48139 "HELO mail.cannet.com")
-	by vger.kernel.org with SMTP id <S130198AbRAHUpT>;
-	Mon, 8 Jan 2001 15:45:19 -0500
-Message-ID: <003801c079b3$dddc8ee0$7930000a@hcd.net>
+	id <S131545AbRAHUp5>; Mon, 8 Jan 2001 15:45:57 -0500
+Received: from cannet.com ([206.156.188.2]:57099 "HELO mail.cannet.com")
+	by vger.kernel.org with SMTP id <S131083AbRAHUpr>;
+	Mon, 8 Jan 2001 15:45:47 -0500
+Message-ID: <004001c079b3$f3aa3920$7930000a@hcd.net>
 From: "Timothy A. DeWees" <whtdrgn@mail.cannet.com>
-To: Richard Torkar <ds98rito@thn.htu.se>,
-        "Timothy A. DeWees" <whtdrgn@mail.cannet.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0101082142050.11104-100000@studpc91.thndorm.htu.se>
+To: "Timothy A. DeWees" <whtdrgn@mail.cannet.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        Ward Vandewege <ward.vandewege@chello.be>
+In-Reply-To: <4.3.2.7.2.20010108214115.00bd04d0@mail.chello.be>
 Subject: Re: real talk cards in 2.2.18.
-Date: Mon, 8 Jan 2001 15:44:58 -0500
+Date: Mon, 8 Jan 2001 15:45:34 -0500
 Organization: Himebaugh Consulting, Inc.
 MIME-Version: 1.0
 Content-Type: text/plain;
@@ -26,12 +26,10 @@ X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes I have.
+This was done.
 
-> Have you turned on:
-> [EISA, VLB, PCI and on board controllers] in
-> [Ethernet (10 or 100Mbit)  --->] which is in
-> [Network device support  --->] ???
+> Just enable 'Prompt for development and/or incomplete code/drivers' in 
+> 'Code maturity level options', the first item in the setup menu...
 
 
 -

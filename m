@@ -1,74 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276135AbRKICnE>; Thu, 8 Nov 2001 21:43:04 -0500
+	id <S275743AbRKICyf>; Thu, 8 Nov 2001 21:54:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276877AbRKICmy>; Thu, 8 Nov 2001 21:42:54 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:41118 "EHLO
-	VL-MS-MR004.sc1.videotron.ca") by vger.kernel.org with ESMTP
-	id <S276135AbRKICmn>; Thu, 8 Nov 2001 21:42:43 -0500
-Message-ID: <3BEB4299.C41D414D@ec.gc.ca>
-Date: Thu, 08 Nov 2001 21:42:33 -0500
-From: Michel Valin <michel.valin@ec.gc.ca>
-Organization: RPN
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9 i686)
-X-Accept-Language: en
+	id <S276877AbRKICyQ>; Thu, 8 Nov 2001 21:54:16 -0500
+Received: from vp226158.uac62.hknet.com ([202.71.226.158]:42508 "EHLO
+	main.coppice.org") by vger.kernel.org with ESMTP id <S275743AbRKICyM>;
+	Thu, 8 Nov 2001 21:54:12 -0500
+Message-ID: <3BEB4630.6010103@coppice.org>
+Date: Fri, 09 Nov 2001 10:57:52 +0800
+From: Steve Underwood <steveu@coppice.org>
+Organization: Me? Organised?
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en, zh-TW
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: problem with kernel 2.4.14  drivers/block/loop.c mm/swap.c
-Content-Type: multipart/mixed;
- boundary="------------916C414A1D0B79932380541F"
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: Linux Kermel ML <linux-kernel@vger.kernel.org>
+Subject: Re: VIA 686 timer bugfix incomplete
+In-Reply-To: <E161RcS-0003x8-00@the-village.bc.nu> <3BE98BA9.7090102@coppice.org> <20011108211126.B6266@suse.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------916C414A1D0B79932380541F
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hi,
+
+Vojtech Pavlik wrote:
+
+> On Thu, Nov 08, 2001 at 03:29:45AM +0800, Steve Underwood wrote:
+>>If the messages:
+>>
+>>probable hardware bug: clock timer configuration lost - probably a 
+>>VIA686a motherboard.
+>>probable hardware bug: restoring chip configuration.
+>>
+>>are really related to a VIA686A bug, why do they erratically appear on 
+>>Compaq ML370's, which use ServerWorks chip sets? Is there a common bug 
+>>between these chip sets? Seems unlikely.
+>>
+> 
+> Just to make sure: Is on the system the Ftape of any joystick driver in
+> use? If not, then:
+> 
+> The ServerWorks chip set has a bug that is shared with old Intel Neptune
+> chipset most likely. This is a problem per se, but also triggers the VIA
+> bug workaround. The VIA bug test can be enhanced to detect this false
+> alarm, but the Neptune-like bug still stays and is dangerous as well.
+> 
+> At least the VIA workaround told us something fishy is happening on
+> non-VIA hardware as well.
+> 
+> For example on my VIA686a/cg (late revision), the workaround is never
+> triggered.
 
 
-drivers/block/loop.c used by loopback filesystem code uses function
+There are no such devices in use in our machines. This is happening on 3
 
-deactivate_page that was defined in mm/swap.c in kernel 2.4.13
+Compaq servers, and each has a similar configuration. A Compaq ML370,
 
-deactivate_page seems to have been suppressed at kernel level 2.4.14
-from
-mm/swap.c
+1G RAM, a Compaq Smart Array 431 RAID controller, and some Dialogic
 
-this results in missing entry point complaints when trying to load
-module loop.o
-at kernel level 2.4.14
+telephony cards.
 
-I am not knowledgeable about these modules and am not sure if or how
-loop.c and/or swap.c should be fixed
 
-I could not find any other place to report theses findings either.
+I don't have one of these machines running without telephony cards, to 
+see if that has any significance.The only external interfaces we use are 
+the LAN, one of the serial ports, and the phone lines connected to the 
+Dialogic cards. The SCSI controller is idle, as the disks are on the 
+RAID controller. The IDE interface has a CD-ROM on it..
 
-hoping that you can forward this to the proper person.
+ From what you say, it sounds like the ServerWorks chipset may well have 
+a timer bug. This machine uses the LE 3.0 chipset.
 
--- 
-M.Valin
-Recherche en Prevision Numerique
-Michel.Valin@ec.gc.CA
-(514) 421-4753
---------------916C414A1D0B79932380541F
-Content-Type: text/x-vcard; charset=us-ascii;
- name="michel.valin.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for Michel Valin
-Content-Disposition: attachment;
- filename="michel.valin.vcf"
+Regards,
+Steve
 
-begin:vcard 
-n:Valin;Michel
-x-mozilla-html:FALSE
-org:R.P.N.;Environnement Canada
-adr:;;;;;;
-version:2.1
-email;internet:michel.valin@ec.gc.ca
-title:Analyste Principal / Senior Analyst
-x-mozilla-cpt:;0
-fn:Michel Valin
-end:vcard
 
---------------916C414A1D0B79932380541F--
 

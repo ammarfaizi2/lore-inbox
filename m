@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132338AbRDXS5V>; Tue, 24 Apr 2001 14:57:21 -0400
+	id <S135718AbRDXTFG>; Tue, 24 Apr 2001 15:05:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135718AbRDXS5M>; Tue, 24 Apr 2001 14:57:12 -0400
-Received: from mailproxy.de.uu.net ([192.76.144.34]:6909 "EHLO
-	mailproxy.de.uu.net") by vger.kernel.org with ESMTP
-	id <S132338AbRDXS5H>; Tue, 24 Apr 2001 14:57:07 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Jansen <tim@tjansen.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Device Registry (DevReg) Patch 0.2.0
-Date: Tue, 24 Apr 2001 20:57:27 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01042403082000.05529@cookie> <01042413442601.00792@cookie> <03f201c0ccde$a3bde0f0$de00a8c0@homeip.net>
-In-Reply-To: <03f201c0ccde$a3bde0f0$de00a8c0@homeip.net>
+	id <S135720AbRDXTE4>; Tue, 24 Apr 2001 15:04:56 -0400
+Received: from [213.97.199.90] ([213.97.199.90]:3456 "HELO roku.redroom.com")
+	by vger.kernel.org with SMTP id <S135718AbRDXTEr> convert rfc822-to-8bit;
+	Tue, 24 Apr 2001 15:04:47 -0400
+From: "David =?ISO-8859-1?Q?G=F3mez" ?= <davidge@jazzfree.com>
+Date: Tue, 24 Apr 2001 21:03:13 +0200 (CEST)
+To: Tomas Telensky <ttel5535@ss1000.ms.mff.cuni.cz>
+cc: "Mike A. Harris" <mharris@opensourceadvocate.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [OFFTOPIC] Re: [PATCH] Single user linux
+In-Reply-To: <Pine.LNX.4.21.0104241508370.11387-100000@artax.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.21.0104242054210.2397-100000@roku.redroom.com>
 MIME-Version: 1.0
-Message-Id: <01042420572700.00935@cookie>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 24 April 2001 18:43, mirabilos wrote:
-> What about indenting? I think of 0 spaces before the device name,
-> 1 space before properties which belong to the device. 
-> Structure per entry:
->    [Space] Name colon property
+On Tue, 24 Apr 2001, Tomas Telensky wrote:
 
-But what is the advantage? Its not less work in the kernel, and in user-space 
-you need to write a parser for this. You would have made a new format for 
-hierarchical data that no one else uses only to avoid using XML in the 
-kernel. 
+> 
+> But, what I should say to the network security, is that AFAIK in the most
+> of linux distributions the standard daemons (httpd, sendmail) are run as
+> root! Having multi-user system or not! Why? For only listening to a port
+> <1024? Is there any elegant solution?
+> 
+
+httpd as root ? that's what i call a clueless network admin.
+sendmail has an OBSOLETE design. Use a good MTA like qmail. Exim or
+smail are ok, but they're still "sendmailish".
 
 
-> Is one level enough? I'm currently offline so didn't check the sample
+David Gómez
 
-No, for example for USB you have the levels 
-devices/configurations/interfaces/endpoints. 
+"The question of whether computers can think is just like the question of
+ whether submarines can swim." -- Edsger W. Dijkstra
 
-bye...
+

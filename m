@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281560AbRKWPBG>; Fri, 23 Nov 2001 10:01:06 -0500
+	id <S282167AbRKWPPH>; Fri, 23 Nov 2001 10:15:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282164AbRKWPA5>; Fri, 23 Nov 2001 10:00:57 -0500
-Received: from [213.235.52.105] ([213.235.52.105]:15766 "EHLO
-	morpheus.streamgroup.co.uk") by vger.kernel.org with ESMTP
-	id <S281560AbRKWPAr>; Fri, 23 Nov 2001 10:00:47 -0500
-Date: Fri, 23 Nov 2001 14:59:24 +0000 (GMT)
-From: <lk@morpheus.streamgroup.co.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: Development
-Message-ID: <Pine.LNX.4.33.0111231446220.2715-100000@morpheus.streamgroup.co.uk>
+	id <S282161AbRKWPO5>; Fri, 23 Nov 2001 10:14:57 -0500
+Received: from t2.redhat.com ([199.183.24.243]:60404 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S282162AbRKWPOt>; Fri, 23 Nov 2001 10:14:49 -0500
+Message-ID: <3BFE67E8.CFA0D371@redhat.com>
+Date: Fri, 23 Nov 2001 15:14:48 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: war <war@starband.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Which gcc version?
+In-Reply-To: <20011123125137Z282133-17408+17815@vger.kernel.org> <5.1.0.14.2.20011123135801.00aad970@pop.cus.cam.ac.uk> <3BFE591B.D1F75CD5@starband.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+war wrote:
+> 
+> #1) The compiler from redhat (gcc-2.96) is not an official GNU release.
+> #2) http://www.atnf.csiro.au/~rgooch/linux/docs/kernel-newsflash.html/
+>       "the reccomend compiler is now gcc-2.95.3, rather than gcc-2.91.66"
 
-Ok, pre-email warning : this might get some people annoyed.
-However, I do not mean to troll or start flamewars. Please,
-bear with me.
+>From Documentation/Changes in 2.4.15:
 
-I grow increasingly worried about the speed that the kernel
-development is going at. No, I'm not saying "get things done
-faster! I want more features! Support my usb joystick now!!"
-I'm worried by the amount of drivers that are included in a
-stable kernel release that are not marked "Experimental" and
-yet are broken, as well as major compile problems in stable
-releases.
-
-Things such as show_trace_task() in only the i386 tree,
-the Xircom net drivers freezing, APM broken on VIA chipsets
-(and my dell inspiron 8100) - this should be working in a
-stable release.
-
-I'm worried that we're pushing things too fast and not taking
-the time to test. The famous broken loopback in 2.4.14 and
-the nasty symlink bug in 2.4.11 come to mind.
-
-Perhaps we need to take a little more time before stamping
-things as "stable"? Otherwise our beloved Linux might go
-the way of Windows - "use at your own risk". I'd really
-hate to see that.
-
-Thanks,
-
-MikeH
-
+The Red Hat gcc 2.96 compiler subtree can also be used to build this
+tree.
+You should ensure you use gcc-2.96-74 or later. gcc-2.96-54 will not
+build
+the kernel correctly.

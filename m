@@ -1,67 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbUKZTDu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261242AbUKZTHQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261171AbUKZTDu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 14:03:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbUKZTDS
+	id S261242AbUKZTHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 14:07:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbUKZTHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:03:18 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:51608 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261153AbUKZS7s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 13:59:48 -0500
-Subject: Re: Suspend 2 merge: 51/51: Notes
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041126000109.GK2909@elf.ucw.cz>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <1101300987.5805.402.camel@desktop.cunninghams>
-	 <20041126000109.GK2909@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1101427764.27250.178.camel@desktop.cunninghams>
+	Fri, 26 Nov 2004 14:07:12 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:25022 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261242AbUKZTGS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:06:18 -0500
+Date: Thu, 25 Nov 2004 10:08:49 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Jan Rychter <jan@rychter.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Suspend 2 merge: 24/51: Keyboard and serial console hooks.
+Message-ID: <20041125100849.GA29539@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jan Rychter <jan@rychter.com>, linux-kernel@vger.kernel.org
+References: <1101292194.5805.180.camel@desktop.cunninghams> <1101296414.5805.286.camel@desktop.cunninghams> <20041124132949.GB13145@infradead.org> <m2d5y23o61.fsf@tnuctip.rychter.com> <20041124230232.GA22509@infradead.org> <m2zn16204s.fsf@tnuctip.rychter.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 26 Nov 2004 11:09:24 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m2zn16204s.fsf@tnuctip.rychter.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, Nov 24, 2004 at 05:22:27PM -0800, Jan Rychter wrote:
+> Please accept that there are people who requested these features and
+> there are people who find them useful.
 
-On Fri, 2004-11-26 at 11:01, Pavel Machek wrote:
-> Hi!
-> 
-> > When I started, I thought I did have 51 patches, really! One of them
-> > turned out to be a couple of things I intend to reverse :>
-> 
-> :-))))
-> 
-> > In posting all of this, I recognise of course that no one else
-> > understands how it all fits together. I'm hoping that those who care
-> > enough will ask questions that I'll happily answer, learn from and
-> > through which I'll improve the code.
-> > 
-> > For now, though, I'm going to bed.
-> 
-> I still had not fallen asleep at keyboard, and that is pretty
-> amazing...
-
-:>
-
-> It is just too big. suspend2 is small operating system on its own, and
-> that is not good thing :-(. 
-
-I feel like you overstate your case a lot. I can see what you mean in
-some ways, though.
-
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
+There are millions of features usefull to some people.  If these features
+can be implemented without affecting the existing codebase it's usually
+a no go.  If OTOH the do nasty things with kernel internals, and the feature
+isn't exactly the most important in the world judgment is different.
 

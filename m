@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129977AbRAPQFI>; Tue, 16 Jan 2001 11:05:08 -0500
+	id <S131187AbRAPQHI>; Tue, 16 Jan 2001 11:07:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131161AbRAPQE6>; Tue, 16 Jan 2001 11:04:58 -0500
-Received: from mons.uio.no ([129.240.130.14]:10913 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S130820AbRAPQEr>;
-	Tue, 16 Jan 2001 11:04:47 -0500
-To: Mogens Kjaer <mk@crc.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: nfs client problem in kernel 2.4.0
-In-Reply-To: <3A6466E3.AB55716@crc.dk> <shsy9wb334a.fsf@charged.uio.no>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 16 Jan 2001 17:04:43 +0100
-In-Reply-To: Trond Myklebust's message of "16 Jan 2001 16:53:25 +0100"
-Message-ID: <shsu26z32lg.fsf@charged.uio.no>
-X-Mailer: Gnus v5.6.45/XEmacs 21.1 - "Channel Islands"
+	id <S130013AbRAPQG6>; Tue, 16 Jan 2001 11:06:58 -0500
+Received: from passion.cambridge.redhat.com ([172.16.18.67]:22659 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S129805AbRAPQGy>; Tue, 16 Jan 2001 11:06:54 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E9518C@ATL_MS1> 
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E9518C@ATL_MS1> 
+To: Venkatesh Ramamurthy <Venkateshr@ami.com>
+Cc: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux not adhering to BIOS Drive boot order? 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 16 Jan 2001 16:06:46 +0000
+Message-ID: <29608.979661206@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->>>>> " " == Mogens Kjaer <mk@crc.dk> writes:
-    >> getdents64(3, /* 6 entries */, 65536) = 160 lseek(3,
-    >> 1547825467, SEEK_SET) = 1547825467 ...  getdents64(3, /* 1
-    >> entries */, 65536) = 32
+Venkateshr@ami.com said:
+>  we need some kind of signature being written in the drive, which the
+> kernel will use for determining the boot drive and later re-order
+> drives, if required.
 
-BTW: there does in any case seem to be a bug in your version of
-glibc. getdents64() is returning 64-bit file offsets, so they're not
-going to fit with ordinary lseek().
+> Is someone handling this already? 
 
-Cheers,
-  Trond
+It should be possible to read the BIOS setting for this option and
+behave accordingly. Please give full details of how to read and interpret
+the information stored in the CMOS for all versions of AMI BIOS, and I'll
+take a look at this.
+
+--
+dwmw2
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

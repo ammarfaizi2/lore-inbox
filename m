@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263960AbRFZKQC>; Tue, 26 Jun 2001 06:16:02 -0400
+	id <S264329AbRFZKmL>; Tue, 26 Jun 2001 06:42:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263918AbRFZKPw>; Tue, 26 Jun 2001 06:15:52 -0400
-Received: from [203.143.19.4] ([203.143.19.4]:27144 "EHLO kitul.learn.ac.lk")
-	by vger.kernel.org with ESMTP id <S263960AbRFZKPj>;
-	Tue, 26 Jun 2001 06:15:39 -0400
-Date: Mon, 25 Jun 2001 22:58:23 +0600
-From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
-Cc: Fabian Arias <dewback@vtr.net>, Anuradha Ratnaweera <anuradha@gnu.org>,
-        Anatoly Ivanov <avi@levi.spb.ru>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5 and gcc v3 final
-Message-ID: <20010625225823.B431@bee.lk>
-In-Reply-To: <dewback@vtr.net> <200106241733.f5OHXpW2000565@sleipnir.valparaiso.cl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200106241733.f5OHXpW2000565@sleipnir.valparaiso.cl>; from vonbrand@sleipnir.valparaiso.cl on Sun, Jun 24, 2001 at 01:33:51PM -0400
+	id <S264286AbRFZKmB>; Tue, 26 Jun 2001 06:42:01 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:12958 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S264279AbRFZKl4>;
+	Tue, 26 Jun 2001 06:41:56 -0400
+Date: Tue, 26 Jun 2001 12:41:51 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200106261041.MAA454888.aeb@vlet.cwi.nl>
+To: jari.ruusu@pp.inet.fi, torvalds@transmeta.com
+Subject: Re: loop device broken in 2.4.6-pre5
+Cc: Andries.Brouwer@cwi.nl, R.E.Wolff@BitWizard.nl, axboe@suse.de,
+        linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 24, 2001 at 01:33:51PM -0400, Horst von Brand wrote:
-> Fabian Arias <dewback@vtr.net> said:
-> 
-> What gcc objects to is stuff like:
-> 
->    "This is a nice long string
->     that just goes on
->     and on\n"
-> 
-> which is illegal in C AFAIU. It does not object to:
-> 
->    "This long string"
->    "spans several lines, "
->    "but legally.\n"
+    From jari.ruusu@pp.inet.fi Tue Jun 26 10:20:51 2001
 
-Agreed. I was incorrectly guessing that the it was the latter.
+    This patch fixes the problem. Please consider applying.
 
-Anuradha
+    --- linux-2.4.6-pre5/drivers/block/loop.c    Sat Jun 23 07:52:39 2001
+    +++ linux/drivers/block/loop.c    Tue Jun 26 09:21:47 2001
+    @@ -653,7 +653,7 @@
+         bs = 0;
+         if (blksize_size[MAJOR(lo_device)])
+             bs = blksize_size[MAJOR(lo_device)][MINOR(lo_device)];
+    -    if (!bs)
+    +    if (!bs || S_ISREG(inode->i_mode))
+             bs = BLOCK_SIZE;
+     
+         set_blocksize(dev, bs);
 
--- 
+But why 1024? Next week your neighbour comes and has a file-backed
+loop device with an odd number of 512-byte sectors.
+If you want a guarantee, then I suppose one should pick 512.
+(Or make the set blocksize ioctl also work on loop devices.)
 
-Debian GNU/Linux (kernel 2.4.6-pre5)
-
-Don't look now, but the man in the moon is laughing at you.
-
+Andries

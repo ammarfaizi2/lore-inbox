@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbUK2ToZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbUK2TsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261770AbUK2ToZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 14:44:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbUK2Tno
+	id S261777AbUK2TsO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 14:48:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbUK2TqB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 14:43:44 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:27529 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261770AbUK2TjV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 14:39:21 -0500
-Date: Mon, 29 Nov 2004 20:36:06 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/block/elevator.c: make two functions static
-Message-ID: <20041129193606.GD11102@suse.de>
-References: <20041124231055.GN19873@stusta.de> <20041125101220.GC29539@infradead.org> <20041129122632.GI9722@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041129122632.GI9722@stusta.de>
+	Mon, 29 Nov 2004 14:46:01 -0500
+Received: from mail.nea-fast.com ([66.35.146.201]:20967 "EHLO
+	int1.nea-fast.com") by vger.kernel.org with ESMTP id S261765AbUK2Ton
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 14:44:43 -0500
+Message-ID: <41AB7C2C.3070505@nea-fast.com>
+Date: Mon, 29 Nov 2004 14:44:44 -0500
+From: kernel <kernel@nea-fast.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040602
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 tcp problems
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 29 2004, Adrian Bunk wrote:
-> The patch below makes two needlessly global functions static.
-> 
-> 
-> diffstat output:
->  drivers/block/elevator.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Stephen Hemminger wrote:
 
-Acked-by: Jens Axboe <axboe@suse.de>
-
-> --- linux-2.6.10-rc1-mm3-full/drivers/block/elevator.c.old	2004-11-06 19:55:01.000000000 +0100
-> +++ linux-2.6.10-rc1-mm3-full/drivers/block/elevator.c	2004-11-06 19:55:34.000000000 +0100
-> @@ -92,7 +92,7 @@
->  }
->  EXPORT_SYMBOL(elv_try_last_merge);
+> On Mon, 29 Nov 2004 13:03:34 -0500
+> kernel <kernel@nea-fast.com> wrote:
+>
 >  
-> -struct elevator_type *elevator_find(const char *name)
-> +static struct elevator_type *elevator_find(const char *name)
->  {
->  	struct elevator_type *e = NULL;
->  	struct list_head *entry;
-> @@ -222,7 +222,7 @@
->  	kfree(e);
->  }
+>
+>> I've run into a problem with 2.6.(8.1,9) after installing a secondary 
+>> firewall. When I try to pull data through the original firewall 
+>> (mail, http, ssh), it stops after approx. 260k. Running ethereal 
+>> tells me "A segment before the frame was lost" followed by a bunch 
+>> of  "This is a TCP duplicate ack" when using ssh. All 2.4.x machines 
+>> and windows clients work fine. I built 2.4.28 and it works fine from 
+>> my machine. I also fiddled with tcp_ecn and that didn't fix it 
+>> either. I don't have any problems communicating to "local" machines. 
+>> I've attached the tcpdump output from an scp attempt. NIC is a 3Com 
+>> Corporation 3c905B.
+>>   
+>
+>
+> What kind of firewall?  There are firewalls that are too stupid and don't
+> understand TCP window scaling.
+>
 >  
-> -int elevator_global_init(void)
-> +static int elevator_global_init(void)
->  {
->  	return 0;
->  }
-> 
-> 
+>
+It's a fortigate 60.  We put our secure web servers behind a netscreen 5 
+firewall which plugs into the fortigate and that's when the problems 
+started.  I remember reading some stuff on lkm about recent tcp changes 
+but I couldn't remember exactly what it was. Thanks for reminding me !
 
--- 
-Jens Axboe
+Here is how it's layed out now
+secure_web_servers->netscreen->fortigate->rest_of_network
+
+Thanks !
+walt
 

@@ -1,79 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263893AbUACQug (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 11:50:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263898AbUACQug
+	id S263868AbUACQzT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 11:55:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263880AbUACQzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 11:50:36 -0500
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:16794 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263893AbUACQud (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 11:50:33 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH 1/7] i8042 suspend
-Date: Sat, 3 Jan 2004 11:50:27 -0500
-User-Agent: KMail/1.5.4
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200401030350.43437.dtor_core@ameritech.net> <200401030356.48071.dtor_core@ameritech.net> <20040103100347.GA499@ucw.cz>
-In-Reply-To: <20040103100347.GA499@ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Jan 2004 11:55:19 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:35346 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S263868AbUACQzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 11:55:16 -0500
+Date: Sat, 3 Jan 2004 17:55:12 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Marco Correia <mvc@netcabo.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: why is rdtsc reporting wrong cpu cycles?
+Message-ID: <20040103165512.GB3728@alpha.home.local>
+References: <200401031548.40025.mvc@netcabo.pt>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401031150.27232.dtor_core@ameritech.net>
+In-Reply-To: <200401031548.40025.mvc@netcabo.pt>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 03 January 2004 05:03 am, Vojtech Pavlik wrote:
-> On Sat, Jan 03, 2004 at 03:56:45AM -0500, Dmitry Torokhov wrote:
-> > diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-> > --- a/drivers/input/serio/i8042.c	Sat Jan  3 03:07:29 2004
-> > +++ b/drivers/input/serio/i8042.c	Sat Jan  3 03:07:29 2004
-> > @@ -746,6 +746,29 @@
-> >
-> >
-> >  /*
-> > + * Reset the controller.
-> > + */
-> > +void i8042_controller_reset(void)
-> > +{
-> > +	if (i8042_reset) {
-> > +		unsigned char param;
-> > +
-> > +		if (i8042_command(&param, I8042_CMD_CTL_TEST))
-> > +			printk(KERN_ERR "i8042.c: i8042 controller reset timeout.\n");
-> > +	}
->
-> We should be checking the return value from the TEST command as well,
-> if we want to use this to initialize the controller on non-x86
-> platforms (where i8042.reset is 0).
->
-> > -/*
-> > - * Reset the controller.
-> > - */
-> > -
-> > -	if (i8042_reset) {
-> > -		unsigned char param;
-> > +	i8042_controller_reset();
-> > +}
-> >
-> > -		if (i8042_command(&param, I8042_CMD_CTL_TEST))
-> > -			printk(KERN_ERR "i8042.c: i8042 controller reset timeout.\n");
-> > -	}
->
-> This actually introduces a bug, because we don't want to restore the
-> CTR setting before we save it, which the new code does.
->
+Hi Marco,
 
-Hmm, I do not see it. i8042_controller_reset() is only called on suspend/
-shutdown. The init path where we vigorously testing the hardware and saving
-initial CTR value was left intact.
+On Sat, Jan 03, 2004 at 03:48:39PM +0000, Marco Correia wrote:
+ 
+> The problem is that the value I get dividing by my processor frequency (my 
+> computer is a 650Mhz toshiba satellite pro 4340) is giving me about 1 hour 
+> and I'm using the computer for about 4 fours.
+> 
+> Am I forgetting something obvious? I already googled around but I came to the 
+> conclusion that only new P4 M processors are able to change speed. 
 
-As far as checking the return value we usualy give some leniency on suspend/
-shutdown and don't fail the entire process when there are non-clitical errors.
+Perhaps it supports throttling. My mobile athlon supports this : 10000 times
+a second, it is stopped for a certain amount of time, then resumed. Depending
+on the throttling factor, I can even here it !
 
-Or am I missing something?
+Cheers,
+Willy
 
-Dmitry

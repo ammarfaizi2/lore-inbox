@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267053AbRHJMB4>; Fri, 10 Aug 2001 08:01:56 -0400
+	id <S267184AbRHJMCg>; Fri, 10 Aug 2001 08:02:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267184AbRHJMBg>; Fri, 10 Aug 2001 08:01:36 -0400
-Received: from web20309.mail.yahoo.com ([216.136.226.90]:3601 "HELO
-	web20309.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S267053AbRHJMBg>; Fri, 10 Aug 2001 08:01:36 -0400
-Message-ID: <20010810120147.71730.qmail@web20309.mail.yahoo.com>
-Date: Fri, 10 Aug 2001 05:01:47 -0700 (PDT)
-From: sam darloud <cvrais@yahoo.com>
-Subject: Floppy module oops.
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
+	id <S267196AbRHJMC0>; Fri, 10 Aug 2001 08:02:26 -0400
+Received: from [194.30.80.67] ([194.30.80.67]:15621 "EHLO
+	serv_correo.ingecom.net") by vger.kernel.org with ESMTP
+	id <S267184AbRHJMCK>; Fri, 10 Aug 2001 08:02:10 -0400
+Message-ID: <001b01c12194$a34a3370$66011ec0@frank>
+From: "Frank Torres" <frank@ingecom.net>
+To: "Linux-Kernel \(Lista Correo\)" <linux-kernel@vger.kernel.org>
+Subject: Can I have a serial display output and a kbd PS/2 input?
+Date: Fri, 10 Aug 2001 14:04:37 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.3018.1300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Sorry to be insistent in this point, but perhaps requesting the problem this
+way someone figures out what I am trying to do.
+The display is already configured and sending getty line from inittab waits
+for an input from serial so it doesn't work.
+Any other ideas? This is my last try.
 
-since 2.4.7 and latest ac kernels when i do a modprobe
-floppy and i don't have a floppy drive i get a oops of
-the kernel.
-Please let me know if you need more information.
+Thanks in advance
+Frank again.
 
-S.
 
-__________________________________________________
-Do You Yahoo!?
-Make international calls for as low as $.04/minute with Yahoo! Messenger
-http://phonecard.yahoo.com/

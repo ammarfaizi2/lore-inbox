@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130026AbQLPMOM>; Sat, 16 Dec 2000 07:14:12 -0500
+	id <S129345AbQLPM2H>; Sat, 16 Dec 2000 07:28:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131685AbQLPMOC>; Sat, 16 Dec 2000 07:14:02 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:61449 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S130026AbQLPMNz>;
-	Sat, 16 Dec 2000 07:13:55 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Lee Leahu <lee@ricis.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel panic: VFS: LRU block list corrupted 
-In-Reply-To: Your message of "Sat, 16 Dec 2000 05:32:51 MDT."
-             <5.0.0.25.2.20001216051043.00a6b008@mail.ricis.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 16 Dec 2000 22:43:22 +1100
-Message-ID: <15486.976967002@ocs3.ocs-net>
+	id <S129408AbQLPM16>; Sat, 16 Dec 2000 07:27:58 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:28074 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129345AbQLPM1r>;
+	Sat, 16 Dec 2000 07:27:47 -0500
+Date: Sat, 16 Dec 2000 06:57:20 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+cc: Kurt Garloff <garloff@suse.de>,
+        Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: TIOCGDEV ioctl
+In-Reply-To: <20001216124011.A14129@cistron.nl>
+Message-ID: <Pine.GSO.4.21.0012160652150.15518-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Dec 2000 05:32:51 -0600, 
-Lee Leahu <lee@ricis.com> wrote:
->i'm not very familiar with klog, but i'll go with klogd.
->do i append a '-x' to the line that calls klogs in the startup scripts or
->is there some other better way of preventing klogd from destroying
->the Oops information.
 
-Edit the script that starts klogd, probably /etc/rc.d/init.d/syslog.
-Find the line that starts klogd, add '-x' to the options then restart
-klogd (probably /etc/rc.d/init.d/syslog restart).
 
->Then i guess ksymoops. decodes the oops info
+On Sat, 16 Dec 2000, Miquel van Smoorenburg wrote:
 
-Absolutely.  See linux/Documentation/oops-tracing.txt
+> According to Alexander Viro:
+> > OK, I can see the point of finding out where the console is redirected
+> > to. How about the following:
+> > 
+> > 	/proc/sys/vc -> /dev/tty<n>
+> > 	/proc/sys/console -> where the hell did we redirect it or
+> > 			     vc if there's no redirect right now
+> > Will that be OK with you?
+> 
+> Well, I'd prefer the ioctl, but I can see the general direction the
+> kernel is heading to: get rid of numeric ioctls and sysctl()s and
+> put all that info under /proc.
+> 
+> However /proc/sys only contains directories now, it would look
+
+Huh? Oh, sorry. /proc/tty, indeed - it was a braino. BTW, I think
+that a mini-fs with a device node for each registered console +
+symlink (say it, "default") pointing to the default one might make
+sense too. Comments?
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

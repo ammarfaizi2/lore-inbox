@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293393AbSCARGT>; Fri, 1 Mar 2002 12:06:19 -0500
+	id <S293394AbSCARK3>; Fri, 1 Mar 2002 12:10:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293394AbSCARGO>; Fri, 1 Mar 2002 12:06:14 -0500
-Received: from e23.nc.us.ibm.com ([32.97.136.229]:11435 "EHLO
-	e23.esmtp.ibm.com") by vger.kernel.org with ESMTP
-	id <S293393AbSCARGG>; Fri, 1 Mar 2002 12:06:06 -0500
-Date: Fri, 01 Mar 2002 11:05:43 -0600
-From: Dave McCracken <dmccr@us.ibm.com>
-To: David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: thread groups bug? 
-Message-ID: <56680000.1015002343@baldur>
-In-Reply-To: <22890.1015000691@warthog.cambridge.redhat.com>
-In-Reply-To: <22890.1015000691@warthog.cambridge.redhat.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S293408AbSCARKK>; Fri, 1 Mar 2002 12:10:10 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:44038 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S293394AbSCARKC>; Fri, 1 Mar 2002 12:10:02 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 1 Mar 2002 09:13:05 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Sean Hunter <sean@dev.sportingbet.com>
+cc: Rik van Riel <riel@conectiva.com.br>, Bill Davidsen <davidsen@tmr.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19-preX: What we really need: -AA patches finally in the
+ tree
+In-Reply-To: <20020301103600.D7765@dev.sportingbet.com>
+Message-ID: <Pine.LNX.4.44.0203010911070.1531-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 1 Mar 2002, Sean Hunter wrote:
 
---On Friday, March 01, 2002 16:38:11 +0000 David Howells
-<dhowells@redhat.com> wrote:
+> Excuse my stupidity, but would a patch that just adds Davide's macro and
+> changes all instances of
+>
+> current->policy |= SCHED_YIELD;
+> schedule();
+>
+> to yield() be acceptable?  Is there more involved than that, because I am
+> perfectly happy to create and submit such a patch.
+>
+> ...or am I just being dumb?
 
-> I've attached a patch to kill all subsidiary threads in a thread group
-> when the main thread exits. I've made it against 2.5.6-pre1 since -pre2
-> fails to compile in the IDE code somewhere.
+The purpose of the macro would be to create a compatibility layer to
+1) cleanup 2.4.x code 2) facilitate o(1) sched integration
 
-You beat me to it.  Nice work.
 
-Dave McCracken
 
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
+- Davide
+
 

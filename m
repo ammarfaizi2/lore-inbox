@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319320AbSILHQO>; Thu, 12 Sep 2002 03:16:14 -0400
+	id <S319461AbSILHUv>; Thu, 12 Sep 2002 03:20:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319356AbSILHPV>; Thu, 12 Sep 2002 03:15:21 -0400
-Received: from dp.samba.org ([66.70.73.150]:29880 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S319320AbSILHPQ>;
-	Thu, 12 Sep 2002 03:15:16 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com, Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Generated files destruction
-Date: Thu, 12 Sep 2002 17:13:09 +1000
-Message-Id: <20020912072006.EBADF2C0C7@lists.samba.org>
+	id <S319469AbSILHUu>; Thu, 12 Sep 2002 03:20:50 -0400
+Received: from denise.shiny.it ([194.20.232.1]:20450 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S319461AbSILHUu>;
+	Thu, 12 Sep 2002 03:20:50 -0400
+Message-ID: <XFMail.20020912092526.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <OFA28F240F.93209971-ON88256C31.005E5F03@boulder.ibm.com>
+Date: Thu, 12 Sep 2002 09:25:26 +0200 (CEST)
+From: Giuliano Pochini <pochini@shiny.it>
+To: Jim Sibley <jlsibley@us.ibm.com>
+Subject: RE: Killing/balancing processes when overcommited
+Cc: Troy Reed <tdreed@us.ibm.com>, ltc@linux.ibm.com, riel@conectiva.com.br,
+       linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.
 
-	I would like to start migrating all build-generated files to
-names matching "generated*" or ".generated*", esp. those which look
-like source files.  This is mainly for readability and for simplicity
-when diffing built kernel trees.  I'll be encouraging various
-maintainers who generate (.c, .h and .s) files which are not meant to
-be shipped with the kernel source to migrate, in my copious free
-time...
+On 11-Sep-2002 Jim Sibley wrote:
+> I have run into a situation in a multi-user Linux environment that when
+> memory is exhausted, random things happen. [...] In a "well tuned" system,
+> we are safe, but when the system accidentally (or deliberately) becomes
+> "detuned", oom_kill is entered and arbitrarily kills  a  process.
 
-Cheers!
-Rusty.
+It's not difficult to make the kerner choose the right processes
+to kill. It's impossible. Imagine that when it goes oom the system
+stops and asks you what processes have to be killed. What do you
+kill ? I think the only way to save the system it to tell the kernel
+which are the processes that must not be killed, except in extreme
+conditions. Probably we do need an oomd that the sysadmin can
+configure as he likes.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.34/Makefile working-2.5.34-generated-remove/Makefile
---- linux-2.5.34/Makefile	2002-09-10 09:11:14.000000000 +1000
-+++ working-2.5.34-generated-remove/Makefile	2002-09-12 17:09:06.000000000 +1000
-@@ -660,6 +660,7 @@ clean:	archclean
- 	@echo 'Cleaning up'
- 	@find . -name SCCS -prune -o -name BitKeeper -prune -o \
- 		\( -name \*.[oas] -o -name core -o -name .\*.cmd -o \
-+		-name generated\* -o -name .generated\* -o \
- 		-name .\*.tmp -o -name .\*.d \) -type f -print \
- 		| grep -v lxdialog/ | xargs rm -f
- 	@rm -f $(CLEAN_FILES)
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Bye.
+

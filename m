@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314396AbSHANxP>; Thu, 1 Aug 2002 09:53:15 -0400
+	id <S312973AbSHAONj>; Thu, 1 Aug 2002 10:13:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314529AbSHANxP>; Thu, 1 Aug 2002 09:53:15 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:6669 "EHLO www.home.local")
-	by vger.kernel.org with ESMTP id <S314396AbSHANxP>;
-	Thu, 1 Aug 2002 09:53:15 -0400
-Date: Thu, 1 Aug 2002 15:56:23 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Willy TARREAU <willy@w.ods.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PANIC] APM bug with -rc4 and -rc5
-Message-ID: <20020801135623.GA19879@alpha.home.local>
-References: <Pine.LNX.4.44.0208010336330.1728-100000@freak.distro.conectiva> <20020801121205.GA168@pcw.home.local> <20020801133202.GA200@pcw.home.local> <1028213732.14865.50.camel@irongate.swansea.linux.org.uk>
+	id <S313190AbSHAONj>; Thu, 1 Aug 2002 10:13:39 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:25727 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S312973AbSHAONi>; Thu, 1 Aug 2002 10:13:38 -0400
+Date: Thu, 1 Aug 2002 16:17:03 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19rc4aa1
+Message-ID: <20020801141703.GT1132@dualathlon.random>
+References: <20020801055124.GB1132@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1028213732.14865.50.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20020801055124.GB1132@dualathlon.random>
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 01, 2002 at 03:55:32PM +0100, Alan Cox wrote:
-> I've only run -ac on the box (I need the IDE) and that has subtly
-> different APM code. I do not however understand why it has changed
-> behaviour. I could understand if it did it at the actual poweroff point
-> but not earlier
+On Thu, Aug 01, 2002 at 07:51:24AM +0200, Andrea Arcangeli wrote:
+> This may be the last update for a week (unless there's a quick bug to
+> fix before next morning :). I wanted to ship async-io and largepage
 
-Ok, thanks. I'll try to revert some patches from -rc4. But it looks
-more like a side effect IMHO. Perhaps the APM initialization code
-triggers one of the numerous bugs in the bios :-/
+I would like to thank Randy Hron for reproducing this problem so
+quickly with the ltp testsuite:
 
-If I enable APM in the bios, the crash is somewhat different. I get
-about two pages of call traces looping back every 8 pointers.
+>>EIP; 80132cc2 <shmem_writepage+22/130>   <=====
 
-Seems like a memory corruption to me...
+here the fix:
 
-2.4.19-rc3-ac5 is OK, BTW.
+--- 2.4.19rc4aa1/include/linux/mm.h.~1~	Thu Aug  1 07:15:54 2002
++++ 2.4.19rc4aa1/include/linux/mm.h	Thu Aug  1 16:13:56 2002
+@@ -296,8 +296,8 @@ typedef struct page {
+ #define PG_checked		12	/* kill me in 2.5.<early>. */
+ #define PG_arch_1		13
+ #define PG_reserved		14
+-#define PG_bigpage		15
+ #define PG_launder		15	/* written out by VM pressure.. */
++#define PG_bigpage		16
+ 
+ /* Make it prettier to test the above... */
+ #define UnlockPage(page)	unlock_page(page)
 
-Cheers,
-Willy
+
+new rc4aa2 with this single fix is coming, if anybody else found any
+other problem please let me know ASAP :), thanks.
+
+Andrea

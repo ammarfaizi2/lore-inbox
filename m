@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262153AbTFZRKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 13:10:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbTFZRKP
+	id S261970AbTFZRPr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 13:15:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262145AbTFZRPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 13:10:15 -0400
-Received: from zephir.uk.clara.net ([195.8.69.53]:4875 "EHLO
-	zephir.uk.clara.net") by vger.kernel.org with ESMTP id S262153AbTFZRKN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 13:10:13 -0400
-Subject: Re: weird postfix mailspool corruption with 2.4.21-ac2+ (was Re:
-	Linux 2.4.21-ac3)
-From: Jonathan Hudson <jonathan@daria.co.uk>
-To: Scott McDermott <vaxerdec@frontiernet.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030625191906.C9146@newbox.localdomain>
-References: <fa.hh6ttrp.1d52bhj@ifi.uio.no> <fa.h3c32fv.r5m12l@ifi.uio.no>
-	 <f65.3efa238d.6e30e@trespassersw.daria.co.uk>
-	 <20030625191906.C9146@newbox.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1056648260.7417.7.camel@trespassersw.daria.co.uk>
+	Thu, 26 Jun 2003 13:15:46 -0400
+Received: from amalthea.dnx.de ([193.108.181.146]:6576 "EHLO amalthea.dnx.de")
+	by vger.kernel.org with ESMTP id S261970AbTFZRPq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 13:15:46 -0400
+Date: Thu, 26 Jun 2003 19:29:56 +0200
+From: Robert Schwebel <robert@schwebel.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Success stories, disappearing Oopses and ps/2 keyboard
+Message-ID: <20030626172953.GH477@pengutronix.de>
+References: <20030624164026.GA2934@sexmachine.doom>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 26 Jun 2003 18:24:20 +0100
-X-PGP-KeyServer: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0x721FAABE
-X-PGP-Key: 1024/DSA 0x721FAABE
-X-PGP-Fingerprint: 7746 1FEE 02F4 0AD4 267C 2B55 03EF 19EC 721F AABE
-X-Operating-System: Linux 2.4.22-pre1 i686
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <20030624164026.GA2934@sexmachine.doom>
+User-Agent: Mutt/1.4i
+X-Spam-Score: -5.0 (----)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19VaZG-0002Dg-00*MTbvpFVXscA*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-06-26 at 00:19, Scott McDermott wrote:
-> Jonathan Hudson on Wed 25/06 23:34 +0100:
-> > No AIC or any kind here. Bring on the next suspect.
-> 
-> does changing the unix_dgram_ops `poll' op from `dgram_poll'
-> to `datagram_poll' in net/unix/af_unix.c change anything for
-> you? I can't test this myself until later this week.  Also I
-> don't know what other bug the unix_peer_get() addition is
-> supposed to fix, so...
+On Tue, Jun 24, 2003 at 06:40:26PM +0200, Konstantin Kletschke wrote:
+> However, there is only one Problem left for me, before this one can be
+> called 2.6.0: The keys on my PS/2 IBM Keyboard are bouncing very often!
+> I switched from an USB Logitech Keyboard back to my old school, clicking
+> PC-102 IBM Keyboard ATM and the Key bouncing was back immmediatly :(
 
-I'll see if I can test this out, once I've build -ac3 on a box where I
-don't drop real messages.
+It might be that you have a similar problem as Joern Engel: 
 
--jonathan
+	20030620202444.GD22732@wohnheim.fh-wedel.de
 
+Robert
+-- 
+ Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+   Braunschweiger Str. 79,  31134 Hildesheim, Germany
+   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
+    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4

@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129742AbRADISv>; Thu, 4 Jan 2001 03:18:51 -0500
+	id <S130486AbRADIYC>; Thu, 4 Jan 2001 03:24:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129962AbRADISm>; Thu, 4 Jan 2001 03:18:42 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:41231 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S129742AbRADIS0>; Thu, 4 Jan 2001 03:18:26 -0500
-Message-ID: <3A54332E.58374060@uow.edu.au>
-Date: Thu, 04 Jan 2001 19:24:14 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Pete Zaitcev <zaitcev@metabyte.com>, linux-kernel@vger.kernel.org
-Subject: Re: So, what about kwhich on RH6.2?
-In-Reply-To: <3A541361.65942CB3@metabyte.com> <3A5430C6.FBAB094A@uow.edu.au>,
-		<3A5430C6.FBAB094A@uow.edu.au>; from andrewm@uow.edu.au on Thu, Jan 04, 2001 at 07:13:58PM +1100 <20010104091241.B18973@gruyere.muc.suse.de>
+	id <S130607AbRADIXv>; Thu, 4 Jan 2001 03:23:51 -0500
+Received: from c290168-a.stcla1.sfba.home.com ([65.0.213.53]:12528 "HELO
+	top.worldcontrol.com") by vger.kernel.org with SMTP
+	id <S130486AbRADIXg>; Thu, 4 Jan 2001 03:23:36 -0500
+From: brian@worldcontrol.com
+Date: Thu, 4 Jan 2001 00:31:47 -0800
+To: Anuradha Ratnaweera <anuradha@gnu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: soffice, 2.2.18, cpu 97% idle, loadavg 6.05
+Message-ID: <20010104003147.A10345@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	Anuradha Ratnaweera <anuradha@gnu.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010103155540.A6026@top.worldcontrol.com> <Pine.LNX.4.04.10101041354050.26494-100000@hantana.pdn.ac.lk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.5i
+In-Reply-To: <Pine.LNX.4.04.10101041354050.26494-100000@hantana.pdn.ac.lk>; from anuradha@gnu.org on Thu, Jan 04, 2001 at 01:54:17PM +0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+On Thu, Jan 04, 2001 at 01:54:17PM +0600, Anuradha Ratnaweera wrote:
 > 
-> On Thu, Jan 04, 2001 at 07:13:58PM +1100, Andrew Morton wrote:
-> > Silly question:
-> >
-> > can't we just hardwire `kgcc' into the build system and be done
-> > with all this kwhich stuff?  It's just a symlink....
-> 
-> And break compilation on all non RedHat 7, non connectiva systems ?
+> What is the compiler?
 
-I don't buy that.  The compulsory modutils upgrade a couple of months
-back caused, what?  Ten emails?
+% gcc -v
+Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/specs
+gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
 
-> Would you volunteer to handle the support load on l-k that would cause?
+Linux distribution is Redhat 6.2, with all updates.
 
-With pleasure.
+-- 
+Brian Litzinger <brian@worldcontrol.com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

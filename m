@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132047AbRBQWjL>; Sat, 17 Feb 2001 17:39:11 -0500
+	id <S132059AbRBQWqe>; Sat, 17 Feb 2001 17:46:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132059AbRBQWjB>; Sat, 17 Feb 2001 17:39:01 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:24845
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S132047AbRBQWip>; Sat, 17 Feb 2001 17:38:45 -0500
-Date: Sat, 17 Feb 2001 14:38:19 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Dennis <dennis@etinc.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux stifles innovation...
-In-Reply-To: <5.0.0.25.0.20010217150612.0390d950@mail.etinc.com>
-Message-ID: <Pine.LNX.4.10.10102171423120.31811-100000@master.linux-ide.org>
+	id <S132114AbRBQWqY>; Sat, 17 Feb 2001 17:46:24 -0500
+Received: from ferret.lmh.ox.ac.uk ([163.1.18.131]:518 "HELO
+	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
+	id <S132059AbRBQWqV>; Sat, 17 Feb 2001 17:46:21 -0500
+Date: Sat, 17 Feb 2001 22:46:19 +0000 (GMT)
+From: Chris Evans <chris@scary.beasts.org>
+To: <kuznet@ms2.inr.ac.ru>
+cc: <linux-kernel@vger.kernel.org>, <davem@redhat.com>
+Subject: Re: SO_SNDTIMEO: 2.4 kernel bugs
+In-Reply-To: <200102172029.XAA28904@ms2.inr.ac.ru>
+Message-ID: <Pine.LNX.4.30.0102172239570.24119-100000@ferret.lmh.ox.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Feb 2001, Dennis wrote:
 
-> good commercial drivers dont need fixing. another point. You are arguing 
-> that having source is required to fix crappy code, which i agree with.
-> 
-> You "guys" like to have source, and there is nothing wrong with that. But 
-> requiring that all code be distributed as source DOES stifle innovation. 
-> Its as simple as that.
+Hi Alexey,
 
-And when your customer gets screw because you refuse to update your binary
-driver because you do not know or have had the chance to follow any
-evolving API, you are going to blame us in OPEN source, right.
+This patch fixes my simple read()/write() tests, nice one. The behaviour
+also now matches BSD (someone kindly donated me a FreeBSD shell for
+testing).
 
-Meanwhile the API changes may have boosted the performance factor and you
-have screw yourself and customer base because you are to lame to see the
-value of open source.
+Unfortunately, I discovered a bug with SO_SNDTIMEO/sendfile():
 
-Some time ago I proposed CLAPI, and you are one of the venders that would 
-benefit from such a beast.  This model would have required you to LGPL a
-kernel library that would have all the functional IP (that is not IP) that
-is to lame to be placed into the hardware.  If your hardware is so flakey
-that you have to pump/prime it for operations....well....you get the
-point.
+- Connect an AF_INET, SOCK_STREAM socket to a local listening socket.
+- Set 5 seconds SO_SNDTIMEO on the connected socket
+- Do a sendfile() from a big file down the connected socket. Make sure the
+size is big (e.g. 1Mb) so the call blocks.
+--> BUG!! The call blocks indefinitely rather than being interrupted after
+5 seconds.
 
-If I recall you and your company on one of the worst offenders of taking
-code (GPL or not) and changing it and putting it out as binaries.  I am
-surprized that you have not been taken down yet.  Then if someone asks for
-the return of the code base and changes because they can under the terms
-of the license that you removed from that code, you charge them a fee and
-suggest actionable terms if any disclosure into the public form from
-where it came.
+Cheers
+Chris
 
-Regards,
+On Sat, 17 Feb 2001 kuznet@ms2.inr.ac.ru wrote:
 
-Andre Hedrick
-Linux ATA Development
+> Hello!
+>
+> > Unfortunately, it seems to be very buggy. Here are two buggy scenarios.
+>
+>
+> --- ../vger3-010210/linux/net/ipv4/tcp.c	Sat Feb 10 23:16:51 2001
+> +++ linux/net/ipv4/tcp.c	Sat Feb 17 23:27:43 2001
+> @@ -691,6 +691,8 @@
+>
+>  		set_current_state(TASK_INTERRUPTIBLE);
+>
+> +		if (!timeo)
+> +			break;
+>  		if (signal_pending(current))
+>  			break;
+>  		if (tcp_memory_free(sk) && !vm_wait)
+> --- ../vger3-010210/linux/net/core/sock.c	Tue Jan 30 21:20:16 2001
+> +++ linux/net/core/sock.c	Sat Feb 17 23:27:44 2001
+> @@ -727,6 +727,8 @@
+>  	clear_bit(SOCK_ASYNC_NOSPACE, &sk->socket->flags);
+>  	add_wait_queue(sk->sleep, &wait);
+>  	for (;;) {
+> +		if (!timeo)
+> +			break;
+>  		if (signal_pending(current))
+>  			break;
+>  		set_bit(SOCK_NOSPACE, &sk->socket->flags);
+>
+
 

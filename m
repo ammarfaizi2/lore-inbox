@@ -1,75 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266264AbUBDHXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 02:23:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266254AbUBDHXQ
+	id S266254AbUBDHiT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 02:38:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266305AbUBDHiT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 02:23:16 -0500
-Received: from fmr09.intel.com ([192.52.57.35]:22938 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S266264AbUBDHW4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 02:22:56 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: ACPI -- Workaround for broken DSDT
-Date: Wed, 4 Feb 2004 02:22:18 -0500
-Message-ID: <BF1FE1855350A0479097B3A0D2A80EE0CC8A9F@hdsmsx402.hd.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ACPI -- Workaround for broken DSDT
-Thread-Index: AcPp/EWWxiNYp/2wSa26qLUv3RkgVgAp3hWQ
-From: "Brown, Len" <len.brown@intel.com>
-To: <trelane@digitasaru.net>
-Cc: <bluefoxicy@linux.net>, <linux-kernel@vger.kernel.org>,
-       <acpi-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 04 Feb 2004 07:22:20.0081 (UTC) FILETIME=[A01C7A10:01C3EAEF]
+	Wed, 4 Feb 2004 02:38:19 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:46845 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266254AbUBDHiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 02:38:17 -0500
+Date: Wed, 4 Feb 2004 08:38:12 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>, kkeil@suse.de
+Cc: isdn4linux@listserv.isdn4linux.de
+Subject: 2.6.2-rc3 with isdn patch + devfs doesn't compile
+Message-ID: <20040204073812.GR4443@fs.tum.de>
+References: <401E4A80.4050907@web.de> <20040202195139.GB2534@pingi3.kke.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040202195139.GB2534@pingi3.kke.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From Brown, Len on Sunday, 01 February, 2004:
-> >The vendor should supply a correct DSDT with their BIOS.
-> >In the case of Dell, you might inquire here: http://linux.dell.com/
-> >For non-vendor supplied solutions, you might also follow the 
-> DSDT link
-> >here: http://acpi.sourceforge.net/  
+On Mon, Feb 02, 2004 at 08:51:39PM +0100, Karsten Keil wrote:
+> On Mon, Feb 02, 2004 at 02:02:56PM +0100, Todor Todorov wrote:
+> > Hello everyone,
+> > 
+> > didn't find any more applicabale mailing list, so here it goes:
+> > 
 > 
-> Hmm.  Do vendors generally release these?  I know Dell's very shaky on
->   the Linux support front, at least for desktop/laptop.
-> Also, how do non-vendor supplied ones get made?  Seems like something
->   you need NDA'ed docs for.
+> try the actual I4L for 2.6 patch in 
+> ftp://ftp.isdn4linux.de/pub/isdn4linux/kernel/v2.6
 
-Non-vendor supplied DSDTs are created by end-users who bought machines
-that don't work.  Per the DSDT link above, one can extract,
-dis-assemble, modify a DSDT -- and tell Linux to use your copy instead
-of the version burned into PROM.
+FYI:
+I'm getting the following compile error in 2.6.2-rc3 with this patch 
+applied and CONFIG_DEVFS_FS=n:
 
-While detailed hardware docs would be required to understand all the
-code, that is not necessary to fix the majority of DSDT errors that
-confuse Linux.  The common errors generally result from simple
-programming blunders that are not caught at build-time by the partciular
-AML compiler the vendor uses, nor at run-time by the particular OS the
-vendor uses for validation.
+<--  snip  -->
 
-When vendors use an improved AML compiler (such as the one freely
-available from Intel;-), and test their platforms on ACPI-enabled Linux,
-these problems generally go away and so does the topic of fixing broken
-DSDTs.
+...
+  CC      drivers/isdn/capi/capidrv.o
+In file included from drivers/isdn/capi/capidrv.c:25:
+include/linux/isdn.h:637: error: parse error before "devfs_handle_t"
+include/linux/isdn.h:637: warning: no semicolon at end of struct or union
+include/linux/isdn.h:638: warning: type defaults to `int' in declaration 
+of `devfs_handle_isdnctrl'
+include/linux/isdn.h:638: warning: data definition has no type or storage class
+include/linux/isdn.h:639: error: parse error before "devfs_handle_isdnX"
+include/linux/isdn.h:639: warning: type defaults to `int' in declaration of `devfs_handle_isdnX'
+include/linux/isdn.h:639: warning: data definition has no type or storage class
+include/linux/isdn.h:640: error: parse error before "devfs_handle_isdnctrlX"
+include/linux/isdn.h:640: warning: type defaults to `int' in declaration of `devfs_handle_isdnctrlX'
+include/linux/isdn.h:640: warning: data definition has no type or storage class
+include/linux/isdn.h:642: error: parse error before "devfs_handle_ipppX"
+include/linux/isdn.h:642: warning: type defaults to `int' in declaration of `devfs_handle_ipppX'
+include/linux/isdn.h:642: warning: data definition has no type or storage class
+include/linux/isdn.h:645: error: parse error before '}' token
+include/linux/isdn.h:645: warning: type defaults to `int' in declaration of `isdn_dev'
+include/linux/isdn.h:645: warning: data definition has no type or storage class
+include/linux/isdn.h:647: error: parse error before '*' token
+include/linux/isdn.h:647: warning: type defaults to `int' in declaration of `dev'
+include/linux/isdn.h:647: warning: data definition has no type or storage class
+drivers/isdn/capi/capidrv.c:2111:10: warning: #warning FIXME: maybe a 
+race condition the card should be removed here from global list /kkeil
+make[3]: *** [drivers/isdn/capi/capidrv.o] Error 1
 
-Indeed, I'm not confident that fixing DSDTs for vendors is always a good
-idea -- particularly if the vendors don't take the feedback.  I'd rather
-see Linux users able to vote with their dollars to support vendors that
-best support Linux.
+<--  snip  -->
 
-That said, if you're stuck with a box that needs a DSDT fix -- I
-encourage you to work with the vendor to get the DSDT fixed.  Yes, I've
-seen handing them the fix on a silver platter work just fine;-)
-However, as I'm not a lawyer and don't play one on TV, note that I can't
-give anybody permission to _publish_ modified vendor firmware -- only
-the vendor can do that. 
+> Karsten Keil
 
-Cheers,
--Len
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

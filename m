@@ -1,74 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267041AbTBTWjj>; Thu, 20 Feb 2003 17:39:39 -0500
+	id <S264813AbTBTWhq>; Thu, 20 Feb 2003 17:37:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267042AbTBTWjj>; Thu, 20 Feb 2003 17:39:39 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22290 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267041AbTBTWjh>; Thu, 20 Feb 2003 17:39:37 -0500
-Date: Thu, 20 Feb 2003 14:45:18 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Zwane Mwaikambo <zwane@holomorphy.com>, Chris Wedgwood <cw@f00f.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous
- reboots)
-In-Reply-To: <Pine.LNX.4.44.0302201438150.1671-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0302201442500.1671-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264817AbTBTWhq>; Thu, 20 Feb 2003 17:37:46 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:50562 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S264813AbTBTWho>;
+	Thu, 20 Feb 2003 17:37:44 -0500
+Date: Thu, 20 Feb 2003 23:45:32 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Prasad <prasad_s@students.iiit.net>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Syscall from Kernel Space
+Message-ID: <20030220224532.GE31480@x30.school.suse.de>
+References: <Pine.LNX.4.44.0302202301350.12696-100000@students.iiit.net> <20030220174043.GI9800@gtf.org> <20030220221027.GA31480@x30.school.suse.de> <20030220221730.GS9800@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030220221730.GS9800@gtf.org>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 20 Feb 2003, Linus Torvalds wrote:
+On Thu, Feb 20, 2003 at 05:17:30PM -0500, Jeff Garzik wrote:
+> On Thu, Feb 20, 2003 at 11:10:27PM +0100, Andrea Arcangeli wrote:
+> > On Thu, Feb 20, 2003 at 12:40:43PM -0500, Jeff Garzik wrote:
+> > > On Thu, Feb 20, 2003 at 11:04:37PM +0530, Prasad wrote:
+> > > > 	Is there a way using which i could invoke a syscall in the kernel 
+> > > > space?  The syscall is to be run disguised as another process.  The actual 
+> > > 
+> > > Call sys_<syscall>.  Look at the kernel code for examples.
+> > > 
+> > > Note that typically you don't want to do this... and you _really_ don't
+> > > want to do this if the syscall is not one of the common file I/O
+> > > syscalls (read/write/open/close, etc.)
+> > 
+> > you never want to do this, the only point of a syscall is to enter
+> > kernel, if you're just in kernel you're wasting time in calling the
+> > syscall (not to tell about the new non soft interrupt based syscall
+> > instructions, btw this is also why I rejected the int 0x81 thing on
+> > x86-64 for 64bit syscalls)
 > 
-> Yeah, don't bother to tell me it doesn't work. We need the task pointer to
-> include information on _both_ "I'm still using it" (the task itself) _and_
-> the "I'm waiting for it" case. So it's not just a matter of moving the
-> put_task() thing around, it needs to get the accounting right..
+> He is talking about directly calling the function behind the syscall,
+> not actually executing a syscall itself.
 
-And the way to get the accounting right (I think) is actually truly 
-trivial: we should initialize the task count to _two_ at process creation 
-time, since we have two users (the parent who will do the wait, and our 
-own usage).
+this is not what I understood from your previous discussion also given
+you suggest not to do that when he can call sys_read/sys_write instead
+because they're just exported etc.. I just wanted to add a better
+"never".
 
-This should mean that we'd actually have the process count right, and 
-wouldn't need the games we play right now. Ie the patch should be 
-something like the appended (which again is totally untested, it might 
-easily have serious problems, that's not really the point. The point is 
-that reference counting is the only sane memory management policy, and we 
-did it wrong).
+> syscalls should be made from userspace, not the kernel.
 
-		Linus
+This is what I tried to say.
 
----
-===== kernel/fork.c 1.106 vs edited =====
---- 1.106/kernel/fork.c	Tue Feb 18 13:54:44 2003
-+++ edited/kernel/fork.c	Thu Feb 20 14:42:25 2003
-@@ -217,7 +217,9 @@
- 	*tsk = *orig;
- 	tsk->thread_info = ti;
- 	ti->task = tsk;
--	atomic_set(&tsk->usage,1);
-+
-+	/* One for us, one for whoever does the "release_task()" (usually parent) */
-+	atomic_set(&tsk->usage,2);
- 	return tsk;
- }
- 
-===== kernel/sched.c 1.160 vs edited =====
---- 1.160/kernel/sched.c	Thu Feb 20 05:42:54 2003
-+++ edited/kernel/sched.c	Thu Feb 20 14:27:23 2003
-@@ -581,6 +581,8 @@
- 	finish_arch_switch(rq, prev);
- 	if (mm)
- 		mmdrop(mm);
-+	if (prev->state & TASK_DEAD)
-+		put_task_struct(prev);
- }
- 
- /**
-
+Andrea

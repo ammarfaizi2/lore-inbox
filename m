@@ -1,68 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269155AbUIHUwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269158AbUIHU4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269155AbUIHUwb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 16:52:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269151AbUIHUwb
+	id S269158AbUIHU4J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 16:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269151AbUIHUzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 16:52:31 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:43696 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S269133AbUIHUwF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 16:52:05 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: swsusp on x86-64 w/ nforce3
-Date: Wed, 8 Sep 2004 22:52:38 +0200
-User-Agent: KMail/1.6.2
-Cc: Tony Lindgren <tony@atomide.com>, pavel@suse.cz, Andi Kleen <ak@suse.de>
-References: <200409061836.21505.rjw@sisk.pl> <200409062123.08476.rjw@sisk.pl> <20040908204249.GG8142@atomide.com>
-In-Reply-To: <20040908204249.GG8142@atomide.com>
-MIME-Version: 1.0
+	Wed, 8 Sep 2004 16:55:54 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34730 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269153AbUIHUza
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 16:55:30 -0400
+Date: Wed, 8 Sep 2004 16:30:36 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Ray Bryant <raybry@sgi.com>
+Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@redhat.com,
+       piggin@cyberone.com.au, mbligh@aracnet.com
+Subject: Re: swapping and the value of /proc/sys/vm/swappiness
+Message-ID: <20040908193036.GH4284@logos.cnet>
+References: <413CB661.6030303@sgi.com> <cone.1094512172.450816.6110.502@pc.kolivas.org> <20040906162740.54a5d6c9.akpm@osdl.org> <cone.1094513660.210107.6110.502@pc.kolivas.org> <20040907000304.GA8083@logos.cnet> <20040907212051.GC3492@logos.cnet> <413F1518.7050608@sgi.com> <20040908165412.GB4284@logos.cnet> <413F5EE7.6050705@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409082252.38350.rjw@sisk.pl>
+In-Reply-To: <413F5EE7.6050705@sgi.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 of September 2004 22:42, Tony Lindgren wrote:
-> * Rafael J. Wysocki <rjw@sisk.pl> [040906 12:31]:
-> > On Monday 06 of September 2004 18:36, Rafael J. Wysocki wrote:
-> > > Pavel,
-> > > 
-> > > Can you tell me, please, if swsusp, as in the 2.6.9-rc1-bk12 kernel, is 
-> > > supposed to work on x86-64-based systems (specifically, with the nforce3 
-> > > chipset)?
-> > 
-> > Anyway, on such a system (.config and the output of dmesg are attached), I 
-get 
-> > the following:
-> > 
-> > Stopping tasks: 
-> > ==============================================================|
-> > Freeing 
-> > 
-memory: ............................................................................................................|
-> > Suspending devices... /critical section: counting pages to copy..[nosave 
-pfn 
-> > 0x59b]..................................................)
-> > Alloc pagedir
-> > ..[nosave pfn 
-> > 
-0x59b]................................................................................critical 
-> > section/: done (40890 pa)
-> > APIC error on CPU0: 80(08)
-> > 
+On Wed, Sep 08, 2004 at 02:35:03PM -0500, Ray Bryant wrote:
 > 
-> Just FYI, swsusp works nicely here on my m6805 laptop :)
+> 
+> Marcelo Tosatti wrote:
+> 
+> >
+> >
+> >Huh, that changes the meaning of the dirty limits. Dont think its suitable
+> >for mainline.
+> >
+> >
+> 
+> The change is, in fact, not much different from what is already actually 
+> there.  The code in get_dirty_limits() adjusts the value of the user 
+> supplied parameters in /proc/sys/vm depending on how much mapped memory 
+> there is.  If you undo the convoluted arithmetic that is in there, one 
+> finds that if you are using the default dirty_ratio of 40%, then if the 
+> unmapped_ratio is between 80% and 10%, then
+> 
+>    dirty_ratio = unmapped_ratio / 2;
+> 
+> and, a little bit of algebra later:
+> 
+>    dirty = (total_pages - wbs->nr_mapped)/2
+> 
+> and
+> 
+>    background = dirty_background_ratio/vm_background_ratio * (total_pages
+> 	- wbs->nr_mapped)
+> 
+> That is, for a wide range of memory usage, you are really running with an
+> dirty ratio of 50% stated in terms of the number of unmapped pages, and 
+> there is no direct way to override this.
 
-Can you, please, send me your .config?
+OK I see, yes. 
 
-Greets,
-RJW
+> Of course, at the edges, the code changes these calculations.  It just 
+> seems to me that rather than continue the convoluted calculation that is in
+> get_dirty_limits(), we just make the outcome more explicit and tell the user
+> what is really going on.
+> 
+> We'd still have to figure out how to encourage a minimum page cache size of
+> some kind, which is what I understand the 5% min value for dirty_ratio is 
+> in there for.
+ 
+For the user "dirty_ratio" and "dirty_background_ratio" means "percentage
+of total memory" (thats how it has been traditionally in Linux). And right now,
+ as you noted, we dont do that way.
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+There's probably a good reason for the "no more than half of unmapped memory".
+Andrew ?

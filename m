@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261889AbUBDNAU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 08:00:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbUBDNAU
+	id S261872AbUBDNPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 08:15:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbUBDNPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 08:00:20 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:2714 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S261889AbUBDNAQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 08:00:16 -0500
-From: Michael Frank <mhf@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Subject: Reserved pages not flagged on Compaq evo?
-Date: Wed, 4 Feb 2004 20:36:13 +0800
-User-Agent: KMail/1.5.4
-Cc: swsusp-devel@lists.sourceforge.net
-References: <87llnyggfm.fsf@larve.net> <200402030614.37454.mhf@linuxmail.org> <20040204114113.GA1110@home.larve.net>
-In-Reply-To: <20040204114113.GA1110@home.larve.net>
-X-OS: KDE 3 on GNU/Linux
+	Wed, 4 Feb 2004 08:15:25 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:3035 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S261872AbUBDNPX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 08:15:23 -0500
+From: Michael Buesch <mbuesch@freenet.de>
+To: Dan McGrath <troubled@emaildesktop.com>
+Subject: Re: iptables stopped logging to files, but shows in ring buffer
+Date: Wed, 4 Feb 2004 14:14:58 +0100
+User-Agent: KMail/1.6
+References: <001801c3ead5$9d0d6420$0201a8c0@wksdan> <20040204122550.GE25175@obroa-skai.de.gnumonks.org>
+In-Reply-To: <20040204122550.GE25175@obroa-skai.de.gnumonks.org>
+Cc: Harald Welte <laforge@netfilter.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
 Content-Disposition: inline
-Message-Id: <200402042024.47784.mhf@linuxmail.org>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200402041415.14059.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A 2.4.24 + swsusp 2.0 user reported a mce at the video base address
-of 0xa0000 when writing the kernel image to disk (thus reading there)
-on a Compaq evo1015v (Athlon XP 2000+)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-NOMCE eliminates the mce but I am wondering about possible ill effects
-should other reserved pages be invalidly accessed.
-  
-It looks like these pages are not flagged reserved and therfore accessed. 
+On Wednesday 04 February 2004 13:25, you wrote:
+> On Tue, Feb 03, 2004 at 11:16:07PM -0500, Dan McGrath wrote:
+> > I remembered that iptables logs seem to show in dmesg command in the
+> > past, and sure enough, they are all showing up there no problems, but not in
+> > any files, including dmesg.log.
+> 
+> If they are in dmesg, but in no files, than this cannot be a kernel
+> problem.  It has to be a userspace (klogd/syslogd) issue.
+> 
+> Thus, it is off-topic to lkml, and is not a problem of
+> netfilter/iptables.
 
-No other mce's have ever been reported.
+I had the same problem a while ago.
+The cause was: I've a cron-job that cleans logfiles
+via bash script. This bash script shuts down syslogd and restarts
+it. After cleaning the logs, kernel-messages didn't reach userspace
+anymore. The solution was to not only shut down syslogd but also
+klogd.
+So, try to restart klogd _and_ syslogd.
 
-What is the suggested approach to identify the root cause?
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
 
-Michael
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-
+iD8DBQFAIPBgFGK1OIvVOP4RAolGAJ96DUqZh4daeKiDQc4YzV87FhlZ+wCfdnHY
+WceebWbSfmTVfcdoEqXxF2g=
+=0Y6M
+-----END PGP SIGNATURE-----

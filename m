@@ -1,71 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278039AbRJOTNE>; Mon, 15 Oct 2001 15:13:04 -0400
+	id <S278041AbRJOTPo>; Mon, 15 Oct 2001 15:15:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278030AbRJOTMz>; Mon, 15 Oct 2001 15:12:55 -0400
-Received: from tunnel-44-183.vpn.uib.no ([129.177.44.183]:54920 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S278039AbRJOTMm>; Mon, 15 Oct 2001 15:12:42 -0400
-Message-ID: <3BCB36A7.7020909@fi.uib.no>
-Date: Mon, 15 Oct 2001 21:19:03 +0200
-From: Igor Bukanov <boukanov@fi.uib.no>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S278040AbRJOTPe>; Mon, 15 Oct 2001 15:15:34 -0400
+Received: from cs181088.pp.htv.fi ([213.243.181.88]:15488 "EHLO
+	cs181088.pp.htv.fi") by vger.kernel.org with ESMTP
+	id <S278030AbRJOTPS>; Mon, 15 Oct 2001 15:15:18 -0400
+Message-ID: <3BCB35CA.4D9D2952@welho.com>
+Date: Mon, 15 Oct 2001 22:15:22 +0300
+From: Mika Liljeberg <Mika.Liljeberg@welho.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-ac10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: John J Tobin <ogre@sirinet.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: IDE DVD problem under 2.4: status=0x51 { DriveReady SeekComplete Error } (fwd)
-In-Reply-To: <Pine.OSF.3.96.1011015132315.30364A-100000@asfys3.fi.uib.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: kuznet@ms2.inr.ac.ru
+CC: ak@muc.de, davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: TCP acking too fast
+In-Reply-To: <200110151840.WAA24000@ms2.inr.ac.ru>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John J Tobin wrote:
-
-> On Sun, 2001-10-14 at 20:32, Igor Bukanov wrote:
+kuznet@ms2.inr.ac.ru wrote:
+> > Well, I think this "problem" is way overstated.
 > 
->>I tried to setup my Dell Inspiron 7500 notebook (Celeron 466/512MB) with 
->>TORiSAN DVD-ROM DRD-U62 (RPC-2 drive :-( ) to watch DVD and found the 
->>following when using decss to read the encrypted vob files (other ways 
->>to access the file eventually produce the same error) under  2.4.12 
->>kernel, RedHat Linux 7.1. After I authenticated the drive and got a 
->>title key for some file, css-cat always fails on the first 2-3 attempts 
->>to read the file due to input-output error with kernel message:
->>
->>hdc: command error: status=0x51 { DriveReady SeekComplete Error }
->>hdc: command error: error=0x50
->>end_request: I/O error, dev 16:00 (hdc), sector 563008
->>
->>
-> Under the IDE/ATAPI configuration stuff in the kernel configuration
-> select the option "Use multi-mode by default." That may solve your
-> problem.				
+> Understated. :-)
+> 
+> Actually, people who designed all this engine always kept in the mind
+> only two cases: ftp and telnet. Who did care that some funny
+> protocols sort of smtp work thousand times slower than they could?
 
+Well, if you ask me, it's smtp that is a prime example of braindead
+protocol design. It's a wonder we're still using it. If you put that
+many request-reply interactions into a protocol that could easily be
+done in one you're simply begging for a bloody nose. Nagle or not, smtp
+sucks. :)
 
-I already have that option on:
-CONFIG_IDEDISK_MULTI_MODE=y
+Anyway, Minshall's version of Nagle is ok with smtp as long as the smtp
+implementation isn't stupid enough to emit two remants in one go (yeah,
+right).
 
-Should I try with this option disabled???
+Anyway, it would be interesting to try a (even more) relaxed version of
+Nagle that would allow a maximum of two remnants in flight. This would
+basically cover all TCP request/reply cases (leading AND trailing
+remnant). Coupled with large initial window to get rid of  small-cwnd
+interactions, it might be almost be all right.
 
-Here are uncommented line from my .config IDE section:
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECS=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDEFLOPPY=y
-CONFIG_BLK_DEV_IDESCSI=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_PIIX_TUNING=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
+Assuming the above, we woulnd't need your ack-every-pushed-remnant
+policy, except for the following pathological bidirection case:
 
-Regards, Igor
+A and B send two remnants to each other at the same time. Then both
+block waiting for ack, until finally one of them sends a delay ack. You
+could break this deadlock by using the following rule:
 
+- if we're blocked on Nagle (two remnants out) and the received segment
+has PSH, send ACK immediately
+
+In other cases you wouldn't need to ack pushed segments. What do you
+think? :-) 
+
+> Alexey
+
+Regards,
+
+	MikaL

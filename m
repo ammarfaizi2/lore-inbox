@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270470AbTGZRmN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 13:42:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270484AbTGZRmN
+	id S269334AbTGZRll (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 13:41:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270470AbTGZRll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 13:42:13 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:54184 "EHLO
+	Sat, 26 Jul 2003 13:41:41 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:52392 "EHLO
 	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S270470AbTGZRmL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 13:42:11 -0400
-Date: Sat, 26 Jul 2003 13:45:37 -0400
+	id S269334AbTGZRlk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 13:41:40 -0400
+Date: Sat, 26 Jul 2003 13:45:08 -0400
 From: Ben Collins <bcollins@debian.org>
-To: gaxt <gaxt@rogers.com>, Torrey Hoffman <thoffman@arnor.net>,
-       Sam Bromley <sbromley@cogeco.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux firewire devel <linux1394-devel@lists.sourceforge.net>
-Subject: Re: Firewire
-Message-ID: <20030726174537.GF490@phunnypharm.org>
-References: <20030725161803.GJ1512@phunnypharm.org> <1059155483.2525.16.camel@torrey.et.myrio.com> <20030725181303.GO23196@ruvolo.net> <20030725181252.GA607@phunnypharm.org> <3F217A39.2020803@rogers.com> <20030725182642.GD607@phunnypharm.org> <20030725184506.GE607@phunnypharm.org> <20030725193515.GQ23196@ruvolo.net> <20030725201128.GA535@phunnypharm.org> <20030726165259.GV23196@ruvolo.net>
+To: Sam Bromley <sbromley@cogeco.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Firewire (One fix worked, now getting oops)
+Message-ID: <20030726174508.GE490@phunnypharm.org>
+References: <20030725181303.GO23196@ruvolo.net> <20030725181252.GA607@phunnypharm.org> <3F217A39.2020803@rogers.com> <20030725182642.GD607@phunnypharm.org> <20030725184506.GE607@phunnypharm.org> <20030725193515.GQ23196@ruvolo.net> <20030725201128.GA535@phunnypharm.org> <1059194478.655.49.camel@daedalus.samhome.net> <20030726151247.GC490@phunnypharm.org> <1059241272.757.7.camel@daedalus.samhome.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030726165259.GV23196@ruvolo.net>
+In-Reply-To: <1059241272.757.7.camel@daedalus.samhome.net>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 26, 2003 at 09:52:59AM -0700, Chris Ruvolo wrote:
-> On Fri, Jul 25, 2003 at 04:11:29PM -0400, Ben Collins wrote:
-> > Kick ass. I've commited this change to the 1394 repo. Linus will get the
-> > fix soon. I'll also send it to Marcelo for 2.4.22.
+On Sat, Jul 26, 2003 at 01:41:12PM -0400, Sam Bromley wrote:
+> On Sat, 2003-07-26 at 11:12, Ben Collins wrote:
+> > > >>EIP; 402fd1de <__crc_param_set_short+2b6895/75bf8f>   <=====
+> > > 
+> > > >>ebx; 4039ff60 <__crc_param_set_short+359617/75bf8f>
+> > > >>edx; 08103a88 <__crc_ip_finish_output+23c39/133bb1>
+> > > >>ebp; bfffc788 <__crc_class_device_add+4dfb67/51fa16>
+> > > >>esp; bfffc760 <__crc_class_device_add+4dfb3f/51fa16>
 > > 
-> > Please, if you are testing, use the code at www.linux1394.org's viewcvs
-> > (trunk tarball will replace drivers/ieee1394 in 2.6, branches/linux-2.4
-> > will do the same for 2.4).
+> > This doesn't make much sense. I'm not sure what to make of it.
 > 
-> Its all working!  Compiled the 1014 rev, and everything looks good.  dvgrab,
-> kino, gscanbus, even GnomeMeeting 0.98 with /dev/video1394.
 > 
-> Thanks for all your help, and the time spent tracking down this problem!
+> Well, I compiled without preempt and the problem went away.
+> Everything now seems to work (using Rev 1016). The oops
+> upon unloading ohci1394 is gone as well. Are others
+> having success *with* a preemptibe kernel?
 
-Thanks for the feedback. I'm glad this is finally fixed.
+I'm not sure how to get around the problem with unload. I call
+wait_for_completion() to make sure the kernel thread in nodemgr is dead,
+but it ends up sleeping and that causes the problem. I am under a
+read_lock when this occurs, and I'm not sure I can get around that fact.
+
+
 
 -- 
 Debian     - http://www.debian.org/

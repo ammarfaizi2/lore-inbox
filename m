@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265475AbRGGXob>; Sat, 7 Jul 2001 19:44:31 -0400
+	id <S265491AbRGHAzN>; Sat, 7 Jul 2001 20:55:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265994AbRGGXoV>; Sat, 7 Jul 2001 19:44:21 -0400
-Received: from web13908.mail.yahoo.com ([216.136.175.71]:10500 "HELO
-	web13908.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S265475AbRGGXoE>; Sat, 7 Jul 2001 19:44:04 -0400
-Message-ID: <20010707234405.88465.qmail@web13908.mail.yahoo.com>
-Date: Sat, 7 Jul 2001 16:44:05 -0700 (PDT)
-From: Barry Wu <wqb123@yahoo.com>
-Subject: How to change a module to a character device driver
-To: linux-kernel@vger.kernel.org
+	id <S265494AbRGHAzC>; Sat, 7 Jul 2001 20:55:02 -0400
+Received: from SMTP-OUT003.ONEMAIN.COM ([63.208.208.73]:606 "HELO
+	smtp01.mail.onemain.com") by vger.kernel.org with SMTP
+	id <S265491AbRGHAyo>; Sat, 7 Jul 2001 20:54:44 -0400
+From: "Gerry Chu" <gerry@gerrychu.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: modem problem solved
+Date: Sat, 7 Jul 2001 17:54:06 -0700
+Message-ID: <NCBBIACEOOOFMAJFGDBIAEBICJAA.gerry@gerrychu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Solved with new ppp. Thanks, and sorry.
+---------------------------------------
+My modems (Courier 28.8 external, Actiontec PCI call waiting non-winmodem)
+connect to the Internet fine with 2.4.0, and broke around 2.4.1. What
+happens is they dial out, make those sounds, and just as they seem to be
+about to connect, they disconnect. I'm pretty sure both kernels are
+configured correctly. This still occurs with kernel 2.4.6.
 
-
-Hi, all,
-
-I am new to linux device driver. I do not know
-how to change a module to a character device driver.
-I have a module by hand, I want to modify it
-to a character device driver. Then I can make it
-in linux kernel, and do not need modutils rpm.
-If someone knows, please help me. Thanks!
-
-
-Barry
-
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail
-http://personal.mail.yahoo.com/

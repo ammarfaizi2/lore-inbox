@@ -1,62 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266098AbTLIU0u (ORCPT <rfc822;willy@w.ods.org>);
+	id S266126AbTLIU0u (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 9 Dec 2003 15:26:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266124AbTLIU0T
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266125AbTLIU0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 15:26:19 -0500
-Received: from massena-4-82-67-197-146.fbx.proxad.net ([82.67.197.146]:57984
-	"EHLO perso.free.fr") by vger.kernel.org with ESMTP id S266123AbTLIUYr
+	Tue, 9 Dec 2003 15:26:34 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:10880 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S266098AbTLIUXj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 15:24:47 -0500
-From: Duncan Sands <baldrick@free.fr>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
-Date: Tue, 9 Dec 2003 21:24:45 +0100
-User-Agent: KMail/1.5.4
-Cc: David Brownell <david-b@pacbell.net>, Vince <fuzzy77@free.fr>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, <mfedyk@matchmail.com>,
-       <zwane@holomorphy.com>, <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44L0.0312091057150.1033-100000@ida.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0312091057150.1033-100000@ida.rowland.org>
+	Tue, 9 Dec 2003 15:23:39 -0500
+Date: Tue, 9 Dec 2003 15:24:06 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Dominik Kubla <dominik@kubla.de>
+cc: Stephen Satchell <list@satchell.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Swap performance statistics in 2.6 -- which /proc file has it?
+In-Reply-To: <3FD62845.8090301@kubla.de>
+Message-ID: <Pine.LNX.4.53.0312091520120.3865@chaos>
+References: <BF1FE1855350A0479097B3A0D2A80EE00184D619@hdsmsx402.hd.intel.com>
+  <1070911748.2408.39.camel@dhcppc4>  <3FD546D5.2000003@nishanet.com> 
+ <1070975964.5966.5.camel@ssatchell1.pyramid.net>  <Pine.LNX.4.53.0312090854080.8425@chaos>
+ <1070981185.6243.58.camel@ssatchell1.pyramid.net> <Pine.LNX.4.53.0312091014250.525@chaos>
+ <3FD62845.8090301@kubla.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312092124.45224.baldrick@free.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Here's how I see it.
+On Tue, 9 Dec 2003, Dominik Kubla wrote:
+
+> Richard B. Johnson wrote:
+> > If you need statistics v.s. time, you need to write an application
+> > that samples things at some fixed interval. In a previous life,
+> > I requested that "nr_free_pages()" be accessible from user-space,
+> > probably via /proc. That's all you need. Maybe that could be
+> > added now?  In any event, samping free pages at some fixed-time
+> > interval should give you all the information you need.
 >
-> dev->serialize is meant to protect significant state changes, things like
-> set_configuration and device disconnect.  ps->devsem is meant to protect
-> against usbfs trying to do two things to the device at the same time.
-
-Actually no: it is a read lock and all routines take it with down_read except
-for the disconnect routine.  So it is only there to guard against disconnect.
-
-> But you also want to protect against usbfs using the device during a state
-> change.  (The normal protection mechanisms don't work because usbfs might
-> be using a device without having a driver bound to any of its interfaces.)
-> Given that, there's no reason usbfs shouldn't just use serialize instead
-> of devsem.
+> vmstat -a
+> sar -B
+> sar -r
 >
-> The fact that the core calls driver_disconnect with serialize already held
-> then just makes your life simpler: You don't need to acquire the lock
-> yourself!
+> O'Reilly's "System Performance Tuning" might make for an interesting read,
+> especially pages 110ff (also its Linux informations are a bit out of date).
 >
-> The only tricky part is that you have to release serialize (which now is
-> your only lock) before calling set_configuration.  But as you said, you
-> would have to release ps->devsem anyway, so nothing's lost there.
->
-> Anything wrong with this approach?
+> Regards,
+>    Dominik Kubla
 
-Nothing - that is exactly what my patch does.  And it works... except
-for the Oops in usb_put_dev.
+Hmm. I was talking about real stuff, not some theory.....
 
-All the best,
+Script started on Tue Dec  9 15:19:25 2003
+# vmstat -a
+usage: vmstat [-V] [-n] [delay [count]]
+              -V prints version.
+              -n causes the headers not to be reprinted regularly.
+              delay is the delay between updates in seconds.
+              count is the number of updates.
+# sar -B
+bash: sar: command not found
+# sar -r
+bash: sar: command not found
+# exit
+exit
+Script done on Tue Dec  9 15:20:03 2003
 
-Duncan.
+Maybe it was a different system???
+
+Script started on Tue Dec  9 15:21:24 2003
+# rlogin hal
+Password:
+Last login: Tue Oct 28 12:00:38 on console
+Sun Microsystems Inc.	SunOS 5.5.1	Generic	May 1996
+# vmstat -a
+Usage: vmstat [-cisS] [disk ...] [interval [count]]
+# sar -B
+sar: illegal option -- B
+usage: sar [-ubdycwaqvmpgrkA][-o file] t [n]
+	sar [-ubdycwaqvmpgrkA][-s hh:mm][-e hh:mm][-i ss][-f file]
+# sar -r
+sar: can't open /var/adm/sa/sa09
+No such file or directory
+# uname -a
+SunOS hal 5.5.1 Generic sun4m sparc SUNW,SPARCstation-5
+# exit
+rlogin: connection closed.
+# exit
+exit
+Script done on Tue Dec  9 15:22:32 2003
+
+... Guess not.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

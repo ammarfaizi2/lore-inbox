@@ -1,83 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285161AbSA3BAn>; Tue, 29 Jan 2002 20:00:43 -0500
+	id <S286263AbSA3BDd>; Tue, 29 Jan 2002 20:03:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287633AbSA3BAe>; Tue, 29 Jan 2002 20:00:34 -0500
-Received: from mail1.amc.com.au ([203.15.175.2]:261 "HELO mail1.amc.com.au")
-	by vger.kernel.org with SMTP id <S285161AbSA3BAY>;
-	Tue, 29 Jan 2002 20:00:24 -0500
-Message-Id: <5.1.0.14.0.20020130113958.00a04390@mail.amc.localnet>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 30 Jan 2002 12:00:11 +1100
-To: linux-kernel@vger.kernel.org
-From: Stuart Young <sgy@amc.com.au>
-Subject: Re: A modest proposal -- We need a patch penguin
-Cc: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>,
-        John Weber <weber@nyc.rr.com>
-In-Reply-To: <87n0yxqa6e.fsf@tigram.bogus.local>
-In-Reply-To: <3C5600A6.3080605@nyc.rr.com>
+	id <S287798AbSA3BDY>; Tue, 29 Jan 2002 20:03:24 -0500
+Received: from ns.suse.de ([213.95.15.193]:27403 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S286263AbSA3BDN>;
+	Tue, 29 Jan 2002 20:03:13 -0500
+Date: Wed, 30 Jan 2002 02:03:12 +0100
+From: Dave Jones <davej@suse.de>
+To: Greg KH <greg@kroah.com>
+Cc: mochel@osdl.org, linux-usb-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] driverfs support for USB - take 2
+Message-ID: <20020130020312.C16379@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Greg KH <greg@kroah.com>, mochel@osdl.org,
+	linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20020130002418.GB21784@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020130002418.GB21784@kroah.com>; from greg@kroah.com on Tue, Jan 29, 2002 at 04:24:18PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 07:33 PM 29/01/02 +0100, Olaf Dietsche wrote:
+On Tue, Jan 29, 2002 at 04:24:18PM -0800, Greg KH wrote:
+ > Hi,
+ > 
+ > Well after determining that the last version of this patch doesn't show
+ > the USB tree properly, here's another patch against 2.5.3-pre6 that
+ > fixes this issue.
+ > 
+ > With this patch (the driver core changes were from Pat Mochel, thanks
+ > Pat for putting up with my endless questions) my machine now shows the
+ > following tree:
 
->How about extracting patches from lkml with procmail?
->
->---cut here-->8---
->:0 :
->* ^sender: linux-kernel-owner@vger.kernel.org
->* ^subject:.*patch
->{
->         :0 Bc:
->         * ^--- .*/
->         * ^+++ .*/
->         linux-kernel-patches
->}
->---8<--cut here---
->
->This recipe has its limits, but it's a start.
+ Looks good, now when the PM bits can power down from the leaves,
+ and turn off USB devices /before/ the USB controller and PCI bridges,
+ which sounds much more sensible.
 
-Actually I was sort of thinking that maybe part of the problem with our 
-current system is the noise-to-signal ratio of lkml itself.
+ > Yes, I need to have better names for the devices than just "usb_bus",
+ > any suggestions?  These devices nodes are really the USB root hubs in
+ > the USB controller, so they could just have the USB number as the name
+ > like the other USB devices (001), but that's pretty boring :)
 
-Perhaps it's time we set up a specific lkml-patch mailing list, and leave 
-lkml for discussions about the problems. Have a script that posts general 
-details about patches on lkml when there is a post to lkml-patch if you 
-like, so people know and can go and take a look if they want. If you get 
-complex, it can vet the patches to see if they apply, before pushing them 
-to the list. It also goes well with some sort of patch tracking system (who 
-says we can't use a mailing list as a distribution mechanism), if that gets 
-the go ahead, while not requiring it.
+ "usb_root0" .. "usb_rootN" ?
 
-Another possibility (or could even be combined) is that perhaps we need to 
-start separating the mailing list at the code tree level.
-
-eg: The "development" tree (lkml-dev which would currently contain 2.5.x) 
-from the "stable" tree (lkml-stable which would currently contain 2.4.x) 
-from the "older" trees (lkml-old which would currently contain 
-2.2.x/2.0.x), at the mailing list level.
-
-That way, people can concentrate on a specific tree (eg: Linus could 
-concentrate on 2.5.x), without getting inundated with all the other stuff. 
-This progresses easily when the next "stable" branch hits, so that the 
-"dev" list can keep talking about what they plan to do while waiting for 
-the stable to fork into the new development tree, and the previous stable 
-joins the ranks of the "old" kernels, where it might possibly still get the 
-occasional fix.
-
-By reducing the noise (and hey, there is a reason people black-list certain 
-subjects on lkml apart from personal/flame war issues), people can 
-concentrate on the facts. The less noise (the less traffic?) the more 
-likely every message will be read, patches will be checked, etc. Especially 
-when you have other "duties" apart from maintaining kernel code, it's not 
-always easy keeping up with lkml.
+ btw, a script to marry the busid's from driverfs to lspci/lsusb
+ output may be useful in the future especially if combined somehow
+ with tree(1). Could be very handy when it gets time to debug
+ those "My system won't suspend to disk" "What does /driver look like?"
+ situations.
 
 
-Stuart Young - sgy@amc.com.au
-(aka Cefiar) - cefiar1@optushome.com.au
-
-[All opinions expressed in the above message are my]
-[own and not necessarily the views of my employer..]
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

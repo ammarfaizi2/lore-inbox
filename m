@@ -1,62 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262670AbSLLLaJ>; Thu, 12 Dec 2002 06:30:09 -0500
+	id <S262692AbSLLLkk>; Thu, 12 Dec 2002 06:40:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262692AbSLLLaJ>; Thu, 12 Dec 2002 06:30:09 -0500
-Received: from boden.synopsys.com ([204.176.20.19]:63642 "HELO
-	boden.synopsys.com") by vger.kernel.org with SMTP
-	id <S262670AbSLLLaI>; Thu, 12 Dec 2002 06:30:08 -0500
-Date: Thu, 12 Dec 2002 12:37:38 +0100
-From: Alex Riesen <alexander.riesen@synopsys.COM>
-To: mdew <mdew@orcon.net.nz>
-Cc: linux-kernel@vger.kernel.org, chuchelo@krasu.ru
-Subject: Re: File still being accessed?
-Message-ID: <20021212113738.GB1647@riesen-pc.gr05.synopsys.com>
-Reply-To: alexander.riesen@synopsys.COM
-References: <1039665790.602.5.camel@nirvana> <20021212085229.GA1647@riesen-pc.gr05.synopsys.com> <1039690223.463.11.camel@nirvana>
-Mime-Version: 1.0
+	id <S262708AbSLLLkk>; Thu, 12 Dec 2002 06:40:40 -0500
+Received: from ore.jhcloos.com ([64.240.156.239]:4100 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id <S262692AbSLLLkj>;
+	Thu, 12 Dec 2002 06:40:39 -0500
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Pavel Machek <pavel@ucw.cz>, "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH: Four function buttons on DELL Latitude X200
+References: <m3d6ocjd81.fsf@Janik.cz> <E18LBeK-00046y-00@calista.inka.de>
+	<at2r5v$fib$1@cesium.transmeta.com> <20021210213444.GA451@elf.ucw.cz>
+	<20021212094334.A1403@ucw.cz>
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+In-Reply-To: <20021212094334.A1403@ucw.cz>
+Date: 12 Dec 2002 06:48:04 -0500
+Message-ID: <m3fzt35uh7.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1039690223.463.11.camel@nirvana>
-User-Agent: Mutt/1.4i
-Organization: Synopsys, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mdew, Thu, Dec 12, 2002 11:50:19 +0100:
-> > > Under Linux 2.5.51 Ive noticed that Downloader4X (Getright-type for
-> > > linux) http://www.krasu.ru/soft/chuchelo/
-> > > 
-> > > when trying to resume a file, It thinks the file is still being
-> > > accessed, however under 2.4, it has no such problem. Is this a bug in
-> > > 2.5.x still? any patches available that could help?
-> > which d4x version, what _exactly_ the message states?
-> > -alex
-> I've tried both D4X GTK2 (2.4.0-rc1) based and GTK1.2.x (1.3.0) based, same results.
-> 
-> I add a download, let it partially download, then press
-> "Continue/Restart Downloads"
-> 
-> -> Retry 1 ...
-> -> Trying to connect...
-> -> Socket was opened!
-> -> Trying to create a file
-> +  File was created!
-> !! File is already opened by another download!
-> !! Downloading was failed...
+>>>>> "Vojtech" == Vojtech Pavlik <vojtech@suse.cz> writes:
 
-The problem is advisory file locking. I'll try to debug
-it later, but something changed in how
-fcntl(fd, F_SETLK,{...,F_WRLCK,...}) works. It return an
-error now. Or maybe d4x just fails to unlock it, it doesn't
-check if unlock failed.
-The program doesn't show the real value of errno, just
-handles EINVAL and ENOLCK, so exact analisys is not possible
-apart something bad happened ("is already opened").
-The EINTR case, for instance, would cause similar behaviour.
+Vojtech> The real question is, when we have these 16-bit (or more bit)
+Vojtech> keycodes, how do we export them to the userspace? In cooked
+Vojtech> mode, there is no problem, we can extend the keymaps. But
+Vojtech> both medium raw and raw modes are pretty much limited in the
+Vojtech> number of keys they can carry. See 2.5 keyboard.c for the
+Vojtech> current imperfect solution.
 
-I suppose d4x just incorrectly uses it, but cannot say anything
-for sure.
-The maintainer is notified.
+Vojtech> IMHO applications which now use raw mode should instead
+Vojtech> switch to using the event devices in /dev/input ...
 
--alex
+In reference to this, until X is updated to do so, I'm curious about
+the changes in the multi-media keys on this i8100 between 2.4 and 2.5.
+
+In 2.4, X sees these as the keycodes (in Xmodmap syntax):
+
+! the four keys at the top
+keycode 129 = XF86AudioPlay XF86AudioPause
+keycode 130 = XF86AudioStop
+keycode 131 = XF86AudioPrev
+keycode 132 = XF86AudioNext
+
+! the volume and mute keys;
+! order is unknown because in 2.4 the smm system
+! catches the keys before X or the kernel can.
+keycode 137 = F27
+keycode 138 = F28
+keycode 139 = F29
+
+! this happens when three keys are hit together
+! it was causing my wm to open its menu, so I
+! added the below line to force 135 to be ignored.
+keycode 135 = XF86Launch0
+
+
+In 2.5, those (as warned) change radically:
+
+! the four keys at the top
+keycode NONE = XF86AudioPlay XF86AudioPause
+keycode 162 = XF86AudioStop
+keycode NONE = XF86AudioPrev
+keycode 114 = XF86AudioNext
+! the volume and mute keys;
+keycode 160 = XF86AudioMute
+keycode 174 = XF86AudioLowerVolume
+keycode 176 = XF86AudioRaiseVolume
+
+It is cool that the volume keys become accessible, and no longer need
+to be run through the i8k kernel module.  But the loss of the play and
+prev buttons is curious.  Is there a way around that?
+
+-JimC
+

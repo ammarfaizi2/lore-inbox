@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267180AbTB0XrV>; Thu, 27 Feb 2003 18:47:21 -0500
+	id <S267117AbTB0XuY>; Thu, 27 Feb 2003 18:50:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267354AbTB0XrU>; Thu, 27 Feb 2003 18:47:20 -0500
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:57756 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id <S267180AbTB0XrT>;
-	Thu, 27 Feb 2003 18:47:19 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Dave McCracken <dmccr@us.ibm.com>, Andrew Morton <akpm@digeo.com>
-Subject: Re: Rising io_load results Re: 2.5.63-mm1
-Date: Fri, 28 Feb 2003 10:56:45 +1100
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20030227025900.1205425a.akpm@digeo.com> <20030227134403.776bf2e3.akpm@digeo.com> <118810000.1046383273@baldur.austin.ibm.com>
-In-Reply-To: <118810000.1046383273@baldur.austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200302281056.45501.kernel@kolivas.org>
+	id <S267277AbTB0XuX>; Thu, 27 Feb 2003 18:50:23 -0500
+Received: from uucp.cistron.nl ([62.216.30.38]:61959 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S267117AbTB0XuX>;
+	Thu, 27 Feb 2003 18:50:23 -0500
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: Patch: 2.5.62 devfs shrink
+Date: Fri, 28 Feb 2003 00:00:42 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <b3m8ra$i9d$3@news.cistron.nl>
+References: <200302272313.PAA11724@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1046390442 18733 62.216.29.200 (28 Feb 2003 00:00:42 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Feb 2003 09:01 am, Dave McCracken wrote:
-> --On Thursday, February 27, 2003 13:44:03 -0800 Andrew Morton
->
-> <akpm@digeo.com> wrote:
-> >> ...
-> >> Mapped:       4294923652 kB
-> >
-> > Well that's gotta hurt.  This metric is used in making writeback
-> > decisions.  Probably the objrmap patch.
->
-> Oops.  You're right.  Here's a patch to fix it.
+In article <200302272313.PAA11724@baldur.yggdrasil.com>,
+Adam J. Richter <adam@yggdrasil.com> wrote:
+>   devfs, a simpler approach might be to convert your non-devfs
+>   system to use devfs-style names, at least for the devices that
+>   are needed for booting (/dev/vc/0, /dev/vc/1... for virtual
+>   consoles, /dev/discs/disc0/disc for the first whole hard disk,
+>   /dev/discs/discs0/part1 for the first partition of the first
+>   disk, /dev/floppy/0).
 
-Thanks. 
+If you're making it not 100% compatible anyway, now is the time
+to do away with that horrible 'disc' spelling ;). 'disk' is a
+harddisk or floppy disk, 'disc' is for compact disc (try Google
+on both spellings and you'll see that the world agrees ..).
+Just do s/disc/disk/g in devfs_register().
 
-This looks better after a run:
+Mike.
+-- 
+Anyone who is capable of getting themselves made President should
+on no account be allowed to do the job -- Douglas Adams.
 
-MemTotal:       256156 kB
-MemFree:        189448 kB
-Buffers:         46744 kB
-Cached:           4176 kB
-SwapCached:          0 kB
-Active:          51840 kB
-Inactive:         1768 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       256156 kB
-LowFree:        189448 kB
-SwapTotal:     4194272 kB
-SwapFree:      4194272 kB
-Dirty:               0 kB
-Writeback:           0 kB
-Mapped:        4546752 kB
-Slab:             8468 kB
-Committed_AS:     7032 kB
-PageTables:        200 kB
-ReverseMaps:       662
-
-Con

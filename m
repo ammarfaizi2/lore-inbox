@@ -1,125 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbUEQS0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbUEQS0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbUEQS0y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 14:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbUEQS0y
+	id S262080AbUEQS0n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 14:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUEQS0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 14:26:54 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:42960 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262071AbUEQS0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 14:26:46 -0400
-Subject: Re: peculiar problem with 2.6, 8139too + ACPI
-From: Len Brown <len.brown@intel.com>
-To: Robert Fendt <fendt@physik.uni-dortmund.de>,
-       Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org,
-       James P Ketrenos <james.p.ketrenos@intel.com>
-In-Reply-To: <20040517123011.7e12d297.fendt@physik.uni-dortmund.de>
-References: <A6974D8E5F98D511BB910002A50A6647615FB5FE@hdsmsx403.hd.intel.com>
-	 <1084584998.12352.306.camel@dhcppc4>
-	 <20040517123011.7e12d297.fendt@physik.uni-dortmund.de>
+	Mon, 17 May 2004 14:26:43 -0400
+Received: from mailwasher.lanl.gov ([192.16.0.25]:14812 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S262080AbUEQS0l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 14:26:41 -0400
+Subject: Re: 1352 NUL bytes at the end of a page?
+From: Steven Cole <scole@lanl.gov>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: hugh@veritas.com, linux-kernel@vger.kernel.org, support@bitmover.com,
+       Linus Torvalds <torvalds@osdl.org>, Wayne Scott <wscott@bitmover.com>,
+       adi@bitmover.com, Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
+       lm@bitmover.com, "Theodore Ts'o" <tytso@mit.edu>
+In-Reply-To: <20040517174004.GU17014@parcelfarce.linux.theplanet.co.uk>
+References: <200405162136.24441.elenstev@mesatop.com>
+	 <Pine.LNX.4.58.0405162152290.25502@ppc970.osdl.org>
+	 <20040516231120.405a0d14.akpm@osdl.org>
+	 <20040517.085640.30175416.wscott@bitmover.com>
+	 <20040517151738.GA4730@thunk.org>
+	 <Pine.LNX.4.58.0405170820560.25502@ppc970.osdl.org>
+	 <20040517153736.GT17014@parcelfarce.linux.theplanet.co.uk>
+	 <E88DCF88-A827-11D8-A7EA-000A95CC3A8A@lanl.gov>
+	 <20040517174004.GU17014@parcelfarce.linux.theplanet.co.uk>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1084818282.12349.334.camel@dhcppc4>
+Message-Id: <1084815598.26340.6.camel@spc0.esa.lanl.gov>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 17 May 2004 14:24:42 -0400
+X-Mailer: Ximian Evolution 1.4.5-4mdk 
+Date: Mon, 17 May 2004 11:39:58 -0600
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-05-17 at 06:30, Robert Fendt wrote:
-> On 14 May 2004 21:36:38 -0400
-> Len Brown <len.brown@intel.com> wrote:
+On Mon, 2004-05-17 at 11:40, viro@parcelfarce.linux.theplanet.co.uk
+wrote:
+> On Mon, May 17, 2004 at 11:30:36AM -0600, Steven Cole wrote:
+>  
+> > mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 
+> > 0) = 0x40018000
 > 
-> > If the 8139too has statistics counters showing if it gets
-> > RX buffer over-runs, that would be interseting to observe.
+> rw anonymous - that has nothing to do with any IO.
 > 
+> > old_mmap(NULL, 19184, PROT_READ, MAP_PRIVATE, 3, 0) = 0x40018000
+> 
+> read-only, whatever file that was.
+> 
+> Was there anything with PROT_WRITE and without MAP_ANONYMOUS?
 
-> a) with 'processor' loaded
-> 
-> robert@betazed:~$ wget http://download.sourcemage.org/iso/smgl-i386-2.6.5-20040414.iso.bz2
-> --12:27:16--  http://download.sourcemage.org/iso/smgl-i386-2.6.5-20040414.iso.bz2
->            => `smgl-i386-2.6.5-20040414.iso.bz2'
-> Resolving download.sourcemage.org... 152.2.210.81
-> Connecting to download.sourcemage.org[152.2.210.81]:80... connected.
-> HTTP request sent, awaiting response... 200 OK
-> Length: 142,065,569 [text/plain]
-> 
->  0% [                                     ] 202,609        2.30K/s ETA 10:17:41
-> 
-> 
-> robert@betazed:~$ /sbin/ifconfig
-> eth0      Link encap:Ethernet  HWaddr 00:0C:6E:8A:DD:BA  
->           inet addr:129.217.168.125  Bcast:129.217.168.255  Mask:255.255.255.0
->           inet6 addr: fe80::20c:6eff:fe8a:ddba/64 Scope:Link
->           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
->           RX packets:933 errors:117 dropped:212 overruns:117 frame:0
+Yes, seven of the 52 references to mmap in the strace output met
+the above criteria: 
 
-BINGO
+  old_mmap(0x4015f000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x142000) = 0x4015f000
+  old_mmap(0x40170000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x9000) = 0x40170000
+  old_mmap(0x40180000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 4, 0x9000) = 0x40180000
+  old_mmap(0x40191000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 4, 0x10000) = 0x40191000
+  old_mmap(0x4019c000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 4, 0x7000) = 0x4019c000
+  old_mmap(0x401a0000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 4, 0x3000) = 0x401a0000
+  old_mmap(0x401af000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 4, 0xe000) = 0x401af000
 
-There may be a way to get more detailed stats out of the driver with
-netstat or something, Jeff would know.
 
->           TX packets:638 errors:0 dropped:0 overruns:0 carrier:0
->           collisions:0 txqueuelen:1000 
->           RX bytes:622241 (607.6 KiB)  TX bytes:54355 (53.0 KiB)
->           Interrupt:5 Base address:0xc800 
-> 
-> 
-> b) without 'processor' loaded
-> 
-> robert@betazed:~$ wget http://download.sourcemage.org/iso/smgl-i386-2.6.5-20040414.iso.bz2
-> --11:29:17--  http://download.sourcemage.org/iso/smgl-i386-2.6.5-20040414.iso.bz2
->            => `smgl-i386-2.6.5-20040414.iso.bz2.2'
-> Resolving download.sourcemage.org... 152.2.210.81
-> Connecting to download.sourcemage.org[152.2.210.81]:80... connected.
-> HTTP request sent, awaiting response... 200 OK
-> Length: 142,065,569 [text/plain]
-> 
->  3% [=>                                                  ] 5,526,132    514.93K/s
-> 
-> robert@betazed:~$ /sbin/ifconfig
-> eth0      Link encap:Ethernet  HWaddr 00:0C:6E:8A:DD:BA  
->           inet addr:129.217.168.125  Bcast:129.217.168.255  Mask:255.255.255.0
->           inet6 addr: fe80::20c:6eff:fe8a:ddba/64 Scope:Link
->           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
->           RX packets:4187 errors:0 dropped:0 overruns:0 frame:0
->           TX packets:2313 errors:0 dropped:0 overruns:0 carrier:0
->           collisions:0 txqueuelen:1000 
->           RX bytes:5904292 (5.6 MiB)  TX bytes:149285 (145.7 KiB)
->           Interrupt:5 Base address:0xc800 
-> 
-> 
-> One additional problem in debugging this is that it seems to be
-> depending on the local network topology, since I somehow cannot
-> reproduce it when downloading from machines on the LAN or when I have a
-> slow downstream connection (e.g. DSL).
-
-Probably something to do with packet arrival time and the ability of the
-system to think it is idle.  What topology does it fail with?
-
-> > It would also be interesting to know if you see the problem
-> > more frequently when running on battery power, since some
-> > systems have higher c-state exit latency when on battery.
-> 
-> Hmmm, I cannot see a difference between battery and ac. I will look into
-> it a bit more, though.
-
-Does
-cat /proc/acpi/processor/CPU0/power
-show any C3 usage?
-
-This could be either an ACPI issue -- we may enter C3 when there really
-isn't enough time to enter and exit C3 w/o thrashing the system; AND/OR
-a NIC problem where the driver/device is prone to over-run errors
-when the latency to memory is high.
-
-I think we're having a similar problem with the ipw2100.  it would
-be interesting if you plugged an e100 into the failing config if
-it fails the same way.
-
--Len
-
+Steven 
 

@@ -1,104 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263186AbTEMT5t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 15:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263234AbTEMT5t
+	id S263270AbTEMT7O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 15:59:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263245AbTEMT7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 15:57:49 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:46857 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263186AbTEMT5q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 15:57:46 -0400
-Date: Tue, 13 May 2003 16:04:41 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Oleg Drokin <green@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
-       "Mudama, Eric" <eric_mudama@maxtor.com>
-cc: "'Jens Axboe'" <axboe@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Tue, 13 May 2003 15:59:13 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:44293
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S263270AbTEMT7I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 15:59:08 -0400
+Date: Tue, 13 May 2003 13:03:35 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jens Axboe <axboe@suse.de>
+cc: Jeff Garzik <jgarzik@pobox.com>, Dave Jones <davej@codemonkey.org.uk>,
+       "Mudama, Eric" <eric_mudama@maxtor.com>,
+       Oleg Drokin <green@namesys.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Oliver Neukum <oliver@neukum.org>,
+       lkhelp@rekl.yi.org, linux-kernel@vger.kernel.org
 Subject: Re: 2.5.69, IDE TCQ can't be enabled
-In-Reply-To: <785F348679A4D5119A0C009027DE33C102E0D31D@mcoexc04.mlm.maxtor.com>
-Message-ID: <Pine.LNX.3.96.1030513154829.18019A-100000@gatekeeper.tmr.com>
+In-Reply-To: <20030513181337.GM17033@suse.de>
+Message-ID: <Pine.LNX.4.10.10305131256240.2718-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 May 2003, Oleg Drokin wrote:
 
-> How do you think people will test code that is removed?
+Why are we still dorking around with device TCQ.
+There are three holes in the state machine.
+IBM's design (goat-screw) is lamer than a duck.
+Maxtor thought about redoing TCQ, to not leave the host in a daze but
+dropped the ball.
 
-The people most likely to fix it know there's a problem, why leave it
-around to corrupt filesystems? Leave the code if Jens thinks he will get
-to it before 2.6, but comment out the option until he does.
+Nobody cares about a broken pile of crap in the NCITS standard, otherwise
+the rest of the drive vendors would have adopted.
 
-> Or do you mean that nobody plans to look at this ever?
+Stop with drive side crappola and make it host side for SATA.
 
-Jens plans to, but there are other things on his plate.
+If you want TCQ go use another OS, and kiss your data good bye.
 
-> I remember that Jens Axboe promised to take a look at it some
-> months ago.
+Not a single OS (linux included) can deal with a error in flush cache, 
+much less an error from a previous tagged request.
 
+Don't do it, and if you do, don't bitch.
 
-On Mon, 12 May 2003, Jeff Garzik wrote:
+Cheers,
 
-> On Mon, May 12, 2003 at 11:58:10AM -0600, Mudama, Eric wrote:
-> > The only difference between SATA TCQ and PATA TCQ is that in PATA TCQ, the
-> > drive doesn't report the active tag bitmap back to the host after each
-> > command.  Other than that they are functionally identical to my
-> > understanding.  (Yes, there are options like first-party DMA, but these are
-> > not requirements)
+Andre Hedrick
+LAD Storage Consulting Group
+
+PS Jens this is not directed to you, just this was the fatest cc list to
+bang a drum on.
+
+On Tue, 13 May 2003, Jens Axboe wrote:
+
+> On Tue, May 13 2003, Jens Axboe wrote:
+> > On Tue, May 13 2003, Jeff Garzik wrote:
+> > > On Tue, May 13, 2003 at 08:03:34PM +0200, Jens Axboe wrote:
+> > > > On Tue, May 13 2003, Dave Jones wrote:
+> > > > > On Tue, May 13, 2003 at 08:40:59AM +0200, Jens Axboe wrote:
+> > > > >  > > Weird.  Mine doesn't seem to assert it, nor does the identify page
+> > > > >  > > indicate it's supported.  Maybe I have a broken drive firmware.
+> > > > >  > 
+> > > > >  > Then the linux code won't work on it, have you tried? I've tried a lot
+> > > > >  > of different IBM models, they all do service interrupts just fine.
+> > > > > 
+> > > > > bug in the firmware version on Jeffs drives perhaps ?
+> > > > 
+> > > > It's possible, it would help a lot of Jeff would answer the question
+> > > > above and maybe even share what drive he is using with us.
+> > > 
+> > > hehe, just did (answer: no).  I'll post hdparm -I for it tomorrow.
+> > 
+> > :) thanks! fwiw, I've tried DTLA, DPTA, and the IC vancouvers here.
 > 
-> That's from the "drive side."  From the OS side, the ideal
-> implementation isn't here yet :)
+> btw, you may want to see the IDE_TCQ_FIDDLE_SI define in ide-tcq, here's
+> the comment I put there:
 > 
-> Ideally there is a DMA ring of taskfiles and scatterlists.  The OS
-> (producer) queues these up asynchrously, and the host+devices
-> (consumer) executes the taskfiles in the ring.  AHCI does this.
+> /*
+>  * we are leaving the SERVICE interrupt alone, IBM drives have it
+>  * on per default and it can't be turned off. Doesn't matter, this
+>  * is the sane config.
+>  */
+> #undef IDE_TCQ_FIDDLE_SI
 > 
-> With PATA TCQ, we only have a single scatterlist, and are forced to
-> have more OS-side infrastructure for command queueing, processing, etc.
+> Are you sure this isn't what you are seeing?
 > 
-> As an aside, as drives and hosts get faster, we will actually want
-> _fewer_ interrupts (i.e. interrupt coalescing).
+> -- 
+> Jens Axboe
 > 
-> All this points to making the host smarter.
-> The drives are already pretty damn smart ;-)
-
-Unfortunately it depends on the drive actually working if it claims to
-support the feature. That seems to be a problem.
-
-
-On Mon, 12 May 2003, Mudama, Eric wrote:
-
-> TCQ shouldn't benefit writes significantly from a performance perspective if
-> the drive is reasonably smart.  TCQ *will* have a huge performance
-> improvement for random reads since the drive can order responses based on
-> minimal rotational latency.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> Increasing queue depth reduces the average seek time between commands, both
-> in distance and rotational latency.  Provided a drive doesn't do dumb stuff
-> like we discussed earlier, then it should be good.
-
-One problem which seems probable is that the drive knows less about the
-system than the o/s (I hope!) and therefore it can only optimize the order
-of i/o for most i/o in the shortest time. It would seem that the deadline
-scheduler benefits from doing not the quickest thing but the correct thing
-in terms of ordering. I believe that once the i/o is queued (assuming the
-drive works right) the drive makes the decision about i/o order. That may
-be the wrong thing to do under load, and starve some processes.
-
-There was discussion recently about limiting the requests with SCSI, for
-just this reason.
-
-Unless there's a *lot* of gain from doing TCQ, perhaps this should either
-wait, be dropped, or only be enabled for a whitelist of known actually
-functional drives. Seems like a poor risk to benefit ratio if it doesn't
-work just right, and perhaps this should go on the "it seemed like a good
-idea at the time" pile. There's nothing the code can do to guard against
-bad drive firmware except not use it.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
 

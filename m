@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266435AbTBCOj0>; Mon, 3 Feb 2003 09:39:26 -0500
+	id <S266431AbTBCOhp>; Mon, 3 Feb 2003 09:37:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266438AbTBCOj0>; Mon, 3 Feb 2003 09:39:26 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:29329
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266435AbTBCOjZ>; Mon, 3 Feb 2003 09:39:25 -0500
-Subject: Re: PnP model
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jaroslav Kysela <perex@perex.cz>
-Cc: Adam Belay <ambx1@neo.rr.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "greg@kroah.com" <greg@kroah.com>
-In-Reply-To: <Pine.LNX.4.44.0302031437310.1116-100000@pnote.perex-int.cz>
-References: <Pine.LNX.4.44.0302031437310.1116-100000@pnote.perex-int.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1044287108.20788.8.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 03 Feb 2003 15:45:09 +0000
+	id <S266435AbTBCOhp>; Mon, 3 Feb 2003 09:37:45 -0500
+Received: from [205.205.44.10] ([205.205.44.10]:53005 "EHLO
+	sembo111.teknor.com") by vger.kernel.org with ESMTP
+	id <S266431AbTBCOho>; Mon, 3 Feb 2003 09:37:44 -0500
+Message-ID: <5009AD9521A8D41198EE00805F85F18F219C25@sembo111.teknor.com>
+From: "Isabelle, Francois" <Francois.Isabelle@ca.kontron.com>
+To: high-res-timers-discourse@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Unexpected lock during "Calibrating delay loop" and failure to co
+	mpile without "HighRes"
+Date: Mon, 3 Feb 2003 09:47:15 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-02-03 at 13:55, Jaroslav Kysela wrote:
-> 	I strongly vote to follow the same behaviour as PCI code does:
-> It means call the activation / enabling / setting functions from the 
-> probe() callbacks. Only the driver knows what's the best. Including 
-> the manual assignment of resources.
+Hi,
+    I'm trying to integrate some tools on a 486-powered cpu board, I don't
+really need "High Resolution Timers", but one of the tools would really make
+good use of the POSIX API you implemented. I've patch kernel 2.4.20 with the
+latest 2.4.20-1.0 hrtimers.
 
-I agree. A lot of drivers should be able to use one model for everything
-including "enable_device" stuff. Right now its all a bit too detailed.
+Here comes the trouble.
 
-Also the locking model seems very unclear and there are hot swappable ISA
-bays
+- Trying to build with High-Res, the kernel won't build
+
+time.c: In function `time_init':
+time.c:873: `do_fast_gettimeoffset' undeclared (first use in this function)
+time.c:873: (Each undeclared identifier is reported only once
+time.c:873: for each function it appears in.)
+make[1]: *** [time.o] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.4.20/arch/i386/kernel'
+make: *** [_dir_arch/i386/kernel] Error 2
+
+seems like it should try to link "do_slow_gettimeoffset" instead since 486
+does not handle TSC, (I'll have to check that..)
+
+
+- Trying to boot with "PIT-based" high-res support, the kernel lock during
+calibration "Calibrating delay loop".
+	Same occurs with IOAPIC and TSC ... 
+
+
+If you have any hint, I'll be glad to hear it.
+
+Thanks
+
+
+Frank
 

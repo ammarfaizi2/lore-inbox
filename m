@@ -1,27 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132825AbRDQTTs>; Tue, 17 Apr 2001 15:19:48 -0400
+	id <S132831AbRDQTXA>; Tue, 17 Apr 2001 15:23:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132826AbRDQTTi>; Tue, 17 Apr 2001 15:19:38 -0400
-Received: from adsl-63-200-41-38.steelrain.org ([63.200.41.38]:9741 "EHLO
-	thor.sbay.org") by vger.kernel.org with ESMTP id <S132825AbRDQTTU>;
-	Tue, 17 Apr 2001 15:19:20 -0400
-Date: Tue, 17 Apr 2001 12:18:48 -0700 (PDT)
-From: Dave Zarzycki <dave@zarzycki.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Your response is requested
-In-Reply-To: <20010417190405.PTFU6564.tomts8-srv.bellnexxia.net@mail.vger.kernel.org>
-Message-ID: <Pine.LNX.4.33.0104171212520.960-100000@batman.zarzycki.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132832AbRDQTWu>; Tue, 17 Apr 2001 15:22:50 -0400
+Received: from zmailer.org ([194.252.70.162]:3588 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S132831AbRDQTWb>;
+	Tue, 17 Apr 2001 15:22:31 -0400
+Date: Tue, 17 Apr 2001 22:22:21 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: linux-kernel@vger.kernel.org
+Subject: That leaked spam...
+Message-ID: <20010417222221.K805@mea-ext.zmailer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Apr 2001 J.I.@thor.sbay.org wrote:
-                    ^^^^^^^^^^^^^^^^^^
+  Oops, something leaked thru, now I added couple filters which should
+  bite on this, and one other mutation of the same kind...
+  (Naturally I had to remove trap key-phrases from the text..)
 
-Arrggg!!! Mumble... grumble... F*cking spammer using my hostname as the
-from address for sending spam...
+/Matti Aarnio
 
-Dave Zarzycki
-
+On Tue, Apr 17, 2001 at 03:36:36PM +0000, J.I. wrote:
+> From:	J. I.
+> Date:	Tue, 17 Apr 2001 15:36:36
+> To:	linux-kernel@vger.kernel.org
+> Subject: Your response is requested
+> 
+> Dear Friend:
+> 
+> YOU CAN make over a half million dollars every 4 to 5 months from
+> your home for a one time investment of only twenty five U.S.
+> Dollars.
+...

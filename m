@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262414AbSLTPV0>; Fri, 20 Dec 2002 10:21:26 -0500
+	id <S262420AbSLTPfP>; Fri, 20 Dec 2002 10:35:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262420AbSLTPV0>; Fri, 20 Dec 2002 10:21:26 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:17863 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262414AbSLTPVZ>; Fri, 20 Dec 2002 10:21:25 -0500
-Message-ID: <3E0336AF.6060607@BitWagon.com>
-Date: Fri, 20 Dec 2002 07:26:39 -0800
-From: John Reiser <jreiser@BitWagon.com>
-Organization: -
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Dike <jdike@karaya.com>
-CC: linux-kernel@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Julian Seward <jseward@acm.org>
-Subject: Re: Valgrind meets UML
-References: <200212200241.VAA04202@ccure.karaya.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262430AbSLTPfP>; Fri, 20 Dec 2002 10:35:15 -0500
+Received: from crack.them.org ([65.125.64.184]:57319 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S262420AbSLTPfO>;
+	Fri, 20 Dec 2002 10:35:14 -0500
+Date: Fri, 20 Dec 2002 10:44:13 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Christoph Hellwig <hch@infradead.org>, Roland McGrath <roland@redhat.com>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>
+Subject: Re: PTRACE_GET_THREAD_AREA
+Message-ID: <20021220154413.GA17007@nevyn.them.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org,
+	Ingo Molnar <mingo@redhat.com>
+References: <200212200832.gBK8Wfg29816@magilla.sf.frob.com> <20021220102431.A26923@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021220102431.A26923@infradead.org>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Dike wrote:
-> I would also appreciate suggestions on what sort of memory access state table
-> to implement, and where best to put the declarations.  What I'm not clear
-> on is what sort of access a buffer should have when it's in the care of
-> the allocator (i.e. it's free).  If the allocator sticks information 
-> temporarily in the buffer, then that needs to be stated.
+On Fri, Dec 20, 2002 at 10:24:31AM +0000, Christoph Hellwig wrote:
+> On Fri, Dec 20, 2002 at 12:32:41AM -0800, Roland McGrath wrote:
+> > This patch vs 2.5.51 (should apply fine to 2.5.52) adds two new ptrace
+> > requests for i386, PTRACE_GET_THREAD_AREA and PTRACE_SET_THREAD_AREA.
+> > These let another process using ptrace do the equivalent of performing
+> > get_thread_area and set_thread_area system calls for another thread.
+> 
+> I don't think ptrace is the right interface for this.  Just changed
+> the get_thread_area/set_thread_area to take a new first pid_t argument.
+> 
+> Of course you might have to check privilegues if the first argument is
+> non-null (i.e. not yourself).
 
-Probably there will be some benefits, at least for a while, if valgrind for UML
-"knows" the kernel allocators like valgrind for applications "knows" malloc+free.
-Implementors of allocators can have bugs in the valgrind declarations they add.
-An "independent" check based on documented externally-visible behavior can help.
-
-Nested allocators (inner allocator grabs a large region, outer allocator performs
-sub-allocations of small pieces from the large region) can be troublesome.
-
-Implementing a four-state status {-, W, RW, RO} might be much more work,
-because some accounting schemes are oriented naturally towards only three states
-{-, W, RW}.  Also, there are contenders for two additional states: watchpoints
-for READ and WRITE, such as "any read of a back-pointer of this doubly-linked
-list", etc.
+I have to disagree.  These are things which you should never do to
+another process unless you're ptracing them; get_thread_area with a PID
+is not generally useful.
 
 -- 
-John Reiser, jreiser@BitWagon.com
-
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

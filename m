@@ -1,68 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262431AbTFXQcQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 12:32:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbTFXQcQ
+	id S261970AbTFXQqp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 12:46:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbTFXQqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 12:32:16 -0400
-Received: from host151.spe.iit.edu ([198.37.27.151]:39100 "EHLO
-	found.lostlogicx.com") by vger.kernel.org with ESMTP
-	id S262431AbTFXQcO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 12:32:14 -0400
-Date: Tue, 24 Jun 2003 11:46:23 -0500
-From: Brandon Low <lostlogic@gentoo.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.7[123] PS/2 issues (synaptics mouse and laptop keyboard)
-Message-ID: <20030624164623.GL30282@lostlogicx.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IJpNTDwzlM2Ie8A6"
-Content-Disposition: inline
-X-Operating-System: Linux found.lostlogicx.com 2.4.20-pfeifer-r1_pre7
-User-Agent: Mutt/1.5.4i
+	Tue, 24 Jun 2003 12:46:45 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:33488 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261970AbTFXQqo convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 12:46:44 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [ACPI] MS-6368L ACPI IRQ problem still in 2.4.21
+Date: Tue, 24 Jun 2003 10:00:36 -0700
+Message-ID: <F760B14C9561B941B89469F59BA3A847E96FC5@orsmsx401.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ACPI] MS-6368L ACPI IRQ problem still in 2.4.21
+Thread-Index: AcM6FCfoBL4mgdmnSPi7UHILaLyiwgAXdfHg
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "Marek Michalkiewicz" <marekm@amelek.gda.pl>,
+       "Matthew Wilcox" <willy@debian.org>
+Cc: <linux-kernel@vger.kernel.org>, <acpi-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 24 Jun 2003 17:00:36.0668 (UTC) FILETIME=[21F1BFC0:01C33A72]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> From: Marek Michalkiewicz [mailto:marekm@amelek.gda.pl] 
+> On Mon, Jun 23, 2003 at 11:23:11PM +0100, Matthew Wilcox wrote:
+> > Have you patched 2.4.21 with the latest ACPI patch, or is 
+> this vanilla
+> > 2.4.21?
+> 
+> Vanilla 2.4.21 - tried 2.4.21-ac1 once, but it said Oops at boot time
+> (something about the VIA686A sound driver - not related to ACPI).
 
---IJpNTDwzlM2Ie8A6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+OK then I'm pretty sure this is fixed in 2.4.22-pre1.
 
-Afternoon kernel-gurus :)
-
-Every 2.5 kernel since 2.5.70-mm9 that I have tried to use has failed to
-work properly. =20
-The primary issue is as mentioned elsewhere that the synaptics touchpad
-simply doesn't work when psmouse is loaded.  The psmouse_noext option
-results in behaviour worse than the old default where no tap-to-click
-works at all. =20
-
-However, there are other issues with the new ps/2 code, the keyboard
-appears to get interrupt stormed at sometimes (or something) and I find
-that letters either appear repeated (once for each keystroke after the
-offending letter) or the keyboard response rate drops so low that I have
-to type like a hunt-and-pecker in order to ensure that all of my
-characters are captured.
-
-I am up for any troubleshooting projects you wish to send me on, but I
-don't know enough about kernel drivers to hunt down these issues in the
-ps/2 code myself.
-
-Thanks much for any help,
-
-Brandon Low
-
---IJpNTDwzlM2Ie8A6
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE++IBfHCCPbR8BLcYRApvCAJ483IAOiU+Ml7GwnHfaBSHiMvKU+ACfbV2t
-YUVTe3OUuBSRpZQv6KSNx64=
-=cJAZ
------END PGP SIGNATURE-----
-
---IJpNTDwzlM2Ie8A6--
+Regards -- Andy

@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264321AbTLIJvK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 04:51:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264394AbTLIJvJ
+	id S266220AbTLIKIq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 05:08:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266224AbTLIKIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 04:51:09 -0500
-Received: from 216-239-45-4.google.com ([216.239.45.4]:33407 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S264382AbTLIJuk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 04:50:40 -0500
-Message-ID: <3FD59AD8.1060507@google.com>
-Date: Tue, 09 Dec 2003 01:50:16 -0800
-From: Paul Menage <menage@google.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjanv@redhat.com>
-CC: agrover@groveronline.com, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: ACPI global lock macros
-References: <3FD59441.2000202@google.com> <1070962573.5223.2.camel@laptop.fenrus.com> <3FD5990A.9020908@google.com> <20031209094356.GA19702@devserv.devel.redhat.com>
-In-Reply-To: <20031209094356.GA19702@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Dec 2003 05:08:45 -0500
+Received: from main.gmane.org ([80.91.224.249]:48601 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266220AbTLIKIm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 05:08:42 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Holger Schurig <h.schurig@mn-logistik.de>
+Subject: Re: State of devfs in 2.6?
+Date: Tue, 09 Dec 2003 11:08:39 +0100
+Message-ID: <br46v7$ab$1@sea.gmane.org>
+References: <200312081536.26022.andrew@walrond.org> <20031208154256.GV19856@holomorphy.com> <pan.2003.12.08.23.04.07.111640@dungeon.inka.de> <20031208233428.GA31370@kroah.com> <1070953338.7668.6.camel@simulacron> <20031209071303.GB24876@Master.launchmodem.com> <br41h9$mth$1@sea.gmane.org> <buooeuifk5q.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
->>>maybe the odd thing is that it exists at all?
->>>(eg why does ACPI need to have it's own locking primitives...)
->>
->>Because the ACPI spec defines its own locking protocol for 
->>synchronization between the OS and the BIOS.
+>> * space. devfs doesn't eat space like the MAKEDEV approach.
 > 
-> 
-> ... which can't be written based on linux locks ?
+> Um, devfs does actually use a non-zero amount of code...
 
-I assume (hope!) there's already a higher-level linux lock serializing 
-access to acpi_acquire_global_lock() although I've not delved deeply 
-into the code. This is the lock described on p112 of 
-http://www.acpi.info/DOWNLOADS/ACPIspec-2-0c.pdf, which has the 
-semantics that if the OS wants to take the lock while the BIOS holds it, 
-it sets a bit and waits for an interrupt from the BIOS. I don't see that 
-it could be naturally implemented using a linux lock.
+Yeh, it uses code. But if you look into a MAKEDEV bases file system, you see
+hundreds of device files. Which uses inode and directory space on the
+medium, may it be e2fs or jffs2.
 
-Paul
+I did not measure if the code for devfs is smaller as the code+config files
+for udev. But I didn't make a statement about this.
+
+> For a typical embedded device with about 5 entries in /dev I wouldn't
+> be surprised if devfs used a lot _more_ space...
+
+# find /dev | wc -l
+    326
+
+"Embedded" is not automatically a washing maschine with only 5 entries, it
+can be a full blown Linux computer with 400 MHz, Framebuffer, USB Host, USB
+Client, 7 serial ports for GSM, Barcode Scanner, Whatever, and so on. Like
+our device.
+
+However, even on such hardware-rich devices you usually have a constraint on
+Flash Memory size. So having things small & simple is nice. That makes room
+for the user applications & data.
+
+-- 
+Try Linux 2.6 from BitKeeper for PXA2x0 CPUs at
+http://www.mn-logistik.de/unsupported/linux-2.6/
 

@@ -1,92 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265029AbUFHLH1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264970AbUFHLHH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265029AbUFHLH1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 07:07:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265030AbUFHLH0
+	id S264970AbUFHLHH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 07:07:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265030AbUFHLHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 07:07:26 -0400
-Received: from may.priocom.com ([213.156.65.50]:60365 "EHLO may.priocom.com")
-	by vger.kernel.org with ESMTP id S265029AbUFHLHU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 07:07:20 -0400
-Subject: Re: [PATCH] 2.6.6 invalid usage of GFP_DMA in drivers/scsi/pluto.c
-From: Yury Umanets <torque@ukrpost.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jj@sunsite.ms.mff.cuni.cz, linux-kernel@vger.kernel.org
-In-Reply-To: <20040608031753.3ebaf77a.akpm@osdl.org>
-References: <1086689511.2818.15.camel@firefly>
-	 <20040608031753.3ebaf77a.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1086692848.2818.52.camel@firefly>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 08 Jun 2004 14:07:28 +0300
+	Tue, 8 Jun 2004 07:07:07 -0400
+Received: from mail1.asahi-net.or.jp ([202.224.39.197]:29767 "EHLO
+	mail.asahi-net.or.jp") by vger.kernel.org with ESMTP
+	id S264970AbUFHLHC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 07:07:02 -0400
+Message-ID: <40C59DCF.5080704@ThinRope.net>
+Date: Tue, 08 Jun 2004 20:06:55 +0900
+From: Kalin KOZHUHAROV <kalin@ThinRope.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
+X-Accept-Language: bg, en, ja, ru, de
+MIME-Version: 1.0
+To: Bruce Guenter <bruceg@em.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: clone() <-> getpid() bug in 2.6?
+References: <Pine.LNX.4.58.0406052244290.7010@ppc970.osdl.org> <20040607182016.GA8727@em.ca>
+In-Reply-To: <20040607182016.GA8727@em.ca>
+X-Enigmail-Version: 0.83.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-06-08 at 13:17, Andrew Morton wrote:
-> Yury Umanets <torque@ukrpost.net> wrote:
-> >
-> > Hello Andrew, guys,
-> > 
-> > Found this, what seems to be an invalid usage of GFP_DMA flag. Is this
-> > patch okay?
+Bruce Guenter wrote:
+> On Mon, Jun 07, 2004 at 11:35:23PM +0000, Linus Torvalds wrote:
 > 
-> Nope.
-> 
-> GFP_DMA means "from the lower 16MB of memory".  It's needed for crufty old
-> eisa hardware which only does 24-bit DMA.
-This is clear. And sure, it shows that caller wants some memory from DMA
-zone if it is possible.
-
-What I mean is that, GFP_DMA seems to be not full specifier and only
-flag which can be used along with something else. 
-
-Say gfp mask roughly consist of two kinds on instructions:
-* what memory zone to use - zone specifier.
-* how to behave during allocation (IO, sleep, etc) - behavior specifier.
-
-My concern is will it behave correctly with only GFP_DMA? It seems to
-behave like do not use emergency pools and do not wait at the same time
-what is risky. Is that right?
-
->   It's meaningless to OR this with
-> GFP_KERNEL.
-
-> 
-> However it's a bit odd that GFP_DMA implies !__GFP_WAIT.  It would be valid
-> to hunt down GFP_DMA users who should really be using GFP_DMA|__GFP_WAIT,
-
-Seems that all GFP_DMA users use it with __GFP_WAIT or GFP_KERNEL. And
-I'd prefer to add __GFP_WAIT here also.
-
-
-> but this stuff is so old and crufty I'd be inclined to leave it all alone.
+>>On Sun, 6 Jun 2004, Kalin KOZHUHAROV wrote:
+>>
+>>>Well, not exactly sure about my reply, but let me try.
+>>>
+>>>The other day I was debugging some config problems with my qmail instalation and I ended up doing:
+>>># strace -p 4563 -f -F
+>>>...
+>>>[pid 13097] read(3, "\347\374\375TBH~\342\233\337\220\302l\220\317\237\37\25"..., 32) = 32
+>>>[pid 13097] close(3)                    = 0
+>>>[pid 13097] getpid()                    = 13097
+>>>[pid 13097] getpid()                    = 13097
+>>>[pid 13097] getuid32()                  = 89
+>>>[pid 13097] getpid()                    = 13097
+>>>[pid 13097] time(NULL)                  = 1086497450
+>>>[pid 13097] getpid()                    = 13097
+>>>[pid 13097] getpid()                    = 13097
+>>>[pid 13097] getpid()                    = 13097
+>>
+>>qmail is a piece of crap. The source code is completely unreadable, and it 
+>>seems to think that "getpid()" is a good source of random data. Don't ask 
+>>me why.
 > 
 > 
-> > 
-> > --- ./linux-2.6.6/drivers/scsi/pluto.c	Mon May 10 05:32:27 2004
-> > +++ ./linux-2.6.6-modified/drivers/scsi/pluto.c	Tue Jun  8 11:26:07 2004
-> > @@ -117,7 +117,8 @@ int __init pluto_detect(Scsi_Host_Templa
-> >  #endif
-> >  			return 0;
-> >  	}
-> > -	fcs = (struct ctrl_inquiry *) kmalloc (sizeof (struct ctrl_inquiry) *
-> > fcscount, GFP_DMA);
-> > +	fcs = (struct ctrl_inquiry *) kmalloc (sizeof (struct ctrl_inquiry) *
-> > fcscount, 
-> > +			GFP_KERNEL | GFP_DMA);
-> >  	if (!fcs) {
-> >  		printk ("PLUTO: Not enough memory to probe\n");
-> >  		return 0;
-> > 
+> In this case, however, it has nothing directly to do with qmail.  This
+> is tcpserver, and tcpserver only uses getpid for two things: printing
+> out status lines with the PID in them (which seems perfectly valid to
+> me), and once when adding to random initializer for DNS requests.
 > 
+> This strace pattern seemed rather odd to me, so for comparison I straced
+> my own tcpserver setups, and could not get them to produce more than two
+> getpid calls per connection.  Something is wrong with this trace,
+> possibly some weirdness in a patch, like whatever the SSL library is
+> doing.
 
-> Your patch is wordwrapped and uses weird headers (please omit the leading
-> ./ from the pathnames).
-Sorry, next will use another mailer.
+Yes, it is strange. I'll have a look at the applied patches. Without SSL there is no such getpidding :-)
+Will post you (not LKML) if I find the culprit.
+
+Kalin.
 
 -- 
-umka
-
+||///_ o  *****************************
+||//'_/>     WWW: http://ThinRope.net/
+|||\/<" 
+|||\\ ' 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

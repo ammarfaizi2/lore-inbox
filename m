@@ -1,94 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271219AbRHOPFG>; Wed, 15 Aug 2001 11:05:06 -0400
+	id <S271211AbRHOPJf>; Wed, 15 Aug 2001 11:09:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271218AbRHOPEz>; Wed, 15 Aug 2001 11:04:55 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:49931 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S271216AbRHOPEl>; Wed, 15 Aug 2001 11:04:41 -0400
-To: linux-kernel@vger.kernel.org
-Subject: the problem of dentry cache handling on vfat
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: 16 Aug 2001 00:04:47 +0900
-Message-ID: <87y9oll5yo.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.104
+	id <S271218AbRHOPJ0>; Wed, 15 Aug 2001 11:09:26 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:4595 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S271211AbRHOPJJ>; Wed, 15 Aug 2001 11:09:09 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200108151509.f7FF99dT013015@webber.adilger.int>
+Subject: Re: [BUG?] :: "Value too large for defined data type"
+In-Reply-To: <Pine.LNX.4.21.0108150418230.8270-100000@scotch.homeip.net>
+ "from God at Aug 15, 2001 04:22:05 am"
+To: God <atm@sdk.ca>
+Date: Wed, 15 Aug 2001 09:09:09 -0600 (MDT)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"God" writes:
+> I noticed that when I tried to backup a box across the LAN via dump to a
+> localy mounted drive ...
+> 
+> Box2 has 
+> /mnt/backup, mounted to box2:/mnt/hdb1.  
+> 
+> # ls -al
+> /bin/ls: test: Value too large for defined data type
+> total 2097216
+> drwxrwxrwx   2 root     root        32768 Aug 14 23:27 ./
+> drwxrwxrwx  50 root     root        32768 Aug 14 21:02 ../
+> -rwxrwxrwx   1 root     root     2147483647 Aug 14 22:11
+> box1.071401.dump*
+> #
+> 
+> Ok so I lied, that is a paste from after my little expriment, but you can
+> see the file size.  2.1G, out of a 3G drive.
+> 
+> I tried to remove the file using rm, but I get the same error as ls:
+> 
+> # rm test
+> rm: cannot remove `test': Value too large for defined data type
 
-I found the problem of vfat, it miss handling the dentry cache.
-This problem reproduce by the following operations.
+Well, considering this problem has been discussed several times on this
+list, I would consider removing your "God" monicker, as you are neither
+omniscient, nor omnipotent.
 
-------------------------------------------------------------
-    root@devron (/)[503]# mount -t vfat /dev/hda2 /mnt/
-    root@devron (/)[505]# touch /mnt/File.Txt
-    root@devron (/)[506]# ls /mnt/
-    File.Txt
-    root@devron (/)[507]# umount /mnt/
-    root@devron (/)[508]# mount -t vfat /dev/hda2 /mnt/
-    root@devron (/)[509]# rm -f /mnt/File.Txt 
-    root@devron (/)[510]# touch /mnt/file.txt
-    root@devron (/)[511]# ls /mnt/
-    File.Txt
-    root@devron (/)[512]# 
-------------------------------------------------------------
+In any case, the problem is not with the kernel, but the fact that you
+have file utilities that do not use "O_LARGEFILE" when working with
+large files.  Update your fileutils package, and all will be well.
 
-The above created `File.Txt', although creating `file.txt'.
-This problem hit the dentry cache, and vfat create the file by old
-filename.
-
-Umm, How should this problem be solved?
-IMHO, the following. 
-
-   a) delete the negative dentry cache
-
-        static struct dentry_operations vfat_relaxed_dentry_ops = {
-        	d_hash:		vfat_hashi,
-        	d_compare:	vfat_cmpi,
-        	d_delete:	vfat_dentry_delete,
-        };
-        static int vfat_dentry_delete(struct dentry *dentry)
-        {
-        	PRINTK1(("vfat_dentry_delete: %s, %p\n",
-        		 dentry->d_name.name, dentry->d_inode));
-        	if (dentry->d_inode != NULL)
-        		return 0;
-        
-        	return 1;
-        }
-
-    b) add d_revalidate to all dentry cache
-
-        static struct dentry_operations vfat_dentry_ops = {
-        	d_revalidate:	vfat_revalidate,
-        	d_hash:		vfat_hashi,
-        	d_compare:	vfat_cmpi,
-        };
-        struct dentry *vfat_lookup(struct inode *dir,struct dentry *dentry)
-        {
-		inode = NULL;
-		res = vfat_find(dir,&dentry->d_name,&sinfo,&bh,&de);
-        	if (res < 0)
-        		goto error;
-        
-        	...
-        
-        error:
-        	dentry->d_op = dir->i_sb->s_root->d_op;
-        	dentry->d_time = dentry->d_parent->d_inode->i_version;
-        	d_add(dentry,inode);
-        	return NULL;
-        }
-
-    c) other??
-
-
-I don't know what is good. Please advise.
-
-Thanks.
+Cheers, Andreas
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

@@ -1,78 +1,93 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317016AbSFFRCd>; Thu, 6 Jun 2002 13:02:33 -0400
+	id <S317018AbSFFRFe>; Thu, 6 Jun 2002 13:05:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317017AbSFFRCc>; Thu, 6 Jun 2002 13:02:32 -0400
-Received: from voyager.st-peter.stw.uni-erlangen.de ([131.188.24.132]:14012
-	"EHLO voyager.st-peter.stw.uni-erlangen.de") by vger.kernel.org
-	with ESMTP id <S317016AbSFFRCa>; Thu, 6 Jun 2002 13:02:30 -0400
-Message-ID: <3CFF9590.5030504@st-peter.stw.uni-erlangen.de>
-Date: Thu, 06 Jun 2002 19:02:08 +0200
-From: Svetoslav Slavtchev <galia@st-peter.stw.uni-erlangen.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/00200205
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [2.5.20]newbee call for help getting lvm working 
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Scanner: exiscan *17G0eL-0003IU-00*i/Tb9kU/LNA* (Studentenwohnanlage Nuernberg St.-Peter)
+	id <S317020AbSFFRFd>; Thu, 6 Jun 2002 13:05:33 -0400
+Received: from murphys.services.quay.plus.net ([212.159.14.225]:388 "HELO
+	murphys.services.quay.plus.net") by vger.kernel.org with SMTP
+	id <S317018AbSFFRFc>; Thu, 6 Jun 2002 13:05:32 -0400
+Message-ID: <004d01c20d7c$1205a1e0$0501a8c0@Stev.org>
+From: "James Stevenson" <mistral@stev.org>
+To: "Greg Donald" <greg@destiney.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0206061121020.23180-100000@destiney.com>
+Subject: Re: list serv help
+Date: Thu, 6 Jun 2002 18:02:49 +0100
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi ,
-i was trying to get the patch from Anders Gustafsson working in 2.5.20,
-but i'm getting  by compilation:
-....
-lvm.c: In function `__update_hardsectsize':
-lvm.c:2021: warning: implicit declaration of function `get_hardsect_size'
-...
-and by make modules_install:
-...........
-depmod: *** Unresolved symbols in 
-/lib/modules/2.5.20-dj3-lvm-xfs2/kernel/drivers/md/lvm-mod.o
-depmod:         get_hardsect_size
-make: *** [_modinst_post] Error 1
-............
+Hi
 
-it seems that this function is disapeared between 2.5.18 and 2.5.20
-(the patch from Anders Gustafsson is against 2.5.18)
+yeah you dont have any mx records
 
-can smbd please help me to solve this issue
+[6 james@beast ~]$ host mail.destiney.com
+Host mail.destiney.com. not found: 2(SERVFAIL)
 
-regards
+[7 james@beast ~]$ host mail.destiney.com
+Host mail.destiney.com. not found: 2(SERVFAIL)
 
-svetljo
+[8 james@beast ~]$ host -tMX mail.destiney.com
+Host mail.destiney.com. not found: 2(SERVFAIL)
 
-the patch : 
-http://www.linuxhq.com/kernel/v2.5/unofficial/v2.5.18/patches/lvm-cleanups-2.5.18.patch
+[9 james@beast ~]$ host -tMX destiney.com
+Host destiney.com. not found: 2(SERVFAIL)
 
-and the correspondig text from drivers/md/lvm.c :
-..............
-static void __update_hardsectsize(kern_lv_t *lv) {
-    int le, e;
-    int max_hardsectsize = 0, hardsectsize;
+[10 james@beast ~]$ host -tA destiney.com
+destiney.com. has address 207.65.176.133
 
-    for (le = 0; le < lv->lv_allocated_le; le++) {
-        hardsectsize = bdev_hardsect_size(lv->lv_current_pe[le].bdev);
-        if (hardsectsize == 0)
-            hardsectsize = 512;
-        if (hardsectsize > max_hardsectsize)
-            max_hardsectsize = hardsectsize;
-    }
 
-    /* only perform this operation on active snapshots */
-    if ((lv->lv_access & LV_SNAPSHOT) &&
-        (lv->lv_status & LV_ACTIVE)) {
-        for (e = 0; e < lv->lv_remap_end; e++) {
-            hardsectsize =  get_hardsect_size( 
-lv->lv_block_exception[e].rdev_new);
-            if (hardsectsize == 0)
-                hardsectsize = 512;
-            if (hardsectsize > max_hardsectsize)
-                max_hardsectsize = hardsectsize;
-        }
-    }
-}
-............................
+
+----- Original Message -----
+From: "Greg Donald" <greg@destiney.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Thursday, June 06, 2002 5:42 PM
+Subject: list serv help
+
+
+>
+> My server lost dns for several hours a couple of weeks back.  Since then
+> I have made several unsuccessful attempts at getting back on the
+> linux-kernel list serv.  As far as I can tell I was unsubscribed durign
+> my dns outage.
+>
+> I started reading the available FAQs and came across the MX record
+> verfication form at http://vger.kernel.org/mxverify.html:
+>
+> The results seem incorrect:
+>
+http://vger.kernel.org/cgi-bin/mxverify-cgi?DOMAIN=greg@destiney.com&SUBMIT=
+Submit+to+VGER.KERNEL.ORG
+>
+> Testing MX server: mail.destiney.com
+>
+> --- sorry, address lookup for ``mail.destiney.com'' failed;
+> code = Temporary failure in name resolution
+>
+>
+> But when I try my domain from any other server I have no issues:
+>
+> firewall:~$ nslookup mail.destiney.com
+> Server:  sun00bna.bna.bellsouth.net
+> Address:  205.152.150.254
+>
+> Non-authoritative answer:
+> Name:    destiney.com
+> Address:  207.65.176.133
+> Aliases:  mail.destiney.com
+>
+>
+> +-(destiney@gateway)
+> +-(~)> nslookup mail.destiney.com
+> Server:         68.52.0.5
+> Address:        68.52.0.5#53
+>
+> Non-authoritative answer:
+> mail.destiney.com       canonical name = destiney.com.
+> Name:   destiney.com
+> Address: 207.65.176.133
+
+
 

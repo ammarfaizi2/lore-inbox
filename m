@@ -1,37 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261622AbSJNNiP>; Mon, 14 Oct 2002 09:38:15 -0400
+	id <S261635AbSJNNlT>; Mon, 14 Oct 2002 09:41:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261626AbSJNNiO>; Mon, 14 Oct 2002 09:38:14 -0400
-Received: from mons.uio.no ([129.240.130.14]:50344 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S261622AbSJNNiO>;
-	Mon, 14 Oct 2002 09:38:14 -0400
-MIME-Version: 1.0
+	id <S261640AbSJNNlT>; Mon, 14 Oct 2002 09:41:19 -0400
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:59285
+	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
+	id <S261635AbSJNNlS>; Mon, 14 Oct 2002 09:41:18 -0400
+Date: Mon, 14 Oct 2002 09:56:47 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Andreas Steinmetz <ast@domdv.de>
+Cc: Theewara Vorakosit <g4465018@pirun.ku.ac.th>, linux-kernel@vger.kernel.org
+Subject: Re: NFS root on 2.4.18-14
+Message-ID: <20021014095647.A6453@animx.eu.org>
+References: <Pine.GSO.4.44.0210142012520.5993-100000@pirun.ku.ac.th> <3DAAC457.3040402@domdv.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15786.51719.778824.642700@charged.uio.no>
-Date: Mon, 14 Oct 2002 15:43:35 +0200
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, trond.myklebust@fys.uio.no,
-       linux-kernel@vger.kernel.org
-Subject: Re: nfs-server slowdown in 2.4.20-pre10 with client 2.2.19
-In-Reply-To: <20021014045410.4721c209.skraw@ithnet.com>
-References: <20021013172138.0e394d96.skraw@ithnet.com>
-	<15785.64463.490494.526616@notabene.cse.unsw.edu.au>
-	<20021014045410.4721c209.skraw@ithnet.com>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <3DAAC457.3040402@domdv.de>; from Andreas Steinmetz on Mon, Oct 14, 2002 at 03:19:19PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Stephan von Krawczynski <skraw@ithnet.com> writes:
+> >     I use Red Hat 8.0 and kernel 2.4.18-14, which come from redhat
+> > distribution. I want create a NFS-root kernel to build a diskless linux
+> > using NFS root. I select "IP kernel level configuration-> BOOTP, DHCP",
+> > NFS root support. I boot client using my kernel, it does not requrest for
+> > an IP address. It try to mount NFS root immediately. Do I forget
+> > something?
+> If you try to boot from a floppy that was created like "dd if=vmlinuz 
+> of=/dev/fd0" you will need the attached patch. Alan Cox however told me 
+> that the ability to boot without boot manager (e.g. lilo) will 
+> eventually go away.
 
-     > Trond Myklebust <trond.myklebust@fys.uio.no>:
-     > o Workaround NFS hangs introduced in 2.4.20-pre
+I hope it doesn't.  I use it quite frequently at work.  It's jsut so much
+easier to use than installing a bootloader onto a floppy, mounting, copying
+the kernel and so forth.
 
-That's an NFS *client* change. It doesn't touch any of the server
-code.
+I did this patch which works for me, but only if root=/dev/nfs  It was done
+against 2.4.13 or something around there, but it applies with offset to all
+newer 2.4 kernels and I believe all 2.5 kernels.
 
-Cheers,
-  Trond
+--- net/ipv4/ipconfig-orig.c	2001-11-19 20:48:35.000000000 -0500
++++ net/ipv4/ipconfig.c	2001-11-19 20:56:21.000000000 -0500
+@@ -1105,7 +1105,11 @@
+ 	proc_net_create("pnp", 0, pnp_get_info);
+ #endif /* CONFIG_PROC_FS */
+ 
+-	if (!ic_enable)
++	if (!ic_enable
++#if defined(IPCONFIG_DYNAMIC) && defined(CONFIG_ROOT_NFS)
++	    && ROOT_DEV != MKDEV(UNNAMED_MAJOR, 255)
++#endif
++	   )
+ 		return 0;
+ 
+ 	DBG(("IP-Config: Entered.\n"));
+
+
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

@@ -1,67 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130399AbRCPHrp>; Fri, 16 Mar 2001 02:47:45 -0500
+	id <S130406AbRCPH6G>; Fri, 16 Mar 2001 02:58:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130406AbRCPHrg>; Fri, 16 Mar 2001 02:47:36 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:60943 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S130399AbRCPHrX>; Fri, 16 Mar 2001 02:47:23 -0500
-Message-ID: <3AB1D312.E6965E0A@t-online.de>
-Date: Fri, 16 Mar 2001 09:47:14 +0100
-From: Gunther.Mayer@t-online.de (Gunther Mayer)
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: alan@lxorguk.ukuu.org.uk
-CC: linux-kernel@vger.kernel.org
-Subject: Patch(2.4.2): serial.c timedia oneliner (Resend)
-Content-Type: multipart/mixed;
- boundary="------------E09AC4F5EA08EEA37F420F22"
+	id <S130432AbRCPH55>; Fri, 16 Mar 2001 02:57:57 -0500
+Received: from THINK.THUNK.ORG ([216.175.175.162]:27399 "EHLO think")
+	by vger.kernel.org with ESMTP id <S130406AbRCPH5s>;
+	Fri, 16 Mar 2001 02:57:48 -0500
+Date: Fri, 16 Mar 2001 02:56:43 -0500
+From: Theodore Tso <tytso@mit.edu>
+To: Gunther Mayer <Gunther.Mayer@t-online.de>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: Patch(2.4.2): serial.c timedia oneliner (Resend)
+Message-ID: <20010316025642.E21403@think>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Gunther Mayer <Gunther.Mayer@t-online.de>, alan@lxorguk.ukuu.org.uk,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3AB1D312.E6965E0A@t-online.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <3AB1D312.E6965E0A@t-online.de>; from Gunther.Mayer@t-online.de on Fri, Mar 16, 2001 at 09:47:14AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------E09AC4F5EA08EEA37F420F22
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Fri, Mar 16, 2001 at 09:47:14AM +0100, Gunther Mayer wrote:
+> I'm sending this since 3 months to the maintainer (tytso@mit.edu)
+> and even submitted to serial.sourceforge.net but never got a reaction.
+> Anybody knows if Ted is still active?
 
-Hi,
-please apply this oneliner to fix the Timedia/Sunix series PCI cards.
+Sorry, life's been a bit busy lately, what with the kernel workshop
+organization and other things chewing up huge amounts of my time.....
+I'll try to get an updated serial driver with the various patches that
+I've received integrated together soon.
 
-Regards, Gunther
-
-
-P.S.
-I'm sending this since 3 months to the maintainer (tytso@mit.edu)
-and even submitted to serial.sourceforge.net but never got a reaction.
-Anybody knows if Ted is still active?
-
-
---- linux/drivers/char/serial.c-242-orig        Fri Mar 16 09:32:22 2001
-+++ linux/drivers/char/serial.c Fri Mar 16 09:34:32 2001
-@@ -4175,7 +4175,7 @@
-        for (i=0; timedia_data[i].num; i++) {
-                ids = timedia_data[i].ids;
-                for (j=0; ids[j]; j++) {
--                       if (pci_get_subvendor(dev) == ids[j]) {
-+                       if (pci_get_subdevice(dev) == ids[j]) {
-                                board->num_ports = timedia_data[i].num;
-                                return 0;
-                        }
---------------E09AC4F5EA08EEA37F420F22
-Content-Type: application/octet-stream;
- name="gmdiff-lx242-serialc-timedia-oneliner"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="gmdiff-lx242-serialc-timedia-oneliner"
-
-LS0tIGxpbnV4L2RyaXZlcnMvY2hhci9zZXJpYWwuYy0yNDItb3JpZwlGcmkgTWFyIDE2IDA5
-OjMyOjIyIDIwMDEKKysrIGxpbnV4L2RyaXZlcnMvY2hhci9zZXJpYWwuYwlGcmkgTWFyIDE2
-IDA5OjM0OjMyIDIwMDEKQEAgLTQxNzUsNyArNDE3NSw3IEBACiAJZm9yIChpPTA7IHRpbWVk
-aWFfZGF0YVtpXS5udW07IGkrKykgewogCQlpZHMgPSB0aW1lZGlhX2RhdGFbaV0uaWRzOwog
-CQlmb3IgKGo9MDsgaWRzW2pdOyBqKyspIHsKLQkJCWlmIChwY2lfZ2V0X3N1YnZlbmRvcihk
-ZXYpID09IGlkc1tqXSkgeworCQkJaWYgKHBjaV9nZXRfc3ViZGV2aWNlKGRldikgPT0gaWRz
-W2pdKSB7CiAJCQkJYm9hcmQtPm51bV9wb3J0cyA9IHRpbWVkaWFfZGF0YVtpXS5udW07CiAJ
-CQkJcmV0dXJuIDA7CiAJCQl9Cg==
---------------E09AC4F5EA08EEA37F420F22--
-
+						- Ted

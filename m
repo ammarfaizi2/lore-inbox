@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262725AbTCJFTT>; Mon, 10 Mar 2003 00:19:19 -0500
+	id <S262724AbTCJFSB>; Mon, 10 Mar 2003 00:18:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262726AbTCJFTT>; Mon, 10 Mar 2003 00:19:19 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:39899 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262725AbTCJFTS>;
-	Mon, 10 Mar 2003 00:19:18 -0500
-Date: Sun, 09 Mar 2003 21:11:08 -0800 (PST)
-Message-Id: <20030309.211108.19997606.davem@redhat.com>
-To: chas@locutus.cmf.nrl.navy.mil
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] obselete some atm_vcc members 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200303100050.h2A0o5Gi003687@locutus.cmf.nrl.navy.mil>
-References: <20030309.133453.05058422.davem@redhat.com>
-	<200303100050.h2A0o5Gi003687@locutus.cmf.nrl.navy.mil>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S262725AbTCJFSB>; Mon, 10 Mar 2003 00:18:01 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:56826 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S262724AbTCJFSA>; Mon, 10 Mar 2003 00:18:00 -0500
+Subject: Re: Available watchdog test cases
+From: Rusty Lynch <rusty@linux.co.intel.com>
+To: Paul Rolland <rol@as2917.net>
+Cc: "'Paul Larson'" <plars@linuxtestproject.org>,
+       "'lkml'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <008501c2e61f$fdd0a800$2101a8c0@witbe>
+References: <008501c2e61f$fdd0a800$2101a8c0@witbe>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 09 Mar 2003 21:23:08 -0800
+Message-Id: <1047273790.6399.13.camel@vmhack>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: chas williams <chas@locutus.cmf.nrl.navy.mil>
-   Date: Sun, 09 Mar 2003 19:50:05 -0500
-   
-   the spinlock isnt new.  the atm code has always had a global spinlock.
-   i submitted a patch a couple weeks ago to convert the spinlock to a
-   semaphore (so things would atleast work for now while i decide how to fix
-   it the right way).  so my confusion is 'new spinlock'.  what new spinlock?
-   did i miss something?
+On Sun, 2003-03-09 at 01:40, Paul Rolland wrote:
+> Just a quick question : is there an easy to force the kernel to Oops,
+> to make sure that the watchdog will even be working under such
+> conditions ?
+> 
+> I know people are all trying to avoid Oops... but I think the testplan
+> should include that too...
+> 
+> Regards,
+> Paul
 
-The important bit is that the patches you sent me didn't
-apply, the rejects were in the sections that had references
-to the older style atm device locking.
+You can write a kernel module that when loaded will disable all
+interrupts and sit and spin, or even easier just call panic().
 
-Whether the older style was one thing or another is irelevant.
+    --rustyl
 
-The main point is that you need to send me clean patches
-that actually apply to current 2.5.x trees :-)

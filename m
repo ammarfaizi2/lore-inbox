@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265126AbSKRWDS>; Mon, 18 Nov 2002 17:03:18 -0500
+	id <S265093AbSKRWRV>; Mon, 18 Nov 2002 17:17:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265059AbSKRV5O>; Mon, 18 Nov 2002 16:57:14 -0500
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:61864 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S264939AbSKRVvs>; Mon, 18 Nov 2002 16:51:48 -0500
-Message-ID: <3DD96803.7080407@kegel.com>
-Date: Mon, 18 Nov 2002 14:21:55 -0800
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
-X-Accept-Language: de-de, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc] epoll interface change and glibc bits ...
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265134AbSKRWRJ>; Mon, 18 Nov 2002 17:17:09 -0500
+Received: from mnh-1-29.mv.com ([207.22.10.61]:3589 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S265099AbSKRWPh>;
+	Mon, 18 Nov 2002 17:15:37 -0500
+Message-Id: <200211182226.RAA04368@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] UML documentation updates
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 18 Nov 2002 17:26:51 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich wrote:
->> epoll does hook f_op->poll() and hence uses the asm/poll.h bits.
-> 
-> It does today.  We are talking about "you promise that this will be the
-> case ever after or we'll cut your head off".  I have no idea why you're
-> so reluctant since you don't have to maintain any of the user-level
-> bits.  And it is not you who has to deal with the fallout of a change
-> when it happens.
-> 
-> If epoll is so different from poll (and this is what I've been told frmo
-> Davide) then there should be a clear separation of the interfaces and
-> all those arguing to unify the data types and constants better should
-> rethink there understanding.
+Please pull 
+	http://jdike.stearns.org:5000/doc-2.5
 
-epoll is not really that different from poll, is it?
-It delivers edge-triggered versions of the same events poll uses.
-Or is there something epoll does I'm not aware of?
-- Dan
+This updates the UML documentation:
+	adds help text back to the UML config
+	deletes the old config.in files
+	puts the UML HOWTO in Documentation/uml
+
+				Jeff
+
+ Documentation/uml/UserModeLinux-HOWTO.txt | 4686 ++++++++++++++++++++++++++++++
+ arch/um/Kconfig                           |   85 
+ arch/um/Kconfig_block                     |   34 
+ arch/um/Kconfig_char                      |   76 
+ arch/um/config_block.in                   |   16 
+ arch/um/config_char.in                    |   37 
+ arch/um/config_net.in                     |   46 
+ arch/um/config_scsi.in                    |   30 
+ 8 files changed, 4878 insertions(+), 132 deletions(-)
+
+ChangeSet@1.844, 2002-11-18 14:22:01-05:00, jdike@uml.karaya.com
+  Added the UML HOWTO in Documentation/uml.
+
+ChangeSet@1.805.24.1, 2002-11-17 15:36:15-05:00, jdike@uml.karaya.com
+  Merged the help text from the 2.4 Configure.help.
 

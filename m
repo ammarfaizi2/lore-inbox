@@ -1,74 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264466AbTK0KEV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 05:04:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264468AbTK0KEU
+	id S264464AbTK0Jxl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 04:53:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264466AbTK0Jxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 05:04:20 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:53656 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S264466AbTK0KEF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 05:04:05 -0500
-Date: Thu, 27 Nov 2003 11:02:17 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Nick Piggin <piggin@cyberone.com.au>, Robert White <rwhite@casabyte.com>,
-       "'Jesse Pollard'" <jesse@cats-chateau.net>,
-       "'Florian Weimer'" <fw@deneb.enyo.de>, Valdis.Kletnieks@vt.edu,
-       "'Daniel Gryniewicz'" <dang@fprintf.net>,
-       "'linux-kernel mailing list'" <linux-kernel@vger.kernel.org>
-Subject: Re: OT: why no file copy() libc/syscall ??
-Message-ID: <20031127100217.GA9199@wohnheim.fh-wedel.de>
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAilRHd97CfESTROe2OYd1HQEAAAAA@casabyte.com> <3FC5A7F0.8080507@cyberone.com.au> <Pine.LNX.4.58.0311270106430.6400@dlang.diginsite.com> <3FC5BC43.8030209@cyberone.com.au> <Pine.LNX.4.58.0311270143060.6400@dlang.diginsite.com>
+	Thu, 27 Nov 2003 04:53:41 -0500
+Received: from mailhost.cs.auc.dk ([130.225.194.6]:3739 "EHLO
+	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S264464AbTK0Jxj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 04:53:39 -0500
+Subject: [BUG 2.6.0-test11] Makefile problem
+From: Emmanuel Fleury <fleury@cs.auc.dk>
+To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Aalborg University -- Computer Science Dept.
+Message-Id: <1069926760.21737.10.camel@rade7.s.cs.auc.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0311270143060.6400@dlang.diginsite.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 27 Nov 2003 10:52:40 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 November 2003 01:50:46 -0800, David Lang wrote:
-> >
-> > I don't think it should do any linking / unlinking it should just work
-> > with file descriptors. Concurrent writes to a file don't have many
-> > guarantees. sys_copy shouldn't have to be any stronger (read weaker).
-> 
-> I'm thinking that it may actually be easier to do this via file paths
-> instead of file descripters. with file paths something like COW or
-> zero-copy copy can be done trivially (and the kernel knows the user
-> credentials of the program issuing the command and can pass them on to the
-> filesystem to see if it's allowed). I don't see how this can be done with
-> file descripters (if all you have is a file descripter you can truncate
-> and write a file, but you don't know all the links to that file so you
-> can't reposition that first inode for example).
+Hi,
 
-And how is userspace supposed to protect itself from race conditions?
-Just compare:
+I did compile a 2.6.0-test10 before and I patched the sources to
+2.6.0-test11, then I did the commande line and got the following output:
 
-fd1 = open(path1);
-if (stat(fd1) looks fishy)
-	abort();
-fd2 = open(path2);
-if (stat(fd2) looks fishy)
-	abort();
-copy(fd1, fd2);
+[root@rade7 linux-2.6.0-test11]$ make clean && make -j 16 && make
+modules_install && make install
+  CLEAN   arch/i386/boot/compressed
+  CLEAN   arch/i386/boot
+  CLEAN   arch/i386/kernel
+  CLEAN   drivers/char
+  CLEAN   drivers/pci
+  CLEAN   init
+  CLEAN   usr
+  CLEAN   scripts
+  RM  $(CLEAN_FILES)
+  CHK     include/linux/version.h
+  HOSTCC  scripts/fixdep
+  UPD     include/linux/version.h
+  HOSTCC  scripts/fixdep
+collect2: ld terminated with signal 11 [Segmentation fault]
+make[2]: *** [scripts/fixdep] Error 1
+make[1]: *** [scripts/fixdep] Error 2
+make: *** [include/linux/autoconf.h] Error 2
+make: *** Waiting for unfinished jobs....
+  HOSTCC  scripts/split-include
+  HOSTCC  scripts/conmakehash
+  HOSTCC  scripts/docproc
+  HOSTCC  scripts/kallsyms
+  CC      scripts/empty.o
+  HOSTCC  scripts/mk_elfconfig
+  HOSTCC  scripts/pnmtologo
+/bin/sh: line 1: scripts/fixdep: No such file or directory
+make[1]: *** [scripts/empty.o] Error 1
+make[1]: *** Waiting for unfinished jobs....
+  HOSTCC  scripts/bin2c
+/bin/sh: line 1: scripts/fixdep: No such file or directory
+make[1]: *** [scripts/split-include] Error 1
+/bin/sh: line 1: scripts/fixdep: No such file or directory
+make[1]: *** [scripts/conmakehash] Error 1
+make: *** [scripts] Error 2
+[root@rade7 linux-2.6.0-test11]$ /bin/sh: line 1: scripts/fixdep: No
+such file or directory
+/bin/sh: line 1: scripts/fixdep: No such file or directory
+/bin/sh: line 1: scripts/fixdep: No such file or directory
+/bin/sh: line 1: scripts/fixdep: No such file or directory
+/bin/sh: line 1: scripts/fixdep: No such file or directory
 
-and:
+ 
+I got this problem, but just once. I was working when I did the command
+line once again (might be some ghosts).
 
-fd1 = open(path1);
-if (stat(fd1) looks fishy)
-	abort();
-fd2 = open(path2);
-if (stat(fd2) looks fishy)
-	abort();
-copy(path1, path2);
-
-Jörn
-
+Regards
 -- 
-Don't worry about people stealing your ideas. If your ideas are any good,
-you'll have to ram them down people's throats.
--- Howard Aiken quoted by Ken Iverson quoted by Jim Horning quoted by
-   Raph Levien, 1979
+Emmanuel
+
+Ford: You'd better be prepared for the jump into hyperspace.
+It's unpleasently like being drunk.
+Arthur: What's so unpleasent about being drunk?
+Ford: You ask a glass of water.
+  -- Arthur first jump into hyperspace (Douglas Adams)
+

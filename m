@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263586AbUCUBYn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 20:24:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263587AbUCUBYn
+	id S263587AbUCUB2R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 20:28:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263588AbUCUB2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 20:24:43 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:31207 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263586AbUCUBYl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 20:24:41 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Johannes Stezenbach <js@convergence.de>
-Subject: Re: [PATCH] barrier patch set
-Date: Sun, 21 Mar 2004 02:33:29 +0100
-User-Agent: KMail/1.5.3
-Cc: Matthias Andree <matthias.andree@gmx.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20040319153554.GC2933@suse.de> <200403201700.05808.bzolnier@elka.pw.edu.pl> <20040320233604.GE2051@convergence.de>
-In-Reply-To: <20040320233604.GE2051@convergence.de>
+	Sat, 20 Mar 2004 20:28:17 -0500
+Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:1935 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S263587AbUCUB2Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 20:28:16 -0500
+Date: Sun, 21 Mar 2004 02:28:01 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Robin Holt <holt@sgi.com>
+cc: Ragnar =?iso-8859-1?Q?Kj=F8rstad?= <kernel@ragnark.vestdata.no>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Arthur Corliss <corliss@digitalmages.com>,
+       Albert Cahalan <albert@users.sourceforge.net>
+Subject: Re: [patch,rfc] BSD accounting format rework
+In-Reply-To: <20040319211457.GA19662@lnx-holt>
+Message-ID: <Pine.LNX.4.53.0403210222020.24035@gockel.physik3.uni-rostock.de>
+References: <Pine.LNX.4.53.0403161414150.19052@gockel.physik3.uni-rostock.de>
+ <Pine.LNX.4.53.0403191424480.19032@gockel.physik3.uni-rostock.de>
+ <20040319191916.GQ1066@vestdata.no> <20040319211457.GA19662@lnx-holt>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403210233.29715.bzolnier@elka.pw.edu.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 21 of March 2004 00:36, Johannes Stezenbach wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> > On Saturday 20 of March 2004 12:36, Matthias Andree wrote:
-> > > > Correct answer is: everything is fine, RTFM (man hdparm). ;-)
-> > >
-> > > Not everything is fine. hdparm documents -i returns inconsistent data.
-> > > Most, but _NOT_ _EVERYTHING_ is cached: the multcount is updated, for
-> > > instance. What is that good for? Mix & Match whatever is convenient?
-> >
-> > I'm aware of this bug - driver shouldn't modify drive->id.  Patches are
-> > welcomed.
->
-> Why? What's the reason for keeping out-of-date IDENTIFY data?
+On Fri, 19 Mar 2004, Robin Holt wrote:
 
-HDIO_GET_IDENTIFY ioctl which should die first.
+> How about breaking the ac_version structure down as two nibbles?  One
+> half being the major version and the other half being a minor version.
+> The major version, when changed, means the structure is no longer compatible.
+> The minor version can be changed when existing fields are not modified
+> in either form or function.
 
-> And what about ide_driveid_update()? Is it a bug that
-> it exists?
+Yes, I also thought about it. But now that we've used up all available
+padding there is no way of binary compatible changes. And if we allow
+variable size accounting file entries, we have to store their size
+anyways. Which would then make an even better version indicator, as
+Ragnar suggested.
 
-It should just check/copy relevant bits from the new identify
-(but without modifying drive->id).
-
-> This is all too confusing for me :-(
-
-Welcome in the wonderful world of IDE driver. ;-)
-
-Bartlomiej
-
+Tim

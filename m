@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262072AbTJXI3P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 04:29:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbTJXI3P
+	id S262068AbTJXI0T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 04:26:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbTJXI0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 04:29:15 -0400
-Received: from mailhost.cs.auc.dk ([130.225.194.6]:35018 "EHLO
-	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S262072AbTJXI3C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 04:29:02 -0400
-Subject: Kernel threads and SMP programming
-From: Emmanuel Fleury <fleury@cs.auc.dk>
+	Fri, 24 Oct 2003 04:26:19 -0400
+Received: from srv1.mail.cv.net ([167.206.112.40]:35131 "EHLO srv1.mail.cv.net")
+	by vger.kernel.org with ESMTP id S262068AbTJXI0R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 04:26:17 -0400
+Date: Fri, 24 Oct 2003 04:26:12 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+Subject: Copying .config to /lib/modules/`uname -r`/kernel
+X-X-Sender: proski@portland.hansa.lan
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Aalborg University -- Computer Science Dept.
-Message-Id: <1066984101.5097.26.camel@rade7.s.cs.auc.dk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 24 Oct 2003 10:28:21 +0200
-Content-Transfer-Encoding: 7bit
+Message-id: <Pine.LNX.4.58.0310240406230.17536@portland.hansa.lan>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello!
 
-I have been googling a bit and looking on kernelnewbies, but I didn't
-find any documentation on how to code kernel-space programs for SMP...
+Many drivers are developed outside the kernel tree.  Many drivers start
+their existence as separate projects.  It's essential that they are tested
+by the users of particular hardware, even if those users don't want to
+recompile their kernels.
 
-Can somebody give me a hint ?
+There should be a standard place for .config in kernel packages.
+/proc/config.gz may or may not be popular with distributors.  Besides, it
+only gives information for the currently running kernel, but not for e.g.
+newly upgraded kernel before the reboot.
 
-Thanks
+Cannot we just install .config to the same directory as modules?  If the
+kernel doesn't support modules, then there is no point to compile any new
+modules against it.  But if it does, then we can be sure that the modules
+correspond to that configuration file, because the modules and .config
+would be installed by the same command.
+
+That's why I prefer the "kernel" subdirectory.  It's fully replaced by
+"make modules_install", so that the old .config will go away for sure.
+
+Patch against 2.6.0-test8
+=====================
+--- Makefile
++++ Makefile
+@@ -690,6 +690,7 @@
+ 	@rm -rf $(MODLIB)/kernel
+ 	@rm -f $(MODLIB)/build
+ 	@mkdir -p $(MODLIB)/kernel
++	@cp -f .config $(MODLIB)/kernel
+ 	@ln -s $(TOPDIR) $(MODLIB)/build
+ 	$(Q)$(MAKE) -rR -f $(srctree)/scripts/Makefile.modinst
+
+=====================
+
 -- 
-Emmanuel Fleury
-
-Computer Science Department, |  Office: B1-201
-Aalborg University,          |  Phone:  +45 96 35 72 23
-Fredriks Bajersvej 7E,       |  Fax:    +45 98 15 98 89
-9220 Aalborg East, Denmark   |  Email:  fleury@cs.auc.dk
-
+Regards,
+Pavel Roskin

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262443AbTHUFic (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 01:38:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262448AbTHUFib
+	id S262448AbTHUFrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 01:47:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbTHUFrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 01:38:31 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:10513 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S262443AbTHUFia
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 01:38:30 -0400
-Date: Wed, 20 Aug 2003 22:38:24 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 48-bit Drives Incorrectly reporting 255 Heads?
-Message-ID: <20030821053824.GA21451@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <88A7BC80FA2797498AF6D865CAD3EA43180E95@iceman.altiris.com>
+	Thu, 21 Aug 2003 01:47:09 -0400
+Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:48997 "HELO
+	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262448AbTHUFrH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 01:47:07 -0400
+Date: Thu, 21 Aug 2003 01:29:56 -0300
+From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH] 4/10 2.4.22-rc2 fix __FUNCTION__ warnings
+ drivers/media/video
+Message-Id: <20030821012956.02b01734.vmlinuz386@yahoo.com.ar>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i486-slackware-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <88A7BC80FA2797498AF6D865CAD3EA43180E95@iceman.altiris.com>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: Boo!
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 20, 2003 at 01:31:08PM -0600, John Riggs wrote:
->   With the 2.4.20 kernel, I have a 40GB disk with 240 heads, with 48-bit
+ cpia.h |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-I don't beleive that. 240 heads, baloney!
-Unless it is a very old drive it probably has 4 or 5 heads.
-Quite likely it has only 2 or 3.
+http://www.vmlinuz.com.ar/slackware/patch/kernel/drivers.media.video.patch
+http://www.vmlinuz.com.ar/slackware/patch/kernel/drivers.media.video.patch.asc
 
-A 240 head drive would have to have multiple heads per
-surface or the stack of disks on the spindle would be about
-5 feet tall.
-
+chau,
+ djgera
 
 
 -- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt
+Gerardo Exequiel Pozzi ( djgera )
+http://www.vmlinuz.com.ar http://www.djgera.com.ar
+KeyID: 0x1B8C330D
+Key fingerprint = 0CAA D5D4 CD85 4434 A219  76ED 39AB 221B 1B8C 330D

@@ -1,61 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267324AbUJOAad@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267411AbUJOAe7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267324AbUJOAad (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 20:30:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266186AbUJOAad
+	id S267411AbUJOAe7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 20:34:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266186AbUJOAe7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 20:30:33 -0400
-Received: from smtp-out.hotpop.com ([38.113.3.61]:14265 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S267324AbUJOA27
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 20:28:59 -0400
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: linux-fbdev-devel@lists.sourceforge.net,
-       "Kendall Bennett" <KendallB@scitechsoft.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Linux-fbdev-devel] Generic VESA framebuffer driver and Video card BOOT?
-Date: Fri, 15 Oct 2004 08:27:38 +0800
-User-Agent: KMail/1.5.4
-Cc: linux-fbdev-devel@lists.sourceforge.net,
-       penguinppc-team@lists.penguinppc.org
-References: <416E6ADC.3007.294DF20D@localhost>
-In-Reply-To: <416E6ADC.3007.294DF20D@localhost>
+	Thu, 14 Oct 2004 20:34:59 -0400
+Received: from brown.brainfood.com ([146.82.138.61]:62850 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S267411AbUJOAbL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 20:31:11 -0400
+Date: Thu, 14 Oct 2004 19:31:06 -0500 (CDT)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U2
+In-Reply-To: <20041014234202.GA26207@elte.hu>
+Message-ID: <Pine.LNX.4.58.0410141930440.1221@gradall.private.brainfood.com>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>
+ <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu>
+ <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>
+ <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
+ <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410150827.38943.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 15 October 2004 03:02, Kendall Bennett wrote:
-> So what we would like to find out is how much interest there might be in
-> both an updated VESA framebuffer console driver as well as the code for
-> the Video card BOOT process being contributed to the maintstream kernel.
-> If there is interest, we would start out by first contributing the core
-> emulator and Video BOOT code, and then work on building a better VESA
-> framebuffer console driver.
+On Fri, 15 Oct 2004, Ingo Molnar wrote:
+
 >
-> So what do you guys think?
+> i have released the -U2 PREEMPT_REALTIME patch:
 >
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U2
 
-I'm for it, if you can get the code in the kernel.  If not, what are the 
-arguments against doing this in userspace?
-
-If you remember about 2 years ago, there was a thread which you started
-about vesafbd.  From that, I've worked on vm86d which is a generic approach
-to running BIOS code in user space. I stopped development on this though,
-but it should be easy to revive. There is also vesafb-tng. I think it runs
-BIOS code in kernel space.
-
-The video BOOT code is also nice, especially for non-primary graphics cards.
-
-Tony
-
-
+kernel/latency.c: In function `add_preempt_count':
+kernel/latency.c:390: error: structure has no member named `preempt_trace_eip'
+kernel/latency.c:394: error: structure has no member named `preempt_trace_parent_eip'

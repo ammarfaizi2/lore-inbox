@@ -1,19 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbULER3q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbULERib@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261361AbULER3q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 12:29:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbULER1O
+	id S261314AbULERib (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 12:38:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbULEReL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 12:27:14 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:14348 "HELO
+	Sun, 5 Dec 2004 12:34:11 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:62731 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261364AbULERX2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 12:23:28 -0500
-Date: Sun, 5 Dec 2004 18:23:23 +0100
+	id S261354AbULERUM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 12:20:12 -0500
+Date: Sun, 5 Dec 2004 18:20:09 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/char/tty_io.c: misc cleanups
-Message-ID: <20041205172323.GC2953@stusta.de>
+To: Romain Lievin <roms@lpg.ticalc.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/char/tipar.c: make two functions static
+Message-ID: <20041205172009.GA2953@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,74 +22,34 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below contains the following cleanups:
-- remove the unused global function tty_push_data
-- make some needlessly global functions static
+The patch below makes two needlessly global functions static.
 
 
 diffstat output:
- drivers/char/tty_io.c |   28 +++-------------------------
- 1 files changed, 3 insertions(+), 25 deletions(-)
+ drivers/char/tipar.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc1-mm3-full/drivers/char/tty_io.c.old	2004-11-07 01:25:45.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/tty_io.c	2004-11-07 01:28:36.000000000 +0100
-@@ -327,7 +327,7 @@
- 	
- EXPORT_SYMBOL_GPL(tty_ldisc_put);
+--- linux-2.6.10-rc1-mm3-full/drivers/char/tipar.c.old	2004-11-07 01:24:23.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/char/tipar.c	2004-11-07 01:24:45.000000000 +0100
+@@ -489,7 +489,7 @@
+ 	.detach = tipar_detach,
+ };
  
--void tty_ldisc_assign(struct tty_struct *tty, struct tty_ldisc *ld)
-+static void tty_ldisc_assign(struct tty_struct *tty, struct tty_ldisc *ld)
+-int __init
++static int __init
+ tipar_init_module(void)
  {
- 	tty->ldisc = *ld;
- 	tty->ldisc.refcount = 0;
-@@ -583,7 +583,7 @@
- /*
-  * This routine returns a tty driver structure, given a device number
-  */
--struct tty_driver *get_tty_driver(dev_t device, int *index)
-+static struct tty_driver *get_tty_driver(dev_t device, int *index)
- {
- 	struct tty_driver *p;
- 
-@@ -744,7 +744,7 @@
-  * but doesn't hold any locks, so we need to make sure we have the appropriate
-  * locks for what we're doing..
-  */
--void do_tty_hangup(void *data)
-+static void do_tty_hangup(void *data)
- {
- 	struct tty_struct *tty = (struct tty_struct *) data;
- 	struct file * cons_filp = NULL;
-@@ -2504,28 +2504,6 @@
+ 	int err = 0;
+@@ -526,7 +526,7 @@
+ 	return err;	
  }
  
- /*
-- *	Call the ldisc flush directly from a driver. This function may
-- *	return an error and need retrying by the user.
-- */
--
--int tty_push_data(struct tty_struct *tty, unsigned char *cp, unsigned char *fp, int count)
--{
--	int ret = 0;
--	struct tty_ldisc *disc;
--	
--	disc = tty_ldisc_ref(tty);
--	if(test_bit(TTY_DONT_FLIP, &tty->flags))
--		ret = -EAGAIN;
--	else if(disc == NULL)
--		ret = -EIO;
--	else
--		disc->receive_buf(tty, cp, fp, count);
--	tty_ldisc_deref(disc);
--	return ret;
--	
--}
--
--/*
-  * Routine which returns the baud rate of the tty
-  *
-  * Note that the baud_table needs to be kept in sync with the
+-void __exit
++static void __exit
+ tipar_cleanup_module(void)
+ {
+ 	unsigned int i;
 

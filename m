@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312147AbSCRAFp>; Sun, 17 Mar 2002 19:05:45 -0500
+	id <S312146AbSCRAdc>; Sun, 17 Mar 2002 19:33:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312148AbSCRAFf>; Sun, 17 Mar 2002 19:05:35 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:7084 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S312147AbSCRAF3>;
-	Sun, 17 Mar 2002 19:05:29 -0500
-Date: Sun, 17 Mar 2002 16:01:36 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: "Matthew D. Pitts" <mpitts@suite224.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-pre3-ac1
-Message-ID: <20020318000136.GC27249@matchmail.com>
-Mail-Followup-To: "Matthew D. Pitts" <mpitts@suite224.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020316190415.38CE14E534@mail.vnsecurity.net> <E16mLFj-000794-00@the-village.bc.nu> <20020317053624.GD23938@matchmail.com> <003901c1ce0e$e5c15040$b0d3fea9@pcs686>
+	id <S312153AbSCRAdW>; Sun, 17 Mar 2002 19:33:22 -0500
+Received: from slip-202-135-75-217.ca.au.prserv.net ([202.135.75.217]:4501
+	"EHLO wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S312146AbSCRAdE>; Sun, 17 Mar 2002 19:33:04 -0500
+Date: Sun, 17 Mar 2002 17:50:09 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Martin Wirth <martin.wirth@dlr.de>
+Cc: pwaechtler@loewe-komp.de, linux-kernel@vger.kernel.org, drepper@redhat.com
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
+Message-Id: <20020317175009.4f4954a0.rusty@rustcorp.com.au>
+In-Reply-To: <3C932B2E.90709@dlr.de>
+In-Reply-To: <E16m1oK-0006oy-00@wagner.rustcorp.com.au>
+	<3C932B2E.90709@dlr.de>
+X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <003901c1ce0e$e5c15040$b0d3fea9@pcs686>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 17, 2002 at 06:52:51PM -0500, Matthew D. Pitts wrote:
-> L-K developers,
-> 
-> What is the recomended amount of swap if you have a PC with 384 MB ram?
+On Sat, 16 Mar 2002 12:23:26 +0100
+Martin Wirth <martin.wirth@dlr.de> wrote:
+> Rusty Russell wrote:
+> >The solution I was referring to before, using full semaphores, would
+> >look like so:
 
-There is not a single right answer because it's based on your work load.
+[snip]
 
-I would set it to 2x or 3x the ammount of swap you currently have *in use* during
-normal operation.
+> In principle that works. But one of  things that's less nice with 
+> pthread_cond_wait is
+> that you sometimes have a (most of the time) unnecessary schedule 
+> ping-pong, and with the
+> approach above you always have this (due to ack).
 
-For smaller ammounts of ram (measured in the hundreds) I'd just make it
-equal to how much ram you have.  With more ram, use the above suggestion.
+Only vs. pthread_cond_broadcast.  And if you're using that you probably
+have some other performance issues anyway?
 
-Mike
+> And secondly if 
+> futex_up(&f, N) for N > 1
+> relies on the chained wakeup in the kernels futex_up routine the 
+> broadcast may take a while to
+> complete (the lowest priority waiter penalizes all others queued behind 
+> him). A semaphore simply is no full replacement for a waitqueue with 
+> wake_all.
+
+Yes, we could have a "wake N" variant, which would be more efficient here.
+
+Hope that clarifies,
+Rusty.
+-- 
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,213 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbUKXEWy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbUKXFBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbUKXEWy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 23:22:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbUKXEWy
+	id S261708AbUKXFBt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 00:01:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbUKXFBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 23:22:54 -0500
-Received: from nwkea-mail-2.sun.com ([192.18.42.14]:44674 "EHLO
-	nwkea-mail-2.sun.com") by vger.kernel.org with ESMTP
-	id S261720AbUKXEWp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 23:22:45 -0500
-Date: Tue, 23 Nov 2004 23:22:12 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: [patch] wait_for_completion(_interruptible)?(_timeout)?
-To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Message-id: <41A40C74.9000804@sun.com>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_i2pRI4VnJ0skmq8N1m2bPg)"
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Wed, 24 Nov 2004 00:01:49 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:55814 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261708AbUKXFBq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 00:01:46 -0500
+To: Matt Mackall <mpm@selenic.com>
+Cc: Colin Leroy <colin@colino.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] let fat handle MS_SYNCHRONOUS flag
+References: <20041118194959.3f1a3c8e.colin@colino.net>
+	<87653wxqij.fsf@devron.myhome.or.jp> <20041124032017.GG8040@waste.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Wed, 24 Nov 2004 14:00:54 +0900
+In-Reply-To: <20041124032017.GG8040@waste.org> (Matt Mackall's message of
+ "Tue, 23 Nov 2004 19:20:17 -0800")
+Message-ID: <87pt237se1.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Matt Mackall <mpm@selenic.com> writes:
 
---Boundary_(ID_i2pRI4VnJ0skmq8N1m2bPg)
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
+> On Wed, Nov 24, 2004 at 05:24:36AM +0900, OGAWA Hirofumi wrote:
+>> Colin Leroy <colin@colino.net> writes:
+>> 
+>> > It adds MS_SYNCHRONOUS support to FAT filesystem, so that less
+>> > filesystem breakage happen when disconnecting an USB key, for 
+>> > example. I'd like to have comments about it, because as it 
+>> > seems to work fine here, I'm not used to fs drivers and could
+>> > have made mistakes.
+>> 
+>> What cases should these patches guarantee that users can unplug the
+>> USB key?  And can we guarantee the same cases by improving autofs or
+>> the similar stuff?
+>
+> Well there can be no guarantees - there will always be a race between
+> flush and hot unplug. If we're careful with write ordering, we can
+> perhaps arrange to avoid the worst sorts of corruption, provided the
+> device does the right thing when it's in the middle of an IO.
+>
+> But generally I think this is a good idea as it shrinks the window.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Things which I want to say here - do we really need the bogus
+sync-mode?
 
-Hi Thomas, Ingo,
+Current fatfs is not keeping the consistency of data on the disk at
+all.  So, after all, the data on a disk is corrupting until all
+syscalls finish, right?
 
-I've tried using the wait_for_completion_interruptible from the patch
-posted to lkml (http://lkml.org/lkml/2004/10/20/461).
+If so, isn't this too slow? I doubt this is good solution for this
+problem (USB key unplugging)...
 
-It appears that the timeout/sigpending paths don't call
-__remove_wait_queue, which is bad when somebody gets around to calling
-complete_all.
-
-Fixed up patch attached.
-
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBpAx0dQs4kOxk3/MRArY0AJ9+ZL7DuH9Fa5LurJj7vn2KkhpSeQCdFCnZ
-iLVrJyiAiNQDfdxYu6X1e88=
-=M/3X
------END PGP SIGNATURE-----
-
---Boundary_(ID_i2pRI4VnJ0skmq8N1m2bPg)
-Content-type: text/x-patch; name=wait_for_completion_interruptible.patch
-Content-transfer-encoding: 7BIT
-Content-disposition: inline; filename=wait_for_completion_interruptible.patch
-
-Additional functions for the completion API.
-
-wait_for_completion_interruptible()
-wait_for_completion_timeout()
-wait_for_completion_interruptible_timeout()
-
-Those are neccecary to convert the users of the racy and 
-obsolete sleep_on variants to the completion API
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Mike Waychison <michael.waychison@sun.com>
-
-Index: linux-2.6.9-quilt/include/linux/completion.h
-===================================================================
---- linux-2.6.9-quilt.orig/include/linux/completion.h	2004-10-18 14:54:38.000000000 -0700
-+++ linux-2.6.9-quilt/include/linux/completion.h	2004-11-23 16:48:48.000000000 -0800
-@@ -28,6 +28,12 @@ static inline void init_completion(struc
- }
- 
- extern void FASTCALL(wait_for_completion(struct completion *));
-+extern int FASTCALL(wait_for_completion_interruptible(struct completion *));
-+extern unsigned long FASTCALL(wait_for_completion_timeout(struct completion *,
-+							  unsigned long));
-+extern unsigned long FASTCALL(wait_for_completion_timeout_interruptible
-+			(struct completion *, unsigned long));
-+
- extern void FASTCALL(complete(struct completion *));
- extern void FASTCALL(complete_all(struct completion *));
- 
-Index: linux-2.6.9-quilt/kernel/sched.c
-===================================================================
---- linux-2.6.9-quilt.orig/kernel/sched.c	2004-10-18 14:54:55.000000000 -0700
-+++ linux-2.6.9-quilt/kernel/sched.c	2004-11-23 20:31:42.000000000 -0800
-@@ -2957,6 +2957,106 @@ void fastcall __sched wait_for_completio
- }
- EXPORT_SYMBOL(wait_for_completion);
- 
-+unsigned long fastcall __sched
-+wait_for_completion_timeout(struct completion *x, unsigned long timeout)
-+{
-+	might_sleep();
-+
-+	spin_lock_irq(&x->wait.lock);
-+	if (!x->done) {
-+		DECLARE_WAITQUEUE(wait, current);
-+
-+		wait.flags |= WQ_FLAG_EXCLUSIVE;
-+		__add_wait_queue_tail(&x->wait, &wait);
-+		do {
-+			__set_current_state(TASK_UNINTERRUPTIBLE);
-+			spin_unlock_irq(&x->wait.lock);
-+			timeout = schedule_timeout(timeout);
-+			spin_lock_irq(&x->wait.lock);
-+			if (!timeout) {
-+				__remove_wait_queue(&x->wait, &wait);
-+				goto out;
-+			}
-+		} while (!x->done);
-+		__remove_wait_queue(&x->wait, &wait);
-+	}
-+	x->done--;
-+	spin_unlock_irq(&x->wait.lock);
-+out:
-+	return timeout;
-+}
-+EXPORT_SYMBOL(wait_for_completion_timeout);
-+
-+int fastcall __sched wait_for_completion_interruptible(struct completion *x)
-+{
-+	int ret = 0;
-+
-+	might_sleep();
-+
-+	spin_lock_irq(&x->wait.lock);
-+	if (!x->done) {
-+		DECLARE_WAITQUEUE(wait, current);
-+
-+		wait.flags |= WQ_FLAG_EXCLUSIVE;
-+		__add_wait_queue_tail(&x->wait, &wait);
-+		do {
-+			if (signal_pending(current)) {
-+				ret = -ERESTARTSYS;
-+				__remove_wait_queue(&x->wait, &wait);
-+				goto out;
-+			}
-+			__set_current_state(TASK_INTERRUPTIBLE);
-+			spin_unlock_irq(&x->wait.lock);
-+			schedule();
-+			spin_lock_irq(&x->wait.lock);
-+		} while (!x->done);
-+		__remove_wait_queue(&x->wait, &wait);
-+	}
-+	x->done--;
-+out:
-+	spin_unlock_irq(&x->wait.lock);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(wait_for_completion_interruptible);
-+
-+unsigned long fastcall __sched
-+wait_for_completion_interruptible_timeout(struct completion *x,
-+					  unsigned long timeout)
-+{
-+	might_sleep();
-+
-+	spin_lock_irq(&x->wait.lock);
-+	if (!x->done) {
-+		DECLARE_WAITQUEUE(wait, current);
-+
-+		wait.flags |= WQ_FLAG_EXCLUSIVE;
-+		__add_wait_queue_tail(&x->wait, &wait);
-+		do {
-+			if (signal_pending(current)) {
-+				timeout = -ERESTARTSYS;
-+				__remove_wait_queue(&x->wait, &wait);
-+				goto out_unlock;
-+			}
-+			__set_current_state(TASK_INTERRUPTIBLE);
-+			spin_unlock_irq(&x->wait.lock);
-+			timeout = schedule_timeout(timeout);
-+			spin_lock_irq(&x->wait.lock);
-+			if (!timeout) {
-+				goto out_unlock;
-+				__remove_wait_queue(&x->wait, &wait);
-+			}
-+		} while (!x->done);
-+		__remove_wait_queue(&x->wait, &wait);
-+	}
-+	x->done--;
-+out_unlock:
-+	spin_unlock_irq(&x->wait.lock);
-+	return timeout;
-+}
-+EXPORT_SYMBOL(wait_for_completion_interruptible_timeout);
-+
-+
- #define	SLEEP_ON_VAR					\
- 	unsigned long flags;				\
- 	wait_queue_t wait;				\
-
---Boundary_(ID_i2pRI4VnJ0skmq8N1m2bPg)--
+Well, it seems good as start of sync-mode though.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271671AbRHUNp4>; Tue, 21 Aug 2001 09:45:56 -0400
+	id <S271668AbRHUNqq>; Tue, 21 Aug 2001 09:46:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271668AbRHUNpg>; Tue, 21 Aug 2001 09:45:36 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:46749 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S271667AbRHUNpc>;
-	Tue, 21 Aug 2001 09:45:32 -0400
-Date: Tue, 21 Aug 2001 06:45:34 -0700 (PDT)
-Message-Id: <20010821.064534.28792688.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: jes@sunsite.dk, linux-kernel@vger.kernel.org
-Subject: Re: Qlogic/FC firmware
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <E15ZBpI-0007oY-00@the-village.bc.nu>
-In-Reply-To: <d3elq5a6au.fsf@lxplus015.cern.ch>
-	<E15ZBpI-0007oY-00@the-village.bc.nu>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S271667AbRHUNqi>; Tue, 21 Aug 2001 09:46:38 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14609 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271668AbRHUNqV>; Tue, 21 Aug 2001 09:46:21 -0400
+Subject: Re: 2.4.8-ac8, agpgart, r128, and mtrr
+To: dushaw@apl.washington.edu (Brian Dushaw)
+Date: Tue, 21 Aug 2001 14:48:47 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0108210423110.3231-100000@munk.apl.washington.edu> from "Brian Dushaw" at Aug 21, 2001 05:01:53 AM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15ZBtf-0007pD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: Tue, 21 Aug 2001 14:44:16 +0100 (BST)
+> The module r128.o needs to have agpgart loaded first and depmod
+> does not seem to set this up properly.  I've added the line:
 
-   Also the firmware we were including was seriously out of date, was a 
-   release candidate (not a certified release) and took up tons of ram
+Its not a dependancy it can deduce. Imagine your card was PCI
 
-In many cases the driver worked before, and fails to work afterwards.
+> "pre-install r128 modprobe agpgart " to my /etc/modules.conf file.
 
-I still contend that the whole driver should have been lifted
-instead of leaving a crippled version there.
+Correct.
 
-Later,
-David S. Miller
-davem@redhat.com
+> when loaded in, lsmod shows it as being unused, if r128 is not
+> loaded.  I have the XFree86 glx module loaded, I think.  I think I don't
+> understand this at all... without the dri modules agpgart seems
+> innocuous...so why bother?
+
+AGP for most cards is currently used for 3D acceleration only

@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317999AbSGLVgB>; Fri, 12 Jul 2002 17:36:01 -0400
+	id <S318003AbSGLVhO>; Fri, 12 Jul 2002 17:37:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318003AbSGLVgA>; Fri, 12 Jul 2002 17:36:00 -0400
-Received: from ns.suse.de ([213.95.15.193]:39428 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317999AbSGLVgA>;
-	Fri, 12 Jul 2002 17:36:00 -0400
-Date: Fri, 12 Jul 2002 23:38:49 +0200
-From: Dave Jones <davej@suse.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Thunder from the hill <thunder@ngforever.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [CHECKER] 56 potential lock/unlock bugs in 2.5.8
-Message-ID: <20020712233849.G18503@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Thunder from the hill <thunder@ngforever.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20020712224820.D18503@suse.de> <Pine.LNX.4.44.0207122253250.28515-100000@serv>
-Mime-Version: 1.0
+	id <S318009AbSGLVhN>; Fri, 12 Jul 2002 17:37:13 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:42476 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S318003AbSGLVhL>;
+	Fri, 12 Jul 2002 17:37:11 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0207122253250.28515-100000@serv>; from zippel@linux-m68k.org on Fri, Jul 12, 2002 at 11:30:06PM +0200
+Content-Transfer-Encoding: 7bit
+Message-ID: <15663.19630.906087.875400@napali.hpl.hp.com>
+Date: Fri, 12 Jul 2002 14:39:58 -0700
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: MAP_NORESERVE with MAP_SHARED
+In-Reply-To: <1026512102.9915.22.camel@irongate.swansea.linux.org.uk>
+References: <200207122039.g6CKdnV3004060@napali.hpl.hp.com>
+	<1026512102.9915.22.camel@irongate.swansea.linux.org.uk>
+X-Mailer: VM 7.03 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 12, 2002 at 11:30:06PM +0200, Roman Zippel wrote:
+>>>>> On 12 Jul 2002 23:15:02 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> said:
 
- > I'm just testing it with 2.4.18 under uml and it runs happily. The 2.4 and
- > 2.5 are basically identical, so it's really strange. What I can see from
- > the disassembly it must be an old affs version.
+  Alan> On Fri, 2002-07-12 at 21:39, David Mosberger wrote:
+  >> Is there a good reason why the MAP_NORESERVE flag is ignored when
+  >> MAP_SHARED is specified?  (Hint: it's the call to vm_enough_memory()
+  >> in shmem_file_setup() that's causing MAP_NORESERVE to be ignored.)
 
-You mean the disk image is an old version ?
-There's a gzip'd copy at http://www.codemonkey.org.uk/cruft/EMPTY-AFFS.ADF.gz
-if you're curious..
+  Alan> In no overcommit mode MAP_NORESERVE is never honoured. In conventional
+  Alan> overcommit mode I may have broken something between base and -ac. Which
+  Alan> bit of the code are you looking at ?
 
-if 2.4/2.5 AFFS is in sync as you say (which iirc it is), then
-I fail to see how you think the 2.5.25 disassembly is an old version.
+2.4.18, though as far as I looked, the latest 2.5 has the same behavior.
+Specifically, in do_mmap_pgoff() we have:
 
-        Dave.
+	/* Private writable mapping? Check memory availability.. */
+	if ((vm_flags & (VM_SHARED | VM_WRITE)) == VM_WRITE &&
+	    !(flags & MAP_NORESERVE)				 &&
+	    !vm_enough_memory(len >> PAGE_SHIFT))
+		return -ENOMEM;
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+and in shmem_file_setup() we have:
+
+	if (!vm_enough_memory((size) >> PAGE_CACHE_SHIFT))
+		return ERR_PTR(-ENOMEM);
+
+So, if we don't have MAP_SHARED (first case), MAP_NORESERVE is
+honored, whereas with MAP_SHARED (second case), MAP_NORESERVE is
+ignored.
+
+	--david

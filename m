@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315708AbSFCWqk>; Mon, 3 Jun 2002 18:46:40 -0400
+	id <S315709AbSFCWs4>; Mon, 3 Jun 2002 18:48:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315709AbSFCWqj>; Mon, 3 Jun 2002 18:46:39 -0400
-Received: from bgp401130bgs.jersyc01.nj.comcast.net ([68.36.96.125]:41998 "EHLO
-	buggy.badula.org") by vger.kernel.org with ESMTP id <S315708AbSFCWqi>;
-	Mon, 3 Jun 2002 18:46:38 -0400
-Date: Mon, 3 Jun 2002 18:45:44 -0400
-Message-Id: <200206032245.g53Mji123739@buggy.badula.org>
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Urban Widmark <urban@teststation.com>
-Cc: linux-kernel@vger.kernel.org,
-        Jean-Eric Cuendet <jean-eric.cuendet@linkvest.com>
-Subject: Re: SMB filesystem
-In-Reply-To: <Pine.LNX.4.44.0206022319290.27283-100000@cola.enlightnet.local>
-User-Agent: tin/1.5.11-20020130 ("Toxicity") (UNIX) (Linux/2.4.18 (i586))
+	id <S315717AbSFCWsz>; Mon, 3 Jun 2002 18:48:55 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46354 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315709AbSFCWsy>;
+	Mon, 3 Jun 2002 18:48:54 -0400
+Message-ID: <3CFBF202.E4A52AB9@zip.com.au>
+Date: Mon, 03 Jun 2002 15:47:32 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Chris Mason <mason@suse.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 12/16] fix race between writeback and unlink
+In-Reply-To: <Pine.LNX.4.44.0206031514110.868-100000@home.transmeta.com> <1023143783.31682.28.camel@tiny>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 Jun 2002 23:34:59 +0200 (CEST), Urban Widmark <urban@teststation.com> wrote:
+Chris Mason wrote:
+> 
+> On Mon, 2002-06-03 at 18:19, Linus Torvalds wrote:
+> >
+> >
+> > On 3 Jun 2002, Chris Mason wrote:
+> > >
+> > > Or am I missing something?
+> >
+> > No. I think that in the long run we really would want all of the writeback
+> > preallocation should happen in the "struct file", not in "struct inode".
+> > And they should be released at file close ("release()"), not at iput()
+> > time.
+> 
+> reiserfs does preallocation and tail packing in release() right now, but
+> do we really need preallocation at all once delayed allocation is
+> stable?
+> 
 
-> Currently autofs has a problem where it won't show the mountpoints of
-> non-mounted directories, but I think you would run into that problem too.
-> (short version of the problem: how do you prevent 'ls -l' from mounting
-> all filesystems in a directory?)
+well..  Will delayed allocation even exist?  Grafting reservations
+onto ext2 had a few awkward moments in the area of handling ENOSPC,
+and generally a lot of the benefits of that code (ie: avoiding buffers)
+have been whittled away by other means.
 
-You add the concept of a "light" lookup, and you make path_walk() call this
-"light" lookup (be that a separate fs method, or a flag passed down to real
-lookup()) iff the path component being looked up is the last component in 
-the path. A "light" lookup sets a flag in the inode signalling that the inode
-is incomplete, so cached_lookup() can check this flag and call a "full"
-lookup() (or perhaps a "full" revalidate()) if necessary.
+So right now I don't see a strong reason for adding delayed allocation
+support into the core kernel for ext2.  If another fs comes up and
+creates a demand for core kernel support then fine.  (Thinking XFS
+here).  Probably I should resurrect the ext2 code as something for you
+and Steve to poke at.
 
-The actual details need to be thought out a bit more, this is only a general
-outline. In particular, we need a bullet-proof way to determine when to
-"upgrade" the inode from "light" to "full".
+Plus ext3 needs prealloc as well.  Performing that within the live
+bitmaps like ext2 is really awkward.  I have half-a-patch which performs
+area reservations in ext3 via a per-private-inode "start, length"
+tuple.  These zones never get near being written to disk.  That
+seems a reasonable approach for ext3, but it does use the inode.
+If that info was inside struct file, writepage() would get rather
+confused - it doesn't have a file*.
 
-You then also need to add a "getdents" kind of message to the autofs 
-protocol, and a "light lookup" message (which confirms the existence of the
-entry, and maybe returns the type of the entry: symlink or directory).
-
-Once all this is done, I'll add support for it in am-utils in a jiffy...
-
-Ion (am-utils co-maintainer)
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+-

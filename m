@@ -1,65 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130368AbRAGLYf>; Sun, 7 Jan 2001 06:24:35 -0500
+	id <S130566AbRAGL2g>; Sun, 7 Jan 2001 06:28:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130526AbRAGLYY>; Sun, 7 Jan 2001 06:24:24 -0500
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:18446 "EHLO
-	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S130368AbRAGLYP>; Sun, 7 Jan 2001 06:24:15 -0500
-Message-ID: <001101c0789c$e006d7b0$0201a8c0@p3x2nt>
-From: oliver.kowalke@t-online.de (Oliver Kowalke)
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel 2.4.0 + software RAID causes problems
-Date: Sun, 7 Jan 2001 12:27:52 +0100
+	id <S130560AbRAGL2Z>; Sun, 7 Jan 2001 06:28:25 -0500
+Received: from staq1.atlantech.net ([209.190.211.2]:9992 "EHLO
+	ns4.cyberjunkees.com") by vger.kernel.org with ESMTP
+	id <S130486AbRAGL2V>; Sun, 7 Jan 2001 06:28:21 -0500
+From: Jim Olsen <jim@browsermedia.com>
+Organization: CyberJunkees
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Which kernel fixes the VM issues?
+Date: Sun, 7 Jan 2001 06:31:29 -0500
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+Message-Id: <01010706312902.10913@jim.cyberjunkees.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi... I have a question or two that would help me clear up a bit of the fuzz 
+I have relating to the VM: do_try_to_free_pages issue.  
 
-on my machine (x86) I've debian2.2r2 with kernel 2.2.16 + raidtools 0.9
-running. No problems. Yesterday I installed kern 2.4.0 with the same
-configuration like 2.2.16. I added following to the boot params:
+I currently have a server with:
 
-root=/dev/md0 md=0,/dev/hde1,/dev/hdg1
+o) 1 GB RAM
+o) Dual PIII 700 Processors
+o) Dual EtherExpress Pro NIC's
+o) RedHat 6.2 w/ 2.2.17 (No patches applied)
+o) High load (HTTP, DNS, SMTP, etc)
 
-If I boot 2.4.0 I can see following:
+About once a week I get the 'VM: do_try_to_free_pages ...' error and 
+eventually get a complete system lockup. And just this morning it locked up 
+again, although this time with a 'VFS: LRU block list corrupted' message in 
+the logs, which i'm assuming is related to the VM issue as well. 
 
-...
-<init of raid>
-raid:0 md-size is 249728 blocks
-raid0: conf->smallest->size is 249728 blocks
-raid0: nb_zone is 1
-raid0: blocking 8 bytes for hash
-md: updating md0 RAID superblock on device                <<<------
-<...>
-... autorun DONE
-md: loading md0
-... md0 already autodetected -use raid=noautodetect
-<...>
-Parallelizing fsck version 1.18
-fsck.ext2: No such file or directory while trying to open /dev/md0 (null):
-The superblock could not be read or does not describe a correct ext2
-filesystem.
+When this server started having these lockups related to the VM I researched 
+it, and found some messages poing to a 2.2.18pre* patch available to fix this 
+issue, and also later down the road that the patch was accepted into the 
+2.2.18 final.  
 
+In following this mailing list, though, I have seen that certain people are 
+still having problems with the VM while running 2.2.18, although it seems to 
+be relegated only to those people who might be running ReiserFS.  The fix, it 
+seems, for people with 2.2.18+ReiserFS is to get latest 2.2.19pre*.
 
-The filessystem is clean because I can mount it with kernel 2.2.16 without
-problems. Maybe kernel 2.4.0 does the wrong in updating the RAIS superblock
-on md0.
-Please help!
+My question is, exactly which kernel should I use in order to rid my server 
+of this VM issue?  I'm uncomfortable (and always have been) with running pre* 
+kernels on production machines, so i'd like to stick with 2.2.18, but I would 
+like to know if it truly does fix the problem(s) with the VM.  If I need to, 
+though, I will (hesitantly) put a 2.2.19pre* kernel on the box.  
 
-with regards,
-Oliver
+Also, I would like to know if the VM problems with 2.2.18+ReiserFS are 
+strictly a ReiserFS issue (code or whatnot) or is it an issue in how ReiserFS 
+uses the memory? If it is an issue in how the memory is used, then is it 
+possible for servers that have a heavy load with lots of dynamic content (and 
+therefore lots of memory usage) to also still have this issue with 2.2.18 
+regardless of whether they have ReiserFS or not?
 
+I'll be applying 2.2.18 soon, so the question is sort of moot as I will find 
+out eventually. Nonetheless, I would appreciate an absolute resolution to 
+this issue that has been on my mind, not to mention the fact that it would 
+more than likely give me a break from hearing the pager go off in the 
+wee-morning hours, eh?
 
-
+Jim Olsen
+Linux Systems Administrator
+-- 
+Bus error -- please leave by the rear door.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

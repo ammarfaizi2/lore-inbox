@@ -1,42 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264188AbUFBVSJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264191AbUFBVRs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264188AbUFBVSJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 17:18:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264176AbUFBVSI
+	id S264191AbUFBVRs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 17:17:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264182AbUFBVRs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 17:18:08 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:26754 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264175AbUFBVRu (ORCPT
+	Wed, 2 Jun 2004 17:17:48 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:22146 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264175AbUFBVRi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 17:17:50 -0400
-Date: Wed, 2 Jun 2004 17:16:46 -0400
-From: Alan Cox <alan@redhat.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: PATCH: Submission of via "velocity(tm)" series adapter driver
-Message-ID: <20040602211646.GA9419@devserv.devel.redhat.com>
-References: <20040602201315.GA10339@devserv.devel.redhat.com> <40BE3F00.4090408@pobox.com>
+	Wed, 2 Jun 2004 17:17:38 -0400
+Date: Wed, 2 Jun 2004 23:17:14 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [announce] [patch] NX (No eXecute) support for x86, 2.6.7-rc2-bk2
+Message-ID: <20040602211714.GB29687@devserv.devel.redhat.com>
+References: <20040602205025.GA21555@elte.hu> <Pine.LNX.4.58.0406021411030.3403@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0OAP2g/MAC+5xKAE"
 Content-Disposition: inline
-In-Reply-To: <40BE3F00.4090408@pobox.com>
+In-Reply-To: <Pine.LNX.4.58.0406021411030.3403@ppc970.osdl.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 02, 2004 at 04:56:32PM -0400, Jeff Garzik wrote:
-> >+ *	rx_copybreak/alignment
-> >+ *	Scatter gather
-> >+ *	More testing
+
+--0OAP2g/MAC+5xKAE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Wed, Jun 02, 2004 at 02:13:13PM -0700, Linus Torvalds wrote:
 > 
-> I would prefer not to merge to mainline until big endian is working... 
-> certainly it can still receive wide testing in Andrew's -mm tree.
+> 
+> On Wed, 2 Jun 2004, Ingo Molnar wrote:
+> > 
+> > If the NX feature is supported by the CPU then the patched kernel turns
+> > on NX and it will enforce userspace executability constraints such as a
+> > no-exec stack and no-exec mmap and data areas. This means less chance
+> > for stack overflows and buffer-overflows to cause exploits.
+> 
+> Just out of interest - how many legacy apps are broken by this? I assume 
+> it's a non-zero number, but wouldn't mind to be happily surprised.
 
-Most of our drivers don't work bigendian. If you want it bigendian you
-can find someone to do it because I don't have the hardware to verify
-bigendian and currently there probably isnt a single big endian user of this
-chip on the planet.
+based on execshield in FC1.. about zero.
 
-It may well work big endian, but someone will have to hand glue a sparc to
-a via chipset and add on ethernet to find out 8)
+> 
+> And do we have some way of on a per-process basis say "avoid NX because
+> this old version of Oracle/flash/whatever-binary-thing doesn't run with
+> it"?
 
+yes those aren't compiled with the PT_GNU_STACK elf flag and run with the
+stack executable just fine. GCC will also emit a "make the stack executable"
+flag when it emits code that puts stack trampolines up.
+That all JustWorks(tm).
+--0OAP2g/MAC+5xKAE
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAvkPZxULwo51rQBIRAnJmAJ9T9M8CcRytG9s5am9w48GroUYD/wCgmbfQ
+FhW8eiuEig2R/vdijTkSfS8=
+=PeVO
+-----END PGP SIGNATURE-----
+
+--0OAP2g/MAC+5xKAE--

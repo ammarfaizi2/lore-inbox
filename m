@@ -1,47 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268282AbUJJMav@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268280AbUJJMsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268282AbUJJMav (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 08:30:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268279AbUJJMau
+	id S268280AbUJJMsN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 08:48:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268295AbUJJMsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 08:30:50 -0400
-Received: from main.gmane.org ([80.91.229.2]:29829 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S268280AbUJJM3Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 08:29:16 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: SDiZ <gmane@sdiz.net>
-Subject: Re: Linux 2.6.9-rc3-mm3 kernel oops..
-Date: Sun, 10 Oct 2004 20:29:11 +0800
-Message-ID: <ckb9up$tr3$1@sea.gmane.org>
-References: <ck935s$83k$1@sea.gmane.org> <20041009141647.14d91f34.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=Big5-HKSCS
+	Sun, 10 Oct 2004 08:48:13 -0400
+Received: from mail01.hpce.nec.com ([193.141.139.228]:46780 "EHLO
+	mail01.hpce.nec.com") by vger.kernel.org with ESMTP id S268280AbUJJMsK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 08:48:10 -0400
+From: Erich Focht <efocht@hpce.nec.com>
+To: colpatch@us.ibm.com
+Subject: Re: [Lse-tech] [RFC PATCH] scheduler: Dynamic sched_domains
+Date: Sun, 10 Oct 2004 14:45:58 +0200
+User-Agent: KMail/1.6.2
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       LSE Tech <lse-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
+       ckrm-tech@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>,
+       simon.derr@bull.net, frankeh@watson.ibm.com
+References: <1097110266.4907.187.camel@arrakis> <200410090051.18693.efocht@hpce.nec.com> <1097283956.6470.152.camel@arrakis>
+In-Reply-To: <1097283956.6470.152.camel@arrakis>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: n218250164066.netvigator.com
-User-Agent: Mozilla Thunderbird 0.6+ (Windows/20040912)
-X-Accept-Language: zh-hk, zh-tw, en-us, en
-In-Reply-To: <20041009141647.14d91f34.akpm@osdl.org>
+Message-Id: <200410101445.58897.efocht@hpce.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> SDiZ <gmane@sdiz.net> wrote:
+On Saturday 09 October 2004 03:05, Matthew Dobson wrote:
+> On Fri, 2004-10-08 at 15:51, Erich Focht wrote:
+> > We're building this from bottom (cpus) up and need to take care of the
+> > unlinking of the global domain when inserting something. But otherwise
+> > this could be sufficient.
 > 
->>I have just compiled  2.6.9-rc3-mm3 on gentoo linux,
->> When I start KDE, artsd dies and give this error:
+> I personally like to think of it from the top down.  The internal API I
+> came up with looks like:
 > 
+> create_domain(parent_domain, type);
+> destroy_domain(domain);
+> add_cpu_to_domain(cpu, domain);
 > 
-> You'll need to do
+> So you basically build your domain from the top down, from your 1 or
+> more top-level domains, down to your lowest level domains.  You then add
+> cpus (1 or more per domain) to the leaf domains in the tree you built. 
+> Those cpus cascade up the tree, and the whole tree knows exactly which
+> cpus are contained in each domain in it.
 > 
-> cd /usr/src/linux
-> wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm3/broken-out/optimize-profile-path-slightly.patch
-> patch -R -p1 < optimize-profile-path-slightly.patch
-> 
+> I think these are the three main functions you need to construct pretty
+> much any conceivable, useful sched_domains hierarchy.
 
-Thanks, this solve the problem
+I'd suggest adding:
+reparent_domain(domain, new_parent_domain);
 
--- 
+When I said that the domains tree is standing on its leaves I meant
+that the core components are the CPUs. Or the Nodes, if you already
+have them. Or some supernodes, if you already have them. In a "normal"
+filesystem you have the root directory, create subdirectories and
+create files in them. Here you already have the files but not the
+structure (or the simplest possible structure).
+
+Anyhow, the 4 command API can well be the guts of the directory
+operations API which I proposed.
+
+Regards,
+Erich
 

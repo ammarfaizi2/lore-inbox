@@ -1,79 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262291AbTKNJue (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 04:50:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbTKNJue
+	id S262315AbTKNJ5J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 04:57:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbTKNJ5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 04:50:34 -0500
-Received: from eva.fit.vutbr.cz ([147.229.10.14]:25348 "EHLO eva.fit.vutbr.cz")
-	by vger.kernel.org with ESMTP id S262291AbTKNJub (ORCPT
+	Fri, 14 Nov 2003 04:57:09 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:64174 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262315AbTKNJ5D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 04:50:31 -0500
-Date: Fri, 14 Nov 2003 10:50:28 +0100
-From: David Jez <dave.jez@seznam.cz>
-To: linux-kernel@vger.kernel.org
-Subject: [TRIVIAL] sys32_module_warning cleanup from 2.6.0-test9
-Message-ID: <20031114095027.GA42967@stud.fit.vutbr.cz>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="FCuugMFkClbJLl1L"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 14 Nov 2003 04:57:03 -0500
+Date: Fri, 14 Nov 2003 10:56:56 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Tupshin Harper <tupshin@tupshin.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel.bkbits.net off the air
+In-Reply-To: <3FB3CB96.9080507@tupshin.com>
+Message-ID: <Pine.GSO.4.21.0311141051440.2853-100000@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 13 Nov 2003, Tupshin Harper wrote:
+> Davide Libenzi wrote:
+> >Larry, if there are really six users (i'm one of them, rsync) among 
+> >pserver and rsync access, I am the first to tell you shut it down. It is 
+> >not worth. On the other hand IIRC it was you that, when Pavel showed up 
+> >with the bitbucket hack to extract metadata from BK, volunteered to do it 
+> >internally inside BM. Do I remember correctly?
+> >
+> As one of the six, I would happily 2nd the shutting down of the 
+> pserver...rsync is fine with me. I would actually prefer no CVS archive 
+> at all as long as the raw changesets were rsyncable...then the community 
+> would be responsible for doing something useful with them instead of BM.
 
---FCuugMFkClbJLl1L
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Just wondering: the emails sent to the bk-commits mailing lists are just all
+changesets in a `neutral' format that contains all meta information, right?
 
-  Hi, i send you trivial patch for 2.6.0-test9 kernel which removes
-obsolete warning. It is 2.6 kernel, that use module-init-tools so IMHO
-this warning is not necessary.
+So if all individual mails were archived somewhere with correct sequence
+numbers, they could be used to recreate the whole repository in whatever format
+you want. I guess it's just a matter of importing them like patches into arch.
 
-  Regards,
--- 
--------------------------------------------------------
-  David "Dave" Jez                Brno, CZ, Europe
- E-mail: dave.jez@seznam.cz
-PGP key: finger xjezda00@eva.fit.vutbr.cz
----------=[ ~EOF ]=------------------------------------
+Gr{oetje,eeting}s,
 
---FCuugMFkClbJLl1L
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="linux-2.6.0-test9-amd64.cleanup.diff"
+						Geert
 
-diff -urN linux-2.6.0-test9.orig/arch/x86_64/ia32/ia32entry.S linux-2.6.0-test9/arch/x86_64/ia32/ia32entry.S
---- linux-2.6.0-test9.orig/arch/x86_64/ia32/ia32entry.S	2003-10-25 18:43:32.000000000 +0000
-+++ linux-2.6.0-test9/arch/x86_64/ia32/ia32entry.S	2003-11-12 22:44:16.000000000 +0000
-@@ -330,10 +330,10 @@
- 	.quad sys32_adjtimex
- 	.quad sys32_mprotect		/* 125 */
- 	.quad compat_sys_sigprocmask
--	.quad sys32_module_warning	/* create_module */
-+	.quad ni_syscall		/* create_module */
- 	.quad sys_init_module
- 	.quad sys_delete_module
--	.quad sys32_module_warning	/* 130  get_kernel_syms */
-+	.quad ni_syscall		/* 130  get_kernel_syms */
- 	.quad ni_syscall	/* quotactl */ 
- 	.quad sys_getpgid
- 	.quad sys_fchdir
-diff -urN linux-2.6.0-test9.orig/arch/x86_64/ia32/sys_ia32.c linux-2.6.0-test9/arch/x86_64/ia32/sys_ia32.c
---- linux-2.6.0-test9.orig/arch/x86_64/ia32/sys_ia32.c	2003-10-25 18:43:30.000000000 +0000
-+++ linux-2.6.0-test9/arch/x86_64/ia32/sys_ia32.c	2003-11-12 22:44:31.000000000 +0000
-@@ -1817,13 +1817,6 @@
- }
- #endif
- 
--long sys32_module_warning(void)
--{ 
--		printk(KERN_INFO "%s: 32bit 2.4.x modutils not supported on 64bit kernel\n",
--		       current->comm);
--	return -ENOSYS ;
--} 
--
- extern long sys_io_setup(unsigned nr_reqs, aio_context_t *ctx);
- 
- long sys32_io_setup(unsigned nr_reqs, u32 *ctx32p)
+P.S. I did use the CVS gateway before to have a base tree to verify that the
+     patches I send to Linus and Marcelo still apply cleanly. But these days
+     full releases are so frequent that I can use these as base trees. And I
+     monitor the bk-commits lists so I know what's happening in between.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
---FCuugMFkClbJLl1L--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

@@ -1,52 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267313AbUHWTAP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267425AbUHXCKA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267313AbUHWTAP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 15:00:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267316AbUHWS6h
+	id S267425AbUHXCKA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 22:10:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269077AbUHXCI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 14:58:37 -0400
-Received: from mail.kroah.org ([69.55.234.183]:13252 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267313AbUHWShG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 14:37:06 -0400
-X-Fake: the user-agent is fake
-Subject: Re: [PATCH] PCI and I2C fixes for 2.6.8
-User-Agent: Mutt/1.5.6i
-In-Reply-To: <10932860894178@kroah.com>
-Date: Mon, 23 Aug 2004 11:34:49 -0700
-Message-Id: <1093286089386@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Mon, 23 Aug 2004 22:08:29 -0400
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:39329 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268194AbUHXCFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 22:05:48 -0400
+Message-ID: <412AA25E.8060509@yahoo.com.au>
+Date: Tue, 24 Aug 2004 12:05:18 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Massimo Cetra <mcetra@navynet.it>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Production comparison between 2.4.27 and 2.6.8.1
+References: <000001c48906$d70bf270$0600640a@guendalin>
+In-Reply-To: <000001c48906$d70bf270$0600640a@guendalin>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1807.56.40, 2004/08/09 14:39:20-07:00, rl@hellgate.ch
+Massimo Cetra wrote:
+> Nick Piggin wrote:
+> 
+>>>#**********************************************
+>>>It is my first experience with 2.6 branch kernels, because 
+>>
+>>i am trying 
+>>
+>>>to figure out if the tree is performing well to switch 
+>>
+>>everithing in 
+>>
+>>>production, so my ideas may be wrong...
+>>>
+>>>Raid tests may be faked because of the overhead caused by 
+>>
+>>md sync (and 
+>>
+>>>probably raid is better on 2.6). However it seems that libsata has 
+>>>better performance on 2.4 (hdparm) xfs tests shows that 2.4 
+>>
+>>has better 
+>>
+>>>performance if compared to 2.6 and the difference, in my 
+>>
+>>opinion, is 
+>>
+>>>not linked on libsata better performance.
+>>>
+>>>What is your opinion ?
+>>>What can I try to improve performance ?
+>>>
+>>
+>>I wouldn't worry too much about hdparm measurements. If you 
+>>want to test the streaming throughput of the disk, run dd 
+>>if=big-file of=/dev/null or a large write+sync.
+>>
+>>Regarding your worse non-RAID XFS database results, try 
+>>booting 2.6 with elevator=deadline and test again. If yes, 
+>>are you using queueing (TCQ) on your disks?
+> 
+> 
+> 
+> Tried even with 2.6.8.1-mm and 2.6.8.1-ck
+> No performance improvement.
+> 
+>>From Documentation/block/as-iosched.txt i read:
+> 
+> #--------------------------------------
+> Attention! Database servers, especially those using "TCQ" disks should
+> investigate performance with the 'deadline' IO scheduler. Any system
+> with high
+> disk performance requirements should do so, in fact.
+> 
+> If you see unusual performance characteristics of your disk systems, or
+> you
+> see big performance regressions versus the deadline scheduler, please
+> email
+> me. Database users don't bother unless you're willing to test a lot of
+> patches
+> from me ;) its a known issue.
+> #--------------------------------------
+> 
+> So it's probably known that 2.6 performance with databases and heavy HD
+> access is an issue.
+> I don't believe that 2.6.x tree is performing as well as 2.4.x(-lck) on
+> server tasks.
+> 
+> Is this issue being analyzed ?
+> Should we hope in an improvement sometime?
+> Or I'll have to use 2.4 to have good performance ?
+> 
 
-[PATCH] PCI: saved_config_space -> u32
-
-Match what the functions working on it expect.
-
-Signed-off-by: Roger Luethi <rl@hellgate.ch>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- include/linux/pci.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-
-diff -Nru a/include/linux/pci.h b/include/linux/pci.h
---- a/include/linux/pci.h	2004-08-23 11:02:50 -07:00
-+++ b/include/linux/pci.h	2004-08-23 11:02:50 -07:00
-@@ -536,7 +536,7 @@
- 	unsigned int	is_enabled:1;	/* pci_enable_device has been called */
- 	unsigned int	is_busmaster:1; /* device is busmaster */
- 	
--	unsigned int 	saved_config_space[16]; /* config space saved at suspend time */
-+	u32		saved_config_space[16]; /* config space saved at suspend time */
- #ifdef CONFIG_PCI_NAMES
- #define PCI_NAME_SIZE	96
- #define PCI_NAME_HALF	__stringify(43)	/* less than half to handle slop */
-
+You booted with elevator=deadline and things still didn't improve
+though, correct? If so, then the problem should be found and fixed.

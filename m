@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266721AbUIVT2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266798AbUIVTi4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266721AbUIVT2S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 15:28:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266786AbUIVT2S
+	id S266798AbUIVTi4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 15:38:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266810AbUIVTiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 15:28:18 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:18316 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S266721AbUIVT2Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 15:28:16 -0400
-Subject: Re: The new PCI fixup code ate my IDE controller
-From: David Woodhouse <dwmw2@infradead.org>
-To: Matthew Wilcox <matthew@wil.cx>
+	Wed, 22 Sep 2004 15:38:55 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:43658 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S266798AbUIVTiv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 15:38:51 -0400
+Subject: [patch] inotify: locking
+From: Robert Love <rml@novell.com>
+To: ttb@tentacle.dhs.org
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040922183905.GQ16153@parcelfarce.linux.theplanet.co.uk>
-References: <20040922174929.GP16153@parcelfarce.linux.theplanet.co.uk>
-	 <1095877177.17821.1535.camel@hades.cambridge.redhat.com>
-	 <20040922183905.GQ16153@parcelfarce.linux.theplanet.co.uk>
 Content-Type: text/plain
-Message-Id: <1095881294.17821.1553.camel@hades.cambridge.redhat.com>
+Date: Wed, 22 Sep 2004 15:37:41 -0400
+Message-Id: <1095881861.5090.59.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Wed, 22 Sep 2004 20:28:14 +0100
+X-Mailer: Evolution 2.0.0 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-22 at 19:39 +0100, Matthew Wilcox wrote:
-> On Wed, Sep 22, 2004 at 07:19:37PM +0100, David Woodhouse wrote:
-> > Hmm. We already have two passes through the fixup stuff. Add a third?
-> > But sorting PCI_ANY_ID to go last seems like a reasonable first stab at
-> > an answer, if that's sufficient for your purposes.
-> 
-> I don't think we need to go that far.  Something like the following
-> should work ... (untested, uncompiled, whitespace-damaged)
+Hey, John.
 
-Looks good to me.
+I went over the locking in drivers/char/inotify.c  Looks right.
 
--- 
-dwmw2
+I made two major changes:
+
+	- In a couple places you used irq-safe locks, but in most places
+	  you did not.  It has to be all or never.  We do not currently
+	  need protection from interrupts, so I changed the few
+	  irq-safe locks on dev->lock to normal spin_lock/spin_unlock
+	  calls.
+
+	- dev->event_count was an atomic_t, but it was never accessed
+	  outside of dev->lock.  I also did not see why ->event_count
+	  was atomic but not ->nr_watches.  So I made event_count an
+	  unsigned int and removed the atomic operations.
+
+The rest of the (admittedly a bit large) patch is documenting the
+locking rules.  I tried to put the locking assumptions in comments at
+the top of each function.  I made some coding style cleanups as I went
+along, too, but not too many (those come next).
+
+I do have one remaining concern: create_watcher() is called without the
+lock on dev, but it later obtains the lock, before it touches dev.  So
+it is safe in that regard, but what if dev is deallocated before it
+grabs the lock?  dev is passed in, so, for example, dev could be freed
+(or otherwise manipulated) and then the dereference of dev->lock would
+oops.  A couple other functions do this.  We probably need proper ref
+counting on dev. BUT, are all of these call chains off of VFS functions
+on the device?  Perhaps so long as the device is open it is pinned?
+
+Attached patch is against your latest, plus the previous postings.
+
+Thanks,
+
+	Robert Love
+
 

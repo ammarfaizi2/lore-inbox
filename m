@@ -1,62 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbULNQG2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbULNQLT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261543AbULNQG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 11:06:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbULNQFA
+	id S261540AbULNQLT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 11:11:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbULNQLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 11:05:00 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:44686 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261537AbULNQEe (ORCPT
+	Tue, 14 Dec 2004 11:11:19 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:8847 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261538AbULNQLM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 11:04:34 -0500
-Date: Tue, 14 Dec 2004 17:04:29 +0100 (MET)
+	Tue, 14 Dec 2004 11:11:12 -0500
+Date: Tue, 14 Dec 2004 17:11:10 +0100 (MET)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Adam Denenberg <adam@dberg.org>
+To: Yihan Li <Yihan.Li@Edgewater.CA>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: bind() udp behavior 2.6.8.1
-In-Reply-To: <1103038728.10965.12.camel@sucka>
-Message-ID: <Pine.LNX.4.61.0412141700430.24308@yvahk01.tjqt.qr>
-References: <1103038728.10965.12.camel@sucka>
+Subject: Re: patch RTAI (fusion-0.6.4) with kernel 2.6.9 on Fedora Core 3
+In-Reply-To: <002d01c4e1f5$a3491790$8500a8c0@WS055>
+Message-ID: <Pine.LNX.4.61.0412141710150.24308@yvahk01.tjqt.qr>
+References: <002d01c4e1f5$a3491790$8500a8c0@WS055>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hello,
->
-> I am not subscribed to this list so please CC me personally in
->response. 
->
-> I am noticing some odd behavior with linux 2.6.8.1 on a redhat 8 box
->when making udp requests.  It seems subsequent udp calls are all
->allocating the same source ephemeral udp port.  I believe the kernel
->should be randomizing these (or incrementing) these ports for subsequent
->requests.
+> Need help again!
+> I am trying to patch RTAI (fusion-0.6.4) with kernel 2.6.9 on Fedora Core 3.
+> The following steps are what I was following:
+[...]
+> After 8 mins, I get error messages as following:
+> drivers/scsi/qla2xxx/qla_os.c: In function `qla2x00_queuecommand':
+> drivers/scsi/qla2xxx/qla_os.c:315: sorry, unimplemented: inlining failed in
+> call to 'qla2x00_callback': function not considered for inlining
 
-No, you can have a fixed port for any socket. (It's just a question whether 
-you actually get the socket, because it might be in use.)
+Please see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=18569
+So to say, the module is not GCC-3.4 ready.
 
-See http://linux01.org:2222/f/UHXT/examples/src/fastsock.c , which contains an 
-example on how to choose a fixed port.
-
->  We ran a test C program that just put a gethostbyname_r call
->in a for loop of 40 calls and all 40 requests used the same UDP source
->port (32789).
-
-Looks normal to me. It might select a random port upon "libc invocation" and 
-use it for all further requests. This is in fact very valid, because UDP is 
-connectionless; packets can go from anywhere to anywhere without any 
-pre-work.
-
->  This is causing our firewall to drop some packets since
->it thinks it already closed that connection due to too many transactions
->using same udp source/dest port passing thru in too short a time frame.
-
-Then, the firewall UDP implementation is broken. Note, an UDP connection *can 
-not be closed*, because it never was "open". If it's trying to do something 
-like 
-	iptables -p udp -m state --state RELATED
-it is doing it wrong, because that is an impossible situation.
 
 
 Jan Engelhardt

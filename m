@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269184AbUJWEaH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267700AbUJWFlO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269184AbUJWEaH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 00:30:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267645AbUJWE3L
+	id S267700AbUJWFlO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 01:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267662AbUJWFhb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 00:29:11 -0400
-Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:7047
-	"EHLO zion.localdomain") by vger.kernel.org with ESMTP
-	id S267708AbUJWE0R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 00:26:17 -0400
-Subject: [patch 3/5] uml-unused-label
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it
-From: blaisorblade_spam@yahoo.it
-Date: Sat, 23 Oct 2004 05:53:18 +0200
-Message-Id: <20041023035318.EB65795D1@zion.localdomain>
+	Sat, 23 Oct 2004 01:37:31 -0400
+Received: from mail-08.iinet.net.au ([203.59.3.40]:44777 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S267367AbUJWFes
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 01:34:48 -0400
+Message-ID: <4179EC91.2070100@cyberone.com.au>
+Date: Sat, 23 Oct 2004 15:30:57 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Darren Hart <dvhltc@us.ibm.com>
+CC: lkml <linux-kernel@vger.kernel.org>, Matt Dobson <colpatch@us.ibm.com>,
+       Martin J Bligh <mbligh@aracnet.com>,
+       Rick Lindsley <ricklind@us.ibm.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] scheduler: active_load_balance fixes
+References: <1098488173.2854.13.camel@farah.beaverton.ibm.com>
+In-Reply-To: <1098488173.2854.13.camel@farah.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
+Darren Hart wrote:
 
- linux-2.6.9-current-paolo/arch/um/kernel/tt/process_kern.c |    1 -
- 1 files changed, 1 deletion(-)
+>The following patch against the latest mm fixes several problems with
+>active_load_balance().
+>
+>
 
-diff -puN arch/um/kernel/tt/process_kern.c~uml-unused-label arch/um/kernel/tt/process_kern.c
---- linux-2.6.9-current/arch/um/kernel/tt/process_kern.c~uml-unused-label	2004-10-12 02:13:03.528818872 +0200
-+++ linux-2.6.9-current-paolo/arch/um/kernel/tt/process_kern.c	2004-10-12 02:13:23.258819456 +0200
-@@ -305,7 +305,6 @@ int copy_thread_tt(int nr, unsigned long
- 
- 	change_sig(SIGUSR1, 0);
- 	err = 0;
-- out:
- 	return(err);
- }
- 
-_
+This seems much better. Andrew can you put this into -mm please.
+
+Thanks
+Nick
+
+

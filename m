@@ -1,99 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265792AbUFSADl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265800AbUFRXhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265792AbUFSADl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 20:03:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265746AbUFRXzA
+	id S265800AbUFRXhO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 19:37:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265792AbUFRXdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 19:55:00 -0400
-Received: from [81.187.239.184] ([81.187.239.184]:61893 "EHLO
-	mail.newtoncomputing.co.uk") by vger.kernel.org with ESMTP
-	id S265541AbUFRXwg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 19:52:36 -0400
-Date: Sat, 19 Jun 2004 00:52:23 +0100
-From: matthew-lkml@newtoncomputing.co.uk
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Stop printk printing non-printable chars
-Message-ID: <20040618235223.GB5286@newtoncomputing.co.uk>
-References: <20040618205355.GA5286@newtoncomputing.co.uk> <Pine.LNX.4.58.0406181407330.6178@ppc970.osdl.org> <Pine.LNX.4.56.0406190032290.17899@jjulnx.backbone.dif.dk>
+	Fri, 18 Jun 2004 19:33:17 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:16594 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S264540AbUFRXbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 19:31:03 -0400
+Subject: Re: DMA API issues
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Ian Molton <spyro@f2s.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, greg@kroah.com,
+       tony@atomide.com, david-b@pacbell.net, jamey.hicks@hp.com,
+       joshua@joshuawise.com
+In-Reply-To: <20040619002618.5650e16a.spyro@f2s.com>
+References: <20040618175902.778e616a.spyro@f2s.com>
+	<40D359B3.6080400@pobox.com>  <20040619002618.5650e16a.spyro@f2s.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 18 Jun 2004 18:30:44 -0500
+Message-Id: <1087601446.2134.211.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.56.0406190032290.17899@jjulnx.backbone.dif.dk>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 19, 2004 at 12:44:55AM +0200, Jesper Juhl wrote:
-> On Fri, 18 Jun 2004, Linus Torvalds wrote:
-> >
-> > How about emitting them as \xxx, so that you see what they are. And using
-> > a case-statement to make it easy and clear when to do exceptions (I think
-> > we should accept \t too, no?).
+On Fri, 2004-06-18 at 18:26, Ian Molton wrote:
+> On Fri, 18 Jun 2004 17:08:03 -0400
+> Jeff Garzik <jgarzik@pobox.com> wrote:
+> > You _might_ convince the kernel DMA gurus that this could be done by 
+> > creating a driver-specific bus, and pointing struct device to that 
+> > internal bus, but that seems like an awful lot of work as opposed to the 
+> > wrappers.
 > 
-> Would there be any reason not to allow all the standard C escape sequences
-> - true, they are hardly used atm (I see a few \f uses with grep, but not
-> much else), but it's not unthinkable they could be useful somewhere in
+> Its an awful lot less work than re-writing all those drivers!
 
-I must admit, I don't think I've even seen a tab before (not that you'd
-actually _see_ a tab). Oh, grep tells me that powernow uses it. By the
-time that gets through syslog it's changed into "^I", so it would
-probably be better to not actually use tabs, either (or fix syslog).
+Every other driver bar this one already copes correctly with on chip
+memory using the ioremap methods.  That's why we're all wondering if it
+isn't simpler to fix this driver.
 
-New patch below outputs as \xxx if it's not a "nice" character.  "Nice"
-is now 32..126, \n and \t.
+James
 
 
---- linux-2.6.7/kernel/printk.c.orig	2004-06-18 20:44:28.000000000 +0100
-+++ linux-2.6.7/kernel/printk.c	2004-06-19 00:11:30.000000000 +0100
-@@ -14,6 +14,8 @@
-  *     manfreds@colorfullife.com
-  * Rewrote bits to get rid of console_lock
-  *	01Mar01 Andrew Morton <andrewm@uow.edu.au>
-+ * Stop emit_log_char from emitting non-ASCII chars.
-+ *  Matthew Newton, 18 June 2004 <matthew-lkml@newtoncomputing.co.uk>
-  */
- 
- #include <linux/kernel.h>
-@@ -472,6 +474,17 @@
- }
- 
- /*
-+ * Emit character in numeric (octal) form
-+ */
-+static void emit_log_char_octal(char c)
-+{
-+	emit_log_char('\\');
-+	emit_log_char(((c >> 6) & 3) + '0');
-+	emit_log_char(((c >> 3) & 7) + '0');
-+	emit_log_char((c & 7) + '0');
-+}
-+
-+/*
-  * Zap console related locks when oopsing. Only zap at most once
-  * every 10 seconds, to leave time for slow consoles to print a
-  * full oops.
-@@ -538,7 +551,17 @@
- 			}
- 			log_level_unknown = 0;
- 		}
--		emit_log_char(*p);
-+		switch (*p) {
-+			case '\n':
-+			case '\t':
-+				emit_log_char(*p);
-+				break;
-+			default:
-+				if (*p > 31 && *p < 127)
-+					emit_log_char(*p);
-+				else
-+					emit_log_char_octal(*p);
-+		}
- 		if (*p == '\n')
- 			log_level_unknown = 1;
- 	}
-
-
-
--- 
-Matthew

@@ -1,32 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263309AbRFABsR>; Thu, 31 May 2001 21:48:17 -0400
+	id <S263310AbRFACBI>; Thu, 31 May 2001 22:01:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263310AbRFABsG>; Thu, 31 May 2001 21:48:06 -0400
-Received: from srvr2.telecom.lt ([212.59.0.1]:7542 "EHLO mail.takas.lt")
-	by vger.kernel.org with ESMTP id <S263309AbRFABsB>;
-	Thu, 31 May 2001 21:48:01 -0400
-Reply-To: <nerijusb@takas.lt>
-From: "Nerijus Baliunas" <nerijus@users.sourceforge.net>
-To: "Tim Hockin" <thockin@sun.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] support for Cobalt Networks (x86 only) systems
-Date: Fri, 1 Jun 2001 03:45:36 +0200
-Message-ID: <NEBBLCJIPPBPKGHOONKOAEELEAAA.nerijus@users.sourceforge.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="windows-1257"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <3B16F21B.1B8B6E09@sun.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+	id <S263311AbRFACA5>; Thu, 31 May 2001 22:00:57 -0400
+Received: from u-89-18.karlsruhe.ipdial.viaginterkom.de ([62.180.18.89]:9205
+	"EHLO dea.waldorf-gmbh.de") by vger.kernel.org with ESMTP
+	id <S263310AbRFACAp>; Thu, 31 May 2001 22:00:45 -0400
+Date: Fri, 1 Jun 2001 03:57:39 +0200
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to know HZ from userspace?
+Message-ID: <20010601035739.A1630@bacchus.dhis.org>
+In-Reply-To: <20010530203725.H27719@corellia.laforge.distro.conectiva> <9f41vq$our$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <9f41vq$our$1@cesium.transmeta.com>; from hpa@zytor.com on Wed, May 30, 2001 at 05:07:22PM -0700
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Aattached is a (large, but self contained) patch for Cobalt Networks suport
+On Wed, May 30, 2001 at 05:07:22PM -0700, H. Peter Anvin wrote:
 
-Is not? ;)
+> Yes, but that's because the interfaces are broken.  The decision has
+> been that these values should be exported using the default HZ for the
+> architecture, and that it is the kernel's responsibility to scale them
+> when HZ != USER_HZ.  I don't know if any work has been done in this
+> area.
 
+We have such patches in the MIPS tree but I never dared to send them to
+Linus ...
+
+  Ralf

@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270865AbTGVO0S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 10:26:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270864AbTGVO0S
+	id S270832AbTGVO2j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 10:28:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270850AbTGVO2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 10:26:18 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:37327 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S270865AbTGVO0O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 10:26:14 -0400
-Message-ID: <F341E03C8ED6D311805E00902761278C0D2A2BE3@xfc04.fc.hp.com>
-From: "MIYOSHI,DENNIS (HP-Loveland,ex1)" <dennis.miyoshi@hp.com>
-To: "'Sam Ravnborg'" <sam@ravnborg.org>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Build fails for ia64 with linux-2.6.0-test1-bk2 with missing 
-	file .
-Date: Tue, 22 Jul 2003 07:41:16 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain
+	Tue, 22 Jul 2003 10:28:39 -0400
+Received: from genius.impure.org.uk ([195.82.120.210]:27619 "EHLO
+	genius.impure.org.uk") by vger.kernel.org with ESMTP
+	id S270832AbTGVO2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 10:28:37 -0400
+Date: Tue, 22 Jul 2003 15:42:53 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Dominik Brodowski <linux@brodo.de>
+Cc: textshell@neutronstar.dyndns.org, linux-kernel@vger.kernel.org,
+       Henrik Persson <nix@syndicalist.net>
+Subject: Re: 2.6.0-test1: CPUFreq not working, can't find sysfs interface
+Message-ID: <20030722144253.GA32119@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Dominik Brodowski <linux@brodo.de>,
+	textshell@neutronstar.dyndns.org, linux-kernel@vger.kernel.org,
+	Henrik Persson <nix@syndicalist.net>
+References: <20030720150243.GJ2331@neutronstar.dyndns.org> <200307201745.h6KHjcHt095999@sirius.nix.badanka.com> <20030720211246.GK2331@neutronstar.dyndns.org> <20030722120811.GD1160@brodo.de> <20030722141839.GD7517@neutronstar.dyndns.org> <20030722142353.GA1301@brodo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030722142353.GA1301@brodo.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Sam.  Shouldn't the Makefile take care of this?
+On Tue, Jul 22, 2003 at 04:23:53PM +0200, Dominik Brodowski wrote:
+ > On Tue, Jul 22, 2003 at 04:18:39PM +0200, textshell@neutronstar.dyndns.org wrote:
+ > > So it seems to me that the BIOS doesn't have the tables for my Athlon
+ > > model/stepping. I tried to get a new bios from hp, but it didn't change anything
+ > > relevant (they changed something in the PSTs but did not add a new one for my
+ > > processor)
+ > Indeed, that's the BUG().
 
-Dennis E. Miyoshi, PE
-Hendrix Release Manager
-Hewlett-Packard Company
-825 14th Street, S.W.,  MS E-200
-Loveland, CO  80537
-(970) 898-6110
-
-
------Original Message-----
-From: Sam Ravnborg [mailto:sam@ravnborg.org] 
-Sent: Tuesday, July 22, 2003 8:36 AM
-To: MIYOSHI,DENNIS (HP-Loveland,ex1)
-Cc: 'linux-kernel@vger.kernel.org'
-Subject: Re: Build fails for ia64 with linux-2.6.0-test1-bk2 with missing
-file .
+Can you also mail the output of dmidecode, and the model of the laptop.
+This is a 'beat up BIOS vendor' case, which AMD are actively trying to do.
+I'll forward the info on to the right people..
 
 
-> Failed with the following:
->    kernel/profile.c:11:26: asm/sections.h:  No such file or directory
->    kernel/profile.c: In function `profile_init':
->    kernel/profile.c:38: `_etext' undeclared (first use in this function)
->    kernel/profile.c:38: (Each undeclared identifier is reported only once
->    kernel/profile.c:38: for each function it appears in.)
->    kernel/profile.c:38: `_stext' undeclared (first use in this function)
->    make[1]: *** [kernel/profile.o] Error 1
->    make: *** [kernel] Error 2
+ > > I think it would be a good thing to display a Message explaining why powernow
+ > > isn't working to the user in the case that no relevant PST is found.
+ > Patch appended at the end.
 
-cp include/asm-i386/sections.h include/asm-ia64/sections.h should do the
-trick.
+Looks fine. I'll apply it when I get back from KS/OLS.
+ 
+ > > I very much would like to have a way to override (or add to) the bios provided
+ > > values.
+ > AFAIK, Dave Jones will add support to override the BIOS-provided tables.
 
-	Sam
+There's been some sysfs discussion with Pat in the last few days
+(not specifically cpufreq related, but its going to become easier
+ to add this aparently..).
+
+		Dave
+

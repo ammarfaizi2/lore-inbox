@@ -1,40 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261515AbSJFQP0>; Sun, 6 Oct 2002 12:15:26 -0400
+	id <S261700AbSJFQRr>; Sun, 6 Oct 2002 12:17:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261674AbSJFQOr>; Sun, 6 Oct 2002 12:14:47 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:22066 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S261515AbSJFQOM>; Sun, 6 Oct 2002 12:14:12 -0400
-Date: Sun, 6 Oct 2002 18:20:12 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Moritz Franosch <jfranosc@physik.tu-muenchen.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: partly solved IO performance problems in 2.5.40 when writing to DVD-RAM/ZIP
-Message-ID: <20021006162012.GD32733@dualathlon.random>
-References: <rxx8z1bim8v.fsf@synapse.t30.physik.tu-muenchen.de>
+	id <S261694AbSJFQRE>; Sun, 6 Oct 2002 12:17:04 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:26609 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261685AbSJFQPg>; Sun, 6 Oct 2002 12:15:36 -0400
+Subject: Re: [PATCH 2.2] i386/dmi_scan updates
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021006101026.92C2A62DC0@mallaury.noc.nerim.net>
+References: <20021006101026.92C2A62DC0@mallaury.noc.nerim.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 Oct 2002 17:30:25 +0100
+Message-Id: <1033921825.21257.8.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <rxx8z1bim8v.fsf@synapse.t30.physik.tu-muenchen.de>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 06, 2002 at 06:08:00PM +0200, Moritz Franosch wrote:
-> Theoretically, the two devices (e.g. the 120 GB HDD and the DVD-RAM in
-> nr. 2) are independent (at least when they are on a different IDE
-> controller), so the read should perform as good as without the
-> additional writing activity (31 seconds, as given in the column
-> "expected"). But in reality the read takes 1.8 times as long. With
-> 2.4.50, there could be performance gains up to a factor of 2.4 (test
-> nr. 4). But that's _much_ better than 2.4.19-pre5 where performance
-> gains of up to a factor of 14 (test nr. 2) were possible.
+On Sun, 2002-10-06 at 13:12, Jean Delvare wrote:
+> I don't agree with ASCII filtering. I don't want to enlarge everyone's kernel for just some rare cases where the DMI table is broken *and* debug code is enabled. If you want, I can write the code that does it, but I wouldn't enable it by default.
+> As far as the length is concerned, the table length doesn't help, because we check the structure length against the remaining table length. The structure length does *not* include the string data, so we could pass the length test and still run of the table in dmi_string. What's more, the string index could be more that the string count for this structure and no check is done for this.
+> I think we need a safer dmi_string function that knows about the table length (or, better indeed, the remaining length from this point), and checks for both string index being too large and string index leading outside the table. Then, the other checks (white space and null byte) will be obsolete.
 
-one of the reasons 2.5 works better is that it has more than one bdflush
-thread (aka pdflush), so it can submit in parallel to all your storages
-and you don't risk to hang on writes on the very slow device, despite
-your main harddisk could be completely idle. This isn't easily fixable
-in 2.4, it's one of the things 2.5 is there for ;)
+Our console doesn't handle arbitary 8bit encodings. There are japanese
+DMI strings out there for example
 
-Andrea

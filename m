@@ -1,51 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312896AbSDGBdo>; Sat, 6 Apr 2002 20:33:44 -0500
+	id <S312894AbSDGBbi>; Sat, 6 Apr 2002 20:31:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312915AbSDGBdn>; Sat, 6 Apr 2002 20:33:43 -0500
-Received: from gumby.it.wmich.edu ([141.218.23.21]:32150 "EHLO
-	gumby.it.wmich.edu") by vger.kernel.org with ESMTP
-	id <S312896AbSDGBdm>; Sat, 6 Apr 2002 20:33:42 -0500
-Subject: Re: more on 2.4.19pre... & swsusp
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: brian@worldcontrol.com, linux-kernel@vger.kernel.org
-In-Reply-To: <E16tz9Q-0002sH-00@the-village.bc.nu>
-Content-Type: text/plain
+	id <S312896AbSDGBbh>; Sat, 6 Apr 2002 20:31:37 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:50115 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S312894AbSDGBbh>; Sat, 6 Apr 2002 20:31:37 -0500
+Date: Sat, 06 Apr 2002 17:32:19 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Faster reboots (and a better way of taking crashdumps?)
+Message-ID: <1759496962.1018114339@[10.10.2.3]>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 06 Apr 2002 20:33:27 -0500
-Message-Id: <1018143212.8480.99.camel@psuedomode>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-04-06 at 17:59, Alan Cox wrote:
-> > On a different note.  Why doesn't the ac branch have ftpfs yet?  Besides
-> > the fact that it sometimes has problems with ls'ing a directory because
+> Be very careful with loading a boot sector.  The problem is
+> that lilo will ask the BIOS to drive the disk, and the disk
+> is almost certainly in a different state than when the BIOS left it,
+> and the BIOS hasn't been given a reset state command.  Without letting
+> the BIOS know you did something strange you are going out and looking
+> for trouble.
+
+Good point. I would need to jump back to 16 bit mode (which there's
+already code to do) and reset the disk.
+
+> But if you can load a boot sector you can just about as easily load
+> the whole kernel, which on startup will only ask the BIOS hardware
+> information and not to drive the hardware (which should be safe).
+
+Mmmm ... I'd have to reimplement most of the bootloader in order to
+read the mapped blocks off disk and duplicate the use of lilo.conf, 
+etc to make it usable ... not too attractive an option ... I think
+it'd be easier to reutilise what we have already.
+
+>> 2. Things that are reset by reboot that we don't reset during
+>> normal kernel boot?
 > 
-> Because its perfectly doable in user space. Its for testing useful stuff not
-> a dumping ground
-> -
+> A sane BIOS will toggle the board level reset line on reboot.
+> The all don't but that makes it look like a fresh boot, with
+> a negligible speed penalty.
 
+I know that, but what I mean is that I'm *not* going to get
+this reset if I just jump back to the init point ... I was
+trying to work out what kind of trouble that would cause.
 
+> Seriously check out my code it should just work unless there are 
 
-Wouldn't that be true of any networked filesystem?  They should all be
-able to be done in userspace.  The problem with that would be it loses
-it's transparency to the user and increases latency.  Sure ftpfs can be
-done in userspace, but the point of it is so i dont have to interface
-with ftp's through a specific client.  I'm sure people would love it if
-they had to open samba-view whenever they wanted to copy to and from
-samba shares, same for nfs etc.  
+OK, I took a very brief scan of just the descriptions of your
+patches - looks like the main thing you're doing is creating
+a 32 bit kernel entry point, right? So above and beyond that
+I'd have to rework the LILO code to work in 32 bit, which 
+probably isn't that hard now I think about it ... all the hard
+stuff is actually done by the command line binary, so maybe ...
 
-There are more than a couple examples of things in the kernel that can
-also be completely functional just done in userspace,  Both autofs (why
-we continue to ship an older version when the newer one is reverse
-compat is a mystery to me) implementations are two such examples.  
+> special apic shutdown rules for NUMAQ machines.
 
-I have nothing against not including something for personal preferences
-( it is your branch) or because something is too untested.. but because
-it can be done in userspace just doesn't hold up when you look at some
-of the things in the kernel already.   But i've wasted enough time
-arguing about something that doesn't require any changes. heh 
+The APICs should be OK ... the interconnect firmware sets them
+up, and Linux never changes them, so everything *should* be OK
+in theory. Of course if it ever gets screwed up, reboot won't
+fix it, but then I can't reboot at all right now, so ... ;-)
+
+On the other hand, I don't reset the processors fully (I have
+to use NMI to boot rather than the INIT, INIT, STARTUP sequence),
+which seems to be asking for trouble ;-(
+
+M.
 

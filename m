@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129703AbRAaK54>; Wed, 31 Jan 2001 05:57:56 -0500
+	id <S129607AbRAaLHs>; Wed, 31 Jan 2001 06:07:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129780AbRAaK5q>; Wed, 31 Jan 2001 05:57:46 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:47085 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S129703AbRAaK5c>;
-	Wed, 31 Jan 2001 05:57:32 -0500
-Date: Wed, 31 Jan 2001 11:57:02 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200101311057.LAA03114@harpo.it.uu.se>
-To: ajschrotenboer@lycosmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.4.1 Detects 64 MB RAM, actual 192MB
+	id <S129780AbRAaLHi>; Wed, 31 Jan 2001 06:07:38 -0500
+Received: from d14144.upc-d.chello.nl ([213.46.14.144]:38628 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S129607AbRAaLHY>;
+	Wed, 31 Jan 2001 06:07:24 -0500
+Date: Wed, 31 Jan 2001 12:07:12 +0100
+From: Arjan van de Ven <arjan@fenrus.demon.nl>
+To: Peter Samuelson <peter@cadcamlab.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1 -- Unresolved symbols in radio-miropcm20.o
+Message-ID: <20010131120712.A11819@fenrus.demon.nl>
+In-Reply-To: <3A772D3C.CB62DD4F@megapath.net> <m14NsuB-000OZJC@amadeus.home.nl> <20010131045520.B32636@cadcamlab.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010131045520.B32636@cadcamlab.org>; from peter@cadcamlab.org on Wed, Jan 31, 2001 at 04:55:20AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Jan 2001 23:25:22 -0500, Adam Schrotenboer wrote:
+On Wed, Jan 31, 2001 at 04:55:20AM -0600, Peter Samuelson wrote:
+> 
+> [Arjan van de Ven]
+> > Unfortionatly, this is impossible. The miropcm config question is
+> > asked before the "sound" question, and the aci question is asked
+> > after that (all in ake config).
+> 
+> "Impossible" is perhaps a poor choice of terms.  "Awkward" and "ugly"
+> are, however, quite descriptive. (:
 
->2.4.1 detects 64 MB, but 2.4.0 detects 192 (Maybe 191, not sure).
->...
->Linux version 2.4.1 (root@tabriel) (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #9 Tue Jan 30 15:35:21 EST 2001
->BIOS-provided physical RAM map:
-> BIOS-88: 000000000009f000 @ 0000000000000000 (usable)
-> BIOS-88: 0000000003ff0000 @ 0000000000100000 (usable)
->On node 0 totalpages: 16624
->...
->CPU: AMD-K7(tm) Processor stepping 02
->...
->BIOS Vendor: Award Software International, Inc.
->BIOS Version: 6.0 PG
->BIOS Release: 11/23/99
->Board Vendor: MICRO-STAR INTERNATIONAL CO., LTD.
->Board Name: MS-6167 (AMD751).
->Board Version: 1.X.
+This doesn't take into account the case where someone says "n" to
+CONFIG_SOUND.
 
-Why on earth is this fairly recent motherboard using BIOS-88
-to report available memory? I would have expected E820 here.
-Can you send the dmesg output from 2.4.0 and/or 2.2.19pre7?
-
-/Mikael
+Greetings,
+   Arjan van de Ven
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

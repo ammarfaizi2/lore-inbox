@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318742AbSICJTs>; Tue, 3 Sep 2002 05:19:48 -0400
+	id <S318696AbSICJqH>; Tue, 3 Sep 2002 05:46:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318743AbSICJTs>; Tue, 3 Sep 2002 05:19:48 -0400
-Received: from vitelus.com ([64.81.243.207]:6151 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S318742AbSICJTr>;
-	Tue, 3 Sep 2002 05:19:47 -0400
-Date: Tue, 3 Sep 2002 02:24:19 -0700
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: linux-kernel@vger.kernel.org
-Subject: ext3 throughput woes on certain (possibly heavily fragmented) files
-Message-ID: <20020903092419.GA5643@vitelus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.1i
+	id <S318733AbSICJqH>; Tue, 3 Sep 2002 05:46:07 -0400
+Received: from relay02.rabobank.nl ([145.72.69.21]:62222 "HELO
+	relay02.rabobank.nl") by vger.kernel.org with SMTP
+	id <S318696AbSICJqH>; Tue, 3 Sep 2002 05:46:07 -0400
+X-Server-Uuid: d32dbd14-b86d-11d3-8c8e-0008c7bba343
+X-Server-Uuid: 91077152-1bde-4e67-8480-731f07dac000
+From: "Heusden van, FJJ (Folkert)" <F.J.J.Heusden@rn.rabobank.nl>
+To: "Linux Kernel Development" <linux-kernel@vger.kernel.org>
+Subject: entropy
+Date: Tue, 3 Sep 2002 11:50:31 +0200
+MIME-Version: 1.0
+X-WSS-ID: 116ABF1A1147785-1159-02
+Content-Type: text/plain; 
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Message-ID: <116ABF1A1147785-1159@_rabobank.nl_>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This pretty much sums it up:
+There has been a lot of discussion on entropy-data.
+People are concerned that some platforms might not get enough
+entropy-data in the RNG-buffers.
+There might be a solution: audio-entropyd
+I do not have the url of the main-page, but it's mirrored on my site
+on which also the url of it's page is noted:
+http://www.vanheusden.com/mirrors/
 
-[aaronl@vitelus:~]$ time cat mail/debian-legal > /dev/null
-cat mail/debian-legal > /dev/null  0.00s user 0.02s system 0% cpu 5.565 total
-[aaronl@vitelus:~]$ ls -l mail/debian-legal
--rw-------    1 aaronl   mail      7893525 Sep  3 00:42 mail/debian-legal
-[aaronl@vitelus:~]$ time cat /usr/src/linux-2.4.18.tar.bz2 > /dev/null
-cat /usr/src/linux-2.4.18.tar.bz2 > /dev/null  0.00s user 0.10s system 16% cpu 0.616 total
-[aaronl@vitelus:~]$ ls -l /usr/src/linux-2.4.18.tar.bz2 
--rw-r--r--    1 aaronl   aaronl   24161675 Apr 14 11:53
 
-Both files were AFAIK not in any cache, and they are on the same
-partition.
+================================================
+De informatie opgenomen in dit bericht kan vertrouwelijk zijn en 
+is uitsluitend bestemd voor de geadresseerde. Indien u dit bericht 
+onterecht ontvangt, wordt u verzocht de inhoud niet te gebruiken en 
+de afzender direct te informeren door het bericht te retourneren. 
+================================================
+The information contained in this message may be confidential 
+and is intended to be exclusively for the addressee. Should you 
+receive this message unintentionally, please do not use the contents 
+herein and notify the sender immediately by return e-mail.
 
-My current uninformed theory is that this is caused by fragmentation,
-since the linux tarball was downloaded all at once but the mailbox I'm
-comparing it to has 1695 messages, each of which having been appended
-seperately to the file. All of my mailboxes exhibit similarly awful
-performance.
 
-Do any other filesystems handle this type of thing more gracefully? Is
-there room for improvement in ext3? Is there any way I can test my
-theory by seeing how fragmented a certain inode is? What can I do to
-avoid extensive fragmentation, if it is truely the cause of my issue?
-
-I'm running 2.4.20-pre5, but this is not a recently-introduced problem.
-
-The disk is IDE - nothing fancy, WDC WD200BB-18CAA0. IDE controller is
-ServerWorks CSB5. However, I've had this problem consistantly on
-previous hardware.

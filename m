@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268468AbUJUPNc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270760AbUJUPR4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268468AbUJUPNc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 11:13:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270718AbUJUPNA
+	id S270760AbUJUPR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 11:17:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270748AbUJUPRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 11:13:00 -0400
-Received: from smtpq2.home.nl ([213.51.128.197]:27541 "EHLO smtpq2.home.nl")
-	by vger.kernel.org with ESMTP id S270747AbUJUPKI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 11:10:08 -0400
-Date: Thu, 21 Oct 2004 17:10:05 +0200
-From: Han Boetes <han@mijncomputer.nl>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 2.6.9-ac1: invalid SUBLEVEL
-Message-ID: <20041021151026.GP9258@boetes.org>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1098356892.17052.18.camel@localhost.localdomain> <20041021124945.GD10801@stusta.de> <1098365506.17096.23.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098365506.17096.23.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+	Thu, 21 Oct 2004 11:17:08 -0400
+Received: from ipx20189.ipxserver.de ([80.190.249.56]:41606 "EHLO
+	ipx20189.ipxserver.de") by vger.kernel.org with ESMTP
+	id S270760AbUJUPQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 11:16:09 -0400
+Date: Thu, 21 Oct 2004 17:47:47 +0300 (EAT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Nathan Lynch <nathanl@austin.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] i386 CPU hotplug updated for -mm
+In-Reply-To: <20041018151053.GA23069@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.61.0410211745150.6913@musoma.fsmlabs.com>
+References: <20041001204533.GA18684@elte.hu> <20041001204642.GA18750@elte.hu>
+ <20041001143332.7e3a5aba.akpm@osdl.org> <Pine.LNX.4.61.0410091550300.2870@musoma.fsmlabs.com>
+ <Pine.LNX.4.61.0410102302170.2745@musoma.fsmlabs.com> <20041018151053.GA23069@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Iau, 2004-10-21 at 13:49, Adrian Bunk wrote:
-> >  VERSION = 2
-> >  PATCHLEVEL = 6
-> > -SUBLEVEL = 9-ac1
-> > -EXTRAVERSION =
-> > +SUBLEVEL = 9
-> > +EXTRAVERSION = -ac1
-> >  NAME=AC 1
->
-> Doh I'm -amazed- that worked for me. Fixed in my tree
+On Mon, 18 Oct 2004, Pavel Machek wrote:
 
-Here is some old shell-code I wrote for my kernel updating script: It
-was especially written because you tend to forget this.
+> Having real implementation of this one would be very welcome for
+> suspend-to-{RAM,disk} on smp machines....
 
-test_version () {
-    # Sometimes Alan forgets to update the EXTRAVERSION in the Makefile;
-    # then you destroy the previous version and the script fails :S
-    cd $pwd/linux-$latest_stable
-    # if EXTRAVERSION is for mm but not the current one.
-    if [ -z "$(grep "EXTRAVERSION = -$mm_rest" Makefile)" \
-        -a -z "$(grep "EXTRAVERSION = .*mm" Makefile)" ]; then
-        warning 'Warning: I had to edit the versionnumber in the Makefile!'
-        grep "EXTRAVERSION =" Makefile
-        perl -pi -e "s#^EXTRAVERSION.*\n#EXTRAVERSION = -$mm_rest\n#" \
-            Makefile || error
-        grep "EXTRAVERSION =" Makefile
-    fi
-}
+I actually started working on that already but progress got hindered by 
+non technical related issues, i hope to get back to it very soon. This is 
+indeed handy for P4 HT type laptops.
+ 
+> Are there really no i386 machines whose hardware supports hotplug?
 
-> I'll go and hide in a corner for a bit.
+There are i386 systems which do support hardware hotplug, mostly addition 
+of processors. I haven't personally worked with any but have been in 
+contact with people who are interested in the code for that specific 
+reason.
 
-I think it is a better idea you add some checks to the script you use to
-generate that patch.
+Regards,
+	Zwane
 
-
-
-# Han

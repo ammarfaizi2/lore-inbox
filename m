@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266523AbUG0TaM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266487AbUG0TcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266523AbUG0TaM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 15:30:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266516AbUG0TaL
+	id S266487AbUG0TcM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 15:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUG0TcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 15:30:11 -0400
-Received: from ozlabs.org ([203.10.76.45]:18917 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S266502AbUG0T3H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 15:29:07 -0400
-Date: Tue, 27 Jul 2004 12:29:49 -0700
-From: Martin Pool <mbp@sourcefrog.net>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] trivial doc patch for partitions
-Message-ID: <20040727192949.GC9564@happy.site>
-Mail-Followup-To: Martin Pool <mbp@sourcefrog.net>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GPG: 1024D/A0B3E88B: AFAC578F 1841EE6B FD95E143 3C63CA3F A0B3E88B
-User-Agent: Mutt/1.5.6i
+	Tue, 27 Jul 2004 15:32:12 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:36873 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S266487AbUG0TcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 15:32:08 -0400
+Message-ID: <4106B448.2010308@techsource.com>
+Date: Tue, 27 Jul 2004 16:00:08 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Benjamin Rutt <rutt.4+news@osu.edu>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: clearing filesystem cache for I/O benchmarks
+References: <87vfgeuyf5.fsf@osu.edu> <20040726002524.2ade65c3.akpm@osdl.org> <87pt6iq5u2.fsf@osu.edu> <20040726234005.597a94db.akpm@osdl.org> <871xixpdky.fsf@osu.edu>
+In-Reply-To: <871xixpdky.fsf@osu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's slightly hard to see how these variables are used; this patch
-adds a short description.
-
-I am planning to change rescan_partitions so that it allows you to
-change partitions on a disk that has active partitions, so long as the
-active partitions themselves are not changed.  Would anyone object?
 
 
-Index: linux-2.6/include/linux/fs.h
-===================================================================
---- linux-2.6.orig/include/linux/fs.h	2004-06-18 15:16:35.000000000 -0700
-+++ linux-2.6/include/linux/fs.h	2004-07-27 11:50:01.483618248 -0700
-@@ -354,6 +354,7 @@
- 	struct block_device *	bd_contains;
- 	unsigned		bd_block_size;
- 	struct hd_struct *	bd_part;
-+	/* number of times partitions within this device have been opened. */
- 	unsigned		bd_part_count;
- 	int			bd_invalidated;
- 	struct gendisk *	bd_disk;
-Index: linux-2.6/include/linux/genhd.h
-===================================================================
---- linux-2.6.orig/include/linux/genhd.h	2004-03-14 19:24:17.000000000 -0800
-+++ linux-2.6/include/linux/genhd.h	2004-07-25 09:58:22.000000000 -0700
-@@ -82,7 +82,8 @@
- struct gendisk {
- 	int major;			/* major number of driver */
- 	int first_minor;
--	int minors;
-+	int minors;                     /* maximum number of minors, =1 for
-+                                         * disks that can't be partitioned. */
- 	char disk_name[32];		/* name of major driver */
- 	struct hd_struct **part;	/* [indexed by minor] */
- 	struct block_device_operations *fops;
+Benjamin Rutt wrote:
+> Andrew Morton <akpm@osdl.org> writes:
+> 
+> 
+>>(Please don't remove people from the email recipient list when doing kernel
+>>work.)
+> 
+> 
+> Sorry, I'm reading via gmane and my newsreader doesn't make it
+> straightforward to do so.  But I'll do it manually for you.
 
 
--- 
-Martin
+I haven't been paying attention, and I don't know if anyone's already 
+suggested this, but going on the title, have you considered running the 
+same benchmark more than once and just throwing away the first result?
+

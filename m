@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262920AbTHZR5C (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 13:57:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbTHZR5B
+	id S262887AbTHZSEh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 14:04:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262886AbTHZSEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 13:57:01 -0400
-Received: from almesberger.net ([63.105.73.239]:55050 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S262920AbTHZR46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 13:56:58 -0400
-Date: Tue, 26 Aug 2003 14:56:36 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Juergen Quade <quade@hsnr.de>, kuznet@ms2.inr.ac.ru
-Cc: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: tasklet_kill will always hang for recursive tasklets on a UP
-Message-ID: <20030826145636.E1212@almesberger.net>
-References: <20030826024808.B3448@almesberger.net> <Pine.LNX.4.44.0308260010480.31955-100000@localhost.localdomain> <20030826043802.D1212@almesberger.net> <20030826083200.GB13812@hsnr.de>
-Mime-Version: 1.0
+	Tue, 26 Aug 2003 14:04:37 -0400
+Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:4781 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id S262887AbTHZSEV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 14:04:21 -0400
+Message-Id: <200308261804.h7QI4OxB057826@d12relay02.megacenter.de.ibm.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH resend #1] fix cu3088 group write
+To: Guillaume Morin <guillaume@morinfr.org>, linux-kernel@vger.kernel.org
+Date: Mon, 25 Aug 2003 12:47:29 +0200
+References: <mi9I.54n.13@gated-at.bofh.it> <oqcQ.6L8.11@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030826083200.GB13812@hsnr.de>; from quade@hsnr.de on Tue, Aug 26, 2003 at 10:32:00AM +0200
+Content-Transfer-Encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juergen Quade wrote:
-> Can this work reliable?
+Guillaume Morin wrote:
 
-Hmm, actually, no. On UP, yes. But on SMP, you might tasklet_kill
-while the tasklet is running, but before it has had a chance to
-tasklet_schedule itself. tasklet_schedule will have no effect in
-this case.
+> Hi Linus, Andrew
+>  
+> The current cu3088 ccwgroup write code overwrite the last char of the
+> given arguments. This following patch fixes the problem. It is been
+> tested and applies on latest bk.
 
-Alexey, if my observation is correct, the property
+Your fix doesn't look right either. The input string should not 
+be longer than BUS_ID_SIZE, including the trailing zero.
+AFAICS, the correct way to solve this is the patch below,
+but I did not test it. Thanks for reporting the problem.
 
-| * If tasklet_schedule() is called, then tasklet is guaranteed
-|   to be executed on some cpu at least once after this.
+        Arnd <><
 
-does not hold if using tasklet_kill on SMP.
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+===== drivers/s390/net/cu3088.c 1.5 vs edited =====
+--- 1.5/drivers/s390/net/cu3088.c       Mon May 26 02:00:00 2003
++++ edited/drivers/s390/net/cu3088.c    Mon Aug 25 12:42:39 2003
+@@ -79,7 +79,7 @@
+ 
+                if (!(end = strchr(start, delim[i])))
+                        return count;
+-               len = min_t(ptrdiff_t, BUS_ID_SIZE, end - start);
++               len = min_t(ptrdiff_t, BUS_ID_SIZE, end - start + 1);
+                strlcpy (bus_ids[i], start, len);
+                argv[i] = bus_ids[i];
+                start = end + 1;

@@ -1,68 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131611AbRAJROK>; Wed, 10 Jan 2001 12:14:10 -0500
+	id <S132811AbRAJRTw>; Wed, 10 Jan 2001 12:19:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132811AbRAJROA>; Wed, 10 Jan 2001 12:14:00 -0500
-Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:11773 "EHLO
-	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S131611AbRAJRNo>; Wed, 10 Jan 2001 12:13:44 -0500
-Date: Wed, 10 Jan 2001 17:13:37 +0000 (GMT)
-From: Charles McLachlan <cim20@mrao.cam.ac.uk>
-To: <linux-kernel@vger.kernel.org>, Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Subject: [PATCH] 2.4.0 agpgart with i815 and external card.
-In-Reply-To: <12302DEB1F3D@vcnet.vc.cvut.cz>
-Message-ID: <Pine.SOL.4.30.0101101704070.9183-200000@mraosd.ra.phy.cam.ac.uk>
+	id <S135866AbRAJRTl>; Wed, 10 Jan 2001 12:19:41 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:58892 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S132811AbRAJRT0>; Wed, 10 Jan 2001 12:19:26 -0500
+Date: Wed, 10 Jan 2001 09:19:12 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Marco Colombo <marco@esi.it>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] More compile warning fixes for 2.4.0
+In-Reply-To: <Pine.LNX.4.21.0101101619230.16888-100000@Megathlon.ESI>
+Message-ID: <Pine.LNX.4.10.10101100915290.4283-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-758783491-979146817=:9183"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
-
----559023410-758783491-979146817=:9183
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 
 
-My problem was that I didn't pay enough attention to the configuration
-options. I opted for *both* the 440LX/BX/GX, 815, 840, 850 support
-(CONFIG_AGP_INTEL) *and* I810/I815 (on-board) support (CONFIG_AGP_I810).
+On Wed, 10 Jan 2001, Marco Colombo wrote:
+> > 
+> > 	case xxx:
+> > 		/* fallthrough */ ;
+> > 	}
+> > 
+> > or something (or maybe just a "break" statement), just so that we don't
+> > turn the poor C language into line noise (can anybody say "perl" ;)
+> 
+> Of course, you don't mean that the fallthrough comment and the break
+> statement have the same functionality! (well you put the closing
+> bracket and I agree that for the last case it's the same).
 
-The latter was taking precedence over the former, and getting confused.
+Note that the warning case we're discussing was really only about case
+statements at the end of a compound statement.
 
-Petr Vandrovec has made the very good point that, to stop others from
-getting as confused as me, agpgart should default to generic intel if it
-can't find the onboard i815 video card.
+In the middle of compound statements we're already fine: it's only the
+corner case of a case "statement" without the statement that gcc
+historically used to accept without warning, and that the gcc people only
+recently noticed that they really shouldn't accept at all.
 
-It's a very small patch (one line really) which I present for your
-consideration.
+So that's why a comment and a "break" is equivalent. ONLY for the special
+case of the new compile warning, though, obviously (see the subject line,
+but yes, I should have made that more explicit).
 
-Thanks to Alan Cox and Petr for putting me right.
+			Linus
 
-Charlie - Queens' College - Cavendish Astrophysics - 07866 636318
-
----559023410-758783491-979146817=:9183
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=agppatch
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.SOL.4.30.0101101713370.9183@mraosd.ra.phy.cam.ac.uk>
-Content-Description: 
-Content-Disposition: attachment; filename=agppatch
-
-LS0tIGRyaXZlcnMvY2hhci9hZ3AvYWdwZ2FydF9iZV9vcmlnaW5hbC5jCVdl
-ZCBKYW4gMTAgMTY6NTk6MzUgMjAwMQ0KKysrIGRyaXZlcnMvY2hhci9hZ3Av
-YWdwZ2FydF9iZS5jCVdlZCBKYW4gMTAgMTc6MDA6NTQgMjAwMQ0KQEAgLTIz
-NzMsOSArMjM3Myw5IEBADQogCQkJaWYgKGk4MTBfZGV2ID09IE5VTEwpIHsN
-CiAJCQkJcHJpbnRrKEtFUk5fRVJSIFBGWCAiYWdwZ2FydDogRGV0ZWN0ZWQg
-YW4gIg0KIAkJCQkgICAgICAgIkludGVsIGk4MTUsIGJ1dCBjb3VsZCBub3Qg
-ZmluZCB0aGUiDQotCQkJCSAgICAgICAiIHNlY29uZGFyeSBkZXZpY2UuXG4i
-KTsNCi0JCQkJYWdwX2JyaWRnZS50eXBlID0gTk9UX1NVUFBPUlRFRDsNCi0J
-CQkJcmV0dXJuIC1FTk9ERVY7DQorCQkJCSAgICAgICAiIHNlY29uZGFyeSBk
-ZXZpY2UuIEFzc3VtaW5nIGEgIg0KKwkJCQkgICAgICAgIm5vbi1pbnRlZ3Jh
-dGVkIHZpZGVvIGNhcmQuXG4iKTsNCisJCQkJYnJlYWs7DQogCQkJfQ0KIAkJ
-CXByaW50ayhLRVJOX0lORk8gUEZYICJhZ3BnYXJ0OiBEZXRlY3RlZCBhbiBJ
-bnRlbCBpODE1ICINCiAJCQkgICAgICAgIkNoaXBzZXQuXG4iKTsNCg==
----559023410-758783491-979146817=:9183--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

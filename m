@@ -1,92 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbVDAIg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVDAIqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbVDAIg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 03:36:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVDAIg2
+	id S261595AbVDAIqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 03:46:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVDAIqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 03:36:28 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:4503 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261752AbVDAIgD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 03:36:03 -0500
-Date: Fri, 1 Apr 2005 14:07:10 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: SystemTAP <systemtap@sources.redhat.com>, akpm@osdl.org,
-       Andi Kleen <ak@muc.de>, davem@davemloft.net, ananth@in.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] Kprobes: Incorrect handling of probes on ret/lret instruction
-Message-ID: <20050401083710.GA1681@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Fri, 1 Apr 2005 03:46:09 -0500
+Received: from pcsmail.patni.com ([203.124.139.197]:9900 "EHLO
+	pcsmail.patni.com") by vger.kernel.org with ESMTP id S261595AbVDAIpz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 03:45:55 -0500
+Message-ID: <000f01c53697$3a328c40$5e91a8c0@patni.com>
+Reply-To: "lk" <linux_kernel@patni.com>
+From: "lk" <linux_kernel@patni.com>
+To: "Josef E. Galea" <josefeg@euroweb.net.mt>, <linux-kernel@vger.kernel.org>
+References: <424C09B0.2080502@euroweb.net.mt>
+Subject: Re: Linux virtual memory manager
+Date: Fri, 1 Apr 2005 00:45:59 -0800
+Organization: Patni
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The try_to_swap_out( ) function attempts to free a given page frame, either
+discarding or swapping out its contents. It will add the page to swap and
+remove the entry from page table of page cache.
 
-Kprobes could not handle the insertion of a probe on the ret/lret instruction
-and used to oops after single stepping since kprobes was modifying eip/rip 
-incorrectly. Adjustment of eip/rip is not required after single stepping in 
-case of ret/lret instruction, because eip/rip points to the correct location 
-after execution of the ret/lret instruction. This patch fixes the above problem.
+In 2.6.x series you can look into shrink_list() function which is called
+from kswapd daemon. The function you are trying to look for an
+equivalent of try_to_swap_out() is add_to_swap() and after that
+try_to_unmap() which will add the page of page cache to swap cache
+and remove entry from the page table respectively.
 
-Signed-off-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+regards
+lk
 
----
+----- Original Message ----- 
+From: "Josef E. Galea" <josefeg@euroweb.net.mt>
+To: <linux-kernel@vger.kernel.org>
+Sent: Thursday, March 31, 2005 6:31 AM
+Subject: Linux virtual memory manager
 
 
+> Hi,
+>
+> Can someone point me to a document explaining the differences between
+> the 2.4 and the 2.6 virtual memory manager. Particularly I am looking
+> for the function/s that replaces the try_to_swap_out() in the 2.6.x
+> series of kernels.
+>
+> Thanks
+> Josef
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
----
 
- linux-2.6.12-rc1-prasanna/arch/i386/kernel/kprobes.c   |    7 +++++++
- linux-2.6.12-rc1-prasanna/arch/x86_64/kernel/kprobes.c |    7 +++++++
- 2 files changed, 14 insertions(+)
-
-diff -puN arch/i386/kernel/kprobes.c~kprobes-ret-address-fix arch/i386/kernel/kprobes.c
---- linux-2.6.12-rc1/arch/i386/kernel/kprobes.c~kprobes-ret-address-fix	2005-03-31 14:32:56.000000000 +0530
-+++ linux-2.6.12-rc1-prasanna/arch/i386/kernel/kprobes.c	2005-03-31 14:37:24.000000000 +0530
-@@ -218,6 +218,13 @@ static void resume_execution(struct kpro
- 		*tos &= ~(TF_MASK | IF_MASK);
- 		*tos |= kprobe_old_eflags;
- 		break;
-+	case 0xc3:		/* ret/lret */
-+	case 0xcb:
-+	case 0xc2:
-+	case 0xca:
-+		regs->eflags &= ~TF_MASK;
-+		/* eip is already adjusted, no more changes required*/
-+		return;
- 	case 0xe8:		/* call relative - Fix return addr */
- 		*tos = orig_eip + (*tos - copy_eip);
- 		break;
-diff -puN arch/x86_64/kernel/kprobes.c~kprobes-ret-address-fix arch/x86_64/kernel/kprobes.c
---- linux-2.6.12-rc1/arch/x86_64/kernel/kprobes.c~kprobes-ret-address-fix	2005-03-31 14:33:31.000000000 +0530
-+++ linux-2.6.12-rc1-prasanna/arch/x86_64/kernel/kprobes.c	2005-03-31 14:37:08.000000000 +0530
-@@ -231,6 +231,13 @@ static void resume_execution(struct kpro
- 		*tos &= ~(TF_MASK | IF_MASK);
- 		*tos |= kprobe_old_rflags;
- 		break;
-+	case 0xc3:		/* ret/lret */
-+	case 0xcb:
-+	case 0xc2:
-+	case 0xca:
-+		regs->eflags &= ~TF_MASK;
-+		/* rip is already adjusted, no more changes required*/
-+		return;
- 	case 0xe8:		/* call relative - Fix return addr */
- 		*tos = orig_rip + (*tos - copy_rip);
- 		break;
-
-_
-
-Thanks
-Prasanna
--- 
-
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Ph: 91-80-25044636
-<prasanna@in.ibm.com>

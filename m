@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318867AbSG1Akv>; Sat, 27 Jul 2002 20:40:51 -0400
+	id <S318870AbSG1Aoq>; Sat, 27 Jul 2002 20:44:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318868AbSG1Aku>; Sat, 27 Jul 2002 20:40:50 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:33298 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S318867AbSG1Akr>;
-	Sat, 27 Jul 2002 20:40:47 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200207280043.g6S0hop72617@saturn.cs.uml.edu>
-Subject: Re: Speaker twiddling [was: Re: Panicking in morse code]
-To: jdow@earthlink.net (jdow)
-Date: Sat, 27 Jul 2002 20:43:50 -0400 (EDT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-       acahalan@cs.uml.edu (Albert D. Cahalan),
-       wowbagger@sktc.net (David D. Hagood),
-       arodland@noln.com (Andrew Rodland), linux-kernel@vger.kernel.org
-In-Reply-To: <04a801c235b9$03f699f0$1125a8c0@wednesday> from "jdow" at Jul 27, 2002 03:00:26 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318872AbSG1Aoq>; Sat, 27 Jul 2002 20:44:46 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:242 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318870AbSG1Aoq>; Sat, 27 Jul 2002 20:44:46 -0400
+Subject: Re: Linux-2.5.28
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Daniel Egger <degger@fhm.edu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+In-Reply-To: <20020727235726.GB26742@win.tue.nl>
+References: <1027553482.11881.5.camel@sonja.de.interearth.com>
+	<Pine.LNX.4.44.0207241803410.4293-100000@home.transmeta.com> 
+	<20020727235726.GB26742@win.tue.nl>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 28 Jul 2002 03:02:22 +0100
+Message-Id: <1027821742.21511.15.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jdow writes:
-> From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
->> On Sat, 2002-07-27 at 19:56, Albert D. Cahalan wrote:
+On Sun, 2002-07-28 at 00:57, Andries Brouwer wrote:
+> This evening I ran vanilla 2.5.29 and was rewarded with mild filesystem damage.
+> 91 files in /lost+found. Nothing. A few kernel versions ago it was three
+> orders of magnitude worse.
+> 
+> IDE? 2.4.17 and 2.5.27+Jens are stable for me in ordinary use.
+> IRQ? Quite possible.
+> My third candidate is USB. Systems without USB are clearly more stable.
 
->>> I'm one of the 42 remaining people with a terminal. My VT510
->>> mostly sits unplugged due to heat, and it's taking up space.
->>
->> There is a vt420 sitting next to the rack right here.
+USB may have problems but on my test sets with 2.5.of those that booted,
+the scsi ones are pretty stable, the IDE ones eat disks or hang (mostly
+hang). USB loaded on some of the IDE boxes, the SCSI test boxes dont
+have USB.
 
-Alan is #2 out of the 42 people with terminals.
+I've not tried the forward port of the stable IDE code with the test
+loads. My SMP 2.5.27 test set on 2.5.27-ac1 (all the bits of which are
+in 2.5.29) with symbios scsi on a dual PPro has been running for 6 days.
 
-> Alan, the really perverse can actually read 45.45bps Baudot RTTY streams
-> by ear. (Ironically the person I have watched do it is also named Alan.)
-> Should it also send out Baudot as an option?
 
-Yow. That's 60 to 65 WPM for a continuous transmission.
-
-For the PC speaker, Baudot RTTY is easy. Data pulses are 22 ms
-and stop pulses are 22, 31, or 33 ms. If the kernel is compiled
-with HZ==100 then you must do the European "50 bauds" instead,
-at 66.67 WPM with 20 ms data and 30 ms stop.
-
-Ask that other Alan what frequency shift he likes; mark/space
-may be 2125/2975, 2125/2295, 1275/2125, or 1275/1445.
-
-> Now, are you sure
-> that you are going to be ready to type in the Morse you copy in your head
-> as the machine surprises you with a crash and bleats of Morse code?
-
-It needs to repeat.

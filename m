@@ -1,65 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265126AbUD3JeZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbUD3Jkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265126AbUD3JeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 05:34:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265131AbUD3JeZ
+	id S263003AbUD3Jkn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 05:40:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265131AbUD3Jkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 05:34:25 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:60349 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265126AbUD3JeS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 05:34:18 -0400
-Subject: Re: Re[2]: ~500 megs cached yet 2.6.5 goes into swap hell
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: Tim Connors <tconnors+linuxkernel1083305837@astro.swin.edu.au>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       brettspamacct@fastclick.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <18781898240.20040430121833@port.imtp.ilyichevsk.odessa.ua>
-References: <40904A84.2030307@yahoo.com.au>
-	 <200404292001.i3TK1BYe005147@eeyore.valparaiso.cl>
-	 <slrn-0.9.7.4-14292-10175-200404301617-tc@hexane.ssi.swin.edu.au>
-	 <4091F38C.3010400@yahoo.com.au>
-	 <Pine.LNX.4.53.0404301646510.11320@tellurium.ssi.swin.edu.au>
-	 <18781898240.20040430121833@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-OCQz3ztSbzxjMuesy14h"
-Organization: Red Hat UK
-Message-Id: <1083317615.4633.7.camel@laptop.fenrus.com>
+	Fri, 30 Apr 2004 05:40:43 -0400
+Received: from nessie.weebeastie.net ([220.233.7.36]:10368 "EHLO
+	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S263003AbUD3Jkm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 05:40:42 -0400
+Date: Fri, 30 Apr 2004 19:39:19 +1000
+From: CaT <cat@zip.com.au>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: libata + siI3112 + 2.6.5-rc3 hang
+Message-ID: <20040430093919.GA2109@zip.com.au>
+References: <20040429234258.GA6145@zip.com.au> <200404300208.32830.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 30 Apr 2004 11:33:35 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200404300208.32830.bzolnier@elka.pw.edu.pl>
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 30, 2004 at 02:08:32AM +0200, Bartlomiej Zolnierkiewicz wrote:
+> 
+> Probably your drive needs mod15write quirk. please try this.
+> 
+> [PATCH] sata_sil.c: ST3200822AS needs MOD15WRITE quirk
 
---=-OCQz3ztSbzxjMuesy14h
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Didn't work. Still hangs rather well. :/
 
-
-> Multimedia content (jpegs etc) is typically cached in
-> filesystem, so Mozilla polluted pagecache with it when
-> it saved JPEGs to the cache *and* then it keeps 'em in RAM
-> too, which doubles RAM usage.=20
-
-well if mozilla just mmap's the jpegs there is no double caching .....
-
-
---=-OCQz3ztSbzxjMuesy14h
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAkh1txULwo51rQBIRAoNbAJ9A13KM0TVigP9zE49v6Zvag9vDTwCdFpBk
-n6iDTLXGiR/8KG1c6wJB85w=
-=FqZ8
------END PGP SIGNATURE-----
-
---=-OCQz3ztSbzxjMuesy14h--
-
+-- 
+    Red herrings strewn hither and yon.

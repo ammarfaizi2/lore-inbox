@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284958AbRLTGad>; Thu, 20 Dec 2001 01:30:33 -0500
+	id <S280132AbRLTGio>; Thu, 20 Dec 2001 01:38:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286171AbRLTGaX>; Thu, 20 Dec 2001 01:30:23 -0500
-Received: from harddata.com ([216.123.194.198]:29194 "EHLO mail.harddata.com")
-	by vger.kernel.org with ESMTP id <S284958AbRLTGaR>;
-	Thu, 20 Dec 2001 01:30:17 -0500
-Date: Wed, 19 Dec 2001 23:30:04 -0700
-From: Michal Jaegermann <michal@harddata.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17-rc1 does not boot my Alphas
-Message-ID: <20011219233004.A9573@mail.harddata.com>
-In-Reply-To: <20011216160404.A2945@mail.harddata.com> <200112181535.fBIFZEH16236@pinkpanther.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200112181535.fBIFZEH16236@pinkpanther.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Tue, Dec 18, 2001 at 03:35:13PM +0000
+	id <S282805AbRLTGie>; Thu, 20 Dec 2001 01:38:34 -0500
+Received: from svr3.applink.net ([206.50.88.3]:269 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S280190AbRLTGiO>;
+	Thu, 20 Dec 2001 01:38:14 -0500
+Message-Id: <200112200637.fBK6b2Sr014173@svr3.applink.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Scheduler, Can we save some juice ...
+Date: Thu, 20 Dec 2001 00:33:23 -0600
+X-Mailer: KMail [version 1.3.2]
+Cc: Benjamin LaHaise <bcrl@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0112200149330.15741-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.33L.0112200149330.15741-100000@imladris.surriel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 18, 2001 at 03:35:13PM +0000, Alan Cox wrote:
-Michal Jaegermann wrote:
-> > A kernel with the highest version which I managed to boot so far,
-> > on both machines, is 2.4.13-ac8.
-> 
-> Those and more went into 2.4.16+ so I believe that its probably a new 
-> breakage not a lost diff
+On Wednesday 19 December 2001 21:50, Rik van Riel wrote:
+> On Tue, 18 Dec 2001, Linus Torvalds wrote:
+> > The thing is, I'm personally very suspicious of the "features for that
+> > exclusive 0.1%" mentality.
+>
+> Then why do we have sendfile(), or that idiotic sys_readahead() ?
+>
+> (is there _any_ use for sys_readahead() ?  at all ?)
+>
+> cheers,
+>
+> Rik
 
-After a long head scratching and a number of tests it looks to me
-now that this was a false alarm.  Something seems to be funky with
-these new 1500's (caches?).  2.4.17rc2 recompiled with the same
-configuration, both generic and a board specific kind, but compiled
-on UP1100 does boot UP1100 and it seems to be ok.  At least I can
-recompile another kernel while using it. :-)  Unfortunately I do not
-have an access to these 1500's anymore so I cannot check if these
-new binaries change anything there.  If you wonder about compiler
-and binutils versions in all tests they were the same (gcc version 2.96
-20000731 (Red Hat Linux 7.1 2.96-87)) with this exception that in
-one test i used _also_ a pretty old egcs and 2.4.17rc2 and this
-kernel, recompiled on UP1100, behaved too.
 
-To make waters considerable more muddy 2.4.9-12 binaries from Red Hat
-updates to 7.1 distribution, which definitely were compiled somewhere
-else, not once managed to finish booting UP1500.  UP1100 booted that
-way, although this was possible, was behaving "strange" throwing
-some "machine checks" and weird oopses.  This may mean that a hardware
-is broken but it may also mean that this particular kernel is stomping
-on some memory areas where it should not.  It is rather the second
-as I did not observe anything of that sort with other kernels I am
-using there.
+OK, here's another 0.1% for you.  Considering how Linux SMP
+doesn't have high CPU affinity, would it be possible to make a
+patch such that the additional CPUs remain in deep sleep/HALT
+mode until the first CPU hits a high-water mark of say 90% 
+utilization?  I've started doing this by hand with the (x)pulse
+application.   My goal is to save electricity and cut down on 
+excess heat when I'm just browsing the web and not compiling
+or seti@home'ing.
 
-  Michal
-  michal@harddata.com
+
+-- 
+timothy.covell@ashavan.org.

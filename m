@@ -1,51 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268169AbTBNDZw>; Thu, 13 Feb 2003 22:25:52 -0500
+	id <S268170AbTBNDez>; Thu, 13 Feb 2003 22:34:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268170AbTBNDZw>; Thu, 13 Feb 2003 22:25:52 -0500
-Received: from web13803.mail.yahoo.com ([216.136.175.13]:61474 "HELO
-	web13803.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S268169AbTBNDZv>; Thu, 13 Feb 2003 22:25:51 -0500
-Message-ID: <20030214033543.26042.qmail@web13803.mail.yahoo.com>
-Date: Thu, 13 Feb 2003 19:35:43 -0800 (PST)
-From: William Chow <lilbilchow@yahoo.com>
-Subject: missing a wakeup from pending signal
-To: linux-kernel@vger.kernel.org
-Cc: lilbilchow@yahoo.com
-MIME-Version: 1.0
+	id <S268171AbTBNDez>; Thu, 13 Feb 2003 22:34:55 -0500
+Received: from almesberger.net ([63.105.73.239]:52235 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S268170AbTBNDey>; Thu, 13 Feb 2003 22:34:54 -0500
+Date: Fri, 14 Feb 2003 00:44:36 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: kuznet@ms2.inr.ac.ru, Roman Zippel <zippel@linux-m68k.org>,
+       davem@redhat.com, kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Migrating net/sched to new module interface
+Message-ID: <20030214004436.B2092@almesberger.net>
+References: <20030213201619.A2092@almesberger.net> <20030214020901.22E6C2C002@lists.samba.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030214020901.22E6C2C002@lists.samba.org>; from rusty@rustcorp.com.au on Fri, Feb 14, 2003 at 12:57:38PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am finding that my kernel thread will occasionally
-fail to wake up eventhough it has a signal pending.
-The thread is calling wait_event_interruptible and
-waiting for SIGIO (from the sg driver). I only see it
-fail to wake up when performing intensive sg activity.
->From kdb, the task shows the signal was delivered
-(sigpending==1 and pending.signal.sig[0]==0x10000000).
+Rusty Russell wrote:
+> Um, no.  You're special case "optimizing" it.
+> 
+> When you have an object which may vanish, the linux kernel idiom runs
+> something like this:
 
-So, I was just wondering if anyone was aware of a fix
-(I'm using 2.4.18 on i386). A google search failed to
-turn up anything obvious. My code is pretty basic
-stuff but here the wait loop just in case:
+Yes, that's when you view it as a locking problem, as for data
+objects. What I'm saying is that, if you manage the data
+structures properly, plus fix a few interfaces that currently
+don't have to manage data structures properly, you're already
+perfectly synchronized, so no further locking is needed.
 
-for (;;) {
-  gotsig = wait_event_interruptible();
-  if (gotsig) {
-    sigemptyset(&set);
-    spin_lock_irq(&current->sigmask_lock);
-    signum = dequeue_signal(&set, &info);
-    spin_unlock_irq(&current->sigmask_lock);
-    if (signum != SIGIO)
-      break;
-    process_io();
-  }
-}
+> I assume you're referring to the many places where we assume that the
+> structure being added was not dynamically allocated, so don't bother
+> to protect against its deletion?
 
-Please CC me in the response. Thanks in advance.
+Yes.
 
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Shopping - Send Flowers for Valentine's Day
-http://shopping.yahoo.com
+> And in general, I agree: not including a refcount is asking for
+> trouble.  But these reference counts are *not* free. 
+
+Alas, no. But we how long can we afford not to fix them, at least
+the "public" interfaces ? Even if they're unsafe, people will use
+them, particularly if they're given no other choice.
+
+> object separately from any objects it might create.  The current
+> implementation is extremely fast, requires neither module changes nor
+> (many) interface changes, and in effect canonicalizes a single
+> existing method of locking, which coders seem quite comfortable with.
+
+It's more the changes behind the interfaces I'm worried about.
+It may not be bad today, but every function pointer is a
+potential problem.
+
+Anyway, without fixing a good number of the "ghost from the
+past" interfaces first, my point is moot. So I won't trouble
+you again with module locking before there is some progress in
+this area :-)
+
+> Given these reasons, you can see why I no longer discuss new
+> implementation ideas with people 8(
+
+Nah, don't give up ! :-)
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

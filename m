@@ -1,44 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269759AbSISCxG>; Wed, 18 Sep 2002 22:53:06 -0400
+	id <S269765AbSISDAG>; Wed, 18 Sep 2002 23:00:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269762AbSISCxG>; Wed, 18 Sep 2002 22:53:06 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:51404 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S269759AbSISCxG>;
-	Wed, 18 Sep 2002 22:53:06 -0400
-Date: Thu, 19 Sep 2002 05:05:17 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] lockless, scalable get_pid(), for_each_process()
- elimination, 2.5.35-BK
-In-Reply-To: <20020918211547.GA14657@win.tue.nl>
-Message-ID: <Pine.LNX.4.44.0209190502120.5184-100000@localhost.localdomain>
+	id <S269862AbSISDAG>; Wed, 18 Sep 2002 23:00:06 -0400
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:65179 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S269765AbSISDAF>;
+	Wed, 18 Sep 2002 23:00:05 -0400
+Message-ID: <3D893ECC.4020906@candelatech.com>
+Date: Wed, 18 Sep 2002 20:04:44 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "David S. Miller" <davem@redhat.com>
+CC: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Networking: send-to-self [link to non-broken patch this
+ time]
+References: <3D890A51.7000103@candelatech.com>	<20020918.182855.47438220.davem@redhat.com>	<3D893165.10106@candelatech.com> <20020918.190117.53168129.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 18 Sep 2002, Andries Brouwer wrote:
-
-> > It doesn't sound like you read the patch at all.
+David S. Miller wrote:
+>    From: Ben Greear <greearb@candelatech.com>
+>    Date: Wed, 18 Sep 2002 19:07:33 -0700
 > 
-> I looked at it and searched for base.c but didnt find it,
-> so concluded that the real problem was not addressed.
-
-because, as mentioned before, that particular loop i fixed in 2.5.35.
-
-> > That is actually one of the easiest ways to take out one of my machines
-> > while it's running 10K or so tasks, mentioned a bit ago in this thread.
+>    David S. Miller wrote:
+>    
+>    > I mean put the ifdefs in a header file such as tcp.h, not in the *.c
+>    > code.
+>    
+>    Would you object to me just removing all of them and having the patch
+>    unconditionally compiled in?
 > 
-> OK. So we now agree.
-> 
-> But it looks like your patch doesnt change this? Or did I overlook sth?
+> Your comments say that SIOCBINDTODEVICE behavior is changed, how can
+> we legitimately do that all the time without breaking apps?
 
-yes, you did overlook a number of things.
+The old way is broken, it sets the bound-device to 0 when sending
+the syn-ack.  I am not sure exactly how this worked before, or
+if it even worked at all.  I changed it to use the bound_dev_if of the
+parent socket, which I believe is more correct.
 
-	Ingo
+--- linux-2.4.19/net/ipv4/ip_output.c	Tue Sep 17 23:55:48 2002
++++ linux-2.4.19.dev/net/ipv4/ip_output.c	Sun Sep 15 21:19:45 2002
+@@ -975,7 +975,11 @@
+  			daddr = replyopts.opt.faddr;
+  	}
+
++#ifdef CONFIG_NET_SENDTOSELF
++	if (ip_route_output(&rt, daddr, rt->rt_spec_dst, RT_TOS(skb->nh.iph->tos), sk->bound_dev_if))
++#else
+  	if (ip_route_output(&rt, daddr, rt->rt_spec_dst, RT_TOS(skb->nh.iph->tos), 0))
++#endif
+  		return;
+
+  	/* And let IP do all the hard work.
+
+
+It also failed due to the hashing issue, but with the current code,
+packets to self from self will be dropped before reaching the IP
+code, so that is not really a bug in the current code.
+
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
 

@@ -1,69 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316668AbSGQU2J>; Wed, 17 Jul 2002 16:28:09 -0400
+	id <S316667AbSGQU1J>; Wed, 17 Jul 2002 16:27:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316672AbSGQU2I>; Wed, 17 Jul 2002 16:28:08 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:29313 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S316668AbSGQU2F> convert rfc822-to-8bit; Wed, 17 Jul 2002 16:28:05 -0400
-Date: Wed, 17 Jul 2002 16:31:55 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Daniel Phillips <phillips@arcor.de>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: HZ, preferably as small as possible
-In-Reply-To: <E17UuXr-0004PH-00@starship>
-Message-ID: <Pine.LNX.3.95.1020717162206.12592A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+	id <S316668AbSGQU1J>; Wed, 17 Jul 2002 16:27:09 -0400
+Received: from mailrelay.ds.lanl.gov ([128.165.47.40]:50845 "EHLO
+	mailrelay.ds.lanl.gov") by vger.kernel.org with ESMTP
+	id <S316667AbSGQU1J>; Wed, 17 Jul 2002 16:27:09 -0400
+Subject: Re: 2.5.25-dj2, kernel BUG at dcache.c:361
+From: Steven Cole <elenstev@mesatop.com>
+To: Dave Jones <davej@suse.de>
+Cc: linux-kernel@vger.kernel.org, William Lee Irwin III <wli@holomorphy.com>,
+       Steven Cole <scole@lanl.gov>
+In-Reply-To: <20020717221640.D32389@suse.de>
+References: <1026936410.11636.107.camel@spc9.esa.lanl.gov> 
+	<20020717221640.D32389@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 17 Jul 2002 14:26:59 -0600
+Message-Id: <1026937620.11339.118.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jul 2002, Daniel Phillips wrote:
-
-> On Monday 15 July 2002 07:06, Linus Torvalds wrote:
-> > There is, of course, the option to do variable frequency (and make it
-> > integer multiples of the exposed "constant HZ" so that kernel code
-> > doesn't actually need to _care_ about the variability). There are
-> > patches to play with things like that.
+On Wed, 2002-07-17 at 14:16, Dave Jones wrote:
+> On Wed, Jul 17, 2002 at 02:06:50PM -0600, Steven Cole wrote:
+>  > While running 2.5.25-dj2 and dbench with increasing numbers of clients,
+>  > my test machine locked up with the following message:
+>  > 
+>  > kernel BUG at dcache.c:361!
 > 
-> We don't have to feel restricted to integer multiples.  I'll paste in my 
-> earlier post, for your convenience:
+> There are some -dj specific hacks to dcache.c to convert to use
+> list_t types. Which from memory, I think William Lee Irwin did.
+> (wli, can you double check those just in case there's either an
+>  obvious thinko, or a mismerge if you get time ?)
 > 
-> > ...If somebody wants a cruder scheduling interval than the raw timer
-> > interrupt, that's child's play, just step the interval down.  The
-> > only slightly challenging thing is do that without restricting
-> > choice of rate for the raw timer and scheduler, respectively.  Here,
-> > a novel application of Bresenham's algorithm (the line drawing
-> > algorithm) works nicely: at each raw interrupt, subtract the period
-> > of the raw interrupt from an accumulator; if the result is less
-> > than zero, add the period of the scheduler to the accumlator and
-> > drop into the scheduler's part of the timer interrupt.
-> 
-> [which just increments the timer variable I believe]
-> 
-> > This Bresenham trick works for arbitrary collections of interrupt
-> > rates, all with different periods.  It has the property that,
-> > over time, the total number of invocations at each rate remains
-> > *exactly* correct, and so long as the raw interrupt runs at a
-> > reasonably high rate, displacement isn't that bad either.
-> 
-> This technique is scarcely less efficient than the cruder method.
+> Failing that, this could be something that also affects mainline
+> I think.
 
-It is hardly novel and I can't imagine how Bresenham or whomever
-could make such a claim to the obvious. Even the DOS writer(s) used
-this technique to get one-second time intervals from the 18.206
-ticks/per second. This is simply division by subtraction, but you
-don't throw away the remainder. Therefore, in the limit, there is
-no remainder. However, at any instant, the time can be off by as
-much as the divisor -1. FYI, you make digital filters using this
-same method, it's hardly novel.
+I didn't explicitly mention it, but I have successfully run recent
+kernels (2.5.2[4,5,6]) with and without the rmap patches with up to 64
+dbench clients with no problems observed.  Also 2.4.19-rc[1,2] works
+well.  2.5.25-dj2 is the only kernel which has had this dcache.c BUG.
+I didn't test 2.5.25-dj1.
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
+Steven
 

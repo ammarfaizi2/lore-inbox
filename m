@@ -1,80 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261304AbSJYHnc>; Fri, 25 Oct 2002 03:43:32 -0400
+	id <S261300AbSJYH5n>; Fri, 25 Oct 2002 03:57:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261305AbSJYHnc>; Fri, 25 Oct 2002 03:43:32 -0400
-Received: from [211.150.96.25] ([211.150.96.25]:28597 "EHLO smtp.x263.net")
-	by vger.kernel.org with ESMTP id <S261304AbSJYHnb>;
-	Fri, 25 Oct 2002 03:43:31 -0400
-From: "kcn" <kcn@263.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.18 freeze on 4G memory.
-Date: Fri, 25 Oct 2002 15:49:08 +0800
-Message-ID: <000e01c27bfb$06d3d970$31036fa6@zhoulin>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S261302AbSJYH5n>; Fri, 25 Oct 2002 03:57:43 -0400
+Received: from point41.gts.donpac.ru ([213.59.116.41]:33551 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S261300AbSJYH5m>;
+	Fri, 25 Oct 2002 03:57:42 -0400
+Date: Fri, 25 Oct 2002 12:01:57 +0400
+From: Andrey Panin <pazke@orbita1.ru>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [miniPATCH][RFC] Compilation fixes in the 2.5.44
+Message-ID: <20021025080157.GA311@pazke.ipt>
+Mail-Followup-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	linux-kernel@vger.kernel.org
+References: <20021025062809.GA7522@hazard.jcu.cz> <200210250651.g9P6pnp14035@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5mCyUwZo2JvN/JJP"
+Content-Disposition: inline
+In-Reply-To: <200210250651.g9P6pnp14035@Port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.4i
+X-Uname: Linux pazke 2.5.25 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  I have a 4*Xeon 700A+2G memory server running reiserfs+2.4.18+openwall
-patch.
-Our service is running with large processes(> 4000) and a little heavy
-disk I/O, and 
-the server's load is about 3.x to 4.x.
-  But last month after I increased 2G memory to 4G, the server is always
-froze every two 
-or three hours. After 5-10 minutes, it can be alive again.
-  I have changed to RedHat kernel 2.4.18-17, and it has the same problem
-but a little well--
-it is froze only several seconds. And the average load is above
-20,higher than 2.4.18.
-  Kernel build with 4G memory support + reiserfs + smp support + intel
-e100 driver module.
-  Any advice? Thank for help.
-2G + linux 2.4.18
-# uptime
-  9:30pm  up 4 days,  9:22,  7 users,  load average: 3.48, 4.63, 4.63
-# vmstat 2 2
-   procs                      memory    swap          io     system
-cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us
-sy  id
- 2  5  1 294264  20832 321096 584276   7   6    25    15   28    23  10
-7  27
- 4  1  0 294196  13512 322424 585088 828   0  1476   540 7025  4090  18
-31  51
 
-4G + 2.4.18 freeze
-# uptime
-  3:30pm  up  3:09,  5 users,  load average: 534.48, 154.42, 69.21
-# vmstat 2 2
-   procs                      memory    swap          io     system
-cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us
-sy  id
-276 14  8      0  43788 191968 2047620   0   0    82   157  822   404
-12  31  57
- 6 30  2      0  14704 191156 2048776   0   0   760  3564 9212  3028  21
-78   1# uptime
+--5mCyUwZo2JvN/JJP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-4G + redhat 2.4.18-17
-#uptime
-  1:25pm  up  1:04,  5 users,  load average: 27.79, 23.25, 20.59
-# vmstat 2 2
-   procs                      memory    swap          io     system
-cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us
-sy  id
- 1  1  1      0 664524 277408 1585192   0   0   113   140  740   398  11
-22  68
- 0  1  2      0 664928 277852 1585428   0   0   240  1382 4470  2194  17
-43  40
+On Fri, Oct 25, 2002 at 09:44:21AM -0200, Denis Vlasenko wrote:
+> On 25 October 2002 04:28, Jan Marek wrote:
+> > Hallo l-k,
+> >
+> > I'm beginner in the kernel hacking (or fixing ;-))).
+> >
+> > I have small patch, which is fixing some compilation errors (I'm
+> > using gcc-2.95.4-17 from Debian sid).
+> >
+> > The first chunk fixed this warning:
+> >
+> > arch/i386/kernel/irq.c: In function `do_IRQ':
+> > arch/i386/kernel/irq.c:331: warning: unused variable `esp'
+> >
+> > I move declaration of variable esp to the #ifdef blok, where it is
+> > using...
+>=20
+>=20
+>         unsigned int status;
+> -       long esp;
+> =20
+>         irq_enter();
+> =20
+>  #ifdef CONFIG_DEBUG_STACKOVERFLOW
+>         /* Debugging check for stack overflow: is there less than 1KB fre=
+e? */
+> +       long esp;
+>=20
+> Most C compilers don't allow you to mix declarations and code.
+> This is allowed only in new C standards. But GCC 3 seems to cope,
+> so it's probably fine for new kernels.
 
+This fragment must be fixed, look at Documentation/Changes:
 
+"The recommended compiler for the kernel is gcc 2.95.x (x >=3D 3)"
+
+Best regards.
+=20
+--=20
+Andrey Panin            | Embedded systems software developer
+pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+--5mCyUwZo2JvN/JJP
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9uPp1Bm4rlNOo3YgRAv3gAJ9fmAbsJ/yN9/l6Mu4YWNMQyE3hvgCcC1xv
+bAhvJBRGeguxLI8byI4iqCQ=
+=3xP5
+-----END PGP SIGNATURE-----
+
+--5mCyUwZo2JvN/JJP--

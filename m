@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131410AbRCXAER>; Fri, 23 Mar 2001 19:04:17 -0500
+	id <S131238AbRCXAGS>; Fri, 23 Mar 2001 19:06:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131524AbRCXAEH>; Fri, 23 Mar 2001 19:04:07 -0500
-Received: from mailhost.tue.nl ([131.155.2.5]:3411 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S131410AbRCXADw>;
-	Fri, 23 Mar 2001 19:03:52 -0500
-Message-ID: <20010324010306.A6702@win.tue.nl>
-Date: Sat, 24 Mar 2001 01:03:06 +0100
-From: Guest section DW <dwguest@win.tue.nl>
-To: "James A. Sutherland" <jas88@cam.ac.uk>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <20010322124727.A5115@win.tue.nl> <Pine.LNX.4.30.0103231721480.4103-100000@dax.joh.cam.ac.uk>
-Mime-Version: 1.0
+	id <S131056AbRCXAGJ>; Fri, 23 Mar 2001 19:06:09 -0500
+Received: from email.sawaal.com ([203.197.64.201]:37135 "EHLO email.sawaal.com")
+	by vger.kernel.org with ESMTP id <S130721AbRCXAFy>;
+	Fri, 23 Mar 2001 19:05:54 -0500
+From: "dhar" <dhar@sawaal.com>
+Message-Id: <200103240004.FAA15257@email.sawaal.com>
+To: <linux-smp@vger.kernel.org>
+CC: <linux-kernel@vger.kernel.org>
+Reply-To: "dhar" <dhar@sawaal.com>
+Date: Sat, 24 Mar 2001 05:34:39 +0530
+X-URL: http://sawaal.com
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <Pine.LNX.4.30.0103231721480.4103-100000@dax.joh.cam.ac.uk>; from James A. Sutherland on Fri, Mar 23, 2001 at 05:26:22PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 23, 2001 at 05:26:22PM +0000, James A. Sutherland wrote:
+Hi,
 
-> > Clearly, Linux cannot be reliable if any process can be killed
-> > at any moment.
-> 
-> What on earth did you expect to happen when the process exceeded the
-> machine's capabilities? Using more than all the resources fails. There
-> isn't an alternative.
+I am not a member of either of these lists and would appreciate if you could send your replies to me personally.
 
-That is the wrong way to phrase these things.
-Large processes usually do not have a definite set of needed resources.
-They can use lots of memory for buffers and cache and hash and be a bit
-faster, or use much less and be a bit slower.
-Linux first promises a lot of memory, but then fails to deliver,
-without returning any error to the program.
+Now the problem:
+
+I have an IBM Netfinity X330 server. Dual Processor (PIII 800). I compiled kernel 2.2.14 with SMP support. NFS was however compiled as a module. 
+
+Now the problem is as follows:
+
+Most of the times the machine just works fine. 
+But whenever there is heavy disk write activity it just hangs/crashes. Also this is when the SMP kernel is used. If I use the normal kernel then there is no problem. 
+
+Could any one tell me what has to be done to prevent this from happening? 
+
+Any help in this regard will be very much appreciated.
+
+Once again, kindly reply to me personally as I am not a member of either of these lists.
+ 
+Regards
+Dhar 
 

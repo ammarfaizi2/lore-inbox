@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289741AbSBNFT4>; Thu, 14 Feb 2002 00:19:56 -0500
+	id <S289750AbSBNFci>; Thu, 14 Feb 2002 00:32:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289761AbSBNFTq>; Thu, 14 Feb 2002 00:19:46 -0500
-Received: from bitmover.com ([192.132.92.2]:11224 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S289749AbSBNFTn>;
-	Thu, 14 Feb 2002 00:19:43 -0500
-Date: Wed, 13 Feb 2002 21:19:43 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Michael Cohen <me@ohdarn.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18-pre9-mjc2
-Message-ID: <20020213211943.A25918@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Michael Cohen <me@ohdarn.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <1013662709.6671.16.camel@ohdarn.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1013662709.6671.16.camel@ohdarn.net>; from me@ohdarn.net on Wed, Feb 13, 2002 at 11:58:28PM -0500
+	id <S289762AbSBNFc2>; Thu, 14 Feb 2002 00:32:28 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:52747 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S289750AbSBNFcY>; Thu, 14 Feb 2002 00:32:24 -0500
+Date: Wed, 13 Feb 2002 21:31:47 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.5.5-pre1
+In-Reply-To: <E16bAWz-0002Qx-00@starship.berlin>
+Message-ID: <Pine.LNX.4.33.0202132130440.23343-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 13, 2002 at 11:58:28PM -0500, Michael Cohen wrote:
-> [ I am now using bitkeeper, and my bk tree is available at
-> bk://ohdarn.net/linux-mjc.  it is cloned from linus's 2.4 tree so
-> please, please, please clone from him and pull from me. ]
 
-Just in case people need a reminder, you would do this:
 
-	bk clone bk://linux.bkbits.net/linux-2.4
-	cd linux-2.4
-	bk pull bk://ohdarn.net/linux-mjc
+On Thu, 14 Feb 2002, Daniel Phillips wrote:
+> >
+> > Full changelog appended.
+>
+> Wow, that is one fine changelog, thanks
 
-This means you use our bandwidth for the main clone and then only take
-updates from Michael.
+You're welcome. I've got the changelog generation automated too, so these
+days the quality of the changelog is directly dependent on the quality of
+the explanations that accompany the email patches or the changelogs in the
+BK trees that I merge.
 
-Michael, if you want to stash a mirror here, that's easy, take a look at
+			Linus
 
-	http://www.bitkeeper.com/Hosted.html
-
-it should be pretty straight forward.
-
-Cheers,
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

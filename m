@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313515AbSC3S2k>; Sat, 30 Mar 2002 13:28:40 -0500
+	id <S313524AbSC3S3u>; Sat, 30 Mar 2002 13:29:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313524AbSC3S2a>; Sat, 30 Mar 2002 13:28:30 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:32741 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S313515AbSC3S2O>;
-	Sat, 30 Mar 2002 13:28:14 -0500
-Date: Sat, 30 Mar 2002 13:28:13 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Mike Galbraith <mikeg@wen-online.de>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: vfs_unlink() >=2.5.5-pre1 question
-In-Reply-To: <Pine.LNX.4.10.10203301734490.649-100000@mikeg.wen-online.de>
-Message-ID: <Pine.GSO.4.21.0203301321090.2590-100000@weyl.math.psu.edu>
+	id <S313529AbSC3S3k>; Sat, 30 Mar 2002 13:29:40 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51462 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313524AbSC3S32>;
+	Sat, 30 Mar 2002 13:29:28 -0500
+Message-ID: <3CA603B0.8B73FD4C@zip.com.au>
+Date: Sat, 30 Mar 2002 10:28:00 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Manfred Spraul <manfred@colorfullife.com>
+CC: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [patch] block/IDE/interrupt lockup
+In-Reply-To: <001d01c1d7ce$34f830c0$010411ac@local>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 30 Mar 2002, Mike Galbraith wrote:
-
-> On Sat, 30 Mar 2002, Mike Galbraith wrote:
+Manfred Spraul wrote:
 > 
-> > Hi,
-> > 
-> > d_delete() doesn't appear to ever create negative dentries when
-> > called via vfs_unlink() due to the extra reference on the dentry.
-> > In fact, a printk() in the d_delete() spot never ever triggers...
+> > -     spin_unlock_irq(&io_request_lock);
+> > +     spin_unlock_irqrestore(&io_request_lock, flags);
+> >       rq = kmem_cache_alloc(request_cachep, SLAB_KERNEL);
 > 
-> Well shoot.  I guess I've chased this about as far as I can, and
-> hope this thread wasn't a total waste.  I found a better way to
-> get my rm -r to work as before fwiw.  Rewinding the directory on
-> seek failure (yeah, could do in three lines, but not the point)
-> works, but is kinda b0rken.  I think the only interesting thing
-> in the below is the FIXME :)) but I'll post it anyway.
+> Great patch.
+> kmem_cache_alloc with SLAB_KERNEL can sleep, i.e. you've just converted
+> an obvious bug into a rare, difficult to find bug. What about trying to
+> fix it?
 
-Your patch is broken.  FWIW, there are several real issues:
-	a) d_delete() being called too early in vfs_unlink().  Not a big
-deal, it's easy to move outside of dget()/dput().  However, you _can't_
-expect unlink() to make dentry negative.  It's always possible that it
-will be left positive and unhashed - that's what we have to do if file
-we are unlinking is opened.
-	b) rm -rf expecting offsets in directory to stay stable after
-unlink().  B0rken, complain to GNU folks.  Sorry, I'm not touching that
-code - GNU fileutils source is too yucky.
-	c) dcache_readdir() behaviour.  There was an old patch that makes
-it slightly more forgiving; I'll dig it out.
+Gimme a break, Manfred.  The patch fixes the new bug. Which was
+hardly obvious.  The longstanding (as in years-old) bug was
+pointed out to the maintainer.  
 
+It may not even be a bug.  Certainly I don't think it's
+worth my time to fiddle with it.  But you're at liberty to.
+
+> I agree that this won't happen during boot, but what about a hotplug PCI
+> ide controller?
+
+The kernel calls request_irq() inside cli() in lots of places.
+That's the same bug: "if you called cli(), how come you're
+allowing kmalloc to clear it?".
+
+In 2.4, this is a design wart.  In 2.5, it will go BUG() if
+the page allocator performs I/O.
+
+-

@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289007AbSBDPC1>; Mon, 4 Feb 2002 10:02:27 -0500
+	id <S289011AbSBDPFH>; Mon, 4 Feb 2002 10:05:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289009AbSBDPCR>; Mon, 4 Feb 2002 10:02:17 -0500
-Received: from osiris.silug.org ([64.240.156.225]:13255 "EHLO osiris.silug.org")
-	by vger.kernel.org with ESMTP id <S289007AbSBDPCC>;
-	Mon, 4 Feb 2002 10:02:02 -0500
-Date: Mon, 4 Feb 2002 09:02:00 -0600
-From: Steven Pritchard <steve@silug.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Specialix RIO Oops fix
-Message-ID: <20020204090200.A30872@osiris.silug.org>
-Mime-Version: 1.0
+	id <S289012AbSBDPFD>; Mon, 4 Feb 2002 10:05:03 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42759 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289011AbSBDPEy>;
+	Mon, 4 Feb 2002 10:04:54 -0500
+Message-ID: <3C5EA30D.8B51C639@mandrakesoft.com>
+Date: Mon, 04 Feb 2002 10:04:45 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Chris Wedgwood <cw@f00f.org>
+CC: Stephen Lord <lord@sgi.com>, Chris Mason <mason@suse.com>,
+        Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@zip.com.au>,
+        Ricardo Galli <gallir@uib.es>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: O_DIRECT fails in some kernel and FS
+In-Reply-To: <1012597538.26363.443.camel@jen.americas.sgi.com> <20020202093554.GA7207@tapu.f00f.org> <234710000.1012674008@tiny> <20020202205438.D3807@athlon.random> <242700000.1012680610@tiny> <3C5C4929.5080403@sgi.com> <20020202155028.B26147@havoc.gtf.org> <3C5D3DE9.4080503@sgi.com> <20020203140926.GA14532@tapu.f00f.org> <3C5D51A0.4050509@sgi.com> <20020203224406.GA17396@tapu.f00f.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below fixes an Oops in the Specialix RIO driver.  I sent
-this to the maintainer a couple of months ago and never got a
-response.
+Chris Wedgwood wrote:
+> 
+> On Sun, Feb 03, 2002 at 09:05:04AM -0600, Stephen Lord wrote:
+> 
+>     I agree is is not a big issue in this case - my interpretation of
+>     tails was the end of any file could be packed, but if it is only
+>     small files.....
+> 
+> But you can't mmap (say) a 1k file right now...  so right now this
 
-Note that this patch doesn't actually make the driver *work* for my
-client...  It still causes a hard lockup that I was unable to debug in
-the short time I had to work on it.  Specialix apparently told my
-client that they would have to switch to the original Red Hat 7.1
-kernel (2.4.2-something) if they wanted it to actually work.
+huh?  You can mmap a file of any size > 0.  Is this a reiserfs
+limitation or something?
 
-In any case, this patch seems to be a no-brainer.  It merely adds a
-check that I see in every other serial driver's set_real_termios()
-function.
+	Jeff
 
-Steve
+
 -- 
-steve@silug.org           | Southern Illinois Linux Users Group
-(618)398-7360             | See web site for meeting details.
-Steven Pritchard          | http://www.silug.org/
-
---- linux-2.4.17.orig/drivers/char/rio/rio_linux.c	Thu Oct 25 15:53:47 2001
-+++ linux-2.4.17/drivers/char/rio/rio_linux.c	Mon Feb  4 08:53:34 2002
-@@ -422,6 +422,11 @@
-   struct tty_struct *tty;
-   func_enter();
- 
-+  if (!((struct Port *)ptr)->gs.tty || !((struct Port *)ptr)->gs.tty->termios) {
-+    func_exit();
-+    return 0;
-+  }
-+
-   tty = ((struct Port *)ptr)->gs.tty;
- 
-   modem = (MAJOR(tty->device) == RIO_NORMAL_MAJOR0) || (MAJOR(tty->device) == RIO_NORMAL_MAJOR1);
+Jeff Garzik      | "I went through my candy like hot oatmeal
+Building 1024    |  through an internally-buttered weasel."
+MandrakeSoft     |             - goats.com

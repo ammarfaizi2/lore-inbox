@@ -1,87 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267418AbSLLE6N>; Wed, 11 Dec 2002 23:58:13 -0500
+	id <S267417AbSLLFKu>; Thu, 12 Dec 2002 00:10:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267419AbSLLE6N>; Wed, 11 Dec 2002 23:58:13 -0500
-Received: from pimout4-ext.prodigy.net ([207.115.63.103]:27647 "EHLO
-	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S267418AbSLLE6M>; Wed, 11 Dec 2002 23:58:12 -0500
-Date: Wed, 11 Dec 2002 21:03:15 -0800
-From: Joshua Kwan <joshk@mspencer.net>
-To: linux-kernsl@vger.kernel.org
-Message-Id: <20021211210315.03f90653.joshk@mspencer.net>
-In-Reply-To: <3457.210.8.93.34.1039665245.squirrel@www.csn.ul.ie>
-References: <3457.210.8.93.34.1039665245.squirrel@www.csn.ul.ie>
-X-Mailer: Sylpheed version 0.8.6cvs15 (GTK+ 1.2.10; )
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="6Rb1ygcS0sfv?N=."
-Subject: Re: 2.4.20-ac2 and i810 drm
+	id <S267419AbSLLFKu>; Thu, 12 Dec 2002 00:10:50 -0500
+Received: from dsl-64-34-35-93.telocity.com ([64.34.35.93]:21009 "EHLO
+	roo.rogueind.com") by vger.kernel.org with ESMTP id <S267417AbSLLFKt>;
+	Thu, 12 Dec 2002 00:10:49 -0500
+Date: Thu, 12 Dec 2002 00:18:35 -0500 (EST)
+From: Tom Diehl <tdiehl@rogueind.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Karina <kgs@acabtu.com.mx>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Trouble with kernel 2.4.18-18.7.x
+In-Reply-To: <1039553498.14302.58.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0212120002230.9232-100000@tigger.rogueind.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---6Rb1ygcS0sfv?N=.
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On 10 Dec 2002, Alan Cox wrote:
 
-The DRM updates are causing a lot of problems like this for software
-that needs hardware support. The updates were merged into Alan's tree
-after 2.4.20-rc2-ac2 and are still somewhat present in 2.4.20-ac2. On my
-Radeon Mobility, GL-based apps wouldn't even start.
+> On Tue, 2002-12-10 at 19:33, Karina wrote:
+> > Hi, i've just installed kernel 2.4.18-18.7.x  (from RPM) and now it
+> > seems there are problems with my scsi devices.
+> > I have attached an adaptec scsi  AIC7XXX adapter, the system detects the
+> > device, but in the logs appears messages: "blk: queue c24afa18, I/0
+> > limit 4095Mb (mask0xfffffff)", these messages didn't appear before with
+> > my old kernel.
+> 
+> Thats a perfectly normal message. Its giving parameters for your scsi
+> 
+> > Also, there are another messages in the dmesg results:
+> > 
+> > kmod: failed to exec /sbin/modprobe -s -k scsi_hostadapter errno = 2
+> 
+> That one is a bit stranger. I'd have expected it to put the scsi adapter
+> in the initrd which apparently it hasnt
 
-Arjan was fixing DRM all over the place a while ago, but not
-lately. Notably the Rage 128 support was fixed by him, and the Radeon
-support to some extent.
+I get the exact same message on an intel L440GX (VA Linux) machine. I 
+attributed it to the routing problem this board has. Looks like I was 
+wrong or was I? FWIW I do not have any SCSI devices attached.
 
--Josh
+> So it looks like its ok. Do file the kmod: failed to exec report in
+> https://bugzilla.redhat.com/bugzilla however. Regardless of it not being
+> a problem in your case it does want fixing
 
-Rabid cheeseburgers forced"Dave Airlie"<airlied@linux.ie> to
-write this on Thu, 12 Dec 2002 03:54:05-0000(GMT):	
+Assuming that you still want it in bugzilla if Karina does not do it I will.
+Karina if you do bugzilla this please let me know the number.
 
-> 
-> I've been running 2.4.20-rc4 up to now with DRM enabled for my i810
-> chipset and XFree86 4.2 from RH 7.3.
-> 
-> When I run my OpenGL application (internal app) under 2.4.20-ac2 with
-> the same .config when I ctrl-c the application the machine hangs hard.
-> 
-> It is the only application running on the X server so the X server
-> restarts when I exit the app.. under 2.4.20-rc4 this works fine...
-> 
-> Dave.
-> 
-> -- 
-> David Airlie, Software Engineer
-> http://www.skynet.ie/~airlied / airlied@skynet.ie
-> pam_smb / Linux DecStation / Linux VAX / ILUG person
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+Enjoy,
 
 -- 
-=====
-Joshua Kwan
-joshk@mspencer.net
-pgp public key at http://ludicrus.ath.cx/pubkey_gpg.asc
- 
-Money can't buy love, but it improves your bargaining position.
-		-- Christopher Marlowe
+.............Tom	"Nothing would please me more than being able to 
+tdiehl@rogueind.com	hire ten programmers and deluge the hobby market 
+			with good software." -- Bill Gates 1976
 
---6Rb1ygcS0sfv?N=.
-Content-Type: application/pgp-signature
+   			We are still waiting ....
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE9+BiV6TRUxq22Mx4RAu5cAKC5QAe+GS2aXo+flkLrN5J4OgZkIgCeKqH3
-0rXvQqpSFyk4ax+o9w/RTVc=
-=2VvP
------END PGP SIGNATURE-----
-
---6Rb1ygcS0sfv?N=.--

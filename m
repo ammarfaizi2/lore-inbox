@@ -1,68 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261844AbVCQRkT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbVCQRpq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261844AbVCQRkT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 12:40:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbVCQRkT
+	id S261879AbVCQRpq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 12:45:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbVCQRpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 12:40:19 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:45466 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261844AbVCQRkL (ORCPT
+	Thu, 17 Mar 2005 12:45:46 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:712 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261879AbVCQRpi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 12:40:11 -0500
-Subject: e2fsprogs bug [was Re: ext2/3 file limits to avoid overflowing
-	i_blocks]
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <1111080221.2684.122.camel@sisko.sctweedie.blueyonder.co.uk>
-References: <1111080221.2684.122.camel@sisko.sctweedie.blueyonder.co.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1111081190.2684.135.camel@sisko.sctweedie.blueyonder.co.uk>
+	Thu, 17 Mar 2005 12:45:38 -0500
+Date: Thu, 17 Mar 2005 12:47:16 +0530
+From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: akpm@osdl.org, anton@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PPC64 Fix kprobes calling smp_processor_id when preemptible
+Message-ID: <20050317071716.GA7386@in.ibm.com>
+Reply-To: ananth@in.ibm.com
+References: <16949.6337.715642.803244@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Thu, 17 Mar 2005 17:39:51 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16949.6337.715642.803244@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Mar 14, 2005 at 03:53:21PM +1100, Paul Mackerras wrote:
 
-On Thu, 2005-03-17 at 17:23, Stephen C. Tweedie wrote:
+Hi Paul,
 
-> I wrote a small program to calculate the total indirect tree overhead
-> for any given file size, and 0x1ff7fffe000 turned out to be the largest
-> file we can get without the total i_blocks overflowing 2^32.
+> When booting with kprobes and preemption both enabled and
+> CONFIG_DEBUG_PREEMPT=y, I get lots of warnings about smp_processor_id
+> being called in preemptible code, from kprobe_exceptions_notify.  On
+> ppc64, interrupts and preemption are not disabled in the handlers for
+> most synchronous exceptions such as breakpoints and page faults
+> (interrupts are disabled in the very early exception entry code but
+> are reenabled before calling the C handler).
 > 
-> But in testing, that *just* wrapped --- we need to limit the file to be
-> one page smaller than that to deal with the possibility of an EA/ACL
-> block being accounted against i_blocks.
+> This patch adds a preempt_disable/enable pair to
+> kprobe_exceptions_notify, and moves the preempt_disable() in
+> kprobe_handler() to be done only in the case where we are about to
+> single-step an instruction.  This eliminates the bug warnings.
 
-On a side, issue, e2fsck was unable to find any problem on that
-filesystem after the i_blocks had wrapped exactly to zero.
+The patch is fine, but it seems to break jprobes - we have an unbalanced
+preempt_enable/disable path while handling jprobes. Patch below is
+against 2.6.11-mm4 and fixes the issue.
 
-The bug seems to be in e2fsck/pass1.c: we do the numblocks checking
-inside process_block(), which is called as an inode block iteration
-function in check_blocks().  Then, later, check_blocks() does
+Thanks,
+Ananth
 
-	if (inode->i_file_acl && check_ext_attr(ctx, pctx, block_buf))
-		pb.num_blocks++;
 
-	pb.num_blocks *= (fs->blocksize / 512);
+Signed-off-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
 
-but without any further testing to see if pb.num_blocks has exceeded the
-max_blocks.  So by the time we've got to the end of check_blocks(),
-we're testing the wrapped i_blocks on disk against the wrapped
-num_blocks in memory, and so e2fsck fails to notice anything wrong.
-
-The fix may be as simple as just moving the
-
-	if (inode->i_file_acl && check_ext_attr(ctx, pctx, block_buf))
-		pb.num_blocks++;
-
-earlier in the function; Ted, do you see any problems with that?
-
---Stephen
-
+diff -Naurp temp/linux-2.6.11/arch/ppc64/kernel/kprobes.c kprobes/linux-2.6.11/arch/ppc64/kernel/kprobes.c
+--- temp/linux-2.6.11/arch/ppc64/kernel/kprobes.c	2005-03-17 05:15:53.000000000 +0530
++++ kprobes/linux-2.6.11/arch/ppc64/kernel/kprobes.c	2005-03-17 19:46:21.000000000 +0530
+@@ -262,7 +262,6 @@ int setjmp_pre_handler(struct kprobe *p,
+ 
+ void jprobe_return(void)
+ {
+-	preempt_enable_no_resched();
+ 	asm volatile("trap" ::: "memory");
+ }
+ 

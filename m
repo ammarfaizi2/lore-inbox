@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281874AbRLKRv2>; Tue, 11 Dec 2001 12:51:28 -0500
+	id <S282329AbRLKR7s>; Tue, 11 Dec 2001 12:59:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281890AbRLKRvS>; Tue, 11 Dec 2001 12:51:18 -0500
-Received: from rj.SGI.COM ([204.94.215.100]:42409 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S281874AbRLKRvM>;
-	Tue, 11 Dec 2001 12:51:12 -0500
-Date: Tue, 11 Dec 2001 11:51:02 -0600
-From: Nathan Straz <nstraz@sgi.com>
-To: Khyron <khyron@khyron.com>
-Cc: LKML - Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Test Project <ltp-list@lists.sourceforge.net>
-Subject: Re: Kernel test suites (was Re: Coding style - a non-issue)
-Message-ID: <20011211115102.A1637@sgi.com>
-Mail-Followup-To: Khyron <khyron@khyron.com>,
-	LKML - Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linux Test Project <ltp-list@lists.sourceforge.net>
-In-Reply-To: <Pine.BSF.4.33.0112032202420.98724-100000@four.malevolentminds.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.BSF.4.33.0112032202420.98724-100000@four.malevolentminds.com>
-User-Agent: Mutt/1.3.23i
+	id <S282418AbRLKR7i>; Tue, 11 Dec 2001 12:59:38 -0500
+Received: from mailserv.wright.edu ([130.108.128.60]:13779 "EHLO
+	mailserv.wright.edu") by vger.kernel.org with ESMTP
+	id <S282329AbRLKR7X>; Tue, 11 Dec 2001 12:59:23 -0500
+Date: Tue, 11 Dec 2001 12:59:20 -0500
+From: mathews.5@wright.edu
+Subject: 
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Message-id: <3C088FE7@mailserv66>
+MIME-version: 1.0
+X-Mailer: WebMail (Hydra) SMTP v3.61.08
+Content-type: multipart/mixed; boundary="Boundary_(ID_AT6SHWXUJvdXtgSeTzm63Q)"
+X-EXP32-SerialNo: 00003280
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 03, 2001 at 10:28:44PM +0000, Khyron wrote:
-> I would be interested in seeing this test suite as well.
-> 
-> Also, if anyone with any background on the subject can
-> chime in on the RH test suite and how the Linux Test Project
-> compare/overlap/differ, that would be good to know too.
+  This is the preamble of a multipart MIME formatted message.
+  If you are reading this text your mail system is most likely
+  not capable of properly decoding MIME messages.  To extract
+  the contents of this message, save it to a file and then use
+  an external MIME decoding utility.
 
-The bulk of LTP is regression tests.  There are a number of stress tests
-in LTP, but not the ones in the RH test suite (if the one below is
-correct).  Also, LTP doesn't use CTCS, but its own test driver.  
+--Boundary_(ID_AT6SHWXUJvdXtgSeTzm63Q)
+Content-type: text/plain; charset="ISO-8859-1"
+Content-transfer-encoding: 7bit
 
-> Alan Cox previously replied to Stanislav Meduna saying:
-> > Is the test suite (or at least part of it) public, or is it
-> > considered to be a trade-secret of Red Hat? I see there
-> > is a "Red Hat Ready Test Suite" - is this a part of it?
-> 
-> The main Red Hat test suite is a version of Cerberus (originally from VA
-> and much extended), its all free software and its available somewhere
-> although I don't have the URL to hand, Arjan ?
+Patched against 2.5.1-pre9: fix to compile order in drivers/media/video, 
+specifically for the Zoran 36067 driver. I patched part of the compilation 
+order in the 2.4.13-ac8 series, but this was missed. Fixes the Makefile so 
+that the various PCI bridge drivers ($CONFIG_VIDEO_ZORAN_BUZ, ..._LML33, 
+..._DC10) are compiled into the kernel before the actual zr36067 driver is 
+($CONFIG_VIDEO_ZORAN). It's not the best solution, but I couldn't come up with 
+anything else that allowed the zr36067 driver to be compiled into the kernel.
 
-I'm not sure if this is it or not, but this is the package I was once
-pointed to.
+Terry Mathews
 
-http://people.redhat.com/bmatthews/cerberus/stress-kernel-*
+--Boundary_(ID_AT6SHWXUJvdXtgSeTzm63Q)
+Content-type: application/octet-stream; name=patch
+Content-transfer-encoding: BASE64
+Content-disposition: attachment; filename=patch
 
+LS0tIGRyaXZlcnMvbWVkaWEvdmlkZW8vTWFrZWZpbGUub3JpZwlUdWUgRGVjIDEx
+IDEyOjQ4OjEwIDIwMDEKKysrIGRyaXZlcnMvbWVkaWEvdmlkZW8vTWFrZWZpbGUJ
+VHVlIERlYyAxMSAxMjo0ODo0OSAyMDAxCkBAIC00NCwxMSArNDQsMTAgQEAKIG9i
+ai0kKENPTkZJR19WSURFT19DUUNBTSkgKz0gYy1xY2FtLm8KIG9iai0kKENPTkZJ
+R19WSURFT19CV1FDQU0pICs9IGJ3LXFjYW0ubwogb2JqLSQoQ09ORklHX1ZJREVP
+X1c5OTY2KSArPSB3OTk2Ni5vCi1vYmotJChDT05GSUdfVklERU9fWk9SQU4pICs9
+IHpyMzYwNjcubyBpMmMtb2xkLm8KIG9iai0kKENPTkZJR19WSURFT19aT1JBTl9C
+VVopICs9IHNhYTcxMTEubyBzYWE3MTg1Lm8KIG9iai0kKENPTkZJR19WSURFT19a
+T1JBTl9EQzEwKSArPSBzYWE3MTEwLm8gYWR2NzE3NS5vCiBvYmotJChDT05GSUdf
+VklERU9fWk9SQU5fTE1MMzMpICs9IGJ0ODE5Lm8gYnQ4NTYubwotb2JqLSQoQ09O
+RklHX1ZJREVPX0xNTDMzKSArPSBidDg1Ni5vIGJ0ODE5Lm8KK29iai0kKENPTkZJ
+R19WSURFT19aT1JBTikgKz0genIzNjA2Ny5vIGkyYy1vbGQubwogb2JqLSQoQ09O
+RklHX1ZJREVPX1BNUykgKz0gcG1zLm8KIG9iai0kKENPTkZJR19WSURFT19QTEFO
+QikgKz0gcGxhbmIubwogb2JqLSQoQ09ORklHX1ZJREVPX1ZJTk8pICs9IHZpbm8u
+bwo=
 
--- 
-Nate Straz                                              nstraz@sgi.com
-sgi, inc                                           http://www.sgi.com/
-Linux Test Project                                  http://ltp.sf.net/
+--Boundary_(ID_AT6SHWXUJvdXtgSeTzm63Q)--

@@ -1,53 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290707AbSA3Wpa>; Wed, 30 Jan 2002 17:45:30 -0500
+	id <S290710AbSA3Wpk>; Wed, 30 Jan 2002 17:45:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290709AbSA3WpZ>; Wed, 30 Jan 2002 17:45:25 -0500
-Received: from sydney1.au.ibm.com ([202.135.142.193]:21512 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S290707AbSA3WpN>; Wed, 30 Jan 2002 17:45:13 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Richard Henderson <rth@twiddle.net>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com, kuznet@ms2.inr.ac.ru
-Subject: Re: [PATCH] per-cpu areas for 2.5.3-pre6 
-In-Reply-To: Your message of "Wed, 30 Jan 2002 00:22:04 -0800."
-             <20020130002204.A4480@are.twiddle.net> 
-Date: Thu, 31 Jan 2002 09:45:45 +1100
-Message-Id: <E16W3U9-0004Pd-00@wagner.rustcorp.com.au>
+	id <S290709AbSA3Wpc>; Wed, 30 Jan 2002 17:45:32 -0500
+Received: from mail.conwaycorp.net ([24.144.1.33]:45251 "HELO
+	mail.conwaycorp.net") by vger.kernel.org with SMTP
+	id <S290704AbSA3WpZ>; Wed, 30 Jan 2002 17:45:25 -0500
+Date: Wed, 30 Jan 2002 16:45:23 -0600
+From: Nathan Poznick <poznick@conwaycorp.net>
+To: Austin Gonyou <austin@coremetrics.com>
+Cc: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: Oops in bdflush with 2.4.1[4|7]-xfs
+Message-ID: <20020130224523.GA26824@conwaycorp.net>
+In-Reply-To: <20020130214108.GA25792@conwaycorp.net> <1012428545.12420.29.camel@UberGeek>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
+Content-Disposition: inline
+In-Reply-To: <1012428545.12420.29.camel@UberGeek>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020130002204.A4480@are.twiddle.net> you write:
-> Have we already forgotten the ppc reloc flamefest?  Better
-> written as
->
-> #define per_cpu(var, cpu)					\
->   ({ __typeof__(&(var)) __ptr;					\
->      __asm__ ("" : "=g"(__ptr)					\
-> 	      : "0"((void *)&(var) + per_cpu_offset(cpu)));	\
->      *__ptr; })
 
-"better".  Believe me, I was fully aware, but I refuse to write such
-crap unless *proven* to be required.
+--WIyZ46R2i8wDzkSu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > +/* Created by linker magic */
-> > +extern char __per_cpu_start, __per_cpu_end;
-> [...]
-> > +	per_cpu_size = ((&__per_cpu_end - &__per_cpu_start) + PAGE_SIZE-1)
-> 
-> Will fail on targets (e.g. alpha and mips) that have a notion of a
-> "small data area" that can be addressed with special relocs.
-> 
-> Better written as
-> 
->   extern char __per_cpu_start[], __per_cpu_end[];
->   per_cpu_size = (__per_cpu_end - __per_cpu_start) ...
+Thus spake Austin Gonyou:
+> Could you see if my XFS-AA patch does anything for you? There are
+> changes to bdflush in it and I'd be interested to see if they go away.=20
+>=20
+> http://www.digitalroadkill.net/Patches/2.4.17-xfs-aa.patch.bz2
 
-I agree that this is much better.  But do not understand what small
-relocs have to do with simple address arithmetic?  You've always been
-right before: what am I missing?
+Unfortunately I can't really do to much messing around with this
+machine right now, it's being used pretty heavily.  Even after bdflush
+died and I needed to bounce the machine, I just about had to beat the
+developers off the machine with a stick. :-)
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Eric Sandeen suggested turning off DMAPI support, so I'm going to give
+that a try first.  I'll go ahead and grab a copy of your patch, and
+give it a try if the problem still resurfaces.
+
+--=20
+Nathan Poznick <poznick@conwaycorp.net>
+PGP Key: http://drunkmonkey.org/pgpkey.txt
+
+Boss:   You forgot to assign the result of your map!
+Hacker: Dang, I'm always forgetting my assignations...
+Boss:   And what's that "goto" doing there?!?
+Hacker: Er, I guess my finger slipped when I was typing "getservbyport"...
+Boss:   Ah well, accidents will happen.  Maybe we should have picked APL.
+-- Larry Wall
+
+--WIyZ46R2i8wDzkSu
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8WHeDYOn9JTETs+URAkd/AKCIelsMjVEWbL1053/kSuQKf0xhEQCgpFOo
+SLJcvipfJ3FPvE1sefbA69w=
+=v08z
+-----END PGP SIGNATURE-----
+
+--WIyZ46R2i8wDzkSu--

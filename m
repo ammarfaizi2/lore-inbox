@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272690AbTHEMAu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 08:00:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272691AbTHEMAu
+	id S272680AbTHEMDG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 08:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272681AbTHEMDF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 08:00:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:30737 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S272690AbTHEMAt (ORCPT
+	Tue, 5 Aug 2003 08:03:05 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:37528 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S272680AbTHEMDC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 08:00:49 -0400
-Date: Tue, 5 Aug 2003 07:00:40 -0500
-From: Tommy Reynolds <reynolds@redhat.com>
-To: rafael@thinkfreak.com.br
+	Tue, 5 Aug 2003 08:03:02 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Date: Tue, 5 Aug 2003 14:02:38 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: decoded problem in 2.4.22-pre10
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Module Programming
-Message-Id: <20030805070040.7d66b652.reynolds@redhat.com>
-In-Reply-To: <200308050838.49544.rafael@thinkfreak.com.br>
-References: <200308050838.49544.rafael@thinkfreak.com.br>
-Organization: Red Hat GLS
-X-Mailer: Sylpheed version 0.9.4cvs1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
- t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
- 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
-X-Message-Flag: Outlook Virus Warning: Reboot within 12 seconds or risk loss
- of all files and data!
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-mailer: Pegasus Mail v3.50
+Message-ID: <9433E945C9B@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uttered Rafael Costa dos Santos <rafael@thinkfreak.com.br>, spoke thus:
-
-> Where can I follow the modifications under the main functions of linux kernel 
-> programming between versions of kernerl?
+On  5 Aug 03 at 12:20, Stephan von Krawczynski wrote:
+> On Tue, 5 Aug 2003 10:00:40 +0200
+> Stephan von Krawczynski <skraw@ithnet.com> wrote:
 > 
-> I am asking that because I have some work on that area and I want it to be 
-> portable to every kernel versions.
+> > Hello all,
+> > 
+> > the testbox crashed again this night, unfortunately I made a mistake
+> > yesterday and started vmware once. Although only the usual modules were
+> > loaded at crash time and not the application, the kernel was tainted of
+> > course. Nevertheless I present the data:
+> 
+> I re-checked the setup with vmware and found out I can shoot it down in no
+> time. So you probably should just forget about this bug report, because loading
+> vmware modules does obviously do harm.
 
-The authoritative reference for Linux device drivers is Rubini and
-Corbet's book "Linux Device Drivers".  You should buy your own copy
-but there is an online copy available:
+Any details? Were there some warning while vmmon was built?
+                                                            Petr
+                                                            
 
-	http://www.xml.com/search/index.ncsp?sp-q=rubini&search=search
-
-Linux device drivers are not guaranteed to be portable between kernel
-versions, however they are usually platform-independent.
-
-Cheers!

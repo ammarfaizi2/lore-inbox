@@ -1,66 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129077AbQJ0O4s>; Fri, 27 Oct 2000 10:56:48 -0400
+	id <S129364AbQJ0PPi>; Fri, 27 Oct 2000 11:15:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129209AbQJ0O4h>; Fri, 27 Oct 2000 10:56:37 -0400
-Received: from 13dyn85.delft.casema.net ([212.64.76.85]:63492 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S129077AbQJ0O40>; Fri, 27 Oct 2000 10:56:26 -0400
-Message-Id: <200010271456.QAA04258@cave.bitwizard.nl>
-Subject: Re: [PROPOSED PATCH] ATM refcount + firestream
-In-Reply-To: <39F995E8.FE7324BA@didntduck.org> from Brian Gerst at "Oct 27, 2000
- 10:49:12 am"
-To: Brian Gerst <bgerst@didntduck.org>
-Date: Fri, 27 Oct 2000 16:56:11 +0200 (MEST)
-CC: Patrick van de Lageweg <patrick@bitwizard.nl>,
-        Andrew Morton <andrewm@uow.edu.au>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Rogier Wolff <wolff@bitwizard.nl>,
-        Philipp Rumpf <prumpf@parcelfarce.linux.theplanet.co.uk>
-From: R.E.Wolff@bitwizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S129408AbQJ0PP3>; Fri, 27 Oct 2000 11:15:29 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:33031 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129364AbQJ0PPX>;
+	Fri, 27 Oct 2000 11:15:23 -0400
+Date: Fri, 27 Oct 2000 18:13:44 +0300
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-net@vger.kernel.org
+Subject: Re: VM-global-2.2.18pre17-7
+Message-ID: <20001027181344.B1248@niksula.cs.hut.fi>
+In-Reply-To: <Pine.LNX.4.05.10010271651240.14633-100000@marina.lowendale.com.au> <Pine.LNX.4.21.0010271124550.5338-100000@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3i
+In-Reply-To: <Pine.LNX.4.21.0010271124550.5338-100000@freak.distro.conectiva>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian Gerst wrote:
-> > > +       struct module *owner;
-> > > +       struct module *owner;
-> > > bix:/home/morton>
-> > 
-> > We use it throught the fops_get/fops_put macros to in/decrease the mod
-> > counter. See the definitions for those macros (include/linux/fs.h)
-> > 
-> >         Patrick
+On Fri, Oct 27, 2000 at 11:29:08AM -0200, you [Marcelo Tosatti] claimed:
 > 
-> This will break horribly if fops_put/get are changed to inlines instead
-> of macros.  They are only supposed to be used on struct file_operations.
+> 
+> On Fri, 27 Oct 2000, Neale Banks wrote:
+> 
+> > On Thu, 26 Oct 2000, octave klaba wrote:
+> > 
+> > > > > Oct 26 16:38:01 ns29 kernel: eth0: card reports no resources.
+> > > > let me guess: intel eepro100 or similar??
+> > > yeap
+> > 
+> > er, "me too":
+> > 
+> >   Bus  0, device   2, function  0:
+> >     Ethernet controller: Intel 82557 (rev 8).
+> >       Medium devsel.  Fast back-to-back capable.  IRQ 10.  Master Capable.  Latency=64.  Min Gnt=8.Max Lat=56.
+> >       Non-prefetchable 32 bit memory at 0xb5fff000 [0xb5fff000].
+> >       I/O at 0x2400 [0x2401].
+> >       Non-prefetchable 32 bit memory at 0xb5e00000 [0xb5e00000].
+> > 
+> > On Debian's 2.2.17-compact on a Compaq DL380 - with 60 days uptime I have
+> > 6 "eth0: card reports no resources." messages reported in dmesg.
+> 
+> We are having the same problem with eepro100 on a Compaq DL360. 
+> 
+> v1.11 of eepro100.c fixed the problem:
+> 
+> ftp://ftp.scyld.com/pub/network/eepro100.c
 
-Oh?
+The eepro100 problem (2.2.18pre17 stock) happens here too: "card reports
+no resources" and then the network stalls for few minutes.
 
-Anyway, we'll get nice warnings about wrong type of argument when that
-happens.
+The hack suggested by David Richardson (
+http://marc.theaimsgroup.com/?l=linux-kernel&m=96514412914742&w=2)
+did not help.
 
-I was the one who found the fops_get/put code useful as a guideline
-and also in fact as the code to call.
+The Becker's driver from ftp://ftp.scyld.com/pub/network/eepro100.c cures
+the error messages, but the network still stalls, and worse yet, seems to
+stall forever (as opposed to few minutes with 2.2.18pre17 driver).
 
-So the question is: What is the defined interface for fops_get/put: Is
-it "it's a macro that... " or is it "it's a function (possibly a macro
-for efficiency) that.... "?
+A network problem is not out of question (although the rest of the network
+works just fine, and we did try another HUB port). It could also be flaky
+card, but the machine and the card worked fine for years in their past
+life under NT.
 
-				Roger. 
-
-P.S. Apologies for Patrick's bad quoting habits: He had to catch a
-train and forgot to delete the rest of the quoted mail.
+This is dual PPro200, 256MB, nothing fancy. 
 
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-*       Common sense is the collection of                                *
-******  prejudices acquired by age eighteen.   -- Albert Einstein ********
+-- v --
+
+v@iki.fi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,163 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130386AbQKPP7n>; Thu, 16 Nov 2000 10:59:43 -0500
+	id <S130833AbQKPQAX>; Thu, 16 Nov 2000 11:00:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130833AbQKPP7d>; Thu, 16 Nov 2000 10:59:33 -0500
-Received: from h00059aa0e40d.ne.mediaone.net ([24.91.9.69]:8178 "EHLO
-	flowers.house.larsshack.org") by vger.kernel.org with ESMTP
-	id <S130386AbQKPP7V>; Thu, 16 Nov 2000 10:59:21 -0500
-Date: Thu, 16 Nov 2000 10:29:20 -0500 (EST)
-From: Lars Kellogg-Stedman <lars@larsshack.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: BUG: sparc/2.2.17 kernel oops on javastation
-Message-ID: <Pine.LNX.4.21.0011161027480.10662-200000@flowers>
+	id <S130900AbQKPQAO>; Thu, 16 Nov 2000 11:00:14 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:64529 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130833AbQKPP76>;
+	Thu, 16 Nov 2000 10:59:58 -0500
+Message-ID: <3A13FD32.2E0C6721@mandrakesoft.com>
+Date: Thu, 16 Nov 2000 10:28:50 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463806719-425992160-974388560=:10662"
+To: Peter Samuelson <peter@cadcamlab.org>
+CC: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: PCI configuration changes
+In-Reply-To: <200011151005.LAA20027@green.mif.pg.gda.pl> <20001116092539.A2453@wire.cadcamlab.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Peter Samuelson wrote:
+> 
+> [Andrzej Krzysztofowicz]
+> > Note, that as CONFIG_MCA is defined only for i386 the dependencies on
+> > $CONFIG_MCA are no-op for other architectures (in
+> > Configure/Menuconfig).  Either CONFIG_MCA should be defined for all
+> > architectures or there should be if ... fi around these lines.
+> 
+> The former, I think.  Less confusing in the long run.
+> 
+> > BTW, is there any reason for not replacing
+> >    bool '  Other ISA cards' CONFIG_NET_ISA
+> > by
+> >   dep_bool '  Other ISA cards' CONFIG_NET_ISA $CONFIG_ISA
+> > to eliminate more drivers from non-ISA arch configs ?
+> 
+> Looks good to me.  Anything to remove clutter from config menus....
 
----1463806719-425992160-974388560=:10662
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-
-Kernel 2.2.17 on a Sun Javastation detects a floppy drive on the
-system.  The javastation does not, in fact, have a floppy drive.  An
-attempt to mount this nonexistent device causes a kernel oops.
-
-I have attached the oops report.
-
--- Lars
+Patch looks ok to me, applied.
 
 -- 
-Lars Kellogg-Stedman <lars@larsshack.org> --> http://www.larsshack.org/
-
----1463806719-425992160-974388560=:10662
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="oops.report"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.21.0011161029200.10662@flowers>
-Content-Description: oops report
-Content-Disposition: attachment; filename="oops.report"
-
-a3N5bW9vcHMgMC43YyBvbiBzcGFyYyAyLjIuMTctc2xycC03LiAgT3B0aW9u
-cyB1c2VkDQogICAgIC1WIChkZWZhdWx0KQ0KICAgICAtayAvcHJvYy9rc3lt
-cyAoZGVmYXVsdCkNCiAgICAgLWwgL3Byb2MvbW9kdWxlcyAoZGVmYXVsdCkN
-CiAgICAgLW8gL2xpYi9tb2R1bGVzLzIuMi4xNy1zbHJwLTcvIChkZWZhdWx0
-KQ0KICAgICAtbSAvYm9vdC9TeXN0ZW0ubWFwIChzcGVjaWZpZWQpDQoNCldh
-cm5pbmcgKGNvbXBhcmVfbWFwcyk6IG1pc21hdGNoIG9uIHN5bWJvbCBfX19m
-X19fX3hjaGczMiAgLCBrc3ltc19iYXNlIHNheXMgZjAwZjIwM2MsIFN5c3Rl
-bS5tYXAgc2F5cyBmMDE0MDRhYy4gIElnbm9yaW5nIGtzeW1zX2Jhc2UgZW50
-cnkNCldhcm5pbmcgKGNvbXBhcmVfbWFwcyk6IG1pc21hdGNoIG9uIHN5bWJv
-bCBfX19mX19faXJxX2l0b2EgICwga3N5bXNfYmFzZSBzYXlzIGYwMDEzNTY0
-LCBTeXN0ZW0ubWFwIHNheXMgZjAxNDA0YWMuICBJZ25vcmluZyBrc3ltc19i
-YXNlIGVudHJ5DQpXYXJuaW5nIChjb21wYXJlX21hcHMpOiBtaXNtYXRjaCBv
-biBzeW1ib2wgX19fZl9kaXNhYmxlX2lycSAgLCBrc3ltc19iYXNlIHNheXMg
-ZjAwMTMyZjQsIFN5c3RlbS5tYXAgc2F5cyBmMDE0MDRhYy4gIElnbm9yaW5n
-IGtzeW1zX2Jhc2UgZW50cnkNCldhcm5pbmcgKGNvbXBhcmVfbWFwcyk6IG1p
-c21hdGNoIG9uIHN5bWJvbCBfX19mX2VuYWJsZV9pcnEgICwga3N5bXNfYmFz
-ZSBzYXlzIGYwMDEzM2I0LCBTeXN0ZW0ubWFwIHNheXMgZjAxNDA0YWMuICBJ
-Z25vcmluZyBrc3ltc19iYXNlIGVudHJ5DQpXYXJuaW5nIChjb21wYXJlX21h
-cHMpOiBtaXNtYXRjaCBvbiBzeW1ib2wgX19fZl9tbXVfZ2V0X3Njc2lfb25l
-ICAsIGtzeW1zX2Jhc2Ugc2F5cyBmMDAyMjEzOCwgU3lzdGVtLm1hcCBzYXlz
-IGYwMTQwNGFjLiAgSWdub3Jpbmcga3N5bXNfYmFzZSBlbnRyeQ0KV2Fybmlu
-ZyAoY29tcGFyZV9tYXBzKTogbWlzbWF0Y2ggb24gc3ltYm9sIF9fX2ZfbW11
-X2dldF9zY3NpX3NnbCAgLCBrc3ltc19iYXNlIHNheXMgZjAwMjIxYjAsIFN5
-c3RlbS5tYXAgc2F5cyBmMDE0MDRhYy4gIElnbm9yaW5nIGtzeW1zX2Jhc2Ug
-ZW50cnkNCldhcm5pbmcgKGNvbXBhcmVfbWFwcyk6IG1pc21hdGNoIG9uIHN5
-bWJvbCBfX19mX21tdV9sb2NrYXJlYSAgLCBrc3ltc19iYXNlIHNheXMgZjAw
-MjI0YjgsIFN5c3RlbS5tYXAgc2F5cyBmMDE0MDRhYy4gIElnbm9yaW5nIGtz
-eW1zX2Jhc2UgZW50cnkNCldhcm5pbmcgKGNvbXBhcmVfbWFwcyk6IG1pc21h
-dGNoIG9uIHN5bWJvbCBfX19mX21tdV9yZWxlYXNlX3Njc2lfb25lICAsIGtz
-eW1zX2Jhc2Ugc2F5cyBmMDAyMjI3OCwgU3lzdGVtLm1hcCBzYXlzIGYwMTQw
-NGFjLiAgSWdub3Jpbmcga3N5bXNfYmFzZSBlbnRyeQ0KV2FybmluZyAoY29t
-cGFyZV9tYXBzKTogbWlzbWF0Y2ggb24gc3ltYm9sIF9fX2ZfbW11X3JlbGVh
-c2Vfc2NzaV9zZ2wgICwga3N5bXNfYmFzZSBzYXlzIGYwMDIyMjgwLCBTeXN0
-ZW0ubWFwIHNheXMgZjAxNDA0YWMuICBJZ25vcmluZyBrc3ltc19iYXNlIGVu
-dHJ5DQpXYXJuaW5nIChjb21wYXJlX21hcHMpOiBtaXNtYXRjaCBvbiBzeW1i
-b2wgX19fZl9tbXVfdW5sb2NrYXJlYSAgLCBrc3ltc19iYXNlIHNheXMgZjAw
-MjI0YzAsIFN5c3RlbS5tYXAgc2F5cyBmMDE0MDRhYy4gIElnbm9yaW5nIGtz
-eW1zX2Jhc2UgZW50cnkNCldhcm5pbmcgKGNvbXBhcmVfbWFwcyk6IG1pc21h
-dGNoIG9uIHN5bWJvbCBfX19mX21tdV92MnAgICwga3N5bXNfYmFzZSBzYXlz
-IGYwMDIxZDZjLCBTeXN0ZW0ubWFwIHNheXMgZjAxNDA0YWMuICBJZ25vcmlu
-ZyBrc3ltc19iYXNlIGVudHJ5DQpXYXJuaW5nIChjb21wYXJlX21hcHMpOiBr
-c3ltc19iYXNlIHN5bWJvbCBtb2R1bGVfbGlzdF9SX192ZXJfbW9kdWxlX2xp
-c3Qgbm90IGZvdW5kIGluIFN5c3RlbS5tYXAuICBJZ25vcmluZyBrc3ltc19i
-YXNlIGVudHJ5DQo4MDQyKGtiZCk6IGlvYmFzZVtmZDAxNTA2MF0gaXJxWzJk
-XQ0KODA0Mihtb3VzZSkgYXQgZmQwMTUwNjAgKGlycSA0NSkNCjgwNDI6IFBT
-LzIgYXV4aWxpYXJ5IHBvaW50aW5nIGRldmljZSBkZXRlY3RlZC4NClVuYWJs
-ZSB0byBoYW5kbGUga2VybmVsIE5VTEwgcG9pbnRlciBkZXJlZmVyZW5jZTwx
-PnRzay0+bW0tPmNvbnRleHQgPSAwMDAwMDAxYg0KdHNrLT5tbS0+cGdkID0g
-ZjM3MWM0MDANCiAgICAgICAgICAgICAgXHwvIF9fX18gXHwvDQogICAgICAg
-ICAgICAgICJAJy8gLC4gXGBAIg0KICAgICAgICAgICAgICAvX3wgXF9fLyB8
-X1wNCiAgICAgICAgICAgICAgICAgXF9fVV8vDQptb3VudCgzMyk6IE9vcHMN
-ClBTUjogMDQ5MDAwYzQgUEM6IDAwMDAwMDAwIE5QQzogMDAwMDAwMDQgWTog
-MDUwMDAwMDANClVzaW5nIGRlZmF1bHRzIGZyb20ga3N5bW9vcHMgLXQgZWxm
-MzItc3BhcmMgLWEgc3BhcmMNCmcwOiA3ZjQ1NGM0NiBnMTogMDQ5MDBmZTQg
-ZzI6IDAwMDAwMDAwIGczOiAwMDAwMDAwMCBnNDogZjAxMGU0MDAgZzU6IDAw
-MDAwMDAwIGc2OiBmMzYzYTAwMCBnNzogMDAwMDAwMDQNCm8wOiAwMDAwMDAw
-MyBvMTogMDAwMDAwMDAgbzI6IGYwMTUwNDAwIG8zOiBmMDE1MTAzYyBvNDog
-ZjAxMTU0MDAgbzU6IDAwMDBmMDAwIHNwOiBmMzYzYmM5MCBvNzogZjAwYjJj
-ZGMNCmwwOiBmMDE1MTAwMCBsMTogZjAxMTU3MDggbDI6IGYwMDUyNWI4IGwz
-OiAwMDAwMDAyMCBsNDogMDAwMDAwMDAgbDU6IDAwMDAwMDAwIGw2OiBmMzYz
-YTAwMCBsNzogNTAwMjkzODQNCmkwOiBmMDE1MTAyYyBpMTogZjAxMDAyMTAg
-aTI6IDAwMDAwMDAwIGkzOiBmMDExNTQwMCBpNDogYTc1MDAwMDAgaTU6IDAw
-MDAwMDAwIGZwOiBmMzYzYmNmOCBpNzogZjAwYjJlMDQNCkNhbGxlcltmMDBi
-MmUwNF0NCkNhbGxlcltmMDBiYTFmNF0NCkNhbGxlcltmMDA0NGMyY10NCkNh
-bGxlcltmMDBiYTBjY10NCkNhbGxlcltmMDA0OTZjY10NCkNhbGxlcltmMDAx
-MTM3Y10NCkNhbGxlcltmMDAxMTAzMF0NCg0KPj5QQzsgIDAwMDAwMDAwIEJl
-Zm9yZSBmaXJzdCBzeW1ib2wNCj4+Tzc7ICBmMDBiMmNkYyA8c2V0X2ZkYys5
-NC9jYz4NCj4+STc7ICBmMDBiMmUwNCA8bG9ja19mZGMrZjAvMTFjPg0KVHJh
-Y2U7IGYwMGIyZTA0IDxsb2NrX2ZkYytmMC8xMWM+DQpUcmFjZTsgZjAwYmEx
-ZjQgPGNoZWNrX2Zsb3BweV9jaGFuZ2UrYjAvMTM0Pg0KVHJhY2U7IGYwMDQ0
-YzJjIDxjaGVja19kaXNrX2NoYW5nZSs4Yy8xMjQ+DQpUcmFjZTsgZjAwYmEw
-Y2MgPGZsb3BweV9vcGVuKzQ4MC80Zjg+DQpUcmFjZTsgZjAwNDk2Y2MgPHN5
-c19tb3VudCsxZTAvMzU0Pg0KVHJhY2U7IGYwMDExMzdjIDxzeXNjYWxsX2lz
-X3Rvb19oYXJkKzM0LzQwPg0KVHJhY2U7IGYwMDExMDMwIDxzcm1tdV9mYXVs
-dCs1OC82OD4NCg0KSW5zdHJ1Y3Rpb24gRFVNUDo8MT5VbmFibGUgdG8gaGFu
-ZGxlIGtlcm5lbCBwYWdpbmcgcmVxdWVzdCBhdCB2aXJ0dWFsIGFkZHJlc3Mg
-ZmZmZmYwMDANCnRzay0+bW0tPmNvbnRleHQgPSAwMDAwMDAxYg0KdHNrLT5t
-bS0+cGdkID0gZjM3MWM0MDANCiAgICAgICAgICAgICAgXHwvIF9fX18gXHwv
-DQogICAgICAgICAgICAgICJAJy8gLC4gXGBAIg0KICAgICAgICAgICAgICAv
-X3wgXF9fLyB8X1wNCiAgICAgICAgICAgICAgICAgXF9fVV8vDQptb3VudCgz
-Myk6IE9vcHMNClBTUjogMDQ4MDAwYzcgUEM6IGYwMDEyNGU0IE5QQzogZjAw
-MTI0ZTggWTogMDAwMDAwMDANCmcwOiBmMzYzYmE1OCBnMTogZjAxMTY0YmMg
-ZzI6IDAwMDAwMDAxIGczOiAwNDAwMGZlNyBnNDogZjAwYzYyMWMgZzU6IDAw
-MDAwMDAwIGc2OiBmMzYzYTAwMCBnNzogMDAwMDAwMDENCm8wOiBmZmZmZmZm
-NCBvMTogMDAwMDAwMjAgbzI6IGZmZmZmZmZmIG8zOiBmMDExNjQwMCBvNDog
-ZjAxMGQ4MDAgbzU6IGYwMTBkODAwIHNwOiBmMzYzYmE1OCBvNzogZjAwMmNh
-ZTgNCmwwOiBmZmZmZmZmZCBsMTogZjAwZjI4YzggbDI6IDA0NDAwMGUwIGwz
-OiAwMDAwMDAwNCBsNDogMDAwMDAwMDggbDU6IDAwMDAwMDAwIGw2OiAwMDAw
-MDAwMCBsNzogMDAwMDAwMGENCmkwOiAwMDAwMDAwMCBpMTogMDAwMDAwMDAg
-aTI6IGYwMTQ2ODQzIGkzOiBmMDE0Njg1NSBpNDogZjAxNDY4NTQgaTU6IDAw
-MDAwMDAwIGZwOiBmMzYzYmFjMCBpNzogZjAwMTI1ZWMNCkNhbGxlcltmMDAx
-MjVlY10NCkNhbGxlcltmMDAxZDA4OF0NCkNhbGxlcltmMDAxZDQxNF0NCkNh
-bGxlcltmMDAxMTAzMF0NCkNhbGxlcltmMDBiMmNkY10NCkNhbGxlcltmMDBi
-MmUwNF0NCkNhbGxlcltmMDBiYTFmNF0NCkNhbGxlcltmMDA0NGMyY10NCkNh
-bGxlcltmMDBiYTBjY10NCkNhbGxlcltmMDA0OTZjY10NCkNhbGxlcltmMDAx
-MTM3Y10NCkNhbGxlcltmMDAxMTAzMF0NCkluc3RydWN0aW9uIERVTVA6IDky
-MTAyMDNjICA5MjEwMjAyMCAgOTEyYzIwMDIgPGQ0MDYwMDA4PiA4MGE0MjAw
-MCAgMDI4MDAwMDMgIDk2MTAyMDNlICA5NjEwMjAyMCAgNDAwMDY4ZjggDQpF
-cnJvciAocGNsb3NlX2xvY2FsKTogT29wc19kZWNvZGUgcGNsb3NlIGZhaWxl
-ZCAweDIwMA0KRXJyb3IgKE9vcHNfZGVjb2RlKTogbm8gb2JqZHVtcCBsaW5l
-cyByZWFkIGZvciAvdG1wL2ZpbGVHbFVmQ0QNCg0KPj5QQzsgIGYwMDEyNGU0
-IDxpbnN0cnVjdGlvbl9kdW1wKzJjLzZjPiAgIDw9PT09PQ0KPj5PNzsgIGYw
-MDJjYWU4IDxwcmludGsrMjEwLzIyMD4NCj4+STc7ICBmMDAxMjVlYyA8ZGll
-X2lmX2tlcm5lbCtjOC9mMD4NClRyYWNlOyBmMDAxMjVlYyA8ZGllX2lmX2tl
-cm5lbCtjOC9mMD4NClRyYWNlOyBmMDAxZDA4OCA8dW5oYW5kbGVkX2ZhdWx0
-KzYwLzY4Pg0KVHJhY2U7IGYwMDFkNDE0IDxkb19zcGFyY19mYXVsdCsyYzQv
-MzcwPg0KVHJhY2U7IGYwMDExMDMwIDxzcm1tdV9mYXVsdCs1OC82OD4NClRy
-YWNlOyBmMDBiMmNkYyA8c2V0X2ZkYys5NC9jYz4NClRyYWNlOyBmMDBiMmUw
-NCA8bG9ja19mZGMrZjAvMTFjPg0KVHJhY2U7IGYwMGJhMWY0IDxjaGVja19m
-bG9wcHlfY2hhbmdlK2IwLzEzND4NClRyYWNlOyBmMDA0NGMyYyA8Y2hlY2tf
-ZGlza19jaGFuZ2UrOGMvMTI0Pg0KVHJhY2U7IGYwMGJhMGNjIDxmbG9wcHlf
-b3Blbis0ODAvNGY4Pg0KVHJhY2U7IGYwMDQ5NmNjIDxzeXNfbW91bnQrMWUw
-LzM1ND4NClRyYWNlOyBmMDAxMTM3YyA8c3lzY2FsbF9pc190b29faGFyZCsz
-NC80MD4NClRyYWNlOyBmMDAxMTAzMCA8c3JtbXVfZmF1bHQrNTgvNjg+DQoN
-Cg0KMTIgd2FybmluZ3MgYW5kIDIgZXJyb3JzIGlzc3VlZC4gIFJlc3VsdHMg
-bWF5IG5vdCBiZSByZWxpYWJsZS4NCg==
----1463806719-425992160-974388560=:10662--
+Jeff Garzik             |
+Building 1024           | The chief enemy of creativity is "good" sense
+MandrakeSoft            |          -- Picasso
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

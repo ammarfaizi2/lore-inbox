@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265890AbTATOeL>; Mon, 20 Jan 2003 09:34:11 -0500
+	id <S265886AbTATOjJ>; Mon, 20 Jan 2003 09:39:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265886AbTATOeL>; Mon, 20 Jan 2003 09:34:11 -0500
-Received: from inet-mail2.oracle.com ([148.87.2.202]:8599 "EHLO
-	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
-	id <S265894AbTATOeK>; Mon, 20 Jan 2003 09:34:10 -0500
-Message-ID: <7622343.1043073494737.JavaMail.nobody@web155>
-Date: Mon, 20 Jan 2003 06:38:14 -0800 (GMT-08:00)
-From: Alessandro Suardi <ALESSANDRO.SUARDI@oracle.com>
-To: mikpe@csd.uu.se
-Subject: Re: "Latitude with broken BIOS" ?
-Cc: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-Mailer: Oracle Webmail Client
+	id <S265894AbTATOjJ>; Mon, 20 Jan 2003 09:39:09 -0500
+Received: from urtica.linuxnews.pl ([217.67.200.130]:31763 "EHLO
+	urtica.linuxnews.pl") by vger.kernel.org with ESMTP
+	id <S265886AbTATOjI>; Mon, 20 Jan 2003 09:39:08 -0500
+Date: Mon, 20 Jan 2003 15:48:04 +0100 (CET)
+From: Pawel Kot <pkot@linuxnews.pl>
+To: <jlnance@unity.ncsu.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [ANN] ntfsprogs (formerly Linux-NTFS) 1.7.0beta released
+In-Reply-To: <20030120133938.GA2842@ncsu.edu>
+Message-ID: <Pine.LNX.4.33.0301201547380.16178-100000@urtica.linuxnews.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson wrote:
+On Mon, 20 Jan 2003 jlnance@unity.ncsu.edu wrote:
 
-> On Mon, 20 Jan 2003 04:31:58 -0800 (GMT-08:00), Alessandro Suardi wrote:
-> >  I was hoping to use HT on my new Latitude C640 (P4 @ 1.8Ghz) but at boot
-> >  both 2.4.21-pre3 and 2.5.59 (obviously with a SMP kernel) tell me
-> >
-> > "Dell Latitude with broken BIOS detected. Refusing to enable the local APIC."
-> >
-> > Is this anything that can be played with ?
+> On Sun, Jan 19, 2003 at 04:05:50PM +0100, Pawel Kot wrote:
 >
-> First of all, your 1.8GHz mobile P4 doesn't actually have HT.
-> The only ones to have it are the new 3.06GHz P4s, and most Xeons.
-
-Ok.
-
-> Secondly, I'm responsible for the message you quoted. Many if not all
-> Pentium III-based Dell laptops (including Latitude Cnnn and I8nnn)
-> that have local-APIC capable processors fail miserably if the OS
-> actually enables it. For instance, pulling or inserting the DC
-> power plug would hang the machine. This is a BIOS bug we can't work
-> around, except by refusing to enable the local APIC.
+> > There exists a new ntfs driver called NTFS-TNG, which is present already
+> > in 2.5.x kernel series and it has its backport to the 2.4.x kernel series
+> > (you'll find it at http://linux-ntfs.sf.net/).
+> >
+> > This driver has no write support yet, but it allows you to overwrite the
+> > files, without changing their attributes and size (ie. mmap() the file,
+> > change the contents, write() the file). And the overwrite is considered
+> > safe.
 >
-> Your P4-based Latitude probably has a different BIOS than the buggy
-> P3-based ones, and it may work better. Try commenting out the
-> local_apic_kills_bios entry for "Dell Latitude" at around line 692
-> in arch/i386/kernel/dmi_scan.c and rebuild the kernel. If it
+> Is this stable enough to allow you to put an ext2 image on an NTFS
+> partition and then mount that image as a r/w loopback mount from
+> Linux?
 
-(ahem) I had tried that in 2.5.58 already ;)
+Yes.
 
-However I rebuilt 2.5.59 with that change, and I'm not going further:
+pkot
+-- 
+mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
+http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
 
- No local APIC present or hardware disabled
-
-I have both CONFIG_X86_IO_APIC and CONFIG_X86_LOCAL_APIC=y.
-
-(while I'm using my old PIII/750 the PIV is still okay for testing ;)
-
-
-Ciao,
-
---alessandro

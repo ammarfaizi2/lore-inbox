@@ -1,51 +1,247 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261463AbSJPVoE>; Wed, 16 Oct 2002 17:44:04 -0400
+	id <S261450AbSJPVjn>; Wed, 16 Oct 2002 17:39:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261301AbSJPVnS>; Wed, 16 Oct 2002 17:43:18 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:60671 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261441AbSJPVnG>; Wed, 16 Oct 2002 17:43:06 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: CIFS find_tcp_session/GlobalSMBSessionList protection
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
-Message-ID: <OF464594F1.0BE8F6E7-ON87256C54.0076D48A@boulder.ibm.com>
-From: "Steven French" <sfrench@us.ibm.com>
-Date: Wed, 16 Oct 2002 16:47:08 -0500
-X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
- 10/16/2002 03:47:35 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S261438AbSJPVjS>; Wed, 16 Oct 2002 17:39:18 -0400
+Received: from mailout.zma.compaq.com ([161.114.64.104]:48397 "EHLO
+	zmamail04.zma.compaq.com") by vger.kernel.org with ESMTP
+	id <S261460AbSJPVhw>; Wed, 16 Oct 2002 17:37:52 -0400
+Date: Wed, 16 Oct 2002 15:40:11 -0600
+From: Stephen Cameron <steve.cameron@hp.com>
+To: linux-kernel@vger.kernel.org
+Cc: axboe@suse.de
+Subject: [PATCH 8/8] 2.5.43 cciss 20 second polling timeout
+Message-ID: <20021016154011.H2968@zuul.cca.cpqcorp.net>
+Reply-To: steve.cameron@hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Zwane,
-So far your fixes have tested out ok.   I have made minor additions - e.g.
-to move a similar null pointer check (on the private area of the sb)
-earlier in umount as well.   On the protection of the GlobalSMBSession and
-TreeConnection lists, I changed it in my testing to a rwlock_t rather than
-a rw_sem since I think we can ensure that it never need be held across any
-blocking calls.   I will package these in a bitkeeper change set later this
-evening and submit them.   I have not added in your change to
-ipv4_reconnect yet since there are other areas where that particular code
-path needs work and I would like to submit the improvements for
-reconnection after network failure in one piece.
+* Remove udelay in command polling routine
+* extend timeout to 20 seconds (need for certain multiport storage box)
+* Remove unneeded init time code in cciss_scsi.c (thus allowing removal
+   of udelay in command polling code.)
 
-Thanks for spotting these.
-
-The CIFS VFS seems to be doing ok on the file API stress testing I have
-tried so far, but these should help as I do more testing on MP hardware.
-
-
-
-Steve French
-Senior Software Engineer
-Linux Technology Center - IBM Austin
-phone: 512-838-2294
-email: sfrench@us.ibm.com
-
-
+diff -urN linux-2.5.43-g/drivers/block/cciss.c linux-2.5.43-h/drivers/block/cciss.c
+--- linux-2.5.43-g/drivers/block/cciss.c	Wed Oct 16 08:28:37 2002
++++ linux-2.5.43-h/drivers/block/cciss.c	Wed Oct 16 08:30:54 2002
+@@ -1239,24 +1239,25 @@
+ /*
+  *   Wait polling for a command to complete.
+  *   The memory mapped FIFO is polled for the completion.
+- *   Used only at init time, interrupts disabled.
++ *   Used only at init time, interrupts from the HBA are disabled.
+  */
+ static unsigned long pollcomplete(int ctlr)
+ {
+-        unsigned long done;
+-        int i;
++	unsigned long done;
++	int i;
+ 
+-        /* Wait (up to 2 seconds) for a command to complete */
++	/* Wait (up to 20 seconds) for a command to complete */
+ 
+-        for (i = 200000; i > 0; i--) {
+-                done = hba[ctlr]->access.command_completed(hba[ctlr]);
+-                if (done == FIFO_EMPTY) {
+-                        udelay(10);     /* a short fixed delay */
+-                } else
+-                        return (done);
+-        }
+-        /* Invalid address to tell caller we ran out of time */
+-        return 1;
++	for (i = 20 * HZ; i > 0; i--) {
++		done = hba[ctlr]->access.command_completed(hba[ctlr]);
++		if (done == FIFO_EMPTY) {
++			set_current_state(TASK_UNINTERRUPTIBLE);
++			schedule_timeout(1);
++		} else
++			return (done);
++	}
++	/* Invalid address to tell caller we ran out of time */
++	return 1;
+ }
+ /*
+  * Send a command to the controller, and wait for it to complete.  
+@@ -2341,7 +2342,7 @@
+ 
+ 	cciss_getgeometry(i);
+ 
+-	cciss_find_non_disk_devices(i);	/* find our tape drives, if any */
++	cciss_scsi_setup(i);
+ 
+ 	/* Turn the interrupts on so we can service requests */
+ 	hba[i]->access.set_intr_mask(hba[i], CCISS_INTR_ON);
+diff -urN linux-2.5.43-g/drivers/block/cciss_scsi.c linux-2.5.43-h/drivers/block/cciss_scsi.c
+--- linux-2.5.43-g/drivers/block/cciss_scsi.c	Wed Oct 16 08:28:13 2002
++++ linux-2.5.43-h/drivers/block/cciss_scsi.c	Wed Oct 16 08:30:40 2002
+@@ -201,14 +201,12 @@
+ }
+ 
+ static int
+-scsi_cmd_stack_setup(int ctlr)
++scsi_cmd_stack_setup(int ctlr, struct cciss_scsi_adapter_data_t *sa)
+ {
+ 	int i;
+-	struct cciss_scsi_adapter_data_t *sa;
+ 	struct cciss_scsi_cmd_stack_t *stk;
+ 	size_t size;
+ 
+-	sa = (struct cciss_scsi_adapter_data_t *) hba[ctlr]->scsi_ctlr;
+ 	stk = &sa->cmd_stack; 
+ 	size = sizeof(struct cciss_scsi_cmd_stack_elem_t) * CMD_STACK_SIZE;
+ 
+@@ -537,126 +535,24 @@
+ 	return -1;
+ }
+ 
+-
+ static void 
+-cciss_find_non_disk_devices(int cntl_num)
++cciss_scsi_setup(int cntl_num)
+ {
+-	ReportLunData_struct *ld_buff;
+-	InquiryData_struct *inq_buff;
+-	int return_code;
+-	int i;
+-	int listlength = 0;
+-	int num_luns;
+-	unsigned char scsi3addr[8];
+-	unsigned long flags;
+-	int reportlunsize = sizeof(*ld_buff) + CISS_MAX_PHYS_LUN * 8;
++	struct cciss_scsi_adapter_data_t * shba;
+ 
+-	hba[cntl_num]->scsi_ctlr = (void *)
+-		kmalloc(sizeof(struct cciss_scsi_adapter_data_t),
+-			GFP_KERNEL);	
+-	if (hba[cntl_num]->scsi_ctlr == NULL)
+-		return;
+-
+-	((struct cciss_scsi_adapter_data_t *) 
+-		hba[cntl_num]->scsi_ctlr)->scsi_host = NULL;
+-	((struct cciss_scsi_adapter_data_t *) 
+-		hba[cntl_num]->scsi_ctlr)->lock = SPIN_LOCK_UNLOCKED;
+-	((struct cciss_scsi_adapter_data_t *) 
+-		hba[cntl_num]->scsi_ctlr)->registered = 0;
+-
+-	if (scsi_cmd_stack_setup(cntl_num) != 0) {
+-		printk("Trouble, returned non-zero!\n");
+-		return;
+-	}
+-
+-	ld_buff = kmalloc(reportlunsize, GFP_KERNEL);
+-	if (ld_buff == NULL) {
+-		printk(KERN_ERR "cciss: out of memory\n");
+-		return;
+-	}
+-	memset(ld_buff, 0, sizeof(ReportLunData_struct));
+-	inq_buff = kmalloc(sizeof( InquiryData_struct), GFP_KERNEL);
+-        if (inq_buff == NULL) {
+-                printk(KERN_ERR "cciss: out of memory\n");
+-                kfree(ld_buff);
+-                return;
+-        }
+-
+-	/* Get the physical luns */ 
+-	return_code = sendcmd(CISS_REPORT_PHYS, cntl_num, ld_buff, 
+-			reportlunsize, 0, 0, 0, NULL );
+-
+-	if( return_code == IO_OK) {
+-		unsigned char *c = &ld_buff->LUNListLength[0];
+-		listlength = (c[0] << 24) | (c[1] << 16) | (c[2] << 8) | c[3];
+-	} 
+-	else {  /* getting report of physical luns failed */
+-		printk(KERN_WARNING "cciss: report physical luns"
+-			" command failed\n");
+-		listlength = 0;
+-	}
+-
+-	CPQ_TAPE_LOCK(cntl_num, flags);
+ 	ccissscsi[cntl_num].ndevices = 0;
+-	num_luns = listlength / 8; // 8 bytes pre entry
+-	/* printk("Found %d LUNs\n", num_luns); */
+-
+-	if (num_luns > CISS_MAX_PHYS_LUN)
+-	{
+-		printk(KERN_WARNING 
+-			"cciss: Maximum physical LUNs (%d) exceeded.  "
+-			"%d LUNs ignored.\n", CISS_MAX_PHYS_LUN, 
+-			num_luns - CISS_MAX_PHYS_LUN);
+-		num_luns = CISS_MAX_PHYS_LUN;
+-	}
+-
+-	for(i=0; i<num_luns; i++) {
+-		/* Execute an inquiry to figure the device type */
+-		memset(inq_buff, 0, sizeof(InquiryData_struct));
+-		memcpy(scsi3addr, ld_buff->LUN[i], 8); /* ugly... */
+-		return_code = sendcmd(CISS_INQUIRY, cntl_num, inq_buff,
+-                	sizeof(InquiryData_struct), 2, 0 ,0, scsi3addr );
+-	  	if (return_code == IO_OK) {
+-			if(inq_buff->data_byte[8] == 0xFF)
+-			{
+-			   printk(KERN_WARNING "cciss: inquiry failed\n");
+-                        } else {
+-			   int devtype;
+-
+-			   /* printk("Inquiry...\n");
+-			   print_bytes((unsigned char *) inq_buff, 36, 1, 1); */
+-			   devtype = (inq_buff->data_byte[0] & 0x1f);
+-
+-			   switch (devtype)
+-			   {
+-			    case 0x01: /* sequential access, (tape) */
+-			    case 0x08: /* medium changer */
+-					  /* this is the only kind of dev */
+-					  /* we want to expose here. */
+-				if (cciss_scsi_add_entry(cntl_num, -1,
+-					(unsigned char *) ld_buff->LUN[i],
+-					devtype) != 0) 
+-						i=num_luns; // leave loop
+-				break;
+-			    default: 
+-				break;
+-			   }
+-
+-			}
+-		}
+-		else printk("cciss: inquiry failed.\n");
++	shba = (struct cciss_scsi_adapter_data_t *)
++		kmalloc(sizeof(*shba), GFP_KERNEL);	
++	if (shba == NULL)
++		return;
++	shba->scsi_host = NULL;
++	shba->lock = SPIN_LOCK_UNLOCKED;
++	shba->registered = 0;
++	if (scsi_cmd_stack_setup(cntl_num, shba) != 0) {
++		kfree(shba);
++		shba = NULL;
+ 	}
+-#if 0
+-	for (i=0;i<ccissscsi[cntl_num].ndevices;i++)
+-		printk("Tape device presented at c%db%dt%dl%d\n", 
+-			cntl_num, // <-- this is wrong
+-			ccissscsi[cntl_num].dev[i].bus,
+-			ccissscsi[cntl_num].dev[i].target,
+-			ccissscsi[cntl_num].dev[i].lun);
+-#endif			
+-	CPQ_TAPE_UNLOCK(cntl_num, flags);
+-	kfree(ld_buff);
+-	kfree(inq_buff);
++	hba[cntl_num]->scsi_ctlr = (void *) shba;
+ 	return;
+ }
+ 
+@@ -1622,7 +1518,7 @@
+ 
+ /* If no tape support, then these become defined out of existence */
+ 
+-#define cciss_find_non_disk_devices(cntl_num)
++#define cciss_scsi_setup(cntl_num)
+ #define cciss_unregister_scsi(ctlr)
+ #define cciss_register_scsi(ctlr)
+ #define cciss_proc_tape_report(ctlr, buffer, pos, len)

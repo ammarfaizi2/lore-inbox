@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270530AbTGZVXg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 17:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270583AbTGZVXf
+	id S270508AbTGZVW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 17:22:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270516AbTGZVW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 17:23:35 -0400
-Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:30319
-	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id S270530AbTGZVXC (ORCPT
+	Sat, 26 Jul 2003 17:22:58 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:59885 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S270508AbTGZVWy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 17:23:02 -0400
-Message-ID: <3F22F75D.8090607@rogers.com>
-Date: Sat, 26 Jul 2003 17:49:17 -0400
-From: gaxt <gaxt@rogers.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030708 Thunderbird/0.1a
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: WINE + Galciv + Con Kolivar's 09 patch to  2.6.0-test1-mm2
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep02-mail.bloor.is.net.cable.rogers.com from [24.157.78.60] using ID <dw2price@rogers.com> at Sat, 26 Jul 2003 17:37:37 -0400
+	Sat, 26 Jul 2003 17:22:54 -0400
+Date: Sat, 26 Jul 2003 23:37:54 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp updates
+Message-ID: <20030726213754.GK266@elf.ucw.cz>
+References: <20030726211310.GG266@elf.ucw.cz> <Pine.LNX.4.44.0307261422080.23977-100000@cherise>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0307261422080.23977-100000@cherise>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kudos to CK
+Hi!
 
-In 2.4.21 galciv + wine was fine.
+> > Okay, I killed few trivial hunks, will submit them through trivial
+> > patch monkey. Are you happy now, patrick?
+> 
+> Why do you insist on abusing the trivial patch monkey? Why can't you send 
+> them directly to the maintainers? For instance, you add/remove printk()s 
+> and comments that other people may or may not want in there. 
+> 
+> But no, this doesn't make me happy because you insist on munging multiple 
+> patches together that have little to do with each other, besides the fact 
+> they touch the same file. Like I said in private email, it really helps to 
+> track down a problem if each patch and subsequent changeset is as small 
+> and localized as possible. 
+> 
+> And, that's a real problem with swsusp. It's a huge mess right now. I'd 
+> like to see it work well and reliably for 2.6, and have the source code be 
+> in a state where people can look at it without running away screaming. 
+> Convoluted updates are not going to help the situation. 
 
-In 2.4.21 + CK patches, galvic + wine would pause every 15 seconds or so 
-(maybe it was when little animations played).
-
-In 2.6.0-test1-mm2 (vanilla, or + 08) Galciv would stutter horribly and 
-freeze my machine in wine. It might run smoothly until I loaded a 
-nautilus window or something then stutters and loss of control of the 
-system.
-
-With 09, it is smooth as silk until I do something and then the video 
-playbacks can be choppy but the game (turn based strategy) seems to run 
-without the long pauses of 2.4.21 CK or 2.6.0 vanilla. I can switch 
-between apps and go back without any problem.
-
-09 seems to be a big improvement for whatever caused the stutter & die 
-problems in wine+galciv.
-
+[Sorry for the mess, I guess we are on the good way to solve this in
+private mails.]
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

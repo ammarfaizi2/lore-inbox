@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282919AbRLMAXw>; Wed, 12 Dec 2001 19:23:52 -0500
+	id <S282920AbRLMA0w>; Wed, 12 Dec 2001 19:26:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282948AbRLMAXm>; Wed, 12 Dec 2001 19:23:42 -0500
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:37271 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S282947AbRLMAXc>; Wed, 12 Dec 2001 19:23:32 -0500
-Date: Thu, 13 Dec 2001 00:24:11 +0000
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Over-enthusiastic OOM killer.
-Message-ID: <20011213002411.A26944@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S282934AbRLMA0m>; Wed, 12 Dec 2001 19:26:42 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:27527 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S282920AbRLMA0Z> convert rfc822-to-8bit;
+	Wed, 12 Dec 2001 19:26:25 -0500
+Date: Wed, 12 Dec 2001 16:26:03 -0800 (PST)
+Message-Id: <20011212.162603.28785873.davem@redhat.com>
+To: groudier@free.fr
+Cc: andrea@suse.de, axboe@suse.de, gibbs@scsiguy.com, LB33JM16@yahoo.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: highmem, aic7xxx, and vfat: too few segs for dma mapping
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011212210923.I642-100000@gerard>
+In-Reply-To: <20011212231936.Q4801@athlon.random>
+	<20011212210923.I642-100000@gerard>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The oom killer just killed a bunch of processes on my workstation.
-What I don't understand, is why this was deemed necessary, when
-there was 400MB of buffer cache sitting around in memory, and 175MB
-of free swap space unused. (66mb of swap was used)
-		
-Seems something is drastically amiss here.
+   From: Gérard Roudier <groudier@free.fr>
+   Date: Wed, 12 Dec 2001 21:24:59 +0100 (CET)
+   
+   A N% loss for the 99% case in order to support the 1% is close to N%
+   loss. So, each time we bloat or complexify the code with no relevance for
+   the average case, the overall difference cannot be a win.
 
-The box is still alive, if theres anything else I can provide,
-although cron.daily just ran 5 minutes after the oomkill,
-which has polluted the situation a little..
+Do you know, you can use this N% loss to implement handling of the
+very problem you have wrt. sym53c8xx hw bugs? :-)
 
-It's been up for just over 10 days on pre2.
+To be honest all the machinery to handle the problems you have
+described are there today, even with IOMMU's present.  The generic
+block layer today knows when IOMMU is being used, it knows what kind
+of coalescing can and will be done by the IOMMU support code (via
+DMA_CHUNK_SIZE), and therefore it is capable of adhering to any
+restrictions you care to describe to the block layer.
 
-regards,
-Dave.
-
--- 
-| Dave Jones.                    http://www.codemonkey.org.uk
-| SuSE Labs .
+It's only a matter of coding on Jens's part :-)

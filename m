@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285070AbRLVKKy>; Sat, 22 Dec 2001 05:10:54 -0500
+	id <S284659AbRLVKLy>; Sat, 22 Dec 2001 05:11:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286752AbRLVKKo>; Sat, 22 Dec 2001 05:10:44 -0500
-Received: from rwcrmhc52.attbi.com ([216.148.227.88]:60056 "EHLO
-	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
-	id <S285070AbRLVKKe>; Sat, 22 Dec 2001 05:10:34 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Adam Keys <akeys@post.cis.smu.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: IDE Harddrive Performance
-Date: Sat, 22 Dec 2001 04:10:38 -0600
-X-Mailer: KMail [version 1.3.2]
-Cc: thomas@deselaers.de (Thomas Deselaers), linux-kernel@vger.kernel.org
-In-Reply-To: <E16Hhws-0003Rj-00@the-village.bc.nu>
-In-Reply-To: <E16Hhws-0003Rj-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011222101028.DCPB6450.rwcrmhc52.attbi.com@there>
+	id <S286753AbRLVKLi>; Sat, 22 Dec 2001 05:11:38 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:16795
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S286752AbRLVKL0>; Sat, 22 Dec 2001 05:11:26 -0500
+Date: Sat, 22 Dec 2001 04:58:05 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Rob Landley <landley@trommello.org>
+Cc: David Garfield <garfield@irving.iisd.sra.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Configure.help editorial policy
+Message-ID: <20011222045805.A24575@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Rob Landley <landley@trommello.org>,
+	David Garfield <garfield@irving.iisd.sra.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011220143247.A19377@thyrsus.com> <15395.33489.779730.767039@irving.iisd.sra.com> <20011221134034.B11147@thyrsus.com> <20011222081345.ETGO12125.femail34.sdc1.sfba.home.com@there>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011222081345.ETGO12125.femail34.sdc1.sfba.home.com@there>; from landley@trommello.org on Fri, Dec 21, 2001 at 07:12:13PM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 22, 2001 02:56, Alan Cox wrote:
-> > # hdparm -t /dev/hda
-> >
-> > /dev/hda:
-> >  Timing buffered disk reads:  64 MB in 86.98 seconds =753.46 kB/sec
->
-> Do you get sane numbers if you use 2.4.9 for the hdparm test ?
+Rob Landley <landley@trommello.org>:
+> If you're going with a uniform terminology argument, you should drop MiB 
+> altogether.  Unless you want to submit a patch to the kernel to standardize 
+> all the other occurences everywhere else? :)
 
-Just tried 2.4.9 and 2.4.10, both with ext3 patches.  Both had the same 
-abysmal numbers (791.48 KB/sec for 2.4.9).
+Rob, you haven't looked at the actual changes I made, have you?
 
-Any other combinations I should try?
+If you had, you'd realized that I have not introduced "kibibyte", 
+or "mebibyte" or any of those terms anywhere.  The Configure.help
+changes involve only the IEC-standard abbreviations KiB, MiB, and GiB.
+
+Try criticizing what I actually did, as opposed to what you merely *assume* 
+I did.  You'll be more convincing that way.
 -- 
-akk~
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
+"The best we can hope for concerning the people at large is that they be
+properly armed."
+        -- Alexander Hamilton, The Federalist Papers at 184-188

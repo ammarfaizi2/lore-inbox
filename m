@@ -1,43 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265513AbSKSOXF>; Tue, 19 Nov 2002 09:23:05 -0500
+	id <S265400AbSKSOn3>; Tue, 19 Nov 2002 09:43:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265517AbSKSOXF>; Tue, 19 Nov 2002 09:23:05 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:63186 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S265513AbSKSOXE>; Tue, 19 Nov 2002 09:23:04 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Tue, 19 Nov 2002 16:06:25 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Javier Marcet <jmarcet@pobox.com>
-Cc: linux-kernel@vger.kernel.org, Petr Vandrovec <vandrove@vc.cvut.cz>
-Subject: Re: [PATCH] bttv & 2.5.48
-Message-ID: <20021119150625.GA13525@bytesex.org>
-References: <20021118141328.GA10815@vana> <20021119132106.GA14615@jerry.marcet.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021119132106.GA14615@jerry.marcet.dyndns.org>
-User-Agent: Mutt/1.4i
+	id <S265424AbSKSOn2>; Tue, 19 Nov 2002 09:43:28 -0500
+Received: from holomorphy.com ([66.224.33.161]:1509 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S265400AbSKSOn1>;
+	Tue, 19 Nov 2002 09:43:27 -0500
+Date: Tue, 19 Nov 2002 06:47:40 -0800
+From: wli@holomorphy.com
+To: linux-kernel@vger.kernel.org
+Cc: kernel-janitor-discuss@lists.sourceforge.net
+Subject: [1/2] privatize sibling functions from sched.h
+Message-ID: <0211190647.BccdTchaqcDbBa8bAcgcOcbclc9dAdhc28334@holomorphy.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: patchbomb 0.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This fixes the second of the errors, but not the missing
-> AUDC_CONFIG_PINNACLE I get first:
-> 
-> drivers/media/video/bttv-cards.c: In function AUDC_CONFIG_PINNACLE' 
-> undeclared (first use in this function)
+This privatizes the sibling inlines to sched.c, the sole caller
+of them.
 
-> Any idea where the error might be?
+ include/linux/sched.h |   24 ------------------------
+ kernel/sched.c        |   18 ++++++++++++++++++
+ 2 files changed, 18 insertions(+), 24 deletions(-)
 
-http://bytesex.org/patches/2.5/ has patches for this and other issues.
 
-Files starting with digits are the individual patches,
-patch-2.5.48-kraxel.gz is the "all in one" package.
-
-  Gerd
-
--- 
-You can't please everybody.  And usually if you _try_ to please
-everybody, the end result is one big mess.
-				-- Linus Torvalds, 2002-04-20
+diff -urpN SRC_DIR/include/linux/sched.h siblings-2.5.48/include/linux/sched.h
+--- SRC_DIR/include/linux/sched.h	2002-11-17 20:29:22.000000000 -0800
++++ siblings-2.5.48/include/linux/sched.h	2002-11-19 05:49:43.000000000 -0800
+@@ -639,30 +639,6 @@ extern void kick_if_running(task_t * p);
+ 	add_parent(p, (p)->parent);				\
+ 	} while (0)
+ 
+-static inline struct task_struct *eldest_child(struct task_struct *p)
+-{
+-	if (list_empty(&p->children)) return NULL;
+-	return list_entry(p->children.next,struct task_struct,sibling);
+-}
+-
+-static inline struct task_struct *youngest_child(struct task_struct *p)
+-{
+-	if (list_empty(&p->children)) return NULL;
+-	return list_entry(p->children.prev,struct task_struct,sibling);
+-}
+-
+-static inline struct task_struct *older_sibling(struct task_struct *p)
+-{
+-	if (p->sibling.prev==&p->parent->children) return NULL;
+-	return list_entry(p->sibling.prev,struct task_struct,sibling);
+-}
+-
+-static inline struct task_struct *younger_sibling(struct task_struct *p)
+-{
+-	if (p->sibling.next==&p->parent->children) return NULL;
+-	return list_entry(p->sibling.next,struct task_struct,sibling);
+-}
+-
+ #define next_task(p)	list_entry((p)->tasks.next, struct task_struct, tasks)
+ #define prev_task(p)	list_entry((p)->tasks.prev, struct task_struct, tasks)
+ 
+diff -urpN SRC_DIR/kernel/sched.c siblings-2.5.48/kernel/sched.c
+--- SRC_DIR/kernel/sched.c	2002-11-17 20:29:52.000000000 -0800
++++ siblings-2.5.48/kernel/sched.c	2002-11-19 05:49:43.000000000 -0800
+@@ -1837,6 +1837,24 @@ out_unlock:
+ 	return retval;
+ }
+ 
++static inline struct task_struct *eldest_child(struct task_struct *p)
++{
++	if (list_empty(&p->children)) return NULL;
++	return list_entry(p->children.next,struct task_struct,sibling);
++}
++
++static inline struct task_struct *older_sibling(struct task_struct *p)
++{
++	if (p->sibling.prev==&p->parent->children) return NULL;
++	return list_entry(p->sibling.prev,struct task_struct,sibling);
++}
++
++static inline struct task_struct *younger_sibling(struct task_struct *p)
++{
++	if (p->sibling.next==&p->parent->children) return NULL;
++	return list_entry(p->sibling.next,struct task_struct,sibling);
++}
++
+ static void show_task(task_t * p)
+ {
+ 	unsigned long free = 0;

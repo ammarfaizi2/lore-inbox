@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264974AbTFETid (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 15:38:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265082AbTFETic
+	id S264940AbTFETuU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 15:50:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265082AbTFETuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 15:38:32 -0400
-Received: from ns.suse.de ([213.95.15.193]:60688 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264974AbTFETi2 (ORCPT
+	Thu, 5 Jun 2003 15:50:20 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:59616 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264940AbTFETuU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 15:38:28 -0400
-Date: Thu, 5 Jun 2003 21:51:58 +0200
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@suse.de>, warren@togami.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.21-rc7 AMD64 dpt_i2o fails compile
-Message-ID: <20030605195158.GB4725@wotan.suse.de>
-References: <1054789161.3699.67.camel@laptop.suse.lists.linux.kernel> <20030605010841.A29837@devserv.devel.redhat.com.suse.lists.linux.kernel> <1054799692.3699.77.camel@laptop.suse.lists.linux.kernel> <1054808477.15276.0.camel@dhcp22.swansea.linux.org.uk.suse.lists.linux.kernel> <p73wug067qb.fsf@oldwotan.suse.de> <1054842344.15457.43.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1054842344.15457.43.camel@dhcp22.swansea.linux.org.uk>
+	Thu, 5 Jun 2003 15:50:20 -0400
+Date: Thu, 5 Jun 2003 13:05:13 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Stephen Hemminger <shemminger@osdl.org>
+cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] typo in new class_device_release
+In-Reply-To: <20030605112641.7cb00f93.shemminger@osdl.org>
+Message-ID: <Pine.LNX.4.44.0306051304290.13077-100000@cherise>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 05, 2003 at 08:45:44PM +0100, Alan Cox wrote:
-> On Iau, 2003-06-05 at 13:15, Andi Kleen wrote:
-> > Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-> > 
-> > > Fixing up dpt_i2o for the new DMA stuff is a major job. Fixing it for
-> > > 64bit cleanness even more so.
-> > 
-> > If the hardware/firmware supports 64bit pointers then at least AMD64
-> > can work without the PCI DMA API. 
-> 
-> 32bit all around as far I as I can tell
 
-Then fixing it to use the DMA code is best - you can use 32bit pointers
-fine then. Just the code in the driver itself needs to be able to tolerate
-a 64bit host.
+On Thu, 5 Jun 2003, Stephen Hemminger wrote:
 
--Andi
+> There is a typo in the current 2.5.70 bk version of class_device_release that
+> was not there in my original patch.  By confusing the class and the class_device,
+> the release function oops.  cd->release is always the function itself (class_device_release),
+> cls->release is the one setup for the class (net_class in my case).
+
+Bah, sloppy fixup..
+
+Thanks,
+
+
+	-pat
+

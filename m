@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263512AbTIHVLV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 17:11:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263553AbTIHVLV
+	id S263610AbTIHVYY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 17:24:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263632AbTIHVYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 17:11:21 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:1796 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263512AbTIHVLU convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 17:11:20 -0400
-Message-ID: <3F5CF045.DDDE475C@SteelEye.com>
-Date: Mon, 08 Sep 2003 17:10:29 -0400
-From: Paul Clements <Paul.Clements@SteelEye.com>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.13 i686)
-X-Accept-Language: en
+	Mon, 8 Sep 2003 17:24:24 -0400
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:33197 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S263610AbTIHVYW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 17:24:22 -0400
+Reply-To: <hzhong@cisco.com>
+From: "Hua Zhong" <hzhong@cisco.com>
+To: "'Jamie Lokier'" <jamie@shareable.org>
+Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: THREAD_GROUP and linux thread
+Date: Mon, 8 Sep 2003 14:24:14 -0700
+Organization: Cisco Systems
+Message-ID: <127701c3764f$8e8a2d20$ca41cb3f@amer.cisco.com>
 MIME-Version: 1.0
-To: Sven =?iso-8859-1?Q?K=F6hler?= <skoehler@upb.de>
-CC: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [NBD] patch and documentation
-References: <3F5CB554.5040507@upb.de> <20030908193838.GA435@elf.ucw.cz> <3F5CE0E5.A5A08A91@SteelEye.com> <3F5CE3E6.8070201@upb.de>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+In-Reply-To: <20030908211234.GA28109@mail.jlokier.co.uk>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sven Köhler wrote:
- 
-> Well, i guess the cache uses a value of 256 sectors to do read-ahead and
-> such.
+> Hua Zhong wrote:
+> > but I am just wondering if I could just change the kernel to treat
+> > CLONE_VM the same way as CLONE_THREAD which is a much 
+> simpler change.
+> 
+> No.  There are a good many programs which use CLONE_VM without
+> CLONE_THREAD, and I'm sure they will be surprised to find signals
+> suddenly being shared
 
-Well it sounds like the real problem here is the vm_max_readahead
-setting then. Try this:
+Thank you, that's exactly what I want to know.
 
-cat /proc/sys/vm/max-readahead
+> which is implied by CLONE_THREAD.
 
-Probably, it's set to 31 on your system.
+The most accurate description is "which is implied by thread_group
+list"....
 
-Try something like the following:
+So I guess I'll live with having a separate list.
 
-echo "126" > /proc/sys/vm/max-readahead
+> > 2. Which version of pthread uses the CLONE_THREAD flag?
+> 
+> NPTL.
+> 
+> Enjoy,
+> -- Jamie
+> 
 
-I think that should help out.
-
---
-Paul

@@ -1,55 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317402AbSHYQdb>; Sun, 25 Aug 2002 12:33:31 -0400
+	id <S317415AbSHYQz4>; Sun, 25 Aug 2002 12:55:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317404AbSHYQdb>; Sun, 25 Aug 2002 12:33:31 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:43908 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S317402AbSHYQda>;
-	Sun, 25 Aug 2002 12:33:30 -0400
-Message-ID: <3D6907BA.5020603@colorfullife.com>
-Date: Sun, 25 Aug 2002 18:37:14 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
+	id <S317427AbSHYQz4>; Sun, 25 Aug 2002 12:55:56 -0400
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:31715 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S317415AbSHYQzz>;
+	Sun, 25 Aug 2002 12:55:55 -0400
+Message-ID: <3D690D10.5040601@candelatech.com>
+Date: Sun, 25 Aug 2002 10:00:00 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "H. J. Lu" <hjl@lucon.org>
-CC: Andrew Morton <akpm@zip.com.au>, ink@jurassic.park.msu.ru,
-       ggs@shiresoft.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-       dhinds@zen.stanford.edu
-Subject: Re: [Fwd: [PATCH] reduce size of bridge regions for yenta.c]
-References: <3D6874A0.5B110F6@zip.com.au> <20020825075729.A14924@lucon.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: packet re-ordering on SMP machines.
+References: <3D6884BC.5090004@candelatech.com> <1030286473.16651.7.camel@irongate.swansea.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. J. Lu wrote:
-> I don't like it at all. That change is not right. Usually the PCI
-> bridge before the CardBus bridge is transparent.
+Alan Cox wrote:
+> On Sun, 2002-08-25 at 08:18, Ben Greear wrote:
+> 
+>>By re-ordered, I mean that a method called from process_backlog in dev.c
+>>is being handed packets in a different order than they are being poked into
+>>the driver with hard_start_xmit on the other interface.  If each CPU can be running the
+>>process_backlog, then I can see how this could be happening.
+>>
+>>
+>>1)  Is this expected behaviour?
+> 
+> Yes
+> 
+> 
+>>2)  Is there any standard (ie configurable) way to enforce strict ordering on an
+>>     SMP system?
+> 
+> No
+> 
+> 
+>>3)  If answer to 2 is no, would you all be interested in a patch that
+>>     did allow strict ordering (if indeed I can figure out how to write one)?
+> 
+> 
+> You should never need it. Ethernet, hubs, switches, routers, internet
+> backbones etc will all cause packet re-ordering. You should also expect
+> the percentage of re-ordered frames on the net to rise and rise. 
 
-And what if the PCI bridge is not transparent? What if it's a server 
-with a riser card, and a cardbus bridge to attach a WLAN card? That 
-setup is quite common.
+I would like to detect the number of pkts that such backbone hardware does
+re-order, so if my end machine is also re-ordering, I cannot get valid
+numbers.
 
-yenta.c doesn't contain error handling, and that should be fixed.
+Thanks,
+Ben
 
 > 
-> H.J.
-> On Sat, Aug 24, 2002 at 11:09:36PM -0700, Andrew Morton wrote:
 > 
->>You guys may need this...
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-IMHO both patches are needed:
 
-The current code that detects transparent bridges [bridges that 
-implement subtractive decoding would be a better name] is bad, Ivan's 
-patch fixes that.
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
-My patch adds error handling to yenta.c. It's not strictly needed, 
-because most PCI bridges in laptops forward all requests, and thus there 
-is enough iomem space for the 8 MB allocation, but the lack of error 
-handling [and lack of printks] just asks for trouble.
-
---
-	Manfred
 

@@ -1,70 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261780AbVAMWOo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbVAMWR6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261780AbVAMWOo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 17:14:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbVAMWOh
+	id S261786AbVAMWR6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 17:17:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbVAMWPB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 17:14:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:47242 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261780AbVAMWHL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 17:07:11 -0500
-Date: Thu, 13 Jan 2005 17:06:52 -0500
-From: Dave Jones <davej@redhat.com>
-To: Marek Habersack <grendel@caudium.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wright <chrisw@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
-       akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-Message-ID: <20050113220652.GJ3555@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Marek Habersack <grendel@caudium.net>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wright <chrisw@osdl.org>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
-	akpm@osdl.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112174203.GA691@logos.cnet> <1105627541.4624.24.camel@localhost.localdomain> <20050113194246.GC24970@beowulf.thanes.org> <20050113115004.Z24171@build.pdx.osdl.net> <20050113202905.GD24970@beowulf.thanes.org> <1105645267.4644.112.camel@localhost.localdomain> <20050113210229.GG24970@beowulf.thanes.org> <20050113213002.GI3555@redhat.com> <20050113214814.GA9481@beowulf.thanes.org>
+	Thu, 13 Jan 2005 17:15:01 -0500
+Received: from smtp-104-thursday.nerim.net ([62.4.16.104]:5636 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261777AbVAMWHI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 17:07:08 -0500
+Date: Thu, 13 Jan 2005 23:09:31 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Kumar Gala <kumar.gala@freescale.com>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: Re: I2C_TIMEOUT
+Message-Id: <20050113230931.2b492b52.khali@linux-fr.org>
+In-Reply-To: <9ACC0FE8-65AC-11D9-B612-000393DBC2E8@freescale.com>
+References: <9ACC0FE8-65AC-11D9-B612-000393DBC2E8@freescale.com>
+Reply-To: LM Sensors <sensors@stimpy.netroedge.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050113214814.GA9481@beowulf.thanes.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 13, 2005 at 10:48:14PM +0100, Marek Habersack wrote:
- 
- > > If admins don't install updates in a timely manner, there's
- > > not a lot we can do about it.  For those that _do_ however,
- > > we can make their lives a lot more stress free.
- > Indeed, but what does have it to do with a closed disclosure list? 
+Hi Kumar,
 
-For the N'th time, it gives vendors a chance to have packages
-ready at the time of disclosure.
+> What is the intended purpose of the I2C_TIMEOUT cmd?  It clearly sets 
+> the adapter timeout, I'm just trying to understand if there is a 
+> standard usage for the adapter's timeout.
 
- > With open
- > disclosure list you provide a set of fixes right away, the admins take them
- > and apply. With closed list you do the same, but with a delay (which gives
- > an opportunity for a "race condition" with the bad guys, one could argue).
- > So, what's the advantage of the delayed disclosure?
+An adapter's timeout is supposedly the time the adapter driver will wait
+for a client to answer before giving up. As far as I can see, most SMBus
+master drivers do *not* properly use this, ie they use a local variable
+instead of the i2c_adapter struct member, so you cannot use the command
+to change their default timeout value. Some other bus drivers (most
+notably all i2c-algo-bit-based ones, but also i2c-iop3xx and
+i2c-ibm_iic.c) do properly use the timeout member so the command should
+work for them.
 
-Not having to panic and rush out releases on day of disclosure.
-Not having users vulnerable whilst packages build/get QA/get pushed to mirrors.
+Note that I never saw the command used. Where it would make the more
+sense is from user-space through i2c-dev, but even then I believe that
+everyone is just happy with the default timeouts the bus drivers come
+with.
 
-Users of kernel.org kernels get to build and boot in under an hour.
-Vendor kernels take a lot longer to build.
-
-1- More architectures.
-   (And trust me, there's nothing I'd like more than to be able
-	to increase the speed of kernel builds on some of the architectures
-	we support).
-2- More generic, ie more modules to build.
-
-In the case of public disclosure of issues that we weren't aware of,
-it's a miracle that we get update kernels out on day of disclosure
-in some cases. (In others, we don't, and the same applies to other vendors too)
-
-		Dave
-
+Hope that helps,
+-- 
+Jean Delvare
+http://khali.linux-fr.org/

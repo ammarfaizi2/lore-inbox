@@ -1,54 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263462AbUBCDpI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 22:45:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbUBCDpH
+	id S263370AbUBCDii (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 22:38:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbUBCDii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 22:45:07 -0500
-Received: from fw.osdl.org ([65.172.181.6]:4744 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263462AbUBCDpE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 22:45:04 -0500
-Date: Mon, 2 Feb 2004 19:46:26 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Philip Martin <philip@codematters.co.uk>
-Cc: linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: 2.6.1 slower than 2.4, smp/scsi/sw-raid/reiserfs
-Message-Id: <20040202194626.191cbb95.akpm@osdl.org>
-In-Reply-To: <87oesieb75.fsf@codematters.co.uk>
-References: <87oesieb75.fsf@codematters.co.uk>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 2 Feb 2004 22:38:38 -0500
+Received: from webhost1.sirion.net.au ([203.63.163.20]:26383 "EHLO
+	webhost1.sirion.net.au") by vger.kernel.org with ESMTP
+	id S263370AbUBCDig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 22:38:36 -0500
+Mime-Version: 1.0 (Apple Message framework v612)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <6FF5C83C-55FA-11D8-AC00-000A95CEEE4E@computeraddictions.com.au>
 Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Ryan Verner <xfesty@computeraddictions.com.au>
+Subject: Promise PDC20269 (Ultra133 TX2) + Software RAID
+Date: Tue, 3 Feb 2004 14:08:31 +1030
+To: LinuxSA ML <linuxsa@linuxsa.org.au>
+X-Mailer: Apple Mail (2.612)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philip Martin <philip@codematters.co.uk> wrote:
->
-> My test is a software build of about 200 source files (written in C)
->  that I usually build using "nice make -j4".  Timing the build on
->  2.4.24 I typically get something like
-> 
->  242.27user 81.06system 2:44.18elapsed 196%CPU (0avgtext+0avgdata 0maxresident)k
->  0inputs+0outputs (1742270major+1942279minor)pagefaults 0swaps
-> 
->  and on 2.6.1 I get
-> 
->  244.08user 116.33system 3:27.40elapsed 173%CPU (0avgtext+0avgdata 0maxresident)k
->  0inputs+0outputs (0major+3763670minor)pagefaults 0swaps
+Howdy,
 
-I didn't notice the increase in system time.
+I did an upgrade on a system the other day; we went from 2 * 8G drives 
+in software RAID1, running off the motherboard's IDE chipset, to 2 * 
+80G drives in software RAID1, running off a Promise Ultra133 TX2 card.
 
-Could you generate a kernel profile?  Add `profile=1' to the kernel boot
-command line and run:
+I upgraded the kernel at the same time to 2.4.24 w/ grsec patches.  The 
+drives are detected fine:
 
-sudo readprofile -r
-sudo readprofile -M10
-time make -j4
-readprofile -n -v -m /boot/System.map | sort -n +2 | tail -40 | tee ~/profile.txt >&2
+PDC20269: IDE controller at PCI slot 00:0d.0
+PCI: Found IRQ 10 for device 00:0d.0
+PDC20269: chipset revision 2
+PDC20269: not 100% native mode: will probe irqs later
+PDC20269: ROM enabled at 0xe5000000
+     ide2: BM-DMA at 0xe400-0xe407, BIOS settings: hde:pio, hdf:pio
+     ide3: BM-DMA at 0xe408-0xe40f, BIOS settings: hdg:pio, hdh:pio
+hde: WDC WD800JB-00ETA0, ATA DISK drive
+blk: queue c01a2db8, I/O limit 4095Mb (mask 0xffffffff)
+hdg: WDC WD800JB-00ETA0, ATA DISK drive
+blk: queue c01a3224, I/O limit 4095Mb (mask 0xffffffff)
+ide2 at 0xd400-0xd407,0xd802 on irq 10
+ide3 at 0xdc00-0xdc07,0xe002 on irq 10
+hde: attached ide-disk driver.
+hde: host protected area => 1
+hde: 156301488 sectors (80026 MB) w/8192KiB Cache, CHS=9729/255/63, 
+UDMA(100)
+hdg: attached ide-disk driver.
+hdg: host protected area => 1
+hdg: 156301488 sectors (80026 MB) w/8192KiB Cache, CHS=9729/255/63, 
+UDMA(100)
 
-on both 2.4 and 2.6?  Make sure the System.map is appropriate to the
-currently-running kernel.
+However, we get these sorts of errors often:
 
+hdg: dma_timer_expiry: dma status == 0x22
+hdg: error waiting for DMA
+hdg: dma timeout retry: status=0x58 { DriveReady SeekComplete 
+DataRequest }
+hdg: status timeout: status=0xd0 { Busy }
+PDC202XX: Secondary channel reset.
+hdg: drive not ready for command
+ide3: reset: success
+
+And the machine is randomly locking up, and of course, on reboot, the 
+raid array is rebuilt.  Ouch.  Any clues as to why?  I'm sure the hard 
+drive hasn't failed as it's brand new; I suspect a chipset 
+compatibility problem or something.
+
+R
+
+--
+
+Signature space for rent.
 

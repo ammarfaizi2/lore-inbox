@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbTL1P1O (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 10:27:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbTL1P1O
+	id S261605AbTL1Pjo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 10:39:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbTL1Pjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 10:27:14 -0500
-Received: from pcp01184054pcs.strl301.mi.comcast.net ([68.60.186.73]:15496
-	"EHLO michonline.com") by vger.kernel.org with ESMTP
-	id S261552AbTL1P1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 10:27:13 -0500
-Date: Sun, 28 Dec 2003 10:27:11 -0500
-From: Ryan Anderson <ryan@michonline.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: is it possible to have a kernel module with a BSD license?!
-Message-ID: <20031228152711.GE17870@michonline.com>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3FE9ADEE.1080103@baywinds.org> <20031227145102.GA14464@hh.idb.hist.no>
+	Sun, 28 Dec 2003 10:39:44 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41409 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261605AbTL1Pjn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 10:39:43 -0500
+Date: Sun, 28 Dec 2003 15:39:41 +0000
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: CD burn buffer underruns on 2.6
+Message-ID: <20031228153941.GA851@gallifrey>
+References: <16366.60194.935861.592797@nycap.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031227145102.GA14464@hh.idb.hist.no>
+In-Reply-To: <16366.60194.935861.592797@nycap.rr.com>
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.6.0 (i686)
+X-Uptime: 15:37:16 up 7 min,  1 user,  load average: 0.07, 0.26, 0.15
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[snipping a bit to keep this succint]
-
-On Sat, Dec 27, 2003 at 03:51:02PM +0100, Helge Hafting wrote:
-> > About:
-> > This project provides a kernel module which provides 3rd-party 
-> > applications with an interface for file access control. It was 
-> > originally developed for on-access virus scanning. Other uses include a 
+* craig duncan (duncan@nycap.rr.com) wrote:
 > 
-> "On access" seems to be exactly the wrong moment for a virus check - 
-> that way you are getting the check delay at the worst moment, when
-> the user actually want to use the file.  
-> 
-> Consider doing virus checking on write only, viruses spread
-> only at that time.  
+> Dec 24 08:24:44 cdw kernel: cdrom_newpc_intr: 110 residual after xfer
 
-So, when I stick my nicely virus infected floppy/cdrom/etc into your
-machine, and your write-only virus scan gets disabled by my module
-patching virus...
+Hmm - I'm seeing those just playing an audio CD on 2.6.0:
 
-So, when I stick my nicely virus infected floppy/cdrom/etc into your
-machine, and your write-only virus scan gets disabled by the module
-the virus loads...
+cdrom_newpc_intr: 3 residual after xfer
 
+(That is a Memorex 24MAXX 1040 CD R/W on an AMD766 controller on a dual
+Athlon MP board).
 
--- 
-
-Ryan Anderson
-  sometimes Pug Majere
+Dave
+ -----Open up your eyes, open up your mind, open up your code -------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

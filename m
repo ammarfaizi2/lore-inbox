@@ -1,321 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268279AbUGXFBS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268282AbUGXFBX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268279AbUGXFBS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 01:01:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268284AbUGXFBS
+	id S268282AbUGXFBX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 01:01:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268284AbUGXFBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 01:01:18 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:14486 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S268279AbUGXFA1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 01:00:27 -0400
-Subject: Re: [patch] kernel events layer
-From: Robert Love <rml@ximian.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Dan Aloni <da-x@gmx.net>, akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <4956.1090644161@ocs3.ocs.com.au>
-References: <4956.1090644161@ocs3.ocs.com.au>
-Content-Type: text/plain
-Date: Sat, 24 Jul 2004 01:00:38 -0400
-Message-Id: <1090645238.2296.37.camel@localhost>
+	Sat, 24 Jul 2004 01:01:23 -0400
+Received: from ozlabs.org ([203.10.76.45]:1982 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268282AbUGXFBN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jul 2004 01:01:13 -0400
+Date: Sat, 24 Jul 2004 14:47:20 +1000
+From: Anton Blanchard <anton@samba.org>
+To: akpm@osdl.org
+Cc: paulus@samba.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix ppc64 max_pfn issue
+Message-ID: <20040724044720.GF4556@krispykreme>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.90 (1.5.90-5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-07-24 at 14:42 +1000, Keith Owens wrote:
 
-> Never use the return value from snprintf to work out the next buffer
-> position, it is not reliable when the data is truncated.  The example
-> above uses a second call to snprintf which will generate a warning for
-> truncated data and fail safe, but not all code is that trustworthy.  I
-> always use strlen to get the real buffer length.
+Hi,
 
-If we are going to use snprintf, we might as well use it right.
+I noticed excessive time in the pid hash functions on a ppc64 box. It
+turns out the pid hash is being sized way too small, eg on a 16GB box:
 
-Updated patch attached.  Thanks.
+PID hash table entries: 16 (order 4: 256 bytes)
 
-Thinking about it, though, the from and signal buffers are never ever
-going to approach PAGE_SIZE so this check is really being anal.  We
-certainly want to be safe later, when we construct the message, but
-here ... oh well.  Safe is better than sorry.
+The reason is that the pid hash init function uses max_pfn before it was
+setup on ppc64. With the following patch things are good again:
 
-	Robert Love
+PID hash table entries: 4096 (order 12: 65536 bytes)
 
+Signed-off-by: Anton Blanchard <anton@samba.org>
 
-Kernel to user-space communication layer using netlink
-X-Signed-Off-By: Robert Love <rml@ximian.com>
-
- arch/i386/kernel/cpu/mcheck/p4.c |    9 ++
- include/linux/kevent.h           |   37 ++++++++++
- include/linux/netlink.h          |    1 
- init/Kconfig                     |   14 +++
- kernel/Makefile                  |    1 
- kernel/kevent.c                  |  143 +++++++++++++++++++++++++++++++++++++++
- 6 files changed, 204 insertions(+), 1 deletion(-)
-
-diff -urN linux-2.6.8-rc2/arch/i386/kernel/cpu/mcheck/p4.c linux/arch/i386/kernel/cpu/mcheck/p4.c
---- linux-2.6.8-rc2/arch/i386/kernel/cpu/mcheck/p4.c	2004-06-16 01:19:37.000000000 -0400
-+++ linux/arch/i386/kernel/cpu/mcheck/p4.c	2004-07-23 22:55:20.000000000 -0400
-@@ -9,6 +9,7 @@
- #include <linux/irq.h>
- #include <linux/interrupt.h>
- #include <linux/smp.h>
-+#include <linux/kevent.h>
+diff -puN arch/ppc64/mm/init.c~fix_max_pfn arch/ppc64/mm/init.c
+--- gr_work/arch/ppc64/mm/init.c~fix_max_pfn	2004-07-23 23:13:18.501206270 -0500
++++ gr_work-anton/arch/ppc64/mm/init.c	2004-07-23 23:22:05.691934376 -0500
+@@ -555,6 +555,8 @@ void __init do_init_bootmem(void)
+ 	unsigned long total_pages = lmb_end_of_DRAM() >> PAGE_SHIFT;
+ 	int boot_mapsize;
  
- #include <asm/processor.h> 
- #include <asm/system.h>
-@@ -59,9 +60,15 @@
- 	if (l & 0x1) {
- 		printk(KERN_EMERG "CPU%d: Temperature above threshold\n", cpu);
- 		printk(KERN_EMERG "CPU%d: Running in modulated clock mode\n",
--				cpu);
-+			cpu);
-+		send_kevent(KMSG_POWER,
-+			"/org/kernel/devices/system/cpu/temperature", "high",
-+			"Cpu: %d\n", cpu);
- 	} else {
- 		printk(KERN_INFO "CPU%d: Temperature/speed normal\n", cpu);
-+		send_kevent(KMSG_POWER,
-+			"/org/kernel/devices/system/cpu/temperature", "normal",
-+			"Cpu: %d\n", cpu);
- 	}
- }
++        max_pfn = max_low_pfn;
++
+ 	/*
+ 	 * Find an area to use for the bootmem bitmap.  Calculate the size of
+ 	 * bitmap required as (Total Memory) / PAGE_SIZE / BITS_PER_BYTE.
+@@ -651,7 +653,6 @@ void __init mem_init(void)
  
-diff -urN linux-2.6.8-rc2/include/linux/kevent.h linux/include/linux/kevent.h
---- linux-2.6.8-rc2/include/linux/kevent.h	1969-12-31 19:00:00.000000000 -0500
-+++ linux/include/linux/kevent.h	2004-07-23 22:53:45.000000000 -0400
-@@ -0,0 +1,37 @@
-+#ifndef _LINUX_KEVENT_H
-+#define _LINUX_KEVENT_H
-+
-+#include <linux/config.h>
-+
-+/* kevent types - these are used as the multicast group */
-+#define KMSG_GENERAL	0
-+#define KMSG_STORAGE	1
-+#define KMSG_POWER	2
-+#define KMSG_FS		3
-+#define KMSG_HOTPLUG	4
-+
-+#ifdef CONFIG_KERNEL_EVENTS
-+
-+int send_kevent(int type, const char *object, const char *signal,
-+		const char *fmt, ...);
-+
-+int send_kevent_atomic(int type, const char *object, const char *signal,
-+		const char *fmt, ...);
-+
-+#else
-+
-+static inline int send_kevent(int type, const char *object, const char *signal,
-+		const char *fmt, ...)
-+{
-+	return 0;
-+}
-+
-+static inline int send_kevent_atomic(int type, const char *object,
-+		const char *signal, const char *fmt, ...)
-+{
-+	return 0;
-+}
-+
-+#endif /* ! CONFIG_KERNEL_EVENTS */
-+
-+#endif	/* _LINUX_KEVENT_H */
-diff -urN linux-2.6.8-rc2/include/linux/netlink.h linux/include/linux/netlink.h
---- linux-2.6.8-rc2/include/linux/netlink.h	2004-07-23 22:18:04.000000000 -0400
-+++ linux/include/linux/netlink.h	2004-07-23 22:21:18.000000000 -0400
-@@ -17,6 +17,7 @@
- #define NETLINK_ROUTE6		11	/* af_inet6 route comm channel */
- #define NETLINK_IP6_FW		13
- #define NETLINK_DNRTMSG		14	/* DECnet routing messages */
-+#define NETLINK_KMESSAGE	15	/* Kernel messages to userspace */
- #define NETLINK_TAPBASE		16	/* 16 to 31 are ethertap */
+ 	num_physpages = max_low_pfn;	/* RAM is assumed contiguous */
+ 	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
+-	max_pfn = max_low_pfn;
  
- #define MAX_LINKS 32		
-diff -urN linux-2.6.8-rc2/init/Kconfig linux/init/Kconfig
---- linux-2.6.8-rc2/init/Kconfig	2004-07-23 22:18:04.000000000 -0400
-+++ linux/init/Kconfig	2004-07-23 22:44:26.000000000 -0400
-@@ -160,6 +160,20 @@
- 	  logging of avc messages output).  Does not do system-call
- 	  auditing without CONFIG_AUDITSYSCALL.
+ #ifdef CONFIG_DISCONTIGMEM
+ {
+diff -puN arch/ppc64/mm/numa.c~fix_max_pfn arch/ppc64/mm/numa.c
+--- gr_work/arch/ppc64/mm/numa.c~fix_max_pfn	2004-07-23 23:16:29.491011782 -0500
++++ gr_work-anton/arch/ppc64/mm/numa.c	2004-07-23 23:20:47.684429879 -0500
+@@ -429,6 +429,7 @@ void __init do_init_bootmem(void)
  
-+config KERNEL_EVENTS
-+	bool "Kernel Events Layer"
-+	depends on NET
-+	default y
-+	help
-+	  This option enables the kernel events layer, which is a simple
-+	  mechanism for kernel-to-user communication over a netlink socket.
-+	  The goal of the kernel events layer is to provide a simple and
-+	  efficient logging, error, and events system.  Specifically, code
-+	  is available to link the events into D-BUS.  Say Y, unless you
-+	  are building a system requiring minimal memory consumption.
-+
-+	  D-BUS is available at http://dbus.freedesktop.org/
-+
- config AUDITSYSCALL
- 	bool "Enable system-call auditing support"
- 	depends on AUDIT && (X86 || PPC64 || ARCH_S390 || IA64)
-diff -urN linux-2.6.8-rc2/kernel/kevent.c linux/kernel/kevent.c
---- linux-2.6.8-rc2/kernel/kevent.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux/kernel/kevent.c	2004-07-24 00:57:44.180662592 -0400
-@@ -0,0 +1,143 @@
-+/*
-+ * kernel/kevent.c - kernel event delivery over a netlink socket
-+ * 
-+ * Copyright (C) 2004 Red Hat, Inc.  All rights reserved.
-+ *
-+ * Licensed under the GNU GPL v2.
-+ *
-+ * Authors:
-+ *	Arjan van de Ven	<arjanv@redhat.com>
-+ *	Kay Sievers		<kay.sievers@vrfy.org>
-+ *	Robert Love		<rml@novell.com>
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/spinlock.h>
-+#include <linux/socket.h>
-+#include <linux/skbuff.h>
-+#include <linux/netlink.h>
-+#include <linux/string.h>
-+#include <linux/kevent.h>
-+#include <net/sock.h>
-+
-+/* There is one global netlink socket */
-+static struct sock *kevent_sock = NULL;
-+
-+static void netlink_receive(struct sock *sk, int len)
-+{
-+	struct sk_buff *skb;
-+
-+	 /* just drop them all */
-+	while ((skb = skb_dequeue(&sk->sk_receive_queue)) != NULL)
-+		kfree_skb(skb);
-+}
-+
-+static int netlink_send(__u32 groups, int gfp_mask, const char *buffer, int len)
-+{
-+	struct sk_buff *skb;
-+	char *data_start;
-+
-+	if (!kevent_sock)
-+		return -EIO;
-+
-+	if (!buffer)
-+		return -EINVAL;
-+
-+	if (len > PAGE_SIZE)
-+		return -EINVAL;
-+
-+	skb = alloc_skb(len, gfp_mask);
-+	if (!skb)
-+		return -ENOMEM;
-+	data_start = skb_put(skb, len);
-+	memcpy(data_start, buffer, len);
-+
-+	return netlink_broadcast(kevent_sock, skb, 0, groups, gfp_mask);
-+}
-+
-+static int do_send_kevent(int type, int gfp_mask, const char *object,
-+			  const char *signal, const char *fmt, va_list args)
-+{
-+	char *buffer;
-+	int len;
-+	int ret;
-+
-+	if (!object)
-+		return -EINVAL;
-+
-+	if (!signal)
-+		return -EINVAL;
-+
-+	if (strlen(object) > PAGE_SIZE)
-+		return -EINVAL;
-+
-+	buffer = (char *) get_zeroed_page(gfp_mask);
-+	if (!buffer)
-+		return -ENOMEM;
-+
-+	snprintf(buffer, PAGE_SIZE, "From: %s\n", object);
-+	len = strlen(buffer);
-+	snprintf(buffer + len, PAGE_SIZE - len, "Signal: %s\n", signal);
-+	len = strlen(buffer);
-+
-+	/* possible anxiliary data */
-+	if (fmt)
-+		len += vscnprintf(&buffer[len], PAGE_SIZE-len-1, fmt, args);
-+	buffer[len++] = '\0';
-+
-+	ret = netlink_send((1 << type), gfp_mask, buffer, len);
-+	free_page((unsigned long) buffer);
-+
-+	return ret;
-+}
-+
-+/**
-+ * send_kevent - send a message to user-space via the kernel events layer
-+ */
-+int send_kevent(int type, const char *object, const char *signal,
-+		const char *fmt, ...)
-+{
-+	va_list args;
-+	int ret;
-+
-+	va_start(args, fmt);
-+	ret = do_send_kevent(type, GFP_KERNEL, object, signal, fmt, args);
-+	va_end(args);
-+
-+	return ret;
-+}
-+
-+EXPORT_SYMBOL_GPL(send_kevent);
-+
-+/**
-+ * send_kevent_atomic - send a message to user-space via the kernel events layer
-+ */
-+int send_kevent_atomic(int type, const char *object, const char *signal,
-+		       const char *fmt, ...)
-+{
-+	va_list args;
-+	int ret;
-+
-+	va_start(args, fmt);
-+	ret = do_send_kevent(type, GFP_ATOMIC, object, signal, fmt, args);
-+	va_end(args);
-+
-+	return ret;
-+}
-+
-+EXPORT_SYMBOL_GPL(send_kevent_atomic);
-+
-+static int kevent_init(void)
-+{
-+	kevent_sock = netlink_kernel_create(NETLINK_KMESSAGE, netlink_receive);
-+
-+	if (!kevent_sock) {
-+		printk(KERN_ERR "kevent: "
-+		       "unable to create netlink socket; aborting\n");
-+		return -ENODEV;
-+	}
-+
-+	return 0;
-+}
-+
-+module_init(kevent_init);
-diff -urN linux-2.6.8-rc2/kernel/Makefile linux/kernel/Makefile
---- linux-2.6.8-rc2/kernel/Makefile	2004-07-23 22:18:04.000000000 -0400
-+++ linux/kernel/Makefile	2004-07-23 22:33:36.000000000 -0400
-@@ -23,6 +23,7 @@
- obj-$(CONFIG_STOP_MACHINE) += stop_machine.o
- obj-$(CONFIG_AUDIT) += audit.o
- obj-$(CONFIG_AUDITSYSCALL) += auditsc.o
-+obj-$(CONFIG_KERNEL_EVENTS) += kevent.o
+ 	min_low_pfn = 0;
+ 	max_low_pfn = lmb_end_of_DRAM() >> PAGE_SHIFT;
++	max_pfn = max_low_pfn;
  
- ifneq ($(CONFIG_IA64),y)
- # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
+ 	if (parse_numa_properties())
+ 		setup_nonnuma();
 
-
+_

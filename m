@@ -1,61 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317891AbSGZSBu>; Fri, 26 Jul 2002 14:01:50 -0400
+	id <S317910AbSGZRwe>; Fri, 26 Jul 2002 13:52:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317893AbSGZSBu>; Fri, 26 Jul 2002 14:01:50 -0400
-Received: from rj.SGI.COM ([192.82.208.96]:31625 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S317891AbSGZSBt>;
-	Fri, 26 Jul 2002 14:01:49 -0400
-Date: Fri, 26 Jul 2002 11:05:09 -0700
-From: Jesse Barnes <jbarnes@sgi.com>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] lock assertion macros for 2.5.28
-Message-ID: <20020726180509.GA793994@sgi.com>
+	id <S317908AbSGZRwe>; Fri, 26 Jul 2002 13:52:34 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:13327 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S317905AbSGZRwc>; Fri, 26 Jul 2002 13:52:32 -0400
+Date: Fri, 26 Jul 2002 18:55:45 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Kurt Garloff <garloff@suse.de>, Alexander Viro <viro@math.psu.edu>,
+       Linux SCSI list <linux-scsi@vger.kernel.org>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] sd_many done right (1/5)
+Message-ID: <20020726185545.B18629@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <20020725233047.GA782991@sgi.com> <20020726120918.GA22049@reload.namesys.com> <20020726174258.GC793866@sgi.com> <20020726185416.A18629@infradead.org>
+	Kurt Garloff <garloff@suse.de>, Alexander Viro <viro@math.psu.edu>,
+	Linux SCSI list <linux-scsi@vger.kernel.org>,
+	Linux kernel list <linux-kernel@vger.kernel.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>
+References: <20020726154533.GD19721@nbkurt.etpnet.phys.tue.nl> <Pine.GSO.4.21.0207261245070.21586-100000@weyl.math.psu.edu> <20020726165411.GI19721@nbkurt.etpnet.phys.tue.nl> <20020726175027.GC2746@clusterfs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020726185416.A18629@infradead.org>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020726175027.GC2746@clusterfs.com>; from adilger@clusterfs.com on Fri, Jul 26, 2002 at 11:50:27AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 26, 2002 at 06:54:16PM +0100, Christoph Hellwig wrote:
-> On Fri, Jul 26, 2002 at 10:42:58AM -0700, Jesse Barnes wrote:
-> > On Fri, Jul 26, 2002 at 04:09:18PM +0400, Joshua MacDonald wrote:
-> > > In reiser4 we are looking forward to having a MUST_NOT_HOLD (i.e.,
-> > > spin_is_not_locked) assertion for kernel spinlocks.  Do you know if any
-> > > progress has been made in that direction?
-> > 
-> > Well, I had that in one version of the patch, but people didn't think
-> > it would be useful.  Maybe you'd like to check out Oliver's comments
-> > at http://marc.theaimsgroup.com/?l=linux-kernel&m=102644431806734&w=2
-> > and respond?  If there's demand for MUST_NOT_HOLD, I'd be happy to add
-> > it since it should be easy.  But if you're using it to enforce lock
-> > ordering as Oliver suggests, then there are probably more robust
-> > solutions.
-> 
-> Why don't you just generalize the scsi version that already support this?
-> 
-> reinventing the wheel everywhere..
+On Fri, Jul 26, 2002 at 11:50:27AM -0600, Andreas Dilger wrote:
+> Actually, one interesting aspect of the EVMS vs. device-mapper argument
+> going on that has totally been missed is that EVMS can do management of
+> ALL disk block devices.
 
-Well, I wouldn't go that far.  The macros are really simple and
-implementing a MUST_NOT_HOLD should be easy too.  It could also be
-done in a much more useful way than how ASSERT_LOCK works, by tracking
-where the locks where acquired for example.
+That's only natural as it try to duplicate the whole Linux block layer.
+But it's everything but a good idea.
 
-Did you check out the thread above?  Having ASSERT_LOCK(&lock, 0)
-doesn't seem that useful by itself.  A lot of the scsi code does
-things like:
-
-  ASSERT_LOCK(&lock, 0);
-  ...
-  spin_lock(&lock);
-
-What does that buy you?  The suggestions for tracking where the lock
-was acquired (in the thread above) seem much more useful.
-
-Thanks,
-Jesse

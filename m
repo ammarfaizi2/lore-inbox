@@ -1,67 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbUBVC6S (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 21:58:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbUBVC6R
+	id S261660AbUBVDAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 22:00:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbUBVDAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 21:58:17 -0500
-Received: from mail-01.iinet.net.au ([203.59.3.33]:8382 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261654AbUBVC6N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 21:58:13 -0500
-Message-ID: <40381AC2.2020607@cyberone.com.au>
-Date: Sun, 22 Feb 2004 13:58:10 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: Large slab cache in 2.6.1
-References: <4037FCDA.4060501@matchmail.com> <4038014E.5070600@matchmail.com> <20040222012033.GC703@holomorphy.com> <40380DE2.4030702@matchmail.com> <20040222021710.GD703@holomorphy.com> <4038168C.1000404@matchmail.com>
-In-Reply-To: <4038168C.1000404@matchmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 21 Feb 2004 22:00:09 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:57473 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S261656AbUBVC76 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Feb 2004 21:59:58 -0500
+Date: Sun, 22 Feb 2004 03:59:57 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Intel vs AMD x86-64
+Message-ID: <20040222025957.GA31813@MAIL.13thfloor.at>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Mikael Pettersson <mikpe@csd.uu.se>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0402171739020.2686@home.osdl.org> <16435.14044.182718.134404@alkaid.it.uu.se> <Pine.LNX.4.58.0402180744440.2686@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0402180744440.2686@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 18, 2004 at 07:47:21AM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Wed, 18 Feb 2004, Mikael Pettersson wrote:
+> > 
+> > What about naming? IA-64 is taken, AMD64 is too specific, Intel's
+> > "IA-32e" sounds too vague, and I find x86-64 / x86_64 difficult to type.
+> > "x64" perhaps?
+> 
+> x86-64 it is. Maybe you can remap one of your function keys to send the 
+> sequence ;)
+> 
+> This whole "ia32" crap has always been ridiculous - nobody has _ever_ 
+> called an x86 anything but x86, and Intel is just making it worse by 
+> adding random illogical letters to the end.
+> 
+> In contrast, x86-64 tells you _exactly_ what it's all about, and is what 
+> the kernel has always called the architecture anyway.
+
+hmm, so the current x86_64 will be changed to x86-64 or
+will there be x86_64 and x86-64?
+
+probably I missed something important, but AMD64 seems 
+to be labeled x86_64 in 2.4 and 2.6
 
 
-Mike Fedyk wrote:
+# ls linux-2.4.25/arch/
+alpha/  cris/  ia64/  mips/    parisc/  ppc64/  s390x/  sh64/   sparc64/
+arm/    i386/  m68k/  mips64/  ppc/     s390/   sh/     sparc/  x86_64/
 
-> William Lee Irwin III wrote:
->
->> William Lee Irwin III wrote:
->>
->>>> Similar issue here; I ran out of filp's/whatever shortly after 
->>>> booting.
->>>
->>
->>
->> On Sat, Feb 21, 2004 at 06:03:14PM -0800, Mike Fedyk wrote:
->>
->>> So Nick Piggin's VM patches won't help with this?
->>
->>
->>
->> I think they're in -mm, and I'd call the vfs slab cache shrinking stuff
->> a vfs issue anyway because there's no actual VM content to it, apart
->> from the code in question being driven by the VM.
->
->
-> Hmm, that's news to me.  Maybe that's a newer patch.  I haven't been 
-> reading the list much for the last month or so...
->
-> Nick had a patch that was supposed to help 2.6 with low memory 
-> situations to bring it on a par with 2.4 in that respect.  ISTR 
-> "active recycling" being mentioned about it...
->
+# ls linux-2.6.3/arch/
+alpha/  cris/   ia64/       mips/    ppc64/  sparc/    v850/
+arm/    h8300/  m68k/       parisc/  s390/   sparc64/  x86_64/
+arm26/  i386/   m68knommu/  ppc/     sh/     um/
 
-Just an aside, it is hard to get 2.6 "on par" with 2.4 because 2.6 is
-often much fairer (although it can still be badly unfair - if we ever
-want to fix that we'd probably need per process mm).
+TIA,
+Herbert
 
-There are quite a lot sorts of low memory situations you can get into.
-My (and Nikita's) patches don't help the one you're probably in. They
-don't put more pressure on slab.
-
+> 		Linus
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

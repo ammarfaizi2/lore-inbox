@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266894AbUBRNlD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 08:41:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266948AbUBRNlD
+	id S267389AbUBRORQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 09:17:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267407AbUBRORQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 08:41:03 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:54431 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S266894AbUBRNk7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 08:40:59 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
+	Wed, 18 Feb 2004 09:17:16 -0500
+Received: from mra02.ex.eclipse.net.uk ([212.104.129.89]:25244 "EHLO
+	mra02.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
+	id S267389AbUBRORP convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 09:17:15 -0500
+From: Ian Hastie <ianh@iahastie.clara.net>
+To: mru@kth.se (=?iso-8859-1?q?M=E5ns?= =?iso-8859-1?q?=20Rullg=E5rd?=),
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.3
+Date: Wed, 18 Feb 2004 14:17:05 +0000
+User-Agent: KMail/1.5.4
+References: <Pine.LNX.4.58.0402172013320.2686@home.osdl.org> <yw1xad3gd7l5.fsf@ford.guide>
+In-Reply-To: <yw1xad3gd7l5.fsf@ford.guide>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16435.27477.679757.404161@laputa.namesys.com>
-Date: Wed, 18 Feb 2004 16:40:37 +0300
-To: "Marco Berizzi" <pupilla@hotmail.com>
-Cc: <linux-kernel@vger.kernel.org>,
-       Reiserfs mail-list <Reiserfs-List@Namesys.COM>
-Subject: Re: ReiserFS corruption with samba 3.0.2a
-In-Reply-To: <Sea2-DAV22IBirXXeQM0000aeb5@hotmail.com>
-References: <Sea2-DAV22IBirXXeQM0000aeb5@hotmail.com>
-X-Mailer: VM 7.17 under 21.5  (beta16) "celeriac" XEmacs Lucid
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200402181417.06553.ianh@iahastie.local.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marco Berizzi writes:
- > Hello.
- > 
- > I'm experimenting this problem with samba 3.0.2a and linux 2.4.24
- > with ReiserFS. When I copy (put) a large file (5GB) from a Windows NT
- > terminal server edition sp6a machine to the samba-linux box I get this
- > error:
- > 
- > Feb 17 18:01:11 Mimas kernel: ide0(3,8):vs-4080: reiserfs_free_block: free_block (0308:4999052)[dev:blocknr]: bit already cleared
- > Feb 17 18:01:11 Mimas kernel: ide0(3,8):vs-4080: reiserfs_free_block: free_block (0308:4997935)[dev:blocknr]: bit already cleared
- > Feb 17 18:02:48 Mimas kernel: ide0(3,8):vs-4080: reiserfs_free_block: free_block (0308:902445)[dev:blocknr]: bit already cleared
- > Feb 17 18:02:48 Mimas kernel: ide0(3,8):vs-4080: reiserfs_free_block: free_block (0308:902286)[dev:blocknr]: bit already cleared
- > 
+On Wednesday 18 Feb 2004 10:07, Måns Rullgård wrote:
+> Linus Torvalds <torvalds@osdl.org> writes:
+> > Ok, it's out.
+> >
+> > There were some minimal changes relative to the last -rc4, mostly some
+> > configuration and build fixes, but a few important one-liners too.
+>
+> What?  No new code name?
 
-Are there any other error messages before these?
+I suppose that'll come with the first 2.6.4-rc#.
 
- > Samba 2.2.8a doesn't show this behaviour.
- > 
- > The linux box is Slackware 9.1 (gcc 3.2.3 linux 2.4.24 glibc 2.3.2).
- > It's easy for me to reproduce the problem.
- > 
- > Hints?
+-- 
+Ian.
 
-Did target file exist before copy?
-
-Take latest version of reiserfsprogs from ftp.namesys.com and run fsck
-(in the check mode) ide0(3,8).
-
-Nikita.

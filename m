@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130288AbRBZOel>; Mon, 26 Feb 2001 09:34:41 -0500
+	id <S130253AbRBZOek>; Mon, 26 Feb 2001 09:34:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130236AbRBZObp>; Mon, 26 Feb 2001 09:31:45 -0500
+	id <S130294AbRBZOb6>; Mon, 26 Feb 2001 09:31:58 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:53191 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130289AbRBZO3y>;
-	Mon, 26 Feb 2001 09:29:54 -0500
-Message-Id: <m14XJot-000ObCC@amadeus.home.nl>
-Date: Mon, 26 Feb 2001 10:19:51 +0100 (CET)
-From: arjan@fenrus.demon.nl (Arjan van de Ven)
-To: twaugh@redhat.com (Tim Waugh)
-Subject: Re: timing out on a semaphore
-cc: linux-kernel@vger.kernel.org
-X-Newsgroups: fenrus.linux.kernel
-In-Reply-To: <20010225224039.W13721@redhat.com>
-User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre19 (i586))
+	by vger.kernel.org with ESMTP id <S130298AbRBZOaH>;
+	Mon, 26 Feb 2001 09:30:07 -0500
+From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: linux-kernel@vger.kernel.org
+Date: Mon, 26 Feb 2001 10:21:51 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: 2.2.18/ext2: special file corruption?
+Message-ID: <3A9A2E3D.9135.8E1BCE@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010225224039.W13721@redhat.com> you wrote:
+Hi,
 
-> --2F7AbV2suvT8PGoH
-> Content-Type: text/plain; charset=us-ascii
-> Content-Disposition: inline
+I had an interesting effect: Due to NVdriver I had a lot of system 
+freezes, and I had to reboot. Using e2fsck 1.19a (SuSE 7.1) I got the 
+message that one specific "Special (device/socket/fifo) inode .. has 
+non-zero size. FIXED."
 
-> I'm trying to chase down a semaphore time-out problem.  I want to
-> sleep on a semaphore until either
+Interestingly I got the message for every reboot. So either the kernel 
+corrupts the very same inode every time, or e2fsck does not really fix 
+it, or the error simply doesn't exist. I think the kernel doesn't 
+temporarily set the size to non-zero, so this seems strange.
 
-> (a) it's signalled, or
-> (b) some amount of time has elapsed.
+Regards,
+Ulrich
 
-> What I'm doing is calling add_timer, and then down_interruptible, and
-> finally del_timer.  The timer's function ups the semaphore.
-
-
-What we _really_ need is down_timeout(), which I plan to implement for early
-2.5. The semantics should by similar to the try_lock functions, exect that
-it will try for a specified amount of time first.
-
-Greetings,
-   Arjan van de Ven

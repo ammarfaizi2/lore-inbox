@@ -1,86 +1,103 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316675AbSE3OxQ>; Thu, 30 May 2002 10:53:16 -0400
+	id <S316677AbSE3O7a>; Thu, 30 May 2002 10:59:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316678AbSE3OxP>; Thu, 30 May 2002 10:53:15 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:33551 "EHLO
+	id <S316678AbSE3O73>; Thu, 30 May 2002 10:59:29 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:36367 "EHLO
 	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S316675AbSE3OxO>; Thu, 30 May 2002 10:53:14 -0400
-Message-ID: <3CF62F2A.6030009@evision-ventures.com>
-Date: Thu, 30 May 2002 15:54:50 +0200
+	id <S316677AbSE3O72>; Thu, 30 May 2002 10:59:28 -0400
+Message-ID: <3CF630A5.40002@evision-ventures.com>
+Date: Thu, 30 May 2002 16:01:09 +0200
 From: Martin Dalecki <dalecki@evision-ventures.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
 X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
+To: Andries.Brouwer@cwi.nl
+CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Subject: Re: [PATCH] 2.5.18 IDE 73
-In-Reply-To: <UTC200205300019.g4U0JtH24034.aeb@smtp.cwi.nl> 	<3CF622F0.4050304@evision-ventures.com> <1022772774.12888.380.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <UTC200205301443.g4UEhvn20167.aeb@smtp.cwi.nl>
 Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Thu, 2002-05-30 at 14:02, Martin Dalecki wrote:
+Andries.Brouwer@cwi.nl wrote:
+>     > Of course - improvements are always welcome.
+>     > (But I try to be slightly more careful than you are.
+>     > Util-linux runs on all libc's and all kernels, from libc4 to glibc2
+>     > and from 0.99 to 2.5. So, changes must be compatible.)
 > 
->>1. util-linux doesn't cover half of the system utilities needed on
->>    a sanely actual Linux system.
->>2. The Linux vendors have to apply insane number of patches to it
->>    util it's moderately usable.
+>     Having them compatible acroess an insane range of kernels
+>     is a nice but futile exercise.
+>     Perhaps this partly explains why:
 > 
+>     1. util-linux doesn't cover half of the system utilities needed on
+>         a sanely actual Linux system.
 > 
-> So now you have nothing better to do than insult someone whose code
-> works, is shipped in just about every distribution. Someone whose kernel
-> patches are almost without fail perfect first time.
+>     2. The Linux vendors have to apply insane number of patches to it
+>         util it's moderately usable.
 > 
-> You should learn from Andries not mock him.
+> If you do the kernel ATA stuff, I'll take care of util-linux.
 
-rpm -i util-linux-xxx.src.rpm
+Well that's actually a deal :-).
 
-and count the patches yourself. Andries could be the Pope I would
-still feel free to tell him what I think about this.
-Ahh and just a remainder - poking at ports in kbdrate is bad and not
-quite something I would learn from.
+> (Does it need more utilities? Probably those are in some other package.
+> Sometimes stuff is added, but not very often. However, your suggestions
+> are welcome.
+> Do the vendors add patches? Half of that is vendor extensions, that is
+> their business. Half of that is their stupidity. They blindly copy the
+> patches other vendors apply "it is a patch - must be an improvement";
+> sometimes I have to reject the same buggy patch more than a dozen times.
+> When I ask for the reason of a patch, they don't know themselves.)
 
->>And after all it's rather trivial to iterate *all* disks present at boot
->>by hand and just going through /dev/sdaxxx chains. SCSI allocates
->>them consecutively anyway and there are typically not many ATA diskst around
->>there.
+Well somehow I have partly to agree. But however having a way to
+exclude network devices from mounting during mount -a is *very* usefull,
+becouse failing NFS servers will sometines prohibit your watchdog
+triggered reboot to happen for example!
+
+Or not doing swapon twice and beeing silent about it - just good
+UNIX habit the user requested it to go on - well it's on, so all
+is fine, no error in this.
+
+I can stuff together what I think is usefull however...
+
 > 
+>     >     No need to invent here. No need to do the book keeping in kernel.
+>     > 
+>     > Some need. Things like mount-by-label want to know what partitions
+>     > exist in order to look at the labels on each.
+>     > Yes, we really need a list of disk-like devices.
+>     > The gendisk chain.
 > 
-> You still need a way to talk all the disk devices. It might be that is
-> devfs /dev/disk, but in case it hasn't permeated your skull yet, in such
-> a situation then -devfs- would need such a list. We also have another
-
-I don't use and don't care about devfs - it's a misconception in my opinnion.
-What you are potining at is just another symptom of this simple fact.
-After several years of beeing "official" it didn't develer up on
-promises. There are some reasons why the Linux vendors out there get
-well along without it. It is simple not necessary and even worser
-introduces more problems that it promised to solve. No matter how
-vigorous the propnents of it where before Linus give in. It's just another
-try to work around the too narrow major/minor number spaces of Linux
-and well see below:
-
-> flaw here - we don't export the bit position of the partition/device
-> split on each device which puts lots of horrible code into user space
-> thats always going out of date
+>     No I don't see that point. Data which has to be persistant across
+>     reboots is simple data which has to reside on disk. That's the
+>     way it is in UNIX (PalmOS to name an example).
 > 
-> Oh and for /dev/disk/... to do labels and partitions it needs the
-> partition data in the list too, remarkably like we have it now actually.
+> Maybe you never heard of mount-by-label?
+> 
+> Andries
 
-All what you are talking about here are afterthoughts to the a basic simple
-flaw in the linux way af looking at devices:
 
-Major numbers are sliced up to account for the fact that some drivers
-abused slices of the major number space instead of minor numbers to
-discriminate between different instances of the driver. Even worser
-some drivers (most prominently ide-cd) hooked up completely
-different devices on the same mojor number.
-And last but not least: some devices which should be viewd as "same type"
-are hooked up to different major numbers instead of sharing them.
-Most prominent here are the differences between SCSI disks and ATA disks
-for example. From a technical point of view they don't make *any* sense.
+Urhg? I did of course hear about them!
+
+
+~# ssh kozaczek
+root@kozaczek's password:
+Last login: Thu May 30 14:37:32 2002 from 10.0.0.1
+cd [root@kozaczek root]# cd /etc
+[root@kozaczek etc]# cat fstab
+LABEL=/                 /                       ext3    defaults        1 1
+LABEL=/boot             /boot                   ext3    defaults        1 2
+/dev/fd0                /mnt/floppy             auto    noauto,owner    0 0
+# /dev/loop1            /mnt/1                  auto    noauto,owner    0 0
+# /dev/loop2            /mnt/2                  auto    noauto,owner    0 0
+none                    /proc                   proc    defaults        0 0
+none                    /tmp                    tmpfs   defaults        0 0
+none                    /dev/pts                devpts  gid=5,mode=620  0 0
+/dev/hda6               swap                    swap    defaults        0 0
+[root@kozaczek etc]#
+
+
+Hmm I didn't check whatever they can be used on swap partitions too.
+If not I will fix it right away.
 

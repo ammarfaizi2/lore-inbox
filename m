@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266952AbSKUSU0>; Thu, 21 Nov 2002 13:20:26 -0500
+	id <S266940AbSKUScQ>; Thu, 21 Nov 2002 13:32:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266957AbSKUSUZ>; Thu, 21 Nov 2002 13:20:25 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:62482 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S266952AbSKUSUZ>; Thu, 21 Nov 2002 13:20:25 -0500
-Date: Thu, 21 Nov 2002 13:25:09 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: Dave Jones <davej@codemonkey.org.uk>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Aaron Lehmann <aaronl@vitelus.com>, Con Kolivas <conman@kolivas.net>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] 2.5.47{-mm1} with contest
-In-Reply-To: <3DDD162B.BAC88F94@digeo.com>
-Message-ID: <Pine.LNX.3.96.1021121132217.9986A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266943AbSKUScQ>; Thu, 21 Nov 2002 13:32:16 -0500
+Received: from borg.org ([208.218.135.231]:40633 "HELO borg.org")
+	by vger.kernel.org with SMTP id <S266940AbSKUScO>;
+	Thu, 21 Nov 2002 13:32:14 -0500
+Date: Thu, 21 Nov 2002 13:39:22 -0500
+From: Kent Borg <kentborg@borg.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Where is ext2/3 secure delete ("s") attribute?
+Message-ID: <20021121133922.M16336@borg.org>
+References: <20021121125240.K16336@borg.org> <3DDD24E7.4040603@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DDD24E7.4040603@pobox.com>; from jgarzik@pobox.com on Thu, Nov 21, 2002 at 01:24:39PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Nov 2002, Andrew Morton wrote:
-
-> Dave Jones wrote:
-
-> We'd buy a bit by arranging for the in-kernel copy of the fp state
-> to have the same layout as the hardware.  That way it can be done in
-> a single big, fast, well-aligned slurp.  But for some reason that code has
-> to convert into and out of a different representation.
+On Thu, Nov 21, 2002 at 01:24:39PM -0500, Jeff Garzik wrote:
+> man shred(1)
 > 
-> But the real low-hanging fruit here is the observation that the
-> test application doesn't use floating point!!!
-> 
-> Maybe we need to take an fp trap now and then to "poll" the application
-> to see if it is still using float.
+> Much better than anything implemented in-kernel
 
-I thought we used to do that and someone (Linus??) thought the complexity
-didn't justify the saving. Always seemed like a good idea to me, but with
-the various types of processor we have today, it's harder to say what wins
-until benchmarks are done.
+Yes, but that will only apply to files that I specifically shred.  I
+hazard that a lot more files than the ones I explicitly "rm" in a day
+get deleted by other means.  Also, the shred man page even says that
+it doesn't know if its "shredding" even happens in the same spot on
+disk as the original data resided.  It seems this has to happen down
+in the file system if there is any hope of it working.  And even there
+it could use come help from the disk drive to make sure things can be
+made to happen where they appear to happen.
 
-Hopefully someone has a better memory than I about this.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+-kb

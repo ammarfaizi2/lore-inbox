@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261835AbTEUJjG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 05:39:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbTEUJjG
+	id S262032AbTEUJhU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 05:37:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbTEUJhU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 05:39:06 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:29106 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261835AbTEUJjF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 05:39:05 -0400
-Date: Wed, 21 May 2003 11:48:49 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Ulrich Drepper <drepper@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] futex requeueing feature, futex-requeue-2.5.69-D3 
-In-Reply-To: <20030521023627.F07062C015@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0305211140120.2045-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 21 May 2003 05:37:20 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:51931 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262032AbTEUJhT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 05:37:19 -0400
+Date: Wed, 21 May 2003 15:23:14 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: maneesh@in.ibm.com, linux-kernel@vger.kernel.org,
+       viro@parcelfarce.linux.theplanet.co.uk, Paul.McKenney@us.ibm.com
+Subject: Re: [patch 1/2] vfsmount_lock
+Message-ID: <20030521095313.GA2861@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20030521092502.GD1198@in.ibm.com> <20030521023523.655bc8f2.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030521023523.655bc8f2.akpm@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 21, 2003 at 02:35:23AM -0700, Andrew Morton wrote:
+> Maneesh Soni <maneesh@in.ibm.com> wrote:
+> >
+> >  struct vfsmount *lookup_mnt(struct vfsmount *mnt, struct dentry *dentry)
+> >   {
+> >  +	spin_lock(&vfsmount_lock);
+> >   	for (;;) {
+> >   		tmp = tmp->next;
+> >   		p = NULL;
+> >   		if (tmp == head)
+> >   			break;
+> >   		p = list_entry(tmp, struct vfsmount, mnt_hash);
+> >  -		if (p->mnt_parent == mnt && p->mnt_mountpoint == dentry)
+> >  +		if (p->mnt_parent == mnt && p->mnt_mountpoint == dentry) {
+> >  +			found = mntget(p);
+> >   			break;
+> >  +		}
+> >   	}
+> >  -	return p;
+> >  +	spin_lock(&vfsmount_lock);
+> >  +	return found;
+> >   }
+> 
+> err, how many times do you want to spin that lock?
 
-On Wed, 21 May 2003, Rusty Russell wrote:
+None, if you apply the second patch ;-)
 
-> Perhaps I was reading too much into Linus' mail, but I read it as "don't
-> obsolete the old interface and introduce a new one just because of some
-> sense of aesthetics".
-
-no. The concept is: "dont cause the user any pain". Reshuffling the
-syscall internally and providing new interfaces for the feature to be
-exposed in a cleaner way is perfectly OK as long as this does not hurt
-anything else - and it does not in this case. New glibc will use the new
-syscalls and will fall back to the old one if they are -ENOSYS, so new
-glibc will work on older kernels as well. Old glibc will work with old
-kernels and new kernels as well. This is being done for other interfaces
-currently, this is the only mechanism to 'flush out' old syscalls
-gracefully.
-
-the newer a kernel and a glibc is, the less 'fallback' happens - the
-faster the application is, so this compatibility scheme makes perfect
-sense both support-wise and technically. (not counting the speedup caused
-by the interface cleanups themselves)
-
-not adding FUTEX_REQUEUE to the old syscall is the right solution - it was
-never exposed to anyone in this way, so old glibc doesnt know about it -
-and new glibc will never use the old interfaces.
-
-any other disagreements?
-
-	Ingo
-
-
+Thanks
+Dipankar

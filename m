@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312558AbSG3SlJ>; Tue, 30 Jul 2002 14:41:09 -0400
+	id <S315483AbSG3Sg7>; Tue, 30 Jul 2002 14:36:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315449AbSG3SlJ>; Tue, 30 Jul 2002 14:41:09 -0400
-Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:50878
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S312558AbSG3SlJ>; Tue, 30 Jul 2002 14:41:09 -0400
-Date: Tue, 30 Jul 2002 14:44:02 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: "David S. Miller" <davem@redhat.com>
-cc: remco@rvt.com, <dan@embeddededge.com>, <benh@kernel.crashing.org>,
-       <trini@kernel.crashing.org>, <rmk@arm.linux.org.uk>,
-       <linux-kernel@vger.kernel.org>, <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: 3 Serial issues up for discussion
-In-Reply-To: <20020729.195414.31386335.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0207301443180.32681-100000@xanadu.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315456AbSG3Sg7>; Tue, 30 Jul 2002 14:36:59 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:63215 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S312558AbSG3Sg6>; Tue, 30 Jul 2002 14:36:58 -0400
+Subject: Re: PATCH: 2.5.29 Fix cmd640 config locking
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org,
+       martin@dalecki.de
+In-Reply-To: <200207301810.LAA02575@baldur.yggdrasil.com>
+References: <200207301810.LAA02575@baldur.yggdrasil.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 30 Jul 2002 20:55:54 +0100
+Message-Id: <1028058954.7886.19.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Jul 2002, David S. Miller wrote:
+On Tue, 2002-07-30 at 19:10, Adam J. Richter wrote:
+> >From drivers/ide/cmd640.c:
+> 
+> | /*
+> |  * The CMD640x chip does not support DWORD config write cycles, but some
+> |  * of the BIOSes use them to implement the config services.
+> | * Therefore, we must use direct IO instead.
+> | */
+> 
+> >From Alan's patch to cmd640, derived frmo Andre Hedrick's
+> "ide-2.4.19-p8-0ac1.all.covert.10.patch" posted on 2002-07-25 10;51:07 at
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=102759487724962&w=2:
 
-> Finally we can name this all /dev/serialXXX in keeping with Linus's
-> grand view of /dev/diskXXX et al. (and keeping ttySfoo around for
-> compat sake for a little while of course :).
-
-Amen!
-
-
-Nicolas
+I've just been fixing the locking to use pci_lock, and the probe. Other
+changes may be intentional Andre ones or unintentional ones.
 

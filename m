@@ -1,77 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264537AbTE1FuP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 01:50:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbTE1FuP
+	id S264540AbTE1Fvn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 01:51:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264543AbTE1Fvn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 01:50:15 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:1012 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP id S264537AbTE1FuO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 01:50:14 -0400
-Message-ID: <3ED45130.3080304@attbi.com>
-Date: Tue, 27 May 2003 23:03:28 -0700
-From: Miles Lane <miles.lane@attbi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.3.1) Gecko/20030428
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.70 -- drivers/net/irda/w83977af_ir.ko needs unknown symbol setup_dma
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 28 May 2003 01:51:43 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:30089 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264540AbTE1Fvi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 01:51:38 -0400
+Date: Wed, 28 May 2003 08:04:32 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       manish <manish@storadinc.com>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+       Andrea Arcangeli <andrea@suse.de>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org,
+       Christian Klose <christian.klose@freenet.de>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+Message-ID: <20030528060432.GF845@suse.de>
+References: <3ED2DE86.2070406@storadinc.com> <3ED3A55E.8080807@storadinc.com> <200305271954.11635.m.c.p@wolk-project.de> <200305281533.08524.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305281533.08524.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-WARNING: /lib/modules/2.5.70/kernel/drivers/net/irda/w83977af_ir.ko 
-needs unknown symbol setup_dma
-WARNING: /lib/modules/2.5.70/kernel/drivers/net/irda/ali-ircc.ko needs 
-unknown symbol setup_dma
-WARNING: /lib/modules/2.5.70/kernel/drivers/net/irda/nsc-ircc.ko needs 
-unknown symbol setup_dma
-WARNING: /lib/modules/2.5.70/kernel/drivers/net/irda/smsc-ircc2.ko needs 
-unknown symbol setup_dma
+On Wed, May 28 2003, Con Kolivas wrote:
+> On Wed, 28 May 2003 04:04, Marc-Christian Petersen wrote:
+> > On Tuesday 27 May 2003 19:50, manish wrote:
+> >
+> > Hi Manish,
+> >
+> > > It is not a system hang but the processes hang showing the same stack
+> > > trace. This is certainly not a pause since the bonnie processes that
+> > > were hung (or deadlocked) never completed after several hrs. The stack
+> > > trace  was the same.
+> >
+> > then you are hitting a different bug or a bug related to the issues
+> > Christian Klose and me and $tons of others were complaining.
+> >
+> > The bug you are hitting might be the problem with "process stuck in D
+> > state" Andrea Arcangeli fixed, let me guess, over half a year ago or so.
+> >
+> > In case you have a good mind to try to address your issue, you might want
+> > to try out the patch you can find here:
+> >
+> > http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.21rc2
+> >aa1/9980_fix-pausing-2
+> >
+> > ALL: Anyone who has this kind of pauses/stops/mouse is dead/keyboard is
+> > dead/: speak _NOW_ please, doesn't matter who you are!
+> 
+> Yo!
+> 
+> I'll throw my babushka into the ring too. I think it's obvious from MCP's 
+> comments that I've been involved in testing this problem. I've spent hours, 
+> possibly days trying to find a way to fix the pauses introduced since 
+> 2.4.19pre1. I agree with what MCP describes that the machine can come to a 
+> standstill under any sort of disk i/o and is unusable for a variable length 
+> of time. I've been playing with all sorts of numbers in my patchset to try 
+> and limit it with only mild success. The best results I've had without a 
+> major decrease in throughput was using akpm's read latency 2 patch but by 
+> significantly reducing the nr_requests. It was changing the number of 
+> requests that I discovered dropping them to 4 fixed the problem but destroyed 
+> write throughput. I was pleased to see AA give the problem recognition after 
+> my contest results on his kernel but disappointed that the problem only was 
+> reduced, not fixed.
 
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-# CONFIG_MODULE_FORCE_UNLOAD is not set
-CONFIG_OBSOLETE_MODPARM=y
-# CONFIG_MODVERSIONS is not set
-CONFIG_KMOD=y
+Does the problem change at all if you force batch_requests to 0?
 
-#
-# Platform support
-#
-CONFIG_PPC=y
-CONFIG_PPC32=y
-CONFIG_6xx=y
-
-CONFIG_IRDA=m
-
-#
-# IrDA protocols
-#
-CONFIG_IRLAN=m
-CONFIG_IRNET=m
-CONFIG_IRCOMM=m
-CONFIG_IRDA_ULTRA=y
-
-CONFIG_IRPORT_SIR=m
-
-#
-# Old Serial dongle support
-#
-# CONFIG_DONGLE_OLD is not set
-
-#
-# FIR device drivers
-#
-CONFIG_USB_IRDA=m
-CONFIG_NSC_FIR=m
-CONFIG_WINBOND_FIR=m
-# CONFIG_TOSHIBA_OLD is not set
-CONFIG_TOSHIBA_FIR=m
-# CONFIG_SMC_IRCC_OLD is not set
-CONFIG_SMC_IRCC_FIR=m
-CONFIG_ALI_FIR=m
-CONFIG_VLSI_FIR=m
+-- 
+Jens Axboe
 

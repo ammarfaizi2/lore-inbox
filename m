@@ -1,91 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266517AbUIXA7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267668AbUIXA7s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266517AbUIXA7t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 20:59:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267679AbUIXA4H
+	id S267668AbUIXA7s (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 20:59:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266517AbUIXA44
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 20:56:07 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:45184 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S266517AbUIXAtl convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 20:49:41 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [arjanv@redhat.com: Re: [PATCH] shrink per_cpu_pages to fit 32byte cacheline]
-Date: Thu, 23 Sep 2004 17:48:18 -0700
-Message-ID: <7F740D512C7C1046AB53446D3720017302495C07@scsmsx402.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [arjanv@redhat.com: Re: [PATCH] shrink per_cpu_pages to fit 32byte cacheline]
-Thread-Index: AcShyl2Bl37xnPJMRme0ivVdav77DQAAsvqw
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>
-Cc: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>, <arjanv@redhat.com>,
-       <ak@suse.de>, "Saxena, Sunil" <sunil.saxena@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>
-X-OriginalArrivalTime: 24 Sep 2004 00:48:21.0023 (UTC) FILETIME=[30623AF0:01C4A1D0]
+	Thu, 23 Sep 2004 20:56:56 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:47778 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S267632AbUIXArX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 20:47:23 -0400
+Date: Fri, 24 Sep 2004 09:49:09 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Subject: Re: [PATCH] add hook for PCI resource deallocation
+In-reply-to: <20040917214943.GE14340@kroah.com>
+To: Greg KH <greg@kroah.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Message-id: <41536F05.6040602@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: ja
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4)
+ Gecko/20030624 Netscape/7.1 (ax)
+References: <41498CF6.9000808@jp.fujitsu.com> <20040917214943.GE14340@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Marcelo Tosatti [mailto:marcelo.tosatti@cyclades.com]
->Sent: Thursday, September 23, 2004 3:32 PM
->To: Nakajima, Jun
->Cc: linux-kernel@vger.kernel.org; akpm@osdl.org; arjanv@redhat.com;
->ak@suse.de; Saxena, Sunil; Mallick, Asit K
->Subject: Re: [arjanv@redhat.com: Re: [PATCH] shrink per_cpu_pages to
-fit
->32byte cacheline]
->
+Greg KH wrote:
+> On Thu, Sep 16, 2004 at 09:54:14PM +0900, Kenji Kaneshige wrote:
+>> Hi,
+>> 
+>> This patch adds a hook 'pcibios_disable_device()' into
+>> pci_disable_device() to call architecture specific PCI resource
+>> deallocation code. It's a opposite part of pcibios_enable_device().
+>> We need this hook to deallocate architecture specific PCI resource
+>> such as IRQ resource, etc.. This patch is just for adding the hook,
+>> so pcibios_disable_device() is defined as a null function on all
+>> architecture so far.
+> 
+> I'd prefer to wait until there was an actual user of this hook before
+> adding it to the kernel.  Otherwise someone (likely me) will notice this
+> hook in a few days and go, "hey, no one is using this, let's clean it
+> up" :)
+> 
+> So, how about we wait until you have a patch that needs this before I
+> apply it?
+> 
 
-<snip>
+Greg,
 
->> >***********
->> >
->> >Jun,
->> >
->> >We need some assistance here - you can probably help us.
->> >
->> >Within the Linux kernel we can benefit from changing some fields
->> >of commonly accessed data structures to 16 bit instead of 32 bits,
->> >given that the values for these fields never reach 2 ^ 16.
->> >
->> >Arjan warned me, however, that the prefix (in this case "data16")
-will
->> >cause an additional extra cycle in instruction decoding, per message
->> above.
->>
->> On the Pentium4 core, this is not a big deal because it runs out of
-the
->> trace cache (i.e. decoded in advance). However, on the Pentium III/M
->> (aka P6) core (i.e. Penitum III, Banias, Dothan, Yonah, etc.),
->> especially when an operand size prefix (0x66) changes the # of bytes
-in
->> an instruction (usually by impacting the size of an immediate in the
->> instruction), the P6 core pays unnegligible penalty, slowing down
->> decoding.
->
->Jun,
->
->What you mean by "unnegligible penalty" ?
->
->You mean its very small penalty (unconsiderable), or its considerable
->penalty?
+Today, we have a PCI IRQ resource deallocation patch (please see the
+links below). Ia64 portion of IRQ resource deallocation patch is
+waiting this hook to be applied, because it depends on this hook.
 
-I mean it's considerable. Did you look at what kinds of instructions are
-used for accessing such data structures? Does the operand size prefix
-change the # of bytes in those instructions (as described above) for
-most cases? If it does, we don't recommend such codes.
+So please apply this hook.
 
-Jun
+PCI IRQ resource deallocation patches:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109575695503290&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109575695526462&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109575721322332&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109575753325729&w=2
 
->> an instruction
-
->
->We are use one less cacheline for a very commonly used structure.
->
+Thanks,
+Kenji Kaneshige
 

@@ -1,173 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265719AbUATTbS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 14:31:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265714AbUATTbS
+	id S265689AbUATTta (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 14:49:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265694AbUATTt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 14:31:18 -0500
-Received: from fep19-0.kolumbus.fi ([193.229.0.45]:39165 "EHLO
-	fep19-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S265711AbUATTa7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 14:30:59 -0500
-Date: Tue, 20 Jan 2004 21:30:57 +0200 (EET)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [2.6.1-bk2] Might sleep while loading st.ko
-In-Reply-To: <20040120000725.GY1748@srv-lnx2600.matchmail.com>
-Message-ID: <Pine.LNX.4.58.0401202121070.1073@kai.makisara.local>
-References: <20040120000725.GY1748@srv-lnx2600.matchmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Jan 2004 14:49:28 -0500
+Received: from main.gmane.org ([80.91.224.249]:5073 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265689AbUATTqs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 14:46:48 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: ALSA vs. OSS
+Date: Tue, 20 Jan 2004 20:46:44 +0100
+Message-ID: <yw1xzncimmhn.fsf@ford.guide>
+References: <1074532714.16759.4.camel@midux> <microsoft-free.87vfn7bzi1.fsf@eicq.dnsalias.org>
+ <20040120192401.GA5685@mcgroarty.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:ypaWagBc2LzYHJTNaL7EVEAKOnQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Added linux-scsi which may be better list for this problem.
+Brian McGroarty <brian@mcgroarty.net> writes:
 
-On Mon, 19 Jan 2004, Mike Fedyk wrote:
+> On Tue, Jan 20, 2004 at 03:48:54AM +1000, Steve Youngs wrote:
+>> * Markus H?stbacka <midian@ihme.org> writes:
+>> 
+>>   > but ALSA didn't let me to open two sound sources (like XMMS and
+>>   > Quake3) at the same time, so I guess it is not really done yet, or
+>>   > is it?
+>> 
+>> Works for me.  Right now I've got 3 instances of mpg123 playing 3
+>> different MP3s and XEmacs playing a big .wav file and an audio CD
+>> playing.  It's a horrible jumbled mess of noise coming out of my
+>> speakers, but it is working.
+>
+> You probably have a Soundblaster Live or similar, which has multiple
+> hardware wave outputs.
+>
+> OSS has software mixing. ALSA seems designed for people relying on
+> esd, aRts or similar multiplexing daemons.
 
-> I saw this in my kernel log while working with a scsi tape drive.
-> 
-> Is this a known sleeping function, or should I take more action to notify
-> the scsi or adaptec driver teams?
-> 
-> st: Version 20031228, fixed bufsize 32768, s/g segs 256
-> Debug: sleeping function called from invalid context at mm/slab.c:1856
-> in_atomic():1, irqs_disabled():0
-> Call Trace:
->  [__might_sleep+157/224] __might_sleep+0x9d/0xe0
->  [kmem_cache_alloc+92/96] kmem_cache_alloc+0x5c/0x60
->  [cdev_alloc+23/80] cdev_alloc+0x17/0x50
->  [_end+542090623/1069194756] st_probe+0x3fb/0x790 [st]
+Don't you mean the other way around?
 
-I thought I used enough debugging options to catch this but I did not...
+> It's possible to run a program via 'esddsp' or 'artsdsp' to reroute
+> /dev/dsp to the daemon, but the overhead isn't so nice, and the output
+> quality is often wanting.
 
-The patch below fixes this problem (introduced in 2.6.1) by moving cdev 
-code outside the lock protecting st internal data. The patched driver 
-compiles and seems to work in my tests.
-
-The sysfs link to /sys/cdev/major/st?m0 is not made any more because I have
-understood that it is a bad idea.
-
-Thanks for reporting the bug.
+True.
 
 -- 
-Kai
+Måns Rullgård
+mru@kth.se
 
--------------------------------8<-----------------------------------------
---- linux-2.6.1-bk6/drivers/scsi/st.c	2004-01-20 20:16:20.000000000 +0200
-+++ linux-2.6.1-bk6-k1/drivers/scsi/st.c	2004-01-20 21:18:10.000000000 +0200
-@@ -17,7 +17,7 @@
-    Last modified: 18-JAN-1998 Richard Gooch <rgooch@atnf.csiro.au> Devfs support
-  */
- 
--static char *verstr = "20031228";
-+static char *verstr = "20040120";
- 
- #include <linux/module.h>
- 
-@@ -3846,7 +3846,30 @@
- 		STm->default_compression = ST_DONT_TOUCH;
- 		STm->default_blksize = (-1);	/* No forced size */
- 		STm->default_density = (-1);	/* No forced density */
-+	}
-+
-+	for (i = 0; i < ST_NBR_PARTITIONS; i++) {
-+		STps = &(tpnt->ps[i]);
-+		STps->rw = ST_IDLE;
-+		STps->eof = ST_NOEOF;
-+		STps->at_sm = 0;
-+		STps->last_block_valid = FALSE;
-+		STps->drv_block = (-1);
-+		STps->drv_file = (-1);
-+	}
- 
-+	tpnt->current_mode = 0;
-+	tpnt->modes[0].defined = TRUE;
-+
-+	tpnt->density_changed = tpnt->compression_changed =
-+	    tpnt->blksize_changed = FALSE;
-+	init_MUTEX(&tpnt->lock);
-+
-+	st_nr_dev++;
-+	write_unlock(&st_dev_arr_lock);
-+
-+	for (mode = 0; mode < ST_NBR_MODES; ++mode) {
-+		STm = &(tpnt->modes[mode]);
- 		for (j=0; j < 2; j++) {
- 			cdev = cdev_alloc();
- 			if (!cdev) {
-@@ -3855,17 +3878,17 @@
- 				goto out_put_disk;
- 			}
- 			snprintf(cdev->kobj.name, KOBJ_NAME_LEN, "%sm%d%s", disk->disk_name,
--				 i, j ? "n" : "");
-+				 mode, j ? "n" : "");
- 			cdev->owner = THIS_MODULE;
- 			cdev->ops = &st_fops;
- 			STm->cdevs[j] = cdev;
- 
- 			error = cdev_add(STm->cdevs[j],
--					 MKDEV(SCSI_TAPE_MAJOR, TAPE_MINOR(dev_num, i, j)),
-+					 MKDEV(SCSI_TAPE_MAJOR, TAPE_MINOR(dev_num, mode, j)),
- 					 1);
- 			if (error) {
- 				printk(KERN_ERR "st%d: Can't add %s-rewind mode %d\n",
--				       dev_num, j ? "non" : "auto", i);
-+				       dev_num, j ? "non" : "auto", mode);
- 			}
- 
- 			error = sysfs_create_link(&STm->cdevs[j]->kobj, &SDp->sdev_gendev.kobj,
-@@ -3876,43 +3899,15 @@
- 				       dev_num);
- 			}
- 		}
--	}
--	error = sysfs_create_link(&SDp->sdev_gendev.kobj, &tpnt->modes[0].cdevs[0]->kobj,
--				  "tape");
--	if (error) {
--		printk(KERN_ERR "st%d: Can't create sysfs link from SCSI device.\n",
--		       dev_num);
--	}
--
--	for (i = 0; i < ST_NBR_PARTITIONS; i++) {
--		STps = &(tpnt->ps[i]);
--		STps->rw = ST_IDLE;
--		STps->eof = ST_NOEOF;
--		STps->at_sm = 0;
--		STps->last_block_valid = FALSE;
--		STps->drv_block = (-1);
--		STps->drv_file = (-1);
--	}
- 
--	tpnt->current_mode = 0;
--	tpnt->modes[0].defined = TRUE;
--
--	tpnt->density_changed = tpnt->compression_changed =
--	    tpnt->blksize_changed = FALSE;
--	init_MUTEX(&tpnt->lock);
--
--	st_nr_dev++;
--	write_unlock(&st_dev_arr_lock);
--
--	for (mode = 0; mode < ST_NBR_MODES; ++mode) {
--	    /*  Rewind entry  */
--	    devfs_mk_cdev(MKDEV(SCSI_TAPE_MAJOR, dev_num + (mode << 5)),
--				S_IFCHR | S_IRUGO | S_IWUGO,
--				"%s/mt%s", SDp->devfs_name, st_formats[mode]);
--	    /*  No-rewind entry  */
--	    devfs_mk_cdev(MKDEV(SCSI_TAPE_MAJOR, dev_num + (mode << 5) + 128),
--				S_IFCHR | S_IRUGO | S_IWUGO,
--				"%s/mt%sn", SDp->devfs_name, st_formats[mode]);
-+		/*  Rewind entry  */
-+		devfs_mk_cdev(MKDEV(SCSI_TAPE_MAJOR, dev_num + (mode << 5)),
-+			      S_IFCHR | S_IRUGO | S_IWUGO,
-+			      "%s/mt%s", SDp->devfs_name, st_formats[mode]);
-+		/*  No-rewind entry  */
-+		devfs_mk_cdev(MKDEV(SCSI_TAPE_MAJOR, dev_num + (mode << 5) + 128),
-+			      S_IFCHR | S_IRUGO | S_IWUGO,
-+			      "%s/mt%sn", SDp->devfs_name, st_formats[mode]);
- 	}
- 	disk->number = devfs_register_tape(SDp->devfs_name);
- 

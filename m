@@ -1,69 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262719AbUCKALy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 19:11:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262915AbUCKALy
+	id S262896AbUCKAPK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 19:15:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262897AbUCKAPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 19:11:54 -0500
-Received: from pop.gmx.de ([213.165.64.20]:20653 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262719AbUCKALt (ORCPT
+	Wed, 10 Mar 2004 19:15:10 -0500
+Received: from fw.osdl.org ([65.172.181.6]:31170 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262896AbUCKAPE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 19:11:49 -0500
-X-Authenticated: #4512188
-Message-ID: <404FAECF.6080105@gmx.de>
-Date: Thu, 11 Mar 2004 01:11:59 +0100
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040216)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: walt <wa1ter@myrealbox.com>
-CC: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] udev 021 release
-References: <fa.fkf6pbs.vk4328@ifi.uio.no> <fa.aj3o3v7.pgqn9l@ifi.uio.no> <404F9E5F.2010001@myrealbox.com>
-In-Reply-To: <404F9E5F.2010001@myrealbox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 10 Mar 2004 19:15:04 -0500
+Date: Wed, 10 Mar 2004 16:17:03 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de, thornber@redhat.com
+Subject: Re: [PATCH] backing dev unplugging
+Message-Id: <20040310161703.79e1a03c.akpm@osdl.org>
+In-Reply-To: <20040311000507.GE18222@drinkel.cistron.nl>
+References: <20040310124507.GU4949@suse.de>
+	<20040310130046.2df24f0e.akpm@osdl.org>
+	<20040310210207.GL15087@suse.de>
+	<c2o212$4h0$1@news.cistron.nl>
+	<20040310150542.13d71a39.akpm@osdl.org>
+	<20040311000507.GE18222@drinkel.cistron.nl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-walt wrote:
-> Prakash K. Cheemplavam wrote:
+Miquel van Smoorenburg <miquels@cistron.nl> wrote:
+>
+>  dm.c: protect md->map with a rw spin lock rather than the md->lock
+> > semaphore.  Also ensure that everyone accesses md->map through
+> > dm_get_table(), rather than directly.
+> > 
+> >  25-akpm/drivers/md/dm-table.c |    3 +
+> >  25-akpm/drivers/md/dm.c       |   88 +++++++++++++++++++++++++-----------------
 > 
->> walt wrote:
->>
->>> Prakash K. Cheemplavam wrote:
->>>
->>>> When I insert a zip the /dev for the partition doesn't get created 
->>>> (ie hdd4, fdisk shows it though).
->>>
->>>
->>>
->>>
->>> My Zips always show up as /dev/sda4 (scsi disks).
->>
->>
->>
->> Do you have SCSI support compiled in? For me it doesn't (I have no 
->> SCSI support in, as well.) Are you using a USB ZIP? I have a ATAPI 
->> ZIP, so it makes no sense appearing as a SCSI device.
+> .. and this final one on top of it, presumably.
 > 
-> 
-> Yes, I have SCSI support compiled into the kernel, and SCSI-disk as well.
-> If you have SCSI/SCSI-disk support compiled as modules they should be 
-> loaded
-> automatically.
-> 
-> As far as I know all Zip drives are SCSI devices disguised as parallel/USB/
-> IDE devices, but all required SCSI-disk support because that is what they
-> really are underneath the disguise.
-> 
-> Try it and see what happens.
+> See https://www.redhat.com/archives/dm-devel/2004-March/msg00036.html
 
-Nope, I don't think so, because before udev with the evil devfs 
-/dev/hdd4 appeared...
+Yup, thanks.  Lots happening.  I'll take a trot through the kernel
+maternity ward, see if I can drag out another -mm later today.
 
-So, unless you have a ATAPI ZIp on your own, I won't bother trying SCSI.
-
-bye,
-
-Prakash

@@ -1,41 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261468AbREQSER>; Thu, 17 May 2001 14:04:17 -0400
+	id <S261471AbREQSUr>; Thu, 17 May 2001 14:20:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261467AbREQSEH>; Thu, 17 May 2001 14:04:07 -0400
-Received: from ns.caldera.de ([212.34.180.1]:23269 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S261423AbREQSEA>;
-	Thu, 17 May 2001 14:04:00 -0400
-Date: Thu, 17 May 2001 20:03:34 +0200
-Message-Id: <200105171803.f4HI3Yv29128@ns.caldera.de>
-From: hch@caldera.de (Christoph Hellwig)
-To: thockin@sun.com (Tim Hockin)
-Cc: Linux kernel <linux-kernel@vger.kernel.org>, root@chaos.analogic.com
-Subject: Re: Linux-2.4.4 failure to compile
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <3B040C80.C2A7BC6@sun.com>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S261474AbREQSUh>; Thu, 17 May 2001 14:20:37 -0400
+Received: from web13704.mail.yahoo.com ([216.136.175.137]:2320 "HELO
+	web13704.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261471AbREQSUd>; Thu, 17 May 2001 14:20:33 -0400
+Message-ID: <20010517182032.46367.qmail@web13704.mail.yahoo.com>
+Date: Thu, 17 May 2001 11:20:32 -0700 (PDT)
+From: jalaja devi <jala_74@yahoo.com>
+Subject: Re: kernel2.2.x to kernel2.4.x
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+In-Reply-To: <E150867-0004Cs-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3B040C80.C2A7BC6@sun.com> you wrote:
-> "Richard B. Johnson" wrote:
->> 
->> Hello;
->> 
->> I downloaded linux-2.4.4. The basic kernel compiles but the aic7xxx
->> SCSI module that I require on some machines, doesn't.
+How can I handle this from kernel2.2 to kernel2.4
 
-> The aic7xxx assembler requiring libdb1 is a bungle.  Getting the headers
-> for that right on various distros is not easy.  Add to that it requires
-> YACC, when most people have bison (yes, a shell script is easy to make, but
-> not always an option). 
+Can I replace like this??
 
-If make wants to use yacc but you don't have it, it's probably a mistake
-in the make(1) configuration - the Makefile uses implicit rules and
-distributions not having yacc should not call it in make's implicit rules.
+if (test_and_set_bit (0, (void *)&dev->tbusy)){ return
+EBUSY;} ========== with  netif_stop_queue (dev);
 
-	Christoph
+clear_bit ((void *)&dev->tbusy); ===== with
+netif_start_queue(dev);
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+Thanks
+Jalaja
+
+--- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > I tried porting a network driver from kernel2.2.x
+> to
+> > 2.4. When i tried loading the driver, it shows the
+> > unresolved symbols for
+> > copy_to_user_ret
+> 
+> 	if(copy_to_user(...))
+> 		return -EFAULT
+> 
+> > outs
+> 
+> 	Has not gone away, your includes are wrong
+> 
+> > __bad_udelay
+> 
+> 	You are using too large a udelay use mdelay
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Auctions - buy the things you want at great prices
+http://auctions.yahoo.com/

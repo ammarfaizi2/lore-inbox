@@ -1,128 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262849AbUKXVEc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262852AbUKXVMy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262849AbUKXVEc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 16:04:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbUKXVEc
+	id S262852AbUKXVMy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 16:12:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbUKXVMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 16:04:32 -0500
-Received: from over.ny.us.ibm.com ([32.97.182.111]:15573 "EHLO
-	over.ny.us.ibm.com") by vger.kernel.org with ESMTP id S262849AbUKXVES
+	Wed, 24 Nov 2004 16:12:54 -0500
+Received: from pD9562327.dip.t-dialin.net ([217.86.35.39]:60716 "EHLO
+	mail.linux-mips.net") by vger.kernel.org with ESMTP id S262852AbUKXVMr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 16:04:18 -0500
-Date: Wed, 24 Nov 2004 10:16:07 -0800
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: janitor@sternwelten.at, netdev@oss.sgi.com, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
-Subject: Re: [PATCH] Add ssleep_interruptible()
-Message-ID: <20041124181607.GA1720@us.ibm.com>
-References: <E1CO1vc-00022t-N2@sputnik> <20041101200749.GF1730@us.ibm.com> <20041117013059.GA4218@us.ibm.com> <20041122024804.GD4146@verge.net.au> <20041122171922.GA7770@us.ibm.com> <20041124020111.GF31329@verge.net.au>
+	Wed, 24 Nov 2004 16:12:47 -0500
+Date: Wed, 24 Nov 2004 18:51:55 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mips@linux-mips.org
+Subject: Re: [PATCH 2.6.10-rc2-mm3] mips: fixed memory mapped I/O of IDE on MIPS
+Message-ID: <20041124175155.GE21039@linux-mips.org>
+References: <20041124101809.77a1d877.yuasa@hh.iij4u.or.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=unknown-8bit
 Content-Disposition: inline
-In-Reply-To: <20041124020111.GF31329@verge.net.au>
-X-Operating-System: Linux 2.6.9-test-acpi (i686)
-User-Agent: Mutt/1.5.6+20040722i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041124101809.77a1d877.yuasa@hh.iij4u.or.jp>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 24, 2004 at 11:01:13AM +0900, Horms wrote:
-> On Mon, Nov 22, 2004 at 09:19:22AM -0800, Nishanth Aravamudan wrote:
-> > On Mon, Nov 22, 2004 at 11:48:05AM +0900, Horms wrote:
-> > > On Tue, Nov 16, 2004 at 05:30:59PM -0800, Nishanth Aravamudan wrote:
-> > > > On Mon, Nov 01, 2004 at 12:07:49PM -0800, Nishanth Aravamudan wrote:
-> > > > > Description: Adds ssleep_interruptible() to allow longer delays to occur
-> > > > > in TASK_INTERRUPTIBLE, similarly to ssleep(). To be consistent with
-> > > > > msleep_interruptible(), ssleep_interruptible() returns the remaining time
-> > > > > left in the delay in terms of seconds. This required dividing the return
-> > > > > value of msleep_interruptible() by 1000, thus a cast to (unsigned long)
-> > > > > to prevent any floating point issues.
-> > > > > 
-> > > > > Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-> > > > > 
-> > > > > --- 2.6.10-rc1-vanilla/include/linux/delay.h	2004-10-30 
-> > > > > 15:34:03.000000000 -0700
-> > > > > +++ 2.6.10-rc1/include/linux/delay.h	2004-11-01 12:06:11.000000000 -0800
-> > > > > @@ -46,4 +46,9 @@ static inline void ssleep(unsigned int s
-> > > > > 	msleep(seconds * 1000);
-> > > > > }
-> > > > > 
-> > > > > +static inline unsigned long ssleep_interruptible(unsigned int seconds)
-> > > > > +{
-> > > > > +	return (unsigned long)(msleep_interruptible(seconds * 1000) / 1000);
-> > > > > +}
-> > > > > +
-> > > > > #endif /* defined(_LINUX_DELAY_H) */
-> > > > 
-> > > > After a discussion on IRC, I believe it is pretty clear that this
-> > > > function has serious issues. Mainly, that if I request a delay of 1
-> > > > second, but msleep_interruptible() returns after 1 millisecond, then
-> > > > ssleep_interruptible() will return 0, claiming the entire delay was
-> > > > used (due to rounding).
-> > > > 
-> > > > Perhaps we should just be satisfied with milliseconds being the grossest
-> > > > (in contrast to fine) measure of time, at least in terms of
-> > > > interruptible delays. ssleep() is unaffected by this problem, of course.
-> > > > 
-> > > > Please revert this patch, if applied, as well as any of the other
-> > > > patches I sent using ssleep_interruptible() [only a handful].
-> > > 
-> > > Would making sure that the time slept was always rounded up to
-> > > the nearest second resolve this problem. I believe that rounding
-> > > up is a common approach to resolving this type of problem when
-> > > changing clock resolution.
-> > > 
-> > > I am thinking of something like this.
-> > > 
-> > > ===== include/linux/delay.h 1.6 vs edited =====
-> > > --- 1.6/include/linux/delay.h	2004-09-03 18:08:32 +09:00
-> > > +++ edited/include/linux/delay.h	2004-11-22 11:47:03 +09:00
-> > > @@ -46,4 +46,10 @@ static inline void ssleep(unsigned int s
-> > >  	msleep(seconds * 1000);
-> > >  }
-> > >  
-> > > +static inline unsigned long ssleep_interruptible(unsigned int seconds)
-> > > +{
-> > > +	return (unsigned long)((msleep_interruptible(seconds * 1000) + 999) / 
-> > > +			1000);
-> > 
-> > This is a good idea, but I have two issues:
-> > 
-> > 1) A major reason for having msecs_to_jiffies() and co. is to avoid
-> > having to do this type of conversion ourselves. A weak argument,
-> > admittedly, but just something to keep in mind.
-> > 
-> > 2) This still has a serious logical flaw: If I request 1 second of
-> > sleep, and I don't sleep the entire time, then it is now guaranteed that
-> > I will think I did not sleep at all (ie. ssleep_interruptible() will
-> > return 1). That's just another version of the original issue.
-> > 
-> > I just don't think it's useful to have this coarse of granularity, at
-> > least in terms of interruptible sleep.
+On Wed, Nov 24, 2004 at 10:18:09AM +0900, Yoichi Yuasa wrote:
+
+> This patch fixes memory mapped I/O of IDE on MIPS.
 > 
-> If it is unacceptable to neither underestimate or overestimate the
-> duration of a sleep to the nearest second (the unit of granularity of
-> the sleep in this case) then I agree.
+> The MMIO of IDE on MIPS, the read*()/write*() are correct methods for it.
+>  
+> Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+> 
+> diff -urN -X dontdiff a-orig/include/asm-mips/ide.h a/include/asm-mips/ide.h
+> --- a-orig/include/asm-mips/ide.h	Mon Oct 11 11:58:23 2004
+> +++ a/include/asm-mips/ide.h	Thu Oct 14 12:19:27 2004
+> @@ -14,11 +14,7 @@
+>  #ifdef __KERNEL__
+>  
+>  #include <ide.h>
+> -
+> -#define __ide_mm_insw   ide_insw
+> -#define __ide_mm_insl   ide_insl
+> -#define __ide_mm_outsw  ide_outsw
+> -#define __ide_mm_outsl  ide_outsl
+> +#include <asm-generic/ide_iops.h>
 
-This is kind of my position. Overestimating leads to the potential, if a
-loop is used by the caller, of never leaving the loop, e.g.
+I wish things were that easy.  About once a week I'm mailed a patch to
+"fix¨ MIPS IDE.  Fix for a particular platform breaking all others. Just
+to maximize the fun factor on MIPS we have good old IDE attached via
+MMIO, I/O ports (which on MIPS of course is just MMIO in disguise),
+with the same and with different byte switching requirements that for
+any devices in the system.  And then of course also completly crazy stuff.
+Technically a bloody mess - and the software support no better.
 
-timeout = 1;
-while (timeout) {
-	timeout = ssleep_interruptible(timeout);
-}
+End of rant.
 
-Underestimating leads to leaving the loop too early, because the caller
-thinks a full second has expired and thus a signal was *not* received in
-on *full* second, typically leading to an error condition.
+Checkout rev. 1.11 of include/asm-mips/ide.h in CVS to see some of the
+uglyness that was needed to get IDE to sort of work in the past.  Don't
+look to close or your stomach will oops ;-)
 
-> That is unless you want to request
-> a sleep in seconds but have the duration returned in milliseconds. But
-> if that is the case then it is probably more sensible to just use
-> msleep_interruptible() and be done with it.
+I'm going to put the below patch into CVS; it will allow individual
+platforms to override things will all the mad stuff they deem necessary.
 
-Exactly, I think that an API which has a parameter in seconds and a
-return value in milliseconds is pretty bad. Makes things very confusing
-and really msleep_interruptible() is the same, just a difference of
-parameter units, then.
+  Ralf
 
--Nish
+Index: include/asm-mips/ide.h
+===================================================================
+RCS file: /home/cvs/linux/include/asm-mips/ide.h,v
+retrieving revision 1.24
+diff -u -r1.24 ide.h
+--- include/asm-mips/ide.h	18 Nov 2003 01:17:47 -0000	1.24
++++ include/asm-mips/ide.h	24 Nov 2004 17:49:00 -0000
+@@ -4,22 +4,10 @@
+  * for more details.
+  *
+  * This file contains the MIPS architecture specific IDE code.
+- *
+- * Copyright (C) 1994-1996  Linus Torvalds & authors
+  */
+-
+ #ifndef __ASM_IDE_H
+ #define __ASM_IDE_H
+ 
+-#ifdef __KERNEL__
+-
+ #include <ide.h>
+ 
+-#define __ide_mm_insw   ide_insw
+-#define __ide_mm_insl   ide_insl
+-#define __ide_mm_outsw  ide_outsw
+-#define __ide_mm_outsl  ide_outsl
+-
+-#endif /* __KERNEL__ */
+-
+ #endif /* __ASM_IDE_H */
+Index: include/asm-mips/mach-generic/ide.h
+===================================================================
+RCS file: /home/cvs/linux/include/asm-mips/mach-generic/ide.h,v
+retrieving revision 1.4
+diff -u -r1.4 ide.h
+--- include/asm-mips/mach-generic/ide.h	9 Jun 2004 14:12:13 -0000	1.4
++++ include/asm-mips/mach-generic/ide.h	24 Nov 2004 17:49:00 -0000
+@@ -3,13 +3,18 @@
+  * License.  See the file "COPYING" in the main directory of this archive
+  * for more details.
+  *
+- * IDE routines for typical pc-like legacy IDE configurations.
++ * Copyright (C) 1994-1996  Linus Torvalds & authors
+  *
+- * Copyright (C) 1998, 1999, 2001, 2003 by Ralf Baechle
++ * Copied from i386; many of the especially older MIPS or ISA-based platforms
++ * are basically identical.  Using this file probably implies i8259 PIC
++ * support in a system but the very least interrupt numbers 0 - 15 need to
++ * be put aside for legacy devices.
+  */
+ #ifndef __ASM_MACH_GENERIC_IDE_H
+ #define __ASM_MACH_GENERIC_IDE_H
+ 
++#ifdef __KERNEL__
++
+ #include <linux/config.h>
+ 
+ #ifndef MAX_HWIFS
+@@ -22,7 +27,7 @@
+ 
+ #define IDE_ARCH_OBSOLETE_DEFAULTS
+ 
+-static inline int ide_default_irq(unsigned long base)
++static __inline__ int ide_default_irq(unsigned long base)
+ {
+ 	switch (base) {
+ 		case 0x1f0: return 14;
+@@ -36,11 +41,11 @@
+ 	}
+ }
+ 
+-static inline unsigned long ide_default_io_base(int index)
++static __inline__ unsigned long ide_default_io_base(int index)
+ {
+ 	switch (index) {
+-		case 0: return 0x1f0;
+-		case 1: return 0x170;
++		case 0:	return 0x1f0;
++		case 1:	return 0x170;
+ 		case 2: return 0x1e8;
+ 		case 3: return 0x168;
+ 		case 4: return 0x1e0;
+@@ -59,4 +64,8 @@
+ #define ide_init_default_irq(base)	ide_default_irq(base)
+ #endif
+ 
++#include <asm-generic/ide_iops.h>
++
++#endif /* __KERNEL__ */
++
+ #endif /* __ASM_MACH_GENERIC_IDE_H */

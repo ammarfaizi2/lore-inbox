@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266768AbUHOOwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266732AbUHOOwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266768AbUHOOwK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 10:52:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266774AbUHOOvm
+	id S266732AbUHOOwV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 10:52:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266786AbUHOOwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 10:51:42 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31706 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266739AbUHOOu5 (ORCPT
+	Sun, 15 Aug 2004 10:52:18 -0400
+Received: from gprs212-247.eurotel.cz ([160.218.212.247]:41088 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S266732AbUHOOsG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 10:50:57 -0400
-Date: Sun, 15 Aug 2004 10:50:05 -0400
-From: Alan Cox <alan@redhat.com>
-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: PATCH: identify non decoded master/slave by serial and model
-Message-ID: <20040815145005.GA8565@devserv.devel.redhat.com>
+	Sun, 15 Aug 2004 10:48:06 -0400
+Date: Sun, 15 Aug 2004 16:46:55 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, lhcs-devel@lists.sourceforge.net
+Subject: Re: [lhcs-devel] Re: [PATCH][2.6-mm] i386 Hotplug CPU
+Message-ID: <20040815144655.GA784@elf.ucw.cz>
+References: <1090870667.22306.40.camel@pants.austin.ibm.com> <20040726170157.7f4b414c.akpm@osdl.org> <Pine.LNX.4.58.0407270137510.25781@montezuma.fsmlabs.com> <Pine.LNX.4.58.0407270440200.23985@montezuma.fsmlabs.com> <20040811135019.GC1120@openzaurus.ucw.cz> <Pine.LNX.4.58.0408112043100.2544@montezuma.fsmlabs.com> <Pine.LNX.4.58.0408142313450.22078@montezuma.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.58.0408142313450.22078@montezuma.fsmlabs.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some interfaces (notably PCMCIA ones) don't decode the master/slave select so
-you get two copies of a device appearing and bad things happening if a user
-accidentally uses both. 
+Hi!
 
-This checks for the model/serial matching but also knows about non ATA drives
-ide=noprobe and a Maxtor problem that was found in Andrew's testing of an
-earlier patch. Although M00000.. drives should be RMA'd to Maxtor (and with
-info on where they were obtained...) we don't want to break anyone who has
-them.
+> > Yeah i recall you mentioning this earlier, i'll look into adding the
+> > necessary bits so that you have enough state to resume from. Your
+> > mentioning this was one of the reasons i wanted this in.
+> 
+> Pavel, considering that the processor is in a quiescent state when it's in
+> the idle thread, can't we simply restart them all when we do the final
+> sleep? So on the resume, we steer the APs straight into the offline cpu
+> spin and manually bring them up again when the BSP has resumed? I
+> reckon
 
+Sorry, I do not understand what AP and BSP means in this context.
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.8-rc3/drivers/ide/ide-probe.c linux-2.6.8-rc3/drivers/ide/ide-probe.c
---- linux.vanilla-2.6.8-rc3/drivers/ide/ide-probe.c	2004-08-09 15:51:00.000000000 +0100
-+++ linux-2.6.8-rc3/drivers/ide/ide-probe.c	2004-08-14 21:03:03.000000000 +0100
-@@ -749,6 +790,20 @@
- 		ide_drive_t *drive = &hwif->drives[unit];
- 		drive->dn = (hwif->channel ? 2 : 0) + unit;
- 		(void) probe_for_drive(drive);
-+		if (drive->present && hwif->present && unit == 1)
-+		{
-+			if(strcmp(hwif->drives[0].id->model, drive->id->model) == 0 &&
-+			   /* Don't do this for noprobe or non ATA */
-+			   strcmp(drive->id->model, "UNKNOWN") &&
-+			   /* And beware of confused Maxtor drives that go "M0000000000" 
-+			      "The SN# is garbage in the ID block..." [Eric] */
-+			   strncmp(drive->id->serial_no, "M0000000000000000000", 20) && 
-+			   strncmp(hwif->drives[0].id->serial_no, drive->id->serial_no, 20) == 0)
-+			{
-+				printk(KERN_WARNING "ide-probe: ignoring undecoded slave\n");
-+				drive->present = 0;
-+			}
-+		}
- 		if (drive->present && !hwif->present) {
- 			hwif->present = 1;
- 			if (hwif->chipset != ide_4drives ||
+> we don't have to save any state at all. I probably don't have the full
+> picture yet so feel free to set me straight.
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+Yes, we can just shut those cpus down on suspend and completely boot
+them from real mode during resume... that should work. And we will
+need to do that during suspend-to-ram.
 
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

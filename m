@@ -1,162 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVCHEfK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVCHEkY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbVCHEfK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 23:35:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbVCHEfK
+	id S261353AbVCHEkY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 23:40:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261370AbVCHEkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 23:35:10 -0500
-Received: from waste.org ([216.27.176.166]:47770 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261380AbVCHEe2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 23:34:28 -0500
-Date: Mon, 7 Mar 2005 20:33:49 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paul Davis <paul@linuxaudiosystems.com>, joq@io.com,
-       cfriesen@nortelnetworks.com, chrisw@osdl.org, hch@infradead.org,
-       rlrevell@joe-job.com, arjanv@redhat.com, mingo@elte.hu,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050308043349.GG3120@waste.org>
-References: <20050112185258.GG2940@waste.org> <200501122116.j0CLGK3K022477@localhost.localdomain> <20050307195020.510a1ceb.akpm@osdl.org>
+	Mon, 7 Mar 2005 23:40:24 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:2500 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261353AbVCHEkO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 23:40:14 -0500
+Date: Tue, 8 Mar 2005 04:40:09 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Robert Love <rml@novell.com>
+Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+       John McCutchan <ttb@tentacle.dhs.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] inotify for 2.6.11-mm1, updated
+Message-ID: <20050308044009.GA352@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Robert Love <rml@novell.com>, akpm@osdl.org,
+	John McCutchan <ttb@tentacle.dhs.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1109961444.10313.13.camel@betsy.boston.ximian.com> <1109963494.10313.32.camel@betsy.boston.ximian.com> <20050307011939.GA7764@infradead.org> <1110230878.3973.40.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050307195020.510a1ceb.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1110230878.3973.40.camel@betsy.boston.ximian.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 07, 2005 at 07:50:20PM -0800, Andrew Morton wrote:
+> > this one seems totally unrelated.
 > 
-> So I still have the rt-lsm patch floating about, saying "merge me, merge
-> me!".  I'm not sure that the world would end were I to do so.
+> Eh?  We did not add that. ;)
+
+Sorry, I thought I saw a + somewhere there at the beggining of the line,
+my fault.
+
+> > Should probably use the /dev/mem major.
 > 
-> Consider this a prod in the direction of those who were pushing
-> alternatives ;)
+> Hrm, should we?
+> 
+> Also, the memory class stuff is all local to mem.c.  For example, I
+> cannot get at /sys/class/mem.  The misc. device stuff is exported.
 
-I think Chris Wright's last rlimit patch is more sensible and ready to
-go. And I think I may have even convinced Ingo on this point before
-the conversation died last time around. So here's that patch again,
-updated to 2.6.11. Compiles cleanly. Chris, please add a signed-off-by.
+Why do you need the classdevice?  I'm really not too eager about adding
+tons of new misdevices now that we can route directly to individual majors
+with cdev_add & stuff.  Especially when you're actually relying on class
+device you should have your own one instead of relying on an onsolete
+layer.
 
-<snip>
+> > do you really need a spinlock of your own in every inode?  Inode memory
+> > usage is a quite big problem.
+> 
+> Yah, we do.  For a couple of reasons.  First, by introducing our own
+> lock, we never need touch i_lock, and avoid that scalability mess
+> altogether.  Second, and most importantly, i_lock is an outermost lock.
+> We need our lock to be nestable, because we walk inode -> inotify_watch
+> -> inotify_device.  I've tried various rewrites to not need our own
+> lock.  None are pretty.
+> 
+> I can offer to the "inode memory worries me" people that they can always
+> disable CONFIG_INOTIFY.
 
-Add a pair of rlimits for allowing non-root tasks to raise nice and rt
-priorities. Defaults to traditional behavior. Originally written by
-Chris Wright.
+They're bound to use distro kernels unfortunaly..  These people is anyone
+doing big-scale fileserving at least.
 
-Signed-off-by: Matt Mackall <mpm@selenic.com>
+> +	if ((ret + (type == READ)) > 0) {
+> +		struct dentry *dentry = file->f_dentry;
+> +		if (type == READ)
+> +			fsnotify_access(dentry, dentry->d_inode,
+> +					dentry->d_name.name);
+> +		else
+> +			fsnotify_modify(dentry, dentry->d_inode,
+> +					dentry->d_name.name);
+> +	}
 
-Index: rlimits/include/linux/sched.h
-===================================================================
---- rlimits.orig/include/linux/sched.h	2005-03-03 22:50:14.000000000 -0800
-+++ rlimits/include/linux/sched.h	2005-03-07 20:18:30.000000000 -0800
-@@ -791,6 +791,7 @@ extern void sched_idle_next(void);
- extern void set_user_nice(task_t *p, long nice);
- extern int task_prio(const task_t *p);
- extern int task_nice(const task_t *p);
-+extern int can_nice(const task_t *p, const int nice);
- extern int task_curr(const task_t *p);
- extern int idle_cpu(int cpu);
- extern int sched_setscheduler(struct task_struct *, int, struct sched_param *);
-Index: rlimits/kernel/sched.c
-===================================================================
---- rlimits.orig/kernel/sched.c	2005-03-02 22:51:08.000000000 -0800
-+++ rlimits/kernel/sched.c	2005-03-07 20:23:17.000000000 -0800
-@@ -3273,6 +3273,19 @@ out_unlock:
- 
- EXPORT_SYMBOL(set_user_nice);
- 
-+/*
-+ * can_nice - check if a task can reduce its nice value
-+ * @p: task
-+ * @nice: nice value
-+ */
-+int can_nice(const task_t *p, const int nice)
-+{
-+	/* convert nice value [19,-20] to rlimit style value [0,39] */
-+	int nice_rlim = 19 - nice;
-+	return (nice_rlim <= p->signal->rlim[RLIMIT_NICE].rlim_cur || 
-+		capable(CAP_SYS_NICE));
-+}
-+
- #ifdef __ARCH_WANT_SYS_NICE
- 
- /*
-@@ -3292,12 +3305,8 @@ asmlinkage long sys_nice(int increment)
- 	 * We don't have to worry. Conceptually one call occurs first
- 	 * and we have a single winner.
- 	 */
--	if (increment < 0) {
--		if (!capable(CAP_SYS_NICE))
--			return -EPERM;
--		if (increment < -40)
--			increment = -40;
--	}
-+	if (increment < -40)
-+		increment = -40;
- 	if (increment > 40)
- 		increment = 40;
- 
-@@ -3307,6 +3316,9 @@ asmlinkage long sys_nice(int increment)
- 	if (nice > 19)
- 		nice = 19;
- 
-+	if (increment < 0 && !can_nice(current, nice))
-+		return -EPERM;
-+
- 	retval = security_task_setnice(current, nice);
- 	if (retval)
- 		return retval;
-@@ -3422,6 +3434,7 @@ recheck:
- 		return -EINVAL;
- 
- 	if ((policy == SCHED_FIFO || policy == SCHED_RR) &&
-+	    param->sched_priority > p->signal->rlim[RLIMIT_RTPRIO].rlim_cur && 
- 	    !capable(CAP_SYS_NICE))
- 		return -EPERM;
- 	if ((current->euid != p->euid) && (current->euid != p->uid) &&
-Index: rlimits/kernel/sys.c
-===================================================================
---- rlimits.orig/kernel/sys.c	2005-03-02 22:51:07.000000000 -0800
-+++ rlimits/kernel/sys.c	2005-03-07 20:18:30.000000000 -0800
-@@ -225,7 +225,7 @@ static int set_one_prio(struct task_stru
- 		error = -EPERM;
- 		goto out;
- 	}
--	if (niceval < task_nice(p) && !capable(CAP_SYS_NICE)) {
-+	if (niceval < task_nice(p) && !can_nice(p, niceval)) {
- 		error = -EACCES;
- 		goto out;
- 	}
-Index: rlimits/include/asm-generic/resource.h
-===================================================================
---- rlimits.orig/include/asm-generic/resource.h	2005-03-02 18:30:27.000000000 -0800
-+++ rlimits/include/asm-generic/resource.h	2005-03-07 20:21:04.000000000 -0800
-@@ -20,8 +20,10 @@
- #define RLIMIT_LOCKS		10	/* maximum file locks held */
- #define RLIMIT_SIGPENDING	11	/* max number of pending signals */
- #define RLIMIT_MSGQUEUE		12	/* maximum bytes in POSIX mqueues */
--
--#define RLIM_NLIMITS		13
-+#define RLIMIT_NICE	13		/* max nice prio allowed to raise to
-+					   0-39 for nice level 19 .. -20 */
-+#define RLIMIT_RTPRIO	14		/* maximum realtime priority */
-+#define RLIM_NLIMITS		15
- #endif
- 
- /*
-@@ -53,6 +55,8 @@
- 	[RLIMIT_LOCKS]		= { RLIM_INFINITY, RLIM_INFINITY },	\
- 	[RLIMIT_SIGPENDING]	= { MAX_SIGPENDING, MAX_SIGPENDING },	\
- 	[RLIMIT_MSGQUEUE]	= { MQ_BYTES_MAX, MQ_BYTES_MAX },	\
-+	[RLIMIT_NICE]		= { 0, 0 }, \
-+	[RLIMIT_RTPRIO]		= { 0, 0 }, \
- }
- 
- #endif	/* __KERNEL__ */
+Arguments two and three are still redudant.
 
+Actually, you fixed that in read_write.c, just compat.c is still missing.
+Looks like you forget to fix that one and didn't have a chance to compile-test
+the 32bit compat layer?
 
--- 
-Mathematics is the supreme nostalgia of our time.

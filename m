@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285007AbSADV5w>; Fri, 4 Jan 2002 16:57:52 -0500
+	id <S285017AbSADWGn>; Fri, 4 Jan 2002 17:06:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284979AbSADV5m>; Fri, 4 Jan 2002 16:57:42 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:61949 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S285007AbSADV5Z>;
-	Fri, 4 Jan 2002 16:57:25 -0500
-Date: Fri, 4 Jan 2002 14:57:09 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel log messages using wrong timezone
-Message-ID: <20020104145709.W12868@lynx.no>
-Mail-Followup-To: Chris Friesen <cfriesen@nortelnetworks.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3C360D22.F6FFFAD6@nortelnetworks.com> <20020104135129.Q12868@lynx.no> <3C361AAC.EB9570B9@nortelnetworks.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <3C361AAC.EB9570B9@nortelnetworks.com>; from cfriesen@nortelnetworks.com on Fri, Jan 04, 2002 at 04:12:12PM -0500
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S285022AbSADWGY>; Fri, 4 Jan 2002 17:06:24 -0500
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:37639 "EHLO
+	clueserver.org") by vger.kernel.org with ESMTP id <S285017AbSADWGS>;
+	Fri, 4 Jan 2002 17:06:18 -0500
+Message-Id: <200201042319.g04NJYL09845@clueserver.org>
+Content-Type: text/plain; charset=US-ASCII
+From: Alan <alan@clueserver.org>
+Reply-To: alan@clueserver.org
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] USB Storage Config patch for 2.4.17 and 2.5.1
+Date: Fri, 4 Jan 2002 12:49:45 -0800
+X-Mailer: KMail [version 1.3.1]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <200201041041.g04AfiL05830@clueserver.org> <200201042117.g04LHkL08977@clueserver.org> <20020104214800.GC21034@kroah.com>
+In-Reply-To: <20020104214800.GC21034@kroah.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 04, 2002  16:12 -0500, Chris Friesen wrote:
-> Andreas Dilger wrote:
-> > On Jan 04, 2002  15:14 -0500, Chris Friesen wrote:
-> > > How does the kernel figure out how to timestamp the log output?
-> > > The reason I'm asking is that we have a system that has /etc/localtime
-> > > pointing to the Americas/Montreal timezone, but the log output from the
-> > > kernel appears to be UTC.
-> > 
-> > The kernel doesn't timestamp the logs, AFAIK.  That is done by syslog when
-> > it writes the logs to disk.  If you check "dmesg" output - no timestamps.
-> 
-> Hmm...good point.  However, I should clarify that userspace logs are being
-> corrected for timezone, but kernel logs are not. For userspace apps the
-> timestamping is done in the glibc syslog() call, so now I need to figure out
-> where it's done for the kernel.
+On Friday 04 January 2002 13:48, Greg KH wrote:
+> On Fri, Jan 04, 2002 at 10:47:57AM -0800, Alan wrote:
+> > Here is the patch attached. Tested on 2.4.17 and 2.5.1. (Needs a version
+> > for the new 2.5.x config structure, but that should be trivial.)
+>
+> Thanks, I've applied just a portion of the patch (no need in indenting
+> the usb-storage options, see
+> http://linuxusb.bitkeeper.com:8088/usb-2.4/patch@1.563?nav=cset@1.563
+> and
+> http://linuxusb.bitkeeper.com:8088/usb-2.5/patch@1.135?nav=cset@1.135
+> for the end result) to my 2.4 and 2.5 trees.  I'll forward them on the
+> the proper kernel maintainers.
 
-Well, on my system I have "syslogd" and "klogd" running.  Kernel logs are
-extracted from the kernel ringbuffer by klogd and passed to syslog, so that
-would be the place to look.
+Cool. Sorry it took so long to get it to you.  Just distracted by other 
+things. (The patch was quick. Took less than 15 minutes to create and test. 
+Remembering to do it was the hard part. ]:> )
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+> > BTW, this was written during the PLUG meeting last night. (Which you
+> > missed.)
+>
+> Ah, must have been another boring meeting if you were writing kernel
+> config patches during it :)
+
+Actually it was a very good meeting. (Randal Schwartz was speaking on the 
+future of Perl.)  I wrote it during the "history of Perl" section, since I 
+already knew that part. (Don't ask. A messy story involving mailing list 
+maintence over a 28k connection.)  I am waiting to write the security 
+exploits for part of it if they actually do some of the things he spoke of in 
+Perl 6.  (User modifiable core code. Mmmm!)
+
+Besides, some people only attend the meetings for the beer and/or cider 
+afterwards...
+
 

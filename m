@@ -1,211 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261544AbSKXSMM>; Sun, 24 Nov 2002 13:12:12 -0500
+	id <S261568AbSKXSSc>; Sun, 24 Nov 2002 13:18:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261559AbSKXSMM>; Sun, 24 Nov 2002 13:12:12 -0500
-Received: from tomts9.bellnexxia.net ([209.226.175.53]:29899 "EHLO
-	tomts9-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S261544AbSKXSMJ>; Sun, 24 Nov 2002 13:12:09 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix some module format errors
-Date: Sun, 24 Nov 2002 13:14:31 -0500
-User-Agent: KMail/1.4.3
+	id <S261574AbSKXSSc>; Sun, 24 Nov 2002 13:18:32 -0500
+Received: from 205-158-62-68.outblaze.com ([205.158.62.68]:19466 "HELO
+	spf0.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S261568AbSKXSSb>; Sun, 24 Nov 2002 13:18:31 -0500
+Message-ID: <20021124182539.31423.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200211241314.31413.tomlins@cam.org>
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Mon, 25 Nov 2002 02:25:39 +0800
+Subject: [Benchmark] Contest results (2.4.19 2.5.47 .48 .49)
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws5-1.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds no_module_init to a few modules - those I need...
-This lets the new module code load them.
+$ cat /cygdrive/log/results.log
 
-Ed Tomlinson
+noload:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.19 [1]              133.3   98      0       0       1.00
+2.5.47 [1]              138.3   96      0       0       1.04
+2.5.48 [1]              138.0   96      0       0       1.03
+2.5.49 [1]              137.9   96      0       0       1.03
 
---------------
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.859   -> 1.860  
-#	drivers/video/matrox/matroxfb_Ti3026.c	1.6     -> 1.7    
-#	sound/oss/ac97_codec.c	1.11    -> 1.12   
-#	   drivers/net/mii.c	1.14    -> 1.15   
-#	drivers/video/matrox/matroxfb_DAC1064.c	1.14    -> 1.15   
-#	drivers/video/matrox/matroxfb_accel.c	1.8     -> 1.9    
-#	drivers/video/matrox/matroxfb_misc.c	1.9     -> 1.10   
-#	drivers/video/matrox/g450_pll.c	1.2     -> 1.3    
-#	drivers/video/matrox/matroxfb_g450.c	1.12    -> 1.13   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/11/24	ed@oscar.et.ca	1.860
-# add no_module_init for
-# matrox fb, ac97_codex (cs46xx) and mii (via_rhine)
-# --------------------------------------------
-#
-diff -Nru a/drivers/net/mii.c b/drivers/net/mii.c
---- a/drivers/net/mii.c	Sun Nov 24 13:05:08 2002
-+++ b/drivers/net/mii.c	Sun Nov 24 13:05:08 2002
-@@ -32,6 +32,7 @@
- #include <linux/netdevice.h>
- #include <linux/ethtool.h>
- #include <linux/mii.h>
-+#include <linux/init.h>
- 
- int mii_ethtool_gset(struct mii_if_info *mii, struct ethtool_cmd *ecmd)
- {
-@@ -335,6 +336,8 @@
- 
- 	return rc;
- }
-+
-+no_module_init;
- 
- MODULE_AUTHOR ("Jeff Garzik <jgarzik@pobox.com>");
- MODULE_DESCRIPTION ("MII hardware support library");
-diff -Nru a/drivers/video/matrox/g450_pll.c b/drivers/video/matrox/g450_pll.c
---- a/drivers/video/matrox/g450_pll.c	Sun Nov 24 13:05:08 2002
-+++ b/drivers/video/matrox/g450_pll.c	Sun Nov 24 13:05:08 2002
-@@ -16,6 +16,7 @@
- 
- #include "g450_pll.h"
- #include "matroxfb_DAC1064.h"
-+#include "linux/init.h"
- 
- static inline unsigned int g450_vco2f(unsigned char p, unsigned int fvco) {
- 	return (p & 0x40) ? fvco : fvco >> ((p & 3) + 1);
-@@ -468,6 +469,8 @@
- 	}
- 	return -ENOMEM;
- }
-+
-+no_module_init;
- 
- EXPORT_SYMBOL(matroxfb_g450_setclk);
- EXPORT_SYMBOL(g450_mnp2f);
-diff -Nru a/drivers/video/matrox/matroxfb_DAC1064.c b/drivers/video/matrox/matroxfb_DAC1064.c
---- a/drivers/video/matrox/matroxfb_DAC1064.c	Sun Nov 24 13:05:08 2002
-+++ b/drivers/video/matrox/matroxfb_DAC1064.c	Sun Nov 24 13:05:08 2002
-@@ -20,6 +20,7 @@
- #include "matroxfb_accel.h"
- #include "g450_pll.h"
- #include <linux/matroxfb.h>
-+#include <linux/init.h>
- 
- #ifdef NEED_DAC1064
- #define outDAC1064 matroxfb_DAC_out
-@@ -1225,4 +1226,7 @@
- EXPORT_SYMBOL(DAC1064_global_init);
- EXPORT_SYMBOL(DAC1064_global_restore);
- #endif
-+
-+no_module_init;
-+
- MODULE_LICENSE("GPL");
-diff -Nru a/drivers/video/matrox/matroxfb_Ti3026.c b/drivers/video/matrox/matroxfb_Ti3026.c
---- a/drivers/video/matrox/matroxfb_Ti3026.c	Sun Nov 24 13:05:08 2002
-+++ b/drivers/video/matrox/matroxfb_Ti3026.c	Sun Nov 24 13:05:08 2002
-@@ -85,6 +85,7 @@
- #include "matroxfb_misc.h"
- #include "matroxfb_accel.h"
- #include <linux/matroxfb.h>
-+#include <linux/init.h>
- 
- #ifdef CONFIG_FB_MATROX_MILLENIUM
- #define outTi3026 matroxfb_DAC_out
-@@ -880,4 +881,7 @@
- };
- EXPORT_SYMBOL(matrox_millennium);
- #endif
-+
-+no_module_init;
-+
- MODULE_LICENSE("GPL");
-diff -Nru a/drivers/video/matrox/matroxfb_accel.c b/drivers/video/matrox/matroxfb_accel.c
---- a/drivers/video/matrox/matroxfb_accel.c	Sun Nov 24 13:05:08 2002
-+++ b/drivers/video/matrox/matroxfb_accel.c	Sun Nov 24 13:05:08 2002
-@@ -80,6 +80,7 @@
- #include "matroxfb_DAC1064.h"
- #include "matroxfb_Ti3026.h"
- #include "matroxfb_misc.h"
-+#include "linux/init.h"
- 
- #define curr_ydstorg(x)	ACCESS_FBINFO2(x, curr.ydstorg.pixels)
- 
-@@ -1256,4 +1257,5 @@
- 
- EXPORT_SYMBOL(matrox_init_putc);
- 
-+no_module_init;
- MODULE_LICENSE("GPL");
-diff -Nru a/drivers/video/matrox/matroxfb_g450.c b/drivers/video/matrox/matroxfb_g450.c
---- a/drivers/video/matrox/matroxfb_g450.c	Sun Nov 24 13:05:08 2002
-+++ b/drivers/video/matrox/matroxfb_g450.c	Sun Nov 24 13:05:08 2002
-@@ -17,6 +17,7 @@
- #include "matroxfb_DAC1064.h"
- #include "g450_pll.h"
- #include <linux/matroxfb.h>
-+#include <linux/init.h>
- #include <asm/uaccess.h>
- #include <asm/div64.h>
- 
-@@ -410,6 +411,8 @@
- 		up_write(&ACCESS_FBINFO(altout.lock));
- 	}
- }
-+
-+no_module_init;
- 
- EXPORT_SYMBOL(matroxfb_g450_connect);
- EXPORT_SYMBOL(matroxfb_g450_shutdown);
-diff -Nru a/drivers/video/matrox/matroxfb_misc.c b/drivers/video/matrox/matroxfb_misc.c
---- a/drivers/video/matrox/matroxfb_misc.c	Sun Nov 24 13:05:08 2002
-+++ b/drivers/video/matrox/matroxfb_misc.c	Sun Nov 24 13:05:08 2002
-@@ -87,6 +87,7 @@
- #include "matroxfb_misc.h"
- #include <linux/interrupt.h>
- #include <linux/matroxfb.h>
-+#include <linux/init.h>
- 
- void matroxfb_createcursorshape(WPMINFO struct display* p, int vmode) {
- 	unsigned int h;
-@@ -996,6 +997,8 @@
- 	pci_write_config_dword(pdev, PCI_OPTION_REG, opt);
- 	matroxfb_set_limits(PMINFO &ACCESS_FBINFO(bios));
- }
-+
-+no_module_init;
- 
- EXPORT_SYMBOL(matroxfb_DAC_in);
- EXPORT_SYMBOL(matroxfb_DAC_out);
-diff -Nru a/sound/oss/ac97_codec.c b/sound/oss/ac97_codec.c
---- a/sound/oss/ac97_codec.c	Sun Nov 24 13:05:08 2002
-+++ b/sound/oss/ac97_codec.c	Sun Nov 24 13:05:08 2002
-@@ -1,4 +1,3 @@
--
- /*
-  * ac97_codec.c: Generic AC97 mixer/modem module
-  *
-@@ -50,6 +49,7 @@
- #include <linux/bitops.h>
- #include <linux/delay.h>
- #include <linux/ac97_codec.h>
-+#include <linux/init.h>
- #include <asm/uaccess.h>
- 
- static int ac97_read_mixer(struct ac97_codec *codec, int oss_channel);
-@@ -1106,6 +1106,8 @@
- 	}
- 	return 0;
- }
-+
-+no_module_init;
- 
- EXPORT_SYMBOL(ac97_restore_state);
- 
---------------
+process_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.19 [1]              223.3   57      183     43      1.67
+2.5.47 [1]              210.2   63      75      37      1.58
+2.5.48 [1]              214.5   62      79      38      1.61
+2.5.49 [1]              208.9   63      74      37      1.57
 
+ctar_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.19 [1]              169.8   80      3       9       1.27
+2.5.47 [1]              170.8   82      3       9       1.28
+2.5.48 [1]              170.7   82      3       9       1.28
+2.5.49 [1]              171.4   82      3       9       1.29
+
+xtar_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.19 [1]              208.7   65      4       10      1.57
+2.5.47 [1]              185.0   73      3       8       1.39
+2.5.48 [1]              183.9   74      3       8       1.38
+2.5.49 [1]              187.5   72      3       9       1.41
+
+io_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.19 [1]              961.5   14      100     13      7.21
+2.5.47 [1]              254.9   54      22      12      1.91
+2.5.48 [1]              220.8   62      18      12      1.66
+2.5.49 [1]              224.8   60      20      13      1.69
+
+read_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.19 [1]              189.2   72      15      5       1.42
+2.5.47 [1]              167.5   82      10      5       1.26
+2.5.48 [1]              168.8   82      13      6       1.27
+2.5.49 [1]              167.4   82      11      5       1.26
+
+list_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.19 [1]              149.1   89      0       6       1.12
+2.5.47 [1]              158.7   85      0       9       1.19
+2.5.48 [1]              158.3   85      0       9       1.19
+2.5.49 [1]              156.6   86      0       9       1.17
+
+mem_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.19 [1]              174.0   77      39      1       1.30
+2.5.47 [1]              205.8   66      39      1       1.54
+2.5.48 [1]              166.1   82      34      1       1.25
+2.5.49 [1]              172.5   79      36      1       1.29
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with POP3/IMAP access for only US$19.95/yr
+
+Powered by Outblaze

@@ -1,52 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267510AbUKBJI5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261868AbUKBJ2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267510AbUKBJI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 04:08:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266153AbUKBJI4
+	id S261868AbUKBJ2U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 04:28:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbUKBJ2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 04:08:56 -0500
-Received: from gate.firmix.at ([80.109.18.208]:54952 "EHLO gate.firmix.at")
-	by vger.kernel.org with ESMTP id S268499AbUKBJIf (ORCPT
+	Tue, 2 Nov 2004 04:28:20 -0500
+Received: from mailr.eris.qinetiq.com ([128.98.1.9]:14217 "HELO
+	mailr.qinetiq-tim.net") by vger.kernel.org with SMTP
+	id S261868AbUKBJ17 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 04:08:35 -0500
-Subject: Re: [oops] lib/vsprintf.c
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Pawel Sikora <pluto@pld-linux.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.60.0411020826520.12803@plus.ds14.agh.edu.pl>
-References: <200411020719.55570.pluto@pld-linux.org>
-	 <418728CA.1090707@yahoo.com.au>
-	 <Pine.LNX.4.60.0411020826520.12803@plus.ds14.agh.edu.pl>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Message-Id: <1099386510.19137.7.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.5 
-Date: Tue, 02 Nov 2004 10:08:31 +0100
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Nov 2004 04:27:59 -0500
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: Mark Broadbent <m.broadbent@signal.QinetiQ.com>
+Subject: Re: ethernet channel bonding (bonding.o) on 2.6.x
+Date: Tue, 2 Nov 2004 10:32:38 +0100
+User-Agent: KMail/1.6.1
+Cc: linux-kernel@vger.kernel.org
+References: <200411010955.00347.m.watts@eris.qinetiq.com> <41866D36.70908@signal.QinetiQ.com>
+In-Reply-To: <41866D36.70908@signal.QinetiQ.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200411020932.38877.m.watts@eris.qinetiq.com>
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.12; VDF: 6.28.0.47; host: mailr.qinetiq-tim.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-11-02 at 08:35 +0100, Pawel Sikora wrote:
-> On Tue, 2 Nov 2004, Nick Piggin wrote:
-> > Pawe Sikora wrote:
-> >> vsprintf.c-      case 's':
-> >> vsprintf.c-                    s = va_arg(args, char *);
-> >> vsprintf.c-                    if ((unsigned long)s < PAGE_SIZE)
-> >> vsprintf.c-                           s = "<NULL>";
-> >> vsprintf.c-
-> >> vsprintf.c:      OOPS!  =>     len = strnlen(s, precision);
-> >
-> > But it is the kernel module that's buggy. What's the problem?
-> 
-> I think that block similar to setjmp/longjmp should be placed
-> around such dangerous places to refues future oops.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-How do you want to find such bugs then?
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+[cc: lkml for the archives]
 
+>
+> The module should support multiple bonds by loading just one module,
+> however in:
+>
+> include/linux/if_bonding.h:81:#define BOND_DEFAULT_MAX_BONDS  1   /*
+> Default maximum number of devices to support */
+>
+> Have you tried adding the option:
+>
+> max_bonds = 2
+>
+> the the options line?
+>
+> With regard to the line:
+>
+> options bond1 -o bonding1 miimon=100 mode=1
+>
+> I ran into this one a while ago as the -o option doesn't work with 2.6
+> kernels in the modprobe.conf file.  I believe the theory is that modules
+> should be able to support multiple devices without having to be loaded
+> twice.
+
+
+This works perfectly!
+
+I'll do a patch to the documentation to reflect this.
+
+Thanks.
+
+Mark.
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ Trusted Information Management
+Trusted Solutions and Services group
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBh1Q2Bn4EFUVUIO0RAjG5AKCSYDrVjLOHFcC4mycsBe9R6FtwzACcC2ki
+LX/IhlscYF889fGU0U8IwYA=
+=Vex7
+-----END PGP SIGNATURE-----

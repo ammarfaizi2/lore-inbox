@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264326AbTKZVY6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 16:24:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbTKZVY6
+	id S264325AbTKZVYS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 16:24:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264326AbTKZVYS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 16:24:58 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:56499 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264326AbTKZVY5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 16:24:57 -0500
-Date: Wed, 26 Nov 2003 22:24:44 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jes Sorensen <jes@wildopensource.com>
-cc: Nikita Melnikov <ku3@stud2.aanet.ru>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>
-Subject: Re: m68k & 2.6.0
-In-Reply-To: <yq0n0aj74mj.fsf@wildopensource.com>
-Message-ID: <Pine.GSO.4.21.0311262221510.18863-100000@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 26 Nov 2003 16:24:18 -0500
+Received: from mail.jlokier.co.uk ([81.29.64.88]:23681 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S264325AbTKZVYR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 16:24:17 -0500
+Date: Wed, 26 Nov 2003 21:24:06 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: Fire Engine??
+Message-ID: <20031126212406.GL14383@mail.shareable.org>
+References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com.suse.lists.linux.kernel> <20031125183035.1c17185a.davem@redhat.com.suse.lists.linux.kernel> <p73fzgbzca6.fsf@verdi.suse.de> <20031126113040.3b774360.davem@redhat.com> <20031126202216.GA13116@thunk.org> <20031126130254.010440e5.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031126130254.010440e5.davem@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Nov 2003, Jes Sorensen wrote:
-> >>>>> "Nikita" == Nikita Melnikov <ku3@stud2.aanet.ru> writes:
+David S. Miller wrote:
+> > that are currently requesting timestamps, then we can dispense with
+> > taking the timestamp.
 > 
-> Nikita> Hello.  What is the state of 2.6 kernels on m68k architecture?
-> Nikita> Is it possible to run new kernels on 68040 and other old
-> Nikita> processors?
-> 
-> Hi Nikita,
-> 
-> Try asking on linux-m68k@lists.linux-m68k.org
+> You can predict what the arguments will be for the user's
+> recvmsg() system call at the time of packet reception?  Wow,
+> show me how :)
 
-It mainly depends on your hardware. E.g. 2.6.0-test9 works on my Amiga 4000
-with 68040.
+recvmsg() doesn't return timestamps until they are requested
+using setsockopt(...SO_TIMESTAMP...).
 
-Check out Linux/m68k CVS: http://linux-m68k-cvs.apia.dhs.org/
+See sock_recv_timestamp() in include/net/sock.h.
 
-Patch integration status:
-    http://linux-m68k-cvs.apia.dhs.org/~geert/linux-m68k-2.4.x-merging/
-    http://linux-m68k-cvs.apia.dhs.org/~geert/linux-m68k-2.5.x-merging/
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+-- Jamie

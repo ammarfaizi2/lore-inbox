@@ -1,64 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269737AbUISDnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269671AbUISEHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269737AbUISDnn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 23:43:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269738AbUISDnm
+	id S269671AbUISEHN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 00:07:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269677AbUISEHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 23:43:42 -0400
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:38542 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269737AbUISDnk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 23:43:40 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Logitech and Microsoft Tilt Wheel Mice. Driver suggestions wanted.
-Date: Sat, 18 Sep 2004 22:43:37 -0500
-User-Agent: KMail/1.6.2
-Cc: mike cox <mikecoxlinux@yahoo.com>
-References: <20040919032613.96799.qmail@web52805.mail.yahoo.com>
-In-Reply-To: <20040919032613.96799.qmail@web52805.mail.yahoo.com>
+	Sun, 19 Sep 2004 00:07:13 -0400
+Received: from undl.funcitec.rct-sc.br ([200.135.30.197]:3970 "HELO
+	mail.undl.org.br") by vger.kernel.org with SMTP id S269671AbUISEHJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 00:07:09 -0400
+Message-ID: <414D05A8.3080208@undl.org.br>
+Date: Sun, 19 Sep 2004 01:06:00 -0300
+From: Carlos Eduardo Medaglia Dyonisio <medaglia@undl.org.br>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-bk4 Unknown symbol __VMALLOC_RESERVE
+References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA9mKu6AlYok2efOpJ3sb3O+KAAAAQAAAAvNyRn41Uu0yDWG5tHRPqegEAAAAA@syphir.sytes.net>
+In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA9mKu6AlYok2efOpJ3sb3O+KAAAAQAAAAvNyRn41Uu0yDWG5tHRPqegEAAAAA@syphir.sytes.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409182243.37138.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 18 September 2004 10:26 pm, mike cox wrote:
+C.Y.M. wrote:
+> After testing 2.6.9-rc2-bk4 today, I am getting the following error when I
+> attempt to load my Nvidia module:
 > 
-> --- Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> 
-> > On Saturday 18 September 2004 08:51 pm, mike cox
-> > wrote:
-> > > I'm modifying Vojtech Pavlik's 2.6.8.1 kernel
-> > > mousedev.c mouse driver to support the new "Tilt
-> > > wheel" functionality on the Logitech MX1000 Laser
-> > > Mouse, and the Microsoft Wireless Optical mouse
-> > with
-> > > Tilt Wheel Technology.
-> > 
-> > How will the tilt information be exported? And what
-> > is wrong with using
-> > event interface? I think that the evdev patches are
-> > included into X shipped
-> > by Gentoo, Mandrake and Fedora at least...
-> 
-> I'm using SuSE 8.2 with the 2.6.8.1 kernel.  I ran xev
-> on my machine and it didn't detect any tilting at all.
->
+> Sep 18 15:31:36 poseidon kernel: nvidia: module license 'NVIDIA' taints
+> kernel.
+> Sep 18 15:31:36 poseidon kernel: nvidia: Unknown symbol __VMALLOC_RESERVE
 
-Evdev (dev/input/eventX) is the new way of communicating input events
-to userspace. It allows input devices pass much more precise information
-about their state and it is quite extensible. There are patches for XFree86 
-and X.org that evdev-ify X mouse and keyboard driver. I will try Google
-for them later. They are pretty new, SuSE 8.2 would not have them.
+I've had this problem too. Try to use bk3. It is working for me. :)
 
-Mousedev is a legacy interface and is very inflexible. I mean there are mice
-with more than 5 muttons, many wheels etc etc; data that is impossible to fit
-into PS/2 procotol. Look for example at wacom or synaptics drivers to see what
-kind of information can be passed through evdev.
-
--- 
-Dmitry
+Regards,
+Cadu

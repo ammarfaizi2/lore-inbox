@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262913AbUAMASn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 19:18:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbUAMASn
+	id S261879AbUAMAZR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 19:25:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbUAMAZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 19:18:43 -0500
-Received: from mail.kroah.org ([65.200.24.183]:5084 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262913AbUAMASl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 19:18:41 -0500
-Date: Mon, 12 Jan 2004 16:18:33 -0800
-From: Greg KH <greg@kroah.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] restrict class names to valid file names
-Message-ID: <20040113001833.GB4848@kroah.com>
-References: <20040112151357.5c9702b7.shemminger@osdl.org> <20040113000514.GA4848@kroah.com> <20040112161336.3e147996.shemminger@osdl.org>
+	Mon, 12 Jan 2004 19:25:17 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:40849 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261879AbUAMAZI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 19:25:08 -0500
+Subject: Re: [PATCH] Intel Alder IOAPIC fix
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0401121452340.2031@evo.osdl.org>
+References: <1073876117.2549.65.camel@mulgrave> 
+	<Pine.LNX.4.58.0401121152070.1901@evo.osdl.org>
+	<1073948641.4178.76.camel@mulgrave> 
+	<Pine.LNX.4.58.0401121452340.2031@evo.osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 12 Jan 2004 19:25:03 -0500
+Message-Id: <1073953504.2078.92.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040112161336.3e147996.shemminger@osdl.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 12, 2004 at 04:13:36PM -0800, Stephen Hemminger wrote:
-> On Mon, 12 Jan 2004 16:05:14 -0800
-> Greg KH <greg@kroah.com> wrote:
-> 
-> > On Mon, Jan 12, 2004 at 03:13:57PM -0800, Stephen Hemminger wrote:
-> > > It is possible to name network devices with names like "my/bogus" or "." or ".."
-> > > which leaves /sys/class/net/ a mess.  Since other subsystems could have the same
-> > > problem, it made sense to me to enforce some restrictions in the class device
-> > > layer.
-> > > 
-> > > A lateer patch fixes the network device registration path because the
-> > > sysfs registration takes place after the register_netdevice call has taken place.
-> > 
-> > Heh, so you will have already "scrubbed" the name before you submit it
-> > to the driver core?  If so, why add this patch?
-> 
-> Because name won't be scrubbed for the rename case
+On Mon, 2004-01-12 at 18:04, Linus Torvalds wrote:
+> 		for (i = 0; i < 6; i++) {
+> 			if (!pci_resource_start(dev, i))
+> 				continue;
+> 			if (!pci_resource_len(dev, i))
+> 				continue;
 
-Why not?  Does that mean that those characters are valid names for
-network devices if the device is renamed from userspace?
+Unfortunately this won't work because of the properties of insert
+resource.  The BAR covers the second IO APIC at fec01000-fec013ff. 
+However, this sits right in the middle of the fixmap region:
 
-> , and other class devices probably have the same possible problem
+fec00000-fec08fff : reserved
 
-I don't know of any other class device code in the kernel that accepts
-userspace input as its name.
+This check in insert_resource makes sure that the resource being
+inserted has to end beyond the resource it is replacing:
 
-thanks,
+	/* existing resource overlaps end of new resource */
+	if (next->end > new->end)
+		goto out;
 
-greg k-h
+I could hack up another insert resource function that would put the
+resource *under* anything else it finds (i.e. the reserved region).
+
+Otherwise, everything will work since the i386 pci code assumes that if
+the resource already has a parent, it has already been correctly
+assigned, so won't try to reassign it.
+
+James
+
+

@@ -1,31 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131286AbRBWFBf>; Fri, 23 Feb 2001 00:01:35 -0500
+	id <S131413AbRBWFCX>; Fri, 23 Feb 2001 00:02:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131413AbRBWFBY>; Fri, 23 Feb 2001 00:01:24 -0500
-Received: from 513.holly-springs.nc.us ([216.27.31.173]:23718 "EHLO
-	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
-	id <S131363AbRBWFBK>; Fri, 23 Feb 2001 00:01:10 -0500
-Message-ID: <004901c09d6e$7d328480$8501a8c0@gromit>
-From: "Michael Rothwell" <rothwell@holly-springs.nc.us>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010222151924.A11436@ovits.net>
-Subject: Re: CPRM is dead; Thanks Andre!
-Date: Thu, 22 Feb 2001 23:59:03 -0800
+	id <S131447AbRBWFCO>; Fri, 23 Feb 2001 00:02:14 -0500
+Received: from p188.usnyc5.stsn.com ([199.106.220.188]:17673 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S131413AbRBWFCB>; Fri, 23 Feb 2001 00:02:01 -0500
+Date: Fri, 23 Feb 2001 02:03:27 -0300 (EST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@localhost.localdomain>
+To: Lars Marowsky-Bree <lmb@suse.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 vs 2.2 performance under load comparison
+In-Reply-To: <20010222135440.M1320@marowsky-bree.de>
+Message-ID: <Pine.LNX.4.31.0102230201100.31559-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> IBM withdrew the proposal.
+On Thu, 22 Feb 2001, Lars Marowsky-Bree wrote:
 
-... from public view
+> Situation: SAP R/3 + SAP DB + benchmark driver running on a
+> single node 4 CPU SMP machine, tuned down to 1GB of RAM.
+>
+> Running the SAP benchmark with 75 users on 2.2 yields for the
+> first benchmark run:
+>
+> - 7018ms average response time
+> - 2967s CPU time in 1136s elapsed time
+> - ~500MB swap allocated
+> - ~1500 pages paged in/s, 268 pages/out/s on average
+>
+> Running the same benchmark on 2.4:
+>
+> - ~700ms average response time
+> - 1884s CPU time in 669s elapsed time
+> - ~500MB swap allocated
+> - ~50 pages paged in, ~212 pages paged out per second on average
 
+> Rik, it's time for you to break it again *g*
 
+Actually, in 2.4 we have one big VM balancing problem left.
+
+We have no way to auto-balance between refill_inactive_scan()
+and swap_out(), so we can (and probably do) still end up paging
+out the wrong pages lots of times ... this is alleviated somewhat
+by having a 1-second inactive list, but still...
+
+Another problem is a lack of smarter IO clustering, when we get
+that better I'm sure we can increase performance even more.
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 

@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316615AbSGVNe4>; Mon, 22 Jul 2002 09:34:56 -0400
+	id <S317073AbSGVNSB>; Mon, 22 Jul 2002 09:18:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315536AbSGVNe4>; Mon, 22 Jul 2002 09:34:56 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:13722 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S316615AbSGVNez>;
-	Mon, 22 Jul 2002 09:34:55 -0400
-Date: Mon, 22 Jul 2002 15:36:57 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@lst.de>
+	id <S317078AbSGVNSB>; Mon, 22 Jul 2002 09:18:01 -0400
+Received: from verein.lst.de ([212.34.181.86]:57867 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S317073AbSGVNR7>;
+	Mon, 22 Jul 2002 09:17:59 -0400
+Date: Mon, 22 Jul 2002 15:20:56 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Ingo Molnar <mingo@elte.hu>
 Cc: Russell King <rmk@arm.linux.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>, Robert Love <rml@tech9.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: [patch] remove-irqlock-2.5.27-D7
-In-Reply-To: <20020722153000.A18763@lst.de>
-Message-ID: <Pine.LNX.4.44.0207221529270.8547-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+       Linus Torvalds <torvalds@transmeta.com>, Christoph Hellwig <hch@lst.de>,
+       Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] cli()/sti() cleanup, 2.5.27-A2
+Message-ID: <20020722152056.A18619@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	Ingo Molnar <mingo@elte.hu>, Russell King <rmk@arm.linux.org.uk>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+References: <20020722014018.A31813@flint.arm.linux.org.uk> <Pine.LNX.4.44.0207221248250.4519-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0207221248250.4519-100000@localhost.localdomain>; from mingo@elte.hu on Mon, Jul 22, 2002 at 03:01:48PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 22 Jul 2002, Christoph Hellwig wrote:
-
-> > no, the on is not implicit at all. If you restore into a disabled state
-> > then it will go from on to off.
+On Mon, Jul 22, 2002 at 03:01:48PM +0200, Ingo Molnar wrote:
+> So what i did in my tree was to introduce the following 5 core means of
+> manipulating the local interrupt flags:
 > 
-> well, for the normal use of it.  Okay, I give up, even if the nameing
-> looks strange in the beginning is is consistant :)
+> 	irq_off()
+> 	irq_on()
+> 	irq_save(flags)
+> 	irq_save_off(flags)
+> 	irq_restore(flags)
 
-it does precisely what it says:
-	
-    irq_off()           => turn local IRQs off
+I'd prefer the following:
 
-    irq_on()            => turn local IRQs on
+void irq_off(void);
+void irq_on(void);
 
-    irq_save(flags)     => save the current IRQ state into flags. The 
-                           state can be on or off. (on some 
-                           architectures there's even more bits in it.)
+flags_t irq_save();		/* the old irq_save_off() */
+void irq_restore(flags_t);
 
-    irq_save_off(flags) => save the current IRQ state into flags and 
-                           disable interrupts.
+void __irq_save(void);		/* without saveing */
 
-    irq_restore(flags)  => restore the IRQ state from flags.
+rational:  proper function-like API (should be inlines), irq save
+without disableing is very uncommon, better make the API symmetric.
 
-while it's true that 'normally' we save irq-enabled state, it's not at all
-sure, eg. when nested irq_save() is done then the first flags will carry
-an irqs-on bit, the other nested flags will carry an irqs-off flag - and
-the nested irq_restore() will restore to irqs-off state.
-
-this is how it has worked in the past 10 years or so.
-
-but i've added this description to the cli-sti guide :-) Check out the -D7
-patch:
- 
-  http://redhat.com/~mingo/remove-irqlock-patches/remove-irqlock-2.5.27-D7
-
-	Ingo
 

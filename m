@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281810AbRKVXHu>; Thu, 22 Nov 2001 18:07:50 -0500
+	id <S281817AbRKVX3q>; Thu, 22 Nov 2001 18:29:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281811AbRKVXHl>; Thu, 22 Nov 2001 18:07:41 -0500
-Received: from colorfullife.com ([216.156.138.34]:43787 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S281810AbRKVXHa>;
-	Thu, 22 Nov 2001 18:07:30 -0500
-Message-ID: <3BFD852C.C4CDC39F@colorfullife.com>
-Date: Fri, 23 Nov 2001 00:07:24 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.15-pre6 i686)
-X-Accept-Language: en, de
+	id <S281816AbRKVX3h>; Thu, 22 Nov 2001 18:29:37 -0500
+Received: from pat.uio.no ([129.240.130.16]:35218 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S281817AbRKVX33>;
+	Thu, 22 Nov 2001 18:29:29 -0500
+To: J Sloan <jjs@pobox.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: sunrpc woes with tux2 in 2.4.15-pre8,9
+In-Reply-To: <3BFD7633.2525641E@pobox.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 23 Nov 2001 00:29:23 +0100
+In-Reply-To: <3BFD7633.2525641E@pobox.com>
+Message-ID: <shsn11eidv0.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-To: Paul Mackerras <paulus@samba.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re:[RFC][PATCH] flush_icache_user_range
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+>>>>> " " == J Sloan <J> writes:
 
-> The patch below changes access_one_page in kernel/ptrace.c to use a
-> new function, flush_icache_user_range, instead of flush_icache_page as
-> at present.  The reason for making this change is that
-> flush_icache_page is also called in do_no_page and do_swap_page, where
-> it does a fundamentally different job.  Decoupling the two makes it
-> possible to improve performance, because we can make flush_icache_page
-> do the flush only when needed.
-> 
+     > Hello, In 2.4.15-pre8 I applied the tux2 patches to take it for
+     > a spin - well, it's insanely fast, thanks Ingo - but I am
+     > having a problem with the sun rpc module:
 
-Could you also check map_user_kiobuf()?
+     > depmod gives the following result on -pre8 and -pre9:
 
-map_user_kiobuf() calls flush_dcache_page() - if I understand
-cachetlb.txt correctly that function is only suitable for dcache/mmap
-cache coherency, it's not suitable for anon pages. But map_user_kiobuf()
-must support arbitrary pages.
+     > depmod: *** Unresolved symbols in
+     > /lib/modules/2.4.15-pre9/kernel/net/sunrpc/sunrpc.o depmod:
+     > atomic_dec_and_lock_R648ef859
 
-And unmap_kiobuf doesn't contain a single cache flush.
+atomic_dec_and_lock is one of those architecture-dependent functions
+that can either be defined in arch/* or in lib/dec_and_lock.c.
+Without the relevant details from your .config file, it is not obvious
+to figure out exactly which combination is screwed.
 
---
-	Manfred
+Cheers,
+  Trond

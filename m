@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271845AbTGRPGh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 11:06:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271772AbTGRPEx
+	id S263752AbTGRQTU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 12:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271859AbTGRQSM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 11:04:53 -0400
-Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:54792 "EHLO
-	ford.pronto.tv") by vger.kernel.org with ESMTP id S271806AbTGROfz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 10:35:55 -0400
-To: linux-kernel@vger.kernel.org
-Subject: IDE DMA errors with 2.6.0-test1
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: Fri, 18 Jul 2003 16:48:42 +0200
-Message-ID: <yw1x4r1jlwl1.fsf@users.sourceforge.net>
+	Fri, 18 Jul 2003 12:18:12 -0400
+Received: from hermes.cicese.mx ([158.97.1.34]:16619 "EHLO hermes.cicese.mx")
+	by vger.kernel.org with ESMTP id S271856AbTGRQRG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 12:17:06 -0400
+Message-ID: <3F1820FC.AC29045D@cicese.mx>
+Date: Fri, 18 Jul 2003 09:31:56 -0700
+From: Serguei Miridonov <mirsev@cicese.mx>
+Reply-To: mirsev@cicese.mx
+Organization: CICESE Research Center, Ensenada, B.C., Mexico
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: ru, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: linux-kernel@vger.kernel.org
+Subject: Re: Wireless linux router
+References: <200307171924.UAA21477@mauve.demon.co.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Does anybody know about Linux ported to the devices based on Conexant
+CX84200-11 network processor (ARM based)? There are routers of the same type
+from different manufacturers:
+http://www.seattlewireless.net/index.cgi/FW_2d604Comments which have this
+processor, Ethernet switch and PCMCIA wireless card. They are powered by some
+proprietary OS with HTTP and Telnet interface. The latter is similar to Cisco
+CLI. They are quite cheap and it would be very exciting to port Linux to
+these routers. See http://www.tailyn.com.tw/doc/product/router/fw8-604.pdf
+for more info.
 
-I was copying a couple of large files from one partition to another on
-the same disk when I got a few of these messages:
+I have CX84200-11 docs but, as far as I understand, we also need boot block
+structure for flash ROM to load something there, and do it so that in case if
+something goes wrong, it would be still possible to load original ROM image
+to keep it working...
 
-hda: dma_timer_expiry: dma status == 0x21
-hda: timeout waiting for DMA
-hda: timeout waiting for DMA
-hda: (__ide_dma_test_irq) called while not waiting
-hda: status timeout: status=0xd0 { Busy }
+I tried to contact Tailyn (one of the manufacturers) but they would not
+disclose anything...
 
-hda: drive not ready for command
-ide0: reset: success
+Unfortunately, I have no experience at all with embedded controllers and
+flash programming, so if someone is porting Linux to such a router, please,
+drop a message.
 
-The disk controller is:
-SIS5513: IDE controller at PCI slot 0000:00:02.5
-SIS5513: chipset revision 208
-SIS5513: not 100% native mode: will probe irqs later
-SIS5513: SiS 961 MuTIOL IDE UDMA100 controller
-    ide0: BM-DMA at 0xb800-0xb807, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xb808-0xb80f, BIOS settings: hdc:DMA, hdd:pio
-hda: IC25N040ATMR04-0, ATA DISK drive
-anticipatory scheduling elevator
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: ASUS SCB-2408, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: max request size: 1024KiB
-hda: host protected area => 1
-hda: 78140160 sectors (40008 MB) w/1740KiB Cache, CHS=4864/255/63, UDMA(100)
- /dev/ide/host0/bus0/target0/lun0: p1 p2 p3
+Thank you.
 
-Need I worry about anything?
 
--- 
-Måns Rullgård
-mru@users.sf.net
+root@mauve.demon.co.uk wrote:
+
+> A while ago there was much discussion about wireless routers with
+> linux kernels, and no source.
+>
+> Are there any readily available ones that do, and that I can edit the
+> image, and that have a couple of meg of RAM/ROM free?
+
+--
+Serguei Miridonov
+
+

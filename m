@@ -1,56 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262305AbVADGlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbVADHBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262305AbVADGlm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 01:41:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbVADGll
+	id S262073AbVADHBs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 02:01:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbVADHBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 01:41:41 -0500
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:11268 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S262305AbVADGld
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 01:41:33 -0500
-Date: Mon, 3 Jan 2005 22:40:13 -0800
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc3-mm1-V0.7.33-0
-Message-ID: <20050104064013.GA19528@nietzsche.lynx.com>
-References: <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu> <20041203205807.GA25578@elte.hu> <20041207132927.GA4846@elte.hu> <20041207141123.GA12025@elte.hu> <20041214132834.GA32390@elte.hu>
-Mime-Version: 1.0
+	Tue, 4 Jan 2005 02:01:48 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51091 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262073AbVADHBl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 02:01:41 -0500
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: "L. A. Walsh" <law@tlinx.org>, linux-kernel@vger.kernel.org
+Subject: Re: Reviving the concept of a stable series (was Re: starting with 2.7)
+References: <200501031424.j03EOV2t029019@laptop11.inf.utfsm.cl>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 04 Jan 2005 00:00:19 -0700
+In-Reply-To: <200501031424.j03EOV2t029019@laptop11.inf.utfsm.cl>
+Message-ID: <m1zmzpr858.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041214132834.GA32390@elte.hu>
-User-Agent: Mutt/1.5.6+20040907i
-From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 14, 2004 at 02:28:34PM +0100, Ingo Molnar wrote:
-> to create a -V0.7.33-0 tree from scratch, the patching order is:
+Horst von Brand <vonbrand@inf.utfsm.cl> writes:
+
+> "L. A. Walsh" <law@tlinx.org> said:
 > 
->   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.9.tar.bz2
+> > It seems that some developers have the opinion that the end-user base
+> > no longer is their problem or audience and that the distros will patch
+> > all the little boo-boo's in each unstable 2.6 release.
+> 
+> AFAIU, the current development model is designed to _diminish_ the need of
+> custom patching by distributions. For example, RH 9 2.4 kernels were mostly
+> 2.6 via backports and random patches. But the patches were only maintained
+> by RH, so it was a large duplication of effort (not even counting the other
+> distributions). With 2.6 everybody can work on a up-to-date code base, much
+> less need of distribution backports and patches (and associated random
+> incompatibilities) benefits every user.
 
->   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.10-rc3.bz2
->   http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc3/2.6.10-rc3-mm1/2.6.10-rc3-mm1.bz2
+And that idea I really appreciate it.  From the looks of things though
+it does not feel like the distros have caught on.  I know at least that
+it has been painful working with SuSE's 2.6.ancient fork when I have
+perfectly good code that runs in 2.6.latest.
 
->   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.10-rc3-mm1-V0.7.33-0
+If the distros will update their base kernel once a year or so I can
+seem some benefits to the new dev model.  But so far I have not seen
+the updates and when you have to use a distro kernel is seems to
+be the same old same old.
 
-Forward port of this patch to 2.6.10-mm1 here:
-	http://people.lynuxworks.com/~bhuey/realtime/Ingo_forward_port-mm1-V0.7.33-04
+> >                          It seems like it would become quite a chore
+> > to decide what code is let into the stable version.  It's also
+> > considered by many to be "less" fun, not only to "manage the
+> > stable distro", but backport code into the previous distro. 
+> 
+> Lots of rather pointless work. Much of it something each distribution has
+> to do on their own (because f.ex. vanilla 2.4 is _just fixes_, no backports
+> of cool (and required) new functionality), instead of cooperating in
+> building a better overall kernel.
 
-Obviously, you'll need to patch a plain 2.6.10 with -mm1 from Andrew Morton,
-but folks should be able to do this by now. ;)
+Except some features did make it into 2.4.x like native pci-express support.
+That is certainly more than just fixes.
+ 
+> > Nevertheless, it would be nice to see a no-new-features, stable series
+> > spun off from these development kernels, maybe .4th number releases,
+> > like 2.6.10 also becomes a 2.6.10.0 that starts a 2.6.10.1, then 2.6.10.2,
+> > etc...with iteritive bug fixes to the same kernel and no new features
+> > in such a branch, it might become stable enough for users to have confidence
+> > installing them on their desktop or stable machines.
+> 
+> See above. The 2.6.9-x kernels from Red Hat/Fedora are targeted to be
+> exactly that...
 
-You'll have to apply Ingo's patch so that it gets rejects and then apply
-this patch on top of it so that it resolves those issues. It's a bit
-sloppy, but this'll at least be somewhat workable until Ingo comes back
-and pounds us with patches. :)
+Ah another fork that makes support from third parties a pain.  So it
+appears Red Hat is going the same way I have observed with SuSE.
 
-bill
+I do believe a model where we stabilize features and let them shake out
+independently.  Is where we need to go for Linux.  But we seem still
+to be at the teething stage and I am frustrated.
 
-
+Eric

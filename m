@@ -1,70 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261979AbUK3Emg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261980AbUK3EyE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261979AbUK3Emg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 23:42:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbUK3Emg
+	id S261980AbUK3EyE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 23:54:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbUK3EyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 23:42:36 -0500
-Received: from ozlabs.org ([203.10.76.45]:60645 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261979AbUK3Emd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 23:42:33 -0500
-Subject: [PATCH] Fix Occasional stop_machine() Lockup with > 2 CPUs
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Srivatsa Vaddagiri <vatsa@in.ibm.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Stephen Rothwell <sfr@canb.auug.org.au>
-Content-Type: text/plain
-Date: Tue, 30 Nov 2004 15:42:30 +1100
-Message-Id: <1101789751.14565.25.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Mon, 29 Nov 2004 23:54:04 -0500
+Received: from out007pub.verizon.net ([206.46.170.107]:11491 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S261980AbUK3Ex6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 23:53:58 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-13
+Date: Mon, 29 Nov 2004 23:54:05 -0500
+User-Agent: KMail/1.7
+References: <36536.195.245.190.93.1101471176.squirrel@195.245.190.93> <200411291816.43591.gene.heskett@verizon.net> <41ABD1CE.1010004@cybsft.com>
+In-Reply-To: <41ABD1CE.1010004@cybsft.com>
+Cc: "K.R. Foley" <kr@cybsft.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411292354.05995.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.42.91] at Mon, 29 Nov 2004 22:53:58 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Name: Fix Occasional stop_machine() Lockup
-Status: Tested on 2.6.10-rc2-bk13
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+On Monday 29 November 2004 20:50, K.R. Foley wrote:
+>Gene Heskett wrote:
 
-Stephen Rothwell noted a case where one CPU was sitting in userspace,
-one in stop_machine() waiting for everyone to enter stopmachine().
-This can happen if migration occurs at exactly the wrong time with
-more than 2 CPUS.  Say we have 4 CPUS:
+>>>make that -31-13 (or later). Earlier kernels had a bug in where
 
-1) stop_machine() on CPU 0creates stopmachine() threads for CPUS 1, 2
-   and 3, and yields waiting for them to migrate to their CPUs and
-   ack.
+[...]
 
-2) stopmachine(2) gets rebalanced (probably on exec) to CPU 1.
+>Is this all that is in the log? For some reason there are 820
+> samples not represented in the output above. The ms+ hits would
+> have been represented by something like:
+>
+>Nov 29 18:05:45 coyote kernel: 9999 4
 
-3) stopmachine(2) calls set_cpus_allowed on CPU 1, sleeps awaiting
-   migration thread.
+Ok, I finally got -13 to run (typo in grub), and you are now correct 
+in that the final entry in the log after I shut tvtime down is like 
+this:
 
-4) stopmachine(1) calls set_cpus_allowed on CPU 0, moves onto CPU1 and
-   starts spinning.
+Nov 29 23:43:40 coyote kernel: rtc latency histogram of {tvtime/3911, 
+10430 samples}:
+Nov 29 23:43:40 coyote kernel: 4 51
+Nov 29 23:43:40 coyote kernel: 5 2058
+Nov 29 23:43:40 coyote kernel: 6 3594
+Nov 29 23:43:40 coyote kernel: 7 1270
+Nov 29 23:43:40 coyote kernel: 8 473
+Nov 29 23:43:40 coyote kernel: 9 299
+Nov 29 23:43:40 coyote kernel: 10 252
+Nov 29 23:43:40 coyote kernel: 11 209
+Nov 29 23:43:40 coyote kernel: 12 215
+Nov 29 23:43:40 coyote kernel: 13 345
+Nov 29 23:43:40 coyote kernel: 14 391
+Nov 29 23:43:40 coyote kernel: 15 248
+Nov 29 23:43:40 coyote kernel: 16 113
+Nov 29 23:43:40 coyote kernel: 17 55
+Nov 29 23:43:40 coyote kernel: 18 17
+Nov 29 23:43:40 coyote kernel: 19 11
+Nov 29 23:43:40 coyote kernel: 20 4
+Nov 29 23:43:40 coyote kernel: 21 1
+Nov 29 23:43:40 coyote kernel: 23 2
+Nov 29 23:43:40 coyote kernel: 28 1
+Nov 29 23:43:40 coyote kernel: 4612 1
+Nov 29 23:43:40 coyote kernel: 9999 820
 
-Now the migration thread never runs, and we deadlock.  The simplest
-solution is for stopmachine() to yield until they are all in place.
+What does this tell you now?  The last 2 lines look a bit strange to
+me.  Particularly since the runtime was random enough that your 
+previous comment about the number 820 was a mssing count, and what 
+came out of a seperate run IS an 820.
 
-Index: linux-2.6.10-rc2-bk13-Misc/kernel/stop_machine.c
-===================================================================
---- linux-2.6.10-rc2-bk13-Misc.orig/kernel/stop_machine.c	2004-11-30 13:48:40.000000000 +1100
-+++ linux-2.6.10-rc2-bk13-Misc/kernel/stop_machine.c	2004-11-30 14:07:00.089957464 +1100
-@@ -52,7 +52,10 @@
- 			mb(); /* Must read state first. */
- 			atomic_inc(&stopmachine_thread_ack);
- 		}
--		cpu_relax();
-+		if (!prepared && !irqs_disabled)
-+			yield();
-+		else
-+			cpu_relax();
- 	}
- 
- 	/* Ack: we are exiting. */
+I find that a bit hard to believe that I timed those two runs 
+identically.
 
 -- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
-
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.29% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

@@ -1,69 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270667AbUJUKu7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270653AbUJUKqa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270667AbUJUKu7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 06:50:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270484AbUJUKsy
+	id S270653AbUJUKqa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 06:46:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270481AbUJUKoJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 06:48:54 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:28061 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S270635AbUJUKoK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 06:44:10 -0400
-Message-ID: <417792F0.20008@grupopie.com>
-Date: Thu, 21 Oct 2004 11:44:00 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
+	Thu, 21 Oct 2004 06:44:09 -0400
+Received: from BSN-77-149-34.dsl.siol.net ([193.77.149.34]:50848 "HELO
+	BSN-77-149-34.dsl.siol.net") by vger.kernel.org with SMTP
+	id S270634AbUJUKm1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 06:42:27 -0400
+Message-ID: <005501c48729$79d1f487$7257323f@pvtblvh>
+Reply-To: <support@123q.mail.ru>
+From: <respect2022@yahoo.co.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: =?koi8-r?B?UmU6IFhv1MnUZSDX2cdvxM5v?=
+	=?koi8-r?B?IG5wb8Rh1Ng/?=
+Date: Thu, 21 Oct 2004 21:42:39 +1100
 MIME-Version: 1.0
-To: Mildred Frisco <mildred.frisco@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: making a linux kernel with no root filesystem
-References: <e7b30b2404102102466dc71118@mail.gmail.com> <e7b30b24041021030535925d1d@mail.gmail.com>
-In-Reply-To: <e7b30b24041021030535925d1d@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.3; VDF: 6.28.0.26; host: bipbip)
+Content-Type: multipart/mixed;
+        boundary="----=_NextPart_000_005B_01C4323F.7257F487"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mildred Frisco wrote:
-> Hi,
-> I would like to ask help in compiling a minimal linux kernel.
-> Basically, it would only contain the kernel andno filesystem (or
-> probably devfs).  I would only have to boot the kernel from floppy.
-> Then after the necessary kernel initializations, I would issue a
-> prompt where I can either shutdown or reboot the system. That's the
-> only functionality required.  As I've learned from the init program
-> (and startup scripts), the init services and shutdown commands are
-> called from /sbin. However, I do not require to mount the root fs
-> anymore.  I also tried to search for the source code of the shutdown
-> program but I can't find it.  Please help on the steps that I should
-> do.
+------=_NextPart_000_005B_01C4323F.7257F487
+Content-Type: text/plain;
+        charset="koi8-r"
+Content-Transfer-Encoding: quoted-printable
 
-Your /sbin/init can be a simple script (or even just bash or another shell).
+=F7=D9 =D6=C5=CC=C1=C5=D4=C5 =CB=D5=D0=C9=D4=D8 =CE=CF=D7=D9=CA =D4=CF=D7=
+=C1=D2 =C4=C5=DB=C5=D7=CC=C5 =D2=D9=CE=CF=DE=CE=D9=C8 =C3=C5=CE? =F7=D9 =C8=
+=CF=D4=C9=D4=C5 =D7=D9=C7=CF=C4=CE=CF =D0=D2=CF=C4=C1=D4=D8 =F3=D7=CF=CA =
+=D4=CF=D7=C1=D2? =F7=C1=CD =CE=D5=D6=CE=D9 =D0=C1=D2=D4=CE=B8=D2=D9 =C9 =CE=
+=CF=D7=D9=C5 =D2=D9=CE=CB=C9 =D3=C2=D9=D4=C1? =F7=C1=CD =CE=C5=CF=C2=C8=CF=
+=C4=C9=CD =DB=C9=D2=CF=CB=C9=CA =D3=D0=C5=CB=D4=D2 =D4=CF=D7=C1=D2=CF=D7 =
+=C9 =D5=D3=CC=D5=C7, =C4=CC=D1 =D4=CF=C7=CF =DE=D4=CF=C2=D9 =D7=D9=C7=CF=C4=
+=CE=CF =D3=CF=D7=C5=D2=DB=C9=D4=D8 =D0=CF=CB=D5=D0=CB=D5 =C9=CC=C9 =D0=D2=
+=CF=C4=C1=D6=D5 =CD=C5=D6=C4=D5 =C6=C9=DA=C9=DE=C5=D3=CB=C9=CD=C9 =C9=CC=C9=
+ =C0=D2=C9=C4=C9=DE=C5=D3=CB=C9=CD=C9 =CC=C9=C3=C1=CD=C9? =F4=CF=C7=C4=C1 =
+=D0=D2=C5=C4=CC=C1=C7=C1=C0 =F7=C1=CD =D0=D2=C9=CE=D1=D4=D8 =D5=DE=C1=D3=D4=
+=C9=C5 =D7 =C7=CC=CF=C2=C1=CC=D8=CE=CF=CD =D0=CF=D2=D4=C1=CC=C5, =D3 =D0=CF=
+=CC=CE=CF=CA =DA=C1=DD=C9=D4=CF=CA =CF=D4 =CD=CF=DB=C5=CE=CE=C9=DE=C5=D3=D4=
+=D7=C1. =F1 =D1=D7=CC=D1=C0=D3=D8 =D0=CF=CC=D8=DA=CF=D7=C1=D4=C5=CC=C5=CD =
+=C4=C1=CE=CE=CF=C7=CF =D0=CF=D2=D4=C1=CC=C1 =C9 =D7=D9=D3=D4=C1=D7=CC=D1=C0=
+ =D4=CF=D7=C1=D2=D9 =CB=D5=D0=CC=C5=CE=CE=D9=C5 =CE=C1 =E1=CD=C5=D2=C9=CB=
+=C1=CE=D3=CB=C9=C8 =C1=D5=CB=C3=C9=CF=CE=C1=C8, =C4=CC=D1 =D0=D2=CF=C4=D7=
+=C9=D6=C5=CE=C9=D1 =F3=D7=CF=C9=C8 =D4=CF=D7=C1=D2=CF=D7 =C9 =D5=D3=CC=D5=
+=C7.=0D
+=E7=CF=D3=D0=CF=C4=C1, =D0=D2=CF=D3=D8=C2=C1 =D0=CF=D5=DE=C1=D3=D4=D7=CF=D7=
+=C1=D4=D8 =D3=CF =CD=CE=CF=CA =D7 =C1=D5=CB=C3=C9=CF=CE=C5, =D4=C1=CB =CB=
+=C1=CB =CD=CE=C5 =CE=D5=D6=CE=D9 =D0=D2=CF=C4=C1=D7=C3=D9 =C9 =D0=CF=CB=D5=
+=D0=C1=D4=C5=CC=C9. =E4=CC=D1 =D0=D2=C9=CD=C5=D2=C1, =EE=CF=D5=D4=E2=D5=CB =
+ASUS S200N (=DC=CB=D2=C1=CE 8,9=92 P4-1000M, 256 =EF=FA=F5, 20 =D7=C9=CE=DE=
+=C5=D3=D4=C5=D2, Wi-Fi, Lan, Modem =D7=C5=D3 0,89 =CB=C7) =D1 =D0=D2=CF=C4=
+=C1=C0 =CE=CF=D7=D9=CA =D3 =C7=C1=D2=C1=CE=D4=C9=C5=CA =DA=C1 300 =D5.=C5. =
+=E4=C5=DB=C5=D7=CC=C5 1000 =D5.=C5. =C9=C8 =D7 =F2=CF=D3=D3=C9=C9 =D0=D2=C1=
+=CB=D4=C9=DE=C5=D3=CB=C9 =CE=C5 =CE=C1=CA=C4=B8=DB=D8 =C4=C1=D6=C5 =CF=D0=
+=D4=CF=CD. =F0=CF=CB=D5=D0=C1=C0 =C2/=D5 =D3=CF=D4=CF=D7=D9=C5 =D4=C5=CC=C5=
+=C6=CF=CE=D9, =C4=C1=D7=C1=CA=D4=C5 =C4=C5=CC=C1=D4=D8 =DA=C1=D1=D7=CB=C9 =
+=C9 =D4=CF=D2=C7=CF=D7=C1=D4=D8=D3=D1. =F3=C1=CD=D9=CD =C2=CF=CC=D8=DB=C9=
+=CD =D0=D2=C5=C9=CD=D5=DD=C5=D3=D4=D7=CF=CD =C4=C1=CE=CE=CF=C7=CF =D0=D2=CF=
+=C5=CB=D4=C1, =D1 =D3=DE=C9=D4=C1=C0 =D0=D2=CF=D4=C5=CB=C3=C9=C0 =D3=C4=C5=
+=CC=CB=C9. =EE=C9 =CF=C4=C9=CE =C1=D5=CB=C3=C9=CF=CE, =CE=C5 =C1=CE=CF=CE=
+=D3=C9=D2=D5=C5=D4 =D0=CF=C4=CF=C2=CE=CF=CA =D0=D2=CF=D4=C5=CB=C3=C9=C9 =D3=
+=C4=C5=CC=CF=CB =D7 =F2=D5=CE=C5=D4=C5, =D0=CF=DC=D4=CF=CD=D5 =C8=CF=D4=D8 =
+=CF=CE =D4=CF=CC=D8=CB=CF =C9 =CE=C1=DE=C9=CE=C1=C5=D4 =D2=C1=C2=CF=D4=C1=
+=D4=D8, =CE=CF =D7=CF=DA=CD=CF=D6=CE=CF =D5 =CE=C5=C7=CF =C2=D5=C4=C5=D4 =
+=C2=CF=CC=D8=DB=CF=C5 =C2=D5=C4=D5=DD=C5=C5.=0D
+=E1=C4=D2=C5=D3 =CD=CF=C5=C7=CF =D3=C1=CA=D4=C1, =D0=CF =CB=CF=CD=D0=D8=C0=
+=D4=C5=D2=CE=D9=CD =D5=D3=CC=D5=C7=C1=CD : http://www.khbcomp.name, =D3 =CF=
+=D0=C9=D3=C1=CE=C9=C5=CD =CF=D3=CE=CF=D7=CE=D9=C8 =CD=CF=CD=C5=CE=D4=CF=D7 =
+=CE=CF=D7=CF=C7=CF =C1=D5=CB=C3=C9=CF=CE=C1.=0D
+=E9=DA=D7=C9=CE=C9=D4=C5, =C5=D3=CC=C9 =C4=C1=CE=CE=C1=D1 =C9=CE=C6=CF=D2=
+=CD=C1=C3=C9=D1 =F7=C1=D3 =CE=C5 =DA=C1=C9=CE=D4=C5=D2=C5=D3=CF=D7=C1=CC=C1=
+ =F1 =CE=C1=C4=C5=C0=D3=D8 =CE=C1 =D3=CF=D4=D2=D5=C4=CE=C9=DE=C5=D3=D4=D7=
+=CF =C9 =D0=CF=C9=D3=CB =CE=CF=D7=D9=C8 =D0=C1=D2=D4=CE=B8=D2=CF=D7 =D7 =D3=
+=C5=D4=C9 =D0=CF =D0=CF=CB=D5=D0=CB=C5 =C9 =D0=D2=CF=C4=C1=D6=C5 =D2=C1=DA=
+=CC=C9=DE=CE=D9=C8 =D4=CF=D7=C1=D2=CF=D7. =E2=CF=CC=D8=DB=C5 =C4=C1=CE=CE=
+=C1=D1 =D2=C1=D3=D3=D9=CC=CB=C1 =CE=C5 =D0=CF=D7=D4=CF=D2=C9=D4=D3=D1. =F3=
+=D0=C1=D3=C9=C2=CF =DA=C1 =D7=CE=C9=CD=C1=CE=C9=C5. =F3 =F5=D7=C1=D6=C5=CE=
+=C9=C5=CD, =E4=CD=C9=D4=D2=C9=CA=0D
 
-You can use statically compiled binaries against dietlibc from here:
+------=_NextPart_000_005B_01C4323F.7257F487--
 
-ftp://foobar.math.fu-berlin.de:2121/pub/dietlibc/bin-i386/
 
-If you use "ash" as /sbin/init and place busybox there with the 
-appropriate symlinks, you get a small semi-functional shell for a mere 
-120kb of executables.
-
-If you're really desperate for space, you can build your own executable 
-that asks for shutdown/reboot and calls reboot(2) with the appropriate 
-parameters, and link against dietlibc (or ulibc).
-
-This is not really kernel related and you should not mess with the 
-kernel code for acomplishing this. If you really need to cut down extra 
-space in the kernel you can check the patches from the "tiny" tree to 
-build an incredibly small kernel.
-
-I hope this helps,
-
--- 
-Paulo Marques - www.grupopie.com
-
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)

@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130793AbRCMDDp>; Mon, 12 Mar 2001 22:03:45 -0500
+	id <S130791AbRCMDVi>; Mon, 12 Mar 2001 22:21:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130794AbRCMDDf>; Mon, 12 Mar 2001 22:03:35 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:55680 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S130793AbRCMDDQ>;
-	Mon, 12 Mar 2001 22:03:16 -0500
-Message-ID: <3AAD8DB4.9DAC348C@mandrakesoft.com>
-Date: Mon, 12 Mar 2001 22:02:12 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre3 i686)
-X-Accept-Language: en
+	id <S130824AbRCMDV2>; Mon, 12 Mar 2001 22:21:28 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:11149 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130791AbRCMDVO>;
+	Mon, 12 Mar 2001 22:21:14 -0500
+Date: Mon, 12 Mar 2001 22:20:46 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Nathan Paul Simons <npsimons@fsmlabs.com>
+cc: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: system call for process information?
+In-Reply-To: <20010312195647.A32437@fsmlabs.com>
+Message-ID: <Pine.GSO.4.21.0103122202270.28460-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Linux Knernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Modular versus non-modular ISAPNP (was Re: PATCH - compile fix for 
- 3c509.c in 2.4.3-pre3)
-In-Reply-To: <15021.30069.381855.886337@notabene.cse.unsw.edu.au>
-		<Pine.LNX.3.96.1010312194658.4742A-100000@mandrakesoft.mandrakesoft.com> <15021.36013.606715.731130@notabene.cse.unsw.edu.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> On Monday March 12, jgarzik@mandrakesoft.com wrote:
-> > On Tue, 13 Mar 2001, Neil Brown wrote:
-> > >  in 2.4.3-pre3, drivers/net/3c509.c will not compile ifdef CONFIG_ISAPNP.
-> > >
-> > >  The following patches fixes the error.  I suspect that 3c515.c has
-> > >  the same problem, but I didn't need to fix that to get my kernel to
-> > >  build... so I didn't.
 
-> > 3c509 and 3c515 fixes already sent to him, twice no less :)
 
-> Drat... I didn't remember seeing it go by on linux-kernel, but maybe I
-> didn't pay enough attention.... next time I'll wait till the same
-> problem appears in two pre releases before patching...
+On Mon, 12 Mar 2001, Nathan Paul Simons wrote:
 
-(re cc'd to lkml...)
+> On Mon, Mar 12, 2001 at 09:21:37PM +0000, Guennadi Liakhovetski wrote:
+> > CPU utilisation. Each new application has to calculate it (ps, top, qps,
+> > kps, various sysmons, procmons, etc.). Wouldn't it be worth it having a
+> > syscall for that? Wouldn't it be more optimal?
 
-My fault on that one, I didn't send it to lkml...
+The first rule of optimization: don't. I.e. optimizing something that
+is not a bottleneck is pointless.
 
-BTW if you noticed, this problem was undetected initially due to
-differences between CONFIG_ISAPNP and CONFIG_ISAPNP_MODULE in the
-source.
 
-It is highly recommended to always compile with CONFIG_ISAPNP=y due to
-these differences.  If you grep around for CONFIG_ISAPNP versus
-CONFIG_ISAPNP_MODULE, you'll see that many drivers are woefully
-unprepared for isapnp support compiled as a module.
+> 	No, it wouldn't be worth it because you're talking about 
+> sacrificing simplicity and kernel speed in favor of functionality.
 
--- 
-Jeff Garzik       | May you have warm words on a cold evening,
-Building 1024     | a full mooon on a dark night,
-MandrakeSoft      | and a smooth road all the way to your door.
+Or, in that case, in favour of nothing. It doesn't add any functionality.
+
+> This has been know to lead to "bloat-ware".  Every new syscall you
+> add takes just a little bit more time and space in the kernel, and
+> when only a small number of programs will be using it, it's really 
+> not worth it.  This time and space may not be large, but once you
+> get _your_ syscall added, why can't everyone else get theirs added 
+> as well?  And so, after making about a thousand specialized syscalls
+> standard in the kernel, you end up with IRIX (from what I've heard).
+
+	In that case there is much simpler argument.
+
+If your program checks the system load so often that converting results
+from ASCII to integers takes noticable time - all you are measuring
+is the load created by that program. In other words, any program that
+would get any speedup from such syscall is absolutely worthless, since
+the load created by measurement will drown the load you are trying
+to measure.
+
+	End of story. It's not only unnecessary and tasteless, it's
+useless. 
+								Cheers,
+									Al
+

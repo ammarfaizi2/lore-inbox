@@ -1,42 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263243AbSJCLrT>; Thu, 3 Oct 2002 07:47:19 -0400
+	id <S263241AbSJCMDB>; Thu, 3 Oct 2002 08:03:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263244AbSJCLrT>; Thu, 3 Oct 2002 07:47:19 -0400
-Received: from kim.it.uu.se ([130.238.12.178]:38325 "EHLO kim.it.uu.se")
-	by vger.kernel.org with ESMTP id <S263243AbSJCLrT>;
-	Thu, 3 Oct 2002 07:47:19 -0400
-From: Mikael Pettersson <mikpe@csd.uu.se>
+	id <S263244AbSJCMDA>; Thu, 3 Oct 2002 08:03:00 -0400
+Received: from h181n1fls11o1004.telia.com ([195.67.254.181]:43395 "EHLO
+	ringstrom.mine.nu") by vger.kernel.org with ESMTP
+	id <S263241AbSJCMC5>; Thu, 3 Oct 2002 08:02:57 -0400
+Date: Thu, 3 Oct 2002 14:08:26 +0200 (CEST)
+From: Tobias Ringstrom <tori@ringstrom.mine.nu>
+X-X-Sender: tori@boris.prodako.se
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.40: AT keyboard input problem
+In-Reply-To: <20021003104750.A37411@ucw.cz>
+Message-ID: <Pine.LNX.4.44.0210031405570.13946-100000@boris.prodako.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15772.12175.196556.383774@kim.it.uu.se>
-Date: Thu, 3 Oct 2002 13:52:47 +0200
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: initrd breakage in 2.5.38-2.5.40
-In-Reply-To: <Pine.GSO.4.21.0210030702500.13480-100000@weyl.math.psu.edu>
-References: <15772.9013.244887.809979@kim.it.uu.se>
-	<Pine.GSO.4.21.0210030702500.13480-100000@weyl.math.psu.edu>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
- > 
- > 
- > On Thu, 3 Oct 2002, Mikael Pettersson wrote:
- > 
- > > First I thought the problem was caused by a apparently missing
- > > set_capacity() call in 2.5.38's drivers/block/rd.c:
- > 
- > I _really_ doubt it - check the loop just above the add_disk() one.
- > set_capacity() call is done there, repeating it won't change anything.
+On Thu, 3 Oct 2002, Vojtech Pavlik wrote:
 
-That loop does set_capacity() on each element in rd_disks[], but
-set_capacity(disk,size) just sets disk->capacity = size, and
-initrd_disk is a different variable so I don't see how initrd_disk
-could ever get a capacity assigned to it unless by an explicit
-"set_capacity(&initrd_disk, rd_size * 2);".
+> Yes, please try with #I8042_DEBUG_IO enabled, try all the suspicious key
+> combinations and add comments to the log file which is which. This will
+> allow me to fix it properly.
 
-/Mikael
+I hope this is enough.  There are more combinations, I'm sure.  I hope 
+that it is one bug causing them all, though.
+
+/Tobias
+
+
+Oct  3 13:59:40 gtbdhcp105 kernel: i8042.c: 20 <- i8042 (interrupt, kbd, 1) [44928]
+Oct  3 13:59:40 gtbdhcp105 kernel: i8042.c: a0 <- i8042 (interrupt, kbd, 1) [45011]
+Oct  3 13:59:40 gtbdhcp105 kernel: i8042.c: 32 <- i8042 (interrupt, kbd, 1) [45036]
+Oct  3 13:59:40 gtbdhcp105 kernel: i8042.c: b2 <- i8042 (interrupt, kbd, 1) [45110]
+Oct  3 13:59:40 gtbdhcp105 kernel: i8042.c: 12 <- i8042 (interrupt, kbd, 1) [45114]
+Oct  3 13:59:40 gtbdhcp105 kernel: i8042.c: 92 <- i8042 (interrupt, kbd, 1) [45185]
+Oct  3 13:59:40 gtbdhcp105 kernel: i8042.c: 1f <- i8042 (interrupt, kbd, 1) [45274]
+Oct  3 13:59:41 gtbdhcp105 kernel: i8042.c: 22 <- i8042 (interrupt, kbd, 1) [45307]
+Oct  3 13:59:41 gtbdhcp105 kernel: i8042.c: 9f <- i8042 (interrupt, kbd, 1) [45329]
+Oct  3 13:59:41 gtbdhcp105 kernel: i8042.c: a2 <- i8042 (interrupt, kbd, 1) [45373]
+Oct  3 13:59:41 gtbdhcp105 kernel: i8042.c: 1c <- i8042 (interrupt, kbd, 1) [45495]
+Oct  3 13:59:41 gtbdhcp105 kernel: i8042.c: 9c <- i8042 (interrupt, kbd, 1) [45547]
+Oct  3 13:59:46 gtbdhcp105 kernel: i8042.c: 1d <- i8042 (interrupt, kbd, 1) [51078]
+Oct  3 13:59:47 gtbdhcp105 kernel: i8042.c: 38 <- i8042 (interrupt, kbd, 1) [51315]
+Oct  3 13:59:47 gtbdhcp105 kernel: i8042.c: b8 <- i8042 (interrupt, kbd, 1) [51484]
+Oct  3 13:59:47 gtbdhcp105 kernel: i8042.c: 9d <- i8042 (interrupt, kbd, 1) [51764]
+Oct  3 13:59:48 gtbdhcp105 kernel: i8042.c: 1d <- i8042 (interrupt, kbd, 1) [53237]
+Oct  3 13:59:49 gtbdhcp105 kernel: i8042.c: 38 <- i8042 (interrupt, kbd, 1) [53459]
+Oct  3 13:59:49 gtbdhcp105 kernel: i8042.c: b8 <- i8042 (interrupt, kbd, 1) [53640]
+Oct  3 13:59:49 gtbdhcp105 kernel: i8042.c: 9d <- i8042 (interrupt, kbd, 1) [53905]
+Oct  3 13:59:50 gtbdhcp105 kernel: i8042.c: 1c <- i8042 (interrupt, kbd, 1) [54660]
+Oct  3 13:59:50 gtbdhcp105 kernel: i8042.c: 9c <- i8042 (interrupt, kbd, 1) [54751]
+Oct  3 13:59:50 gtbdhcp105 kernel: i8042.c: 1c <- i8042 (interrupt, kbd, 1) [54926]
+Oct  3 13:59:50 gtbdhcp105 kernel: i8042.c: 9c <- i8042 (interrupt, kbd, 1) [55022]
+Oct  3 13:59:52 gtbdhcp105 kernel: i8042.c: 38 <- i8042 (interrupt, kbd, 1) [56998]
+Oct  3 13:59:52 gtbdhcp105 kernel: i8042.c: 38 <- i8042 (interrupt, kbd, 1) [57243]
+Oct  3 13:59:52 gtbdhcp105 kernel: i8042.c: 38 <- i8042 (interrupt, kbd, 1) [57273]
+Oct  3 13:59:52 gtbdhcp105 kernel: i8042.c: 38 <- i8042 (interrupt, kbd, 1) [57304]
+Oct  3 13:59:53 gtbdhcp105 kernel: i8042.c: 38 <- i8042 (interrupt, kbd, 1) [57334]
+Oct  3 13:59:53 gtbdhcp105 kernel: i8042.c: 38 <- i8042 (interrupt, kbd, 1) [57365]
+Oct  3 13:59:53 gtbdhcp105 kernel: i8042.c: 38 <- i8042 (interrupt, kbd, 1) [57395]
+Oct  3 13:59:53 gtbdhcp105 kernel: i8042.c: e0 <- i8042 (interrupt, kbd, 1) [57410]
+Oct  3 13:59:53 gtbdhcp105 kernel: i8042.c: 38 <- i8042 (interrupt, kbd, 1) [57415]
+Oct  3 13:59:53 gtbdhcp105 kernel: i8042.c: e0 <- i8042 (interrupt, kbd, 1) [57596]
+Oct  3 13:59:53 gtbdhcp105 kernel: i8042.c: b8 <- i8042 (interrupt, kbd, 1) [57605]
+Oct  3 13:59:53 gtbdhcp105 kernel: i8042.c: b8 <- i8042 (interrupt, kbd, 1) [57955]
+Oct  3 13:59:53 gtbdhcp105 kernel: atkbd.c: Unknown key (set 2, scancode 0xb8, on isa0060/serio0) pressed.
+Oct  3 13:59:55 gtbdhcp105 kernel: i8042.c: 1c <- i8042 (interrupt, kbd, 1) [59584]
+Oct  3 13:59:55 gtbdhcp105 kernel: i8042.c: 9c <- i8042 (interrupt, kbd, 1) [59683]
+Oct  3 13:59:55 gtbdhcp105 kernel: i8042.c: 1c <- i8042 (interrupt, kbd, 1) [59875]
+Oct  3 13:59:55 gtbdhcp105 kernel: i8042.c: 9c <- i8042 (interrupt, kbd, 1) [59974]
+Oct  3 13:59:56 gtbdhcp105 kernel: i8042.c: 38 <- i8042 (interrupt, kbd, 1) [61228]
+Oct  3 13:59:57 gtbdhcp105 kernel: i8042.c: b8 <- i8042 (interrupt, kbd, 1) [61311]
+Oct  3 13:59:57 gtbdhcp105 kernel: i8042.c: 1c <- i8042 (interrupt, kbd, 1) [61721]
+Oct  3 13:59:57 gtbdhcp105 kernel: i8042.c: 9c <- i8042 (interrupt, kbd, 1) [61838]
+Oct  3 13:59:57 gtbdhcp105 kernel: i8042.c: 1c <- i8042 (interrupt, kbd, 1) [62137]
+Oct  3 13:59:57 gtbdhcp105 kernel: i8042.c: 9c <- i8042 (interrupt, kbd, 1) [62248]
+Oct  3 13:59:58 gtbdhcp105 kernel: i8042.c: e0 <- i8042 (interrupt, kbd, 1) [62980]
+Oct  3 13:59:58 gtbdhcp105 kernel: i8042.c: 38 <- i8042 (interrupt, kbd, 1) [62985]
+Oct  3 13:59:58 gtbdhcp105 kernel: i8042.c: e0 <- i8042 (interrupt, kbd, 1) [63229]
+Oct  3 13:59:58 gtbdhcp105 kernel: i8042.c: 38 <- i8042 (interrupt, kbd, 1) [63233]
+Oct  3 13:59:58 gtbdhcp105 kernel: i8042.c: e0 <- i8042 (interrupt, kbd, 1) [63263]
+Oct  3 13:59:58 gtbdhcp105 kernel: i8042.c: 38 <- i8042 (interrupt, kbd, 1) [63268]
+Oct  3 13:59:58 gtbdhcp105 kernel: i8042.c: 38 <- i8042 (interrupt, kbd, 1) [63283]
+Oct  3 13:59:59 gtbdhcp105 kernel: i8042.c: b8 <- i8042 (interrupt, kbd, 1) [63505]
+Oct  3 13:59:59 gtbdhcp105 kernel: i8042.c: e0 <- i8042 (interrupt, kbd, 1) [63932]
+Oct  3 13:59:59 gtbdhcp105 kernel: i8042.c: b8 <- i8042 (interrupt, kbd, 1) [63941]
+Oct  3 13:59:59 gtbdhcp105 kernel: atkbd.c: Unknown key (set 2, scancode 0x1b8, on isa0060/serio0) pressed.
+Oct  3 14:00:01 gtbdhcp105 kernel: i8042.c: e0 <- i8042 (interrupt, kbd, 1) [65563]
+Oct  3 14:00:01 gtbdhcp105 kernel: i8042.c: 38 <- i8042 (interrupt, kbd, 1) [65567]
+Oct  3 14:00:01 gtbdhcp105 kernel: i8042.c: e0 <- i8042 (interrupt, kbd, 1) [65676]
+Oct  3 14:00:01 gtbdhcp105 kernel: i8042.c: b8 <- i8042 (interrupt, kbd, 1) [65685]
+Oct  3 14:00:01 gtbdhcp105 kernel: i8042.c: 1c <- i8042 (interrupt, kbd, 1) [66281]
+Oct  3 14:00:02 gtbdhcp105 kernel: i8042.c: 9c <- i8042 (interrupt, kbd, 1) [66379]
+Oct  3 14:00:02 gtbdhcp105 kernel: i8042.c: 1c <- i8042 (interrupt, kbd, 1) [66501]
+Oct  3 14:00:02 gtbdhcp105 kernel: i8042.c: 9c <- i8042 (interrupt, kbd, 1) [66576]
+Oct  3 14:00:02 gtbdhcp105 kernel: i8042.c: 1c <- i8042 (interrupt, kbd, 1) [66680]
+Oct  3 14:00:02 gtbdhcp105 kernel: i8042.c: 9c <- i8042 (interrupt, kbd, 1) [66763]
+

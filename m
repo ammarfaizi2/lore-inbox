@@ -1,99 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbULFOm6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbULFOnc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbULFOm6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 09:42:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbULFOmu
+	id S261499AbULFOnc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 09:43:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbULFOnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 09:42:50 -0500
-Received: from tus-gate3.raytheon.com ([199.46.245.232]:6689 "EHLO
-	tus-gate3.raytheon.com") by vger.kernel.org with ESMTP
-	id S261479AbULFOmW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 09:42:22 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.32-0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF783C60D6.A87E04B2-ON86256F62.004E56E5@raytheon.com>
-From: Mark_H_Johnson@raytheon.com
-Date: Mon, 6 Dec 2004 08:40:57 -0600
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 12/06/2004 08:41:03 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+	Mon, 6 Dec 2004 09:43:31 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:25480 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261538AbULFOmx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 09:42:53 -0500
+Date: Mon, 6 Dec 2004 15:42:19 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Kevin Corry <kevcorry@us.ibm.com>
+Cc: Adrian Bunk <bunk@stusta.de>, dm-devel@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6: drivers/md/dm-io.c partially copies bio.c
+Message-ID: <20041206144218.GA10498@suse.de>
+References: <20041206120941.GB7250@stusta.de> <200412060748.51047.kevcorry@us.ibm.com> <20041206135539.GZ10498@suse.de> <200412060822.18688.kevcorry@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200412060822.18688.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->* Esben Nielsen <simlo@phys.au.dk> wrote:
->
->> On Fri, 3 Dec 2004, Ingo Molnar wrote:
->>
->> >
->> > [...]
->> > on low RT load (the common case)
->>
->> In the system I deal with on my day job, 50% of the CPU load is from
->> RT tasks!
->
->i'm not sure what point you are trying to make, but 'low RT load' in
->this context means up to a load of 1.0. (i.e. one or less tasks running
->on average)
-I am not quite so sure that is a good assumption with our real time
-system either. We use RT priorities based on execution rate with a
-single (highest priority) RT task that wakes up the others at the
-appropriate times. So an 80 Hz task has a higher RT priority than a
-40 Hz task, both are greater than 10 Hz, and all greater than 1 Hz.
-We do have a few other tasks for signal handling and other purposes
-but most fit the above pattern.
+On Mon, Dec 06 2004, Kevin Corry wrote:
+> On Monday 06 December 2004 7:55 am, Jens Axboe wrote:
+> > On Mon, Dec 06 2004, Kevin Corry wrote:
+> > > Hi Adrian,
+> > >
+> > > On Monday 06 December 2004 6:09 am, Adrian Bunk wrote:
+> > > > drivers/md/dm-io.c copies functionality from bio.c .
+> > > >
+> > > > Is there a specific reason why you don't simply use the functionality
+> > > > bio.c provides?
+> > >
+> > > Can you give some specific examples of the functionality you think is
+> > > duplicated? Meanwhile, I'll take a look and see if I can explain any code
+> > > overlaps.
+> >
+> > Ah come on Kevin, a 2 second glance shows lots of uneccesary
+> > duplication. Basically only the concept of the bio_set is not duplicated
+> > in the first many lines, you even set up matching slabs.
+> >
+> > How was that ever accepted for merging?
+> 
+> If I recall correctly (and it's been a while since I've looked at that
+> code), the bio_set was added because a few DM modules like to initiate
+> their own I/O requests (things like snapshots and DM's kcopyd daemon),
+> and we felt it was better to allow these modules to each create their
+> own mempools to allocate bios from, rather than allocate from the
+> single kernel-wide bio pool used by the filesystem layer.
 
-At periodic rate (e.g., once per second) we basically start ALL RT tasks
-and let the kernel figure out which one (two actually) should run first.
-At that point in time, I may have 10-20 RT tasks ready to run with only
-two CPU's to run them on. As the high priority tasks get done, the load
-starts to drop, but a one Hz task may get delayed for some time and
-interrupted several times during execution (later cycles of higher rate
-RT tasks). FYI - I just checked and on our cluster head node, we have
-31 RT tasks on a two CPU system.
+That is fully correct and also something that eg the bouncing code needs
+to be 100% deadlock free.
 
-With the real time load up, the one minute load average on 2.4 systems
-oscillates in an odd fashion. For example, looking at 1 hour chart of
-load average on my cluster shows the head node oscillating between zero
-and five, even though the CPU usage is constant at 17.4%. I assume this
-is a sampling error.
+> Strictly speaking (and as you mentioned), the slabs in the bio_set are
+> unnecessary, and they could use the global bio_slab. But there's
+> probably some argument to be made for having separate bio mempools for
+> these modules.
 
-If the algorithm is OK for "small numbers" where small is under ten
-times the number of CPU's, that is probably OK. [I'll allow that
-SOMEONE will try to run a big RT simulation on a 256 CPU SMP machine
-and complain later]
+The mempools are needed, the duplicated slabs are not. But that's just a
+small part of it, basically the whole allocation and index stuff is 100%
+duplicated from bio.c. Even bio_init().
 
->also, this only applies to SMP systems.
-Yes.
+> Actually, I also seem to recall discussions with Joe Thornber from
+> quite awhile ago about trying to move this bio_set functionality into
+> fs/bio.c, to allow other device drivers to create their own private
+> bio pools. If you think something like this would be desireable, I can
+> try to look into the specifics again. If you think that having the
+> single kernel-wide bio pool is sufficient for all filesystems and
+> device-drivers (you certainly understand the trade-offs better than I
+> do), then I can look into removing the necessary code from dm-io.c
 
->thirdly, even if the new balancing code kicks in, the overhead is not
->that bad, and it's for a purpose: we rather want an RT task to run on a
->free CPU.
-I agree though I wish it was possible to determine if the interrupt
-preemption was "short" or "long" to decide to switch or not [the switch
-DOES have costs...]. I believe this is why the max latency of my CPU
-task went down (by about 1 msec) but the number of short latencies
-(> 100 usec) went up.
+An abstraction for this would be nice, as there are two users of it then
+(dm-io and highmem.c). So if your team would do that, I would sure help
+you review and integrate it.
 
-But I am still seeing starvation of the non RT tasks that was not
-present in 2.4. It appears that cpu_burn (non RT, nice) is taking CPU
-cycles that should be allocated to my (non RT, not nice) stress test
-programs. This distorts the elapsed time of my tests and to some extent
-the latency results (since less I/O stress is on the system) of the tests.
+That's not what I'm arguing against, it's the (almost) wholesale
+duplication that's a bit silly.
 
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
+-- 
+Jens Axboe
 

@@ -1,118 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266864AbUHXAgi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267520AbUHXAjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266864AbUHXAgi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 20:36:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268187AbUHXAep
+	id S267520AbUHXAjY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 20:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266892AbUHWTiA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 20:34:45 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:51705 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S268138AbUHXAcg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 20:32:36 -0400
-Date: Tue, 24 Aug 2004 02:32:29 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Alex deVries <alex@onefishtwo.ca>
-Subject: [2.6 patch] update your email address in the kernel
-Message-ID: <20040824003229.GA7019@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Mon, 23 Aug 2004 15:38:00 -0400
+Received: from mail.kroah.org ([69.55.234.183]:55235 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266883AbUHWSgc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 14:36:32 -0400
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI and I2C fixes for 2.6.8
 User-Agent: Mutt/1.5.6i
+In-Reply-To: <10932860852863@kroah.com>
+Date: Mon, 23 Aug 2004 11:34:45 -0700
+Message-Id: <10932860853794@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below replaces all occurences of two bouncing email addresses   
-of Alex deVries in the kernel with his current address.
+ChangeSet 1.1807.56.12, 2004/08/04 08:43:07-04:00, dwmw2@shinybook.infradead.org
 
-It's already ACK'ed by Alex deVries.
+PCI quirks -- ppc64
 
+Remove pcibios_fixups[] array and move the declarations to live with
+the implementations. Remove unneeded pcibios_name_device() on iSeries.
 
-diffstat output:
- CREDITS                       |    2 +-
- arch/parisc/kernel/hardware.c |    2 +-
- drivers/input/serio/gscps2.c  |    2 +-
- drivers/parisc/lasi.c         |    2 +-
- drivers/parisc/superio.c      |    2 +-
- sound/oss/harmony.c           |    4 ++--
- 6 files changed, 7 insertions(+), 7 deletions(-)
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+ arch/ppc64/kernel/iSeries_pci.c |    4 ----
+ arch/ppc64/kernel/pSeries_pci.c |    5 +++--
+ arch/ppc64/kernel/pci.c         |   22 ++--------------------
+ arch/ppc64/kernel/pmac_pci.c    |    1 +
+ 4 files changed, 6 insertions(+), 26 deletions(-)
 
---- linux-2.6.8.1-mm4-full/CREDITS.old	2004-08-23 04:01:53.000000000 +0200
-+++ linux-2.6.8.1-mm4-full/CREDITS	2004-08-23 04:02:32.000000000 +0200
-@@ -754,7 +754,7 @@
- D: HTB qdisc and random networking hacks
- 
- N: Alex deVries
--E: adevries@thepuffingroup.com
-+E: alex@onefishtwo.ca
- D: Various SGI parts, bits of HAL2 and Newport, PA-RISC Linux.
- S: 41.5 William Street
- S: Ottawa, Ontario
---- linux-2.6.8.1-mm4-full/drivers/parisc/superio.c.old	2004-08-23 04:01:54.000000000 +0200
-+++ linux-2.6.8.1-mm4-full/drivers/parisc/superio.c	2004-08-23 04:02:45.000000000 +0200
-@@ -8,7 +8,7 @@
-  *	(C) Copyright 2000 Linuxcare, Inc.
-  * 	(C) Copyright 2000 Linuxcare Canada, Inc.
-  *	(C) Copyright 2000 Martin K. Petersen <mkp@linuxcare.com>
-- * 	(C) Copyright 2000 Alex deVries <alex@linuxcare.com>
-+ * 	(C) Copyright 2000 Alex deVries <alex@onefishtwo.ca>
-  *      (C) Copyright 2001 John Marvin <jsm fc hp com>
-  *      (C) Copyright 2003 Grant Grundler <grundler parisc-linux org>
-  *
---- linux-2.6.8.1-mm4-full/sound/oss/harmony.c.old	2004-08-23 04:01:54.000000000 +0200
-+++ linux-2.6.8.1-mm4-full/sound/oss/harmony.c	2004-08-23 04:03:00.000000000 +0200
-@@ -8,7 +8,7 @@
- 	On older 715 machines you'll find the technically identical chip 
- 	called 'Vivace'. Both Harmony and Vicace are supported by this driver.
- 
--	Copyright 2000 (c) Linuxcare Canada, Alex deVries <alex@linuxcare.com>
-+	Copyright 2000 (c) Linuxcare Canada, Alex deVries <alex@onefishtwo.ca>
- 	Copyright 2000-2003 (c) Helge Deller <deller@gmx.de>
- 	Copyright 2001 (c) Matthieu Delahaye <delahaym@esiee.fr>
- 	Copyright 2001 (c) Jean-Christophe Vaugeois <vaugeoij@esiee.fr>
-@@ -1293,7 +1293,7 @@
+
+diff -Nru a/arch/ppc64/kernel/iSeries_pci.c b/arch/ppc64/kernel/iSeries_pci.c
+--- a/arch/ppc64/kernel/iSeries_pci.c	2004-08-23 11:06:12 -07:00
++++ b/arch/ppc64/kernel/iSeries_pci.c	2004-08-23 11:06:12 -07:00
+@@ -820,7 +820,3 @@
+ 	} while (CheckReturnCode("WWL", DevNode, rc) != 0);
+ }
+ EXPORT_SYMBOL(iSeries_Write_Long);
+-
+-void pcibios_name_device(struct pci_dev *dev)
+-{
+-}
+diff -Nru a/arch/ppc64/kernel/pSeries_pci.c b/arch/ppc64/kernel/pSeries_pci.c
+--- a/arch/ppc64/kernel/pSeries_pci.c	2004-08-23 11:06:12 -07:00
++++ b/arch/ppc64/kernel/pSeries_pci.c	2004-08-23 11:06:12 -07:00
+@@ -519,9 +519,9 @@
+ 	return 0;
  }
  
++#if 0
+ void pcibios_name_device(struct pci_dev *dev)
+ {
+-#if 0
+ 	struct device_node *dn;
  
--MODULE_AUTHOR("Alex DeVries <alex@linuxcare.com>");
-+MODULE_AUTHOR("Alex DeVries <alex@onefishtwo.ca>");
- MODULE_DESCRIPTION("Harmony sound driver");
- MODULE_LICENSE("GPL");
+ 	/*
+@@ -541,8 +541,9 @@
+ 			}
+ 		}
+ 	}
+-#endif
+ }   
++DECLARE_PCI_FIXUP_HEADER(PCI_ANY_ID, PCI_ANY_ID, pcibios_name_device);
++#endif
  
---- linux-2.6.8.1-mm4-full/arch/parisc/kernel/hardware.c.old	2004-08-23 04:01:54.000000000 +0200
-+++ linux-2.6.8.1-mm4-full/arch/parisc/kernel/hardware.c	2004-08-23 04:03:10.000000000 +0200
-@@ -7,7 +7,7 @@
-  *    Reference Specification", March 7, 1999, version 0.96.  This
-  *    is available at http://parisc-linux.org/documentation/
-  *
-- *    Copyright 1999 by Alex deVries <adevries@thepuffingroup.com>
-+ *    Copyright 1999 by Alex deVries <alex@onefishtwo.ca>
-  *    and copyright 1999 The Puffin Group Inc.
-  *
-  *    This program is free software; you can redistribute it and/or modify
---- linux-2.6.8.1-mm4-full/drivers/input/serio/gscps2.c.old	2004-08-23 04:01:54.000000000 +0200
-+++ linux-2.6.8.1-mm4-full/drivers/input/serio/gscps2.c	2004-08-23 04:03:19.000000000 +0200
-@@ -6,7 +6,7 @@
-  * Copyright (c) 2002 Thibaut Varene <varenet@esiee.fr>
-  *
-  * Pieces of code based on linux-2.4's hp_mouse.c & hp_keyb.c
-- * 	Copyright (c) 1999 Alex deVries <adevries@thepuffingroup.com>
-+ * 	Copyright (c) 1999 Alex deVries <alex@onefishtwo.ca>
-  *	Copyright (c) 1999-2000 Philipp Rumpf <prumpf@tux.org>
-  *	Copyright (c) 2000 Xavier Debacker <debackex@esiee.fr>
-  *	Copyright (c) 2000-2001 Thomas Marteau <marteaut@esiee.fr>
---- linux-2.6.8.1-mm4-full/drivers/parisc/lasi.c.old	2004-08-23 04:01:54.000000000 +0200
-+++ linux-2.6.8.1-mm4-full/drivers/parisc/lasi.c	2004-08-23 04:03:28.000000000 +0200
-@@ -11,7 +11,7 @@
-  *      (at your option) any later version.
-  *
-  *	by Alan Cox <alan@redhat.com> and 
-- * 	   Alex deVries <adevries@thepuffingroup.com> 
-+ * 	   Alex deVries <alex@onefishtwo.ca> 
-  */
+ void __devinit pcibios_fixup_device_resources(struct pci_dev *dev,
+ 					   struct pci_bus *bus)
+diff -Nru a/arch/ppc64/kernel/pci.c b/arch/ppc64/kernel/pci.c
+--- a/arch/ppc64/kernel/pci.c	2004-08-23 11:06:12 -07:00
++++ b/arch/ppc64/kernel/pci.c	2004-08-23 11:06:12 -07:00
+@@ -55,12 +55,6 @@
+ unsigned long isa_io_base;	/* NULL if no ISA bus */
+ unsigned long pci_io_base;
  
- #include <linux/errno.h>
+-void pcibios_name_device(struct pci_dev* dev);
+-void pcibios_final_fixup(void);
+-static void fixup_broken_pcnet32(struct pci_dev* dev);
+-static void fixup_windbond_82c105(struct pci_dev* dev);
+-extern void fixup_k2_sata(struct pci_dev* dev);
+-
+ void iSeries_pcibios_init(void);
+ 
+ struct pci_controller *hose_head;
+@@ -74,20 +68,6 @@
+ /* Cached ISA bridge dev. */
+ struct pci_dev *ppc64_isabridge_dev = NULL;
+ 
+-struct pci_fixup pcibios_fixups[] = {
+-	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_TRIDENT,		PCI_ANY_ID,
+-	  fixup_broken_pcnet32 },
+-	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_WINBOND,		PCI_DEVICE_ID_WINBOND_82C105,
+-	  fixup_windbond_82c105 },
+-	{ PCI_FIXUP_HEADER,	PCI_ANY_ID,    			PCI_ANY_ID,
+-	  pcibios_name_device },
+-#ifdef CONFIG_PPC_PMAC
+-	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_SERVERWORKS,	0x0240,
+-	  fixup_k2_sata },
+-#endif
+-	{ 0 }
+-};
+-
+ static void fixup_broken_pcnet32(struct pci_dev* dev)
+ {
+ 	if ((dev->class>>8 == PCI_CLASS_NETWORK_ETHERNET)) {
+@@ -96,6 +76,7 @@
+ 		pci_name_device(dev);
+ 	}
+ }
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_TRIDENT, PCI_ANY_ID, fixup_broken_pcnet32);
+ 
+ static void fixup_windbond_82c105(struct pci_dev* dev)
+ {
+@@ -118,6 +99,7 @@
+ 			dev->resource[i].flags &= ~IORESOURCE_IO;
+ 	}
+ }
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_WINBOND, PCI_DEVICE_ID_WINBOND_82C105, fixup_windbond_82c105);
+ 
+ void 
+ pcibios_resource_to_bus(struct pci_dev *dev, struct pci_bus_region *region,
+diff -Nru a/arch/ppc64/kernel/pmac_pci.c b/arch/ppc64/kernel/pmac_pci.c
+--- a/arch/ppc64/kernel/pmac_pci.c	2004-08-23 11:06:12 -07:00
++++ b/arch/ppc64/kernel/pmac_pci.c	2004-08-23 11:06:12 -07:00
+@@ -777,3 +777,4 @@
+ 		}
+ 	}
+ }
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SERVERWORKS, 0x0240, fixup_k2_sata);
 

@@ -1,152 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S130689AbQJOMXA>; Sun, 15 Oct 2000 08:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S130680AbQJOMWv>; Sun, 15 Oct 2000 08:22:51 -0400
-Received: from isis.its.uow.edu.au ([130.130.68.21]:29933 "EHLO isis.its.uow.edu.au") by vger.kernel.org with ESMTP id <S129732AbQJOMWe>; Sun, 15 Oct 2000 08:22:34 -0400
-Message-ID: <39E99F2C.BD33D5C5@uow.edu.au>
-Date: Sun, 15 Oct 2000 23:12:28 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S129686AbQJQAMF>; Mon, 16 Oct 2000 20:12:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S129558AbQJQALp>; Mon, 16 Oct 2000 20:11:45 -0400
+Received: from vger.timpanogas.org ([207.109.151.240]:14084 "EHLO vger.timpanogas.org") by vger.kernel.org with ESMTP id <S129097AbQJQALf>; Mon, 16 Oct 2000 20:11:35 -0400
+Received: from timpanogas.org ([207.109.151.230]) by vger.timpanogas.org (8.9.3/8.9.3) with ESMTP id RAA01123 for <linux-kernel@vger.kernel.org>; Mon, 16 Oct 2000 17:56:53 -0600
+Message-ID: <39EB95B8.25078A0A@timpanogas.org>
+Date: Mon, 16 Oct 2000 17:56:40 -0600
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-CC: "David S. Miller" <davem@redhat.com>
-Subject: On labelled initialisers, gcc-2.7.2.3 and tcp_ipv4.c
+To: linux-kernel@vger.kernel.org
+Subject: MANOS/Ute-Linux mailing List problems
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a bug in gcc-2.7.2.3.  It incorrectly lays out
-structure initialisers when the `name:value;' construct is used.
 
+For you guys on the manos-kernel/ute-linux mailing lists, the reason the
+list has not been sending out emails for the past week is due some
+employees internal at Novell playing games with our servers.  What
+appears to be going on is they have registered several bogus email
+addresses with bogus domains that point to MX records that route through
+these bogus domains back into MX -> prv-mx.provo.novell.com. 
 
-Here is the degenerate case:
+They apparantley setup the DNS entries incorrectly, which is causing the
+buggy NetWare/Groupwise DNS servers at Novell to hang when a connection
+is opened to port 25 on their primary mail exchanger, and an email loop
+to form back to majordomo, which has resulted in majordomo freezing up
+during bulk resend (because majordomo fills up the entire disk with the
+same messages.  The /var/spool/mqueue diretory appears to still have all
+the emails posted and as soon as we disable routing to Novell's DNS mail
+exchangers, the messages will repost.  
 
-	struct struct_1 { int a; };
+We apologize for the list problems, and will have it back up later this
+evening. 
 
-	struct thing {
-	        int a;
-	        struct struct_1 b;
-	};
-
-	struct thing a_thing = {
-	//      a: 0,		/* Uncomment this for correct code */
-	        b: {0},
-	};
-
-
-Which produces:
-
-	        .file   "e.c"
-	        .version        "01.01"
-	gcc2_compiled.:
-	.globl a_thing
-	.data
-	        .align 4
-	        .type    a_thing,@object
-	        .size    a_thing,8
-	a_thing:
-	        .zero   4
-	        .zero   4
-	        .long 0
-	        .ident  "GCC: (GNU) 2.7.2.3"
-
-Note the extra `.zero 4'.
-
-As far as I can tell the rule to follow is this:
-
-     If a structure has nested structures, and if you are
-     initialising one of the nested structures then you
-     _must_ initialise all fields which precede that nested
-     structure.
-
-
-There are five ways to fix this:
-
-1: Remember to initialise all fields which precede
-   initialised structures.
-
-2: Arrange your struct so that all nested structs come first
-   and remember to initialise them all.
-
-3: Don't use gcc-2.7.2.3 (use one of the later compilers and
-   put up with 50% longer build times).
-
-4: Fix gcc-2.7.2.3
-
-5: Don't use named initialisers.
-
-
-David, your recent changes to tcp_ipv4.c make 2.7.2.3-compiled
-kernels fail very strangely.  I used option 2 to fix it:
-
-
-
-
---- linux-2.4.0-test10-pre3/include/net/tcp.h	Sat Oct 14 17:02:04 2000
-+++ linux-akpm/include/net/tcp.h	Sun Oct 15 22:56:38 2000
-@@ -90,6 +90,24 @@
- };
- 
- extern struct tcp_hashinfo {
-+	rwlock_t __tcp_lhash_lock;
-+	atomic_t __tcp_lhash_users;
-+	wait_queue_head_t __tcp_lhash_wait;
-+	spinlock_t __tcp_portalloc_lock;
-+
-+	/* All sockets in TCP_LISTEN state will be in here.  This is the only
-+	 * table where wildcard'd TCP sockets can exist.  Hash function here
-+	 * is just local port number.
-+	 */
-+	struct sock *__tcp_listening_hash[TCP_LHTABLE_SIZE];
-+
-+	/*
-+	 * All the below members are written once at bootup and are
-+	 * never written again _or_ are predominantly read-access.
-+	 * Hence we align to a new cache line as all the preceding members
-+	 * are often dirty.
-+	 */
-+
- 	/* This is for sockets with full identity only.  Sockets here will
- 	 * always be without wildcards and will have the following invariant:
- 	 *
-@@ -97,8 +115,10 @@
- 	 *
- 	 * First half of the table is for sockets not in TIME_WAIT, second half
- 	 * is for TIME_WAIT sockets only.
-+	 *
- 	 */
--	struct tcp_ehash_bucket *__tcp_ehash;
-+	struct tcp_ehash_bucket *__tcp_ehash
-+		__attribute__((__aligned__(SMP_CACHE_BYTES)));
- 
- 	/* Ok, let's try this, I give up, we do need a local binding
- 	 * TCP hash as well as the others for fast bind/connect.
-@@ -107,24 +127,6 @@
- 
- 	int __tcp_bhash_size;
- 	int __tcp_ehash_size;
--
--	/* All sockets in TCP_LISTEN state will be in here.  This is the only
--	 * table where wildcard'd TCP sockets can exist.  Hash function here
--	 * is just local port number.
--	 */
--	struct sock *__tcp_listening_hash[TCP_LHTABLE_SIZE];
--
--	/* All the above members are written once at bootup and
--	 * never written again _or_ are predominantly read-access.
--	 *
--	 * Now align to a new cache line as all the following members
--	 * are often dirty.
--	 */
--	rwlock_t __tcp_lhash_lock
--		__attribute__((__aligned__(SMP_CACHE_BYTES)));
--	atomic_t __tcp_lhash_users;
--	wait_queue_head_t __tcp_lhash_wait;
--	spinlock_t __tcp_portalloc_lock;
- } tcp_hashinfo;
- 
- #define tcp_ehash	(tcp_hashinfo.__tcp_ehash)
+Jeff
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

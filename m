@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265149AbUFATWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265151AbUFAT3Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265149AbUFATWm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 15:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265151AbUFATWm
+	id S265151AbUFAT3Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 15:29:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265155AbUFAT3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 15:22:42 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:23224 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S265149AbUFATWh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 15:22:37 -0400
-Message-Id: <200406011922.i51JMK9e025853@zeus.kernel.org>
-From: harbiciyiz <harbiciyiz@hotmail.com>
+	Tue, 1 Jun 2004 15:29:25 -0400
+Received: from astra.telenet-ops.be ([195.130.132.58]:26601 "EHLO
+	astra.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S265151AbUFAT3Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 15:29:24 -0400
+Date: Tue, 1 Jun 2004 21:25:52 +0200 (CEST)
+From: Michael De Nil <michael@flex-it.be>
+X-X-Sender: flecxie@lisa.flex-it.be
 To: linux-kernel@vger.kernel.org
-Reply-To: harbiciyiz@hotmail.com
-Subject: SORULMASI GEREKEN SORULAR
-Date: Tue, 01 Jun 2004 22:23:22 +0300
+Subject: Promise PDC20378 Raid Accelerator
+Message-ID: <Pine.LNX.4.56.0406012040380.6191@lisa.flex-it.be>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="74648f49-62af-44e2-9a65-a473d8a496a3"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello everyone,
 
-This is a multi-part message in MIME format
---74648f49-62af-44e2-9a65-a473d8a496a3
-Content-Type: text/plain; charset=utf-7
-Content-Transfer-Encoding: quoted-printable
+While googl'ing around on linux-support for the Promise PDC20378 Raid
+Accelerator, I found some contrary messages...
 
-Merhaba
+- Tyan tells me that Promise only provides closed source modules for the
+latest RH & Suse kernels. They also told me that there is no way to use
+sata raid under linux when not using standard rh or suse kernel.
 
-Mail ekinde g=F6nderdi=F0imiz belgeleri inceledi=F0inizde 09.07.2003 =
-tarihinde Veri Bili=FEim =DDleti=FEim ve G=FCvenlik Sistemleri Ltd. =DEti. =
-taraf=FDndan s=F6z konusu Ara=E7 Kiralama i=FEi i=E7in Adalet ve Kalk=FDnma =
-Partisine Teklif verilip 14.07.2003 tarihinde yap=FDlan S=F6zle=FEmenin ;
+- On http://www.busybox.net/pdc-ultra-1.00.0.10.tgz, there seems to be
+a free driver by Promise.
 
-1-) Ticaret Sicil Gazetesinde Veri Bili=FEim =DEirketinin , =DEirket i=FE=
-tigal konular=FDna Ara=E7 Kiralama (Rent a Car' =FDn) i=FEini ekledi=F0i =
-tarihi N=DD=C7=DDN  bu s=F6zle=FEmenin imzalad=FD=F0=FD tarihten sonra Sicil =
-Gazetesine Eklenmi=FEtir , =C7=DCNK=DC  bu i=FEin hak edene de=F0il de =
-istenilene yada kendilerinden olana verilmesini ispatlamaz m=FD?
+- Then, on http://linuxmafia.com/faq/Hardware/sata.html I read:
+Promise FastTrak SATA150, SATA150 TX2, SATA150 TX2plus, SATA150 TX4,
+SATA150 SX4, SATA378, and Ultra 618 series (e.g., PDC20621, PDC20275,
+PDC20618, PDC20318, PDC20319, PDC20375, PDC20378, and PDC20376 chips) ?
+the sata_promise driver in Jeff Garzik's libata driver set provides
+beta-level support a/o 2004-02-25 (included in kernel 2.6.x). Alleged RAID
+is proprietary software RAID: Proprietary drivers from the manufacturer
+are available, as are instructions. An now-unmaintained 2003-02 i386
+binary driver from the manufacturer (often claimed in error to be open
+source; people being fooled by its source-code wrapper) is also available.
 
-2-) 09.07.2003 tarihindeki AKP ye verilen  Teklif Mektubunun alt=FDndaki =
-Abdullah G=DCND=DCZ (Me=FEhur Aczimendi Lideri M=FCsl=FCm G=DCND=DCZ =FCn =
-ye=F0eni) imzas=FD bulunurken, Acaba bu =DEirketle hangi g=F6revdeydi? Hangi =
-yetki ile yada hangi s=FDfatla bu s=F6zle=FEmeyi de , 14.07.2003 tarihinde =
-imzalad=FD.
+- ...
 
-3-) 23 EV 698 Plaka Nolu Araca 083 Nolu BA=DEBAKANLIK =D6ZEL ARA=C7 KARTI, =
-Kime? Ni=E7in? Hangi  ama=E7la verilmi=FEtir?
 
-4-) Bu Abdullah G=DCND=DCZ e REFARANS olanlar kimlerdir? Abdullah G=DCND=DCZ =
-bu i=FEi REFARANS KULLANIP AKP nin m=FCteahhidiyiz diyerek acaba ba=FEka i=FE=
-ler yapm=FD=FElar m=FDd=FDr?
+Can someone tell me if I will be able to run 2 SATA discs on a raid1 with
+this chip, and if yes, what driver you would prefer? I am a litle bit
+afraid for using non-stable drivers... ;)
 
-5-) Say=FDn Recep Tayip ERDO=D0AN  =FDn S=DD=DDRT se=E7imlerinden =F6nce =
-yapm=FD=FE oldu=F0u T=FCrki Cumhuriyetler gezisine kat=FDld=FD=F0=FD gezi =
-listesinde de sabit olundu=F0u bilinen ( TOBB ' dan gezi listesi temin =
-edilebilir) Abdullah G=DCND=DCZ acaba ne s=FDfatla bu =F6nemli geziye kat=FD=
-lm=FD=FEt=FDr. Kimler taraf=FDndan 
-REFARANS edilerek hangi =DEirket Temsilcisi s=FDfat=FD kullan=FDlm=FD=FEt=FD=
-r. 
 
-6-) ACABA bu ara=E7 kiralama i=FEinde kimler rant  (Getirim) sa=F0lad=FD? 
+Thanks
 
-Vaktiniz al=FDp, zaman y=F6netiminizi aralad=FD=F0=FDm=FDz i=E7in aff=FDn=FD=
-za s=FD=F0=FDn=FDyoruz.
-
-Sayg=FDlar=FDm=FDzla
-HARB=DDC=DDLER
-  
---74648f49-62af-44e2-9a65-a473d8a496a3--
-
+Michael De Nil

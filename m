@@ -1,44 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281192AbRK3Xit>; Fri, 30 Nov 2001 18:38:49 -0500
+	id <S283828AbRK3Xk7>; Fri, 30 Nov 2001 18:40:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283831AbRK3Xij>; Fri, 30 Nov 2001 18:38:39 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13832 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S283828AbRK3XiW>; Fri, 30 Nov 2001 18:38:22 -0500
+	id <S283833AbRK3Xku>; Fri, 30 Nov 2001 18:40:50 -0500
+Received: from adsl-66-120-100-11.dsl.sndg02.pacbell.net ([66.120.100.11]:38660
+	"HELO glacier.arctrix.com") by vger.kernel.org with SMTP
+	id <S283831AbRK3Xki>; Fri, 30 Nov 2001 18:40:38 -0500
+Date: Fri, 30 Nov 2001 15:44:57 -0800
+From: Neil Schemenauer <nas@python.ca>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] task_struct colouring ...
-Date: 30 Nov 2001 15:37:48 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9u958c$ets$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.40.0111301326160.1600-100000@blue1.dev.mcafeelabs.com> <E169wL1-00052x-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Subject: 2.4.17-pre2, IO, and interactive performance
+Message-ID: <20011130154457.A5886@glacier.arctrix.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <E169wL1-00052x-00@the-village.bc.nu>
-By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
-In newsgroup: linux.dev.kernel
->
-> > Looking at both the Manfred and Fujitsu patches I propose this new version
-> > for task struct colouring.
-> > The patch from Manfred is too architecture dependent ( cr2 ) and storing
-> > extra stuff in CPU registers is not IMHO a good idea.
-> 
-> Well the whole "current" handling is entirely architecture dependant anyway.
-> On most saner platforms current is a global register variable (the wonders
-> of gcc) and the whole problem simply isnt there
-> 
+When testing with "dd if=/dev/zero of=zero", 2.4.17-pre2 feels much
+smoother than 2.4.16.  My hardware:
 
-Using %cr2 was pretty broken, but I liked the patch using %tr.
+    AMD K7 1400 Mhz
+    512 MB RAM
+    VIA vt82c686b (rev 40) IDE UDMA100 controller
+    20 GB IDE disk (IBM?, /proc/ide/had/model says IC35L020AVER07-0)
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Cheers,
+
+  Neil

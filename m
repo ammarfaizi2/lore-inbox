@@ -1,64 +1,85 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316475AbSFKVcN>; Tue, 11 Jun 2002 17:32:13 -0400
+	id <S315276AbSFKVdb>; Tue, 11 Jun 2002 17:33:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316621AbSFKVcM>; Tue, 11 Jun 2002 17:32:12 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:9428 "EHLO
-	opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S316475AbSFKVcL>; Tue, 11 Jun 2002 17:32:11 -0400
-Date: Tue, 11 Jun 2002 14:31:11 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix CONFIG_VIDEO_DEV=y
-Message-ID: <20020611213111.GB13541@opus.bloom.county>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S316621AbSFKVda>; Tue, 11 Jun 2002 17:33:30 -0400
+Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:56501 "HELO
+	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S315276AbSFKVd2>; Tue, 11 Jun 2002 17:33:28 -0400
+Message-ID: <20020611213324.19589.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Wed, 12 Jun 2002 05:33:24 +0800
+Subject: [2.5.21] compile error
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws4-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently 2.4.19-pre10 and 2.5.21 won't compile if CONFIG_VIDEO_DEV=y.
+Hi all,
+I've just tried to compile the 2.5.21,
+but I got these errors:
 
-The problem is that videodev_proc_destroy() is protected by MODULE &&
-CONFIG_PROC_FS && CONFIG_VIDEO_PROC_FS.  Additionally, all calls to
-videodev_proc_create() are protected by CONFIG_PROC_FS &&
-CONFIG_VIDEO_PROC_FS but the function itself (which is static) is not.
+make[2]: Entering directory `/usr/src/linux-2.5.21/drivers/ide'
+  gcc -Wp,-MD,.ataraid.o.d -D__KERNEL__ -I/usr/src/linux-2.5.21/include -Wall -W
+  strict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -
+  fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -nostdinc -iwithprefix
+   include -DMODULE -include /usr/src/linux-2.5.21/include/linux/modversions.h   -
+   DKBUILD_BASENAME=ataraid -DEXPORT_SYMTAB  -c -o ataraid.o ataraid.c
+   ataraid.c: In function `ataraid_make_request':
+   ataraid.c:101: dereferencing pointer to incomplete type
+   ataraid.c:99: warning: `minor' might be used uninitialized in this function
+   ataraid.c: In function `ataraid_get_bhead_R1616d035':
+   ataraid.c:119: sizeof applied to an incomplete type
+   ataraid.c: In function `ataraid_end_request_R6a133f58':
+   ataraid.c:143: dereferencing pointer to incomplete type
+   ataraid.c:149: dereferencing pointer to incomplete type
+   ataraid.c: In function `ataraid_split_request':
+   ataraid.c:172: dereferencing pointer to incomplete type
+   ataraid.c:172: dereferencing pointer to incomplete type
+   ataraid.c:172: dereferencing pointer to incomplete type
+   ataraid.c:173: dereferencing pointer to incomplete type
+   ataraid.c:173: dereferencing pointer to incomplete type
+   ataraid.c:173: dereferencing pointer to incomplete type
+   ataraid.c:175: dereferencing pointer to incomplete type
+   ataraid.c:176: dereferencing pointer to incomplete type
+   ataraid.c:178: dereferencing pointer to incomplete type
+   ataraid.c:178: dereferencing pointer to incomplete type
+   ataraid.c:179: dereferencing pointer to incomplete type
+   ataraid.c:180: dereferencing pointer to incomplete type
+   ataraid.c:183: dereferencing pointer to incomplete type
+   ataraid.c:184: dereferencing pointer to incomplete type
+   ataraid.c:187: dereferencing pointer to incomplete type
+   ataraid.c:187: dereferencing pointer to incomplete type
+   ataraid.c:189: warning: passing arg 1 of `generic_make_request_R3b6085bd' makes
+   pointer from integer without a cast
+   ataraid.c:189: too many arguments to function `generic_make_request_R3b6085bd'
+   ataraid.c:190: warning: passing arg 1 of `generic_make_request_R3b6085bd' makes
+   pointer from integer without a cast
+   ataraid.c:190: too many arguments to function `generic_make_request_R3b6085bd'
+   ataraid.c: In function `ataraid_init':
+   ataraid.c:266: warning: passing arg 2 of `blk_queue_make_request_R49fe4a71' from
+    incompatible pointer type
+    make[2]: *** [ataraid.o] Error 1
+    make[2]: Leaving directory `/usr/src/linux-2.5.21/drivers/ide'
+    make[1]: *** [_subdir_ide] Error 2
+    make[1]: Leaving directory `/usr/src/linux-2.5.21/drivers'
+    make: *** [drivers] Error 2
 
-This hides both functions within CONFIG_PROC_FS && CONFIG_VIDEO_PROC_FS
-tests.
+gcc version 2.96 20000731 (Mandrake Linux 8.1 2.96-0.62mdk))
 
+Let me know if you need further information and, please cc' me because I'm not a subscriber of the list.
+
+Many thanks,
+
+-- PC
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Get your free email from www.linuxmail.org 
 
-===== drivers/media/video/videodev.c 1.10 vs edited =====
---- 1.10/drivers/media/video/videodev.c	Thu May  2 08:48:22 2002
-+++ edited/drivers/media/video/videodev.c	Tue Jun 11 14:27:08 2002
-@@ -394,6 +394,7 @@
- 	return len;
- }
- 
-+#if defined(CONFIG_PROC_FS) && defined(CONFIG_VIDEO_PROC_FS)
- static void videodev_proc_create(void)
- {
- 	video_proc_entry = create_proc_entry("video", S_IFDIR, &proc_root);
-@@ -414,8 +415,6 @@
- 	video_dev_proc_entry->owner = THIS_MODULE;
- }
- 
--#ifdef MODULE
--#if defined(CONFIG_PROC_FS) && defined(CONFIG_VIDEO_PROC_FS)
- static void videodev_proc_destroy(void)
- {
- 	if (video_dev_proc_entry != NULL)
-@@ -424,7 +423,6 @@
- 	if (video_proc_entry != NULL)
- 		remove_proc_entry("video", &proc_root);
- }
--#endif
- #endif
- 
- static void videodev_proc_create_dev (struct video_device *vfd, char *name)
+
+Powered by Outblaze

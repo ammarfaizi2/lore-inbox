@@ -1,51 +1,124 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279242AbRKIFI0>; Fri, 9 Nov 2001 00:08:26 -0500
+	id <S279303AbRKIFPr>; Fri, 9 Nov 2001 00:15:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279261AbRKIFIQ>; Fri, 9 Nov 2001 00:08:16 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:17908
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S279242AbRKIFII>; Fri, 9 Nov 2001 00:08:08 -0500
-Date: Thu, 8 Nov 2001 20:42:10 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Modutils can't handle long kernel names
-Message-ID: <20011108204210.A514@mikef-linux.matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S279378AbRKIFPi>; Fri, 9 Nov 2001 00:15:38 -0500
+Received: from samrat.cisco.com ([192.135.241.27]:41977 "EHLO samrat.cisco.com")
+	by vger.kernel.org with ESMTP id <S279303AbRKIFPY>;
+	Fri, 9 Nov 2001 00:15:24 -0500
+Date: Fri, 9 Nov 2001 10:43:48 +0000 (/etc/localtime)
+From: Vino Thomas <jvt@technologist.com>
+To: Krishna Kumar <kumarkr@us.ibm.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Andreas Dilger <adilger@turbolabs.com>, ak@muc.de, andrewm@uow.edu.au,
+        "David S. Miller" <davem@redhat.com>, jgarzik@mandrakesoft.com,
+        kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org,
+        IPV6 Mailing List <netdev@oss.sgi.com>, owner-netdev@oss.sgi.com,
+        tim@physik3.uni-rostock.de
+Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
+In-Reply-To: <OFE014018A.D6D3430D-ON88256AFE.005C057D@boulder.ibm.com>
+Message-ID: <Pine.LNX.4.20.0111091041490.546-100000@vjacob-pc.cisco.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hello Krishna,
 
-I've gotten into the habbit of adding the names of the patches I add to my
-kernel to the extraversion string in the top level Makefile in my kernels.
+In 'Case 3' Change the line
 
-Here's my latest example:
-VERSION = 2
-PATCHLEVEL = 4
-SUBLEVEL = 15
-EXTRAVERSION=-pre1+freeswan-1.91+xsched+netdev_random+ext3-0.9.15-2414+ext3-mem_acct+elevator
+	jiffies = start + HZ - 1;
+to
+	jiffies = start + HZ - 91;
 
-Unfortunately, with this long kernel version number, modutils (I've noticed
-depmod and modutils so far...) choke on it.
+and see the difference.
 
-depmod:
-depmod: Can't open /lib/modules/2.4.15-pre1+freeswan-1.91+xsched+netdev_random+ext3-0.9.15-2414+e#1 SMP Thu Nov 8 20:18:04 PST 2001/modules.dep for writing
+Regards,
+Vino.
 
-uname -r:
-2.4.15-pre1+freeswan-1.91+xsched+netdev_random+ext3-0.9.15-2414+e#1 SMP Thu Nov 8 20:18:04 PST 2001
+On Thu, 8 Nov 2001, Krishna Kumar wrote:
 
-uname -a:
-Linux mikef-linux.matchmail.com 2.4.15-pre1+freeswan-1.91+xsched+netdev_random+ext3-0.9.15-2414+e#1 SMP Thu Nov 8 20:18:04 PST 2001 #1 SMP Thu Nov 8 20:18:04 PST 2001 i686 unknown
+> 
+> Hi Linus,
+> 
+> > >
+> > > In short: It is wrong to do
+> > >
+> > >          if (jiffies <= start+HZ)
+> > >
+> > > and it is _right_ to do
+> > >
+> > >          if (jiffies - start <= HZ)
+> >
+> > Actually this last part is wrong, isn't it ? jiffies <= start + HZ is
+> also
+> > a correct way to do it, since start+HZ will overflow to the current value
+> > of jiffies when HZ time elapses. So the above two statements are
+> IDENTICAL.
+> >
+> > No.
+> >
+> > Try it out with a few examples. You'll see.
+> >
+> >                    Linus
+> 
+> I am sorry, but I still don't see the difference. I wrote a small program
+> with different
+> cases, but the values still come same irrespective of the input arguments
+> to the
+> checks. Could you tell under what conditions the checks wuold fail ? The
+> 2's
+> complement  works the same for addition and subtraction. I have included
+> the
+> test program below.
+> 
+> Thanks,
+> 
+> - KK
+> 
+> ---------------------------------------------------------------------------------------------
+> /*
+>      if (jiffies <= start+HZ)
+>      if (jiffies - start <= HZ)
+> */
+> 
+> #define HZ 100
+> 
+> main()
+> {
+>      unsigned long start, jiffies;
+> 
+>      /* Case 1 */
+>      start = ((unsigned long) -1);
+>      jiffies = start + HZ;
+>      if (jiffies <= start + HZ) {
+>            printf("Less Case 1\n");
+>      }
+>      if (jiffies - start <= HZ) {
+>            printf("Less Case 2\n");
+>      }
+> 
+>      /* Case 2 */
+>      start = ((unsigned long) -10);
+>      jiffies = start + HZ + 1;
+>      if (jiffies <= start + HZ) {
+>            printf("Less Case 3\n");
+>      }
+>      if (jiffies - start <= HZ) {
+>            printf("Less Case 4\n");
+>      }
+> 
+>      /* Case 3 */
+>      start = ((unsigned long) -10);
+>      jiffies = start + HZ - 1;
+>      if (jiffies <= start + HZ) {
+>            printf("Less Case 5\n");
+>      }
+>      if (jiffies - start <= HZ) {
+>            printf("Less Case 6\n");
+>      }
+> }
+> 
+> 
+> 
 
-Yep, I know, "don't do that!".  Still, can this be fixed easily, or is it
-one of those things that kbuild 2.5 will fix, and make everything rosy and
-do my laundry too?
-
-TIA,
-
-Mike

@@ -1,73 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282129AbRLQS4I>; Mon, 17 Dec 2001 13:56:08 -0500
+	id <S282212AbRLQTCi>; Mon, 17 Dec 2001 14:02:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282187AbRLQSz6>; Mon, 17 Dec 2001 13:55:58 -0500
-Received: from mikonos.cyclades.com.br ([200.230.227.67]:8711 "EHLO
-	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
-	id <S282129AbRLQSzl>; Mon, 17 Dec 2001 13:55:41 -0500
-Message-ID: <3C1E12A3.5955B8F6@cyclades.com>
-Date: Mon, 17 Dec 2001 12:43:31 -0300
-From: Daniela Squassoni <daniela@cyclades.com>
-Organization: Cyclades
-X-Mailer: Mozilla 4.7 [en] (X11; U; Linux 2.4.9 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Krzysztof Halasa <khc@pm.waw.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: dscc4 and new Generic HDLC Layer
-In-Reply-To: <3C19CA22.E604CB32@cyclades.com>
-		<20011214151518.B30306@xyzzy.org.uk> <m31yhwppzq.fsf@defiant.pm.waw.pl>
-Content-Type: multipart/mixed;
- boundary="------------859B4E3D27C4266341800C86"
+	id <S282222AbRLQTC3>; Mon, 17 Dec 2001 14:02:29 -0500
+Received: from codepoet.org ([166.70.14.212]:9993 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S282212AbRLQTCY>;
+	Mon, 17 Dec 2001 14:02:24 -0500
+Date: Mon, 17 Dec 2001 12:02:23 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Torrey Hoffman <torrey.hoffman@myrio.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pivot_root and initrd kernel panic woes
+Message-ID: <20011217120222.A14761@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Torrey Hoffman <torrey.hoffman@myrio.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CB07@mail0.myrio.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CB07@mail0.myrio.com>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: 2.4.13-ac8-rmk1, Rebel NetWinder (Intel StrongARM-110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------859B4E3D27C4266341800C86
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-Krzysztof Halasa wrote:
+On Mon Dec 17, 2001 at 10:38:51AM -0800, Torrey Hoffman wrote:
 > 
-> Anyway, incremental patch is better, I'm going to submit my paches
-> to 2.5 after some features (FR InARP, DCD handling, probably FR bridging)
-> are added and tested.
+> and then the system just hangs.  When it works, the messages are
+> identical up to that point but continue...
 > 
-> Seems it's better to include that things in 2.4 when it works fine.
-> Especially if all drivers are updated.
-> 2.5 first - of course.
+> init started:  BusyBox v0.51 (2001.04.25-13:32+0000) multi-call binary
+> (etc.)
 
-How long do you think it will take to include the last changes in 2.4?
-Isn't it possible to submit a patch without these new features, just to
-speed up this process? Is there anything else that still need to be done
-before you submit it?
+Any particular reason you are using a version of busybox that is 
+quite old?  You really should get a newer release -- I've fixed a 
+lot of bugs since then.
 
-It seems that there is a consensus that maintaining this out of the
-kernel is causing some overhead to the drivers maintainers...
+> I have a complete set of files and dev nodes for the initrd in 
+> ./rootfs. They add up to about 3 MB.  Nothing too unusual - busybox, 
+> glibc 2.1.3, etc.
+> 
+> My build system kernel is 2.4.16, has the standard 4 MB ramdisk, 
+> and I use the following script to create the initrd:
+> 
+> #!/bin/bash
+> 
+> rm -rf initrd.gz
+> umount /dev/ram
+> mke2fs -m0 /dev/ram 4000
+> mount -t ext2 /dev/ram /mnt/ramdisk
+> cp -a rootfs/* /mnt/ramdisk
+> umount /dev/ram
+> dd if=/dev/ram bs=1k count=4000 of=initrd
+> gzip initrd
 
-Best regards,
 
-Daniela
---------------859B4E3D27C4266341800C86
-Content-Type: text/x-vcard; charset=us-ascii;
- name="daniela.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for Daniela Squassoni
-Content-Disposition: attachment;
- filename="daniela.vcf"
+Can you sucessfully chroot into your rootfs dir?
 
-begin:vcard 
-n:Squassoni;Daniela
-x-mozilla-html:FALSE
-org:Cyclades;R&D
-adr:;;;;;;
-version:2.1
-email;internet:daniela@cyclades.com
-title:Software Engineer
-x-mozilla-cpt:;-3392
-fn:Daniela Squassoni
-end:vcard
+ -Erik
 
---------------859B4E3D27C4266341800C86--
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

@@ -1,442 +1,512 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262510AbVAPOA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262514AbVAPOFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262510AbVAPOA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 09:00:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbVAPOAO
+	id S262514AbVAPOFd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 09:05:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbVAPOEd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 09:00:14 -0500
-Received: from out009pub.verizon.net ([206.46.170.131]:21644 "EHLO
-	out009.verizon.net") by vger.kernel.org with ESMTP id S262510AbVAPNxL
+	Sun, 16 Jan 2005 09:04:33 -0500
+Received: from out010pub.verizon.net ([206.46.170.133]:14290 "EHLO
+	out010.verizon.net") by vger.kernel.org with ESMTP id S262514AbVAPNxf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 08:53:11 -0500
+	Sun, 16 Jan 2005 08:53:35 -0500
 From: James Nelson <james4765@cwazy.co.uk>
 To: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
 Cc: akpm@osdl.org, James Nelson <james4765@cwazy.co.uk>
-Message-Id: <20050116135310.30109.46857.21157@localhost.localdomain>
+Message-Id: <20050116135331.30109.34015.41638@localhost.localdomain>
 In-Reply-To: <20050116135223.30109.26479.55757@localhost.localdomain>
 References: <20050116135223.30109.26479.55757@localhost.localdomain>
-Subject: [PATCH 7/13] istallion: remove cli()/sti() in drivers/char/istallion.c
-X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [209.158.220.243] at Sun, 16 Jan 2005 07:53:10 -0600
-Date: Sun, 16 Jan 2005 07:53:11 -0600
+Subject: [PATCH 10/13] pcxx: remove cli()/sti() in drivers/char/pcxx.c
+X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [209.158.220.243] at Sun, 16 Jan 2005 07:53:31 -0600
+Date: Sun, 16 Jan 2005 07:53:32 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: James Nelson <james4765@gmail.com>
 
-diff -urN --exclude='*~' linux-2.6.11-rc1-mm1-original/drivers/char/istallion.c linux-2.6.11-rc1-mm1/drivers/char/istallion.c
---- linux-2.6.11-rc1-mm1-original/drivers/char/istallion.c	2004-12-24 16:35:00.000000000 -0500
-+++ linux-2.6.11-rc1-mm1/drivers/char/istallion.c	2005-01-16 07:32:19.327552657 -0500
-@@ -807,10 +807,9 @@
- 	printk("init_module()\n");
- #endif
+diff -urN --exclude='*~' linux-2.6.11-rc1-mm1-original/drivers/char/pcxx.c linux-2.6.11-rc1-mm1/drivers/char/pcxx.c
+--- linux-2.6.11-rc1-mm1-original/drivers/char/pcxx.c	2004-12-24 16:35:00.000000000 -0500
++++ linux-2.6.11-rc1-mm1/drivers/char/pcxx.c	2005-01-16 07:32:19.508528433 -0500
+@@ -209,8 +209,7 @@
+ 
+ 	printk(KERN_NOTICE "Unloading PC/Xx version %s\n", VERSION);
  
 -	save_flags(flags);
 -	cli();
 +	local_irq_save(flags);
- 	stli_init();
+ 	del_timer_sync(&pcxx_timer);
+ 
+ 	if ((e1 = tty_unregister_driver(pcxe_driver)))
+@@ -219,7 +218,7 @@
+ 	put_tty_driver(pcxe_driver);
+ 	cleanup_board_resources();
+ 	kfree(digi_channels);
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ }
+ 
+ static inline struct channel *chan(register struct tty_struct *tty)
+@@ -323,12 +322,12 @@
+ 	info->blocked_open++;
+ 
+ 	for (;;) {
+-		cli();
++		local_irq_disable();
+ 		globalwinon(info);
+ 		info->omodem |= DTR|RTS;
+ 		fepcmd(info, SETMODEM, DTR|RTS, 0, 10, 1);
+ 		memoff(info);
+-		sti();
++		local_irq_enable();
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		if(tty_hung_up_p(filp) || (info->asyncflags & ASYNC_INITIALIZED) == 0) {
+ 			if(info->asyncflags & ASYNC_HUP_NOTIFY)
+@@ -404,8 +403,7 @@
+ 			return -ERESTARTSYS;
+ 	}
+ 
+-	save_flags(flags);
+-	cli();
++	local_irq_save(flags);
+ 	ch->count++;
+ 	tty->driver_data = ch;
+ 	ch->tty = tty;
+@@ -428,7 +426,7 @@
+ 		memoff(ch);
+ 		ch->asyncflags |= ASYNC_INITIALIZED;
+ 	}
 -	restore_flags(flags);
 +	local_irq_restore(flags);
  
- 	return(0);
- }
-@@ -831,8 +830,7 @@
- 	printk(KERN_INFO "Unloading %s: version %s\n", stli_drvtitle,
- 		stli_drvversion);
- 
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 
- /*
-  *	Free up all allocated resources used by the ports. This includes
-@@ -847,8 +845,7 @@
- 	if (i) {
- 		printk("STALLION: failed to un-register tty driver, "
- 			"errno=%d\n", -i);
--		restore_flags(flags);
--		return;
-+		goto out;
- 	}
- 	put_tty_driver(stli_serial);
- 	for (i = 0; i < 4; i++) {
-@@ -884,7 +881,7 @@
- 		stli_brds[i] = (stlibrd_t *) NULL;
- 	}
- 
--	restore_flags(flags);
-+out:	local_irq_restore(flags);
- }
- 
- module_init(istallion_module_init);
-@@ -1128,18 +1125,14 @@
- 	if (portp == (stliport_t *) NULL)
+ 	if(ch->asyncflags & ASYNC_CLOSING) {
+ 		interruptible_sleep_on(&ch->close_wait);
+@@ -463,8 +461,7 @@
+ 	if (!(info->asyncflags & ASYNC_INITIALIZED)) 
  		return;
  
 -	save_flags(flags);
 -	cli();
--	if (tty_hung_up_p(filp)) {
--		restore_flags(flags);
--		return;
--	}
 +	local_irq_save(flags);
-+	if (tty_hung_up_p(filp))
-+		goto out;
-+
- 	if ((tty->count == 1) && (portp->refcount != 1))
- 		portp->refcount = 1;
--	if (portp->refcount-- > 1) {
--		restore_flags(flags);
--		return;
--	}
-+	if (portp->refcount-- > 1)
-+		goto out;
+ 	globalwinon(info);
  
- 	portp->flags |= ASYNC_CLOSING;
+ 	bc = info->brdchan;
+@@ -483,7 +480,7 @@
  
-@@ -1185,7 +1178,7 @@
- 
- 	portp->flags &= ~(ASYNC_NORMAL_ACTIVE|ASYNC_CLOSING);
- 	wake_up_interruptible(&portp->close_wait);
+ 	memoff(info);
+ 	info->asyncflags &= ~ASYNC_INITIALIZED;
 -	restore_flags(flags);
-+out:	local_irq_restore(flags);
++	local_irq_restore(flags);
  }
  
- /*****************************************************************************/
-@@ -1266,8 +1259,7 @@
- /*
-  *	Send a message to the slave to open this port.
-  */
+ 
+@@ -493,14 +490,12 @@
+ 
+ 	if ((info=chan(tty))!=NULL) {
+ 		unsigned long flags;
+-		save_flags(flags);
+-		cli();
++		local_irq_save(flags);
+ 
+-		if(tty_hung_up_p(filp)) {
++		if(tty_hung_up_p(filp))
+ 			/* flag that somebody is done with this module */
+-			restore_flags(flags);
+-			return;
+-		}
++			goto out;
++
+ 		/* this check is in serial.c, it won't hurt to do it here too */
+ 		if ((tty->count == 1) && (info->count != 1)) {
+ 			/*
+@@ -513,10 +508,9 @@
+ 			printk("pcxe_close: bad serial port count; tty->count is 1, info->count is %d\n", info->count);
+ 			info->count = 1;
+ 		}
+-		if (info->count-- > 1) {
+-			restore_flags(flags);
+-			return;
+-		}
++		if (info->count-- > 1)
++			goto out;
++
+ 		if (info->count < 0) {
+ 			info->count = 0;
+ 		}
+@@ -544,7 +538,7 @@
+ 		}
+ 		info->asyncflags &= ~(ASYNC_NORMAL_ACTIVE|ASYNC_CLOSING);
+ 		wake_up_interruptible(&info->close_wait);
+-		restore_flags(flags);
++out:		local_irq_restore(flags);
+ 	}
+ }
+ 
+@@ -556,15 +550,14 @@
+ 	if ((ch=chan(tty))!=NULL) {
+ 		unsigned long flags;
+ 
+-		save_flags(flags);
+-		cli();
++		local_irq_save(flags);
+ 		shutdown(ch);
+ 		ch->event = 0;
+ 		ch->count = 0;
+ 		ch->tty = NULL;
+ 		ch->asyncflags &= ~ASYNC_NORMAL_ACTIVE;
+ 		wake_up_interruptible(&ch->open_wait);
+-		restore_flags(flags);
++		local_irq_restore(flags);
+ 	}
+ }
+ 
+@@ -590,8 +583,7 @@
+ 	 */
+ 
+ 	total = 0;
 -	save_flags(flags);
 -	cli();
 +	local_irq_save(flags);
+ 	globalwinon(ch);
+ 	head = bc->tin & (size - 1);
+ 	tail = bc->tout;
+@@ -629,7 +621,7 @@
+ 		bc->ilow = 1;
+ 	}
+ 	memoff(ch);
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ 	
+ 	return(total);
+ }
+@@ -653,8 +645,7 @@
+ 		unsigned int head, tail;
+ 		unsigned long flags;
  
- /*
-  *	Slave is already closing this port. This can happen if a hangup
-@@ -1277,7 +1269,7 @@
-  */
- 	while (test_bit(ST_CLOSING, &portp->state)) {
- 		if (signal_pending(current)) {
--			restore_flags(flags);
-+			local_irq_restore(flags);
- 			return(-ERESTARTSYS);
+-		save_flags(flags);
+-		cli();
++		local_irq_save(flags);
+ 		globalwinon(ch);
+ 
+ 		bc = ch->brdchan;
+@@ -672,7 +663,7 @@
+ 			bc->ilow = 1;
  		}
- 		interruptible_sleep_on(&portp->raw_wait);
-@@ -1299,7 +1291,7 @@
- 	EBRDDISABLE(brdp);
- 
- 	if (wait == 0) {
+ 		memoff(ch);
 -		restore_flags(flags);
 +		local_irq_restore(flags);
- 		return(0);
  	}
  
-@@ -1316,7 +1308,7 @@
- 		}
- 		interruptible_sleep_on(&portp->raw_wait);
+ 	return remain;
+@@ -691,8 +682,7 @@
+ 	if ((ch=chan(tty))==NULL)
+ 		return(0);
+ 
+-	save_flags(flags);
+-	cli();
++	local_irq_save(flags);
+ 	globalwinon(ch);
+ 
+ 	bc = ch->brdchan;
+@@ -718,7 +708,7 @@
  	}
+ 
+ 	memoff(ch);
 -	restore_flags(flags);
 +	local_irq_restore(flags);
  
- 	if ((rc == 0) && (portp->rc != 0))
- 		rc = -EIO;
-@@ -1344,8 +1336,7 @@
- 		(int) brdp, (int) portp, (int) arg, wait);
- #endif
+ 	return(chars);
+ }
+@@ -734,8 +724,7 @@
+ 	if ((ch=chan(tty))==NULL)
+ 		return;
  
 -	save_flags(flags);
 -	cli();
 +	local_irq_save(flags);
  
- /*
-  *	Slave is already closing this port. This can happen if a hangup
-@@ -1354,7 +1345,7 @@
- 	if (wait) {
- 		while (test_bit(ST_CLOSING, &portp->state)) {
- 			if (signal_pending(current)) {
+ 	globalwinon(ch);
+ 	bc = ch->brdchan;
+@@ -743,7 +732,7 @@
+ 	fepcmd(ch, STOUT, (unsigned) tail, 0, 0, 0);
+ 
+ 	memoff(ch);
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ 
+ 	tty_wakeup(tty);
+ }
+@@ -755,11 +744,10 @@
+ 	if ((ch=chan(tty))!=NULL) {
+ 		unsigned long flags;
+ 
+-		save_flags(flags);
+-		cli();
++		local_irq_save(flags);
+ 		if ((ch->statusflags & TXBUSY) && !(ch->statusflags & EMPTYWAIT))
+ 			setup_empty_event(tty,ch);
+-		restore_flags(flags);
++		local_irq_restore(flags);
+ 	}
+ }
+ 
+@@ -1512,8 +1500,7 @@
+ 	struct channel *ch;
+ 	struct board_info *bd;
+ 
+-	save_flags(flags);
+-	cli();
++	local_irq_save(flags);
+ 
+ 	for(crd=0; crd < numcards; crd++) {
+ 		bd = &boards[crd];
+@@ -1536,7 +1523,7 @@
+ 	}
+ 
+ 	mod_timer(&pcxx_timer, jiffies + HZ/25);
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ }
+ 
+ static void doevent(int crd)
+@@ -1940,12 +1927,11 @@
+ 		return(-EINVAL);
+ 	}
+ 
+-	save_flags(flags);
+-	cli();
++	local_irq_save(flags);
+ 	globalwinon(ch);
+ 	mstat = bc->mstat;
+ 	memoff(ch);
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ 
+ 	if(mstat & DTR)
+ 		mflag |= TIOCM_DTR;
+@@ -1978,8 +1964,7 @@
+ 		return(-EINVAL);
+ 	}
+ 
+-	save_flags(flags);
+-	cli();
++	local_irq_save(flags);
+ 	/*
+ 	 * I think this modemfake stuff is broken.  It doesn't
+ 	 * correctly reflect the behaviour desired by the TIOCM*
+@@ -2005,7 +1990,7 @@
+ 	globalwinon(ch);
+ 	pcxxparam(tty,ch);
+ 	memoff(ch);
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ 	return 0;
+ }
+ 
+@@ -2028,8 +2013,6 @@
+ 		return(-EINVAL);
+ 	}
+ 
+-	save_flags(flags);
+-
+ 	switch(cmd) {
+ 		case TCSBRK:	/* SVID version: non-zero arg --> no break */
+ 			retval = tty_check_change(tty);
+@@ -2074,21 +2057,21 @@
+ 			return pcxe_tiocmset(tty, file, mstat, ~mstat);
+ 
+ 		case TIOCSDTR:
+-			cli();
++			local_irq_save(flags);
+ 			ch->omodem |= DTR;
+ 			globalwinon(ch);
+ 			fepcmd(ch, SETMODEM, DTR, 0, 10, 1);
+ 			memoff(ch);
+-			restore_flags(flags);
++			local_irq_restore(flags);
+ 			break;
+ 
+ 		case TIOCCDTR:
+ 			ch->omodem &= ~DTR;
+-			cli();
++			local_irq_save(flags);
+ 			globalwinon(ch);
+ 			fepcmd(ch, SETMODEM, 0, DTR, 10, 1);
+ 			memoff(ch);
+-			restore_flags(flags);
++			local_irq_restore(flags);
+ 			break;
+ 
+ 		case DIGI_GETA:
+@@ -2123,16 +2106,16 @@
+ 				ch->dsr = DSR;
+ 			}
+ 		
+-			cli();
++			local_irq_save(flags);
+ 			globalwinon(ch);
+ 			pcxxparam(tty,ch);
+ 			memoff(ch);
+-			restore_flags(flags);
++			local_irq_restore(flags);
+ 			break;
+ 
+ 		case DIGI_GETFLOW:
+ 		case DIGI_GETAFLOW:
+-			cli();	
++			local_irq_save(flags);	
+ 			globalwinon(ch);
+ 			if(cmd == DIGI_GETFLOW) {
+ 				dflow.startc = bc->startc;
+@@ -2142,7 +2125,7 @@
+ 				dflow.stopc = bc->stopca;
+ 			}
+ 			memoff(ch);
+-			restore_flags(flags);
++			local_irq_restore(flags);
+ 
+ 			if (copy_to_user((char*)arg, &dflow, sizeof(dflow)))
+ 				return -EFAULT;
+@@ -2162,7 +2145,7 @@
+ 				return -EFAULT;
+ 
+ 			if(dflow.startc != startc || dflow.stopc != stopc) {
+-				cli();
++				local_irq_save(flags);
+ 				globalwinon(ch);
+ 
+ 				if(cmd == DIGI_SETFLOW) {
+@@ -2179,7 +2162,7 @@
+ 					pcxe_start(tty);
+ 
+ 				memoff(ch);
 -				restore_flags(flags);
 +				local_irq_restore(flags);
- 				return(-ERESTARTSYS);
  			}
- 			interruptible_sleep_on(&portp->raw_wait);
-@@ -1376,7 +1367,7 @@
+ 			break;
  
- 	set_bit(ST_CLOSING, &portp->state);
- 	if (wait == 0) {
+@@ -2196,8 +2179,7 @@
+ 
+ 	if ((info=chan(tty))!=NULL) {
+ 		unsigned long flags;
+-		save_flags(flags);
+-		cli();
++		local_irq_save(flags);
+ 		globalwinon(info);
+ 		pcxxparam(tty,info);
+ 		memoff(info);
+@@ -2208,7 +2190,7 @@
+ 		if(!(old_termios->c_cflag & CLOCAL) &&
+ 			(tty->termios->c_cflag & CLOCAL))
+ 			wake_up_interruptible(&info->open_wait);
 -		restore_flags(flags);
 +		local_irq_restore(flags);
- 		return(0);
  	}
- 
-@@ -1392,7 +1383,7 @@
- 		}
- 		interruptible_sleep_on(&portp->raw_wait);
- 	}
--	restore_flags(flags);
-+	local_irq_restore(flags);
- 
- 	if ((rc == 0) && (portp->rc != 0))
- 		rc = -EIO;
-@@ -1418,11 +1409,10 @@
- 		(int) arg, size, copyback);
- #endif
- 
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 	while (test_bit(ST_CMDING, &portp->state)) {
- 		if (signal_pending(current)) {
--			restore_flags(flags);
-+			local_irq_restore(flags);
- 			return(-ERESTARTSYS);
- 		}
- 		interruptible_sleep_on(&portp->raw_wait);
-@@ -1432,12 +1422,12 @@
- 
- 	while (test_bit(ST_CMDING, &portp->state)) {
- 		if (signal_pending(current)) {
--			restore_flags(flags);
-+			local_irq_restore(flags);
- 			return(-ERESTARTSYS);
- 		}
- 		interruptible_sleep_on(&portp->raw_wait);
- 	}
--	restore_flags(flags);
-+	local_irq_restore(flags);
- 
- 	if (portp->rc != 0)
- 		return(-EIO);
-@@ -1497,8 +1487,7 @@
- 	if (portp->tty->termios->c_cflag & CLOCAL)
- 		doclocal++;
- 
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 	portp->openwaitcnt++;
- 	if (! tty_hung_up_p(filp))
- 		portp->refcount--;
-@@ -1530,7 +1519,7 @@
- 	if (! tty_hung_up_p(filp))
- 		portp->refcount++;
- 	portp->openwaitcnt--;
--	restore_flags(flags);
-+	local_irq_restore(flags);
- 
- 	return(rc);
- }
-@@ -1577,8 +1566,7 @@
- /*
-  *	All data is now local, shove as much as possible into shared memory.
-  */
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 	EBRDENABLE(brdp);
- 	ap = (volatile cdkasy_t *) EBRDGETMEMPTR(brdp, portp->addr);
- 	head = (unsigned int) ap->txq.head;
-@@ -1624,7 +1612,7 @@
- 	set_bit(ST_TXBUSY, &portp->state);
- 	EBRDDISABLE(brdp);
- 
--	restore_flags(flags);
-+	local_irq_restore(flags);
- 
- 	return(count);
- }
-@@ -1706,8 +1694,7 @@
- 	if (brdp == (stlibrd_t *) NULL)
- 		return;
- 
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 	EBRDENABLE(brdp);
- 
- 	ap = (volatile cdkasy_t *) EBRDGETMEMPTR(brdp, portp->addr);
-@@ -1756,7 +1743,7 @@
- 	set_bit(ST_TXBUSY, &portp->state);
- 
- 	EBRDDISABLE(brdp);
--	restore_flags(flags);
-+	local_irq_restore(flags);
  }
  
- /*****************************************************************************/
-@@ -1791,8 +1778,7 @@
- 	if (brdp == (stlibrd_t *) NULL)
- 		return(0);
+@@ -2237,15 +2219,14 @@
  
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 	EBRDENABLE(brdp);
- 	rp = &((volatile cdkasy_t *) EBRDGETMEMPTR(brdp, portp->addr))->txq;
- 	head = (unsigned int) rp->head;
-@@ -1802,7 +1788,7 @@
- 	len = (head >= tail) ? (portp->txsize - (head - tail)) : (tail - head);
- 	len--;
- 	EBRDDISABLE(brdp);
--	restore_flags(flags);
-+	local_irq_restore(flags);
- 
- 	if (tty == stli_txcooktty) {
- 		stli_txcookrealsize = len;
-@@ -1846,8 +1832,7 @@
- 	if (brdp == (stlibrd_t *) NULL)
- 		return(0);
- 
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 	EBRDENABLE(brdp);
- 	rp = &((volatile cdkasy_t *) EBRDGETMEMPTR(brdp, portp->addr))->txq;
- 	head = (unsigned int) rp->head;
-@@ -1858,7 +1843,7 @@
- 	if ((len == 0) && test_bit(ST_TXBUSY, &portp->state))
- 		len = 1;
- 	EBRDDISABLE(brdp);
--	restore_flags(flags);
-+	local_irq_restore(flags);
- 
- 	return(len);
- }
-@@ -2303,8 +2288,7 @@
- 
- 	portp->flags &= ~ASYNC_INITIALIZED;
- 
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 	if (! test_bit(ST_CLOSING, &portp->state))
- 		stli_rawclose(brdp, portp, 0, 0);
- 	if (tty->termios->c_cflag & HUPCL) {
-@@ -2318,7 +2302,7 @@
- 				&portp->asig, sizeof(asysigs_t), 0);
+ 	if ((info=chan(tty))!=NULL) {
+ 		unsigned long flags;
+-		save_flags(flags); 
+-		cli();
++		local_irq_save(flags); 
+ 		if ((info->statusflags & TXSTOPPED) == 0) {
+ 			globalwinon(info);
+ 			fepcmd(info, PAUSETX, 0, 0, 0, 0);
+ 			info->statusflags |= TXSTOPPED;
+ 			memoff(info);
  		}
- 	}
--	restore_flags(flags);
-+	local_irq_restore(flags);
- 
- 	clear_bit(ST_TXBUSY, &portp->state);
- 	clear_bit(ST_RXSTOP, &portp->state);
-@@ -2359,8 +2343,7 @@
- 	if (brdp == (stlibrd_t *) NULL)
- 		return;
- 
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 	if (tty == stli_txcooktty) {
- 		stli_txcooktty = (struct tty_struct *) NULL;
- 		stli_txcooksize = 0;
-@@ -2377,7 +2360,7 @@
- 		stli_sendcmd(brdp, portp, A_FLUSH, &ftype,
- 			sizeof(unsigned long), 0);
- 	}
--	restore_flags(flags);
-+	local_irq_restore(flags);
- 
- 	wake_up_interruptible(&tty->write_wait);
- 	if ((tty->flags & (1 << TTY_DO_WRITE_WAKEUP)) &&
-@@ -2653,14 +2636,12 @@
- 		(int) arg, size, copyback);
- #endif
- 
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 
- 	if (test_bit(ST_CMDING, &portp->state)) {
- 		printk(KERN_ERR "STALLION: command already busy, cmd=%x!\n",
- 				(int) cmd);
 -		restore_flags(flags);
--		return;
-+		goto out;
++		local_irq_restore(flags);
  	}
- 
- 	EBRDENABLE(brdp);
-@@ -2680,7 +2661,7 @@
- 	*bits |= portp->portbit;
- 	set_bit(ST_CMDING, &portp->state);
- 	EBRDDISABLE(brdp);
--	restore_flags(flags);
-+out:	local_irq_restore(flags);
  }
  
- /*****************************************************************************/
-@@ -4195,8 +4176,7 @@
+@@ -2255,15 +2236,14 @@
  
- 	rc = 0;
- 
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 	EBRDENABLE(brdp);
- 	hdrp = (volatile cdkhdr_t *) EBRDGETMEMPTR(brdp, CDK_CDKADDR);
- 	nrdevs = hdrp->nrdevs;
-@@ -4273,7 +4253,7 @@
- 
- stli_donestartup:
- 	EBRDDISABLE(brdp);
--	restore_flags(flags);
-+	local_irq_restore(flags);
- 
- 	if (rc == 0)
- 		brdp->state |= BST_STARTED;
-@@ -4775,8 +4755,7 @@
- 
- 	size = MIN(count, (brdp->memsize - fp->f_pos));
- 
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 	EBRDENABLE(brdp);
- 	while (size > 0) {
- 		memptr = (void *) EBRDGETMEMPTR(brdp, fp->f_pos);
-@@ -4791,7 +4770,7 @@
- 	}
- out:
- 	EBRDDISABLE(brdp);
--	restore_flags(flags);
-+	local_irq_restore(flags);
- 
- 	return(count);
- }
-@@ -4831,8 +4810,7 @@
- 	chbuf = (char __user *) buf;
- 	size = MIN(count, (brdp->memsize - fp->f_pos));
- 
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 	EBRDENABLE(brdp);
- 	while (size > 0) {
- 		memptr = (void *) EBRDGETMEMPTR(brdp, fp->f_pos);
-@@ -4847,7 +4825,7 @@
- 	}
- out:
- 	EBRDDISABLE(brdp);
--	restore_flags(flags);
-+	local_irq_restore(flags);
- 
- 	return(count);
- }
-@@ -4950,8 +4928,7 @@
- 	stli_comstats.state = portp->state;
- 	stli_comstats.flags = portp->flags;
- 
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 	if (portp->tty != (struct tty_struct *) NULL) {
- 		if (portp->tty->driver_data == portp) {
- 			stli_comstats.ttystate = portp->tty->flags;
-@@ -4964,7 +4941,7 @@
- 			}
+ 	if ((info=chan(tty))!=NULL) {
+ 		unsigned long flags;
+-		save_flags(flags);
+-		cli();
++		local_irq_save(flags);
+ 		if ((info->statusflags & RXSTOPPED) == 0) {
+ 			globalwinon(info);
+ 			fepcmd(info, PAUSERX, 0, 0, 0, 0);
+ 			info->statusflags |= RXSTOPPED;
+ 			memoff(info);
  		}
+-		restore_flags(flags);
++		local_irq_restore(flags);
  	}
+ }
+ 
+@@ -2275,8 +2255,7 @@
+ 		unsigned long flags;
+ 
+ 		/* Just in case output was resumed because of a change in Digi-flow */
+-		save_flags(flags);
+-		cli();
++		local_irq_save(flags);
+ 		if(info->statusflags & RXSTOPPED) {
+ 			volatile struct board_chan *bc;
+ 			globalwinon(info);
+@@ -2285,7 +2264,7 @@
+ 			info->statusflags &= ~RXSTOPPED;
+ 			memoff(info);
+ 		}
+-		restore_flags(flags);
++		local_irq_restore(flags);
+ 	}
+ }
+ 
+@@ -2297,8 +2276,7 @@
+ 	if ((info=chan(tty))!=NULL) {
+ 		unsigned long flags;
+ 
+-		save_flags(flags);
+-		cli();
++		local_irq_save(flags);
+ 		/* Just in case output was resumed because of a change in Digi-flow */
+ 		if(info->statusflags & TXSTOPPED) {
+ 			volatile struct board_chan *bc;
+@@ -2310,7 +2288,7 @@
+ 			info->statusflags &= ~TXSTOPPED;
+ 			memoff(info);
+ 		}
+-		restore_flags(flags);
++		local_irq_restore(flags);
+ 	}
+ }
+ 
+@@ -2319,8 +2297,7 @@
+ {
+ 	unsigned long flags;
+ 
+-	save_flags(flags);
+-	cli();
++	local_irq_save(flags);
+ 	globalwinon(ch);
+ 
+ 	/* 
+@@ -2334,7 +2311,7 @@
+ 	fepcmd(ch, SENDBREAK, msec, 0, 10, 0);
+ 	memoff(ch);
+ 
 -	restore_flags(flags);
 +	local_irq_restore(flags);
+ }
  
- 	stli_comstats.txtotal = stli_cdkstats.txchars;
- 	stli_comstats.rxtotal = stli_cdkstats.rxchars + stli_cdkstats.ringover;
+ static void setup_empty_event(struct tty_struct *tty, struct channel *ch)
+@@ -2342,12 +2319,11 @@
+ 	volatile struct board_chan *bc;
+ 	unsigned long flags;
+ 
+-	save_flags(flags);
+-	cli();
++	local_irq_save(flags);
+ 	globalwinon(ch);
+ 	ch->statusflags |= EMPTYWAIT;
+ 	bc = ch->brdchan;
+ 	bc->iempty = 1;
+ 	memoff(ch);
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ }

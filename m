@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267904AbUIVF6l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267918AbUIVGDc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267904AbUIVF6l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 01:58:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267918AbUIVF6l
+	id S267918AbUIVGDc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 02:03:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267921AbUIVGDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 01:58:41 -0400
-Received: from [217.111.56.18] ([217.111.56.18]:2691 "EHLO spring.sncag.com")
-	by vger.kernel.org with ESMTP id S267904AbUIVF6j (ORCPT
+	Wed, 22 Sep 2004 02:03:32 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42671 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267918AbUIVGDa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 01:58:39 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rainer Weikusat <rweikusat@sncag.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org, akpm@osdl.org
-Subject: Re: Implementation defined behaviour in read_write.c
-In-Reply-To: <1095764243.30748.55.camel@localhost.localdomain> (Alan Cox's
- message of "Tue, 21 Sep 2004 11:57:48 +0100")
-References: <878yb5ey11.fsf@farside.sncag.com>
-	<1095764243.30748.55.camel@localhost.localdomain>
-From: Rainer Weikusat <rainer.weikusat@sncag.com>
-Date: Wed, 22 Sep 2004 13:58:06 +0800
-Message-ID: <87k6umetg1.fsf@farside.sncag.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 22 Sep 2004 02:03:30 -0400
+Date: Tue, 21 Sep 2004 23:01:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mingming Cao <cmm@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Patch] ext3_new_inode() failure case fix
+Message-Id: <20040921230124.368e469c.akpm@osdl.org>
+In-Reply-To: <1095815041.1637.32926.camel@w-ming2.beaverton.ibm.com>
+References: <200409071302.i87D2Dus030892@sisko.scot.redhat.com>
+	<1095815041.1637.32926.camel@w-ming2.beaverton.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-> On Llu, 2004-09-20 at 16:54, Rainer Weikusat wrote:
->> The following code is in the function do_readv_writev in the file
->> fs/read_write.c (2.6.8.1):
+Mingming Cao <cmm@us.ibm.com> wrote:
 >
-> The 2.4.x kernel has part of this fixed. In particular it does the
-> overflow check differently because gcc 3.x in some forms did appear to
-> be making use of the undefined nature of the test and that was a
-> potential security hole. ("its undefined lets say its always
-> false.."). The initial cast and test should be fine.
+> While I am studying ext3_new_inode() failure code paths, I found the
+> inode->i_nlink is not cleared to 0 in the first failure path. But it is
+> cleared to 0 in the second failure path(fail to allocate disk quota). I
+> think it should be cleared in both cases, because later when
+> generic_drop_inode() is called by iput(), i_nlink is checked to decide
+> whether to call generic_delete_inode(). Currently it is calling
+> generic_forget_inode().
+> 
+> Also the reference to the inode bitmap buffer head should be dropped on
+> the failure path too.
 
-I assume you mean the cast at the beginning of the loop. According to
-the C-standard, both cases are exactly the same (they are both
-conversions of potentially nonrepresentable values).
+That reference already is dropped:
 
-	6.3.1.3 Signed and unsigned integers
+> --- linux-2.6.9-rc1-mm5/fs/ext3/ialloc.c~ext3_new_inode_failure_case_fix	2004-09-22 00:18:18.196012520 -0700
+> +++ linux-2.6.9-rc1-mm5-ming/fs/ext3/ialloc.c	2004-09-22 00:19:20.063607216 -0700
+> @@ -622,7 +622,9 @@ got:
+>  fail:
+>  	ext3_std_error(sb, err);
+>  out:
+> +	inode->i_nlink = 0;
+>  	iput(inode);
+> +	brelse(bitmap_bh);
+>  	ret = ERR_PTR(err);
+>  really_out:
+>  	brelse(bitmap_bh);
 
-	When a value with integer type is converted to another integer
-	type other than _Bool, if the value can be represented by the
-	new type, it is unchanged.
+        ^ here
 
-	[...]
-
-	Otherwise, the new type is signed and the value cannot be
-	represented in it; either the result is implementation-defined
-	or an implementation-defined signal is raised.
-
-The requirement for implementation defined is that the implementation
-documents the behaviour (which gcc at least up to 3.4.4 doesn't). This
-not a problem with the current compiler, but I happen to know by
-coincedence that some people of unknown relations to the gcc team
-(like the person who wrote this advisory:
-<URL:http://cert.uni-stuttgart.de/advisories/c-integer-overflow.php>)
-would like to turn it into a problem, because they strongly believe it
-is "the right thing to do", so it may be unwise to rely on gcc for
-treating this sanely, ie so that it doesn't break idioms which are in
-rather common use.
+So I'll drop that part of the patch.

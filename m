@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265966AbUG0OVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266263AbUG0O2A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265966AbUG0OVF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 10:21:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266052AbUG0OVF
+	id S266263AbUG0O2A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 10:28:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266244AbUG0O2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 10:21:05 -0400
-Received: from posti6.jyu.fi ([130.234.4.43]:41945 "EHLO posti6.jyu.fi")
-	by vger.kernel.org with ESMTP id S265966AbUG0OVC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 10:21:02 -0400
-Date: Tue, 27 Jul 2004 17:20:18 +0300 (EEST)
-From: Pasi Sjoholm <ptsjohol@cc.jyu.fi>
-X-X-Sender: ptsjohol@silmu.st.jyu.fi
-To: Robert Olsson <Robert.Olsson@data.slu.se>
-cc: Francois Romieu <romieu@fr.zoreil.com>,
-       H?ctor Mart?n <hector@marcansoft.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
-       <netdev@oss.sgi.com>, <brad@brad-x.com>, <shemminger@osdl.org>
-Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe
- RLT-8139 related)
-In-Reply-To: <16646.14381.740376.204381@robur.slu.se>
-Message-ID: <Pine.LNX.4.44.0407271710070.3787-100000@silmu.st.jyu.fi>
+	Tue, 27 Jul 2004 10:28:00 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:28134 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S266263AbUG0O15 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 10:27:57 -0400
+Date: Tue, 27 Jul 2004 10:31:27 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH][2.6] Allow x86_64 to reenable interrupts on contention
+In-Reply-To: <20040727132638.7d26e825.ak@suse.de>
+Message-ID: <Pine.LNX.4.58.0407271006290.23985@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0407270432470.23989@montezuma.fsmlabs.com>
+ <20040727132638.7d26e825.ak@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Spam-Checked: by miltrassassin
-	at posti6.jyu.fi; Tue, 27 Jul 2004 17:20:23 +0300
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jul 2004, Robert Olsson wrote:
+On Tue, 27 Jul 2004, Andi Kleen wrote:
 
->  > First run:
->  > timestamp diff = 0, maxlat = 4581159
->  Yes you starved your user apps for ~5 sec. 
->  Any idea where your load comes from? Pure NFS network load cannot be hard.
+> On Tue, 27 Jul 2004 05:29:10 -0400 (EDT)
+> Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
+>
+> > This is a follow up to the previous patches for ia64 and i386, it will
+> > allow x86_64 to reenable interrupts during contested locks depending on
+> > previous interrupt enable status. It has been runtime and compile tested
+> > on UP and 2x SMP Linux-tiny/x86_64.
+>
+> This will likely increase code size. Do you have numbers by how much? And is it
+> really worth it?
 
-Yeah, when the ksoftirqd is taking all the cpu it will be like that, but 
-when the kernel is behaving normally the starving diff is between 0->1sec.
+Yes there is a growth;
 
-With two samba-server-> workstation -> nfs-server file copys on the diff 
-is normally 0.02secs if I'm not doing anything else but If I will do 
-something cpu-intensive like compiling the kernel with "make -j3", the 
-ksoftirqd will be soon taking all the cpu-time but this requires that I 
-will also have those network file transfers going on.
+   text    data     bss     dec     hex filename
+3655358 1340511  486128 5481997  53a60d vmlinux-after
+3648445 1340511  486128 5475084  538b0c vmlinux-before
 
---
-Pasi Sjöholm
+And this was on i386;
 
+   text    data     bss     dec     hex filename
+2628024  921731       0 3549755  362a3b vmlinux-after
+2621369  921731       0 3543100  36103c vmlinux-before
 
-
-  
-
-
+Keith Owens managed to get increased throughput as the original patch was
+driven by poor performance from a workload. I think it's worth it just for
+the reduced interrupt latency, the code size issue can also be taken care
+of, but that requires benchmarking as the change is a bit more drastic.

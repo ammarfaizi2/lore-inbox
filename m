@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267418AbRGYXau>; Wed, 25 Jul 2001 19:30:50 -0400
+	id <S267419AbRGYXgU>; Wed, 25 Jul 2001 19:36:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267419AbRGYXak>; Wed, 25 Jul 2001 19:30:40 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:49929
-	"EHLO Opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S267418AbRGYXa0>; Wed, 25 Jul 2001 19:30:26 -0400
-Date: Wed, 25 Jul 2001 16:29:36 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: Alan Cox <laughing@shared-source.org>,
-        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i2c update to 2.6.0 for 2.4.7
-Message-ID: <20010725162936.E4174@opus.bloom.county>
-In-Reply-To: <20010725024629.E2308@werewolf.able.es> <20010724192805.A695@opus.bloom.county> <20010725105716.A6980@werewolf.able.es> <20010726012523.A1656@werewolf.able.es>
-Mime-Version: 1.0
+	id <S267431AbRGYXgL>; Wed, 25 Jul 2001 19:36:11 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:63240 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S267419AbRGYXfz>; Wed, 25 Jul 2001 19:35:55 -0400
+Subject: Re: how to tell Linux *not* to share IRQs ?
+To: vaxerdec@frontiernet.net (Scott McDermott)
+Date: Thu, 26 Jul 2001 00:37:08 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010725192342.A2453@vaxerdec.localdomain> from "Scott McDermott" at Jul 25, 2001 07:23:42 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010726012523.A1656@werewolf.able.es>
-User-Agent: Mutt/1.3.18i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15PYDE-0002tj-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, Jul 26, 2001 at 01:25:23AM +0200, J . A . Magallon wrote:
-> 
-> On 20010725 J . A . Magallon wrote:
-> >
-> >On 20010725 Tom Rini wrote:
-> >>On Wed, Jul 25, 2001 at 02:46:29AM +0200, J . A . Magallon wrote:
-> >>> Hi.
-> >>> 
-> >>> This patch updates i2c support in kernel to 2.6.0. I have corrected original patch
-> >>> to use slab.h instead of malloc.h, a couple #endif's, and Comfigure.help references
-> >>> to other docs in <file:...> format.
-> >>
-> >>It appears to be missing new files.  The rpx and 405 bits aren't all there.
-> >>
-> >
-> >Correct, the original patch generator skips them, both in 2.6.0 and latest cvs.
-> >Why ?
-> >Will redo the patch...
-> >
-> 
-> I have been looking at that part, and seems like pretty half-done, even buggy.
-> Can't you live without it ?
+> I cannot for the life of me get Linux to use all the available IRQs; it
+> insists on sharing IRQs even though there are enough available to give
+> each PCI device a separate one.
 
-The code actually works well, it just depends on other things which aren't yet
-in Linus' tree but should be soon.  There might be typos however.
+The actual sharing rules for PCI interrupt lines are frequently determined
+by the actual wiring on the motherboard. It is quite possible the interrupt
+lines on some of your slots are physically wired together, and indeed quite
+likely that this is true if you have five or more slots
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+> parallel and USB, giving all manner of "pci=" kernel parameters, tried
+> with APIC and without (even though it's UP, it seems to still use it if
+
+APIC can help by removing ISA/PCI sharing, but not PCI to PCI. 
+
+Alan
+--
+  "Have you noticed the way people's intelligence capabilities decline
+   sharply the minute they start waving guns around?"
+ 		-- Dr. Who

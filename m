@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280387AbRKBQCB>; Fri, 2 Nov 2001 11:02:01 -0500
+	id <S280712AbRKBQKB>; Fri, 2 Nov 2001 11:10:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280714AbRKBQBv>; Fri, 2 Nov 2001 11:01:51 -0500
-Received: from [208.232.58.25] ([208.232.58.25]:55201 "EHLO kronos.usol.com")
-	by vger.kernel.org with ESMTP id <S280387AbRKBQBf>;
-	Fri, 2 Nov 2001 11:01:35 -0500
-Subject: Via onboard audio
-From: Sean Middleditch <smiddle@twp.ypsilanti.mi.us>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S280716AbRKBQJv>; Fri, 2 Nov 2001 11:09:51 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27142 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280712AbRKBQJg>; Fri, 2 Nov 2001 11:09:36 -0500
+Subject: Re: ECS k7s5a audio sound SiS 735 - 7012
+To: jtf24@cam.ac.uk (John Fremlin)
+Date: Fri, 2 Nov 2001 16:16:04 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <86itct6unz.fsf_-_@cam.ac.uk> from "John Fremlin" at Nov 02, 2001 03:48:16 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99+cvs.2001.10.30.16.08 (Preview Release)
-Date: 02 Nov 2001 11:01:07 -0500
-Message-Id: <1004716867.4883.8.camel@smiddle>
-Mime-Version: 1.0
+Message-Id: <E15zgzE-0002nC-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> > [ALSA has one I believe]
+> 
+> I couldn't see one. Do you know what name it would have or where I can
+> get the datasheet for it?
 
-I've recently purchased a Compaq Presario 700 laptop that has a Via
-motherboard with onboard audio.
+Apparently I was misinformed.
 
-When I load the via82cxxx_audio driver (kernel 2.4.12), I hear the
-speakers pop, but no sound ever plays.  I'm check the mixer, and the
-volume is up as necessary.  Interrupts are occuring for the device in
-/proc/interrupts.  All the necessary (that I know of) modules are
-loaded, such as sound/soundcore/ac97_codec.
+> The ECS K75S5A motherboard is built around a SiS735 chipset with
+> integrated sound, called a SiS7012 by SiS. According to
+> http://www.sis.com/support/driver/audio.htm one MS-Windows driver
+> covers the chipsets SiS635, SiS735, SiS633, and SiS733.
+> 
+> There allegedly exist non-free Linux drivers from OSS called the
+> SiS7012. 
 
-I tried the ALSA drivers as well, and had less success.  For them, I had
-to use the Via 686a driver (/proc/pci reports that I have a VT82C686). 
-However, althouh the driver loaded, and I head my speakers pop, ALSA
-utils reported that i had no configured sound cards, and no OSS based
-utils worked (/dev/dsp and /dev/mixer reported invalid devices).  I did
-go thru and make sure my ALSA /dev entries were created and correct.
-
-So now I'm back to the OSS drivers, but still no luck.  If there's
-anymore information I can post to figure out how to get this to work, or
-maybe modify some drivers, please let me know what I need to do.  I
-don't want to have to use another OS just to hear sound.  ~,^
-
-Thanks everyone,
-Sean Etc.
-
+I guess someone who wants the driver needs to talk to SiS about datasheets

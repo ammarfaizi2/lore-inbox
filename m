@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266426AbUAIHlf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 02:41:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266428AbUAIHlf
+	id S266431AbUAIHwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 02:52:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266432AbUAIHwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 02:41:35 -0500
-Received: from mail.scram.de ([195.226.127.117]:17917 "EHLO mail.scram.de")
-	by vger.kernel.org with ESMTP id S266426AbUAIHld (ORCPT
+	Fri, 9 Jan 2004 02:52:25 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:15515 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S266431AbUAIHwY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 02:41:33 -0500
-Date: Fri, 9 Jan 2004 08:39:28 +0100 (CET)
-From: Jochen Friedrich <jochen@scram.de>
-X-X-Sender: jochen@localhost
-To: Jesse Barnes <jbarnes@sgi.com>
-cc: Grant Grundler <grundler@parisc-linux.org>, linux-kernel@vger.kernel.org,
-       jeremy@sgi.com, Matthew Wilcox <willy@debian.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Jame.Bottomley@steeleye.com
-Subject: Re: [RFC] Relaxed PIO read vs. DMA write ordering
-In-Reply-To: <20040108173655.GA11168@sgi.com>
-Message-ID: <Pine.LNX.4.58.0401090833480.4454@localhost>
-References: <20040107175801.GA4642@sgi.com> <20040107190206.GK17182@parcelfarce.linux.theplanet.co.uk>
- <20040107222142.GB14951@colo.lackof.org> <20040107230712.GB6837@sgi.com>
- <20040108063829.GC22317@colo.lackof.org> <20040108173655.GA11168@sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 9 Jan 2004 02:52:24 -0500
+Date: Thu, 8 Jan 2004 23:52:19 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de, reiser@namesys.com,
+       joe@perches.com, green@linuxhacker.ru, mfedyk@matchmail.com,
+       torvalds@osdl.org, tim@cambrant.com, markhe@nextd.demon.co.uk,
+       manfred@colorfullife.com, matthew@wil.cx
+Subject: Re: Cleanup patches - comparison is always [true|false] +
+ unsigned/signed compare, and similar issues.   (consolidating existing
+ threads)
+Message-Id: <20040108235219.5d77f34b.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.56.0401081847190.10083@jju_lnx.backbone.dif.dk>
+References: <Pine.LNX.4.56.0401081847190.10083@jju_lnx.backbone.dif.dk>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jesse,
+The key question in my view was what code was easiest to understand.
+This is closest to being the code that is shortest, stripped of all
+non-essential detail.  But not exactly.  Code is more like novel or
+essay in my view, than a poem.  I don't find haiku clear.  However,
+what is easiest to understand is a judgement call.
 
-> > BTW, Jesse, did you look at part II of Documentation/DMA-ABI.txt?
->
-> I remember seeing discussion of the new API, but haven't read that doc
-> yet.  Since most drivers still use the pci_* API, we'd have to add a
-> call there, but we may as well make the two APIs as similar as possible
-> right?
+Since we were seeing here, with the remarks of folks such as myself,
+a nice example of that well known phenomenon where a committee will
+debate for hours over the $25 budget line item, and then pass the
+$3 million item without comment, your conclusion to try using the
+Trivial Patch Monkey sounds like a winner.  Rusty has good judgement,
+and for changes such as this, better one good judge making immediate
+decisions, than lengthy lkml threads.
 
-And there are reasons for drivers still using the pci_* API. In tms380tr,
-i support both PCI and ISA cards. The pci_* API supports mapping ISA cards
-for bus master DMA by passing a NULL for pdev. The new API still fails
-because of the BUG_ON(dev->bus != &pci_bus_type). Unfortunately, on 64 bit
-platforms like Alpha, the mapping is required to set up the IOMMU.
-
---jochen
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

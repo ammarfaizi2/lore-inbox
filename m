@@ -1,62 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262074AbTLPULW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 15:11:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbTLPULW
+	id S261909AbTLPUJt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 15:09:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTLPUJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 15:11:22 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:65008 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262074AbTLPULS
+	Tue, 16 Dec 2003 15:09:49 -0500
+Received: from pf138.torun.sdi.tpnet.pl ([213.76.207.138]:24079 "EHLO
+	centaur.culm.net") by vger.kernel.org with ESMTP id S261909AbTLPUJs convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 15:11:18 -0500
-Message-ID: <3FDF67ED.1070605@us.ltcfwd.linux.ibm.com>
-Date: Tue, 16 Dec 2003 14:15:41 -0600
-From: Linda Xie <lxiep@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
+	Tue, 16 Dec 2003 15:09:48 -0500
+From: Witold Krecicki <adasi@kernel.pl>
+To: jw schultz <jw@pegasys.ws>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: raid0 slower than devices it is assembled of?
+Date: Tue, 16 Dec 2003 21:09:36 +0100
+User-Agent: KMail/1.5.93
+References: <200312151434.54886.adasi@kernel.pl> <20031216040156.GJ12726@pegasys.ws>
+In-Reply-To: <20031216040156.GJ12726@pegasys.ws>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Greg KH <gregkh@us.ibm.com>
-CC: scheel@us.ibm.com, wortman@us.ibm.com
-Subject: PATCH -- kobject_set_name() doesn't allocate enough space
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200312162109.36672.adasi@kernel.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi All,
-
-The sapce allocated in kobject_set_name() is 1 byte less than it should 
-be. The Attached patch fixes this bug.
-
-
-Comments are welcome.
-
-Thanks,
-
-
-
-Linda Xie
-IBM Linux Technology Center
-
-
-
-diff -Nru a/lib/kobject.c b/lib/kobject.c
---- a/lib/kobject.c	Sun Dec 14 21:19:29 2003
-+++ b/lib/kobject.c	Sun Dec 14 21:19:29 2003
-@@ -344,12 +344,12 @@
-  		/*
-  		 * Need more space? Allocate it and try again
-  		 */
--		name = kmalloc(need,GFP_KERNEL);
-+		limit = need + 1;
-+		name = kmalloc(limit,GFP_KERNEL);
-  		if (!name) {
-  			error = -ENOMEM;
-  			goto Done;
-  		}
--		limit = need;
-  		need = vsnprintf(name,limit,fmt,args);
-
-  		/* Still? Give up. */
-
+Dnia Tuesday 16 of December 2003 05:01, jw schultz napisa³:
+> No Linux [R]AID improves sequential performance.  How would
+> reading 65KB from two disks in alternation be faster than
+> reading continuously from one disk?
+Well, but at the beginning I've got about 85-90MB/sec for buffered array 
+reads. That was on 2.4.21-pre or even patched 2.4.20 (on siimage - in it's 
+early stages, not sata_sil driver). Now it's 3 times slower (checkedwith 
+preemptible kernel, it's even slower) - so something went bad.
+-- 
+Witold Krêcicki (adasi) adasi [at] culm.net
+GPG key: 7AE20871
+http://www.culm.net

@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275211AbTHRWRc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 18:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275213AbTHRWRc
+	id S275219AbTHRWjW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 18:39:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275234AbTHRWjW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 18:17:32 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:29447 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S275211AbTHRWRb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 18:17:31 -0400
-Date: Tue, 19 Aug 2003 00:17:28 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Andries.Brouwer@cwi.nl, Dominik.Strasser@t-online.de, hch@infradead.org,
-       jgarzik@pobox.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: headers
-Message-ID: <20030819001728.A1211@pclin040.win.tue.nl>
-References: <UTC200308181907.h7IJ7im12407.aeb@smtp.cwi.nl> <20030818145709.0b5e162a.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030818145709.0b5e162a.rddunlap@osdl.org>; from rddunlap@osdl.org on Mon, Aug 18, 2003 at 02:57:09PM -0700
+	Mon, 18 Aug 2003 18:39:22 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:55515 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S275219AbTHRWjV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 18:39:21 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Mike Fedyk" <mfedyk@matchmail.com>,
+       "Hank Leininger" <hlein@progressive-comp.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Dumb question: Why are exceptions such as SIGSEGV not logged
+Date: Mon, 18 Aug 2003 15:39:15 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKIEFLFDAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20030818210238.GG10320@matchmail.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 18, 2003 at 02:57:09PM -0700, Randy.Dunlap wrote:
-> | In case people want to try just one file, do signal.h.
-> 
-> Since there are 20+ <arch>/signal.h files and they don't always agree
-> on signal bit numbers e.g., do we have 20+ abi/arch/signal.h files?
-> Or 1 abi/signal.h file with many #ifdefs?  ugh.
-> 
-> The ABI is still per-arch, right?  Not _one ABI_ for any/all arches.
 
-Yes, per arch.
+> And why not just catch the ones sent from the kernel?  That's the one that
+> is killing the program because it crashed, and that's the one the
+> origional
+> poster wants logged...
+
+	Because sometimes a program wants to terminate. And it is perfectly legal
+for a programmer who needs to terminate his program as quickly as possible
+to do this:
+
+char *j=NULL;
+signal(SIGSEGV, SIG_DFL);
+*j++;
+
+	This is a perfectly sensible thing for a program to do with well-defined
+semantics. If a program wants to create a child every minute like this and
+kill it, that's perfectly fine. We should be able to do that in the default
+configuration without a sysadmin complaining that we're DoSing his syslogs.
+
+	DS
+
+
 

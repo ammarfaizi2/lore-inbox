@@ -1,72 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129364AbRCEPvr>; Mon, 5 Mar 2001 10:51:47 -0500
+	id <S129359AbRCEPvR>; Mon, 5 Mar 2001 10:51:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129372AbRCEPvi>; Mon, 5 Mar 2001 10:51:38 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:19074 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129364AbRCEPv0>; Mon, 5 Mar 2001 10:51:26 -0500
-Date: Mon, 5 Mar 2001 10:50:20 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: John Kodis <kodis@mail630.gsfc.nasa.gov>
-cc: linux-kernel@vger.kernel.org, bug-bash@gnu.org
-Subject: Re: binfmt_script and ^M
-In-Reply-To: <20010305095512.A30787@tux.gsfc.nasa.gov>
-Message-ID: <Pine.LNX.3.95.1010305102226.9913A-100000@chaos.analogic.com>
+	id <S129363AbRCEPvI>; Mon, 5 Mar 2001 10:51:08 -0500
+Received: from bacchus.veritas.com ([204.177.156.37]:44758 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S129359AbRCEPvF>; Mon, 5 Mar 2001 10:51:05 -0500
+Date: Mon, 5 Mar 2001 15:52:05 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: linux-LVM@sistina.com, linux-kernel@vger.kernel.org
+Subject: lvm_snap calc_max_buckets num_physpages
+In-Reply-To: <Pine.LNX.4.21.0103022135140.1440-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0103051547450.1056-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Mar 2001, John Kodis wrote:
+num_physpages is shifted too far in lvm_snap's calc_max_buckets():
+would go to 0 on a 4GB, 8GB, ... 32-bit machine.  Okay, not quite all
+the 4GB goes into num_physpages, so it's rather an issue with 5GB ...
 
-> On Mon, Mar 05, 2001 at 08:40:22AM -0500, Richard B. Johnson wrote:
-> 
-> > Somebody must have missed the boat entirely. Unix does not, never
-> > has, and never will end a text line with '\r'.
-> 
-> Unix does not, never has, and never will end a text line with ' ' (a
-> space character) or with \t (a tab character).  Yet if I begin a shell
-> script with '#!/bin/sh ' or '#!/bin/sh\t', the training white space is
-> striped and /bin/sh gets exec'd.  Since \r has no special significance
-> to Unix, I'd expect it to be treated the same as any other whitespace
-> character -- it should be striped, and /bin/sh should get exec'd.
-> 
+Naive patch (against 2.4.3-pre2 or 2.4.2-ac11 or 2.4.2 or 2.4.1) below,
+but I won't be submitting this to Alan or Linus myself (unless you ask):
+I expect you'll want to consider whether the number should go on
+climbing linearly in that way above 1GB.
 
-No. the '\n' character is interpreted. '\t' is expanded on stdout if
-the terminal is "cooked". Other interpreted characters are:
-		^C, ^\, ^U, ^D, ^@, ^Q, ^S, ^Z, ^R, ^O, ^W, ^V
+Hugh
 
-These are all upper-case ASCII letters codes minus 64. The erase (VERASE)
-is special and is '?' + 64 
-
-The '\r' (^R) definitely has special significance to Unix. It's called
-"VREPRINT", in the termios structure member "c_cc". If it exists in
-a file instead of an output stream, these characters are not interpreted.
-All files in Unix are binary. It's the 'C' runtime library that may
-interpret file contents for programmer convenience. For instance,
-fgets() reads until the new-line character. If you happen to have a
-'\r' before that new-line, guess what? You will have a '\r' in your
-string. If you were attempting to do:
-
-	ls foo\r
-
-You will get a file-not found error unless you have a file with '\r'
-as its last character.
-
-There is really no such thing as  "whitespace" in Unix compatible text.
-For instance, the text in a Makefile MUST use the tab character as a
-separator. Spaces won't do.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+--- 2.4.2-ac11/drivers/md/lvm-snap.c	Mon Jan 29 00:11:20 2001
++++ linux/drivers/md/lvm-snap.c	Mon Mar  5 11:58:10 2001
+@@ -489,10 +489,9 @@
+ {
+ 	unsigned long mem;
+ 
+-	mem = num_physpages << PAGE_SHIFT;
+-	mem /= 100;
+-	mem *= 2;
+-	mem /= sizeof(struct list_head);
++	mem = num_physpages;
++	mem /= 50 * sizeof(struct list_head);
++	mem <<= PAGE_SHIFT;
+ 
+ 	return mem;
+ }
 

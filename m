@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261975AbTIMAd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 20:33:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbTIMAd4
+	id S261965AbTIMAbG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 20:31:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbTIMAbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 20:33:56 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:7602 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261975AbTIMAdz
+	Fri, 12 Sep 2003 20:31:06 -0400
+Received: from fed1mtao07.cox.net ([68.6.19.124]:19887 "EHLO
+	fed1mtao07.cox.net") by vger.kernel.org with ESMTP id S261965AbTIMAbC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 20:33:55 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Erik Steffl <steffl@bigfoot.com>
-Subject: Re: intel D865PERL and DMA for disks (IDE)?
-Date: Sat, 13 Sep 2003 02:36:14 +0200
-User-Agent: KMail/1.5
-References: <3F62628B.5060805@bigfoot.com>
-In-Reply-To: <3F62628B.5060805@bigfoot.com>
-Cc: linux-kernel@vger.kernel.org
+	Fri, 12 Sep 2003 20:31:02 -0400
+Message-ID: <3F626544.40000@cox.net>
+Date: Fri, 12 Sep 2003 17:31:00 -0700
+From: "Kevin P. Fleming" <kpfleming@cox.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: Arnd Bergmann <arnd@arndb.de>
+CC: Andreas Schwab <schwab@suse.de>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] new ioctl type checking causes gcc warning
+References: <3F621AC4.4070507@cox.net> <200309121453.07111.arnd@arndb.de> <3F625A26.7050305@cox.net> <200309130222.43612.arnd@arndb.de>
+In-Reply-To: <200309130222.43612.arnd@arndb.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309130236.14814.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 13 of September 2003 02:19, Erik Steffl wrote:
->    I am trying to set the DMA for ide disks but get the following error:
->
->    jojda:/home/erik# hdparm -d 1 /dev/hda
->
-> /dev/hda:
->   setting using_dma to 1 (on)
->   HDIO_SET_DMA failed: Operation not permitted
->   using_dma    =  0 (off)
->
->    is it because it's not supported on given chipset or is there
-> something I can do?
->
->    debian unstable
->    2.4.21-ac4 (+ libata5 patches from Jeff Garzik)
->    Intel D865PERL motherboard
->
->    there are only two kernel options that I can see are relevant to
-> chipset I use:
->
-> CONFIG_BLK_DEV_PIIX=m
-> CONFIG_SCSI_ATA_PIIX=y
+Arnd Bergmann wrote:
 
-You should use CONFIG_BLK_DEV_PIIX=y
-or load piix module (may not be reliable).
+> This doesn't work, because size_t is a typedef, not a macro.
 
->    TIA
->
-> 	erik
+Yeah, I should have thought of that. Sorry.
+
+> The type checking this in user space is not necessary, because 
+> the point of the check is only to keep people from adding *new*
+> invalid ioctl numbers and doing the check for the kernel does that.
+> However, the old numbers need to be kept for a long time and there
+> is no point in breaking user applications that use established
+> interfaces.
+
+Hmm, obviously I misunderstood how this worked. Does that mean that 
+these two lines:
+
+#define BLKGETSIZE64	_IOR(0x12,114,sizeof(__uint64_t))
+#define BLKGETSIZE64	_IOR(0x12,114,__uint64_t)
+
+actually produce different ioctl numbers? If so, then I don't 
+understand how the kernel can continue to offer the old/invalid 
+interface when the new _IOR macro won't accept the first version any 
+longer.
 

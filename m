@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270680AbTGNSSb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 14:18:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270700AbTGNSSa
+	id S270701AbTGNSVY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 14:21:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270708AbTGNSVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 14:18:30 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:57539 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S270680AbTGNSSY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 14:18:24 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 14 Jul 2003 11:25:49 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: kuznet@ms2.inr.ac.ru
-cc: "David S. Miller" <davem@redhat.com>, jmorris@redhat.com,
-       jamie@shareable.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: Re: [Patch][RFC] epoll and half closed TCP connections
-In-Reply-To: <200307141739.VAA05290@dub.inr.ac.ru>
-Message-ID: <Pine.LNX.4.55.0307141122260.4828@bigblue.dev.mcafeelabs.com>
-References: <200307141739.VAA05290@dub.inr.ac.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 14 Jul 2003 14:21:24 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:58311 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S270701AbTGNSVV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 14:21:21 -0400
+Date: Mon, 14 Jul 2003 14:35:59 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sizeof (siginfo_t) problem
+Message-ID: <20030714143558.P15481@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <OF8354A4F2.09CC83D0-ONC1256D63.0064A671@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <OF8354A4F2.09CC83D0-ONC1256D63.0064A671@de.ibm.com>; from Ulrich.Weigand@de.ibm.com on Mon, Jul 14, 2003 at 08:31:34PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jul 2003 kuznet@ms2.inr.ac.ru wrote:
+On Mon, Jul 14, 2003 at 08:31:34PM +0200, Ulrich Weigand wrote:
+> The MD_FALLBACK_FRAME_STATE_FOR macro does not use sizeof(siginfo_t)
+> at all, but hardcodes 128.  (This has always been the case, and was
+> done to avoid the need to include signal.h.)  This is still broken
+> with the current kernel behaviour, though.
+> 
+> It is strange that I didn't notice the problem earlier; apparently
+> most of the places where unwinding through signal frames is required
+> use non-RT frames ...
 
-> > it looks as though _every_ TCP ACK you receive will cause epoll to wake up
-> > a task which is interested in _any_ socket events,
->
-> This is not quite true. sk->write_space() is called only after write
-> queue is full, and it is exactly one wakeup until the next overflow.
->
-> But, actually, yes, it is right observation: one wait queue for all
-> the socket events is painful. Note, that with current poll() improvements
-> are suboptimal, tcp_poll() does not know _what_ this poll polls for,
-> so it has to stand in all the wait queues. The same thing kills lots
-> of possible improvements.
+But it is crucial for NPTL pthread_cancel.
 
-Indeed. This can be improved though, with some serious work. The poll(2)
-and epoll caller supply events he is interested in. We could have
-poll_wait() (and f_op->poll()) to accept an events parameter so that the
-f_op->poll() code can drop inside separate wait queue depending on what
-the caller is waiting for.
+> >This though means that the kernel siginfo_t change cannot be done
+> >just in asm-*/siginfo.h headers - at least places where siginfo_t
+> >is present within some structures ever visible to userland a dummy
+> >8 byte pad needs to be inserted.
+> 
+> As userspace expects a size of 128 bytes, and with the change
+> the size now *is* 128 bytes, why would a pad be required?
 
+As I tried to write, we either can have all GCCs
+which will work properly only with new kernels (no pad added),
+or we can have new GCCs working with all kernels (if pad is added).
+Your choice...
 
-
-- Davide
-
+	Jakub

@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264848AbSKENUz>; Tue, 5 Nov 2002 08:20:55 -0500
+	id <S264856AbSKEN36>; Tue, 5 Nov 2002 08:29:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264849AbSKENUz>; Tue, 5 Nov 2002 08:20:55 -0500
-Received: from green.pwm-1.clinic.net ([216.204.105.145]:28167 "EHLO
-	green.pwm-1.clinic.net") by vger.kernel.org with ESMTP
-	id <S264848AbSKENUy>; Tue, 5 Nov 2002 08:20:54 -0500
-Date: Tue, 5 Nov 2002 08:24:16 -0500 (EST)
-From: David G Hamblen <dave@AFRInc.com>
-Reply-To: dave@AFRinc.com
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.46 won't compile with pcmcia_aha152x
-In-Reply-To: <4.3.2.7.2.20021105141812.00c5ccd0@192.168.6.2>
-Message-ID: <Pine.LNX.4.44.0211050813050.12822-100000@puppy.afrinc.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264857AbSKEN36>; Tue, 5 Nov 2002 08:29:58 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:16048 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S264856AbSKEN35>;
+	Tue, 5 Nov 2002 08:29:57 -0500
+Date: Tue, 5 Nov 2002 13:35:00 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, venkatesh.pallipadi@intel.com
+Subject: Re: [PATCH][2.5-AC] Start from bank 0 for P4 MCE init (resend)
+Message-ID: <20021105133500.GA18426@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Zwane Mwaikambo <zwane@holomorphy.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, venkatesh.pallipadi@intel.com
+References: <Pine.LNX.4.44.0211042107590.27141-100000@montezuma.mastecende.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211042107590.27141-100000@montezuma.mastecende.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 04, 2002 at 11:59:38PM -0500, Zwane Mwaikambo wrote:
+ > Index: linux-2.5.44-ac5/arch/i386/kernel/cpu/mcheck/p4.c
+ > ===================================================================
+ > RCS file: /build/cvsroot/linux-2.5.44-ac5/arch/i386/kernel/cpu/mcheck/p4.c,v
+ > retrieving revision 1.1.1.1
+ > diff -u -r1.1.1.1 p4.c
+ > --- linux-2.5.44-ac5/arch/i386/kernel/cpu/mcheck/p4.c	3 Nov 2002 07:20:04 -0000	1.1.1.1
+ > +++ linux-2.5.44-ac5/arch/i386/kernel/cpu/mcheck/p4.c	3 Nov 2002 16:47:14 -0000
+ > @@ -220,7 +220,7 @@
+ >  		wrmsr(MSR_IA32_MCG_CTL, 0xffffffff, 0xffffffff);
+ >  	banks = l&0xff;
+ >  
+ > -	for(i=1; i<banks; i++)
+ > +	for(i=0; i<banks; i++)
+ >  		wrmsr(MSR_IA32_MC0_CTL+4*i, 0xffffffff, 0xffffffff);
 
-The last time I tried (2.5.29), this stuff worked. The next time I tried
-(2.5.39) it failed.  Here's the error with 2.5.46:
+Ack. Already in my mcheck bits due to go to Linus today.
 
-  gcc -Wp,-MD,drivers/scsi/pcmcia/.aha152x_stub.o.d -D__KERNEL__ -Iinclude
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=pentium3 -Iarch/i386/mach-generic -nostdinc -iwithprefix include
--DMODULE -include include/linux/modversions.h
--DKBUILD_BASENAME=aha152x_stub   -c -o drivers/scsi/pcmcia/aha152x_stub.o
-drivers/scsi/pcmcia/aha152x_stub.c
-make[4]: *** No rule to make target `drivers/scsi/pcmcia/aha152x.s',
-needed by `drivers/scsi/pcmcia/aha152x.o'.  Stop.
+		Dave
 
-
-
-
-			Dave
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

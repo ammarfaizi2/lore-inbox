@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266078AbTAYC0f>; Fri, 24 Jan 2003 21:26:35 -0500
+	id <S266081AbTAYC4X>; Fri, 24 Jan 2003 21:56:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266081AbTAYC0f>; Fri, 24 Jan 2003 21:26:35 -0500
-Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:41887 "EHLO
-	K-7.stesmi.com") by vger.kernel.org with ESMTP id <S266078AbTAYC0e>;
-	Fri, 24 Jan 2003 21:26:34 -0500
-Message-ID: <3E31F7B0.7090606@stesmi.com>
-Date: Sat, 25 Jan 2003 03:34:24 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-X-Accept-Language: en-us, en
+	id <S266091AbTAYC4X>; Fri, 24 Jan 2003 21:56:23 -0500
+Received: from itg-gw.cr008.cwt.esat.net ([193.120.242.226]:19213 "EHLO
+	dunlop.admin.ie.alphyra.com") by vger.kernel.org with ESMTP
+	id <S266081AbTAYC4W>; Fri, 24 Jan 2003 21:56:22 -0500
+Date: Sat, 25 Jan 2003 03:03:35 +0000 (GMT)
+From: Paul Jakma <paulj@alphyra.ie>
+X-X-Sender: paulj@dunlop.admin.ie.alphyra.com
+To: GrandMasterLee <masterlee@digitalroadkill.net>
+cc: Thomas Tonino <ttonino@users.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with Qlogic 2200 and 2.4.20
+In-Reply-To: <1043372733.12893.7.camel@localhost>
+Message-ID: <Pine.LNX.4.44.0301250035130.32650-100000@dunlop.admin.ie.alphyra.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: BIOS setup needed for LBA48?
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On 23 Jan 2003, GrandMasterLee wrote:
 
-Let's assume a certain IDE controller does LBA48.
+> I think you'll have to qualify that with hardware type etc.
 
-Let's at the same time assume the BIOS doesn't know jack
-about LBA48.
+Tyan S2462NG, dual 1.7GHz Athlons (MP), QLA2310.
 
-Let's then assume that I can get a kernel to boot on it,
-what method I use doesn't matter. The BIOS doesn't lock up
-or anything but it doesn't use more than the fabled 137GB.
+> As for the 6.x driver versions, so far, no instability,
 
-Can the Linux Kernel then use the full drive (160GB/250GB/whatever)
-even though the BIOS doesn't? (LBA48)
+Its stable for me with the RH 5.31-RH driver. With v6.x it can be 
+easily locked up with heavy IO, eg multiple concurrent bonnie++'s. 
+(might take a few hours sometimes though). Spins in the interrupt 
+handler.
 
-That's question number 1.
+> of, but they never stop loading. It's a pretty High load I'd say,
+> could be higher though.
 
-Question 2: Does the nForce chipset handle LBA48?
+hmm.
 
-They are related but please answer question 1 even if question 2
-is "no" :)
-
-I tried looking for the answers myself but couldn't find a definite
-answer. If it's plain in sight somewhere, please point me in the right
-direction.
-
-// Stefan
+regards,
+-- 
+Paul Jakma	Sys Admin	Alphyra
+	paulj@alphyra.ie
+Warning: /never/ send email to spam@dishone.st or trap@dishone.st
 

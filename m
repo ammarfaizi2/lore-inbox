@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313773AbSHFPR0>; Tue, 6 Aug 2002 11:17:26 -0400
+	id <S293203AbSHFPjt>; Tue, 6 Aug 2002 11:39:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314514AbSHFPR0>; Tue, 6 Aug 2002 11:17:26 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:23826 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S313773AbSHFPRZ>; Tue, 6 Aug 2002 11:17:25 -0400
-Date: Tue, 6 Aug 2002 11:20:04 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Steven Cole <elenstev@mesatop.com>
-cc: Andrew Morton <akpm@zip.com.au>, Bill Davidsen <davidsen@tmr.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, Jens Axboe <axboe@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.4.19-rc5
-In-Reply-To: <1028642837.2802.59.camel@spc9.esa.lanl.gov>
-Message-ID: <Pine.LNX.4.44L.0208061116460.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S293680AbSHFPjt>; Tue, 6 Aug 2002 11:39:49 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:21007 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S293203AbSHFPjs>;
+	Tue, 6 Aug 2002 11:39:48 -0400
+Date: Tue, 6 Aug 2002 08:41:13 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: <linux-kernel@vger.kernel.org>
+cc: <abraham@2d3d.co.za>
+Subject: Re: ethtool documentation
+Message-ID: <Pine.LNX.4.33L2.0208060834030.10089-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Aug 2002, Steven Cole wrote:
 
-> That last one looks like the biggest cheat.  Rather than optimizing for
-> dbench, is there a set of pessimizing numbers which would optimally turn
-> dbench into a semi-useful tool for measuring meaningful IO performance?
-> Or is dbench really only useful for stress testing?
+Abraham vd Merwe <abraham@2d3d.co.za> wrote:
+| What is the difference between the supported and advertising fields?
+| What is MII? (as in the SUPPORTED_MII feature?).
 
-Yes, dbench is only useful as a stress testing tool.
+MII:  (is this a serious question ?):
+[from a National Semi. ethernet repeater design Application Note]
+The Medium Independent Interface, as specified in the IEEE 802.3u/D5.3
+standard, is designed to support the PHY/MAC interface.
 
-A minor varation in kernel behaviour can change dbench
-throughput by an order of magnitude and I'm not talking
-about any specific kernel component here ... ANY kernel
-component could trigger it.
+| > ETHTOOL_GEEPROM
+| > ETHTOOL_SEEPROM
+| >
+| >   Get/set EEPROM data.  These commands expect a 'struct ethtool_eeprom
+| >   *'
+| >   argument.  This struct has a magic number, an offset and length
+| >   pair, and a
+| >   data field.  If the offset+length are longer than the maximum size,
+| >   the extra is silently ignored.
+|
+| Wouldn't it have been better to make this 'n character device which can
+| be read from / written to just like a normal file (/dev/nvram-like
+| interface) -
+| that way applications can actually use unused eeprom space.
 
-While it is easy to measure dbench throughput, it is
-nearly impossible to:
+I wouldn't care for this.  There's nothing 'normal' about this
+EEPROM space, and apps generally won't know where there might be
+some 'unused eeprom space'.
 
-1) analyse why dbench throughput changed from kernel to kernel
-
-2) predict the relation (if any) these changes in dbench
-   throughput have with changes in performance of real
-   applications, if any
-
-3) identify which kernel subsystem was responsible for the
-   change in dbench performance
-
-regards,
-
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
+~Randy
 

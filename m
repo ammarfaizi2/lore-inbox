@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315167AbSEYRur>; Sat, 25 May 2002 13:50:47 -0400
+	id <S315170AbSEYRyf>; Sat, 25 May 2002 13:54:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315178AbSEYRuq>; Sat, 25 May 2002 13:50:46 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:4786 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S315167AbSEYRuo>; Sat, 25 May 2002 13:50:44 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-From: Wolfgang Denk <wd@denx.de>
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)] 
-X-Mailer: exmh version 2.2
-Mime-version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: Your message of "Sat, 25 May 2002 10:22:00 PDT."
-             <Pine.LNX.4.44.0205251015350.6515-100000@home.transmeta.com> 
-Date: Sat, 25 May 2002 19:50:30 +0200
-Message-Id: <20020525175035.3580211972@denx.denx.de>
+	id <S315179AbSEYRyf>; Sat, 25 May 2002 13:54:35 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26637 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315170AbSEYRyd>; Sat, 25 May 2002 13:54:33 -0400
+Date: Sat, 25 May 2002 10:54:46 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: David Brownell <david-b@pacbell.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ehci-hcd on CARDBUS hangs when stopping card service
+In-Reply-To: <3CEFC6A3.6080002@pacbell.net>
+Message-ID: <Pine.LNX.4.44.0205251049380.6515-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0205251015350.6515-100000@home.transmeta.com>
-you wrote:
-> 
-> The thing that disgusts me is that this "patent" thing is used as a
-> complete red herring, and the real issue is that some people don't like
-> the fact that the kernel is under the GPL. Tough cookies.
 
-This is your interpretation, and it is not correct.
 
-> Some people (you and Karim) seem to think that the GPL requirement si
-> going to hurt Linux in the embedded space. Fair enough. That's what all
+On Sat, 25 May 2002, David Brownell wrote:
+>
+> Seems to me it'd be worth mentioning this issue somewhere in the
+> documentation or source.  One could get the impression that the
+> main issue for a CardBus-enabled PCI driver is to make sure that
+> the "new style" driver APIs -- with a DEVICE_TABLE etc -- are used.
+> (Maybe just a brief comment in <asm/io.h> ...)
 
-I'm not sure if you really bothered to read what Karim wrote. The GPL
-itsef is not the problem, as long as you can draw a line between some
-"base  system"  (which  is  strictly  GPL  -  like  RTAI)  and   some
-application code.
+Documentation might be a good thing, indeed. I doubt <asm/io.h> is the
+right place for it, people tend to look at other drivers etc to pattern
+after (as clearly showed by how often a bug in one place is replicated in
+lots of other places ;)
 
-I do like it very much when all code I write is GPLed, but there  are
-situations  where  a there are good reasons for some application code
-to remain closed. It seems, this is not a  problem  with  Linux.  But
-FSMlabs spreads FUD trying to prevent this for all RT stuff.
+We've actually fixed a number of these things - there are drivers that
+notice removal on their own silently, and just turn it into a no-op.
 
-What do you think: it it OK (both from the legal and from  the  ethic
-point  of  view)  that  somebody  writes  and distributes proprietary
-application code?
+> I'm hardly averse to changing that loop (which normally does have an end :)
+> and I expected to need to at some point.  It's interesting to me just how
+> long that has been there without causing problems.  In this case the root
+> cause is that Cardbus "improper shutdown sequence" problem, so "no end"
+> is just a particularly nasty secondary failure mode.
 
-Wolfgang Denk
+Most people don't unplug their devices while they are in use, and on
+cardbus the most common case ends up (I think) being the fact that the
+cardbus PCI static interrupt itself is shared with the device interrupt.
+So what happens is that when you remove the CardBus card, that causes the
+cardbus controller to send an interrupt (for removal), but since that
+interrupt is shared with the card driver, the card driver also sees the
+interrupt even if the card itself is otherwise idle.
 
--- 
-Software Engineering:  Embedded and Realtime Systems,  Embedded Linux
-Phone: (+49)-8142-4596-87  Fax: (+49)-8142-4596-88  Email: wd@denx.de
-Testing can show the presense of bugs, but not their absence.
-                                                   -- Edsger Dijkstra
+This meant that some tulip cards at least were _guaranteed_ to lock up
+some time ago, simply because their interrupt handler would loop forever
+on seeing the "more work" bit continually (all bits in the status register
+were set due to the removal and floating data lines).
+
+		Linus
+

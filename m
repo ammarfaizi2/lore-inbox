@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129033AbQKFLmN>; Mon, 6 Nov 2000 06:42:13 -0500
+	id <S129659AbQKFLsf>; Mon, 6 Nov 2000 06:48:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129034AbQKFLmD>; Mon, 6 Nov 2000 06:42:03 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:9996 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S129033AbQKFLlt>;
-	Mon, 6 Nov 2000 06:41:49 -0500
-Message-ID: <3A0698A8.8D00E9C1@mandrakesoft.com>
-Date: Mon, 06 Nov 2000 06:40:24 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: Dan Hollis <goemon@anime.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	id <S129672AbQKFLs0>; Mon, 6 Nov 2000 06:48:26 -0500
+Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:14590 "EHLO
+	passion.cygnus") by vger.kernel.org with ESMTP id <S129659AbQKFLsN>;
+	Mon, 6 Nov 2000 06:48:13 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <3A0698A8.8D00E9C1@mandrakesoft.com> 
+In-Reply-To: <3A0698A8.8D00E9C1@mandrakesoft.com>  <3A0693E9.B4677F4E@mandrakesoft.com> <Pine.LNX.4.21.0011060302290.17667-100000@anime.net> <24273.973508761@redhat.com> <28752.973510632@redhat.com> 
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Dan Hollis <goemon@anime.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Oliver Xymoron <oxymoron@waste.org>, Keith Owens <kaos@ocs.com.au>,
         linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-In-Reply-To: <3A0693E9.B4677F4E@mandrakesoft.com>  <Pine.LNX.4.21.0011060302290.17667-100000@anime.net> <24273.973508761@redhat.com> <28752.973510632@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page] 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Mon, 06 Nov 2000 11:47:44 +0000
+Message-ID: <29788.973511264@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
-> * Sound module is unloaded
-> * User continues to happily listen to radio through sound card
-
-You're using the sound card without a driver?
 
 
-> * Time passes
-> * User is listening intently to something on the radio
-> * Something wants to beep through /dev/audio
-> * Sound module is autoloaded again, default to zero levels.
->         This time it is _NOT_ fine. User is rightly pissed off :)
+jgarzik@mandrakesoft.com said:
+> > * User continues to happily listen to radio through sound card
+> You're using the sound card without a driver?
 
-If you create a post-action in /etc/modules.conf which initializes the
-mixer to proper levels, this problem does not exist.
+Yes. The sound card allows itself to be unloaded when the pass-through mixer
+levels are non-zero. This is reasonable iff it can be reloaded without 
+destroying those levels again.
 
-No kernel coding required.
+jgarzik@mandrakesoft.com said:
+>  If you create a post-action in /etc/modules.conf which initializes
+> the mixer to proper levels, this problem does not exist.
 
-	Jeff
+Yes it does. It can be a few seconds between initialisation and the 
+post-action running. That's plenty of time to miss what the news announcer 
+was saying about whether you need to go to work today (my gf is a teacher) 
+or to wake the entire house if the mixer levels don't default to zero.
+
+--
+dwmw2
 
 
--- 
-Jeff Garzik             | Dinner is ready when
-Building 1024           | the smoke alarm goes off.
-MandrakeSoft            |	-/usr/games/fortune
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314101AbSDWCWp>; Mon, 22 Apr 2002 22:22:45 -0400
+	id <S315016AbSDWCYx>; Mon, 22 Apr 2002 22:24:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314439AbSDWCWo>; Mon, 22 Apr 2002 22:22:44 -0400
-Received: from ns0.tateyama.or.jp ([210.128.170.1]:33554 "HELO
-	ns0.tateyama.or.jp") by vger.kernel.org with SMTP
-	id <S314101AbSDWCWn> convert rfc822-to-8bit; Mon, 22 Apr 2002 22:22:43 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Gabor Kerenyi <wom@tateyama.hu>
-To: linux-kernel@vger.kernel.org
-Subject: unconfigure PCI dev
-Date: Tue, 23 Apr 2002 11:28:09 +0900
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200204231128.09461.wom@tateyama.hu>
+	id <S315015AbSDWCYw>; Mon, 22 Apr 2002 22:24:52 -0400
+Received: from sydney1.au.ibm.com ([202.135.142.193]:43269 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S315016AbSDWCYS>; Mon, 22 Apr 2002 22:24:18 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: dipankar@in.ibm.com
+Cc: marcelo@conectiva.br, Rusty Russell <rusty@rustcorp.com.au>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] TRIVIAL 2.4.19-pre7: smp_call_function not allowed from bh 
+In-Reply-To: Your message of "Mon, 22 Apr 2002 17:36:17 +0530."
+             <20020422173617.A19103@in.ibm.com> 
+Date: Tue, 23 Apr 2002 12:27:34 +1000
+Message-Id: <E16zq1n-0002mA-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi!
+In message <20020422173617.A19103@in.ibm.com> you write:
+> 
+> In article <20020421.231615.129368238.davem@redhat.com> David S. Miller wrote
+:
+> >    From: Rusty Russell <rusty@rustcorp.com.au>
+> >    Date: Mon, 22 Apr 2002 13:35:34 +1000
+> 
+> > It would be nice to fix this up on every other smp_call_function
+> > implementation too.  Since this patch is by definition trivial, it
+> > would be equally trivial to make sure every platform is updated
+> > properly as well.
+> 
+> Unless Rusty has already done this, I can submit another patch
+> that covers all the archs.
 
-I've got a strange problem.
+Nope, send me all the archs.
 
-I'm writing a driver for a PCI card.
-The card has a problem because the serial eeprom where the pci configuration 
-data is loaded from is not valid and therefore the PLX-9050 chip gives some 
-default value. It shows vendor:devid as 10b5:9050 and the kernel identifies 
-it as a PLX PCI <-> IOBus Bridge. (kernel 2.5.7)
-
-The serial eeprom can be read written at 50h in the local config area.
-When I load my driver and it wants to request a memory region it seems that it 
-is already mapped. (I modified the driver to look for 0x10b5:9050)
-
-So it fails. 
-
-The cat /proc/pci shows a memory region at 0xf4200000. 
-
-int plc_init_dev1(struct pci_dev *dev)
-{
-	printk("%x\n", pci_resource_start(dev, 0);
-	return -EBUSY;
-	if (check_mem_region(pci_resource_start(dev, 0), 128))
-		return -EBUSY;
-}
-
-So why is it already in use?
-I have to access that memory area. How can I do it if my driver doesn't load?
-That's the only way to modify the eeprom contents.
-
-Thanks.
-
-Gabor
-
+Thanks,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

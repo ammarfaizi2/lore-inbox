@@ -1,87 +1,200 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261958AbVANLiL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261960AbVANLwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261958AbVANLiL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 06:38:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVANLiL
+	id S261960AbVANLwg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 06:52:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVANLwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 06:38:11 -0500
-Received: from a26.t1.student.liu.se ([130.236.221.26]:62866 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261958AbVANLh6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 06:37:58 -0500
-Message-ID: <41E7AF11.6030005@drzeus.cx>
-Date: Fri, 14 Jan 2005 12:37:53 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ian Molton <spyro@f2s.com>
-CC: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Richard Purdie <rpurdie@rpsys.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: MMC Driver RFC
-References: <021901c4f8eb$1e9cc4d0$0f01a8c0@max> <20050112214345.D17131@flint.arm.linux.org.uk> <023c01c4f8f3$1d497030$0f01a8c0@max> <20050112221753.F17131@flint.arm.linux.org.uk> <41E5B177.4060307@f2s.com>
-In-Reply-To: <41E5B177.4060307@f2s.com>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 14 Jan 2005 06:52:35 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:23739 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S261960AbVANLwR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 06:52:17 -0500
+Date: Fri, 14 Jan 2005 20:52:14 +0900 (JST)
+From: Naoaki Maeda <maeda.naoaki@jp.fujitsu.com>
+Subject: [PATCH] Restartable poll(2)
+To: linux-kernel@vger.kernel.org
+Message-id: <20050114.205214.74752151.maeda.naoaki@jp.fujitsu.com>
+MIME-version: 1.0
+X-Mailer: Mew version 3.3 on Emacs 21.3 / Mule 5.0 (SAKAKI)
+Content-type: Text/Plain; charset=us-ascii
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nice too see that you're alive Ian ;)
+Hi,
 
-I've been trying to send you some mail regarding your SD implementation 
-but I haven't received any replies. Perhaps they've gotten lost somewhere?
+There is an inconsistency between the behaviour of poll(2)
+and select(2) in terms of restartable. select(2) is restartable
+if it is interrupted by a signal, but poll(2) is not. 
 
-I've made my own SD patch using some of your work but also a lot of my 
-own stuff. I had some problems getting your patches to apply cleanly to 
-the current tree so I reimplemented it using your code as a template.
+I think it is not a good behaviour that poll(2) is interrupted by
+strace, gdb or job control, and returns EINTR .
 
-The patch can be found at:
-http://projects.drzeus.cx/wbsd/sd.php
-That page also contains the legal issues as I've understood them.
+This patch makes poll(2) restartable. Is it a sane idea?
 
-A summary of what I've done (relative your work):
+Thanks,
+Maeda Naoaki
 
-* flags renamed to caps to better reflect what it does.
-* SD_4_BITS changed to 4_BIT_DATA. Hopefully 4-bit mode in SD and MMC 
-will be compatible, at least on the driver level.
-* HOST_ changed to MMC_ to conform with the rest of the macros.
-* Added a function in the driver to test for SD read-only switch.
-* Moved SD-specific commands to a separate section in the header so they 
-are more easily distinguished.
-* SCR register is read from card and used when determining bus width.
-* I've separated SD detection a bit.
-* The mode (SD/MMC) of the host is stored. Since MMC uses a bus topology 
-and SD uses a star one it is useful to be able to see which mode the 
-controller is in.
+---
+This patch makes poll(2) restartable in the face of signals.
 
-I also couldn't find the reason for the ACMD flags you've added. 
-Application commands only differ in semantics, not format, so I couldn't 
-figure out why these where needed. Perhaps I'm missing something.
+Signed-off-by: Maeda Naoaki <maeda.naoaki@jp.fujitsu.com>
+---
 
-Ian Molton wrote:
->>
->> Unfortunately, such specs only cover MMC cards and not SD cards.
-> 
-> 
-> ISTR seeing a SD card doc at some point
+ linux-2.6.11-rc1-mm1-maeda/fs/select.c |  109 ++++++++++++++++++++++++++++++---
+ 1 files changed, 102 insertions(+), 7 deletions(-)
 
-I have specs for SD cards from Sandisk and Toshiba. Both found on the 
-respective manufacturer's site using google. These have been the basis 
-for my work.
-
-> 
-> Well I *know* I never saw the specs from the SD forum. I hacve never 
-> reverse engineered a SDHC core driver either (I have reverse engineered 
-> a chip driver but it contained no SD *protocol* information.
-> 
-> as such my code should be 100% safe to commit to the kernel.
-> 
-
-My code is based on the SD card specs I've found so it probably isn't as 
-safe.
-
-Rgds
-Pierre
+diff -puN fs/select.c~poll_restart fs/select.c
+--- linux-2.6.11-rc1-mm1/fs/select.c~poll_restart	2005-01-14 18:09:28.703036795 +0900
++++ linux-2.6.11-rc1-mm1-maeda/fs/select.c	2005-01-14 18:23:10.960839223 +0900
+@@ -432,12 +432,12 @@ static void do_pollfd(unsigned int num, 
+ }
+ 
+ static int do_poll(unsigned int nfds,  struct poll_list *list,
+-			struct poll_wqueues *wait, long timeout)
++			struct poll_wqueues *wait, long *timeout)
+ {
+ 	int count = 0;
+ 	poll_table* pt = &wait->pt;
+ 
+-	if (!timeout)
++	if (!*timeout)
+ 		pt = NULL;
+  
+ 	for (;;) {
+@@ -449,17 +449,104 @@ static int do_poll(unsigned int nfds,  s
+ 			walk = walk->next;
+ 		}
+ 		pt = NULL;
+-		if (count || !timeout || signal_pending(current))
++		if (count || !*timeout || signal_pending(current))
+ 			break;
+ 		count = wait->error;
+ 		if (count)
+ 			break;
+-		timeout = schedule_timeout(timeout);
++		*timeout = schedule_timeout(*timeout);
+ 	}
+ 	__set_current_state(TASK_RUNNING);
+ 	return count;
+ }
+ 
++static long sys_poll_restart(struct restart_block *restart)
++{
++	unsigned long expire = restart->arg0, now = jiffies;
++	struct pollfd __user *ufds = (struct pollfd __user *)restart->arg1;
++	unsigned int nfds = (unsigned int)restart->arg2;
++	long timeout;
++	struct poll_wqueues table;
++ 	int fdcount, err;
++ 	unsigned int i;
++	struct poll_list *head;
++ 	struct poll_list *walk;
++
++	/* Sanity check on nfds was already done */
++
++	/* Did it expire while we handled signals? */
++	if (!time_after(expire, now))
++		timeout = 0;
++	else /* Remaining timeout */
++		timeout = expire - now; 
++
++	if (timeout) {
++		/* Careful about overflow in the intermediate values */
++		if ((unsigned long) timeout < MAX_SCHEDULE_TIMEOUT / HZ)
++			timeout = (unsigned long)(timeout*HZ+999)/1000+1;
++		else /* Negative or overflow */
++			timeout = MAX_SCHEDULE_TIMEOUT;
++	}
++
++	poll_initwait(&table);
++
++	head = NULL;
++	walk = NULL;
++	i = nfds;
++	err = -ENOMEM;
++	while(i!=0) {
++		struct poll_list *pp;
++		pp = kmalloc(sizeof(struct poll_list)+
++				sizeof(struct pollfd)*
++				(i>POLLFD_PER_PAGE?POLLFD_PER_PAGE:i),
++					GFP_KERNEL);
++		if(pp==NULL)
++			goto out_fds;
++		pp->next=NULL;
++		pp->len = (i>POLLFD_PER_PAGE?POLLFD_PER_PAGE:i);
++		if (head == NULL)
++			head = pp;
++		else
++			walk->next = pp;
++
++		walk = pp;
++		if (copy_from_user(pp->entries, ufds + nfds-i, 
++				sizeof(struct pollfd)*pp->len)) {
++			err = -EFAULT;
++			goto out_fds;
++		}
++		i -= pp->len;
++	}
++
++	err = fdcount = do_poll(nfds, head, &table, &timeout);
++	if (!fdcount && signal_pending(current))
++		/* The 'restart' block is already filled in */
++		err = -ERESTART_RESTARTBLOCK;
++	if (err < 0)
++		goto out_fds;
++
++	/* OK, now copy the revents fields back to user space. */
++	walk = head;
++	err = -EFAULT;
++	while(walk != NULL) {
++		struct pollfd *fds = walk->entries;
++		if (copy_to_user(ufds, fds, sizeof(struct pollfd) * walk->len))
++			goto out_fds;
++		ufds += walk->len;
++		walk = walk->next;
++  	}
++	err = fdcount;
++out_fds:
++	walk = head;
++	while(walk!=NULL) {
++		struct poll_list *pp = walk->next;
++		kfree(walk);
++		walk = pp;
++	}
++	poll_freewait(&table);
++	return err;
++}
++
+ asmlinkage long sys_poll(struct pollfd __user * ufds, unsigned int nfds, long timeout)
+ {
+ 	struct poll_wqueues table;
+@@ -467,6 +554,8 @@ asmlinkage long sys_poll(struct pollfd _
+  	unsigned int i;
+ 	struct poll_list *head;
+  	struct poll_list *walk;
++	struct restart_block *restart;
++	struct pollfd __user *saved_ufds = ufds;
+ 
+ 	/* Do a sanity check on nfds ... */
+ 	if (nfds > current->files->max_fdset && nfds > OPEN_MAX)
+@@ -510,9 +599,15 @@ asmlinkage long sys_poll(struct pollfd _
+ 		i -= pp->len;
+ 	}
+ 
+-	err = fdcount = do_poll(nfds, head, &table, timeout);
+-	if (!fdcount && signal_pending(current))
+-		err = -EINTR;
++	err = fdcount = do_poll(nfds, head, &table, &timeout);
++	if (!fdcount && signal_pending(current)) {
++		restart = &current_thread_info()->restart_block;
++		restart->fn = sys_poll_restart;
++		restart->arg0 = jiffies + timeout;
++		restart->arg1 = (unsigned long) saved_ufds;
++		restart->arg2 = (unsigned long) nfds; 
++		err = -ERESTART_RESTARTBLOCK;
++	}
+ 	if (err < 0)
+ 		goto out_fds;
+ 
+_

@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288845AbSATRcN>; Sun, 20 Jan 2002 12:32:13 -0500
+	id <S288859AbSATRde>; Sun, 20 Jan 2002 12:33:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288854AbSATRcD>; Sun, 20 Jan 2002 12:32:03 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:3968 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S288851AbSATRb7>;
-	Sun, 20 Jan 2002 12:31:59 -0500
-Date: Sun, 20 Jan 2002 19:31:41 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Richard Guenther <rguenth@tat.physik.uni-tuebingen.de>,
-        Oliver Paukstadt <pstadt@stud.fh-heilbronn.de>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>,
-        linux-raid@vger.kernel.org
-Subject: Re: 2.4.17 RAID-1 EXT3  reliable to hang....
-Message-ID: <20020120193141.A1112@mea-ext.zmailer.org>
-In-Reply-To: <Pine.LNX.4.33.0201070933590.4076-100000@lola.stud.fh-heilbronn.de> <Pine.LNX.4.33.0201071047410.17279-100000@bellatrix.tat.physik.uni-tuebingen.de> <3C3973D9.CF689345@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C3973D9.CF689345@zip.com.au>; from akpm@zip.com.au on Mon, Jan 07, 2002 at 02:09:29AM -0800
+	id <S288784AbSATRdR>; Sun, 20 Jan 2002 12:33:17 -0500
+Received: from nycsmtp1fb.rdc-nyc.rr.com ([24.29.99.76]:55303 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S288859AbSATRdE>;
+	Sun, 20 Jan 2002 12:33:04 -0500
+Date: Sun, 20 Jan 2002 12:21:15 -0500 (EST)
+From: Frank Davis <fdavis@si.rr.com>
+X-X-Sender: <fdavis@localhost.localdomain>
+To: <linux-kernel@vger.kernel.org>
+cc: <fdavis@si.rr.com>
+Subject: 2.5.3-pre2: drivers/ieee1394/video1394.c error
+Message-ID: <Pine.LNX.4.33.0201201219080.12390-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 07, 2002 at 02:09:29AM -0800, Andrew Morton wrote:
-...
-> I spent *ages* on the ext3 buffer writeout code and it's still not
-> ideal.  Can you test with this patch applied?
-> 
-> http://www.zipworld.com.au/~akpm/linux/2.4/2.4.18-pre1/mini-ll.patch
-> 
-> It should go into 2.4.17 OK.
+Hello all,
+  While 'make modules', I received the following error:
+Regards,
+Frank
 
-   I just tried this into  2.4.18-pre4  and it still hard-hangs
-   the RAID-1 + EXT3 on SMP.
+video1394.c: In function `do_iso_mmap':
+video1394.c:831: warning: passing arg 1 of `remap_page_range_Rsmp_94f2c3fc' makes pointer from integer without a cast
+video1394.c:831: incompatible type for argument 4 of `remap_page_range_Rsmp_94f2c3fc'
+video1394.c:831: too few arguments to function `remap_page_range_Rsmp_94f2c3fc'
+video1394.c: In function `video1394_ioctl':
+video1394.c:853: invalid operands to binary &
+video1394.c:863: invalid operands to binary &
+video1394.c: In function `video1394_mmap':
+video1394.c:1331: invalid operands to binary &
+video1394.c:1340: invalid operands to binary &
+video1394.c: In function `video1394_open':
+video1394.c:1360: invalid operands to binary &
+video1394.c: In function `video1394_release':
+video1394.c:1400: invalid operands to binary &
+video1394.c:1409: invalid operands to binary &
+make[2]: *** [video1394.o] Error 1
+make[2]: Leaving directory `/usr/src/linux/drivers/ieee1394'
+make[1]: *** [_modsubdir_ieee1394] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_mod_drivers] Error 2
 
-/Matti Aarnio

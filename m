@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261548AbSIXEan>; Tue, 24 Sep 2002 00:30:43 -0400
+	id <S261552AbSIXEn7>; Tue, 24 Sep 2002 00:43:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261549AbSIXEan>; Tue, 24 Sep 2002 00:30:43 -0400
-Received: from kknd.mweb.co.za ([196.2.45.79]:16609 "EHLO kknd.mweb.co.za")
-	by vger.kernel.org with ESMTP id <S261548AbSIXEal>;
-	Tue, 24 Sep 2002 00:30:41 -0400
-Subject: [RFC][PATCH] Compilation fix 2.4.20-pre7
-From: Bongani <bonganilinux@mweb.co.za>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>, Ian Carr-de Avelon <avelon@emit.pl>
-Content-Type: text/plain
+	id <S261555AbSIXEn6>; Tue, 24 Sep 2002 00:43:58 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:15490 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261552AbSIXEn6>; Tue, 24 Sep 2002 00:43:58 -0400
+Message-ID: <3D8FEEBE.F471CA10@us.ibm.com>
+Date: Mon, 23 Sep 2002 21:49:02 -0700
+From: Larry Kessler <kessler@us.ibm.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH-RFC] README 1ST - New problem logging macros (2.5.38)
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8-3mdk 
-Date: 24 Sep 2002 06:38:26 +0200
-Message-Id: <1032842308.2347.12.camel@localhost.localdomain>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo
+Jeff Garzik wrote:
+> >       }
+> >       if (!request_mem_region(pci_resource_start(pdev, 0),
+> >                       pci_resource_len(pdev, 0), "eepro100")) {
+> > -             printk (KERN_ERR "eepro100: cannot reserve MMIO region\n");
+> > +             pci_problem(LOG_ERR, pdev, "eepro100: cannot reserve MMIO region");
+> 
+> bloat, no advantage over printk
 
-Ian had some compilation error while trying to compile 2.4.20-pre7
-this is the error that he got:
-
-/usr/src/linux/include/linux/kernel_stat.h: In function `kstat_irqs':
-/usr/src/linux/include/linux/kernel_stat.h:57: `smp_num_cpus' undeclared
-(first use in this function)
-/usr/src/linux/include/linux/kernel_stat.h:57: (Each undeclared
-identifier is reported only once
-/usr/src/linux/include/linux/kernel_stat.h:57: for each function it
-appears in.)make[2]:
-*** [ksyms.o] Error 1
-make[2]: Leaving directory `/usr/src/linux/kernel'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/usr/src/linux/kernel'
-make: *** [_dir_kernel] Error 2
+the advantage is that the string, which means plenty to the developer, but possibly
+much less to a Sys Admin, can be replaced with a more descriptive message,
+in the local language, by editing the formatting template in user-space.  Since the
+printk messages were mapped directly over to the problem macros, then the issue here
+I think is how useful (or not) the info. is more so than what interface is used. 
 
 
-He got this when he was compiling a UP kernel. When
-he tries to compile for a SMP kernel the error goes away.
-Which makes sense because smp_num_cpus is only defined fro SMP
-kernels. Does the following patch look OK? This is adopted from 2.5.38.
+> >               if (sum != 0xBABA)
+> > -                     printk(KERN_WARNING "%s: Invalid EEPROM checksum %#4.4x, "
+> > -                                "check settings before activating this device!\n",
+> > -                                dev->name, sum);
+> > +                     net_pci_problem(LOG_WARNING, dev, pdev, "Invalid EEPROM checksum, "
+> > +                                "check settings before activating this device!",
+> 
+> > +                                detail(checksum, "%#4.4x", sum));
+> 
+> bloat, checksum is purely informational, and can be obtained through
+> other means
 
-Cheers
-
-
-diff -uNr include/linux/kernel_stat.h~ include/linux/kernel_stat.h 
---- include/linux/kernel_stat.h~        2002-09-23 16:16:45.000000000
-+0200
-+++ include/linux/kernel_stat.h 2002-09-23 16:42:42.000000000 +0200
-@@ -54,7 +54,7 @@
- {
-        int i, sum=0;
- 
--       for (i = 0 ; i < smp_num_cpus ; i++)
-+       for (i = 0 ; i < NR_CPUS ; i++)
-                sum += kstat.irqs[cpu_logical_map(i)][irq];
- 
-        return sum
-
-
+indeed.  See previous comment.

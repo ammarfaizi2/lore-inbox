@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276894AbRKSOwN>; Mon, 19 Nov 2001 09:52:13 -0500
+	id <S273305AbRKSOqx>; Mon, 19 Nov 2001 09:46:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277012AbRKSOwE>; Mon, 19 Nov 2001 09:52:04 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:28688 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S276894AbRKSOvn>; Mon, 19 Nov 2001 09:51:43 -0500
-Date: Mon, 19 Nov 2001 15:51:02 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-To: <dalecki@evision.ag>
-cc: Sven Vermeulen <sven.vermeulen@rug.ac.be>,
-        Linux-Kernel Development Mailinglist 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: /sbin/mount and /proc/mounts difference
-In-Reply-To: <3BF8D576.D03A0EB6@evision-ventures.com>
-Message-ID: <Pine.LNX.4.30.0111191120270.16168-100000@cola.teststation.com>
+	id <S276894AbRKSOqe>; Mon, 19 Nov 2001 09:46:34 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:63215 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S273305AbRKSOqV>;
+	Mon, 19 Nov 2001 09:46:21 -0500
+Date: Mon, 19 Nov 2001 09:46:20 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: x bit for dirs: misfeature?
+In-Reply-To: <01111916225301.00817@nemo>
+Message-ID: <Pine.GSO.4.21.0111190927100.17210-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Nov 2001, Martin Dalecki wrote:
 
-> Urban Widmark wrote:
-> > 
-> > mount writes everything to /etc/mtab and displays that when asked.
+
+On Mon, 19 Nov 2001, vda wrote:
+
+> Everytime I do 'chmod -R a+rX dir' and wonder are there
+> any executables which I don't want to become world executable,
+> I think "Whatta hell with this x bit meaning 'can browse'
+> for dirs?! Who was that clever guy who invented that? Grrrr"
 > 
-> Not quite...
-> 
-> ~/tmp# strings /bin/mount | grep mounts
-> Note that one does not really mount a device, one mounts
-> /proc/mounts
-> ~/tmp#
+> Isn't r sufficient? Can we deprecate x for dirs?
+> I.e. make it a mirror of r: you set r, you see x set,
+> you clear r, you see x cleared, set/clear x = nop?
 
-Not sure what you are trying to show with that grep ...
+See UNIX FAQ.  Ability to read != ability to lookup.
 
-# strace mount |& grep mounts
-# strace mount |& grep mtab
-open("/etc/mtab", O_RDONLY)             = 3
+Trivial example: you have a directory with a bunch of subdirectories.
+You want owners of subdirectories to see them.  You don't want them
+to _know_ about other subdirectories.
 
-mount does read /etc/mtab for displaying the mounts. It only looks at
-/proc/mounts if /etc/mtab can't be read. Or at least, that is what the
-version(s) I have does. I would say that the common setup is to have a
-readable mtab.
-
-/Urban
+--
+BUGS
+     There's no perm option for the naughty bits.
+							BSD chmod(1)
 

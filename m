@@ -1,54 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbUENTK7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbUENTMP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262138AbUENTK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 15:10:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbUENTK7
+	id S262170AbUENTMP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 15:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262215AbUENTMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 15:10:59 -0400
-Received: from wsip-68-14-253-125.ph.ph.cox.net ([68.14.253.125]:28835 "EHLO
-	office.labsysgrp.com") by vger.kernel.org with ESMTP
-	id S262138AbUENTK5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 15:10:57 -0400
-Message-ID: <40A519BD.3030000@backtobasicsmgmt.com>
-Date: Fri, 14 May 2004 12:10:53 -0700
-From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Organization: Back To Basics Network Management
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Christoph Hellwig <hch@infradead.org>,
-       Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>,
-       linux-kernel@vger.kernel.org
-Subject: Re: does udev support sw raid0?
-References: <200405141442.38404.norberto+linux-kernel@bensa.ath.cx> <20040514183450.GA2345@kroah.com> <20040514193913.A27388@infradead.org> <20040514184659.GA2401@kroah.com>
-In-Reply-To: <20040514184659.GA2401@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 14 May 2004 15:12:15 -0400
+Received: from mail.kroah.org ([65.200.24.183]:58858 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262170AbUENTMI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 15:12:08 -0400
+Date: Fri, 14 May 2004 12:10:38 -0700
+From: Greg KH <greg@kroah.com>
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
+       viro@parcelfarce.linux.theplanet.co.uk, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [RFC 2/2] sysfs_rename_dir-cleanup
+Message-ID: <20040514191036.GC2620@kroah.com>
+References: <20040430101333.GB25296@in.ibm.com> <20040430101401.GC25296@in.ibm.com> <200404300748.14151.dtor_core@ameritech.net> <20040504053908.GA2900@in.ibm.com> <20040507222549.GB14660@kroah.com> <20030509153523.A20357@in.ibm.com> <20030509153957.A20432@in.ibm.com> <20040511233350.GC27069@kroah.com> <20041007051623.GA14967@in.ibm.com> <20041007053845.GB14967@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041007053845.GB14967@in.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+On Thu, Oct 07, 2004 at 11:08:45AM +0530, Maneesh Soni wrote:
+> 
+> Bad me.. can't wait for compilation to over. There was one typo. Very sorry
+> for the bad patch. Just make "new_dentrty" to "new_dentry" or use this correct 
+> one.
 
-> How did this work with devfs then?  The device node would not be present
-> before the ioctl needed to be called, right?  Or did it do the "magic
-> lookup" mess and just "know" about md devices?
+Thanks, this one worked, I've applied it.
 
-Right, see my recent thread on linux-hotplug-devel about this very subject.
-
-As it stands today, the only gendisk that md registers without being 
-asked to do so is md0, so /dev/md0 will always be present on a 
-udev-enabled system with md. If you have auto-start MD arrays on your 
-system, then those will be registered as well when md autostarts them at 
-kernel boot time.
-
-All other arrays (those that you want to start using mdadm, or those 
-that you want to create because they've never existing before) suffer 
-from the problem of requiring a device node before they can be controlled.
-
-I chatted with Neil Brown about this, and he would not be opposed to the 
-md driver exposing a character device specifically for the purpose of 
-handling the md ioctls (like dm does), but when I looked more into it it 
-seemed to be a waste of effort; the time could be better spent porting 
-the md personalities over to dm, where all this stuff already works 
-properly and there is naming/splitting/partitioning/etc. available.
+greg k-h

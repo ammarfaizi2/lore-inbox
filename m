@@ -1,65 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312235AbSCRIPq>; Mon, 18 Mar 2002 03:15:46 -0500
+	id <S312241AbSCRIQc>; Mon, 18 Mar 2002 03:16:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312237AbSCRIPh>; Mon, 18 Mar 2002 03:15:37 -0500
-Received: from pat.uio.no ([129.240.130.16]:31174 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S312235AbSCRIPX>;
-	Mon, 18 Mar 2002 03:15:23 -0500
-To: NIIBE Yutaka <gniibe@m17n.org>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
-In-Reply-To: <shswuwkujx5.fsf@charged.uio.no>
-	<200203110018.BAA11921@webserver.ithnet.com>
-	<15499.64058.442959.241470@charged.uio.no>
-	<200203180707.g2I771Z00657@mule.m17n.org>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 18 Mar 2002 09:15:06 +0100
-Message-ID: <shs8z8qb8c5.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S312240AbSCRIQR>; Mon, 18 Mar 2002 03:16:17 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:48901 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S312237AbSCRIQE>; Mon, 18 Mar 2002 03:16:04 -0500
+Message-ID: <3C95A1DB.CA13A822@zip.com.au>
+Date: Mon, 18 Mar 2002 00:14:19 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Joel Becker <jlbec@evilplan.org>
+CC: Anton Altaparmakov <aia21@cam.ac.uk>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: fadvise syscall?
+In-Reply-To: <3C945635.4050101@mandrakesoft.com> <3C945A5A.9673053F@zip.com.au> <3C945D7D.8040703@mandrakesoft.com> <5.1.0.14.2.20020317131910.0522b490@pop.cus.cam.ac.uk> <20020318080531.W4836@parcelfarce.linux.theplanet.co.uk>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == NIIBE Yutaka <gniibe@m17n.org> writes:
+Joel Becker wrote:
+> 
+> On Sun, Mar 17, 2002 at 01:41:37PM +0000, Anton Altaparmakov wrote:
+> > We don't need fadvise IMHO. That is what open(2) is for. The streaming
+> > request you are asking for is just a normal open(2). It will do read ahead
+> > which is perfect for streaming (of data size << RAM size in its current form).
+> 
+>         A quick real world example of where fadvise can work well.
+> Imagine a database appliction that doesn't use O_DIRECT (for whatever
+> reason, could even be that they don't trust the linux implementation yet
+> :-).
 
-     > A problem is easily reproducible with user-space nfsd (on ext3,
-     > in my case).  We see the message (say, when installing a
-     > package with dpkg -i):
-     > 	nfs_refresh_inode: inode XXXXXXX mode changed, OOOO to OOOO
-     > Which means, same file handle but different type.
+O_DIRECT is broken against RAID0 (at least) in 2.5 at present.  The
+RAID driver gets sent BIOs which straddle two or more chunks and RAID
+spits out lots of unpleasant warnings.  Neil has been informed...
 
-     > FWIW, I'm using the patch attached.  It works for me.
+>  So, this database gets a query.  That query requires a full table
+> scan, so it calls fadvise(fd, F_SEQUENTIAL).  Then another query does
+> row-specific access, and caching helps.  So it wants to turn off
+> F_SEQUENTIAL.
 
-     > --- linux-2.4.18/fs/nfs/inode.c~ Wed Mar 13 17:56:48 2002
-     > +++ linux-2.4.18.superh/fs/nfs/inode.c Mon Mar 18 13:27:39 2002
-     > @@ -680,8 +680,10 @@ nfs_find_actor(struct inode *inode, unsi
-     >  	if (is_bad_inode(inode))
-     >  		return 0;
-     >  	/* Force an attribute cache update if inode->i_count
-     >  	== 0 */
-     > - if (!atomic_read(&inode->i_count))
-     > + if (!atomic_read(&inode->i_count)) {
-     >  		NFS_CACHEINV(inode);
-     > + inode->i_mode = 0;
-     > +	}
-     >  	return 1;
-     >  }
- 
-Er... Why?
+It'd probably be smarter for the application to hold two fds against
+the same file for this sort of access pattern.
 
-If you really want to change something in nfs_find_actor() then the
-following works better w.r.t. init_special_inode() on character
-devices:
 
-        if ((inode->i_mode & S_IFMT) != (fattr->mode & S_IFMT))
-                return 0;
-
-That doesn't fix all the races w.r.t. unfsd though: if someone on the
-server removes a file that you have open for writing and replaces it
-with a new one, you can still corrupt the new file.
-
-Cheers,
-  Trond
+-

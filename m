@@ -1,365 +1,249 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269346AbUJWBUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269820AbUJWBty@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269346AbUJWBUO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 21:20:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269356AbUJWAex
+	id S269820AbUJWBty (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 21:49:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269759AbUJWBrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 20:34:53 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:9640 "EHLO hermes.sc.intel.com")
-	by vger.kernel.org with ESMTP id S269594AbUJWA31 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 20:29:27 -0400
-Date: Fri, 22 Oct 2004 17:26:59 -0700
-From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, pavel@ucw.cz
-Subject: [PATCH] HPET reenabling after suspend-resume
-Message-ID: <20041022172659.A1632@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Fri, 22 Oct 2004 21:47:53 -0400
+Received: from out007pub.verizon.net ([206.46.170.107]:51845 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S269845AbUJWBpP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 21:45:15 -0400
+Message-ID: <4179B7A9.6020205@verizon.net>
+Date: Fri, 22 Oct 2004 21:45:13 -0400
+From: Jim Nelson <james4765@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Update to Documentation/ramdisk.txt - take 2
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [209.158.211.53] at Fri, 22 Oct 2004 20:45:14 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+@#%*^#$ Mozilla.  Line wrap was set too low.
 
-hpet hardware seems to need a little prodding during resume for it to start 
-sending the timer interupts again. Attached patch does it for both i386 
-and x86_64.
+Let's try this again - hopefully, Mozilla won't mangle my patch this time.
 
-Makefile change below: Right now suspend-resume ordering of system devices
-depends on their order of linking. It is ugly. But, thats the way it works
-currently. And we want timer device to resume before PIC.
+Jim
 
-Signed-off-by:: "Venkatesh Pallipadi" <venkatesh.pallipadi@intel.com>
 
---- linux-2.6.9//arch/i386/kernel/time.c.org	2004-10-20 17:25:34.000000000 -0700
-+++ linux-2.6.9//arch/i386/kernel/time.c	2004-10-22 19:17:03.000000000 -0700
-@@ -321,7 +321,7 @@ unsigned long get_cmos_time(void)
- 
- static long clock_cmos_diff;
- 
--static int time_suspend(struct sys_device *dev, u32 state)
-+static int timer_suspend(struct sys_device *dev, u32 state)
- {
- 	/*
- 	 * Estimate time zone so that set_time can update the clock
-@@ -331,10 +331,18 @@ static int time_suspend(struct sys_devic
- 	return 0;
- }
- 
--static int time_resume(struct sys_device *dev)
-+static int timer_resume(struct sys_device *dev)
- {
- 	unsigned long flags;
--	unsigned long sec = get_cmos_time() + clock_cmos_diff;
-+	unsigned long sec;
-+
-+#ifdef CONFIG_HPET_TIMER
-+	if (is_hpet_enabled()) {
-+		hpet_reenable();
-+	}
-+#endif
-+
-+	sec = get_cmos_time() + clock_cmos_diff;
- 	write_seqlock_irqsave(&xtime_lock, flags);
- 	xtime.tv_sec = sec;
- 	xtime.tv_nsec = 0;
-@@ -342,24 +350,24 @@ static int time_resume(struct sys_device
- 	return 0;
- }
- 
--static struct sysdev_class pit_sysclass = {
--	.resume = time_resume,
--	.suspend = time_suspend,
--	set_kset_name("pit"),
-+static struct sysdev_class timer_sysclass = {
-+	.resume = timer_resume,
-+	.suspend = timer_suspend,
-+	set_kset_name("timer"),
- };
- 
- 
- /* XXX this driverfs stuff should probably go elsewhere later -john */
--static struct sys_device device_i8253 = {
-+static struct sys_device device_timer = {
- 	.id	= 0,
--	.cls	= &pit_sysclass,
-+	.cls	= &timer_sysclass,
- };
- 
- static int time_init_device(void)
- {
--	int error = sysdev_class_register(&pit_sysclass);
-+	int error = sysdev_class_register(&timer_sysclass);
- 	if (!error)
--		error = sysdev_register(&device_i8253);
-+		error = sysdev_register(&device_timer);
- 	return error;
- }
- 
---- linux-2.6.9//arch/i386/kernel/time_hpet.c.org	2004-10-20 18:08:52.000000000 -0700
-+++ linux-2.6.9//arch/i386/kernel/time_hpet.c	2004-10-22 19:18:21.000000000 -0700
-@@ -60,13 +60,46 @@ void __init wait_hpet_tick(void)
- }
- #endif
- 
-+static int hpet_timer_stop_set_go(unsigned long tick)
-+{
-+	unsigned int cfg;
-+
-+	/*
-+	 * Stop the timers and reset the main counter.
-+	 */
-+	cfg = hpet_readl(HPET_CFG);
-+	cfg &= ~HPET_CFG_ENABLE;
-+	hpet_writel(cfg, HPET_CFG);
-+	hpet_writel(0, HPET_COUNTER);
-+	hpet_writel(0, HPET_COUNTER + 4);
-+
-+	/*
-+	 * Set up timer 0, as periodic with first interrupt to happen at
-+	 * hpet_tick, and period also hpet_tick.
-+	 */
-+	cfg = hpet_readl(HPET_T0_CFG);
-+	cfg |= HPET_TN_ENABLE | HPET_TN_PERIODIC |
-+	       HPET_TN_SETVAL | HPET_TN_32BIT;
-+	hpet_writel(cfg, HPET_T0_CFG);
-+	hpet_writel(tick, HPET_T0_CMP);
-+
-+	/*
-+ 	 * Go!
-+ 	 */
-+	cfg = hpet_readl(HPET_CFG);
-+	cfg |= HPET_CFG_ENABLE | HPET_CFG_LEGACY;
-+	hpet_writel(cfg, HPET_CFG);
-+
-+	return 0;
-+}
-+
- /*
-  * Check whether HPET was found by ACPI boot parse. If yes setup HPET
-  * counter 0 for kernel base timer.
-  */
- int __init hpet_enable(void)
- {
--	unsigned int cfg, id;
-+	unsigned int id;
- 	unsigned long tick_fsec_low, tick_fsec_high; /* tick in femto sec */
- 	unsigned long hpet_tick_rem;
- 
-@@ -108,31 +141,8 @@ int __init hpet_enable(void)
- 	if (hpet_tick_rem > (hpet_period >> 1))
- 		hpet_tick++; /* rounding the result */
- 
--	/*
--	 * Stop the timers and reset the main counter.
--	 */
--	cfg = hpet_readl(HPET_CFG);
--	cfg &= ~HPET_CFG_ENABLE;
--	hpet_writel(cfg, HPET_CFG);
--	hpet_writel(0, HPET_COUNTER);
--	hpet_writel(0, HPET_COUNTER + 4);
+Description: General cleanup and update to ramdisk documentation, removing 
+incorrect and obsolete information.  Apply against 2.6.9.
+
+Signed-off-by: James Nelson <james4765@gmail.com>
+
+diff -urN linux-2.6.9-original/Documentation/ramdisk.txt 
+linux-2.6.9/Documentation/ramdisk.txt
+--- linux-2.6.9-original/Documentation/ramdisk.txt      2004-08-14 
+01:36:13.000000000 -0400
++++ linux-2.6.9/Documentation/ramdisk.txt       2004-10-22 19:18:06.808819898 -0400
+@@ -5,115 +5,66 @@
+
+         1) Overview
+         2) Kernel Command Line Parameters
+-       3) Using "rdev -r" With New Kernels
++       3) Using "rdev -r"
+         4) An Example of Creating a Compressed RAM Disk
+
+
+  1) Overview
+  -----------
+
+-As of kernel v1.3.48, the RAM disk driver was substantially changed.
 -
--	/*
--	 * Set up timer 0, as periodic with first interrupt to happen at
--	 * hpet_tick, and period also hpet_tick.
--	 */
--	cfg = hpet_readl(HPET_T0_CFG);
--	cfg |= HPET_TN_ENABLE | HPET_TN_PERIODIC |
--	       HPET_TN_SETVAL | HPET_TN_32BIT;
--	hpet_writel(cfg, HPET_T0_CFG);
--	hpet_writel(hpet_tick, HPET_T0_CMP);
+-The older versions would grab a chunk of memory off the top before
+-handing the remainder to the kernel at boot time. Thus a size parameter
+-had to be specified via "ramdisk=1440" or "rdev -r /dev/fd0 1440" so
+-that the driver knew how much memory to grab.
 -
--	/*
-- 	 * Go!
-- 	 */
--	cfg = hpet_readl(HPET_CFG);
--	cfg |= HPET_CFG_ENABLE | HPET_CFG_LEGACY;
--	hpet_writel(cfg, HPET_CFG);
-+	if (hpet_timer_stop_set_go(hpet_tick))
-+		return -1;
- 
- 	use_hpet = 1;
- 
-@@ -185,6 +195,11 @@ int __init hpet_enable(void)
- 	return 0;
- }
- 
-+int hpet_reenable(void)
-+{
-+	return hpet_timer_stop_set_go(hpet_tick);
-+}
-+
- int is_hpet_enabled(void)
- {
- 	return use_hpet;
---- linux-2.6.9//include/asm-i386/hpet.h.org	2004-10-21 11:48:19.000000000 -0700
-+++ linux-2.6.9//include/asm-i386/hpet.h	2004-10-22 19:17:03.000000000 -0700
-@@ -96,6 +96,7 @@ extern unsigned long hpet_address;	/* hp
- 
- extern int hpet_rtc_timer_init(void);
- extern int hpet_enable(void);
-+extern int hpet_reenable(void);
- extern int is_hpet_enabled(void);
- extern int is_hpet_capable(void);
- extern int hpet_readl(unsigned long a);
---- linux-2.6.9//arch/i386/kernel/Makefile.org	2004-10-21 11:39:46.000000000 -0700
-+++ linux-2.6.9//arch/i386/kernel/Makefile	2004-10-22 19:17:03.000000000 -0700
-@@ -5,7 +5,7 @@
- extra-y := head.o init_task.o vmlinux.lds
- 
- obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o vm86.o \
--		ptrace.o i8259.o ioport.o ldt.o setup.o time.o sys_i386.o \
-+		ptrace.o time.o ioport.o ldt.o setup.o i8259.o sys_i386.o \
- 		pci-dma.o i386_ksyms.o i387.o dmi_scan.o bootflag.o \
- 		doublefault.o
- 
---- linux-2.6.9//arch/x86_64/kernel/time.c.org	2004-10-21 11:55:31.000000000 -0700
-+++ linux-2.6.9//arch/x86_64/kernel/time.c	2004-10-22 19:18:41.000000000 -0700
-@@ -723,31 +723,9 @@ static unsigned int __init pit_calibrate
- 	return (end - start) / 50;
- }
- 
--static int hpet_init(void)
-+static int hpet_timer_stop_set_go(unsigned long tick)
- {
--	unsigned int cfg, id;
+-Now the RAM disk dynamically grows as more space is required. It does
+-this by using RAM from the buffer cache. The driver marks the buffers
+-it is using with a new "BH_Protected" flag so that the kernel does
+-not try to reuse them later. This means that the old size parameter
+-is no longer used, new command line parameters exist, and the behavior
+-of the "rdev -r" or "ramsize" (usually a symbolic link to "rdev")
+-command has changed.
 -
--	if (!vxtime.hpet_address)
--		return -1;
--	set_fixmap_nocache(FIX_HPET_BASE, vxtime.hpet_address);
--	__set_fixmap(VSYSCALL_HPET, vxtime.hpet_address, PAGE_KERNEL_VSYSCALL_NOCACHE);
+-Also, the new RAM disk supports up to 16 RAM disks out of the box, and can
+-be reconfigured in rd.c to support up to 255 RAM disks.  To use multiple
+-RAM disk support with your system, run 'mknod /dev/ramX b 1 X' and chmod
+-(to change its permissions) it to your liking.  The default /dev/ram(disk)
+-uses minor #1, so start with ram2 and go from there.
 -
--/*
-- * Read the period, compute tick and quotient.
-- */
+-The old "ramdisk=<ram_size>" has been changed to "ramdisk_size=<ram_size>"
+-to make it clearer.  The original "ramdisk=<ram_size>" has been kept around
+-for compatibility reasons, but it will probably be removed in 2.1.x.
++The RAM disk driver is a way to use main system memory as a block device.  It
++is required for initrd, an initial filesystem used if you need to load modules
++in order to access the root filesystem (see Documentation/initrd.txt).  It can
++also be used for a temporary filesystem for crypto work, since the contents
++are erased on reboot.
++
++The RAM disk dynamically grows as more space is required. It does this by using
++RAM from the buffer cache. The driver marks the buffers it is using as dirty
++so that the VM subsystem does not try to reclaim them later.
++
++Also, the RAM disk supports up to 16 RAM disks out of the box, and can
++be reconfigured to support up to 255 RAM disks - change "#define NUM_RAMDISKS"
++in drivers/block/rd.c.  To use RAM disk support with your system, run
++'./MAKEDEV ram' from the /dev directory.  RAM disks are all major number 1, and
++start with minor number 0 for /dev/ram0, etc.  If used, modern kernels use
++/dev/ram0 for an initrd.
++
++The old "ramdisk=<ram_size>" has been changed to "ramdisk_size=<ram_size>" to
++make it clearer.  The original "ramdisk=<ram_size>" has been kept around for
++compatibility reasons, but it may be removed in the future.
+
+  The new RAM disk also has the ability to load compressed RAM disk images,
+  allowing one to squeeze more programs onto an average installation or
+  rescue floppy disk.
+
+-Notes: You may have "/dev/ram" or "/dev/ramdisk" or both. They are
+-equivalent from the standpoint of this document. Also, the new RAM disk
+-is a config option. When running "make config", make sure you enable
+-RAM disk support for the kernel with which you intend to use the RAM disk.
 -
--	id = hpet_readl(HPET_ID);
+
+  2) Kernel Command Line Parameters
+  ---------------------------------
+
+-       ramdisk_start=NNN
+-       =================
 -
--	if (!(id & HPET_ID_VENDOR) || !(id & HPET_ID_NUMBER) ||
--	    !(id & HPET_ID_LEGSUP))
--		return -1;
+-To allow a kernel image to reside on a floppy disk along with a compressed
+-RAM disk image, the "ramdisk_start=<offset>" command was added. The kernel
+-can't be included into the compressed RAM disk filesystem image, because
+-it needs to be stored starting at block zero so that the BIOS can load the
+-boot sector and then the kernel can bootstrap itself to get going.
 -
--	hpet_period = hpet_readl(HPET_PERIOD);
--	if (hpet_period < 100000 || hpet_period > 100000000)
--		return -1;
+-Note: If you are using an uncompressed RAM disk image, then the kernel can
+-be a part of the filesystem image that is being loaded into the RAM disk,
+-and the floppy can be booted with LILO, or the two can be separate as
+-is done for the compressed images.
 -
--	hpet_tick = (1000000000L * (USEC_PER_SEC / HZ) + hpet_period / 2) /
--		hpet_period;
-+	unsigned int cfg;
- 
- /*
-  * Stop the timers and reset the main counter.
-@@ -779,6 +757,40 @@ static int hpet_init(void)
- 	return 0;
- }
- 
-+static int hpet_init(void)
-+{
-+	unsigned int id;
+-If you are using a two-disk boot/root setup (kernel on #1, RAM disk image
+-on #2) then the RAM disk would start at block zero, and an offset of
+-zero would be used. Since this is the default value, you would not need
+-to actually use the command at all.
+-
+-If instead, you have a "zImage" of about 350 kB, and a "fs_image.gz" of
+-say about 1 MB, and you want them both on the same disk, then you
+-would use an offset. If you stored the "fs_image.gz" onto the floppy
+-starting at an offset of 400 kB, you would use "ramdisk_start=400".
+-
+-
+-       load_ramdisk=N
+-       ==============
+-
+-This parameter tells the kernel whether it is to try to load a
+-RAM disk image or not. Specifying "load_ramdisk=1" will tell the
+-kernel to load a floppy into the RAM disk. The default value is
+-zero, meaning that the kernel should not try to load a RAM disk.
+-
+-
+-       prompt_ramdisk=N
+-       ================
+-
+-This parameter tells the kernel whether or not to give you a prompt
+-asking you to insert the floppy containing the RAM disk image. In
+-a single floppy configuration the RAM disk image is on the same floppy
+-as the kernel that just finished loading/booting and so a prompt
+-is not needed. In this case one can use "prompt_ramdisk=0". In a
+-two floppy configuration, you will need the chance to switch disks,
+-and thus "prompt_ramdisk=1" can be used. Since this is the default
+-value, it doesn't really need to be specified.
+-
+         ramdisk_size=N
+         ==============
+
+  This parameter tells the RAM disk driver to set up RAM disks of N k size.  The
+-default is 4096 (4 MB).
++default is 4096 (4 MB), 8192 (8 MB) on S390.
 +
-+	if (!vxtime.hpet_address)
-+		return -1;
-+	set_fixmap_nocache(FIX_HPET_BASE, vxtime.hpet_address);
-+	__set_fixmap(VSYSCALL_HPET, vxtime.hpet_address, PAGE_KERNEL_VSYSCALL_NOCACHE);
++       ramdisk_blocksize=N
++       ===================
 +
-+/*
-+ * Read the period, compute tick and quotient.
-+ */
++This parameter tells the RAM disk driver how many bytes to use per block.  The
++default is 512.
+
+-3) Using "rdev -r" With New Kernels
+------------------------------------
+
+-The usage of the word (two bytes) that "rdev -r" sets in the kernel image
+-has changed. The low 11 bits (0 -> 10) specify an offset (in 1 k blocks)
+-of up to 2 MB (211) of where to find the RAM disk (this used to be the
+-size). Bit 14 indicates that a RAM disk is to be loaded, and bit 15
+-indicates whether a prompt/wait sequence is to be given before trying
+-to read the RAM disk. Since the RAM disk dynamically grows as data is
+-being written into it, a size field is no longer required. Bits 11
+-to 13 are not currently used and may as well be zero. These numbers
+-are no magical secrets, as seen below:
++3) Using "rdev -r"
++------------------
 +
-+	id = hpet_readl(HPET_ID);
++The usage of the word (two bytes) that "rdev -r" sets in the kernel image is
++as follows. The low 11 bits (0 -> 10) specify an offset (in 1 k blocks) of up
++to 2 MB (211) of where to find the RAM disk (this used to be the size). Bit
++14 indicates that a RAM disk is to be loaded, and bit 15 indicates whether a
++prompt/wait sequence is to be given before trying to read the RAM disk. Since
++the RAM disk dynamically grows as data is being written into it, a size field
++is not required. Bits 11 to 13 are not currently used and may as well be zero.
++These numbers are no magical secrets, as seen below:
+
+  ./arch/i386/kernel/setup.c:#define RAMDISK_IMAGE_START_MASK     0x07FF
+  ./arch/i386/kernel/setup.c:#define RAMDISK_PROMPT_FLAG          0x8000
+@@ -152,10 +103,10 @@
+  To create a RAM disk image, you will need a spare block device to
+  construct it on. This can be the RAM disk device itself, or an
+  unused disk partition (such as an unmounted swap partition). For this
+-example, we will use the RAM disk device, "/dev/ram".
++example, we will use the RAM disk device, "/dev/ram0".
+
+  Note: This technique should not be done on a machine with less than 8 MB
+-of RAM. If using a spare disk partition instead of /dev/ram, then this
++of RAM. If using a spare disk partition instead of /dev/ram0, then this
+  restriction does not apply.
+
+  a) Decide on the RAM disk size that you want. Say 2 MB for this example.
+@@ -164,11 +115,11 @@
+     area (esp. for disks) so that maximal compression is achieved for
+     the unused blocks of the image that you are about to create.
+
+-       dd if=/dev/zero of=/dev/ram bs=1k count=2048
++       dd if=/dev/zero of=/dev/ram0 bs=1k count=2048
+
+  b) Make a filesystem on it. Say ext2fs for this example.
+
+-       mke2fs -vm0 /dev/ram 2048
++       mke2fs -vm0 /dev/ram0 2048
+
+  c) Mount it, copy the files you want to it (eg: /etc/* /dev/* ...)
+     and unmount it again.
+@@ -177,7 +128,7 @@
+     will be approximately 50% of the space used by the files. Unused
+     space on the RAM disk will compress to almost nothing.
+
+-       dd if=/dev/ram bs=1k count=2048 | gzip -v9 > /tmp/ram_image.gz
++       dd if=/dev/ram0 bs=1k count=2048 | gzip -v9 > /tmp/ram_image.gz
+
+  e) Put the kernel onto the floppy
+
+@@ -203,4 +154,14 @@
+  users may wish to combine steps (d) and (f) by using a pipe.
+
+  --------------------------------------------------------------------------
+-                                               Paul Gortmaker 12/95
++                                               Paul Gortmaker 12/95
 +
-+	if (!(id & HPET_ID_VENDOR) || !(id & HPET_ID_NUMBER) ||
-+	    !(id & HPET_ID_LEGSUP))
-+		return -1;
++Changelog:
++----------
 +
-+	hpet_period = hpet_readl(HPET_PERIOD);
-+	if (hpet_period < 100000 || hpet_period > 100000000)
-+		return -1;
++10-22-04 :     Updated to reflect changes in command line options,
++               remove obsolete references, general cleanup.
++               James Nelson (james4765@gmail.com)
 +
-+	hpet_tick = (1000000000L * (USEC_PER_SEC / HZ) + hpet_period / 2) /
-+		hpet_period;
 +
-+	return hpet_timer_stop_set_go(hpet_tick);
-+}
-+
-+static int hpet_reenable(void)
-+{
-+	return hpet_timer_stop_set_go(hpet_tick);
-+}
-+
- void __init pit_init(void)
- {
- 	unsigned long flags;
-@@ -872,7 +884,7 @@ __setup("report_lost_ticks", time_setup)
- 
- static long clock_cmos_diff;
- 
--static int time_suspend(struct sys_device *dev, u32 state)
-+static int timer_suspend(struct sys_device *dev, u32 state)
- {
- 	/*
- 	 * Estimate time zone so that set_time can update the clock
-@@ -882,10 +894,15 @@ static int time_suspend(struct sys_devic
- 	return 0;
- }
- 
--static int time_resume(struct sys_device *dev)
-+static int timer_resume(struct sys_device *dev)
- {
- 	unsigned long flags;
--	unsigned long sec = get_cmos_time() + clock_cmos_diff;
-+	unsigned long sec;
-+
-+	if (is_hpet_enabled())
-+		hpet_reenable();
-+
-+	sec = get_cmos_time() + clock_cmos_diff;
- 	write_seqlock_irqsave(&xtime_lock,flags);
- 	xtime.tv_sec = sec;
- 	xtime.tv_nsec = 0;
-@@ -893,24 +910,24 @@ static int time_resume(struct sys_device
- 	return 0;
- }
- 
--static struct sysdev_class pit_sysclass = {
--	.resume = time_resume,
--	.suspend = time_suspend,
--	set_kset_name("pit"),
-+static struct sysdev_class timer_sysclass = {
-+	.resume = timer_resume,
-+	.suspend = timer_suspend,
-+	set_kset_name("timer"),
- };
- 
- 
- /* XXX this driverfs stuff should probably go elsewhere later -john */
--static struct sys_device device_i8253 = {
-+static struct sys_device device_timer = {
- 	.id	= 0,
--	.cls	= &pit_sysclass,
-+	.cls	= &timer_sysclass,
- };
- 
- static int time_init_device(void)
- {
--	int error = sysdev_class_register(&pit_sysclass);
-+	int error = sysdev_class_register(&timer_sysclass);
- 	if (!error)
--		error = sysdev_register(&device_i8253);
-+		error = sysdev_register(&device_timer);
- 	return error;
- }
- 
---- linux-2.6.9//arch/x86_64/kernel/Makefile.org	2004-10-21 11:58:56.000000000 -0700
-+++ linux-2.6.9//arch/x86_64/kernel/Makefile	2004-10-22 19:17:03.000000000 -0700
-@@ -5,7 +5,7 @@
- extra-y 	:= head.o head64.o init_task.o vmlinux.lds
- EXTRA_AFLAGS	:= -traditional
- obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o \
--		ptrace.o i8259.o ioport.o ldt.o setup.o time.o sys_x86_64.o \
-+		ptrace.o time.o ioport.o ldt.o setup.o i8259.o sys_x86_64.o \
- 		x8664_ksyms.o i387.o syscall.o vsyscall.o \
- 		setup64.o bootflag.o e820.o reboot.o warmreboot.o
- obj-y += mce.o
++12-95 :                Original Document

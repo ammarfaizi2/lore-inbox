@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261715AbSJUVzE>; Mon, 21 Oct 2002 17:55:04 -0400
+	id <S261661AbSJUV52>; Mon, 21 Oct 2002 17:57:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261717AbSJUVzE>; Mon, 21 Oct 2002 17:55:04 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:1263 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S261715AbSJUVzD>; Mon, 21 Oct 2002 17:55:03 -0400
-Date: Mon, 21 Oct 2002 18:01:10 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: atai@atai.org, lichengtai@yahoo.com, linux-kernel@vger.kernel.org,
-       greearb@candelatech.com
-Subject: Re: Tigon3 driver problem with raw socket on 2.4.20-pre10-ac2
-Message-ID: <20021021180110.I27389@redhat.com>
-References: <20021017.231249.14334285.davem@redhat.com> <20021019060221.92006.qmail@web10504.mail.yahoo.com> <20021018.225848.25861067.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021018.225848.25861067.davem@redhat.com>; from davem@redhat.com on Fri, Oct 18, 2002 at 10:58:48PM -0700
+	id <S261717AbSJUV52>; Mon, 21 Oct 2002 17:57:28 -0400
+Received: from ns.suse.de ([213.95.15.193]:8718 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261661AbSJUV51> convert rfc822-to-8bit;
+	Mon, 21 Oct 2002 17:57:27 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SuSE Linux AG
+To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Subject: Re: [PATCH][RFC] 2.5.42 (1/2): Filesystem capabilities kernel patch
+Date: Tue, 22 Oct 2002 00:03:32 +0200
+User-Agent: KMail/1.4.3
+Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
+References: <87y98vmuqf.fsf@goat.bogus.local> <200210200224.07867.agruen@suse.de> <87fzuzke5m.fsf@goat.bogus.local>
+In-Reply-To: <87fzuzke5m.fsf@goat.bogus.local>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210220003.32601.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 18, 2002 at 10:58:48PM -0700, David S. Miller wrote:
->    From: Andy Tai <lichengtai@yahoo.com>
->    Date: Fri, 18 Oct 2002 23:02:21 -0700 (PDT)
-> 
->    Thanks for your sugestion.  With Linux 2.4.19, the
->    problem goes away.  So something is wrong with the
->    2.4.20-pre kernels as related to the AMD Athlon...
->    
-> To be honest, I have had a few relaibly reocurring lockups of my
-> Athlon at night.
+Hi,
 
-I had this problem with -ac for a while, but one of Alan's newer 
-kernels finally fixed it.  I suspect the problem was related to 
-nfs, but I've not yet tracked down exactly which patch fixed.  
-That machine is a A7M266D with two MP 2000+s and an older AGP card 
-which doesn't draw much power.
+I believe that Capabilities on the file system are a useful thing. They 
+obviously also are quite controversial. If deployed without the right tools 
+they may certainly lead to less secure systems. So these supporting tools 
+need to be develped first, and some real-world experience seems necessary to 
+learn more.
 
-		-ben
+Whatever the result of this process will be, should we decide to have 
+filesystem capabilities we would need to associate some pieces of information 
+with individual inodes, and this is exactly what Extended Attributes were 
+designed for. There are implementations for ext2, ext3, jfs, xfs, reiserfs, 
+so I think it makes no sense to reinvent the wheel. (Xattrs (or EAs) were 
+actually not invented for Linux; Irix and other OSes support almost identical 
+schemes.)
+
+Do you happen to know the attr(5) manual page? An online version is available 
+at <http://acl.bestbits.at/cgi-man/attr.5>; perhaps that helps.
+
+--Andreas.
+
+On Monday 21 October 2002 17:25, Olaf Dietsche wrote:
+> Andreas Gruenbacher <agruen@suse.de> writes:
+> > Capabilities should be implemented as extended attributes;
+>
+> Why "should" this be implemented as extended attributes? What are the
+> benefits in doing so?
+>
+> > see Ted's recent postings.
+>
+> Ted's recent postings argue against capabilities at all. So what do
+> you mean?
+>
+> Regards, Olaf.
+

@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbVCHCnN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVCHCnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261760AbVCHCnN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 21:43:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVCGUlz
+	id S261274AbVCHCnL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 21:43:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVCGUjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 15:41:55 -0500
-Received: from mailer.campus.mipt.ru ([194.85.82.4]:12721 "EHLO
+	Mon, 7 Mar 2005 15:39:18 -0500
+Received: from mailer.campus.mipt.ru ([194.85.82.4]:9393 "EHLO
 	mailer.campus.mipt.ru") by vger.kernel.org with ESMTP
-	id S261782AbVCGUMk convert rfc822-to-8bit (ORCPT
+	id S261781AbVCGUMh convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 15:12:40 -0500
+	Mon, 7 Mar 2005 15:12:37 -0500
 Cc: Fruhwirth Clemens <clemens@endorphin.org>,
        Herbert Xu <herbert@gondor.apana.org.au>, cryptoapi@lists.logix.cz,
        James Morris <jmorris@redhat.com>, David Miller <davem@davemloft.net>,
        Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Subject: [19/many] acrypto: crypto_user_ioctl.c
-In-Reply-To: <11102278553597@2ka.mipt.ru>
+Subject: [9/many] acrypto: crypto_lb.c
+In-Reply-To: <1110227854480@2ka.mipt.ru>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 7 Mar 2005 23:37:35 +0300
-Message-Id: <1110227855445@2ka.mipt.ru>
+Date: Mon, 7 Mar 2005 23:37:34 +0300
+Message-Id: <1110227854957@2ka.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
@@ -29,11 +29,11 @@ X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (mailer.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- /tmp/empty/crypto_user_ioctl.c	1970-01-01 03:00:00.000000000 +0300
-+++ ./acrypto/crypto_user_ioctl.c	2005-03-07 20:35:36.000000000 +0300
-@@ -0,0 +1,281 @@
+--- /tmp/empty/crypto_lb.c	1970-01-01 03:00:00.000000000 +0300
++++ ./acrypto/crypto_lb.c	2005-03-07 20:35:36.000000000 +0300
+@@ -0,0 +1,634 @@
 +/*
-+ * 	crypto_user_ioctl.c
++ * 	crypto_lb.c
 + *
 + * Copyright (c) 2004 Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 + * 
@@ -59,258 +59,611 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 +#include <linux/types.h>
 +#include <linux/list.h>
 +#include <linux/slab.h>
++#include <linux/interrupt.h>
 +#include <linux/spinlock.h>
-+#include <linux/string.h>
-+#include <linux/fs.h>
-+
-+#include <asm/uaccess.h>
++#include <linux/workqueue.h>
++#include <linux/err.h>
 +
 +#include "acrypto.h"
-+#include "crypto_user.h"
-+#include "crypto_user_ioctl.h"
++#include "crypto_lb.h"
++#include "crypto_stat.h"
++#include "crypto_route.h"
 +
-+static int crypto_user_ioctl_ioctl(struct inode *inode, struct file *fp, unsigned int cmd, unsigned long arg);
-+static int crypto_user_ioctl_open(struct inode *inode, struct file *fp);
-+static int crypto_user_ioctl_release(struct inode *pinode, struct file *fp);
-+int crypto_user_ioctl_init(void);
-+void crypto_user_ioctl_fini(void);
++static LIST_HEAD(crypto_lb_list);
++static spinlock_t crypto_lb_lock = SPIN_LOCK_UNLOCKED;
++static int lb_num = 0;
++static struct crypto_lb *current_lb, *default_lb;
++static struct completion thread_exited;
++static int need_exit;
++static struct workqueue_struct *crypto_lb_queue;
++static DECLARE_WAIT_QUEUE_HEAD(crypto_lb_wait_queue);
 +
-+static int crypto_user_ioctl_major = 0;
-+static char crypto_user_ioctl_name[] = "crypto_user_ioctl";
++extern struct list_head *crypto_device_list;
++extern spinlock_t *crypto_device_lock;
 +
-+static struct file_operations crypto_user_ioctl_ops = {
-+	.open		crypto_user_ioctl_open,
-+	.release	crypto_user_ioctl_release,
-+	.ioctl		crypto_user_ioctl_ioctl,
-+	.owner 		THIS_MODULE
++extern int force_lb_remove;
++extern struct crypto_device main_crypto_device;
++
++static int lb_is_current(struct crypto_lb *l)
++{
++	return (l->crypto_device_list != NULL && l->crypto_device_lock != NULL);
++}
++
++static int lb_is_default(struct crypto_lb *l)
++{
++	return (l == default_lb);
++}
++
++static void __lb_set_current(struct crypto_lb *l)
++{
++	struct crypto_lb *c = current_lb;
++
++	if (c) {
++		l->crypto_device_list = crypto_device_list;
++		l->crypto_device_lock = crypto_device_lock;
++		current_lb = l;
++		c->crypto_device_list = NULL;
++		c->crypto_device_lock = NULL;
++	} else {
++		l->crypto_device_list = crypto_device_list;
++		l->crypto_device_lock = crypto_device_lock;
++		current_lb = l;
++	}
++}
++
++static void lb_set_current(struct crypto_lb *l)
++{
++	struct crypto_lb *c = current_lb;
++
++	if (c) {
++		spin_lock_irq(&c->lock);
++		__lb_set_current(l);
++		spin_unlock_irq(&c->lock);
++	} else
++		__lb_set_current(l);
++}
++
++static void __lb_set_default(struct crypto_lb *l)
++{
++	default_lb = l;
++}
++
++static void lb_set_default(struct crypto_lb *l)
++{
++	struct crypto_lb *c = default_lb;
++
++	if (c) {
++		spin_lock_irq(&c->lock);
++		__lb_set_default(l);
++		spin_unlock_irq(&c->lock);
++	} else
++		__lb_set_default(l);
++}
++
++static int crypto_lb_match(struct device *dev, struct device_driver *drv)
++{
++	return 1;
++}
++
++static int crypto_lb_probe(struct device *dev)
++{
++	return -ENODEV;
++}
++
++static int crypto_lb_remove(struct device *dev)
++{
++	return 0;
++}
++
++static void crypto_lb_release(struct device *dev)
++{
++	struct crypto_lb *d = container_of(dev, struct crypto_lb, device);
++
++	complete(&d->dev_released);
++}
++
++static void crypto_lb_class_release(struct class *class)
++{
++}
++
++static void crypto_lb_class_release_device(struct class_device *class_dev)
++{
++}
++
++struct class crypto_lb_class = {
++	.name 		= "crypto_lb",
++	.class_release 	= crypto_lb_class_release,
++	.release 	= crypto_lb_class_release_device
 +};
 +
-+static void dump_data(u8 *ptr)
-+{
-+	int i;
++struct bus_type crypto_lb_bus_type = {
++	.name 		= "crypto_lb",
++	.match 		= crypto_lb_match
++};
 +
-+	dprintk("USER DATA: ");
-+	for (i=0; i<32; ++i)
-+		dprintka("%02x ", ptr[i]);
-+	dprintka("\n");
++struct device_driver crypto_lb_driver = {
++	.name 		= "crypto_lb_driver",
++	.bus 		= &crypto_lb_bus_type,
++	.probe 		= crypto_lb_probe,
++	.remove 	= crypto_lb_remove,
++};
++
++struct device crypto_lb_dev = {
++	.parent 	= NULL,
++	.bus 		= &crypto_lb_bus_type,
++	.bus_id 	= "crypto load balancer",
++	.driver 	= &crypto_lb_driver,
++	.release 	= &crypto_lb_release
++};
++
++static ssize_t name_show(struct class_device *dev, char *buf)
++{
++	struct crypto_lb *lb = container_of(dev, struct crypto_lb, class_device);
++
++	return sprintf(buf, "%s\n", lb->name);
 +}
 +
-+static int crypto_user_ioctl_open(struct inode *inode, struct file *fp)
++static ssize_t current_show(struct class_device *dev, char *buf)
 +{
-+	struct crypto_user_ioctl_kern *iok;
++	struct crypto_lb *lb;
++	int off = 0;
 +
-+	iok = kmalloc(sizeof(*iok), GFP_KERNEL);
-+	if (!iok) {
-+		dprintk("Failed to allocate new crypto_user_ioctl_kern structure.\n");
-+		return -ENOMEM;
++	spin_lock_irq(&crypto_lb_lock);
++
++	list_for_each_entry(lb, &crypto_lb_list, lb_entry) {
++		if (lb_is_current(lb))
++			off += sprintf(buf + off, "[");
++		if (lb_is_default(lb))
++			off += sprintf(buf + off, "(");
++		off += sprintf(buf + off, "%s", lb->name);
++		if (lb_is_default(lb))
++			off += sprintf(buf + off, ")");
++		if (lb_is_current(lb))
++			off += sprintf(buf + off, "]");
 +	}
-+	memset(iok, 0, sizeof(*iok));
 +
-+	fp->private_data = iok;
++	spin_unlock_irq(&crypto_lb_lock);
++
++	if (!off)
++		off = sprintf(buf, "No load balancers regitered yet.");
++
++	off += sprintf(buf + off, "\n");
++
++	return off;
++}
++static ssize_t current_store(struct class_device *dev, const char *buf, size_t count)
++{
++	struct crypto_lb *lb;
++
++	spin_lock_irq(&crypto_lb_lock);
++
++	list_for_each_entry(lb, &crypto_lb_list, lb_entry) {
++		if (count == strlen(lb->name) && !strcmp(buf, lb->name)) {
++			lb_set_current(lb);
++			lb_set_default(lb);
++
++			dprintk(KERN_INFO "Load balancer %s is set as current and default.\n",
++				lb->name);
++
++			break;
++		}
++	}
++	spin_unlock_irq(&crypto_lb_lock);
++
++	return count;
++}
++
++static CLASS_DEVICE_ATTR(name, 0444, name_show, NULL);
++CLASS_DEVICE_ATTR(lbs, 0644, current_show, current_store);
++
++static void create_device_attributes(struct crypto_lb *lb)
++{
++	class_device_create_file(&lb->class_device, &class_device_attr_name);
++}
++
++static void remove_device_attributes(struct crypto_lb *lb)
++{
++	class_device_remove_file(&lb->class_device, &class_device_attr_name);
++}
++
++static int compare_lb(struct crypto_lb *l1, struct crypto_lb *l2)
++{
++	if (!strncmp(l1->name, l2->name, sizeof(l1->name)))
++		return 1;
 +
 +	return 0;
 +}
 +
-+static int crypto_user_ioctl_release(struct inode *pinode, struct file *fp)
++void crypto_lb_rehash(void)
 +{
-+	struct crypto_user_ioctl_kern *iok = fp->private_data;
-+	int i;
++	if (!current_lb)
++		return;
 +
-+	for (i=0; i<4; ++i)
-+		if (iok->ptr[i])
-+			kfree(iok->ptr[i]);
-+	kfree(iok);
++	spin_lock_irq(&current_lb->lock);
 +
-+	return 0;
++	current_lb->rehash(current_lb);
++
++	spin_unlock_irq(&current_lb->lock);
++
++	wake_up_interruptible(&crypto_lb_wait_queue);
 +}
 +
-+static void crypto_user_ioctl_callback(struct crypto_session_initializer *ci, struct crypto_data *data)
++struct crypto_device *crypto_lb_find_device(struct crypto_session_initializer *ci, struct crypto_data *data)
 +{
-+	struct crypto_user_ioctl_kern *iok = data->priv;
-+	
-+	dprintk("%s() for session %llu [%llu].\n",
-+			__func__, iok->s->ci.id, iok->s->ci.dev_id);
-+			
-+	crypto_user_free_crypto_data(&iok->data);
++	struct crypto_device *dev;
 +
-+	iok->scompleted = 1;
-+	wake_up_interruptible(&iok->wait);
++	if (!current_lb)
++		return NULL;
++
++	if (sci_binded(ci)) {
++		int found = 0;
++
++		spin_lock_irq(crypto_device_lock);
++
++		list_for_each_entry(dev, crypto_device_list, cdev_entry) {
++			if (dev->id == ci->bdev) {
++				found = 1;
++				break;
++			}
++		}
++
++		spin_unlock_irq(crypto_device_lock);
++
++		return (found) ? dev : NULL;
++	}
++
++	spin_lock_irq(&current_lb->lock);
++
++	current_lb->rehash(current_lb);
++
++	spin_lock(crypto_device_lock);
++
++	dev = current_lb->find_device(current_lb, ci, data);
++	if (dev)
++		crypto_device_get(dev);
++
++	spin_unlock(crypto_device_lock);
++
++	spin_unlock_irq(&current_lb->lock);
++
++	wake_up_interruptible(&crypto_lb_wait_queue);
++
++	return dev;
 +}
 +
-+static int crypto_user_ioctl_session_alloc(struct crypto_user_ioctl *io, struct crypto_user_ioctl_kern *iok)
++static int __crypto_lb_register(struct crypto_lb *lb)
 +{
 +	int err;
-+	
-+	err = crypto_user_alloc_crypto_data(&iok->data, io->src_size, io->dst_size, io->key_size, io->iv_size);
-+	if (err)
++
++	spin_lock_init(&lb->lock);
++
++	init_completion(&lb->dev_released);
++	memcpy(&lb->device, &crypto_lb_dev, sizeof(struct device));
++	lb->driver = &crypto_lb_driver;
++
++	snprintf(lb->device.bus_id, sizeof(lb->device.bus_id), "%s", lb->name);
++	err = device_register(&lb->device);
++	if (err) {
++		dprintk(KERN_ERR "Failed to register crypto load balancer device %s: err=%d.\n",
++			lb->name, err);
 +		return err;
-+
-+	iok->ci.operation 	= io->operation;
-+	iok->ci.type 		= io->type;
-+	iok->ci.mode 		= io->mode;
-+	iok->ci.priority 	= io->priority;
-+	iok->ci.callback 	= crypto_user_ioctl_callback;
-+
-+	iok->data.priv		= iok;
-+	iok->data.priv_size	= 0;
-+	
-+	iok->scompleted 	= 0;
-+
-+	init_waitqueue_head(&iok->wait);
-+	
-+	iok->s = crypto_session_create(&iok->ci, &iok->data);
-+	if (!iok->s) {
-+		crypto_user_free_crypto_data(&iok->data);
-+		return -ENODEV;
 +	}
 +
++	snprintf(lb->class_device.class_id, sizeof(lb->class_device.class_id), "%s", lb->name);
++	lb->class_device.dev = &lb->device;
++	lb->class_device.class = &crypto_lb_class;
++
++	err = class_device_register(&lb->class_device);
++	if (err) {
++		dprintk(KERN_ERR "Failed to register crypto load balancer class device %s: err=%d.\n",
++			lb->name, err);
++		device_unregister(&lb->device);
++		return err;
++	}
++
++	create_device_attributes(lb);
++	wake_up_interruptible(&crypto_lb_wait_queue);
++
 +	return 0;
++
 +}
 +
-+static int crypto_user_ioctl_session_add(struct crypto_user_ioctl_kern *iok)
++static void __crypto_lb_unregister(struct crypto_lb *lb)
 +{
-+	crypto_session_add(iok->s);
-+
-+	return 0;
++	wake_up_interruptible(&crypto_lb_wait_queue);
++	remove_device_attributes(lb);
++	class_device_unregister(&lb->class_device);
++	device_unregister(&lb->device);
 +}
 +
-+static int crypto_user_ioctl_ioctl(struct inode *inode, struct file *fp, unsigned int cmd, unsigned long arg)
++int crypto_lb_register(struct crypto_lb *lb, int set_current, int set_default)
 +{
-+	struct crypto_user_ioctl io;
-+	struct crypto_user_data data;
-+	unsigned long not_read;
++	struct crypto_lb *__lb;
 +	int err;
-+	struct crypto_user_ioctl_kern *iok;
-+       
-+	iok = fp->private_data;
-+	
-+	err = 0;
-+	switch (cmd) {
-+		case CRYPTO_SESSION_ALLOC:
-+			not_read = copy_from_user(&io, (void __user *)arg, sizeof(io));
-+			if (not_read) {
-+				dprintk("Failed to read crypto_user_ioctl structure from userspace.\n");
-+				err = -EINVAL;
-+				break;
-+			}
 +
-+			err = crypto_user_ioctl_session_alloc(&io, iok);
-+			break;
-+		case CRYPTO_FILL_DATA:
-+			not_read = copy_from_user(&data, (void __user *)arg, sizeof(data));
-+			if (not_read) {
-+				dprintk("Failed to read crypto_user_ioctl_data structure from userspace.\n");
-+				err = -EINVAL;
-+				break;
-+			}
++	spin_lock_irq(&crypto_lb_lock);
 +
-+			if (data.data_size > MAX_DATA_SIZE * PAGE_SIZE) {
-+				dprintk("Data size is too bit: size=%u, type=%x.\n",
-+						data.data_size, data.data_type);
-+				err = -EINVAL;
-+				break;
-+			}
++	list_for_each_entry(__lb, &crypto_lb_list, lb_entry) {
++		if (unlikely(compare_lb(__lb, lb))) {
++			spin_unlock_irq(&crypto_lb_lock);
 +
-+			if (!crypto_user_get_sg(&data, &iok->data)) {
-+				dprintk("Invalid crypto_user_data structure [size=%u, type=%x].\n", 
-+						data.data_size, data.data_type);
-+				err = -EINVAL;
-+				break;
-+			}
-+
-+			if (iok->ptr[data.data_type])
-+				kfree(iok->ptr[data.data_type]);
-+
-+			iok->ptr[data.data_type] = kmalloc(data.data_size, GFP_KERNEL);
-+			if (!iok->ptr[data.data_type]) {
-+				dprintk("Failed to allocate %d bytes for data type %d.\n",
-+						data.data_size, data.data_type);
-+				err = -ENOMEM;
-+				break;
-+			}
-+
-+			not_read = copy_from_user(iok->ptr[data.data_type], (void __user *)arg + sizeof(data), data.data_size);
-+			if (not_read) {
-+				dprintk("Failed to read %d bytes of crypto data [type=%d] from userspace.\n",
-+						data.data_size, data.data_type);
-+				kfree(iok->ptr[data.data_type]);
-+				err = -EINVAL;
-+				break;
-+			}
-+
-+			memcpy(&iok->usr[data.data_type], &data, sizeof(struct crypto_user_data));
-+			
-+			err = crypto_user_fill_sg_data(&data, &iok->data, iok->ptr[data.data_type]);
-+			if (err) {
-+				kfree(iok->ptr[data.data_type]);
-+				break;
-+			}
-+			break;
-+		case CRYPTO_SESSION_ADD:
-+			if (!iok->s) {
-+				dprintk("CRYPTO_SESSION_ADD must be called after session initialisation.\n");
-+				err = -EINVAL;
-+				break;
-+			}
-+			
-+			err = crypto_user_ioctl_session_add(iok);
-+			if (err)
-+				break;
-+
-+			wait_event_interruptible(iok->wait, iok->scompleted);
-+
-+			dump_data(iok->ptr[CRYPTO_USER_DATA_DST]);
-+
-+			not_read = copy_to_user((void __user *)arg, iok->ptr[CRYPTO_USER_DATA_DST], iok->usr[CRYPTO_USER_DATA_DST].data_size);
-+			if (not_read) {
-+				dprintk("Failed to copy to user %d bytes of result.\n", iok->usr[CRYPTO_USER_DATA_DST].data_size);
-+				err = -EINVAL;
-+				break;
-+			}
-+			break;
-+
-+		default:
-+			dprintk("Invalid ioctl(0x%x).\n", cmd);
-+			err = -ENODEV;
-+			break;
++			dprintk(KERN_ERR "Crypto load balancer %s is already registered.\n",
++				lb->name);
++			return -EINVAL;
++		}
 +	}
-+	
++
++	list_add(&lb->lb_entry, &crypto_lb_list);
++
++	spin_unlock_irq(&crypto_lb_lock);
++
++	err = __crypto_lb_register(lb);
++	if (err) {
++		spin_lock_irq(&crypto_lb_lock);
++		list_del_init(&lb->lb_entry);
++		spin_unlock_irq(&crypto_lb_lock);
++
++		return err;
++	}
++
++	if (!default_lb || set_default)
++		lb_set_default(lb);
++
++	if (!current_lb || set_current)
++		lb_set_current(lb);
++
++	dprintk(KERN_INFO "Crypto load balancer %s was registered and set to be [%s.%s].\n",
++		lb->name, (lb_is_current(lb)) ? "current" : "not current",
++		(lb_is_default(lb)) ? "default" : "not default");
++
++	lb_num++;
++
++	return 0;
++}
++
++void crypto_lb_unregister(struct crypto_lb *lb)
++{
++	struct crypto_lb *__lb, *n;
++
++	if (lb_num == 1) {
++		dprintk(KERN_INFO "You are removing crypto load balancer %s which is current and default.\n"
++			"There is no other crypto load balancers. "
++			"Removing %s delayed untill new load balancer is registered.\n",
++			lb->name, (force_lb_remove) ? "is not" : "is");
++		while (lb_num == 1 && !force_lb_remove) {
++			set_current_state(TASK_INTERRUPTIBLE);
++			schedule_timeout(HZ);
++
++			if (signal_pending(current))
++				flush_signals(current);
++		}
++	}
++
++	__crypto_lb_unregister(lb);
++
++	spin_lock_irq(&crypto_lb_lock);
++
++	list_for_each_entry_safe(__lb, n, &crypto_lb_list, lb_entry) {
++		if (compare_lb(__lb, lb)) {
++			lb_num--;
++			list_del_init(&__lb->lb_entry);
++
++			dprintk(KERN_ERR "Crypto load balancer %s was unregistered.\n",
++				lb->name);
++		} else if (lb_num) {
++			if (lb_is_default(lb))
++				lb_set_default(__lb);
++			if (lb_is_current(lb))
++				lb_set_current(default_lb);
++		}
++	}
++
++	spin_unlock_irq(&crypto_lb_lock);
++}
++
++static void crypto_lb_queue_wrapper(void *data)
++{
++	struct crypto_device *dev = &main_crypto_device;
++	struct crypto_session *s = (struct crypto_session *)data;
++
++	dprintk(KERN_INFO "%s: Calling callback for session %llu [%llu] flags=%x, "
++		"op=%04u, type=%04x, mode=%04x, priority=%04x\n", __func__,
++		s->ci.id, s->ci.dev_id, s->ci.flags, s->ci.operation,
++		s->ci.type, s->ci.mode, s->ci.priority);
++
++	spin_lock_irq(&s->lock);
++	crypto_stat_finish_inc(s);
++
++	finish_session(s);
++	unstart_session(s);
++	spin_unlock_irq(&s->lock);
++
++	s->ci.callback(&s->ci, &s->data);
++
++	if (session_finished(s)) {
++		crypto_session_destroy(s);
++		return;
++	} else {
++		/*
++		 * Special case: crypto consumer marks session as "not finished"
++		 * in it's callback - it means that crypto consumer wants 
++		 * this session to be processed further, 
++		 * for example crypto consumer can add new route and then
++		 * mark session as "not finished".
++		 */
++
++		uncomplete_session(s);
++		unstart_session(s);
++		crypto_session_insert_main(dev, s);
++	}
++	spin_unlock_irq(&s->lock);
++}
++
++static void crypto_lb_process_next_route(struct crypto_session *s)
++{
++	struct crypto_route *rt;
++	struct crypto_device *dev, *orig;
++
++	rt = crypto_route_dequeue(s);
++	if (rt) {
++		orig = rt->dev;
++
++		list_del_init(&s->dev_queue_entry);
++
++		crypto_route_free(rt);
++
++		dev = crypto_route_get_current_device(s);
++		if (dev) {
++			dprintk(KERN_INFO "%s: processing new route to %s.\n",
++				__func__, dev->name);
++
++			memcpy(&s->ci, &rt->ci, sizeof(s->ci));
++
++			if (!strncmp(orig->name, dev->name, sizeof(dev->name)))
++				__crypto_session_insert(dev, s);
++			else
++				crypto_session_insert(dev, s);
++
++			/*
++			 * Reference to this device was already hold when
++			 * new routing was added.
++			 */
++			crypto_device_put(dev);
++		}
++	}
++}
++
++void crypto_wake_lb(void)
++{
++	wake_up_interruptible(&crypto_lb_wait_queue);
++}
++
++int crypto_lb_thread(void *data)
++{
++	struct crypto_session *s, *n;
++	struct crypto_device *dev = (struct crypto_device *)data;
++	unsigned long flags;
++
++	daemonize("%s", dev->name);
++	allow_signal(SIGTERM);
++
++	while (!need_exit) {
++		spin_lock_irqsave(&dev->session_lock, flags);
++		list_for_each_entry_safe(s, n, &dev->session_list, main_queue_entry) {
++			dprintk("session %llu [%llu]: flags=%x, route_num=%d, %s,%s,%s,%s.\n",
++			     s->ci.id, s->ci.dev_id, s->ci.flags,
++			     crypto_route_queue_len(s),
++			     (session_completed(s)) ? "completed" : "not completed",
++			     (session_finished(s)) ? "finished" : "not finished",
++			     (session_started(s)) ? "started" : "not started",
++			     (session_is_processed(s)) ? "is being processed" : "is not being processed");
++
++			if (!spin_trylock(&s->lock))
++				continue;
++
++			if (session_is_processed(s))
++				goto unlock;
++			if (session_started(s))
++				goto unlock;
++
++			if (session_completed(s)) {
++				crypto_stat_ptime_inc(s);
++
++				if (crypto_route_queue_len(s) > 1) {
++					crypto_lb_process_next_route(s);
++				} else {
++					start_session(s);
++					crypto_stat_start_inc(s);
++
++					dprintk("%s: going to remove session %llu [%llu].\n",
++					     __func__, s->ci.id, s->ci.dev_id);
++
++					__crypto_session_dequeue_main(s);
++					spin_unlock(&s->lock);
++
++					INIT_WORK(&s->work, &crypto_lb_queue_wrapper, s);
++					queue_work(crypto_lb_queue, &s->work);
++					continue;
++				}
++			}
++unlock:
++			spin_unlock(&s->lock);
++		}
++		spin_unlock_irqrestore(&dev->session_lock, flags);
++
++		interruptible_sleep_on_timeout(&crypto_lb_wait_queue, 100);
++	}
++
++	flush_workqueue(crypto_lb_queue);
++	complete_and_exit(&thread_exited, 0);
++}
++
++int crypto_lb_init(void)
++{
++	int err;
++	long pid;
++
++	err = bus_register(&crypto_lb_bus_type);
++	if (err) {
++		dprintk(KERN_ERR "Failed to register crypto load balancer bus: err=%d.\n", err);
++		goto err_out_exit;
++	}
++
++	err = driver_register(&crypto_lb_driver);
++	if (err) {
++		dprintk(KERN_ERR "Failed to register crypto load balancer driver: err=%d.\n", err);
++		goto err_out_bus_unregister;
++	}
++
++	crypto_lb_class.class_dev_attrs = &class_device_attr_lbs;
++
++	err = class_register(&crypto_lb_class);
++	if (err) {
++		dprintk(KERN_ERR "Failed to register crypto load balancer class: err=%d.\n", err);
++		goto err_out_driver_unregister;
++	}
++
++	crypto_lb_queue = create_workqueue("clbq");
++	if (!crypto_lb_queue) {
++		dprintk(KERN_ERR "Failed to create crypto load balaner work queue.\n");
++		goto err_out_class_unregister;
++	}
++
++	init_completion(&thread_exited);
++	pid = kernel_thread(crypto_lb_thread, &main_crypto_device, CLONE_FS | CLONE_FILES);
++	if (IS_ERR((void *)pid)) {
++		dprintk(KERN_ERR "Failed to create kernel load balancing thread.\n");
++		goto err_out_destroy_workqueue;
++	}
++
++	return 0;
++
++err_out_destroy_workqueue:
++	destroy_workqueue(crypto_lb_queue);
++err_out_class_unregister:
++	class_unregister(&crypto_lb_class);
++err_out_driver_unregister:
++	driver_unregister(&crypto_lb_driver);
++err_out_bus_unregister:
++	bus_unregister(&crypto_lb_bus_type);
++err_out_exit:
 +	return err;
 +}
 +
-+static ssize_t crypto_user_ioctl_dev_show(struct class_device *dev, char *buf)
++void crypto_lb_fini(void)
 +{
-+	return sprintf(buf, "%u:%u\n", crypto_user_ioctl_major, 0);
++	need_exit = 1;
++	wait_for_completion(&thread_exited);
++	flush_workqueue(crypto_lb_queue);
++	destroy_workqueue(crypto_lb_queue);
++	class_unregister(&crypto_lb_class);
++	driver_unregister(&crypto_lb_driver);
++	bus_unregister(&crypto_lb_bus_type);
 +}
 +
-+extern struct crypto_device main_crypto_device;
-+static CLASS_DEVICE_ATTR(dev, 0644, crypto_user_ioctl_dev_show, NULL);
-+
-+int crypto_user_ioctl_init(void)
-+{
-+	struct crypto_device *dev = &main_crypto_device;
-+	int err;
-+
-+	crypto_user_ioctl_major = register_chrdev(0, crypto_user_ioctl_name, &crypto_user_ioctl_ops);
-+       	if (crypto_user_ioctl_major < 0) {
-+		dprintk("Failed to register %s char device: err=%d.\n", crypto_user_ioctl_name, crypto_user_ioctl_major);
-+		return -ENODEV;
-+	};
-+	
-+	err = class_device_create_file(&dev->class_device, &class_device_attr_dev);
-+	if (err)
-+		dprintk("Failed to create \"dev\" attribute: err=%d.\n", err);
-+
-+	printk("Asynchronous crypto userspace helper(ioctl based) has been started, major=%d.\n", crypto_user_ioctl_major);
-+
-+	return 0;
-+}
-+
-+void crypto_user_ioctl_fini(void)
-+{
-+	struct crypto_device *dev = &main_crypto_device;
-+
-+	class_device_remove_file(&dev->class_device, &class_device_attr_dev);
-+	unregister_chrdev(crypto_user_ioctl_major, crypto_user_ioctl_name);
-+}
++EXPORT_SYMBOL_GPL(crypto_lb_register);
++EXPORT_SYMBOL_GPL(crypto_lb_unregister);
++EXPORT_SYMBOL_GPL(crypto_lb_rehash);
++EXPORT_SYMBOL_GPL(crypto_lb_find_device);
++EXPORT_SYMBOL_GPL(crypto_wake_lb);
 

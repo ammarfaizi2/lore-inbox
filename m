@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268439AbTBNPd5>; Fri, 14 Feb 2003 10:33:57 -0500
+	id <S268434AbTBNPcC>; Fri, 14 Feb 2003 10:32:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268447AbTBNPd5>; Fri, 14 Feb 2003 10:33:57 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:44265 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S268439AbTBNPd4>; Fri, 14 Feb 2003 10:33:56 -0500
-Date: Fri, 14 Feb 2003 07:43:43 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 355] New: Error when compiling SCSI drivers (Adaptec, Seagate
- etc.)
-Message-ID: <57590000.1045237423@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S268432AbTBNPcC>; Fri, 14 Feb 2003 10:32:02 -0500
+Received: from griffon.mipsys.com ([217.167.51.129]:61429 "EHLO
+	zion.wanadoo.fr") by vger.kernel.org with ESMTP id <S268434AbTBNPcC>;
+	Fri, 14 Feb 2003 10:32:02 -0500
+Subject: Re: 2.4.21-pre4: PDC ide driver problems with shared interrupts
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Edward King <edk@cendatsys.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3E4D0029.5090005@cendatsys.com>
+References: <7b263321.0302140626.2ddb7980@posting.google.com>
+	 <3E4D0029.5090005@cendatsys.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Organization: 
+Message-Id: <1045237300.540.43.camel@zion.wanadoo.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 14 Feb 2003 16:41:50 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=355
+On Fri, 2003-02-14 at 15:41, Edward King wrote:
 
-           Summary: Error when compiling SCSI drivers (Adaptec, Seagate
-                    etc.)
-    Kernel Version: 2.5.60 (- bk4)
-            Status: NEW
-          Severity: normal
-             Owner: andmike@us.ibm.com
-         Submitter: martinsteeg@t-online.de
+> Just wanted to jump in here -- I'm setting up a box using two PDC20268
+> controllers for a 4 drive software raid.  The system locks on heavy
+> disk activity only if dma is active.
+> 
+> I was watching this thread and put in the patch to remove the
+> "drive->waiting_for_dma++;" line.  I still get lockups and the message
+> on the console is:
+> 
+> hdg: dma_timer_expiry: dma status == 0x21
+> hde: dma_timer_expiry: dma status == 0x21
+> hdg: timeout waiting for DMA
+> PDC202XX: Secondary channel reset
+> hdg: timeout waiting for DMA
+> hdg: (__ide_dma_test_irq) called while not waiting
+> hdg: status error: status = 0x58 { DriveReady SeekComplete DataRequest
+
+The above error is a different problem. Before trying to track it
+down, I'd strongly suggest that you first check if it still happens
+with the latest 2.4.21-pre4-acX from kernel.org
 
 
-Software Environment: linnx Kernel 2.5.60 ( and snapshots -bk1 ... -bk4)  
-Problem Description:   
-  In the change of linux-2.5.59 to linux-2.5.60, the struct scsi_cmnd   
-  was changed in that the fields host, target, lun, channel are replaced   
-  by fields of the device field (struct scsi_device*): host, id, lun,
-channel       
-  This is not reflected in several SCSI drivers, e.g. the change is not  
-  considered for Adaptec and Seagate SCSI controllers.  
-  
-Proposal to fix the Problem:  
-1. some new defines for drivers/scsi/scsi.h  
-+#define SCSICMND_HOST     device->host  
-+#define SCSICMND_TARGET   device->id  
-+#define SCSICMND_LUN      device->lun  
-+#define SCSICMND_CHANNEL  device->channel  
-2. replacing the lines of drivers/scsi/*.c containing the following code  
--(ptr)->host  
-+)ptr)->SCSICMND_HOST  
--(ptr)->target  
-+)ptr)->SCSICMND_TARGET  
--(ptr)->lun  
-+)ptr)->SCSICMND_LUN  
--(ptr)->channel  
-+)ptr)->SCSICMND_CHANNEL
-
+Ben.
 

@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVCIXhH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbVCIX0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262125AbVCIXhH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 18:37:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbVCIXfC
+	id S261437AbVCIX0u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 18:26:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbVCIX0t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 18:35:02 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:2214 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261199AbVCIXco (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 18:32:44 -0500
-Date: Wed, 9 Mar 2005 15:32:28 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Andi Kleen <ak@muc.de>
-cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Page Fault Scalability patch V19 [4/4]: Drop use of page_table_lock
- in do_anonymous_page
-In-Reply-To: <20050309232141.GD63395@muc.de>
-Message-ID: <Pine.LNX.4.58.0503091526000.30604@schroedinger.engr.sgi.com>
-References: <20050309201324.29721.28956.sendpatchset@schroedinger.engr.sgi.com>
- <20050309201344.29721.26698.sendpatchset@schroedinger.engr.sgi.com>
- <m13bv4whrl.fsf@muc.de> <Pine.LNX.4.58.0503091500040.30604@schroedinger.engr.sgi.com>
- <20050309231440.GB63395@muc.de> <Pine.LNX.4.58.0503091515440.30604@schroedinger.engr.sgi.com>
- <20050309232141.GD63395@muc.de>
+	Wed, 9 Mar 2005 18:26:49 -0500
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:33917 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262206AbVCIXZ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 18:25:59 -0500
+Message-ID: <422F85F6.40305@yahoo.com.au>
+Date: Thu, 10 Mar 2005 10:25:42 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Hugh Dickins <hugh@veritas.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 11/15] ptwalk: copy_pte_range hang
+References: <Pine.LNX.4.61.0503092201070.6070@goblin.wat.veritas.com> <Pine.LNX.4.61.0503092212440.6070@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0503092212440.6070@goblin.wat.veritas.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Mar 2005, Andi Kleen wrote:
+Hugh Dickins wrote:
+> This patch is the odd-one-out of the sequence.  The one before adjusted
+> copy_pte_range from a for loop to a do while loop, and it was therefore
+> simplest to check for lockbreak before copying pte: possibility that it
+> might keep getting preempted without making progress under some loads.
+> 
+> Some loads such as startup: 2*HT*P4 with preemption cannot even reach
+> multiuser login.  Suspect needs_lockbreak is broken, can get in a state
+> when it remains forever true.  Investigate that later: for now, and for
+> all time, it makes sense to aim for a little progress before breaking
+> out; and we can manage more pte_nones than copies.
+> 
 
-> > Changing the type for the countedrs is possible by only changing the
-> > definition of MM_COUNTER_T in include/sched.h. I would prefer to wait
-> > until atomic64_t is available on all 64 bit platforms before making that
-> > part of this patch.
->
-> Well, they will not move until someone uses it (especially parisc
-> and sh64 which always are quite out of sync in mainline). ppc64
-> usually moves quickly.
+(Just to reiterate a private mail sent to Hugh earlier)
 
-Hmm. I could add that with
+Yeah I think lockbreak is broken. Because the inner spinlock never
+has a cond_resched_lock performed on it, so its break_lock is
+never set to 0, but need_lockbreak still always returns 1 for it.
 
-#ifdef ATOMIC64_INIT
-
-atomic64
-
-#else
-
-atomic_t
-
-#endif
-
-> But adding arbitary limits like this even temporarily is imho
-> a bad idea.
-
-Hmmm yes this could actually develop to be an issue for us. Columbia has
-20 Terabytes of memory (some rumors have it that it get up to 500TB but
-maybe that was just a journalist). But Columbia has only 1TB per 512
-CPU cluster addressable directly. So even the biggest box in existence
-right now will be fine with V19.
-
-But V20 will definitely support atomic64.
+IMO, spin_lock should set break_lock to 0, then cond_resched_lock
+need not bother with it.
 

@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262618AbTIAGD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 02:03:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262622AbTIAGD7
+	id S262600AbTIAF6M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 01:58:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbTIAF6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 02:03:59 -0400
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:11376 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S262618AbTIAGD6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 02:03:58 -0400
-Date: Mon, 1 Sep 2003 02:03:55 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Dan Kegel <dank@kegel.com>
-cc: linux-kernel@vger.kernel.org, <jamie@shareable.org>
-Subject: Re: Andrea VM changes
-In-Reply-To: <3F529A95.4030509@kegel.com>
-Message-ID: <Pine.LNX.4.44.0309010203060.25149-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 1 Sep 2003 01:58:12 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:35721 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262600AbTIAF6L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 01:58:11 -0400
+Date: Mon, 1 Sep 2003 06:58:04 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+Message-ID: <20030901055804.GG748@mail.jlokier.co.uk>
+References: <20030829053510.GA12663@mail.jlokier.co.uk> <Pine.GSO.4.21.0308291820540.3919-100000@waterleaf.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0308291820540.3919-100000@waterleaf.sonytel.be>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 31 Aug 2003, Dan Kegel wrote:
-> Jamie Lokier <jamie () shareable ! org> wrote:
-> > I'd love to be able to select which app _doesn't_ deserve the axe.
-> > I.e. not sshd, and then not httpd.
+Geert Uytterhoeven wrote:
+> Are you also interested in m68k? ;-)
 > 
-> I tried adding a hinting system that let the user
-> tweak the badness calculated by the OOM killer.
-> Didn't help.   No matter how I tried to protect
-> important processes, there was always a case where
-> the OOM killer ended up killing them anyway.
+> cassandra:/tmp# time ./test
+> Test separation: 4096 bytes: FAIL - store buffer not coherent
 
-Indeed.  You can't have completely fool-proof heuristics.
+Especially!  I hadn't expected to see any machine that would print
+"store buffer not coherent".  It means that if there's an L1 cache, it
+is coherent, but any store-then-load bypass in the CPU pipeline is
+using the virtual address with no rollback after MMU translation.
 
-Then again, a heuristic is often better than killing
-syslogd at the first hint of trouble.
+I had thought it would only be the case with chips using an external
+MMU, but now that I think about it, the older simpler chips aren't
+going to bother with things like pipeline rollback wherever they can
+get away without it!
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+(The other CPU that is reporting "store buffer not coherent" is
+PA-RISC, which is even more of an eye opener.  That has a big 1MiB
+coherent L1 cache, and the pipeline bypass is coherent for very large
+separations but not others!)
 
+Thanks,
+-- Jamie

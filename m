@@ -1,43 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264044AbVBDThC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264237AbVBDTjw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264044AbVBDThC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 14:37:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263141AbVBDThC
+	id S264237AbVBDTjw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 14:39:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264219AbVBDTjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 14:37:02 -0500
-Received: from pirx.hexapodia.org ([199.199.212.25]:35650 "EHLO
-	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S264044AbVBDTgx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 14:36:53 -0500
-Date: Fri, 4 Feb 2005 11:36:53 -0800
-From: Andy Isaacson <adi@hexapodia.org>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Ian Godin <Ian.Godin@lowrydigital.com>, linux-kernel@vger.kernel.org
-Subject: Re: Drive performance bottleneck
-Message-ID: <20050204193653.GB14940@hexapodia.org>
-References: <c4fc982390674caa2eae4f252bf4fc78@lowrydigital.com> <42026207.4090007@vgertech.com> <ef0635f8b4257d18fad10882a2c79f64@lowrydigital.com> <42027594.9090402@grupopie.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42027594.9090402@grupopie.com>
-User-Agent: Mutt/1.4.1i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+	Fri, 4 Feb 2005 14:39:51 -0500
+Received: from www.tuxrocks.com ([64.62.190.123]:64779 "EHLO tuxrocks.com")
+	by vger.kernel.org with ESMTP id S266556AbVBDTjB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 14:39:01 -0500
+Message-ID: <4203CF43.20703@tuxrocks.com>
+Date: Fri, 04 Feb 2005 12:38:43 -0700
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>,
+       UML Devel <user-mode-linux-devel@lists.sourceforge.net>,
+       "Frank Denis (Jedi/Sector One)" <lkml@pureftpd.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Dike <jdike@addtoit.com>
+Subject: Fix compilation of UML after the stack-randomization patches
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------070607010000030806070102"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 03, 2005 at 07:03:48PM +0000, Paulo Marques wrote:
-> FYI there was a patch running around last April that made a new option 
-> for "dd" to make it use O_DIRECT. You can get it here:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=108135935629589&w=2
-> 
-> Unfortunately this hasn't made it into coreutils.
+This is a multi-part message in MIME format.
+--------------070607010000030806070102
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Follow down the thread and you'll see that it was merged to coreutils
-CVS (message-id <85k70qsp71.fsf@pi.meyering.net>), but there apparently
-hasn't been a coreutils release since then.  Nor has the patch been
-added to the debian package.
+The stack randomization patches that went into 2.6.11-rc3-mm1 broke 
+compilation of ARCH=um.  This patch fixes compiling by adding 
+arch_align_stack back in.
 
--andy
+Signed-off-by: Frank Sorenson <frank@tuxrocks.com>
+Acked-By: Jeff Dike <jdike@addtoit.com>
+
+Frank
+-- 
+Frank Sorenson - KD7TZK
+Systems Manager, Computer Science Department
+Brigham Young University
+frank@tuxrocks.com
+
+--------------070607010000030806070102
+Content-Type: text/plain;
+ name="um-2.6.11-randomization-fix"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="um-2.6.11-randomization-fix"
+
+diff -Naur linux-2.6.11-rc3-mm1_bak/arch/um/kernel/process_kern.c linux-2.6.11-rc3-mm1/arch/um/kernel/process_kern.c
+--- linux-2.6.11-rc3-mm1_bak/arch/um/kernel/process_kern.c	2005-02-04 12:09:03.000000000 -0700
++++ linux-2.6.11-rc3-mm1/arch/um/kernel/process_kern.c	2005-02-04 12:16:59.000000000 -0700
+@@ -21,6 +21,7 @@
+ #include "linux/spinlock.h"
+ #include "linux/proc_fs.h"
+ #include "linux/ptrace.h"
++#include "linux/random.h"
+ #include "asm/unistd.h"
+ #include "asm/mman.h"
+ #include "asm/segment.h"
+@@ -479,6 +480,14 @@
+ 	return 2;
+ }
+ 
++unsigned long arch_align_stack(unsigned long sp)
++{
++	if (randomize_va_space)
++		sp -= get_random_int() % 8192;
++	return sp & ~0xf;
++}
++
++
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+  * Emacs will notice this stuff at the end of the file and automatically
+
+--------------070607010000030806070102--

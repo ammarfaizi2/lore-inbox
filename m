@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268560AbRHQRzU>; Fri, 17 Aug 2001 13:55:20 -0400
+	id <S267992AbRHQSRI>; Fri, 17 Aug 2001 14:17:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269391AbRHQRzK>; Fri, 17 Aug 2001 13:55:10 -0400
-Received: from mhw.ulib.iupui.edu ([134.68.164.123]:64970 "EHLO
-	mhw.ULib.IUPUI.Edu") by vger.kernel.org with ESMTP
-	id <S268560AbRHQRy7>; Fri, 17 Aug 2001 13:54:59 -0400
-Date: Fri, 17 Aug 2001 12:55:13 -0500 (EST)
-From: "Mark H. Wood" <mwood@IUPUI.Edu>
-X-X-Sender: <mwood@mhw.ULib.IUPUI.Edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: ext2 not NULLing deleted files?
-In-Reply-To: <20010817020241.C32617@turbolinux.com>
-Message-ID: <Pine.LNX.4.33.0108171243410.392-100000@mhw.ULib.IUPUI.Edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+	id <S268071AbRHQSQ6>; Fri, 17 Aug 2001 14:16:58 -0400
+Received: from cobae1.consultronics.on.ca ([205.210.130.26]:28826 "EHLO
+	cobae1.consultronics.on.ca") by vger.kernel.org with ESMTP
+	id <S267992AbRHQSQq>; Fri, 17 Aug 2001 14:16:46 -0400
+Date: Fri, 17 Aug 2001 14:17:00 -0400
+From: Greg Louis <glouis@dynamicro.on.ca>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.8-ac6 ad1848 module failed at init
+Message-ID: <20010817141700.A1502@athame.dynamicro.on.ca>
+Reply-To: Greg Louis <glouis@dynamicro.on.ca>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010817080330.A613@athame.dynamicro.on.ca> <E15XiRS-0007Ed-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <E15XiRS-0007Ed-00@the-village.bc.nu>
+Organization: Dynamicro Consulting Limited
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Regarding the need to do more than just zero unwanted data, I note that
-there is a U.S. DOD MIL-SPEC (no, I do not know the number) which defines
-a sequence of patterns to be used for erasing magnetic media.  VMS has a
-hook on which one may hang one's own erasure pattern generator, and I
-think DEC provided an unsupported implementation of the MIL-SPEC patterns
-as an example of its use.  INITIALIZE /ERASE can use the patterns, but I
-don't recall whether DELETE /ERASE does.  If you don't provide a
-generator, I think erasure just uses zeros.
+On 20010817 (Fri) at 1309:34 +0100, Alan Cox wrote:
+> > module ad1848 built but failed at init with "No device found."
+> > 
+> > I reverted, by copying ad1848.c from the -ac4 tree, and the resulting
+> > module loaded successfully, and seems to be functioning correctly.
+> 
+> Is your card plug and play ?
 
-I recall hearing that highly-classified data must be destroyed by
-physically shredding the medium.  Yes, throw your disk drive in the
-shredder!  (Just imagine the class of machinery required to digest an RA81
-HDA.)
-
-Most of this goes way beyond the need to deter casual snooping.
+No, the params are selected among a limited set of combinations with
+DIP switches.  The trix module load instruction goes
+insmod trix io=0x530 irq=9 dma=3 dma2=0 sb_io=0x220 sb_dma=1 \
+  sb_irq=7 mpu_io=0x370 mpu_irq=5
 
 -- 
-Mark H. Wood, Lead System Programmer   mwood@IUPUI.Edu
-Make a good day.
-
+| G r e g  L o u i s          | gpg public key:      |
+|   http://www.bgl.nu/~glouis |   finger greg@bgl.nu |

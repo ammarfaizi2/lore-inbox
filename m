@@ -1,89 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbVCWRA1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261765AbVCWRGc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261659AbVCWRA1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 12:00:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVCWRA1
+	id S261765AbVCWRGc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 12:06:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbVCWRGc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 12:00:27 -0500
-Received: from port-212-202-144-146.static.qsc.de ([212.202.144.146]:57263
-	"EHLO mail.hennerich.de") by vger.kernel.org with ESMTP
-	id S261659AbVCWRAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 12:00:09 -0500
-Date: Wed, 23 Mar 2005 17:57:45 +0100
-From: Tobias Hennerich <Tobias@Hennerich.de>
-To: Alexander Nyberg <alexn@dsv.su.se>
-Cc: Timo Hennerich <Timo@Hennerich.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Vladimir Saveliev <vs@namesys.com>
-Subject: Re: Strange memory leak in 2.6.x
-Message-ID: <20050323175745.A25998@bart.hennerich.de>
-References: <20050311183207.A22397@bart.hennerich.de> <1110565420.2501.12.camel@boxen> <20050312133241.A11469@bart.hennerich.de> <1110640085.2376.22.camel@boxen> <20050312214216.A24046@bart.hennerich.de> <1110661479.3360.11.camel@boxen> <026101c52891$2a618410$0404010a@hennerich.de> <1110812292.2492.21.camel@localhost.localdomain> <20050317133026.A4515@bart.hennerich.de> <1111585276.2441.1.camel@localhost.localdomain>
+	Wed, 23 Mar 2005 12:06:32 -0500
+Received: from rproxy.gmail.com ([64.233.170.197]:29177 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261780AbVCWRF3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 12:05:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=My7z4gmTDboR0Z6S8oJ7mkn3IKRdrOArMoDtvMofivR2EhKngyIWPR/kVq6Dci0oj3ahYO0u1S/CwheTAGREFP4p5H922MlDtE8o0Cp2dk4NB3SFoPWZLVxx50hbOJQzQHDQqoDVXNfnrjzijhHr/4IpkfAqjfY17VDHcvwoKfs=
+Message-ID: <9cde8bff05032309056c9643a7@mail.gmail.com>
+Date: Thu, 24 Mar 2005 02:05:28 +0900
+From: aq <aquynh@gmail.com>
+Reply-To: aq <aquynh@gmail.com>
+To: Natanael Copa <mlists@tanael.org>
+Subject: Re: forkbombing Linux distributions
+Cc: "Hikaru1@verizon.net" <Hikaru1@verizon.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <1111586058.27969.72.camel@nc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <1111585276.2441.1.camel@localhost.localdomain>; from alexn@dsv.su.se on Wed, Mar 23, 2005 at 02:41:15PM +0100
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <e0716e9f05032019064c7b1cec@mail.gmail.com>
+	 <20050322112628.GA18256@roll>
+	 <Pine.LNX.4.61.0503221247450.5858@yvahk01.tjqt.qr>
+	 <20050322124812.GB18256@roll> <20050322125025.GA9038@roll>
+	 <9cde8bff050323025663637241@mail.gmail.com>
+	 <1111581459.27969.36.camel@nc>
+	 <9cde8bff05032305044f55acf3@mail.gmail.com>
+	 <1111586058.27969.72.camel@nc>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Alexander,
-
-On Wed, Mar 23, 2005 at 02:41:15PM +0100, Alexander Nyberg wrote:
-> > > >     881397 times:
-> > > >     Page allocated via order 0
-> > > >     [0xc013962b] find_or_create_page+91
-> > > >     [0xf8aa9955] reiserfs_prepare_file_region_for_write+613
-> > > >     [0xf8aaa606] reiserfs_file_write+1366
-> > > > 
-> > > > So I guess that we have a problem with the reiser filesystem??
-> > > > We are using reiserfs 3.6...
-> > > 
-> > > The only thing that stands out is big page cache. However, looking at
-> > > the previous OOM output it shows that it is zone normal that is
-> > > completely out of memory and that highmem zone has lots of free memory.
-> > > 
-> > > Let's see if the big sharks know what is going on...
-> > 
-> > Because we suspect the problem in reiserfs and we still have to reboot
-> > the machine every other day, we will switch to ext3 now.
+On Wed, 23 Mar 2005 14:54:18 +0100, Natanael Copa <mlists@tanael.org> wrote:
+> On Wed, 2005-03-23 at 22:04 +0900, aq wrote:
+> > On Wed, 23 Mar 2005 13:37:38 +0100, Natanael Copa <mlists@tanael.org> wrote:
+> > > > > This is an example of a program in C my friends gave me that forkbombs.
+> > > > > My previous sysctl.conf hack can't stop this, but the /etc/limits solution
+> > > > > enables the owner of the computer to do something about it as root.
+> > > > >
+> > > > > int main() { while(1) { fork(); } }
+> > >
+> > > I guess that "fork twice and exit" is worse than this?
+> >
+> > you meant code like this
+> >
+> > int main() { while(1) { fork(); fork(); exit(); } }
+> >
+> >  is more harmful ? I dont see why (?)
 > 
-> Just to follow up, did the problems go away when switching to ext3?
+> Because the parent disappears. When things like killall tries to kill
+> the process its already gone but there are 2 new with new pids.
+> 
 
-The switch has been delayed. Up to now we just reboot the machine every
-48h - the administrator responsible for the machine is on holiday... 
+are you sure? the above forkbomb will stop quickly after just several
+spawns because of exit().
 
-Meanwhile, I noticed, that the latest release candidate has several
-changes which could be quite interesting for us:
+I agree that make kernel more restrictive by default is a good approach.
 
-<andrea@suse.de>
-    [PATCH] orphaned pagecache memleak fix
-
-    Chris found that with data journaling a reiserfs pagecache may
-    be truncate while still pinned.  The truncation removes the
-    page->mapping, but the page is still listed in the VM queues
-    because it still has buffers.  Then during the journaling process,
-    a buffer is marked dirty and that sets the PG_dirty bitflag as well
-    (in mark_buffer_dirty).  After that the page is leaked because it's
-    both dirty and without a mapping.
-
-<mason@suse.com>
-    [PATCH] reiserfs: make sure data=journal buffers are cleaned on free
-
-    In data=journal mode, when blocks are freed and their buffers
-    are dirty, reiserfs can remove them from the transaction without
-    cleaning them. These buffers never get cleaned, resulting in an
-    unfreeable page.
-
-On the other side we don't want to install a rc1-kernel on a important
-system. Up to now we still plan to do the switch to ext3...
-
-If someone would recommend to install a special reiserfs-patch (*not*
-the 12mb of patch-2.6.12-rc1) we would consider that, too! So some
-feedback from "the big sharks" is still very welcome.
-
-Best regards	Tobias
-
--- 
-T+T Hennerich GmbH --- Zettachring 12a --- 70567 Stuttgart
-Fon:+49(711)720714-0  Fax:+49(711)720714-44  Vanity:+49(700)HENNERICH
-UNIX - Linux - Java - C  Entwicklung/Beratung/Betreuung/Schulung
-http://www.hennerich.de/
+thank you,
+aq

@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267372AbUIDMZe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267737AbUIDM2T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267372AbUIDMZe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 08:25:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267737AbUIDMZe
+	id S267737AbUIDM2T (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 08:28:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267745AbUIDM2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 08:25:34 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:18694 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267372AbUIDMZ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 08:25:27 -0400
-Date: Sat, 4 Sep 2004 13:25:12 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Dave Airlie <airlied@linux.ie>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Keith Whitwell <keith@tungstengraphics.com>,
-       Dave Jones <davej@redhat.com>, Jon Smirl <jonsmirl@yahoo.com>,
-       dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: New proposed DRM interface design
-Message-ID: <20040904132512.B14904@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dave Airlie <airlied@linux.ie>,
-	Keith Whitwell <keith@tungstengraphics.com>,
-	Dave Jones <davej@redhat.com>, Jon Smirl <jonsmirl@yahoo.com>,
-	dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20040904102914.B13149@infradead.org> <41398EBD.2040900@tungstengraphics.com> <20040904104834.B13362@infradead.org> <413997A7.9060406@tungstengraphics.com> <20040904112535.A13750@infradead.org> <4139995E.5030505@tungstengraphics.com> <20040904112930.GB2785@redhat.com> <4139A9F4.4040702@tungstengraphics.com> <20040904124658.A14628@infradead.org> <Pine.LNX.4.58.0409041253390.25475@skynet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58.0409041253390.25475@skynet>; from airlied@linux.ie on Sat, Sep 04, 2004 at 01:04:17PM +0100
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 4 Sep 2004 08:28:18 -0400
+Received: from relay.pair.com ([209.68.1.20]:13330 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S267737AbUIDM2Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 08:28:16 -0400
+X-pair-Authenticated: 66.188.111.210
+Message-ID: <4139B4DE.9060905@cybsft.com>
+Date: Sat, 04 Sep 2004 07:28:14 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>,
+       Mark_H_Johnson@raytheon.com,
+       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R3
+References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu> <20040902111003.GA4256@elte.hu> <20040902215728.GA28571@elte.hu> <4138A56B.4050006@cybsft.com> <20040903181710.GA10217@elte.hu> <20040903193052.GA16617@elte.hu> <413939F8.1030806@cybsft.com> <20040904064121.GA31348@elte.hu>
+In-Reply-To: <20040904064121.GA31348@elte.hu>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 04, 2004 at 01:04:17PM +0100, Dave Airlie wrote:
-> I've got nothing to do with Tungsten whatsoever, I've never met any of the
-> other major DRI developers, my worries here is this is turning into a
-> company issue, people keep mentioning Fedora this and that, Fedora is one
-> distro, I happen to use it, lots of people I know dont.. it supports DRI
-> on IGP and i915 in Fedora 3 Test only, a DRI snapshot works on FC1 and
-> FC2 as well..
-
-Fedota is only mentioned as an example because the development is so open
-and I happen to see what's going on (I'm not using it myself at all).  I'm
-pretty sure SuSE has/will have soon an update for i915, but it would requite
-more work for me to find out.
-
-> >
-> > And how does taking random dri snapshots help you there?  The only sane way
-> > to make that happen is to make sure it's in the various distro kernels ASAP.
+Ingo Molnar wrote:
+> * K.R. Foley <kr@cybsft.com> wrote:
 > 
-> Again what about distros that only do security upgrades in stable
-> releases, I would like to give those people a chance to use their graphics
-> cards, and the snapshots are not the only way, Intel have i915 Linux
-> drivers on their site from TG, they work on most kernels/distros, I get a
-> machine with i915 install Debian go to Intels website and download their
-> drivers, it all works, now why do I have to compile a kernel again?
+> 
+>>http://www.cybsft.com/testresults/crashes/2.6.9-rc1-vo-R3.txt
+> 
+> 
+> the first line seems partial - isnt the full oops in the log?
 
-Okay, let's take Debian stable as an example.  How do you get an agpgart
-that deals with the i915 into the 2.4.18 kernel woody ships?
+Agreed. Unfortunately that is all there is.
 
-You really want the whole software stack to support new hardware.  And for
-that you best go to a kernel that's not from stoneage, either a new upstream
-release or a maintained vendor kernel.
+> 
+> 
+>>Sorry I forgot to mention that this was triggered running the
+>>stress-kernel package, minus the NFS-Compile, but it does include the
+>>CRASHME test. In addition, amlat was running as well. The system was
+>>pretty much 100% loaded.
+> 
+> 
+> Have you run crashme as root? That would be unsafe.
+
+Actually what happens is that it creates a "crashme" user (and group)
+for running the test and then deletes the user after the test. In fact
+the user is still in passwd, because of the crash it didn't get cleaned
+up. So I don't think this SHOULD be a problem.
+
+

@@ -1,28 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316070AbSIIBtt>; Sun, 8 Sep 2002 21:49:49 -0400
+	id <S316089AbSIICAS>; Sun, 8 Sep 2002 22:00:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316088AbSIIBtt>; Sun, 8 Sep 2002 21:49:49 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:23713 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S316070AbSIIBtt>;
-	Sun, 8 Sep 2002 21:49:49 -0400
-Date: Mon, 9 Sep 2002 03:57:55 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Anton Altaparmakov <aia21@cantab.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: pinpointed: PANIC caused by dequeue_signal() in current Linus 
- BK tree
-In-Reply-To: <Pine.LNX.4.44.0209081835260.1401-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0209090357180.6125-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316182AbSIICAS>; Sun, 8 Sep 2002 22:00:18 -0400
+Received: from support.kovair.com ([209.66.77.36]:7147 "EHLO tbdnetworks.com")
+	by vger.kernel.org with ESMTP id <S316089AbSIICAS>;
+	Sun, 8 Sep 2002 22:00:18 -0400
+Date: Sun, 8 Sep 2002 19:04:48 -0700
+From: nk@tbdnetworks.com
+To: kernel@kolivas.net
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Supermount added to performance patches (-ck) for stable kernel
+Message-ID: <20020909020448.GA10153@enterprise.tbdnetworks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-indeed the problem is that the shared_pending queue is not initialized in
-INIT_SIGNALS. Patch in a few minutes.
+there was a patch reject in arch/mips64/kernel/linux32.c which is now
+part of ck7_ck6.diff.bz2
 
-	Ingo
-
+--nk

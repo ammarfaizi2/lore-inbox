@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268377AbTBYVpE>; Tue, 25 Feb 2003 16:45:04 -0500
+	id <S268332AbTBYVY0>; Tue, 25 Feb 2003 16:24:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268375AbTBYVpD>; Tue, 25 Feb 2003 16:45:03 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:38318 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S268377AbTBYVpB>; Tue, 25 Feb 2003 16:45:01 -0500
-Message-ID: <3E5BE1CC.4010600@namesys.com>
-Date: Wed, 26 Feb 2003 00:36:12 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
+	id <S268333AbTBYVY0>; Tue, 25 Feb 2003 16:24:26 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:986 "EHLO dns.toxicfilms.tv")
+	by vger.kernel.org with ESMTP id <S268332AbTBYVYY>;
+	Tue, 25 Feb 2003 16:24:24 -0500
+Date: Tue, 25 Feb 2003 22:34:38 +0100 (CET)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.20-usagi-grsec-pom
+Message-ID: <Pine.LNX.4.51.0302252224130.1146@dns.toxicfilms.tv>
 MIME-Version: 1.0
-To: Scott Robert Ladd <scott@coyotegulch.com>
-CC: Steven Cole <elenstev@mesatop.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       LKML <linux-kernel@vger.kernel.org>, Larry McVoy <lm@bitmover.com>
-Subject: Re: Minutes from Feb 21 LSE Call
-References: <FKEAJLBKJCGBDJJIPJLJIEPCEPAA.scott@coyotegulch.com>
-In-Reply-To: <FKEAJLBKJCGBDJJIPJLJIEPCEPAA.scott@coyotegulch.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scott Robert Ladd wrote:
+Hi,
 
->"Normal" folk simply have no use for an 8 CPU system. 
->
-I had this argument over whether normal people would ever really need a 
-10mb hard drive when I was 21.  Once was enough, sorry, I didn't 
-convince the other guy then, and I don't think I have gotten more 
-eloquent since then.
+i made a patch that applied over vanilla 2.4.20 adds:
+- latest ip6 usagi stable
+- latest grsecurity-1.9.9c
+- all of the important pending netfilter patches (as up2date as pre4,
+  forthcomming pre5)
+- extra netfilter patches:
+  HL-ipv6, IPV4OPTSSTRIP, NETLINK, NETMAP, REJECT-ipv6, SAME, TTL
+  ahesp6-ipv6, frag-ipv6, fuzzy, hl-ipv6, iplimit, ipt_unclean-ubit,
+  ipv4options, ipv6header-ipv6, mport, nth, pool, psd, quota, random
+  realm, route6-ipv6, time, u32, CONNMARK, ROUTE, amanda-conntrack-nat
+  condition, condition6, eggdrop-conntrack, h323-conntrack-nat,
+  ip_tables-proc, ipt_TARPIT, mms-conntrack-nat, netfilter-docbook,
+  nfnetlink-ctnetlink-0.11 pptp-conntrack-nat, quake3-conntrack, recent,
+  rpc, rsh, string, talk-conntrack-nat, tftp-conntrack-nat
 
-I'll just say that entertainment will drive computing for the next 5-15 
-years, and game designers won't have enough CPU that whole time.  
-Hollywood is dying like radio did, and immersive experiences are 
-replacing it.
+I guess some admins that want to make ipv4/ipv6 routers/firewalls +
+hardened security from grsec, would like to get their hands on that.
 
-HDTV might not make it.  I personally don't really want any audio or 
-video devices or sources which are not well integrated into my computer, 
-and HDTV is not.  I am not sure if the rest of the market will think 
-like me, but the gamers  might....  I am getting a La Cie 4 monitor next 
-week which will do 2048x1536 without blurring pixels for $960, and I 
-just don't think I will want to use an HDTV for anything except maybe 
-the kitchen.  I try to watch a high quality movie once a week with a 
-friend because I don't want to miss out on our culture (and games are 
-not yet as culturally rich as movies), but games are more engaging, and 
-I am not really managing to watch the movie a week.  I seem to be at the 
-extreme of a growing trend.
+http://dns.toxicfilms.tv/usagi_grsec_netfilter.diff.bz2
 
-Scott Robert Ladd wrote:
+Regards,
+Maciej Soltysiak
 
-(Note: I drive a big SUV because I *do** haul stuff, and I've got lots of
-kids -- the right tool for the job, as Alan stated.)
-
-You didn't say whether you typically haul stuff and kids over rough 
-roads.  If you don't (and very few SUV owners do), then what you need is 
-called a "mini-van", which is what people who are functionally oriented 
-buy for city hauling of kids and stuff ;-), and I bought my wife one.  
-It has more than 16 CPUs in it....
-
--- 
-Hans
-
-
+-----BEGIN GEEK CODE BLOCK-----
+VERSION: 3.1
+GIT/MU d-- s:- a-- C++ UL++++$ P L++++ E- W- N- K- w--- O! M- V- PS+ PE++
+Y+ PGP- t+ 5-- X+ R tv- b DI+ D---- G e++>+++ h! y?
+-----END GEEK CODE BLOCK-----

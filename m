@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292700AbSCRT4O>; Mon, 18 Mar 2002 14:56:14 -0500
+	id <S292707AbSCRT4e>; Mon, 18 Mar 2002 14:56:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292688AbSCRT4E>; Mon, 18 Mar 2002 14:56:04 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:34178 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S292594AbSCRTz7>;
-	Mon, 18 Mar 2002 14:55:59 -0500
-Date: Mon, 18 Mar 2002 20:20:05 +0100
+	id <S292688AbSCRT4Z>; Mon, 18 Mar 2002 14:56:25 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:34946 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S292594AbSCRT4O>;
+	Mon, 18 Mar 2002 14:56:14 -0500
+Date: Mon, 18 Mar 2002 20:21:36 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Olivier Galibert <galibert@pobox.com>, LKML <linux-kernel@vger.kernel.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        LKML <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] My AMD IDE driver, v2.7
-Message-ID: <20020318192004.GB194@elf.ucw.cz>
-In-Reply-To: <Pine.LNX.4.33.0203111829550.1153-100000@home.transmeta.com> <3C8D69E3.3080908@mandrakesoft.com> <20020311223439.A2434@zalem.nrockv01.md.comcast.net> <3C8D8061.4030503@mandrakesoft.com> <20020314141342.B37@toy.ucw.cz> <3C91D571.5070806@mandrakesoft.com>
+Message-ID: <20020318192136.GC194@elf.ucw.cz>
+In-Reply-To: <3C8DDFC8.5080501@evision-ventures.com> <20020312165937.A4987@ucw.cz> <3C8E28A1.1070902@evision-ventures.com> <20020312172134.A5026@ucw.cz> <3C8E2C2C.2080202@evision-ventures.com> <20020312173301.C5026@ucw.cz> <3C8E3025.4070409@evision-ventures.com> <20020312175044.A5228@ucw.cz> <20020314140210.A37@toy.ucw.cz> <20020315121352.A25209@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,25 +24,22 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> >>Under more restricted domains, root cannot bit-bang the interface. 
-> >>s/CAP_SYS_RAWIO/CAP_DEVICE_CMD/ for the raw cmd ioctl interface.  Have 
-> >>
-> >
-> >Nobody uses capabilities these days, right?
+> > > You may happen to have the numbers, though - that should be enough.
+> > > 
+> > > Btw, I have a CMD640B based PCI card lying around here, but never
+> > > managed to get it generate any interrupts, though the rest seems to be
+> > > working.
+> > 
+> > Attach it to the timer interrupt -- that should do it for testing. Simplest
+> > way is to make ide timeouts HZ/100 and killing "lost interrupt" msg ;-).
 > 
-> Actually, the NSA and HP secure linux products do, at the very least. 
-> And there is some ELF capabilities project out there IIRC, but I dunno 
-> if anybody's using it.
+> Well, it seems like we'll have to something like this anyway. Some chips
+> sometimes forget to assert the IRQ after a transfer due to HW bugs, and
+> some PIIX3s are reported to do it quite often.
 
-I did ELF capabilities ;-). And no, I do not think I had many users.
-
-> commands.  With the proper sequencing, you can even do power management 
-> of the drives in userspace.  You don't want to do system suspend/resume 
-> that way, but you can certainly have a userspace policy daemon running, 
-> that powers-down and powers-up the drives, etc.
-
-See noflushd, Hdparm is able to powersave disks well, already, and it
-was in 2.2.X, too.
+What is "quite often"? Unless it is more than once in a hour, current
+code is just okay... (It waits for timeout, which is about 30 sec?,
+then recovers).
 									Pavel
 -- 
 (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.

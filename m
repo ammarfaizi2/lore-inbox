@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbTJRTTh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 15:19:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbTJRTTh
+	id S261807AbTJRTZW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 15:25:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbTJRTZW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 15:19:37 -0400
-Received: from ns.suse.de ([195.135.220.2]:31155 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261775AbTJRTTf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 15:19:35 -0400
-To: Andrew Morton <akpm@osdl.org>
+	Sat, 18 Oct 2003 15:25:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2690 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261807AbTJRTZS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 15:25:18 -0400
+Date: Sat, 18 Oct 2003 20:25:17 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Svetoslav Slavtchev <svetljo@gmx.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] add a config option for -Os compilation
-References: <20031015225055.GS17986@fs.tum.de.suse.lists.linux.kernel>
-	<20031015161251.7de440ab.akpm@osdl.org.suse.lists.linux.kernel>
-	<20031015232440.GU17986@fs.tum.de.suse.lists.linux.kernel>
-	<20031015165205.0cc40606.akpm@osdl.org.suse.lists.linux.kernel>
-	<20031018102127.GE12423@fs.tum.de.suse.lists.linux.kernel>
-	<649730000.1066491920@[10.10.2.4].suse.lists.linux.kernel>
-	<20031018102402.3576af6c.akpm@osdl.org.suse.lists.linux.kernel>
-	<20031018174434.GJ12423@fs.tum.de.suse.lists.linux.kernel>
-	<20031018105733.380ea8d2.akpm@osdl.org.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 18 Oct 2003 21:19:32 +0200
-In-Reply-To: <20031018105733.380ea8d2.akpm@osdl.org.suse.lists.linux.kernel>
-Message-ID: <p731xtapd4r.fsf@oldwotan.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+Subject: Re: initrd and 2.6.0-test8
+Message-ID: <20031018192517.GD7665@parcelfarce.linux.theplanet.co.uk>
+References: <22900.1066504204@www30.gmx.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <22900.1066504204@www30.gmx.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+On Sat, Oct 18, 2003 at 09:10:04PM +0200, Svetoslav Slavtchev wrote:
+> me had  the same problems,
+> with devfs enabled
+> 
+> could it be this (from Documentation/initrd)
+> 
+> Note that changing the root directory does not involve unmounting it.
+>     the "normal" root file system is mounted. initrd data can be read
+>   root=/dev/ram0   (without devfs)
+>   root=/dev/rd/0   (with devfs)
+>     initrd is mounted as root, and the normal boot procedure is followed,
+>     with the RAM disk still mounted as root.
+> 
+> the patch doesn't mention anything about /dev/rd/0 , but does for /dev/ram0
 
-> And bear in mind that you can see significant changes in benchmark results
-> between equivalent kernels even when the optimisation level is kept the
-> same, due to aliasing and alignment luck.
+*Arrgh*
 
-It also depends on a lot on the compiler version. On 2.95 
-it was common wisdom that -Os is often fastest, but that changed
-in later versions.
+Presense of devfs is, indeed, the problem.  /dev/rd/0 vs. /dev/ram0 is not
+an issue; visibility of /dev/initrd, OTOH, is - we have /dev of rootfs
+overmounted by devfs, so the thing becomes inaccessible.
 
-Best would be actually a mix of both - setting it case by case.
-That's already done in specific cases, e.g. ACPI is always compiled
-with -Os. This could be done for other files which are clearly
-slow path too.
-
-Profile feedback is unfortunately not an option because it is too
-unpredictable and causes maintenance problems.
-
--Andi
+OK, that's trivially fixable.  We need to put the sucker outside of /dev,
+that's all.  Patch in a few...

@@ -1,165 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261853AbVAYHdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbVAYHhs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261853AbVAYHdr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 02:33:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbVAYHdq
+	id S261857AbVAYHhs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 02:37:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbVAYHhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 02:33:46 -0500
-Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:64212 "EHLO
-	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
-	id S261853AbVAYHdU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 02:33:20 -0500
-Date: Tue, 25 Jan 2005 02:32:51 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: [PATCH] fix bad locking in drivers/base/driver.c
-In-reply-to: <20050125055651.GA1987@kroah.com>
-To: Greg KH <greg@kroah.com>
-Cc: Jirka Kosina <jikos@jikos.cz>, Patrick Mochel <mochel@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Message-id: <41F5F623.5090903@sun.com>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_D+YHYb4SIh7zhNrkMoeM8Q)"
-X-Accept-Language: en-us, en
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <Pine.LNX.4.58.0501241921310.5857@twin.jikos.cz>
- <20050125055651.GA1987@kroah.com>
+	Tue, 25 Jan 2005 02:37:36 -0500
+Received: from fmr15.intel.com ([192.55.52.69]:60392 "EHLO
+	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261855AbVAYHhD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 02:37:03 -0500
+Subject: Re: [PATCH 6/29] x86-apic-virtwire-on-shutdown
+From: Len Brown <len.brown@intel.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <m1y8eiggge.fsf@ebiederm.dsl.xmission.com>
+References: <x86-apic-virtwire-on-shutdown-11061198973730@ebiederm.dsl.xmission.com>
+	 <1106625259.2395.232.camel@d845pe>
+	 <m1y8eiggge.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1106638610.2397.267.camel@d845pe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 25 Jan 2005 02:36:51 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
-
---Boundary_(ID_D+YHYb4SIh7zhNrkMoeM8Q)
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Greg KH wrote:
-> On Mon, Jan 24, 2005 at 07:25:19PM +0100, Jirka Kosina wrote:
+On Tue, 2005-01-25 at 01:39, Eric W. Biederman wrote:
+> Len Brown <len.brown@intel.com> writes:
 > 
->>Hi,
->>
->>there has been (for quite some time) a bug in function driver_unregister() 
->>- the lock/unlock sequence is protecting nothing and the actual 
->>bus_remove_driver() is called outside critical section.
->>
->>Please apply.
+> > On Wed, 2005-01-19 at 02:31, Eric W. Biederman wrote:
+> > > When coming out of apic mode attempt to set the appropriate
+> > > apic back into virtual wire mode.  This improves on previous
+> versions
+> > > of this patch by by never setting bot the local apic and the
+> ioapic
+> > > into veritual wire mode.
+> > >
+> > > This code looks at data from the mptable to see if an ioapic has
+> > > an ExtInt input to make this decision.  A future improvement
+> > > is to figure out which apic or ioapic was in virtual wire mode
+> > > at boot time and to remember it.  That is potentially a more
+> accurate
+> > > method, of selecting which apic to place in virutal wire mode.
+> > >
+> >
+> > The call to find_isa_irq_pin() will always fail on ACPI-enabled
+> systems,
+> > so this patch is a NO-OP unless the system is booted in MPS mode.
+> >
+> > Do we really want to be adding this complexity for obsolete systems?
+> > Are there systems that fail without this patch?
 > 
+> Yes there are bleeding edge systems that fail without this patch.
+> And I have them.  That is why I wrote the code.
+
+What bleeding edge system support MPS and does not support ACPI?
+
+> I do agree that find_isa_irq_pin is a suboptimal way to get this
+> information, looking at the ioapics at boot time would be better.
+> However it works for me, the code is not wrong, and as you said
+> usually the code becomes a noop.
 > 
-> No, please read the comment in the code about why this is the way it is.
-> The code is correct as is.
-> 
+> If I can find the appropriate place in the boot path to examine
+> the ioapics before they get stomped I am more than willing to write
+> code that will handle this even in the presence of acpi data.
 
-Why don't we clean this up as in the proposed attached patch (against
-2.6.10).  Compile-tested only.
-
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB9fYjdQs4kOxk3/MRAgzrAJ96+aEawx/A0Sf0d5HqArsasgYrqQCZAVzp
-wuGctEJpxqtxezPD7LNGS+U=
-=77WW
------END PGP SIGNATURE-----
-
---Boundary_(ID_D+YHYb4SIh7zhNrkMoeM8Q)
-Content-type: text/x-patch; name=convert_unload_sem_to_completion.patch
-Content-transfer-encoding: 7BIT
-Content-disposition: inline; filename=convert_unload_sem_to_completion.patch
-
-Get rid of semaphore abuse by converting device_driver->unload_sem semaphore to device_driver->unloaded completion.
-
-This should get rid of any confusion as well as save a few bytes in the
-process.
-
-Signed-off-by: Mike Waychison <michael.waychison@sun.com>
----
-
- drivers/base/bus.c     |    2 +-
- drivers/base/driver.c  |   13 ++++++-------
- include/linux/device.h |    2 +-
- 3 files changed, 8 insertions(+), 9 deletions(-)
-
-Index: linux-2.6.10/drivers/base/bus.c
-===================================================================
---- linux-2.6.10.orig/drivers/base/bus.c	2004-12-24 16:34:26.000000000 -0500
-+++ linux-2.6.10/drivers/base/bus.c	2005-01-25 02:14:10.000000000 -0500
-@@ -65,7 +65,7 @@ static struct sysfs_ops driver_sysfs_ops
- static void driver_release(struct kobject * kobj)
- {
- 	struct device_driver * drv = to_driver(kobj);
--	up(&drv->unload_sem);
-+	complete(&drv->unloaded);
- }
+I belive we don't touch the IO_APICS in either MPS or ACPI mode before
+setup_IO_APIC.
  
- static struct kobj_type ktype_driver = {
-Index: linux-2.6.10/drivers/base/driver.c
-===================================================================
---- linux-2.6.10.orig/drivers/base/driver.c	2004-12-24 16:35:25.000000000 -0500
-+++ linux-2.6.10/drivers/base/driver.c	2005-01-25 02:16:31.000000000 -0500
-@@ -79,14 +79,14 @@ void put_driver(struct device_driver * d
-  *	since most of the things we have to do deal with the bus
-  *	structures.
-  *
-- *	The one interesting aspect is that we initialize @drv->unload_sem
-- *	to a locked state here. It will be unlocked when the driver
-- *	reference count reaches 0.
-+ *	The one interesting aspect is that we setup @drv->unloaded
-+ *	as a completion that gets complete when the driver reference 
-+ *	count reaches 0.
-  */
- int driver_register(struct device_driver * drv)
- {
- 	INIT_LIST_HEAD(&drv->devices);
--	init_MUTEX_LOCKED(&drv->unload_sem);
-+	init_completion(&drv->unloaded);
- 	return bus_add_driver(drv);
- }
- 
-@@ -97,7 +97,7 @@ int driver_register(struct device_driver
-  *
-  *	Again, we pass off most of the work to the bus-level call.
-  *
-- *	Though, once that is done, we attempt to take @drv->unload_sem.
-+ *	Though, once that is done, we wait until @drv->unloaded is copmleted.
-  *	This will block until the driver refcount reaches 0, and it is
-  *	released. Only modular drivers will call this function, and we
-  *	have to guarantee that it won't complete, letting the driver
-@@ -107,8 +107,7 @@ int driver_register(struct device_driver
- void driver_unregister(struct device_driver * drv)
- {
- 	bus_remove_driver(drv);
--	down(&drv->unload_sem);
--	up(&drv->unload_sem);
-+	wait_for_completion(&drv->unloaded);
- }
- 
- /**
-Index: linux-2.6.10/include/linux/device.h
-===================================================================
---- linux-2.6.10.orig/include/linux/device.h	2004-12-24 16:35:28.000000000 -0500
-+++ linux-2.6.10/include/linux/device.h	2005-01-25 02:13:13.716384240 -0500
-@@ -102,7 +102,7 @@ struct device_driver {
- 	char			* name;
- 	struct bus_type		* bus;
- 
--	struct semaphore	unload_sem;
-+	struct completion	unloaded;
- 	struct kobject		kobj;
- 	struct list_head	devices;
- 
+> In addition this code is not a complete noop because when
+> find_isa_irq_pin fails it does put the local apic in virtual wire
+> mode.
 
---Boundary_(ID_D+YHYb4SIh7zhNrkMoeM8Q)--
+If the goal of this patch is to restore the hardware to the state
+that it was before Linux scribbed on it, then it might be a better
+ideal to save/restore the actual register values the BIOS gave us rather
+than writing hard-coded values, no?
+
+-Len
+
+

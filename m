@@ -1,79 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262479AbVCBWJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262506AbVCBWOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262479AbVCBWJe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 17:09:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbVCBWH6
+	id S262506AbVCBWOf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 17:14:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbVCBWOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 17:07:58 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:43785 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262461AbVCBV7F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 16:59:05 -0500
-Date: Wed, 2 Mar 2005 22:59:03 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jeff Garzik <jgarzik@pobox.com>, jmorris@redhat.com, davem@davemloft.net
-Cc: Andrew Morton <akpm@osdl.org>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6.11-rc4-mm1 patch] fix buggy IEEE80211_CRYPT_* selects
-Message-ID: <20050302215903.GG4608@stusta.de>
-References: <20050223014233.6710fd73.akpm@osdl.org> <20050226113123.GJ3311@stusta.de> <42256078.1040002@pobox.com> <20050302140833.GD4608@stusta.de> <42261004.4000501@pobox.com>
+	Wed, 2 Mar 2005 17:14:30 -0500
+Received: from rproxy.gmail.com ([64.233.170.205]:33573 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262504AbVCBWNP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 17:13:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Upw83fl7OVgmJDP6sw4597F+7fV/Lh77qbqJT5o4LIqyFpg9G4ivIYY+0LrkNb7hvyY/JTSjdcTzSmC4z5lpRrbH14kWbOaXWYOp292Cdx2o8bn6DjsC8yDozeWUDdPzfYzG3a/HFUjsCDXJ7kn6W3dM56fuNMoz9lRrY1q6VxM=
+Message-ID: <d120d500050302141379f0cb9@mail.gmail.com>
+Date: Wed, 2 Mar 2005 17:13:14 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Ralph Corderoy <ralph@inputplus.co.uk>
+Subject: Re: Documentation for krefs
+Cc: Corey Minyard <cminyard@mvista.com>, Greg KH <greg@kroah.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200503022130.j22LU6H02463@blake.inputplus.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42261004.4000501@pobox.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <422617F1.2080404@mvista.com>
+	 <200503022130.j22LU6H02463@blake.inputplus.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 02, 2005 at 02:12:04PM -0500, Jeff Garzik wrote:
-> Adrian Bunk wrote:
-> >On Wed, Mar 02, 2005 at 01:43:04AM -0500, Jeff Garzik wrote:
-> >
-> >>Adrian Bunk wrote:
-> >>
-> >>>+	select CRYPTO
-> >>>	select CRYPTO_AES
-> >>>	---help---
-> >>>	Include software based cipher suites in support of IEEE 802.11i 
-> >>>	(aka TGi, WPA, WPA2, WPA-PSK, etc.) for use with CCMP enabled 
-> >>>	networks.
-> >>>@@ -54,10 +55,11 @@
-> >>>	"ieee80211_crypt_ccmp".
-> >>>
-> >>>config IEEE80211_CRYPT_TKIP
-> >>>	tristate "IEEE 802.11i TKIP encryption"
-> >>>	depends on IEEE80211
-> >>>+	select CRYPTO
-> >>>	select CRYPTO_MICHAEL_MIC
-> >>
-> >>
-> >>'select CRYPTO_AES' should 'select CRYPTO' automatically, I would hope.
-> >
-> >
-> >This would result in a recursive dependency.
+On Wed, 02 Mar 2005 21:30:06 +0000, Ralph Corderoy
+<ralph@inputplus.co.uk> wrote:
+> > +This way, it doesn't matter what order the two threads handle the
+> > +data, the put handles knowing when the data is free and releasing it.
 > 
-> No, it wouldn't.  CRYPTO_AES depends on CRYPTO, which depends on nothing.
+> s/put/kref_put()/
+>
 
-Exactly.
-
-And if CRYPTO_AES would select CRYPTO, you'd have a recursive 
-dependency.
-
-The only possible thing would be to change all dependencies on CRYPTO to 
-selects. This wouldn't be unlogical since the whole crypto subsystem is 
-only a helper for other subsystems.
-
-James, any opinions on this issue?
-
-> 	Jeff
-
-cu
-Adrian
+What about s/is free/is not referenced anymore/
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Dmitry

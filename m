@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266987AbTAFPLv>; Mon, 6 Jan 2003 10:11:51 -0500
+	id <S266958AbTAFPYP>; Mon, 6 Jan 2003 10:24:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266989AbTAFPLv>; Mon, 6 Jan 2003 10:11:51 -0500
-Received: from mail2.uklinux.net ([80.84.72.32]:57285 "EHLO mail2.uklinux.net")
-	by vger.kernel.org with ESMTP id <S266987AbTAFPLu>;
-	Mon, 6 Jan 2003 10:11:50 -0500
-Message-ID: <3E199EBA.7040807@stephenthomas.uklinux.net>
-Date: Mon, 06 Jan 2003 15:20:26 +0000
-From: Stephen Thomas <mail@stephenthomas.uklinux.net>
-Reply-To: mail@stephenthomas.uklinux.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
+	id <S266989AbTAFPYP>; Mon, 6 Jan 2003 10:24:15 -0500
+Received: from www.wireboard.com ([216.151.155.101]:14981 "EHLO
+	varsoon.wireboard.com") by vger.kernel.org with ESMTP
+	id <S266958AbTAFPYN>; Mon, 6 Jan 2003 10:24:13 -0500
+To: "Dirk Bull" <dirkbull102@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: shmat problem
+References: <F10zrLCCtgx8VUkRacU000005ae@hotmail.com>
+From: Doug McNaught <doug@mcnaught.org>
+Date: 06 Jan 2003 10:32:50 -0500
+In-Reply-To: "Dirk Bull"'s message of "Mon, 06 Jan 2003 14:53:41 +0000"
+Message-ID: <m31y3qi999.fsf@varsoon.wireboard.com>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.7
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: E7205/E7505 support in 2.4
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm thinking of upgrading the innards of my home machine, and
-currently I'm interested in using a motherboard based around the
-Granite Bay chipset (specifically, I looking at an Asus P4G8X).
+"Dirk Bull" <dirkbull102@hotmail.com> writes:
 
-I notice that 2.5 kernels now have explicit support for this
-chipset, while 2.4 don't seem to.  So, if I ran a 2.4 kernel
-on such a machine, would it a) not work, b) work fine, or
-c) work OK but not as well as it could do?
+> Doug, thanks for the reply. I've set SHM_RND in the call and used
+> "__attribute__ ((aligned(4096)))" during the the declaration of
+> variable global01_
+> (as shown below) such that it is aligned on a page boundary. I'm
+> porting code that was
+> written for a Unix system to Linux and the example shown below is how
+> the code is
+> implemented on Unix.
 
-Widening the point somewhat, I notice messages on the list
-go by stating that motherboard such-and-such is stable/flaky under
-linux.  Is there any list anywhere of known good/bad boards,
-chipsets, etc?
+Hmmm, I may be ignorant, but I don't see how the below could work.
+You're asking for the kernel to map your shared memory in the middle
+of an already-mapped area (the bss segment).  I'm actually surprised
+it works on any Unix.
 
-Stephen
+If you can point out a clear violation of the POSIX spec, someone may
+be willing to change it, but it's not clear to me that you're
+guaranteed to be able to map a shared memory area inside your existing
+data segment.
 
+> union {
+> 	long IN[2048];
+> } global01_ __attribute__ ((aligned(4096)));
+
+[...]
+
+> 	if ( (shmptr = shmat(shmid, &global01_, SHM_RND)) == (void *) -1)
+> 		printf("shmat error: %d %s\n",errno, strerror(errno));
+> 	else
+> 		printf("shared memory attached from %x to %x\n",
+> 				shmptr, shmptr+sizeof(global01_));
+
+-Doug

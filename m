@@ -1,85 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263256AbSKUFdS>; Thu, 21 Nov 2002 00:33:18 -0500
+	id <S264001AbSKUFls>; Thu, 21 Nov 2002 00:41:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264001AbSKUFdS>; Thu, 21 Nov 2002 00:33:18 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:273 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S263256AbSKUFdR>; Thu, 21 Nov 2002 00:33:17 -0500
-Date: Thu, 21 Nov 2002 03:40:17 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] net/core: export sk_send_sigurg, its needed by x25 when built as a module
-Message-ID: <20021121054017.GP28717@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"David S. Miller" <davem@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S264004AbSKUFls>; Thu, 21 Nov 2002 00:41:48 -0500
+Received: from rj.SGI.COM ([192.82.208.96]:55505 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S264001AbSKUFlr>;
+	Thu, 21 Nov 2002 00:41:47 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Patrick Mansfield <patmans@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: getting text strings into __initdata for char *foo = "data" 
+In-reply-to: Your message of "Wed, 20 Nov 2002 14:43:43 -0800."
+             <20021120144343.A23601@eng2.beaverton.ibm.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+Date: Thu, 21 Nov 2002 16:48:38 +1100
+Message-ID: <19796.1037857718@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+On Wed, 20 Nov 2002 14:43:43 -0800, 
+Patrick Mansfield <patmans@us.ibm.com> wrote:
+>Is there a way to get char * initialized data to go into the init
+>data section?
+>
+>For example, in the following I want init_foobar and its associated
+>text strings to go into the init data section, not just the pointers
+>in init_foobar:
 
-	Please pull from:
+>From the kdb common patch, kdb/Makefile.
 
-master.kernel.org:/home/acme/BK/net-2.5
+gen-kdb_cmds.c: kdb_cmds Makefile
+	$(AWK) 'BEGIN {print "#include <linux/init.h>"} \
+		/^ *#/{next} \
+		/^[ \t]*$$/{next} \
+		{gsub(/"/, "\\\"", $$0); \
+		  print "static __initdata char kdb_cmd" cmds++ "[] = \"" $$0 "\\n\";"} \
+		END {print "char __initdata *kdb_cmds[] = {"; for (i = 0; i < cmds; ++i) {print "  kdb_cmd" i ","}; print("  0\n};");}' \
+		kdb_cmds > gen-kdb_cmds.c
 
-	Now there is just this outstanding changeset.
+Converts kdb_cmds
 
-Best Regards,
+set LINES 2000
+set BTSP 1
+bp sys_open
 
-- Arnaldo
+into gen-kdb_cmds.c
 
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
+#include <linux/init.h>
+static __initdata char kdb_cmd0[] = "set LINES 2000\n";
+static __initdata char kdb_cmd1[] = "set BTSP 1\n";
+static __initdata char kdb_cmd2[] = "bp sys_open\n";
+char __initdata *kdb_cmds[] = {
+  kdb_cmd0,
+  kdb_cmd1,
+  kdb_cmd2,
+  0
+};
 
-===================================================================
+# objdump -h kdb/gen-kdb_cmds.o
 
+kdb/gen-kdb_cmds.o:     file format elf64-ia64-little
 
-ChangeSet@1.922, 2002-11-21 03:17:14-02:00, acme@conectiva.com.br
-  net/core: export sk_send_sigurg, its needed by x25 when built as a module
+Sections:
+Idx Name          Size      VMA               LMA               File off  Algn
+  0 .text         00000000  0000000000000000  0000000000000000  00000040  2**4
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000000  0000000000000000  0000000000000000  00000040  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000000  0000000000000000  0000000000000000  00000040  2**0
+                  ALLOC
+  3 .debug_abbrev 000000a8  0000000000000000  0000000000000000  00000040  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_info   000001c7  0000000000000000  0000000000000000  000000e8  2**0
+                  CONTENTS, RELOC, READONLY, DEBUGGING
+  5 .debug_line   00000000  0000000000000000  0000000000000000  000002af  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .data.init    00000050  0000000000000000  0000000000000000  000002b0  2**3
+                  CONTENTS, ALLOC, LOAD, RELOC, DATA
+  7 .debug_pubnames 0000001f  0000000000000000  0000000000000000  00000300  2**0
+                  CONTENTS, RELOC, READONLY, DEBUGGING
+  8 .comment      00000029  0000000000000000  0000000000000000  0000031f  2**0
+                  CONTENTS, READONLY
 
+text, data and bss are all 0 size.  Everything is in .data.init.
 
- netsyms.c |    1 +
- 1 files changed, 1 insertion(+)
-
-
-diff -Nru a/net/netsyms.c b/net/netsyms.c
---- a/net/netsyms.c	Thu Nov 21 03:38:18 2002
-+++ b/net/netsyms.c	Thu Nov 21 03:38:18 2002
-@@ -116,6 +116,7 @@
- EXPORT_SYMBOL(sock_recvmsg);
- EXPORT_SYMBOL(sk_alloc);
- EXPORT_SYMBOL(sk_free);
-+EXPORT_SYMBOL(sk_send_sigurg);
- EXPORT_SYMBOL(sock_wake_async);
- EXPORT_SYMBOL(sock_alloc_send_skb);
- EXPORT_SYMBOL(sock_alloc_send_pskb);
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.922
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch2804
-M'XL(`$IQW#T``]U476_3,!1]KG_%E?8"8DE\G>^@HM(Q`=I0JXY)\%2YCMM4
-M;>+)=KH5Y<?/+=)*4<7$Q!/^>O"]/C[W^,AG<&ND+GI<U)*<P2=E;-$3JI'"
-M+C?<%ZKV9]H%)DJY0%"I6@;#JZ"1UF-^3%QDS*VH8".U*7KHAT\[=GLGB][D
-M\N/M]?L)(?T^7%2\6<@;::'?)U;I#5^79L!MM5:-;S5O3"WM_L[N*;5CE#+7
-M8TQ#&B<=)C1*.X$E(H]0EI1%61(=T'8$_XB%R'9+1O..17F6DP^`?LX84!8@
-M!@R!A@6F!48>906EL%-F\+LB\`;!HV0(_[:,"R+`21L(I64!\N%.:0MF-36R
-M*:=FN6CUXAR6UK@D6<H29EMX8#'<5[*!6;M<6^`&.-2J;->27`&+D:5D?%">
-M>'_9"*&<DG?/U+GC[*;9UL87O]::QVE'0Z1IQQF=)0F?2SIC\[D(3^MZ`LD]
-M&#JL!&D7Y1'+]E8Z2GO>3B_@1U;M#W=D4!OF+QOM<^'K]B0]S%@88NSH)6F8
-M[/T4YL=V2@JD_X&=?NH_`D_?[X>SQ_CX*5[@K\].0$!R^6T\FGR=WGS_,AQ=
->OSHF^?KMX:,1E10KT]9])F0<AS0CC\D`*K3#!```
-`
-end

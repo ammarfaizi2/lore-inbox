@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265151AbUF1Tum@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265152AbUF1T7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265151AbUF1Tum (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 15:50:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265155AbUF1Tum
+	id S265152AbUF1T7L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 15:59:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265154AbUF1T7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 15:50:42 -0400
-Received: from ida.rowland.org ([192.131.102.52]:26116 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S265152AbUF1Tuc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 15:50:32 -0400
-Date: Mon, 28 Jun 2004 15:50:29 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Oliver Neukum <oliver@neukum.org>
-cc: Pete Zaitcev <zaitcev@redhat.com>, Greg KH <greg@kroah.com>,
-       <arjanv@redhat.com>, <jgarzik@redhat.com>, <tburke@redhat.com>,
-       <linux-kernel@vger.kernel.org>, <mdharm-usb@one-eyed-alien.net>,
-       <david-b@pacbell.net>
-Subject: Re: drivers/block/ub.c
-In-Reply-To: <200406281842.28178.oliver@neukum.org>
-Message-ID: <Pine.LNX.4.44L0.0406281549290.2214-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 28 Jun 2004 15:59:10 -0400
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:41879 "EHLO
+	websrv.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S265152AbUF1T7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 15:59:07 -0400
+Subject: Re: Doubt
+From: Christophe Saout <christophe@saout.de>
+To: esteve@eslack.org
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1088449171.7289.3.camel@esteve.pofhq.net>
+References: <20040628184345.18629.qmail@web90103.mail.scd.yahoo.com>
+	 <1088449171.7289.3.camel@esteve.pofhq.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-kwdFLUNgc7+WCH3vOrTa"
+Date: Mon, 28 Jun 2004 21:58:58 +0200
+Message-Id: <1088452738.719.5.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.9.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jun 2004, Oliver Neukum wrote:
 
-> Am Montag, 28. Juni 2004 17:40 schrieb Alan Stern:
-> > Or maybe I've misunderstood completely, not just partially.  In any case,
-> > are you sure you will want to do this?  The directive for not tracking 
-> > serial numbers or trying in some other way to make devices appear to be 
-> > persistent across reconnects came directly from Linus.
-> 
-> IIRC he banned reconnecting device nodes in use.
-> Reusing the number is legal. In fact in a finite number space there's
-> always a chance that the number will have to be reused.
+--=-kwdFLUNgc7+WCH3vOrTa
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Sure.  But then why go to the trouble of tracking serial numbers to 
-identify particular physical devices with particular minor numbers?
+Am Mo, den 28.06.2004 um 20:59 Uhr +0200 schrieb Esteve Espu=C3=B1a Sargata=
+l:
 
-Alan Stern
+> #include <asm/string.h>         /* for strcpy */
+>=20
+> static char remcomOutBuffer[BUFMAX];
+>=20
+> strcpy(remcomOutBuffer, "OK");
+>=20
+> Hope it's ok.
+
+Not really. Well, this example here works, but only if you know that you
+won't overflow the buffer.
+
+strlcpy(emcomOutBuffer, "OK", BUFMAX);
+
+(replace "OK" with the string you wish to copy)
+
+
+--=-kwdFLUNgc7+WCH3vOrTa
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA4HiCZCYBcts5dM0RAs71AJwL1jcYirxjAc6y/iedhAj8OD1NhACgrex9
+azuo9lMbEwC+n6AZ63FKssU=
+=BRad
+-----END PGP SIGNATURE-----
+
+--=-kwdFLUNgc7+WCH3vOrTa--
 

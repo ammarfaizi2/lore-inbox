@@ -1,76 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263298AbTL2Msd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 07:48:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbTL2Msd
+	id S263244AbTL2MsK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 07:48:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbTL2MsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 07:48:33 -0500
-Received: from gprs214-59.eurotel.cz ([160.218.214.59]:28032 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263298AbTL2Msa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 07:48:30 -0500
-Date: Mon, 29 Dec 2003 13:49:14 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.6.0 batch scheduling, HT aware
-Message-ID: <20031229124914.GA317@elf.ucw.cz>
-References: <200312231138.21734.kernel@kolivas.org> <20031226225652.GE197@elf.ucw.cz> <200312271042.55989.kernel@kolivas.org> <20031227110903.GA1413@elf.ucw.cz> <3FEFD18D.3070608@cyberone.com.au>
+	Mon, 29 Dec 2003 07:48:10 -0500
+Received: from frankvm.xs4all.nl ([80.126.170.174]:32902 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S263244AbTL2MsI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 07:48:08 -0500
+Date: Mon, 29 Dec 2003 13:52:40 +0100
+From: Frank van Maarseveen <frankvm@xs4all.nl>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23 can run with HZ==0!
+Message-ID: <20031229125240.GA4055@janus>
+Mail-Followup-To: Frank van Maarseveen <frankvm@xs4all.nl>,
+	Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+References: <20031228230522.GA1876@janus> <1072691126.5223.5.camel@laptop.fenrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FEFD18D.3070608@cyberone.com.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <1072691126.5223.5.camel@laptop.fenrus.com>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >>>BTW this is going to be an issue even on normal (non-HT)
-> >>>systems. Imagine memory-bound scientific task on CPU0 and nice -20
-> >>>memory-bound seti&home at CPU1. Even without hyperthreading, your
-> >>>scientific task is going to run at 50% of speed and seti&home is going
-> >>>to get second half. Oops.
-> >>>
-> >>>Something similar can happen with disk, but we are moving out of
-> >>>cpu-scheduler arena with that.
-> >>>
-> >>>[I do not have SMP nearby to demonstrate it, anybody wanting to
-> >>>benchmark a bit?]
-> >>>
-> >>This is definitely the case but there is one huge difference. If you have 
-> >>2x1Ghz non HT processors then the fastest a single threaded task can run 
-> >>is at 1Ghz. If you have 1x2Ghz HT processor the fastest a single threaded 
-> >>task can run is 2Ghz. 
-> >>
-> >
-> >Well, gigaherz is not the *only* important thing.
-> >
-> >On 2x1GHz, 2GB/sec RAM bandwidth, fastest a single threaded task can
-> >run is 1GHz, 2GB/sec. If you run two of them, it is 1GHz,
-> >*1*GB/sec. So you still have effect similar to hyperthreading. And
-> >yes, it can be measured.
-> >
+On Mon, Dec 29, 2003 at 10:45:27AM +0100, Arjan van de Ven wrote:
 > 
-> Hi Pavel,
-> Sure this might be a real problem sometimes, but I don't see the
-> CPU scheduler ever handling it unless we want to add a few kitchen
-> sinks to its nice lean code as well.
+> not all motherboards can deal with HZ=1000.... seems yours is one of
+> thise.
 
-Why is it a problem? If you are handling HT case, anyway, it should be
-fairly easy to say "imagine it is HT system, not SMP one", and poof,
-problem magically goes away.
-								Pavel
+But it seems to work. I would expect it to fail quite soon right at or after
+boot, not after a day once every few weeks (assuming it was the cause).
 
-/*
- *  .----~~|
- *  \      |
- *   ~~~~~~
- */
+> your patch is *highly* inadequate to get HZ=1000 working well in 2.4....
+> it needs to be about 10x bigger with fixing more userspace api's...
 
-[Ready-made kitchen-sink for scheduler :-)))]
+Can you give me an example?
+
+HZ for x386 is 100 by definition and there aren't that many system calls
+and /proc files which expose jiffies to userspace.
+
+The uptime will be rather limited with 32 bits jiffies ;-) but I can live with that.
+
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Frank

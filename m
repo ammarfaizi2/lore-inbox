@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316906AbSE1VNj>; Tue, 28 May 2002 17:13:39 -0400
+	id <S316940AbSE1VP2>; Tue, 28 May 2002 17:15:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316940AbSE1VNi>; Tue, 28 May 2002 17:13:38 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:60168 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S316906AbSE1VNg>; Tue, 28 May 2002 17:13:36 -0400
-Date: Tue, 28 May 2002 23:13:39 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: William Lee Irwin III <wli@holomorphy.com>, torvalds@transmeta.com,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp: cleanup -- use list_for_each in head_of_free_region
-Message-ID: <20020528211338.GB28189@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020528193357.GA801@elf.ucw.cz> <20020528210314.GT14918@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S316938AbSE1VP0>; Tue, 28 May 2002 17:15:26 -0400
+Received: from postfix1-2.free.fr ([213.228.0.130]:62873 "EHLO
+	postfix1-2.free.fr") by vger.kernel.org with ESMTP
+	id <S316941AbSE1VOh>; Tue, 28 May 2002 17:14:37 -0400
+Message-Id: <200205282113.g4SLD6n05000@colombe.home.perso>
+Date: Tue, 28 May 2002 23:13:03 +0200 (CEST)
+From: fchabaud@free.fr
+Reply-To: fchabaud@free.fr
+Subject: Re: 2.4.19-pre8-ac5 swsusp panic
+To: pavel@suse.cz
+Cc: matthias.andree@stud.uni-dortmund.de, linux-kernel@vger.kernel.org
+In-Reply-To: <20020527140111.G35@toy.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > This cleans up is_head_of_free_region, thanks to William Lee Irwin III
-> > <wli@holomorphy.com>. Please apply,
+Le 27 Mai, Pavel Machek a écrit :
+> Hi!
 > 
-> Whoa! Mike Galbraith noticed a return without dropping the lock in there,
-> it's really easy to fix (of course), though.
+>> > I tried SysRq-D and finally got a kernel "panic: Request while ide driver
+>> > is blocked?"
+>> > 
+>> > Before that, I saw "waiting for tasks to stop... suspending kreiserfsd",
+>> > nfsd exiting, "Freeing memory", "Syncing disks beofre copy", then some
+>> > "Probem while suspending", then some "Resume" and finally the panic.
+>> > 
+>> > It may be worth noting that one swap partition is on a SCSI drive, and
+>> > that my IDE drives were in standby (not idle) mode, i. e. their spindle
+>> > motors were stopped.
+>> > 
+>> 
+>> AFAIK swap partition under SCSI is not supported for the moment.
+> 
+>  can you elaborate? swsusp ddoes not careif it is scsi on ide and I had it
+> running on usb-storage device at one point.
+> 								Pavel
+> 
 
-How is that possible? I actually tested that code! Fixed now...
-									Pavel
+Well we haven't the equivalent to ide_disk_(un)suspend. I agree that
+this should be sufficient to make it work, but SCSI may be a little more
+difficult to patch.
 
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
-
-
-
-
-
-
-
-
+--
+Florent Chabaud         ___________________________________
+SGDN/DCSSI/SDS/LTI     | florent.chabaud@polytechnique.org
+http://www.ssi.gouv.fr | http://fchabaud.free.fr
 

@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290749AbSBLDeg>; Mon, 11 Feb 2002 22:34:36 -0500
+	id <S290746AbSBLDd0>; Mon, 11 Feb 2002 22:33:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290753AbSBLDeW>; Mon, 11 Feb 2002 22:34:22 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26378 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S290749AbSBLDeL>; Mon, 11 Feb 2002 22:34:11 -0500
-Date: Mon, 11 Feb 2002 21:19:43 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: John Hesterberg <jh@sgi.com>
-cc: <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
-        <linux-ia64@linuxia64.org>
-Subject: Re: driver location for platform-specific drivers
-In-Reply-To: <20020211131744.A16032@sgi.com>
-Message-ID: <Pine.LNX.4.33.0202112118180.22909-100000@home.transmeta.com>
+	id <S290749AbSBLDdQ>; Mon, 11 Feb 2002 22:33:16 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:5569 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S290746AbSBLDdB>;
+	Mon, 11 Feb 2002 22:33:01 -0500
+From: David Mosberger <davidm@hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15464.36074.246502.582895@napali.hpl.hp.com>
+Date: Mon, 11 Feb 2002 19:32:58 -0800
+To: "David S. Miller" <davem@redhat.com>
+Cc: davidm@hpl.hp.com, anton@samba.org, linux-kernel@vger.kernel.org,
+        zippel@linux-m68k.org
+Subject: Re: thread_info implementation
+In-Reply-To: <20020211.192334.123921982.davem@redhat.com>
+In-Reply-To: <15464.34183.282646.869983@napali.hpl.hp.com>
+	<20020211.190449.55725714.davem@redhat.com>
+	<15464.35214.669412.477377@napali.hpl.hp.com>
+	<20020211.192334.123921982.davem@redhat.com>
+X-Mailer: VM 7.00 under Emacs 21.1.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> On Mon, 11 Feb 2002 19:23:34 -0800 (PST), "David S. Miller" <davem@redhat.com> said:
 
+  DaveM> The compiler will schedule the latency out of existence.
 
-On Mon, 11 Feb 2002, John Hesterberg wrote:
->
-> For SGI's upcoming Linux platform (nicknamed Scalable Node, or SN),
-> we have some platform specific device drivers.  Where should these go?
-> I see several precedents in the current kernels.
+The kernel has many paths that have sequential dependencies.  If there
+is no other work to do, the compiler won't help you.
 
-If they are equivalent to a new bus, make a new platform directory under
-drivers, is my vote.
-
-However, if they are likely to eventually spread out (ie they are
-really PCI-based, and just your own private chips, and they might end up
-as part of some other sgi platform), spread them out as normal drivers.
-
-		Linus
-
+	--david

@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUIIORX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264973AbUIIOSt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264377AbUIIORX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 10:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbUIIOPO
+	id S264973AbUIIOSt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 10:18:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbUIIORn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 10:15:14 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:19687 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S264377AbUIIOOE (ORCPT
+	Thu, 9 Sep 2004 10:17:43 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:5526 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S264917AbUIIOQs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 10:14:04 -0400
-Date: Thu, 9 Sep 2004 16:14:04 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.9-rc1-bk16: DHCPACK, compile time error ...
-Message-ID: <20040909141403.GD14891@MAIL.13thfloor.at>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Thu, 9 Sep 2004 10:16:48 -0400
+Message-ID: <414066D7.60508@sgi.com>
+Date: Thu, 09 Sep 2004 09:21:11 -0500
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@redhat.com,
+       piggin@cyberone.com.au, mbligh@aracnet.com
+Subject: Re: swapping and the value of /proc/sys/vm/swappiness
+References: <cone.1094512172.450816.6110.502@pc.kolivas.org> <20040906162740.54a5d6c9.akpm@osdl.org> <cone.1094513660.210107.6110.502@pc.kolivas.org> <20040907000304.GA8083@logos.cnet> <20040907212051.GC3492@logos.cnet> <413F1518.7050608@sgi.com> <20040908165412.GB4284@logos.cnet> <413F5EE7.6050705@sgi.com> <20040908193036.GH4284@logos.cnet> <413FC8AC.7030707@sgi.com> <20040909021409.GA2122@logos.cnet>
+In-Reply-To: <20040909021409.GA2122@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Andrew!
 
+Marcelo Tosatti wrote:
 
-diff -Nru a/net/ipv4/ipconfig.c b/net/ipv4/ipconfig.c
---- a/net/ipv4/ipconfig.c	2004-07-05 16:26:17 -07:00
-+++ b/net/ipv4/ipconfig.c	2004-09-07 15:33:17 -07:00
-@@ -966,6 +966,11 @@
- 				break;
- 
- 			case DHCPACK:
-+				for (i = 0; (dev->dev_addr[i] == b->hw_addr[i])
-+						&& (i < dev->addr_len); i++);
-+				if (i < dev->addr_len)
-+					goto drop_unlock;
-+
- 				/* Yeah! */
- 				break;
- 
+> 
+>>Have you still been unable to duplicate this problem on a small i386 
+>>platform?
+> 
+> 
+> Yes right, I have been unable to duplicate the problem on small i386 box. 
+> What about your tests?
+> 
+> 
+>
 
-(from patch-2.6.9-rc1-bk16.bz2) results in:
+I haven't had time to try on i386 yet.  I guess I will have to.
+Thanks for trying, anyway.
 
-net/ipv4/ipconfig.c: In function `ic_bootp_recv':
-net/ipv4/ipconfig.c:969: error: `i' undeclared (first use in this function)
-net/ipv4/ipconfig.c:969: error: (Each undeclared identifier is reported only once
-net/ipv4/ipconfig.c:969: error: for each function it appears in.)
-
-
---- net/ipv4/ipconfig.c.orig	2004-09-09 15:18:26.000000000 +0200
-+++ net/ipv4/ipconfig.c	2004-09-09 16:12:44.000000000 +0200
-@@ -913,7 +913,7 @@ static int __init ic_bootp_recv(struct s
- #ifdef IPCONFIG_DHCP
- 		if (ic_proto_enabled & IC_USE_DHCP) {
- 			u32 server_id = INADDR_NONE;
--			int mt = 0;
-+			int i, mt = 0;
- 
- 			ext = &b->exten[4];
- 			while (ext < end && *ext != 0xff) {
-
-fixes it ...
-
-best,
-Herbert
-
+-- 
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------
 

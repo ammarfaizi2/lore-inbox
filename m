@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261995AbREPQZY>; Wed, 16 May 2001 12:25:24 -0400
+	id <S261996AbREPQ0Y>; Wed, 16 May 2001 12:26:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261996AbREPQZO>; Wed, 16 May 2001 12:25:14 -0400
-Received: from munchkin.spectacle-pond.org ([209.192.197.45]:22023 "EHLO
-	munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
-	id <S261995AbREPQZI>; Wed, 16 May 2001 12:25:08 -0400
-Date: Wed, 16 May 2001 12:04:52 -0400
-From: Michael Meissner <meissner@spectacle-pond.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jonathan Lundell <jlundell@pobox.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        James Simmons <jsimmons@transvirtual.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu
+	id <S261999AbREPQ0O>; Wed, 16 May 2001 12:26:14 -0400
+Received: from snowbird.megapath.net ([216.200.176.7]:12293 "EHLO
+	megapathdsl.net") by vger.kernel.org with ESMTP id <S261996AbREPQZ7>;
+	Wed, 16 May 2001 12:25:59 -0400
 Subject: Re: LANANA: To Pending Device Number Registrants
-Message-ID: <20010516120452.A16609@munchkin.spectacle-pond.org>
-In-Reply-To: <p05100316b7272cdfd50c@[207.213.214.37]> <Pine.LNX.4.21.0105151309460.2470-100000@penguin.transmeta.com>
+From: Miles Lane <miles@megapathdsl.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B028063.67442F62@idb.hist.no>
+In-Reply-To: <E504453C04C1D311988D00508B2C5C2DF2F9E1@mail11.gruppocredit.it>
+	<3B0261EC.23BE5EF0@idb.hist.no> <031ypp1oi2.fsf@colargol.tihlde.org> 
+	<3B028063.67442F62@idb.hist.no>
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 16 May 2001 09:30:46 -0700
+Message-Id: <990030651.932.3.camel@agate>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0105151309460.2470-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, May 15, 2001 at 01:18:09PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 15, 2001 at 01:18:09PM -0700, Linus Torvalds wrote:
-> 
-> On Tue, 15 May 2001, Jonathan Lundell wrote:
-> > >
-> > >Keep it informational. And NEVER EVER make it part of the design.
+On 16 May 2001 15:28:03 +0200, Helge Hafting wrote:
+> Oystein Viggen wrote:
 > > 
-> > What about:
+> > Quoth Helge Hafting:
 > > 
-> > 1 (network domain). I have two network interfaces that I connect to 
-> > two different network segments, eth0 & eth1;
+> > > This could be extended to non-raid use - i.e. use the "raid autodetect"
+> > > partition type for non-raid as well.  The autodetect routine could
+> > > then create /dev/partitions/home, /dev/partitions/usr or
+> > > /dev/partitions/name_of_my_choice
+> > > for autodetect partitions not participating in a RAID.
+> > 
+> > What happens if I insert a hard drive from another computer which also
+> > has partitions named "home", "usr", and soforth?
 > 
-> So?
+> This is the problem with all sorts of ID-based naming.  In this case
+> the kernel could simply change the conflicting names a bit,
+> and leave the cleanup to the administrator.  (Who probably
+> is around as he just inserted those disks....)
 > 
-> Informational. You can always ask what "eth0" and "eth1" are.
-> 
-> There's another side to this: repeatability. A setup should be
-> _repeatable_.
-> 
-> This is what we have now. Network devices are called "eth0..N", and nobody
-> is complaining about the fact that the numbering is basically random. It
-> is _repeatable_ as long as you don't change your hardware setup, and the
-> numbering has effectively _nothing_ to do with "location".
+> The current scheme have problems if you move a disk
+> from one controller to another, or in some cases
+> if you merely add a new one.  So the question becomes - 
+> what is most likely to go wrong?  And you can be
+> smart and name your partitions /usr21042001, /home03042001
+> and so on in order to minimize the risk of conflicts.
 
-Well yes and no.  The numbers are currently repeatable for a given kernel, but
-I know I and others were bitten by the 2.2. to 2.4 transition, where the kernel
-used a different algorithm for the order in which it detected scsi and network
-adapters (ie, in my machine with 3 scsi adapters, Linux 2.2 always picked the
-Adaptec scsi adapter builtin into my motherboard as the first adapter, but 2.4
-decided to pick my TekRam 390F adapter).
+Well, a usermode solution might be to add support for having the
+filesystem utilities generate and detect partition IDs.  Then the disks
+could be moved from one controller to another, but mount could scan
+partition IDs and associate mount points on matching IDs rather than on
+/dev/hdX or /dev/sdX.
 
-As lots of people have been saying, you need to know which physical slot to
-plut the wire connecting eth0, eth1, etc. into.  Similarly for serial ports, if
-I have 3 or 4 (or 127 :-) USB serial devices, I really don't want to have to
-change my cabling each time I boot or change OSes (since I doubt my UPS will be
-happy if I give it the commands destined for the X10 controller or my remote
-boards).
+Or is this a ridiculous idea?
 
--- 
-Michael Meissner, Red Hat, Inc.  (GCC group)
-PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
-Work:	  meissner@redhat.com		phone: +1 978-486-9304
-Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482
+    Miles
+

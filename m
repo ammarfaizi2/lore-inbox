@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262463AbUCJAfa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 19:35:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbUCJAfa
+	id S262058AbUCJAuK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 19:50:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbUCJAuK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 19:35:30 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:60366
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S262463AbUCJAfY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 19:35:24 -0500
-Message-ID: <404E62B4.4000200@redhat.com>
-Date: Tue, 09 Mar 2004 16:35:00 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040309
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ppc/ppc64 and x86 vsyscalls
-References: <1078708647.5698.196.camel@gaston> <404D7AC3.9050207@redhat.com>	 <1078830318.9746.3.camel@gaston>  <404E33A7.6070800@redhat.com> <1078867992.9745.25.camel@gaston>
-In-Reply-To: <1078867992.9745.25.camel@gaston>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Tue, 9 Mar 2004 19:50:10 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:1445 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S262058AbUCJAuG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 19:50:06 -0500
+Date: Wed, 10 Mar 2004 09:50:00 +0900
+From: Norihiko Mukouyama <norihiko_m@jp.fujitsu.com>
+Subject: RE: Kernel 2.6.3 patch for Intel Compiler 8.0
+In-reply-to: <000001c40635$2d4841c0$374ca8c0@bunnybook2>
+To: Ingo at Pyrillion <ingo@pyrillion.org>,
+       "'Norberto Bensa'" <norberto+linux-kernel@bensa.ath.cx>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <FLEBKJHLJPMMOPBNJGELCEMMCNAA.norihiko_m@jp.fujitsu.com>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Content-type: text/plain;	charset="iso-8859-1"
+Content-transfer-encoding: 7bit
+Importance: Normal
+X-Priority: 3 (Normal)
+X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
+Hi All!!
 
-> /* In one place the actual function implementation */
->  function_A_vers_1()
->  function_A_vers_2()
->  function_A_vers_3()
->  function_B_vers_1()
->  function_B_vers_2()
->    etc .../...
-> 
-> /* Then, some empty "stubs" for the symbol table that gets really
->  * linked into user binaries. Those are the symbol table entries
->  * that get patched
->  */
->  function_A() {}
->  function_B() {}
-> 
-> Sounds right ?
+>I used the patch to compile two identical kernels with gcc 3.3.3 and
+>icc 8.0 with oprofile support built in.
+>The optimization switches were chosen quite conservative, i.e.
+>"-O2 -Ob1", no IPO, and of course: no MMX, SSE, and SSE2 stuff inside
+>the kernel (thus disabling Intel's great vectorizer).
+>Profiling: lmbench ran ten times but time measurements were taken from
+>oprofile (on Pentium 4, GLOBAL_POWER_EVENTS in kernel space only, 
+>counter overflow: 3.000).
+>Results: 33% of the lmbench procs faster on icc, 66% faster on gcc.
 
-Basically yes.  But you don't actually need the stub functions.  You
-just need a symbol table entry which can be arranged via an alias to any
-one of the real functions.
+Really???
 
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+If it is ture using icc 66% faster than gcc., It is wonderful. 
+Could you show us detail data to  lmbench results.
+
+Thanks!!
+
+Norihiko
+
+
+

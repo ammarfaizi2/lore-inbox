@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262006AbTCHCe2>; Fri, 7 Mar 2003 21:34:28 -0500
+	id <S262005AbTCHCca>; Fri, 7 Mar 2003 21:32:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262009AbTCHCe2>; Fri, 7 Mar 2003 21:34:28 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:549
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S262006AbTCHCe1>; Fri, 7 Mar 2003 21:34:27 -0500
-Date: Fri, 7 Mar 2003 21:42:30 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Andrew Morton <akpm@digeo.com>
-cc: manfred@colorfullife.com, "" <linux-kernel@vger.kernel.org>
-Subject: Re: Oops: 2.5.64 check_obj_poison for 'size-64'
-In-Reply-To: <20030307182447.59cc83ea.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.50.0303072140250.1339-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0303062358130.17080-100000@montezuma.mastecende.com>
- <20030306222328.14b5929c.akpm@digeo.com>
- <Pine.LNX.4.50.0303070221470.18716-100000@montezuma.mastecende.com>
- <20030306233517.68c922f9.akpm@digeo.com>
- <Pine.LNX.4.50.0303070351060.18716-100000@montezuma.mastecende.com>
- <20030307010539.3c0a14a3.akpm@digeo.com> <3E68F552.1010807@colorfullife.com>
- <Pine.LNX.4.50.0303071656160.18716-100000@montezuma.mastecende.com>
- <Pine.LNX.4.50.0303072007190.1339-100000@montezuma.mastecende.com>
- <20030307182447.59cc83ea.akpm@digeo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262006AbTCHCca>; Fri, 7 Mar 2003 21:32:30 -0500
+Received: from inet-mail3.oracle.com ([148.87.2.203]:12708 "EHLO
+	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
+	id <S262005AbTCHCc2>; Fri, 7 Mar 2003 21:32:28 -0500
+Date: Fri, 7 Mar 2003 18:42:50 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@digeo.com>, cherry@osdl.org, rddunlap@osdl.org,
+       Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] register_blkdev
+Message-ID: <20030308024249.GI2835@ca-server1.us.oracle.com>
+References: <20030308021505.GH2835@ca-server1.us.oracle.com> <Pine.LNX.4.44.0303071816270.2204-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0303071816270.2204-100000@home.transmeta.com>
+X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Mar 2003, Andrew Morton wrote:
+On Fri, Mar 07, 2003 at 06:18:19PM -0800, Linus Torvalds wrote:
+> And realize that these things are often limited by on-disk / wire
+> representations. Some of which are easier to fix than others (ie, think 
+> about NFS servers running old versions of Linux).
 
-> Looks to me like you overran the page for seq_printf, which then returned -1
-> which then triggered what appears to be some utterly bogus code in
-> show_interrupts():
-> 
->         for (j = 0; j < NR_CPUS; j++)
->                 if (cpu_online(j))
->                         p += seq_printf(p, "%10u ", irq_stat[j].apic_timer_irqs);
-> 
-> Why is it modifying `p' there?  That's the pointer to the seq_file which
-> we're using.
+	Yeah, I was chatting with Peter about that last night (he was
+advocating 64 bits for dev_t).  For some things (NFSv2) we could merely
+truncate the space.  It only really matters if /dev is on NFS, and we
+can perhaps say "You need NFSv3 or better if you want the larger dev
+space".  That's just one possible way to approach it.  A system big
+enough to have 5000 disks attached likely isn't getting /dev from an
+NFSv2 server.
+	I'm so-so on the 64bit vs 32bit dev_t argument, but I'd bet we
+only want to change it once for the internal representation.  How we
+handle external representations (on disk, over the wire) is a different
+matter.
 
-Probably leftovers from the previous interface.
+Joel
 
-> Kill.  Two instances.
-
-Ok i'm just testing the seq_file buffer increase.
-
-Thanks,
-	Zwane
 -- 
-function.linuxpower.ca
+
+"The one important thing i have learned over the years is the difference
+ between taking one's work seriously and taking one's self seriously.  The
+ first is imperative and the second is disastrous."
+	-Margot Fonteyn
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

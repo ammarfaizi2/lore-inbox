@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265410AbRGAUww>; Sun, 1 Jul 2001 16:52:52 -0400
+	id <S265479AbRGAUxW>; Sun, 1 Jul 2001 16:53:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265479AbRGAUwm>; Sun, 1 Jul 2001 16:52:42 -0400
-Received: from cx661141-c.dt1.sdca.home.com ([24.251.135.109]:56583 "HELO
-	ultraviolet.org") by vger.kernel.org with SMTP id <S265410AbRGAUwX>;
-	Sun, 1 Jul 2001 16:52:23 -0400
-Date: Sun, 1 Jul 2001 13:52:34 -0700
-From: Tracy R Reed <treed@ultraviolet.org>
-To: Hua Zhong <huaz@cs.columbia.edu>
-Cc: kmw@rowsw.com, Adam Schrotenboer <ajschrotenboer@lycosmail.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Uncle Sam Wants YOU!
-Message-ID: <20010701135234.A31008@ultraviolet.org>
-Mail-Followup-To: Tracy R Reed <treed@ultraviolet.org>,
-	Hua Zhong <huaz@cs.columbia.edu>, kmw@rowsw.com,
-	Adam Schrotenboer <ajschrotenboer@lycosmail.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <01070112413801.14899@zaphodbeeblebrox> <200107011811.OAA05463@razor.cs.columbia.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200107011811.OAA05463@razor.cs.columbia.edu>; from huaz@cs.columbia.edu on Sun, Jul 01, 2001 at 02:11:47PM -0400
+	id <S265483AbRGAUxN>; Sun, 1 Jul 2001 16:53:13 -0400
+Received: from shell.ca.us.webchat.org ([216.152.64.152]:981 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S265479AbRGAUxF>; Sun, 1 Jul 2001 16:53:05 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Lew Wolfgang" <wolfgang@train.sweet-haven.com>,
+        "Kurt Maxwell Weber" <kmw@rowsw.com>
+Cc: "J Sloan" <jjs@mirai.cx>, <linux-kernel@vger.kernel.org>
+Subject: RE: Uncle Sam Wants YOU!
+Date: Sun, 1 Jul 2001 13:53:00 -0700
+Message-ID: <NOEJJDACGOHCKNCOGFOMGELMCDAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <Pine.LNX.4.33.0107011213050.5284-100000@train.sweet-haven.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Sun, 1 Jul 2001, Kurt Maxwell Weber wrote:
+> > In that case, I have the following options:
+> > 1) Start my own ISP
+> > 2) Use Windows XP
+> > 3) Not use Windows XP and not be able to use my current ISP
+> > 4) Go to a different ISP
 
-On Sun, Jul 01, 2001 at 02:11:47PM -0400, Hua Zhong wrote:
-> There are a lot of people who don't know how to use Linux/Unix.  Windows =
-is=20
-> much easier for them and has more applications.  They practically have no=
-=20
-> other choice if they have to use a computer in their jobs (maybe they can=
-=20
-> Macintosh).
+	Argument.
 
-I don't agree with this.
+> > I'll just have to decide which I value more.  As long as I
+> > won't be killed
+> > for using a different OS, I still have a choice.
 
-http://www.ultraviolet.org/treed/writings/display.php3?document=3Deasy
+	Argument.
 
---=20
-Tracy Reed      http://www.ultraviolet.org
-Linux: Because freedom is priceless.
+> But these are false alternatives!  "I'll give you a choice, I remove
+> either your right foot or your left arm.  Your choice."
 
---qMm9M+Fa2AknHoGS
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+	Gun.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+> The choice
+> of "neither" is not given.
 
-iEYEARECAAYFAjs/jZIACgkQ9PIYKZYVAq1s/wCgjym5iAsCyvObldkJeKrfpL8u
-CCYAn2/8j11ymOmdt4Hf6+X8Y07R43Er
-=ISrE
------END PGP SIGNATURE-----
+	Gun.
 
---qMm9M+Fa2AknHoGS--
+> All I want is true alternatives.  I
+> hope that one of those alternatives will be to opt out of the
+> coercive, advertising rich, commercial environment that is in
+> our future.
+
+	Go ahead and opt out. The only one using or threatening force here seems to
+be you.
+
+	DS
+

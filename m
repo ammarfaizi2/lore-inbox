@@ -1,53 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262606AbTIQSJR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 14:09:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262607AbTIQSJR
+	id S262613AbTIQSMH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 14:12:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262615AbTIQSMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 14:09:17 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:13530 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262606AbTIQSJQ
+	Wed, 17 Sep 2003 14:12:07 -0400
+Received: from oasis.frogfoot.net ([168.210.54.51]:34787 "HELO
+	oasis.frogfoot.net") by vger.kernel.org with SMTP id S262613AbTIQSMD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 14:09:16 -0400
-Subject: [PATCH] linux-2.6.0-test5_hangcheck-compile-fix_A0
-From: john stultz <johnstul@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: storri@sbcglobal.net, Andrew Morton <akpm@osdl.org>,
-       Joel Becker <Joel.Becker@oracle.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1063822023.26723.134.camel@cog.beaverton.ibm.com>
+	Wed, 17 Sep 2003 14:12:03 -0400
+Date: Wed, 17 Sep 2003 20:11:38 +0200
+From: Abraham vd Merwe <abz@frogfoot.net>
+To: Linux Kernel Discussions <linux-kernel@vger.kernel.org>
+Subject: HELP PLEASE: i2c in interrupt?
+Message-ID: <20030917181138.GA18892@oasis.frogfoot.net>
+Mail-Followup-To: Linux Kernel Discussions <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 17 Sep 2003 11:07:03 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organization: Frogfoot Networks CC
+X-Operating-System: Debian GNU/Linux oasis 2.4.21 (i686)
+X-GPG-Public-Key: http://oasis.frogfoot.net/keys/
+X-Uptime: 19:59:37 up 29 days, 1:14, 9 users, load average: 0.00, 0.01, 0.00
+X-Edited-With-Muttmode: muttmail.sl - 2001-09-27
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
-	Since monotonic_clock() is not defined on every arch yet, this patch
-insures the hangcheck-timer module (currently the only user of
-monotonic-clock) is not built where it will not compile.
+Hi!
 
-I know, I know. Ideally monotonic_clock() would be implemented on all
-arches, but I've just not had the time.  If any of the non x86/x86-64
-folks feel bored, drop me a line.  It'd be a fairly easy project.
+I'm working on a keypad driver which is sitting on an I/O expander on an I2C
+bus. Whenever a key is pressed, the I2C chip (the I/O expander) generates an
+interrupt and then I have to read the events from the I2C chip.
 
-thanks
--john
+The problem is
 
+ (a) This operation is time critical. If I don't read the data from the I2C
+     chip very fast (after the interrupt occurred) the events get lost
 
-diff -Nru a/drivers/char/Kconfig b/drivers/char/Kconfig
---- a/drivers/char/Kconfig	Wed Sep 17 10:52:55 2003
-+++ b/drivers/char/Kconfig	Wed Sep 17 10:52:55 2003
-@@ -1001,6 +1001,7 @@
- 
- config HANGCHECK_TIMER
- 	tristate "Hangcheck timer"
-+	depends on X86_64 || X86
- 	help
- 	  The hangcheck-timer module detects when the system has gone
- 	  out to lunch past a certain margin.  It can reboot the system
+ (b) I2C is done in hardware which means a read goes like this: START
+     WRITE_DATA wait_for_interrupt ... STOP.
 
+The important part here is the wait_for_interrupt. That means i2c_transfer()
+will wait on a wait queue which I can't do from an interupt so I created a
+task to do this for me and from the keypad interrupt routine, I do 
 
+        queue_task (&keypad.task,&tq_immediate);
+        mark_bh (IMMEDIATE_BH);
+
+However that triggers a BUG
+
+------------< snip <------< snip <------< snip <------------
+Scheduling in interrupt
+kernel BUG at sched.c:566!
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+------------< snip <------< snip <------< snip <------------
+
+so it is obviously illegal to do that from an interrupt. So my question is,
+how do I execute a function which will sleep _very_soon_ after an interrupt
+occurs (i.e. what I don't want to do is interrupt -> poll wakes up ->
+process does read -> i2c_transfer() - that's too long)
+
+-- 
+
+Regards
+ Abraham
+
+You will not be elected to public office this year.
+
+___________________________________________________
+ Abraham vd Merwe - Frogfoot Networks CC
+ 9 Kinnaird Court, 33 Main Street, Newlands, 7700
+ Phone: +27 21 686 1665 Cell: +27 82 565 4451
+ Http: http://www.frogfoot.net/ Email: abz@frogfoot.net
 

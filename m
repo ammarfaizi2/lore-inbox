@@ -1,47 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129500AbRBMWzV>; Tue, 13 Feb 2001 17:55:21 -0500
+	id <S129639AbRBMW4B>; Tue, 13 Feb 2001 17:56:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129496AbRBMWzL>; Tue, 13 Feb 2001 17:55:11 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:14495 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S129246AbRBMWzC>;
-	Tue, 13 Feb 2001 17:55:02 -0500
-Date: Tue, 13 Feb 2001 23:54:34 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200102132254.XAA98078.aeb@vlet.cwi.nl>
-To: michael_e_brown@dell.com
-Subject: Re: block ioctl to read/write last sector
-Cc: Matt_Domsch@exchange.dell.com, freitag@alancoxonachip.com,
-        linux-kernel@vger.kernel.org
+	id <S129627AbRBMWzw>; Tue, 13 Feb 2001 17:55:52 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:22523 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S129496AbRBMWzi>; Tue, 13 Feb 2001 17:55:38 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200102132255.f1DMtO027271@webber.adilger.net>
+Subject: Re: Stale super_blocks in 2.2
+In-Reply-To: <3A89B3FD.62313E6C@egenera.com> from Phil Auld at "Feb 13, 2001
+ 05:23:57 pm"
+To: Phil Auld <pauld@egenera.com>
+Date: Tue, 13 Feb 2001 15:55:24 -0700 (MST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   The block device uses 1K blocksize, and will prevent userspace from
-> seeing the odd-block at the end of the disk, if the disk is odd-size.
->
->   IA-64 architecture defines a new partitioning scheme where there is a
-> backup of the partition table header in the last sector of the disk. While
-> we can read and write to this sector in the kernel partition code, we have
-> no way for userspace to update this partition block.
+Philip R. Auld writes:
+> Since deja was gobbled by google it's hard to do a good search of 
+> this list. Can anyone take the time to help me understand the reason
+> for this choice? This seems to me to be backwards. When a device is 
+> unmounted there should be no cached information.
 
-Are you sure?
+Try the following for a searchable mailing list:
+http://marc.theaimsgroup.com/?l=linux-kernel&r=1&w=4
 
-There may be no easy, convenient way right now, but
-(without having checked anything) it seems to me
-that you can, also today.
-Look at the addpart utility in the util-linux package.
-It will allow you to add a partition disjoint from
-previously existing partitions.
-And since a partition can start on an odd sector,
-this should allow you to also read the last sector.
-
-Do I overlook something?
-
-Anyway, an ioctl just to read the last sector is too silly.
-An ioctl to change the blocksize is more reasonable.
-And I expect that this fixed blocksize will go soon.
-
-Andries
-
-[Sorry if precisely the same discussion has happened earlier -
-I have no memory.]
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

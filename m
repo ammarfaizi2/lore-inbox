@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262844AbTKYRbl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 12:31:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbTKYRbl
+	id S262765AbTKYR3v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 12:29:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262767AbTKYR3v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 12:31:41 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:54209 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262844AbTKYRbf (ORCPT
+	Tue, 25 Nov 2003 12:29:51 -0500
+Received: from home.wiggy.net ([213.84.101.140]:50363 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S262765AbTKYR3u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 12:31:35 -0500
-From: Kevin Corry <kevcorry@us.ibm.com>
-To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+	Tue, 25 Nov 2003 12:29:50 -0500
+Date: Tue, 25 Nov 2003 18:29:49 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Linux Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [Patch 3/5] dm: make v4 of the ioctl interface the default
-Date: Tue, 25 Nov 2003 11:28:04 -0600
-User-Agent: KMail/1.5
-Cc: Joe Thornber <thornber@sistina.com>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@osdl.org>
-References: <20031125162451.GA524@reti> <200311251109.07831.kevcorry@us.ibm.com> <3FC38E85.1020100@backtobasicsmgmt.com>
-In-Reply-To: <3FC38E85.1020100@backtobasicsmgmt.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Message-ID: <20031125172949.GE17907@wiggy.net>
+Mail-Followup-To: Linux Mailing List <linux-kernel@vger.kernel.org>
+References: <20031125162451.GA524@reti> <20031125163313.GD524@reti> <3FC387A0.8010600@backtobasicsmgmt.com> <20031125170503.GG524@reti>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311251128.04443.kevcorry@us.ibm.com>
+In-Reply-To: <20031125170503.GG524@reti>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 25 November 2003 11:16, Kevin P. Fleming wrote:
-> Kevin Corry wrote:
->
->   	---help---
-> -	  Recent tools use a new version of the ioctl interface, only
-> -          select this option if you intend using such tools.
-> +	  Recent tools use this new version of the ioctl interface. Only
-> +	  select N for this option if you use out-of-date tools that weren't
-> +	  compiled for this interface (e.g. LVM2 prior to v2.00.00).
->
-> Actually, I don't think LVM2 uses the device mapper ioctls at all; it
-> use libdevmapper which calls the ioctls on its behalf.
+Previously Joe Thornber wrote:
+> For the last few months the tools have supported both v1 and v4
+> interfaces, allowing people to roll back to older kernels.
 
-True. I imagine Joe will know the exact version numbers of LVM2 and 
-libdevmapper that require the old interface. I believe the version I 
-mentioned is from the appropriate time-frame, though.
+'last few months' is extremely short for a migration path. Can't we
+ditch the v1 interface in 2.7 and allow people to migrate slowly?
+
+Wichert.
 
 -- 
-Kevin Corry
-kevcorry@us.ibm.com
-http://evms.sourceforge.net/
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.
 

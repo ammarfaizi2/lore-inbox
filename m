@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129627AbQLGEip>; Wed, 6 Dec 2000 23:38:45 -0500
+	id <S129581AbQLGFDH>; Thu, 7 Dec 2000 00:03:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129581AbQLGEif>; Wed, 6 Dec 2000 23:38:35 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:39949 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129429AbQLGEi3>; Wed, 6 Dec 2000 23:38:29 -0500
-Date: Wed, 6 Dec 2000 22:07:57 -0600
-To: Reto Baettig <baettig@scs.ch>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: 64bit offsets for block devices ?
-Message-ID: <20001206220757.N6567@cadcamlab.org>
-In-Reply-To: <3A2E5227.693121F@scs.ch>
+	id <S129585AbQLGFC6>; Thu, 7 Dec 2000 00:02:58 -0500
+Received: from 25-VALL-X7.libre.retevision.es ([62.83.213.25]:24960 "HELO
+	lightside.2y.net") by vger.kernel.org with SMTP id <S129581AbQLGFCs>;
+	Thu, 7 Dec 2000 00:02:48 -0500
+Date: Thu, 7 Dec 2000 05:40:57 +0100
+From: Ragnar Hojland Espinosa <ragnar_hojland@eresmas.com>
+To: Mike Kravetz <mkravetz@sequent.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: test12pre6: BUG in schedule (sched.c, 115)
+Message-ID: <20001207054057.A1657@lightside.2y.net>
+In-Reply-To: <20001206195908.A190@lightside.2y.net> <20001206140012.B2215@w-mikek.des.sequent.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A2E5227.693121F@scs.ch>; from baettig@scs.ch on Wed, Dec 06, 2000 at 06:50:15AM -0800
-From: Peter Samuelson <peter@cadcamlab.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 0.95.6i
+In-Reply-To: <20001206140012.B2215@w-mikek.des.sequent.com>; from Mike Kravetz on Wed, Dec 06, 2000 at 02:00:12PM -0800
+Organization: Mediocrity Naysayers Ltd
+X-Homepage: http://maculaisdeadsoimmovingit/lightside
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 06, 2000 at 02:00:12PM -0800, Mike Kravetz wrote:
+> Ragnar,
+> 
+> Are you sure that was line 115?  Could it have been line 515?
 
-[Reto Baettig]
-> Imagine we have a virtual disk which provides a 64bit (sparse)
-> address room.  Unfortunately we can not use it as a block device
-> because in a lot of places (including buffer_head structure), we're
-> using a long or even an int for the block number.
+Yes, yes, it was 515.  115 is the result of human cache corruption ;)
 
-Actually it should be 'unsigned long'.  If anyone uses 'long' or 'int',
-I guess it's a bug.
+> Also, do you have any Oops data?
 
-> Is there any way of getting a standardized way of doing I/O to a block
-> device which could handle 64bit addresses for the block number?
+It just froze there.
 
-Yeah, tell the world you explicitly don't support 32-bit architectures.
-Linux supports (to some degree) at least four 64-bit architectures,
-where 'unsigned long' is nice and big.  And I imagine support for
-POWER3 and HP-PA 2.0w are coming in the not-so-distant future.
-
-Either that, or (since you say the address space is sparse) do your own
-block mapping within the driver.  If you still need more than 32 bits,
-you'll have to fudge it with multiple virtual devices.
-
-> Don't you think that we will run into problems anyway because soon
-> there will be raid systems with a couple of Terrabytes of space to
-> waste for mp3's ;-)
-
-A couple of terabytes is fine.  That's 32 bits of blocks.  *More* than
-that, now, we've got a problem.
-
-Peter
+-- 
+____/|  Ragnar Højland     Freedom - Linux - OpenGL      Fingerprint  94C4B
+\ o.O|                                                   2F0D27DE025BE2302C
+ =(_)=  "Thou shalt not follow the NULL pointer for      104B78C56 B72F0822
+   U     chaos and madness await thee at its end."       hkp://keys.pgp.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

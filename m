@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129145AbQKSXvq>; Sun, 19 Nov 2000 18:51:46 -0500
+	id <S129572AbQKSX6U>; Sun, 19 Nov 2000 18:58:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129572AbQKSXvh>; Sun, 19 Nov 2000 18:51:37 -0500
-Received: from usuario1-36-191-31.dialup.uni2.es ([62.36.191.31]:6916 "HELO
-	zaknafein.net.dhis.org") by vger.kernel.org with SMTP
-	id <S129145AbQKSXv3>; Sun, 19 Nov 2000 18:51:29 -0500
-Date: Mon, 20 Nov 2000 00:10:42 +0100
-From: Drizzt <drizzt.dourden@iname.com>
+	id <S129807AbQKSX6K>; Sun, 19 Nov 2000 18:58:10 -0500
+Received: from 213-123-73-213.btconnect.com ([213.123.73.213]:34571 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S129572AbQKSX6A>;
+	Sun, 19 Nov 2000 18:58:00 -0500
+Date: Sun, 19 Nov 2000 23:29:48 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
 To: linux-kernel@vger.kernel.org
-Subject: USB Mass Storage and test11pre7
-Message-ID: <20001120001042.A777@menzoberrazan.dhis.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Subject: VFS busy inodes after umount -- have a nice day...
+Message-ID: <Pine.LNX.4.21.0011192326060.3837-100000@penguin.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have testing a HP 8200e USB CDRW Driver with this version of kernel.
+Hi,
 
-With the vainilla test10, after wrinting 14 MB, the cdrecotrd proccess lock, 
-and I have the next messsage imn the logs:
+Here is how I manage to hit this under 2.4.0-test11-pre6
 
-Nov 19 22:35:34 localhost kernel: usb_control/bulk_msg: timeout
+1. mkfs an ext2 filesystem on a 36G disk
 
-These doesn't happen with test10. But I only have success with the test10 with
-1 cdrom. With Windows and Nero no problems burning cd ( I test for hardware
-problems). How I can help debug these issue.
+2. do a complex combination of data and metadata io on it by means
+  of SPECsfs with LOADs high enough to run out of space
 
-Saludos
-Drizzt
+3. observe that both high and low memory are almost zero, i.e. about 2M
+each (total is 6G)
 
--- 
-... No es oro todo lo que reluce, ni toda la gente errante anda perdida.
-____________________________________________________________________________
-Drizzt Do'Urden                Three rings for the Elves Kings under the Sky   
-drizzt.dourden@iname.com       Seven for the Dwarf_lords in their  
-                               hall of stone
-                               Nine for the Mortal Men doomed to die 
+now try to umount the filesystem and you'll get the above. I will try
+test11-pre7 tomorrow...
+
+Regards,
+Tigran
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,67 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVBLRv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVBLSQ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVBLRv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 12:51:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVBLRv6
+	id S261166AbVBLSQ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 13:16:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVBLSQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 12:51:58 -0500
-Received: from mx.freeshell.org ([192.94.73.21]:29426 "EHLO sdf.lonestar.org")
-	by vger.kernel.org with ESMTP id S261174AbVBLRvz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 12:51:55 -0500
-Date: Sat, 12 Feb 2005 17:50:47 +0000 (UTC)
-From: Roey Katz <roey@sdf.lonestar.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
-In-Reply-To: <200501122242.51686.dtor_core@ameritech.net>
-Message-ID: <Pine.NEB.4.61.0502121749290.25663@sdf.lonestar.org>
-References: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org>
- <200501110239.33260.dtor_core@ameritech.net> <Pine.NEB.4.61.0501130315500.11711@sdf.lonestar.org>
- <200501122242.51686.dtor_core@ameritech.net>
+	Sat, 12 Feb 2005 13:16:26 -0500
+Received: from mail01.hansenet.de ([213.191.73.61]:37828 "EHLO
+	webmail.hansenet.de") by vger.kernel.org with ESMTP id S261166AbVBLSQV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Feb 2005 13:16:21 -0500
+Message-ID: <420E4812.7000006@web.de>
+Date: Sat, 12 Feb 2005 19:16:50 +0100
+From: Marcus Hartig <m.f.h@web.de>
+User-Agent: Mozilla Thunderbird  (X11/20041216)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Re: How to disable slow agpgart in kernel config?
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello again Dmitry,
+Terence Ripperda wrote:
 
-is there anything new about this issue? any fixes in the kernel?
-If you want, I can continue doing the test/debug cycle as before.
+ > I wouldn't expect even falling back to pci dma would have this big of an
+ > impact on 2d performance, but perhaps there's enough bus activity for
+ > this to happen. Marcus, can you verify that you're actually using
+ > agpgart in that situation? do you possibly have our XF86Config option
+ > set to nvagp only? (with IOMMU compiled in or agpgart loaded, our driver
+ > won't allow nvagp) you can verify whether agp is enabled with this
+ > command when our driver is loaded and X is started up:
 
-Roey
+No, IOMMU is now off, too. And I have always used nv_agp with:
 
+Option      "NvAgp" "1"
 
-On Wed, 12 Jan 2005, Dmitry Torokhov wrote:
+If the nvidia driver detects the kernel agpgart, it doesn't load nv_agp 
+with a big message in the kernel log.
 
-> Date: Wed, 12 Jan 2005 22:42:51 -0500
-> From: Dmitry Torokhov <dtor_core@ameritech.net>
-> To: linux-kernel@vger.kernel.org
-> Cc: Roey Katz <roey@sdf.lonestar.org>
-> Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
-> 
-> On Wednesday 12 January 2005 10:19 pm, Roey Katz wrote:
->> Dmitry,
->>
->> I have placed the results of the patched 2.6.9-rc2-bk2 kernel at the
->> following address:
->>
->>    http://roey.freeshell.org/mystuff/kernel/*-20050112
->>
->> As expected, the system was unresponsive to keyboard input.
->
-> And what if you do not compile PS/2 mouse support in? Is keyboard still
-> dead?
->
->> Regarding your mouse question:
->> How do I test the mouse if they keyboard does not work (is there some
->> way to output the contents of /dev/psaux on startup? I'm not sure anymore
->> what file the mouse data appears in, too)
->>
->
-> Install GPM and try moving your mouse after booting into runlevel 3 -
-> if cursor moves mouse works.
->
-> -- 
-> Dmitry
->
+I've just short tested it again:
+
+Doom3 with medium standard settings in 800x600@24bit:
+
+agpgart: 58,1 frames
+nv_agp: 63,1 frames
+
+Its a lot in Doom3.
+
+(Simple) 2D test 1280x1024@24bit with x11perf --> http://www.marcush.de/bench/
+
+Same gcc, xorg 6.8.2, 2.6.11-rc3-bk8 kernel, patched (minion.de) 6629 
+nvidia drivers to run with newer 2.6.11-rcX kernel,... here was only 
+nv_agp and agpgart the difference. In the past without an patched driver 
+the same difference.
+
+And again using agpgart with GNOME under X and moving this thunderbird 
+mail window or other bigger ones like mozille or firefox over an 
+gnome-terminal pulls/draws a ca. 5cm shadow like field slowly after the 
+main window. It seems so not fast enough writing to the screen, when 
+moving. With nv_agp its really faster and you do not see this.
+
+Bad english... I know. ;)
+
+Greetings,
+Marcus

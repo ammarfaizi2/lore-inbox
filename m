@@ -1,75 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292231AbSDAUgI>; Mon, 1 Apr 2002 15:36:08 -0500
+	id <S312586AbSDAUf2>; Mon, 1 Apr 2002 15:35:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310434AbSDAUf7>; Mon, 1 Apr 2002 15:35:59 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:43275 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S292231AbSDAUfv>;
-	Mon, 1 Apr 2002 15:35:51 -0500
-From: Cort Dougan <cort@fsmlabs.com>
-Date: Mon, 1 Apr 2002 13:34:08 -0700
-To: "Jeff V. Merkey" <jmerkey@traxess.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux needs new leadership.
-Message-ID: <20020401133408.L28615@host110.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.01.2002ApR11F0015.31337-101723@transmeta.com> <3CA8AF1E.1040200@traxess.com> <3CA8C6A5.6090709@traxess.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S312587AbSDAUfS>; Mon, 1 Apr 2002 15:35:18 -0500
+Received: from smtp3.acsu.buffalo.edu ([128.205.6.86]:13985 "HELO
+	smtp3.acsu.buffalo.edu") by vger.kernel.org with SMTP
+	id <S312586AbSDAUfC>; Mon, 1 Apr 2002 15:35:02 -0500
+From: Linus Torvalds <torvalds@transmeta.com>
+To: linux-kernel@vger.kernel.org
+Subject: Upcoming rewrite of kernel
+Message-Id: <20020401203512Z312586-616+4291@vger.kernel.org>
+Date: Mon, 1 Apr 2002 15:35:02 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That money isn't coming from Nigeria, either.
+Hi folks,
 
-} I am told this was an april fools email.  Oh well.
-} 
-} :-)
-} 
-} Jeff
-} 
-} Jeff V. Merkey wrote:
-} 
-} > Linus Torvalds wrote:
-} > 
-} > 
-} > Dearest Linus,
-} > 
-} > Coming from one who was at the top of the food chain at Novell, and 
-} > abandoned it, I will tell you that a day will come when you wish you 
-} > hadn't taken this step.  If you leave it, and try to come back, it 
-} > will never be the same.  After all, it's the journey that is it's own 
-} > reward, not the end game.  You are a winner, BTW, whatever path you 
-} > choose to take. 
-} > If you are hell-bent on this path, I nominate Alan Cox.  He's not 
-} > perfect, but he's smart, tough, and has an excellent leadership skills 
-} > and vision..
-} > U-na-le-nv-hi  U-da-do-li-s-di     (May the creator bless your steps 
-} > and watch over you)
-} > 
-} > Do-na-da Go-hv-i (See you around, brother)
-} > 
-} > Wa-do (Thanks)
-} > 
-} > Wa-ya Ge-tlv-hv-s-di  (Jeff V. Merkey)
-} > 
-} > Jeff
-} > 
-} > 
-} > 
-} > 
-} > 
-} > -
-} > To unsubscribe from this list: send the line "unsubscribe 
-} > linux-kernel" in
-} > the body of a message to majordomo@vger.kernel.org
-} > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-} > Please read the FAQ at  http://www.tux.org/lkml/
-} 
-} 
-} 
-} -
-} To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-} the body of a message to majordomo@vger.kernel.org
-} More majordomo info at  http://vger.kernel.org/majordomo-info.html
-} Please read the FAQ at  http://www.tux.org/lkml/
+I have been dealing with maintaining Linux in a mixture of C and Assembler for over twelve years now.  While it has been a lot of fun, every day dealing with these essentially dead languages has become harder and harder for me, and other programers seem to agree.
+
+Thus, starting with Linux 3.0 (to be released hopefully by next summer), the kernel will be completely rewritten in the easy-to-use Visual Basic language.  This will eliminate all issues involving buffer overruns, as well as streamlining porting of Windows programs to Linux, since Microsoft (who will now assume ownership of Linux) assure me that Windows is written entirely in VB as well.
+
+Microsoft has also stated that they intend to incorporate Windows features, such as the RRS (Rapid Random Shutdown) in Windows 95, into Linux 3.0.
+
+Linus
+

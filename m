@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265415AbTFSUHX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 16:07:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265442AbTFSUHW
+	id S265276AbTFSUUh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 16:20:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265335AbTFSUUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 16:07:22 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:65525 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265415AbTFSUHQ (ORCPT
+	Thu, 19 Jun 2003 16:20:37 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:22167 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S265276AbTFSUUg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 16:07:16 -0400
-Message-ID: <3EF21B9C.2040608@austin.ibm.com>
-Date: Thu, 19 Jun 2003 15:22:52 -0500
-From: Steven Pratt <slpratt@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ext3 umount hangs
-References: <3EF1EC73.4070305@austin.ibm.com>	<20030619105817.51613df2.akpm@digeo.com>	<3EF20E86.3030102@austin.ibm.com> <20030619131034.5be8232b.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Jun 2003 16:20:36 -0400
+Date: Thu, 19 Jun 2003 13:34:34 -0700
+From: David Mosberger <davidm@napali.hpl.hp.com>
+Message-Id: <200306192034.h5JKYYcm001734@napali.hpl.hp.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: patch to avoid declaring irq_desc on ia64
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Reply-To: davidm@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+My understanding is that the big irq.c unification is still being
+worked on.  Until that happens, would you mind accepting the attached
+patch?  The CONFIG_IA64 is of course not ideal, but it will trivially
+disappear once the unified irq.c work is in.
 
->Steven Pratt <slpratt@austin.ibm.com> wrote:
->  
->
->>Here is the trace of the hung process:
->>
->> umount        D 00000001 290213268 18747  18746                     (NOTLB)
->> Call Trace:
->>  [<c01a1ae8>] journal_kill_thread+0xa8/0xe0
->>    
->>
->
->whoops.  I bet you're seeing this when using some script which does the
->unmount.
->  
->
-Yes, I was.  :-)
+This change is, I believe, the last one that prevents ia64 from
+compiling out of the box (apart from the show_stack() patches which
+are already in Andrew's tree).
 
->Might this help?
->  
->
-Will try this tonight.  Should have an answer tomorrow.
+	--david
 
-Thanks for the quick response.
-Steve
+PS: Yes, I could work around the problem by changing the irq_desc()
+    macro name to something else.  But that would be lot of wasted
+    effort given that the unified irq.c will also be using a macro of
+    the same name.
 
+diff -Nru a/include/linux/irq.h b/include/linux/irq.h
+--- a/include/linux/irq.h	Thu Jun 19 13:28:02 2003
++++ b/include/linux/irq.h	Thu Jun 19 13:28:02 2003
+@@ -56,7 +56,7 @@
+  *
+  * Pad this out to 32 bytes for cache and indexing reasons.
+  */
+-typedef struct {
++typedef struct irq_desc {
+ 	unsigned int status;		/* IRQ status */
+ 	hw_irq_controller *handler;
+ 	struct irqaction *action;	/* IRQ action list */
+@@ -66,7 +66,9 @@
+ 	spinlock_t lock;
+ } ____cacheline_aligned irq_desc_t;
+ 
++#ifndef CONFIG_IA64
+ extern irq_desc_t irq_desc [NR_IRQS];
++#endif
+ 
+ #include <asm/hw_irq.h> /* the arch dependent stuff */
+ 

@@ -1,99 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263176AbTJJVRh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 17:17:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263179AbTJJVRh
+	id S263136AbTJJVZs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 17:25:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263141AbTJJVZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 17:17:37 -0400
-Received: from jdavies.dsl.xmission.com ([166.70.25.250]:13096 "EHLO
-	smtp.millcreeksys.com") by vger.kernel.org with ESMTP
-	id S263176AbTJJVRf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 17:17:35 -0400
-Message-ID: <1065820650.3f8721ea4162b@secure.millcreeksys.com>
-Date: Fri, 10 Oct 2003 15:17:30 -0600
-From: Uncle Jens <kernel@millcreeksys.com>
-To: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
-Cc: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Re: [2.7 "thoughts"] V0.3
-References: <D9B4591FDBACD411B01E00508BB33C1B01F24E98@mesadm.epl.prov-liege.be>
-In-Reply-To: <D9B4591FDBACD411B01E00508BB33C1B01F24E98@mesadm.epl.prov-liege.be>
-MIME-Version: 1.0
+	Fri, 10 Oct 2003 17:25:48 -0400
+Received: from fw.osdl.org ([65.172.181.6]:60124 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263136AbTJJVZr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 17:25:47 -0400
+Date: Fri, 10 Oct 2003 14:16:46 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: netdev@oss.sgi.com
+Subject: patches for PROC_FS=n (2.6.0-test7)
+Message-Id: <20031010141646.779f10bb.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
-X-Originating-IP: 64.50.56.162
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What about some type of kernel-based-DRM, where only properly(trusted) signed
-binaries can be executed?  For example, I could compile my public key in with
-the kernel and it would only run binaries that had been signed by my private
-key.  I feel that this would be a great security enhancement and would like to
-hear about any issues this may present.
-I've searched all over for a project that does something like this and have been
-unable to find one.  I'd like to start one up on my own, but lack the kernel
-development expertise.
 
-I'm open for any input/flames/etc....
+drivers/char/toshiba.c and
+net/atm/clip.c don't build if PROC_FS=n.
 
+Patches for them are available at:
 
-Michael
+http://developer.osdl.org/rddunlap/patches/toshiba_inline_260t7.patch
+http://developer.osdl.org/rddunlap/patches/atmprocfs_260t7.patch
 
+There are several other drivers/protocols that don't build
+with PROC_FS=n, like arlan, siimage, ipx, llc, and bluetooth.
 
-
-Quoting "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>:
-
-> 2.7 "thoughts"
-> Thanks to Gabor, Stuart, Stephan and others
-> Don't hesitate to send me more or comment.
-> 
-> Regards,
-> Fabian
-> 
-> * slab allocation quota
-> * ntfs full support
-> * kernel web server (Interfaced to Roman config tool)
-> * ipc to sysfs
-> * complete user quota centralization
-> * Add _responsibilities_ for virtual process tree and possible
-> relation in oops cases
-> * Does the whole proc vm stuff root/box relevant ?I don't think
-> so....Hence, those proc entries deserve security relevant attributes
-> * Devices should be limited as well against bad usage(floppy defect),
-> viral activity(netcard rush)...
-> * Improve kobject model for security, quota rendering
-> * bind mount support for all general mount options (nodev,ro,noexec etc)
->   with SECURE implementation with any (maybe even future) filesystems?
-> * union mount (possible with option to declare on what fs a new file
->   should be created: on fixed ones, random algorithm, on fs with the
->   largest free space available etc ...)
-> * guaranteed i/o bandwidth allocation?
-> * netfilter's ability to do tricks which OpenBSD can do now with its
->   packet filter
-> * ENBD support in official kernel with enterprise-class 'through the
->   network' volume management
-> * Standard kernel output (Minimum, Full options ...)
-> * Virtual machine support
-> * /proc interface alternative to modutils/module-init-tools.
->                 That is, to have a directory of virtual nodes in /proc
->                 to provide the functionality of insmod, rmmod, lsmod &
->                 modprobe would be great -- especially from the viewpoint
->                 of recue disk images, etc.
-> * Software RAID 0+1 perhaps?
->                 A lot of hardware RAID cards support it, why not the
->                 kernel?  By RAID 0+1 I mean mirror-RAIDing two (or more)
->                 stripe-RAID arrays.  (Or can this be done already?)
-> * Transparent Software-RAID for IDE RAID cards...
->                 This could be done by using the Software RAID
->                 functionality of the kernel, but making the RAID
->                 interface transparent, so you only see a /dev/md?
->                 device, rather than multiple /dev/?da* entries.
-> * hotplug RAM
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
+--
+~Randy

@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263592AbTDTOrL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 10:47:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263594AbTDTOrL
+	id S263594AbTDTO4x (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 10:56:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263595AbTDTO4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 10:47:11 -0400
-Received: from mail.actcom.co.il ([192.114.47.13]:46043 "EHLO
-	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S263592AbTDTOrJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 10:47:09 -0400
-Message-ID: <3EA2B590.9060809@shemesh.biz>
-Date: Sun, 20 Apr 2003 17:58:24 +0300
-From: Shachar Shemesh <lkml@shemesh.biz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
+	Sun, 20 Apr 2003 10:56:52 -0400
+Received: from siaag2ad.compuserve.com ([149.174.40.134]:52361 "EHLO
+	siaag2ad.compuserve.com") by vger.kernel.org with ESMTP
+	id S263594AbTDTO4w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 10:56:52 -0400
+Date: Sun, 20 Apr 2003 11:06:20 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200304201108_MC3-1-3533-D395@compuserve.com>
 MIME-Version: 1.0
-To: Wichert Akkerman <wichert@wiggy.net>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BK->CVS, kernel.bkbits.net
-References: <20030417162723.GA29380@work.bitmover.com> <20030420013440.GG2528@phunnypharm.org> <3EA24CF8.5080609@shemesh.biz> <20030420130123.GK2528@phunnypharm.org> <3EA2A285.2070307@shemesh.biz> <20030420134712.GM2528@phunnypharm.org> <3EA2B1BB.2060600@shemesh.biz> <20030420144741.GF22848@wiggy.net>
-In-Reply-To: <20030420144741.GF22848@wiggy.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wichert Akkerman wrote:
-
->Previously Shachar Shemesh wrote:
->  
->
->>The site offers binary images for download for FreeBSD and Digital Unix 
->>(Alpha), and Solaris Sparc. It is therefor unlikely that this is a 
->>problem with lack of development tools. More probably - the maintainers 
->>did not have these platforms available to them.
->>    
->>
->
->Are you offering to bootstrap Modula-3 on other Linux architectures?
->
->Wichert.
->
->  
->
-Unfortunetly, I am as swamped as many other here. (I don't have any 
-non-Intel platform available to me even if I did have the time, except 
-perhaps a 68000 Amiga 500, which may or may not still be in working 
-order, but defenitely has no networking). I am saying that cvsup IN 
-ADDITION to the rsync will be nice. If the site administrators can't 
-maintain it, rsync is preferable for the obvious portability reasons..
-
-Not trying to cause anyone any extra work. Sorry for the noise.
-
--- 
-Shachar Shemesh
-Open Source integration consultant
-Home page & resume - http://www.shemesh.biz/
+Alan Cox wrote:
 
 
+> Buy IDE disks in pairs use md1, and remember to continually send the
+> hosed ones back to the vendor/shop (and if they keep appearing DOA to
+> your local trading standards/fair trading type bodies).
+
+
+  I buy three drives at a time so I have a matching spare, because AFAIC
+you shouldn't be doing RAID on unmatched drives.
+
+  Using RAID1 is especially important when using software instead
+of hardware for fault-tolerance because the software is more likely to
+have bugs just because of the 'culture' of hardware vs. software
+developers, and the RAID5 algorithm is very hard to get right anyway,
+especially in failure/rebuild mode.  Even on a hardware controller
+RAID5 is still inherently less reliable.
+
+ (...and what's all this about unreliable drives, anyway?  Every drive
+I have bought since 1987 still works.)
+------
+ Chuck

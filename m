@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136515AbRECJxt>; Thu, 3 May 2001 05:53:49 -0400
+	id <S136542AbRECJy2>; Thu, 3 May 2001 05:54:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136601AbRECJx3>; Thu, 3 May 2001 05:53:29 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:58117 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136542AbRECJxY>; Thu, 3 May 2001 05:53:24 -0400
-Subject: Re: Why recovering from broken configs is too hard
-To: esr@thyrsus.com
-Date: Thu, 3 May 2001 10:56:07 +0100 (BST)
-Cc: viro@math.psu.edu (Alexander Viro),
-        ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
-        linux-kernel@vger.kernel.org (CML2),
-        kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010503054349.C28728@thyrsus.com> from "Eric S. Raymond" at May 03, 2001 05:43:49 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S136560AbRECJyW>; Thu, 3 May 2001 05:54:22 -0400
+Received: from cp26357-a.gelen1.lb.nl.home.com ([213.51.0.86]:3969 "HELO
+	lunchbox.oisec.net") by vger.kernel.org with SMTP
+	id <S136542AbRECJyD>; Thu, 3 May 2001 05:54:03 -0400
+Date: Thu, 3 May 2001 11:53:58 +0200
+From: Cliff Albert <cliff@oisec.net>
+To: poptix <poptix@poptix.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.4.4, 2.4.4-ac1, 2.4.4-ac2, neighbour discovery bug (ipv6)
+Message-ID: <20010503115358.A7793@oisec.net>
+In-Reply-To: <20010501154437.A23200@oisec.net> <Pine.LNX.4.33.0105022155090.444-100000@3jane.ashpool.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14vFqD-0005Hb-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <Pine.LNX.4.33.0105022155090.444-100000@3jane.ashpool.org>; from poptix@poptix.net on Wed, May 02, 2001 at 09:56:20PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Unfortunately....there are a huge bunch of implicit constraints
-> created by dependency relationships in the menu tree.  For example,
-> all SCSI cards are dependents of the SCSI symbol.  Set SCSI to N
-> and all the card symbols get turned off; set any card symbol to Y or M
-> and the value of SCSI goes to Y or M correspondingly.
+On Wed, May 02, 2001 at 09:56:20PM +0200, poptix wrote:
 
-For any given option you have a tree of options that tell you what to change.
-This means you can allow the user to set any conflicting variable either
-way and ripple the changes into the tree then start again
+> >
+> > When i traceroute6 my 2.4.4 box on my local lan, the 2.4.4 box panic's after about 10 seconds. The traceroute6 completes on the other box.
+> >
+> > 2.4.3-ac14 doesn't experience these problems. Only 2.4.4 (with or without ac{1,2}) panics
+> >
+> > ---- traceroute6 output ----
+> > traceroute to neve.oisec.net (3ffe:8114:2000:0:250:bfff:fe21:629a) from 3ffe:8114:2000:0:210:4bff:feb3:1fb4, 30 hops max, 16 byte packets
+> >  1  neve.oisec.net (3ffe:8114:2000:0:250:bfff:fe21:629a)  0.583 ms  0.278 ms  0.233 ms
+> >
+> >
+> [snip]
+> 
+> I am unable to reproduce this, either locally or remotely, I am also using
+> the 2.4.4 kernel, do you have any more information on this, and is it
+> possible to reproduce every time?
 
-For real world cases that will terminate pretty fast. 
+Was reproducable every single time, on multiple machines. a simple PING6 or TRACEROUTE6 would kill the box. Using native connection or tunneled connection doesn't matter after some investigation.
 
-Alan
-
+-- 
+Cliff Albert		| IRCNet:    #linux.nl, #ne2000, #linux, #freebsd.nl
+cliff@oisec.net		| 	     #openbsd, #ipv6, #cu2.nl
+-[ICQ: 18461740]--------| 6BONE:     CA2-6BONE       RIPE:     CA3348-RIPE

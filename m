@@ -1,50 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136131AbRAWGb5>; Tue, 23 Jan 2001 01:31:57 -0500
+	id <S136149AbRAWGdh>; Tue, 23 Jan 2001 01:33:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136149AbRAWGbs>; Tue, 23 Jan 2001 01:31:48 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62725 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S136131AbRAWGbh>;
-	Tue, 23 Jan 2001 01:31:37 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200101222155.f0MLtNe01781@flint.arm.linux.org.uk>
-Subject: Re: PATCH: "Pass module parameters" to built-in drivers
-To: kaos@ocs.com.au (Keith Owens)
-Date: Mon, 22 Jan 2001 21:55:23 +0000 (GMT)
-Cc: Werner.Almesberger@epfl.ch (Werner Almesberger),
-        david_luyer@pacific.net.au (David Luyer), alan@redhat.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <5766.980181036@ocs3.ocs-net> from "Keith Owens" at Jan 23, 2001 03:30:36 AM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S136204AbRAWGd1>; Tue, 23 Jan 2001 01:33:27 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:21764 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S136149AbRAWGdS>; Tue, 23 Jan 2001 01:33:18 -0500
+Date: Tue, 23 Jan 2001 00:33:45 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
+To: Trever Adams <vichu@digitalme.com>
+cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Total loss with 2.4.0 (release)
+In-Reply-To: <20010115215047Z131660-403+523@vger.kernel.org>
+Message-ID: <Pine.LNX.4.32.0101230026490.7610-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens writes:
-> It is part of my total Makefile rewrite for 2.5.  A clean
-> implementation of module parameters mapping to setup code requires the
-> mapping of a source file to the module it is linked into.  That
-> information is difficult to extract with the current Makefile system,
-> my rewrite makes it easy.
+On Mon, 15 Jan 2001, Trever Adams wrote:
 
-Hmm, don't we already have all that __setup() stuff laying around?  Ok,
-it might not be built into the .o for modules, but it could be.  Could
-we not do something along the lines of:
+>I had a similar experience.  All I can say is windows 98
+>and ME seem to have it out for Linux drives running late
+>2.3.x and 2.4.0 test and release.  I had windows completely
+>fry my Linux drive and I lost everything.  I had some old
+>backups and was able to restore at least the majority of
+>older stuff.
+>
+>Sorry and good luck.
 
-1. User passes parameters on the kernel command line.
-2. modprobe reads the kernel command line and sorts out those that
-   correspond to the __setup() stuff in the module being loaded.
-3. modprobe combines in any extra settings from /etc/modules.conf
+I don't see how Windows 9x can be at fault in any way shape or
+form, if you can boot between 2.2.x kernel and 9x no problem, but
+lose your disk if you boot Win98 and then 2.3.x/2.4.x and lose
+everything.  Windows does not touch your Linux fs's, so if there
+is a problem, it most likely is a kernel bug of some kind that
+doesn't initialize something properly.
 
-IIRC, this would satisfy the original posters intentions, presumably
-without too much hastle?
+Windows sucks, and I hate it as much (probably more) than the
+next guy.  It's not fair to blame every computer problem on it
+though unless you KNOW that Windows directly caused the problem.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Pick one of the 1000000000 good reasons to say Windows sucks
+instead...
+
+For what it is worth, I have a similar problem where if I boot
+Windows (to show people what "multicrashing" is), if I boot back
+into Linux, my network card no longer works (via-rhine).  Most
+definitely a Linux bug.  In this case, "via-rhine.o" sucks.
+
+;o)
+
+
+----------------------------------------------------------------------
+    Mike A. Harris  -  Linux advocate  -  Free Software advocate
+          This message is copyright 2001, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
+I'd offer to change your mind for you, but I don't have a fresh diaper.
+  -- Leah to pro-spammer in news.admin.net-abuse.email
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

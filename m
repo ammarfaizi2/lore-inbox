@@ -1,67 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267624AbUGWK6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267625AbUGWK6g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267624AbUGWK6H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 06:58:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267625AbUGWK6G
+	id S267625AbUGWK6g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 06:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267626AbUGWK6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 06:58:06 -0400
-Received: from [221.2.232.138] ([221.2.232.138]:41463 "ehlo sohu.com")
-	by vger.kernel.org with ESMTP id S267624AbUGWK5t (ORCPT
+	Fri, 23 Jul 2004 06:58:35 -0400
+Received: from mproxy.gmail.com ([216.239.56.245]:33363 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267625AbUGWK60 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 06:57:49 -0400
-From: "Tony" <zlblzm@sohu.com>
-Subject: Seeking joint-venture partners for ERW oil casing project
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;charset="GB2312"
-Reply-To: zlblzm@sohu.com
-Date: Fri, 23 Jul 2004 19:57:25 +0800
-X-Priority: 3
-X-Mailer: Foxmail 4.1 [cn]
-Message-Id: <S267624AbUGWK5t/20040723105749Z+267@vger.kernel.org>
+	Fri, 23 Jul 2004 06:58:26 -0400
+Message-ID: <4d8e3fd30407230358141e0e58@mail.gmail.com>
+Date: Fri, 23 Jul 2004 12:58:22 +0200
+From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-I3
+Cc: linux-kernel@vger.kernel.org, Rudo Thomas <rudo@matfyz.cz>,
+       Matt Heler <lkml@lpbproductions.com>
+In-Reply-To: <20040723104246.GA2752@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20040721211826.GB30871@elte.hu> <20040721223749.GA2863@yoda.timesys> <20040722100657.GA14909@elte.hu> <20040722160055.GA4837@ss1000.ms.mff.cuni.cz> <20040722161941.GA23972@elte.hu> <20040722172428.GA5632@ss1000.ms.mff.cuni.cz> <20040722175457.GA5855@ss1000.ms.mff.cuni.cz> <20040722180142.GC30059@elte.hu> <20040722180821.GA377@elte.hu> <20040722181426.GA892@elte.hu> <20040723104246.GA2752@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sir or Madam:
+On Fri, 23 Jul 2004 12:42:46 +0200, Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> i've uploaded the -I3 voluntary-preempt patch:
+> 
+>  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-I3
+> 
+> it mainly fixes an ext3 livelock that could result in long delays during
+> heavy commit traffic.
 
-We are keenly interested in setting up a new factory to produce 120,000 ERW oil casings per year to meet the big market of Shengli Oilfied. Since we lack some starting-up capital, we are seeking for investments. I will give you a brief introduction to the project as follow:
+Hello Ingo,
+do you have any measurement of the improvement available ?
 
-I. Background:
-Shengli Oilfield, the second largest oilfield in China and the leading company of Sinopec Corp. (http://www.sinopec.com), as well as neighboring oilfields as Dagang Oilfield, Central Plain Oilfield and Jiangsu Oilfield are potential market of ERW oil casing. It is expected that the total oil casing needed in the above area is about 400,000 tons, including 260,000 tons in Sinopec and 150,000 tons in Shengli Oilfield. To meet the great need, we plan to set up a joint venture to produce 120,000 tons of ERW casings per year in Shengli Oilfield.  With good management and market outlets, we believe that this JV also has the potential to expand beyond China to other nations. 
+Thanks.
 
-II. About us
-Shengli Oilfield Engineering Machinery Factory is one of sub-companies of Shengli Oilfield Co., Ltd, with total assets of 267 million yuan, net assets of 170 million yuan and 2462 staff. The factory mainly produces oilfield special equipment such as beam unit, Spiral-seam submerged-arc weldedsteel pipe, sucker rod, line pipe, casing, tubing, plastic compound pipe etc. It produces 200,000 tons of line pipes, 1 million meters of strengthened plastic compound pipes, 500 beam units, 2.5 million meters of sucker rods, 12,000 tons of PP gas pipes and 50,000 tons of oil tubings yearly, and has become important pipe base in Shandong and Shengli Oilfield. Its products have entering many areas as Shengli Oilfield, Daqing Oilfield, Liaohe Oilfield, Dagang Oilfield and so on. In 2002, the sale income amounted to over 600 million yuan.
-The Factory holds Quality accreditations as ISO9001, API and so on.
+Ciao,
+                     Paolo
 
-III. Content of the project
-It is planned to introduce Japanese technology and equipment to set up one production line with range of casing diameter from¦Õ114 to ¦Õ339.7 and produce 120,000 tons of ERW casings and delivery pipes per year.
 
-IV. Product specifications
-For Casing: grade of steel are J55 and N80, specification ranges from ¦Õ114 to ¦Õ339.7
-For delivery: grade of steel are X52¡¢X60¡¢X70, specification ranges from ¦Õ114 to ¦Õ339.7.
-
-V. Economic Analysis
-The total investment in this project is 142.41 million yuan. After the completion of the project, it is estimated that the internal financial rate of return before paying tax is 24.9 percent with a payback period of 5.6 years, and the internal rate of return after paying tax is 21.8 percent with a payback period of 5.9 years.
-The break-even point of the project is 46.95 percent, which means the project can keep balance if the annual output amount to 42,000 tons.
-
-VI. Plans for cooperation
-We have set up a joint venture with Japan's Marubeni in the early of the year, with a registered capital of 57 million yuan. The capital structure is as follow:
-a. Shengli Oilfield Bureau of Administration          19.95 million yuan   35£¥
-b. Shengli Oilfield Engineering Machinery Facotry     17.10 million yuan   30£¥
-c. Dongying District State Assets Operation & Management Co., Ltd 5.70million yuan 10£¥
-d. Marubeni Engineering Technology Co., Ltd           14.25 million yuan   25£¥
-
-To meet our capital need for this project, we are now planned to increase our registered capital to 118.88 million yuan. Taking our added investment into consideration, we need another 34.68 million yuan to get the plan executed. So we are seeking a new joint venture partner who'd like to join this project and meet our capital requirement.
-We would like to exchange the information with the manufacturers and suppliers who are interested in this project and have discussion on raw material supply as well as jointly investing the factory establishment. And we hope we could have good cooperation in future.
-For additional information regarding this project, please feel free to contact us.
-
-Looking forward to your prompt reply.
-
-Sincerely yours, 
-
-Tony Leung
-Project officer
-
-Tel: +86-546-833 9362
-Fax:+86-546-832 9817
-Mobile: +86-133 4505 3225
-Email: tony@mpbdy.com
+-- 
+paoloc.doesntexist.org

@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312181AbSDEEN7>; Thu, 4 Apr 2002 23:13:59 -0500
+	id <S312275AbSDEEuK>; Thu, 4 Apr 2002 23:50:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312219AbSDEENt>; Thu, 4 Apr 2002 23:13:49 -0500
-Received: from ns1.crl.go.jp ([133.243.3.1]:20928 "EHLO ns1.crl.go.jp")
-	by vger.kernel.org with ESMTP id <S312181AbSDEENk>;
-	Thu, 4 Apr 2002 23:13:40 -0500
-Date: Fri, 5 Apr 2002 13:13:30 +0900 (JST)
-From: Tom Holroyd <tomh@po.crl.go.jp>
-X-X-Sender: tomh@holly.crl.go.jp
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre5
-In-Reply-To: <Pine.LNX.4.21.0204041627580.10117-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.44.0204051300130.9007-100000@holly.crl.go.jp>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312277AbSDEEuA>; Thu, 4 Apr 2002 23:50:00 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7181 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S312275AbSDEEtx>; Thu, 4 Apr 2002 23:49:53 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [QUESTION] How to use interruptible_sleep_on() without races ?
+Date: Fri, 5 Apr 2002 04:49:28 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <a8jaco$avc$1@penguin.transmeta.com>
+In-Reply-To: <20020404185232.B27209@bougret.hpl.hp.com> <E16tKGi-0007Sy-00@the-village.bc.nu> <20020404190848.C27209@bougret.hpl.hp.com>
+X-Trace: palladium.transmeta.com 1017982187 9704 127.0.0.1 (5 Apr 2002 04:49:47 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 5 Apr 2002 04:49:47 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Apr 2002, Marcelo Tosatti wrote:
-
-> Could you please try to reproduce with 2.4.19-pre4 ?
-
-OK, I could, so I searched back and -pre1 was OK.  This behavior
-showed up in -pre2.  It seems to be related to the mm changes.
-Unfortunately I don't know how to back those out safely to check that.
-
-To repeat, I set up a window that has to be redrawn (no backing
-store), then use ee (electric eyes) to scroll through 50 or so JPGs
-then go back to redraw the aforementioned window.  In -pre2 I get 5
-sec freezes and no disk IO during the interval, so it seems like a
-memory management thing.
-
-Any tests I could do?  A -pre2 patch without the mm changes?
-
-> On Thu, 4 Apr 2002, Tom Holroyd wrote:
+In article <20020404190848.C27209@bougret.hpl.hp.com>,
+Jean Tourrilhes  <jt@bougret.hpl.hp.com> wrote:
+>On Fri, Apr 05, 2002 at 04:20:04AM +0100, Alan Cox wrote:
+>> > 
+>> > 	I looked at it in every possible way, and I don't see how it
+>> > is possible to use safely interruptible_sleep_on(). And I wonder :
+>> 
+>> It isnt for interrupt stuff - its going back to the old kernel behaviour
+>> when it used to be usable
 >
-> > AlphaPC 264DP 666 MHz (Tsunami, UP)
-> > 1GB RAM
-> > gcc version 3.0.3
-> > ... a window that should
-> > refresh (no backing store) right away causes long (2~5 sec) freezes.
+>	So, maybe it would be a nice idea to remove it from the 2.5.X
+>kernel to force a "spring cleanup" of the old code. If it's no longer
+>usable and only confusing, it should be purged...
 
+It's still usable, but under rather specific conditions, namely:
+ - both sleeper and waker in process context and with BKL held.
+ - OR if missing a wakeup isn't a horrible problem.
+
+And there does seem to be a lot of legacy users out there.
+
+I wouldn't mind a spring cleaning, but the fact is that right now in
+2.5.x I'd rather have driver writers wake up to the fact that we had a
+spring cleaning in the block layer several months ago, rather than
+introduce a new one ;)
+
+		Linus

@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262914AbTHZVtW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 17:49:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262921AbTHZVtW
+	id S262939AbTHZVwX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 17:52:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbTHZVwX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 17:49:22 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:1935 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S262914AbTHZVtS (ORCPT
+	Tue, 26 Aug 2003 17:52:23 -0400
+Received: from fw.osdl.org ([65.172.181.6]:61857 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262939AbTHZVwW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 17:49:18 -0400
-Date: Tue, 26 Aug 2003 23:43:23 +0200 (MEST)
-Message-Id: <200308262143.h7QLhNoE003465@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: ak@suse.de, akpm@osdl.org, haveblue@us.ibm.com, mikpe@csd.uu.se,
-       venkatesh.pallipadi@intel.com, vojtech@suse.cz
-Subject: RE: [PATCH][2.6][2/5]Support for HPET based timer
-Cc: jun.nakajima@intel.com, linux-kernel@vger.kernel.org,
-       suresh.b.siddha@intel.com
+	Tue, 26 Aug 2003 17:52:22 -0400
+Date: Tue, 26 Aug 2003 14:36:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Oleg Drokin <green@linuxhacker.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4: blkdev_requests "memory before object was
+ overwritten" and oops in __iget
+Message-Id: <20030826143635.1c218d06.akpm@osdl.org>
+In-Reply-To: <20030826183850.GA4781@linuxhacker.ru>
+References: <20030826183850.GA4781@linuxhacker.ru>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Aug 2003 11:31:16 -0700, "Pallipadi, Venkatesh" wrote:
->  This is an update on the option of using some sort of early_ioremap in
->place of fixmap for 
->HPET timers.
+Oleg Drokin <green@linuxhacker.ru> wrote:
 >
->Problem Description:
->  The requirement from HPET side is, we need to map HPET physical
->address during timer_init() 
->routine and also during any read/write HPET addresses. We need to have
->this mapping kind of
->permanently, as  we will do HPET reads/writes during every timer
->interrupt and also during 
->every gettimeofday (if we don't use tsc timer).
->  And the timer_init() happens before mem_init() (but after paging
->init()), so we cannot 
->directly use ioremap(). Current implementation is using a separate
->fixmap region for HPET.
-...
->The question I have is,
->- Is it really worth to move from the current fixmap implementation to
->bt_ioremap/ioremap 
->combination, given all the changes that is required?
->- Isn't current implementation (using own fixmap) a cleaner way to do
->it? Only drawback 
->I see is it consumes one page in virtual memory when HPET is configured,
->irrespective of 
->HPET is used at run time or not.
+>    Found one of my test boxes freezed today (or may be even yesterday).
+>    That's what was in logs:
+> 
+> Aug 25 00:50:37 dwarf kernel: [drm] DMA Cleanup
+> Aug 25 21:46:31 dwarf kernel: mtrr: base(0xf8000000) is not aligned on a size(0x180000) boundary
+> Aug 25 21:46:31 dwarf kernel: [drm] Using POST v1.2 init.
+> Aug 25 21:46:31 dwarf kernel: PCI: Found IRQ 11 for device 0000:00:02.0
+> Aug 25 21:46:39 dwarf kernel: slab error in cache_alloc_debugcheck_after(): cache `blkdev_requests': memory before object was overwritten
 
-As long as you _must_ map the HPET before ioremap() is working,
-and you also must have a permanent mapping, then grabbing a fixmap
-page is IMO the cleanest solution. This is for example how the
-local APIC mapping is handled. boot/bt ioremap are as you noticed
-for temporary mappings only.
+Setting CONFIG_DEBUG_PAGEALLOC might help us trap this.
 
-However, dynamically migrating the timer to HPET after mem_init()
-would be even better, since that avoids the problem altogether.
-
-/Mikael

@@ -1,29 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbTDONwW (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 09:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbTDONwW 
+	id S261452AbTDONzi (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 09:55:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbTDONzi 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 09:52:22 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:36270 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S261440AbTDONwW 
+	Tue, 15 Apr 2003 09:55:38 -0400
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:63644 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S261452AbTDONzg 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 09:52:22 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 15 Apr 2003 16:04:10 +0200 (MEST)
-Message-Id: <UTC200304151404.h3FE4AY07391.aeb@smtp.cwi.nl>
-To: torvalds@transmeta.com, zippel@linux-m68k.org
-Subject: Re: [PATCH] kdevt-diff
-Cc: Andries.Brouwer@cwi.nl, akpm@digeo.com, linux-kernel@vger.kernel.org
+	Tue, 15 Apr 2003 09:55:36 -0400
+Message-ID: <20030415140713.38173.qmail@mail.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Subodh S" <subodh_s_1975@mail.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-scsi@vger.kernel.org
+Date: Tue, 15 Apr 2003 09:07:12 -0500
+Subject: How to change retry count of lower layer drivers
+X-Originating-Ip: 133.145.164.4
+X-Originating-Server: ws1-7.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> BTW there are a few more functions missing, we need a dev_to_u32()
-> and a dev_to_u16(), so e.g. file systems can do something useful
-> in mknod if they can't store the complete number.
+Hi,
 
-In such cases I cannot see any meaningful action other than returning
-EOVERFLOW (or EINVAL in case you prefer that).
+Whenever the path on which an I/O is in-progress, 
+goes down, sd takes a long time to detect it. As per 
+my knowledge it would be 60sec * 5(no. of retries) 
+plus the time taken by the lower layer driver(hba) 
+to detect the failure. Is this correct ?? Is there a 
+way available to reduce this "timeout/retry count" 
+value without modifying sd.c
 
-Andries
+-subodh
 
+
+
+-- 
+__________________________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
 

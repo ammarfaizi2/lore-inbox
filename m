@@ -1,81 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129874AbQKIHGM>; Thu, 9 Nov 2000 02:06:12 -0500
+	id <S129213AbQKIHYM>; Thu, 9 Nov 2000 02:24:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129946AbQKIHGD>; Thu, 9 Nov 2000 02:06:03 -0500
-Received: from nifty.blue-labs.org ([208.179.0.193]:35112 "EHLO
-	nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S129874AbQKIHFy>; Thu, 9 Nov 2000 02:05:54 -0500
-Message-ID: <3A0A4CBA.ED4DC5C4@linux.com>
-Date: Wed, 08 Nov 2000 23:05:30 -0800
-From: David Ford <david@linux.com>
-Organization: Blue Labs
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+	id <S129231AbQKIHYD>; Thu, 9 Nov 2000 02:24:03 -0500
+Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:6666 "EHLO
+	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S129213AbQKIHXt>; Thu, 9 Nov 2000 02:23:49 -0500
+From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: linux-kernel@vger.kernel.org
+Date: Thu, 9 Nov 2000 08:23:26 +0100
 MIME-Version: 1.0
-To: Greg KH <greg@wirex.com>
-CC: linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>
-Subject: Re: [bug] usb-uhci locks up on boot half the time
-In-Reply-To: <3A09F158.910C925@linux.com> <14857.62696.393621.795132@somanetworks.com> <3A09FD81.E7DA9352@linux.com> <20001108200844.A13446@wirex.com> <3A0A25C1.C46E392B@linux.com> <20001108215901.A13572@wirex.com>
-Content-Type: multipart/mixed;
- boundary="------------15CC03D8157D5E19F29D5592"
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: kernel: eepro100: wait_for_cmd_done timeout!
+CC: linux-eepro100@webserv.gsfc.nasa.gov
+Message-ID: <3A0A5EF9.22733.135B0F@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------15CC03D8157D5E19F29D5592
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hello,
 
-More data:
+I'm seeing the message periodically:
 
-kdb> bp pci_conf1_write_config_word+0x3a
-Instruction(i) BP #1 at 0xc01100f2 (pci_conf1_write_config_word+0x3a)
-    is enabled globally adjust 1
-kdb> go
-Instruction(i) breakpoint #1 at 0xc01100f2 (adjusted)
-0xc01100f2 pci_conf1_write_config_word+0x3a:   orl    $0xcfc,%edx
+Nov  8 09:52:59 kgate last message repeated 5 times
+Nov  8 11:26:54 kgate kernel: eepro100: wait_for_cmd_done timeout!
+Nov  8 11:56:12 kgate kernel: eepro100: wait_for_cmd_done timeout!
+Nov  8 14:38:45 kgate kernel: eepro100: wait_for_cmd_done timeout!
+Nov  8 14:38:47 kgate last message repeated 3 times
+Nov  8 14:56:11 kgate kernel: eepro100: wait_for_cmd_done timeout!
+Nov  8 14:57:01 kgate last message repeated 10 times
+Nov  8 21:32:15 kgate kernel: eepro100: wait_for_cmd_done timeout!
+Nov  8 22:57:46 kgate kernel: eepro100: wait_for_cmd_done timeout!
 
-Entering kdb (current=0xcfff4000, pid 1) due to Breakpoint @ 0xc01100f2
-kdb> ss
-0xc01100f2 pci_conf1_write_config_word+0x3a:   orl    $0xcfc,%edx
-SS trap at 0xc01100f8 (pci_conf1_write_config_word+0x40)
-0xc01100f8 pci_conf1_write_config_word+0x40:   outw   %ax,(%dx)
-kdb> rd
-eax = 0x00002000 ebx = 0x800022c0 ecx = 0x000000c0 edx = 0x00000cfc
-esi = 0x00002000 edi = 0xc144c800 esp = 0xcfff5f68 eip = 0xc01100f8
-ebp = 0xcfff5f70 xss = 0x00000018 xcs = 0x00000010 eflags = 0x00000006
-xds = 0xcfff0018 xes = 0x00000018 origeax = 0xffffffff &regs = 0xcfff5f34
+The source contains:
 
--d
+/* How to wait for the command unit to accept a command.
+   Typically this takes 0 ticks. */
+static inline void wait_for_cmd_done(long cmd_ioaddr)
+{
+        int wait = 1000;
+        do   ;
+        while(inb(cmd_ioaddr) && --wait >= 0);
+#ifndef final_version
+        if (wait < 0)
+                printk(KERN_ALERT "eepro100: wait_for_cmd_done 
+timeout!\n");
+#endif
+}
 
---
-"The difference between 'involvement' and 'commitment' is like an
-eggs-and-ham breakfast: the chicken was 'involved' - the pig was
-'committed'."
+My machine is a HP Netserver LD Pro with a 200MHz Pentium Pro. I guess 
+a fast machine will only allow a very short time for the above loop. 
+Shouldn't it be fixed?
+
+The hardware is this:
+01:02.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] 
+(rev 02)
+        Subsystem: Hewlett-Packard Company Ethernet Pro 10/100TX
+        Flags: bus master, medium devsel, latency 66, IRQ 9
+        Memory at fe8fe000 (32-bit, prefetchable)
+        I/O ports at ece0
+        Memory at fea00000 (32-bit, non-prefetchable)
 
 
+kgate kernel: eepro100.c:v1.09j-t 9/29/99 Donald Becker 
+http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
+kgate kernel: eepro100.c: $Revision: 1.20.2.10 $ 2000/05/31 Modified by 
+Andrey V. Savochkin <saw@saw.sw.com.sg> and others
+kgate kernel: eth0: OEM i82557/i82558 10/100 Ethernet, 00:60:B0:6D:F1:AE, 
+IRQ 9.
+kgate kernel:   Board assembly 673610-001, Physical connectors present: 
+RJ45
+kgate kernel:   Primary interface chip i82555 PHY #1.
+kgate kernel:   General self-test: passed.
+kgate kernel:   Serial sub-system self-test: passed.
+kgate kernel:   Internal registers self-test: passed.
+kgate kernel:   ROM checksum self-test: passed (0x49caa8d6).
+kgate kernel:   Receiver lock-up workaround activated.
 
---------------15CC03D8157D5E19F29D5592
-Content-Type: text/x-vcard; charset=us-ascii;
- name="david.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for David Ford
-Content-Disposition: attachment;
- filename="david.vcf"
+The software is Linux-2.2.16 (SuSE 7.0).
 
-begin:vcard 
-n:Ford;David
-x-mozilla-html:TRUE
-adr:;;;;;;
-version:2.1
-email;internet:david@kalifornia.com
-title:Blue Labs Developer
-x-mozilla-cpt:;14688
-fn:David Ford
-end:vcard
-
---------------15CC03D8157D5E19F29D5592--
+Regards,
+Ulrich
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

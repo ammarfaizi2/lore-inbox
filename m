@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262250AbUCOEe2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 23:34:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbUCOEe2
+	id S262254AbUCOEjN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 23:39:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbUCOEjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 23:34:28 -0500
-Received: from fw.osdl.org ([65.172.181.6]:13546 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262250AbUCOEe1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 23:34:27 -0500
-Date: Sun, 14 Mar 2004 20:34:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Herbert Poetzl <herbert@13thfloor.at>
-Cc: torvalds@osdl.org, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Bind Mount Extensions 0.04 (linux-2.6.4)
-Message-Id: <20040314203427.27857fd9.akpm@osdl.org>
-In-Reply-To: <20040315042541.GA31412@MAIL.13thfloor.at>
-References: <20040315035506.GB30948@MAIL.13thfloor.at>
-	<20040314201457.23fdb96e.akpm@osdl.org>
-	<20040315042541.GA31412@MAIL.13thfloor.at>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 14 Mar 2004 23:39:13 -0500
+Received: from mail-05.iinet.net.au ([203.59.3.37]:52125 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S262254AbUCOEjM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 23:39:12 -0500
+Message-ID: <4055335B.30402@cyberone.com.au>
+Date: Mon, 15 Mar 2004 15:38:51 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       j-nomura@ce.jp.nec.com, linux-kernel@vger.kernel.org, riel@redhat.com,
+       torvalds@osdl.org
+Subject: Re: [2.4] heavy-load under swap space shortage
+References: <20040310.195707.521627048.nomura@linux.bs1.fc.nec.co.jp> <Pine.LNX.4.44.0403141638390.1554-100000@dmt.cyclades> <20040314121503.13247112.akpm@osdl.org> <20040314230138.GV30940@dualathlon.random> <20040314152253.05c58ecc.akpm@osdl.org> <20040315001400.GX30940@dualathlon.random>
+In-Reply-To: <20040315001400.GX30940@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Poetzl <herbert@13thfloor.at> wrote:
+
+
+Andrea Arcangeli wrote:
+
 >
-> On Sun, Mar 14, 2004 at 08:14:57PM -0800, Andrew Morton wrote:
-> > Herbert Poetzl <herbert@13thfloor.at> wrote:
-> > >
-> > >  ; this patch adds some functionality to the --bind
-> > >  ; type of vfs mounts.
-> > 
-> > This won't apply any more.  We very recently changed a large number of
-> > filesystems to not call update_atime() from within their readdir functions.
-> > That operation was hoisted up to vfs_readdir().
-> 
-> good decision, very recently probably means in the bk repository,
-> is there any link where I could download those changes?
+>I don't see other ways to optimize it (and I never enjoyed too much the
+>per-zone lru since it has some downside too with a worst case on 2G
+>systems). peraphs a further optimization could be a transient per-cpu
+>lru refiled only by the page reclaim (so absolutely lazy while lots of
+>ram is free), but maybe that's already what you're doing when you say
+>"Adding/removing sixteen pages for one taking of the lock". Though the
+>fact you say "sixteen pages" sounds like it's not as lazy as it could
+>be.
+>
 
-The latest diff against the most-recently-release kernel is always at
+Hi Andrea,
+What are the downsides on a 2G system?
 
-	http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/
-
-the topmost link.
-
-> > Also, rather than adding MNT_IS_RDONLY() and having to remember to check
-> > both the inode and the mount all over the kernel it would be better to
-> > change IS_RDONLY() to take two arguments - the inode and the vfsmnt.  That
-> > way we won't miss places, and unconverted code simpy won't compile, thus
-> > drawing attention to itself.  I don't know if this is feasible, but please
-> > consider it.
-> 
-> I don't have a problem with that, and it sounds good to me so
-> far, so I'll have a look at it, and will update the patch
-> accordingly ...
-
-Thanks.

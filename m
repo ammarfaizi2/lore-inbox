@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbVCYCDR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbVCYCPG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbVCYCDR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 21:03:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVCYAsp
+	id S261178AbVCYCPG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 21:15:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVCYCPG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 19:48:45 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:54544 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261297AbVCYAPm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 19:15:42 -0500
-Date: Fri, 25 Mar 2005 01:15:40 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: urban@teststation.com
-Cc: samba@samba.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/smbfs/request.c: fix NULL dereference
-Message-ID: <20050325001540.GF3966@stusta.de>
+	Thu, 24 Mar 2005 21:15:06 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:7056 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261178AbVCYCPC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 21:15:02 -0500
+Subject: Re: nforce 4 audio has no s/pdif out
+From: Lee Revell <rlrevell@joe-job.com>
+To: Felix von Leitner <felix-linuxkernel@fefe.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050325012931.GA30885@codeblau.de>
+References: <20050325012931.GA30885@codeblau.de>
+Content-Type: text/plain
+Date: Thu, 24 Mar 2005 21:15:01 -0500
+Message-Id: <1111716901.9303.1.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker found that if req was NULL because find_request 
-returned NULL, this resulted in a break from the switch, but req was 
-later dereferenced (look at the last line of this patch).
+On Fri, 2005-03-25 at 02:29 +0100, Felix von Leitner wrote:
+> My shiny new nforce 4 main board has sound that is detected OK by ALSA:
+> 
+>   intel8x0_measure_ac97_clock: measured 49970 usecs
+>   intel8x0: clocking to 46877
+>   ALSA device list:
+>     #0: NVidia CK804 with ALC850 at 0xd2003000, irq 185
+> 
+> but I can't get my stereo to play.  It is connected via optical S/PDIF.
+> Works fine under Windoze, so the hardware is ok.
+> 
+> Any idea what I could do?
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+This is OT for LKML.  ALSA bugs should be reported here:
 
---- linux-2.6.12-rc1-mm2-full/fs/smbfs/request.c.old	2005-03-25 00:45:08.000000000 +0100
-+++ linux-2.6.12-rc1-mm2-full/fs/smbfs/request.c	2005-03-25 00:47:14.000000000 +0100
-@@ -783,20 +783,23 @@ int smb_request_recv(struct smb_sb_info 
- 			break;
- 		break;
- 
- 		/* We should never be called with any of these states */
- 	case SMB_RECV_END:
- 	case SMB_RECV_REQUEST:
- 		server->rstate = SMB_RECV_END;
- 		break;
- 	}
- 
-+	if (!req)
-+		return -ENOMEM;
-+
- 	if (result < 0) {
- 		/* We saw an error */
- 		return result;
- 	}
- 
- 	if (server->rstate != SMB_RECV_END)
- 		return 0;
- 
- 	result = 0;
- 	if (req->rq_trans2_command && req->rq_rcls == SUCCESS)
+https://bugtrack.alsa-project.org/alsa-bug/main_page.php
+
+Lee
 

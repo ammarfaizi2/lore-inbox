@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272372AbRH3SAA>; Thu, 30 Aug 2001 14:00:00 -0400
+	id <S272386AbRH3SDu>; Thu, 30 Aug 2001 14:03:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272384AbRH3R7u>; Thu, 30 Aug 2001 13:59:50 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:48633 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S272372AbRH3R7a>; Thu, 30 Aug 2001 13:59:30 -0400
-Message-ID: <3B8E7F0D.3000503@redhat.com>
-Date: Thu, 30 Aug 2001 13:59:41 -0400
-From: Doug Ledford <dledford@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010829
-X-Accept-Language: en-us
+	id <S272385AbRH3SDk>; Thu, 30 Aug 2001 14:03:40 -0400
+Received: from otter.mbay.net ([206.40.79.2]:50192 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S272383AbRH3SD1>;
+	Thu, 30 Aug 2001 14:03:27 -0400
+Date: Thu, 30 Aug 2001 11:03:23 -0700 (PDT)
+From: John Alvord <jalvo@mbay.net>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+        Arjan van de Ven <arjan@fenrus.demon.nl>, linux-kernel@vger.kernel.org
+Subject: Re: lcs ethernet driver source
+In-Reply-To: <Pine.LNX.4.33.0108301720190.23048-100000@imladris.demon.co.uk>
+Message-ID: <Pine.LNX.4.20.0108301102290.2203-100000@otter.mbay.net>
 MIME-Version: 1.0
-To: "Kevin P. Fleming" <kevin@labsysgrp.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9-ac1 RAID-5 resync causes PPP connection to be unusable
-In-Reply-To: <05c501c13178$43e19ba0$6caaa8c0@kevin>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kevin P. Fleming wrote:
+On Thu, 30 Aug 2001, David Woodhouse wrote:
 
-> I ran into a very strange problem yesterday... my server here, which is a
-> 700 MHz Celeron, 256MiB RAM, four ~40G disks has two RAID-5 arrays (using
-> the standard kernel MD driver) configured across those four drives. For some
-> reason definitely related to operator error, the machine crashed and needed
-> to resync the arrays after being rebooted.
+> On Thu, 30 Aug 2001, Alan Cox wrote:
 > 
-> Eveything was working fine, interactive response was just fine even though
-> the drives were just cranking away doing their resync. I then brought up my
-> PPP Internet connection, which came up just fine. However, I was _not_ able
-> to actually communicate with any 'Net hosts.
+> > > Sorry, at this point we are not allowed to publish the source code of the
+> > > lcs and qeth drivers (due to the use of confidential hardware interface
+> > > specifications).  We make those modules available only in binary form
+> > > on our developerWorks web site.
+> > 
+> > Is there any plan to change this ? 
+> 
+> Erm, Linux on S/390 runs as a virtual machine, doesn't it? Does a lack of 
+> network drivers not render it completely useless?
 
+It can run as a virtual machine under VM. It can also run native directly
+on the (LPAR) hardware.
 
-[ snip ]
-
-
-> I can probably reproduce this pretty easily, if anyone is interested and can
-> give me some idea where to look for the cause...
-
-
-Don't bother.  The problem is that your disks are IDE disks and you 
-don't have IRQ unmasking enabled on some/all of them.  As long as that's 
-the case, heavy disk activity (whether it's a RAID5 resync or a bonnie 
-run or untar'ing a kernel archive) will always cause your PPP connection 
-to quit working due to dropped serial data and therefore corrupted PPP 
-packets.
-
-
--- 
-
-  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-       Please check my web site for aic7xxx updates/answers before
-                       e-mailing me about problems
+john
 

@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132558AbRDQF7m>; Tue, 17 Apr 2001 01:59:42 -0400
+	id <S132560AbRDQGIh>; Tue, 17 Apr 2001 02:08:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132560AbRDQF7c>; Tue, 17 Apr 2001 01:59:32 -0400
-Received: from media.umbc.edu ([130.85.179.78]:7692 "EHLO media.umbc.edu")
-	by vger.kernel.org with ESMTP id <S132558AbRDQF7W>;
-	Tue, 17 Apr 2001 01:59:22 -0400
-From: Ray Shaw <ray@media.umbc.edu>
-Date: Tue, 17 Apr 2001 01:59:16 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Athlon runtime problems
-Message-ID: <20010417015916.A14437@media.umbc.edu>
-Mime-Version: 1.0
+	id <S132561AbRDQGI1>; Tue, 17 Apr 2001 02:08:27 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:15889 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S132560AbRDQGIV>;
+	Tue, 17 Apr 2001 02:08:21 -0400
+Message-ID: <3ADBE40A.A455AD29@candelatech.com>
+Date: Mon, 16 Apr 2001 23:34:50 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 802.1Q VLAN patch for 2.4.4-pre3 & 2.2.19
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I just updated the VLAN patches slightly.  The 2.2 series patch
+did not change, but is now known to patch into 2.2.19 w/out
+trouble.
 
->CPU model/stepping
-AMD Duron, 800mhz
+The 2.4 series patch was briefly tested against 2.4.4-pre3 and
+seems to be working OK.
 
->chipset
-VIA KT-133; motherboard is an ABIT KT7A-RAID
+The changes are:
+  Allow MAC change to work correctly by recognizing PACKET_HOST
+  This should help those folks that like to change the MAC address
+  on their VLANs to be different than the underlying ethernet device.
 
->amount of RAM
-256M, single PC-133 SDRAM
+  Compile fix for using VLANs as a module.
 
->/proc/mtrr output
-reg00: base=0x00000000 (   0MB), size= 256MB: write-back, count=1
-reg05: base=0xd0000000 (3328MB), size=  64MB: write-combining, count=1
+Comments, suggestions, patches and praise are all welcome! :)
 
->compiler used
-gcc version 2.95.2
-
-It seems to blow up when I'm doing something which probably wants lots
-of memory, ie running X and opening up several mozilla windows (though
-it still crashes while just running X, Enlightenment, and w3m in an
-Eterm...but it does take a little longer, though still < 30 min.).
-
-I went back to 2.2.18 and the crashing stopped.  I am using UDMA66 on
-one of my drives, no DMA on the other two.
-
-I haven't tried a non-Athlon optimised kernel, nor one with as few
-options as possible; hopefully I will get the chance to do this soon.
-
+Details, download, & mailing list at:
+http://scry.wanfear.com/~greear/vlan.html
 
 -- 
---Ray
-
------------------------------
-Sotto la panca la capra crepa
-sopra la panca la capra campa
+Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
+Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
+http://scry.wanfear.com               http://scry.wanfear.com/~greear

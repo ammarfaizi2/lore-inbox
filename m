@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317589AbSGJTtD>; Wed, 10 Jul 2002 15:49:03 -0400
+	id <S317591AbSGJT4g>; Wed, 10 Jul 2002 15:56:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317591AbSGJTtC>; Wed, 10 Jul 2002 15:49:02 -0400
-Received: from 217-126-207-69.uc.nombres.ttd.es ([217.126.207.69]:7431 "EHLO
-	server01.nullzone.prv") by vger.kernel.org with ESMTP
-	id <S317589AbSGJTtC>; Wed, 10 Jul 2002 15:49:02 -0400
-Message-Id: <5.1.1.6.2.20020710214907.027613d8@192.168.2.131>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Wed, 10 Jul 2002 21:51:38 +0200
-To: linux-kernel@vger.kernel.org
-From: system_lists@nullzone.org
-Subject: IDE RAID support on 1.5 series
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S317592AbSGJT4f>; Wed, 10 Jul 2002 15:56:35 -0400
+Received: from chfdns02.ch.intel.com ([143.182.246.25]:25078 "EHLO
+	melete.ch.intel.com") by vger.kernel.org with ESMTP
+	id <S317591AbSGJT4f>; Wed, 10 Jul 2002 15:56:35 -0400
+Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7F88@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: Linux <linux-kernel@vger.kernel.org>
+Subject: HZ, preferably as small as possible
+Date: Wed, 10 Jul 2002 12:59:18 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'd like to see HZ closer to 100 than 1000, for CPU power reasons. Processor
+power states like C3 may take 100 microseconds+ to enter/leave - time when
+both the CPU isn't doing any work, but still drawing power as if it was. We
+pop out of C3 whenever there is an interrupt, so reducing timer interrupts
+is good from a power standpoint by amortizing the transition penalty over a
+longer period of power savings.
 
-Hi there,
+But on the other hand, increasing HZ has perf/latency benefits, yes? Have
+these been quantified? I'd either like to see a HZ that has balanced
+power/performance, or could we perhaps detect we are on a system that cares
+about power (aka a laptop) and tweak its value at runtime?
 
-    how goes the ide raid support on 2.5 series? i had to left using 2.5.x 
-when i got a ata raid card which could not work becouse all ide changes got 
-this one unoperative.
+Regards -- Andy
 
-Seeya
-
-
-
-
+-----------------------------
+Andrew Grover
+Intel Labs / Mobile Architecture
+andrew.grover@intel.com
 

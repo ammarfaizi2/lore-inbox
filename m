@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281609AbRK0RHD>; Tue, 27 Nov 2001 12:07:03 -0500
+	id <S281719AbRK0RJd>; Tue, 27 Nov 2001 12:09:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281663AbRK0RG7>; Tue, 27 Nov 2001 12:06:59 -0500
-Received: from web9203.mail.yahoo.com ([216.136.129.26]:19852 "HELO
-	web9203.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S281609AbRK0RGq>; Tue, 27 Nov 2001 12:06:46 -0500
-Message-ID: <20011127170644.123.qmail@web9203.mail.yahoo.com>
-Date: Tue, 27 Nov 2001 09:06:44 -0800 (PST)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: Re: 'spurious 8259A interrupt: IRQ7'
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S281678AbRK0RJR>; Tue, 27 Nov 2001 12:09:17 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:19839 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S281663AbRK0RIt>; Tue, 27 Nov 2001 12:08:49 -0500
+Date: Tue, 27 Nov 2001 12:08:49 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Rob Myers <rob.myers@gtri.gatech.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: netgear ga621 / ns83820
+Message-ID: <20011127120848.A19568@redhat.com>
+In-Reply-To: <1006876165.12853.22.camel@ransom>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1006876165.12853.22.camel@ransom>; from rob.myers@gtri.gatech.edu on Tue, Nov 27, 2001 at 10:49:25AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't have a tulip card in my machine, and I still
-have the problem. I only have spurious ints. with my
-Athlon-based systems: my Intel-based machines don't
-exhibit them. I think we should compile a list of boards
-that have the problem and try to find some commonality.
-
--Alex
-
-Martin A. Brooks" schrieb:
+On Tue, Nov 27, 2001 at 10:49:25AM -0500, Rob Myers wrote:
+> am i wrong in thinking that the ns83820 driver in 2.4.16 should support
+> this card?
 > 
-> > As far as I remember this was talked about earlier. Different mobos,
-> > chipsets, processor brands, but always IRQ 7. /me wonders.
-> 
-> In my research before posting, a common thread seemed to be the presence of
-> a tulip card in the machine.  Has anyone seen this on a non-tulip box?
-> 
+> has anyone else had any success making this card work with the netgear
+> driver since 2.4.10?
 
+No, fibre is not supported as I've not encountered any test hardware yet.  
+It shouldn't be much work to get it going, though.
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! GeoCities - quick and easy web site hosting, just $8.95/month.
-http://geocities.yahoo.com/ps/info1
+		-ben

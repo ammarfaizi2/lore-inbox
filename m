@@ -1,72 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVCHFAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVCHFFX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261759AbVCHFAY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 00:00:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbVCHFAY
+	id S261366AbVCHFFX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 00:05:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVCHFFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 00:00:24 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:52788 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261759AbVCHFAM (ORCPT
+	Tue, 8 Mar 2005 00:05:23 -0500
+Received: from manson.clss.net ([65.211.158.2]:13960 "HELO manson.clss.net")
+	by vger.kernel.org with SMTP id S261366AbVCHFFS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 00:00:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:x-enigmail-supports:content-type;
-        b=kCNc/DEaoSR1ZY7rYvNi5IQEHWzKGTG7Shw/xMn1UfW34JRoxtuqtJGoAToW1ozrRkTBeH8GMNHqP2kcLmBuv7Ih0qW61u/OCdaiFsBydPKC14AWnpQwdZhr8PleSWyzxvT5qAiqVuV3ra6EU10vmq9zvNxGp/4nBisRwWEStHU=
-Message-ID: <422D3155.9000102@gmail.com>
-Date: Tue, 08 Mar 2005 07:00:05 +0200
-From: Matan Peled <chaosite@gmail.com>
-Reply-To: chaosite@gmail.com
-Organization: Chaosite Destruction, inc.
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
+	Tue, 8 Mar 2005 00:05:18 -0500
+Message-ID: <20050308050518.6822.qmail@manson.clss.net>
+From: "Alan Curry" <pacman-kernel@manson.clss.net>
+Subject: Re: setserial is lieing to us, how to fix?
+To: gene.heskett@verizon.net
+Date: Tue, 8 Mar 2005 00:05:17 -0500 (EST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200503072341.21752.gene.heskett@verizon.net> from "Gene Heskett" at Mar 07, 2005 11:41:21 PM
 MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: Michal Januszewski <spock@gentoo.org>, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: [announce 7/7] fbsplash - documentation
-References: <20050308021706.GH26249@spock.one.pl> <200503080418.08804.arnd@arndb.de>
-In-Reply-To: <200503080418.08804.arnd@arndb.de>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigC9528BC61321363D8C2E62D3"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigC9528BC61321363D8C2E62D3
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Gene Heskett writes the following:
+>
+>I'm on the horn with another linux user, and we have a question re the 
+>setserial command.  Its reporting the base baud rate, but not the 
+>actual.  We need to know the actual settings in use at the moment for 
+>a serial port. How can we discover this?
 
-Arnd Bergmann wrote:
-> Nothing about the init command seems really necessary. Why not just do 
-> that stuff from an /sbin/init script?
+stty speed -F /dev/ttyXY
 
-I'm not a kernel hacker by any definition, but I'm pretty sure its neccasery 
-because we want it to be done before /sbin/init is ran, AKA hide the kernel 
-messages :)
-
--- 
-[Name      ]   ::  [Matan I. Peled    ]
-[Location  ]   ::  [Israel            ]
-[Public Key]   ::  [0xD6F42CA5        ]
-[Keyserver ]   ::  [keyserver.kjsl.com]
-encrypted/signed  plain text  preferred
-
-
---------------enigC9528BC61321363D8C2E62D3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFCLTFYA7Qvptb0LKURAvnBAKCJsNIa7q3QO//CA0RKGMklV74kjACfXiHM
-xZ8Cjkb3XTt+dB/7jQbSCv8=
-=07kU
------END PGP SIGNATURE-----
-
---------------enigC9528BC61321363D8C2E62D3--
+The setserial spd_* options can affect speed but they are obsolete so you
+shouldn't be using them. If stty says 38400 then the setserial spd_* is in
+effect. If spd_normal, then 38400 means 38400. If spd_hi, then 38400 means
+57600. If spd_vhi, then 38400 means 115200. If spd_shi, then 38400 means
+230400. If spd_warp, then 38400 means 460800. Then there's spd_cust, which is
+more weird.

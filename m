@@ -1,38 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270024AbTGLXvj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 19:51:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270026AbTGLXvj
+	id S270028AbTGMAI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 20:08:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270029AbTGMAI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 19:51:39 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:59023 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S270024AbTGLXvi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 19:51:38 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sat, 12 Jul 2003 16:58:55 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [announce, patch] 4G/4G split on x86, 64 GB RAM (and more)
- support
-In-Reply-To: <20030709054307.GL15452@holomorphy.com>
-Message-ID: <Pine.LNX.4.55.0307121656060.4720@bigblue.dev.mcafeelabs.com>
-References: <Pine.LNX.4.44.0307082332450.17252-100000@localhost.localdomain>
- <55580000.1057727591@[10.10.2.4]> <20030709051941.GK15452@holomorphy.com>
- <20030709054307.GL15452@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 12 Jul 2003 20:08:57 -0400
+Received: from maila.telia.com ([194.22.194.231]:37622 "EHLO maila.telia.com")
+	by vger.kernel.org with ESMTP id S270028AbTGMAI4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 20:08:56 -0400
+X-Original-Recipient: <linux-kernel@vger.kernel.org>
+Subject: Re: [2.7.75] Misc compiler warnings
+From: Christian Axelsson <smiler@lanil.mine.nu>
+Reply-To: smiler@lanil.mine.nu
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1058053975.12250.2.camel@sm-wks1.lan.irkk.nu>
+References: <1058053975.12250.2.camel@sm-wks1.lan.irkk.nu>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-uMKG2o+jwbKgqzuIInWm"
+Organization: LANIL
+Message-Id: <1058055803.12256.27.camel@sm-wks1.lan.irkk.nu>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 13 Jul 2003 02:23:29 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Jul 2003, William Lee Irwin III wrote:
-   ^^^^^^^^^^^^^^^
 
-Is it just me that is receiving dups from lkml or it's a common disease ?
+--=-uMKG2o+jwbKgqzuIInWm
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Sun, 2003-07-13 at 01:52, Christian Axelsson wrote:
+> Here are some compiler warnings:
+>=20
+>   CC      drivers/i2c/i2c-dev.o
+> drivers/i2c/i2c-dev.c: In function `show_dev':
+> drivers/i2c/i2c-dev.c:121: warning: unsigned int format, different type
+> arg (arg 3)
+>=20
+>   CC      drivers/usb/core/file.o
+> drivers/usb/core/file.c: In function `show_dev':
+> drivers/usb/core/file.c:96: warning: unsigned int format, different type
+> arg (arg 3)
+>=20
+>   AS      arch/i386/boot/setup.o
+> arch/i386/boot/setup.S: Assembler messages:
+> arch/i386/boot/setup.S:165: Warning: value 0x37ffffff truncated to
+> 0x37ffffff
 
+Ehm sorry, I should say that this is 2.5.75-mm1
 
-- Davide
+On 2.5.75-vanilla only the AS message occour.
+
+--=20
+Christian Axelsson
+smiler@lanil.mine.nu
+
+--=-uMKG2o+jwbKgqzuIInWm
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/EKZ7yqbmAWw8VdkRAqs4AKCboFIWdCnutrOX7IC1di6IKt/xlQCgsVwB
+kkc0e9ACZuz6lf+l1khLSfk=
+=KGS0
+-----END PGP SIGNATURE-----
+
+--=-uMKG2o+jwbKgqzuIInWm--
 

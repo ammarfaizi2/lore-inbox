@@ -1,215 +1,91 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316780AbSE3RyM>; Thu, 30 May 2002 13:54:12 -0400
+	id <S316783AbSE3SBa>; Thu, 30 May 2002 14:01:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316781AbSE3RyL>; Thu, 30 May 2002 13:54:11 -0400
-Received: from mailgate.imerge.co.uk ([195.217.208.100]:64753 "EHLO
-	imgserv04.imerge.co.uk") by vger.kernel.org with ESMTP
-	id <S316780AbSE3RyI>; Thu, 30 May 2002 13:54:08 -0400
-Message-ID: <C0D45ABB3F45D5118BBC00508BC292DB09C992@imgserv04>
-From: Ian Collinson <icollinson@imerge.co.uk>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: realtime scheduling problems with 2.4 linux kernel >= 2.4.10
-Date: Thu, 30 May 2002 18:54:46 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S316789AbSE3SB3>; Thu, 30 May 2002 14:01:29 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:1913 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S316783AbSE3SB3>; Thu, 30 May 2002 14:01:29 -0400
+Date: Thu, 30 May 2002 19:59:23 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Denis Lunev <den@asplinux.ru>
+Cc: linux-kernel@vger.kernel.org, Andrey Nekrasov <andy@spylog.ru>,
+        rwhron@earthlink.net, Yann Dupont <Yann.Dupont@IPv6.univ-nantes.fr>
+Subject: Re: inode highmem imbalance fix [Re: Bug with shared memory.]
+Message-ID: <20020530175923.GF1383@dualathlon.random>
+In-Reply-To: <OF6D316E56.12B1A4B0-ONC1256BB9.004B5DB0@de.ibm.com> <3CE16683.29A888F8@zip.com.au> <20020520043040.GA21806@dualathlon.random> <20020524073341.GJ21164@dualathlon.random> <15606.3088.552163.828139@artemis.asplinux.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	
+On Thu, May 30, 2002 at 03:25:04PM +0400, Denis Lunev wrote:
+Content-Description: message body text
+> Hello!
+> 
+> The patch itself cures my problems, but after a small fix concerning
+> uninitialized variable resulting in OOPS.
+> 
+> Regards,
+> 	Denis V. Lunev
+> 
 
-	We're having problems with realtime scheduling (SCHED_RR and
-SCHED_FIFO), on 2.4 kernels >= 2.4.10 (built for i386, no SMP).  We have an
-app that uses real-time scheduled threads. To aid debugging, in case of
-realtime threads spinning and locking the system, we always keep a bash
-running on a (text) console, at SCHED_RR, priority 99 (a higher priority
-than any threads in our app).  We test that this is a valid approach by
-running a lower priority realtime app, on another console, that sits in an
-infinite busy loop.  This has always worked, and we've been able to
-successfully use the high-priority bash to run gdb, and so on.  This is also
-what the man page for sched_setscheduler suggests, to avoid total system
-lock up.
-
-	But, it seems to have stopped working with 2.4 kernels >= 2.4.10,
-(have tried up to 2.4.19-pre9).  Once the lower priority realtime process is
-running, the higher priority shell doesn't pre-empt it, and locks up.
-
-	Details of the test:
-
-	I have a "realtime" app, that sets the scheduling policy and
-priority, then forks a specified app, and "eat_cpu", that just sits in an
-infinite loop.  Both are attached.
-	
-	On one console (as root), I do
-
-	> realtime -rr 99 bash
-	
-	Which gives me a priorty 99, SCHED_RR bash. Then, on another console
-(also as root), I do:
-
-	> sleep 10; realtime -rr 50 eat_cpu
-
-	Then I switch back to the first console, with its priority 99 bash.
-I am able to type away for 10 seconds, until the priority 50 process starts,
-at which point the shell locks up.   I can get the same effect on one
-console with:
-
-	> ( sleep 10; realtime -rr 50 eat_cpu ) & realtime -rr 99 bash
-
-	Previously, the high-priority shell would never lock up.  Now it
-does.
-
-	Any idea why this doesn't work?
-
-	Cheers,
-	Ian
-
-Code:
-
-/* realtime
- * To build:
- *   g++ -o realtime realtime.cxx
- */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sched.h>
-#include <unistd.h>
-#include <string>
+Content-Description: diff-andrea-inodes2
+> --- linux/fs/inode.c.old	Wed May 29 20:16:17 2002
+> +++ linux/fs/inode.c	Wed May 29 20:17:08 2002
+> @@ -669,6 +669,7 @@
+>  	struct inode * inode;
+>  
+>  	count = pass = 0;
+> +	entry = &inode_unused;
+>  
+>  	spin_lock(&inode_lock);
+>  	while (goal && pass++ < 2) {
 
 
-void usage()
-{
-  printf("usage: realtime -get | {-rr | -fifo} <pri> cmd ...\n");
-  exit(1);
-}
+Great spotting! this fix is certainly correct, without it the unused
+list will be corrupted if prune_icache gets a goal == 0 as parameter.
+OTOH if fixes that cases only (that riggers only when the number of
+unused inodes is <= vm_vfs_scan_ratio, not an extremely common case, I
+wonder if that's enough to cure all the oopses I received today),
+probably it's enough, the number of unused inodes is != than the number
+of inodes allocated. At first glance I don't see other issues (my error
+is been to assume goal was going to be always something significant).
+BTW, it's great that at the first showstopper bug since a long time I
+got such an high quality feedback after a few hours, thank you very
+much! :)
 
-const char *policyString(int policy)
-{
-  switch(policy)
-  {
-  case SCHED_OTHER:   return "SCHED_OTHER";
-  case SCHED_FIFO:    return "SCHED_FIFO";
-  case SCHED_RR:      return "SCHED_RR";
-  }
-  return "BAD POLICY";
-}
+Could you test if the below one liner from Denis (I attached it below
+too without quotes) fixes all your problems with 2.4.19pre9aa1 or with
+the single inode highmem imbalance fix? thanks,
 
-int main(int argc, char *argv[])
-{
-  seteuid(getuid());
-
-  if (argc < 2)
-    usage();
-
-  if (strcmp(argv[1], "-get") == 0)
-  {
-    int policy = sched_getscheduler(0);
-    if (policy < 0)
-    {
-      perror("sched_getscheduler failed:");
-      return 1;
-    }
-
-    sched_param param;
-    if (sched_getparam(0, &param) < 0)
-    {
-      perror("sched_getparam failed");
-      return 1;
-    }
-
-    printf("policy = %d = %s\n", policy, policyString(policy));
-
-    if (policy != SCHED_OTHER)
-      printf("priority=%d\n", param.sched_priority);
-
-    int max = sched_get_priority_max(policy);
-    if (max < 0) {
-      perror("sched_get_priority_max");
-      return 1;
-    }
-    int min = sched_get_priority_min(policy);
-    if (min < 0) {
-      perror("sched_get_priority_min");
-      return 1;
-    }                                                        
-    printf("prorities: min = %d, max = %d\n", min, max);
-
-    return 0;
-
-  }
-
-  // set
-
-  if (argc < 4)
-     usage();
-
-  int policy;
-
-  if (!strcmp(argv[1], "-rr"))
-  {
-    policy = SCHED_RR;
-  }
-  else if (!strcmp(argv[1], "-fifo"))
-  {
-    policy = SCHED_FIFO;
-  }
-  else {
-    printf("bad policy: choose -rr (round robin) or -fifo\n");
-    usage();
-  }
-    
-  struct sched_param param;
-  param.sched_priority = atoi(argv[2]);
-
-  printf("policy = %d = %s\n", policy, policyString(policy));
-  printf("priority=%d\n", param.sched_priority);
-
-  // become root
-  seteuid(0);
-
-  if (sched_setscheduler(0, policy, &param) < 0) {
-    perror("sched_setscheduler");
-    return 1;
-  }
-
-  // back down
-  seteuid(getuid());
-
-  string cmd;
-  for (int i=3; i<argc; i++)
-    cmd = cmd + argv[i] + " ";
-
-  printf("cmd = %s\n", cmd.c_str());
-
-  system(cmd.c_str());
-
-  return 0;
-}
-
-/* eof */
-
-/* eat_cpu.c */
-int main(int argc, char *argv[])
-{
-  for (;;)
-    ;
-}    
-/* eof */
+--- linux/fs/inode.c.old	Wed May 29 20:16:17 2002
++++ linux/fs/inode.c	Wed May 29 20:17:08 2002
+@@ -669,6 +669,7 @@
+ 	struct inode * inode;
+ 
+ 	count = pass = 0;
++	entry = &inode_unused;
+ 
+ 	spin_lock(&inode_lock);
+ 	while (goal && pass++ < 2) {
 
 
+Also it seems the O1 scheduler is doing well so far. In next -aa I will
+also include the patch from Mike Kravetz that I finished auditing and
+it's really strightforward, it serializes the execution of the reder of
+the pipe with the writer of the pipe if the writer expires the length
+of the pipe buffer, that will maximize pipe bandwith similar to the
+pre-o1 levels, and still the tasks runs in parallel in two cpus if no
+blocking from the writer is necessary, I think it's the best heuristic.
+Adding the sync beahviour also with the reader seems inferior, I can
+imagine a writer running full time in a cpu and sometime posting a few
+bytes to the pipe, while the reader always blocking. This way the reader
+will keep running in its own cpu, and it won't interfere with the "cpu
+intensive" writer.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-Imerge Limited                          Tel :- +44 (0)1954 783600 
-Unit 6 Bar Hill Business Park           Fax :- +44 (0)1954 783601 
-Saxon Way                               Web :- http://www.imerge.co.uk 
-Bar Hill 
-Cambridge 
-CB3 8SL 
-United Kingdom 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-
-
+Andrea

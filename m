@@ -1,55 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265287AbUFOImL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265376AbUFOIpj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265287AbUFOImL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 04:42:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265371AbUFOImL
+	id S265376AbUFOIpj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 04:45:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265371AbUFOIpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 04:42:11 -0400
-Received: from elin.scali.no ([62.70.89.10]:62086 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id S265287AbUFOImD (ORCPT
+	Tue, 15 Jun 2004 04:45:39 -0400
+Received: from [221.196.199.244] ([221.196.199.244]:60680 "ehlo email.com")
+	by vger.kernel.org with ESMTP id S265376AbUFOIpj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 04:42:03 -0400
-Subject: Re: Does exec-shield with -fpie  work?
-From: Terje Eggestad <terje.eggestad@scali.com>
-To: arjanv@redhat.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1087288401.2710.15.camel@laptop.fenrus.com>
-References: <1087286723.3156.35.camel@pc-16.office.scali.no>
-	 <1087288401.2710.15.camel@laptop.fenrus.com>
-Content-Type: text/plain
-Organization: Scali AS
-Message-Id: <1087288917.3156.41.camel@pc-16.office.scali.no>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 15 Jun 2004 10:41:58 +0200
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Jun 2004 04:45:39 -0400
+From: "spirit@email.com" <spirit@email.com>
+Subject: buy Win2k/xp/unix/linux---exploit
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;charset="GB2312"
+Reply-To: spirit@email.com
+Date: Tue, 15 Jun 2004 16:43:32 +0800
+X-Priority: 2
+X-Mailer: FoxMail 3.11 Release [cn]
+Message-Id: <S265376AbUFOIpj/20040615084539Z+523@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thx Arjan
-
-That did it!
-
-TJ
-
-On Tue, 2004-06-15 at 10:33, Arjan van de Ven wrote:
-> > te pc-16 ~ 70> !gcc
-> > gcc -fPIE -fpic -o ./testsc ./testsc.c
-> > 
-> 
-> you need to pass -pie as option as well; -fpie for the compiler, -pie for the linker,
-> eg
-> 
-> gcc -fPIE -pie -o ./testsc ./testsc.c
--- 
-
-Terje Eggestad
-Senior Software Engineer
-dir. +47 22 62 89 61
-mob. +47 975 31 57
-fax. +47 22 62 89 51
-terje.eggestad@scali.com
-
-Scali - www.scali.com
-High Performance Clustering
-
+Mr. who esteems 
+Hello , I needs the not ovet Exploit of WIN2K/XP/UNIX/LINUX along with software respect to buy not to there is in a lot of Webs Site the rightful queen of ovet Exploit price now I shall spend money either the goods come to interchange and you , in case  also possess Exploit in our hands you sense well , I also may interchange Exploit with you . 
+Please in case you sense appropriate , transmiting the mail touch : Spirits@email.com icq:326524530

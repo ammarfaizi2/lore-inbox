@@ -1,37 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273949AbRIRVpC>; Tue, 18 Sep 2001 17:45:02 -0400
+	id <S273944AbRIRVoB>; Tue, 18 Sep 2001 17:44:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273947AbRIRVow>; Tue, 18 Sep 2001 17:44:52 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:32408 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id <S273945AbRIRVol>;
-	Tue, 18 Sep 2001 17:44:41 -0400
-Date: Tue, 18 Sep 2001 21:02:28 +0200
-To: Tim Sullivan <tsullivan@datawest.net>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: who writes the "disk_io:" entry in /proc/stat ?
-Message-ID: <20010918210228.B629@pelks01.extern.uni-tuebingen.de>
-Mail-Followup-To: Tim Sullivan <tsullivan@datawest.net>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1000808313.1781.1.camel@prostock.ecom-tech.com>
-Mime-Version: 1.0
+	id <S273945AbRIRVnl>; Tue, 18 Sep 2001 17:43:41 -0400
+Received: from mail.missioncriticallinux.com ([208.51.139.18]:14866 "EHLO
+	missioncriticallinux.com") by vger.kernel.org with ESMTP
+	id <S273944AbRIRVnh>; Tue, 18 Sep 2001 17:43:37 -0400
+Message-ID: <3BA7C01E.82613672@MissionCriticalLinux.com>
+Date: Tue, 18 Sep 2001 14:43:58 -0700
+From: Bruce Blinn <blinn@MissionCriticalLinux.com>
+Organization: Mission Critical Linux
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.6-cdrom i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: Masoud Sharbiani <masu@cr213096-a.rchrd1.on.wave.home.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Reading Windows CD on Linux 2.4.6
+In-Reply-To: <Pine.LNX.3.95.1010918124738.22153A-100000@chaos.analogic.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.1.12i
-In-Reply-To: <1000808313.1781.1.camel@prostock.ecom-tech.com>; from tsullivan@datawest.net on Tue, Sep 18, 2001 at 04:18:32AM -0600
-From: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 18, 2001 at 04:18:32AM -0600, Tim Sullivan wrote:
-> does anyone know off the top of their head which piece
-> of code writes the "disk_io:" entry in /proc/stat ?
+"Richard B. Johnson" wrote:
+> 
+> On Tue, 18 Sep 2001, Bruce Blinn wrote:
+> 
+> > "Richard B. Johnson" wrote:
+> > >
+> > > Okay. That's good. The guy that asked to get the image to find out what
+> > > was happening can probably use a small piece of that to find out what
+> > > is going on. It probably is a CD data + Music image where the first
+> > > readable stuff is data, followed by a music image.
+> > >
+> > > You can try cdda2wav -D0,4,0, -B. You will probably get some *.wav files.
+> > >
+> 
 
-drive_stat_acct() in drivers/block/ll_rw_blk.c gathers the data, 
-kstat_read_proc() in fs/proc/proc_misc.c implements the output routine.
+I downloaded a copy of cdda2wav and was able to run it.  Here is the
+output:
 
-Format is (device major, disk index):(sum of all io requests,
-sum of read io requests, sum of blocks read, sum of write io requests,
-sum of blocks written)
-
-Daniel.
+# cdda2wav -D0,0,0 -B
+Type: ROM, Vendor 'Lite-On ' Model 'LTN483S 48x Max ' Revision 'PD02'
+cdda2wav:
+Warning: controller returns wrong size for CD capabilities page.
+MMC+CDDA
+724992 bytes buffer memory requested, 4 buffers, 75 sectors
+#Cdda2wav version 1.11a07_linux_2.4.6-cdrom_i686_i686 real time sched.
+soundcard support
+ DATAtrack recorded      copy-permitted tracktype
+      1- 1 uninterrupted            yes      data
+ DATAtrack recorded      copy-permitted tracktype
+      2- 2   incremental             no      data
+Table of Contents: total tracks:2, (total time 3:10.44)
+  1.[ 0:06.62],  2.[ 3:01.57],
+ 
+Table of Contents: starting sectors
+  1.(       0),  2.(     512), lead-out(   14144)
+CDINDEX discid: 9hOr8JVIL3ybrw8DyqAsew8V_MM-
+CDDB discid: 0x0a00bc02
+CD-Text: not detected
+CD-Extra: not detected
+This disk has no audio tracks

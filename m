@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263597AbTDTPEC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 11:04:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263598AbTDTPEB
+	id S263598AbTDTPHn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 11:07:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263599AbTDTPHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 11:04:01 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:14464 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263597AbTDTPEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 11:04:01 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304201519.h3KFJ257000440@81-2-122-30.bradfords.org.uk>
-Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
-To: 76306.1226@compuserve.com (Chuck Ebbert)
-Date: Sun, 20 Apr 2003 16:19:02 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <200304201108_MC3-1-3533-D395@compuserve.com> from "Chuck Ebbert" at Apr 20, 2003 11:06:20 AM
-X-Mailer: ELM [version 2.5 PL6]
+	Sun, 20 Apr 2003 11:07:43 -0400
+Received: from mail0.ewetel.de ([212.6.122.10]:8371 "EHLO mail0.ewetel.de")
+	by vger.kernel.org with ESMTP id S263598AbTDTPHm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 11:07:42 -0400
+Date: Sun, 20 Apr 2003 17:19:37 +0200 (CEST)
+From: Pascal Schmidt <der.eremit@email.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5] report unknown NMI reasons only once (fwd)
+Message-ID: <Pine.LNX.4.44.0304201717300.911-100000@neptune.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Buy IDE disks in pairs use md1, and remember to continually send the
-> > hosed ones back to the vendor/shop (and if they keep appearing DOA to
-> > your local trading standards/fair trading type bodies).
-> 
-> 
->   I buy three drives at a time so I have a matching spare, because AFAIC
-> you shouldn't be doing RAID on unmatched drives.
 
-Err, yes you should :-).
+>> Are you sure that the CPU voltage is correct?
+> The motherboard is in autodetect mode...
+> According to AMD's docs, my CPU wants 1.50V.
+> According to the BIOS, what it gets is 1.48V.
+> AMD does not specify a tolerance for Vcore, but I can try to manually
+> set the motherboard for 1.50V and see if the NMIs disappear.
 
-Unless they are spindle syncronised, the advantage of identical
-physical layout diminishes, and the disadvantage of quite possibly
-getting components from the same, (faulty), batch increases :-).
+I had to set the motherboard to 1.52 volts to get 1.50 volts listed
+in the BIOS. The NMIs are still there, so I'm going back to
+autodetect mode.
 
->   Using RAID1 is especially important when using software instead
-> of hardware for fault-tolerance because the software is more likely to
-> have bugs just because of the 'culture' of hardware vs. software
-> developers, and the RAID5 algorithm is very hard to get right anyway,
-> especially in failure/rebuild mode.  Even on a hardware controller
-> RAID5 is still inherently less reliable.
+-- 
+Ciao,
+Pascal
 
-The advantage of RAID1 over a SLED is probably greater than the
-advantage of RAID5 over RAID1.
 
->  (...and what's all this about unreliable drives, anyway?  Every drive
-> I have bought since 1987 still works.)
-
-I haven't had a drive failiure for a long time.  Maybe I'm just really
-lucky.
-
-John.

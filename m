@@ -1,58 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271489AbTGQPSI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 11:18:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271491AbTGQPSH
+	id S271488AbTGQPRT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 11:17:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271489AbTGQPRT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 11:18:07 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:7575 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S271489AbTGQPSA (ORCPT
+	Thu, 17 Jul 2003 11:17:19 -0400
+Received: from fw.osdl.org ([65.172.181.6]:46026 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271488AbTGQPRR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 11:18:00 -0400
-Date: Thu, 17 Jul 2003 17:32:38 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Fix IDE initialization when we don't probe for interrupts.
-In-Reply-To: <1057793279.7137.0.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.GSO.4.21.0307171730020.10372-100000@vervain.sonytel.be>
+	Thu, 17 Jul 2003 11:17:17 -0400
+Message-ID: <3F16C16B.4010804@osdl.org>
+Date: Thu, 17 Jul 2003 08:31:55 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: =?ISO-8859-1?Q?C=E9dric?= <cedriccsm2@ifrance.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test1-osdl2 : doesn't compile
+References: <3F168CDB.8030906@ifrance.com>
+In-Reply-To: <3F168CDB.8030906@ifrance.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 Jul 2003, Alan Cox wrote:
-> On Mer, 2003-07-09 at 23:08, Jeff Garzik wrote:
-> > > +		 * Disable device irq if we don't need to
-> > > +		 * probe for it. Otherwise we'll get spurious
-> > > +		 * interrupts during the identify-phase that
-> > > +		 * the irq handler isn't expecting.
-> > > +		 */
-> > > +		hwif->OUTB(drive->ctl|2, IDE_CONTROL_REG);
-> > 
-> > 
-> > Yeah, my driver does probing with interrupts disabled, too.
-> > I'm curious where interrupts are re-enabled, though?
+Send me the config.
+
+Cédric wrote:
+
+> Hello,
 > 
-> In the command write. BTW note that there are a few devices
-> out there that dont honour the nIEN stuff.
+> I tried to compile linux 2.6.0-test1-osdl2 but I cannot.
+> 
+> (my config compiles with linus' -test1)
+> (using gcc 3.2)
+> 
+> Log:
+> 
+> gmake[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+>   CHK     include/linux/compile.h
+>   GEN     .version
+>   CHK     include/linux/compile.h
+>   UPD     include/linux/compile.h
+>   CC      init/version.o
+>   LD      init/built-in.o
+>   LD      .tmp_vmlinux1
+> arch/i386/kernel/built-in.o: In function `kernel_thread':
+> arch/i386/kernel/built-in.o(.text+0x321): undefined reference to 
+> `trace_event'
+> arch/i386/kernel/built-in.o: In function `syscall_call':
+> arch/i386/kernel/built-in.o(.text+0x2549): undefined reference to 
+> `syscall_entry_trace_active'
+> arch/i386/kernel/built-in.o: In function `syscall_exit':
+> arch/i386/kernel/built-in.o(.text+0x256d): undefined reference to 
+> `syscall_exit_trace_active'
+> arch/i386/kernel/built-in.o: In function `trace_real_syscall_entry':
+> arch/i386/kernel/built-in.o(.text+0x35b6): undefined reference to 
+> `trace_event'
+> arch/i386/kernel/built-in.o(.text+0x35e8): undefined reference to 
+> `trace_get_config'
+> arch/i386/kernel/built-in.o: In function `trace_real_syscall_exit':
+> arch/i386/kernel/built-in.o(.text+0x3696): undefined reference to 
+> `trace_event'
+> arch/i386/kernel/built-in.o: In function `do_divide_error':
+> arch/i386/kernel/built-in.o(.text+0x37fd): undefined reference to 
+> `trace_event'
+> arch/i386/kernel/built-in.o(.text+0x3852): undefined reference to 
+> `trace_event'
+> arch/i386/kernel/built-in.o: In function `do_int3':
+> arch/i386/kernel/built-in.o(.text+0x38ed): undefined reference to 
+> `trace_event'
+> arch/i386/kernel/built-in.o(.text+0x3948): undefined reference to 
+> `trace_event'
+> arch/i386/kernel/built-in.o(.text+0x39dd): more undefined references to 
+> `trace_event' follow
+> arch/i386/kernel/built-in.o: In function `sys_call_table':
+> arch/i386/kernel/built-in.o(.data+0x7c4): undefined reference to 
+> `sys_trace'
+> arch/i386/mm/built-in.o: In function `do_page_fault':
+> arch/i386/mm/built-in.o(.text+0x517): undefined reference to `trace_event'
+> arch/i386/mm/built-in.o(.text+0x555): undefined reference to `trace_event'
+> kernel/built-in.o: In function `try_to_wake_up':
+> kernel/built-in.o(.text+0x1d1): undefined reference to `trace_event'
+> kernel/built-in.o: In function `schedule':
+> kernel/built-in.o(.text+0x1360): undefined reference to `trace_event'
+> kernel/built-in.o: In function `do_fork':
+> kernel/built-in.o(.text+0x57cf): undefined reference to `trace_event'
+> kernel/built-in.o: In function `do_exit':
+> kernel/built-in.o(.text+0x85b7): undefined reference to 
+> `trace_destroy_owners_events'
+> kernel/built-in.o(.text+0x85c1): undefined reference to 
+> `trace_free_all_handles'
+> kernel/built-in.o(.text+0x85d4): undefined reference to `trace_event'
+> kernel/built-in.o: In function `sys_wait4':
+> kernel/built-in.o(.text+0x90a4): undefined reference to `trace_event'
+> kernel/built-in.o: In function `it_real_fn':
+> kernel/built-in.o(.text+0x95e1): undefined reference to `trace_event'
+> kernel/built-in.o: In function `do_setitimer':
+> kernel/built-in.o(.text+0x9713): undefined reference to `trace_event'
+> kernel/built-in.o: In function `do_softirq':
+> kernel/built-in.o(.text+0xa430): undefined reference to `trace_event'
+> kernel/built-in.o(.text+0xa70c): more undefined references to 
+> `trace_event' follow
+> gmake: *** [.tmp_vmlinux1] Error 1
+> 
 
-Indeed. E.g. some old Western Digital Caviars.
-
-I remember these giving me a bad time on Amiga. Apparently the problem didn't
-show up on PC, since (in those days) IDE didn't share its interrupt with some
-other device, unlike on Amiga.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
 

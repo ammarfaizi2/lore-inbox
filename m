@@ -1,144 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263118AbTIVUCe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 16:02:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263135AbTIVUCe
+	id S263298AbTIVUJT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 16:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263299AbTIVUJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 16:02:34 -0400
-Received: from f16.mail.ru ([194.67.57.46]:7430 "EHLO f16.mail.ru")
-	by vger.kernel.org with ESMTP id S263118AbTIVUCO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 16:02:14 -0400
-From: =?koi8-r?Q?=22?=Alexey Dobriyan=?koi8-r?Q?=22=20?= 
-	<adobriyan@mail.ru>
-To: gerg@snapgear.com
-Cc: davidm@snapgear.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix memory leaks in binfmt_flat.c
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: unknown via proxy [193.124.225.253]
-Date: Tue, 23 Sep 2003 00:01:50 +0400
-Reply-To: =?koi8-r?Q?=22?=Alexey Dobriyan=?koi8-r?Q?=22=20?= 
-	  <adobriyan@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1A1WsY-000Gjr-00.adobriyan-mail-ru@f16.mail.ru>
+	Mon, 22 Sep 2003 16:09:19 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:13729
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S263298AbTIVUJM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 16:09:12 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: Keyboard oddness.
+Date: Mon, 22 Sep 2003 15:06:08 -0500
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200309201633.22414.rob@landley.net> <20030921100436.GA18409@ucw.cz>
+In-Reply-To: <20030921100436.GA18409@ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309221506.08331.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix memory leaks in /fs/binfmt_flat.c::decompress_exec()
+On Sunday 21 September 2003 05:04, Vojtech Pavlik wrote:
+> On Sat, Sep 20, 2003 at 04:33:22PM -0400, Rob Landley wrote:
+> > I've mentioned my keyboard repeat problems before.  I grepped through the
+> > logs and found a whole bunch of these type messages:
+> >
+> > Aug 17 05:28:48 localhost kernel: atkbd.c: Unknown key (set 2, scancode
+> > 0x1d0, on isa0060/serio0) pressed.
+> > Aug 19 09:06:51 localhost kernel: atkbd.c: Unknown key (set 2, scancode
+> > 0x8e, on isa0060/serio0) pressed.
+> > Aug 22 04:33:36 localhost kernel: atkbd.c: Unknown key (set 2, scancode
+> > 0xcd,
+> >
+> > (There's more, it just goes on and on...)
+> >
+> > Any clues?  (Thinkpad iSeries...  1200, I think.)
+>
+> What kernel version? Can you test with latest?
 
-diff -urN a/fs/binfmt_flat.c b/fs/binfmt_flat.c
---- a/fs/binfmt_flat.c	2003-09-08 23:49:50.000000000 +0400
-+++ b/fs/binfmt_flat.c	2003-09-22 22:48:52.000000000 +0400
-@@ -179,7 +179,7 @@
- 	unsigned char *buf;
- 	z_stream strm;
- 	loff_t fpos;
--	int ret;
-+	int ret, retval;
- 
- 	DBG_FLT("decompress_exec(offset=%x,buf=%x,len=%x)\n",(int)offset, (int)dst, (int)len);
- 
-@@ -192,7 +192,8 @@
- 	buf = kmalloc(LBUFSIZE, GFP_KERNEL);
- 	if (buf == NULL) {
- 		DBG_FLT("binfmt_flat: no memory for read buffer\n");
--		return -ENOMEM;
-+		retval = -ENOMEM;
-+		goto out_free;
- 	}
- 
- 	/* Read in first chunk of data and parse gzip header. */
-@@ -203,28 +204,30 @@
- 	strm.avail_in = ret;
- 	strm.total_in = 0;
- 
-+	retval = -ENOEXEC;
-+
- 	/* Check minimum size -- gzip header */
- 	if (ret < 10) {
- 		DBG_FLT("binfmt_flat: file too small?\n");
--		return -ENOEXEC;
-+		goto out_free_buf;
- 	}
- 
- 	/* Check gzip magic number */
- 	if ((buf[0] != 037) || ((buf[1] != 0213) && (buf[1] != 0236))) {
- 		DBG_FLT("binfmt_flat: unknown compression magic?\n");
--		return -ENOEXEC;
-+		goto out_free_buf;
- 	}
- 
- 	/* Check gzip method */
- 	if (buf[2] != 8) {
- 		DBG_FLT("binfmt_flat: unknown compression method?\n");
--		return -ENOEXEC;
-+		goto out_free_buf;
- 	}
- 	/* Check gzip flags */
- 	if ((buf[3] & ENCRYPTED) || (buf[3] & CONTINUATION) ||
- 	    (buf[3] & RESERVED)) {
- 		DBG_FLT("binfmt_flat: unknown flags?\n");
--		return -ENOEXEC;
-+		goto out_free_buf;
- 	}
- 
- 	ret = 10;
-@@ -232,7 +235,7 @@
- 		ret += 2 + buf[10] + (buf[11] << 8);
- 		if (unlikely(LBUFSIZE == ret)) {
- 			DBG_FLT("binfmt_flat: buffer overflow (EXTRA)?\n");
--			return -ENOEXEC;
-+			goto out_free_buf;
- 		}
- 	}
- 	if (buf[3] & ORIG_NAME) {
-@@ -240,7 +243,7 @@
- 			;
- 		if (unlikely(LBUFSIZE == ret)) {
- 			DBG_FLT("binfmt_flat: buffer overflow (ORIG_NAME)?\n");
--			return -ENOEXEC;
-+			goto out_free_buf;
- 		}
- 	}
- 	if (buf[3] & COMMENT) {
-@@ -248,7 +251,7 @@
- 			;
- 		if (unlikely(LBUFSIZE == ret)) {
- 			DBG_FLT("binfmt_flat: buffer overflow (COMMENT)?\n");
--			return -ENOEXEC;
-+			goto out_free_buf;
- 		}
- 	}
- 
-@@ -261,7 +264,7 @@
- 
- 	if (zlib_inflateInit2(&strm, -MAX_WBITS) != Z_OK) {
- 		DBG_FLT("binfmt_flat: zlib init failed?\n");
--		return -ENOEXEC;
-+		goto out_free_buf;
- 	}
- 
- 	while ((ret = zlib_inflate(&strm, Z_NO_FLUSH)) == Z_OK) {
-@@ -280,13 +283,17 @@
- 	if (ret < 0) {
- 		DBG_FLT("binfmt_flat: decompression failed (%d), %s\n",
- 			ret, strm.msg);
--		return -ENOEXEC;
-+		goto out_free_buf;
- 	}
- 
- 	zlib_inflateEnd(&strm);
-+	retval = 0;
-+out_free_buf:
- 	kfree(buf);
-+out_free:
- 	kfree(strm.workspace);
--	return 0;
-+out:
-+	return retval;
- }
- 
- #endif /* CONFIG_BINFMT_ZFLAT */
+So the key repeat problem is still happening with -test5-mm4.  I just had the 
+return key stick on me, and gave it a good three seconds to stop repeating 
+before I hit another key.  It didn't.   I noticed after it stuck that the 
+next time I hit it, it didn't register.  (I unstuck it with the up-arrow key, 
+I believe.  But after that one failure to press, it seemed to be nicely 
+reset...)
 
+Here's a cut and paste from a tail of /var/log/messages:
+
+Sep 22 12:50:38 localhost  -- landley[984]: LOGIN ON tty1 BY landley
+Sep 22 13:24:05 localhost kernel: spurious 8259A interrupt: IRQ7.
+Sep 22 14:12:26 localhost kernel: atkbd.c: Unknown key (set 2, scancode 0x94, 
+on isa0060/serio0) pressed.
+Sep 22 14:12:26 localhost kernel: i8042 history: 18 98 18 98 26 a6 39 b9 1f 9f 
+15 1f 95 9f 12 94
+Sep 22 14:22:05 localhost kernel: atkbd.c: Unknown key (set 2, scancode 0xa6, 
+on isa0060/serio0) pressed.
+Sep 22 14:22:05 localhost kernel: i8042 history: 94 15 95 39 14 b9 18 94 98 39 
+b9 23 12 a3 92 a6
+Sep 22 14:39:06 localhost kernel: atkbd.c: Unknown key (set 2, scancode 0x1cb, 
+on isa0060/serio0) pressed.
+Sep 22 14:39:06 localhost kernel: i8042 history: cb e0 4b e0 cb e0 4b e0 cb e0 
+4b e0 cb 4b e0 cb
+Sep 22 14:58:05 localhost kernel: atkbd.c: Unknown key (set 2, scancode 0x1d0, 
+on isa0060/serio0) pressed.
+Sep 22 14:58:05 localhost kernel: i8042 history: 1c 90 9c e0 48 e0 c8 23 0f a3 
+8f 1c 9c 50 e0 d0
+Sep 22 14:59:46 localhost kernel: atkbd.c: Unknown key (set 2, scancode 0xb1, 
+on isa0060/serio0) pressed.
+Sep 22 14:59:46 localhost kernel: i8042 history: 2d ad 2d ad 17 97 19 99 1e 15 
+9e 95 17 97 22 b1
+Sep 22 15:02:11 localhost su(pam_unix)[1649]: session opened for user root by 
+landley(uid=500)
+
+Any clues?  (This happens to me at least once an hour...)
+
+Rob

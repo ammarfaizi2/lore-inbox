@@ -1,88 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUHGWZT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264524AbUHGW3e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264503AbUHGWZT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 18:25:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264519AbUHGWZT
+	id S264524AbUHGW3e (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 18:29:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264526AbUHGW3e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 18:25:19 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:21163 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S264503AbUHGWYz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 18:24:55 -0400
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-From: Albert Cahalan <albert@users.sf.net>
-To: schilling@fokus.fraunhofer.de
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1091908405.5759.49.camel@cube>
+	Sat, 7 Aug 2004 18:29:34 -0400
+Received: from thunk.org ([140.239.227.29]:30658 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S264524AbUHGW3c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 18:29:32 -0400
+Date: Sat, 7 Aug 2004 18:26:34 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Jean-Luc Cooke <jlcooke@certainkey.com>
+Cc: James Morris <jmorris@redhat.com>,
+       "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
+       mludvig@suse.cz, cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
+       davem@redhat.com
+Subject: Re: [PATCH]
+Message-ID: <20040807222634.GA15806@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Jean-Luc Cooke <jlcooke@certainkey.com>,
+	James Morris <jmorris@redhat.com>,
+	"YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
+	mludvig@suse.cz, cryptoapi@lists.logix.cz,
+	linux-kernel@vger.kernel.org, davem@redhat.com
+References: <20040806042852.GD23994@certainkey.com> <Xine.LNX.4.44.0408060040360.20834-100000@dhcp83-76.boston.redhat.com> <20040806125427.GE23994@certainkey.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 07 Aug 2004 15:53:25 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040806125427.GE23994@certainkey.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 5) Take a look at /etc/path_to_inst and call "man path_to_inst"
->
-> The used method even works nicely for USB devices.
+On Fri, Aug 06, 2004 at 08:54:27AM -0400, Jean-Luc Cooke wrote:
+> That and it's not endian-correct.  There are other issues with random.c (lack
+> for forward secrecy in the case of seed discovery, use of the insecure MD4 in
+> creating syn and seq# for tcp, the use of halfMD4 and twothridsMD4 is
+> madness
+> (what is 2/3's of 16!?!), 
 
-OK, I took a look.
+This was deliberate becasue sequence number generation could not be
+slow for some workloads.  The sequence number attacks that MD4
+protects against are tcp hijacking attacks where the attacker is on
+the network path ---- if you really want security you'd be using real
+crypto for encryption and for integrity protection at the application
+layer.
 
-Solaris is mapping from devfs to dev_t with this file.
-You start with a device patch like this:
-    /iommu@f,e0000000/sbus@f,e0001000/sbusmem@f,0
-It maps to a driver name and instance number:
-    sbusmem   15
-The driver name implys the major number. (in a dev_t)
-The instance number is, more or less, the minor number.
+> the use of LFSRs for "mixing" when they're linear,
+> the polymonials used are not even primitive, 
 
-Linux does something like this too now, using "udev"
-and the rest of the hotplug stuff. Linux is better.
-Linux lets you map from most any device attribute
-(bus, serial number, vendor, scsi level, speed...)
-to a device name.
+The basic idea here is that you can mix in arbitrary amounts of zero
+data without destroying the randomness of the pool.  This is
+important, and was an explicit design goal.
 
-Oh, the dev_t value? That's becoming a random number.
-Users don't need it, and shouldn't have to deal with it.
-They have the device name. Bus numbers are random too.
+> the ability for root to wipe-out
+> the random pool, the ability for root to access the random seed directly, the
+> paper I'm co-authoring will explain all of this).
 
-So let's suppose I plug in two FireWire CD burners.
-The Que!Fire one is mapped to /dev/quefire-cdrw,
-and the Sony one is mapped to /dev/sony-cdrw. The
-device numbers will vary, as will any bus numbers,
-but the users don't care. They have nice names.
+Yawn.  Root has access to /dev/mem.  Your point?
 
-Suppose I kick the FireWire cable loose. The device
-nodes in /dev go away. Then I plug the cable back in,
-and new device nodes appear. The numbers might change!
-No matter what the numbers though, the drives always
-get the names that I have assigned to them.
-
-Before I kick the cable loose:
-
-dev=0,0,1  matches with  /dev/quefire-cdrw
-dev=0,0,2  matches with  /dev/sony-cdrw
-
-After I plug the cable back in:
-
-dev=0,0,0  matches with  /dev/quefire-cdrw
-dev=0,0,1  matches with  /dev/sony-cdrw
-
-Everything's cool for apps that use device names.
-Only cdrecord will try to access the wrong device.
-
-I'm sure this dynamic world isn't appealing to you.
-People do kick cables loose though, and they do like
-having nice device names. The days of jumpers are
-long gone. Plug-and-play is here to stay, even while
-the machine is running. CAM-based operating systems
-will have some adjusting to do if they are to survive.
-
-Go ahead and drop support for old Linux kernels.
-Users with old kernels can use the old cdrecord.
-Handling Linux 2.6.x well means using /dev names.
-
-
-
-
+							- Ted

@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135533AbRDWTvi>; Mon, 23 Apr 2001 15:51:38 -0400
+	id <S129143AbRDWUBs>; Mon, 23 Apr 2001 16:01:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135531AbRDWTv2>; Mon, 23 Apr 2001 15:51:28 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:33287 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135528AbRDWTvZ>; Mon, 23 Apr 2001 15:51:25 -0400
-Subject: Re: i810_audio broken?
-To: pawel.worach@mysun.com
-Date: Mon, 23 Apr 2001 20:53:11 +0100 (BST)
+	id <S129164AbRDWUBi>; Mon, 23 Apr 2001 16:01:38 -0400
+Received: from vger.timpanogas.org ([207.109.151.240]:3344 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129143AbRDWUBX>; Mon, 23 Apr 2001 16:01:23 -0400
+Date: Mon, 23 Apr 2001 13:55:00 -0600
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Guest section DW <dwguest@win.tue.nl>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <32812371f1.371f132812@mysun.com> from "Pawel Worach" at Apr 23, 2001 08:15:26 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+Subject: Re: 3-Ware Raid driver fails to update GenDisk head
+Message-ID: <20010423135500.B32378@vger.timpanogas.org>
+In-Reply-To: <20010423120852.A32097@vger.timpanogas.org> <20010423214701.A18855@win.tue.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14rmOZ-0000KJ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010423214701.A18855@win.tue.nl>; from dwguest@win.tue.nl on Mon, Apr 23, 2001 at 09:47:01PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The i810 audio driver is broken on my Fujitsu Lifebook
-> S-4546. All output is just noise. Here is a snip's from
-> the kernel log.
+On Mon, Apr 23, 2001 at 09:47:01PM +0200, Guest section DW wrote:
+> On Mon, Apr 23, 2001 at 12:08:52PM -0600, Jeff V. Merkey wrote:
+> > 
+> > I am still working on this, but would appreciate some help from
+> > whomever owns this driver proper.  I have discovered that the 
+> > 3Ware drivers are not updating the gendisk_head with devices
+> > reported and exposed to user space as /dev/sda, sdb, etc.
 > 
-> Intel 810 + AC97 Audio, version 0.02, 19:41:16 Apr 23 2001
-> PCI: Found IRQ 9 for device 00:00.1
-> PCI: The same IRQ used for device 00:00.2
-> PCI: The same IRQ used for device 00:13.1
-> PCI: Setting latency timer of device 00:00.1 to 64
-> i810: Intel 440MX found at IO 0x1cc0 and 0x1000, IRQ 9
-> ac97_codec: AC97 Audio codec, id: 0x594d:0x4800 (Unknown)
-> i810_audio: only 48Khz playback available
+> But that is the job of sd.c, not of a driver.
 
-The dump looks fine. Its a cheap and cheeerful codec however by the look of it.
-Make sure the applications you use properly handle 48Khz only audio. That
-may be the problem or maybe not.
+These drivers are an IDE driver that simulates a SCSI interface.  It 
+reported IDE devices as SCSI handles, so there's some holes.  I guess
+you were not aware of this, or you would have known that standard sd.c
+is not working.
 
-Also try the very latest kernels as a fair bit of work has been done on them
+:-)
+
+Jeff
 

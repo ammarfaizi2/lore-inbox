@@ -1,67 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262225AbVCODgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262230AbVCODjV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262225AbVCODgn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 22:36:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbVCODgm
+	id S262230AbVCODjV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 22:39:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262227AbVCODjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 22:36:42 -0500
-Received: from fire.osdl.org ([65.172.181.4]:63148 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262225AbVCODfR (ORCPT
+	Mon, 14 Mar 2005 22:39:21 -0500
+Received: from [220.248.27.114] ([220.248.27.114]:47055 "HELO soulinfo.com")
+	by vger.kernel.org with SMTP id S262228AbVCODid (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 22:35:17 -0500
-Date: Mon, 14 Mar 2005 19:34:47 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: alan@redhat.com, torvalds@osdl.org, pavel@ucw.cz,
-       linux-kernel@vger.kernel.org, vandrove@vc.cvut.cz,
-       vda@port.imtp.ilyichevsk.odessa.ua
-Subject: Re: [patch] x86: fix ESP corruption CPU bug (take 2)
-Message-Id: <20050314193447.47ca6754.akpm@osdl.org>
-In-Reply-To: <4235ED35.1000405@aknet.ru>
-References: <42348474.7040808@aknet.ru>
-	<20050313201020.GB8231@elf.ucw.cz>
-	<4234A8DD.9080305@aknet.ru>
-	<Pine.LNX.4.58.0503131306450.2822@ppc970.osdl.org>
-	<4234B96C.9080901@aknet.ru>
-	<20050314192943.GG18826@devserv.devel.redhat.com>
-	<4235ED35.1000405@aknet.ru>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 14 Mar 2005 22:38:33 -0500
+Date: Tue, 15 Mar 2005 10:56:14 +0800
+From: hugang@soulinfo.com
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Pavel Machek <pavel@ucw.cz>, rjw@sisk.pl, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Paul Mackerras <paulus@samba.org>
+Subject: Re: [swsusp/ppc] Re: What's going on here ?
+Message-ID: <20050315025614.GA28481@hugang.soulinfo.com>
+References: <1110847432.5863.57.camel@gaston> <20050315010700.GA1357@elf.ucw.cz> <1110853186.5863.70.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1110853186.5863.70.camel@gaston>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stas Sergeev <stsp@aknet.ru> wrote:
->
-> Alan Cox wrote:
->  >> Alan, can you please apply that to an -ac
->  >> tree?
->  > Ask Andrew Morton as it belongs in the -mm tree
->  Actually I tried that already.
-
-I added this patch to -mm.
-
-> Andrew
->  had nothing against that patch personally,
->  as well as Linus, but after all that didn't
->  work:
->  http://lkml.org/lkml/2005/1/3/260
+On Tue, Mar 15, 2005 at 01:19:46PM +1100, Benjamin Herrenschmidt wrote:
 > 
->  So it can't be applied to -mm, and not
->  depending on the kgdb-ga patch allowed for
->  some extra optimization.
+> > rjw and hugang did (pretty neccessary) changes to base swsusp (pagedir
+> > table -> pagedir linklist), that unfortunately needed update to all
+> > the assembly parts. It was series 1/3 update core, i386 and x86-64,
+> > 2/3 update ppc, 3/3 introduce initramfs.
+> > 
+> > This is the offending patch I believe (but the version that was merged
+> > was From: me, without code changes).
+> > 
+> > I realized that patch does more than changing from table to linklist,
+> > but it looked mostly okay, so I forwarded it. Sorry.
+> 
+> It does more than that ... it _adds_ swsusp to ppc ! swsusp wasn't in
+> mainline at all for ppc because I consider it not ready. And even the
+> asm change should go through me anyway since i wrote that code and I'm
+> not sure they know all the possible "issues" with that code.
+> 
+> > So, what to do now?
+> > 
+> > a) just revert it
+> > 
+> > or
+> > 
+> > b) revert pmac_setup.c and via-pmu parts and Kconfig part
+> > 
+> > or
+> > 
+> > c) just disable Kconfig part and fix it up with incremental patches
 
-The rule is:
+I hope that's can merge into, It works fine in my PowerBook G4.
 
-- If the patch patches something which is in Linus's kernel, prepare a
-  diff against Linus's latest kernel.
+> 
+> I'll decide later today. I may well keep it and do the cleanup I had in
+> mind on top of this, which means merging the pmac suspend-to-ram with
+> the common infrastructure. But that will need some changes & hooks to
+> the core swsusp.
+> 
+> Ben.
 
-- If the patch patches something which is only in -mm, prepare a patch
-  against -mm.
 
-In this case, I merged the patch prior to the kgdb patch and then fixed
-up the fallout.
-
-(If that causes kgdb to break in non-obvious-to-me ways then I might come
-calling "help".  We'll see)
+-- 
+Hu Gang       .-.
+              /v\
+             // \\ 
+Linux User  /(   )\  [204016]
+GPG Key ID   ^^-^^   http://soulinfo.com/~hugang/hugang.asc

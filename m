@@ -1,93 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267936AbTAHUpL>; Wed, 8 Jan 2003 15:45:11 -0500
+	id <S267934AbTAHUom>; Wed, 8 Jan 2003 15:44:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267935AbTAHUpK>; Wed, 8 Jan 2003 15:45:10 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:24563 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S267936AbTAHUpG>; Wed, 8 Jan 2003 15:45:06 -0500
-Message-ID: <D9223EB959A5D511A98F00508B68C20C17F1C724@orsmsx108.jf.intel.com>
-From: "Fleischer, Julie N" <julie.n.fleischer@intel.com>
-To: "'george anzinger'" <george@mvista.com>,
-       "Fleischer, Julie N" <julie.n.fleischer@intel.com>
-Cc: high-res-timers-discourse@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: RE: [BUG - HRT patch] nanosleep returns 0 on failure
-Date: Wed, 8 Jan 2003 12:53:45 -0800 
+	id <S267935AbTAHUom>; Wed, 8 Jan 2003 15:44:42 -0500
+Received: from im2.mail.tds.net ([216.170.230.92]:63172 "EHLO im2.sec.tds.net")
+	by vger.kernel.org with ESMTP id <S267934AbTAHUok>;
+	Wed, 8 Jan 2003 15:44:40 -0500
+Date: Wed, 8 Jan 2003 15:53:10 -0500 (EST)
+From: Jon Portnoy <portnoy@tellink.net>
+X-X-Sender: portnoy@cerberus.localhost
+To: "Giacomo A. Catenazzi" <cate@debian.org>
+cc: rms@gnu.org, linux-kernel@vger.kernel.org
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+In-Reply-To: <3E1C3D87.7030605@debian.org>
+Message-ID: <Pine.LNX.4.51.0301081548350.24341@cerberus.localhost>
+References: <fa.gm4r3cv.1r4avpq@ifi.uio.no> <fa.hq6mucv.l4qg1c@ifi.uio.no>
+ <3E1C3D87.7030605@debian.org>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> george anzinger wrote:
-> If you don't mind, I will add your test code to my
-> clock_nanosleep test code so this does not creep back in.
+[cc list trimmed, it was getting a little excessive]
 
-Sure.  It's all GPL.  The 6-1.c test case (attached below) probably has the
-best test because it does multiple values, some < 0, some >= 1000 million.
+On Wed, 8 Jan 2003, Giacomo A. Catenazzi wrote:
 
-One other thing I forgot to write in my previous report is that
-clock_nanosleep() appeared to behave as expected, just nanosleep() showed
-the issue of returning 0 on failure.
+> 
+> 
+> Richard Stallman wrote:
+> >     Great.  So not only is there no legal need to cite GNU in the Linux 
+> >     name, there is no ethical obligation either.
+> > 
+> > When you take part of my statement, stretch it, interpret it based on
+> > assumptions you know I disagree with, and present the result as
+> > something I said, that doesn't prove anything.  It is childish.
+> > 
+> > There is no ethical obligation to mention secondary contributions
+> > incorporated in a large project.  There ethical obligation is to cite
+> > the main developer.  In the GNU/Linux system, the GNU Project is the
+> > principal contributor; the system is more GNU than anything else,
+> > and we started it.
+> 
+> GNU is not so important in new system. I take gcc and glibc as to be
+> outside the GNU project. (they have now the GNU mark only for GNU
+> convenience, IMHO) I use "GNU/Linux" only to make more explicit the
+> "copyleft" ideas, but surelly not because of the GNU tools.
+> 
+> If you insist with such arguments, you risk that someone will rewrite
+> the basic GNU tools outside the GNU project (emacs is not an OS main tool,
+> gcc and glibc are de facto outside GNU) (bash will remain GNU ?)
+> 
+> ciao
+> 	giacomo
+> 
+> 
+> RMS: maybe you can reply me privatly about some more explication of your mail,
+> so less OT mail, and privately maybe I can understand more about GNU/Linux flames.
+> 
 
-Thanks.
-- Julie
+Nearly all of your base system except the kernel is GNU. Primarily, 
+fileutils, sh-utils, and findutils come to mind. These could be replaced, 
+in which case it would no longer be GNU/Linux. As long as your standard 
+base system tools (chown, cp, dir, dd, df, du, ls, ln, mkdir, mv, rm, 
+rmdir, touch, chmod, id, kill, whoami, chroot, who, date, echo, 
+pwd, uname, and many others) are GNU, it's really GNU/Linux.
 
-----
-test 6-1.c
-/*   
- * Copyright (c) 2002, Intel Corporation. All rights reserved.
- * Created by:  julie.n.fleischer REMOVE-THIS AT intel DOT com
- * This file is licensed under the GPL license.  For the full content
- * of this license, see the COPYING file at the top level of this 
- * source tree.
-
- * Test that nanosleep() sets errno to EINVAL if rqtp contained a 
- * nanosecond value < 0 or >= 1,000 million
- */
-#include <stdio.h>
-#include <time.h>
-#include <errno.h>
-
-#define PTS_PASS        0
-#define PTS_FAIL        1
-#define PTS_UNRESOLVED  2
-
-#define NUMTESTS 7
-
-int main(int argc, char *argv[])
-{
-	struct timespec tssleepfor, tsstorage;
-	int sleepnsec[NUMTESTS] = {-1, -5, -1000000000, 1000000000, 
-		1000000001, 2000000000, 2000000000 };
-	int i;
-	int failure = 0;
-
-	tssleepfor.tv_sec=0;
-
-	for (i=0; i<NUMTESTS;i++) {
-		tssleepfor.tv_nsec=sleepnsec[i];
-		printf("sleep %d\n", sleepnsec[i]);
-		if (nanosleep(&tssleepfor, &tsstorage) == -1) {
-			if (EINVAL != errno) {
-				printf("errno != EINVAL\n");
-				failure = 1;
-			}
-		} else {
-			printf("nanosleep() did not return -1 on
-failure\n");
-			return PTS_UNRESOLVED;
-		}
-	}
-
-	if (failure) {
-		printf("At least one test FAILED\n");
-		return PTS_FAIL;
-	} else {
-		printf("All tests PASSED\n");
-		return PTS_PASS;
-	}
-}
-**These views are not necessarily those of my employer.**

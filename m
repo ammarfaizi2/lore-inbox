@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276318AbRJPOEt>; Tue, 16 Oct 2001 10:04:49 -0400
+	id <S276249AbRJPOLj>; Tue, 16 Oct 2001 10:11:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276329AbRJPOEj>; Tue, 16 Oct 2001 10:04:39 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:65286 "EHLO
-	deathstar.prodigy.com") by vger.kernel.org with ESMTP
-	id <S276318AbRJPOEX>; Tue, 16 Oct 2001 10:04:23 -0400
-Date: Tue, 16 Oct 2001 10:04:50 -0400
-Message-Id: <200110161404.f9GE4oZ01317@deathstar.prodigy.com>
-To: linux-kernel@vger.kernel.org
+	id <S276305AbRJPOLa>; Tue, 16 Oct 2001 10:11:30 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:5394 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S276249AbRJPOLS>;
+	Tue, 16 Oct 2001 10:11:18 -0400
+Date: Tue, 16 Oct 2001 12:11:30 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Luigi Genoni <kernel@Expansa.sns.it>
+Cc: Anuradha Ratnaweera <anuradha@gnu.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: VM
-X-Newsgroups: linux.dev.kernel
 In-Reply-To: <Pine.LNX.4.33.0110161503300.17096-100000@Expansa.sns.it>
-Organization: TMR Associates, Schenectady NY
-From: davidsen@tmr.com (bill davidsen)
-Reply-To: davidsen@tmr.com (bill davidsen)
+Message-ID: <Pine.LNX.4.33L.0110161205380.6440-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33.0110161503300.17096-100000@Expansa.sns.it> 
-	kernel@Expansa.sns.it wrote:
->I used bot VM in many situations and with many different HWs.
->I came to the conclusion that  actually  none of the two VMs is suitable
->for every use.
->aa VM deals better because of its design on my web servers, with a non
->eccessive amount of memory, and with mysql and oracle databases.
+On Tue, 16 Oct 2001, Luigi Genoni wrote:
 
+> The reason is the aa VM is more predictable, but rik's one actually
+> seems to be smarter under very very stressed situations.
 
->I do not care which VM is simpler, nor which is faster. I loock for
->predictability, since this is the most important thing on the servers I am
->administering. Under a special situation I need something maybe less
->predictable, but smarter to manage a stressed system.
->
->80%... 5%... I do not care for exact numbers actually, I will care in
->future, if the situation comes to the point that both VMs will be quite
->good for everything. anyway it is a good strategy to follow two different
->way, since they are progressing quite welll together, with competition,
->and also (I hope) reciprocal help (just to be able to read the code of the
->other is a good help:) ).
+This is a different approach to the situation.  Most of the
+time in the early 2.4 kernels we were much too busy to stop
+machines from crashing to care about performance.
 
-Very well said. And I might add that some input from people with small
-desktop machines might be useful to the developers, since I doubt they
-are running small slow machines. While I wouldn't compromise big memory
-performance (much) for small, one beauty of Linux is that it will run
-well on small machines.
+Only in more recent -ac kernels have I actually had time to
+look at performance and it seems to be relatively easy to
+get the VM to perform better.
 
-Of course it may be that some other VM will prove to be bnetter than
-either, but hopefully not until 2.5. I'd still like to see VM in a
-module and then everyone could play with their pet theory;-)
+Andrea seems to have optimised his VM for performance under
+low to medium loads from the beginning ... but in Linux 2.2
+we've seen how impossible it is to tune such a simplistic
+VM to not fall apart under very high loads, so I won't be
+going that way ;)
 
+regards,
+
+Rik
 -- 
-bill davidsen <davidsen@tmr.com>
- "If I were a diplomat, in the best case I'd go hungry.  In the worst
-  case, people would die."
-		-- Robert Lipe
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

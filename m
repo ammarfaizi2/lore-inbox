@@ -1,47 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265506AbSKIOKA>; Sat, 9 Nov 2002 09:10:00 -0500
+	id <S265517AbSKIOKO>; Sat, 9 Nov 2002 09:10:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265517AbSKIOKA>; Sat, 9 Nov 2002 09:10:00 -0500
-Received: from main.gmane.org ([80.91.224.249]:51384 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S265506AbSKIOJ7>;
-	Sat, 9 Nov 2002 09:09:59 -0500
+	id <S265562AbSKIOKO>; Sat, 9 Nov 2002 09:10:14 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:23199 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S265517AbSKIOKM>;
+	Sat, 9 Nov 2002 09:10:12 -0500
+Message-ID: <3DCD18D4.90609@colorfullife.com>
+Date: Sat, 09 Nov 2002 15:16:52 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-X-Injected-Via-Gmane: http://gmane.org/
-Path: not-for-mail
-From: Nicholas Wourms <nwourms@netscape.net>
-Subject: Re: Linux v2.5.46 (compile error) (rivafb)
-Date: Sat, 09 Nov 2002 09:17:50 -0500
-Message-ID: <aqj59a$tuu$1@main.gmane.org>
-References: <200211090447.06566.Dieter.Nuetzel@hamburg.de>
-Reply-To: nwourms@netscape.net
-NNTP-Posting-Host: 130-127-121-177.generic.clemson.edu
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8Bit
-X-Trace: main.gmane.org 1036851306 30686 130.127.121.177 (9 Nov 2002 14:15:06 GMT)
-X-Complaints-To: usenet@main.gmane.org
-NNTP-Posting-Date: Sat, 9 Nov 2002 14:15:06 +0000 (UTC)
-User-Agent: KNode/0.7.2
+CC: bk@suse.de
+Subject: [RFC,PATCH] remove lockless receive from ipc/msg.c
+Content-Type: multipart/mixed;
+ boundary="------------000302020001000601030106"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dieter Nützel wrote:
+This is a multi-part message in MIME format.
+--------------000302020001000601030106
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> James Simmons wrote:
->> Next driver to port to the new api. I did it some time ago. It will be in
->> the next fbdev pull.
-> 
-> Radeon, too? Please ;-)
-> 
-Dieter,
+Bernhard Kaindl noticed a race in the lockless receive path of msgrcv():
+If a signal wakes up the thread that sleeps in msgrcv(), then 
+pipelined_send() can access an already invalid structure. This can cause 
+oopses during wake_up_process().
 
-According to Ani, the Radeon driver has been [for the most part] ported to 
-the new API.  You can get it by pulling from:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103599896511067&w=2
 
-bk://ppc.bkbits.net/linuxppc-2.5
+The simplest solution is to remove the lockless receive, and always 
+acquire the spinlock during receive.
+Unfortunately this would increase the number of spinlock operations for 
+ipc/msg.c by up to 50%. (from 2 to 3 spinlock calls for msgrcv()+msgsnd())
 
-Cheers,
-Nicholas
+Any other ideas? Are there workloads that heavily rely on sysv msg?
 
+Patch against 2.5.46 is attached.
+--
+    Manfred
+
+--------------000302020001000601030106
+Content-Type: text/plain;
+ name="patch-ipc-race"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-ipc-race"
+
+--- 2.5/ipc/msg.c	2002-11-09 00:45:37.000000000 +0100
++++ build-2.5/ipc/msg.c	2002-11-09 15:01:13.000000000 +0100
+@@ -799,10 +799,6 @@
+ 		schedule();
+ 		current->state = TASK_RUNNING;
+ 
+-		msg = (struct msg_msg*) msr_d.r_msg;
+-		if(!IS_ERR(msg)) 
+-			goto out_success;
+-
+ 		msq = msg_lock(msqid);
+ 		msg = (struct msg_msg*)msr_d.r_msg;
+ 		if(!IS_ERR(msg)) {
+
+--------------000302020001000601030106--
 

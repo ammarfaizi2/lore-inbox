@@ -1,72 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270760AbTHANzr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 09:55:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270762AbTHANzr
+	id S270757AbTHANzH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 09:55:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270760AbTHANzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 09:55:47 -0400
-Received: from tolkor.SGI.COM ([198.149.18.6]:58035 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id S270760AbTHANzo (ORCPT
+	Fri, 1 Aug 2003 09:55:07 -0400
+Received: from [65.244.37.61] ([65.244.37.61]:13755 "EHLO
+	WSPNYCON1IPC.corp.root.ipc.com") by vger.kernel.org with ESMTP
+	id S270757AbTHANzD convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 09:55:44 -0400
-Subject: Re: xfs problems (2.6.0-test2)
-From: Steve Lord <lord@sgi.com>
-To: Jose Luis Alarcon <jlalarcon@chevy.zzn.com>
-Cc: Nathan Scott <nathans@sgi.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <F759403221D30FB40B5B2C15610E4950@jlalarcon.chevy.zzn.com>
-References: <F759403221D30FB40B5B2C15610E4950@jlalarcon.chevy.zzn.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1059746139.7842.10.camel@jen.americas.sgi.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 01 Aug 2003 08:55:40 -0500
+	Fri, 1 Aug 2003 09:55:03 -0400
+Message-ID: <170EBA504C3AD511A3FE00508BB89A920234CD6C@exnanycmbx4.ipc.com>
+From: "Downing, Thomas" <Thomas.Downing@ipc.com>
+To: "'Stuart Longland'" <stuartl@longlandclan.hopto.org>,
+       linux-kernel@vger.kernel.org
+Subject: RE: fun or real: proc interface for module handling?
+Date: Fri, 1 Aug 2003 09:54:24 -0400 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-08-01 at 02:58, Jose Luis Alarcon wrote:
-> >
-> >Hi there,
-> >
-> >What XFS blocksize are you using, and what is your page size?
-> >There are known issues when using blocksizes smaller than the
-> >page size in the 2.6 XFS code at the moment.
-> >
+> -----Original Message-----
+> From: Stuart Longland [mailto:stuartl@longlandclan.hopto.org]
+> On Thu, Jul 31, 2003 at 02:34:01PM +0200, Måns Rullgård wrote:
 > 
->   Hi Nathan, and congratilations for the SGI work.
+> | Nico Schottelius <nico-kernel@schottelius.org> writes:
+> | > Modul options could be passed my
+> | >   echo "psmouse_noext=1" > /proc/mods/psmouse/options
+> | > which would also make it possible to change module options while
+> running..
+> |
+> | How would options be passed when loading?  Some modules require that
+> | to load properly.
 > 
->   Now i have a Mandrake with the 2.5.75 kernel and XFS in
-> all partitions. The filesystem looks work very well.
+> Possibility, why not just have a file, /proc/mods/initial, that you
+> write the initial kernel module options to, e.g.
 > 
->   I am planning install 2.6.0-test3 when it comes and i wanna
-> ask you: how can i know what blocksize am i using?, and how
-> know what is the page size in my system?.
+> # echo "ne2000 io=0x300 irq=11" > /proc/mods/initial
 > 
->   Thanks you, very much, in advance.
+> Then you load the module using:
 > 
->   Regards.
+> # mkdir /proc/mods/ne2000/
 > 
->   Jose.
+> although you could skip this necessity and just load the module when
+> someone writes to /proc/mods/initial.
+> 
+> Just a thought.
 
-Use the xfs_info command on a mount point:
+>From an newbie:
 
-meta-data=/xfs                   isize=256    agcount=8, agsize=131031
-blks
-         =                       sectsz=512  
-data     =                       bsize=4096   blocks=1048241, imaxpct=25
-         =                       sunit=0      swidth=0 blks, unwritten=1
-naming   =version 2              bsize=4096  
-log      =internal               bsize=4096   blocks=16384, version=1
-         =                       sectsz=512   sunit=0 blks
-realtime =none                   extsz=65536  blocks=0, rtextents=0
+How about having a dir for each available module created earliest moment
+in boot process, (point where depmod is done now I guess).  Each dir has
+files 'options' and 'load'.  then you could:
 
-bsize=4096 is the vlock size.
+# echo "io=0x300 irq=11" > /proc/mods/ne2000/options
 
-Steve
+followed by
 
--- 
+# echo "1" > /proc/mods/ne2000/load
 
-Steve Lord                                      voice: +1-651-683-3511
-Principal Engineer, Filesystem Software         email: lord@sgi.com
+Of course, I am probably missing the point or something :-(
+
+td

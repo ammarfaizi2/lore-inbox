@@ -1,63 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268060AbRGVVA3>; Sun, 22 Jul 2001 17:00:29 -0400
+	id <S268067AbRGVVSz>; Sun, 22 Jul 2001 17:18:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268061AbRGVVAS>; Sun, 22 Jul 2001 17:00:18 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:15626 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268060AbRGVVAK>; Sun, 22 Jul 2001 17:00:10 -0400
-From: Linus Torvalds <torvalds@transmeta.com>
-Date: Sun, 22 Jul 2001 13:59:02 -0700
-Message-Id: <200107222059.f6MKx2212465@penguin.transmeta.com>
-To: greearb@candelatech.com, Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: [BUG REPORT]  Sony VAIO, 2.4.7:  CardBus failures with Tulip & 3c575 
- cards.
-Newsgroups: linux.dev.kernel
-In-Reply-To: <3B5B1F77.D8B45FFA@candelatech.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S268066AbRGVVSq>; Sun, 22 Jul 2001 17:18:46 -0400
+Received: from www.sam-net.de ([212.118.203.2]:16146 "EHLO www.sam-net.de")
+	by vger.kernel.org with ESMTP id <S268067AbRGVVSd>;
+	Sun, 22 Jul 2001 17:18:33 -0400
+Message-ID: <3B5B4329.2080101@kling-bauer.de>
+Date: Sun, 22 Jul 2001 23:18:33 +0200
+From: Dietmar Kling <d.kling@kling-bauer.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.2+) Gecko/20010719
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.7 and setpci no go
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-In article <3B5B1F77.D8B45FFA@candelatech.com> you write:
->
->This report contains information about my failure to get my
->CardBus NICs working correctly.  Hardware involved is:
->
->Sony VAIO PCG-FX210 laptop (800Mhz Duron...)
->DFE-650 16-bit PCMCIA NIC x2
->3Com Megahertz 32-bit 3CCFE575BT NIC x2
->AmbiCom 32-bit 8100 NIC  (tulip) x2
+Hi,
 
-This looks suspiciously like your slot #1 gets the PCI interrupt routing
-wrong.
+i have a problem with my new Athlon board and a really silly bios, which 
+assigns
+all my interrupts of usb,audio,eth0,bttv to irq 11
 
-Note especially the kernel reports:
+i have to turned off pnp aware OS in the bios
+and i can set  via setpci the irq as the examples below indicate.
 
-	Linux Kernel Card Services 3.1.22
-	  options:  [pci] [cardbus] [pm]
-	PCI: Assigned IRQ 9 for device 00:0a.0
-	PCI: Assigned IRQ 10 for device 00:0a.1
-	IRQ routing conflict for 00:07.5, have irq 5, want irq 10
-	IRQ routing conflict for 00:07.6, have irq 5, want irq 10
-	PCI: Sharing IRQ 10 with 00:10.0
+Still you can see in the example that the Line with the IRQ shows 11.
+and when i insert for example the AC97 driver of ALSA io gets interrupt 11.
 
-it really looks like your slot 1 controller (00:0a.1) really wants irq5,
-based on the fact that other devices are reported to have irq5.
+Same situation for usb, eth0, bttv.
 
-However, if they _really_ have irq5 already routed, I'm surprised that
-the PCI irq router "r->get()" function didn't pick up on that fact, and
-that the "set" function apparently didn't work correctly.
+So I am lost now :(
+Is this a kernel bug or is there a kernel parameter which i have to use?
 
-So I'd guess that when you insert a card in slot #1, you get a constant
-stream of interrupts on irq5, which is not where the kernel is expecting
-them, so your machine locks up. 
+Regards
+Dietmar
 
-Can you do the following:
- - run dump_pirq on your machine (attached)
- - run "lspci -vvxxx" as root
 
-send me and Jeff the output. Jeff also suggested enabling debugging in
-yenta.c and that might be useful too.
+### Example 1 ####
+/sbin/setpci  -v -s 00:11.5 INTERRUPT_LINE=9
+00:11.5:3c 09
+/sbin/lspci  -v -s 00:11.5 -x
+00:11.5 Multimedia audio controller: VIA Technologies, Inc. AC97 Audio 
+Controller (rev 10)
+        Subsystem: Elitegroup Computer Systems: Unknown device 0996
+        Flags: medium devsel, IRQ 11
+        I/O ports at e400 [size=256]
+        Capabilities: [c0] Power Management version 2
+00: 06 11 59 30 01 00 10 02 10 00 01 04 00 00 00 00
+10: 01 e4 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 19 10 96 09
+30: 00 00 00 00 c0 00 00 00 00 00 00 00 09 03 00 00
+                                                                  ^^<--- 
+changed
+### Example 2  ####
+/sbin/setpci  -v -s 00:11.5 INTERRUPT_LINE=0x0a
+00:11.5:3c 0a
+/sbin/lspci  -v -s 00:11.5 -x
+00:11.5 Multimedia audio controller: VIA Technologies, Inc. AC97 Audio 
+Controller (rev 10)
+        Subsystem: Elitegroup Computer Systems: Unknown device 0996
+        Flags: medium devsel, IRQ 11
+        I/O ports at e400 [size=256]
+        Capabilities: [c0] Power Management version 2
+00: 06 11 59 30 01 00 10 02 10 00 01 04 00 00 00 00
+10: 01 e4 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 19 10 96 09
+30: 00 00 00 00 c0 00 00 00 00 00 00 00 10 03 00 00
+                                                                  ^^<--- 
+changed                                                                   
 
-		Linus
+
+
+
+
+
+
+
+
+
+
+
+

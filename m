@@ -1,86 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265757AbSKTEzG>; Tue, 19 Nov 2002 23:55:06 -0500
+	id <S265767AbSKTFA1>; Wed, 20 Nov 2002 00:00:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265767AbSKTEzF>; Tue, 19 Nov 2002 23:55:05 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:1541 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S265757AbSKTEzB>; Tue, 19 Nov 2002 23:55:01 -0500
-Date: Tue, 19 Nov 2002 21:01:32 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: archaios <quack@bigpond.net.au>
-cc: Ross Vandegrift <ross@willow.seitz.com>, linux-kernel@vger.kernel.org
-Subject: Re: spinlocks, the GPL, and binary-only modules
-In-Reply-To: <002301c2905f$ec818800$0100000a@r1a4n3>
-Message-ID: <Pine.LNX.4.10.10211192058420.1342-100000@master.linux-ide.org>
+	id <S265791AbSKTFA1>; Wed, 20 Nov 2002 00:00:27 -0500
+Received: from ir.com.au ([203.202.109.33]:12732 "EHLO
+	ir-exchange-srv.ir.com.au") by vger.kernel.org with ESMTP
+	id <S265767AbSKTFA0>; Wed, 20 Nov 2002 00:00:26 -0500
+Message-ID: <694BB7191495D51183A9005004C0B05482D50E@ir-exchange-srv.ir.com.au>
+From: Rebecca.Callan@ir.com
+To: linux-kernel@vger.kernel.org
+Subject: decrement of inodes_stat.nr_inodes in inode.c not SMP safe?
+Date: Wed, 20 Nov 2002 16:07:29 +1100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The value for nr_inodes in /proc/sys/fs/inode-state appears to be wrong.
 
-What pile if CRACK are you smoking?
+I think this is probably a bug in all 2.4 smp kernels. I've seen it in
+2.4.8-26mdksmp and 2.4.18-3smp.
 
-Just because I assign parts of my IP portfolio to GPL does not give
-anything to FSF and they have no rights or assignment.  When did the
-kernel become assigned to FSF?
+I first noticed the bug when sar -v reported inode-sz to be 4294966776. 
+I check the sar source code and the documentation and found the value 
+of nr_free_inodes (second value in the /proc/sys/fs/inode-state file) is
+larger than nr_inodes (the number of allocated inodes - first value in
+file). 
 
-Getting warmer,
+I think I have tracked the bug down to an unsafe decrement of 
+inodes_stat.nr_inodes in fs/inode.c. This variable is changed in a 
+number of places in inode.c and it is locked everywhere except in 
+dispose_list(). The comment above dispose_list says:
+	 
+ * Dispose-list gets a local list with local inodes in it, so it doesn't
+ * need to worry about list corruption and SMP locks. 
 
-Andre Hedrick
-LAD Storage Consulting Group
+But inodes_stat.nr_inodes is not local and I think it requires locking.
 
-On Wed, 20 Nov 2002, archaios wrote:
+I am not a kernel developer and don't know exactly how to fix this problem.
+I suppose there is a reason why the dispose_list function was designed to 
+not use locking so I guess it's not a good idea to put a lock in there. The
+only other option I can think of is to use atomic decrement, but I don't
+know whether it is safe to atomicaly decrement something that is decremented
 
-> When you GPL a piece of software, you sign over your rights to the FSF. Therefore, there is very little that can be done about this;
-> from a legal perspective, the FSF _itself_ determines what is and what isn't construed as a derived work.
-> 
-> - David McIlwraith
-> ----- Original Message -----
-> From: Ross Vandegrift <ross@willow.seitz.com>
-> To: Rik van Riel <riel@conectiva.com.br>
-> Cc: <linux-kernel@vger.kernel.org>
-> Sent: Wednesday, November 20, 2002 3:26 PM
-> Subject: Re: spinlocks, the GPL, and binary-only modules
-> 
-> 
-> On Wed, Nov 20, 2002 at 12:59:26AM -0200, Rik van Riel wrote:
-> > You can copyright songs, but not individual musical notes.
-> >
-> > Likewise, snippets of code aren't copyrightable if they're below
-> > a certain "triviality size".
-> 
-> I don't pretend to be current on all the issues involved, but I've
-> always been under the impression that Linus has insisted that
-> binary-only drivers aren't derived works, with respect to the GPL.
-> 
-> If someone is worried they are, make all future headers state it
-> explicitly:
-> 
-> "Including this header in a Linux kernel module shall not be construed
-> to constitute a derived work."
-> 
-> --
-> Ross Vandegrift
-> ross@willow.seitz.com
-> 
-> A Pope has a Water Cannon.                               It is a Water Cannon.
-> He fires Holy-Water from it.                        It is a Holy-Water Cannon.
-> He Blesses it.                                 It is a Holy Holy-Water Cannon.
-> He Blesses the Hell out of it.          It is a Wholly Holy Holy-Water Cannon.
-> He has it pierced.                It is a Holey Wholly Holy Holy-Water Cannon.
-> He makes it official.      It is a Cannon Holey Wholly Holy Holy-Water Cannon.
-> Batman and Robin arrive.                                       He shoots them.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+elsewhere using locking not an atomic decrement. Is it a good idea to change
+
+all accesses  of this variable to atomic? Would this add unnecessary
+overhead? 
+
+Thanks,
+Rebecca
 

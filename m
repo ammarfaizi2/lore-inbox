@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268965AbUHME2U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268968AbUHMEi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268965AbUHME2U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 00:28:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268966AbUHME2U
+	id S268968AbUHMEi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 00:38:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268969AbUHMEi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 00:28:20 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:28555 "EHLO
-	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S268965AbUHME2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 00:28:15 -0400
-Date: Thu, 12 Aug 2004 22:22:58 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Allow userspace do something special on overtemp
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <00fe01c480ed$36a08330$6401a8c0@northbrook>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-Content-type: text/plain; format=flowed; charset=iso-8859-1; reply-type=original
-Content-transfer-encoding: 7bit
-X-Priority: 3
-X-MSMail-priority: Normal
-References: <fa.fd8nc62.oig6ao@ifi.uio.no> <fa.g1p407b.1c569pj@ifi.uio.no>
+	Fri, 13 Aug 2004 00:38:58 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:38347 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S268968AbUHMEi5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 00:38:57 -0400
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
+X-Message-Flag: Warning: May contain useful information
+References: <20040726082330.GA22764@elte.hu>
+	<1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu>
+	<1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
+	<20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu>
+	<20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu>
+	<20040810132654.GA28915@elte.hu> <20040812235116.GA27838@elte.hu>
+	<1092360317.1304.72.camel@mindpipe>
+	<1092360704.1304.76.camel@mindpipe> <1092364786.877.1.camel@mindpipe>
+	<1092369242.2769.1.camel@mindpipe> <1092370997.2769.5.camel@mindpipe>
+From: Roland Dreier <roland@topspin.com>
+Date: Thu, 12 Aug 2004 21:35:40 -0700
+In-Reply-To: <1092370997.2769.5.camel@mindpipe> (Lee Revell's message of
+ "Fri, 13 Aug 2004 00:23:18 -0400")
+Message-ID: <527js31wpv.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 13 Aug 2004 04:35:40.0942 (UTC) FILETIME=[FD0F32E0:01C480EE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: "Pavel Machek" <pavel@suse.cz>
-Newsgroups: fa.linux.kernel
-To: "Len Brown" <len.brown@intel.com>
-Cc: "Dax Kelson" <dax@gurulabs.com>; <trenn@suse.de>; <seife@suse.de>;
-"Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Sent: Thursday, August 12, 2004 5:25 PM
-Subject: Re: Allow userspace do something special on overtemp
+    Lee> I believe this is the correct patch, based on
+    Lee> arch/sparc64/kernel/sparc64_ksyms.c.  Ingo, are you using a
+    Lee> sparc64 for your testing?
 
+He's probably just not using modules.  There's no way LATENCY_TRACE
+can work on anything except i386, since that's the only definition of
+mcount that's provided (and if one were being anal, it would probably
+make more sense to add the config stuff to arch/i386/Kconfig rather
+than init/Kconfig).
 
-> Ouch and btw I've done some torturing on one prototype (AMD). It had
-> thermal at 98Celsius (specs for this cpu said 95C max), and I ended my
-> test at 105Celsius. I do not know about TM1/TM2 etc, but in this case
-> hardware clearly failed to do the right thing.
-
-This is dependent on the CPU/motherboard in use - AMD CPUs (up to the last
-ones I heard about, anyway) don't have any built in thermal protection, they
-rely on the motherboard to shut down the CPU in the event of
-over-temperature. Intel CPUs since the Pentium II all shut down on excessive
-over-temperature; Pentium 4s will also clock-throttle to continue operating
-before they get to this point.
+ - R.
 

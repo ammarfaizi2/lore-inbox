@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271413AbTHRMLA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 08:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271415AbTHRMLA
+	id S271415AbTHRMNR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 08:13:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271423AbTHRMMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 08:11:00 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:57984 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S271413AbTHRMKF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 08:10:05 -0400
-Date: Mon, 18 Aug 2003 13:09:55 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use simple_strtoul for unsigned kernel parameters
-Message-ID: <20030818120955.GB7147@mail.jlokier.co.uk>
-References: <20030818004618.GA5094@mail.jlokier.co.uk> <20030818101524.5B12D2C019@lists.samba.org>
+	Mon, 18 Aug 2003 08:12:07 -0400
+Received: from main.gmane.org ([80.91.224.249]:41674 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S271415AbTHRMLm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 08:11:42 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
+Date: Mon, 18 Aug 2003 14:11:39 +0200
+Message-ID: <yw1xzni76u84.fsf@users.sourceforge.net>
+References: <20030818004313.T3708@schatzie.adilger.int> <Pine.LNX.4.44.0308172352470.20433-100000@dlang.diginsite.com>
+ <20030818115954.GA7147@mail.jlokier.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030818101524.5B12D2C019@lists.samba.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:YHYQi5SPyRF7E7tmXrzDnxqDCTk=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> In message <20030818004618.GA5094@mail.jlokier.co.uk> you write:
-> > The largest "unsigned int" value doesn't fit in a "long", on many machines.
-> > So we should use simple_strtoul, not simple_strtol, to decode these values.
-> 
-> Half right.  The second part is fine, the first part is redundant
+Jamie Lokier <jamie@shareable.org> writes:
 
-Do you mean the first part of the comment or the first part of the patch?
+>> now if you can repeatably get the same number then you probably have a bug
+>> in the random number code, but if you need uniqueness you need something
+>> else.
+>
+> Can you think of another, reliable, source of uniqueness?
 
-Assuming you mean the patch, you're right: the unsigned short case
-doesn't need to be changed.  It should be anyway because it is just
-the right thing to do.
+You could use your geographical position and the exact time, both
+easily available with GPS.  In case several machines are within the
+GPS resolution, you could add some more parameters that would
+typically be different, such as network address.
 
--- Jamie
+-- 
+Måns Rullgård
+mru@users.sf.net
+

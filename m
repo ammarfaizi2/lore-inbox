@@ -1,40 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289034AbSAIVvS>; Wed, 9 Jan 2002 16:51:18 -0500
+	id <S289036AbSAIVy6>; Wed, 9 Jan 2002 16:54:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289033AbSAIVvI>; Wed, 9 Jan 2002 16:51:08 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:14347 "EHLO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S289036AbSAIVu7>; Wed, 9 Jan 2002 16:50:59 -0500
-Date: Wed, 9 Jan 2002 22:50:54 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Simple local DOS
-Message-ID: <20020109215054.GB15080@emma1.emma.line.org>
-Reply-To: nonexistent@localhost.emma.line.org
-Mail-Followup-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C3C74F7.FE41CD0E@uni-mb.si>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <3C3C74F7.FE41CD0E@uni-mb.si>
-User-Agent: Mutt/1.3.25i
+	id <S289033AbSAIVyt>; Wed, 9 Jan 2002 16:54:49 -0500
+Received: from nile.gnat.com ([205.232.38.5]:54416 "HELO nile.gnat.com")
+	by vger.kernel.org with SMTP id <S289036AbSAIVyi>;
+	Wed, 9 Jan 2002 16:54:38 -0500
+From: dewar@gnat.com
+To: dewar@gnat.com, pkoning@equallogic.com
+Subject: Re: [PATCH] C undefined behavior fix
+Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org, mrs@windriver.com
+Message-Id: <20020109215438.1748DF2FEB@nile.gnat.com>
+Date: Wed,  9 Jan 2002 16:54:38 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 09 Jan 2002, David Balazic wrote:
+<<Would ordering rules help answer that?  If you write two separate
+loads you have two separate side effects that are ordered in time,
+while for a single big load they occur concurrently.  If the construct
+where those two loads occur does not allow for side effects to be
+interleaved, then the "as if" principle seems to say you cannot
+legally merge the loads.
+>>
 
-> 
-> log in on some virtual terminal, then run the following line
-> in a bourne type shell, like bash :
-> 
-> X 2>&1 | less
-> 
-> A reboot "fixes" it. We want to reach windows level quality on desktop
-> after all, don't we ?
-
-You can also fix that by a remote login, chvt, or by just not piping X
-output into interactive programs. tail -f is a viable workaround -- and
-all this is off-topic on linux-kernel, it's your own dumbness that makes
-you do these things. Better run kdm, gdm or xdm or something and you're
-not having this problem.
+Yes maybe, but it's not air tight :-)

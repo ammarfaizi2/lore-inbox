@@ -1,61 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263633AbUDFGfT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 02:35:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbUDFGfS
+	id S262720AbUDFGkM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 02:40:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263634AbUDFGkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 02:35:18 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:18962 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263633AbUDFGfM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 02:35:12 -0400
-Date: Mon, 5 Apr 2004 23:34:15 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
-       akpm@osdl.org, wli@holomorphy.com, colpatch@us.ibm.com
+	Tue, 6 Apr 2004 02:40:12 -0400
+Received: from ausmtp01.au.ibm.com ([202.81.18.186]:30662 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S262720AbUDFGkF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 02:40:05 -0400
 Subject: Re: [PATCH] mask ADT: new mask.h file [2/22]
-Message-Id: <20040405233415.2c7c3a96.pj@sgi.com>
-In-Reply-To: <40724CF4.5090705@yahoo.com.au>
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Paul Jackson <pj@sgi.com>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mbligh@aracnet.com, Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
+       colpatch@us.ibm.com
+In-Reply-To: <20040405230601.62c0b84c.pj@sgi.com>
 References: <20040329041253.5cd281a5.pj@sgi.com>
-	<1081128401.18831.6.camel@bach>
-	<20040405000528.513a4af8.pj@sgi.com>
-	<1081150967.20543.23.camel@bach>
-	<20040405010839.65bf8f1c.pj@sgi.com>
-	<1081227547.15274.153.camel@bach>
-	<20040405230601.62c0b84c.pj@sgi.com>
-	<40724CF4.5090705@yahoo.com.au>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	 <1081128401.18831.6.camel@bach> <20040405000528.513a4af8.pj@sgi.com>
+	 <1081150967.20543.23.camel@bach> <20040405010839.65bf8f1c.pj@sgi.com>
+	 <1081227547.15274.153.camel@bach>  <20040405230601.62c0b84c.pj@sgi.com>
+Content-Type: text/plain
+Message-Id: <1081233543.15274.190.camel@bach>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 06 Apr 2004 16:39:03 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick wrote:
-> I like cpumask_t. 
+On Tue, 2004-04-06 at 16:06, Paul Jackson wrote:
+> > You'll have covered about 300 of them.  I don't think a complete
+> > abstraction is actually required or desirable:
+> 
+> I suspect we've hit on our first area of actual disagreement here.
+> 
+> You observe that providing inline wrappers for the 5 most commonly
+> used cpumask macros would cover 300 of the 420 uses.  The other 23
+> or so macros are less commonly used.  Sounds about right ...
+> 
+> I prefer to provide all 28 macros.  I don't see a cost, but do see
+> a gain.
 
-Ok - one vote for cpumask_t.
+Because I believe one should *always* resist the urge to write
+infrastructure.  Wait until the users of your functionality gather out
+the front of your house with torches because they're all sick of the
+burden of using existing infrastructure.
 
-I could go either way.  I see that 'struct foo' is more common than
-'foo_t' in kernel code.
+Really.
 
-I will not actually propose to change cpumask_t to 'struct cpumask'
-unless others want it.  Without a half-way decent reason, it would just
-be stupid churning.  But I wouldn't put up much resistance to such a
-change.
+I don't even want to learn 28 bitops primitives.  I certainly don't want
+to learn 28 nodemask and 28 cpumask primitives.
 
+I prefer a single set of operators, but preempting complaints means
+figuring out what people want.  I'd be happy with the obviously
+cpu-specific ones, myself:
 
-> And you should not need to look inside it or use it with
-> anything other than using the cpumask interface, right?
+	first_cpu
+	next_cpu
+	any_online_cpu
+	cpumask_of_cpu
 
-In my view, right - you (seldom) need to look inside.  From what I can
-make of Rusty's statements so far, he apparently has a different view ;).
+> The gain is that someone coding some operations on a cpumask doesn't
+> have to go fishing around in multiple places to find out what ops
+> are supported
 
-We'll see.
+Agreed.  That's a big benefit of cutting it out altogether.
 
+> Just to be specific, a typical implementation for such an operator would look like:
+> 
+>     typedef struct { DECLARE_BITMAP(bits, NR_CPUS); } cpumask_t;
+> 
+>     static inline void cpus_or(cpumask_t d, const cpumask_t s1, const cpumask_t s2)
+>     {
+> 	bitmap_or(d.bits, s1.bits, s2.bits, NR_CPUS);
+>     }
+
+That'd be a noop, I think.
+
+Cheers,
+Rusty.
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
+

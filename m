@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129842AbQLHSOU>; Fri, 8 Dec 2000 13:14:20 -0500
+	id <S129786AbQLHS0X>; Fri, 8 Dec 2000 13:26:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132556AbQLHSOK>; Fri, 8 Dec 2000 13:14:10 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:36369 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129842AbQLHSOB>;
-	Fri, 8 Dec 2000 13:14:01 -0500
-Message-ID: <3A311D95.A39E0241@mandrakesoft.com>
-Date: Fri, 08 Dec 2000 12:42:45 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Jeff V. Merkey" <jmerkey@timpanogas.org>,
-        Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: NTFS repair tools]
-In-Reply-To: <3A3066EC.3B657570@timpanogas.org> <E144O4d-0003vd-00@the-village.bc.nu> <20001208113340.B4730@vger.timpanogas.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130013AbQLHS0N>; Fri, 8 Dec 2000 13:26:13 -0500
+Received: from freya.yggdrasil.com ([209.249.10.20]:15765 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S129733AbQLHS0C>; Fri, 8 Dec 2000 13:26:02 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Fri, 8 Dec 2000 09:55:29 -0800
+Message-Id: <200012081755.JAA04672@adam.yggdrasil.com>
+To: proski@gnu.org
+Subject: Re: [PATCH] for YMF PCI sound cards
+Cc: kai@thphy.uni-duesseldorf.de, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jeff V. Merkey" wrote:
-> 
-> On Fri, Dec 08, 2000 at 02:00:29PM +0000, Alan Cox wrote:
-> > > Agree.  We need to disable it, since folks do not read the docs
-> > > (obviously).  Of course, we could leave it on, and I could start
-> > > charging money for these tools -- there's little doubt it would be a
-> > > lucrative business.  Perhaps this is what I'll do if the numbers of
-> > > copies keeps growing.  When it hits > 100 per week, it's taking a lot of
-> > > our time to support, so I will have to start charging for it.
-> >
-> > I am very firmly against removing something because people do not read manuals,
-> > what is next fdisk , mkfs ?.
-> 
-> We should put in a nastier message then.  It WILL DESTROY DATA IRREPARABLY
-> and I've got even more bad news -- because it's in Linux, Microsoft is already
-> altering the on-disk structures again, so it's about to be broken in R/O
-> mode as well when Whistler comes out.
 
-We don't need any messages.  If (DANGEROUS) is not sufficient, then
-disable the feature unconditionally.  Someone hacking on the code will
-be smart enough to enable the stuff while they are debugging.
+	This ALSA-based Yamaha PCI driver does not have the changes
+from ALSA that were necessary to make it run on the Transmeta-based
+Sony PictureBooks, right?  I tried the driver in 2.4.0-test12pre7,
+and that driver with Pavel's patch, and that driver with Pavel's
+patch with "#include <linux/config.h>, #undef CONFIG_SMP", and
+got the same behavior in all three cases:
 
-	Jeff
+	Loading the module would cause a very loud monotone
+squeal, like some kind of theft detection device.  The computer
+would still work while it was sqealing, but sync'ing the discs
+would never return.  rmmod'ing the module would cause a second
+noise to be superimposed on the first, one that sounded like a
+worn down fan or the purr that some BIOS'es make when they are
+testing RAM.
 
+	If this version does not have whatever changes were
+need for the Transmeta-baed Picturebook, then never mind.
+If it is not some obvious oversight, I guess I will try installing
+ALSA and comparing the drivers.
 
--- 
-Jeff Garzik         |
-Building 1024       | These are not the J's you're lookin' for.
-MandrakeSoft        | It's an old Jedi mind trick.
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261869AbTEQWex (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 18:34:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbTEQWex
+	id S261878AbTEQXFa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 19:05:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbTEQXF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 18:34:53 -0400
-Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:24558 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id S261869AbTEQWew (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 18:34:52 -0400
-Date: Sat, 17 May 2003 16:47:33 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] laptop mode, #2
-Message-ID: <20030517164733.B10850@schatzie.adilger.int>
-Mail-Followup-To: Jens Axboe <axboe@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030516113309.GY812@suse.de>
+	Sat, 17 May 2003 19:05:29 -0400
+Received: from tux.rsn.bth.se ([194.47.143.135]:46991 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S261878AbTEQXF3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 May 2003 19:05:29 -0400
+Subject: CIFS oops in 2.5.69-mm5
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Steven French <sfrench@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1053213497.655.51.camel@tux.rsn.bth.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030516113309.GY812@suse.de>; from axboe@suse.de on Fri, May 16, 2003 at 01:33:09PM +0200
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 18 May 2003 01:18:19 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 16, 2003  13:33 +0200, Jens Axboe wrote:
-> +	if (block_dump)
-> +		printk("%s: %s block %lu/%u on %s\n", current->comm, rw == WRITE ? "WRITE" : "READ", bh->b_rsector, count, kdevname(bh->b_rdev));
+Hi Steven
 
-This should be changed to KERN_DEBUG or similar, since if you are logging
-kernel messages to disk you get stuck in an infinite loop with block_dump:
+I just tried mouting a cifs share in 2.5.69-mm5 and got this during the
+attempt.
 
-kjournald: WRITE block 67416/8 on 03:05
-kjournald: WRITE block 67424/8 on 03:05
-kjournald: WRITE block 67432/8 on 03:05
-kjournald: WRITE block 548144/8 on 03:05
-kjournald: WRITE block 67440/8 on 03:05
-kjournald: WRITE block 67448/8 on 03:05
-kjournald: WRITE block 67456/8 on 03:05
-:
-:
+Unable to handle kernel paging request at virtual address 4fb899ce
+ printing eip:
+eeac8eed
+*pde = 00000000
+Oops: 0002 [#1]
+CPU:    0
+EIP:    0060:[<eeac8eed>]    Not tainted VLI
+EFLAGS: 00010246
+EIP is at cifs_demultiplex_thread+0x329/0x4c8 [cifs]
+eax: eaf21664   ebx: dbe42450   ecx: eaf21600   edx: 00000000
+esi: 0000005b   edi: 0000005b   ebp: c1efffec   esp: c1efffa8
+ds: 007b   es: 007b   ss: 0068
+Process cifsd (pid: 21104, threadinfo=c1efe000 task=eafeae00)
+Stack: eeac8bc4 00000000 00000000 c1efffd0 dfdb5104 c0000000 e4860044 0000005b
+       e486009f 00000000 00000000 00000000 c1efffc8 00000001 00000000 00000000
+       ffffffff 00000000 c0107111 eaf21600 00000000 00000000
+Call Trace:
+ [<eeac8bc4>] cifs_demultiplex_thread+0x0/0x4c8 [cifs]
+ [<c0107111>] kernel_thread_helper+0x5/0xc
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Code: 74 1c 83 3d 84 89 ae ee 00 0f 84 da 00 00 00 68 e0 87 ad ee e9 93 00 00 00 90 8d 74 26 00 31 d2 8b 4d 08 8b 59 64 8b 03 0f 18 00 <00> 89 ce 83 c6 64 39 f3 74 44 8b 4d d4 0f b7 41 22 66 39 43 08
 
+-- 
+/Martin

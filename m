@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273584AbRIQMT4>; Mon, 17 Sep 2001 08:19:56 -0400
+	id <S273586AbRIQMX4>; Mon, 17 Sep 2001 08:23:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273585AbRIQMTr>; Mon, 17 Sep 2001 08:19:47 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:41740 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S273584AbRIQMTg>; Mon, 17 Sep 2001 08:19:36 -0400
-Subject: Re: Linux 2.2.20pre10
-To: mfedyk@matchmail.com (Mike Fedyk)
-Date: Mon, 17 Sep 2001 13:24:08 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20010916230852.E24067@mikef-linux.matchmail.com> from "Mike Fedyk" at Sep 16, 2001 11:08:52 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S273587AbRIQMXq>; Mon, 17 Sep 2001 08:23:46 -0400
+Received: from abel.math.tsukuba.ac.jp ([130.158.120.16]:33722 "HELO
+	abel.math.tsukuba.ac.jp") by vger.kernel.org with SMTP
+	id <S273586AbRIQMXd>; Mon, 17 Sep 2001 08:23:33 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: michael.dreher@gmx.net (Michael Dreher)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.4.9 deadlock
+Date: Mon, 17 Sep 2001 21:24:41 +0900
+X-Mailer: KMail [version 1.3]
+Cc: linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <E15ixC2-0006xx-00@the-village.bc.nu>
+In-Reply-To: <E15ixC2-0006xx-00@the-village.bc.nu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15ixRY-00072A-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010917122355.C4B2DFC91@abel.math.tsukuba.ac.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I know the Ingo's raid patch hasn't been included because of tool
-> compatibility problems.  Has anyone thought of having both versions in the
-> 2.2 kernel?  Would this be trivial, or something that would change too much
-> for 2.2?
 
-It wont be happening in the base 2.2 code.
+>> yesterday my box locked up. It happened when I opened a link in a new
+>> window of konqueror of kde2.2.
+>> No ping, no sysrq, no keyboard LEDs. Obviously nothing in the logs.
+>> I had to press reset.
+>
+> A very long link and with XFree 4.1.0 ? If so its a known XFree86
+> problem. It should be fixed in an upcoming xfree release
 
-> I've been compiling in Andre's EIDE patch for months, without any problems
-> on x86.  Except for an #include error on PPC.  I have a patch, but I can't
-> sent attach now because the patch is on a computer that is off at the moment...
+Dont remember how long the url was, but I guess less than 100 characters.
+This is XFree 4.0.3.
 
-And that one definitely wont
+Best regards,
+Michael
+
+

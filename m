@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313279AbSC1XCn>; Thu, 28 Mar 2002 18:02:43 -0500
+	id <S313285AbSC1XJf>; Thu, 28 Mar 2002 18:09:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313282AbSC1XCe>; Thu, 28 Mar 2002 18:02:34 -0500
-Received: from mgw-x2.nokia.com ([131.228.20.22]:46245 "EHLO mgw-x2.nokia.com")
-	by vger.kernel.org with ESMTP id <S313279AbSC1XCV>;
-	Thu, 28 Mar 2002 18:02:21 -0500
-Message-ID: <3CA3A149.1080905@nokia.com>
-Date: Fri, 29 Mar 2002 01:03:37 +0200
-From: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020211
-X-Accept-Language: en
-MIME-Version: 1.0
-Newsgroups: comp.os.linux.networking
-To: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
-CC: affix-devel@lists.sourceforge.net,
-        Affix support <affix-support@lists.sourceforge.net>,
-        linux-net <linux-net@vger.kernel.org>, linux-kernel@vger.kernel.org
-Subject: New Affix Release: Affix-0_97  --- Bluetooth Protocol Stack. OBEX and GUI available now.
-In-Reply-To: <3C500D09.4080206@nokia.com> <3C5AB093.5050405@nokia.com> <3C5E4991.6010707@nokia.com> <3C628D6A.2050900@nokia.com> <3C628DCF.40700@nokia.com> <3C6D25F6.4010905@nokia.com> <3C766511.5050808@nokia.com> <3C7F6C0C.6030204@nokia.com> <3C877AC7.8090008@nokia.com> <3C92111C.1070107@nokia.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Mar 2002 23:02:11.0548 (UTC) FILETIME=[97F8F9C0:01C1D6AC]
+	id <S313286AbSC1XJX>; Thu, 28 Mar 2002 18:09:23 -0500
+Received: from ns.suse.de ([213.95.15.193]:33291 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S313285AbSC1XJG>;
+	Thu, 28 Mar 2002 18:09:06 -0500
+Date: Fri, 29 Mar 2002 00:09:04 +0100
+From: Dave Jones <davej@suse.de>
+To: Adam D Scislowicz <adams@fourelle.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: CPU Model IDs(string) inconsistant on SMP AMD System (2.4.18-rc4)
+Message-ID: <20020329000904.F5064@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Adam D Scislowicz <adams@fourelle.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CA37778.9090009@fourelle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All.
+On Thu, Mar 28, 2002 at 12:05:12PM -0800, Adam D Scislowicz wrote:
+ > I am working with several SMP Athlon machines, and they are all 
+ > reporting the first CPUs
+ > model ID(*** called 'model name' in /proc/cpuinfo) as 'AMD Athlon(tm) MP 
+ > 1800+' and the
+ > second CPUs model ID as 'AMD Athlon(tm) Processor'.
+ > 
+ >  From looking at the code it seems that the model IDs are obtained using 
+ > cpuid calls. Does
+ > anyone have insight into this?
 
-Find new affix release Affix-0_97 on http://affix.sourceforge.net
-*with OBEX client  *
+It means your BIOS vendor can't read specifications.
 
-GUI environment A.F.E - Affix Frontend Environment available for use.
-http://affix.sourceforge.net/afe
+'AMD Athlon(tm) Processor'. is the power-on default.
+On working out if the CPU is an XP or an MP (by reading the MP bit
+in cpu capabilities flags) it's supposed to set the name string.
+Crap BIOSen only do this for the first CPU.
 
-Link can be found on Affix WEB site in *Links* section.
-
-Version 0.97 [28.03.2002]
-- [new] added OBEX File Transfer support (ls, put, get) commands
-- [new] added "browse" command to btctl for service browsing
-- [new] added "search" command to btctl for service searching
-            It works well with Windows Stack from DigiAnswer.
-            Windows stack does not use PublicBrowseGroup
-- [new] server channel for *connect* and OBEX commands is extracted from 
-SDP server
-            to disable this behavior use "-s" or "--nosdp" options
-- [fix] OBEX server fixed. it works now.
-- [new] kernel 2.4.18 fixed
-- [fix] device registration/unregistration in PAN
-
-
-
-br, Dmitry
+It's harmless, but I'll get around to writing a boot time fixup
+sometime.
 
 -- 
-  Dmitry Kasatkin
-  Nokia Research Center / Helsinki
-  Mobile: +358 50 4836365
-  E-Mail: dmitry.kasatkin@nokia.com
-
-
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

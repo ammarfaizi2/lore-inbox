@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266175AbUGZXBe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266161AbUGZXLt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266175AbUGZXBe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 19:01:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266161AbUGZXAr
+	id S266161AbUGZXLt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 19:11:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266155AbUGZXLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 19:00:47 -0400
-Received: from waste.org ([209.173.204.2]:36754 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S266158AbUGZXAd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 19:00:33 -0400
-Date: Mon, 26 Jul 2004 18:00:04 -0500
-From: Matt Mackall <mpm@selenic.com>
+	Mon, 26 Jul 2004 19:11:49 -0400
+Received: from mail001.syd.optusnet.com.au ([211.29.132.142]:55786 "EHLO
+	mail001.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S266161AbUGZXC5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 19:02:57 -0400
+References: <cone.1090801520.852584.20693.502@pc.kolivas.org> <20040725173652.274dcac6.akpm@osdl.org> <cone.1090802581.972906.20693.502@pc.kolivas.org> <20040726202946.GD26075@ca-server1.us.oracle.com> <20040726134258.37531648.akpm@osdl.org>
+Message-ID: <cone.1090882721.156452.20693.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>, cw@f00f.org,
-       rml@ximian.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kernel events layer
-Message-ID: <20040726230003.GS5414@waste.org>
-References: <F989B1573A3A644BAB3920FBECA4D25A6EBFB0@orsmsx407> <20040725230951.0e150dbe.akpm@osdl.org>
+Cc: Joel Becker <Joel.Becker@oracle.com>, linux-kernel@vger.kernel.org
+Subject: Re: Autotune swappiness01
+Date: Tue, 27 Jul 2004 08:58:41 +1000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
 Content-Disposition: inline
-In-Reply-To: <20040725230951.0e150dbe.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 25, 2004 at 11:09:51PM -0700, Andrew Morton wrote:
-> "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com> wrote:
-> >
-> > If you guys are up to it, I volunteer to write/port such a tool to scan 
-> >  out the send_kevent{_atomic,}()s and make a catalog out of it.
+Andrew Morton writes:
+
+> Joel Becker <Joel.Becker@oracle.com> wrote:
+>>
+>> On Mon, Jul 26, 2004 at 10:43:01AM +1000, Con Kolivas wrote:
+>> > Low memory boxes and ones that are heavily laden with applications find 
+>> > that ends up making things slow down trying to keep all applications in 
+>> > physical ram.
+>> 
+>> 	Lowish memory boxes with plain desktop loads find that the default
+>> of '60' is a terrible one (I'm speaking of 1GHz-ish machines with 256MB
+>> (like mine) or 512MB (like a guy next to me)).  Every person I know who
+>> installs 2.6 complains about how it feels slow and choppy.  I tell them
+>> "The first thing I do after installing 2.6 is set swappiness to '20'."
+>> Sure enough, they set swappiness to 20 and their box starts behaving
+>> like a properly tuned one.
+>> 	I don't know what workload the default of '60' is for, but for
+>> the (128MB < x < 1GB) of RAM case, it sucks (and I've seen the same
+>> behavior on a 300MHz 196MB box).
+>> 
 > 
-> I must say that my gut feeling here is that bolting an arbitrary new
-> namespace into the kernel in this manner is not the way to proceed.
+> Yes, I think 60% is about right for a 512-768M box.  Too high for the
+> smaller machines, too low for the larger ones.
 
-An uncontrolled namespace is no better than the existing printk info,
-IMO. And I think it's next to impossible to control the kevent
-namespace if it's scattered across the tree as strings, having tried
-to do something analogous for another large project.
- 
-> I hope we'll hear more from Greg on this next week - see if we can come up
-> with some way to use the kobject/sysfs namespace for this.
+Sigh.. 
 
-An API that looks like sysfs + dnotify to userspace is almost what you
-want. While the sysfs namespace has some of the problems above, we're
-already stuck with it.
- 
-> Although heaven knows how "tmpfs just ran out of space" would map onto
-> kobject/sysfs.
+I have a 1Gb desktop machine that refuses to keep my applications in ram 
+overnight if I have a swappiness higher than the default so I think lots of 
+desktop users with more ram will be unhappy with higher settings.
 
-Per mountpoint sysfs trees? I'm sure there are lifetime issues there.
+> More intelligent selection of the initial value is needed.
 
-Btw, we probably already have potential issues with kevents being
-stale by the time userspace picks them up - eth0 up, eth0 down, eth1
-renamed eth0, userspace notices eth0 up, tries to config downed eth1.
+Perhaps, but I really doubt desktop users running mainline would be happy 
+about it going significantly higher. 
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Cheers,
+Con
+

@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbUBVQLj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 11:11:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbUBVQLi
+	id S261691AbUBVQNN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 11:13:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUBVQLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 11:11:38 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:24240 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S261684AbUBVQI6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 11:08:58 -0500
-Date: Sun, 22 Feb 2004 08:08:43 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-cc: cw@f00f.org, mfedyk@matchmail.com, linux-kernel@vger.kernel.org,
-       Dipankar Sarma <dipankar@in.ibm.com>, Maneesh Soni <maneesh@in.ibm.com>
-Subject: Re: Large slab cache in 2.6.1
-Message-ID: <38800000.1077466122@[10.10.2.4]>
-In-Reply-To: <20040221221553.01b1b71c.akpm@osdl.org>
-References: <4037FCDA.4060501@matchmail.com><20040222023638.GA13840@dingdong.cryptoapps.com><Pine.LNX.4.58.0402211901520.3301@ppc970.osdl.org><20040222031113.GB13840@dingdong.cryptoapps.com><Pine.LNX.4.58.0402211919360.3301@ppc970.osdl.org> <20040221221553.01b1b71c.akpm@osdl.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Sun, 22 Feb 2004 11:11:51 -0500
+Received: from bristol.phunnypharm.org ([65.207.35.130]:7333 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S261688AbUBVQLg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 11:11:36 -0500
+Date: Sun, 22 Feb 2004 10:53:31 -0500
+From: Ben Collins <bcollins@debian.org>
+To: kai.engert@gmx.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: only ieee1394 from 2.4.20 works for me
+Message-ID: <20040222155331.GG7858@phunnypharm.org>
+References: <4038BDC3.9030304@kuix.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <4038BDC3.9030304@kuix.de>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Andrew Morton <akpm@osdl.org> wrote (on Saturday, February 21, 2004 22:15:53 -0800):
-
-> Linus Torvalds <torvalds@osdl.org> wrote:
->> 
->> What happened to the experiment of having slab pages on the (in)active
->>  lists and letting them be free'd that way? Didn't somebody already do 
->>  that? Ed Tomlinson and Craig Kulesa?
+On Sun, Feb 22, 2004 at 03:33:39PM +0100, Kai Engert wrote:
+> In the last year I have been playing with a variety of combinations of 
+> ieee1394 controllers, machines, external mass storage devices and linux 
+> kernel versions. So have some friends of mine.
 > 
-> That was Ed.  Because we cannot reclaim slab pages direct from the LRU it
-> turned out that putting slab pages onto the LRU was merely an extremely
-> complicated way of making the VFS cache scanning rate porportional to the
-> pagecache scanning rate.  So we ended up doing just that, without putting
-> the slab pages on the LRU.
+> The only version that works for us is the ieee1394 code that was 
+> included with kernel version 2.4.20.
+> 
+> (I removed drivers/ieee1394 completely, and replaced it with 
+> drivers/ieee1394 from 2.4.20)
+> 
+> Using that snapshot, we are able to transfer data to disks and video 
+> from a camcorder just fine, in all combinations we have tested.
+> 
+> Every other kernel version, both older or newer than 2.4.20, is broken. 
+> We either see random errors, or writing data to disks stalls 
+> immediately, or daisy chained devices don't work.
+> 
+> I'm currently using the official Fedora core 1 series kernels, patched 
+> that way, and it works like a charm.
+> 
+> Please consider to use the 2.4.20 ieee1394 snapshot in future 2.4.x 
+> releases.
 
-I still don't understand the rationale behind the way we currently do it - 
-perhaps I'm just being particularly dense. If we have 10,000 pages full of
-dcache, and start going through shooting entries by when they were LRU wrt
-the entries, not the dcache itself, then (assuming random access to dcache),
-we'll evenly shoot the same number of entries from each dcache page without
-actually freeing any pages at all, just trashing the cache.
+It's pretty strange that I haven't heard of such problems. Maybe you
+would consider trying to debug the problem rather than reverting to
+source that is several years old (and that I know is broken).
 
-Now I'm aware access isn't really random, which probably saves our arse.
-But then some of the entries will be locked too, which only makes things
-worse (we free a bunch of entries from that page, but the page itself
-still isn't freeable). So it still seems likely to me that we'll blow 
-away at least half of the dcache entries before we free any significant 
-number of pages at all. That seems insane to me. Moreover, the more times 
-we shrink & fill, the worse the layout will get (less grouping of "recently 
-used entries" into the same page).
+Latest 2.4.x code (that which is in our SVN repo) works fine for me.
 
-Moreover, it seems rather expensive to do a write operation for each 
-dentry to maintain the LRU list over entries. But maybe we don't do that
-anymore with dcache RCU - I lost track of what that does ;-( So doing it
-on the page LRU basis still makes a damned sight more sense to me. Don't
-we want semantics like "once used vs twice used" preference treatment 
-for dentries, etc anyway?
-
-If someone has the patience to explain exactly why I'm crazy (on this topic,
-not in general) I'd appreciate it ;-)
-
-M.
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261535AbUL3ExA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbUL3E5L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261535AbUL3ExA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 23:53:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261536AbUL3ExA
+	id S261537AbUL3E5L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 23:57:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbUL3E5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 23:53:00 -0500
-Received: from web60606.mail.yahoo.com ([216.109.118.244]:42623 "HELO
-	web60606.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261535AbUL3Ewk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 23:52:40 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=O+gdY2E/rhEYrqI6TXiH48gBfy0BsycH3fEKKfGtfUoNqsm7e5rWX76y4F/Oj3YXs5xuWga95FNypMFVQRL8ILc7CPGFngzghAriqIxpJ9Nb06Z0I5ctm/dBUb2vzlGVL3lCNsAXnFHRcs/hxCgyOEedn4i8ZXDUR6kmltJzeCM=  ;
-Message-ID: <20041230045236.19022.qmail@web60606.mail.yahoo.com>
-Date: Wed, 29 Dec 2004 20:52:36 -0800 (PST)
-From: selvakumar nagendran <kernelselva@yahoo.com>
-Subject: Finding whether a process blocked while executing a syscall
+	Wed, 29 Dec 2004 23:57:11 -0500
+Received: from dsl-kpogw5jd0.dial.inet.fi ([80.223.105.208]:26822 "EHLO
+	safari.iki.fi") by vger.kernel.org with ESMTP id S261537AbUL3E5I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 23:57:08 -0500
+Date: Thu, 30 Dec 2004 06:57:06 +0200
+From: Sami Farin <7atbggg02@sneakemail.com>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+Subject: Re: [PATCH] SATA support for Intel ICH7 - 2.6.10
+Message-ID: <20041230045706.GG22013@m.safari.iki.fi>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <26CEE2C804D7BE47BC4686CDE863D0F502AE9FAD@orsmsx410>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <26CEE2C804D7BE47BC4686CDE863D0F502AE9FAD@orsmsx410>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-    I am intercepting system calls in linux kernel
-2.4.28 for my project work. 
-    A process can be blocked while executing a syscall
-in the light of some resources needed. Now, I want to
-find out whether a process has been blocked while
-executing a particular syscall or it has finished it
-successfully? If it was blocked I want to perform some
-operation on it. Can anyone help me regarding this?
+On Wed, Dec 29, 2004 at 06:11:20PM -0800, Gaston, Jason D wrote:
+> Thanks Ulrich!
+> 
+> I will edit and resubmit the patch with &&.
+> 
+> Jason
 
-Thanks,
-selva
+also, patches have been wordwrapped: 
+patch: **** malformed patch at line 104: PCI_ANY_ID, 0, 0, 19},
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+(J in vim 'fixed' them, but anyways, would be nice if they
+worked 'out-of-the-mailbox' :) ).
+
+-- 

@@ -1,148 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261801AbTFBTEb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 15:04:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbTFBTEb
+	id S261819AbTFBTLX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 15:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbTFBTLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 15:04:31 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:41713 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261801AbTFBTE0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 15:04:26 -0400
-Date: Mon, 2 Jun 2003 14:17:53 -0500
-Subject: [CHECKER] [PATCH] cmpci.c
-Content-Type: multipart/mixed; boundary=Apple-Mail-8--1035137512
-Mime-Version: 1.0 (Apple Message framework v552)
-Cc: linux-kernel@vger.kernel.org
-To: Linus Torvalds <torvalds@transmeta.com>
-From: Hollis Blanchard <hollisb@us.ibm.com>
-Message-Id: <E8D16C04-952E-11D7-BBCD-000A95A0560C@us.ibm.com>
-X-Mailer: Apple Mail (2.552)
+	Mon, 2 Jun 2003 15:11:23 -0400
+Received: from [62.67.222.139] ([62.67.222.139]:61414 "EHLO kermit")
+	by vger.kernel.org with ESMTP id S261819AbTFBTLW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 15:11:22 -0400
+Date: Mon, 2 Jun 2003 21:24:43 +0200
+From: Konstantin Kletschke <konsti@ludenkalle.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: weird keyboard with 2.5.70
+Message-ID: <20030602192443.GA31555@sexmachine.doom>
+Reply-To: Konstantin Kletschke <konsti@ludenkalle.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030602082333.GA12502@synertronixx3>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030602082333.GA12502@synertronixx3>
+Organization: Kletschke & Uhlig GbR
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I don't know if that helps finding the error in any way.
 
---Apple-Mail-8--1035137512
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset=US-ASCII;
-	format=flowed
+Jun  2 19:51:09 [kernel] atkbd.c: Unknown key (set 2, scancode 0x1c8, on
+isa0060/serio0) pressed.
+Jun  2 19:51:13 [kernel] atkbd.c: Unknown key (set 2, scancode 0x1c8, on
+isa0060/serio0) pressed.
 
-AFAICT cmpci.c is unmaintained. The patch generated no comments. Please 
-apply.
+I use an old school IBM PC102 keyboard, there are definitely no modern
+unknown keys on it :)
 
-On 28 May 2003, Hollis Blanchard said:
-> Here's what the Stanford tool said:
-> ---------------------------------------------------------
-> [BUG] at least bad programming practice. file_operations.write ->
-> cm_write -> trans_ac3. write can take tainted. write can take tainted
-> inputs. the pointer is vefied in cm_write
->
-> /home/junfeng/linux-2.5.63/sound/oss/cmpci.c:593:trans_ac3:
-> ERROR:TAINTED:593:593: dereferencing tainted ptr 'src' [Callstack:
-> /home/junfeng/linux-2.5.63/fs/read_write.c:307:vfs_write((tainted
-> 1)(tainted 2)) ->
-> /home/junfeng/linux-2.5.63/fs/read_write.c:241:cm_write((tainted
-> 1)(tainted 2)) ->
-> /home/junfeng/linux-2.5.63/sound/oss/cmpci.c:1662:trans_ac3((tainted
-> 2))]
->
->         unsigned long data;
->         unsigned long *dst = (unsigned long *) dest;
->         unsigned short *src = (unsigned short *)source;
->
->         do {
->
-> Error --->
->                 data = (unsigned long) *src++;
->                 data <<= 12;                    // ok for 16-bit data
->                 if (s->spdif_counter == 2 || s->spdif_counter == 3)
->                         data |= 0x40000000;     // indicate AC-3 raw 
-> data
-> ---------------------------------------------------------
->
-> I believe the attached patch fixes it. cm_write was calling access_ok, 
-> but after that you must still access user space through the 
-> get/put/copy*_user functions. It should be safe to return -EFAULT at 
-> these points in cm_write, since there are other returns already in the 
-> code above and below that. Compile-tested only.
+Konsti
 
 -- 
-Hollis Blanchard
-IBM Linux Technology Center
-
-
---Apple-Mail-8--1035137512
-Content-Disposition: attachment;
-	filename=cmpci-userptr.diff
-Content-Transfer-Encoding: 7bit
-Content-Type: application/octet-stream;
-	x-unix-mode=0644;
-	name="cmpci-userptr.diff"
-
---- linux-2.5.70/sound/oss/cmpci.c.orig	Sat May 24 19:00:00 2003
-+++ linux-2.5.70/sound/oss/cmpci.c	Wed May 28 14:53:15 2003
-@@ -580,15 +580,17 @@
- 	spin_unlock_irqrestore(&s->lock, flags);
- }
- 
--static void trans_ac3(struct cm_state *s, void *dest, const char *source, int size)
-+static int trans_ac3(struct cm_state *s, void *dest, const char *source, int size)
- {
- 	int   i = size / 2;
-+	int err;
- 	unsigned long data;
- 	unsigned long *dst = (unsigned long *) dest;
- 	unsigned short *src = (unsigned short *)source;
- 
- 	do {
--		data = (unsigned long) *src++;
-+		if ((err = __get_user(data, src++)))
-+			return err;
- 		data <<= 12;			// ok for 16-bit data
- 		if (s->spdif_counter == 2 || s->spdif_counter == 3)
- 			data |= 0x40000000;	// indicate AC-3 raw data
-@@ -605,6 +607,8 @@
- 		if (s->spdif_counter == 384)
- 			s->spdif_counter = 0;
- 	} while (--i);
-+
-+	return 0;
- }
- 
- static void set_adc_rate_unlocked(struct cm_state *s, unsigned rate)
-@@ -1655,13 +1659,16 @@
- 			continue;
- 		}
- 		if (s->status & DO_AC3_SW) {
-+			int err;
-+
- 			// clip exceeded data, caught by 033 and 037
- 			if (swptr + 2 * cnt > s->dma_dac.dmasize)
- 				cnt = (s->dma_dac.dmasize - swptr) / 2;
--			trans_ac3(s, s->dma_dac.rawbuf + swptr, buffer, cnt);
-+			if ((err = trans_ac3(s, s->dma_dac.rawbuf + swptr, buffer, cnt)))
-+				return err;
- 			swptr = (swptr + 2 * cnt) % s->dma_dac.dmasize;
- 		} else if (s->status & DO_DUAL_DAC) {
--			int	i;
-+			int	i, err;
- 			unsigned long *src, *dst0, *dst1;
- 
- 			src = (unsigned long *) buffer;
-@@ -1669,8 +1676,10 @@
- 			dst1 = (unsigned long *) (s->dma_adc.rawbuf + swptr);
- 			// copy left/right sample at one time
- 			for (i = 0; i <= cnt / 4; i++) {
--				*dst0++ = *src++;
--				*dst1++ = *src++;
-+				if ((err = __get_user(*dst0++, src++)))
-+					return err;
-+				if ((err = __get_user(*dst1++, src++)))
-+					return err;
- 			}
- 			swptr = (swptr + cnt) % s->dma_dac.dmasize;
- 		} else {
-
---Apple-Mail-8--1035137512--
-
+2.5.70-mm3
+Konstantin Kletschke <konsti@ludenkalle.de>, <konsti@ku-gbr.de>
+GPG KeyID EF62FCEF
+Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
+keulator.homelinux.org up 2:54, 23 users

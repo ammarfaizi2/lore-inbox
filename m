@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUHSH0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262932AbUHSHcI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbUHSH0E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 03:26:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263093AbUHSH0E
+	id S262932AbUHSHcI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 03:32:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263003AbUHSHcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 03:26:04 -0400
-Received: from gwout.thalesgroup.com ([195.101.39.227]:3337 "EHLO
-	GWOUT.thalesgroup.com") by vger.kernel.org with ESMTP
-	id S263024AbUHSHZn convert rfc822-to-8bit (ORCPT
+	Thu, 19 Aug 2004 03:32:08 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:33665 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262932AbUHSHcF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 03:25:43 -0400
-Message-ID: <412455F0.9080408@fr.thalesgroup.com>
-Date: Thu, 19 Aug 2004 09:25:36 +0200
-From: "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
-Reply-To: pierre-olivier.gaillard@fr.thalesgroup.com
-Organization: Thales Air Defence
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Thu, 19 Aug 2004 03:32:05 -0400
+Date: Thu, 19 Aug 2004 09:32:47 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
-Subject: Re: voluntary-preempt-2.6.8.1-P1 seems to lose UDP messages.
-References: <41233923.80202@fr.thalesgroup.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+Cc: Thomas Charbonnel <thomas@undata.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Lee Revell <rlrevell@joe-job.com>
+Subject: [patch] voluntary-preempt-2.6.8.1-P4
+Message-ID: <20040819073247.GA1798@elte.hu>
+References: <20040816033623.GA12157@elte.hu> <1092627691.867.150.camel@krustophenia.net> <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040817080512.GA1649@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-P.O. Gaillard wrote:
 
- > Hello,
- >
- > I have a real-time application that transmits 20 MBytes/s over
- > UDP/Gigabit Ethernet between 2 PCs. The NICs are from Intel and use the
- > e1000 driver (MTU=1500). On the receive side, the computer has to
- > process the data (real-time tasks doing signal processing work and using
- > up 50% of the CPU time).
- >
- > This app works OK with 2.6.7 and 2.6.8.1 : the app does not complain
- > about lost messages.
+i've uploaded the -P4 patch:
 
-Thanks to the support of Pádraig Brady, I have found out that the 
-voluntary-preempt patch is "innocent".
-In fact, it seems that the patch changes the scheduling of the application and 
-reveals that the UDP reception buffer is too small for this application.
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P4
 
-So I changed /proc/sys/net/core/rmem_default to 200KBytes as instructed and the 
-problem disappeared.
+the main change is a more robust latency tracer - the previous one was
+not 100% correct for interrupts. People who have exprienced those weird
+~1msec latencies in the idle task please re-check and re-post latency
+traces.
 
-It seems a bit counter-intuitive since the application has real-time threads 
-that are supposed to receive and timestamp all incoming messages as soon as they 
-arrive. I would therefore have expected the voluntary-preempt patch to improve 
-the reactivity of these tasks.
+Changes since -P3:
 
-Anyway, it seems safe to say that the losses of UDP messages were not caused by 
-a bug in the voluntary-preempt patch. This is good news since it means that I 
-can use this patch.
+ - changed SHA_CODE_SIZE from 0 to 3 to reduce RNG overhead
 
-Note: after running the program for the whole night the problem seemed to come 
-back after 2 hours or so. I will try with eth0/threaded=0 as Lee Revell suggested.
+ - fixed the copy_page_range latency
 
-   thanks a lot for your help,
+ - improved the latency tracer
 
-	P.O. Gaillard
-
+	Ingo

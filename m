@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265626AbUALVFp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 16:05:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265635AbUALVFP
+	id S266279AbUALVQo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 16:16:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266284AbUALVQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 16:05:15 -0500
-Received: from main.gmane.org ([80.91.224.249]:42965 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265626AbUALVDR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 16:03:17 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jens Benecke <jens-usenet@spamfreemail.de>
-Subject: Re: oops with config_pnpbios enabled.
-Date: Mon, 12 Jan 2004 22:03:22 +0100
-Message-ID: <28264810.mKCE9dZzCJ@spamfreemail.de>
-References: <20040112184132.GC1686@conectiva.com.br>
+	Mon, 12 Jan 2004 16:16:43 -0500
+Received: from 204.Red-213-96-224.pooles.rima-tde.net ([213.96.224.204]:18438
+	"EHLO betawl.net") by vger.kernel.org with ESMTP id S266279AbUALVOr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 16:14:47 -0500
+Date: Mon, 12 Jan 2004 22:14:44 +0100
+From: Santiago Garcia Mantinan <manty@manty.net>
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: Takashi Iwai <tiwai@suse.de>, linux-kernel@vger.kernel.org,
+       Adam Belay <ambx1@neo.rr.com>
+Subject: Re: [PATCH] Re: ALSA in 2.6 failing to find the OPL chip of the sb cards
+Message-ID: <20040112211443.GA1574@man.manty.net>
+References: <20040107212916.GA978@man.manty.net> <s5hy8sixsor.wl@alsa2.suse.de> <20040109171715.GA933@man.manty.net> <s5hn08xgh06.wl@alsa2.suse.de> <20040109201423.GA1677@man.manty.net> <3FFFA8C3.6040609@keyaccess.nl> <4000E030.2020500@keyaccess.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: KNode/0.7.6
-X-No-Archive: Yes
+Content-Disposition: inline
+In-Reply-To: <4000E030.2020500@keyaccess.nl>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Flavio Bruno Leitner wrote:
+> The attached patch works for me:
 
-> 
-> 
-> Hi!
-> 
-> Updating to 2.6.1 two machines returns a oops during boot.
-> They can boot if disable CONFIG_PNPBIOS.
-> 
-> AFAIK, PNPBIOS is important to get some areas that are
-> reserved by BIOS, so I think leaving this option disabled
-> is a mistake.
-> 
-> I will compile 2.6.0 asap to check if this happens too.
+Yes, your patch made my sb16pnp fully work again.
 
-I had this problem since 2.6.0-test11 (first one I tried), on my laptop.
-I posted about this here as well. I was told to disable PNPBIOS and
-LOCAL_APIC, which worked (so far).
+Thanks!
 
-All the desktops (three) I've tried so far didn't have a problem with or
-without PNPBIOS.
-
-
-
+Regards...
 -- 
-Jens Benecke
+Manty/BestiaTester -> http://manty.net

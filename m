@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265217AbUBEO0P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 09:26:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265242AbUBEO0P
+	id S265274AbUBEOVa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 09:21:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265276AbUBEOVa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 09:26:15 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:10472 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265217AbUBEO0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 09:26:13 -0500
-Date: Thu, 5 Feb 2004 15:26:06 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: benny@hostmobility.com, perex@suse.cz
-Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fix two snd_printdd in sound/pci/cs46xx/dsp_spos_scb_lib.c
-Message-ID: <20040205142606.GV26093@fs.tum.de>
+	Thu, 5 Feb 2004 09:21:30 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:14464 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265274AbUBEOV2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 09:21:28 -0500
+Date: Thu, 5 Feb 2004 15:21:55 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-usb-users@lists.sourceforge.net
+Subject: Re: usb mouse/keyboard problems under 2.6.2
+Message-ID: <20040205142155.GA606@ucw.cz>
+References: <20040204174748.GA27554@yggdrasil.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20040204174748.GA27554@yggdrasil.localdomain>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the following warnings in 2.6.2-mm1:
+On Wed, Feb 04, 2004 at 11:47:48AM -0600, Greg Norris wrote:
 
-<--  snip  -->
+> I'm seeing frequent issues with my usb mouse under the 2.6.2 kernel, in
+> which the pointer will suddenly freeze.  It remains stuck until I tap a
+> key on the keyboard, at which point it continues working normally (for
+> a little while).  Also, the keyboard occasionally acts like a key is
+> stuck down, which ends promptly when I move the mouse.
+> 
+> The mouse is an ordinary Logitech wheel-mouse and the keyboard is a
+> Microsoft Natural, both of which are connected via an Avocent
+> SwitchView USB KVM switch.  The combination works flawlessly under
+> 2.6.1.
+> 
+> Please let me know what additional information I should provide. 
+> Thanx!
 
-...
-  CC      sound/pci/cs46xx/dsp_spos_scb_lib.o
-sound/pci/cs46xx/dsp_spos_scb_lib.c: In function 
-`cs46xx_dsp_pcm_channel_set_period':
-sound/pci/cs46xx/dsp_spos_scb_lib.c:1394: warning: too few arguments for format
-sound/pci/cs46xx/dsp_spos_scb_lib.c: In function 
-`cs46xx_dsp_pcm_ostream_set_period':
-sound/pci/cs46xx/dsp_spos_scb_lib.c:1432: warning: too few arguments for format
-...
+It looks like you didn't enable the USB drivers.
 
-<--  snip  -->
-
-The trivial fix is below.
-
-Please apply
-Adrian
-
---- linux-2.6.2-mm1/sound/pci/cs46xx/dsp_spos_scb_lib.c.old	2004-02-05 15:14:57.000000000 +0100
-+++ linux-2.6.2-mm1/sound/pci/cs46xx/dsp_spos_scb_lib.c	2004-02-05 15:15:28.000000000 +0100
-@@ -1391,7 +1391,7 @@
- 		temp |= DMA_RQ_C1_SOURCE_MOD16;
- 		break; 
- 	default:
--		snd_printdd ("period size (%d) not supported by HW\n");
-+		snd_printdd ("period size (%d) not supported by HW\n", period_size);
- 		return -EINVAL;
- 	}
- 
-@@ -1429,7 +1429,7 @@
- 		temp |= DMA_RQ_C1_DEST_MOD16;
- 		break; 
- 	default:
--		snd_printdd ("period size (%d) not supported by HW\n");
-+		snd_printdd ("period size (%d) not supported by HW\n", period_size);
- 		return -EINVAL;
- 	}
- 
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

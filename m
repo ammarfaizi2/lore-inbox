@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318767AbSHBJk2>; Fri, 2 Aug 2002 05:40:28 -0400
+	id <S318768AbSHBJrE>; Fri, 2 Aug 2002 05:47:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318770AbSHBJk2>; Fri, 2 Aug 2002 05:40:28 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:31237 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S318767AbSHBJk0>; Fri, 2 Aug 2002 05:40:26 -0400
-Message-ID: <3D4A5320.8070100@evision.ag>
-Date: Fri, 02 Aug 2002 11:38:40 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
+	id <S318771AbSHBJrE>; Fri, 2 Aug 2002 05:47:04 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:8608 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S318768AbSHBJrD>; Fri, 2 Aug 2002 05:47:03 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200208020950.g729o3K28069@devserv.devel.redhat.com>
+Subject: Re: Accelerating user mode linux
+To: jdike@karaya.com (Jeff Dike)
+Date: Fri, 2 Aug 2002 05:50:03 -0400 (EDT)
+Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <200208020440.XAA04793@ccure.karaya.com> from "Jeff Dike" at Aug 01, 2002 11:40:28 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: "Michel Eyckmans (MCE)" <mce@pi.be>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.30 unresolved symbol: elv_queue_empty
-References: <200208012327.g71NRWZp013762@jebril.pi.be>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Michel Eyckmans (MCE) napisa³:
-> The subject says nearly all: with 2.5.30, I get the following:
-> 
-> depmod: *** Unresolved symbols in /lib/modules/2.5.30/kernel/drivers/block/floppy.o
-> depmod:         elv_queue_empty
-> depmod: *** Unresolved symbols in /lib/modules/2.5.30/kernel/drivers/ide/atapi.o
-> depmod:         elv_queue_empty
-> depmod: *** Unresolved symbols in /lib/modules/2.5.30/kernel/drivers/ide/ide-mod.o
-> depmod:         elv_queue_empty
-> 
-> Oh, while I'm at it: ever since the IDE cleanup started, loading one
-> or more of the IDE/CD related modules for a second time after they 
-> have been unloaded once already results in a pretty bad oops (total
-> lockup). Took me quite a while to narrow this down. 2.5.29 still has 
-> this problem. I was going to submit the oops for 2.5.30 if applicable, 
-> but first gotta get that symbol resolved...
-> 
-> This is on a measly SMP P5 with limited memory which is all-SCSI 
-> except for the CD drive. Hence the modules.
+> can't be an interrupt in the middle of that sequence.  So, sys_switchmm
+> would also have to restore the old signal mask, which you'd have to pass
+> in unless you're going to read it off the signal frame.  Also, it would
+> have to be open coded because you've already restored the stack pointer.
 
-Yes having the oops at hand would be rather helpfull.
-Unfortunately I don't have a SCSI system at hand, which makes
-it a bit inconvenient too me to test ide.c compiled as module.
+Uggh.. you are right. You end up needing sigreturn handling
 
+> Your objection to returning through sigreturn was performance.  Is performance
+> a veto of adding an mm switch to sigreturn, or it is possible to make it
+> acceptible?
+
+Its not a veto. I was trying to avoid having to add any more branches to
+the fast paths in the kernel.  The remaining sigreturn question is 
+"how do you get into 'user' mode the first time"

@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285382AbRLGCn4>; Thu, 6 Dec 2001 21:43:56 -0500
+	id <S285383AbRLGCtq>; Thu, 6 Dec 2001 21:49:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285383AbRLGCnq>; Thu, 6 Dec 2001 21:43:46 -0500
-Received: from bitmover.com ([192.132.92.2]:8072 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S285382AbRLGCn2>;
-	Thu, 6 Dec 2001 21:43:28 -0500
-Date: Thu, 6 Dec 2001 18:43:27 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: lm@bitmover.com, alan@lxorguk.ukuu.org.uk, phillips@bonn-fries.net,
-        davidel@xmailserver.org, rusty@rustcorp.com.au,
-        Martin.Bligh@us.ibm.com, riel@conectiva.com.br, lars.spam@nocrew.org,
-        hps@intermeta.de, linux-kernel@vger.kernel.org
+	id <S285384AbRLGCtg>; Thu, 6 Dec 2001 21:49:36 -0500
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:46244 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
+	id <S285383AbRLGCtY>; Thu, 6 Dec 2001 21:49:24 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Adam Keys <akeys@post.cis.smu.edu>
+To: Larry McVoy <lm@bitmover.com>
 Subject: Re: SMP/cc Cluster description
-Message-ID: <20011206184327.B4235@work.bitmover.com>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>, lm@bitmover.com,
-	alan@lxorguk.ukuu.org.uk, phillips@bonn-fries.net,
-	davidel@xmailserver.org, rusty@rustcorp.com.au,
-	Martin.Bligh@us.ibm.com, riel@conectiva.com.br,
-	lars.spam@nocrew.org, hps@intermeta.de,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011206153257.T27589@work.bitmover.com> <20011206.154735.71088809.davem@redhat.com> <20011206161744.V27589@work.bitmover.com> <20011206.183709.71088955.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20011206.183709.71088955.davem@redhat.com>; from davem@redhat.com on Thu, Dec 06, 2001 at 06:37:09PM -0800
+Date: Thu, 6 Dec 2001 20:49:58 -0600
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011206122116.H27589@work.bitmover.com> <20011206.150847.45874365.davem@redhat.com> <20011206152654.S27589@work.bitmover.com>
+In-Reply-To: <20011206152654.S27589@work.bitmover.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011207024919.MBX24045.rwcrmhc53.attbi.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I still think ccClusters don't solve any new problems in the
-> locking space.  "I get rid of it by putting people on different
-> filesystems" is not an answer which is unique to ccClusters, current
-> systems can do that.
+On December 06, 2001 05:26, Larry McVoy wrote: > Yeah, it's possible that you 
+could get something booting in a week but I > think it's a bit harder than 
+that too. One idea that was kicked around > was to use Jeff's UML work and 
+"boot" multiple UML's on top of a virtual > SMP. You get things to work there 
+and then do a "port" to real hardware. > Kind of a cool idea if you ask me.
 
-If your point is that it doesn't solve any locking problems in the filesystem,
-I'll almost grant you that.  Not quite because ccClusters open the door to 
-different ways of solving problems that a traditional SMP doesn't.
+Point me in the right direction. After reading over your slides and SMP paper 
+(still have the labs.pdf on my queue), it seemed to me that you could easily 
+simulate what you want with lots of UML's talking to each other. I think you 
+would need to create some kind of device that uses a file or a shared memory 
+segment as the cluster's memory. Actually, I think that (shared memory) is 
+how Jeff had intended on implementing SMP in UML anyway. At this point I 
+don't think UML supports SMP though I know of at least one person who was 
+attempting it.
 
-However, where it wins big is on everything else.  Please explain to me how
-you are going to make a scheduler that works for 64 CPUS that doesn't suck?
-And explain to me how that will perform as well as N different scheduler
-queues which I get for free.  Just as an example.  We can then go down the
-path of every device driver, the networking stack, the process interfaces,
-signals, etc.  
+Once said device would implemented, you could start working on the unique 
+challenges ccClusters present. I guess this would be what you consider 
+"bootstrapping", although I don't really know what that would entail at this 
+point. Then you just need some bored college student :) to hack it out.
 
-There is a hell of a lot of threading that has to go on to get to
-64 cpus and it screws the heck out of the uniprocessor performance.
-I think you want to prove how studly you are at threading, David,
-but what you are really doing is proving that you are buried in the
-trees and can't see the forest.  Pop up 50,000 feet and think about it.
-Let's go have some beers and talk about it off line.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+I've been negligent in following this mammoth link...cluebat me if you 
+mentioned it somewhere upthread.
+
+-- akk~

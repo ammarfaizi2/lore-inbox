@@ -1,63 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264075AbTEGRer (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 13:34:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264092AbTEGRer
+	id S264106AbTEGRn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 13:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264107AbTEGRn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 13:34:47 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:38037 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S264075AbTEGReq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 13:34:46 -0400
-Date: Wed, 7 May 2003 19:47:16 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Torsten Landschoff <torsten@debian.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: top stack (l)users for 2.5.69
-Message-ID: <20030507174716.GE19324@wohnheim.fh-wedel.de>
-References: <20030507132024.GB18177@wohnheim.fh-wedel.de> <Pine.LNX.4.53.0305070933450.11740@chaos> <20030507135657.GC18177@wohnheim.fh-wedel.de> <20030507143315.GA6879@stargate.galaxy> <20030507144736.GE8978@holomorphy.com> <20030507164901.GB19324@wohnheim.fh-wedel.de> <20030507173825.GU8931@holomorphy.com>
+	Wed, 7 May 2003 13:43:26 -0400
+Received: from inet-mail4.oracle.com ([148.87.2.204]:58555 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id S264106AbTEGRnX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 13:43:23 -0400
+Date: Wed, 7 May 2003 10:54:24 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: linux-kernel@vger.kernel.org
+Subject: WimMark I report for 2.5.69
+Message-ID: <20030507175422.GX3989@ca-server1.us.oracle.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030507173825.GU8931@holomorphy.com>
-User-Agent: Mutt/1.3.28i
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 May 2003 10:38:25 -0700, William Lee Irwin III wrote:
-> On Wed, May 07, 2003 at 06:49:01PM +0200, J?rn Engel wrote:
-> > It also matters if people writing applications for embedded systems
-> > have a fetish for many threads. 1000 threads, each eating 8k memory
-> > for pure existance (no actual work done yet), do put some memory
-> > pressure on small machines. Yes, it would be possible to educate those
-> > people, but changing kernel code is more fun and less work.
-> 
-> If they're embedded and UP they can probably get by on a userspace
-> threading library that only creates one kernel thread.
-> 
-> It's highly unlikely anyone will get anywhere "fixing" this in the
-> kernel. The closest approximations to mitigating the pinned memory
-> overhead with UNIX-style kernel semantics are swappable stacks a la the
-> u area and M:N threading, neither of which are popular notions. If
-> you're trying the other approach I mentioned in this thread, good luck
-> ever getting it done and good luck ever surviving even a single merge.
-> 
-> $ grep -nr schedule . | wc -l
->    3773
+WimMark I report for 2.5.69
 
-Ah, now I see where the misunderstanding comes from. My bad.
-I would merely like to save NO_THREADS * 4k, not the full 8k. People
-here are migrating from Readtime OS's to Linux, partially and I
-wouldn't think about introducing hard priorities into the scheduler
-either. "This is plain impossible." is a very good argument for
-education. "This only works under certain conditions." is where people
-always demand more, sometimes rightfully, sometimes not.
+Runs:  1462.17 1005.78 1995.99
 
-Jörn
+	WimMark I is a rough benchmark we have been running
+here at Oracle against various kernels.  Each run tests an OLTP
+workload on the Oracle database with somewhat restrictive memory
+conditions.  This reduces in-memory buffering of data, allowing for
+more I/O.  The I/O is read and sync write, random and seek-laden.  The
+runs all do ramp-up work to populate caches and the like.
+	The benchmark is called "WimMark I" because it has no
+official standing and is only a relative benchmark useful for comparing
+kernel changes.  The benchmark is normalized an arbitrary kernel, which
+scores 1000.0.  All other numbers are relative to this.  A bigger number
+is a better number.  All things being equal, a delta <50 is close to
+unimportant, and a delta < 20 is very identical.
+	This benchmark is sensitive to random system events.  I run
+three runs because of this.  If two runs are nearly identical and the
+remaining run is way off, that run should probably be ignored (it is
+often a low number, signifying that something on the system impacted
+the benchmark).
+	The machine in question is a 4 way 700 MHz Xeon machine with 2GB
+of RAM.  CONFIG_HIGHMEM4GB is selected.  The disk accessed for data is a
+10K RPM U2W SCSI of similar vintage.  The data files are living on an
+ext3 filesystem.  Unless mentioned, all runs are
+on this machine (variation in hardware would indeed change the
+benchmark).
+	WimMark I run results are archived at
+http://oss.oracle.com/~jlbec/wimmark/wimmark_I.html
+
 
 -- 
-Measure. Don't tune for speed until you've measured, and even then
-don't unless one part of the code overwhelms the rest.
--- Rob Pike
+
+"We'd better get back, `cause it'll be dark soon,
+ and they mostly come at night.  Mostly."
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262202AbTFFU5P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 16:57:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbTFFU5P
+	id S262273AbTFFU7i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 16:59:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbTFFU7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 16:57:15 -0400
-Received: from are.twiddle.net ([64.81.246.98]:32905 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id S262202AbTFFU5L (ORCPT
+	Fri, 6 Jun 2003 16:59:38 -0400
+Received: from smtp0.libero.it ([193.70.192.33]:28092 "EHLO smtp0.libero.it")
+	by vger.kernel.org with ESMTP id S262273AbTFFU7g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 16:57:11 -0400
-Date: Fri, 6 Jun 2003 14:10:42 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Shared Library starter, ld.so
-Message-ID: <20030606211042.GA30867@twiddle.net>
-Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
-	Linux kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.53.0306051045180.6171@chaos> <20030606101313.GA28939@twiddle.net> <Pine.LNX.4.53.0306060721400.4852@chaos>
+	Fri, 6 Jun 2003 16:59:36 -0400
+Date: Fri, 1 Jan 1904 01:25:01 +0100
+From: Daniele Pala <dandario@libero.it>
+To: Martin Zwickel <martin.zwickel@technotrend.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.70][PPC] Small change to config
+Message-ID: <19040101002501.GA247@libero.it>
+References: <19040101015154.GA346@libero.it> <20030606094526.01c920f3.martin.zwickel@technotrend.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0306060721400.4852@chaos>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030606094526.01c920f3.martin.zwickel@technotrend.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 06, 2003 at 07:34:50AM -0400, Richard B. Johnson wrote:
-> .section .text
-> .global _start
-> .type	_start,@function
-> _start:	call	*%edx
-> 	pushl	$0
-> 	call	exit
-> .end
-...
-> On the Red Hat 9 system, it will segfault.
+On Fri, Jun 06, 2003 at 09:45:26AM +0200, Martin Zwickel wrote:
+> On Fri, 1 Jan 1904 02:51:54 +0100
+> Daniele Pala <dandario@libero.it> bubbled:
+> 
+> > Date: Fri, 1 Jan 1904 02:51:54 +0100
+> 
+> just a hint:
+> would be nice if you set your date and time correctly ... ;)
+> 
+> Regards,
+> Martin
+> 
 
-[vsop:~] gcc -nostartfiles zz.s
-[vsop:~] ./a.out
-[vsop:~] echo $?
-0
-[vsop:~] cat /etc/redhat-release 
-Red Hat Linux release 9 (Shrike)
-
-Works For Me.
-
-
-r~
+mmmm...yeah, of course my clock is 1 minute late. sorry  :)
+Cheers,
+	Daniele

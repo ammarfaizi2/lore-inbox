@@ -1,42 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130119AbRAZT4T>; Fri, 26 Jan 2001 14:56:19 -0500
+	id <S129397AbRAZUFU>; Fri, 26 Jan 2001 15:05:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130449AbRAZT4J>; Fri, 26 Jan 2001 14:56:09 -0500
-Received: from foozle.turbogeek.org ([216.233.172.106]:34308 "EHLO
-	foozle.turbogeek.org") by vger.kernel.org with ESMTP
-	id <S130119AbRAZTzx>; Fri, 26 Jan 2001 14:55:53 -0500
-Date: Fri, 26 Jan 2001 13:55:54 -0600
-From: "Jeremy M. Dolan" <jmd@foozle.turbogeek.org>
+	id <S129607AbRAZUFL>; Fri, 26 Jan 2001 15:05:11 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:14329 "EHLO
+	morcego.distro.conectiva") by vger.kernel.org with ESMTP
+	id <S129397AbRAZUE4>; Fri, 26 Jan 2001 15:04:56 -0500
+Date: Fri, 26 Jan 2001 18:05:54 -0200
+From: "Rodrigo Barbosa (aka morcego)" <rodrigob@conectiva.com.br>
 To: linux-kernel@vger.kernel.org
-Subject: Re: hotmail not dealing with ECN
-Message-ID: <20010126135554.A527@foozle.turbogeek.org>
-In-Reply-To: <20010126161338.N3849@marowsky-bree.de> <Pine.SOL.4.21.0101261528190.16539-100000@red.csi.cam.ac.uk>
+Subject: Re: Renaming lost+found
+Message-ID: <20010126180554.I19067@conectiva.com.br>
+In-Reply-To: <20010126141350.Q6979@capsi.com> <Pine.LNX.3.95.1010126084632.208A-100000@chaos.analogic.com> <20010126131949.A1041@bessie.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="jaTU8Y2VLE5tlY1O"
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.SOL.4.21.0101261528190.16539-100000@red.csi.cam.ac.uk>; from jas88@cam.ac.uk on Fri, Jan 26, 2001 at 03:29:51PM +0000
+In-Reply-To: <20010126131949.A1041@bessie.dyndns.org>; from jlnance@intrex.net on Fri, Jan 26, 2001 at 01:19:49PM -0500
+X-GeekCode-Version: 3.1
+X-GeekCode: CS/IT$ d- s+: a-->- C++++(++) UL++++ P--- L+++(++++)$ E--- W+(++) N+(++) o K? w--- O- M- V PS+ PE++ Y+(++) PGP++(+++) t+>++ 5+(++) X+ R++(*) tv+ b+++ DI++++ D+ G++ e h* r++ y+++
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Jan 2001 15:29:51 +0000, James Sutherland wrote:
-> Except you can't retry without ECN, because DaveM wants to do a Microsoft
-> and force ECN on everyone, whether they like it or not.
 
-Who's forcing? You have to *SPECIFICALLY* enable it in the config,
-ignoring the notice in the help text that there are "many" sites that
-will be unaccessible to you with this feature turned on.
+--jaTU8Y2VLE5tlY1O
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-In a (barely) related note, I'm reminded of SYN cookies. Are there
-certain firewalls/hosts out there that choke on these as well? If not,
-why are they still disabled by default, not only required to be
-config'd in, but to set a sysctl each run. (Even more work then ECN!)
+On Fri, Jan 26, 2001 at 01:19:49PM -0500, James Lewis Nance wrote:
+> On Fri, Jan 26, 2001 at 08:49:31AM -0500, Richard B. Johnson wrote:
+>=20
+> > On Fri, 26 Jan 2001, Rob Kaper wrote:
+> > > Is there a way to rename lost+found ?? It bothers me to see it in ls =
+all the
+>=20
+> > Get used to it. This is part of the Linux/Unix heritage!  A file-system
+> > without a lost+found directory is like love without sex.
+>=20
+> FWIW IBM's JFS file system does not have a lost+found directory.  I dont
+> remember if reiserfs does or not.
 
-Also, is there any way to force SYN cookies for all connections, not
-just have them sent out when the queue is full?
+I think JFS indeed doesn't have it. And ReiserFS doesn't too. This=20
+should be common place for journaling filesystems.
 
-/jmd (Who is waiting for the ZDNet story, "Linux 2.4 baned from .uk")
+[]s
+
+--=20
+ Rodrigo Barbosa (morcego)         - rodrigob at conectiva.com.br
+ Conectiva R&D Team                - http://distro.conectiva.com.br
+ "Quis custodiet ipsos custodiet?" - http://www.conectiva.com
+
+
+--jaTU8Y2VLE5tlY1O
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6cdiin5NdOMMM/nERAoIUAJ92sQKbaIrWiUYmfjHDwBcyBD29UACfaxhC
+BjZSMYEa4vdjwmcSJbpf0wE=
+=3h+/
+-----END PGP SIGNATURE-----
+
+--jaTU8Y2VLE5tlY1O--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,168 +1,307 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263290AbUABDU4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 22:20:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263343AbUABDU4
+	id S264353AbUABDbh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 22:31:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264359AbUABDbh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 22:20:56 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:35262 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S263290AbUABDUp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 22:20:45 -0500
-Subject: Re: Possibly wrong BIO usage in ide_multwrite
-From: Christophe Saout <christophe@saout.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200401020127.50558.bzolnier@elka.pw.edu.pl>
-References: <1072977507.4170.14.camel@leto.cs.pocnet.net>
-	 <200401020127.50558.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain
-Message-Id: <1073013643.20163.51.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 02 Jan 2004 04:20:44 +0100
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Jan 2004 22:31:37 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:28544 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264353AbUABDb2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 22:31:28 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 1 Jan 2004 19:31:20 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc/patch] wake_up_info() draft ...
+In-Reply-To: <3FF4DD6B.2080705@colorfullife.com>
+Message-ID: <Pine.LNX.4.44.0401011921250.1458-100000@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Fr, den 02.01.2004 schrieb Bartlomiej Zolnierkiewicz um 02:27:
+On Fri, 2 Jan 2004, Manfred Spraul wrote:
 
-> > I was just investigating where bio->bi_idx gets modified in the kernel.
-> >
-> > I found these lines in ide-disk.c in ide_multwrite (DMA off, TASKFILE_IO
-> >
-> > off):
-> > > if (++bio->bi_idx >= bio->bi_vcnt) {
-> > >     bio->bi_idx = 0;
-> > >     bio = bio->bi_next;
-> > > }
-> >
-> > (rq->bio also gets changed but it's protected by the scratch buffer)
-> >
-> > I think changing the bi_idx here is dangerous because
-> > end_that_request_first needs this value to be unchanged because it
-> > tracks the progress of the bio processing and updates bi_idx itself.
-> 
-> This is not a problem here because ide_multwrite() walks rq->bio chain itself.
-> It also updates current_nr_sectors and hard_cur_sectors fields of drive->wrq.
+> Hi Davide,
 
-Yes, I've seen this. That looks okay.
+Hi Manfred,
 
-> > And bio->bi_idx = 0 is probably wrong because the bio can be submitted
-> > with bio->bi_idx > 0 (if the bio was splitted and there are clones that
-> > share the bio_vec array, like raid or device-mapper code).
-> >
-> > If it really needs to play with bi_idx itself care should be taken to
-> > reset bi_idx to the original value, not to zero.
-> 
-> RAID or device-mapper code doesn't seem to care about bio->bi_idx
-> value after bio has been submitted to the block layer, so the current
-> code is safe enough. 
 
-Yes, that's right. But I'd like to. I see that the code works this way,
-but still it's somewhat incorrect and I'll run into trouble if I want to
-do a certain thing. Well, you could simply say "then don't do it", but
-hey. ;)
+> I think the patch adds unnecessary bloat, and mandates one particular 
+> use of the wait queue info interface.
 
-I'm working on a dm encryption target. So I need to allocate and manager
-buffers. Under memory pressure (or if dm decided before thta) it can
-happen that a bio is split up. But then to avoid deadlocks due to memory
-shortage I need to free my buffers up as soon as possible. If a bio
-returns (it doesn't even need to be a partial completion) I need to know
-which pages I can free.
+why are you saying so?
 
-The way I would prefer is that when someone calls bio_endio the bi_idx
-and bv_offset just point where the processed data begins.
 
-Most drivers complete a bio at once and leave bi_idx where it was.
-That's fine. With a very small modification end_that_request_first can
-also follow the rule that I just outlined.
+> For example, why does remove_wait_queue_info copy the wakeup info 
+> around? That's now how I would use it for fasync: I would send the 
+> necessary signals directly from the wakeup handler, and 
+> remove_wait_queue_info is called during sys_close handling, info discarded.
 
-I implemented the buffer free mechanism this way and it works fine. I
-added a lot of debug to make sure all pages get freed correctly and
-funny enough everything works fine, I'm not even able to trigger
-problems where I expect them. But I still don't trust this.
+As I wrote inside the email, only info-aware waiters will do a 
+remove_wait_queue_info(). Others will simply do remove_wait_queue() w/out 
+modfications to existing code. The patch I sent (the second one actually) 
+is running in my machine, and the changes I had to make are exactly what 
+you see inside the patch. Zero modifications to existing code. The patch, 
+as is, perfectly fit what you want to do. The waker sets info.data to the 
+signal mask, and the waked does a remove_wait_queue_info() and gets the 
+signal mask. In your case no dtor/dup are necessary.
+This is the one that include John suggestions ...
 
->  Also there is no place to store original bi_idx.
 
-That seems to be the key problem, sometimes. The other thing I could do
-is to use bi_vcnt and bi_size and then go backwards through the bvecs to
-find the pages and ignore the whole bi_idx issue. But this is ugly.
 
-> After finishing data transfer multwrite_intr() calls ide_end_request()
-> with rq->nr_sectors argument (where rq is hwgroup->rq not drive->wrq),
-> so only whole bios are completed.  There are no partial completions
-> and code depending on bio->bi_idx inside __end_that_request_first()
-> is not executed.
+- Davide
 
-Yes, I suspected this. This part hardly seems to be ever used.
 
-> The real (generic) problem is that atomic block segment for a block device
-> (in this case ATA disk) can be composed of bvecs, bios or bios+bvecs and
-> driver can obtain information about next bvec from block layer (from rq->bio)
-> only after previous bvec has been acknowledgment by end_that_request_first().
 
-Does it? end_that_request_first can deal with nr_bytes that span bvecs
-and even bios. The only thing the driver has to do then is to walk the
-bvecs and bios itself, what it is already doing, but it should do this
-without modifying the indexes. Since it is working on a copy of the
-request, the bio pointer doesn't move. But the bvec index does. It is
-set to zero after a bio is finished, which is where it most probably was
-at the beginning, but might not be.
-
-I know, end_that_request_first doesn't care in this case, and it can't
-be called for every bvec because the transfer only ends after the drive
-acknowledged it (everything else would be wrong), but still.
-
-Can't another (some local) variable be used as bvec index instead of
-bi_idx in the original bio? (except from ide_map_buffer using exactly
-this index...)
-
-Still, I see, mcount could go to zero before the bio is finished and we
-would need to store the bvec index somewhere, I see the problem.
-
-What about doing a partial bio completion in multwrite_intr? If there is
-data left you know you've finished multcount sectors, right?
-
-> In situation when information about previously processed bios/bvecs is needed
-> (ie. error condition) this information is already lost.
-
-Sure.
-
-> There are 2 solutions for this problem:
-> 
-> - Use separate bio lists (rq->cbio) and temporary data
->   (rq->nr_cbio_segments and rq->nr_cbio_sectors) for submission/completion.
-
-That would be somewhat similar to what I just proposed, right?
-
-Would you be interested in a small patch (well, if I can come up with
-one)?
-
->   Please look at process_that_request_first() and its usage in TASKFILE code.
-
-I'll do. I already noticed that it used the other fields and obviously
-doesn't use bi_idx the same way.
-
->   You are then required to do partial bio completion.
-
-Yes.
-
-> - Do not use struct request fields directly and store information needed by
->   driver in separate data structures
->   (ie. scatter-gather data stored by SCSI layer).
-> 
->   You are then not allowed (and shouldn't need) to do partial bio completions.
-> 
-> IDE multi-sector code uses first method because second one was too
-> invasive/risky to be done (required serious rewrite of IDE transport code).
-
-I can understand that. The IDE layer seems to somewhat somewhat be a
-victim of adding new features and adapting it to new layers.
-
-> I hope generic block transport layer in 2.7.x will make life simpler.
-
-Well, I hope so. And I hope the ide devices don't end up being treated
-as scsi devices. ;)
-
+--- linux-2.6.1-rc1/include/linux/wait.h._orig	2004-01-01 14:38:45.569267672 -0800
++++ linux-2.6.1-rc1/include/linux/wait.h	2004-01-01 14:48:41.206717016 -0800
+@@ -16,16 +16,24 @@
+ #include <linux/spinlock.h>
+ #include <asm/system.h>
+ 
++typedef struct __wait_info wait_info_t;
+ typedef struct __wait_queue wait_queue_t;
+ typedef int (*wait_queue_func_t)(wait_queue_t *wait, unsigned mode, int sync);
+ extern int default_wake_function(wait_queue_t *wait, unsigned mode, int sync);
+ 
++struct __wait_info {
++	void *data;
++	void *(*dup)(void *);
++	void (*dtor)(void *);
++};
++
+ struct __wait_queue {
+ 	unsigned int flags;
+ #define WQ_FLAG_EXCLUSIVE	0x01
+ 	struct task_struct * task;
+ 	wait_queue_func_t func;
+ 	struct list_head task_list;
++	wait_info_t info;
+ };
+ 
+ struct __wait_queue_head {
+@@ -42,6 +50,7 @@
+ #define __WAITQUEUE_INITIALIZER(name, tsk) {				\
+ 	.task		= tsk,						\
+ 	.func		= default_wake_function,			\
++	.info		= { NULL, NULL, NULL },				\
+ 	.task_list	= { NULL, NULL } }
+ 
+ #define DECLARE_WAITQUEUE(name, tsk)					\
+@@ -60,11 +69,40 @@
+ 	INIT_LIST_HEAD(&q->task_list);
+ }
+ 
++static inline void init_wait_info(wait_info_t *i)
++{
++	i->data = NULL;
++	i->dup = NULL;
++	i->dtor = NULL;
++}
++
++static inline void close_wait_info(wait_info_t *i)
++{
++	if (i->dtor)
++		i->dtor(i->data);
++	init_wait_info(i);
++}
++
++static inline void transfer_wait_info(wait_info_t *d, wait_info_t *s)
++{
++	if (d->dtor)
++		d->dtor(d->data);
++	*d = *s;
++}
++
++static inline void dup_wait_info(wait_info_t *d, wait_info_t *s)
++{
++	transfer_wait_info(d, s);
++	if (s->dup)
++		d->data = s->dup(s->data);
++}
++
+ static inline void init_waitqueue_entry(wait_queue_t *q, struct task_struct *p)
+ {
+ 	q->flags = 0;
+ 	q->task = p;
+ 	q->func = default_wake_function;
++	init_wait_info(&q->info);
+ }
+ 
+ static inline void init_waitqueue_func_entry(wait_queue_t *q,
+@@ -73,6 +111,7 @@
+ 	q->flags = 0;
+ 	q->task = NULL;
+ 	q->func = func;
++	init_wait_info(&q->info);
+ }
+ 
+ static inline int waitqueue_active(wait_queue_head_t *q)
+@@ -83,6 +122,10 @@
+ extern void FASTCALL(add_wait_queue(wait_queue_head_t *q, wait_queue_t * wait));
+ extern void FASTCALL(add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t * wait));
+ extern void FASTCALL(remove_wait_queue(wait_queue_head_t *q, wait_queue_t * wait));
++extern void FASTCALL(remove_wait_queue_info(wait_queue_head_t *q, wait_queue_t * wait,
++					    wait_info_t *info));
++extern void FASTCALL(geti_wait_queue_info(wait_queue_head_t *q, wait_queue_t * wait,
++					  wait_info_t *info));
+ 
+ static inline void __add_wait_queue(wait_queue_head_t *head, wait_queue_t *new)
+ {
+@@ -102,11 +145,13 @@
+ 							wait_queue_t *old)
+ {
+ 	list_del(&old->task_list);
++	close_wait_info(&old->info);
+ }
+ 
+ extern void FASTCALL(__wake_up(wait_queue_head_t *q, unsigned int mode, int nr));
+ extern void FASTCALL(__wake_up_locked(wait_queue_head_t *q, unsigned int mode));
+ extern void FASTCALL(__wake_up_sync(wait_queue_head_t *q, unsigned int mode, int nr));
++extern void FASTCALL(__wake_up_info(wait_queue_head_t *q, unsigned int mode, int nr, wait_info_t *info));
+ 
+ #define wake_up(x)			__wake_up((x),TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 1)
+ #define wake_up_nr(x, nr)		__wake_up((x),TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, nr)
+@@ -117,6 +162,8 @@
+ #define wake_up_interruptible_all(x)	__wake_up((x),TASK_INTERRUPTIBLE, 0)
+ #define	wake_up_locked(x)		__wake_up_locked((x), TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE)
+ #define wake_up_interruptible_sync(x)   __wake_up_sync((x),TASK_INTERRUPTIBLE, 1)
++#define wake_up_info(x, i)		__wake_up_info((x),TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 1, (i))
++#define wake_up_all_info(x, i)		__wake_up_info((x),TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 0, (i))
+ 
+ #define __wait_event(wq, condition) 					\
+ do {									\
+--- linux-2.6.1-rc1/kernel/fork.c._orig	2004-01-01 14:38:24.058537800 -0800
++++ linux-2.6.1-rc1/kernel/fork.c	2004-01-01 14:39:32.537127472 -0800
+@@ -125,6 +125,32 @@
+ 
+ EXPORT_SYMBOL(remove_wait_queue);
+ 
++void remove_wait_queue_info(wait_queue_head_t *q, wait_queue_t * wait,
++			    wait_info_t *info)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&q->lock, flags);
++	transfer_wait_info(info, &wait->info);
++	__remove_wait_queue(q, wait);
++	spin_unlock_irqrestore(&q->lock, flags);
++}
++
++EXPORT_SYMBOL(remove_wait_queue_info);
++
++void geti_wait_queue_info(wait_queue_head_t *q, wait_queue_t * wait,
++			  wait_info_t *info)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&q->lock, flags);
++	transfer_wait_info(info, &wait->info);
++	init_wait_info(&wait->info);
++	spin_unlock_irqrestore(&q->lock, flags);
++}
++
++EXPORT_SYMBOL(geti_wait_queue_info);
++
+ 
+ /*
+  * Note: we use "set_current_state()" _after_ the wait-queue add,
+--- linux-2.6.1-rc1/kernel/sched.c._orig	2004-01-01 14:38:34.353972656 -0800
++++ linux-2.6.1-rc1/kernel/sched.c	2004-01-01 14:44:37.615748472 -0800
+@@ -1649,7 +1649,8 @@
+  * started to run but is not in state TASK_RUNNING.  try_to_wake_up() returns
+  * zero in this (rare) case, and we handle it by continuing to scan the queue.
+  */
+-static void __wake_up_common(wait_queue_head_t *q, unsigned int mode, int nr_exclusive, int sync)
++static void __wake_up_common(wait_queue_head_t *q, unsigned int mode,
++			     int nr_exclusive, int sync, wait_info_t *info)
+ {
+ 	struct list_head *tmp, *next;
+ 
+@@ -1658,6 +1659,8 @@
+ 		unsigned flags;
+ 		curr = list_entry(tmp, wait_queue_t, task_list);
+ 		flags = curr->flags;
++		if (info)
++			dup_wait_info(&curr->info, info);
+ 		if (curr->func(curr, mode, sync) &&
+ 		    (flags & WQ_FLAG_EXCLUSIVE) &&
+ 		    !--nr_exclusive)
+@@ -1676,7 +1679,7 @@
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&q->lock, flags);
+-	__wake_up_common(q, mode, nr_exclusive, 0);
++	__wake_up_common(q, mode, nr_exclusive, 0, NULL);
+ 	spin_unlock_irqrestore(&q->lock, flags);
+ }
+ 
+@@ -1687,7 +1690,7 @@
+  */
+ void __wake_up_locked(wait_queue_head_t *q, unsigned int mode)
+ {
+-	__wake_up_common(q, mode, 1, 0);
++	__wake_up_common(q, mode, 1, 0, NULL);
+ }
+ 
+ /**
+@@ -1712,21 +1715,41 @@
+ 
+ 	spin_lock_irqsave(&q->lock, flags);
+ 	if (likely(nr_exclusive))
+-		__wake_up_common(q, mode, nr_exclusive, 1);
++		__wake_up_common(q, mode, nr_exclusive, 1, NULL);
+ 	else
+-		__wake_up_common(q, mode, nr_exclusive, 0);
++		__wake_up_common(q, mode, nr_exclusive, 0, NULL);
+ 	spin_unlock_irqrestore(&q->lock, flags);
+ }
+ 
+ EXPORT_SYMBOL_GPL(__wake_up_sync);	/* For internal use only */
+ 
++/**
++ * __wake_up_info - wake up threads blocked on a waitqueue by passing an information token.
++ * @q: the waitqueue
++ * @mode: which threads
++ * @nr_exclusive: how many wake-one or wake-many threads to wake up
++ * @info: information token passed to waiters
++ */
++void __wake_up_info(wait_queue_head_t *q, unsigned int mode, int nr_exclusive,
++		    wait_info_t *info)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&q->lock, flags);
++	__wake_up_common(q, mode, nr_exclusive, 0, info);
++	spin_unlock_irqrestore(&q->lock, flags);
++}
++
++EXPORT_SYMBOL(__wake_up_info);
++
+ void complete(struct completion *x)
+ {
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&x->wait.lock, flags);
+ 	x->done++;
+-	__wake_up_common(&x->wait, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 1, 0);
++	__wake_up_common(&x->wait, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE,
++			 1, 0, NULL);
+ 	spin_unlock_irqrestore(&x->wait.lock, flags);
+ }
+ 
+@@ -1738,7 +1761,8 @@
+ 
+ 	spin_lock_irqsave(&x->wait.lock, flags);
+ 	x->done += UINT_MAX/2;
+-	__wake_up_common(&x->wait, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 0, 0);
++	__wake_up_common(&x->wait, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE,
++			 0, 0, NULL);
+ 	spin_unlock_irqrestore(&x->wait.lock, flags);
+ }
+ 
 

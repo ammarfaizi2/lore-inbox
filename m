@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263669AbRFNSZh>; Thu, 14 Jun 2001 14:25:37 -0400
+	id <S263854AbRFNS2H>; Thu, 14 Jun 2001 14:28:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263782AbRFNSZ1>; Thu, 14 Jun 2001 14:25:27 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:52369 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S263669AbRFNSZN>;
-	Thu, 14 Jun 2001 14:25:13 -0400
-Message-ID: <3B290182.42DE3E1@mandrakesoft.com>
-Date: Thu, 14 Jun 2001 14:25:06 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S263863AbRFNS15>; Thu, 14 Jun 2001 14:27:57 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:26173 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S263854AbRFNS1q>; Thu, 14 Jun 2001 14:27:46 -0400
+Date: Thu, 14 Jun 2001 20:27:44 +0200
+From: Andrea Arcangeli <andrea@suse.de>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David Mansfield <lkml@dm.ultramaster.com>,
-        lkml <linux-kernel@vger.kernel.org>, jfs-discussion@oss.lotus.com
-Subject: Re: severe FS corruption with 2.4.6-pre2 + IBM jfs 0.3.4 patch
-In-Reply-To: <E15Abh0-000564-00@the-village.bc.nu>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>,
+        linux-kernel@vger.kernel.org, Richard Henderson <rth@redhat.com>
+Subject: Re: unregistered changes to the user<->kernel API
+Message-ID: <20010614202744.D2115@athlon.random>
+In-Reply-To: <20010614200328.A2115@athlon.random> <E15AbaZ-00054p-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <E15AbaZ-00054p-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Jun 14, 2001 at 07:11:27PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > It's probably a JFS issue, but I thought I'd report this in case someone
-> > is collecting and correlating filesystem corruption messages (Alan?).
-> > Here is my sad story.
-> 
-> I get as far as 'using jfs' and delete them
+On Thu, Jun 14, 2001 at 07:11:27PM +0100, Alan Cox wrote:
+> I dont see why Tux should be merged. If we have people achieving the same
+> performance in user space with the core facilities tux added to the kernel
 
-Understandable but FWIW they have apparently passed a night of
-stress-kernel (cerberus) testing on the latest jfs..
+I never had doubt that you could do the same in userspace using the
+zorocopy functionality (see the old threads with Jeff V. Merkey and
+netware when I was saying you don't need it in kernel) so in theory I
+totally agree since the first place...
 
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+> like the better irq/sendfile stuff why bother merging tux ?
+
+... but in practice x15 is nor open source nor free software and I'd
+prefer to have an open choice. I wouldn't even think to merge tux if
+zope, apache, thttpd would run as fast as tux of course.
+
+Andrea

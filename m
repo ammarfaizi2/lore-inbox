@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267469AbTBIXJb>; Sun, 9 Feb 2003 18:09:31 -0500
+	id <S267480AbTBIXNy>; Sun, 9 Feb 2003 18:13:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267470AbTBIXJb>; Sun, 9 Feb 2003 18:09:31 -0500
-Received: from 60.54.252.64.snet.net ([64.252.54.60]:61570 "EHLO
-	hotmale.blue-labs.org") by vger.kernel.org with ESMTP
-	id <S267469AbTBIXJa>; Sun, 9 Feb 2003 18:09:30 -0500
-Message-ID: <3E46E1D6.20709@blue-labs.org>
-Date: Sun, 09 Feb 2003 15:18:46 -0800
-From: David Ford <david+powerix@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030125
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Neil Brown <neilb@cse.unsw.edu.au>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Current NFS issues (2.5.59)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267472AbTBIXNy>; Sun, 9 Feb 2003 18:13:54 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:30600 "EHLO
+	humilis.humilis.net") by vger.kernel.org with ESMTP
+	id <S267470AbTBIXNx>; Sun, 9 Feb 2003 18:13:53 -0500
+Date: Mon, 10 Feb 2003 00:21:54 +0100
+From: Ookhoi <ookhoi@humilis.net>
+To: elmer@ylenurme.ee
+Cc: mingo@elte.hu, rusty@rustcorp.com.au
+Subject: [PATCH] linux-2.5.59/drivers/net/aironet4500_core.c
+Message-ID: <20030210002154.N19693@humilis>
+Reply-To: ookhoi@humilis.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.19i
+X-Uptime: 19:47:27 up 13 days,  7:48, 22 users,  load average: 1.03, 0.93, 0.86
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok.  Here goes.  I have two servers that NFS mount from each other and 
-provide.
+Hi all,
 
-Server 1 exports A, B, and C to server 2.  Server 2 exports D and E back 
-to server 1 and exports F and G to two other clients.  Each of these 
-(A-G) are distinctly different filesystem paths and not part of each other.
+I need this patch to compile 2.5.59 with aironet support.
 
-1. If server 1 is restarted, server 2 will invalidate (make all 'df' 
-values '1') F and G.  This requires an 'exportfs -vra' or similar on 
-server 2 to fix the client 'df' values.  The client doesn't need to do 
-anything.
+It seems that a patch from Ingo broke this driver early october 2002.
 
-2. Repeated nfs system stops and starts (/etc/init.d/nfs restart) will 
-eventually cause a kernel panic on server 2 (haven't tested on server 
-1).   The number of restarts is variable.
+drivers/built-in.o(.text+0x3d19a): In function `awc_private_init':
+: undefined reference to `awc_work'
+make: *** [.tmp_vmlinux1] Error 1
 
-3. Mount point F (/home/david) infrequently loops.  ls -la /home/david 
-will loop forever until all client memory is exhausted and the kernel 
-kills it via OOM.  ls -la /home/david/somefile or /home/david/somedir/ 
-works just fine as well as any sub directory under /home/david.  
-Restarts of both systems refuse to fix things.
+I pulled 2.5 from bk to see if the patch was in already, and it is not.
 
-4. Mounts infrequently get "permission denied" messages on the client 
-with a " rpc.mountd: getfh failed: Operation not permitted" message on 
-the server.  This is fixable by restarting the nfs system on the server.
+Can you please apply this patch?
 
 
-Server1 is UNI, server 2 is SMP.  All servers and clients are stock 
-2.5.59[1].  NFS is running on top of Reiserfs filesystems on all client 
-and server machines.
-
-I'll be happy to apply test patches to either clients or servers.
-
-David
-
-[1] One client is 2.5.56 but it rarely accesses the NFS mount unlike the 
-other machines which use them constantly
-
-
+--- linux-2.5.59/drivers/net/aironet4500_core.c.orig	2003-02-09 23:54:02.000000000 +0100
++++ linux-2.5.59/drivers/net/aironet4500_core.c	2003-02-09 23:54:19.000000000 +0100
+@@ -2210,7 +2210,7 @@
+ 
+ 
+ void
+-awc_bh(struct net_device *dev){
++awc_work(struct net_device *dev){
+ 
+         struct awc_private * priv = (struct awc_private *)dev->priv;
+       	int  active_interrupts;

@@ -1,53 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287874AbSBUXdh>; Thu, 21 Feb 2002 18:33:37 -0500
+	id <S287862AbSBUXiH>; Thu, 21 Feb 2002 18:38:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287862AbSBUXd1>; Thu, 21 Feb 2002 18:33:27 -0500
-Received: from mailhost.teleline.es ([195.235.113.141]:17737 "EHLO
-	tsmtp1.mail.isp") by vger.kernel.org with ESMTP id <S287874AbSBUXdS>;
-	Thu, 21 Feb 2002 18:33:18 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Antoni Bella <bella5@teleline.es>
-Organization: P&S - Lliure
-To: linux-kernel@vger.kernel.org
-Subject: diff =?iso-8859-15?q?=BF=3F=20=5B=20linux-2=2E4=2E18-rc3?= ]
-Date: Fri, 22 Feb 2002 00:52:44 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20020221233320Z287874-889+4827@vger.kernel.org>
+	id <S287882AbSBUXh6>; Thu, 21 Feb 2002 18:37:58 -0500
+Received: from [65.169.83.229] ([65.169.83.229]:1920 "EHLO
+	hst000004380um.kincannon.olemiss.edu") by vger.kernel.org with ESMTP
+	id <S287862AbSBUXhu>; Thu, 21 Feb 2002 18:37:50 -0500
+Date: Thu, 21 Feb 2002 17:37:00 -0600
+From: Benjamin Pharr <ben@benpharr.com>
+To: davej@suse.de, linux-kernel@vger.kernel.org
+Subject: Linux 2.5.5-dj1 - Bug Reports
+Message-ID: <20020221233700.GA512@hst000004380um.kincannon.olemiss.edu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="G4iJoqBmSsgzjUCe"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.4.18-rc1
+X-PGP-ID: 0x6859792C
+X-PGP-Key: http://www.benpharr.com/public_key.asc
+X-PGP-Fingerprint: 7BF0 E432 3365 C1FC E0E3  0BE2 44E1 3E1E 6859 792C
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+
+--G4iJoqBmSsgzjUCe
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+I tried Dave Jones' version of the kernel to see if it would compile, as I
+haven't been able to the regular 2.5 kernel to compile since I have the
+new binutils package.=20
+
+It compiled fine. When I booted up everything looked normal with the
+exception of a=20
+eth1: going OOM=20
+message that kept scrolling down the screen. My eth1 is a natsemi card.
+
+Eventually that stopped and gdm came up. For some reason my keyboard and
+mouse wouldn't work.  However, I could ssh into the machine and both
+ethernet cards were functional. I noticed I had left SMP support
+selected in the configuration, so I turned that off and tried
+recompiling. It got to check.c in fs/partitions before stopping with an
+error.=20
+
+So, it looks like the binutils problems are fixed, but there are some
+other issues apparently. If you need configuration information or for me
+try something please let me know.
+
+Ben Pharr
 
 
+--G4iJoqBmSsgzjUCe
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-  Error in diff generated
-
-## Automatically generated incremental diff
-## From:   linux-2.4.18-rc2
-## To:     linux-2.4.18-rc3
-## Robot:  $Id: make-incremental-diff,v 1.11 2002/02/20 02:59:33 hpa Exp $
-- -- 
-   Sort
-
-######## Antoni Bella Perez ####################                             |
-# http://www.terra.es/personal7/bella5/home.htm
-## <bella5@teleline.es> ## i
-col·laborador del projecte Debian en català: debian.org/index.ca.htm
-Maquinari: - Pentium II 300MHz 128MB memòria 599.65 bogomips
-Sistema:   - Debian GNU/Linux-2.4.18-rc2  -  XFree86 4.1.0-14
-
-- -
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.0.6 (GNU/Linux)
 Comment: For info see http://www.gnupg.org
 
-iD8DBQE8dYhbGfXdVUGHvegRAtYmAJ9ZKjgipx5RMFmW3TtJ/cpe40S6UgCfTqu4
-zmEZ0DXsoUTvki4d3hTK1k4=
-=Fr4V
+iD8DBQE8dYScROE+HmhZeSwRAoJvAKDRXBuENcQAMe82YUk4ITzBUEJ4XwCfdKs9
+AdhZb8od9YddLT3+wi7Hjak=
+=rcej
 -----END PGP SIGNATURE-----
+
+--G4iJoqBmSsgzjUCe--

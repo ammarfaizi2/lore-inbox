@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264398AbTGKQxe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 12:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264447AbTGKQxe
+	id S264487AbTGKQ4h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 12:56:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264486AbTGKQ4g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 12:53:34 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:18616
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264398AbTGKQx3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 12:53:29 -0400
-Subject: Sound updating, security of strlcpy and a question on pci v unload
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1057943137.20637.27.camel@dhcp22.swansea.linux.org.uk>
+	Fri, 11 Jul 2003 12:56:36 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:783 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264463AbTGKQzW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 12:55:22 -0400
+Date: Fri, 11 Jul 2003 18:10:02 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: James Morris <jmorris@intercode.com.au>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 'what to expect'
+Message-ID: <20030711181002.B28202@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	James Morris <jmorris@intercode.com.au>,
+	Dave Jones <davej@codemonkey.org.uk>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20030711140219.GB16433@suse.de> <Mutt.LNX.4.44.0307120139570.21806-100000@excalibur.intercode.com.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 Jul 2003 18:05:37 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Mutt.LNX.4.44.0307120139570.21806-100000@excalibur.intercode.com.au>; from jmorris@intercode.com.au on Sat, Jul 12, 2003 at 01:43:15AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jul 12, 2003 at 01:43:15AM +1000, James Morris wrote:
+> On Fri, 11 Jul 2003, Dave Jones wrote:
+> 
+> >  Use the KAME tools port on
+> >   ftp://ftp.inr.ac.ru/ip-routing/iputils-ss021109-try.tar.bz2
+> 
+> The above is deprecated for ipsec, use the ipsec-tools stuff mentioned 
+> below.
 
-I'm currently updating the prehistoric OSS audio code in 2.5 to include
-all the new 2.4 drivers and 2.4 work. While some of them overlap ALSA
-drivers others are not in ALSA yet either.
+Or the OpenBSD isakpmd or Herbert's patched freeswan userland, or..
 
-Firstly someone turned half the kernel into using strlcpy. Every single
-change I looked at bar two in the sound layer introduced a security
-hole. It looks like whoever did it just fired up a perl macro without
-realising the strncpy properties matter for data copied to user space.
-Looks like the rest wants auditing
-
-Secondly a question. pci_driver structures seem to lack an owner: field.
-What stops a 2.5 module unload occuring while pci is calling the probe
-function having seen a new device ? 
-
-
--- 
-Alan Cox <alan@lxorguk.ukuu.org.uk>

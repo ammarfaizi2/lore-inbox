@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262367AbTELRfs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 13:35:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbTELRfr
+	id S262362AbTELRfE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 13:35:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbTELRfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 13:35:47 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:61595 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262367AbTELRfm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 13:35:42 -0400
-Date: Mon, 12 May 2003 10:43:39 -0700
-From: Greg KH <greg@kroah.com>
-To: Mace Moneta <mmoneta@optonline.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [bug] 2.4.21-rc2 kernel panic USB sched.c:564
-Message-ID: <20030512174339.GA28550@kroah.com>
-References: <1052600695.12657.4.camel@optonline.net> <20030511054554.GB7729@kroah.com> <1052661635.30223.26.camel@optonline.net> <20030512164948.GA28136@kroah.com> <1052760652.25189.4.camel@optonline.net>
+	Mon, 12 May 2003 13:35:04 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:50328
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262362AbTELRfD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 13:35:03 -0400
+Subject: Re: The disappearing sys_call_table export.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200305121234_MC3-1-3882-CFEC@compuserve.com>
+References: <200305121234_MC3-1-3882-CFEC@compuserve.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052758008.31824.1.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1052760652.25189.4.camel@optonline.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 12 May 2003 17:46:50 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 12, 2003 at 01:30:52PM -0400, Mace Moneta wrote:
-> I replaced usb-uhci with uhci, and tried to recreate the problem.  While
-> this is easily recreated with usb-uhci, even after 30 attempts uhci
-> operated without error.
+On Llu, 2003-05-12 at 17:32, Chuck Ebbert wrote:
+>   So how long till Linux gets decent auditing?  Is the SNARE code going
+> to get into the kernel?
 
-Great, I'd recommend sticking with uhci then :)
+Its on the todo list. I had some discussion with the snare guys and Al
+Viro educated them on some of the name logging issues
 
-Glad it's working for you,
+>   ...and on a related topic, if someone wrote a patch to optionally clear
+> the swap area at swapoff would it ever be accepted?
 
-greg k-h
+man dd ?
+
+although I'm not sure what good it would do you, you want crypted swap
+
+

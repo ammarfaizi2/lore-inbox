@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264738AbUEEQ7K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264737AbUEERI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264738AbUEEQ7K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 12:59:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264741AbUEEQ7K
+	id S264737AbUEERI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 13:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264746AbUEERI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 12:59:10 -0400
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:17596 "EHLO
-	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP id S264738AbUEEQ7F convert rfc822-to-8bit
+	Wed, 5 May 2004 13:08:56 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:64901 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264737AbUEERIy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 12:59:05 -0400
-To: maneesh@in.ibm.com
-Cc: LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Sensitivity: 
-Subject: Re: [RFC 0/6] sysfs backing store ver 0.5
-X-Mailer: Lotus Notes Build V651_12042003 December 04, 2003
-From: Christian Borntraeger <CBORNTRA@de.ibm.com>
-Message-ID: <OF4C6C32EB.E73396AD-ON42256E8B.00597591-42256E8B.005D486F@de.ibm.com>
-Date: Wed, 5 May 2004 18:59:01 +0200
-X-MIMETrack: Serialize by Router on D12ML067/12/M/IBM(Release 6.0.2CF2|July 23, 2003) at
- 05/05/2004 18:59:01,
-	Serialize complete at 05/05/2004 18:59:01
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Wed, 5 May 2004 13:08:54 -0400
+Subject: Re: [PATCH-RFC] code for raceless /sys/fs/foofs/*
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Nikita Danilov <Nikita@Namesys.COM>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040505163650.GO17014@parcelfarce.linux.theplanet.co.uk>
+References: <16536.61900.721224.492325@laputa.namesys.com>
+	 <20040505162802.GN17014@parcelfarce.linux.theplanet.co.uk>
+	 <20040505163650.GO17014@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1083776930.3622.45.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 05 May 2004 13:08:50 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maneesh Soni wrote:
+On Wed, 2004-05-05 at 12:36, viro@parcelfarce.linux.theplanet.co.uk
+wrote:
 
-> Hi,
-> 
-> The following patch set contains ver 0.5 patches implementing sysfa 
-backig
-> store for leaf sysfs entries. There have been changed from previuos
-> version based on the comments from Al Viro. The main changes are
+> We also allow anyone with sysfs mounted to see which filesystems are currently
+> mounted on the box - again, regardless of being able to see them in the
+> chroot jail/restricted namespace/etc.  It can easily become an issue in
+> setups where such information is sensitive.
 
-We already tested former versions of this patch with great success. We 
-saved about 50 MB of memory on our typical S390 scenario -per LPAR. As 
-there are 30 possible LPAR that can share all SAN/network devices we save 
-about 30*50=1500MB of unswappable dentry/inode cache memory. Therefore 
-other architectures with partitions should test this patch as well. It 
-would also be nice to have some experience on x86. 
-I consider this patch almost a must for s390/zSeries if there is SANs with 
-shared DASDs. I made a short acceptance test of this version - more stress 
-will follow. If I encounter problems I will report these to Maneesh to 
-solve these problems.
+...but are you *really* likely to be mounting sysfs in a chrooted jail
+or restricted namespace?
 
+...and if you do, aren't you more likely to simply 'mount --bind' those
+minimal parts of sysfs that you actually need for the given process that
+is gaoled?
 
-cheers
-
--- 
-
-Christian Bornträger
-IBM Deutschland Entwicklung GmbH
-eServer System Evaluation
-Linux for zSeries
-email: CBORNTRA@de.ibm.com
-Tel +49  7031 16 1975
-
-
+Cheers,
+  Trond

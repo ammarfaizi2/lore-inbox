@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315230AbSEIXWZ>; Thu, 9 May 2002 19:22:25 -0400
+	id <S315241AbSEIXxJ>; Thu, 9 May 2002 19:53:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315234AbSEIXWY>; Thu, 9 May 2002 19:22:24 -0400
-Received: from dsl-213-023-040-085.arcor-ip.net ([213.23.40.85]:896 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S315230AbSEIXWX>;
-	Thu, 9 May 2002 19:22:23 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
-Date: Fri, 10 May 2002 01:22:11 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrea Arcangeli <andrea@suse.de>,
-        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0205062053050.32715-100000@serv> <E175wJO-0008Lz-00@starship> <3CDAFF7C.57A59FB8@linux-m68k.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E175xEi-0008Mi-00@starship>
+	id <S315257AbSEIXxI>; Thu, 9 May 2002 19:53:08 -0400
+Received: from harddata.com ([216.123.194.198]:43537 "EHLO mail.harddata.com")
+	by vger.kernel.org with ESMTP id <S315241AbSEIXxH>;
+	Thu, 9 May 2002 19:53:07 -0400
+Date: Thu, 9 May 2002 17:52:56 -0600
+From: Michal Jaegermann <michal@harddata.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: >12 drives in a RAID?
+Message-ID: <20020509175256.A31674@mail.harddata.com>
+In-Reply-To: <Pine.LNX.4.33.0205091610170.8430-100000@mail.pronto.tv> <20020509161656.G14435@unthought.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 May 2002 01:00, Roman Zippel wrote:
-> > Look at drivers/char/mem.c, read_mem.  Clearly, the code is not dealing with
-> > physical addresses.  Yet it starts off with virt_to_phys, and thereafter works
-> > in zero-offset addresses.  Why?  Because it's clearer and more efficient to do
-> > that.  The generic part of my nonlinear patch clarifies this usage by rewriting
-> > it as virt_to_logical, which is really what's happening.
+On Thu, May 09, 2002 at 04:16:56PM +0200, Jakob Østergaard wrote:
+> On Thu, May 09, 2002 at 04:11:00PM +0200, Roy Sigurd Karlsbakk wrote:
+> > hi
+> > 
+> > How can I use more than 12 drives in a RAID config? I need it!!!
+> > 
+> > Please cc: to me as I'm not on the list(s)
 > 
-> Are we looking at the same code??? Where is that zero-offset thingie? It
-> just works with virtual and physical addresses and needs to convert
-> between them.
+> Yes.
+> 
+> Back in the "old days" with the old superblocks you couldn't.
 
-Show me where the 'physical' address is actually treated as a physical address.
-You can't, because it isn't.  The 'physical' address is merely a zero-based
-logical address, and the code *relies* on it being contiguous.
+Hm, the last time I looked a header used by kernels had space
+for someting like 27 or 29 drives (I do not remember the exact
+number) but its variant in 'raidtools' sources allowed indeed
+only 12.  Synchronizing those headers to kernel values raised
+a maximum number of disks in an array quite considerably.
 
-Your code is going to do __pa there, and you are going to go walking into places
-you don't expect.  Even you need my logical address space abstraction, or else you
-want to go making global changes to the common kernel code that just add cruft.
-
-I enjoy the feeling of removing cruft, even when it's an uphill battle.
-
--- 
-Daniel
+  Michal

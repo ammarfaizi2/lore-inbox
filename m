@@ -1,46 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316542AbSHaQJN>; Sat, 31 Aug 2002 12:09:13 -0400
+	id <S317624AbSHaQKZ>; Sat, 31 Aug 2002 12:10:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317616AbSHaQJN>; Sat, 31 Aug 2002 12:09:13 -0400
-Received: from ns.suse.de ([213.95.15.193]:38150 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S316542AbSHaQJM>;
-	Sat, 31 Aug 2002 12:09:12 -0400
-Date: Sat, 31 Aug 2002 18:13:38 +0200
-From: Dave Jones <davej@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Jani Monoses <jani@iv.ro>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.32 : u.ext3_sb -> generic_sbp
-Message-ID: <20020831181338.A28204@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Andrew Morton <akpm@zip.com.au>, Jani Monoses <jani@iv.ro>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.21.0001010429580.1200-100000@localhost.localdomain> <3D6FC178.CC3E89CD@zip.com.au>
+	id <S317623AbSHaQKY>; Sat, 31 Aug 2002 12:10:24 -0400
+Received: from thales.mathematik.uni-ulm.de ([134.60.66.5]:13982 "HELO
+	thales.mathematik.uni-ulm.de") by vger.kernel.org with SMTP
+	id <S317624AbSHaQKW>; Sat, 31 Aug 2002 12:10:22 -0400
+Message-ID: <20020831161448.12564.qmail@thales.mathematik.uni-ulm.de>
+From: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
+Date: Sat, 31 Aug 2002 18:14:48 +0200
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Include LRU in page count
+References: <3D644C70.6D100EA5@zip.com.au> <3D6989F7.9ED1948A@zip.com.au> <akdq8h$fqn$1@penguin.transmeta.com> <E17kunE-0003IO-00@starship>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3D6FC178.CC3E89CD@zip.com.au>; from akpm@zip.com.au on Fri, Aug 30, 2002 at 12:03:20PM -0700
+In-Reply-To: <E17kunE-0003IO-00@starship>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 30, 2002 at 12:03:20PM -0700, Andrew Morton wrote:
- > > This turns the remaining parts of ext3 to EXT3_SB and turns the latter
- > > from a macro to inline function which returns the generic_sbp field of u.
- > Thanks.
- > It's not going to make the merge of all Stephen's 2.4 changes
- > any more fun though ;)
+On Sat, Aug 31, 2002 at 01:03:07AM +0200, Daniel Phillips wrote:
+> This rare race happened to become not so rare in 2.5 recently, and was 
+> analyzed by Christian Ehrhardt, who also proposed a solution based on a new 
+> approach to locking, essentially put_page_testone.  We went on to check 2.4 
 
-The last 2.5-dj I did should be in sync as of ext3 in 2.4.19,
-but lacks the bits sct came up with recently for 2.4.20pre.[1]
-(Also 1-2 other janitor type things there too, I'll push some
-fs stuff to various people soon).
+Just a little correction: The key function implemented in my solution
+is an atomic GET_page_testone which is called if the page might have
+a zero refcount. The idea I had in mind is to distinguish heavy and weak
+references to pages. Your solution is probably the better way to go.
 
-        Dave
+> I proposed an alternate solution using the traditional put_page_testzero 
+> primitive, which relies on assigning a page count of one for membership on 
+> the lru list.  A slightly racy heuristic is used for efficient lru list 
+> removal.  The resulting incarnation of lru_cache_release is:
+> 
+> static inline void page_cache_release(struct page *page)
+> {
+> 	if (page_count(page) == 2 && spin_trylock(&pagemap_lru_lock)) {
+> 		if (PageLRU(page) && page_count(page) == 2)
+> 			__lru_cache_del(page);
+> 		spin_unlock(&pagemap_lru_lock);
+> 	}
+> 	put_page(page);
+> }
 
-[1] For the curious, I'm not syncing 2.4.20pre's, I'll wait until
-    .20 final, and do a big resync for 2.5.x-dj.
+Just saw that this can still race e.g. with lru_cache_add (not
+hard to fix though):
+
+| void lru_cache_add(struct page * page)
+| {
+|        if (!TestSetPageLRU(page)) {
+
+Window is here: Once we set the PageLRU bit page_cache_release
+assumes that there is a reference held by the lru cache.
+
+|                spin_lock(&pagemap_lru_lock);
+|                add_page_to_inactive_list(page);
+|#if LRU_PLUS_CACHE==2
+|                get_page(page);
+|#endif
+
+But only starting at this point the reference actually exists.
+
+|                spin_unlock(&pagemap_lru_lock);
+|        }
+|}
+
+Solution: Change the PageLRU bit inside the lock. Looks like
+lru_cache_add is the only place that doesn't hold the lru lock to
+change the LRU flag and it's probably not a good idea even without
+the patch.
+
+Two more comments: I don't think it is a good idea to use
+put_page_nofree in __lru_cache_del. This is probably safe now but
+it adds an additional rule that lru_cache_del can't be called without
+holding a second reference to the page.
+Also there may be lru only pages on the active list, i.e. refill
+inactive should have this hunk as well:
+
+> +#if LRU_PLUS_CACHE==2
+> +             BUG_ON(!page_count(page));
+> +             if (unlikely(page_count(page) == 1)) {
+> +                     mmstat(vmscan_free_page);
+> +                     BUG_ON(!TestClearPageLRU(page)); // side effect abuse!!
+> +                     put_page(page);
+> +                     continue;
+> +             }
+> +#endif
+
+     regards   Christian Ehrhardt
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+THAT'S ALL FOLKS!

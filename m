@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281407AbRKLK2C>; Mon, 12 Nov 2001 05:28:02 -0500
+	id <S281409AbRKLKcc>; Mon, 12 Nov 2001 05:32:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281408AbRKLK1v>; Mon, 12 Nov 2001 05:27:51 -0500
-Received: from [62.110.33.51] ([62.110.33.51]:34222 "EHLO gelma.fondoweb.net")
-	by vger.kernel.org with ESMTP id <S281407AbRKLK1g>;
-	Mon, 12 Nov 2001 05:27:36 -0500
-Date: Mon, 12 Nov 2001 11:27:26 +0100
-From: andrea gelmini <andrea.gelmini@linux.it>
-To: lobo@polbox.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Nazi kernels
-Message-ID: <20011112112726.E24974@gelma.lugbs.linux.it>
-In-Reply-To: <20011111043442.A3454@chello062179017166.chello.pl>
+	id <S281405AbRKLKcN>; Mon, 12 Nov 2001 05:32:13 -0500
+Received: from [212.3.242.3] ([212.3.242.3]:26894 "HELO mail.i4gate.net")
+	by vger.kernel.org with SMTP id <S281394AbRKLKcB>;
+	Mon, 12 Nov 2001 05:32:01 -0500
+Message-Id: <5.1.0.14.2.20011112113024.00a89bd0@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 12 Nov 2001 11:32:56 +0100
+To: linux-kernel@vger.kernel.org
+From: DevilKin <devilkin@gmx.net>
+Subject: Re: Nazi kernels 
+In-Reply-To: <200111120913.fAC9DgC20870@frodo.gams.co.at>
+In-Reply-To: <Your message of "Sun, 11 Nov 2001 04:34:42 +0100." <20011111043442.A3454@chello062179017166.chello.pl>
+ <20011111043442.A3454@chello062179017166.chello.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011111043442.A3454@chello062179017166.chello.pl>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.4.13-ac5
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 11, 2001 at 04:34:42AM +0100, lobo@polbox.com wrote:
-> Thank You guys for Your work. I'm say goodbye to linux community,
-> because nazi kernel's don't allow me to load modules needed for my
-> graphic card. What will be next, maybe you disable to run non GPL
-> executables under linux ?
 
-you've got the sources. where's the problem?
+>In message <20011111043442.A3454@chello062179017166.chello.pl>, 
+>lobo@polbox.com
+>  wrote:
+> >Thank You guys for Your work. I'm say goodbye to linux community,
+> >because nazi kernel's don't allow me to load modules needed for my
+> >graphic card. What will be next, maybe you disable to run non GPL
+> >executables under linux ?
 
-ciao,
-andrea
+So, you have a problem with those binary drivers. Here's something:
+
+1. Don't compare the fact that people here cannot support closed source 
+drivers with what happened during the World War. Just don't. It's 
+farfetched and totally wrong.
+
+2. Have you even _looked_ for a solution? I have installed the latest 
+kernel yesterday, and everything works fine. I compiled the nvidia modules 
+on top of that kernel (2.4.15-pre2), and it works fine. Look and search 
+before you start making false accusations!
+
+DK
+

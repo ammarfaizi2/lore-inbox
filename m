@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261963AbSLUERj>; Fri, 20 Dec 2002 23:17:39 -0500
+	id <S261506AbSLUEaA>; Fri, 20 Dec 2002 23:30:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262023AbSLUERj>; Fri, 20 Dec 2002 23:17:39 -0500
-Received: from stone.protocoloweb.com.br ([200.226.139.11]:12305 "EHLO
-	smtp.ieg.com.br") by vger.kernel.org with ESMTP id <S261963AbSLUERj>;
-	Fri, 20 Dec 2002 23:17:39 -0500
-Subject: USB/Storage - transport.c - Olympus D150Zoom
-From: Scorpion <scorpionlab@ieg.com.br>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-4) 
-Date: 21 Dec 2002 01:31:23 -0200
-Message-Id: <1040441486.3708.25.camel@beyond>
-Mime-Version: 1.0
+	id <S261855AbSLUEaA>; Fri, 20 Dec 2002 23:30:00 -0500
+Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:49280 "EHLO
+	laptop.localdomain") by vger.kernel.org with ESMTP
+	id <S261506AbSLUE37> convert rfc822-to-8bit; Fri, 20 Dec 2002 23:29:59 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Con Kolivas <conman@kolivas.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [BENCHMARK] scheduler tunables with contest - interactive_delta
+Date: Sat, 21 Dec 2002 15:39:32 +1100
+User-Agent: KMail/1.4.3
+Cc: Robert Love <rml@tech9.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212211539.56815.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+osdl hardware, contest benchmark, 2.5.52-mm2 varying the interactive delta:
 
-Hi,
-I was trying to put my digital camera Olympus Brio Zoom D-150Zoom
-to work on my RedHat 7.3 (2.4.18-3, redhat) when found this web page:
-http://www.gingerbear.org/~esm/olympus/
+I've cut it down to the two loads that seem to be affected significantly. The 
+other changes are subtle. id1 is interactive_delta = 1 and so on:
 
-Clicking on transport.c.diff link and taking a look into
-/usr/src/linux-2.4.18-3/drivers/usb/storage/transport.c file
-I started to ask my self what is doing the
-if (bcs.Signature != cpu_to_le32(US_BULK_CS_SIGN) ||
-statement there? Please if anyone could, answer me...
-The patch applied to "support" this camera just remove this comparison,
-so what it does?
+io_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+id1 [5]                 78.2    108     9       19      2.16
+id2 [5]                 87.9    96      12      19      2.43
+id3 [5]                 79.4    105     10      18      2.19
+id4 [5]                 84.9    109     12      22      2.34
+id5 [7]                 99.8    94      18      24      2.76
+id6 [5]                 103.3   104     18      25      2.85
+id7 [5]                 104.1   89      17      22      2.87
 
-Best regards,
-Scorpion.
----------------transport.c.diff----------------
---- drivers/usb/storage/transport.c	2002/08/07 13:14:59	1.1
-+++ drivers/usb/storage/transport.c	2002/08/07 13:15:08
-@@ -1197,8 +1197,7 @@
- 	US_DEBUGP("Bulk status Sig 0x%x T 0x%x R %d Stat 0x%x\n",
- 		  le32_to_cpu(bcs.Signature), bcs.Tag, 
- 		  bcs.Residue, bcs.Status);
--	if (bcs.Signature != cpu_to_le32(US_BULK_CS_SIGN) || 
--	    bcs.Tag != bcb.Tag || 
-+	if (bcs.Tag != bcb.Tag || 
- 	    bcs.Status > US_BULK_STAT_PHASE || partial != 13) {
- 		US_DEBUGP("Bulk logical error\n");
- 		return USB_STOR_TRANSPORT_ERROR;
----------------transport.c.diff----------------
+mem_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+id1 [3]                 78.0    100     34      2       2.15
+id2 [5]                 94.3    84      35      2       2.60
+id3 [5]                 92.6    85      32      2       2.56
+id4 [5]                 65.8    134     39      3       1.82
+id5 [5]                 63.0    143     38      3       1.74
+id6 [5]                 69.7    129     38      2       1.92
+id7 [5]                 90.6    87      32      2       2.50
 
+Seems like io_load likes lower interactive deltas (lower the better?) and 
+mem_load likes high interactive_deltas (sweet spot 5).
 
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE+A/CEF6dfvkL3i1gRAoM2AJ45DsfpltAWXNoaXIWmArMRdz2PIgCffpWP
+A9gVU7M6NBIoGaFYQyx17wE=
+=Mayt
+-----END PGP SIGNATURE-----

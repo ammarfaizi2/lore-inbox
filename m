@@ -1,56 +1,29 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314596AbSFJXQj>; Mon, 10 Jun 2002 19:16:39 -0400
+	id <S316512AbSFJXUs>; Mon, 10 Jun 2002 19:20:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316512AbSFJXQi>; Mon, 10 Jun 2002 19:16:38 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:58773 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S314596AbSFJXQh>;
-	Mon, 10 Jun 2002 19:16:37 -0400
-Date: Mon, 10 Jun 2002 16:15:59 -0700
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: Scheduler Bug (set_cpus_allowed)
-Message-ID: <20020610161559.H1565@w-mikek2.des.beaverton.ibm.com>
-In-Reply-To: <20020610135734.D1565@w-mikek2.des.beaverton.ibm.com> <Pine.LNX.4.44.0206102257100.369-100000@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S316532AbSFJXUr>; Mon, 10 Jun 2002 19:20:47 -0400
+Received: from gateway2.ensim.com ([65.164.64.250]:1809 "EHLO
+	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
+	id <S316512AbSFJXUq>; Mon, 10 Jun 2002 19:20:46 -0400
+X-mailer: xrn 8.03-beta-26
+From: Paul Menage <pmenage@ensim.com>
+Subject: Re: of ethernet names (was [PATCH] Futex Asynchronous
+To: Brad Hards <bhards@bigpond.net.au>
+Cc: linux-kernel@vger.kernel.org, pmenage@ensim.com
+X-Newsgroups: 
+In-Reply-To: <0C01A29FBAE24448A792F5C68F5EA47D29DD32@nasdaq.ms.ensim.com>
+Message-Id: <E17HYSZ-0000CY-00@pmenage-dt.ensim.com>
+Date: Mon, 10 Jun 2002 16:20:27 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 11, 2002 at 12:35:38AM +0200, Ingo Molnar wrote:
-> 
-> agreed. I removed the _sync code mainly because there was no
-> idle_resched() to migrate a task actively, and the migration bits i tried
-> were incomplete. But with your above conditional it should cover all the
-> practical cases we care about, in an elegant way.
-> 
-> i ported your sync wakeup resurrection patch to 2.5.21 (attached). I did
-> some modifications:
-> 
-> - wake_up() needs to check (rq->curr != p) as well, not only !p->array.
-> 
-> - make __wake_up_sync dependent on CONFIG_SMP
-> 
-> - export __wake_up_sync().
-> 
-> (the attached patch includes both the ->frozen change plus the sync wakeup
-> resurrection, it's against vanilla 2.5.21.)
-> 
-> appears to work for me just fine (compiles, boots and works under SMP & UP
-> alike), and does the trick for bw_pipe and lat_pipe. Comments?
-> 
-> 	Ingo
+In article <0C01A29FBAE24448A792F5C68F5EA47D29DD32@nasdaq.ms.ensim.com>,
+you write:
+>Is there any documentation on the netlink API, beyond UTSL(iproute)?
+>Reference would be good, but a tutorial would be ideal.
 
-Great!  Thanks!
+The man pages for netlink(3), netlink(7), rtnetlink(3) and rtnetlink(7)
+give a basic reference.
 
-You might also consider adding the optimization/fast path to
-set_cpus_allowed().  Once again, I don't expect this routine
-(or this code path) to be used much, but I just hate to see
-us scheudle a migration task to set the cpu field when it is
-safe to do it within the routine.
-
--- 
-Mike
+Paul

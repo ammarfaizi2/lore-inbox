@@ -1,78 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266194AbUFULcN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266196AbUFULgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266194AbUFULcN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 07:32:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266196AbUFULcN
+	id S266196AbUFULgR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 07:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266197AbUFULgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 07:32:13 -0400
-Received: from hermes.iil.intel.com ([192.198.152.99]:49629 "EHLO
-	hermes.iil.intel.com") by vger.kernel.org with ESMTP
-	id S266194AbUFULcK convert rfc822-to-8bit (ORCPT
+	Mon, 21 Jun 2004 07:36:17 -0400
+Received: from anor.ics.muni.cz ([147.251.4.35]:42442 "EHLO anor.ics.muni.cz")
+	by vger.kernel.org with ESMTP id S266196AbUFULgP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 07:32:10 -0400
-Content-class: urn:content-classes:message
+	Mon, 21 Jun 2004 07:36:15 -0400
+Message-ID: <40D6C80B.2020202@ics.muni.cz>
+Date: Mon, 21 Jun 2004 13:35:39 +0200
+From: Miroslav Ruda <ruda@ics.muni.cz>
+Organization: UVT MU
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: cs, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Subject: RE: [PATCH] Handle non-readable binfmt misc executables
-Date: Mon, 21 Jun 2004 14:31:57 +0300
-Message-ID: <2C83850C013A2540861D03054B478C060416C175@hasmsx403.ger.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Handle non-readable binfmt misc executables
-thread-index: AcRW1GwAYgdqaT22QXuBtEos7axMwAAlgo7w
-From: "Zach, Yoav" <yoav.zach@intel.com>
-To: "Albert Cahalan" <albert@users.sourceforge.net>
-Cc: "linux-kernel mailing list" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 21 Jun 2004 11:31:58.0267 (UTC) FILETIME=[5CCFC8B0:01C45783]
+To: marcelo.tosatti@cyclades.com, jgarzik@pobox.com
+CC: linux-kernel@vger.kernel.org
+Subject: sata promise problems on x86_64
+X-Enigmail-Version: 0.83.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Muni-Spam-TestIP: 147.251.3.18
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->-----Original Message-----
->From: Albert Cahalan [mailto:albert@users.sourceforge.net] 
->Sent: Sunday, June 20, 2004 15:17
->To: Zach, Yoav
->Cc: linux-kernel mailing list
->Subject: RE: [PATCH] Handle non-readable binfmt misc executables
->
+Hello,
 
+ I have problems with SATA promise driver from  2.4.27-rc1 on x86_64 arch (MB ASUS SK8V).
+Kernel 2.4.27-rc1 reports
 
->So the content of /proc/*/cmdline is correct?
->
+scsi0: SCSI host adapter emulation for IDE ATAPI devices
+ata1: SATA max UDMA/133 ...
+ata2: SATA max UDMA/133 ...
+ata1: dev 0 ATA, max UDMA/133, 156301488 sectors
+ata1: dev 0 configured for UDMA/133
+ata2: no device found (phy stat 00000000)
+scsi1: sata_promise
+scsi2: sata_promise
+ Vendor: ATA       Model: WDC WD800JD-00HK  Rev: 13.0
+ Type:   Direct-Access                      ANSI SCSI revision: 05
+Attached scsi disk sda at scsi1, channel 0, id 0, lun 0
+SCSI device sda: 156301488 512-byte hdwr sectors (80026 MB)
+Partition check:
+ sda: <3>ata1: DMA timeout
 
-After the translator fixes it - yes.
+and is frozen, while with 2.6.5 it works ok:
 
->At a minimum, you will have a problem at startup.
->The process might be observed before you fix argv.
->
+SCSI subsystem initialized
+libata version 1.02 loaded.
+sata_promise version 0.92
+ata1: SATA max UDMA/133 cmd 0xFFFFFF000205F200 ctl 0xFFFFFF000205F238 bmdma 0x0 
+irq 18
+ata2: SATA max UDMA/133 cmd 0xFFFFFF000205F280 ctl 0xFFFFFF000205F2B8 bmdma 0x0 
+irq 18
+ata1: dev 0 cfg 49:2f00 82:346b 83:5b01 84:4003 85:3469 86:1801 87:4003 88:407f
+ata1: dev 0 ATA, max UDMA/133, 156301488 sectors
+ata1: dev 0 configured for UDMA/133
+scsi0 : sata_promise
+ata2: no device found (phy stat 00000000)
+ata2: thread exiting
+scsi1 : sata_promise
+  Vendor: ATA       Model: WDC WD800JD-00HK  Rev: 1.02
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+ata1: dev 0 max request 124KB
+SCSI device sda: 156301488 512-byte hdwr sectors (80026 MB)
+SCSI device sda: drive cache: write through
+ sda: sda1 sda2 sda3 sda4 < sda5 sda6 sda7 >
+Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
 
-Right. It might happen once in a (long) while that
-'ps -f' doesn't show the correct command line. 
-
->What about apps that walk off the end of argv to get
->at the environment?
->
-
-Please note that the stack is that of the translator, which
-is aware of the fixing of argv.
-
->It seems cleaner to use some other mechanism.
->Assuming your interpreter is ELF, ELF notes are good.
-
-Using ELF notes means changing the binaries, which is not
-suitable for cases where the use of translator for running
-the binaries is not 'known' to the binaries. For example,
-an administrator might start using a translator to enhance
-performance of existing binaries. In such a case, re-building
-the binaries will probably be out of the question.
-
->You might use prctl().
->
-
-Do you mean enhancing sys_prctl to allow for fixing 
-the argv ? 
-
-Thanks,
-Yoav.
+Any idea what's wrong?
+-- 
+                  Mirek Ruda 

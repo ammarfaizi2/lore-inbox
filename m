@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287306AbSAPTlG>; Wed, 16 Jan 2002 14:41:06 -0500
+	id <S287359AbSAPTls>; Wed, 16 Jan 2002 14:41:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287231AbSAPTkr>; Wed, 16 Jan 2002 14:40:47 -0500
-Received: from a212-113-174-249.netcabo.pt ([212.113.174.249]:58404 "EHLO
-	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S287299AbSAPTkg>;
-	Wed, 16 Jan 2002 14:40:36 -0500
-Message-ID: <001d01c19ec5$b6f8f740$d500a8c0@mshome.net>
-From: "AstinusLists" <AstinusLists@netcabo.pt>
-To: <linux-kernel@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: ISDN CHANNEL-D
-Date: Wed, 16 Jan 2002 19:40:48 -0000
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-OriginalArrivalTime: 16 Jan 2002 19:38:16.0918 (UTC) FILETIME=[583C5760:01C19EC5]
+	id <S287333AbSAPTlh>; Wed, 16 Jan 2002 14:41:37 -0500
+Received: from codepoet.org ([166.70.14.212]:15310 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S287303AbSAPTlW>;
+	Wed, 16 Jan 2002 14:41:22 -0500
+Date: Wed, 16 Jan 2002 12:41:21 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: David Garfield <garfield@irving.iisd.sra.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Query about initramfs and modules
+Message-ID: <20020116194121.GC32184@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Alexander Viro <viro@math.psu.edu>,
+	David Garfield <garfield@irving.iisd.sra.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <15428.47094.435181.278715@irving.iisd.sra.com> <Pine.GSO.4.21.0201152226100.4339-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0201152226100.4339-100000@weyl.math.psu.edu>
+User-Agent: Mutt/1.3.24i
+X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello every one.
+On Tue Jan 15, 2002 at 10:29:12PM -0500, Alexander Viro wrote:
+> > Can/will the initramfs mechanism be made to implicitly load into the
+> > kernel the modules (or some of the modules) in the image?
+> 
+> No.  The point of initramfs is to remove crap from kernel and switch
+> to using normal code paths for late-boot stuff.  _Adding_ insmod
+> analog into the kernel?  No, thanks.
 
-I've been earing some rumors, that i am quite sure that are turth about the
-isdn channel d.
+Keep in mind that insmod current needs to incorporate a full ELF
+interpreter in userspace (and the source code needs to know about
+all the types of relocations and jump for each arch and for 32
+and 64 bit ELF.  Horrible stuff really.  If we could cleanup the
+kernel's insmod implementation to require merely a syscall
+passing a filename to the kernel, it would sure make the
+initramfs smaller and simpler.  I believe Rusty made a patch to
+do this sort of thing....
 
-As all of u know ( i think ) isdn cards have 3 channels: 2*64 and one time
-16 kbs.
+ -Erik
 
-This last one is called channel D.
-Channel D is used to dial and to reply to tones and minor stuff like that.
-
-The big deal here in my country is that u don't have to pay for the channel
-D traffic ( And it is legal to use it, i can assure that, cause i am well
-informed on that matter!)
-
-Many banks use the channel D to money transfers and so.
-But in order to do that they had to aquire some hard and software that all
-together costs arround 500 US Dollars or 450 Euros more or less.
-
-K this was just an intro! The interesting part is that some students from
-www.ist.pt ( TECNICO), managed to build some software that allows to use the
-ISDN Channel d without any  need of additional hardware.....
-
-I would like to know if any of u isdn driver hackers can point me out a way
-of how to build such a program or where to read some real good stuff about
-this ISDN-D channel.
-
-Regards, Astinus
-
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

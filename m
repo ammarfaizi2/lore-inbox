@@ -1,61 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262516AbVAJTuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262495AbVAJUDJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262516AbVAJTuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 14:50:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262515AbVAJTsV
+	id S262495AbVAJUDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 15:03:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbVAJUAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 14:48:21 -0500
-Received: from dsl-kpogw5jd0.dial.inet.fi ([80.223.105.208]:26051 "EHLO
-	safari.iki.fi") by vger.kernel.org with ESMTP id S262445AbVAJTj6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 14:39:58 -0500
-Date: Mon, 10 Jan 2005 21:39:57 +0200
-From: Sami Farin <7atbggg02@sneakemail.com>
-To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: vfat unlink latency 54.6ms for 128MB files
-Message-ID: <20050110193957.GB5561@m.safari.iki.fi>
-Mail-Followup-To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050110012330.GA10846@m.safari.iki.fi> <878y71xh7b.fsf@devron.myhome.or.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <878y71xh7b.fsf@devron.myhome.or.jp>
-User-Agent: Mutt/1.5.6i
+	Mon, 10 Jan 2005 15:00:10 -0500
+Received: from mail.tyan.com ([66.122.195.4]:21769 "EHLO tyanweb.tyan")
+	by vger.kernel.org with ESMTP id S262511AbVAJT6U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 14:58:20 -0500
+Message-ID: <3174569B9743D511922F00A0C9431423072913A4@TYANWEB>
+From: YhLu <YhLu@tyan.com>
+To: Andi Kleen <ak@muc.de>
+Cc: "'Mikael Pettersson'" <mikpe@csd.uu.se>, jamesclv@us.ibm.com,
+       Matt_Domsch@dell.com, discuss@x86-64.org, linux-kernel@vger.kernel.org,
+       suresh.b.siddha@intel.com
+Subject: RE: 256 apic id for amd64
+Date: Mon, 10 Jan 2005 12:09:48 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_000_01C4F750.561AD560"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 03:38:32AM +0900, OGAWA Hirofumi wrote:
-> Sami Farin <7atbggg02@sneakemail.com> writes:
-> 
-> > Just wondering, when I remove a 128MB file on vfat partition
-> > (usb-storage, memcard reader), it causes 54.6ms latency
-> > in rtc_latencytest...  latency seems to increase linearly
-> > as the filesize grows.  I calculated 1s would be reached with
-> > 2344MB file but I didn't bother trying that yet.
-> > Are there any possible fixes for fat fs so
-> > that it doesn't disable interrupts for that long a time?
-> 
-> The fatfs itself doesn't disable any interrupt.  I guess the thing
-> depending on file size is the fat_free().
-> 
-> So, the following patch may change the behavior...
-> -- 
-> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-> 
-> diff -up linux-2.6.10/fs/fat/cache.c.orig linux-2.6.10/fs/fat/cache.c
-> --- linux-2.6.10/fs/fat/cache.c.orig	2004-12-25 06:35:24.000000000 +0900
-> +++ linux-2.6.10/fs/fat/cache.c	2005-01-11 03:34:54.000000000 +0900
-> @@ -491,6 +491,8 @@ int fat_free(struct inode *inode, int sk
->  		if (MSDOS_SB(sb)->free_clusters != -1)
->  			MSDOS_SB(sb)->free_clusters++;
->  		inode->i_blocks -= MSDOS_SB(sb)->cluster_size >> 9;
-> +
-> +		cond_resched();
->  	} while (nr != FAT_ENT_EOF);
->  	fat_clusters_flush(sb);
->  	nr = 0;
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
-Oh yeah, now max latency is around 1.5ms.
-Thanks for the patch.
+------_=_NextPart_000_01C4F750.561AD560
+Content-Type: text/plain
 
--- 
+Try this one.
+
+-----Original Message-----
+From: Andi Kleen [mailto:ak@muc.de] 
+Sent: Monday, January 10, 2005 11:44 AM
+To: YhLu
+Cc: 'Mikael Pettersson'; jamesclv@us.ibm.com; Matt_Domsch@dell.com;
+discuss@x86-64.org; linux-kernel@vger.kernel.org; suresh.b.siddha@intel.com
+Subject: Re: 256 apic id for amd64
+
+On Mon, Jan 10, 2005 at 11:41:02AM -0800, YhLu wrote:
+> Please refer the patch.
+
+That's unreadable. Can you generate against a recent BK snapshot
+(2.6.10 + latest from ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots/)
+
+and use diff -u  ? 
+
+-Andi
+
+
+------_=_NextPart_000_01C4F750.561AD560
+Content-Type: application/octet-stream;
+	name="x86_64_phy_proc_id.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="x86_64_phy_proc_id.patch"
+
+--- linux-2.6.10/arch/x86_64/kernel/setup.c	2005-01-10 =
+12:26:21.414190368 -0800=0A=
++++ linux-2.6.10.new.x86_64/arch/x86_64/kernel/setup.c	2005-01-10 =
+12:30:53.656803200 -0800=0A=
+@@ -738,7 +738,6 @@=0A=
+ {=0A=
+ #ifdef CONFIG_SMP=0A=
+ 	u32 	eax, ebx, ecx, edx;=0A=
+-	int 	index_lsb, index_msb, tmp;=0A=
+ 	int 	cpu =3D smp_processor_id();=0A=
+ 	=0A=
+ 	if (!cpu_has(c, X86_FEATURE_HT))=0A=
+@@ -750,8 +749,6 @@=0A=
+ 	if (smp_num_siblings =3D=3D 1) {=0A=
+ 		printk(KERN_INFO  "CPU: Hyper-Threading is disabled\n");=0A=
+ 	} else if (smp_num_siblings > 1) {=0A=
+-		index_lsb =3D 0;=0A=
+-		index_msb =3D 31;=0A=
+ 		/*=0A=
+ 		 * At this point we only support two siblings per=0A=
+ 		 * processor package.=0A=
+@@ -761,19 +758,8 @@=0A=
+ 			smp_num_siblings =3D 1;=0A=
+ 			return;=0A=
+ 		}=0A=
+-		tmp =3D smp_num_siblings;=0A=
+-		while ((tmp & 1) =3D=3D 0) {=0A=
+-			tmp >>=3D1 ;=0A=
+-			index_lsb++;=0A=
+-		}=0A=
+-		tmp =3D smp_num_siblings;=0A=
+-		while ((tmp & 0x80000000 ) =3D=3D 0) {=0A=
+-			tmp <<=3D1 ;=0A=
+-			index_msb--;=0A=
+-		}=0A=
+-		if (index_lsb !=3D index_msb )=0A=
+-			index_msb++;=0A=
+-		phys_proc_id[cpu] =3D phys_pkg_id(index_msb);=0A=
++=0A=
++		phys_proc_id[cpu] =3D c->x86_apicid >> hweight32(c->x86_num_cores - =
+1);=0A=
+ 		=0A=
+ 		printk(KERN_INFO  "CPU: Physical Processor ID: %d\n",=0A=
+ 		       phys_proc_id[cpu]);=0A=
+
+------_=_NextPart_000_01C4F750.561AD560--

@@ -1,48 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265532AbSLIOPS>; Mon, 9 Dec 2002 09:15:18 -0500
+	id <S265508AbSLIODO>; Mon, 9 Dec 2002 09:03:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265567AbSLIOPS>; Mon, 9 Dec 2002 09:15:18 -0500
-Received: from ida.xs4all.nl ([213.84.39.78]:31291 "EHLO ida.dejong.info")
-	by vger.kernel.org with ESMTP id <S265532AbSLIOPQ>;
-	Mon, 9 Dec 2002 09:15:16 -0500
-Message-ID: <3DF4A736.9010104@dejong.info>
-Date: Mon, 09 Dec 2002 15:22:46 +0100
-From: jorg de jong <jorg@dejong.info>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
+	id <S265516AbSLIODO>; Mon, 9 Dec 2002 09:03:14 -0500
+Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:58321 "EHLO
+	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S265508AbSLIODN> convert rfc822-to-8bit; Mon, 9 Dec 2002 09:03:13 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <pollard@admin.navo.hpc.mil>
+To: kaih@khms.westfalen.de (Kai Henningsen), alan@lxorguk.ukuu.org.uk
+Subject: Re: is KERNEL developement finished, yet ???
+Date: Mon, 9 Dec 2002 08:08:34 -0600
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
+References: <1039111796.19636.27.camel@irongate.swansea.linux.org.uk> <8bPzdb6mw-B@khms.westfalen.de>
+In-Reply-To: <8bPzdb6mw-B@khms.westfalen.de>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: status of HPT374 support in 2.4.20 and 2.5.50
-References: <3DF26772.8040502@dejong.info> <3DF26DF4.F1692AFA@digeo.com>	<3DF2759F.1090403@dejong.info>  <3DF27AF9.7BA0D1B5@digeo.com> <1039310973.27923.0.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212090808.34598.pollard@admin.navo.hpc.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Sat, 2002-12-07 at 22:49, Andrew Morton wrote:
-> 
->>Well, you must have a card which is newer than the driver understands.
->>That's one for the IDE guys...
-> 
-> 
-> My guess is he has a card whose timings we don't support. In that case
-> we punt to avoid crashing later or data loss. Timings for that is one
-> for Andre & HPT
+On Saturday 07 December 2002 02:39 pm, Kai Henningsen wrote:
+> alan@lxorguk.ukuu.org.uk (Alan Cox)  wrote on 05.12.02 in 
+<1039111796.19636.27.camel@irongate.swansea.linux.org.uk>:
+> > On Thu, 2002-12-05 at 12:54, Joseph D. Wagner wrote:
+> > > I don't know of any mistakes per say, but if I had to do it over again,
+> > > there's about a thousands things I'd do differently (preference in
+> > > design choices, not mistakes) especially not to cling so religiously to
+> > > POSIX compliance.
+> >
+> > And then you'd have no applications.
+>
+> And this is why every existing OS is POSIX compliant.
+>
+> What do you mean, it isn't?
+>
+> People actually started new, incompatible OSes from time to time, for
+> which there were no applications, and some of those actually succeeded?
 
-Well it is about timing indeed. It turned out that as a result for
-a quest for speed, some time ago, I left the pci bus running as 35Mhz.
+No - they have pretty much all failed except M$, and that one is showing 
+cracks.
 
-As soon as I reset it to 33Mhz the attached drive was detected and
-kernel panics dissapeard. (Redhat kernel 2.4.18..., 2.4.20-ac1. )
-Other I have not tested.
+> And in fact Unix was one of those?
 
-thanks for your help
+Unix DEFINED the standard. Before that, there were many "standards", a minimum
+of one for each vendor, and frequently, several for each vendor. IBM almost
+had one for every product line, DEC had one for each major product line, and
+three different major OSs (though related) for the PDP11 (RSX 11, IAS, RSTS)
+and one minor (RT-11). Each had it's own runtime, compilers/assemblers,
+utilities, and system calls.
 
-Jorg de Jong
+The POSIX definitions were adaped from the AT&T "System V Interface
+Definition" issued in 1984/1985, which standardized AT&T Unix from about 1982
+through 1985 (the existing commands/utilities/libraries definitions were
+included).
 
+-- 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-
+Any opinions expressed are solely my own.

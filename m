@@ -1,40 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263645AbUEGPxR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263642AbUEGPzR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263645AbUEGPxR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 11:53:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbUEGPxR
+	id S263642AbUEGPzR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 11:55:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263644AbUEGPyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 11:53:17 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23988 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263645AbUEGPxN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 11:53:13 -0400
-Date: Fri, 7 May 2004 08:53:12 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: Distributions vs kernel development
-Message-Id: <20040507085312.3247d70d@dell_ss3.pdx.osdl.net>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 7 May 2004 11:54:40 -0400
+Received: from outgoingmail.adic.com ([63.81.117.28]:29115 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S263642AbUEGPxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 11:53:39 -0400
+Message-ID: <409BAFAC.70601@xfs.org>
+Date: Fri, 07 May 2004 10:47:56 -0500
+From: Steve Lord <lord@xfs.org>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Jones <davej@redhat.com>
+CC: Arjan van de Ven <arjanv@redhat.com>, Paul Jakma <paul@clubi.ie>,
+       Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+References: <20040505013135.7689e38d.akpm@osdl.org> <200405051312.30626.dominik.karall@gmx.net> <200405051822.i45IM2uT018573@turing-police.cc.vt.edu> <20040505215136.GA8070@wohnheim.fh-wedel.de> <200405061518.i46FIAY2016476@turing-police.cc.vt.edu> <1083858033.3844.6.camel@laptop.fenrus.com> <Pine.LNX.4.58.0405070136010.1979@fogarty.jakma.org> <20040507065105.GA10600@devserv.devel.redhat.com> <20040507151317.GA15823@redhat.com>
+In-Reply-To: <20040507151317.GA15823@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After having being burned twice: first by Mandrake and supermount, and second
-by SuSe and reiserfs attributes; are any of the distributions committed to
-making sure that their distribution will run the standard kernel? (ie. 2.6.X from
-kernel.org). When running a non-vendor kernel, I need to reasonably expect that the system
-will boot and all the filesystems and standard devices are available.  I don't
-expect every startup script to run clean, or every device that has a driver
-only in the vendor kernel to work. 
+Dave Jones wrote:
+> On Fri, May 07, 2004 at 08:51:05AM +0200, Arjan van de Ven wrote:
+>  > 
+>  > On Fri, May 07, 2004 at 01:37:54AM +0100, Paul Jakma wrote:
+>  > > On Thu, 6 May 2004, Arjan van de Ven wrote:
+>  > > 
+>  > > > Ok I don't want to start a flamewar but... Do we want to hold linux
+>  > > > back until all binary only module vendors have caught up ??
+>  > > 
+>  > > What about normal linux modules though? Eg, NFS (most likely):
+>  > > 
+>  > > 	https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=121804
+>  > 
+>  > NFSv4 has a > 1Kb stack user; Dave Jones has a fix pending for that...
+> 
+> Hmm, this one maybe?
+>  
+> 		Dave
+> 
 
-But kernel developers need to be able run a standard environment. This effects
-both day to day kernel testing and automated test environments like PLM and STP.
-I am not saying it is bad that the distributions try to satisfy their customers,
-or create a better experience; they just need to stop breaking things, and add
-running a standard kernel as part of their QA cycle.
+>  
+> -	if (mlen > sizeof(buf))
+> +	obj.data = kmalloc(1024, GFP_KERNEL);
+> +	if (!obj.data)
+> +		return -ENOMEM;
+> +
+> +	if (mlen > 1024) {
 
+That's what I hate about all of this, just think how much stack that
+kmalloc can take in low memory situations.... it might end up in
+writepage on another nfs file.... Moving stuff off the stack and
+into kmalloc just reduces the possibility of stack overflow, it
+does not fix the problem. Having memory reclaim take place inside
+the thread which is waiting for memory makes that a pretty hard
+problem to fix.
+
+Steve

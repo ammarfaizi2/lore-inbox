@@ -1,46 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272911AbTG3Orl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 10:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272913AbTG3Ork
+	id S272920AbTG3Ozp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 10:55:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272927AbTG3Ozp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 10:47:40 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:64756 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S272911AbTG3Ori
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 10:47:38 -0400
-Subject: Re: [PATCH] Remove module reference counting.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: notting@redhat.com, arjanv@redhat.com, torvalds@osdl.org,
-       shemminger@osdl.org, davem@redhat.com, greg@kroah.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030730063310.70b5c794.rusty@rustcorp.com.au>
-References: <Pine.LNX.4.44.0307261230110.1841-100000@home.osdl.org>
-	 <20030727193919.832302C450@lists.samba.org>
-	 <20030727214701.A23137@devserv.devel.redhat.com>
-	 <20030727201242.A29448@devserv.devel.redhat.com>
-	 <1059392321.15458.23.camel@dhcp22.swansea.linux.org.uk>
-	 <20030730063310.70b5c794.rusty@rustcorp.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1059576018.8052.44.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 30 Jul 2003 15:40:18 +0100
+	Wed, 30 Jul 2003 10:55:45 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:31112 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S272920AbTG3Oy4 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 10:54:56 -0400
+Date: Wed, 30 Jul 2003 11:50:50 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Ville Herva <vherva@niksula.hut.fi>
+Cc: linux-kernel@vger.kernel.org, gibbs@scsiguy.com
+Subject: Re: 2.4.22pre8 hangs too (Re: 2.4.21-jam1, aic7xxx-6.2.36: solid
+ hangs)
+In-Reply-To: <20030730071321.GV150921@niksula.cs.hut.fi>
+Message-ID: <Pine.LNX.4.55L.0307301149550.29648@freak.distro.conectiva>
+References: <20030729073948.GD204266@niksula.cs.hut.fi>
+ <20030730071321.GV150921@niksula.cs.hut.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-07-29 at 21:33, Rusty Russell wrote:
-> > I guess kudzu could simply do lots of I/O ops directly on the floppy 
-> > hardware to detect it without loading drivers but thats pretty fugly.
-> 
-> Agreed that'd be kinda silly.  But I was "educated" earlier that driver
-> loading shouldn't fail just because hardware is missing, due to hotplug.
-> 
-> Is this wrong?
 
-On systems without hotplug, on not hotpluggable devices and in a few other
-cases - yes.
 
+On Wed, 30 Jul 2003, Ville Herva wrote:
+
+> On Tue, Jul 29, 2003 at 10:39:48AM +0300, you [Ville Herva] wrote:
+> > After about a year of stable operation, a server begun acting up. First it
+> > begun hanging up solid during the nightly oracle backup (that had run
+> > successfully for a year), the I got some aic7xxx-related crashes on boot.
+> >
+> > Initially, the box ran 2.4.20pre7 kernel with aic7xxx version 6.4.8. When
+> > the hangs started happening, I upgraded to 2.4.21-jam1 (basically 2.4.21
+> > vanilla + -aa patch + some minor stuff) that includes aic7xxx version 6.2.36.
+> > It did not help.
+> >
+> > I enabled kmsgdump and nmi watchdog, but when the box hangs, it hangs solid:
+> > no ctrl-alt-del, no caps lock led, no alt-sysrq-b, no kmsgdump, nmi watchdog
+> > doesn't trigger. Only the cursor on the console blinks, but no messages from
+> > the kernel appear. (Apart from "spurious 8259A interrupt: IRQ7." that
+> > always happens sometime after boot on this box, but way before the hang.)
+>
+> Herbert Pötzl indicted that he'd had similar lockups with fairly similar hw
+> up until 2.4.22pre6. He suggested I should try 2.4.22pre8.
+>
+> 2.4.22pre8 locked up the same way in about 10 hours.
+>
+> > Any ideas on how to to debug this kind of hang?
+>
+> The question still stands; how do I debug this?
+>
+> > Does it sound kernel/driver or hw related? Are the two crashes related to
+> > the hang? Is the hang related to aic7xxx?
+>
+> Any ideas?
+
+Ville,
+
+Mind trying 2.4.22-pre8 without MMAPIO defined in the SCSI driver?
+
+Justin, is this problem known to other boards or.. ?

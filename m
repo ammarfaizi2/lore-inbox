@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130741AbRBMHXt>; Tue, 13 Feb 2001 02:23:49 -0500
+	id <S130783AbRBMH27>; Tue, 13 Feb 2001 02:28:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130789AbRBMHXi>; Tue, 13 Feb 2001 02:23:38 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:58127 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S130741AbRBMHXW>;
-	Tue, 13 Feb 2001 02:23:22 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Ph. Marek" <marek@mail.bmlv.gv.at>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.[01] and duron - unresolved symbol _mmx_memcpy 
-In-Reply-To: Your message of "Tue, 13 Feb 2001 07:47:33 BST."
-             <3.0.6.32.20010213074733.00917210@pop3.bmlv.gv.at> 
-Mime-Version: 1.0
+	id <S130789AbRBMH2t>; Tue, 13 Feb 2001 02:28:49 -0500
+Received: from smtp4.libero.it ([193.70.192.54]:51391 "EHLO smtp4.libero.it")
+	by vger.kernel.org with ESMTP id <S130783AbRBMH2k>;
+	Tue, 13 Feb 2001 02:28:40 -0500
+Message-ID: <3A88E120.284CCBC2@alsa-project.org>
+Date: Tue, 13 Feb 2001 08:24:16 +0100
+From: Abramo Bagnara <abramo@alsa-project.org>
+Organization: Opera Unica
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre6 i586)
+X-Accept-Language: it, en
+MIME-Version: 1.0
+To: Andrew Morton <andrewm@uow.edu.au>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@suse.cz>,
+        Tom Eastep <teastep@seattlefirewall.dyndns.org>,
+        "Michael B. Trausch" <fd0man@crosswinds.net>,
+        Josh Myer <jbm@joshisanerd.com>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Major Clock Drift
+In-Reply-To: <20010212113213.B235@bug.ucw.cz> from "Pavel Machek" at Feb 12, 2001 11:32:13 AM <E14SGLm-0006es-00@the-village.bc.nu> <3A87CB3B.B05C03B5@uow.edu.au>
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 13 Feb 2001 18:23:13 +1100
-Message-ID: <1151.982048993@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Feb 2001 07:47:33 +0100, 
-"Ph. Marek" <marek@mail.bmlv.gv.at> wrote:
->and the modules dependencies are not all set!
->make modules_install does not check for modules compilation - says
->"cp: file not found". I think that's because modules_install doesn't
->depend on the modules
+Andrew Morton wrote:
+> 
+> Alan Cox wrote:
+> >
+> > > >                     queued_writes=1;
+> > > >                     return;
+> > > >             }
+> > > >     }
+> > >
+> > > Unfortunately, that means that if machine crashes in interrupt, it may
+> > > "loose" printk message. That is considered bad (tm).
+> >
+> > The alternative is that the machine clock slides continually and the machine
+> > is unusable. This is considered even worse by most people
+> 
+> Neither.  I was going to dust off my enhanced "bust_spinlocks"
+> patch which sets a little flag when we're doing an
+> oops, BUG(), panic() or die().  If the flag
+> is set, printk() just punches through the lock.
 
-Correct.  The current recursive makefile design means it is difficult
-to get a definitive list of modules without excessive overhead.  So
-modules_install assumes that you have compiled the modules already and
-lets the 'cp' command fail.  The 2.5 Makefile redesign will get this
-right.
+IMO to treat this as an exception it's not the right solution.
 
->grep _mmx_memcpy /proc/ksyms
->	c01a4e20 _mmx_memcpy_R__ver__mmx_memcpy
+A better alternative is to flush one entry of Alan proposed queue on the
+following conditions:
+- in_interrupt() is true AND queue is full
 
-Broken 2.4 makefile design.  http://www.tux.org/lkml/#s8-8
-The 2.5 makefile redesign will kill this problem once and for all.
+-- 
+Abramo Bagnara                       mailto:abramo@alsa-project.org
 
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy
+
+ALSA project is            http://www.alsa-project.org
+sponsored by SuSE Linux    http://www.suse.com
+
+It sounds good!

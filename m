@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130271AbRACAFz>; Tue, 2 Jan 2001 19:05:55 -0500
+	id <S131305AbRACAJG>; Tue, 2 Jan 2001 19:09:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131772AbRACAFp>; Tue, 2 Jan 2001 19:05:45 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:2689 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S130271AbRACAFg>;
-	Tue, 2 Jan 2001 19:05:36 -0500
-Date: Tue, 2 Jan 2001 18:33:29 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andreas Dilger <adilger@turbolinux.com>
-cc: linux-kernel@vger.kernel.org, "Theodore Y. Ts'o" <tytso@mit.edu>,
-        Ext2 development mailing list 
-	<ext2-devel@lists.sourceforge.net>
-Subject: [RFC] ext2_new_block() behaviour
-In-Reply-To: <200012010827.eB18R0u22296@webber.adilger.net>
-Message-ID: <Pine.GSO.4.21.0101021817140.13824-100000@weyl.math.psu.edu>
+	id <S131535AbRACAI4>; Tue, 2 Jan 2001 19:08:56 -0500
+Received: from mx2.utanet.at ([195.70.253.46]:30109 "EHLO smtp1.utaiop.at")
+	by vger.kernel.org with ESMTP id <S131305AbRACAIs>;
+	Tue, 2 Jan 2001 19:08:48 -0500
+Message-ID: <3A52748E.4060107@grips.com>
+Date: Wed, 03 Jan 2001 01:38:38 +0100
+From: Gerold Jury <geroldj@grips.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-prerelease i686; en-US; m18) Gecko/20001229
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>, dl8bcu@gmx.net,
+        Maik.Zumstrull@gmx.de
+Subject: Re: Happy new year^H^H^H^Hkernel..
+In-Reply-To: <Pine.LNX.4.30.0101022348550.1202-100000@vaio>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Folks, there is a pretty strange detail of the allocation policy -
-if cylinder group has no free blocks past the goal ext2 tries very hard to
-avoid allocation in the beginning of the group. I.e. order looks so:
+It works for me.
+With and without the divert module loaded.
 
-	* goal
-	* goal .. (goal+63) & ~63
-	* goal .. end of cylinder group
-	* cylinder groups past one that contains goal
-	* cylinder groups before one that contains goal
-	* beginning of cylinder group..goal-1
+Thanks a lot
 
-It looks somewhat fishy. What's the reason for such policy?
-							Cheers,
-								Al
+Gerold
+
+Kai Germaschewski wrote:
+
+> I think I found it. Could everybody who was getting the crash on ISDN line
+> hangup try if the following patch fixes the problem?
+> 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

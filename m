@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268465AbTANBH2>; Mon, 13 Jan 2003 20:07:28 -0500
+	id <S268469AbTANBJ6>; Mon, 13 Jan 2003 20:09:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268467AbTANBH1>; Mon, 13 Jan 2003 20:07:27 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:54917 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S268465AbTANBHZ>; Mon, 13 Jan 2003 20:07:25 -0500
-Date: Mon, 13 Jan 2003 20:20:10 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Jeff Garzik <jgarzik@pobox.com>, Ross Biro <rossb@google.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Alan Cox <alan@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-pre3-ac4
-In-Reply-To: <1042495640.587.30.camel@zion.wanadoo.fr>
-Message-ID: <Pine.LNX.3.95.1030113201527.31662A-100000@chaos.analogic.com>
+	id <S268470AbTANBJ6>; Mon, 13 Jan 2003 20:09:58 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:49884 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S268469AbTANBJ5>; Mon, 13 Jan 2003 20:09:57 -0500
+Message-ID: <957BD1C2BF3CD411B6C500A0C944CA2602CB5E31@pdsmsx32.pd.intel.com>
+From: "Fu, Michael" <michael.fu@intel.com>
+To: ebiederm@xmission.com
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: [ANNOUNCE] kexec-tools-1.8
+Date: Tue, 14 Jan 2003 09:16:30 +0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Jan 2003, Benjamin Herrenschmidt wrote:
+On 2002-12-02 at 04:41:34, Eric wrote:
+>kexec-tools-1.8 is now available at :
+>http://www.xmission.com/~ebiederm/files/kexec/kexec-tools-1.8.tar.gz
 
-> On Mon, 2003-01-13 at 22:40, Richard B. Johnson wrote:
-> 
-> > There is a well-defined procedure for this. Any "read" anywhere
-> > in the PCI address space, will force all posted writes to complete.
-> > However, the "read" will not be the data one would obtain after
-> > the write completes. 
-> 
-> Just to avoid confusion, the above is obviously wrong, the read will
-> indeed force pending store queues to complete _in order_, the read will
-> reach the device after the stores are complete and you'll read the value
-> you would get after the write normally. At least on PCI ;)
-> 
-> Ben.
-> 
-
-It is not, as you say; "obviously wrong". It is, in fact correct.
-If you think you will get, as previously stated, the current status
-by reading the status register of a device, while a posted-write
-is in-progress, the code is broken. There are warnings all over
-PCI device hardware specifications about this. 
+I can't use the kexec program in the package to load a bzImage file. The
+following simple patch make it work.
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+diff -ru kexec-tools-1.8-orig/kexec/kexec.c kexec-tools-1.8/kexec/kexec.c
+--- kexec-tools-1.8-orig/kexec/kexec.c	Mon Jan 13 11:21:28 2003
++++ kexec-tools-1.8/kexec/kexec.c	Mon Jan 13 11:21:50 2003
+@@ -159,7 +159,7 @@
+ 	}
+ 	for(i = 0; i < file_types; i++) {
+ 		if (type && (strcmp(type, file_type[i].name) != 0)) {
+-			break;
++			continue;
+ 		}
+ 		if (file_type[i].probe(fp_kernel) > 0) {
+ 			break;
 
 
+
+Michael
+Not speaking for Intel,   options are my own.

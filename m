@@ -1,81 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267823AbUHPRrt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267834AbUHPRvZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267823AbUHPRrt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 13:47:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267822AbUHPRrt
+	id S267834AbUHPRvZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 13:51:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267830AbUHPRux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 13:47:49 -0400
-Received: from mail.gmx.net ([213.165.64.20]:39091 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S267828AbUHPRqD (ORCPT
+	Mon, 16 Aug 2004 13:50:53 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:11459 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267827AbUHPRu2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 13:46:03 -0400
-X-Authenticated: #1725425
-Date: Mon, 16 Aug 2004 19:57:50 +0200
-From: Marc Ballarin <Ballarin.Marc@gmx.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: jwendel10@comcast.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8.1 Mis-detect CRDW as CDROM
-Message-Id: <20040816195750.6419699f.Ballarin.Marc@gmx.de>
-In-Reply-To: <1092661385.20528.25.camel@localhost.localdomain>
-References: <411FD919.9030702@comcast.net>
-	<20040816143817.0de30197.Ballarin.Marc@gmx.de>
-	<1092661385.20528.25.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 16 Aug 2004 13:50:28 -0400
+Subject: [PATCH] 2.6.8-rc4-mm1 DIO pages-in-io accounting fix
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-nwAzg3HeNuVbKOKh4C2t"
+Organization: 
+Message-Id: <1092678626.3641.833.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 16 Aug 2004 13:50:26 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Aug 2004 14:03:06 +0100
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-> On Llu, 2004-08-16 at 13:38, Marc Ballarin wrote:
-> > Due to the newly added command filtering, you now need to run cdrecord as
-> > root. Since cdrecord will drop root privileges before accessing the drive,
-> > setuid root won't help
-> 
-> cdrecord should be fine. k3b is issuing something not on the filter
-> list.
-> 
-> > This patch restores the behaviour of previous kernels, security issues included:
-> 
-> Like allowing any user to erase your drive firmware. What you could do
-> which is much more useful is printk the command byte that gets refused
-> and see if you can pin down what commands are being blocked that
-> are needed by K3B 
-> 
-> Alan
-> 
+--=-nwAzg3HeNuVbKOKh4C2t
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-cdrecord 2.01a28 wants:
-when doing dev=/dev/dvd -atip:
-OR
-dev=/dev/cdrom blank=fast
+Hi Andrew,
 
-0x46 0x55 0x1e 0x1 0x35
+I found one more accounting inconsistency with dio_pages_in_io.
+This is a day-one bug and I started hitting it on latest -mm
+due to the recent changes to dio_pages_in_io calculations to be
+exact.
 
-when trying to write:
-0x46 0x55
+If the file is badly fragmented (no contiguous blocks at all),
+and the user buffer is not page aligned - we need to create
+IO for each disk block with 2 pages. (bio with 2 vecs).
+ 
+dio_bio_add_page() should not decrement dio_pages_in_io for every
+add page. It should only decrement, it only if its done with that
+page and moving on to next page. (since dio_pages_in_io represent 
+how many actual pages we are operating on). 
 
-dvd+rw-mediainfo wants:
-0x46
+Here is the patch to fix this accounting. Without this patch, we
+will hit BUG() in dio_new_bio() with O_DIRECT on filesystems,.
 
-k3b wants:
-0x46 0x55 0xac
+Thanks,
+Badari
 
-Those are all command I've seen so far:
-0x1 REWIND
-0x1e PREVENT ALLOW MEDIUM REMOVAL
-0x35 SYNCHRONIZE_CACHE
-0x46 ?
-0x55 MODE SELECT(10)
-0xac ERASE(12)
 
-Here is the patch I've been using:
 
---- linux-2.6.8/drivers/block/scsi_ioctl.c.orig	2004-08-16 19:48:15.083524248 +0200
-+++ linux-2.6.8/drivers/block/scsi_ioctl.c	2004-08-16 19:09:19.000000000 +0200
-@@ -174,0 +175,2 @@
-+	else	
-+		printk(KERN_WARNING "FILTERED: %x \n", cmd[0]);
+--=-nwAzg3HeNuVbKOKh4C2t
+Content-Disposition: attachment; filename=dio_inio.patch
+Content-Type: text/plain; name=dio_inio.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+--- linux.org/fs/direct-io.c	2004-08-16 10:57:33.112528208 -0700
++++ linux-2.6.8-rc4-mm1/fs/direct-io.c	2004-08-16 10:59:10.668697416 -0700
+@@ -561,7 +561,11 @@ static int dio_bio_add_page(struct dio *
+ 	ret = bio_add_page(dio->bio, dio->cur_page,
+ 			dio->cur_page_len, dio->cur_page_offset);
+ 	if (ret == dio->cur_page_len) {
+-		dio->pages_in_io--;
++		/*
++		 * Decrement count only, if we are done with this page
++		 */
++		if ((dio->cur_page_len + dio->cur_page_offset) == PAGE_SIZE)
++			dio->pages_in_io--;
+ 		page_cache_get(dio->cur_page);
+ 		dio->final_block_in_bio = dio->cur_page_block +
+ 			(dio->cur_page_len >> dio->blkbits);
+
+--=-nwAzg3HeNuVbKOKh4C2t--
+

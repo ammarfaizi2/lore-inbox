@@ -1,59 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbVDBCMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVDBCMP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261664AbVDBCMf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 21:12:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbVDBCMf
+	id S261650AbVDBCMP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 21:12:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262970AbVDBCMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 21:12:35 -0500
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:133 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261664AbVDBCM0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 21:12:26 -0500
-Message-ID: <424DFF88.30003@yahoo.com.au>
-Date: Sat, 02 Apr 2005 12:12:24 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
+	Fri, 1 Apr 2005 21:12:14 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:6413 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S261650AbVDBCMF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 21:12:05 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: RE: Can't use SYSFS for "Proprietry" driver modules !!!.
+Date: Fri, 1 Apr 2005 18:11:18 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKGENHCNAB.davids@webmaster.com>
 MIME-Version: 1.0
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-CC: "'Ingo Molnar'" <mingo@elte.hu>, "'Linus Torvalds'" <torvalds@osdl.org>,
-       "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Industry db benchmark result on recent 2.6 kernels
-References: <200504020100.j3210fg04870@unix-os.sc.intel.com>
-In-Reply-To: <200504020100.j3210fg04870@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+In-Reply-To: <20050330141550.GA71637@dspnet.fr.eu.org>
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Fri, 01 Apr 2005 18:10:34 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Fri, 01 Apr 2005 18:10:38 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chen, Kenneth W wrote:
-> Ingo Molnar wrote on Thursday, March 31, 2005 8:52 PM
-> 
->>the current defaults for cache_hot_time are 10 msec for NUMA domains,
->>and 2.5 msec for SMP domains. Clearly too low for CPUs with 9MB cache.
->>Are you increasing cache_hot_time in your experiment? If that solves
->>most of the problem that would be an easy thing to fix for 2.6.12.
-> 
-> 
-> 
-> Chen, Kenneth W wrote on Thursday, March 31, 2005 9:15 PM
-> 
->>Yes, we are increasing the number in our experiments.  It's in the queue
->>and I should have a result soon.
-> 
-> 
-> Hot of the press: bumping up cache_hot_time to 10ms on our db setup brings
-> 2.6.11 performance on par with 2.6.9.  Theory confirmed.
-> 
 
-OK, that's good. I'll look at whether we can easily use Ingo's
-tool on the SMP domain only, to avoid the large O(n^2). That might
-be an acceptable short term solution for 2.6.12.
 
-If you get a chance to also look at those block layer patches that
-would be good - if they give you a nice improvement, that would
-justify getting them into -mm.
+> On Tue, Mar 29, 2005 at 11:00:30AM -0800, David Schwartz wrote:
 
--- 
-SUSE Labs, Novell Inc.
+> > Since the GPL permits their removal, removing them cannot
+> > be circumventing
+> > the GPL. Since the GPL is the only license and the license
+> > permits you to
+> > remove them, they cannot be a license enforcement mechanism. How can you
+> > enforce a license that permits unrestricted functional modification?
+
+> You misunderstand totally the EXPORT_GPL system.
+
+	No, I understand it perfectly.
+
+> It does not mean
+> "this is a technological system to prevent you to use it with non-gpl
+> compatible code".
+
+	Right, which is precisely what I said. They are not a license enforcement
+mechanism.
+
+> It means "The author of that code consider that
+> using this function makes your code so linux-specific that it must be
+> a derivative work of the code implementing the function, so if you use
+> it from non gpl-compatible code you'll be sued.  And since he's nice,
+> he uses a technical method to prevent you from doing such a copyright
+> violation by mistake.".
+
+	If the author of the code is not a lawyer, his opinion about what does or
+does not constitute a derived work should really not be of any interest. I
+do agree that this is much closer to an accurate understandinf of EXPORT_GPL
+than that it's a license enforcement mechanism.
+
+> See the subtle difference?  EXPORT_GPL is here to _help_ proprietary
+> driver authors.  Your lawyers should _love_ it and skin you alive if
+> you try to get around it.
+
+	Why would any competent lawyer perfer the opinion of a layperson on a
+purely legal matter over his own opinion? That's totally absurd.
+
+	In any event, I wasn't talking about what EXPORT_GPL is, just about what it
+isn't. And you seem to agree with me that it's not a license enforcement
+mechanism and that you're not violating the GPL if you remove it and
+distribute the results.
+
+	I hope you would further agree that the legality of distributing code not
+under the GPL that uses EXPORT_GPL symbols hinges on whether the works
+distributed actually *are* derivative works of the covered works and not on
+the author's opinion. Neither the authors of GPL'd works nor the GPL can set
+out the scope of the GPL's authority -- that comes from copyright law.
+
+	DS
+
 

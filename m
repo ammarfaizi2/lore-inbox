@@ -1,99 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264857AbSLVScD>; Sun, 22 Dec 2002 13:32:03 -0500
+	id <S264683AbSLVS2u>; Sun, 22 Dec 2002 13:28:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265132AbSLVScD>; Sun, 22 Dec 2002 13:32:03 -0500
-Received: from [195.208.223.238] ([195.208.223.238]:27520 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S264857AbSLVScB>; Sun, 22 Dec 2002 13:32:01 -0500
-Date: Sun, 22 Dec 2002 21:39:45 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, davidm@hpl.hp.com,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH 2.5.x disable BAR when sizing
-Message-ID: <20021222213945.A30070@localhost.park.msu.ru>
-References: <Pine.LNX.4.44.0212211423390.1604-100000@home.transmeta.com> <m1y96il4oj.fsf@frodo.biederman.org>
+	id <S264857AbSLVS2u>; Sun, 22 Dec 2002 13:28:50 -0500
+Received: from iucha.net ([209.98.146.184]:60754 "EHLO mail.iucha.net")
+	by vger.kernel.org with ESMTP id <S264683AbSLVS2t>;
+	Sun, 22 Dec 2002 13:28:49 -0500
+Date: Sun, 22 Dec 2002 12:36:57 -0600
+From: Florin Iucha <florin@iucha.net>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Next round of AGPGART fixes.
+Message-ID: <20021222183657.GA1043@iucha.net>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20021220124137.GA28068@suse.de> <20021222155211.GB650@iucha.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m1y96il4oj.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sun, Dec 22, 2002 at 03:38:04AM -0700
+In-Reply-To: <20021222155211.GB650@iucha.net>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook: Where do you want [your files] to go today?
+X-gpg-key: http://iucha.net/florin_iucha.gpg
+X-gpg-fingerprint: 41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 21, 2002 at 02:44:23PM -0800, Linus Torvalds wrote:
-> And hotplug devices should be disabled at plug-in, so later BAR probing
-> should be pretty harmless too (and, as you point out about bridging, they
-> should be shielded by the hotplug bridge itself).
 
-Agreed.
+--wRRV7LY7NUeQGEoC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> This is why I repeated my "turn the power off at the whole house" analogy,
-> even if David didn't like it. It's _fine_ to turn the power off if we know
-> things are quiet, it's just that as things stand now, we don't actually
-> know that.
+On Sun, Dec 22, 2002 at 09:52:11AM -0600, Florin Iucha wrote:
+> On Fri, Dec 20, 2002 at 12:41:37PM +0000, Dave Jones wrote:
+> > Linus,
+> >  Please pull from bk://linux-dj.bkbits.net/agpgart to get at the
+> > following fixes..
+> [snip]
+> > GNU diff for those who care (against Linus' bk tree) is at
+> > ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/2.5.52/agpgart=
+-fixes-1.diff
+>=20
+> I'm using bk7 which contains all your patch except via* stuff which I'm
+> not interested in.
+> Agpgart and sis-agp compiled as modules. Modprobe agpgart succeeds,=20
+> modprobe sis-agp oopses:
+>=20
+> agpgart: Detected SiS 735 chipset
 
-The analogy is wonderful. I'd like to extend it to mentioned ia64 system:
-any attempt to replace a light bulb that consumes more than 32 Mb^H^HWatts
-without turning the power off will blow up fuses in the whole house.
+[snip oops]
 
->  - (new) phase 1 - scan for and turn off all devices
->  - phase 2 - go back and check the resources (BAR probing etc)
->  - phase 3 - allocate unassigned resources.
+With agpgart and sis-agp built in the kernel (non-modular) it works
+fine - I have direct rendering enabled in X.
 
-I don't think we want to turn off *all* devices in phase 1.
-Probably we need another level of fixups - PCI_FIXUP_EARLY, which
-will be called after phase 1, i.e. before fiddling with BARs.
+Cheers,
+florin
+--=20
 
-However, I'm still not convinced that we should ever change anything.
+"If it's not broken, let's fix it till it is."
 
-On Sun, Dec 22, 2002 at 03:38:04AM -0700, Eric W. Biederman wrote:
-> So the problem we are facing is that we have some activity while BARs
-> are being sized.  Activity can be in the form of IRQs, DMA, IO, and
-> MEM accesses.
+--wRRV7LY7NUeQGEoC
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-I would suggest another classification: a) bus activity generated by CPU
-and b) bus activity generated by other devices.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
 
-Case 'a' is mostly under our control. The only problem is an interrupt
-arriving during BAR probe, as Paul pointed out. This can be fixed:
-		pci_read_config_dword(dev, reg, &l);
-+		local_irq_save(flags);
-		pci_write_config_dword(dev, reg, ~0);
-		pci_read_config_dword(dev, reg, &sz);
-		pci_write_config_dword(dev, reg, l);
-+		local_irq_restore(flags);
+iD8DBQE+BgZJNLPgdTuQ3+QRAuevAJ9cYC8nytYg3L1Wh4FDaT73y4N3CwCeLcRe
+uOc5BsyrcRViiKNpMOvT2zQ=
+=Fobt
+-----END PGP SIGNATURE-----
 
-Case 'b', two variants.
-- The target of bus activity is a region located in the low bus
-  addresses (USB case), so there are no conflicts with probed BARs
-  of other devices. But we cannot safely disable devices while BARs
-  are being sized as we don't know for sure what device controls
-  that region.
-- Target region is in the high bus addresses (ia64 case), and conflicts
-  are possible when we do the sizing. Yes, disabling the devices does help
-  to avoid conflicts and it happens to work with *some* configurations.
-  But what if the said region in its turn is defined by BAR? or just
-  controlled by some PCI device and therefore can be disconnected from
-  the bus? Too many if's.
-
-I think it's obvious now that "disabling the BARs" is not a fix at all,
-it's just a hack for that particular setup.
-BTW, I think it is *not* required by PCI spec - v2.1 says nothing about it,
-in v2.2 it seems to be just an implementation example.
-
-The real fix is to shut up the device that makes a noise on the bus,
-at least during bus probe.
-I refuse to believe that it cannot be done with that ia64 SAPIC (must be
-a hidden switch somewhere ;-)
-So I'd wait for more tech details regarding that.
-
-> The goal being to keep the window when uncontrolled pci accesses
-> can blow the system up as small as possible.
-
-The window will be large enough anyway - the PCI config space accesses are
-very slow on most systems.
-
-Ivan.
+--wRRV7LY7NUeQGEoC--

@@ -1,80 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266899AbUG1MwP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266903AbUG1M6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266899AbUG1MwP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 08:52:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266905AbUG1MwP
+	id S266903AbUG1M6m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 08:58:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266905AbUG1M6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 08:52:15 -0400
-Received: from out001pub.verizon.net ([206.46.170.140]:12445 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP id S266899AbUG1MwG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 08:52:06 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc2 crashes
-Date: Wed, 28 Jul 2004 08:52:04 -0400
-User-Agent: KMail/1.6.82
-References: <200407271233.04205.gene.heskett@verizon.net> <200407280720.21518.gene.heskett@verizon.net> <10D3E6305A14470B62191D9B@sig-9-145-17-80.uk.ibm.com>
-In-Reply-To: <10D3E6305A14470B62191D9B@sig-9-145-17-80.uk.ibm.com>
+	Wed, 28 Jul 2004 08:58:42 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:10451 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S266903AbUG1M6j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 08:58:39 -0400
+Message-ID: <4107A2FE.6040803@comcast.net>
+Date: Wed, 28 Jul 2004 08:58:38 -0400
+From: Ed Sweetman <safemode@comcast.net>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Jens Axboe <axboe@suse.de>
+CC: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Jan-Frode Myklebust <janfrode@parallab.uib.no>,
+       linux-kernel@vger.kernel.org
+Subject: Re: OOM-killer going crazy.
+References: <41045EBE.8080708@comcast.net> <20040726091004.GA32403@ii.uib.no> <410500FD.8070206@comcast.net> <4105D7ED.5040206@yahoo.com.au> <20040727100724.GA11189@suse.de> <41065748.8050107@comcast.net> <41065902.20909@yahoo.com.au> <4106D978.7090008@comcast.net> <4106FAAB.5080106@yahoo.com.au> <4107480A.8020808@comcast.net> <20040728064516.GC11690@suse.de>
+In-Reply-To: <20040728064516.GC11690@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200407280852.04763.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [141.153.76.84] at Wed, 28 Jul 2004 07:52:05 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 28 July 2004 07:38, Andy Whitcroft wrote:
->> I just had another crash/lockup, running 2.6.8-rc2-bk3
->> At the instant, I was looking thru the menu's of the new
->> kde3.3-beta2, in the window decoration, themes etc menu,
->> where it got 14% loaded in a 60 megabyte file and it went
->> away.
->
->Confused.  Previously (below) you were running 2.6.8-rc2 so the
-> problem was in that version but not in -rc1 if I read you
-> correctly.  So I would expect you to be testing 2.6.8-rc1-bkN
-> snapshots to see where your breakage was introduced.
+Jens Axboe wrote:
 
-I was having mobo problems back about rc1 times, so I'm not able to 
-positively say that rc1 did/did not do it.  I tried to make that 
-clear in a later message but must not have been.  Motherboard, cpu, 
-memory and psu are all fresh now.
+>On Wed, Jul 28 2004, Ed Sweetman wrote:
+>  
+>
+>>Nick Piggin wrote:
+>>
+>>    
+>>
+>>>Ed Sweetman wrote:
+>>>
+>>>      
+>>>
+>>>>Nick Piggin wrote:
+>>>>
+>>>>        
+>>>>
+>>>>>OK so it does sound like a different problem.
+>>>>>
+>>>>>I didn't follow your other thread closely... does /proc/slabinfo
+>>>>>show any evidence of a leak?
+>>>>>          
+>>>>>
+>>>>
+>>>>
+>>>>Surprisingly no. You'd think that since the kernel is responsible for 
+>>>>saying what memory can't be touched or swapped out it would have some 
+>>>>sort of tag on the huge 600MB of ram I currently can't do anything 
+>>>>with since i burned that audio cd but slabinfo doesn't seem to show 
+>>>>anything about it. Maybe i'm reading it wrong.
+>>>>
+>>>>        
+>>>>
+>>>It could be memory coming straight out of the page allocator that
+>>>isn't being freed.
+>>>
+>>>Jens, any ideas?
+>>>-
+>>>      
+>>>
+>>
+>>Con Kolivas' 2.6.8-rc1-ck6 snapshot patch seems fix the problem.  Not 
+>>only is my audio not corrupted when i write a disk but I get no mem leak 
+>>situation and thus no OOM.  I did 5 dummy burns with no swap being used 
+>>and stable vm statistics, final real burn resulted in successful disc.
+>>
+>>2.6.8-rc1 2.6.8-rc1-mm both flipped out.  ck touches all relevent files 
+>>so something the patch does fixed whatever was wrong. 
+>>    
+>>
+>
+>This makes about zero sense to me (a leak I can understand, corrupted
+>audio is more weird). Can you point me at the specific patch used?
+>
+>  
+>
+the corruption may have been a combination of not burning a cd without 
+-pad and without -swab at the same time as using -audio.  It appears my 
+drive burns audio just fine with just -audio as the argument for cdrecord. 
 
-As this mobo contains the nforce2 chipset, now running the reverse 
-engineered driver, how far back can I go without running into 
-problems with it?
+http://ck.kolivas.org/patches/2.6/2.6.7/2.6.8-rc1/snapshot-2.6.8-rc1-ck6-0407151120.bz2
 
->> I have now had 4 crashes while running 2.6.8-rc2, the last one
->> requiring a full powerdown before the intel-8x0 could
->> re-establish control over the sound.
->
->[...]
->
->> I'd revert to rc1, but I'd have to figure out a way to use this
->> .config
->
->As viro put it:
->>It goes like that:
->>2.6.7
->>2.6.7 + 7-bk<n>
->>2.6.7 + 8-rc1
->>2.6.7 + 8-rc1 + 8-rc1-bk<n>
->>2.6.7 + 8-rc2
->>2.6.7 + 8-rc2 + 8-rc2-bk<n>
->
->-apw
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.23% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

@@ -1,169 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280556AbRKFUmZ>; Tue, 6 Nov 2001 15:42:25 -0500
+	id <S280538AbRKFUlO>; Tue, 6 Nov 2001 15:41:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280554AbRKFUmF>; Tue, 6 Nov 2001 15:42:05 -0500
-Received: from postfix2-1.free.fr ([213.228.0.9]:35972 "HELO
-	postfix2-1.free.fr") by vger.kernel.org with SMTP
-	id <S275743AbRKFUlu> convert rfc822-to-8bit; Tue, 6 Nov 2001 15:41:50 -0500
-Date: Tue, 6 Nov 2001 18:56:44 +0100 (CET)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Berkan Eskikaya <berkan@runtime-collective.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: sym53c8xx problem
-In-Reply-To: <20011106024430.A7893@cogs.susx.ac.uk>
-Message-ID: <20011106181733.C1653-100000@gerard>
+	id <S280537AbRKFUlE>; Tue, 6 Nov 2001 15:41:04 -0500
+Received: from [209.149.111.162] ([209.149.111.162]:5139 "EHLO
+	ROCKY.campusfcu.org") by vger.kernel.org with ESMTP
+	id <S280570AbRKFUky>; Tue, 6 Nov 2001 15:40:54 -0500
+Message-ID: <0FD28E544E09BB46847FCEBEEDFBA9AB0DA770@ROCKY.campusfcu.org>
+From: Burton Windle <bwindle@campuscu.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.13-ac8: oops in update_one_process
+Date: Tue, 6 Nov 2001 15:40:26 -0500 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here is an oops that I've had so far (3 seperate times) with 2.4.13-ac8. ac6
+was rock-solid on this machine (PP200, 32mb ram, ext3, no modules, 3c590).
 
-On Tue, 6 Nov 2001, Berkan Eskikaya wrote:
+ksymoops 2.4.3 on i686 2.4.13-ac8.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.13-ac8/ (default)
+     -m /usr/src/linux/System.map (specified)
 
-> Hi,
->
-> Hardware and driver details are at the end; first, the problem:
->
-> I've been getting messages like these in the kernel logs on one of our
-> colocated servers:
->
-> sym53c875E-0-<0,*>: FAST-20 WIDE SCSI 40.0 MB/s (50 ns, offset 16)
-> sym53c875E-0:0: ERROR (81:0) (8-0-0) (10/9d) @ (script 38:f31c0004).
-> sym53c875E-0: script cmd = e21c0004
-> sym53c875E-0: regdump: da 00 00 9d 47 10 00 07 04 08 80 00 80 00 0f 02
->                        63 00 00 00 02 ff ff ff.
-                         ^^^^^^^^^^^
+No modules in ksyms, skipping objects
+Warning (read_lsmod): no symbols in lsmod, is /proc/modules a valid lsmod
+file?
+Unable to handle kernel paging request at virtual address 080ae0fc
+ c0118e8b
+ *pde = 00cb6067
+ Oops: 0002
+ CPU:    0
+ EIP:    0010:[<c0118e8b>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+ EFLAGS: 00010046
+ eax: 00000000   ebx: 51eb851f   ecx: 0002131e   edx: 00000000
+ esi: 080ae000   edi: 00000001   ebp: c0c7dc44   esp: c0c7dbb8
+ ds: 0018   es: 0018   ss: 0018
+ Process bb-combo.sh (pid: 5980, stackpage=c0c7c000)
+ Stack: 080ae000 00000000 00000001 c0118f5d 080ae000 00000001 00000000
+00000000
+        00002e8e c0c7dc44 00000000 c011927f 00000001 c010a6dd c0c7dc44
+c0275448
+               20000001 c0107caf 00000000 00000000 c0c7dc44 00000000
+c02c0900 00000000
+               Call Trace: [<c0118f5d>] [<c011927f>] [<c010a6dd>]
+[<c0107caf>] [<c0107e16>]
+               Code: 01 bc 30 fc 00 00 00 01 94 30 00 01 00 00 89 f8 03 86
+e8 00
 
-This IO register value (DSA = Data Struture Address) has been loaded with
-some corrupted value . It should look like a valid 32 bit aligned bus
-physical address pointing to main memory (assumed little-endian byte
-order).
+>>EIP; c0118e8a <update_one_process+1a/d4>   <=====
+Trace; c0118f5c <update_process_times+18/88>
+Trace; c011927e <do_timer+22/6c>
+Trace; c010a6dc <timer_interrupt+d0/18c>
+Trace; c0107cae <handle_IRQ_event+2e/58>
+Trace; c0107e16 <do_IRQ+6a/a8>
+Code;  c0118e8a <update_one_process+1a/d4>
+00000000 <_EIP>:
+Code;  c0118e8a <update_one_process+1a/d4>   <=====
+   0:   01 bc 30 fc 00 00 00      add    %edi,0xfc(%eax,%esi,1)   <=====
+Code;  c0118e90 <update_one_process+20/d4>
+   7:   01 94 30 00 01 00 00      add    %edx,0x100(%eax,%esi,1)
+Code;  c0118e98 <update_one_process+28/d4>
+   e:   89 f8                     mov    %edi,%eax
+Code;  c0118e9a <update_one_process+2a/d4>
+  10:   03 86 e8 00 00 00         add    0xe8(%esi),%eax
 
-This happens from SCSI SCRIPTS at this place:
-
-	SCR_LOAD_ABS (dsa, 4),
-		PADDRH (startpos),   <--- Corrupted value loaded into DSA
-	SCR_LOAD_REL (temp, 4),      <--- Instruction that faulted
-		4,
-}/*-------------------------< GETJOB_BEGIN >------------------*/,{
-	SCR_STORE_ABS (temp, 4),
-		PADDRH (startpos),
-
-The corrupted value (from startpos) is taken from a SCRIPTS (scripth) area
-that stays in main memory. This memory location gets corrupted by the 32
-bit value 0x00000063 (rotated from the dump, since little-endian is
-assumed).
-
-> sym53c875E-0-<0,*>: FAST-20 WIDE SCSI 40.0 MB/s (50 ns, offset 16)
-> scsi : aborting command due to timeout : pid 7737, scsi0, channel 0, id 0, lun 0 Read (10) 00 00 00 3c 80 00 00 80 00
-> sym53c8xx_abort: pid=7737 serial_number=7752 serial_number_at_timeout=7752
-> SCSI host 0 abort (pid 7737) timed out - resetting
-> SCSI bus is being reset for host 0 channel 0.
-> sym53c8xx_reset: pid=7737 reset_flags=2 serial_number=7752 serial_number_at_timeout=7752
->
->
-> I thought this might be due to a bad card / cable so yesterday the ISP
-> replaced the SCSI card and cable with another pair. This morning I've
-> got these in the logs:
->
->
-> sym53c875E-0: interrupted SCRIPT address not found.
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This just above driver complaint has never been seen since day one I care
-about the ncr/sym53c8xx drivers. It only can happen if some SCRIPTS area
-has been corrupted.
-
-What part did screw up this memory and more generally memory allocated by
-the driver ? this is obviously the question. As main memory is shared by
-all the kernel code, there are numerous candidates (driver included,
-obviously).
-
-Since this does not look like a known problem, I cannot actually help you
-a lot. Anyway, I would recommend you to first update your kernel to a
-supported version. Final kernel 2.2.20 is what you likely need, it seems.
-
-Once done, if the problem does not go away, I would recommend you to
-update the driver to a more recent version. Choices are:
-
-1) sym53c8xx-1.7.3c
-2) sym-2.1.16b
-
-Choice #2 works great and is the latest available version. It is a major
-version now 2 of sym53c8xx that was version 1. It is not yet widely used
-but haven't any glitch be reported (yet) by people using it.
-
-ftp://ftp.tux.org/pub/roudier/drivers/linux/experimental/sym-2.1.16b-for-linx-2.2.20.patch.gz
+                <0>Kernel panic: Aiee, killing interrupt handler!
 
 
-> sym53c875E-0-<0,*>: FAST-20 WIDE SCSI 40.0 MB/s (50 ns, offset 16)
-> sym53c875E-0: interrupted SCRIPT address not found.
-> sym53c875E-0-<0,*>: FAST-20 WIDE SCSI 40.0 MB/s (50 ns, offset 16)
-> sym53c875E-0:0: ERROR (81:0) (8-0-0) (10/9d) @ (script 38:f31c0004).
-> sym53c875E-0: script cmd = e21c0004
-> sym53c875E-0: regdump: da 00 00 9d 47 10 00 0f 00 08 80 00 80 00 07 02 63 00 00 00 02 ff ff ff.
-> sym53c875E-0-<0,*>: FAST-20 WIDE SCSI 40.0 MB/s (50 ns, offset 16)
-> sym53c875E-0: interrupted SCRIPT address not found.
-> sym53c875E-0-<0,*>: FAST-20 WIDE SCSI 40.0 MB/s (50 ns, offset 16)
->
 
-Looks exactly same problem.
+Signed,
 
-> I'd really appreciate if somebody could shed some light on this and
-> recommend a solution. This has already caused a filesystem corruption
-> and a forced reboot.
->
-> I'm not on the list, so please Cc to berkan@runtime-collective.com
-> if you reply.
-
-Will do.
-
-Regards,
-  Gérard.
-
-> Cheers,
->
-> Berkan
->
->
-> Kernel: Linux 2.2.20pre11 for Intel x86
->
-> SCSI hardware and driver:
->
-> [relevant bits from boot messages]
->
-> sym53c8xx: at PCI bus 0, device 11, function 0
-> sym53c8xx: setting PCI_COMMAND_PARITY...(fix-up)
-> sym53c8xx: 53c875E detected with Tekram NVRAM
-> sym53c875E-0: rev 0x26 on pci bus 0 device 11 function 0 irq 10
-> sym53c875E-0: Tekram format NVRAM, ID 7, Fast-20, Parity Checking
-> scsi0 : sym53c8xx-1.7.1-20000726
-> scsi : 1 host.
->   Vendor: IBM       Model: DDYS-T09170N      Rev: S80D
->   Type:   Direct-Access                      ANSI SCSI revision: 03
-> Detected scsi disk sda at scsi0, channel 0, id 0, lun 0
-> scsi : detected 1 SCSI disk total.
-> sym53c875E-0-<0,*>: FAST-20 WIDE SCSI 40.0 MB/s (50 ns, offset 16)
-> SCSI device sda: hdwr sector= 512 bytes. Sectors= 17916240 [8748 MB] [8.7 GB]
->
-> [from lspci -v]
->
-> 00:0b.0 SCSI storage controller: Symbios Logic Inc. (formerly NCR) 53c875 (rev 26)
->         Subsystem: Symbios Logic Inc. (formerly NCR): Unknown device 1000
->         Flags: bus master, medium devsel, latency 32, IRQ 10
->         I/O ports at b800
->         Memory at da800000 (32-bit, non-prefetchable)
->         Memory at da000000 (32-bit, non-prefetchable)
->         Capabilities: [40] Power Management version 1
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
+Burton Windle

@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264424AbTEJQMw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 12:12:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264425AbTEJQMw
+	id S264430AbTEJQSL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 12:18:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264432AbTEJQSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 12:12:52 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:55424 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S264424AbTEJQMv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 12:12:51 -0400
-Date: Sat, 10 May 2003 17:25:27 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Tuncer M zayamut Ayaz <tuncer.ayaz@gmx.de>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100
-Message-ID: <20030510162527.GD29271@mail.jlokier.co.uk>
-References: <1405.1052575075@www9.gmx.net> <1052575167.16165.0.camel@dhcp22.swansea.linux.org.uk> <S264332AbTEJO5e/20030510145734Z+7011@vger.kernel.org> <S264373AbTEJPSN/20030510151813Z+1648@vger.kernel.org>
+	Sat, 10 May 2003 12:18:11 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:27127 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264430AbTEJQSJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 12:18:09 -0400
+Date: Sat, 10 May 2003 18:30:43 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Christoph Hellwig <hch@lst.de>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [2.5 patch] remove all #include <blk.h>'s
+Message-ID: <20030510163043.GJ1107@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <S264373AbTEJPSN/20030510151813Z+1648@vger.kernel.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tuncer M zayamut Ayaz wrote:
-> what I found out right now is that when there is
-> load (moving mailer windows around) the sound
-> is gone and reappears if there's no load aka
-> I stop moving mailer window (while typing this mail).
+The attached patch (gzipped due to 100 kB linux-kernel limit) removes 
+all #include <blk.h>'s for 2.5 and blk.h does now #error. If people 
+want their drivers to run unmodified under 2.4 it might be necessary to 
+do a
+  #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,70)
+  #include <linux/blk.h>
+  #endif
 
-That's the opposite of my Toshiba in any of the lower power modes.
+I've tested the compilation in 2.5.69-bk4 with a .config that tries to
+compile as much drivers as possible.
 
-When there's CPU activity, it emits a quiet high-pitched noise.  When
-CPU activity stops, the noise stops.  This doesn't happen in the
-maximum power usage mode (brigh screen, fastest clock), and I don't
-know if there's a way to turn it off.
+cu
+Adrian
 
--- Jamie
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,73 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261747AbSIXSYz>; Tue, 24 Sep 2002 14:24:55 -0400
+	id <S261759AbSIXSrK>; Tue, 24 Sep 2002 14:47:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261748AbSIXSYz>; Tue, 24 Sep 2002 14:24:55 -0400
-Received: from jstevenson.plus.com ([212.159.71.212]:24374 "EHLO
-	alpha.stev.org") by vger.kernel.org with ESMTP id <S261747AbSIXSYx>;
-	Tue, 24 Sep 2002 14:24:53 -0400
-Subject: Re: 2.4.19: oops in ide-scsi
-From: James Stevenson <james@stev.org>
-To: Philippe Troin <phil@fifi.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <87n0q8tcs8.fsf@ceramic.fifi.org>
-References: <87n0q8tcs8.fsf@ceramic.fifi.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 24 Sep 2002 19:26:25 +0100
-Message-Id: <1032891985.2035.1.camel@god.stev.org>
-Mime-Version: 1.0
+	id <S261760AbSIXSrK>; Tue, 24 Sep 2002 14:47:10 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32005 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261759AbSIXSrJ>; Tue, 24 Sep 2002 14:47:09 -0400
+Date: Tue, 24 Sep 2002 11:55:00 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Patrick Mochel <mochel@osdl.org>
+cc: <greg@kroah.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] Re: 2.5.26 hotplug failure
+In-Reply-To: <Pine.LNX.4.44.0209241118130.966-200000@cherise.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.33.0209241146520.7652-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
 
-i am glad somebody else sees the same crash as me the
-request Q gets set to NULL for some reson then tries to
-increment a stats counter in the null pointer.
-i know what the bug is i just dont know how to fix it :>
+On Tue, 24 Sep 2002, Patrick Mochel wrote:
+> 
+> Also, the owner of the device is root, and I easily make the permissions 
+> more stringent (i.e. make it S_IRUGO only always).
 
-> 
-> >>ebx; c089c000 <_end+587294/64ed294>
-> >>ecx; c0305744 <ide_hwifs+364/21e8>
-> >>esi; c11c3ac0 <_end+eaed54/64ed294>
-> >>edi; f6e8db4b <END_OF_CODE+30541cac/????>
-> >>ebp; c03058d4 <ide_hwifs+4f4/21e8>
-> >>esp; c02a3f04 <init_task_union+1f04/2000>
-> 
-> Trace; c01b002c <ide_intr+f8/164>
-> Trace; c682046c <[ide-scsi]idescsi_pc_intr+0/23c>
-> Trace; c010a394 <handle_IRQ_event+50/7c>
-> Trace; c010a586 <do_IRQ+a6/ec>
-> Trace; c010caf8 <call_do_IRQ+5/d>
-> Trace; c0106c7c <default_idle+2c/34>
-> Trace; c68c8415 <[apm]apm_cpu_idle+109/13c>
-> Trace; c68c830c <[apm]apm_cpu_idle+0/13c>
-> Trace; c0106c50 <default_idle+0/34>
-> Trace; c0106ce2 <cpu_idle+3e/54>
-> Trace; c0105000 <_stext+0/0>
-> Trace; c010504f <rest_init+4f/50>
-> 
-> Code;  c68204e0 <[ide-scsi]idescsi_pc_intr+74/23c>
-> 00000000 <_EIP>:
-> Code;  c68204e0 <[ide-scsi]idescsi_pc_intr+74/23c>   <=====
->    0:   ff 47 18                  incl   0x18(%edi)   <=====
-> Code;  c68204e3 <[ide-scsi]idescsi_pc_intr+77/23c>
->    3:   8b 85 f0 00 00 00         mov    0xf0(%ebp),%eax
-> Code;  c68204e9 <[ide-scsi]idescsi_pc_intr+7d/23c>
->    9:   8b 40 04                  mov    0x4(%eax),%eax
-> Code;  c68204ec <[ide-scsi]idescsi_pc_intr+80/23c>
->    c:   50                        push   %eax
-> Code;  c68204ed <[ide-scsi]idescsi_pc_intr+81/23c>
->    d:   6a 01                     push   $0x1
-> Code;  c68204ef <[ide-scsi]idescsi_pc_intr+83/23c>
->    f:   e8 24 fd ff ff            call   fffffd38 <_EIP+0xfffffd38> c6820218 <[ide-scsi]idescsi_end_request+0/254>
-> 
-> <6> <0>Kernel panic: Aiee, killing interrupt handler!
-> 1+0 records in
-> 1+0 records out
-> 
-> 1 warning issued.  Results may not be reliable.
+Well, that would _have_ to be the case, right now you give read access to 
+every single device exported this way. Not acceptable.
 
+I really suspect that it would be better to not export the device itself,
+but export just device data. In particular, that avoids the security
+issues altogether, and it's most likely what a hotplug agent really wants
+anyway (and the pure node is useless without a hotplug agent, as the
+default kernel permissions would have to be so anal as to make it not
+interesting).
+
+So I'd suggest you just export a text-file that describes the thing. 
+Something like
+
+ - legacy name (the kernel knows about these anyway, see /proc/mounts and 
+   friends)
+ - major number, minor number) and char vs block
+
+that way a simple script can just basically do the equivalent of "MAKEDEV" 
+at hotplug time using the legacy name as a key to whatever permission and 
+ownership heuristics it has (the way MAKEDEV already does)
+
+		Linus
 

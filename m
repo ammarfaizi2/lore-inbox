@@ -1,78 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbTLIWqX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 17:46:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbTLIWqX
+	id S263014AbTLIWwd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 17:52:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbTLIWwd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 17:46:23 -0500
-Received: from cantva.canterbury.ac.nz ([132.181.2.27]:26124 "EHLO
-	cantva.canterbury.ac.nz") by vger.kernel.org with ESMTP
-	id S262063AbTLIWqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 17:46:21 -0500
-Date: Wed, 10 Dec 2003 11:46:17 +1300
-From: Oliver Hunt <ojh16@student.canterbury.ac.nz>
-Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
-In-reply-to: <yw1xr7zd1zn2.fsf@kth.se>
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-       linux-kernel@vger.kernel.org
-Message-id: <3FD650B9.7090006@student.canterbury.ac.nz>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 8BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.5b)
- Gecko/20030727 Thunderbird/0.1
-References: <200312081536.26022.andrew@walrond.org>
- <20031208154256.GV19856@holomorphy.com> <3FD4CC7B.8050107@nishanet.com>
- <20031208233755.GC31370@kroah.com>
- <20031209061728.28bfaf0f.witukind@nsbm.kicks-ass.org>
- <3FD577E7.9040809@nishanet.com>
- <pan.2003.12.09.09.46.27.327988@dungeon.inka.de> <yw1x4qwai8yx.fsf@kth.se>
- <3FD62DB1.7040205@student.canterbury.ac.nz> <yw1xr7zd1zn2.fsf@kth.se>
+	Tue, 9 Dec 2003 17:52:33 -0500
+Received: from mail.cs.tu-berlin.de ([130.149.17.13]:4998 "EHLO
+	mail.cs.tu-berlin.de") by vger.kernel.org with ESMTP
+	id S263014AbTLIWwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 17:52:31 -0500
+Date: Tue, 9 Dec 2003 23:47:18 +0100 (MET)
+From: Peter Daum <gator@cs.tu-berlin.de>
+Reply-To: Peter Daum <gator@cs.tu-berlin.de>
+To: <linux-kernel@vger.kernel.org>
+cc: <linux-atm-general@lists.sourceforge.net>
+Subject: Re: 2.4.22 with CONFIG_M686: networking broken
+Message-ID: <Pine.LNX.4.30.0312092344360.17719-100000@swamp.bayern.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård wrote:
+Hi,
 
-> Oliver Hunt <ojh16@student.canterbury.ac.nz> writes:
-> 
-> 
->>Måns Rullgård wrote:
->>
->>
->>>Andreas Jellinghaus <aj@dungeon.inka.de> writes:
->>>
->>>
->>>>maybe add this to the faq?
->>>>
->>>>Q: devfs did load drivers when someone tried to open() a non existing
->>>>device. will sysfs/hotplug/udev do this?
->>>>
->>>>A: there is no need to.
->>>
->>>I never like it when the answer is "you don't want to do this".  It
->>>makes me think of a certain Redmond based company.
->>>
->>
->>No... that's MacOS.. it does everything you want it to do... if you
->>think otherwise, you're *wrong*,
-> 
-> 
-> Quite true, I've never been able to use the old MacOS for more than a
-> few minutes without a total system crash, only fixable by pulling the
-> plug.  MacOS is right, I don't want to use it, and it didn't let me.
-> Perfect.
-> 
-> 
->>although this isn't as applicable in MacOS X...
-> 
-> 
-> It didn't crash, but it made me log out very quickly.
-> 
-I'm currently doing development under macos x, and have come to the 
-conclusion that macos does some things well, others, not so well... 
-There's certainly a lot that can be learned from it (sometimes we can 
-learn what not to do -- The dock would be a good example of this :) )
+... the same bug is still present in kernel version 2.4.23.
+As I know meanwhile, it only occurs on ATM/LANE network connections.
 
---Oliver
+For more details about the problem, see the threads on
+
+"2.4.22 with CONFIG_M686: networking broken"
+http://testing.lkml.org/slashdot.php?mid=330251
+
+and
+
+"[2.4 patch] fix CONFIG_X86_L1_CACHE_SHIFT"
+http://testing.lkml.org/slashdot.php?mid=331650
+
+Regards,
+               Peter Daum
+
+In article <Pine.LNX.4.30.0309031227100.10173-100000@swamp.bayern.net> I
+wrote:
+
+> It seems, like kernel version 2.4.22 introduced some weird bug,
+> that causes all kinds of network malfunctions, when the kernel is
+> compiled with "CONFIG_M686".
+
+> I am sorry, that I can't come up with a clearer error
+> description, but the whole issue is pretty mysterious: there is
+> no actual error occurring, but some networking functionality is so
+> slow that it's for all practical purposes useless. The best test
+> cases I could find are:
+
+> - getting a file via ftp (e.g. wget ftp://...): Data rate over a
+>   normally fast network connection is ~ 200 bytes /second, the
+>   connection soon dies with a timeout
+
+> - writing to a SMB share (provided, that samba is running on the
+>   machine) is awfully slow and eventually aborted (Windows
+>   complains about "network congestion")
+>   reading via SMB works as usual ...
+
+> I upgraded the kernel on a bunch of machines - on most of them, I
+> had to immediately go back to the previous kernel because there
+> were obvious problems; some machines, however, worked perfectly
+> normal with the new kernel.
+
+> I tried lots of different options until I eventually found out,
+> that the single setting that makes all the difference is the
+> processor type: Independently of any other settings, all kernels
+> with "CONFIG_M686" exhibit these problems; when I change this to
+> "CONFIG_MPENTIUM4" and recompile, everything seems to work.
+
 

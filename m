@@ -1,294 +1,190 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317457AbSHOUng>; Thu, 15 Aug 2002 16:43:36 -0400
+	id <S317422AbSHOUkr>; Thu, 15 Aug 2002 16:40:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317458AbSHOUng>; Thu, 15 Aug 2002 16:43:36 -0400
-Received: from freemail.agrinet.ch ([212.28.134.90]:20745 "EHLO
-	FREEMAIL.agrinet.ch") by vger.kernel.org with ESMTP
-	id <S317457AbSHOUnc>; Thu, 15 Aug 2002 16:43:32 -0400
-Date: Thu, 15 Aug 2002 22:47:59 +0200
-From: Andreas Tscharner <starfire@dplanet.ch>
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Kernel Bug in 2.4.19
-Message-Id: <20020815224759.25515c5c.starfire@dplanet.ch>
-Organization: No Such Penguin
-X-Mailer: Sylpheed version 0.8.1claws38 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.m'TG8xydVVer9G"
+	id <S317427AbSHOUkq>; Thu, 15 Aug 2002 16:40:46 -0400
+Received: from pop017pub.verizon.net ([206.46.170.210]:30436 "EHLO
+	pop017.verizon.net") by vger.kernel.org with ESMTP
+	id <S317422AbSHOUkp>; Thu, 15 Aug 2002 16:40:45 -0400
+Message-ID: <3D5C1282.9000302@verizon.net>
+Date: Thu, 15 Aug 2002 16:43:46 -0400
+From: "Anthony Russo., a.k.a. Stupendous Man" <anthony.russo@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Many Oops initiated by slocate
+X-Enigmail-Version: 0.62.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------010903080809090006050204"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.m'TG8xydVVer9G
-Content-Type: multipart/mixed;
- boundary="Multipart_Thu__15_Aug_2002_22:47:59_+0200_09c90050"
-
-
---Multipart_Thu__15_Aug_2002_22:47:59_+0200_09c90050
-Content-Type: text/plain; charset=US-ASCII
+This is a multi-part message in MIME format.
+--------------010903080809090006050204
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-Hello World,
+Hi.
 
-After compiling 2.4.19 (Debian kernel-source-2.4.19-1), I've had several
-kernel bugs. I've added the messages of two that I got in the log. The
-others are similar.
-I re-changed to 2.4.18 (Debian kernel-source-2.4.18-5) and everything
-works fine.
+I am using kernel 2.4.19 untainted, Pentium PC, RedHat 7.3, etc.
+I have repeatedly seen this pattern of oops, even under 2.4.18:
 
-System: See attached dmesg
-Debian unstable
+updatedb (used by slocate and run by crond daily at 4am) causes
+a kernel oops after which many other applications cause oops and core dump.
 
-Regards
-	Andreas
--- 
-Andreas Tscharner                                  starfire@dplanet.ch
-----------------------------------------------------------------------
-"Programming today is a race between software engineers striving to
-build bigger and better idiot-proof programs, and the Universe trying
-to produce bigger and better idiots. So far, the Universe is winning."
-                                                          -- Rich Cook 
+I have enclosed the ksymoops output from updatedb and also by kswapd
+6 hours later. Mozilla repeatedly caused oops after that and I needed
+to reboot to send this email.
 
---Multipart_Thu__15_Aug_2002_22:47:59_+0200_09c90050
-Content-Type: text/plain;
- name="Bug1.txt"
-Content-Disposition: attachment;
- filename="Bug1.txt"
-Content-Transfer-Encoding: 7bit
+I would really like to see this fixed: I hate rebooting every few days
+and disabling
+the slocate cron job is not really desirable either.
 
-Aug 14 20:10:27 shannara kernel: kernel BUG at page_alloc.c:220!
-Aug 14 20:10:27 shannara kernel: invalid operand: 0000
-Aug 14 20:10:27 shannara kernel: CPU:    0
-Aug 14 20:10:27 shannara kernel: EIP:    0010:[rmqueue+491/556]    Not tainted
-Aug 14 20:10:27 shannara kernel: EFLAGS: 00010202
-Aug 14 20:10:27 shannara kernel: eax: 01000040   ebx: c14f584c   ecx:00001000   edx: 0001cda4
-Aug 14 20:10:27 shannara kernel: esi: c025a2d4   edi: 00000001   ebp:c025a2d4   esp: dd6f1e50
-Aug 14 20:10:27 shannara kernel: ds: 0018   es: 0018   ss: 0018
-Aug 14 20:10:27 shannara kernel: Process dh_testdir (pid: 936,stackpage=dd6f1000)
-Aug 14 20:10:27 shannara kernel: Stack: c025a460 000001ff 00000001 00000000 dda0d500 0001bda4 00000286 c025a2ec 
-Aug 14 20:10:27 shannara kernel:        00000000 c025a2d4 c012bf14 000001d2 dda0d500 00000001 dda0d500 c025a2d4 
-Aug 14 20:10:27 shannara kernel:        c025a45c 000001d2 c1511cac c012bd26 00104025 c0123210 080fb30c dda0d500 
-Aug 14 20:10:27 shannara kernel: Call Trace:    [__alloc_pages+64/376] [_alloc_pages+22/24] [do_anonymous_page+52/212] [do_no_page+51/380] [handle_mm_fault+82/176]
-Aug 14 20:10:27 shannara kernel:   [do_page_fault+352/1168] [do_page_fault+0/1168] [__vma_link+98/176] [do_brk+284/512] [sys_brk+187/228] [error_code+52/60]
-Aug 14 20:10:27 shannara kernel: 
-Aug 14 20:10:27 shannara kernel: Code: 0f 0b dc 00 93 44 22 c0 8b 43 18 a8 80 74 08 0f 0b de 00 93 
+-- tony
+"Surrender to the Void." -- John Lennon
 
 
---Multipart_Thu__15_Aug_2002_22:47:59_+0200_09c90050
-Content-Type: text/plain;
- name="Bug2.txt"
-Content-Disposition: attachment;
- filename="Bug2.txt"
-Content-Transfer-Encoding: 7bit
+--------------010903080809090006050204
+Content-Type: application/x-java-vm;
+ name="oopsUpdatedb"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="oopsUpdatedb"
 
-Aug 14 20:22:26 shannara kernel: kernel BUG at page_alloc.c:95!
-Aug 14 20:22:26 shannara kernel: invalid operand: 0000
-Aug 14 20:22:26 shannara kernel: CPU:    0
-Aug 14 20:22:26 shannara kernel: EIP:    0010:[__free_pages_ok+93/612]   Not tainted
-Aug 14 20:22:26 shannara kernel: EFLAGS: 00010202
-Aug 14 20:22:26 shannara kernel: eax: 01000005   ebx: c13efce8   ecx:c13efce8   edx: 00000000
-Aug 14 20:22:26 shannara kernel: esi: 00000000   edi: d9ddbef8   ebp:00000000   esp: d9ddbe74
-Aug 14 20:22:26 shannara kernel: ds: 0018   es: 0018   ss: 0018
-Aug 14 20:22:26 shannara kernel: Process dpkg (pid: 2304,stackpage=d9ddb000)
-Aug 14 20:22:26 shannara kernel: Stack: c13efce8 00000000 d9ddbef8 00000000 00000000 c13efce8 00000000 d9ddbef8 
-Aug 14 20:22:26 shannara kernel:        00000000 c0124bca c13efce8 00000000 c0124ad6 c012c0f3 c0124c12 c13efce8 
-Aug 14 20:22:26 shannara kernel:        c13efce8 c0124d58 c13efce8 00000000 d9ddbef8 00000001 d5acae10 00000000 
-Aug 14 20:22:26 shannara kernel: Call Trace:    [do_flushpage+38/44] [remove_inode_page+26/32] [__free_pages+27/28] [truncate_complete_page+66/72] [truncate_list_pages+320/420]
-Aug 14 20:22:26 shannara kernel:   [truncate_inode_pages+65/104] [vmtruncate+157/292] [inode_setattr+35/176] [notify_change+237/332] [do_truncate+77/100] [sys_ftruncate+274/296]
-Aug 14 20:22:26 shannara kernel:   [system_call+51/56]
-Aug 14 20:22:26 shannara kernel: 
-Aug 14 20:22:26 shannara kernel: Code: 0f 0b 5f 00 93 44 22 c0 8b 43 18 a8 80 74 08 0f 0b 61 00 93 
+a3N5bW9vcHMgMi40LjQgb24gaTY4NiAyLjQuMTkuICBPcHRpb25zIHVzZWQKICAgICAtViAo
+ZGVmYXVsdCkKICAgICAtayAvcHJvYy9rc3ltcyAoZGVmYXVsdCkKICAgICAtbCAvcHJvYy9t
+b2R1bGVzIChkZWZhdWx0KQogICAgIC1vIC9saWIvbW9kdWxlcy8yLjQuMTkvIChkZWZhdWx0
+KQogICAgIC1tIC9ib290L1N5c3RlbS5tYXAtMi40LjE5IChkZWZhdWx0KQoKV2FybmluZzog
+WW91IGRpZCBub3QgdGVsbCBtZSB3aGVyZSB0byBmaW5kIHN5bWJvbCBpbmZvcm1hdGlvbi4g
+IEkgd2lsbAphc3N1bWUgdGhhdCB0aGUgbG9nIG1hdGNoZXMgdGhlIGtlcm5lbCBhbmQgbW9k
+dWxlcyB0aGF0IGFyZSBydW5uaW5nCnJpZ2h0IG5vdyBhbmQgSSdsbCB1c2UgdGhlIGRlZmF1
+bHQgb3B0aW9ucyBhYm92ZSBmb3Igc3ltYm9sIHJlc29sdXRpb24uCklmIHRoZSBjdXJyZW50
+IGtlcm5lbCBhbmQvb3IgbW9kdWxlcyBkbyBub3QgbWF0Y2ggdGhlIGxvZywgeW91IGNhbiBn
+ZXQKbW9yZSBhY2N1cmF0ZSBvdXRwdXQgYnkgdGVsbGluZyBtZSB0aGUga2VybmVsIHZlcnNp
+b24gYW5kIHdoZXJlIHRvIGZpbmQKbWFwLCBtb2R1bGVzLCBrc3ltcyBldGMuICBrc3ltb29w
+cyAtaCBleHBsYWlucyB0aGUgb3B0aW9ucy4KClJlYWRpbmcgT29wcyByZXBvcnQgZnJvbSB0
+aGUgdGVybWluYWwKQXVnIDE1IDA0OjA0OjA4IG1hbmljIGtlcm5lbDogVW5hYmxlIHRvIGhh
+bmRsZSBrZXJuZWwgTlVMTCBwb2ludGVyIGRlcmVmZXJlbmNlIGF0IHZpcnR1YWwgYWRkcmVz
+cyAwMDAwMDAwMApBdWcgMTUgMDQ6MDQ6MDggbWFuaWMga2VybmVsOiBjMDE0Mjc4NApBdWcg
+MTUgMDQ6MDQ6MDggbWFuaWMga2VybmVsOiAqcGRlID0gMDAwMDAwMDAKQXVnIDE1IDA0OjA0
+OjA4IG1hbmljIGtlcm5lbDogT29wczogMDAwMApBdWcgMTUgMDQ6MDQ6MDggbWFuaWMga2Vy
+bmVsOiBDUFU6ICAgIDAKQXVnIDE1IDA0OjA0OjA4IG1hbmljIGtlcm5lbDogRUlQOiAgICAw
+MDEwOls8YzAxNDI3ODQ+XSAgICBOb3QgdGFpbnRlZApVc2luZyBkZWZhdWx0cyBmcm9tIGtz
+eW1vb3BzIC10IGVsZjMyLWkzODYgLWEgaTM4NgpBdWcgMTUgMDQ6MDQ6MDggbWFuaWMga2Vy
+bmVsOiBFRkxBR1M6IDAwMDEwMjE3CkF1ZyAxNSAwNDowNDowOCBtYW5pYyBrZXJuZWw6IGVh
+eDogZTdlMDAwMDAgICBlYng6IGZmZmZmZmYwICAgZWN4OiAwMDAwMDAxMSAgIGVkeDogMzE5
+YjEyMzYKQXVnIDE1IDA0OjA0OjA4IG1hbmljIGtlcm5lbDogZXNpOiBkOTI4OTQyMCAgIGVk
+aTogYzVjZTFmOWMgICBlYnA6IDAwMDAwMDAwICAgZXNwOiBjNWNlMWVmOApBdWcgMTUgMDQ6
+MDQ6MDggbWFuaWMga2VybmVsOiBkczogMDAxOCAgIGVzOiAwMDE4ICAgc3M6IDAwMTgKQXVn
+IDE1IDA0OjA0OjA4IG1hbmljIGtlcm5lbDogUHJvY2VzcyB1cGRhdGVkYiAocGlkOiA0NjY0
+LCBzdGFja3BhZ2U9YzVjZTEwMDApCkF1ZyAxNSAwNDowNDowOCBtYW5pYyBrZXJuZWw6IFN0
+YWNrOiBlN2UyNTcyOCBjNWUzYjAwMCAzMTliMTIzNiAwMDAwMDAxOSBjNWNlMWY2NCBkOTI4
+OTQyMCBjNWNlMWY5YyBlMmNlYmJhMCAKQXVnIDE1IDA0OjA0OjA4IG1hbmljIGtlcm5lbDog
+ICAgICAgIGMwMTM5ZjgwIGQ5Mjg5NDIwIGM1Y2UxZjY0IGM1Y2UxZjY0IGMwMTNhNzdiIGQ5
+Mjg5NDIwIGM1Y2UxZjY0IDAwMDAwMDAwIApBdWcgMTUgMDQ6MDQ6MDggbWFuaWMga2VybmVs
+OiAgICAgICAgMDAwMDAwMDggYzVlM2IwMTkgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAg
+MDAwMDAwMDAgMDAwMDEwMDAgZmZmZmZmZjQgCkF1ZyAxNSAwNDowNDowOCBtYW5pYyBrZXJu
+ZWw6IENhbGwgVHJhY2U6ICAgIFs8YzAxMzlmODA+XSBbPGMwMTNhNzdiPl0gWzxjMDEzOWQ1
+ZT5dIFs8YzAxM2FkYjM+XSBbPGMwMTM3ZDc0Pl0KQXVnIDE1IDA0OjA0OjA4IG1hbmljIGtl
+cm5lbDogICBbPGMwMTA4OTBjPl0gWzxjMDEwODgxYj5dCkF1ZyAxNSAwNDowNDowOCBtYW5p
+YyBrZXJuZWw6IENvZGU6IDhiIDZkIDAwIDM5IDUzIDQ0IDBmIDg1IDgwIDAwIDAwIDAwIDhi
+IDQ0IDI0IDI0IDM5IDQzIDBjIDc1IAoKPj5FSVA7IGMwMTQyNzg0IDxkX2xvb2t1cCs2NC8x
+MTA+ICAgPD09PT09ClRyYWNlOyBjMDEzOWY4MCA8Y2FjaGVkX2xvb2t1cCsxMC81MD4KVHJh
+Y2U7IGMwMTNhNzdiIDxsaW5rX3BhdGhfd2Fsays1ZmIvODkwPgpUcmFjZTsgYzAxMzlkNWUg
+PGdldG5hbWUrNWUvYTA+ClRyYWNlOyBjMDEzYWRiMyA8X191c2VyX3dhbGsrMzMvNTA+ClRy
+YWNlOyBjMDEzN2Q3NCA8c3lzX2xzdGF0NjQrMTQvNzA+ClRyYWNlOyBjMDEwODkwYyA8ZXJy
+b3JfY29kZSszNC8zYz4KVHJhY2U7IGMwMTA4ODFiIDxzeXN0ZW1fY2FsbCszMy8zOD4KQ29k
+ZTsgIGMwMTQyNzg0IDxkX2xvb2t1cCs2NC8xMTA+CjAwMDAwMDAwIDxfRUlQPjoKQ29kZTsg
+IGMwMTQyNzg0IDxkX2xvb2t1cCs2NC8xMTA+ICAgPD09PT09CiAgIDA6ICAgOGIgNmQgMDAg
+ICAgICAgICAgICAgICAgICBtb3YgICAgMHgwKCVlYnApLCVlYnAgICA8PT09PT0KQ29kZTsg
+IGMwMTQyNzg3IDxkX2xvb2t1cCs2Ny8xMTA+CiAgIDM6ICAgMzkgNTMgNDQgICAgICAgICAg
+ICAgICAgICBjbXAgICAgJWVkeCwweDQ0KCVlYngpCkNvZGU7ICBjMDE0Mjc4YSA8ZF9sb29r
+dXArNmEvMTEwPgogICA2OiAgIDBmIDg1IDgwIDAwIDAwIDAwICAgICAgICAgam5lICAgIDhj
+IDxfRUlQKzB4OGM+IGMwMTQyODEwIDxkX2xvb2t1cCtmMC8xMTA+CkNvZGU7ICBjMDE0Mjc5
+MCA8ZF9sb29rdXArNzAvMTEwPgogICBjOiAgIDhiIDQ0IDI0IDI0ICAgICAgICAgICAgICAg
+bW92ICAgIDB4MjQoJWVzcCwxKSwlZWF4CkNvZGU7ICBjMDE0Mjc5NCA8ZF9sb29rdXArNzQv
+MTEwPgogIDEwOiAgIDM5IDQzIDBjICAgICAgICAgICAgICAgICAgY21wICAgICVlYXgsMHhj
+KCVlYngpCkNvZGU7ICBjMDE0Mjc5NyA8ZF9sb29rdXArNzcvMTEwPgogIDEzOiAgIDc1IDAw
+ICAgICAgICAgICAgICAgICAgICAgam5lICAgIDE1IDxfRUlQKzB4MTU+IGMwMTQyNzk5IDxk
+X2xvb2t1cCs3OS8xMTA+CgpBdWcgMTUgMDk6NTg6MDIgbWFuaWMga2VybmVsOiBVbmFibGUg
+dG8gaGFuZGxlIGtlcm5lbCBwYWdpbmcgcmVxdWVzdCBhdCB2aXJ0dWFsIGFkZHJlc3MgMGVl
+YjAwMjAKQXVnIDE1IDA5OjU4OjAyIG1hbmljIGtlcm5lbDogYzAxNDQxOWYKQXVnIDE1IDA5
+OjU4OjAyIG1hbmljIGtlcm5lbDogKnBkZSA9IDAwMDAwMDAwCgoxIHdhcm5pbmcgaXNzdWVk
+LiAgUmVzdWx0cyBtYXkgbm90IGJlIHJlbGlhYmxlLgo=
+--------------010903080809090006050204
+Content-Type: application/x-java-vm;
+ name="oopsKswapd"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="oopsKswapd"
 
---Multipart_Thu__15_Aug_2002_22:47:59_+0200_09c90050
-Content-Type: text/plain;
- name="dmesg.txt"
-Content-Disposition: attachment;
- filename="dmesg.txt"
-Content-Transfer-Encoding: 7bit
+a3N5bW9vcHMgMi40LjQgb24gaTY4NiAyLjQuMTkuICBPcHRpb25zIHVzZWQKICAgICAtViAo
+ZGVmYXVsdCkKICAgICAtayAvcHJvYy9rc3ltcyAoZGVmYXVsdCkKICAgICAtbCAvcHJvYy9t
+b2R1bGVzIChkZWZhdWx0KQogICAgIC1vIC9saWIvbW9kdWxlcy8yLjQuMTkvIChkZWZhdWx0
+KQogICAgIC1tIC9ib290L1N5c3RlbS5tYXAtMi40LjE5IChkZWZhdWx0KQoKV2FybmluZzog
+WW91IGRpZCBub3QgdGVsbCBtZSB3aGVyZSB0byBmaW5kIHN5bWJvbCBpbmZvcm1hdGlvbi4g
+IEkgd2lsbAphc3N1bWUgdGhhdCB0aGUgbG9nIG1hdGNoZXMgdGhlIGtlcm5lbCBhbmQgbW9k
+dWxlcyB0aGF0IGFyZSBydW5uaW5nCnJpZ2h0IG5vdyBhbmQgSSdsbCB1c2UgdGhlIGRlZmF1
+bHQgb3B0aW9ucyBhYm92ZSBmb3Igc3ltYm9sIHJlc29sdXRpb24uCklmIHRoZSBjdXJyZW50
+IGtlcm5lbCBhbmQvb3IgbW9kdWxlcyBkbyBub3QgbWF0Y2ggdGhlIGxvZywgeW91IGNhbiBn
+ZXQKbW9yZSBhY2N1cmF0ZSBvdXRwdXQgYnkgdGVsbGluZyBtZSB0aGUga2VybmVsIHZlcnNp
+b24gYW5kIHdoZXJlIHRvIGZpbmQKbWFwLCBtb2R1bGVzLCBrc3ltcyBldGMuICBrc3ltb29w
+cyAtaCBleHBsYWlucyB0aGUgb3B0aW9ucy4KClJlYWRpbmcgT29wcyByZXBvcnQgZnJvbSB0
+aGUgdGVybWluYWwKQXVnIDE1IDA5OjU4OjAyIG1hbmljIGtlcm5lbDogVW5hYmxlIHRvIGhh
+bmRsZSBrZXJuZWwgcGFnaW5nIHJlcXVlc3QgYXQgdmlydHVhbCBhZGRyZXNzIDBlZWIwMDIw
+CkF1ZyAxNSAwOTo1ODowMiBtYW5pYyBrZXJuZWw6IGMwMTQ0MTlmCkF1ZyAxNSAwOTo1ODow
+MiBtYW5pYyBrZXJuZWw6ICpwZGUgPSAwMDAwMDAwMApBdWcgMTUgMDk6NTg6MDIgbWFuaWMg
+a2VybmVsOiBPb3BzOiAwMDAwCkF1ZyAxNSAwOTo1ODowMiBtYW5pYyBrZXJuZWw6IENQVTog
+ICAgMApBdWcgMTUgMDk6NTg6MDIgbWFuaWMga2VybmVsOiBFSVA6ICAgIDAwMTA6WzxjMDE0
+NDE5Zj5dICAgIE5vdCB0YWludGVkClVzaW5nIGRlZmF1bHRzIGZyb20ga3N5bW9vcHMgLXQg
+ZWxmMzItaTM4NiAtYSBpMzg2CkF1ZyAxNSAwOTo1ODowMiBtYW5pYyBrZXJuZWw6IEVGTEFH
+UzogMDAwMTAyMDYKQXVnIDE1IDA5OjU4OjAyIG1hbmljIGtlcm5lbDogZWF4OiAwMDAwMDAw
+MCAgIGVieDogYzZmZTQ4MjAgICBlY3g6IGU2ZmU0ODMwICAgZWR4OiBjNmZlNDgzMApBdWcg
+MTUgMDk6NTg6MDIgbWFuaWMga2VybmVsOiBlc2k6IDBlZWIwMDAwICAgZWRpOiAwMDAwMDAw
+MCAgIGVicDogMDAwMDBmZTEgICBlc3A6IGU3ZmU1ZjBjCkF1ZyAxNSAwOTo1ODowMiBtYW5p
+YyBrZXJuZWw6IGRzOiAwMDE4ICAgZXM6IDAwMTggICBzczogMDAxOApBdWcgMTUgMDk6NTg6
+MDIgbWFuaWMga2VybmVsOiBQcm9jZXNzIGtzd2FwZCAocGlkOiA0LCBzdGFja3BhZ2U9ZTdm
+ZTUwMDApCkF1ZyAxNSAwOTo1ODowMiBtYW5pYyBrZXJuZWw6IFN0YWNrOiBjMDEyYWVmOCAw
+MDAwMDAxMCAwMDAwMDI4NiBkMTEyOGE2MCBlMjI1ZTQ3OCBlMjI1ZTQ2MCBjNmZlNDgyMCBj
+MDE0MjIxNiAKQXVnIDE1IDA5OjU4OjAyIG1hbmljIGtlcm5lbDogICAgICAgIGM2ZmU0ODIw
+IGMwMTJiYzc4IDAwMDAwMjAyIGU3ZmU0MDAwIGZmZmZmZmZmIDAwMDAwMWQwIGMwMjk0N2I0
+IGMxNmViMGEwIApBdWcgMTUgMDk6NTg6MDMgbWFuaWMga2VybmVsOiAgICAgICAgYzI1NTY2
+ODAgMDAwMDAwMGMgMDAwMDAxZDAgMDAwMDAwMDYgMDAwMDAwMDYgYzAxNDI1MjAgMDAwMDJl
+MjYgYzAxMmJlNDcgCkF1ZyAxNSAwOTo1ODowMyBtYW5pYyBrZXJuZWw6IENhbGwgVHJhY2U6
+ICAgIFs8YzAxMmFlZjg+XSBbPGMwMTQyMjE2Pl0gWzxjMDEyYmM3OD5dIFs8YzAxNDI1MjA+
+XSBbPGMwMTJiZTQ3Pl0KQXVnIDE1IDA5OjU4OjAzIG1hbmljIGtlcm5lbDogICBbPGMwMTJi
+ZWFjPl0gWzxjMDEyYmY1MT5dIFs8YzAxMmJmYzY+XSBbPGMwMTJjMTAxPl0gWzxjMDEyYzA2
+MD5dIFs8YzAxMDUwMDA+XQpBdWcgMTUgMDk6NTg6MDMgbWFuaWMga2VybmVsOiAgIFs8YzAx
+MDcwNjY+XSBbPGMwMTJjMDYwPl0KQXVnIDE1IDA5OjU4OjAzIG1hbmljIGtlcm5lbDogQ29k
+ZTogOGIgNDYgMjAgODUgYzAgMGYgNDUgZjggODUgZmYgNzQgMGIgOGIgNDcgMTAgODUgYzAg
+NzQgMDQgNTMgCgo+PkVJUDsgYzAxNDQxOWYgPGlwdXQrMmYvMWQwPiAgIDw9PT09PQpUcmFj
+ZTsgYzAxMmFlZjggPGtmcmVlKzk4L2EwPgpUcmFjZTsgYzAxNDIyMTYgPHBydW5lX2RjYWNo
+ZStkNi8xNDA+ClRyYWNlOyBjMDEyYmM3OCA8c2hyaW5rX2NhY2hlKzI4OC8zMDA+ClRyYWNl
+OyBjMDE0MjUyMCA8c2hyaW5rX2RjYWNoZV9tZW1vcnkrMjAvMzA+ClRyYWNlOyBjMDEyYmU0
+NyA8c2hyaW5rX2NhY2hlcys2Ny85MD4KVHJhY2U7IGMwMTJiZWFjIDx0cnlfdG9fZnJlZV9w
+YWdlcyszYy82MD4KVHJhY2U7IGMwMTJiZjUxIDxrc3dhcGRfYmFsYW5jZV9wZ2RhdCs1MS9h
+MD4KVHJhY2U7IGMwMTJiZmM2IDxrc3dhcGRfYmFsYW5jZSsyNi80MD4KVHJhY2U7IGMwMTJj
+MTAxIDxrc3dhcGQrYTEvYzA+ClRyYWNlOyBjMDEyYzA2MCA8a3N3YXBkKzAvYzA+ClRyYWNl
+OyBjMDEwNTAwMCA8X3N0ZXh0KzAvMD4KVHJhY2U7IGMwMTA3MDY2IDxrZXJuZWxfdGhyZWFk
+KzI2LzMwPgpUcmFjZTsgYzAxMmMwNjAgPGtzd2FwZCswL2MwPgpDb2RlOyAgYzAxNDQxOWYg
+PGlwdXQrMmYvMWQwPgowMDAwMDAwMCA8X0VJUD46CkNvZGU7ICBjMDE0NDE5ZiA8aXB1dCsy
+Zi8xZDA+ICAgPD09PT09CiAgIDA6ICAgOGIgNDYgMjAgICAgICAgICAgICAgICAgICBtb3Yg
+ICAgMHgyMCglZXNpKSwlZWF4ICAgPD09PT09CkNvZGU7ICBjMDE0NDFhMiA8aXB1dCszMi8x
+ZDA+CiAgIDM6ICAgODUgYzAgICAgICAgICAgICAgICAgICAgICB0ZXN0ICAgJWVheCwlZWF4
+CkNvZGU7ICBjMDE0NDFhNCA8aXB1dCszNC8xZDA+CiAgIDU6ICAgMGYgNDUgZjggICAgICAg
+ICAgICAgICAgICBjbW92bmUgJWVheCwlZWRpCkNvZGU7ICBjMDE0NDFhNyA8aXB1dCszNy8x
+ZDA+CiAgIDg6ICAgODUgZmYgICAgICAgICAgICAgICAgICAgICB0ZXN0ICAgJWVkaSwlZWRp
+CkNvZGU7ICBjMDE0NDFhOSA8aXB1dCszOS8xZDA+CiAgIGE6ICAgNzQgMGIgICAgICAgICAg
+ICAgICAgICAgICBqZSAgICAgMTcgPF9FSVArMHgxNz4gYzAxNDQxYjYgPGlwdXQrNDYvMWQw
+PgpDb2RlOyAgYzAxNDQxYWIgPGlwdXQrM2IvMWQwPgogICBjOiAgIDhiIDQ3IDEwICAgICAg
+ICAgICAgICAgICAgbW92ICAgIDB4MTAoJWVkaSksJWVheApDb2RlOyAgYzAxNDQxYWUgPGlw
+dXQrM2UvMWQwPgogICBmOiAgIDg1IGMwICAgICAgICAgICAgICAgICAgICAgdGVzdCAgICVl
+YXgsJWVheApDb2RlOyAgYzAxNDQxYjAgPGlwdXQrNDAvMWQwPgogIDExOiAgIDc0IDA0ICAg
+ICAgICAgICAgICAgICAgICAgamUgICAgIDE3IDxfRUlQKzB4MTc+IGMwMTQ0MWI2IDxpcHV0
+KzQ2LzFkMD4KQ29kZTsgIGMwMTQ0MWIyIDxpcHV0KzQyLzFkMD4KICAxMzogICA1MyAgICAg
+ICAgICAgICAgICAgICAgICAgIHB1c2ggICAlZWJ4CgoKMSB3YXJuaW5nIGlzc3VlZC4gIFJl
+c3VsdHMgbWF5IG5vdCBiZSByZWxpYWJsZS4K
+--------------010903080809090006050204--
 
-Linux version 2.4.18 (root@shannara) (gcc version 2.95.4 20011002 (Debian prerelease)) #2 Wed Aug 14 20:36:10 CEST 2002
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000001ffeb000 (usable)
- BIOS-e820: 000000001ffeb000 - 000000001ffef000 (ACPI data)
- BIOS-e820: 000000001ffef000 - 000000001ffff000 (reserved)
- BIOS-e820: 000000001ffff000 - 0000000020000000 (ACPI NVS)
- BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
-On node 0 totalpages: 131051
-zone(0): 4096 pages.
-zone(1): 126955 pages.
-zone(2): 0 pages.
-Kernel command line: BOOT_IMAGE=Linux ro root=305 reboot=warm parport=auto hdd=ide-scsi
-ide_setup: hdd=ide-scsi
-Initializing CPU#0
-Detected 1005.049 MHz processor.
-Console: colour VGA+ 132x43
-Calibrating delay loop... 2005.40 BogoMIPS
-Memory: 513796k/524204k available (1084k kernel code, 10020k reserved, 290k data, 216k init, 0k highmem)
-Dentry-cache hash table entries: 65536 (order: 7, 524288 bytes)
-Inode-cache hash table entries: 32768 (order: 6, 262144 bytes)
-Mount-cache hash table entries: 8192 (order: 4, 65536 bytes)
-Buffer-cache hash table entries: 32768 (order: 5, 131072 bytes)
-Page-cache hash table entries: 131072 (order: 7, 524288 bytes)
-CPU: Before vendor init, caps: 0383f9ff 00000000 00000000, vendor = 0
-CPU: L1 I cache: 16K, L1 D cache: 16K
-CPU: L2 cache: 256K
-CPU: After vendor init, caps: 0383f9ff 00000000 00000000 00000000
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU:     After generic, caps: 0383f9ff 00000000 00000000 00000000
-CPU:             Common caps: 0383f9ff 00000000 00000000 00000000
-CPU: Intel Pentium III (Coppermine) stepping 06
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
-mtrr: detected mtrr type: Intel
-PCI: PCI BIOS revision 2.10 entry at 0xf0d90, last bus=2
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-Unknown bridge resource 0: assuming transparent
-PCI: Using IRQ router PIIX [8086/2440] at 00:1f.0
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Initializing RT netlink socket
-apm: BIOS version 1.2 Flags 0x03 (Driver version 1.16)
-Starting kswapd
-VFS: Diskquotas version dquot_6.4.0 initialized
-devfs: v1.10 (20020120) Richard Gooch (rgooch@atnf.csiro.au)
-devfs: boot_options: 0x1
-parport0: PC-style at 0x378 (0x778), irq 7, using FIFO [PCSPP,TRISTATE,COMPAT,ECP]
-pty: 256 Unix98 ptys configured
-Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ SERIAL_PCI enabled
-ttyS00 at 0x03f8 (irq = 4) is a 16550A
-ttyS01 at 0x02f8 (irq = 3) is a 16550A
-lp0: using parport0 (interrupt-driven).
-Real Time Clock Driver v1.10e
-block: 128 slots per queue, batch=32
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-PIIX4: IDE controller on PCI bus 00 dev f9
-PIIX4: chipset revision 2
-PIIX4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xb800-0xb807, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xb808-0xb80f, BIOS settings: hdc:DMA, hdd:DMA
-hda: IBM-DTLA-307045, ATA DISK drive
-hdc: Pioneer DVD-ROM ATAPIModel DVD-105S 012, ATAPI CD/DVD-ROM drive
-hdd: PCRW804, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 90069840 sectors (46116 MB) w/1916KiB Cache, CHS=5606/255/63
-hdc: ATAPI 40X DVD-ROM drive, 512kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
-Partition check:
- /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 p7 p8 p9 >
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-PCI: Found IRQ 9 for device 02:0d.0
-3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-02:0d.0: 3Com PCI 3c905C Tornado at 0xd000. Vers LK1.1.16
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 439M
-agpgart: Detected Intel i815 chipset
-agpgart: AGP aperture is 64M @ 0xf8000000
-SCSI subsystem driver Revision: 1.00
-ppa: Version 2.07 (for Linux 2.4.x)
-ppa: Found device at ID 6, Attempting to use EPP 32 bit
-ppa: Communication established with ID 6 using EPP 32 bit
-scsi0 : Iomega VPI0 (ppa) interface
-  Vendor: IOMEGA    Model: ZIP 100           Rev: L.01
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-Attached scsi removable disk sda at scsi0, channel 0, id 6, lun 0
-sda : READ CAPACITY failed.
-sda : status = 1, message = 00, host = 0, driver = 08 
-Current sd00:00: sns = 70  2
-ASC=3a ASCQ= 0
-Raw sense data:0x70 0x00 0x02 0x00 0x00 0x00 0x00 0x11 0x00 0x00 0x00 0x00 0x3a 0x00 0x00 0x00 0x00 0x00 0xff 0xfe 0x01 0x00 0x00 0x00 0x00 
-sda : block size assumed to be 512 bytes, disk size 1GB.  
- /dev/scsi/host0/bus0/target6/lun0: I/O error: dev 08:00, sector 0
- I/O error: dev 08:00, sector 0
- unable to read partition table
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP
-IP: routing cache hash table of 4096 buckets, 32Kbytes
-TCP: Hash tables configured (established 32768 bind 32768)
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-VFS: Mounted root (ext2 filesystem) readonly.
-Mounted devfs on /dev
-Freeing unused kernel memory: 216k freed
-Device not ready.  Make sure there is a disc in the drive.
-VFS: Disk change detected on device 08:00
-sda : READ CAPACITY failed.
-sda : status = 1, message = 00, host = 0, driver = 08 
-Current sd00:00: sns = 70  2
-ASC=3a ASCQ= 0
-Raw sense data:0x70 0x00 0x02 0x00 0x00 0x00 0x00 0x11 0x00 0x00 0x00 0x00 0x3a 0x00 0x00 0x00 0x00 0x00 0xff 0xfe 0x01 0x00 0x00 0x00 0x00 
-sda : block size assumed to be 512 bytes, disk size 1GB.  
- /dev/scsi/host0/bus0/target6/lun0: I/O error: dev 08:00, sector 0
- I/O error: dev 08:00, sector 0
-Adding Swap: 498004k swap-space (priority -1)
-nvidia: loading NVIDIA NVdriver Kernel Module  1.0-2960  Tue May 14 07:41:42 PDT 2002
-Device not ready.  Make sure there is a disc in the drive.
-VFS: Disk change detected on device 08:00
-sda : READ CAPACITY failed.
-sda : status = 1, message = 00, host = 0, driver = 08 
-Current sd00:00: sns = 70  2
-ASC=3a ASCQ= 0
-Raw sense data:0x70 0x00 0x02 0x00 0x00 0x00 0x00 0x11 0x00 0x00 0x00 0x00 0x3a 0x00 0x00 0x00 0x00 0x00 0xff 0xfe 0x01 0x00 0x00 0x00 0x00 
-sda : block size assumed to be 512 bytes, disk size 1GB.  
- /dev/scsi/host0/bus0/target6/lun0: I/O error: dev 08:00, sector 0
- I/O error: dev 08:00, sector 0
-reiserfs: checking transaction log (device 03:08) ...
-Using r5 hash to sort names
-ReiserFS version 3.6.25
-reiserfs: checking transaction log (device 03:09) ...
-Using r5 hash to sort names
-ReiserFS version 3.6.25
-PCI: Found IRQ 9 for device 02:0b.0
-PCI: Sharing IRQ 9 with 00:1f.4
-Device not ready.  Make sure there is a disc in the drive.
-VFS: Disk change detected on device 08:00
-sda : READ CAPACITY failed.
-sda : status = 1, message = 00, host = 0, driver = 08 
-Current sd00:00: sns = 70  2
-ASC=3a ASCQ= 0
-Raw sense data:0x70 0x00 0x02 0x00 0x00 0x00 0x00 0x11 0x00 0x00 0x00 0x00 0x3a 0x00 0x00 0x00 0x00 0x00 0xff 0xfe 0x01 0x00 0x00 0x00 0x00 
-sda : block size assumed to be 512 bytes, disk size 1GB.  
- /dev/scsi/host0/bus0/target6/lun0: I/O error: dev 08:00, sector 0
- I/O error: dev 08:00, sector 0
-lp0: compatibility mode
-NVRM: AGPGART: Intel i815 chipset
-NVRM: AGPGART: aperture: 64M @ 0xf8000000
-NVRM: AGPGART: aperture mapped from 0xf8000000 to 0xe1ba8000
-NVRM: AGPGART: mode 4x
-NVRM: AGPGART: allocated 16 pages
-Device not ready.  Make sure there is a disc in the drive.
-VFS: Disk change detected on device 08:00
-sda : READ CAPACITY failed.
-sda : status = 1, message = 00, host = 0, driver = 08 
-Current sd00:00: sns = 70  2
-ASC=3a ASCQ= 0
-Raw sense data:0x70 0x00 0x02 0x00 0x00 0x00 0x00 0x11 0x00 0x00 0x00 0x00 0x3a 0x00 0x00 0x00 0x00 0x00 0xff 0xfe 0x01 0x00 0x00 0x00 0x00 
-sda : block size assumed to be 512 bytes, disk size 1GB.  
- /dev/scsi/host0/bus0/target6/lun0: I/O error: dev 08:00, sector 0
- I/O error: dev 08:00, sector 0
-lp0: compatibility mode
-lp0: compatibility mode
-
---Multipart_Thu__15_Aug_2002_22:47:59_+0200_09c90050--
-
---=.m'TG8xydVVer9G
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9XBOHd6icl+PTsS8RAgpAAJ0U0/aNVlghlC4CYhL9BFIsFxhK9ACfYcE1
-ZDEqSDXTmn9IWhm/EEEyy24=
-=xNYy
------END PGP SIGNATURE-----
-
---=.m'TG8xydVVer9G--

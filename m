@@ -1,108 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264856AbUDUEnp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264878AbUDUEy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264856AbUDUEnp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 00:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264858AbUDUEnp
+	id S264878AbUDUEy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 00:54:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264880AbUDUEy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 00:43:45 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:50375 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id S264856AbUDUEnm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 00:43:42 -0400
-Date: Wed, 21 Apr 2004 14:42:03 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       linuxppc64-dev@lists.linuxppc.org
-Subject: [PATCH] PPC64 iSeries virtual ethernet fix
-Message-Id: <20040421144203.7c7c3d4e.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Wed, 21 Apr 2004 00:54:59 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:24849 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S264878AbUDUEy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 00:54:58 -0400
+Date: Wed, 21 Apr 2004 06:53:44 +0200
+From: Willy Tarreau <w@w.ods.org>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Marcelo Tosatti <marcelo@hera.kernel.org>, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.26 released
+Message-ID: <20040421045344.GJ596@alpha.home.local>
+References: <200404141314.i3EDEbxv023592@hera.kernel.org> <20040420232312.GQ743@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Wed__21_Apr_2004_14_42_03_+1000_.6VlfrR_A_cTs_to"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040420232312.GQ743@holomorphy.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Wed__21_Apr_2004_14_42_03_+1000_.6VlfrR_A_cTs_to
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Hi William,
 
-Hi Andrew,
+On Tue, Apr 20, 2004 at 04:23:12PM -0700, William Lee Irwin III wrote:
+> -		return (mps_cpu/4)*16 + (1<<(mps_cpu%4));
+> +		return (mps_cpu & ~0x3) << 2 | 1 << (mps_cpu & 0x3);
+                                        ^^^^
+I think you wanted to put '<< 4' here instead of '<< 2'. Also, could you
+put (useless for some) parenthesis to group the left side and the right
+side of the bit-wise OR ? I'm always scared that someone changes it to
+an addition with good intentions and changes the operators precedence
+without noticing.
 
-This is the patch I said would be needed due to other patches that were
-applied in parallel with the inclusion of the iSeries virtual ethernet
-driver.
-
-Please apply to your tree and send to Linus.
-
-This patch is realtive to 2.6.6-rc2.
--- 
 Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Willy
 
-diff -ruN 2.6.6-rc2/drivers/net/iseries_veth.c 2.6.6-rc2.veth.1/drivers/net/iseries_veth.c
---- 2.6.6-rc2/drivers/net/iseries_veth.c	2004-04-21 13:26:12.000000000 +1000
-+++ 2.6.6-rc2.veth.1/drivers/net/iseries_veth.c	2004-04-21 14:35:45.000000000 +1000
-@@ -61,7 +61,6 @@
- #include <linux/types.h>
- #include <linux/errno.h>
- #include <linux/ioport.h>
--#include <linux/pci.h>
- #include <linux/kernel.h>
- #include <linux/netdevice.h>
- #include <linux/etherdevice.h>
-@@ -78,10 +77,11 @@
- #include <asm/iSeries/HvTypes.h>
- #include <asm/iSeries/HvLpEvent.h>
- #include <asm/iommu.h>
-+#include <asm/vio.h>
- 
- #include "iseries_veth.h"
- 
--extern struct pci_dev *iSeries_veth_dev;
-+extern struct vio_dev *iSeries_veth_dev;
- 
- MODULE_AUTHOR("Kyle Lucke <klucke@us.ibm.com>");
- MODULE_DESCRIPTION("iSeries Virtual ethernet driver");
-@@ -895,10 +895,10 @@
- 	}
- 
- 	dma_length = skb->len;
--	dma_address = pci_map_single(iSeries_veth_dev, skb->data,
--				     dma_length, PCI_DMA_TODEVICE);
-+	dma_address = vio_map_single(iSeries_veth_dev, skb->data,
-+				     dma_length, DMA_TO_DEVICE);
- 
--	if (pci_dma_mapping_error(dma_address))
-+	if (dma_mapping_error(dma_address))
- 		goto recycle_and_drop;
- 
- 	/* Is it really necessary to check the length and address
-@@ -1016,8 +1016,8 @@
- 		dma_address = msg->data.addr[0];
- 		dma_length = msg->data.len[0];
- 
--		pci_unmap_single(iSeries_veth_dev, dma_address, dma_length,
--				 PCI_DMA_TODEVICE);
-+		vio_unmap_single(iSeries_veth_dev, dma_address, dma_length,
-+				 DMA_TO_DEVICE);
- 
- 		if (msg->skb) {
- 			dev_kfree_skb_any(msg->skb);
-
-
---Signature=_Wed__21_Apr_2004_14_42_03_+1000_.6VlfrR_A_cTs_to
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAhfucFG47PeJeR58RAuFmAJ9oYXsCysN/91rMJnQfWd5W9ga/CgCgl7zE
-iZsLmXxWzatx17FDXd40o48=
-=wUCT
------END PGP SIGNATURE-----
-
---Signature=_Wed__21_Apr_2004_14_42_03_+1000_.6VlfrR_A_cTs_to--

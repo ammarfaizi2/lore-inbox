@@ -1,116 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261590AbSKHEWl>; Thu, 7 Nov 2002 23:22:41 -0500
+	id <S261587AbSKHEUW>; Thu, 7 Nov 2002 23:20:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261593AbSKHEWl>; Thu, 7 Nov 2002 23:22:41 -0500
-Received: from blount.mail.mindspring.net ([207.69.200.226]:43046 "EHLO
-	blount.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S261590AbSKHEWj>; Thu, 7 Nov 2002 23:22:39 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Mike Diehl <mdiehl@dominion.dyndns.org>
-To: bert hubert <ahu@ds9a.nl>, "David S. Miller" <davem@redhat.com>
-Subject: Re: [LARTC] IPSEC FIRST LIGHT! (by non-kernel developer :-))
-Date: Thu, 7 Nov 2002 20:59:32 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org, lartc@mailman.ds9a.nl
-References: <20021107091822.GA21030@outpost.ds9a.nl> <20021107.025250.35525477.davem@redhat.com> <20021107130244.GA25032@outpost.ds9a.nl>
-In-Reply-To: <20021107130244.GA25032@outpost.ds9a.nl>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20021108023926.51B985606@dominion.dyndns.org>
+	id <S261590AbSKHEUW>; Thu, 7 Nov 2002 23:20:22 -0500
+Received: from crack.them.org ([65.125.64.184]:55561 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S261587AbSKHEUV>;
+	Thu, 7 Nov 2002 23:20:21 -0500
+Date: Thu, 7 Nov 2002 23:27:53 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ps performance sucks (was Re: dcache_rcu [performance results])
+Message-ID: <20021108042753.GA8799@nevyn.them.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <32290000.1036545797@flay> <Pine.GSO.4.21.0211051932140.6521-100000@steklov.math.psu.edu> <20021107230613.5194156c.rusty@rustcorp.com.au> <20021108035724.GB22031@holomorphy.com> <1036729047.765.2887.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1036729047.765.2887.camel@phantasy>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So the IPSec in the 2.5 kernel actually works!!!  I had heard it was mostly 
-nonfunctional.
+On Thu, Nov 07, 2002 at 11:17:21PM -0500, Robert Love wrote:
+> On Thu, 2002-11-07 at 22:57, William Lee Irwin III wrote:
+> 
+> > One way to at least "postpone" having to do things like making a fair
+> > tasklist_lock is to make readers well-behaved. /proc/ is the worst
+> > remaining offender left with its quadratic (!) get_pid_list(). After
+> > "kernel, you're being bad and spinning in near-infinite loops with the
+> > tasklist_lock readlocked" is (completely?) solved, then we can wait for
+> > boxen with higher cpu counts to catch fire anyway when the arrival rate
+> > of readers * hold time of readers > 1, which will happen because arrival
+> > rates are O(cpus), and cpus will grow without bound as machines advance.
+> > 
+> > I'm not sure RCU would help this any; I'd be very much afraid of the
+> > writes being postponed indefinitely or just too long in the presence
+> > of what's essentially perpetually in-progress read access. Does RCU
+> > have a guarantee of forward progress for writers?
+> 
+> I am not sure I like the idea of RCU for the tasklist_lock.
+> 
+> I do agree 100% with your first point, though - the problem is
+> ill-behaved readers.  I think the writing vs. reading is such that the
+> rw-lock we have now is fine, we just need to make e.g. /proc play way
+> way more fair.
 
-This is good news.  FreeSwan has some quirky political policys.
-
-On Thursday 07 November 2002 08:02 am, bert hubert wrote:
-     > On Thu, Nov 07, 2002 at 02:52:50AM -0800, David S. Miller wrote:
-     > > Really, if this one doesn't apply, your 2.5 bitkeeper tree is not
-     > > totally uptodate.
-     >
-     > It works in transport mode! Both EH/ASP.
-     >
-     > Hints:
-     > 	Use the latest bitkeeper sources as of Thurday morning MET
-     >
-     > 	Apply the last patch Alexey sent in the 'silly advise' thread
-     > 		on linux kernel mailinglist
-     >
-     > 	Do not compile anything AH/ESP/CRYPTO as modules
-     > 		failed for me with bad oops
-     >
-     > 	Make very very sure that you are not filtering ipsec packets
-     > 		iptables needs to allow protocols 50 and 51
-     >
-     > 	Use the KAME tools port on ftp://ftp.inr.ac.ru/ip-routing/ipsec/
-     > 		racoon won't compile, you don't need it yet
-     > 		point it at your 2.5.46+bk+davem tree (edit GNUMakefiles)
-     >
-     > 	Use 3des-cbc
-     > 		examples online use blowfish-cbc but that gives an error
-     > 		in setkey
-     >
-     > Configuration (needs the setkey tool) on 10.0.0.11:
-     >
-     > #!./setkey -f
-     > flush;
-     > spdflush;
-     >
-     > # AH
-     > add 10.0.0.11 10.0.0.216 ah 15700 -A hmac-md5 "1234567890123456";
-     > add 10.0.0.216 10.0.0.11 ah 24500 -A hmac-md5 "1234567890123456";
-     >
-     > # ESP
-     > add 10.0.0.11 10.0.0.216 esp 15701 -E 3des-cbc
-     > "123456789012123456789012"; add 10.0.0.216 10.0.0.11 esp 24501 -E
-     > 3des-cbc "123456789012123456789012";
-     >
-     > spdadd 10.0.0.216 10.0.0.11 icmp -P out ipsec
-     >            esp/transport//use
-     >            ah/transport//use;
-     >
-     > Configuration on 10.0.0.216:
-     >
-     > #!./setkey -f
-     > flush;
-     > spdflush;
-     >
-     > # AH
-     > add 10.0.0.11 10.0.0.216 ah 15700 -A hmac-md5 "1234567890123456";
-     > add 10.0.0.216 10.0.0.11 ah 24500 -A hmac-md5 "1234567890123456";
-     >
-     > # ESP
-     > add 10.0.0.11 10.0.0.216 esp 15701 -E 3des-cbc
-     > "123456789012123456789012"; add 10.0.0.216 10.0.0.11 esp 24501 -E
-     > 3des-cbc "123456789012123456789012";
-     >
-     > # this is reversed
-     > spdadd 10.0.0.11 10.0.0.216 icmp -P out ipsec
-     >            esp/transport//use
-     >            ah/transport//use;
-     >
-     > # ping 10.0.0.11
-     > PING 10.0.0.11 (10.0.0.11) from 10.0.0.216 : 56(84) bytes of data.
-     > 64 bytes from 10.0.0.11: icmp_seq=1 ttl=64 time=1.11 ms
-     >
-     > $ sudo tcpdump -n -i eth0 -p
-     > tcpdump: listening on eth0
-     > 13:55:42.381669 10.0.0.216 > 10.0.0.11: AH(spi=0x00005fb4,seq=0x39):
-     > ESP(spi=0x00005fb5,seq=0x39) (DF)
-     > 13:55:42.382518 10.0.0.11 > 10.0.0.216: AH(spi=0x00003d54,seq=0x39):
-     > ESP(spi=0x00003d55,seq=0x39)
-     >
-     > Great work everybody! I'm very impressed.
-     >
-     > Regards,
-     >
-     > bert
+If you consider the atomicity that readdir() in /proc needs (that is:
+almost none; it needs a guarantee that it will not miss a task which is
+alive both before and after the opendir; but that's about it) then
+there should be an easy way to augment the pidhash for this sort of
+search.
 
 -- 
-Mike Diehl
-PGP Encrypted E-mail preferred.
-Public Key via: http://dominion.dyndns.org/~mdiehl/mdiehl.asc
-
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

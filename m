@@ -1,74 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268346AbUHKX1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268310AbUHKXBm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268346AbUHKX1r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 19:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268308AbUHKXZu
+	id S268310AbUHKXBm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 19:01:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268302AbUHKWvU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 19:25:50 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:51379 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S268347AbUHKXVn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 19:21:43 -0400
-Subject: Re: ipw2100 wireless driver
-From: David Woodhouse <postmaster@infradead.org>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040811231124.GC14073@louise.pinerecords.com>
-References: <20040811163333.GE10100@louise.pinerecords.com>
-	 <20040811175105.A30188@infradead.org>
-	 <20040811170208.GG10100@louise.pinerecords.com>
-	 <20040811181142.A30309@infradead.org>
-	 <20040811172222.GI10100@louise.pinerecords.com>
-	 <20040811184148.A30660@infradead.org>
-	 <20040811175109.GJ10100@louise.pinerecords.com>
-	 <1092264200.1438.4347.camel@imladris.demon.co.uk>
-	 <20040811225612.GB14073@louise.pinerecords.com>
-	 <1092265608.1438.4364.camel@imladris.demon.co.uk>
-	 <20040811231124.GC14073@louise.pinerecords.com>
-Content-Type: text/plain
-Message-Id: <1092266501.1438.4375.camel@imladris.demon.co.uk>
+	Wed, 11 Aug 2004 18:51:20 -0400
+Received: from holomorphy.com ([207.189.100.168]:6791 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268292AbUHKWtg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 18:49:36 -0400
+Date: Wed, 11 Aug 2004 15:46:20 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc4-mm1: legacy_va_layout compile error with SYSCTL=n
+Message-ID: <20040811224620.GW11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
+	Arjan van de Ven <arjanv@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+	linux-kernel@vger.kernel.org
+References: <20040810002110.4fd8de07.akpm@osdl.org> <20040811221825.GM26174@fs.tum.de> <20040811223353.GT11200@holomorphy.com> <20040811224217.GV11200@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Thu, 12 Aug 2004 00:21:41 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040811224217.GV11200@holomorphy.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-12 at 01:11 +0200, Tomas Szepe wrote:
-> On Aug-12 2004, Thu, 00:06 +0100
-> David Woodhouse <postmaster@infradead.org> wrote:
-> 
-> > On Thu, 2004-08-12 at 00:56 +0200, Tomas Szepe wrote:
-> > > Ok, thanks for the warning.  Is there any reason why you should
-> > > be trying to look up postmaster@ from the sender domain upon
-> > > RCPT TO?
-> > 
-> > Part of standard verification of sender addresses. You're being offered
-> > an email.... if you can't send a bounce to the address it claims to come
-> > from, or if you can't send a mail to postmaster at the same domain, then
-> > the chances that the mail you're being offered is a fake are high enough
-> > to warrant rejecting it.
-> 
-> Ok, I see, but wouldn't an "and" where you write "or" make more sense? :)
+On Wed, Aug 11, 2004 at 03:33:53PM -0700, William Lee Irwin III wrote:
+>> Does this help?
 
-Don't think so. I reject the mail _either_ if I can't send a bounce to
-the user it claims to come from, _or_ if I can't send mail to the
-postmaster at that domain. Either failure is sufficient to cause a
-rejection.
+On Wed, Aug 11, 2004 at 03:42:17PM -0700, William Lee Irwin III wrote:
+> Hmm, looks like there's a hugetlb warning too.
 
-I don't accept mail from an invalid user just because I can contact
-postmaster, and I don't accept any mail from a domain for which I can't
-contact postmaster (except for mail addressed to postmaster@ one of my
-domains, which is more permissive in order to assist debugging/reporting
-problems).
-
-> Anyway, I screwed up in the aliases vs. virtusertable department again.
-
-I saw it was fixed, and I wiped my callout cache so you should be able
-to send mail to users @infradead.org other than postmaster again.
-
--- 
-dwmw2
+hugetlb CONFIG_SYSCTL=n fix, take 2: the real thing.
 
 
+Index: mm1-2.6.8-rc4/mm/hugetlb.c
+===================================================================
+--- mm1-2.6.8-rc4.orig/mm/hugetlb.c	2004-08-10 23:00:25.100832480 -0700
++++ mm1-2.6.8-rc4/mm/hugetlb.c	2004-08-11 15:34:59.574933488 -0700
+@@ -123,6 +123,7 @@
+ }
+ __setup("hugepages=", hugetlb_setup);
+ 
++#ifdef CONFIG_SYSCTL
+ static void update_and_free_page(struct page *page)
+ {
+ 	int i;
+@@ -188,7 +189,6 @@
+ 	return nr_huge_pages;
+ }
+ 
+-#ifdef CONFIG_SYSCTL
+ int hugetlb_sysctl_handler(struct ctl_table *table, int write,
+ 			   struct file *file, void __user *buffer,
+ 			   size_t *length, loff_t *ppos)

@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266167AbUBCWhN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 17:37:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266172AbUBCWhN
+	id S266161AbUBCWgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 17:36:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266164AbUBCWgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 17:37:13 -0500
-Received: from kalmia.drgw.net ([209.234.73.41]:17625 "EHLO kalmia.hozed.org")
-	by vger.kernel.org with ESMTP id S266167AbUBCWhH (ORCPT
+	Tue, 3 Feb 2004 17:36:09 -0500
+Received: from mail.kroah.org ([65.200.24.183]:38565 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266161AbUBCWgI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 17:37:07 -0500
-Date: Tue, 3 Feb 2004 16:37:06 -0600
-From: Troy Benjegerdes <hozer@hozed.org>
-To: "Woodruff, Robert J" <woody@co.intel.com>
-Cc: infiniband-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Infiniband-general] Getting an Infiniband access layer in the linux kernel
-Message-ID: <20040203223706.GB11222@kalmia.hozed.org>
-References: <F595A0622682C44DBBE0BBA91E56A5ED1C3662@orsmsx410.jf.intel.com>
+	Tue, 3 Feb 2004 17:36:08 -0500
+Date: Tue, 3 Feb 2004 14:35:34 -0800
+From: Greg KH <greg@kroah.com>
+To: Kevin Deierling <KevinD@Mellanox.com>
+Cc: "Woodruff, Robert J" <woody@co.intel.com>,
+       Troy Benjegerdes <hozer@hozed.org>,
+       infiniband-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Infiniband-general] Getting an Infiniband access layer in th e linux kernel
+Message-ID: <20040203223534.GB21562@kroah.com>
+References: <25AE7F432672D511B8DC00B0D0DF11DA0248302D@MTIEX01>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <F595A0622682C44DBBE0BBA91E56A5ED1C3662@orsmsx410.jf.intel.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <25AE7F432672D511B8DC00B0D0DF11DA0248302D@MTIEX01>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So, for starters, can you or Jerrie post a patch containing just the 2.6
-infiniband access layer, Or create a new BK tree for 2.6 infiniband stuff
-that uses the new 2.6 kbuild system?
+On Tue, Feb 03, 2004 at 08:18:37AM -0800, Kevin Deierling wrote:
+> Hi,
+> 	Mellanox is developing a driver to take advantage of new features of
+> the 2.6 kernel. In the near future we plan to open source this driver and
+> are working with the Linux and InfiniBand communities to release code that
+> can become part of standard distributions.
 
+Any idea of when this would be available?
 
+thanks,
 
-
-On Mon, Feb 02, 2004 at 03:58:56PM -0800, Woodruff, Robert J wrote:
-> 
-> We were waiting until we had some version of the InfiniBand code ported
-> to 2.6 before
-> asking for it to be included in the 2.6 kernel tree. Jerrie made the
-> changes
-> to the IB access layer to allow it to compile on 2.6, but it cannot yet
-> be tested 
-> till we get a 2.6 driver from Mellanox. 
-> 
-> I'd also like to hear from the linux-kernel folks on what we would need
-> to
-> do to get a basic InfiniBand access layer included in the 2.6 base. 
-> 
-> We'd also like to hear from Mellanox if they have any plans to provide
-> an open
-> source VPD driver anytime soon. 
-> 
-> woody
-> 
+greg k-h

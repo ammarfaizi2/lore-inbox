@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261841AbTJMSwN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 14:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTJMSwN
+	id S261863AbTJMSna (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 14:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTJMSna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 14:52:13 -0400
-Received: from imladris.surriel.com ([66.92.77.98]:28873 "EHLO
-	imladris.surriel.com") by vger.kernel.org with ESMTP
-	id S261841AbTJMSwM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 14:52:12 -0400
-Date: Mon, 13 Oct 2003 14:51:55 -0400 (EDT)
-From: Rik van Riel <riel@surriel.com>
-To: Roger Luethi <rl@hellgate.ch>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC] State of ru_majflt
-In-Reply-To: <20031013165104.GA14720@k3.hellgate.ch>
-Message-ID: <Pine.LNX.4.55L.0310131451310.27244@imladris.surriel.com>
-References: <20031013165104.GA14720@k3.hellgate.ch>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	Mon, 13 Oct 2003 14:43:30 -0400
+Received: from qfep05.superonline.com ([212.252.122.161]:47589 "EHLO
+	qfep05.superonline.com") by vger.kernel.org with ESMTP
+	id S261863AbTJMSn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 14:43:29 -0400
+Message-ID: <3F8AF1F0.9080606@superonline.com>
+Date: Mon, 13 Oct 2003 21:41:52 +0300
+From: "O.Sezer" <sezero@superonline.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: tr, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23-pre7-pac1
+Content-Type: multipart/mixed;
+ boundary="------------060508030105050504090503"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Oct 2003, Roger Luethi wrote:
+This is a multi-part message in MIME format.
+--------------060508030105050504090503
+Content-Type: text/plain; charset=ISO-8859-9; format=flowed
+Content-Transfer-Encoding: 8bit
 
-> A proper solution would probably have filemap_nopage tell its caller the
-> correct return code.
+drivers/char/rocket.c is missing the tty->count  -->
+atomic_read(&tty->count) change. Patch attached.
 
-Agreed.
+Regards;
+Özkan Sezer
 
-> Is this considered a bug or is it a documentation issue? How much do we
-> care?
+--------------060508030105050504090503
+Content-Type: text/plain;
+ name="rocket.c-tty-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="rocket.c-tty-fix.patch"
 
-It's a bug, but I'm not quite sure how much we care.
+--- ./drivers/char/rocket.c.orig	2003-10-13 12:58:33.000000000 +0300
++++ ./drivers/char/rocket.c	2003-10-13 20:10:05.000000000 +0300
+@@ -1052,7 +1052,7 @@
+ 		restore_flags(flags);
+ 		return;
+ 	}
+-	if ((tty->count == 1) && (info->count != 1)) {
++	if ((atomic_read(&tty->count) == 1) && (info->count != 1)) {
+ 		/*
+ 		 * Uh, oh.  tty->count is 1, which means that the tty
+ 		 * structure will be freed.  Info->count should always
 
-Rik
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+--------------060508030105050504090503--
+

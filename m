@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263020AbTCSNFL>; Wed, 19 Mar 2003 08:05:11 -0500
+	id <S263027AbTCSNJD>; Wed, 19 Mar 2003 08:09:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263022AbTCSNFL>; Wed, 19 Mar 2003 08:05:11 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:29827
+	id <S263028AbTCSNJD>; Wed, 19 Mar 2003 08:09:03 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:31875
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263020AbTCSNFK>; Wed, 19 Mar 2003 08:05:10 -0500
-Subject: Re: Linux on 16-bit processors
+	id <S263027AbTCSNJC>; Wed, 19 Mar 2003 08:09:02 -0500
+Subject: Re: ide-scsi failure on 2.5.65
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: micklweiss@gmx.net
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <17232.1048031207@www59.gmx.net>
-References: <17232.1048031207@www59.gmx.net>
+To: dan carpenter <d_carpenter@sbcglobal.net>
+Cc: Eric Benson <eric_a_benson@yahoo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200303190704.h2J74gWE193004@pimout4-ext.prodigy.net>
+References: <20030318231033.31663.qmail@web10105.mail.yahoo.com>
+	 <200303190704.h2J74gWE193004@pimout4-ext.prodigy.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1048084009.30751.23.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1048084238.30751.29.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 19 Mar 2003 14:26:50 +0000
+Date: 19 Mar 2003 14:30:39 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-03-18 at 23:46, micklweiss@gmx.net wrote:
-> I'm interested on running Linux on some less powerful, cheaper 16 bit
-> systems. I would like to know if there is a slimmed down version of the kernel (any
-> version 2.2+) that can run on 16-bit CPUs. I know that linux "requires" a
+On Tue, 2003-03-18 at 13:44, dan carpenter wrote:
+> On Wednesday 19 March 2003 12:10 am, Eric Benson wrote:
+> > I installed Red Hat 8.0 on an IBM NetVista 2283-55U,
+> > an all-in-one desktop 1.8ghz P4. I downloaded and
+> > compiled the 2.5.65 kernel with ide-scsi emulation and
+> > kernel debugging enabled.
+> >
+> ...
+> > 14:18:33 hdb: drive not ready for command
+> > 14:18:33 ide-scsi: reset called for 0
+> > 14:18:33 bad: scheduling while atomic!
+> 
+> This problem is known.  Try the driver from the -ac kernel.
 
-The kernel side is fairly easy if you have a couple of megs of ram. The
-ucLinux tree supports mmuless systems and a fair variety of processors. 
-User space is more of an issue. The standard Linux userspace is designed
-for systems with disks and paging, the uclinux stuff is smaller and the
-ELKS userspace is tinier still.
-
-And uclinux is free not $200. Maybe the writer is confused with the 
-ucSimm development board ?
-
-BTW are "real" 16bit processors actually cheaper any more ? 16bit keeps
-costs down but several 683xx processors seem to use 16bit external
-data bus as do some ARM.
-
-
-Alan
+You need 2.4.21pre-ac for that, the 2.5 code is wildly different
+and I've not tackled it yet. Its about six weeks down the todo list
+at the moment
 

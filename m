@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVCaOcc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbVCaOcy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261468AbVCaOcc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 09:32:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbVCaOcc
+	id S261476AbVCaOcy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 09:32:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVCaOcy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 09:32:32 -0500
-Received: from pat.uio.no ([129.240.130.16]:42493 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261468AbVCaOcQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 09:32:16 -0500
-Subject: Re: NFS client latencies
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, rlrevell@joe-job.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050331135825.GA2214@elte.hu>
-References: <1112217299.10771.3.camel@lade.trondhjem.org>
-	 <1112236017.26732.4.camel@mindpipe> <20050330183957.2468dc21.akpm@osdl.org>
-	 <1112237239.26732.8.camel@mindpipe>
-	 <1112240918.10975.4.camel@lade.trondhjem.org>
-	 <20050331065942.GA14952@elte.hu> <20050330231801.129b0715.akpm@osdl.org>
-	 <20050331073017.GA16577@elte.hu>
-	 <1112270304.10975.41.camel@lade.trondhjem.org>
-	 <1112272451.10975.72.camel@lade.trondhjem.org>
-	 <20050331135825.GA2214@elte.hu>
-Content-Type: text/plain
-Date: Thu, 31 Mar 2005 09:32:02 -0500
-Message-Id: <1112279522.20211.8.camel@lade.trondhjem.org>
+	Thu, 31 Mar 2005 09:32:54 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:13032 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261469AbVCaOcq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 09:32:46 -0500
+Date: Thu, 31 Mar 2005 15:32:35 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: shobhit dayal <shobhit@calsoftinc.com>
+Cc: hch@infradead.org, christoph@lameter.com, manfred@colorfullife.com,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       linux-mm@kvack.org, Shai Fultheim <shai@scalex86.org>
+Subject: Re: Fwd: [PATCH] Pageset Localization V2
+Message-ID: <20050331143235.GA18058@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	shobhit dayal <shobhit@calsoftinc.com>, christoph@lameter.com,
+	manfred@colorfullife.com, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+	linux-mm@kvack.org, Shai Fultheim <shai@scalex86.org>
+References: <Pine.LNX.4.58.0503292147200.32571@server.graphe.net> <20050330111439.GA13110@infradead.org> <bab4333005033003295f487e3d@mail.gmail.com> <1112187977.9773.15.camel@kuber>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.489, required 12,
-	autolearn=disabled, AWL 1.46, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1112187977.9773.15.camel@kuber>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-to den 31.03.2005 Klokka 15:58 (+0200) skreiv Ingo Molnar:
-> * Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> 
-> > > +	int res;
-> > 	  ^^^^^^^ Should be "int res = 0;"
-> 
-> your patch works fine here - but there are still latencies in 
-> nfs_scan_commit()/nfs_scan_list(): see the attached 3.7 msec latency 
-> trace. It happened during a simple big-file writeout and is easily 
-> reproducible. Could the nfsi->commit list searching be replaced with a 
-> radix based approach too?
+On Wed, Mar 30, 2005 at 06:36:18PM +0530, shobhit dayal wrote:
+> The goal here is to replace the head of a existing list pointed to by
+> 'list' with a new head pointed to by 'nlist'. 
+> First there is a memcpy that copies the contents of list to nlist then
+> this macro is called.
+> The macro makes sure that if the old head was empty then INIT_LIST_HEAD
+> the 'nlist', if not then make sure that the nodes before and after the
+> head now correclty point to nlist instead of list.
 
-That would be 100% pure overhead. The nfsi->commit list does not need to
-be sorted and with these patches applied, it no longer is. In fact one
-of the cleanups I still need to do is to get rid of those redundant
-checks on wb->index (start is now always set to 0, and end is always
-~0UL).
+Which would be much nicer done using INIT_LIST_HEAD on the new head
+always and then calling list_replace (of which currently only a _rcu variant
+exists).
 
-So the overhead you are currently seeing should just be that of
-iterating through the list, locking said requests and adding them to our
-private list.
-
-Cheers,
-  Trond
-
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+Note to Christoph:  Just duplicating the code doesn't make it better ;-)
 

@@ -1,121 +1,363 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132799AbRC2R7Y>; Thu, 29 Mar 2001 12:59:24 -0500
+	id <S132810AbRC2R4Z>; Thu, 29 Mar 2001 12:56:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132803AbRC2R7P>; Thu, 29 Mar 2001 12:59:15 -0500
-Received: from warden.digitalinsight.com ([208.29.163.2]:2017 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S132799AbRC2R7A>; Thu, 29 Mar 2001 12:59:00 -0500
-Date: Thu, 29 Mar 2001 09:52:10 -0800 (PST)
-From: David Lang <dlang@diginsite.com>
-To: David Konerding <dek_ml@konerding.com>
-cc: Guest section DW <dwguest@win.tue.nl>,
-   "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>,
-   Andreas Dilger <adilger@turbolinux.com>,
-   Szabolcs Szakacsits <szaka@f-secure.com>,
-   Martin Dalecki <dalecki@evision-ventures.com>,
-   Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-   Jonathan Morton <chromi@cyberspace.org>,
-   Rogier Wolff <R.E.Wolff@bitwizard.nl>, <linux-kernel@vger.kernel.org>
-Subject: Re: OOM killer???
-In-Reply-To: <3AC357B8.72860494@konerding.com>
-Message-ID: <Pine.LNX.4.33.0103290949290.26156-100000@dlang.diginsite.com>
+	id <S132816AbRC2R4P>; Thu, 29 Mar 2001 12:56:15 -0500
+Received: from h24-66-58-104.wp.shawcable.net ([24.66.58.104]:22280 "EHLO
+	mozart.scola.dhs.org") by vger.kernel.org with ESMTP
+	id <S132810AbRC2R4L>; Thu, 29 Mar 2001 12:56:11 -0500
+Date: Thu, 29 Mar 2001 11:55:24 -0600 (CST)
+From: "S. Shore" <sshore@escape.ca>
+To: Deja User <amarnder@my-deja.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: question on ip_masq_irc.c
+In-Reply-To: <200103291148.DAA28629@mail22.bigmailbox.com>
+Message-ID: <Pine.LNX.4.30.0103290759440.8816-100000@mozart.scola.dhs.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-one of the key places where the memory is 'allocated' but not used is in
-the copy on write conditions (fork, clone, etc) most of the time very
-little of the 'duplicate' memory is ever changed (in fact most of the time
-the program that forks then executes some other program) on a lot of
-production boxes this would be a _very_ significant additional overhead in
-memory (think a busy apache server, it forks a bunch of processes, but
-currently most of that memory is COW and never actually needs to be
-duplicated)
+On Thu, 29 Mar 2001, Deja User wrote:
+> I am working on a NAT product and trying provide mIRC support in it. I am looking into ip_masq_irc.c file of Linux 2.2.12 for reference, and have some doubts.
+> 1. In 2.2.12 ip_masq_irc.c, DCC RESUME protocol is not supported. In which patch can I find it?
+> 2. I have pre-patch-2.2.18-5 linux.18p5/net/ipv4/ip_masq_irc.c, which has support for DCC RESUME. Is this the final patch? I have checked with documentation in mIRC help files about DCC RESUME command string. It says the command string in the pay load looks
+>    DCC RESUME filename port position
+>    But, in the above file, the string hunted is
+>    "\1DCC RESUME chat AAAAAAAA P\1\n"
 
-David Lang
+You're right, it's broken. I submitted a patch for people to test, but
+somehow it got into the production kernel without testing.
 
+I created a second patch shortly after realizing the problem, tested and
+submitted it, but it doesn't look like it ever made it in.
 
- On Thu, 29 Mar
-2001, David Konerding wrote:
+I'm including the patch. It's a diff against the ip_masq_irc.c from 2.2.17
+(which was current at the time), so you may have to get this file
+seperately if you're not using 2.2.17. Many apologies.
 
-> Date: Thu, 29 Mar 2001 07:41:44 -0800
-> From: David Konerding <dek_ml@konerding.com>
-> To: Guest section DW <dwguest@win.tue.nl>
-> Cc: Dr. Michael Weller <eowmob@exp-math.uni-essen.de>,
->      Andreas Dilger <adilger@turbolinux.com>,
->      Szabolcs Szakacsits <szaka@f-secure.com>,
->      Martin Dalecki <dalecki@evision-ventures.com>,
->      Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
->      Jonathan Morton <chromi@cyberspace.org>,
->      Rogier Wolff <R.E.Wolff@bitwizard.nl>, linux-kernel@vger.kernel.org
-> Subject: Re: OOM killer???
->
-> I would tend to agree, I'm not a fan of the OOM killer's behavior.  The OOM is forced
-> because of the policy of overcommitting of memory.  The reason for that policy is
-> based on an observation:
-> many programs allocate far more memory than they ever use, and most people don't want
-> their program to crash just because it malloc()s memory it isn't going to use.
-> Having to activate the pages for memory that never gets used feels wasteful to some
-> people.  On the other hand, having my two-week-running scientific app killed because
-> it did a whole bunch of disk reads that fill up 600MB of my 768MB RAM, then tried to
-> allocate a whole bunch more memory (that it *will* use) is obviously a fault of the
-> OOM killer policy. At the very least the entire disk cache, or a goodly portion of
-> it, should be drained before ever invoking the OOM.  I'm more than glad to pay the
-> performance hit of no disk buffers for the privilege of having my job finish.
->
-> Now, if you're going to implement OOM, when it is absolutely necessary, at the very
-> least, move the policy implementation out of the kernel.  One of the general
-> philosophies of Linux has been to move policy out of the kernel.  In this case, you'd
-> just have a root owned process with locked pages that can't be pre-empted, which
-> implemented the policy.  You'll never come up with an OOM policy that will fit
-> everybody's needs unless it can be tuned for  particular system's usage, and it's
-> going to be far easier to come up with that policy if it's not in the kernel.
->
->
->
-> Guest section DW wrote:
->
->
-> > Two things are wrong.
->
-> > 1. Linux has an OOM killer.
-> > 2. The OOM killer has a bad behaviour.
-> >
-> > Presently, with the proper kind of load, one can see a process killed
-> > by OOM almost daily. That is totally unacceptable.
-> > People are working on refining the algorithm so that blatant idiocies
-> > where processes are killed while there is plenty of resources
-> > are avoided. Good. Suppose it done. Then one thing is wrong.
-> >
-> > 1. Linux has an OOM killer.
-> >
-> > A system with an OOM killer is unreliable. Linux must have a reliable
-> > mode of operation, and that must be the default mode.
-> >
-> > Now you assume that adding SIGDANGER would make people happy.
-> > But it would be a rather unimportant addition.
-> > It might help in some cases, but it falls in the category
-> > of improving the OOM killer a little.
-> >
-> > People will be happy when Linux is reliable by default.
-> >
-> > Andries
-> >
-> > [Never use planes where the company's engineers spend their
-> > time designing algorithms for selecting which passenger
-> > must be thrown out when the plane is overloaded.]
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Scottie Shore                | "Experience is the worst teacher -
+<sshore@escape.ca>           |  it teaches you what you need to know
+			     |  after you needed to know it."
+
+--- ip_masq_irc.c.orig	Wed Sep 27 22:07:15 2000
++++ ip_masq_irc.c	Sun Oct  1 21:30:41 2000
+@@ -20,9 +20,11 @@
+  *	Juan Jose Ciarlante	:  put new ms entry to listen()
+  *	Scottie Shore		:  added support for clients that add extra args
+  *	  <sshore@escape.ca>
++ *	Scottie Shore		:  added support for mIRC DCC resume negotiation
++ *	  <sshore@escape.ca>
+  *
+- * FIXME:
+- *	- detect also previous "PRIVMSG" string ?.
++ * FIXME: take common code from ip_masq_in and ip_masq_out, put into seperate
++ *        function
+  *
+  *	This program is free software; you can redistribute it and/or
+  *	modify it under the terms of the GNU General Public License
+@@ -78,22 +80,24 @@
+  * List of supported DCC protocols
+  */
+
+-#define NUM_DCCPROTO 5
++#define NUM_DCCPROTO 6
+
+ struct dccproto
+ {
+   char *match;
+   int matchlen;
++  int addr;
+ };
+
+ struct dccproto dccprotos[NUM_DCCPROTO] = {
+- { "SEND ", 5 },
+- { "CHAT ", 5 },
+- { "MOVE ", 5 },
+- { "TSEND ", 6 },
+- { "SCHAT ", 6 }
++ { "SEND ", 5, 1 },
++ { "CHAT ", 5, 1 },
++ { "MOVE ", 5, 1 },
++ { "TSEND ", 6, 1 },
++ { "SCHAT ", 6, 1 },
++ { "ACCEPT ", 7, 0 },
+ };
+-#define MAXMATCHLEN 6
++#define MAXMATCHLEN 7
+
+ static int
+ masq_irc_init_1 (struct ip_masq_app *mapp, struct ip_masq *ms)
+@@ -118,7 +122,7 @@
+ 	char *data, *data_limit;
+ 	__u32 s_addr;
+ 	__u16 s_port;
+-	struct ip_masq *n_ms;
++	struct ip_masq *n_ms = NULL;
+ 	char buf[20];		/* "m_addr m_port" (dec base)*/
+         unsigned buf_len;
+ 	int diff;
+@@ -137,16 +141,18 @@
+ 	 *	strlen("\1DCC SEND F AAAAAAAA P S\1\n")=26
+ 	 *	strlen("\1DCC MOVE F AAAAAAAA P S\1\n")=26
+ 	 *	strlen("\1DCC TSEND F AAAAAAAA P S\1\n")=27
++	 *	strlen("\1DCC ACCEPT F P O\1\n")=19
+ 	 *		AAAAAAAAA: bound addr (1.0.0.0==16777216, min 8 digits)
+ 	 *		P:         bound port (min 1 d )
+ 	 *		F:         filename   (min 1 d )
+ 	 *		S:         size       (min 1 d )
++	 *		O:	   offset     (min 1 d )
+ 	 *		0x01, \n:  terminators
+          */
+
+         data_limit = skb->h.raw + skb->len;
+
+-	while (data < (data_limit - ( 22 + MAXMATCHLEN ) ) )
++	while (data < (data_limit - ( 12 + MAXMATCHLEN ) ) )
+ 	{
+ 		int i;
+ 		if (memcmp(data,"\1DCC ",5))  {
+@@ -171,52 +177,60 @@
+ 				 *	skip next string.
+ 				 */
+
+-				while( *data++ != ' ')
++				while ( *data++ != ' ')
++					if (data > (data_limit-5)) return 0;
++				addr_beg_p = data;
+
++				if (dccprotos[i].addr == 1)
++				{
+ 					/*
+-					 *	must still parse, at least, "AAAAAAAA P\1\n",
+-					 *      12 bytes left.
++					 *	client bound address in dec base
+ 					 */
+-					if (data > (data_limit-12)) return 0;
+-
+-
+-				addr_beg_p = data;
+
+-				/*
+-				 *	client bound address in dec base
+-				 */
+-
+-				s_addr = simple_strtoul(data,&data,10);
+-				if (*data++ !=' ')
+-					continue;
++					s_addr = simple_strtoul(data,&data,10);
++					if (*data++ !=' ')
++						continue;
+
+-				/*
+-				 *	client bound port in dec base
+-				 */
++					/*
++					 *	client bound port in dec base
++					 */
+
+-				s_port = simple_strtoul(data,&data,10);
+-				addr_end_p = data;
++					s_port = simple_strtoul(data,&data,10);
++					addr_end_p = data;
+
+-				/*
+-				 *	Now create an masquerade entry for it
+-				 * 	must set NO_DPORT and NO_DADDR because
+-				 *	connection is requested by another client.
+-				 */
++					/*
++					 * 	We must set NO_DPORT and NO_DADDR because
++					 *	connection is requested by another client.
++					 */
+
+-				n_ms = ip_masq_new(IPPROTO_TCP,
++					n_ms = ip_masq_new(IPPROTO_TCP,
+ 						maddr, 0,
+ 						htonl(s_addr),htons(s_port),
+ 						0, 0,
+ 						IP_MASQ_F_NO_DPORT|IP_MASQ_F_NO_DADDR);
+-				if (n_ms==NULL)
+-					return 0;
+
+-				/*
+-				 * Replace the old "address port" with the new one
+-				 */
++					if (n_ms==NULL)
++						return 0;
++					ip_masq_listen(n_ms);
+
+-				buf_len = sprintf(buf,"%lu %u",
++					/*
++					 * Replace the old "address port" with the new one
++					 */
++					buf_len = sprintf(buf,"%lu %u",
+ 						ntohl(n_ms->maddr),ntohs(n_ms->mport));
++				} else {
++					/* client bound port in decimal */
++					s_port = simple_strtoul(data,&data,10);
++					addr_end_p = data;
++
++					n_ms = ip_masq_out_get (IPPROTO_TCP,
++						ms->saddr,htons(s_port),
++						0, 0);
++					if (n_ms == NULL)
++						return 0;
++
++					buf_len = sprintf(buf,"%u",ntohs(n_ms->mport));
++				}
+
+ 				/*
+ 				 * Calculate required delta-offset to keep TCP happy
+@@ -242,7 +256,6 @@
+ 							addr_beg_p, addr_end_p-addr_beg_p,
+ 							buf, buf_len);
+ 				}
+-				ip_masq_listen(n_ms);
+ 				ip_masq_put(n_ms);
+ 				return diff;
+ 			}
+@@ -252,6 +265,122 @@
+
+ }
+
++int
++masq_irc_in (struct ip_masq_app *mapp, struct ip_masq *ms, struct sk_buff **skb_p, __u32 maddr)
++{
++        struct sk_buff *skb;
++	struct iphdr *iph;
++	struct tcphdr *th;
++	char *data, *data_limit;
++	__u32 s_addr;
++	__u16 s_port;
++	struct ip_masq *n_ms;
++	char buf[20];		/* "m_addr m_port" (dec base)*/
++        unsigned buf_len;
++	int diff;
++        char *dcc_p, *addr_beg_p, *addr_end_p;
++
++        skb = *skb_p;
++	iph = skb->nh.iph;
++        th = (struct tcphdr *)&(((char *)iph)[iph->ihl*4]);
++        data = (char *)&th[1];
++
++        /*
++	 *	Hunt irc DCC RESUME string:
++	 *
++	 *	strlen("\1DCC RESUME F P O\1\n")=19
++	 *		F:         filename   (min 1 c )
++	 *		P:         bound port (min 1 d )
++	 *		O:	   offset     (min 1 d )
++	 *		0x01, \n:  terminators
++         */
++
++        data_limit = skb->h.raw + skb->len;
++
++	while (data < (data_limit - 19 ) )
++	{
++		if (memcmp(data,"\1DCC RESUME ",12))  {
++			data ++;
++			continue;
++		}
++
++		dcc_p = data;
++		data += 12;
++
++		while( *data++ != ' ')
++			/*
++			 *	must still parse, at least, "F P O\1\n",
++			 *      7 bytes left.
++			 */
++			if (data > (data_limit-7)) return 0;
++
++
++		addr_beg_p = data;
++
++		/*
++		 *	masq bound port in dec base
++		 */
++
++		s_port = simple_strtoul(data,&data,10);
++		addr_end_p = data;
++
++		/*
++		 *	Find the masq entry associated with this connection.
++		 *	The entry should have no dest addr/port yet.
++		 *	If there is no entry, return 0.
++		 *
++		 *	mIRC & co. assume that a port can uniquely identify
++		 *	a connection. It's true 99% of the time, but it's still
++		 *	a stupid assumption.
++		 */
++
++		n_ms = ip_masq_in_get(IPPROTO_TCP,
++			0, 0,
++			ms->maddr, htons(s_port));
++
++		if (n_ms==NULL) {
++			return 0;
++		} else {
++			ip_masq_put(n_ms);
++		}
++
++		/*
++		 * Replace the outside address with the inside address
++		 */
++
++		buf_len = sprintf(buf,"%u",
++			ntohs(n_ms->sport));
++
++		/*
++		 * Calculate required delta-offset to keep TCP happy
++		 */
++
++		diff = buf_len - (addr_end_p-addr_beg_p);
++
++		*addr_beg_p = '\0';
++
++		/*
++		 *	No shift.
++		 */
++
++		if (diff==0) {
++			/*
++			 * simple case, just copy.
++			 */
++			memcpy(addr_beg_p,buf,buf_len);
++		} else {
++			*skb_p = ip_masq_skb_replace(skb, GFP_ATOMIC,
++				addr_beg_p, addr_end_p-addr_beg_p,
++				buf, buf_len);
++		}
++
++		return diff;
++
++	}
++	return 0;
++
++}
++
+ /*
+  *	Main irc object
+  *     	You need 1 object per port in case you need
+@@ -263,12 +392,12 @@
+ struct ip_masq_app ip_masq_irc = {
+         NULL,			/* next */
+ 	"irc",			/* name */
+-        0,                      /* type */
+-        0,                      /* n_attach */
+-        masq_irc_init_1,        /* init_1 */
+-        masq_irc_done_1,        /* done_1 */
+-        masq_irc_out,           /* pkt_out */
+-        NULL                    /* pkt_in */
++        0,			/* type */
++        0,			/* n_attach */
++        masq_irc_init_1,	/* init_1 */
++        masq_irc_done_1,	/* done_1 */
++        masq_irc_out,		/* pkt_out */
++        masq_irc_in		/* pkt_in */
+ };
+
+ /*
+
 

@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282964AbRLCIvm>; Mon, 3 Dec 2001 03:51:42 -0500
+	id <S284356AbRLCIvw>; Mon, 3 Dec 2001 03:51:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284407AbRLCIuG>; Mon, 3 Dec 2001 03:50:06 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:62615 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S284473AbRLCAFr>;
-	Sun, 2 Dec 2001 19:05:47 -0500
-Date: Sun, 02 Dec 2001 16:05:38 -0800 (PST)
-Message-Id: <20011202.160538.27781249.davem@redhat.com>
-To: anton@samba.org
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.5: PCI scatter gather list change
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011202153553.B5130@krispykreme>
-In-Reply-To: <20011202153553.B5130@krispykreme>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S284362AbRLCItd>; Mon, 3 Dec 2001 03:49:33 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:19211 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S282975AbRLBWLA>; Sun, 2 Dec 2001 17:11:00 -0500
+Message-ID: <3C0AA6D6.30BE0BF6@zip.com.au>
+Date: Sun, 02 Dec 2001 14:10:30 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Jones <davej@suse.de>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+In-Reply-To: <3C0A9BD7.47473324@zip.com.au> <Pine.LNX.4.33.0112022236150.26183-100000@Appserv.suse.de>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Anton Blanchard <anton@samba.org>
-   Date: Sun, 2 Dec 2001 15:35:53 +1100
-   
-   I dont care too much either way, but if this change is here to stay I'll
-   let the non intel maintainers know so they can fix up their pci dma
-   code.
+Dave Jones wrote:
+> 
+> On Sun, 2 Dec 2001, Andrew Morton wrote:
+> 
+> > > Really?  So then people should be designing for 128 CPU machines, right?
+> > Linux only supports 99 CPUs.  At 100, "ksoftirqd_CPU100" overflows
+> > task_struct.comm[].
+> > Just thought I'd sneak in that helpful observation.
+> 
+> Wasn't someone looking at fixing that problem so it didn't need a per-cpu
+> thread ?
 
-Ummm, platforms need to support this format even in 2.4.x
-If PAGE is not NULL, "address" applies, else the PAGE+OFFSET
-pair applies.  We'll kill "address" very soon in 2.5.x, but it
-has to stay around for compatibility in 2.4.x
+Not to my knowledge.
 
-Look at sparc64 and x86 in 2.4.x, they expect and handle it
-correctly already.  IA-64 fixed up their stuff recently too.
+> 128 kernel threads sitting around waiting for a problem that
+> rarely happens seems a little.. strange. (for want of a better word).
 
+I've kinda lost the plot on ksoftirqd.  Never really understood
+why a thread was needed for this, nor why it runs at nice +20.
+But things seem to be working now.
+
+-

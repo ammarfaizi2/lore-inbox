@@ -1,74 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279608AbRJXVx5>; Wed, 24 Oct 2001 17:53:57 -0400
+	id <S279613AbRJXWCT>; Wed, 24 Oct 2001 18:02:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279612AbRJXVxr>; Wed, 24 Oct 2001 17:53:47 -0400
-Received: from newssvr17-ext.news.prodigy.com ([207.115.63.157]:14047 "EHLO
-	newssvr17.news.prodigy.com") by vger.kernel.org with ESMTP
-	id <S279608AbRJXVxi>; Wed, 24 Oct 2001 17:53:38 -0400
+	id <S279614AbRJXWCK>; Wed, 24 Oct 2001 18:02:10 -0400
+Received: from ns.hobby.nl ([212.72.224.8]:58888 "EHLO hgatenl.hobby.nl")
+	by vger.kernel.org with ESMTP id <S279613AbRJXWBx>;
+	Wed, 24 Oct 2001 18:01:53 -0400
+Date: Wed, 24 Oct 2001 23:48:26 +0200
+From: toon@vdpas.hobby.nl
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-Newsgroups: linux.dev.kernel
-Subject: Re: linux-2.4.12 / linux-2.4.13 parallel port problem
-In-Reply-To: <3BD6E413.5AF9D7EF@firsdown.demon.co.uk>
-Organization: TMR Associates, Schenectady NY
-From: davidsen@tmr.com (bill davidsen)
-X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
-Originator: davidsen@deathstar.prodigy.com (Bill Davidsen)
-Message-ID: <3MGB7.4641$142.807307317@newssvr17.news.prodigy.com>
-NNTP-Posting-Host: 192.168.192.240
-X-Complaints-To: abuse@prodigy.net
-X-Trace: newssvr17.news.prodigy.com 1003960447 000 192.168.192.240 (Wed, 24 Oct 2001 17:54:07 EDT)
-NNTP-Posting-Date: Wed, 24 Oct 2001 17:54:07 EDT
-Date: Wed, 24 Oct 2001 21:54:07 GMT
+Subject: Re: linux-2.4.13 high SWAP
+Message-ID: <20011024234826.A19967@vdpas.hobby.nl>
+In-Reply-To: <Pine.LNX.4.21.0110241509250.885-100000@freak.distro.conectiva> <200110241936.RAA04632@inter.lojasrenner.com.br> <9r73pv$8h1$1@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <9r73pv$8h1$1@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Oct 24, 2001 at 07:11:59PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3BD6E413.5AF9D7EF@firsdown.demon.co.uk>,
-Dave Garry <daveg@firsdown.demon.co.uk> wrote:
-| 
-| Tim Waugh wrote:
-| > 
-| > On Wed, Oct 24, 2001 at 04:02:00PM +0100, Dave Garry wrote:
-| > 
-| > > Thanks for the tip, but it's not helping. I've tried
-| > > "irq=auto" and "irq=7" but it still wont play.
-| > >
-| > > I just noticed that CONFIG_PARPORT_PC_FIFO is set to NO
-| > > and I'm rebuilding with it set to YES to see if that
-| > > helps...
-| > 
-| > Yes, you need that enabled or it won't even have the code for using
-| > the FIFO compiled in.
-| 
-| Enabling CONFIG_PARPORT_PC_FIFO has not helped, I now
-| get the following:
-| 
-| # modprobe parport_pc verbose_probing=1 irq=auto
+On Wed, Oct 24, 2001 at 07:11:59PM +0000, Linus Torvalds wrote:
+> In article <200110241936.RAA04632@inter.lojasrenner.com.br>,
+> Andre Margis  <andre@sam.com.br> wrote:
+> >
+> >Without use the tmpfs, appears to be OK!!!!!!!!!!
+> 
+> Ok, the problem appears to be that tmpfs stuff just stays on the
+> inactive list, and because it cannot be written out it eventually
+> totally clogs the system.
+> 
+> Suggested fix appended (from Andrea),
+> 
+> 		Linus
 
-Curious. I Get rejected when I use irq=auto with 2.4.13-pre6.
+I started out with a clean 2.4.13 source tree, applied the
+activate_page patch, and compile as follows:
 
-#================ config
-# Parallel port support
-#
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_CML1=m
-# CONFIG_PARPORT_SERIAL is not set
-CONFIG_PARPORT_PC_FIFO=y
-# CONFIG_PARPORT_PC_SUPERIO is not set
-# CONFIG_PARPORT_AMIGA is not set
-# CONFIG_PARPORT_MFC3 is not set
-# CONFIG_PARPORT_ATARI is not set
-# CONFIG_PARPORT_SUNBPP is not set
-# CONFIG_PARPORT_OTHER is not set
-CONFIG_PARPORT_1284=y
-#================
+make dep clean bzImage
+make modules modules_install
 
-I did set 1284 mode, and assume you have as well. I don't have super-io
-set, since I have an old chipset, perhaps that's an issue as well.
+The command `make modules_install' results in the following output:
 
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.13; fi
+depmod: *** Unresolved symbols in /lib/modules/2.4.13/kernel/fs/ramfs/ramfs.o
+depmod: 	activate_page
+
+Maybe an #include of some header file is missing somewhere?
+
+Regards,
+Toon.
 -- 
-bill davidsen <davidsen@tmr.com>
-  His first management concern is not solving the problem, but covering
-his ass. If he lived in the middle ages he'd wear his codpiece backward.
+ /"\                             |   Windows XP:
+ \ /     ASCII RIBBON CAMPAIGN   |        "I'm sorry Dave...
+  X        AGAINST HTML MAIL     |         I'm afraid I can't do that."
+ / \

@@ -1,62 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262341AbUCCD1k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 22:27:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbUCCD1j
+	id S262342AbUCCDqR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 22:46:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbUCCDqR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 22:27:39 -0500
-Received: from mail.kroah.org ([65.200.24.183]:15323 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262341AbUCCD1h (ORCPT
+	Tue, 2 Mar 2004 22:46:17 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:32969 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262342AbUCCDqL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 22:27:37 -0500
-Date: Tue, 2 Mar 2004 19:27:37 -0800
-From: Greg KH <greg@kroah.com>
-To: John Mock <kd6pag@qsl.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB driver troubles: OHCI vs. UHCI
-Message-ID: <20040303032737.GA16680@kroah.com>
-References: <E1AyM9d-00022O-00@penngrove.fdns.net>
+	Tue, 2 Mar 2004 22:46:11 -0500
+Date: Tue, 2 Mar 2004 19:46:08 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>
+Cc: linux-kernel@vger.kernel.org, wesolows@foobazco.org
+Subject: Re: [SPARC][patch] sys_ioperm
+Message-Id: <20040302194608.3c0445d6.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.58L.0403021316370.7737@alpha.zarz.agh.edu.pl>
+References: <Pine.LNX.4.58L.0403021316370.7737@alpha.zarz.agh.edu.pl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1AyM9d-00022O-00@penngrove.fdns.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 02, 2004 at 06:30:37PM -0800, John Mock wrote:
-> I've been using a homebrew USB driver for a PIC microprocessor development
-> board (Microchip PICkit, which uses the HID 'knothole'), based the 2.4.21
-> USB skeleton driver (with a few minor changes) for many months now on a 
-> PowerMac 8500 with an add-on OHCI board.  I tried compiling for a Sony 
-> VAIO R505EL, which uses the UHCI driver, with poor results.  
+On Tue, 2 Mar 2004 13:24:03 +0100 (CET)
+Wojciech 'Sas' Cieciwa <cieciwa@alpha.zarz.agh.edu.pl> wrote:
+
+> I try to build linux-2.6.4-rc1 with cset-20040302_0009 on SPARC.
+> And I got error:
 > 
-> Under 2.4.22, it works the first time the device is opened, but hangs on
-> subsequent operations until the device is power cycled or the UHCI driver
-> is module is removed/re-installed again.
-
-Sounds like a problem with your driver.
-
-> I tried updating it to 2.6.1-rc2 and it quickly gets an error, saying 
+> In file included from include/linux/unistd.h:9,
+>                  from init/main.c:21:
+> include/asm/unistd.h:464: error: conflicting types for `sys_ioperm'
+> include/linux/syscalls.h:291: error: previous declaration of `sys_ioperm'
+> make[1]: *** [init/main.o] Error 1
+> make: *** [init] Error 2
 > 
->     [skel]_write - failed submitting write urb, error -22.
-> 
-> Thinking i had messed up the driver, i generated a current kernel (2.6.3)
-> on the PowerMac, and the updated driver worked the first time with the
-> OHCI board.
-> 
-> Is this a known problem with 2.6.xx, and if so, what does it mean??
+> Fixed this (?) by this patch: 
 
-No it isn't.
+We can just remove that line entirely from unistd.h, and that is the
+change I have added to my tree.
 
-> Any idea what the skeleton driver isn't doing under 2.4.2x which causes
-> a device to enter a hung state on subsequent opens on UCHI (but not OHCI)?
-> 
-> As of a few minutes ago, i have a workaround.  But i'm still quite puzzled
-> and hope someone else has been here before.
-
-Care to post the driver?
-
-thanks,
-
-greg k-h
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/03/02 19:40:14-08:00 davem@nuts.davemloft.net 
+#   [SPARC]: Kill sys_ioperm decl from unistd.h
+# 
+# include/asm-sparc/unistd.h
+#   2004/03/02 19:37:09-08:00 davem@nuts.davemloft.net +0 -1
+#   [SPARC]: Kill sys_ioperm decl from unistd.h
+# 
+diff -Nru a/include/asm-sparc/unistd.h b/include/asm-sparc/unistd.h
+--- a/include/asm-sparc/unistd.h	Tue Mar  2 19:43:19 2004
++++ b/include/asm-sparc/unistd.h	Tue Mar  2 19:43:19 2004
+@@ -461,7 +461,6 @@
+ 				unsigned long addr, unsigned long len,
+ 				unsigned long prot, unsigned long flags,
+ 				unsigned long fd, unsigned long pgoff);
+-asmlinkage int sys_ioperm(unsigned long from, unsigned long num, int on);
+ struct sigaction;
+ asmlinkage long sys_rt_sigaction(int sig,
+ 				const struct sigaction __user *act,

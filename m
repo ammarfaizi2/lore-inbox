@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267180AbUG1OjN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267182AbUG1Osm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267180AbUG1OjN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 10:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267182AbUG1OjN
+	id S267182AbUG1Osm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 10:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267185AbUG1Osm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 10:39:13 -0400
-Received: from jade.spiritone.com ([216.99.193.136]:10448 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S267180AbUG1OjJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 10:39:09 -0400
-Date: Wed, 28 Jul 2004 07:38:47 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, suparna@in.ibm.com
-cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
-       fastboot@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
-Message-ID: <35040000.1091025526@[10.10.2.4]>
-In-Reply-To: <1091011565.30404.0.camel@localhost.localdomain>
-References: <16734.1090513167@ocs3.ocs.com.au> <20040725235705.57b804cc.akpm@osdl.org> <m1r7qw7v9e.fsf@ebiederm.dsl.xmission.com> <20040728105455.GA11282@in.ibm.com> <1091011565.30404.0.camel@localhost.localdomain>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Jul 2004 10:48:42 -0400
+Received: from madrid10.amenworld.com ([62.193.203.32]:63241 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S267182AbUG1Osk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 10:48:40 -0400
+Date: Wed, 28 Jul 2004 16:47:23 +0200
+From: DervishD <raul@pleyades.net>
+To: Markus Schaber <schabios@logi-track.com>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: The dreadful CLOSE_WAIT
+Message-ID: <20040728144723.GA32602@DervishD>
+Mail-Followup-To: Markus Schaber <schabios@logi-track.com>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20040727083947.GB31766@DervishD> <4106869A.5030905@sun.com> <20040727170907.GA26136@DervishD> <20040728140622.2bc69fa5@kingfisher.intern.logi-track.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040728140622.2bc69fa5@kingfisher.intern.logi-track.com>
+User-Agent: Mutt/1.4.2.1i
+Organization: Pleyades
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Alan Cox <alan@lxorguk.ukuu.org.uk> wrote (on Wednesday, July 28, 2004 11:46:06 +0100):
+    Hi Markus :)
 
-> On Mer, 2004-07-28 at 11:54, Suparna Bhattacharya wrote:
->> On Tue, Jul 27, 2004 at 07:53:01PM -0600, Eric W. Biederman wrote:
->> > Andrew Morton <akpm@osdl.org> writes:
->> > 
->> > > Keith Owens <kaos@sgi.com> wrote:
->> > > > 
->> > > >  * How do we get a clean API to do polling mode I/O to disk?
->> > > 
->> > > We hope to not have to.  The current plan is to use kexec: at boot time, do
-> 
-> If you are prepared to say "dump device is IDE" the driver ends up
-> pretty tiny - maybe 4K for PIO mode.
+ * Markus Schaber <schabios@logi-track.com> dixit:
+> >     I know, that's the only 'harm' a CLOSE_WAIT timeout will have,
+> > but anyway I don't see any point in having a permanent CLOSE_WAIT
+> > state. The other end is not there, it has sent us a FIN.
+> Yes, but it may still want to read.
 
-After kexec, we shouldn't need such things, do we? Before it, Linus won't 
-take the patch, as he said he doesn't like systems in unstable states doing
-crashdumps to disk ...
+    I know, now I understand.
 
-M.
+> >     Well, it may be an idea ;) Anyway if you have, let's say, a
+> > maximum of 10 connections in your server, and I do 10 wget+C-c, you
+> > no longer have a running server. The kernel should not allow that. A
+> > timeout of 3600 seconds seems very reasonable, or somethink like
+> > that, am I wrong?
+> Well, when the other side is really dead, then connection keepalive
+> should detect that (when enabled), by either timeout or getting a reset
+> packet.
 
+    But this must be enabled in the application, am I wrong? using
+SO_KEEPALIVE. Can it be enabled using sysctl or the like.
+
+    Thanks for the information. When I saw the transitions, I thought
+that the server got the FIN after the client died, but obviously it
+can get it when the client doesn a half-close, and I didn't think of
+it. Thanks, Markus :)
+
+    Now, is there any sysctl that enables a keepalive for this kind
+of connections (dead remote end, local in CLOSE_WAIT) for all
+connections?
+    
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

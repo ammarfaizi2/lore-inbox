@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261904AbTICLUR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 07:20:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbTICLUR
+	id S261910AbTICLgO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 07:36:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbTICLgO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 07:20:17 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:60616 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261904AbTICLUL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 07:20:11 -0400
-Date: Wed, 3 Sep 2003 04:19:34 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: Giuliano Pochini <pochini@shiny.it>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Scaling noise
-Message-ID: <20030903111934.GF10257@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"Brown, Len" <len.brown@intel.com>,
-	Giuliano Pochini <pochini@shiny.it>, Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <BF1FE1855350A0479097B3A0D2A80EE009FCEB@hdsmsx402.hd.intel.com>
-Mime-Version: 1.0
+	Wed, 3 Sep 2003 07:36:14 -0400
+Received: from chello080109223066.lancity.graz.surfer.at ([80.109.223.66]:55427
+	"EHLO lexx.delysid.org") by vger.kernel.org with ESMTP
+	id S261910AbTICLgK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 07:36:10 -0400
+To: linux-kernel@vger.kernel.org
+Subject: No SFM when using SiSFB and FB-console
+From: Mario Lang <mlang@delysid.org>
+Date: Wed, 03 Sep 2003 13:36:14 +0200
+Message-ID: <873cfehzo1.fsf@lexx.delysid.org>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FCEB@hdsmsx402.hd.intel.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 03, 2003 at 05:41:39AM -0400, Brown, Len wrote:
-> > Latency is not bandwidth.
-> 
-> Bingo.
-> 
-> The way to address memory latency is by increasing bandwidth and
-> increasing parallelism to use it -- thus amortizing the latency.  
+Hi.
 
-And if the app is a pointer chasing app, as many apps are, that doesn't
-help at all.
+When booting 2.6.0-test4 with sisfb (630) and FB-console built-in,
+it appears that I have no sfm defined by default.
 
-It's pretty much analogous to file systems.  If bandwidth was the answer
-then we'd all be seeing data moving at 60MB/sec off the disk.  Instead 
-we see about 4 or 5MB/sec.
+consolechars -U generates an empty file.
 
-Expecting more bandwidth to help your app is like expecting more platter
-speed to help your file system.  It's not the platter speed, it's the
-seeks which are the problem.  Same thing in system doesn't, it's not the
-bcopy speed, it's the cache misses that are the problem.  More bandwidth
-doesn't do much for that.
+This makes my braille display driver daemon very unhappy,
+and all the characters on the screen are shown as question marks on my
+braille display.
+
+I found out that if I export the sfm of my 2.4.20 machine
+and consolechars -u that file under 2.6.0-test4, BRLTTY
+seems to be happy again.
+
+Can anyone explain 
+ 1.: Is it a bug that upon boot with console fb, there is no default sfm?
+ 2.: If not, how can I convince the kernel to provide a default sfm, without
+     having to load one from user-space?
+
+P.S.: I am not subscribed, so please CC me.
+
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+CYa,
+  Mario

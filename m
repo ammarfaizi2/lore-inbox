@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261433AbTIZQOj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 12:14:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbTIZQOj
+	id S261347AbTIZQLG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 12:11:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbTIZQLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 12:14:39 -0400
-Received: from gaia.cela.pl ([213.134.162.11]:1286 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S261433AbTIZQOi (ORCPT
+	Fri, 26 Sep 2003 12:11:06 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30114 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261347AbTIZQLF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 12:14:38 -0400
-Date: Fri, 26 Sep 2003 18:14:17 +0200 (CEST)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-cc: Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Fri, 26 Sep 2003 12:11:05 -0400
+Date: Fri, 26 Sep 2003 09:10:46 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Maciej Zenczykowski <maze@cela.pl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Syscall security
-In-Reply-To: <Pine.LNX.4.44.0309261521190.22241-100000@gatemaster.ivimey.org>
-Message-ID: <Pine.LNX.4.44.0309261810290.6080-100000@gaia.cela.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20030926091046.A24375@osdlab.pdx.osdl.net>
+References: <Pine.LNX.4.44.0309261553180.6080-100000@gaia.cela.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0309261553180.6080-100000@gaia.cela.pl>; from maze@cela.pl on Fri, Sep 26, 2003 at 04:05:50PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >Unfortunately sometimes the data transfer through stdio can be counted in 
-> >hundreds of MB (or even in extreme cases a couple of GB), plus it is 
-> 
-> Would running the process under user-mode linux help any? (I'm not sure)
+* Maciej Zenczykowski (maze@cela.pl) wrote:
+> I'm wondering if there is any way to provide per process bitmasks of 
+> available/illegal syscalls.  Obviously this should most likely be 
+> inherited through exec/fork.
 
-I think that's trying to kill a fly with a cannon.  Especially since 
-afterwards the process in UML would still need to be somehow protected 
-from calling UML syscalls - I'm not quite sure how UML works (never really 
-used it), but I'm assuming it will still allow getuid/gettimeofday etc 
-syscalls.  Correct me if I'm wrong _or_ if i'm misinterpreting your idea.
-Besides sometimes these processes are spawned in the dozens (sometimes 
-they spawn massively with very little CPU intensity, other times very 
-rarely but with massive CPU use) - would I then need a seperate UML kernel 
-per spawn? and if not then how would this help?
+A simple LSM module can do this for you.  It will have a little
+more overhead than denying at the syscall entry point, but it's
+certainly going to be more flexible.
 
-Thx,
-MaZe.
-
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,92 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316884AbSGTFM0>; Sat, 20 Jul 2002 01:12:26 -0400
+	id <S317371AbSGTFyq>; Sat, 20 Jul 2002 01:54:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317367AbSGTFM0>; Sat, 20 Jul 2002 01:12:26 -0400
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:37029 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S316884AbSGTFMZ>; Sat, 20 Jul 2002 01:12:25 -0400
-Message-ID: <3D38EF31.9000007@namesys.com>
-Date: Sat, 20 Jul 2002 09:03:45 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Oliver Xymoron <oxymoron@waste.org>
-CC: Rik van Riel <riel@conectiva.com.br>,
-       Andreas Dilger <adilger@clusterfs.com>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       Guillaume Boissiere <boissiere@adiglobal.com>,
-       linux-kernel@vger.kernel.org,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST]
-References: <Pine.LNX.4.44.0207192153150.1120-100000@waste.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317373AbSGTFyq>; Sat, 20 Jul 2002 01:54:46 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49159 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317371AbSGTFyp>; Sat, 20 Jul 2002 01:54:45 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [PATCH] 'select' failure or signal should not update timeout
+Date: Sat, 20 Jul 2002 05:57:46 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <ahau4q$1n2$1@penguin.transmeta.com>
+References: <200207190952.g6J9q4I07044@sic.twinsun.com> <200207200038.g6K0cZO12086@devserv.devel.redhat.com>
+X-Trace: palladium.transmeta.com 1027144647 14168 127.0.0.1 (20 Jul 2002 05:57:27 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 20 Jul 2002 05:57:27 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Xymoron wrote:
-
->  
+In article <200207200038.g6K0cZO12086@devserv.devel.redhat.com>,
+Alan Cox  <alan@redhat.com> wrote:
+>> <http://www.opengroup.org/onlinepubs/007904975/functions/select.html>
+>> says that 'select' may modify its timeout argument only "upon
+>> successful completion".  However, the Linux kernel sometimes modifies
+>> the timeout argument even when 'select' fails or is interrupted.
 >
->
->  
->
->>So, I am assuming a new system call must go in before feature freeze.
->> One can reasonably argue that because it only affects one experimental
->>filesystem named reiser4 (until other FS authors see how nice it is and
->>start to use it;-) ) and does not complicate VFS,  it is not core code,
->>and should not be subject to the freeze.  I'll make that argument if we
->>don't have it ready in time....;-)
->>    
->>
->
->It only doesn't complicate VFS because we haven't discussed generalizing
->it yet. The desire to do transactional processing is not unique to Reiser
->any more than journalling is. See recent thread about fsync and MTAs.
->
->
->If you hide all your nifty features under a carpet (aka ioctl) where no
->one but Viro notices them, then maybe you'll be able to push this stuff
->late September and get them in. But FS-specific syscalls are a non-starter
->- what happens to the second FS that decides it wants transactions or
->multi-file I/O but doesn't quite fit your model?
->
->  
->
-The way the Linux community works is first you show that it works, then 
-you ask others to follow you.  In 2.6 we will show that it works.  In 
-2.7 we will ask others to consider adopting it.  In 5-15 years, some of 
-them will.  Trust me that there is no queue of other FS authors seeking 
-to take advantage of our code, and complaining that we are locking them 
-out from our transactions API.  Shoot, some of them are still using 
-linear search directories and not packing small files together into one 
-block.;-)
+>This is extremely useful behaviour. POSIX is broken here. Fix it in the
+>C library or somewhere it doesn't harm the clueful
 
-So, we are not hiding it under a carpet in ioctl, we are doing something 
-clean and powerful and general enough to be usable by any other storage 
-layer that chooses to implement the required functions.
+Personally, I've gotten to the point where I think that the select()
+time is broken. 
 
-We need to compete with Microsoft's OFS.  We have a tight and busy 
-schedule if we are to ship a filesystem offering superior semantics for 
-semi-structured data queries with a clean and powerful code architecture 
-behind it, and ship it before OFS ships.  Reiser4 gets the storage layer 
-foundation in place, and reduces the amount of code required for the 
-later stages several fold.  It also provides a framework for several 
-serious approaches to security problems (like giving apps a transactions 
-API), and has some features that are just plain nifty (e.g. inheritance).
+The thing is, nobody should really ever use timeouts, because the notion
+of "I want to sleep X seconds" is simply not _useful_ if the process
+also just got delayed by a page-out event as it said so.  What does "X
+seconds" mean at that point? It's ambiguous - and the kernel will (quite
+naturally) just always assume that it is "X seconds from when the kernel
+got notified". 
 
-All of this squabbling over filesystem (distro) competition within Linux 
-is just a distraction from the important job of getting something ready 
-for when OFS comes over that hill over yonder there.....  unless you 
-want to hear from your friends in 2004+ about the superior namespace 
-integration Longhorn offers in Windows compared to Linux, and how it 
-makes everything simpler....
+A _useful_ interface would be to say "I want to sleep to at most time X"
+or "to at least time X".  Those are unambiguous things to say, and are
+not open to interpretation.
 
--- 
-Hans
+The "I want to sleep until at least time X" (or "at most time X") also
+has the added advantage that it is inherently re-startable - restarting
+the sleep has _no_ rounding issues, and again no ambiguity.
 
+Note that select() is definitely not the only offender here.  Other
+system calls like "nanosleep()" have the exact same problem - what do
+you do if you get interrupted by a signal and need to restart? 
 
+The Linux behaviour of modifying the timeout is a half-assed try for
+restartability, but the problem is that (a) nobody else does that or
+expects it to happen, despite the man-pages originally claiming that
+they were supposed to and (b) it inherently has rounding problems and
+other ambiguities - making it even less useful. 
 
+Oh, well.
+
+I suspect almost nobody actually uses the Linux timeout feature because
+of the nonportability issues, making the whole mess even less tasty.
+
+		Linus

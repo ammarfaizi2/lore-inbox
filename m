@@ -1,44 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272766AbTG3GwN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 02:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272785AbTG3GwN
+	id S272790AbTG3G40 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 02:56:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272791AbTG3G40
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 02:52:13 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:12760 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S272766AbTG3GwL convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 02:52:11 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: e1000 performance
-Date: Tue, 29 Jul 2003 23:52:07 -0700
-Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E0102229232@orsmsx402.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: e1000 performance
-Thread-Index: AcNVV60GRHnB/C/7QaWWyXQBM3habABDvG1A
-From: "Feldman, Scott" <scott.feldman@intel.com>
-To: "J.A. Magallon" <jamagallon@able.es>,
-       "Lista Linux-Kernel" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 30 Jul 2003 06:52:08.0128 (UTC) FILETIME=[1807A400:01C35667]
+	Wed, 30 Jul 2003 02:56:26 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:28359 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S272790AbTG3G4Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 02:56:24 -0400
+From: NeilBrown <neilb@cse.unsw.edu.au>
+To: Linus Torvalds <torvalds@osdl.org>
+Date: Wed, 30 Jul 2003 16:56:18 +1000
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH]  When a partition is claimed, claim the whole device for partitioning.
+Message-Id: <E19hksk-0003mM-00@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think I am getting weird performace with e1000 in 2.4.22-pre.
 
-Is this behavior new to 2.4.22-pre?
+Currently, devices can be 'claimed' by filesystems (when mounting) or
+md/raid (when being included in an array) or 'raw' or ....
+This stop concurrent access by these systems.
 
-> Hardware:
-> 03:01.0 Ethernet controller: Intel Corp. 82543GC Gigabit 
-> Ethernet Controller (Copper) (rev 02)
+However it is still possible for one system to claim the whole device
+and a second system to claim one partition, which is not good.
 
-82543 = PCI, not PCI-X.  Are you in a 64-bit slot?  Get ethtool 1.8 and
-run ethtool -d eth<x> to see PCI type/width/speed.
+With this patch, when a partition is claimed, the whole device is 
+claimed for partitioning.  So you cannot have a partition and the
+whole devices claimed at the same time (except if the whole device
+is claimed for partitioning).
+
+ ----------- Diffstat output ------------
+ ./fs/block_dev.c |   32 ++++++++++++++++++++++++++++----
+ 1 files changed, 28 insertions(+), 4 deletions(-)
+
+diff ./fs/block_dev.c~current~ ./fs/block_dev.c
+--- ./fs/block_dev.c~current~	2003-07-30 16:42:01.000000000 +1000
++++ ./fs/block_dev.c	2003-07-30 16:42:37.000000000 +1000
+@@ -419,12 +419,34 @@ void bd_forget(struct inode *inode)
  
--scott
+ int bd_claim(struct block_device *bdev, void *holder)
+ {
+-	int res = -EBUSY;
++	int res;
+ 	spin_lock(&bdev_lock);
+-	if (!bdev->bd_holder || bdev->bd_holder == holder) {
+-		bdev->bd_holder = holder;
++
++	/* first decide result */
++	if (bdev->bd_holder == holder)
++		res = 0;	 /* already a holder */
++	else if (bdev->bd_holder != NULL)
++		res = -EBUSY; 	 /* held by someone else */
++	else if (bdev->bd_contains == bdev)
++		res = 0;  	 /* is a whole device which isn't held */
++
++	else if (bdev->bd_contains->bd_holder == bd_claim)
++		res = 0; 	 /* is a partition of a device that is being partitioned */
++	else if (bdev->bd_contains->bd_holder != NULL)
++		res = -EBUSY;	 /* is a partition of a held device */
++	else
++		res = 0;	 /* is a partition of an un-held device */
++
++	/* now impose change */
++	if (res==0) {
++		/* note that for a whole device bd_holders
++		 * will be incremented twice, and bd_holder will
++		 * be set to bd_claim before being set to holder
++		 */
++		bdev->bd_contains->bd_holders ++;
++		bdev->bd_contains->bd_holder = bd_claim;
+ 		bdev->bd_holders++;
+-		res = 0;
++		bdev->bd_holder = holder;
+ 	}
+ 	spin_unlock(&bdev_lock);
+ 	return res;
+@@ -433,6 +455,8 @@ int bd_claim(struct block_device *bdev, 
+ void bd_release(struct block_device *bdev)
+ {
+ 	spin_lock(&bdev_lock);
++	if (!--bdev->bd_contains->bd_holders)
++		bdev->bd_contains->bd_holder = NULL;
+ 	if (!--bdev->bd_holders)
+ 		bdev->bd_holder = NULL;
+ 	spin_unlock(&bdev_lock);

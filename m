@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278665AbRJXRI6>; Wed, 24 Oct 2001 13:08:58 -0400
+	id <S278676AbRJXRM7>; Wed, 24 Oct 2001 13:12:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278666AbRJXRIs>; Wed, 24 Oct 2001 13:08:48 -0400
-Received: from [200.248.92.2] ([200.248.92.2]:43276 "EHLO
-	inter.lojasrenner.com.br") by vger.kernel.org with ESMTP
-	id <S278665AbRJXRIf>; Wed, 24 Oct 2001 13:08:35 -0400
-Message-Id: <200110241805.QAA27995@inter.lojasrenner.com.br>
-Content-Type: text/plain; charset=US-ASCII
-From: Andre Margis <andre@sam.com.br>
-Organization: SAM Informatica Ltda
-To: linux-kernel@vger.kernel.org
-Subject: linux-2.4.13 high SWAP
-Date: Wed, 24 Oct 2001 15:05:52 -0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <Pine.LNX.4.33.0110232249090.1185-100000@penguin.transmeta.com> <20011024114026.A14078@outpost.ds9a.nl> <9r6rho$82c$1@penguin.transmeta.com>
-In-Reply-To: <9r6rho$82c$1@penguin.transmeta.com>
+	id <S278675AbRJXRMt>; Wed, 24 Oct 2001 13:12:49 -0400
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:24537 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S278672AbRJXRMj>; Wed, 24 Oct 2001 13:12:39 -0400
+Message-ID: <3BD6F701.32E34BA5@nortelnetworks.com>
+Date: Wed, 24 Oct 2001 13:14:41 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: Tim Hockin <thockin@hockin.org>
+Cc: "Christopher Friesen" <cfriesen@nortelnetworks.com>,
+        David Ford <david@blue-labs.org>, Julian Anastasov <ja@ssi.bg>,
+        Tim Hockin <thockin@sun.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: issue: deleting one IP alias deletes all
+In-Reply-To: <200110241534.f9OFYnL14565@www.hockin.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Orig: <cfriesen@nortelnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm testing 2.4.13, and something  is wrong.....
+Tim Hockin wrote:
+> 
+> > > Switch to 'ip' instead of 'ifconfig', several large distros now include
+> > > it.  Addresses can be added and removed completely indiscriminately on
+> > > interfaces.
+> > >
+> > > The "ethN:X" is a legacy design that is now deprecated.
+> >
+> > Minor issue...if I create (using 'ip') two addresses on the same subnet on the
+> > same device, one of them is primary and the other is secondary.  If I then
+> > delete the primary address, the second one goes with it.
+> >
+> > I submit that this is bad behaviour.
+> 
+> This is the same behavior for which I am proposing fixing.  The origin of
+> the thread, if you will.
 
+Yes, precisely.  I was rebutting David Ford's statement above about addresses
+being added and removed indiscriminately using 'ip' but not using aliases.
 
-Them machine for test is a DELL 8450 4xPIII 4 GBram, running 4 setiathome, 5 
-cp on tmpfs and 1 cpio.
+Chris
 
-After minutes running the machine eat all my swap area. like "top" sample 
-bellow :
-Mem:  4118212K av, 3693728K used,  424484K free,       0K shrd,     956K buff
-                    615928K actv,       0K in_d,       0K in_c,       0Ktarget
-Swap: 1048568K av,  957456K used,   91112K free                 2420888Kcached
-
-I'm using highmem.
-
-
-Some kernel tunning to adjust that?
-
-
-Thank's
-
-
-Andre
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

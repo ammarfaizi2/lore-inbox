@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbTLSLC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 06:02:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262655AbTLSLC1
+	id S262683AbTLSLKG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 06:10:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262686AbTLSLKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 06:02:27 -0500
-Received: from AGrenoble-101-1-2-161.w193-253.abo.wanadoo.fr ([193.253.227.161]:33760
-	"EHLO awak") by vger.kernel.org with ESMTP id S262610AbTLSLCY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 06:02:24 -0500
-Subject: Re: Linux Device Drivers 3rd Edition
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Jonathan Corbet <corbet@lwn.net>,
-       Kendrick Hamilton <hamilton@sedsystems.ca>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10312182350160.7879-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10312182350160.7879-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1071832078.25130.0.camel@bip.parateam.prv>
+	Fri, 19 Dec 2003 06:10:06 -0500
+Received: from holomorphy.com ([199.26.172.102]:46998 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262683AbTLSLKB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 06:10:01 -0500
+Date: Fri, 19 Dec 2003 03:09:57 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Tupshin Harper <tupshin@tupshin.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] linux.bkbits.net
+Message-ID: <20031219110957.GM31393@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Tupshin Harper <tupshin@tupshin.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3FE2D4D5.2050103@softhome.net> <20031219104050.GK31393@holomorphy.com> <3FE2D7F7.9010703@tupshin.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 19 Dec 2003 12:07:58 +0100
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FE2D7F7.9010703@tupshin.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le ven 19/12/2003 à 08:51, Andre Hedrick a écrit :
-> Jonathan,
-> 
-> So this is the third release to publish the documented API to the writing
-> kernel level device drivers?
+William Lee Irwin III wrote:
+>> You may have missed Linus' announcement: 2.6.0 has been released.
 
-It's the second proof that the way to write kernel level device drivers
-is a moving target.
+On Fri, Dec 19, 2003 at 02:50:31AM -0800, Tupshin Harper wrote:
+> Uh...no. He's talking about the fact that it is conceptually odd to pull 
+> a 2.6(final) linux from a 2.5 URL. That's all.
+> -Tupshin
 
-	Xav
+bk pull doesn't require an argument; it defaults to using the stored
+parent repository. So "normally" the name of the repository wouldn't
+be seen or given at all. If it moved, it would cause an error when
+the parent repository could not be found.
 
+Regardless of whether the state of affairs under discussion is altered,
+the above is why it wasn't a consideration in my original reply.
+
+
+-- wli

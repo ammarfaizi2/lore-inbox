@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266133AbRGSW50>; Thu, 19 Jul 2001 18:57:26 -0400
+	id <S266130AbRGSXDP>; Thu, 19 Jul 2001 19:03:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266130AbRGSW5P>; Thu, 19 Jul 2001 18:57:15 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:64530 "EHLO
+	id <S266150AbRGSXDF>; Thu, 19 Jul 2001 19:03:05 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:17427 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266133AbRGSW5D>; Thu, 19 Jul 2001 18:57:03 -0400
-Date: Thu, 19 Jul 2001 15:55:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
+	id <S266130AbRGSXCo>; Thu, 19 Jul 2001 19:02:44 -0400
+Message-ID: <3B576716.10BACD20@transmeta.com>
+Date: Thu, 19 Jul 2001 16:02:46 -0700
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
 To: Julian Anastasov <ja@ssi.bg>
-cc: "H. Peter Anvin" <hpa@zytor.com>,
+CC: "H. Peter Anvin" <hpa@zytor.com>, Linus Torvalds <torvalds@transmeta.com>,
         linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: cpuid_eax damages registers (2.4.7pre7)
-In-Reply-To: <Pine.LNX.4.33.0107200051480.984-100000@u.domain.uli>
-Message-ID: <Pine.LNX.4.33.0107191550220.3044-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <Pine.LNX.4.33.0107200158200.1820-100000@u.domain.uli>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+Julian Anastasov wrote:
+> 
+>         Hello,
+> 
+> On Thu, 19 Jul 2001, H. Peter Anvin wrote:
+> 
+> > Julian Anastasov wrote:
+> > >
+> > > What I want to say (I could be wrong and that can't surprise me) is
+> > > that the original cpuid_eax is in fact incorrect. All cpuid_XXX funcs
+> > > use only dummy output operands...
+> > >
+> >
+> > Bullsh*t.  One of the output operands is always a non-dummy (in
+> > cpuid_edx() edx is not a dummy, for example.)
+> 
+>         Right, and it is may be not damaged. In my first posting I
+> claim that cpuid_eax damages ebx (and may be ecx and edx).
+> 
 
-On Fri, 20 Jul 2001, Julian Anastasov wrote:
->
-> In my distro (now with gcc 2.96) I have a gcc info with name "Extended
-> Asm", "Assembler Instructions with C Expression Operands" with the
-> following text:
+Doesn't matter.  gcc can't pick and choose what *effects* of an asm()
+statement it wants to happen -- this should be utterly obvious to
+anyone.  As the old saying goes, you can't be half pregnant.
 
-[ yes ]
-
-> What I want to say (I could be wrong and that can't surprise me) is
-> that the original cpuid_eax is in fact incorrect.
-
-No. It's correct, because cpuid doesn't have any side effects (*), so we
-don't need to mark it volatile. gcc is free to remove it if nothing uses
-the outputs, for example. But gcc cannot (and generally does not) ignore
-outputs that _are_ specified.
-
-Now, adding the "volatile" doesn't really make things worse, and it will
-make gcc even more anal about optimizations than it normally is, which is
-probably why that also hides the gcc bug.
-
-Note that gcc having bus in the inline asm handling is nothing new. We've
-had that before, and I'm sure we'll have it again. Not very many people
-use them: the kernel tends to be the heaviest user of them (with libc
-probably a good second). Which is why bugs here often take time to get
-fixed. It doesn't help that the documentation has been quite bad, even
-misleading, at times.
-
-		Linus
-
-(*) cpuid has the side effect of being a "synchronizing instruction", and
-as such you can use it for some SMP ordering things etc, but as it's one
-of the slowest such instructions nobody is really ever interested in using
-it that way, and it doesn't have any other "architecturally visible"
-effects that the compiler could care about.
-
+	-hpa

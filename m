@@ -1,64 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263256AbUCNC3X (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 21:29:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263257AbUCNC3X
+	id S263261AbUCNCcl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 21:32:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbUCNCcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 21:29:23 -0500
-Received: from mail.kroah.org ([65.200.24.183]:39831 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263256AbUCNC2m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 21:28:42 -0500
-Date: Sat, 13 Mar 2004 18:28:07 -0800
-From: Greg KH <greg@kroah.com>
-To: "Woodruff, Robert J" <woody@co.intel.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
-       Timothy Miller <miller@techsource.com>, Rik van Riel <riel@redhat.com>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       "Woodruff, Robert J" <woody@jf.intel.com>, linux-kernel@vger.kernel.org,
-       "Hefty, Sean" <sean.hefty@intel.com>,
-       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
-       "Davis, Arlin R" <arlin.r.davis@intel.com>,
-       marcelo.tosatti@cyclades.com
-Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
-Message-ID: <20040314022807.GA4868@kroah.com>
-References: <1AC79F16F5C5284499BB9591B33D6F000B6306@orsmsx408.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1AC79F16F5C5284499BB9591B33D6F000B6306@orsmsx408.jf.intel.com>
-User-Agent: Mutt/1.5.6i
+	Sat, 13 Mar 2004 21:32:41 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:9747 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S263257AbUCNCbp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 21:31:45 -0500
+Date: Sun, 14 Mar 2004 10:33:00 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: Miklos Szeredi <mszeredi@inf.bme.hu>
+cc: hallyn@CS.WM.EDU, linux-kernel@vger.kernel.org
+Subject: Re: unionfs
+In-Reply-To: <200403111544.i2BFi7O06675@kempelen.iit.bme.hu>
+Message-ID: <Pine.LNX.4.58.0403141032230.4585@raven.themaw.net>
+References: <200403080952.i289qsU12658@kempelen.iit.bme.hu>
+ <20040311151343.GA943@escher.cs.wm.edu> <200403111544.i2BFi7O06675@kempelen.iit.bme.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.5, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, REFERENCES,
+	REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 13, 2004 at 02:07:13PM -0800, Woodruff, Robert J wrote:
+On Thu, 11 Mar 2004, Miklos Szeredi wrote:
+
 > 
-> The Mellanox and Topspin folks along with some people from some of
-> the national labs are trying to start up a website called openib.org,
-> with data bases, email lists, etc. where people can submit code for
-> this "best of breed" stack and discuss it. As long as it is truly 
-> open, the linux community is allowed to participate, and the code
-> is evaluated on it's technical merits, rather than one companies
-> personal agenda, this forum might serve as a way for us to sort
-> through this without taking every issue to lkml. 
-> 
-> What are your thoughts on how we should proceed ? 
+> I'll have to, as this is needed for AVFS.  Not unionfs, but something
+> similar, that allows file/directory lookups for special filenames to
+> be redirected to another filesystem.
 
-I think you need to work with the openib.org people as they seem to
-have:
-	- working code with support for a number of different devices
-	- developers with extensive kernel programming experience
-	  working on cleaning up the code to fit properly into the
-	  kernel tree.
-	- their code showing up in at least one distro which will expose
-	  them to a much wider range of testing than Intel's project so
-	  far has had.
+I have a need for this in autofs4 also.
 
-So it seems that you really need to work with them if you wish to get
-your code merged into theirs, as theirs already seems to be an almost
-complete solution...
+Ian
 
-Good luck,
-
-greg k-h

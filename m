@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319331AbSHVMGM>; Thu, 22 Aug 2002 08:06:12 -0400
+	id <S319337AbSHVMI2>; Thu, 22 Aug 2002 08:08:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319332AbSHVMGM>; Thu, 22 Aug 2002 08:06:12 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22788 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S319331AbSHVMGL>; Thu, 22 Aug 2002 08:06:11 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: large page patch (fwd) (fwd)
-Date: 22 Aug 2002 12:03:55 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <ak2jvb$61h$1@gatekeeper.tmr.com>
-References: <Pine.LNX.4.44.0208130942130.7411-100000@home.transmeta.com> <Pine.LNX.4.44L.0208131425500.23404-100000@imladris.surriel.com>
-X-Trace: gatekeeper.tmr.com 1030017835 6193 192.168.12.62 (22 Aug 2002 12:03:55 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	id <S319338AbSHVMI2>; Thu, 22 Aug 2002 08:08:28 -0400
+Received: from gra-lx1.iram.es ([150.214.224.41]:36620 "EHLO gra-lx1.iram.es")
+	by vger.kernel.org with ESMTP id <S319337AbSHVMI0>;
+	Thu, 22 Aug 2002 08:08:26 -0400
+Message-ID: <3D64D51C.9040603@iram.es>
+Date: Thu, 22 Aug 2002 12:12:12 +0000
+From: Gabriel Paubert <paubert@iram.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Yoann Vandoorselaere <yoann@prelude-ids.org>,
+       cpufreq@lists.arm.linux.org.uk, cpufreq@www.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: fix 32bits integer overflow in loops_per_jiffy calculation
+References: <20020822130200.31767@192.168.4.1>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.44L.0208131425500.23404-100000@imladris.surriel.com>,
-Rik van Riel  <riel@conectiva.com.br> wrote:
+	Hi Ben,
 
-| Suppose somebody sends you a patch which implements a nice
-| algorithm that just happens to be patented by that same
-| somebody.  You don't know about the patent.
-| 
-| You integrate the patch into the kernel and distribute it,
-| one year later you get sued by the original contributor of
-| that patch because you distribute code that is patented by
-| that person.
-| 
-| Not having some protection in the license could open you
-| up to sneaky after-the-fact problems.
-| 
-| Having a license that explicitly states that people who
-| contribute and use Linux shouldn't sue you over it might
-| prevent some problems.
+ > None of the above can happen in the domain of application of this
+ > function. It's used to scale up/down the loops_per_jiffy value when
+ > scaling the CPU frequency. Anyway, the above isn't worse than the
+ > original function. Ideally, we would want 64 bits arithmetics, but we
+ >  decided long ago not to bring the libcc support routines for that in
+ >  the kernel.
 
-Unlikely as this is, since offering the patch would probably be
-(eventually) interpreted as giving you the right to use it under GPL, I
-think this is a valid concern.
+Well, first on sane archs which have an easily accessible, fixed
+frequency time counter, loops_per_jiffy should never have existed :-)
 
-Maybe some lawyer could add the required words and it could become the
-LFSL v1.0 (Linux Free Software License). Although FSF would probably buy
-into a change if the alternative was creation of a Linux license. There
-are people there who are in touch with reality.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Second, putting this code there means that one day somebody will
+inevitably try to use it outside of its domain of operation (like it
+happened for div64 a few months ago when I pointed out that it would not
+work for divisors above 65535 or so).
+
+Finally, I agree that we should not import libgcc, but for example on
+PPC32 the double lengths shifts (__ashrdi3, __ashldi3, and __lshsldi3)
+are implemented somewhere, and the assembly implementation (directly
+taken from some appendix in PPC documentation, I just slightly twisted
+__ashrdi3 to make it branchless AFAIR) is actually way faster than the
+one in libgcc ;-), and less than half the size.
+
+  Adding a few subroutines that implement a subset of libgcc's
+functionality is necessary for most archs (which functions are needed is
+arch, and sometimes compiler's, dependent).
+
+In this case a generic scaling function, while not a standard libgcc/C
+library feature has potentially more applications than this simple 
+cpufreq approximation. But I don't see very much the need for scaling a 
+long (64 bit on 64 bit archs) value, 32 bit would be sufficient.
+
+	Regards,
+	Gabriel.
+

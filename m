@@ -1,54 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269802AbUJMTDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269799AbUJMTCt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269802AbUJMTDo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 15:03:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269796AbUJMTDG
+	id S269799AbUJMTCt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 15:02:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269790AbUJMTAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 15:03:06 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:57546 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S269797AbUJMTBv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 15:01:51 -0400
-Date: Wed, 13 Oct 2004 14:01:36 -0500
-To: Oliver Neukum <oliver@neukum.org>
-Cc: James Bruce <bruce@andrew.cmu.edu>, bert hubert <ahu@ds9a.nl>,
-       Greg KH <greg@kroah.com>, linux-hotplug-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6.9-rc4] USB && mass-storage && disconnect broken semantics
-Message-ID: <20041013190136.GD12237@austin.ibm.com>
-References: <20041011120701.GA824@outpost.ds9a.nl> <416B9436.3010902@andrew.cmu.edu> <200410121224.44910.oliver@neukum.org>
+	Wed, 13 Oct 2004 15:00:42 -0400
+Received: from ts2-075.twistspace.com ([217.71.122.75]:22412 "EHLO entmoot.nl")
+	by vger.kernel.org with ESMTP id S269787AbUJMS6g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 14:58:36 -0400
+Subject: Re: waiting on a condition
+From: Martijn Sipkema <martijn@entmoot.nl>
+To: "Peter W. Morreale" <morreale@radiantdata.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <416D49FF.10003@radiantdata.com>
+References: <02bb01c4b138$8a786f10$161b14ac@boromir>
+	 <416D49FF.10003@radiantdata.com>
+Content-Type: text/plain
+Message-Id: <1097701123.4648.13.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410121224.44910.oliver@neukum.org>
-User-Agent: Mutt/1.5.6+20040818i
-From: Linas Vepstas <linas@austin.ibm.com>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 13 Oct 2004 22:58:53 +0200
+Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 12, 2004 at 12:24:44PM +0200, Oliver Neukum was heard to remark:
->  
-> > With *nix, most data only gets written at unmount, so the only way this 
-> > can "sanely" work is for mounts you haven't written to.  That case is of 
+On Wed, 2004-10-13 at 17:30, Peter W. Morreale wrote:
+> Have you looked at the wait_event() family yet?       Adapting that 
+> methodolgy might
+> suit your needs.
+
+wait_event() seems to be what I was looking for; I don't really like the
+condition being an argument.
+
+> I don't know much about preemption yet, however I suspect it would be a 
+> bug to allow
+> preemption while the spinlock was held.  In other words, you might need 
+> to do something like
 > 
-> This is not a law of nature. You can mount sync as well. That, of course,
-> sucks in terms of performance and wear. A reasonable compromise
-> would be to do sync on close.
-> Supermount did this years ago.
+> disable preemption
+> spinlock
+> rc = condition
+> spin_unlock
+> enable preemption
+> if (rc)
+> ...
+> 
+> In other words, perform the test on the condition outside of the 
+> critical region protected by the spin lock.
 
-As a practical matter, sync-on-file-close should solve most 
-of the practical problem of data corruption if the device is 
-yanked before being onmounted.  However, when I read 
-'man 2 open' there is no O_SYNC_ON_CLOSE.  
+Well, that wasn't what I meant exactly. I was looking for a standard
+way to wait on a condition so that it would still work when spinlocks
+are converted to mutexes such as these new RT patches seem to do;
+wait_event() seens to provide this, although I like to POSIX mutex/cond
+semantics better.
 
-Similarly 'man 8 mount' doesn't list any option -o synconclose
 
-It sure would be nice to be able to set up a sync-on-file-close
-in the hotplug equiv of /etc/fstab for USB devices ... 
+--ms
 
-(When I think of sync-on-file-close, I don't mean 'global sync 
-when the file is closed', I mean 'sync only that file's data and 
-metadata only when the file is closed'.  That way, you don't slow 
-down systems doing a lot of i/o on other, unrelated files)
 
---linas
+P.S. I seem to have been removed from the LKML right after posting
+my question (it was the last message I received). Is there something
+terribly stupid I may have done? Was the question _that_ stupid?
+
+
+
+> -PWM
+> 
+> 
+> Martijn Sipkema wrote:
+> 
+> >L.S.
+> >
+> >I'd like to do something similar as can be done using a POSIX condition
+> >variable in the kernel, i.e. wait for some condition to become true. The
+> >pthread_cond_wait() function allows atomically unlocking a mutex and
+> >waiting on a condition. I think I should do something like:
+> >(the condition is updated from an interrupt handler)
+> >
+> >disable interrupts
+> >acquire spinlock
+> >if condition not satisfied
+> >    add task to wait queue
+> >    set task to sleep
+> >release spinlock
+> >restore interrupts
+> >schedule
+> >
+> >Now, this will only work with preemption disabled within the critical
+> >section. How would something like this be done whith preemption
+> >enabled?
+> >
+> >
+> >--ms
+> >
+> >
+> >
+> >
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> >  
+> >
+

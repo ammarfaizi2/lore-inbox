@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269648AbUJVNnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269641AbUJVNsV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269648AbUJVNnj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 09:43:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269641AbUJVNnj
+	id S269641AbUJVNsV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 09:48:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269694AbUJVNsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 09:43:39 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:16135 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S269648AbUJVNng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 09:43:36 -0400
-Date: Fri, 22 Oct 2004 15:43:05 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, greg@kroah.com
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [patch] 2.6.9-mm1: usb/serial/console.c compile error
-Message-ID: <20041022134305.GB2831@stusta.de>
-References: <20041022032039.730eb226.akpm@osdl.org>
+	Fri, 22 Oct 2004 09:48:21 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:19649 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S269641AbUJVNsT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 09:48:19 -0400
+Date: Fri, 22 Oct 2004 15:48:35 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Alexander Batyrshin <abatyrshin@ru.mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+Message-ID: <20041022134835.GA7633@elte.hu>
+References: <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <4176A50C.9050303@ru.mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041022032039.730eb226.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <4176A50C.9050303@ru.mvista.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The following compile error seems to come from Linus' tree:
+* Alexander Batyrshin <abatyrshin@ru.mvista.com> wrote:
 
+> 2.
+> if execute
+> ``for i in `seq 1 9999`; do nohup bash >/dev/null 2>&1 & done'',
+> then you'll get something like:
+> [...skip...]
+> Warning: dev (pts0) tty->count(16) != #fd's(8) in tty_open
+> Warning: dev (pts0) tty->count(16) != #fd's(11) in tty_open
 
-<--  snip  -->
+btw., where did you run the test - over ssh or in an xterm?
 
-...
-  CC      drivers/usb/serial/bus.o
-  CC      drivers/usb/serial/console.o
-drivers/usb/serial/console.c: In function `usb_console_write':
-drivers/usb/serial/console.c:221: warning: passing arg 3 of pointer to function makes integer from pointer without a cast
-drivers/usb/serial/console.c:221: error: too many arguments to function
-drivers/usb/serial/console.c:223: warning: passing arg 3 of `usb_serial_generic_write' makes integer from pointer without a cast
-drivers/usb/serial/console.c:223: error: too many arguments to function `usb_serial_generic_write'
-make[3]: *** [drivers/usb/serial/console.o] Error 1
-
-<--  snip  -->
-
-
-This was caused by the changed "write" in usb_serial_device_type.
-
-
-Is the following patch correct?
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.9-mm1-full/drivers/usb/serial/console.c.old	2004-10-22 15:12:36.000000000 +0200
-+++ linux-2.6.9-mm1-full/drivers/usb/serial/console.c	2004-10-22 15:12:59.000000000 +0200
-@@ -218,9 +218,9 @@
- 
- 	/* pass on to the driver specific version of this function if it is available */
- 	if (serial->type->write)
--		retval = serial->type->write(port, 0, buf, count);
-+		retval = serial->type->write(port, buf, count);
- 	else
--		retval = usb_serial_generic_write(port, 0, buf, count);
-+		retval = usb_serial_generic_write(port, buf, count);
- 
- exit:
- 	dbg("%s - return value (if we had one): %d", __FUNCTION__, retval);
-
+	Ingo

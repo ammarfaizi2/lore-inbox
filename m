@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261425AbUCIBYd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 20:24:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbUCIBYd
+	id S261429AbUCIBZl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 20:25:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbUCIBZl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 20:24:33 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:9926 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261425AbUCIBYD (ORCPT
+	Mon, 8 Mar 2004 20:25:41 -0500
+Received: from fw.osdl.org ([65.172.181.6]:59529 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261429AbUCIBZd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 20:24:03 -0500
-Date: Mon, 8 Mar 2004 17:22:35 -0800 (PST)
-From: Sridhar Samudrala <sri@us.ibm.com>
-X-X-Sender: sridhar@localhost.localdomain
-To: kaos@ocs.com.au
-cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Cleaner way to conditionally disallow a CONFIG option as static
-Message-ID: <Pine.LNX.4.58.0403081659170.1656@localhost.localdomain>
+	Mon, 8 Mar 2004 20:25:33 -0500
+Date: Mon, 8 Mar 2004 17:32:11 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Thomas Schlichter <thomas.schlichter@web.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix warning about duplicate 'const'
+In-Reply-To: <200403090217.40867.thomas.schlichter@web.de>
+Message-ID: <Pine.LNX.4.58.0403081728250.9575@ppc970.osdl.org>
+References: <200403090043.21043.thomas.schlichter@web.de>
+ <20040308161410.49127bdf.akpm@osdl.org> <Pine.LNX.4.58.0403081627450.9575@ppc970.osdl.org>
+ <200403090217.40867.thomas.schlichter@web.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SCTP is allowed to be static only when IPV6 is also configured as static or
-not enabled. If IPV6 is configured as a module, SCTP also has to be a module.
-This is done right now in the following hackish ways in 2.6 and 2.4 using an
-additional config option(CONFIG_IPV6_SCTP__).
 
-In 2.6, net/sctp/Kconfig
 
-config IPV6_SCTP__
-	tristate
-	default y if IPV6=n
-	default IPV6 if IPV6
+On Tue, 9 Mar 2004, Thomas Schlichter wrote:
+>
+> Am Dienstag, 9. März 2004 01:32 schrieb Linus Torvalds:
+> 
+> ~~ snip ~~
+> 
+> > The warnings the extra "const" fixes is something like:
+> >
+> > 	int a;
+> > 	const int b;
+> >
+> > 	min(a,b)
+> >
+> > where otherwise it would complain about pointers to different types when
+> > comparing the type of the pointer. Or something.
+> 
+> OK, I tested it and gcc 3.3.1 does not complain about this. So with my patch, 
+> the duplicate 'const' warning goes away here and no other warning occours...
 
-config IP_SCTP
-	tristate "The SCTP Protocol (EXPERIMENTAL)"
-	depends on IPV6_SCTP__
---------------------------------------------------------
-In 2.4, net/sctp/Config.in
+Yeah, but do keep in mind that "something like" comment. I'm by no means 
+sure that I remembered the exact reason correctly, and maybe they aren't 
+really needed.
 
-if [ "$CONFIG_IPV6" != "n" ]; then
-   define_bool CONFIG_IPV6_SCTP__ $CONFIG_IPV6
-else
-   define_bool CONFIG_IPV6_SCTP__ y
-fi
+Also, I'm not convinced this isn't a gcc regression. It would be stupid to 
+"fix" something that makes old gcc's complain, when they may be doing the 
+right thing.
 
-dep_tristate '  The SCTP Protocol (EXPERIMENTAL)' CONFIG_IP_SCTP $CONFIG_IPV6_SCTP__
---------------------------------------------------------
+All that code was from early 2002 (around 2.4.9), so maybe somebody can 
+find the full discussion on the linux-kernel archives from January 2002 or 
+so?
 
-Is there a much simpler and cleaner way to accomplish this in 2.6 and 2.4
-config files?
-
-Thanks
-Sridhar
+			Linus

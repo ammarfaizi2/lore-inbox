@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129521AbQKVSuS>; Wed, 22 Nov 2000 13:50:18 -0500
+        id <S129703AbQKVSuS>; Wed, 22 Nov 2000 13:50:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129602AbQKVSuI>; Wed, 22 Nov 2000 13:50:08 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:10253
-        "EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-        id <S129248AbQKVSty>; Wed, 22 Nov 2000 13:49:54 -0500
-Date: Wed, 22 Nov 2000 10:19:17 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: Announce: modutils 2.3.21 is available
-In-Reply-To: <20001122115620.B18592@vger.timpanogas.org>
-Message-ID: <Pine.LNX.4.10.10011221017470.31732-100000@master.linux-ide.org>
-MIME-Version: 1.0
+        id <S129521AbQKVSuI>; Wed, 22 Nov 2000 13:50:08 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:34569 "EHLO
+        vger.timpanogas.org") by vger.kernel.org with ESMTP
+        id <S129602AbQKVSuD>; Wed, 22 Nov 2000 13:50:03 -0500
+Date: Wed, 22 Nov 2000 12:16:37 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: linux-kernel@vger.kernel.org
+Subject: AGP patches for 2.2.X kernels
+Message-ID: <20001122121637.A18762@vger.timpanogas.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Nov 2000, Jeff V. Merkey wrote:
 
->         + add RedHat ism's with a --rhc (red hat compatible) -i -m (-F) 
-> 
-> RedHat kind of is the standard in the commercial world in the US.
 
-Regardless of the bogus nature of this statement, boss.
-GNU/OS packages are to be modified locally and a generic form that does
-not have flavor or spin is what maintainers release.
+Alan,
 
-Regards,
+I noticed that the AGP patches are present in RH6.2 and 7.0, and that
+the agp support is integrated in 2.4.0.  Do you know where the patches are
+for the 2.2.18 kernels for AGP.
 
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
+Thanks
 
+Jeff
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

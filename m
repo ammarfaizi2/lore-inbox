@@ -1,59 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266278AbSKGCZR>; Wed, 6 Nov 2002 21:25:17 -0500
+	id <S266277AbSKGCWW>; Wed, 6 Nov 2002 21:22:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266282AbSKGCZR>; Wed, 6 Nov 2002 21:25:17 -0500
-Received: from web12908.mail.yahoo.com ([216.136.174.75]:61254 "HELO
-	web12908.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S266278AbSKGCZQ>; Wed, 6 Nov 2002 21:25:16 -0500
-Message-ID: <20021107023155.69817.qmail@web12908.mail.yahoo.com>
-Date: Thu, 7 Nov 2002 13:31:55 +1100 (EST)
-From: =?iso-8859-1?q?dee=20jay?= <deejay2shoes@yahoo.com.au>
-Subject: Re: build kernel for server farm
-To: Matt Simonsen <matt_lists@careercast.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1036620009.1332.12.camel@mattsworkstation>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S266278AbSKGCWW>; Wed, 6 Nov 2002 21:22:22 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:26123 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S266277AbSKGCWV>; Wed, 6 Nov 2002 21:22:21 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: yet another update to the post-halloween doc.
+Date: 7 Nov 2002 02:28:21 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <aqcj45$qj5$1@gatekeeper.tmr.com>
+References: <20021106140844.GA5463@suse.de> <Pine.LNX.4.33.0211061526580.573-100000@pnote.perex-int.cz> <20021106161108.GK316@neo.rr.com>
+X-Trace: gatekeeper.tmr.com 1036636101 27237 192.168.12.62 (7 Nov 2002 02:28:21 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20021106161108.GK316@neo.rr.com>,
+Adam Belay  <ambx1@neo.rr.com> wrote:
+| 
+| P.S.: Many drivers have been converted already.  I'm working on the ALSA 
+| sound blaster driver now and I have made a patch for the gamemport driver
+| that I will be releasing soon.
 
-Actually if they are exactly the same, why dont you just copy the
-relevant files over? ie. /lib/modules/`uname -r`/*, and as mentioned
-your bzImage, System.map, and lilo.conf (and of course remember to run
-lilo)?
+Thank you, that sure helps me understand that problem.
 
-Any particular reasons why you would want to go through the process of
-compiling again on each machine?
 
--dj
-
- --- Matt Simonsen <matt_lists@careercast.com> wrote: > I am pretty
-familiar with the build process and kernel install for a
-> single Linux box, but I wanted to confirm I'm doing things in a sane
-> way
-> for a large deployment. All the machines are the same hardware and
-> running standard setups.
-> 
-> First, I plan on compiling the kernel on a development box. From
-> there
-> my plan is basically tar /usr/src/linux, copy to each box, untar,
-> copy
-> bzImage and System.map to /boot, run make modules_install, edit
-> lilo.conf, run lilo.
-> 
-> Tips? Comments?
-> 
-> Thanks 
-> Matt
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/ 
-
-http://careers.yahoo.com.au - Yahoo! Careers
-- 1,000's of jobs waiting online for you!
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

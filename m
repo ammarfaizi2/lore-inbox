@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbVBIRmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261864AbVBIRox@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbVBIRmz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 12:42:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbVBIRmz
+	id S261864AbVBIRox (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 12:44:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbVBIRox
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 12:42:55 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:45039 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261863AbVBIRmx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 12:42:53 -0500
-Subject: Re: Preempt Real-time for ARM
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Sven Dietrich <sdietrich@mvista.com>,
-       Russell King - ARM Linux <linux@arm.linux.org.uk>
-In-Reply-To: <20050209125044.A6312@flint.arm.linux.org.uk>
-References: <1107628604.5065.54.camel@dhcp153.mvista.com>
-	 <1107948492.17747.31.camel@tglx.tec.linutronix.de>
-	 <20050209113140.GB13274@elte.hu>
-	 <20050209125044.A6312@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Organization: MontaVista
-Message-Id: <1107970869.10177.12.camel@dhcp153.mvista.com>
+	Wed, 9 Feb 2005 12:44:53 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:4873 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261864AbVBIRot (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 12:44:49 -0500
+Message-Id: <200502091744.j19HiWtd011559@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Nicolas Pitre <nico@cam.org>
+Cc: Larry McVoy <lm@bitmover.com>, Alexandre Oliva <aoliva@redhat.com>,
+       Stelian Pop <stelian@popies.net>,
+       Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Linux Kernel Subversion Howto 
+In-Reply-To: Your message of "Wed, 09 Feb 2005 12:30:54 EST."
+             <Pine.LNX.4.61.0502091219430.7836@localhost.localdomain> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050204183922.GC27707@bitmover.com> <20050204200507.GE5028@deep-space-9.dsnet> <20050204201157.GN27707@bitmover.com> <20050204214015.GF5028@deep-space-9.dsnet> <20050204233153.GA28731@electric-eye.fr.zoreil.com> <20050205193848.GH5028@deep-space-9.dsnet> <20050205233841.GA20875@bitmover.com> <20050208154343.GH3537@crusoe.alcove-fr> <20050208155845.GB14505@bitmover.com> <ord5vatdph.fsf@livre.redhat.lsd.ic.unicamp.br> <20050209155113.GA10659@bitmover.com>
+            <Pine.LNX.4.61.0502091219430.7836@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 09 Feb 2005 09:41:10 -0800
+Content-Type: multipart/signed; boundary="==_Exmh_1107971071_3925P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 09 Feb 2005 12:44:31 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-02-09 at 04:50, Russell King wrote:
+--==_Exmh_1107971071_3925P
+Content-Type: text/plain; charset=us-ascii
 
+On Wed, 09 Feb 2005 12:30:54 EST, Nicolas Pitre said:
 
-> What you'll find is that the ARM interrupt structure is designed to
-> efficiently meet the requirements of our wide range of hardware interrupt
-> controllers, with chained interrupt controllers, with as low latency as
-> possible.
-> 
-> In essence, I'm opposed to completely rewriting the ARM interrupt
-> handling at this stage.
+> If I don't want to use a certain filesystem, I mount it and copy the 
+> files over to another filesystem.  What users are interested in are the 
+> files themselves of course, and the efficiency with which the filesystem 
+> handles those files.
 
+That's Larry's point exactly - you don't care (or shouldn't, unless you're
+writing a competing product) any more about the BK internal metadata than
+you should care about how ext3 handles the journal or the free list.
 
-	Everyone wants this as the final solution, but all I want right now is
-to have a clean patch for ARM RT .. It would be nice if ARM had the
-generics, but It's not _my_ goal. 
+--==_Exmh_1107971071_3925P
+Content-Type: application/pgp-signature
 
-	All I want to do is integrate the common IRQ threading code. To do that
-I need things , from Russell, like per descriptor locks .. And I need
-things , from Ingo, like pulling out the IRQ threading code..
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFCCkv+cC3lWbTT17ARAkwOAJ4hbhvkQQPJGx+AiFgjuUxNKuup0ACfegtl
+sdfPN2MLL0aZS5RL30q5PeA=
+=n9Kr
+-----END PGP SIGNATURE-----
 
-Daniel
-
+--==_Exmh_1107971071_3925P--

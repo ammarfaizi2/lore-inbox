@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262456AbTEVCJi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 22:09:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbTEVCJi
+	id S262457AbTEVCpt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 22:45:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbTEVCpt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 22:09:38 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:59778
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S262456AbTEVCJh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 22:09:37 -0400
-Date: Wed, 21 May 2003 22:12:42 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Gerrit Huizenga <gh@us.ibm.com>, "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "" <jamesclv@us.ibm.com>, "" <haveblue@us.ibm.com>,
-       "" <pbadari@us.ibm.com>, "" <linux-kernel@vger.kernel.org>,
-       "" <johnstul@us.ibm.com>, "" <mannthey@us.ibm.com>
-Subject: Re: userspace irq balancer
-In-Reply-To: <20030522020443.GN2444@holomorphy.com>
-Message-ID: <Pine.LNX.4.50.0305212205360.25777-100000@montezuma.mastecende.com>
-References: <3014AAAC8E0930438FD38EBF6DCEB5640204334F@fmsmsx407.fm.intel.com>
- <E19Idxq-0001LD-00@w-gerrit2> <20030522020443.GN2444@holomorphy.com>
+	Wed, 21 May 2003 22:45:49 -0400
+Received: from bunyip.cc.uq.edu.au ([130.102.2.1]:11278 "EHLO
+	bunyip.cc.uq.edu.au") by vger.kernel.org with ESMTP id S262457AbTEVCps
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 22:45:48 -0400
+Message-ID: <3ECC3D18.201@torque.net>
+Date: Thu, 22 May 2003 12:59:36 +1000
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: artemio@artemio.net, linux-kernel@vger.kernel.org
+CC: gibbs@btc.adaptec.com
+Subject: Re: HELP: kernel won't boot from /dev/sdb1
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 May 2003, William Lee Irwin III wrote:
+Artemio wrote:
 
-> This is not the case. Interrupt arbitration for sane things generally
-> balances interrupt load automatically in-hardware. AIUI the TPR was
-> intended to enable the hardware to do such a thing for xAPIC. Linux
-> doesn't use the TPR now, which results in decisions made by the
-> hardware on xAPIC -based SMP systems that are highly detrimental to
-> performance.
+ > I've just installed RH 7.3 on a machine with all-SCSI
+ > discs. I had to load  "linux dd" with Adaptec AIC 79xx
+ > driver floppy installed, but that's ok.
+ > The / is mounted from /dev/sdb1.
+ >
+ > So, I got a clean 2.4.20 kernel, added AIC 79xx driver
+ > sources to the kernel source tree, configured and
+ > compiled and installed it (of course, I didn't
+ > forget about the modules).
+ >
+ > In lilo, I said "root=/dev/sdb1" just as for the original
+ > 2.4.18-3 RedHatkernel which boots ok.
+ >
+ > When I boot the new kernel, I get:
+ > VFS: Cannot open root device at "811" or "08:11"
+ >
+ > From SCSI-howto I got that 08:11 stands for /dev/sda11.
+ > Why would /dev/sdb1 be converted to 08:11 instead of 08:17
+ > (again, corresponding to SCSI-howto)?
 
-Well using the APIC arbitration round robin thing isn't all that smart 
-either unless you use the TPR, so TPR would be a win everywhere.
+Those number are in hex, so "811" is major 8, minor 17 which
+is (or should be) /dev/sdb1. Look earlier in the boot up
+sequence, where the aic79xx driver is loaded and scans
+for devices. It should say that it has attached /dev/sdb .
+You may need a later version of that driver. Visit:
+     http://people.FreeBSD.org/~gibbs/linux
 
-> IMHO Linux on Pentium IV should use the TPR in conjunction with _very_
-> simplistic interrupt load accounting by default and all more
-> sophisticated logic should be punted straight to userspace as an
-> administrative API.
-> 
-> i.e. frob the fscking TPR as recommended by the APIC docs every once in
-> a while by default, punt anything (and everything) fancier up to
-> userspace, and get the code that doesn't even understand what the fsck
-> DESTMOD means the Hell out of the kernel and the Hell away from my
-> IO-APIC RTE's.
+Doug Gilbert
 
-Word... This is all rather tired, if we have a working irq affinity user 
-accessible interface this can all go away, so how about we just work 
-towards that means, and then remove kirqd when everyone is happy 
-(personally i like Arjan's/RH9 userland irqbalance).
-
-	Zwane
--- 
-function.linuxpower.ca

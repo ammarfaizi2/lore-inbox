@@ -1,36 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267672AbRGZHyx>; Thu, 26 Jul 2001 03:54:53 -0400
+	id <S267676AbRGZICY>; Thu, 26 Jul 2001 04:02:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267681AbRGZHyo>; Thu, 26 Jul 2001 03:54:44 -0400
-Received: from se1.cogenit.fr ([195.68.53.173]:24587 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S267672AbRGZHyg>;
-	Thu, 26 Jul 2001 03:54:36 -0400
-Date: Thu, 26 Jul 2001 09:54:40 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: Andrew McNamara <andrewm@connect.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: how to tell Linux *not* to share IRQs ?
-Message-ID: <20010726095440.A27365@se1.cogenit.fr>
-In-Reply-To: <E15PYDE-0002tj-00@the-village.bc.nu> <20010726070621.D69A1BE91@wawura.off.connect.com.au>
-Mime-Version: 1.0
+	id <S267681AbRGZICN>; Thu, 26 Jul 2001 04:02:13 -0400
+Received: from [212.16.11.1] ([212.16.11.1]:15112 "EHLO ns.msiu.ru")
+	by vger.kernel.org with ESMTP id <S267676AbRGZICD>;
+	Thu, 26 Jul 2001 04:02:03 -0400
+From: "Basil A. Evseenko" <evseenko@msiu.ru>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010726070621.D69A1BE91@wawura.off.connect.com.au>; from andrewm@connect.com.au on Thu, Jul 26, 2001 at 05:06:21PM +1000
-X-Organisation: Marie's fan club - I
+Content-Transfer-Encoding: 7bit
+Message-ID: <15199.52878.79122.134405@alone.msiu.ru>
+Date: Thu, 26 Jul 2001 12:02:22 +0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.7 - strange reiserfs and software RAID5 behavior
+X-Mailer: VM 6.92 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Andrew McNamara <andrewm@connect.com.au> ecrit :
-[...]
-> Does this mean the ISRs for every driver sharing an interrupt have to
-> poll their device when an interrupt comes in (in the case of shared PCI
 
-The ISR must verify there is some pending work for him.
-Thus one must poll the device or his interrupt status queue in memory if 
-any. Btw one may end doing the work before the real interrupt comes.
+When raid5 daemon do resync array after unclean shutdown, mounting
+_other_ reiserfs filesystems is too slow. (for example: 5 seconds without
+running resync daemon,  2 minutes with it). This bug only arrives on 
+uniprocessor machines - on SMP all work fine. I trace mount execution
+it's sleep on __wait_on_buffer.
 
--- 
-Ueimor
+Gnu C                  egcs-2.91.66
+Gnu make               3.78.1
+binutils               2.9.5.0.22
+util-linux             2.10f
+mount                  2.10f
+modutils               2.4.0
+e2fsprogs              1.18
+reiserfsprogs          3.x.0j
+pcmcia-cs              3.1.8
+Linux C Library        2.1.3
+Dynamic linker (ldd)   2.1.3
+Procps                 2.0.6
+Net-tools              1.54
+Console-tools          0.3.3
+Sh-utils               2.0
+
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 3
+cpu MHz         : 601.374
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
+bogomips        : 1199.30
+

@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266622AbUBMAim (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 19:38:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266637AbUBMAim
+	id S266647AbUBMAbW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 19:31:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266658AbUBMAbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 19:38:42 -0500
-Received: from mail.shareable.org ([81.29.64.88]:9602 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S266622AbUBMAil (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 19:38:41 -0500
-Date: Fri, 13 Feb 2004 00:38:39 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
-Message-ID: <20040213003839.GB24981@mail.shareable.org>
-References: <20040209115852.GB877@schottelius.org> <20040212004532.GB29952@hexapodia.org> <20040212085451.GC20898@mail.shareable.org> <200402121655.39709.robin.rosenberg.lists@dewire.com>
-Mime-Version: 1.0
+	Thu, 12 Feb 2004 19:31:22 -0500
+Received: from mail019.syd.optusnet.com.au ([211.29.132.73]:52150 "EHLO
+	mail019.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S266647AbUBMAbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 19:31:21 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200402121655.39709.robin.rosenberg.lists@dewire.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16428.6596.169494.822812@wombat.chubb.wattle.id.au>
+Date: Fri, 13 Feb 2004 11:26:44 +1100
+To: root@chaos.analogic.com
+Cc: wdebruij@dds.nl, sting sting <zstingx@hotmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: printk and long long 
+In-Reply-To: <Pine.LNX.4.53.0402111021160.18798@chaos>
+References: <Sea2-F7mFkwDjKqc3eQ0001c385@hotmail.com>
+	<1076506513.402a2f9120fb8@webmail.dds.nl>
+	<Pine.LNX.4.53.0402111021160.18798@chaos>
+X-Mailer: VM 7.17 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robin Rosenberg wrote:
- Now consider the case with an external firewire
-> disk or memory stick created on a machine with iso-8859-1 as the system character
-> set and e.g xfs as the file system. What happens when I hook it up to a new redhat
-> installation that thinks file names are best stored as utf8? Most non-ascii
-> file names aren't even legal in utf8.
+>>>>> "Richard" == Richard B Johnson <root@chaos.analogic.com> writes:
 
-It goes wrong.  This happens both with filesystems that know nothing
-about encodings, e.g. ext3, and filesystems that need to be told what
-to transcode to/from utf-8, e.g. ntfs.
+Richard> On Wed, 11 Feb 2004 wdebruij@dds.nl wrote:
+>> how about simply using a shift to output two regular longs, i.e.
+>> 
+>> printk("%ld%ld",loff_t >> (sizeof(long) * 8), loff_t <<
+>> sizeof(long) * 8 >> sizeof(long) * 8);
 
-It is also a problem that some applications access the filesystem
-assuming utf-8 and some don't.  Nothing in the filesystem can make the
-different applications cooperate regarding these.  E.g. I have
-filenames that look fine in "ls" containg things like c-cedilla, but
-xmms displays them wrongly.
+Why bother?  printk already handles 64-bit types just fine.
 
--- Jamie
+Do
+	loff_t x;
+	printk("%lld\n" (long long)x)
+
+You need the cast, because on 64-bit architectures, loff_t is long not
+long long.
+
+Peter c

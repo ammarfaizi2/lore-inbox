@@ -1,65 +1,219 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262726AbTI1VOW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 17:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbTI1VOW
+	id S262750AbTI1V0n (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 17:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262753AbTI1V0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 17:14:22 -0400
-Received: from [62.38.235.35] ([62.38.235.35]:29584 "EHLO pfn1.pefnos")
-	by vger.kernel.org with ESMTP id S262726AbTI1VOU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 17:14:20 -0400
-From: "P. Christeas" <p_christ@hol.gr>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [aic7xxx]: Scheduling while atomic on rmmod - 2.6.0-test5,6
-Date: Mon, 29 Sep 2003 00:15:24 +0300
-User-Agent: KMail/1.5.3
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 28 Sep 2003 17:26:43 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:6619 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262750AbTI1V0i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 17:26:38 -0400
+Date: Sun, 28 Sep 2003 23:26:30 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Michael Hunold <hunold@convergence.de>, greg@kroah.com
+Cc: linux-kernel@vger.kernel.org, video4linux-list@redhat.com
+Subject: Re: [2.6 patch] select for drivers/media
+Message-ID: <20030928212630.GS15338@fs.tum.de>
+References: <20030928160536.GJ15338@fs.tum.de> <3F774CCC.3040707@convergence.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309290015.26280.p_christ@hol.gr>
+In-Reply-To: <3F774CCC.3040707@convergence.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In an Athlon XP system w. two adaptec adapters:
-Adaptec 2930CU SCSI adapter
-aic7860: Ultra Single Channel A,
-Adaptec 2902/04/10/15/20/30C SCSI adapter>
-aic7850: Single Channel A,
+On Sun, Sep 28, 2003 at 11:04:12PM +0200, Michael Hunold wrote:
 
-I (always) get the same 'scheduling while atomic' error whenever I try to 
-rmmod the aic7xxx module or try to suspend. I think my configuration 
-(scripts) try to unload the module on suspend, which brings it down to the 
-same problem.
-Does this trace look familiar? What extra information should I include? 
-[please CC. me]
+> Hello Adrian,
 
-This problem exists both for 2.6.0-test5 and 2.6.0-test6, both with pre-empt 
-enabled. They're on a VIA motherboard w. broken ACPI (pci=noacpi given).
+Hi Michael,
 
-kernel: bad: scheduling while atomic!
-kernel: Call Trace:
-kernel:  [schedule+1414/1424] schedule+0x586/0x590
-kernel:  [<c011bb86>] schedule+0x586/0x590
-kernel:  [handle_mm_fault+222/400] handle_mm_fault+0xde/0x190
-kernel:  [<c01499ae>] handle_mm_fault+0xde/0x190
-kernel:  [__down+150/272] __down+0x96/0x110
-kernel:  [<c0108196>] __down+0x96/0x110
-kernel:  [default_wake_function+0/48] default_wake_function+0x0/0x30
-kernel:  [<c011bbf0>] default_wake_function+0x0/0x30
-kernel:  [__down_failed+8/12] __down_failed+0x8/0xc
-kernel:  [<c01083cc>] __down_failed+0x8/0xc
-kernel:  [_end+828749580/1069457068] .text.lock.aic7xxx_osm+0x19/0x99 
-[aic7xxx]
-kernel:  [<f1a6f860>] .text.lock.aic7xxx_osm+0x19/0x99 [aic7xxx]
-kernel:  [_end+828757092/1069457068] ahc_linux_exit+0x28/0x82 [aic7xxx]
-kernel:  [<f1a715b8>] ahc_linux_exit+0x28/0x82 [aic7xxx]
-kernel:  [sys_delete_module+338/448] sys_delete_module+0x152/0x1c0
-kernel:  [<c01341a2>] sys_delete_module+0x152/0x1c0
-kernel:  [do_munmap+339/400] do_munmap+0x153/0x190
-kernel:  [<c014bb63>] do_munmap+0x153/0x190
-kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-kernel:  [<c010949b>] syscall_call+0x7/0xb
+> >The patch below switches drivers/mtd to use select where appropriate.
+> 
+> Ok.
+> 
+> >Could someone with a knowledge of the code please check the following:
+> >
+> >DVB_AV7110 and DVB_BUDGET select VIDEO_SAA7146 (without my patch 
+> >VIDEO_SAA7146 depends on them) although they don't fulfill the 
+> >VIDEO_SAA7146 dependencies VIDEO_DEV && PCI && I2C.
+> 
+> I admit that this is somewhat broken and might fail under certain 
+> cirumstances. It's possible that someone sets DVB_AV7110, but does not 
+> have I2C enabled. Then VIDEO_SAA7146 is not build, although it should. Doh!
+> 
+> Does your patch fix this issue as well?
 
+No, it doesn't.
+
+> >Is the intention to enable VIDEO_SAA7146 only when these options are 
+> >enabled or should DVB_AV7110 and DVB_BUDGET depend on these options?
+> 
+> Both DVB_AV7110 and DVB_BUDGET need VIDEO_SAA7146 to work properly. Same 
+> goes for the analog video drivers VIDEO_MXB, VIDEO_DPC and the other 
+> saa7146 drivers.
+
+The problem described doesn't exist with the other drivers (they have 
+the appropriate dependencies).
+
+> It's somewhat annoying that you have to enable I2C before all these 
+> drivers can be build. The user needs to know that I2C is used somewhere 
+> in the driver, although he won't see anything -- all i2c drivers are 
+> compiled automatically, a "modprobe mxb" loads all i2c drivers it needs.
+> 
+> It would be better, if I2C would be enabled automatically if SAA7146 is 
+> set. I admit that this sort of reversed-selection can introduce new 
+> problems.
+> 
+> What do you think?
+
+Below is an updated patch that does additionally:
+- let DVB_BUDGET depend on VIDEO_DEV
+- let DVB_AV7110 and DVB_BUDGET select PCI and I2C
+
+Other possibilitties would be:
+- let DVB_AV7110 and DVB_BUDGET depend on PCI and I2C
+or
+- let VIDEO_SAA7146 select PCI and I2C
+
+I don't have any strong opinion which solution is the best one.
+
+@Greg:
+What's your opinion on this issue?
+
+
+> CU
+> Michael.
+
+cu
+Adrian
+
+--- linux-2.6.0-test6-full/drivers/media/Kconfig.old	2003-09-28 17:40:12.000000000 +0200
++++ linux-2.6.0-test6-full/drivers/media/Kconfig	2003-09-28 17:49:12.000000000 +0200
+@@ -34,20 +34,12 @@
+ 
+ config VIDEO_TUNER
+ 	tristate
+-	default y if VIDEO_BT848=y || VIDEO_SAA7134=y || VIDEO_MXB=y
+-	default m if VIDEO_BT848=m || VIDEO_SAA7134=m || VIDEO_MXB=m
+-	depends on VIDEO_DEV
+ 
+ config VIDEO_BUF
+ 	tristate
+-	default y if VIDEO_BT848=y || VIDEO_SAA7134=y || VIDEO_SAA7146=y
+-	default m if VIDEO_BT848=m || VIDEO_SAA7134=m || VIDEO_SAA7146=m
+-	depends on VIDEO_DEV
+ 
+ config VIDEO_BTCX
+ 	tristate
+-	default VIDEO_BT848
+-	depends on VIDEO_DEV
+ 
+ endmenu
+ 
+--- linux-2.6.0-test6-full/drivers/media/video/Kconfig.old	2003-09-28 17:41:10.000000000 +0200
++++ linux-2.6.0-test6-full/drivers/media/video/Kconfig	2003-09-28 17:45:19.000000000 +0200
+@@ -10,6 +10,10 @@
+ config VIDEO_BT848
+ 	tristate "BT848 Video For Linux"
+ 	depends on VIDEO_DEV && PCI && I2C_ALGOBIT && SOUND
++	select VIDEO_TUNER
++	select VIDEO_BUF
++	select VIDEO_BTCX
++	select VIDEO_VIDEOBUF
+ 	---help---
+ 	  Support for BT848 based frame grabber/overlay boards. This includes
+ 	  the Miro, Hauppauge and STB boards. Please read the material in
+@@ -219,6 +223,9 @@
+ config VIDEO_SAA7134
+ 	tristate "Philips SAA7134 support"
+ 	depends on VIDEO_DEV && PCI && I2C
++	select VIDEO_TUNER
++	select VIDEO_BUF
++	select VIDEO_VIDEOBUF
+ 	---help---
+ 	  This is a video4linux driver for Philips SAA7130/7134 based
+ 	  TV cards.
+@@ -229,6 +236,8 @@
+ config VIDEO_MXB
+ 	tristate "Siemens-Nixdorf 'Multimedia eXtension Board'"
+ 	depends on VIDEO_DEV && PCI && I2C
++	select VIDEO_TUNER
++	select VIDEO_SAA7146
+ 	---help---
+ 	  This is a video4linux driver for the 'Multimedia eXtension Board'
+ 	  TV card by Siemens-Nixdorf.
+@@ -239,6 +248,7 @@
+ config VIDEO_DPC
+ 	tristate "Philips-Semiconductors 'dpc7146 demonstration board'"
+ 	depends on VIDEO_DEV && PCI && I2C
++	select VIDEO_SAA7146
+ 	---help---
+ 	  This is a video4linux driver for the 'dpc7146 demonstration
+ 	  board' by Philips-Semiconductors. It's the reference design
+@@ -252,6 +262,7 @@
+ config VIDEO_HEXIUM_ORION
+ 	tristate "Hexium HV-PCI6 and Orion frame grabber"
+ 	depends on VIDEO_DEV && PCI && I2C
++	select VIDEO_SAA7146
+ 	---help---
+ 	  This is a video4linux driver for the Hexium HV-PCI6 and
+ 	  Orion frame grabber cards by Hexium.
+@@ -262,6 +273,7 @@
+ config VIDEO_HEXIUM_GEMINI
+ 	tristate "Hexium Gemini frame grabber"
+ 	depends on VIDEO_DEV && PCI && I2C
++	select VIDEO_SAA7146
+ 	---help---
+ 	  This is a video4linux driver for the Hexium Gemini frame
+ 	  grabber card by Hexium. Please note that the Gemini Dual
+--- linux-2.6.0-test6-full/drivers/media/common/Kconfig.old	2003-09-28 17:39:34.000000000 +0200
++++ linux-2.6.0-test6-full/drivers/media/common/Kconfig	2003-09-28 23:16:54.000000000 +0200
+@@ -1,11 +1,7 @@
+ config VIDEO_SAA7146
+         tristate
+-        default y if DVB_AV7110=y || DVB_BUDGET=y || DVB_BUDGET_AV=y || VIDEO_MXB=y || VIDEO_DPC=y || VIDEO_HEXIUM_ORION=y || VIDEO_HEXIUM_GEMINI=y
+-        default m if DVB_AV7110=m || DVB_BUDGET=m || DVB_BUDGET_AV=m || VIDEO_MXB=m || VIDEO_DPC=m || VIDEO_HEXIUM_ORION=m || VIDEO_HEXIUM_GEMINI=m
+-        depends on VIDEO_DEV && PCI && I2C
++	select VIDEO_BUF
++	select VIDEO_VIDEOBUF
+ 
+ config VIDEO_VIDEOBUF
+         tristate
+-        default y if VIDEO_SAA7134=y || VIDEO_BT848=y || VIDEO_SAA7146=y
+-        default m if VIDEO_SAA7134=m || VIDEO_BT848=m || VIDEO_SAA7146=m
+-        depends on VIDEO_DEV
+--- linux-2.6.0-test6-full/drivers/media/dvb/ttpci/Kconfig.old	2003-09-28 17:46:33.000000000 +0200
++++ linux-2.6.0-test6-full/drivers/media/dvb/ttpci/Kconfig	2003-09-28 23:16:11.000000000 +0200
+@@ -1,6 +1,9 @@
+ config DVB_AV7110
+ 	tristate "AV7110 cards"
+ 	depends on VIDEO_DEV && DVB_CORE
++	select VIDEO_SAA7146
++	select PCI
++	select I2C
+ 	help
+ 	  Support for SAA7146 and AV7110 based DVB cards as produced 
+ 	  by Fujitsu-Siemens, Technotrend, Hauppauge and others.
+@@ -25,7 +28,10 @@
+ 
+ config DVB_BUDGET
+ 	tristate "Budget cards"
+-	depends on DVB_CORE
++	depends on VIDEO_DEV && DVB_CORE
++	select VIDEO_SAA7146
++	select PCI
++	select I2C
+ 	help
+ 	  Support for simple SAA7146 based DVB cards
+ 	  (so called Budget- or Nova-PCI cards) without onboard
+@@ -52,6 +58,7 @@
+ config DVB_BUDGET_AV
+ 	tristate "Budget cards with analog video inputs"
+ 	depends on VIDEO_DEV && DVB_CORE && DVB_BUDGET
++	select VIDEO_SAA7146
+ 	help
+ 	  Support for simple SAA7146 based DVB cards
+ 	  (so called Budget- or Nova-PCI cards) without onboard

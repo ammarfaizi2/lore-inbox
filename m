@@ -1,51 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262838AbUJ1I47@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262835AbUJ1I5k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262838AbUJ1I47 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 04:56:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbUJ1I46
+	id S262835AbUJ1I5k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 04:57:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbUJ1I5k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 04:56:58 -0400
-Received: from c24.177.130.92.static.ncr.charter.com ([24.177.130.92]:36614
-	"EHLO tweed.32s") by vger.kernel.org with ESMTP id S262832AbUJ1I4x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 04:56:53 -0400
-From: shaun@gopublicinfo.net
-To: shaun@gopublicinfo.net
-Subject: any company can Go Public
-MIME-Version: 1.0
-Content-type: text/plain
-Message-ID: <bulk.51492.20041028041230@alphaimports.zzinc.info>
-Date: Thu, 28 Oct 2004 04:47:59 -0400 (EDT)
+	Thu, 28 Oct 2004 04:57:40 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:10122 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262835AbUJ1I5c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 04:57:32 -0400
+Date: Thu, 28 Oct 2004 10:56:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
+Message-ID: <20041028085656.GA21535@elte.hu>
+References: <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <5225.195.245.190.94.1098880980.squirrel@195.245.190.94> <20041027135309.GA8090@elte.hu> <12917.195.245.190.94.1098890763.squirrel@195.245.190.94> <20041027205126.GA25091@elte.hu> <20041027211957.GA28571@elte.hu> <33083.192.168.1.5.1098919913.squirrel@192.168.1.5> <20041028063630.GD9781@elte.hu> <20668.195.245.190.93.1098952275.squirrel@195.245.190.93>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20668.195.245.190.93.1098952275.squirrel@195.245.190.93>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9, BAYES_00 -4.90,
+	UPPERCASE_25_50 0.00
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-As you may know, we specialize in assisting emerging companies in "Going Public". We are also able to assist with Private Placement preparation (for companies wanting to raise capital) and public company reporting.
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
 
+> The following table compares the state between my RT-U3 and RT-V0.4.3
+> configurations, regarding only the mentioned options:
+> 
+>   option                       RT-U3.0    RT-V0.4.3
+>   ---------------------------- ---------- ---------
+>   CONFIG_DEBUG_SLAB              n          n
+>   CONFIG_DEBUG_PREEMPT           y          y
+>   CONFIG_DEBUG_SPINLOCK_SLEEP    n          -
+>   CONFIG_PREEMPT_TIMING          n          n
+>   CONFIG_RWSEM_DEADLOCK_DETECT   -          y
+>   CONFIG_FRAME_POINTER           y          y
+>   CONFIG_DEBUG_STACKOVERFLOW     y          y
+>   CONFIG_DEBUG_STACK_USAGE       n          n
+>   CONFIG_DEBUG_PAGEALLOC         n          n
+> 
+> (dash "-" means that the option is not available in the config).
+> 
+> As you can see, it can only be CONFIG_RWSEM_DEADLOCK_DETECT, being new
+> in RT-V0.4.3, that is probably affecting on RT-V0.4.3. I'll try to
+> rebuild and test all over without it, and see if it gets any better.
 
-Many people are not aware that any company can go public including a startup or development stage company.  Please visit our site or email us to receive our Go Public Report and our Advantages of Going Public Report.
+note that DEBUG_PREEMPT got more expensive in the -V kernels. I'd
+suggest to disable all the 'y' ones in both the -U and -V kernel and
+compare them then.
 
+but especially the userspace overhead seems to be significantly higher
+in the -V kernel so i'm not quite sure it can all be attributed to
+debugging overhead. We'll see.
 
-I wish I could convey to you, all the many benefits of going public in a brief letter.  I am not sure if you can imagine how valuable and powerful a public company can be in achieving your goals and objectives.
+also, how does the context-switching rate compare between the two tests? 
+This test is pretty steady when it's running, so the context-switch
+rates can be directly compared, correct?
 
-
-We would like to propose a joint venture with you.  If you or an associate of yours may be interested in taking a company public, please let us know at info@capitalraisingstrategies.com .  We are happy to pay a very generous referral fee.
-
-
-Since we provide such an outstanding service and have a great deal of experience, you may want to pass this email on to an associate or you can send us their information.
-
-Please contact us when you are ready to move forward.
-
-Sincerely,
-
-Shaun Anthony
-
-info@capitalraisingstrategies.com
-http://www.capitalraisingstrategies.com
-
-
-If you do not want to hear from us any longer, email us with no longer in the subject. takeoff@capitalraisingstrategies.com
-
-
-8721 Santa Monica Bl #359 -- Los Angeles, CA 90069-4507 USA
-
+	Ingo

@@ -1,67 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135839AbRDTRLb>; Fri, 20 Apr 2001 13:11:31 -0400
+	id <S135907AbRDTRMW>; Fri, 20 Apr 2001 13:12:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135842AbRDTRLW>; Fri, 20 Apr 2001 13:11:22 -0400
-Received: from elektra.higherplane.net ([203.37.52.137]:64698 "EHLO
-	elektra.higherplane.net") by vger.kernel.org with ESMTP
-	id <S135839AbRDTRLR>; Fri, 20 Apr 2001 13:11:17 -0400
-Date: Sat, 21 Apr 2001 03:19:20 +1000
-From: john slee <indigoid@higherplane.net>
-To: Harald Welte <laforge@gnumonks.org>
-Cc: Jonathan Lundell <jlundell@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: Documentation of module parameters.
-Message-ID: <20010421031920.M10345@higherplane.net>
-In-Reply-To: <3ADBB8C9.CC7FD941@nc.rr.com> <p05100b07b7017fc83c2e@[207.213.214.34]> <20010420133722.D2461@tatooine.laforge.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="H8ygTp4AXg6deix2"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010420133722.D2461@tatooine.laforge.distro.conectiva>; from laforge@gnumonks.org on Fri, Apr 20, 2001 at 01:37:22PM -0300
+	id <S135906AbRDTRMN>; Fri, 20 Apr 2001 13:12:13 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:22343 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S135898AbRDTRL4>; Fri, 20 Apr 2001 13:11:56 -0400
+Date: Fri, 20 Apr 2001 20:11:41 +0300
+From: =?ISO-8859-1?Q?Kristian_S=F6derblom?= <ksoderbl@mail.niksula.cs.hut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: KMALLOC_MAXSIZE undefined in drivers/media/video/buz.c in kernel
+ 2.4.3
+Message-ID: <Pine.SGI.4.20.0104201931480.95651-100000@sparkling.cs.hut.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---H8ygTp4AXg6deix2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hello!
 
-On Fri, Apr 20, 2001 at 01:37:22PM -0300, Harald Welte wrote:
-> On Mon, Apr 16, 2001 at 10:07:56PM -0700, Jonathan Lundell wrote:
-> > At 11:30 PM -0400 2001-04-16, Chris Kloiber wrote:
-> > >I was recently looking for a single location where all the possible
-> > >module parameters for the linux kernel was located.
-> >
-> > Hear him. A DocBook document would be a dandy place for this to get pulled
-> > together, too.
-> 
-> good idea. One could just grab all the MODULE_PARM_DESC out of all sourcefiles,
-> look to which module the particular sourcefile belongs (looking into
-> Makefile?), and create a Documentation/DocBook/... document out of it.
-> 
-> Sounds like something doable, only somebody needs to get around doing
-> it. Any volunteers?
+	I was compiling kernel 2.4.3 and got this:
+buz.c: In function `v4l_fbuffer_alloc':
+buz.c:188: `KMALLOC_MAXSIZE' undeclared (first use in this function)
+buz.c:188: (Each undeclared identifier is reported only once
+buz.c:188: for each function it appears in.)
+buz.c: In function `jpg_fbuffer_alloc':
+buz.c:262: `KMALLOC_MAXSIZE' undeclared (first use in this function)
+buz.c:256: warning: `alloc_contig' might be used uninitialized in this
+function
+buz.c: In function `jpg_fbuffer_free':
+buz.c:322: `KMALLOC_MAXSIZE' undeclared (first use in this function)
+buz.c:316: warning: `alloc_contig' might be used uninitialized in this
+function
+buz.c: In function `zoran_ioctl':
+buz.c:2837: `KMALLOC_MAXSIZE' undeclared (first use in this function)
+make[3]: *** [buz.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.3/drivers/media/video'
+make[2]: *** [_modsubdir_video] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.3/drivers/media'
+make[1]: *** [_modsubdir_media] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.3/drivers'
+make: *** [_mod_drivers] Error 2
 
-it sounded like a challenge.  this might help someone who can't be
-bothered extracting all the data by hand.  it spits it out in tab
-delimited form, as sanely as i could manage in 5 minutes.
+In kernel 2.4.2, instead of KMALLOC_MAXSIZE, there is MAX_KMALLOC_MEM
+which is defined at the beginning of the file buz.c (2.4.2) as
+(512*1024). The compilation went ok after I did define KMALLOC_MAXSIZE.
 
-j.
+There should not be any problem as I don't think I need the buz driver, I
+had just unknowingly put at into the config. However, I guess it should be
+fixed.
 
--- 
-"Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson
+Kristian Söderblom,
+wannabe kernel hacker
 
---H8ygTp4AXg6deix2
-Content-Type: text/x-sh; charset=us-ascii
-Content-Disposition: attachment; filename="kernel-module-info.sh"
 
-#!/bin/sh
 
-# john slee <indigoid@higherplane.net>
-# Sat Apr 21 03:17:55 EST 2001
-# quick and dirty.  run from a kernel source dir somewhere.
 
-find . -name "*.c" | xargs egrep 'MODULE_DESCRIPTION|MODULE_PARM_DESC' \
-	| sed '/#undef/d; s/^\.\///; s/[:()]/	/g; s/[";]//g; /MODULE_PARM_DESC/s/,[ ]*/	/; /^[	 ]*$/d'
-
---H8ygTp4AXg6deix2--

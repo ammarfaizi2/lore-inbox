@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311749AbSH3XXJ>; Fri, 30 Aug 2002 19:23:09 -0400
+	id <S293680AbSH3XWj>; Fri, 30 Aug 2002 19:22:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311885AbSH3XXI>; Fri, 30 Aug 2002 19:23:08 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:20659 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S311749AbSH3XXH>;
-	Fri, 30 Aug 2002 19:23:07 -0400
-Date: Fri, 30 Aug 2002 16:21:26 -0700 (PDT)
-Message-Id: <20020830.162126.08406551.davem@redhat.com>
-To: bcrl@redhat.com
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] compile fix for fs/aio.c on non-highmem systems
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020826175322.B6178@redhat.com>
-References: <20020826175322.B6178@redhat.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S311749AbSH3XWj>; Fri, 30 Aug 2002 19:22:39 -0400
+Received: from antigonus.hosting.pacbell.net ([216.100.98.13]:62156 "EHLO
+	antigonus.hosting.pacbell.net") by vger.kernel.org with ESMTP
+	id <S293680AbSH3XWi>; Fri, 30 Aug 2002 19:22:38 -0400
+Reply-To: <imran.badr@cavium.com>
+From: "Imran Badr" <imran.badr@cavium.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: vm_operations .. how to unmap?
+Date: Fri, 30 Aug 2002 16:25:24 -0700
+Message-ID: <02cd01c2507c$84ec9860$9e10a8c0@IMRANPC>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <3D6FF752.B2BDDC66@zip.com.au>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Benjamin LaHaise <bcrl@redhat.com>
-   Date: Mon, 26 Aug 2002 17:53:22 -0400
+Hi,
+I am exporting kernel memory to user processes using mmap() entry point of
+my driver. Now, when the user calls unmap(), I would like to deallocate the
+pages which I allocated at mmap() time. How can I do that? unmap() entry
+point is not provided by vm_operations structure in mm.h file.
+I will really appreciate any suggestion/guidance.
 
-   Patrik Mochel noticed that fs/aio.c doesn't compile on a non-highmem config.  
-   The patch below (and in the bk tree on master.kernel.org:/home/bcrl/aio-2.5) 
-   fixes that by making the helper functions #defines, and should also be a 
-   bit faster.
+Thanks,
+Imran.
 
-Platforms should fix this by making a dummy asm/kmap_types.h
-
-Linus added the explicit include of asm/kmap_types.h and therefore
-I believe this is how he wants this fixed too.

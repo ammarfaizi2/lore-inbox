@@ -1,86 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131623AbRCSVSf>; Mon, 19 Mar 2001 16:18:35 -0500
+	id <S131586AbRCSVhs>; Mon, 19 Mar 2001 16:37:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131612AbRCSVSZ>; Mon, 19 Mar 2001 16:18:25 -0500
-Received: from [63.109.146.2] ([63.109.146.2]:43764 "EHLO mail0.myrio.com")
-	by vger.kernel.org with ESMTP id <S131623AbRCSVSO>;
-	Mon, 19 Mar 2001 16:18:14 -0500
-Message-ID: <B65FF72654C9F944A02CF9CC22034CE22E1B40@mail0.myrio.com>
-From: Torrey Hoffman <torrey.hoffman@myrio.com>
-To: "'otto.wyss@bluewin.ch'" <otto.wyss@bluewin.ch>,
-        linux-kernel@vger.kernel.org
-Subject: RE: Linux should better cope with power failure
-Date: Mon, 19 Mar 2001 13:16:57 -0800
+	id <S131603AbRCSVhi>; Mon, 19 Mar 2001 16:37:38 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:48002 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S131586AbRCSVhe>; Mon, 19 Mar 2001 16:37:34 -0500
+Date: Mon, 19 Mar 2001 16:35:40 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Brian Gerst <bgerst@didntduck.org>
+cc: Otto Wyss <otto.wyss@bluewin.ch>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Linux should better cope with power failure
+In-Reply-To: <3AB67134.762CFF32@didntduck.org>
+Message-ID: <Pine.LNX.3.95.1010319162020.12070A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 19 Mar 2001, Brian Gerst wrote:
+[SNIPPED...]
 
-Otto Wyss wrote:
-> situation was switching power off and on after a few minutes of
-> inactivity. From the impression I got during the following startup, I
+> 
+> At the very least the disk should be consistent with memory.  If the
+> dirty pages aren't written back to the disk (but not necessarily removed
+> from memory) after a reasonable idle period, then there is room for
+> improvement.
+> 
 
-You aren't giving a lot of detail here.  I assume your startup scripts run
-fsck, and you saw a lot of errors.  Were any of them uncorrectable?  
+Hmmm. Now think about it a minute. You have a database operation
+with a few hundred files open, most of which will be deleted after
+a sort/merge completes. At the same time, you've got a few thousand
+directories with their ATIME being updated. Also, you have thousands
+of temporary files being created in /tmp during a compile that didn't
+use "-pipe".
 
-> assume Linux (2.4.2, EXT2-filesystem) is not very suited to any power
-> failiure or manually switching it off. Not even if there wasn't any
-> activity going on. 
+If you periodically write everything to disk, you don't have many
+CPU cycles available to do anything useful.
 
-That is correct.  Pulling the plug on non-journaled filesystems is a
-bad idea.
+It is up to the application to decide if anything is 'precious'.
+If you've got some database running, it's got to be checkpointed
+with some "commitable" file-system so it can be interrupted at any time.
 
-> Shouldn't a good system allways try to be on the save side? 
+If you make your file-systems up of "slices", you can mount the
+executable stuff read/only. Currently, only /var and /tmp need to
+be writable for normal use, plus any user "slices", of course.
+ -- Yes I know you need to modify /etc/stuff occasionally (startup
+and shutdown, plus an occasional password change). I proposed
+a long time ago that /etc/mtab get moved to /var.
 
-Yes.  Some of this is your responsibility.  You have several options:
-1. Get a UPS.  That would not have helped your particular problem,
-   but it's a good idea if you care about data integrity.
-2. Use a journaling file system.  These are much more tolerant of
-   abuse.  Reiserfs seems to work for me on embedded systems I am
-   building where the user can (and does) remove the power any time.
-3. Use RAID.  Hard drives are very cheap and software raid is very 
-   easy to set up.
+Cheers,
+Dick Johnson
 
-> There is currently much work done in
-> getting high performance during high activity but it seems there is no
-> work done at all in getting a save system during low/no activity. 
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-Actually, a lot of work _is_ being done on journaling file systems
-which help solve this problem.  Current journaling file systems are
-metadata only, but Tux2 (if I understand it) will journal everything.
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
-> How could this be accomplished:
-> 1. Flush any dirty cache pages as soon as possible. There may 
-> not be any
-> dirty cache after a certain amount of idle time.
 
-This can be done from user space.  The simple approach would be to set up a
-cron job to sync and flush buffers every "n" seconds.  A smarter approach
-would examine the load average, and not sync if the load was high.  This
-does not need to be in the kernel.
-
-> 2. Keep open files in a state where it doesn't matter if they where
-> improperly closed (if possible).
-
-This is mostly a user space problem as well.  It has been solved for
-editors which automatically save files every "n" minutes.   I don't know
-if it can be solved from kernel space - if applications leave files in
-an inconsistent state, how can the kernel possibly do anything about it?
-
-> 3. Swap may not contain anything which can't be discarded. Otherwise
-> swap has to be treated as ordinary disk space.
-
-I'm not an expert, but I don't think this is relevant?
-
-> Don't we tell children never go close to any abyss or doesn't have
-> alpinist a saying "never go to the limits"? So why is this simple rule
-> always broken with computers?
-
-So were you breaking this rule?  Were you using a journaling file system,
-or RAID, or a UPS?  
-
-Torrey Hoffman

@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263436AbTJLJQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 05:16:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263438AbTJLJQZ
+	id S263442AbTJLJ01 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 05:26:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263447AbTJLJ01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 05:16:25 -0400
-Received: from [80.88.36.193] ([80.88.36.193]:42112 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S263436AbTJLJQY (ORCPT
+	Sun, 12 Oct 2003 05:26:27 -0400
+Received: from smtp2.att.ne.jp ([165.76.15.138]:52955 "EHLO smtp2.att.ne.jp")
+	by vger.kernel.org with ESMTP id S263442AbTJLJ0Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 05:16:24 -0400
-Date: Sun, 12 Oct 2003 11:16:03 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: "David S. Miller" <davem@redhat.com>
-cc: Michael Hunold <hunold@convergence.de>, shemminger@osdl.org,
-       linux-dvb@linuxtv.org,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/14] LinuxTV.org DVB driver update
-In-Reply-To: <20031011105320.1c9d46db.davem@redhat.com>
-Message-ID: <Pine.GSO.4.21.0310121115260.27309-100000@starflower.sonytel.be>
+	Sun, 12 Oct 2003 05:26:25 -0400
+Message-ID: <2c8a01c390a2$cee80640$5cee4ca5@DIAMONDLX60>
+From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+To: "Mikael Pettersson" <mikpe@csd.uu.se>, <pavel@ucw.cz>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test6 APM/IDE double-suspend weirdness
+Date: Sun, 12 Oct 2003 18:23:51 +0900
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Oct 2003, David S. Miller wrote:
-> On Sat, 11 Oct 2003 10:41:43 +0200
-> Michael Hunold <hunold@convergence.de> wrote:
-> 
-> > Unfortunately, I don't notice every patch that goes directly into 2.6 
-> > without getting postet on the linux-dvb mailinglist. Now if someone 
-> > changes stuff in our CVS in the same file, it can happen that the stuff 
-> > from the kernel is wiped out.
-> 
-> It is your responsibility to resolve such things though.  It is
-> inevitable and unavoidable that others outside of your development
-> group will make many changes to your files, as we fix bugs that
-> are tree-wide.
+Mikael Pettersson and Pavel Machek wrote:
 
-So you best subscribe to bk-commits-head and monitor every patch that affects
-drivers/media/dvb/.
+> > > In test6 (and test5 and possibly earlier), when suspending
+> > > my aging Latitude with APM, the machine turns off, only to
+> > > turn itself on again one second later with the disk spinning
+> > > up. Then it turns itself off again a second later.
 
-Gr{oetje,eeting}s,
+In test7 and earlier, when suspending (using command "apm -s" since
+2.6.0-test[1-7] disable the keyboard's hotkeys), my Let's Note turns off the
+hard disk, only to turn on the hard disk one second later, and then finally
+put the entire machine in suspend-to-RAM.
 
-						Geert
+>  > Try removing pm_send_all from apm.c
+>
+> Ok I tried removing all pm_send_all from apm.c.
+> I made no difference at all.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+I am not surprised.  2.4.20 has the same pm_send_all but does not have
+double-suspend weirdness.  I removed the call device_suspend(3) instead,
+since 2.4.20 didn't call device_suspend(3).  This solved it for me in
+2.6.0-test7.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Hmm.  I've been running with apm=debug for a while, ever since checking
+whether the keyboard's hotkeys really were completely disabled (they were,
+the BIOS doesn't even find out that I pressed the suspend key or hibernate
+key).  I wonder if hda powered up again just to write a syslog entry?  But
+still, it doesn't happen any more after I removed the call
+device_suspend(3).
+
+What is the intended effect of device_suspend(3)?  Am I asking for trouble
+by removing it?
 

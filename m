@@ -1,62 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262989AbUJ1Lvg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262995AbUJ1L7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262989AbUJ1Lvg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 07:51:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262976AbUJ1Ltf
+	id S262995AbUJ1L7g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 07:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262993AbUJ1L7f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 07:49:35 -0400
-Received: from moraine.clusterfs.com ([66.246.132.190]:52689 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S262989AbUJ1Lq5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 07:46:57 -0400
-Date: Thu, 28 Oct 2004 05:44:13 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: "Theodore Ts'o" <tytso@mit.edu>, Timo Sirainen <tss@iki.fi>,
+	Thu, 28 Oct 2004 07:59:35 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:64719 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262995AbUJ1LwT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 07:52:19 -0400
+Date: Thu, 28 Oct 2004 06:51:44 -0500
+From: Robin Holt <holt@sgi.com>
+To: Ray Bryant <raybry@sgi.com>
+Cc: Christoph Lameter <clameter@sgi.com>, Robin Holt <holt@sgi.com>,
+       Jesse Barnes <jbarnes@sgi.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: readdir loses renamed files
-Message-ID: <20041028114413.GL1343@schnapps.adilger.int>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Timo Sirainen <tss@iki.fi>, linux-kernel@vger.kernel.org
-References: <431547F9-2624-11D9-8AC3-000393CC2E90@iki.fi> <20041025123722.GA5107@thunk.org> <20041028093426.GB15050@merlin.emma.line.org>
+Subject: Re: Hugepages demand paging V2 [0/8]: Discussion and overview
+Message-ID: <20041028115144.GA21926@lnx-holt.americas.sgi.com>
+References: <B05667366EE6204181EABE9C1B1C0EB504BFA47C@scsmsx401.amr.corp.intel.com> <Pine.LNX.4.58.0410251825020.12962@schroedinger.engr.sgi.com> <20041026022322.GD17038@holomorphy.com> <200410251940.30574.jbarnes@sgi.com> <20041026143513.GC28391@lnx-holt.americas.sgi.com> <Pine.LNX.4.58.0410271103500.18165@schroedinger.engr.sgi.com> <418028B8.5060206@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041028093426.GB15050@merlin.emma.line.org>
+In-Reply-To: <418028B8.5060206@sgi.com>
 User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 28, 2004  11:34 +0200, Matthias Andree wrote:
-> On Mon, 25 Oct 2004, Theodore Ts'o wrote:
-> > And that's because there's no good way to do this without trashing the
-> > performance of the system, especially when most applications don't
-> > care.  (Do you really want your entire system running significantly
-> > slower, penalizing all other applications on your system, just because
-> > of one stupid/badly-written application?)
+On Wed, Oct 27, 2004 at 06:01:12PM -0500, Ray Bryant wrote:
+> Christoph Lameter wrote:
+> >On Tue, 26 Oct 2004, Robin Holt wrote:
+> >
+> >
+> >>Sorry for being a stickler here, but the BTE is really part of the
+> >>I/O Interface portion of the shub.  That portion has a seperate clock
+> >>frequency from the memory controller (unfortunately slower).  The BTE
+> >>can zero at a slightly slower speed than the processor.  It does, as
+> >>you pointed out, not trash the CPU cache.
+> >>
+> >>One other feature of the BTE is it can operate asynchronously from
+> >>the cpu.  This could be used to, during a clock interrupt, schedule
+> >>additional huge page zero filling on multiple nodes at the same time.
+> >>This could result in a huge speed boost on machines that have multiple
+> >>memory only nodes.  That has not been tested thoroughly.  We have done
+> >>considerable testing of the page zero functionality as well as the
+> >>error handling.
+> >
+> >
+> >If the huge patch would support some way of redirecting the clearing of a
+> >huge page then we could:
+> >
+> >1. set the huge pte to not present so that we get a fault on access
+> >2. run the bte clearer.
+> >3. On receiving a huge fault we could check for the bte being finished.
+> >
+> >This would parallelize the clearing of huge pages. But is that really more
+> >efficient? There may be complexity involved in allowing the clearing of
+> >multiple pages and tracking of the clear in progress is additional
+> >overhead.
+> >
+> >
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
 > 
-> Please - is it really necessary that application writers are offended in
-> this way? Timo is investing enormous time and effort in writing a *good*
-> application, and he's effectively seeking a way to *robustly* deal with
-> Maildir format mail storage. Please leave it at "readdir/getdents don't
-> work the way you expect and cannot for this and that reason."
+> I'm personally of the opinion that using the BTE to "speculatively" clear
+> hugetlb pages in advance of when the hugetlb pages are requested is not a 
+> good
+> thing [tm].  One never knows if those pages will ever be requested.  And in
+> the meantime, tasks that need the BTE will be delayed by speculative use.
+> But that is a personal bias  :-), with no data to back it up.
+
+I was thinking the bte would be best used in an async mode where the pages
+would be pre-zeroed and available for use if the application needs them.
+If the pre-zeroed list is empty, then use the cpu to zero the page.
+
 > 
-> Timo tries to implement a *robust* Maildir reader and has just bumped
-> into the flaws of DJB's "no-locking" store.
+> AFAIK, it is faster to clear the page with the processor anyway, since the
+
+The processor is slightly faster.  I believe the FSB is 200Mhz and the
+II is 100Mhz (150Mhz with no attached IX brick).  Future versions of the
+BTE will possibly have faster access to on node memory than the processor.
+
+> processor has a faster clock cycle.  Yes, it destroys the processor cache,
+> but the application has clearly indicated that it wants the page NOW, 
+> please,
+> (because it has faulted on it), and delivering the page to the application
+> as quickly as possible sounds like a good thing.  I'm not sure reloading
+
+I am not either.  I just would like to see any design take into consideration
+the possible uses and not design them out.  Nothing more.
+
+> the processor cache at this point is a cost we care about, given that the
+> application is likely just starting up anyway.  I figure hugetlb pages are
+> allocated once, stay around a long long time, so I'm not sure optimizing to
+> minimize cache damage is the correct way to go here.
 > 
-> Yes, it's a mail server again that poses file system questions on this
-> list; only it's IMAP this time rather than SMTP and directory
-> synchronous I/O...
+> The only obvious win is for memory only nodes, that have a BTE and no CPU.
+> It is probably faster to use the local BTE than a remote CPU to clear the 
+> page.
 
-I read over in reiserfs-list that the reason for the crazy renaming is
-to store "attributes" as part of the filename.  Why not just store them
-as EAs as they were intended?  With the large inode patches (posted here
-a couple of times already) the cost of storing EAs is negligible.
+Plus, a single CPU could schedule the clearing of pages on multiple
+nodes at the same time.  Imagine a system that has 256 compute nodes
+and 756 memory nodes.  That configuration is theoretically possible with
+todays hardware, but we have never built or sold one.  Looking at that
+configuration gives you an one possible indication of how a pre-zeroing
+mechanism might improve things.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
+I am not saying that the BTE is the best option, or even a good one.  It
+just looks interesting.  It does bring up some interesting problems with
+repeatability.  Consider the application startup following termination
+of another which used all the huge pages.  The pre-zeroed list will
+be nearly if not completely empty.  The first fault will find the list
+empty and have to zero the page itself.  Hopefully, the second fault will
+find one on the zeroed list and return immediately.  This would cause
+application startup time to feel like it doubled from the previous run.
+Ouch.  That would be very upsetting for our typical customers.
 
+The more memory nodes you have per cpu, the better this number will
+appear.
+
+Sorry for being spineless, but I don't feel very strongly that it will
+be beneficial enough to be desirable.  I am just not sure.  I would
+just hope that it is taken into consideration during the design and,
+as long as it has no negative impact on the design, be left as a
+possibility.
+
+Thanks,
+Robin Holt

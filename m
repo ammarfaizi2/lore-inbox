@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267032AbSKRXpb>; Mon, 18 Nov 2002 18:45:31 -0500
+	id <S265523AbSKRXWg>; Mon, 18 Nov 2002 18:22:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267029AbSKRXpY>; Mon, 18 Nov 2002 18:45:24 -0500
-Received: from dp.samba.org ([66.70.73.150]:14555 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267030AbSKRXpS>;
-	Mon, 18 Nov 2002 18:45:18 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Doug Ledford <dledford@redhat.com>,
-       Linux Scsi Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Why /dev/sdc1 doesn't show up... 
-In-reply-to: Your message of "Mon, 18 Nov 2002 04:51:17 CDT."
-             <Pine.GSO.4.21.0211180403440.23400-100000@steklov.math.psu.edu> 
-Date: Tue, 19 Nov 2002 10:49:21 +1100
-Message-Id: <20021118235221.637162C456@lists.samba.org>
+	id <S265541AbSKRXWg>; Mon, 18 Nov 2002 18:22:36 -0500
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:38084 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S265523AbSKRXWe>; Mon, 18 Nov 2002 18:22:34 -0500
+Message-ID: <3DD97D4D.3010801@kegel.com>
+Date: Mon, 18 Nov 2002 15:52:45 -0800
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
+X-Accept-Language: de-de, en
+MIME-Version: 1.0
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc] epoll interface change and glibc bits ...
+References: <Pine.LNX.4.44.0211181520140.979-100000@blue1.dev.mcafeelabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.GSO.4.21.0211180403440.23400-100000@steklov.math.psu.edu> you 
-write:
-> Not really.  For case in question (block devices) there is only one path
-> and I'd rather keep it that way, thank you very much.
-
-See other posting.  This is a fundamental design decision, and it's
-not changing.  Sorry.
-
-> Again, by the time when add_disk() got to reading partition table, device
-> is _there_.  That's it - we had set it up completely, it's ready for IO,
-> whatever.  At that point we want generic code to do some work with that
-> device.  And there is no magic path for that - it's normal open/read/close.
+Davide Libenzi wrote:
+> On Mon, 18 Nov 2002, Dan Kegel wrote:
 > 
-> There is no "live" flag - you had shown it, you'd better be ready to have
-> it used.  Doesn't cause any problems.
+>>>The interface ( edge-triggered ) is quite different and we saw in the
+>>>previous experience how this might lead to confusion for the user. Putting
+>>>epoll bits inside poll.h will IMHO increase this.
+>>
+>>The only difference is the edge-triggered nature, though, right?
+> 
+> Yes, but we have seen that it's enough :)
 
-Unless the module does something else afterwards which fails and wants
-to fail the init.  You're saying "don't do that", which is not a good
-answer 8(
+I'm not so sure.  If the epoll documentation were clear enough
+(which at the moment, frankly, it isn't), I think
+there's a good chance users would not be confused
+by the difference between level-triggered and edge-triggered
+events.
 
-You can implement a "make_module_live()" in module.h if you want
-module authors to do two-stage init manually (and trust them to get it
-right).  Or you can run a notifier on "enlivening" a module: I'd hoped
-to avoid that.
+I'd be happy to contribute better doc... has the man page
+for sys_epoll been written yet?
+- Dan
 
-Hope that helps,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269837AbUH0AEB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269435AbUH0AWv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269837AbUH0AEB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 20:04:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269803AbUHZX7X
+	id S269435AbUH0AWv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 20:22:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbUH0AUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 19:59:23 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:54696 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S269705AbUHZXza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 19:55:30 -0400
-Message-ID: <412E786E.5080608@namesys.com>
-Date: Thu, 26 Aug 2004 16:55:26 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Thu, 26 Aug 2004 20:20:37 -0400
+Received: from fw.osdl.org ([65.172.181.6]:13762 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269816AbUH0AEU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 20:04:20 -0400
+Date: Thu, 26 Aug 2004 17:03:42 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Craig Milo Rogers <rogers@isi.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Termination of the Philips Webcam Driver (pwc)
+In-Reply-To: <20040827004757.A26095@infradead.org>
+Message-ID: <Pine.LNX.4.58.0408261700320.2304@ppc970.osdl.org>
+References: <20040826233244.GA1284@isi.edu> <20040827004757.A26095@infradead.org>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@lst.de>
-CC: Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
-Subject: Re: reiser4 plugins
-References: <20040825152805.45a1ce64.akpm@osdl.org>	 <412D9FE6.9050307@namesys.com> <20040826014542.4bfe7cc3.akpm@osdl.org>	 <1093522729.9004.40.camel@leto.cs.pocnet.net> <20040826124929.GA542@lst.de>	 <1093525234.9004.55.camel@leto.cs.pocnet.net> <20040826130718.GB820@lst.de>	 <1093526273.11694.8.camel@leto.cs.pocnet.net>	 <20040826132439.GA1188@lst.de>	 <1093527307.11694.23.camel@leto.cs.pocnet.net>	 <20040826134034.GA1470@lst.de> <1093528683.11694.36.camel@leto.cs.pocnet.net>
-In-Reply-To: <1093528683.11694.36.camel@leto.cs.pocnet.net>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christophe Saout wrote:
 
->
->
->I don't know, ask Hans. How could the VFS know it a filesystem wants to
->do something specific with a file that is completely transparent to the
->VFS?
->
->  
->
-To know what method to use, you must determine the pluginid, and then 
-find the method within that plugin for that vfs operation.
 
-As for overhead, well, who eats whose dust in the benchmarks....?
+On Fri, 27 Aug 2004, Christoph Hellwig wrote:
+> 
+> It's not up to him to decide.  He can step down from his maintainership,
+> but he can't force the driver to be removed.
+
+Yes and no. From a legal standpoint you're right. However, we should also 
+be polite. If he's the sole author, and he asks for it, I think it's 
+reasonable to honor his wishes.
+
+Of course if some new maintainer shows up and decides to infer how the 
+device worked by looking at the original open-source code, that's also 
+clearly fine.
+
+I don't want people to play lawyer. Honoring peoples rights to the code 
+they write is more important than just the law.
+
+		Linus

@@ -1,51 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265515AbUFXUcw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265521AbUFXUfe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265515AbUFXUcw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 16:32:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265521AbUFXUcw
+	id S265521AbUFXUfe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 16:35:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265537AbUFXUfd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 16:32:52 -0400
-Received: from adsl-68-251-225-120.dsl.sfldmi.ameritech.net ([68.251.225.120]:24839
-	"HELO sps-cl.cz") by vger.kernel.org with SMTP id S265515AbUFXUcv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 16:32:51 -0400
-Message-ID: <cf3301c45a28$47e5ccfd$1ff149cd@sps-cl.cz>
-From: "Riley Driscoll" <rileydriscollcl@globe.dk>
+	Thu, 24 Jun 2004 16:35:33 -0400
+Received: from moraine.clusterfs.com ([66.246.132.190]:41095 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S265521AbUFXUfS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 16:35:18 -0400
+Date: Thu, 24 Jun 2004 14:35:16 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
 To: linux-kernel@vger.kernel.org
-Subject: Lose 19%, powerful weightloss now available where you are.
-Date: Thu, 24 Jun 2004 13:22:18 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Subject: Re: RFC: Testing for kernel features in external modules
+Message-ID: <20040624203516.GV31203@schnapps.adilger.int>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040624203043.GA4557@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0k4Rxg87Lb8yV0u3"
+Content-Disposition: inline
+In-Reply-To: <20040624203043.GA4557@mars.ravnborg.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, I have a special offer for you...
-WANT TO LOSE WEIGHT?
-The most powerful weightloss is now available
-without prescription. All natural Adipren720
-100% Money Back Guarantée!
-- Lose up to 19% Total Body Weight.
-- Loss of 20-35% abdominal Fat.
-- Up to 300% more Weight Loss while dieting.
-- Increase metabolic rate by 76.9% without Exercise.
-- Reduction of 40-70% overall Fat under skin.
-- Suppresses appetite for sugar.
-- Burns calorized fat.
-- Boost your Confidence level and Self Esteem.
-Get the facts about all-natural Adipren720 <http://www.5085enhanceme.biz/>
+
+--0k4Rxg87Lb8yV0u3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Jun 24, 2004  22:30 +0200, Sam Ravnborg wrote:
+> +if [ -f remap4.o ]; then
+> +	echo "#define REMAP4 1" > $2
+> +elif [ -f remap5.o ]; then
+> +	echo "#define REMAP5 1" > $2
+> +fi
+
+I would prefer that these be called something like HAVE_REMAP5, or
+better yet something descriptive like HAVE_REMAP_PAGE_RANGE_VMA.
+
+This obviously needs to be smarter also, to handle adding multiple
+#defines to a single .h file.
+
+Ideally, when people make an incompatible kernel API change like this
+they would just #define HAVE_REMAP_PAGE_RANGE_VMA in the header that
+declares remap_page_range() directly (e.g. KERNEL_AS_O_DIRECT was added
+for this reason) instead of external builds having to figure this out
+themselves.  Adding the check script is no less work than just adding
+the #define to the appropriate header directly.
+
+Having something like "features.h" is only useful as far as it checks
+for features that applications care about.  If it doesn't have checks
+for features, then the apps need to implement those checks anyways
+and different apps will name the script/#define differently so until
+they make it into the stock kernel it isn't terribly useful.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://members.shaw.ca/adilger/                 http://members.shaw.ca/golinux/
 
 
+--0k4Rxg87Lb8yV0u3
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
----- system information ----
-associate which current difficult preferences Alternate patent relationship
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-intended Localization] HTML Specifying construct call Collation Locale
+iD8DBQFA2zsEpIg59Q01vtYRAvhSAKCJ98LonhOQY+AGMNC2GtF8qcDEFwCfagUd
+9pflEXlsQr+eskM0TA0jTLs=
+=ofz7
+-----END PGP SIGNATURE-----
 
-inferred locale absence public-i18n-ws-request@w3org inferred needs provide
-vary 
-internationalization submitted matching grammar include: searches C: patent
-
-We implementers NET Tax patent throughly around same 
-
+--0k4Rxg87Lb8yV0u3--

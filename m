@@ -1,45 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262449AbUJ0PvS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262458AbUJ0Pv6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262449AbUJ0PvS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 11:51:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262463AbUJ0PvS
+	id S262458AbUJ0Pv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 11:51:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbUJ0Pv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 11:51:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:20870 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262449AbUJ0PvM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 11:51:12 -0400
-From: Jeff Moyer <jmoyer@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16767.50093.59665.83462@segfault.boston.redhat.com>
-Date: Wed, 27 Oct 2004 11:50:05 -0400
-To: mpm@selenic.com
-CC: linux-kernel@vger.kernel.org
-Subject: netpoll_setup questions
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
+	Wed, 27 Oct 2004 11:51:57 -0400
+Received: from pauli.thundrix.ch ([213.239.201.101]:22739 "EHLO
+	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S262458AbUJ0Pvt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 11:51:49 -0400
+Date: Wed, 27 Oct 2004 17:48:28 +0200
+From: Tonnerre <tonnerre@thundrix.ch>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: "H. Peter Anvin" <hpa@zytor.com>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Erik Andersen <andersen@codepoet.org>, uclibc@uclibc.org
+Subject: Re: The naming wars continue...
+Message-ID: <20041027154828.GA21160@thundrix.ch>
+References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org> <20041026203137.GB10119@thundrix.ch> <417F2251.7010404@zytor.com> <200410271133.25701.vda@port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
+Content-Disposition: inline
+In-Reply-To: <200410271133.25701.vda@port.imtp.ilyichevsk.odessa.ua>
+X-GPG-KeyID: 0x8BE1C38D
+X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
+X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Matt,
 
-The section of code in the body of this if statement:
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-	if (!(ndev->flags & IFF_UP)) {
+Salut,
 
-is a bit broken.  First, upon discussion with jgarzik, it seems we should
-not check for IFF_UP, but instead do netif_running.  However, I'm wondering
-why we try to force the interface up in the first place?  Just because we
-force it up doesn't mean that it will get an IP address.  And, in the case
-where it doesn't, you will get an oops further on when dereferencing the
-ifa_list.  So, why does this section of code exist at all?  If it has a
-good purpose, can we replace it with a call to ndev->open?
+On Wed, Oct 27, 2004 at 11:33:25AM +0300, Denis Vlasenko wrote:
+> Why there is any distinction between, say, gcc and X?
+> KDE and Midnight Commander? etc... Why some of them go
+> to /opt while others are spread across dozen of dirs?
 
-Thanks!
+Well.
 
-Jeff
+FHS specifies that everything needed  to boot the system should got to
+/bin  and /sbin. The  base system  (build system,  etc.) should  go to
+/usr. The rest should be /opt/itspackagename.
+
+I'm not quite a FHS fan. I use libexec dirs, but I still have my build
+system under /usr (and my home  under /usr/home), and the rest (X, KDE
+et al) lives under /opt.
+
+			    Tonnerre
+
+
+--EeQfGwPcQSOJBaQU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.2 (GNU/Linux)
+
+iD8DBQFBf8NM/4bL7ovhw40RAsOgAJ0WOGRZvGQnd0TEgJdgIF8KWuTL4ACfcSse
+oeL0eeXQ9c7hHcK3ZrLM3jk=
+=n1oq
+-----END PGP SIGNATURE-----
+
+--EeQfGwPcQSOJBaQU--

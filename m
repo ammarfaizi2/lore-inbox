@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313803AbSDPSCA>; Tue, 16 Apr 2002 14:02:00 -0400
+	id <S313799AbSDPSEs>; Tue, 16 Apr 2002 14:04:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313805AbSDPSB7>; Tue, 16 Apr 2002 14:01:59 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:57952 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S313798AbSDPSB5>; Tue, 16 Apr 2002 14:01:57 -0400
-Date: Tue, 16 Apr 2002 20:01:47 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Andrew Morton <akpm@zip.com.au>, Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Patch: aliasing bug in blockdev-in-pagecache?
-Message-ID: <20020416200147.M29747@dualathlon.random>
-In-Reply-To: <20020413235948.E4937@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S313800AbSDPSEr>; Tue, 16 Apr 2002 14:04:47 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:65031 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S313799AbSDPSEq>; Tue, 16 Apr 2002 14:04:46 -0400
+Date: Tue, 16 Apr 2002 11:03:06 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: <haveblue@us.ibm.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix ips driver compile problems
+In-Reply-To: <20020416.104921.95902105.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0204161059070.1340-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 13, 2002 at 11:59:48PM +0100, Stephen C. Tweedie wrote:
-> --- fs/buffer.c.~1~	Fri Apr 12 17:59:09 2002
-> +++ fs/buffer.c	Sat Apr 13 21:09:36 2002
-> @@ -1902,9 +1902,14 @@
->  	}
->  
->  	/* Stage 3: start the IO */
-> -	for (i = 0; i < nr; i++)
-> -		submit_bh(READ, arr[i]);
-> -
-> +	for (i = 0; i < nr; i++) {
-> +		struct buffer_head * bh = arr[i];
-> +		if (buffer_uptodate(bh))
-> +			end_buffer_io_async(bh, 1);
-> +		else
-> +			submit_bh(READ, bh);
-> +	}
-> +	
->  	return 0;
->  }
 
-looks fine from my part too, thanks!
+On Tue, 16 Apr 2002, David S. Miller wrote:
+> 
+>       This patch has been floating inside IBM for a bit, but it appears 
+>    that no one passed it back up to you, yet.  I don't know who wrote it, 
+>    but it applies to 2.5.8 and the ServeRAID driver works just fine with it 
+>    applied.  Without it, the driver fails to compile.
+> 
+> Alan commented today on this list why these changes are not
+> acceptable.
 
-Andrea
+Quite frankly, since after several months of being broken, nobody has
+stepped up to actually fix it, I am most definitely going to accept the
+band-aid solutions to SCSI drivers that will thus only work on x86.
+
+"Not acceptable" is when broken drivers means that people can't test the 
+features they _care_ about. Apparently nobody seems to care about the SCSI 
+driver itself..
+
+		Linus
+

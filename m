@@ -1,113 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVALPX1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVALPXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261221AbVALPX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 10:23:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVALPX1
+	id S261220AbVALPXK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 10:23:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVALPXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 10:23:27 -0500
-Received: from penguin.cohaesio.net ([212.97.129.34]:28616 "EHLO
-	mail.cohaesio.net") by vger.kernel.org with ESMTP id S261221AbVALPWi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 10:22:38 -0500
-From: Anders Saaby <as@cohaesio.com>
-Organization: Cohaesio A/S
-To: trond.myklebust@fys.uio.no
-Subject: 2.6.10 - VFS is out of sync with lock manager!
-Date: Wed, 12 Jan 2005 16:23:10 +0100
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
+	Wed, 12 Jan 2005 10:23:09 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:57292 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261220AbVALPUL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 10:20:11 -0500
+Message-ID: <41E53F27.9000502@nortelnetworks.com>
+Date: Wed, 12 Jan 2005 09:15:51 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200501121623.10287.as@cohaesio.com>
-X-OriginalArrivalTime: 12 Jan 2005 15:22:37.0883 (UTC) FILETIME=[8C8C58B0:01C4F8BA]
+To: selvakumar nagendran <kernelselva@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Removing a module even if use count is not zero
+References: <20050112085345.88349.qmail@web60607.mail.yahoo.com>
+In-Reply-To: <20050112085345.88349.qmail@web60607.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Trond,
+selvakumar nagendran wrote:
+> hello linux-experts,
+>     I inserted my module into the running kernel that
+> intercepts read system call. I am using kernel 2.4.28.
+> Now, I am unable to remove it since each and every
+> time, the module is used by some process. How can I
+> remove the module even if the usecount is not zero?
+>     Can anyone help me regarding this?
 
-Yesterday i posted this to LKML (but my mailreader theated me, and didn't keep 
-thread info):
+As already said, you need to reboot.
 
-(I am very sorry if you have already seen my previous mail - I don't want to 
-bother you unnessary!)
+To fix this in the future, export a /proc entry that when written to 
+causes your module to properly clean everything up and prevent anyone 
+from getting new accesses.  This then allows you to remove the module 
+cleanly.  Note that it may not be possible to cleanly deregister, 
+depending on what your module is doing.
 
-->
-
-I have seen the exact same error on one of my webservers which is serving
-from an NFS export and under heavy load. ~2 hours uptime before panic'ing.
-I then tried Trond's patch which seems to work. 14 hours of uptime now. :)
-
-Anyways, I have a couple of issues you might be able to clear up for me:
-
-First issue:
-New strange message in the kernel log:
-
-"nlmclnt_lock: VFS is out of sync with lock manager!"
-
-- What does this mean? - Is it bad?, What can i do?
-
-
-Second issue:
-my fs/nfs/file.c doesn't look like yours (Vanilla 2.6.10):
-
-<fs/nfs/file.c SNIP>
-        status = NFS_PROTO(inode)->lock(filp, cmd, fl);
-        /* If we were signalled we still need to ensure that
-         * we clean up any state on the server. We therefore
-         * record the lock call as having succeeded in order to
-         * ensure that locks_remove_posix() cleans it out when
-         * the process exits.
-         */
-        if (status == -EINTR || status == -ERESTARTSYS)
-                posix_lock_file_wait(filp, fl);
-        unlock_kernel();
-        if (status < 0)
-                return status;
-        /*
-         * Make sure we clear the cache whenever we try to get the lock.
-         * This makes locking act as a cache coherency point.
-         */
-        filemap_fdatawrite(filp->f_mapping);
-        down(&inode->i_sem);
-        nfs_wb_all(inode);      /* we may have slept */
-        up(&inode->i_sem);
-        filemap_fdatawait(filp->f_mapping);
-        nfs_zap_caches(inode);
-        return 0;
-</SNIP>
-
-So... Am I missing another patch or something else?
-
-Jan-Frode Myklebust wrote:
-
-> On Wed, Jan 05, 2005 at 10:54:03PM +0100, Trond Myklebust wrote:
->> 
->> Looking at the NFS code, I can attempt a wild guess about what may be
->> happening: there may be a race when pressing ^C in the middle of a
->> blocking NFS lock RPC call, and if so, the following patch will fix it.
-> 
-> 
-> A whopping 9 hours of uptime now :) So the one-liner patch seems to have
-> fixed it.
-> 
-> Thanks!
-> 
->> -   posix_lock_file(filp, fl);
->> +   posix_lock_file_wait(filp, fl);
-> 
-> 
->   -jf
-
--- 
-Med venlig hilsen - Best regards - Meilleures salutations
-
-Anders Saaby
-Systems Engineer
-------------------------------------------------
-Cohaesio A/S - Maglebjergvej 5D - DK-2800 Lyngby
-Phone: +45 45 880 888 - Fax: +45 45 880 777
-Mail: as@cohaesio.com - http://www.cohaesio.com
-------------------------------------------------
+Chris

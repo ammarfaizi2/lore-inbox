@@ -1,30 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267645AbTBUTVi>; Fri, 21 Feb 2003 14:21:38 -0500
+	id <S267641AbTBUTTC>; Fri, 21 Feb 2003 14:19:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267646AbTBUTVi>; Fri, 21 Feb 2003 14:21:38 -0500
-Received: from ip68-13-105-80.om.om.cox.net ([68.13.105.80]:38274 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S267645AbTBUTVi>; Fri, 21 Feb 2003 14:21:38 -0500
-Date: Fri, 21 Feb 2003 13:31:39 -0600 (CST)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@localhost.localdomain
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.5.x, 2.4.x ...] very small
-In-Reply-To: <Pine.LNX.4.44.0302210707120.7573-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0302211329020.16359-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267645AbTBUTTC>; Fri, 21 Feb 2003 14:19:02 -0500
+Received: from holomorphy.com ([66.224.33.161]:42661 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267641AbTBUTTB>;
+	Fri, 21 Feb 2003 14:19:01 -0500
+Date: Fri, 21 Feb 2003 11:27:06 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Rik van Riel <riel@imladris.surriel.com>, Andrew Morton <akpm@digeo.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, dmccr@us.ibm.com
+Subject: Re: [Lse-tech] Re: Performance of partial object-based rmap
+Message-ID: <20030221192706.GE10401@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rik van Riel <riel@imladris.surriel.com>,
+	Andrew Morton <akpm@digeo.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+	dmccr@us.ibm.com
+References: <7490000.1045715152@[10.10.2.4]> <278890000.1045791857@flay> <20030220190819.531e119d.akpm@digeo.com> <Pine.LNX.4.50L.0302210020560.2329-100000@imladris.surriel.com> <20030220194759.15d5d932.akpm@digeo.com> <Pine.LNX.4.50L.0302210117490.2329-100000@imladris.surriel.com> <20030221100010.GB10401@holomorphy.com> <20030221191538.GD10401@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030221191538.GD10401@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Feb 2003, Linus Torvalds wrote:
+On Fri, Feb 21, 2003 at 02:00:10AM -0800, William Lee Irwin III wrote:
+>> nr_page_table_pages                  689
+>> which amounts to 2756KB RAM used for PTE's, demonstrating large
+> Pagetables are also grossly fragmented. From the same sample:
+> nr_reverse_maps                   156027
+> To preempt the FAQ, this is the number of reverse mappings performed,
+> where one is done for every instantiated non-swap PTE.
 
-> The IFF is just a way of saying "if and only if". So it's not actually a
-> typo, it's just that some of the kernel people probably took a few too 
-> many courses in mathematics and their English-language skills were 
-> impacted by it.
+ARGH too early in the morning.
 
-And the only people I ever heard use "impacted" were dentists, government 
-bureaucrats, and military officers.
+$ echo $(( (100*156027.0)/(689*1024) ))
+22.11467593432511
+percent utilization
 
+or
+
+$ echo $(( 156027.0/689 ))            
+226.45428156748912
+
+PTE's per pagetable page.
+
+
+-- wli

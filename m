@@ -1,41 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUG0Jnc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbUG0Jtk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbUG0Jnc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 05:43:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbUG0Jnc
+	id S262356AbUG0Jtk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 05:49:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbUG0Jtk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 05:43:32 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:33799 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262062AbUG0Jna (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 05:43:30 -0400
-Date: Tue, 27 Jul 2004 10:43:11 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ravikiran G Thirumalai <kiran@in.ibm.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Add kref_read and kref_put_last primitives
-Message-ID: <20040727104311.A18503@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ravikiran G Thirumalai <kiran@in.ibm.com>, Greg KH <greg@kroah.com>,
-	akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <20040726144856.GH1231@obelix.in.ibm.com> <20040726173151.A11637@infradead.org> <20040727070915.GC1270@obelix.in.ibm.com>
+	Tue, 27 Jul 2004 05:49:40 -0400
+Received: from krezus.e-wro.net ([82.143.159.250]:11479 "EHLO krezus.e-wro.net")
+	by vger.kernel.org with ESMTP id S262356AbUG0JrK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 05:47:10 -0400
+Date: Tue, 27 Jul 2004 11:47:02 +0200
+From: Tomasz Paszkowski <tomasz.paszkowski@e-wro.pl>
+To: linux-kernel@vger.kernel.org
+Subject: hfsc and huge set of rules
+Message-ID: <20040727094702.GA14723@krezus.e-wro.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040727070915.GC1270@obelix.in.ibm.com>; from kiran@in.ibm.com on Tue, Jul 27, 2004 at 12:39:15PM +0530
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+User-Agent: Mutt/1.4i
+X-NCC-RegID: pl.e-wro
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 27, 2004 at 12:39:15PM +0530, Ravikiran G Thirumalai wrote:
-> struct kref does just that.  The kref api are just abstractions for 
-> refcounting which i presume is recommended for all refcounters in the
-> kernel.  I am just converting the struct file.f_count refcounter
-> to use kref with this patch.  
 
-So what exactly does the API make easier?  APIs for the APIs sense don't
-make much sense.
+--XsQoSWH+UP9D9v3l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Hello,
+
+I'am running hfsc qdisc with huge set of rules loaded.
+
+root@hades:/home/system/scr/etc/hfsc_rebuild# cat tc.batch | grep hfsc | wc=
+ -l
+  27884
+
+
+Always when I delete the root qdisc (qdisc del dev eth0 root)
+the machine stop responding for about 5-6 seconds. As I think it's due the
+hfsc_destory_qdisc is executed in main kernel thread. Similar problem is
+present also in htb scheduler.
+
+Is there any quick solution to solve this problem ?
+
+--=20
+Tomasz Paszkowski
+Administrator
+Miejskie Sieci Informatyczne e-wro
+http://www.e-wro.pl
+
+--XsQoSWH+UP9D9v3l
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFBBiSWcNXOL98XeysRAiQ5AJwKm3MWHNHlUKDirvBE/M/seSyzJgCfeUCJ
+cYGI4/qpJFYpAMA0TA1rlxg=
+=Ac+w
+-----END PGP SIGNATURE-----
+
+--XsQoSWH+UP9D9v3l--

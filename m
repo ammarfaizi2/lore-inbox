@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266296AbUANEnV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 23:43:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266298AbUANEnU
+	id S266308AbUANEq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 23:46:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266309AbUANEq2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 23:43:20 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:7383 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S266296AbUANEm5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 23:42:57 -0500
-Date: Wed, 14 Jan 2004 04:40:45 +0000
-From: Dave Jones <davej@redhat.com>
-To: lkml@nitwit.de
-Cc: Eric <eric@cisu.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6: The hardware reports a non fatal, correctable incident occured on CPU 0.
-Message-ID: <20040114044045.GA23845@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, lkml@nitwit.de,
-	Eric <eric@cisu.net>, linux-kernel@vger.kernel.org
-References: <200401091748.10859.lkml@nitwit.de> <200401091712.02802.eric@cisu.net> <200401101816.22612.lkml@nitwit.de>
+	Tue, 13 Jan 2004 23:46:28 -0500
+Received: from fw.osdl.org ([65.172.181.6]:24035 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266308AbUANEqV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 23:46:21 -0500
+Date: Tue, 13 Jan 2004 20:46:36 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: James Morris <jmorris@redhat.com>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil,
+       selinux@tycho.nsa.gov
+Subject: Re: [PATCH][SELINUX] 6/7 Add SO_PEERSEC socket option and
+ getpeersec LSM hook.
+Message-Id: <20040113204636.72471a0a.akpm@osdl.org>
+In-Reply-To: <Xine.LNX.4.44.0401132336560.9386-100000@thoron.boston.redhat.com>
+References: <20040113161257.40f1ff16.davem@redhat.com>
+	<Xine.LNX.4.44.0401132336560.9386-100000@thoron.boston.redhat.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401101816.22612.lkml@nitwit.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 10, 2004 at 06:16:22PM +0100, lkml@nitwit.de wrote:
+James Morris <jmorris@redhat.com> wrote:
+>
+> On Tue, 13 Jan 2004, David S. Miller wrote:
+> 
+> > I'm totally fine with this patch but I cannot apply it as it will not go in
+> > cleanly without your previous SELINUX bits applied, please resend to me
+> > when that stuff goes in.
+> 
+> It's in -mm2 now.  It could either be left there for merging to mainline,
+> or Andrew could drop it and I can send you the patch after the rest of the
+> -mm2 stuff ends up in bitkeeper.
+> 
 
- > > 	Check your hardware CPU/MOBO/RAM. Overheating? Bad Ram? Cheap mobo?
- > > MCE should not be triggered under any circumstances unless it is a kernel
- > > bug(RARE, I believe the MCE code is simple) or you REALLY have a hardware
- > > problem. As said before, the bios is resetting your fsb to 100 as a
- > > fail-safe because something bad happened.
- > 
- > Well, my system did run very stable and in the meantime again does run very 
- > stable on both, 2.4.21 and Windows XP...
-
-Neither of which check for the presence of these errors.
-
- > > > What the fuck is going on here?? As far as I figured out this has
- > > > something to do with MCE (CONFIG_X86_MCE=y, CONFIG_X86_MCE_NONFATAL=y)
- > > > (?).
- > >
- > > 	Leave it enabled, its a good thing to tell you when you have bad hardware.
- > > Its not a kernel problem, but a feature.
- > 
- > Well, it is a good thing to tell me, but it's not a good thing to make my 
- > system auto-reset itself before reaching the BIOS afterwards...
-
-The non-fatal MCE code doesn't do anything like that.  Any odd side-effects that you
-observed were very likely due to whatever caused the MCE in the first place.
-
-
-		Dave
-
+Yes, I'll merge it up along with all the other SELinux patches.

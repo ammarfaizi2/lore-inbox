@@ -1,67 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVCDBvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262793AbVCDBve@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261280AbVCDBvd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 20:51:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbVCDBsb
+	id S262793AbVCDBve (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 20:51:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262867AbVCDBr6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 20:48:31 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:3399 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262803AbVCDBox (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 20:44:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=hHpMt3xgGuCT86WSMbObNgKhe0wO5ZfGUO4gNFnzxVbw/2TS4RwcvQsfXg8NtgT/NozkVgCUV4BQj5yP4p6y+ZBqiphMPxAQ2aRD7tgxvGwyVRMhF0zX92eDPEXpNAtQWNhPzaEtBoszqRMu9xgioDWb9Tozyxv60RCeTbgVyS0=
-Message-ID: <5ca13e8305030317444bc5d254@mail.gmail.com>
-Date: Fri, 4 Mar 2005 09:44:49 +0800
-From: Zhonghua Dai <zhonghuadai@gmail.com>
-Reply-To: Zhonghua Dai <zhonghuadai@gmail.com>
-To: Ganesh Venkatesan <ganesh.venkatesan@gmail.com>
-Subject: Re: trouble with Dell dimension 3000 network adapter
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5fc59ff30503020519250dc663@mail.gmail.com>
+	Thu, 3 Mar 2005 20:47:58 -0500
+Received: from nessie.weebeastie.net ([220.233.7.36]:19943 "EHLO
+	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S262729AbVCDBpX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 20:45:23 -0500
+Date: Fri, 4 Mar 2005 12:44:16 +1100
+From: CaT <cat@zip.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: IDE locking (was: Re: RFD: Kernel release numbering)
+Message-ID: <20050304014415.GG30616@zip.com.au>
+References: <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com> <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com> <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org> <42274171.3030702@nortel.com> <20050303165940.GA11144@kroah.com> <1109893901.21780.68.camel@localhost.localdomain> <20050304001930.GF30616@zip.com.au> <1109897041.21781.75.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <5ca13e830503020247676df272@mail.gmail.com>
-	 <5fc59ff30503020519250dc663@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1109897041.21781.75.camel@localhost.localdomain>
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-thanks Ganesh & Brice! Now it works!
-
-i use the driver specified by ganesh at sourceforge. 
-
-thanks.
-
-
-On Wed, 2 Mar 2005 05:19:02 -0800, Ganesh Venkatesan
-<ganesh.venkatesan@gmail.com> wrote:
-> Did you try e100?  What kernel are you using? You could download the
-> latest e100 from http://sourceforge.net/projects/e1000/.  The latest
-> version 3.3.6.
+On Fri, Mar 04, 2005 at 12:44:04AM +0000, Alan Cox wrote:
+> On Gwe, 2005-03-04 at 00:19, CaT wrote:
+> > Working IDE locking? Does this mean if I have 2 promise cards, a HD
+> > on each card and I copy from one to the other it wont all blow up in my
+> > face?
 > 
-> ganesh.
-> 
-> 
-> On Wed, 2 Mar 2005 18:47:56 +0800, Zhonghua Dai <zhonghuadai@gmail.com> wrote:
-> > hi,
-> >
-> > I've installed the debian(woody) on my Dell dimension 3000 computer.
-> > But I can't make the network adapter work, it's type is intel pro/100
-> > VE network desktop adapter. I've tired such modules as eepro100,
-> > eexpress, but it doesn't work.
-> >
-> > Any suggestion or information are welcomed?
-> >
-> > Thanks in advance.
-> >
-> > scar
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
+> Depends on your PCI bus and also if the are on the same IRQ. In the same
+
+Hmm. How can I check on this? What should I look for?
+
+> IRQ case you may find 2.6.11 is a bit saner as Bartlomiej may have
+> sorted one of the IRQ masking problems now.
+
+/proc/interrupts reports different irqs for each ide device:
+
+  5:    5018683          XT-PIC  ide4
+ 11:     167995          XT-PIC  ide2, eth0
+ 14:      39799          XT-PIC  ide0
+ 15:      10704          XT-PIC  ide1
+
+The problems were weird. The fs I was copying from decided it was
+corrupt. Unmounting the partition and trying an fsck reported that it
+couldn't find the partition. After a reboot all was well and a fsck
+reported no problems.
+
+-- 
+    Red herrings strewn hither and yon.

@@ -1,22 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261508AbSIZUZ6>; Thu, 26 Sep 2002 16:25:58 -0400
+	id <S261488AbSIZUXe>; Thu, 26 Sep 2002 16:23:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261505AbSIZUZd>; Thu, 26 Sep 2002 16:25:33 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:20747 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261494AbSIZUYz>;
-	Thu, 26 Sep 2002 16:24:55 -0400
-Date: Thu, 26 Sep 2002 13:28:44 -0700
+	id <S261492AbSIZUXd>; Thu, 26 Sep 2002 16:23:33 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:18187 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261488AbSIZUXA>;
+	Thu, 26 Sep 2002 16:23:00 -0400
+Date: Thu, 26 Sep 2002 13:26:47 -0700
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-Cc: linux-fsdevel@vger.kernel.org
 Subject: Re: [RFC] LSM changes for 2.5.38
-Message-ID: <20020926202844.GE6908@kroah.com>
-References: <20020926202552.GA6908@kroah.com> <20020926202647.GB6908@kroah.com> <20020926202713.GC6908@kroah.com> <20020926202809.GD6908@kroah.com>
+Message-ID: <20020926202647.GB6908@kroah.com>
+References: <20020926202552.GA6908@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020926202809.GD6908@kroah.com>
+In-Reply-To: <20020926202552.GA6908@kroah.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -25,330 +24,989 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.614   -> 1.615  
-#	Documentation/DocBook/kernel-api.tmpl	1.19    -> 1.20   
-#	Documentation/DocBook/Makefile	1.30    -> 1.31   
-#	               (new)	        -> 1.1     Documentation/DocBook/lsm.tmpl
+#	           ChangeSet	1.611   -> 1.612  
+#	 include/linux/ipc.h	1.1     -> 1.2    
+#	           ipc/msg.c	1.6     -> 1.7    
+#	include/linux/security.h	1.3     -> 1.4    
+#	    security/dummy.c	1.6     -> 1.7    
+#	security/capability.c	1.5     -> 1.6    
+#	           ipc/sem.c	1.11    -> 1.12   
+#	          ipc/util.c	1.5     -> 1.6    
+#	           ipc/shm.c	1.17    -> 1.18   
+#	 include/linux/msg.h	1.2     -> 1.3    
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 02/09/26	greg@kroah.com	1.615
-# LSM: added the LSM documentation to the tree.
+# 02/09/26	sds@tislabs.com	1.612
+# [PATCH] LSM: SysV IPC hooks addition
+# 
+# The patch below adds the LSM hooks for System V IPC to the 2.5.38 kernel.
 # --------------------------------------------
 #
-diff -Nru a/Documentation/DocBook/Makefile b/Documentation/DocBook/Makefile
---- a/Documentation/DocBook/Makefile	Thu Sep 26 13:23:49 2002
-+++ b/Documentation/DocBook/Makefile	Thu Sep 26 13:23:49 2002
-@@ -11,7 +11,7 @@
- 	    kernel-locking.sgml via-audio.sgml mousedrivers.sgml \
- 	    deviceiobook.sgml procfs-guide.sgml tulip-user.sgml \
- 	    writing_usb_driver.sgml scsidrivers.sgml sis900.sgml \
--	    kernel-api.sgml
-+	    kernel-api.sgml lsm.sgml
+diff -Nru a/include/linux/ipc.h b/include/linux/ipc.h
+--- a/include/linux/ipc.h	Thu Sep 26 13:23:57 2002
++++ b/include/linux/ipc.h	Thu Sep 26 13:23:57 2002
+@@ -63,6 +63,7 @@
+ 	gid_t		cgid;
+ 	mode_t		mode; 
+ 	unsigned long	seq;
++	void		*security;
+ };
  
- ###
- # The build process is as follows (targets):
-diff -Nru a/Documentation/DocBook/kernel-api.tmpl b/Documentation/DocBook/kernel-api.tmpl
---- a/Documentation/DocBook/kernel-api.tmpl	Thu Sep 26 13:23:49 2002
-+++ b/Documentation/DocBook/kernel-api.tmpl	Thu Sep 26 13:23:49 2002
-@@ -185,6 +185,11 @@
- !Efs/devfs/base.c
-   </chapter>
+ #endif /* __KERNEL__ */
+diff -Nru a/include/linux/msg.h b/include/linux/msg.h
+--- a/include/linux/msg.h	Thu Sep 26 13:23:57 2002
++++ b/include/linux/msg.h	Thu Sep 26 13:23:57 2002
+@@ -69,6 +69,7 @@
+ 	long  m_type;          
+ 	int m_ts;           /* message text size */
+ 	struct msg_msgseg* next;
++	void *security;
+ 	/* the actual message follows immediately */
+ };
  
-+  <chapter id="security">
-+     <title>Security Framework</title>
-+!Esecurity/security.c
-+  </chapter>
+diff -Nru a/include/linux/security.h b/include/linux/security.h
+--- a/include/linux/security.h	Thu Sep 26 13:23:57 2002
++++ b/include/linux/security.h	Thu Sep 26 13:23:57 2002
+@@ -572,6 +572,159 @@
+  * 	is being reparented to the init task.
+  *	@p contains the task_struct for the kernel thread.
+  *
++ * Security hooks affecting all System V IPC operations.
++ *
++ * @ipc_permission:
++ *	Check user, group, and other permissions for access to IPC
++ *	@ipcp contains the IPC permission set
++ *	@flag contains the desired (requested) permission set
++ *	Return 0 if permission is granted.
++ * @ipc_getinfo:
++ *	Check permission to retrieve information on previously allocated IPC
++ *	resources.  Called by the IPC resource control syscalls, shmctl,
++ *	msgctl, semctl with a @cmd argument of: IPC_INFO, SEM_INFO, MSG_INFO,
++ *	or SHM_INFO as appropriate.
++ *	@id contains the resource identifier
++ *	@cmd contains the operation to be performed
++ *	Return 0 if permission is granted.
++ *
++ * Security hooks for individual messages held in System V IPC message queues
++ * @msg_msg_alloc_security:
++ *	Allocate and attach a security structure to the msg->security field.
++ *	The security field is initialized to NULL when the structure is first
++ *	created.
++ *	@msg contains the message structure to be modified.
++ *	Return 0 if operation was successful and permission is granted.
++ * @msg_msg_free_security:
++ *	Deallocate the security structure for this message.
++ *	@msg contains the message structure to be modified.
++ *
++ *
++ * Security hooks for System V IPC Message Queues
++ *
++ * @msg_queue_alloc_security:
++ *	Allocate and attach a security structure to the
++ *	msq->q_perm.security field. The security field is initialized to
++ *	NULL when the structure is first created.
++ *	@msq contains the message queue structure to be modified.
++ *	Return 0 if operation was successful and permission is granted.
++ * @msg_queue_free_security:
++ *	Deallocate security structure for this message queue.
++ *	@msq contains the message queue structure to be modified.
++ * @msg_queue_associate:
++ *	Check permission when a message queue is requested through the
++ *	msgget system call.  This hook is only called when returning the
++ *	message queue identifier for an existing message queue, not when a
++ *	new message queue is created.
++ *	@msq contains the message queue to act upon.
++ *	@msqid contains the resource identifier.
++ *	@msqflg contains the operation control flags.
++ *	Return 0 if permission is granted.
++ * @msg_queue_msgctl:
++ *	Check permission when a message control operation specified by @cmd
++ *	is to be performed on the message queue @msq, with identifier
++ *	@msqid.
++ *	@msq contains the message queue to act upon.
++ *	@msqid contains the resource identifier.
++ *	@cmd contains the operation to be performed.
++ *	Return 0 if permission is granted.  
++ * @msg_queue_msgsnd:
++ *	Check permission before a message, @msg, is enqueued on the message
++ *	queue, @msq, whose identifier is specified by the value of @msqid.
++ *	@msq contains the message queue to send message to.
++ *	@msg contains the message to be enqueued.
++ *	@msqid contains resource identifier.
++ *	@msqflg contains operational flags.
++ *	Return 0 if permission is granted.
++ * @msg_queue_msgrcv:
++ *	Check permission before a message, @msg, is removed from the message
++ *	queue, @msq, whose identifier is specified by the value of @msqid.  The
++ *	@target task structure contains a pointer to the process that will be
++ *	receiving the message (not equal to the current process when inline
++ *	receives are being performed).
++ *	@msq contains the message queue to retrieve message from.
++ *	@msg contains the message destination.
++ *	@target contains the task structure for recipient process.
++ *	@type contains the type of message requested.
++ *	@mode contains the operational flags.
++ *	Return 0 if permission is granted.
++ *
++ * Security hooks for System V Shared Memory Segments
++ *
++ * @shm_alloc_security:
++ *	Allocate and attach a security structure to the shp->shm_perm.security
++ *	field.  The security field is initialized to NULL when the structure is
++ *	first created.
++ *	@shp contains the shared memory structure to be modified.
++ *	Return 0 if operation was successful and permission is granted.
++ * @shm_free_security:
++ *	Deallocate the security struct for this memory segment.
++ *	@shp contains the shared memory structure to be modified.
++ * @shm_associate:
++ *	Check permission when a shared memory region is requested through the
++ *	shmget system call.  This hook is only called when returning the shared
++ *	memory region identifier for an existing region, not when a new shared
++ *	memory region is created.
++ *	@shp contains the shared memory structure to be modified.
++ *	@shmid contains the resource identifier.
++ *	@shmflg contains the operation control flags.
++ *	Return 0 if permission is granted.
++ * @shm_shmctl:
++ *	Check permission when a shared memory control operation specified by
++ *	@cmd is to be performed on the shared memory region @shp, with
++ *	identifier @shmid.
++ *	@shp contains shared memory structure to be modified.
++ *	@shmid contains the resource identifier.
++ *	@cmd contains the operation to be performed.
++ *	Return 0 if permission is granted.
++ * @shm_shmat:
++ *	Check permissions prior to allowing the shmat system call to attach the
++ *	shared memory segment @shp, identified by @shmid, to the data segment
++ *	of the calling process. The attaching address is specified by @shmaddr.
++ *	@shp contains the shared memory structure to be modified.
++ *	@shmid contains the resource identifier.
++ *	@shmaddr contains the address to attach memory region to.
++ *	@shmflg contains the operational flags.
++ *	Return 0 if permission is granted.
++ *
++ * Security hooks for System V Semaphores
++ *
++ * @sem_alloc_security:
++ *	Allocate and attach a security structure to the sma->sem_perm.security
++ *	field.  The security field is initialized to NULL when the structure is
++ *	first created.
++ *	@sma contains the semaphore structure
++ *	Return 0 if operation was successful and permission is granted.
++ * @sem_free_security:
++ *	deallocate security struct for this semaphore
++ *	@sma contains the semaphore structure.
++ * @sem_associate:
++ *	Check permission when a semaphore is requested through the semget
++ *	system call.  This hook is only called when returning the semaphore
++ *	identifier for an existing semaphore, not when a new one must be
++ *	created.
++ *	@sma contains the semaphore structure.
++ *	@semid contains the resource identifier.
++ *	@semflg contains the operation control flags.
++ *	Return 0 if permission is granted.
++ * @sem_semctl:
++ *	Check permission when a semaphore operation specified by @cmd is to be
++ *	performed on the semaphore @sma, with identifier @semid.
++ *	@sma contains the semaphore structure.
++ *	@semid contains the resource identifier.
++ *	@cmd contains the operation to be performed.
++ *	Return 0 if permission is granted.
++ * @sem_semop
++ *	Check permissions before performing operations on members of the
++ *	semaphore set @sma, identified by @semid.  If the @alter flag is
++ *	nonzero, the semaphore set may be modified.
++ *	@sma contains the semaphore structure.
++ *	@semid contains the resource identifier.
++ *	@sops contains the operations to perform.
++ *	@nsops contains the number of operations to perform.
++ *	@alter contains the flag indicating whether changes are to be made.
++ *	Return 0 if permission is granted.
++ *
+  * @ptrace:
+  *	Check permission before allowing the @parent process to trace the
+  *	@child process.
+@@ -785,6 +938,38 @@
+ 			   unsigned long arg5);
+ 	void (*task_kmod_set_label) (void);
+ 	void (*task_reparent_to_init) (struct task_struct * p);
 +
-   <chapter id="pmfuncs">
-      <title>Power Management</title>
- !Ekernel/pm.c
-diff -Nru a/Documentation/DocBook/lsm.tmpl b/Documentation/DocBook/lsm.tmpl
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/Documentation/DocBook/lsm.tmpl	Thu Sep 26 13:23:49 2002
-@@ -0,0 +1,285 @@
-+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V3.1//EN"[]>
-+<article class="whitepaper" id="LinuxSecurityModule" lang="en">
-+ <artheader>
-+ <title>Linux Security Modules:  General Security Hooks for Linux</title>
-+ <authorgroup>
-+ <author>
-+ <firstname>Stephen</firstname> 
-+ <surname>Smalley</surname>
-+ <affiliation>
-+ <orgname>NAI Labs</orgname>
-+ <address><email>ssmalley@nai.com</email></address>
-+ </affiliation>
-+ </author>
-+ <author>
-+ <firstname>Timothy</firstname> 
-+ <surname>Fraser</surname>
-+ <affiliation>
-+ <orgname>NAI Labs</orgname>
-+ <address><email>tfraser@nai.com</email></address>
-+ </affiliation>
-+ </author>
-+ <author>
-+ <firstname>Chris</firstname> 
-+ <surname>Vance</surname>
-+ <affiliation>
-+ <orgname>NAI Labs</orgname>
-+ <address><email>cvance@nai.com</email></address>
-+ </affiliation>
-+ </author>
-+ </authorgroup
-+ </artheader>
++	int (*ipc_permission) (struct kern_ipc_perm * ipcp, short flag);
++	int (*ipc_getinfo) (int id, int cmd);
 +
-+<sect1><title>Introduction</title>
++	int (*msg_msg_alloc_security) (struct msg_msg * msg);
++	void (*msg_msg_free_security) (struct msg_msg * msg);
 +
-+<para>
-+In March 2001, the National Security Agency (NSA) gave a presentation
-+about Security-Enhanced Linux (SELinux) at the 2.5 Linux Kernel
-+Summit.  SELinux is an implementation of flexible and fine-grained
-+nondiscretionary access controls in the Linux kernel, originally
-+implemented as its own particular kernel patch.  Several other
-+security projects (e.g. RSBAC, Medusa) have also developed flexible
-+access control architectures for the Linux kernel, and various
-+projects have developed particular access control models for Linux
-+(e.g. LIDS, DTE, SubDomain).  Each project has developed and
-+maintained its own kernel patch to support its security needs.
-+</para>
++	int (*msg_queue_alloc_security) (struct msg_queue * msq);
++	void (*msg_queue_free_security) (struct msg_queue * msq);
++	int (*msg_queue_associate) (struct msg_queue * msq, int msqid,
++				    int msqflg);
++	int (*msg_queue_msgctl) (struct msg_queue * msq, int msqid, int cmd);
++	int (*msg_queue_msgsnd) (struct msg_queue * msq,
++				 struct msg_msg * msg, int msqid, int msqflg);
++	int (*msg_queue_msgrcv) (struct msg_queue * msq,
++				 struct msg_msg * msg,
++				 struct task_struct * target,
++				 long type, int mode);
 +
-+<para>
-+In response to the NSA presentation, Linus Torvalds made a set of
-+remarks that described a security framework he would be willing to
-+consider for inclusion in the mainstream Linux kernel.  He described a
-+general framework that would provide a set of security hooks to
-+control operations on kernel objects and a set of opaque security
-+fields in kernel data structures for maintaining security attributes.
-+This framework could then be used by loadable kernel modules to
-+implement any desired model of security.  Linus also suggested the
-+possibility of migrating the Linux capabilities code into such a
-+module.
-+</para>
++	int (*shm_alloc_security) (struct shmid_kernel * shp);
++	void (*shm_free_security) (struct shmid_kernel * shp);
++	int (*shm_associate) (struct shmid_kernel * shp, int shmid, int shmflg);
++	int (*shm_shmctl) (struct shmid_kernel * shp, int shmid, int cmd);
++	int (*shm_shmat) (struct shmid_kernel * shp, int shmid,
++			  char *shmaddr, int shmflg);
 +
-+<para>
-+The Linux Security Modules (LSM) project was started by WireX to
-+develop such a framework.  LSM is a joint development effort by
-+several security projects, including Immunix, SELinux, SGI and Janus,
-+and several individuals, including Greg Kroah-Hartman and James
-+Morris, to develop a Linux kernel patch that implements this
-+framework.  The patch is currently tracking the 2.4 series and is
-+targeted for integration into the 2.5 development series.  This
-+technical report provides an overview of the framework and the example
-+capabilities security module provided by the LSM kernel patch.
-+</para>
++	int (*sem_alloc_security) (struct sem_array * sma);
++	void (*sem_free_security) (struct sem_array * sma);
++	int (*sem_associate) (struct sem_array * sma, int semid, int semflg);
++	int (*sem_semctl) (struct sem_array * sma, int semid, int cmd);
++	int (*sem_semop) (struct sem_array * sma, int semid,
++			  struct sembuf * sops, unsigned nsops, int alter);
+ 
+ 	/* allow module stacking */
+ 	int (*register_security) (const char *name,
+diff -Nru a/ipc/msg.c b/ipc/msg.c
+--- a/ipc/msg.c	Thu Sep 26 13:23:57 2002
++++ b/ipc/msg.c	Thu Sep 26 13:23:57 2002
+@@ -89,6 +89,7 @@
+ static int newque (key_t key, int msgflg)
+ {
+ 	int id;
++	int retval;
+ 	struct msg_queue *msq;
+ 
+ 	msq  = (struct msg_queue *) kmalloc (sizeof (*msq), GFP_KERNEL);
+@@ -98,8 +99,16 @@
+ 	msq->q_perm.mode = (msgflg & S_IRWXUGO);
+ 	msq->q_perm.key = key;
+ 
++	msq->q_perm.security = NULL;
++	retval = security_ops->msg_queue_alloc_security(msq);
++	if (retval) {
++		kfree(msq);
++		return retval;
++	}
 +
-+</sect1>
+ 	id = ipc_addid(&msg_ids, &msq->q_perm, msg_ctlmni);
+ 	if(id == -1) {
++		security_ops->msg_queue_free_security(msq);
+ 		kfree(msq);
+ 		return -ENOSPC;
+ 	}
+@@ -120,6 +129,9 @@
+ static void free_msg(struct msg_msg* msg)
+ {
+ 	struct msg_msgseg* seg;
 +
-+<sect1 id="framework"><title>LSM Framework</title>
++	security_ops->msg_msg_free_security(msg);
 +
-+<para>
-+The LSM kernel patch provides a general kernel framework to support
-+security modules.  In particular, the LSM framework is primarily
-+focused on supporting access control modules, although future
-+development is likely to address other security needs such as
-+auditing.  By itself, the framework does not provide any additional
-+security; it merely provides the infrastructure to support security
-+modules.  The LSM kernel patch also moves most of the capabilities
-+logic into an optional security module, with the system defaulting
-+to the traditional superuser logic.  This capabilities module
-+is discussed further in <XRef LinkEnd="cap">.
-+</para>
+ 	seg = msg->next;
+ 	kfree(msg);
+ 	while(seg != NULL) {
+@@ -145,6 +157,7 @@
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	msg->next = NULL;
++	msg->security = NULL;
+ 
+ 	if (copy_from_user(msg+1, src, alen)) {
+ 		err = -EFAULT;
+@@ -174,6 +187,11 @@
+ 		len -= alen;
+ 		src = ((char*)src)+alen;
+ 	}
++	
++	err = security_ops->msg_msg_alloc_security(msg);
++	if (err)
++		goto out_err;
 +
-+<para>
-+The LSM kernel patch adds security fields to kernel data structures
-+and inserts calls to hook functions at critical points in the kernel
-+code to manage the security fields and to perform access control.  It
-+also adds functions for registering and unregistering security
-+modules, and adds a general <function>security</function> system call
-+to support new system calls for security-aware applications.
-+</para>
+ 	return msg;
+ 
+ out_err:
+@@ -259,6 +277,8 @@
+ 
+ 	msq = msg_rmid(id);
+ 
++	security_ops->msg_queue_free_security(msq);
 +
-+<para>
-+The LSM security fields are simply <type>void*</type> pointers.  For
-+process and program execution security information, security fields
-+were added to <structname>struct task_struct</structname> and 
-+<structname>struct linux_binprm</structname>.  For filesystem security
-+information, a security field was added to 
-+<structname>struct super_block</structname>.  For pipe, file, and socket
-+security information, security fields were added to 
-+<structname>struct inode</structname> and 
-+<structname>struct file</structname>.  For packet and network device security
-+information, security fields were added to
-+<structname>struct sk_buff</structname> and
-+<structname>struct net_device</structname>.  For System V IPC security
-+information, security fields were added to
-+<structname>struct kern_ipc_perm</structname> and
-+<structname>struct msg_msg</structname>; additionally, the definitions
-+for <structname>struct msg_msg</structname>, <structname>struct 
-+msg_queue</structname>, and <structname>struct 
-+shmid_kernel</structname> were moved to header files
-+(<filename>include/linux/msg.h</filename> and
-+<filename>include/linux/shm.h</filename> as appropriate) to allow
-+the security modules to use these definitions.
-+</para>
+ 	expunge_all(msq,-EIDRM);
+ 	ss_wakeup(&msq->q_senders,1);
+ 	msg_unlock(id);
+@@ -295,8 +315,12 @@
+ 			BUG();
+ 		if (ipcperms(&msq->q_perm, msgflg))
+ 			ret = -EACCES;
+-		else
+-			ret = msg_buildid(id, msq->q_perm.seq);
++		else {
++			int qid = msg_buildid(id, msq->q_perm.seq);
++		    	ret = security_ops->msg_queue_associate(msq, qid, msgflg);
++			if (!ret)
++				ret = qid;
++		}
+ 		msg_unlock(id);
+ 	}
+ 	up(&msg_ids.sem);
+@@ -418,6 +442,11 @@
+ 		 * due to padding, it's not enough
+ 		 * to set all member fields.
+ 		 */
 +
-+<para>
-+Each LSM hook is a function pointer in a global table,
-+security_ops. This table is a
-+<structname>security_operations</structname> structure as defined by
-+<filename>include/linux/security.h</filename>.  Detailed documentation
-+for each hook is included in this header file.  At present, this
-+structure consists of a collection of substructures that group related
-+hooks based on the kernel object (e.g. task, inode, file, sk_buff,
-+etc) as well as some top-level hook function pointers for system
-+operations.  This structure is likely to be flattened in the future
-+for performance.  The placement of the hook calls in the kernel code
-+is described by the "called:" lines in the per-hook documentation in
-+the header file.  The hook calls can also be easily found in the
-+kernel code by looking for the string "security_ops->".
++		err = security_ops->ipc_getinfo(msqid, cmd);
++		if (err)
++			return err;
 +
-+</para>
+ 		memset(&msginfo,0,sizeof(msginfo));	
+ 		msginfo.msgmni = msg_ctlmni;
+ 		msginfo.msgmax = msg_ctlmax;
+@@ -468,6 +497,10 @@
+ 		if (ipcperms (&msq->q_perm, S_IRUGO))
+ 			goto out_unlock;
+ 
++		err = security_ops->msg_queue_msgctl(msq, msqid, cmd);
++		if (err)
++			goto out_unlock;
 +
-+<para>
-+Linus mentioned per-process security hooks in his original remarks as a
-+possible alternative to global security hooks.  However, if LSM were
-+to start from the perspective of per-process hooks, then the base
-+framework would have to deal with how to handle operations that
-+involve multiple processes (e.g. kill), since each process might have
-+its own hook for controlling the operation.  This would require a
-+general mechanism for composing hooks in the base framework.
-+Additionally, LSM would still need global hooks for operations that
-+have no process context (e.g. network input operations).
-+Consequently, LSM provides global security hooks, but a security
-+module is free to implement per-process hooks (where that makes sense)
-+by storing a security_ops table in each process' security field and
-+then invoking these per-process hooks from the global hooks.
-+The problem of composition is thus deferred to the module.
-+</para>
+ 		kernel_to_ipc64_perm(&msq->q_perm, &tbuf.msg_perm);
+ 		tbuf.msg_stime  = msq->q_stime;
+ 		tbuf.msg_rtime  = msq->q_rtime;
+@@ -515,6 +548,11 @@
+ 	{
+ 		if (setbuf.qbytes > msg_ctlmnb && !capable(CAP_SYS_RESOURCE))
+ 			goto out_unlock_up;
 +
-+<para>
-+The global security_ops table is initialized to a set of hook
-+functions provided by a dummy security module that provides
-+traditional superuser logic.  A <function>register_security</function>
-+function (in <filename>security/security.c</filename>) is provided to
-+allow a security module to set security_ops to refer to its own hook
-+functions, and an <function>unregister_security</function> function is
-+provided to revert security_ops to the dummy module hooks.  This
-+mechanism is used to set the primary security module, which is
-+responsible for making the final decision for each hook.
-+</para>
++		err = security_ops->msg_queue_msgctl(msq, msqid, cmd);
++		if (err)
++			goto out_unlock_up;
++		
+ 		msq->q_qbytes = setbuf.qbytes;
+ 
+ 		ipcp->uid = setbuf.uid;
+@@ -534,6 +572,10 @@
+ 		break;
+ 	}
+ 	case IPC_RMID:
++		err = security_ops->msg_queue_msgctl(msq, msqid, cmd);
++		if (err)
++			goto out_unlock_up;
 +
-+<para>
-+LSM also provides a simple mechanism for stacking additional security
-+modules with the primary security module.  It defines
-+<function>register_security</function> and
-+<function>unregister_security</function> hooks in the
-+<structname>security_operations</structname> structure and provides
-+<function>mod_reg_security</function> and
-+<function>mod_unreg_security</function> functions that invoke these
-+hooks after performing some sanity checking.  A security module can
-+call these functions in order to stack with other modules.  However,
-+the actual details of how this stacking is handled are deferred to the
-+module, which can implement these hooks in any way it wishes
-+(including always returning an error if it does not wish to support
-+stacking).  In this manner, LSM again defers the problem of
-+composition to the module.
-+</para>
+ 		freeque (msqid); 
+ 		break;
+ 	}
+@@ -580,7 +622,8 @@
+ 		struct msg_receiver* msr;
+ 		msr = list_entry(tmp,struct msg_receiver,r_list);
+ 		tmp = tmp->next;
+-		if(testmsg(msg,msr->r_msgtype,msr->r_mode)) {
++		if(testmsg(msg,msr->r_msgtype,msr->r_mode) &&
++		   !security_ops->msg_queue_msgrcv(msq, msg, msr->r_tsk, msr->r_msgtype, msr->r_mode)) {
+ 			list_del(&msr->r_list);
+ 			if(msr->r_maxsize < msg->m_ts) {
+ 				msr->r_msg = ERR_PTR(-E2BIG);
+@@ -631,6 +674,10 @@
+ 	if (ipcperms(&msq->q_perm, S_IWUGO)) 
+ 		goto out_unlock_free;
+ 
++	err = security_ops->msg_queue_msgsnd(msq, msg, msqid, msgflg);
++	if (err)
++		goto out_unlock_free;
 +
-+<para>
-+Although the LSM hooks are organized into substructures based on
-+kernel object, all of the hooks can be viewed as falling into two
-+major categories: hooks that are used to manage the security fields
-+and hooks that are used to perform access control.  Examples of the
-+first category of hooks include the
-+<function>alloc_security</function> and
-+<function>free_security</function> hooks defined for each kernel data
-+structure that has a security field.  These hooks are used to allocate
-+and free security structures for kernel objects.  The first category
-+of hooks also includes hooks that set information in the security
-+field after allocation, such as the <function>post_lookup</function>
-+hook in <structname>struct inode_security_ops</structname>.  This hook
-+is used to set security information for inodes after successful lookup
-+operations.  An example of the second category of hooks is the
-+<function>permission</function> hook in 
-+<structname>struct inode_security_ops</structname>.  This hook checks
-+permission when accessing an inode.
-+</para>
+ 	if(msgsz + msq->q_cbytes > msq->q_qbytes ||
+ 		1 + msq->q_qnum > msq->q_qbytes) {
+ 		struct msg_sender s;
+@@ -729,7 +776,8 @@
+ 	found_msg=NULL;
+ 	while (tmp != &msq->q_messages) {
+ 		msg = list_entry(tmp,struct msg_msg,m_list);
+-		if(testmsg(msg,msgtyp,mode)) {
++		if(testmsg(msg,msgtyp,mode) &&
++		   !security_ops->msg_queue_msgrcv(msq, msg, current, msgtyp, mode)) {
+ 			found_msg = msg;
+ 			if(mode == SEARCH_LESSEQUAL && msg->m_type != 1) {
+ 				found_msg=msg;
+@@ -747,6 +795,7 @@
+ 			err=-E2BIG;
+ 			goto out_unlock;
+ 		}
 +
-+<para>
-+LSM adds a general <function>security</function> system call that
-+simply invokes the <function>sys_security</function> hook.  This
-+system call and hook permits security modules to implement new system
-+calls for security-aware applications.  The interface is similar to
-+socketcall, but also has an <parameter>id</parameter> to help identify
-+the security module whose call is being invoked.  
-+To eliminate the need for a central registry of ids,
-+the recommended convention for creating the hexadecimal id value is:
-+<programlisting>
-+<![CDATA[
-+ echo "Name_of_module" | md5sum | cut -c -8
-+]]>
-+</programlisting>
-+C code will need to prefix this result with ``0x''.
-+For example, the id for ``SGI Trusted Linux'' could be used in C as:
-+<programlisting>
-+<![CDATA[
-+ #define SYS_SECURITY_MODID 0xc4c7be22
-+]]>
-+</programlisting>
-+</para>
+ 		list_del(&msg->m_list);
+ 		msq->q_qnum--;
+ 		msq->q_rtime = CURRENT_TIME;
+diff -Nru a/ipc/sem.c b/ipc/sem.c
+--- a/ipc/sem.c	Thu Sep 26 13:23:57 2002
++++ b/ipc/sem.c	Thu Sep 26 13:23:57 2002
+@@ -63,6 +63,7 @@
+ #include <linux/init.h>
+ #include <linux/proc_fs.h>
+ #include <linux/smp_lock.h>
++#include <linux/security.h>
+ #include <asm/uaccess.h>
+ #include "util.h"
+ 
+@@ -115,6 +116,7 @@
+ static int newary (key_t key, int nsems, int semflg)
+ {
+ 	int id;
++	int retval;
+ 	struct sem_array *sma;
+ 	int size;
+ 
+@@ -133,8 +135,16 @@
+ 	sma->sem_perm.mode = (semflg & S_IRWXUGO);
+ 	sma->sem_perm.key = key;
+ 
++	sma->sem_perm.security = NULL;
++	retval = security_ops->sem_alloc_security(sma);
++	if (retval) {
++		ipc_free(sma, size);
++		return retval;
++	}
 +
-+</sect1>
+ 	id = ipc_addid(&sem_ids, &sma->sem_perm, sc_semmni);
+ 	if(id == -1) {
++		security_ops->sem_free_security(sma);
+ 		ipc_free(sma, size);
+ 		return -ENOSPC;
+ 	}
+@@ -177,8 +187,12 @@
+ 			err = -EINVAL;
+ 		else if (ipcperms(&sma->sem_perm, semflg))
+ 			err = -EACCES;
+-		else
+-			err = sem_buildid(id, sma->sem_perm.seq);
++		else {
++			int semid = sem_buildid(id, sma->sem_perm.seq);
++			err = security_ops->sem_associate(sma, semid, semflg);
++			if (!err)
++				err = semid;
++		}
+ 		sem_unlock(id);
+ 	}
+ 
+@@ -399,6 +413,7 @@
+ 	int size;
+ 
+ 	sma = sem_rmid(id);
++	security_ops->sem_free_security(sma);
+ 
+ 	/* Invalidate the existing undo structures for this semaphore set.
+ 	 * (They will be freed without any further action in sem_exit()
+@@ -453,6 +468,10 @@
+ 		struct seminfo seminfo;
+ 		int max_id;
+ 
++		err = security_ops->ipc_getinfo(semid, cmd);
++		if (err)
++			return err;
++		
+ 		memset(&seminfo,0,sizeof(seminfo));
+ 		seminfo.semmni = sc_semmni;
+ 		seminfo.semmns = sc_semmns;
+@@ -494,6 +513,11 @@
+ 		err = -EACCES;
+ 		if (ipcperms (&sma->sem_perm, S_IRUGO))
+ 			goto out_unlock;
 +
-+<sect1 id="cap"><title>LSM Capabilities Module</title>
++		err = security_ops->sem_semctl(sma, semid, cmd);
++		if (err)
++			goto out_unlock;
 +
-+<para>
-+The LSM kernel patch moves most of the existing POSIX.1e capabilities
-+logic into an optional security module stored in the file
-+<filename>security/capability.c</filename>.  This change allows
-+users who do not want to use capabilities to omit this code entirely
-+from their kernel, instead using the dummy module for traditional
-+superuser logic or any other module that they desire.  This change
-+also allows the developers of the capabilities logic to maintain and
-+enhance their code more freely, without needing to integrate patches
-+back into the base kernel.
-+</para>
+ 		id = sem_buildid(semid, sma->sem_perm.seq);
+ 
+ 		kernel_to_ipc64_perm(&sma->sem_perm, &tbuf.sem_perm);
+@@ -537,6 +561,11 @@
+ 	if (ipcperms (&sma->sem_perm, (cmd==SETVAL||cmd==SETALL)?S_IWUGO:S_IRUGO))
+ 		goto out_unlock;
+ 
++	err = security_ops->sem_semctl(sma, semid, cmd);
++	if (err)
++		goto out_unlock;
 +
-+<para>
-+In addition to moving the capabilities logic, the LSM kernel patch
-+could move the capability-related fields from the kernel data
-+structures into the new security fields managed by the security
-+modules.  However, at present, the LSM kernel patch leaves the
-+capability fields in the kernel data structures.  In his original
-+remarks, Linus suggested that this might be preferable so that other
-+security modules can be easily stacked with the capabilities module
-+without needing to chain multiple security structures on the security field.
-+It also avoids imposing extra overhead on the capabilities module
-+to manage the security fields.  However, the LSM framework could
-+certainly support such a move if it is determined to be desirable,
-+with only a few additional changes described below.
-+</para>
++	err = -EACCES;
+ 	switch (cmd) {
+ 	case GETALL:
+ 	{
+@@ -728,6 +757,10 @@
+ 		goto out_unlock;
+ 	}
+ 
++	err = security_ops->sem_semctl(sma, semid, cmd);
++	if (err)
++		goto out_unlock;
 +
-+<para>
-+At present, the capabilities logic for computing process capabilities
-+on <function>execve</function> and <function>set*uid</function>,
-+checking capabilities for a particular process, saving and checking
-+capabilities for netlink messages, and handling the
-+<function>capget</function> and <function>capset</function> system
-+calls have been moved into the capabilities module.  There are still a
-+few locations in the base kernel where capability-related fields are
-+directly examined or modified, but the current version of the LSM
-+patch does allow a security module to completely replace the
-+assignment and testing of capabilities.  These few locations would
-+need to be changed if the capability-related fields were moved into
-+the security field.  The following is a list of known locations that
-+still perform such direct examination or modification of
-+capability-related fields:
-+<itemizedlist>
-+<listitem><para><filename>fs/open.c</filename>:<function>sys_access</function></para></listitem>
-+<listitem><para><filename>fs/lockd/host.c</filename>:<function>nlm_bind_host</function></para></listitem>
-+<listitem><para><filename>fs/nfsd/auth.c</filename>:<function>nfsd_setuser</function></para></listitem>
-+<listitem><para><filename>fs/proc/array.c</filename>:<function>task_cap</function></para></listitem>
-+</itemizedlist>
-+</para>
+ 	switch(cmd){
+ 	case IPC_RMID:
+ 		freeary(semid);
+@@ -1004,6 +1037,12 @@
+ 	error = -EACCES;
+ 	if (ipcperms(&sma->sem_perm, alter ? S_IWUGO : S_IRUGO))
+ 		goto out_unlock_semundo_free;
 +
-+</sect1>
++	error = security_ops->sem_semop(sma, semid, sops, nsops, alter);
++	if (error)
++		goto out_unlock_semundo_free;
++	error = -EACCES;		
 +
-+</article>
+ 	if (undos) {
+ 		/* Make sure we have an undo structure
+ 		 * for this process and this semaphore set.
+diff -Nru a/ipc/shm.c b/ipc/shm.c
+--- a/ipc/shm.c	Thu Sep 26 13:23:57 2002
++++ b/ipc/shm.c	Thu Sep 26 13:23:57 2002
+@@ -24,6 +24,7 @@
+ #include <linux/mman.h>
+ #include <linux/proc_fs.h>
+ #include <linux/shmem_fs.h>
++#include <linux/security.h>
+ #include <asm/uaccess.h>
+ 
+ #include "util.h"
+@@ -113,6 +114,9 @@
+ 	shm_tot -= (shp->shm_segsz + PAGE_SIZE - 1) >> PAGE_SHIFT;
+ 	shm_rmid (shp->id);
+ 	shm_unlock(shp->id);
++
++	security_ops->shm_free_security(shp);
++
+ 	shmem_lock(shp->shm_file, 0);
+ 	fput (shp->shm_file);
+ 	kfree (shp);
+@@ -185,6 +189,13 @@
+ 	shp->shm_perm.key = key;
+ 	shp->shm_flags = (shmflg & S_IRWXUGO);
+ 
++	shp->shm_perm.security = NULL;
++	error = security_ops->shm_alloc_security(shp);
++	if (error) {
++		kfree(shp);
++		return error;
++	}
++
+ 	sprintf (name, "SYSV%08x", key);
+ 	file = shmem_file_setup(name, size, VM_ACCOUNT);
+ 	error = PTR_ERR(file);
+@@ -213,6 +224,7 @@
+ no_id:
+ 	fput(file);
+ no_file:
++	security_ops->shm_free_security(shp);
+ 	kfree(shp);
+ 	return error;
+ }
+@@ -240,8 +252,12 @@
+ 			err = -EINVAL;
+ 		else if (ipcperms(&shp->shm_perm, shmflg))
+ 			err = -EACCES;
+-		else
+-			err = shm_buildid(id, shp->shm_perm.seq);
++		else {
++			int shmid = shm_buildid(id, shp->shm_perm.seq);
++			err = security_ops->shm_associate(shp, shmid, shmflg);
++			if (!err)
++				err = shmid;
++		}
+ 		shm_unlock(id);
+ 	}
+ 	up(&shm_ids.sem);
+@@ -379,6 +395,10 @@
+ 	{
+ 		struct shminfo64 shminfo;
+ 
++		err = security_ops->ipc_getinfo(shmid, cmd);
++		if (err)
++			return err;
++
+ 		memset(&shminfo,0,sizeof(shminfo));
+ 		shminfo.shmmni = shminfo.shmseg = shm_ctlmni;
+ 		shminfo.shmmax = shm_ctlmax;
+@@ -397,6 +417,10 @@
+ 	{
+ 		struct shm_info shm_info;
+ 
++		err = security_ops->ipc_getinfo(shmid, cmd);
++		if (err)
++			return err;
++
+ 		memset(&shm_info,0,sizeof(shm_info));
+ 		down(&shm_ids.sem);
+ 		shm_lockall();
+@@ -422,6 +446,11 @@
+ 		shp = shm_lock(shmid);
+ 		if(shp==NULL)
+ 			return -EINVAL;
++
++		err = security_ops->shm_shmctl(shp, shmid, cmd);
++		if (err)
++			goto out_unlock;
++		
+ 		if(cmd==SHM_STAT) {
+ 			err = -EINVAL;
+ 			if (shmid > shm_ids.max_id)
+@@ -464,6 +493,11 @@
+ 		err = shm_checkid(shp,shmid);
+ 		if(err)
+ 			goto out_unlock;
++
++		err = security_ops->shm_shmctl(shp, shmid, cmd);
++		if (err)
++			goto out_unlock;
++		
+ 		if(cmd==SHM_LOCK) {
+ 			shmem_lock(shp->shm_file, 1);
+ 			shp->shm_flags |= SHM_LOCKED;
+@@ -494,6 +528,11 @@
+ 		err = shm_checkid(shp, shmid);
+ 		if(err)
+ 			goto out_unlock_up;
++
++		err = security_ops->shm_shmctl(shp, shmid, cmd);
++		if (err)
++			goto out_unlock_up;
++
+ 		if (current->euid != shp->shm_perm.uid &&
+ 		    current->euid != shp->shm_perm.cuid && 
+ 		    !capable(CAP_SYS_ADMIN)) {
+@@ -523,6 +562,11 @@
+ 		err = shm_checkid(shp,shmid);
+ 		if(err)
+ 			goto out_unlock_up;
++
++		err = security_ops->shm_shmctl(shp, shmid, cmd);
++		if (err)
++			goto out_unlock_up;
++		
+ 		err=-EPERM;
+ 		if (current->euid != shp->shm_perm.uid &&
+ 		    current->euid != shp->shm_perm.cuid && 
+@@ -613,6 +657,13 @@
+ 		shm_unlock(shmid);
+ 		return -EACCES;
+ 	}
++
++	err = security_ops->shm_shmat(shp, shmid, shmaddr, shmflg);
++	if (err) {
++		shm_unlock(shmid);
++		return err;
++	}
++		
+ 	file = shp->shm_file;
+ 	size = file->f_dentry->d_inode->i_size;
+ 	shp->shm_nattch++;
+diff -Nru a/ipc/util.c b/ipc/util.c
+--- a/ipc/util.c	Thu Sep 26 13:23:57 2002
++++ b/ipc/util.c	Thu Sep 26 13:23:57 2002
+@@ -19,6 +19,7 @@
+ #include <linux/vmalloc.h>
+ #include <linux/slab.h>
+ #include <linux/highuid.h>
++#include <linux/security.h>
+ 
+ #if defined(CONFIG_SYSVIPC)
+ 
+@@ -263,7 +264,7 @@
+ 	    !capable(CAP_IPC_OWNER))
+ 		return -1;
+ 
+-	return 0;
++	return security_ops->ipc_permission(ipcp, flag);
+ }
+ 
+ /*
+diff -Nru a/security/capability.c b/security/capability.c
+--- a/security/capability.c	Thu Sep 26 13:23:57 2002
++++ b/security/capability.c	Thu Sep 26 13:23:57 2002
+@@ -679,6 +679,112 @@
+ 	return;
+ }
+ 
++static int cap_ipc_permission (struct kern_ipc_perm *ipcp, short flag)
++{
++	return 0;
++}
++
++static int cap_ipc_getinfo (int id, int cmd)
++{
++	return 0;
++}
++
++static int cap_msg_msg_alloc_security (struct msg_msg *msg)
++{
++	return 0;
++}
++
++static void cap_msg_msg_free_security (struct msg_msg *msg)
++{
++	return;
++}
++
++static int cap_msg_queue_alloc_security (struct msg_queue *msq)
++{
++	return 0;
++}
++
++static void cap_msg_queue_free_security (struct msg_queue *msq)
++{
++	return;
++}
++
++static int cap_msg_queue_associate (struct msg_queue *msq, int msgid,
++				    int msgflg)
++{
++	return 0;
++}
++
++static int cap_msg_queue_msgctl (struct msg_queue *msq, int msgid, int cmd)
++{
++	return 0;
++}
++
++static int cap_msg_queue_msgsnd (struct msg_queue *msq, struct msg_msg *msg,
++				 int msgid, int msgflg)
++{
++	return 0;
++}
++
++static int cap_msg_queue_msgrcv (struct msg_queue *msq, struct msg_msg *msg,
++				 struct task_struct *target, long type,
++				 int mode)
++{
++	return 0;
++}
++
++static int cap_shm_alloc_security (struct shmid_kernel *shp)
++{
++	return 0;
++}
++
++static void cap_shm_free_security (struct shmid_kernel *shp)
++{
++	return;
++}
++
++static int cap_shm_associate (struct shmid_kernel *shp, int shmid, int shmflg)
++{
++	return 0;
++}
++
++static int cap_shm_shmctl (struct shmid_kernel *shp, int shmid, int cmd)
++{
++	return 0;
++}
++
++static int cap_shm_shmat (struct shmid_kernel *shp, int shmid, char *shmaddr,
++			  int shmflg)
++{
++	return 0;
++}
++
++static int cap_sem_alloc_security (struct sem_array *sma)
++{
++	return 0;
++}
++
++static void cap_sem_free_security (struct sem_array *sma)
++{
++	return;
++}
++
++static int cap_sem_associate (struct sem_array *sma, int semid, int semflg)
++{
++	return 0;
++}
++
++static int cap_sem_semctl (struct sem_array *sma, int semid, int cmd)
++{
++	return 0;
++}
++
++static int cap_sem_semop (struct sem_array *sma, int semid, struct sembuf *sops,
++			  unsigned nsops, int alter)
++{
++	return 0;
++}
++
+ static int cap_register (const char *name, struct security_operations *ops)
+ {
+ 	return -EINVAL;
+@@ -781,6 +887,31 @@
+ 	.task_prctl =			cap_task_prctl,
+ 	.task_kmod_set_label =		cap_task_kmod_set_label,
+ 	.task_reparent_to_init =	cap_task_reparent_to_init,
++
++	.ipc_permission =		cap_ipc_permission,
++	.ipc_getinfo =			cap_ipc_getinfo,
++	
++	.msg_msg_alloc_security =	cap_msg_msg_alloc_security,
++	.msg_msg_free_security =	cap_msg_msg_free_security,
++
++	.msg_queue_alloc_security =	cap_msg_queue_alloc_security,
++	.msg_queue_free_security =	cap_msg_queue_free_security,
++	.msg_queue_associate =		cap_msg_queue_associate,
++	.msg_queue_msgctl =		cap_msg_queue_msgctl,
++	.msg_queue_msgsnd =		cap_msg_queue_msgsnd,
++	.msg_queue_msgrcv =		cap_msg_queue_msgrcv,
++	
++	.shm_alloc_security =		cap_shm_alloc_security,
++	.shm_free_security =		cap_shm_free_security,
++	.shm_associate =		cap_shm_associate,
++	.shm_shmctl =			cap_shm_shmctl,
++	.shm_shmat =			cap_shm_shmat,
++	
++	.sem_alloc_security =		cap_sem_alloc_security,
++	.sem_free_security =		cap_sem_free_security,
++	.sem_associate =		cap_sem_associate,
++	.sem_semctl =			cap_sem_semctl,
++	.sem_semop =			cap_sem_semop,
+ 
+ 	.register_security =		cap_register,
+ 	.unregister_security =		cap_unregister,
+diff -Nru a/security/dummy.c b/security/dummy.c
+--- a/security/dummy.c	Thu Sep 26 13:23:57 2002
++++ b/security/dummy.c	Thu Sep 26 13:23:57 2002
+@@ -493,6 +493,112 @@
+ 	return;
+ }
+ 
++static int dummy_ipc_permission (struct kern_ipc_perm *ipcp, short flag)
++{
++	return 0;
++}
++
++static int dummy_ipc_getinfo (int id, int cmd)
++{
++	return 0;
++}
++
++static int dummy_msg_msg_alloc_security (struct msg_msg *msg)
++{
++	return 0;
++}
++
++static void dummy_msg_msg_free_security (struct msg_msg *msg)
++{
++	return;
++}
++
++static int dummy_msg_queue_alloc_security (struct msg_queue *msq)
++{
++	return 0;
++}
++
++static void dummy_msg_queue_free_security (struct msg_queue *msq)
++{
++	return;
++}
++
++static int dummy_msg_queue_associate (struct msg_queue *msq, int msqid,
++				      int msqflg)
++{
++	return 0;
++}
++
++static int dummy_msg_queue_msgctl (struct msg_queue *msq, int msqid, int cmd)
++{
++	return 0;
++}
++
++static int dummy_msg_queue_msgsnd (struct msg_queue *msq, struct msg_msg *msg,
++				   int msqid, int msgflg)
++{
++	return 0;
++}
++
++static int dummy_msg_queue_msgrcv (struct msg_queue *msq, struct msg_msg *msg,
++				   struct task_struct *target, long type,
++				   int mode)
++{
++	return 0;
++}
++
++static int dummy_shm_alloc_security (struct shmid_kernel *shp)
++{
++	return 0;
++}
++
++static void dummy_shm_free_security (struct shmid_kernel *shp)
++{
++	return;
++}
++
++static int dummy_shm_associate (struct shmid_kernel *shp, int shmid, int shmflg)
++{
++	return 0;
++}
++
++static int dummy_shm_shmctl (struct shmid_kernel *shp, int shmid, int cmd)
++{
++	return 0;
++}
++
++static int dummy_shm_shmat (struct shmid_kernel *shp, int shmid, char *shmaddr,
++			    int shmflg)
++{
++	return 0;
++}
++
++static int dummy_sem_alloc_security (struct sem_array *sma)
++{
++	return 0;
++}
++
++static void dummy_sem_free_security (struct sem_array *sma)
++{
++	return;
++}
++
++static int dummy_sem_associate (struct sem_array *sma, int semid, int semflg)
++{
++	return 0;
++}
++
++static int dummy_sem_semctl (struct sem_array *sma, int semid, int cmd)
++{
++	return 0;
++}
++
++static int dummy_sem_semop (struct sem_array *sma, int semid,
++			    struct sembuf *sops, unsigned nsops, int alter)
++{
++	return 0;
++}
++
+ static int dummy_register (const char *name, struct security_operations *ops)
+ {
+ 	return -EINVAL;
+@@ -595,6 +701,31 @@
+ 	.task_prctl =			dummy_task_prctl,
+ 	.task_kmod_set_label =		dummy_task_kmod_set_label,
+ 	.task_reparent_to_init =	dummy_task_reparent_to_init,
++
++	.ipc_permission =		dummy_ipc_permission,
++	.ipc_getinfo =			dummy_ipc_getinfo,
++
++	.msg_msg_alloc_security =	dummy_msg_msg_alloc_security,
++	.msg_msg_free_security =	dummy_msg_msg_free_security,
++	
++	.msg_queue_alloc_security =	dummy_msg_queue_alloc_security,
++	.msg_queue_free_security =	dummy_msg_queue_free_security,
++	.msg_queue_associate =		dummy_msg_queue_associate,
++	.msg_queue_msgctl =		dummy_msg_queue_msgctl,
++	.msg_queue_msgsnd =		dummy_msg_queue_msgsnd,
++	.msg_queue_msgrcv =		dummy_msg_queue_msgrcv,
++	
++	.shm_alloc_security =		dummy_shm_alloc_security,
++	.shm_free_security =		dummy_shm_free_security,
++	.shm_associate =		dummy_shm_associate,
++	.shm_shmctl =			dummy_shm_shmctl,
++	.shm_shmat =			dummy_shm_shmat,
++	
++	.sem_alloc_security =		dummy_sem_alloc_security,
++	.sem_free_security =		dummy_sem_free_security,
++	.sem_associate =		dummy_sem_associate,
++	.sem_semctl =			dummy_sem_semctl,
++	.sem_semop =			dummy_sem_semop,
+ 
+ 	.register_security =		dummy_register,
+ 	.unregister_security =		dummy_unregister,

@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290445AbSAXWvD>; Thu, 24 Jan 2002 17:51:03 -0500
+	id <S290444AbSAXWyx>; Thu, 24 Jan 2002 17:54:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290434AbSAXWuh>; Thu, 24 Jan 2002 17:50:37 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24842 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S290442AbSAXWt1>; Thu, 24 Jan 2002 17:49:27 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Strange asm warning from bsetupt.s in 2.5.3-pre5
-Date: 24 Jan 2002 14:49:11 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a2q317$ln$1@cesium.transmeta.com>
-In-Reply-To: <3C5082E3.C3A61B27@easynet.be>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S290261AbSAXWyo>; Thu, 24 Jan 2002 17:54:44 -0500
+Received: from AMontpellier-201-1-1-52.abo.wanadoo.fr ([193.252.31.52]:63237
+	"EHLO awak") by vger.kernel.org with ESMTP id <S290448AbSAXWyd> convert rfc822-to-8bit;
+	Thu, 24 Jan 2002 17:54:33 -0500
+Subject: Re: RFC: booleans and the kernel
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: timothy.covell@ashavan.org
+Cc: Oliver Xymoron <oxymoron@waste.org>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200201242246.g0OMkML06890@home.ashavan.org.>
+In-Reply-To: <Pine.LNX.4.44.0201241433110.2839-100000@waste.org>
+	<200201242123.g0OLNAL06617@home.ashavan.org.> <1011911622.2631.6.camel@bip>
+	 <200201242246.g0OMkML06890@home.ashavan.org.>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 24 Jan 2002 23:53:46 +0100
+Message-Id: <1011912826.2258.10.camel@bip>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3C5082E3.C3A61B27@easynet.be>
-By author:    Luc Van Oostenryck <luc.vanoostenryck@easynet.be>
-In newsgroup: linux.dev.kernel
->
-> I've just finished to compile 2.5.3-pre5 and I noticed
-> the following  strange warning from as(1):
-> 	as -o bsetup.o bsetup.s
-> 	bsetup.s: Assembler messages:
-> 	bsetup.s:1180: Warning: Value 0x37ffffff truncated to 0x37ffffff.
-> 					  ~~~~~~		  ~~~~~~
+le ven 25-01-2002 à 23:47, Timothy Covell a écrit :
+> On Thursday 24 January 2002 16:33, Xavier Bestel wrote:
+> > le ven 25-01-2002 à 22:24, Timothy Covell a écrit :
+> > > On Thursday 24 January 2002 14:39, Oliver Xymoron wrote:
+> > > > The compiler _will_ turn if(a==0) into a test of a with itself rather
+> > > > than a comparison against a constant. Since PDP days, no doubt.
+> > >
+> > > I thought that the whole point of booleans was to stop silly errors
+> > > like
+> > >
+> > > if ( x = 1 )
+> > > {
+> > > 	printf ("\nX is true\n");
+> > > }
+> > > else
+> > > {
+> > > 	// we never get here...
+> > > }
+> >
+> > gcc already warns you about such errors.
+> >
+> > 	Xav
 > 
-> It's comming from the small change introduced in setup.S:
-> 	ramdisk_max:  .long __MAXMEM-1        # (Header version 0x0203 or later)
-> 
-> 
-> FYI as(1) version is:
-> 	as --version
-> 	GNU assembler 2.11.90.0.19
-> 
+> That's funny, I compiled it with "gcc -Wall foo.c" and got no
+> warnings.    Please show me what I'm doing wrong and how
+> it's _my_ mistake and not the compilers.
 
-Suggest reporting a bug to binutils-bug@gnu.org?
+[xav@bip:~]$ gcc -Wall a.c
+a.c: In function `main':
+a.c:8: warning: suggest parentheses around assignment used as truth value
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+	Xav
+

@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280669AbRKYDM7>; Sat, 24 Nov 2001 22:12:59 -0500
+	id <S280670AbRKYDZE>; Sat, 24 Nov 2001 22:25:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280670AbRKYDMt>; Sat, 24 Nov 2001 22:12:49 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:8967 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S280669AbRKYDMe>;
-	Sat, 24 Nov 2001 22:12:34 -0500
-Date: Sun, 25 Nov 2001 01:12:14 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [kdb:PATCH] small update to latest kdb
-Message-ID: <20011125011214.D1581@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Keith Owens <kaos@ocs.com.au>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
+	id <S280671AbRKYDYy>; Sat, 24 Nov 2001 22:24:54 -0500
+Received: from web9204.mail.yahoo.com ([216.136.129.27]:58676 "HELO
+	web9204.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S280670AbRKYDYs>; Sat, 24 Nov 2001 22:24:48 -0500
+Message-ID: <20011125032447.4327.qmail@web9204.mail.yahoo.com>
+Date: Sat, 24 Nov 2001 19:24:47 -0800 (PST)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: change to fs/proc/inode.c breaks ALSA drivers
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith,
+Hello
 
-	I had to apply this patch on top of v1.9-2.4.15-pre5 to get it
-compiling with 2.4.16-pre1 (its needed for 2.4.15 too, but I haven't tasted
-that duck, luckily :-) ).
+Somewhere between 2.4.15pre6 and 2.4.15 final,
+fs/proc/inode.c was modified. The change causes all
+the devices files that ALSA creates in
+/proc/asound/dev to have a major and minor number of
+zero. I'm sending a patch to revert the file back to
+what it was in 2.4.15pre5.
 
-- Arnaldo
 
-``"90% of everything is crap", Its called Sturgeon's law 8)
-One of the problems is indeed finding the good bits''
-    - Alan Cox
+--- linux-2.4.15test/fs/proc/inode.c	Sat Nov 23
+20:10:11 2001
++++ linux-2.4.15/fs/proc/inode.c	Sat Nov 24 19:56:21
+2001
+@@ -160,12 +160,14 @@
+ 			inode->i_nlink = de->nlink;
+ 		if (de->owner)
+ 			__MOD_INC_USE_COUNT(de->owner);
+-		if (de->proc_iops)
+-			inode->i_op = de->proc_iops;
+-		if (de->proc_fops)
+-			inode->i_fop = de->proc_fops;
+-		else if
+(S_ISBLK(de->mode)||S_ISCHR(de->mode)||S_ISFIFO(de->mode))
++		if
+(S_ISBLK(de->mode)||S_ISCHR(de->mode)||S_ISFIFO(de->mode))
+ 		
+init_special_inode(inode,de->mode,kdev_t_to_nr(de->rdev));
++		else {
++			if (de->proc_iops)
++				inode->i_op = de->proc_iops;
++			if (de->proc_fops)
++				inode->i_fop = de->proc_fops;
++		}
+ 	}
+ 
+ out:
 
---- kdb/kdbmain.c.orig	Sun Nov 25 01:04:08 2001
-+++ kdb/kdbmain.c	Sun Nov 25 01:04:36 2001
-@@ -2360,7 +2360,7 @@
- 	for_each_task(p) {
- 		kdb_printf("0x%p %08d %08d  %1.1d  %3.3d  %s  0x%p%c%s\n",
- 			   (void *)p, p->pid, p->p_pptr->pid,
--			   p->has_cpu, p->processor,
-+			   task_has_cpu(p), p->processor,
- 			   (p->state == 0)?"run ":(p->state>0)?"stop":"unrn",
- 			   (void *)(&p->thread),
- 			   (p == current) ? '*': ' ',
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! GeoCities - quick and easy web site hosting, just $8.95/month.
+http://geocities.yahoo.com/ps/info1

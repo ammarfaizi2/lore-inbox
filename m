@@ -1,72 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130998AbQLHGrw>; Fri, 8 Dec 2000 01:47:52 -0500
+	id <S129896AbQLHHRs>; Fri, 8 Dec 2000 02:17:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131880AbQLHGrn>; Fri, 8 Dec 2000 01:47:43 -0500
-Received: from mail.blackdown.de ([62.159.133.162]:55556 "EHLO
-	zaphod.blackdown.de") by vger.kernel.org with ESMTP
-	id <S130998AbQLHGrb>; Fri, 8 Dec 2000 01:47:31 -0500
-To: Frank de Lange <frank@unternet.org>
-Cc: drepper@redhat.com, java-linux@java.blackdown.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: java (and possibly other threaded apps) hanging in rt_sigsuspend
-In-Reply-To: <20001207164251.A3239@unternet.org>
-From: Juergen Kreileder <jk@blackdown.de>
-Date: 08 Dec 2000 07:16:06 +0100
-In-Reply-To: Frank de Lange's message of "Thu, 7 Dec 2000 16:42:51 +0100"
-Message-ID: <878zpr1lqx.fsf@zaphod.blackdown.de>
-Organization: "Blackdown Java-Linux Team"
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
+	id <S130565AbQLHHRj>; Fri, 8 Dec 2000 02:17:39 -0500
+Received: from pD9040D1E.dip.t-dialin.net ([217.4.13.30]:28430 "HELO
+	grumbeer.hjb.de") by vger.kernel.org with SMTP id <S129896AbQLHHRc>;
+	Fri, 8 Dec 2000 02:17:32 -0500
+Subject: 2.4.0test10: 3c59x: Transmit timed out
+To: linux-kernel@vger.kernel.org
+Date: Fri, 8 Dec 2000 07:47:29 +0100 (CET)
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20001208064729.0857242544F@grumbeer.hjb.de>
+From: hjb@pro-linux.de (Hans-Joachim Baader)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Frank" == Frank de Lange <frank@unternet.org> writes:
+Hi,
 
-    Frank> I saw your remarks on the kernel mailing list
-    Frank> wrt. 'threaded processes get stuck in
-    Frank> rt_sigsuspend/fillonedir/exit_notify' dd. 20000911-12, and
-    Frank> thought you might be interested in the fact that something
-    Frank> quite like this also happens on 2.4.0-test11 with glibc-2.2
-    Frank> (release), BUT NOT ALWAYS...
+I got the following timeout on an SMP system:
 
-    Frank> I can reliably hang java (Blackdown port jdk1.3, FCS) using
-    Frank> the -Xmx parameter (which specifies a maximum heap size),
-    Frank> the weird thing is that it does NOT hang which this
-    Frank> parameter is either not specified OR specified but larger
-    Frank> than a certain value. When it hangs, it always is stuck in
-    Frank> a rt_sigsuspend call just after a clone() call. An example:
-
-    Frank>  [frank@behemoth frank]$ java
-    Frank>         (java starts and spits out some info, then exits as
-    Frank>         it should)
-
-    Frank>  [frank@behemoth frank]$ java -Xmx32m
-    Frank>         (java ALWAYS gets stuck:
-
-    Frank> 	pipe([6, 7])                            = 0
-    Frank> 	clone()                                 = 14732
-    Frank> 	[pid 14679] write(7, "\0\0\0\0\5\0\0\0~\266\2@ $T@\0 T@\0 T@\300\265\2@\0\0\0"..., 148) = 148
-    Frank> 	[pid 14679] rt_sigprocmask(SIG_SETMASK, NULL, [RT_0], 8) = 0
-    Frank> 	[pid 14679] write(7, "`S\3@\0\0\0\0\20\321\377\277pD\37@\30&\5\10\0\0\0\200\0"..., 148) = 148
-    Frank> 	[pid 14679] rt_sigprocmask(SIG_SETMASK, NULL, [RT_0], 8) = 0
-    Frank> 	[pid 14679] rt_sigsuspend([]
-    Frank> 	)
-
-Can you reproduce this without strace?
-
-I only see this problem when I run with 'strace -f' and java wants to
-exit (apart from that java works correctly).  I don't see the dependency
-on the heap size here.
+3c59x.c:LK1.1.9  2 Sep 2000  Donald Becker and others. http://www.scyld.com/network/vortex.html $Revision: 1.102.2.38 $
+See Documentation/networking/vortex.txt
+eth0: 3Com PCI 3c900 Boomerang 10Mbps Combo at 0xa800,  00:60:97:b0:c2:25, IRQ 10
+  8K word-wide RAM 3:5 Rx:Tx split, autoselect/10base2 interface.
+    Enabling bus-master transmits and whole-frame receives.
 
 
-        Juergen
+NETDEV WATCHDOG: eth0: transmit timed out
+eth0: transmit timed out, tx_status 00 status e000.
+Flags; bus-master 1, full 1; dirty 8031(15) current 8047(15).
+Transmit list 05d802f0 vs. c5d802f0.
+0: @c5d80200  length 8000002a status 0000002a
+1: @c5d80210  length 8000002a status 0000002a
+2: @c5d80220  length 8000002a status 0000002a
+3: @c5d80230  length 8000002a status 0000002a
+4: @c5d80240  length 8000002a status 0000002a
+5: @c5d80250  length 8000002a status 0000002a
+6: @c5d80260  length 8000002a status 0000002a
+7: @c5d80270  length 8000002a status 0000002a
+8: @c5d80280  length 8000002a status 0000002a
+9: @c5d80290  length 8000002a status 0000002a
+10: @c5d802a0  length 8000002a status 0000002a
+11: @c5d802b0  length 8000002a status 0000002a
+12: @c5d802c0  length 8000002a status 0000002a
+13: @c5d802d0  length 8000002a status 8000002a
+14: @c5d802e0  length 8000002a status 8000002a
+15: @c5d802f0  length 8000002a status 0000002a
 
+
+# cat /proc/interrupts (after reloading the driver)
+           CPU0       CPU1       
+0:      1713215    1742004    IO-APIC-edge  timer
+1:            0          2    IO-APIC-edge  keyboard
+2:            0          0          XT-PIC  cascade
+3:            1          4    IO-APIC-edge  serial
+4:        78236      81425    IO-APIC-edge  serial
+5:            1          0    IO-APIC-edge  soundblaster
+8:            0          3    IO-APIC-edge  rtc
+9:       177420     177907   IO-APIC-level  sym53c8xx
+10:        3277       3323   IO-APIC-level  eth0
+11:           0          0    IO-APIC-edge  mcdx
+12:       50650      49080   IO-APIC-level  eth1
+13:           0          0          XT-PIC  fpu
+NMI:    3455146    3455146 
+LOC:    3454715    3454709 
+ERR:          0
+
+Regards,
+hjb
 -- 
-Juergen Kreileder, Blackdown Java-Linux Team
-http://www.blackdown.org/java-linux.html
-JVM'01: http://www.usenix.org/events/jvm01/
+http://www.pro-linux.de/ - Germany's largest volunteer Linux support site
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

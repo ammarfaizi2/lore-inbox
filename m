@@ -1,36 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262799AbRE0QVk>; Sun, 27 May 2001 12:21:40 -0400
+	id <S262800AbRE0Q0A>; Sun, 27 May 2001 12:26:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262810AbRE0QVb>; Sun, 27 May 2001 12:21:31 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61707 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262800AbRE0QVU>; Sun, 27 May 2001 12:21:20 -0400
-Subject: Re: VIA IDE no go with 2.4.5-ac1
-To: green@linuxhacker.ru (Oleg Drokin)
-Date: Sun, 27 May 2001 17:18:20 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk, vojtech@suse.cz, linux-kernel@vger.kernel.org
-In-Reply-To: <20010527144337.A15235@linuxhacker.ru> from "Oleg Drokin" at May 27, 2001 02:43:37 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S262809AbRE0QZu>; Sun, 27 May 2001 12:25:50 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:50459 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S262800AbRE0QZg>; Sun, 27 May 2001 12:25:36 -0400
+Date: Sun, 27 May 2001 18:25:15 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5aa1
+Message-ID: <20010527182515.D676@athlon.random>
+In-Reply-To: <20010526193310.A1834@athlon.random> <15120.23023.903912.358739@pizda.ninka.net> <20010527043208.G1834@athlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1543FE-0001zX-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <20010527043208.G1834@athlon.random>; from andrea@suse.de on Sun, May 27, 2001 at 04:32:09AM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   Vanilla 2.4.5 boots ok, but 2.4.5-ac1 finishes kernel initialisation and
->   starts to print "hda: lost interrupt", I guess this is related to VIA IDE
->   updates in AC kernels. Config for vanilla and AC kernel is the same.
->   Here are the kernel logs from 2.4.5 and 2.4.5-ac1 (collected with serial
-
-> ACPI: Core Subsystem version [20010208]
-> ACPI: Subsystem enabled
-> ACPI: Not using ACPI idle
-> ACPI: System firmware supports: S0 S1 S4 S5
-> hda: lost interrupt
-> hda: lost interrupt
-
-Does this still happen if you build without ACPI support. Also does
-'noapic' have any impact ?
+On Sun, May 27, 2001 at 04:32:09AM +0200, Andrea Arcangeli wrote:
+> Ok, then I will add define_bool CONFIG_NO_PAGE_VIRTUAL y to sparc and
+	     ^^^^ typo: won't

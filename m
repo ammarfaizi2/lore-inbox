@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263175AbREWR1v>; Wed, 23 May 2001 13:27:51 -0400
+	id <S263181AbREWRfw>; Wed, 23 May 2001 13:35:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263176AbREWR1m>; Wed, 23 May 2001 13:27:42 -0400
-Received: from turnover.lancs.ac.uk ([148.88.17.220]:25072 "EHLO
-	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
-	id <S263175AbREWR12>; Wed, 23 May 2001 13:27:28 -0400
-Message-Id: <l03130303b731a2526a34@[192.168.239.105]>
-In-Reply-To: <Pine.LNX.4.33.0105231233070.311-100000@duckman.distro.conectiva>
-In-Reply-To: <20010521223212.C4934@khan.acc.umu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Wed, 23 May 2001 18:24:05 +0100
-To: Rik van Riel <riel@conectiva.com.br>, David Weinehall <tao@acc.umu.se>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: [RFC][PATCH] Re: Linux 2.4.4-ac10
-Cc: Pavel Machek <pavel@suse.cz>, Mike Galbraith <mikeg@wen-online.de>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+	id <S263179AbREWRfm>; Wed, 23 May 2001 13:35:42 -0400
+Received: from nilpferd.fachschaften.tu-muenchen.de ([129.187.176.79]:64998
+	"HELO nilpferd.fachschaften.tu-muenchen.de") by vger.kernel.org
+	with SMTP id <S263178AbREWRf3>; Wed, 23 May 2001 13:35:29 -0400
+Date: Wed, 23 May 2001 19:35:22 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: <bunk@mimas.fachschaften.tu-muenchen.de>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: CML2 <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>
+Subject: Re: What's up with GT96100 in the MIPS config file?
+In-Reply-To: <20010523132346.A16993@thyrsus.com>
+Message-ID: <Pine.NEB.4.33.0105231932420.986-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Time to hunt around for a 386 or 486 which is limited to such
->a small amount of RAM ;)
+On Wed, 23 May 2001, Eric S. Raymond wrote:
 
-I've got an old knackered 486DX/33 with 8Mb RAM (in 30-pin SIMMs, woohoo!),
-a flat CMOS battery, a 2Gb Maxtor HD that needs a low-level format every
-year, and no case.  It isn't running anything right now...
+> Near line 55 of drivers/net/Config.in there is code that reads like this:
+>
+>    if [ "$CONFIG_MIPS_GT96100" = "y" ]; then
+>       bool '  MIPS GT96100 Ethernet support' CONFIG_MIPS_GT96100ETH
+>    fi
+>
+> All very well except that CONFIG_MIPS_GT96100 is never set (or even
+>...
+> The simplest guess is that the guard part is just wrong.  Can anybody shed
+> any light on this?
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
 
-The key to knowledge is not to rely on people to teach you it.
+The problem seems to be that the MIPS kernel tree isn't fully merged into
+the official kernel tree. In the MIPS kernel tree arch/mips/config.in
+includes:
 
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
 
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
------END GEEK CODE BLOCK-----
+...
+if [ "$CONFIG_MIPS_EV96100" = "y" ]; then
+   define_bool CONFIG_PCI y
+   define_bool CONFIG_MIPS_GT96100 y
+   define_bool CONFIG_SWAP_IO_SPACE y
+fi
+...
 
+
+cu
+Adrian
+
+-- 
+A "No" uttered from deepest conviction is better and greater than a
+"Yes" merely uttered to please, or what is worse, to avoid trouble.
+                -- Mahatma Ghandi
 

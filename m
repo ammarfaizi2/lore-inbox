@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264002AbUEMMBx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264153AbUEMMHh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264002AbUEMMBx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 08:01:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264154AbUEMMBx
+	id S264153AbUEMMHh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 08:07:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264165AbUEMMHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 08:01:53 -0400
-Received: from main.gmane.org ([80.91.224.249]:16343 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264002AbUEMMBw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 08:01:52 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ari Pollak <ajp@aripollak.com>
-Subject: Re: swsusp + APM in 2.6.6
-Date: Thu, 13 May 2004 08:01:56 -0400
-Message-ID: <c7vo3c$hfu$1@sea.gmane.org>
-References: <1084411449.2562.20.camel@ansel.lan> <20040513114250.GB16524@cathedrallabs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 13 May 2004 08:07:37 -0400
+Received: from hellhawk.shadowen.org ([212.13.208.175]:33802 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S264160AbUEMMHe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 08:07:34 -0400
+Date: Thu, 13 May 2004 13:07:08 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+To: Pavel Roskin <proski@gnu.org>, linux-kernel@vger.kernel.org
+Subject: Re: Weird cold boot problems with Abit KT7 motherboard
+Message-ID: <21588803.1084453628@42.150.104.212.access.eclipse.net.uk>
+In-Reply-To: <Pine.LNX.4.58.0405121815120.2967@marabou.research.att.com>
+References: <Pine.LNX.4.58.0405121815120.2967@marabou.research.att.com>
+X-Mailer: Mulberry/3.1.2 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: atlantis.ccs.neu.edu
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
-In-Reply-To: <20040513114250.GB16524@cathedrallabs.org>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You should be able to accomplish the same thing with "echo disk > 
-/sys/power/state", as it says in the same file.
+--On 12 May 2004 19:13 -0400 Pavel Roskin <proski@gnu.org> wrote:
 
-Aristeu Sergio Rozanski Filho wrote:
+> Hello!
 > 
->>>In 2.6.6, however, using the same kernel configuration, neither
->>>/proc/sleep or /proc/acpi/sleep exist! I _do_ have swsusp enabled in the
->>>kernel, as well as ACPI sleep states (do they do anything if you disable
-> 
-> please check
-> http://marc.theaimsgroup.com/?l=bk-commits-head&m=108423574229098&w=2
-> 
+> I have noticed several anomalies with Abit KT7 motherboard.  They all
+> happen after power on.  First reboot from Linux (using the reboot command
+> or reset button) usually fixes all the problems.  Sometimes two or three
+> resets are needed before the motherboard starts working properly.  In two
+> cases (of about 20) the motherboard started working properly right after
+> powering up.
 
+Hmmm, I have one of these pieces of shit ... I have a boot issue with mine
+on Windows too.  Graphics card doesn't initialise correctly on most boots.
+Basically the rumours out there are that this mobo is marginal in an
+undefined part of the agp spec to do with power levels, the reset line and
+probabally the phase of the moon.  I have noticed that my machine will boot
+more reliably when the ethernet card is not connected to the hub.  In my
+case a long manual reset (pressy button) just after power on seem to fix
+this from then on.  There is a site somewhere which shows you how to solder
+some wire on which 'helps the +3v line' or something.
+
+I hate this mobo.  But I'm too lazy to replace it.
+
+-apw

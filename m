@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264984AbTFWDHE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 23:07:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265009AbTFWDHE
+	id S265009AbTFWDm6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 23:42:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265022AbTFWDm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 23:07:04 -0400
-Received: from dp.samba.org ([66.70.73.150]:61579 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264984AbTFWDHC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 23:07:02 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: jgarzik@pobox.com, torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] workqueue.c neatening II
-Date: Mon, 23 Jun 2003 13:20:25 +1000
-Message-Id: <20030623032108.925012C003@lists.samba.org>
+	Sun, 22 Jun 2003 23:42:58 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:16007 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S265009AbTFWDm5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 23:42:57 -0400
+Date: Sun, 22 Jun 2003 20:56:57 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 843] New: Getting very high CPU load on Laptop with ACPI
+Message-ID: <280990000.1056340617@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus applied my patch before Jeff's critique.  Here's the fix.
+           Summary: Getting very high CPU load on Laptop with ACPI
+    Kernel Version: 2.5.72 (and others with new acpi code)
+            Status: NEW
+          Severity: normal
+             Owner: andrew.grover@intel.com
+         Submitter: hanno@gmx.de
 
-Linus, please apply.
-Rusty.
 
-Name: Workqueue Exit Neatening
-Author: Rusty Russell
-Status: Tested on 2.5.73
+I own a fujitsu-siemens lifebook C6155.
+With several linux-kernels containing the new acpi (2.5.x, 2.4.21+patch,
+2.4.21-ac1), I get very high CPU-load every few seconds. It's even impossible to
+listen mp3s.
+top shows me that it's the process events on 2.5-kernels and keventd on 2.4-kernels.
+This does not happen with 2.4.21-vanilla (without acpi-patch, but with acpi
+enabled and working).
+So the bug seems to be in the new acpi-system.
+Attached is dmesg-output (with 2.4 and 2.5), the dsdt, lspci-output and a
+screenshot of gkrellm showing the cpu-usage (on a system running nothing that
+consumes cpu-power).
 
-D: Jeff Garzik points out the initializing the exit completion at
-D: exit time is foolish: we should just initialize it at creation time
-D: live everything else in that structure, and avoid the memory barrier.
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22396-linux-2.5.73/kernel/workqueue.c .22396-linux-2.5.73.updated/kernel/workqueue.c
---- .22396-linux-2.5.73/kernel/workqueue.c	2003-06-23 10:52:59.000000000 +1000
-+++ .22396-linux-2.5.73.updated/kernel/workqueue.c	2003-06-23 12:01:18.000000000 +1000
-@@ -275,6 +275,7 @@ static int create_workqueue_thread(struc
- 	INIT_LIST_HEAD(&cwq->worklist);
- 	init_waitqueue_head(&cwq->more_work);
- 	init_waitqueue_head(&cwq->work_done);
-+	init_completion(&cwq->exit);
- 
- 	init_completion(&startup.done);
- 	startup.cwq = cwq;
-@@ -320,10 +321,7 @@ static void cleanup_workqueue_thread(str
- 
- 	cwq = wq->cpu_wq + cpu;
- 	if (cwq->thread) {
--		printk("Cleaning up workqueue thread for %i\n", cpu);
--		/* Initiate an exit and wait for it: */
--		init_completion(&cwq->exit);
--		wmb(); /* Thread must see !cwq->thread after completion init */
-+		/* Tell thread to exit and wait for it. */
- 		cwq->thread = NULL;
- 		wake_up(&cwq->more_work);
- 
-
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

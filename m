@@ -1,64 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262520AbTEGBFq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 21:05:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbTEGBFq
+	id S262621AbTEGBP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 21:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbTEGBP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 21:05:46 -0400
-Received: from h24-70-162-27.wp.shawcable.net ([24.70.162.27]:30692 "EHLO
-	ubb.apia.dhs.org") by vger.kernel.org with ESMTP id S262520AbTEGBFp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 21:05:45 -0400
-From: "Tony 'Nicoya' Mantler" <nicoya@apia.dhs.org>
-To: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
-Subject: Re: Using GPL'd Linux drivers with non-GPL, binary-only kernel
-References: <20030506165014$3d57@gated-at.bofh.it> <20030506193019$0d29@gated-at.bofh.it> <20030506220018$5b96@gated-at.bofh.it>
-Organization: Judean People's Front; Department of Whips, Chains, Thumb-Screws, Six Tons of Whipping Cream, the Entire Soprano Section of the Mormon Tabernacle Choir and Guest Apperances of Eva Peron aka Eric Conspiracy Secret Laboratories
-X-Disclaimer-1: This message has been edited from it's original form by members of the Eric Conspiracy.
-X-Disclaimer-2: There is no Eric Conspiracy.
-User-Agent: MT-NewsWatcher/3.1 (PPC)
-Date: Tue, 06 May 2003 20:17:56 -0500
-Message-ID: <nicoya-B9CA30.20175606052003@news.pp.shawcable.net>
+	Tue, 6 May 2003 21:15:28 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:13028 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262621AbTEGBP1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 21:15:27 -0400
+Date: Tue, 6 May 2003 18:24:56 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: devenyga@mcmaster.ca, rml@tech9.net, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+Subject: Re: PATCH: Replace current->state with set_current_state in 2.5.6 8
+Message-Id: <20030506182456.644b70d1.rddunlap@osdl.org>
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780C8FDEAD@orsmsx116.jf.intel.com>
+References: <A46BBDB345A7D5118EC90002A5072C780C8FDEAD@orsmsx116.jf.intel.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030506220018$5b96@gated-at.bofh.it>,
- Jamie Lokier <jamie@shareable.org> wrote:
 
-: I do not see any practical alternative way to create a new kind of
-: operating system kernel that is compatible with the wide range of PC
-: hardware, other than:
-: 
-:   (a) read lots of open source code and then write drivers,
-:       filesystems etc. from what is learned, or
-:   (b) just use the available code with appropriate wrapping.
-: 
-: Both are lots of work.  But isn't (b) going to be less work?  I'm not
-: sure.
+On Tue, 6 May 2003 17:33:26 -0700  "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com> wrote:
 
-If your interest is in creating a new and unique OS, you'll likely find that it 
-becomes a great deal of work to try to glue the linux drivers into it.
-
-I would imagine in the majority of cases you'd either have to change the driver 
-code considerably to fit the subtleties of <newos>, or change the <newos> code 
-considerably to fit the subtleties of linux.
-
-When creating a new system, the last thing you want to have to do is carry 
-around a bunch of extra baggage that you really don't need.
-
-Anyways, this is 2003, aren't operating systems supposed to be boring by now? 
-And where's my flying car damnit. ;)
+| > From: Gabriel Devenyi [mailto:devenyga@mcmaster.ca]
+| > 
+| > This patch appies to 2.5.68 and replaces any remaining current->state
+| lines
+| >  with set_current_state. This from the TODO list of Kernel Janitors.
+| > 
+| >
+| http://muss.mcmaster.ca/~devenyga/patch-linux-2.5.68-set_current_state.patch
+| 
+| Some time ago I sent a patch doing this only on */fs/* [not the filesystem's
+| code, just the common stuff]. It was dismissed by Linus under
+| I-don't-know-what
+| -the-hell-reasons (it's very smart to dismiss something without reason,
+| gives
+| the original poster a very clear idea of what needs to be changed -
+| nevermind, just being ironic). 
+| 
+| However, I'd suggest to post this into the Kernel Janitors mailing list and
+| let one of the big guys there swipe it in.
+| 
+| Maybe Robert Love can provide more highlight.
 
 
-To answer your question more directly, I think most developers would agree that 
-the spirit of the GPL is "give as you take". If just releasing back the source 
-to the modified drivers - completely useless without your new closed kernel - 
-doesn't feel a whole lot like "giving", then you're probably not doing enough to 
-keep people happy.
+Yes, the KJ list has already seen this patch and commented on some version
+of it.
 
+Folks, IMO for KJ work to be successful (merged) and rewarding, and for it
+to continue, we need:
 
-Cheers - Tony 'Nicoya' Mantler :)
+- TODO list updated with accurate descriptions of problems and expected
+  changes to fix them;
+- a plan of attack for getting them merged;
 
--- 
-Tony "Nicoya" Mantler - Renaissance Nerd Extraordinaire - nicoya@apia.dhs.org
-Winnipeg, Manitoba, Canada           --           http://nicoya.feline.pp.se/
+We shouldn't just expect (for example) Gabriel's patch to be merged
+on its own.
+
+Even if Gabriel's patch is perfect, I don't expect that Linus will merge it,
+esp. not now, but not even earlier in 2.5 days.  For one thing, it's
+176 KB, so it needs to be broken down by subsystem/driver/filesystem/etc.
+
+Then it needs some exposure, like living in -ac or -mm or -pick1,
+or at least some testing (everyday usage) by a few people, with reports
+from them.
+
+And I don't really want to review a 176 KB patch (although I did already
+look over most of it a few days ago).  Do people want to take portions
+of it for review and then see about Alan merging it, e.g.?
+
+--
+~Randy

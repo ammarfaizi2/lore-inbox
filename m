@@ -1,154 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269048AbUIAAzt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUIABAW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269048AbUIAAzt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 20:55:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269050AbUIAAxX
+	id S265044AbUIABAW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 21:00:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269066AbUIAA4O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 20:53:23 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:7152 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S269048AbUIAAsz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 20:48:55 -0400
-Message-ID: <41351C86.7000704@us.ibm.com>
-Date: Tue, 31 Aug 2004 17:49:10 -0700
-From: Nivedita Singhvi <niv@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Tue, 31 Aug 2004 20:56:14 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:35233 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S266183AbUIAAzF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 20:55:05 -0400
+Date: Wed, 1 Sep 2004 02:55:00 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: CONFIG_ACPI totally broken (2.6.9-rc1-mm2)
+In-Reply-To: <231570000.1093979338@flay>
+Message-ID: <Pine.LNX.4.61.0409010250060.981@scrub.home>
+References: <231570000.1093979338@flay>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: netdev@oss.sgi.com, Rick Lindsley <ricklind@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Fw: Re: 2.6.9-rc1-mm2
-References: <20040831153450.4498282e.akpm@osdl.org>
-In-Reply-To: <20040831153450.4498282e.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Hi,
 
-> Getting an error of:
-> 
-> net/built-in.o(.text+0x64047): In function `tcp_in_window':
-> net/ipv4/netfilter/ip_conntrack_proto_tcp.c:683: undefined reference to `ip_ct_log_invalid'
-> net/built-in.o(.text+0x6431f): In function `tcp_error':
-> net/ipv4/netfilter/ip_conntrack_proto_tcp.c:792: undefined reference to `ip_ct_log_invalid'
-> net/built-in.o(.text+0x64421):net/ipv4/netfilter/ip_conntrack_proto_tcp.c:817: undefined reference to `ip_ct_log_invalid'
-> net/built-in.o(.text+0x64450):net/ipv4/netfilter/ip_conntrack_proto_tcp.c:808: undefined reference to `ip_ct_log_invalid'
-> net/built-in.o(.text+0x64487):net/ipv4/netfilter/ip_conntrack_proto_tcp.c:784: undefined reference to `ip_ct_log_invalid'
-> net/built-in.o(.text+0x6478a):net/ipv4/netfilter/ip_conntrack_proto_tcp.c:877: more undefined references to `ip_ct_log_invalid' follow
-> 
-> The error is for all references of the LOG_INVALID macro in
-> ip_conntrack_proto_tcp.c.  My guess is that the declaration of
-> ip_ct_log_invalid in ip_conntrack_standalone.c landed under a new #define
-> that I'm not using in this set of patches, but I can't find where.
-> 
-> All-important config file appended below.  This is an older config file, but
-> make oldconfig was done first, per normal.
+On Tue, 31 Aug 2004, Martin J. Bligh wrote:
 
->
-> # IP: Netfilter Configuration
-> #
-> # CONFIG_IP_NF_CONNTRACK is not set
-> # CONFIG_IP_NF_QUEUE is not set
-> # CONFIG_IP_NF_IPTABLES is not set
-> CONFIG_IP_NF_NAT_NEEDED=y
-> # CONFIG_IP_NF_ARPTABLES is not set
-> CONFIG_IP_NF_COMPAT_IPCHAINS=y
+> scripts/kconfig/mconf arch/i386/Kconfig
+> Warning! Found recursive dependency: ACPI PCI_MMCONFIG ACPI ACPI_AC
+> Warning! Found recursive dependency: ACPI PCI_MMCONFIG ACPI ACPI_PROCESSOR X86_POWERNOW_K7_ACPI
+> Warning! Found recursive dependency: ACPI PCI_MMCONFIG ACPI ACPI_PROCESSOR X86_POWERNOW_K8_ACPI
+> Warning! Found recursive dependency: ACPI PCI_MMCONFIG ACPI ACPI_EC
+> Warning! Found recursive dependency: ACPI PCI_MMCONFIG ACPI ACPI_PROCESSOR X86_SPEEDSTEP_CENTRINO_ACPI
+> Warning! Found recursive dependency: DRM_I830 DRM_I915 DRM_I830
 
-Woiks jes fine with latest default config. Might want to poke those
-automated builds to pick up the latest config as well. The connection
-tracking source files which include that symbol (ip_conntrack_proto_*.c,
-ip_conntrack_standalone.c) should only be included if you have
-CONFIG_IP_NF_CONNTRACK defined.
+The patch below fixes these warnings. This usage of select is really bad, 
+as it made it impossible to just enable PCI_BIOS and PCI_DIRECT without 
+turning on ACPI.
+I seriously consider to add a timeout after such warnings or even turn 
+them into errors, currently they are too easily ignored. :(
 
-You had NAT_NEEDED set, which does pull in the above files too,
-but are now dependent on CONNTRACK being set.
+bye, Roman
 
-Tested with latest config and several permutations such as conntrack
-on/off, etc.
-
-Here is a sample config which built fine, just the netfilter section:
-
-
-# IP: Netfilter Configuration
-#
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_IRC=m
-CONFIG_IP_NF_TFTP=m
-CONFIG_IP_NF_AMANDA=m
-CONFIG_IP_NF_QUEUE=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-# CONFIG_IP_NF_MATCH_IPRANGE is not set
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_PKTTYPE=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_RECENT=m
-CONFIG_IP_NF_MATCH_ECN=m
-CONFIG_IP_NF_MATCH_DSCP=m
-CONFIG_IP_NF_MATCH_AH_ESP=m
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_HELPER=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_CONNTRACK=m
-CONFIG_IP_NF_MATCH_OWNER=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-# CONFIG_IP_NF_TARGET_NETMAP is not set
-# CONFIG_IP_NF_TARGET_SAME is not set
-# CONFIG_IP_NF_NAT_LOCAL is not set
-CONFIG_IP_NF_NAT_SNMP_BASIC=m
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_NAT_TFTP=m
-CONFIG_IP_NF_NAT_AMANDA=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_ECN=m
-CONFIG_IP_NF_TARGET_DSCP=m
-CONFIG_IP_NF_TARGET_MARK=m
-# CONFIG_IP_NF_TARGET_SAME is not set
-# CONFIG_IP_NF_NAT_LOCAL is not set
-CONFIG_IP_NF_NAT_SNMP_BASIC=m
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_NAT_TFTP=m
-CONFIG_IP_NF_NAT_AMANDA=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_ECN=m
-CONFIG_IP_NF_TARGET_DSCP=m
-CONFIG_IP_NF_TARGET_MARK=m
-# CONFIG_IP_NF_TARGET_CLASSIFY is not set
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_ULOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_ARPTABLES=m
-CONFIG_IP_NF_ARPFILTER=m
-CONFIG_IP_NF_ARP_MANGLE=m
-CONFIG_IP_NF_COMPAT_IPCHAINS=m
-CONFIG_IP_NF_COMPAT_IPFWADM=m
-# CONFIG_IP_NF_RAW is not set
-# CONFIG_IP_NF_MATCH_ADDRTYPE is not set
-# CONFIG_IP_NF_MATCH_REALM is not set
-# CONFIG_IP_NF_CT_ACCT is not set
-# CONFIG_IP_NF_MATCH_SCTP is not set
-# CONFIG_IP_NF_CT_PROTO_SCTP is not set
-
-
-
-
-
-
-
+diff -ur linux-2.6.org/arch/i386/Kconfig linux-2.6/arch/i386/Kconfig
+--- linux-2.6.org/arch/i386/Kconfig	2004-08-31 21:26:53.000000000 +0200
++++ linux-2.6/arch/i386/Kconfig	2004-09-01 01:35:31.000000000 +0200
+@@ -1120,6 +1120,7 @@
+ 
+ config PCI_GOMMCONFIG
+ 	bool "MMConfig"
++	depends on ACPI
+ 
+ config PCI_GODIRECT
+ 	bool "Direct"
+@@ -1130,20 +1131,14 @@
+ endchoice
+ 
+ config PCI_BIOS
+-	bool
+-	depends on !X86_VISWS && PCI && (PCI_GOBIOS || PCI_GOANY)
+-	default y
++	def_bool PCI_GOBIOS || PCI_GOANY
+ 
+ config PCI_DIRECT
+-	bool
+- 	depends on PCI && ((PCI_GODIRECT || PCI_GOANY) || X86_VISWS)
+-	default y
++	def_bool PCI_GODIRECT || PCI_GOANY || X86_VISWS
+ 
+ config PCI_MMCONFIG
+-	bool
+-	depends on PCI && (PCI_GOMMCONFIG || (PCI_GOANY && ACPI))
+-	select ACPI
+-	default y
++	def_bool PCI_GOMMCONFIG || PCI_GOANY
++	depends on ACPI
+ 
+ source "drivers/pci/Kconfig"
+ 
+diff -ur linux-2.6.org/drivers/char/drm/Kconfig linux-2.6/drivers/char/drm/Kconfig
+--- linux-2.6.org/drivers/char/drm/Kconfig	2004-08-31 21:27:01.000000000 +0200
++++ linux-2.6/drivers/char/drm/Kconfig	2004-09-01 01:45:13.000000000 +0200
+@@ -55,9 +55,13 @@
+ 	  selected, the module will be called i810.  AGP support is required
+ 	  for this driver to work.
+ 
++choice
++	prompt "Intel 830M, 845G, 852GM, 855GM, 865G (915G)"
++	depends on DRM && AGP && AGP_INTEL
++	optional
++
+ config DRM_I830
+-	tristate "Intel 830M, 845G, 852GM, 855GM, 865G"
+-	depends on DRM && AGP && AGP_INTEL && !(DRM_I915=y)
++	tristate "Old driver"
+ 	help
+ 	  Choose this option if you have a system that has Intel 830M, 845G,
+ 	  852GM, 855GM or 865G integrated graphics.  If M is selected, the
+@@ -67,15 +71,15 @@
+ 	  or previous releases.
+ 
+ config DRM_I915
+-	tristate "Intel 830M, 845G, 852GM, 855GM, 865G, 915G"
+-	depends on DRM && AGP && AGP_INTEL && !(DRM_I830=y)
++	tristate "New driver"
+ 	help
+ 	  Choose this option if you have a system that has Intel 830M, 845G,
+ 	  852GM, 855GM 865G or 915G integrated graphics.  If M is selected, the
+ 	  module will be called i915.  AGP support is required for this driver
+ 	  to work. This driver should be used for systems running Xorg 6.8 and
+ 	  XFree86 releases after (but not including 4.4).
+-	
++
++endchoice
+ 
+ config DRM_MGA
+ 	tristate "Matrox g200/g400"

@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265564AbSJXRcs>; Thu, 24 Oct 2002 13:32:48 -0400
+	id <S265563AbSJXRbZ>; Thu, 24 Oct 2002 13:31:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265565AbSJXRcs>; Thu, 24 Oct 2002 13:32:48 -0400
-Received: from rcpt-expgw.biglobe.ne.jp ([202.225.89.157]:137 "EHLO
-	rcpt-expgw.biglobe.ne.jp") by vger.kernel.org with ESMTP
-	id <S265564AbSJXRcq>; Thu, 24 Oct 2002 13:32:46 -0400
-X-Biglobe-Sender: <t-kouchi@mvf.biglobe.ne.jp>
-Date: Thu, 24 Oct 2002 10:39:52 -0700
-From: "KOCHI, Takayoshi" <t-kouchi@mvf.biglobe.ne.jp>
-To: jung-ik.lee@intel.com, greg@kroah.com
-Subject: Re: PCI Hotplug Drivers for 2.5
-Cc: tony.luck@intel.com, pcihpd-discuss@lists.sourceforge.net,
-       linux-ia64@linuxia64.org, linux-kernel@vger.kernel.org
-In-Reply-To: <72B3FD82E303D611BD0100508BB29735046DFF41@orsmsx102.jf.intel.com>
-References: <72B3FD82E303D611BD0100508BB29735046DFF41@orsmsx102.jf.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+	id <S265564AbSJXRbZ>; Thu, 24 Oct 2002 13:31:25 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:10765
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S265563AbSJXRbZ>; Thu, 24 Oct 2002 13:31:25 -0400
+Subject: Re: [CFT] faster athlon/duron memory copy implementation
+From: Robert Love <rml@tech9.net>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com
+In-Reply-To: <3DB82ABF.8030706@colorfullife.com>
+References: <3DB82ABF.8030706@colorfullife.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.05.04
-Message-Id: <20021025023856.CAVTC0A82650.6C9EC293@mvf.biglobe.ne.jp>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 24 Oct 2002 13:37:34 -0400
+Message-Id: <1035481054.735.52.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We need this driver as it's the only solution for DIG64 compliant IPF
-> platforms.
+On Thu, 2002-10-24 at 13:15, Manfred Spraul wrote:
 
-No, not for all DIG64 compliant IPF platforms.  NEC TX7 is also
-a DIG64 compliant IPF platform but doesn't need your driver.
+> Attached is a test app that compares several memory copy implementations.
+> Could you run it and report the results to me, together with cpu, 
+> chipset and memory type?
 
-DIG64(2.1) only states that:
+Hi Manfred.  Below is the average of three runs.
 
- Firmware Support for PCI Hot-Plug
-                               : Recommended if PCI Hot-Plug is
-                                 implemented
- ACPI Support for PCI Hot-Plug : Recommended for platforms that
-                                 implement PCI Hot-Plug without SHPC
- Using PCI Hot-Plug Specifications
-                               : Recommended if PCI Hot-Plug is
-                                 implemented
+Dual Athlon 1600, AMD 760M chipset, 2GB of ECC DDR266.
 
-The spec also states that any PCI Hot-Plug controller must
-follow one of PCI Hot-Plug spec 1.1, SHPC 1.0 or CompactPCI Hot Swap
-spec.  It also strongly recommends SHPC 1.0, which is not covered
-by J.I.'s driver yet.
+Looks like AMD is right :)
 
-But anyway Itanium2 platform using intel's hot-plug controller
-will be shipping soon and J.I.'s driver has much better functionality
-than acpiphp.  This would be a decent reason for having the
-driver in the mainline.
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
 
-And this also motivates us to clean up the duplicated code if
-it were in mainline:)
+copy_page() tests
+copy_page function 'warm up run'         took 18622 cycles per page
+copy_page function '2.4 non MMX'         took 21086 cycles per page
+copy_page function '2.4 MMX fallback'    took 21096 cycles per page
+copy_page function '2.4 MMX version'     took 18498 cycles per page
+copy_page function 'faster_copy'         took 10311 cycles per page
+copy_page function 'even_faster'         took 10464 cycles per page
+copy_page function 'no_prefetch'         took 8589 cycles per page
 
-Thanks,
--- 
-KOCHI, Takayoshi <t-kouchi@cq.jp.nec.com/t-kouchi@mvf.biglobe.ne.jp>
+	Robert Love
 

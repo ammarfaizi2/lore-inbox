@@ -1,266 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268495AbTGOS2s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 14:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269020AbTGOS2s
+	id S269135AbTGOScV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 14:32:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269414AbTGOScV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 14:28:48 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:3289 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S268495AbTGOS2m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 14:28:42 -0400
-Date: Tue, 15 Jul 2003 20:40:58 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: vojtech@suse.cz, kernel list <linux-kernel@vger.kernel.org>
-Subject: Alt - right problems in 2.6.0-testX
-Message-ID: <20030715184058.GA334@elf.ucw.cz>
+	Tue, 15 Jul 2003 14:32:21 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:55751
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S269135AbTGOScS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 14:32:18 -0400
+Subject: Re: Interrupt doesn't make it to the 8259 on a ASUS P4PE mobo
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Luciano Miguel Ferreira Rocha <luciano@lsd.di.uminho.pt>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F1446E9.8040409@didntduck.org>
+References: <PMEMILJKPKGMMELCJCIGOEKNCCAA.kfrazier@mdc-dayton.com>
+	 <3F14348B.4050606@didntduck.org> <20030715175909.GA17226@lsd.di.uminho.pt>
+	 <3F1446E9.8040409@didntduck.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058294665.3845.61.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 15 Jul 2003 19:44:26 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Maw, 2003-07-15 at 19:24, Brian Gerst wrote:
+> Luciano Miguel Ferreira Rocha wrote:
+> > On Tue, Jul 15, 2003 at 01:06:19PM -0400, Brian Gerst wrote:
+> > 
+> >>Use HZ/2 instead.  GCC doesn't optimize floating point constants to the 
+> >>same degree it does integers, because it doesn't know what mode 
+> >>(rounding, precision) the FPU is in.
+> > 
+> > 
+> > Isn't (HZ >> 1) better?
+> 
+> Same thing.  GCC knows that division by a power of 2 is just a shift.
 
-The problems are really bad. When I hold down Alt, then press right
-arrow twice in quick succession, I get reliably from tty1 to tty2
-(that should get me to tty3, and it does if I perform it slowly).
-
-With CPU throttled down to 100MHz, I can reproduce that at will. 8042
-dump is attached (I hope there's nothing secret in it ;-).
-								Pavel
-
-[I typed "I'll swich consoles now:", then alt-=>, alt-=>, then alt-f3
-to get to the correct console, then enter to do the dump.]
-
-2 <- i8042 (interrupt, kbd, 1) [516197]
-drivers/input/serio/i8042.c: 32 <- i8042 (interrupt, kbd, 1) [516247]
-drivers/input/serio/i8042.c: a6 <- i8042 (interrupt, kbd, 1) [516262]
-drivers/input/serio/i8042.c: b2 <- i8042 (interrupt, kbd, 1) [516300]
-drivers/input/serio/i8042.c: 12 <- i8042 (interrupt, kbd, 1) [516309]
-drivers/input/serio/i8042.c: 92 <- i8042 (interrupt, kbd, 1) [516352]
-drivers/input/serio/i8042.c: 38 <- i8042 (interrupt, kbd, 1) [516883]
-drivers/input/serio/i8042.c: 3b <- i8042 (interrupt, kbd, 1) [517030]
-drivers/input/serio/i8042.c: bb <- i8042 (interrupt, kbd, 1) [517119]
-drivers/input/serio/i8042.c: b8 <- i8042 (interrupt, kbd, 1) [517273]
-drivers/input/serio/i8042.c: 3a <- i8042 (interrupt, kbd, 1) [519299]
-drivers/input/serio/i8042.c: 20 <- i8042 (interrupt, kbd, 1) [519355]
-drivers/input/serio/i8042.c: a0 <- i8042 (interrupt, kbd, 1) [519418]
-drivers/input/serio/i8042.c: 20 <- i8042 (interrupt, kbd, 1) [519483]
-drivers/input/serio/i8042.c: a0 <- i8042 (interrupt, kbd, 1) [519572]
-drivers/input/serio/i8042.c: ba <- i8042 (interrupt, kbd, 1) [519588]
-drivers/input/serio/i8042.c: 13 <- i8042 (interrupt, kbd, 1) [520872]
-drivers/input/serio/i8042.c: 18 <- i8042 (interrupt, kbd, 1) [520976]
-drivers/input/serio/i8042.c: 93 <- i8042 (interrupt, kbd, 1) [520993]
-drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, kbd, 1) [521039]
-drivers/input/serio/i8042.c: 18 <- i8042 (interrupt, kbd, 1) [521098]
-drivers/input/serio/i8042.c: 14 <- i8042 (interrupt, kbd, 1) [521169]
-drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, kbd, 1) [521187]
-drivers/input/serio/i8042.c: 94 <- i8042 (interrupt, kbd, 1) [521255]
-drivers/input/serio/i8042.c: 1c <- i8042 (interrupt, kbd, 1) [521529]
-drivers/input/serio/i8042.c: 9c <- i8042 (interrupt, kbd, 1) [521587]
-drivers/input/serio/i8042.c: 38 <- i8042 (interrupt, kbd, 1) [522188]
-drivers/input/serio/i8042.c: e0 <- i8042 (interrupt, kbd, 1) [522354]
-drivers/input/serio/i8042.c: 4d <- i8042 (interrupt, kbd, 1) [522362]
-drivers/input/serio/i8042.c: e0 <- i8042 (interrupt, kbd, 1) [522409]
-drivers/input/serio/i8042.c: cd <- i8042 (interrupt, kbd, 1) [522420]
-drivers/input/serio/i8042.c: e0 <- i8042 (interrupt, kbd, 1) [522464]
-drivers/input/serio/i8042.c: 4d <- i8042 (interrupt, kbd, 1) [522472]
-drivers/input/serio/i8042.c: e0 <- i8042 (interrupt, kbd, 1) [522518]
-drivers/input/serio/i8042.c: cd <- i8042 (interrupt, kbd, 1) [522528]
-drivers/input/serio/i8042.c: 3d <- i8042 (interrupt, kbd, 1) [523740]
-drivers/input/serio/i8042.c: bd <- i8042 (interrupt, kbd, 1) [523825]
-drivers/input/serio/i8042.c: b8 <- i8042 (interrupt, kbd, 1) [524168]
-drivers/input/serio/i8042.c: 1c <- i8042 (interrupt, kbd, 1) [524926]
-drivers/input/serio/i8042.c: 9c <- i8042 (interrupt, kbd, 1) [524972]
-drivers/input/serio/i8042.c: 38 <- i8042 (interrupt, kbd, 1) [528125]
-drivers/input/serio/i8042.c: 3c <- i8042 (interrupt, kbd, 1) [528222]
-drivers/input/serio/i8042.c: bc <- i8042 (interrupt, kbd, 1) [528313]
-drivers/input/serio/i8042.c: b8 <- i8042 (interrupt, kbd, 1) [528406]
-drivers/input/serio/i8042.c: 3a <- i8042 (interrupt, kbd, 1) [528866]
-drivers/input/serio/i8042.c: 2d <- i8042 (interrupt, kbd, 1) [528956]
-drivers/input/serio/i8042.c: ba <- i8042 (interrupt, kbd, 1) [529032]
-drivers/input/serio/i8042.c: ad <- i8042 (interrupt, kbd, 1) [529062]
-drivers/input/serio/i8042.c: 17 <- i8042 (interrupt, kbd, 1) [529103]
-drivers/input/serio/i8042.c: 97 <- i8042 (interrupt, kbd, 1) [529176]
-drivers/input/serio/i8042.c: 20 <- i8042 (interrupt, kbd, 1) [529200]
-drivers/input/serio/i8042.c: a0 <- i8042 (interrupt, kbd, 1) [529265]
-drivers/input/serio/i8042.c: 12 <- i8042 (interrupt, kbd, 1) [529338]
-drivers/input/serio/i8042.c: 26 <- i8042 (interrupt, kbd, 1) [529382]
-drivers/input/serio/i8042.c: 92 <- i8042 (interrupt, kbd, 1) [529416]
-drivers/input/serio/i8042.c: 32 <- i8042 (interrupt, kbd, 1) [529444]
-drivers/input/serio/i8042.c: a6 <- i8042 (interrupt, kbd, 1) [529486]
-drivers/input/serio/i8042.c: 12 <- i8042 (interrupt, kbd, 1) [529497]
-drivers/input/serio/i8042.c: b2 <- i8042 (interrupt, kbd, 1) [529536]
-drivers/input/serio/i8042.c: 92 <- i8042 (interrupt, kbd, 1) [529573]
-drivers/input/serio/i8042.c: 1c <- i8042 (interrupt, kbd, 1) [529615]
-drivers/input/serio/i8042.c: 9c <- i8042 (interrupt, kbd, 1) [529683]
-drivers/input/serio/i8042.c: 3a <- i8042 (interrupt, kbd, 1) [530560]
-drivers/input/serio/i8042.c: 2f <- i8042 (interrupt, kbd, 1) [530877]
-drivers/input/serio/i8042.c: af <- i8042 (interrupt, kbd, 1) [530956]
-drivers/input/serio/i8042.c: 19 <- i8042 (interrupt, kbd, 1) [535138]
-drivers/input/serio/i8042.c: 99 <- i8042 (interrupt, kbd, 1) [535239]
-drivers/input/serio/i8042.c: ba <- i8042 (interrupt, kbd, 1) [538937]
-drivers/input/serio/i8042.c: 01 <- i8042 (interrupt, kbd, 1) [539265]
-drivers/input/serio/i8042.c: 81 <- i8042 (interrupt, kbd, 1) [539368]
-drivers/input/serio/i8042.c: 2a <- i8042 (interrupt, kbd, 1) [539385]
-drivers/input/serio/i8042.c: 33 <- i8042 (interrupt, kbd, 1) [539508]
-drivers/input/serio/i8042.c: b3 <- i8042 (interrupt, kbd, 1) [539604]
-drivers/input/serio/i8042.c: aa <- i8042 (interrupt, kbd, 1) [539686]
-drivers/input/serio/i8042.c: 3a <- i8042 (interrupt, kbd, 1) [539905]
-drivers/input/serio/i8042.c: 31 <- i8042 (interrupt, kbd, 1) [539958]
-drivers/input/serio/i8042.c: b1 <- i8042 (interrupt, kbd, 1) [540426]
-drivers/input/serio/i8042.c: 31 <- i8042 (interrupt, kbd, 1) [540687]
-drivers/input/serio/i8042.c: b1 <- i8042 (interrupt, kbd, 1) [540755]
-drivers/input/serio/i8042.c: 39 <- i8042 (interrupt, kbd, 1) [540795]
-drivers/input/serio/i8042.c: b9 <- i8042 (interrupt, kbd, 1) [540880]
-drivers/input/serio/i8042.c: ba <- i8042 (interrupt, kbd, 1) [541091]
-drivers/input/serio/i8042.c: 01 <- i8042 (interrupt, kbd, 1) [541251]
-drivers/input/serio/i8042.c: 81 <- i8042 (interrupt, kbd, 1) [541364]
-drivers/input/serio/i8042.c: 2a <- i8042 (interrupt, kbd, 1) [541375]
-drivers/input/serio/i8042.c: 34 <- i8042 (interrupt, kbd, 1) [541470]
-drivers/input/serio/i8042.c: b4 <- i8042 (interrupt, kbd, 1) [541515]
-drivers/input/serio/i8042.c: aa <- i8042 (interrupt, kbd, 1) [541600]
-drivers/input/serio/i8042.c: 3a <- i8042 (interrupt, kbd, 1) [541808]
-drivers/input/serio/i8042.c: 19 <- i8042 (interrupt, kbd, 1) [541863]
-drivers/input/serio/i8042.c: 99 <- i8042 (interrupt, kbd, 1) [541920]
-drivers/input/serio/i8042.c: 19 <- i8042 (interrupt, kbd, 1) [542006]
-drivers/input/serio/i8042.c: 99 <- i8042 (interrupt, kbd, 1) [542062]
-drivers/input/serio/i8042.c: 19 <- i8042 (interrupt, kbd, 1) [542189]
-drivers/input/serio/i8042.c: 99 <- i8042 (interrupt, kbd, 1) [542217]
-drivers/input/serio/i8042.c: 11 <- i8042 (interrupt, kbd, 1) [542460]
-drivers/input/serio/i8042.c: 91 <- i8042 (interrupt, kbd, 1) [542531]
-drivers/input/serio/i8042.c: 19 <- i8042 (interrupt, kbd, 1) [542721]
-drivers/input/serio/i8042.c: 99 <- i8042 (interrupt, kbd, 1) [542806]
-drivers/input/serio/i8042.c: 31 <- i8042 (interrupt, kbd, 1) [543162]
-drivers/input/serio/i8042.c: b1 <- i8042 (interrupt, kbd, 1) [543230]
-drivers/input/serio/i8042.c: 2d <- i8042 (interrupt, kbd, 1) [543503]
-drivers/input/serio/i8042.c: 1f <- i8042 (interrupt, kbd, 1) [543566]
-drivers/input/serio/i8042.c: ad <- i8042 (interrupt, kbd, 1) [543631]
-drivers/input/serio/i8042.c: 9f <- i8042 (interrupt, kbd, 1) [543666]
-drivers/input/serio/i8042.c: ba <- i8042 (interrupt, kbd, 1) [543771]
-drivers/input/serio/i8042.c: 38 <- i8042 (interrupt, kbd, 1) [543875]
-drivers/input/serio/i8042.c: 3d <- i8042 (interrupt, kbd, 1) [544093]
-drivers/input/serio/i8042.c: bd <- i8042 (interrupt, kbd, 1) [544239]
-drivers/input/serio/i8042.c: b8 <- i8042 (interrupt, kbd, 1) [545495]
-drivers/input/serio/i8042.c: 20 <- i8042 (interrupt, kbd, 1) [545747]
-drivers/input/serio/i8042.c: 32 <- i8042 (interrupt, kbd, 1) [545812]
-drivers/input/serio/i8042.c: a0 <- i8042 (interrupt, kbd, 1) [545840]
-drivers/input/serio/i8042.c: b2 <- i8042 (interrupt, kbd, 1) [545913]
-drivers/input/serio/i8042.c: 12 <- i8042 (interrupt, kbd, 1) [545938]
-drivers/input/serio/i8042.c: 92 <- i8042 (interrupt, kbd, 1) [545994]
-drivers/input/serio/i8042.c: 1f <- i8042 (interrupt, kbd, 1) [546039]
-drivers/input/serio/i8042.c: 22 <- i8042 (interrupt, kbd, 1) [546126]
-drivers/input/serio/i8042.c: 9f <- i8042 (interrupt, kbd, 1) [546160]
-drivers/input/serio/i8042.c: 39 <- i8042 (interrupt, kbd, 1) [546205]
-drivers/input/serio/i8042.c: a2 <- i8042 (interrupt, kbd, 1) [546240]
-drivers/input/serio/i8042.c: b9 <- i8042 (interrupt, kbd, 1) [546260]
-drivers/input/serio/i8042.c: 2a <- i8042 (interrupt, kbd, 1) [546288]
-drivers/input/serio/i8042.c: 34 <- i8042 (interrupt, kbd, 1) [546367]
-drivers/input/serio/i8042.c: 39 <- i8042 (interrupt, kbd, 1) [546404]
-drivers/input/serio/i8042.c: b4 <- i8042 (interrupt, kbd, 1) [546452]
-drivers/input/serio/i8042.c: aa <- i8042 (interrupt, kbd, 1) [546465]
-drivers/input/serio/i8042.c: b9 <- i8042 (interrupt, kbd, 1) [546509]
-drivers/input/serio/i8042.c: 35 <- i8042 (interrupt, kbd, 1) [546632]
-drivers/input/serio/i8042.c: b5 <- i8042 (interrupt, kbd, 1) [546710]
-drivers/input/serio/i8042.c: 14 <- i8042 (interrupt, kbd, 1) [546739]
-drivers/input/serio/i8042.c: 94 <- i8042 (interrupt, kbd, 1) [546829]
-drivers/input/serio/i8042.c: 32 <- i8042 (interrupt, kbd, 1) [546849]
-drivers/input/serio/i8042.c: 19 <- i8042 (interrupt, kbd, 1) [546916]
-drivers/input/serio/i8042.c: b2 <- i8042 (interrupt, kbd, 1) [546941]
-drivers/input/serio/i8042.c: 99 <- i8042 (interrupt, kbd, 1) [546972]
-drivers/input/serio/i8042.c: 35 <- i8042 (interrupt, kbd, 1) [547137]
-drivers/input/serio/i8042.c: b5 <- i8042 (interrupt, kbd, 1) [547208]
-drivers/input/serio/i8042.c: 20 <- i8042 (interrupt, kbd, 1) [547234]
-drivers/input/serio/i8042.c: a0 <- i8042 (interrupt, kbd, 1) [547275]
-drivers/input/serio/i8042.c: 12 <- i8042 (interrupt, kbd, 1) [547543]
-drivers/input/serio/i8042.c: 26 <- i8042 (interrupt, kbd, 1) [547615]
-drivers/input/serio/i8042.c: 92 <- i8042 (interrupt, kbd, 1) [547633]
-drivers/input/serio/i8042.c: 32 <- i8042 (interrupt, kbd, 1) [547654]
-drivers/input/serio/i8042.c: a6 <- i8042 (interrupt, kbd, 1) [547683]
-drivers/input/serio/i8042.c: 12 <- i8042 (interrupt, kbd, 1) [547729]
-drivers/input/serio/i8042.c: b2 <- i8042 (interrupt, kbd, 1) [547744]
-drivers/input/serio/i8042.c: 92 <- i8042 (interrupt, kbd, 1) [547796]
-drivers/input/serio/i8042.c: 38 <- i8042 (interrupt, kbd, 1) [548070]
-drivers/input/serio/i8042.c: 3b <- i8042 (interrupt, kbd, 1) [548194]
-drivers/input/serio/i8042.c: bb <- i8042 (interrupt, kbd, 1) [548294]
-drivers/input/serio/i8042.c: b8 <- i8042 (interrupt, kbd, 1) [548410]
-drivers/input/serio/i8042.c: 3a <- i8042 (interrupt, kbd, 1) [549753]
-drivers/input/serio/i8042.c: 20 <- i8042 (interrupt, kbd, 1) [549829]
-drivers/input/serio/i8042.c: a0 <- i8042 (interrupt, kbd, 1) [549863]
-drivers/input/serio/i8042.c: ba <- i8042 (interrupt, kbd, 1) [550115]
-drivers/input/serio/i8042.c: 3a <- i8042 (interrupt, kbd, 1) [550174]
-drivers/input/serio/i8042.c: ba <- i8042 (interrupt, kbd, 1) [550517]
-drivers/input/serio/i8042.c: 2a <- i8042 (interrupt, kbd, 1) [555537]
-drivers/input/serio/i8042.c: 17 <- i8042 (interrupt, kbd, 1) [555625]
-drivers/input/serio/i8042.c: 97 <- i8042 (interrupt, kbd, 1) [555686]
-drivers/input/serio/i8042.c: aa <- i8042 (interrupt, kbd, 1) [555704]
-drivers/input/serio/i8042.c: 28 <- i8042 (interrupt, kbd, 1) [555774]
-drivers/input/serio/i8042.c: a8 <- i8042 (interrupt, kbd, 1) [555825]
-drivers/input/serio/i8042.c: 26 <- i8042 (interrupt, kbd, 1) [555953]
-drivers/input/serio/i8042.c: a6 <- i8042 (interrupt, kbd, 1) [556031]
-drivers/input/serio/i8042.c: 26 <- i8042 (interrupt, kbd, 1) [556093]
-drivers/input/serio/i8042.c: a6 <- i8042 (interrupt, kbd, 1) [556140]
-drivers/input/serio/i8042.c: 39 <- i8042 (interrupt, kbd, 1) [556175]
-drivers/input/serio/i8042.c: b9 <- i8042 (interrupt, kbd, 1) [556238]
-drivers/input/serio/i8042.c: 1f <- i8042 (interrupt, kbd, 1) [556268]
-drivers/input/serio/i8042.c: 9f <- i8042 (interrupt, kbd, 1) [556348]
-drivers/input/serio/i8042.c: 11 <- i8042 (interrupt, kbd, 1) [556534]
-drivers/input/serio/i8042.c: 91 <- i8042 (interrupt, kbd, 1) [556609]
-drivers/input/serio/i8042.c: 17 <- i8042 (interrupt, kbd, 1) [556620]
-drivers/input/serio/i8042.c: 97 <- i8042 (interrupt, kbd, 1) [556684]
-drivers/input/serio/i8042.c: 14 <- i8042 (interrupt, kbd, 1) [556712]
-drivers/input/serio/i8042.c: 94 <- i8042 (interrupt, kbd, 1) [556784]
-drivers/input/serio/i8042.c: 2e <- i8042 (interrupt, kbd, 1) [556904]
-drivers/input/serio/i8042.c: ae <- i8042 (interrupt, kbd, 1) [556968]
-drivers/input/serio/i8042.c: 23 <- i8042 (interrupt, kbd, 1) [556976]
-drivers/input/serio/i8042.c: a3 <- i8042 (interrupt, kbd, 1) [557013]
-drivers/input/serio/i8042.c: 39 <- i8042 (interrupt, kbd, 1) [557060]
-drivers/input/serio/i8042.c: b9 <- i8042 (interrupt, kbd, 1) [557141]
-drivers/input/serio/i8042.c: 2e <- i8042 (interrupt, kbd, 1) [557295]
-drivers/input/serio/i8042.c: 18 <- i8042 (interrupt, kbd, 1) [557336]
-drivers/input/serio/i8042.c: ae <- i8042 (interrupt, kbd, 1) [557362]
-drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, kbd, 1) [557387]
-drivers/input/serio/i8042.c: 31 <- i8042 (interrupt, kbd, 1) [557576]
-drivers/input/serio/i8042.c: b1 <- i8042 (interrupt, kbd, 1) [557645]
-drivers/input/serio/i8042.c: 1f <- i8042 (interrupt, kbd, 1) [557677]
-drivers/input/serio/i8042.c: 9f <- i8042 (interrupt, kbd, 1) [557750]
-drivers/input/serio/i8042.c: 18 <- i8042 (interrupt, kbd, 1) [557759]
-drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, kbd, 1) [557812]
-drivers/input/serio/i8042.c: 26 <- i8042 (interrupt, kbd, 1) [557916]
-drivers/input/serio/i8042.c: 12 <- i8042 (interrupt, kbd, 1) [557996]
-drivers/input/serio/i8042.c: a6 <- i8042 (interrupt, kbd, 1) [558013]
-drivers/input/serio/i8042.c: 92 <- i8042 (interrupt, kbd, 1) [558043]
-drivers/input/serio/i8042.c: 1f <- i8042 (interrupt, kbd, 1) [558149]
-drivers/input/serio/i8042.c: 39 <- i8042 (interrupt, kbd, 1) [558237]
-drivers/input/serio/i8042.c: 9f <- i8042 (interrupt, kbd, 1) [558253]
-drivers/input/serio/i8042.c: b9 <- i8042 (interrupt, kbd, 1) [558296]
-drivers/input/serio/i8042.c: 31 <- i8042 (interrupt, kbd, 1) [558449]
-drivers/input/serio/i8042.c: 18 <- i8042 (interrupt, kbd, 1) [558522]
-drivers/input/serio/i8042.c: b1 <- i8042 (interrupt, kbd, 1) [558539]
-drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, kbd, 1) [558575]
-drivers/input/serio/i8042.c: 11 <- i8042 (interrupt, kbd, 1) [558584]
-drivers/input/serio/i8042.c: 91 <- i8042 (interrupt, kbd, 1) [558633]
-drivers/input/serio/i8042.c: 2a <- i8042 (interrupt, kbd, 1) [559200]
-drivers/input/serio/i8042.c: 27 <- i8042 (interrupt, kbd, 1) [559238]
-drivers/input/serio/i8042.c: a7 <- i8042 (interrupt, kbd, 1) [559307]
-drivers/input/serio/i8042.c: aa <- i8042 (interrupt, kbd, 1) [559420]
-drivers/input/serio/i8042.c: 38 <- i8042 (interrupt, kbd, 1) [560417]
-drivers/input/serio/i8042.c: e0 <- i8042 (interrupt, kbd, 1) [560748]
-drivers/input/serio/i8042.c: 4d <- i8042 (interrupt, kbd, 1) [560752]
-drivers/input/serio/i8042.c: e0 <- i8042 (interrupt, kbd, 1) [560805]
-drivers/input/serio/i8042.c: cd <- i8042 (interrupt, kbd, 1) [560815]
-drivers/input/serio/i8042.c: e0 <- i8042 (interrupt, kbd, 1) [560878]
-drivers/input/serio/i8042.c: 4d <- i8042 (interrupt, kbd, 1) [560882]
-drivers/input/serio/i8042.c: e0 <- i8042 (interrupt, kbd, 1) [560927]
-drivers/input/serio/i8042.c: cd <- i8042 (interrupt, kbd, 1) [560936]
-drivers/input/serio/i8042.c: 3d <- i8042 (interrupt, kbd, 1) [562425]
-drivers/input/serio/i8042.c: bd <- i8042 (interrupt, kbd, 1) [562497]
-drivers/input/serio/i8042.c: b8 <- i8042 (interrupt, kbd, 1) [562785]
-drivers/input/serio/i8042.c: 1c <- i8042 (interrupt, kbd, 1) [563586]
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Only for unsigned

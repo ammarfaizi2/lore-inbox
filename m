@@ -1,61 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbUJaXiN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261697AbUJaXi0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261695AbUJaXiN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 18:38:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbUJaXiM
+	id S261697AbUJaXi0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 18:38:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbUJaXi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sun, 31 Oct 2004 18:38:26 -0500
+Received: from mail15.syd.optusnet.com.au ([211.29.132.196]:24194 "EHLO
+	mail15.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261697AbUJaXiM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 31 Oct 2004 18:38:12 -0500
-Received: from smtpout2.uol.com.br ([200.221.11.55]:12175 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S261695AbUJaXiE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 18:38:04 -0500
-Message-ID: <418576CA.2020005@users.sf.net>
-Date: Sun, 31 Oct 2004 20:35:38 -0300
-From: =?ISO-8859-1?Q?Rog=E9rio_Brito?= <rbrito@users.sf.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
+Message-ID: <41857745.6020808@kolivas.org>
+Date: Mon, 01 Nov 2004 10:37:41 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Z Smith <plinius@comcast.net>
-Cc: Diego Calleja <diegocg@teleline.es>, linux-kernel@vger.kernel.org
-Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
-References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel>	<200410310000.38019.vda@port.imtp.ilyichevsk.odessa.ua>	<1099170891.1424.1.camel@krustophenia.net>	<200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua>	<1099175138.1424.18.camel@krustophenia.net> <20041031150637.6311a2ec.diegocg@teleline.es> <418550C1.1060203@comcast.net>
-In-Reply-To: <418550C1.1060203@comcast.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Alexander Nyberg <alexn@dsv.su.se>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH][plugsched 0/28] Pluggable cpu scheduler framework
+References: <4183A602.7090403@kolivas.org> <20041031233313.GB6909@elf.ucw.cz>
+In-Reply-To: <20041031233313.GB6909@elf.ucw.cz>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig5FBA24471E0AF9965D7B1DB2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Z Smith wrote:
-> But not everyone can tolerate today's level of bloat.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig5FBA24471E0AF9965D7B1DB2
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Pavel Machek wrote:
+> Hi!
 > 
-> Imagine a small charity in a rural town in Bolivia or
-> Colorado. They have no budget for computers and no one
-> is offering donations.
+> 
+>>This code was designed to touch the least number of files, be completely
+>>arch-independant, and allow extra schedulers to be coded in by only
+>>touching Kconfig, scheduler.c and scheduler.h. It should incur no
+>>overhead when run and will allow you to compile in only the scheduler(s)
+>>you desire. This allows, for example, embedded hardware to have a tiny
+>>new scheduler that takes up minimal code space.
+> 
+> 
+> You are changing 
+> 
+> some_functions()
+> 
+> into
+> 
+> something->function()
+> 
+> no? I do not think that is 0 overhead...
 
-Well, let me jump into this thread. I don't live in Bolivia or Colorado, 
-but I do live in Brazil.
+Indeed, and I am performing microbenchmarks to see what measurable 
+overhead there is and so far any difference is lost in noise.
 
-The fastest computer that I have at my disposal is this one with a Duron 
-600MHz processor. My father uses a Pentium MMX 200MHz with 64MB of RAM. 
-Unfortunately, for financial reasons, I don't see we upgrading our 
-computers too soo.
+Cheers,
+Con
 
-It is nice to read Alan Cox saying that the Gnome team can make Gnome 
-use less memory in the future. I'm anxiously looking forward to that. In 
-the mean time, I will be using fluxbox and hoping that other parts of 
-the system (libraries etc) don't grow too fast for my computers.
+--------------enig5FBA24471E0AF9965D7B1DB2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-I know plenty of people in the same situation that I am. Given the 
-choice of purchasing a book for my education or upgrading my computer, I 
-guess that I should spend money on the former.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-And the same is true for many of my relatives and friends.
+iD8DBQFBhXdFZUg7+tp6mRURAoifAJ9AtzmzVR5pjJXM17XjHRrh2mJ9/wCgkFwX
+vicIqMjzsWlbtTHRJkkeO3U=
+=EOeb
+-----END PGP SIGNATURE-----
 
-
-Rogério Brito.
-
--- 
-Learn to quote e-mails decently at:
-http://pub.tsn.dk/how-to-quote.php
-http://learn.to/quote
-http://www.xs4all.nl/~sbpoley/toppost.htm
+--------------enig5FBA24471E0AF9965D7B1DB2--

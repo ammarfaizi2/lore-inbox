@@ -1,121 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267071AbSKMAmZ>; Tue, 12 Nov 2002 19:42:25 -0500
+	id <S267072AbSKMAkR>; Tue, 12 Nov 2002 19:40:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267073AbSKMAmZ>; Tue, 12 Nov 2002 19:42:25 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:23254 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267071AbSKMAmX>;
-	Tue, 12 Nov 2002 19:42:23 -0500
-Subject: Re: Kexec for v2.5.47 (test feedback)
-From: Andy Pfiffer <andyp@osdl.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Werner Almesberger <wa@almesberger.net>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mike Galbraith <efault@gmx.de>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-In-Reply-To: <m1isz39rrw.fsf@frodo.biederman.org>
-References: <Pine.LNX.4.44.0211091901240.2336-100000@home.transmeta.com>
-	<m1vg349dn5.fsf@frodo.biederman.org> <1037055149.13304.47.camel@andyp> 
-	<m1isz39rrw.fsf@frodo.biederman.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 12 Nov 2002 16:48:30 -0800
-Message-Id: <1037148514.13280.97.camel@andyp>
+	id <S267073AbSKMAkR>; Tue, 12 Nov 2002 19:40:17 -0500
+Received: from Hell.WH8.tu-dresden.de ([141.30.225.3]:3033 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S267072AbSKMAkQ>; Tue, 12 Nov 2002 19:40:16 -0500
+Date: Wed, 13 Nov 2002 01:47:04 +0100
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: VFAT mount (bug or feature?)
+Message-Id: <20021113014704.780a3e4a.us15@os.inf.tu-dresden.de>
+Organization: Disorganized
+X-Mailer: Sylpheed version 0.8.5claws135 (GTK+ 1.2.10; Linux 2.5.47)
+X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
 Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.(/fj(THGg_4M:g"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-11-11 at 23:22, Eric W. Biederman wrote:
-> > On Mon, 2002-11-11 at 10:15, Eric W. Biederman wrote:
-> > > kexec is a set of system calls that allows you to load another kernel
-> > > from the currently executing Linux kernel.
-> > 
-
-> > Results on my usual problem machine:
-> > 
-> > # ./kexec-1.5 ./kexec_test-1.5
-> > Shutting down devices
-> > Debug: sleeping function called from illegal context at include/asm/semaphore.h9
-> > 
-> > Call Trace: [<c011a698>] [<c0216193>] [<c012b165>] [<c0132dec>] [<c0140357>
-> 
-> Hmm. I wonder what is doing that.  Do you have the semaphore problem on a normal reboot?
-
-No clue as of yet.  I do not see this information during a normal
-reboot.
+--=.(/fj(THGg_4M:g
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
 
-> > Starting new kernel
-> > 
-> > kexec_test 1.5 starting...
-> > eax: 0E1FB007 ebx: 00001078 ecx: 00000000 edx: 00000000
-> > esi: 00000000 edi: 00000000 esp: 00000000 ebp: 00000000
-> > idt: 00000000 C0000000
-> > gdt: 00000000 C0000000
-> > Switching descriptors.
-> > Descriptors changed.
-> > Legacy pic setup.
-> > In real mode.
-> > <hang>
-> 
-> Yep it works until it runs into your apics that are not shutdown.
-> That looks like one of the next things to tackle.
+Hello,
 
-I used the linux-2.5.44.x86kexec-hwfixes.diff (it applied cleanly to
-pure 2.5.47 + kexec); I'll try your updated version soon if there are
-any major differences.
+In my /etc/fstab I have the following entry:
 
-> The challenge is with the apic shutdown is that currently the apics are not
-> in the device tree so that needs to happen before I can submit a good version
-> for 2.5.x
->  
-> 
-> > Confirming some earlier suspicions:
-> > CONFIG_SMP=y
-> > CONFIG_X86_GOOD_APIC=y
-> > CONFIG_X86_LOCAL_APIC=y
-> > CONFIG_X86_IO_APIC=y
-> > 
-> > Last time I tried to run a UP kernel (and no APIC support) on this system
-> > it wasn't pretty.  I'll add that to my list of combinations to try.
+/dev/hda1  /win   vfat   defaults,umask=022  1 1
 
-On this same system, I reconfigured and tried this:
-    # CONFIG_SMP is not set
-    CONFIG_X86_GOOD_APIC=y
-    # CONFIG_X86_UP_APIC is not set
-    # CONFIG_X86_LOCAL_APIC is not set
-    # CONFIG_X86_IO_APIC is not set
-    
-None of the "ordinary" APIC initialization messages were output during
-the regular BIOS->LILO boot of this kernel.
+Why does 2.5.47 have user/group restricted permissions on the mount
+point and all its subdirectories, despite the umask setting?
 
-Using kexec on this kernel to run kexec_test-1.5 stops in the same way:
-    # ./kexec-1.5 --debug ./kexec_test-1.5
-    Shutting down devices
-    Debug: sleeping function called from illegal context at
-    include/asm/semaphore.h9Call Trace: [<c0113f7c>]  [<c01ec123>] 
-    [<c0120af2>]  [<c0130d5d>]  [<c0130d5d> Starting new kernel
-    kexec_test 1.5 starting...
-    eax: 0E1FB007 ebx: 00001078 ecx: 00000000 edx: 00000000
-    esi: 00000000 edi: 00000000 esp: 00000000 ebp: 00000000
-    idt: 00000000 C0000000
-    gdt: 00000000 C0000000
-    Switching descriptors.
-    Descriptors changed.
-    Legacy pic setup.
-    In real mode.
-    <hang>
-
-So, does this information suggest looking somewhere other than APIC
-shutdown?
-
-Andy
+uas@Corona:~> uname -a
+Linux Corona 2.4.20-rc1 #1 Tue Oct 29 23:39:44 CET 2002 i686 unknown
+uas@Corona:~> ls -lad /win
+drwxr-xr-x   22 root     root        16384 Jan  1  1970 /win
 
 
+uas@Corona:~> uname -a
+Linux Corona 2.5.47 #3 Mon Nov 11 20:02:05 CET 2002 i686 unknown
+uas@Corona:~> ls -lad /win
+drwxr--r--   22 root     root        16384 Jan  1  1970 /win
+
+uas@Corona:~> mount --version
+mount: mount-2.11w
+
+
+Regards,
+-Udo.
+
+--=.(/fj(THGg_4M:g
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE90aEKnhRzXSM7nSkRAtZkAJ44WSZxLyCu9xdyJhPspmUVlGw1nACfcACb
+ujE3oX8vJdTRRgz2ILGgxBs=
+=afci
+-----END PGP SIGNATURE-----
+
+--=.(/fj(THGg_4M:g--

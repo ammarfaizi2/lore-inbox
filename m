@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135256AbRDRS6l>; Wed, 18 Apr 2001 14:58:41 -0400
+	id <S135247AbRDRTHD>; Wed, 18 Apr 2001 15:07:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135259AbRDRS6b>; Wed, 18 Apr 2001 14:58:31 -0400
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:11480 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S135256AbRDRS6R>; Wed, 18 Apr 2001 14:58:17 -0400
-Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDDD9B@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Martin Hamilton'" <martin@net.lut.ac.uk>,
-        "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>
+	id <S135253AbRDRTGy>; Wed, 18 Apr 2001 15:06:54 -0400
+Received: from mail.fh-wedel.de ([195.37.86.23]:49670 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id <S135247AbRDRTGs>;
+	Wed, 18 Apr 2001 15:06:48 -0400
+Date: Wed, 18 Apr 2001 21:06:40 +0200
+From: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+To: Manfred Spraul <manfred@colorfullife.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: RE: Linux 2.4.3-ac7 
-Date: Wed, 18 Apr 2001 11:54:16 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: Re: Bugreport: Kernel 2.4.x crash
+Message-ID: <20010418210640.A11446@wohnheim.fh-wedel.de>
+In-Reply-To: <001a01c0bc4f$7de100f0$5517fea9@local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <001a01c0bc4f$7de100f0$5517fea9@local>; from manfred@colorfullife.com on Tue, Apr 03, 2001 at 05:05:14PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Martin Hamilton [mailto:martin@net.lut.ac.uk]
-> | ACPI is meant to abstract the OS from all the "magic 
-> numbers". It's very
-> | possible to do things in a platform-specific way, but if 
-> you want to handle
-> | all platforms, you'd end up with something ACPI-like.
+Hi!
+
+> > I have no experience with kernel debugging, but so far, I have found
+> > no log entry giving me a hint and the screen is blank after the crash
 > 
-> This isn't me talking, but I think you know the objection from
-> hardcore Linux folk is essentially that Linux is the only platform for
-> which platform-specific stuff should go into the Linux kernel.  I
-> don't really mind so long as suspend-to-disk and resume work... ;-)
-
-I don't think I understand that first sentence. (Let me respond anyways ;-)
-As of now, the Linux kernel is not so platform-specific that you need
-different kernel images for different BIOS revisions, or different
-motherboard layouts. When you start putting platform magic numbers in the
-kernel config, this is the result, and this is the *worst* possible outcome.
-
-ACPI lets the OS manage the platform by determining this stuff at run-time
-(as opposed to compile-time) so one kernel can handle all platform
-configurations.
-
-> | We're working on this. The major issue now is device power 
-> management. 
+> Could you disable console blanking (setterm -blank 0).
 > 
-> I was wondering whether the swsusp work might form a useful basis for 
-> the eventual ACPI implementation of the to-disk hibernation stuff:
+> We really need a hint where it crashed.
 
-I (and others) have looked at it. It's a pretty cool patch, but it really
-isn't the right way to do things.
+Over the easter weekend I took some time for testing. One ide channel does
+not work with dma enabled, which is bootup default. After about 30 seconds,
+the channel is switched to pio and the machine running again.
 
-Regards -- Andy
+Funny though: Before, I could not return from console blanking or reach the
+machine through network. But as for any production system, I rather keep it
+running than spend downtime seeking the error.
 
+Thank you all.
+
+Jörn
+
+-- 
+Jörn Engel
+mailto: joern@wohnheim.fh-wedel.de
+http://wohnheim.fh-wedel.de/~joern

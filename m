@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263338AbTEMHec (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 03:34:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263473AbTEMHec
+	id S263280AbTEMHax (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 03:30:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263389AbTEMHax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 03:34:32 -0400
-Received: from smtp1.cwidc.net ([154.33.63.111]:51091 "EHLO smtp1.cwidc.net")
-	by vger.kernel.org with ESMTP id S263338AbTEMHea (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 03:34:30 -0400
-Message-ID: <3EC0A303.5050902@tequila.co.jp>
-Date: Tue, 13 May 2003 16:47:15 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4b) Gecko/20030506
-X-Accept-Language: en-us, en
+	Tue, 13 May 2003 03:30:53 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:19371 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S263280AbTEMHav convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 03:30:51 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Missing disc io stats in /proc/stat in 2.5.69?
-X-Enigmail-Version: 0.75.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-ID: <16064.41491.952068.159814@napali.hpl.hp.com>
+Date: Tue, 13 May 2003 00:43:15 -0700
+To: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
+Cc: davidm@hpl.hp.com, Dave Jones <davej@codemonkey.org.uk>,
+       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
+Subject: Re: Improved DRM support for cant_use_aperture platforms
+In-Reply-To: <1052786080.10763.310.camel@thor>
+References: <200305101009.h4AA9GZi012265@napali.hpl.hp.com>
+	<1052653415.12338.159.camel@thor>
+	<16062.37308.611438.5934@napali.hpl.hp.com>
+	<20030511195543.GA15528@suse.de>
+	<1052690133.10752.176.camel@thor>
+	<16063.60859.712283.537570@napali.hpl.hp.com>
+	<1052768911.10752.268.camel@thor>
+	<16064.453.497373.127754@napali.hpl.hp.com>
+	<1052774487.10750.294.camel@thor>
+	<16064.5964.342357.501507@napali.hpl.hp.com>
+	<1052786080.10763.310.camel@thor>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+>>>>> On 13 May 2003 02:34:41 +0200, Michel Dänzer <michel@daenzer.net> said:
 
-Hi,
+  >> It should be possible to add vmap() and vunmap() to kernel/vmalloc.c
+  >> on older kernels.  I think those are the only dependencies
 
-just a more general question. Did the Disc IO stats disappear from
-/proc/stat in 2.5.69? Or do I have to activated them somehow?
+  Michel> There are a couple more, like pte_offset_kernel(), pte_pfn(),
+  Michel> pfn_to_page() and flush_tlb_kernel_range(). Getting this working with
+  Michel> 2.4 seems like a lot of work and/or ugly. :\
 
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+Actually, it turns out I'm really not well positioned to do this,
+because the ia64 agp patch for 2.4 looks very different from the 2.5
+and your tree looks rather different from the DRM stuff that's in the
+official Linux tree (correct me if I'm wrong here).
 
-iD8DBQE+wKMDjBz/yQjBxz8RAiNtAKDbG2fl7QjysUNOWfpcYuzAIgirtQCfVLfu
-FfC6ZGHrTAca350mNcPW174=
-=Q6j2
------END PGP SIGNATURE-----
+Anyhow, this should get you close to compiling (and working,
+hopefully), modulo vmap/vunmap:
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+# define pte_offset_kernel(dir, address)	pte_offset(dir, address)
+# define pte_pfn(pte)				(pte_page(pte) - mem_map)
+# define flush_tlb_kernel_range(s,e)		flush_tlb_all()
+#endif
+
+The above definition of pte_pfn() is not truly platform-independent,
+but I believe it works on all platforms that support AGP.  The problem
+is that we can't just use page_address(), because the physical address
+in the PTE may not be a valid memory address (it could be an I/O
+address).
+
+	--david

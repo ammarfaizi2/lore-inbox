@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316623AbSGVKVB>; Mon, 22 Jul 2002 06:21:01 -0400
+	id <S316601AbSGVJXr>; Mon, 22 Jul 2002 05:23:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316629AbSGVKVB>; Mon, 22 Jul 2002 06:21:01 -0400
-Received: from mail6.svr.pol.co.uk ([195.92.193.212]:16176 "EHLO
-	mail6.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S316623AbSGVKU7>; Mon, 22 Jul 2002 06:20:59 -0400
-Date: Mon, 22 Jul 2002 11:23:42 +0100
-To: Guillaume Boissiere <boissiere@adiglobal.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
-Message-ID: <20020722102342.GE1196@fib011235813.fsnet.co.uk>
-References: <3D361091.13618.16DC46FB@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D361091.13618.16DC46FB@localhost>
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+	id <S316604AbSGVJXr>; Mon, 22 Jul 2002 05:23:47 -0400
+Received: from i01.ip.uk.com ([62.6.163.226]:13073 "EHLO d21.datatone.co.uk")
+	by vger.kernel.org with ESMTP id <S316601AbSGVJXq>;
+	Mon, 22 Jul 2002 05:23:46 -0400
+Message-ID: <96AD56B9964DC448990E3DE3FD19A65605039C@d21.datatone.co.uk>
+From: Dave Humphreys <dave@datatone.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: ECS DeskNote A929 (i-Buddie XP)  (Kernel 2.4.18 & 2.4.19rc3)
+Date: Mon, 22 Jul 2002 10:29:36 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 18, 2002 at 12:49:21AM -0400, Guillaume Boissiere wrote:
-> o EVMS (Enterprise Volume Management System)      (EVMS team)
-> o LVM (Logical Volume Manager) v2.0               (LVM team)
+I have just aquired an ECS DeskNote A929 (i-Buddie XP). This
+machine is supposed to be based on:
+SiS 740 North Bridge
+SiS 961 South Bridge
+with integrated network interface (and graphics and other features).
 
-Some comments on the 'EVMS vs LVM2' threads:
+I found that I could not make the kernel detect the network
+card, despite the fact that I had built support for 'SiS 900/7096'
+into the kernel.
 
-I am only petitioning for the driver called 'device-mapper' to be
-included in the kernel.  This is a *much* lower level volume manager
-than either the EVMS or LVM1 drivers.  I am *not* petitioning for EVMS
-not to be included.
+I found a patch which identified a need to add the SiS 740 and
+SiS 961 into pci.ids, and which suggested that this was all that was
+necessary to make the 740/961 work.
 
-People are getting understandably confused between device-mapper and
-LVM2:
+I find that my kernel does not create /proc/pci which suggests
+to me something quite fundamental.
 
-*) device-mapper is a driver, intended to provide an extensible (via
-   the definition of new targets) framework capable of support
-   *anything* that volume management applications should want to do.
+I ran lspci -H2 and I get:
 
-*) LVM2 is a userland application that uses the device-mapper driver to
-   provide a set of tools very similar to LVM1.  Currently LVM2 is the
-   only userland application that uses this driver, leading people to
-   associate the two far too strongly.
+00:04.0 Class 000e: 00c1:0000
+00:08.0 Class 000e: 00c1:0000
+00:0c.0 Class 0000: 0040:0000 
 
-It would be good if other volume managers embrace device-mapper
-allowing us to work together on the kernel side, and compete in
-userland.  Kernel development takes *far* too much manpower for us to
-be duplicating work.  For example I released the LVM2 vs EVMS snapshot
-benchmarks in the hope of encouraging EVMS to move over to
-device-mapper, unfortunately 2 months later a reply is posted stating
-that they have now developed equivalent (but broken) code :(
+The 0000 class code worries me, as do the vendor and device ID's.
 
-Sistina and IBM *are* both competing with their volume managers, but I
-feel that this competition should be occuring in userland - and
-certainly is not relevant to this list.  For instance EVMS appears to
-do Volume + FS management whereas LVM2 does just volume management -
-in no way does device-mapper preclude FS management, yet that is the
-impression that some of the postings to the list have been giving.
+The machine came with a 'ThizLinux' CD which has 2.4.18 kernel,
+so someone has made it work, but I don't have the sources.
 
-- Joe
+Any pointers would be appreciated.
+
+Regards,
+Dave Humphreys

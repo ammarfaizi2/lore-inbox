@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313806AbSDUU2s>; Sun, 21 Apr 2002 16:28:48 -0400
+	id <S313816AbSDUUvK>; Sun, 21 Apr 2002 16:51:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313795AbSDUU2r>; Sun, 21 Apr 2002 16:28:47 -0400
-Received: from web11406.mail.yahoo.com ([216.136.131.236]:33796 "HELO
-	web11406.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S313814AbSDUU2r>; Sun, 21 Apr 2002 16:28:47 -0400
-Message-ID: <20020421202846.61340.qmail@web11406.mail.yahoo.com>
-Date: Sun, 21 Apr 2002 22:28:46 +0200 (CEST)
-From: =?iso-8859-1?q?Falk=20Schramm?= <falkschramm@yahoo.com>
-Subject: Fwd: Re: c/6397: GCC 3.0 crashes compiling Linux kernel 2.4.18 (CAPI subsystem)
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S313817AbSDUUvK>; Sun, 21 Apr 2002 16:51:10 -0400
+Received: from out016pub.verizon.net ([206.46.170.92]:62174 "EHLO
+	out016.verizon.net") by vger.kernel.org with ESMTP
+	id <S313816AbSDUUvJ>; Sun, 21 Apr 2002 16:51:09 -0400
+Date: Sun, 21 Apr 2002 16:53:11 -0400
+From: Skip Ford <skip.ford@verizon.net>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+Mail-Followup-To: Russell King <rmk@arm.linux.org.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020421044616.5beae559.spyro@armlinux.org> <Pine.GSO.4.21.0204202347010.27210-100000@weyl.math.psu.edu> <20020421043811.BHIC5495.out020.verizon.net@pool-141-150-235-204.delv.east.verizon.net> <20020421093103.A19904@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+Message-Id: <20020421205109.KFCT8115.out016.verizon.net@pool-141-150-235-204.delv.east.verizon.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hello,
-
-during compilation of kernel 2.4.18 the compiler (gcc 3.0) stopped with an
-internal compiler error in the CAPI module. The bug is posted to the gcc group
-(see below).
-
-If you want to have more information please contact me directly as I am not
-following the kernel mailing list regularly. If the post is unsuitable for the
-list, sorry for wasting your time.
-
-Falk
-
-
-BTW, I configured tha CAPI subsystem even though I don't really need it. It's
-not absolutely necessary for me to have it fixed soon.
-
-
-
- --- gcc-gnats@gcc.gnu.org schrieb: 
-> Datum: 21 Apr 2002 19:46:00 -0000
-> An: falkschramm@yahoo.com
-> Von: gcc-gnats@gcc.gnu.org
-> Betreff: Re: c/6397: GCC 3.0 crashes compiling Linux kernel 2.4.18
-> Antwort-an-Adresse: gcc-gnats@gcc.gnu.org, nobody@gcc.gnu.org
+Russell King wrote:
+> On Sun, Apr 21, 2002 at 12:40:11AM -0400, Skip Ford wrote:
+> > That's only 1 aspect.  The frustrating part is bug reports mailed to the
+> > list getting a response of "oh, that's fixed in the latest bk tree."
+> > 
+> > Daily snapshots would be great.
 > 
-> Thank you very much for your problem report.
-> It has the internal identification `c/6397'.
-> The individual assigned to look at your
-> report is: unassigned. 
-> 
-> >Category:       c
-> >Responsible:    unassigned
-> >Synopsis:       GCC 3.0 crashes compiling Linux kernel 2.4.18
-> >Arrival-Date:   Sun Apr 21 12:46:00 PDT 2002 
+> We have hourly snapshots, thanks to the work David Woodhouse and
+> Rik van Riel did at a moments notice.  Does this satisfy your
+> concerns above?
 
-__________________________________________________________________
+It does as long as those hourly snapshots are the official kernel.  If
+the snapshots are different than what's available at kernel.org then the
+problem is still there.
 
-Gesendet von Yahoo! Mail - http://mail.yahoo.de
-Sie brauchen mehr Speicher für Ihre E-Mails? - http://premiummail.yahoo.de
+We need to have more frequent releases so the current kernel is
+available to everyone, including non-bk users.  It doesn't matter
+to me what it's called (snapshots, -pre, regular releases 2.5.X).
+
+-- 
+Skip

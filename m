@@ -1,67 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbUKHFTn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261819AbUKHFZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbUKHFTn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 00:19:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbUKHFTn
+	id S261819AbUKHFZv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 00:25:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbUKHFZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 00:19:43 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:10500 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261780AbUKHFTc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 00:19:32 -0500
-Date: Mon, 8 Nov 2004 06:15:22 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Adrian Bunk <bunk@stusta.de>, marcelo.tosatti@cyclades.com,
-       laforge@netfilter.org, linux-kernel@vger.kernel.org,
-       chas@cmf.nrl.navy.mil, linux-atm-general@lists.sourceforge.net,
-       linux-net@vger.kernel.org
-Subject: Re: 2.4.28-rc2: net/atm/proc.c compile error
-Message-ID: <20041108051522.GA17729@alpha.home.local>
-References: <20041107173753.GB30130@logos.cnet> <20041107214246.GY14308@stusta.de> <20041107174247.559be214.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041107174247.559be214.davem@davemloft.net>
-User-Agent: Mutt/1.4i
+	Mon, 8 Nov 2004 00:25:51 -0500
+Received: from services110.cs.uwaterloo.ca ([129.97.152.166]:46477 "EHLO
+	services110.cs.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261819AbUKHFZr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 00:25:47 -0500
+Date: Mon, 8 Nov 2004 00:25:44 -0500 (EST)
+From: Suihong Liang <s2liang@cs.uwaterloo.ca>
+X-X-Sender: s2liang@hopper.math.uwaterloo.ca
+To: linux-kernel@vger.kernel.org
+Subject: acquireing IP address via DHCP
+Message-ID: <Pine.GSO.4.58.0411072331590.10082@hopper.math.uwaterloo.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Miltered: at rhadamanthus by Joe's j-chkmail ("http://j-chkmail.ensmp.fr")!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+Hi,
 
-On Sun, Nov 07, 2004 at 05:42:47PM -0800, David S. Miller wrote:
- 
-> You must have mispatched, here is a grep I just did in Marcelo's
-> current tree:
-> 
-> davem@nuts:/disk1/BK/marcelo-2.4/net/atm$ egrep atm_lec_info *.c
-> davem@nuts:/disk1/BK/marcelo-2.4/net/atm$ 
+I have a question about WLAN: how does Linux recognize that it has entered
+a 802.11 network? and how does it acquire an IP address via DHCP
+automatically?
 
-No, he patched it right, I got it too and found where it broke :
+I've successfully configured the DHCP server and the mobile host to work
+together. However I want to know the detailed procesures carried out, such
+as how scan/authentication/association is triggered, how dhclient is
+triggered?
 
-gcc -D__KERNEL__ -I/data/projets/dev/linux/trees/linux-2.4.28-rc2/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mno-fp-regs -ffixed-8 -mcpu=ev6 -Wa,-mev6 -DMODULE  -nostdinc -iwithprefix include -DKBUILD_BASENAME=proc  -DEXPORT_SYMTAB -c proc.c
-proc.c: In function `atm_proc_init':
-proc.c:624: error: `atm_lec_info' undeclared (first use in this function)
-proc.c:624: error: (Each undeclared identifier is reported only once
-proc.c:624: error: for each function it appears in.)
-make[2]: *** [proc.o] Error 1
+My machine is a RH9 with kernel 2.4.26 or 2.6.7 (wireless extensions
+used), and the wireless adapter is Linksys WUSB11 v2.8 (driver from
+http://at76c503a.berlios.de/).
 
------ net/atm/proc.c: -------
-
-#define CREATE_ENTRY(name) \
-    name = create_proc_entry(#name,0,atm_proc_root); \
-    if (!name) goto cleanup; \
-    name->data = atm_##name##_info; \
-    name->proc_fops = &proc_spec_atm_operations; \
-    name->owner = THIS_MODULE
-...
-623: #if defined(CONFIG_ATM_LANE) || defined(CONFIG_ATM_LANE_MODULE)
-624:        CREATE_ENTRY(lec);
-625: #endif
-
-That's why your grep did not find it ;-)
-Is it enough to remove these 3 lines ?
-
-Regards,
-Willy
-
+Any information'd be appreciated.
+suihong

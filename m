@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264853AbRFTI0k>; Wed, 20 Jun 2001 04:26:40 -0400
+	id <S264856AbRFTIjV>; Wed, 20 Jun 2001 04:39:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264854AbRFTI0a>; Wed, 20 Jun 2001 04:26:30 -0400
-Received: from ns.suse.de ([213.95.15.193]:26117 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S264853AbRFTI0S>;
-	Wed, 20 Jun 2001 04:26:18 -0400
-To: Ben Greear <greearb@candelatech.com>
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: Should VLANs be devices or something else?
-In-Reply-To: <3B2FCE0C.67715139@candelatech.com.suse.lists.linux.kernel> <Pine.LNX.4.33.0106191641150.17061-100000@duely.gurulabs.com.suse.lists.linux.kernel> <15151.55017.371775.585016@pizda.ninka.net.suse.lists.linux.kernel> <3B2FDD62.EFC6AEB1@candelatech.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 20 Jun 2001 10:26:15 +0200
-In-Reply-To: Ben Greear's message of "20 Jun 2001 01:26:03 +0200"
-Message-ID: <oup3d8vftg8.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+	id <S264857AbRFTIjL>; Wed, 20 Jun 2001 04:39:11 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:56838 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S264856AbRFTIjG>; Wed, 20 Jun 2001 04:39:06 -0400
+Message-ID: <3B3060C0.B2D368C@idb.hist.no>
+Date: Wed, 20 Jun 2001 10:37:20 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6-pre3 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
+To: richard offer <offer@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: Why can't I ptrace init (pid == 1) ?
+In-Reply-To: <102490000.992966603@changeling.engr.sgi.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Greear <greearb@candelatech.com> writes:
+richard offer wrote:
 > 
-> Adding the hashed lookup for devices took the exponential curve out of
-> ip and ifconfig's performance, btw.
+> In arch/i386/kernel/ptrace.c there is the following code ...
+> 
+>         ret = -EPERM;
+>         if (pid == 1)           /* you may not mess with init */
+>                 goto out_tsk;
+> 
+> What is the rationale for this ? Is this a real security decision or
+> an implementation detail (bad things will happen).
 
-And fixing the ifconfig user data structures took it also.
-Probably just ip needs similar tuning.
-No need to add the name lookup hash table to the kernel.
+I don't know why they did it, but ptracing init is definitely a added
+security risk.  If an intruder can't take over init, then a smart
+init can fight back.  Of course most inits aren't that smart, but
+at least they can log problems and such.  The intruder can't prevent
+that because init cannot be killed except by booting (which is
+noticeable),
+and it cannot be taken over with ptrace.  ptrace could otherwise
+be used to make init exec some other init that doesn't do the
+logging.  
 
-Perhaps it would be best if you could post your current patch without
-these hash tables, so that it can be properly reviewed and hopefully
-merged then.
+If you want to debug the init software, consider running it
+as a normal processs (not PID 1).  If that is impossible , e.g.
+you need a real-life setup, do remove the above test temporarily 
+and make an init-debug kernel for this purpose.
 
--Andi
+Helge Hafting

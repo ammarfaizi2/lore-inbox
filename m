@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271889AbTG2QRi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 12:17:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271895AbTG2QRK
+	id S271833AbTG2Qw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 12:52:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271705AbTG2Qw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 12:17:10 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:18954 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S271889AbTG2QPs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 12:15:48 -0400
-Message-ID: <3F26A033.7010801@techsource.com>
-Date: Tue, 29 Jul 2003 12:26:27 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Tue, 29 Jul 2003 12:52:28 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:12549 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S271833AbTG2QvH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 12:51:07 -0400
+Date: Tue, 29 Jul 2003 17:51:00 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Charles Lepple <clepple@ghz.cc>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Turning off automatic screen clanking
+In-Reply-To: <Pine.LNX.4.53.0307290702150.30141@chaos>
+Message-ID: <Pine.LNX.4.44.0307291750170.5874-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-To: Helge Hafting <helgehaf@aitel.hist.no>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
-References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <200307271046.30318.phillips@arcor.de> <20030726113522.447578d8.akpm@osdl.org> <200307271517.55549.phillips@arcor.de> <3F267CF9.40500@techsource.com> <20030729155248.GA5495@hh.idb.hist.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> Yes. This is f*ing absurb. A default that kills the screen and the
+> requirement to send some @!_$%!@$ sequences to turn it off. This
+> is absolute crap, absolutely positively, with no possible justification
+> whatsoever. If I made an ioctl, it will probably be rejected.........
 
-Helge Hafting wrote:
-
-> 
-> If you care more about sound than  anything else, run your
-> sound apps at higher priority than other processes.
-> 
-
-Heh.  My new Linux box I ran for a week without speakers.  :)
+Welcome to the world of ESC sequences. These are terminal standards. Sorry.
 
 

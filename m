@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290723AbSAYQwN>; Fri, 25 Jan 2002 11:52:13 -0500
+	id <S290725AbSAYQzx>; Fri, 25 Jan 2002 11:55:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290725AbSAYQwA>; Fri, 25 Jan 2002 11:52:00 -0500
-Received: from cs182083.pp.htv.fi ([213.243.182.83]:6784 "EHLO
-	cs182083.pp.htv.fi") by vger.kernel.org with ESMTP
-	id <S290723AbSAYQvi>; Fri, 25 Jan 2002 11:51:38 -0500
-Message-ID: <3C518D25.F8062F2B@welho.com>
-Date: Fri, 25 Jan 2002 18:51:49 +0200
-From: Mika Liljeberg <Mika.Liljeberg@welho.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17o1-ll-elv i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S290726AbSAYQzo>; Fri, 25 Jan 2002 11:55:44 -0500
+Received: from mail.udm.ru ([217.14.192.20]:15121 "EHLO aps.mark-itt.ru")
+	by vger.kernel.org with ESMTP id <S290725AbSAYQzg>;
+	Fri, 25 Jan 2002 11:55:36 -0500
+Date: Fri, 25 Jan 2002 20:58:22 +0400
+From: ASA <llb@udm.net.ru>
+X-Mailer: The Bat! (v1.53d)
+Reply-To: ASA <llb@udm.net.ru>
+Organization: LLB, LLC
+X-Priority: 3 (Normal)
+Message-ID: <1038781885.20020125205822@udm.net.ru>
 To: linux-kernel@vger.kernel.org
-Subject: Re: White Paper on the Linux kernel VM?
-In-Reply-To: <Pine.LNX.4.33L.0201241312450.32617-100000@imladris.surriel.com> <3C50827F.F425DDF2@welho.com>
+Subject: Too big EBDA issue
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Writing about not writing docs wastes everybody's time.
+Hello all,
 
-For the record, I would love to see some proper documentation on the
-current VM. While the code is indeed the ultimate reference, it does not
-yield readily to peer review.
+My system is embedded PC/104 and has C&T 65545 videochip and DiskOnChip
+flash device. I'm developing a special linux-based application.
 
-That said, I don't think much of the waterfall model. It tends to kill
-the enthusiasm and slow projects down to a crawl. The thing is to write
-the code, hone it until you're happy with it, and then document it. If
-the code isn't ready to document, it's not ready for peer review. Prior
-to that degree of readiness, too many brains plucking at the code just
-slows things down. On the other hand, if you leave out the documentation
-altogether you end up with developers arguing about who can't read whose
-code, instead of doing something useful.
+Today I had to upgrade DiskOnChip BIOS extender and after that I could not
+boot linux anymore. After digging hard in problem I found that EBDA was
+enlarged to 33KB so remaining conventional memory was reduced to 607KB but
+normal booting proccess bzImage loading requires at least 608 KB. After
+checking on other systems with DiskOnChip I found their EBDA have sizes
+typically of 29-31 KB.
 
-I seemed to touch the hearts of a surprising number of people with my
-thoughtless little remark. No permanent heart ache, I hope. :)
+Yeah, it is very large EBDA (normal PC's I checked just have only 1 KB
+EBDA). It seems DickOnChip BIOS requires much space on irder to store own
+temporary data to implement their TrueFFS.
 
-	MikaL
+But I guess that there will be some other BIOS extensions that will require
+another EBDA space. As far as bzImage loading model requires space of 32 K
+between 576K (0x90000) and 608K (0x98000) but almost no other place I think
+there is necessity to extend boot protocol in order to relocate 16-bit mode
+loader closer to the lowest memory bound, not to the upper one.
+
+I also reported that issue to DiskOnChip developers (www.m-sys.com) but
+there is a possibility that other hardware developers can extend EBDA also.
+
+So extending boot protocol in order to move far away of cancer of growing
+EBDA would be worthly of note. As a new feature for 2.5/2.6 kernels by
+example.
+
+-- 
+Best regards,
+ ASA                          mailto:llb@udm.net.ru
+

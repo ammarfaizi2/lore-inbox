@@ -1,96 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVAMHGX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbVAMHUc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbVAMHGX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 02:06:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbVAMHGX
+	id S261183AbVAMHUc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 02:20:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVAMHUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 02:06:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:15284 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261180AbVAMHGN (ORCPT
+	Thu, 13 Jan 2005 02:20:32 -0500
+Received: from pat.uio.no ([129.240.130.16]:52157 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261183AbVAMHU2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 02:06:13 -0500
-Date: Wed, 12 Jan 2005 23:05:53 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Steve <s.egbert@sbcglobal.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10-r1 MTRR bug
-Message-Id: <20050112230553.683a813b.akpm@osdl.org>
-In-Reply-To: <41E595E9.8040805@sbcglobal.net>
-References: <41E595E9.8040805@sbcglobal.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 13 Jan 2005 02:20:28 -0500
+Subject: Re: [RFC] Avoiding fragmentation through different allocator
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Mel Gorman <mel@csn.ul.ie>,
+       Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050113070314.GL2995@waste.org>
+References: <Pine.LNX.4.58.0501122101420.13738@skynet>
+	 <20050113070314.GL2995@waste.org>
+Content-Type: text/plain
+Date: Thu, 13 Jan 2005 02:20:01 -0500
+Message-Id: <1105600801.11555.6.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve <s.egbert@sbcglobal.net> wrote:
->
->  For the Athlon 2100, I get the following outputs and then the VGA 
->  console is frozen from further output (but it doesn't prevent the full 
->  bootup into X windows session of which I am able to resume normal 
->  Linux/X session, but not able to regain any virtual console session.)
+on den 12.01.2005 Klokka 23:03 (-0800) skreiv Matt Mackall:
 
-hm.  Not sure what could have caused that.
+> You might stress higher order page allocation with a) 8k stacks turned
+> on b) UDP NFS with large read/write.
 
->  The virtual console (locked) shows the following outputs:
-> 
->  vesafb: scrolling: redraw:
+   b) Unless your network uses jumbo frames, UDP NFS should not be doing
+higher order page allocation.
 
-Have you tried disabling vesafb in config?
+Cheers,
+  Trond
 
->  mtrr: size and base must be multiples of 4kiB  (<<-- this line is 
->  repeated 20 times).
-
-Could you add this so we can track down the culprit?
-
---- 25/arch/i386/kernel/cpu/mtrr/main.c~mtrr-size-and-base-debug	2005-01-12 23:01:03.732426224 -0800
-+++ 25-akpm/arch/i386/kernel/cpu/mtrr/main.c	2005-01-12 23:03:14.081610136 -0800
-@@ -375,6 +375,19 @@ int mtrr_add_page(unsigned long base, un
- 	return error;
- }
- 
-+static int mtrr_check(unsigned long base, unsigned long size)
-+{
-+	if ((base & (PAGE_SIZE - 1)) || (size & (PAGE_SIZE - 1))) {
-+		printk(KERN_WARNING
-+			"mtrr: size and base must be multiples of 4 kiB\n");
-+		printk(KERN_DEBUG
-+			"mtrr: size: 0x%lx  base: 0x%lx\n", size, base);
-+		dump_stack();
-+		return -1;
-+	}
-+	return 0;
-+}
-+
- /**
-  *	mtrr_add - Add a memory type region
-  *	@base: Physical base address of region
-@@ -415,11 +428,8 @@ int
- mtrr_add(unsigned long base, unsigned long size, unsigned int type,
- 	 char increment)
- {
--	if ((base & (PAGE_SIZE - 1)) || (size & (PAGE_SIZE - 1))) {
--		printk(KERN_WARNING "mtrr: size and base must be multiples of 4 kiB\n");
--		printk(KERN_DEBUG "mtrr: size: 0x%lx  base: 0x%lx\n", size, base);
-+	if (mtrr_check(base, size))
- 		return -EINVAL;
--	}
- 	return mtrr_add_page(base >> PAGE_SHIFT, size >> PAGE_SHIFT, type,
- 			     increment);
- }
-@@ -511,11 +521,8 @@ int mtrr_del_page(int reg, unsigned long
- int
- mtrr_del(int reg, unsigned long base, unsigned long size)
- {
--	if ((base & (PAGE_SIZE - 1)) || (size & (PAGE_SIZE - 1))) {
--		printk(KERN_INFO "mtrr: size and base must be multiples of 4 kiB\n");
--		printk(KERN_DEBUG "mtrr: size: 0x%lx  base: 0x%lx\n", size, base);
-+	if (mtrr_check(base, size))
- 		return -EINVAL;
--	}
- 	return mtrr_del_page(reg, base >> PAGE_SHIFT, size >> PAGE_SHIFT);
- }
- 
-_
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 

@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264397AbUAAPWz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 10:22:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264398AbUAAPWz
+	id S264433AbUAAPpU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 10:45:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbUAAPpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 10:22:55 -0500
-Received: from imf17aec.mail.bellsouth.net ([205.152.59.65]:62463 "EHLO
-	imf17aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S264397AbUAAPWy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 10:22:54 -0500
-Subject: Re: udev and devfs - The final word
-From: Rob Love <rml@ximian.com>
-To: rob@landley.net
-Cc: Andries Brouwer <aebr@win.tue.nl>, Pascal Schmidt <der.eremit@email.de>,
-       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-In-Reply-To: <200401010634.28559.rob@landley.net>
-References: <18Cz7-7Ep-7@gated-at.bofh.it>
-	 <20040101001549.GA17401@win.tue.nl> <1072917113.11003.34.camel@fur>
-	 <200401010634.28559.rob@landley.net>
-Content-Type: text/plain
-Message-Id: <1072970573.3975.3.camel@fur>
+	Thu, 1 Jan 2004 10:45:20 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:25098 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264433AbUAAPpR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 10:45:17 -0500
+Date: Thu, 1 Jan 2004 16:56:52 +0100
+To: Anders Skovsted Buch <abuch@imf.au.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: System lockup when playing chess
+Message-ID: <20040101155652.GB27217@hh.idb.hist.no>
+References: <Pine.HPP.3.95.1031231170644.6451A-100000@aragorn.imf.au.dk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Thu, 01 Jan 2004 10:22:53 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.HPP.3.95.1031231170644.6451A-100000@aragorn.imf.au.dk>
+User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-01-01 at 07:34, Rob Landley wrote:
+On Thu, Jan 01, 2004 at 02:31:58PM +0100, Anders Skovsted Buch wrote:
+> Hello,
+> 
+> I am experiencing consistent lockups of the linux kernel when I play chess
+> with crafty.  What happens is that while the chess engine is running,
+> suddenly the whole system will freeze, and the only think I can get to
+> work is the reboot button.  I have tried to put the computer in text-mode
+> (telinit 3) and run the chess program (with gui) from another computer on
+> my LAN, to see if any oops-output would show up, but there is nothing.
+> 
+> My system runs Redhat 7.2 and is uptodate with patches (so I'm running
+> kernel version 2.4.20-24.7 #1, athlon version).  The chess program is
+> Crafty 17.9.  The processor is "AMD Athlon(tm) 4 Processor".
+> /var/log/messages shows nothing of interest.
+> 
+> I wonder if this scarse information is good for anything.  And in any
+> case, thanks for all your great work which I benefit from every day!!
+> 
+Could this be a simple overheating problem?
+Chess programs are cpu intensive, and so the cpu gets hot.
+Perhaps there is insufficient cooling. the cooling may be
+enough for non-cpu intensive stuff like email, web, and so on.
+what happens if you run a big compile or a long-lasting
+cpu benchmark?  Those things also cause heat.
 
-> Fundamental problem: "Unique" depends on the other devices in the system.  You 
-> can't guarantee unique by looking at one device, more or less by definition.
-
-Of course.
-
-> Combine that with hotplug and you have a world of pain.  Generating a number 
-> from a device is just a fancy hashing function, but as soon as you have two 
-> devices that generate the same number independently (when in separate 
-> systems) and you plug them both into the same system: boom.
-
-A solution would have to deal with collisions.
-
-> Of course the EASY way to deal with collisions is to just fail the hash thingy 
-> in a detectable way, and punt to some kind of udev override.  So if you yank 
-> a drive from system A, throw it in system B, try to re-export it NFS, and 
-> it's not going to work, it TELLS you.
-
-No no no.  Nothing this complicated.  No punting to udev.
-
-> Solve 90% of the problem space and have a human deal with the exceptions.  How 
-> big's the unique number being exported, anyway?  (If it's 32 bits, the 
-> exceptions are 1 in 4 billion.  It may never be seen in the wild...)
-
-Device numbers are 64-bit now.
-
-	Rob Love
-
-
+Helge Hafting

@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316837AbSGXDsS>; Tue, 23 Jul 2002 23:48:18 -0400
+	id <S316797AbSGXDmO>; Tue, 23 Jul 2002 23:42:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316831AbSGXDsS>; Tue, 23 Jul 2002 23:48:18 -0400
-Received: from moutvdom.kundenserver.de ([195.20.224.149]:50925 "EHLO
-	moutvdomng2.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S316837AbSGXDsS>; Tue, 23 Jul 2002 23:48:18 -0400
-Date: Tue, 23 Jul 2002 21:51:25 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Oliver Pitzeier <o.pitzeier@uptime.at>
-cc: "'Martin Brulisauer'" <bruli@uceb.org>, <thunder@ngforever.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: kbuild 2.5.26 - arch/alpha
-In-Reply-To: <003101c232a4$47b254d0$1211a8c0@pitzeier.priv.at>
-Message-ID: <Pine.LNX.4.44.0207232150530.3200-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316831AbSGXDmO>; Tue, 23 Jul 2002 23:42:14 -0400
+Received: from [61.150.6.98] ([61.150.6.98]:25614 "ehlo public.xa.sn.cn")
+	by vger.kernel.org with ESMTP id <S316797AbSGXDmN>;
+	Tue, 23 Jul 2002 23:42:13 -0400
+From: "wang lan" <wins@public.xa.sn.cn>
+Subject: EN345 S3 safety work shoes supplier
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;charset="ISO-8859-1"
+Reply-To: wins@public.xa.sn.cn
+Date: Wed, 24 Jul 2002 11:42:57 +0800
+X-Priority: 3
+X-Mailer: FoxMail 3.11 Release [cn]
+Message-Id: <20020724034213Z316797-685+16933@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+XIAN WINS INDUSTRY COMPANY
+LEYUAN NEW VILLIAGE, MIDDLE STAGE 40,
+WEIQU, CHANGAN, XIAN, 710100,CHINA
+TEL: 0086 29 5299125     FAX: 0086 29 5299123
+E-MAIL: Wins@pub.xaonline.com
+Wins@public.xa.sn.cn
+ 
+ 
+ 
+Dear Sir,
+ 
+ 
+We are a Chinese maker of shoes, your true source for footwear. Our products are fine made in accordance with EN345 S3 but with very good prices.
+ 
+Please check our new Website:
+ 
+www.wins-chinaboots.com
+ 
+Our aim is to have all our products 100% qualified and to give maximum satisfaction to our customers.In addition to supplying excellent service,competitive price and prompt delivery,we also welcome OEM/ODM projects,In this case,customers pay less to earn more profits.
 
-On Wed, 24 Jul 2002, Oliver Pitzeier wrote:
-> Have you ever ended this discussion??? I only mean
-> you two. Because I havn't found a reply from Thunder
-> to Martin...
+Our R&D team invites new ideas and has helped in the development of many successful products for many of our buyers. Our well trained staffs,strict quality control and professional management will surely satisfy your needs and requirements
 
-IIRC, no.
-
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
+Please let us know which products items you are interested in  then we could make quotations for you.
+ 
+ 
+With best regards,
+ 
+ 
+Zhang Wentao

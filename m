@@ -1,51 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135664AbRECCib>; Wed, 2 May 2001 22:38:31 -0400
+	id <S135944AbRECDga>; Wed, 2 May 2001 23:36:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135694AbRECCiW>; Wed, 2 May 2001 22:38:22 -0400
-Received: from chromium11.wia.com ([207.66.214.139]:46097 "EHLO
-	neptune.kirkland.local") by vger.kernel.org with ESMTP
-	id <S135664AbRECCiB>; Wed, 2 May 2001 22:38:01 -0400
-Message-ID: <3AF0C577.848CAE39@chromium.com>
-Date: Wed, 02 May 2001 19:41:59 -0700
-From: Fabio Riccardi <fabio@chromium.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Zach Brown <zab@zabbo.net>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Christopher Smith <x@xman.org>,
-        Andrew Morton <andrewm@uow.edu.au>,
-        "Timothy D. Witham" <wookie@osdlab.org>, David_J_Morse@Dell.com
-Subject: Re: X15 alpha release: as fast as TUX but in user space
-In-Reply-To: <3AEC8562.887CFA72@chromium.com> <Pine.LNX.4.33.0105021047040.3642-100000@localhost.localdomain> <20010502101200.E28288@erasmus.off.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S136084AbRECDgU>; Wed, 2 May 2001 23:36:20 -0400
+Received: from ch-12-44-141-183.lcisp.com ([12.44.141.183]:47366 "EHLO
+	debian-home") by vger.kernel.org with ESMTP id <S135944AbRECDgH>;
+	Wed, 2 May 2001 23:36:07 -0400
+Date: Wed, 2 May 2001 22:39:12 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.4.4 oops, will not boot
+Message-ID: <20010502223912.A7803@debian-home>
+In-Reply-To: <20010502030735.A650@debian-home> <3AEFF4CB.4D2CBE36@uow.edu.au>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="+HP7ph2BbKc20aGI"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <3AEFF4CB.4D2CBE36@uow.edu.au>; from andrewm@uow.edu.au on Wed, May 02, 2001 at 09:51:39PM +1000
+From: Gordon Sadler <gbsadler1@lcisp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Our intention is to release X15 with an open source license.
 
-This will happen as soon as the codebase stabilizes a bit, that is when we go
-beta (in two - three weeks).
+--+HP7ph2BbKc20aGI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-At the moment we just don't have the time...
+On Wed, May 02, 2001 at 09:51:39PM +1000, Andrew Morton wrote:
+> Envelope-to: gbsadler@localhost
+> From: Andrew Morton <andrewm@uow.edu.au>
+> X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac13 i686)
+> To: Gordon Sadler <gbsadler1@lcisp.com>
+> Subject: Re: PROBLEM: 2.4.4 oops, will not boot
+> 
+> Gordon Sadler wrote:
+> > 
+> > Please CC on replies.
+> > Attached is REPORTING-BUGS template from source, and a hand copied oops
+> > that I ran through ksymoops. I really hope this is resolved, anything
+> > further needed, just ask.
+> 
+> Unfortunately the ksymoops output doesn't show the call trace.
+> Can you please try again?  A reproducable oops is, err, rather
+> important.  The syntax to feed into ksymoops is
+> 
+> Call Trace: [<c0111234>] [<c0123456>] ...
+> 
+> Thanks.
+> 
+Right, I see the problem now.. s/Calltrace/Call Trace/
 
-The reason why I released the alpha binary version is that several people
-would not believe that a user-space server with this level of performance
-would be possible at all and several statements that I made on this list were
-challenged.
+Reran oops through ksymoops with change to Call Trace, output attached.
 
-Besides I really appreciate the feedback that I received so far from Ingo and
-others, and I'd be very curious to know if anybody did any performance
-evaluation at all.
 
- - Fabio
 
-Zach Brown wrote:
+--+HP7ph2BbKc20aGI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="ksym.out"
 
-> I've always been tempted to go back and take a real swing at a
-> nice content server, but there's only so many hours in the day, and
-> apache+thttpd+tux complete the problem space.  If X15 isn't released
-> with an open license, I may be tempted yet again :)
+ksymoops 2.4.1 on i686 2.2.19.  Options used
+     -V (default)
+     -K (specified)
+     -L (specified)
+     -o /lib/modules/2.4.4/ (specified)
+     -m /boot/System.map-2.4.4 (specified)
 
+No modules in ksyms, skipping objects
+Unable to handle kernel NULL pointer dereference at virtual address 00000014 printing EIP: c01254b5
+*pde = 00000000
+Oops: 0000
+CPU: 0
+EIP: 0010: [<c01254b5>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+eflags: 00010013
+eax: c1227e08   ebx: c1227e08     ecx: c7e3ff68       edx: 00000000
+esi: 00000286   edi: 00000007     ebp: c12343c0       esp: c7e3feec
+ds: 0018        es: 0018       ss: 0018
+stack: 00000000 c1263080 c12630dc c013ec88 c1277e08 00000007 00000000 c1263080
+       c12630dc c12343c0 00000005 c01370c8 c12343c0 c7e3ff68 c7e3ff68 00000000
+       c12343c0 c7e3ffa4 c0137819 c12343c0 c7e3ff68 00000000 c1265000 00000000
+Call Trace: [<c013ec88>] [<c01370c8>] [<c0137819>] [<c0136e4a>] [<c0137e3c>] [<c0134f36>] [<c0106b9b>]
+Code: 8b 42 14 ff 42 10 89 c1 0f af 4b 0c 03 4a 0c 8b 44 82 18 89
+
+>>EIP; c01254b5 <kmem_cache_alloc+15/60>   <=====
+Trace; c013ec88 <d_alloc+18/190>
+Trace; c01370c8 <real_lookup+38/c0>
+Trace; c0137819 <path_walk+579/7c0>
+Trace; c0136e4a <getname+5a/a0>
+Trace; c0137e3c <__user_walk+3c/60>
+Trace; c0134f36 <sys_lstat64+16/70>
+Trace; c0106b9b <system_call+33/38>
+Code;  c01254b5 <kmem_cache_alloc+15/60>
+00000000 <_EIP>:
+Code;  c01254b5 <kmem_cache_alloc+15/60>   <=====
+   0:   8b 42 14                  mov    0x14(%edx),%eax   <=====
+Code;  c01254b8 <kmem_cache_alloc+18/60>
+   3:   ff 42 10                  incl   0x10(%edx)
+Code;  c01254bb <kmem_cache_alloc+1b/60>
+   6:   89 c1                     mov    %eax,%ecx
+Code;  c01254bd <kmem_cache_alloc+1d/60>
+   8:   0f af 4b 0c               imul   0xc(%ebx),%ecx
+Code;  c01254c1 <kmem_cache_alloc+21/60>
+   c:   03 4a 0c                  add    0xc(%edx),%ecx
+Code;  c01254c4 <kmem_cache_alloc+24/60>
+   f:   8b 44 82 18               mov    0x18(%edx,%eax,4),%eax
+Code;  c01254c8 <kmem_cache_alloc+28/60>
+  13:   89 00                     mov    %eax,(%eax)
+
+
+--+HP7ph2BbKc20aGI--

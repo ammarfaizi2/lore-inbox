@@ -1,129 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264729AbSKNAbK>; Wed, 13 Nov 2002 19:31:10 -0500
+	id <S264733AbSKNAg4>; Wed, 13 Nov 2002 19:36:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264733AbSKNAbJ>; Wed, 13 Nov 2002 19:31:09 -0500
-Received: from dp.samba.org ([66.70.73.150]:24797 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S264729AbSKNAbI>;
-	Wed, 13 Nov 2002 19:31:08 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com, jamesm@intercode.com.au,
-       laforge@gnumonks.org
-Subject: [PATCH] module_name macro
-Date: Thu, 14 Nov 2002 12:36:40 +1100
-Message-Id: <20021114003801.3CAD82C050@lists.samba.org>
+	id <S264743AbSKNAg4>; Wed, 13 Nov 2002 19:36:56 -0500
+Received: from petasus.ch.intel.com ([143.182.124.5]:33945 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id <S264733AbSKNAgz>; Wed, 13 Nov 2002 19:36:55 -0500
+Message-ID: <A46BBDB345A7D5118EC90002A5072C7806CAC93D@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Falk Hueffner'" <falk.hueffner@student.uni-tuebingen.de>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: RE: [PATCH] include/asm-ARCH/page.h:get_order() Reorganize and op
+	 timize
+Date: Wed, 13 Nov 2002 16:43:37 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nice abstraction to remove some #ifdef CONFIG_MODULEs.
 
-Linus, please apply.
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+> > > >     s = --s >> PAGE_SHIFT;
+> > > 
+> > > This code has undefined behaviour.
+> >  
+> > Do you mean that this:
+> > 
+> > s = (s-1) >> PAGE_SHIFT
+> > 
+> > is more deterministic? If so, I agree -- if you mean something else,
+> > I am kind of lost.
+> 
+> I mean that this code violates the rule that you may modify a value
+> only once between two sequence points. Newer gccs have a warning for
+> this (-Wsequence-point), the info page tells more.
 
-Name: Module Fixes II: module_name
-Author: Rusty Russell
-Status: Trivial
-Depends: Module/module.patch.gz
+Agreed, and it was a poor choice from me. (s-1) should be correct,
+and gcc-3.2 with -Wsequence-point is happy about it.
 
-D: Fixes crypto so it compiles with !CONFIG_MODULES, and cleans up two
-D: other cases which did #ifdef CONFIG_MODULES.
+> Also, did I understand it right that you want to use fls even on
+> architectures that don't have it as a builtin? I would guess that will
+> actually be noticeably slower, since generic_fls is so complicated.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/crypto/api.c working-2.5-bk-modname/crypto/api.c
---- linux-2.5-bk/crypto/api.c	2002-11-11 20:00:55.000000000 +1100
-+++ working-2.5-bk-modname/crypto/api.c	2002-11-13 20:49:52.000000000 +1100
-@@ -263,8 +263,7 @@ static int c_show(struct seq_file *m, vo
- 	struct crypto_alg *alg = (struct crypto_alg *)p;
- 	
- 	seq_printf(m, "name         : %s\n", alg->cra_name);
--	seq_printf(m, "module       : %s\n", alg->cra_module ?
--					alg->cra_module->name : "[static]");
-+	seq_printf(m, "module       : %s\n", module_name(alg->cra_module));
- 	seq_printf(m, "blocksize    : %u\n", alg->cra_blocksize);
- 	
- 	switch (alg->cra_flags & CRYPTO_ALG_TYPE_MASK) {
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/include/linux/module.h working-2.5-bk-modname/include/linux/module.h
---- linux-2.5-bk/include/linux/module.h	2002-11-13 18:54:55.000000000 +1100
-+++ working-2.5-bk-modname/include/linux/module.h	2002-11-13 20:56:51.000000000 +1100
-@@ -242,6 +242,13 @@ static inline void module_put(struct mod
- 
- #endif /* CONFIG_MODULE_UNLOAD */
- 
-+/* This is a #define so the string doesn't get put in every .o file */
-+#define module_name(mod)			\
-+({						\
-+	struct module *__mod = (mod);		\
-+	__mod ? __mod->name : "kernel";		\
-+})
-+
- #define __unsafe(mod)							     \
- do {									     \
- 	if (mod && !(mod)->unsafe) {					     \
-@@ -265,6 +272,8 @@ do {									     \
- #define try_module_get(module) 1
- #define module_put(module) do { } while(0)
- 
-+#define module_name(mod) "kernel"
-+
- #define __unsafe(mod)
- #endif /* CONFIG_MODULES */
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/kernel/exec_domain.c working-2.5-bk-modname/kernel/exec_domain.c
---- linux-2.5-bk/kernel/exec_domain.c	2002-11-13 18:54:56.000000000 +1100
-+++ working-2.5-bk-modname/kernel/exec_domain.c	2002-11-13 20:57:19.000000000 +1100
-@@ -210,13 +210,8 @@ get_exec_domain_list(char *page)
- 	read_lock(&exec_domains_lock);
- 	for (ep = exec_domains; ep && len < PAGE_SIZE - 80; ep = ep->next)
- 		len += sprintf(page + len, "%d-%d\t%-16s\t[%s]\n",
--			ep->pers_low, ep->pers_high, ep->name,
--#ifdef CONFIG_MODULES
--			ep->module ? ep->module->name : "kernel"
--#else
--			"kernel"
--#endif
--			);
-+			       ep->pers_low, ep->pers_high, ep->name,
-+			       module_name(ep->module));
- 	read_unlock(&exec_domains_lock);
- 	return (len);
- }
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/net/ipv4/netfilter/ip_nat_helper.c working-2.5-bk-modname/net/ipv4/netfilter/ip_nat_helper.c
---- linux-2.5-bk/net/ipv4/netfilter/ip_nat_helper.c	2002-11-13 18:54:56.000000000 +1100
-+++ working-2.5-bk-modname/net/ipv4/netfilter/ip_nat_helper.c	2002-11-13 20:59:30.000000000 +1100
-@@ -361,8 +361,6 @@ helper_cmp(const struct ip_nat_helper *h
- 	return ip_ct_tuple_mask_cmp(tuple, &helper->tuple, &helper->mask);
- }
- 
--#define MODULE_MAX_NAMELEN		32
--
- int ip_nat_helper_register(struct ip_nat_helper *me)
- {
- 	int ret = 0;
-@@ -374,14 +372,13 @@ int ip_nat_helper_register(struct ip_nat
- 		    && ct_helper->me) {
- 			__MOD_INC_USE_COUNT(ct_helper->me);
- 		} else {
--#ifdef CONFIG_MODULES
- 			/* We are a NAT helper for protocol X.  If we need
- 			 * respective conntrack helper for protoccol X, compute
- 			 * conntrack helper name and try to load module */
--			char name[MODULE_MAX_NAMELEN];
--			const char *tmp = me->me->name;
-+			char name[MODULE_NAME_LEN];
-+			const char *tmp = module_name(me->me);
- 			
--			if (strlen(tmp) + 6 > MODULE_MAX_NAMELEN) {
-+			if (strlen(tmp) + 6 > MODULE_NAME_LEN) {
- 				printk("%s: unable to "
- 				       "compute conntrack helper name "
- 				       "from %s\n", __FUNCTION__, tmp);
-@@ -404,7 +401,6 @@ int ip_nat_helper_register(struct ip_nat
- 			       "module loader support\n", name);
- 			return -EBUSY;
- #endif
--#endif
- 		}
- 	}
- 	WRITE_LOCK(&ip_nat_lock);
+Well, it is not that bad, and it is still faster [did a quick test now]
+
+0.144s, 0.241s and 0.358s
+
+[get_order on all numbers from 0 to 90000000 with the optimized version, 
+the one that uses generic_fls and the old one].
+
+Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
+fault]
+

@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135718AbRAUHKU>; Sun, 21 Jan 2001 02:10:20 -0500
+	id <S135764AbRAUH2T>; Sun, 21 Jan 2001 02:28:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135719AbRAUHKK>; Sun, 21 Jan 2001 02:10:10 -0500
-Received: from clueserver.org ([206.163.47.224]:26898 "HELO clueserver.org")
-	by vger.kernel.org with SMTP id <S135718AbRAUHKD>;
-	Sun, 21 Jan 2001 02:10:03 -0500
-Date: Sat, 20 Jan 2001 23:20:34 -0800 (PST)
-From: Alan Olsen <alan@clueserver.org>
-To: Admin Mailing Lists <mlist@intergrafix.net>
-Cc: Ragnar Hojland Espinosa <ragnar_hojland@eresmas.com>, profmakx.fmp@gmx.de,
+	id <S135763AbRAUH2J>; Sun, 21 Jan 2001 02:28:09 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:3847 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S135405AbRAUH16>;
+	Sun, 21 Jan 2001 02:27:58 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200101210727.f0L7RO3258994@saturn.cs.uml.edu>
+Subject: Re: named streams, extended attributes, and posix
+To: rothwell@holly-springs.nc.us (Michael Rothwell)
+Date: Sun, 21 Jan 2001 02:27:24 -0500 (EST)
+Cc: mmckinlay@gnu.org (Mo McKinlay), peter@cadcamlab.org (Peter Samuelson),
         linux-kernel@vger.kernel.org
-Subject: Re: [OT?] Coding Style
-In-Reply-To: <Pine.LNX.4.10.10101210048360.17920-100000@athena.intergrafix.net>
-Message-ID: <Pine.LNX.4.10.10101202319560.27749-100000@clueserver.org>
+In-Reply-To: <3A686599.470272D6@holly-springs.nc.us> from "Michael Rothwell" at Jan 19, 2001 11:04:41 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Jan 2001, Admin Mailing Lists wrote:
+Michael Rothwell writes:
+> ...
+>> Today, Michael Rothwell (rothwell@holly-springs.nc.us) wrote:
 
-> > And the lord spake, saying, "First shalt thou write thy holy code. Indenting
-> > shalt thou count to three, no more, no less.  Three shalt be the spaces thou 
-> > shalt count, and the number of the counting shalt be three.  Four shalt thou
-> > not count, nor count thou two, excepting that thou then proceedeth to three.
-> > Eight is right out.  Once the number three, being the third number be
-> > reached, shalt thou move towards indenting thy next line ..
-> > 
-> 
-> now I know why I never read the bible.
+>>> The filesystem, when registering that it supports the "named streams"
+>>> namespace, could specify its preferred delimiter to the VFS as well.
+>>> Ext4 could use /directory/file/stream, and NTFS could use
+>>> /directory/file:stream.
+...
+> Oh, undoubtedly.  But NTFS already disallows several characters
+> in valid filenames.
 
-I thought that was the indention rules for Python. ]:>
+NTFS allows all 16-bit characters in filenames, including 0x0000.
+Nothing is disallowed. The NT kernel's native API uses counted
+Unicode strings. The strings can be huge too, like 128 kB.
 
-alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
-Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
-    "In the future, everything will have its 15 minutes of blame."
+So there isn't _any_ safe delimiter.
 
+Win32 will choke on 0x0000 and a few other things, allowing a
+clever person to create apparently inaccessible files.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

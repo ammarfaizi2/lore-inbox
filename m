@@ -1,83 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261782AbRFQQ7y>; Sun, 17 Jun 2001 12:59:54 -0400
+	id <S261866AbRFQRDx>; Sun, 17 Jun 2001 13:03:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261866AbRFQQ7e>; Sun, 17 Jun 2001 12:59:34 -0400
-Received: from p92.nas3.is5.u-net.net ([195.102.201.92]:42735 "EHLO
-	keston.u-net.com") by vger.kernel.org with ESMTP id <S261782AbRFQQ73>;
-	Sun, 17 Jun 2001 12:59:29 -0400
-Message-ID: <00f501c0f74e$defac4e0$1901a8c0@node0.idium.eu.org>
-From: "David Flynn" <Dave@keston.u-net.com>
-To: "linux kernel mailinglist" <linux-kernel@vger.kernel.org>
-Subject: [slightly OT] IDE problems ? or just a dead disk ?
-Date: Sun, 17 Jun 2001 17:59:28 +0100
+	id <S261881AbRFQRDn>; Sun, 17 Jun 2001 13:03:43 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:8462 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261866AbRFQRDa>; Sun, 17 Jun 2001 13:03:30 -0400
+Message-ID: <3B2CE2CE.7020705@zytor.com>
+Date: Sun, 17 Jun 2001 10:03:10 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4 i686; en-US; rv:0.9.1) Gecko/20010607
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Roberto Di Cosmo <roberto@dicosmo.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@suse.cz>,
+        Roberto Di Cosmo <Roberto.Di-Cosmo@pps.jussieu.fr>,
+        linux-kernel@vger.kernel.org, demolinux@demolinux.org
+Subject: Re: [isocompr PATCH]: first comparison with HPA's zisofs
+In-Reply-To: <20010611225944.B959@bug.ucw.cz>	<E159r4y-0001bR-00@the-village.bc.nu> <15148.49603.742951.360288@beryllium.pps.jussieu.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-X-MDRemoteIP: 192.168.0.50
-X-Return-Path: Dave@keston.u-net.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi guys,
-        Since its relativley quiet at the moment, please excuse me for
-asking for some advice about the following problem.
+Roberto Di Cosmo wrote:
 
-for a while now ive had a disk that causes errors to occur during reads,
-however, ive finally got round to doing a
+>
+> 
+> I have only the following (minor) criticisms 
+> 
+> - the transparent compression scheme does not rely on a special
+>   filename extension (it was .gZ in isocompr): a file foo gets
+>   compressed to a file foo, and the only way to see if foo is
+>   compressed or not is to read the header. This has pros and cons...
+>   and I wonder what the reasons of this choice are.
+> 
 
-# badblocks -c 32 -o mybadblocks  -w -v -s /dev/hdc
 
-so after one part of the test its found 2048 bad blocks, and dumped alot of
-error messages, which look like this:
+It caused ALL kinds of nastiness; the chosen solution was vastly simpler 
+on a whole bunch of axes.
 
-kernel: hdc: read_intr: status=0x59 { DriveReady SeekComplete DataRequest
-Error }
-kernel: hdc: read_intr: error=0x01 { AddrMarkNotFound }, LBAsect=2116604,
-sector=2116604
-kernel: hdc: read_intr: status=0x59 { DriveReady SeekComplete DataRequest
-Error }
-kernel: hdc: read_intr: error=0x01 { AddrMarkNotFound }, LBAsect=2116604,
-sector=2116604
-kernel: hdc: read_intr: status=0x59 { DriveReady SeekComplete DataRequest
-Error }
-kernel: hdc: read_intr: error=0x01 { AddrMarkNotFound }, LBAsect=2116604,
-sector=2116604
-kernel: ide1: reset: success
-kernel: hdc: read_intr: status=0x59 { DriveReady SeekComplete DataRequest
-Error }
-kernel: hdc: read_intr: error=0x01 { AddrMarkNotFound }, LBAsect=2116604,
-sector=2116604
-kernel: end_request: I/O error, dev 16:00 (hdc), sector 2116604
-kernel: hdc: read_intr: status=0x59 { DriveReady SeekComplete DataRequest
-Error }
-kernel: hdc: read_intr: error=0x40 { UncorrectableError }, LBAsect=2116607,
-sector=2116607
-kernel: end_request: I/O error, dev 16:00 (hdc), sector 2116607
-kernel: hdc: read_intr: status=0x59 { DriveReady SeekComplete DataRequest
-Error }
-kernel: hdc: read_intr: error=0x40 { UncorrectableError }, LBAsect=2116608,
-sector=2116608
-kernel: end_request: I/O error, dev 16:00 (hdc), sector 2116608
-kernel: hdc: read_intr: status=0x59 { DriveReady SeekComplete DataRequest
-Error }
-kernel: hdc: read_intr: error=0x40 { UncorrectableError }, LBAsect=2116610,
-sector=2116610
 
-i have tried the disk in 2 systems, one Socket7 pentium and a PII /w a BX
-chipset ... the only thing i can think this is is either a geometry problem
-?? or a hard disk failiure ...
+> - the tools allow to compress/decompress only a whole directory tree,
+>   while it should be possible to act on a single file also: in DemoLinux
+>   not all files are compressed (some must be readable under (hem...) other
+>   less interesting OSs for example ;-)) and the distinction is not on
+>   a per-directory basis.
+>   [easy to fix, see patch at the end of this message: I did this to
+>   be able to try zisofs with DemoLinux]
+> 
 
-anyone got any ideas ?
 
-Thanks.
+You can do this by having the compressed and uncompressed files in 
+different directory trees and merge them using mkisofs.  I personally 
+think that's a cleaner solution, even if your suggestion might make 
+sense anyway.  Your patch, though, is too ugly to live.
 
-Dave
+
+> - it seems to me that this was written with 2.4.x in mind, and I did not
+>   find a version for 2.2.x kernels :-(
+> 
+> Now I wonder, if zisofs is going to be included into 2.5 (I would strongly
+> vote in favour!), would it be worthwhile to include a compatibility mode
+> to read the isocompr blocksized format too?
+> 
+
+
+No.  isocompr was misdesigned, and such a compatibility mode would 
+needlessly complicate everything.
+
+	-hpa
+
 
 

@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbTHERnE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 13:43:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267186AbTHERnE
+	id S267471AbTHERrF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 13:47:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267491AbTHERrE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 13:43:04 -0400
-Received: from fw.osdl.org ([65.172.181.6]:30098 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262499AbTHERnC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 13:43:02 -0400
-Date: Tue, 5 Aug 2003 10:47:47 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: Ducrot Bruno <poup@poupinou.org>, lkml <linux-kernel@vger.kernel.org>
+	Tue, 5 Aug 2003 13:47:04 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:58531 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S267471AbTHERrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 13:47:02 -0400
+Date: Tue, 5 Aug 2003 19:46:57 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Ducrot Bruno <poup@poupinou.org>, lkml <linux-kernel@vger.kernel.org>
 Subject: Re: [TRIVIAL] sanitize power management config menus, take two
-In-Reply-To: <20030805165117.GH18982@louise.pinerecords.com>
-Message-ID: <Pine.LNX.4.44.0308051006060.23977-100000@cherise>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20030805174657.GA22909@louise.pinerecords.com>
+References: <20030805165117.GH18982@louise.pinerecords.com> <Pine.LNX.4.44.0308051006060.23977-100000@cherise>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0308051006060.23977-100000@cherise>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> [mochel@osdl.org]
+> 
+> I can buy that. There are actually three levels of power management that 
+> we handle:
+> 
+> - System Power Management (swsusp, CONFIG_ACPI_SLEEP)
+> - Device Power Management (kernel/pm.c, future driver model support)
+> - CPU Power Management (cpufreq)
+> 
+> SPM implies that DPM will be enabled, but both DPM and CPM can exist 
+> without SPM, and independently of each other. All of them would 
+> essentially fall under CONFIG_PM.. 
 
-> Trouble is, the same goes for ACPI -- it doesn't require that CONFIG_PM
-> code be present.
+Ok, that makes a lot of sense.
 
-I initially missed that part of your patch, and that is incorrect - Only
-part of ACPI (CONFIG_ACPI_SLEEP) should depend on CONFIG_PM.
+> Would you willing to whip up a patch for the Kconfig entries? 
 
-> I think the correct x86 solution would be to introduce a real dummy
-> option for the menus, and imply CONFIG_PM if APM or swsusp (the two
-> options that seem to actually need CONFIG_PM code) is enabled.
+Sure, I'll try to put something together so we have a patch to start
+playing with.
 
-I can buy that. There are actually three levels of power management that 
-we handle:
-
-- System Power Management (swsusp, CONFIG_ACPI_SLEEP)
-- Device Power Management (kernel/pm.c, future driver model support)
-- CPU Power Management (cpufreq)
-
-SPM implies that DPM will be enabled, but both DPM and CPM can exist 
-without SPM, and independently of each other. All of them would 
-essentially fall under CONFIG_PM.. 
-
-Would you willing to whip up a patch for the Kconfig entries? 
-
-
-	-pat
-
+-- 
+Tomas Szepe <szepe@pinerecords.com>

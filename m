@@ -1,41 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269614AbUHZUek@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269595AbUHZUek@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269614AbUHZUek (ORCPT <rfc822;willy@w.ods.org>);
+	id S269595AbUHZUek (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 26 Aug 2004 16:34:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269613AbUHZU34
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269614AbUHZUbD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 16:29:56 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4840 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269586AbUHZUZt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 16:25:49 -0400
-Message-ID: <412E4740.3090807@pobox.com>
-Date: Thu, 26 Aug 2004 16:25:36 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Thu, 26 Aug 2004 16:31:03 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:19393 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S269593AbUHZU0F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 16:26:05 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: 2.6.9-rc1-mm1
+Date: Thu, 26 Aug 2004 22:36:13 +0200
+User-Agent: KMail/1.5
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040826014745.225d7a2c.akpm@osdl.org> <200408261636.06857.rjw@sisk.pl> <412E11ED.7040300@kolivas.org>
+In-Reply-To: <412E11ED.7040300@kolivas.org>
 MIME-Version: 1.0
-To: Thomas Zehetbauer <thomasz@hostmaster.org>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: netfilter IPv6 support
-References: <1093546367.3497.23.camel@hostmaster.org>
-In-Reply-To: <1093546367.3497.23.camel@hostmaster.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408262236.13964.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Zehetbauer wrote:
-> Although linux was one of the first to support IPv6 it seems to me that
-> netfilter support has almost stuck. There is still not even a REJECT
-> target not to mention stateful filtering for IPv6.
+On Thursday 26 of August 2004 18:38, Con Kolivas wrote:
+> Rafael J. Wysocki wrote:
+> > On Thursday 26 of August 2004 13:07, Con Kolivas wrote:
+> >>Andrew Morton wrote:
+> >>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/
+> >>>2 .6.9-rc1-mm1/
+> >>>
+> >>>
+> >>>- nicksched is still here.  There has been very little feedback, except
+> >>>that it seems to slow some workloads on NUMA.
+> >>
+> >>That's because most people aren't interested in a new cpu scheduler for
+> >>2.6.
+> >
+> > I am, but I have no benchmarks that give any useful numbers.
+>
+> That's because there are none for interactivity; you're simply
+> reinforcing my point.
 
+Hm, can you tell me please what you consider as the most obvious interactivity 
+issue that you expect to be improved by your scheduler?  A typical scenario 
+in which the "standard" one will be "not good enough" in your opinion?
 
-google found for me an ip6_conntrack module, but...  some people make a 
-credible argument that stateful filtering doesn't scale beyond small 
-networks and small amounts of connections.  As Andi puts it, there is no 
-infinite hash.
+> >>The current one works well enough in most situations and people
+> >>aren't trying -mm to fix their interactive problems since they are few
+> >>and far between.
+> >
+> > Actually, with the current scheduler, updatedb really sucks.  It's
+> > supposed to be a background task, but it hogs IO resources and memory
+> > like crazy (disclaimer: it's my personal subjective observation).
+>
+> The cpu scheduler plays almost no part in this. It's the I/O scheduler
+> and the vm.
 
-	Jeff
+I wasn't quite sure so thanks for pointing it out to me.
 
+> IOnice will help the former _when it comes out_. Dropping
+> the swappiness kind of helps the latter; although there are numerous
+> alternative tweaks appearing for that too.
 
+I know that.  It does not hurt me that much. :-)  Still, on a dual-Opteron box 
+with a gig of RAM I would expect it to "behave" a bit better in the default 
+configuration ...
+
+Regards,
+RJW
+
+-- 
+For a successful technology, reality must take precedence over public 
+relations, for nature cannot be fooled.
+					-- Richard P. Feynman

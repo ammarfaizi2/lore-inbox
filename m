@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317230AbSGHWu5>; Mon, 8 Jul 2002 18:50:57 -0400
+	id <S317232AbSGHWz4>; Mon, 8 Jul 2002 18:55:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317232AbSGHWu4>; Mon, 8 Jul 2002 18:50:56 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:63505 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S317230AbSGHWuz>;
-	Mon, 8 Jul 2002 18:50:55 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Patch for Menuconfig script 
-In-reply-to: Your message of "Mon, 08 Jul 2002 08:14:12 MST."
-             <20020708151412.GB695@opus.bloom.county> 
+	id <S317251AbSGHWzz>; Mon, 8 Jul 2002 18:55:55 -0400
+Received: from jalon.able.es ([212.97.163.2]:46492 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S317232AbSGHWzy>;
+	Mon, 8 Jul 2002 18:55:54 -0400
+Date: Tue, 9 Jul 2002 00:58:16 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+Cc: Austin Gonyou <austin@digitalroadkill.net>, linux-kernel@vger.kernel.org
+Subject: Re: Terrible VM in 2.4.11+?
+Message-ID: <20020708225816.GA1948@werewolf.able.es>
+References: <20020709001137.A1745@mail.muni.cz> <1026167822.16937.5.camel@UberGeek> <20020709005025.B1745@mail.muni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 09 Jul 2002 08:53:27 +1000
-Message-ID: <21071.1026168807@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20020709005025.B1745@mail.muni.cz>; from xhejtman@mail.muni.cz on Tue, Jul 09, 2002 at 00:50:25 +0200
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jul 2002 08:14:12 -0700, 
-Tom Rini <trini@kernel.crashing.org> wrote:
->On Sun, Jul 07, 2002 at 11:22:10PM +0100, Riley Williams wrote:
->> > This is just a patch to the Menuconfig script (can be easily adapted
->> > to the other ones) that allows you to configure the kernel without
->> > the requirement of bash (I tested it with ksh, in POSIX-only mode).  
->> > Feel free to flame me :P
->> 
->> Does it also work in the case where the current shell is csh or tcsh
->> (for example)?
+
+On 2002.07.09 Lukas Hejtmanek wrote:
 >
->Er.. why wouldn't it?
->$ head -1 scripts/Menuconfig 
->#! /bin/sh
+>Yes, I know a few people that reports it works well for them. How ever for me
+>and some other do not. System is redhat 7.2, ASUS A7V MB, /dev/hda is on promise
+>controller. Following helps a lot:
+>
+>while true; do sync; sleep 3; done
+>
+>How did you modify the params of bdflush? I do not want to suspend i/o buffers 
+>nor disk cache.. 
+>
+>Another thing to notice, the X server has almost every time some pages swaped to
+>the swap space on /dev/hda. When bdflushd is flushing buffers X server stops as
+>has no access to the swap area during i/o lock.
+>
+>On Mon, Jul 08, 2002 at 05:37:02PM -0500, Austin Gonyou wrote:
+>> I do things like this regularly, and have been using kernels 2.4.10+ on
+>> many types of boxen, but have yet to see this behavior. I've done this
+>> same type of test with 16k blocks up to 10M, and not had this problem I
+>> usually do test with regard to I/O on SCSI, but have tested on IDE,
+>> since we use many IDE systems for developers. I found though, that using
+>> something like LVM, and overwhelming it, causes bdflush to go crazy. I
+>> can hit the wall you refer to then.When bdflushd is too busy...it does
+>> in fact seem to *lock* the system, but of course..it's just bdflush
+>> doing it's thing. If I modify the bdflush params..this causes things to
+>> work just fine, at least, useable.
+>
 
-The #! line is irrelevant.  The script is invoked via
+Seriously, if you have that kind of problems, take the -aa kernel and use it.
+I use it regularly and it behaves as one would expect, and fast.
+And please, report your results...
 
-  $(CONFIG_SHELL) scripts/Menuconfig arch/$(ARCH)/config.in
-
-Large chunks of kbuild assume that CONFIG_SHELL is bash.  Don't bother
-trying to cleanup all the code that assumes bash, just
-  make CONFIG_SHELL=/path/to/bash ...
-
+-- 
+J.A. Magallon             \   Software is like sex: It's better when it's free
+mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
+Linux werewolf 2.4.19-rc1-jam1, Mandrake Linux 8.3 (Cooker) for i586
+gcc (GCC) 3.1.1 (Mandrake Linux 8.3 3.1.1-0.7mdk)

@@ -1,75 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132547AbRDWXPc>; Mon, 23 Apr 2001 19:15:32 -0400
+	id <S132557AbRDWXQg>; Mon, 23 Apr 2001 19:16:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132555AbRDWXNf>; Mon, 23 Apr 2001 19:13:35 -0400
-Received: from venus.Sun.COM ([192.9.25.5]:47328 "EHLO venus.Sun.COM")
-	by vger.kernel.org with ESMTP id <S132547AbRDWXMy>;
-	Mon, 23 Apr 2001 19:12:54 -0400
-From: "Pawel Worach" <pworach@mysun.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Reply-To: pawel.worach@mysun.com
-Message-ID: <3344e325f9.325f93344e@mysun.com>
-Date: Tue, 24 Apr 2001 01:04:22 +0200
-X-Mailer: Netscape Webmail
-MIME-Version: 1.0
-Content-Language: en
-Subject: Re: i810_audio broken?
-X-Accept-Language: en
-Content-Type: multipart/mixed; boundary="--14d034f3cc510a8"
+	id <S132555AbRDWXPd>; Mon, 23 Apr 2001 19:15:33 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:8670 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S132537AbRDWXNv>; Mon, 23 Apr 2001 19:13:51 -0400
+Date: Mon, 23 Apr 2001 17:13:48 -0600
+Message-Id: <200104232313.f3NNDmc26838@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Christoph Rohland <cr@sap.com>,
+        "David L. Parsley" <parsley@linuxjedi.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: hundreds of mount --bind mountpoints?
+In-Reply-To: <Pine.GSO.4.21.0104231852520.4968-100000@weyl.math.psu.edu>
+In-Reply-To: <200104232249.f3NMnI126351@vindaloo.ras.ucalgary.ca>
+	<Pine.GSO.4.21.0104231852520.4968-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
-
-----14d034f3cc510a8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-
-Ok i'll try :)
-
-It's a little bit slow and the high tones get kind of very high
-The first track of Moby Play sounds like you mixed Moby with
-Donald Duck (but it not fast), like I said it's hard to describe sound
-in text. :)
-
-I can record it on another box and give You the result if You like? :)
-
------ Original Message -----
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Tuesday, April 24, 2001 1:02 am
-Subject: Re: i810_audio broken?
-
-> > I was using mpg123 (xmms and c/o does exactly the same)
-> > if I run it like this Moby sounds very stupid... :)
-> > [root@whyami mp3]# mpg123 -r 48000 Moby_01.wav.mp3 
-> > unsupported playback rate: 44100
-> > Audio device open for 44.1Khz, stereo, 16bit failed
-> > Trying 44.1Khz, 8bit stereo.
-> > unsupported sound format: 32
-> > Audio device open for 44.1Khz, stereo, 8bit failed
-> > Trying 48Khz, 16bit stereo.
-> 
-> Ok so its trying to do the right thing. Can you describe what it 
-> sounds like
-> better ?
+Alexander Viro writes:
 > 
 > 
+> On Mon, 23 Apr 2001, Richard Gooch wrote:
+> 
+> > - keep a separate VFSinode and FSinode slab cache
+> 
+> Yup.
+> 
+> > - allocate an enlarged VFSinode that contains the FSinode at the end,
+> >   with the generic pointer in the VFSinode part pointing to FSinode
+> >   part.
+> 
+> Please, don't. It would help with bloat only if you allocated these
+> beasts separately for each fs and then you end up with _many_ allocators
+> that can generate pointer to struct inode. 
+> 
+> "One type - one allocator" is a good rule - violating it turns into
+> major PITA couple of years down the road 9 times out of 10.
 
-----14d034f3cc510a8
-Content-Type: text/x-vcard; name="pworach.vcf"; charset=us-ascii
-Content-Disposition: attachment; filename="pworach.vcf
-Content-Description: Card for <pworach@mysun.com>
-Content-Transfer-Encoding: 7bit
+Agreed. The better option is the separate VFSinode and FSinode caches.
+The enlarged inode scheme is also ugly, like the unions. It's just
+less bloated :-)
 
-begin:vcard
-n:Worach;Pawel
-fn:Pawel Worach
-version:2.1
-email;internet:pawel.worach@mysun.com
-end:vcard
+				Regards,
 
-----14d034f3cc510a8--
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

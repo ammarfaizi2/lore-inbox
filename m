@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317697AbSG2DrC>; Sun, 28 Jul 2002 23:47:02 -0400
+	id <S317712AbSG2DvE>; Sun, 28 Jul 2002 23:51:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317712AbSG2DrC>; Sun, 28 Jul 2002 23:47:02 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14610 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317697AbSG2DrB>; Sun, 28 Jul 2002 23:47:01 -0400
-Date: Sun, 28 Jul 2002 20:51:13 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: akpm@zip.com.au, <linux-kernel@vger.kernel.org>
+	id <S317750AbSG2DvE>; Sun, 28 Jul 2002 23:51:04 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:14563 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317712AbSG2DvE>;
+	Sun, 28 Jul 2002 23:51:04 -0400
+Date: Sun, 28 Jul 2002 20:43:02 -0700 (PDT)
+Message-Id: <20020728.204302.44950225.davem@redhat.com>
+To: torvalds@transmeta.com
+Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org
 Subject: Re: [patch 2/13] remove pages from the LRU in __free_pages_ok()
-In-Reply-To: <20020728.195055.105468330.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0207282048230.913-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0207282048230.913-100000@home.transmeta.com>
+References: <20020728.195055.105468330.davem@redhat.com>
+	<Pine.LNX.4.44.0207282048230.913-100000@home.transmeta.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Linus Torvalds <torvalds@transmeta.com>
+   Date: Sun, 28 Jul 2002 20:51:13 -0700 (PDT)
 
+   On Sun, 28 Jul 2002, David S. Miller wrote:
+   > They must never run from HW irqs, in fact there is a BUG()
+   > check there against this.
+   
+   From a page cache standpoint softirq's are 100% equivalent to
+   hardware irq's, so that doesn't much help here.
 
-On Sun, 28 Jul 2002, David S. Miller wrote:
->
->    Also skb_release_data(), ___pskb_trim() and __pskb_pull_tail().  Can these
->    ever perform the final release against a page which is on the LRU?
->    In interrupt context?
->
-> These page releases run from either user or softint context.
->
-> They must never run from HW irqs, in fact there is a BUG()
-> check there against this.
+Wait are we trying to make the final freeing of (potentially)
+LRU/page-cache pages from any non-base context illegal?
 
->From a page cache standpoint softirq's are 100% equivalent to hardware
-irq's, so that doesn't much help here.
-
-> Any page that can be found in the page cache can end up here.  So
-> whatever that mean for "release against a page which is on the LRU"
-> applies here.
-
-Being in the page cache can be ok. What is _not_ ok is if this function
-can ever be the last user to release such a page (ie the original page
-count of the page had better be held on by something else - which usually
-is the page-cacheness itself, since shrinking the page cache will only
-happen for pages that are unused).
-
-		Linus
+If that really becomes an issue we can do something which moves
+this back to user context when the result of doing it in irq
+context would be problematic.
 

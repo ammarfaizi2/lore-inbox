@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263918AbTEWIIU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 04:08:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263921AbTEWIIU
+	id S263925AbTEWIKf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 04:10:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263921AbTEWIKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 04:08:20 -0400
-Received: from [62.112.80.35] ([62.112.80.35]:19840 "EHLO ipc1.karo")
-	by vger.kernel.org with ESMTP id S263918AbTEWIIT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 04:08:19 -0400
-Message-ID: <16077.55787.797668.329213@ipc1.karo>
-Date: Fri, 23 May 2003 10:20:59 +0200
-From: "Lothar Wassmann" <LW@KARO-electronics.de>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >= 2.5.30(at least))
-In-Reply-To: <20030522151156.C12171@flint.arm.linux.org.uk>
-References: <16076.50160.67366.435042@ipc1.karo>
-	<20030522151156.C12171@flint.arm.linux.org.uk>
-X-Mailer: VM 7.07 under Emacs 20.7.2
+	Fri, 23 May 2003 04:10:35 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:18967 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263925AbTEWIKd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 04:10:33 -0400
+Date: Fri, 23 May 2003 01:26:36 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       bzzz@tmi.comex.ru
+Subject: Re: [RFC] probably invalid accounting in jbd
+Message-Id: <20030523012636.1d272586.akpm@digeo.com>
+In-Reply-To: <871xypx62o.fsf_-_@gw.home.net>
+References: <87d6igmarf.fsf@gw.home.net>
+	<1053376482.11943.15.camel@sisko.scot.redhat.com>
+	<87he7qe979.fsf@gw.home.net>
+	<1053377493.11943.32.camel@sisko.scot.redhat.com>
+	<87addhd2mc.fsf@gw.home.net>
+	<20030521093848.59ada625.akpm@digeo.com>
+	<871xypx62o.fsf_-_@gw.home.net>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 May 2003 08:23:39.0052 (UTC) FILETIME=[9CC926C0:01C32104]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King writes:
-> We seem to have flush_icache_page() in install_page() - I wonder whether
-> we should also have flush_dcache_page() in there as well.
-> 
-Maybe because install_page() isn't called in the situation I
-was talking about. install_page() is called from filemap_populate()
-which in turn is called from do_file_map() in handle_pte_fault(),
-while I was talking about filemap_nopage() called by do_no_page() in
-handle_pte_fault().
+Alex Tomas <bzzz@tmi.comex.ru> wrote:
+>
+> I think current journal_release_buffer() which is used by ext3 allocator
+>  in -mm tree has a bug. look, it won't decrement credits if concurrent
+>  thread already put buffer on metadata list. but this may ext3_try_to_allocate()
+>  may overflow handle's credist.
 
-And maybe because *every* other call to flush_page_to_ram() has been
-replaced by one of the new interface macros except that one in
-filemap_nopage() in 'mm/filemap.c'.
+Yes, that is so.
+
+But some other handle has gained itself a free buffer.  That is actually
+harmless, except for one thing: as the handles are closed down,
+->t_outstanding_credits will be too small.  We could conceivably end up
+overflowing the journal.
 
 
-Lothar Wassmann
+umm, one possible solution to that is to rework the t_outstanding_credits
+logic so that we instead record:
+
+	number of buffers attached to the transaction +
+		sum of the initial size of all currently-running handles.
+
+as each handle is closed off, we subtract its initial size from the above
+metric.  Any buffers which that handle happened to add to the lists would
+have already been accounted for, when they were added.
+
+I _think_ that'll work...
+

@@ -1,27 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281306AbRKUIlj>; Wed, 21 Nov 2001 03:41:39 -0500
+	id <S281327AbRKUIpJ>; Wed, 21 Nov 2001 03:45:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281327AbRKUIla>; Wed, 21 Nov 2001 03:41:30 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48396 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281306AbRKUIlS>; Wed, 21 Nov 2001 03:41:18 -0500
-Subject: Re: [VM/MEMORY-SICKNESS] 2.4.15-pre7 kmem_cache_create invalid opcode
-To: jmerkey@vger.timpanogas.org (Jeff V. Merkey)
-Date: Wed, 21 Nov 2001 08:49:20 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-In-Reply-To: <20011121001639.A813@vger.timpanogas.org> from "Jeff V. Merkey" at Nov 21, 2001 12:16:39 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S281676AbRKUIo7>; Wed, 21 Nov 2001 03:44:59 -0500
+Received: from wallext.webflex.nl ([212.115.150.250]:32430 "EHLO
+	palm.webflex.nl") by vger.kernel.org with ESMTP id <S281327AbRKUIon>;
+	Wed, 21 Nov 2001 03:44:43 -0500
+Message-ID: <XFMail.20011121094325.mathijs@knoware.nl>
+X-Mailer: XFMail 1.5.1 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E166T4K-0004Lr-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <Pine.LNX.4.31.0111202040180.23000-100000@mail.deis.isec.pt>
+Date: Wed, 21 Nov 2001 09:43:25 +0100 (CET)
+From: Mathijs Mohlmann <mathijs@knoware.nl>
+To: Luis Miguel Correia Henriques <umiguel@alunos.deis.isec.pt>
+Subject: RE: copy to user
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Here's really strange one.  Building a module against 2.4.15-pre7 
-> seems to generate invalid opcodes (???) from the kernel includes.
 
-You hit a BUG(). If you rebuild the kernel with verbose BUG reporting 
-included you'll get a line and file to work back from
+On 20-Nov-2001 Luis Miguel Correia Henriques wrote:
+> I suppose now you can understand why SIGSTOP won't work. Hope you can help
+> me :)
+
+how about making a signal handler for SIGUSR1 that checks a global variable and
+loops. an other signal handler for SIGUSR2 to clear the variable so the SIGUSR1
+handler can exit.
+
+All in user space. (to delay execution kill -USR1 $pid, to continue: kill -USR2
+$pid)
+
+        me
+
+
+-- 
+        me

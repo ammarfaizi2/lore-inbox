@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265167AbUATAd2 (ORCPT <rfc822;willy@w.ods.org>);
+	id S265309AbUATAd2 (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 19 Jan 2004 19:33:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265269AbUATA1U
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265167AbUATA1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 19:27:20 -0500
-Received: from fw.osdl.org ([65.172.181.6]:38609 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265173AbUATADR (ORCPT
+	Mon, 19 Jan 2004 19:27:10 -0500
+Received: from mail.kroah.org ([65.200.24.183]:56237 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264537AbUATAEI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 19:03:17 -0500
-Subject: Re: aacraid and 2.6
-From: Mark Haverkamp <markh@osdl.org>
-To: Miek Gieben <miekg@atoom.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Nathan Poznick <kraken@drunkmonkey.org>
-In-Reply-To: <20040119180930.GA9391@atoom.net>
-References: <20040119102647.GA23288@atoom.net>
-	 <20040119135228.GA7935@tao.wang-fu.org> <20040119135619.GA32393@atoom.net>
-	 <20040119180505.GS1748@srv-lnx2600.matchmail.com>
-	 <20040119180930.GA9391@atoom.net>
-Content-Type: text/plain
-Message-Id: <1074556990.25357.19.camel@markh1.pdx.osdl.net>
+	Mon, 19 Jan 2004 19:04:08 -0500
+Date: Mon, 19 Jan 2004 16:04:05 -0800
+From: Greg KH <greg@kroah.com>
+To: Hollis Blanchard <hollisb@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kobj_to_dev ?
+Message-ID: <20040120000405.GA5656@kroah.com>
+References: <3FC7B008-487C-11D8-AED9-000A95A0560C@us.ibm.com> <20040117001739.GB3840@kroah.com> <400C3D87.3010502@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 19 Jan 2004 16:03:10 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <400C3D87.3010502@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-01-19 at 10:09, Miek Gieben wrote:
-> [On 19 Jan, @19:05, Mike wrote in "Re: aacraid and 2.6 ..."]
-> > > hmmm, did you have any luck with 2.6.1?
-> > > 
-> > > In this case it's a SATA raid from Adaptec. So, if aacraid if not ide-raid, why
-> > > doesn't it work? 
-> > 
-> > And what errors did you get?
+On Mon, Jan 19, 2004 at 02:26:47PM -0600, Hollis Blanchard wrote:
+> Greg KH wrote:
+> >
+> >How about just adding a find_device() function to the driver core, where
+> >you pass in a name and a type, so that others can use it?
 > 
-> none, when modprobing aacraid it just said:
-> AAC-RAID ....etc...
-> 
-> and no device /dev/sde found stuff like under 2.4.
-> 
-> grtz
->       Miek
-> --
-> "So long, and thanks for all the fish."
-> -- Hitchhikers Guide to the Galaxy
+> Something like this?
 
+Very nice, yes.  But I'll rename it to device_find() to keep the
+namespace sane.  Sound ok?
 
-It looks like there are some adapters in the 2.4 driver that aren't
-specified in the 2.6 driver.  Check linit.c in 2.4 and 2.6.
+thanks,
 
-
-
--- 
-Mark Haverkamp <markh@osdl.org>
-
+greg k-h

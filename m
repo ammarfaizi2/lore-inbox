@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262029AbUEQRg3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUEQRkX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262029AbUEQRg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 13:36:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbUEQRg3
+	id S262062AbUEQRkX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 13:40:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbUEQRkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 13:36:29 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:13485 "EHLO
-	falcon10.austin.ibm.com") by vger.kernel.org with ESMTP
-	id S262007AbUEQRgM convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 13:36:12 -0400
-Message-Id: <200405171735.i4HHZh8B024770@falcon10.austin.ibm.com>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.1
-To: "O.Sezer" <sezero@superonline.com>
-cc: marcelo.tosatti@cyclades.com, B.Zolnierkiewicz@elka.pw.edu.pl,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4] decrypt/update ide help entries 
+	Mon, 17 May 2004 13:40:23 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8589 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262063AbUEQRkI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 13:40:08 -0400
+Date: Mon, 17 May 2004 18:40:04 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Steven Cole <scole@lanl.gov>
+Cc: hugh@veritas.com, elenstev@mesatop.com, linux-kernel@vger.kernel.org,
+       support@bitmover.com, Linus Torvalds <torvalds@osdl.org>,
+       Wayne Scott <wscott@bitmover.com>, adi@bitmover.com, akpm@osdl.org,
+       wli@holomorphy.com, lm@bitmover.com, "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: 1352 NUL bytes at the end of a page?
+Message-ID: <20040517174004.GU17014@parcelfarce.linux.theplanet.co.uk>
+References: <200405162136.24441.elenstev@mesatop.com> <Pine.LNX.4.58.0405162152290.25502@ppc970.osdl.org> <20040516231120.405a0d14.akpm@osdl.org> <20040517.085640.30175416.wscott@bitmover.com> <20040517151738.GA4730@thunk.org> <Pine.LNX.4.58.0405170820560.25502@ppc970.osdl.org> <20040517153736.GT17014@parcelfarce.linux.theplanet.co.uk> <E88DCF88-A827-11D8-A7EA-000A95CC3A8A@lanl.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: Mon, 17 May 2004 12:35:43 -0500
-From: dwm@austin.ibm.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E88DCF88-A827-11D8-A7EA-000A95CC3A8A@lanl.gov>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 17, 2004 at 11:30:36AM -0600, Steven Cole wrote:
+ 
+> mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 
+> 0) = 0x40018000
 
-On Mon, 17 May 2004 20:05:43 +0300, "O.Sezer" wrote:
-...
->This has been in Alan's tree for ages, why not merge
->in mainline? Patch below, happily stolen from -ac/-pac.
->
-...
->+  Promise MB Ultra 133 [PDC20275]
+rw anonymous - that has nothing to do with any IO.
 
-This controller is UDMA5 (100) max.  At least the ones I have seen.
+> old_mmap(NULL, 19184, PROT_READ, MAP_PRIVATE, 3, 0) = 0x40018000
 
-++doug
+read-only, whatever file that was.
 
-
-
+Was there anything with PROT_WRITE and without MAP_ANONYMOUS?

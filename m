@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318601AbSILXDZ>; Thu, 12 Sep 2002 19:03:25 -0400
+	id <S318782AbSILXHb>; Thu, 12 Sep 2002 19:07:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318720AbSILXDZ>; Thu, 12 Sep 2002 19:03:25 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:27384
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318601AbSILXDY>; Thu, 12 Sep 2002 19:03:24 -0400
-Subject: RE: Killing/balancing processes when overcommited
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Thunder from the hill <thunder@lightweight.ods.org>
-Cc: Jim Sibley <jlsibley@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Giuliano Pochini <pochini@shiny.it>, riel@conectiva.com.br
-In-Reply-To: <Pine.LNX.4.44.0209121514330.10048-100000@hawkeye.luckynet.adm>
-References: <Pine.LNX.4.44.0209121514330.10048-100000@hawkeye.luckynet.adm>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
-Date: 13 Sep 2002 00:08:37 +0100
-Message-Id: <1031872117.6972.0.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318774AbSILXHb>; Thu, 12 Sep 2002 19:07:31 -0400
+Received: from CPE-203-51-30-83.nsw.bigpond.net.au ([203.51.30.83]:11259 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S318782AbSILXHa>; Thu, 12 Sep 2002 19:07:30 -0400
+Message-ID: <3D811F4F.EF8BECCD@eyal.emu.id.au>
+Date: Fri, 13 Sep 2002 09:12:15 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre5-ac6
+References: <200209121555.g8CFt9G22831@devserv.devel.redhat.com>
+Content-Type: multipart/mixed;
+ boundary="------------4668FD5DDFFEF30A68CCB481"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-09-12 at 22:15, Thunder from the hill wrote:
-> Hi,
-> 
-> On 12 Sep 2002, Alan Cox wrote:
-> > Because I've run real world large systems before. Ulimit is at best a
-> > handy little toy for stopping web server accidents.
-> 
-> Only if you assume that a bunch of users tries very hard to use up all the 
-> resources...
+This is a multi-part message in MIME format.
+--------------4668FD5DDFFEF30A68CCB481
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-You've never run a large machine have you
+drivers/scsi/cpqfcTS.h
+======================
+
+Has a stray tab after the eol backslash
+
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+--------------4668FD5DDFFEF30A68CCB481
+Content-Type: text/plain; charset=us-ascii;
+ name="2.4.20-pre5-ac6-cpqfcTS.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="2.4.20-pre5-ac6-cpqfcTS.patch"
+
+--- linux/drivers/scsi/cpqfcTS.h.orig	Fri Sep 13 08:34:19 2002
++++ linux/drivers/scsi/cpqfcTS.h	Fri Sep 13 08:34:31 2002
+@@ -19,7 +19,7 @@
+ // linked list of infinite length (with linked Ext S/G pages,
+ // limited only by available physical memory) we use SG_ALL.
+ 
+-#define CPQFCTS {                                \	
++#define CPQFCTS {                                \
+ 	detect:                 cpqfcTS_detect,         \
+ 	release:                cpqfcTS_release,        \
+ 	info:                   cpqfcTS_info,           \
+
+--------------4668FD5DDFFEF30A68CCB481--
 

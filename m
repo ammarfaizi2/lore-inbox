@@ -1,138 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277380AbRK2TSZ>; Thu, 29 Nov 2001 14:18:25 -0500
+	id <S279307AbRK2TSZ>; Thu, 29 Nov 2001 14:18:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279307AbRK2TSQ>; Thu, 29 Nov 2001 14:18:16 -0500
-Received: from [193.252.19.44] ([193.252.19.44]:51878 "EHLO
-	mel-rti19.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S277380AbRK2TSE>; Thu, 29 Nov 2001 14:18:04 -0500
-Date: Thu, 29 Nov 2001 19:42:01 +0100 (CET)
+	id <S280766AbRK2TSP>; Thu, 29 Nov 2001 14:18:15 -0500
+Received: from smtp-rt-11.wanadoo.fr ([193.252.19.62]:6354 "EHLO
+	magnolia.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S279307AbRK2TSJ>; Thu, 29 Nov 2001 14:18:09 -0500
+Date: Thu, 29 Nov 2001 19:50:00 +0100 (CET)
 From: Pascal Lengard <pascal.lengard@wanadoo.fr>
-To: "Leonard N. Zubkoff" <lnz@dandelion.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: dac960 broken ?
-In-Reply-To: <200111290615.fAT6Fv1l020712@dandelion.com>
-Message-ID: <Pine.LNX.4.33.0111291939310.17742-100000@h2o.chezmoi.fr>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+cc: <alan@lxorguk.ukuu.org.uk>, <suonpaa@iki.fi>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: apm suspend broken ?
+In-Reply-To: <Pine.LNX.4.33.0111020918020.466-100000@h2o.chezmoi.fr>
+Message-ID: <Pine.LNX.4.33.0111291943410.17742-100000@h2o.chezmoi.fr>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Nov 2001, Leonard N. Zubkoff wrote:
+On Fri, 2 Nov 2001, Pascal Lengard wrote:
 
-> Hmmm.  Nothing you've described makes any sense to me as I don't believe the
-> driver has changed in a way that would break the basic detection of the boards.
-> When you say that the card is not detected, precisely what do you mean?  Does
-> the driver report anything at all?
+Hello,
 
-OK, I did not write down the messages, but while testing, with DAC960
-compiled as module, It did load and initialise but said "no such peripheral"
-or something equivalent once (I know it's not precise enough ...).
+For anyone of interest:
 
-I ran some tests to record precise messages today:
+I tested plain 2.4.16 and the problems with APM are still there ...
 
-Here are the messages from the kernel 2.4.9-13 shipped by redhat:
------------------------------------------------------------------
-	Loading scsi_mod module
-	Loading DAC960 module
-	/lib/DAC960.o: init_module: Operation not permitted
-	Hint: insmod errors can be caused by incorrect module parameters, including invalid IO or IRQ parameters
-	ERROR /bin/insmod exited abnormally!
-	Loading jbd module
-	Journalled Block Device driver loaded
-	Loading ext3 module
-	Mounting /proc filesystem
-	Creaing root device
-	Mounting root filesystem
-	mount: error 19 mounting ext3
-	pivotroot: pivot_root(/sysroot,/sysroot/initrd) failed: 2
-	Freeing unused kernel memory: 216k freed
-	Kernel panic: No init found. Try passing init= option to kernel
+Fn+suspend does work "sometimes" (1 out of 5 tests)
 
+When it does not work, the laptop is stuck in a state with lcd screen lighted (but all black)
+pressing Fn+D to turn off the display works and the apm_suspend finish its job (turning off
+all other things like fans ...)
 
-Here is dmesg of 2.4.7-10 with dac960 compiled INSIDE kernel (WORKS):
----------------------------------------------------------------------
-	Journalled Block Device driver loaded
-	pty: 512 Unix98 ptys configured
-	Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ SERIAL_PCI enabled
-	ttyS00 at 0x03f8 (irq = 4) is a 16550A
-	ttyS01 at 0x02f8 (irq = 3) is a 16550A
-	Real Time Clock Driver v1.10d
-	block: queued sectors max/low 41557kB/13852kB, 128 slots per queue
-	RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
-	Floppy drive(s): fd0 is 2.88M
-	FDC 0 is an 82078.
-	DAC960: ***** DAC960 RAID Driver Version 2.4.10 of 1 February 2001 *****
-	DAC960: Copyright 1998-2001 by Leonard N. Zubkoff <lnz@dandelion.com>
-	DAC960#0: Configuring Mylex DAC960PD PCI RAID Controller
-	DAC960#0:   Firmware Version: 3.51-0-04, Channels: 2, Memory Size: 4MB
-	DAC960#0:   PCI Bus: 1, Device: 10, Function: 0, I/O Address: 0x6200
-	DAC960#0:   PCI Address: 0xBF800C00 mapped at 0x45002C00, IRQ Channel: 11
-	DAC960#0:   Controller Queue Depth: 64, Maximum Blocks per Command: 128
-	DAC960#0:   Driver Queue Depth: 63, Scatter/Gather Limit: 17 of 17 Segments
-	DAC960#0:   Stripe Size: 64KB, Segment Size: 8KB, BIOS Geometry: 128/32
-	DAC960#0:   Physical Devices:
-	<snip the devices>
-	DAC960#0:   Logical Drives:
-	<snip logical drives>
-	Partition check:
-	<snip>
-	loop: loaded (max 8 devices)
-	SCSI subsystem driver Revision: 1.00
-	request_module[scsi_hostadapter]: Root fs not mounted
-	NET4: Linux TCP/IP 1.0 for NET4.0
-
-Here are messages from 2.4.16 compiled INSIDE kernel (BROKEN)
-with this method:
-copy .config from 2.4.7-10 that worked (dmesg just above)
-and "make oldconfig"
-------------------------------------------------------------
-	Journalled Block device driver loaded
-	pty 512 Unix98 ptys configured
-	Serial driver version 5.05c ....
-	ttyS0 at ...
-	ttyS1 at ...
-	Real Time Clock Driver 1.10e
-	block: 128 slots per queue, batch=32
-	RAMDISK driver initilized ...
-	Floppy drives ...
-	FDC0 is an 82078
-
-here DAC960 should talk!!
-
-	loop: loaded (max 8 devices)
-	SCSI subsystem driver Revision: 1.00
-	request_module [scsi_hostadapter]: Root fs not mounted
-	NET4: Linux TCP/IP ...
-	IP Protocols ...
-	IP: Routing ...
-	TCP: Hash ...
-	NET4: Unix domain ...
-	request_module[block-major-48]: Root fs not mounted
-	VFS: Cannot open root device "300b" or 30:0b
-	please append a correct "root=" boot option
-	Kernel Panic: VFS: Unable to mount root fs on 30:0b
-
-
-When it works, DAC960 is initialized and "talks" just after FDC0,
-You have seen that with 2.4.16 it does not.
-the sentence "please append a correct root= boot option" makes no sens
-to me since in lilo.conf both kernels are started with same options:
-	image=/boot/vmlinuz-2.4.16-dac960
-		label=linuxdac
-		read-only
-		root=/dev/rd/c0d1p3
-	image=/boot/vmlinuz-2.4.7-10custom
-		label=linux247
-		read-only
-		root=/dev/rd/c0d1p3
-
-I can tell you DAC960 REALLY is compiled inside the kernel since
-a "grep DAC960" System.map-2.4.16-dac960 shows lots of entries.
-
- 
-Now I am lost ... If anyone has an idea of the problem ...
-
+Usually when is suspends, it resumes nicely, but sometimes the laptop reboots
+instead of resuming ...  thanks for ext3fs !!
 
 Pascal Lengard
+
+> Some news about the APM problem on Dell Latitude C600:
+> 
+> On Thu, 1 Nov 2001, Stephen Rothwell wrote:
+> > Can you try the following patch, please?  This is the relevant part of a
+> > patch that was applied to Alan Cox's kernels.
+> 
+> I tested this patch against 2.4.10-pre12 (first version showing problem)
+> and 2.4.13.
+> I tested also plain 2.4.13-ac5 since you (Stephen) said that this patch
+> was taken from the last Alan kernel.
+> 
+> Both kernels show the same behaviour, so please read on since 2.4.13-ac5
+> is impacted by this bug.
+> 
+> I tested the patch against 2.4.10-pre12.
+> (I had to suppress a line in arch/i386/kernel/dmi_scan.c to make it compile
+> since it defined pm_kbd_request_override differently than the definition in
+> keyboard.h) The patch seemed to correct the apm behaviour nicely (I use
+> 'seem' since I tried it only once in a hurry to test against 2.4.13).
+> 
+> So I tested the same patch against 2.4.13. It went through without any
+> reject, compilation was fine also ... I tested also 2.4.13-ac5 and both
+> show the same ill behaviour:
+> 
+> Fn+Suspend (or launching "apm -s") does not ALWAYS suspend the laptop. 
+> Sometimes, it blanks the screen but leaves the lcd light on, the cpu fan is 
+> on also. Pressing Fn+D to turn off the lcd light completes the job and the 
+> laptop finaly suspends completely.
+> Typing "apm -s" shows the same behaviour, it did suspend the laptop ONCE out
+> of 12 tests, all other 11 tests required to press Fn+D after to suspend.
+> 
+> By the way, If I hit ANY key between Fn+Suspend and Fn+D, the keyboard
+> is misbehaving after resume: CapsLock is inverted, Ctrl, Shift and Alt
+> are dead.
+> 
+> Under some rare conditions, apm -s works, but in general, asking the bios 
+> to turn off the lcd light (Fn+D) helps a lot.
+> I guess the keyboard problem is not a real one since if "apm -s" did its job 
+> completely I would no chance to press any key before the lcd light goes off.
+> 
+> Statistically, 2.4.13-ac5 seems to show better luck in suspending (it works
+> correctly more often than 2.4.13+patch from Stephen).
+> 
+> Pascal
+> 
+> 
 

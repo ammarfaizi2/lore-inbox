@@ -1,55 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261865AbUCGMVd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 07:21:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbUCGMVd
+	id S261854AbUCGMpm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 07:45:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbUCGMpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 07:21:33 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:63104 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S261865AbUCGMVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 07:21:32 -0500
-Date: Sun, 07 Mar 2004 20:21:03 +0800
-From: "Michael Frank" <mhf@linuxmail.org>
-To: "Lawrence Walton" <lawrence@the-penguin.otak.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: server migration
-References: <20040305181322.GA32114@the-penguin.otak.com> <200403070133.07784.vda@port.imtp.ilyichevsk.odessa.ua> <20040307013507.GB13908@the-penguin.otak.com> <200403071231.50912.vda@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
+	Sun, 7 Mar 2004 07:45:42 -0500
+Received: from zux191-241.adsl.green.ch ([80.254.191.241]:59144 "EHLO jupiter")
+	by vger.kernel.org with ESMTP id S261854AbUCGMpk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 07:45:40 -0500
+Message-ID: <1078670323.404b33f368fbb@oribi.org>
+Date: Sun,  7 Mar 2004 15:38:43 +0100
+From: markus.amsler@oribi.org
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] DAC960 Oopses
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-ID: <opr4hq9dmf4evsfm@smtp.pacific.net.th>
-In-Reply-To: <200403071231.50912.vda@port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Opera M2/7.50 (Linux, build 600)
+User-Agent: Internet Messaging Program (IMP) 3.2.2
+X-Originating-IP: 192.168.67.251
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > On Friday 05 March 2004 20:13, Lawrence Walton wrote:
->> > > Hi all!
->> > >
->> > > I tried about four months ago to migrate a busy server to 2.6.0-test9,
->> > > and failed miserably. Lightly loaded it worked well but as the number
->> > > of users increased, the number of processes in uninterruptible sleep
->> > > increased to the hundreds and then the server fell on it's face. I
->> > > never found out exactly why or what processes where hanging if I
->> > > guessed it would be openldap.
+Hi,
 
--Test9 was the "oddest" kernel I ever ran (since 2.2.x) - even got it
-repeatably to hardlock lock by loading it a bit with dd ;)
+The first part fixes a Kernel paging request failure on alpha with
+some older DAC960P cards (i tried D040340-0-DEC/Firmware 2.70).
+The Problem was, that ioremap_nocache(NULL) is not  NULL (only on alpha).
+This card is still unsupported, due to lacking PCI resources.
 
-Since then, Nick Pigin has put a hell of an effort into the
-anticipatory scheduler and much else all over has been refined too.
+The second part fixes a kernel Oops, if the initialization
+of the Controller fails (like too old firmware).
+In that case, DAC960_UnregisterBlockDevice fails, 
+because DAC960_RegisterBlockDevice was never called.
+This is a side effect of the multi-queue patch by Dave Olien.
 
-I have done a bit of stress testing of io, network and cpu and
-IMO, 2.6.3 will perform nicely in a server environment and there
-will be no significant problems.
+Please CC to me directly.
 
-Input from production use is essential though and it would be much
-appreciated if you would go for it :)
-
-Regards
-Michael
-
-
-
+--- linux-2.6.3/drivers/block/DAC960.c	Wed Feb 18 04:59:05 2004
++++ linux/drivers/block/DAC960.c	Sun Mar  7 11:47:55 2004
+@@ -2723,6 +2723,20 @@
+ 	  break;
+   }
+ 
++  /*
++    Controller with Mylex P/N D040340-0-DEC has no PCI resource[1]!!
++    Checking the MemoryMappedAddress == NULL will fail on 
++    virtual Alpha addresses. 
++  */	  
++  if (!Controller->PCI_Address)
++  {
++	  DAC960_Error("Unable to get PCI Address. "
++		       "This Controller is currently not supported.\n",
++                       Controller);
++	  Controller->IO_Address = 0;
++	  goto Failure;
++  }
++
+   pci_set_drvdata(PCI_Device, (void *)((long)Controller->ControllerNumber));
+   for (i = 0; i < DAC960_MaxLogicalDrives; i++) {
+ 	Controller->disks[i] = alloc_disk(1<<DAC960_MaxPartitionsBits);
+@@ -3061,8 +3075,8 @@
+ 				    DAC960_V2_RAID_Controller);
+ 	  DAC960_Notice("done\n", Controller);
+ 	}
++    DAC960_UnregisterBlockDevice(Controller);
+     }
+-  DAC960_UnregisterBlockDevice(Controller);
+   DAC960_DestroyAuxiliaryStructures(Controller);
+   DAC960_DestroyProcEntries(Controller);
+   DAC960_DetectCleanup(Controller);

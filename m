@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315923AbSHNXMq>; Wed, 14 Aug 2002 19:12:46 -0400
+	id <S316106AbSHNXPQ>; Wed, 14 Aug 2002 19:15:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315942AbSHNXMq>; Wed, 14 Aug 2002 19:12:46 -0400
-Received: from central.caverock.net.nz ([210.55.207.1]:9481 "EHLO
-	central.caverock.net.nz") by vger.kernel.org with ESMTP
-	id <S315923AbSHNXMp>; Wed, 14 Aug 2002 19:12:45 -0400
-Date: Thu, 15 Aug 2002 09:53:31 +1200 (NZST)
-From: Eric Gillespie <viking@flying-brick.caverock.net.nz>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: framebuffer corruption
-Message-ID: <Pine.LNX.4.21.0208150945360.1761-100000@brick.flying-brick.caverock.net.nz>
+	id <S316089AbSHNXPQ>; Wed, 14 Aug 2002 19:15:16 -0400
+Received: from dsl-213-023-038-048.arcor-ip.net ([213.23.38.48]:9666 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S316088AbSHNXPP>;
+	Wed, 14 Aug 2002 19:15:15 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: David Woodhouse <dwmw2@infradead.org>,
+       Michael Knigge <Michael.Knigge@set-software.de>
+Subject: Re: [ANNOUNCE] New PC-Speaker driver
+Date: Thu, 15 Aug 2002 01:19:59 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Stas Sergeev <stssppnn@yahoo.com>, vda@port.imtp.ilyichevsk.odessa.ua,
+       linux-kernel@vger.kernel.org
+References: <20020814.11334845@knigge.local.net> <20850.1029327859@redhat.com> <E17f7LQ-0002XW-00@starship>
+In-Reply-To: <E17f7LQ-0002XW-00@starship>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17f7Ql-0002Xb-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel 2.5.31, VESA framebuffer, 1280x1024x16, SiS5597 chipset, 3Mb shared 
-video memory from a pool of 32Mb main memory (yuck).
+On Thursday 15 August 2002 01:14, Daniel Phillips wrote:
+> On Wednesday 14 August 2002 14:24, David Woodhouse wrote:
+> > Michael.Knigge@set-software.de said:
+> > > > Well, there is (currently) no intention to get it into the mainstream
+> > > > kernel so don't treat it too seriously.
+> > 
+> > > Oh, I would love to see that thing in the Standard-Kernel....
+> > 
+> > Wait for people to stop using the 8254 timer for timer ticks, and you can 
+> > have it all to yourself -- the timer abuse is the main reason the driver
+> > was never suitable for inclusion.
+> 
+> Ah, if I recall correctly this technique uses a different timer channel
+> from the timer tick.  What's the abuse?
+>
+> > Actually, now that HZ is easier to vary, you can switch it to a power of 2 
+> > and use the RTC for it, again leaving you the 8254 for your own nefarious 
+> > purposes.
 
-
-When changing virtual consoles, I notice the contents of the screen shift up
-about two text lines (unsure of exact amount), and it doesn't reset itself
-until the screen has a reason to scroll.  A ^L (clear) doesn't reset the
-screen, though I notice that if I hit <Enter> at the bottom of the screen,
-that seems to do the trick.  It's like the kernel is aiming for a refresh, but
-not quite getting the location right, though another console scroll seems to
-do the trick.
-
-Something else that might be related is that I have spot corruption of various
-characters (only the occasional one) - like, one of my 's' looks like a cross
-between an o, an s, and an e - the character two spaces before is supposed to
-be blank, but looks like it has the first part of an o.  Wierd. These clear 
-when I change the screen in appreciable manner, such as a program close (pine).
-
-I'm noticing the refreshes look REALLY wierd every few lines or so - like the 
-refresh has been shifted a few lines up, then it resets itself - things look 
-REALLY jumpy.
-
-Anyway, I'll send this off.
+Never mind, I realize it's the speeded up timer that's at issue.  Still, I
+don't see what the problem is, just step it down to a suitable timer tick
+speed, and it doesn't have to be an even division either.
 
 -- 
- /|   _,.:*^*:.,   |\           Cheers from the Viking family, 
-| |_/'  viking@ `\_| |            including Pippin, our cat
-|    flying-brick    | $FunnyMail  Bilbo   : Now far ahead the Road has gone,
- \_.caverock.net.nz_/     5.39    in LOTR  : Let others follow it who can!
-
-
+Daniel

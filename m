@@ -1,23 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVAHCiO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbVAHClw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261623AbVAHCiO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 21:38:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVAHCiO
+	id S261635AbVAHClw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 21:41:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbVAHClw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 21:38:14 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:38655 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261623AbVAHCiJ (ORCPT
+	Fri, 7 Jan 2005 21:41:52 -0500
+Received: from mail.tyan.com ([66.122.195.4]:11784 "EHLO tyanweb.tyan")
+	by vger.kernel.org with ESMTP id S261635AbVAHClr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 21:38:09 -0500
-Date: Sat, 8 Jan 2005 03:37:50 +0100 (MET)
-Message-Id: <200501080237.j082booI005302@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: YhLu@tyan.com, ak@muc.de
-Subject: Re: 256 apic id for amd64
+	Fri, 7 Jan 2005 21:41:47 -0500
+Message-ID: <3174569B9743D511922F00A0C943142307291365@TYANWEB>
+From: YhLu <YhLu@tyan.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>, ak@muc.de
 Cc: Matt_Domsch@dell.com, discuss@x86-64.org, jamesclv@us.ibm.com,
        linux-kernel@vger.kernel.org, suresh.b.siddha@intel.com
+Subject: RE: 256 apic id for amd64
+Date: Fri, 7 Jan 2005 18:53:24 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+I mean keep the bsp physical apic id using 0.
+
+YH
+
+-----Original Message-----
+From: Mikael Pettersson [mailto:mikpe@csd.uu.se] 
+Sent: Friday, January 07, 2005 6:38 PM
+To: YhLu; ak@muc.de
+Cc: Matt_Domsch@dell.com; discuss@x86-64.org; jamesclv@us.ibm.com;
+linux-kernel@vger.kernel.org; suresh.b.siddha@intel.com
+Subject: Re: 256 apic id for amd64
 
 On Fri, 7 Jan 2005 22:12:00 +0100, Andi Kleen wrote:
 >On Fri, Jan 07, 2005 at 01:14:24PM -0800, YhLu wrote:

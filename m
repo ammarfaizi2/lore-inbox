@@ -1,98 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267553AbTBRCdx>; Mon, 17 Feb 2003 21:33:53 -0500
+	id <S267562AbTBRCix>; Mon, 17 Feb 2003 21:38:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267560AbTBRCdx>; Mon, 17 Feb 2003 21:33:53 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:54465 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S267553AbTBRCdw>;
-	Mon, 17 Feb 2003 21:33:52 -0500
-Subject: [PATCH] PCI code cleanup
-From: Louis Zhuang <louis.zhuang@linux.co.intel.com>
-To: Greg KH <greg@kroah.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Intel Crop.
-Message-Id: <1045535218.1018.0.camel@hawk.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 18 Feb 2003 10:26:58 +0800
-Content-Transfer-Encoding: 7bit
+	id <S267566AbTBRCiw>; Mon, 17 Feb 2003 21:38:52 -0500
+Received: from dp.samba.org ([66.70.73.150]:9963 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267562AbTBRCiv>;
+	Mon, 17 Feb 2003 21:38:51 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Werner Almesberger <wa@almesberger.net>, kuznet@ms2.inr.ac.ru,
+       davem@redhat.com, kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org,
+       torvalds@tranmseta.com
+Subject: Re: [RFC] Migrating net/sched to new module interface 
+In-reply-to: Your message of "Mon, 17 Feb 2003 11:53:04 BST."
+             <Pine.LNX.4.44.0302171112390.1336-100000@serv> 
+Date: Tue, 18 Feb 2003 10:31:33 +1100
+Message-Id: <20030218024852.9557D2C17F@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Greg,
-The patch clean up some old-style usage of list_head. Pls apply if you
-like it. Thanks
--- 
-Yours truly,
-Louis Zhuang
+In message <Pine.LNX.4.44.0302171112390.1336-100000@serv> you write:
+> Maybe you could share a bit of your wisdom?
+> 1. Doing the linking in userspace requires two steps, but I still don't 
+> know what's so bad about it.
+> 2. This still doesn't explain, why everything has to be moved into kernel, 
+> why can't we move more into userspace?
+> 3. You simply moved part of the query syscall functionality to 
+> /proc/modules (which btw is still not enough to fix ksymoops).
+
+I think you'd do far better to implement it yourself for half a dozen
+architectures.  It's not my job to teach you things which can be
+gained by reading the code and thinking a little.
+
+We're going in a circle again.
+
+> > The second change was the speed up one system of module locking in the
+> > kernel which wasn't racy, and deprecate the other system which was
+> > racy in 99% of its uses.  That is all.
+> 
+> Well, I'm not against optimizing the module locking (*), as we won't get 
+> rid of it in the near feature, but it still has problems.
+> 
+> 1. It's adding complexity (however you implement it), I explained it in 
+> detail and you still haven't told me, where I'm wrong.
+
+No, it's exactly the same as before.  You can't see that, and I've
+given up explaining it.
+
+> 2. The module interface is incompatible with other kernel interfaces, I 
+> tried to explain that in the mail from saturday, if you think I'm wrong, 
+> your input is very welcome, but _please_ answer to that mail.
+
+This problem is in your mind Roman.
+
+Deal with it.
+
+> > Did it solve all the races in the kernel?  Of course not.  But it's
+> > simple to use, already well understood in the kernel, and avoids
+> > massive changes.  It also allows connection tracking to be properly
+> > modularized, which was my long-lost original purpose.
+> 
+> It's too much fun to quote Al here:
+
+Quoting Al's rant isn't an argument.  It wasn't very coherent when he
+wrote it, and it doesn't gain with repetition.
+
+The code exists.  It's simple to use.
+
+I give up.  You're killfiled again 8(
+Rusty.
 --
-Fault Injection Test Harness Project
-BK tree: http://fault-injection.bkbits.net/linux-2.5
-Home Page: http://sf.net/projects/fault-injection
-
-
-===== drivers/pci/probe.c 1.26 vs edited =====
--- 1.26/drivers/pci/probe.c	Mon Jan 13 11:44:26 2003
-+++ edited/drivers/pci/probe.c	Tue Feb 18 09:28:40 2003
-@@ -533,7 +533,7 @@
- {
- 	const struct list_head *l;
- 
--	for(l=list->next; l != list; l = l->next) {
-+	list_for_each(l, list) {
- 		const struct pci_bus *b = pci_bus_b(l);
- 		if (b->number == nr || pci_bus_exists(&b->children, nr))
- 			return 1;
-===== drivers/pci/setup-bus.c 1.12 vs edited =====
--- 1.12/drivers/pci/setup-bus.c	Sun Dec 22 07:46:25 2002
-+++ edited/drivers/pci/setup-bus.c	Tue Feb 18 09:33:33 2003
-@@ -45,7 +45,7 @@
- 	int idx, found_vga = 0;
- 
- 	head.next = NULL;
--	for (ln=bus->devices.next; ln != &bus->devices; ln=ln->next) {
-+	list_for_each(ln, &bus->devices) {
- 		struct pci_dev *dev = pci_dev_b(ln);
- 		u16 class = dev->class >> 8;
- 
-@@ -208,7 +208,7 @@
- 	if (!(b_res->flags & IORESOURCE_IO))
- 		return;
- 
--	for (ln=bus->devices.next; ln != &bus->devices; ln=ln->next) {
-+	list_for_each(ln, &bus->devices) {
- 		struct pci_dev *dev = pci_dev_b(ln);
- 		int i;
- 		
-@@ -261,7 +261,7 @@
- 	max_order = 0;
- 	size = 0;
- 
--	for (ln=bus->devices.next; ln != &bus->devices; ln=ln->next) {
-+	list_for_each(ln, &bus->devices) {
- 		struct pci_dev *dev = pci_dev_b(ln);
- 		int i;
- 		
-@@ -325,8 +325,9 @@
- 	struct list_head *ln;
- 	unsigned long mask, type;
- 
--	for (ln=bus->children.next; ln != &bus->children; ln=ln->next)
-+	list_for_each(ln, &bus->children) {
- 		pci_bus_size_bridges(pci_bus_b(ln));
-+	}
- 
- 	/* The root bus? */
- 	if (!bus->self)
-@@ -361,7 +362,7 @@
- 			b->resource[0]->flags |= IORESOURCE_BUS_HAS_VGA;
- 		}
- 	}
--	for (ln=bus->children.next; ln != &bus->children; ln=ln->next) {
-+	list_for_each(ln, &bus->children) {
- 		struct pci_bus *b = pci_bus_b(ln);
- 
- 		pci_bus_assign_resources(b);
-
-
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,65 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277022AbRJCXgK>; Wed, 3 Oct 2001 19:36:10 -0400
+	id <S277021AbRJCX23>; Wed, 3 Oct 2001 19:28:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277023AbRJCXf7>; Wed, 3 Oct 2001 19:35:59 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:10250 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S277022AbRJCXfv>; Wed, 3 Oct 2001 19:35:51 -0400
-Date: Thu, 4 Oct 2001 01:36:09 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] Minor update for REPORTING-BUGS
-Message-ID: <20011004013609.B25906@arthur.ubicom.tudelft.nl>
+	id <S277022AbRJCX2T>; Wed, 3 Oct 2001 19:28:19 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:62985 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S277021AbRJCX2E>;
+	Wed, 3 Oct 2001 19:28:04 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Subject: [patch] 2.4.11-pre2 for EXPORT_SYMBOL_GPL()
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Date: Thu, 04 Oct 2001 09:28:21 +1000
+Message-ID: <5442.1002151701@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+AC's original EXPORT_SYMBOL_GPL() was incorrect, it has been fixed in
+2.4.10-ac but not in 2.4.11-pre.  Patch against 2.4.11-pre2.
 
-Now both 2.4.11-pre2 and linux-2.4.10-ac4 have support support for
-/proc/sys/kernel/tainted, it's time to update REPORTING-BUGS to
-reflect this change. Here is a patch for this:
-
-
-Index: REPORTING-BUGS
-===================================================================
-RCS file: /home/erik/cvsroot/elinux/REPORTING-BUGS,v
-retrieving revision 1.1.1.15
-diff -u -r1.1.1.15 REPORTING-BUGS
---- REPORTING-BUGS	2001/04/26 12:28:10	1.1.1.15
-+++ REPORTING-BUGS	2001/10/03 23:25:44
-@@ -20,6 +20,12 @@
- linux-kernel@vger.kernel.org. (For more information on the linux-kernel
- mailing list see http://www.tux.org/lkml/).
+Index: 11-pre2.1/include/linux/module.h
+--- 11-pre2.1/include/linux/module.h Tue, 02 Oct 2001 11:04:33 +1000 kaos (linux-2.4/c/b/46_module.h 1.1.1.1.2.4 644)
++++ 10.30/include/linux/module.h Tue, 02 Oct 2001 11:25:49 +1000 kaos (linux-2.4/c/b/46_module.h 1.1.1.1.1.6 644)
+@@ -366,10 +366,10 @@ __attribute__((section("__ksymtab"))) =	
  
-+      Note that the kernel maintainers are not interested in bug
-+reports that could be caused by the use of binary-only kernel
-+modules. To see if your kernel has not been using binary modules, use
-+"cat /proc/sys/kernel/tainted". If the output is "0", you can safely
-+send your bug report to the maintainers.
-+
- This is a suggested format for a bug report sent to the Linux kernel mailing 
- list. Having a standardized bug report form makes it easier  for you not to 
- overlook things, and easier for the developers to find the pieces of 
+ #define __EXPORT_SYMBOL_GPL(sym, str)			\
+ const char __kstrtab_##sym[]				\
+-__attribute__((section(".kstrtab"))) = str;		\
+-const struct module_symbol __ksymtab_GPLONLY_##sym	\
++__attribute__((section(".kstrtab"))) = "GPLONLY_" str;	\
++const struct module_symbol __ksymtab_##sym		\
+ __attribute__((section("__ksymtab"))) =			\
+-{ (unsigned long)&sym, __kstrtab_GPLONLY_##sym }
++{ (unsigned long)&sym, __kstrtab_##sym }
+ 
+ #if defined(MODVERSIONS) || !defined(CONFIG_MODVERSIONS)
+ #define EXPORT_SYMBOL(var)  __EXPORT_SYMBOL(var, __MODULE_STRING(var))
 
-
-The patch should apply cleanly against 2.4.11-pre2 and 2.4.10-ac4.
-Please apply.
-
-
-Erik
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/

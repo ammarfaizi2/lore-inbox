@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262027AbUDHQQO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 12:16:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbUDHQQO
+	id S261907AbUDHQU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 12:20:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbUDHQU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 12:16:14 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:45992
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262027AbUDHQQL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 12:16:11 -0400
-Date: Thu, 8 Apr 2004 18:16:10 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Hugh Dickins <hugh@veritas.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       parisc-linux@parisc-linux.org
-Subject: Re: [parisc-linux] rmap: parisc __flush_dcache_page
-Message-ID: <20040408161610.GF31667@dualathlon.random>
-References: <Pine.LNX.4.44.0404081500520.7116-100000@localhost.localdomain> <1081435237.1885.144.camel@mulgrave> <20040408151415.GB31667@dualathlon.random> <1081438124.2105.207.camel@mulgrave> <20040408153412.GD31667@dualathlon.random> <1081439244.2165.236.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1081439244.2165.236.camel@mulgrave>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Thu, 8 Apr 2004 12:20:58 -0400
+Received: from ftpbox.mot.com ([129.188.136.101]:10159 "EHLO ftpbox.mot.com")
+	by vger.kernel.org with ESMTP id S261907AbUDHQUz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 12:20:55 -0400
+Message-ID: <D5A7E45D575DD61180130002A5DB377C04E48C75@ca25exm01>
+From: Stephens Tim-MGI1634 <Tim.Stephens@motorola.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Why does serial.c not allow you to share the serial console port 
+	 interrupt?
+Date: Thu, 8 Apr 2004 09:19:57 -0700 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.2)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 08, 2004 at 10:47:23AM -0500, James Bottomley wrote:
-> candidate for being in interrupt (even though most drivers should be
-> offloading to softirq/tasklets).
+Re-post, no response from earlier posting.
 
-softirq tasklets would be unsafe too, oh well, if you take it really
-from irq context (irq/softirq/tasklet) then just a spinlock isn't
-enough, it'd need to be an irq safe lock or whatever similar plus you
-must be sure to never generate exceptions triggering the call inside the
-critical section. sounds like we need some per-arch abstraction to cover
-this, we for sure don't want an irq spinlock for this, then we can as
-well leave the semaphore for all archs but parisc.
+Hello,
+
+I'm trying to understand why the serial.c driver does not allow the sharing of the serial console interrupt.  There are several places on the net the mention you cannot share the console interrupt, however there is no explaination why.  I assume it has something to do with OOPS reporting.  Please advise.
+
+I'm trying to enable the second serial port on a MIPS based embedded system.  Both serial ports (16550 type) are attached to the same MIPS interrupt.  The console is attached to ttyS0, which shares the MIPS interrupt with ttyS1.
+
+The code in question is:
+
+#ifdef CONFIG_SERIAL_CONSOLE
+    /*
+     *    The interrupt of the serial console port
+     *    can't be shared.
+     */
+    if (sercons.flags & CON_CONSDEV) {
+        for(i = 0; i < NR_PORTS; i++)
+            if (i != sercons.index &&
+                rs_table[i].irq == rs_table[sercons.index].irq)
+                rs_table[i].irq = 0;
+    }
+#endif
+
+If I change the #ifdef to #if 0 both the console and ttyS1 seem to work ok.
+
+Thanks,
+Tim

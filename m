@@ -1,68 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314491AbSFJK5f>; Mon, 10 Jun 2002 06:57:35 -0400
+	id <S314553AbSFJLA3>; Mon, 10 Jun 2002 07:00:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314553AbSFJK5e>; Mon, 10 Jun 2002 06:57:34 -0400
-Received: from gw.whb.pl ([62.89.113.66]:38411 "HELO smtp.whb.pl")
-	by vger.kernel.org with SMTP id <S314491AbSFJK5d>;
-	Mon, 10 Jun 2002 06:57:33 -0400
-X-Qmail-Scanner-Mail-From: mbajko@whb.pl via whb.pl
-X-Qmail-Scanner: 1.10 (Clear:0. Processed in 0.118567 secs)
-Content-Type: text/plain; charset=US-ASCII
-From: Marcin Bajko <mbajko@whb.pl>
-Reply-To: mbajko@whb.pl
-To: linux-kernel@vger.kernel.org
-Subject: Problem with framebuffer for ATI Rage Mobility P/M AGP (kernel 2.4.18)
-Date: Mon, 10 Jun 2002 12:57:31 +0200
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020610105733Z314491-22020+1558@vger.kernel.org>
+	id <S316820AbSFJLA2>; Mon, 10 Jun 2002 07:00:28 -0400
+Received: from relay.muni.cz ([147.251.4.35]:32232 "EHLO anor.ics.muni.cz")
+	by vger.kernel.org with ESMTP id <S314553AbSFJLA1>;
+	Mon, 10 Jun 2002 07:00:27 -0400
+Date: Mon, 10 Jun 2002 13:00:25 +0200
+From: Jan Pazdziora <adelton@informatics.muni.cz>
+To: Nicholas Miell <nmiell@attbi.com>
+Cc: linux-kernel@vger.kernel.org, adelton@fi.muni.cz
+Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
+Message-ID: <20020610130025.G13232@anxur.fi.muni.cz>
+In-Reply-To: <200206092053.g59Krsl506602@saturn.cs.uml.edu> <1023658610.1518.12.camel@entropy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I have trouble with ATI Rage Mobility P/M AGP graphic card in TravelMate 
-525TX laptop.
+On Sun, Jun 09, 2002 at 02:36:49PM -0700, Nicholas Miell wrote:
+> > 
+> > WINE needs to be able to handle a symlink on ext2, so it can
+> > damn well convert back. It's OK to give WINE some hack to get at
+> > the content; it's not OK to hack bash to interpret .lnk files.
+> 
+> Why would bash even want to interpret shortcut files? They're a proprietary,
+> Windows-only format that have no real use beyond icons in the Start Menu
+> or on the desktop. Hacking the filesystem to treat something that
 
-I want to use framebuffer driver for console but I see black screen only.
-I can change resolution by "fbset", all works fine but screen is still black.
+Well, you could say that about FAT as well.
 
-Please help...
+> fundamentally is not a symlink as a symlink is even stupider than
+> hacking bash to do the same thing.
 
-Marcin
+The symlink file can have more functions as you have stated, and one
+of them is symlink. It works in Windows and it works in cygwin. Support
+for symlinks on vfat is similar to long names, for example -- you
+could live with abbreviations but it's reasonable to be compatible
+with the other party.
 
+> > One can live with an occasional broken symlink:
+> > "foo" --> "[UNIMPLEMENTED LINK TYPE]"
+> 
+> One can also live with "foo.lnk". (It's much easier and saner, too.)
 
+It's not. The content of the file is not nicely readable. And
+operation done on the file in Windows and on Linux (like writing the
+file) now differs because Windows (and cygwin) follow the symlink
+while Linux with vfat mounted does not.
 
-dmesg:
-atyfb: using auxiliary register aperture
-atyfb: 3D RAGE Mobility (PCI) [0x4c4d rev 0x64] 8M SDRAM, 29.498928 MHz XTAL, 
-230 MHz PLL, 50 Mhz MCLK
-Console: switching to colour frame buffer device 80x25
-fb0: ATY Mach64 frame buffer device on PCI
+> > > Finally, I haven't seen any justification for why symlinks on VFAT are
+> > > needed, beyond some vague statements that it's useful when dual booting.
 
-Kernel 2.4.18 compiled with options:
-CONFIG_FB=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB_ATY=y
-CONFIG_FB_ATY_CT=y
-CONFIG_FBCON_CFB8=y
-CONFIG_FBCON_CFB16=y
-CONFIG_FBCON_CFB24=y
-CONFIG_FBCON_CFB32=y
-CONFIG_FBCON_FONTS=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
+Similar reason why the vfat support is in, isn't it? :-)
 
-lspci:
-01:00.0 VGA compatible controller: ATI Technologies Inc Rage Mobility P/M AGP 
-2x (rev 64) (prog-if 00 [VGA])
-        Subsystem: Acer Incorporated [ALI]: Unknown device 1010
-        Flags: bus master, stepping, medium devsel, latency 32, IRQ 11
-        Memory at 81000000 (32-bit, non-prefetchable) [size=16M]
-        I/O ports at 8000 [size=256]
-        Memory at 80600000 (32-bit, non-prefetchable) [size=4K]
-        Expansion ROM at 80620000 [disabled] [size=128K]
-        Capabilities: [50] AGP version 1.0
-        Capabilities: [5c] Power Management version 1
+> > > Face it, VFAT isn't a Unix filesystem and introducing ugly hacks to make
+> > > it more similar to one will only cause problems in the long run. If you
+> > > want symlinks, use a real filesystem or use umsdos on your favorite FAT
+> > > filesystem. (Assuming that umsdos still works...).
+
+It's not "want symlinks", it's more like "want similar behaviour" and
+"be compatible".
+
+-- 
+------------------------------------------------------------------------
+  Jan Pazdziora | adelton@fi.muni.cz | http://www.fi.muni.cz/~adelton/
+      ... all of these signs saying sorry but we're closed ...
+------------------------------------------------------------------------

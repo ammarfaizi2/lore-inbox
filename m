@@ -1,73 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264494AbTEaX1u (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 19:27:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264495AbTEaX1u
+	id S264496AbTEaXYW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 19:24:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264501AbTEaXYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 19:27:50 -0400
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:7642 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S264494AbTEaX1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 19:27:46 -0400
-Message-ID: <3ED93D30.4070704@pacbell.net>
-Date: Sat, 31 May 2003 16:39:28 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-X-Accept-Language: en-us, en, fr
+	Sat, 31 May 2003 19:24:22 -0400
+Received: from fed1mtao05.cox.net ([68.6.19.126]:58553 "EHLO
+	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S264496AbTEaXYV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 19:24:21 -0400
+Message-ID: <3ED93CC6.30200@cox.net>
+Date: Sat, 31 May 2003 16:37:42 -0700
+From: "Kevin P. Fleming" <kpfleming@cox.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4a) Gecko/20030401
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: greg@kroah.com, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [2.5 patch] let USB_GADGET depend on USB
-References: <20030531221855.GM29425@fs.tum.de>
+To: "ismail (cartman) donmez" <kde@myrealbox.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] include/linux/sysctl.h needs linux/compiler.h
+References: <3ED8D5E4.6030107@cox.net> <200305312358.03208.kde@myrealbox.com> <3ED919DC.6030202@cox.net> <200306010016.05548.kde@myrealbox.com>
+In-Reply-To: <200306010016.05548.kde@myrealbox.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> USB_GADGET is still selectable even with USB disabled. It seems the 
-> following is intended:
-
-This is wrong.
-
-CONFIG_USB has always represented the master/host side ... while
-CONFIG_USB_GADGET represents just the slave/gadget side.
-
-The two are completely independent.  Hardware that supports
-one will typically _not_ support the other.  And systems
-that support the slave/gadget side will have no use at all
-for the 100KB+ of "usbcore".
-
-
-If you want CONFIG_USB_GADGET to depend on USB, then you're
-going to need to change the meaning of CONFIG_USB so that it
-becomes just an "umbrella" ... and change EVERYTHING that
-currently depends on CONFIG_USB to depend on some new config
-varaible representing just the host side (which also depends
-on CONFIG_USB).  That sort of change seems pointless.
-
-
-
-
-
-> --- linux-2.5.70-mm3/drivers/usb/gadget/Kconfig.old	2003-06-01 00:15:30.000000000 +0200
-> +++ linux-2.5.70-mm3/drivers/usb/gadget/Kconfig	2003-06-01 00:15:49.000000000 +0200
-> @@ -8,7 +8,7 @@
->  #
->  menuconfig USB_GADGET
->  	tristate "Support for USB Gadgets"
-> -	depends on EXPERIMENTAL
-> +	depends on USB && EXPERIMENTAL
->  	help
->  	   USB is a master/slave protocol, organized with one master
->  	   host (such as a PC) controlling up to 127 peripheral devices.
+ismail (cartman) donmez wrote:
+> On Sunday 01 June 2003 00:08, Kevin P. Fleming wrote:
 > 
 > 
+>>Right. But until such time as that happens (even if started today that's
+>>many months away), real world libraries need to be compiled to be used
+>>against the new kernel.
+>>
 > 
-> cu
-> Adrian
+> Yes I reported to binutils hackers that this change broke binutils ( + glibc ) 
+> but kernel guys just say "do not include kernel headers in userspace" . 
 > 
 
+Oh, I saw that discussion. I fully agree. If I can help the process of 
+creating a sanitized userspace set of kernel headers I'll be happy to.
 
+In the meantime, a small change to a kernel header, that provides _zero_ 
+functional difference to the kernel itself (it's only there for source 
+code checkers, as best I can tell) shouldn't break existing userspace 
+libraries.
+
+If it's going to, then we should just go ahead and break everything and 
+get it done right. It's late in the 2.6 game, but the first few steps on 
+the path have already been taken.
 

@@ -1,66 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVBOIdf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbVBOIfP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261650AbVBOIdf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 03:33:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbVBOIdf
+	id S261652AbVBOIfP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 03:35:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVBOIfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 03:33:35 -0500
-Received: from rproxy.gmail.com ([64.233.170.207]:23008 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261650AbVBOIdd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 03:33:33 -0500
+	Tue, 15 Feb 2005 03:35:15 -0500
+Received: from rproxy.gmail.com ([64.233.170.199]:46061 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261652AbVBOIe7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 03:34:59 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Ta3yU+ZpXEplMz2rRuP5damSAb45rmf2r6q/ZcMLi7+dxVDNArsn9QfsJTfEfACbY+10AmkQoWiKrHQ+7e7ezbQkqoOGGNUpvSgnrF47ZLHuFXkFxrbm2FHQaSzZCU/f/j+CQaUd7AJA8M/v/JpIC8f7oFnEdHv7VfCQgsjCdm0=
-Message-ID: <4d8e3fd305021500333835935e@mail.gmail.com>
-Date: Tue, 15 Feb 2005 09:33:31 +0100
+        b=re2njT7+oovtCDg529pm9MEAJFHRq+OzhJChFJI2P1YRD381HJB/UQlgF2wmLFj6HF6RGqS0GVSuEXLsE1VeHBpCUBYKGAB5zorOFgGzIsQysy6sNzx3QbQjCr0B3/pp5wD6UJEbqx4E/l1Xmd4Z3GF0/+fNWjAJTkKYXZf98Ew=
+Message-ID: <4d8e3fd305021500346503585b@mail.gmail.com>
+Date: Tue, 15 Feb 2005 09:34:56 +0100
 From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
 Reply-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
+To: lgb@lgb.hu
 Subject: Re: [OT] speeding boot process (was Re: [ANNOUNCE] hotplug-ng 001 release)
-Cc: Roland Dreier <roland@topspin.com>, Prakash Punnoor <prakashp@arcor.de>,
-       Greg KH <gregkh@suse.de>, Patrick McFarland <pmcfarland@downeast.net>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <1108424720.32293.8.camel@krustophenia.net>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Lee Revell <rlrevell@joe-job.com>,
+       Patrick McFarland <pmcfarland@downeast.net>,
+       linux-kernel@vger.kernel.org, Tim Bird <tim.bird@am.sony.com>,
+       Prakash Punnoor <prakashp@arcor.de>,
+       linux-hotplug-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
+       Roland Dreier <roland@topspin.com>
+In-Reply-To: <20050215073222.GB26950@vega.lgb.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050211004033.GA26624@suse.de> <420C054B.1070502@downeast.net>
-	 <20050211011609.GA27176@suse.de>
-	 <1108354011.25912.43.camel@krustophenia.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+References: <20050211011609.GA27176@suse.de>
 	 <4d8e3fd305021400323fa01fff@mail.gmail.com> <42106685.40307@arcor.de>
 	 <1108422240.28902.11.camel@krustophenia.net>
 	 <524qge20e2.fsf@topspin.com>
 	 <1108424720.32293.8.camel@krustophenia.net>
+	 <42113F6B.1080602@am.sony.com>
+	 <1108430245.32293.16.camel@krustophenia.net>
+	 <4B923A81-7EF3-11D9-86CC-000393ACC76E@mac.com>
+	 <20050215073222.GB26950@vega.lgb.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Feb 2005 18:45:20 -0500, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Mon, 2005-02-14 at 15:21 -0800, Roland Dreier wrote:
-> >     Lee> I don't see why so much effort goes into improving boot time
-> >     Lee> on the kernel side when the most obvious user space problem
-> >     Lee> is ignored.
+On Tue, 15 Feb 2005 08:32:22 +0100, Gábor Lénárt <lgb@lgb.hu> wrote:
+> On Mon, Feb 14, 2005 at 08:45:39PM -0500, Kyle Moffett wrote:
+> > >last thing that gets run.  There is just no reason for this.  We should
+> > >start X and initialize the display and get the login prompt up there
+> > >ASAP, and let the system acquire the DHCP lease and start sendmail and
+> > >apache and get the date from the NTP server *in the background while I
+> > >am logging in*.  It's not rocket science.
 > >
-> > How much of a win is it to run init scripts in parallel?  I seem to
-> > recall seeing tests that show that it doesn't make much difference and
-> > may even slow things down by causing more disk seeks as various things
-> > start up at the same time and cause reads of different files to get
-> > interleaved.
-> >
+> > Such a system needs a drastically different bootup process than
+> > currently
+> > exists, including the ability to specify init-script dependencies.
+> > (Like
 > 
-> This is why Windows XP reserves sapce at the beginning of the disk for
-> the files read during the boot process and caches copies of them there.
-> 
-> But, I was referring more to things like GDM not being started until all
-> the other init scripts are done.  Why not start it first, and let the
-> network initialize while the user is logging in?
-> 
-> > On the other hand, hotplug is an area that real profiling of real
-> > systems booting has identified as something that can be improved, and
-> > Greg's hotplug-ng seems to be a step towards a measurable improvement.
+> Ok, so see Gentoo. Exactly fits your needs, it seems ;-) Dependencies are
+> supported, even paralell execution of init scripts are supported by default
+> design (you need to change only one setting to do this, IMHO, in
+> /etc/conf.d/rc). So it is already solved if you talking about the paralell
+> execution with dependency info in init scripts ...
 
-Did anyone measure the improvement ?
+So... why is Gentoo the only distro the uses parallel execution of
+init scripts ?
 
 -- 
 Paolo <paolo dot ciarrocchi at gmail dot com>

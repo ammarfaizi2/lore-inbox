@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268069AbUJJCat@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268058AbUJJCbb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268069AbUJJCat (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 22:30:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268072AbUJJCat
+	id S268058AbUJJCbb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 22:31:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268072AbUJJCbb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 22:30:49 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:60563 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268069AbUJJCar (ORCPT
+	Sat, 9 Oct 2004 22:31:31 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:2466 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S268058AbUJJCb2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 22:30:47 -0400
-Date: Sat, 9 Oct 2004 19:28:23 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Rick Lindsley <ricklind@us.ibm.com>
-Cc: colpatch@us.ibm.com, mbligh@aracnet.com, Simon.Derr@bull.net,
-       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
-       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
-Subject: Re: [ckrm-tech] Re: [Lse-tech] [PATCH] cpusets - big numa cpu and
- memory placement
-Message-Id: <20041009192823.4ffdfb3c.pj@sgi.com>
-In-Reply-To: <200410071905.i97J57TS014336@owlet.beaverton.ibm.com>
-References: <20041007072842.2bafc320.pj@sgi.com>
-	<200410071905.i97J57TS014336@owlet.beaverton.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 9 Oct 2004 22:31:28 -0400
+Date: Sun, 10 Oct 2004 03:31:26 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: dri-devel@lists.sf.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [patch] drm core internal versioning..
+In-Reply-To: <9e47339104100917527993026d@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0410100328080.11219@skynet>
+References: <Pine.LNX.4.58.0410100050160.6083@skynet>
+ <9e47339104100917527993026d@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rick wrote:
-> One does?  No, in my world, there's constant auditing going on and if
-> you can get away with having a machine idle, power to ya, but chances
-> are somebody's going to come and take away at least the cycles and maybe
 
-I don't doubt that such worlds as yours exist, nor that you live in one.
+> How strong of match requirement do we need? Note that this only
+> impacts distribution of binary personality modules, if you have source
+> there is no problem.
 
-In some of the worlds my customers live in, they have been hit so many
-times with the pains of performance degradation and variation due to
-unwanted interaction between applications that they get nervous if a
-supposedly unused CPU or Memory looks to be in use.  Just the common use
-by Linux of unused memory to keep old pages in cache upsets them.
+Not really I'm thinking more of someone building a module against one core
+and insmodding it against another one.. so someone builds a kernel with
+core/personality, then builds just a personality module from CVS and tries
+to use it with the kernel core one...
 
-And, perhaps more to the point, while indeed some other department may
-soon show up to make use of those lost cycles, the computer had jolly
-well better leave those cycles lost _until_ the customer decides to use
-them.
+personally I think binary distributors have the money to keep up with the
+kernel releases....
 
-Unlike the computer in my dentists office, which should "just do it",
-maximizing throughput as best it can, not asking any questions, the
-computers in some of my customers high end shops are managed more tightly
-(sometimes very tightly) and they expect to control load placement.
+I don't want to re-implement kernel modversions which is what we are close
+to doing, you can't insmod a module built against a different kernel
+anyways so it doesn't matter, kernel version, preempt, smp, compiler are
+all checked on insmod in 2.6 if they don't match it doesn't load it is not
+possible to distrib a binarry kernel independent module.. without at least
+a portable stub source loader...
+
+Dave.
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
+

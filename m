@@ -1,58 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbUFCHSs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbUFCHUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbUFCHSs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 03:18:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbUFCHSr
+	id S261500AbUFCHUs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 03:20:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbUFCHUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 03:18:47 -0400
-Received: from fw.osdl.org ([65.172.181.6]:53401 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261443AbUFCHSq (ORCPT
+	Thu, 3 Jun 2004 03:20:48 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:33680 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261500AbUFCHUg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 03:18:46 -0400
-Date: Thu, 3 Jun 2004 00:18:04 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, vojtech@suse.cz
-Subject: Re: [RFC] Changing SysRq - show registers handling
-Message-Id: <20040603001804.750b7fa5.akpm@osdl.org>
-In-Reply-To: <200406030208.19612.dtor_core@ameritech.net>
-References: <200406030134.04121.dtor_core@ameritech.net>
-	<20040602235306.1e6dd3fb.akpm@osdl.org>
-	<200406030208.19612.dtor_core@ameritech.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 3 Jun 2004 03:20:36 -0400
+Date: Thu, 3 Jun 2004 09:21:46 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, Arjan van de Ven <arjanv@redhat.com>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [announce] [patch] NX (No eXecute) support for x86, 2.6.7-rc2-bk2
+Message-ID: <20040603072146.GA14441@elte.hu>
+References: <20040602205025.GA21555@elte.hu> <Pine.LNX.4.58.0406021411030.3403@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0406021411030.3403@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov <dtor_core@ameritech.net> wrote:
->
-> > do_IRQ(...)
->  > {
->  > 	...
->  > 	struct pt_regs **cpu_regs_slot = __get_cpu_var(global_irq_regs);
->  > 	struct pt_regs *save = *cpu_regs_slot;
->  > 	*cpu_regs_slot = &regs;
->  > 	...
->  > 	*cpu_regs_slot = save;
->  > }
->  > 
->  > And to teach the sysrq code to grab *__get_cpu_var(global_irq_regs).
+
+* Linus Torvalds <torvalds@osdl.org> wrote:
+
+> > If the NX feature is supported by the CPU then the patched kernel turns
+> > on NX and it will enforce userspace executability constraints such as a
+> > no-exec stack and no-exec mmap and data areas. This means less chance
+> > for stack overflows and buffer-overflows to cause exploits.
 > 
->  Ok, so by making it a tad slower you can keep the old semantics - printing
->  registers right when keyboard interrupt is processed instead of waiting till
->  the next one arrives.
-> 
->  Hmm... the path is pretty hot, I am not sure what is best.
+> Just out of interest - how many legacy apps are broken by this? I
+> assume it's a non-zero number, but wouldn't mind to be happily
+> surprised.
 
-Well bear in mind that we can then rip all the pt_regs passing out from
-everywhere, so as long as you edit every IRQ handler in the kernel it's a
-net win ;)
+in the full install of FC1 and FC2 the number is zero - and Fedora has
+exec-shield which does a couple of things more: it makes the heap
+non-executable as well [this broke X], it randomizes the address-space
+layout and has a 4:4 VM [which broke the Sun JVM].
 
-I _think_ it'll work - as long as all architectures go through a common
-dispatch function like do_IRQ(), which surely they do.  The above code
-could be an arch-neutral inline actually.
+> And do we have some way of on a per-process basis say "avoid NX
+> because this old version of Oracle/flash/whatever-binary-thing doesn't
+> run with it"?
 
-I'm not sure what's best really.  But something this general is more
-attractive than something which is purely for sysrs-T.
+we have three mechanisms for this in Fedora:
+
+1) the PT_GNU_STACK flag itself - you can turn executability on/off
+   compile-time or even after the fact via the execstack(8) utility
+   Jakub wrote. This only affects the stack's executability - if an 
+   application assumes a non-PROT_EXEC mmap() can be executed it might
+   still break with NX - but based on experience with Fedora Core i'd
+   say there's almost no such application.
+
+this method works in 2.6 too, since it supports PT_GNU_STACK. gcc's
+PT_GNU_STACK mechanism is very conservative - e.g. if an application
+does an asm() then gcc assumes that it might rely on stack executability
+and emits the X flag. [applications can then turn this off in the source
+if stack executability is not required.] Likewise, if gcc emits
+trampolines then the X flag is emitted too. (glibc knows about
+PT_GNU_STACK all across - so e.g. if a nonexec stack application
+dlopen()s a library that needs stack executability then glibc makes the
+stack executable on the fly via PROT_GROWSDOWN/GROWSUP.)
+
+2) via a runtime method: via the i386 personality. So an application can
+   trigger the 'legacy' Linux VM layout by e.g doing 'i386 java
+   ./test.class'.
+
+this is a hack in Fedora - we wanted to have a finegrained runtime
+mechanism just in case. But it would be nice to have this upstream too -
+e.g. via a PERSONALITY_3G?
+
+3) via a kernel boot parameter (exec-shield=0)
+
+with the NX patch this becomes noexec=off [the same flag works on x86_64
+too]. This method is the most inflexible one, and is a last-resort
+thing. (Fedora also has a runtime global switch to turn off the VM
+layout changes.)
+
+here's a list of applications that we had to fix/work around in Fedora
+when the VM layout changed:
+
+ - emacs _rebuild_. (it coredumps itself during build ... xemacs is OK.)
+
+ - some JDKs. Since they generate code and try to be as fast as possible 
+   they tend to rely more on VM details than normal applications.
+
+ - X's module loader assumed that brk was executable. (fixed)
+
+ - Wine. (it implements another OS so it's by definition very sensitive 
+   to layout changes.)
+
+most of the breakages were unclean x86-only code that would have broken
+if ported over to 64-bit anyway.
+
+old, legacy applications dont have the PT_GNU_STACK flag so they all 
+work fine.
+
+	Ingo

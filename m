@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264538AbUF0Xha@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264540AbUF0XnA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264538AbUF0Xha (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 19:37:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264540AbUF0Xha
+	id S264540AbUF0XnA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 19:43:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264541AbUF0XnA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 19:37:30 -0400
-Received: from dhcp160179209.columbus.rr.com ([24.160.179.209]:54278 "EHLO
-	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
-	id S264538AbUF0Xh2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 19:37:28 -0400
-Date: Sun, 27 Jun 2004 18:51:04 -0400
-From: Joseph Fannin <jhf@rivenstone.net>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.7-mm3
-Message-ID: <20040627225104.GA623@samarkand.rivenstone.net>
-References: <20040626233105.0c1375b2.akpm@osdl.org>
+	Sun, 27 Jun 2004 19:43:00 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:16031 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S264540AbUF0Xm7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 19:42:59 -0400
+Date: Sun, 27 Jun 2004 16:43:32 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Inclusion of UML in 2.6.8
+Message-Id: <20040627164332.6c86ccd2.pj@sgi.com>
+In-Reply-To: <1088344199.21940.62.camel@winden.suse.de>
+References: <200406261905.22710.blaisorblade_spam@yahoo.it>
+	<20040626130945.190fb199.akpm@osdl.org>
+	<20040627035923.GB8842@ccure.user-mode-linux.org>
+	<20040626233253.06ed314e.pj@sgi.com>
+	<20040626234025.7d69937c.akpm@osdl.org>
+	<1088344199.21940.62.camel@winden.suse.de>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="tMbDGjvJuJijemkf"
-Content-Disposition: inline
-In-Reply-To: <20040626233105.0c1375b2.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> forgetting to add a file to a patch before modifying it is painful.
 
---tMbDGjvJuJijemkf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yup.
 
-On Sat, Jun 26, 2004 at 11:31:05PM -0700, Andrew Morton wrote:
->=20
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7=
--mm3/
->=20
-> +ppc64-COMMAND_LINE_SIZE-fix.patch
+One can dig ones way out by (1) copying the new code aside, (2)
+unwinding until you can forcibly pop (or bk co) the pristine source
+back, (3) push'ing back to the desired patch, (4) 'q edit' and copy over
+the new code.  But this is a "learned" response.
 
-    The same fix is needed for ppc32 as well.  I've attached a patch.
+> I do not have a good idea how to fix this in a more satisfactory way.
 
-Signed-off-by: Joseph Fannin <jhf@rivenstone.net>
---=20
-Joseph Fannin
-jhf@rivenstone.net
+Me neither.
 
---tMbDGjvJuJijemkf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ppc-COMMAND_LINE_SIZE-fix.patch"
-Content-Transfer-Encoding: quoted-printable
-
-diff -urN linux-2.6.7-mm3/include/asm-ppc/machdep.h linux-2.6.7-mm3_patched=
-/include/asm-ppc/machdep.h
---- linux-2.6.7-mm3/include/asm-ppc/machdep.h	2004-06-27 09:57:56.000000000=
- -0400
-+++ linux-2.6.7-mm3_patched/include/asm-ppc/machdep.h	2004-06-27 12:25:54.7=
-21616752 -0400
-@@ -5,6 +5,8 @@
- #include <linux/config.h>
- #include <linux/init.h>
-=20
-+#include <asm/setup.h>
-+
- #ifdef CONFIG_APUS
- #include <asm-m68k/machdep.h>
- #endif
-
---tMbDGjvJuJijemkf--
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263134AbUB0WVv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 17:21:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263164AbUB0WVu
+	id S263151AbUB0WY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 17:24:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263172AbUB0WY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 17:21:50 -0500
-Received: from fw.osdl.org ([65.172.181.6]:44948 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263134AbUB0WVr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 17:21:47 -0500
-Date: Fri, 27 Feb 2004 14:23:30 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: andrea@suse.de, riel@redhat.com, linux-kernel@vger.kernel.org
+	Fri, 27 Feb 2004 17:24:28 -0500
+Received: from 64-186-161-006.cyclades.com ([64.186.161.6]:11193 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S263151AbUB0WYU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 17:24:20 -0500
+Date: Fri, 27 Feb 2004 20:18:29 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Andrew Morton <akpm@osdl.org>
+Cc: Rik van Riel <riel@redhat.com>, andrea@suse.de,
+       linux-kernel@vger.kernel.org
 Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high
  end)
-Message-Id: <20040227142330.4e72d9f4.akpm@osdl.org>
-In-Reply-To: <162060000.1077919387@flay>
+In-Reply-To: <20040227122936.4c1be1fd.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58L.0402272016170.19454@logos.cnet>
 References: <20040227173250.GC8834@dualathlon.random>
-	<Pine.LNX.4.44.0402271350240.1747-100000@chimarrao.boston.redhat.com>
-	<20040227122936.4c1be1fd.akpm@osdl.org>
-	<20040227211548.GI8834@dualathlon.random>
-	<162060000.1077919387@flay>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+ <Pine.LNX.4.44.0402271350240.1747-100000@chimarrao.boston.redhat.com>
+ <20040227122936.4c1be1fd.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+
+
+On Fri, 27 Feb 2004, Andrew Morton wrote:
+
+> Oh, and can we please have testcases?  It's all very well to assert "it
+> sucks doing X and I fixed it" but it's a lot more useful if one can
+> distrubute testcases as well so others can evaluate the fix and can explore
+> alternative solutions.
 >
-> > We can write a testcase ourself, it's pretty easy, just create a 2.7G
-> > file in /dev/shm, and mmap(MAP_SHARED) it from 1k processes and fault in
-> > all the pagetables from all tasks touching the shm vma. Then run a
-> > second copy until the machine starts swapping and see how thing goes. To
-> > do this you need probably 8G, this is why I didn't write the testcase
-> > myself yet ;).  maybe I can simulate with less shm and less tasks on 1G
-> > boxes too, but the extreme lru effects of point 3 won't be visibile
-> > there, the very same software configuration works fine on 1/2G boxes on
-> > stock 2.4. problems showsup when the lru grows due the algorithm not
-> > contemplating million of dirty swapcache in a row at the end of the lru
-> > and some gigs of free cache ad the head of the lru. the rmap-only issues
-> > can also be tested with math, no testcase is needed for that.
-> 
-> I don't have time at the moment to go write it at the moment, but I can certainly run it on large end hardware if that helps.
+> Andrea, this shmem problem is a case in point, please.
+>
+> > > in small machines the current 2.4 stock algo works just fine too, it's
+> > > only when the lru has the million pages queued that without my new vm
+> > > algo you'll do million swapouts before freeing the memleak^Wcache.
+> >
+> > Same for Arjan's O(1) VM.  For machines in the single and low
+> > double digit number of gigabytes of memory either would work
+> > similarly well ...
+>
+> Case in point.  We went round the O(1) page reclaim loop a year ago and I
+> was never able to obtain a testcase which demonstrated the problem on 2.4,
+> let alone on 2.6.
+>
+> I had previously found some workloads in which the 2.4 VM collapsed for
+> similar reasons and those were fixed with the rotate_reclaimable_page()
+> logic.  Without testcases we will not be able to verify that anything else
+> needs doing.
 
-I think just
+Btw,
 
-	usemem -m 2700 -f test-file -r 10 -n 1000
+Andrew, are your testcases online somewhere?
 
-will do it.  I need to verify that.
+I heard once someone was going to collect VM tests to make a "official
+testing package", but that has never happened AFAIK.
 
-http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz

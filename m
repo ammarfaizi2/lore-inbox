@@ -1,98 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269654AbUJGNFE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264246AbUJGNAq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269654AbUJGNFE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 09:05:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbUJGNCd
+	id S264246AbUJGNAq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 09:00:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269820AbUJGM44
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 09:02:33 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:65414 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S269822AbUJGM6T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 08:58:19 -0400
-Date: Thu, 7 Oct 2004 08:57:48 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Probable module bug in linux-2.6.5-1.358
-In-Reply-To: <Pine.LNX.4.61.0410070830140.10213@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.61.0410070850480.10751@chaos.analogic.com>
-References: <Pine.LNX.4.61.0410061807030.4586@chaos.analogic.com>
- <1097143144.2789.19.camel@laptop.fenrus.com> <Pine.LNX.4.61.0410070753060.9988@chaos.analogic.com>
- <20041007121741.GB23612@devserv.devel.redhat.com>
- <Pine.LNX.4.61.0410070823300.10118@chaos.analogic.com>
- <20041007122815.GC23612@devserv.devel.redhat.com>
- <Pine.LNX.4.61.0410070830140.10213@chaos.analogic.com>
+	Thu, 7 Oct 2004 08:56:56 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:54416 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S269802AbUJGMyU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 08:54:20 -0400
+Date: Thu, 7 Oct 2004 14:47:46 +0200 (CEST)
+From: Simon Derr <Simon.Derr@bull.net>
+X-X-Sender: derrs@openx3.frec.bull.fr
+To: Paul Jackson <pj@sgi.com>
+cc: colpatch@us.ibm.com, mbligh@aracnet.com, Simon.Derr@bull.net,
+       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+In-Reply-To: <20041007015107.53d191d4.pj@sgi.com>
+Message-ID: <Pine.LNX.4.61.0410071439070.19964@openx3.frec.bull.fr>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+ <247790000.1091762644@[10.10.2.4]> <200408061730.06175.efocht@hpce.nec.com>
+ <20040806231013.2b6c44df.pj@sgi.com> <411685D6.5040405@watson.ibm.com>
+ <20041001164118.45b75e17.akpm@osdl.org> <20041001230644.39b551af.pj@sgi.com>
+ <20041002145521.GA8868@in.ibm.com> <415ED3E3.6050008@watson.ibm.com>
+ <415F37F9.6060002@bigpond.net.au> <821020000.1096814205@[10.10.2.4]>
+ <20041003083936.7c844ec3.pj@sgi.com> <834330000.1096847619@[10.10.2.4]>
+ <835810000.1096848156@[10.10.2.4]> <20041003175309.6b02b5c6.pj@sgi.com>
+ <838090000.1096862199@[10.10.2.4]> <20041003212452.1a15a49a.pj@sgi.com>
+ <843670000.1096902220@[10.10.2.4]> <Pine.LNX.4.61.0410051111200.19964@openx3.frec.bull.fr>
+ <58780000.1097004886@flay> <20041005172808.64d3cc2b.pj@sgi.com>
+ <1193270000.1097025361@[10.10.2.4]> <20041005190852.7b1fd5b5.pj@sgi.com>
+ <1097103580.4907.84.camel@arrakis> <20041007015107.53d191d4.pj@sgi.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Oct 2004, Richard B. Johnson wrote:
+On Thu, 7 Oct 2004, Paul Jackson wrote:
 
-> On Thu, 7 Oct 2004, Arjan van de Ven wrote:
->
->> On Thu, Oct 07, 2004 at 08:26:22AM -0400, Richard B. Johnson wrote:
->>> On Thu, 7 Oct 2004, Arjan van de Ven wrote:
->>> 
->>>> On Thu, Oct 07, 2004 at 08:01:47AM -0400, Richard B. Johnson wrote:
->>>>> Also, when this driver is running, transferring large volumes
->>>>> of data, the kernel decides that there have been too many interrupts, 
->>>>> and
->>>>> does:
->>>>> 
->>>>> Message from syslogd@chaos at Wed Oct  6 21:22:57 2004 ...
->>>>> chaos kernel: Disabling IRQ #18
->>>>> 
->>>>> This, in spite of the fact that interrupts occur only when
->>>>> DMA completion happens and new data are available, i.e.,
->>>>> one interrupt every 16 megabytes of data transferred.
->>>>> 
->>>>> Who decided that it had a right to disable my interrupt????
->>>> 
->>>> the kernel did because you don't return the proper value for "I handled 
->>>> the
->>>> IRQ" from your ISR.
->>> 
->>> Do you know what that value is? I can't find it. I just returned 0
->>> and it worked for awhile.
->> 
->> IRQ_HANDLED is you handled the irq, IRQ_NONE if you didn't
->>
+> > I don't see what non-exclusive cpusets buys us.
+> 
+> One can nest them, overlap them, and duplicate them ;)
 
+I would also add, if the decision comes to make 'real exclusive' cpusets, 
+my previous example, as a use for non-exclusive cpusets: 
 
-Okay. I'll fix that.
-
-
->> 
->>> The kernel calls cleanup_module() and the printk() shows that it
->>> was truly called.
->> 
->> I fail to find where you declare module_exit() in your sources
->> 
->
-> Well I don't. Is it now required?  What does it do? If I put
-> in module_exit() and have it execute cleanup_module(), it
-
-I found it..........
-
-module_exit() is just a wrapper around cleanup_module().
-
-cleanup_module() gets called. I could rename cleanup_module to
-foo() and then  use module_exit(foo);, which seems obtuse
-since this has to compile on 2.4.x also, clearly not the
-right thing to do.
-
-`dmesg` clearly shown that the exit routine was called....
-
-PCI: Enabling device 0000:02:04.0 (0106 -> 0107)
-Analogic Corp Datalink Driver : Installed 12d6:8004 IRQ18 slot:0204 DMA:1f401000
-Analogic Corp Datalink Driver : Initialization complete
-Analogic Corp Datalink Driver : Module removed
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.5-1.358-noreg on an i686 machine (5537.79 BogoMips).
-             Note 96.31% of all statistics are fiction.
-
+we are running jobs that need to be 'mostly' isolated on some part of the 
+system, and run in a specific location. We use cpusets for that. But we 
+can't afford to dedicate a part of the system for administrative tasks 
+(daemons, init..). These tasks should not be put inside one of the 
+'exclusive' cpusets, even temporary : they do not belong there. They 
+should just be allowed to steal a few cpu cycles from time to time : non 
+exclusive cpusets are the way to go.

@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136486AbREDShS>; Fri, 4 May 2001 14:37:18 -0400
+	id <S136482AbREDSlI>; Fri, 4 May 2001 14:41:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136488AbREDShH>; Fri, 4 May 2001 14:37:07 -0400
-Received: from dns-229.dhcp-248.nai.com ([161.69.248.229]:52158 "HELO
-	mcafee-labs.nai.com") by vger.kernel.org with SMTP
-	id <S136482AbREDSgO>; Fri, 4 May 2001 14:36:14 -0400
-Message-ID: <XFMail.20010504113850.davidel@xmailserver.org>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
+	id <S136487AbREDSk6>; Fri, 4 May 2001 14:40:58 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:25206 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S136482AbREDSkt>; Fri, 4 May 2001 14:40:49 -0400
+Date: Fri, 4 May 2001 14:40:39 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: zaitcev@redhat.com
+Subject: Patch for ymfpci in 2.4.4
+Message-ID: <20010504144039.A30563@devserv.devel.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <3AF2F09C.C5731842@chromium.com>
-Date: Fri, 04 May 2001 11:38:50 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: Fabio Riccardi <fabio@chromium.com>
-Subject: Re: X15 alpha release: as fast as TUX but in user space
-Cc: David_J_Morse@Dell.com, "Timothy D. Witham" <wookie@osdlab.org>,
-        Andrew Morton <andrewm@uow.edu.au>, Christopher Smith <x@xman.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        mingo@elte.hu
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello:
 
-On 04-May-2001 Fabio Riccardi wrote:
-> ok, I'm totally ignorant here, what is a pipelined request?
+Here are updates from ALSA. The interrupt acknowledge has a
+potential bug report for it in RH bugzilla. Power-up fix I include
+"just because", Alan bounced it to me from sound-hackers;
+Also Jeff Garzik asked for it. I wanted to include it with
+full PM support, but perhaps not.
 
+-- Pete
 
-
-http://www.w3.org/Protocols/HTTP/Performance/Pipeline.html
-
-<QUOTE>
-A pipelined application implementation buffers its output before writing it to
-the underlying TCP stack, roughly equivalent to what the Nagle algorithm does
-for telnet connections.
-These two buffering algorithms tend to interfere, and using them together will
-often cause very significant performance degradation. For each connection, the
-server maintains a
-response buffer that it flushes either when full, or when there is no more
-requests coming in on that connection, or before it goes idle. This buffering
-enables aggregating responses
-(for example, cache validation responses) into fewer packets even on a
-high-speed network, and saving CPU time for the server. 
-</QUOTE>
-
-
-
-
-
-- Davide
-
+--- linux-2.4.4/drivers/sound/ymfpci.c	Thu Apr 26 22:17:27 2001
++++ linux-2.4.4-niph/drivers/sound/ymfpci.c	Fri May  4 11:02:56 2001
+@@ -989,11 +989,6 @@
+ 
+ 	status = ymfpci_readl(codec, YDSXGR_STATUS);
+ 	if (status & 0x80000000) {
+-		spin_lock(&codec->reg_lock);
+-		ymfpci_writel(codec, YDSXGR_STATUS, 0x80000000);
+-		mode = ymfpci_readl(codec, YDSXGR_MODE) | 2;
+-		ymfpci_writel(codec, YDSXGR_MODE, mode);
+-		spin_unlock(&codec->reg_lock);
+ 		codec->active_bank = ymfpci_readl(codec, YDSXGR_CTRLSELECT) & 1;
+ 		spin_lock(&codec->voice_lock);
+ 		for (nvoice = 0; nvoice < 64; nvoice++) {
+@@ -1007,6 +1002,11 @@
+ 				ymf_cap_interrupt(codec, cap);
+ 		}
+ 		spin_unlock(&codec->voice_lock);
++		spin_lock(&codec->reg_lock);
++		ymfpci_writel(codec, YDSXGR_STATUS, 0x80000000);
++		mode = ymfpci_readl(codec, YDSXGR_MODE) | 2;
++		ymfpci_writel(codec, YDSXGR_MODE, mode);
++		spin_unlock(&codec->reg_lock);
+ 	}
+ 
+ 	status = ymfpci_readl(codec, YDSXGR_INTFLAG);
+@@ -2106,6 +2106,8 @@
+ 		pci_write_config_byte(pci, PCIR_DSXGCTRL, cmd | 0x03);
+ 		pci_write_config_byte(pci, PCIR_DSXGCTRL, cmd & 0xfc);
+ 	}
++	pci_write_config_word(pci, PCIR_DSXPWRCTRL1, 0);
++	pci_write_config_word(pci, PCIR_DSXPWRCTRL2, 0);
+ }
+ 
+ static void ymfpci_enable_dsp(ymfpci_t *codec)

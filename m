@@ -1,157 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319422AbSILDS1>; Wed, 11 Sep 2002 23:18:27 -0400
+	id <S319423AbSILD0Q>; Wed, 11 Sep 2002 23:26:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319423AbSILDS1>; Wed, 11 Sep 2002 23:18:27 -0400
-Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:65428 "EHLO
-	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S319422AbSILDS0>; Wed, 11 Sep 2002 23:18:26 -0400
-Date: Wed, 11 Sep 2002 20:23:09 -0700 (PDT)
-From: Syam Sundar V Appala <syam@cisco.com>
-To: linux-kernel@vger.kernel.org
-cc: syam@cisco.com
-Subject: Kernel 2.4.19 Oops error
-Message-ID: <Pine.GSO.4.44.0209112015100.17831-100000@msabu-view1.cisco.com>
+	id <S319424AbSILD0Q>; Wed, 11 Sep 2002 23:26:16 -0400
+Received: from dsl-213-023-021-043.arcor-ip.net ([213.23.21.43]:36995 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S319423AbSILD0Q>;
+	Wed, 11 Sep 2002 23:26:16 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC] Raceless module interface
+Date: Thu, 12 Sep 2002 05:32:31 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Oliver Neukum <oliver@neukum.name>, Roman Zippel <zippel@linux-m68k.org>,
+       Alexander Viro <viro@math.psu.edu>, kaos@ocs.com.au,
+       linux-kernel@vger.kernel.org
+References: <E17pFKr-0007V7-00@starship> <20020912014331.961472C12A@lists.samba.org> <20020912030933.A13608@kushida.apsleyroad.org>
+In-Reply-To: <20020912030933.A13608@kushida.apsleyroad.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17pKiX-0007bp-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I am relatively new to linux and I am facing the following problem. Can
-someone explain what is going on?
+On Thursday 12 September 2002 04:09, Jamie Lokier wrote:
+>    1. Just before a module's cleanup_module() function is called, mark
+>       the module as "unloading".  This should force
+>       try_inc_mod_use_count() to fail, causing its caller to behave like
+>       the associated resource (e.g. filesystem) isn't actually
+>       registered, and to call request_module().
 
-Oops:
----
-EXT2-fs error (device ide0(3,1)): ext2_check_page: bad entry in directory
-#21179
-6: unaligned directory entry - offset=0, inode=4294967295, rec_len=65535,
-name_l
-en=255
-Unable to handle kernel NULL pointer dereference at virtual address
-00000003
- printing eip:
-c0112b23
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c0112b23>]    Not tainted
-EFLAGS: 00010286
-eax: c0fe2000   ebx: cfc66000   ecx: 00000000   edx: ffffffff
-esi: cfc665a0   edi: c0fe25a0   ebp: c0fe2000   esp: cfc67f78
-ds: 0018   es: 0018   ss: 0018
-Process rpm (pid: 47, stackpage=cfc67000)
-Stack: fffffff5 cfffcba0 bfffe1d8 c013b723 c013b73f 00000013 cfffcba0
-cfff03a0
-       00000206 cfc66000 08532ed8 00000001 bfffe1e8 c01073e5 00000011
-bfffe1dc
-       cfc67fc4 00000000 c01087eb 00000000 00000001 00000001 08532ed8
-00000001
-Call Trace:    [<c013b723>] [<c013b73f>] [<c01073e5>] [<c01087eb>]
+My proposal produces the same effect using a slightly different
+arrangement: module_cleanup() is called, and the first thing it
+does is bail out with an error if there are users, or puts the
+module into the inactive state (count=-1).  This forces
+try_inc_mod_use_count to fail, as you say.
 
-Code: 8b 42 04 3b 85 18 02 00 00 72 52 f6 83 d6 01 00 00 20 74 0e
+>    2. request_module() should simply ignore modules marked as
+>       "unloading".  It should proceed to call "insmod" etc.
+> 
+>    3. sys_create_module() or sys_init_module() should block if there is
+>       a module of the same name currently in the "unloading" state.
+>       They should block until that module's cleanup_module() returns.
 
+OK, this is a really good example of why replacing the lock_kernel
+with a dedicated module_sem is good: if we do that, the right thing
+happens.  Insmod will block on the module_sem until the module is
+completely unloaded and removed from the list.  By the time it gets
+the semaphore, everything will be in a pristine state.
 
-Ksymoops output:
----------------
-bash-2.05a# ksymoops -v vmlinux -k /proc/ksyms -m System.map crash
-ksymoops 2.4.5 on i686 2.4.19.  Options used
-     -v vmlinux (specified)
-     -k /proc/ksyms (specified)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.19/ (default)
-     -m System.map (specified)
+The BKL on the other hand will happily relinquish control if the
+cleanup sleeps, messing things up nicely.
 
-No modules in ksyms, skipping objects
-Warning (read_lsmod): no symbols in lsmod, is /proc/modules a valid lsmod
-file?
-Unable to handle kernel NULL pointer dereference at virtual address
-00000003
-c0112b23
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c0112b23>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010286
-eax: c0fe2000   ebx: cfc66000   ecx: 00000000   edx: ffffffff
-esi: cfc665a0   edi: c0fe25a0   ebp: c0fe2000   esp: cfc67f78
-ds: 0018   es: 0018   ss: 0018
-Process rpm (pid: 47, stackpage=cfc67000)
-Stack: fffffff5 cfffcba0 bfffe1d8 c013b723 c013b73f 00000013 cfffcba0
-cfff03a0
-       00000206 cfc66000 08532ed8 00000001 bfffe1e8 c01073e5 00000011
-bfffe1dc
-       cfc67fc4 00000000 c01087eb 00000000 00000001 00000001 08532ed8
-00000001
-Call Trace:    [<c013b723>] [<c013b73f>] [<c01073e5>] [<c01087eb>]
-Code: 8b 42 04 3b 85 18 02 00 00 72 52 f6 83 d6 01 00 00 20 74 0e
+>    4. At this point, the new instance of the module will initialise,
+>       request_module() calls will return and the callers which called
+>       try_inc_mod_use_count() in step 1 will continue with the resource
+>       they needed.
 
+Yes, I don't see a problem.  The problems start when you try to
+shortcut this cycle.  Given that a shortcut is hardly going to save
+much at all, due to caching, I'd call it a waste of effort.
 
->>EIP; c0112b23 <do_fork+83/730>   <=====
-
->>eax; c0fe2000 <END_OF_CODE+d810e4/????>
->>ebx; cfc66000 <END_OF_CODE+fa050e4/????>
->>edx; ffffffff <END_OF_CODE+3fd9f0e3/????>
->>esi; cfc665a0 <END_OF_CODE+fa05684/????>
->>edi; c0fe25a0 <END_OF_CODE+d81684/????>
->>ebp; c0fe2000 <END_OF_CODE+d810e4/????>
->>esp; cfc67f78 <END_OF_CODE+fa0705c/????>
-
-Trace; c013b723 <dupfd+23/60>
-Trace; c013b73f <dupfd+3f/60>
-Trace; c01073e5 <sys_fork+15/20>
-Trace; c01087eb <system_call+33/38>
-
-Code;  c0112b23 <do_fork+83/730>
-00000000 <_EIP>:
-Code;  c0112b23 <do_fork+83/730>   <=====
-   0:   8b 42 04                  mov    0x4(%edx),%eax   <=====
-Code;  c0112b26 <do_fork+86/730>
-   3:   3b 85 18 02 00 00         cmp    0x218(%ebp),%eax
-Code;  c0112b2c <do_fork+8c/730>
-   9:   72 52                     jb     5d <_EIP+0x5d> c0112b80
-<do_fork+e0/730>
-Code;  c0112b2e <do_fork+8e/730>
-   b:   f6 83 d6 01 00 00 20      testb  $0x20,0x1d6(%ebx)
-Code;  c0112b35 <do_fork+95/730>
-  12:   74 0e                     je     22 <_EIP+0x22> c0112b45
-<do_fork+a5/730>
-
-
-1 warning issued.  Results may not be reliable.
-
-
-Objdump  -d kernel/fork.o:
--------------------------
-     998:       c7 04 24 ff ff ff ff    movl   $0xffffffff,(%esp,1)
-     99f:       74 12                   je     9b3 <do_fork+0x43>
-     9a1:       b8 00 e0 ff ff          mov    $0xffffe000,%eax
-     9a6:       21 e0                   and    %esp,%eax
-     9a8:       8b 58 7c                mov    0x7c(%eax),%ebx
-     9ab:       85 db                   test   %ebx,%ebx
-     9ad:       0f 85 0c 06 00 00       jne    fbf <do_fork+0x64f>
-     9b3:       c7 04 24 f4 ff ff ff    movl   $0xfffffff4,(%esp,1)
-     9ba:       ba 01 00 00 00          mov    $0x1,%edx
-     9bf:       b8 f0 01 00 00          mov    $0x1f0,%eax
-     9c4:       e8 fc ff ff ff          call   9c5 <do_fork+0x55>
-     9c9:       89 c5                   mov    %eax,%ebp
-     9cb:       85 ed                   test   %ebp,%ebp
-     9cd:       0f 84 ec 05 00 00       je     fbf <do_fork+0x64f>
-     9d3:       bb 00 e0 ff ff          mov    $0xffffe000,%ebx
-     9d8:       21 e3                   and    %esp,%ebx
-     9da:       fc                      cld
-     9db:       b9 68 01 00 00          mov    $0x168,%ecx
-     9e0:       89 ef                   mov    %ebp,%edi
-     9e2:       89 de                   mov    %ebx,%esi
-     9e4:       f3 a5                   repz movsl %ds:(%esi),%es:(%edi)
-     9e6:       c7 04 24 f5 ff ff ff    movl   $0xfffffff5,(%esp,1)
-     9ed:       8b 95 e4 01 00 00       mov    0x1e4(%ebp),%edx
-=>   9f3:       8b 42 04                mov    0x4(%edx),%eax
-
-
-
-Thanks,
-Syam
-----
-
+-- 
+Daniel

@@ -1,57 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268503AbUIXGHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268470AbUIXGO4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268503AbUIXGHT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 02:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268470AbUIXGHJ
+	id S268470AbUIXGO4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 02:14:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268392AbUIXGMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 02:07:09 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:11177 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S268306AbUIXGFc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 02:05:32 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Subject: Re: 2.6.9-rc2-mm2 ohci_hcd doesn't work
-Date: Thu, 23 Sep 2004 23:04:51 -0700
-User-Agent: KMail/1.6.2
-Cc: Roman Weissgaerber <weissg@vienna.at>,
-       linux-usb-devel@lists.sourceforge.net,
-       David Brownell <dbrownell@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-References: <200409231457.16979.bjorn.helgaas@hp.com>
-In-Reply-To: <200409231457.16979.bjorn.helgaas@hp.com>
+	Fri, 24 Sep 2004 02:12:55 -0400
+Received: from web53606.mail.yahoo.com ([206.190.37.39]:23947 "HELO
+	web53606.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S268470AbUIXGIe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 02:08:34 -0400
+Message-ID: <20040924044952.73739.qmail@web53606.mail.yahoo.com>
+Date: Thu, 23 Sep 2004 21:49:52 -0700 (PDT)
+From: Donald Duckie <schipperke2000@yahoo.com>
+Subject: Re: unresolved symbol __udivsi3_i4
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040923202342.2327585b.rddunlap@osdl.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409232304.51478.david-b@pacbell.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 23 September 2004 1:57 pm, Bjorn Helgaas wrote:
+hi randy!
+
+thank you very much for your help.
+
+it is indeed the % (mod) operator that generates the
+unresolved symbol. it is also true with the /
+(division) operator.  
+
+is there any patch on this for
+2.4.18-sh? or how will i do away with this problem
+aside from commenting it out from the code?
+
+btw, the previous unresolved symbol problems were
+already solved. i just didn't copy the depmod
+generated files in the running machine, that was why
+those occured.
+
+thank you.
+
+
+
+--- "Randy.Dunlap" <rddunlap@osdl.org> wrote:
+
+> On Thu, 23 Sep 2004 19:10:50 -0700 (PDT) Donald
+> Duckie wrote:
 > 
->  ACPI: PCI interrupt 0000:00:0f.2[A] -> GSI 10 (level, low) -> IRQ 10
->  ohci_hcd 0000:00:0f.2: ServerWorks OSB4/CSB5 OHCI USB Controller
->  ohci_hcd 0000:00:0f.2: irq 10, pci mem 0xf5e70000
->  ohci_hcd 0000:00:0f.2: new USB bus registered, assigned bus number 1
->  ohci_hcd 0000:00:0f.2: init err (00002edf 0000)
+> | hi!
+> | 
+> | can somebody please help me how to overcome this
+> | problem:
+> | unresolved symbol __udivsi3_i4
+> | 
+> | I compiled the snull files that i got from 
+> |
+>
+http://www.oreilly.com.tw/editor_column/a138_read.htmland
+> | ran depmod -a -F /proc/ksyms 2.4.18 snull.o
+> | 
+> | And in another machine (my running machine), I got
+> the
+> | following files from my compilation machine:
+> | snull.o
+> | /lib/modules/2.4.18/*
+> | 
+> | In my running machine, I ran modprobe but got this
+> | error:
+> | Using
+> /lib/modules/2.4.18-sh/kernel/drivers/net/snull.
+> |   <cut>
+> | modprobe: unresolved symbol __udivsi3_i4
+> |   <cut>
+> 
+> Let me try this again.  I suspect that the problem
+> is the '%' (mod)
+> operator at line 351.  Can you just delete part of
+> that if-test
+> to prove or disprove my suspicion?
+> 
+> 
+> | The gcc version that is used is:
+> | [aprhodite@aphrodite2 bin]$ sh-linux-gcc -v
+> | Reading specs from
+> | /usr/lib/gcc-lib/sh-linux/3.0.3/specs
+> | Configured with: ../configure --prefix=/usr
+> | --mandir=/usr/share/man --target=sh-linux
+> | --host=i686-pc-linux-gnu --build=i
+> | 686-pc-linux-gnu --disable-c99 --disable-nls
+> | --enable-languages=c,c++ --with-system-zlib
+> | --with-gxx-include-dir=/usr/sh-
+> | linux/include/g++-v3
+> | --includedir=/usr/sh-linux/include
+> | --enable-threads=posix --enable-long-long
+> | Thread model: posix
+> | gcc version 3.0.3
+> | 
+> | 
+> | Running nm -l-s snull.o
+> | 00000000 a *ABS*
+> |   <cut>
+> |          U __udivsi3_i4
+> | /home/aphrodite/snull/snull3/snull/snull.c:355
+> |   <cut>
+> | 
+> | 
+> | the block in snull.c that contains ine 355 is:
+> |     352     if (lockup && ((priv->stats.tx_packets
+> +
+> | 1) % lockup) == 0) {
+> |     353         /* Simulate a dropped transmit
+> | interrupt */
+> |     354         netif_stop_queue(dev);
+> |     355         PDEBUG("Simulate lockup at %ld,
+> txp
+> | %ld\n", jiffies,
+> |     356                         (unsigned long)
+> | priv->stats.tx_packets);
+> |     357     }
+> | (which seems to  be okey)
+> | 
+> | 
+> | The only modification to the downloaded snull
+> files is
+> | on snull.c:
+> |      30 //#include <linux/malloc.h> /* kmalloc()
+> */
+> |      31 #include <linux/slab.h> /* kmalloc()
+> | deprecated use slab.h instead*/
+> | 
+> | 
+> | can anyone please tell me how to deal with this
+> | unresolved symbol __udivsi3_i4?
+> | 
+> | 
+> | thank you very much.
+> | -donald
+> 
+> --
+> ~Randy
+> 
 
-The "2edf" is fine but the "0000" isn't what was _just_ written
-to that second register ... some chips are a bit tricky about
-initialization.  Ideally, OHCI_QUIRK_INITRESET would be set
-for those chips ... the need for that is new, Linux previously
-did it in all cases even though only a few implementations
-seemed to want it.  (And some strongly dislike it.)
 
-Maybe ServerWorks needs it.  The flag is tested in ohci-hcd.c;
-what happens if you kick in that quirk handling?
 
-- Dave
-
->  ohci_hcd 0000:00:0f.2: can't start
->  ohci_hcd 0000:00:0f.2: init error -75
->  ohci_hcd 0000:00:0f.2: remove, state 0
->  ohci_hcd 0000:00:0f.2: USB bus 1 deregistered
->  ohci_hcd: probe of 0000:00:0f.2 failed with error -75
-
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail Address AutoComplete - You start. We finish.
+http://promotions.yahoo.com/new_mail 

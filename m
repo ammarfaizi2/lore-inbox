@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262382AbREUDza>; Sun, 20 May 2001 23:55:30 -0400
+	id <S262384AbREUELJ>; Mon, 21 May 2001 00:11:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262383AbREUDzK>; Sun, 20 May 2001 23:55:10 -0400
-Received: from www.wen-online.de ([212.223.88.39]:56849 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S262382AbREUDzJ>;
-	Sun, 20 May 2001 23:55:09 -0400
-Date: Mon, 21 May 2001 05:54:42 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: [RFC][PATCH] Re: Linux 2.4.4-ac10
-In-Reply-To: <Pine.LNX.4.21.0105201756550.5547-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0105210544390.465-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262385AbREUEK7>; Mon, 21 May 2001 00:10:59 -0400
+Received: from lssf069.lss.emc.com ([168.159.63.69]:3076 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S262384AbREUEKv>; Mon, 21 May 2001 00:10:51 -0400
+Date: Sun, 20 May 2001 15:36:11 -0400
+Message-Id: <200105201936.f4KJaBG15983@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: "Ph. Marek" <marek@mail.bmlv.gv.at>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3.0.6.32.20010327090010.009163c0@pop3.bmlv.gv.at>
+In-Reply-To: <3.0.6.32.20010327090010.009163c0@pop3.bmlv.gv.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 May 2001, Marcelo Tosatti wrote:
+Ph. Marek writes:
+> in fs/devfs/util.c is
+> 	void __init devfs_make_root (const char *name)
+> which is wrong as pivot_root allows changing the root-device in the runtime.
+> 
+> I think it should be 
+> 	void __init devfs_make_root (const char *name)
+> and get called by
+> fs/super.c:
+> 	asmlinkage long sys_pivot_root(const char *new_root, const char *put_old)
+> after
+> 	chroot_fs_refs(root,root_mnt,new_nd.dentry,new_nd.mnt);
+> 	error = 0;
+> 
+> Is that correct?
 
-> On Sat, 19 May 2001, Mike Galbraith wrote:
->
-> > @@ -1054,7 +1033,7 @@
-> >  				if (!zone->size)
-> >  					continue;
-> >
-> > -				while (zone->free_pages < zone->pages_low) {
-> > +				while (zone->free_pages < zone->inactive_clean_pages) {
-> >  					struct page * page;
-> >  					page = reclaim_page(zone);
-> >  					if (!page)
->
->
-> What you're trying to do with this change ?
+No, because devfs_mk_root() only ever needs to called from
+mount_root(). If you're doing pivot_root() then you've got initrd, in
+which case you can create compatibility symlinks from user-space.
 
-Just ensuring that I never had a large supply of cleaned pages laying
-around at a time when folks are in distress.  It also ensures that you
-never donate your last reclaimable pages, but that wasn't the intent.
+				Regards,
 
-It was a stray though that happened to produce measurable improvement.
-
-	-Mike
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,38 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314411AbSEFNPI>; Mon, 6 May 2002 09:15:08 -0400
+	id <S314433AbSEFNSN>; Mon, 6 May 2002 09:18:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314433AbSEFNPH>; Mon, 6 May 2002 09:15:07 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:38673 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S314411AbSEFNPH>; Mon, 6 May 2002 09:15:07 -0400
-Message-Id: <200205061311.g46DBUX15881@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Chris Rankin <cj.rankin@ntlworld.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18 floppy driver EATS floppies
-Date: Mon, 6 May 2002 16:17:41 -0200
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <200205051317.g45DHIU0000750@twopit.underworld>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S314439AbSEFNSM>; Mon, 6 May 2002 09:18:12 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:32263 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S314433AbSEFNSL>;
+	Mon, 6 May 2002 09:18:11 -0400
+Date: Mon, 6 May 2002 15:18:05 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Anton Altaparmakov <aia21@cantab.net>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: tcq problem details Re: vanilla 2.5.13 severe file system corruption experienced follozing e2fsck ...
+Message-ID: <20020506131805.GA18817@suse.de>
+In-Reply-To: <5.1.0.14.2.20020506093027.00aca720@pop.cus.cam.ac.uk> <5.1.0.14.2.20020505200138.00b2d660@pop.cus.cam.ac.uk> <20020505183451.98763.qmail@web14102.mail.yahoo.com> <5.1.0.14.2.20020505200138.00b2d660@pop.cus.cam.ac.uk> <5.1.0.14.2.20020506093027.00aca720@pop.cus.cam.ac.uk> <5.1.0.14.2.20020506105723.04138980@pop.cus.cam.ac.uk> <20020506121042.GP820@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5 May 2002 11:17, Chris Rankin wrote:
-> May  5 13:32:36 twopit kernel: floppy0: sector not found: track 0, head 0,
-> sector 6, size 2 May  5 13:32:37 twopit kernel: floppy0: sector not found:
-> track 0, head 0, sector 6, size 2 May  5 13:32:37 twopit kernel:
-> end_request: I/O error, dev 02:00 (floppy), sector 5 May  5 13:32:37 twopit
-> kernel: 2nd bread in fat_access failed
+On Mon, May 06 2002, Jens Axboe wrote:
+> Agrh, that's a silly bug in blk_queue_init_tags(). Could you replace the
+> memset() of tags->tag_index in there with something ala:
 
-Kernel says there is a bad sector.
-Did you verify that your floppy is ok?
+Brown paper bag time, this should make it work. Linus, please apply.
 
-OTOH, sector errors shouldn't lead to unkillable processes.
-If they do, that's a bug.
---
-vda
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.549   -> 1.550  
+#	drivers/block/ll_rw_blk.c	1.64    -> 1.65   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/05/06	axboe@burns.home.kernel.dk	1.550
+# Transposed the last two arguments to memset, causing a slab poisoned
+# kernel not to use tagging correctly... Brown paper bag stuff.
+# --------------------------------------------
+#
+diff -Nru a/drivers/block/ll_rw_blk.c b/drivers/block/ll_rw_blk.c
+--- a/drivers/block/ll_rw_blk.c	Mon May  6 15:17:09 2002
++++ b/drivers/block/ll_rw_blk.c	Mon May  6 15:17:09 2002
+@@ -358,8 +358,8 @@
+ 	if (!tags->tag_map)
+ 		goto fail_map;
+ 
+-	memset(tags->tag_index, depth * sizeof(struct request *), 0);
+-	memset(tags->tag_map, bits * sizeof(unsigned long), 0);
++	memset(tags->tag_index, 0, depth * sizeof(struct request *));
++	memset(tags->tag_map, 0, bits * sizeof(unsigned long));
+ 	INIT_LIST_HEAD(&tags->busy_list);
+ 	tags->busy = 0;
+ 	tags->max_depth = depth;
+
+-- 
+Jens Axboe
 

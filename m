@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbTJIM5W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 08:57:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbTJIM5W
+	id S262149AbTJIMz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 08:55:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbTJIMzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 08:57:22 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:13803 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262076AbTJIM5T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 08:57:19 -0400
-Date: Thu, 9 Oct 2003 10:00:16 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Xose Vazquez Perez <xose@wanadoo.es>,
-       linux-scsi <linux-scsi@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: two sym53c8xx.o modules
-In-Reply-To: <20031009122428.GF11525@bitwizard.nl>
-Message-ID: <Pine.LNX.4.44.0310090959550.3040-100000@logos.cnet>
+	Thu, 9 Oct 2003 08:55:55 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:37382 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S262111AbTJIMzy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 08:55:54 -0400
+Date: Thu, 9 Oct 2003 14:55:36 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Linus Torvalds <torvalds@osdl.org>
+cc: viro@parcelfarce.linux.theplanet.co.uk, <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [RFC] disable_irq()/enable_irq() semantics and ide-probe.c
+In-Reply-To: <Pine.LNX.4.44.0310081904330.2721-100000@home.osdl.org>
+Message-ID: <Pine.LNX.4.44.0310091408460.8124-100000@serv>
+References: <Pine.LNX.4.44.0310081904330.2721-100000@home.osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Wed, 8 Oct 2003, Linus Torvalds wrote:
 
-On Thu, 9 Oct 2003, Erik Mouw wrote:
-
-> On Thu, Oct 09, 2003 at 08:41:49AM -0300, Marcelo Tosatti wrote:
-> > On Thu, 9 Oct 2003, Xose Vazquez Perez wrote:
-> > > kernel 2.4 has two modules with *same name*:
-> > > /lib/modules/2.4.XX/kernel/drivers/scsi/sym53c8xx_2/sym53c8xx.o
-> > > /lib/modules/2.4.XX/kernel/drivers/scsi/sym53c8xx.o
-> > > 
-> > > "# modprobe sym53c8xx" tries to load sym53c8xx.o first and then sym53c8xx_2/sym53c8xx.o
-> > > bug or feature?
-> > > 
-> > > should be sym53c8xx_2/sym53c8xx.o renamed to sym53c8xx_2/sym53c8xx_2.o ?
-> > 
-> > One should not have both drivers loaded at the same time, so I think this
-> > is alright.
+> And while I agree that the depth clearing is bogus, but I'd be worried
+> about removing it in case some driver actually depends on it (ie
+> historically it has actually been ok to do:
 > 
-> No, it's not allright. Modprobe can't distinguish between
-> sym53c8xx_2/sym53c8xx.o and sym53c8xx.o, you have to figure out the
-> full path and insmod one of them manually. Xose is right in that
-> sym53c8xx_2/sym53c8xx.o should be renamed in sym53c8xx_2/sym53c8xx_2.o.
-> Compare with aic7xxx and aic7xxx_old.
+> 	disable_irq(irq);
+> 	.. set up device ..
+> 	request_irq(irq, ..);	// This will also enable the irq
+> 
+> even though it's ugly, and I hope nobody does it).
 
-True. Mind sending me a patch? 
+If there are such cases left, I'd really prefer we fix them, as currently 
+nothing protects this against another driver requesting the same irq. To 
+make this even more fun the behaviour is also different if the irq is 
+shared, as the irq is not enabled in this case.
+In the ide driver I'd really like to see that at the time the probe 
+function reenables the interrupt there is either an irq handler installed 
+or it failed. On the Amiga we also have always problems with this, as the 
+interrupt must be acknowledged by the driver, so we have to be careful not 
+to leave anything pending. The irq handler would automatically take care 
+of this and would make this simpler.
+
+bye, Roman
 

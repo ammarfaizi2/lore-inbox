@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263031AbSJBKcf>; Wed, 2 Oct 2002 06:32:35 -0400
+	id <S263038AbSJBKer>; Wed, 2 Oct 2002 06:34:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263033AbSJBKcf>; Wed, 2 Oct 2002 06:32:35 -0400
-Received: from boogie.lpds.sztaki.hu ([193.225.12.226]:29861 "EHLO
-	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
-	id <S263031AbSJBKce>; Wed, 2 Oct 2002 06:32:34 -0400
-Date: Wed, 2 Oct 2002 12:38:02 +0200
-From: GOMBAS Gabor <gombasg@inf.elte.hu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] default file permission for vfat
-Message-ID: <20021002103802.GC1099@boogie.lpds.sztaki.hu>
-References: <20021001173908.GA15838@atrey.karlin.mff.cuni.cz> <20021001185526.GA704@alpha.home.local> <3D9AB638.60209@corvil.com> <20021002094612.GA2587@alpha.home.local>
+	id <S263040AbSJBKer>; Wed, 2 Oct 2002 06:34:47 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:11974 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263038AbSJBKep>;
+	Wed, 2 Oct 2002 06:34:45 -0400
+Date: Wed, 02 Oct 2002 03:32:59 -0700 (PDT)
+Message-Id: <20021002.033259.10308318.davem@redhat.com>
+To: rmk@arm.linux.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dereferencing semaphores and atomic_t's
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021002111625.B24770@flint.arm.linux.org.uk>
+References: <20021002111625.B24770@flint.arm.linux.org.uk>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021002094612.GA2587@alpha.home.local>
-X-Copyright: Forwarding or publishing without permission is prohibited.
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 02, 2002 at 11:46:12AM +0200, Willy Tarreau wrote:
+   From: Russell King <rmk@arm.linux.org.uk>
+   Date: Wed, 2 Oct 2002 11:16:26 +0100
 
-> not when you want your customers to be able to edit their firewall config
-> with their M$ PC !
+   Do we really allow this type of layering violation?
+   
+No, it should be killed :-)
 
-Copy them to tmpfs, do "chmod +x", execute them.
-
-Gabor
-
--- 
-Gabor Gombas                                       Eotvos Lorand University
-E-mail: gombasg@inf.elte.hu                        Hungary
+   (There appear to be some circumstances when obtaining the semaphore count is
+   useful, but shouldn't we provide an architecture helper function to do that
+   since a semaphore structure _is_ an architecture-defined opaque structure.)
+   
+Feel free to make one.

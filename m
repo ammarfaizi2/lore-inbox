@@ -1,32 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135532AbRECC3l>; Wed, 2 May 2001 22:29:41 -0400
+	id <S135694AbRECClv>; Wed, 2 May 2001 22:41:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135694AbRECC3c>; Wed, 2 May 2001 22:29:32 -0400
-Received: from 513.holly-springs.nc.us ([216.27.31.173]:63059 "EHLO
-	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
-	id <S135532AbRECC3V>; Wed, 2 May 2001 22:29:21 -0400
-Subject: Linux syscall speed -- was X15 rootin-tootin webserver
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <4.3.2.7.2.20010503091459.028524e8@171.69.43.101>
-In-Reply-To: <3AEC8562.887CFA72@chromium.com> 
-	<4.3.2.7.2.20010503091459.028524e8@171.69.43.101>
-Content-Type: text/plain
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 02 May 2001 22:29:20 -0400
-Message-Id: <988856961.6355.1.camel@gromit>
-Mime-Version: 1.0
+	id <S135697AbRECClb>; Wed, 2 May 2001 22:41:31 -0400
+Received: from armitage.toyota.com ([63.87.74.3]:16911 "EHLO
+	armitage.toyota.com") by vger.kernel.org with ESMTP
+	id <S135694AbRECCl3>; Wed, 2 May 2001 22:41:29 -0400
+Message-ID: <3AF0C552.4259CB3C@lexus.com>
+Date: Wed, 02 May 2001 19:41:22 -0700
+From: J Sloan <jjs@toyota.com>
+X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Sim, CT (Chee Tong)" <CheeTong.Sim@sin.rabobank.com>
+CC: "'J Sloan'" <jjs@toyota.com>, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Re: Linux NAT questions- (kernel upgrade??)
+In-Reply-To: <1E8992B3CD28D4119D5B00508B08EC5627E8A5@sinxsn02.ap.rabobank.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to tests performed at IBM:
+"Sim, CT (Chee Tong)" schrieb:
 
-http://www-106.ibm.com/developerworks/linux/library/l-rt1/
+> I am using the Red Hat 7,  below are my kernel version.  I feel Red Hat 7 is
+> quite new, although RH 7.1 has just come out.  How come it still say that my
+> kernel version is old.
 
-Linux's sycalls are a little more than twice as fast as those of Windows
-2000. 0.75usec vs 2.0msec. Not too shabby. And this "magic page" idea
-means it may get faster.
+Ah, by old is meant the 2.2 version -
+7.1 is the first RH release to ship with kernel 2.4.
 
--M
+You can certainly run a 2.4 kernel on your 7.0
+box - I only ran 2.2.16 on my RH 7.0 boxes for
+as long as it tool me to pull down the kernel
+sources and compile a 2.4 kernel.
+
+cu
+
+jjs
 

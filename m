@@ -1,43 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267143AbSLDWrs>; Wed, 4 Dec 2002 17:47:48 -0500
+	id <S267155AbSLDWxV>; Wed, 4 Dec 2002 17:53:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267149AbSLDWrr>; Wed, 4 Dec 2002 17:47:47 -0500
-Received: from gull.mail.pas.earthlink.net ([207.217.120.84]:23026 "EHLO
-	gull.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S267143AbSLDWrr>; Wed, 4 Dec 2002 17:47:47 -0500
-Date: Wed, 4 Dec 2002 15:47:45 -0800 (PST)
-From: James Simmons <jsimmons@infradead.org>
-X-X-Sender: <jsimmons@maxwell.earthlink.net>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, Brad Douglas <Brad@NERUO.com>,
-       <luther@dpt-info.u-strasbg.fr>, <adaplas@pol.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       <linux-fbdev-devel-admin@lists.sourceforge.net>
-Subject: Re: [OT] Re: [Linux-fbdev-devel] [PATCH] FBDev: vga16fb port
-In-Reply-To: <Pine.GSO.4.21.0212041242170.4748-100000@vervain.sonytel.be>
-Message-ID: <Pine.LNX.4.33.0212041546530.1533-100000@maxwell.earthlink.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267156AbSLDWxU>; Wed, 4 Dec 2002 17:53:20 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:44813 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267155AbSLDWxU>;
+	Wed, 4 Dec 2002 17:53:20 -0500
+Date: Wed, 4 Dec 2002 15:00:50 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-security-module@wirex.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] LSM fix for stupid "empty" functions - take 2
+Message-ID: <20021204230050.GB29519@kroah.com>
+References: <20021201083056.GJ679@kroah.com> <20021204001322.GA23464@kroah.com> <20021204001438.B25613@figure1.int.wirex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021204001438.B25613@figure1.int.wirex.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 04, 2002 at 12:14:38AM -0800, Chris Wright wrote:
+> 
+> Also, I think the fixup should go directly in verify, since they are
+> always called together.  Otherwise, this looks good.  Thanks, it's been
+> sorely needed.
 
-> On Wed, 4 Dec 2002, Petr Vandrovec wrote:
-> > FYI, I'm going to unsubscribe myself from linux-fbdev-devel.
-> > I'm not interested in reading messages on list which is not public:
-> > I get again an error that my message is waiting for moderator approval,
-> > and as such list is unsuitable for any realtime discussion.
->
-> Yes, I know it's annoying :-(
->
-> But, AFAIK we don't know yet
->   1. who changed the list to a moderated list
->   2. who is actually moderating it
+Thanks for the changes, I'll use your version of this :)
 
-I'm also perturbed by this. I guess we need to apporach sourceforge to ask
-the list passwords to be changed so we can mange the list ourselves.
-
-
+greg k-h

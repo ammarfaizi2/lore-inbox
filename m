@@ -1,68 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270635AbTGNPQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 11:16:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270644AbTGNPQY
+	id S270481AbTGNPMd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 11:12:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270057AbTGNPIC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 11:16:24 -0400
-Received: from auth22.inet.co.th ([203.150.14.104]:47627 "EHLO
-	auth22.inet.co.th") by vger.kernel.org with ESMTP id S270635AbTGNPPB
+	Mon, 14 Jul 2003 11:08:02 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:59154 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S270465AbTGNPCl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 11:15:01 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: Russell King <rmk@arm.linux.org.uk>, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 2.5.75-mm1 yenta-socket lsPCI IRQ reads incorrect
-Date: Mon, 14 Jul 2003 23:18:07 +0800
-User-Agent: KMail/1.5.2
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>,
-       John Belmonte <jvb@prairienet.org>
-References: <200307141333.03911.mflt1@micrologica.com.hk> <20030714150435.GB5118@gtf.org> <20030714162138.B31395@flint.arm.linux.org.uk>
-In-Reply-To: <20030714162138.B31395@flint.arm.linux.org.uk>
-X-OS: KDE 3 on GNU/Linux
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Jul 2003 11:02:41 -0400
+Date: Mon, 14 Jul 2003 16:17:28 +0100
+From: John Levon <levon@movementarian.org>
+To: torvalds@osdl.org, linux-kernel@vger.kernel.org, ak@suse.de
+Cc: oprofile-list@lists.sf.net
+Subject: [PATCH] OProfile: dynamically allocate MSR struct
+Message-ID: <20030714151727.GA69617@compsoc.man.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307142318.07232.mflt1@micrologica.com.hk>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: King of Woolworths - L'Illustration Musicale
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19c54y-000Pv4-M8*..aZDQRazHo*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 14 July 2003 23:21, Russell King wrote:
-> On Mon, Jul 14, 2003 at 11:04:35AM -0400, Jeff Garzik wrote:
-> > On Mon, Jul 14, 2003 at 03:50:51PM +0100, Russell King wrote:
 
-I'll give that patch a go tomorrow.
+Andi pointed out to me that cpu_msrs was a source of bloat. Dynamically
+allocate it instead. Tested on my SMP box.
 
-> > >  	yenta_allocate_resources(socket);
-> > > +
-> > > +	pci_save_state(dev, socket->saved_state);
-> > >
-> > >  	socket->cb_irq = dev->irq;
-> >
-> > This reminds me, PCI Express makes the PCI config area larger, going
-> > from 256 bytes to either 4K or 64K IIRC.
-> >
-> > I wonder if we want new pci_{save,restore}_xstate functions?
-> > Or change the pci_{save,restore}_state API now to work with larger
-> > config areas?
->
-> Maybe we really want an API where you can pass in the size of your
-> buffer (which also determines how much gets saved) ?
+Note that we could eventually use per cpu stuff here, but I'd like to
+wait on that for now.
 
-Right, using the dword write function for 16 words or so is OK, but
-rather clumsy for much more than that.
+regards
+john
 
-Regards
-Michael
--- 
-Powered by linux-2.5.75-mm1. Compiled with gcc-2.95-3 - mature and rock solid
 
-My current linux related activities:
-- 2.5 yenta_socket testing
-- Test development and testing of swsusp for 2.4/2.5 and ACPI S3 of 2.5 kernel 
-- Everyday usage of 2.5 kernel
-
-More info on 2.5 kernel: http://www.codemonkey.org.uk/post-halloween-2.5.txt
-More info on swsusp: http://sourceforge.net/projects/swsusp/
-
+diff -Naur -X dontdiff linux-cvs/arch/i386/oprofile/nmi_int.c linux-fixes/arch/i386/oprofile/nmi_int.c
+--- linux-cvs/arch/i386/oprofile/nmi_int.c	2003-06-18 15:06:05.000000000 +0100
++++ linux-fixes/arch/i386/oprofile/nmi_int.c	2003-07-14 15:34:29.000000000 +0100
+@@ -12,6 +12,7 @@
+ #include <linux/smp.h>
+ #include <linux/oprofile.h>
+ #include <linux/sysdev.h>
++#include <linux/slab.h>
+ #include <asm/nmi.h>
+ #include <asm/msr.h>
+ #include <asm/apic.h>
+@@ -20,7 +21,7 @@
+ #include "op_x86_model.h"
+  
+ static struct op_x86_model_spec const * model;
+-static struct op_msrs cpu_msrs[NR_CPUS];
++static struct op_msrs * cpu_msrs;
+ static unsigned long saved_lvtpc[NR_CPUS];
+  
+ static int nmi_start(void);
+@@ -125,6 +126,10 @@
+ 
+ static int nmi_setup(void)
+ {
++	cpu_msrs = kmalloc(sizeof(struct op_msrs) * NR_CPUS, GFP_KERNEL);
++	if (!cpu_msrs)
++		return -ENOMEM;
++
+ 	/* We walk a thin line between law and rape here.
+ 	 * We need to be careful to install our NMI handler
+ 	 * without actually triggering any NMIs as this will
+@@ -185,6 +190,7 @@
+ 	on_each_cpu(nmi_cpu_shutdown, NULL, 0, 1);
+ 	unset_nmi_callback();
+ 	enable_lapic_nmi_watchdog();
++	kfree(cpu_msrs);
+ }
+ 
+  

@@ -1,71 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319655AbSH2Xof>; Thu, 29 Aug 2002 19:44:35 -0400
+	id <S319684AbSH2Xtg>; Thu, 29 Aug 2002 19:49:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319657AbSH2Xof>; Thu, 29 Aug 2002 19:44:35 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:42648 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S319655AbSH2Xoe>;
-	Thu, 29 Aug 2002 19:44:34 -0400
-Date: Fri, 30 Aug 2002 09:48:25 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: mike heffner <mdheffner@yahoo.com>
-Cc: Frank.Otto@tc.pci.uni-heidelberg.de, linux-kernel@vger.kernel.org,
-       mdheffner@yahoo.com
-Subject: Re: PROBLEM:  conflict between apm and system clock on Inspiron 8100
-Message-Id: <20020830094825.75fd8519.sfr@canb.auug.org.au>
-In-Reply-To: <20020829171941.70780.qmail@web40209.mail.yahoo.com>
-References: <20020829121103.48b5920d.sfr@canb.auug.org.au>
-	<20020829171941.70780.qmail@web40209.mail.yahoo.com>
-X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S319686AbSH2Xtg>; Thu, 29 Aug 2002 19:49:36 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:17936 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S319684AbSH2Xte>; Thu, 29 Aug 2002 19:49:34 -0400
+Date: Fri, 30 Aug 2002 03:53:18 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.5.31] transparent PCI-to-PCI bridges
+Message-ID: <20020830035318.A3224@jurassic.park.msu.ru>
+References: <20020828100351.8648@192.168.4.1> <Pine.LNX.4.33.0208281030190.1735-100000@penguin.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0208281030190.1735-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Aug 28, 2002 at 10:35:38AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mike,
+On Wed, Aug 28, 2002 at 10:35:38AM -0700, Linus Torvalds wrote:
+> I agree. There is absolutely no reason to artificially limit the "bus" 
+> structure to only three resoruces (and with hardcoded behaviour at that).
 
-On Thu, 29 Aug 2002 10:19:41 -0700 (PDT) mike heffner <mdheffner@yahoo.com> wrote:
->
->   I have timed the "cat /proc/apm" to take at least
-> 36ms on my inspiron 8100 using an external clock.  I
-> shut down my ntp daemon so the clock is free running. 
-> I then did "ntpdate -q clock".  With no calls to apm
-> the number returned is rather stable over a few
-> minuites with multiple ntpdate calls.  I then execute
-> 10 times "cat /proc/apm" and do "ntpdate -q clock"
-> again.  I take the difference and divide by 10.  That
-> gives me an average of about 36ms, or 3 to 4
-> interrupts missed for each call.
+I disagree. There was a very good reason for doing that - you can build
+PCI bus tree (up to 256 buses) _only_ with PCI-to-PCI bridges, and I'm
+absolutely sure that it will be true until PCI goes EOL.
+IMHO, tying the PCI bus to the PCI-to-PCI bridge makes sense -
+it's generic and can be used as abstraction.
+The code in setup-bus.c is all about that - you can start embedded
+system with completely uninitialized PCI and initialize it with
+just pci_assign_unassigned_resources(). Don't know why i386 and ppc32
+don't use this - on alpha we are using it for years. Oh, well... ;-)
+Note that we don't care about "transparent" bridges at all - we
+have everything properly allocated in the regular bridge windows.
 
-Interesting ... My timings were, of course, very suspect ...
+> There are examples of bridges that are very common and that can bridge at
+> least four resources: every single CarsBus bridge does that _today_. Right
+> now Linux only uses three of the 4 resources, but that's because we've
+> never needed to use more. The fourth one is allocated in case some cardbus
+> driver were to want to use it..
 
->   Last night I also ran though all of Dell's BIOSs.  I
-> installed each of the 8 or so of them on there web
-> site.  A few of them broke apm, but none fixed this
-> problem.  If we are sure the BIOS is the problem, I
-> will continue to pester Dell.  So just to verify, you
-> are *not* disabling interrupts in the kernel for an
-> apm call?  I am still trying to understand the code.
->   I have also tried kernel 2.4.2-2.  I don't remember
-> this problem with an earlier installation I had on
-> this laptop.  It turns out it is still a problem with
-> that kernel version.  I am currently using 2.4.18-10.
+True. But the cardbus bridge can handle only one device and the resource
+allocation is up to cardbus driver. The only way to extend the bus
+is to place the PCI-to-PCI bridge behind a cardbus bridge, and then
+we're returning to the starting point.
 
-OK, for the Dells, we autodetect the 4000 series and allow
-interrupts during BIOS calls, but not the 8000's (unless
-your RedHat patched kernel does this).  So could you try
-booting with "apm=allow_ints" on the command line (or load
-the apm modules with "allow_ints=1"). and try again.  If
-this changes things, then we need to add the 8100 to the
-list of things we automatically allow interrupts for.
+> In fact, even regular PCI bridges often bridge more than three resources: 
+> many have things like VGA pass-through etc, which would actually add up to 
+> at least _five_ regions that they bridge (the regular three, and the added 
+> VGA IO and MEM regions). Again, Linux doesn't actually care about this 
+> right now, but again it is absolutely _wrong_ to artificially limit Linux 
+> internally to some made-up (and wrong) notion of what a bridge is.
 
-The default from the very beginning has been to disable interrupts
-and on most machines this works fine.  The option of leaving
-interrupts enabled was introduced when we discovered that the
-Thinkpads won't resume if you disable them ...
+Hmm. Regular bridges also have ISA mode; should we have 64(!) IO resources
+then it's enabled?
+I think that PCIBIOS_MIN_[IO,MEM] and pcibios_align_resource handle this
+legacy crap just nicely.
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+> In short: if anything, we may at some point make the number of resources
+> _larger_, not smaller.
+
+Well, the pci_bus itself does not have any own resources - there are 4
+pointers to the real resources of the pci controller (host, pci or cardbus
+bridge etc.)
+So I suggest leaving only _one_ pointer, but to an array of resources
+(either pci_dev or arch specific). This will work.
+
+Not that I'm quite happy with this right now.
+
+I can't consider Ben's request for 4th resource slot as an argument because
+- he's trying to build child<->parent relationship on a resource
+  level between CPU and PCI address spaces. Which is generally impossible
+  (consider sparse addressing on alpha or io on parisc)
+- probably I have problems counting to 4 - as Ben said in earlier threads,
+  the ppc32 host bridge has 1 io and 2 memory ranges. ;-)
+
+Ivan.

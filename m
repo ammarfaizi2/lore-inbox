@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbUKJKqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbUKJKqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261677AbUKJKqO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 05:46:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUKJKqO
+	id S261678AbUKJKqS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 05:46:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUKJKqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 05:46:14 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:34557 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261677AbUKJKqK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 05:46:10 -0500
-Date: Wed, 10 Nov 2004 16:19:14 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, Stas Sergeev <stsp@aknet.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] kprobes: dont steal interrupts from vm86
-Message-ID: <20041110104914.GA3825@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
-References: <20041109130407.6d7faf10.akpm@osdl.org>
+	Wed, 10 Nov 2004 05:46:18 -0500
+Received: from baythorne.infradead.org ([81.187.226.107]:23452 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S261678AbUKJKqN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 05:46:13 -0500
+Subject: Mangling attributions.
+From: David Woodhouse <dwmw2@infradead.org>
+To: rmk@arm.linux.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: torvalds@osdl.org
+In-Reply-To: <200411060407.iA647Wx6013692@hera.kernel.org>
+References: <200411060407.iA647Wx6013692@hera.kernel.org>
+Content-Type: text/plain
+Message-Id: <1100083318.21273.41.camel@baythorne.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041109130407.6d7faf10.akpm@osdl.org>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Wed, 10 Nov 2004 10:41:58 +0000
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hello.
-> 
+On Fri, 2004-11-05 at 14:42 +0000, Linux Kernel Mailing List wrote:
+> ChangeSet 1.2464.1.8, 2004/11/05 14:42:03+00:00, peterc@au.rmk.(none)
+ ...
+> 	Patch from Peter Chubb
+> 	
 
-Hi,
-
-> With kprobes enabled, vm86 doesn't feel
-> good. The problem is that kprobes steal
-> the interrupts (mainly int3 I think) from
-> it for no good reason.
-
-If the int3 is not registered through kprobes,
-kprobes handler does not handle it and it falls through the
-normal int3 handler AFAIK.
-Could you please provide a test case to show that kprobes 
-steals the interrupts.
-
-Thanks
-Prasanna
+Russell, please don't mangle the attribution in this way. Please include
+a correct email address for the submitter of the mail, and in any
+Signed-Off-By: lines. The idea is that we're supposed to be able to work
+out who submitted stuff, and how to get in touch with them if we want
+to.
 
 -- 
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Ph: 91-80-25044636
-<prasanna@in.ibm.com>
+dwmw2
+
+

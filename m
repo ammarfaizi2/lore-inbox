@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbVAMWhC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261785AbVAMWdD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261796AbVAMWhC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 17:37:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbVAMWeD
+	id S261785AbVAMWdD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 17:33:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbVAMWal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 17:34:03 -0500
-Received: from fw.osdl.org ([65.172.181.6]:58049 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261796AbVAMWck (ORCPT
+	Thu, 13 Jan 2005 17:30:41 -0500
+Received: from rproxy.gmail.com ([64.233.170.197]:18702 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261796AbVAMW0s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 17:32:40 -0500
-Date: Thu, 13 Jan 2005 14:32:33 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Oeser <ioe-lkml@axxeo.de>
-cc: linux@horizon.com, Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Make pipe data structure be a circular list of pages, rather
-In-Reply-To: <200501132246.37289.ioe-lkml@axxeo.de>
-Message-ID: <Pine.LNX.4.58.0501131429400.2310@ppc970.osdl.org>
-References: <20050108082535.24141.qmail@science.horizon.com>
- <Pine.LNX.4.58.0501081018271.2386@ppc970.osdl.org> <200501132246.37289.ioe-lkml@axxeo.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 13 Jan 2005 17:26:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=LSOdl+IJFQI/QaF1aZ/bgGF3MSlBG6ux3OE1zJC2sBaW6t/SIeYcxjCjyJxv9C1CuKZgiOtZjdOp4Ag//fSlllAuZ5kKjufeHA/tOdct2k/7j1rShzmOLeA/r44wz80Vi6yj+9VVmWxNY1busn5OBTyVZWGzuLzmzKZv+PTtqIo=
+Message-ID: <36b714c80501131426a91c908@mail.gmail.com>
+Date: Thu, 13 Jan 2005 17:26:45 -0500
+From: Brian Waite <linwoes@gmail.com>
+Reply-To: Brian Waite <linwoes@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ppc: fix powersave with interrupts disabled
+In-Reply-To: <36b714c805011312586718520f@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <200501120407.j0C477s1019067@hera.kernel.org>
+	 <36b714c805011312586718520f@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 13 Jan 2005, Ingo Oeser wrote:
+On Thu, 13 Jan 2005 15:58:34 -0500, Brian Waite <linwoes@gmail.com> wrote:
+> On Wed, 12 Jan 2005 01:41:19 +0000, Linux Kernel Mailing List
+> <linux-kernel@vger.kernel.org> wrote:
+> > ChangeSet 1.2369, 2005/01/11 17:41:19-08:00, tglx@linutronix.de
+> >
+> >         [PATCH] ppc: fix idle with interrupts disabled
+> >
+> >         The idle-thread-preemption-fix.patch in mm1/2 leads to a stalled box on PPC
+> >         machines which do not provide a powersave function and therefor poll the
+> >         idle loop with interrupts disabled.  The patch reenables interrupts.
+> There is still a stall with PPC  boxes that have powersave enabled. I
+> use a 74xx based board and unless I disable powersave
+> (ppc_md.power_save=NULL), I get a stall at:
+> NET: Registered protocol family 2
 > 
-> Hmm, that's a pity, because it makes hardware support more difficult.
-> 
-> I thought you might consider an system call, which "wires up" fds.
-> 
-> Imagine a device fd, which gets lots of measuring data, wired through a 
-> DSP pipe, spliced to realtime display fd and file storage fd. 
+It looks like the problem has to do with entering the powersave
+routine with irqs disabled. Here is a patch that will only enter
+powersave if irqs are enabled:
 
-I think that the solution to that is to make the pipe _be_ the driver 
-interface.
+Entering powersave on PPC while irqs are disabled causes a hang. Only
+enter powersave if irqs are disabled.
 
-Remember: a pipe is just a set of buffers. If you have a hardware device 
-that could use the buffers, then there is nothing to say that the driver 
-couldn't be the "actor" that fills the buffers. So doing an "open()" on 
-the device would just create a pipe that gets filled by the hardware.
+Signed-off-by: Brian Waite <waite@skycomputers.com>
+===== arch/ppc/kernel/idle.c 1.22 vs edited =====
+--- 1.22/arch/ppc/kernel/idle.c Tue Jan 11 19:42:36 2005
++++ edited/arch/ppc/kernel/idle.c       Thu Jan 13 17:22:25 2005
+@@ -39,8 +39,9 @@
+        powersave = ppc_md.power_save;
 
-But that doesn't make the pipe an "actor". The pipe just remains a 
-standard way to encapsulate the notion of "set of buffers". It needs an 
-external actor to do something, but that actor can be a device driver 
-filling it up, or a system call that reads it or moves it to another 
-destination.
-
-		Linus
+        if (!need_resched()) {
+-               if (powersave != NULL)
+-                       powersave();
++               if ((powersave != NULL) && !irqs_disabled())
++                           powersave();
++
+                else {
+ #ifdef CONFIG_SMP
+                        set_thread_flag(TIF_POLLING_NRFLAG);

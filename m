@@ -1,78 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269884AbUJHLii@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269853AbUJHLog@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269884AbUJHLii (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 07:38:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269853AbUJHLiA
+	id S269853AbUJHLog (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 07:44:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269841AbUJHLof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 07:38:00 -0400
-Received: from holomorphy.com ([207.189.100.168]:18646 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269867AbUJHLhR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 07:37:17 -0400
-Date: Fri, 8 Oct 2004 04:37:05 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Guy Cardwell <gcardwel@motorola.com>, linux-kernel@vger.kernel.org
-Subject: [hugetlb] initialize sb->s_maxbytes
-Message-ID: <20041008113705.GK9106@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 8 Oct 2004 07:44:35 -0400
+Received: from mail01.hpce.nec.com ([193.141.139.228]:52903 "EHLO
+	mail01.hpce.nec.com") by vger.kernel.org with ESMTP id S269861AbUJHLnF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 07:43:05 -0400
+From: Erich Focht <efocht@hpce.nec.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Date: Fri, 8 Oct 2004 13:40:55 +0200
+User-Agent: KMail/1.6.2
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>,
+       Simon.Derr@bull.net, colpatch@us.ibm.com, pwil3058@bigpond.net.au,
+       frankeh@watson.ibm.com, dipankar@in.ibm.com, akpm@osdl.org,
+       ckrm-tech@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
+       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
+       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
+       ak@suse.de, sivanich@sgi.com
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <200410081123.45762.efocht@hpce.nec.com> <416663B7.5000901@yahoo.com.au>
+In-Reply-To: <416663B7.5000901@yahoo.com.au>
+MIME-Version: 1.0
 Content-Disposition: inline
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410081340.55083.efocht@hpce.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following is included near-verbatim (reformatted) from a hugetlb
-feature request made of me. The request is perfectly reasonable and
-represents fixing what could probably be called a bug.
+On Friday 08 October 2004 11:53, Nick Piggin wrote:
+> Erich Focht wrote:
+> > On Thursday 07 October 2004 20:13, Martin J. Bligh wrote:
+> > 
+> >>It all just seems like a lot of complexity for a fairly obscure set of
+> >>requirements for a very limited group of users, to be honest. Some bits
+> >>(eg partitioning system resources hard in exclusive sets) would seem likely
+> >>to be used by a much broader audience, and thus are rather more attractive.
+> > 
+> > May I translate the first sentence to: the requirements and usage
+> > models described by Paul (SGI), Simon (Bull) and myself (NEC) are
+> > "fairly obscure" and the group of users addressed (those mainly
+> > running high performance computing (AKA HPC) applications) is "very
+> > limited"? If this is what you want to say then it's you whose view is
+> > very limited. Maybe I'm wrong with what you really wanted to say but I
+> > remember similar arguing from your side when discussing benchmark
+> > results in the context of the node affine scheduler.
+> > 
+> > This "very limited group of users" (small part of them listed in
+> > www.top500.org) is who drives computer technology, processor design,
+> > network interconnect technology forward since the 1950s.
 
-Apologies to Guy if cc:'ing on lkml threads is too verbose for him
-(there is at least an autoresponder, but hopefully that gets filtered).
+> With all due respect, Linux gets driven as much from the bottom up
+> as it does from the top down I think. Compared to desktop and small
+> servers, yes you are obscure :)
 
-akpm, please apply.
+I wasn't speaking of driving the Linux development, I was speaking of
+driving the computer technology development. Just look at where the
+DOD, DARPA, DOE money goes to. I actually aknowledged that HPC doesn't
+really have a foot in the kernel developer community.
 
+> My view on it is this, we can do *exclusive* dynamic partitioning
+> today (we're very close to it - it wouldn't add complexity in the
+> scheduler to support it).
 
-On Thu, Sep 30, 2004 at 05:30:29PM -0700, Cardwell Guy-PT2501 wrote:
-> Please excuse the intrusion and kindly refer me elsewhere if this
-> question is inappropriate. My name is Guy Cardwell and I'm working
-> for Motorola in the area of biometrics.   Though I'm not a kernel
-> hacker by trade, I've some experience and I'd like a pointer from you
-> if I can get it.
-> A fingerprint search / match system I am working on has recently been
-> modified to use Linux and hugetlbfs to hold very large ram resident
-> databases of fingerprints.
-> One of the limitations I've run into is that as of kernel version
-> 2.4.21, hugetblfs appears not to support the creation of files larger
-> than 2GB.  hugetlbfs_vmtruncate() checks against the s_maxbytes
-> member of the super block and returns EFBIG if the requested file
-> size is too large.
-> I think that s_maxbytes is getting its default value of MAX_NON_LFS
-> from alloc_super() and hugetlbfs_fill_super() doesn't override that value.
-> I looked over the rest of the hugetlbfs code, and I don't see a
-> problem elsewhere with supporting huge files.  I created a patch that
-> adds the line s_maxbytes=MAX_LFS_FILESIZE; to hugetlbfs_fill_super(), 
-> and that appears to do the trick in the kernel I built (i386, by the 
-> way).  Does this seem right?  Should this be a "real" kernel patch?
-> Any suggestions / help are much appreciated.
-> Regards,
-> Guy Cardwell
-> Senior Research Engineer
-> Motorola ISD
+Right, but that's an implementation question. The question 
+  cpusets {AND, OR, XOR} CKRM ?
+was basically a user space API question. I'm sure nobody will object
+to changing the guts of cpusets to use sched_domains on exclusive sets
+when this possibility will be there and ... simple.
 
-Signed-off-by: Guy Cardwell <gcardwel@motorola.com>
-Signed-off-by: William Irwin <wli@holomorphy.com>
+> You can also hack up a fair bit of other functionality with cpu
+> affinity masks.
 
+I'm doing that for a subset of cpusets functionality in a module
+(i.e. without touching the task structure and without hooking on
+fork/exec) but that's ugly and on the long term insufficient.
 
-Index: mm3-2.6.9-rc3/fs/hugetlbfs/inode.c
-===================================================================
---- mm3-2.6.9-rc3.orig/fs/hugetlbfs/inode.c	2004-10-07 04:05:37.248782565 -0700
-+++ mm3-2.6.9-rc3/fs/hugetlbfs/inode.c	2004-10-08 04:28:28.180572765 -0700
-@@ -653,6 +653,7 @@
- 	sbinfo->free_blocks = config.nr_blocks;
- 	sbinfo->max_inodes = config.nr_inodes;
- 	sbinfo->free_inodes = config.nr_inodes;
-+	sb->s_maxbytes = MAX_LFS_FILESIZE;
- 	sb->s_blocksize = HPAGE_SIZE;
- 	sb->s_blocksize_bits = HPAGE_SHIFT;
- 	sb->s_magic = HUGETLBFS_MAGIC;
+Regards,
+Erich
+

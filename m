@@ -1,50 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272808AbRIGSQv>; Fri, 7 Sep 2001 14:16:51 -0400
+	id <S272818AbRIGSeo>; Fri, 7 Sep 2001 14:34:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272810AbRIGSQl>; Fri, 7 Sep 2001 14:16:41 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18700 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S272808AbRIGSQb>; Fri, 7 Sep 2001 14:16:31 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: /proc/cpuinfo bad cache info
-Date: 7 Sep 2001 11:16:49 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9nb2uh$346$1@cesium.transmeta.com>
-In-Reply-To: <3B98DD93.4BDD367C@uni-mb.si>
+	id <S272819AbRIGSee>; Fri, 7 Sep 2001 14:34:34 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:12812 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S272818AbRIGSeY>; Fri, 7 Sep 2001 14:34:24 -0400
+Message-ID: <3B991346.7393E7AF@zip.com.au>
+Date: Fri, 07 Sep 2001 11:34:46 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+To: lkml <linux-kernel@vger.kernel.org>,
+        "ext3-users@redhat.com" <ext3-users@redhat.com>
+Subject: ext3-2.4-0.9.9
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3B98DD93.4BDD367C@uni-mb.si>
-By author:    David Balazic <david.balazic@uni-mb.si>
-In newsgroup: linux.dev.kernel
-> 
-> In recent 2.4.x kernels the "Cache: " line in /proc/cpuinfo
-> reports the amount of the L1 cache or L2 cache or L3 cache or
-> some combination of them, depending on what code is executed
-> for this ( different for different CPU types ).
-> 
-> Somebody should decide what information should be reported in that
-> line and then fix the code.
-> 
+Patches against 2.4.10-pre4 and 2.4.9-ac9 are at
 
-We already DO report the information we care about -- the SMP
-weighting value -- and thus the code is correct.  The value indicates
-how much data is localized to that CPU and therefore how expensive it
-is to reschedule a process elsewhere.
+	http://www.uow.edu.au/~andrewm/linux/ext3/
 
-Anything that reports anything else is buggy.  This includes things
-like adding in the L1 cache in an inclusive cache design, or reporting
-the L3 cache when it is a shared cache in the chipset.
+It's a fairly large change.  The most significant parts are
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+* the inclusion of Stephen's error-handling work, which is designed to 
+  remount the fs read-only in the presence of software and hardware
+  errors, rather than forcing a panic.
+
+* Stephen's fix for the journal_revoke assertion failure which
+  three people have reported.
+
+There have been two reports of a possible interaction problem with vfat
+where a readdir on the vfat mountpoint returns ENOTDIR when ext3 is
+present in the kernel.  This has proved elusive and in fact has
+been observed on systems where ext3 was never used.  It is probably
+a vfat bug.
+
+At the above website there is also a patch from Ted Ts'o which will
+provide significant speedups for accessing large directories.  Ted's
+equivalent patch for ext2 has already been incorporated into the
+official kernel(s).  If possible, please test Ted's patch on top
+of ext3 0.9.9.
+
+Detailed changelog:
+
+
+0.9.7
+-----
+
+- Merge in a large batch of changes to allow ext3 to recover gracefully
+  from fatal errors.  If the fs is set to remount-readonly on error, then
+  we should still be able to unwind cleanly and unmount the filesystem.
+
+- Performance: don't write superblocks synchronously.  This reduces a
+  bottleneck in the VM.
+
+  Load the ext3 module with the parameter "do_sync_supers=1" to restore
+  the previous behaviour.
+
+- Performance: don't force a new transaction every time we sync (should
+  prevent the writes previously happening every 5 seconds, allowing laptop
+  drives to spin down again.)
+
+0.9.8
+-----
+
+- Fix an NFS oops when doing a local delete on an active, nfs-exported
+  file.
+
+- Add proper log levels to a lot of kernel warnings when mounting a bad
+  filesystem or a fs with errors
+
+- Make sure we set the error flag both in the journal and fs superblocks
+  on error (unless we're doing panic-on-error)
+
+0.9.9
+-----
+
+- Fix the buffer-already-revoked assertion failure by looking up an
+  aliased buffercache buffer and clearing the revoke bits in there as
+  well as in the journalled data buffer.
+
+- Reorganise page truncation code so we don't take the address of
+  block_flushpage().  This is to simplify merging with Andrea's
+  O_DIRECT patch, which turns block_flushpage() into a macro.
+
+
+-

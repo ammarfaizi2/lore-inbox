@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266606AbRGWUN5>; Mon, 23 Jul 2001 16:13:57 -0400
+	id <S267529AbRGWUPh>; Mon, 23 Jul 2001 16:15:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267914AbRGWUNr>; Mon, 23 Jul 2001 16:13:47 -0400
-Received: from [47.129.117.131] ([47.129.117.131]:37248 "HELO
-	pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
-	id <S267529AbRGWUNe>; Mon, 23 Jul 2001 16:13:34 -0400
-Message-ID: <3B5C855C.959ABB@nortelnetworks.com>
-Date: Mon, 23 Jul 2001 16:13:16 -0400
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: sourav@csa.iisc.ernet.in
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Arp problem
-In-Reply-To: <Pine.SOL.3.96.1010724011120.10879A-100000@kohinoor.csa.iisc.ernet.in>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S267833AbRGWUP1>; Mon, 23 Jul 2001 16:15:27 -0400
+Received: from mplspop4.mpls.uswest.net ([204.147.80.14]:58885 "HELO
+	mplspop4.mpls.uswest.net") by vger.kernel.org with SMTP
+	id <S267529AbRGWUPU>; Mon, 23 Jul 2001 16:15:20 -0400
+Date: Mon, 23 Jul 2001 13:15:31 -0700
+Message-Id: <p05100301b78235dce19e@[10.0.0.49]>
+From: "Jonathan Lundell" <jlundell@pobox.com>
+To: "Linus Torvalds" <torvalds@transmeta.com>,
+        "Andrea Arcangeli" <andrea@suse.de>
+Cc: "Jeff Dike" <jdike@karaya.com>, user-mode-linux-user@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, "Jan Hubicka" <jh@suse.cz>
+Mime-Version: 1.0
+In-Reply-To: <Pine.LNX.4.33.0107231259520.13272-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0107231259520.13272-100000@penguin.transmeta.com>
+Subject: Re: user-mode port 0.44-2.4.7
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Sourav Sen wrote:
-> 
-> Hi,
->         I have a machine with multiple network cards with different IP
-> addresses assigned. All are in the same network (I need this for
-> whatever reason). But when a arp request
-> appears on the wire for any of these IP addresses, all the interfaces go
-> ahead and give their respective ethernet addresses against that IP
-> address (I have seen this with tcpdump). This causes the other machines to
-> pick up wrong ethernet address against the IP address.
+At 1:00 PM -0700 2001-07-23, Linus Torvalds wrote:
+>On Mon, 23 Jul 2001, Andrea Arcangeli wrote:
+>>
+>>  gcc can assume 'state' stays constant in memory not just during the
+>>  'case'.
+>
+>The point is that if the kernel has _any_ algorithm where it cares, it's a
+>kernel bug. With volatile or without.
+>
+>SHOW ME THE CASE WHERE IT CARES. Let's fix it. Let's not just hide it with
+>"volatile".
 
-Yep, this is the default behaviour since multiple links on one subnet is
-an unusual situation (I ran into the same problem).  The solution is to apply
-the arpfilter patch to the kernel, recompile, and then write a 1 to
-/proc/sys/net/ipv4/conf/all/arp_filter to enable it for all interfaces.
-This patch enforces that NICs will only respond to arps for IP addresses
-that they own.
+in arch/i386/kernel/io_apic.c:
 
+>static int __init timer_irq_works(void)
+>{
+>	unsigned int t1 = jiffies;
+>
+>	sti();
+>	/* Let ten ticks pass... */
+>	mdelay((10 * 1000) / HZ);
+>
+>	/*
+>	* Expect a few ticks at least, to be sure some possible
+>	* glue logic does not lock up after one or two first
+>	* ticks in a non-ExtINT mode.  Also the local APIC
+>	* might have cached one ExtINT interrupt.  Finally, at
+>	* least one tick may be lost due to delays.
+>	*/
+>	if (jiffies - t1 > 4)
+>		return 1;
+>
+>	return 0;
+>}
+
+If jiffies were not volatile, this initializing assignment and the 
+test at the end could be optimized away, leaving an unconditional 
+"return 0". A lock is of no help.
 -- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+/Jonathan Lundell.

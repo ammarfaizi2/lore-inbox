@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313751AbSDZJhF>; Fri, 26 Apr 2002 05:37:05 -0400
+	id <S313754AbSDZJxH>; Fri, 26 Apr 2002 05:53:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313759AbSDZJhE>; Fri, 26 Apr 2002 05:37:04 -0400
-Received: from rogersmta-1.gci.net ([208.138.130.86]:42983 "EHLO
-	mail.rogershsa.com") by vger.kernel.org with ESMTP
-	id <S313751AbSDZJhE>; Fri, 26 Apr 2002 05:37:04 -0400
-Message-ID: <005201c1ed05$f174d630$0a0aa8c0@ws0>
-From: "Dennis Stout" <crazyman@rogershsa.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [HELP] cpu timings
-Date: Fri, 26 Apr 2002 01:37:09 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S313763AbSDZJxG>; Fri, 26 Apr 2002 05:53:06 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:7943 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S313754AbSDZJxG>;
+	Fri, 26 Apr 2002 05:53:06 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.10 UTS_VERSION 
+In-Reply-To: Your message of "Fri, 26 Apr 2002 09:33:44 +0200."
+             <3CC902D8.4070604@evision-ventures.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Date: Fri, 26 Apr 2002 19:52:53 +1000
+Message-ID: <13641.1019814773@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I inherited a workstation, that recieved hardware modifications to work
-better.
+On Fri, 26 Apr 2002 09:33:44 +0200, 
+Martin Dalecki <dalecki@evision-ventures.com> wrote:
+>Make sure UTS_VERSION is allways in "C" locale.
+>Without it you will get (please note the day of week):
+>
+>~# export LANG=en_US
+>~# uname -a
+>Linux rosomak.prv 2.5.10 #1 pi± kwi 26 09:31:52 CEST 2002 i686 unknown
+>~#
 
-It is a SuperMicro P6DLH motherbaord with dual Ppro 400's, and hte
-modifications were making the front side bus 86.7MHz instead of 66, which
-overclocked the processors of course..  And widened the PCI bus as well.
-
-The guy who built it told me he had to reprogram the kernel timings for the
-processors in order for it to work.
-
-When I inherited it, he wiped the drives clean and told me how to get a
-stock kernel to work.  Unfortunately, the fix I got makes it so only one
-processor works and a stock kernel will explode if both processors are
-enabled..
-
-How does one go about reprogramming the timings in a kernel?  And if anyone
-has a clue as to what the heck he did inside this bohemoth, please tell me
-:P
-
-I'm a moderately good technician, but DAMN.
-
-Thanks in advance, nobody else on any other mailing lists I've tried so far
-have a clue as to what I'm even asking...
-
-Dennis Stout
-
+Why is that a problem?  If a user wants a kernel uname in their local
+language, kbuild has no objection.  I need LC_COLLATE=C to get a
+consistent filename ordering for kbuild but everything else, including
+build messages, date and time can be local.
 

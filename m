@@ -1,68 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264325AbUDOPTw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 11:19:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264319AbUDOPTv
+	id S264318AbUDOPUo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 11:20:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264319AbUDOPUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 11:19:51 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:63245 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264318AbUDOPTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 11:19:49 -0400
-Date: Thu, 15 Apr 2004 16:19:42 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Maneesh Soni <maneesh@in.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Subject: Re: [RFC] fix sysfs symlinks
-Message-ID: <20040415161942.A7909@flint.arm.linux.org.uk>
-Mail-Followup-To: viro@parcelfarce.linux.theplanet.co.uk,
-	Maneesh Soni <maneesh@in.ibm.com>,
-	LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
-References: <20040413124037.GA21637@in.ibm.com> <20040413133615.GZ31500@parcelfarce.linux.theplanet.co.uk> <20040414064015.GA4505@in.ibm.com> <20040414070227.GA31500@parcelfarce.linux.theplanet.co.uk> <20040415091752.A24815@flint.arm.linux.org.uk> <20040415103849.GA24997@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040415103849.GA24997@parcelfarce.linux.theplanet.co.uk>; from viro@parcelfarce.linux.theplanet.co.uk on Thu, Apr 15, 2004 at 11:38:49AM +0100
+	Thu, 15 Apr 2004 11:20:44 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:46275 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S264318AbUDOPUl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 11:20:41 -0400
+Date: Thu, 15 Apr 2004 11:21:01 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Len Brown <len.brown@intel.com>
+Cc: ross@datscreative.com.au, christian.kroener@tu-harburg.de,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+Subject: Re: IO-APIC on nforce2 [PATCH]
+In-Reply-To: <1081893978.2251.653.camel@dhcppc4>
+Message-ID: <Pine.LNX.4.58.0404151118180.10471@montezuma.fsmlabs.com>
+References: <200404131117.31306.ross@datscreative.com.au> 
+ <1081832914.2253.623.camel@dhcppc4>  <200404131703.09572.ross@datscreative.com.au>
+ <1081893978.2251.653.camel@dhcppc4>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.58.0404151118182.10471@montezuma.fsmlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 15, 2004 at 11:38:49AM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> OTOH, eisa looks worse and the rest of them could be even uglier ;-/
-> Sigh...
+On Tue, 13 Apr 2004, Len Brown wrote:
 
-This also provides enough of a reason to finally go in and fix the
-platform_device/driver code to be more reasonable - currently its
-left up to platform device drivers to do all the conversion from
-struct device to struct platform_device.
+> Re: IRQ0 XT-PIC timer issue
+>
+> Since the hardware is connected to APIC pin0, it is a BIOS bug
+> that an ACPI interrupt source override from pin2 to IRQ0 exists.
+>
+> With this simple 2.6.5 patch you can specify "acpi_skip_timer_override"
+> to ignore that bogus BIOS directive.  The result is with your
+> ACPI-enabled APIC-enabled kernel, you'll get IRQ0 IO-APIC-edge timer.
+>
+> Probably there is a more clever way to trigger this workaround
+> automatcially instead of via boot parameter.
 
-Not only that, but they also subscribe to the "PM v1" model (using
-struct device_driver suspend/resume methods) whereas sysfs was
-updated to "PM v2" a while ago (using the bus_type suspend/resume).
-
-Thankfully, it's only ARM and PCMCIA which make use of platform
-devices today, so it wouldn't be that difficult to go around fixing
-them up.
-
-So take that as another reason to fix struct device_driver. 8)
-
-However, should I also mention about the possibility of the following
-being in the same category; they are also typically statically
-allocated...
-
-	struct bus_type
-	struct class
-	struct platform_device
-
-I think these may be worse than struct device_driver because I don't
-see their unregister functions even doing any form of "wait until
-unused" - so rather than being deadlock prone, they're oops-prone.
-
-Sigh, sometimes life is <insert your favourite word to describe this>. ;(
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Nice, this is the problem which broke Andrew's and the systems i tested
+my adaptation of Natalie's mp_override_legacy_irq() change. Whacking out
+previous mp_irq entries would have worked if the BIOS had not forced the
+pin2 override.

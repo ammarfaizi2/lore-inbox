@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293167AbSCOTMl>; Fri, 15 Mar 2002 14:12:41 -0500
+	id <S293162AbSCOTUo>; Fri, 15 Mar 2002 14:20:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293162AbSCOTMb>; Fri, 15 Mar 2002 14:12:31 -0500
-Received: from zero.tech9.net ([209.61.188.187]:51204 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S293161AbSCOTMT>;
-	Fri, 15 Mar 2002 14:12:19 -0500
-Subject: Re: 2.4.18 Preempt Freezeups
-From: Robert Love <rml@tech9.net>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <15506.7486.729120.64389@kim.it.uu.se>
-In-Reply-To: <3C9153A7.292C320@ianduggan.net>
-	<1016157250.4599.62.camel@phantasy> <3C91B2A1.48C74B82@ianduggan.net>
-	<1016202310.908.1.camel@phantasy>  <15506.7486.729120.64389@kim.it.uu.se>
-Content-Type: text/plain
+	id <S293161AbSCOTUf>; Fri, 15 Mar 2002 14:20:35 -0500
+Received: from relay1.soft.net ([164.164.128.17]:21923 "EHLO cyclops.soft.net")
+	by vger.kernel.org with ESMTP id <S293175AbSCOTUW>;
+	Fri, 15 Mar 2002 14:20:22 -0500
+Reply-To: <abdij.bhat@kshema.com>
+From: "Abdij Bhat" <abdij.bhat@kshema.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel Level DHCP Versus udhcp
+Date: Fri, 15 Mar 2002 19:22:08 -0000
+Message-ID: <001c01c1cc56$b38a3ec0$8134aa88@cam.pace.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
-Date: 15 Mar 2002 14:11:49 -0500
-Message-Id: <1016219530.904.21.camel@phantasy>
-Mime-Version: 1.0
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2014.211
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-03-15 at 11:11, Mikael Pettersson wrote:
+Hi,
+ I am deploying a Linux Network Stack. I am supposed to use a stable, fully
+featured, RFC compliant, small memory foot-print DHCP client for an embedded
+system. We had converged on udhcp for the client. But I have found that
+there is a DCHP client implemented in the Linux Kernel ( Version 2.2.x or
+later ). This I believe can be configured by choosing the "Kernel level
+autoconfiguration".
+ I have however practically no documentation on the Kernel DHCP Client. I do
+not know how buggy it is, is it a fully featured DHCP client or is it just a
+boot level DHCP client used for remote booting etc.
+ Can some body help me with this. I believe it is used only for the remote
+booting, with the documentation currently available to me. How correct am I?
+Can I replace the udhcp client with this one? How much of a change will I
+need to do for the replacement?
+ I am totally confused....
+ Please help...
+Thanks and regards,
+Abdij
 
-> "more than likely": that's perhaps true for your average NIC/soundcard/
-> whatever driver, but things that poke the processor itself (like my
-> performance-monitoring counters driver) really do depend on not being
-> preempted. In my view, CONFIG_SMP is a minor triviality compared to
-> CONFIG_PREEMPT ...
 
-If you "poke the processor", to be SMP-safe, you should hold a lock to
-prevent multiple concurrent "pokings of the processor" - thus you become
-preempt-safe.
-
-It is a rare case where something does not hold lock, assumes some sort
-of non-reentrancy/concurrency, and is actually still SMP-safe.  The only
-nontrivial case I have seen is drivers that call disable_irq(n) and thus
-are assured they won't have another driver request and then go off to
-touch hardware.
-
-In general, the sort of "non-preemptibility" you are requiring is also a
-requirement for non-reentrancy and non-concurrency and thus your
-measures to protect those (SMP locking, et al) assure you your
-preempt-kernel protection, too.
-
-	Robert Love
 
 
 

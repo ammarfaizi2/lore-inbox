@@ -1,60 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262143AbSIZC2P>; Wed, 25 Sep 2002 22:28:15 -0400
+	id <S262140AbSIZCZL>; Wed, 25 Sep 2002 22:25:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262144AbSIZC2P>; Wed, 25 Sep 2002 22:28:15 -0400
-Received: from pacific.moreton.com.au ([203.143.238.4]:37075 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S262143AbSIZC2O>; Wed, 25 Sep 2002 22:28:14 -0400
-Message-ID: <3D927278.6040205@snapgear.com>
-Date: Thu, 26 Sep 2002 12:35:36 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthew Wilcox <willy@debian.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: 2.5.38uc1 (MMU-less support)
-References: <20020925151943.B25721@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262142AbSIZCZL>; Wed, 25 Sep 2002 22:25:11 -0400
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:34744 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
+	id <S262140AbSIZCZK>; Wed, 25 Sep 2002 22:25:10 -0400
+Date: Wed, 25 Sep 2002 19:30:41 -0700
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] [RFC] consolidate /sbin/hotplug call for pci and
+  usb
+To: Andi Kleen <ak@suse.de>
+Cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       linux-kernel@vger.kernel.org, greg@kroah.com, mochel@osdl.org,
+       linux-usb-devel@lists.sourceforge.net
+Message-id: <3D927151.7000709@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+References: <20020925212955.GA32487@kroah.com.suse.lists.linux.kernel>
+ <3D9250CD.7090409@pacbell.net.suse.lists.linux.kernel>
+ <p73k7l9si6p.fsf@oldwotan.suse.de> <20020925174612.A13467@one-eyed-alien.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matthew,
+>>>>+	envp[i++] = scratch;
+>>>>+	scratch += sprintf (scratch, "PCI_ID=%04X:%04X",
+>>>>+			    pdev->vendor, pdev->device) + 1;
+>>>
+>>>And so forth.  Use "snprintf" and prevent overrunning those buffers...
+>>
+>>Hmm? An %04X format is perfectly bounded.
 
-Some more comments on the ethernet driver.
+Which was my thought when I originally wrote the code which has been
+widely cut'n'pasted.  Safe enough at that moment, but it's now become
+dangerous to leave that around as a copy/paste coding example.
 
-BTW, the original this came from is in the kernel tree
-at arch/ppc/8xx_io/fec.c.
+Those code fragments are now being used in contexts that aren't
+as controlled as the original:  the code _using_ the buffer is no
+longer in charge of allocating it.  There's no longer any way to
+guarantee that adding the next parameter to the environment isn't
+going to overrun the available space.
 
-Matthew Wilcox wrote:
-> Motorola 5272 ethernet driver:
-> * In Config.in, let's conditionalise it on CONFIG_PPC or something
-> * Can you use module_init() so it doesn't need an entry in Space.c?
+Except by using "snprintf" and tracking how much space is left.
 
-I don't think this will work. This is not a device that can be
-determined to be present like a PCI device. It is more like an
-ISA device, it needs to be probed to figure out if it is really
-there. I can't see any way not to use Space.c for non-auto-detectable
-type devices... (Offcourse I could be missing something :-)
+Easy enough to do, and that's a habit that IMO _everyone_ should
+be getting into whenever they program in languages that permit
+such buffer overflows.
 
 
-> * You're defining CONFIG_* variables in the .c file.  I don't know whether
->   this is something we're still trying to avoid doing ... Greg, you seem
->   to be CodingStyle enforcer, what's the word?
+> Technically, it isn't bounded.  The field will expand if the value exceeds
+> 4 digits.  
+> 
+> However, these values can't do that.  At least not now.
+> 
+> But, as a good programming practice, snprintf should be used.  Heck, PCI
+> 3.0 might use 32-bit vendor and device values, instead of 8 bit.  So, if
+> nothing else, do it as insurance for the future.
 
-I missed this the first time through :-)
-I am not sure what you mean, CodingStyle enforcer?
-Can you elaborate for me?
+And to help ensure that as people continue to copy/paste code from the
+core hotpluggable systems, they won't break things when they add the
+parameters needed to set up their new subsystem or class, using the
+/sbin/hotplug mechanism.
 
-Regards
-Greg
+- Dave
 
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
 

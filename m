@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283521AbRK3GeB>; Fri, 30 Nov 2001 01:34:01 -0500
+	id <S283524AbRK3Gt2>; Fri, 30 Nov 2001 01:49:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283519AbRK3Gdv>; Fri, 30 Nov 2001 01:33:51 -0500
-Received: from fe070.worldonline.dk ([212.54.64.208]:58126 "HELO
-	fe070.worldonline.dk") by vger.kernel.org with SMTP
-	id <S283521AbRK3Gdj>; Fri, 30 Nov 2001 01:33:39 -0500
-Date: Fri, 30 Nov 2001 07:32:25 +0100 (CET)
-From: Niels Kristian Bech Jensen <nkbj@image.dk>
-X-X-Sender: <nkbj@hafnium.nkbj.dk>
-To: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: keyboard: Timeout - AT keyboard not present?(f4)
-Message-ID: <Pine.LNX.4.33.0111300728330.1010-100000@hafnium.nkbj.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S283525AbRK3GtS>; Fri, 30 Nov 2001 01:49:18 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:64697 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S283524AbRK3GtG>; Fri, 30 Nov 2001 01:49:06 -0500
+Date: Thu, 29 Nov 2001 23:48:40 -0700
+Message-Id: <200111300648.fAU6me909469@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: devfsd-v1.3.20 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since linux-2.5.1-pre3 (the first 2.5.x kernel I booted) I get one 
-or more these warnings in my log:
+  Hi, all. I've just released version 1.3.20 of my devfsd (devfs
+daemon) at: http://www.atnf.csiro.au/~rgooch/linux/
 
-keyboard: Timeout - AT keyboard not present?(f4)
+Tarball directly available from:
+ftp://ftp.??.kernel.org/pub/linux/daemons/devfsd/devfsd.tar.gz
 
-It's on a pentium-mmx system with a PS/2 keyboard. The keyboard works 
-OK.
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/daemons/devfsd/devfsd.tar.gz
 
--- 
-Niels Kristian Bech Jensen -- nkbj@image.dk -- http://www.image.dk/~nkbj/
+This works with devfs-patch-v130, kernel 2.3.46 and devfs-patch-v99.7
+(or later).
 
------------>>  Stop software piracy --- use free software!  <<-----------
+NOTE: this release finally provides complete permissions management.
+Manually (i.e. non driver or devfsd) created inodes can now be
+restored when devfsd starts up. This requires v1.2 of the devfs core
+(available in 2.4.17-pre1) for best operation.
 
+The main changes are:
+
+- COPY action now sets sticky bit as required
+
+- Added RESTORE directive.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,61 +1,92 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315201AbSDWNqG>; Tue, 23 Apr 2002 09:46:06 -0400
+	id <S315205AbSDWNor>; Tue, 23 Apr 2002 09:44:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315204AbSDWNqF>; Tue, 23 Apr 2002 09:46:05 -0400
-Received: from jalon.able.es ([212.97.163.2]:22718 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S315201AbSDWNp7>;
-	Tue, 23 Apr 2002 09:45:59 -0400
-Date: Tue, 23 Apr 2002 15:45:49 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Frank Louwers <frank@openminds.be>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: 2 NICs on same network
-Message-ID: <20020423134549.GA2048@werewolf.able.es>
-In-Reply-To: <20020423113935.A30329@openminds.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.4
+	id <S315206AbSDWNoq>; Tue, 23 Apr 2002 09:44:46 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:4367 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S315205AbSDWNop>; Tue, 23 Apr 2002 09:44:45 -0400
+Date: Tue, 23 Apr 2002 15:44:41 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: <puw@cola.teststation.com>
+To: "Ivan G." <ivangurdiev@yahoo.com>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Via-rhine minor issues
+In-Reply-To: <02042222071600.00745@cobra.linux>
+Message-ID: <Pine.LNX.4.33.0204231504230.12853-100000@cola.teststation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 22 Apr 2002, Ivan G. wrote:
 
-On 2002.04.23 Frank Louwers wrote:
->Hi,
->
->We recently stummed across a rather annoying bug when 2 nics are on
->the same network.
->
->Our situation is this: we have a server with 2 nics, each with a
->different IP on the same network, connected to the same switch. Let's
->assume eth0 has ip 1.2.3.1 and eth1 has 1.2.3.2, with a both with a
->netmask of 255.255.255.0.
->
->Now the strange thing is that traffic for 1.2.3.2 arrives at eth0 no
->matter what!
->
+> The tech sheets do not explain what causes the interrupts in detail, how to 
+> handle the interrupts in detail. They rather provide the bit address of the 
+> interrupt which is good to know, but not enough. What resources did Donald 
+> Becker use when he was writing this?
+> 
+> Perhaps I should ask him.
 
->From wht I understand for net, interface selection for a connection is
-done based on network address. So if you first configure eth0 with
-mask 255.255.255.0, and a subnet of 1.2.3.0,
-and eth1 is configured just the same (ip adresses only
-differ in last number), the kernel just uses the first interface it
-founds for a subnet. To prove this, you could try to load the interfaces
-in reverse order, and all traffic should go to eth1.
+He's the one who wrote:
+"Recovery for other fault sources not known."
 
-Do you really need the two interfaces to be in the same subnet ? I use
-tw parallel nets for a cluster, but configured both as independent
-subnets, 10.0.0.0 and 10.0.1.0. So you can drive all nfs through one
-interface mounting the server as 10.0.0.1, and all the bproc traffic
-through the other (or all the ssh through the other connecting
-always to 10.0.1.1).
+I have a feeling he didn't have any other sources, except that he had
+written a whole bunch of other (similar) drivers before.
 
-Hope this helps.
+Some things you can try to guess:
+RxEarly - An interrupt is sent when the chip begins to receive data. if
+          the driver wants to do something when that happens then it
+          should enable it. The current driver doesn't so it shouldn't be
+          enabled.
+Or something completely different.
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre7-jam5 #1 SMP mar abr 23 01:29:38 CEST 2002 i686
+
+> Well, most Rx errors are handled in via_rhine_rx.
+> The "Wicked" error rule doesn't do anything besides a CmdTxDemand.
+> Is this correct handling for, let's say RxOverflow?  ..Again, facing the
+> overwhelming lack of documentation :) (see above paragraph)
+
+One option is not to do anything.
+
+Another to catch the event and call via_rhine_error on it. That will make
+it print the "wicked" message and do a CmdTxDemand. Does it hurt to make a
+CmdTxDemand when you don't really need it?
+
+If you have a reason to think it hurts, then separate the events that you
+do CmdTxDemand on:
+	if (intr_status & ~IntrRxOverflow)
+		writew(CmdTxDemand ...);
+(which will still do a CmdTxDemand in all cases it used to do one, but
+ not if the interrupt was just a IntrRxOverflow. I think.)
+
+And the same for the other interrupt bits that weren't enabled.
+
+
+> Plus, I've been making too many changes to my copy. It would be easier to 
+> work over a clean kernel driver.  I would have less things to keep track of 
+> that have been changed.
+
+Nothing prevents you from having more than one copy of the driver in your
+local tree(s). Since the driver is just one file that works ok, make a
+copy of it when you have a version you "like". Then you can look back
+later and compare.
+
+
+> While we're talking about bugs, here's a (possibly ignorant) question:
+> Do Rhine-III's have a place in the following? : 
+
+Probably. You need to check if their docs also enable MMIO by flipping
+that bit, then you could change the "chip_id == VT6102" part to be just an
+else.
+
+
+> Well, apart from things which are not precisely clear how to fix, 
+> would you like to me to submit any portions of my patch for inclusion at all?
+
+The wait_for_reset thing is clearly a bug, and the cur_tx-1 is probably
+right too because you want the number it was queued as. So yes, send them
+to Jeff.
+
+/Urban
+

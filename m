@@ -1,62 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129837AbRBHRxF>; Thu, 8 Feb 2001 12:53:05 -0500
+	id <S129512AbRBHR6R>; Thu, 8 Feb 2001 12:58:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129843AbRBHRwz>; Thu, 8 Feb 2001 12:52:55 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:30483 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129837AbRBHRws>; Thu, 8 Feb 2001 12:52:48 -0500
-Date: Thu, 8 Feb 2001 09:52:23 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Pavel Machek <pavel@suse.cz>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, Jens Axboe <axboe@suse.de>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        Ben LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Lord <lord@sgi.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
-Subject: Re: select() returning busy for regular files [was Re: [Kiobuf-io-devel]
- RFC: Kernel mechanism: Compound event wait]
-In-Reply-To: <20010208001735.C189@bug.ucw.cz>
-Message-ID: <Pine.LNX.4.10.10102080947470.6741-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129534AbRBHR6H>; Thu, 8 Feb 2001 12:58:07 -0500
+Received: from limes.hometree.net ([194.231.17.49]:29796 "EHLO
+	limes.hometree.net") by vger.kernel.org with ESMTP
+	id <S129512AbRBHR5y>; Thu, 8 Feb 2001 12:57:54 -0500
+To: linux-kernel@vger.kernel.org
+Date: Thu, 8 Feb 2001 17:43:16 +0000 (UTC)
+From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
+Message-ID: <95ulrk$aik$1@forge.intermeta.de>
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+In-Reply-To: <20010208150632.K15688@mea-ext.zmailer.org>
+Reply-To: hps@tanstaafl.de
+Subject: Re: DNS goofups galore...
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+matti.aarnio@zmailer.org (Matti Aarnio) writes:
 
+>NSes and MXes must ALWAYS point to NAMEs with A/AAAA/A6 records for
+>them, specifically those names MUST NOT be CNAMEs.   With NSes the
 
-On Thu, 8 Feb 2001, Pavel Machek wrote:
-> > 
-> > There are currently no other alternatives in user space. You'd have to
-> > create whole new interfaces for aio_read/write, and ways for the kernel to
-> > inform user space that "now you can re-try submitting your IO".
-> 
-> Why is current select() interface not good enough?
+NS: must not
+MX: should not
 
-Ehh..
+	...stickler for details. ;-)
+		Henning
 
-One major reason is rather simple: disk request wait times tend to be on
-the order of sub-millisecond (remember: if we run out of requests, that
-means that we have 256 of them already queued, which means that it's very
-likely that several of them will be freed up in the very near future due
-to completion).
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-The fact is, that if you start doing write/select loops, you're going to
-waste a _large_ portion of your CPU speed on it.  Especially considering
-that the select() call would have to go all the way down to the ll_rw_blk
-layer to figure out whether there are more requests etc.
-
-So there is (a) historical reasons that say that regular files can never
-wait and EAGAIN is not an acceptable return value and (b) practical
-reasons for why such an interface would be a bad one.
-
-There are better ways to do it. Either using threads, or just having a
-better aio-like interface.
-
-		Linus
-
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,62 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272549AbRI3Dij>; Sat, 29 Sep 2001 23:38:39 -0400
+	id <S272449AbRI3E3T>; Sun, 30 Sep 2001 00:29:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272540AbRI3Dia>; Sat, 29 Sep 2001 23:38:30 -0400
-Received: from mailg.telia.com ([194.22.194.26]:12769 "EHLO mailg.telia.com")
-	by vger.kernel.org with ESMTP id <S272449AbRI3DiT>;
-	Sat, 29 Sep 2001 23:38:19 -0400
-Message-ID: <3BB693AC.6E2DB9F4@canit.se>
-Date: Sun, 30 Sep 2001 05:38:20 +0200
-From: Kenneth Johansson <ken@canit.se>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: mingo@elte.hu
-CC: "Randy.Dunlap" <rddunlap@osdlab.org>,
-        Andreas Dilger <adilger@turbolabs.com>, linux-kernel@vger.kernel.org,
-        linux-net@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [patch] netconsole-2.4.10-B1
-In-Reply-To: <Pine.LNX.4.33.0109291146440.1715-100000@localhost.localdomain>
+	id <S272473AbRI3E3K>; Sun, 30 Sep 2001 00:29:10 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:60656
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S272449AbRI3E24>; Sun, 30 Sep 2001 00:28:56 -0400
+Date: Sat, 29 Sep 2001 21:29:19 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.9-ac17
+Message-ID: <20010929212919.D29756@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010928180102.C23261@mikef-linux.matchmail.com> <E15nL1R-00024V-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <E15nL1R-00024V-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+On Sat, Sep 29, 2001 at 03:23:17PM +0100, Alan Cox wrote:
+> > > *	I want to get these in before I import the Linus changes
+> > > 	beyond 2.4.10pre9 which is where the merge currently sits
+> > > 
+> > > 2.4.9-ac17
+> > > o	Fix vfree error on swap off			(Hugh Dickins)
+> > 
+> > Can you give a approx. version no. when ext3 0.9.9 will be merged?
+> 
+> When the ext3 folk ask me to merge it
+> 
 
-> sorry :-) definitions of netconsole-terms:
->
-> 'server': the host that is the source of the messages. Ie. the box that
->           runs the netconsole.o module. It serves log messages to the
->           client.
->
-> 'client': the host that receives the messages. This box is running the
->           netconsole-client.c program.
->
-> 'target': the host that gets the messages sent - ie. the client.
->
-> 'target IP address': the IP address of the 'target'.
->
-> 'target ethernet address': the local-net host or first-hop router that
->                            gets the netconsole UDP packets sent. Ie. it
->                            does not necesserily match the MAC address of
->                            the 'target'.
->
-> (i can see where the confusion comes from, 'syslog servers' are ones that
-> receieve syslogs. It's a backwards term i think. 'netconsole servers' are
-> the ones that produce the messages.)
->
-
-Servers is usually the thing waiting for something to be sent to it, the
-client is the sending part(initiator). this works for web servers , X
-servers, log servers but strangley not for netconsole where everything is
-backwards.
-
->
-> does it make more sense now? :)
->
-
-Not really :)
+I seem to remember someone mentioning that they send 0.9.9 to you.  Or maybe
+that was their intent...
 
 

@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVAXUYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261627AbVAXUWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbVAXUYx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 15:24:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbVAXUXJ
+	id S261627AbVAXUWs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 15:22:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbVAXUVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 15:23:09 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10912 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261626AbVAXUWX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 15:22:23 -0500
-Date: Mon, 24 Jan 2005 20:22:23 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, Jesse Barnes <jbarnes@sgi.com>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Fwd: Patch to control VGA bus routing and active VGA device.
-Message-ID: <20050124202223.GO31455@parcelfarce.linux.theplanet.co.uk>
-References: <9e47339105011719436a9e5038@mail.gmail.com> <41ED3BD2.1090105@pobox.com> <9e473391050122083822a7f81c@mail.gmail.com> <200501240847.51208.jbarnes@sgi.com> <20050124175131.GM31455@parcelfarce.linux.theplanet.co.uk> <9e473391050124111767a9c6b7@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e473391050124111767a9c6b7@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 24 Jan 2005 15:21:05 -0500
+Received: from modemcable240.48-200-24.mc.videotron.ca ([24.200.48.240]:60575
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261620AbVAXUUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 15:20:46 -0500
+Date: Mon, 24 Jan 2005 15:20:35 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@localhost.localdomain
+To: Ian Campbell <icampbell@arcom.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: use datacs is smc91x driver
+In-Reply-To: <1106569302.19123.49.camel@icampbell-debian>
+Message-ID: <Pine.LNX.4.61.0501241459090.7307@localhost.localdomain>
+References: <1106569302.19123.49.camel@icampbell-debian>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 02:17:15PM -0500, Jon Smirl wrote:
-> On Mon, 24 Jan 2005 17:51:31 +0000, Matthew Wilcox <matthew@wil.cx> wrote:
-> > Yes -- *very* platform specific.  Some are even configurable as to how
-> > much they support.  See http://ftp.parisc-linux.org/docs/chips/zx1-mio.pdf
+On Mon, 24 Jan 2005, Ian Campbell wrote:
+
+> Hi Nico,
 > 
-> Is this a justification for doing device drivers for bridge chips? It
-> has been mentioned before but no one has done it.
+> Below is a first cut at supporting the second 32-bit DATACS chipselect
+> in the smc91x driver to transfer data.
 
-I don't think this is ... the bridges mentioned are host->pci bridges.
+[...]
 
-> Any ideas why the code I sent won't work on the x86? I can shut
-> routing off but I can't get it back on again.
-> 
-> The motivation behind the code is to get X to quit doing this from user space.
+> I'm not entirely happy with using the SMC_*_RESOURCE defines to find the
+> correct resources, but I don't think you can have a placeholder for the
+> attrib space at index 1 (when you don't have an attrib space) and still
+> have datacs at index 2.
 
-I suppose we could log all access X does and compare to what your code
-ends up doing ...
+I don't like that either.  Maybe the whole thing should be converted to 
+use platform_get_resource_byname() ?
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+
+Nicolas

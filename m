@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261628AbRFOCUg>; Thu, 14 Jun 2001 22:20:36 -0400
+	id <S261894AbRFOCbC>; Thu, 14 Jun 2001 22:31:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261639AbRFOCU0>; Thu, 14 Jun 2001 22:20:26 -0400
-Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:19471 "HELO
-	sh0n.net") by vger.kernel.org with SMTP id <S261561AbRFOCUU>;
-	Thu, 14 Jun 2001 22:20:20 -0400
-Date: Thu, 14 Jun 2001 22:20:59 -0400 (EDT)
-From: Shawn Starr <spstarr@sh0n.net>
-To: Riley Williams <rhw@MemAlpha.CX>
-cc: Ion Badulescu <ionut@moisil.cs.columbia.edu>,
-        <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Gigabit Intel NIC? - Intel Gigabit Ethernet Pro/1000T
-In-Reply-To: <Pine.LNX.4.33.0106142155360.16844-100000@infradead.org>
-Message-ID: <Pine.LNX.4.30.0106142219340.26500-100000@coredump.sh0n.net>
+	id <S261969AbRFOCav>; Thu, 14 Jun 2001 22:30:51 -0400
+Received: from cr626425-a.bloor1.on.wave.home.com ([24.156.35.8]:33807 "EHLO
+	spqr.damncats.org") by vger.kernel.org with ESMTP
+	id <S261894AbRFOCai>; Thu, 14 Jun 2001 22:30:38 -0400
+Message-ID: <3B29734A.738A95D5@damncats.org>
+Date: Thu, 14 Jun 2001 22:30:34 -0400
+From: John Cavan <johnc@damncats.org>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.5-ac14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.5-ac14
+In-Reply-To: <20010615022033Z261561-17720+4111@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dieter Nützel wrote:
+> 
+> Hello Alan,
+> 
+> I see 4.29 GB under shm with your latest try.
+> something wrong?
 
-No word yet. I would be extremely surprised to get the docs WITHOUT an NDA
-or so. It never hurts to try though :-)
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  1053483008 431419392 622063616   122880 24387584 260923392
+Swap: 394764288        0 394764288
+MemTotal:      1028792 kB
+MemFree:        607484 kB
+MemShared:         120 kB
+Buffers:         23816 kB
+Cached:         254808 kB
+Active:         225536 kB
+Inact_dirty:     53208 kB
+Inact_clean:         0 kB
+Inact_target:       44 kB
+HighTotal:      131056 kB
+HighFree:         1048 kB
+LowTotal:       897736 kB
+LowFree:        606436 kB
+SwapTotal:      385512 kB
+SwapFree:       385512 kB
 
-I wouldn't write the driver no, my C skills aren't very good and lack of
-kernel API knowledge would render that idea dead ;-)
+I don't seem to have the problem...
 
-Shawn.
-
-On Thu, 14 Jun 2001, Riley Williams wrote:
-
-> Hi Ion.
->
->  >> Shawn, I'd suggest you tell the said sales guy that IF he can
->  >> get you the FULL specs TOGETHER WITH permission to freely
->  >> distribute them...
->
->  > Permission to freely distribute the specs isn't necessary,
->  > although it is nice indeed. All that's needed is permission to
->  > GPL the driver sources written using knowledge from said specs.
->
-> That presupposes that the person they give the specs to is the person
-> writing the driver. I don't remember shawn offering to write a driver
-> or anything approaching that.
->
-> As I see it, if Shawn has permission to freely distribute the specs,
-> he can send a copy to Alan Cox for forwarding to the relevant driver
-> developers. However, if he has to sign an NDA to get them, they're
-> useless...
->
-> Alan: Am I right in assuming this?
->
-> Best wishes from Riley.
->
->
->
-
+John

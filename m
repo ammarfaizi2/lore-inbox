@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267936AbUHPUUK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267937AbUHPUXD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267936AbUHPUUK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 16:20:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267937AbUHPUUK
+	id S267937AbUHPUXD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 16:23:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267939AbUHPUXD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 16:20:10 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:12390 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S267936AbUHPUUF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 16:20:05 -0400
-Date: Tue, 17 Aug 2004 00:20:05 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: kbuild + kconfig: Updates
-Message-ID: <20040816222005.GB24450@mars.ravnborg.org>
-Mail-Followup-To: viro@parcelfarce.linux.theplanet.co.uk,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040815201224.GI7682@mars.ravnborg.org> <20040815204229.GJ12308@parcelfarce.linux.theplanet.co.uk> <20040816204550.GA20956@mars.ravnborg.org> <20040816200159.GK12308@parcelfarce.linux.theplanet.co.uk>
+	Mon, 16 Aug 2004 16:23:03 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:30924 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S267937AbUHPUXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 16:23:00 -0400
+Date: Mon, 16 Aug 2004 22:22:53 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Roman Zippel <zippel@linux-m68k.org>, Sam Ravnborg <sam@ravnborg.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: menuconfig displays dependencies [Was: select FW_LOADER -> depends HOTPLUG]
+Message-ID: <20040816202253.GC1387@fs.tum.de>
+References: <20040810084411.GI26174@fs.tum.de> <20040810211656.GA7221@mars.ravnborg.org> <Pine.LNX.4.58.0408120027330.20634@scrub.home> <20040814074953.GA20123@mars.ravnborg.org> <20040814210523.GG1387@fs.tum.de> <Pine.LNX.4.61.0408151932370.12687@scrub.home> <20040815174028.GM1387@fs.tum.de> <Pine.LNX.4.61.0408160043270.12687@scrub.home> <20040816195733.GZ1387@fs.tum.de> <20040816210729.A25893@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040816200159.GK12308@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040816210729.A25893@flint.arm.linux.org.uk>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 16, 2004 at 09:01:59PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Mon, Aug 16, 2004 at 10:45:50PM +0200, Sam Ravnborg wrote:
-> >  $(single-used-m): %.o: %.c FORCE
-> > +	$(cmd_force_checksrc)
-> >  	$(call if_changed_rule,cc_o_c)
-> >  	@{ echo $(@:.o=.ko); echo $@; } > $(MODVERDIR)/$(@F:.o=.mod)
-> >  
-> > 
-> > That should do it?
-> > I will push this if you are OK with it.
+On Mon, Aug 16, 2004 at 09:07:30PM +0100, Russell King wrote:
 > 
-> Uhh...  It ends up running sparse *twice* and still runs gcc on every
-> file.
+> Let me make my position over the use of "select" clear: I do not
+> oppose its appropriate use, where that is defined as selecting
+> another configuration option for which the user has no visibility.
+> 
+> In the above case, it _may_ make sense (I haven't looked deeply
+> into it yet) to:
+> 
+> - make _all_ drivers which need FW_LOADER select it
+> - make _all_ drivers which currently depend on HOTPLUG select it
+> - make FW_LOADER select HOTPLUG
+> - remove user questions for FW_LOADER and HOTPLUG
+> 
+> That means that FW_LOADER and HOTPLUG are automatically selected
+> whenever the configuration requires them and are automatically
+> deselected when it doesn't need them, and you don't have to worry
+> about whether you can disable them now or after finding the
+> thousand and one configuration symbols which need to be turned off
+> first.
+> 
+> However, keeping the option user-visible _and_ using select is
+> problematical to say the least.
 
+Currently, I see no good alternative to e.g. USB_STORAGE selecting SCSI.
+Enhanchements to _all_ kernel configuration tools are required before 
+this can be changed.
 
-You are supposed to use: make C=2 only on a fully updated tree.
-Then you will see sparse only being run once, and gcc will not be run
-because the file is already updated.
+But it still leaves the problem that modules not included in the kernel  
+might require the functionality provided by such an option.
+Even CRC32 is user-visible.
 
-That said it should not run sparse twice when a file needs to be updated.
-Will take another look at it.
+cu
+Adrian
 
+-- 
 
-PS. Please keep me in cc:.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-	Sam

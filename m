@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285548AbRLGVLx>; Fri, 7 Dec 2001 16:11:53 -0500
+	id <S285550AbRLGVNx>; Fri, 7 Dec 2001 16:13:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285551AbRLGVLr>; Fri, 7 Dec 2001 16:11:47 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:42250 "HELO
+	id <S285551AbRLGVNr>; Fri, 7 Dec 2001 16:13:47 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:50954 "HELO
 	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S285548AbRLGVLb>; Fri, 7 Dec 2001 16:11:31 -0500
-Message-ID: <3C11303B.5070404@namesys.com>
-Date: Sat, 08 Dec 2001 00:10:19 +0300
+	id <S285550AbRLGVNg>; Fri, 7 Dec 2001 16:13:36 -0500
+Message-ID: <3C1130B7.8020201@namesys.com>
+Date: Sat, 08 Dec 2001 00:12:23 +0300
 From: Hans Reiser <reiser@namesys.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
 X-Accept-Language: en-us
@@ -52,10 +52,12 @@ Daniel Phillips wrote:
 >Daniel
 >
 >
-And how large is the dcache and all the inodes?  I believe large 
-directory plus small file performance is heavily affected by the 
-enormous size of struct inode and all the other per file data.  
+someday reiserfs might benefit from inserting more airholes into 
+directories so that insertion is more efficient.
 
+This may be a significant advantage of Htree.
+
+Yet another feature needed.....:-/
 
 Hans
 

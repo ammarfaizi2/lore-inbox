@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271598AbRHPRhz>; Thu, 16 Aug 2001 13:37:55 -0400
+	id <S271599AbRHPRzB>; Thu, 16 Aug 2001 13:55:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271599AbRHPRhp>; Thu, 16 Aug 2001 13:37:45 -0400
-Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:8049 "EHLO
-	alloc.wat.veritas.com") by vger.kernel.org with ESMTP
-	id <S271598AbRHPRhj>; Thu, 16 Aug 2001 13:37:39 -0400
-Date: Thu, 16 Aug 2001 18:41:08 +0100 (BST)
-From: Mark Hemment <markhe@veritas.com>
-X-X-Sender: <markhe@alloc.wat.veritas.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Align VM locks
-Message-ID: <Pine.LNX.4.33.0108161839180.3340-100000@alloc.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271603AbRHPRyv>; Thu, 16 Aug 2001 13:54:51 -0400
+Received: from houston.jhuapl.edu ([128.244.26.10]:1278 "EHLO
+	houston.jhuapl.edu") by vger.kernel.org with ESMTP
+	id <S271599AbRHPRyk>; Thu, 16 Aug 2001 13:54:40 -0400
+Date: Thu, 16 Aug 2001 13:54:28 -0400
+From: Chris Schanzle <chris.schanzle@jhuapl.edu>
+Subject: I/O causes performance problem with 2.4.8-ac3
+To: linux-kernel@vger.kernel.org
+Message-id: <3B7C08D4.9070303@jhuapl.edu>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010726
+ Netscape6/6.1
+X-Accept-Language: en-us
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This probably belongs in the "use-once" thread...
 
-  The patch below ensures the pagecache_lock and pagemap_lru_lock aren't
-sharing an L1 cacheline with anyone else - espically each other!
+I ran into a significant (lack of) performance situation with 2.4.8-ac3 
+that does not exist with 2.4.8.  Perhaps someone can shed some light on 
+what happened and how to avoid it in the future.
 
-Mark
+The system is a new dual PIII 866MHz VALinux server, 2 GB of RAM, with two 
+eight-disk JBODs connected through a Mylex ExtremeRAID 2000 (i.e., not a 
+pig).  I am doing testing of various kernels and filesystems (ext3, 
+reiserfs) to see which will be most appropriate for production use (mostly 
+as an NFS server).  Using SMP-enabled kernels.
 
+The system had been up for several hours, I had netscape going, a few 
+emacs windows, untarred and compiled a bunch of linux source trees, built 
+a few RPMS, did some NFS write testing, etc.  In other words, system had 
+cached a bunch of buffers.
 
-diff -ur -X dontdiff linux-2.4.9-pre4/mm/filemap.c L1-2.4.9-pre4/mm/filemap.c
---- linux-2.4.9-pre4/mm/filemap.c	Thu Aug 16 15:57:51 2001
-+++ L1-2.4.9-pre4/mm/filemap.c	Thu Aug 16 18:28:24 2001
-@@ -45,12 +45,12 @@
- unsigned int page_hash_bits;
- struct page **page_hash_table;
+Performance was excellent until I decided to "dd bs=1024k </dev/cdrom 
+ >somefile" a 600+MB cdrom while a kernel build was going on.  It took 
+nearly 7 minutes to complete the dd and near the end, the cdrom drive 
+light was only occasionally flickering activity (not "on" as it was at the 
+start), keystrokes were delayed, refreshes were sluggish.  "top" showed 
+the loadavg was hovering around 4-5, and the top-runnng processes were 
+kswapd, kreclaimd, and kjournald and they were taking 30-60% of the 
+processor time.  Top also showed 3.7 MB free, 425 MB buff, and about 1.5 
+GB cached.  I think the first was a "dd" to an ext3 fs, then I tried 
+dumping to a reiserfs, with similar performance problems.
 
--spinlock_t pagecache_lock = SPIN_LOCK_UNLOCKED;
-+spinlock_t __cacheline_aligned pagecache_lock = SPIN_LOCK_UNLOCKED;
- /*
-  * NOTE: to avoid deadlocking you must never acquire the pagecache_lock with
-  *       the pagemap_lru_lock held.
-  */
--spinlock_t pagemap_lru_lock = SPIN_LOCK_UNLOCKED;
-+spinlock_t __cacheline_aligned pagemap_lru_lock = SPIN_LOCK_UNLOCKED;
+So this morning, I built a 2.4.8 SMP kernel with only the ext3 patches 
+applied and have been unable to replicate the problem.  The "dd" completed 
+in under 3 minutes, while free memory dropped to lowish-levels, 
+(fluctuates between 5-20 MB), and system response and loadavg were 
+"reasonable."  It appears when kswapd kicks in, I get another 5-10 MB free.
 
- #define CLUSTER_PAGES		(1 << page_cluster)
- #define CLUSTER_OFFSET(x)	(((x) >> page_cluster) << page_cluster)
+So, what is one in my situation to gather from this?
+
+--Chris
 

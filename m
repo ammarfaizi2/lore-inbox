@@ -1,67 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbUDITfU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 15:35:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUDITfU
+	id S261672AbUDITuq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 15:50:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUDITuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 15:35:20 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:17163 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S261673AbUDITfM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 15:35:12 -0400
-Date: Fri, 9 Apr 2004 23:35:11 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Richard Henderson <rth@twiddle.net>, Andrew Morton <akpm@osdl.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [ALPHA] Fix unaligned stxncpy again
-Message-ID: <20040409233511.B727@den.park.msu.ru>
-References: <20040409103244.GA1904@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040409103244.GA1904@gondor.apana.org.au>; from herbert@gondor.apana.org.au on Fri, Apr 09, 2004 at 08:32:44PM +1000
+	Fri, 9 Apr 2004 15:50:46 -0400
+Received: from aloggw2.analogic.com ([204.178.40.3]:22280 "EHLO
+	aloggw2.analogic.com") by vger.kernel.org with ESMTP
+	id S261672AbUDITuo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Apr 2004 15:50:44 -0400
+From: "Richard B. Johnson" <johnson@quark.analogic.com>
+Reply-To: "Johnson, Richard" <rjohnson@analogic.com>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 9 Apr 2004 15:50:56 -0400 (EDT)
+Subject: 2.4.24 poll
+Message-ID: <Pine.LNX.4.53.0404091547520.32470@quark.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 09, 2004 at 08:32:44PM +1000, Herbert Xu wrote:
-> The current stxncpy on alpha is still broken when it comes to single
-> word, unaligned, src misalignment > dest misalignment copies.
-> 
-> I've attached a program which demonstrates this problem.
 
-Ugh, indeed. It fails when there is a zero byte before the data.
-Thanks.
+Somebody who read about potential problems with poll() asked
+me to pass this on. They had problems sending mail from yahoo.
+It seems that couldn't disable something that gets interpreted
+by vger as HTML.
 
-> So here is the patch to revert the unaligned case to use the same code
-> as glibc.
+>From n26825@yahoo.com Fri Apr  9 15:47:05 2004
+To: linux-kernel@vger.kernel.org
+From: N26825 <n26825@yahoo.com>
+Cc: "Johnson, Richard" <rjohnson@analogic.com>
+Subject: Fwd: Linux version 2.4.24 poll
 
-Here is simpler equivalent of that and ev6 fix.
 
-Ivan.
+      Subject: Linux version 2.4.24 poll
 
---- linux.orig/arch/alpha/lib/ev6-stxncpy.S	Sun Apr  4 07:37:42 2004
-+++ linux/arch/alpha/lib/ev6-stxncpy.S	Fri Apr  9 22:13:40 2004
-@@ -365,7 +365,7 @@ $unaligned:
- 	andnot	t2, t6, t12	# E : dest mask for a single word copy
- 	or	t8, t10, t5	# E : test for end-of-count too
- 
--	cmpbge	zero, t2, t3	# E :
-+	cmpbge	zero, t12, t3	# E :
- 	cmoveq	a2, t5, t8	# E : Latency=2, extra map slot
- 	nop			# E : keep with cmoveq
- 	andnot	t8, t3, t8	# E : (stall)
---- linux.orig/arch/alpha/lib/stxncpy.S	Sun Apr  4 07:38:22 2004
-+++ linux/arch/alpha/lib/stxncpy.S	Fri Apr  9 22:14:24 2004
-@@ -317,7 +317,7 @@ $unaligned:
- 	cmpbge	zero, t1, t8	# .. e1 : is there a zero?
- 	andnot	t2, t6, t12	# e0    : dest mask for a single word copy
- 	or	t8, t10, t5	# .. e1 : test for end-of-count too
--	cmpbge	zero, t2, t3	# e0    :
-+	cmpbge	zero, t12, t3	# e0    :
- 	cmoveq	a2, t5, t8	# .. e1 :
- 	andnot	t8, t3, t8	# e0    :
- 	beq	t8, $u_head	# .. e1 (zdb)
+      Gentlemen:
+
+      In a character device, if I open one with a MINOR number of
+      1, variable "minor" in the following driver snippet remains
+      0.
+
+      static size_t poll(struct file *fp, struct poll_table_struct
+      *wait)
+      {
+      int minor = MINOR(fp->f_dentry->d_inode->i_rdev);
+
+      If this is a feature, and not a bug, how am I supposed to
+      obtain
+      the minor number or do I have to use a block device?
+
+      Thanks,
+
+      Gloria
+
+________________________________________________________________________________
+Do you Yahoo!?
+Yahoo! Small Business $15K Web Design Giveaway - Enter today
+
+Richard B. Johnson
+Project Engineer
+Analogic Corporation
+Penguin : Linux version 2.2.15 on an i586 machine (330.14 BogoMips).

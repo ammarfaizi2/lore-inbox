@@ -1,70 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263793AbUAMJtE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 04:49:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263796AbUAMJtD
+	id S264155AbUAMKJk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 05:09:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUAMKJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 04:49:03 -0500
-Received: from smtp2.actcom.co.il ([192.114.47.15]:1203 "EHLO
-	smtp2.actcom.co.il") by vger.kernel.org with ESMTP id S263793AbUAMJtA
+	Tue, 13 Jan 2004 05:09:40 -0500
+Received: from hydrogen.customer.frii.com ([216.17.138.219]:8723 "EHLO
+	hydrogen.imeme.net") by vger.kernel.org with ESMTP id S264155AbUAMKJj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 04:49:00 -0500
-Date: Tue, 13 Jan 2004 11:48:53 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: "Sirotkin, Alexander" <demiurg@ti.com>
+	Tue, 13 Jan 2004 05:09:39 -0500
+From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+Reply-To: gj@pointblue.com.pl
+To: Andre Tomt <andre@tomt.net>
+Subject: Re: 2.4.24+grsec compilation issue
+Date: Tue, 13 Jan 2004 10:09:30 +0000
+User-Agent: KMail/1.5.94
+References: <200401122142.06931.gj@pointblue.com.pl> <4003611D.1020105@tomt.net>
+In-Reply-To: <4003611D.1020105@tomt.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: skb fragmentation
-Message-ID: <20040113094853.GY680@actcom.co.il>
-References: <4003B134.7040707@ti.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="su+CkryO4QJrkqP3"
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <4003B134.7040707@ti.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Organization: K4 labs
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401131009.30858.gj@pointblue.com.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 13 January 2004 03:08, you wrote:
+> This does not belong on this list unless you get the same problem with a
+> clean vanilla kernel.
 
---su+CkryO4QJrkqP3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Don't think so.
 
-On Tue, Jan 13, 2004 at 10:49:56AM +0200, Sirotkin, Alexander wrote:
+Anyway, it looks like bug in debian stable binutils/gcc. Well, I forgot to 
+mention that it was woody. It does recompile fine on unstable.
 
-> I've seen a couple of drivers (for instance - e100) using fragmented skb=
-=20
-> on transmit path.
-> I was wondering, how one can do the same on receive  ?
-
-How? build a fragmented skb on the receive path and send it
-upwards. Last I looked at the relevant code (2.4.something), however,
-the tcp/ip stack called skb_linearize() on the skb on its way up, so
-you wouldn't gain anything unless you teach it to deal with fragmented
-skb's all the way up. That's just what I recall - this subject was
-discussed several times in the past, look in the archives for details.
-
-Cheers,=20
-Muli=20
---=20
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
-
-"the nucleus of linux oscillates my world" - gccbot@#offtopic
-
-
---su+CkryO4QJrkqP3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAA78FKRs727/VN8sRAvSCAJ9GwdgJocewPG5OwtKXdu/NAE2YqgCcCwwC
-ANv0JzB4jiKHdx8JmqdIOtQ=
-=Or/W
------END PGP SIGNATURE-----
-
---su+CkryO4QJrkqP3--
+-- 
+Grzegorz Jaskiewicz
+K4 labs

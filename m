@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266463AbUHPXkU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266472AbUHPXmS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266463AbUHPXkU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 19:40:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266469AbUHPXkT
+	id S266472AbUHPXmS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 19:42:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266473AbUHPXmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 19:40:19 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:43423 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266463AbUHPXkE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 19:40:04 -0400
-Date: Mon, 16 Aug 2004 16:39:30 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8.1-mm1
-Message-ID: <121120000.1092699569@flay>
-In-Reply-To: <20040816143710.1cd0bd2c.akpm@osdl.org>
-References: <20040816143710.1cd0bd2c.akpm@osdl.org>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Mon, 16 Aug 2004 19:42:18 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:37894 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S266472AbUHPXmM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 19:42:12 -0400
+Date: Tue, 17 Aug 2004 01:42:10 +0200 (CEST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Oliver Feiler <kiza@gmx.net>
+Cc: Len Brown <len.brown@intel.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Marcelo Tosatti <marcelo@hera.kernel.org>, linux-kernel@vger.kernel.org
+Subject: Re: eth*: transmit timed out since .27
+In-Reply-To: <41213D66.1010909@gmx.net>
+Message-ID: <Pine.LNX.4.58L.0408170125320.18978@blysk.ds.pg.gda.pl>
+References: <566B962EB122634D86E6EE29E83DD808182C3236@hdsmsx403.hd.intel.com>
+  <1092678734.23057.18.camel@dhcppc4> <41210098.4080904@gmx.net> 
+ <41210649.4090008@gmx.net> <1092685821.23066.39.camel@dhcppc4>
+ <41213D66.1010909@gmx.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8.1/2.6.8.1-mm1
+On Tue, 17 Aug 2004, Oliver Feiler wrote:
 
-make install from this config file:
+> MIS:          8
+> 
+> What exactly is MIS? Something like "interrupt occured, but I have no 
+> idea what device caused it"? I don't know much about it, but it's always 
+>  >0 when the problem happens.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/config.numaq
+ It's a trigger mode MISmatch.  It only happens for level-triggered
+interrupts and the problem is they get recorded as edge-triggered ones in
+the receiving local APIC.  The two interrupt trigger modes require the
+hardware to perform different actions when the software interrupt handler
+concludes and such a mismatch would lead to a lock-up of the affected
+line.  Specifically, the local APIC involved sends an End Of Interrupt
+(EOI) message to the originating I/O APIC for level-triggered interrupts
+and for edge-triggered interrupts nothing is sent.  Fortunately just
+before sending the final ACK to the hardware at the conclusion of the
+handler we can detect that the trigger mode recorded by the local APIC
+disagrees with the setup of the corresponding I/O APIC line and if that
+happens we execute an (expensive) unlock action at the I/O APIC so that it
+resets its logic for the input as if it received an EOI message from a
+local APIC for a level-triggered interrupt.
 
-results in this failure:
-
-make: *** No rule to make target `.tmp_kallsyms2.S', needed by `.tmp_kallsyms2.o'.  Stop.
-
-gcc 2.95.4 ... 2.6.8.1 compiles fine. I have a feeling that people have discussed
-this before - apologies if so, but I can't find the answer in my logs -sorry.
-
-
-M.
-
+  Maciej

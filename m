@@ -1,74 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292778AbSCDTBk>; Mon, 4 Mar 2002 14:01:40 -0500
+	id <S292768AbSCDTEK>; Mon, 4 Mar 2002 14:04:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292777AbSCDTB0>; Mon, 4 Mar 2002 14:01:26 -0500
-Received: from mg02.austin.ibm.com ([192.35.232.12]:57293 "EHLO
-	mg02.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S292768AbSCDTAL>; Mon, 4 Mar 2002 14:00:11 -0500
-Date: Mon, 4 Mar 2002 12:58:39 -0600 (CST)
-From: Kent Yoder <key@austin.ibm.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: <linux-kernel@vger.kernel.org>, <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] IBM Lanstreamer bugfixes (round 3)
-In-Reply-To: <3C83A925.F93BF448@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33.0203041230180.11370-100000@janetreno.austin.ibm.com>
+	id <S292779AbSCDTED>; Mon, 4 Mar 2002 14:04:03 -0500
+Received: from gordo.y12.doe.gov ([134.167.141.46]:3556 "EHLO
+	gordo.y12.doe.gov") by vger.kernel.org with ESMTP
+	id <S292768AbSCDTC2>; Mon, 4 Mar 2002 14:02:28 -0500
+Message-ID: <3C83C4B6.B7A95B5A@y12.doe.gov>
+Date: Mon, 04 Mar 2002 14:02:14 -0500
+From: David Dillow <dillowd@y12.doe.gov>
+Organization: BWXT Y-12/ACT/UT Subcon/What a mess!
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IBM Lanstreamer bugfixes (round 3)
+In-Reply-To: <Pine.LNX.4.33.0203041023580.11065-100000@janetreno.austin.ibm.com>
+	 <3C83A925.F93BF448@mandrakesoft.com> <3C83AE6B.9B5DE85F@y12.doe.gov>
+	 <3C83B2E7.B5EB0FB5@mandrakesoft.com> <3C83C0B8.659F1AE@y12.doe.gov> <3C83C258.FCF57746@mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus Spake Jeff Garzik:
+Jeff Garzik wrote:
+> 
+> David Dillow wrote:
+> > Right, I was talking more about the cache line size... is it sufficient
+> > for that?
+> 
+> pci_enable_device doesn't touch PCI_COMMAND_INVALIDATE either, on most
+> platforms (particularly ia32, i.e. the popular one :))
 
->I agree to the first part :)
->
->Set cache line size just like drivers/net/acenic.c does, and enable
->memory-write-invalidate...
->
+Doh! I see my mistake; I was reading pdev_enable_device() which sets it
+to L1_CACHE_BYTES. And a quick grep shows me that it is called from
+pci_assign_unassigned_resources(), which is not called on ia32 as far as
+I can see....
 
-  Ok, hopefully below is the section you were referring to:
+This seems to be a common thing to set; shouldn't we have a helper for
+it as well, or have pci_enable_device() do it?
 
--------
-
-  pci_read_config_byte(pdev, PCI_CACHE_LINE_SIZE, &cls);
-  cls <<= 2;
-  if (cls != SMP_CACHE_BYTES) {
-         printk(KERN_INFO "  PCI cache line size set incorrectly "
-                "(%i bytes) by BIOS/FW, ", cls);
-         if (cls > SMP_CACHE_BYTES)
-                printk("expecting %i\n", SMP_CACHE_BYTES);
-         else {
-                printk("correcting to %i\n", SMP_CACHE_BYTES);
-                pci_write_config_byte(pdev, PCI_CACHE_LINE_SIZE,
-                                      SMP_CACHE_BYTES >> 2);
-         }
-  }
-  
-  pci_read_config_word (pdev, PCI_COMMAND, &pcr);
-
-  /* Turn off Fast B2B enable */
-  pcr &= ~PCI_COMMAND_FAST_BACK;
-  /* Turn on SERR# enable and others */
-  pcr |= (PCI_COMMAND_SERR | PCI_COMMAND_INVALIDATE | PCI_COMMAND_PARITY |
-          PCI_COMMAND_IO   | PCI_COMMAND_MEMORY);
-
-  pci_write_config_word (pdev, PCI_COMMAND, pcr);
-  pci_read_config_word (pdev, PCI_COMMAND, &pcr);
-
-------
-
- Out of curiosity, does it in fact make sense to use memory write and 
-invalidate and set cache line size to 0 in some cases?  This seems to go 
-against the PCI spec, which, if I'm reading it correctly, says that memory 
-write and invalidate is the same as a memory write, but it guarantees that
-at least 1 cache line will be written.  So, setting cacheline size =0 would 
-negate this effect(?)  
-
-Kent
-
->
->	Jeff
->
->
->
-
+Thanks,
+Dave Dillow
+dillowd@y12.doe.gov

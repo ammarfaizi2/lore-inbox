@@ -1,106 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262906AbUDANU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 08:20:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262904AbUDANTb
+	id S262899AbUDANRP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 08:17:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262904AbUDANRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 08:19:31 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:2827 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262903AbUDANR3 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 08:17:29 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: "Nikita V. Youshchenko" <yoush@cs.msu.su>, linux-kernel@vger.kernel.org
-Subject: Re: Strange 'zombie' problem both in 2.4 and 2.6
-Date: Thu, 1 Apr 2004 16:17:08 +0300
-X-Mailer: KMail [version 1.4]
-References: <200404011442.18078@zigzag.lvk.cs.msu.su>
-In-Reply-To: <200404011442.18078@zigzag.lvk.cs.msu.su>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200404011617.08261.vda@port.imtp.ilyichevsk.odessa.ua>
+	Thu, 1 Apr 2004 08:17:08 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:61912
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262899AbUDANQ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 08:16:58 -0500
+Date: Thu, 1 Apr 2004 15:16:57 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: kuznet@ms2.inr.ac.ru
+Cc: Robert Olsson <Robert.Olsson@data.slu.se>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, paulmck@us.ibm.com, akpm@osdl.org
+Subject: Re: route cache DoS testing and softirqs
+Message-ID: <20040401131657.GB18585@dualathlon.random>
+References: <20040331225259.GT2143@dualathlon.random> <200404010643.KAA08190@yakov.inr.ac.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200404010643.KAA08190@yakov.inr.ac.ru>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 April 2004 13:42, Nikita V. Youshchenko wrote:
-> Hello.
->
-> Some time ago I was faced with a strange problem in 2.4 kernel.
-> I could reproduce in only on one system - a production 2-CPU server that is
-> used as LTSP server here and also runs tons of services and MUST be always
-> up.
->
-> The problem is the following.
-> Server runs normally (and uptime may be already several weeks, but may be
-> only several hours).
-> Suddenly something happens.
-> And process table becomes full of zombies.
-> Looks like any thread created by any program becomes a zombie when
-> finished. Same programs (actually, same running processes) join()ed
-> finished threads correctly before Something Happened. So it looks very
-> much that Something happens inside the kernel.
-> Affected programs include mozilla, clamav, mysqld, licq and anything else
-> that creates short-living threads, or at least threads that live shorter
-> than program itself.
+On Thu, Apr 01, 2004 at 10:43:45AM +0400, kuznet@ms2.inr.ac.ru wrote:
+> What's about some accounting do_softirq() in some way as a starting point?
+> F.e. one way is to account all timer ticks happened while do_softirq()
+> to ksoftirqd instead of current process (I am not sure that this is even
+> possible without race conditions). Or something like that.
 
-How does ps -AH e looks like?
+This sounds reasonable. However as a start I was thinking at having
+hardirq run only the softirq they posted actively, and local_bh_enable
+run only the softirq that have been posted by the critical section (not
+from hardirqs happening on top of it). And leave everything else for
+ksoftirqd. this will complicate the bitmask setting and bitmask
+management but it sounds doable.
 
-> It looks like at some moment kernel looses the abitily to inform process
-> that their threads are over. AKAIK, this is done by SIGCHLD? Anyway,
-> manual sending SIGCHLD to the parent of zombies does not help.
+This will still leave some unfariness under an irq driven flood (partly
+a feature to provide as usual the lowest possible latency for stuff like
+not busy routers where NAPI isn't needed) but at least it avoids hardirq
+to overload excessively the task that happens to run with bh disabled
+most of the time, and it will^Wshould allow NAPI to offload the softirq
+to ksoftirqd completely.
 
-Did you try stracing parent process? It can receive SIGCHLD but
-ignore/mishandle it.
-
-> After the problem happens, server becomes unusable (because of process
-> table overflow) in several minutes. One time Something Else happened, and
-> all those zombies disappeared. In all other cases a reboot was required.
->
-> If the process that created those "zombie thread" is terminated (i.e.
-> sevice stopped), all his zombies disappear. However, after service is
-> restarted, zombies become to appear again.
-
-Probably they get reparented to init and it wait()'s for them,
-ending their afterlife. So SIGCHLD works (at least in this case).
-
-> Athough I tried, I could not find any correlation between making system to
-> this "zombie-keeping" state and anything else happenning with the system.
-> Looks like that running java apps (with blackdown jdk) makes this happen
-> more often, bot still no direct correlation.
->
-> The problem happened with official 2.4.23, 2.4.24 and 2.4.25 kernels,
-> compiled from kernel.org sources.
->
-> Yestedray I was tired with this zombie problem (it arised twice during this
-> week), and decided to upgrade server to kernel 2.6.
-> I installed 2.6.4 kernel from the Debain kernel-image-2.6.4-1-k7-smp
-> package.
->
-> Unfortunately, this did not eliminate the problem: it happened today again.
-> The difference is that when running in 2.6, most binaries use NPTL libs
-> from /lib/i686/cmov/, and seem not to be affected by the problem (i.e. no
-> zombies from them). However, users need to run some statically-linked
-> binaries (without source available) that have non-NPTL libs statically
-> linked and so still use linuxthreads; those are affected (i.e. do create
-> zombies). So problem is not rendering server unusable (so it no longer
-> that critical), but it still exists in the 2.6 kernel.
-
-Sounds like userspace problem in threading libraries.
-What version of glibc/linuxthreads was in use before?
-Maybe post your report on linuxthreads mailing list.
-
-> I can't reproduce the problem on any other host. And the affected system is
-> a production server that is somewhat difficult to use for debugging :(
-> It is a dual-K7 server with Tyan Tiger MPX S2466 motherboard and 2 Gb of
-> ram. Output of 'lspci -vv' and 'cat /proc/cpuinfo' is attached. I may
-> provide any other technical information.
->
-> I'm a seasoned unix developer and sysadmin, and have some kernel hacking
-> experience. However, I don't work with the kernel currently, so I am not
-> "in context of" kernel internals.
-> So I'm looking either for a fix :), or for some advice on what to do with
-> this (i.e. where to look in the kernel code and what to look for).
--- 
-vda
+comments?

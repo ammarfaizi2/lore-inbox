@@ -1,81 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbUC3Vwi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 16:52:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbUC3Vwh
+	id S261419AbUC3V5X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 16:57:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbUC3V5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 16:52:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:59857 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261416AbUC3Vv7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 16:51:59 -0500
-Subject: Re: [PATCH] barrier patch set
-From: "Stephen C. Tweedie" <sct@redhat.com>
+	Tue, 30 Mar 2004 16:57:23 -0500
+Received: from smtp-out5.blueyonder.co.uk ([195.188.213.8]:59628 "EHLO
+	smtp-out5.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S261419AbUC3V5Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 16:57:16 -0500
+Message-ID: <4069ED67.5050302@blueyonder.co.uk>
+Date: Tue, 30 Mar 2004 22:57:59 +0100
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Chris Mason <mason@suse.com>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Jens Axboe <axboe@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <1080674384.3548.36.camel@watt.suse.com>
-References: <20040319153554.GC2933@suse.de>
-	 <200403201723.11906.bzolnier@elka.pw.edu.pl>
-	 <1079800362.11062.280.camel@watt.suse.com>
-	 <200403201805.26211.bzolnier@elka.pw.edu.pl>
-	 <1080662685.1978.25.camel@sisko.scot.redhat.com>
-	 <1080674384.3548.36.camel@watt.suse.com>
-Content-Type: text/plain
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc3-mm1
+References: <4069DC40.3070703@blueyonder.co.uk> <1080681249.3547.51.camel@watt.suse.com>
+In-Reply-To: <1080681249.3547.51.camel@watt.suse.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1080683417.1978.53.camel@sisko.scot.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 30 Mar 2004 22:50:17 +0100
+X-OriginalArrivalTime: 30 Mar 2004 21:57:15.0842 (UTC) FILETIME=[F6BE2A20:01C416A1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Chris Mason wrote:
 
-On Tue, 2004-03-30 at 20:19, Chris Mason wrote:
+>On Tue, 2004-03-30 at 15:44, Sid Boyce wrote:
+>  
+>
+>>It builds fine on x86_64 but locks up solid at ----
+>>found reiserfs format "3.6" with standard journal
+>>Hard disk light permanently on - 2.6.5-rc2 vanilla is the last one to 
+>>boot fully, haven't tried 2.6.5-rc3 vanilla yet.
+>>    
+>>
+>
+>Have you tried booting with acpi=off?
+>
+>-chris
+>
+>
+>
+>  
+>
+With acpi=off, I get a string of messages
+atkbd.c: Unknown key released (translated to set 0, code 0x41 on 
+isa0060/serio0)
+atkbd.c: Use 'setkeycodes 41 <keycode>' to make it known
+Then it freezes with HD light solid on.
+Before the messages above ---
+********* Please consider a BIOS update.
+********* Disabling USB legacy in the BIOS may also help.
+Disabled USB legacy in the BIOS, with acpi=off it's back to the original 
+freeze after the found reiserfs message.
 
+I shall check to see if there is a later BIOS available.
+Acer 1501LCe laptop, Athlon64 3000+, CD-RW/DVD, fireiwre port,  no 
+floppy, no serial ports.
+Regards
+Sid.
 
-> I think we're mixing a few concepts together.  submit_bh(WRITE_BARRIER,
-> bh) gives us an ordered write in whatever form the lower layers can
-> provide.  It also ensures that if you happen to call wait_on_buffer()
-> for the barrier buffer, the wait won't return until the data is on
-> media.
-
-Right, but that's just how it works right now --- one doesn't _have_ to
-imply the other.  You could easily imagine an implementation that
-implements barriers and flushing separately, and which does not do
-automatic flushing on completion of WRITE_BARRIER IOs.  SCSI with
-writeback caching enabled might be one example of that.  NBD/DRBD would
-be another likely candidate --- if you've got network latencies in the
-way, then a flushing sync may be far more expensive than a barrier
-propagation.
-
-Unfortunately, a lot of the cases we care about really have to do the
-barrier via flushing, so the benefit of keeping them separate is
-limited.  For LVM/raid0, for example, we've got no way of preserving
-ordering between IOs on different drives, so a flush is necessary there
-unless we start journaling the low-level IOs to preserve order.
-
-> The fact that IDE implements the barriers via a flush and that no other
-> layer has barriers right now is secondary ;)  I do want to revive some
-> kind of ordering for scsi as well, but since IDE is a safety issue right
-> now I wanted to concentrate there first.
-
-Right.
-
-> Yes, they are completely different.  blkdev_issue_flush is the kernel
-> recognizing that wait_on_buffer (or page or whatever) isn't always
-> enough to make sure writes are really done.
-
-Yep.  It scares me to think what performance characteristics we'll start
-seeing once that gets used everywhere it's needed, though.  If every raw
-or O_DIRECT write needs a flush after it, databases are going to become
-very sensitive to flush performance.  I guess disabling the flushing and
-using disks which tell the truth about data hitting the platter is the
-sane answer there.
-
---Stephen
+-- 
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+Linux Only Shop.
 

@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292368AbSCON3O>; Fri, 15 Mar 2002 08:29:14 -0500
+	id <S292316AbSCON2b>; Fri, 15 Mar 2002 08:28:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292339AbSCON3C>; Fri, 15 Mar 2002 08:29:02 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:64268 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S291279AbSCON2o>; Fri, 15 Mar 2002 08:28:44 -0500
-Date: Fri, 15 Mar 2002 13:28:37 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>, davej@suse.de
-Subject: [PATCH] 2.4 and 2.5: fix /proc/kcore
-Message-ID: <20020315132837.D24984@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S292294AbSCON2L>; Fri, 15 Mar 2002 08:28:11 -0500
+Received: from alpha1.ebi.ac.uk ([193.62.196.122]:37641 "EHLO alpha1.ebi.ac.uk")
+	by vger.kernel.org with ESMTP id <S291279AbSCON2E>;
+	Fri, 15 Mar 2002 08:28:04 -0500
+Message-Id: <200203151327.NAA303879@alpha1.ebi.ac.uk>
+Content-Type: text/plain; charset=US-ASCII
+From: Jonathan Barker <jbarker@ebi.ac.uk>
+Reply-To: jbarker@ebi.ac.uk
+Organization: EMBL-EBI
+To: linux-kernel@vger.kernel.org
+Subject: Re: VFS mediator?
+Date: Fri, 15 Mar 2002 14:28:22 +0000
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <200203141351.NAA257264@alpha1.ebi.ac.uk>
+In-Reply-To: <200203141351.NAA257264@alpha1.ebi.ac.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alexander Viro <viro@math.psu.edu>,
+        Britt Park <britt@drscience.sciencething.org>,
+        David Golden <david.golden@unison.ie>,
+        Dominik Kubla <kubla@sciobyte.de>,
+        Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As mentioned on May 11 on LKML, here is a patch to fix /proc/kcore for
-architectures which do not have RAM located at physical address 0.
+Dear All
 
-I did say I'd send this on Monday, however I only got feedback from the
-ia64 people, and /proc/kcore is already broken on their machines anyway.
-(They need to fix it up; they place modules below PAGE_OFFSET, which
-breaks our generated ELF core header).
+On Thursday 14 Mar 2002 2:52 pm, I wrote:
 
-So I've decided to send it a few days early.
+> In brief: a kernel module which "exported" VFS requests to a (specified)
+> user-space daemon would be useful. My particular application is a daemon
+> which generates files on the fly - I would like to expose this as part of
+> the filesystem. Ideally, the kernel module would deal with generation of
+> fake inode numbers etc and the user-space daemon would simply be asked to
+> create a pipe corresponding to a "filename" and (possibly) supply a
+> directory tree.
 
-Please apply.
+Many thanks for all your useful suggestions. I'll look at them all and (when 
+I get time) compile a digest of answers. I'm particularly amused by the very 
+groovy perlfs (thanks to David Golden for pointing me towards it). 
 
---- orig/fs/proc/kcore.c	Fri Mar 15 10:14:44 2002
-+++ linux/fs/proc/kcore.c	Fri Mar 15 11:18:21 2002
-@@ -381,8 +381,13 @@
- 			return tsz;
- 	}
- #endif
--	/* fill the remainder of the buffer from kernel VM space */
--	start = (unsigned long)__va(*fpos - elf_buflen);
-+	
-+	/*
-+	 * Fill the remainder of the buffer from kernel VM space.
-+	 * We said in the ELF header that the data which starts
-+	 * at 'elf_buflen' is virtual address PAGE_OFFSET. --rmk
-+	 */
-+	start = PAGE_OFFSET + (*fpos - elf_buflen);
- 	if ((tsz = (PAGE_SIZE - (start & ~PAGE_MASK))) > buflen)
- 		tsz = buflen;
- 		
-
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Jonathan
 

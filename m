@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbVBRVfD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261524AbVBRVe3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261521AbVBRVfD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 16:35:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbVBRVeh
+	id S261524AbVBRVe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 16:34:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbVBRVe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 16:34:37 -0500
-Received: from bender.bawue.de ([193.7.176.20]:53730 "EHLO bender.bawue.de")
-	by vger.kernel.org with ESMTP id S261528AbVBRVdj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 16:33:39 -0500
-Date: Fri, 18 Feb 2005 22:33:32 +0100
-From: Joerg Sommrey <jo@sommrey.de>
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Question on CONFIG_IRQBALANCE / 2.6.x
-Message-ID: <20050218213332.GA13485@sommrey.de>
-Mail-Followup-To: Joerg Sommrey <jo@sommrey.de>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 18 Feb 2005 16:34:27 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:48044 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261524AbVBRVc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 16:32:56 -0500
+Date: Fri, 18 Feb 2005 21:32:38 +0000 (GMT)
+From: James Simmons <jsimmons@www.infradead.org>
+X-X-Sender: jsimmons@pentafluge.infradead.org
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Oliver Neukum <oliver@neukum.org>, Pavel Machek <pavel@suse.cz>,
+       Richard Purdie <rpurdie@rpsys.net>,
+       James Simmons <jsimmons@pentafluge.infradead.org>,
+       Adrian Bunk <bunk@stusta.de>,
+       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       dmitry.torokhov@gmail.com
+Subject: Re: 2.6: drivers/input/power.c is never built
+In-Reply-To: <20050218174826.GA2136@ucw.cz>
+Message-ID: <Pine.LNX.4.56.0502182132080.25766@pentafluge.infradead.org>
+References: <20050213004729.GA3256@stusta.de> <20050218160153.GC12434@elf.ucw.cz>
+ <20050218170036.GA1672@ucw.cz> <200502181805.13129.oliver@neukum.org>
+ <20050218174826.GA2136@ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-there's something I don't understand:  With IRQBALANCE *enabled* almost
-all interrupts are processed on CPU0.  This changed in an unexpected way
-after disabling IRQBALANCE: now all interrupts are distributed uniformly
-to both CPUs.  Maybe it's intentional, but it's not what I expect when a
-config option named IRQBALANCE is *disabled*.
+> All you'd need is input.c. One file, approx 750 lines at the moment, a
+> big chunk of that can be confugured out if you don't need procfs or
+> hotplug.
+> 
+> > Think about embedded stuff I wonder whether this is viable.
+> 
+> On most embedded platforms you have some buttons or controls, so it's
+> likely you'll use input anyway.
 
-Can anybody comment on this?
+I have always used the input api on embedded devices.
 
-Thanks,
--jo
-
--- 
--rw-r--r--  1 jo users 63 2005-02-18 21:21 /home/jo/.signature

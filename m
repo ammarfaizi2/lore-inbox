@@ -1,83 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262659AbTDVGgz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 02:36:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262953AbTDVGgz
+	id S262953AbTDVGqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 02:46:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbTDVGqQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 02:36:55 -0400
-Received: from web40802.mail.yahoo.com ([66.218.78.179]:30888 "HELO
-	web40802.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262659AbTDVGgy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 02:36:54 -0400
-Message-ID: <20030422064853.43409.qmail@web40802.mail.yahoo.com>
-Date: Mon, 21 Apr 2003 23:48:53 -0700 (PDT)
-From: gordon anderson <gordonski_anderson@yahoo.com>
-Subject: Re: 2.5.68 build - modules_install - depmod probs - 815fb / zlib - help
-To: James Morris <jmorris@intercode.com.au>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Mutt.LNX.4.44.0304221540520.3736-100000@excalibur.intercode.com.au>
+	Tue, 22 Apr 2003 02:46:16 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:36358 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S262953AbTDVGqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 02:46:15 -0400
+Date: Tue, 22 Apr 2003 16:58:08 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: J Sloan <joe@tmsusa.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, <dlstevens@ibm.com>,
+       <netdev@oss.sgi.com>
+Subject: Re: 2.5.68 comments -  [udp broadcast reception broken]
+In-Reply-To: <3EA382F1.205@tmsusa.com>
+Message-ID: <Mutt.LNX.4.44.0304221649550.4809-100000@excalibur.intercode.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 20 Apr 2003, J Sloan wrote:
 
-yeah...i guess Im thinking this dependency should be found
-by depmod.
+> Looks good for the most part, but the rwhod
+> problem is still with us. (The system is unable
+> to receive udp broadcasts since early in the
+> 2.5.67-bk release series)
 
-Can build fine if I put directly in kernel, but depmod
-doesnt find the exports in vgastate.ko nor in the zlib
-.ko's
+This is being caused by the call to ip_mc_sf_allow() during packet
+delivery, which is not needed for broadcasts.
 
-Im not familiar with how depmod works - does it grab
-System.map + all exports of all modules then match em? 
-If so its not picking them up - dunno why, exports are
-there!
-
-Anyway, 2.5.68 dies horribly after reading superblock, so
-somewhat academic :(
-
-thanks anyway.
-
-g.
+(Broadcast & multicast packets share the same delivery path here).
 
 
---- James Morris <jmorris@intercode.com.au> wrote:
-> On Mon, 21 Apr 2003, gordon anderson wrote:
-> 
-> > 
-> > Sorry if wrong forum!
-> > 
-> > Building 2.5.68 kernel with intel815 framebuffer
-> support &
-> > crypto options.
-> > 
-> > make modules_install gives -
-> > 
-> > depmod: *** Unresolved symbols in
-> > /lib/modules/2.5.68/kernel/crypto/deflate.ko
-> > depmod:         zlib_inflateInit2_
-> > depmod:         zlib_inflate
-> > depmod:         zlib_inflate_workspacesize
-> > depmod:         zlib_deflateInit2_
-> > depmod:         zlib_deflate_workspacesize
-> > depmod:         zlib_deflate
-> > depmod:         zlib_inflateReset
-> > depmod:         zlib_deflateReset
-> 
-> You need CONFIG_ZLIB_INFLATE and CONFIG_ZLIB_DEFLATE for
-> crypto/deflate.c, 
-> which is provided by the default Kconfig.
-> 
-> 
-> - James
-> -- 
-> James Morris
-> <jmorris@intercode.com.au>
-> 
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 
 
-__________________________________________________
-Do you Yahoo!?
-The New Yahoo! Search - Faster. Easier. Bingo
-http://search.yahoo.com

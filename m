@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270421AbUJUG0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270496AbUJUG0V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270421AbUJUG0W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 02:26:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270410AbUJTT1h
+	id S270496AbUJUG0V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 02:26:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270421AbUJTT2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 15:27:37 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:9392 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S270333AbUJTTXH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 15:23:07 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] small load balance fix
-Date: Wed, 20 Oct 2004 12:23:02 -0700
+	Wed, 20 Oct 2004 15:28:48 -0400
+Received: from smtp105.rog.mail.re2.yahoo.com ([206.190.36.83]:24255 "HELO
+	smtp105.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S270278AbUJTTUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 15:20:55 -0400
+From: Shawn Starr <shawn.starr@rogers.com>
+Organization: sh0n.net
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Bogus MCE upon resumption of system?
+Date: Wed, 20 Oct 2004 15:20:46 -0400
 User-Agent: KMail/1.7
-Cc: hawkes@sgi.com
+Cc: linux-kernel@vger.kernel.org
+References: <200410101932.12431.shawn.starr@rogers.com> <200410200454.16439.shawn.starr@rogers.com> <20041020154854.GF26439@elf.ucw.cz>
+In-Reply-To: <20041020154854.GF26439@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_WsrdB4HDeUDnqyo"
-Message-Id: <200410201223.02924.jbarnes@engr.sgi.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410201520.46957.shawn.starr@rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_WsrdB4HDeUDnqyo
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Suspend to RAM,  haven't gotten around to rebuilding kernel with USB not 
+compiled in.
 
-Small bug fix for domains that don't load balance (like those that only 
-balance on exec for example).
+Can anyone verify this is a bogus MCE? it occurs only after resuming from 
+suspend from RAM.
 
-Signed-off-by: John Hawkes <hawkes@sgi.com>
-Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
-Acked-by: Nick Piggin <nickpiggin@yahoo.com.au>
+Shawn.
 
-Thanks,
-Jesse
-
---Boundary-00=_WsrdB4HDeUDnqyo
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="sched-load-balance-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="sched-load-balance-fix.patch"
-
-===== kernel/sched.c 1.367 vs edited =====
---- 1.367/kernel/sched.c	2004-10-18 22:26:52 -07:00
-+++ edited/kernel/sched.c	2004-10-19 14:18:06 -07:00
-@@ -4378,11 +4378,10 @@
- 			printk("domain %d: ", level);
- 
- 			if (!(sd->flags & SD_LOAD_BALANCE)) {
--				printk("does not balance");
-+				printk("does not load-balance");
- 				if (sd->parent)
- 					printk(" ERROR !SD_LOAD_BALANCE domain has parent");
- 				printk("\n");
--				break;
- 			}
- 
- 			printk("span %s\n", str);
-
---Boundary-00=_WsrdB4HDeUDnqyo--
+On October 20, 2004 11:48, Pavel Machek wrote:
+> Ahoj!
+>
+> > MCE: The hardware reports a non fatal, correctable incident occurred on
+> > CPU 0. Bank 1: f200000000000105
+> >
+> > Of note, when resume I see this MCE, though i suspect it is bogus upon
+> > resume.
+>
+> You did not tell me if it was suspend-to-disk or -to-RAM. Also you'd
+> better mail lkml... I know a little about MCEs.
+>
+>         Pavel

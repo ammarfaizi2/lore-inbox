@@ -1,37 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbVBOP2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261755AbVBOPbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbVBOP2x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 10:28:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVBOP2x
+	id S261755AbVBOPbP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 10:31:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbVBOPbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 10:28:53 -0500
-Received: from fsmlabs.com ([168.103.115.128]:44766 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261752AbVBOP2v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 10:28:51 -0500
-Date: Tue, 15 Feb 2005 08:29:33 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Nathan Lynch <ntl@pobox.com>
-cc: lkml <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6-bk: cpu hotplug + preempt = smp_processor_id warnings galore
-In-Reply-To: <20050214215948.GA22304@otto>
-Message-ID: <Pine.LNX.4.61.0502150828520.26742@montezuma.fsmlabs.com>
-References: <20050211232821.GA14499@otto> <Pine.LNX.4.61.0502121019080.26742@montezuma.fsmlabs.com>
- <20050214215948.GA22304@otto>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 15 Feb 2005 10:31:15 -0500
+Received: from fmr14.intel.com ([192.55.52.68]:52402 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261755AbVBOPbI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 10:31:08 -0500
+Subject: Re: [ACPI] [PATCH, new ACPI driver] new sony_acpi driver
+From: Len Brown <len.brown@intel.com>
+To: Stelian Pop <stelian@popies.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+In-Reply-To: <20050210161809.GK3493@crusoe.alcove-fr>
+References: <20050210161809.GK3493@crusoe.alcove-fr>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1108481448.2097.71.camel@d845pe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 15 Feb 2005 10:30:49 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Feb 2005, Nathan Lynch wrote:
+On Thu, 2005-02-10 at 11:18, Stelian Pop wrote:,
 
-> It looks as if we need to explicitly bind worker threads to a newly
-> onlined cpu.  This gets rid of the smp_processor_id warnings from
-> cache_reap.  Adding a little more instrumentation to the debug
-> smp_processor_id showed that new worker threads were actually running
-> on the wrong cpu...
 > 
-> Does this look ok?
+> PS: I am also going to submit a bugzilla RFE for the acpi people,
+> I have been told they are more receptive to that.
 
-Yeah, does that patch suffice for all the warnings?
+I guess that refers to me:-)
+
+E-mail is fine, but the unfortunate reality is that due to simple
+volume, it is lossy.  The reason we like bugzilla is that it never
+forgets:-)
+
+So thanks for taking the extra time to file a bug report
+http://bugzilla.kernel.org/show_bug.cgi?id=4193
+
+If it turns out that there is no way a generic solution
+can handle the SNC Sony laptops, then I agree that a
+platform specific wart is the only way to go.  But
+it would be best if we can make the exotic Sony/SNC
+look more generic to the user so that the user
+(and the distro supporting them) don't need to learn
+special things to handle this system.
+
+thanks,
+-Len
+
+

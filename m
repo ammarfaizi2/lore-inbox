@@ -1,30 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130038AbREALfg>; Tue, 1 May 2001 07:35:36 -0400
+	id <S131317AbREALuA>; Tue, 1 May 2001 07:50:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131317AbREALf0>; Tue, 1 May 2001 07:35:26 -0400
-Received: from femail4.sdc1.sfba.home.com ([24.0.95.84]:34225 "EHLO
-	femail4.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S130038AbREALfS>; Tue, 1 May 2001 07:35:18 -0400
-Message-ID: <3AEE9EA0.3752F0C0@home.com>
-Date: Tue, 01 May 2001 04:31:44 -0700
-From: Seth Goldberg <bergsoft@home.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
+	id <S131986AbREALtk>; Tue, 1 May 2001 07:49:40 -0400
+Received: from 8.ylenurme.ee ([193.40.6.8]:61710 "EHLO ns.linking.ee")
+	by vger.kernel.org with ESMTP id <S131317AbREALta>;
+	Tue, 1 May 2001 07:49:30 -0400
+Date: Tue, 1 May 2001 13:49:16 +0200 (GMT-2)
+From: Elmer Joandi <elmer@linking.ee>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Francois Gouget <fgouget@free.fr>, Ookhoi <ookhoi@dds.nl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Aironet doesn't work
+In-Reply-To: <3AEDB0D4.2CB47196@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.21.0105011348060.9957-100000@ns.linking.ee>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Followup to previous post: Atlon/VIA Instabilities
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 30 Apr 2001, Jeff Garzik wrote:
+> Not correct -- you do not need I82365 if you have CardBus.  However, if
+> you are running 2.4.4 you should be ok.
 
-  So it seems that CONFIG_X86_USE_3DNOW is simply used to
-enable access to the routines in mmx.c (the athlon-optimized
-routines on CONFIG_K7 kernels), so then it appears that somehow
-this is corrupting memory / not behaving as it should (very
-technical, right?) :)...
 
- --Seth
+So it is nice I dont have to prove it.
+
+Never seen cardbus laptop with linux yet.
+
+( But Mandrake can send me one :) )
+
+Elmer.
+
+

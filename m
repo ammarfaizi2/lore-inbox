@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265361AbUFIBj3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265482AbUFIBkg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265361AbUFIBj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 21:39:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265484AbUFIBj3
+	id S265482AbUFIBkg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 21:40:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265497AbUFIBkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 21:39:29 -0400
-Received: from mail.dif.dk ([193.138.115.101]:25766 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S265361AbUFIBj0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 21:39:26 -0400
-Date: Wed, 9 Jun 2004 03:38:43 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: B.Zolnierkiewicz@elka.pw.edu.pl
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: [PATCH] tiny patch to kill warning in drivers/ide/ide.c
-Message-ID: <Pine.LNX.4.56.0406090335260.25359@jjulnx.backbone.dif.dk>
+	Tue, 8 Jun 2004 21:40:36 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:49383 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S265482AbUFIBkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 21:40:25 -0400
+Message-ID: <40C66A7D.6080402@BitWagon.com>
+Date: Tue, 08 Jun 2004 18:40:13 -0700
+From: John Reiser <jreiser@BitWagon.com>
+Organization: -
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ingo Molnar <mingo@elte.hu>
+CC: Mike McCormack <mike@codeweavers.com>, Jakub Jelinek <jakub@redhat.com>,
+       Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
+References: <40C2B51C.9030203@codeweavers.com> <20040606052615.GA14988@elte.hu> <40C2D5F4.4020803@codeweavers.com> <1086507140.2810.0.camel@laptop.fenrus.com> <20040608092055.GX4736@devserv.devel.redhat.com> <40C59FE9.1010700@codeweavers.com> <20040608103221.GA7632@elte.hu>
+In-Reply-To: <20040608103221.GA7632@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
+> * Mike McCormack <mike@codeweavers.com> wrote:
+> 
+> 
+>>I did not investigate this, but others who did think that it is not
+>>possible to create a segment that is reserve only so that does not
+>>unnecessarily consume virtual memory. Apparently ELF allows it, but
+>>Linux doesn't.
+> 
+> 
+> what do you mean by "Linux doesn't"?
 
-To kill this warning :
+Current fs/binfmt_elf.c creates at most one ".bss" area, regardless of
+how many PT_LOAD have .p_filesz < .p_memsz.  The .bss area always
+has PROT_WRITE|PROT_READ page protection, regardless of .p_flags.
+Thus "Linux doesn't" do as faithful a job as it could with ELF.
 
-drivers/ide/ide.c: In function `ide_unregister_subdriver':
-drivers/ide/ide.c:2216: warning: implicit declaration of function `pnpide_init'
+I submitted "elfdiet" and "bssprot" patches a couple months ago
+to address these issues.  The bssprot patch appeared briefly in -mm
+for 2.6.[56], but was dropped because of ARCH pain, particularly
+with the sn2 variant of ia64.  The hardware is scarce, and the topic
+was not sufficiently interesting for those with access to such a box.
 
-I added a simple declaration of pnpide_init to drivers/ide/ide.c
-
-Here's a patch against 2.6.7-rc3 - please consider including it (or if
-that's not the way to do it, then don't) :)
-
-
---- linux-2.6.7-rc3-orig/drivers/ide/ide.c	2004-06-09 03:34:49.000000000 +0200
-+++ linux-2.6.7-rc3/drivers/ide/ide.c	2004-06-09 03:31:29.000000000 +0200
-@@ -198,6 +198,7 @@ EXPORT_SYMBOL(ide_hwifs);
-
- extern ide_driver_t idedefault_driver;
- static void setup_driver_defaults(ide_driver_t *driver);
-+void pnpide_init(int enable);
-
- /*
-  * Do not even *think* about calling this!
-
-
---
-Jesper Juhl <juhl-lkml@dif.dk>
+-- 
 

@@ -1,88 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318627AbSHLDBB>; Sun, 11 Aug 2002 23:01:01 -0400
+	id <S318643AbSHLDLG>; Sun, 11 Aug 2002 23:11:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318630AbSHLDBB>; Sun, 11 Aug 2002 23:01:01 -0400
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:62816 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S318627AbSHLDBA>;
-	Sun, 11 Aug 2002 23:01:00 -0400
-From: <Hell.Surfers@cwctv.net>
-To: davem@redhat.com, linux-kernel@vger.kernel.org
-Date: Mon, 12 Aug 2002 04:04:10 +0100
-Subject: RE:Re: The spam problem.
+	id <S318649AbSHLDLG>; Sun, 11 Aug 2002 23:11:06 -0400
+Received: from petasus.ch.intel.com ([143.182.124.5]:52937 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id <S318643AbSHLDLF>; Sun, 11 Aug 2002 23:11:05 -0400
+X-Uptime: 12:09pm  up 63 days,  2:02,  1 user,  load average: 0.00, 0.00, 0.00
+X-OS: Linux hazuki 2.4.17 #5 SMP Tue Feb 19 12:06:25 JST 2002 i686 unknown
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: ryan.flanigan@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.31: modules don't work at all
+References: <200208120233.TAA16322@adam.yggdrasil.com>
+X-Organization: IOS
+X-Disclaimer: My opinions do not necessarily represent anything ...err those of my employer
+Content-Type: text/plain; charset=US-ASCII
+From: ryan.flanigan@intel.com (Flanigan, Ryan)
+Date: 12 Aug 2002 12:09:28 +0900
+In-Reply-To: "Adam J. Richter"'s message of "Sun, 11 Aug 2002 19:33:44 -0700"
+Message-ID: <87ofc8vklz.fsf@hazuki.jp.intel.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1029121450913"
-Message-ID: <027b24303030c82DTVMAIL11@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Adam" == Adam J Richter <adam@yggdrasil.com> writes:
 
---1029121450913
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+    Adam> 	Ryan, thanks for suggesting that, as it would have taken
+    Adam> me a long time to narrow it down that far!
 
-YES THEY ARE SENT TO THE LIST, WOULD YOU LIKE COPIES? T hey are dangerous, they have gotten people KILLED.
+np. 
 
+    Adam> 	It would help avoid duplication of effort if you could
+    Adam> indicate how along you are with this problem.  If you or
 
+just a "test" build w/ PREEMPT enabled is when i noticed it. it
+was the only thing i changed in the .config. so ... 
+i just wanted to isolate it a bit more before posting.
 
-On 	Sun, 11 Aug 2002 18:36:21 -0700 (PDT) 	"David S. Miller" <davem@redhat.com> wrote:
+    Adam> someone else has nailed the problem and is preparing a
+    Adam> patch, then there is no point in anyone else trying to
+    Adam> duplicate that debugging effort.  On the other hand, if you
 
---1029121450913
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+i have only put in a few hours on the problem thus far, and plan
+to continue tonight by looking to the  "hold atomic kmaps across 
+generic_file_read" and "Forward port of get_user_pages() change 
+from 2.4" patch by Andrew Morton <akpm@zip.com.au>.  thats my best 
+guess thus far.  others might think differently (and they're probably 
+right).
 
-Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Mon, 12 Aug 2002 02:50:32 +0100
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318542AbSHLBqA>; Sun, 11 Aug 2002 21:46:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318552AbSHLBqA>; Sun, 11 Aug 2002 21:46:00 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:51095 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318542AbSHLBqA>;
-	Sun, 11 Aug 2002 21:46:00 -0400
-Received: from localhost (IDENT:davem@localhost.localdomain [127.0.0.1])
-	by pizda.ninka.net (8.9.3/8.9.3) with ESMTP id SAA15248;
-	Sun, 11 Aug 2002 18:36:21 -0700
-Date: Sun, 11 Aug 2002 18:36:21 -0700 (PDT)
-Message-Id: <20020811.183621.07790287.davem@redhat.com>
-To: Hell.Surfers@cwctv.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The spam problem.
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <027104643010c82DTVMAIL11@smtp.cwctv.net>
-References: <027104643010c82DTVMAIL11@smtp.cwctv.net>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
+    Adam> just noticed CONFIG_PREEMPT was the difference between your
+    Adam> configuration and that of someone else who was running
+    Adam> 2.5.31 successfully and are not actively debugging the
+    Adam> problem, then I'll try to poke at it some more.
 
-   From: <Hell.Surfers@cwctv.net>
-   Date: Mon, 12 Aug 2002 02:44:14 +0100
+please do. im still _slow_ when dealing with these things.
 
-   I know this is offtopic, but the spam problem is getting worse,
-   could the linux-kernel mail guy/gal, do something, the nigerian
-   scams are actually dangerous.
+    Adam> 	I already know that the error that trips insmod occurs at
+    Adam> in modules.c, line 831, when qm_symbols gets an error from
+    Adam> copy_to_user():
 
-They never make it to the lists, if they are sending these
-spams to you privately that is your problem to resolve :-)
-
-Look we simply cannot control what web site archives of these
-lists choose to do with the sender's email address.  If you
-post here, you will almost certainly get on a spam list.
-There is zero we as postmasters can do about this.
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---1029121450913--
-
-
+agreed and thanks for the info!
+                                        

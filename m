@@ -1,73 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265177AbTAWNUN>; Thu, 23 Jan 2003 08:20:13 -0500
+	id <S265255AbTAWNxB>; Thu, 23 Jan 2003 08:53:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265201AbTAWNUN>; Thu, 23 Jan 2003 08:20:13 -0500
-Received: from d146.dhcp212-198-27.noos.fr ([212.198.27.146]:29360 "EHLO
-	deep-space-9.dsnet") by vger.kernel.org with ESMTP
-	id <S265177AbTAWNUM>; Thu, 23 Jan 2003 08:20:12 -0500
-Date: Thu, 23 Jan 2003 14:29:14 +0100
-From: Stelian Pop <stelian@popies.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ducrot Bruno <ducrot@poupinou.org>
-Subject: [PATCH 2.4-bk] make sonypi use ec_read/ec_write from ACPI patch
-Message-ID: <20030123142914.A4308@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Ducrot Bruno <ducrot@poupinou.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S265262AbTAWNxB>; Thu, 23 Jan 2003 08:53:01 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:2689 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S265255AbTAWNxA>; Thu, 23 Jan 2003 08:53:00 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 23 Jan 2003 06:07:38 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Jamie Lokier <jamie@shareable.org>
+cc: Lennert Buytenhek <buytenh@math.leidenuniv.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: {sys_,/dev/}epoll waiting timeout
+In-Reply-To: <20030122080322.GB3466@bjl1.asuk.net>
+Message-ID: <Pine.LNX.4.50.0301230544320.820-100000@blue1.dev.mcafeelabs.com>
+References: <20030122065502.GA23790@math.leidenuniv.nl> <20030122080322.GB3466@bjl1.asuk.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 22 Jan 2003, Jamie Lokier wrote:
 
-This patch avoids a conflict between the sonypi driver and the 
-latest ACPI patch, by letting sonypi use the ACPI provided 
-functions ec_read/ec_write.
+> So you would like it to round up the timeout like poll(), select(),
+> and io_getevents() do?  Fair enough, for the sake of consistency!
+>
+> sys_poll() says:
+>
+> 	if (timeout) {
+> 		/* Careful about overflow in the intermediate values */
+> 		if ((unsigned long) timeout < MAX_SCHEDULE_TIMEOUT / HZ)
+> 			timeout = (unsigned long)(timeout*HZ+999)/1000+1;
+> 		else /* Negative or overflow */
+> 			timeout = MAX_SCHEDULE_TIMEOUT;
+> 	}
+>
+> sys_io_getevents() does something more complicated in a function
+> called set_timeout(), but it essentially comes to the same thing.  It
+> takes a value in nanseconds (which I prefer, btw, for future usefulness).
 
-A variant of this patch (without the conditional testing of the 
-ACPI version) is already used in the 2.5 kernel.
+>From a mathematical point of view this is a ceil(v)+1, so this is wrong.
+It should be :
 
-Credits for the patch go to Ducrot Bruno.
+t = (t * HZ + 999) / 1000;
 
-Marcelo, Alan, please apply this to your trees.
+The +999 already gives you the round up. Different is if we want to be
+sure to sleep at least that amount of jiffies ( the rounded up ), in that
+case since the timer tick might arrive immediately after we go to sleep by
+making us to lose immediately a jiffie, we need another +1. Anyway I'll do
+the round up. Same for the overflow check.
 
-Thanks,
 
-Stelian.
+> And that the prototypes for ep_poll() and sys_epoll_wait() be changed
+> to take a "long timeout" instead of an "int", just like sys_poll().
 
-===== drivers/char/sonypi.h 1.13 vs edited =====
---- 1.13/drivers/char/sonypi.h	Thu Jan  9 13:46:12 2003
-+++ edited/drivers/char/sonypi.h	Thu Jan 23 14:19:57 2003
-@@ -363,6 +363,14 @@
- 		printk(KERN_WARNING "sonypi command failed at %s : %s (line %d)\n", __FILE__, __FUNCTION__, __LINE__); \
- }
- 
-+#ifdef CONFIG_ACPI
-+#include <linux/acpi.h>
-+#if (ACPI_CA_VERSION > 0x20021121)
-+#define USE_ACPI
-+#endif
-+#endif /* CONFIG_ACPI */
-+
-+#ifndef USE_ACPI
- extern int verbose;
- 
- static inline int ec_write(u8 addr, u8 value) {
-@@ -385,6 +393,7 @@
- 	*value = inb_p(SONYPI_DATA_IOPORT);
- 	return 0;
- }
-+#endif /* ! USE_ACPI */
- 
- #endif /* __KERNEL__ */
- 
--- 
-Stelian Pop <stelian@popies.net>
+I don't see why. The poll(2) timeout is an int.
+
+
+> ps.  sys_* system-call functions should never return "int".  They
+> should always return "long" or a pointer - even if the user-space
+> equivalent returns "int".  Take a look at sys_open() for an example.
+> Technical requirement of the system call return path on 64-bit targets.
+
+True, I'll change it.
+
+
+
+- Davide
+

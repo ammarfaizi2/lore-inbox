@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281425AbRKMBdm>; Mon, 12 Nov 2001 20:33:42 -0500
+	id <S281427AbRKMBdW>; Mon, 12 Nov 2001 20:33:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281433AbRKMBdd>; Mon, 12 Nov 2001 20:33:33 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:52217
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S281428AbRKMBd0>; Mon, 12 Nov 2001 20:33:26 -0500
-Date: Mon, 12 Nov 2001 17:33:18 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Louis Garcia <louisg00@bellsouth.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.15-pre4 compile error
-Message-ID: <20011112173318.H32099@mikef-linux.matchmail.com>
-Mail-Followup-To: Louis Garcia <louisg00@bellsouth.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <1005614871.24361.0.camel@tiger>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1005614871.24361.0.camel@tiger>
-User-Agent: Mutt/1.3.23i
+	id <S281425AbRKMBdM>; Mon, 12 Nov 2001 20:33:12 -0500
+Received: from cambot.suite224.net ([209.176.64.2]:23053 "EHLO suite224.net")
+	by vger.kernel.org with ESMTP id <S281427AbRKMBdF>;
+	Mon, 12 Nov 2001 20:33:05 -0500
+Message-ID: <001501c16be3$a5b16860$1df583d0@pcs586>
+From: "Matthew D. Pitts" <mpitts@suite224.net>
+To: =?ISO-8859-1?Q? "Fran=E7ois?= Cami" <stilgar2k@wanadoo.fr>,
+        "Sean Elble" <S_Elble@yahoo.com>
+Cc: <joeja@mindspring.com>, "John Alvord" <jalvo@mbay.net>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Springmail.105.1005596822.0.40719200@www.springmail.com> <00c701c16bd2$e4b11800$0a00a8c0@intranet.mp3s.com> <3BF06B44.1040709@wanadoo.fr> <015101c16bdc$e633dbe0$0a00a8c0@intranet.mp3s.com> <3BF07147.5050503@wanadoo.fr>
+Subject: Re: Testing Kernel Releases Before Being Released (Was Re: Re: loop back broken in 2.2.14)
+Date: Mon, 12 Nov 2001 20:35:42 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="ISO-8859-15"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 12, 2001 at 08:27:51PM -0500, Louis Garcia wrote:
-> 
-> setup.c: In funtion 'c_start':
-> setup.c:2791: subscripted value is neither array nor pointer
-> setup.c:2792: warning: control reaches end of non-void function
-> make[1]: *** [setup.o] Error 1
-> 
+Umm... Linus, when are you going to open the 2.5.x development cycle? That
+is how we used to catch this kind of thing.
 
-This patch, (from RML) will fix it.
+Matthew D. Pitts
+Pitts Computer Services
+mpitts@suite224.net
+----- Original Message -----
+From: "François Cami" <stilgar2k@wanadoo.fr>
+To: "Sean Elble" <S_Elble@yahoo.com>
+Cc: <joeja@mindspring.com>; "John Alvord" <jalvo@mbay.net>;
+<linux-kernel@vger.kernel.org>
+Sent: Monday, November 12, 2001 8:03 PM
+Subject: Re: Testing Kernel Releases Before Being Released (Was Re: Re: loop
+back broken in 2.2.14)
 
-It's already been posted...
 
-diff -u linux-2.4.15-pre4/include/asm-i386/processor.h linux/include/asm-i386/processor.h 
---- linux-2.4.15-pre4/include/asm-i386/processor.h	Mon Nov 12 15:17:47 2001+++ linux/include/asm-i386/processor.h	Mon Nov 12 15:40:32 2001
-@@ -76,7 +76,7 @@
- extern struct cpuinfo_x86 cpu_data[];
- #define current_cpu_data cpu_data[smp_processor_id()]
- #else
--#define cpu_data &boot_cpu_data
-+#define cpu_data (&boot_cpu_data)
- #define current_cpu_data boot_cpu_data
- #endif
- 
-	Robert Love
+>
+> I am wondering too... Anyone got ideas on this ?
+>
+> I would like to avoid some specific problems... especially
+> bugs that show up when compiling a certain module / feature
+> of the kernel, like the loopback in 2.4.14.
+>
+> Those should be very easy to get rid of
+> [it only takes some kernel testers to debug that early, if only
+> there actually were a feature freeze that last for one day...].
+>
+> François
+
+

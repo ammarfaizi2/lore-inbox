@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143994AbRA1Tr6>; Sun, 28 Jan 2001 14:47:58 -0500
+	id <S144039AbRA1TuI>; Sun, 28 Jan 2001 14:50:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143978AbRA1Trs>; Sun, 28 Jan 2001 14:47:48 -0500
-Received: from felix.convergence.de ([212.84.236.131]:52743 "EHLO
-	convergence.de") by vger.kernel.org with ESMTP id <S143994AbRA1Trh>;
-	Sun, 28 Jan 2001 14:47:37 -0500
-Date: Sun, 28 Jan 2001 20:48:13 +0100
-From: Felix von Leitner <leitner@convergence.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Choosing Linux NICs (was: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN))
-Message-ID: <20010128204813.A10876@convergence.de>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3A726087.764CC02E@uow.edu.au> <200101271854.VAA02845@ms2.inr.ac.ru> <3A73AF7B.6610B559@uow.edu.au> <20010128143748.A9767@convergence.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010128143748.A9767@convergence.de>; from leitner@fefe.de on Sun, Jan 28, 2001 at 02:37:48PM +0100
+	id <S143978AbRA1Tts>; Sun, 28 Jan 2001 14:49:48 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:20180 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S144039AbRA1Ttm>;
+	Sun, 28 Jan 2001 14:49:42 -0500
+Date: Sun, 28 Jan 2001 20:49:38 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200101281949.UAA11123@harpo.it.uu.se>
+To: linux-kernel@vger.kernel.org, tmolina@home.com
+Subject: Re: time in the future during make for 2.4.0
+Cc: sensors@stimpy.netroedge.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus spake Felix von Leitner (leitner@fefe.de):
-> What is missing here is a good authoritative web ressource that tells
-> people which NIC to buy.
+On Sun, 28 Jan 2001 12:27:46 -0600 (CST), Thomas Molina wrote:
 
-I started one now.
+>I seem to recall a discussion on faster processors causing timing
+>problems during a kernel make, but I'm unable to find it in the kernel
+>archives.  I've now upgraded to an Athlon 900 MHz processor and an ASUS
+>A7V motherboard and have started seeing this.  It shows up as the
+>following messages during a make bzImage:
+>
+>make[3]: *** Warning:  Clock skew detected.  Your build may be
+>incomplete.
+>make[3]: *** Warning: File
+>`/mnt/hd/local/kernel/linux.24.new/include/linux/sched.h' has
+>modification time in the future (2001-01-28 17:41:05 > 2001-01-28
+>10:07:02)
 
-It's at http://www.fefe.de/linuxeth/, but there is not much content yet.
-Please contribute!
+No, this doesn't look like the "fast CPU" problem you are alluding to
+(look for subject MODVERSIONS in the archives). We fixed that one.
 
-Felix
+Your problem is that your kernel source dir (unpacked tarball?)
+contains files with time stamps several hours in the future;
+'make' doesn't take kindly to this.
+
+I've seen this happen once: during an upgrade (RH-style, i.e. not
+fresh install) from RH6.2 to RH7.0, my /etc/localtime had become
+overwritten and my machine in an instant moved from CET to some US
+time zone 6 or 8 hrs back. Then when I unpacked my kernel tarball to
+build a real kernel, I got exactly the problems you listed above.
+
+Check your clock & time zone settings.
+
+/Mikael
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

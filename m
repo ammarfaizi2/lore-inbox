@@ -1,31 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273902AbRJJDvI>; Tue, 9 Oct 2001 23:51:08 -0400
+	id <S274549AbRJJDzv>; Tue, 9 Oct 2001 23:55:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274530AbRJJDu6>; Tue, 9 Oct 2001 23:50:58 -0400
-Received: from psuvax1.cse.psu.edu ([130.203.4.6]:36575 "HELO mail.cse.psu.edu")
-	by vger.kernel.org with SMTP id <S273902AbRJJDur>;
-	Tue, 9 Oct 2001 23:50:47 -0400
-Date: Tue, 9 Oct 2001 23:51:17 -0400 (EDT)
-From: Jianyong Zhang <jzhang@cse.psu.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: a problem about non-linear sk_buff
-Message-ID: <Pine.SOL.4.33.0110092342190.24061-100000@frack.cse.psu.edu>
+	id <S274533AbRJJDzi>; Tue, 9 Oct 2001 23:55:38 -0400
+Received: from Cambot.lecs.CS.UCLA.EDU ([131.179.144.110]:58635 "EHLO
+	cambot.lecs.cs.ucla.edu") by vger.kernel.org with ESMTP
+	id <S274530AbRJJDze>; Tue, 9 Oct 2001 23:55:34 -0400
+Date: Tue, 9 Oct 2001 20:55:48 -0700 (PDT)
+From: Jeremy Elson <jelson@circlemud.org>
+To: Pavel Machek <pavel@Elf.ucw.cz>
+cc: Jeremy Elson <jelson@circlemud.org>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] FUSD v1.00: Framework for User-Space Devices
+In-Reply-To: <20011005205136.A1272@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.21.0110092049580.780-100000@cambot.lecs.cs.ucla.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-  I'm a newcomer of this list.  I want to understand the tcp/ip stack's
-implementaion, and hope that I can get your help.
 
-  I find that that sk_buff can be fragmented, and it's called nonlinear.
-What's the meaning of nonlinear?  And what are the meaning of sk_buff's
-fields: skb->data_len and skb_shinfo(skb)?  I have no idea about them.
-May you explain them?  Thank you.
+On Fri, 5 Oct 2001, Pavel Machek wrote:
+> Yep. And linmodem driver does signal processing, so it is big and
+> ugly. And up till now, it had to be in kernel. With your patches, such
+> drivers could be userspace (where they belong!). Of course, it would be 
+> very good if your interface did not change...
 
-Jianyong Zhang
+FUSD's user-kernel interface won't change spuriously, but it sometimes
+will need to change as features are added.  Some such changes are
+already in the works.
+
+The fact that FUSD provides a semi-stable binary interface for servicing
+device-file callbacks isn't really FUSD's design goal as much as it is an
+accidental side effect.  Making a stable binary interface for kernel
+device drivers is the objective of, say, UDI (I think).  The purpose of
+FUSD is just to be able to proxy the callbacks to userspace.
+
+Best,
+Jer
 
 

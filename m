@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268928AbUIMUW5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268920AbUIMUWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268928AbUIMUW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 16:22:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268959AbUIMUW4
+	id S268920AbUIMUWM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 16:22:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268959AbUIMUWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 16:22:56 -0400
-Received: from mail.tmr.com ([216.238.38.203]:24215 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S268928AbUIMUWT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 16:22:19 -0400
-Message-ID: <41460283.3020909@tmr.com>
-Date: Mon, 13 Sep 2004 16:26:43 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
+	Mon, 13 Sep 2004 16:22:11 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:51998 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S268928AbUIMUTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 16:19:12 -0400
+Date: Mon, 13 Sep 2004 21:18:58 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Tonnerre <tonnerre@thundrix.ch>
+cc: Roman Zippel <zippel@linux-m68k.org>, Alex Zarochentsev <zam@namesys.com>,
+       Paul Jackson <pj@sgi.com>, William Lee Irwin III <wli@holomorphy.com>,
+       Hans Reiser <reiser@namesys.com>, <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: 2.6.9-rc1-mm4 sparc reiser4 build broken - undefined atomic_s
+    ub_and_test
+In-Reply-To: <20040913200359.GE19399@thundrix.ch>
+Message-ID: <Pine.LNX.4.44.0409132113040.3868-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Arjan van de Ven <arjanv@redhat.com>, Andrea Arcangeli <andrea@novell.com>,
-       Hugh Dickins <hugh@veritas.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-References: <20040910153421.GD24434@devserv.devel.redhat.com><593560000.1094826651@[10.10.2.4]> <1095016687.1306.667.camel@krustophenia.net>
-In-Reply-To: <1095016687.1306.667.camel@krustophenia.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Fri, 2004-09-10 at 11:34, Arjan van de Ven wrote:
+On Mon, 13 Sep 2004, Tonnerre wrote:
+> On Mon, Sep 13, 2004 at 06:03:28PM +0200, Roman Zippel wrote:
+> > +#define atomic_add_and_test(i,v) (atomic_add_return((i), (v)) == 0)
+> > +#define atomic_sub_and_test(i,v) (atomic_sub_return((i), (v)) == 0)
 > 
->>On Fri, Sep 10, 2004 at 05:28:52PM +0200, Andrea Arcangeli wrote:
->>
->>>On Fri, Sep 10, 2004 at 05:15:38PM +0200, Arjan van de Ven wrote: 
->>>
->>>>What we should consider regardless is disable the nesting of irqs for
->>>>performance reasons but that's an independent matter
->>>
->>>disabling nesting completely sounds a bit too aggressive, but limiting
->>>the nesting is probably a good idea.
->>
->>disabling is actually not a bad idea; hard irq handlers run for a very short
->>time
-> 
-> 
-> The glaring exception is the IDE io completion, which can run for 2000+
-> usec even with a modern chipset and drive.  Here's a 600 usec trace:
-> 
-> http://krustophenia.net/testresults.php?dataset=2.6.8-rc4-bk3-O7#/var/www/2.6.8-rc4-bk3-O7/ide_irq_latency_trace.txt
-> 
-> The timer, RTC, and soundcard interrupts (among others) will not like
-> being delayed this long.  Ingo mentioned that this was not always done
-> in hardirq context; presumaby the I/O completion was done in a softirq
-> like SCSI.  What was the motivation for moving such a long code path
-> into the hard irq handler?
+> This is no longer atomic, is it? I mean, there's no guarantee that the
+> atomic_add_return   and   the    comparison   are   executed   without
+> interruption, is there?
 
-Certainly if you run ppp the serial port won't like being ignored that 
-long, and if you pull down data on a parallel port that really won't 
-like it. The soundcard is probably only a problem if you're recording 
-input, in spite of some posts here about skipping, the world doesn't end 
-if you get a skip, although 2ms shouldn't cause that anyway.
+It's true that the atomic_add_return and the comparison are not executed
+atomically, but they don't need to be: a value is equal to 0, or not,
+however long ago that value was computed, no matter what happened since.
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+The important thing is that the value is the atomic result of the atomic
+operation: which may not be the case when you use atomic_add followed by
+atomic_read, but is what's guaranteed by atomic_add_return.
+
+Hugh
+

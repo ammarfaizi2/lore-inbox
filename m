@@ -1,35 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265424AbSL2RqD>; Sun, 29 Dec 2002 12:46:03 -0500
+	id <S261173AbSL2SD1>; Sun, 29 Dec 2002 13:03:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265506AbSL2RqD>; Sun, 29 Dec 2002 12:46:03 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:45829 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S265424AbSL2RqC>;
-	Sun, 29 Dec 2002 12:46:02 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212291754.gBTHs3Cd001525@darkstar.example.net>
-Subject: Re: [2.5.53] So sloowwwww......
-To: manfred@colorfullife.com (Manfred Spraul)
-Date: Sun, 29 Dec 2002 17:54:03 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3E0F3545.4040601@colorfullife.com> from "Manfred Spraul" at Dec 29, 2002 06:47:49 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S261205AbSL2SD1>; Sun, 29 Dec 2002 13:03:27 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:6149 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S261173AbSL2SD0>; Sun, 29 Dec 2002 13:03:26 -0500
+Date: Sun, 29 Dec 2002 19:11:46 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: acpi_os_queue_for_execution()
+Message-ID: <20021229181146.GC16995@atrey.karlin.mff.cuni.cz>
+References: <20021223181747.GA10363@elf.ucw.cz> <20021228202716.GA28570@gtf.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20021228202716.GA28570@gtf.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'd guess power management, a runaway interrupt, bad mtrr settings, 
-> problems with the memory map decoding or Hyperthreading.
+Hi!
+
+> > Acpi seems to create short-lived kernel threads, and I don't quite
+> > understand why. 
+> > 
+> > In thermal.c
+> > 
+> > 
+> >                         tz->timer.data = (unsigned long) tz;
+> >                         tz->timer.function = acpi_thermal_run;
+> >                         tz->timer.expires = jiffies + (HZ * sleep_time) / 1000;
+> >                         add_timer(&(tz->timer));
+> > 
+> > and acpi_thermal_run creates kernel therad that runs
+> > acpi_thermal_check. Why is not acpi_thermal_check called directly? I
+> > don't like idea of thread being created every time thermal zone needs
+> > to be polled...
 > 
-> Check
-> /proc/interrupts
-> /proc/mtrr
-> The memory detection results at the top of dmesg
-> disable apm, acpi.
-> Check anything Hyperthreading related in dmesg.
+> This is the standard way to get process context [i.e. somewhere where
+> you can sleep].  The new delayed-work workqueue code in 2.5.x does
+> something almost exactly like that under the covers.
 
-Also, toggle the APIC config settings.
+Is it really true that fork() can not sleep?
 
-John.
+> That said, it sounds like you found something to fix in ACPI:
+> 
+> In 2.4.x ACPI, it should be using schedule_task(), and in 2.5.x it should
+> be using schedule_work(), if this is truly the intention of the ACPI
+> subsystem.
+
+Agreed.
+								Pavel
+
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

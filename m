@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVDCEWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVDCE2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261356AbVDCEWr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 23:22:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVDCEWr
+	id S261477AbVDCE2i (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 23:28:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVDCE2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 23:22:47 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:8407 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261356AbVDCEWp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 23:22:45 -0500
-Subject: Re: sched /HT processor
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Arun Srinivas <getarunsri@hotmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <BAY10-F5413AE1988EF69D4405392D93A0@phx.gbl>
-References: <BAY10-F5413AE1988EF69D4405392D93A0@phx.gbl>
+	Sat, 2 Apr 2005 23:28:38 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:24009 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261290AbVDCE2c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Apr 2005 23:28:32 -0500
+Subject: Re: iomapping a big endian area
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: matthew@wil.cx, SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050402200858.37347bec.davem@davemloft.net>
+References: <1112475134.5786.29.camel@mulgrave>
+	 <20050403013757.GB24234@parcelfarce.linux.theplanet.co.uk>
+	 <20050402183805.20a0cf49.davem@davemloft.net>
+	 <20050403031000.GC24234@parcelfarce.linux.theplanet.co.uk>
+	 <1112499639.5786.34.camel@mulgrave>
+	 <20050402200858.37347bec.davem@davemloft.net>
 Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Sat, 02 Apr 2005 23:22:25 -0500
-Message-Id: <1112502145.27149.101.camel@localhost.localdomain>
+Date: Sat, 02 Apr 2005 22:27:57 -0600
+Message-Id: <1112502477.5786.38.camel@mulgrave>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-04-03 at 07:46 +0530, Arun Srinivas wrote:
-> I attached the 'dmesg' output because there it shows that my kernel 
-> recogonized 2 cpu's.As said earlier , are they treated as 2 physical cpu's 
-> or logical cpu's?
+On Sat, 2005-04-02 at 20:08 -0800, David S. Miller wrote:
+> > Did anyone have a preference for the API?  I was thinking
+> > ioread32_native, but ioread32be is fine too.
 > 
+> I think doing foo{be,le}{8,16,32}() would be consistent with
+> our byteorder.h interface names.
 
-As I said, they are logical
+Thinking about this some more, I know of no case of a BE bus connected
+to a LE system, nor do I think anyone would ever create such a beast, so
+our only missing interface is for a BE bus on a BE system.
 
-[snip]
+Thus, I think io{read,write}{16,32}_native are better interfaces ...
+they basically mean pass memory operations without byte swaps, so
+they're well defined on both BE and LE systems and correspond exactly to
+our existing _raw_{read,write}{w,l} calls (principle of least surprise).
 
-> > > available
-> > > Apr  2 17:43:12 kulick2 kernel: CPU#1: Thermal monitoring enabled
-> > > Apr  2 17:43:12 kulick2 kernel: CPU1: Intel(R) Pentium(R) 4 CPU 3.00GHz
-> > > stepping 09
-> > > Apr  2 17:43:12 kulick2 kernel: Total of 2 processors activated 
-> >(11911.16
-> > > BogoMIPS).
-> > > Apr  2 17:43:12 kulick2 kernel: cpu_sibling_map[0] = 1
-> > > Apr  2 17:43:12 kulick2 kernel: cpu_sibling_map[1] = 0
-> >
-> >Here you see that you have two CPUs.  0 is the sibling of 1 and 1 to 0.
-> >This just shows that you have HT.  If you were to have a dual xeon, then
-> >you would see 4 CPUs and two pairs.
-> >
-> >-- Steve
-> >
-> 
-
-I'll elaborate more.  This says that you have a single CPU with
-hyperthreading. That's what the siblings mean. That they share a single
-physical CPU.
- 
--- Steve
+James
 
 

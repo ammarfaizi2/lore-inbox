@@ -1,189 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265079AbTFMAy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 20:54:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265084AbTFMAy7
+	id S265085AbTFMA73 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 20:59:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265086AbTFMA73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 20:54:59 -0400
-Received: from babyruth.hotpop.com ([204.57.55.14]:2971 "EHLO
-	babyruth.hotpop.com") by vger.kernel.org with ESMTP id S265079AbTFMAyz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 20:54:55 -0400
-Subject: 2.5.70 hangs on boot
-From: OverrideX <overridex@punkass.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-RJpNtyT4rZDkrDgTjAIs"
-Message-Id: <1055466518.29294.10.camel@nazgul>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
-Date: 12 Jun 2003 21:08:39 -0400
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+	Thu, 12 Jun 2003 20:59:29 -0400
+Received: from web40017.mail.yahoo.com ([66.218.78.57]:35490 "HELO
+	web40017.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265085AbTFMA73 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 20:59:29 -0400
+Message-ID: <20030613011315.50941.qmail@web40017.mail.yahoo.com>
+Date: Thu, 12 Jun 2003 18:13:15 -0700 (PDT)
+From: Brad Chapman <jabiru_croc@yahoo.com>
+Subject: Re: 2.4.21-rc8-laptop1 released
+To: hanno@gmx.de
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If you could backport 2.5 cpufreq and add it to this patchset
+I would start using it too. My biggest grab is the updated DRM,
+but cpufreq would be a huge help as well.
 
---=-RJpNtyT4rZDkrDgTjAIs
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Brad
 
-Hi all, 
-
-I've tried 2.5.70, 2.5.70-mm8 and 2.5.70-bk17.  All of them hang while
-booting, the last message they display is "Uncompressing Linux... Ok,
-booting the kernel." then they just sit blank and boot no further.  I've
-booted previous 2.5.x kernels on this system, the last I had used was
-2.5.63. My Hardware and other info is below, .config is attached. Is
-anyone else experiencing this problem?  Is there any other information I
-can provide to help debuging?  Please cc me any replies as my mailbox
-can't take the full brunt of this mailing list, thanks -Dan
-
-Dual Athlon 1.4ghz (1700+)
-Tyan Tiger MPX mobo (AMD-760 MPX chipset)
-512MB ram
-Software Raid-1 /boot partition, Software Raid-0 /, /var, /home, /usr
-partitions
-lilo 22.5.4
-Debian Sid
-
---
-OverrideX <overridex@punkass.com>
-GPG Key Fingerprint = 4AD5 CE9C D7C8 0069 BDD3 7F72 3AB2 642A 5A5D EB89
-
-Life without caffeine is stimulating enough. -- Sanka Ad
-
---=-RJpNtyT4rZDkrDgTjAIs
-Content-Disposition: attachment; filename=config-2.5.70dan.gz
-Content-Type: application/x-gzip; name=config-2.5.70dan.gz
-Content-Transfer-Encoding: base64
-
-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
-4KGxp1vfCDKKnytIDGbK/weeU9RXCW8AAA==
-
---=-RJpNtyT4rZDkrDgTjAIs--
-
-
+__________________________________
+Do you Yahoo!?
+Yahoo! Calendar - Free online calendar with sync to Outlook(TM).
+http://calendar.yahoo.com

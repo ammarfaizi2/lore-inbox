@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290622AbSAYKIZ>; Fri, 25 Jan 2002 05:08:25 -0500
+	id <S290628AbSAYKIz>; Fri, 25 Jan 2002 05:08:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290631AbSAYKIL>; Fri, 25 Jan 2002 05:08:11 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:47120 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S290622AbSAYKHy>; Fri, 25 Jan 2002 05:07:54 -0500
-Message-ID: <3C513C6E.101F0689@aitel.hist.no>
-Date: Fri, 25 Jan 2002 12:07:26 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.2-dj4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: timothy.covell@ashavan.org, linux-kernel@vger.kernel.org
-Subject: Re: RFC: booleans and the kernel
-In-Reply-To: <Pine.LNX.4.44.0201241433110.2839-100000@waste.org> <200201242123.g0OLNAL06617@home.ashavan.org.>
+	id <S290632AbSAYKIq>; Fri, 25 Jan 2002 05:08:46 -0500
+Received: from [203.143.19.4] ([203.143.19.4]:63756 "EHLO kitul.learn.ac.lk")
+	by vger.kernel.org with ESMTP id <S290631AbSAYKIb>;
+	Fri, 25 Jan 2002 05:08:31 -0500
+Date: Fri, 25 Jan 2002 16:07:34 +0600
+From: Anuradha Ratnaweera <anuradha@gnu.org>
+To: Anuradha Ratnaweera <anuradha@gnu.org>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] kernelconf-0.1.2
+Message-ID: <20020125160734.A3372@lklug.pdn.ac.lk>
+In-Reply-To: <20020124124548.A2435@lklug.pdn.ac.lk> <20020124234704.A968@mars.ravnborg.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020124234704.A968@mars.ravnborg.org>; from sam@ravnborg.org on Thu, Jan 24, 2002 at 11:47:04PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Covell wrote:
+On Thu, Jan 24, 2002 at 11:47:04PM +0100, Sam Ravnborg wrote:
+> On Thu, Jan 24, 2002 at 12:45:48PM +0600, Anuradha Ratnaweera wrote:
+> > 
+> > Here we go again...
 > 
-> On Thursday 24 January 2002 14:39, Oliver Xymoron wrote:
-> >
-> > The compiler _will_ turn if(a==0) into a test of a with itself rather than
-> > a comparison against a constant. Since PDP days, no doubt.
+> I have not looked into the SRC, but IIRC you mentioned an interest in
+> LEX/YACC for CML2.  Take a look at:
+>
+> http://www.alphalink.com.au/~gnb/cml2
 > 
-> I thought that the whole point of booleans was to stop silly errors
-> like
-> 
-> if ( x = 1 )
-> {
->         printf ("\nX is true\n");
-> }
-> else
-> {
->         # we never get here...
-> }
+> This is an incomplete implementation of a CML2 parser + semantic analysis in
+> C utilising a bison parser.
 
-Booleans won't help that.  If you _want_ to fix that, change
-the assignment operator so it don't look like a comparison.
-Perhaps x <- 45; or something.  Won't happen to C of course.
+My program is not related to neither CML2 nor yacc nor bison.
 
-Oh, and writing if (a=b) is valid way of testing for a non-zero
-b while also assigning to a.  I write code that way when I
-need such a set of operation.  Short, elegant, and no, it isn't
-hard to read at all.
+	Anuradha
 
-Helge Hafting
+-- 
+
+Debian GNU/Linux (kernel 2.4.16-xfs)
+
+Truly great madness can not be achieved without significant intelligence.
+		-- Henrik Tikkanen
+

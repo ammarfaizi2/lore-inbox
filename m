@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262198AbVATWJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262081AbVATWFS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262198AbVATWJo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 17:09:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbVATWJX
+	id S262081AbVATWFS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 17:05:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbVATWEV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 17:09:23 -0500
-Received: from gprs214-76.eurotel.cz ([160.218.214.76]:18888 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262179AbVATWG6 (ORCPT
+	Thu, 20 Jan 2005 17:04:21 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:17677 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S262081AbVATWCX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 17:06:58 -0500
-Date: Thu, 20 Jan 2005 23:06:30 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       hugang@soulinfo.com, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] swsusp: speed up image restoring on x86-64
-Message-ID: <20050120220630.GB22201@elf.ucw.cz>
-References: <200501202032.31481.rjw@sisk.pl> <20050120205950.GF468@openzaurus.ucw.cz> <200501202246.38506.rjw@sisk.pl>
+	Thu, 20 Jan 2005 17:02:23 -0500
+Date: Thu, 20 Jan 2005 17:01:21 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: linux-kernel@vger.kernel.org, herbert@gondor.apana.org.au
+Subject: Re: [patch 2.4.29] i810_audio: offset LVI from CIV to avoid stalled start
+Message-ID: <20050120220120.GF7687@tuxdriver.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, herbert@gondor.apana.org.au
+References: <20050120202258.GA7687@tuxdriver.com> <20050120210739.GC7687@tuxdriver.com> <20050120212346.GD7687@tuxdriver.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200501202246.38506.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050120212346.GD7687@tuxdriver.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, Jan 20, 2005 at 04:23:46PM -0500, John W. Linville wrote:
 
-> > > The following patch speeds up the restoring of swsusp images on x86-64
-> > > and makes the assembly code more readable (tested and works on AMD64).  It's
-> > > against 2.6.11-rc1-mm1, but applies to 2.6.11-rc1-mm2.  Please consifer for applying.
-> > 
-> > Can you really measure the speedup?
-> 
-> In terms of time?  Probably I can, but I prefer to measure it in terms of the numbers of
-> operations to be performed.
-> 
-> With this patch, at least 8 times less memory accesses are required to restore an image
-> than without it, and in the original code cr3 is reloaded after copying each _byte_,
-> let alone the SIB arithmetics.  I'd expect it to be 10 times faster
-> or so.
+> +	/* if we are currently stopped, then our CIV is actually set to our
+> +	 * *last* sg segment and we are ready to wrap to the next.  However,
+> +	 * if we set our LVI to the last sg segment, then it won't wrap to
+> +	 * the next sg segment, it won't even get a start.  So, instead, when
+> +	 * we are stopped, we increment the CIV value to the next sg segment
+> +	 * to be played so that when we call start, things will operate
+> +	 * properly
+> +	 */
 
-Well, 8 times less cr3 reloads may be significant... for the copy
-loop. Speeding up copy loop that takes  ... 100msec?... of whole
-resume (30 seconds) does not seem too important to me.
+Herbert,
 
-> The readability of code is also important, IMHO.
+Is this (slightly altered) comment more to your liking?  If so,
+I'll post an additive patch for the 2.6 version...
 
-It did not seem too much better to me.
-
-> > If you want cheap way to speed it up, kill cr3 manipulation.
-> 
-> Sure, but I think it's there for a reason.
-
-Reason is "to crash it early if we have wrong pagetables".
-
-> > Anyway, this is likely to clash with hugang's work; I'd prefer this not to be applied.
-> 
-> I am aware of that, but you are not going to merge the hugang's patches soon, are you?
-> If necessary, I can change the patch to work with his code (hugang, what do you think?).
-
-I think it is just not worth the effort.
-										Pavel
+John
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+John W. Linville
+linville@tuxdriver.com

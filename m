@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbTD3Xov (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 19:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262562AbTD3Xov
+	id S262563AbTD3XuD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 19:50:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbTD3XuD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 19:44:51 -0400
-Received: from pointblue.com.pl ([62.89.73.6]:45581 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S262547AbTD3Xou (ORCPT
+	Wed, 30 Apr 2003 19:50:03 -0400
+Received: from [12.47.58.20] ([12.47.58.20]:3703 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S262563AbTD3XuD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 19:44:50 -0400
-Subject: Re: 2.5.68-bk10 blkmtd.c:219: warning: implicit declaration of
-	function `alloc_kiovec'
-From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Greg KH <greg@kroah.com>, "Randy.Dunlap" <rddunlap@osdl.org>
-In-Reply-To: <1051745126.5274.22.camel@flat41>
-References: <1051745126.5274.22.camel@flat41>
-Content-Type: text/plain
-Organization: K4 labs
-Message-Id: <1051747119.5315.28.camel@flat41>
+	Wed, 30 Apr 2003 19:50:03 -0400
+Date: Wed, 30 Apr 2003 16:59:14 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: ricklind@us.ibm.com, solt@dns.toxicfilms.tv, linux-kernel@vger.kernel.org,
+       frankeh@us.ibm.com
+Subject: Re: must-fix list for 2.6.0
+Message-Id: <20030430165914.2facc464.akpm@digeo.com>
+In-Reply-To: <20030430234746.GW10374@parcelfarce.linux.theplanet.co.uk>
+References: <20030430121105.454daee1.akpm@digeo.com>
+	<200304302311.h3UNB2H27134@owlet.beaverton.ibm.com>
+	<20030430162108.09dbd019.akpm@digeo.com>
+	<20030430234746.GW10374@parcelfarce.linux.theplanet.co.uk>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 01 May 2003 00:58:39 +0100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 May 2003 00:02:17.0403 (UTC) FILETIME=[EDA348B0:01C30F74]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-05-01 at 00:25, Grzegorz Jaskiewicz wrote:
-> Well, "burned" on ieee1394 i will not try to patch it my self :)
-> Anyway, i can live without those drivers :)
+viro@parcelfarce.linux.theplanet.co.uk wrote:
+>
+> On Wed, Apr 30, 2003 at 04:21:08PM -0700, Andrew Morton wrote:
+> > menu if there was a kernel build happening at the same time.  That is just
+> > utterly broken, so if we're going to leave the sched.c code as-is then we
+> > *require* that all applications be updated to not spin on sched_yield.
+> 
+> Excuse me, but WTF do they spin on the sched_yield() in the first place?
+> _That_ sounds like utterly broken...
 
+I think it's happening down inside the old linuxthreads library.  No idea
+who, what, where or why.
 
-> drivers/mtd/devices/blkmtd.c:52:25: linux/iobuf.h: No such file or
-> directory
+There are quite a few places in the kernel which do it, too.  Usually when
+waiting for memory to come free.  These are being gradually removed, in
+favour of blk_congestion_wait() calls.
 
-I've tried to investigate this. What happend to iobuf.{ch} ? 
-I guess bit more changes are required to make it running before 2.6 :)
-
-Btw, authors email in head of blkmtd.c is bad.
-
-Fanny thing, after removing this include there is declaration :
-
-/* readpage() - reads one page from the block device */
-static int blkmtd_readpage(mtd_raw_dev_data_t *rawdevice, struct page *page)
-{
-  int err;
-  int sectornr, sectors, i;
-  struct kiobuf *iobuf;
-	^^^^^^^
-  unsigned long *blocks;
-
-Fast fgrep in kernel sources gives me no answer about this structure declaration.
-
-any help guys ?
-
--- 
-Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-K4 labs
+That leaves behind the very performance-critical sched_yield() in ext3
+transaction batching.  That was designed to allow other processes to join a
+transaction before the calling one closes the transaction.  With the new
+yield() it was causing horrid starvation and was lamely replaced with a
+schedule().  It needs to be resurrected for real, but I'm not sure how. 
+Probably just a sleep(0.01).
 

@@ -1,79 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280823AbRKZFWP>; Mon, 26 Nov 2001 00:22:15 -0500
+	id <S281012AbRKZFct>; Mon, 26 Nov 2001 00:32:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281012AbRKZFWG>; Mon, 26 Nov 2001 00:22:06 -0500
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:8596 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S280823AbRKZFWB>;
-	Mon, 26 Nov 2001 00:22:01 -0500
-Message-ID: <3C01D177.98E82405@pobox.com>
-Date: Sun, 25 Nov 2001 21:21:59 -0800
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16-pre1 i686)
-X-Accept-Language: en
+	id <S281144AbRKZFck>; Mon, 26 Nov 2001 00:32:40 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:12037
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S281012AbRKZFc2>; Mon, 26 Nov 2001 00:32:28 -0500
+Date: Sun, 25 Nov 2001 21:30:32 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: linux-kernel@vger.kernel.org
+Subject: To Journal or Not wrt cache.
+Message-ID: <Pine.LNX.4.10.10111242121560.2927-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: linuxlist@visto.com
-CC: linux-kernel@vger.kernel.org
-Subject: [OT] Re: no inetd.conf file
-In-Reply-To: <3BE1CB8E0013F650@iso2.vistocorporation.com> (added by
-		    administrator@vistocorporation.com)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rohit prasad wrote:
 
-> Hi,
->
->  I have installed 2.4.7 version of the kernel in my machine.
-> I am facing a problem with telnet where all connections are refused.
+Fact: Everything about Storage is a LIE, how to deal.
 
-Sounds like iptables and tcp wrappers are working?
+First there is an design flaw in Linux wrt to the theory of storage and
+boundaries required to deal with the "Big Lie".  For all of those folks
+that think SCSI is "The End All to be All", you need to think again.
 
-Or you haven't enabled telnetd?
+Second, what is the BIG LIE all about?  
+A HOST or DEVICE regardless of class will tell you only what it wants you
+to know.  This is to be more clearly stated as : everything can do more
+than it tells you but find out the full capablities is difficult and many
+times protected in such a way to prevent one from find out.
 
->  When I grep for telnetd there is no telnetd  running.
+The best example that I can give is from the storage side that I am
+associated.  ATA/ATAPI devices have something called an "IDENTIFY" page,
+which is specifically designed to provide the Host-OS-Driver a way to
+classify the capablities and features of the device attached.  SCSI has a
+similar method called a "MODE Page" or "Capabilities Struct".  Regardless
+of the content of these points of information, they only tell you what the
+device is "allowed" to perform for you.  This is completely different from
+what the device is truly "capable" of doing.  Now in simpler terms this is
+an effective "features mask".
 
-No, it wouldn't be running unless someone
-has connected via telnet.
+Now did a "LIE" exist by accident, intention, neglect, etc in the past?
+Who is to say, but you judge the following.
 
-> If I try to start it the error reported is ,
->
-> "telnetd:getpeername:socket operation on non-socket"
+WRITE_VERIFY_READ
+SET_FEATURES(updating if device self modifies)
+        WRITE_CACHE(_EXT)
+        FLUSH_CACHE(_EXT)
 
-Right you don't start telnet by hand, its
-invoked from inetd,or rather xinetd.
+There was a concern the use of "WRITE_VERIFY_READ" was being abused to
+artifically boost a devices actually throughput.  In the past it was not
+clear that the contents issued by a "WRITE_VERIFY_READ" was read back from
+the platters or out of dirty-cache (device buffer cache).  This has been
+fixed as good as it gets now.  My vote was for a shall have come off the
+media/platters during command execution.  This was modified to state it
+had to have come off the platters but could have been read earlier.
 
-> I checked for the inetd.conf file it is not present in the /etc directory.
+Content updating for the "IDENTIFY Page" performed by a SET_FEATURES
+command in the past may not have properly updated the contents to properly
+reflect the current state of the features enabled/disabled by the
+OS-driver or self modified by the device.  You should know that ATA/ATAPI
+is/was not exclusive to this behavior.  SCSI will do the same, the
+difference is that I can not find proper language to support that if a
+SCSI device changes (self modifies) its "MODE Pages" or "Capabilities
+Struct" it is required to update and report the changes.  If you are a
+SCSI guru and can cite the T10 documents which reflect this ruleset, then
+SCSI may be cleaner than suspected.  One is to never trust what is there
+unless, that devices's transport layer rules published by NCITS/ANSI
+clearly provides inforcement.
 
-inetd has been replaced by xinetd, which
-does seem to have some advantages.
+The others can be read about in the future release of ATA/ATAPI-6.
 
->  I want to know does this xinetd.conf file helps or,
-> what else could I do to start telnetd.
+One of my first fears in the attempt to describe the needed solutions is I
+will fail to translate the storage industry jargan to something
+understandable, but here goes the announce of a potential white-paper.
+ 
+*** FS/BLOCK/SPINDLE Storage model proposed, initial outline ***
 
-Why not run "ntsysv",  and select telnet?
+Next Message to come.
 
-Or, edit /etc/xinetd.d/telnet and then type
-"service xinetd restart".
+Regards,
 
-> I have done a "Everything" (All packages) installation of RH7.2 but no inetd.conf
+Andre Hedrick
+CEO/President, LAD Storage Consulting Group
+Linux ATA Development
+Linux Disk Certification Project
 
-That's as it should be
-
-There is one thing - telnet is not a good thing
-to have running, you really want to use secure
-shell instead. If you have any concern at all
-for security that is.
-
-Finally, this has nothing to do with kernel
-development, so try to reserve this list
-for actual kernel related questions.
-
-cu
-
-jjs
 
 

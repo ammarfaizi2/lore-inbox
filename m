@@ -1,78 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265885AbSIRJvF>; Wed, 18 Sep 2002 05:51:05 -0400
+	id <S265877AbSIRJuG>; Wed, 18 Sep 2002 05:50:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265908AbSIRJvF>; Wed, 18 Sep 2002 05:51:05 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:20693 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S265885AbSIRJvD>; Wed, 18 Sep 2002 05:51:03 -0400
-Date: Wed, 18 Sep 2002 11:56:00 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Ivan Gyurdiev <ivg2@cornell.edu>, <ralf@dea.linux-mips.net>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: xconfig doesn't work, 2.4.20-pre7
-In-Reply-To: <200209150816.16473.ivg2@cornell.edu>
-Message-ID: <Pine.NEB.4.44.0209181144460.15721-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S265885AbSIRJuF>; Wed, 18 Sep 2002 05:50:05 -0400
+Received: from 62-190-218-52.pdu.pipex.net ([62.190.218.52]:54283 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S265877AbSIRJuF>; Wed, 18 Sep 2002 05:50:05 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200209181002.g8IA2w52001416@darkstar.example.net>
+Subject: Re: Question about the dd command
+To: tcheer@gmx.de (Eric Tchepannou)
+Date: Wed, 18 Sep 2002 11:02:58 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <18955.1032342092@www26.gmx.net> from "Eric Tchepannou" at Sep 18, 2002 11:41:32 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Sep 2002, Ivan Gyurdiev wrote:
+Hi,
 
-> After make clean and make mrproper:
->
-> ================================
-> [root@cobra linux-2.4]# make xconfig
-> rm -f include/asm
-> ( cd include ; ln -sf asm-i386 asm)
-> make -C scripts kconfig.tk
-> make[1]: Entering directory `/usr/src/linux-2.4.20-pre7/scripts'
-> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkparse.o
-> tkparse.c
-> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkcond.o tkcond.c
-> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkgen.o tkgen.c
-> gcc -o tkparse tkparse.o tkcond.o tkgen.o
-> cat header.tk >> ./kconfig.tk
-> ./tkparse < ../arch/i386/config.in >> kconfig.tk
-> drivers/video/Config.in: 216: can't handle dep_bool/dep_mbool/dep_tristate
-> condition
-> make[1]: *** [kconfig.tk] Error 1
-> make[1]: Leaving directory `/usr/src/linux-2.4.20-pre7/scripts'
-> make: *** [xconfig] Error 2
-> [root@cobra linux-2.4]#
+> I am trying to build a boot image in order to boot from a CD device. I have
+> already created all the parts ( Kernel, Lilo and Rootfs ) and try to bring
+> them together. I first copied it on a floppy in order to see wether I could
+> boot from it and  it worked. In the Linux-Bootdisk-HOWTO It is said that on
+> should transfer the rootfs with the following command
+> 
+> dd if=rootfs of=/dev/fd0 bs=1k seek=KERNEL_BLOCKS 
+> 
+> I calculated the KERNEL_BLOCK value in my case and applied the command. It
+> is supposed to transfer the rootfs file into the same floppy containing the
+> kernel. I am surprised to see that with a ls-command the rootfs.gz is invisible
+> on the floppy, though the boot process from floppy works properly. Later i
+> created an image of the floppy ( dd if=/dev/fd0 of=boot.img bs=10k count=144
+> as in the Linux-Bootdisk-HOWTO ), created an iso file from it with mkisofs and
+> copied it on CD. Now I can't boot the image from this CD!
 
+I'm assuming that you're trying to create a bootable CD for an X86 machine.
 
-Thanks for the report. The MIPS update in -pre7 changed CONFIG_FB_MAXINE
-from bool to dep_bool although no dependency was introduced (most likely
-accidentially because the two symbols above got a dependency on
-CONFIG_TC). "make xconfig" does the strictest checking and users the do
-"make menuconfig" or "make oldconfig" don't see the problem. The
-following patch fixes it:
+In that case, this is not how bootable CDs work.  You need to look up the 'El-Torito' bootable CD specs, and take it from there.
 
-
---- drivers/video/Config.in.old	2002-09-18 11:50:30.000000000 +0200
-+++ drivers/video/Config.in	2002-09-18 11:50:36.000000000 +0200
-@@ -213,7 +213,7 @@
-    if [ "$CONFIG_DECSTATION" = "y" ]; then
-       dep_bool '  PMAG-BA TURBOchannel framebuffer support' CONFIG_FB_PMAG_BA $CONFIG_TC
-       dep_bool '  PMAGB-B TURBOchannel framebuffer support' CONFIG_FB_PMAGB_B $CONFIG_TC
--      dep_bool '  Maxine (Personal DECstation) onboard framebuffer support' CONFIG_FB_MAXINE
-+      bool '  Maxine (Personal DECstation) onboard framebuffer support' CONFIG_FB_MAXINE
-    fi
-    if [ "$CONFIG_NINO" = "y" ]; then
-       bool '  TMPTX3912/PR31700 frame buffer support' CONFIG_FB_TX3912
-
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
-
+John.

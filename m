@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281877AbRLLUQc>; Wed, 12 Dec 2001 15:16:32 -0500
+	id <S281865AbRLLUPC>; Wed, 12 Dec 2001 15:15:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281887AbRLLUQW>; Wed, 12 Dec 2001 15:16:22 -0500
-Received: from mail.libertysurf.net ([213.36.80.91]:16166 "EHLO
-	mail.libertysurf.net") by vger.kernel.org with ESMTP
-	id <S281877AbRLLUQU> convert rfc822-to-8bit; Wed, 12 Dec 2001 15:16:20 -0500
-Date: Wed, 12 Dec 2001 18:22:30 +0100 (CET)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Jens Axboe <axboe@suse.de>, "David S. Miller" <davem@redhat.com>,
-        <gibbs@scsiguy.com>, <LB33JM16@yahoo.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: highmem, aic7xxx, and vfat: too few segs for dma mapping
-In-Reply-To: <20011212143213.E4801@athlon.random>
-Message-ID: <20011212181507.T1853-100000@gerard>
+	id <S281877AbRLLUOn>; Wed, 12 Dec 2001 15:14:43 -0500
+Received: from balu.sch.bme.hu ([152.66.208.40]:27894 "EHLO balu.sch.bme.hu")
+	by vger.kernel.org with ESMTP id <S281865AbRLLUOf>;
+	Wed, 12 Dec 2001 15:14:35 -0500
+Date: Wed, 12 Dec 2001 21:14:27 +0100 (MET)
+From: Pozsar Balazs <pozsy@sch.bme.hu>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: FBdev remains in unusable state
+In-Reply-To: <BCDCADB4194@vcnet.vc.cvut.cz>
+Message-ID: <Pine.GSO.4.30.0112122108150.17543-100000@balu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Wed, 12 Dec 2001, Andrea Arcangeli wrote:
-
-> On Wed, Dec 12, 2001 at 10:36:54AM +0100, Jens Axboe wrote:
-
-> > > If one really wants for some marketing reason to support these ugly and
-> > > stinky '32 bit machines that want to provide more than 4GB of memory by
-> > > shoe-horning complexity all over the place', one should use his brain,
-> > > when so-featured, prior to writing clueless code.
+On Wed, 12 Dec 2001, Petr Vandrovec wrote:
+> On 12 Dec 01 at 19:49, Pozsar Balazs wrote:
 > >
-> > First of all, virt_to_bus just cannot work on some archetectures that
-> > are just slightly more advanced than x86. I'm quite sure Davem is ready
-> > to lecture you on this.
+> > The video card is a matrox G450, and I am using the vesa framebuffer.
+> > (I know there's a seperate mga fb driver, but this should work for this
+> > combination)
 >
-> yes, the whole point of the iommu work (replacement for virt_to_bus) is
-> for the 64bit machines, not for the 32bit machines. It's to allow the
-> 64bit machines to do zerocopy dma (no bounce buffers) on memory above 4G
-> with pci32 devices that doesn't support DAC.
+> No. vesafb does not work together with mga driver in X (although
+> I believe that vesafb works with XFree mga driver, only Matrox driver
+> is binary bad citizen).
 
-So, the PCI group should just have specified a 16 bit BUS and have told
-that systems should implement some IOMMU in order to address the whole
-memory. :-)
+I don't clearly understand you. I am using mga driver which is in the
+official xfrr86 release.
 
-PCI was intended to be implemented as a LOCAL BUS with all agents on the
-LOCAL BUS being able to talk with any other agent using a flat addressing
-scheme. Your PCI thing does not look like true PCI to me, but rather like
-some bad mutant that has every chance not to survive a long time.
+> > Is this a bug in the kernel fb code, or in X? Are there any workarounds?
+> > How could I restore textmode?
+>
+> Neither. X restore R/W registers to their previous values, while write-only
+> registers to their values for normal text mode. Yes, there is a
+> 'workaround'. Use (much faster) matroxfb.
 
-  Gérard.
+What if setting those W-only registers to their appropiate values on
+console-switches?
+Why isn't it done by the vesafb driver?
+How is the mga fb driver handle handling this situation better?
+
+
+ps: My problem is that I have to use exactly the same kernel on different
+machines, and I need fb. If not all machines have mga, than mga fb is
+no-go.
+
+thanks,
+-- 
+Pozsar Balazs
 

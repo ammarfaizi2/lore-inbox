@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280161AbRKNG0t>; Wed, 14 Nov 2001 01:26:49 -0500
+	id <S280190AbRKNG3T>; Wed, 14 Nov 2001 01:29:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280186AbRKNG0j>; Wed, 14 Nov 2001 01:26:39 -0500
-Received: from apollo.wizard.ca ([204.244.205.22]:51717 "HELO apollo.wizard.ca")
-	by vger.kernel.org with SMTP id <S280161AbRKNG0Z>;
-	Wed, 14 Nov 2001 01:26:25 -0500
-Subject: Re: Re: loop back broken in 2.2.14
-From: Michael Peddemors <michael@wizard.ca>
-To: joeja@mindspring.com
-Cc: John Alvord <jalvo@mbay.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <Springmail.105.1005596822.0.40719200@www.springmail.com>
-In-Reply-To: <Springmail.105.1005596822.0.40719200@www.springmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13 (Preview Release)
-Date: 13 Nov 2001 22:31:46 -0800
-Message-Id: <1005719506.3177.363.camel@mistress>
+	id <S280186AbRKNG3J>; Wed, 14 Nov 2001 01:29:09 -0500
+Received: from ns.suse.de ([213.95.15.193]:11782 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S280171AbRKNG2y>;
+	Wed, 14 Nov 2001 01:28:54 -0500
+Date: Wed, 14 Nov 2001 07:28:52 +0100
+From: Thorsten Kukuk <kukuk@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: vonbrand@inf.utfsm.cl, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: Linux 2.4.15-pre4 - merge with Alan
+Message-ID: <20011114072852.A16556@suse.de>
+In-Reply-To: <torvalds@transmeta.com> <200111131410.fADEA9L8023291@pincoya.inf.utfsm.cl> <20011113162102.A2305@suse.de> <20011113.205729.71087461.davem@redhat.com>
 Mime-Version: 1.0
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20011113.205729.71087461.davem@redhat.com>; from davem@redhat.com on Tue, Nov 13, 2001 at 08:57:29PM -0800
+Organization: SuSE GmbH, Nuernberg, Germany
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, the loopback bug is a pain.. but we have had these pains on quite
-a few releases in the 2.4.x series... 
+On Tue, Nov 13, David S. Miller wrote:
 
-I wonder if maybe a new method of distributing kernels should happen..
-2.4.14 should become 2.4.14-stable meaning that it never ever changes
-after release, and 2.4.14-fixed means that these tiny typos, gotchas,
-and backport driver fixes can get into 2.4.14-fixed which may change
-from day to day, but not get any enhancements, only minor fixes..
-
-People could try 2.4.14-stable, and if they have a problem, they could
-just try the 2.4.14-fixed to see if their problem is already
-addressed...
-
-The idea is that at least every major release kernel should compile, and
-it would reduce the noise levels from people trying out *stable* kernel
-versions..
-
-Just a thought..
-
-On Mon, 2001-11-12 at 12:27, joeja@mindspring.com wrote:
-> I thought that the -pre would be the developer kernels, and that an actual release (2.4.14) would have been somewhat tested.  I fully understand that a 'runtime' bug in the vm or some other system could arrise and that is one thing. I also understand when a 'less used' driver like NTFS or VFAT breaks, but to see bugs in the loop device in a 'stabilizing' kernel is something that I thought I'd never see.
 > 
+> This first patch is wrong.  lv_block_exception needs translating
+> because the types are of a different size on sparc32 than on sparc64.
+> 
+> Specifically the first member of lv_block_exception_t is
+> 'struct list_head', which are two pointers, which is 8 bytes
+> on sparc32 and 16 bytes on sparc64.
+> 
+> Please do not apply these patches.
+
+If the first one should be wrong, why not apply the second one ?
+Or I'm missing something ?
+To the first patch: Without it you will always get a kernel oops
+in this part of ioctl32.c
+
+  Thorsten
 
 -- 
-"Catch the Magic of Linux..."
---------------------------------------------------------
-Michael Peddemors - Senior Consultant
-LinuxAdministration - Internet Services
-NetworkServices - Programming - Security
-Wizard IT Services http://www.wizard.ca
-Linux Support Specialist - http://www.linuxmagic.com
---------------------------------------------------------
-(604)589-0037 Beautiful British Columbia, Canada
-
+Thorsten Kukuk       http://www.suse.de/~kukuk/        kukuk@suse.de
+SuSE GmbH            Deutschherrenstr. 15-19       D-90429 Nuernberg
+--------------------------------------------------------------------    
+Key fingerprint = A368 676B 5E1B 3E46 CFCE  2D97 F8FD 4E23 56C6 FB4B

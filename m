@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265851AbUA1GOD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 01:14:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265860AbUA1GOC
+	id S265860AbUA1G6T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 01:58:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265869AbUA1G6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 01:14:02 -0500
-Received: from kiuru.kpnet.fi ([193.184.122.21]:36502 "EHLO kiuru.kpnet.fi")
-	by vger.kernel.org with ESMTP id S265851AbUA1GOA (ORCPT
+	Wed, 28 Jan 2004 01:58:19 -0500
+Received: from mtaw4.prodigy.net ([64.164.98.52]:26519 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S265860AbUA1G6S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 01:14:00 -0500
-Date: Wed, 28 Jan 2004 08:13:36 +0200 (EET)
-From: =?iso-8859-1?Q?Markus_H=E4stbacka?= <midian@ihme.org>
-X-X-Sender: midian@midi
-To: David Weinehall <david@southpole.se>
-cc: Coywolf Qi Hunt <coywolf@lovecn.org>,
-       Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [2.0.40-rc8] Works well
-In-Reply-To: <20040128033755.GC16675@khan.acc.umu.se>
-Message-ID: <Pine.LNX.4.44.0401280809470.20944-100000@midi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 28 Jan 2004 01:58:18 -0500
+Date: Tue, 27 Jan 2004 22:57:35 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: hanasaki <hanasaki@hanaden.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS rpc and stale handles on 2.6.x servers
+Message-ID: <20040128065735.GB2445@srv-lnx2600.matchmail.com>
+Mail-Followup-To: hanasaki <hanasaki@hanaden.com>,
+	linux-kernel@vger.kernel.org
+References: <40145E3A.5050704@hanaden.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40145E3A.5050704@hanaden.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jan 2004, David Weinehall wrote:
+On Sun, Jan 25, 2004 at 06:24:26PM -0600, hanasaki wrote:
+> The below is being reported, on and off, when hitting nfs-kernel-servers 
+> running on 2.6.0 and 2.6.1  Could someone tell me if this is smoe bug or 
+> what?  Thanks
+> 	RPC request reserved 0 but used 124
+> 
+> Debian sarge
+> nfs-kernel-server
+> am-untils
+> nfsv3 over tcp
 
-> On Wed, Jan 28, 2004 at 03:28:30AM +0000, Coywolf Qi Hunt wrote:
-> ...
-> > Recently I just have such an idea that is to port the 2.0.39 to let it
-> > be compiled with my gcc 2.95.4 or any
-> > other latest gcc. At the same time,  also make it remain compliant to
-> > gcc 2.7.2.1. ( I can't find 2.7.2.1, only 2.7.2.3
-> > on the ftp)  Is this work worth while?
->
-> Well, for sure it's quite a demanding task, since, if I remember
-> correctly, the module-code uses some nasty internal gcc-knowledge to
-> generate code, that simply doesn't work with later versions of gcc.
-> It might be that I remember this incorrectly though.
->
-only the module-code? :)
-> It would be interesting, yes, but only if it can be proved to some
-> degree that no new bugs are introduced.
->
-That would probably be impossible to do without introducing any bugs..
-> My aim for 2.0.41 is to make it a cleanup-release; remove warnings, tidy
-> up a little source-code mess, kill dead code, fix typos etc.
->
-Sounds great, a bit amazing that 2.0 is alive again :)
+I get this also, and the comments in the code suggest that it is a bug.
 
-	Markus
-
+Asking Niel and Trond will help getting this answered...

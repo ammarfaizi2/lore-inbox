@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262260AbTCRKY5>; Tue, 18 Mar 2003 05:24:57 -0500
+	id <S262258AbTCRKYD>; Tue, 18 Mar 2003 05:24:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262264AbTCRKY5>; Tue, 18 Mar 2003 05:24:57 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:26256 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S262260AbTCRKY4>; Tue, 18 Mar 2003 05:24:56 -0500
-Date: Tue, 18 Mar 2003 21:35:57 +1100
-From: CaT <cat@zip.com.au>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, hch@lst.de,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.65
-Message-ID: <20030318103557.GF504@zip.com.au>
-References: <Pine.LNX.4.44.0303171429040.2827-100000@penguin.transmeta.com> <20030318052257.GB635@zip.com.au> <Pine.LNX.4.44.0303181040150.12110-100000@serv>
+	id <S262260AbTCRKYD>; Tue, 18 Mar 2003 05:24:03 -0500
+Received: from [66.70.28.20] ([66.70.28.20]:24078 "EHLO
+	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
+	id <S262258AbTCRKYC>; Tue, 18 Mar 2003 05:24:02 -0500
+Date: Tue, 18 Mar 2003 11:28:37 +0100
+From: DervishD <raul@pleyades.net>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: "Sparks, Jamie" <JAMIE.SPARKS@cubic.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: select() stress
+Message-ID: <20030318102837.GH42@DervishD>
+References: <Pine.WNT.4.44.0303171010580.1544-100000@GOLDENEAGLE.gameday2000> <Pine.LNX.4.53.0303171112090.22652@chaos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303181040150.12110-100000@serv>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.53.0303171112090.22652@chaos>
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 18, 2003 at 11:08:08AM +0100, Roman Zippel wrote:
-> > The help and the tristate seems to indicate that I should be able to
-> > compile it into the kernel, but menuconfig wont let me. This is
-> > presumably due to the dependancy but is it right?
-> 
-> Yes, this was the behaviour of the old config tools, which was restored 
-> with 2.5.65. This means 'm' is a marker that this thing works only as a 
-> module.
-> If you want the other behaviour, that it can only be built as a module in 
-> a modular kernel, but compile it into a nonmodular kernel, you can use "m 
-> || !MODULES" instead.
+    Hi all :)
 
-Ahhh. So if I want module support but not use it as a module then I'm
-SOL?
+ Richard B. Johnson dixit:
+> >       /*  ****************************** */
+> >       if (select(getdtablesize(), &socklist, NULL, NULL, NULL) < 0)
+> >       {
+> >         if (errno != EINTR) perror("WeapTerrain");
+> > 	continue;
+> >       }
+> select() takes a file-descriptor as its first argument, not the
+> return-value of some function that returns the number of file-
+> descriptors. You cannot assume that this number is the same
+> as the currently open socket. Just use the socket-value. That's
+> the file-descriptor.
+
+    Not at all. 'select()' takes a *number of file descriptors* as
+its first argument, meaning the maximum number of file descriptors to
+check (it checks only the first N file descriptors, being 'N' the
+first argument). Usually that first argument is FD_SETSIZE, but the
+result of any function returning a number is right if you know that
+the return value is what you want.
+
+    If, for example, FD_SETSIZE is set to UINT_MAX but
+getdtablesize() returns 100 ('ulimit' came to mind), it's a good idea
+to use the return value of that function. Anyway, IMHO is better to
+use FD_SETSIZE.
+
+    See the glibc info for more references.
+
+    Bye and happy coding :)
+    Raúl Núñez de Arenas Coronado
 
 -- 
-"Other countries of course, bear the same risk. But there's no doubt his
-hatred is mainly directed at us. After all this is the guy who tried to
-kill my dad."
-        - George W. Bush Jr, 'President' of Regime of the United States
-          September 26, 2002 (from a political fundraiser in Huston, Texas)
-
+Linux Registered User 88736
+http://www.pleyades.net & http://www.pleyades.net/~raulnac

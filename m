@@ -1,31 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268526AbTBOD6s>; Fri, 14 Feb 2003 22:58:48 -0500
+	id <S268527AbTBOEPw>; Fri, 14 Feb 2003 23:15:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268527AbTBOD6s>; Fri, 14 Feb 2003 22:58:48 -0500
-Received: from almesberger.net ([63.105.73.239]:46607 "EHLO
+	id <S268528AbTBOEPw>; Fri, 14 Feb 2003 23:15:52 -0500
+Received: from almesberger.net ([63.105.73.239]:48143 "EHLO
 	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S268526AbTBOD6r>; Fri, 14 Feb 2003 22:58:47 -0500
-Date: Sat, 15 Feb 2003 01:08:37 -0300
+	id <S268527AbTBOEPv>; Fri, 14 Feb 2003 23:15:51 -0500
+Date: Sat, 15 Feb 2003 01:25:38 -0300
 From: Werner Almesberger <wa@almesberger.net>
-To: Davide Libenzi <davidel@xmailserver.org>
+To: Giuliano Pochini <pochini@shiny.it>
 Cc: Linus Torvalds <torvalds@transmeta.com>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Synchronous signal delivery..
-Message-ID: <20030215010837.D2791@almesberger.net>
-References: <Pine.LNX.4.44.0302131120280.2076-100000@home.transmeta.com> <Pine.LNX.4.50.0302131215140.1869-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <20030215012538.E2791@almesberger.net>
+References: <Pine.LNX.4.44.0302131120280.2076-100000@home.transmeta.com> <XFMail.20030214115507.pochini@shiny.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0302131215140.1869-100000@blue1.dev.mcafeelabs.com>; from davidel@xmailserver.org on Thu, Feb 13, 2003 at 12:22:06PM -0800
+In-Reply-To: <XFMail.20030214115507.pochini@shiny.it>; from pochini@shiny.it on Fri, Feb 14, 2003 at 11:55:07AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> What do you think about having timers through a file interface ?
+Giuliano Pochini wrote:
+> IMHO it's not simply a signal delivery system, it's a message queue.
 
-Maybe I'm missing something obvious, but couldn't you simply
-do this with a signal handler that writes to (a) pipe(s) ?
+Not entirely, because - as I understand it - signals would be
+aggregated, so you'd always get one item, no matter how many
+signals are actually pending at that time.
+
+For generalizing such mechanisms, it might be useful to have
+an atomic "overwrite" operation for pipes, and maybe also for
+some sockets, e.g. something like this:
+
+    ssize_t overwrite(int fd,
+      const void *data_if_empty,size_t size_if_empty,
+      const void *data_if_full,size_t size_if_full,
+      int *was_empty);
+
+If there is no data in the pipe/queue, "overwrite" would
+write "data_if_empty", and clear *was_empty. Otherwise, it
+would discard what's there, then write "data_if_full", and
+set *was_empty. The whole operation is atomic with respect
+to readers/pollers.
+
+E.g.
+
+static int signal_set = 0;
+
+... add_signal(int signum)
+{
+	int new_signal = 1 << signum;
+	int was_empty;
+
+	signal_set |= new_signal;
+	overwrite(fd,&new_signal,sizeof(int),&signal_set,sizeof(int),
+	    &was_empty);
+	if (was_empty)
+		signal_set = new_signal;
+}
 
 - Werner
 

@@ -1,68 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131292AbRCHJH3>; Thu, 8 Mar 2001 04:07:29 -0500
+	id <S131297AbRCHJJb>; Thu, 8 Mar 2001 04:09:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131296AbRCHJHU>; Thu, 8 Mar 2001 04:07:20 -0500
-Received: from mx0.gmx.net ([213.165.64.100]:34566 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id <S131292AbRCHJHQ>;
-	Thu, 8 Mar 2001 04:07:16 -0500
-Date: Thu, 8 Mar 2001 10:06:57 +0100 (MET)
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE bug in 2.4.2-ac12?
-From: Konrad Stopsack <konrad_lkml@gmx.de>
-In-Reply-To: <20010308095705.A976@suse.cz>
-Message-ID: <32463.984042417@www29.gmx.net>
-Mime-Version: 1.0
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0009979400@gmx.net
-X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
-X-Authenticated-IP: [141.76.11.162]
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	id <S131300AbRCHJJW>; Thu, 8 Mar 2001 04:09:22 -0500
+Received: from hmljs.rzs-hm.si ([193.2.208.10]:43275 "EHLO hmljs.rzs-hm.si")
+	by vger.kernel.org with ESMTP id <S131296AbRCHJJL>;
+	Thu, 8 Mar 2001 04:09:11 -0500
+Date: Thu, 08 Mar 2001 10:08:32 +0100 (CET)
+From: Metod Kozelj <metod.kozelj@rzs-hm.si>
+Subject: Re: 2.4.3-pre2 aic7xxx crash on alpha
+In-Reply-To: <200103080445.f284jsO36939@aslan.scsiguy.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: Wakko Warner <wakko@animx.eu.org>, linux-kernel@vger.kernel.org,
+        linux-alpha@vger.kernel.org
+Reply-to: Metod Kozelj <metod.kozelj@rzs-hm.si>
+Message-id: <Pine.HPP.3.96.1010308095215.15847B-100000@hmljhp.rzs-hm.si>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> On Thu, Mar 08, 2001 at 09:51:43AM +0100, Konrad Stopsack wrote:
+Hello,
+
+On Wed, 7 Mar 2001, Justin T. Gibbs wrote:
+
+> >(scsi1:A:0:0): data overrun detected in Data-out phase.  Tag == 0x36.
+> >(scsi1:A:0:0): Have seen Data Phase.  Length = 0.  NumSGs = 0.
 > 
-> > > I don't see any other way how the ZIP could have impact on the IDE 
-HDD
-> > > on a different IDE interface.
-> > The 82c586b can be a chip with locked-together IDE controllers, can't
-> it?
-> 
-> What do you mean by 'locked together'?
-Nasty chips whose two IDE channels aren't really separated. On one IDE 
-channel you either can use DMA or not. On these chips, switching off DMA 
-at the second controller also disables DMA at the first.
+> As I mentioned to you the last time you brought up this problem, I
+> don't believe that this is caused by the aic7xxx driver, but the
+> aic7xxx driver may be the first to notice the corruption.
 
-> 
-> > > If you wonder why /proc/ide/via reports slower DMA rates for the HDD
-> > > when the ZIP is connected is because the auto slowdown code kicks in
-> and
-> > > lowers the transfer rate when too many CRC errors happen.
-> > 
-> > Well, and what should I do now? I really need the ZIP drive. 
-> > Try without CD-ROM? Buy new ATX case with 300W power supply? And new 
-> > motherboard? And new processor? And ... and ... and?
-> > Isn't there a chance to unlock the IDE channels (if they are locked)? 
-> > Remember, I've heard about a Windows patch to do this.
-> 
-> I have two vt82c586b's here and one old vt82c586. All work fine with
-> different drive combinations, one even has a CD-ROM and a ZIP on the
-> secondary channel like yours.
+I can second this somehow. I was testing 2.4.2 on SX164 alpha, same
+AHA-2940UW controller. In my case, system freezes solid if I do extensive
+reading from CD-ROM (NEC CD-ROM DRIVE:465). It happens using stock AIC7xxx
+driver (5.3.something) as well as the new (6.1.2 or something).
+I'm back to 2.2.18 using AIC7xxx v5.1.31 and everything is happy.
+This makes me believe that it must be mid-layer SCSI drivers causing
+problems.
 
-Yeah, Ok. My combination SHOULD work without any problems...
+Peace!
+  Mkx
 
-What else could I do? Swap CD-ROM and ZIP? Try new 2.4.2-ac14 with command 
-line parameters "ide0=dma ide1=nodma"?
+---- perl -e 'print $i=pack(c5,(41*2),sqrt(7056),(unpack(c,H)-2),oct(115),10);'
 
-cu Konrad
 
--- 
-Konrad Stopsack - konrad@stopsack.de
-
-Sent through GMX FreeMail - http://www.gmx.net

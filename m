@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267977AbUHEVTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267981AbUHEVZi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267977AbUHEVTK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 17:19:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267973AbUHEVSP
+	id S267981AbUHEVZi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 17:25:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267949AbUHEVZh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 17:18:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:43656 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267989AbUHEVRQ (ORCPT
+	Thu, 5 Aug 2004 17:25:37 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:3775 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267964AbUHEVX6 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 17:17:16 -0400
-Date: Thu, 5 Aug 2004 14:20:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Rik van Riel <riel@redhat.com>
-Cc: davidsen@tmr.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RSS ulimit enforcement for 2.6.8
-Message-Id: <20040805142019.712c678a.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0408051647440.8229-100000@dhcp83-102.boston.redhat.com>
-References: <411299D4.5060001@tmr.com>
-	<Pine.LNX.4.44.0408051647440.8229-100000@dhcp83-102.boston.redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 5 Aug 2004 17:23:58 -0400
+Subject: Re: Linux 2.6.8-rc3 - BSD licensing
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <yw1x7jsdh42d.fsf@kth.se>
+References: <Xine.LNX.4.44.0408041156310.9291-100000@dhcp83-76.boston.redhat.com>
+	 <1091644663.21675.51.camel@ghanima>
+	 <Pine.LNX.4.58.0408041146070.24588@ppc970.osdl.org>
+	 <1091647612.24215.12.camel@ghanima>
+	 <Pine.LNX.4.58.0408041251060.24588@ppc970.osdl.org>
+	 <411228FF.485E4D07@users.sourceforge.net>
+	 <Pine.LNX.4.58.0408050941590.24588@ppc970.osdl.org>
+	 <yw1x7jsdh42d.fsf@kth.se>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1091737280.8366.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 05 Aug 2004 21:21:21 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@redhat.com> wrote:
->
-> On Thu, 5 Aug 2004, Bill Davidsen wrote:
-> > Rik van Riel wrote:
-> > > The patch below implements RSS ulimit enforcement for 2.6.8-rc3-mm1.
-> 
-> > Wish there was something like RSS for cache, so that one process reading 
-> > every inode on the planet, or doing an md5 on an 11GB file wouldn't push 
-> > every damn process out if it's waiting for me to finish typing a line...
-> 
-> I guess that's beyond the scope of a simple patch
+On Iau, 2004-08-05 at 18:45, Måns Rullgård wrote:
+> Assuming that the AES code is not in itself considered derived from
+> the kernel, I see nothing preventing the source file in the kernel
+> tree carrying a BSD license.  Obviously, when used with the kernel the
+> GPL will apply, but anyone would be free to take the AES code and
+> reuse it under the BSD license.  If, on the other hand, the AES source
+> in the kernel only carries a GPL license tag, someone looking at it
+> will not be aware that the code is (possibly) available with less
+> restrictions form another source.
 
-It might not be.  We could come up with some dopey per-process flag,
-inherited across fork which means "invalidate each file's pagecache when I
-close it".  get/set that flag with a new syscall, or sys_prctl().  That
-way, people could do:
-
-	/bin/run-cache-friendly tar cf /dev/tape /huge-filesystem
-
-and not have their pagecache trodden all over.  Extra points for nuking
-dentries and inodes too.
-
-It's not particularly pretty, but it would be effective for the most
-commonly complained about scenarios.
+The random driver has an example of that kind of dual licensing made
+explicit. Given code gets modified for the kernel maybe it would be
+simpler to just give the URL of the original in the comments so everyone
+else (who probably wants the original anyway) can grab it there.
 

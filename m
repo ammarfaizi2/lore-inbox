@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274255AbRJYQeh>; Thu, 25 Oct 2001 12:34:37 -0400
+	id <S275485AbRJYQch>; Thu, 25 Oct 2001 12:32:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275270AbRJYQe1>; Thu, 25 Oct 2001 12:34:27 -0400
-Received: from vena.lwn.net ([206.168.112.25]:20487 "HELO eklektix.com")
-	by vger.kernel.org with SMTP id <S274520AbRJYQeU>;
-	Thu, 25 Oct 2001 12:34:20 -0400
-Message-ID: <20011025163450.706.qmail@eklektix.com>
-To: Patrick Ouellet <patrick.ouellet@microtecsecurite.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: In great need 
-From: corbet@lwn.net (Jonathan Corbet)
-In-Reply-To: Your message of "Thu, 25 Oct 2001 11:32:45 EDT."
-             <56261134684.20011025113245@microtecsecurite.com> 
-Date: Thu, 25 Oct 2001 10:34:50 -0600
+	id <S275482AbRJYQcZ>; Thu, 25 Oct 2001 12:32:25 -0400
+Received: from pak200.pakuni.net ([207.91.34.200]:15856 "EHLO
+	smp.paktronix.com") by vger.kernel.org with ESMTP
+	id <S274255AbRJYQcK>; Thu, 25 Oct 2001 12:32:10 -0400
+Date: Thu, 25 Oct 2001 11:34:07 -0500 (CDT)
+From: "Matthew G. Marsh" <mgm@paktronix.com>
+X-X-Sender: <mgm@netmonster.pakint.net>
+To: Petr Titera <owl@century.cz>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: issue: deleting one IP alias deletes all
+In-Reply-To: <02b601c15c53$c02f4990$0800a8c0@century.cz>
+Message-ID: <Pine.LNX.4.31.0110251132460.31833-100000@netmonster.pakint.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Were should I start.
+On Wed, 24 Oct 2001, Petr Titera wrote:
 
-KernelNewbies.org is intended to be a starting place for kernel hackers.
+>
+> > Actually it is quite sane.  The tool is not.
+> >
+> > Switch to 'ip' instead of 'ifconfig', several large distros now include
+> > it.  Addresses can be added and removed completely indiscriminately on
+> > interfaces.
+> >
+>
+> I'd like to, but there's nothing like documentation with it.
 
-May I also humbly suggest _Linux_Device_Drivers_?  It's online at 
+http://www.linuxgrill.com/iproute2-toc.html
 
-	http://www.xml.com/ldd/chapter/book/index.html
+And many other places...
 
-But, of course, you'll want to buy a copy at the bookstore of your choice
-as well :)
+> Petr
+>
+> P.S.: Yes I know about examples in Linux 2.4 routing, but manpage would be
+> nicer.
 
-jon
+--------------------------------------------------
+Matthew G. Marsh,  President
+Paktronix Systems LLC
+1506 North 59th Street
+Omaha  NE  68104
+Phone: (402) 932-7250 x101
+Email: mgm@paktronix.com
+WWW:  http://www.paktronix.com
+--------------------------------------------------
 
-Jonathan Corbet
-Executive editor, LWN.net
-corbet@lwn.net

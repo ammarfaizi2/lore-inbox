@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279759AbRJYLUQ>; Thu, 25 Oct 2001 07:20:16 -0400
+	id <S279753AbRJYLRq>; Thu, 25 Oct 2001 07:17:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279761AbRJYLUH>; Thu, 25 Oct 2001 07:20:07 -0400
-Received: from 120.ppp1-5.hob.worldonline.dk ([212.54.87.120]:50048 "EHLO
-	milhouse.home.kernel.dk") by vger.kernel.org with ESMTP
-	id <S279759AbRJYLTu>; Thu, 25 Oct 2001 07:19:50 -0400
-Date: Thu, 25 Oct 2001 13:11:07 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Christian Hammers <ch@westend.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG() in asm/pci.h:142 with 2.4.13
-Message-ID: <20011025131107.C4795@suse.de>
-In-Reply-To: <20011025120701.C6557@westend.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="qlTNgmc+xy1dBmNv"
-Content-Disposition: inline
-In-Reply-To: <20011025120701.C6557@westend.com>
+	id <S279754AbRJYLRf>; Thu, 25 Oct 2001 07:17:35 -0400
+Received: from smtp1.ndsu.NoDak.edu ([134.129.111.146]:39179 "EHLO
+	smtp1.ndsu.nodak.edu") by vger.kernel.org with ESMTP
+	id <S279753AbRJYLRX>; Thu, 25 Oct 2001 07:17:23 -0400
+Message-ID: <3BD7F44C.7020007@ndsu.nodak.edu>
+Date: Thu, 25 Oct 2001 06:15:24 -0500
+From: Reid Hekman <reid.hekman@ndsu.nodak.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011018
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Marton Kadar <marton.kadar@freemail.hu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: concurrent VM subsystems
+In-Reply-To: <freemail.20010925100655.37794@fm3.freemail.hu>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marton Kadar wrote:
 
---qlTNgmc+xy1dBmNv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Thu, Oct 25 2001, Christian Hammers wrote:
-> Hello
+> Just an idea from an absolute layman who keeps
+> an eye on Kernel Traffic:
 > 
-> My system crashed several times now with 2.4.11-pre6 and 2.4.13
-> (pre6 because it was the first one I got that fixed some 2GB RAM memory
-> allocation bug).
-> 
-> 2.4.13 was the easiest one to reproduce: when starting the tape backup
-> to a HP DDS3/DAT Streamer (C1537A) via a Adaptec SCSI Controller 
-> (Adaptec 7892A in /proc/pci) on a Gigabyte GA-6VTXD Dual Motherboard with
-> two PIII and 2GB of RAM it crashed immediately with the error attached
-> below. The machine was under "stresstest-simulation" load at this time.
-> 
-> The tape_backup.pl uses the "mt" and "cpio" commands to access /dev/nst0.
-> 
-> Maybe worth noting is, that the system crashed another time yesterday 
-> after replacing the external SCSI RAID Chassis/Controller (not the
-> disks in it) and just this moment with another message (see below).
-
-Could you try this patch and see if it fixes the pci.h BUG at least?
-
--- 
-Jens Axboe
+> Isn't it possible to include both VM approaches in the
+> kernel sources? It would be nice to be able to choose
+> at compile time through a configuration option.
+> Perhaps Andrea Arcangeli's version could be marked 
+> experimental.
 
 
---qlTNgmc+xy1dBmNv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=sg-page-1
+We've been over this already, while it would be nice for testing if the
 
---- drivers/scsi/scsi_merge.c~	Thu Oct 25 12:15:35 2001
-+++ drivers/scsi/scsi_merge.c	Thu Oct 25 12:16:20 2001
-@@ -943,6 +943,7 @@
- 		}
- 		count++;
- 		sgpnt[count - 1].address = bh->b_data;
-+		sgpnt[count - 1].page = NULL;
- 		sgpnt[count - 1].length += bh->b_size;
- 		if (!dma_host) {
- 			SCpnt->request_bufflen += bh->b_size;
+two VM's could be compared without all the extra variables of the Linus
+and -ac trees it's not going to happen. It would be a big headache to 
+maintain all the extra source that would involve and all the changes to 
+other stuff you'd have to patch to make the two interchangeable. This 
+has been discussed for almost a week now and I'm sure it will show up
+in next weeks kernel-traffic. I'd encourage layperson's to wait till
+then to see how this story continues. <announcer_voice> So until next
+week dear viewers! Same bat-time, same bat-channel!</announcer_voice>
 
---qlTNgmc+xy1dBmNv--
+
+If you're interested in seeing some of the discussion, here's a
+reasonable jump off point in the archives...
+
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0110.2/1149.html
+
+
+
+Just trying to better the signal-to-noise on linux-kernel...
+Regards,
+Reid
+

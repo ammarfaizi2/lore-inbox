@@ -1,29 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264936AbUG3Cgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264937AbUG3Cqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264936AbUG3Cgl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 22:36:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265212AbUG3Cgl
+	id S264937AbUG3Cqi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 22:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267526AbUG3Cqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 22:36:41 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:35295 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264936AbUG3Cgk (ORCPT
+	Thu, 29 Jul 2004 22:46:36 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:56802 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267513AbUG3Cq1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 22:36:40 -0400
-Date: Thu, 29 Jul 2004 19:36:37 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: "Robert White" <rwhite@casabyte.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: tcp_push_pending_frames() without TCP_CORK or TCP_NODELAY
-Message-Id: <20040729193637.36d018a5.davem@redhat.com>
-In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAsIVuAS+Wekm4zD6W7LtKswEAAAAA@casabyte.com>
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAsIVuAS+Wekm4zD6W7LtKswEAAAAA@casabyte.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Jul 2004 22:46:27 -0400
+Date: Thu, 29 Jul 2004 22:46:15 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@dhcp030.home.surriel.com
+To: Chris Wright <chrisw@osdl.org>
+cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, andrea@suse.de
+Subject: Re: [patch] mlock-as-nonroot revisted
+In-Reply-To: <20040729185215.Q1973@build.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.58.0407292243330.9228@dhcp030.home.surriel.com>
+References: <20040729100307.GA23571@devserv.devel.redhat.com>
+ <20040729185215.Q1973@build.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 29 Jul 2004, Chris Wright wrote:
 
-Turn off NAGLE, and flip TCP_CORK on and off around the sequences.
+> 2) mlock_user isn't ever set, so SHM_LOCK accounting looks broken
+> (trivial to fix).
+
+Woops, looks like Arjan's patch is missed a little piece of
+the code there when going throug the forward port...
+
+> 3) now the RLIMIT_MEMLOCK value represents at best half of what a user
+> can acutally lock.  because half of the accounting (mlock) is done against
+> locked_vm, and the other half against locked_shm.  and as i mentioned
+> above, seems that hugetlb is unaccounted for.
+
+Well, the RLIMIT_MEMLOCK is a per-process limit anyway so the
+total amount of memory a user can mlock isn't really limited
+by it.  The user_struct itself just gets the same limit as each
+of the user's processes, to account for memory that doesn't
+have the same life time as processes.
+
+> I do agree, however, that storing in user struct allows for quota like
+> accounting that matches the shm_lock and hugetlb use cases.
+
+Ok, cool ;)
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

@@ -1,89 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262877AbVAFPah@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262865AbVAFPcJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262877AbVAFPah (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 10:30:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262873AbVAFPah
+	id S262865AbVAFPcJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 10:32:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbVAFPcJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 10:30:37 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:424 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262861AbVAFPaV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 10:30:21 -0500
-Date: Thu, 6 Jan 2005 15:30:16 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       ak@suse.de, mingo@elte.hu, rlrevell@joe-job.com, tiwai@suse.de,
-       linux-kernel@vger.kernel.org, pavel@suse.cz, discuss@x86-64.org,
-       gordon.jin@intel.com, alsa-devel@lists.sourceforge.net, greg@kroah.com
-Subject: Re: [PATCH] deprecate (un)register_ioctl32_conversion
-Message-ID: <20050106153016.GA19324@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Michael S. Tsirkin" <mst@mellanox.co.il>,
-	Andrew Morton <akpm@osdl.org>, ak@suse.de, mingo@elte.hu,
-	rlrevell@joe-job.com, tiwai@suse.de, linux-kernel@vger.kernel.org,
-	pavel@suse.cz, discuss@x86-64.org, gordon.jin@intel.com,
-	alsa-devel@lists.sourceforge.net, greg@kroah.com
-References: <20041215065650.GM27225@wotan.suse.de> <20041217014345.GA11926@mellanox.co.il> <20050105144043.GB19434@mellanox.co.il> <20050105144603.GA1419@infradead.org> <20050105150310.GA19758@mellanox.co.il> <20050105133358.16ce6891.akpm@osdl.org> <20050106144116.GA25898@mellanox.co.il> <20050106145527.GB18725@infradead.org> <20050106152248.GA25955@mellanox.co.il>
+	Thu, 6 Jan 2005 10:32:09 -0500
+Received: from orb.pobox.com ([207.8.226.5]:35985 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S262865AbVAFPbc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 10:31:32 -0500
+Date: Thu, 6 Jan 2005 07:31:18 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Dave Jones <davej@redhat.com>, William Lee Irwin III <wli@holomorphy.com>,
+       Bill Davidsen <davidsen@tmr.com>, "L. A. Walsh" <law@tlinx.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Reviving the concept of a stable series (was Re: starting with 2.7)
+Message-ID: <20050106153118.GA2390@ip68-4-98-123.oc.oc.cox.net>
+References: <41D91707.6040102@tlinx.org> <41D9C53A.3030503@tmr.com> <20050104130846.GD2708@holomorphy.com> <20050104182017.GE19167@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050106152248.GA25955@mellanox.co.il>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20050104182017.GE19167@redhat.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 05:22:48PM +0200, Michael S. Tsirkin wrote:
-> > +	if (!filp->f_op || !filp->f_op->ioctl)
-> > +		goto do_ioctl;
-> > +
-> > +	if (filp->f_op || filp->f_op->compat_ioctl) {
-> >  		error = filp->f_op->compat_ioctl(filp, cmd, arg);
-> >  		goto out_fput;
-> >  	}
-> 
-> So now if I dont have ->ioctl the ioctl_compat wont be called.
-> What if I only have unlocked_ioctl?
+On Tue, Jan 04, 2005 at 01:20:17PM -0500, Dave Jones wrote:
+> So now we're at our 2.6.9-ac+a few dozen 2.6.10 csets
+> and all is happy with the world. Except for the regressions.
+> As an example, folks upgrading from Fedora core 2, with its
+> 2.6.8 kernel found that ACPI no longer switched off their
+> machines for example. Much investigation went into
+> trying to pin this down. Kudos to Len Brown and team for
+> spending many an hour staring into bug reports on this
+> issue, but ultimately the cause was never found.
+> It was noted by several of our users seeing this problem
+> that 2.6.10 no longer exhibits this flaw.  Yet our
+> 2.6.9-ac+backports+every-2.6.10-acpi-cset also was broken.
+> It's likely Fedora will get a 2.6.10 based update before
+> the fault is ever really found for a 2.6.9 backport.
 
-Indeed.  In my test setup I didn't have a driver using both.  So let's
-think a little more what checks we want.
+I just did some experimentation on one of my boxes. For me the ACPI
+shutdown problem:
 
-The original intention (pre-patch) was that without an ioctl entry
-we'd skip the hash table lookup and skip right to trying the few standard
-ioctls.
++ does not happen on mainline 2.6.9
++ does not happen on 2.6.9-ac16
++ does happen on 2.6.9-1.724_FC3
++ does not happen on mainline 2.6.10
++ does not happen on 2.6.10-1.727_FC3
 
-So with ->compat_ioctl we should try that one first, then checking
-for either ->ioctl or ->unlocked_ioctl beeing there.  Like the patch
-below (this time it's actually untested because all my 64bit machines
-are in use):
+Just mentioning it for whatever relevance it may have to this debate,
+and in case it helps find a fix. (I'll see if I can narrow things down
+any further.)
 
+-Barry K. Nathan <barryn@pobox.com>
 
---- linux-2.6.10-mm2.orig/fs/compat.c	2005-01-06 11:40:18.831900000 +0100
-+++ linux-2.6.10-mm2/fs/compat.c	2005-01-06 16:36:17.340977664 +0100
-@@ -436,14 +436,15 @@
- 	if (!filp)
- 		goto out;
- 
--	if (!filp->f_op) {
--		if (!filp->f_op->ioctl)
--			goto do_ioctl;
--	} else if (filp->f_op->compat_ioctl) {
-+	if (filp->f_op && filp->f_op->compat_ioctl) {
- 		error = filp->f_op->compat_ioctl(filp, cmd, arg);
- 		goto out_fput;
- 	}
- 
-+	if (!filp->f_op ||
-+	    (!filp->f_op->ioctl && !filp->f_op->unlocked_ioctl))
-+		goto do_ioctl;
-+
- 	down_read(&ioctl32_sem);
- 	for (t = ioctl32_hash_table[ioctl32_hash(cmd)]; t; t = t->next) {
- 		if (t->cmd == cmd)
-
-> 
-> 
-> MST
----end quoted text---

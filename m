@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275399AbTHNRbp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 13:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273389AbTHNRbp
+	id S275420AbTHNR3g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 13:29:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275421AbTHNR3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 13:31:45 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:20744 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S275423AbTHNRaZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 13:30:25 -0400
-Date: Thu, 14 Aug 2003 18:30:24 +0100
-From: John Levon <levon@movementarian.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Russell King <rmk@arm.linux.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Make modules work in Linus' tree on ARM
-Message-ID: <20030814173024.GA42066@compsoc.man.ac.uk>
-References: <20030814165512.GA36329@compsoc.man.ac.uk> <Pine.LNX.4.44.0308141011030.8148-100000@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308141011030.8148-100000@home.osdl.org>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: King of Woolworths - L'Illustration Musicale
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19nLvc-00029o-Vt*W1eBHKLvL0w*
+	Thu, 14 Aug 2003 13:29:36 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:5019 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S275420AbTHNR3e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 13:29:34 -0400
+Date: Thu, 14 Aug 2003 14:29:13 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@localhost.localdomain
+To: Narayan Desai <desai@mcs.anl.gov>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-rc2 boot hang
+In-Reply-To: <878ypwkz0d.fsf@mcs.anl.gov>
+Message-ID: <Pine.LNX.4.44.0308141428330.3360-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 14, 2003 at 10:14:37AM -0700, Linus Torvalds wrote:
 
-> Why not just fix the oprofile interfaces to contain that information? You 
-> already have to export CPU type, buffer size etc..
 
-I'll quite happily do that. I'd assumed it was also rejected for bloat
-reasons based on your previous objections that it was/should be entirely
-a userspace issue.
+On Thu, 14 Aug 2003, Narayan Desai wrote:
 
-If you'll take /dev/oprofile/pointer_size now, then I'm more than happy
-to drop the kcore sniffing (and I don't have the a.out problem any more)
+> We have a netfinity 5100 (including aic7xxx scsi controllers) that
+> fails to boot with kernels newer than 2.4.18. The last few lines in
+> the boot messages are:
+> hda: LTN485S, ATAPI CD/DVD-ROM drive
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> hda: attached ide-cdrom driver.
+> hda: ATAPI 48X CD-ROM drive, 120kB Cache
+> Uniform CD-ROM driver Revision: 3.12
+> SCSI subsystem driver Revision: 1.00
+> 
+> After this point, the system has locked up. (sysrqs don't work, etc)
+> The system is a dual pIII. acpi is disabled. This machine has worked
+> stably with 2.4.14 and 2.4.18 for quite a while. (it is a fileserver,
+> and isn't touched often)
+> 
+> I have tried running with noapic, to no avail. I have attached
+> complete boot messages and .config. How can i get more info out about
+> where it is dying?
 
-regards
-john
+Do you have the NMI watchdog on? If not please turn it on, it should give
+us useful information.
 
--- 
-Khendon's Law:
-If the same point is made twice by the same person, the thread is over.

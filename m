@@ -1,82 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287206AbRL2WXE>; Sat, 29 Dec 2001 17:23:04 -0500
+	id <S287204AbRL2W1O>; Sat, 29 Dec 2001 17:27:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287204AbRL2WWz>; Sat, 29 Dec 2001 17:22:55 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:47117 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S287200AbRL2WWn> convert rfc822-to-8bit; Sat, 29 Dec 2001 17:22:43 -0500
-Date: Sat, 29 Dec 2001 14:24:27 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-cc: george anzinger <george@mvista.com>,
-        Martin Knoblauch <knobi@sirius-cafe.de>, Robert Love <rml@tech9.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Scheduler issue 1, RT tasks ...
-In-Reply-To: <20011229190226Z285236-18284+8993@vger.kernel.org>
-Message-ID: <Pine.LNX.4.40.0112291418480.1580-100000@blue1.dev.mcafeelabs.com>
+	id <S286794AbRL2W1G>; Sat, 29 Dec 2001 17:27:06 -0500
+Received: from ns.suse.de ([213.95.15.193]:62474 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S287200AbRL2W0w>;
+	Sat, 29 Dec 2001 17:26:52 -0500
+Date: Sat, 29 Dec 2001 23:26:51 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Oliver Xymoron <oxymoron@waste.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: The direction linux is taking
+In-Reply-To: <20011229140914.B13883@work.bitmover.com>
+Message-ID: <Pine.LNX.4.33.0112292317310.1336-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Dec 2001, Dieter [iso-8859-15] Nützel wrote:
+On Sat, 29 Dec 2001, Larry McVoy wrote:
 
-> Martin Knoblauch wrote:
-> >
-> > > Re: [RFC] Scheduler issue 1, RT tasks ...
-> > >
-> > > >
-> > > > Right, that was my question. George says, in your words, "for better
-> > >
-> > > > standards compliancy ..." and I want to know why you guys think
-> > > that.
-> > >
-> > > The thought was that if someone need RT tasks he probably need a very
-> > > low latency and so the idea that by applying global preemption decisions
-> > > would lead to a better compliancy. But i'll be happy to ear that this is
-> > > false anyway ...
-> > >
-> >
-> >  without wanting to start a RT flame-fest, what do people really want
-> > when they talk about RT in this [Linux] context:
-> >
-> > - very low latency
-> > - deterministic latency ("never to exceed")
-> > - both
-> > - something completely different
-> >
-> > All of the above from time to time and user to user.  That is, some
-> > folks want one or more of the above, some folks want more, some less.
-> > What is really up?  Well they have a job to do that requires certain
-> > things.  Different jobs require different capabilities.  It is hard to
-> > say that any given system will do a reasonably complex job with out
-> > testing.  For example we may have the required latency but find the
-> > system fails because, to get the latency, we preempted another task that
-> > was (and so still is) in the middle of updating something we need to
-> > complete the job.
+> I'd suggest you go try this idea out.  It's funny how often people suggest
+> that they are going to make the problems go away, it's always this same
+> proposal, typically nobody does any work, when they do it doesn't get used,
+> could it be there is a reason for that?
 >
-> So George what direction should I try for some tests?
-> 2.4.17 plus your and Robert's preempt plus lock-break?
-> Add your high-res-timers, rtscheduler or both?
-> Do they apply against 2.4.17/2.4.18-pre1?
-> A combination of the above plus Davide's BMQS?
->
-> I ask because my MP3/Ogg-Vorbis hiccup during dbench isn't solved anyway.
-> Running 2.4.17 + preempt + lock-break + 10_vm-21 (AA).
-> Some wisdom?
+> I'm prepared to be wrong, but I don't hear the maintainers asking for this
+> patchbot.  Why not?
 
-A bad scheduler can make the latency to increase but in your case i don't
-think that it could increase that much ( in percent ). By copying a huge
-file arund you can experience spots of 1-2 secs of machine freeze and
-this is definitely not the scheduler. The demage the a bad scheduler can
-do is directly proportional to the cs anyway.
+Something I've done for a quite is set up some procmail rules
+to filter subjects with [PATCH] and the likes into an additional
+folder.  Every so often, I'll go through it, deleting ones that
+ended up getting merged with mainline.
 
+The ones that don't, I look around for followups in my l-k
+folder for that month. If it got shot down in flames or discarded
+for another reason, it gets deleted from my patch folder.
 
+Picking through the rest usually turns up some useful bits
+that in the past I've resynced/cleaned up, and pushed to relevant
+maintainer and they've finally got accepted.
 
+I'm making two points here.
 
-- Davide
+ 1. This is not perfect in that a lot of patches get sent to the list
+ without being prefixed with [PATCH], so unless I happen to see it
+ when skimming my l-k folder, it falls through the gaps.
 
+ 2. I don't have time to read every patch that ends up in my
+ patch folder.
+
+The patchbot solves the first problem by making it not possible to accept
+a patch without a standard prefix. The second it could fix by generating
+a monthly "pending" report for every person using it, and having these
+summaries sent to a patchbot-pending mailing list.
+
+As long as *someone* sees these patches are still out there, they'll get
+merged eventually, even if it means sitting in a tree other than Linus's
+for a few months.
+
+Dave.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

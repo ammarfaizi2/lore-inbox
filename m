@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263010AbTJBAYT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 20:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263058AbTJBAYT
+	id S262647AbTJBAi2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 20:38:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbTJBAi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 20:24:19 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37304 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263010AbTJBAYS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 20:24:18 -0400
-Message-ID: <3F7B701C.5020708@pobox.com>
-Date: Wed, 01 Oct 2003 20:23:56 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Wed, 1 Oct 2003 20:38:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:20680 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262647AbTJBAi1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 20:38:27 -0400
+Date: Wed, 1 Oct 2003 17:38:16 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Albert Cahalan <albert@users.sourceforge.net>
+cc: Mikael Pettersson <mikpe@csd.uu.se>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <perfctr-devel@lists.sourceforge.net>
+Subject: Re: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
+In-Reply-To: <1065051745.736.39.camel@cube>
+Message-ID: <Pine.LNX.4.44.0310011717180.6077-100000@home.osdl.org>
 MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: Andrew Morton <akpm@osdl.org>, Hanna Linder <hannal@us.ibm.com>,
-       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Minutes from 10/1 LSE Call
-References: <37940000.1065035945@w-hlinder> <20031001162916.5fc2241b.akpm@osdl.org> <20031001233815.GB29605@work.bitmover.com>
-In-Reply-To: <20031001233815.GB29605@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> On Wed, Oct 01, 2003 at 04:29:16PM -0700, Andrew Morton wrote:
+
+On 1 Oct 2003, Albert Cahalan wrote:
 > 
->>If you have a loop like:
->>
->>	char *buf;
->>
->>	for (lots) {
->>		read(fd, buf, size);
->>	}
->>
->>the optimum value of `size' is small: as little as 8k.  Once `size' gets
->>close to half the size of the L1 cache you end up pushing the memory at
->>`buf' out of CPU cache all the time.
-> 
-> 
-> I've seen this too, not that Andrew needs me to back him up, but in many 
-> cases even 4k is big enough.  Linux has a very thin system call layer so
-> it is OK, good even, to use reasonable buffer sizes.
+> It certainly seems to me that the intent of /proc/self is
+> to point to a "process", which is a tgid in kernel terms.
 
+My argument against that is that it actually loses information. Now there 
+is no way to easily look up the current thread stuff.
 
-Slight tangent, FWIW...   Back when I was working on my "race-free 
-userland" project, I noticed that the fastest cp(1) implementation was 
-GNU's:  read/write from a single, statically allocated, page-aligned 4K 
-buffer.  I experimented with various buffer sizes, mmap-based copies, 
-and even with sendfile(2) where both arguments were files. 
-read(2)/write(2) of a single 4K buffer was always the fastest.
+If /proc/self points to a thread, it's easy to look up the process with a 
+"/proc/self/../..".
 
-	Jeff
+So in that sense it's a bad interface to point to the process, not the 
+thread.
 
+> I think there is something clearly defective about having
+> the /proc/self link point to a hidden directory.
 
+It's not hidden. It would just point to the real thread directory..
+
+		Linus
 

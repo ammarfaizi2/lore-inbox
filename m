@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268338AbTBNKMg>; Fri, 14 Feb 2003 05:12:36 -0500
+	id <S268343AbTBNKML>; Fri, 14 Feb 2003 05:12:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268349AbTBNKM3>; Fri, 14 Feb 2003 05:12:29 -0500
-Received: from node181b.a2000.nl ([62.108.24.27]:38845 "EHLO ddx.a2000.nu")
-	by vger.kernel.org with ESMTP id <S268338AbTBNKM1>;
-	Fri, 14 Feb 2003 05:12:27 -0500
-Date: Fri, 14 Feb 2003 11:21:41 +0100 (CET)
-From: kernel@ddx.a2000.nu
-To: Mike Black <mblack@csi-inc.com>
-cc: Stephan van Hienen <raid@a2000.nu>, Peter Chubb <peter@chubb.wattle.id.au>,
-       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
-       bernard@biesterbos.nl, ext2-devel@lists.sourceforge.net
-Subject: Re: raid5 2TB+ NO GO ?
-In-Reply-To: <044101c2d2a9$4fcdf980$f6de11cc@black>
-Message-ID: <Pine.LNX.4.53.0302141120230.19336@ddx.a2000.nu>
-References: <Pine.LNX.4.53.0302060059210.6169@ddx.a2000.nu>
- <Pine.LNX.4.53.0302060123150.6169@ddx.a2000.nu> <Pine.LNX.4.53.0302060211030.6169@ddx.a2000.nu>
- <15937.50001.367258.485512@wombat.chubb.wattle.id.au>
- <Pine.LNX.4.53.0302061915390.17629@ddx.a2000.nu>
- <15945.31516.492846.870265@wombat.chubb.wattle.id.au>
- <Pine.LNX.4.53.0302121129480.13462@ddx.a2000.nu> <044101c2d2a9$4fcdf980$f6de11cc@black>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268349AbTBNKML>; Fri, 14 Feb 2003 05:12:11 -0500
+Received: from packet.digeo.com ([12.110.80.53]:38097 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S268343AbTBNKMJ>;
+	Fri, 14 Feb 2003 05:12:09 -0500
+Date: Fri, 14 Feb 2003 02:22:20 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.60-mm2
+Message-Id: <20030214022220.30d0ed69.akpm@digeo.com>
+In-Reply-To: <20030214101356.GA17155@codemonkey.org.uk>
+References: <20030214013144.2d94a9c5.akpm@digeo.com>
+	<20030214093856.GC13845@codemonkey.org.uk>
+	<20030214015802.66800166.akpm@digeo.com>
+	<20030214101356.GA17155@codemonkey.org.uk>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Feb 2003 10:21:56.0455 (UTC) FILETIME=[E6AF6770:01C2D412]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Feb 2003, Mike Black wrote:
-
-> I did a 12x180G and as I recall was unable to do 13x180G as it overflowed during mke2fs.  This was a year ago though so I don't know
-> if that's been improved since then.
+Dave Jones <davej@codemonkey.org.uk> wrote:
 >
+> On Fri, Feb 14, 2003 at 01:58:02AM -0800, Andrew Morton wrote:
+> 
+>  > > I'm puzzled that you've had NFS stable enough to test these.
+>  > This was just writing out a single 400 megabyte file with `dd'.  I didn't try
+>  > anything fancier.
+> 
+> ok. Can you hold off pushing NFS bits to Linus until this gets
+> pinned down ? I really don't want to introduce any more variables
+> to this, especially when its so hard to pin down to an exact
+> replication scenario.
 
-does anyone know for sure what is the limit for md raid5 ?
+I wouldn't push any NFS bits.  It has a breathing maintainer ;)
 
-can i use 13*180GB in raid5 ?
-or should i go for 12*180GB in raid5 ?
+I've been mainly looking at the OOM problems, which need MM help.  Got
+distracted.
+
+

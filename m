@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVACSNg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbVACSNf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbVACSNg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 13:13:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261525AbVACSJj
+	id S261560AbVACSNf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 13:13:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVACSKD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 13:09:39 -0500
-Received: from animx.eu.org ([216.98.75.249]:7567 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S261731AbVACSJP (ORCPT
+	Mon, 3 Jan 2005 13:10:03 -0500
+Received: from ns.suse.de ([195.135.220.2]:40423 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261560AbVACSHT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 13:09:15 -0500
-Date: Mon, 3 Jan 2005 13:18:21 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Message-ID: <20050103181821.GC31911@animx.eu.org>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	linux-kernel@vger.kernel.org
-References: <1697129508.20050102210332@dns.toxicfilms.tv> <20050102203615.GL29332@holomorphy.com> <20050102212427.GG2818@pclin040.win.tue.nl> <20050102214211.GM29332@holomorphy.com> <20050102221534.GG4183@stusta.de> <Pine.LNX.4.61.0501031019110.25392@chimarrao.boston.redhat.com> <20050103152953.GE2980@stusta.de>
+	Mon, 3 Jan 2005 13:07:19 -0500
+Date: Mon, 3 Jan 2005 19:07:18 +0100
+From: Olaf Hering <olh@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: pin files in memory after read
+Message-ID: <20050103180718.GA22138@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20050103152953.GE2980@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> 
-> My personal impression was that even the 2.6.0-test kernels were much 
-> better than the 2.4.0-test kernels.
-> 
-> But 2.6.20 will most likely still have the stability of the early 
-> 2.6 kernels instead of a greatly increased stability as observed in 
-> 2.2.20 and 2.4.20 .
 
-In my experiences, 2.6.8 and above have been quite unstable for me.  I was
-able to crash 2.6.8.1 as a normal user over nfs (I thought that was fixed?)
+Is there a way to always keep a file (once read from disk) in memory, no
+matter how much memory pressure exists?
+There are always complains that updatedb and similar tools wipe out all
+caches. So I guess there is no such thing yet.
 
-2.6.9 gave me problems with USB and random lockups.  2.6.7 has been fairly
-stable for me, but I honestly do not see 2.6 as a stable kernel.  From my
-past experiences, 2.4.x (low numbered) was just as stable as 2.6 has been or
-more so.
+I simply want to avoid the spinup of my ibook harddisk when something
+has been 'forgotten' and must be loaded again (like opening a new screen
+window after a while).
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+The best I could do so far was a cramfs image. I copied it to tmpfs
+during early boot, then mount -o bind every cramfs file over the real
+binary on disk. Of course that will fail as soon as I want to update an
+affected package because the binary is busy (readonly). So there must be
+a better way to achieve this.
+
+How can one tell the kernel to pin a file in memory once it was read?
+Maybe with an xattr or something?
+Unfortunately I dont know about the block layer and other things
+involved, so I cant attach a patch that does what I want.
+

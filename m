@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbTENI62 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 04:58:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbTENI62
+	id S261405AbTENJCB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 05:02:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbTENJCB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 04:58:28 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:53 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S261300AbTENI61 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 04:58:27 -0400
-Date: Wed, 14 May 2003 02:12:29 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: trond.myklebust@fys.uio.no
-Cc: tytso@mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] htree nfs fix
-Message-Id: <20030514021229.35e74ccd.akpm@digeo.com>
-In-Reply-To: <16066.1778.401988.753875@charged.uio.no>
-References: <16065.35997.348432.385925@charged.uio.no>
-	<20030513174425.2bc49803.akpm@digeo.com>
-	<16066.1778.401988.753875@charged.uio.no>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 May 2003 09:11:10.0319 (UTC) FILETIME=[C28E37F0:01C319F8]
+	Wed, 14 May 2003 05:02:01 -0400
+Received: from main.gmane.org ([80.91.224.249]:2726 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261405AbTENJCA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 05:02:00 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Andreas Happe <andreashappe@gmx.net>
+Subject: Re: [dri] x startup hangs again... ~2.5.69-bk5
+Date: Wed, 14 May 2003 11:14:34 +0200
+Message-ID: <slrnbc427q.377.andreashappe@flatline.ath.cx>
+References: <slrnbc25b6.e5.andreashappe@flatline.ath.cx> <20030513165647.GA1056@suse.de> <slrnbc2d9s.cv.andreashappe@flatline.ath.cx>
+Reply-To: Andreas Happe <andreashappe@gmx.net>
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: slrn/0.9.7.4 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
->
-> >>>>> " " == Andrew Morton <akpm@digeo.com> writes:
-> 
->      > Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
->     >>
->     >> If you're unhappy with the state of readdir, then fix the
->     >> VFS/glibc.
-> 
->      > What should be done?
-> 
-> Either we have to agree that we break legacy 32-bit getdents() and
-> treat all cookies as signed 32/64-bit, or we break getdents64(), and
-> treat all cookies as unsigned. (This applies to both 2.5.x and 2.4.x)
-> 
+In article <slrnbc2d9s.cv.andreashappe@flatline.ath.cx>, Andreas Happe wrote:
+> I will try bk-5 after some working with bk2.
 
-Or we do nothing.
+ok, running with 2.5.69-bk8 since 11.5h. I'v just enabled agpmode = 2 in
+XF86Config-4, everythink is on standard value. The system is stable till
+now.
 
-What would you recommend?
+I've changed the settings around 2.5.69 because i've tried to get the
+linux neverwinter nights client running smoother and have forgotten to
+remove it from the config file. I must have been lucky until 2.5.69-bk5
+which started to crash my system (so there isn't a regression, just a
+"normal" instability (of which i have been warned...).
 
+Andreas
 

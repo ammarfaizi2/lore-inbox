@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271176AbTGPWmv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 18:42:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271178AbTGPWmo
+	id S271174AbTGPWpl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 18:45:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271178AbTGPWnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 18:42:44 -0400
-Received: from mail.kroah.org ([65.200.24.183]:21888 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S271176AbTGPWme (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 18:42:34 -0400
-Date: Wed, 16 Jul 2003 15:54:52 -0700
-From: Greg KH <greg@kroah.com>
-To: CaT <cat@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-t1: i2c+sensors still whacky (hi Greg :)
-Message-ID: <20030716225452.GA3419@kroah.com>
-References: <20030715090726.GJ363@zip.com.au> <20030715161127.GA2925@kroah.com> <20030716060443.GA784@zip.com.au> <20030716061009.GA5037@kroah.com> <20030716062922.GA1000@zip.com.au> <20030716073135.GA5338@kroah.com> <20030716224718.GA4612@zip.com.au>
+	Wed, 16 Jul 2003 18:43:50 -0400
+Received: from 24-216-225-11.charter.com ([24.216.225.11]:39823 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id S271181AbTGPWne
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 18:43:34 -0400
+Date: Wed, 16 Jul 2003 18:58:26 -0400
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6 sound drivers?
+Message-ID: <20030716225826.GP2412@rdlg.net>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2/+Vq7w28QOSGzSM"
 Content-Disposition: inline
-In-Reply-To: <20030716224718.GA4612@zip.com.au>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 17, 2003 at 08:47:18AM +1000, CaT wrote:
-> On Wed, Jul 16, 2003 at 12:31:35AM -0700, Greg KH wrote:
-> > Please change them to =m so that it's easier to try to debug this.
-> 
-> Done.
-> 
-> > Then just load the i2c_piix4 module.  If things still work just fine,
-> > then try the i2c-adm1021 driver.  See what the kernel log says then.
-> 
-> All went well till the last step of loading the adm1021 driver.
 
-And you are sure you have this hardware device?  Is that what the
-sensors package for 2.4 uses?  And 2.4 works just fine, right?
+--2/+Vq7w28QOSGzSM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-If so, I suggest you ask the sensors developers on their mailing list as
-this is a driver specific issue, and doesn't sound like a problem due to
-the 2.5 port.
 
-> i2c_adapter i2c-0: found normal i2c_range entry for adapter 0, addr 0018
-> i2c_adapter i2c-0: Transaction (pre): CNT=00, CMD=09, ADD=30, DAT0=ff, DAT1=ff
-> i2c_adapter i2c-0: Error: no response!
 
-It's really looking like the driver is trying to talk to a device that
-isn't present, hence the timeouts.
+I have a soundblaster Live.  I've historically used the OSS drivers as
+they've worked well for me.  I just tried to load the emu10k1 which
+loads without error, but mpg123 says it can't open the default sound
+device.
 
-thanks,
+Anyone able to do an lsmod or a listing of the drivers I need for an
+SBLive?
 
-greg k-h
+Thanks,
+  Robert
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | GPG Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu=20
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+
+Diagnosis: witzelsucht  =09
+
+IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
+IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
+
+--2/+Vq7w28QOSGzSM
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/FdiS8+1vMONE2jsRAigeAJ9zmLbcCRRG0grDT54s9LXRs1NQwwCg5+ee
+2mXHabap3n5IsqnFY+Gvf3E=
+=dWsC
+-----END PGP SIGNATURE-----
+
+--2/+Vq7w28QOSGzSM--

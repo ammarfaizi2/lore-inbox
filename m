@@ -1,66 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262591AbTJNOQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 10:16:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbTJNOQ0
+	id S262057AbTJNOIg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 10:08:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262304AbTJNOIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 10:16:26 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:3292 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262591AbTJNOQY
+	Tue, 14 Oct 2003 10:08:36 -0400
+Received: from adsl-67-67-9-206.dsl.okcyok.swbell.net ([67.67.9.206]:51669
+	"HELO homer.d-oh.org") by vger.kernel.org with SMTP id S262057AbTJNOIf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 10:16:24 -0400
-Date: Tue, 14 Oct 2003 11:19:20 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Ivo Santos Cavalcante Carneiro <iscc@gawab.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: scsi emulation error
-In-Reply-To: <3F890894.7080200@gawab.com>
-Message-ID: <Pine.LNX.4.44.0310141118380.2790-100000@logos.cnet>
+	Tue, 14 Oct 2003 10:08:35 -0400
+From: "Alex Adriaanse" <alex_a@caltech.edu>
+To: "Hans Reiser" <reiser@namesys.com>
+Cc: <linux-kernel@vger.kernel.org>, <vs@thebsh.namesys.com>
+Subject: RE: ReiserFS patch for updating ctimes of renamed files
+Date: Tue, 14 Oct 2003 09:08:32 -0500
+Message-ID: <JIEIIHMANOCFHDAAHBHOIEMGDAAA.alex_a@caltech.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <3F8BB699.3070404@namesys.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Great.  Thanks a lot!
+
+Where would I be able to download the patch that you guys will be producing
+once it's through QA?  At ftp://ftp.namesys.com/pub/reiserfs-for-2.4/ or is
+there some other place I can get it (e.g. BK/CVS/HTTP/FTP) before it's
+posted at that link?
+
+Thanks,
+
+Alex
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Hans Reiser
+Sent: Tuesday, October 14, 2003 3:41 AM
+To: Anton Ertl
+Cc: linux-kernel@vger.kernel.org; Andrew Morton; vs@thebsh.namesys.com;
+jw schultz; Alex Adriaanse
+Subject: Re: ReiserFS patch for updating ctimes of renamed files
 
 
-On Sun, 12 Oct 2003, Ivo Santos Cavalcante Carneiro wrote:
+I looked again at the definition of the difference between ctime and
+mtime on the stat man page, and I think that updating ctime in response
+to rename is as reasonable as updating it in response to changing the
+number of links.
 
-> I'm unable to mount cdrom on my system when using ide-scsi. Using 
-> ide-cdrom works fine. I first saw this problem on 2.4.21. I'm using 
-> 2.4.22, tested 2.4.23-pre7 and the problem exist yet. This is a short 
-> description of the system:
-> 
-> asus A7V8X-X mobo
-> LG CD-ROM CRD-8400B (rev. 1.08)
-> kernel 2.4.22 on Debian Woody
-> 
-> 
-> These are the error messages took from kernel log:
-> ]
-> ide-scsi: expected 2048 got 4096 limit 2048
-> ide-scsi: The scsi wants to send us more data than expected - discarding 
-> data
-> ide-scsi: [[ 28 0 0 0 0 5f 0 0 1 0 0 0 ]
-> ]
-> ide-scsi: expected 2048 got 4096 limit 2048
-> ide-scsi: The scsi wants to send us more data than expected - discarding 
-> data
-> ide-scsi: [[ 28 0 0 0 0 60 0 0 1 0 0 0 ]
-> ]
-> ide-scsi: expected 2048 got 4096 limit 2048
-> ide-scsi: The scsi wants to send us more data than expected - discarding 
-> data
-> ide-scsi: [[ 28 0 0 0 0 61 0 0 1 0 0 0 ]
-> ]
-> 
-> ...  many times, and then:
-> 
-> ide-scsi: expected 2048 got 4096 limit 2048
-> Unable to identify CD-ROM format.
+Ok, we will conform, and I will accept the kindly donated patch, along
+with Andrew's optimization of our evaluation of CURRENT_TIME.  vs,
+please add Andrew's suggested optimization and sent the result through
+QA.  Thanks to all for your good advice.
 
-Ivo, 
+--
+Hans
 
-Can you try 2.4.20 and see if that works? 
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

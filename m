@@ -1,23 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266507AbUG0SMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266526AbUG0SMa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266507AbUG0SMY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 14:12:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266512AbUG0SMX
+	id S266526AbUG0SMa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 14:12:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266512AbUG0SMa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 14:12:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:58540 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266507AbUG0SIH (ORCPT
+	Tue, 27 Jul 2004 14:12:30 -0400
+Received: from fw.osdl.org ([65.172.181.6]:26288 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266532AbUG0SKh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 14:08:07 -0400
-Date: Tue, 27 Jul 2004 10:47:37 -0700
+	Tue, 27 Jul 2004 14:10:37 -0400
+Date: Tue, 27 Jul 2004 10:50:39 -0700
 From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] Kconfig.debug: combine Kconfig debug options
-Message-Id: <20040727104737.0de2da5b.rddunlap@osdl.org>
-In-Reply-To: <Pine.GSO.4.58.0407271451130.19529@waterleaf.sonytel.be>
-References: <20040723231158.068d4685.rddunlap@osdl.org>
-	<Pine.GSO.4.58.0407271451130.19529@waterleaf.sonytel.be>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2 crashes
+Message-Id: <20040727105039.052352d8.rddunlap@osdl.org>
+In-Reply-To: <200407271402.59846.gene.heskett@verizon.net>
+References: <200407271233.04205.gene.heskett@verizon.net>
+	<200407271343.43583.gene.heskett@verizon.net>
+	<20040727103256.2691d6f9.rddunlap@osdl.org>
+	<200407271402.59846.gene.heskett@verizon.net>
 Organization: OSDL
 X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
@@ -28,41 +30,39 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jul 2004 14:55:39 +0200 (MEST) Geert Uytterhoeven wrote:
+On Tue, 27 Jul 2004 14:02:59 -0400 Gene Heskett wrote:
 
-| On Fri, 23 Jul 2004, Randy.Dunlap wrote:
-| > . localizes the following symbols in lib/Kconfig.debug:
-| >     DEBUG_KERNEL, MAGIC_SYSRQ, DEBUG_SLAB, DEBUG_SPINLOCK,
-| >     DEBUG_SPINLOCK_SLEEP, DEBUG_HIGHMEM, DEBUG_BUGVERBOSE,
-| >     DEBUG_INFO
+| On Tuesday 27 July 2004 13:32, Randy.Dunlap wrote:
+| [...]
+| Gene Heskett wrote:
+| >| I take it that I should apply these to a 2.6.7 tarballs tree in
+| >| this order:
+| >| 1. 2.6.8-rc1
+| >|
+| >>>>> 2.6.8-rc2 <<<<<
+| 2.6.8-rc2?  These patches I got will need to be reverted then?
+
+Nope, my bad.  I didn't read $Subject... please continue....
+
+| >| 2. each of these 'rc2-bk' patches by the day and then run each for
+| >| a couple days, or should I start in the middle, say the 3rd one
+| >| and work forward or backwards from there depending on the results?
+| >
+| >I'd suggest beginning with -bk3 and doing a binary search.
 | 
-| Which architecture does _not_ use DEBUG_KERNEL or DEBUG_SLAB? The list is quite
-| long... Aren't these generic?
-
-Looks like all of them use DEBUG_KERNEL.
-
-DEBUG_SLAB is not available in cris, h8300, m68knommu, sh, sh64,
-or v850 AFAICT.  Yes/no ?
-
-
-| Perhaps DEBUG_SPINLOCK can depend on just SMP only? Or do people want
-| to debug spinlock code on machines that don't have SMP?
-
-Yes, sounds good, I'll change that.
+| Ok, as soon as the kde build exits (and it will, bet the whole farm on 
+| it)  I'll give it a try.
 | 
-| Perhaps DEBUG_HIGHMEM can depend on just HIGHMEM only?
+| >| Your (and Viro's) call.  I'd imagine you would want to run this to
+| >| earth as quick as we can.
+| >|
+| >| Are these patches cumulative?  I presume they are as they grow by
+| >| the day.
+| >
+| >Sorry, I should have mentioned that.  Yes, they are cumulative.
+| 
+| Well, it was a pretty obvious conclusion :)
 
-Yes, will change that one also.
-
-| (didn't check the whole list) Perhaps the first instance of DEBUG_INFO
-| can depend on !SUPERH64 && !USERMODE only?
-
-It could.  It depends on one's config (or code/patch) philosophy.
-I was trying to be explicit about which arches support a config option
-by including each arch in a list ("inclusion").  Or I could exclude
-certain arches from config options ("exclusion").  The inclusion
-method seems safer and more readable/maintainable to me, but that's
-just one opinion.
 
 --
 ~Randy

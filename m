@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265197AbSJRQIJ>; Fri, 18 Oct 2002 12:08:09 -0400
+	id <S265202AbSJRQHp>; Fri, 18 Oct 2002 12:07:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265200AbSJRQIJ>; Fri, 18 Oct 2002 12:08:09 -0400
-Received: from users.linvision.com ([62.58.92.114]:62346 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S265197AbSJRQIH>; Fri, 18 Oct 2002 12:08:07 -0400
-Date: Fri, 18 Oct 2002 18:13:56 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: "Theodore Ts'o" <tytso@mit.edu>, Andreas Gruenbacher <agruen@suse.de>,
-       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Posix capabilities
-Message-ID: <20021018181356.A1664@bitwizard.nl>
-References: <20021016154459.GA982@TK150122.tuwien.teleweb.at> <20021017032619.GA11954@think.thunk.org> <874rblcpw5.fsf@goat.bogus.local> <200210171302.25413.agruen@suse.de> <20021017121213.GA13573@think.thunk.org>
+	id <S265216AbSJRQHp>; Fri, 18 Oct 2002 12:07:45 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:30899 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265202AbSJRQHo>;
+	Fri, 18 Oct 2002 12:07:44 -0400
+Subject: Re: [RFC][PATCH] linux-2.5.34_vsyscall_A0
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: john stultz <johnstul@us.ibm.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Michael Hohnbaum <hbaum@us.ibm.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       george anzinger <george@mvista.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021018111442.GH16501@dualathlon.random>
+References: <1034915132.1681.144.camel@cog> 
+	<20021018111442.GH16501@dualathlon.random>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 18 Oct 2002 09:13:39 -0700
+Message-Id: <1034957619.5401.8.camel@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021017121213.GA13573@think.thunk.org>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 17, 2002 at 08:12:13AM -0400, Theodore Ts'o wrote:
-> On Thu, Oct 17, 2002 at 01:02:25PM +0200, Andreas Gruenbacher wrote:
-> > Filesystem capabilities move complexity out of applications into the
-> > file system (=system configuration), so the admins have to deal with
-> > an additional task.
-> > 
-> > From a security point of view suid root applications that are
-> > dropping capabilities voluntarily aren't much different from plain
-> > old suid root apps; there may still be exploitable bugs before the
-> > code that drops capabilities (which doesn't mean that apps shouldn't
-> > drop capabilities). With capabilities the kernel ensures that
-> > applications cannot exceed their capabilities.
-> 
-> If developers drop capabilities they don't need as the very first
-> thing that the program does --- i.e., the first statement in main()
-> --- then it's done once, and it's no longer a configuration issue.
+One reason gettimeofday ends up being important is that several
+databases call it a lot. They use it to build up a transaction id. Under
+big transaction loads, even the fast linux syscall path ends up being a
+bottleneck. Also, on NUMA machines the data used for time of day (xtime)
+ends up being a significant portion of the cache traffic.
 
-I'm a C-programmer. I've looked at C++ a long time ago. 
+It would be great to rework the whole TSC time of day stuff to work with
+per cpu data and allow unsychronized TSC's like NUMA. The problem is
+that for fast user level access, there would need to be some way to find
+out the current CPU and avoid preemption/migration for a short period.
+It seems like the LDT stuff for per-thread data could provide the
+current cpu (and maybe current pid) somehow.  And it would be possible
+to avoid  preemption while in a vsyscall text page, some other Unix
+variants do this to implement portions of the thread library in kernel
+provided user text pages.
 
-Turns out that my system also supports C++. I still don't care. 
-
-Turns out that C++ specifies that some code should be run before main
-starts. 
-
-It seems that if I happen to link with a library that uses C++
-internally, some code in that library can get run before my first
-statement in main.  Suddenly it IS my problem. 
-
-NOT GOOD. 
-
-If capabilities are correctly implemented, having "all" capabilities
-will mean that it's equivalent to "setuid-root". Nothing worse than
-what we have now. I can currently decide to take the setuid-ness of
-mount away. I can currently decide to install a setuid bit on "lilo".
-That is the flexibility of having it in the filesystem.
-
-				Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* The Worlds Ecosystem is a stable system. Stable systems may experience *
-* excursions from the stable situation. We are currenyly in such an      * 
-* excursion: The stable situation does not include humans. ***************

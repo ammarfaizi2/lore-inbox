@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262224AbUBXL0F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 06:26:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262229AbUBXL0F
+	id S262231AbUBXLeb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 06:34:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbUBXLeb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 06:26:05 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:29827 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S262224AbUBXL0C (ORCPT
+	Tue, 24 Feb 2004 06:34:31 -0500
+Received: from [218.5.74.208] ([218.5.74.208]:57493 "EHLO vhost.bizcn.com")
+	by vger.kernel.org with ESMTP id S262231AbUBXLea (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 06:26:02 -0500
-Date: Tue, 24 Feb 2004 12:26:00 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Helmut Auer <vdr@helmutauer.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: HELP Re: Keyboard not working under 2.6.2
-Message-ID: <20040224112600.GB19216@MAIL.13thfloor.at>
-Mail-Followup-To: Helmut Auer <vdr@helmutauer.de>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <403911AD.1030005@helmutauer.de> <403B101D.3070601@helmutauer.de> <20040224101154.GD993@cse.unsw.EDU.AU> <403B2C18.3070906@helmutauer.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <403B2C18.3070906@helmutauer.de>
-User-Agent: Mutt/1.4.1i
+	Tue, 24 Feb 2004 06:34:30 -0500
+Message-ID: <403B36A4.9040506@lovecn.org>
+Date: Tue, 24 Feb 2004 19:33:56 +0800
+From: Coywolf Qi Hunt <coywolf@lovecn.org>
+Organization: LoveCN.org
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en, zh
+MIME-Version: 1.0
+To: Herbert Poetzl <herbert@13thfloor.at>
+CC: Coywolf Qi Hunt <coywolf@greatcn.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Does Flushing the Queue after PG REALLY a Necessity?
+References: <c16rdh$gtk$1@terminus.zytor.com> <4039D599.7060001@greatcn.org> <20040223151815.GA403@zaniah> <403AB897.8070002@greatcn.org> <20040223205522.66d7fb4f.rddunlap@osdl.org> <403B169E.4000006@greatcn.org> <20040224112154.GA19216@MAIL.13thfloor.at>
+In-Reply-To: <20040224112154.GA19216@MAIL.13thfloor.at>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 24, 2004 at 11:48:56AM +0100, Helmut Auer wrote:
-> Hi Darren,
-> 
-> >What is the actual keyboard, I am using a logitech cordless USB connected
-> >via a PS2 adapter that works OK.
-> >
-> Now I can work with an USB keyboard connected to USB or with an "normal" 
-> PS/2 keyboard connected to the PS/2 pins via a standard PS/2 Slotblech 
-> Adapter.
-> 
-> >Is the power supply in the keyboard OK
-> Yes - as I said it works without problems, when I boot the 2.4.18 kernel
-> 
-> >Is there power at the IR receiver
-> Yes
-> 
-> >Is the receiver connected to the PS2 ports.
-> Yes - The receiver is only connecet to the keyboard dataa and keyboard 
-> clock pins of the PS/2 connector., but that should be enough :-)
+Herbert Poetzl wrote:
 
-try with 2.6.3 or one of the bk snapshots, maybe 
-this issue has already been fixed somehow ...
+> On Tue, Feb 24, 2004 at 05:17:18PM +0800, Coywolf Qi Hunt wrote:
+> 
+>>Btw, could you please do not show others email address when you reply? 
+>>Change your mail client's configuration. I don't like my this email 
+>>address be grabbed by spammers. thanks
+> 
+> 
+> hmm, ever heard of the evil From: header?
+> 
 
-HTH,
-Herbert
+The mail address got in the body, and all the lkml archives show it in 
+html pages. Then more spammers ...
 
-> Bye
-> Helmut
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
+	Coywolf
+
+
+-- 
+Coywolf Qi Hunt
+Admin of http://GreatCN.org and http://LoveCN.org

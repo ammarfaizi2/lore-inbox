@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131121AbQK2CTD>; Tue, 28 Nov 2000 21:19:03 -0500
+        id <S129477AbQK2Cbv>; Tue, 28 Nov 2000 21:31:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129933AbQK2CSx>; Tue, 28 Nov 2000 21:18:53 -0500
-Received: from jalon.able.es ([212.97.163.2]:18321 "EHLO jalon.able.es")
-        by vger.kernel.org with ESMTP id <S131121AbQK2CSo>;
-        Tue, 28 Nov 2000 21:18:44 -0500
-Date: Wed, 29 Nov 2000 02:48:36 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
+        id <S129703AbQK2Cbl>; Tue, 28 Nov 2000 21:31:41 -0500
+Received: from pixar.pixar.com ([138.72.10.20]:25510 "EHLO pixar.pixar.com")
+        by vger.kernel.org with ESMTP id <S129477AbQK2Cbc>;
+        Tue, 28 Nov 2000 21:31:32 -0500
+Date: Tue, 28 Nov 2000 18:01:25 -0800 (PST)
+From: Kiril Vidimce <vkire@pixar.com>
 To: Dan Hollis <goemon@anime.net>
-Cc: linux-kernel@vger.kernel.org
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Petter Sundlöf <odd@findus.dhs.org>,
+        linux-kernel@vger.kernel.org
 Subject: Re: XFree 4.0.1/NVIDIA 0.9-5/2.4.0-testX/11 woes [solved]
-Message-ID: <20001129024836.A3305@werewolf.able.es>
-Reply-To: jamagallon@able.es
-In-Reply-To: <20001129021025.A768@werewolf.able.es> <Pine.LNX.4.30.0011281722220.27692-100000@anime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.30.0011281722220.27692-100000@anime.net>; from goemon@anime.net on Wed, Nov 29, 2000 at 02:29:04 +0100
-X-Mailer: Balsa 1.0.0
+In-Reply-To: <Pine.LNX.4.30.0011281639180.27174-100000@anime.net>
+Message-ID: <Pine.LNX.4.21.0011281758230.1353-100000@nevena.pixar.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 28 Nov 2000, Dan Hollis wrote:
+> Dont forget the nvidia driver is completely SMP broken. As in, trash your
+> filesystems broken.
 
-On Wed, 29 Nov 2000 02:29:04 Dan Hollis wrote:
-> On Wed, 29 Nov 2000, J . A . Magallon wrote:
-> > On Wed, 29 Nov 2000 01:39:56 Dan Hollis wrote:
-> > > Dont forget the nvidia driver is completely SMP broken. As in, trash your
-> > > filesystems broken.
-> > Not so broken. I use it under SMP 2.2.18-pre23 and works fine.
-> 
-> Try unreal tournament. Locks up hard during the intro animation. It's been
-> listed for months in the nvidia FAQ as a known bug (#6.5.7) with no fix.
-> 
+Not true. It works for us with no problems on a number of SMP boxes 
+running 2.2.{14,16}. I don't know about 2.4.x.
 
-Not exactly UT, but I have tried quake3, heretic2, and descent3. And in
-the serious group, OpenGL Performer and recently Inventor. I have not
-tried to leave q3a in demo mode for two days, but everything else works
-fine. And Performer now (v2.4) is SMP'ing.
-
--- 
-Juan Antonio Magallon Lacarta                                 #> cd /pub
-mailto:jamagallon@able.es                                     #> more beer
-
-Linux 2.2.18-pre23-vm #3 SMP Wed Nov 22 22:33:53 CET 2000 i686 unknown
+KV
+--
+  ___________________________________________________________________
+  Studio Tools                                        vkire@pixar.com
+  Pixar Animation Studios                        http://www.pixar.com/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

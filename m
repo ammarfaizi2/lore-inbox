@@ -1,121 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265733AbTFSH51 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 03:57:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265734AbTFSH51
+	id S265734AbTFSIPg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 04:15:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265735AbTFSIPg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 03:57:27 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:13771 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S265733AbTFSH5Z
+	Thu, 19 Jun 2003 04:15:36 -0400
+Received: from [203.221.157.221] ([203.221.157.221]:14084 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S265734AbTFSIPe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 03:57:25 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Andreas Boman <aboman@midgaard.us>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.72 O(1) interactivity bugfix
-Date: Thu, 19 Jun 2003 18:11:21 +1000
-User-Agent: KMail/1.5.2
-Cc: Mike Galbraith <efault@gmx.de>
-References: <1055983621.1753.23.camel@asgaard.midgaard.us> <5.2.0.9.2.20030619071327.00ce7ee8@pop.gmx.net> <200306191635.33965.kernel@kolivas.org>
-In-Reply-To: <200306191635.33965.kernel@kolivas.org>
+	Thu, 19 Jun 2003 04:15:34 -0400
+Message-ID: <3EF17433.20209@cyberone.com.au>
+Date: Thu, 19 Jun 2003 18:28:35 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: rwhron@earthlink.net
+CC: akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: i/o benchmarks on 2.5.70* kernels
+References: <20030618225017.GA15635@rushmore>
+In-Reply-To: <20030618225017.GA15635@rushmore>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306191811.21427.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Jun 2003 16:35, Con Kolivas wrote:
-> On Thu, 19 Jun 2003 16:13, Mike Galbraith wrote:
-> > At 11:12 AM 6/19/2003 +1000, Con Kolivas wrote:
-> > >On Thu, 19 Jun 2003 10:47, Andreas Boman wrote:
-> > > > On Wed, 2003-06-18 at 19:38, Con Kolivas wrote:
-> > > > > I had another look at 2.5 and noticed the max sleep avg is set to
-> > > > > 10 seconds instead of 2 seconds in 2.4. This could make a _big_
-> > > > > difference to new forked tasks if they all start out penalised as
-> > > > > most
-> > > > > non-interactive. It can take 5 times longer before they get the
-> > > > > balance right. Can you try with this set to 2 or even 1 second on
-> > > > > 2.5?
-> > > >
-> > > > Ahh, thanks Con, setting MAX_SLEEP_AVG to 2 *almost* removes all xmms
-> > > > skipping here, a song *may* skip during desktop switches sometime
-> > > > during the first 5 sec or so of playback IFF make -j20 is running. On
-> > > > a mostly idle box (well LoadAvg 3 or so is mostly idle isnt it? ;)
-> > > > desktop switching doesnt cause skips anymore 8)
-> > >
-> > >That's nice; a MAX_SLEEP_AVG of 1 second will shorten that 5 seconds to
-> > > half that as well. What you describe makes perfect sense given that
-> > > achieving a balance is an exponential function where the MSA is the
-> > > time constant.
-> >
-> > However, that will also send X and friends go off to the expired array
-> > _very_ quickly.  This will certainly destroy interactive feel under load
-> > because your desktop can/will go away for seconds at a time.  Try to drag
-> > a window while a make -j10 is running, and it'll get choppy as heck. 
-> > AFAIKT, anything that you do to increase concurrency in a global manner
-> > is _going_ to have the side effect of damaging interactive feel to some
-> > extent.  The one and only source of desktop responsiveness is the large
-> > repository of cpu ticks a task is allowed to save up for a rainy day.
+
+
+rwhron@earthlink.net wrote:
+
+>>tiobench on SMP results are not very good, lots of
+>>fragmentation
+>>
 >
-> Indeed that's what I thought and found as well. I have a question though -
-> do non interactive tasks have periods of inactivity where they collect
-> sleep times or is it just interactive tasks that exhibit this? Why I'm
-> asking is, what if the interactivity bonus is based on the best interactive
-> setting that task has received, and make this one much slower at decaying
-> than the sleep_avg. Say one second for max_sleep_avg and 60 seconds for
-> max_interactive_bonus? So it can become interactive very quickly (and
-> therefore also should start as non interactive) but becomes non-interactive
-> slowly.
+>On uniprocessor with IDE disk, benchmarks look very
+>different than SMP/SCSI. Recent -mm on uniprocessor 
+>is frequently ahead of 2.5.70/2.5.71.
+>
 
-I tried creating this myself and on first testing it seems the best all round 
-so far. I'll make a patch later on for ppl to try, but in a nutshell it does 
-this in sched.h:
+Thanks.
+AS should be OK with SMP, but it would be nice to see
+how it goes with a large number of spindles and processors.
 
-	unsigned long sleep_avg;
-+	unsigned long best_sleep_avg;
-	unsigned long sleep_timestamp;
+AS should also be able to run SCSI alright, it tends to
+perform quite poorly with TCQ and multiple random readers
+though unfortunately. I'm setting up a box here with an
+IDE and SCSI disk which I'll run my regression tests on,
+(previously only IDE) so I might be able to help this along
+a bit.
 
-this in sched.c:
+Fairness and interactiveness with AS and big TCQ should
+be quite a bit better than deadline though, so it would
+be a good workstation option even if it can't keep database
+throughput up.
 
-#define MAX_SLEEP_AVG          (HZ)
+It looks like database loads without TCQ are often better
+with AS than deadline, your AIM7 is, WimMark is. They can
+be worse though. pgbench for example.
 
-...
+>
+>Sequential Reads ext2
+>                  Num                    Avg       Maximum     Lat%     Lat%    CPU
+>Kernel            Thr   Rate  (CPU%)   Latency     Latency      >2s     >10s    Eff
+>----------------- ---  ------------------------------------------------------------
+>2.4.21-rc8aa1       1   19.00 71.72%     0.597      215.09  0.00000  0.00000     26
+>2.5.70-mm6          1   14.26 21.45%     0.812      247.12  0.00000  0.00000     66
+>2.5.71              1   14.13 18.03%     0.822      225.37  0.00000  0.00000     78
+>2.5.70-mm7          1   14.08 22.96%     0.821      315.76  0.00000  0.00000     61
+>2.5.70-mm5          1   14.00 23.80%     0.826      329.88  0.00000  0.00000     59
+>2.5.70-mm3          1   13.95 23.75%     0.830      188.64  0.00000  0.00000     59
+>2.5.70-mm1          1   13.80 23.84%     0.840      301.10  0.00000  0.00000     58
+>2.5.69-ac1          1   13.66 20.44%     0.850      298.83  0.00000  0.00000     67
+>2.5.70              1   13.60 20.57%     0.853      174.52  0.00000  0.00000     66
+>
+Don't ask me what the deal is here ;)
+AS would have no impact on a single threaded IO load. aa is
+using a lot of CPU for some reason. Driver difference
+maybe? readahead? Andrea's secret sauce?
 
-	bonus = 
-MAX_USER_PRIO*PRIO_BONUS_RATIO*(p->best_sleep_avg/100)/MAX_SLEEP_AVG/100 -
-			MAX_USER_PRIO*PRIO_BONUS_RATIO/100/2;
+aa also gets much worse latency spikes at higher thread
+counts (if tiobench is to be believed!). As thread count
+rises readahead can't fit into the request queue, and you
+see AS working.
 
+On the write side, current mms should be improved due to
+some changes in request allocation.
 
-...
-			p->sleep_avg = MAX_SLEEP_AVG;
-+		if ((p->sleep_avg * 100) > p->best_sleep_avg)
-+			p->best_sleep_avg = p->sleep_avg * 100;
-		p->prio = effective_prio(p);
-
-...
-
-		p->sleep_avg--;
-+	if (p->best_sleep_avg)
-+		p->best_sleep_avg--;
-
-...
-	p->rt_priority = lp.sched_priority;
-+	p->sleep_avg = 0;
-+	p->best_sleep_avg = 0;
-
-and this in fork.c:
-
-	p->sleep_timestamp = jiffies;
-+	p->sleep_avg = 0;
-+	p->best_sleep_avg = 0;
-
-
-Sorry I dont have a full patch for people to try at this moment as there are 
-so many O(1) kernels I"m working with. This basically works out the sleep 
-average over 1 second, but the priority on the best over 100 seconds.
-
-Con
 

@@ -1,51 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261547AbRFFKU3>; Wed, 6 Jun 2001 06:20:29 -0400
+	id <S261561AbRFFKaT>; Wed, 6 Jun 2001 06:30:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261594AbRFFKUU>; Wed, 6 Jun 2001 06:20:20 -0400
-Received: from mail.efore.fi ([62.236.103.42]:37382 "EHLO maxwell.efore.fi")
-	by vger.kernel.org with ESMTP id <S261558AbRFFKUI>;
-	Wed, 6 Jun 2001 06:20:08 -0400
-Message-ID: <3B1E03CE.8D05AA99@efore.fi>
-Date: Wed, 06 Jun 2001 13:19:58 +0300
-From: Lauri Tischler <lauri.tischler@efore.fi>
-Organization: Efore Oyj
-X-Mailer: Mozilla 4.77 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Break 2.4 VM in five easy steps
-In-Reply-To: <Pine.LNX.4.10.10106061101510.12097-100000@www.teaparty.net>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S261594AbRFFKaJ>; Wed, 6 Jun 2001 06:30:09 -0400
+Received: from i2260.vwr.wanadoo.nl ([194.134.216.221]:26752 "HELO
+	localhost.localdomain") by vger.kernel.org with SMTP
+	id <S261561AbRFFKaA>; Wed, 6 Jun 2001 06:30:00 -0400
+Date: Wed, 6 Jun 2001 12:24:34 +0200
+From: Remi Turk <remi@a2zis.com>
+To: linux-kernel@vger.kernel.org
+Cc: Axel Boldt <axel@uni-paderborn.de>,
+        Phil Blundell <Philip.Blundell@pobox.com>
+Subject: [PATCH] Configure.help: 
+Message-ID: <20010606122434.B859@localhost.localdomain>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Axel Boldt <axel@uni-paderborn.de>,
+	Phil Blundell <Philip.Blundell@pobox.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="6sX45UoQRIJXqkqR"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Dasmohapatra wrote:
-> 
-> On Wed, 6 Jun 2001, Dr S.M. Huen wrote:
-> 
-> > On Wed, 6 Jun 2001, Sean Hunter wrote:
-> >
-> > >
-> > > For large memory boxes, this is ridiculous.  Should I have 8GB of swap?
-> > >
-> >
-> > Do I understand you correctly?
-> > ECC grade SDRAM for your 8GB server costs £335 per GB as 512MB sticks even
-> > at today's silly prices (Crucial). Ultra160 SCSI costs £8.93/GB as 73GB
-> > drives.
-> 
-> Not the point. It is an absolute pig to have to allocate extra swap just
-> because extra memory was added.
 
-Not to mention that some people stuff their machines with memory just to
-avoid using swap at all.
+--6sX45UoQRIJXqkqR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
---
-Lauri Tischler, Network Admin
-Tel:    +358-9-47846331        *       Mouse movement detected      *
-Fax:    +358-9-47846500        * Reboot Windows to activate changes *
-Mobile: +358-40-5569010    
-EMail:  lauri.tischler@efore.fi
+Hi,
+it seems the Configure.help text for CONFIG_LP_CONSOLE
+is incorrect: The default is to stall until the printer
+is ready while the help text says the opposite.
+(vi +540 drivers/char/lp.c)
 
+Attached is a patch for 2.4.6-pre1 which fixes the help text.
+
+Also, shouldn't CONFIG_LP_CONSOLE depend on CONFIG_PRINTER=y?
+(it doesn't work when CONFIG_PRINTER=m, at least for me)
+
+-- 
+Linux 2.4.5-ac9 #3 Wed Jun 6 11:15:40 CEST 2001
+
+--6sX45UoQRIJXqkqR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="Configure.help.patch"
+
+diff -ur --new-file linux-2.4.6-pre1/Documentation/Configure.help linux-2.4.6-pre1.new/Documentation/Configure.help
+--- linux-2.4.6-pre1/Documentation/Configure.help	Wed Jun  6 11:54:24 2001
++++ linux-2.4.6-pre1.new/Documentation/Configure.help	Wed Jun  6 11:54:32 2001
+@@ -13014,10 +13014,12 @@
+   doing that; to actually get it to happen you need to pass the
+   option "console=lp0" to the kernel at boot time.
+ 
+-  Note that kernel messages can get lost if the printer is out of
+-  paper (or off, or unplugged, or too busy..), but this behaviour
+-  can be changed. See drivers/char/lp.c (do this at your own risk).
+-
++  If the printer is out of paper (or off, or unplugged, or too
++  busy..) the kernel will stall until the printer is ready again.
++  By defining CONSOLE_LP_STRICT to 0 (at your own risk) you
++  can make the kernel continue when this happens,
++  but it'll lose the kernel messages.
++  
+   If unsure, say N.
+ 
+ Support for user-space parallel port device drivers
+
+--6sX45UoQRIJXqkqR--

@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263722AbTFKTnL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 15:43:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbTFKTnL
+	id S263129AbTFKTk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 15:40:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263212AbTFKTk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 15:43:11 -0400
-Received: from 66-122-194-202.ded.pacbell.net ([66.122.194.202]:22704 "HELO
-	mail.keyresearch.com") by vger.kernel.org with SMTP id S263722AbTFKTnJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 15:43:09 -0400
-Subject: Re: [PATCH] New x86_64 time code for 2.5.70
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: Andi Kleen <ak@suse.de>
-Cc: vojtech@suse.cz, discuss@x86-64.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20030611191815.GA30411@wotan.suse.de>
-References: <1055357432.17154.77.camel@serpentine.internal.keyresearch.com>
-	 <20030611191815.GA30411@wotan.suse.de>
-Content-Type: text/plain
-Message-Id: <1055361411.17154.83.camel@serpentine.internal.keyresearch.com>
+	Wed, 11 Jun 2003 15:40:59 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:722 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S263129AbTFKTk7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 15:40:59 -0400
+Date: Wed, 11 Jun 2003 21:54:03 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nicolas <linux@1g6.biz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 536EP linux winmodem
+Message-ID: <20030611195403.GB477@elf.ucw.cz>
+References: <Sea2-F56iZAtGYkNUTv0001fda1@hotmail.com> <200306101642.05357.linux@1g6.biz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 11 Jun 2003 12:56:52 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200306101642.05357.linux@1g6.biz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-06-11 at 12:18, Andi Kleen wrote:
+Hi!
 
-> Does it only look this way or is your white space really broken?
-
-I generated the patch with diff -b because my original changes fixed up
-a lot of broken whitespace, which somewhat obscured the functional
-changes.  I'll send the plain diff -u instead next time.
-
-> On UP the sync_core is not really needed, but more reliable. May be worth
-> it to stick into an #ifdef though.
-
-OK.
-
-> >  	}
-> >   
-> > +	call++;
-> > +
+> Sorry to disturb with a winmodem ...
+> don't flame me please !
 > 
-> What's that?
+> Is there somebody having a working 536EP linux modem driver
+> on 2.5.xx series ?, I began to port the old
+> driver but with many irq problems related stuff, just
+> compilation stage at this time ... :(
 
-Oops - a piece of instrumentation that got left behind from trying to
-fix an SMP deadlock.
+Do you have driver sources?
+								Pavel
 
-	<b
+> 00:0a.0 Communication controller: Intel Corp. 536EP Data Fax Modem
+>         Subsystem: Creatix Polymedia GmbH V.9X DSP Data Fax Modem
+>         Flags: bus master, medium devsel, latency 32, IRQ 17
+>         Memory at e8000000 (32-bit, non-prefetchable) [size=4M]
+>         Capabilities: <available only to root>
 
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314409AbSEFMiX>; Mon, 6 May 2002 08:38:23 -0400
+	id <S314420AbSEFMrL>; Mon, 6 May 2002 08:47:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314411AbSEFMiW>; Mon, 6 May 2002 08:38:22 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:31578 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S314409AbSEFMiU>; Mon, 6 May 2002 08:38:20 -0400
-Date: Mon, 6 May 2002 13:38:09 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add NetMos 9835 to parport_serial
-Message-ID: <20020506133809.G27042@redhat.com>
-In-Reply-To: <20020506095735.Y27042@redhat.com> <Pine.LNX.4.44.0205061359570.12156-100000@netfinity.realnet.co.sz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="p3t3jlvjhqjzPvuq"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S314422AbSEFMrK>; Mon, 6 May 2002 08:47:10 -0400
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:48382 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S314420AbSEFMrI>; Mon, 6 May 2002 08:47:08 -0400
+Message-ID: <3CD67A98.40205@didntduck.org>
+Date: Mon, 06 May 2002 08:44:08 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@zip.com.au>
+CC: Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>,
+        Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] percpu updates
+In-Reply-To: <3CD06ACE.1090402@didntduck.org> <3CD4B042.A4355FD3@zip.com.au> <3CD55FF0.2030909@didntduck.org> <3CD64562.9AB4D3D7@zip.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> Brian Gerst wrote:
+> 
+>>Andrew Morton wrote:
+>>
+>>>Brian Gerst wrote:
+>>>
+>>>
+>>>>These patches convert some of the existing arrays based on NR_CPUS to
+>>>>use the new per cpu code.
+>>>>
+>>>
+>>...
+>>Andrew, could you try this patch?  I suspect something in setup_arch()
+>>is touching the per cpu area before it gets copied for the other cpus.
+>>This patch makes certain the boot cpu area is setup ASAP.
+> 
+> 
+> This little recidivist is still using gcc-2.91.66.  It is not
+> placing the percpu data in the correct section.  It is not 
+> entirely obvious why.
+> 
+> I downgraded to 2.95.3 (build time went from 2:45 to 3:15, giving
+> nothing in return) and Brian's patch worked OK.
+> 
+> ho hum.  So.  2.91.66, rest in peace.  I shall miss you.
 
---p3t3jlvjhqjzPvuq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Aha.  I was starting to wonder about the compiler.
 
-On Mon, May 06, 2002 at 02:14:25PM +0200, Zwane Mwaikambo wrote:
+-- 
 
-> All the patches i've seen thus far were for some other chip (forgot the=
-=20
-> ID), but for that 9835 i needed it desperately so i tested it quite a lot=
-.=20
->=20
-> +	/* netmos_9835 (not tested) */	{ 1, { { 2, -1 }, } },
->=20
-> I'm not sure about the others, but i doubt that one would work.
+						Brian Gerst
 
-Well, if { 2, 3 } works then { 2, -1 } will surely work, although
-without ECP support.  I didn't realise that NetMos cards had ECP
-support at the time I wrote the above code.
-
-> Where there conflicting success/failure reports for the same
-> devices?
-
-I'm sorry, I don't recall.
-
-Tim.
-*/
-
---p3t3jlvjhqjzPvuq
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE81nkxyaXy9qA00+cRAiwpAKCy+P8mLfZYQohquqUWtaDivZeruQCdHr5M
-HG5a72ejfQbONdoVeDnCa+w=
-=z7Ip
------END PGP SIGNATURE-----
-
---p3t3jlvjhqjzPvuq--

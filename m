@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264135AbRFFUKS>; Wed, 6 Jun 2001 16:10:18 -0400
+	id <S264134AbRFFUJi>; Wed, 6 Jun 2001 16:09:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264136AbRFFUJ6>; Wed, 6 Jun 2001 16:09:58 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:20240 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S264135AbRFFUJ5>; Wed, 6 Jun 2001 16:09:57 -0400
-Date: Wed, 6 Jun 2001 22:05:23 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: android <linux@ansa.hostings.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PID's
-Message-ID: <20010606220523.I27260@arthur.ubicom.tudelft.nl>
-In-Reply-To: <5.1.0.14.2.20010605124911.028a8d70@ansa.hostings.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <5.1.0.14.2.20010605124911.028a8d70@ansa.hostings.com>; from linux@ansa.hostings.com on Tue, Jun 05, 2001 at 12:50:55PM -0700
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S264135AbRFFUJ2>; Wed, 6 Jun 2001 16:09:28 -0400
+Received: from colorfullife.com ([216.156.138.34]:45316 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S264134AbRFFUJX>;
+	Wed, 6 Jun 2001 16:09:23 -0400
+Message-ID: <3B1E8DCC.442431CA@colorfullife.com>
+Date: Wed, 06 Jun 2001 22:08:44 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>,
+        linux-kernel@vger.kernel.org,
+        "David Gordon (LMC)" <David.Gordon@ericsson.ca>
+Subject: RE: kHTTPd hangs 2.4.5 boot when moduled
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 05, 2001 at 12:50:55PM -0700, android wrote:
-> Is there a way to recycle unused PID's without rebooting the kernel?
-> So instead of the next available PID always getting larger and larger,
-> just reset it to use the first unused PID after 1. Is this possible?
+ 	
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-It already works like that.
+> 
+> package RH7.0 has...    2.4.2 and on needs...
+> util-linux      2.10m           2.10o
+> modutils        2.3.21          2.4.2
+> e2fsprogs       1.18            1.19
 
+Which compiler do you use? The default compiler from 7.0 is known to
+produce buggy kernels, and Linus didn't include the kgcc detection.
 
-Erik
+Could you check that kgcc is used for compiling?
+Just replace '$(CROSS_COMPILE)gcc' in /usr/src/linux/Makefile with
+'$(CROSS_COMPILE)kgcc'
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Or upgrade to the gcc compiler from 7.1?
+
+--
+	Manfred

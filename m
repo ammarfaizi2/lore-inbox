@@ -1,65 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265815AbTIETVX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 15:21:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265759AbTIETU0
+	id S262813AbTIET4q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 15:56:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262587AbTIET4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 15:20:26 -0400
-Received: from mail.actron.com ([207.170.141.97]:59397 "EHLO mail.actron.com")
-	by vger.kernel.org with ESMTP id S265815AbTIETMs (ORCPT
+	Fri, 5 Sep 2003 15:56:45 -0400
+Received: from ida.rowland.org ([192.131.102.52]:22788 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S262813AbTIET4j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 15:12:48 -0400
-Message-ID: <3F58E026.7040305@actron.com>
-Date: Fri, 05 Sep 2003 15:12:38 -0400
-From: "Dale P. Smith" <dsmith@actron.com>
-Organization: Actron
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
-X-Accept-Language: en
+	Fri, 5 Sep 2003 15:56:39 -0400
+Date: Fri, 5 Sep 2003 15:56:37 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: Andreas Dilger <adilger@clusterfs.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: How can I force a read to hit the disk?
+In-Reply-To: <20030905190902.GD24951@wohnheim.fh-wedel.de>
+Message-ID: <Pine.LNX.4.44L0.0309051548020.678-100000@ida.rowland.org>
 MIME-Version: 1.0
-To: jimwclark@ntlworld.com
-CC: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
-References: <1062637356.846.3471.camel@cube> <200309042251.38514.jimwclark@ntlworld.com> <200309051752.h85HqYS0031240@turing-police.cc.vt.edu> <200309051931.09491.jimwclark@ntlworld.com>
-In-Reply-To: <200309051931.09491.jimwclark@ntlworld.com>
-X-Enigmail-Version: 0.76.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Clark wrote:
-> Valdis Kletnieks wrote:
+On Fri, 5 Sep 2003, Jörn Engel wrote:
+
+> On Fri, 5 September 2003 14:49:15 -0400, Alan Stern wrote:
+> > On Fri, 5 Sep 2003, Andreas Dilger wrote:
+> > 
+> > > If you open the file with O_DIRECT, it should read/write directly on the
+> > > disk, and it will also invalidate any existing cache for the read/written
+> > > area.
+> > 
+> > Unfortunately that's not a good solution for me.  The file has already 
+> > been opened without O_DIRECT, and O_DIRECT wouldn't be appropriate because 
+> > most of the time I do want I/O to go through the cache.  It's just on a 
+> > few rare occasions that I need direct access to the disk.
+> > 
+> > Maybe simply opening a new struct file using O_DIRECT, for purposes of 
+> > the verification, while keeping the old struct file around for other uses 
+> > later, will work?  That would be awkward though -- and there's no 
+> > guarantee that the original filename would still exist.  It would be a lot 
+> > nicer to do everything using the original file reference.
 > 
+> Maybe these help you here:
+> man 3 fdopen
+> man 3 fileno
 > 
->>So if 500 million people are productive 60% of the time and hosed 40% of
->>the time, and 5 million people are productive 95% of the time, the 60/40
->>model is better because 60% of 500M is more than 95% of 5M?
-> 
-> 
-> This is a good example of the kind of rubbish that is sometimes talked around 
-> here. I've lost count of the number of times I've heard the 'Windows is SO 
-> unstable argument' it almost seems like a religion. I would agree with what 
-> you have said if Windows was actually unusable 40% of the time. Do you really 
-> believe this figure? In reality it is much better than that as plainly the 
-> majority of the WORLD are using it. I love Linux but I also use Windows. 
-> Sorry to break your delusion, it ain't that bad.
+> No filename needed for the second open.
 
-The only windows system that I have seen that was reliable (unless the 
-people there were lying to me) was a big ibm netfinity system.  I 
-believe it was stable because it didn't use any extra harware or drivers 
-except what ibm had installed on the box.
+I don't think they will help.  Apart from the fact that I'm working on a 
+kernel module, not a user program, neither of these accepts options like 
+O_DIRECT.
 
-What I'm saying is that most of the problems with windows are from 
-flakey, half-baked drivers and dll's form third parties.  I've got no 
-hard numbers, just my personal experiences.
-
-Binary onlyt drivers are bad.  Source drivers are good.  THat's just the 
-way it is.
-
--Dale
-
--- 
-Dale P. Smith
-dsmith at actron dot com
+Alan Stern
 

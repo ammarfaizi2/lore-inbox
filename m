@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266198AbRGKHx6>; Wed, 11 Jul 2001 03:53:58 -0400
+	id <S267223AbRGKIG2>; Wed, 11 Jul 2001 04:06:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267211AbRGKHxs>; Wed, 11 Jul 2001 03:53:48 -0400
-Received: from [213.96.124.18] ([213.96.124.18]:33258 "HELO dardhal")
-	by vger.kernel.org with SMTP id <S266198AbRGKHxo>;
-	Wed, 11 Jul 2001 03:53:44 -0400
-Date: Wed, 11 Jul 2001 09:55:49 +0000
-From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
-	<jldomingo@crosswinds.net>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: netlink, iproute and pump
-Message-ID: <20010711095549.A1889@dardhal.mired.net>
-Mail-Followup-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+	id <S267224AbRGKIGU>; Wed, 11 Jul 2001 04:06:20 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:1029 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S267223AbRGKIGH>;
+	Wed, 11 Jul 2001 04:06:07 -0400
+Date: Wed, 11 Jul 2001 10:05:53 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Eric Youngdale <eric@andante.org>
+Cc: Jonathan Lahr <lahr@us.ibm.com>, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: io_request_lock patch?
+Message-ID: <20010711100553.D17314@suse.de>
+In-Reply-To: <20010709123936.E6013@us.ibm.com> <20010709214453.U16505@suse.de> <20010710124903.H6013@us.ibm.com> <00a401c1097c$343d45b0$4d0310ac@fairfax.mkssoftware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20010711013446.A1076@werewolf.able.es>
-User-Agent: Mutt/1.3.18i
+In-Reply-To: <00a401c1097c$343d45b0$4d0310ac@fairfax.mkssoftware.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 11 July 2001, at 01:34:46 +0200,
-J . A . Magallon wrote:
-
-> Hi, all...
+On Tue, Jul 10 2001, Eric Youngdale wrote:
 > 
-> [I'm sending this both to lkml and distro support, beacause I am not sure who
-> is to blame...]
-> 
-As you say in your other post, seems a problem with your pump (DHCP
-cliente). One of the machines here has pump 0.8.3-3 (Debian Woody) with a
-2.4.6+xfs kernel, and everything (client configuration through DHCP from
-an ADSL router's DHCP server) works fine.
+>     The bit that I had automated was to essentially fix each and every
+> low-level SCSI driver such that each low-level driver would be responsible
+> for it's own locking.  At this point the patches and the tool are on hold -
+> once the 2.5 kernel series gets underway, I can generate some fairly massive
+> patchsets.
 
-Greetings.
+Cool, sounds good Eric. I'll probably go ahead and complete the initial
+ll_rw_blk and IDE work, along with a few selected SCSI drivers. Then
+leave the grunt of the work for your tools.
 
 -- 
-José Luis Domingo López
-Linux Registered User #189436     Debian GNU/Linux Potato (P166 64 MB RAM)
- 
-jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
-jdomingo AT internautas DOT   org  => Spam at your own risk
+Jens Axboe
 

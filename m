@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262369AbSJ2Vsb>; Tue, 29 Oct 2002 16:48:31 -0500
+	id <S262368AbSJ2Vrq>; Tue, 29 Oct 2002 16:47:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262373AbSJ2Vsa>; Tue, 29 Oct 2002 16:48:30 -0500
-Received: from nameservices.net ([208.234.25.16]:52012 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S262369AbSJ2Vrd>;
-	Tue, 29 Oct 2002 16:47:33 -0500
-Message-ID: <3DBF0478.84C868DE@opersys.com>
-Date: Tue, 29 Oct 2002 16:58:16 -0500
+	id <S262371AbSJ2Vrq>; Tue, 29 Oct 2002 16:47:46 -0500
+Received: from nameservices.net ([208.234.25.16]:50988 "EHLO opersys.com")
+	by vger.kernel.org with ESMTP id <S262368AbSJ2VrY>;
+	Tue, 29 Oct 2002 16:47:24 -0500
+Message-ID: <3DBF0468.7BF06D8B@opersys.com>
+Date: Tue, 29 Oct 2002 16:58:00 -0500
 From: Karim Yaghmour <karim@opersys.com>
 Reply-To: karim@opersys.com
 Organization: Opersys inc.
@@ -16,1557 +16,1138 @@ X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: linux-kernel <linux-kernel@vger.kernel.org>, LTT-Dev <ltt-dev@shafik.org>
-Subject: [PATCH] LTT for 2.5.44-bk2 2/10: Trace subsystem 1/2
+Subject: [PATCH] LTT for 2.5.44-bk2 1/10: Core definitions
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-D: This is the actual code for the tracing subsystem. It has two
-D: main modes of operation, locking and non-locking, each with its
-D: own particular buffer-management policies. Systems requiring
-D: rigid and instantaneous event logging should use the locking
-D: scheme. Systems requiring higher throughput should use the
-D: lockless scheme. Event timestamps can be obtained either using
-D: do_gettimeofday or the TSC (if available). Interfacing with
-D: user-space is done through sys_trace.
+Hello Linus,
 
-[This is part 1 of 2 since the file bounces off the mailing lists
-if it's sent in one piece. Concat piece 2/2 to obtain complete file.]
+We've had this patch around for quite a while and it has been
+reviewed by quite a few folks, including Ingo Molnar, Christoph
+Hellwig, Roman Zippel, Pavel Machek, and yourself. Here's a
+summary of the changes we carried out following LKML feedback:
+- Add Lockless event logging
+- Add Per-CPU buffering
+- Add TSC timestamping
+- Changed tracer from device to kernel subsystem
+- Change coding style to match kernel
 
-diff -urpN linux-2.5.44-bk2/kernel/trace.c linux-2.5.44-bk2-ltt/kernel/trace.c
---- linux-2.5.44-bk2/kernel/trace.c	Wed Dec 31 19:00:00 1969
-+++ linux-2.5.44-bk2-ltt/kernel/trace.c	Tue Oct 29 15:24:19 2002
-@@ -0,0 +1,3388 @@
+Considering that this patch has been around for over 3 years now,
+that it has been extensively modified to satisfy the requirements
+voiced on the LKML, and that LTT has been adopted as the main
+tracing tool for Linux, Linus please apply.
+
+We've also run an extensive set of stress tests on the patch
+which show that that tracing has no overhead when unused and
+very low overhead when used:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103573710926859&w=2
+Basically, the overhead is 0% when compiled out, < 0.5% when
+compile in, and 2.0% when tracing all kernel events and writing
+the data to disk.
+
+Note that the patch set is quite modular. In other words, you
+can apply the core infrastructure (patches # 1, 2 and 3) and
+apply the actual trace statement patches later on (patches # 4
+through 10).
+
+D: This patch includes all the definitions (headers/configs/makefiles)
+D: required by the trace subsystem.
+
+diffstat:
+ MAINTAINERS                 |    7 
+ include/asm-generic/trace.h |   86 ++++
+ include/linux/trace.h       |  930 ++++++++++++++++++++++++++++++++++++++++++++
+ init/Config.help            |   23 +
+ init/Config.in              |    1 
+
+The complete patch is available from:
+http://opersys.com/ftp/pub/LTT/ExtraPatches/patch-ltt-linux-2.5.44-bk2-021029-2.2.bz2
+
+(This set of patches is against the bk2 snapshot available from:
+ftp://ftp.kernel.org/pub/linux/kernel/v2.5/snapshots/)
+
+diff -urpN linux-2.5.44-bk2/MAINTAINERS linux-2.5.44-bk2-ltt/MAINTAINERS
+--- linux-2.5.44-bk2/MAINTAINERS	Tue Oct 29 15:54:54 2002
++++ linux-2.5.44-bk2-ltt/MAINTAINERS	Tue Oct 29 15:24:17 2002
+@@ -983,6 +983,13 @@ W:	http://linuxppc64.org
+ L:	linuxppc64-dev@lists.linuxppc.org
+ S:	Supported
+ 
++LINUX TRACE TOOLKIT
++P:	Karim Yaghmour
++M:	karim@opersys.com
++W:	http://www.opersys.com/LTT
++L:	ltt-dev@listserv.shafik.org
++S:	Maintained
++
+ LOGICAL DISK MANAGER SUPPORT (LDM, Windows 2000/XP Dynamic Disks)
+ P:	Richard Russon (FlatCap)
+ M:	ldm@flatcap.org
+diff -urpN linux-2.5.44-bk2/include/asm-generic/trace.h linux-2.5.44-bk2-ltt/include/asm-generic/trace.h
+--- linux-2.5.44-bk2/include/asm-generic/trace.h	Wed Dec 31 19:00:00 1969
++++ linux-2.5.44-bk2-ltt/include/asm-generic/trace.h	Tue Oct 29 15:24:18 2002
+@@ -0,0 +1,86 @@
 +/*
-+ * linux/drivers/trace/tracer.c
++ * linux/include/asm-generic/trace.h
 + *
-+ * (C) Copyright, 1999, 2000, 2001, 2002 - Karim Yaghmour (karim@opersys.com)
++ * Copyright (C) 1999-2002 Karim Yaghmour (karim@opersys.com)
 + *
-+ * Contains the code for the kernel tracer.
-+ *
-+ * Author:
-+ *	Karim Yaghmour (karim@opersys.com)
-+ *
-+ * Changelog:
-+ *	15/10/02, Changed tracer from device to kernel subsystem and added
-+ *		custom trace system call (sys_trace).
-+ *	01/10/02, Coding style change to fit with kernel coding style.
-+ *	16/02/02, Added Tom Zanussi's implementation of K42's lockless logging.
-+ *		K42 tracing guru Robert Wisniewski participated in the
-+ *		discussions surrounding this implementation. A big thanks to
-+ *		the IBM folks.
-+ *	03/12/01, Added user event support.
-+ *	05/01/01, Modified PPC bit manipulation functions for x86
-+ *	compatibility (andy_lowe@mvista.com).
-+ *	15/11/00, Finally fixed memory allocation and remapping method. Now
-+ *		using BTTV-driver-inspired code.
-+ *	13/03/00, Modified tracer so that the daemon mmaps the tracer's buffers
-+ *		in it's address space rather than use "read".
-+ *	26/01/00, Added support for standardized buffer sizes and extensibility
-+ *		of events.
-+ *	01/10/99, Modified tracer in order to used double-buffering.
-+ *	28/09/99, Adding tracer configuration support.
-+ *	09/09/99, Chaging the format of an event record in order to reduce the
-+ *	size of the traces.
-+ *	04/03/99, Initial typing.
-+ *
-+ * Note:
-+ *	The sizes of the variables used to store the details of an event are
-+ *	planned for a system who gets at least one clock tick every 10 
-+ *	milli-seconds. There has to be at least one event every 2^32-1
-+ *	microseconds, otherwise the size of the variable holding the time
-+ *	doesn't work anymore.
++ * Basic architecture independent default definitions for low-level functions.
 + */
-+
-+#include <linux/init.h>		/* For __init */
-+#include <linux/trace.h>	/* Tracing definitions */
-+#include <linux/errno.h>	/* Miscellaneous error codes */
-+#include <linux/stddef.h>	/* NULL */
-+#include <linux/slab.h>		/* kmalloc() */
-+#include <linux/module.h>	/* EXPORT_SYMBOL */
-+#include <linux/sched.h>	/* pid_t */
-+#include <linux/string.h>
-+#include <linux/time.h>
-+#include <linux/wrapper.h>
-+#include <linux/vmalloc.h>
-+#include <linux/mm.h>
-+#include <linux/mman.h>
-+#include <linux/delay.h>
-+
-+#include <asm/io.h>
-+#include <asm/current.h>
-+#include <asm/uaccess.h>
-+#include <asm/bitops.h>
-+#include <asm/pgtable.h>
-+#include <asm/trace.h>
-+
-+/* Global variables */
-+/*  Locking */
-+static spinlock_t 	trace_spin_lock;	/* Spinlock in order to lock kernel */
-+static atomic_t		pending_write_count;	/* Number of event writes in progress */
-+/*  Daemon */
-+static struct task_struct*	daemon_task_struct;	/* Task structure of the tracer daemon */
-+static struct vm_area_struct*	tracer_vm_area;		/* VM area where buffers are mapped */
-+/*  Tracer configuration */
-+static int		tracer_started;		/* Is the tracer started */
-+static int		tracer_stopping;	/* Is the tracer stopping */
-+static trace_event_mask	traced_events;		/* Bit-field of events being traced */
-+static trace_event_mask	log_event_details_mask;	/* Log the details of the events mask */
-+static int		log_cpuid;		/* Log the CPUID associated with each event */
-+static int		use_syscall_eip_bounds;	/* Use adress bounds to fetch the EIP where call is made */
-+static int		lower_eip_bound_set;	/* The lower bound EIP has been set */
-+static int		upper_eip_bound_set;	/* The upper bound EIP has been set */
-+static void*		lower_eip_bound;	/* The lower bound EIP */
-+static void*		upper_eip_bound;	/* The upper bound EIP */
-+static int		tracing_pid;		/* Tracing only the events for one pid */
-+static int		tracing_pgrp;		/* Tracing only the events for one process group */
-+static int		tracing_gid;		/* Tracing only the events for one gid */
-+static int		tracing_uid;		/* Tracing only the events for one uid */
-+static pid_t		traced_pid;		/* PID being traced */
-+static pid_t		traced_pgrp;		/* Process group being traced */
-+static gid_t		traced_gid;		/* GID being traced */
-+static uid_t		traced_uid;		/* UID being traced */
-+static int		syscall_eip_depth_set;	/* The call depth at which to fetch EIP has been set */
-+static int		syscall_eip_depth;	/* The call depth at which to fetch the EIP */
-+/*  Event data buffers */
-+static int		buf_read_complete;	/* Number of buffers completely filled */
-+static int		size_read_incomplete;	/* Quantity of data read from incomplete buffers */
-+static u32		buf_size;		/* Buffer sizes */
-+static u32		cpu_buf_size;		/* Total buffer size per CPU */
-+static u32		alloc_size;		/* Size of buffers allocated */
-+static char*		trace_buf = NULL;	/* Trace buffer */
-+static int		use_locking;		/* Holds command from daemon */
-+static u32		buf_no_bits;		/* Holds command from daemon */
-+static u32		buf_offset_bits;	/* Holds command from daemon */
-+static int		using_tsc;              /* Using TSC timestamping? */
-+static int		using_lockless;         /* Using lockless scheme? */
-+static int		num_cpus;               /* Number of CPUs found */ 
-+static atomic_t		send_signal;            /* Should the daemon be summoned */ 
-+
-+/*  Trace statement behavior */
-+unsigned int		syscall_entry_trace_active = 0;
-+unsigned int		syscall_exit_trace_active = 0;
-+static int		fetch_syscall_eip_use_depth;
-+static int		fetch_syscall_eip_use_bounds ;
-+static int		syscall_eip_depth;
-+static void*		syscall_lower_eip_bound;
-+static void*		syscall_upper_eip_bound;
-+
-+/* Timers needed if TSC being used */
-+static struct timer_list heartbeat_timer;	
-+static struct timer_list percpu_timer[NR_CPUS] __cacheline_aligned;
-+
-+/* The global per-buffer control data structure */
-+static struct buffer_control buffer_control[NR_CPUS] __cacheline_aligned;
-+
-+/* The data structure shared between the tracing driver and the trace daemon 
-+   via ioctl. */
-+static struct shared_buffer_control shared_buffer_control;
-+
-+/* Per-cpu bitmap of buffer switches in progress */
-+static unsigned long buffer_switches_pending;
-+
-+/* Architecture-specific info the daemon needs to know about */
-+static struct ltt_arch_info ltt_arch_info;
-+
-+/*  Large data components allocated at load time */
-+static char *user_event_data = NULL;		/* The data associated with a user event */
-+
-+/* Space reserved for TRACE_EV_BUFFER_START */
-+static u32 start_reserve = TRACER_FIRST_EVENT_SIZE; 
-+
-+/* Space reserved for TRACE_EV_BUFFER_END event + sizeof lost word, which 
-+   though the sizeof lost word isn't necessarily contiguous with rest of 
-+   event (it's always at the end of the buffer) is included here for code 
-+   clarity. */
-+static u32 end_reserve = TRACER_LAST_EVENT_SIZE; 
-+
-+/* The size of the structures used to describe the events */
-+static int event_struct_size[TRACE_EV_MAX + 1] =
-+{
-+	sizeof(trace_start)		/* TRACE_START */ ,
-+	sizeof(trace_syscall_entry)	/* TRACE_SYSCALL_ENTRY */ ,
-+	0				/* TRACE_SYSCALL_EXIT */ ,
-+	sizeof(trace_trap_entry)	/* TRACE_TRAP_ENTRY */ ,
-+	0				/* TRACE_TRAP_EXIT */ ,
-+	sizeof(trace_irq_entry)		/* TRACE_IRQ_ENTRY */ ,
-+	0				/* TRACE_IRQ_EXIT */ ,
-+	sizeof(trace_schedchange)	/* TRACE_SCHEDCHANGE */ ,
-+	0				/* TRACE_KERNEL_TIMER */ ,
-+	sizeof(trace_soft_irq)		/* TRACE_SOFT_IRQ */ ,
-+	sizeof(trace_process)		/* TRACE_PROCESS */ ,
-+	sizeof(trace_file_system)	/* TRACE_FILE_SYSTEM */ ,
-+	sizeof(trace_timer)		/* TRACE_TIMER */ ,
-+	sizeof(trace_memory)		/* TRACE_MEMORY */ ,
-+	sizeof(trace_socket)		/* TRACE_SOCKET */ ,
-+	sizeof(trace_ipc)		/* TRACE_IPC */ ,
-+	sizeof(trace_network)		/* TRACE_NETWORK */ ,
-+	sizeof(trace_buffer_start)	/* TRACE_BUFFER_START */ ,
-+	sizeof(trace_buffer_end)	/* TRACE_BUFFER_END */ ,
-+	sizeof(trace_new_event)		/* TRACE_NEW_EVENT */ ,
-+	sizeof(trace_custom)		/* TRACE_CUSTOM */ ,
-+	sizeof(trace_change_mask)	/* TRACE_CHANGE_MASK */,
-+	0				/* TRACE_HEARTBEAT */
-+};
-+
-+/* Custom event description */
-+struct custom_event_desc {
-+	trace_new_event event;
-+
-+	pid_t owner_pid;
-+
-+	struct custom_event_desc *next;
-+	struct custom_event_desc *prev;
-+};
-+
-+/* Next event ID to be used */
-+int next_event_id;
-+
-+/* Circular list of custom events */
-+struct custom_event_desc custom_events_head;
-+struct custom_event_desc *custom_events;
-+
-+/* Circular list lock. This is classic lock that provides for atomic access
-+to the circular list. */
-+rwlock_t custom_list_lock = RW_LOCK_UNLOCKED;
-+
-+/* Tracing subsystem handle */
-+struct trace_handle_struct{
-+	struct task_struct	*owner;
-+};
-+
-+/* Handle table */
-+struct trace_handle_struct	trace_handle_table[TRACE_MAX_HANDLES];
-+
-+/* Lock on handle table */
-+rwlock_t trace_handle_table_lock = RW_LOCK_UNLOCKED;
-+
-+/* This inspired by rtai/shmem */
-+#define FIX_SIZE(x) (((x) - 1) & PAGE_MASK) + PAGE_SIZE
-+
-+/* \begin{Code inspired from BTTV driver} */
-+
-+/* Here we want the physical address of the memory.
-+ * This is used when initializing the contents of the
-+ * area and marking the pages as reserved.
-+ */
-+static inline unsigned long kvirt_to_pa(unsigned long adr)
-+{
-+	unsigned long kva, ret;
-+
-+	kva = (unsigned long) page_address(vmalloc_to_page((void *) adr));
-+	kva |= adr & (PAGE_SIZE - 1);	/* restore the offset */
-+	ret = __pa(kva);
-+	return ret;
-+}
-+
-+static void *rvmalloc(unsigned long size)
-+{
-+	void *mem;
-+	unsigned long adr;
-+
-+	mem = vmalloc_32(size);
-+	if (!mem)
-+		return NULL;
-+
-+	memset(mem, 0, size);	/* Clear the ram out, no junk to the user */
-+	adr = (unsigned long) mem;
-+	while (size > 0) {
-+		mem_map_reserve(vmalloc_to_page((void *) adr));
-+		adr += PAGE_SIZE;
-+		size -= PAGE_SIZE;
-+	}
-+
-+	return mem;
-+}
-+
-+static void rvfree(void *mem, unsigned long size)
-+{
-+	unsigned long adr;
-+
-+	if (!mem)
-+		return;
-+
-+	adr = (unsigned long) mem;
-+	while ((long) size > 0) {
-+		mem_map_unreserve(vmalloc_to_page((void *) adr));
-+		adr += PAGE_SIZE;
-+		size -= PAGE_SIZE;
-+	}
-+	vfree(mem);
-+}
-+
-+static int tracer_mmap_region(struct vm_area_struct *vma,
-+			      const char *adr,
-+			      const char *start_pos,
-+			      unsigned long size)
-+{
-+	unsigned long start = (unsigned long) adr;
-+	unsigned long page, pos;
-+
-+	pos = (unsigned long) start_pos;
-+	
-+	while (size > 0) {
-+		page = kvirt_to_pa(pos);
-+		if (remap_page_range(vma, start, page, PAGE_SIZE, PAGE_SHARED))
-+			return -EAGAIN;
-+		
-+		start += PAGE_SIZE;
-+		pos += PAGE_SIZE;
-+		size -= PAGE_SIZE;
-+	}
-+	return 0;
-+}
-+/* \end{Code inspired from BTTV driver} */
 +
 +/**
-+ *	tracer_write_to_buffer: - Write data to destination buffer
++ *	get_time_delta: - Utility function for getting time delta.
++ *	@now: pointer to a timeval struct that may be given current time
++ *	@cpu: the associated CPU id
 + *
-+ *	Writes data to the destination buffer and updates the begining the
-+ *	buffer write position.
++ *	Returns the time difference between the current time and the buffer
++ *	start time.  The time is returned so that callers can use the
++ *	do_gettimeofday() result if they need to.
 + */
-+#define tracer_write_to_buffer(DEST, SRC, SIZE) \
-+do\
-+{\
-+   memcpy(DEST, SRC, SIZE);\
-+   DEST += SIZE;\
-+} while(0);
-+
-+/*** Lockless scheme functions ***/
-+
-+/* These inline atomic functions wrap the linux versions in order to 
-+   implement the interface we want as well as to ensure memory barriers. */
-+
-+/**
-+ *	compare_and_store_volatile: - Self-explicit
-+ *	@ptr: ptr to the word that will receive the new value
-+ *	@oval: the value we think is currently in *ptr
-+ *	@nval: the value *ptr will get if we were right
-+ *
-+ *	If *ptr is still what we think it is, atomically assign nval to it and
-+ *	return a boolean indicating TRUE if the new value was stored, FALSE
-+ *	otherwise.
-+ *
-+ *	Pseudocode for this operation:
-+ *  
-+ *	if(*ptr == oval) {
-+ *	   *ptr = nval;
-+ *	   return TRUE;
-+ *	} else {
-+ *	   return FALSE;
-+ *	}
-+ */
-+inline int compare_and_store_volatile(volatile u32 *ptr, 
-+				      u32 oval,
-+				      u32 nval)
++static inline trace_time_delta get_time_delta(struct timeval *now, u8 cpu)
 +{
-+	u32 prev;
++	trace_time_delta time_delta;
 +
-+	barrier();
-+	prev = cmpxchg(ptr, oval, nval);
-+	barrier();
++	do_gettimeofday(now);
++	time_delta = calc_time_delta(now, &buffer_start_time(cpu));
 +
-+	return (prev == oval);
++	return time_delta;
 +}
 +
 +/**
-+ *	atomic_set_volatile: - Atomically set the value in ptr to nval.
-+ *	@ptr: ptr to the word that will receive the new value
-+ *	@nval: the new value
++ *	get_timestamp: - Utility function for getting a time and TSC pair.
++ *	@now: current time
++ *	@tsc: the TSC associated with now
 + *
-+ *	Uses memory barriers to set *ptr to nval.
++ *	Sets the value pointed to by now to the current time. Value pointed to
++ *	by tsc is not set since there is no generic TSC support.
 + */
-+inline void atomic_set_volatile(atomic_t *ptr,
-+				u32 nval)
++static inline void get_timestamp(struct timeval *now, 
++				 trace_time_delta *tsc)
 +{
-+	barrier();
-+	atomic_set(ptr, (int)nval);
-+	barrier();
++	do_gettimeofday(now);
 +}
 +
 +/**
-+ *	atomic_add_volatile: - Atomically add val to the value at ptr.
-+ *	@ptr: ptr to the word that will receive the addition
-+ *	@val: the value to add to *ptr
++ *	get_time_or_tsc: - Utility function for getting a time or a TSC.
++ *	@now: current time
++ *	@tsc: current TSC
 + *
-+ *	Uses memory barriers to add val to *ptr.
++ *	Sets the value pointed to by now to the current time.
 + */
-+inline void atomic_add_volatile(atomic_t *ptr, u32 val)
++static inline void get_time_or_tsc(struct timeval *now, 
++				   trace_time_delta *tsc)
 +{
-+	barrier();
-+	atomic_add((int)val, ptr);
-+	barrier();
++	do_gettimeofday(now);
 +}
 +
 +/**
-+ *	atomic_sub_volatile: - Atomically substract val from the value at ptr.
-+ *	@ptr: ptr to the word that will receive the subtraction
-+ *	@val: the value to subtract from *ptr
++ *	switch_time_delta: - Utility function getting buffer switch time delta.
++ *	@time_delta: previously calculated or retrieved time delta 
 + *
-+ *	Uses memory barriers to substract val from *ptr.
++ *	Returns 0.
++ *	This function is used only for start/end buffer events.
 + */
-+inline void atomic_sub_volatile(atomic_t *ptr, s32 val)
++static inline trace_time_delta switch_time_delta(trace_time_delta time_delta)
 +{
-+	barrier();
-+	atomic_sub((int)val, ptr);
-+	barrier();
-+}
-+
-+/**
-+ *	trace_commit: - Atomically commit a reserved slot in the buffer.
-+ *	@index: index into the trace buffer
-+ *	@len: the value to add to fill_count of the buffer contained in index
-+ *	@cpu: the CPU id associated with the event
-+ *
-+ *	Atomically add len to the fill_count of the buffer specified by the
-+ *	buffer number contained in index.
-+ */
-+static inline void trace_commit(u32 index, u32 len, u8 cpu)
-+{
-+	u32 bufno = TRACE_BUFFER_NUMBER_GET(index, offset_bits(cpu));
-+	atomic_add_volatile(&fill_count(cpu, bufno), len);
-+}
-+
-+/**
-+ *	write_start_event: - Write start event to beginning of trace.
-+ *	@start_event: the start event data
-+ *	@start_tsc: the timestamp counter associated with the event
-+ *	@cpu_id: the CPU id associated with the event
-+ *
-+ *	Writes start event at the start of the trace, just following the
-+ *	start buffer event of the first buffer.
-+ */
-+static inline void write_start_event(trace_start *start_event,
-+				     trace_time_delta start_tsc,
-+				     u8 cpu_id)
-+{
-+	u8 event_id;			/* Event ID of last event */
-+	uint16_t data_size;		/* Size of tracing data */
-+	trace_time_delta time_delta;	/* Time between now and prev event */
-+	char* current_write_pos;       	/* Current position for writing */
-+
-+        /* Skip over the start buffer event */
-+	current_write_pos = trace_buffer(cpu_id) + TRACER_FIRST_EVENT_SIZE;
-+	
-+	/* Write event type to tracing buffer */
-+	event_id = TRACE_EV_START;
-+	tracer_write_to_buffer(current_write_pos,
-+			       &event_id,
-+			       sizeof(event_id));
-+
-+	/* Write event time delta/TSC to tracing buffer */
-+	time_delta = switch_time_delta(start_tsc);
-+	tracer_write_to_buffer(current_write_pos,
-+			       &time_delta,
-+			       sizeof(time_delta));
-+
-+	/* Write event structure */
-+	tracer_write_to_buffer(current_write_pos,
-+			       start_event,
-+			       sizeof(trace_start));
-+
-+	/* Compute the data size */
-+	data_size = sizeof(event_id)
-+	    + sizeof(time_delta)
-+	    + sizeof(trace_start)
-+	    + sizeof(data_size);
-+
-+	/* Write the length of the event description */
-+	tracer_write_to_buffer(current_write_pos,
-+			       &data_size,
-+			       sizeof(data_size));
-+}
-+
-+/**
-+ *	write_start_buffer_event: - Write start-buffer event to buffer start.
-+ *	@buf_index: index into the trace buffer
-+ *	@start_time: the time of the start-buffer event
-+ *	@start_tsc: the timestamp counter associated with time
-+ *	@cpu_id: the CPU id associated with the event
-+ *
-+ *	Writes start-buffer event at the start of the buffer specified by the
-+ *	buffer number contained in buf_index.
-+ */
-+static inline void write_start_buffer_event(u32 buf_index, 
-+					    struct timeval start_time,
-+					    trace_time_delta start_tsc,
-+					    u8 cpu_id)
-+{
-+	trace_buffer_start start_buffer_event; /* Start of new buffer event */
-+	u8 event_id;			/* Event ID of last event */
-+	uint16_t data_size;		/* Size of tracing data */
-+	trace_time_delta time_delta;	/* Time between now and prev event */
-+	char* current_write_pos;       	/* Current position for writing */
-+
-+	/* Clear the offset bits of index to get the beginning of buffer */
-+	current_write_pos = trace_buffer(cpu_id) 
-+		+ TRACE_BUFFER_OFFSET_CLEAR(buf_index, offset_mask(cpu_id));
-+
-+	/* Increment buffer ID */
-+	(buffer_id(cpu_id))++;
-+	
-+	/* Write the start of buffer event */
-+	start_buffer_event.id = buffer_id(cpu_id);
-+	start_buffer_event.time = start_time;
-+	start_buffer_event.tsc = start_tsc;
-+
-+	/* Write event type to tracing buffer */
-+	event_id = TRACE_EV_BUFFER_START;
-+	tracer_write_to_buffer(current_write_pos,
-+			       &event_id,
-+			       sizeof(event_id));
-+
-+	/* Write event time delta/TSC to tracing buffer */
-+	time_delta = switch_time_delta(start_tsc);
-+	tracer_write_to_buffer(current_write_pos,
-+			       &time_delta,
-+			       sizeof(time_delta));
-+
-+	/* Write event structure */
-+	tracer_write_to_buffer(current_write_pos,
-+			       &start_buffer_event,
-+			       sizeof(start_buffer_event));
-+
-+	/* Compute the data size */
-+	data_size = sizeof(event_id)
-+	    + sizeof(time_delta)
-+	    + sizeof(start_buffer_event)
-+	    + sizeof(data_size);
-+
-+	/* Write the length of the event description */
-+	tracer_write_to_buffer(current_write_pos,
-+			       &data_size,
-+			       sizeof(data_size));
-+}
-+
-+/**
-+ *	write_end_buffer_event: - Write end-buffer event to end of buffer.
-+ *	@buf_index: index into the trace buffer
-+ *	@end_time: the time of the end-buffer event
-+ *	@end_tsc: the timestamp counter associated with time
-+ *	@cpu_id: the CPU id associated with the event
-+ *
-+ *	Writes end-buffer event at the end of the buffer specified by the
-+ *	buffer number contained in buf_index, at the offset also contained in
-+ *	buf_index.
-+ */
-+static inline void write_end_buffer_event(u32 buf_index, 
-+					  struct timeval end_time,
-+					  trace_time_delta end_tsc,
-+					  u8 cpu_id)
-+{
-+ 	trace_buffer_end end_buffer_event; /* End of buffer event */
-+	u8 event_id;			/* Event ID of last event */
-+	trace_time_delta time_delta;	/* Time between now and prev event */
-+	char* current_write_pos;        /* Current position for writing */
-+	uint16_t data_size;		/* Size of tracing data */
-+
-+	current_write_pos = trace_buffer(cpu_id) + buf_index;
-+
-+	/* Write the end of buffer event */
-+	end_buffer_event.time = end_time;
-+	end_buffer_event.tsc = end_tsc;
-+
-+	/* Write the CPUID to the tracing buffer, if required */
-+	if (log_cpuid == 1) {
-+		tracer_write_to_buffer(current_write_pos,
-+				       &cpu_id,
-+				       sizeof(cpu_id));
-+	}
-+	/* Write event type to tracing buffer */
-+	event_id = TRACE_EV_BUFFER_END;
-+	tracer_write_to_buffer(current_write_pos,
-+			       &event_id,
-+			       sizeof(event_id));
-+
-+	/* Write event time delta/TSC to tracing buffer */
-+	time_delta = switch_time_delta(end_tsc);
-+	tracer_write_to_buffer(current_write_pos,
-+			       &time_delta,
-+			       sizeof(time_delta));
-+
-+	/* Write event structure */
-+	tracer_write_to_buffer(current_write_pos,
-+			       &end_buffer_event,
-+			       sizeof(end_buffer_event));
-+
-+	/* Compute the data size */
-+	data_size = sizeof(event_id)
-+		+ sizeof(time_delta)
-+		+ sizeof(end_buffer_event)
-+		+ sizeof(data_size);
-+
-+	/* Write the length of the event description */
-+	tracer_write_to_buffer(current_write_pos,
-+			       &data_size,
-+			       sizeof(data_size));
-+}
-+
-+/**
-+ *	write_lost_size: - Write lost size to end of buffer contained in index.
-+ *	@buf_index: index into the trace buffer 
-+ *	@size_lost: number of bytes lost at the end of buffer
-+ *	@cpu_id: the CPU id associated with the event
-+ *
-+ *	Writes the value contained in size_lost as the last word in the 
-+ *	the buffer specified by the buffer number contained in buf_index.  The
-+ *	'lost size' is the number of bytes that are left unused by the tracing
-+ *	scheme at the end of a buffer for a variety of reasons.
-+ */
-+static inline void write_lost_size(u32 buf_index, u32 size_lost, u8 cpu_id)
-+{
-+	char* write_buffer_end;		/* End of buffer */
-+
-+	/* Get end of buffer by clearing offset and adding buffer size */
-+	write_buffer_end = trace_buffer(cpu_id)
-+	  + TRACE_BUFFER_OFFSET_CLEAR(buf_index, offset_mask(cpu_id))
-+	  + TRACE_BUFFER_SIZE(offset_bits(cpu_id));
-+
-+	/* Write size lost at the end of the buffer */
-+	*((u32 *) (write_buffer_end - sizeof(size_lost))) = size_lost;
-+}
-+
-+/**
-+ *	finalize_buffer: - Utility function consolidating end-of-buffer tasks.
-+ *	@end_index: index into trace buffer to write the end-buffer event at
-+ *	@size_lost: number of unused bytes at the end of the buffer
-+ *	@time_stamp: the time of the end-buffer event
-+ *	@tsc: the timestamp counter associated with time
-+ *	@cpu_id: the CPU id associated with the event
-+ *
-+ *	This function must be called from within a lock, because it increments
-+ *	buffers_produced.
-+ */
-+static inline void finalize_buffer(u32 end_index, 
-+				   u32 size_lost, 
-+				   struct timeval *time_stamp,
-+				   trace_time_delta *tsc, 
-+				   u8 cpu_id)
-+{
-+	/* Write end buffer event as last event in old buffer. */
-+	write_end_buffer_event(end_index, *time_stamp, *tsc, cpu_id);
-+
-+	/* In any buffer switch, we need to write out the lost size,
-+	   which can be 0. */
-+	write_lost_size(end_index, size_lost, cpu_id);
-+
-+	/* Add the size lost and end event size to fill_count so that 
-+	   the old buffer won't be seen as incomplete. */
-+	trace_commit(end_index, size_lost, cpu_id);
-+
-+	/* Every finalized buffer means a produced buffer */
-+	(buffers_produced(cpu_id))++;
-+}
-+
-+/**
-+ *	finalize_lockless_trace: - finalize last buffer at end of trace
-+ *	@cpu_id: the CPU id associated with the event
-+ *
-+ *	Called when tracing is stopped, to finish processing last buffer.
-+ */
-+static inline void finalize_lockless_trace(u8 cpu_id)
-+{
-+	u32 events_end_index;		/* Index of end of last event */
-+	u32 size_lost;			/* Bytes after end of last event */
-+	unsigned long int flags;	/* CPU flags for lock */
-+	struct timeval time;            /* The buffer-end time */
-+	trace_time_delta tsc;	        /* The buffer-end TSC */
-+
-+	/* Find index of end of last event */
-+	events_end_index = TRACE_BUFFER_OFFSET_GET(index(cpu_id), 
-+						   offset_mask(cpu_id));
-+
-+	/* Size lost in buffer is the unused space after end of last event
-+	   and end of buffer. */
-+	size_lost = TRACE_BUFFER_SIZE(offset_bits(cpu_id)) - events_end_index;
-+
-+	/* Disable interrupts on this CPU */
-+	local_irq_save(flags);
-+
-+	/* Get the time and TSC of the end-buffer event */
-+	get_timestamp(&time, &tsc);
-+
-+	/* Write end event etc. and increment buffers_produced.  The  
-+	   time used here is what the locking version uses as well. */
-+	finalize_buffer(index(cpu_id) & index_mask(cpu_id), size_lost, 
-+			&time, &tsc, cpu_id);
-+
-+	/* Atomically mark buffer-switch bit for this cpu */
-+	set_bit(cpu_id, &buffer_switches_pending);
-+
-+	/* Restore interrupts on this CPU */
-+	local_irq_restore(flags);
-+}
-+
-+/**
-+ *	discard_check: -  Determine whether an event should be discarded.
-+ *	@old_index: index into trace buffer where check for space should begin
-+ *	@event_len: the length of the event to check
-+ *	@time_stamp: the time of the end-buffer event
-+ *	@tsc: the timestamp counter associated with time
-+ *	@cpu_id: the CPU id associated with the event
-+ *
-+ *	Checks whether an event of size event_len will fit into the available
-+ *	buffer space as indicated by the value in old_index.  A side effect
-+ *	of this function is that if the length would fill or overflow the
-+ *	last available buffer, that buffer will be finalized and all 
-+ *	subsequent events will be automatically discarded until a buffer is
-+ *	later freed.
-+ *
-+ *	The return value contains the result flags and is an ORed combination 
-+ *	of the following:
-+ *
-+ *	LTT_EVENT_DISCARD_NONE - event should not be discarded
-+ *	LTT_BUFFER_SWITCH - buffer switch occurred
-+ *	LTT_EVENT_DISCARD - event should be discarded (all buffers are full)
-+ *	LTT_EVENT_TOO_LONG - event won't fit into even an empty buffer
-+ */
-+static inline int discard_check(u32 old_index,
-+				u32 event_len, 
-+				struct timeval *time_stamp,
-+				trace_time_delta *tsc,
-+				u8 cpu_id)
-+{
-+	u32 buffers_ready;
-+	u32 offset_mask = offset_mask(cpu_id);
-+	u8 offset_bits = offset_bits(cpu_id);
-+	u32 index_mask = index_mask(cpu_id);
-+	u32 size_lost;
-+	unsigned long int flags; /* CPU flags for lock */
-+
-+	/* Check whether the event is larger than a buffer */ 
-+	if(event_len >= TRACE_BUFFER_SIZE(offset_bits))
-+		return LTT_EVENT_DISCARD | LTT_EVENT_TOO_LONG;
-+
-+	/* Disable interrupts on this CPU */
-+	local_irq_save(flags);
-+
-+	/* We're already overrun, nothing left to do */  
-+	if(buffers_full(cpu_id) == 1) {
-+		/* Restore interrupts on this CPU */
-+		local_irq_restore(flags);
-+		return LTT_EVENT_DISCARD;
-+	}
-+	
-+	buffers_ready = buffers_produced(cpu_id) - buffers_consumed(cpu_id);
-+
-+	/* If this happens, we've been pushed to the edge of the last 
-+	   available buffer which means we need to finalize it and increment 
-+	   buffers_produced.  However, we don't want to allow 
-+	   sBufferControl.index to be actually pushed to full or beyond, 
-+	   otherwise we'd just be wrapping around and allowing subsequent
-+	   events to overwrite good buffers.  It is true that there may not
-+	   be enough space for this event, but there could be space for 
-+	   subsequent smaller event(s).  It doesn't matter if they write 
-+	   themselves, because here we say that anything after the old_index 
-+	   passed in to this function is lost, even if other events have or 
-+	   will reserve space in this last buffer.  Nor can any other event
-+	   reserve space in buffers following this one, until at least one
-+	   buffer is consumed by the daemon. */
-+	if(buffers_ready == n_buffers(cpu_id) - 1) {
-+		/* We set this flag so we only do this once per overrun */
-+		buffers_full(cpu_id) = 1;
-+
-+		/* Get the time of the event */
-+		get_timestamp(time_stamp, tsc);
-+
-+		/* Size lost is everything after old_index */
-+		size_lost = TRACE_BUFFER_SIZE(offset_bits)
-+		  - TRACE_BUFFER_OFFSET_GET(old_index, offset_mask);
-+
-+		/* Write end event and lost size.  This increases buffer_count
-+		   by the lost size, which is important later when we add the
-+		   deferred size. */
-+		finalize_buffer(old_index & index_mask, size_lost, 
-+				time_stamp, tsc, cpu_id);
-+
-+		/* We need to add the lost size to old index, but we can't
-+		   do it now, or we'd roll index over and allow new events,
-+		   so we defer it until a buffer is free.  Note however that
-+		   buffer_count does get incremented by lost size, which is
-+		   important later when start logging again. */
-+		last_event_index(cpu_id) = old_index;
-+		last_event_timestamp(cpu_id) = *time_stamp;
-+		last_event_tsc(cpu_id) = *tsc;
-+
-+		/* Restore interrupts on this CPU */
-+		local_irq_restore(flags);
-+
-+		/* We lose this event */
-+		return LTT_BUFFER_SWITCH | LTT_EVENT_DISCARD;
-+	}
-+
-+	/* Restore interrupts on this CPU */
-+	local_irq_restore(flags);
-+
-+	/* Nothing untoward happened */
-+	return LTT_EVENT_DISCARD_NONE;
-+}
-+
-+/**
-+ *	trace_reserve_slow: - The slow reserve path in the lockless scheme.
-+ *	@old_index: the value of the buffer control index when we were called
-+ *	@slot_len: the length of the slot to reserve
-+ *	@index_ptr: variable that will receive the start pos of the reserved slot
-+ *	@time_stamp: variable that will receive the time the slot was reserved
-+ *	@tsc: the timestamp counter associated with time
-+ *	@cpu_id: the CPU id associated with the event
-+ *
-+ *	Called by trace_reserve() if the length of the event being logged would
-+ *	most likely cause a 'buffer switch'.  The value of the variable pointed
-+ *	to by index_ptr will contain the index actually reserved by this 
-+ *	function.  The timestamp reflecting the time the slot was reserved 
-+ *	will be saved in *time_stamp.  The return value indicates whether 
-+ *	there actually was a buffer switch (not inevitable in all cases).
-+ *	If the return value also indicates a discarded event, the values in 
-+ *	*index_ptr and *time_stamp will be indeterminate. 
-+ *
-+ *	The return value contains the result flags and is an ORed combination 
-+ *	of the following:
-+ *
-+ *	LTT_BUFFER_SWITCH_NONE - no buffer switch occurred 
-+ *	LTT_EVENT_DISCARD_NONE - event should not be discarded
-+ *	LTT_BUFFER_SWITCH - buffer switch occurred
-+ *	LTT_EVENT_DISCARD - event should be discarded (all buffers are full)
-+ *	LTT_EVENT_TOO_LONG - event won't fit into even an empty buffer
-+ */
-+static inline int trace_reserve_slow(u32 old_index, /* needed for overruns */
-+				     u32 slot_len,
-+				     u32 *index_ptr,
-+				     struct timeval *time_stamp,
-+				     trace_time_delta *tsc,
-+				     u8 cpu_id)
-+{
-+	u32 new_index, offset, new_buf_no;
-+	unsigned long int flags; /* CPU flags for lock */
-+	u32 offset_mask = offset_mask(cpu_id);
-+	u8 offset_bits = offset_bits(cpu_id);
-+	u32 index_mask = index_mask(cpu_id);
-+	u32 size_lost = end_reserve; /* size lost always includes end event */
-+	int discard_event;
-+	int buffer_switched = LTT_BUFFER_SWITCH_NONE;
-+
-+	/* We don't get here unless the event might cause a buffer switch */
-+
-+	/* First check whether conditions exist do discard the event */
-+	discard_event = discard_check(old_index, slot_len, time_stamp, 
-+				      tsc, cpu_id);
-+	if(discard_event != LTT_EVENT_DISCARD_NONE)
-+		return discard_event;
-+
-+	/* If we're here, we still have free buffers to reserve from */
-+
-+	/* Do this until we reserve a spot for the event */
-+	do {
-+		/* Yeah, we're re-using a param variable, is that bad form? */ 
-+		old_index = index(cpu_id);
-+
-+		/* We're here because the event + ending reserve space would
-+		   overflow or exactly fill old buffer.  Calculate new index
-+		   again. */
-+		new_index = old_index + slot_len;
-+
-+		/* We only care about the offset part of the new index */
-+		offset = TRACE_BUFFER_OFFSET_GET(new_index + end_reserve, 
-+						 offset_mask);
-+
-+		/* If we would actually overflow and not exactly fill the old 
-+		   buffer, we reserve the first slot (after adding a buffer 
-+		   start event) in the new one. */
-+		if((offset < slot_len) && (offset > 0)) {
-+
-+			/* This is an overflow, not an exact fit.  The 
-+			   reserved index is just after the space reserved for
-+			   the start event in the new buffer. */
-+			*index_ptr = TRACE_BUFFER_OFFSET_CLEAR(new_index + end_reserve, offset_mask)
-+				+ start_reserve;
-+
-+			/* Now the next free space is at the reserved index 
-+			   plus the length of this event. */
-+			new_index = *index_ptr + slot_len;
-+		} else if (offset < slot_len) {
-+			/* We'll exactly fill the old buffer, so our reserved
-+			   index is still in the old buffer and our new index
-+			   is in the new one + sStartReserve */
-+			*index_ptr = old_index;
-+			new_index = TRACE_BUFFER_OFFSET_CLEAR(new_index + end_reserve, offset_mask)
-+				+ start_reserve;
-+		} else
-+			/* another event has actually pushed us into a new 
-+			   buffer since we were called. */ 
-+			*index_ptr = old_index;
-+					
-+		/* Get the time of the event */
-+		get_timestamp(time_stamp, tsc);
-+	} while (!compare_and_store_volatile(&index(cpu_id), 
-+					     old_index, new_index));
-+
-+	/* Once we're successful in saving a new_index as the authoritative
-+	   new global buffer control index, finish the buffer switch 
-+	   processing. */
-+
-+	/* Mask off the high bits outside of our reserved index */
-+	*index_ptr &= index_mask;
-+
-+	/* At this point, our indices are set in stone, so we can safely
-+	   write our start and end events and lost count to our buffers.
-+	   The first test here could fail if between the time reserve_slow
-+	   was called and we got a reserved slot, we slept and someone else
-+	   did the buffer switch already. */
-+	if(offset < slot_len) { /* Event caused a buffer switch. */
-+		if(offset > 0) /* We didn't exactly fill the old buffer */
-+			/* Set the size lost value in the old buffer.  That
-+			   value is len+sEndReserve-offset-sEndReserve,
-+			   i.e. sEndReserve cancels itself out. */
-+			size_lost += slot_len - offset;
-+		else /* We exactly filled the old buffer */
-+			/* Since we exactly filled the old buffer, the index 
-+			   we write the end event to is after the space 
-+			   reserved for this event. */
-+			old_index += slot_len;
-+
-+		/* Disable interrupts on this CPU */
-+		local_irq_save(flags);
-+
-+		/* Write end event etc. and increment buffers_produced. */
-+		finalize_buffer(old_index & index_mask, size_lost, 
-+				time_stamp, tsc, cpu_id);
-+
-+		/* If we're here, we had a normal buffer switch and need to 
-+		   update the start buffer time before writing the event.  
-+		   The start buffer time is the same as the event time for the 
-+		   event reserved, and lTimeDelta of 0 but that also appears 
-+		   to be the case in the locking version as well. */
-+		buffer_start_time(cpu_id) = *time_stamp;
-+		buffer_start_tsc(cpu_id) = *tsc;
-+
-+		/* Restore interrupts on this CPU */
-+		local_irq_restore(flags);
-+
-+		/* new_index is always valid here, since it's set correctly 
-+		   if offset < len + sEndReserve, and we don't get here
-+		   unless that's true.  The issue would be that if we didn't
-+		   actually switch buffers, new_index would be too large by
-+		   sEndReserve bytes. */
-+		write_start_buffer_event(new_index & index_mask, 
-+					 *time_stamp, *tsc, cpu_id);
-+
-+		/* We initialize the new buffer by subtracting 
-+		   TRACE_BUFFER_SIZE rather than directly initializing to 
-+		   sStartReserve in case events have been already been added 
-+		   to the new buffer under us.  We subtract space for the start
-+		   buffer event from buffer size to leave room for the start
-+		   buffer event we just wrote. */
-+		new_buf_no = TRACE_BUFFER_NUMBER_GET(new_index & index_mask, 
-+						     offset_bits);
-+		atomic_sub_volatile(&fill_count(cpu_id, new_buf_no),
-+			    TRACE_BUFFER_SIZE(offset_bits) - start_reserve);
-+
-+		/* We need to check whether fill_count is less than the 
-+		   sStartReserve.  If this test is true, it means that 
-+		   subtracting the buffer size underflowed fill_count i.e. 
-+		   fill_count represents an incomplete buffer.  Any any case, 
-+		   we're completely fubared and don't have any choice but to 
-+		   start the new buffer out fresh. */
-+		if(atomic_read(&fill_count(cpu_id, new_buf_no)) < start_reserve)
-+			atomic_set_volatile(&fill_count(cpu_id, new_buf_no), 
-+					    start_reserve);
-+
-+		/* If we're here, there must have been a buffer switch */
-+		buffer_switched = LTT_BUFFER_SWITCH;
-+	}
-+	
-+	return buffer_switched;
-+}
-+
-+/**
-+ *	trace_reserve: -  Reserve a slot in the trace buffer for an event.
-+ *	@slot_len: the length of the slot to reserve
-+ *	@index_prt: variable that will receive the start pos of the reserved slot
-+ *	@time_stamp: variable that will receive the time the slot was reserved
-+ *	@tsc: the timestamp counter associated with time
-+ *	@cpu_id: the CPU id associated with the event
-+ *
-+ *	This is the fast path for reserving space in the trace buffer in the  
-+ *	lockless tracing scheme.  If a slot was successfully reserved, the 
-+ *	caller can then at its leisure write data to the reserved space (at
-+ *	least until the space is reclaimed in an out-of-space situation).
-+ *
-+ *	If the requested length would fill or exceed the current buffer, the
-+ *	slow path, trace_reserve_slow(), will be executed instead.
-+ *
-+ *	The index reflecting the start position of the slot reserved will be 
-+ *	saved in *index_prt, and the timestamp reflecting the time the slot was
-+ *	reserved will be saved in *time_stamp.  If the return value indicates
-+ *	a discarded event, the values in *index_prt and *time_stamp will be
-+ *	indeterminate. 
-+ *
-+ *	The return value contains the result flags and is an ORed combination 
-+ *	of the following:
-+ *
-+ *	LTT_BUFFER_SWITCH_NONE - no buffer switch occurred
-+ *	LTT_EVENT_DISCARD_NONE - event should not be discarded
-+ *	LTT_BUFFER_SWITCH - buffer switch occurred
-+ *	LTT_EVENT_DISCARD - event should be discarded (all buffers are full)
-+ *	LTT_EVENT_TOO_LONG - event won't fit into even an empty buffer
-+ */
-+static inline int trace_reserve(u32 slot_len, 
-+				u32 *index_ptr, 
-+				struct timeval *time_stamp,
-+				trace_time_delta *tsc,
-+				u8 cpu_id)
-+{
-+	u32 old_index, new_index, offset;
-+	u32 offset_mask = offset_mask(cpu_id);
-+
-+	/* Do this until we reserve a spot for the event */
-+	do {
-+		old_index = index(cpu_id);
-+
-+		/* If adding len + sEndReserve to the old index doesn't put us
-+		   into a new buffer, this is what the new index would be. */
-+		new_index = old_index + slot_len;
-+		offset = TRACE_BUFFER_OFFSET_GET(new_index + end_reserve, 
-+						 offset_mask);
-+
-+		/* If adding the length reserved for the end buffer event and
-+		   lost count to the new index would put us into a new buffer,
-+		   we need to do a buffer switch.  If in between now and the 
-+		   buffer switch another event that does fit comes in, no 
-+		   problem because we check again in the slow version.  In 
-+		   either case, there will always be room for the end event 
-+		   in the old buffer.  The trick in this test is that adding 
-+		   a length that would carry into the non-offset bits of the 
-+		   index results in the offset portion being smaller than the 
-+		   length that was added. */
-+		if(offset < slot_len)
-+			/* We would roll over into a new buffer, need to do 
-+			   buffer switch processing. */
-+			return trace_reserve_slow(old_index, slot_len, 
-+				  index_ptr, time_stamp, tsc, cpu_id);
-+
-+		/* Get the timestamp/TSC of the event, whatever appropriate */
-+		get_time_or_tsc(time_stamp, tsc);
-+	} while (!compare_and_store_volatile(&index(cpu_id), 
-+					     old_index, new_index));
-+
-+	/* Once we're successful in saving a new_index as the authoritative
-+	   new global buffer control index, we can return old_index, the 
-+	   successfully reserved index. */
-+
-+        /* Return the reserved index value */
-+	*index_ptr = old_index & index_mask(cpu_id);
-+
-+	return LTT_BUFFER_SWITCH_NONE; /* No buffer switch occurred */
-+}
-+
-+/**
-+ *	lockless_write_event: - Locklessly reserves space and writes an event.
-+ *	@event_id: event id
-+ *	@event_struct: event details
-+ *	@data_size: total event size 
-+ *	@cpu_id: CPU ID associated with event
-+ *	@var_data_beg: ptr to variable-length data for the event
-+ *	@var_data_len: length of variable-length data for the event
-+ *
-+ *	This is the main event-writing function for the lockless scheme.  It
-+ *	reserves space for an event if possible, writes the event and signals 
-+ *	the daemon if it caused a buffer switch.
-+ */
-+int lockless_write_event(u8 event_id, 
-+			 void *event_struct,
-+			 uint16_t data_size,
-+			 u8 cpu_id,
-+			 void *var_data_beg,
-+			 int var_data_len)
-+{
-+	u32 reserved_index;
-+	struct timeval time_stamp;
-+	trace_time_delta time_delta;	/* Time between now and prev event */
-+	struct siginfo daemon_sig_info;	/* Signal information */
-+	int reserve_ret_code;
-+	char* current_write_pos;	/* Current position for writing */
-+	int return_code = 0;
-+
-+	/* Reserve space for the event.  If the space reserved is in a new
-+	   buffer, note that fact. */
-+	reserve_ret_code = trace_reserve((u32)data_size, &reserved_index, 
-+				 &time_stamp, &time_delta, cpu_id);
-+
-+	if(reserve_ret_code & LTT_BUFFER_SWITCH)
-+		/* We need to inform the daemon */
-+		atomic_set(&send_signal, 1);
-+
-+	/* Exact lost event count isn't important to anyone, so this is OK. */
-+	if(reserve_ret_code & LTT_EVENT_DISCARD)
-+		(events_lost(cpu_id))++;
-+
-+	/* We don't write the event, but we still need to signal */
-+	if((reserve_ret_code & LTT_BUFFER_SWITCH) && 
-+	   (reserve_ret_code & LTT_EVENT_DISCARD)) {
-+		return_code = -ENOMEM;
-+		goto send_buffer_switch_signal;
-+	}
-+	
-+	/* no buffer space left, discard event. */
-+	if((reserve_ret_code & LTT_EVENT_DISCARD) || 
-+	   (reserve_ret_code & LTT_EVENT_TOO_LONG)) {
-+		/* return value for trace() */
-+		return_code = -ENOMEM;
-+		goto send_buffer_switch_signal;
-+	}
-+
-+	/* The position we write to in the trace memory area is simply the
-+	   beginning of trace memory plus the index we just reserved. */
-+	current_write_pos = trace_buffer(cpu_id) + reserved_index;
-+
-+	/* If not using TSC, calculate delta */ 
-+	recalc_time_delta(&time_stamp, &time_delta, cpu_id);
-+
-+	/* Write the CPUID to the tracing buffer, if required */
-+	if ((log_cpuid == 1) && (event_id != TRACE_EV_START) 
-+	    && (event_id != TRACE_EV_BUFFER_START))
-+		tracer_write_to_buffer(current_write_pos,
-+				       &cpu_id,
-+				       sizeof(cpu_id));
-+
-+	/* Write event type to tracing buffer */
-+	tracer_write_to_buffer(current_write_pos,
-+			       &event_id,
-+			       sizeof(event_id));
-+
-+	/* Write event time delta to tracing buffer */
-+	tracer_write_to_buffer(current_write_pos,
-+			       &time_delta,
-+			       sizeof(time_delta));
-+
-+	/* Do we log event details */
-+	if (ltt_test_bit(event_id, &log_event_details_mask)) {
-+		/* Write event structure */
-+		tracer_write_to_buffer(current_write_pos,
-+				       event_struct,
-+				       event_struct_size[event_id]);
-+
-+		/* Write string if any */
-+		if (var_data_len)
-+			tracer_write_to_buffer(current_write_pos,
-+					       var_data_beg,
-+					       var_data_len);
-+	}
-+	/* Write the length of the event description */
-+	tracer_write_to_buffer(current_write_pos,
-+			       &data_size,
-+			       sizeof(data_size));
-+
-+	/* We've written the event - update the fill_count for the buffer. */ 
-+	trace_commit(reserved_index, (u32)data_size, cpu_id);
-+
-+send_buffer_switch_signal:
-+	/* Signal the daemon if we switched buffers */
-+	if((atomic_read(&send_signal) == 1) && 
-+	   (event_id != TRACE_EV_SCHEDCHANGE)) {
-+		/* Atomically mark buffer-switch bit for this CPU */
-+		set_bit(cpu_id, &buffer_switches_pending);
-+
-+		/* Clear the global pending signal flag */
-+		atomic_set(&send_signal, 0);
-+
-+		/* Setup signal information */
-+		daemon_sig_info.si_signo = SIGIO;
-+		daemon_sig_info.si_errno = 0;
-+		daemon_sig_info.si_code = SI_KERNEL;
-+
-+		/* Signal the tracing daemon */
-+		send_sig_info(SIGIO, &daemon_sig_info, daemon_task_struct);
-+	} 
-+
-+	return return_code;
-+}
-+
-+/**
-+ *	continue_trace: - Continue a stopped trace.
-+ *	@cpu_id: the CPU id associated with the event
-+ *
-+ *	Continue a trace that's been temporarily stopped because all buffers
-+ *	were full.
-+ */
-+static inline void continue_trace(u8 cpu_id)
-+{
-+	int discard_size;
-+	u32 last_event_buf_no;
-+	u32 last_buffer_lost_size;
-+	u32 last_event_offset;
-+	u32 new_index;
-+	int freed_buf_no;
-+
-+	/* A buffer's been consumed, and as we've been waiting around at the 
-+	   end of the last one produced, the one after that must now be free */
-+	freed_buf_no = buffers_produced(cpu_id) % n_buffers(cpu_id);
-+
-+	/* Start the new buffer out at the beginning */
-+	atomic_set_volatile(&fill_count(cpu_id, freed_buf_no), start_reserve);
-+
-+	/* In the all-buffers-full case, sBufferControl.index is frozen at the 
-+	   position of the first event that would have caused a buffer switch.
-+	   However, the fill_count for that buffer is not frozen and reflects 
-+	   not only the lost size calculated at that point, but also any 
-+	   smaller events that managed to write themselves at the end of the 
-+	   last buffer (because there's technically still space at the end, 
-+	   though it and all those contained events will be erased here).  
-+	   Here we try to salvage if possible that last buffer, but to do 
-+	   that, we need to subtract those pesky smaller events that managed 
-+	   to get in.  If after all that, another small event manages to 
-+	   sneak in in the time it takes us to do this, well, we concede and 
-+	   the daemon will toss that buffer.  It's not the end of the world 
-+	   if that happens, since that buffer actually marked the start of a 
-+	   bunch of lost events which continues until a buffer is freed. */
-+
-+	/* Get the bufno and offset of the buffer containing the last event 
-+	   logged before we had to stop for a buffer-full condition. */
-+	last_event_offset = TRACE_BUFFER_OFFSET_GET(last_event_index(cpu_id), 
-+						    offset_mask(cpu_id));
-+	last_event_buf_no = TRACE_BUFFER_NUMBER_GET(last_event_index(cpu_id), 
-+						    offset_bits(cpu_id));
-+
-+	/* We also need to know the lost size we wrote to that buffer when we 
-+	   stopped */
-+	last_buffer_lost_size = TRACE_BUFFER_SIZE(offset_bits(cpu_id)) 
-+		- last_event_offset;
-+
-+	/* Since the time we stopped, some smaller events probably reserved 
-+	   space and wrote themselves in, the sizes of which would have been 
-+	   reflected in the fill_count.  The total size of these events is 
-+	   calculated here.  */  
-+	discard_size = atomic_read(&fill_count(cpu_id, last_event_buf_no))
-+	  - last_event_offset
-+	  - last_buffer_lost_size;
-+
-+	/* If there were events written after we stopped, subtract those from 
-+	   the fill_count.  If that doesn't fix things, the buffer either is 
-+	   really incomplete, or another event snuck in, and we'll just stop 
-+	   now and say we did what we could for it. */
-+	if(discard_size > 0)
-+		atomic_sub_volatile(&fill_count(cpu_id, last_event_buf_no), 
-+				    discard_size);
-+
-+	/* Since our end buffer event probably got trounced, rewrite it in old
-+	   buffer. */
-+	write_end_buffer_event(last_event_index(cpu_id) & index_mask(cpu_id), 
-+	       last_event_timestamp(cpu_id), last_event_tsc(cpu_id), cpu_id);
-+
-+	/* We also need to update the buffer start time and write the start 
-+	   event for the next buffer, since we couldn't do it until now */
-+	get_timestamp(&buffer_start_time(cpu_id), &buffer_start_tsc(cpu_id));
-+
-+	/* The current buffer control index is hanging around near the end of 
-+	   the last buffer.  So we add the buffer size and clear the offset to
-+	   get to the beginning of the newly freed buffer. */
-+	new_index = index(cpu_id) + TRACE_BUFFER_SIZE(offset_bits(cpu_id));
-+	new_index = TRACE_BUFFER_OFFSET_CLEAR(new_index, 
-+				      offset_mask(cpu_id)) + start_reserve;
-+	write_start_buffer_event(new_index & index_mask(cpu_id), 
-+		 buffer_start_time(cpu_id), buffer_start_tsc(cpu_id), cpu_id);
-+
-+	/* Fixing up sBufferControl.index is simpler.  Since a buffer has been
-+	   consumed, there's now at least one buffer free, and we can continue.
-+	   We start off the next buffer in a fresh state.  Since nothing else 
-+	   can be meaningfully updating the buffer control index, we can safely
-+	   do that here.  'Meaningfully' means that there may be cases of 
-+	   smaller events managing to update the index in the last buffer but 
-+	   they're essentially erased by the lost size of that buffer when 
-+	   sBuffersFull was set. We need to restart the index at the beginning
-+	   of the next available buffer before turning off sBuffersFull, and 
-+	   avoid an erroneous buffer switch.  */ 
-+	index(cpu_id) = new_index;
-+
-+	/* Now we can continue reserving events */
-+	buffers_full(cpu_id) = 0;
-+}
-+
-+/**
-+ *	tracer_set_n_buffers: - Sets the number of buffers.
-+ *	@no_buffers: number of buffers.
-+ *
-+ *	Sets the number of buffers containing the trace data, valid only for
-+ *	lockless scheme, must be a power of 2.
-+ *
-+ *	Returns:
-+ *
-+ *	0, Size setting went OK
-+ *	-EINVAL, not a power of 2
-+ */
-+int tracer_set_n_buffers(int no_buffers)
-+{
-+	if(hweight32(no_buffers) != 1) /* Invalid if # set bits in word != 1 */
-+		return -EINVAL;
-+	
-+	/* Find position of one and only set bit */
-+	buf_no_bits = ffs(no_buffers) - 1;
-+
 +	return 0;
 +}
 +
 +/**
-+ *	write_heartbeat_event: - Timer function generating hearbeat event.
-+ *	@data: unused
++ *	have_tsc: - Does this platform have a useable TSC?
 + *
-+ *	Called at a frequency calculated to guarantee at least 1 event is 
-+ *	logged before the low word of the TSC wraps.  The post-processing
-+ *	tools depend on this in order to calculate the correct timestamp
-+ *	in cases where no events occur in that interval e.g. ~10s on a 
-+ *	400 MHz machine.
++ *	Returns 0.
 + */
-+static void write_heartbeat_event(unsigned long data)
++static inline int have_tsc(void)
 +{
-+	unsigned long int flags;	/* CPU flags for lock */
-+	int i;
-+	
-+	local_irq_save(flags);
-+	for(i =  0; i < num_cpus; i++)
-+                set_waiting_for_cpu_async(i, LTT_TRACE_HEARTBEAT);
-+	local_irq_restore(flags);
-+
-+	del_timer(&heartbeat_timer);
-+
-+	/* subtract a jiffy so we're more sure to get a slot */
-+	heartbeat_timer.expires = jiffies + 0xffffffffUL/loops_per_jiffy - 1;
-+	add_timer(&heartbeat_timer);
++	return 0;
 +}
 +
 +/**
-+ *	init_heartbeat_timer: - Start timer generating hearbeat events.
++ *	init_percpu_timers: - Initialize per-cpu timers (only if using TSC)
 + *
-+ *	In order to detect TSC wraps, at least one event must be written
-+ *	within the TSC wrap time.  This ensures that will happen even if 
-+ *	there aren't any other events occurring.
++ *	Sets up the timers needed on each CPU for checking asynchronous 
++ *	tasks needing attention.  This is only the case when TSC timestamping 
++ *	is being used (TSCs need to be read on the current CPU).
 + */
-+static void init_heartbeat_timer(void)
++static inline void init_percpu_timers(void)
 +{
-+	if(using_tsc == 1) {
-+		if(loops_per_jiffy > 0) {
-+			init_timer(&heartbeat_timer);
-+			heartbeat_timer.function = write_heartbeat_event;
++}
+diff -urpN linux-2.5.44-bk2/include/linux/trace.h linux-2.5.44-bk2-ltt/include/linux/trace.h
+--- linux-2.5.44-bk2/include/linux/trace.h	Wed Dec 31 19:00:00 1969
++++ linux-2.5.44-bk2-ltt/include/linux/trace.h	Tue Oct 29 15:24:18 2002
+@@ -0,0 +1,930 @@
++/*
++ * linux/include/linux/trace.h
++ *
++ * Copyright (C) 1999-2002 Karim Yaghmour (karim@opersys.com)
++ *
++ * This contains the necessary definitions for tracing the
++ * the system.
++ */
 +
-+			/* subtract a jiffy so we're more sure to get a slot */
-+			heartbeat_timer.expires = jiffies 
-+				+ 0xffffffffUL/loops_per_jiffy - 1;
-+			add_timer(&heartbeat_timer);
-+		} else
-+			printk(KERN_ALERT "Tracer: Couldn't set up heartbeat timer - continuing without one \n");
-+	}
++#ifndef _LINUX_TRACE_H
++#define _LINUX_TRACE_H
++
++#include <linux/config.h>
++#include <linux/types.h>
++#include <linux/sched.h>
++
++/* Is kernel tracing enabled */
++#if defined(CONFIG_TRACE)
++
++/* Don't set this to "1" unless you really know what you're doing */
++#define LTT_UNPACKED_STRUCTS	0
++
++/* Structure packing within the trace */
++#if LTT_UNPACKED_STRUCTS
++#define LTT_PACKED_STRUCT
++#else				/* if LTT_UNPACKED_STRUCTS */
++#define LTT_PACKED_STRUCT __attribute__ ((packed))
++#endif				/* if LTT_UNPACKED_STRUCTS */
++
++/* Misc type definitions */
++typedef u32 trace_time_delta;	/* The type used to start the time delta between events */
++typedef u64 trace_event_mask;	/* The event mask type */
++
++/* Maximal size a custom event can have */
++#define CUSTOM_EVENT_MAX_SIZE		8192
++
++/* String length limits for custom events creation */
++#define CUSTOM_EVENT_TYPE_STR_LEN	20
++#define CUSTOM_EVENT_DESC_STR_LEN	100
++#define CUSTOM_EVENT_FORM_STR_LEN	256
++#define CUSTOM_EVENT_FINAL_STR_LEN	200
++
++/* Type of custom event formats */
++#define CUSTOM_EVENT_FORMAT_TYPE_NONE	0
++#define CUSTOM_EVENT_FORMAT_TYPE_STR	1
++#define CUSTOM_EVENT_FORMAT_TYPE_HEX	2
++#define CUSTOM_EVENT_FORMAT_TYPE_XML	3
++#define CUSTOM_EVENT_FORMAT_TYPE_IBM	4
++
++/* Tracing handles */
++#define TRACE_MAX_HANDLES		256
++
++/* System types */
++#define TRACE_SYS_TYPE_VANILLA_LINUX	1	/* Vanilla linux kernel  */
++
++/* Architecture types */
++#define TRACE_ARCH_TYPE_I386			1   /* i386 system */
++#define TRACE_ARCH_TYPE_PPC			2   /* PPC system */
++#define TRACE_ARCH_TYPE_SH			3   /* SH system */
++#define TRACE_ARCH_TYPE_S390			4   /* S/390 system */
++#define TRACE_ARCH_TYPE_MIPS			5   /* MIPS system */
++#define TRACE_ARCH_TYPE_ARM			6   /* ARM system */
++
++/* Standard definitions for variants */
++#define TRACE_ARCH_VARIANT_NONE             0   /* Main architecture implementation */
++
++/* Global trace flags */
++extern unsigned int syscall_entry_trace_active;
++extern unsigned int syscall_exit_trace_active;
++
++/* The functions to the tracer management code */
++extern int trace_set_config(
++	int		do_syscall_depth,	/* Use depth to fetch eip */
++	int		do_syscall_bounds,	/* Use bounds to fetch eip */
++	int		eip_depth,		/* Detph to fetch eip */
++	void		*eip_lower_bound,	/* Lower bound eip address */
++	void		*eip_upper_bound);	/* Upper bound eip address */
++extern int trace_get_config(
++	int		*do_syscall_depth,	/* Use depth to fetch eip */
++	int		*do_syscall_bounds,	/* Use bounds to fetch eip */
++	int		*eip_depth,		/* Detph to fetch eip */
++	void		**eip_lower_bound,	/* Lower bound eip address */
++	void		**eip_upper_bound);	/* Upper bound eip address */
++extern int trace_create_event(
++	char		*event_type,		/* String describing event type */
++	char		*event_desc,		/* String to format standard event description */
++	int		format_type,		/* Type of formatting used to log event data */
++	char		*format_data);		/* Data specific to format */
++extern int trace_create_owned_event(
++	char		*event_type,		/* String describing event type */
++	char		*event_desc,		/* String to format standard event description */
++	int		format_type,		/* Type of formatting used to log event data */
++	char		*format_data,		/* Data specific to format */
++	pid_t		owner_pid);      	/* PID of event's owner */
++extern void trace_destroy_event(
++	int		event_id);		/* The event ID given by trace_create_event() */
++extern void trace_destroy_owners_events(
++	pid_t		owner_pid);		/* The PID of the process' who's events are to be deleted */
++extern void trace_reregister_custom_events(void);
++extern int trace_std_formatted_event(
++	int		event_id,		/* The event ID given by trace_create_event() */
++	...);					/* The parameters to be printed out in the event string */
++extern int trace_raw_event(
++	int		event_id,		/* The event ID given by trace_create_event() */
++	int		event_size,		/* The size of the raw data */
++	void		*event_data);		/* Pointer to the raw event data */
++extern int trace_event(
++	u8		event_id,		/* Event ID (as defined in this header file) */
++	void		*event_struct);		/* Structure describing the event */
++extern int trace_get_pending_write_count(void);
++extern int trace(
++	u8		event_id,		/* ID of event as described in this header */
++	void		*event_struct,		/* Structure describing the event */
++	u8		cpu_id);		/* CPU associated with event */
++extern void tracer_switch_buffers(
++	struct timeval		current_time,	/* Current time (time where switch occurs) */
++	trace_time_delta	current_tsc,	/* TSC value associated with current time */
++	u8			cpu_id);	/* CPU associated with event */
++extern int trace_mmap_buffer(
++	unsigned int	tracer_handle,		/* Tracer handle */
++	unsigned long	length,			/* Length of mapping range */
++	unsigned long	*start_addr);		/* Pointer to mapping start address */
++extern int trace_valid_handle(
++	unsigned int	tracer_handle);		/* Tracer handle */
++extern int trace_alloc_handle(
++	unsigned int	tracer_handle);		/* Tracer handle */
++extern int trace_free_handle(
++	unsigned int	tracer_handle);		/* Tracer handle */
++extern int trace_free_daemon_handle(void);
++extern void trace_free_all_handles(
++	struct task_struct*	task_ptr);	/* Pointer to task who's handles are to be freed */
++extern int tracer_set_buffer_size(
++	int		buffers_size);		/* Size of buffers */
++extern int tracer_set_n_buffers(
++	int		no_buffers);		/* Number of buffers */
++extern int tracer_set_default_config(void);
++
++extern asmlinkage int sys_trace(
++	unsigned int	tracer_handle,		/* Tracer handle */
++	unsigned int	tracer_command,		/* Trace subsystem command */
++	unsigned long	command_arg1,		/* Argument "1" to command */
++	unsigned long	command_arg2);		/* Argument "2" to command */
++
++/* Generic function */
++static inline void TRACE_EVENT(u8 event_id, void* data)
++{
++	trace_event(event_id, data);
++}
++
++/* Traced events */
++enum {
++	TRACE_EV_START = 0,	/* This is to mark the trace's start */
++	TRACE_EV_SYSCALL_ENTRY,	/* Entry in a given system call */
++	TRACE_EV_SYSCALL_EXIT,	/* Exit from a given system call */
++	TRACE_EV_TRAP_ENTRY,	/* Entry in a trap */
++	TRACE_EV_TRAP_EXIT,	/* Exit from a trap */
++	TRACE_EV_IRQ_ENTRY,	/* Entry in an irq */
++	TRACE_EV_IRQ_EXIT,	/* Exit from an irq */
++	TRACE_EV_SCHEDCHANGE,	/* Scheduling change */
++	TRACE_EV_KERNEL_TIMER,	/* The kernel timer routine has been called */
++	TRACE_EV_SOFT_IRQ,	/* Hit key part of soft-irq management */
++	TRACE_EV_PROCESS,	/* Hit key part of process management */
++	TRACE_EV_FILE_SYSTEM,	/* Hit key part of file system */
++	TRACE_EV_TIMER,		/* Hit key part of timer management */
++	TRACE_EV_MEMORY,	/* Hit key part of memory management */
++	TRACE_EV_SOCKET,	/* Hit key part of socket communication */
++	TRACE_EV_IPC,		/* Hit key part of System V IPC */
++	TRACE_EV_NETWORK,	/* Hit key part of network communication */
++	TRACE_EV_BUFFER_START,	/* Mark the begining of a trace buffer */
++	TRACE_EV_BUFFER_END,	/* Mark the ending of a trace buffer */
++	TRACE_EV_NEW_EVENT,	/* New event type */
++	TRACE_EV_CUSTOM,	/* Custom event */
++	TRACE_EV_CHANGE_MASK,	/* Change in event mask */
++	TRACE_EV_HEARTBEAT	/* Heartbeat event */
++};
++
++/* Number of traced events */
++#define TRACE_EV_MAX           TRACE_EV_HEARTBEAT
++
++/* Structures and macros for events */
++/* The information logged when the tracing is started */
++#define TRACER_MAGIC_NUMBER     0x00D6B7ED	/* That day marks an important historical event ... */
++#define TRACER_VERSION_MAJOR    2	/* Major version number */
++#define TRACER_VERSION_MINOR    2	/* Minor version number */
++typedef struct _trace_start {
++	u32 magic_number;	/* Magic number to identify a trace */
++	u32 arch_type;		/* Type of architecture */
++	u32 arch_variant;	/* Variant of the given type of architecture */
++	u32 system_type;	/* Operating system type */
++	u8 major_version;	/* Major version of trace */
++	u8 minor_version;	/* Minor version of trace */
++
++	u32 buffer_size;		/* Size of buffers */
++	trace_event_mask event_mask;	/* The event mask */
++	trace_event_mask details_mask;	/* Are the event details logged */
++	u8 log_cpuid;			/* Is the CPUID logged */
++	u8 use_tsc;		/* Are we using TSCs or time deltas? */
++} LTT_PACKED_STRUCT trace_start;
++
++/*  TRACE_SYSCALL_ENTRY */
++typedef struct _trace_syscall_entry {
++	u8 syscall_id;		/* Syscall entry number in entry.S */
++	u32 address;		/* Address from which call was made */
++} LTT_PACKED_STRUCT trace_syscall_entry;
++
++/*  TRACE_TRAP_ENTRY */
++#ifndef __s390__
++typedef struct _trace_trap_entry {
++	u16 trap_id;		/* Trap number */
++	u32 address;		/* Address where trap occured */
++} LTT_PACKED_STRUCT trace_trap_entry;
++static inline void TRACE_TRAP_ENTRY(u16 trap_id, u32 address)
++#else
++typedef u64 trapid_t;
++typedef struct _trace_trap_entry {
++	trapid_t trap_id;	/* Trap number */
++	u32 address;		/* Address where trap occured */
++} LTT_PACKED_STRUCT trace_trap_entry;
++static inline void TRACE_TRAP_ENTRY(trapid_t trap_id, u32 address)
++#endif
++{
++	trace_trap_entry trap_event;
++
++	trap_event.trap_id = trap_id;
++	trap_event.address = address;
++
++	trace_event(TRACE_EV_TRAP_ENTRY, &trap_event);
++}
++
++/*  TRACE_TRAP_EXIT */
++static inline void TRACE_TRAP_EXIT(void)
++{
++	trace_event(TRACE_EV_TRAP_EXIT, NULL);
++}
++
++/*  TRACE_IRQ_ENTRY */
++typedef struct _trace_irq_entry {
++	u8 irq_id;		/* IRQ number */
++	u8 kernel;		/* Are we executing kernel code */
++} LTT_PACKED_STRUCT trace_irq_entry;
++static inline void TRACE_IRQ_ENTRY(u8 irq_id, u8 in_kernel)
++{
++	trace_irq_entry irq_entry;
++
++	irq_entry.irq_id = irq_id;
++	irq_entry.kernel = in_kernel;
++
++	trace_event(TRACE_EV_IRQ_ENTRY, &irq_entry);
++}
++
++/*  TRACE_IRQ_EXIT */
++static inline void TRACE_IRQ_EXIT(void)
++{
++	trace_event(TRACE_EV_IRQ_EXIT, NULL);
++}
++
++/*  TRACE_SCHEDCHANGE */
++typedef struct _trace_schedchange {
++	u32 out;		/* Outgoing process */
++	u32 in;			/* Incoming process */
++	u32 out_state;		/* Outgoing process' state */
++} LTT_PACKED_STRUCT trace_schedchange;
++static inline void TRACE_SCHEDCHANGE(task_t * task_out, task_t * task_in)
++{
++	trace_schedchange sched_event;
++
++	sched_event.out = (u32) task_out->pid;
++	sched_event.in = (u32) task_in;
++	sched_event.out_state = (u32) task_out->state;
++
++	trace_event(TRACE_EV_SCHEDCHANGE, &sched_event);
++}
++
++/*  TRACE_SOFT_IRQ */
++enum {
++	TRACE_EV_SOFT_IRQ_BOTTOM_HALF = 1,	/* Conventional bottom-half */
++	TRACE_EV_SOFT_IRQ_SOFT_IRQ,		/* Real soft-irq */
++	TRACE_EV_SOFT_IRQ_TASKLET_ACTION,	/* Tasklet action */
++	TRACE_EV_SOFT_IRQ_TASKLET_HI_ACTION	/* Tasklet hi-action */
++};
++typedef struct _trace_soft_irq {
++	u8 event_sub_id;	/* Soft-irq event Id */
++	u32 event_data;		/* Data associated with event */
++} LTT_PACKED_STRUCT trace_soft_irq;
++static inline void TRACE_SOFT_IRQ(u8 ev_id, u32 data)
++{
++	trace_soft_irq soft_irq_event;
++
++	soft_irq_event.event_sub_id = ev_id;
++	soft_irq_event.event_data = data;
++
++	trace_event(TRACE_EV_SOFT_IRQ, &soft_irq_event);
++}
++
++/*  TRACE_PROCESS */
++enum {
++	TRACE_EV_PROCESS_KTHREAD = 1,	/* Creation of a kernel thread */
++	TRACE_EV_PROCESS_FORK,		/* A fork or clone occured */
++	TRACE_EV_PROCESS_EXIT,		/* An exit occured */
++	TRACE_EV_PROCESS_WAIT,		/* A wait occured */
++	TRACE_EV_PROCESS_SIGNAL,	/* A signal has been sent */
++	TRACE_EV_PROCESS_WAKEUP		/* Wake up a process */
++};
++typedef struct _trace_process {
++	u8 event_sub_id;	/* Process event ID */
++	u32 event_data1;	/* Data associated with event */
++	u32 event_data2;
++} LTT_PACKED_STRUCT trace_process;
++static inline void TRACE_PROCESS(u8 ev_id, u32 data1, u32 data2)
++{
++	trace_process proc_event;
++
++	proc_event.event_sub_id = ev_id;
++	proc_event.event_data1 = data1;
++	proc_event.event_data2 = data2;
++
++	trace_event(TRACE_EV_PROCESS, &proc_event);
++}
++static inline void TRACE_PROCESS_EXIT(u32 data1, u32 data2)
++{
++	trace_process proc_event;
++
++	proc_event.event_sub_id = TRACE_EV_PROCESS_EXIT;
++
++	/**** WARNING ****/
++	/* Regardless of whether this trace statement is active or not, these
++	two function must be called, otherwise there will be inconsistencies
++	in the kernel's structures. */
++	trace_destroy_owners_events(current->pid);
++	trace_free_all_handles(current);
++
++	trace_event(TRACE_EV_PROCESS, &proc_event);
++}
++
++/*  TRACE_FILE_SYSTEM */
++enum {
++	TRACE_EV_FILE_SYSTEM_BUF_WAIT_START = 1,	/* Starting to wait for a data buffer */
++	TRACE_EV_FILE_SYSTEM_BUF_WAIT_END,		/* End to wait for a data buffer */
++	TRACE_EV_FILE_SYSTEM_EXEC,			/* An exec occured */
++	TRACE_EV_FILE_SYSTEM_OPEN,			/* An open occured */
++	TRACE_EV_FILE_SYSTEM_CLOSE,			/* A close occured */
++	TRACE_EV_FILE_SYSTEM_READ,			/* A read occured */
++	TRACE_EV_FILE_SYSTEM_WRITE,			/* A write occured */
++	TRACE_EV_FILE_SYSTEM_SEEK,			/* A seek occured */
++	TRACE_EV_FILE_SYSTEM_IOCTL,			/* An ioctl occured */
++	TRACE_EV_FILE_SYSTEM_SELECT,			/* A select occured */
++	TRACE_EV_FILE_SYSTEM_POLL			/* A poll occured */
++};
++typedef struct _trace_file_system {
++	u8 event_sub_id;	/* File system event ID */
++	u32 event_data1;	/* Event data */
++	u32 event_data2;	/* Event data 2 */
++	char *file_name;	/* Name of file operated on */
++} LTT_PACKED_STRUCT trace_file_system;
++static inline void TRACE_FILE_SYSTEM(u8 ev_id, u32 data1, u32 data2, const unsigned char *file_name)
++{
++	trace_file_system fs_event;
++
++	fs_event.event_sub_id = ev_id;
++	fs_event.event_data1 = data1;
++	fs_event.event_data2 = data2;
++	fs_event.file_name = (char*) file_name;
++
++	trace_event(TRACE_EV_FILE_SYSTEM, &fs_event);
++}
++
++/*  TRACE_TIMER */
++enum {
++	TRACE_EV_TIMER_EXPIRED = 1,	/* Timer expired */
++	TRACE_EV_TIMER_SETITIMER,	/* Setting itimer occurred */
++	TRACE_EV_TIMER_SETTIMEOUT	/* Setting sched timeout occurred */
++};
++typedef struct _trace_timer {
++	u8 event_sub_id;	/* Timer event ID */
++	u8 event_sdata;		/* Short data */
++	u32 event_data1;	/* Data associated with event */
++	u32 event_data2;
++} LTT_PACKED_STRUCT trace_timer;
++static inline void TRACE_TIMER(u8 ev_id, u8 sdata, u32 data1, u32 data2)
++{
++	trace_timer timer_event;
++
++	timer_event.event_sub_id = ev_id;
++	timer_event.event_sdata = sdata;
++	timer_event.event_data1 = data1;
++	timer_event.event_data2 = data2;
++
++	trace_event(TRACE_EV_TIMER, &timer_event);
++}
++
++/*  TRACE_MEMORY */
++enum {
++	TRACE_EV_MEMORY_PAGE_ALLOC = 1,		/* Allocating pages */
++	TRACE_EV_MEMORY_PAGE_FREE,		/* Freing pages */
++	TRACE_EV_MEMORY_SWAP_IN,		/* Swaping pages in */
++	TRACE_EV_MEMORY_SWAP_OUT,		/* Swaping pages out */
++	TRACE_EV_MEMORY_PAGE_WAIT_START,	/* Start to wait for page */
++	TRACE_EV_MEMORY_PAGE_WAIT_END		/* End to wait for page */
++};
++typedef struct _trace_memory {
++	u8 event_sub_id;	/* Memory event ID */
++	u32 event_data;		/* Data associated with event */
++} LTT_PACKED_STRUCT trace_memory;
++static inline void TRACE_MEMORY(u8 ev_id, u32 data)
++{
++	trace_memory memory_event;
++
++	memory_event.event_sub_id = ev_id;
++	memory_event.event_data = data;
++
++	trace_event(TRACE_EV_MEMORY, &memory_event);
++}
++
++/*  TRACE_SOCKET */
++enum {
++	TRACE_EV_SOCKET_CALL = 1,	/* A socket call occured */
++	TRACE_EV_SOCKET_CREATE,		/* A socket has been created */
++	TRACE_EV_SOCKET_SEND,		/* Data was sent to a socket */
++	TRACE_EV_SOCKET_RECEIVE		/* Data was read from a socket */
++};
++typedef struct _trace_socket {
++	u8 event_sub_id;	/* Socket event ID */
++	u32 event_data1;	/* Data associated with event */
++	u32 event_data2;	/* Data associated with event */
++} LTT_PACKED_STRUCT trace_socket;
++static inline void TRACE_SOCKET(u8 ev_id, u32 data1, u32 data2)
++{
++	trace_socket socket_event;
++
++	socket_event.event_sub_id = ev_id;
++	socket_event.event_data1 = data1;
++	socket_event.event_data2 = data2;
++
++	trace_event(TRACE_EV_SOCKET, &socket_event);
++}
++
++/*  TRACE_IPC */
++enum {
++	TRACE_EV_IPC_CALL = 1,		/* A System V IPC call occured */
++	TRACE_EV_IPC_MSG_CREATE,	/* A message queue has been created */
++	TRACE_EV_IPC_SEM_CREATE,	/* A semaphore was created */
++	TRACE_EV_IPC_SHM_CREATE		/* A shared memory segment has been created */
++};
++typedef struct _trace_ipc {
++	u8 event_sub_id;	/* IPC event ID */
++	u32 event_data1;	/* Data associated with event */
++	u32 event_data2;	/* Data associated with event */
++} LTT_PACKED_STRUCT trace_ipc;
++static inline void TRACE_IPC(u8 ev_id, u32 data1, u32 data2)
++{
++	trace_ipc ipc_event;
++
++	ipc_event.event_sub_id = ev_id;
++	ipc_event.event_data1 = data1;
++	ipc_event.event_data2 = data2;
++
++	trace_event(TRACE_EV_IPC, &ipc_event);
++}
++
++/*  TRACE_NETWORK */
++enum {
++	TRACE_EV_NETWORK_PACKET_IN = 1,	/* A packet came in */
++	TRACE_EV_NETWORK_PACKET_OUT	/* A packet was sent */
++};
++typedef struct _trace_network {
++	u8 event_sub_id;	/* Network event ID */
++	u32 event_data;		/* Event data */
++} LTT_PACKED_STRUCT trace_network;
++static inline void TRACE_NETWORK(u8 ev_id, u32 data)
++{
++	trace_network net_event;
++
++	net_event.event_sub_id = ev_id;
++	net_event.event_data = data;
++
++	trace_event(TRACE_EV_NETWORK, &net_event);
++}
++
++/* Start of trace buffer information */
++typedef struct _trace_buffer_start {
++	struct timeval time;	/* Time stamp of this buffer */
++	trace_time_delta tsc;   /* TSC of this buffer, if applicable */
++	u32 id;			/* Unique buffer ID */
++} LTT_PACKED_STRUCT trace_buffer_start;
++
++/* End of trace buffer information */
++typedef struct _trace_buffer_end {
++	struct timeval time;	/* Time stamp of this buffer */
++	trace_time_delta tsc;   /* TSC of this buffer, if applicable */
++} LTT_PACKED_STRUCT trace_buffer_end;
++
++/* Custom declared events */
++/* ***WARNING*** These structures should never be used as is, use the provided custom
++   event creation and logging functions. */
++typedef struct _trace_new_event {
++	/* Basics */
++	u32 id;					/* Custom event ID */
++	char type[CUSTOM_EVENT_TYPE_STR_LEN];	/* Event type description */
++	char desc[CUSTOM_EVENT_DESC_STR_LEN];	/* Detailed event description */
++
++	/* Custom formatting */
++	u32 format_type;			/* Type of formatting */
++	char form[CUSTOM_EVENT_FORM_STR_LEN];	/* Data specific to format */
++} LTT_PACKED_STRUCT trace_new_event;
++typedef struct _trace_custom {
++	u32 id;			/* Event ID */
++	u32 data_size;		/* Size of data recorded by event */
++	void *data;		/* Data recorded by event */
++} LTT_PACKED_STRUCT trace_custom;
++
++/* TRACE_CHANGE_MASK */
++typedef struct _trace_change_mask {
++	trace_event_mask mask;	/* Event mask */
++} LTT_PACKED_STRUCT trace_change_mask;
++
++
++/*  TRACE_HEARTBEAT */
++static inline void TRACE_HEARTBEAT(void)
++{
++	trace_event(TRACE_EV_HEARTBEAT, NULL);
++}
++
++/* Tracer properties */
++#define TRACER_NAME      "tracer"	/* Name of the device as seen in /proc/devices */
++
++/* Tracer buffer information */
++#define TRACER_DEFAULT_BUF_SIZE   50000		/* Default size of tracing buffer */
++#define TRACER_MIN_BUF_SIZE        1000		/* Minimum size of tracing buffer */
++#define TRACER_MAX_BUF_SIZE      500000		/* Maximum size of tracing buffer */
++#define TRACER_MIN_BUFFERS            2		/* Minimum number of tracing buffers */
++#define TRACER_MAX_BUFFERS          256		/* Maximum number of tracing buffers */
++
++/* Number of bytes reserved for first event */
++#define TRACER_FIRST_EVENT_SIZE   (sizeof(u8) + sizeof(trace_time_delta) + sizeof(trace_buffer_start) + sizeof(uint16_t))
++
++/* Number of bytes reserved for the start-of-trace event */
++#define TRACER_START_TRACE_EVENT_SIZE   (sizeof(u8) + sizeof(trace_time_delta) + sizeof(trace_start) + sizeof(uint16_t))
++
++/* Number of bytes reserved for last event, including lost size word */
++#define TRACER_LAST_EVENT_SIZE   (sizeof(u8) \
++				  + sizeof(u8) \
++				  + sizeof(trace_time_delta) \
++				  + sizeof(trace_buffer_end) \
++				  + sizeof(uint16_t) \
++				  + sizeof(u32))
++
++/* The configurations possible */
++enum {
++	TRACER_START = TRACER_MAGIC_NUMBER,	/* Start tracing events using the current configuration */
++	TRACER_STOP,				/* Stop tracing */
++	TRACER_CONFIG_DEFAULT,			/* Set the tracer to the default configuration */
++	TRACER_CONFIG_MEMORY_BUFFERS,		/* Set the memory buffers the daemon wants us to use */
++	TRACER_CONFIG_EVENTS,			/* Trace the given events */
++	TRACER_CONFIG_DETAILS,			/* Record the details of the event, or not */
++	TRACER_CONFIG_CPUID,			/* Record the CPUID associated with the event */
++	TRACER_CONFIG_PID,			/* Trace only one process */
++	TRACER_CONFIG_PGRP,			/* Trace only the given process group */
++	TRACER_CONFIG_GID,			/* Trace the processes of a given group of users */
++	TRACER_CONFIG_UID,			/* Trace the processes of a given user */
++	TRACER_CONFIG_SYSCALL_EIP_DEPTH,	/* Set the call depth at which the EIP should be fetched on syscall */
++	TRACER_CONFIG_SYSCALL_EIP_LOWER,	/* Set the lowerbound address from which EIP is recorded on syscall */
++	TRACER_CONFIG_SYSCALL_EIP_UPPER,	/* Set the upperbound address from which EIP is recorded on syscall */
++	TRACER_DATA_COMITTED,			/* The daemon has comitted the last trace */
++	TRACER_GET_EVENTS_LOST,			/* Get the number of events lost */
++	TRACER_CREATE_USER_EVENT,		/* Create a user tracable event */
++	TRACER_DESTROY_USER_EVENT,		/* Destroy a user tracable event */
++	TRACER_TRACE_USER_EVENT,		/* Trace a user event */
++	TRACER_SET_EVENT_MASK,			/* Set the trace event mask */
++	TRACER_GET_EVENT_MASK,			/* Get the trace event mask */
++	TRACER_GET_BUFFER_CONTROL,		/* Get the buffer control data for the lockless schem*/
++	TRACER_CONFIG_N_MEMORY_BUFFERS,		/* Set the number of memory buffers the daemon wants us to use */
++	TRACER_CONFIG_USE_LOCKING,		/* Set the locking scheme to use */
++	TRACER_CONFIG_TIMESTAMP,		/* Set the timestamping method to use */
++	TRACER_GET_ARCH_INFO,			/* Get information about the CPU configuration */
++	TRACER_ALLOC_HANDLE,			/* Allocate a tracer handle */
++	TRACER_FREE_HANDLE,			/* Free a single handle */
++	TRACER_FREE_DAEMON_HANDLE,		/* Free the daemon's handle */
++	TRACER_FREE_ALL_HANDLES,		/* Free all handles */
++	TRACER_MAP_BUFFER			/* Map buffer to process-space */
++};
++
++/* For the lockless scheme:
++
++   A trace index is composed of two parts, a buffer number and a buffer 
++   offset.  The actual number of buffers allocated is a run-time decision, 
++   although it must be a power of two for efficient computation.  We define 
++   a maximum number of bits for the buffer number, because the fill_count 
++   array in buffer_control must have a fixed size.  offset_bits must be at 
++   least as large as the maximum event size+start/end buffer event size+
++   lost size word (since a buffer must be able to hold an event of maximum 
++   size).  Making offset_bits larger reduces fragmentation.  Making it 
++   smaller increases trace responsiveness. */
++
++/* We need at least enough room for the max custom event, and we also need
++   room for the start and end event.  We also need it to be a power of 2. */
++#define TRACER_LOCKLESS_MIN_BUF_SIZE CUSTOM_EVENT_MAX_SIZE + 8192 /* 16K */
++/* Because we use atomic_t as the type for fill_counts, which has only 24
++   usable bits, we have 2**24 = 16M max for each buffer. */
++#define TRACER_LOCKLESS_MAX_BUF_SIZE 0x1000000 /* 16M */
++/* Since we multiply n buffers by the buffer size, this provides a sanity
++   check, much less than the 256*16M possible. */
++#define TRACER_LOCKLESS_MAX_TOTAL_BUF_SIZE 0x8000000 /* 128M */
++
++#define TRACE_MAX_BUFFER_NUMBER(bufno_bits) (1UL << (bufno_bits))
++#define TRACE_BUFFER_SIZE(offset_bits) (1UL << (offset_bits))
++#define TRACE_BUFFER_OFFSET_MASK(offset_bits) (TRACE_BUFFER_SIZE(offset_bits) - 1)
++
++#define TRACE_BUFFER_NUMBER_GET(index, offset_bits) ((index) >> (offset_bits))
++#define TRACE_BUFFER_OFFSET_GET(index, mask) ((index) & (mask))
++#define TRACE_BUFFER_OFFSET_CLEAR(index, mask) ((index) & ~(mask))
++
++/* Flags returned by trace_reserve/trace_reserve_slow */
++#define LTT_BUFFER_SWITCH_NONE 0x00
++#define LTT_EVENT_DISCARD_NONE 0x00
++#define LTT_BUFFER_SWITCH      0x01
++#define LTT_EVENT_DISCARD      0x02
++#define LTT_EVENT_TOO_LONG     0x04
++
++/* Flags used to indicate things to do on particular CPUs */
++#define LTT_NOTHING_TO_DO      0x00
++#define LTT_INITIALIZE_TRACE   0x01
++#define LTT_FINALIZE_TRACE     0x02
++#define LTT_CONTINUE_TRACE     0x04
++#define LTT_TRACE_HEARTBEAT    0x08
++
++/* How often the LTT per-CPU timers fire */
++#define LTT_PERCPU_TIMER_FREQ  (HZ/10);
++
++/* Per-CPU buffer information for the lockless scheme */
++struct lockless_buffer_control
++{
++	u8 bufno_bits;
++	u8 offset_bits;
++	u32 buffers_produced;
++	u32 buffers_consumed;
++
++	u32 index;
++	u32 n_buffers; /* cached value */
++	u32 offset_mask; /* cached value */
++	u32 index_mask; /* cached value */
++	int buffers_full; /* All-(sub)buffers-full boolean */
++	u32 last_event_index; /* For full-buffers state */ 
++	struct timeval last_event_timestamp; /* For full-buffers state */
++	trace_time_delta last_event_tsc; /* TSC at buffer_start_time */
++	atomic_t fill_count[TRACER_MAX_BUFFERS];
++};
++
++/* Per-CPU buffer information for the locking scheme */
++struct locking_buffer_control
++{
++	char* write_buf; /* Buffer used for writting */
++	char* read_buf; /* Buffer used for reading */
++	char* write_buf_end; /* End of write buffer */
++	char* read_buf_end; /* End of read buffer */
++	char* current_write_pos; /* Current position for writting */
++	char* read_limit; /* Limit at which read should stop */
++	char* write_limit; /* Limit at which write should stop */
++	atomic_t signal_sent;
++};
++
++/* Data structure containing per-buffer tracing information. */ 
++struct buffer_control
++{
++	char *trace_buffer;
++	u32 buffer_id; /* for start-buffer event */
++	u32 events_lost; /* Events lost on this cpu */
++	struct timeval  buffer_start_time; /* Time the buffer was started */
++	trace_time_delta buffer_start_tsc; /* TSC at buffer_start_time */
++	atomic_t waiting_for_cpu;
++	atomic_t waiting_for_cpu_async;
++
++	union 
++	{
++		struct lockless_buffer_control lockless;
++		struct locking_buffer_control locking;
++	} scheme;
++} ____cacheline_aligned;
++
++/* Data structure for sharing per-buffer information between driver and 
++   daemon (via ioctl) */
++struct shared_buffer_control
++{
++	u8 cpu_id;
++	u32 buffer_switches_pending;
++	u32 buffer_control_valid;
++
++	u8 bufno_bits;
++	u8 offset_bits;
++	u32 buffers_produced;
++	u32 buffers_consumed;
++	/* atomic_t has only 24 usable bits, limiting us to 16M buffers */
++	int fill_count[TRACER_MAX_BUFFERS];
++};
++
++/* Data structure for sharing buffer-commit information between driver and 
++   daemon (via ioctl) */
++struct buffers_committed
++{
++	u8 cpu_id;
++	u32 buffers_consumed;
++};
++
++/* Data structure for sharing architecture-specific info between driver and 
++   daemon (via ioctl) */
++struct ltt_arch_info
++{
++	int n_cpus;
++	int page_shift;
++};
++
++/* Buffer control data structure accessor functions */
++#define _index(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.index)
++#define index(cpu) (_index(buffer_control, (cpu)))
++#define _bufno_bits(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.bufno_bits)
++#define bufno_bits(cpu) (_bufno_bits(buffer_control, (cpu)))
++#define _n_buffers(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.n_buffers)
++#define n_buffers(cpu) (_n_buffers(buffer_control, (cpu)))
++#define _offset_bits(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.offset_bits)
++#define offset_bits(cpu) (_offset_bits(buffer_control, (cpu)))
++#define _offset_mask(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.offset_mask)
++#define offset_mask(cpu) (_offset_mask(buffer_control, (cpu)))
++#define _index_mask(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.index_mask)
++#define index_mask(cpu) (_index_mask(buffer_control, (cpu)))
++#define _buffers_produced(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.buffers_produced)
++#define buffers_produced(cpu) (_buffers_produced(buffer_control, (cpu)))
++#define _buffers_consumed(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.buffers_consumed)
++#define buffers_consumed(cpu) (_buffers_consumed(buffer_control, (cpu)))
++#define _buffers_full(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.buffers_full)
++#define buffers_full(cpu) (_buffers_full(buffer_control, (cpu)))
++#define _fill_count(sbc, cpu, i) (((sbc)+(cpu))->scheme.lockless.fill_count[(i)])
++#define fill_count(cpu, i) (_fill_count(buffer_control, (cpu), (i)))
++#define _trace_buffer(sbc, cpu) (((sbc)+(cpu))->trace_buffer)
++#define trace_buffer(cpu) (_trace_buffer(buffer_control, (cpu)))
++#define _buffer_id(sbc, cpu) (((sbc)+(cpu))->buffer_id)
++#define buffer_id(cpu) (_buffer_id(buffer_control, (cpu)))
++#define _events_lost(sbc, cpu) (((sbc)+(cpu))->events_lost)
++#define events_lost(cpu) (_events_lost(buffer_control, (cpu)))
++#define _buffer_start_time(sbc, cpu) (((sbc)+(cpu))->buffer_start_time)
++#define buffer_start_time(cpu) (_buffer_start_time(buffer_control, (cpu)))
++#define _buffer_start_tsc(sbc, cpu) (((sbc)+(cpu))->buffer_start_tsc)
++#define buffer_start_tsc(cpu) (_buffer_start_tsc(buffer_control, (cpu)))
++#define _last_event_index(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.last_event_index)
++#define last_event_index(cpu) (_last_event_index(buffer_control, (cpu)))
++#define _last_event_timestamp(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.last_event_timestamp)
++#define last_event_timestamp(cpu) (_last_event_timestamp(buffer_control, (cpu)))
++#define _last_event_tsc(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.last_event_tsc)
++#define last_event_tsc(cpu) (_last_event_tsc(buffer_control, (cpu)))
++#define _write_buf(sbc, cpu) (((sbc)+(cpu))->scheme.locking.write_buf)
++#define write_buf(cpu) (_write_buf(buffer_control, (cpu)))
++#define _read_buf(sbc, cpu) (((sbc)+(cpu))->scheme.locking.read_buf)
++#define read_buf(cpu) (_read_buf(buffer_control, (cpu)))
++#define _write_buf_end(sbc, cpu) (((sbc)+(cpu))->scheme.locking.write_buf_end)
++#define write_buf_end(cpu) (_write_buf_end(buffer_control, (cpu)))
++#define _read_buf_end(sbc, cpu) (((sbc)+(cpu))->scheme.locking.read_buf_end)
++#define read_buf_end(cpu) (_read_buf_end(buffer_control, (cpu)))
++#define _current_write_pos(sbc, cpu) (((sbc)+(cpu))->scheme.locking.current_write_pos)
++#define current_write_pos(cpu) (_current_write_pos(buffer_control, (cpu)))
++#define _read_limit(sbc, cpu) (((sbc)+(cpu))->scheme.locking.read_limit)
++#define read_limit(cpu) (_read_limit(buffer_control, (cpu)))
++#define _write_limit(sbc, cpu) (((sbc)+(cpu))->scheme.locking.write_limit)
++#define write_limit(cpu) (_write_limit(buffer_control, (cpu)))
++#define _signal_sent(sbc, cpu) (((sbc)+(cpu))->scheme.locking.signal_sent)
++#define signal_sent(cpu) (_signal_sent(buffer_control, (cpu)))
++#define _waiting_for_cpu(sbc, cpu) (((sbc)+(cpu))->waiting_for_cpu)
++#define waiting_for_cpu(cpu) (_waiting_for_cpu(buffer_control, (cpu)))
++#define _waiting_for_cpu_async(sbc, cpu) (((sbc)+(cpu))->waiting_for_cpu_async)
++#define waiting_for_cpu_async(cpu) (_waiting_for_cpu_async(buffer_control, (cpu)))
++
++extern int using_tsc;
++extern struct buffer_control buffer_control[];
++
++/**
++ *	set_waiting_for_cpu: - Utility function for setting wait flags
++ *	@cpu_id: which CPU to set flag on
++ *	@bit: which bit to set
++ *
++ *	Sets the given bit of the CPU's waiting_for_cpu flags.
++ */
++static inline void set_waiting_for_cpu(u8 cpu_id, int bit)
++{
++	atomic_set(&waiting_for_cpu(cpu_id), 
++		   atomic_read(&waiting_for_cpu(cpu_id)) | bit);
 +}
 +
 +/**
-+ *	initialize_trace: - Initialize a trace session for a given CPU.
-+ *	@cpu_id: the CPU id to initialize a trace for
++ *	clear_waiting_for_cpu: - Utility function for clearing wait flags
++ *	@cpu_id: which CPU to clear flag on
++ *	@bit: which bit to clear
 + *
-+ *	Write the start-buffer and start-trace events for a CPU.
++ *	Clears the given bit of the CPU's waiting_for_cpu flags.
 + */
-+static inline void initialize_trace(u8 cpu_id)
++static inline void clear_waiting_for_cpu(u8 cpu_id, int bit)
 +{
-+	trace_start start_event; /* Event marking the begining of the trace */
-+	trace_buffer_start start_buffer_event;	/* Start of new buffer event */
-+
-+	/* Get the time of start */
-+	get_timestamp(&buffer_start_time(cpu_id), &buffer_start_tsc(cpu_id));
-+
-+	/* Set the event description */
-+	start_buffer_event.id = buffer_id(cpu_id);
-+	start_buffer_event.time = buffer_start_time(cpu_id);
-+	start_buffer_event.tsc = buffer_start_tsc(cpu_id);
-+
-+	/* Set the event description */
-+	start_event.magic_number = TRACER_MAGIC_NUMBER;
-+	start_event.arch_type = TRACE_ARCH_TYPE;
-+	start_event.arch_variant = TRACE_ARCH_VARIANT;
-+	start_event.system_type = TRACE_SYS_TYPE_VANILLA_LINUX;
-+	start_event.major_version = TRACER_VERSION_MAJOR;
-+	start_event.minor_version = TRACER_VERSION_MINOR;
-+	start_event.buffer_size = buf_size;
-+	start_event.event_mask = traced_events;
-+	start_event.details_mask = log_event_details_mask;
-+	start_event.log_cpuid = log_cpuid;
-+	start_event.use_tsc = using_tsc;
-+
-+	/* Trace the buffer start event using the appropriate method depending
-+	   on the locking scheme */
-+	if(using_lockless == 1) {
-+		write_start_buffer_event(index(cpu_id) & index_mask(cpu_id),
-+					 buffer_start_time(cpu_id), 
-+					 buffer_start_tsc(cpu_id), cpu_id);
-+		write_start_event(&start_event, 
-+				  buffer_start_tsc(cpu_id), cpu_id);
-+	} else {
-+		trace(TRACE_EV_BUFFER_START, &start_buffer_event, cpu_id);
-+		/* Trace the start event */
-+		trace(TRACE_EV_START, &start_event, cpu_id);
-+	}
++	atomic_set(&waiting_for_cpu(cpu_id), 
++		   atomic_read(&waiting_for_cpu(cpu_id)) & ~bit);
 +}
 +
 +/**
-+ *	all_finalized: - Determine whether all traces have been finalized.
++ *	set_waiting_for_cpu_async: - Utility function for setting wait flags
++ *	@cpu_id: which CPU to set flag on
++ *	@bit: which bit to set
 + *
-+ *	Utility function for figuring out whether or not the traces for all
-+ *	CPUs have been completed.  Returns 1 if so, 0 otherwise.
++ *	Sets the given bit of the CPU's waiting_for_cpu_async flags.
 + */
-+static int all_finalized(void)
++static inline void set_waiting_for_cpu_async(u8 cpu_id, int bit)
 +{
-+	int i;
-+	
-+	for(i = 0; i < num_cpus; i++)
-+		if(atomic_read(&waiting_for_cpu_async(i)) & LTT_FINALIZE_TRACE)
-+			return 0;
++	atomic_set(&waiting_for_cpu_async(cpu_id), 
++		   atomic_read(&waiting_for_cpu_async(cpu_id)) | bit);
++}
 +
++/**
++ *	clear_waiting_for_cpu_async: - Utility function for clearing wait flags
++ *	@cpu_id: which CPU to clear flag on
++ *	@bit: which bit to clear
++ *
++ *	Clears the given bit of the CPU's waiting_for_cpu_async flags.
++ */
++static inline void clear_waiting_for_cpu_async(u8 cpu_id, int bit)
++{
++	atomic_set(&waiting_for_cpu_async(cpu_id), 
++		   atomic_read(&waiting_for_cpu_async(cpu_id)) & ~bit);
++}
++
++/**
++ *	calc_time_delta: - Utility function for time delta calculation.
++ *	@now: current time
++ *	@start: start time
++ *
++ *	Returns the time delta produced by subtracting start time from now.
++ */
++static inline trace_time_delta calc_time_delta(struct timeval *now, 
++					       struct timeval *start)
++{
++	return (now->tv_sec - start->tv_sec) * 1000000
++		+ (now->tv_usec - start->tv_usec);
++}
++
++/**
++ *	recalc_time_delta: - Utility function for time delta recalculation.
++ *	@now: current time
++ *	@new_delta: the new time delta calculated
++ *	@cpu: the associated CPU id
++ *
++ *	Sets the value pointed to by new_delta to the time difference between
++ *	the buffer start time and now, if TSC timestamping is being used. 
++ */
++static inline void recalc_time_delta(struct timeval *now, 
++				     trace_time_delta *new_delta,
++				     u8 cpu)
++{
++	if(using_tsc == 0)
++		*new_delta = calc_time_delta(now, &buffer_start_time(cpu));
++}
++
++/**
++ *	have_cmpxchg: - Does this platform have a cmpxchg?
++ *
++ *	Returns 1 if this platform has a cmpxchg useable by 
++ *	the lockless scheme, 0 otherwise.
++ */
++static inline int have_cmpxchg(void)
++{
++#if defined(__HAVE_ARCH_CMPXCHG)
 +	return 1;
++#else
++	return 0;
++#endif
 +}
 +
-+/**
-+ *	do_waiting_tasks: - perform synchronous per-CPU tasks.
-+ *	@cpu_id: the CPU the tasks should be executed on
-+ *
-+ *	Certain tasks (e.g. initializing/continuing a trace) need to be 
-+ *	executed on a particular CPU before anything else can be done on that
-+ *	CPU and in certain cases can't be at the time the need is found to do 
-+ *	so.  Each CPU has a set of flags indicating that the next thing that 
-+ *	needs to be done on that CPU is one or more of the tasks indicated by 
-+ *	a bit set in this set of flags.  Only one type of synchronous task per
-+ *	 CPU is ever pending so queues aren't necessary.  This function 
-+ *	(re)checks the flags and performs any of the indicated tasks.
-+ */
-+static void do_waiting_tasks(u8 cpu_id)
++/* If cmpxchg isn't defined for the architecture, we don't want to 
++   generate a link error - the locking scheme will still be available. */  
++#ifndef __HAVE_ARCH_CMPXCHG
++#define cmpxchg(p,o,n) 0
++#endif
++
++extern __inline__ int ltt_set_bit(int nr, void *addr)
 +{
-+	unsigned long int flags;	/* CPU flags for lock */
-+	int tasks;
-+	
-+	local_irq_save(flags);
-+	/* Check again in case we've been usurped */
-+	tasks = atomic_read(&waiting_for_cpu(cpu_id));
-+	if(tasks == 0) {
-+		local_irq_restore(flags);
-+		return;
-+	}
++	unsigned char *p = addr;
++	unsigned char mask = 1 << (nr & 7);
++	unsigned char old;
 +
-+	/* Before we can log any events, we need to write start/start_buffer 
-+	   event for this CPU */
-+	if(using_tsc && tracer_started && (tasks & LTT_INITIALIZE_TRACE)) {
-+                clear_waiting_for_cpu(cpu_id, LTT_INITIALIZE_TRACE);
-+		initialize_trace(cpu_id);
-+	}
++	p += nr >> 3;
++	old = *p;
++	*p |= mask;
 +
-+	if(using_lockless && tracer_started && (tasks & LTT_CONTINUE_TRACE)) {
-+                clear_waiting_for_cpu(cpu_id, LTT_CONTINUE_TRACE);
-+		continue_trace(cpu_id);
-+	}
-+
-+	local_irq_restore(flags);
++	return ((old & mask) != 0);
 +}
 +
-+/**
-+ *	del_percpu_timers: - Delete all per_cpu timers.
-+ *
-+ *	Delete the per-cpu timers synchronously.
-+ */
-+static inline void del_percpu_timers(void)
++extern __inline__ int ltt_clear_bit(int nr, void *addr)
 +{
-+	int i;
-+	
-+	for(i =  0; i < num_cpus; i++)
-+		del_timer_sync(&percpu_timer[i]);
++	unsigned char *p = addr;
++	unsigned char mask = 1 << (nr & 7);
++	unsigned char old;
++
++	p += nr >> 3;
++	old = *p;
++	*p &= ~mask;
++
++	return ((old & mask) != 0);
 +}
 +
-+/**
-+ *	do_waiting_async_tasks: - perform asynchronous per-CPU tasks.
-+ *	@cpu_id: the CPU the tasks should be executed on
-+ *
-+ *	Certain tasks (e.g. finalizing/writing a heartbeat event) need to be 
-+ *	executed on a particular CPU as soon as possible on that CPU and in 
-+ *	certain cases can't be at the time the need is found to do so.  Each 
-+ *	CPU has a set of flags indicating something that needs to be done soon
-+ *	on that CPU by a bit set in this set of flags.  Only one type of 
-+ *	asynchronous task per CPU is ever pending so queues aren't necessary.
-+ *	This function (re)checks the flags and performs any of the indicated 
-+ *	tasks.
-+ */
-+static void do_waiting_async_tasks(u8 cpu_id)
++extern __inline__ int ltt_test_bit(int nr, void *addr)
 +{
-+	unsigned long int flags;	/* CPU flags for lock */
-+	struct timeval time;		/* Event time */
-+	trace_time_delta tsc;	        /* The buffer-end TSC */
-+	int tasks;
++	unsigned char *p = addr;
++	unsigned char mask = 1 << (nr & 7);
 +
-+	local_irq_save(flags);
-+	/* Check again in case we've been usurped */
-+	tasks = atomic_read(&waiting_for_cpu_async(cpu_id));
-+	if(tasks == 0) {
-+		local_irq_restore(flags);
-+		return;
-+	}
++	p += nr >> 3;
 +
-+	if(using_tsc && tracer_started && (tasks & LTT_TRACE_HEARTBEAT)) {
-+                clear_waiting_for_cpu_async(cpu_id, LTT_TRACE_HEARTBEAT);
-+		TRACE_HEARTBEAT();
-+	}
-+
-+	/* Before we finish logging, we need to write end_buffer 
-+	   event for this CPU, if we're using TSC timestamping (because
-+	   we couldn't do all finalizing in TRACER_STOP itself) */
-+	if(tracer_stopping && using_tsc && (tasks & LTT_FINALIZE_TRACE)) {
-+		/* NB - we need to do this before calling trace to 
-+		   avoid recursion */
-+                clear_waiting_for_cpu_async(cpu_id, LTT_FINALIZE_TRACE);
-+		if(using_lockless) {
-+			finalize_lockless_trace(cpu_id);
-+		} else {
-+			/* Atomically mark buffer-switch bit for this cpu */
-+			set_bit(cpu_id, &buffer_switches_pending);
-+
-+			/* Get the time of the event */
-+			get_timestamp(&time, &tsc);
-+			tracer_switch_buffers(time, tsc, cpu_id);
-+		}
-+		if(all_finalized())
-+			tracer_stopping = 0;
-+	}
-+	local_irq_restore(flags);
++	return ((*p & mask) != 0);
 +}
 +
-+/**
-+ *	check_waiting_async_tasks: - Timer function checking for async tasks.
-+ *	@data: unused
-+ *
-+ *	Called at a frequency of LTT_PERCPU_TIMER_FREQ in order to check
-+ *	whether there are any tasks that need peforming in the current CPU.
-+ */
-+static void check_waiting_async_tasks(unsigned long data)
-+{
-+	int cpu = smp_processor_id();
++#else				/* Kernel is configured without tracing */
++#define TRACE_EVENT(ID, DATA)
++#define TRACE_TRAP_ENTRY(ID, EIP)
++#define TRACE_TRAP_EXIT()
++#define TRACE_IRQ_ENTRY(ID, KERNEL)
++#define TRACE_IRQ_EXIT()
++#define TRACE_SCHEDCHANGE(OUT, IN)
++#define TRACE_SOFT_IRQ(ID, DATA)
++#define TRACE_PROCESS(ID, DATA1, DATA2)
++#define TRACE_PROCESS_EXIT(DATA1, DATA2)
++#define TRACE_FILE_SYSTEM(ID, DATA1, DATA2, FILE_NAME)
++#define TRACE_TIMER(ID, SDATA, DATA1, DATA2)
++#define TRACE_MEMORY(ID, DATA)
++#define TRACE_SOCKET(ID, DATA1, DATA2)
++#define TRACE_IPC(ID, DATA1, DATA2)
++#define TRACE_NETWORK(ID, DATA)
++#define TRACE_HEARTBEAT()
++#endif				/* defined(CONFIG_TRACE) */
++#endif				/* _LINUX_TRACE_H */
+diff -urpN linux-2.5.44-bk2/init/Config.help linux-2.5.44-bk2-ltt/init/Config.help
+--- linux-2.5.44-bk2/init/Config.help	Sat Oct 19 00:02:00 2002
++++ linux-2.5.44-bk2-ltt/init/Config.help	Tue Oct 29 15:24:18 2002
+@@ -115,3 +115,26 @@ CONFIG_KMOD
+   replacement for kerneld.) Say Y here and read about configuring it
+   in <file:Documentation/kmod.txt>.
+ 
++CONFIG_TRACE
++  It is possible for the kernel to log important events to a trace
++  facility. Doing so, enables the use of the generated traces in order
++  to reconstruct the dynamic behavior of the kernel, and hence the
++  whole system.
 +
-+	/* Execute any tasks waiting for this CPU */
-+	if(atomic_read(&waiting_for_cpu_async(cpu)) != 0)
-+		do_waiting_async_tasks(cpu);
++  The tracing process contains 4 parts :
++      1) The logging of events by key parts of the kernel.
++      2) The tracer that keeps the events in a data buffer.
++      3) A trace daemon that interacts with the tracer and is
++         notified every time there is a certain quantity of data to
++         read from the tracer.
++      4) A trace event data decoder that reads the accumulated data
++         and formats it in a human-readable format.
 +
-+	del_timer(&percpu_timer[cpu]);
-+	percpu_timer[cpu].expires = jiffies + LTT_PERCPU_TIMER_FREQ;
-+	add_timer(&percpu_timer[cpu]);
-+}
++  If you say Y, the first two components will be built into the kernel.
++  Critical parts of the kernel will call upon the kernel tracing
++  function. The data is then recorded by the tracer if a trace daemon
++  is running in user-space and has issued a "start" command.
 +
-+/**
-+ *	init_percpu_timer: - Start timer checking for async tasks.
-+ *
-+ *	Because we can't guarantee trace event frequency and thus the
-+ *	frequency the tracer is able to execute something on a particular CPU,
-+ *	we need to force the issue by making sure we gain control every so
-+ *	often.  Examples of things we can't wait too long for are heartbeat
-+ *	events and trace finalization.
-+ */
-+void init_ltt_percpu_timer(void * dummy)
-+{
-+	int cpu = smp_processor_id();
-+
-+	init_timer(&percpu_timer[cpu]);
-+	percpu_timer[cpu].function = check_waiting_async_tasks;
-+	percpu_timer[cpu].expires = jiffies + LTT_PERCPU_TIMER_FREQ;
-+	add_timer(&percpu_timer[cpu]);
-+}
++  For more information on kernel tracing, the trace daemon or the event
++  decoder, please check the following address :
++       http://www.opersys.com/LTT
+diff -urpN linux-2.5.44-bk2/init/Config.in linux-2.5.44-bk2-ltt/init/Config.in
+--- linux-2.5.44-bk2/init/Config.in	Sat Oct 19 00:01:13 2002
++++ linux-2.5.44-bk2-ltt/init/Config.in	Tue Oct 29 15:24:18 2002
+@@ -9,6 +9,7 @@ bool 'Networking support' CONFIG_NET
+ bool 'System V IPC' CONFIG_SYSVIPC
+ bool 'BSD Process Accounting' CONFIG_BSD_PROCESS_ACCT
+ bool 'Sysctl support' CONFIG_SYSCTL
++bool 'Tracing support' CONFIG_TRACE
+ endmenu
+ 
+ mainmenu_option next_comment

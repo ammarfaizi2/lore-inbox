@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267387AbTBVS47>; Sat, 22 Feb 2003 13:56:59 -0500
+	id <S267388AbTBVTEh>; Sat, 22 Feb 2003 14:04:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267388AbTBVS47>; Sat, 22 Feb 2003 13:56:59 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:57353 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267387AbTBVS46>; Sat, 22 Feb 2003 13:56:58 -0500
-Date: Sat, 22 Feb 2003 14:02:53 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: shoninnaive@sbcglobal.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 series IDE troubles
-In-Reply-To: <1045853980.1196.1.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.3.96.1030222135641.27473B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267424AbTBVTEh>; Sat, 22 Feb 2003 14:04:37 -0500
+Received: from ce06d.unt0.torres.ka0.zugschlus.de ([212.126.206.6]:6665 "EHLO
+	torres.ka0.zugschlus.de") by vger.kernel.org with ESMTP
+	id <S267388AbTBVTEh>; Sat, 22 Feb 2003 14:04:37 -0500
+Date: Sat, 22 Feb 2003 20:14:45 +0100
+From: Marc Haber <mh+linux-kernel@zugschlus.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ethernet-ATM-Router freezing
+Message-ID: <20030222191445.GA27125@torres.ka0.zugschlus.de>
+References: <20030222084958.GC23827@torres.ka0.zugschlus.de> <1045914526.12534.153.camel@zion.wanadoo.fr> <20030222130704.GB25040@torres.ka0.zugschlus.de> <m3k7fsxokp.fsf@varsoon.wireboard.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3k7fsxokp.fsf@varsoon.wireboard.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 Feb 2003, Alan Cox wrote:
-
-> > And without that information there is no way to fix it. At a first guess 
-> > > you've stuck an IDE master and a flash slave via an adapter on the same
-> > > cable. 
-> > 
-> > Didn't he say it worked in 2.2? If that's true then perhaps it should in
-> > 2.4 and later.
+On Sat, Feb 22, 2003 at 11:33:26AM -0500, Doug McNaught wrote:
+> Marc Haber <mh+linux-kernel@zugschlus.de> writes:
+> > So you think that we have had two machines going bad on us with the
+> > same kind of failure within just a few days?
 > 
-> Did I say otherwise ? But if he isnt using 2.4.21pre-ac then it wont
+> If the hardware is from the same batch, it's not impossible.  I've
+> heard stories of two identical drives bought at the same time failing
+> within hours of each other.
 
-Will this not migrate into mainline? Or is there some objection to it?
+I have had this for disks, but not for memory, CPU or board.
 
-> 
-> > I've given up a bought a USB flash adaptor, my ISA bus PCMCIA adaptor
-> > hasn't worked for flash since about 2.4.16 or so. Not a complaint, but
-> > there may be issues in that support, I just didn't have time to fight with
-> > the problem.
-> 
-> With 2.4.21pre (the firs 2.4 IDE I hacked on seriously) pcmcia flash works on
-> my test setups, and gets used fairly hard for digital cameras
+However, I have now shared the load between both machines, and
+downgraded one of the boxes to vanilla 2.4.19.
 
-I suppose I should stick a media in again and try 2.4.21-pre4-ac5 and
-2.5.61-ac1, which are what I have moderately working in other ways. The
-digital camera is exactly what drive my use.
+We'll see how they behave, and probably exchange the hardware. The
+colocation rack is getting full anyway, and those ServeLinux 1U boxes
+are nifty.
+
+Greetings
+Marc
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+-----------------------------------------------------------------------------
+Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
+Karlsruhe, Germany |  lose things."    Winona Ryder | Fon: *49 721 966 32 15
+Nordisch by Nature |  How to make an American Quilt | Fax: *49 721 966 31 29

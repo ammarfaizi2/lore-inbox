@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264931AbUFAKZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264974AbUFAK3i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264931AbUFAKZS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 06:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264974AbUFAKZS
+	id S264974AbUFAK3i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 06:29:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264975AbUFAK3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 06:25:18 -0400
-Received: from holomorphy.com ([207.189.100.168]:22415 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264931AbUFAKZP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 06:25:15 -0400
-Date: Tue, 1 Jun 2004 03:24:48 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Tim Connors <tconnors+linuxkernel1086084622@astro.swin.edu.au>
-Cc: Buddy Lumpkin <b.lumpkin@comcast.net>,
-       "'John Bradford'" <john@grabjohn.com>,
-       "'Michael Brennan'" <mbrennan@ezrs.com>, linux-kernel@vger.kernel.org,
-       riel@redhat.com
-Subject: Re: why swap at all?
-Message-ID: <20040601102448.GL2093@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Tim Connors <tconnors+linuxkernel1086084622@astro.swin.edu.au>,
-	Buddy Lumpkin <b.lumpkin@comcast.net>,
-	'John Bradford' <john@grabjohn.com>,
-	'Michael Brennan' <mbrennan@ezrs.com>, linux-kernel@vger.kernel.org,
-	riel@redhat.com
-References: <200405312029.i4VKTCZ0000596@81-2-122-30.bradfords.org.uk> <S264961AbUFAJhd/20040601093733Z+1483@vger.kernel.org> <slrn-0.9.7.4-25709-3086-200406012010-tc@hexane.ssi.swin.edu.au>
+	Tue, 1 Jun 2004 06:29:38 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:32735 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S264974AbUFAK3g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 06:29:36 -0400
+Date: Tue, 1 Jun 2004 11:29:28 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>, mikpe@csd.uu.se
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-rc2-mm1
+Message-ID: <20040601102928.GA16718@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, mikpe@csd.uu.se,
+	linux-kernel@vger.kernel.org
+References: <20040601021539.413a7ad7.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <slrn-0.9.7.4-25709-3086-200406012010-tc@hexane.ssi.swin.edu.au>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040601021539.413a7ad7.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 01, 2004 at 08:13:59PM +1000, Tim Connors wrote:
-> Incidentally, what happens when kswapd becomes a zombie? I've seen
-> this a few times, and I am currently posting on a machine that has
-> been up for 15 days, and which oopsed 10 or so days ago (something to
-> do with nfs, but don't worry about that - the machine is running
-> 2.4.20, and is not exactly up-to-date), killing kswapd.
-> But I don't notice anything at all different about how the system is
-> behaving. However, I haven't been doing much more than running emacs
-> and mozilla recently - I haven't been running my visualisation
-> software that typically stresses the VM beyond usefullness.
+> - merged perfctr.  No documentation though :(
 
-Check your syslog for oopsen. That's the only known reason for kswapd
-to become a zombie.
++/* tid is the actual task/thread id (népid, stored as ->pid),
++   pid/tgid is that 2.6 thread group id crap (stored as ->tgid) */
++asmlinkage long sys_vperfctr_open(int tid, int creat)
++{
++       struct file *filp;
++       struct task_struct *tsk;
++       struct vperfctr *perfctr;
++       int err;
++       int fd;
++
++       if (!vperfctr_fs_init_done())
++               return -ENODEV;
++       filp = vperfctr_get_filp();
++       if (!filp)
++               return -ENOMEM;
++       err = fd = get_unused_fd();
 
-
--- wli
+This really, really screams "I want to be a special file", so the interface
+still doesn't look okay.  Probably in /proc/pid. 

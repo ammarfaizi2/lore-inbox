@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318799AbSHRCib>; Sat, 17 Aug 2002 22:38:31 -0400
+	id <S318810AbSHRC5a>; Sat, 17 Aug 2002 22:57:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318803AbSHRCib>; Sat, 17 Aug 2002 22:38:31 -0400
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:10368 "EHLO
-	dad.molina") by vger.kernel.org with ESMTP id <S318799AbSHRCib>;
-	Sat, 17 Aug 2002 22:38:31 -0400
-Date: Sat, 17 Aug 2002 21:35:29 -0500 (CDT)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@dad.molina
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE?
-In-Reply-To: <5.1.0.14.2.20020817225323.021796b0@pop.cus.cam.ac.uk>
-Message-ID: <Pine.LNX.4.44.0208172127170.1238-100000@dad.molina>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318811AbSHRC5a>; Sat, 17 Aug 2002 22:57:30 -0400
+Received: from codepoet.org ([166.70.99.138]:26592 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S318810AbSHRC53>;
+	Sat, 17 Aug 2002 22:57:29 -0400
+Date: Sat, 17 Aug 2002 21:01:33 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE?  IDE-TNG driver
+Message-ID: <20020818030133.GA12404@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0208172353330.3111-100000@sharra.ivimey.org> <Pine.LNX.4.10.10208171557510.23171-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10208171557510.23171-100000@master.linux-ide.org>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.18-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Aug 2002, Anton Altaparmakov wrote:
+On Sat Aug 17, 2002 at 04:06:46PM -0700, Andre Hedrick wrote:
+> Mark Lord, Gadi Oxman, Eric Anderson worked well.
 
-> At 20:56 17/08/02, Alan Cox wrote:
-> >Volunteers willing to run Cerberus test sets on 2.4 boxes with IDE
-> >controllers would also be much appreciated. That way we can get good
-> >coverage tests and catch badness immediately
-> 
-> If you tell me the kernel version and patches to apply which you want 
-> tested, and what options to run cerberus with (never used it before...), I 
-> have control over a currently idle dual Athlon MP 2000+ with an AMD-768 
-> (rev 04) IDE controller and 3G of RAM. It has only one HD, a ST340810A 
-> (ATA-100, 37G) attached.
-> 
-> btw. Is this where I get cerberus from?
->          http://sourceforge.net/projects/va-ctcs/
-> 
-> The machine won't be in use for a few more weeks (until I find the time to 
-> configure all the software and the database server it will be connecting 
-> to...) so I can do tests during that period.
+All these years later, I'm still known to submit 
+the occasional patch....
 
-I'm not familiar with Cerebus, but I'm willing to pitch in with any 
-testing you feel necessary.  I just finished rebuilding my system with 
-removable hard drives, originally to beat against Martin's IDE code.  I 
-now have a known good stable system I can do production with as well as a 
-dev drive I can restore to pristine in about 15 minutes.  System is an 
-Athlon 1.3 GHz on Asus A7V with 384MB RAM.
+ -Erik
 
-Is it going to be more desireable to beat on 2.4 IDE or 2.5 IDE?  
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

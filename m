@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289162AbSANXCp>; Mon, 14 Jan 2002 18:02:45 -0500
+	id <S289161AbSANXCy>; Mon, 14 Jan 2002 18:02:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289227AbSANXCj>; Mon, 14 Jan 2002 18:02:39 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:19591
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S289162AbSANXBT>; Mon, 14 Jan 2002 18:01:19 -0500
-Date: Mon, 14 Jan 2002 17:45:23 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Penelope builds a kernel
-Message-ID: <20020114174523.E23081@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Richard Gooch <rgooch@ras.ucalgary.ca>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020114165909.A20808@thyrsus.com> <200201142244.g0EMimd32377@vindaloo.ras.ucalgary.ca>
+	id <S289227AbSANXCp>; Mon, 14 Jan 2002 18:02:45 -0500
+Received: from pl100.nas921.ichikawa.nttpc.ne.jp ([210.165.234.100]:7226 "EHLO
+	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S289167AbSANXC3>;
+	Mon, 14 Jan 2002 18:02:29 -0500
+Date: Tue, 15 Jan 2002 08:02:18 +0900
+From: Bruce Harada <bruce@ask.ne.jp>
+To: esr@thyrsus.com
+Cc: landley@trommello.org, charlesc@discworld.dyndns.org,
+        linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+        eli.carter@inet.com, Michael.Lazarou@etl.ericsson.se
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+Message-Id: <20020115080218.7709cef7.bruce@ask.ne.jp>
+In-Reply-To: <20020114173423.A23081@thyrsus.com>
+In-Reply-To: <20020114125228.B14747@thyrsus.com>
+	<20020114125508.A3358@twoflower.internal.do>
+	<20020114135412.D17522@thyrsus.com>
+	<20020114223042.ENDG28486.femail48.sdc1.sfba.home.com@there>
+	<20020114173423.A23081@thyrsus.com>
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.6; i686-pc-linux-gnu)
+X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200201142244.g0EMimd32377@vindaloo.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Mon, Jan 14, 2002 at 03:44:48PM -0700
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch <rgooch@ras.ucalgary.ca>:
-> You know, I'm not really interested in whether Melvin or Penelope get
-> a root or not, and it's never occurred to me that kernel design should
-> be based on that.
+On Mon, 14 Jan 2002 17:34:23 -0500
+"Eric S. Raymond" <esr@thyrsus.com> wrote:
 
-The phrase "get a root" is entertainingly ambiguous in this context, is it not?
+> Therefore I try to stay focused on Aunt Tillie even though I know
+> that you are objectively correct and her class of user is likely
+> not to build kernels regularly for some years yet.
 
-Storytelling is the most effective form of exposition.  It's a way to pull
-technical issues out of the realm of abstraction, and help designers 
-realize that there are (at least potentially) real people involved.
+Change that last line to read "her class of user will never build kernels ever,
+and would be aggressively disinterested in the possibility of doing so", and
+you might be closer to the truth.
 
-I recommend it.  Not just for communicating with others, but for your
-own thought experiments in design.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-Let us hope our weapons are never needed --but do not forget what 
-the common people knew when they demanded the Bill of Rights: An 
-armed citizenry is the first defense, the best defense, and the 
-final defense against tyranny.
-   If guns are outlawed, only the government will have guns. Only 
-the police, the secret police, the military, the hired servants of 
-our rulers.  Only the government -- and a few outlaws.  I intend to 
-be among the outlaws.
-        -- Edward Abbey, "Abbey's Road", 1979
+Aunt Tillie just DOESN'T CARE, OK? She can talk to her vendor if she gets
+worried about whether her kernel supports the Flangelistic2000 SuperDoodad.

@@ -1,67 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266486AbUGKClB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266487AbUGKCpa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266486AbUGKClB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 22:41:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266487AbUGKClB
+	id S266487AbUGKCpa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 22:45:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUGKCp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 22:41:01 -0400
-Received: from fmr11.intel.com ([192.55.52.31]:13539 "EHLO
-	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
-	id S266486AbUGKCk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 22:40:58 -0400
-Subject: Re: [2.6.7] Ehci controller interrupts like crazy on nforce2
-From: Len Brown <len.brown@intel.com>
-To: Jonathan Filiatrault <lintuxicated@yahoo.ca>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615FFA43@hdsmsx403.hd.intel.com>
-References: <A6974D8E5F98D511BB910002A50A6647615FFA43@hdsmsx403.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1089513649.32038.55.camel@dhcppc2>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 10 Jul 2004 22:40:50 -0400
+	Sat, 10 Jul 2004 22:45:29 -0400
+Received: from CPE-203-51-26-230.nsw.bigpond.net.au ([203.51.26.230]:26606
+	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id S266487AbUGKCp2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 22:45:28 -0400
+Message-ID: <40F0A9C4.9000405@eyal.emu.id.au>
+Date: Sun, 11 Jul 2004 12:45:24 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
+References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au>	<Pine.LNX.4.58.0407072214590.1764@ppc970.osdl.org>	<m1fz80c406.fsf@ebiederm.dsl.xmission.com>	<Pine.LNX.4.58.0407092313410.1764@ppc970.osdl.org>	<Pine.LNX.4.58.0407092319180.1764@ppc970.osdl.org> <52r7rj7txj.fsf@topspin.com>
+In-Reply-To: <52r7rj7txj.fsf@topspin.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-07-08 at 21:16, Jonathan Filiatrault wrote:
-> Here it is: another nforce2 hardware bug. The ehci controller seems to
-> send a massive number of interrupts to the kernel (264379 per second).
-> This uses about 5 to 10% of the cpu. This shows up in top in the
-> "hi"(hard interrupts) indicator. Nothing unusual shows up in the
-> kernel
-> log. My system has an Asus A7N8X Nforce2 Board with an Athlon XP 2800+
-> mounted on it.
+Roland Dreier wrote:
+> Suppose I have
 > 
-> [joe@omega3:~]$ cat /proc/interrupts ; sleep 1; cat /proc/interrupts
->            CPU0
->   0:     583513          XT-PIC  timer
+> 	struct foo {
+> 		int a;
+> 		int b;
+> 	};
+> 
+> then sparse is perfectly happy with someone clearing out a struct foo
+> like this:
+> 
+> 	struct foo bar = { 0 };
+> 
+> but then if someone changes struct foo to be
+> 
+> 	struct foo {
+> 		void *x;
+> 		int a;
+> 		int b;
+> 	};
+> 
+> sparse will complain about that initialization, and all of the fixes
+> I can think of seem somewhat worse than the original to me:
 
-Please boot with "acpi_skip_timer_override" to fix your IRQ0.
-Yes, this workaround should be invoked automatically for you.
-No, it probably will not help your EHCI problem.
+Come on, this is madness. By accident, the first memeber which
+changed from 'int' to 'void *' now accepts the old initializer.
+In my book this is a really bad thing because you just changed
+the semantics of the initialiser '{ 0 }' quietly.
 
--Len
+BTW, if nothing else, don't add new members at the top.
 
-
->   1:       1279    IO-APIC-edge  i8042
->   7:     137293    IO-APIC-edge  parport0
->   8:          0    IO-APIC-edge  rtc
->   9:          0   IO-APIC-level  acpi
-> 14:      41463    IO-APIC-edge  ide0
-> 15:         23    IO-APIC-edge  ide1
-> 17:          9   IO-APIC-level  EMU10K1
-> 18:      18584   IO-APIC-level  eth0
-> 20:  121541873   IO-APIC-level  ehci_hcd
-> 21:          0   IO-APIC-level  ohci_hcd
-> 22:          0   IO-APIC-level  ohci_hcd
-> NMI:          0
-> LOC:     583348
-> ERR:          0
-> MIS:          0
->            CPU0
-
-
-
-
+--
+Eyal Lebedinsky		(eyal@eyal.emu.id.au)

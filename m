@@ -1,94 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVAXAk2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbVAXAl6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbVAXAk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 19:40:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbVAXAk2
+	id S261393AbVAXAl6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 19:41:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbVAXAl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 19:40:28 -0500
-Received: from smtp.ono.com ([62.42.230.12]:2709 "EHLO resmta05.ono.com")
-	by vger.kernel.org with ESMTP id S261396AbVAXAjf (ORCPT
+	Sun, 23 Jan 2005 19:41:57 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:62602 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261393AbVAXAif (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 19:39:35 -0500
-Message-ID: <41F443BE.1030108@usuarios.retecal.es>
-Date: Mon, 24 Jan 2005 01:39:26 +0100
-From: =?ISO-8859-1?Q?Ram=F3n_Rey_Vicente?= <rrey@usuarios.retecal.es>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
+	Sun, 23 Jan 2005 19:38:35 -0500
+Date: Mon, 24 Jan 2005 01:38:26 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Karim Yaghmour <karim@opersys.com>
+cc: Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
+       Tom Zanussi <zanussi@us.ibm.com>
+Subject: Re: 2.6.11-rc1-mm1
+In-Reply-To: <41F355AD.50901@opersys.com>
+Message-ID: <Pine.LNX.4.61.0501231703010.30794@scrub.home>
+References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de>
+ <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de>
+ <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home>
+ <41E8358A.4030908@opersys.com> <Pine.LNX.4.61.0501150101010.30794@scrub.home>
+ <41E899AC.3070705@opersys.com> <Pine.LNX.4.61.0501160245180.30794@scrub.home>
+ <41EA0307.6020807@opersys.com> <Pine.LNX.4.61.0501161648310.30794@scrub.home>
+ <41EADA11.70403@opersys.com> <Pine.LNX.4.61.0501171403490.30794@scrub.home>
+ <41EC2DCA.50904@opersys.com> <Pine.LNX.4.61.0501172323310.30794@scrub.home>
+ <41EC8AA2.1030000@opersys.com> <Pine.LNX.4.61.0501181359250.30794@scrub.home>
+ <41F0A0A2.1010109@opersys.com> <Pine.LNX.4.61.0501211754110.30794@scrub.home>
+ <41F355AD.50901@opersys.com>
 MIME-Version: 1.0
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org
-Subject: [2.6.11-rc2] Badness in local_bh_enable at kernel/softirq.c:140
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-Hi.
+On Sun, 23 Jan 2005, Karim Yaghmour wrote:
 
-I get this with 2.6.11-rc2
+> But how does relayfs organize the namespace then? What if I have
+> multiple channels per CPU, each for a different type of data, will
+> all channels for the same CPU be under the same directory or will
+> each type of data have its own directory with one entry per CPU?
 
-Badness in local_bh_enable at kernel/softirq.c:140
-~ [<c01162c0>] local_bh_enable+0x60/0x80
-~ [<d0abee37>] destroy_conntrack+0xb7/0xe0 [ip_conntrack]
-~ [<c0209580>] sock_wfree+0x0/0x40
-~ [<c020a7ec>] __kfree_skb+0x6c/0xe0
-~ [<d0a7a0d5>] rtl8139_start_xmit+0x75/0x120 [8139too]
-~ [<c02199b1>] qdisc_restart+0x51/0xe0
-~ [<c020f93a>] dev_queue_xmit+0x15a/0x1e0
-~ [<c021488c>] neigh_resolve_output+0xcc/0x160
-~ [<c022530b>] ip_finish_output2+0x8b/0x180
-~ [<c0225280>] ip_finish_output2+0x0/0x180
-~ [<c0218cf1>] nf_hook_slow+0x91/0xc0
-~ [<c0225240>] dst_output+0x0/0x40
-~ [<c02230ab>] ip_finish_output+0x1ab/0x1c0
-~ [<c0225280>] ip_finish_output2+0x0/0x180
-~ [<c0225240>] dst_output+0x0/0x40
-~ [<c022524b>] dst_output+0xb/0x40
-~ [<c0218cf1>] nf_hook_slow+0x91/0xc0
-~ [<c0224e8e>] ip_push_pending_frames+0x3ce/0x440
-~ [<c0225240>] dst_output+0x0/0x40
-~ [<c02251aa>] ip_send_reply+0x18a/0x1e0
-~ [<d0b10c18>] ip_nat_setup_info+0x78/0x200 [iptable_nat]
-~ [<d0b10005>] ip_nat_fn+0x5/0x1c0 [iptable_nat]
-~ [<c023798a>] tcp_v4_send_reset+0xca/0x120
-~ [<c02386a2>] tcp_v4_checksum_init+0x82/0x140
-~ [<c0238bc9>] tcp_v4_rcv+0x389/0x6a0
-~ [<c0220960>] ip_local_deliver_finish+0x0/0x120
-~ [<c02209f7>] ip_local_deliver_finish+0x97/0x120
-~ [<c0218cf1>] nf_hook_slow+0x91/0xc0
-~ [<c0220510>] ip_local_deliver+0x150/0x180
-~ [<c0220960>] ip_local_deliver_finish+0x0/0x120
-~ [<c0220c30>] ip_rcv_finish+0x1b0/0x220
-~ [<c0220a80>] ip_rcv_finish+0x0/0x220
-~ [<c0218cf1>] nf_hook_slow+0x91/0xc0
-~ [<c02208a8>] ip_rcv+0x368/0x420
-~ [<c0220a80>] ip_rcv_finish+0x0/0x220
-~ [<c020fd95>] netif_receive_skb+0x115/0x180
-~ [<c020a4d2>] alloc_skb+0x32/0xe0
-~ [<d0a7a5ae>] rtl8139_rx+0x16e/0x2e0 [8139too]
-~ [<d0a7a894>] rtl8139_poll+0x34/0xc0 [8139too]
-~ [<c020ff5f>] net_rx_action+0x5f/0xe0
-~ [<c011623a>] __do_softirq+0x7a/0xa0
-~ [<c0103c19>] do_softirq+0x39/0x40
-~ =======================
-~ [<c0103b1d>] do_IRQ+0x3d/0x60
-~ [<c010253a>] common_interrupt+0x1a/0x20
+I'd say the latter, you already do this for ltt.
 
-- --
-Ramón Rey Vicente <ramon.rey en hispalinux.es>
-JID rreylinux@jabber.org - GPG public key id 0x9F28E377
-GPG Fingerprint 0BC2 8014 2445 51E8 DE87  C888 C385 A9D3 9F28 E377
-Planet AUGCyL - http://augcyl.org/planet/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+> I don't have an answer to that, and I don't know that we should. Why
+> not just leave it to the client to organize his data as he wishes.
+> If we must assume that everyone will have at least one channel per
+> CPU, then why not provide helper functions built on top of very
+> basic functions instead of fixing the namespace in stone?
 
-iD8DBQFB9EO+w4Wp058o43cRAuJ+AJ9XcoOKoBtRT21O5R4u4uVGR6LhMACfe+/p
-npPvZJZFoki0MvUcu9HKQ1w=
-=0BBb
------END PGP SIGNATURE-----
+How should simple do you want to have these helper functions, isn't 
+something like relay_create(path, num_chan) simple enough?
+I don't think a directory structure is that bad, as that allows to add 
+more control files to the relay stream and still leave the option to write 
+out all buffers into one file.
+
+> > I have to modify it a little (only the if (!buffer) part is new):
+> > 
+> > 	cpu = get_cpu();
+> > 	buffer = relay_get_buffer(chan, cpu);
+> > 	while(1) {
+> > 		offset = local_add_return(buffer->offset, length);
+> > 		if (likely(offset + length <= buffer->size))
+> > 			break;
+> > 		buffer = relay_switch_buffer(chan, buffer, offset);
+> > 		if (!buffer) {
+> > 			put_cpu();
+> > 			return;
+> > 		}
+> > 	}
+> > 	memcpy(buffer->data + offset, data, length);
+> > 	put_cpu();
+> > 
+> > This has a very short fast path and I need very good reasons to change/add 
+> > anything here. OTOH the slow path with relay_switch_buffer() is less 
+> > critical and still leaves a lot of flexibility.
+> 
+> This is not good for any client that doesn't know beforehand the exact
+> size of their data units, as in the case of LTT. If LTT has to use this
+> code that means we are going to loose performance because we will need to
+> fill an intermediate data structure which will only be used for relay_write().
+> Instead of zero-copy, we would have an extra unnecessary copy. There has
+> got to be a way for clients to directly reserve and write as they wish.
+
+Ok, let's change it a little so it's more familiar. :)
+
+void *relay_reserve(chan, length, cpu)
+{
+	buffer = relay_get_buffer(chan, cpu);
+	while(1) {
+		offset = local_add_return(buffer->offset, length);
+		if (likely(offset + length <= buffer->size))
+			return buffer->data + offset;
+		buffer = relay_switch_buffer(chan, buffer, offset);
+		if (!buffer)
+			return NULL;
+	}
+}
+
+All you have to do is to put between get_cpu()/put_cpu().
+The same is also possible as macro, which allows you to directly jump out 
+of it to the failure code and avoid one test.
+
+> > Look closer, it's already interrupt safe, the synchronization for the 
+> > buffer switch is left to relay_switch_buffer().
+> 
+> Sorry, I'm still missing something. What exactly does local_add_return()
+> do? I assume this code has got to be interrupt safe? Something like:
+> #define local_add_return(OFFSET, LEN) \
+> do {\
+> ...
+> 	local_irq_save(); \
+> 	OFFSET += LEN;
+> 	local_irq_restore(); \
+> ...
+> } while(0);
+> 
+> I'm assuming local_irq_XXX because we were told by quite a few people
+> in the related thread to avoid atomic ops because they are more expensive
+> on most CPUs than cli/sti.
+
+That would be about the generic implementation, but it allows archs to 
+provide more efficient implementations in <asm/local.h>, e.g. i386 can use 
+xadd.
+
+> Also how does relay_get_buffer() operate?
+
+#define relay_get_buffer(chan, cpu)	chan->buffer[cpu]
+
+> What if I'm writing an event
+> from within a system call and I'm about to switch buffers and get
+> an interrupt at the if(likely(...))? Isn't relay_get_buffer() going to
+> return the same pointer as the one obtained for the syscall, and aren't
+> both cases now going to effect relay_switch_buffer(), one of which will
+> be superfluous?
+
+The synchronization has to be done in relay_switch_buffer(), but catching 
+it there is still cheaper as in the fast path.
+
+> > This adds a conditional and is not really needed. Above shows how to make 
+> > it interrupt safe and if the clients wants to reuse the same buffer, leave 
+> > the locking to the client.
+> 
+> Fine, but how is the client going to be able to reuse the same buffer if
+> relayfs always assumes per-CPU buffer as you said above? This would be
+> solved if at its core relayfs' functions worked on single channels and
+> additional code provided helpers for making the SMP case very simple.
+
+What do you mean? Why not make SMP case simple (less to get wrong)? The 
+client can still serialize everything with a simple spinlock.
+
+> > That's quite a lot of code with at least 14 conditions (or 13 conditions 
+> > too much) and this is just relayfs.
+> 
+> I believe Tom has refactored the code with your comments in mind, and has
+> something ready for review. I just want to clear up the above before we
+> make this final. Among other things, he just dropped all modes, and there's
+> only a basic relay_write() that closely resembles what you have above.
+
+Ok, great.
+BTW I don't really expect the first version to be fully optimized (unless 
+you want to :) ), but once the basics are right, that can still be added 
+later.
+
+bye, Roman

@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129208AbQKUMC7>; Tue, 21 Nov 2000 07:02:59 -0500
+	id <S129091AbQKIJGb>; Thu, 9 Nov 2000 04:06:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130177AbQKUMCt>; Tue, 21 Nov 2000 07:02:49 -0500
-Received: from styx.suse.cz ([195.70.145.226]:65007 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S129208AbQKUMCf>;
-	Tue, 21 Nov 2000 07:02:35 -0500
-Date: Mon, 20 Nov 2000 13:47:08 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Thomas Sailer <sailer@ife.ee.ethz.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: test11-pre6 still very broken
-Message-ID: <20001120134708.A941@suse.cz>
-In-Reply-To: <Pine.LNX.4.21.0011171935560.1796-100000@saturn.homenet> <20001117223137.A26341@wirex.com> <3A162EFE.A980A941@talontech.com> <20001117235624.B26341@wirex.com> <8v6h3d$rp$1@penguin.transmeta.com> <3A191B03.6DE258C8@ife.ee.ethz.ch>
-Mime-Version: 1.0
+	id <S129425AbQKIJGW>; Thu, 9 Nov 2000 04:06:22 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:55302 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129091AbQKIJGK>;
+	Thu, 9 Nov 2000 04:06:10 -0500
+Message-ID: <3A333D47.6B839036@i.am>
+Date: Sun, 10 Dec 2000 00:22:31 -0800
+From: "Mark W. McClelland" <mwm@i.am>
+X-Mailer: Mozilla 4.61 [en] (OS/2; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Installing kernel 2.4
+In-Reply-To: <Pine.LNX.3.96.1001107175009.1482C-100000@kanga.kvack.org> <3A088C02.4528F66B@timpanogas.org> <3A0896F3.AB36C3EE@mandrakesoft.com> <3A0897F5.563552AD@timpanogas.org> <3A089A01.ECAEABBD@mandrakesoft.com> <3A089A75.96C5F74@timpanogas.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A191B03.6DE258C8@ife.ee.ethz.ch>; from sailer@ife.ee.ethz.ch on Mon, Nov 20, 2000 at 01:37:23PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 20, 2000 at 01:37:23PM +0100, Thomas Sailer wrote:
-
-> > I hope EHCI makes it all moot. Some way or another.
+"Jeff V. Merkey" wrote:
+> > The kernel isn't going non-ELF.  Too painful, for dubious advantages,
+> > namely:
+> >
 > 
-> Only for USB2 devices. EHCI is supposed to be paired with an existing
-> UHCI or OHCI controller core that is supposed to take over the USB connector
-> if an USB 1.x hub or device is plugged in. So we end up needing to support
-> UHCI and OHCI for a very long time, I don't see mice and keyboards going
-> USB2 anytime soon 8-)
+> perhaps we should extend ELF.  After all, where linux goes, gcc
+> follows....
 
-Oops? I thought the paired controller there is for OSes not being able
-to handle EHCI yet? So that USB works even for those ... I think EHCI
-should handle even 1.x devices ... I may be wrong, though.
+I would like to see some features added to ELF. Resource binding support
+would be nice, i.e. bitmaps used internally by GUI apps and such, so
+that they can be shared between processes if they are in a shared lib,
+and so that the app can reload faster if the resources are cached. I
+suspect this is what allows netscape to restart in < 2 sec under Windows
+or OS/2, versus ~5 sec under Linux on the same system.
+
+Executable signing or at least a CRC (optional, of course) would be nice
+too. Version strings would be helpful in some cases as well (like bad
+programs that don't/can't support the -v|-V|--version options, or for
+automated retrieval of the information)
+
+Sorry if these features are supported already. 
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+Mark McClelland
+mwm@i.am
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

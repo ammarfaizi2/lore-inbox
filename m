@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318018AbSHCX1G>; Sat, 3 Aug 2002 19:27:06 -0400
+	id <S318020AbSHCXin>; Sat, 3 Aug 2002 19:38:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318026AbSHCX1G>; Sat, 3 Aug 2002 19:27:06 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:10561 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S318018AbSHCX1F>;
-	Sat, 3 Aug 2002 19:27:05 -0400
-Date: Sun, 4 Aug 2002 01:30:35 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Skip Ford <skip.ford@verizon.net>
+	id <S318022AbSHCXin>; Sat, 3 Aug 2002 19:38:43 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:19446 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318020AbSHCXin>; Sat, 3 Aug 2002 19:38:43 -0400
+Subject: Re: i386/kernel/pci-pc.c and tdfxfb.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Perry Gilfillan <perrye@linuxmail.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.30 LILO FreeBSD partition problems
-Message-ID: <20020803233035.GA29008@win.tue.nl>
-References: <200208032300.g73N0Pix000183@pool-141-150-241-241.delv.east.verizon.net>
+In-Reply-To: <20020803223614.13791.qmail@linuxmail.org>
+References: <20020803223614.13791.qmail@linuxmail.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 04 Aug 2002 02:00:13 +0100
+Message-Id: <1028422813.3478.3.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200208032300.g73N0Pix000183@pool-141-150-241-241.delv.east.verizon.net>
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 03, 2002 at 07:00:21PM -0400, Skip Ford wrote:
-
-> While running 2.5.30 I receive this error when running LILO with a
-> FreeBSD partition in lilo.conf
+On Sat, 2002-08-03 at 23:36, Perry Gilfillan wrote:
+> The first is that in 2.4.18, arch/i386/kernel/pci-pc.c had pci_fixup for 
+> the VIA VT82C597, 598, and 691 bridge chip sets.  
 > 
->   Device 0x0300: Invalid partition table, 3rd entry
->     3D address:     1/0/530 (534240)
->     Linear address: 1/14/8446 (8514450)
-> 
-> I removed the fbsd entry and LILO had no problems.  I then booted
-> to 2.4 and readded the fbsd partition and it installed fine.
+> All referenc to the VT82C5xx chips seem to be remoed.
 
-Which LILO version is this?
-What do cfdisk -Ps /dev/hda and cfdisk -Pt /dev/hda say?
-What are the kernel boot messages for this disk
-(dmesg | grep hda), both for 2.5.29 and 2.5.30?
+Actually I'm quite fond of my data so I'd prefer to leave them present.
+2.4.19 knows about the onboard video corner case which 2.4.18 didnt.
 
-Andries
+The tdfx one I can't help on. Although if its X that is making a mess
+probably there is an interaction between XFree86 and the kernel driver
+that wants looking at by both parties to see what code is forgetting to 
+restore what values
 
-[lilo-22.3.1 does not print such messages.
-Must be from the part_verify() in some older LILO.
-Probably some LILO option like "ignore-table" or "linear" or "lba32"
-would help. But it is interesting to see where this 1/0/530 comes from.]

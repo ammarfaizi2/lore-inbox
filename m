@@ -1,223 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbUDPSBl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 14:01:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263229AbUDPSBl
+	id S263584AbUDPSDw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 14:03:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263585AbUDPSDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 14:01:41 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34987 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261875AbUDPSBU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 14:01:20 -0400
-Message-ID: <40801F5D.7030100@pobox.com>
-Date: Fri, 16 Apr 2004 14:01:01 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Fri, 16 Apr 2004 14:03:52 -0400
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:56481 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S263584AbUDPSDs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 14:03:48 -0400
+Date: Sat, 17 Apr 2004 02:02:50 +0800
+From: "Michael Frank" <mhf@linuxmail.org>
+To: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>
+Subject: 2.4.26 intermittent kernel bug on boot.
+Cc: "kernel list" <linux-kernel@vger.kernel.org>,
+       "Nigel Cunningham" <ncunningham@users.sourceforge.net>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
 MIME-Version: 1.0
-To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-CC: "'Matt_Domsch@dell.com'" <Matt_Domsch@dell.com>,
-       "'paul@kungfoocoder.org'" <paul@kungfoocoder.org>,
-       "Mukker, Atul" <Atulm@lsil.com>,
-       "'James.Bottomley@SteelEye.com'" <James.Bottomley@SteelEye.com>,
-       "'arjanv@redhat.com'" <arjanv@redhat.com>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RELEASE]: megaraid unified driver version 2.20.0.B1
-References: <0E3FA95632D6D047BA649F95DAB60E570230C7DB@exa-atlanta.se.lsil.com>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230C7DB@exa-atlanta.se.lsil.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-ID: <opr6j9q0d54evsfm@smtp.pacific.net.th>
+User-Agent: Opera M2/7.50 (Linux, build 615)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks much for attaching the patch to your email, that makes review a 
-lot easier.
-
-Comments:
-
-0) Am I to judge from megaraid_mbox_build_cmd that megaraid does not 
-really support SCSI, but it translates instead?  This may imply that 
-implementation as a SCSI driver is inappropriate.
-
-
-1) Remove back-compat code from kdep.h.  It's OK for devel and for 
-vendor-specific branch, but we wouldn't want this in 2.6.x mainline.
-
-
-2) Buggy ADDR definitions:
-
-+#define ADDR_LO(addr)  (((unsigned long)(addr)) & 0xffffffff)
-+#define ADDR_HI(addr)  ((((ulong)(addr)) & 0xffffffff00000000ULL) >> 32)
-+#define ADDR_64(hi, lo)        ((((uint64_t)(hi)) << 32) | (lo))
-
-Don't cast to unsigned long, cast to u64.
-
-
-3) Delete non-standard types:  ulong
-
-
-4) For kernel-internal code, prefer types u8/u16/u32/u64 to C99 types, 
-though it's not a big deal.  Mainly, prefer consistency.
-
-
-5) No foo_t structures.  Linux kernel style is "struct foo" not "foo_t":
-
-+typedef struct mraid_hba_info {
-+} __attribute__ ((packed)) mraid_hba_info_t;
-+
-+typedef struct mcontroller {
-+} __attribute__ ((packed)) mcontroller_t;
-
-
-6) Kill uses of "volatile".  _Most_ of the time, this indicates buggy 
-code.  You should have the proper barriers in place:  mb(), wmb(), 
-rmb(), barrier(), and cpu_relax().  This has been mentioned before :)
-
-
-7) Allow me to compliment you on proper kernel-doc documentation.
-
-
-8) Consider adding ____cacheline_aligned markers to the definition of 
-struct adapter (a.k.a. adapter_t, before item #5 is fixed).  Re-arrange 
-your adapter structure so that struct members that are used together are 
-kept in the same cacheline.  For example, in net drivers, I usually 
-split the structures into "TX", "RX", and "everything else" sections. 
-Keep in mind that cacheline size varies (32/64/128 usually), so this is 
-not an absolute limit, just a marker where to physically separate into 
-distinct cachelines.
-
-
-9) {SET,IS}_PRV_INTF_AVAILABLE's use of atomic_foo() seems racy.
-
-
-10) In 2.6, use the type-safe module_param() rather than MODULE_PARM()
-
-
-11) Why is PAGE_SIZE chosen here?
-
-+       /*
-+        * Allocate all pages in a loop
-+        */
-+       for (i = 0; i < num_pages; i++) {
-+
-+               pool->page_arr[i] = pci_alloc_consistent( dev, PAGE_SIZE-1,
-+ 
-&pool->dmah_arr[i] );
-+               if (pool->page_arr[i] == NULL) {
-+                       con_log(CL_ANN, (KERN_WARNING
-+                               "megaraid: Failed to alloc page # %d\n", 
-i ));
-+                       goto memlib_fail_alloc;
-+               }
-+       }
-
-
-12) Don't invent your own printk() wrappers.  I don't see the need for 
-con_log()
-
-
-13) try_assertion{}, catch_assertion{}, and end_assertion attempt to 
-turn C code into C++ code.  This will inevitably fail :)
-
-
-14) the following check doesn't scale, please remove:
-
-+       if (subsysvid && (subsysvid != PCI_VENDOR_ID_AMI) &&
-+                       (subsysvid != PCI_VENDOR_ID_DELL) &&
-+                       (subsysvid != PCI_VENDOR_ID_HP) &&
-+                       (subsysvid != PCI_VENDOR_ID_INTEL) &&
-+                       (subsysvid != PCI_SUBSYS_ID_FSC) &&
-+                       (subsysvid != PCI_VENDOR_ID_LSI_LOGIC)) {
-+
-+               con_log(CL_ANN, (KERN_WARNING
-+                       "megaraid: not loading for subsysvid:%#4.04x\n",
-+                       subsysvid));
-+
-+               return -ENODEV;
-+       }
-
-
-15) Don't set a DMA mask, then change it.  in megaraid_probe_one() you 
-have enough info to decide whether 64-bit can be supported.
-
-
-16) Use normal Linux kernel style to handle errors.  Don't duplicate
-+               kfree(adapter);
-+
-+               pci_disable_device(pdev);
-
-in multiple error handling paths.
-
-
-17) Eliminate MAX_CONTROLLERS.  There is no reason for this limit. 
-Global structures such as mraid_driver_g are generally not needed.
-
-
-18) Use pci_request_regions() in megaraid_probe_one(), rather than 
-request_region or request_mem_region.  To free, you use 
-pci_release_regions().
-
-
-19) When hardware is malfunctioning or removed, the following code turns 
-into an infinite loop:
-
-+               // FIXME: this may not be required
-+               while (RDINDOOR(raid_dev) & 0x02) cpu_relax();
-
-
-20) You don't need spin_lock_irqsave() in interrupt handler, only 
-spin_lock()
-
-
-21) VERY unfriendly to shared interrupts.  megaraid_iombox_ack_sequence 
-MUST check immediately for
-	(a) no irq at all (shared interrupt)
-	(b) status return of 0xffffffff (hardware is malfunctioning/unplugged)
-
-
-22) MAJOR bug:  sleep inside spinlock.  The SCSI error handler calls its 
-error handling hooks with the adapter lock held.  You cannot yield() 
-inside mbox_post_sync_cmd
-
-
-23) Alongside #22, the following code is unacceptable:
-
-+               // wait for maximum 1 second for status to post
-+               for (i = 0; i < 40000; i++) {
-+                       if (mbox->numstatus != 0xFF) break;
-+                       udelay(25); yield();
-+               }
-
-Besides yield(), the maximum delay with spinlock held is far too long.
-
-
-24) Same issues as #22 and #23 in __megaraid_busywait_mbox: 
-unacceptable delay inside spinlock, and schedule inside spinlock:
-
-+       for (counter = 0; counter < 10000; counter++) {
-+
-+               if (!mbox->busy) return MRAID_SUCCESS;
-+
-+               udelay(100); yield();
-+       }
-
-
-
-25) sleep_on_timeout() is deprecated and should not be used:
-
-+       while (adp->outstanding_cmds > 0)
-+               sleep_on_timeout( &wq, 1*HZ );
-
-
-
-26) General question:  do you ever call down() inside a spinlock?  I did 
-not look closely, but I think you do.  That would be wrong, as down() 
-can sleep.
-
-
-27) drivers/scsi/megaraid/readme belongs in the Documentation/ directory
-
-
-
+2.4.26 patched with swsusp2.
+
+P4, SIS5513 chipset about the 7th boot of 2.4.26.
+
+Linux version 2.4.26-mhf197 (root@mhfl4) (gcc version 2.95.3 20010315 (release)) #3 Fri Apr 16 22:23:11 HKT 2004
+BIOS-provided physical RAM map:
+  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+  BIOS-e820: 0000000000100000 - 000000001f7f0000 (usable)
+  BIOS-e820: 000000001f7f0000 - 000000001f7f3000 (ACPI NVS)
+  BIOS-e820: 000000001f7f3000 - 000000001f800000 (ACPI data)
+  BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
+503MB LOWMEM available.
+On node 0 totalpages: 129008
+zone(0): 4096 pages.
+zone(1): 124912 pages.
+zone(2): 0 pages.
+Kernel command line: vga=0xf07 root=/dev/hda4 resume2=swap:/dev/hda1 console=tty0 console=ttyS0,115200n8r  devfs=nomount nousb acpi=off
+Initializing CPU#0
+Detected 2399.777 MHz processor.
+Console: colour VGA+ 80x60
+kernel BUG at slab.c:1238!
+invalid operand: 0000
+
+CPU:    0
+EIP:    1010:[<c013bf39>]    Not tainted
+EFLAGS: 00010002
+EIP is at kmem_cache_alloc+0x31/0xdc [kernel]
+eax: 00000000   ebx: 00000008   ecx: 00000000   edx: 00000001
+esi: 00000000   edi: 0000000b   ebp: 00000020   esp: c0407f10
+ds: 1018   es: 1018   ss: 1018
+Process swapper (pid: 0, stackpage=c0407000)
+Stack: 0000000b 00000001 0000000b c040656c c0121f8c 00000000 00000020 c0406000
+        0000000b 0000000b 00000000 c012206d 0000000b 00000001 c040656c 00000282
+        0000000b c0406000 c012211c 0000000b 00000001 c0406000 00000286 c0406000
+Call Trace:
+  [<c0121f8c>] send_signal+0x2c/0xf0 [kernel]
+  [<c012206d>] deliver_signal+0x1d/0x54 [kernel]
+  [<c012211c>] send_sig_info+0x78/0x88 [kernel]
+  [<c01221a9>] force_sig_info+0x7d/0x88 [kernel]
+  [<c010a5e4>] do_double_fault+0x0/0x64 [kernel]
+  [<c01223d5>] force_sig+0x11/0x18 [kernel]
+  [<c010a619>] do_double_fault+0x35/0x64 [kernel]
+  [<c0109dc4>] error_code+0x34/0x40 [kernel]
+
+Code: 0f 0b d6 04 e0 b7 2b c0 8d 5e 08 9c 5f fa 8b 4e 08 39 d9 75
+
+Entering kdb (current=0xc0406000, pid 0) Oops: invalid operand
+due to oops @ 0xc013bf39
+eax = 0x00000000 ebx = 0x00000008 ecx = 0x00000000 edx = 0x00000001
+esi = 0x00000000 edi = 0x0000000b esp = 0xc0407f10 eip = 0xc013bf39
+ebp = 0x00000020 xss = 0x00001018 xcs = 0x00001010 eflags = 0x00010002
+xds = 0x00001018 xes = 0x00001018 origeax = 0xffffffff &regs = 0xc0407edc
+kdb>
+
+Board did 50K+ boots testing swsusp with 2.4.2[012345]...
+
+It's still sitting in kdb, if you want me lookup something let me know.
 

@@ -1,65 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264476AbUBRQib (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 11:38:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264446AbUBRQib
+	id S267612AbUBRQAW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 11:00:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267609AbUBRQAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 11:38:31 -0500
-Received: from [211.47.66.232] ([211.47.66.232]:59058 "EHLO studyway.com")
-	by vger.kernel.org with ESMTP id S264476AbUBRQi3 (ORCPT
+	Wed, 18 Feb 2004 11:00:22 -0500
+Received: from ktown.kde.org ([131.246.103.200]:51160 "EHLO dot.kde.org")
+	by vger.kernel.org with ESMTP id S267612AbUBRQAS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 11:38:29 -0500
-Date: Thu, 19 Feb 2004 01:38:30 +0900
-Message-Id: <200402181638.i1IGXHHO019115@studyway.com>
-From: MRBATESALAN@netscape.net
+	Wed, 18 Feb 2004 11:00:18 -0500
+Date: Wed, 18 Feb 2004 16:57:10 +0100 (CET)
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+X-X-Sender: bero@dot.kde.org
 To: linux-kernel@vger.kernel.org
-Subject: REPLY SOON
-X-Priority: 3
+Subject: 2.4.25-pac1
+Message-ID: <Pine.LNX.4.58.0402181655210.19729@dot.kde.org>
+X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
+X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Friend,
+$SUBJECT is released, and can be found at
+ftp://ftp.kernel.org/pub/linux/kernel/people/bero/2.4/2.4.25/
 
-As you read this, I don't want you to feel sorry for 
-me, because, I believe everyone will die someday. 
-My name is BATES ALAN a merchant in Dubai, in the 
-U.A.E.I have been diagnosed with Esophageal cancer.
-It has defiled all forms of medical treatment, and right now 
-I have only about a few months to live, according to medical experts. 
-I have not particularly lived my life so well, as I 
-never really cared for anyone(not even myself)but my 
-business. Though I am very rich, I was never 
-generous, I was always hostile to people and only 
-focused on my business as that was the only thing I 
-cared for. But now I regret all this as I now know 
-that there is more to life than just wanting to have 
-or make all the money in the world. 
-I believe when God gives me a second chance to come 
-to this world I would live my life a different way 
-from how I have lived it. Now that God has called 
-me, I have willed and given most of my property 
-and assets to my immediate and extended family 
-members as well as a few close friends. 
-I want God to be merciful to me and accept my soul 
-so, I have decided to give alms to charity 
-organizations, as I want this to be one of the last 
-good deeds I do on earth. So far, I have distributed 
-money to some charity organizations in the U.A.E, 
-Algeria and Malaysia. Now that my health has 
-deteriorated so badly, I cannot do this myself 
-anymore. I once asked members of my family to close one 
-of my accounts and distribute the money which I have 
-there to charity organization in Bulgaria and 
-Pakistan, they refused and kept the money to 
-themselves. Hence, I do not trust them anymore, as 
-they seem not to be contended with what I have left 
-for them. 
-The last of my money which no one knows of is the 
-huge cash deposit of eighteen million dollars 
-$18,000,000,00 that I have with a finance/Security Company 
-abroad. I will want you to help me collect this deposit 
-and dispatched it to charity organizations.
-I have set aside 10% for you and for your time.
-God be with you. 
-BATES ALAN
+Changes since 2.4.25-rc1-pac1:
+- Port to current code
+- Fix ACPI poweroff on some systems (Willy Tarreau)
 
+LLaP
+bero
+
+-- 
+Ark Linux - Linux for the masses
+http://www.arklinux.org/
+
+Redistribution and processing of this message is subject to
+http://www.arklinux.org/terms.php

@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbUKBJ4x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbUKBKCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbUKBJ4x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 04:56:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261404AbUKBJyT
+	id S261680AbUKBKCR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 05:02:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbUKBKCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 04:54:19 -0500
-Received: from cantor.suse.de ([195.135.220.2]:7868 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261158AbUKBJvq (ORCPT
+	Tue, 2 Nov 2004 05:02:13 -0500
+Received: from fmr12.intel.com ([134.134.136.15]:12239 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S263691AbUKBKAj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 04:51:46 -0500
-Date: Tue, 2 Nov 2004 10:13:06 +0100
-From: Andi Kleen <ak@suse.de>
-To: Brent Casavant <bcasavan@sgi.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, hugh@veritas.com,
-       ak@suse.de
-Subject: Re: [PATCH] Use MPOL_INTERLEAVE for tmpfs files
-Message-ID: <20041102091306.GC21619@wotan.suse.de>
-References: <Pine.SGI.4.58.0411011901540.77038@kzerza.americas.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.SGI.4.58.0411011901540.77038@kzerza.americas.sgi.com>
+	Tue, 2 Nov 2004 05:00:39 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH x86_64]: Setup PER_LINUX32 on x86_64
+Date: Tue, 2 Nov 2004 18:00:36 +0800
+Message-ID: <8126E4F969BA254AB43EA03C59F44E84BBED0A@pdsmsx404>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH x86_64]: Setup PER_LINUX32 on x86_64
+Thread-Index: AcTAuKOU32iYMuOgR+meBVLy86RD8AACAREw
+From: "Jin, Gordon" <gordon.jin@intel.com>
+To: <discuss@x86-64.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 02 Nov 2004 10:00:36.0966 (UTC) FILETIME=[CD0E2060:01C4C0C2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And now, for your viewing pleasure...
+Jin, Gordon <> wrote on Tuesday, November 02, 2004 4:48 PM:
 
-Patch is fine except that I would add a sysctl to enable/disable this.
+> On x86_64, PER_LINUX32 is not setup but used by syscall personality
+> and uname. This patch sets PER_LINUX32 when x86 binary loaded so it
+> can be used correctly. 
+> - Set personality to PER_LINUX32 when x86 binary loaded.
+> - Set personality to PER_LINUX when x86_64 binary loaded.
+> - Use sys32_personality instead of sys_personality.
+> - Add sys32_newuname() for syscall newuname.
+> - Remove the unnecessary check for PER_LINUX32 in sys_uname().
+> 
+A side question is:
+To distinguish 32-bit and native 64-bit app on x86-64(and some other archs),
+somewhere PER_LINUX32 is used, while somewhere TIF_IA32 is used.
+So both of them need maintained, respectively in task_struct and thread_info.
+Is it redundant? Can we do away TIF_IA32?
 
-I can see that some people would like to not have interleave policy
-(e.g. when you use tmpfs as a large memory extender on 32bit NUMA
-then you probably want local affinity) 
-
-Best if you name it /proc/sys/vm/numa-tmpfs-rr
-
-Default can be set to one for now.
-
--Andi
+Thanks,
+Gordon

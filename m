@@ -1,51 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271149AbUJVAEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271155AbUJVAEn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271149AbUJVAEr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 20:04:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271129AbUJVADn
+	id S271155AbUJVAEn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 20:04:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271151AbUJVAEG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 20:03:43 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:60164 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S271146AbUJVAAs
+	Thu, 21 Oct 2004 20:04:06 -0400
+Received: from c-67-172-209-82.client.comcast.net ([67.172.209.82]:47368 "EHLO
+	skarpsey.home.lan") by vger.kernel.org with ESMTP id S271135AbUJUX7z
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 20:00:48 -0400
-Date: Fri, 22 Oct 2004 01:00:45 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: mikem@beardog.cca.cpqcorp.net
-Cc: marcelo.tosatti@cyclades.com, axboe@suse.de, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [patch 1/2] cciss: cleans up warnings in the 32/64 bit conversions
-In-Reply-To: <20041021211718.GA10462@beardog.cca.cpqcorp.net>
-Message-ID: <Pine.LNX.4.58L.0410220054010.15504@blysk.ds.pg.gda.pl>
-References: <20041021211718.GA10462@beardog.cca.cpqcorp.net>
+	Thu, 21 Oct 2004 19:59:55 -0400
+From: Kelledin <kelledin@users.sourceforge.net>
+To: "Jeff V. Merkey" <jmerkey@drdos.com>
+Subject: Re: Linux v2.6.9 and GPL Buyout
+Date: Thu, 21 Oct 2004 18:59:34 -0500
+User-Agent: KMail/1.6.1
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <1098218286.8675.82.camel@mentorng.gurulabs.com> <41757478.4090402@drdos.com>
+In-Reply-To: <41757478.4090402@drdos.com>
+Cc: "Linus Torvalds" <torvalds@osdl.org>,
+       "Kernel Mailing List" <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410211859.35011.kelledin@users.sourceforge.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Oct 2004 mike.miller@hp.com wrote:
+[I now pronounce the following benediction: IANAL.  $DEITY, give 
+me the strength to show reasoned restraint.]
 
-> @@ -611,7 +610,7 @@ int cciss_ioctl32_passthru(unsigned int 
->  	err |= copy_from_user(&arg64.Request, &arg32->Request, sizeof(arg64.Request));
->  	err |= copy_from_user(&arg64.error_info, &arg32->error_info, sizeof(arg64.error_info));
->  	err |= get_user(arg64.buf_size, &arg32->buf_size);
-> -	err |= get_user(arg64.buf, &arg32->buf);
-> +	err |= get_user((__u64) arg64.buf, &arg32->buf);
->  	if (err) 
->  		return -EFAULT; 
->  
-> @@ -641,7 +640,7 @@ int cciss_ioctl32_big_passthru(unsigned 
->  	err |= copy_from_user(&arg64.error_info, &arg32->error_info, sizeof(arg64.error_info));
->  	err |= get_user(arg64.buf_size, &arg32->buf_size);
->  	err |= get_user(arg64.malloc_size, &arg32->malloc_size);
-> -	err |= get_user(arg64.buf, &arg32->buf);
-> +	err |= get_user((__u64) arg64.buf, &arg32->buf);
->  	if (err) return -EFAULT; 
->  	old_fs = get_fs();
->  	set_fs(KERNEL_DS);
+On Tuesday 19 October 2004 03:09 pm, you wrote:
+> No.  They seem to have some factual concrete evidence IP
+> covered under Employee
+> agreements was used and subsequently converted into Linux, and
+> they are very
+> confident of this.  From a cursory viewpoint, it looks valid. 
+> I think they have a case
+> (having been sued and nailed for the same type of thing by
+> Novell).
 
- These constructs (casts as lvalues) are deprecated with GCC 3.4 (a
-warning is triggered) and no longer supported with 4.0.  Please consider
-rewriting -- you'll probably need an auxiliary variable.
+So very certain you are...
 
-  Maciej
+...but in any case, that doesn't mean much to me.
+
+I think it's perfectly reasonable for me to believe what SCO 
+admits in court, rather than what SCO might have fooled you into 
+believing (after all of a cursory inspection) or persuaded you 
+to lie about.  And what SCO is lately forced to admit in court 
+is that it has no evidence of copyright infringement in Linux.  
+After over a year of claiming to have "mountains" of this 
+evidence and after multiple court orders to disclose this 
+evidence, the best SCO can cough up doesn't pass muster.  SCO's 
+"smoking gun" samples were either nonprotectable or were cobbled 
+together in a half-assed attempt at evidence doctoring.
+
+Not to mention which, "non-literal coypright infringement" is an 
+oxymoron in almost all federal circuits, so don't even go down 
+that road.
+
+[If this sounds to you like an ad-hominem attack, well...tough 
+shit in advance, I'm just being realistic.  Grow some thicker 
+skin.]
+
+> Dump the FS's and NUMA guys.  Then you are nearly there for
+> being squeaky clean.
+
+So far I've seen no plausible evidence that we aren't already 
+there.  The bare word of a company/CEO that's already been 
+caught stretching the truth counts for pretty much nothing.
+
+--
+Kelledin
+"If a server crashes in a server farm and no one pings it, does 
+it still cost four figures to fix?"

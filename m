@@ -1,68 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267137AbSLEAKz>; Wed, 4 Dec 2002 19:10:55 -0500
+	id <S267028AbSLEAUV>; Wed, 4 Dec 2002 19:20:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267160AbSLEAKy>; Wed, 4 Dec 2002 19:10:54 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59409 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267137AbSLEAKx>; Wed, 4 Dec 2002 19:10:53 -0500
-Date: Wed, 4 Dec 2002 16:18:39 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jim Houston <jim.houston@ccur.com>
-cc: george anzinger <george@mvista.com>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>, <anton@samba.org>,
-       "David S. Miller" <davem@redhat.com>, <ak@muc.de>, <davidm@hpl.hp.com>,
-       <schwidefsky@de.ibm.com>, <ralf@gnu.org>, <willy@debian.org>
-Subject: Re: [PATCH] compatibility syscall layer (lets try again)
-In-Reply-To: <3DEE92EF.350F4F9F@ccur.com>
-Message-ID: <Pine.LNX.4.44.0212041600070.3100-100000@home.transmeta.com>
+	id <S267084AbSLEAUV>; Wed, 4 Dec 2002 19:20:21 -0500
+Received: from smtprelay6.dc2.adelphia.net ([64.8.50.38]:37515 "EHLO
+	smtprelay6.dc2.adelphia.net") by vger.kernel.org with ESMTP
+	id <S267028AbSLEAUR>; Wed, 4 Dec 2002 19:20:17 -0500
+Message-ID: <01c301c29bf5$201a9120$6a01a8c0@wa1hco>
+From: "jeff millar" <wa1hco@adelphia.net>
+To: "Shane Helms" <shanehelms@eircom.net>, <linux-kernel@vger.kernel.org>
+References: <F6E1228667B6D411BAAA00306E00F2A51539BA@pdc2.nestec.net> <200212041526.57501.shanehelms@eircom.net>
+Subject: Re: is KERNEL developement finished, yet ???
+Date: Wed, 4 Dec 2002 19:27:40 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2720.3000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+My opinion...
 
-On Wed, 4 Dec 2002, Jim Houston wrote:
-> 
-> Agreed!  In my alternative version of the Posix timers patch, I avoid
-> calling do_signal() from clock_nanosleep by using a variant of the 
-> existing ERESTARTNOHAND mechanism.  The problem I ran into was that I
-> could not tell on entry to clock_nanosleep if it was a new call or
-> an old one being restarted.
+Kernels are getting mature in the sense the there's not that many ways to do
+tasking and hardware interface.  It no longer a game of invention but a game
+of polishing.  The amount of total work available probably continues to go
+up because kernels are becoming as common as screws.
 
-Restarting has other problems too, namely how to save off the partial 
-results.
+It's like the guy who invented interchangable hardware in the
+1700's...really cool and creates plenty of work but it's no longer bleeding
+edge to design the next screw thread in the next material.
 
->				  I solved this by adding a new 
-> ERESTARTNANOSLP error code and making a small change in do_signal().
-> The handling of ERESTARTNANOSLP is the same as ERESTARTNOHAND but also
-> sets a new flag in the task_struct before restarting the system call.
+So, do you want to push the edge and discover new principles and go where no
+one has gone before?  Or do you want to make the existing implementations
+better than anyone else ever has before?
 
-The problem I see with this is that the signal handler can do a 
-"siglongjump()" out of the regular path, and the next system call may well 
-be a _new_ nanosleep() that has nothing to do with the old one. And 
-realizing that it's _not_ a restarted one is interesting.
+If you want to stay with programming close to the hardware, think about
+pulling the essential elements of I/O drivers and some parts of applications
+into VHDL and programmable hardware (FPGA's)...then hook those into the
+kernel effectively and in an open architecture sort of way.
 
-A better and more flexible approach would be to not restart the same
-system call with the same parameters, but having some way of telling
-do_signal to restart with new parameters and a new system call number.
+jeff
 
-For example, it shouldn't be impossible to have an interface more akin to
+----- Original Message -----
+From: "Shane Helms" <shanehelms@eircom.net>
+To: <linux-kernel@vger.kernel.org>
+Sent: Wednesday, December 04, 2002 10:26 AM
+Subject: is KERNEL developement finished, yet ???
 
-	...
-	thread_info->restart_block.syscall = __NR_nanosleep_restart;
-	thread_info->restart_block.arg0 = timeout + jiffies; /* absolute time */
-	return -ERESTARTSYS_RESTARTBLOCK;
 
-where the signal stack stuff re-writes not just eip (like the current 
-restart logic does), but also rewrites the system call number and the 
-argument registers.
+> I'd like most of you to answer the following question, that includes even
+> Linus.
+>
+> I love C programming at low level (ie kernel, embedded, etc) and i'm
+seriously
+> good at it. But don't know whether I should persue it as my main Career or
+> just as an Interest. My question is, is there, yet, any area at this low
+> level to be discovered and developed on ? or as most ppl say, are the
+> interesting parts over and it's just now into patches, bugs and slight
+> enhancements/optimizations/securities ?
+>
+> I'm starting a Post-Graduate studies at April, and need to know, whether
+it's
+> worth going into Computer Architecture Group as my main career, or shall I
+> stir towards a another area like networking which is still in
+developement,
+> and plenty of jobs (but not as interssting as kernel/OS programming) ?????
 
-This way you can get a truly restartable system call, because the
-arguments really need to be fundamentally changed (the restarted system
-call had better have _absolute_ time, not relative time, since we don't
-know how much time passed before it got restarted).
-
-		Linus
+>
+> please reply, and if in favor of kernel developement, try to name some
+areas
+> where there yet relies hope.
+>
+> Thanks,
+>
+> Shane
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

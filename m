@@ -1,310 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262601AbTELTXd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 15:23:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbTELTXd
+	id S262623AbTELTaA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 15:30:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbTELTaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 15:23:33 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:17863 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S262609AbTELTWo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 15:22:44 -0400
-Message-ID: <3EBFF77A.20506@namesys.com>
-Date: Mon, 12 May 2003 23:35:22 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [BK] [2.4] reiserfs: parser fix patch, resend
-Content-Type: multipart/mixed;
- boundary="------------070108060905000606040501"
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
-This is a multi-part message in MIME format.
---------------070108060905000606040501
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-
--- 
-Hans
-
-
---------------070108060905000606040501
-Content-Type: message/rfc822;
- name="[2.4] reiserfs: parser fix patch, resend"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="[2.4] reiserfs: parser fix patch, resend"
-
-Return-Path: <green@angband.namesys.com>
-Delivered-To: reiser@namesys.com
-Received: (qmail 975 invoked from network); 12 May 2003 14:02:45 -0000
-Received: from angband.namesys.com (postfix@212.16.7.85)
-  by thebsh.namesys.com with SMTP; 12 May 2003 14:02:45 -0000
-Received: by angband.namesys.com (Postfix, from userid 521)
-	id 79ABF571F9C; Mon, 12 May 2003 18:02:45 +0400 (MSD)
-Date: Mon, 12 May 2003 18:02:45 +0400
-From: Oleg Drokin <green@namesys.com>
-To: reiser@namesys.com
-Subject: [2.4] reiserfs: parser fix patch, resend
-Message-ID: <20030512140245.GE4165@namesys.com>
+	Mon, 12 May 2003 15:30:00 -0400
+Received: from havoc.daloft.com ([64.213.145.173]:40382 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262623AbTELT36 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 15:29:58 -0400
+Date: Mon, 12 May 2003 15:42:43 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: "Mudama, Eric" <eric_mudama@maxtor.com>
+Cc: "'Jens Axboe'" <axboe@suse.de>, Oleg Drokin <green@namesys.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Oliver Neukum <oliver@neukum.org>,
+       lkhelp@rekl.yi.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69, IDE TCQ can't be enabled
+Message-ID: <20030512194243.GC10089@gtf.org>
+References: <785F348679A4D5119A0C009027DE33C102E0D31A@mcoexc04.mlm.maxtor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <785F348679A4D5119A0C009027DE33C102E0D31A@mcoexc04.mlm.maxtor.com>
+User-Agent: Mutt/1.3.28i
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, May 12, 2003 at 11:58:10AM -0600, Mudama, Eric wrote:
+> The only difference between SATA TCQ and PATA TCQ is that in PATA TCQ, the
+> drive doesn't report the active tag bitmap back to the host after each
+> command.  Other than that they are functionally identical to my
+> understanding.  (Yes, there are options like first-party DMA, but these are
+> not requirements)
 
-    These two changesets fix the problems in reiserfs' option parser.
-    Now it will correctly bail out and refuse to mount/remount if
-    incorrect options were given. Also it is now aware of exclusive
-    options and deals with those correctly, so you can actually
-    disable tails after you have enabled those.
+That's from the "drive side."  From the OS side, the ideal
+implementation isn't here yet :)
 
-    Please pull from bk://namesys.com/bk/reiser3-linux-2.4-parserfix
+Ideally there is a DMA ring of taskfiles and scatterlists.  The OS
+(producer) queues these up asynchrously, and the host+devices
+(consumer) executes the taskfiles in the ring.  AHCI does this.
 
-Diffstat:
- super.c |  122 +++++++++++++++++++++++++++++++++++-----------------------------
- 1 files changed, 68 insertions(+), 54 deletions(-)
+With PATA TCQ, we only have a single scatterlist, and are forced to
+have more OS-side infrastructure for command queueing, processing, etc.
 
-Plain text patch:
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1158  -> 1.1160 
-#	 fs/reiserfs/super.c	1.31    -> 1.33   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/05/03	green@angband.namesys.com	1.1159
-# Fix reiserfs options parser, return error if given incorrect options on remount
-# --------------------------------------------
-# 03/05/03	green@angband.namesys.com	1.1160
-# reiserfs: Refuse to mount/remount if "alloc=" option had incorect parameter
-# --------------------------------------------
-#
-diff -Nru a/fs/reiserfs/super.c b/fs/reiserfs/super.c
---- a/fs/reiserfs/super.c	Mon May 12 17:49:20 2003
-+++ b/fs/reiserfs/super.c	Mon May 12 17:49:20 2003
-@@ -403,8 +403,11 @@
-    mount options that have values rather than being toggles. */
- typedef struct {
-     char * value;
--    int bitmask; /* bit which is to be set in mount_options bitmask when this
--                    value is found, 0 is no bits are to be set */
-+    int setmask; /* bitmask which is to set on mount_options bitmask when this
-+                    value is found, 0 is no bits are to be changed. */
-+    int clrmask; /* bitmask which is to clear on mount_options bitmask when this
-+		    value is found, 0 is no bits are to be changed. This is
-+		    applied BEFORE setmask */
- } arg_desc_t;
- 
- 
-@@ -414,37 +417,42 @@
-     char * option_name;
-     int arg_required; /* 0 is argument is not required, not 0 otherwise */
-     const arg_desc_t * values; /* list of values accepted by an option */
--    int bitmask;  /* bit which is to be set in mount_options bitmask when this
--		     option is selected, 0 is not bits are to be set */
-+    int setmask; /* bitmask which is to set on mount_options bitmask when this
-+		    value is found, 0 is no bits are to be changed. */
-+    int clrmask; /* bitmask which is to clear on mount_options bitmask when this
-+		    value is found, 0 is no bits are to be changed. This is
-+		    applied BEFORE setmask */
- } opt_desc_t;
- 
- 
- /* possible values for "-o hash=" and bits which are to be set in s_mount_opt
-    of reiserfs specific part of in-core super block */
- static const arg_desc_t hash[] = {
--    {"rupasov", FORCE_RUPASOV_HASH},
--    {"tea", FORCE_TEA_HASH},
--    {"r5", FORCE_R5_HASH},
--    {"detect", FORCE_HASH_DETECT},
--    {NULL, 0}
-+    {"rupasov", 1<<FORCE_RUPASOV_HASH,(1<<FORCE_TEA_HASH)|(1<<FORCE_R5_HASH)},
-+    {"tea", 1<<FORCE_TEA_HASH,(1<<FORCE_RUPASOV_HASH)|(1<<FORCE_R5_HASH)},
-+    {"r5", 1<<FORCE_R5_HASH,(1<<FORCE_RUPASOV_HASH)|(1<<FORCE_TEA_HASH)},
-+    {"detect", 1<<FORCE_HASH_DETECT, (1<<FORCE_RUPASOV_HASH)|(1<<FORCE_TEA_HASH)|(1<<FORCE_R5_HASH)},
-+    {NULL, 0, 0}
- };
- 
- 
- /* possible values for "-o block-allocator=" and bits which are to be set in
-    s_mount_opt of reiserfs specific part of in-core super block */
- static const arg_desc_t balloc[] = {
--    {"noborder", REISERFS_NO_BORDER},
--    {"no_unhashed_relocation", REISERFS_NO_UNHASHED_RELOCATION},
--    {"hashed_relocation", REISERFS_HASHED_RELOCATION},
--    {"test4", REISERFS_TEST4},
--    {NULL, 0}
-+    {"noborder", 1<<REISERFS_NO_BORDER, 0},
-+    {"border", 0, 1<<REISERFS_NO_BORDER},
-+    {"no_unhashed_relocation", 1<<REISERFS_NO_UNHASHED_RELOCATION, 0},
-+    {"hashed_relocation", 1<<REISERFS_HASHED_RELOCATION, 0},
-+    {"test4", 1<<REISERFS_TEST4, 0},
-+    {"notest4", 0, 1<<REISERFS_TEST4},
-+    {NULL, 0, 0}
- };
- 
- static const arg_desc_t tails[] = {
--    {"on", REISERFS_LARGETAIL},
--    {"off", -1},
--    {"small", REISERFS_SMALLTAIL},
--    {NULL, 0}
-+    {"on", 1<<REISERFS_LARGETAIL, 1<<REISERFS_SMALLTAIL},
-+    {"off", 0, (1<<REISERFS_LARGETAIL)|(1<<REISERFS_SMALLTAIL)},
-+    {"small", 1<<REISERFS_SMALLTAIL, 1<<REISERFS_LARGETAIL},
-+    {NULL, 0, 0}
- };
- 
- 
-@@ -481,15 +489,20 @@
- 	/* Ugly special case, probably we should redo options parser so that
- 	   it can understand several arguments for some options, also so that
- 	   it can fill several bitfields with option values. */
--	reiserfs_parse_alloc_options( s, p + 6);
--	return 0;
-+	if ( reiserfs_parse_alloc_options( s, p + 6) ) {
-+	    return -1;
-+	} else {
-+	    return 0;
-+	}
-     }
- 	
-     /* for every option in the list */
-     for (opt = opts; opt->option_name; opt ++) {
- 	if (!strncmp (p, opt->option_name, strlen (opt->option_name))) {
--	    if (bit_flags && opt->bitmask != -1 )
--		set_bit (opt->bitmask, bit_flags);
-+	    if (bit_flags) {
-+		*bit_flags &= ~opt->clrmask;
-+		*bit_flags |= opt->setmask;
-+	    }
- 	    break;
- 	}
-     }
-@@ -529,7 +542,7 @@
-     }
-     
-     if (!opt->values) {
--	/* *opt_arg contains pointer to argument */
-+	/* *=NULLopt_arg contains pointer to argument */
- 	*opt_arg = p;
- 	return opt->arg_required;
-     }
-@@ -537,8 +550,10 @@
-     /* values possible for this option are listed in opt->values */
-     for (arg = opt->values; arg->value; arg ++) {
- 	if (!strcmp (p, arg->value)) {
--	    if (bit_flags && arg->bitmask != -1 )
--		set_bit (arg->bitmask, bit_flags);
-+	    if (bit_flags) {
-+		*bit_flags &= ~arg->clrmask;
-+		*bit_flags |= arg->setmask;
-+	    }
- 	    return opt->arg_required;
- 	}
-     }
-@@ -547,7 +562,6 @@
-     return -1;
- }
- 
--
- /* returns 0 if something is wrong in option string, 1 - otherwise */
- static int reiserfs_parse_options (struct super_block * s, char * options, /* string given via mount's -o */
- 				   unsigned long * mount_options,
-@@ -560,18 +574,21 @@
-     char * arg = NULL;
-     char * pos;
-     opt_desc_t opts[] = {
--		{"tails", 't', tails, -1},
--		{"notail", 0, 0, -1}, /* Compatibility stuff, so that -o notail for old setups still work */
--		{"conv", 0, 0, REISERFS_CONVERT}, 
--		{"nolog", 0, 0, -1},
--		{"replayonly", 0, 0, REPLAYONLY},
-+		{"tails", 't', tails, 0, 0},
-+		/* Compatibility stuff, so that -o notail
-+		   for old setups still work */
-+		{"notail", 0, 0, 0, (1<<REISERFS_LARGETAIL)|(1<<REISERFS_SMALLTAIL)},
-+		{"conv", 0, 0, 1<<REISERFS_CONVERT, 0},
-+		{"nolog", 0, 0, 0, 0}, /* This is unsupported */
-+		{"replayonly", 0, 0, 1<<REPLAYONLY, 0},
- 		
--		{"block-allocator", 'a', balloc, -1}, 
--		{"hash", 'h', hash, FORCE_HASH_DETECT},
-+		{"block-allocator", 'a', balloc, 0, 0},
-+		{"hash", 'h', hash, 1<<FORCE_HASH_DETECT, 0},
- 		
--		{"resize", 'r', 0, -1},
--		{"attrs", 0, 0, REISERFS_ATTRS},
--		{NULL, 0, 0, 0}
-+		{"resize", 'r', 0, 0, 0},
-+		{"attrs", 0, 0, 1<<REISERFS_ATTRS, 0},
-+		{"noattrs", 0, 0, 0, 1<<REISERFS_ATTRS},
-+		{NULL, 0, 0, 0, 0}
-     };
- 	
-     *blocks = 0;
-@@ -579,9 +596,6 @@
- 	/* use default configuration: create tails, journaling on, no
- 	   conversion to newest format */
- 	return 1;
--    else
--	/* Drop defaults to zeroes */
--	*mount_options = 0;
-     
-     for (pos = options; pos; ) {
- 	c = reiserfs_getopt (s, &pos, opts, &arg, mount_options);
-@@ -635,26 +649,26 @@
-   struct reiserfs_super_block * rs;
-   struct reiserfs_transaction_handle th ;
-   unsigned long blocks;
--  unsigned long mount_options = 0;
-+  unsigned long mount_options = s->u.reiserfs_sb.s_mount_opt;
-+  unsigned long safe_mask = 0;
- 
-   rs = SB_DISK_SUPER_BLOCK (s);
- 
-   if (!reiserfs_parse_options(s, data, &mount_options, &blocks))
--  	return 0;
-+  	return -EINVAL;
- 
--#define SET_OPT( opt, bits, super )					\
--    if( ( bits ) & ( 1 << ( opt ) ) )					\
--	    ( super ) -> u.reiserfs_sb.s_mount_opt |= ( 1 << ( opt ) )
--
--  /* set options in the super-block bitmask */
--  SET_OPT( REISERFS_SMALLTAIL, mount_options, s );
--  SET_OPT( REISERFS_LARGETAIL, mount_options, s );
--  SET_OPT( REISERFS_NO_BORDER, mount_options, s );
--  SET_OPT( REISERFS_NO_UNHASHED_RELOCATION, mount_options, s );
--  SET_OPT( REISERFS_HASHED_RELOCATION, mount_options, s );
--  SET_OPT( REISERFS_TEST4, mount_options, s );
--  SET_OPT( REISERFS_ATTRS, mount_options, s );
--#undef SET_OPT
-+  /* Add options that are safe here */
-+  safe_mask |= 1 << REISERFS_SMALLTAIL;
-+  safe_mask |= 1 << REISERFS_LARGETAIL;
-+  safe_mask |= 1 << REISERFS_NO_BORDER;
-+  safe_mask |= 1 << REISERFS_NO_UNHASHED_RELOCATION;
-+  safe_mask |= 1 << REISERFS_HASHED_RELOCATION;
-+  safe_mask |= 1 << REISERFS_TEST4;
-+  safe_mask |= 1 << REISERFS_ATTRS;
-+
-+  /* Update the bitmask, taking care to keep
-+   * the bits we're not allowed to change here */
-+  s->u.reiserfs_sb.s_mount_opt = (s->u.reiserfs_sb.s_mount_opt & ~safe_mask) | (mount_options & safe_mask);
- 
-   handle_attrs( s );
- 
+As an aside, as drives and hosts get faster, we will actually want
+_fewer_ interrupts (i.e. interrupt coalescing).
+
+All this points to making the host smarter.
+The drives are already pretty damn smart ;-)
+
+	Jeff
 
 
-
---------------070108060905000606040501--
 

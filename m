@@ -1,46 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbVASHGY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbVASHJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbVASHGY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 02:06:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbVASHGX
+	id S261606AbVASHJk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 02:09:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVASHJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 02:06:23 -0500
-Received: from web60609.mail.yahoo.com ([216.109.119.83]:35680 "HELO
-	web60609.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261611AbVASHGJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 02:06:09 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=BVZ8oSCViKGRCAGtG+llOyZ7nYTQHSqcKewHsWsVqMFL5dLTh5Y6nOKRt+/yzuUBqRh2qjpGICRUpbo7RGB0DHfuzjvhWkyxsqs8PkK0/mnYYI5vnAdJLgQ15pI7EiRTv0ZApcCPcSDKA3oFziuTvGLttQMRiqKt9rN5LRtoK7s=  ;
-Message-ID: <20050119070609.38632.qmail@web60609.mail.yahoo.com>
-Date: Tue, 18 Jan 2005 23:06:08 -0800 (PST)
-From: selvakumar nagendran <kernelselva@yahoo.com>
-Subject: Finding inode removal
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 19 Jan 2005 02:09:39 -0500
+Received: from gate.crashing.org ([63.228.1.57]:14563 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261606AbVASHJf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 02:09:35 -0500
+Subject: Re: [PATCH] dynamic tick patch
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Tony Lindgren <tony@atomide.com>
+Cc: Pavel Machek <pavel@ucw.cz>, George Anzinger <george@mvista.com>,
+       john stultz <johnstul@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Con Kolivas <kernel@kolivas.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050119063713.GB26932@atomide.com>
+References: <20050119000556.GB14749@atomide.com>
+	 <1106108467.4500.169.camel@gaston> <20050119050701.GA19542@atomide.com>
+	 <1106112525.4534.175.camel@gaston>  <20050119063713.GB26932@atomide.com>
+Content-Type: text/plain
+Date: Wed, 19 Jan 2005 18:08:52 +1100
+Message-Id: <1106118532.5295.3.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello linux-experts,
-     while executing pipe syscall, same inode is used
-for both reading and writing. Now, if all processes
-accessing the inode have terminated, the inode will be
-removed. Now I am recording inode information in my
-own structure in a kernel module by intercepting
-syscalls. If the inode is no longer in use and if it
-is removed, at that time I want to remove my record
-also. How can I do that?
-     Can we intercept ordinary functions defined in
-kernel header files in the same way used for syscalls?
-How can we do that? for eg, I want to intercept
-pipe_wait function defined in pipe.c. Is it possible?
+On Tue, 2005-01-18 at 22:37 -0800, Tony Lindgren wrote:
+> * Benjamin Herrenschmidt <benh@kernel.crashing.org> [050118 21:29]:
+> > Hrm... reading more of the patch & Martin's previous work, I'm not sure
+> > I like the idea too much in the end... The main problem is that you are
+> > just "replaying" the ticks afterward, which I see as a problem for
+> > things like sched_clock() which returns the real current time, no ?
+> 
+> Well so far I haven't found problems with time. Since sched_clock()
+> returns the hw time, how does it cause a problem? Do you have some
+> example in mind? Maybe there's something I haven't even considered
+> yet.
+> 
+> > I'll toy a bit with my own implementation directly using Martin's work
+> > and see what kind of improvement I really get on ppc laptops.
+> 
+> I'd be interested in what you come up with :)
 
-Thanks,
-selva
+Well, I did a very simple implementation entirely local to
+arch/ppc/kernel, that basically calls timer_interrupt on every do_IRQ, I
+don't change timer_interrupt (our implementation already knows how to
+"catch up" already if missed ticks and knows how to deal beeing called
+to early as well). Then, when going to idle loop, I "override" the
+decrementer interrupt setting to be further in the future if
+next_timer_interrupt() returns more than 1.
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Strangely, I got not measurable improvement on power consumption despite
+putting the CPU longer into NAP mode. Note that this may be very
+different with earlier (G3 notably) CPUs, since G3 users repeately
+reported me havign a significant loss in battery life with HZ=1000
+
+Later, I'll do some stats to check how long I really slept, and see if
+it's worth, when I predict a long sleep, flushing the cache and going
+into a deeper PM mode where cache coherency is disabled too.
+
+Ben.
+
+

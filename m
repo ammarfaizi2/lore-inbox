@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbUBZOnS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 09:43:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbUBZOnS
+	id S261769AbUBZOsB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 09:48:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbUBZOsB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 09:43:18 -0500
-Received: from fed1mtao04.cox.net ([68.6.19.241]:10471 "EHLO
-	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S261611AbUBZOnN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 09:43:13 -0500
-Date: Thu, 26 Feb 2004 07:43:12 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>,
-       kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [Kgdb-bugreport] [PATCH][1/3] Update CVS KGDB's serial driver
-Message-ID: <20040226144312.GR1052@smtp.west.cox.net>
-References: <20040225213626.GF1052@smtp.west.cox.net> <200402261355.18964.amitkale@emsyssoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200402261355.18964.amitkale@emsyssoft.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 26 Feb 2004 09:48:01 -0500
+Received: from mail.turbolinux.co.jp ([210.171.55.67]:63759 "EHLO
+	mail.turbolinux.co.jp") by vger.kernel.org with ESMTP
+	id S261769AbUBZOr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 09:47:59 -0500
+Message-ID: <403E0563.9050007@turbolinux.co.jp>
+Date: Thu, 26 Feb 2004 23:40:35 +0900
+From: Go Taniguchi <go@turbolinux.co.jp>
+Organization: Turbolinx Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ja-JP; rv:1.2.1) Gecko/20030105
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3-mm3 hangs on  boot x440 (scsi?)
+References: <20040222172200.1d6bdfae.akpm@osdl.org>	<1077668801.2857.63.camel@cog.beaverton.ibm.com> <20040224170645.392abcff.akpm@osdl.org>
+In-Reply-To: <20040224170645.392abcff.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 26, 2004 at 01:55:18PM +0530, Amit S. Kale wrote:
-> On Thursday 26 Feb 2004 3:06 am, Tom Rini wrote:
-> > The following updates the serial driver with the fixes / cleanups that
-> > are in George's version of the driver.  There's a few slightly 'odd'
-> > things in this patch, which stem from the fact that in my next round of
-> > patches there will (a) be kernel/Kconfig.kgdb and (b) 1 kgdb i/o driver
-> > at a time.
+Hi,
+
+Andrew Morton wrote:
+> john stultz <johnstul@us.ibm.com> wrote:
 > 
-> Please send them in consecutive emails. Having separate patches is fine.
-> I can't figure out from this patch how a user is going to configure kgdb 8250 
-> options from menuconfig.
+>>	Booting 2.6.3-mm3 on an x440 hangs the box during the SCSI probe after
+>>the following:
+>> 
+>>scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
+>>        <Adaptec aic7899 Ultra160 SCSI adapter>                 
+>>        aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
+>>                                                                
+>>
+>>I went back to 2.6.3-mm1 (as it was a smaller diff) and the problem was
+>>there as well. 
+> 
+> 
+> Could you try reverting aic7xxx-deadlock-fix.patch?  Also, add
+> initcall_debug to the boot command just so we know we aren't blaming the
+> wrong thing.
+> 
+> Apart from that, gosh.  Maybe you could add just linus.patch and
+> bk-scsi.patch, see if that hangs too?  Or just test the latest linus tree -
+> the scsi changes were merged this morning.  Thanks.
+> 
 
-I'll do the config bits one today.  But 'hex' is a valid word in
-menuconfig :)
+Problem patch is expanded-pci-config-space.patch.
+x440 can not enable acpi by dmi_scan.
+expanded-pci-config-space.patch need acpi support.
+So, kernel can not get x440's xAPIC interrupt.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+

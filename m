@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132071AbRCVQUq>; Thu, 22 Mar 2001 11:20:46 -0500
+	id <S132072AbRCVQZ0>; Thu, 22 Mar 2001 11:25:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132073AbRCVQUh>; Thu, 22 Mar 2001 11:20:37 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:46089 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S132071AbRCVQUW>; Thu, 22 Mar 2001 11:20:22 -0500
-Date: Thu, 22 Mar 2001 12:01:43 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Guest section DW <dwguest@win.tue.nl>
-Cc: "Patrick O'Rourke" <orourke@missioncriticallinux.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <20010322124727.A5115@win.tue.nl>
-Message-ID: <Pine.LNX.4.21.0103221200410.21415-100000@imladris.rielhome.conectiva>
+	id <S132074AbRCVQZR>; Thu, 22 Mar 2001 11:25:17 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:37351 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S132072AbRCVQZG>;
+	Thu, 22 Mar 2001 11:25:06 -0500
+Message-ID: <3ABA2719.C09F835E@mandrakesoft.com>
+Date: Thu, 22 Mar 2001 11:23:53 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Eli Carter <eli.carter@inet.com>
+Cc: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pcnet32 compilation fix for 2.4.3pre6
+In-Reply-To: <200103220638.HAA16050@green.mif.pg.gda.pl> <3ABA00BB.A9C2DF1B@mandrakesoft.com> <3ABA0E89.D3D965B7@inet.com> <3ABA103A.CB07012D@mandrakesoft.com> <3ABA15F7.6155F0EE@inet.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Mar 2001, Guest section DW wrote:
-
-> > One question ... has the OOM killer ever selected init on
-> > anybody's system ?
+Eli Carter wrote:
+> Mmmm.... documentation.  Yummy.  ;)
 > 
-> Last week I installed SuSE 7.1 somewhere.
-> During the install: "VM: killing process rpm",
-> leaving the installer rather confused.
-> (An empty machine, 256MB, 144MB swap, I think 2.2.18.)
-
-That's the 2.2 kernel ...
-
-
-> Last month I had a computer algebra process running for a week.
-> Killed. But this computation was the only task this machine had.
-> Its sole reason of existence.
-> Too bad - zero information out of a week's computation.
-> (I think 2.4.0.)
+> When I submitted the original patch, someone wanted to add the ff's
+> check as well... to reduce the number of people who make that
+> suggestion, perhaps the comment should read:
 > 
-> Clearly, Linux cannot be reliable if any process can be killed
-> at any moment. I am not happy at all with my recent experiences.
+> + * Check that the Ethernet address (MAC) is not a multicast address or
+> + * FF:FF:FF:FF:FF:FF (by checking addr[0]&1) and is not
+> 00:00:00:00:00:00.
+> + *
+> 
+> Does that make it clear that both cases are covered by the one test?
 
-Note that the OOM killer in 2.4 won't kick in until your machine
-is out of both memory and swap, see mm/oom_kill.c::out_of_memory().
+yeah
 
-regards,
+> Hmm... I used __inline__ because the other function in the same
+> headerfile used it...  What is the difference between the two, and is
+> one depricated now?  (And what about in 2.2.x?)
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+since kernel requires gcc, which supports plaine ole 'inline', we don't
+need to use the longer form.
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+-- 
+Jeff Garzik       | May you have warm words on a cold evening,
+Building 1024     | a full mooon on a dark night,
+MandrakeSoft      | and a smooth road all the way to your door.

@@ -1,124 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132172AbRCVUPH>; Thu, 22 Mar 2001 15:15:07 -0500
+	id <S132178AbRCVUWR>; Thu, 22 Mar 2001 15:22:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132176AbRCVUO6>; Thu, 22 Mar 2001 15:14:58 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:520 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S132172AbRCVUOn>; Thu, 22 Mar 2001 15:14:43 -0500
-Message-ID: <3ABA5CFD.C17A97E5@Hell.WH8.TU-Dresden.De>
-Date: Thu, 22 Mar 2001 21:13:49 +0100
-From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-Organization: Dept. Of Computer Science, Dresden University Of Technology
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac20 i686)
-X-Accept-Language: en, de-DE
+	id <S132183AbRCVUWH>; Thu, 22 Mar 2001 15:22:07 -0500
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:21766
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S132178AbRCVUVv>; Thu, 22 Mar 2001 15:21:51 -0500
+Date: Thu, 22 Mar 2001 15:21:00 -0500
+From: Chris Mason <mason@suse.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
+        Alexander Viro <viro@math.psu.edu>
+Subject: Re: 2.4.2 fs/inode.c
+Message-ID: <426210000.985292460@tiny>
+In-Reply-To: <20010322190452.C7756@redhat.com>
+X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Weird bttv errors and video hangs with 2.4.2-ac21
-In-Reply-To: <E14gBCz-0003Bw-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+
+
+On Thursday, March 22, 2001 07:04:52 PM +0000 "Stephen C. Tweedie"
+<sct@redhat.com> wrote:
+
+> Hi,
 > 
-> > With -ac21 I'm getting occasional long delays in video output with xawtv
-> > or the picture totally freezes until I click with the mouse in the xawtv
-> > window. dmesg shows:
+> On Thu, Mar 22, 2001 at 01:42:15PM -0500, Jan Harkes wrote:
+>> 
+>> I found some code that seems wrong and didn't even match it's comment.
+>> Patch is against 2.4.2, but should go cleanly against 2.4.3-pre6 as well.
+>  
+> Patch looks fine to me.  Have you tested it?  If this goes wrong,
+> things break badly...
+
+This should only affect reiserfs, and it should be a good thing.  I'll do
+some tests, thanks for spotting.
+
 > 
-> You have a VIA chipset ?
+>>  		/* Don't do this for I_DIRTY_PAGES - that doesn't actually dirty the
+>>  		inode itself */ -		if (flags & (I_DIRTY | I_DIRTY_SYNC)) {
+>> +		if (flags & (I_DIRTY_SYNC | I_DIRTY_DATASYNC)) {
 
-Yes. Via KT133.
+-chris
 
-lspci output under -ac20:
-
-
-00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0305 (rev 02)
-        Subsystem: Asustek Computer, Inc.: Unknown device 8033
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-        Latency: 0
-        Region 0: Memory at e0000000 (32-bit, prefetchable) [size=128M]
-        Capabilities: [a0] AGP version 2.0
-                Status: RQ=31 SBA+ 64bit- FW+ Rate=x1,x2
-                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
-        Capabilities: [c0] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device 8305 (prog-if 00 [Normal decode])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-        Latency: 0
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-        I/O behind bridge: 0000e000-0000dfff
-        Memory behind bridge: d5000000-d65fffff
-        Prefetchable memory behind bridge: d7f00000-dfffffff
-        BridgeCtl: Parity- SERR- NoISA- VGA+ MAbort- >Reset- FastB2B-
-        Capabilities: [80] Power Management version 2
-                Flags: PMEClk- DSI+ D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev 22)
-        Subsystem: Asustek Computer, Inc.: Unknown device 8033
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-
-00:04.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 10) (prog-if 8a [Master SecP PriP])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32
-        Region 4: I/O ports at d800 [size=16]
-        Capabilities: [c0] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:04.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 10) (prog-if 00 [UHCI])
-        Subsystem: Unknown device 0925:1234
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32, cache line size 08
-        Interrupt: pin D routed to IRQ 9
-        Region 4: I/O ports at d400 [size=32]
-        Capabilities: [80] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:04.3 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 10) (prog-if 00 [UHCI])
-        Subsystem: Unknown device 0925:1234
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32, cache line size 08
-        Interrupt: pin D routed to IRQ 9
-        Region 4: I/O ports at d000 [size=32]
-        Capabilities: [80] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:04.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30)
-        Subsystem: Asustek Computer, Inc.: Unknown device 8033
-        Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin ? routed to IRQ 9
-        Capabilities: [68] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-> > bttv0: resetting chip
-> > bttv0: PLL: 28636363 => 35468950 ... ok
-> > bttv0: irq: OCERR risc_count=0fb54810
-> >
-> > All of this did not happen with -ac20 under the exact same circumstances,
-> > so -ac21 does something which the bttv driver (0.7.57) doesn't quite like.
-> 
-> The only candidate I can think of is the pci quirk stuff added for the VIA
-> chipsets
-
-That is probably the problem then. If you have a patch, want me to try something or
-need more info, just let me know.
-
-Regards,
-Udo.

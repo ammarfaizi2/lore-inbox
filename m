@@ -1,56 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287880AbSAPVUV>; Wed, 16 Jan 2002 16:20:21 -0500
+	id <S287872AbSAPVRc>; Wed, 16 Jan 2002 16:17:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287676AbSAPVS4>; Wed, 16 Jan 2002 16:18:56 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:50446 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287627AbSAPVSR>;
-	Wed, 16 Jan 2002 16:18:17 -0500
-Date: Wed, 16 Jan 2002 19:17:59 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Dave Jones <davej@suse.de>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Rik spreading bullshit about VM
-In-Reply-To: <Pine.LNX.4.33.0201162209040.15064-100000@Appserv.suse.de>
-Message-ID: <Pine.LNX.4.33L.0201161917060.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S287645AbSAPVP6>; Wed, 16 Jan 2002 16:15:58 -0500
+Received: from jester.ti.com ([192.94.94.1]:48619 "EHLO jester.ti.com")
+	by vger.kernel.org with ESMTP id <S287627AbSAPVPe>;
+	Wed, 16 Jan 2002 16:15:34 -0500
+Message-ID: <3C45ED3A.7060403@ti.com>
+Date: Wed, 16 Jan 2002 22:14:34 +0100
+From: christian e <cej@ti.com>
+Organization: Texas Instruments A/S,Denmark
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011202
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Rik van Riel <riel@conectiva.com.br>
+CC: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: aa works for me..rrmap didn't
+In-Reply-To: <Pine.LNX.4.33L.0201161904270.32617-100000@imladris.surriel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jan 2002, Dave Jones wrote:
-> On Wed, 16 Jan 2002, Richard Gooch wrote:
->
-> > > 	[..] La nuova VM ha migliori performance rispetto alla vecchia sui
-> > > 	tipici sistemi desktop ... ma fa fiasco terribilmente su più sistemi di
-> > > 	quanto non lo facesse la vecchia VM. Redhat, per esempio, non ha potuto
-> > > 	inserire la nuova VM nella sua distribuzione perché cadrebbe a pezzi per
-> > > 	i database server, [..]
->
-> > I don't know why you're so upset. As far as I can tell, Rik has warmly
-> > praised your VM in the above message. Of course, since you didn't
-> > provide an English translation, I can't really be sure.
->
-> English (Well, some crazy moon-language dialect of english) translation:-
-> http://linux.html.it/articoli/rik_van_riel_en1.htm
+Rik van Riel wrote:
 
-It seems the IRC log of the journalist in question was missing
-some lines of what I said and he just glued together the remaining
-parts of the paragraph for that particular question ;)
+> On Wed, 16 Jan 2002, christian e wrote:
+> 
+> 
+>>An update yet again for those who may care.I tried both aa patch and
+>>rrmap patch and the aa patch works fine.I havent got any swap issues
+>>with that patch.The rrmap seemed ok in the beginning but then all hell
+>>broke loose and it swapped like map and my apps took minutes to start.
+>>Sorry for the lack of details I haven't got time for further debugging :-(
+>>
+> 
+> It would be nice if you could at least tell us what workload
+> you're running, this way there really isn't any way for me to
+> find out what to search for ;)
 
-The rest of the interview seems to have survived pretty ok, though.
 
-cheers,
+Sure..No problem..Currently running:
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
+* Mozilla mail
 
-http://www.surriel.com/		http://distro.conectiva.com/
+* mozilla browser
+
+* 7-8 xterms
+
+* xmms playing loud music :-)
+
+* vmware running my windows XP pro,256 megs of mem reserved for the 
+virtual machine..inside XP two instances of Internet explorer,ICQ,MS 
+Access,MS Excel
+
+* vncviewer to a windows box
+
+
+I think that's about it ;-)
+
+And I did the echo 500 > /proc/sys/vm/vm_mapped_ratio with the aa patch..
+
+At first the rrmap was just as good,but apparently it decided to swap 
+out my vmware so all of a sudden it seemed to be running off the 
+harddrive only and just changing desktops in X took ages...swap was up 
+to 130 MB before I decided to reboot using the aa patch.
+
+Now swap is at 300k and seems stable so far..It will increase I'm sure 
+(did the last time) but not as much as the rrmap..Still I'd like to do 
+without swap altogether but I can't as vmware won't run without it :-(
+
+
+best regards
+
+Christian
 

@@ -1,67 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267507AbUIPHHB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267538AbUIPHKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267507AbUIPHHB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 03:07:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267494AbUIPHHB
+	id S267538AbUIPHKi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 03:10:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267494AbUIPHKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 03:07:01 -0400
-Received: from fw.osdl.org ([65.172.181.6]:19385 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267507AbUIPHGi (ORCPT
+	Thu, 16 Sep 2004 03:10:37 -0400
+Received: from cantor.suse.de ([195.135.220.2]:13980 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267538AbUIPHJD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 03:06:38 -0400
-Date: Thu, 16 Sep 2004 00:04:38 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Stelian Pop <stelian@popies.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC, 2.6] a simple FIFO implementation
-Message-Id: <20040916000438.46d91e94.akpm@osdl.org>
-In-Reply-To: <20040916064320.GA9886@deep-space-9.dsnet>
-References: <20040913135253.GA3118@crusoe.alcove-fr>
-	<20040915153013.32e797c8.akpm@osdl.org>
-	<20040916064320.GA9886@deep-space-9.dsnet>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 16 Sep 2004 03:09:03 -0400
+Date: Thu, 16 Sep 2004 09:09:02 +0200
+From: Andi Kleen <ak@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Zwane Mwaikambo <zwane@fsmlabs.com>, linux-kernel@vger.kernel.org,
+       wli@holomorphy.com
+Subject: Re: [PATCH] remove LOCK_SECTION from x86_64 spin_lock asm
+Message-ID: <20040916070902.GF12915@wotan.suse.de>
+References: <Pine.LNX.4.53.0409151458470.10849@musoma.fsmlabs.com> <20040915144523.0fec2070.akpm@osdl.org> <20040916061359.GA12915@wotan.suse.de> <20040916062759.GA10527@elte.hu> <20040916064428.GD12915@wotan.suse.de> <20040916065101.GA11726@elte.hu> <20040916065342.GE12915@wotan.suse.de> <20040916065805.GA12244@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040916065805.GA12244@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stelian Pop <stelian@popies.net> wrote:
->
-> > Implementation-wise, the head and tail indices should *not* be constrained
->  > to be less than the size of the buffer.  They should be allowed to wrap all
->  > the way back to zero.  This allows you to distinguish between the
->  > completely-empty and completely-full states while using 100% of the storage.
+On Thu, Sep 16, 2004 at 08:58:05AM +0200, Ingo Molnar wrote:
 > 
->  Do you mean 'size' (the size of alloc'ed buffer) is redundant or 'len' 
->  (the amount of data in the FIFO) is redundant ? I see how 'len' could
->  be removed (and didn't do it in the first place because I choosed
->  code simplification over a 4 bytes gain in storage), but I hardly
->  see how 'size' could be removed...
+> * Andi Kleen <ak@suse.de> wrote:
+> 
+> > > the alternative would be to unwind the stack - quite some task on some 
+> > > platforms ...
+> > 
+> > Sometimes call graph profiling would be very useful, but I wouldn't
+> > want the profiler to do it by default, especially not for this silly
+> > simple case. dwarf2 unwinding is complex enough that just requiring
+> > frame pointers for the CG case would look attractive.
+> 
+> but ... frame pointers are overhead to all of the kernel. (the overhead
 
-Well I'm not sure what the semantic difference is between `size' and `len'.
-They're not very well-chosen identifiers, really.
+Yes, it may be up to a few percent in extreme cases because it 
+adds a stall on rsp on K8.  On the other hand the code
+may get slightly smaller, because a rbp reference is one byte
+shorter than a rsp reference.
 
-My point is that there is no need to store the "number of bytes currently
-in the buffer", because that is always equal to `head - tail' if you allow
-those indices to freely wrap.
+> is less pronounced on architectures with more registers, but even with
+> 15 registers, 14 or 15 can still be a difference.) While unwinding is
+> overhead to profiling only - if enabled. Also, there could be other
+> functionality (exception handling?) that could benefit from dwarf2
+> unwinding.
 
-All the struct needs is `head', `tail' and `number_of_bytes_at_buf', all
-unsigned.
+Your oopses could get better backtraces, but that could be done
+with frame pointers too (I'm surprised nobody did it already btw...) 
 
-add(char c)
-{
-	p->buf[p->head++ % p->number_of_bytes_at_buf] = c;
-}
+You can try to write a dwarf2 unwinder for the kernel  (actually
+I think IA64 already has one, but it's quite complex as expected
+and doesn't easily map to anything else). Even with that doing
+a dwarf2 unwind interpretation will have much more overhead.  
+For me it doesn't look unreasonable to recompile the kernel for
+special profiles though. 
 
-get()
-{
-	return p->buf[p->tail++ %  p->number_of_bytes_at_buf];
-}
-
-free_space()
-{
-	return p->head - p->tail;
-}
-
-pretty simple...
+-Andi

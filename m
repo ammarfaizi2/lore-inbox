@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262505AbUKEAlD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262508AbUKEAlO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262505AbUKEAlD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 19:41:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262507AbUKEAlC
+	id S262508AbUKEAlO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 19:41:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262512AbUKEAlO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 19:41:02 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:42919 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262505AbUKEAkz (ORCPT
+	Thu, 4 Nov 2004 19:41:14 -0500
+Received: from [62.206.217.67] ([62.206.217.67]:28569 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S262507AbUKEAlJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 19:40:55 -0500
-Subject: Re: fix iounmap and a pageattr memleak (x86 and x86-64)
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1099612923.1022.10.camel@localhost>
-References: <4187FA6D.3070604@us.ibm.com>
-	 <20041102220720.GV3571@dualathlon.random> <41880E0A.3000805@us.ibm.com>
-	 <4188118A.5050300@us.ibm.com> <20041103013511.GC3571@dualathlon.random>
-	 <418837D1.402@us.ibm.com> <20041103022606.GI3571@dualathlon.random>
-	 <418846E9.1060906@us.ibm.com>  <20041103030558.GK3571@dualathlon.random>
-	 <1099612923.1022.10.camel@localhost>
-Content-Type: multipart/mixed; boundary="=-qpSuqkGakgG19YBwJKiG"
-Message-Id: <1099615248.5819.0.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 04 Nov 2004 16:40:48 -0800
+	Thu, 4 Nov 2004 19:41:09 -0500
+Message-ID: <418ACC07.4090104@trash.net>
+Date: Fri, 05 Nov 2004 01:40:39 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041008 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+CC: matthias.andree@gmx.de, netfilter-devel@lists.netfilter.org,
+       linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] Fix ip_conntrack_amanda data corruption bug that breaks
+ amanda dumps
+References: <20041104121522.GA16547@merlin.emma.line.org>	<418A7B0B.7040803@trash.net>	<20041104231734.GA30029@merlin.emma.line.org>	<418AC0F2.7020508@trash.net> <20041104160655.1c66b7ef.davem@davemloft.net>
+In-Reply-To: <20041104160655.1c66b7ef.davem@davemloft.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David S. Miller wrote:
 
---=-qpSuqkGakgG19YBwJKiG
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+>On Fri, 05 Nov 2004 00:53:22 +0100
+>Patrick McHardy <kaber@trash.net> wrote:
+>
+>  
+>
+>>Your observation and your patch were correct, thanks. It is supposed
+>>to be just a copy, I missed that it wasn't anymore. While your patch
+>>works too, and is even faster with non-linear skbs, I don't like the
+>>idea of using the skb as a scratch-area, so I sent this patch to Dave
+>>instead.
+>>    
+>>
+>
+>His patch isn't correct, even making a temporary change to
+>a shared SKB is illegal.  Things like tcpdump could see
+>corrupt SKB contents if they look during that tiny window
+>when the newline character has been changed to NULL by
+>the amanda conntrack module.
+>  
+>
 
-I attached the wrong patch.
+True, I'm stupid sometimes :)
 
-Here's what I meant to send.
-
--- Dave
-
---=-qpSuqkGakgG19YBwJKiG
-Content-Disposition: attachment; filename=Z0-leaks_only_on_negative.patch
-Content-Type: text/x-patch; name=Z0-leaks_only_on_negative.patch; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 7bit
-
-
-
----
-
- memhotplug1-dave/arch/i386/mm/pageattr.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN arch/i386/mm/pageattr.c~Z0-leaks_only_on_negative arch/i386/mm/pageattr.c
---- memhotplug1/arch/i386/mm/pageattr.c~Z0-leaks_only_on_negative	2004-11-04 15:57:28.000000000 -0800
-+++ memhotplug1-dave/arch/i386/mm/pageattr.c	2004-11-04 15:58:50.000000000 -0800
-@@ -135,7 +135,7 @@ __change_page_attr(struct page *page, pg
- 		BUG();
- 
- 	/* memleak and potential failed 2M page regeneration */
--	BUG_ON(!page_count(kpte_page));
-+	BUG_ON(page_count(kpte_page) < 0);
- 
- 	if (cpu_has_pse && (page_count(kpte_page) == 1)) {
- 		list_add(&kpte_page->lru, &df_list);
-_
-
---=-qpSuqkGakgG19YBwJKiG--
+Regards
+Patrick
 

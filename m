@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261584AbTDHTRX (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 15:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbTDHTRX (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 15:17:23 -0400
-Received: from pollux.ds.pg.gda.pl ([213.192.76.3]:60424 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261584AbTDHTRW (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 15:17:22 -0400
-Date: Tue, 8 Apr 2003 21:28:56 +0200 (CEST)
-From: =?ISO-8859-2?Q?Pawe=B3_Go=B3aszewski?= <blues@ds.pg.gda.pl>
-To: Michael Buesch <freesoftwaredeveloper@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.67] gen_rtc compile error
-In-Reply-To: <200304082120.39576.freesoftwaredeveloper@web.de>
-Message-ID: <Pine.LNX.4.51L.0304082128260.20726@piorun.ds.pg.gda.pl>
-References: <Pine.LNX.4.51L.0304082033140.20726@piorun.ds.pg.gda.pl>
- <200304082120.39576.freesoftwaredeveloper@web.de>
+	id S261623AbTDHTUU (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 15:20:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbTDHTUU (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 15:20:20 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:54181 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S261623AbTDHTUS (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 15:20:18 -0400
+Date: Tue, 08 Apr 2003 12:31:54 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 556] New: dma not enabled for IDE hard drives 
+Message-ID: <28110000.1049830314@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Apr 2003, Michael Buesch wrote:
-> > When I try to build my kernel I get:
-> >
-> > [...]
-> >
-> > My kernel configuration:
-> > http://piorun.ds.pg.gda.pl/~blues/config-2.5.67.txt
-> 
-> Battery status seems to be not available on all architectures. (I don't
-> know the reason for this.) With this patch, it should compile (against
-> 2.5.67):
-> 
-> --- drivers/char/genrtc.c.orig	2003-04-08 21:15:52.000000000 +0200
-> +++ drivers/char/genrtc.c	2003-04-08 21:17:33.000000000 +0200
-> @@ -486,7 +486,9 @@
->  		     "update_IRQ\t: %s\n"
->  		     "periodic_IRQ\t: %s\n"
->  		     "periodic_freq\t: %ld\n"
-> +#ifdef RTC_BATT_BAD
->  		     "batt_status\t: %s\n",
-> +#endif
->  		     (flags & RTC_DST_EN) ? "yes" : "no",
->  		     (flags & RTC_DM_BINARY) ? "no" : "yes",
->  		     (flags & RTC_24H) ? "yes" : "no",
-> @@ -494,8 +496,11 @@
->  		     (flags & RTC_AIE) ? "yes" : "no",
->  		     irq_active ? "yes" : "no",
->  		     (flags & RTC_PIE) ? "yes" : "no",
-> -		     0L /* freq */,
-> -		     (flags & RTC_BATT_BAD) ? "bad" : "okay");
-> +		     0L /* freq */
-> +#ifdef RTC_BATT_BAD
-> +		     ,(flags & RTC_BATT_BAD) ? "bad" : "okay")
-> +#endif
-> +		     ;
->  	if (!get_rtc_pll(&pll))
->  	    p += sprintf(p,
->  			 "PLL adjustment\t: %d\n"
 
-Thanks for this patch.
+http://bugme.osdl.org/show_bug.cgi?id=556
 
--- 
-pozdr.  Pawe³ Go³aszewski        
----------------------------------
-worth to see: http://www.againsttcpa.com/
-CPU not found - software emulation...
+           Summary: dma not enabled for IDE hard drives
+    Kernel Version: 2.5.67
+            Status: NEW
+          Severity: normal
+             Owner: alan@lxorguk.ukuu.org.uk
+         Submitter: freelsjd@ornl.gov
+
+
+Distribution:Debian/Sid
+
+Hardware Environment:dual 2.4Ghz Xeon, SE7500CW2 MB, all Intel
+                      Promise PDC20267 ATA-100 ide channels in
+                      non-RAID mode
+
+Software Environment:testing with hdparm 5.2-1 of Debian/Sid
+
+Problem Description:
+
+I have similar .config settings for both the 2.4.20 and the 2.5.67
+kernels with the identical machine.  Under 2.4.20, I do get dma enabled 
+and see good performance (Mb/s) from the hard disk I/O.  
+
+However, under the 2.5.67 kernel, dma is not enabled and the performance 
+of the hard drives is poor (~2-3 Mb/s under 2.5.67 versus ~30 Mb/s under 
+2.4.20).  The "hdparm -I /dev/hda" command confirms that dma is 
+enabled on the hardware, but "hdparm -d1 /dev/hda" confirms that dma will not
+enable and the performenace is poor under 2.5.67.  Under 2.4.20, these same
+commands show good performance.
+
+Steps to reproduce:
+
+make the kernel, run lilo, boot, and run hdparm tests on this machine.
+
+

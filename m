@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314682AbSEFTl5>; Mon, 6 May 2002 15:41:57 -0400
+	id <S315267AbSEFTyD>; Mon, 6 May 2002 15:54:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314870AbSEFTl4>; Mon, 6 May 2002 15:41:56 -0400
-Received: from ns.suse.de ([213.95.15.193]:25611 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S314682AbSEFTlz>;
-	Mon, 6 May 2002 15:41:55 -0400
-Date: Mon, 6 May 2002 21:41:55 +0200
-From: Dave Jones <davej@suse.de>
-To: Peter Denison <lkml@marshadder.uklinux.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drivers/net/depca.c tidyup
-Message-ID: <20020506214154.G22215@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Peter Denison <lkml@marshadder.uklinux.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020506193247.C22215@suse.de> <Pine.LNX.4.44.0205061944460.30139-100000@marshall.localnet>
+	id <S315268AbSEFTyC>; Mon, 6 May 2002 15:54:02 -0400
+Received: from mnh-1-20.mv.com ([207.22.10.52]:64265 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S315267AbSEFTyB>;
+	Mon, 6 May 2002 15:54:01 -0400
+Message-Id: <200205062055.PAA04067@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+        user-mode-linux-user@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: UML is now self-hosting! 
+In-Reply-To: Your message of "Mon, 06 May 2002 18:14:27 +0200."
+             <20020506181427.K918@marowsky-bree.de> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Date: Mon, 06 May 2002 15:55:52 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 06, 2002 at 08:01:01PM +0100, Peter Denison wrote:
+lmb@suse.de said:
+> but spreading an instance across multiple nodes is nowhere as simple
+> as it seems; 
 
- > -	offset = (offset + ALIGN) & ~ALIGN;
- > +	offset = ALIGN(offset, 8);
- > 
- > And from include/linux/cache.h:
- > 
- > #define ALIGN(x,a) (((x)+(a)-1)&~((a)-1))
- > 
- > So, we're replacing (offset + 8 - 1) & ~(8-1) = (offset + 7) & ~7
- > with (((offset)+(8)-1)&~((8)-1)) = ((offset+7)&~7)
+It is if you want to be sufficiently stupid about it :-)
 
-Argh, I was looking at the definition in linkage.h
-Cursed ctags.
+> where do you keep OS data, 
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+It gets faulted from host to host as needed.
+
+> IO access, 
+
+This scheme (and any clustering scheme, I think) would need back channels
+for one node to access the devices of another
+
+> scheduling decisions, 
+
+This machine thinks it's a normal SMP box, so scheduling happens as normal
+
+> inter-node communication in the first place, how to deal
+> with node failure etc...
+
+Maybe I'm not familiar enough with the clustering world, but I was under the
+impression that with a normal SSI cluster, the nodes are like CPUs in an
+SMP box - if one fails, the whole thing dies.  In other words, that SSI
+clustering and HA clustering are pretty disjoint.
+
+				Jeff
+

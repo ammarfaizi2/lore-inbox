@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268183AbUJVWFC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268054AbUJVWJN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268183AbUJVWFC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 18:05:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268232AbUJVWBx
+	id S268054AbUJVWJN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 18:09:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268239AbUJVWFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 18:01:53 -0400
-Received: from rproxy.gmail.com ([64.233.170.197]:31700 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268054AbUJVVw4 convert rfc822-to-8bit
+	Fri, 22 Oct 2004 18:05:42 -0400
+Received: from postfix4-1.free.fr ([213.228.0.62]:55944 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S268054AbUJVWCp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 17:52:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=rdjOtYKjmGni+3wfoV6atJIpQcpcKmEzKxHmW40vY/vEH/v3qg/VYPnB/tQYFgaZ+HCcOXqie3J3Wwaq0Si1WGTjcXBsbUxuaQMkZFf8epRtm1gsZJInYvfiL5eftmGYxU5Pkf9RUKY18Dn+hNtypOAybntAnOkEAncu8CsInZ0=
-Message-ID: <7aaed09104102214521e90c27c@mail.gmail.com>
-Date: Fri, 22 Oct 2004 23:52:50 +0200
-From: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <espenfjo@gmail.com>
-Reply-To: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <espenfjo@gmail.com>
+	Fri, 22 Oct 2004 18:02:45 -0400
+Message-ID: <41797852.9070700@free.fr>
+Date: Fri, 22 Oct 2004 23:14:58 +0200
+From: Remi Colinet <remi.colinet@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: My thoughts on the "new development model"
-Cc: espenfjo@gmail.com
-In-Reply-To: <7aaed09104102213032c0d7415@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-References: <7aaed09104102213032c0d7415@mail.gmail.com>
+Subject: 2.6.9-mm1-U10.3 : compile error fix with CONFIG_HOTPLUG_CPU enable
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This may come a bit late now, since the "new development model" was
-put through late this summer.
-But anyway i'm going to come with som thoughts about it.
+Hi
 
-I think that 2.6 should be frozen from now on, just security related
-stuff should be merged.
-This would strengthen Linux's reputation as a stable and secure
-system, not a unstable and a system just used for fun.
-A 2.7 should be created where all new experimental stuff is merged
-into it, and where people could begin to think new again.
-New thoughts are good in all ways, it is for sure very much code in
-the current kernels that should be revised, rewritten and maybe marked
-as deprecated.
+With CONFIG_HOTPLUG_CPU and CONFIG_SMP enable, this patch fixes the 
+following compile error.
 
-:)
+--- mm/swap.c.orig      2004-10-22 22:31:58.000000000 +0200
++++ mm/swap.c   2004-10-22 23:10:44.202728352 +0200
+@@ -423,12 +423,12 @@
+ #ifdef CONFIG_HOTPLUG_CPU
+ static void lru_drain_cache(unsigned int cpu)
+ {
+-       struct pagevec *pvec = &per_cpu(lru_add_pvecs, cpu);
++       struct pagevec *pvec = &per_cpu_var_locked(lru_add_pvecs, cpu);
+ 
+        /* CPU is dead, so no locking needed. */
+        if (pagevec_count(pvec))
+                __pagevec_lru_add(pvec);
+-       pvec = &per_cpu(lru_add_active_pvecs, cpu);
++       pvec = &per_cpu_var_locked(lru_add_active_pvecs, cpu);
+        if (pagevec_count(pvec))
+                __pagevec_lru_add_active(pvec);
+ }
 
---
-Mvh / Best regards
-Espen Fjellvær Olsen
-espenfjo@gmail.com
-Norway
+
+  CC      mm/page_alloc.o
+  CC      mm/page-writeback.o
+  CC      mm/pdflush.o
+  CC      mm/prio_tree.o
+  CC      mm/readahead.o
+  CC      mm/slab.o
+  CC      mm/swap.o
+mm/swap.c: In function `lru_drain_cache':
+mm/swap.c:426: `per_cpu__lru_add_pvecs' undeclared (first use in this 
+function)
+mm/swap.c:426: (Each undeclared identifier is reported only once
+mm/swap.c:426: for each function it appears in.)
+mm/swap.c:426: warning: type defaults to `int' in declaration of `type name'
+mm/swap.c:426: invalid type argument of `unary *'
+mm/swap.c:431: `per_cpu__lru_add_active_pvecs' undeclared (first use in 
+this function)
+mm/swap.c:431: warning: type defaults to `int' in declaration of `type name'
+mm/swap.c:431: invalid type argument of `unary *'
+make[1]: *** [mm/swap.o] Error 1
+make: *** [mm] Error 2
+
+Remi
+

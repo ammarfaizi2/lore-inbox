@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315442AbSGQRKu>; Wed, 17 Jul 2002 13:10:50 -0400
+	id <S315449AbSGQROZ>; Wed, 17 Jul 2002 13:14:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315449AbSGQRKu>; Wed, 17 Jul 2002 13:10:50 -0400
-Received: from bdsl.66.13.29.10.gte.net ([66.13.29.10]:27264 "EHLO
-	bluesong.NET") by vger.kernel.org with ESMTP id <S315442AbSGQRKt> convert rfc822-to-8bit;
-	Wed, 17 Jul 2002 13:10:49 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: "Jack F. Vogel" <jfv@bluesong.net>
-Reply-To: jfv@bluesong.net
-To: Dominik Kubla <dominik.kubla@uni-mainz.de>, Alan Cox <alan@redhat.com>
-Subject: Re: Linux 2.4.19-rc1-ac7
-Date: Wed, 17 Jul 2002 10:14:58 -0700
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org
-References: <200207171056.g6HAuXR24678@devserv.devel.redhat.com> <20020717114605.GA12575@duron.intern.kubla.de>
-In-Reply-To: <20020717114605.GA12575@duron.intern.kubla.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207171014.58760.jfv@bluesong.net>
+	id <S315454AbSGQROZ>; Wed, 17 Jul 2002 13:14:25 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:4329 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S315449AbSGQROZ>;
+	Wed, 17 Jul 2002 13:14:25 -0400
+Date: Wed, 17 Jul 2002 19:17:22 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Elladan <elladan@eskimo.com>
+Cc: Stevie O <stevie@qrpff.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Zack Weinberg <zack@codesourcery.com>, linux-kernel@vger.kernel.org
+Subject: Re: close return value (was Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks)
+Message-ID: <20020717171722.GA1352@win.tue.nl>
+References: <1026867782.1688.108.camel@irongate.swansea.linux.org.uk> <20020716232225.GH358@codesourcery.com> <1026867782.1688.108.camel@irongate.swansea.linux.org.uk> <5.1.0.14.2.20020717001624.00ab8c00@whisper.qrpff.net> <20020717043853.GA31493@eskimo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020717043853.GA31493@eskimo.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 17 July 2002 04:46 am, Dominik Kubla wrote:
-> On Wed, Jul 17, 2002 at 06:56:33AM -0400, Alan Cox wrote:
-> > [+ indicates stuff that went to Marcelo, o stuff that has not,
-> >  * indicates stuff that is merged in mainstream now, X stuff that proved
-> >    bad and was dropped out]
-> >
-> > Linux 2.4.19rc1-ac7
->
-> Seems to have some problems:
->
-> [...]
-> make[1]: Entering directory `/usr/src/linux'
-> scripts/split-include include/linux/autoconf.h include/config
-> /usr/bin/make -r -f tmp_include_depends all
-> make[2]: Entering directory `/usr/src/linux'
-> make[2]: *** No rule to make target
-> `/usr/src/linux/fs/inflate_fs/infblock.h', needed by
-> `/usr/src/linux/fs/inflate_fs/infcodes.h'.  Stop.
-> make[2]: Leaving directory `/usr/src/linux'
-> make[1]: *** [tmp_include_depends] Error 2
-> make[1]: Leaving directory `/usr/src/linux'
-> make: *** [stamp-build] Error 2
->
-> Dominik
+On Tue, Jul 16, 2002 at 09:38:53PM -0700, Elladan wrote:
 
-Ran into this on ac6 also, its just a matter of doing a `make mrproper` 
-and redo depends.
+> The question is, does the OS standard guarantee that the fd is closed,
+> even if close() returns EINTR or EIO?  Just going by the normal usage of
+> EINTR, one might think otherwise.  It doesn't appear to be documented
+> one way or another.
+> 
+> Alan said you could just issue close again to make sure - the example
+> shows that this is not the case.  A second close is either required or
+> forbidden in that example - and the behavior has to be well defined or
+> you won't know which to do.
 
-Cheers,
- 
---
-Jack F Vogel
-IBM Linux Technology Center
-jfv@us.ibm.com (work)
-jfv@bluesong.net (peace and quiet)
+No, the behaviour is not well-defined at all.
+The standard explicitly leaves undefined what happens when close returns
+EINTR or EIO.

@@ -1,59 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315740AbSECXGk>; Fri, 3 May 2002 19:06:40 -0400
+	id <S315744AbSECXJD>; Fri, 3 May 2002 19:09:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315741AbSECXGj>; Fri, 3 May 2002 19:06:39 -0400
-Received: from inet-mail3.oracle.com ([148.87.2.203]:46557 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id <S315740AbSECXGj>; Fri, 3 May 2002 19:06:39 -0400
-Message-ID: <3CD316C8.5040006@oracle.com>
-Date: Sat, 04 May 2002 01:01:28 +0200
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020326
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: dalecki@evision-ventures.com, linux-kernel@vger.kernel.org
-Subject: Re: IDE
-In-Reply-To: <UTC200205032240.g43Meuf15031.aeb@smtp.cwi.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S315743AbSECXJC>; Fri, 3 May 2002 19:09:02 -0400
+Received: from c9mailgw04.amadis.com ([216.163.188.202]:42765 "EHLO
+	C9Mailgw04.amadis.com") by vger.kernel.org with ESMTP
+	id <S315741AbSECXJB>; Fri, 3 May 2002 19:09:01 -0400
+Date: Fri, 3 May 2002 19:08:09 -0400
+From: Jason Giglio <jgiglio@vt.edu>
+To: linux-kernel@vger.kernel.org
+Cc: bradlist@bradm.net
+Subject: 3ware 7810 and Tyan 2462 Tiger MP lockup
+Message-Id: <20020503190809.7cb8c052.jgiglio@vt.edu>
+X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
-> < Recap >
-> 
-> == I have had problems with 2.5.10 (first few blocks of the root
-> == filesystem overwritten) and then went back to 2.5.8 that I had
-> == used for a while already, but then also noticed corruption there.
-> == Back at 2.4.17 today..
-> 
-> < Optimistic reply >
-> 
-> = It could very well be that the recent changes could have cured this.
-> 
-> < Reality of today >
-> 
-> Booted a vanilla 2.5.12. It did not succeed in mounting the root
-> filesystem, but instead wrote zeros over the superblock.
-> 
-> 	hdb: task_out_intr: error=0x04 { DriveStatusError }
-> 
-> Will try 2.5.13 later.
+Bradley McLean had posted a while back (3/30/02) about problems with 3ware 7810 cards and Tyan Tiger MP.  He had indicated that updating his drivers and changing a PCI riser card around fixed the problem.
 
-Managed to boot all versions (though some ext3 journal replay
-  showed up even after clean shutdowns), seems to be okay and
-  mashed my disk with installing of Portal today - no issue,
-  only a positive note for the 2.5.13 VM which allowed me to
-  finish in 48' what 2.4.19-pre7 couldn't finish in over 2h.
+I have recently encountered the problem with the newest drivers and no PCI riser cards.  It only seems to happen when using XFS, and when directly accessing the 3ware card through /dev/sda.  The symptoms are the same, hard lockup, no ping, no nothing, during heavy I/O. An added twist is that the file system is very corrupt upon rebooting.
 
-Dell laptop with a PIIX4 chipset, btw.
+I have sent a message to the XFS list, but I thought I'd drop a note in here that the problem is still persisting, since it is not likely a problem in XFS proper that is causing the initial lockup, considering that others had the problem with any file system previously.  It was suggested by Alan Cox that this may be an APIC issue, it happened for me with or without noapic specified.
 
---alessandro
+Please CC me on replies to list.  
 
-  "the hands that build / can also pull down
-    even the hands of love"
-                             (U2, "Exit")
+Thanks,
+Jason
 
+>From: Bradley McLean (bradlist@bradm.net)
+>Subject: Hard hang on 3Ware7850, Dual AthlonMP, Tyan2462
+
+>I've been following the various discussions of athlon MP problems. We too have systems that consistently hard lock up.
+>Running RH7.2 with kernel.org kernels, versions 2.4.17, 2.4.18,
+>or 2.4.18 plus the IO-APIC patch posted for 2.4.19pre3.
+>Using the latest (release 7.4, driver version 19) 3ware code. Tyan 2462, 3.5 GB
+>(2) AMD MP1900+
+>(6) WB1200JB Symptoms:  Either under heavy read, or heavy write, system locks up.  No ping, no keyboard.

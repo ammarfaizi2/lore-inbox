@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131505AbRC3RP3>; Fri, 30 Mar 2001 12:15:29 -0500
+	id <S131586AbRC3RVj>; Fri, 30 Mar 2001 12:21:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131555AbRC3RPS>; Fri, 30 Mar 2001 12:15:18 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:41737 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S131505AbRC3RPM>;
-	Fri, 30 Mar 2001 12:15:12 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200103301713.VAA03794@ms2.inr.ac.ru>
-Subject: Re: IP layer bug?
-To: green@dredd.crimea.edu (Oleg Drokin)
-Date: Fri, 30 Mar 2001 21:13:40 +0400 (MSK DST)
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com
-In-Reply-To: <20010325005731.A5243@dredd.crimea.edu> from "Oleg Drokin" at Mar 25, 1 00:57:31 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S131573AbRC3RVT>; Fri, 30 Mar 2001 12:21:19 -0500
+Received: from [200.249.220.49] ([200.249.220.49]:56329 "EHLO
+	smtp.elogica.com.br") by vger.kernel.org with ESMTP
+	id <S131562AbRC3RVI>; Fri, 30 Mar 2001 12:21:08 -0500
+From: "Bruno Avila" <jisla@elogica.com.br>
+To: <linux-kernel@vger.kernel.org>
+Subject: How to compile linux 0.0.0.1?
+Date: Fri, 30 Mar 2001 14:21:32 -0300
+Message-ID: <OJECKBFFEMDBJMBOKGEDEEIDCCAA.jisla@elogica.com.br>
 MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+ Hi people,
 
->    For now I workarounded it with filling skb->cb with zeroes before
->    netif_rx(),
 
-This is right. For another examples look into tunnels.
+       I can't find this anywhere. What is the version of the tools to
+compile linux kernel 0.0.0.1 (../Historic)? And where can i find them?
 
-> but I believe it is a kludge and networking layer should be fixed instead.
+                                               Bruno Avila
 
-No.
-
-alloc_skb() creates skb with clean cb. ip_rcv() and other protocol handlers
-do not redo this work. If device uses cb internally, it must clear it
-before handing skb to netif_rx().
-
-Alexey

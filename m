@@ -1,57 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267259AbUJFFgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267263AbUJFFpo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267259AbUJFFgo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 01:36:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267263AbUJFFgo
+	id S267263AbUJFFpo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 01:45:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267278AbUJFFpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 01:36:44 -0400
-Received: from mta13.mail.adelphia.net ([68.168.78.44]:50108 "EHLO
-	mta13.adelphia.net") by vger.kernel.org with ESMTP id S267259AbUJFFgh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 01:36:37 -0400
-Message-ID: <4163845C.9020900@nodivisions.com>
-Date: Wed, 06 Oct 2004 01:36:28 -0400
-From: Anthony DiSante <orders@nodivisions.com>
-Reply-To: orders@nodivisions.com
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: KVM -> jumping mouse... still no solution?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Oct 2004 01:45:43 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:20184 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S267263AbUJFFpm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 01:45:42 -0400
+Date: Wed, 6 Oct 2004 07:45:35 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [PATCH] ide-dma blacklist behaviour broken
+Message-ID: <20041006054532.GA13631@suse.de>
+References: <20041005142001.GR2433@suse.de> <20041005163730.A19554@infradead.org> <20041005154628.GG19971@suse.de> <1097016410.23923.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1097016410.23923.8.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Oct 05 2004, Alan Cox wrote:
+> On Maw, 2004-10-05 at 16:46, Jens Axboe wrote:
+> > I didn't check, someone just reported today. But looking at eg 2.6.5, it
+> > seems to have the same bug. So it's likely very old.
+> 
+> We should actually probably nuke most of the IDE blacklist, much of the
+> CD-ROM blacklist arose because we DMA rather than PIO'd the ATAPI CDB.
 
-I first got a KVM switch around the time of kernel 2.2.something, and when 
-using it to switch to a Linux system, the mouse "freaks out."  It's fine if 
-you don't move it, but if you move it N/E/NE it's really slow and jerky, and 
-if you move it S/W/SW even a hair, it slams down to the SW corner of the 
-screen and acts like you hit all the mouse's buttons 50 times simultaneously.
+Hmm? When have we ever done that?
 
-When switching to an MS Windows system (any version from 98 on up; haven't 
-tried anything earlier) the mouse works fine, it just pauses for maybe a 
-second at first, during which I assume it's doing some kind of PS/2 reset.
+-- 
+Jens Axboe
 
-It used to be that switching out of X-windows with Ctrl-Alt-F[1-6] and then 
-back to VT7 would reset the mouse, but that hasn't worked in about a year 
-for me.  I was also able to run a little script to send a few specific chars 
-to the mouse device that seemed to reset it... that too no longer works. 
-The only thing that works now is unplugging the mouse from the KVM and then 
-back in.
-
-The other day I came across this (kerneltrap.org/node/view/2199): "Use 
-psmouse.proto=bare on the kernel command line, or proto=bare on the
-psmouse module command line."  But that makes the mouse's scroll-wheel not 
-work.  (And this problem doesn't exist with some of the mouse drivers, but 
-it does with IMPS/2, which is the only one I've ever been able to get the 
-scroll wheel working with.)
-
-Is there really no solution to this problem?  If Microsoft can figure it 
-out, I'm sure someone in the Linux community can... not that I'm 
-volunteering, of course...
-
--Anthony DiSante
-http://nodivisions.com/

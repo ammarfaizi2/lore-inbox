@@ -1,85 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262524AbTHZEJk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 00:09:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbTHZEJk
+	id S262573AbTHZEDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 00:03:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbTHZEDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 00:09:40 -0400
-Received: from twinlark.arctic.org ([168.75.98.6]:23780 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S262524AbTHZEJi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 00:09:38 -0400
-Date: Mon, 25 Aug 2003 21:09:33 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-cc: "Barry K. Nathan" <barryn@pobox.com>, Mikael Pettersson <mikpe@csd.uu.se>,
-       linux-kernel@vger.kernel.org, lkml@kcore.org
-Subject: Re: Pentium-M?
-In-Reply-To: <Pine.LNX.4.53.0308231418070.15935@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.53.0308252054480.15337@twinlark.arctic.org>
-References: <200308231236.h7NCaMl0018383@harpo.it.uu.se>
- <Pine.LNX.4.53.0308230901200.15935@montezuma.fsmlabs.com>
- <20030823180338.GA3562@ip68-4-255-84.oc.oc.cox.net>
- <Pine.LNX.4.53.0308231418070.15935@montezuma.fsmlabs.com>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 26 Aug 2003 00:03:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:64184 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262573AbTHZEDX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 00:03:23 -0400
+Date: Mon, 25 Aug 2003 21:06:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] Futex non-page-pinning fix
+Message-Id: <20030825210606.5912bac4.akpm@osdl.org>
+In-Reply-To: <20030826031940.0CDDD2C243@lists.samba.org>
+References: <20030826031940.0CDDD2C243@lists.samba.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Aug 2003, Zwane Mwaikambo wrote:
-
-> On Sat, 23 Aug 2003, Barry K. Nathan wrote:
+Rusty Russell <rusty@rustcorp.com.au> wrote:
 >
-> > On Sat, Aug 23, 2003 at 09:03:17AM -0400, Zwane Mwaikambo wrote:
-> > > That's interesting, intel compiler recommends P4 type optimisations,
-> > > also worth noting that the P-M has hardware prefetch.
-> >
-> > I'm pretty sure the "Tualatin" Pentium III's also have hardware prefetch.
-> > So it's not something specific to the P4 or P-M.
+> Hi Andrew, Ingo,
+> 
+> 	Ingo was (rightfully) concerned about the amount of memory
+> which could be pinned using FUTEX_FD.  This solution doesn't keep
+> pages pinned any more: it hashes on mapping + offset, or for anonomous
+> pages, uses a callback to move them out and back into the hash table
+> as they are swapped out and in.
 
-yeah tualatin has hw prefetch.  p-m can handle more streams than tualatin.
+I have a bad feeling about this.  We shall see...
+
+> 	Searching the (256-bucket) hash table to find potential pages
+> is fairly slow, but we're swapping anyway, so it's lost in the noise.
+> The hash table is usually fairly empty.
+> 
+> 	My only concern is for a race between swapping a page in and
+> it being accessed, but I think I have the callbacks in the right place
+> in the swap code: more VM-aware eyes welcome.
+
+Looks to be OK: as long as the page is locked you can't go far wrong.
+
+But end_swap_bio_read() is called from interrupt context.  Hence the
+spinlock you have in there needs to become IRQ safe.
+
+Two issues:
+
+a) what to do about futexes in file-backed pages?  At present the
+   attacker can pin arbitrary amount of memory by backing it with a file.
+
+   Your solution won't scale to solving this, because we need to perform
+   a futex lookup on every add_to_page_cache().  (Well, it will scale
+   fairly well because add_to_page_cache() is ratelimited by the IO speed. 
+   But it will still suck quite a bit for some people).
+
+b) Assuming a) is solved: futexes which are backed by tmpfs.  tmpfs
+   (which is a study in conceptual baroquenness) will rewrite page->mapping
+   as pages are moved between tmpfs inodes and swapper_space.  I _think_
+   lock_page() is sufficient to serialise against this.  If not, both
+   ->page_locks are needed.
+
+   This of course will break your hashing scheme.  Hooks in
+   move_to_swap_cache() and move_from_swap_cache() are needed.
 
 
-> Someone else (in concordance with Mikael) also pointed out that the
-> cacheline size is also the same as the PIII and not P4. So it's best
-> going for PIII optimisations. It's best ignoring my previous comment then.
+So what to do?  One option is to just not pin the pages at all: let them be
+reclaimed and/or swapped out.  Let the kernel fault them in.  We have all
+the stuff to do this over in fs/aio.c, with use_mm().
 
-P-M has a 64-byte L1 dcacheline size same as P4 -- p3 has only 32 bytes.
-see <http://sandpile.org/impl/pm.htm> for example.  (it's possible to
-prove it experimentally if you want :)  but i thought kernel cacheline
-size stuff was only important for SMP locking alignments?
+It does mean that the futex code would have to change its representation of
+a futex's location from page/offset to mm/vaddr, and the futex code would
+need to hook into the exit path, similar to exit_aio().
 
-there's details regarding the differences between P-M and P4 in the latest
-"P4 optimisation guide", which was document id 24896609 at
-developer.intel.com last time i fetched it, it might have been rev'd since
-then.
+Or create RLIM_NRFUTEX.
 
-basically the main disadvantage to selecting P4 for kernel compiling on a
-centrino is that P-M has the same complex-simple-simple (4-1-1) uop
-decoding machinery as the entire P6 family line... whereas P4's trace
-cache somewhat offsets the P4's decoder's quirks.  so stuff scheduled for
-p4 may not produce the best complex-simple-simple sequence that a p6
-family processor wants to see.  i'm not really sure how well gcc does in
-either case though... (whereas icc does a stellar job.)
 
-i bet intel is saying "optimise for p4" for two reasons:
-
-(a) the reality is way too complex to describe
-(b) p4 is their long-term bet and they'd rather code be targetted to it
-    specifically
-
-however, if/when gcc picks up some of the more wacked p4 optimisations,
-such as turning multiplication by 32 into:
-
-	add eax,eax
-	add eax,eax
-	add eax,eax
-	add eax,eax
-	add eax,eax
-
-then you'll start to see penalties on p6 cores ... the p4 does not like
-shifts or lea.  the above runs in 2.5 cycles on a p4 (double-pumped ALUs)
-whereas a shift or lea would be 4 clocks.
-
--dean

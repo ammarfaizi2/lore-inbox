@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262543AbTJGR1F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 13:27:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbTJGR1F
+	id S262540AbTJGRTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 13:19:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbTJGRTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 13:27:05 -0400
-Received: from windsormachine.com ([206.48.122.28]:28333 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id S262543AbTJGR1E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 13:27:04 -0400
-Date: Tue, 7 Oct 2003 13:27:01 -0400 (EDT)
-From: Mike Dresser <mdresser_l@windsormachine.com>
+	Tue, 7 Oct 2003 13:19:09 -0400
+Received: from main.gmane.org ([80.91.224.249]:16613 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262540AbTJGRTH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 13:19:07 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: RE: IDE DMA errors, massive disk corruption: Why? Fixed Yet? Whyn
- ot   re-do failed op?
-In-Reply-To: <785F348679A4D5119A0C009027DE33C105CDB214@mcoexc04.mlm.maxtor.com>
-Message-ID: <Pine.LNX.4.56.0310071320560.23900@router.windsormachine.com>
-References: <785F348679A4D5119A0C009027DE33C105CDB214@mcoexc04.mlm.maxtor.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.12.3 - (http://pldaniels.com/inflex/)
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: devfs vs. udev
+Date: Tue, 07 Oct 2003 19:19:04 +0200
+Message-ID: <yw1xk77hx8xj.fsf@users.sourceforge.net>
+References: <yw1xad8dfcjg.fsf@users.sourceforge.net> <pan.2003.10.07.13.41.23.48967@dungeon.inka.de>
+ <yw1xekxpdtuq.fsf@users.sourceforge.net> <20031007142349.GX1223@rdlg.net>
+ <pan.2003.10.07.16.06.52.842471@dungeon.inka.de>
+ <20031007165404.GB29870@carfax.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:RqzmHdb4RbZL3xk92Aeal9HjN5o=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Oct 2003, Mudama, Eric wrote:
+Hugo Mills <hugo-lkml@carfax.org.uk> writes:
 
-> could get around that problem if people were willing to pay for disk drives
-> with 32+MB buffers on them.  (Actually we'd need a bit more to hold our own
+>    Surely udev needs the ability to make more than one device node or
+> symlink when a device is plugged in anyway, so I just see this as an
+> issue of writing the appropriate default configuration files.
 
-And how much is that going to cost?  Considering a 2 meg to 8 meg cache
-jump costs about 10 dollars nowadays, and includes an upgrade on the
-warranty from 1 year to 3 years(which I'm sure is most of the cost
-difference), I wouldn't have a problem spending another 10 or so dollars
-for that last jump to 32 meg, if performance were to justify it.
+Now you say "plug in".  How does udev deal with devices that don't
+correspond something that can be plugged, physically or virtually
+(PCI)?  I'm thinking of things like ttys, loopback devices, etc.
+
+-- 
+Måns Rullgård
+mru@users.sf.net
+

@@ -1,57 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262351AbTD3T6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 15:58:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262357AbTD3T6Z
+	id S262413AbTD3Tzo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 15:55:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262414AbTD3Tzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 15:58:25 -0400
-Received: from siaab2ab.compuserve.com ([149.174.40.130]:10817 "EHLO
-	siaab2ab.compuserve.com") by vger.kernel.org with ESMTP
-	id S262351AbTD3T6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 15:58:23 -0400
-Date: Wed, 30 Apr 2003 16:08:05 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: desc v0.61 found a 2.5 kernel bug
-To: Gabriel Paubert <paubert@iram.es>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200304301610_MC3-1-36BC-C42@compuserve.com>
+	Wed, 30 Apr 2003 15:55:44 -0400
+Received: from lakemtao03.cox.net ([68.1.17.242]:57493 "EHLO
+	lakemtao03.cox.net") by vger.kernel.org with ESMTP id S262413AbTD3Tzk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 15:55:40 -0400
+Message-ID: <3EB02D0F.1080101@cox.net>
+Date: Wed, 30 Apr 2003 15:07:43 -0500
+From: David van Hoose <davidvh@cox.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: andersen@codepoet.org
+CC: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ALSA and 2.4.x
+References: <20030424212508.GI14661@codepoet.org> <200304251401.36430.m.c.p@wolk-project.de> <200304251410.31701.m.c.p@wolk-project.de> <20030430090242.GA15480@codepoet.org>
+In-Reply-To: <20030430090242.GA15480@codepoet.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gabriel Paubert wrote:
+Erik Andersen wrote:
+> On Fri Apr 25, 2003 at 02:10:31PM +0200, Marc-Christian Petersen wrote:
+> 
+>>On Friday 25 April 2003 14:01, Marc-Christian Petersen wrote:
+>>
+>>Hi again,
+>>
+>>
+>>>>I was crazy enough to take ALSA 0.9.2 and made it into a patch vs
+>>>>2.4.x a week or two ago.  I just prefer to have ALSA be part of
+>>>>the kernel rather than needing to compile it seperately all the
+>>>>time.  The patch, along with various other things, is included as
+>>>>part of my 2.4.21-rc1-erik kernel:
+>>>
+>>>Are you sure that this is 0.9.2 ALSA? I am afraid it is 0.9.0-rc6.
+>>
+>>this looks _very_ similar to the patch I had in WOLK4 some time ago and it was 
+>>0.9.0-rc6.
+> 
+> 
+> I finally got a bit of time this morning, so I have now updated
+> my patch set.  I check very carefully and made sure I generated
+> my ALSA 0.9.2 patch from the correct kernel tree this time, so 
+> it actually contains my 0.9.2 port this time.
+> 
+>     http://codepoet.org/kernel/
+> 
+> Sorry about having the wrong alsa patch in there last time.  Last
+> time around I has accidentlly built my alsa patch from my older
+> alsa kernel tree.  I have this built into my kernel and I now see 
+> 
+>     Partition check:
+>      hda: hda1 hda2
+>     Advanced Linux Sound Architecture Driver Version 0.9.2.
+>     PCI: Setting latency timer of device 00:11.5 to 64
+>     ALSA device list:
+>       #0: VIA 8233 at 0xcc00, irq 5
+> 
+> on bootup and xmms is playing.  Hope this is helpful,
 
->>   I want to write a TSS-based debug exception handler that just does
->> an iret when it gets invoked.  For now it looks easier to just keep
->> CR3 up-to-date on every switch.
->
-> It seems cr3 is in the same cache line as esp0 for a 32 byte cache line, 
-> so it's not that big a deal, but I'd still try to avoid this.
+I'm getting an unresolved in soundcore.o that is preventing me from 
+having sound.
+/lib/modules/2.4.21-rc1/kernel/sound/soundcore.o: unresolved symbol 
+devfs_remove
+/lib/modules/2.4.21-rc1/kernel/sound/soundcore.o: insmod 
+/lib/modules/2.4.21-rc1/kernel/sound/soundcore.o failed
+/lib/modules/2.4.21-rc1/kernel/sound/soundcore.o: insmod snd-card-0 failed
 
- There's no easy way of fixing this up in the handler, so that's the plan
-for now.  It also puts more info in the TSS dump right away.
+Can that be fixed?
+Also I have problems if I compile USB Audio and USB MIDI from the USB 
+section AND USB Audio and USB MIDI from the ALSA section. Compilation 
+fails in that situation. Might want to put the former patch up if this 
+stuff might take a while to fix.
 
-.> Currently %fs and %gs are lazily cleaned up when switching processes
-.> using the standard fixup mechanism, %ds and %es are cleaned up if
-.> necessary when popping them off the stack in the return to user
-.> mode path (the one which ends up in iret). There is no way to recover
-.> from bad user %cs/%ss, the process simply exits in the iret fixup.
+Thanks,
+David
 
- Looks like the only clean way is to follow the TSS back link and manually
-validate the segment registers before returning:
-
-  invalid FS,GS -> 0
-     "    DS,ES -> __USER_DS
-          CS,SS -> panic?
-
- Bad things can happen if a debug fault happens in certain places... for now
-the solution is to only support int3 breakpoints and avoid those places.
-
- Given the above, I hope to be able to put int3 instructions in either
-kernel or user code and get snapshots of CPU state in the kernel TSS.
-------
- Chuck

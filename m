@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267616AbSIRQsJ>; Wed, 18 Sep 2002 12:48:09 -0400
+	id <S267498AbSIRQfh>; Wed, 18 Sep 2002 12:35:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267605AbSIRQq7>; Wed, 18 Sep 2002 12:46:59 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:5902 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S267603AbSIRQqL>; Wed, 18 Sep 2002 12:46:11 -0400
-Date: Wed, 18 Sep 2002 13:50:50 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Andrew Morton <akpm@digeo.com>
-Cc: Con Kolivas <conman@kolivas.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] contest results for 2.5.36
-In-Reply-To: <3D88ACB6.6374E014@digeo.com>
-Message-ID: <Pine.LNX.4.44L.0209181349200.1519-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S267499AbSIRQfg>; Wed, 18 Sep 2002 12:35:36 -0400
+Received: from dsl-213-023-020-105.arcor-ip.net ([213.23.20.105]:63879 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S267498AbSIRQfP>;
+	Wed, 18 Sep 2002 12:35:15 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: [2.5] DAC960
+Date: Wed, 18 Sep 2002 18:40:25 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com
+References: <200209181617.g8IGHgp03871@localhost.localdomain>
+In-Reply-To: <200209181617.g8IGHgp03871@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17rhsI-0000Fm-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Sep 2002, Andrew Morton wrote:
+On Wednesday 18 September 2002 18:17, James Bottomley wrote:
+> > > > Linus indicated at the Kernel Summit that he'd like to see a
+> > > > cleaned-up scsi midlayer used as framework for *all* disk IO,
+> > > > including IDE.  Obviously, what with IDE transitions and whatnot, we
+> > > > are far from being ready to attempt that, so see "nursing along"
+> > > > above.  There's no longer any chance that a generic disk midlayer is
+> > > > going to happen in this cycle, as far as I can see.  Still, anybody
+> > > > who is interested would do well by studing the issues, and fixing
+> > > > broken drivers certainly qualifies as a way to come up to speed.
+> > > > First of all, I believe Linus' plan is to push more functionality into
+> > > the block layer.
+> >
+> > I distinctly heard him say he wanted the scsi mid layer repurposed as
+> > an interface for all disks.  Maybe he changed his mind?
+> 
+> I don't recall hearing this.  I remember his agreeing with the idea of 
+> slimming down the SCSI mid layer, which does rather contradict the use SCSI 
+> for everything approach.
 
-> > No Load:
-> > Kernel                  Time            CPU
-> > 2.4.19                  68.14           99%
-> > 2.4.20-pre7             68.11           99%
-> > 2.5.34                  69.88           99%
-> > 2.4.19-ck7              68.40           98%
-> > 2.4.19-ck7-rmap         68.73           99%
-> > 2.4.19-cc               68.37           99%
-> > 2.5.36                  69.58           99%
->
-> page_add/remove_rmap.  Be interesting to test an Alan kernel too.
+> After the Kernel Summit, there was quite a long thread on l-k with Joerg 
+> Schilling on exactly this issue.
 
-Yes, but why are page_add/remove_rmap slower in 2.5 than in
-Con's -rmap kernel ? ;)
+Subject line "IDE/ATAPI in 2.5"?
 
-> > Process Load:
-> > Kernel                  Time            CPU
-> > 2.4.19                  81.10           80%
-> > 2.4.20-pre7             81.92           80%
-> > 2.5.34                  71.39           94%
-> > 2.5.36                  71.80           94%
->
-> Ingo ;)
+> The upshot of which was I clearly said we 
+> weren't going to go the SCSI is everything route.  Unless there's any reason 
+> to change course, I think that's the current plan.
 
-Looks like an unfair sched_yield, the process load is supposed
-to get 20% of the CPU (one process in process_load vs. make -j4).
+Given that Halloween is 6 weeks away, I don't doubt you.
 
-For the other results I agree with you, furter VM improvements in
-2.5 will probably fix those.
-
-cheers,
-
-Rik
 -- 
-Spamtrap of the month: september@surriel.com
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Daniel

@@ -1,97 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbTKBDaU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Nov 2003 22:30:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbTKBDaU
+	id S261342AbTKBDtG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Nov 2003 22:49:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbTKBDtG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Nov 2003 22:30:20 -0500
-Received: from mailrelay2.lrz-muenchen.de ([129.187.254.102]:17096 "EHLO
-	mailrelay2.lrz-muenchen.de") by vger.kernel.org with ESMTP
-	id S261336AbTKBDaL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Nov 2003 22:30:11 -0500
-Date: Sun, 2 Nov 2003 04:22:06 +0100
-From: Florian Reitmeir <fr@3node.com>
-To: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: 15 ide driver, raid0 / raid5
-Message-Id: <20031102032206.GB3464@squat.noreply.org>
-Reply-To: Florian Reitmeir <fr@3node.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Organization: 3node
-X-PGP: 1024D/B434408F BAA6 BBEF 4259 E464 6348 9E84 4596 ADFD B434 408F
-User-Agent: Mutt/1.5.4i
+	Sat, 1 Nov 2003 22:49:06 -0500
+Received: from [134.29.1.12] ([134.29.1.12]:11654 "EHLO mail.mnsu.edu")
+	by vger.kernel.org with ESMTP id S261342AbTKBDtE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Nov 2003 22:49:04 -0500
+Message-ID: <3FA47EAF.3070802@hundstad.net>
+Date: Sat, 01 Nov 2003 21:49:03 -0600
+From: "Jeffrey E. Hundstad" <jeffrey@hundstad.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030925
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: /proc/[0-9]*/maps where did the (deleted) status go?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-i'm using on the machine kernel 2.6.0-test6-mm1 and 15 IDE Drives. Everything worked fine (uptime about 30 days)
-I used, some raid5's, below some raid0's and on top evms.
+In the 2.4.x kernels the /proc/[process id]/maps file contains that 
+processes current mappings.  This is also true with 2.6.0-test9 but I've 
+noticed a difference.  It is a feature I'll miss.  In the 2.4 kernels 
+when a file is mapped but no longer exists (because it has been removed) 
+the mapping line would contain the text "(deleted)" after it.
 
-heres "cat /proc/mdstat" so its more clear
+I've used this feature after I've updated libraries on my system.  I ran 
+a little scriptlet (see below).  It'd tell me which processes were 
+running with the old copy of the library.  This way I restart those 
+processes.
 
-============ cut 
-Personalities : [raid0] [raid5]
-md4 : active raid5 hdp[2] hdo[1] hdn[0]
-      120627072 blocks level 5, 32k chunk, algorithm 2 [4/3] [UUU_]
-
-md3 : active raid0 hdm[1] hdl[0]
-			49956352 blocks 32k chunks
-
-md0 : inactive hdc[0]
-			80418176 blocks
-unused devices: <none>
-============ cut 
-
-here are some drives missig, 
-	md0, is one drive missing
-	md1, complete
-	md2, also
-									
-when i make a "evms_activate" i get
+Is this a feature that can be restored, or perhaps there's a better way 
+to do it.  Let me know?
 
 
-========= CUT
-MDRaid5RegMgr: Region md/md4 object index 3 is faulty. Array may be degraded.
-MDRaid5RegMgr: Region md/md4 disks array not zeroed
-MDRaid5RegMgr: Region md/md4 has disk counts that are not correct.
-MDRaid5RegMgr: RAID5 array md/md4 is missing the member md/md3 with RAID index 3.  The array is running in degrade mode.
-LvmRegMgr: Container lvm/rubbish has incorrect number of objects!
-LvmRegMgr: Looking for 3 objects, found 2 objects.
-LvmRegMgr: A UUID is recorded for PV 3, but PV 3 was not found.
-LvmRegMgr:      UUID: vWAf1j-veQx-IDk7-SaJ0-dhga-Lase-rQ9ydR
-LvmRegMgr: Container lvm/rubbish has a UUID recorded for PV 3, but PV 3 was not found. Would you like to remove PV 3 from container lvm/rubbish *PERMANENTLY*?
-
-You should only remove this PV if you know the PV will *NEVER* be available again. If you think it is just temporarily missing, do not remove it from the container.evms_activate: Responding with default selection "Don't Remove".
-LvmRegMgr: Would you like to fix the metadata for container lvm/rubbish?
-evms_activate: Responding with default selection "Don't Fix".
-LvmRegMgr: Region lvm/rubbish/basket has an incomplete LE map.
-Missing 7327 out of 14359 LEs.
-MDRaid5RegMgr: RAID5 array md/md2 is missing the member  with RAID index 3.  The array is running in degrade mode.
-MDRaid0RegMgr: Region md/md1 object index incorrect: is 0, should be 1
-MDRaid0RegMgr: Region md/md1 object index 1 is greater than nr_disks.
-MDRaid0RegMgr: Region md/md1 object index 1 is in invalid state.
-MDRaid0RegMgr: Region md/md1 disk counts incorrect
-Engine: Error code 5 (Input/output error) when reading the primary copy of feature header on object lvm/rubbish/basket.
-Engine: Error code 5 (Input/output error) when reading the secondary copy of feature header on object lvm/rubbish/basket.
-MDRaid0RegMgr: Region md/md1 object index incorrect: is 0, should be 1
-MDRaid0RegMgr: Region md/md1 object index 1 is greater than nr_disks.
-MDRaid0RegMgr: Region md/md1 object index 1 is in invalid state.
-MDRaid0RegMgr: Region md/md1 disk counts incorrect
-MDRaid0RegMgr: Region md/md1 object index incorrect: is 0, should be 1
-MDRaid0RegMgr: Region md/md1 object index 1 is greater than nr_disks.
-MDRaid0RegMgr: Region md/md1 object index 1 is in invalid state.
-MDRaid0RegMgr: Region md/md1 disk counts incorrect
-========= CUT
+---- scriptlet library-restart-app follows:
+#!/bin/bash
+for i in `find /proc/ -mindepth 2 -maxdepth 2 -name "maps" | xargs grep 
+-a deleted | grep -a -E -v /SYSV[0-9a-z]{8} |grep -a -v /dev/zero | cut 
+-d ':' -f1 | cut -d '/' -f3 | sort | uniq | sed -e 
+'s/\(.*\)/\/proc\/\1\/cmdline/'`;do echo -n "`echo $i| cut -d '/' -f3` 
+";cat $i|tr "\000" "\n" |head -1;done---- ---- scriptlet 
+library-restart-app ends
 
 
-or in other words, its a mess. I verfied, all drives are found and work correct, so its "only" the meta information which is broken, i uses evmsgui to configure the whole thing, so there is no raidtab file, which i could use to force the configuration.
+-- 
+jeffrey hundstad
 
-I also tried newer Kernel versions, but there is a timing problem i think, i use promise ide-pci controllers, and the new test9 always tries to reset those with UDMA(i think so), which won't work with that many drives.
 
-So, is there someone who can help me ? 
-
-PS: sorry, if you get this mail duplicated, its my fault.
---
-mfG Florian Reitmeir

@@ -1,38 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278932AbRJVVFU>; Mon, 22 Oct 2001 17:05:20 -0400
+	id <S278937AbRJVVHk>; Mon, 22 Oct 2001 17:07:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278931AbRJVVFL>; Mon, 22 Oct 2001 17:05:11 -0400
-Received: from hatrack.unc.edu.ar ([170.210.248.6]:25830 "EHLO
-	hatrack.unc.edu.ar") by vger.kernel.org with ESMTP
-	id <S278932AbRJVVE7>; Mon, 22 Oct 2001 17:04:59 -0400
-Date: Mon, 22 Oct 2001 15:00:43 -0300 (GMT+3)
-From: Marcos Dione <mdione@hal.famaf.unc.edu.ar>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: kjournald and disk sleeping
-In-Reply-To: <3BD4655E.82ED21CC@zip.com.au>
-Message-ID: <Pine.LNX.4.33.0110221424500.25281-100000@hp11.labcomp.famaf.unc.edu.ar>
+	id <S278934AbRJVVHc>; Mon, 22 Oct 2001 17:07:32 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:23827 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S278921AbRJVVHU>; Mon, 22 Oct 2001 17:07:20 -0400
+Date: Mon, 22 Oct 2001 19:07:42 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Craig Dickson <crdic@yahoo.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Linux 2.2.20pre10
+In-Reply-To: <20011022135759.A17384@crdic.ath.cx>
+Message-ID: <Pine.LNX.4.33L.0110221904490.22127-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001, Andrew Morton wrote:
+On Mon, 22 Oct 2001, Craig Dickson wrote:
 
-> Yes, this is a bit of a problem - it's probably atime updates,
-> things which write to inodes, etc.  A commit will be forced within
-> five seconds of this happening.
+> However, I think it's fair to say that the production and distribution
+> of complete changelogs, such that all users have access to them, is an
+> important part of the job of being the official maintainer for a
+> project, especially such an important project as the stable branch of
+> the Linux kernel.
 
-	Reading journal.c I guessed that kjournald flushes thing *even if
-it doesn't have things to flush*. I guess that from commit_timeout and
-the comments on the thread process, but I can be wrong.
+Maybe Alan will allow publishing of the changelogs on
+http://thefreeworld.net/  ?
 
-	YFI, I issue a /bin/sync before I put the disk to sleep.
+> From the statistics I've seen in the past, a high percentage of
+> Linux users are US residents.
 
+If they're unhappy with the consequences of US law, they
+should move.
+
+> Perhaps you should step down.
+
+Alan is doing an absolutely fantastic job of maintaining
+the kernel, I see absolutely no reason why he should stop
+doing that.
+
+If you want the changelogs for the kernel published in
+the US, why don't you publish them, under your name and
+your full responsability ?
+
+regards,
+
+Rik
 -- 
-"y, bueno, yo soy muy ilogico. lo que pasa es que ustedes me toman
-demasiado en serio"
-                                          --JLB
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
 
+http://www.surriel.com/		http://distro.conectiva.com/
 

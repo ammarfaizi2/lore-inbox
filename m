@@ -1,108 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263702AbTLDXu7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 18:50:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263742AbTLDXu7
+	id S263742AbTLDXwK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 18:52:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263745AbTLDXwK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 18:50:59 -0500
-Received: from web21503.mail.yahoo.com ([66.163.169.14]:64659 "HELO
-	web21503.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263702AbTLDXu4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 18:50:56 -0500
-Message-ID: <20031204235055.62846.qmail@web21503.mail.yahoo.com>
-Date: Thu, 4 Dec 2003 15:50:55 -0800 (PST)
-From: Paul Adams <padamsdev@yahoo.com>
-Subject: Re: Linux GPL and binary module exception clause?
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Thu, 4 Dec 2003 18:52:10 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:53678
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263742AbTLDXwH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 18:52:07 -0500
+Date: Fri, 5 Dec 2003 00:52:24 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Guillermo Menguez Alvarez <gmenguez@usuarios.retecal.es>
+Cc: Maciej Zenczykowski <maze@cela.pl>, linux-kernel@vger.kernel.org
+Subject: Re: oom killer in 2.4.23
+Message-ID: <20031204235224.GB22517@dualathlon.random>
+References: <15498.1070554340@www7.gmx.net> <Pine.LNX.4.44.0312041801560.26684-100000@gaia.cela.pl> <20031204182016.5da319d5.gmenguez@usuarios.retecal.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031204182016.5da319d5.gmenguez@usuarios.retecal.es>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- In linux-kernel@yahoogroups.com, Linus Torvalds
-<torvalds@o...> wrote:
-> - anything that was written with Linux in mind
-(whether it then
-> _also_ works on other operating systems or not) is
-clearly
-> partially a derived work.
+On Thu, Dec 04, 2003 at 06:20:16PM +0100, Guillermo Menguez Alvarez wrote:
+> > Yes, and as a side question, couldn't oom killer be made into a config
+> > option?
+> 
+> As I see in the ChangeLog:
+> 
+> aa VM merge: page reclaiming logic changes: Kills oom killer
+> 
+> OOM Killer has been removed due to AA VM changes, so maybe it can't be
+> cleanly enabled again.
 
-I am no more a lawyer than you are, but I have to
-disagree.  You
-are not free to define "derivative work" as you
-please.  You
-must use accepted legal definitions.  At least in the
-U.S., you
-must consider what Congress had to say on this.  They
-said, "to
-constitute a violation of section 106(2) [which gives
-copyright
-owners rights over derivative works], the infringing
-work must
-incorporate a portion of the copyrighted work in some
-form; for
-example, a detailed commentary on a work or a
-programmatic musical
-composition inspired by a novel would not normally
-constitute
-infringements under this clause."
-http://www4.law.cornell.edu/uscode/17/106.notes.html
+it can be re-enabled without too much pain if you can accept the desktop
+behaviour of 2.4.22 and previous not suitable for servers.
 
-A work that is inspired by Linux is no more a
-derivative work than
-a programmatic musical composition inspired by a
-novel.  Having
-Linux in mind cannot be enough to constitute
-infringement.
+the oom killer had deadlocks and it was relaying on very inaccurate
+accounting, so it had a number of corner cases were it was killing tasks
+by mistakes (it's fooled by shm/mlock/noswap etc..), read also the bugreports
+for 2.4.22 with tasks being killed because there was no swap in the box
+(or just try to run your machine w/o swap, swap is not a must, it's a
+wish).  Fixing those in 2.4 sounds too complicated, and now it's too
+late to even hope to make a proper oom killer for 2.4.
 
-Remember also that U.S. copyright law states:
-"In no case does copyright protection for an original
-work of
-authorship extend to any idea, procedure, process,
-system, method
-of operation, concept, principle, or discovery,
-regardless of
-the form in which it is described, explained,
-illustrated, or
-embodied in such work."
-http://www4.law.cornell.edu/uscode/17/102.html
-Thus you cannot claim infringement because a work
-merely shares
-ideas or methods of operation with Linux.
-
-The standard used in U.S. courts for determining if
-software
-violates a copyright includes a filtering procedure to
-eliminate
-unprotected aspects as described above.  A standard
-filter is that
-you eliminate an element if "The element's expression
-was dictated
-by external factors, such as using an existing file
-format or
-interoperating with another program."  Computer
-Associates v.
-Altai specifically discusses the need to filter
-elements related
-to "compatibility requirements of other programs with
-which a
-program is designed to operate in conjunction."
-http://www.bitlaw.com/source/cases/copyright/altai.html
-Code needed to interoperate with the Linux kernel thus
-cannot be
-considered as a factor in determining if the Linux
-copyright is
-infringed.
-
-Unless actual Linux code is incorporated in a binary
-distribution
-in some form, I don't see how you can claim
-infringement of the
-copyright on Linux code, at least in the U.S.
-
-
-
-__________________________________
-Do you Yahoo!?
-Free Pop-Up Blocker - Get it now
-http://companion.yahoo.com/
+For the record 2.2 was capable of checking iopl to defer a few times the
+killing of the X server, that wasn't forward ported to 2.4. For 2.6 we
+can do something better than all the past oom killers at least. 2.6 gets
+fooled by mlock too btw, ranom kill tasks etc.. so it's not much better
+than 2.4.22 was in oom killing respect.

@@ -1,54 +1,206 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263059AbUEWP0x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263015AbUEWP1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263059AbUEWP0x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 11:26:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbUEWP0w
+	id S263015AbUEWP1r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 11:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263000AbUEWP1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 11:26:52 -0400
-Received: from mail.kroah.org ([65.200.24.183]:15061 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263059AbUEWP0c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 11:26:32 -0400
-Date: Sun, 23 May 2004 08:25:40 -0700
-From: Greg KH <greg@kroah.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFD] Explicitly documenting patch submission
-Message-ID: <20040523152540.GA5518@kroah.com>
-References: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org> <1085299337.2781.5.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1085299337.2781.5.camel@laptop.fenrus.com>
-User-Agent: Mutt/1.5.6i
+	Sun, 23 May 2004 11:27:47 -0400
+Received: from userel174.dsl.pipex.com ([62.188.199.174]:20356 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id S263062AbUEWP1D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 11:27:03 -0400
+Date: Sun, 23 May 2004 16:25:34 +0100 (BST)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: tigran@einstein.homenet
+To: Joshua Kwan <joshk@triplehelix.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: consistent ioctl for getting all net interfaces?
+In-Reply-To: <Pine.LNX.4.44.0405231616290.3600-100000@einstein.homenet>
+Message-ID: <Pine.LNX.4.44.0405231624300.3600-100000@einstein.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 23, 2004 at 10:02:17AM +0200, Arjan van de Ven wrote:
-> On Sun, 2004-05-23 at 08:46, Linus Torvalds wrote:
-> > Hola!
+I forgot to mention that I tested on some early 2.6 (pre) and it worked
+fine. If SIOCGIFCONF was broken in the more recent 2.6 kernels then I
+should re-test and revisit this function...
+
+Kind regards
+Tigran
+
+On Sun, 23 May 2004, Tigran Aivazian wrote:
+
+> On Sat, 22 May 2004, Joshua Kwan wrote:
+> > I'm interested in not having to parse /proc/net/dev to get a list of all
+> > available (not necessarily even up) interfaces on the system. I
+> > investigated the ioctl SIOCGIFCONF, but it seems to behave differently on
+> > 2.4 and 2.6 series kernels, e.g. sometimes it won't return all interfaces.
 > > 
-> > This is a request for discussion..
+> > Is there some end-all ioctl that does what I want, or am I forever doomed
+> > to process /proc/net/dev (in C, no less..)?
+> > 
+> > Please CC me on replies, I don't read this list very often any more.
 > 
-> Can we make this somewhat less cumbersome even by say, allowing
-> developers to file a gpg key and sign a certificate saying "all patches
-> that I sign with that key are hereby under this regime". I know you hate
-> it but the FSF copyright assignment stuff at least has such "do it once
-> for forever" mechanism making the pain optionally only once.
+> Of course this is possible and here is the solution I wrote some time ago
+> (ioctl-based).
+> 
+> Note that a more simple solution is also possible but is less portable
+> (because will depend on glibc version).
+> 
+> /* TCPCAP endpoint, just an opaque handle for applications */
+> struct tcpcap {
+>         int fd;                         /* socket file descriptor */
+>         struct timeval *ts;             /* user supplied addr of timestamp */
+>         struct sockaddr_ll *from;       /* user supplied addr of extra info */
+>         int nports;                     /* number of bits set in ->ports */
+>         int maxport;                    /* highest port number set in ->ports */
+>         unsigned char *ports;           /* ports currently set in ->lsf */
+>         unsigned char *setports;        /* pending ports to be added */
+>         unsigned char *clrports;        /* pending ports to be removed */
+>         int recv_buflen;                /* socket receive buffer size */
+>         struct sock_fprog *lsf;         /* compiled filter program */
+>         struct sock_filter *lsf_insns;  /* the actual LSF instructions */
+>         int snaplen;                    /* length of part of each packet */
+>         int pkt_count;                  /* number of packets seen */
+>         int promisc;                    /* set interface(s) to promisc. mode */
+>         struct tcpcap_if *iface;        /* list of network interfaces */
+>         int ifcount;                    /* number of elements in ->iface[] */
+> };
+> 
+> 
+> /* 
+>  * internal helper: get the list of all IPv4 up interfaces
+>  * and record their name and IP address into pcap->iface[]
+>  * array. Also set promiscuous mode as requested via pcap->promisc.
+>  */
+> static int walkiflist(struct tcpcap *pcap)
+> {
+> 	struct ifconf ifc;
+> 	struct ifreq *ifreqs, *ifr;
+> 	int fd, rq_len, nifs, i, ret = 0;
+> 
+> 	/* this is a helper datagram socket which we must create
+> 	 * because the actual packet socket is created later on,
+> 	 * at tcpcap_start() time.
+> 	 */
+> 	fd = socket(PF_INET, SOCK_DGRAM, 0);
+> 	if (fd < 0) {
+> 		DPRINTF("socket(), errno=%d (%s)\n",
+> 				errno, strerror(errno));
+> 		return TERR_SOCKET;
+> 	}
+> 
+> 	ifc.ifc_buf = NULL;
+> 	rq_len = 4*sizeof(struct ifreq);
+> 	do {
+> 		ifc.ifc_len = rq_len;
+> 		ifc.ifc_buf = realloc(ifc.ifc_buf, ifc.ifc_len);
+> 		if (ifc.ifc_buf == NULL) {
+> 			DPRINTF("ifc.buf = realloc() failed\n");
+> 			ret = TERR_REALLOC;
+> 			goto outclose;
+> 		}
+> 		if(ioctl(fd, SIOCGIFCONF, &ifc) < 0) {
+> 			DPRINTF("ioctl(SIOCGIFCONF), errno=%d (%s)\n",
+> 					errno, strerror(errno));
+> 			if (ifc.ifc_buf)
+> 				free(ifc.ifc_buf);
+> 			ret = TERR_IOCTL;
+> 			goto outclose;
+> 		}
+> 		rq_len *= 2;
+> 	} while (rq_len < sizeof(struct ifreq) + ifc.ifc_len);
+> 
+> 	nifs = ifc.ifc_len / sizeof(struct ifreq);
+> 	ifreqs = realloc(ifc.ifc_buf, nifs*sizeof(struct ifreq));
+> 	if (ifreqs == NULL) {
+> 		DPRINTF("ifreqs = realloc()\n");
+> 		ret = TERR_REALLOC;
+> 		free(ifc.ifc_buf);
+> 		goto outclose;
+> 	}
+> 
+> 	/* allocate enough space for the maximum number of interfaces */
+> 	pcap->iface = zalloc(nifs*sizeof(struct tcpcap_if));
+> 	if (pcap->iface == NULL) {
+> 		DPRINTF("pcap->iface = zalloc() failed\n");
+> 		ret = TERR_ZALLOC;
+> 		goto outfree;
+> 	}
+> 
+> 	/* look through what we found and select only the 'interesting' ones */
+> 	for (ifr = ifreqs, i=0; i<nifs; ifr++, i++) {
+> 		struct sockaddr_in *addr;
+> 
+> 		/* only interested in IPv4 */
+> 		if (ifr->ifr_addr.sa_family != AF_INET)
+> 			continue;
+> 
+> 		/* not interested in loopback */
+> 		if (!strncmp(ifr->ifr_name, "lo", 2))
+> 			continue;
+> 
+> 		/* request flags because SIOCGIFCONF only 
+> 		 * initialized name, family and address
+> 		 */
+> 		if(ioctl(fd, SIOCGIFFLAGS, ifr) < 0) {
+> 			DPRINTF("ioctl(SIOCGIFFLAGS), errno=%d (%s)\n",
+> 					errno, strerror(errno));
+> 			ret = TERR_IOCTL;
+> 			goto outfree;
+> 		}
+> 
+> 		/* not interested in down interfaces */
+> 		if (!(ifr->ifr_flags & IFF_UP))
+> 			continue;
+> 
+> 		/* OK, this interface passed all our criteria, so
+> 		 * record it into pcap->iface[] array
+> 		 */
+> 		pcap->iface[pcap->ifcount].ifname =strdup(ifr->ifr_name);
+> 		addr = (struct sockaddr_in *)&(ifr->ifr_addr);
+> 		pcap->iface[pcap->ifcount].addr = htonl(addr->sin_addr.s_addr);
+> 
+> 		/* if required set this interface into promisc. mode,
+> 		 * unless it is already in promiscuous mode.
+> 		 */
+> 		if (pcap->promisc && !(ifr->ifr_flags & IFF_PROMISC)) {
+> 
+> 			/* enable promiscuous mode */
+> 			ifr->ifr_flags |= IFF_PROMISC;
+> 
+> 			/* set interface flags */
+> 			if (ioctl(fd, SIOCSIFFLAGS, ifr) == -1) {
+> 				DPRINTF("ioctl(SIOCSIFFLAGS), errno=%d (%s)\n", 
+> 					errno, strerror(errno));
+> 				ret = TERR_IOCTL;
+> 				goto outfree;
+> 			}
+> 
+> 			/* record the fact that we modified this interface */
+> 			pcap->iface[pcap->ifcount].promisc = 1;
+> 			DPRINTF("Enabled promisc. mode on %s (0x%x)\n", 
+> 					pcap->iface[pcap->ifcount].ifname,
+> 					pcap->iface[pcap->ifcount].addr);
+> 		}
+> 
+> 		pcap->ifcount++;
+> 	}
+> 
+> outfree:
+> 	free(ifreqs);
+> 
+> outclose:
+> 	close(fd);
+> 
+> 	return ret;
+> }
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-I don't think that adding a single line to ever patch description is
-really "pain".  Especially compared to the FSF proceedure :)
-
-Also, gpg signed patches are a pain to handle on the maintainer's side
-of things, speaking from personal experience.  However our patch
-handling scripts could probably just be modified to fix this issue, but
-no one's stepped up to do it.  And we'd have to start messing with the
-whole "web of trust" thing, which would keep us from being able to
-accept a patch from someone in a remote location with no way of being
-able to add their key to that web, causing _more_ work to be done to get
-a patch into the tree than Linus's proposal entails.
-
-thanks,
-
-greg k-h

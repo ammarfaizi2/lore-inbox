@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264934AbSKINEA>; Sat, 9 Nov 2002 08:04:00 -0500
+	id <S265108AbSKINh1>; Sat, 9 Nov 2002 08:37:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265091AbSKINEA>; Sat, 9 Nov 2002 08:04:00 -0500
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:3712 "EHLO
-	laptop.localdomain") by vger.kernel.org with ESMTP
-	id <S264934AbSKIND7> convert rfc822-to-8bit; Sat, 9 Nov 2002 08:03:59 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Con Kolivas <conman@kolivas.net>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [BENCHMARK] 2.4.{18,19{-ck9},20rc1{-aa1}} with contest
-Date: Sun, 10 Nov 2002 00:09:40 +1100
-User-Agent: KMail/1.4.3
-Cc: Andrew Morton <akpm@digeo.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       marcelo@conectiva.com.br, Andrea Arcangeli <andrea@suse.de>
-References: <200211091300.32127.conman@kolivas.net> <200211091612.08718.conman@kolivas.net> <20021109112135.GB31134@suse.de>
-In-Reply-To: <20021109112135.GB31134@suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211100009.55844.conman@kolivas.net>
+	id <S265191AbSKINh1>; Sat, 9 Nov 2002 08:37:27 -0500
+Received: from postfix4-1.free.fr ([213.228.0.62]:51949 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP
+	id <S265108AbSKINh0>; Sat, 9 Nov 2002 08:37:26 -0500
+Date: Sat, 9 Nov 2002 14:44:45 +0100
+From: Romain Lievin <rlievin@free.fr>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: kconfig (qconf): bug ?
+Message-ID: <20021109134444.GB9480@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi Roman,
+
+BTW, I noticed something weird with Qconf. I don't know whether it's a
+bug or a mis-behaviour...
+
+Once you have a .config file in /usr/src/linux and if you attempt to load
+another config file, Qconf will not load my settings.
+If you does not have the .config file yet (freshen install) and I attempt to
+load my config file,  Qconf will load it fine...
+
+Well, how does conf_read() work ? What does it do exactly ?
+
+Romain.
+-- 
+Romain Lievin, aka 'roms'  	<roms@lpg.ticalc.org>
+Web site 			<http://lpg.ticalc.org/prj_tilp>
+"Linux, y'a moins bien mais c'est plus cher !"
 
 
->On Sat, Nov 09 2002, Con Kolivas wrote:
->> >You're showing a big shift in behaviour between 2.4.19 and 2.4.20-rc1.
->> >Maybe it doesn't translate to worsened interactivity.  Needs more
->> >testing and anaysis.
->>
->> Sounds fair enough. My resources are exhausted though. Someone else have
->> any thoughts?
->
->Try setting lower elevator passover values. Something ala
->
-># elvtune -r 64 /dev/hda
->
->(or whatever your drive is)
 
-Heres some more data:
 
-io_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.20-rc1 [2]          1142.2  6       90      10      16.00
-2420rc1r64 [3]          575.0   12      43      10      8.05
 
-That's it then. Should I run a family of different values and if so over what 
-range?
 
-Cheers,
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
 
-iD8DBQE9zQkXF6dfvkL3i1gRAggJAKCOAWzrTxFlnPbOftzMAXPnvI7KVQCfWqUC
-iDVmD1UcPDNPWCfQmlBF9yk=
-=Q299
------END PGP SIGNATURE-----
+
+
+
+
+
+
 

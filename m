@@ -1,92 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbTJRUHc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 16:07:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261782AbTJRUHc
+	id S261806AbTJRUMa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 16:12:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbTJRUMa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 16:07:32 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:20608 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S261779AbTJRUHa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 16:07:30 -0400
-Date: Sat, 18 Oct 2003 21:08:52 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200310182008.h9IK8qrb000621@81-2-122-30.bradfords.org.uk>
-To: "Mudama, Eric" <eric_mudama@Maxtor.com>, Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-       Norman Diamond <ndiamond@wta.att.ne.jp>,
-       Hans Reiser <reiser@namesys.com>, Wes Janzen <superchkn@sbcglobal.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <785F348679A4D5119A0C009027DE33C105CDB2EE@mcoexc04.mlm.maxtor.com>
-References: <785F348679A4D5119A0C009027DE33C105CDB2EE@mcoexc04.mlm.maxtor.com>
-Subject: RE: Blockbusting news, this is important (Re: Why are bad disk se ctors numbered strangely, and what happens to them?)
+	Sat, 18 Oct 2003 16:12:30 -0400
+Received: from gprs144-147.eurotel.cz ([160.218.144.147]:38019 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261806AbTJRUM1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 16:12:27 -0400
+Date: Sat, 18 Oct 2003 22:12:14 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: [pm] Strange cleanups in -test8 kernel/acpi/wakeup.S
+Message-ID: <20031018201214.GA12037@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Plus, all data recovery would be on drives already sold...  Since every
-> drive optimizes itself as part of the manufacturing process to the exact
-> capabilities of the channel ASIC, heads they were manufactured with, etc,
-> the only way for these new recovery tools to work reliably would be to use
-> option #1 above, which I've already said isn't worth the cost.  I hear about
-> people swapping PCBs on disk drives to recover data when one fries... yes
-> this can work to some degree, but I absolutely wouldn't trust anything
-> written in a swapped-board setup.
+Hi!
 
-Ah, OK, this is interesting, so basically it's not realistic to
-produce 'data recovery PCBs' for $5000 each, which allow direct
-head-seeks, and raw data extraction etc.  Fair enough.  I'm not really
-interested in data recovery at this level, to be honest, something is
-very wrong if backups haven't been made, and dieing drives been
-detected long before then.
+Some more changes landed in -test8. I have not seen them
+before. Patrick, please, if you change something, can you post patch
+somewhere for review before merging with Linus?
 
-> > Although, to be honest, except where performance is critical, remap on
-> > read is pointless.  It saves you from having to identify the bad block
-> > again when you write to it.  Generally, guaranteed remap on write is
-> > what I want.  What happens on read is less important if your data
-> > isn't intact.  I can see your point of view for not re-mapping on read
-> > given that advanced firmwares are not available, and the fact that it
-> > allows you to do some form of data recovery.  Overall, though, if it
-> > gets to the point where you have to start doing such data recovery,
-> > downtime is usually significant, and for some applications, having the
-> > data in a week's time may be little more than useless.  Predicting
-> > possible disk fauliures is a good idea.
-> 
-> Writes are destructive, and very often "fix" the problem on the media.  If
-> the write succeeds, and can be read by the disk, there's no point in
-> remapping.
+bkcvs info is:
+BitKeeper to RCS/CVS export
+----------------------------
+revision 1.5
+date: 2003/10/08 22:55:45;  author: mochel;  state: Exp;  lines: +37
+-89
+[power] Clean up ACPI STR assembly.
 
-I totally agree - the world outside the drive doesn't even need to
-know this, and the drive should be trusted to make the right decision,
-and be critical about it, (I.E. use an area previously thought to be
-bad, but only if it tests _really_ good now, not marginal requiring
-multiple reads and every last bit of error correction possible to get
-the data back).
+diff -Nru a/arch/i386/kernel/acpi/wakeup.S
+b/arch/i386/kernel/acpi/wakeup.S
+--- a/arch/i386/kernel/acpi/wakeup.S    Fri Oct 17 14:43:50 2003
++++ b/arch/i386/kernel/acpi/wakeup.S    Fri Oct 17 14:43:50 2003
+@@ -172,14 +172,13 @@
+ .org   0x1000
 
-I am not saying that it's a great thing to risk re-using an area that
-was previously bad, far from it, but the place to make the decision as
-to whether the area is indeed bad or not is inside the drive, based on
-all the data it has available, not from the host, based on the
-limited, interpreted data available from the drive.
+ wakeup_pmode_return:
+-       movl    $__KERNEL_DS, %eax
+-       movl    %eax, %ds
+-       movw    $0x0e00 + 'u', %ds:(0xb8016)
+-
+-       # restore other segment registers
+-       xorl    %eax, %eax
++       movw    $__KERNEL_DS, %ax
++       movw    %ax, %ss
++       movw    %ax, %ds
++       movw    %ax, %es
+        movw    %ax, %fs
+        movw    %ax, %gs
++       movw    $0x0e00 + 'u', 0xb8016
 
-> It is only when you're unable to write to a specific area that
-> remap-on-write makes any sense.
+        # reload the gdt, as we need the full 32 bit address
+        lgdt    saved_gdt
+	~~~~~~~~~~~~~~~~~
 
-But it is very important, (in my opinion), that it _does_ remap in
-that case.  Specifically, I don't think that an unrecoverable read
-error should prevent any future writes to that LBA address from
-succeeding, unless the drive is out of spare blocks.
+Notice lgdt here. You have moved setup of segment registers before
+loading gdt. This is actually okay, if you can be sure that all such
+registers are in gdt (and not in ldt, for example).
 
-Reporting a write failure to the user should never happen on a drive
-capable of defect management.
+Now, if you are sure this is okay (there is another load of gdt in
+real mode), you can kill this lgdt, too, and  kill the comment below.
 
-> We keep track of where we have trouble reading or writing, and use that to
-> reassign based on various criteria automatically.
-> 
-> Best data to use, I'd guess, for "predicting" failures, is the blown rev
-> counter in smart.  If you're blowing revs, you're having trouble getting the
-> data you want off or onto the drive.
+@@ -192,46 +191,30 @@
+        wbinvd
 
-Which attribute is that?  I can't see anything like that in the SMART
-output from a Maxtor disk, but it sounds like a useful measurement :-/.
+        # and restore the stack ... but you need gdt for this to work
+-       movl    $__KERNEL_DS, %eax
+-       movw    %ax, %ss
+-       movw    %ax, %ds
+-       movw    %ax, %es
+-       movw    %ax, %fs
+-       movw    %ax, %gs
+-       movl    saved_esp, %esp
++       movl    saved_context_esp, %esp
 
-John.
+...
+
+-       movw    $0x0e00 + 'W', %ds:(0xb8018)
+-       movl    $(1024*1024*3), %ecx
+-       movl    $0, %esi
+-       rep     lodsb
+-       movw    $0x0e00 + 'O', %ds:(0xb8018)
++       movw    $0x0e00 + 'W', 0xb8018
++       outl    %eax, $0x80
++       outl    %eax, $0x80
++       movw    $0x0e00 + 'O', 0xb8018
+
+What are these outl-s? I do not see %ax being initialized... Some kind
+of debugging hack? If you are trying to emulate delays, those are not
+needed, what you killed were debugging hacks.
+
+You no longer save %eax, %ecx, %edx, %esp, %ebp, %edi, %esi. This
+means you probably need to add asmlinkage somewhere...
+							Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

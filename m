@@ -1,27 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264411AbRFSQrk>; Tue, 19 Jun 2001 12:47:40 -0400
+	id <S264418AbRFSQtu>; Tue, 19 Jun 2001 12:49:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264415AbRFSQrV>; Tue, 19 Jun 2001 12:47:21 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5904 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264411AbRFSQrR>; Tue, 19 Jun 2001 12:47:17 -0400
-Subject: Re: 2.2.10-pre4, error while applying the patch
-To: jean-luc.coulon@wanadoo.fr (Jean-Luc Coulon)
-Date: Tue, 19 Jun 2001 17:46:30 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B2F7D30.4DE87953@wanadoo.fr> from "Jean-Luc Coulon" at Jun 19, 2001 06:26:24 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261854AbRFSQtk>; Tue, 19 Jun 2001 12:49:40 -0400
+Received: from t111.niisi.ras.ru ([193.232.173.111]:26946 "EHLO
+	t111.niisi.ras.ru") by vger.kernel.org with ESMTP
+	id <S264415AbRFSQtX>; Tue, 19 Jun 2001 12:49:23 -0400
+Message-ID: <3B2F816C.2020005@niisi.msk.ru>
+Date: Tue, 19 Jun 2001 20:44:28 +0400
+From: Alexandr Andreev <andreev@niisi.msk.ru>
+Organization: niisi
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.18 i586; en-US; rv:0.9) Gecko/20010507
+X-Accept-Language: ru, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Rich.Liu@ite.com.tw
+CC: linux-kernel@vger.kernel.org
+Subject: Re: how to patch driver into kernel
+In-Reply-To: <412C066DD818D3118D4300805FD4667902090BD4@ITEMAIL>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15COe6-0006FL-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> patching file `drivers/scsi/sym53c8xx_defs.h'
-> The next patch would create the file `drivers/sound/ad1848.c',
-> which already exists!  Assume -R? [n]
+Rich.Liu@ite.com.tw wrote:
 
-My error - just skip the ad1848.c segment
+>hi:
+>     I write a serial driver for linux , and have a personal test . I went
+>to patch this driver into kernel 
+>but I don't know how to contact serial.c author ......
+>can any one help me ?
+>							rich.liu
+>
+For future patches please read the Documentation/SubmittingPatches and
+Documentation/SubmittingDrivers files.
+
+Regards.
+

@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132527AbRDHJct>; Sun, 8 Apr 2001 05:32:49 -0400
+	id <S132529AbRDHKWo>; Sun, 8 Apr 2001 06:22:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132533AbRDHJck>; Sun, 8 Apr 2001 05:32:40 -0400
-Received: from [194.228.216.178] ([194.228.216.178]:23819 "EHLO
-	linux2.sanitas.cz") by vger.kernel.org with ESMTP
-	id <S132527AbRDHJca>; Sun, 8 Apr 2001 05:32:30 -0400
-Message-ID: <001c01c0c00f$7ce070a0$0200a8c0@kulich.cz>
-From: "Oldrich Kepka" <kernel@sanitas.cz>
-To: <linux-kernel@vger.kernel.org>
-Subject: new queuing discipline
-Date: Sun, 8 Apr 2001 11:37:07 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2314.1300
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+	id <S132531AbRDHKWe>; Sun, 8 Apr 2001 06:22:34 -0400
+Received: from mail.zmailer.org ([194.252.70.162]:12040 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S132529AbRDHKW1>;
+	Sun, 8 Apr 2001 06:22:27 -0400
+Date: Sun, 8 Apr 2001 13:22:05 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: kumon@flab.fujitsu.co.jp
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
+        Michael Peddemors <michael@linuxmagic.com>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: goodbye
+Message-ID: <20010408132205.O805@mea-ext.zmailer.org>
+In-Reply-To: <Pine.LNX.4.21.0104031800030.14090-100000@imladris.rielhome.conectiva> <20010404012102Z131724-406+7418@vger.kernel.org> <20010408023228.L805@mea-ext.zmailer.org> <200104080510.OAA23675@asami.proc.flab.fujitsu.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200104080510.OAA23675@asami.proc.flab.fujitsu.co.jp>; from kumon@flab.fujitsu.co.jp on Sun, Apr 08, 2001 at 02:10:52PM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I am developing new queuing disciline. The purpose of this queue is to delay
-outgoing packets. I wrote module sch_delay.o. This module implements delay_e
-nqueue() and delay_dequeue() functions. I also modify tc to comunicate throu
-gh netlink with my module. Because i want to dequeue only when there are suf
-ficiently old packet on the top of the queue, i immediately return from dequ
-eue function returning NULL. But the dequeue function is called only when so
-me event occures. I found out, that i occures for example when there are new
-packet in the queue. No other conditions i found. But i need repeatedly test
-the top packet in the queue.
+On Sun, Apr 08, 2001 at 02:10:52PM +0900, kumon@flab.fujitsu.co.jp wrote:
+> How about creating an additional ML,
+> the new ML (say LKML-DUL) is used to send mails from DUL to LKML, but
+> such mails are not sent to LMKL.
 
-How to accomplish it?
+	Layering and technology problem.
 
-Thanks
-Olda
+	SMTP receiver does those RBL/DUL/ORBS analysis, and its policy
+	control does not know where exactly the email is heading into
+	(that is, the reception policy is system level, not by recipients.)
 
+	List-processing is done separately from input at Majordomo.
+	Long after the reception processing.
+....
+> --
+> Computer Systems Laboratory, Fujitsu Labs.
+> kumon@flab.fujitsu.co.jp
 
-
-
+/Matti Aarnio

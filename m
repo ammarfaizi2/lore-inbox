@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129095AbQKDTlv>; Sat, 4 Nov 2000 14:41:51 -0500
+	id <S129103AbQKDTna>; Sat, 4 Nov 2000 14:43:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129103AbQKDTlk>; Sat, 4 Nov 2000 14:41:40 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:35076 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129095AbQKDTl3>;
-	Sat, 4 Nov 2000 14:41:29 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200011041941.WAA28119@ms2.inr.ac.ru>
-Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Sat, 4 Nov 2000 22:41:12 +0300 (MSK)
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <3A032E32.39E7B151@mandrakesoft.com> from "Jeff Garzik" at Nov 3, 0 04:29:22 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S129313AbQKDTnU>; Sat, 4 Nov 2000 14:43:20 -0500
+Received: from madjfppp.jazztel.es ([212.106.224.15]:2820 "HELO
+	roku.redroom.com") by vger.kernel.org with SMTP id <S129103AbQKDTnI> convert rfc822-to-8bit;
+	Sat, 4 Nov 2000 14:43:08 -0500
+From: davidge@jazzfree.com
+Date: Sat, 4 Nov 2000 20:43:04 +0100 (CET)
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: trying to read cd info
+Message-ID: <Pine.LNX.4.10.10011042022460.3881-100000@roku.redroom.com>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> de4x5 is becoming EISA-only in 2.5.x too, since its PCI support is
-> duplicated now in tulip driver.
+Hi all,
 
-Luckily, my old Multia died. 8)
+I'm trying to read application id, volume id and stuff from cds, but 
+don't figure out how to do it. It looks like ioctls CDROMREADMODE1 /
+CDROMREADMODE2 may be the way to do it, but the kernel show a read error
+when i try to read the data. What is needed in the struct cdrom_read to
+make the ioctl works? And if i'm wrong, and that's very likely ;), what's
+it the way to obtain these data from the cd?
 
-Jeff, tulip did not work with genuine Digital cards.
-de4x5 was faulty (link state machine was broken, it has lost
-link after some events on wire) but it worked yet.
+tia
 
-Alexey
+
+David Gómez
+
+"The question of whether computers can think is just like the question of
+ whether submarines can swim." -- Edsger W. Dijkstra
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

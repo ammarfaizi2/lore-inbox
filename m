@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271507AbTGQRku (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 13:40:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271516AbTGQRkt
+	id S271515AbTGQRsT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 13:48:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271523AbTGQRsT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 13:40:49 -0400
-Received: from a.smtp-out.sonic.net ([208.201.224.38]:58509 "HELO
-	a.smtp-out.sonic.net") by vger.kernel.org with SMTP id S271507AbTGQRkt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 13:40:49 -0400
-X-envelope-info: <dhinds@sonic.net>
-Date: Thu, 17 Jul 2003 10:55:40 -0700
-From: David Hinds <dhinds@sonic.net>
-To: "Bhavesh P. Davda" <bhavesh@avaya.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       fischer@norbit.de, dahinds@users.sourceforge.net,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] AHA152x driver hangs on PCMCIA card eject, kernel2.4.22-pre6
-Message-ID: <20030717105540.D6720@sonic.net>
-References: <1058361370.6633.6.camel@dhcp22.swansea.linux.org.uk> <003201c34c6d$e62386a0$6e260987@rnd.avaya.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <003201c34c6d$e62386a0$6e260987@rnd.avaya.com>
-User-Agent: Mutt/1.3.22.1i
+	Thu, 17 Jul 2003 13:48:19 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:55815 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S271515AbTGQRsS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 13:48:18 -0400
+Date: Thu, 17 Jul 2003 19:03:12 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: "David St.Clair" <dstclair@cs.wcu.edu>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test1 Vesa fb and Nvidia
+In-Reply-To: <1058386396.3710.4.camel@localhost>
+Message-ID: <Pine.LNX.4.44.0307171902530.10255-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 17, 2003 at 08:15:39AM -0600, Bhavesh P. Davda wrote:
 
-> > Right - scsi_unregister should not be called on a timer event, instead
-> > it needs to kick off a task queue
+> I don't know if this is a hardware specific bug or I just don't have
+> something configured right.
+> 
+> If I try to boot using vga=792 (which works with 2.4.18) I get a blank
+> screen (but hard drive is actively booting). If I don't use vga= at all,
+> I get a normal boot without the penguin logo.
+> 
+> I am using Redhat 9 /w NVidia Geforce 4 420 64Mb.
+> 
+> CONFIG_VT=y
+> CONFIG_VT_CONSOLE=y
+> CONFIG_FB=y
+> CONFIG_FB_VGA16=y
+> CONFIG_FB_VESA=y
+> CONFIG_VIDEO_SELECT=y
+> CONFIG_VGA_CONSOLE=y
+> CONFIG_LOGO=y
+> CONFIG_LOGO_LINUX_MONO=y
+> CONFIG_LOGO_LINUX_VGA16=y
+> CONFIG_LOGO_LINUX_CLUT224=y
 
-The removal timers need to be taken out from most *_cs drivers; they
-are a holdover from when card removal events were delivered in
-interrupt context, and when that was changed to an event handler
-thread, drivers were not changed accordingly.  The removal routine
-should now just be called in-line instead of firing up a timer.
+Where is CONFIG_FRAMEBUFFER_CONSOLE=y ???
 
-> 2. What happens if there is no physical device hanging off an I/O port
-> address? I am guessing, that on an i386 host, the inb returns 0xFF, but am
-> not sure what happens on other architectures. I have a question outstanding
-> to Intel for this.
-
-On most but not all x86 systems floating ports return 0xff.  Checking
-for that or other "impossible" register values should be at least
-harmless on other architectures.
-
--- Dave

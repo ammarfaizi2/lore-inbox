@@ -1,77 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265170AbUETSQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265213AbUETSQq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265170AbUETSQV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 14:16:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265213AbUETSQU
+	id S265213AbUETSQq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 14:16:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265191AbUETSQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 14:16:20 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:53685 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S265170AbUETSQS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 14:16:18 -0400
-Date: Thu, 20 May 2004 20:16:17 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Subject: No forces rebuild while changing GCC?
-Message-ID: <20040520181617.GE1912@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Sam Ravnborg <sam@ravnborg.org>
+	Thu, 20 May 2004 14:16:46 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:63721 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S265213AbUETSQh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 14:16:37 -0400
+Subject: Re: apm standby on thinkpad
+From: john stultz <johnstul@us.ibm.com>
+To: Alexander Mirgorodskiy <mirg@cs.wisc.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <40AB65B3.2070102@cs.wisc.edu>
+References: <40AB65B3.2070102@cs.wisc.edu>
+Content-Type: text/plain
+Message-Id: <1085076978.3121.12.camel@leatherman>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YP2B4AbOrhUAD2Gr"
-Content-Disposition: inline
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 20 May 2004 11:16:18 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-05-19 at 06:48, Alexander Mirgorodskiy wrote:
+> Folks,
+> 
+> I ran into a problem with APM on a Thinkpad T41: the system cannot
+> properly resume after a standby. The backlight turns on, but the
+> screen remains blank. This happens on keypress (fn-f3) and
+> idle-time-induced standbys. However, resume after "apm -S" works just
+> fine.
+> 
+> I inserted some trace statements into the apm kernel driver and found
+> that it does not seem to receive standby and resume notifications from
+> BIOS if standby is initiated through fn-f3. At the same time, it does
+> receive the notification on a resume from "apm -S".
+> 
+> P.S: I see this on a RedHat 9 system with the 2.4.20 kernel. For a
+> bunch of reasons, I cannot upgrade to anything else in the short
+> term. (I did try 2.4.26, but it behaved even worse -- didn't wake up
+> at all, even if standby was entered with "apm -S")
 
---YP2B4AbOrhUAD2Gr
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Just for a datapoint, I cannot reproduce the issue using 2.6.6 on a T40
+installed with Fedora Core 1.
+-john
 
-Hi!
-
-I'm currently playing with patches for gcc HEAD to build a vax-linux
-cross-compiler. For testing it, I first want to build parts of the
-kernel with my HEAD toolchain, Ctrl-C, and continue/finish building with
-my old compiler (2.95.2).
-
-I do changing gcc by putting one or the other gcc into $PATH. However,
-whenever I change GCC, kbuild decides to rebuild everything.
-
-I tried to not overwrite compile.h (my commenting out the mv command in
-scripts/mkcompile_h), but that didn't help either. I even tried
-recompiling my HEAD gcc with exactly the same version string that my old
-gcc had, but that didn't work either:(
-
-How can I force to keep my old .o files?
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---YP2B4AbOrhUAD2Gr
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFArPXxHb1edYOZ4bsRAsNBAJwKOIXeLp9FQbsGb5hyMSDJGlLAQgCgklmm
-uiZlQ8MaOCZLMRpI3QOsrWA=
-=IQix
------END PGP SIGNATURE-----
-
---YP2B4AbOrhUAD2Gr--

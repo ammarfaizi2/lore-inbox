@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316916AbSGNO6P>; Sun, 14 Jul 2002 10:58:15 -0400
+	id <S316883AbSGNPCo>; Sun, 14 Jul 2002 11:02:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316928AbSGNO6O>; Sun, 14 Jul 2002 10:58:14 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:25863 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S316916AbSGNO6O>; Sun, 14 Jul 2002 10:58:14 -0400
-Date: Sun, 14 Jul 2002 12:00:53 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
+	id <S316884AbSGNPCn>; Sun, 14 Jul 2002 11:02:43 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:3407 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S316883AbSGNPCm>; Sun, 14 Jul 2002 11:02:42 -0400
+Date: Sun, 14 Jul 2002 11:05:20 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200207141505.g6EF5KH16282@devserv.devel.redhat.com>
 To: Joerg Schilling <schilling@fokus.gmd.de>
-cc: andersen@codepoet.org, <linux-kernel@vger.kernel.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: IDE/ATAPI in 2.5
-In-Reply-To: <200207141418.g6EEIbJp019125@burner.fokus.gmd.de>
-Message-ID: <Pine.LNX.4.44L.0207141200030.12241-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <mailman.1026651901.18426.linux-kernel2news@redhat.com>
+References: <mailman.1026651901.18426.linux-kernel2news@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Jul 2002, Joerg Schilling wrote:
-> >From andersen@codepoet.org Sat Jul 13 07:40:59 2002
+>>I will violently oppose anything that implies that the IDE layer uses the
+>>SCSI layer normally.  No way, Jose. I'm all for scrapping, but the thing
+>>that should be scrapped is ide-scsi.
+> 
+> Nobody who has a technical backgroupd and knows what to do wuld ever
+> make such a proposal.
+> 
+> Instead, there needs to be one or more SCSI HA driver as part of the
+> SCSI stack. This driver also needs to deal with plain ATA in order
+> to be able to coordinate access.
+> 
+> Jörg
 
-> >happen.  For starters, Linux devices don't have to be forced to
-> >all be sitting on the SCSI bus.  You could use standard Linux
-> >device names (i.e. /dev/hdc or /dev/scd0).  And you could still
-> >send all the SCSI/ATAPI packet commands you want to the device
-> >that was selected  using the CDROM_SEND_PACKET ioctl.
->
-> For a starter, it is easier to understand the SCSI concept of
-> addressing than to understand the Linux concept. In addition,
-> the SCSI addressing concept can be used on different platforms
+Such driver would only work with ATAPI devices. Joerg, does not
+seem to realize that the vast majority of IDE devices do not
+support ATAPI at all. As a rule of thumb, winchesters do not,
+CD-ROMs and such do, and tapes do too. To make a pseudo-HA
+driver which speaks plain IDE and plugs into SCSI subsistem
+would saddle the IDE with SCSI limitations, and add one more
+layer for no benefit whatsoever.
 
-The traditional SCSI concept of addressing is not compatible
-with SAN style hardware, like iscsi or large fibre channel
-setups.
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+-- Pete

@@ -1,34 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282444AbRK0AeZ>; Mon, 26 Nov 2001 19:34:25 -0500
+	id <S282682AbRK0AgO>; Mon, 26 Nov 2001 19:36:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282679AbRK0AeP>; Mon, 26 Nov 2001 19:34:15 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:15235 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S282444AbRK0AeD>;
-	Mon, 26 Nov 2001 19:34:03 -0500
-Date: Mon, 26 Nov 2001 16:33:54 -0800 (PST)
-Message-Id: <20011126.163354.54183516.davem@redhat.com>
-To: neilb@cse.unsw.edu.au
-Cc: trond.myklebust@fys.uio.no, nfs@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: Fix knfsd readahead cache in 2.4.15
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15362.56955.812017.103343@esther.cse.unsw.edu.au>
-In-Reply-To: <15362.53694.192797.275363@esther.cse.unsw.edu.au>
-	<20011126.155347.45872112.davem@redhat.com>
-	<15362.56955.812017.103343@esther.cse.unsw.edu.au>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S282679AbRK0AgH>; Mon, 26 Nov 2001 19:36:07 -0500
+Received: from rigel.neo.shinko.co.jp ([210.225.91.71]:10627 "EHLO
+	rigel.neo.shinko.co.jp") by vger.kernel.org with ESMTP
+	id <S282683AbRK0Afr>; Mon, 26 Nov 2001 19:35:47 -0500
+Message-ID: <3C02DFDC.F433EBD3@neo.shinko.co.jp>
+Date: Tue, 27 Nov 2001 09:35:40 +0900
+From: nakai <nakai@neo.shinko.co.jp>
+X-Mailer: Mozilla 4.78 [ja] (WinNT; U)
+X-Accept-Language: ja,en,pdf
+MIME-Version: 1.0
+To: Jonathan Kamens <jik@kamens.brookline.ma.us>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: IDE: 2.2.19+IDE patches works fine; 2.4.x fails miserably;please 
+ help me figure out why!
+In-Reply-To: <200111250457.fAP4vIt03205@jik.kamens.brookline.ma.us>
+Content-Type: text/plain; charset=iso-2022-jp
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Neil Brown <neilb@cse.unsw.edu.au>
-   Date: Tue, 27 Nov 2001 11:29:47 +1100 (EST)
+Jonathan Kamens wrote:
+> For months now, I've been trying every 2.4.x kernel as it comes out.
+> Every time, I start getting IDE errors shortly after booting into the
+> 2.4.x kernel.  My filesystems aren't totally trashed, but lots of the
+> new data being written to the filesystems are trashed and I have to
+> fix a bunch of errors with fsck and recreate those trashed new files
+> after reverting to my 2.2.19 kernel (to which I have applied Andre's
+> IDE patches).
 
-   I don't think your patch adds anything.
-   Re-writing the code to use list.h lists would probably be useful
-   But currently (except of the problem Trond found) the code is correct.
+Would you try 2.4.2 ?  Some ide-pci code related with promise were
+changed between 2.4.2 and 2.4.10. I also had a problem in 2.4.10 
+with promise.
 
-You're right.
+But I needed to run 2.4.10, because 2.4.10 support promise 100tx2
+(pdc20268 chip). 2.4.2 dosen't suport promise 100tx2. I had to
+edit ide-pci code. It works with no problem, but I'm not sure
+it is correct. If you want to run >2.4.10, I will send you diffs.
+ 
+-- 
+-=-=-=-=  SHINKO ELECTRIC INDUSTRIES CO., LTD.           =-=-=-=-
+=-=-=-=-    Core Technology Research & Laboratory,       -=-=-=-=
+-=-=-=-=      Infomation Technology Research Dept.       =-=-=-=-
+=-=-=-=-  Name:Hisakazu Nakai          TEL:026-283-2866  -=-=-=-=
+-=-=-=-=  Mail:nakai@neo.shinko.co.jp  FAX:026-283-2820  =-=-=-=-

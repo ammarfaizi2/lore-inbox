@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262789AbSL1PcO>; Sat, 28 Dec 2002 10:32:14 -0500
+	id <S264756AbSL1Pex>; Sat, 28 Dec 2002 10:34:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263589AbSL1PcO>; Sat, 28 Dec 2002 10:32:14 -0500
-Received: from fluent2.pyramid.net ([206.100.220.213]:4744 "EHLO
-	fluent2.pyramid.net") by vger.kernel.org with ESMTP
-	id <S262789AbSL1PcN>; Sat, 28 Dec 2002 10:32:13 -0500
-Message-Id: <5.2.0.9.0.20021228073445.01d386c0@fluent2.pyramid.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Sat, 28 Dec 2002 07:40:29 -0800
-To: linux-kernel@vger.kernel.org
-From: Stephen Satchell <list@fluent2.pyramid.net>
-Subject: Want a random entropy source?
-In-Reply-To: <20021228104213.7DA7B2C07C@lists.samba.org>
-References: <Your message of "Fri, 27 Dec 2002 17:16:35 BST." <200212271616.RAA03356@harpo.it.uu.se>
+	id <S265098AbSL1Pex>; Sat, 28 Dec 2002 10:34:53 -0500
+Received: from mnh-1-01.mv.com ([207.22.10.33]:44036 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S264756AbSL1Peu>;
+	Sat, 28 Dec 2002 10:34:50 -0500
+Message-Id: <200212281547.KAA02093@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] UML documentation updates 
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 28 Dec 2002 10:47:05 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not too long ago I had made a submission on SlashDot on something-or-other 
-(oh, right, "Rube-Goldberg Type Random Number Generators?" 
-http://ask.slashdot.org/article.pl?sid=02/07/26/1751228&tid=137) and I 
-stumbled across my submission to that article.  After thinking about it, I 
-though it might be a reasonable thing to submit to this list as a possible 
-enhancement to the /dev/random driver if someone wants to try it.  My 
-submission was thus:
+Please pull either
+	http://uml.bkbits.net/doc-2.5
+or	http://jdike.stearns.org:5000/doc-2.5
 
-"I've been vexed that the sound card plus CD-ROM drive combination always 
-shows signal at around -50 dBVU in CoolEdit. So, just for grins, I decided 
-to capture a few seconds of the noise and analyze the properties. I was 
-astonished to see that the resulting signal is a white-noise pattern with a 
-slight emphasis at the high end (when sampled at 44 kilosamples per 
-second). In short, it looks like diode noise with a 4 kilohertz square wave 
-thrown in.
+This updates the UML documentation:
+	adds help text back to the UML config
+	deletes the old config.in files
+	puts the UML HOWTO in Documentation/uml
 
-"That suggests to me that this would make a fair source of random samples, 
-especially after you slot out the interfering signal.
+				Jeff
 
-"How many computers don't have cheap sound cards and CD-ROM drives?"
+ Documentation/uml/UserModeLinux-HOWTO.txt | 4686 ++++++++++++++++++++++++++++++
+ arch/um/Kconfig                           |   85 
+ arch/um/Kconfig_block                     |   34 
+ arch/um/Kconfig_char                      |   76 
+ arch/um/config_block.in                   |   16 
+ arch/um/config_char.in                    |   37 
+ arch/um/config_net.in                     |   46 
+ arch/um/config_scsi.in                    |   30 
+ 8 files changed, 4878 insertions(+), 132 deletions(-)
 
-For what it's worth...
+ChangeSet@1.797.69.2, 2002-11-18 14:22:01-05:00, jdike@uml.karaya.com
+  Added the UML HOWTO in Documentation/uml.
 
-Satch
+ChangeSet@1.797.53.1, 2002-11-17 15:36:15-05:00, jdike@uml.karaya.com
+  Merged the help text from the 2.4 Configure.help.
+
 

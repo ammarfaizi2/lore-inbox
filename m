@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129191AbRBQSMi>; Sat, 17 Feb 2001 13:12:38 -0500
+	id <S129423AbRBQSPt>; Sat, 17 Feb 2001 13:15:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129423AbRBQSMS>; Sat, 17 Feb 2001 13:12:18 -0500
-Received: from c290168-a.stcla1.sfba.home.com ([65.0.213.53]:20974 "HELO
-	top.worldcontrol.com") by vger.kernel.org with SMTP
-	id <S129191AbRBQSMH>; Sat, 17 Feb 2001 13:12:07 -0500
-From: brian@worldcontrol.com
-Date: Sat, 17 Feb 2001 10:12:38 -0800
-To: David Relson <relson@osagesoftware.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: XOR  [ was: Linux stifles innovation... ]
-Message-ID: <20010217101238.A12056@top.worldcontrol.com>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	David Relson <relson@osagesoftware.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010216194121.B26627@alcove.wittsend.com> <Pine.LNX.4.30.0102161748370.14013-100000@anime.net> <4.3.2.7.2.20010216211931.00c6d360@mail.osagesoftware.com>
+	id <S130218AbRBQSPj>; Sat, 17 Feb 2001 13:15:39 -0500
+Received: from ns.caldera.de ([212.34.180.1]:58378 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S129423AbRBQSPd>;
+	Sat, 17 Feb 2001 13:15:33 -0500
+Date: Sat, 17 Feb 2001 18:47:56 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Christoph Hellwig <hch@caldera.de>,
+        Thomas Widmann <thomas.widmann@icn.siemens.de>,
+        linux-kernel@vger.kernel.org, Nick Pollitt <npollitt@engr.sgi.com>
+Subject: Re: SMP: bind process to cpu
+Message-ID: <20010217184756.A15263@caldera.de>
+Mail-Followup-To: Manfred Spraul <manfred@colorfullife.com>,
+	Thomas Widmann <thomas.widmann@icn.siemens.de>,
+	linux-kernel@vger.kernel.org, Nick Pollitt <npollitt@engr.sgi.com>
+In-Reply-To: <200102171327.OAA00342@ns.caldera.de> <3A8E8719.DD58EB7C@colorfullife.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.5i
-In-Reply-To: <4.3.2.7.2.20010216211931.00c6d360@mail.osagesoftware.com>; from relson@osagesoftware.com on Fri, Feb 16, 2001 at 09:20:34PM -0500
+X-Mailer: Mutt 1.0i
+In-Reply-To: <3A8E8719.DD58EB7C@colorfullife.com>; from manfred@colorfullife.com on Sat, Feb 17, 2001 at 03:13:45PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > On Fri, 16 Feb 2001, Michael H. Warfield wrote:
->  > > > You know XOR is patented (yes, the logical bit operation XOR).
->  > > 	But wasn't that Xerox that had that?
+	[Nick, I've added you to the Cc list so you can look at
+	 it for future versions of your patch]
 
->  > US Patent #4,197,590 held by NuGraphics, Inc.
 
-On Fri, Feb 16, 2001 at 09:20:34PM -0500, David Relson wrote:
-> The patent was for using the technique of using XOR for dragging/moving 
-> parts of a graphics image without erasing other parts.  Also, since the 
-> patent was granted in 1980, the inventors have had their 17 years of patent 
-> protection, and we're all free to use the technique - legally!
+On Sat, Feb 17, 2001 at 03:13:45PM +0100, Manfred Spraul wrote:
+> You must also update wake_process_synchroneous(), otherwise you can get
+> lost wakeups with pipes.
+> 
+> Something like
+> 
+> >         if (!(p->cpus_allowed & (1 << smp_processor_id()))
+> >                 reschedule_idle(p);
+> 
+> must be added after add_to_runqueue().
 
-In 1984 I received a demand letter for $10,000 from the above
-referenced company as a unlimited license for use of a that
-patent and another patent.
+Ok.
 
-At the time I ran a company that made graphics cards for IBM PCs.
+> Ingo Molnar did some testing with tux2, and under high load wakeups were
+> lost without such a patch.
+
+(s/tux2/tux/ I suppose)
+
+Yepp - but tux is again not userspace...
+
+	Christoph
 
 -- 
-Brian Litzinger <brian@worldcontrol.com>
-
-    Copyright (c) 2000 By Brian Litzinger, All Rights Reserved
+Of course it doesn't work. We've performed a software upgrade.

@@ -1,51 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293657AbSCGVYm>; Thu, 7 Mar 2002 16:24:42 -0500
+	id <S310548AbSCGVYN>; Thu, 7 Mar 2002 16:24:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292752AbSCGVYd>; Thu, 7 Mar 2002 16:24:33 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:4224 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S290983AbSCGVYX>; Thu, 7 Mar 2002 16:24:23 -0500
-Date: Thu, 7 Mar 2002 14:37:07 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: kernel debuggers (was Bitkeeper Bashing)
-Message-ID: <20020307143707.A725@vger.timpanogas.org>
-In-Reply-To: <20020305165233.A28212@fireball.zosima.org> <20020306095434.B6599@borg.org> <20020306085646.F15303@work.bitmover.com> <20020306221305.GA370@elf.ucw.cz> <a68edn$jjp$1@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <a68edn$jjp$1@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Mar 07, 2002 at 07:18:15PM +0000
+	id <S310553AbSCGVYD>; Thu, 7 Mar 2002 16:24:03 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:37134 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S310548AbSCGVXu>;
+	Thu, 7 Mar 2002 16:23:50 -0500
+Date: Thu, 7 Mar 2002 18:23:36 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, <yodaiken@fsmlabs.com>,
+        Jeff Dike <jdike@karaya.com>, Benjamin LaHaise <bcrl@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+In-Reply-To: <3C87D40C.603DE513@zip.com.au>
+Message-ID: <Pine.LNX.4.44L.0203071818140.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
->    And I personally refuse to use inferior tools because of ideology. In
->    fact, I will go as far as saying that making excuses for bad tools
->    due to ideology is _stupid_, and people who do that think with their
->    gonads, not their brains. 
+On Thu, 7 Mar 2002, Andrew Morton wrote:
 
+> > Nope.  Readahead pages are clean and very easy to evict, so
+> > it's still trivial to evict all the pages from another readahead
+> > window because everybody's readahead window is too large.
 
-Linus,
+> Any clever ideas?
 
-A reasonable explanation.  However, this begs the question as to 
-**WHY** you are so opposed to kernel debuggers in Linux.   Code 
-reviews don't catch hardware bugs or other types of performance 
-issues related to bus architecture, etc.
+1) keep track of which pages we are reading ahead
+   ... the readahead code already does this
 
-Opposition to a kernel debugger in Linux, at least from the 
-view of some folks, is a case of someone using inferior methods
-because of ideaology.  
+2) at read() or fault time, see if the page
+   (a) is resident
+   (b) is in the current readahead window,
+       ie. already read ahead
 
-Not meant as a recrimination, but you've just made the case for
-kernel debuggers in Linux.
+3) if the page is in the current readahead window
+   but NOT resident, the page was read in and
+   evicted before we got around to using it, so
+   readahead window thrashing is going on
+   ... in that case, collapse the size of the
+   readahead window TCP-style
 
-:-)
+4) slowly growing the readahead window when there is
+   enough memory available, in order to minimise the
+   number of disk seeks
 
-Jeff
+5) the growing in (3) and shrinking in (4) mean that
+   the readahead size of all streaming IO in the system
+   gets automatically balanced against each other and
+   against other memory demand in the system
 
+regards,
 
+Rik
+-- 
+<insert bitkeeper endorsement here>
 
+http://www.surriel.com/		http://distro.conectiva.com/
 

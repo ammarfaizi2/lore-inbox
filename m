@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274983AbTHFXVi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 19:21:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274991AbTHFXVi
+	id S272057AbTHFXck (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 19:32:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269696AbTHFXbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 19:21:38 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54925 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S274983AbTHFXVf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 19:21:35 -0400
-Message-ID: <3F318D73.3000809@pobox.com>
-Date: Wed, 06 Aug 2003 19:21:23 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Wed, 6 Aug 2003 19:31:21 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:34206 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S275044AbTHFXbA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 19:31:00 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: arjanv@redhat.com
+Date: Thu, 7 Aug 2003 09:30:49 +1000
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: devinit
-References: <3F315CDD.12EB17FE@hp.com> <20030806230919.GB8187@kroah.com>
-In-Reply-To: <20030806230919.GB8187@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16177.36777.849782.71565@gargle.gargle.HOWL>
+Cc: Steve Dickson <SteveD@redhat.com>, nfs@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [NFS] [PATCH] kNFSd: Fixes a problem with inode clean up for
+	vxfs
+In-Reply-To: message from Arjan van de Ven on Wednesday August 6
+References: <3F3128A4.8030305@RedHat.com>
+	<1060187198.14950.0.camel@laptop.fenrus.com>
+X-Mailer: VM 7.17 under Emacs 21.3.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> I've applied the 2.6 patch to my trees and will send it on to Linus in a
-> few days, thanks.
+On Wednesday August 6, arjanv@redhat.com wrote:
+> On Wed, 2003-08-06 at 18:11, Steve Dickson wrote:
+> > , vfat, ntfs
+> 
+> you can't NFS export vfat..... for lots of other reasons
 
+Have you tried?
 
-Speaking of PCI... are we gonna have to zap __devinit too?  Another 
-option is to think of add-new-pci-ids-on-the-fly as a CONFIG_HOTPLUG 
-feature, which should(?) maintain the current __devinit semantics: no 
-re-probes.
+It is certainly not bullet-proof, but it works in simple cases (but
+probably not in cases where the patch in question becomes an issue).
 
-OTOH, __devinit already is a no-op for CONFIG_HOTPLUG cases (read: most 
-everybody), so I wonder if we care enough about __devinit anymore?  I 
-used the same logic to support __devinitdata removal, after all.
-
-
-	Jeff
-
-
-
+NeilBrown

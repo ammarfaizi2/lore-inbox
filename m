@@ -1,122 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261641AbTIBNoj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 09:44:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbTIBNoj
+	id S264033AbTIBQtk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 12:49:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264032AbTIBQtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 09:44:39 -0400
-Received: from f17.mail.ru ([194.67.57.47]:36613 "EHLO f17.mail.ru")
-	by vger.kernel.org with ESMTP id S261641AbTIBNoT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 09:44:19 -0400
-From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-To: =?koi8-r?Q?=22?=jeff millar=?koi8-r?Q?=22=20?= 
-	<wa1hco@adelphia.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4, psmouse doesn't autoload, CONFIG_SERIO doesn't module
+	Tue, 2 Sep 2003 12:49:39 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:26822 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264034AbTIBQtc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 12:49:32 -0400
+Date: Tue, 2 Sep 2003 18:49:17 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: 2.4.23-pre2: 3c515.c doesn't compile non-modular
+Message-ID: <20030902164917.GM23729@fs.tum.de>
+References: <Pine.LNX.4.55L.0308301220020.31588@freak.distro.conectiva>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [212.248.25.26]
-Date: Tue, 02 Sep 2003 17:44:08 +0400
-Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	  <arvidjaar@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E19uBS4-000AsR-00.arvidjaar-mail-ru@f17.mail.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55L.0308301220020.31588@freak.distro.conectiva>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 1. Why doesn't the PS/2 mouse autoload as a module?
-> Running 2.6.0-test4, psmouse doesn't autoload as a module.  Oddly,  neither
-> gpm nor X complains about the missing module, the mouse just doesn't work.
-> But if I modprobe psmouse, the cursor starts moving.  I verified that
-> /dev/psaux uses char-major-10-1 and that it has an "alias char-major-10-1
-> psaux" in modprobe.conf.
+On Sat, Aug 30, 2003 at 12:48:22PM -0300, Marcelo Tosatti wrote:
+>...
+> Summary of changes from v2.4.23-pre1 to v2.4.23-pre2
+> ============================================
+>...
+> Jeff Garzik:
+>...
+>   o [netdrvr] ethtool_ops support for 3c515, 3c523, 3c527, and dmfe
+>...
 
-because in 2.6 user-level programs do not speak with low-level hardware
-drivers anymore. psmouse feeds events to input midlayer that dispatches
-them to those handlers that expressed interest. And those handlers speak
-with user-level tools.
+This change broke non-modular compile of 3c515.c ("debug" is declared 
+inside an #ifdef MODULE):
 
-/dev/psaux is an *emulated* ImPS mouse that is not related to any
-real hardware. It will convert events from _any_ mouse you have into
-PS/2 protocol for users but if there is no mouse it just sits there
-and waits.
+<--  snip  -->
 
-/dev/psaux is provided by mousemod not psmouse.
+...
+gcc -D__KERNEL__ 
+-I/home/bunk/linux/kernel-2.4/linux-2.4.23-pre2-full/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc -iwithprefix 
+include -DKBUILD_BASENAME=3c515  -c -o 3c515.o 3c515.c
+3c515.c: In function `netdev_get_msglevel':
+3c515.c:1621: error: `debug' undeclared (first use in this function)
+3c515.c:1621: error: (Each undeclared identifier is reported only once
+3c515.c:1621: error: for each function it appears in.)
+3c515.c: In function `netdev_set_msglevel':
+3c515.c:1626: error: `debug' undeclared (first use in this function)
+make[3]: *** [3c515.o] Error 1
+make[3]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.23-pre2-full/drivers/net'
 
-In general there seems to be no way to load low-level input drivers
-on access because there is no instance that ever accesses them. And
-as it stands now there is not way to auto-load using some other means.
-So we are back in static configuration times ...
+<--  snip  -->
 
-> 1. What does kmod send to modprobe?  From looking at modprobe.conf apparently "char-major-x-y".
+cu
+Adrian
 
-only for misc devices. It is char-major-X for most others
+-- 
 
-> 2. Does kmod send any other strings to modprobe?
-
-no.
-
-> 3. Documentation/kmod.txt says "passing the name (to modprobe) that was
-> requested", couldn't this be more explicit?
-
-what exactly do you mean?
-
-> 4. Does kmod gets the major-minor number from the device file upon open(),
-> or some other way?
-
-from device file on open.
-
--andrey
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
 Please read the FAQ at  http://www.tux.org/lkml/
-> 1. Why doesn't the PS/2 mouse autoload as a module?
-> Running 2.6.0-test4, psmouse doesn't autoload as a module.  Oddly,  neither
-> gpm nor X complains about the missing module, the mouse just doesn't work.
-> But if I modprobe psmouse, the cursor starts moving.  I verified that
-> /dev/psaux uses char-major-10-1 and that it has an "alias char-major-10-1
-> psaux" in modprobe.conf.
+On Sat, Aug 30, 2003 at 12:48:22PM -0300, Marcelo Tosatti wrote:
+>...
+> Summary of changes from v2.4.23-pre1 to v2.4.23-pre2
+> ============================================
+>...
+> Jeff Garzik:
+>...
+>   o [netdrvr] ethtool_ops support for 3c515, 3c523, 3c527, and dmfe
+>...
 
-because in 2.6 user-level programs do not speak with low-level hardware
-drivers anymore. psmouse feeds events to input midlayer that dispatches
-them to those handlers that expressed interest. And those handlers speak
-with user-level tools.
+This change broke non-modular compile of 3c515.c ("debug" is declared 
+inside an #ifdef MODULE):
 
-/dev/psaux is an *emulated* ImPS mouse that is not related to any
-real hardware. It will convert events from _any_ mouse you have into
-PS/2 protocol for users but if there is no mouse it just sits there
-and waits.
+<--  snip  -->
 
-/dev/psaux is provided by mousemod not psmouse.
+...
+gcc -D__KERNEL__ 
+-I/home/bunk/linux/kernel-2.4/linux-2.4.23-pre2-full/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc -iwithprefix 
+include -DKBUILD_BASENAME=3c515  -c -o 3c515.o 3c515.c
+3c515.c: In function `netdev_get_msglevel':
+3c515.c:1621: error: `debug' undeclared (first use in this function)
+3c515.c:1621: error: (Each undeclared identifier is reported only once
+3c515.c:1621: error: for each function it appears in.)
+3c515.c: In function `netdev_set_msglevel':
+3c515.c:1626: error: `debug' undeclared (first use in this function)
+make[3]: *** [3c515.o] Error 1
+make[3]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.23-pre2-full/drivers/net'
 
-In general there seems to be no way to load low-level input drivers
-on access because there is no instance that ever accesses them. And
-as it stands now there is not way to auto-load using some other means.
-So we are back in static configuration times ...
+<--  snip  -->
 
-> 1. What does kmod send to modprobe?  From looking at modprobe.conf apparently "char-major-x-y".
+cu
+Adrian
 
-only for misc devices. It is char-major-X for most others
+-- 
 
-> 2. Does kmod send any other strings to modprobe?
-
-no.
-
-> 3. Documentation/kmod.txt says "passing the name (to modprobe) that was
-> requested", couldn't this be more explicit?
-
-what exactly do you mean?
-
-> 4. Does kmod gets the major-minor number from the device file upon open(),
-> or some other way?
-
-from device file on open.
-
--andrey
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

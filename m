@@ -1,345 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262422AbVAURd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262428AbVAURg4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262422AbVAURd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 12:33:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262428AbVAURd6
+	id S262428AbVAURg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 12:36:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbVAURg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 12:33:58 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:31894 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S262422AbVAURdn
+	Fri, 21 Jan 2005 12:36:56 -0500
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:45979 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S262428AbVAURgg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 12:33:43 -0500
-Message-ID: <41F13CEE.4000605@tiscali.de>
-Date: Fri, 21 Jan 2005 18:33:34 +0100
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthias-Christian Ott <matthias.christian@tiscali.de>
-CC: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       linux-kernel@vger.kernel.org, linux@brodo.de,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Zou, Nanhai" <nanhai.zou@intel.com>
-Subject: Re: [BUG?]: cpufreqency scaling - wrong frequency detected
-References: <88056F38E9E48644A0F562A38C64FB6003D1B38D@scsmsx403.amr.corp.intel.com> <41F114C0.7020809@tiscali.de>
-In-Reply-To: <41F114C0.7020809@tiscali.de>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Jan 2005 12:36:36 -0500
+Date: Fri, 21 Jan 2005 09:35:49 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: George Anzinger <george@mvista.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Pavel Machek <pavel@suse.cz>,
+       john stultz <johnstul@us.ibm.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Con Kolivas <kernel@kolivas.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dynamic tick patch
+Message-ID: <20050121173549.GC14554@atomide.com>
+References: <20050119000556.GB14749@atomide.com> <20050119094342.GB25623@elf.ucw.cz> <20050119171323.GB14545@atomide.com> <20050119174858.GB12647@dualathlon.random> <41EEE648.2010309@mvista.com> <20050119231702.GJ14545@atomide.com> <41EEFA4A.4070605@mvista.com> <20050120080441.GF9975@atomide.com> <41F03A65.8040707@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41F03A65.8040707@mvista.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias-Christian Ott wrote:
+* George Anzinger <george@mvista.com> [050120 15:10]:
+> Tony Lindgren wrote:
+> >* George Anzinger <george@mvista.com> [050119 16:25]:
+> >
+> >>Tony Lindgren wrote:
+> >>
+> >>>* George Anzinger <george@mvista.com> [050119 15:00]:
+> >>>
+> >>>
+> >>>>I don't think you will ever get good time if you EVER reprogramm the 
+> >>>>PIT. That is why the VST patch on sourceforge does NOT touch the PIT, 
+> >>>>it only turns off the interrupt by interrupting the interrupt path (not 
+> >>>>changing the PIT).  This allows the PIT to be the "gold standard" in 
+> >>>>time that it is designed to be.  The wake up interrupt, then needs to 
+> >>>>come from an independent timer.  My patch requires a local APIC for 
+> >>>>this.  Patch is available at 
+> >>>>http://sourceforge.net/projects/high-res-timers/
+> >>>
+> >>>
+> >>>Well on my test systems I have pretty good accurate time. But I agree,
+> >>>PIT is not the best option for interrupt. It should be possible to use
+> >>>other interrupt sources as well.
 
-> Pallipadi, Venkatesh wrote:
->
->> Never mind about acpidmp. This seems to be a issue with
->> p4-clockmod.c/speedstep-lib.c and the routine which gets the initial
->> frequency. As a result all frequencies are getting multiplied by 8. Not
->> sure what the exact bug is though. Dominik can give a better answer.
->> Cpufreq debug messages will help.
->>
->> Thanks,
->> Venki
->>
->>  
->>
->>> -----Original Message-----
->>> From: Pallipadi, Venkatesh Sent: Thursday, January 20, 2005 12:56 PM
->>> To: 'Matthias-Christian Ott'; linux-kernel@vger.kernel.org
->>> Cc: linux@brodo.de; Nakajima, Jun; Zou, Nanhai
->>> Subject: RE: [BUG?]: cpufreqency scaling - wrong frequency detected
->>>
->>>
->>> Hi,
->>>
->>> Can you send the output of 'acpidmp' from this system to me? If 
->>> acpidmp is not already installed, you should be able to grab it from 
->>> here. http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
->>> Thanks,
->>> Venki
->>>
->>>   
->>>
->>>> -----Original Message-----
->>>> From: Matthias-Christian Ott [mailto:matthias.christian@tiscali.de] 
->>>> Sent: Thursday, January 20, 2005 12:13 PM
->>>> To: Linux Kernel Mailing List
->>>> Cc: linux@brodo.de; Nakajima, Jun; Pallipadi, Venkatesh; Zou, Nanhai
->>>> Subject: [BUG?]: cpufreqency scaling - wrong frequency detected
->>>>
->>>> Hi!
->>>> The Kernel cpufrequency scaling modul seems to have a bug, it     
->>>
->>> displays   
->>>
->>>> the frequency of 14,60 Ghz. I don't enabled debugging in the 
->>>> config, but I hope this information can help you. I don't know if 
->>>> it's really a bug, so I send it to the mailing list instead of 
->>>> reporting it to the bugzilla bugtracking system. if you need 
->>>> additional information, I'll     
->>>
->>> compile a   
->>>
->>>> Kernel with cpufreq debugging.
->>>>
->>>> Matthias-Christian Ott
->>>>
->>>> [fox@iceowl ~]$ cat /proc/version
->>>> Linux version 2.6.11-rc1-bk7-ott (root@iceowl.ott.dyndns.info) 
->>>> (gcc-Version 3.4.3) #1 SMP Thu Jan 20 16:18:06 CET 2005
->>>>
->>>> [root@iceowl ~]# dmesg
->>>> ACPI: RSDP (v000 MSISYS                                ) @ 0x000f7550
->>>> ACPI: RSDT (v001 MSISYS MSI ACPI 0x42302e31 AWRD 0x00000000) @ 
->>>> 0x17ff3000
->>>> ACPI: FADT (v001 MSISYS MSI ACPI 0x42302e31 AWRD 0x00000000) @ 
->>>> 0x17ff3040
->>>> ACPI: MADT (v001 MSISYS AWRDACPI 0x42302e31 AWRD 0x00000000) @ 
->>>> 0x17ff6c40
->>>> ACPI: DSDT (v001 MSISYS AWRDACPI 0x00001000 MSFT 0x0100000c) @ 
->>>> 0x00000000
->>>> ACPI: PM-Timer IO Port: 0x4008
->>>> ACPI: Local APIC address 0xfee00000
->>>> ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
->>>> Processor #0 15:1 APIC version 20
->>>> ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
->>>> IOAPIC[0]: apic_id 2, version 32, address 0xfec00000, GSI 0-23
->>>> ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 high level)
->>>> ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
->>>> ACPI: IRQ0 used by override.
->>>> ACPI: IRQ2 used by override.
->>>> ACPI: IRQ9 used by override.
->>>> Enabling APIC mode:  Flat.  Using 1 I/O APICs
->>>> Using ACPI (MADT) for SMP configuration information
->>>> Built 1 zonelists
->>>> Kernel command line: root=/dev/discs/disc0/part1 
->>>> video=vesafb:ywrap,mtrr vga=0x318 elevator=cfq ro mem=393152K
->>>> [..]
->>>> CPU: After generic identify, caps: 3febfbff 00000000 00000000     
->>>
->>> 00000000   
->>>
->>>> 00000000 00000000 00000000
->>>> CPU: After vendor identify, caps: 3febfbff 00000000 00000000 
->>>> 00000000 00000000 00000000 00000000
->>>> CPU: Trace cache: 12K uops, L1 D cache: 8K
->>>> CPU: L2 cache: 256K
->>>> CPU: Hyper-Threading is disabled
->>>> CPU: After all inits, caps: 3febfbff 00000000 00000000 00000080 
->>>> 00000000 00000000 00000000
->>>> Intel machine check architecture supported.
->>>> Intel machine check reporting enabled on CPU#0.
->>>> CPU0: Intel P4/Xeon Extended MCE MSRs (12) available
->>>> CPU0: Thermal monitoring enabled
->>>> Enabling fast FPU save and restore... done.
->>>> Enabling unmasked SIMD FPU exception support... done.
->>>> Checking 'hlt' instruction... OK.
->>>> CPU0: Intel(R) Pentium(R) 4 CPU 1.80GHz stepping 02
->>>> per-CPU timeslice cutoff: 731.50 usecs.
->>>> [..]
->>>> Total of 1 processors activated (3563.52 BogoMIPS).
->>>> ENABLING IO-APIC IRQs
->>>> ..TIMER: vector=0x31 pin1=2 pin2=-1
->>>> Brought up 1 CPUs
->>>> CPU0 attaching sched-domain:
->>>> domain 0: span 1
->>>> groups: 1
->>>> domain 1: span 1
->>>>  groups: 1
->>>> [..]
->>>> ACPI: Subsystem revision 20041210
->>>>   ACPI-1138: *** Error: Method execution failed [\STRC] (Node 
->>>> d7fc3660), AE_AML_BUFFER_LIMIT
->>>>   ACPI-1138: *** Error: Method execution failed [\_SB_.PCI0._INI] 
->>>> (Node d7fc7420), AE_AML_BUFFER_LIMIT
->>>> ACPI: Interpreter enabled
->>>> ACPI: Using IOAPIC for interrupt routing
->>>> ACPI: PCI Root Bridge [PCI0] (00:00)
->>>> PCI: Probing PCI hardware (bus 00)
->>>> PCI: Transparent bridge - 0000:00:1e.0
->>>> ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
->>>> ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.HUB0._PRT]
->>>> ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
->>>> ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 9 10 11 *12 14 15)
->>>> ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
->>>> ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
->>>> ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
->>>> ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
->>>> ACPI: PCI Interrupt Link [LNK0] (IRQs 3 4 *5 6 7 9 10 11 12 14 15)
->>>> ACPI: PCI Interrupt Link [LNK1] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
->>>> [..]
->>>> ACPI: Power Button (FF) [PWRF]
->>>> ACPI: Sleep Button (CM) [SLPB]
->>>> ACPI: Fan [FAN] (on)
->>>> ACPI: CPU0 (power states: C1[C1] C2[C2])
->>>> ACPI: Processor [CPU0] (supports 2 throttling states)
->>>> ACPI: Thermal Zone [THRM] (22 C)
->>>> [..]
->>>> p4-clockmod: P4/Xeon(TM) CPU On-Demand Clock Modulation available
->>>> [..]
->>>>
->>>> [root@iceowl ~]# cat /proc/cpuinfo
->>>> processor       : 0
->>>> vendor_id       : GenuineIntel
->>>> cpu family      : 15
->>>> model           : 1
->>>> model name      : Intel(R) Pentium(R) 4 CPU 1.80GHz
->>>> stepping        : 2
->>>> cpu MHz         : 1800.257
->>>> cache size      : 256 KB
->>>> physical id     : 0
->>>> siblings        : 1
->>>> fdiv_bug        : no
->>>> hlt_bug         : no
->>>> f00f_bug        : no
->>>> coma_bug        : no
->>>> fpu             : yes
->>>> fpu_exception   : yes
->>>> cpuid level     : 2
->>>> wp              : yes
->>>> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep     
->>>
->>> mtrr pge   
->>>
->>>> mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
->>>> bogomips        : 3563.52
->>>>
->>>> [root@iceowl ~]# cat 
->>>> /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq
->>>> 14600000
->>>>
->>>> [root@iceowl ~]# cat 
->>>> /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies
->>>> 3650000 5475000 7300000 9125000 10950000 12775000 14600000
->>>>
->>>> [root@iceowl ~]# cat 
->>>> /home/fox/builds/kernel/kernel-2.6.10-rc1-ott/config
->>>> [..]
->>>> CONFIG_X86_PC=y
->>>> [..]
->>>> CONFIG_MPENTIUM4=y
->>>> [..]
->>>> CONFIG_X86_GENERIC=y
->>>> CONFIG_X86_CMPXCHG=y
->>>> CONFIG_X86_XADD=y
->>>> CONFIG_X86_L1_CACHE_SHIFT=7
->>>> CONFIG_RWSEM_XCHGADD_ALGORITHM=y
->>>> CONFIG_GENERIC_CALIBRATE_DELAY=y
->>>> CONFIG_X86_WP_WORKS_OK=y
->>>> CONFIG_X86_INVLPG=y
->>>> CONFIG_X86_BSWAP=y
->>>> CONFIG_X86_POPAD_OK=y
->>>> CONFIG_X86_GOOD_APIC=y
->>>> CONFIG_X86_INTEL_USERCOPY=y
->>>> CONFIG_X86_USE_PPRO_CHECKSUM=y
->>>> CONFIG_HPET_TIMER=y
->>>> CONFIG_SMP=y
->>>> CONFIG_NR_CPUS=4
->>>> CONFIG_SCHED_SMT=y
->>>> CONFIG_PREEMPT=y
->>>> CONFIG_PREEMPT_BKL=y
->>>> CONFIG_X86_LOCAL_APIC=y
->>>> CONFIG_X86_IO_APIC=y
->>>> CONFIG_X86_TSC=y
->>>> CONFIG_X86_MCE=y
->>>> CONFIG_X86_MCE_NONFATAL=m
->>>> CONFIG_X86_MCE_P4THERMAL=y
->>>> CONFIG_TOSHIBA=m
->>>> CONFIG_I8K=m
->>>> [..]
->>>> CONFIG_PM=y
->>>> # CONFIG_PM_DEBUG is not set
->>>> CONFIG_SOFTWARE_SUSPEND=y
->>>> CONFIG_PM_STD_PARTITION=""
->>>> [..]
->>>> CONFIG_ACPI=y
->>>> CONFIG_ACPI_BOOT=y
->>>> CONFIG_ACPI_INTERPRETER=y
->>>> CONFIG_ACPI_SLEEP=y
->>>> CONFIG_ACPI_SLEEP_PROC_FS=y
->>>> CONFIG_ACPI_AC=y
->>>> CONFIG_ACPI_BATTERY=y
->>>> CONFIG_ACPI_BUTTON=y
->>>> CONFIG_ACPI_VIDEO=y
->>>> CONFIG_ACPI_FAN=y
->>>> CONFIG_ACPI_PROCESSOR=y
->>>> CONFIG_ACPI_THERMAL=y
->>>> CONFIG_ACPI_ASUS=m
->>>> CONFIG_ACPI_IBM=m
->>>> CONFIG_ACPI_TOSHIBA=m
->>>> CONFIG_ACPI_BLACKLIST_YEAR=0
->>>> # CONFIG_ACPI_DEBUG is not set
->>>> CONFIG_ACPI_BUS=y
->>>> CONFIG_ACPI_EC=y
->>>> CONFIG_ACPI_POWER=y
->>>> CONFIG_ACPI_PCI=y
->>>> CONFIG_ACPI_SYSTEM=y
->>>> CONFIG_X86_PM_TIMER=y
->>>> # CONFIG_ACPI_CONTAINER is not set
->>>> [..]
->>>> CONFIG_CPU_FREQ=y
->>>> # CONFIG_CPU_FREQ_DEBUG is not set
->>>> CONFIG_CPU_FREQ_STAT=m
->>>> CONFIG_CPU_FREQ_STAT_DETAILS=y
->>>> # CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE is not set
->>>> CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE=y
->>>> CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
->>>> CONFIG_CPU_FREQ_GOV_POWERSAVE=y
->>>> CONFIG_CPU_FREQ_GOV_USERSPACE=y
->>>> CONFIG_CPU_FREQ_GOV_ONDEMAND=y
->>>> CONFIG_CPU_FREQ_TABLE=y
->>>> [..]
->>>> CONFIG_X86_ACPI_CPUFREQ=y
->>>> CONFIG_X86_POWERNOW_K6=m
->>>> CONFIG_X86_POWERNOW_K7=m
->>>> CONFIG_X86_POWERNOW_K7_ACPI=y
->>>> CONFIG_X86_POWERNOW_K8=m
->>>> CONFIG_X86_POWERNOW_K8_ACPI=y
->>>> CONFIG_X86_GX_SUSPMOD=m
->>>> CONFIG_X86_SPEEDSTEP_CENTRINO=m
->>>> CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI=y
->>>> CONFIG_X86_SPEEDSTEP_CENTRINO_TABLE=y
->>>> CONFIG_X86_SPEEDSTEP_ICH=m
->>>> CONFIG_X86_SPEEDSTEP_SMI=m
->>>> CONFIG_X86_P4_CLOCKMOD=y
->>>> CONFIG_X86_CPUFREQ_NFORCE2=m
->>>> CONFIG_X86_LONGRUN=m
->>>> CONFIG_X86_LONGHAUL=m
->>>> [..]
->>>> # CONFIG_X86_ACPI_CPUFREQ_PROC_INTF is not set
->>>> CONFIG_X86_SPEEDSTEP_LIB=y
->>>> CONFIG_X86_SPEEDSTEP_RELAXED_CAP_CHECK=y
->>>> [..]
->>>>
->>>>
->>>>
->>>>     
->>>
->> -
->> To unsubscribe from this list: send the line "unsubscribe 
->> linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
->>  
->>
-> Hi!
-> Cpufreq (with enabled debugging (not CONFIG_DEBUG_KERNEL)) doesn't 
-> display any additional messages. I'll compile it with 
-> CONFIG_DEBUG_KERNEL.
->
-> Matthias-Christian Ott
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-Hi!
-CONFIG_DEBUG_KERNEL doesn't display any additional messages. What do I 
-have activate to get such debugging messages:
-dprintk("P4 - MSR_EBC_FREQUENCY_ID: 0x%x 0x%x\n", msr_lo, msr_hi);
+But then again reprogramming PIT in my patch should not be that bad,
+as it's not done under load.
 
-Matthias-Christian Ott
+> >>>It should not matter where the timer interrupt comes from, as long as 
+> >>>it comes when programmed. Updating time should be separate from timer
+> >>>interrupts. Currently we have a problem where time is tied to the
+> >>>timer interrupt.
+> >>
+> >>In the HRT code time is most correctly stated as wall_time + 
+> >>get_arch_cycles_since(wall_jiffies) (plus conversion or two:)).  This is 
+> >>some what removed from the tick interrupt, but is resynced to that 
+> >>interrupt more or less each interrupt.
+> >
+> >
+> >That sounds very accurate :)
+> >
+> >
+> >>A second issue is trying to get the jiffies update as close to the run of 
+> >>the timer list as possible.  Without this we have no hope of high res 
+> >>timers.
+> >
+> >
+> >OK. But if the timer interrupt is separated from updating the time,
+> >the next timer interrupt should be programmable to happen exactly
+> >when a HRT timer needs it, right?
+> 
+> First, HRT uses a two phase system of timing.  The first phase is the 
+> normal timer list expires the timer.  The timer is then handed to the high 
+> res code which keeps a list of timers that are to expire prior to the next 
+> jiffie.  An interrupt is scheduled to make this happen.  Depending on the 
+> hardware available, this can come from the same timer or a different timer. 
+> For example on x86 systems with a local apic we use the apic timer to 
+> generate this interrupt.  It triggers either a tasklet for UP or SMP with 
+> out per cpu timers or a soft irq for SMP systems with per cpu timers.
+> 
+> What this means is that, for timers near but just after a jiffie, the 
+> run_timer list being late can make the HR timer late.
+
+Thanks for explaining that. So basically catching up with jiffies after
+skipping ticks could easily delay the HRT timer.
+
+If jiffies was calculated from hw timer, updating time after skipping
+jiffies would be fast, and then this problem would go away, right?
+
+> This code on on sourceforge if you want a closer look...
+
+I'll take a look at it.
+
+> >Hmm, how about using a pool of programmable timers available on the 
+> >system for the timer interrupts and HRT? Or is one interrupt source
+> >always enough?
+> 
+> Hardware heaven :), but no thanks.  A reliable tick generator for the 
+> jiffies timer and one additional timer (or one per cpu) works well in the 
+> x86.
+> 
+> If you have something like the PPC where you can mess with the timer with 
+> out loosing time, that works well also.  The correct formulation would be a 
+> "clock" that can be read quickly and a timer tied to the same "rock" that 
+> uses the same count units as the clock.  PARISC has a counter that just 
+> counts and a compare register.  When they are equal an interrupt is 
+> generated.  That is a nice set up.
+
+Yes, many ARMs have this setup as well.
+
+> Now the X86 is bad and has little hope of being fixed for these reasons:
+> a.) the TSC is fast and easy to read but its not clocked at any given 
+> frequency and, on some platforms, it changes without notifying the software.
+> b.) the PIT and the PMTIMER are both in I/O space and so take forever to 
+> access.
+> c.) All three of these use different units (but at least the PMTIMER is 
+> (supposed to be) related to the PIT clock.
+> d.) the HPET, again is in I/O space.  I suspect that it uses a reasonable 
+> "rock" but, as I understand it, it knocks out the PIT and, of course it 
+> uses units unrelated to all the others.
+
+The timers on x86 are quite messy...
+
+Tony

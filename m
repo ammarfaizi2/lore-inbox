@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263105AbUC2S7q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 13:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUC2S7q
+	id S263085AbUC2TBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 14:01:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263091AbUC2TBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 13:59:46 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:59013
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S263105AbUC2S7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 13:59:45 -0500
-Message-ID: <406871FC.1070700@redhat.com>
-Date: Mon, 29 Mar 2004 10:59:08 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040328
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: "linux-kern >> Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: For the almost 4-year anniversary: O_CLOEXEC again
-References: <40677D1B.9060801@redhat.com> <20040329131819.GF4984@mail.shareable.org>
-In-Reply-To: <20040329131819.GF4984@mail.shareable.org>
-X-Enigmail-Version: 0.83.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Mon, 29 Mar 2004 14:01:09 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:59380 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S263085AbUC2TBC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 14:01:02 -0500
+Date: Mon, 29 Mar 2004 21:00:54 +0200 (MEST)
+From: <Andries.Brouwer@cwi.nl>
+Message-Id: <UTC200403291900.i2TJ0sC14336.aeb@smtp.cwi.nl>
+To: akpm@osdl.org, torvalds@osdl.org, trond.myklebust@fys.uio.no
+Subject: [patch] silence nfs mount messages
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
+People complain about the kernel messages when mounting NFS.
+(Just like last time a new NFS version was introduced.)
+It is perfectly normal to have mount newer than the kernel,
+or the kernel newer than mount. No messages are needed or useful.
 
-> Since O_CLOEXEC is non-portable, why not implement the per-thread
-> switch?
-> 
-> Signal handlers that call open() will have to be aware of it, but
-> that's ok: an application will only set the switch if it knows what
-> that implies.
+Andries
 
-It's not OK since library functions can install signal handlers and they
-need not be aware of everything the application does.
-
-Any globally visible change in the behavior can have negative effects.
-
-Yes, there are other calls but open() is far more critical since it is
-now promoted not only to an interface to actually do work.  We are
-supported to read kernel and system informatino from /proc which
-requires open().
-
-And no, oen() is not the only signal-safe function.  If you don't have
-the POSIX specs handy, look at a recent signal(2) man page which lists
-the signal-safe functions.  accept(), socket() are on the list among others.
-
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+diff -uprN -X /linux/dontdiff a/fs/nfs/inode.c b/fs/nfs/inode.c
+--- a/fs/nfs/inode.c	2004-02-18 11:33:18.000000000 +0100
++++ b/fs/nfs/inode.c	2004-03-29 20:53:28.000000000 +0200
+@@ -1292,8 +1292,10 @@ static struct super_block *nfs_get_sb(st
+ 		memset(root->data+root->size, 0, sizeof(root->data)-root->size);
+ 
+ 	if (data->version != NFS_MOUNT_VERSION) {
++#if 0
+ 		printk("nfs warning: mount version %s than kernel\n",
+ 			data->version < NFS_MOUNT_VERSION ? "older" : "newer");
++#endif
+ 		if (data->version < 2)
+ 			data->namlen = 0;
+ 		if (data->version < 3)
+@@ -1599,10 +1601,12 @@ static struct super_block *nfs4_get_sb(s
+ 	/* Zero out the NFS state stuff */
+ 	init_nfsv4_state(server);
+ 
++#if 0
+ 	if (data->version != NFS4_MOUNT_VERSION) {
+ 		printk("nfs warning: mount version %s than kernel\n",
+ 			data->version < NFS_MOUNT_VERSION ? "older" : "newer");
+ 	}
++#endif
+ 
+ 	p = nfs_copy_user_string(NULL, &data->hostname, 256);
+ 	if (IS_ERR(p))

@@ -1,78 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265903AbUFDWNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265893AbUFDWSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265903AbUFDWNq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 18:13:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266031AbUFDWNq
+	id S265893AbUFDWSl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 18:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266032AbUFDWSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 18:13:46 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:46283 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S265903AbUFDWNn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 18:13:43 -0400
-Reply-To: <anil.s.keshavamurthy@intel.com>
-From: "Anil" <anil.s.keshavamurthy@intel.com>
-To: <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
-Subject: [PATCH] speedup flush_workqueue for singlethread_workqueue
-Date: Fri, 4 Jun 2004 15:13:34 -0700
-Organization: Intel
+	Fri, 4 Jun 2004 18:18:41 -0400
+Received: from zero.aec.at ([193.170.194.10]:41223 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S265893AbUFDWSj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 18:18:39 -0400
+To: "R. J. Wysocki" <rjwysocki@sisk.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.6.7-rc2-mm2: system reboot at kernel init on a dual
+ Opteron
+References: <23v36-Hc-35@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Sat, 05 Jun 2004 00:18:22 +0200
+In-Reply-To: <23v36-Hc-35@gated-at.bofh.it> (R. J. Wysocki's message of
+ "Sat, 05 Jun 2004 00:10:12 +0200")
+Message-ID: <m3llj3ezm9.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcRKgS09zEH958VaSk+uy1HaTVy9Bg==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Message-ID: <ORSMSX409uejPw8Zyai00000001@orsmsx409.amr.corp.intel.com>
-X-OriginalArrivalTime: 04 Jun 2004 22:13:35.0947 (UTC) FILETIME=[2E31D1B0:01C44A81]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	In the flush_workqueue function for a single_threaded_worqueue case the code seemed to loop the same cpu_workqueue_struct
-for each_online_cpu's. The attached patch checks this condition and bails out of for loop there by speeding up the flush_workqueue
-for a singlethreaded_workqueue.
+"R. J. Wysocki" <rjwysocki@sisk.pl> writes:
 
-Please apply.
+> The 2.6.7-rc2-mm2 reboots my dual Opteron system as soon as it's loaded.  
+> There's no any serial console output available, and the hardware environment 
+> log is attached.
 
-Thanks,
--anil
+What does the serial console print when you boot with
+earlyprintk=serial,ttySx,baud  ? 
 
----
+Also I assume -rc2 without -mm works, right?
 
-Name: speedup_flush_workqueue_for_single_thread
-Status: Test Passed
-
- linux-2.6.7-rc2-mm2-root/kernel/workqueue.c |    8 ++++++--
- 1 files changed, 6 insertions(+), 2 deletions(-)
-
-diff -puN kernel/workqueue.c~flush_work_queue_fix kernel/workqueue.c
---- linux-2.6.7-rc2-mm2/kernel/workqueue.c~flush_work_queue_fix	2004-06-04 21:38:49.848195790 -0700
-+++ linux-2.6.7-rc2-mm2-root/kernel/workqueue.c	2004-06-04 21:42:50.013357817 -0700
-@@ -236,6 +236,7 @@ void fastcall flush_workqueue(struct wor
- {
- 	struct cpu_workqueue_struct *cwq;
- 	int cpu;
-+	int run_once = 0;
- 
- 	might_sleep();
- 
-@@ -244,9 +245,12 @@ void fastcall flush_workqueue(struct wor
- 		DEFINE_WAIT(wait);
- 		long sequence_needed;
- 
--		if (is_single_threaded(wq))
-+		if (is_single_threaded(wq)) {
-+			if (run_once)
-+				break;
- 			cwq = wq->cpu_wq + 0; /* Always use cpu 0's area. */
--		else
-+			run_once = 1;
-+		} else
- 			cwq = wq->cpu_wq + cpu;
- 
- 		if (cwq->thread == current) {
-
-_
-
-
-
+-Andi
 

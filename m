@@ -1,527 +1,632 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314303AbSEBJm2>; Thu, 2 May 2002 05:42:28 -0400
+	id <S314318AbSEBJpq>; Thu, 2 May 2002 05:45:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314318AbSEBJm1>; Thu, 2 May 2002 05:42:27 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:36105 "EHLO
+	id <S314321AbSEBJpp>; Thu, 2 May 2002 05:45:45 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:38921 "EHLO
 	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S314303AbSEBJmY>; Thu, 2 May 2002 05:42:24 -0400
-Message-ID: <3CD0FB4E.7070600@evision-ventures.com>
-Date: Thu, 02 May 2002 10:39:42 +0200
+	id <S314318AbSEBJpj>; Thu, 2 May 2002 05:45:39 -0400
+Message-ID: <3CD0FC0E.5020108@evision-ventures.com>
+Date: Thu, 02 May 2002 10:42:54 +0200
 From: Martin Dalecki <dalecki@evision-ventures.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
 X-Accept-Language: en-us, pl
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.12 IDE 49
+Subject: Re: Linux 2.5.7
 In-Reply-To: <Pine.LNX.4.33.0203181243210.10517-100000@penguin.transmeta.com>
 Content-Type: multipart/mixed;
- boundary="------------060808070107040600020602"
+ boundary="------------060408050607000906060107"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------060808070107040600020602
+--------------060408050607000906060107
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-- Fix compilation of piix.c
+Non IDE series:
 
-- Revoke the PADAM_ prefix from sleep hwgroup member.
+- Fix some "header magic" related to IDE code in blk.h.
 
-- Fix Pacific Digital host chip driver API.
+- Fix blk_clear to remove knowlenge about blk_dev[] about the device from the
+   kernel as well.
 
-- Fix Tekram host chip driver API.
+- Fix mtd read only block device.
 
-- Fold hwif_unregister() directly in to channel code.
+- Remove LOCAL_END_REQUEST alltogether from the places where it was "used".
 
---------------060808070107040600020602
+--------------060408050607000906060107
 Content-Type: text/plain;
- name="ide-clean-49.diff"
+ name="blkdev-2.5.12.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="ide-clean-49.diff"
+ filename="blkdev-2.5.12.diff"
 
+diff -ur linux-2.5.12/drivers/block/cpqarray.c linux/drivers/block/cpqarray.c
+--- linux-2.5.12/drivers/block/cpqarray.c	2002-05-01 02:08:48.000000000 +0200
++++ linux/drivers/block/cpqarray.c	2002-05-02 03:32:42.000000000 +0200
+@@ -52,7 +52,6 @@
+ MODULE_LICENSE("GPL");
+ 
+ #define MAJOR_NR COMPAQ_SMART2_MAJOR
+-#define LOCAL_END_REQUEST
+ #include <linux/blk.h>
+ #include <linux/blkdev.h>
+ #include <linux/genhd.h>
+diff -ur linux-2.5.12/drivers/block/floppy.c linux/drivers/block/floppy.c
+--- linux-2.5.12/drivers/block/floppy.c	2002-05-01 02:08:48.000000000 +0200
++++ linux/drivers/block/floppy.c	2002-05-02 03:31:23.000000000 +0200
+@@ -230,9 +230,7 @@
+ 
+ static int irqdma_allocated;
+ 
+-#define LOCAL_END_REQUEST
+ #define MAJOR_NR FLOPPY_MAJOR
+-
+ #include <linux/blk.h>
+ #include <linux/blkpg.h>
+ #include <linux/cdrom.h> /* for the compatibility eject ioctl */
+@@ -2275,7 +2273,7 @@
+  * =============================
+  */
+ 
+-static inline void end_request(struct request *req, int uptodate)
++static inline void fd_end_request(struct request *req, int uptodate)
+ {
+ 	kdev_t dev = req->rq_dev;
+ 
+@@ -2320,7 +2318,7 @@
+ 			current_count_sectors -= req->current_nr_sectors;
+ 			req->nr_sectors -= req->current_nr_sectors;
+ 			req->sector += req->current_nr_sectors;
+-			end_request(req, 1);
++			fd_end_request(req, 1);
+ 		}
+ 		spin_unlock_irqrestore(q->queue_lock, flags);
+ 
+@@ -2348,7 +2346,7 @@
+ 			DRWE->last_error_generation = DRS->generation;
+ 		}
+ 		spin_lock_irqsave(q->queue_lock, flags);
+-		end_request(req, 0);
++		fd_end_request(req, 0);
+ 		spin_unlock_irqrestore(q->queue_lock, flags);
+ 	}
+ }
 diff -ur linux-2.5.12/drivers/ide/ide.c linux/drivers/ide/ide.c
 --- linux-2.5.12/drivers/ide/ide.c	2002-05-01 02:08:56.000000000 +0200
 +++ linux/drivers/ide/ide.c	2002-05-02 03:20:40.000000000 +0200
-@@ -1187,12 +1188,12 @@
- {
- 	if (timeout > WAIT_WORSTCASE)
- 		timeout = WAIT_WORSTCASE;
--	drive->PADAM_sleep = timeout + jiffies;
-+	drive->sleep = timeout + jiffies;
- }
- 
- 
- /*
-- * Determine the longes sleep time for the devices in our hwgroup.
-+ * Determine the longest sleep time for the devices at this channel.
-  */
- static unsigned long longest_sleep(struct ata_channel *channel)
- {
-@@ -1218,8 +1219,8 @@
- 			/* This device is sleeping and waiting to be serviced
- 			 * later than any other device we checked thus far.
- 			 */
--			if (drive->PADAM_sleep && (!sleep || time_after(sleep, drive->PADAM_sleep)))
--				sleep = drive->PADAM_sleep;
-+			if (drive->sleep && (!sleep || time_after(sleep, drive->sleep)))
-+				sleep = drive->sleep;
- 		}
- 	}
- 
-@@ -1256,16 +1257,15 @@
- 			if (list_empty(&drive->queue.queue_head))
- 				continue;
- 
--			/* This device still want's to remain idle.
-+			/* This device still wants to remain idle.
- 			 */
--			if (drive->PADAM_sleep && time_after(jiffies, drive->PADAM_sleep))
-+			if (drive->sleep && time_after(jiffies, drive->sleep))
- 				continue;
- 
- 			/* Take this device, if there is no device choosen thus far or
- 			 * it's more urgent.
- 			 */
--			if (!choice || (drive->PADAM_sleep && (!choice->PADAM_sleep || time_after(choice->PADAM_sleep, drive->PADAM_sleep))))
--			{
-+			if (!choice || (drive->sleep && (!choice->sleep || time_after(choice->sleep, drive->sleep)))) {
- 				if (!blk_queue_plugged(&drive->queue))
- 					choice = drive;
- 			}
-@@ -1315,7 +1315,6 @@
-  * Feed commands to a drive until it barfs.  Called with ide_lock/DRIVE_LOCK
-  * held and busy channel.
-  */
--
- static void queue_commands(struct ata_device *drive, int masked_irq)
- {
- 	ide_hwgroup_t *hwgroup = drive->channel->hwgroup;
-@@ -1325,7 +1324,7 @@
- 		struct request *rq = NULL;
- 
- 		if (!test_bit(IDE_BUSY, &hwgroup->flags))
--			printk(KERN_ERR"%s: hwgroup not busy while queueing\n", drive->name);
-+			printk(KERN_ERR"%s: error: not busy while queueing!\n", drive->name);
- 
- 		/* Abort early if we can't queue another command. for non
- 		 * tcq, ata_can_queue is always 1 since we never get here
-@@ -1337,7 +1336,7 @@
- 			break;
- 		}
- 
--		drive->PADAM_sleep = 0;
-+		drive->sleep = 0;
- 
- 		if (test_bit(IDE_DMA, &hwgroup->flags)) {
- 			printk("ide_do_request: DMA in progress...\n");
-@@ -1825,10 +1824,9 @@
-  * completed. This is again intended for careful use by the ATAPI tape/cdrom
-  * driver code.
-  */
--int ide_do_drive_cmd(ide_drive_t *drive, struct request *rq, ide_action_t action)
-+int ide_do_drive_cmd(struct ata_device *drive, struct request *rq, ide_action_t action)
- {
- 	unsigned long flags;
--	ide_hwgroup_t *hwgroup = HWGROUP(drive);
- 	unsigned int major = drive->channel->major;
- 	request_queue_t *q = &drive->queue;
- 	struct list_head *queue_head = &q->queue_head;
-@@ -1846,7 +1844,7 @@
- 	spin_lock_irqsave(&ide_lock, flags);
- 	if (blk_queue_empty(&drive->queue) || action == ide_preempt) {
- 		if (action == ide_preempt)
--			hwgroup->rq = NULL;
-+			HWGROUP(drive)->rq = NULL;
- 	} else {
- 		if (action == ide_wait || action == ide_end)
- 			queue_head = queue_head->prev;
-@@ -1873,21 +1871,22 @@
-  * usage == 1 (we need an open channel to use an ioctl :-), so this
-  * is our limit.
-  */
--int ide_revalidate_disk (kdev_t i_rdev)
-+int ide_revalidate_disk(kdev_t i_rdev)
- {
--	ide_drive_t *drive;
--	ide_hwgroup_t *hwgroup;
-+	struct ata_device *drive;
- 	unsigned long flags;
- 	int res;
- 
- 	if ((drive = get_info_ptr(i_rdev)) == NULL)
- 		return -ENODEV;
--	hwgroup = HWGROUP(drive);
-+
- 	spin_lock_irqsave(&ide_lock, flags);
-+
- 	if (drive->busy || (drive->usage > 1)) {
- 		spin_unlock_irqrestore(&ide_lock, flags);
- 		return -EBUSY;
- 	}
-+
- 	drive->busy = 1;
- 	MOD_INC_USE_COUNT;
- 	spin_unlock_irqrestore(&ide_lock, flags);
-@@ -2032,71 +2031,18 @@
- };
+@@ -135,13 +135,14 @@
  #endif
+ #include <linux/pci.h>
+ #include <linux/delay.h>
+-#include <linux/ide.h>
++#include <linux/blk.h>
+ #include <linux/devfs_fs_kernel.h>
+ #include <linux/completion.h>
+ #include <linux/reboot.h>
+ #include <linux/cdrom.h>
+ #include <linux/device.h>
+ #include <linux/kmod.h>
++#include <linux/ide.h>
  
--/*
-- * Note that we only release the standard ports, and do not even try to handle
-- * any extra ports allocated for weird IDE interface chipsets.
-- */
--static void hwif_unregister(struct ata_channel *ch)
--{
--	int i;
--	ide_hwgroup_t *hwgroup = ch->hwgroup;
--
--	/*
--	 * Free the irq if we were the only channel using it.
--	 */
--	int n = 0;
--
--	for (i = 0; i < MAX_HWIFS; ++i) {
--		struct ata_channel *tmp = &ide_hwifs[i];
--
--		if (!tmp->present)
--			continue;
--
--		if (tmp->irq == ch->irq)
--			++n;
--	}
--	if (n == 1)
--		free_irq(ch->irq, hwgroup);
--
--
--	if (ch->straight8) {
--		release_region(ch->io_ports[IDE_DATA_OFFSET], 8);
--	} else {
--		if (ch->io_ports[IDE_DATA_OFFSET])
--			release_region(ch->io_ports[IDE_DATA_OFFSET], 1);
--		if (ch->io_ports[IDE_ERROR_OFFSET])
--			release_region(ch->io_ports[IDE_ERROR_OFFSET], 1);
--		if (ch->io_ports[IDE_NSECTOR_OFFSET])
--			release_region(ch->io_ports[IDE_NSECTOR_OFFSET], 1);
--		if (ch->io_ports[IDE_SECTOR_OFFSET])
--			release_region(ch->io_ports[IDE_SECTOR_OFFSET], 1);
--		if (ch->io_ports[IDE_LCYL_OFFSET])
--			release_region(ch->io_ports[IDE_LCYL_OFFSET], 1);
--		if (ch->io_ports[IDE_HCYL_OFFSET])
--			release_region(ch->io_ports[IDE_HCYL_OFFSET], 1);
--		if (ch->io_ports[IDE_SELECT_OFFSET])
--			release_region(ch->io_ports[IDE_SELECT_OFFSET], 1);
--		if (ch->io_ports[IDE_STATUS_OFFSET])
--			release_region(ch->io_ports[IDE_STATUS_OFFSET], 1);
--	}
--	if (ch->io_ports[IDE_CONTROL_OFFSET])
--		release_region(ch->io_ports[IDE_CONTROL_OFFSET], 1);
--#if defined(CONFIG_AMIGA) || defined(CONFIG_MAC)
--	if (ch->io_ports[IDE_IRQ_OFFSET])
--		release_region(ch->io_ports[IDE_IRQ_OFFSET], 1);
--#endif
--}
--
- void ide_unregister(struct ata_channel *ch)
- {
- 	struct gendisk *gd;
- 	struct ata_device *d;
- 	ide_hwgroup_t *hwgroup;
--	int unit, i;
-+	int unit;
-+	int i;
- 	unsigned long flags;
- 	unsigned int p, minor;
- 	struct ata_channel old;
--	int n = 0;
-+	int n_irq;
-+	int n_ch;
- 
- 	spin_lock_irqsave(&ide_lock, flags);
- 
-@@ -2146,10 +2092,40 @@
- #endif
- 	spin_lock_irqsave(&ide_lock, flags);
- 
--	hwif_unregister(ch);
-+	/*
-+	 * Note that we only release the standard ports, and do not even try to
-+	 * handle any extra ports allocated for weird IDE interface chipsets.
-+	 */
-+
-+	if (ch->straight8) {
-+		release_region(ch->io_ports[IDE_DATA_OFFSET], 8);
-+	} else {
-+		if (ch->io_ports[IDE_DATA_OFFSET])
-+			release_region(ch->io_ports[IDE_DATA_OFFSET], 1);
-+		if (ch->io_ports[IDE_ERROR_OFFSET])
-+			release_region(ch->io_ports[IDE_ERROR_OFFSET], 1);
-+		if (ch->io_ports[IDE_NSECTOR_OFFSET])
-+			release_region(ch->io_ports[IDE_NSECTOR_OFFSET], 1);
-+		if (ch->io_ports[IDE_SECTOR_OFFSET])
-+			release_region(ch->io_ports[IDE_SECTOR_OFFSET], 1);
-+		if (ch->io_ports[IDE_LCYL_OFFSET])
-+			release_region(ch->io_ports[IDE_LCYL_OFFSET], 1);
-+		if (ch->io_ports[IDE_HCYL_OFFSET])
-+			release_region(ch->io_ports[IDE_HCYL_OFFSET], 1);
-+		if (ch->io_ports[IDE_SELECT_OFFSET])
-+			release_region(ch->io_ports[IDE_SELECT_OFFSET], 1);
-+		if (ch->io_ports[IDE_STATUS_OFFSET])
-+			release_region(ch->io_ports[IDE_STATUS_OFFSET], 1);
-+	}
-+	if (ch->io_ports[IDE_CONTROL_OFFSET])
-+		release_region(ch->io_ports[IDE_CONTROL_OFFSET], 1);
-+#if defined(CONFIG_AMIGA) || defined(CONFIG_MAC)
-+	if (ch->io_ports[IDE_IRQ_OFFSET])
-+		release_region(ch->io_ports[IDE_IRQ_OFFSET], 1);
-+#endif
- 
- 	/*
--	 * Remove us from the hwgroup
-+	 * Remove us from the hwgroup.
+ #include <asm/byteorder.h>
+ #include <asm/irq.h>
+@@ -1781,7 +1780,7 @@
+ 	for (h = 0; h < MAX_HWIFS; ++h) {
+ 		struct ata_channel *ch = &ide_hwifs[h];
+ 		if (ch->present && major == ch->major) {
+-			int unit = DEVICE_NR(i_rdev);
++			int unit = minor(i_rdev) >> PARTN_BITS;
+ 			if (unit < MAX_DRIVES) {
+ 				struct ata_device *drive = &ch->drives[unit];
+ 				if (drive->present)
+@@ -2201,8 +2187,6 @@
  	 */
+ 	unregister_blkdev(ch->major, ch->name);
+ 	kfree(blksize_size[ch->major]);
+-	blk_dev[ch->major].data = NULL;
+-	blk_dev[ch->major].queue = NULL;
+ 	blk_clear(ch->major);
+ 	gd = ch->gd;
+ 	if (gd) {
+diff -ur linux-2.5.12/drivers/ide/ide-cd.c linux/drivers/ide/ide-cd.c
+--- linux-2.5.12/drivers/ide/ide-cd.c	2002-05-01 02:08:56.000000000 +0200
++++ linux/drivers/ide/ide-cd.c	2002-05-02 03:22:13.000000000 +0200
+@@ -304,9 +304,10 @@
+ #include <linux/slab.h>
+ #include <linux/interrupt.h>
+ #include <linux/errno.h>
++#include <linux/blk.h>
+ #include <linux/cdrom.h>
+-#include <linux/ide.h>
+ #include <linux/completion.h>
++#include <linux/ide.h>
  
- 	hwgroup = ch->hwgroup;
-@@ -2177,20 +2153,30 @@
- 	if (d->present)
- 		hwgroup->XXX_drive = d;
- 
--	/* Free the hwgroup if we were the only member.
-+
-+	/*
-+	 * Free the irq if we were the only channel using it.
-+	 *
-+	 * Free the hwgroup if we were the only member.
- 	 */
--	n = 0;
-+	n_irq = n_ch = 0;
- 	for (i = 0; i < MAX_HWIFS; ++i) {
- 		struct ata_channel *tmp = &ide_hwifs[i];
- 
- 		if (!tmp->present)
- 			continue;
- 
-+		if (tmp->irq == ch->irq)
-+			++n_irq;
- 		if (tmp->hwgroup == ch->hwgroup)
--			++n;
-+			++n_ch;
- 	}
--	if (n == 1)
-+	if (n_irq == 1)
-+		free_irq(ch->irq, ch->hwgroup);
-+	if (n_ch == 1) {
- 		kfree(ch->hwgroup);
-+		ch->hwgroup = NULL;
-+	}
- 
- #if defined(CONFIG_BLK_DEV_IDEDMA) && !defined(CONFIG_DMA_NONPCI)
- 	ide_release_dma(ch);
-diff -ur linux-2.5.12/drivers/ide/ide-dma.c linux/drivers/ide/ide-dma.c
---- linux-2.5.12/drivers/ide/ide-dma.c	2002-05-01 02:08:49.000000000 +0200
-+++ linux/drivers/ide/ide-dma.c	2002-05-02 01:18:54.000000000 +0200
-@@ -270,16 +270,15 @@
- }
- 
- /*
-- * ide_build_dmatable() prepares a dma request.
-- * Returns 0 if all went okay, returns 1 otherwise.
-- * May also be invoked from trm290.c
-+ * This prepares a dma request.  Returns 0 if all went okay, returns 1
-+ * otherwise.  May also be invoked from trm290.c
-  */
--int ide_build_dmatable (ide_drive_t *drive, ide_dma_action_t func)
-+int ide_build_dmatable(struct ata_device *drive, ide_dma_action_t func)
- {
--	struct ata_channel *hwif = drive->channel;
--	unsigned int *table = hwif->dmatable_cpu;
-+	struct ata_channel *ch = drive->channel;
-+	unsigned int *table = ch->dmatable_cpu;
- #ifdef CONFIG_BLK_DEV_TRM290
--	unsigned int is_trm290_chipset = (hwif->chipset == ide_trm290);
-+	unsigned int is_trm290_chipset = (ch->chipset == ide_trm290);
- #else
- 	const int is_trm290_chipset = 0;
- #endif
-@@ -287,11 +286,11 @@
- 	int i;
- 	struct scatterlist *sg;
- 
--	hwif->sg_nents = i = build_sglist(hwif, HWGROUP(drive)->rq);
-+	ch->sg_nents = i = build_sglist(ch, HWGROUP(drive)->rq);
- 	if (!i)
- 		return 0;
- 
--	sg = hwif->sg_table;
-+	sg = ch->sg_table;
- 	while (i) {
- 		u32 cur_addr;
- 		u32 cur_len;
-@@ -309,8 +308,8 @@
- 			u32 xcount, bcount = 0x10000 - (cur_addr & 0xffff);
- 
- 			if (count++ >= PRD_ENTRIES) {
--				printk("ide-dma: req %p\n", HWGROUP(drive)->rq);
--				printk("count %d, sg_nents %d, cur_len %d, cur_addr %u\n", count, hwif->sg_nents, cur_len, cur_addr);
-+				printk("ide-dma: count %d, sg_nents %d, cur_len %d, cur_addr %u\n",
-+						count, ch->sg_nents, cur_len, cur_addr);
- 				BUG();
- 			}
- 
-@@ -328,9 +327,9 @@
- 			 * the 64KB entry into two 32KB entries instead.
- 			 */
- 				if (count++ >= PRD_ENTRIES) {
--					pci_unmap_sg(hwif->pci_dev, sg,
--						     hwif->sg_nents,
--						     hwif->sg_dma_direction);
-+					pci_unmap_sg(ch->pci_dev, sg,
-+						     ch->sg_nents,
-+						     ch->sg_dma_direction);
- 					return 0;
- 				}
- 
+ #include <asm/irq.h>
+ #include <asm/io.h>
 diff -ur linux-2.5.12/drivers/ide/ide-probe.c linux/drivers/ide/ide-probe.c
 --- linux-2.5.12/drivers/ide/ide-probe.c	2002-05-01 02:08:44.000000000 +0200
 +++ linux/drivers/ide/ide-probe.c	2002-05-02 03:15:06.000000000 +0200
-@@ -745,7 +745,7 @@
- #else
- 	printk("%s at %p on irq 0x%08x", ch->name,
- 		ch->io_ports[IDE_DATA_OFFSET], ch->irq);
--#endif /* __mc68000__ && CONFIG_APUS */
-+#endif
- 	if (match)
- 		printk(" (%sed with %s)",
- 			ch->sharing_irq ? "shar" : "serializ", match->name);
-diff -ur linux-2.5.12/drivers/ide/pdcadma.c linux/drivers/ide/pdcadma.c
---- linux-2.5.12/drivers/ide/pdcadma.c	2002-05-01 02:08:50.000000000 +0200
-+++ linux/drivers/ide/pdcadma.c	2002-05-02 00:53:47.000000000 +0200
-@@ -47,18 +47,18 @@
+@@ -840,7 +840,7 @@
+ 	struct ata_channel *ch = (struct ata_channel *)blk_dev[major(dev)].data;
  
- 	return p-buffer;	/* => must be less than 4k! */
+ 	/* FIXME: ALLERT: This discriminates between master and slave! */
+-	return &ch->drives[DEVICE_NR(dev) & 1].queue;
++	return &ch->drives[(minor(dev) >> PARTN_BITS) & 1].queue;
  }
--#endif  /* defined(DISPLAY_PDCADMA_TIMINGS) && defined(CONFIG_PROC_FS) */
-+#endif
  
- byte pdcadma_proc = 0;
+ static void channel_init(struct ata_channel *ch)
+diff -ur linux-2.5.12/drivers/md/lvm.c linux/drivers/md/lvm.c
+--- linux-2.5.12/drivers/md/lvm.c	2002-05-01 02:08:46.000000000 +0200
++++ linux/drivers/md/lvm.c	2002-05-02 03:55:34.000000000 +0200
+@@ -192,7 +192,6 @@
  
- extern char *ide_xfer_verbose (byte xfer_rate);
+ #define MAJOR_NR LVM_BLK_MAJOR
+ #define DEVICE_OFF(device)
+-#define LOCAL_END_REQUEST
  
- #ifdef CONFIG_BLK_DEV_IDEDMA
+ /* lvm_do_lv_create calls fsync_dev_lockfs()/unlockfs() */
+ /* #define	LVM_VFS_ENHANCEMENT */
+diff -ur linux-2.5.12/drivers/md/md.c linux/drivers/md/md.c
+--- linux-2.5.12/drivers/md/md.c	2002-05-01 02:08:51.000000000 +0200
++++ linux/drivers/md/md.c	2002-05-02 02:55:39.000000000 +0200
+@@ -4004,9 +4004,8 @@
+ #endif
+ 
+ 	del_gendisk(&md_gendisk);
+-	blk_dev[MAJOR_NR].queue = NULL;
+ 	blk_clear(MAJOR_NR);
+-	
 +
- /*
-- * pdcadma_dmaproc() initiates/aborts (U)DMA read/write operations on a drive.
-+ * This initiates/aborts (U)DMA read/write operations on a drive.
-  */
--
--int pdcadma_dmaproc (ide_dma_action_t func, ide_drive_t *drive)
-+int pdcadma_dmaproc(ide_dma_action_t func, struct ata_device *drive, struct request *rq)
- {
- 	switch (func) {
- 		case ide_dma_check:
-@@ -66,9 +66,9 @@
- 		default:
- 			break;
- 	}
--	return ide_dmaproc(func, drive);	/* use standard DMA stuff */
-+	return ide_dmaproc(func, drive, rq);	/* use standard DMA stuff */
+ 	free_device_names();
  }
--#endif /* CONFIG_BLK_DEV_IDEDMA */
+ #endif
+diff -ur linux-2.5.12/drivers/mtd/mtdblock.c linux/drivers/mtd/mtdblock.c
+--- linux-2.5.12/drivers/mtd/mtdblock.c	2002-05-01 02:08:55.000000000 +0200
++++ linux/drivers/mtd/mtdblock.c	2002-05-02 03:57:14.000000000 +0200
+@@ -23,11 +23,7 @@
+ #ifndef QUEUE_EMPTY
+ #define QUEUE_EMPTY  (!CURRENT)
+ #endif
+-#if LINUX_VERSION_CODE < 0x20300
+-#define QUEUE_PLUGGED (blk_dev[MAJOR_NR].plug_tq.sync)
+-#else
+ #define QUEUE_PLUGGED (blk_queue_plugged(QUEUE))
+-#endif
+ 
+ #ifdef CONFIG_DEVFS_FS
+ #include <linux/devfs_fs_kernel.h>
+diff -ur linux-2.5.12/drivers/mtd/mtdblock_ro.c linux/drivers/mtd/mtdblock_ro.c
+--- linux-2.5.12/drivers/mtd/mtdblock_ro.c	2002-05-01 02:08:57.000000000 +0200
++++ linux/drivers/mtd/mtdblock_ro.c	2002-05-02 04:09:00.000000000 +0200
+@@ -7,7 +7,7 @@
+ 
+ #ifdef MTDBLOCK_DEBUG
+ #define DEBUGLVL debug
+-#endif							       
 +#endif
  
- unsigned int __init pci_init_pdcadma(struct pci_dev *dev)
+ 
+ #include <linux/module.h>
+@@ -16,7 +16,6 @@
+ #include <linux/mtd/mtd.h>
+ #include <linux/mtd/compatmac.h>
+ 
+-#define LOCAL_END_REQUEST
+ #define MAJOR_NR MTD_BLOCK_MAJOR
+ #define DEVICE_NAME "mtdblock"
+ #define DEVICE_NR(device) (device)
+@@ -34,6 +33,7 @@
+ MODULE_PARM(debug, "i");
+ #endif
+ 
++static spinlock_t mtdro_lock;
+ 
+ static int mtd_sizes[MAX_MTD_DEVICES];
+ 
+@@ -106,7 +106,7 @@
+ 
+ static void mtdblock_request(RQFUNC_ARG)
  {
-@@ -76,9 +76,9 @@
- 	if (!pdcadma_proc) {
- 		pdcadma_proc = 1;
- 		bmide_dev = dev;
--		pdcadma_display_info = &pdcadma_get_info;
-+		pdcadma_display_info = pdcadma_get_info;
- 	}
--#endif /* DISPLAY_PDCADMA_TIMINGS && CONFIG_PROC_FS */
-+#endif
+-   struct request *current_request;
++   struct request *req;
+    unsigned int res = 0;
+    struct mtd_info *mtd;
+ 
+@@ -115,50 +115,48 @@
+       /* Grab the Request and unlink it from the request list, INIT_REQUEST
+        	 will execute a return if we are done. */
+       INIT_REQUEST;
+-      current_request = CURRENT;
++      req = CURRENT;
+    
+-      if (minor(current_request->rq_dev) >= MAX_MTD_DEVICES)
++      if (minor(req->rq_dev) >= MAX_MTD_DEVICES)
+       {
+ 	 printk("mtd: Unsupported device!\n");
+-	 mtdblock_end_request(current_request, 0);
++	 mtdblock_end_request(req, 0);
+ 	 continue;
+       }
+       
+       // Grab our MTD structure
+ 
+-      mtd = __get_mtd_device(NULL, minor(current_request->rq_dev));
++      mtd = __get_mtd_device(NULL, minor(req->rq_dev));
+       if (!mtd) {
+ 	      printk("MTD device %d doesn't appear to exist any more\n", CURRENT_DEV);
+-	      mtdblock_end_request(current_request, 0);
++	      mtdblock_end_request(req, 0);
+       }
+ 
+-      if (current_request->sector << 9 > mtd->size ||
+-	  (current_request->sector + current_request->nr_sectors) << 9 > mtd->size)
++      if (req->sector << 9 > mtd->size ||
++	  (req->sector + req->nr_sectors) << 9 > mtd->size)
+       {
+ 	 printk("mtd: Attempt to read past end of device!\n");
+-	 printk("size: %x, sector: %lx, nr_sectors %lx\n", mtd->size, current_request->sector, current_request->nr_sectors);
+-	 mtdblock_end_request(current_request, 0);
++	 printk("size: %x, sector: %lx, nr_sectors %lx\n", mtd->size, req->sector, req->nr_sectors);
++	 mtdblock_end_request(req, 0);
+ 	 continue;
+       }
+       
+       /* Remove the request we are handling from the request list so nobody messes
+          with it */
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,2,0)
+       /* Now drop the lock that the ll_rw_blk functions grabbed for us
+          and process the request. This is necessary due to the extreme time
+          we spend processing it. */
+-      spin_unlock_irq(&io_request_lock);
+-#endif
++      spin_unlock_irq(&mtdro_lock);
+ 
+       // Handle the request
+-      switch (current_request->cmd)
++      switch (rq_data_dir(req))
+       {
+          size_t retlen;
+ 
+ 	 case READ:
+-	 if (MTD_READ(mtd,current_request->sector<<9, 
+-		      current_request->nr_sectors << 9, 
+-		      &retlen, current_request->buffer) == 0)
++	 if (MTD_READ(mtd,req->sector<<9, 
++		      req->nr_sectors << 9, 
++		      &retlen, req->buffer) == 0)
+ 	    res = 1;
+ 	 else
+ 	    res = 0;
+@@ -166,8 +164,8 @@
+ 	 
+ 	 case WRITE:
+ 
+-	 /* printk("mtdblock_request WRITE sector=%d(%d)\n",current_request->sector,
+-		current_request->nr_sectors);
++	 /* printk("mtdblock_request WRITE sector=%d(%d)\n",req->sector,
++		req->nr_sectors);
+ 	 */
+ 
+ 	 // Read only device
+@@ -178,9 +176,9 @@
+ 	 }
+ 
+ 	 // Do the write
+-	 if (MTD_WRITE(mtd,current_request->sector<<9, 
+-		       current_request->nr_sectors << 9, 
+-		       &retlen, current_request->buffer) == 0)
++	 if (MTD_WRITE(mtd,req->sector<<9, 
++		       req->nr_sectors << 9, 
++		       &retlen, req->buffer) == 0)
+ 	    res = 1;
+ 	 else
+ 	    res = 0;
+@@ -193,10 +191,8 @@
+       }
+ 
+       // Grab the lock and re-thread the item onto the linked list
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,2,0)
+-	spin_lock_irq(&io_request_lock);
+-#endif
+-	mtdblock_end_request(current_request, res);
++	spin_lock_irq(&mtdro_lock);
++	mtdblock_end_request(req, res);
+    }
+ }
+ 
+@@ -255,6 +251,7 @@
+ {
+ 	int i;
+ 
++	spin_lock_init(&mtdro_lock);
+ 	if (register_blkdev(MAJOR_NR,DEVICE_NAME,&mtd_fops)) {
+ 		printk(KERN_NOTICE "Can't allocate major number %d for Memory Technology Devices.\n",
+ 		       MTD_BLOCK_MAJOR);
+@@ -270,7 +267,7 @@
+ 	blksize_size[MAJOR_NR] = NULL;
+ 	blk_size[MAJOR_NR] = mtd_sizes;
+ 	
+-	blk_init_queue(BLK_DEFAULT_QUEUE(MAJOR_NR), &mtdblock_request);
++	blk_init_queue(BLK_DEFAULT_QUEUE(MAJOR_NR), &mtdblock_request, &mtdro_lock);
  	return 0;
  }
  
-diff -ur linux-2.5.12/drivers/ide/piix.c linux/drivers/ide/piix.c
---- linux-2.5.12/drivers/ide/piix.c	2002-05-01 02:08:55.000000000 +0200
-+++ linux/drivers/ide/piix.c	2002-05-01 23:06:04.000000000 +0200
-@@ -471,7 +471,9 @@
- 				break;
- 			}
+diff -ur linux-2.5.12/drivers/s390/block/dasd_int.h linux/drivers/s390/block/dasd_int.h
+--- linux-2.5.12/drivers/s390/block/dasd_int.h	2002-05-01 02:09:00.000000000 +0200
++++ linux/drivers/s390/block/dasd_int.h	2002-05-02 02:46:23.000000000 +0200
+@@ -61,47 +61,6 @@
+ #include <asm/todclk.h>
+ #include <asm/debug.h>
  
-+#ifndef CONFIG_BLK_DEV_PIIX_TRY133
- 		case PIIX_UDMA_100:
-+#endif
- 		case PIIX_UDMA_133:
- 			pci_read_config_dword(dev, PIIX_IDECFG, &u);
- 			piix_80w = ((u & 0x30) ? 1 : 0) | ((u & 0xc0) ? 2 : 0);
-@@ -484,7 +486,7 @@
- 
- 	if (piix_config->flags & PIIX_PINGPONG) {
- 		pci_read_config_dword(dev, PIIX_IDECFG, &u);
--		u |= 0x400; 
-+		u |= 0x400;
- 		pci_write_config_dword(dev, PIIX_IDECFG, u);
- 	}
- 
-diff -ur linux-2.5.12/drivers/ide/trm290.c linux/drivers/ide/trm290.c
---- linux-2.5.12/drivers/ide/trm290.c	2002-05-01 02:08:49.000000000 +0200
-+++ linux/drivers/ide/trm290.c	2002-05-02 00:56:18.000000000 +0200
-@@ -173,7 +173,7 @@
- }
- 
- #ifdef CONFIG_BLK_DEV_IDEDMA
--static int trm290_dmaproc (ide_dma_action_t func, ide_drive_t *drive)
-+static int trm290_dmaproc (ide_dma_action_t func, struct ata_device *drive, struct request *rq)
+-/* Kernel Version Compatibility section */
+-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,3,98))
+-typedef struct request *request_queue_t;
+-#define block_device_operations file_operations
+-#define __setup(x,y) struct dasd_device_t
+-#define devfs_register_blkdev(major,name,ops) register_blkdev(major,name,ops)
+-#define register_disk(dd,dev,partn,ops,size) \
+-do { \
+-	dd->sizes[MINOR(dev)] = size >> 1; \
+-	resetup_one_dev(dd,MINOR(dev)>>DASD_PARTN_BITS); \
+-} while(0)
+-#define init_waitqueue_head(x) do { *x = NULL; } while(0)
+-#define blk_cleanup_queue(x) do {} while(0)
+-#define blk_init_queue(x...) do {} while(0)
+-#define blk_queue_headactive(x...) do {} while(0)
+-#define blk_queue_make_request(x) do {} while(0)
+-#define list_empty(x) (0)
+-#define INIT_BLK_DEV(d_major,d_request_fn,d_queue_fn,d_current) \
+-do { \
+-        blk_dev[d_major].request_fn = d_request_fn; \
+-        blk_dev[d_major].queue = d_queue_fn; \
+-        blk_dev[d_major].current_request = d_current; \
+-} while(0)
+-#define INIT_GENDISK(D_MAJOR,D_NAME,D_PARTN_BITS,D_PER_MAJOR) \
+-	major:D_MAJOR, \
+-	major_name:D_NAME, \
+-	minor_shift:D_PARTN_BITS, \
+-	max_nr:D_PER_MAJOR, \
+-	nr_real:D_PER_MAJOR,
+-static inline struct request * 
+-dasd_next_request( request_queue_t *queue ) 
+-{
+-    return *queue;
+-}
+-static inline void 
+-dasd_dequeue_request( request_queue_t * q, struct request *req )
+-{
+-        *q = req->next;
+-        req->next = NULL;
+-}
+-#else
+ #define INIT_BLK_DEV(d_major,d_request_fn,d_queue_fn,d_current) \
+ do { \
+         blk_dev[d_major].queue = d_queue_fn; \
+@@ -111,18 +70,17 @@
+ 	major_name:D_NAME, \
+ 	minor_shift:D_PARTN_BITS, \
+ 	nr_real:D_PER_MAJOR, \
+-        fops:&dasd_device_operations, 
+-static inline struct request * 
+-dasd_next_request( request_queue_t *queue ) 
++        fops:&dasd_device_operations,
++static inline struct request *
++dasd_next_request( request_queue_t *queue )
  {
- 	struct ata_channel *hwif = drive->channel;
- 	unsigned int count, reading = 2, writing = 0;
-@@ -206,12 +206,12 @@
- 		case ide_dma_test_irq:
- 			return (inw(hwif->dma_base+2) == 0x00ff);
- 		default:
--			return ide_dmaproc(func, drive);
-+			return ide_dmaproc(func, drive, rq);
- 	}
- 	trm290_prepare_drive(drive, 0);	/* select PIO xfer */
- 	return 1;
+         return elv_next_request(queue);
  }
--#endif /* CONFIG_BLK_DEV_IDEDMA */
-+#endif
+-static inline void 
++static inline void
+ dasd_dequeue_request( request_queue_t * q, struct request *req )
+ {
+         blkdev_dequeue_request (req);
+ }
+-#endif
+ 
+ /* dasd_range_t are used for dynamic device att-/detachment */
+ typedef struct dasd_devreg_t {
+diff -ur linux-2.5.12/drivers/s390/block/xpram.c linux/drivers/s390/block/xpram.c
+--- linux-2.5.12/drivers/s390/block/xpram.c	2002-05-01 02:09:00.000000000 +0200
++++ linux/drivers/s390/block/xpram.c	2002-05-02 02:48:12.000000000 +0200
+@@ -1016,13 +1016,9 @@
+ 	 * arrays if it uses the default values.
+ 	 */
+ 
+-#if (XPRAM_VERSION == 22)
+-	blk_dev[major].request_fn = xpram_request;
+-#elif (XPRAM_VERSION == 24)
+ 	q = BLK_DEFAULT_QUEUE (major);
+ 	blk_init_queue (q, xpram_request);
+ 	blk_queue_hardsect_size(q, xpram_hardsect);
+-#endif /* V22/V24 */
+ 
+ 	/* we want to have XPRAM_UNUSED blocks security buffer between devices */
+ 	mem_usable=xpram_mem_avail-(XPRAM_UNUSED*(xpram_devs-1));
+@@ -1148,9 +1144,6 @@
+ 	blksize_size[major] = NULL;
+  fail_malloc_devices:
+  fail_malloc:
+-#if (XPRAM_VERSION == 22)
+-	blk_dev[major].request_fn = NULL;
+-#endif /* V22 */
+ 	/* ???	unregister_chrdev(major, "xpram"); */
+ 	unregister_blkdev(major, "xpram");
+ 	return result;
+@@ -1180,9 +1173,6 @@
+ 
+ 	/* first of all, reset all the data structures */
+ 
+-#if (XPRAM_VERSION == 22)
+-	blk_dev[major].request_fn = NULL;
+-#endif /* V22 */
+ 	kfree(blksize_size[major]);
+ 	kfree(xpram_offsets);
+ 	blk_clear(major);
+diff -ur linux-2.5.12/drivers/s390/char/tapedefs.h linux/drivers/s390/char/tapedefs.h
+--- linux-2.5.12/drivers/s390/char/tapedefs.h	2002-05-01 02:08:47.000000000 +0200
++++ linux/drivers/s390/char/tapedefs.h	2002-05-02 02:42:19.000000000 +0200
+@@ -33,44 +33,17 @@
+ #define TAPEBLOCK_RETRIES 20     // number of retries, when a block-dev request fails.
+ 
+ 
+-#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,3,98))
+ #define INIT_BLK_DEV(d_major,d_request_fn,d_queue_fn,d_current) \
+ do { \
+         blk_dev[d_major].queue = d_queue_fn; \
+ } while(0)
+-static inline struct request * 
+-tape_next_request( request_queue_t *queue ) 
++static inline struct request *
++tape_next_request( request_queue_t *queue )
+ {
+         return elv_next_request(queue);
+ }
+-static inline void 
++static inline void
+ tape_dequeue_request( request_queue_t * q, struct request *req )
+ {
+         blkdev_dequeue_request (req);
+ }
+-#else 
+-#define s390_dev_info_t dev_info_t
+-typedef struct request *request_queue_t;
+-#ifndef init_waitqueue_head
+-#define init_waitqueue_head(x) do { *x = NULL; } while(0)
+-#endif
+-#define blk_init_queue(x,y) do {} while(0)
+-#define blk_queue_headactive(x,y) do {} while(0)
+-#define INIT_BLK_DEV(d_major,d_request_fn,d_queue_fn,d_current) \
+-do { \
+-        blk_dev[d_major].request_fn = d_request_fn; \
+-        blk_dev[d_major].queue = d_queue_fn; \
+-        blk_dev[d_major].current_request = d_current; \
+-} while(0)
+-static inline struct request *
+-tape_next_request( request_queue_t *queue ) 
+-{
+-    return *queue;
+-}
+-static inline void 
+-tape_dequeue_request( request_queue_t * q, struct request *req )
+-{
+-        *q = req->next;
+-        req->next = NULL;
+-}
+-#endif 
+diff -ur linux-2.5.12/drivers/scsi/sr.c linux/drivers/scsi/sr.c
+--- linux-2.5.12/drivers/scsi/sr.c	2002-05-01 02:08:50.000000000 +0200
++++ linux/drivers/scsi/sr.c	2002-05-02 03:26:11.000000000 +0200
+@@ -49,7 +49,6 @@
+ #include <asm/uaccess.h>
+ 
+ #define MAJOR_NR SCSI_CDROM_MAJOR
+-#define LOCAL_END_REQUEST
+ #include <linux/blk.h>
+ #include "scsi.h"
+ #include "hosts.h"
+diff -ur linux-2.5.12/include/linux/blkdev.h linux/include/linux/blkdev.h
+--- linux-2.5.12/include/linux/blkdev.h	2002-05-01 02:08:49.000000000 +0200
++++ linux/include/linux/blkdev.h	2002-05-02 02:55:24.000000000 +0200
+@@ -336,6 +336,8 @@
+ 	blk_size_in_bytes[major] = NULL;
+ #endif
+ 	blksize_size[major] = NULL;
++	blk_dev[major].queue = NULL;
++
+ }
+ 
+ extern inline int queue_hardsect_size(request_queue_t *q)
+diff -ur linux-2.5.12/include/linux/blk.h linux/include/linux/blk.h
+--- linux-2.5.12/include/linux/blk.h	2002-05-01 02:08:51.000000000 +0200
++++ linux/include/linux/blk.h	2002-05-02 04:17:46.000000000 +0200
+@@ -97,19 +97,14 @@
+ } while (0)
+ 
+ #define elv_add_request(q, rq, back) _elv_add_request((q), (rq), (back), 1)
+-	
+-#if defined(MAJOR_NR) || defined(IDE_DRIVER)
++
++#if defined(MAJOR_NR)
  
  /*
-  * Invoked from ide-dma.c at boot time.
-@@ -263,8 +263,8 @@
- 	ide_setup_dma(hwif, (hwif->config_data + 4) ^ (hwif->unit ? 0x0080 : 0x0000), 3);
+  * Add entries as needed.
+  */
  
- #ifdef CONFIG_BLK_DEV_IDEDMA
--	hwif->dmaproc = &trm290_dmaproc;
--#endif /* CONFIG_BLK_DEV_IDEDMA */
-+	hwif->udma = trm290_dmaproc;
-+#endif
+-#ifdef IDE_DRIVER
+-
+-#define DEVICE_NR(device)	(minor(device) >> PARTN_BITS)
+-#define DEVICE_NAME "ide"
+-
+-#elif (MAJOR_NR == RAMDISK_MAJOR)
++#if (MAJOR_NR == RAMDISK_MAJOR)
  
- 	hwif->selectproc = &trm290_selectproc;
- 	hwif->autodma = 0;				/* play it safe for now */
+ /* ram disk */
+ #define DEVICE_NAME "ramdisk"
+@@ -291,7 +286,6 @@
+ #endif /* MAJOR_NR == whatever */
+ 
+ #if (MAJOR_NR != SCSI_TAPE_MAJOR) && (MAJOR_NR != OSST_MAJOR)
+-#if !defined(IDE_DRIVER)
+ 
+ #ifndef CURRENT
+ #define CURRENT elv_next_request(&blk_dev[MAJOR_NR].request_queue)
+@@ -330,12 +324,9 @@
+ 	if (!CURRENT->bio)					\
+ 		panic(DEVICE_NAME ": no bio");			\
+ 
+-#endif /* !defined(IDE_DRIVER) */
+-
+ /*
+- * If we have our own end_request, we do not want to include this mess
++ * Default end request handler for "legacy" drivers.
+  */
+-#ifndef LOCAL_END_REQUEST
+ static inline void end_request(int uptodate)
+ {
+ 	struct request *req = CURRENT;
+@@ -347,8 +338,7 @@
+ 	blkdev_dequeue_request(req);
+ 	end_that_request_last(req);
+ }
+-#endif /* !LOCAL_END_REQUEST */
+ #endif /* (MAJOR_NR != SCSI_TAPE_MAJOR) */
+-#endif /* defined(MAJOR_NR) || defined(IDE_DRIVER) */
++#endif /* defined(MAJOR_NR) */
+ 
+ #endif /* _BLK_H */
 diff -ur linux-2.5.12/include/linux/ide.h linux/include/linux/ide.h
 --- linux-2.5.12/include/linux/ide.h	2002-05-01 02:08:49.000000000 +0200
 +++ linux/include/linux/ide.h	2002-05-02 04:18:23.000000000 +0200
-@@ -283,10 +283,8 @@
- 	 */
- 	request_queue_t	queue;	/* per device request queue */
+@@ -642,13 +640,6 @@
+ extern struct ata_channel ide_hwifs[];		/* master data repository */
+ extern int noautodma;
  
--	/* Those are directly injected jiffie values. They should go away and
--	 * we should use generic timers instead!!!
--	 */
--	unsigned long PADAM_sleep;	/* sleep until this time */
-+
-+	unsigned long sleep;	/* sleep until this time */
+-/*
+- * We need blk.h, but we replace its end_request by our own version.
+- */
+-#define IDE_DRIVER		/* Toggle some magic bits in blk.h */
+-#define LOCAL_END_REQUEST	/* Don't generate end_request in blk.h */
+-#include <linux/blk.h>
+-
+ extern int __ide_end_request(struct ata_device *, struct request *, int, int);
+ extern int ide_end_request(struct ata_device *drive, struct request *, int);
  
- 	/* Flags requesting/indicating one of the following special commands
- 	 * executed on the request queue.
+diff -ur linux-2.5.12/include/linux/nbd.h linux/include/linux/nbd.h
+--- linux-2.5.12/include/linux/nbd.h	2002-05-01 02:09:01.000000000 +0200
++++ linux/include/linux/nbd.h	2002-05-02 04:22:03.000000000 +0200
+@@ -25,8 +25,6 @@
+ #include <linux/locks.h>
+ #include <asm/semaphore.h>
+ 
+-#define LOCAL_END_REQUEST
+-
+ #include <linux/blk.h>
+ 
+ #ifdef PARANOIA
 
---------------060808070107040600020602--
+--------------060408050607000906060107--
 

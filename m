@@ -1,49 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263085AbUKTCnh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263076AbUKTDdz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263085AbUKTCnh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 21:43:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263076AbUKTCnQ
+	id S263076AbUKTDdz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 22:33:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263071AbUKTDcc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 21:43:16 -0500
-Received: from baikonur.stro.at ([213.239.196.228]:55685 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S263067AbUKTCev
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 21:34:51 -0500
-Subject: [patch 08/10]  mtd/cfi_cmdset_0001: 	replace schedule_timeout() with msleep()
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, nacc@us.ibm.com
-From: janitor@sternwelten.at
-Date: Sat, 20 Nov 2004 03:34:50 +0100
-Message-ID: <E1CVL5O-0001Xu-LJ@sputnik>
+	Fri, 19 Nov 2004 22:32:32 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:23682 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S263092AbUKTDas (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 22:30:48 -0500
+Subject: Re: [PATCH 1/2] pci: Block config access during BIST
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: brking@us.ibm.com
+Cc: greg@kroah.com, paulus@samba.org, benh@kernel.crashing.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200411192023.iAJKNNSt004374@d03av02.boulder.ibm.com>
+References: <200411192023.iAJKNNSt004374@d03av02.boulder.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1100917635.9398.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 20 Nov 2004 02:27:16 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Gwe, 2004-11-19 at 20:23, brking@us.ibm.com wrote:
 
+> +#define PCI_READ_CONFIG(size,type)	\
+> +int pci_read_config_##size	\
+> +	(struct pci_dev *dev, int pos, type *val)	\
+> +{									\
+> +	unsigned long flags;					\
+> +	int ret = 0;						\
+> +	if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
+> +	spin_lock_irqsave(&access_lock, flags);		\
+> +	if (!dev->block_cfg_access)				\
+> +		ret = pci_bus_read_config_##size(dev->bus, dev->devfn, pos, val);	\
+> +	else if (pos < sizeof(dev->saved_config_space))		\
+> +		*val = (type)dev->saved_config_space[pos/sizeof(dev->saved_config_space[0])]; \
+> +	else								\
+> +		*val = -1;						\
+> +	spin_unlock_irqrestore(&access_lock, flags);	\
+> +	return ret;							\
+> +}
 
+Several vendors (for good or for bad) require configuration space is
+touched from interrupts on fast paths. This change will _really_ hurt
+random PC class machines so please make it more sensible in its
+condition handling.
 
-Any comments would be appreciated.
+To start with you can do something like
 
-Description: Use msleep() instead of schedule_timeout()
-to guarantee the task delays as expected.
+	if(unlikely(dev->designed_badly)) {
+		slow_spinlock_path
+	}
+	/* Designed less badly 8) */
+	existing code path
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+Even better, put that code in your private debug tree. Replace the
+locked cases with BUG() and fix the driver to get its internal locking
+right in this situation.
 
----
+It seems wrong to put expensive checks in core code paths when you could
+just as easily provide
 
- linux-2.6.10-rc2-bk4-max/drivers/mtd/chips/cfi_cmdset_0001.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+	my_device_is_stupid_pci_read_config_byte()
 
-diff -puN drivers/mtd/chips/cfi_cmdset_0001.c~msleep-drivers_mtd_chips_cfi_cmdset_0001 drivers/mtd/chips/cfi_cmdset_0001.c
---- linux-2.6.10-rc2-bk4/drivers/mtd/chips/cfi_cmdset_0001.c~msleep-drivers_mtd_chips_cfi_cmdset_0001	2004-11-19 17:15:32.000000000 +0100
-+++ linux-2.6.10-rc2-bk4-max/drivers/mtd/chips/cfi_cmdset_0001.c	2004-11-19 17:15:32.000000000 +0100
-@@ -1683,7 +1683,7 @@ static int do_xxlock_oneblock(struct map
- 		BUG();
- 
- 	spin_unlock(chip->mutex);
--	schedule_timeout(HZ);
-+	msleep(1000);
- 	spin_lock(chip->mutex);
- 
- 	/* FIXME. Use a timer to check this, and return immediately. */
-_
+and equivalent lock taking functions that wrap the existing ones and are
+locked against the reset path without hurting sane computing devices
+(and PC's).
+
+Alan
+

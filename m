@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314499AbSDXAeX>; Tue, 23 Apr 2002 20:34:23 -0400
+	id <S314493AbSDXAhq>; Tue, 23 Apr 2002 20:37:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314500AbSDXAdW>; Tue, 23 Apr 2002 20:33:22 -0400
-Received: from holomorphy.com ([66.224.33.161]:30132 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S314498AbSDXAdU>;
-	Tue, 23 Apr 2002 20:33:20 -0400
-Date: Tue, 23 Apr 2002 17:32:22 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Dieter N?tzel <Dieter.Nuetzel@hamburg.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4: Any plans for new bootmem and waitq patches?
-Message-ID: <20020424003222.GK21206@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200204240013.53960.Dieter.Nuetzel@hamburg.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S314497AbSDXAhp>; Tue, 23 Apr 2002 20:37:45 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:60862 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S314493AbSDXAho>; Tue, 23 Apr 2002 20:37:44 -0400
+Date: Tue, 23 Apr 2002 20:37:43 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200204240037.g3O0bhT11578@devserv.devel.redhat.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+In-Reply-To: <mailman.1019594711.6915.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 24, 2002 at 12:13:53AM +0200, Dieter N?tzel wrote:
-> Hello,
-> I did some tests with bootmem-2.4.17-pre6 and waitq-2.4.17-mainline-1 (don't 
-> know who wrote it in the first place) on top of 2.4.17-preX with good 
-> results.
-> Are there any plans to get this into 2.4 mainline?
-> Thanks,
-> 	Dieter
-> BTW waitq-2.4.17-mainline-1 do not apply to latest kernel versions.
+>> > The well-defined resync points are the 2.5.N releases.  If -pre goes away,
+>> > then the dot-releases might need to come a little closer together, that's all.
+>> 
+>> I agree.
+>> 
+>> I've told myself that I shouldn't have done "-preX" releases at all in
+>> 2.5.x - the "real" numbers have become diluted by them, and I suspect the
+>> -pre's are really just because I got used to making them during the
+>> over-long 2.4.x time.
+> 
+> I believe -pre's are still important. Daily snapshots are too likely to be
+> broken, and "real" releases are different from -pre ones (with *usefull*
+> difference): you can ignore -pre release, but you can't ignore real release
+> (because real releases are relative to each other).
 
-Well, I wrote both.
+Pavel, I think it is an delusion. In practical terms we have
+a string of -pre and traditional releases which differ really
+little in terms of reliability. I number of 2.5.x without -pre
+fail to compile different non-core modules. 2.5.9 hangs on boot
+on my machine, while -preX worked.
 
-The bootmem patch's benefits are not very visible (if at all) for
-machines other than simulators and some unusual large systems. I
-am not pressing for its inclusion in mainline for the basic reason
-that what it addresses does not affect the systems I'm using anymore,
-if only because the systems changed. =)
+Marcelo pays more attention to stabilizing suffixless releases,
+and as well he should. However, I do not see how this can
+be meaningfuly done in 2.5.x. I am not going to shed any tears
+over the demise of -pre in unstable series, provided that
+releases get spaced tighter, with smaller patch size between them.
 
-The waitqueue patch has been integrated into both mainline 2.4 and 2.5.
-
-Cheers,
-Bill
+-- Pete

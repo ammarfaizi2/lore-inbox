@@ -1,69 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270632AbTGUSCI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 14:02:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270680AbTGUSCI
+	id S270622AbTGURsv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 13:48:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270650AbTGURrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 14:02:08 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:34268 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S270677AbTGUSBY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 14:01:24 -0400
-Date: Mon, 21 Jul 2003 14:23:53 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: mason@suse.com, andrea@suse.de, riel@redhat.com,
-       linux-kernel@vger.kernel.org, maillist@jg555.com
-Subject: Re: Bug Report: 2.4.22-pre5: BUG in page_alloc (fwd)
-In-Reply-To: <20030721170517.1dd1f910.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.55L.0307211422010.26736@freak.distro.conectiva>
-References: <Pine.LNX.4.55L.0307150859130.5146@freak.distro.conectiva>
- <1058297936.4016.86.camel@tiny.suse.com> <Pine.LNX.4.55L.0307160836270.30825@freak.distro.conectiva>
- <20030718112758.1da7ab03.skraw@ithnet.com> <Pine.LNX.4.55L.0307180921120.6642@freak.distro.conectiva>
- <20030718145033.5ff05880.skraw@ithnet.com> <Pine.LNX.4.55L.0307181109220.7889@freak.distro.conectiva>
- <20030721104906.34ae042a.skraw@ithnet.com> <20030721170517.1dd1f910.skraw@ithnet.com>
+	Mon, 21 Jul 2003 13:47:47 -0400
+Received: from smtp11.eresmas.com ([62.81.235.111]:23187 "EHLO
+	smtp11.eresmas.com") by vger.kernel.org with ESMTP id S270652AbTGURpk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 13:45:40 -0400
+Message-ID: <3F1C2A44.7020504@wanadoo.es>
+Date: Mon, 21 Jul 2003 20:00:36 +0200
+From: Xose Vazquez Perez <xose@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: gl, es, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.22-pre7 bugs
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi,
 
+there is a bug at drivers/hotplug/acpiphp_glue.c :
 
-On Mon, 21 Jul 2003, Stephan von Krawczynski wrote:
+--cut--
+gcc -D__KERNEL__ -I/datos/kernel/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon -DMODULE -DMODVERSIONS -include /datos/kernel/linux/include/linux/modversions.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=acpiphp_glue  -c -o acpiphp_glue.o acpiphp_glue.c
+acpiphp_glue.c:1172: variable `acpi_pci_hp_driver' has initializer but incomplete type
+acpiphp_glue.c:1173: unknown field `add' specified in initializer
+acpiphp_glue.c:1173: warning: excess elements in struct initializer
+acpiphp_glue.c:1173: warning: (near initialization for `acpi_pci_hp_driver')
+acpiphp_glue.c:1174: unknown field `remove' specified in initializer
+acpiphp_glue.c:1174: warning: excess elements in struct initializer
+acpiphp_glue.c:1174: warning: (near initialization for `acpi_pci_hp_driver')
+acpiphp_glue.c: In function `acpiphp_glue_init':
+acpiphp_glue.c:1188: warning: implicit declaration of function `acpi_pci_register_driver'
+/datos/kernel/linux/include/linux/ctype.h: At top level:
+acpiphp_glue.c:1172: storage size of `acpi_pci_hp_driver' isn't known
+make[2]: *** [acpiphp_glue.o] Error 1
+make[2]: Leaving directory `/datos/kernel/linux/drivers/hotplug'
+make[1]: *** [_modsubdir_hotplug] Error 2
+make[1]: Leaving directory `/datos/kernel/linux/drivers'
+make: *** [_mod_drivers] Error 2
+--end--
 
-> On Mon, 21 Jul 2003 10:49:06 +0200
-> Stephan von Krawczynski <skraw@ithnet.com> wrote:
->
-> > On Fri, 18 Jul 2003 11:14:15 -0300 (BRT)
-> > Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
-> >
-> > >
-> > > I have just started stress testing a 8way OSDL box to see if I can
-> > > reproduce the problem. I'm using pre6+axboes BH_Sync patch.
-> > >
-> > > I'm running 50 dbench clients on aic7xxx (ext2) and 50 dbench clients on
-> > > DAC960 (ext3). Lets see what happens.
-> > >
-> > > After lunch I'll keep looking at the oopses. During the morning I only had
-> > > time to setup the OSDL box and start the tests.
-> >
-> > Hello Marcelo,
-> >
-> > have you seen anything in your tests? My box just froze again after 3 days
-> > during NFS action. This was with pre6, I am switching over to pre7.
->
-> I managed to freeze the pre7 box within these few hours. There was no nfs
-> involved, only tar-to-tape.
+and drivers/scsi/aic79xx is empty, delete it.
 
-You had NMI on, correct? Sysrq doesnt work, correct?
+-thanks-
 
-> I switched back to 2.4.21 to see if it is still stable. Is there a
-> possibility that the i/o-scheduler has another flaw somewhere (just like
-> during mount previously) ...
-
-It might be a problem in the IO scheduler, yes.
-
-Lets isolate the problems: If 2.4.21 doenst lockup, try 2.4.22-pre7
-without drivers/block/ll_rw_blk{.c,.h} changes.
+regards,
+-- 
+I don't even see the code. All I see is blonde, brunette, redhead.
 

@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290768AbSAYSKV>; Fri, 25 Jan 2002 13:10:21 -0500
+	id <S290771AbSAYSSB>; Fri, 25 Jan 2002 13:18:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290761AbSAYSKL>; Fri, 25 Jan 2002 13:10:11 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36879 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S290760AbSAYSKA>; Fri, 25 Jan 2002 13:10:00 -0500
-Date: Fri, 25 Jan 2002 10:08:56 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: John Levon <movement@marcelothewonderpenguin.com>
-cc: Andi Kleen <ak@suse.de>, <linux-kernel@vger.kernel.org>, <davej@suse.de>
-Subject: Re: [PATCH] Fix 2.5.3pre reiserfs BUG() at boot time
-In-Reply-To: <20020125180149.GB45738@compsoc.man.ac.uk>
-Message-ID: <Pine.LNX.4.33.0201251006220.1632-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290767AbSAYSRv>; Fri, 25 Jan 2002 13:17:51 -0500
+Received: from mailhost.nmt.edu ([129.138.4.52]:29969 "EHLO mailhost.nmt.edu")
+	by vger.kernel.org with ESMTP id <S290783AbSAYSRl>;
+	Fri, 25 Jan 2002 13:17:41 -0500
+Date: Fri, 25 Jan 2002 11:17:31 -0700
+From: Val Henson <val@nmt.edu>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Athlon/AGP issue update
+Message-ID: <20020125111731.B26874@boardwalk>
+In-Reply-To: <20020123171419.29358@mailhost.mipsys.com> <200201232314.g0NNEXe457847@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200201232314.g0NNEXe457847@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Wed, Jan 23, 2002 at 06:14:33PM -0500
+Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 23, 2002 at 06:14:33PM -0500, Albert D. Cahalan wrote:
+> 
+> It's a waste to use BAT mappings for the kernel anyway, because
+> we try to keep the huge computations and graphics in userspace.
+> With page tables under BAT mappings, privileged user code could
+> be allowed to steal BAT registers for locked memory or IO memory.
 
-On Fri, 25 Jan 2002, John Levon wrote:
->
-> please apply this too then.
+The rationale behind BAT mapping the kernel is that the kernel does not
+use any TLB entries, leaving them all for user processes. (As long as
+we have < 512MB RAM.)
 
-I would prefer instead just avoiding the copy altogether, and just save
-the name pointer - with no length restrictions.
-
-Right now the code has the comment
-
-   /* Copy name over so we don't have problems with unloaded modules */
-
-but that was written before "kmem_cache_destroy()" existed, and we should
-long ago have fixed any modules that don't properly destroy their caches
-when they exit (and yes, I know the difference between "should" and "did",
-but that's not an excuse for a bad interface).
-
-		Linus
-
+-VAL

@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268166AbUHKSxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268167AbUHKS4Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268166AbUHKSxG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 14:53:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268175AbUHKSxG
+	id S268167AbUHKS4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 14:56:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268168AbUHKS4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 14:53:06 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:29081 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S268166AbUHKSwo
+	Wed, 11 Aug 2004 14:56:16 -0400
+Received: from hoemail1.lucent.com ([192.11.226.161]:36244 "EHLO
+	hoemail1.lucent.com") by vger.kernel.org with ESMTP id S268167AbUHKS4N
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 14:52:44 -0400
-Date: Wed, 11 Aug 2004 20:54:53 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Benno <benjl@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Building on platforms other than Linux
-Message-ID: <20040811185453.GA7217@mars.ravnborg.org>
-Mail-Followup-To: Benno <benjl@cse.unsw.edu.au>,
-	linux-kernel@vger.kernel.org
-References: <20040811091349.GX862@cse.unsw.edu.au>
-Mime-Version: 1.0
+	Wed, 11 Aug 2004 14:56:13 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040811091349.GX862@cse.unsw.edu.au>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16666.27552.585978.551609@gargle.gargle.HOWL>
+Date: Wed, 11 Aug 2004 14:55:28 -0400
+From: "John Stoffel" <stoffel@lucent.com>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       James Ketrenos <jketreno@linux.intel.com>, Pavel Machek <pavel@suse.cz>,
+       Jeff Chua <jeffchua@silk.corp.fedex.com>, netdev@oss.sgi.com,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ipw2100 wireless driver
+In-Reply-To: <20040811170208.GG10100@louise.pinerecords.com>
+References: <20040809201556.GB9677@louise.pinerecords.com>
+	<Pine.LNX.4.61.0408101258130.1290@boston.corp.fedex.com>
+	<20040810075558.A14154@infradead.org>
+	<20040810101640.GF9034@atrey.karlin.mff.cuni.cz>
+	<4119F203.1070009@linux.intel.com>
+	<20040811114437.A27439@infradead.org>
+	<411A478E.1080101@linux.intel.com>
+	<20040811093043.522cc5a0@dell_ss3.pdx.osdl.net>
+	<20040811163333.GE10100@louise.pinerecords.com>
+	<20040811175105.A30188@infradead.org>
+	<20040811170208.GG10100@louise.pinerecords.com>
+X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 11, 2004 at 07:13:49PM +1000, Benno wrote:
-> Hi,
-> 
-> I was wondering if there were any, in priniciple, objections
-> to making the Linux kernel buildable on different Unix-like 
-> platforms?
 
-The userbase for building kernels are only increasing and there
-continue to be more focus from the embedded people.
-Having experince in this field first-hand tells me that a kernel
-that can be build on several paltforms are a good thing.
+Tomas> On Aug-11 2004, Wed, 17:51 +0100
+Tomas> Christoph Hellwig <hch@infradead.org> wrote:
 
-For kbuild you will at some point start to see patches so at least
-the build system does not restrict us to Linux alone.
+>> On Wed, Aug 11, 2004 at 06:33:33PM +0200, Tomas Szepe wrote:
+>> > There are many people who don't want to mess around with hotplug just
+>> > to get a single driver to load.
+>> 
+>> Then use a distribution that gets it right for you.  Having gazillions
+>> of diffferent firmware loaders just because people are too lazy to set
+>> up the canonical one isn't where we want to go.
 
-People on this list usually reply: "shift development to a Linux
-based platform". This is for many developers a nice dream,
-but they are restricted by coporate rules etc.
+Tomas> Agreed.  But the point is, in the actual case of ipw2100, will
+Tomas> the removal of 40 or so lines of code justify killing the
+Tomas> functionality for those (lots) that use it?  I don't think so.
 
-So please feed patches to this list with your findings.
+You can't have your cake and eat it too Tomas!  You agree that having
+multiple firmware loaders in the kernel is bad, yet you still want to
+have your own special one in there?  What's so difficult about setting
+up hotplug for this purpose anyway?
 
-> 
-> I am currently compiling on MacOSX and this, for the most part was
-> fairly straightforward and simple. The biggest gotcha I had was
-> that libkconfig is compiled as a shared library, and unfortunately shared
-> libraries are done quite different on different systems. Specifically MacOSX
-> doesn't support gcc -shared.
+John
 
-Please submit a patch for this and make sure to include Roman Zippel, he
-is the maintainer of kconfig.
-
-[I recall RedHat already disables the shared library??]
-
-	Sam

@@ -1,71 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268405AbUJDSCB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268367AbUJDSBu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268405AbUJDSCB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 14:02:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268397AbUJDSB7
+	id S268367AbUJDSBu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 14:01:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268378AbUJDSBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 14:01:59 -0400
-Received: from mail.tmr.com ([216.238.38.203]:53008 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S268342AbUJDSBs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 14:01:48 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
-Date: Mon, 04 Oct 2004 14:03:16 -0400
-Organization: TMR Associates, Inc
-Message-ID: <cjs2o5$th6$1@gatekeeper.tmr.com>
-References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net>
-Mime-Version: 1.0
+	Mon, 4 Oct 2004 14:01:47 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61639 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268342AbUJDSBn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 14:01:43 -0400
+Message-ID: <41618FF9.7080801@pobox.com>
+Date: Mon, 04 Oct 2004 14:01:29 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: William Knop <wknop@andrew.cmu.edu>
+CC: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: libata badness
+References: <Pine.LNX.4.60-041.0410040656001.2350@unix48.andrew.cmu.edu> <41617AA0.9020809@pobox.com> <Pine.LNX.4.60-041.0410041323160.9105@unix43.andrew.cmu.edu>
+In-Reply-To: <Pine.LNX.4.60-041.0410041323160.9105@unix43.andrew.cmu.edu>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1096912453 30246 192.168.12.100 (4 Oct 2004 17:54:13 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-In-Reply-To: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jmerkey@comcast.net wrote:
-> Who cares about GPL violations in Linux .  What can anyone do about it anyway.  The FSF 
-> isn't going to sue anyone unless someone give them the money to do it.  Most of this
-> banter and name calling people do about it is a waste of time.  What punishment will 
-> anyone get for it.  A few people writing mean emails and finder pointing -- Yeah -- 
-> this will really stop someone from doing it.  If you give your code away GPL, or not
-> you have just done just that.   Tigrian is correct in his statements.  
+William Knop wrote:
 > 
-> Even if you review it and make a fuss it does nothing to stop people.  The GPL is flawed 
-> since it does not require people to go back to the copyright holders and demand a license
-> for commerical use.  This is the only way you will ever stop these people.  So instead
-> of being whinny babies about it, fix the GPL and add this language.  Then anyone 
-> who uses the code in a commerical enterprise will be required to get a license, and you 
-> can actually do something about it. 
-> 
-> Oops.  Too late.  Linux has a huge trail of everyone's code under the GPL so you cannot
-> re-release the code under another license unless the entire code base is re-written.  So 
-> anyone can fork it at any point and claim, "we never accepted the license even though 
-> we download and use the code.  Guess what, this is legally valid to say and totally 
-> circumvents the GPL, they just have to leave your copyright notices in place. 
+> I just got another oops while trying to cp from my md/raid5 array (2 of 
+> 3 sata drives) to another sata drive on the same controller. This time, 
+> though, it said there's a bug in timer.c, line 405, and that the stack's 
+> garbage. I'm thinking it has nothing to do with timer.c, and something 
+> in md or libata is chomping all over the kernel.
 
-This subject line seems to have attracted a bunch of odd legal 
-misinformation, which as noted has been refuted by the courts. However, 
-I do note that Microsoft is using the work Linux in their ads, and not 
-putting on the trademark symbol. It is probably good for someone to look 
-at that, because a trademark can be lost if it is not defended (think 
-Kleenex or Asprin). The ads just have a note in tiny print saying 
-something 'some of these words may be trademarks of their owners.' I 
-believe if the owner notifies them they have to add the MT or (R) symbol 
-and state the name of the holder.
+If you are getting random oopses all over the place, I would suspect 
+hardware before I suspect buggy code.
 
-Clearly I'm not a lawyer, but since there was a TV show about "lost 
-trademarks" I'm pretty damn sure it can happen.
+Jim's, and others' suggestions were good:  check power connectors (not 
+just overall power consumption), test CPU, RAM, temperature, ...
 
-The GPL is alive and well at the moment, I hope the trademark is as well.
+	Jeff
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+
+

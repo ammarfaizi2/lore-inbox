@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVAHWxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbVAHWxa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261233AbVAHWxk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 17:53:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVAHWxj
+	id S261234AbVAHWxa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 17:53:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVAHWx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 17:53:39 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:27845 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261233AbVAHWv5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 17:51:57 -0500
-Subject: Re: uselib()  & 2.6.X?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0501081042040.2386@ppc970.osdl.org>
-References: <Pine.LNX.4.58LT.0501071648160.30645@oceanic.wsisiz.edu.pl>
-	 <20050107170712.GK29176@logos.cnet>
-	 <1105136446.7628.11.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0501071609540.2386@ppc970.osdl.org>
-	 <20050107221255.GA8749@logos.cnet>
-	 <Pine.LNX.4.58.0501081042040.2386@ppc970.osdl.org>
-Content-Type: text/plain
+	Sat, 8 Jan 2005 17:53:29 -0500
+Received: from outmail1.freedom2surf.net ([194.106.33.237]:9627 "EHLO
+	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S261234AbVAHWwA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 17:52:00 -0500
+Message-ID: <41E0640C.1030500@f2s.com>
+Date: Sat, 08 Jan 2005 22:51:56 +0000
+From: Ian Molton <spyro@f2s.com>
+Organization: The Dragon Roost
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Liam Girdwood <Liam.Girdwood@wolfsonmicro.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Zabolotny <zap@homelink.ru>,
+       Vincent Sanders <vince@simtec.co.uk>
+Subject: Re: [PATCH 1/5] WM97xx touch driver AC97 plugin
+References: <1105106557.9143.1001.camel@cearnarfon> <1105223060.24592.133.camel@krustophenia.net>
+In-Reply-To: <1105223060.24592.133.camel@krustophenia.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1105217148.10505.82.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 08 Jan 2005 21:47:39 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2005-01-08 at 18:46, Linus Torvalds wrote:
-> They mostly don't _need_ the lock (at least not the binary loader ones),
-> since at executable loading time you're guaranteed to be the only user
-> anyway
+Lee Revell wrote:
 
-Still unconvinced looking in fs/proc. 
+> Why an OSS driver and not ALSA?  OSS is deprecated.
+
+ From my POV, because I havent got time to port it to ALSA yet ;-)
+
+from another POV, because ALSA is broken on ARM (or was), and other 
+platforms, wrt the mmap() operation mode. this makes it a bit pointless 
+to port a driver to thats mainly used for arm based PDAs...

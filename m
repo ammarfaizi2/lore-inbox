@@ -1,54 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263465AbTC2VVO>; Sat, 29 Mar 2003 16:21:14 -0500
+	id <S263467AbTC2Va5>; Sat, 29 Mar 2003 16:30:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263466AbTC2VVO>; Sat, 29 Mar 2003 16:21:14 -0500
-Received: from mailc.telia.com ([194.22.190.4]:13012 "EHLO mailc.telia.com")
-	by vger.kernel.org with ESMTP id <S263465AbTC2VVN>;
-	Sat, 29 Mar 2003 16:21:13 -0500
-X-Original-Recipient: <linux-kernel@vger.kernel.org>
-Message-ID: <3E8610EA.8080309@telia.com>
-Date: Sat, 29 Mar 2003 22:32:26 +0100
-From: Peter Lundkvist <p.lundkvist@telia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030311 Debian/1.2.1-10
+	id <S263469AbTC2Va5>; Sat, 29 Mar 2003 16:30:57 -0500
+Received: from CPEdeadbeef0000-CM400026342639.cpe.net.cable.rogers.com ([24.114.185.204]:1028
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S263467AbTC2Va4>; Sat, 29 Mar 2003 16:30:56 -0500
+Message-ID: <004201c2f63c$25d4aa00$030aa8c0@unknown>
+From: "Shawn Starr" <spstarr@sh0n.net>
+To: "Robert Love" <rml@tech9.net>
+Cc: <linux-kernel@vger.kernel.org>
+References: <001c01c2f634$2e517da0$030aa8c0@unknown> <1048972543.13757.3.camel@localhost>
+Subject: Re: [OOPS][2.5.66bk3+] run_timer_softirq - IRQ Mishandlings
+Date: Sat, 29 Mar 2003 16:42:50 -0500
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Bad interactive behaviour in 2.5.65-66 (sched.c)
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+How can I go about debugging this? How can I find the path causing the
+problem?
 
-I have seen long delays when starting e.g. xterm from my
-window manager (sawfish) either by keyboard-shortcut or by
-menu command (by mouse) starting from 2.5.65. Sometimes it
-starts immediately, sometimes after up to 2 seconds (idle
-system). If I start a new xterm from xterm it always start
-immediately. 2.5.64 always behaved OK.
+Shawn.
 
-My first try to solve this problem  was to use some
-scheduler parameters from 2.6.64:
-    #define MAX_TIMESLICE         (300 * HZ / 1000)
-    #define CHILD_PENALTY         95
-    #define MAX_SLEEP_AVG         (2*HZ)
-    #define STARVATION_LIMIT      (2*HZ)
+----- Original Message -----
+From: "Robert Love" <rml@tech9.net>
+To: "Shawn Starr" <spstarr@sh0n.net>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Saturday, March 29, 2003 4:15 PM
+Subject: Re: [PANIC][2.5.66bk3+] run_timer_softirq - IRQ Mishandlings
 
-but got the same behaviour.
 
-2nd try was to use sched.c, sched.h from 2.5.64 in a
-2.5.66 build + one line patch in fork.c:
--       p->last_run = jiffies;
-+       p->sleep_timestamp = jiffies;
-
-Now the system behaves as it should!
-
-My system is a P-III 700 (Inspiron 4000),
-and Debian (X is running at nice = -10).
-
-Best regards,
-Peter Lundkvist
+> On Sat, 2003-03-29 at 15:45, Shawn Starr wrote:
+>
+> > In both panics below c012e9b4 does not exist as a kernel symbol in
+> > System.map:
+>
+> The EIP need not exist itself in System.map.  System.map has the symbol
+> to initial address mapping.  For example,
+>
+> 100 functionA
+> 200 functionB
+>
+> If the EIP was "150" you would be 50 bytes into functionA().
+>
+> > Code: 89 50 04 89 02 c7 41 30 00 00 00 00 81 3d 60 98 41 c0 3c 4b
+> >  kernel/timer.c:258: spin_lock(kernel/timer.c:c0419860) already locked
+by
+> > kernel/timer.c/398
+> > Kernel panic: Aiee, killing interrupt handler!
+> > In interrupt handler - not syncing
+>
+> This is not a panic, just an oops.  And it was just a debugging check
+> from spin lock debugging, but unfortunately you were in an interrupt
+> handler so the machine went bye bye.
+>
+> It is probably a simple double-lock deadlock, detected by spin lock
+> debugging.  Knowing the EIP would help... but timer_interrupt() is a
+> good first guess.
+>
+> Robert Love
+>
+>
 

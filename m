@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264932AbRFZFJ7>; Tue, 26 Jun 2001 01:09:59 -0400
+	id <S265920AbRFZGco>; Tue, 26 Jun 2001 02:32:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265912AbRFZFJt>; Tue, 26 Jun 2001 01:09:49 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:25104 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S264932AbRFZFJi>;
-	Tue, 26 Jun 2001 01:09:38 -0400
-Date: Mon, 25 Jun 2001 22:07:01 -0700
-From: Greg KH <greg@kroah.com>
-To: rio500-devel <rio500-devel@lists.sourceforge.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] rio500 devfs support
-Message-ID: <20010625220701.A18827@kroah.com>
-In-Reply-To: <20010619175224.A1137@glitch.snoozer.net> <20010625103521.A17036@kroah.com> <20010625171201.A13305@glitch.snoozer.net>
+	id <S265921AbRFZGcd>; Tue, 26 Jun 2001 02:32:33 -0400
+Received: from [32.97.182.101] ([32.97.182.101]:65176 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265920AbRFZGcN>;
+	Tue, 26 Jun 2001 02:32:13 -0400
+From: mdaljeet@in.ibm.com
+X-Lotus-FromDomain: IBMIN@IBMAU
+To: linux-kernel@vger.kernel.org
+Message-ID: <CA256A77.001B2342.00@d73mta01.au.ibm.com>
+Date: Tue, 26 Jun 2001 10:19:04 +0530
+Subject: interrupt problem....
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010625171201.A13305@glitch.snoozer.net>; from haphazard@socket.net on Mon, Jun 25, 2001 at 05:12:01PM -0500
-X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 25, 2001 at 05:12:01PM -0500, Gregory T. Norris wrote:
-> I was thinking of doing some similar updates this evening after work. 
-> Darn it... now I have to find something else to do!  :-)
-> 
-> Going by this morning's comments from Richard Gooch, it sounds like the
-> 
-> 	if (rio->devfs == NULL)
-> 		dbg("probe_rio: device node registration failed");
+I am experiencing a strange problem.
+I am doing a continuous DMA for long hours using a card on my system. In my
+code I enable interrupts and clear the interrupts in the interrupt handler
+which is called on completion of every DMA cycle. Now, the program works
+fine for say 16-20 hours but I think when the debug files'(where i put some
+debug information for each DMA cycle + system log files etc) size becomes
+too large, card stops generating interrupts.
 
-Just don't have it be using a call to "err()" like the printer.c file
-does.  Loads of users wondering why they have an error message in their
-logs, yet their printers still work.  That's why I made it dbg().
+1. There is a bit in card that tells that DMA is complete
+2. There is a bit in card that tells card to generate interrupt when DMA is
+complete
+3. If we clear the above two bits, the interrupt handling is complete
 
-But yes, I agree that it doesn't have to be there at all.
+Now, DMA is getting complete as the bits specified in the point 1 and 2 are
+getting set. I have added a 'printk' in the interrupt handler to see
+whether the card is generating interrupts or not. Card stops generating
+interrupt. Even if I delete all the debug files and start my program again,
+same thing happens. After I reboot the system and run my program, the card
+starts working properly with same code.
 
-greg k-h
+I have noted following things:
+
+a) If I delete all the system log files and restrict the size of my debug
+file, the code runs fine for more than 48 hours. Basically I stop the
+program after having a 48 hour run.
+b) If the system log files has large size and I do not delete them before
+starting my program, the card stops generating interrupts after 16-20 hours
+of run.
+
+Any pointers to the problem......????
+
+Regards,
+Daljeet.
+
+

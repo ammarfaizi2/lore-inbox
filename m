@@ -1,87 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265567AbTBTNwU>; Thu, 20 Feb 2003 08:52:20 -0500
+	id <S265457AbTBTOIv>; Thu, 20 Feb 2003 09:08:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265568AbTBTNwU>; Thu, 20 Feb 2003 08:52:20 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:15505
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S265567AbTBTNwR>; Thu, 20 Feb 2003 08:52:17 -0500
-Date: Thu, 20 Feb 2003 09:00:27 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: Linus Torvalds <torvalds@transmeta.com>, Chris Wedgwood <cw@f00f.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous
- reboots)
-In-Reply-To: <Pine.LNX.4.44.0302201245100.10184-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.50.0302200858540.10247-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.44.0302201245100.10184-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265513AbTBTOIv>; Thu, 20 Feb 2003 09:08:51 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:18865 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265457AbTBTOIu>;
+	Thu, 20 Feb 2003 09:08:50 -0500
+Date: Thu, 20 Feb 2003 14:31:13 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Zilvinas Valinskas <zilvinas@gemtek.lt>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.62
+Message-ID: <20030220143113.GB13507@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Zilvinas Valinskas <zilvinas@gemtek.lt>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0302171515110.1150-100000@penguin.transmeta.com> <3E536237.8010502@blue-labs.org> <20030219185017.GA6091@gemtek.lt> <20030220133140.GA13507@codemonkey.org.uk> <1045749425.12753.90.camel@swoop.balt.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1045749425.12753.90.camel@swoop.balt.net>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Feb 2003, Ingo Molnar wrote:
+On Thu, Feb 20, 2003 at 03:57:05PM +0200, Zilvinas Valinskas wrote:
 
-> 
-> i think i managed to trigger a potentially useful oops, with BK-curr:
-> 
-> Unable to handle kernel paging request at virtual address 6b6b6b8b
->  printing eip:
-> c011944b
-> *pde = 00000000
-> Oops: 0002
-> CPU:    0
-> EIP:    0060:[<c011944b>]    Not tainted
-> EFLAGS: 00010046
-> EIP is at do_page_fault+0x7b/0x4e4
-> eax: 6b6b6b8b   ebx: 6b6b6b6b   ecx: 0000002b   edx: c02dd6ac
-> esi: 6b6b6b8b   edi: ca095320   ebp: ca092170   esp: ca0920c8
-> ds: 007b   es: 007b   ss: 0068
-> Process start-threads (pid: 21685, threadinfo=ca090000 task=ca094ce0)
-> Stack: c02dd6ac 0000002b 6b6b6b6b 6b6b6b6b 6b6b6b6b 6b6b6b8b 6b6b6b6b 6b6b6b6b
->        6b6b6b6b 00030001 6b6b6b6b 6b6b6b6b 6b6b6b6b 6b6b6b6b 6b6b6b6b 6b6b6b6b
->        6b6b6b6b 6b6b6b6b 6b6b6b6b 6b6b6b6b 6b6b6b6b 6b6b6b6b 6b6b6b6b 6b6b6b6b
-> Call Trace:
+ > it was the same with 2.5.59,2.5.60 (not sure now, I will check that
+ > later) and with 2.5.61 (and yesterdays most current bk snapshot as
+ > well).
 
-I've seen this with 2.5.62, it's here;
+.59 ? Ugh, a load of stuff has changed in agpgart/ since then.
+Can you recall when it last actually worked for you ? 
 
-00407434086i[CPU0 ] task_switch: bad LDT segment at c0121a00
-00407434086i[CPU0 ] task switch: posting exception 10 after commit point
-00407434086p[CPU0 ] >>PANIC<< can_push(): SS invalidated.
-00407434086i[SYS  ] Last time is 1045745354
-00407434086i[XGUI ] Exit.
-00407434086i[CPU0 ] protected mode
-00407434086i[CPU0 ] CS.d_b = 32 bit
-00407434086i[CPU0 ] SS.d_b = 32 bit
-00407434086i[CPU0 ] | EAX=f7ffd6b4  EBX=ffffffff  ECX=0000007b  
-EDX=f7f9c048
-00407434086i[CPU0 ] | ESP=c02b97dc  EBP=00000001  ESI=00000000  
-EDI=c0118250
-00407434086i[CPU0 ] | IOPL=0 NV UP DI NG NZ NA PO NC
-00407434086i[CPU0 ] | SEG selector     base    limit G D
-00407434086i[CPU0 ] | SEG sltr(index|ti|rpl)     base    limit G D
-00407434086i[CPU0 ] |  DS:007b( 000f| 0|  3) 00000000 000fffff 1 1
-00407434086i[CPU0 ] |  ES:007b( 000f| 0|  3) 00000000 000fffff 1 1
-00407434086i[CPU0 ] |  FS:0000( 0000| 0|  0) 00000000 000fffff 1 1
-00407434086i[CPU0 ] |  GS:0000( 0000| 0|  0) 00000000 000fffff 1 1
-00407434086i[CPU0 ] |  SS:0068( 000d| 0|  0) 00000000 000fffff 1 1
-00407434086i[CPU0 ] |  CS:0060( 000c| 0|  0) 00000000 000fffff 1 1
-00407434086i[CPU0 ] | EIP=c0121a00 (c0121a00)
-00407434086i[CPU0 ] | CR0=0x8005003b CR1=0x00000000 CR2=0xf7f9bf88
-00407434086i[CPU0 ] | CR3=0x00000000 CR4=0x000000b0
-00407434086i[CPU0 ] >> 55
-00407434086i[CPU0 ] >> : push EBP
+ > Can it be related to DRI ? (that might be my guess).
 
-(gdb) disassemble 0xc0121a00
-Dump of assembler code for function do_exit:
-0xc0121a00 <do_exit>:   push   %ebp
-0xc0121a01 <do_exit+1>: push   %edi
-0xc0121a02 <do_exit+2>: push   %esi
-0xc0121a03 <do_exit+3>: push   %ebx
+You can test basic GART functionality with testgart
+(http://www.codemonkey.org.uk/cruft/testgart.c)
+
+ > Event though I
+ > can't use DRI on debian unstable because libGL.so mistakenly recognizes
+ > Pentium 4 as 3Dnow! capable and crashes immediately.
+
+If thats what I think it is, its not a bug. This has come up a number
+of times on the dri-devel list.
+libGL does a test which runs 3dnow instructions. Obviouslly it'll
+crash on a non-3dnow capable box, but prior to the test it installs
+an exception handler to fix things up if it all goes awry.
+
+Whats the debian bugzilla number for this bug out of interest ?
+
+ > For some reasons always, once I log off - system reboots most of the
+ > times when agpgart & agp-intel loaded (if these are not loaded) - DRI
+ > can not be initialized and system is always stable during log off from 
+ > KDE session.
+
+The latter is normal, the former isn't (obviously).
+Does it reboot as soon as you modprobe them, or when X/DRI starts ?
+
+		Dave
 
 -- 
-function.linuxpower.ca
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

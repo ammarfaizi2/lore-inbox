@@ -1,88 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284497AbRLIWEf>; Sun, 9 Dec 2001 17:04:35 -0500
+	id <S284541AbRLIWLg>; Sun, 9 Dec 2001 17:11:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284521AbRLIWEb>; Sun, 9 Dec 2001 17:04:31 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63760 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S284500AbRLIWER>; Sun, 9 Dec 2001 17:04:17 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Intel I860
-Date: 9 Dec 2001 14:03:47 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9v0n43$ok$1@cesium.transmeta.com>
-In-Reply-To: <20011127003327.C1546@werewolf.able.es> <200112091201.fB9C1wD158088@saturn.cs.uml.edu>
+	id <S284542AbRLIWL1>; Sun, 9 Dec 2001 17:11:27 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60433 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S284541AbRLIWLP>; Sun, 9 Dec 2001 17:11:15 -0500
+Subject: Re: 2.4.12-ac4 10Mbit NE2k interrupt load kills p166
+To: _deepfire@mail.ru (Samium Gromoff)
+Date: Sun, 9 Dec 2001 22:18:18 +0000 (GMT)
+Cc: hahn@physics.mcmaster.ca (Mark Hahn), linux-kernel@vger.kernel.org
+In-Reply-To: <200112092150.fB9Lot906422@vegae.deep.net> from "Samium Gromoff" at Dec 10, 2001 12:50:55 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16DCH5-00080o-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200112091201.fB9C1wD158088@saturn.cs.uml.edu>
-By author:    "Albert D. Cahalan" <acahalan@cs.uml.edu>
-In newsgroup: linux.dev.kernel
-> 
-> It's a RISC chip with the Pentium MMU. To get any speed out of it,
-> you have to enable some strange features. First of all, you need
-> the double-instruction mode. In every 64-bit chunk of memory you
-> place 1 floating-point instruction and 1 integer instruction.
-> Second of all, you need to enable pipelined FPU operation. This is
-> an exposed pipeline, so watch out! Look what happens:
-> 
-> a = x + x
-> b = a + a     <-- uses old value of "a", not x+x
-> nop
-> nop
-> nop
-> c = a + a
-> 
-> Yep, c!=a after this!  Actually, "c" won't be set until a few
-> instructions later because it too is still in the pipeline.
-> You need a few dummy operations to push it out.
-> 
+> > right, so more fragmentation-assembly increases the CPU load,
+> > no surprise there.
+>     damn, i have a mtu of 1500 and i dont quite see abt what frag/reassembly
+>    are you talking about while the problems start to pop out on _256_ bytes
+>    large packets (yes 256+smth like 32 or more)
 
-Nononon... it's much worse than that.
+Its nothing to do with reassembly. My guess is that the irq handling or the
+other driver locks on the ISA driver are holding off the sound.
 
-The i860 used a non-self-terminating pipeline, which meant that for
-each instruction you had "what to stuff into the pipeline at this
-stage" and "what to do with what comes out of the pipeline here",
-which means that to compute d = a + b - c you'd have to do something
-like:
+>    look: we have 2.0 serving NIC interrupts more efficintly than 2.4, and you
+>    say that we even dont need to know _why_ its so!?
 
-X = a + b
-nop
-nop
-nop
-t = XXX
-X = t - c
-nop
-nop
-nop
-d = XXX
+Oh thats easy. 2.0 performs like crap on SMP boxes. 
 
-... where X means don't care.  To compute, say, h = e + f - g in
-parallel with this, it would look something like:
+The newer code is intended to do sensible things for NE2K drivers however so
+I am curious what is fouling up. It even goes to the trouble to avoid
+disabling all interrupts during a transmit event.
 
-X = a + b
-X = e + f
-nop
-nop
-t = XXX
-u = t - c
-X = u - g
-nop
-nop
-d = XXX
-h = XXX
+What might be interesting would be to edit 8390.c and change
 
-Note the instruction u = t - c, even though the left side and right
-side don't even belong to the same thread of execution...
+        /* Mask interrupts from the ethercard.
+           SMP: We have to grab the lock here otherwise the IRQ handler
+           on another CPU can flip window and race the IRQ mask set. We end
+           up trashing the mcast filter not disabling irqs if we dont lock
+	*/
 
-     -hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+        spin_lock_irqsave(&ei_local->page_lock, flags);
+        outb_p(0x00, e8390_base + EN0_IMR);
+        spin_unlock_irqrestore(&ei_local->page_lock, flags);
+ 
+to use 
+
+	/* this is the missing spin_trylock_irqsave longhand.. */
+	save_flags(flags);
+	__cli();
+	if(!spin_trylock(&ei_local->page_lock))
+	{
+		restore_flags(flags);
+		return 1;
+	}
+        outb_p(0x00, e8390_base + EN0_IMR);
+        spin_unlock_irqrestore(&ei_local->page_lock, flags);
+

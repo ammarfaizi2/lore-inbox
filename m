@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129170AbRBVBJM>; Wed, 21 Feb 2001 20:09:12 -0500
+	id <S129381AbRBVBNm>; Wed, 21 Feb 2001 20:13:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129381AbRBVBJD>; Wed, 21 Feb 2001 20:09:03 -0500
-Received: from blackhole.compendium-tech.com ([206.55.153.26]:56825 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S129170AbRBVBIx>; Wed, 21 Feb 2001 20:08:53 -0500
-Date: Wed, 21 Feb 2001 17:08:48 -0800 (PST)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+	id <S129170AbRBVBNd>; Wed, 21 Feb 2001 20:13:33 -0500
+Received: from web12811.mail.yahoo.com ([216.136.174.98]:38929 "HELO
+	web12811.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129381AbRBVBNY>; Wed, 21 Feb 2001 20:13:24 -0500
+Message-ID: <20010222011322.31071.qmail@web12811.mail.yahoo.com>
+Date: Wed, 21 Feb 2001 17:13:22 -0800 (PST)
+From: Singh Balbir <basinso@yahoo.com>
+Subject: Reliability of serial console driver
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux stifles innovation...
-In-Reply-To: <20010222081720.B31628@ldh.org>
-Message-ID: <Pine.LNX.4.21.0102211706210.31651-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Feb 2001, Augustin Vidovic wrote:
-> On Wed, Feb 21, 2001 at 03:00:26PM -0800, Dr. Kelsey Hudson wrote:
-> > By saying this, you are implying that all pieces of code released under
-> > the GPL are 'good' pieces of code.
-> 
-> If you want to rephrase it like that, ok, but then you must not forget
-> why these pieces of code are 'good' : because everybody have access to the
-> source code and may debug or improve it as needed.
+Hello All,
+        I am not on the list, so please reply to me
+with the list with your comments.
 
-'good' in this case was meant to mean working properly, well-coded,
-does-what-it's-suppossed-to-do, eg not broken in one way or
-another. English should have a better word that 'good...' 
+I was going through some code in serial.c and noticed
+that there are page allocations/deallocations in
+rs_open and startup (serial.c). These allocations
+could fail. This affects reliablity in some minor way
 
- Kelsey Hudson                                           khudson@ctica.com 
- Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------     
+Consider a system running out of memory and the
+administrator decided to grab the serial console (say
+from home) to see what was wrong.. His open would fail
+since we are running out of memory and he would not be
+able to use the remote serial console.
 
+I was wondering if it is a good idea to make some such
+allocations at boot time. This would mean that these
+allocations would never fail. I agree that the chances
+of such a scenario occuring is not very high, but it
+adds to the reliability of the OS.
+
+What do you think ?
+
+Ba Sin So.
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Auctions - Buy the things you want at great prices! http://auctions.yahoo.com/

@@ -1,69 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270009AbRHEUir>; Sun, 5 Aug 2001 16:38:47 -0400
+	id <S270005AbRHEUhG>; Sun, 5 Aug 2001 16:37:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270007AbRHEUii>; Sun, 5 Aug 2001 16:38:38 -0400
-Received: from ns1.uklinux.net ([212.1.130.11]:7439 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S270006AbRHEUic>;
-	Sun, 5 Aug 2001 16:38:32 -0400
-Envelope-To: linux-kernel@vger.kernel.org
-Date: Sun, 5 Aug 2001 21:39:38 +0100 (BST)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: Alexander Viro <viro@math.psu.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [CFT] initramfs patch (2.4.8-pre3)
-In-Reply-To: <Pine.GSO.4.21.0108050301050.11005-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.21.0108052135510.855-100000@pppg_penguin.linux.bogus>
+	id <S270006AbRHEUgq>; Sun, 5 Aug 2001 16:36:46 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:29707 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S270005AbRHEUgl>; Sun, 5 Aug 2001 16:36:41 -0400
+Date: Sun, 5 Aug 2001 13:33:26 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Mike Black <mblack@csihq.com>, Ben LaHaise <bcrl@redhat.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>, Andrew Morton <andrewm@uow.edu.au>
+Subject: Re: [RFC][DATA] re "ongoing vm suckage"
+In-Reply-To: <E15TURJ-0008Jy-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0108051325070.7988-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Aug 2001, Alexander Viro wrote:
 
-> 
-> 
-> On Sat, 4 Aug 2001, Ken Moffat wrote:
-> 
-> > On Thu, 2 Aug 2001, Alexander Viro wrote:
-> > 
-> > > 
-> > > New version on ftp.math.psu.edu/pub/viro, namespaces-a-S8-pre3 and
-> > > initramfs-a-S8-pre3 (the latter is against 3.4.8-pre3 + namespaces).
-> > > 
-> > [snip]
-> > > 
-> > > Please, help with testing. It's supposed to be a drop-in replacement -
-> > > apply patches, build and boot. If it boots - fine, if it doesn't - it
-> > > will panic before it could do any harm.
-> 
-> > Patches applied cleanly, but it doesn't build here (AMD K6, gcc3)
-> > 
-> > In file included from init/init.c:16:
-> > init/libc.h:7: warning: `exit' was declared `extern' and later `static'
-> > init/init.c:33: parse error before "mount_nfs_root"
-> 
-> /me looks at the line in question. In shame. Sorry - I'll put a fix for
-> that typo (rediffed against -pre4, but that should apply to -pre3 as well)
-> on anonftp in a minute. In the meanwhile, s/nt/int/ in the line 33
-> (init/init.c). Sorry - builds during the last week were all with
-> CONFIG_ROOT_NFS defined.
-> 
+On Sun, 5 Aug 2001, Alan Cox wrote:
+
+> > On Sun, 5 Aug 2001, Mike Black wrote:
+> > And quite frankly, if your disk can push 50MB/s through a 1kB
+> > non-contiguous filesystem, then my name is Bugs Bunny.
 >
-Builds nicely now. If I'd known only one of the messages mattered, I'd
-have looked more closely at the code.
+> Hi Bugs 8), previously Frodo Rabbit, .. I think you watch too much kids tv
+> 8)
 
-Small problem, though
+Three kids will do that to you. Some day, you too will be there.
 
-request_module[ramfs]: Root fs not mounted
-Kernel panic. Can't create rootfs
+> [To be fair I can do this through a raid controller with write back caches
+> and the like ..]
 
-Obviously I've not been paying attention. I ran "make oldconfig" and
-didn't see any new options that were needed, so I didn't consider altering
-my current config settings. Which one is it I need, please ? 
+Note that this was _read_ performance.
 
-Ken
--- 
-   Never drink more than two pangalacticgargleblasters !
-Home page : http://www.kenmoffat.uklinux.net
+I agree that writing is easier, and contiguous buffers do not mean much if
+you have a big write cache.
+
+> One problem I saw with scsi was that non power of two readaheads were
+> causing lots of small I/O requests to actual hit the disk controller (which
+> hurt big time on hardware raid as it meant reading/rewriting chunks). I
+> ended up seeing 128/127/1 128/127/1 128/127/1 with a 255 block queue.
+
+Uhhuh. I think the read-ahead is actually a power-of-two, because it ends
+up being "127 pages plus the current one", but hey, I could easily be
+off-by-one.
+
+I would actually love to see the read-ahead code just pass down the
+knowledge that it is a read-ahead to the IO layer, and let the IO layer do
+whatever it wants. In the case of block devices, for example, the READA
+code is still there and looks very simple and functional - so it should be
+trivial for generic_block_read_page() to pass down the READA information
+and just return "no point in doing read-ahead, the queue is full"..
+
+That way we'd never have the situation that we end up breaking up large
+reads into badly sized entities.
+
+		Linus
 

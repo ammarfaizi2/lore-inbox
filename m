@@ -1,80 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262421AbVBBS3L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262508AbVBBSgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262421AbVBBS3L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 13:29:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262407AbVBBS3L
+	id S262508AbVBBSgR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 13:36:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262650AbVBBSgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 13:29:11 -0500
-Received: from fw.osdl.org ([65.172.181.6]:18310 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262705AbVBBS1w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 13:27:52 -0500
-Date: Wed, 2 Feb 2005 10:27:17 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Lennert Van Alboom <lennert.vanalboom@ugent.be>,
-       Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-       alexn@dsv.su.se, kas@fi.muni.cz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Memory leak in 2.6.11-rc1?
-In-Reply-To: <1107366560.5540.39.camel@localhost>
-Message-ID: <Pine.LNX.4.58.0502021008350.2362@ppc970.osdl.org>
-References: <20050121161959.GO3922@fi.muni.cz>  <20050124125649.35f3dafd.akpm@osdl.org>
-  <Pine.LNX.4.58.0501241435010.4191@ppc970.osdl.org> 
- <200502021030.06488.lennert.vanalboom@ugent.be>  <Pine.LNX.4.58.0502020758400.2362@ppc970.osdl.org>
- <1107366560.5540.39.camel@localhost>
+	Wed, 2 Feb 2005 13:36:17 -0500
+Received: from alog0123.analogic.com ([208.224.220.138]:1664 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262512AbVBBSfm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 13:35:42 -0500
+Date: Wed, 2 Feb 2005 13:35:55 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Joe User DOS kills Linux-2.6.10
+In-Reply-To: <Pine.LNX.4.61.0502021314340.5410@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.61.0502021330270.5447@chaos.analogic.com>
+References: <Pine.LNX.4.61.0502021314340.5410@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Additional information:
+My swap-file is also on /dev/sdb2. It appears as though swap
+is being written beyond the end of the SCSI device and the
+device doesn't like it. Also on a subsequent re-boot the
+signature in the swap file had been destroyed so that swapon
+didn't like it. I needed to use `mkswap` again.
 
-On Wed, 2 Feb 2005, Dave Hansen wrote:
-> 
-> In any case, I'm running a horribly hacked up kernel, but this is
-> certainly a new problem, and not one that I've run into before.  Here's
-> output from the new CONFIG_PAGE_OWNER code:
+On Wed, 2 Feb 2005, linux-os wrote:
 
-Hmm.. Everything looks fine. One new thing about the pipe code is that it 
-historically never allocated HIGHMEM pages, and the new code no longer 
-cares and thus can allocate anything. So there's nothing strange in your 
-output that I can see.
+>
+> When I compile and run the following program:
+>
+> #include <stdio.h>
+> int main(int x, char **y)
+> {
+>    pause();
+> }
+> ... as:
+>
+> ./xxx `yes`
+>
+> ... the following occurs after about 30 seconds (your mileage
+> may vary):
+>
+> Additional sense: Peripheral device write fault
+> end_request: I/O error, dev sdb, sector 34605780
+> SCSI error : <0 0 1 0> return code = 0x8000002
+> Info fld=0x2100101, Deferred sdb: sense key Medium Error
+> Additional sense: Peripheral device write fault
+> end_request: I/O error, dev sdb, sector 34603748
+> SCSI error : <0 0 1 0> return code = 0x8000002
+> Info fld=0x2100103, Deferred sdb: sense key Medium Error
+> Additional sense: Peripheral device write fault
+> end_request: I/O error, dev sdb, sector 34606804
+> SCSI error : <0 0 1 0> return code = 0x8000002
+> Info fld=0x213d5cd, Deferred sdb: sense key Medium Error
+> Additional sense: Peripheral device write fault
+> end_request: I/O error, dev sdb, sector 33943668
+> SCSI error : <0 0 1 0> return code = 0x8000002
+> Info fld=0x213d5ce, Deferred sdb: sense key Medium Error
+> Additional sense: Peripheral device write fault
+> end_request: I/O error, dev sdb, sector 33943676
+> SCSI error : <0 0 1 0> return code = 0x8000002
+> Info fld=0x213d5cf, Deferred sdb: sense key Medium Error
+> Additional sense: Peripheral device write fault
+> end_request: I/O error, dev sdb, sector 33943684
+> SCSI error : <0 0 1 0> return code = 0x8000002
+> Info fld=0x213d5d0, Deferred sdb: sense key Medium Error
+> Additional sense: Peripheral device write fault
+> end_request: I/O error, dev sdb, sector 33943692
+> SCSI error : <0 0 1 0> return code = 0x8000002
+> Info fld=0x2149672, Deferred sdb: sense key Medium Error
+> Additional sense: Peripheral device write fault
+> end_request: I/O error, dev sdb, sector 9437375
+> Buffer I/O error on device sdb1, logical block 1179664
+> lost page write due to I/O error on sdb1
+> SCSI error : <0 0 1 0> return code = 0x8000002
+> Info fld=0x2149673, Deferred sdb: sense key Medium Error
+> Additional sense: Peripheral device write fault
+> end_request: I/O error, dev sdb, sector 34903668
+> SCSI error : <0 0 1 0> return code = 0x8000002
+> Info fld=0x214967c, Current sdb: sense key Medium Error
+> Additional sense: Peripheral device write fault
+> end_request: I/O error, dev sdb, sector 34903676
+>
+> This device, /dev/sdb1 is one of the mounted file-systems.
+> It is not being accessed. The root filesystem is on
+> an IDE drive (/proc/mounts):
+>
+> rootfs / rootfs rw 0 0
+> /dev/root.old /initrd ext2 rw 0 0
+> /dev/root / ext3 rw 0 0
+> /proc /proc proc rw,nodiratime 0 0
+> /sys /sys sysfs rw 0 0
+> none /dev/pts devpts rw 0 0
+> none /dev/shm tmpfs rw 0 0
+> /dev/sdb1 /home/project ext2 rw 0 0
+> /dev/sda1 /dos/drive_C msdos rw,nodiratime,fmask=0022,dmask=0022 0 0
+> /dev/sda5 /dos/drive_D msdos rw,nodiratime,fmask=0022,dmask=0022 0 0
+> sunrpc /var/lib/nfs/rpc_pipefs rpc_pipefs rw 0 0
+>
+> This continues until the system is too sick to even be re-booted
+> from the console. It requires the reset switch.
+>
+> It looks like the command-line argument is probably overflowing
+> something in the kernel, resulting in non-related problems.
+>
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+> Notice : All mail here is now cached for review by Dictator Bush.
+>                 98.36% of all statistics are fiction.
 
-How many of these pages do you see? It's normal for a single pipe to be 
-associated with up to 16 pages (although that would only happen if there 
-is no reader or a slow reader, which is obviously not very common). 
-
-Now, if your memory freeing code depends on the fact that all HIGHMEM
-pages are always "freeable" (page cache + VM mappings only), then yes, the
-new pipe code introduces highmem pages that weren't highmem before.  But
-such long-lived and unfreeable pages have been there before too:  kernel
-modules (or any other vmalloc() user, for that matter) also do the same
-thing.
-
-Now, there _is_ another possibility here: we might have had a pipe leak
-before, and the new pipe code would potentially make it a lot more
-noticeable, with up to sixteen times as many pages lost if somebody freed
-a pipe inode without calling "free_pipe_info()". I don't see where that 
-would happen - all the normal "release" functions seem fine.
-
-Hmm.. Adding a 
-
-	WARN_ON(inode->i_pipe);
-
-to "iput_final()" might be a good idea - showing if somebody is releasing 
-an inode while it still associated with a pipe-info data structure.
-
-Also, while I don't see how a write could leak, but maybe you could you
-add a
-
-	WARN_ON(buf->ops);
-
-to the pipe_writev() case just before we insert a new buffer (ie to just
-after the comment that says "Insert it into the buffer array"). Just to
-see if the circular buffer handling might overwrite an old entry (although
-I _really_ don't see that - it's not like the code is complex, and it
-would also be accompanied by data-loss in the pipe, so we'd have seen
-that, methinks).
-
-		Linus
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

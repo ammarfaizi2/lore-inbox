@@ -1,79 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269532AbRHIJ1n>; Thu, 9 Aug 2001 05:27:43 -0400
+	id <S267879AbRHIJZW>; Thu, 9 Aug 2001 05:25:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269533AbRHIJ1d>; Thu, 9 Aug 2001 05:27:33 -0400
-Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:39165 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S269532AbRHIJ1X>; Thu, 9 Aug 2001 05:27:23 -0400
-Importance: Normal
-Subject: Re: BUG: Assertion failure with ext3-0.95 for 2.4.7
-To: Arjan van de Ven <arjanv@redhat.com>, trini@kernel.crashing.org,
-        linux-kernel@vger.kernel.org, ext3-users@redhat.com
-Cc: "Carsten Otte" <COTTE@de.ibm.com>
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF3B2CDA95.E1850ED7-ONC1256AA3.0031FECD@de.ibm.com>
-From: "Christian Borntraeger" <CBORNTRA@de.ibm.com>
-Date: Thu, 9 Aug 2001 11:26:29 +0200
-X-MIMETrack: Serialize by Router on D12ML020/12/M/IBM(Release 5.0.6 |December 14, 2000) at
- 09/08/2001 11:27:09
+	id <S269115AbRHIJZN>; Thu, 9 Aug 2001 05:25:13 -0400
+Received: from [216.52.49.36] ([216.52.49.36]:2056 "HELO bosvwl02")
+	by vger.kernel.org with SMTP id <S267879AbRHIJZG> convert rfc822-to-8bit;
+	Thu, 9 Aug 2001 05:25:06 -0400
+content-class: urn:content-classes:message
+Subject: procfs doubts 
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Thu, 9 Aug 2001 14:53:04 +0530
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
+Message-ID: <B10DD1F99B22C844BC146F2C66BF17F813AD8C@punmsg01.ad.infosys.com>
+Thread-Topic: proc file system
+Thread-Index: AcEf2Crbi0OmM4uqEdWQWABQixLf9wACd35QADUPVWA=
+From: "Dattatray Kulkarni" <dattatray_kulkarni@infy.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 09 Aug 2001 09:23:04.0504 (UTC) FILETIME=[E4A0F380:01C120B4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
->Well ext3 has more debugging checks than ext3 at the moment, and also
-requires the
->underlying blocklayers (LVM/RAID etc) to not lie. So the test _IS_
-relevant,
->not to caste blame, but to find the interaction.....
-
-
-OK, I tried it now  with md  and the bug was there again. Now during a rm
--rf * .
-As the bug ouccured with LVM __and__  with MD it looks like a ext3-problem.
-Tom Rini reported the same problem on a PPC-Box. Possibly it is a big
-endian problem.
-
-The message was again:
-kernel: Assertion failure in journal_forget() at transaction.c:1184:
-"!jh->b_committed_data"
-
-
-Here a have a new backtrace, I resolved the functions manually from
-system.map -hopefully without a mistake.
-
-kernel BUG at transaction.c:1184!
-illegal operation: 0001
-CPU:    1
-Process rm (pid: 1917, stackpage=06125000)
-
-Kernel PSW:    070c0000 8008023c   =journal_forget
-task: 06124000 ksp: 06125938 pt_regs: 061258a0
-Kernel GPRS:
-00000000  8001c118  00000022  00000001
-8008023a  00c2a000  00197198  00000001
-12fc1880  08d06494  00001899  1575c9b0
-0001f94c  800800ac  8008023a  06125938
-Kernel ACRS:
-00000000  00000000  00000000  00000000
-00000001  00000000  00000000  00000000
-00000000  00000000  00000000  00000000
-00000000  00000000  00000000  00000000
-Kernel BackChain  CallChain
-       06125938   [<0008023a>]           =journal_forget
-       061259a0   [<000747e6>]           =ext3_forget
-       06125a08   [<00076c00>]           =ext3_clear_blocks
-       06125a70   [<00076d20>]           =ext3_free_data
-       06125ae8   [<00076ee4>]           =ext3_free_branches
-       06125b60   [<00076e44>]           =ext3_free_branches
-       06125bd8   [<00076e44>]           =ext3_free_branches
-       06125c50   [<0007723c>]           =ext3_truncate
-
-
-greetings
-
+Hi,
+I have some doubts regarding proc file system in linux.
+1. read_proc & get_info have similar functionality. when i do cat
+/proc/net/some_procfile, read_info function is called. then how & when
+get_info function is called?
+2. What is the exact difference between proc_create_entry &
+proc_register?  Is it necessary to write both of these functions?
+3 . How the function write_proc works? and when that function is called
+by the kernel?
+regards,
+dattatray.
 
 

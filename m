@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269517AbRHQDRB>; Thu, 16 Aug 2001 23:17:01 -0400
+	id <S269463AbRHQCgy>; Thu, 16 Aug 2001 22:36:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269549AbRHQDQu>; Thu, 16 Aug 2001 23:16:50 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:17537 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S269517AbRHQDQj>;
-	Thu, 16 Aug 2001 23:16:39 -0400
-Date: Thu, 16 Aug 2001 20:13:42 -0700 (PDT)
-Message-Id: <20010816.201342.99205586.davem@redhat.com>
-To: zippel@linux-m68k.org
-Cc: aia21@cam.ac.uk, tpepper@vato.org, f5ibh@db0bm.ampr.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9 does not compile [PATCH]
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3B7C8AB8.19BF8425@linux-m68k.org>
-In-Reply-To: <3B7C8196.10D1C867@linux-m68k.org>
-	<20010816.193841.98557608.davem@redhat.com>
-	<3B7C8AB8.19BF8425@linux-m68k.org>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S269465AbRHQCgn>; Thu, 16 Aug 2001 22:36:43 -0400
+Received: from toscano.org ([64.50.191.142]:60670 "HELO bubba.toscano.org")
+	by vger.kernel.org with SMTP id <S269463AbRHQCgi>;
+	Thu, 16 Aug 2001 22:36:38 -0400
+Date: Thu, 16 Aug 2001 22:36:50 -0400
+From: Pete Toscano <pete.lkml@toscano.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Failure to Compile AIC7xxx Driver
+Message-ID: <20010816223650.A17597@bubba.toscano.org>
+Mail-Followup-To: Pete Toscano <pete.lkml@toscano.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200108170013.f7H0DoO21290@ccsi.com> <200108170104.f7H14CI83159@aslan.scsiguy.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200108170104.f7H14CI83159@aslan.scsiguy.com>
+User-Agent: Mutt/1.3.20i
+X-Unexpected: The Spanish Inquisition
+X-Uptime: 10:36pm  up 5 days, 15:18,  5 users,  load average: 1.31, 1.26, 1.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Roman Zippel <zippel@linux-m68k.org>
-   Date: Fri, 17 Aug 2001 05:08:40 +0200
-   
-   BTW I just looked through the patch and I only found a single cast, so
-   there was not much need for such dumb casts. Your patch now forced the
-   cast into all of them...
 
-The cast in the new version is not dumb, it's smart.
+On Thu, 16 Aug 2001, Justin T. Gibbs wrote:
 
-It's the programmer saying (to both the reader of the
-code and the compiler) "I want this comparison to use
-type X".  Period.
+> If you manually go into drivers/scsi/aic7xxx/aicasm and do a make clean, the
+> error should go away.
 
-There is no ambiguity, there are no multiple-evaluation
-issues, and no dumb warnings from the compiler.
+I concur.  I did exactly this and everything (well, WRT the aic7xxx
+driver) was fine.
 
-Later,
-David S. Miller
-davem@redhat.com
+pete

@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbTEETEy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 15:04:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbTEETEy
+	id S261238AbTEETEv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 15:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbTEETEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 15:04:54 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:24247 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261234AbTEETEw (ORCPT
+	Mon, 5 May 2003 15:04:51 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:61951 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261234AbTEETEu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 15:04:52 -0400
-Date: Mon, 5 May 2003 12:19:06 -0700
+	Mon, 5 May 2003 15:04:50 -0400
+Date: Mon, 5 May 2003 12:18:16 -0700
 From: Greg KH <greg@kroah.com>
-To: Andrei Ivanov <andrei.ivanov@ines.ro>
+To: ebuddington@wesleyan.edu
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: usb [mouse] not working in mm4
-Message-ID: <20030505191906.GB2277@kroah.com>
-References: <Pine.LNX.4.50L0.0305031550330.4098-200000@webdev.ines.ro> <20030503193135.GA17970@kroah.com> <Pine.LNX.4.50L0.0305041235580.4098-100000@webdev.ines.ro>
+Subject: Re: 2.5.68: BUG at usb-storage:963 on 'rmmod uhci-hcd'
+Message-ID: <20030505191816.GA2277@kroah.com>
+References: <20030504015421.A267@ma-northadams1b-60.bur.adelphia.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50L0.0305041235580.4098-100000@webdev.ines.ro>
+In-Reply-To: <20030504015421.A267@ma-northadams1b-60.bur.adelphia.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 04, 2003 at 12:38:04PM +0300, Andrei Ivanov wrote:
+On Sun, May 04, 2003 at 01:54:21AM -0400, Eric Buddington wrote:
 > 
-> 
-> No, on bk11 it does the same thing.
+> Upon trying to rmmod the uhci-hcd module, I get the BUG shown in the
+> dmesg output below.
 
-Booting with "noapic" help any?
-
-Or if this is a acpi based box, can you disable that?
+removing usb host controllers is known to not work properly right now
+since about 2.5.67, sorry.  People are slowly looking at it, and help is
+always appreciated :)
 
 thanks,
 

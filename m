@@ -1,43 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264256AbUFDFlY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265622AbUFDFj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264256AbUFDFlY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 01:41:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265624AbUFDFlX
+	id S265622AbUFDFj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 01:39:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265624AbUFDFjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 01:41:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:29365 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264256AbUFDFlQ (ORCPT
+	Fri, 4 Jun 2004 01:39:55 -0400
+Received: from ozlabs.org ([203.10.76.45]:7620 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265622AbUFDFjx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 01:41:16 -0400
-Date: Thu, 3 Jun 2004 22:40:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: pj@sgi.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, ak@muc.de,
-       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-       mikpe@csd.uu.se, Simon.Derr@bull.net, wli@holomorphy.com
-Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
- implementation
-Message-Id: <20040603224033.2dc5da9f.akpm@osdl.org>
-In-Reply-To: <40C00A2B.1040606@yahoo.com.au>
-References: <20040603094339.03ddfd42.pj@sgi.com>
-	<20040603101010.4b15734a.pj@sgi.com>
-	<1086313667.29381.897.camel@bach>
-	<40BFD839.7060101@yahoo.com.au>
-	<20040603223005.01bbab21.pj@sgi.com>
-	<40C00A2B.1040606@yahoo.com.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 4 Jun 2004 01:39:53 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16576.2887.362473.586007@cargo.ozlabs.ibm.com>
+Date: Fri, 4 Jun 2004 15:40:23 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: anton@samba.org, linux-kernel@vger.kernel.org
+Subject: [PATCH][PPC64] Don't clear MSR.RI in do_hash_page_DSI
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
->  Yes, I'm all for the full cpumask abstraction.
+Some code that is used on iSeries (do_hash_page_DSI in head.S) was
+clearing the RI (recoverable interrupt) bit in the MSR when it
+shouldn't.  We were getting SLB miss interrupts following that which
+were panicking because they appeared to have occurred at a bad place.
+This patch fixes the problem.  In fact it isn't necessary for
+do_hash_page_DSI to do anything to RI, so the patch changes the code
+to not set or clear it.
 
-Where do we stand wrt pass-by-reference?  I remember there was initially
-some concern that lugging 512-bit scalars around by value was expensive, so
-Bill's original work was at least geared toward pass-by-reference?
+Signed-off-by: Paul Mackerras <paulus@samba.org>
+
+Please apply.
+
+Thanks,
+Paul.
+diff -urN linux-2.5/arch/ppc64/kernel/head.S test25/arch/ppc64/kernel/head.S
+--- linux-2.5/arch/ppc64/kernel/head.S	2004-06-04 07:19:00.000000000 +1000
++++ test25/arch/ppc64/kernel/head.S	2004-06-04 15:31:30.744946352 +1000
+@@ -926,8 +926,8 @@
+ 	stb	r0,PACAPROCENABLED(r20)	/* Soft Disabled */
+ 
+ 	mfmsr	r0
+-	ori	r0,r0,MSR_EE+MSR_RI
+-	mtmsrd	r0			/* Hard Enable, RI on */
++	ori	r0,r0,MSR_EE
++	mtmsrd	r0,1			/* Hard Enable */
+ #endif
+ 
+ 	/*
+@@ -946,9 +946,9 @@
+ 	 */
+ 	mfmsr	r0
+ 	li	r4,0
+-	ori	r4,r4,MSR_EE+MSR_RI
++	ori	r4,r4,MSR_EE
+ 	andc	r0,r0,r4
+-	mtmsrd	r0			/* Hard Disable, RI off */
++	mtmsrd	r0,1			/* Hard Disable */
+ 
+ 	ld	r0,SOFTE(r1)
+ 	cmpdi	0,r0,0			/* See if we will soft enable in */
 

@@ -1,61 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291126AbSBGOYF>; Thu, 7 Feb 2002 09:24:05 -0500
+	id <S290211AbSBGO0p>; Thu, 7 Feb 2002 09:26:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290211AbSBGOX4>; Thu, 7 Feb 2002 09:23:56 -0500
-Received: from mgw-x2.nokia.com ([131.228.20.22]:61881 "EHLO mgw-x2.nokia.com")
-	by vger.kernel.org with ESMTP id <S290181AbSBGOXn>;
-	Thu, 7 Feb 2002 09:23:43 -0500
-Message-ID: <3C628DCF.40700@nokia.com>
-Date: Thu, 07 Feb 2002 16:23:11 +0200
-From: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011023
+	id <S291089AbSBGO0g>; Thu, 7 Feb 2002 09:26:36 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:17811 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S290211AbSBGO01>; Thu, 7 Feb 2002 09:26:27 -0500
+Date: Thu, 7 Feb 2002 14:28:44 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: "David S. Miller" <davem@redhat.com>, akpm@zip.com.au, bcrl@redhat.com,
+        Hugh Dickins <hugh@lrel.veritas.com>, marcelo@conectiva.com.br,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] __free_pages_ok oops
+In-Reply-To: <Pine.LNX.4.33L.0202071120160.17850-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.21.0202071355450.1149-100000@localhost.localdomain>
 MIME-Version: 1.0
-Newsgroups: comp.os.linux.networking
-To: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
-CC: affix-devel@lists.sourceforge.net,
-        Affix support <affix-support@lists.sourceforge.net>,
-        Bluetooth-Drivers-for-Linux 
-	<Bluetooth-Drivers-for-Linux@research.nokia.com>,
-        NRC-WALLET DL <DL.NRC-WALLET@nokia.com>,
-        linux-net <linux-net@vger.kernel.org>, linux-kernel@vger.kernel.org
-Subject: Re: New Affix Release: Affix-0_91 -> PAN support
-In-Reply-To: <3C500D09.4080206@nokia.com> <3C5AB093.5050405@nokia.com> <3C5E4991.6010707@nokia.com> <3C628D6A.2050900@nokia.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Feb 2002 14:23:34.0126 (UTC) FILETIME=[064D70E0:01C1AFE3]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI,
+On Thu, 7 Feb 2002, Rik van Riel wrote:
+> On Thu, 7 Feb 2002, Hugh Dickins wrote:
+> >
+> > If this were a common case where many pages end up, yes, we'd
+> > need a separate special list; but it's a very rare case
+> 
+> Think of a web or ftp server doing nothing but sendfile()
 
+Aren't the sendfile() pages in the page cache, and normally taken
+off LRU at the same time as removed from page cache, in shrink_cache?
+The exception being when the file is truncated while it is being sent,
+and buffers busy, so left behind on LRU by truncate_complete_page?
 
-Kernel paches works as well
+That's not a common case, nor were __free_pages_ok PageLRU BUG
+reports on 2.4.14 to 2.4.17 common: most definitely a case that
+needs to be handled correctly, but not common.
 
-br, Dmitry
+But I know very little of sendfile(), please correct me.
 
-Dmitry Kasatkin wrote:
+> > I was proposing we revert to distinguishing page_cache_release
+> > from put_page, page_cache_release doing the lru_cache_del; and
+> > I'd like to add my in_interrupt() BUG() there for now, just as
+> > a sanity check.  You are proposing that we keep the current,
+> > post-Ben, structure of doing it in __free_pages_ok if possible.
+> 
+> So how exactly would pages be freed ?
+> 
+> You still need to do the check of whether the page can
+> be freed somewhere.
 
-> Hi,
->
-> Find new affix release Affix-0_91 on
-> http://affix.sourceforge.net
->
-> Version 0.91 [07.02.2002]
-> - added /etc/modutuls/affix to automate modules load
-> - RFCOMM moved to separated module
-> - added PAN profile
-> - modules names changes -->> check README (modify /etc/pcmcia/config)
->
-> br, Dmitry
->
+I imagined (not yet tried) in shrink_cache, something like:
 
+		/*
+		 * In exceptional cases, a page may still be on an
+		 * LRU when it is "freed"; and it would not be possible
+		 * to remove it from LRU at interrupt time: clean up here.
+		 */
+		if (unlikely(!page_count(page))) {
+			page_cache_get(page);
+			__lru_cache_del(page);
+			page_cache_release(page);
+			continue;
+		}
 
--- 
- Dmitry Kasatkin
- Nokia Research Center / Helsinki
- Mobile: +358 50 4836365
- E-Mail: dmitry.kasatkin@nokia.com
+(Using page_cache_get+page_cache_release instead of get_page+put_page
+merely because page_cache_whatever is the local dialect in this module.
+But over in unmap_kiobuf I ought to revert from page_cache_release to
+put_page, in case it can be called at interrupt time, as Ben implied.)
 
-
+Hugh
 

@@ -1,79 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbVCOWS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbVCOWYb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261934AbVCOWS1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 17:18:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbVCOWQ1
+	id S261915AbVCOWYb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 17:24:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVCOWYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 17:16:27 -0500
-Received: from mail.kroah.org ([69.55.234.183]:2787 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261934AbVCOWOm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 17:14:42 -0500
-Date: Tue, 15 Mar 2005 14:14:31 -0800
-From: Greg KH <greg@kroah.com>
-To: Dominik Brodowski <linux@dominikbrodowski.net>, dtor_core@ameritech.net,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [RFC] Changes to the driver model class code.
-Message-ID: <20050315221431.GC28880@kroah.com>
-References: <20050315170834.GA25475@kroah.com> <d120d500050315094724938ffc@mail.gmail.com> <20050315193415.GA26299@kroah.com> <20050315201503.GA3591@isilmar.linta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 15 Mar 2005 17:24:09 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:8836 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261925AbVCOWUd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 17:20:33 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: swsusp_restore crap
+Date: Tue, 15 Mar 2005 23:23:27 +0100
+User-Agent: KMail/1.7.1
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <1110857069.29123.5.camel@gaston> <200503151555.44523.rjw@sisk.pl> <20050315204652.GA20521@elf.ucw.cz>
+In-Reply-To: <20050315204652.GA20521@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050315201503.GA3591@isilmar.linta.de>
-User-Agent: Mutt/1.5.8i
+Message-Id: <200503152323.27793.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 15, 2005 at 09:15:03PM +0100, Dominik Brodowski wrote:
-> On Tue, Mar 15, 2005 at 11:34:15AM -0800, Greg KH wrote:
-> > > And what about device_driver and device structure? Are they going to
-> > > be changed over to be separately allocated linked objects?
-> > 
-> > The driver stuff probably will be, and the device stuff possibly.
-> > However, they are used by a very small ammount of core code (the bus
-> > drivers), so changing that interface is not that important at this time.
+On Tuesday, 15 of March 2005 21:46, Pavel Machek wrote:
+> Hi!
 > 
-> So this means every device will have yet another reference count, and you
-> need to be aware of _each_ lifetime to write correct code. And the 
-> _reference counting_ is the hard thing to get right, so we should make 
-> _that_ easier. The existing class API was a step towards this direction, and
-> with the changes you're suggesting here we'd do two jumps backwards.
-
-You are correct, it was a step forward in this direction.
-
-But we now have a kref to handle the reference counting for the device,
-which make things a whole lot easier than ever before.
-
-But the both of you are correct, there is a real need for the class code
-to support trees of devices that are presented to userspace (which is
-what the class code is for).  I'm not taking that away, just trying to
-make the interface to that code simpler.
-
-I'm also not saying that I'm going to go off and delete those functions
-from the kernel today, or tomorrow.  Just that we need to slowly, over
-time, make this easier to use, as it's too hard to do so today.  I will
-not be removing any functionality, don't worry :)
-
-> > > If not then its enouther reason to keep original class interface -
-> > > uniformity of driver model interface.
+> > > > > x86-64 needs this, too.... Otherwise it looks okay.
+> > > > 
+> > > > It breaks compilation on i386 either, because nr_copy_pages_check
+> > > > is static in swsusp.c.  May I propose the following patch instead (tested on
+> > > > x86-64 and i386)?
+> > > 
+> > > 
+> > > > +asmlinkage int __swsusp_flush_tlb(void)
+> > > > +{
+> > > > +	swsusp_restore_check();
+> > > 
+> > > Someone will certainly forget this one, and it is probably
+> > > nicer/easier to just move BUG_ON into swsusp_suspend(), just after
+> > > restore_processor_state() or something like that...
 > > 
-> > Ease-of-use trumps uniformity
+> > ... in which case __swsusp_flush_tlb() would only contain a "call" to
+> > __flush_tlb_global(), but this is a macro on both x86-64 and i386, so we can
+> > drop the __swsusp_flush_tlb() altogether and do it in assembly (before the
+> > GPRs are restored, perhaps).  Patch follows.
+> > 
+> > Greets,
+> > Rafael
+> > 
+> > 
+> > Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 > 
-> Ease-of-use, maybe. However, it also means
-> ease-of-getting-reference-counting-wrong. And reference counting trumps it
-> all :)
+> > diff -Nrup linux-2.6.11-bk10-a/arch/x86_64/kernel/suspend_asm.S linux-2.6.11-bk10-b/arch/x86_64/kernel/suspend_asm.S
+> > --- linux-2.6.11-bk10-a/arch/x86_64/kernel/suspend_asm.S	2005-03-15 09:20:53.000000000 +0100
+> > +++ linux-2.6.11-bk10-b/arch/x86_64/kernel/suspend_asm.S	2005-03-15 15:36:29.000000000 +0100
+> > @@ -69,6 +69,14 @@ loop:
+> >  	movq	pbe_next(%rdx), %rdx
+> >  	jmp	loop
+> >  done:
+> > +	/* Flush TLB, including "global" things (vmalloc) */
+> > +	movq	%rax, %rdx;  # mmu_cr4_features(%rip)
+> 
+> I somehow don't think %rax contains mmu_cr4_features at this
+> point. Otherwise it seems to look ok.
 
-It will not make the reference counting logic easier to get wrong, or
-easier to get right.  It totally takes it away from the user, and makes
-them implement it themselves if they so wish (like the USB HCD patch
-does.)
+Yes, it does, because on x86-64 the TLBs are flushed before the loop,
+right after %cr3 is loaded with init_level4_pgt.  %rax is not touched
+afterwards, so it contains the right value.  Here's the relevant code
+from suspend_asm.S (with the patch applied):
 
-Anyway, don't worry, the code isn't going away anytime soon, we just
-need to make it easier to use.  Any suggestions that any of you have to
-make this that way (as you are the ones who had to use it to start with)
-would be greatly appreciated.
+ENTRY(swsusp_arch_resume)
+	/* set up cr3 */	
+	leaq	init_level4_pgt(%rip),%rax
+	subq	$__START_KERNEL_map,%rax
+	movq	%rax,%cr3
 
-thanks,
+	movq	mmu_cr4_features(%rip), %rax
+	movq	%rax, %rdx
+	andq	$~(1<<7), %rdx	# PGE
+	movq	%rdx, %cr4;  # turn off PGE
+	movq	%cr3, %rcx;  # flush TLB
+	movq	%rcx, %cr3;
+	movq	%rax, %cr4;  # turn PGE back on
 
-greg k-h
+	movq	pagedir_nosave(%rip), %rdx
+loop:
+	testq	%rdx, %rdx
+	jz	done
+
+	/* get addresses from the pbe and copy the page */
+	movq	pbe_address(%rdx), %rsi
+	movq	pbe_orig_address(%rdx), %rdi
+	movq	$512, %rcx
+	rep
+	movsq
+
+	/* progress to the next pbe */
+	movq	pbe_next(%rdx), %rdx
+	jmp	loop
+done:
+	/* Flush TLB, including "global" things (vmalloc) */
+	movq	%rax, %rdx;  # mmu_cr4_features(%rip)
+	andq	$~(1<<7), %rdx;  # PGE
+	movq	%rdx, %cr4;  # turn off PGE
+	movq	%cr3, %rcx;  # flush TLB
+	movq	%rcx, %cr3
+	movq	%rax, %cr4;  # turn PGE back on
+
+
+Greets,
+Rafael
+
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

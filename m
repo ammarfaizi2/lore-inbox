@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272473AbRI0MFF>; Thu, 27 Sep 2001 08:05:05 -0400
+	id <S272522AbRI0MIq>; Thu, 27 Sep 2001 08:08:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272484AbRI0ME4>; Thu, 27 Sep 2001 08:04:56 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54540 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272473AbRI0MEq>; Thu, 27 Sep 2001 08:04:46 -0400
-Subject: Re: Binary only module overview
-To: greg@kroah.com (Greg KH)
-Date: Thu, 27 Sep 2001 13:09:27 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
-        crispin@wirex.com, linux-security-module@wirex.com
-In-Reply-To: <20010926164643.B21369@kroah.com> from "Greg KH" at Sep 26, 2001 04:46:43 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S272493AbRI0MIf>; Thu, 27 Sep 2001 08:08:35 -0400
+Received: from mail.veka.com ([213.68.6.130]:16525 "EHLO veka.com")
+	by vger.kernel.org with ESMTP id <S272511AbRI0MIY>;
+	Thu, 27 Sep 2001 08:08:24 -0400
+Date: Thu, 27 Sep 2001 14:08
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+From: "Frank Fiene" <ffiene@veka.com>
+Subject: Re: Linux for iPaQ H3630
+Message-ID: MDAyNz.RnJhbmsgRmllbm@mail.veka.com
+X-Mailer: Aethera [0.9.0] 17 Jan 2000
+X-Aethera-Generated: header (rfc822), reference id idx000000272
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15mZyp-0003om-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Or place some kind of markings on the symbols/functions that the LSM
-> code exports stating that these symbols/functions can only be called
-> from GPL licensed code.
+http://www.handhelds.org
 
-GPL_EXPORT_SYM is coming, has been discussed and tentatively agreed upon
-so that we can for example have libraries of GPL code that are GPL module
-only usable, while still exporting clear interfaces for nonfree users when
-appropriate (eg device drivers)
+There is all what you need.
 
-Turning existing in kernel exports GPL_ all of a sudden is not going to
-happen.
+ff
+
+> 
+> Hi All,
+> 
+> I need some links, infos, docs etc about Linux for this Pocket PC.
+> Someone can help me about this ?
+> 
+> Thanks in advance.
+> 
+> Roberto Fichera.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 

@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287513AbSBGMMd>; Thu, 7 Feb 2002 07:12:33 -0500
+	id <S287516AbSBGMRD>; Thu, 7 Feb 2002 07:17:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287552AbSBGMMX>; Thu, 7 Feb 2002 07:12:23 -0500
-Received: from dc-mx07.cluster0.hsacorp.net ([209.225.8.17]:64190 "EHLO
-	dc-mx07.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id <S287513AbSBGMMO>; Thu, 7 Feb 2002 07:12:14 -0500
-Message-Id: <3.0.3.32.20020207061216.00ddc628@pop.charter.net>
-X-Mailer: QUALCOMM Windows Eudora Pro Version 3.0.3 (32)
-Date: Thu, 07 Feb 2002 06:12:16 -0600
+	id <S287532AbSBGMQx>; Thu, 7 Feb 2002 07:16:53 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:30219 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S287516AbSBGMQq>;
+	Thu, 7 Feb 2002 07:16:46 -0500
+Date: Thu, 7 Feb 2002 10:16:22 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
 To: "David S. Miller" <davem@redhat.com>
-From: Pete Cervasio <cervasio@charter.net>
-Subject: Re: ?????????????????????
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020207.034425.98342188.davem@redhat.com>
-In-Reply-To: <20020207201243.26395f39.bruce@ask.ne.jp>
- <2094646627.1013034678@[195.224.237.69]>
- <0GR400HBLXT5DU@mtaout03.icomcast.net>
- <20020207201243.26395f39.bruce@ask.ne.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Cc: <alan@lxorguk.ukuu.org.uk>, <Ulrich.Weigand@de.ibm.com>,
+        <zaitcev@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: The IBM order relaxation patch
+In-Reply-To: <20020206.200100.85392985.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33L.0202071015470.17850-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 03:44 AM 2/7/2002 -0800, David S. Miller <davem@redhat.com> wrote:
->   From: Bruce Harada <bruce@ask.ne.jp>
->   Date: Thu, 7 Feb 2002 20:12:43 +0900
->
->   On Wed, 06 Feb 2002 18:42:17 -0500
->   Brian <hiryuu@envisiongames.net> wrote:
->   
->   > To my knowledge, there is no English word that would match that regex
-(or, 
->   > for that matter, any Romantic or Germanic language word).  It's the
-most 
->   > effective tool I've seen against Asian spam (like the one I replied to).
->   
->   Just to set the record straight, that was RUSSIAN spam, not Asian spam...
->   (The regex should still be effective, of course.)
->
->Except that it would block out uuencoded patches in postings perhaps?
->Or is it just supposed to be matched in the Subject field or other
->parts of the headers?
+On Wed, 6 Feb 2002, David S. Miller wrote:
 
-Um... no, it's just supposed to look at several characters in a row that
-have the high bit set.  Have another cup of coffee and think about what
-happens to attachments after they're uuencoded.  :)
+> I do not think the Linus VM behavior is unreasonable, which basically
+> amounts to continually trying to free pages for all order 3 and below
+> allocations (if you can sleep and you aren't PF_MEMALLOC etc.).
 
-Best regards,
-Pete C.
+The only problem is that it doesn't.  It won't try to free
+pages once you have enough free pages, which means you'll
+just end up in a livelock.
 
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
 
-=====================================================================
-         $5                          $75
-"this is your brain... this is your brain on ebay."
-                                     (Pat McNeil on comp.sys.tandy)
+http://www.surriel.com/		http://distro.conectiva.com/
+

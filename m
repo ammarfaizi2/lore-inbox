@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289888AbSAWPsD>; Wed, 23 Jan 2002 10:48:03 -0500
+	id <S289889AbSAWPtE>; Wed, 23 Jan 2002 10:49:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289889AbSAWPrx>; Wed, 23 Jan 2002 10:47:53 -0500
-Received: from mailhost.mipsys.com ([62.161.177.33]:24010 "EHLO
-	mailhost.mipsys.com") by vger.kernel.org with ESMTP
-	id <S289888AbSAWPrn>; Wed, 23 Jan 2002 10:47:43 -0500
-From: <benh@kernel.crashing.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: <drobbins@gentoo.org>, <linux-kernel@vger.kernel.org>, <andrea@suse.de>,
-        <alan@redhat.com>, <akpm@zip.com.au>, <vherva@niksula.hut.fi>,
-        <lwn@lwn.net>, <paulus@samba.org>
-Subject: Re: Athlon/AGP issue update
-Date: Wed, 23 Jan 2002 16:47:37 +0100
-Message-Id: <20020123154737.19204@mailhost.mipsys.com>
-In-Reply-To: <20020123.060855.26275529.davem@redhat.com>
-In-Reply-To: <20020123.060855.26275529.davem@redhat.com>
-X-Mailer: CTM PowerMail 3.1.1 <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S289891AbSAWPsz>; Wed, 23 Jan 2002 10:48:55 -0500
+Received: from gw.wmich.edu ([141.218.1.100]:32496 "EHLO gw.wmich.edu")
+	by vger.kernel.org with ESMTP id <S289889AbSAWPsj>;
+	Wed, 23 Jan 2002 10:48:39 -0500
+Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+To: Daniel Nofftz <nofftz@castor.uni-trier.de>
+Cc: Vojtech Pavlik <vojtech@suse.cz>,
+        Timothy Covell <timothy.covell@ashavan.org>,
+        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>, Dave Jones <davej@suse.de>,
+        Andreas Jaeger <aj@suse.de>, Martin Peters <mpet@bigfoot.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.40.0201231411240.31513-100000@hades.uni-trier.de>
+In-Reply-To: <Pine.LNX.4.40.0201231411240.31513-100000@hades.uni-trier.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 23 Jan 2002 10:47:19 -0500
+Message-Id: <1011800844.21246.10.camel@psuedomode>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I don't think your PPC case needs the kernel mappings messed with.
->I really doubt the PPC will speculatively fetch/store to a TLB
->missing address.... unless you guys have large TLB mappings on
->PPC too?
+On Wed, 2002-01-23 at 08:19, Daniel Nofftz wrote:
+> On Wed, 23 Jan 2002, Vojtech Pavlik wrote:
+> > Won't ACPI idle do that well enough?
+> 
+> yes ... and no!
+> first: my patch is useless, if you don't activate acpi idle calls ...
+> second: the idle calls will not save power on an athlon/duron/athlon xp ,
+> unless a specific bit in the chipset is set, which will cause the chipset
+> to disconnect the frontside bus of the cpu ... and this is what the patch
+> does: it sets only the bit in the northbridge of the kt133/kx133 and
+> kt266/266a chipset ... -> now the acpi idle calls will bring power saving
+> and lesser temperature
+> the patch inserts a pci_quirk function which sets the bit in the
+> northbridge ... (at the boot-prompt you have to pass the comment
+> amd_disconnect=yes to use this function ...)
+> 
+> daniel
 
-Yes, we use BATs (sort of built-in fixed large TLBs) to map
-the lowmem (or entire RAM without CONFIG_HIGHMEM).
-
-So if some kind of loop is fetching memory near the end of a non-AGP
-page via the linear RAM mapping (BAT mapping) and the next page is an
-AGP bound page, the CPU may do speculative access to the AGP page via
-the BAT mapping thus bringing in a cache line for the AGP page.
-
-At least, that's my understanding, it has to be validated by some
-CPU gurus from IBM though.
-
-Ben.
-
-
+What's the official word on the resulting stress on the hardware from
+disconnecting and connecting rapidly like that?   Has any test ever been
+carried out to see if it causes damage after say, a couple months of
+use?  ...in other operating systems that had this already of course.  
+always something not so safe sounding about turning the cpu on and off
+rapidly added to the greater temperature extremes.   Also, can you
+relink your patch?
 

@@ -1,66 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277135AbRJQTxr>; Wed, 17 Oct 2001 15:53:47 -0400
+	id <S277141AbRJQUFa>; Wed, 17 Oct 2001 16:05:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277119AbRJQTxh>; Wed, 17 Oct 2001 15:53:37 -0400
-Received: from granger.mail.mindspring.net ([207.69.200.148]:45081 "EHLO
-	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S277115AbRJQTx0>; Wed, 17 Oct 2001 15:53:26 -0400
-Subject: Re: looking for a preempt-patch for 2.4.10-ac12
-From: Robert Love <rml@tech9.net>
-To: elko <elko@home.nl>
-Cc: =?ISO-8859-1?Q?Jos=E9?= Luis Domingo =?ISO-8859-1?Q?L=F3pez?= 
-	<jdomingo@internautas.org>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <01101721471803.00726@ElkOS>
-In-Reply-To: <01101619524411.00955@ElkOS>
-	<20011016204753.B1472@dardhal.mired.net>  <01101721471803.00726@ElkOS>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99+cvs.2001.10.12.08.08 (Preview Release)
-Date: 17 Oct 2001 15:53:54 -0400
-Message-Id: <1003348439.1575.3.camel@phantasy>
+	id <S277143AbRJQUFV>; Wed, 17 Oct 2001 16:05:21 -0400
+Received: from maties1.sun.ac.za ([146.232.128.1]:52676 "EHLO
+	maties1.sun.ac.za") by vger.kernel.org with ESMTP
+	id <S277141AbRJQUFE>; Wed, 17 Oct 2001 16:05:04 -0400
+Date: Wed, 17 Oct 2001 22:05:19 +0200
+From: Hugo van der Merwe <hugovdm@mail.com>
+To: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
+Subject: Re: ps/2 mouse, keyboard conflicts
+Message-ID: <20011017220519.C14119@baboon.wilgenhof.sun.ac.za>
+In-Reply-To: <20011017144158.A6534@baboon.wilgenhof.sun.ac.za> <Pine.LNX.4.10.10110171314400.29412-100000@coffee.psychology.mcmaster.ca>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10110171314400.29412-100000@coffee.psychology.mcmaster.ca>
+User-Agent: Mutt/1.3.23i
+X-Scanner: exiscan *15twwO-0005iE-00*czo8aXB1lPI* http://duncanthrax.net/exiscan/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-10-17 at 15:47, elko wrote:
-> the patch is there, I applied it together with the stats-patch
-> and my system is running like a charm right now, never have seen
-> this kind of response in X.
-
-Glad everything is working smooth...
-
-> the only thing is, the perl-script at:
-> http://www.tech9.net/rml/linux/top-latencies
+> > Any ideas how I can debug this problem?
 > 
-> shows something this:
-> 
-> ----[ SNIP ]----
-> n   min  avg  max  cause   mask start line/file address end line/file
->   14 9512 9590 9711  spin_lock 5 2111/tcp_ipv4.c c0226736119/softirq.c
->   89 9454 9559 9682  spin_lock 9 2111/tcp_ipv4.c c0226736119/softirq.c
->    2 9540 9551 9563  spin_lock 3 2111/tcp_ipv4.c c0226736119/softirq.c
-> 3895 7708 9532 14296 spin_lock 1 2111/tcp_ipv4.c c0226736119/softirq.c
->    1 9513 9513 9513  spin_lock 1 2111/tcp_ipv4.c c02267362152/tcp_ipv4.c
->  363 3594 6166 9512  spin_lock 0 2111/tcp_ipv4.c c02267362152/tcp_ipv4.c
-> ----[ SNIP ]----
-> 
-> that 3895 number for '2111/tcp_ipv4.c c0226736119/softirq.c'
-> keeps adding up, how should I translate that? big network
-> latency, is that what it means? if so, any idea on how
-> can I fix that??
+> well, sanity-checking should happen first.  for instance,
+> bios settings, whether you have the mouse plugged into the 
+> mouse PS/2 port (they're often different), and what kinds
+> of messages the kernel prints regarding these items...
 
-the n column is the number of times the lock has been held.  the lock is
-probably held numerous times in a given second, so you see large n
-values.
+OK, some lies ... it seems I have ps/2 support compiled in, not as a
+module. If I start gpm with parameters that makes it read ps2 mouse, the
+keyboard and the mouse stops working immediately. However, a while back,
+when using ps/2 in X only, I could start X and use it for a while, only
+after a few minutes does it all "lock up". Then killing X with the
+serial mouse gave me my keyboard back.
 
-note that all those rows you showed could be in one row, but the
-top-latencies tool keeps them separate since they have a different mask.
+I don't recall having changed anything in the BIOS since my 2.2 days,
+when the mouse worked fine. (I cannot say for certain that it broke
+during my 2.2->2.4 upgrade. Should I install a 2.2. kernel again and see
+if it happens there?) What setting in the BIOS should I be playing with?
 
-anyhow, the max recorded latency is 9.5ms which is not too bad.  I'm not
-looking at the code, but I would imagine its some TCP work done in a
-BH.  I wouldn't worry too much.
+I don't find anything special in syslog or any other log file.
+/var/log/dmesg has the one related line:
 
-	Robert Love
+Detected PS/2 Mouse Port.
 
+When gpm is "using" the mouse, I see the following line
+in /proc/interrupts:
+
+ 12:          0          XT-PIC  PS/2 Mouse
+
+That 0 probably means something? When gpm is not using the mouse, there
+is no line for interrupt 12. (I do notice my sound card and one of my
+two network cards is sharing interrupt 10. Is this something that might
+have negative consequences?)
+
+I sometimes notice the following in user.log:
+Oct 17 21:54:45 baboon /usr/sbin/gpm[14687]: oops() invoked from gpn.c(204)
+Oct 17 21:54:45 baboon /usr/sbin/gpm[14687]: /var/run/gpm.pid: No such file or directory
+It doesn't happen very often though, and might be tied to the staring
+and stopping of gpm, rather than with the functioning of the ps/2 port. 
+I cannot reproduce this reliably.
+
+What else might be involved? /proc/{iomem,ioports,dma} are the same with
+gpm with ps/2 running and not running.
+
+Thanks,
+Hugo van der Merwe
+
+ps, please CC me, thanks. How high is this list's traffic, and where is
+its archive?

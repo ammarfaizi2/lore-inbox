@@ -1,56 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264337AbTLPDqv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 22:46:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264339AbTLPDqv
+	id S264441AbTLPD4A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 22:56:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264452AbTLPDz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 22:46:51 -0500
-Received: from gandalf.tausq.org ([64.81.244.94]:30625 "EHLO pippin.tausq.org")
-	by vger.kernel.org with ESMTP id S264337AbTLPDqt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 22:46:49 -0500
-Date: Mon, 15 Dec 2003 20:40:33 -0800
-From: Randolph Chung <randolph@tausq.org>
-To: linux-kernel@vger.kernel.org, parisc-linux@lists.parisc-linux.org
-Subject: Question about cache flushing and fork
-Message-ID: <20031216044033.GT533@tausq.org>
-Reply-To: Randolph Chung <randolph@tausq.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GPG: for GPG key, see http://www.tausq.org/gpg.txt
-User-Agent: Mutt/1.5.3i
+	Mon, 15 Dec 2003 22:55:59 -0500
+Received: from k-kdom.nishanet.com ([65.125.12.2]:61713 "EHLO
+	mail2k.k-kdom.nishanet.com") by vger.kernel.org with ESMTP
+	id S264441AbTLPDz5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 22:55:57 -0500
+Message-ID: <3FDE8258.4050801@nishanet.com>
+Date: Mon, 15 Dec 2003 22:56:08 -0500
+From: Bob <recbo@nishanet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: IRQ disabled (SATA) on NForce2 and my theory
+References: <frodoid.frodo.87wu8zzgly.fsf@usenet.frodoid.org> <3FDD4F7C.7090303@nishanet.com> <200312151555.51845.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200312151555.51845.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Bartlomiej Zolnierkiewicz wrote:
 
-Can someone please explain why it is necessary to flush the cache 
-during fork()? (i.e. call to flush_cache_mm() in dup_mmap)
+>On Monday 15 of December 2003 07:06, Bob wrote:
+>  
+>
+>>sii chips have a long history of needing to
+>>hdparm off the unmask interrupt feature.
+>>
+>>I don't know about that chip but for
+>>sii680 there is a special option "-p9"
+>>for hdparm which is to say pio mode 9
+>>is a special instruction in addition to
+>>standard hdparm opt "-u0" turning off
+>>irq unmask.
+>>    
+>>
+>
+>There is no such thing as 'special option "-p9"' for sii680.
+>  
+>
+Passing PIO mode 9 to sii680 will make it do udma133 with
+unmask off, same as "-X70 -u0". What sii did was to make a
+bug a feature by embedding their own special pio mode for the
+well-known cmdxxx unmask off requirement.
 
-It seems that after fork, the parent and child have access to the same
-vm, so it should be sufficient to flush the tlb, and create two pte's
-for the processes. I can see that during COW processing there can be
-kernel/user cache aliasing issues on virtually indexed caches, but
-that seems to be taken care of by copy_cow_page(). 
+Making A Bug A Feature is begging for "deprecation".
 
-I've read through cachetlb.txt, but it just says:
+Since -p9 was only documented to set u133 and unmask off,
+making a bug a feature, non-bug features are not user-expected
+to be set without using other(normal) hdparm options, so
+somebody might as well "man hdparm" and bypass the silly
+kludge which probably was an internal office joke anyway.
 
-        This interface is used to handle whole address space
-        page table operations such as what happens during
-        fork, exit, and exec.
+-Bob
 
-I can see why this is needed for exit(), but why fork()? and i don't see
-this used for exec() ?
+>>/sbin/hdparm -d1 -c1 -p9 -X70 -u0 -k0 -i $a
+>>    
+>>
+>
+>-X70 is only valid if your device is UDMA133.
+>
+>--bart
+>
+>  
+>
 
-Also is there an updated version of the "Linux Cache Flush Architecture"
-document? (http://en.tldp.org/LDP/khg/HyperNews/get/memory/flush.html)
-This is a very nicely written doc, but it seems a bit out of date for
-2.6 (e.g. flush_page_to_ram is gone)
-
-thanks
-randolph
--- 
-Randolph Chung
-Debian GNU/Linux Developer, hppa/ia64 ports
-http://www.tausq.org/

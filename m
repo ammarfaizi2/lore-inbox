@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283694AbRLECCc>; Tue, 4 Dec 2001 21:02:32 -0500
+	id <S283691AbRLECRu>; Tue, 4 Dec 2001 21:17:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283691AbRLECCW>; Tue, 4 Dec 2001 21:02:22 -0500
-Received: from trillium-hollow.org ([209.180.166.89]:59408 "EHLO
-	trillium-hollow.org") by vger.kernel.org with ESMTP
-	id <S283694AbRLECCG>; Tue, 4 Dec 2001 21:02:06 -0500
-To: Larry McVoy <lm@bitmover.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SMP/cc Cluster description [was Linux/Pro] 
-In-Reply-To: Your message of "Tue, 04 Dec 2001 16:36:46 PST."
-             <20011204163646.M7439@work.bitmover.com> 
-Date: Tue, 04 Dec 2001 18:02:01 -0800
-From: erich@uruk.org
-Message-Id: <E16BRNp-0003Ts-00@trillium-hollow.org>
+	id <S283693AbRLECRa>; Tue, 4 Dec 2001 21:17:30 -0500
+Received: from carlsberg.amagerkollegiet.dk ([194.182.238.3]:34067 "HELO
+	carlsberg.amagerkollegiet.dk") by vger.kernel.org with SMTP
+	id <S283691AbRLECRW>; Tue, 4 Dec 2001 21:17:22 -0500
+Date: Wed, 5 Dec 2001 03:17:17 +0100 (CET)
+From: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
+To: Erik Tews <erik.tews@gmx.net>
+cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: tuning ext2 or ReiserFS to avoid fragmentation with large files?
+In-Reply-To: <20011204142047.N11967@no-maam.dyndns.org>
+Message-ID: <Pine.LNX.4.33.0112050315450.2930-100000@grignard.amagerkollegiet.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 4 Dec 2001, Erik Tews wrote:
 
-Larry McVoy <lm@bitmover.com> wrote:
-
-> > > There seems to be a little misunderstanding here; from what
-> > > I gathered when talking to Larry, the idea behind ccClusters
-> > > is that they provide a single system image in a NUMA box, but
-> > > with separated operating system kernels.
+> If I remember right xfs has got a online-defragmentation utility. So
+> have a look at xfs.
 > 
-> Right except NUMA is orthogonal, ccClusters work fine on a regular SMP 
-> box.
+> I think xfs works different from reiserfs and ext2 when writing files to
+> disk which helps avoiding fragmentation. This feature is called
+> allocation groups.
 
-...[details omitted for the moment]...
+I *might* be wrong, but isn't the allocation-group thing exactly what 
+ext2/ext3 does?
 
-The basic idea seems a sound one, though maybe consider going from
-a simple/robust cluster solution back to NUMA boxen.  A transparent
-virtual computer image is kind of the goal long-term, right?
+I don't know about reiserfs and fragmentation, however.
 
-That is the plan I have for a different OS/kernel I'm working on,
-and it seems valid so far.
+Rasmus
 
+-- 
+-- [ Rasmus 'Møffe' Bøg Hansen ] ---------------------------------------
+Beware of bugs in the above code;
+I have only proved it correct, not tried it.
+                              - Donald Knuth
+--------------------------------- [ moffe at amagerkollegiet dot dk ] --
 
-Uni-proc design plus simple SMP only in the core kernel code fixes
-SO many little SMP brain-deadnesses.
-
-For example, there should be no reason that most drivers or any other
-random kernel module should know anything about SMP.  Under Linux, it
-annoys me to no end that I have to ever know (and yes, I count compiling
-against "SMP" configuration having to know)...  more and more sources of
-error.
-
-
-Then, as long as you make the simple cluster solution handle "hot-swap/
-bring-up/tear-down" of nodes from the beginning, you can easily do
-things like bring new processor modules, machines, etc. online or out
-of your system.
-
-
-This even argues that you should try working from something like a
-Mosix cluster as a starting point, to test it out.
-
-
---
-    Erich Stefan Boleyn     <erich@uruk.org>     http://www.uruk.org/
-"Reality is truly stranger than fiction; Probably why fiction is so popular"

@@ -1,30 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267657AbUHEMWy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267662AbUHEM0J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267657AbUHEMWy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 08:22:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267662AbUHEMWy
+	id S267662AbUHEM0J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 08:26:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267663AbUHEM0J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 08:22:54 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:17899 "EHLO
+	Thu, 5 Aug 2004 08:26:09 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:17646 "EHLO
 	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S267657AbUHEMWx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 08:22:53 -0400
-Date: Thu, 5 Aug 2004 14:22:14 +0200 (CEST)
+	id S267662AbUHEM0H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 08:26:07 -0400
+Date: Thu, 5 Aug 2004 14:25:29 +0200 (CEST)
 From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200408051222.i75CMEhi004423@burner.fokus.fraunhofer.de>
+Message-Id: <200408051225.i75CPT4U004434@burner.fokus.fraunhofer.de>
 To: axboe@suse.de, kernel@wildsau.enemy.org
 Cc: linux-kernel@vger.kernel.org, schilling@fokus.fraunhofer.de
 Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.enemy.org>
+>From: Jens Axboe <axboe@suse.de>
 
+>ATA method is misnamed, it's really SG_IO that is used. And you want to
+>use that regardless of the device type, SCSI or ATAPI. There's no such
+>thing as an ATA burner, and there's no need to differentiate between
+>SCSI or ATAPI CD-ROM's when burning - SG_IO is the method to use. So
+>forget browsing /proc/ide and other hacks.
 
->well, sigh .... been there, done that, but emails to Joerg seem to have
->a long RTT. therefore, LKML. sorry for the inconvenience :->
+I am sorry but as Linux already has 6 different interfaces for sending 
+Generic SCSI commands and thus, we are running out of names.
 
-One day is long ?????
+Let me give you an advise: consolidate Linux so that is does only need
+/dev/sg and fix the bugs in ide-scsi instead of constantly inventing new
+unneeded interfaces.
+
 
 Jörg
 

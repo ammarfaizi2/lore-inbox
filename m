@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264021AbTDNW2Z (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 18:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264022AbTDNW2Z (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 18:28:25 -0400
-Received: from smtp.bhfc.net ([209.159.192.11]:16558 "EHLO smtp.bhfc.net")
-	by vger.kernel.org with ESMTP id S264021AbTDNW2Y (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 18:28:24 -0400
-From: Tim Lee <tlee5794@rushmore.com>
-Reply-To: tlee5794@rushmore.com
-To: linux-kernel@vger.kernel.org
-Subject: Help with SiS 648 chipset and agpgart
-Date: Mon, 14 Apr 2003 04:39:08 -0600
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	id S264040AbTDNWdW (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 18:33:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264046AbTDNWdW (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 18:33:22 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:17887 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264040AbTDNWdV (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 18:33:21 -0400
+Date: Mon, 14 Apr 2003 15:46:07 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [RFC] /sbin/hotplug multiplexor - take 2
+Message-ID: <20030414224607.GC6411@kroah.com>
+References: <20030414190032.GA4459@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304140439.08812.tlee5794@rushmore.com>
+In-Reply-To: <20030414190032.GA4459@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ok, based on the comments so far, how about this proposed version of
+/sbin/hotplug to provide a multiplexor?
 
-I need to get agpgart to work with a SiS 648 chipset and I
-haven't seen any implementation of such yet.  I'm currently
-using a 2.4.19 kernel.  Without a working implementation I
-can't use accelerated OpenGL with an ATI Radeon 9500 pro
-because the ATI drivers require working agp support.  I've
-tried just using the generic-sis but that causes the driver
-to mess up big time.
+thanks,
 
-Any ideas?
+greg k-h
 
-Regards,
-Tim Lee
+----------
+#!/bin/sh
+DIR="/etc/hotplug.d"
+
+for I in "${DIR}/$1/"* "${DIR}/"all/* ; do
+	test -x $I && $I $1 ;
+done
+
+exit 1
+----------
+

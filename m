@@ -1,82 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286365AbRLTU0x>; Thu, 20 Dec 2001 15:26:53 -0500
+	id <S286359AbRLTU2D>; Thu, 20 Dec 2001 15:28:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286364AbRLTU0p>; Thu, 20 Dec 2001 15:26:45 -0500
-Received: from smtp1.ndsu.NoDak.edu ([134.129.111.146]:8964 "EHLO
-	smtp1.ndsu.nodak.edu") by vger.kernel.org with ESMTP
-	id <S286368AbRLTU0d>; Thu, 20 Dec 2001 15:26:33 -0500
-Subject: Re: Configure.help editorial policy
-From: Reid Hekman <reid.hekman@ndsu.nodak.edu>
-To: esr@thyrsus.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011220143247.A19377@thyrsus.com>
-In-Reply-To: <20011220143247.A19377@thyrsus.com>
-Content-Type: text/plain
+	id <S286364AbRLTU1y>; Thu, 20 Dec 2001 15:27:54 -0500
+Received: from pat.uio.no ([129.240.130.16]:34179 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S286359AbRLTU1j>;
+	Thu, 20 Dec 2001 15:27:39 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 20 Dec 2001 14:27:02 -0600
-Message-Id: <1008880024.3926.2.camel@localhost.localdomain>
-Mime-Version: 1.0
+Message-ID: <15394.18867.426834.102550@charged.uio.no>
+Date: Thu, 20 Dec 2001 21:27:31 +0100
+To: Steffen Persvold <sp@scali.no>
+Cc: lkml <linux-kernel@vger.kernel.org>, nfs list <nfs@lists.sourceforge.net>,
+        Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: 2.4.8 NFS Problems
+In-Reply-To: <3C21F863.5278841A@scali.no>
+In-Reply-To: <3C21B30D.871B6BE4@scali.no>
+	<15393.51009.856041.463215@charged.uio.no>
+	<3C21F863.5278841A@scali.no>
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-12-20 at 13:32, Eric S. Raymond wrote:
-> I am by no means in love with the new abbreviations described at
-> <http://physics.nist.gov/cuu/Units/binary.html>.  I have the same 
-> reflexes as the rest of you -- they kind of make me want to gag.
+>>>>> " " == Steffen Persvold <sp@scali.no> writes:
 
-I second that emotion.
+     > I can do that, but since one of the clients reporting this
+     > problem is an Alpha machine running
+     > 2.2.19 the patch won't do much good (not that the patch is
+     >        architecture dependent, but it's only for
+     > 2.4.17). Has this patch been there since 2.2 or is it a new
+     > "feature" in the "stable" #:) 2.4 kernels.
 
-> If there is a clear consensus from lkml, I will be happy to back
-> out this change.  Perhaps this terminological standard does not
-> meet a real need, perhaps it will be rejected by most engineers and 
-> deserves to wither on the vine.  It's happened before.
+All the problems fixed by the patch should be present in 2.2.19 too. I
+don't really have time to backport the whole thing, but I've appended
+a backport of the bit that is directly relevant to the EIO error.
 
-I'd vote for that.
+Cheers,
+   Trond
 
-> However.  In the *absence* of a clear consensus, I will follow best
-> practices.  Best practice in editing a technical or standards document
-> is to (a) avoid ambiguous usages, seek clarity and precision; and (b)
-> to use, follow and reference international standards.
-
-Perhaps if we could be so bold as to back Donald Knuth's KKB,MMB,GGB
-proposal (of which I learned here:
-http://www.linuxdoc.org/HOWTO/Large-Disk-HOWTO-3.html ). I understand
-that muddying the waters is not the way to see clearly into the depths
-of computer science for the unwashed masses, but the ambiguity that
-currently exists is very real. I try to explain these issues on what
-seems like a daily basis to many and the duplicitous terms are not
-helpful.
+--- linux-2.2.19-up/fs/nfs/read.c.orig	Sun Mar 25 18:37:38 2001
++++ linux-2.2.19-up/fs/nfs/read.c	Thu Dec 20 21:25:13 2001
+@@ -420,7 +420,7 @@
+ {
+ 	struct nfs_read_data	*data = (struct nfs_read_data *) task->tk_calldata;
+ 	struct inode		*inode = data->inode;
+-	int			count = data->res.count;
++	unsigned int		count = data->res.count;
  
-> My personal esthetic distaste for the new terminology (gack!  "kibi" 
-> sounds like something I would feed my cat!) is less important
-> than following best practices.  I'm hoping it will seem less ugly as it
-> becomes more familiar.
-
-It certainly rated high on my kibbles'n'bits meter as well :-)
-
-Whatever we do with the abbreviations, I would strongly recommend we
-spell out documention to help educate ( and ease the transition if we
-switch terms) wherever possible. For example:
-
-4 binary kilobyte pages
-1024 decimal kilobyte disk
-8.4 decimal gigabyte disks
-4 binary gigabytes of memory
-10 decimal gigabits of bandwith
-
-or if that offends the sensibilities:
-
-4 kilobytes (binary)
-1024 kilobytes (decimal)
-8.4 gigabytes (decimal)
-
-I know that they are long on keystrokes, but in lieu of an accepted and
-aesthetically pleasing standard, they are clear and unambiguous.
+ 	dprintk("NFS: %4d nfs_readpage_result, (status %d)\n",
+ 		task->tk_pid, task->tk_status);
+@@ -431,10 +431,15 @@
+ 		struct page *page = req->wb_page;
+ 		nfs_list_remove_request(req);
  
-Regards,
-Reid
---
-Protect your rights, Geeks with Guns!
+-		if (task->tk_status >= 0 && count >= 0) {
++		if (task->tk_status >= 0) {
++			char *p = page_address(page);
++			if (count < PAGE_CACHE_SIZE) {
++				memset(p + count, 0, PAGE_CACHE_SIZE - count);
++				count = 0;
++			} else
++				count -= PAGE_CACHE_SIZE;
+ 			flush_dcache_page(page_address(page)); /* Is this correct? */
+ 			set_bit(PG_uptodate, &page->flags);
+-			count -= PAGE_CACHE_SIZE;
+ 		} else
+ 			set_bit(PG_error, &page->flags);
+ 		nfs_unlock_page(page);
 

@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319604AbSIHNGQ>; Sun, 8 Sep 2002 09:06:16 -0400
+	id <S319605AbSIHNLh>; Sun, 8 Sep 2002 09:11:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319605AbSIHNGQ>; Sun, 8 Sep 2002 09:06:16 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:31474
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319604AbSIHNGP>; Sun, 8 Sep 2002 09:06:15 -0400
-Subject: Re: clean before or after dep?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "D. Hugh Redelmeier" <hugh@mimosa.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Martin.Knoblauch@teraport.de
-In-Reply-To: <Pine.LNX.4.44.0209072139470.21724-100000@redshift.mimosa.com>
-References: <Pine.LNX.4.44.0209072139470.21724-100000@redshift.mimosa.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 08 Sep 2002 14:13:02 +0100
-Message-Id: <1031490782.26902.4.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S319606AbSIHNLh>; Sun, 8 Sep 2002 09:11:37 -0400
+Received: from web14701.mail.yahoo.com ([216.136.224.118]:36684 "HELO
+	web14701.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S319605AbSIHNLg>; Sun, 8 Sep 2002 09:11:36 -0400
+Message-ID: <20020908131618.21467.qmail@web14701.mail.yahoo.com>
+Date: Mon, 9 Sep 2002 01:16:18 +1200 (NZST)
+From: =?iso-8859-1?q?thomas=20joseph?= <thomascanny@yahoo.co.nz>
+Subject: interval timers and sleep in linux
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Now this seems to contradict
-> 	<http://www.tldp.org/HOWTO/Kernel-HOWTO-2.html#ss2.3>
-> which specifies, in step 5:
-> 	bash# make dep
-> 	bash# make clean
-> 
-> Which is the right order for clean and dep?
 
-The "kernel-howto" has been badly broken for years. The world would
-actually be better without that document IMHO
+Hi All,
+ I am porting an application from windows to linux.
+ The application uses both interval timesr and sleep.
 
+ I came to know that in Linux we can not use both
+ setitimer and sleep in the application. Because both 
+ of them rely on SIGALRM.
+
+ Can somebody tell me how to come out of this problem.
+
+Thanks and Regards,
+
+ --thomas
+
+
+
+http://mobile.yahoo.com.au - Yahoo! Messenger for SMS
+- Now send & receive IMs on your mobile via SMS

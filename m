@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbVAEPld@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262469AbVAEPi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262279AbVAEPld (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 10:41:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262480AbVAEPjZ
+	id S262469AbVAEPi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 10:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262465AbVAEPiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 10:39:25 -0500
-Received: from mail48-s.fg.online.no ([148.122.161.48]:24295 "EHLO
-	mail48-s.fg.online.no") by vger.kernel.org with ESMTP
-	id S262478AbVAEPWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 10:22:34 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Logitech MX1000 Horizontal Scrolling
-From: Esben Stien <b0ef@esben-stien.name>
-X-Home-Page: http://www.esben-stien.name
-Date: Wed, 05 Jan 2005 16:22:59 +0100
-Message-ID: <873bxfoq7g.fsf@quasar.esben-stien.name>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+	Wed, 5 Jan 2005 10:38:12 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:45497 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S262475AbVAEPTV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 10:19:21 -0500
+To: Christoph Hellwig <hch@infradead.org>
+Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, Andrew Morton <akpm@osdl.org>,
+       mingo@elte.hu, rlrevell@joe-job.com, tiwai@suse.de,
+       linux-kernel@vger.kernel.org, pavel@suse.cz, discuss@x86-64.org,
+       gordon.jin@intel.com, alsa-devel@lists.sourceforge.net, greg@kroah.com
+Subject: Re: [PATCH] deprecate (un)register_ioctl32_conversion
+References: <20041215065650.GM27225@wotan.suse.de>
+	<20041217014345.GA11926@mellanox.co.il>
+	<20050105144043.GB19434@mellanox.co.il>
+	<20050105144603.GA1419@infradead.org>
+From: Andi Kleen <ak@muc.de>
+Date: Wed, 05 Jan 2005 16:19:16 +0100
+In-Reply-To: <20050105144603.GA1419@infradead.org> (Christoph Hellwig's
+ message of "Wed, 5 Jan 2005 14:46:03 +0000")
+Message-ID: <m1fz1fdhu3.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got a 12 button logitech MX1000 mouse. The buttons 11 and 12 which
-are the horizontal direction of the tilt wheel gives me this the log
+Christoph Hellwig <hch@infradead.org> writes:
 
-Jan  5 15:56:26 quasar keyboard.c: can't emulate rawmode for keycode 240
+> On Wed, Jan 05, 2005 at 04:40:43PM +0200, Michael S. Tsirkin wrote:
+>> Hello, Andrew, all!
+>> 
+>> Since in -mm1 we now have a race-free replacement (that being ioctl_compat),
+>> here is a patch to deprecate (un)register_ioctl32_conversion.
+>
+> Sorry, but this is a lot too early.  Once there's a handfull users left
+> in _mainline_ you can start deprecating it (or better remove it completely).
 
-.. every time I press either button 11 or 12
+There were never more than a handful users of it anyways. So I think
+Michael's suggestion to deprecate it early is very reasonable.
 
-I needed CONFIG_INPUT_EVDEV to read these events, btw
+> So far we have a non-final version of the replacement in -mm and no single
+> user converted.
 
-This gives me problems in some applications it seems, as it won't
-allow me to move in one of the horizontal directions by holding the
-tilt wheel for a period. It only moves me the length of a single
-click. I can continue clicking myself in a direction, but when holding
-down the tilt wheel, I'll only move one click in the direction.
+For me it looks quite final.
 
--- 
-Esben Stien is b0ef@esben-stien.name
-http://www.esben-stien.name
-irc://irc.esben-stien.name/%23contact
-[sip|iax]:b0ef@esben-stien.name
+-Andi

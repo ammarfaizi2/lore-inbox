@@ -1,73 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263589AbSJTST3>; Sun, 20 Oct 2002 14:19:29 -0400
+	id <S263438AbSJTSVf>; Sun, 20 Oct 2002 14:21:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263711AbSJTST2>; Sun, 20 Oct 2002 14:19:28 -0400
-Received: from pop.gmx.de ([213.165.64.20]:57135 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S263589AbSJTSTY>;
-	Sun, 20 Oct 2002 14:19:24 -0400
-Message-Id: <5.1.0.14.2.20021020202108.00b890f8@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 20 Oct 2002 20:22:29 +0200
-To: Floydsmith@aol.com, linux-kernel@vger.kernel.org
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re2: loadlin with 2.5.?? kernels 
-Cc: Floydsmith@aol.com
-In-Reply-To: <1c6.531124.2ae44a91@aol.com>
+	id <S263711AbSJTSVf>; Sun, 20 Oct 2002 14:21:35 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:48910 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S263438AbSJTSVe>;
+	Sun, 20 Oct 2002 14:21:34 -0400
+Date: Sun, 20 Oct 2002 20:27:18 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.44 mrproper removes editor backup files
+Message-ID: <20021020202718.B4849@mars.ravnborg.org>
+Mail-Followup-To: Mikael Pettersson <mikpe@csd.uu.se>,
+	kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org
+References: <200210201801.UAA22227@harpo.it.uu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200210201801.UAA22227@harpo.it.uu.se>; from mikpe@csd.uu.se on Sun, Oct 20, 2002 at 08:01:54PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:06 PM 10/20/2002 -0400, Floydsmith@aol.com wrote:
->Subj: Re: loadlin with 2.5.?? kernels
->Date: 10/20/2002 1:43:50 PM Eastern Daylight Time
->gmx.de
->vger.kernel.org
->aol.com
->Sent from the Internet (Details)
->
->
->
->aol.com wrote:
-> >In a message dated 10/20/2002 9:03:34 AM Eastern Daylight Time,
->gmx.de writes:
-> >
-> >
-> >>Subj:loadlin with 2.5.?? kernels
-> >>Date:10/20/2002 9:03:34 AM Eastern Daylight Time
->gmx.de
->vger.kernel.org
-> >>Sent from the Internet
-> >>
-> >>
-> >>
-> >>Greetings,
-> >>
-> >>I hadn't had time to build/test kernels since 2.5.8-pre3.  I now find that
-> >>loadlin doesn't work on my box any more.  Is this a known problem?  If so,
-> >>when did it quit working?  (loadlin obsolete?  other?)
-> >>
-> >>At the moment, the only way I have to boot is via floppy.
-> >
-> >
-> >loadlin will not work with any kernel that is 1024k or greater in size.
-> >There is a replacement named "linld" at:
-> >http://www.tux.org/pub/people/kent-robotti/looplinux/index.html
-> >which help you.
->
->Yeah, that's always been a pain, but that's not what I'm hitting (violent
->reboot).  I'll give linld (thanks!) a shot, but mostly, I want my dearly
->beloved loadlin back ;-)
->
->Reply:
->Yes I have seen that one to (but only with certain large kernels and when 
->certain large initrd images are used).
->The only solution I have found (so far) is to reduce the size of the 
->initrd - again, a pain.
->If linld works for you, please reply; this would be usefull info.
+On Sun, Oct 20, 2002 at 08:01:54PM +0200, Mikael Pettersson wrote:
+> Contrary to years of history and several explicit comments in
+> Makefile that mrproper != distclean, 2.5.44 merged the two
+> which causes mrproper to incorrectly remove editor backup files.
 
-What was the last version that booted for you no problem?  (other than size)
+Why do you need three levels of cleaning?
+In other words what is it that make clean failed to clean in your case.
 
-         -Mike
+I know that we always used to say: make mrproper can cure everything.
+But make clean starts to get the power of make mrproper.
 
+It makes sense to kill one of them, but make help needs an update though.
+You could argue if distclean=mrproper or mrproper=clean.
+
+	Sam

@@ -1,90 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265316AbSJaT7U>; Thu, 31 Oct 2002 14:59:20 -0500
+	id <S265377AbSJaUGy>; Thu, 31 Oct 2002 15:06:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265309AbSJaT5u>; Thu, 31 Oct 2002 14:57:50 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:37031 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S265302AbSJaT5j> convert rfc822-to-8bit; Thu, 31 Oct 2002 14:57:39 -0500
-Date: Thu, 31 Oct 2002 17:27:30 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: =?iso-8859-1?Q?J=2EA=2E_Magall=F3n?= <jamagallon@able.es>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Pending bugfixes for 2.4.20 ?
-In-Reply-To: <20021031002705.GA3587@werewolf.able.es>
-Message-ID: <Pine.LNX.4.44L.0210311724500.13346-100000@freak.distro.conectiva>
+	id <S265376AbSJaUGv>; Thu, 31 Oct 2002 15:06:51 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:31714 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S265363AbSJaUGt>; Thu, 31 Oct 2002 15:06:49 -0500
+Date: Thu, 31 Oct 2002 14:13:14 -0600 (CST)
+From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Gregoire Favre <greg@ulima.unil.ch>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.45 : kernel BUG at kernel/workqueue.c:69! (ISDN?)
+In-Reply-To: <20021031110816.GE16875@ulima.unil.ch>
+Message-ID: <Pine.LNX.4.44.0210311408230.27728-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 31 Oct 2002, Gregoire Favre wrote:
 
-JA,
+> ------------[ cut here ]------------
+> kernel BUG at kernel/workqueue.c:69!
 
-Would you mind sending each one of this updates to linux-kernel CC me in
-separate emails ?
+Well, I thought I had all of these fixed...
 
-I should have applied Dave Jones patch before (it has been around for a
-while), but now its too late.
+> CPU:    0
+> EIP:    0060:[<c0129775>]    Not tainted
+> EFLAGS: 00010213
+> eax: 00000000   ebx: dff8e000   ecx: c03c90d4   edx: c17e3958
+> esi: c17e3958   edi: c17e395c   ebp: dffa2280   esp: dff8febc
+> ds: 0068   es: 0068   ss: 0068
+> Process swapper (pid: 1, threadinfo=dff8e000 task=dff8c080)
+> Stack: 00000004 c17e3000 dff8e000 00000000 c0413bfa c17e3000 00000002 00000052
+>        c17e3000 00000003 c02e7018 c17e3000 00000003 c17e30be c17e3000 c04127ff
+>        c17e3000 000000f2 00000000 c03ad64b c17e3000 c17e3000 dff8ff92 c17e30be
+> Call Trace: [<c02e7018>]  [<c011ba65>]  [<c010506f>]  [<c0105032>]  [<c01055a1>]
+> Code: 0f 0b 45 00 32 32 38 c0 eb 8b 90 83 ec 10 89 7c 24 08 89 1c
+>  <0>Kernel panic: Attempted to kill init!
+> Debug: sleeping function called from illegal context at include/linux/rwsem.h:43
+> Call Trace: [<c016339a>]  [<c01633d9>]  [<c0147985>]  [<c011afec>]  [<c011ece0>]  [<c0108506>]  [<c01083c5>]  [<c010856d>]  [<c0129775>]  [<c02d7e54>]  [<c021cc3b>]  [<c0107e59>]  [<c02d0068>]  [<c0129775>]  [<c02e7018>]  [<c011ba65>]  [<c010506f>]  [<c0105032>]  [<c01055a1>]
 
-Maybe Ingo's fix to crashes with CLONE_DETACHED threads is suitable for
--rc2.
+> Trace; c02e7018 <AVM_card_msg+6a/d0>
+> Trace; c011ba65 <release_console_sem+cb/ce>
+> Trace; c010506f <init+3d/15a>
+> Trace; c0105032 <init+0/15a>
+> Trace; c01055a1 <kernel_thread_helper+5/c>
 
-Anyway, I'll save the ones which are not suitable for -rc1 in my pending
-fixes list.
+I cannot really make much sense of the traces, though, are you sure 
+System.map matched the kernel where the oops happened? You might want to 
+select CONFIG_KALLSYMS, that guarantees correct resolving of symbols 
+without the need to run the oops through ksymoops.
 
-Thanks
+--Kai
 
-On Thu, 31 Oct 2002, J.A. Magallón wrote:
-
-> Hi all.
->
-> We are in -rc, so only bugfixes ;)
-> I have this collection of things posted in LKML as bugfixes, that still
-> apply on top of rc1. Could you include if appropiate for next -rc, plz ?
->
-> List:
->
-> 02-printk
->     Kill extra printk declaration.
->     Author: David Howells <dhowells@redhat.com>
->
-> 03-clone-detached
->     Fix a crash that can be caused by a CLONE_DETACHED thread.
->     Author: Ingo Molnar <mingo@elte.hu>
->
-> 04-module-size-checks
->     Fixes two minor bugs in kernel/module.c related with module size checks.
->     Author: Peter Oberparleiter <oberpapr@softhome.net>
->
-> 06-memparam
->     Fix mem=XXX kernel parameter when user gives a size bigger than what
->     kernel autodetected (kill a previous change)
->     Author: Adrian Bunk <bunk@fs.tum.de>,
->             Leonardo Gomes Figueira <sabbath@planetarium.com.br>
->
-> 07-cache-detection
->     Fix cache detection, adds trace cache detection.
->     Author: Dave Jones <davej@codemonkey.org.uk>
->
-> 08-highpage-init
->     Cleanup one_highpage_init() as in 2.5.
->     Author: Christoph Hellwig <hch@sgi.com>
->
-> 09-self_exec_id
->     Fix bad signaling between threads when ancestor dies.
->     Author: Zeuner, Axel <Axel.Zeuner@partner.commerzbank.com>
->
-> If somebody has anything to say, or has updated versions...
->
-> TIA
->
-> --
-> J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-> werewolf.able.es                         \           It's better when it's free
-> Mandrake Linux release 9.1 (Cooker) for i586
-> Linux 2.4.20-rc1-jam0 (gcc 3.2 (Mandrake Linux 9.0 3.2-2mdk))
->
 

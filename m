@@ -1,93 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131230AbRBUDCl>; Tue, 20 Feb 2001 22:02:41 -0500
+	id <S131293AbRBUDCv>; Tue, 20 Feb 2001 22:02:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131293AbRBUDCb>; Tue, 20 Feb 2001 22:02:31 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:15373 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S131230AbRBUDCV>; Tue, 20 Feb 2001 22:02:21 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Roman Zippel <zippel@fh-brandenburg.de>
-Date: Wed, 21 Feb 2001 14:02:00 +1100 (EST)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14995.12200.46230.717479@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-Subject: Re: problems with reiserfs + nfs using 2.4.2-pre4
-In-Reply-To: message from Roman Zippel on Tuesday February 20
-In-Reply-To: <14993.48376.203279.390285@notabene.cse.unsw.edu.au>
-	<Pine.GSO.4.10.10102200330330.25095-100000@zeus.fh-brandenburg.de>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	id <S131440AbRBUDCl>; Tue, 20 Feb 2001 22:02:41 -0500
+Received: from asbestos.linuxcare.com.au ([203.17.0.30]:52220 "EHLO halfway")
+	by vger.kernel.org with ESMTP id <S131275AbRBUDC0>;
+	Tue, 20 Feb 2001 22:02:26 -0500
+From: Rusty Russell <rusty@linuxcare.com.au>
+To: Philipp Rumpf <prumpf@mandrakesoft.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.1-ac15 
+In-Reply-To: Your message of "Mon, 19 Feb 2001 05:54:11 CDT."
+             <Pine.LNX.3.96.1010219054120.16489F-100000@mandrakesoft.mandrakesoft.com> 
+Date: Wed, 21 Feb 2001 14:02:04 +1100
+Message-Id: <E14VPXZ-0007HS-00@halfway>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday February 20, zippel@fh-brandenburg.de wrote:
-> Hi,
+In message <Pine.LNX.3.96.1010219054120.16489F-100000@mandrakesoft.mandrakesoft
+.com> you write:
+> > We unlink the module
+> > We free the memory
+> > 
+> > At the same time another cpu may be walking the exception table that we fre
+e.
 > 
-> On Tue, 20 Feb 2001, Neil Brown wrote:
+> True.
 > 
-> > 2/ lookup("..").
-> 
-> A small question:
-> Why exactly is this needed?
-> 
-> bye, Roman
+> Rusty had a patch that locked the module list properly IIRC.
 
-Having read the subsequent posts, I now see what you are thinking and
-know how to answer this.
+This is a while back, but I thought the solution Philipp and I came up
+with was to simply used a rw semaphore for this, which was taken (read
+only) on page fault if we have to scan the exception table.
 
-The problem that I see is indeed related to rename, but not in the way
-that Trond mentions.  (Tronds issue is a real, though very different,
-issue). 
-
-Suppose I have a directory path
-
-   /a/b/c/d/e/f/g
-
-Where filehandle X refers to /a/b and filehande Y refers to
-/a/b/c/d/e/f/g
-
-Then an NFS request comes in saying
-
-   RENAME X/c to Y/h
-
-If this was performed, then you would end up with a directory path
- 
- /a/b
-
-and a disconnected loop:
-
-
-    d/e/f/g/h
-    ^       v
-    +-------+
-
-which is not good.
-This possibility is protected against by the VFS layer.  It serialises
-all directory renames using s_vfs_rename_sem and then checks that the
-source of the rename isn't an ancestor of the target.
-For this check to be reliable, each dentry for a directory must be
-properly connected to the root.
-
-Now if you have a filesystem that:
-
- - cannot do ".." lookups efficiently, or doesn't want to and
- - can protect against this sort of loop (and any other issues that
-    the VFS usually protects against) itself
-
-then it can (with my patch) simply define decode_fh and encode_fh and
-do whatever it likes, such as create a dentry that isn't properly
-connected.
-
-get_parent is only called by nfsd_find_fh_dentry which is a helper
-routine which is normally called by the decode_fh function (and is
-called by the default decode_fh function).
-If a filesystem provides it's own decode_fh which doesn't call
-nfsd_find_fh_dentry, then get_parent won't be called and isn't needed.
-
-NeilBrown
-
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK

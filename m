@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261539AbTLPMkY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 07:40:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbTLPMkY
+	id S261552AbTLPMvI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 07:51:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbTLPMvI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 07:40:24 -0500
-Received: from hades.mk.cvut.cz ([147.32.96.3]:10937 "EHLO hades.mk.cvut.cz")
-	by vger.kernel.org with ESMTP id S261539AbTLPMkX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 07:40:23 -0500
-Message-ID: <3FDEFD31.6050405@kmlinux.fjfi.cvut.cz>
-Date: Tue, 16 Dec 2003 13:40:17 +0100
-From: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: cs, en-us, en
+	Tue, 16 Dec 2003 07:51:08 -0500
+Received: from web13903.mail.yahoo.com ([216.136.175.29]:1124 "HELO
+	web13903.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261552AbTLPMvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 07:51:06 -0500
+Message-ID: <20031216125103.6301.qmail@web13903.mail.yahoo.com>
+X-RocketYMMF: knobi.rm
+Date: Tue, 16 Dec 2003 04:51:03 -0800 (PST)
+From: Martin Knoblauch <knobi@knobisoft.de>
+Reply-To: knobi@knobisoft.de
+Subject: Re: RAID-0 read perf. decrease after 2.4.20
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re:Re: crypto-loop + highmen -> random crashes in -test11
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Soeren Sonnenburg <kernel@xxxxxx> wrote:
->>
->> Hi.
->>
->> I get random crashes/corruption/ init kills when I use cryptoloop on
->> this highmem enabled ppc machine.
-> 
-> People have reported cryptoloop+highmem crashes on ia32 as well. I'm not
-> sure if that was with -mm though.
+On Monday 08 December 2003 13:47, Marcelo Tosatti wrote:
 
-I tried to apply loop-highmem.patch, loop-highmem-fixes.patch, and 
-loop-remove-blkdev-special-case.patch on a vanilla 2.6.0-test11, and it 
-finally made the cryptoloop work on my machine - an Athlon XP, 1.5G RAM. 
-Without the patch, cryptoloop+highmem didn't work at all - a fresh 
-created ext2 was either impossible to mount, or it mounted corrupted, 
-and cryptoloop overall seemed to act more like /dev/urandom.
+Hi Marcelo,
 
-Regards,
--- 
-Jindrich Makovicka
+> 2.4.20-aa included rmap and some VM modifications most notably
+> "drop_behind()" logic which I believe should be the reason for the
+huge
+> read speedups. Can you please try it? Against 2.4.23.
+
+ Just some feedback:
+
+echo 511 > /proc/sys/vm/max-readahead
+
+ brings back the read performance of my 30 disks on 4 controller
+LVM/RAID0.
+
+Cheers
+Martin
+
+=====
+------------------------------------------------------
+Martin Knoblauch
+email: k n o b i AT knobisoft DOT de
+www:   http://www.knobisoft.de

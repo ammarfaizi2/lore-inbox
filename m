@@ -1,220 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVAMCws@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVAMCy2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261316AbVAMCws (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 21:52:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVAMCws
+	id S261355AbVAMCy2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 21:54:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbVAMCy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 21:52:48 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:48567 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261316AbVAMCwT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 21:52:19 -0500
-Date: Wed, 12 Jan 2005 18:51:57 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
-       pbadari@us.ibm.com, markv@us.ibm.com, gregkh@us.ibm.com,
-       tytso@us.ibm.com, suparna@in.ibm.com
-Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
-Message-ID: <20050113025157.GA2849@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050106190538.GB1618@us.ibm.com> <1105039259.4468.9.camel@laptopd505.fenrus.org> <20050106201531.GJ1292@us.ibm.com> <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk> <20050106210408.GM1292@us.ibm.com> <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050107010119.GS1292@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050107010119.GS1292@us.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 12 Jan 2005 21:54:27 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:26498 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261355AbVAMCxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 21:53:24 -0500
+Date: Thu, 13 Jan 2005 02:52:48 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Christoph Lameter <clameter@sgi.com>
+cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Jay Lan <jlan@engr.sgi.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andi Kleen <ak@muc.de>, <linux-mm@kvack.org>,
+       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       <benh@kernel.crashing.org>
+Subject: Re: page table lock patch V15 [0/7]: overview
+In-Reply-To: <Pine.LNX.4.58.0501121538110.12669@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.44.0501130222330.4577-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 05:01:19PM -0800, Paul E. McKenney wrote:
-> On Thu, Jan 06, 2005 at 09:24:17PM +0000, Al Viro wrote:
-> > "Use recursive bindings instead of trying to take over the entire mount tree
-> > and mirroring it within your fs code.  And do that explicitly from userland".
+On Wed, 12 Jan 2005, Christoph Lameter wrote:
+> On Wed, 12 Jan 2005, Hugh Dickins wrote:
 > 
-> Thank you for the pointer!  By this, you mean do mount operations in
-> conjunction with namespaces, right?
+> > Well, I studied the patches a bit more, and wrote
+> > "That remark looks a bit unfair to me now I've looked closer."
+> > Sorry.  But I do still think it remains unsatisfactory."
 > 
-> I will follow up with more detail as I learn more.  The current issue
-> seems to be with removeable devices.  Their users want to be accessing
-> a particular version, but still see a memory stick that was subsequently
-> mounted outside of the view.  Straightforward use of mounts and namespaces
-> would prevent the memory stick from being visible to users that were
-> already in view.
+> Well then thanks for not ccing me on the initial rant but a whole bunch of
+> other people instead that you then did not send the following email too.
+> Is this standard behavior on linux-mm?
 
-OK, after much thrashing, here is what the ClearCase users need.
-Sorry for the length -- the first few paragraphs gives the flavor of
-it and the rest goes into more detail with examples.
+I did cc you.  What whole bunch of other people?  The list of recipients
+was the same, except (for obvious reasons) I added Jay the second time
+(and having more time, spelt out most names in full).
 
-Thoughts?
+Perhaps we've a misunderstanding: when I say "and wrote..." above,
+I'm not quoting from some mail I sent others not you, I'm referring
+to an earlier draft of the mail I'm then sending.
 
-						Thanx, Paul
+Or perhaps SGI has a spam filter which chose to gobble it up.
+I'll try forwarding it to you again.
 
-------------------------------------------------------------------------
+> > Might I save face by suggesting that it would be a lot clearer and
+> > better if 1/1 got split into two?  The first entirely concerned with
+> > removing the spin_lock(&mm->page_table_lock) from handle_mm_fault,
+> > and dealing with the consequences of that - moving the locking into
+> > the allocating blocks, atomic getting of pud and pmd and pte,
+> > passing the atomically-gotten orig_pte down to subfunctions
+> > (which no longer expect page_table_lock held on entry) etc.
+> 
+> That wont do any good since the pte's are not always updated in an atomic
+> way. One would have to change set_pte to always be atomic.
 
-ClearCase provides a filesystem view of revision-control repositories.
-ClearCase users can specify the desired revision directly in the pathname
-("view extended naming", for example "/views/v1.1/vob/foo/bar.c")
-or they can associate a particular revision with a process and its
-descendants ("setview context naming", for example "/vob/foo/bar.c").
-Specifying the revision in the pathname is useful for diffing and such,
-and associating a revision with a process is useful for builds and
-testing using standard tools, sort of like chroot jails.
+You did have set_pte always atomic at one point, to the detriment of
+(PAE) set_page_range.  You rightly reverted that, but you've reminded
+me of what I confessed to forgetting, where you do need set_pte_atomic
+in various places, mainly (only?) the fault handlers in mm/memory.c.
+And yes, I think you're right, that needs to be in this first patch.
 
-ClearCase users need the root filesystem to be overlaid on each view,
-so that "/etc/passwd" and "/views/v1.1/etc/passwd" reference the same
-file.
+> The reason
+> that I added get_pte_atomic was that you told me that this would fix the
+> PAE mode. I did not think too much about this but simply added it
+> according to your wish and it seemed to run fine.
 
-The current hope is that adding (a) shared and asymmetrically shared
-subtrees between namespaces/locations in the same namespace, (b) stackable
-LSM modules, and (c) dynamic recursive union mount would enable Linux
-to provide this in a technically sound manner.  [But this is not clear
-to me yet.]
+Please don't leave the thinking to me or anyone else.
 
-More details on what ClearCase users want to see follow.
+> If you have any complaints, complain to yourself.
 
-1.	"View extended naming", where the revision is specified by
-	the pathname.
+I'd better omit my response to that.
 
-	a.	Users explicitly specify that they want to see a specific
-		revision (e.g., v1.1) using the ClearCase "startview"
-		command.  This revision is then visible to all processes.
+> > If there's a slight increase in the number of atomic operations
+> > in each i386 PAE page fault, well, I think the superiority of
+> > x86_64 makes that now an acceptable tradeoff.
+> 
+> Could we have PAE mode drop back to using the page_table_lock?
 
-	b.	The pathname fully specifies the revision and file, e.g.,
-		"/views/v1.1/vob/foo/bar.c", where the "startview"
-		command has initialized an MVFS view of the v1.1 version on
-		"/views/v1.1/vob/foo".  ("vob" stands for "versioned object
-		base".)
+That sounds a simple and sensible alternative (to more atomics):
+haven't really thought it through, but if the default arch code is
+right, and not overhead, then why not use it for the PAE case instead
+of cluttering up with cleverness.  Yes, I think that's a good idea:
+anyone see why not?
 
-	c.	Note that the entire filesystem is also visible within
-		the view, so that /etc/passwd" is an synonym for
-		"/views/v1.1/etc/passwd".  This can be thought of
-		as (currently mythical) "dynamic union mount rbind".
-		See #4 below for more detail.
+> > Dismiss those suggestions if they'd just waste everyone's time.
+> 
+> They dont fix the PAE mode issue.
+> 
+> > Christoph has made some strides in correcting for other architectures
+> > e.g. update_mmu_cache within default ptep_cmpxchg's page_table_lock
+> > (probably correct but I can't be sure myself), and get_pte_atomic to
+> > get even i386 PAE pte correctly without page_table_lock; and reverted
+> > the pessimization of set_pte being always atomic on i386 PAE (but now
+> > I've forgotten and can't find the case where it needed to be atomic).
+> 
+> Well this was another suggestion of yours that I followed. Turns out that
+> the set_pte must be atomic for this to work!
 
-2.	"Setview context naming", where revision is -not- specified
-	by the pathname.
+I didn't say you never needed an atomic set_pte, I said that making
+set_pte always atomic (in the PAE case) unnecessarily slowed down
+copy_page_range and zap_pte_range.  Probably a misunderstanding.
 
-	a.	A particular process designates a particular revision
-		(e.g., "v1.1") using a ClearCase "setview" command.
-		This designation applies to both the process and its
-		future descendants (any descendants already created are
-		unaffected.  The "setview" command does an implicit
-		"startview" if needed.
+> Look I am no expert on the
+> i386 PAE mode and I rely on other for this to check up on it. And you were
+> the expert.
 
-	b.	That process and any of its descendants will then see the
-		specified revision via "/vob/foo/bar.c", where an
-		MVFS filesystem has been mounted on "/vob/foo".
+Expert?  I was trying to help, but you seem to resent that.
 
-	c.	Changes made via the "setview context naming" paths
-		are visible in "view extended naming" paths, with
-		the same restrictions as called out in #1c above.
+> > But no sign of get_pmd(atomic) or get_pud(atomic) to get the higher level
+> > entries - I thought we'd agreed they were also necessary on some arches?
+> 
+> I did not hear about that. Maybe you also sent that email to other people
+> instead?
 
-	d.	A given process can mix and match "view extended naming"
-		and "setview context naming" references, so that
-		both "/views/v1.1/vob/foo/bar.c" and "/vob/foo/bar.c"
-		may be used to refer to the same file, but in that case
-		"/views/v1.2/vob/foo/bar.c" might reference a different
-		file.  These synonyms for the same file need to have the
-		properties of the mythical "dynamic union mount rbind"
-		described in #4 below.
+No, you were cc'ed on that one too (Sun, 12 Dec to Nick Piggin).
+The spam filter again.  Not that I have total recall of every
+exchange about these patches either.
 
-3.	ClearCase users are -not- permitted to mount over a file or
-	directory within an MVFS filesystem.  Therefore, if a user
-	mounts a memory stick over (say) "/vob/foo/mnt", the results
-	are undefined.
+Hugh
 
-4.	ClearCase users need to be able to access multiple repositories
-	simultaneously (e.g., for related projects).  So there might
-	be a "/vob/foo" and "/vob/oof" project visible simultaneously.
-
-	There are some specialized but important testing situations
-	that require separate top-level directories, e.g., "/vob"
-	and "/tmp/vobtest".
-
-5.	The ClearCase users need the mythical "dynamic union mount rbind"
-	to set things up so that any access to a non-MVFS file made from
-	within a view gives the same results as a direct access to that
-	file would give if no MVFS filesystems were mounted.  For example,
-	any access to "/views/v1.1/etc/passwd" must give exactly the same
-	results as the same access to "/etc/passwd" would if there were
-	no MVFS filesystems mounted.
-
-	The "dynamic union mount rbind" therefore needs to have the
-	following properties:
-
-	a.	The underlying inodes retain the same link count
-		no matter how many ClearCase views they are
-		accessible from.  So, if the link count of /etc/passwd
-		is initially 1, it remains 1 even though it is
-		accessible via "/etc/passwd", "/views/v1.1/etc/passwd",
-		"/views/v1.2/etc/passwd", and so on.  Similarly,
-		if the link count of foo/bar.c in the v1.1 revision
-		is initially 1, it remains 1 even when it is
-		accessible both via "/vob/foo/bar.c" and
-		"/views/v1.1/vob/foo/bar.c".
-
-		Hard-link tricks break user scripts and programs.
-
-	b.	The types of the underlying files remain the same
-		regardless of how many views they are visible in
-		and regardless of how they are accessed.  So, if
-		/etc/passwd is a normal file, it will appear to be
-		a normal file when accessed via "/etc/passwd",
-		"/views/v1.1/etc/passwd", "/views/v1.2/etc/passwd",
-		and so on.  Similarly, if foo/bar.c is a normal file,
-		is will appear to be a normal file when accessed
-		via "/vob/foo/bar.c" and "/views/v1.1/vob/foo/bar.c".
-
-		Symbolic-link tricks break user scripts and Makefiles.
-
-	c.	The types of the underlying filesystem remain the
-		same regardless of which view is used.  This is 
-		required by user scripts that use things like "df -k".
-
-	d.	Any changes to any non-MVFS filesystem are immediately
-		visible in the view.  Some examples:
-
-		i.	A mount in the root filesystem, e.g.,
-
-				mount /dev/cdrom /mnt/cdrom
-
-			must result in the CDROM being visible in both
-			"/mnt/cdrom" and in "/views/v1.1/mnt/cdrom".
-			Ditto for NFS mounts and automounting.
-
-			In this case "immediately" means "before the
-			mount command's process exits".  This need for
-			immediacy applies both to explicit mounts and
-			to autofs-induced mounts.  Ditto for unmounts.
-
-		ii.	Dynamic filesystems such as /proc must
-			exhibit their dynamic nature whether accessed
-			via "/proc", "/views/v1.1/proc", or
-			"/views/v1.2/proc".
-
-			Again, changes must be immediately visible in
-			all views, where "immediately" means that there
-			should be no "time warps".  For example, any
-			monotonic counters must be seen as monotonic,
-			despite successive reads happening from different
-			views.
-
-	e.	Any changes made via "view extended naming" or via
-		"setview context naming" are visible in the other
-		view.  For example, the file created by
-
-			touch /vob/foo/bar.c.new
-
-		would also be immediately visible as
-		"/views/v1.1/vob/foo/bar.c.new" and vice versa.
-
-	f.	Symbolic links from inside an MVFS filesystem act as
-		expected, with the expected advice that views use
-		relative rather than absolute symlinks for targets
-		within the view.
-
-		However, absolute symbolic links from inside an MVFS
-		filesystem to files that are outside an MVFS filesystem
-		work as expected.

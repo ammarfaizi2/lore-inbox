@@ -1,45 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266006AbUGZTie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUGZTpP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266006AbUGZTie (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 15:38:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265996AbUGZTfb
+	id S265768AbUGZTpP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 15:45:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265487AbUGZTpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 15:35:31 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:749 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S265305AbUGZSNh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 14:13:37 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [patch] kernel events layer
-Date: Mon, 26 Jul 2004 20:13:33 +0200
-User-Agent: KMail/1.6.2
-Cc: Robert Love <rml@ximian.com>,
-       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
-       Andrew Morton <akpm@osdl.org>, cw@f00f.org,
-       linux-kernel@vger.kernel.org
-References: <F989B1573A3A644BAB3920FBECA4D25A6EBFB5@orsmsx407> <1090853403.1973.11.camel@localhost> <20040726161221.GC17449@kroah.com>
-In-Reply-To: <20040726161221.GC17449@kroah.com>
+	Mon, 26 Jul 2004 15:45:14 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:8649 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S265768AbUGZSnh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 14:43:37 -0400
+From: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Organization: SiSK
+To: Adam Kropelin <akropel1@rochester.rr.com>
+Subject: Re: Autotune swappiness01
+Date: Mon, 26 Jul 2004 20:53:14 +0200
+User-Agent: KMail/1.5
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Con Kolivas <kernel@kolivas.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <cone.1090801520.852584.20693.502@pc.kolivas.org> <200407261553.09594.rjwysocki@sisk.pl> <20040726144515.A10583@mail.kroptech.com>
+In-Reply-To: <20040726144515.A10583@mail.kroptech.com>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200407262013.33454.oliver@neukum.org>
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200407262053.14384.rjwysocki@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 26. Juli 2004 18:12 schrieb Greg KH:
-> > If Greg can come up with a solution for using kobjects, I am all for
-> > that - that would be great - but I really do not see kobject paths
-> > working out.  I think the best we have is the file path in the tree.
-> 
-> Give me a few days, I'm working on it, but have been traveling too much.
-> Robert and I will sit down during OSCON this week and try to work out
-> something along these lines, and then post it again here.
+On Monday 26 of July 2004 20:45, Adam Kropelin wrote:
+> On Mon, Jul 26, 2004 at 03:53:09PM +0200, R. J. Wysocki wrote:
+> > On Monday 26 of July 2004 13:47, Nick Piggin wrote:
+> > > Con Kolivas wrote:
+> > > > Nick Piggin wrote:
+> > > >> Con Kolivas wrote:
+> > > >>> In my ideal, nonsensical, impossible to obtain world we have an
+> > > >>> autoregulating operating system that doesn't need any knobs.
+> > > >>
+> > > >> Some thinks are fundamental tradeoffs that can't be autotuned.
+> > > >>
+> > > >> Latency vs throughput comes up in a lot of places, eg. timeslices.
+> > > >>
+> > > >> Maximum throughput via effective use of swap, versus swapping as
+> > > >> a last resort may be another.
+> > > >
+> > > > As I said... it was ideal, nonsensical, and impossible. Doesn't sound
+> > > > like you're arguing with me.
+> > >
+> > > No, you're right. My ideal operating system knows what the user
+> > > wants too ;)
+> >
+> > Well, what I hate about various computer programs is that they seem to
+> > assume to know what I (the USER) want and they don't let me do anything
+> > else that they "know" what I should/would do. ;-)
+> >
+> > > Most of the time though, you are right. The quality/desirability of an
+> > > implementation will be inversely proportional to the number of knobs
+> > > sticking out of it (with bonus points for those that are meaningful to
+> > > 2 people on the planet).
+> >
+> > Can you please tell me why you think that the least tunable
+> > implementation should be the best/most desirable one?  I always prefer
+> > the most tunable implementations which is quite opposite to what you have
+> > said, but this is my personal opinion, of course.
+>
+> The implementation with the least *need* for tuning is the most
+> desirable. I, for one, don't care if there are a dozen knobs as long as
+> 99% of users don't have to touch them. But if common usage scenarios
+> require turning knobs to get reasonable performance, the algorithm is
+> lacking.
 
-On a related note, is this supposed to supersede the current hotplug
-mechanism?
+I agree in 100%.
 
-	Regards
-		Oliver
+> Thanks to fuel injection and engine management I can drive from LA to
+> Denver and not need to tweak my carburator half way up the Rockies.
+> I've given up some chances for tuning, but overall I'm better off. If
+> you want to stick a trimpot or ten out the side of the engine management
+> computer so true gearheads can tweak another couple HP or MPG out of the
+> engine, great. But don't expect me to fiddle with it every time driving
+> conditions change; it's not an excuse to make the management algorithms
+> inadequate for common driving patterns.
+
+I didn't mean that.  Actually, I was trying to say that an additional "knob" 
+(or "knobs") might be useful in determining the "common settings" acceptable 
+for the 99% of users.  Then, it could be "hidden" (which I wouldn't do, but 
+well ...).
+
+Yours,
+rjw
+
+-- 
+Rafael J. Wysocki
+[tel. (+48) 605 053 693]
+----------------------------
+For a successful technology, reality must take precedence over public 
+relations, for nature cannot be fooled.
+					-- Richard P. Feynman

@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269201AbTCBNE5>; Sun, 2 Mar 2003 08:04:57 -0500
+	id <S269202AbTCBNIO>; Sun, 2 Mar 2003 08:08:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269202AbTCBNE5>; Sun, 2 Mar 2003 08:04:57 -0500
-Received: from holomorphy.com ([66.224.33.161]:63373 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S269201AbTCBNE4>;
-	Sun, 2 Mar 2003 08:04:56 -0500
-Date: Sun, 2 Mar 2003 05:15:06 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: percpu-2.5.63-bk5-1 (properly generated)
-Message-ID: <20030302131506.GI1195@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-References: <20030302110747.GR24172@holomorphy.com>
+	id <S269204AbTCBNIO>; Sun, 2 Mar 2003 08:08:14 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:48024
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S269202AbTCBNIN>; Sun, 2 Mar 2003 08:08:13 -0500
+Subject: Re: 2.5.63: 'Debug: sleeping function called from illegal context
+	at mm/slab.c:1617'
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1046607762.2019.107.camel@zion.wanadoo.fr>
+References: <20030301210518.GA740@gallifrey>
+	 <1046568414.24557.11.camel@irongate.swansea.linux.org.uk>
+	 <1046598825.2030.101.camel@zion.wanadoo.fr>
+	 <1046607762.2019.107.camel@zion.wanadoo.fr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046614895.2844.10.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030302110747.GR24172@holomorphy.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 02 Mar 2003 14:21:36 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 02, 2003 at 03:07:47AM -0800, William Lee Irwin III wrote:
-> This patch does 3 different things:
-> (1) shoves per-cpu areas into node-local memory
-> (2) creates a new per-node thing analogous to per-cpu
-> (3) uses (1) and (2) to shove several frequently-accessed things into
->         node-local memory
-> Tested, boots, and runs on NUMA-Q. Trims 6s of 41s off kernel compiles.
-> Compiletested for walmart x86 SMP/UP, and could use runtime testing.
-> A few non-x86 arches probably need fixups for per_cpu irq_stat[].
-> Also available at:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/wli/percpu/
+On Sun, 2003-03-02 at 12:22, Benjamin Herrenschmidt wrote:
+> > Well... it's a bug in _all_ archs. They (almost) all call the proc
+> > stuff from request_irq, and worse, on x86, I think, has the
+> > kmalloc inside request_irq changed to GFP_ATOMIC.
+> 
+> I meant "Only" x86 does GFP_ATOMIC
 
-Okay, I got requests for a more detailed changelog, so here it is:
-This patch does 19 different things when put under the microscope
-and/or in an excessively finegrained subdivision of simple concepts.
+The IDE layer needs to obtain the IRQ with interrupts disabled. It
+isnt alone in that either. I can't guarantee to mask the IRQ
+because not all supported hardware has working irq masking.
+disable/enable_irq on unallocated interrupts is undefined, and
+does not work on at least one supported platform at all.
 
-(1) reuse the arch/i386/discontigmem.c per-node mem_map[] virtual remap
-	to remap node-local memory backing per_cpu and per_node areas
-(2)  make irq_stat[] per_cpu, x86-only
-(3)  make mmu_gathers[] per_cpu, with comcomitant divorce from asm-generic
-(4)  delay discontig zone_sizes_init() to dodge bootstrap order issues
-(5)  add .data.pernode section handling in vmlinux.lds.S
-(6)  per_cpu()/__get_cpu_var() needs to parenthesize the cpu arg
-(7)  introduced asm-generic/pernode.h to do similar things as percpu.h
-(8)  added MAX_NODE_CPUS for pessimistic sizing of virtual remapping arenas
-(9)  fix return type error in NUMA-Q get_zholes_size()
-(10) #undef asm-i386/per{cpu,node}.h's __GENERIC_PER_{CPU,NODE}
-(11) declare setup_per_cpu_areas() in asm-i386/percpu.h
-(12) make an asm-i386/pernode.h stub header like include/asm-generic/pernode.h
-(13) declare MAX_NODE_CPUS in include/asm-i386/srat.h
-(14) make zone_table[] per_node
-(15) call setup_per_node_areas() in init/main.c, with analogous hooks
-(16) make task_cache per_cpu
-(17) make runqueues[] per_cpu
-(18) make node_nr_running[] per_node
-(19) make reap_timers[] per_cpu
+Unfortunately ten years ago someone created 'register_and_activate_irq'
+calling it 'register_irq', and it hasn't yet been fixed.
 
--- wli
+So its up to the arch maintainers to fix it, or they don't
+get IDE support 8)
+

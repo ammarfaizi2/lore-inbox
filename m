@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137204AbREKStS>; Fri, 11 May 2001 14:49:18 -0400
+	id <S137207AbREKSvI>; Fri, 11 May 2001 14:51:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137207AbREKStI>; Fri, 11 May 2001 14:49:08 -0400
-Received: from adsl-64-168-227-89.dsl.sntc01.pacbell.net ([64.168.227.89]:28682
-	"EHLO brian-laptop.dyn.us.mvd") by vger.kernel.org with ESMTP
-	id <S137204AbREKStB>; Fri, 11 May 2001 14:49:01 -0400
-Date: Fri, 11 May 2001 11:49:09 -0700
-From: "Brian J. Murrell" <brian@mountainviewdata.com>
-To: linux-kernel@vger.kernel.org
-Cc: Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [PATCH] ip autoconfig with modules, kernel 2.4
-Message-ID: <20010511114909.B27378@brian-laptop.us.mvd>
-In-Reply-To: <20010510094953.C28095@brian-laptop.us.mvd> <20010510180039.D9771@flint.arm.linux.org.uk> <20010511111300.A27378@brian-laptop.us.mvd> <20010511193833.B12798@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	id <S137209AbREKSu7>; Fri, 11 May 2001 14:50:59 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:35340 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S137207AbREKSut>; Fri, 11 May 2001 14:50:49 -0400
+Subject: Re: 2.4.4 kernel freeze for unknown reason
+To: linuxkernel@AdvancedResearch.org (Vincent Stemen)
+Date: Fri, 11 May 2001 19:46:48 +0100 (BST)
+Cc: jq419@my-deja.com (Jacky Liu), linux-kernel@vger.kernel.org
+In-Reply-To: <01051113452400.07411@quark> from "Vincent Stemen" at May 11, 2001 01:45:24 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010511193833.B12798@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Fri, May 11, 2001 at 07:38:33PM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14yHw8-0001V8-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 11, 2001 at 07:38:33PM +0100, Russell King wrote:
-> 
-> As long as you can get the root server IP and path from the DHCP client,
+> I have been monitoring the memory usage constantly with the gnome
+> memory usage meter and noticed that as swap grows it is never freed
+> back up.  I can kill off most of the large applications, such as
 
-I can do that.  :-)
+The swap handling in 2.4 is somewhat hosed at the moment.
 
-> then you mount it in a directory, and use pivot_root() to change to
-> that directory.
+> If I turn swap off all together or turn it off and back on
+> periodically to clear the swap before it gets full, I do not seem to
+> experience the lockups.
 
-Cool.
+That sounds right. I can give you a tiny patch that should fix the lockups
+and instead it will kill processes out of memory but thats obviously not
+the actual fix 8)
 
-> See the "Changing the root device" of Documentation/initrd.txt for more
-> information about this.
-
-This looks like the ticket.  I will hack away at that when I can get a
-moment.  :-)
-
-Thanx!
-
-b.
 

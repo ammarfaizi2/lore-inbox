@@ -1,47 +1,184 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276701AbRJPUue>; Tue, 16 Oct 2001 16:50:34 -0400
+	id <S276709AbRJPU7Q>; Tue, 16 Oct 2001 16:59:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276702AbRJPUuY>; Tue, 16 Oct 2001 16:50:24 -0400
-Received: from postfix2-1.free.fr ([213.228.0.9]:34517 "HELO
-	postfix2-1.free.fr") by vger.kernel.org with SMTP
-	id <S276701AbRJPUuT>; Tue, 16 Oct 2001 16:50:19 -0400
-Date: Tue, 16 Oct 2001 22:50:49 +0200
-From: christophe =?iso-8859-1?Q?barb=E9?= <christophe.barbe@lineo.fr>
-To: linux-kernel@vger.kernel.org, "Justin T . Gibbs" <gibbs@scsiguy.com>
+	id <S276729AbRJPU7G>; Tue, 16 Oct 2001 16:59:06 -0400
+Received: from postfix2-1.free.fr ([213.228.0.9]:3545 "HELO postfix2-1.free.fr")
+	by vger.kernel.org with SMTP id <S276709AbRJPU65>;
+	Tue, 16 Oct 2001 16:58:57 -0400
+Date: Tue, 16 Oct 2001 22:59:26 +0200
+From: christophe barbe <christophe.barbe@online.fr>
+To: "Justin T . Gibbs" <gibbs@scsiguy.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] export pci_table in aic7xxx for Hotplug
-Message-ID: <20011016225049.A996@online.fr>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	"Justin T . Gibbs" <gibbs@scsiguy.com>
-In-Reply-To: <20011015222311.E2665@turing> <200110152031.f9FKVlY56104@aslan.scsiguy.com> <20011016181726.E935@turing> <20011016221645.A346@online.fr>
+Message-ID: <20011016225925.G488@turing>
+In-Reply-To: <20011015222311.E2665@turing> <200110152031.f9FKVlY56104@aslan.scsiguy.com> <20011016181726.E935@turing> <20011016221645.A346@online.fr> <20011016225049.A996@online.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: multipart/mixed; boundary="wFOKsO6yexqJz9ic"
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20011016221645.A346@online.fr>
-User-Agent: Mutt/1.3.22i
-X-Operating-System: "debian SID Gnu/Linux 2.4.12 on i586"
+In-Reply-To: <20011016225049.A996@online.fr>; from christophe.barbe@lineo.fr on mar, oct 16, 2001 at 22:50:49 +0200
+X-Mailer: Balsa 1.2.pre3
+X-Operating-System: debian SID Gnu/Linux 2.4.12 on i586
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok I switch ON the light in my brain and things are better now.
 
-The PCI layer notify the driver that one of its devices has been
-removed.
-This is done with the remove function in the pci_driver struct.
+--wFOKsO6yexqJz9ic
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-In the case of the aic7xxx this is the function
-ahc_linux_pci_dev_remove().
+Just in case I attach the oops and the associated ksymoops output.
 
-I should, at this point, precise that I use the driver v6.2.4.
-
-I look in the code but it looks like this part of the code is broken.
-Please Justin let me 1 month before starting looking at it. Otherwise I
-have no chance to find a bug by myself.
-
-Christophe 
+Christophe
 
 
+Le 2001.10.16 22:50:49 +0200, christophe barbé a écrit :
+> Ok I switch ON the light in my brain and things are better now.
+> 
+> The PCI layer notify the driver that one of its devices has been
+> removed.
+> This is done with the remove function in the pci_driver struct.
+> 
+> In the case of the aic7xxx this is the function
+> ahc_linux_pci_dev_remove().
+> 
+> I should, at this point, precise that I use the driver v6.2.4.
+> 
+> I look in the code but it looks like this part of the code is broken.
+> Please Justin let me 1 month before starting looking at it. Otherwise I
+> have no chance to find a bug by myself.
+> 
+> Christophe 
+> 
+> 
+> -- 
+> Christophe Barbé <christophe.barbe@online.fr>
+> GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 -- 
 Christophe Barbé <christophe.barbe@online.fr>
 GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
+
+--wFOKsO6yexqJz9ic
+Content-Type: application/octet-stream; charset=us-ascii
+Content-Disposition: attachment; filename="oops.mount"
+Content-Transfer-Encoding: base64
+
+T2N0IDE2IDE3OjMzOjM1IHR1cmluZyBrZXJuZWw6ICBwcmludGluZyBlaXA6Ck9jdCAxNiAx
+NzozMzozNSB0dXJpbmcga2VybmVsOiBjMDE5ZDAxYQpPY3QgMTYgMTc6MzM6MzUgdHVyaW5n
+IGtlcm5lbDogT29wczogMDAwMApPY3QgMTYgMTc6MzM6MzUgdHVyaW5nIGtlcm5lbDogQ1BV
+OiAgICAwCk9jdCAxNiAxNzozMzozNSB0dXJpbmcga2VybmVsOiBFSVA6ICAgIDAwMTA6W3Nj
+c2lfZGlzcGF0Y2hfY21kKzE1OC8zNjhdICAgIE5vdCB0YWludGVkCk9jdCAxNiAxNzozMzoz
+NSB0dXJpbmcga2VybmVsOiBFRkxBR1M6IDAwMjEwMjQ2Ck9jdCAxNiAxNzozMzozNSB0dXJp
+bmcga2VybmVsOiBlYXg6IDAwMDAwMDAwICAgZWJ4OiBjMjc3M2UwMCAgIGVjeDogYzI3NzNl
+ODAgICBlZHg6IDA4N2M0Njc4Ck9jdCAxNiAxNzozMzozNSB0dXJpbmcga2VybmVsOiBlc2k6
+IGM1ZmUzZWQ0ICAgZWRpOiBjNTY5ODBlMCAgIGVicDogYzI3NzNlMDAgICBlc3A6IGMxNjNi
+YzE4Ck9jdCAxNiAxNzozMzozNSB0dXJpbmcga2VybmVsOiBkczogMDAxOCAgIGVzOiAwMDE4
+ICAgc3M6IDAwMTgKT2N0IDE2IDE3OjMzOjM1IHR1cmluZyBrZXJuZWw6IFByb2Nlc3MgbW91
+bnQgKHBpZDogNzkzLCBzdGFja3BhZ2U9YzE2M2IwMDApCk9jdCAxNiAxNzozMzozNSB0dXJp
+bmcga2VybmVsOiBTdGFjazogYzI3NzNlMDAgYzVmZTNlZDQgYzI3NzNlYWMgYzVmZTNlZDQg
+MDAwMDAwMDAgYzAxYTJkNmYgYzI3NzNlMDAgYzI3NzNlMDAgCk9jdCAxNiAxNzozMzozNSB0
+dXJpbmcga2VybmVsOiAgICAgICAgMDAyMDAyODYgYzRlNTY4MTggYzE2M2JjZDAgYzVmZTNl
+ODAgMDAwMDAwMDAgYzU2OTgwZTAgYzRlNTY4MDAgYzVmZTNlODAgCk9jdCAxNiAxNzozMzoz
+NSB0dXJpbmcga2VybmVsOiAgICAgICAgYzAxYTIzNTYgYzRlNTY4MTggYzVmZTNlODAgYzE2
+M2JkNDAgYzAxYTIzOWQgYzRlNTY4MTggYzVmZTNlZDQgYzVmZTNlODAgCk9jdCAxNiAxNzoz
+MzozNSB0dXJpbmcga2VybmVsOiBDYWxsIFRyYWNlOiBbc2NzaV9yZXF1ZXN0X2ZuKzY4Ny83
+NDBdIFtfX3Njc2lfaW5zZXJ0X3NwZWNpYWwrMTAyLzExMl0gW3Njc2lfaW5zZXJ0X3NwZWNp
+YWxfcmVxKzI1LzMyXSBbc2NzaV9kb19yZXErMTcyLzE4MF0gW3Njc2lfd2FpdF9yZXErMTE2
+LzE2OF0gCk9jdCAxNiAxNzozMzozNSB0dXJpbmcga2VybmVsOiAgICBbc2NzaV93YWl0X2Rv
+bmUrMC8zMl0gW3NyX2RvX2lvY3RsKzI1MS83MTJdIFt0ZXN0X3VuaXRfcmVhZHkrOTEvMTAw
+XSBbc3JfZHJpdmVfc3RhdHVzKzM0LzYwXSBbb3Blbl9mb3JfZGF0YSs1NC83MDhdIFtjZHJv
+bV9vcGVuKzE0Mi8yMDBdIApPY3QgMTYgMTc6MzM6MzUgdHVyaW5nIGtlcm5lbDogICAgW2Rv
+X29wZW4rMTI0LzI5Ml0gW2Jsa2Rldl9nZXQrMTA0LzEyMF0gW2dldF9zYl9iZGV2KzIzMC83
+MTZdIFtzZXRfZGV2bmFtZSszOS84NF0gW2RvX2tlcm5fbW91bnQrMTc1LzMxNl0gW2RvX2Fk
+ZF9tb3VudCsyOS8yMDRdIApPY3QgMTYgMTc6MzM6MzUgdHVyaW5nIGtlcm5lbDogICAgW2Rv
+X21vdW50KzI4Ni8zMTJdIFtjb3B5X21vdW50X29wdGlvbnMrNzYvMTU2XSBbc3lzX21vdW50
+KzEyNC8xODhdIFtzeXN0ZW1fY2FsbCs1MS82NF0gCk9jdCAxNiAxNzozMzozNSB0dXJpbmcg
+a2VybmVsOiAKT2N0IDE2IDE3OjMzOjM1IHR1cmluZyBrZXJuZWw6IENvZGU6IGY2IDQwIDY3
+IDA0IDc0IDA3IDY4IGQ4IDAxIDFhIGMwIGViIDA1IDY4IDUwIDE1IDFhIGMwIGZmIDc1IAo=
+
+--wFOKsO6yexqJz9ic
+Content-Type: application/octet-stream; charset=us-ascii
+Content-Disposition: attachment; filename="ksymoops.mount"
+Content-Transfer-Encoding: base64
+
+a3N5bW9vcHMgMi40LjMgb24gaTU4NiAyLjQuMTIuICBPcHRpb25zIHVzZWQKICAgICAtViAo
+ZGVmYXVsdCkKICAgICAtayAvcHJvYy9rc3ltcyAoZGVmYXVsdCkKICAgICAtbCAvcHJvYy9t
+b2R1bGVzIChkZWZhdWx0KQogICAgIC1vIC9saWIvbW9kdWxlcy8yLjQuMTIvIChkZWZhdWx0
+KQogICAgIC1NIChzcGVjaWZpZWQpCgpSZWFkaW5nIE9vcHMgcmVwb3J0IGZyb20gdGhlIHRl
+cm1pbmFsCk9jdCAxNiAxNzozMzozNSB0dXJpbmcga2VybmVsOiAgcHJpbnRpbmcgZWlwOgpP
+Y3QgMTYgMTc6MzM6MzUgdHVyaW5nIGtlcm5lbDogYzAxOWQwMWEKT2N0IDE2IDE3OjMzOjM1
+IHR1cmluZyBrZXJuZWw6IE9vcHM6IDAwMDAKT2N0IDE2IDE3OjMzOjM1IHR1cmluZyBrZXJu
+ZWw6IENQVTogICAgMApPY3QgMTYgMTc6MzM6MzUgdHVyaW5nIGtlcm5lbDogRUlQOiAgICAw
+MDEwOltzY3NpX2Rpc3BhdGNoX2NtZCsxNTgvMzY4XSAgICBOb3QgdGFpbnRlZApPY3QgMTYg
+MTc6MzM6MzUgdHVyaW5nIGtlcm5lbDogRUZMQUdTOiAwMDIxMDI0NgpPY3QgMTYgMTc6MzM6
+MzUgdHVyaW5nIGtlcm5lbDogZWF4OiAwMDAwMDAwMCAgIGVieDogYzI3NzNlMDAgICBlY3g6
+IGMyNzczZTgwICAgZWR4OiAwODdjNDY3OApPY3QgMTYgMTc6MzM6MzUgdHVyaW5nIGtlcm5l
+bDogZXNpOiBjNWZlM2VkNCAgIGVkaTogYzU2OTgwZTAgICBlYnA6IGMyNzczZTAwICAgZXNw
+OiBjMTYzYmMxOApPY3QgMTYgMTc6MzM6MzUgdHVyaW5nIGtlcm5lbDogZHM6IDAwMTggICBl
+czogMDAxOCAgIHNzOiAwMDE4Ck9jdCAxNiAxNzozMzozNSB0dXJpbmcga2VybmVsOiBQcm9j
+ZXNzIG1vdW50IChwaWQ6IDc5Mywgc3RhY2twYWdlPWMxNjNiMDAwKQpPY3QgMTYgMTc6MzM6
+MzUgdHVyaW5nIGtlcm5lbDogU3RhY2s6IGMyNzczZTAwIGM1ZmUzZWQ0IGMyNzczZWFjIGM1
+ZmUzZWQ0IDAwMDAwMDAwIGMwMWEyZDZmIGMyNzczZTAwIGMyNzczZTAwIApPY3QgMTYgMTc6
+MzM6MzUgdHVyaW5nIGtlcm5lbDogICAgICAgIDAwMjAwMjg2IGM0ZTU2ODE4IGMxNjNiY2Qw
+IGM1ZmUzZTgwIDAwMDAwMDAwIGM1Njk4MGUwIGM0ZTU2ODAwIGM1ZmUzZTgwIApPY3QgMTYg
+MTc6MzM6MzUgdHVyaW5nIGtlcm5lbDogICAgICAgIGMwMWEyMzU2IGM0ZTU2ODE4IGM1ZmUz
+ZTgwIGMxNjNiZDQwIGMwMWEyMzlkIGM0ZTU2ODE4IGM1ZmUzZWQ0IGM1ZmUzZTgwIApPY3Qg
+MTYgMTc6MzM6MzUgdHVyaW5nIGtlcm5lbDogQ2FsbCBUcmFjZTogW3Njc2lfcmVxdWVzdF9m
+bis2ODcvNzQwXSBbX19zY3NpX2luc2VydF9zcGVjaWFsKzEwMi8xMTJdIFtzY3NpX2luc2Vy
+dF9zcGVjaWFsX3JlcSsyNS8zMl0gW3Njc2lfZG9fcmVxKzE3Mi8xODBdIFtzY3NpX3dhaXRf
+cmVxKzExNi8xNjhdIApPY3QgMTYgMTc6MzM6MzUgdHVyaW5nIGtlcm5lbDogICAgW3Njc2lf
+d2FpdF9kb25lKzAvMzJdIFtzcl9kb19pb2N0bCsyNTEvNzEyXSBbdGVzdF91bml0X3JlYWR5
+KzkxLzEwMF0gW3NyX2RyaXZlX3N0YXR1cyszNC82MF0gW29wZW5fZm9yX2RhdGErNTQvNzA4
+XSBbY2Ryb21fb3BlbisxNDIvMjAwXSAKT2N0IDE2IDE3OjMzOjM1IHR1cmluZyBrZXJuZWw6
+ICAgIFtkb19vcGVuKzEyNC8yOTJdIFtibGtkZXZfZ2V0KzEwNC8xMjBdIFtnZXRfc2JfYmRl
+disyMzAvNzE2XSBbc2V0X2Rldm5hbWUrMzkvODRdIFtkb19rZXJuX21vdW50KzE3NS8zMTZd
+IFtkb19hZGRfbW91bnQrMjkvMjA0XSAKT2N0IDE2IDE3OjMzOjM1IHR1cmluZyBrZXJuZWw6
+ICAgIFtkb19tb3VudCsyODYvMzEyXSBbY29weV9tb3VudF9vcHRpb25zKzc2LzE1Nl0gW3N5
+c19tb3VudCsxMjQvMTg4XSBbc3lzdGVtX2NhbGwrNTEvNjRdIApPY3QgMTYgMTc6MzM6MzUg
+dHVyaW5nIGtlcm5lbDogCk9jdCAxNiAxNzozMzozNSB0dXJpbmcga2VybmVsOiBDb2RlOiBm
+NiA0MCA2NyAwNCA3NCAwNyA2OCBkOCAwMSAxYSBjMCBlYiAwNSA2OCA1MCAxNSAxYSBjMCBm
+ZiA3NSAKT2N0IDE2IDE3OjMzOjM1IHR1cmluZyBrZXJuZWw6IGMwMTlkMDFhCk9jdCAxNiAx
+NzozMzozNSB0dXJpbmcga2VybmVsOiBPb3BzOiAwMDAwCk9jdCAxNiAxNzozMzozNSB0dXJp
+bmcga2VybmVsOiBDUFU6ICAgIDAKT2N0IDE2IDE3OjMzOjM1IHR1cmluZyBrZXJuZWw6IEVJ
+UDogICAgMDAxMDpbc2NzaV9kaXNwYXRjaF9jbWQrMTU4LzM2OF0gICAgTm90IHRhaW50ZWQK
+T2N0IDE2IDE3OjMzOjM1IHR1cmluZyBrZXJuZWw6IEVGTEFHUzogMDAyMTAyNDYKT2N0IDE2
+IDE3OjMzOjM1IHR1cmluZyBrZXJuZWw6IGVheDogMDAwMDAwMDAgICBlYng6IGMyNzczZTAw
+ICAgZWN4OiBjMjc3M2U4MCAgIGVkeDogMDg3YzQ2NzgKT2N0IDE2IDE3OjMzOjM1IHR1cmlu
+ZyBrZXJuZWw6IGVzaTogYzVmZTNlZDQgICBlZGk6IGM1Njk4MGUwICAgZWJwOiBjMjc3M2Uw
+MCAgIGVzcDogYzE2M2JjMTgKT2N0IDE2IDE3OjMzOjM1IHR1cmluZyBrZXJuZWw6IGRzOiAw
+MDE4ICAgZXM6IDAwMTggICBzczogMDAxOApPY3QgMTYgMTc6MzM6MzUgdHVyaW5nIGtlcm5l
+bDogUHJvY2VzcyBtb3VudCAocGlkOiA3OTMsIHN0YWNrcGFnZT1jMTYzYjAwMCkKT2N0IDE2
+IDE3OjMzOjM1IHR1cmluZyBrZXJuZWw6IFN0YWNrOiBjMjc3M2UwMCBjNWZlM2VkNCBjMjc3
+M2VhYyBjNWZlM2VkNCAwMDAwMDAwMCBjMDFhMmQ2ZiBjMjc3M2UwMCBjMjc3M2UwMCAKT2N0
+IDE2IDE3OjMzOjM1IHR1cmluZyBrZXJuZWw6ICAgICAgICAwMDIwMDI4NiBjNGU1NjgxOCBj
+MTYzYmNkMCBjNWZlM2U4MCAwMDAwMDAwMCBjNTY5ODBlMCBjNGU1NjgwMCBjNWZlM2U4MCAK
+T2N0IDE2IDE3OjMzOjM1IHR1cmluZyBrZXJuZWw6ICAgICAgICBjMDFhMjM1NiBjNGU1Njgx
+OCBjNWZlM2U4MCBjMTYzYmQ0MCBjMDFhMjM5ZCBjNGU1NjgxOCBjNWZlM2VkNCBjNWZlM2U4
+MCAKT2N0IDE2IDE3OjMzOjM1IHR1cmluZyBrZXJuZWw6IENhbGwgVHJhY2U6IFtzY3NpX3Jl
+cXVlc3RfZm4rNjg3Lzc0MF0gW19fc2NzaV9pbnNlcnRfc3BlY2lhbCsxMDIvMTEyXSBbc2Nz
+aV9pbnNlcnRfc3BlY2lhbF9yZXErMjUvMzJdIFtzY3NpX2RvX3JlcSsxNzIvMTgwXSBbc2Nz
+aV93YWl0X3JlcSsxMTYvMTY4XSAKT2N0IDE2IDE3OjMzOjM1IHR1cmluZyBrZXJuZWw6IENv
+ZGU6IGY2IDQwIDY3IDA0IDc0IDA3IDY4IGQ4IDAxIDFhIGMwIGViIDA1IDY4IDUwIDE1IDFh
+IGMwIGZmIDc1IApVc2luZyBkZWZhdWx0cyBmcm9tIGtzeW1vb3BzIC10IGVsZjMyLWkzODYg
+LWEgaTM4NgoKQ29kZTsgIDAwMDAwMDAwIEJlZm9yZSBmaXJzdCBzeW1ib2wKMDAwMDAwMDAg
+PF9FSVA+OgpDb2RlOyAgMDAwMDAwMDAgQmVmb3JlIGZpcnN0IHN5bWJvbAogICAwOiAgIGY2
+IDQwIDY3IDA0ICAgICAgICAgICAgICAgdGVzdGIgICQweDQsMHg2NyglZWF4KQpDb2RlOyAg
+MDAwMDAwMDQgQmVmb3JlIGZpcnN0IHN5bWJvbAogICA0OiAgIDc0IDA3ICAgICAgICAgICAg
+ICAgICAgICAgamUgICAgIGQgPF9FSVArMHhkPiAwMDAwMDAwYyBCZWZvcmUgZmlyc3Qgc3lt
+Ym9sCkNvZGU7ICAwMDAwMDAwNiBCZWZvcmUgZmlyc3Qgc3ltYm9sCiAgIDY6ICAgNjggZDgg
+MDEgMWEgYzAgICAgICAgICAgICBwdXNoICAgJDB4YzAxYTAxZDgKQ29kZTsgIDAwMDAwMDBh
+IEJlZm9yZSBmaXJzdCBzeW1ib2wKICAgYjogICBlYiAwNSAgICAgICAgICAgICAgICAgICAg
+IGptcCAgICAxMiA8X0VJUCsweDEyPiAwMDAwMDAxMiBCZWZvcmUgZmlyc3Qgc3ltYm9sCkNv
+ZGU7ICAwMDAwMDAwYyBCZWZvcmUgZmlyc3Qgc3ltYm9sCiAgIGQ6ICAgNjggNTAgMTUgMWEg
+YzAgICAgICAgICAgICBwdXNoICAgJDB4YzAxYTE1NTAKQ29kZTsgIDAwMDAwMDEyIEJlZm9y
+ZSBmaXJzdCBzeW1ib2wKICAxMjogICBmZiA3NSAwMCAgICAgICAgICAgICAgICAgIHB1c2hs
+ICAweDAoJWVicCkK
+
+--wFOKsO6yexqJz9ic--

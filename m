@@ -1,91 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270082AbTGMD0P (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 23:26:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270083AbTGMD0P
+	id S270085AbTGMDok (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 23:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270086AbTGMDok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 23:26:15 -0400
-Received: from mailc.telia.com ([194.22.190.4]:7389 "EHLO mailc.telia.com")
-	by vger.kernel.org with ESMTP id S270082AbTGMD0N (ORCPT
+	Sat, 12 Jul 2003 23:44:40 -0400
+Received: from wsip-68-15-8-100.sd.sd.cox.net ([68.15.8.100]:4992 "EHLO gnuppy")
+	by vger.kernel.org with ESMTP id S270085AbTGMDoi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 23:26:13 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] SCHED_ISO for interactivity
-From: Christian Axelsson <smiler@lanil.mine.nu>
-Reply-To: smiler@lanil.mine.nu
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org, phillips@arcor.de
-In-Reply-To: <200307131226.29452.kernel@kolivas.org>
-References: <200307112053.55880.kernel@kolivas.org>
-	 <200307130139.45477.kernel@kolivas.org>
-	 <1058027317.4363.8.camel@sm-wks1.lan.irkk.nu>
-	 <200307131226.29452.kernel@kolivas.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-+aYK6wr7FzTNWHm3A38Y"
-Organization: LANIL
-Message-Id: <1058067630.12248.33.camel@sm-wks1.lan.irkk.nu>
+	Sat, 12 Jul 2003 23:44:38 -0400
+Date: Sat, 12 Jul 2003 20:59:18 -0700
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Jamie Lokier <jamie@shareable.org>,
+       Miguel Freitas <miguel@cetuc.puc-rio.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
+Subject: Re: [patch] SCHED_SOFTRR linux scheduler policy ...
+Message-ID: <20030713035918.GA958@gnuppy.monkey.org>
+References: <1058017391.1197.24.camel@mf> <Pine.LNX.4.55.0307120735540.4351@bigblue.dev.mcafeelabs.com> <20030712154942.GB9547@mail.jlokier.co.uk> <Pine.LNX.4.55.0307120845470.4351@bigblue.dev.mcafeelabs.com> <20030712224246.GA5354@gnuppy.monkey.org> <Pine.LNX.4.55.0307121928540.3528@bigblue.dev.mcafeelabs.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 13 Jul 2003 05:40:31 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55.0307121928540.3528@bigblue.dev.mcafeelabs.com>
+User-Agent: Mutt/1.5.4i
+From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jul 12, 2003 at 07:39:25PM -0700, Davide Libenzi wrote:
+> This is funny. Every time I found something interesting to read (papers) I
+> print them and I stock on my desk. The are 25Kg of papers piled on my desk
+> right now. Thanks to you, 25.05Kg now ;) Upon a brief read, The Italian Job,
+> hemm ... paper, is very similar to SOFTRR. Once you change their "server"
+> notion with the per-user allocation I have in mind, it'll come even
+> closer. I really didn't have time to read the MS paper though. The problem
+> is not if it can be done, the problem is how bad ppl wants it.
 
---=-+aYK6wr7FzTNWHm3A38Y
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I want it badly, but that's just me. :) The MS is about extending these
+concept to apply to SMP resource allocation, which currently isn't something
+that these kind of schedulers do. IMO, all of this kind of stuff is going to
+be crucial for the next generation of operating systems.  Glue that scheduler
+to a thread that's suppose to process network packets/io channels and you'll
+have ubiquitous QoS throughout the system directly controllable by the scheduler.
 
-On Sun, 2003-07-13 at 04:26, Con Kolivas wrote:
-> On Sun, 13 Jul 2003 02:28, Christian Axelsson wrote:
-> > On Sat, 2003-07-12 at 17:39, Con Kolivas wrote:
-> > > On Sat, 12 Jul 2003 10:13, Con Kolivas wrote:
-> > > > On Sat, 12 Jul 2003 09:37, Christian Axelsson wrote:
-> > > > > On Fri, 2003-07-11 at 16:30, Con Kolivas wrote:
-> > > > > > On Fri, 11 Jul 2003 22:48, Christian Axelsson wrote:
-> > >
-> > > snip snip snip
-> > >
-> > > Mike G suggested expiring tasks which use up too much cpu
-> > > time like in Davide's softrr patch which is a much better
-> > > solution to the forever reinserted into the active array concern.
-> > >
-> > > patch-SI-0307130021 is also available at
-> > > http://kernel.kolivas.org/2.5
-> >
-> > Problem seems to be gone (cant be 100% sure as I aint really sure WHAT
-> > trigged this behavior).
->=20
-> I'm as close to sure as I can be since this addressed it. Thanks to your=20
-> feedback I would not have been able to figure it out or even know it was =
-an=20
-> issue.=20
->=20
-> Surprisingly noone has said whether this patch does any good for their se=
-tup=20
-> though.
+That's my intuition on the subject. Time will tell.
 
-I do feel an improvement, I get less of those annoying
-alsa-bufferunderrun messages popping up from xmms while doing stuff but
-it do still happen every now and then, mostly when working with
-evolution or mozilla-firebird.=20
-I actually this has more with memory to do as if I leave computer idle
-for a few hours stuff tends to get swapped out. IE 126mb of X is swapped
-out and over 100mb of vmware and even almost 100% of firebird.
-
---=20
-Christian Axelsson
-smiler@lanil.mine.nu
-
---=-+aYK6wr7FzTNWHm3A38Y
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/ENStyqbmAWw8VdkRAi8/AJ94G2lmd9ZfjgXno8NnORpLQFw5FACeOXf8
-ZU/sgzXpTbg5oF+k5+5goCE=
-=JNwK
------END PGP SIGNATURE-----
-
---=-+aYK6wr7FzTNWHm3A38Y--
+bill
 

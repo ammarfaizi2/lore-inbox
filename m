@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280992AbRKOS4h>; Thu, 15 Nov 2001 13:56:37 -0500
+	id <S280993AbRKOS6r>; Thu, 15 Nov 2001 13:58:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280993AbRKOS41>; Thu, 15 Nov 2001 13:56:27 -0500
-Received: from darkwing.uoregon.edu ([128.223.142.13]:53214 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S280992AbRKOS4K>; Thu, 15 Nov 2001 13:56:10 -0500
-Date: Thu, 15 Nov 2001 10:56:11 -0800 (PST)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: "Matthew D. Pitts" <mpitts@suite224.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Motherboard question...
-In-Reply-To: <001b01c16ddc$49e28820$bff583d0@pcs586>
-Message-ID: <Pine.LNX.4.33.0111151052130.28958-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280985AbRKOS6j>; Thu, 15 Nov 2001 13:58:39 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:24072 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S280971AbRKOS6X>;
+	Thu, 15 Nov 2001 13:58:23 -0500
+Subject: [STP] OSDL Scalable Test Platform test for linux_2_4_14
+From: Dave Fuller <dave@osdl.org>
+To: Linux Kernel Developers <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1+cvs.2001.11.07.16.47 (Preview Release)
+Date: 15 Nov 2001 10:50:57 -0800
+Message-Id: <1005850257.1077.6.camel@moon.pdx.osdl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-promise software raid is nothing to write home about... but it's a 
-perfectly good two channel ata100 controller.
+	
+OSDL is pleased to announce the release of the Scalable
+Test Platform tests against kernel release linux_2_4_14.
 
-joelja
+Summary:
 
-On Thu, 15 Nov 2001, Matthew D. Pitts wrote:
+bash-memory	4 and 8 processor tests
+dbench-quick	4 and 8 processor tests
+dbench-long	4 and 8 processor tests
+lmbench-short	4 processor test
+lmbench-long	4 processor test
+dbench-quick	4 processor test
 
-> Good day,
-> 
-> I am in the process of building an AMD Athlon powered PC. I am planning to
-> use a Giga-Byte GA-7DXR motherboard. Has anyone used it with the built-in
-> Promise RAID controller? I was wondering how well it worked?
-> 
-> Matthew Pitts
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+http://www.osdl.org/stp/kernel_suite_2_4_14.html
 
--- 
--------------------------------------------------------------------------- 
-Joel Jaeggli				       joelja@darkwing.uoregon.edu    
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
+Note:
+
+2 processor UNIXbench and bash_memory tests were not performed 
+for this run.  
+
+Contacts:
+
+About the form or content of this message: dave@osdlab.org
+About the Scalable Test Platform or this release: smurf@osdlab.org
+
+Regards,
+
+Dave Fuller
+Technical Marketing
+Open Source Development Labs
+
+www.osdlab.org
+
+
+
+
 
 

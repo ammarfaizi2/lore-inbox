@@ -1,76 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269375AbUINNNZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269266AbUINLcp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269375AbUINNNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 09:13:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269357AbUINNNI
+	id S269266AbUINLcp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 07:32:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269286AbUINL3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 09:13:08 -0400
-Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:64972 "EHLO
-	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S269377AbUINNJS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 09:09:18 -0400
-From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-To: <syphir@syphir.sytes.net>
-Subject: Re: Changes to ide-probe.c in 2.6.9-rc2 causing improper detection
-Date: Tue, 14 Sep 2004 13:59:27 +0200
-User-Agent: KMail/1.6.2
-Cc: "'Jens Axboe'" <axboe@suse.de>, <linux-kernel@vger.kernel.org>,
-       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA9mKu6AlYok2efOpJ3sb3O+KAAAAQAAAA6P8AlyGHikORXOqFZ6fdPAEAAAAA@syphir.sytes.net>
-In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA9mKu6AlYok2efOpJ3sb3O+KAAAAQAAAA6P8AlyGHikORXOqFZ6fdPAEAAAAA@syphir.sytes.net>
-MIME-Version: 1.0
+	Tue, 14 Sep 2004 07:29:17 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:22252 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S269297AbUINLTI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 07:19:08 -0400
+Date: Tue, 14 Sep 2004 12:50:48 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] sched, mm: fix scheduling latencies in copy_page_range()
+Message-ID: <20040914105048.GA31238@elte.hu>
+References: <20040914091529.GA21553@elte.hu> <20040914093855.GA23258@elte.hu> <20040914095110.GA24094@elte.hu> <20040914095731.GA24622@elte.hu> <20040914100652.GB24622@elte.hu> <20040914101904.GD24622@elte.hu> <20040914102517.GE24622@elte.hu> <20040914104449.GA30790@elte.hu>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="SLDf9lqlvOQaIe6s"
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409141359.27558.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <20040914104449.GA30790@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-always cc: linux-ide@vger.kernel.org on ATA stuff
+--SLDf9lqlvOQaIe6s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Tuesday 14 September 2004 09:03, C.Y.M. wrote:
-> 
-> > 
-> > On Mon, Sep 13 2004, C.Y.M. wrote:
-> > > After installing 2.6.9-rc2 on my PC today (x86 VIA Chipset 
-> > motherboard and
-> > > Athlon XP CPU), The IDE detection during boot in probing 
-> > for ide2-5 and
-> > > displaying errors, and the hard drives that it does find 
-> > are telling me that
-> > > "hda: cache flushes not supported" (when they are displayed 
-> > as supported
-> > > when using 2.6.9-rc1.
-> > 
-> > Your drive doesn't advertise FLUSH_CACHE support, the model 
-> > for when we
-> > use these commands changed between -rc1 and -rc2. This 
-> > essentially means
-> > that you have to turn off write back caching for safe operations on a
-> > journalled drive.
-> > 
-> > Alan, I bet there are a lot of these. Maybe we should consider letting
-> > the user manually flag support for FLUSH_CACHE, at least it 
-> > is in their
-> > hands then.
-> > 
-> > -- 
-> > Jens Axboe
-> > 
-> 
-> Thanks for the explanation.  I can understand that some of the older drives
-> will not support FLUSH_CACHE which is acceptable. On another note, since
-> most computers only have IDE0 and IDE1 slots, is there a way to prevent the
-> probe from returning errors on boot when looking for IDE2 to IDE5?  Perhaps
+The attached patch does a lock-break in copy_page_range() if needed, to
+reduce scheduling latencies.
 
-errros?  these are innocent KERN_DEBUG messages
+has been tested as part of the -VP patchset.
 
-> a kernel configuration option asking how many IDE's are expected to probe
-> (defaulting to two)?
+	Ingo
 
-grep drivers/ide/Kconfig IDE_GENERIC
+--SLDf9lqlvOQaIe6s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="fix-latency-copy_page_range.patch"
 
-> Best Regards,
-> C.Y.M.
+
+The attached patch does a lock-break in copy_page_range() if needed, to
+reduce scheduling latencies.
+
+has been tested as part of the -VP patchset.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+--- linux/mm/memory.c.orig	
++++ linux/mm/memory.c	
+@@ -337,6 +337,25 @@ cont_copy_pte_range_noset:
+ 				}
+ 				src_pte++;
+ 				dst_pte++;
++				/*
++				 * We are holding two locks at this point -
++				 * any of them could generate latencies in
++				 * another task on another CPU:
++				 */
++				if (need_resched() ||
++					need_lockbreak(&src->page_table_lock) ||
++					need_lockbreak(&dst->page_table_lock))
++				{
++					pte_unmap_nested(src_pte);
++					pte_unmap(dst_pte);
++					spin_unlock(&src->page_table_lock);
++					spin_unlock(&dst->page_table_lock);
++					cond_resched();
++					spin_lock(&dst->page_table_lock);
++					spin_lock(&src->page_table_lock);
++					dst_pte = pte_offset_map(dst_pmd, address);
++					src_pte = pte_offset_map_nested(src_pmd, address);
++				}
+ 			} while ((unsigned long)src_pte & PTE_TABLE_MASK);
+ 			pte_unmap_nested(src_pte-1);
+ 			pte_unmap(dst_pte-1);
+
+--SLDf9lqlvOQaIe6s--

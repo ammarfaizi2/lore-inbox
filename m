@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316684AbSE3POT>; Thu, 30 May 2002 11:14:19 -0400
+	id <S316693AbSE3PQ2>; Thu, 30 May 2002 11:16:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316686AbSE3POS>; Thu, 30 May 2002 11:14:18 -0400
-Received: from port-213-20-228-54.reverse.qdsl-home.de ([213.20.228.54]:13838
-	"EHLO drocklinux.dyndns.org") by vger.kernel.org with ESMTP
-	id <S316684AbSE3POQ> convert rfc822-to-8bit; Thu, 30 May 2002 11:14:16 -0400
-Date: Thu, 30 May 2002 17:13:11 +0200 (CEST)
-Message-Id: <20020530.171311.607952183.rene.rebe@gmx.net>
-To: dalecki@evision-ventures.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.18 IDE 73
-From: Rene Rebe <rene.rebe@gmx.net>
-In-Reply-To: <3CF62F2A.6030009@evision-ventures.com>
-X-Mailer: Mew version 2.2 on XEmacs 21.4.7 (Economic Science)
+	id <S316690AbSE3PQ1>; Thu, 30 May 2002 11:16:27 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:26847 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S316686AbSE3PQ0>;
+	Thu, 30 May 2002 11:16:26 -0400
+Date: Fri, 31 May 2002 01:16:06 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Mark Zealey <mark@zealos.org>
+Cc: Linus <torvalds@transmeta.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] generic copy_siginfo_to_user cleanup
+Message-Id: <20020531011606.21e970f6.sfr@canb.auug.org.au>
+In-Reply-To: <20020530150010.GA6139@itsolve.co.uk>
+X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi Mark,
 
-On: Thu, 30 May 2002 15:54:50 +0200,
-    Martin Dalecki <dalecki@evision-ventures.com> wrote:
-
-> > You still need a way to talk all the disk devices. It might be that is
-> > devfs /dev/disk, but in case it hasn't permeated your skull yet, in such
-> > a situation then -devfs- would need such a list. We also have another
+On Thu, 30 May 2002 16:00:10 +0100 Mark Zealey <mark@zealos.org> wrote:
+>
+> On Thu, May 30, 2002 at 03:47:54PM +1000, Stephen Rothwell wrote:
 > 
-> I don't use and don't care about devfs - it's a misconception in my opinnion.
-> What you are potining at is just another symptom of this simple fact.
-> After several years of beeing "official" it didn't develer up on
-> promises. There are some reasons why the Linux vendors out there get
-> well along without it. It is simple not necessary and even worser
-> introduces more problems that it promised to solve. No matter how
-> vigorous the propnents of it where before Linus give in. It's just another
-> try to work around the too narrow major/minor number spaces of Linux
-> and well see below:
+> > +	switch (from->si_code && __SI_MASK) {
+> 
+> shouldnt this just be a single bitwise AND (i.e. from->si_code & __SI_MASK) ?
 
-DevFS is at least used by ROCK Linux and Mandrake. We never had any
-problem with it (and most users really like it's features). So please
-do not corrupt it. - I save my time not lising the feature list of
-devfs we use ...
-
-k33p h4ck1n6
-  René
-
---  
-René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
-e-mail:   rene.rebe@gmx.net, rene@rocklinux.org
-web:      www.rocklinux.org, drocklinux.dyndns.org/rene/
-
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.
+Absolutely ... thanks
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

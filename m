@@ -1,112 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271714AbRIMOa3>; Thu, 13 Sep 2001 10:30:29 -0400
+	id <S268861AbRIMOzR>; Thu, 13 Sep 2001 10:55:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271712AbRIMOaU>; Thu, 13 Sep 2001 10:30:20 -0400
-Received: from [209.47.40.2] ([209.47.40.2]:50960 "EHLO mailnet.consensys.com")
-	by vger.kernel.org with ESMTP id <S271706AbRIMOaD>;
-	Thu, 13 Sep 2001 10:30:03 -0400
-Message-ID: <017401c13c61$9fc5d000$0a02a8c0@consensys.com>
-From: "Beihong Wu" <beihong-l@raidzone.com>
-To: "Nitin Dhingra" <nitin.dhingra@dcmtech.co.in>,
-        "'Ben Greear'" <greearb@candelatech.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <7FADCB99FC82D41199F9000629A85D1A01C651FF@dcmtechdom.dcmtech.co.in>
-Subject: Re: iSCSI support for Linux??
-Date: Thu, 13 Sep 2001 10:37:24 -0400
+	id <S271655AbRIMOzH>; Thu, 13 Sep 2001 10:55:07 -0400
+Received: from smtp.mediascape.net ([212.105.192.20]:8196 "EHLO
+	smtp.mediascape.net") by vger.kernel.org with ESMTP
+	id <S268861AbRIMOyt>; Thu, 13 Sep 2001 10:54:49 -0400
+Message-ID: <3BA0C88D.6B170BD5@mediascape.de>
+Date: Thu, 13 Sep 2001 16:54:05 +0200
+From: Olaf Zaplinski <o.zaplinski@mediascape.de>
+X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.19 and eepro100
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nitin,
-I am also investigating the iSCSI stuff now, and focusing on the server
-side. I found most implementors have no support to authentication and
-security. That's the reason why I prefer to the Cisco one, which support
-CHAP authentication. But I can't find the server code in their site,
-http://sourceforge.net/projects/linux-iscsi/, only the driver and daemon on
-client side here. So can you tell me where I can get a linux server code
-matching this client?
+Hi,
 
-Thank you very much,
+I got the 2.2.19 sorces, patched them with reiserfs, compiled and booted the
+new kernel. Neither the builtin eepro100 nor Intels e100-1.6.13 driver
+worked; they were loaded, but ifconfig failed:
 
-Beihong Wu
++ ifconfig eth1 192.168.0.235 broadcast 192.168.0.255 netmask 255.255.255.0
+up
+SIOCSIFFLAGS: Resource temporarily unavailable
+SIOCSIFFLAGS: Resource temporarily unavailable
 
------ Original Message -----
-From: "Nitin Dhingra" <nitin.dhingra@dcmtech.co.in>
-To: "'Ben Greear'" <greearb@candelatech.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Thursday, September 06, 2001 3:02 AM
-Subject: RE: iSCSI support for Linux??
+What's wrong here? I want 2.2 because 2.4 eats up too much memory on my
+machine, and I have only 256 MB... ;-)
 
-
-> Hi Ben,
-> That is a pretty old iscsi draft that you have pointed to.
-> The latest iscsi draft ver 7 is available from ietf.org
-> I have about 5 different code's for iScsi
->
-> 1) by Cisco :
-> I checked the code I guess this one is
-> working on both client and server Code
->
-> 2) by Intel :
-> I checked the code faked on the server side
-> and was based on iscsi draft ver 3.
->
-> 3) by UNH :
-> I checked the code faked on the server side
-> and was based on iscsi draft ver 3.
->
-> 4) by Chris Loveland :
-> I checked the code faked on the server side
-> I don't remember right now where I got this one's code from
->
-> 5) by Ashish A. Palekar :
-> I checked the code I guess this one is
-> working on both client and server Code
-> and was based on iscsi draft ver 3.
-> I don't remember where I got this one's code from
->
->
-> I guess cisco's code has also implemented authentication & security.
-> I think someone gave you the links and you must have d/l by now.
-> I guess by the end this year end there will be support for iScsi in
-> Linux Kernel.
->
-> - Nitin
->
-> -----Original Message-----
-> From: Ben Greear [mailto:greearb@candelatech.com]
-> Sent: Wednesday, September 05, 2001 11:13 AM
-> To: LKML
-> Subject: iSCSI support for Linux??
->
->
-> Does anyone know of any efforts to support iSCSI in Linux?
->
-> Here's the ietf draft if anyone is curious:
->
-> http://www.globecom.net/ietf/draft/draft-ietf-ips-iscsi-02.html
->
->
-> --
-> Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-> President of Candela Technologies Inc      http://www.candelatech.com
-> ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+Cheers
+Olaf

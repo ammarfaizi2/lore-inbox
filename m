@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285446AbRLGJfT>; Fri, 7 Dec 2001 04:35:19 -0500
+	id <S282823AbRLGJqU>; Fri, 7 Dec 2001 04:46:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285452AbRLGJfK>; Fri, 7 Dec 2001 04:35:10 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50184 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S285448AbRLGJfB>; Fri, 7 Dec 2001 04:35:01 -0500
-Subject: Re: kernel: ldt allocation failed
-To: james_m_davies@yahoo.com (James Davies)
-Date: Fri, 7 Dec 2001 09:43:52 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), vkire@pixar.com (Kiril Vidimce),
-        dmaas@dcine.com (Dan Maas),
-        linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <1007717194.1342.1.camel@Lord> from "James Davies" at Dec 07, 2001 07:26:28 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16CHXs-0005DY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S282824AbRLGJqL>; Fri, 7 Dec 2001 04:46:11 -0500
+Received: from 217-79-103-50.adsl.griffin.net.uk ([217.79.103.50]:43163 "EHLO
+	beast.ez-dsp.com") by vger.kernel.org with ESMTP id <S282823AbRLGJqD>;
+	Fri, 7 Dec 2001 04:46:03 -0500
+Message-ID: <016501c17f04$3f5730c0$0cfea8c0@ezdsp.com>
+Reply-To: "James Stevenson" <mistral@stev.org>
+From: "James Stevenson" <mistral@stev.org>
+To: "Andrew Morton" <akpm@zip.com.au>
+Cc: "Roy Sigurd Karlsbakk" <roy@karlsbakk.net>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0112061458360.15516-100000@mustard.heime.net> <3C0FD78D.F567ECBD@zip.com.au> <00e601c17eb0$25e20d80$0801a8c0@Stev.org> <3C1006C3.895EEE9F@zip.com.au>
+Subject: Re: temporarily system freeze with high I/O write to ext2 fs
+Date: Fri, 7 Dec 2001 09:47:54 -0000
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The nVidia kernel drivers are open source. You can get them from
-> ftp://ftp.nvidia.com/pub/drivers/english/XFree86_40/1.0-2313/NVIDIA_kernel-1.0-2313.tar.gz
 
-The Nvidia drivers are not open source. Please stop pedalling this myth. All
-you are doing is risking confusing other unfortunates into buying nvidia
-hardware and finding there is no open 3D support.
+> >
+> > > > why is it that Linux 'hangs' while doing heavy I/O operations (such
+as
+> > dd)
+> > > > to (and perhaps from?) ext2 file systems? I can't see the same
+behaivour
+> > > > when using other file systems, such as ReiserFS
+> > > >
+> > >
+> > > A partial fix for this went into 2.4.17-pre2.  What kernel are you
+> > > using?
+> >
+> > i have always had with problem normally during disk writes.
+> > currently on 2.4.x-14 + 2.4.16
+>
+> Please try 2.4.17-pre2 or later.
+>
 
-> bad rep. But the 1.0 series are faster and more stable than their
-> windows counterparts- I havn't had one crash, even with a faulty card
-> that kills windows constantly. 
+ok i should have some time to try that at the weekend.
 
-So tell me why I keep getting people who remove the Nvidia drivers and have
-their machine work. I'm sure some of them are hardware related issues, but
-all of them ?
+> > its not that it hangs but it gets extremely laggy eg 2/3 seconds pause
+> > for keyboard input to appear on a console.
+>
+> Your app got paged out, and the enormous read latencies in 2.4.16
+> caused it to remain there.
 
-Alan
+why would it have been paged out there was loads of free
+ram. there is 192MB in the machine and no X windows or
+anything and the app was bash and there are not many other processes.
+
+    James
+
+
+
+
+

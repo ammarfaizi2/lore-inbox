@@ -1,44 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264194AbUEHWMy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264195AbUEHWVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264194AbUEHWMy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 18:12:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264195AbUEHWKv
+	id S264195AbUEHWVu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 18:21:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264101AbUEHWVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 18:10:51 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:28338 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264194AbUEHWKS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 18:10:18 -0400
-Date: Sun, 9 May 2004 00:10:17 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: =?iso-8859-2?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       linux-kernel@vger.kernel.org, Jamie Lokier <jamie@shareable.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [ANNOUNCEMENT PATCH COW] proof of concept impementation of cowlinks
-Message-ID: <20040508221017.GA29255@atrey.karlin.mff.cuni.cz>
-References: <20040506131731.GA7930@wohnheim.fh-wedel.de> <200405081645.06969.vda@port.imtp.ilyichevsk.odessa.ua>
+	Sat, 8 May 2004 18:21:50 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:54283 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264195AbUEHWVt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 May 2004 18:21:49 -0400
+Date: Sat, 8 May 2004 23:21:43 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rmap 24 no rmap fastcalls
+Message-ID: <20040508232143.A12293@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0405082250570.26569-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200405081645.06969.vda@port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0405082250570.26569-100000@localhost.localdomain>; from hugh@veritas.com on Sat, May 08, 2004 at 10:55:22PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>  	/*
+> -	 * The warning below may appear if page_referenced catches the
+> -	 * page in between page_add_{anon,file}_rmap and its replacement
+> +	 * The warning below may appear if page_referenced_anon catches
+> +	 * the page in between page_add_anon_rmap and its replacement
 
-> That is probably unfixable now, but you can avoid making similar
-> error. Provide is_cowlinked(fd1,fd2) syscall. Pity you will
-> have to use different inode numbers for cowlinks (due to tar/cp),
-> and this won't fly:
+is this backing out of my comment fixup intentional? :)
 
-is_cowlinked does not fly, either. For n files, you have to do O(n^2)
-calls to find those that are linked.
-
-You want get_cowlinked_id which can return -1 "I do not know".
-
-								Pavel
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.

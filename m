@@ -1,75 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262351AbRENSMl>; Mon, 14 May 2001 14:12:41 -0400
+	id <S262358AbRENSWl>; Mon, 14 May 2001 14:22:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262367AbRENSMb>; Mon, 14 May 2001 14:12:31 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:28346 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S262351AbRENSM1>;
-	Mon, 14 May 2001 14:12:27 -0400
-Message-ID: <3B002001.AEEEE415@mandrakesoft.com>
-Date: Mon, 14 May 2001 14:12:17 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: kuznet@ms2.inr.ac.ru
-Cc: Andrew Morton <andrewm@uow.edu.au>, davem@redhat.COM,
-        linux-kernel@vger.kernel.org
-Subject: Re: NETDEV_CHANGE events when __LINK_STATE_NOCARRIER is modified
-In-Reply-To: <200105141747.VAA15542@ms2.inr.ac.ru>
+	id <S262361AbRENSWb>; Mon, 14 May 2001 14:22:31 -0400
+Received: from c1473286-a.stcla1.sfba.home.com ([24.176.137.160]:22276 "HELO
+	ocean.lucon.org") by vger.kernel.org with SMTP id <S262358AbRENSWT>;
+	Mon, 14 May 2001 14:22:19 -0400
+Date: Mon, 14 May 2001 11:22:16 -0700
+From: "H . J . Lu" <hjl@lucon.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        =?iso-8859-1?Q?Mads_Martin_J=F8rgensen?= <mmj@suse.com>,
+        Yann Dupont <Yann.Dupont@IPv6.univ-nantes.fr>
+Subject: Re: PATCH 2.4.4.ac8: Tulip net driver fixes
+Message-ID: <20010514112216.A25436@lucon.org>
+In-Reply-To: <3AFD8E2E.302F1AB5@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AFD8E2E.302F1AB5@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, May 12, 2001 at 03:25:34PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru wrote:
+On Sat, May 12, 2001 at 03:25:34PM -0400, Jeff Garzik wrote:
+> Attached is a patch against 2.4.4-ac8 which includes several fixes to
+> the Tulip driver.  This should fix the reported PNIC problems, as well
+> as problems with forcing media on MII phys and several other bugs.
 > 
-> Hello!
-> 
-> > Jeff has introduced `alloc_etherdev()' which allocates storage
-> > for a netdev but doesn't register it.  The one quirk with this
-> > approach (and why it's vastly simpler than my thing)
-> 
-> I do not see where it is simpler. The only difference is that
-> name is unknown. 8)
 
-Note that using dev->name during probe was always incorrect.  Think
-about the error case:
+Your patch doesn't apply to 2.4.4-ac8 cleanly:
 
-device 0:
-	dev = init_etherdev(...); /* gets if eth0 */
-	printk(... dev->name ...)
-	/* prints "eth0: error foo, aborting" */
-	failure!  exit and unregister_netdev
-device 1:
-	dev = init_etherdev(...); /* gets if eth0 */
-	printk(... dev->name ...)
-	/* prints "eth0: error foo, aborting" */
-	failure!  exit and unregister_netdev
-device 2:
-	dev = init_etherdev(...); /* gets if eth0 */
-	printk(... dev->name ...)
-	/* prints "eth0: error foo, aborting" */
-	failure!  exit and unregister_netdev
+patching file drivers/net/tulip/ChangeLog
+Hunk #1 FAILED at 1.
+Hunk #2 succeeded at 104 (offset -35 lines).
+1 out of 3 hunks FAILED -- saving rejects to file
+drivers/net/tulip/ChangeLog.rej
+patching file drivers/net/tulip/media.c
+Hunk #2 succeeded at 409 (offset -2 lines).
+Hunk #3 succeeded at 444 (offset 2 lines).
+Hunk #4 succeeded at 455 (offset -2 lines).
+patching file drivers/net/tulip/tulip.h
+Hunk #1 succeeded at 382 (offset -22 lines).
+patching file drivers/net/tulip/tulip_core.c
+Hunk #1 FAILED at 24.
+Hunk #2 succeeded at 160 (offset -2 lines).
+Hunk #4 succeeded at 885 (offset -2 lines).
+Hunk #5 FAILED at 1169.
+Hunk #6 succeeded at 1432 (offset -82 lines).
+Hunk #7 FAILED at 1442.
+Hunk #8 succeeded at 1612 (offset -22 lines).
+3 out of 8 hunks FAILED -- saving rejects to file
+drivers/net/tulip/tulip_core.c.rej
 
-So, using interface name in this manner was always buggy because it
-conveys no useful information to the user.
+I tried 2.4.4-ac9. It has the same problem. The kernel IP config still
+doesn't work. But the user space DHCP works fine.
 
 
-> What's about dev_probe_lock, I again do not understand why it is not deleted.
-> Please, shed some light.
-
-I'm all for removing it...  I do not like removing it in a so-called
-"stable" series, though.  alloc_etherdev() was enough to solve the race
-and flush out buggy drivers using dev->name during probe.  Notice I did
-not remove init_etherdev and fix it properly -- IMHO that is 2.5
-material.
-
-	Jeff
+H.J.
 
 
--- 
-Jeff Garzik      | Game called on account of naked chick
-Building 1024    |
-MandrakeSoft     |

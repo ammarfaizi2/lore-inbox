@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265176AbVBEBzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263773AbVBEB7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265176AbVBEBzz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 20:55:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263954AbVBEBzy
+	id S263773AbVBEB7a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 20:59:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263820AbVBEBtq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 20:55:54 -0500
-Received: from web26503.mail.ukl.yahoo.com ([217.146.176.40]:51589 "HELO
-	web26503.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S264032AbVBEBvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 20:51:47 -0500
-Message-ID: <20050205015146.11761.qmail@web26503.mail.ukl.yahoo.com>
-Date: Sat, 5 Feb 2005 01:51:46 +0000 (GMT)
-From: Neil Conway <nconway_kernel@yahoo.co.uk>
-Subject: Re: 3TB disk hassles
-To: "Pedro Venda \(SYSADM\)" <pjvenda@rnl.ist.utl.pt>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <41C21A1A.7010606@rnl.ist.utl.pt>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 4 Feb 2005 20:49:46 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:21776 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S266543AbVBEBsy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 20:48:54 -0500
+Date: Sat, 5 Feb 2005 02:48:50 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: avperrotta@gmail.com
+Cc: mec@shout.net, linux-kernel@vger.kernel.org
+Subject: Re: error
+Message-ID: <20050205014850.GG19408@stusta.de>
+References: <50183880-76D9-11D9-86BD-000A9575BDF8@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <50183880-76D9-11D9-86BD-000A9575BDF8@gmail.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howdy...
-
---- "Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt> wrote:
-> Neil Conway wrote:
-> > Howdy...
-> > After much banging of heads on walls, I am throwing in the towel
-> and
-> > asking the experts ;-) ... To cut a long story short:
-> > Is it possible to make a 3TB disk work properly in Linux?
-> > Our "disk" is 12x300GB in RAID5 (with 1 hot-spare) on a 3ware
-> 9500-S12,
-> > so it's actually 2.7TiB ish.  It's also /dev/sda - i.e., the one
-> and
-> > only disk in the system.
+On Fri, Feb 04, 2005 at 04:19:30PM -0200, avperrotta@gmail.com wrote:
+> Hi, I encountered the following error trying to select the option: 
+> Ethernet (1000 Mbit) --->
+> in my Linux Kernel v2.4.18 Configuration
 > 
-> not meaning to criticise... but isn't it a good idea to have a
-> separate raid1 volume to boot the system?
+> Menuconfig has encountered a possible error in  one of the kernel's 
+> configuration files and is unable to continue. Here is the error 
+> report:
+> 
+> Q> scripts/Menuconfig: MCmenu33: command not found
+> 
+> make: *** [menuconfig] Error 1
+> 
+> 
+> 
+> What do I do ?
 
-Well, yes, and we would if we could.  Sadly, the chassis we got from
-our vendor only has space for the 12 hot-swap disks, and we need the
-capacity too badly to lose 2 slots for a boot volume.  If only we could
-take a sliver of each of the 12 disks to make a tiny RAID5 boot
-volume...
+AFAIR this was only in Mandrake kernels due to a bug in a patch Mandrake 
+applied to its' kernels.
 
-Regards,
-Neil
+> Look forward to your answer:
+> 
+> Andre Perrotta
 
+cu
+Adrian
 
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Mail - Easier than ever with enhanced search. Learn more.
-http://info.mail.yahoo.com/mail_250
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

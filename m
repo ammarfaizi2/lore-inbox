@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267415AbUIOUnH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267360AbUIOUnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267415AbUIOUnH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 16:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267377AbUIOUl4
+	id S267360AbUIOUnL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 16:43:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267409AbUIOUfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 16:41:56 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:8837 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267410AbUIOUjm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 16:39:42 -0400
-Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Bill Davidsen <davidsen@tmr.com>, Andrea Arcangeli <andrea@novell.com>,
-       Chris Wedgwood <cw@f00f.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Hugh Dickins <hugh@veritas.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
-In-Reply-To: <20040915200018.GA17773@elte.hu>
-References: <20040913061641.GA11276@elte.hu> <41489B7A.6010407@tmr.com>
-	 <20040915200018.GA17773@elte.hu>
+	Wed, 15 Sep 2004 16:35:11 -0400
+Received: from soundwarez.org ([217.160.171.123]:30873 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S267386AbUIOUep (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 16:34:45 -0400
+Subject: Re: [patch] kernel sysfs events layer
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Tim Hockin <thockin@hockin.org>
+Cc: Robert Love <rml@novell.com>, Greg KH <greg@kroah.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040915203133.GA18812@hockin.org>
+References: <1094875775.10625.5.camel@lucy>
+	 <20040911165300.GA17028@kroah.com> <20040913144553.GA10620@vrfy.org>
+	 <20040915000753.GA24125@kroah.com> <1095211167.20763.2.camel@localhost>
+	 <20040915034455.GB30747@kroah.com> <20040915194018.GC24131@kroah.com>
+	 <1095279043.23385.102.camel@betsy.boston.ximian.com>
+	 <20040915202234.GA18242@hockin.org>
+	 <1095279985.23385.104.camel@betsy.boston.ximian.com>
+	 <20040915203133.GA18812@hockin.org>
 Content-Type: text/plain
-Message-Id: <1095280788.2406.171.camel@krustophenia.net>
+Date: Wed, 15 Sep 2004 22:34:45 +0200
+Message-Id: <1095280485.3508.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 15 Sep 2004 16:39:49 -0400
+X-Mailer: Evolution 1.5.94.1 (1.5.94.1-1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-15 at 16:00, Ingo Molnar wrote:
-> * Bill Davidsen <davidsen@tmr.com> wrote:
+On Wed, 2004-09-15 at 13:31 -0700, Tim Hockin wrote:
+> On Wed, Sep 15, 2004 at 04:26:25PM -0400, Robert Love wrote:
+> > On Wed, 2004-09-15 at 13:22 -0700, Tim Hockin wrote:
+> > 
+> > > So do we actually plan to handle namespaces at all wrt kevents?
+> > 
+> > I don't see why we have to.
+> > 
+> > A mount event should really just cause a rescan of the mount table.
 > 
-> > Okay, I'll be the one to ask... what overload of the IPL acronym are
-> > you using here? I asked google and several jargon files, and they all
-> > say that IPL (initial program load) is IBMspeak for cold boot. Somehow
-> > I don't think that's what you mean here.
-> 
-> i understood it as Interrupt Privilege Levels. The notion of having some
-> sort of scalar 'limit' - all interrupts with a higher priority than that
-> will execute, all interrupts with lower priority will block.  This is a
-> fundamentally dodgy concept because in reality interrupt sources are
-> independent entities so the natural description for of them is a bitmask
-> (or an array, or whatever), not a level.
-> 
+> In which namespace?  All of them?  Is that an information leak that might
+> be hazardous (I'm bad with security stuff).
 
-Yeah, I was talking about interrupt priority levels.  I have to admit my
-only exposure to them is a book on Solaris, they are intended as a
-mechanism to deal with priority inversions.  Sounds like a neat trick on
-paper but they don't seem to be applicable here.
+In the namespace of sysfs :).
+It's just the physical device.
 
-Lee
+Thanks,
+Kay
 

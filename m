@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292968AbSCIWW0>; Sat, 9 Mar 2002 17:22:26 -0500
+	id <S292971AbSCIWX4>; Sat, 9 Mar 2002 17:23:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292970AbSCIWWP>; Sat, 9 Mar 2002 17:22:15 -0500
-Received: from smtp02.web.de ([217.72.192.151]:14363 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S292968AbSCIWV6>;
-	Sat, 9 Mar 2002 17:21:58 -0500
-Message-ID: <3C8A8AF6.3080002@web.de>
-Date: Sat, 09 Mar 2002 23:21:42 +0100
-From: Stephan Wienczny <wienczny@web.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; de-AT; rv:0.9.8) Gecko/20020204
-X-Accept-Language: de-de, en-us
+	id <S292970AbSCIWXh>; Sat, 9 Mar 2002 17:23:37 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:34826 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292971AbSCIWXS>; Sat, 9 Mar 2002 17:23:18 -0500
+Subject: Re: loading ./cryptfs.o will taint the kernel
+To: brian@worldcontrol.com
+Date: Sat, 9 Mar 2002 22:38:21 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020309221341.GA2533@top.worldcontrol.com> from "brian@worldcontrol.com" at Mar 09, 2002 02:13:41 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: Video Module doesn't compile
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16jpTp-0002jM-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo!
+> loading ./cryptfs.o will taint the kernel: non-GPL license - LGPL
+> 
+> I have long thought that I understood the reasoning behind "taint" and
+> binary drivers.
+> 
+> However, cryptfs is available with complete source code, so I presume
+> the "undebug-able" argument doesn't apply.
+> 
+> So what is the big deal?
 
-The 2.5.5 Version of fbdev.c in the video/riva directory can not be 
-compiled, because there is an error.
-
-In the file fbdev.c in line 1815 is an type error. The typedef of kdev_t 
-has changed but the line
-info->node = -1;
-did not.
-The line had to be
-info->node.value = -1;
-to be compiled.
-
-Stephan
-
-
-
-
-
+Sounds like someone put the wrong MODULE_LICENSE() tag on it. An LGPL item
+combined with a GPL work gives you a GPL result (see the LGPL notes on the
+matter). So the kernel module tag ought to be GPL

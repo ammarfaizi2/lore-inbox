@@ -1,60 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267548AbTGTRJT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 13:09:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267557AbTGTRJT
+	id S267563AbTGTRWU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 13:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267590AbTGTRWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 13:09:19 -0400
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:531 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S267548AbTGTRJR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 13:09:17 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Martin Schlemmer <azarah@gentoo.org>
-Subject: Re: devfsd/2.6.0-test1
-Date: Sun, 20 Jul 2003 21:17:32 +0400
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 20 Jul 2003 13:22:20 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:13048 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S267563AbTGTRWT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 13:22:19 -0400
+Date: Sun, 20 Jul 2003 19:37:13 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "Constantine 'Gus' Fantanas" <fantanas@innocent.com>
+Cc: mec@shout.net, linux-kernel@vger.kernel.org
+Subject: Re: menuconfig crash
+Message-ID: <20030720173713.GA26422@fs.tum.de>
+References: <3F18C90B.305@innocent.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307202117.32753.arvidjaar@mail.ru>
+In-Reply-To: <3F18C90B.305@innocent.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Agreed, it should. However, the last version I pulled had zero support for
->> probeall, and more importantly for probe, which is somewhat harder to do
->> cleanly without having to rewrite the config file for each kernel you
->> boot.
->> 
->
-> Well, it implements probeall in another fashion.  Also, you might
-> try /sbin/generate-modprobe.conf to convert a modules.conf to
-> modprobe.conf syntax.
+On Sat, Jul 19, 2003 at 12:28:59AM -0400, Constantine 'Gus' Fantanas wrote:
+> To Whom it May Concern:
+> 
+> I experienced a menuconfig crash and I am following the notication 
+> instructions of the error message (pasted below).  At the time of the 
+> crash, I was in the sound configuration section and was entering the 
+> ALSA configuration subsection. The kernel I was trying to configure was 
+> a Mandrake 2.4.21 kernel: linux-2.4.21-0.18mdk.
+> 
+> Here is the error message:
+> 
+> -------------BEGINNING OF PASTED MATERIAL------------------------------
+> 
+> Menuconfig has encountered a possible error in one of the kernel's
+> configuration files and is unable to continue.  Here is the error
+> report:
+> 
+> Q> scripts/Menuconfig: line 832: MCmenu73: command not found
+> 
+> Please report this to the maintainer <mec@shout.net>.  You may also
+> send a problem report to <linux-kernel@vger.kernel.org>.
+> 
+> Please indicate the kernel version you are trying to configure and
+> which menu you were trying to enter when this error occurred.
+> 
+> make: *** [menuconfig] Error 1
+>...
 
-modprobe.conf syntax is easy to implement but unfortunately PITA to use. 
-Exactly probe and probeall have been very helful in tracking module 
-dependencies. Now you have arbitrary shell line that is near to impossible to 
-parse in general.
+This sounds like a known bug in at least one version of the Mandrake 
+kernel sources.
 
-I added half-hearted support to mkinitrd and initscripts for Mandrake but it 
-will never be complete given the current situation.
+It doesn't occur in plain 2.4.21, please ask Mandrake for fixed kernel 
+sources.
 
-Also I fixed devfsd to correctly use modprobe.devfs or modules.devfs depending 
-on which kernel it runs on; patch has been sent both to lkml and devfs list 
-and is included in current Mandrake devfsd.
+> Regards,
+> 
+> Gus Fantanas
 
-actually adding probe and probeall is trivial enough, I did not want to base 
-Mandrake packages on that to avoid incompatibility.
+cu
+Adrian
 
-> Also, read the threads on the list about udev/hotplug - apparently
-> devfsd is going out ...
+-- 
 
-as long as you have memory-based /dev you need devfsd even if it is called 
-differently.
-
--andrey
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,46 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285054AbRLFIwh>; Thu, 6 Dec 2001 03:52:37 -0500
+	id <S285062AbRLFIv5>; Thu, 6 Dec 2001 03:51:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285055AbRLFIwR>; Thu, 6 Dec 2001 03:52:17 -0500
-Received: from kiln.isn.net ([198.167.161.1]:26898 "EHLO kiln.isn.net")
-	by vger.kernel.org with ESMTP id <S285054AbRLFIwN>;
-	Thu, 6 Dec 2001 03:52:13 -0500
-Message-ID: <3C0F319A.329807B9@isn.net>
-Date: Thu, 06 Dec 2001 04:51:38 -0400
-From: "Garst R. Reese" <reese@isn.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17-pre4 i586)
-X-Accept-Language: en
+	id <S285063AbRLFIvr>; Thu, 6 Dec 2001 03:51:47 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:25283 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S285062AbRLFIvn>;
+	Thu, 6 Dec 2001 03:51:43 -0500
+Date: Thu, 6 Dec 2001 11:38:29 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Mike Kravetz <kravetz@us.ibm.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler Cleanup
+In-Reply-To: <20011205154618.B24407@w-mikek2.des.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.33.0112061123230.2778-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-CC: Keith Owens <kaos@ocs.com.au>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: small feature request
-In-Reply-To: <200112060658.fB66wtp351314@saturn.cs.uml.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Albert D. Cahalan" wrote:
-> 
-> Keith Owens writes:
-> > "Garst R. Reese" <reese@isn.net> wrote:
-> 
-> >> Would it possible to put a header on System.map indicating the kernel
-> >> version?
-> >> Sometimes my little brain forgets what kernel System.old is for.
-> >
-> > It is on my list for kbuild 2.5, once I start on the new design for
-> 
-> Nooooo!!!!!
-> 
-> Don't break stuff by adding headers. There is already a version
-> in the file. It's in decimal, which sucks, but this will find it:
-> 
-> grep ' Version_' System.map
-> 
-> Adding a random 128-bit ID might be nice, as long as it's done
-> in the same sort of way and is available via /proc. Something
-> like this would do:  kern_128_id_UkZd1JLdOvAsALfFEL1UI
-That grep does not distinguish extra versions.
-Garst
+
+On Wed, 5 Dec 2001, Mike Kravetz wrote:
+
+> One thing to note is that possible acquisition of the runqueue lock
+> was reintroduced in sys_sched_yield().  From looking at the code, it
+> seems the purpose was to ?add fairness? in the case of multiple
+> yielders.  Is that correct Ingo?
+
+yes, it's to add fairness. You might remember that i did this
+sched_yield() optimization originally to help Volanomark performance. But
+it turned out that it's very unfair not to move yielded processes to the
+end of the runqueue - it might even cause livelocks in user-space
+spinlocks which use sched_yield(). (since the POLICY_YIELD bit prevents
+the process from running only *once*, so it will handle a two-process lock
+situation right, but if multiple processes are racing for the lock then
+they might exclude the real owner of the spinlock for a *long* time.)
+
+(plus the change also broke sched_yield() for RT-FIFO processes.)
+
+(nevertheless i'm sure we can add any invariant optimizations or fixes to
+sys_sched_yield(), but this one - no matter how nice it was to this
+particular benchmark, was neither invariant, nor a fix.)
+
+the pure fact that your workload is so sensitive to sched_yield() LIFO vs.
+FIFO yielding of runnable threads shows that there is some serious locking
+design problem. It shows that there are 1) too many threads running 2)
+only a small subset of those runnable threads are doing the real work, and
+the rest is only runnable for some unknown reason.
+
+i think the user-space locking mechanizm the IBM JVM uses should *not* be
+based on sched_yield(). [is it using LinuxThreads? LinuxThreads have some
+serious design problems IMO.] One thing i remember from running Volanomark
+was the huge amount of signal related, mostly bogus wakeups. This i
+believe is mainly due to the manager thread design of LinuxThreads. That
+aspect should be fixed i think, i believe it can be correctly done (we can
+get rid of the manager thread) via the latest 2.4 kernel.
+
+while i see the point that the multiqueue scheduler improves performance
+visibly, i'm quite sure you could get an *order of magnitude* faster if
+the basic threading model (and any possible underlying mechanizm, such as
+LinuxThreads) was fixed. The current Linux scheduler just magnifies these
+userspace design problems. LinuxThreads was done when there werent many
+good mechanizms within the kernel to help threading. Things have changed
+by today - but if something still cannot be done cleanly and efficiently
+(such as userspace spinlocks or semaphores) then please let us know so we
+can fix things, instead of trying to work around the symptoms. But this is
+just a suggestion.
+
+	Ingo
+

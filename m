@@ -1,32 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129093AbRBNF4r>; Wed, 14 Feb 2001 00:56:47 -0500
+	id <S129027AbRBNGEh>; Wed, 14 Feb 2001 01:04:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129115AbRBNF4h>; Wed, 14 Feb 2001 00:56:37 -0500
-Received: from net-1-11.campuscommonsapts.com ([216.64.132.11]:16142 "EHLO
-	ghettobox.dhs.org") by vger.kernel.org with ESMTP
-	id <S129093AbRBNF4X>; Wed, 14 Feb 2001 00:56:23 -0500
-Date: Tue, 13 Feb 2001 21:57:49 -0800 (PST)
-From: TeknoDragon <andross@ghettobox.dhs.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Destination Loose UDP in 2.4 (net/ipv4/netfilter)
-Message-ID: <Pine.LNX.4.32.0102132146560.7508-100000@ghettobox.dhs.org>
+	id <S129032AbRBNGE1>; Wed, 14 Feb 2001 01:04:27 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:17529 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S129027AbRBNGEM>; Wed, 14 Feb 2001 01:04:12 -0500
+Date: Wed, 14 Feb 2001 00:04:02 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
+To: Louis Garcia <louisg00@bellsouth.net>
+cc: linux-kernel@vger.kernel.org, xpert@XFree86.Org
+Subject: Re: Video drivers and the kernel
+In-Reply-To: <3A89F1A5.7050603@bellsouth.net>
+Message-ID: <Pine.LNX.3.96.1010214000341.24061F-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 13 Feb 2001, Louis Garcia wrote:
+> I was wondering why video drivers are not part of the kernel like every 
+> other piece of hardware.
 
-What is the status of "dloose udp" in 2.4.x? From my reading in a few list
-archives it seems to have been some sort of a hack, yet it is needed for
-games such as Asheron's Call to be played behind a firewall.
+See linux/drivers/video and linux/drivers/char/drm in kernel 2.4.
 
-In 2.2.18 the code implementing this seems to be in net/ipv4/ip_masq.c
-and was controlled by a sysctl "ip_masq_udp_dloose".
-
-Is there anything in 2.4.x to replace this functionallity? Is there a way
-to replace it with an iptables rule? Any help would be much appreciated.
+	Jeff
 
 
--karl
+
 

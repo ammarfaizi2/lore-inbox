@@ -1,82 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265678AbUAMVUk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 16:20:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265682AbUAMVUj
+	id S265656AbUAMVGx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 16:06:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265659AbUAMVGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 16:20:39 -0500
-Received: from morbo.tjw.org ([208.47.40.253]:31360 "EHLO morbo.tjw.org")
-	by vger.kernel.org with ESMTP id S265678AbUAMVUU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 16:20:20 -0500
-Date: Tue, 13 Jan 2004 15:20:18 -0600
-From: "Tony J. White" <tjw@webteam.net>
-To: linux-kernel@vger.kernel.org
-Subject: DAC960 w/SAF-TE enclosure problems
-Message-ID: <20040113212018.GA749@morbo.tjw.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Tue, 13 Jan 2004 16:06:43 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:12435 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S265656AbUAMVGb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 16:06:31 -0500
+Date: Tue, 13 Jan 2004 18:55:14 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Doug Ledford <dledford@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Arjan Van de Ven <arjanv@redhat.com>,
+       Martin Peschke3 <MPESCHKE@de.ibm.com>, Jens Axboe <axboe@suse.de>,
+       Peter Yao <peter@exavio.com.cn>, linux-kernel@vger.kernel.org,
+       linux-scsi mailing list <linux-scsi@vger.kernel.org>, ihno@suse.de
+Subject: Re: smp dead lock of io_request_lock/queue_lock patch
+In-Reply-To: <1073937102.3114.300.camel@compaq.xsintricity.com>
+Message-ID: <Pine.LNX.4.58L.0401131843390.6737@logos.cnet>
+References: <OF317B32D5.C8C681CB-ONC1256E19.005066CF-C1256E19.00538DEF@de.ibm.com>
+  <20040112151230.GB5844@devserv.devel.redhat.com>  <20040112194829.A7078@infradead.org>
+ <1073937102.3114.300.camel@compaq.xsintricity.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I recently picked up a Mylex AcceleRAID 170 RAID controller and a 
-SuperMicro CSE-M35S SCSI Accessed Fault-Tolerant Enclosure (SAF-TE) and have 
-found a problem with my setup in testing.   When I simulate a disk failure
-by pulling out one of the drives following things happen: 
 
-1. Alarm sounds.
-2. /proc/rd/status becomes ALERT
-3. /proc/rd/c0/current_status displays "Disk Status: Dead, 17747968 blocks"
-   for the physical device and "No Rebuild or Consistency Check in Progress"
-4. The following is logged:
-   Physical Device 0:0 Failed because Device Cannot Be Accessed
-   Logical Drive 0 (/dev/rd/c0d0) Critical
-   Physical Device 0:0 is now DEAD
-   Logical Drive 0 (/dev/rd/c0d0) is now CRITICAL
+On Mon, 12 Jan 2004, Doug Ledford wrote:
 
+> On Mon, 2004-01-12 at 14:48, Christoph Hellwig wrote:
+> > On Mon, Jan 12, 2004 at 04:12:30PM +0100, Arjan van de Ven wrote:
+> > > > as the patch discussed in this thread, i.e. pure (partially
+> > > > vintage) bugfixes.
+> > >
+> > > Both SuSE and Red Hat submit bugfixes they put in the respective trees to
+> > > marcelo already. There will not be many "pure bugfixes" that you can find in
+> > > vendor trees but not in marcelo's tree.
+> >
+> > I haven't seen SCSI patches sumission for 2.4 from the vendors on linux-scsi
+> > for ages.  In fact I asked Jens & Doug two times whether they could sort out
+> > the distro patches for the 2.4 stack and post them, but it seems they're busy
+> > enough with real work so this never happened.
+>
+> More or less.  But part of it also is that a lot of the patches I've
+> written are on top of other patches that people don't want (aka, the
+> iorl patch).  I've got a mlqueue patch that actually *really* should go
+> into mainline because it solves a slew of various problems in one go,
+> but the current version of the patch depends on some semantic changes
+> made by the iorl patch.  So, sorting things out can sometimes be
+> difficult.  But, I've been told to go ahead and do what I can as far as
+> getting the stuff out, so I'm taking some time to try and get a bk tree
+> out there so people can see what I'm talking about.  Once I've got the
+> full tree out there, then it might be possible to start picking and
+> choosing which things to port against mainline so that they don't depend
+> on patches like the iorl patch.
 
-When I reinsert the drive, the following things happen:
+Hi,
 
-1. Alarm stops.
-2. /proc/rd/c0/current_status displays "Disk Status: Rebuild, 17747968 blocks"
-   for the physical device and continues to display 
-   "No Rebuild or Consistency Check in Progress"
-3. The following is logged:
-   Physical Device 0:0 Found
-   Physical Device 0:0 Automatic Rebuild Started
-   Physical Device 0:0 is now REBUILD
-   Logical Drive 0 (/dev/rd/c0d0) Automatic Rebuild Started
-   Logical Drive 0 (/dev/rd/c0d0) Rebuild Completed
-   Physical Device 0:0 Rebuild Completed
-   Physical Device 0:0 Online
-   Logical Drive 0 (/dev/rd/c0d0) Online
+Merging "straight" _bugfixes_ (I think all we agree that merging
+performance enhancements at this point in 2.4 is not interesting) which,
+as you said, get reviewed by Jens/James/others is OK.
 
-At this point, /proc/rd/c0/current_status changes the "No Rebuild or 
-Consistency Check in Progress" message to "Logical Drive 0 (/dev/rd/c0d0) 
-Rebuild Completed".  However the following problems occur:
-
-1. /proc/rd/status is never set back to OK, it remains ALERT
-2. The activity indicator light on the sled for the drive that has been 
-   rebuilt never goes off, although the red error light does.
-3. The Physical Device information in /proc/rd/c0/current_status remains as
-   "Disk Status: Rebuild, 17747968 blocks" 
-
-If I reboot the machine, all is well.  That sort of defeats the purpose of
-all this expensive hardware though :)  I also tried to:
-echo "flush-cache" > /proc/rd/c0/user_command
-but that just locked up the terminal I was typing in with no messages
-anywhere.
-
-Is it possible that the DAC960 driver should be doing something here that
-it's not?  Or is all this functionality supposed to be completely taken care 
-of at the firmware level of the RAID card?  I noticed DAC960.c does do some 
-things differently if a SAF-TE is present, but only in the _V1 functions,
-this card uses the _V2 functions.  I have tested this with Linux 2.4.23 and 
-2.6.1 which produce exactly the same results.
-
-Please CC me on any responses.
-
--Tony
+What is this mlqueue patchset fixing ? To tell you the truth, I'm not
+aware of the SCSI stack problems.

@@ -1,48 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbUBNPts (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 10:49:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbUBNPts
+	id S262126AbUBNQEP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 11:04:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbUBNQEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 10:49:48 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:5134 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262050AbUBNPtq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 10:49:46 -0500
-Date: Sat, 14 Feb 2004 17:02:44 +0100
-To: Andrew Gray <grayaw@egr.unlv.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: fh_verify: no root_squashed access hundreds of times a second again
-Message-ID: <20040214160244.GA23147@hh.idb.hist.no>
-References: <1076692518.15751.5.camel@blargh>
+	Sat, 14 Feb 2004 11:04:15 -0500
+Received: from main.gmane.org ([80.91.224.249]:15001 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262126AbUBNQEK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Feb 2004 11:04:10 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Implementing SQL on files
+Date: Sat, 14 Feb 2004 17:04:07 +0100
+Message-ID: <yw1xk72py7ew.fsf@kth.se>
+References: <1076773002.20087.42.camel@aratnaweera.enetsl.virtusa.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1076692518.15751.5.camel@blargh>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ti200710a080-3502.bb.online.no
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:04TW1I2CPJ0qzi3g9lw90cXr8AY=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 13, 2004 at 09:18:32AM -0800, Andrew Gray wrote:
-> I'm not subscribed to the linux-kernel list, I would appreciate a CC on
-> any replies, but I will be watching the list as well.  I'm reposting
-> this message in the hope someone will answer - neither I nor the mailing
-> list got any replies last time.
-> 
-> I am using kernel 2.4.24 on a heavily-used NFS server. I am receiving
-> hundreds of messages like:
-> 
-> "kernel: fh_verify: no root_squashed access at sessions/lastsession."
-> 
-> in my messages log, usually accompanied by a "last message repeated 6497
-> times" a minute or so later. I'm gathering it is just reporting it is
-> denying root access to a share, which is fine and exactly what I asked
-> for. Is there anyway to shut this logging off without just wiping the
-> line from fs/nfsd/nfsfh.c? 
+Anuradha Ratnaweera <anuradha@linux.lk> writes:
 
-How about tracking down whoever is trying to do all these illegal
-accesses and stop them?  6000 attempts per minute seems a
-waste of resources, whether malicious or ill-configured. 
+> Hi all,
+>
+> I am starting to write some code to add a feature which I think would be
+> very useful, and like to get comments and suggessions from LKML.  Please
+> ignore this mail if it sounds like nonsense ;-)
+>
+> Also, if this is already happenning somewhere, please enlighten me.
+>
+> Short version: This feature will add a "table" file type and SQL
+> executioin premitives to the kernel, and also relevent userspace
+> programs.
 
-Helge Hafting
+Things like SQL belong in user space.
+
+
+[...]
+
+> Using the userspace tools, one can create a "table" file (say
+> maintainers), and insert the data to that file.  Each file (or may be
+> filesystem) has two characters (or strings) associated with them: field
+> seperator and record seperator.  Say, colon and newline.  If I cat the
+> file:
+>
+> % cat maintainers
+> David Weinehall:2.0
+> Alan Cox:2.2
+> Marcelo Tosatti:2.4
+> %
+>
+> Now, if I want to add something to the table, either I can use the
+> relevenet userspace tools, but the following also will work.
+>
+> % echo 'Linus Torvalds:2.6' > maintainers
+
+/etc/passwd
+
+-- 
+Måns Rullgård
+mru@kth.se
+

@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271707AbRHUOnq>; Tue, 21 Aug 2001 10:43:46 -0400
+	id <S271709AbRHUOnt>; Tue, 21 Aug 2001 10:43:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271709AbRHUOna>; Tue, 21 Aug 2001 10:43:30 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25106 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271706AbRHUOmt>; Tue, 21 Aug 2001 10:42:49 -0400
+	id <S271710AbRHUOne>; Tue, 21 Aug 2001 10:43:34 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:22430 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S271708AbRHUOm6>;
+	Tue, 21 Aug 2001 10:42:58 -0400
+Date: Tue, 21 Aug 2001 07:43:10 -0700 (PDT)
+Message-Id: <20010821.074310.35667105.davem@redhat.com>
+To: jes@sunsite.dk
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Qlogic/FC firmware
-To: davem@redhat.com (David S. Miller)
-Date: Tue, 21 Aug 2001 15:45:26 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk, jes@sunsite.dk, linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "David S. Miller" at Aug 21, 2001 07:28:39 AM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <d3snel8p3a.fsf@lxplus015.cern.ch>
+In-Reply-To: <d3wv3x8qro.fsf@lxplus015.cern.ch>
+	<20010821.065809.102572680.davem@redhat.com>
+	<d3snel8p3a.fsf@lxplus015.cern.ch>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15ZCmV-00080q-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There is no BIOS flash on my machines (onboard controllers).  The
-> kernel driver must be where the firmware comes from to boot reliably.
+   From: Jes Sorensen <jes@sunsite.dk>
+   Date: 21 Aug 2001 16:28:09 +0200
+   
+   However the reason I barked was because of you suggesting we remove
+   all firmware or should just have left it in there. If we have a GPL
+   violation then IMHO it has to be dealt with immediately, then we can
+   look at the damages afterwards.
 
-Ok so you have a sparc specific firmware loading problem. So IMHO the
-right thing to do is to write a sparc specific firmware loader - either
-as a module living in arch/sparc64 or assuming you never need to reload
-the firmware past boot - use an initrd
+Lack of copyright does not imply "do whatever you want with it".
+The plain fact is that we don't know, and I'm trying to say
+"it likely is a problem, let's go find out".
 
-For the other 99.9% of the userbase we saved 128Kbytes of ram and improved
-reliability by not loading half tested firmeware on them.
+I think the QLogic,ISP driver firmware(s) being distributed is just as
+serious an issue as the "obvious" qlogicfc_asm.c violation.
 
-Alan
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,205 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316573AbSFPU7G>; Sun, 16 Jun 2002 16:59:06 -0400
+	id <S316580AbSFPVE1>; Sun, 16 Jun 2002 17:04:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316576AbSFPU7F>; Sun, 16 Jun 2002 16:59:05 -0400
-Received: from pat.uio.no ([129.240.130.16]:51695 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S316573AbSFPU7D>;
-	Sun, 16 Jun 2002 16:59:03 -0400
-To: linux-kernel@vger.kernel.org
-Cc: nfs@lists.sourceforge.net
-Subject: [PATCH 2.5.21] Make NFS/RPC client use the TCP zero copy API when hardware supports it
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 16 Jun 2002 22:59:02 +0200
-Message-ID: <shs660j7xex.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S316579AbSFPVE0>; Sun, 16 Jun 2002 17:04:26 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:2667 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S316576AbSFPVEY>; Sun, 16 Jun 2002 17:04:24 -0400
+Date: Sun, 16 Jun 2002 23:04:26 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org, Linux SCSI list <linux-scsi@vger.kernel.org>
+Subject: Re: /proc/scsi/map
+Message-ID: <20020616210426.GC21461@gum01m.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>, Andries.Brouwer@cwi.nl,
+	linux-kernel@vger.kernel.org,
+	Linux SCSI list <linux-scsi@vger.kernel.org>
+References: <UTC200206151604.g5FG4JQ26968.aeb@smtp.cwi.nl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="R+My9LyyhiUvIEro"
+Content-Disposition: inline
+In-Reply-To: <UTC200206151604.g5FG4JQ26968.aeb@smtp.cwi.nl>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.16-schedJ2 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Does anybody with 'zero copy' compatible networking cards (3c59x,
-AceNIC, Tigon3, E1000, ....) notice any performance difference when
-using NFS TCP mounts with/without this patch?
+--R+My9LyyhiUvIEro
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Cheers,
-  Trond
+Hi Andries,
 
-diff -u --recursive --new-file linux-2.5.21/net/sunrpc/xprt.c linux-nfs_zerocopy/net/sunrpc/xprt.c
---- linux-2.5.21/net/sunrpc/xprt.c	Fri May 24 13:32:02 2002
-+++ linux-nfs_zerocopy/net/sunrpc/xprt.c	Sun Jun 16 22:16:22 2002
-@@ -67,6 +67,7 @@
- #include <net/tcp.h>
- 
- #include <asm/uaccess.h>
-+#include <linux/pagemap.h>
- 
- extern spinlock_t rpc_queue_lock;
- 
-@@ -168,6 +169,121 @@
- 	spin_unlock_bh(&xprt->sock_lock);
- }
- 
-+/* Write an iovec array to a socket */
-+static int
-+sock_sendkerneliovec(struct socket *sock, struct sockaddr *addr, int addrlen,
-+		struct iovec *iov, size_t count, int size)
-+{
-+	struct msghdr msg = {
-+		msg_name:	addr,
-+		msg_namelen:	addrlen,
-+		msg_iov:	iov,
-+		msg_iovlen:	count,
-+		msg_control:	NULL,
-+		msg_controllen:	0,
-+		msg_flags:	MSG_DONTWAIT|MSG_NOSIGNAL,
-+	};
-+	mm_segment_t oldfs;
-+	int ret;
-+
-+	oldfs = get_fs(); set_fs(get_ds());
-+	ret = sock_sendmsg(sock, &msg, size);
-+	set_fs(oldfs);
-+	return ret;
-+}
-+
-+static int
-+xprt_set_cork_sock(struct socket *sock, int val)
-+{
-+	mm_segment_t oldfs;
-+	int ret;
-+
-+	oldfs = get_fs(); set_fs(get_ds());
-+	ret = sock->ops->setsockopt(sock, SOL_TCP, TCP_CORK,
-+				    (char *)&val, sizeof(val));
-+	set_fs(oldfs);
-+	return ret;
-+}
-+
-+static inline int
-+xprt_cork_sock(struct socket *sock)
-+{
-+	return xprt_set_cork_sock(sock, 1);
-+}
-+
-+static inline void
-+xprt_uncork_sock(struct socket *sock)
-+{
-+	xprt_set_cork_sock(sock, 0);
-+}
-+
-+/* Send the XDR buffer using the zero copy socket API */
-+static int
-+xdr_sendpages(struct socket *sock, struct xdr_buf *xdr, size_t base)
-+{
-+	struct iovec iov;
-+	struct page **ppage = xdr->pages;
-+	unsigned int len, pglen = xdr->page_len;
-+	int err, copied = 0;
-+
-+	if ((err = xprt_cork_sock(sock)) < 0)
-+		return err;
-+	len = xdr->head[0].iov_len;
-+	if (base < len) {
-+		len -= base;
-+		iov.iov_len = len;
-+		iov.iov_base = (char *)xdr->head[0].iov_base + base;
-+		err = sock_sendkerneliovec(sock, NULL, 0, &iov, 1, len);
-+		if (err > 0)
-+			copied += err;
-+		if (err != len)
-+			goto out_err;
-+		base = 0;
-+	} else
-+		base -= len;
-+	if (base >= pglen) {
-+		base -= pglen;
-+		goto send_tail;
-+	}
-+	if (base || xdr->page_base) {
-+		pglen -= base;
-+		base  += xdr->page_base;
-+		ppage += base >> PAGE_CACHE_SHIFT;
-+		base &= ~PAGE_CACHE_MASK;
-+	}
-+	do {
-+		len = PAGE_CACHE_SIZE;
-+		if (base)
-+			len -= base;
-+		if (pglen < len)
-+			len = pglen;
-+		err = sock->ops->sendpage(sock, *ppage, base, len, MSG_DONTWAIT);
-+		if (err > 0)
-+			copied += err;
-+		if (err != len)
-+			goto out_err;
-+		base = 0;
-+		ppage++;
-+	} while ((pglen -= len) != 0);
-+send_tail:
-+	len = xdr->tail[0].iov_len;
-+	if (len && base < len) {
-+		len -= base;
-+		iov.iov_len = len;
-+		iov.iov_base = (char *)xdr->tail[0].iov_base + base;
-+		err = sock_sendkerneliovec(sock, NULL, 0, &iov, 1, len);
-+		if (err > 0)
-+			copied += err;
-+		if (err != len)
-+			goto out_err;
-+	}
-+	xprt_uncork_sock(sock);
-+	return copied;
-+out_err:
-+	xprt_uncork_sock(sock);
-+	return copied != 0 ? copied : err;
-+}
-+
- /*
-  * Write data to socket.
-  */
-@@ -175,11 +291,8 @@
- xprt_sendmsg(struct rpc_xprt *xprt, struct rpc_rqst *req)
- {
- 	struct socket	*sock = xprt->sock;
--	struct msghdr	msg;
- 	struct xdr_buf	*xdr = &req->rq_snd_buf;
--	struct iovec	niv[MAX_IOVEC];
--	unsigned int	niov, slen, skip;
--	mm_segment_t	oldfs;
-+	unsigned int	slen, skip;
- 	int		result;
- 
- 	if (!sock)
-@@ -192,21 +305,16 @@
- 	/* Dont repeat bytes */
- 	skip = req->rq_bytes_sent;
- 	slen = xdr->len - skip;
--	niov = xdr_kmap(niv, xdr, skip);
--
--	msg.msg_flags   = MSG_DONTWAIT|MSG_NOSIGNAL;
--	msg.msg_iov	= niv;
--	msg.msg_iovlen	= niov;
--	msg.msg_name	= (struct sockaddr *) &xprt->addr;
--	msg.msg_namelen = sizeof(xprt->addr);
--	msg.msg_control = NULL;
--	msg.msg_controllen = 0;
--
--	oldfs = get_fs(); set_fs(get_ds());
--	result = sock_sendmsg(sock, &msg, slen);
--	set_fs(oldfs);
- 
--	xdr_kunmap(xdr, skip);
-+	if (xdr->page_len == 0 || !xprt->stream) {
-+		struct iovec niv[MAX_IOVEC];
-+		unsigned int niov;
-+		niov = xdr_kmap(niv, xdr, skip);
-+		result = sock_sendkerneliovec(sock, (struct sockaddr *)&xprt->addr,
-+					      sizeof(xprt->addr), niv, niov, slen);
-+		xdr_kunmap(xdr, skip);
-+	} else
-+		result = xdr_sendpages(sock, xdr, skip);
- 
- 	dprintk("RPC:      xprt_sendmsg(%d) = %d\n", slen, result);
- 
+On Sat, Jun 15, 2002 at 06:04:19PM +0200, Andries Brouwer wrote:
+> > How can one assign stable device names to SCSI devices in
+> > case there are devices that may or may not be switched on or connected.
+>=20
+> An interesting unsolved problem.
+> [Your discussion confuses a few things, especially in the context
+> of removable devices: a uuid lives on the disk, the C,B,T,U tends
+> to identify the drive rather than the disk.]
+
+Sure. But those are the things that are normally proposed to relieve the
+situation. (And yes, I got the uuid thing confused.)
+I actually forgot one. LVM. There, signatures are stored on the disks.
+
+> > Life would be easier if the scsi subsystem would just report which
+> > SCSI device (uniquely identified by the controller,bus,target,unit tupl=
+e)
+> > belongs to which high-level device.
+>=20
+> Yes. I took your patch, ported it to 2.5, and tried it out.
+
+Oh, I expected to do it myself if it does not get bashed too much ...
+THANKS!
+And, yes, I agree, I would prefer to know it's accepted in 2.5 before it's
+applied to 2.4. It's just that I develop on 2.4 currently :-(
+
+> Very good - in combination with /proc/scsi/scsi this gives
+> good information. I like it.
+>=20
+> But just "cat /proc/scsi/map" is not good enough.
+
+I did not want to duplicate the information from /proc/scsi/scsi. The=20
+idea was that it should be straightforward to make device nodes from=20
+the information provided in map and to allow more elaborated code in
+userspace to know where to collect information from.
+
+> >From the above output alone one cannot easily guess which is which.
+> One would need a small utility that reads /proc/scsi/map and
+> /proc/scsi/scsi and produces something readable.
+> Will add sth to util-linux in case this gets accepted.
+
+That would be great!=20
+Because the mapping between sg and the other device is known, you can use
+the sg device to do ioctls on it (or even send SCSI commands) or to use
+the information from /proc/scsi/sg/ as well.
+
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE Linux AG, Nuernberg, DE                            SCSI, Security
+
+--R+My9LyyhiUvIEro
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9DP1ZxmLh6hyYd04RAmy9AJsHx2k6sybkFrevDCKhhcrrBPrAPwCfRcIK
+BsYSkXuvir9pEziU4+J4gdY=
+=+Kuk
+-----END PGP SIGNATURE-----
+
+--R+My9LyyhiUvIEro--

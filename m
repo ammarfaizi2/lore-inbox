@@ -1,52 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263045AbTH0Bd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 21:33:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263030AbTH0Bd5
+	id S263052AbTH0Bum (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 21:50:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263049AbTH0Bum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 21:33:57 -0400
-Received: from virt-216-40-198-21.rackshack.net ([216.40.198.21]:51213 "EHLO
-	virt-216-40-198-21.rackshack.net") by vger.kernel.org with ESMTP
-	id S263029AbTH0Bdz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 21:33:55 -0400
-Date: Tue, 26 Aug 2003 20:20:16 -0500
-From: Chuck Campbell <campbell@accelinc.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Diego Calleja =?iso-8859-1?Q?Garc=EDa?= <aradorlinux@yahoo.es>,
-       =?iso-8859-1?Q?Ram=F3n?= Rey Vicente____ 
-	<retes_simbad@yahoo.es>,
-       jamagallon@able.es, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.22 released
-Message-ID: <20030827012016.GA10502@helium.inexs.com>
-Reply-To: campbell@accelinc.com
-Mail-Followup-To: Chuck Campbell <campbell@accelinc.com>,
-	Adrian Bunk <bunk@fs.tum.de>,
-	Diego Calleja =?iso-8859-1?Q?Garc=EDa?= <aradorlinux@yahoo.es>,
-	=?iso-8859-1?Q?Ram=F3n?= Rey Vicente____ <retes_simbad@yahoo.es>,
-	jamagallon@able.es, linux-kernel@vger.kernel.org
-References: <200308251148.h7PBmU8B027700@hera.kernel.org> <20030825132358.GC14108@merlin.emma.line.org> <1061818535.1175.27.camel@debian> <20030825211307.GA3346@werewolf.able.es> <20030825222215.GX7038@fs.tum.de> <1061857293.15168.3.camel@debian> <20030826234901.1726adec.aradorlinux@yahoo.es> <20030826215544.GI7038@fs.tum.de>
-Mime-Version: 1.0
+	Tue, 26 Aug 2003 21:50:42 -0400
+Received: from c210-49-26-171.randw1.nsw.optusnet.com.au ([210.49.26.171]:675
+	"EHLO mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id S263052AbTH0Buf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 21:50:35 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030826215544.GI7038@fs.tum.de>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16204.3686.972704.91444@wombat.chubb.wattle.id.au>
+Date: Wed, 27 Aug 2003 11:50:30 +1000
+To: Andrew Morton <akpm@osdl.org>
+Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.0-test4 -- add context switch counters
+In-Reply-To: <20030826181807.1edb8c48.akpm@osdl.org>
+References: <16204.520.61149.961640@wombat.disy.cse.unsw.edu.au>
+	<20030826181807.1edb8c48.akpm@osdl.org>
+X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 26, 2003 at 11:55:44PM +0200, Adrian Bunk wrote:
-> - it's easy to use ALSA even when it's not inside the kernel
+>>>>> "Andrew" == Andrew Morton <akpm@osdl.org> writes:
 
-please point me to a doc or a HOWTO to do this, and I'll be happy.
+Andrew> Peter Chubb <peterc@gelato.unsw.edu.au> wrote:
+>> Currently, the context switch counters reported by getrusage() are
+>> always zero.  The appended patch adds fields to struct task_struct
+>> to count context switches, and adds code to do the counting.
+>> 
+>> The patch adds 4 longs to struct task struct, and a single addition
+>> to the fast path in schedule().
 
-thanks,
--chuck
+Andrew> OK...  Why is this useful?  A bit of googling doesn't show
+Andrew> much interest in it.
+
+/usr/bin/time reports the info, yes.
+
+It's useful for tuning the scheduler, and when developing and tuning
+posix thread apps. 
+
+I wanted to know if the work I did on adding preemption support to IA64
+actually made much difference in the number of involuntary context
+switches.  It doesn't, at least on the measurements I've made so far.
+
+I'm actually intested in getting most of the rusage fields filled in
+properly, at least the ones that make sense for Linux.
+
+Things to do are:
+       -- Track maxrss and report it.
+       -- Track and integrate rss.
+       -- Fix the page fault accounting (currently some minor faults
+          are counted as major faults)
+       -- add signal accounting
+
+Block I/O isn't that important -- it almost all goes through the page
+cache anyway, and it's a bit difficult to assign a particular I/O to a
+particular process.  Likewise, message I.O isn't that important AFAIK.
+
+The stack, data and unshared data sizes aren't currently
+accounted for separately at all, so it'd be a bit difficult to track
+the integral of those numbers.
+
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+You are lost in a maze of BitKeeper repositories,   all slightly different.
 
 
--- 
-ACCEL Services, Inc.| Specialists in Gravity, Magnetics |  1(713)993-0671 ph.
- 2401 Fountain View |   and Integrated Interpretation   |  1(713)993-0608 fax
-     Suite 320      |                                   |
- Houston, TX, 77057 |          Chuck Campbell           | campbell@accelinc.com
-                    |  President & Senior Geoscientist  |
-
-     "Integration means more than having all the maps at the same scale!"

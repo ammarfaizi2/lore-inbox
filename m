@@ -1,54 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316582AbSHBXux>; Fri, 2 Aug 2002 19:50:53 -0400
+	id <S317373AbSHBXzK>; Fri, 2 Aug 2002 19:55:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316821AbSHBXux>; Fri, 2 Aug 2002 19:50:53 -0400
-Received: from numenor.qualcomm.com ([129.46.51.58]:47841 "EHLO
-	numenor.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S316582AbSHBXuw>; Fri, 2 Aug 2002 19:50:52 -0400
-Message-Id: <5.1.0.14.2.20020802164143.04da52f8@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 02 Aug 2002 16:54:02 -0700
-To: jajcus@bnet.pl
-From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
-Subject: Re: "new style" netdevice allocation patch for TUN driver
-  (2.4.18 kernel)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020801133506.GA22073@serwus.bnet.pl>
+	id <S317400AbSHBXya>; Fri, 2 Aug 2002 19:54:30 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:53260 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317386AbSHBXxV>;
+	Fri, 2 Aug 2002 19:53:21 -0400
+Date: Fri, 2 Aug 2002 16:54:54 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+Subject: Re: [BK PATCH] PCI changes for 2.5.30
+Message-ID: <20020802235454.GB1999@kroah.com>
+References: <20020802235321.GA1999@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020802235321.GA1999@kroah.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Fri, 05 Jul 2002 22:51:37 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jacek,
-
->I had a lot of problem with tun devices created with both openvpn and
->vtund. When I wanted to shut down my system when the devices were in
->use (eg. TCP connection established on tun0 interface), even if the
->tunneling daemon was killed, it stopped while trying to deconfigure
->network. And "unregister_netdevice: waiting for tun0 to become free"
->message was displayed again and again. I tried to resolve this problem
->using Google, but I have only found out, that this is behaviour of 2.4
->kernels, and that it is proper. After further investigation, in kernel
->sources, I found out, that there are "old style" and "new style" network
->devices, and that only the "old style" devices have this problem.
->I had similar problem with VLAN devices some time ago, so I checked VLAN
->driver sources too. As I suspected, it was "new style" device now.
->The patch below is my try to make tun device "new style" too. It seems
->to work for me, but I am not sure if it is 100% proper. This is patch
->against 2.4.18 sources.
-You're fixing the wrong problem. It seems that some subsystem is not releasing
-tun device during shutdown/deregistration. (See comment in 
-net/core/dev.c:unregister_netdev).
-You're not gonna see "waiting for" warning anymore if you change to new 
-style allocation.
-But you're gonna leak tun devices because destructor is not called unless 
-refcount is zero.
-
->Sorry, for spamming all those addresses, but I am not sure which one is
->correct. Driver on URL given in MAINTAINERS file seems to be a bit
->outdated.
-URL is ok. Mailing list has to be update though.
-
-Max
-
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.513   -> 1.514  
+#	   drivers/pci/pci.c	1.44    -> 1.45   
+#	drivers/pci/compat.c	1.2     -> 1.3    
+#	drivers/pci/Makefile	1.12    -> 1.13   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/08/02	greg@kroah.com	1.514
+# PCI: move the EXPORT_SYMBOL(pcibios_*) declarations to the proper file.
+# --------------------------------------------
+#
+diff -Nru a/drivers/pci/Makefile b/drivers/pci/Makefile
+--- a/drivers/pci/Makefile	Fri Aug  2 16:49:30 2002
++++ b/drivers/pci/Makefile	Fri Aug  2 16:49:30 2002
+@@ -2,7 +2,8 @@
+ # Makefile for the PCI bus specific drivers.
+ #
+ 
+-export-objs := access.o hotplug.o pci-driver.o pci.o pool.o probe.o proc.o search.o
++export-objs	:= access.o hotplug.o pci-driver.o pci.o pool.o \
++			probe.o proc.o search.o compat.o
+ 
+ obj-y		+= access.o probe.o pci.o pool.o quirks.o \
+ 			compat.o names.o pci-driver.o search.o
+diff -Nru a/drivers/pci/compat.c b/drivers/pci/compat.c
+--- a/drivers/pci/compat.c	Fri Aug  2 16:49:30 2002
++++ b/drivers/pci/compat.c	Fri Aug  2 16:49:30 2002
+@@ -8,8 +8,11 @@
+ 
+ #include <linux/types.h>
+ #include <linux/kernel.h>
++#include <linux/module.h>
+ #include <linux/pci.h>
+ 
++/* Obsolete functions, these will be going away... */
++
+ int
+ pcibios_present(void)
+ {
+@@ -63,3 +66,14 @@
+ PCI_OP(write, byte, char)
+ PCI_OP(write, word, short)
+ PCI_OP(write, dword, int)
++
++
++EXPORT_SYMBOL(pcibios_present);
++EXPORT_SYMBOL(pcibios_read_config_byte);
++EXPORT_SYMBOL(pcibios_read_config_word);
++EXPORT_SYMBOL(pcibios_read_config_dword);
++EXPORT_SYMBOL(pcibios_write_config_byte);
++EXPORT_SYMBOL(pcibios_write_config_word);
++EXPORT_SYMBOL(pcibios_write_config_dword);
++EXPORT_SYMBOL(pcibios_find_class);
++EXPORT_SYMBOL(pcibios_find_device);
+diff -Nru a/drivers/pci/pci.c b/drivers/pci/pci.c
+--- a/drivers/pci/pci.c	Fri Aug  2 16:49:30 2002
++++ b/drivers/pci/pci.c	Fri Aug  2 16:49:30 2002
+@@ -602,18 +602,6 @@
+ EXPORT_SYMBOL(pci_restore_state);
+ EXPORT_SYMBOL(pci_enable_wake);
+ 
+-/* Obsolete functions */
+-
+-EXPORT_SYMBOL(pcibios_present);
+-EXPORT_SYMBOL(pcibios_read_config_byte);
+-EXPORT_SYMBOL(pcibios_read_config_word);
+-EXPORT_SYMBOL(pcibios_read_config_dword);
+-EXPORT_SYMBOL(pcibios_write_config_byte);
+-EXPORT_SYMBOL(pcibios_write_config_word);
+-EXPORT_SYMBOL(pcibios_write_config_dword);
+-EXPORT_SYMBOL(pcibios_find_class);
+-EXPORT_SYMBOL(pcibios_find_device);
+-
+ /* Quirk info */
+ 
+ EXPORT_SYMBOL(isa_dma_bridge_buggy);

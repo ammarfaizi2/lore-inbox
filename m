@@ -1,57 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262288AbUKDQsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262291AbUKDQvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262288AbUKDQsi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 11:48:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262291AbUKDQse
+	id S262291AbUKDQvF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 11:51:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262293AbUKDQvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 11:48:34 -0500
-Received: from main.gmane.org ([80.91.229.2]:4534 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262288AbUKDQsc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 11:48:32 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: Linux-2.6.9 won't allow a write to a NTFS file-system.
-Date: Thu, 4 Nov 2004 17:48:03 +0100
-Message-ID: <MPG.1bf47baa1b621da0989706@news.gmane.org>
-References: <Pine.LNX.4.61.0411041054370.4818@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: host186-250.pool8248.interbusiness.it
-User-Agent: MicroPlanet-Gravity/2.70.2067
+	Thu, 4 Nov 2004 11:51:05 -0500
+Received: from brown.brainfood.com ([146.82.138.61]:22151 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S262292AbUKDQvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 11:51:01 -0500
+Date: Thu, 4 Nov 2004 10:50:38 -0600 (CST)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Chris Wedgwood <cw@f00f.org>
+cc: Christoph Hellwig <hch@infradead.org>,
+       Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: support of older compilers
+In-Reply-To: <20041103233029.GA16982@taniwha.stupidest.org>
+Message-ID: <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com>
+References: <41894779.10706@techsource.com> <20041103211353.GA24084@infradead.org>
+ <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com>
+ <20041103233029.GA16982@taniwha.stupidest.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os wrote:
-> 
-> Hello anybody maintaining NTFS,
-> 
-> I can't write to a NTFS file-system.
-> 
-> /proc/mounts shows it's mounted RW:
-> /dev/sdd1 /mnt ntfs rw,uid=0,gid=0,fmask=0177,dmask=077,nls=utf8,errors=continue,mft_zone_multiplier=1 0 0
-> 
-> .config shows RW support.
-> 
-> CONFIG_NTFS_FS=m
-> # CONFIG_NTFS_DEBUG is not set
-> CONFIG_NTFS_RW=y
-> 
-> Errno is 1 (Operation not permitted), even though root.
+On Wed, 3 Nov 2004, Chris Wedgwood wrote:
 
-What are trying to write? AFAIK, the (new) NTFS module only 
-allows one kind of writing: overwriting an existing file, as 
-long as its size doesn't change.
+> On Wed, Nov 03, 2004 at 05:06:56PM -0600, Adam Heath wrote:
+>
+> > You can't be serious that this is a problem.
+>
+> try it, say gcc 2.95 vs gcc 4.0 ... i think last i checked the older
+> gcc was over twice as fast
 
--- 
-Giuseppe "Oblomov" Bilotta
+I didn't deny the speed difference of older and newer compilers.
 
-Can't you see
-It all makes perfect sense
-Expressed in dollar and cents
-Pounds shillings and pence
-                  (Roger Waters)
-
+But why is this an issue when compiling a kernel?  How often do you compile
+your kernel?

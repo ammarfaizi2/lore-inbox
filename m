@@ -1,64 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265225AbUATIgO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 03:36:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265264AbUATIgO
+	id S265277AbUATIoO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 03:44:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265296AbUATIoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 03:36:14 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:32661 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S265225AbUATIgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 03:36:09 -0500
-Message-ID: <400CE873.3000204@labs.fujitsu.com>
-Date: Tue, 20 Jan 2004 17:36:03 +0900
-From: Tsuchiya Yoshihiro <tsuchiya@labs.fujitsu.com>
-Reply-To: tsuchiya@labs.fujitsu.com
-Organization: Fujitsu Labs
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: filesystem bug?
-References: <4007537F.4070609@labs.fujitsu.com>	 <1074256175.4006.24.camel@sisko.scot.redhat.com>	 <400B8CD4.8000503@labs.fujitsu.com> <1074517928.3694.22.camel@sisko.scot.redhat.com>
-In-Reply-To: <1074517928.3694.22.camel@sisko.scot.redhat.com>
+	Tue, 20 Jan 2004 03:44:14 -0500
+Received: from [66.35.79.110] ([66.35.79.110]:43434 "EHLO www.hockin.org")
+	by vger.kernel.org with ESMTP id S265277AbUATIoL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 03:44:11 -0500
+Date: Tue, 20 Jan 2004 00:43:52 -0800
+From: Tim Hockin <thockin@hockin.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Rusty Russell <rusty@au1.ibm.com>, vatsa@in.ibm.com,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+       rml@tech9.net
+Subject: Re: CPU Hotplug: Hotplug Script And SIGPWR
+Message-ID: <20040120084352.GD15733@hockin.org>
+References: <20040120063316.GA9736@hockin.org> <400CCE2F.2060502@cyberone.com.au> <20040120065207.GA10993@hockin.org> <400CD4B5.6020507@cyberone.com.au> <20040120073032.GB12638@hockin.org> <400CDCA1.5070200@cyberone.com.au> <20040120075409.GA13897@hockin.org> <400CE354.8060300@cyberone.com.au> <20040120082943.GA15733@hockin.org> <400CE8DC.70307@cyberone.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <400CE8DC.70307@cyberone.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen C. Tweedie wrote:
+On Tue, Jan 20, 2004 at 07:37:48PM +1100, Nick Piggin wrote:
+> (or OOM killed being another that comes to mind)
+> 
+> It is sometimes inevitable. With that knowledge we should be designing
+> for graceful failure.
 
-> Other than 2.4.20-28.9, since they have been running for three days,
->
->>they seems nice at this point.
->>
->>What exactly is the race condition between read_inode() and
->>clear_inode() you have
->>mentioned?
->>    
->>
->
->This one:
->
->http://linux.bkbits.net:8080/linux-2.4/patch@1.1136.67.1
->  
->
+Don't get me started on OOM killer.  If the OOM killer is killing hotplug
+scripts, there's another problem.  What's the chance of hotplug scripts
+being the memory hog? :)
 
-Thank you. I think this one does not explain all of my problem.
-1. the corrupted inode was still in the parent directory. It is
-strange because unlink removes the directory entry first and then
-iput deletes the inode.
+That said, I understand what you're saying.  It's rough.
 
-2. some time, i_nlink was 0 and i_dtime was set which is I think
-somewhat related with this patch, but the other time,
-part of a inode block was cleaned with 0, which I do not understand
-how at all.
+> >But it is a violation of the affinity.  As the kernel we CAN NOT know what
+> >the affinity really means.
+> 
+> Not if the application is designed to handle it. How would hotplug
+> scripts make this any different, anyway?
 
-Thank you,
-Yoshi
--- 
---
-Yoshihiro Tsuchiya
+IFF the app is designed to handle it.  The existence of a SIGPWR handler
+does not necessarily imply that, though.  a SIGCPU or something might
+correlate 1:1 with this, but SIGPWR doesn't.
 
+Solving it from hotplug scripts means the task's affinity is not
+automatically violated.  It means the decision to violate the affinity was
+made in user-space, probably by the admin, who CAN know what the affinity
+means.
 
+> Rusty thought you just wouldn't send it unless the process was handling
+> it.
+
+I remembered that after I sent it, sorry. :)

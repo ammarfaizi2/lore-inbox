@@ -1,130 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261876AbTDPXNq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 19:13:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbTDPXNq
+	id S261872AbTDPXMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 19:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbTDPXMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 19:13:46 -0400
-Received: from ulm9-d9bb53ca.pool.mediaWays.net ([217.187.83.202]:16769 "EHLO
-	openworld.de") by vger.kernel.org with ESMTP id S261876AbTDPXNn
+	Wed, 16 Apr 2003 19:12:09 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:57500 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261872AbTDPXMI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 19:13:43 -0400
-From: Artjom Simon <hoek@linuxartist.org>
-Reply-To: hoek@linuxartist.org
-To: linux-kernel@vger.kernel.org
-Subject: [2.5.67] SB-AWE32 + ALSA: "snd_sbawe: falsely claims to have parameter pnp"
-Date: Thu, 17 Apr 2003 01:26:07 +0200
-User-Agent: KMail/1.5.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 16 Apr 2003 19:12:08 -0400
+Subject: Re: [PATCH] linux-2.5.67_lost-tick-fix_A2
+From: john stultz <johnstul@us.ibm.com>
+To: george anzinger <george@mvista.com>
+Cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
+       James.Bottomley@SteelEye.com, shemminger@osdl.org, alex@ssi.bg
+In-Reply-To: <3E9DE126.7040001@mvista.com>
+References: <1050530545.1077.120.camel@w-jstultz2.beaverton.ibm.com>
+	 <3E9DE126.7040001@mvista.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1050535296.1077.204.camel@w-jstultz2.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 16 Apr 2003 16:21:36 -0700
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304170126.07245.hoek@linuxartist.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 2003-04-16 at 16:03, george anzinger wrote:
+> john stultz wrote: 
+> > Some of the divs and mods being added here might concern folks, but by
+> > not calling timer->get_offset() in detect_lost_tick() we eliminate much
+> > of the same math. I did some simple cycle counting and the new code
+> > comes out on average equivalent or faster. 
+> 
+> I think that if you look at the generated code you may find that there 
+> are NO div in the asm code.  The C folks know about scaling to avoid 
+> div especially when the divisor is a constant :)
 
-just compiled the new 2.5.67 kernel.
-Everything seems to be (surprisingly) fine, with one exception:
-I have a ISA SoundBlaster AWE32 card, it worked perfectly with 2.4.X and
-alsa 0.9.x.
-I selected the following options when compiling:
+Indeed you are correct. An objdump of both the timer_tsc.o and
+timer_cyclone.o code reveals that the only divs occur in init code. I
+like your argument better then mine :)
 
----
-#
-# Plug and Play support
-#
-CONFIG_PNP=y
-CONFIG_PNP_NAMES=y
-# CONFIG_PNP_DEBUG is not set
+thanks
+-john
 
-#
-# Protocols
-#
-CONFIG_ISAPNP=y
-# CONFIG_PNPBIOS is not set
 
-#
-# Sound
-#
-CONFIG_SOUND=m
 
-#
-# Advanced Linux Sound Architecture
-#
-CONFIG_SND=m
-CONFIG_SND_SEQUENCER=m
-# CONFIG_SND_SEQ_DUMMY is not set
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=m
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=m
-# CONFIG_SND_VERBOSE_PRINTK is not set
-# CONFIG_SND_DEBUG is not set
 
-#
-# Generic devices
-#
-CONFIG_SND_DUMMY=m
-CONFIG_SND_VIRMIDI=m
-# CONFIG_SND_MTPAV is not set
-# CONFIG_SND_SERIAL_U16550 is not set
-CONFIG_SND_MPU401=m
-
-#
-# ISA devices
-#
-[...]
-CONFIG_SND_SBAWE=m
-CONFIG_SND_SB16_CSP=y
----
-
-OSS is completely disabled.
-My /etc/modules.d/alsa (using Gentoo) looks as follows:
-
----
-alias char-major-116 snd
-options snd major=116 cards_limit=1
-
-alias char-major-14 soundcore
-alias snd-card-0 snd-sbawe
-alias sound-slot-0 snd-card-0
-
-alias sound-service-0-0 snd-mixer-oss
-alias sound-service-0-1 snd-seq-oss
-alias sound-service-0-3 snd-pcm-oss
-alias sound-service-0-8 snd-seq-oss
-alias sound-service-0-12 snd-pcm-oss
-
-alias /dev/mixer snd-mixer-oss
-alias /dev/dsp snd-pcm-oss
-alias /dev/midi snd-seq-oss
----
-
-All sound related modules load correctly, with the exception of snd_sbawe:
-
-FATAL: Error inserting snd_sbawe
-(/lib/modules/2.5.67/kernel/sound/isa/sb/snd-sbawe.ko): Invalid argument
-
-The output of dmesg explains the "invalid argument":
-
----
-[...]
-isapnp: Scanning for PnP cards...
-pnp: SB audio device quirk - increasing port range
-pnp: AWE32 quirk - adding two ports
-isapnp: Card 'Creative SB AWE32 PnP'
-isapnp: 1 Plug & Play card detected total
-[...]
-snd_sbawe: falsely claims to have parameter pnp
-snd_sbawe: falsely claims to have parameter pnp
-snd_sbawe: falsely claims to have parameter pnp
----
-
-Any hints what I should do now?
-
-Thanks in advance,
- Artjom

@@ -1,121 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269321AbTCDIUG>; Tue, 4 Mar 2003 03:20:06 -0500
+	id <S269329AbTCDI1o>; Tue, 4 Mar 2003 03:27:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269325AbTCDIUG>; Tue, 4 Mar 2003 03:20:06 -0500
-Received: from fep02-0.kolumbus.fi ([193.229.0.44]:11990 "EHLO
-	fep02-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id <S269321AbTCDIUE>; Tue, 4 Mar 2003 03:20:04 -0500
-From: <mika.penttila@kolumbus.fi>
-To: Dominik Brodowski <linux@brodo.de>, <torvalds@transmeta.com>,
-       <jt@hpl.hp.com>
-CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: [PATCH] pcmcia: get initialization ordering right [Was: [PATCH 2.5] : i82365 & platform_bus_type]
-Date: Tue, 4 Mar 2003 10:30:31 +0200
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-Message-Id: <20030304083031.JEP4145.fep02-app.kolumbus.fi@[193.229.5.109]>
+	id <S269331AbTCDI1o>; Tue, 4 Mar 2003 03:27:44 -0500
+Received: from buitenpost.surfnet.nl ([192.87.108.12]:49883 "EHLO
+	buitenpost.surfnet.nl") by vger.kernel.org with ESMTP
+	id <S269329AbTCDI1m>; Tue, 4 Mar 2003 03:27:42 -0500
+Date: Mon, 3 Mar 2003 15:39:37 +0100
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IGMP problem with 2.5 kernels
+Message-ID: <20030303143936.GA3068@pangsit>
+References: <20030303134904.GA19636@pangsit> <Pine.LNX.3.95.1030303090132.22417A-100000@chaos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.95.1030303090132.22417A-100000@chaos>
+X-Mailer: Mutt on Debian GNU/Linux sid
+X-Editor: vim
+X-Organisation: SURFnet bv
+X-Address: Radboudburcht, P.O. Box 19035, 3501 DA Utrecht, NL
+X-Phone: +31 302 305 305
+X-Telefax: +31 302 305 329
+User-Agent: Mutt/1.5.3i
+From: Niels den Otter <otter@surfnet.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think the problem is platform_match() :
+Richard,
 
-static int platform_match(struct device * dev, struct device_driver * drv)
-{
-	return 0;
-}
+On Monday,  3 March 2003, Richard B. Johnson wrote:
+> Did you try to use bind() to bind your socket to a specific interface?
+> Using `route` to obtain side-effects is not the correct way. The
+> application needs to bind the socket to a specific interface if the
+> applications requires a specific interface (which you seem to
+> require). Otherwise, the first interface found will be used as the
+> default. If you can't rebuild the programs, you might work- around the
+> problem by modifying start-up so that your ethernet interfaces are
+> started before loop-back.
+> 
+> You can expriment without rebooting...
+> 
+> Remove all routing entries first.
+> route del -default xxx
+> route del -net xxx, etc.
+> 
+> `ifconfig eth0 down`
+> `ifconfig lo down`
+> 
+> Completely reconfigure eth0 first....
+> Then configure lo.
+> 
+> If you don't remove all the routing entries first, you don't really
+> end up with a new configuration. Something 'remembers' and the order
+> of entries doesn't get changed.
 
-which effectively makes driver binding impossible, pcmcia_socket_class->add_device isn't called.
+I have tried both your method and also booting Linux without any
+interfaces enabled, then enable eth0 and after that also lo.
 
---Mika
+When only eth0 was enabled, I got the following error from sdr:
+ pangsit:~> sdr
+ setsockopt - IP_ADD_MEMBERSHIP: No such device
+ setsockopt - IP_ADD_MEMBERSHIP: No such device
+ sd_listen: setsockopt IP_ADD_MEMBRSHIP err, addr: 224.2.127.254
+
+I can send strace if this helps.
+
+This is the same problem I see with other multicast applications. It
+really doesn't want to bind to the ethernet interface.
+  pangsit:~> ifconfig eth0
+  eth0      Link encap:Ethernet  HWaddr 00:08:74:22:48:CF  
+            inet addr:192.87.109.130  Bcast:192.87.109.255 Mask:255.255.255.0
+            inet6 addr: 2001:610:508:109:208:74ff:fe22:48cf/64 Scope:Global
+            inet6 addr: fe80::208:74ff:fe22:48cf/64 Scope:Link
+            UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+            RX packets:32863 errors:0 dropped:0 overruns:1 frame:0
+            TX packets:150 errors:0 dropped:0 overruns:0 carrier:1
+            collisions:0 txqueuelen:100 
+            RX bytes:16213097 (15.4 MiB)  TX bytes:16428 (16.0 KiB)
+            Interrupt:11 Base address:0xec80 
+
+After bringing up the loopback interface again the applications binds to
+this interface.
 
 
-> 
-> Lähettäjä: Dominik Brodowski <linux@brodo.de>
-> Päiväys: 2003/03/04 ti AM 09:39:15 GMT+02:00
-> Vastaanottaja: torvalds@transmeta.com,  jt@hpl.hp.com
-> Kopio: Linux kernel mailing list <linux-kernel@vger.kernel.org>, 
-> 	Patrick Mochel <mochel@osdl.org>
-> Aihe: [PATCH] pcmcia: get initialization ordering right [Was: [PATCH 2.5] : i82365 & platform_bus_type]
-> 
-> Hi,
-> 
-> On Mon, Mar 03, 2003 at 05:30:20PM -0800, Jean Tourrilhes wrote:
-> > 	Hi,
-> > 
-> > 	I'm trying to get i82365 to work again, because I need to test
-> <snip>
-> > Intel PCIC probe: 
-> >   Vadem VG-469 ISA-to-PCMCIA at port 0x3e0 ofs 0x00, 2 sockets
-> >     host opts [0]: none
-> >     host opts [1]: none
-> >     ISA irqs (scanned) = 4,5 polling interval = 1000 ms
-> > ds: no socket drivers loaded!
-> 
-> Sorry about that -- I mixed up the ordering of initializing the class data
-> and registering the platform device. Here's a bugfix for the three pcmcia
-> socket drivers that are platform devices.
-> 
-> Please apply,
-> 	Dominik
-> 
-> diff -ruN linux-original/drivers/pcmcia/hd64465_ss.c linux/drivers/pcmcia/hd64465_ss.c
-> --- linux-original/drivers/pcmcia/hd64465_ss.c	2003-03-04 08:27:06.000000000 +0100
-> +++ linux/drivers/pcmcia/hd64465_ss.c	2003-03-04 08:30:37.000000000 +0100
-> @@ -1070,8 +1070,8 @@
->  	}
->  
->  /*	hd64465_io_debug = 0; */
-> -	platform_device_register(&hd64465_device);
->  	hd64465_device.dev.class_data = &hd64465_data;
-> +	platform_device_register(&hd64465_device);
->  
->  	return 0;
->  }
-> diff -ruN linux-original/drivers/pcmcia/i82365.c linux/drivers/pcmcia/i82365.c
-> --- linux-original/drivers/pcmcia/i82365.c	2003-03-04 08:27:06.000000000 +0100
-> +++ linux/drivers/pcmcia/i82365.c	2003-03-04 08:28:28.000000000 +0100
-> @@ -1628,11 +1628,11 @@
->  	request_irq(cs_irq, pcic_interrupt, 0, "i82365", pcic_interrupt);
->  #endif
->      
-> -    platform_device_register(&i82365_device);
-> -
->      i82365_data.nsock = sockets;
->      i82365_device.dev.class_data = &i82365_data;
->      
-> +    platform_device_register(&i82365_device);
-> +
->      /* Finally, schedule a polling interrupt */
->      if (poll_interval != 0) {
->  	poll_timer.function = pcic_interrupt_wrapper;
-> diff -ruN linux-original/drivers/pcmcia/tcic.c linux/drivers/pcmcia/tcic.c
-> --- linux-original/drivers/pcmcia/tcic.c	2003-03-04 08:27:06.000000000 +0100
-> +++ linux/drivers/pcmcia/tcic.c	2003-03-04 08:30:03.000000000 +0100
-> @@ -452,8 +452,6 @@
->  	sockets++;
->      }
->  
-> -    platform_device_register(&tcic_device);
-> -
->      switch (socket_table[0].id) {
->      case TCIC_ID_DB86082:
->  	printk("DB86082"); break;
-> @@ -527,6 +525,8 @@
->      tcic_data.nsock = sockets;
->      tcic_device.dev.class_data = &tcic_data;
->  
-> +    platform_device_register(&tcic_device);
-> +
->      return 0;
->      
->  } /* init_tcic */
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+-- Niels

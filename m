@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267409AbTAVKDG>; Wed, 22 Jan 2003 05:03:06 -0500
+	id <S267412AbTAVKK6>; Wed, 22 Jan 2003 05:10:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267412AbTAVKDG>; Wed, 22 Jan 2003 05:03:06 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:6062 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S267409AbTAVKDF> convert rfc822-to-8bit; Wed, 22 Jan 2003 05:03:05 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Zero copy in 2.4 kernels
-Date: Wed, 22 Jan 2003 11:11:41 +0100
-User-Agent: KMail/1.4.3
-References: <057889C7F1E5D61193620002A537E8690B4378@NCBDC>
-In-Reply-To: <057889C7F1E5D61193620002A537E8690B4378@NCBDC>
-Organization: WOLK - Working Overloaded Linux Kernel
-Cc: Stanley Yee <SYee@snapappliance.com>
+	id <S267415AbTAVKK6>; Wed, 22 Jan 2003 05:10:58 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:14057 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S267412AbTAVKK6>;
+	Wed, 22 Jan 2003 05:10:58 -0500
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301221111.41450.m.c.p@wolk-project.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15918.28753.632988.981832@harpo.it.uu.se>
+Date: Wed, 22 Jan 2003 11:20:01 +0100
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: kernel param and KBUILD_MODNAME name-munging mess
+In-Reply-To: <20030122105105.Z628@nightmaster.csn.tu-chemnitz.de>
+References: <200301201341.OAA23795@harpo.it.uu.se>
+	<20030122105105.Z628@nightmaster.csn.tu-chemnitz.de>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 22 January 2003 02:48, Stanley Yee wrote:
+Ingo Oeser writes:
+ > On Mon, Jan 20, 2003 at 02:41:03PM +0100, Mikael Pettersson wrote:
+ > > Booting kernel 2.5.59 with the "-s" kernel boot parameter
+ > > doesn't get you into single-user mode like it should.
+ > 
+ > Try using "s" instead. This works since ever. I didn't even know,
+ > that the other option exists, too.
 
-Hi Stanley,
+That's a workaround for this particular case, but the name-munging
+is still wrong and broken.
 
-> Is the zero copy function enabled by default in the 2.4.X kernels?  If so
-> which kernel version and what do I need to do to enable it?  Thanks for
-> your time.
-http://marc.theaimsgroup.com/?l=linux-kernel&m=104121076420067&w=2
-
-_READ_ the thread before deciding to apply/not apply the patch. :)
-
-ciao, Marc
+With "foo-bar=fie-fum" passed to the kernel, "foo_bar=fie-fum" is
+what's put into init's environment. (I checked.)

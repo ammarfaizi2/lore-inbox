@@ -1,66 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264930AbSKEGGx>; Tue, 5 Nov 2002 01:06:53 -0500
+	id <S264796AbSKEGNr>; Tue, 5 Nov 2002 01:13:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264957AbSKEGGw>; Tue, 5 Nov 2002 01:06:52 -0500
-Received: from codepoet.org ([166.70.99.138]:50088 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S264930AbSKEGGi>;
-	Tue, 5 Nov 2002 01:06:38 -0500
-Date: Mon, 4 Nov 2002 23:13:17 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Werner Almesberger <wa@almesberger.net>, jw schultz <jw@pegasys.ws>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ps performance sucks (was Re: dcache_rcu [performance results])
-Message-ID: <20021105061316.GA7045@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Werner Almesberger <wa@almesberger.net>, jw schultz <jw@pegasys.ws>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <20021105044216.GA4545@codepoet.org> <3838354491.1036446246@[10.10.2.3]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3838354491.1036446246@[10.10.2.3]>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.19-rmk2, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	id <S264951AbSKEGNq>; Tue, 5 Nov 2002 01:13:46 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16135 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264796AbSKEGN1>; Tue, 5 Nov 2002 01:13:27 -0500
+Message-ID: <3DC762FC.8070007@zytor.com>
+Date: Mon, 04 Nov 2002 22:19:40 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, mingo@redhat.com
+Subject: Reconfiguring one SW-RAID when other RAIDs are running
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Nov 04, 2002 at 09:44:07PM -0800, Martin J. Bligh wrote:
-> > Hehe.  You just reinvented my old /dev/ps driver.  :)
-> 
-> Indeed, sounds much more like a /dev thing than a /proc thing
-> at this point ;-)
-> 
-> > http://www.busybox.net/cgi-bin/cvsweb/busybox/examples/kernel-patches/devps.patch.9_25_2000?rev=1.2&content-type=text/vnd.viewcvs-markup
-> > 
-> > This is what Linus has to say on the subject:
-> > 
-> > ... If the problem is that /proc
-> >     is too large, then the right solution is to just clean up
-> >     /proc.  Which is getting done.  And yes, /proc will be larger
-> >     than /dev/ps, but I still find that preferable to having two
-> >     incompatible ways to do the same thing.
-> 
-> Ummm ... how do we make /proc smaller than 1 file to open per PID?
-> It's pretty easy to get it down that far. But it still sucks.
-> 
-> >     I do dislike /dev/ps mightily.
-> 
-> Well it can't be any worse than the current crap. At least it'd 
-> stand a chance in hell of scaling a little bit. So I took a very 
-> quick look ... what syscalls are you reduced to per pid, one ioctl 
-> and one read?
+Hi all,
 
-As I implemented it, it was one ioctl per pid...  Of course 
-it could be easily modified to be one syscall, one read from
-the /dev/ps char device, or similar...
+I'm trying to re-create a RAID while leaving the other RAIDs -- 
+including the root filesystem -- running, but mkraid refuses to run:
 
- -Erik
+hera 1 # mkraid /dev/md2
+/dev/md0: array is active -- run raidstop first.
+mkraid: aborted.
+(In addition to the above messages, see the syslog and /proc/mdstat as well
+  for potential clues.)
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+hera 2 # cat /proc/mdstat
+Personalities : [linear] [raid0] [raid1] [raid5] [multipath]
+read_ahead 1024 sectors
+md1 : active raid5 sdf2[5] sdc2[4] sde2[2] sdd2[3] sdb2[1] sda2[0]
+       50339328 blocks level 5, 64k chunk, algorithm 0 [4/4] [UUUU]
+
+md0 : active raid5 sdf3[5] sdc3[4] sde3[2] sdd3[3] sdb3[1] sda3[0]
+       298881024 blocks level 5, 64k chunk, algorithm 0 [4/4] [UUUU]
+
+unused devices: <none>
+
+
+(And no, there is no overlap between them.)
+
+Anyone know how to work around this problem?  This is using 
+raidtools-1.00.2-1.3 from RedHat, which seems to be just 
+raidtools-1.00.2.tar.gz.
+
+(Also note: the raid directory on kernel.org seems to be abandoned. 
+Unless someone speaks up I'm going to remove it.)
+
+	-hpa
+
+
+

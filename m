@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281562AbRKUNvM>; Wed, 21 Nov 2001 08:51:12 -0500
+	id <S281559AbRKUNyW>; Wed, 21 Nov 2001 08:54:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281381AbRKUNvC>; Wed, 21 Nov 2001 08:51:02 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:58732 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S281050AbRKUNuz>; Wed, 21 Nov 2001 08:50:55 -0500
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: "David S. Miller" <davem@redhat.com>, <linux-mm@kvack.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.14 + Bug in swap_out.
-In-Reply-To: <Pine.LNX.4.33L.0111211016270.4079-100000@imladris.surriel.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 21 Nov 2001 06:31:51 -0700
-In-Reply-To: <Pine.LNX.4.33L.0111211016270.4079-100000@imladris.surriel.com>
-Message-ID: <m1hero1c8o.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S281381AbRKUNyM>; Wed, 21 Nov 2001 08:54:12 -0500
+Received: from wallext.webflex.nl ([212.115.150.250]:57279 "EHLO
+	palm.webflex.nl") by vger.kernel.org with ESMTP id <S281050AbRKUNx5>;
+	Wed, 21 Nov 2001 08:53:57 -0500
+Message-ID: <XFMail.20011121145237.mathijs@knoware.nl>
+X-Mailer: XFMail 1.5.1 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <20011121143738.D2196@artax.karlin.mff.cuni.cz>
+Date: Wed, 21 Nov 2001 14:52:37 +0100 (CET)
+From: Mathijs Mohlmann <mathijs@knoware.nl>
+To: Jan Hudec <bulb@ucw.cz>
+Subject: Re: [BUG] Bad #define, nonportable C, missing {}
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@conectiva.com.br> writes:
 
-> On 20 Nov 2001, Eric W. Biederman wrote:
-> > "David S. Miller" <davem@redhat.com> writes:
-> >
-> > > I do not agree with your analysis.
-> >
-> > Neither do I now but not for your reasons :)
-> >
-> > I looked again we are o.k. but just barely.  mmput explicitly checks
-> > to see if it is freeing the swap_mm, and fixes if we are.  It is a
-> > nasty interplay with the swap_mm global, but the code is correct.
+On 21-Nov-2001 Jan Hudec wrote:
+>> Go read up on C operator precedence. Unary ++ comes before %, so if we
+>> rewrite the #define to make it more "readable" it would be #define
+>> MODINC(x,y) (x = (x+1) % y)
 > 
-> To be honest I don't see the reason for this subtle
-> playing with swap_mm in mmput(), since the refcounting
-> should mean we're safe.
+> *NO* 
+> MODINC(x,y) (x = (x+1) % y)
+> is correct and beaves as expected. Unfortunately:
+> MODINC(x,y) (x = x++ % y)
+> is a nonsence, because the evaluation is something like this
+> x++ returns x
+> x++ % y returns x % y
+> x is assigned the result and it's incremented IN UNDEFINED ORDER!!!
+> AFAIK the ANSI C spec explicitly undefines the order.
 
-We only hold a ref count for the duration of swap_out_mm.
-Not for the duration of the value in swap_mm.
+in fact, gcc does (according to my tests):
+MODINC(x,y) (x = (x % y) + 1)
 
-Eric
+
+
+-- 
+        me

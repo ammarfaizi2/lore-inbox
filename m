@@ -1,85 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265285AbTA1M0t>; Tue, 28 Jan 2003 07:26:49 -0500
+	id <S265250AbTA1Msu>; Tue, 28 Jan 2003 07:48:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265306AbTA1M0t>; Tue, 28 Jan 2003 07:26:49 -0500
-Received: from turing.fb12.de ([193.41.124.37]:26800 "HELO turing.fb12.de")
-	by vger.kernel.org with SMTP id <S265285AbTA1M0r>;
-	Tue, 28 Jan 2003 07:26:47 -0500
-Date: Tue, 28 Jan 2003 13:36:06 +0100
-From: Sebastian Benoit <benoit-lists@fb12.de>
-To: dada1 <dada1@cosmosbay.com>
-Cc: kuznet@ms2.inr.ac.ru, Christopher Faylor <cgf@redhat.com>,
-       davem@redhat.com, andersg@0x63.nu, lkernel2003@tuxers.net,
-       linux-kernel@vger.kernel.org, tobi@tobi.nu
-Subject: Re: [TEST FIX] Re: SSH Hangs in 2.5.59 and 2.5.55 but not 2.4.x, through Cisco PIX
-Message-ID: <20030128133606.A21796@turing.fb12.de>
-Mail-Followup-To: Sebastian Benoit <benoit-lists@fb12.de>,
-	dada1 <dada1@cosmosbay.com>, kuznet@ms2.inr.ac.ru,
-	Christopher Faylor <cgf@redhat.com>, davem@redhat.com,
-	andersg@0x63.nu, lkernel2003@tuxers.net,
-	linux-kernel@vger.kernel.org, tobi@tobi.nu
-References: <200301280355.GAA27468@sex.inr.ac.ru> <02c601c2c69c$05668d80$1d00a8c0@edumazet>
+	id <S265262AbTA1Msu>; Tue, 28 Jan 2003 07:48:50 -0500
+Received: from ns.suse.de ([213.95.15.193]:37134 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S265250AbTA1Mss>;
+	Tue, 28 Jan 2003 07:48:48 -0500
+Date: Tue, 28 Jan 2003 13:10:49 +0100
+From: Stefan Reinauer <stepan@suse.de>
+To: Raphael Schmid <raphael@arrivingarrow.net>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Bootscreen
+Message-ID: <20030128121048.GB32488@suse.de>
+References: <398E93A81CC5D311901600A0C9F2928946936D@cubuss2>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="VS++wcV0S1rZb1Fb"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <02c601c2c69c$05668d80$1d00a8c0@edumazet>; from dada1@cosmosbay.com on Tue, Jan 28, 2003 at 08:08:10AM +0100
-X-MSMail-Priority: High
-x-gpg-fingerprint: 2999 9839 6C9E E4BF B540  C44B 4EC4 E1BE 5BA2 2F00
-x-gpg-key: http://wwwkeys.de.pgp.net:11371/pks/lookup?op=get&search=0x82AE75E4
-x-gpg-keyid: 0x82AE75E4
+In-Reply-To: <398E93A81CC5D311901600A0C9F2928946936D@cubuss2>
+User-Agent: Mutt/1.4i
+X-Message-Flag: Life is too short to use a crappy OS.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Raphael Schmid <Raphael_Schmid@CUBUS.COM> [030128 10:01]:
+> It is my very understanding one can not have, conveniently it should be,
+> a simple *bootscreen* under Linux. With that I mean a picture of at
+> least 256 (indexed) colours at a size of 640x480 pixels. Doesn't have
+> to be a higher resolution. And yes, I'm taking the standpoint that every
+> computer nowadays [where this shall be possible] *can* do that resolution.
 
---VS++wcV0S1rZb1Fb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It's not too much to even state that almost any computer working with
+Linux 2.4+ can do 800x600 or 1024x768. Anything below that can be
+considered a special case, regarding the numbers out there. But that
+does not influence the possibility of using a bootsplash graphics. 
+On a system you can't use it properly, you probably also would not 
+want it (i.e. use normal text mode boot instead of a framebuffer
+driver)
+ 
+> Framebuffer, I hear people shouting? Well. During the last *two days*,
+> which includes one full night, I've been trying to get my v2.4.20 kernel
+> to display such a bootscreen. All I get is segfaults. I've tried what I
+> believe to be every tool out there: pnmtologo, fblogo, boot_logo, the
+> GIMP plugin. You name them. None of which wouldn't have required any
+> hacking to work with 2.4.20, by the way...
 
-dada1(dada1@cosmosbay.com)@2003.01.28 08:08:10 +0000:
-> From: <kuznet@ms2.inr.ac.ru>
-> > Can you make tcpdump of this session which looks like tcpdump with -S? =
-:-)
+Have a look at ftp.suse.com/pub/people/stepan/bootsplash/ - There you
+find kernel patches, user space utilities and such to display a
+bootsplash screen. You can either choose to have a picture put "behind"
+your text, or have a picture _instead_ of text. (triggerable with a 
+boot parameter so anybody is happy). And yes, it _does_ look cool to see
+your kernel messages scrolling up on a background of a slightly faded
+out penguin, looking like a water sign. ;-)
 
-This might help you:
+> And maybe it's right, maybe I demand too much from the (VESA) framebuffer.
+> Maybe my picture is also too complex, but I've tried simple ones as well.
+> And anyway: I don't *want* any simple picture, I want as complex a picture
+> as it gets. In 640x480. At 256 indexed colours.
+My patch above includes a small and efficient jpeg decoder (8k), which
+allows you to read any jpg picture from an initrd.
 
-I still have a similar problem (ssh hang with other traffic) that i reported
-in november on netdev:
+> I realize these ideas may sound kind of alien to you, but they make sense.
+> Windows, MacOS all have bootscreens. There really is no way why Linux
+> shouldn't.
+ 
+It's not alien, and it does make sense. I, speaking for myself, know the
+kernel boot messages by heart and I don't expect them to change with the
+2957596. bootup of my linux box. ;)
 
-  http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D103641051419994&w=3D2
+Any comments?
 
-(this post includes a tcpdump and a discription how to reproduce it)
-
-I did not follow up on that because i did not have the time and
-i ran into hardware problems then...
-
-(You can find the 'socket' program i used here:
-http://www.jnickelsen.de/socket/socket-1.2.html)
-
-/Sebastian
---=20
-Sebastian Benoit <benoit-lists@fb12.de>
-My mail is GnuPG signed -- Unsigned ones are bogus -- http://www.gnupg.org/
-GnuPG 0x5BA22F00 2001-07-31 2999 9839 6C9E E4BF B540  C44B 4EC4 E1BE 5BA2 2=
-F00
-
-"After writing for fifteen years it struck me I had no talent for writing.
-But I couldn't give it up: by that time I was already famous." -- Mark Twain
-
---VS++wcV0S1rZb1Fb
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAj42eTYACgkQTsThvluiLwB9FgCfcEvmExOJFZZzfXMdUumBxLkk
-AJIAn2QXTt6baQMRTB2zOwdovEK0AmPh
-=9NzC
------END PGP SIGNATURE-----
-
---VS++wcV0S1rZb1Fb--
+   Stefan
+  
+-- 
+The use of COBOL cripples the mind; its teaching should, therefore, be
+regarded as a criminal offense.                      -- E. W. Dijkstra

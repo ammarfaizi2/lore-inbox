@@ -1,125 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbVBUIZR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbVBUIgg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbVBUIZR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 03:25:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbVBUIZR
+	id S261920AbVBUIgg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 03:36:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbVBUIgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 03:25:17 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:59271 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S261918AbVBUIZC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 03:25:02 -0500
-References: <16918.10967.325166.756203@tut.ibm.com>
-In-Reply-To: <16918.10967.325166.756203@tut.ibm.com>
-From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
-To: Tom Zanussi <zanussi@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Robert Wisniewski <bob@watson.ibm.com>, Tim Bird <tim.bird@am.sony.com>,
-       Christoph Hellwig <hch@infradead.org>, karim@opersys.com
-Subject: Re: relayfs redux, part 5
-Date: Mon, 21 Feb 2005 10:24:58 +0200
+	Mon, 21 Feb 2005 03:36:36 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:44731 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S261920AbVBUIga (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 03:36:30 -0500
+Subject: Re: [PATCH 2.6.11-rc3-mm2] connector: Add a fork connector
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>,
+       Gerrit Huizenga <gh@us.ibm.com>, Erich Focht <efocht@hpce.nec.com>
+In-Reply-To: <1108969656.8418.59.camel@frecb000711.frec.bull.fr>
+References: <1108652114.21392.144.camel@frecb000711.frec.bull.fr>
+	 <1108655454.14089.105.camel@uganda>
+	 <1108969656.8418.59.camel@frecb000711.frec.bull.fr>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-TppS0kdnAgGMWIHUXMRx"
+Organization: MIPT
+Date: Mon, 21 Feb 2005 11:41:32 +0300
+Message-Id: <1108975292.6728.13.camel@uganda>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-ID: <courier.42199ADA.000008F4@courier.cs.helsinki.fi>
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Mon, 21 Feb 2005 11:35:31 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Tom, 
 
-More nitpick follows. 
+--=-TppS0kdnAgGMWIHUXMRx
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> diff -urpN -X dontdiff linux-2.6.10/fs/Makefile linux-2.6.10-cur/fs/Makefile
-> --- linux-2.6.10/fs/Makefile	2004-12-24 15:34:58.000000000 -0600
-> +++ linux-2.6.10-cur/fs/Makefile	2005-02-06 21:32:49.000000000 -0600
-> +/**
-> + *	relay_create_buf - allocate and initialize a channel buffer
-> + *	@alloc_size: size of the buffer to allocate
-> + *	@n_subbufs: number of sub-buffers in the channel
-> + *
-> + *	Returns channel buffer if successful, NULL otherwise
-> + */
-> +struct rchan_buf *relay_create_buf(struct rchan *chan)
-> +{
-> +	struct rchan_buf *buf = kcalloc(1, sizeof(struct rchan_buf), GFP_KERNEL);
-> +	if (!buf)
-> +		return NULL;
-> +
-> +	buf->padding = kmalloc(chan->n_subbufs * sizeof(unsigned *), GFP_KERNEL);
-> +	if (!buf->padding)
-> +		goto free_buf;
-> +	
-> +	buf->commit = kmalloc(chan->n_subbufs * sizeof(unsigned *), GFP_KERNEL);
-> +	if (!buf->commit)
-> +		goto free_padding;
-> +
-> +	buf->start = relay_alloc_buf(chan->alloc_size, &buf->page_array, &buf->page_count);
-> +	if (!buf->start)
-> +		goto free_commit;
-> +
-> +	buf->chan = chan;
-> +	kref_get(&buf->chan->kref);
-> +	return buf;
-> +
-> +free_commit:
-> +	kfree(buf->commit);
-> +
-> +free_padding:
-> +	kfree(buf->padding);
-> +
-> +free_buf:
-> +	kfree(buf);
-> +	return NULL;
-> +}
+On Mon, 2005-02-21 at 08:07 +0100, Guillaume Thouvenin wrote:
+> On Thu, 2005-02-17 at 18:50 +0300, Evgeniy Polyakov wrote:
+> > On Thu, 2005-02-17 at 15:55 +0100, Guillaume Thouvenin wrote:
+> > >     It's a new patch that implements a fork connector in the
+> > > kernel/fork.c:do_fork() routine. The connector sends information abou=
+t
+> > > parent PID and child PID over a netlink interface. It allows to sever=
+al
+> > > user space applications to be alerted when a fork occurs in the kerne=
+l.
+> > > The main drawback is that even if nobody listens, a message is send. =
+I
+> > > don't know how to avoid that. I added an option (FORK_CONNECTOR) to
+> > > enable the fork connector (or disable) when compiling the kernel. To
+> > > work, connector must be compiled as built-in (CONFIG_CONNECTOR=3Dy). =
+It
+> > > has been tested on a 2.6.11-rc3-mm2 kernel with two user space
+> > > applications connected.=20
+> > >=20
+> > >     It is used by ELSA to manage group of processes in user space. In
+> > > conjunction with a per-process accounting information, like BSD or CS=
+A,
+> > > ELSA provides a per-group of processes accounting.
+> >=20
+> > I think people will complain here...
+> > ... [cut here] ...
+> > I still think that lsm with all calls logging is the best way to
+> > achieve this goal.
+>=20
+> I agree with you. My first implementation was with LSM but Chris Wright
+> (I think it was him) notice that it's not the right framework (and it
+> seems true). So I looked for another solution. I though about kobject
+> but it was too "big" and finally, Greg KH spoke about connectors. It's
+> small and efficient.
 
-kfree() deals with NULL pointers and since we're zeroing all of them when
-we call kcalloc(), you only need one failure goto where you unconditionally
-execute all kfree() calls. 
+Your do_fork() change really looks like either audit addon(but it is
+really
+not the case) or LSM logging facility.
+I think adding cn_netlink_send() in every function in security/dummy.c
+and renaming it to security/cn_logger.c or something is not such a bad
+idea...
+Or even wait in each function until userspace replies with the decision
+to
+allow or not such call.
+Although it can create a lock (need to recheck security hooks in
+send/recv pathes).
 
-> diff -urpN -X dontdiff linux-2.6.10/fs/relayfs/inode.c linux-2.6.10-cur/fs/relayfs/inode.c
-> --- linux-2.6.10/fs/relayfs/inode.c	1969-12-31 18:00:00.000000000 -0600
-> +++ linux-2.6.10-cur/fs/relayfs/inode.c	2005-02-14 20:10:33.000000000 -0600
-> @@ -0,0 +1,426 @@
-> +/**
-> + *	relayfs_create_file - create a file in the relay filesystem
-> + *	@name: the name of the file to create
-> + *	@parent: parent directory
-> + *	@mode: mode, if not specied the default perms are used
-> + *	@chan: channel associated with the file
-> + *
-> + *	Returns file dentry if successful, NULL otherwise.
-> + *
-> + *	The file will be created user r on behalf of current user.
-> + */
-> +struct dentry *relayfs_create_file(const char *name, struct dentry *parent,
-> +				   int mode, struct rchan *chan)
-> +{
-> +	if (!mode)
-> +		mode = S_IRUSR;
-> +	mode = (mode & S_IALLUGO) | S_IFREG;
-> +
-> +	return relayfs_create_entry(name, parent, mode, chan);
+> > from the other side why only fork is monitored in this way?
+>=20
+> The problem is the following: I have a user space daemon that manages
+> group of processes. The main idea is, if a parent belongs to a group
+> then its child belongs to the same group. To achieve this I need to know
+> when a fork occurs and which processes are involved. I don't see how to
+> do this without a hook in the do_fork() routine... Any ideas are
+> welcome.
 
-Shouldn't we check if name is NULL here like in relayfs_create_dir? Perhaps
-the check should be moved to relayfs_create_entry(). 
+Now I begin to understand Chris Wright - LSM are designed not for
+monitoring,=20
+but only for initialisation path - i.e. LSM will say only if something
+is allowed or not,
+but not if it was performed.
 
-> diff -urpN -X dontdiff linux-2.6.10/include/linux/relayfs_fs.h linux-2.6.10-cur/include/linux/relayfs_fs.h
-> --- linux-2.6.10/include/linux/relayfs_fs.h	1969-12-31 18:00:00.000000000 -0600
-> +++ linux-2.6.10-cur/include/linux/relayfs_fs.h	2005-02-14 01:32:16.000000000 -0600
-> @@ -0,0 +1,269 @@
-> +
-> +/*
-> + * Relay attribute flags
-> + */
-> +#define RELAY_MODE_CONTINUOUS		0x1
-> +#define RELAY_MODE_NO_OVERWRITE		0x2
+So, for exactly your setup there is no any other way then to patch
+do_fork().
 
-These are mutually exclusive so they're really a boolean that states
-whether overwrite is allowed or not. Therefore please either make struct
-rchan flags a boolean (it is only used for this) or turn the above to a 
-single bit flag (cleared for not allowed, set for allowed) and then drop 
-check_attribute_flags(). 
+> Thank you Evgeniy for all your comments about the code, it helps and I
+> will modify the patch.
+>=20
+> Regards,
+> Guillaume
+--=20
+        Evgeniy Polyakov
 
-                      Pekka 
+Crash is better than data corruption -- Arthur Grabowski
+
+--=-TppS0kdnAgGMWIHUXMRx
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCGZ68IKTPhE+8wY0RAv6wAJ0TD2JkWttRqnstMOfLJZIliyiV4ACfQOGw
+pbXm1W2VY2TkIwmNDB/mzSI=
+=tIYa
+-----END PGP SIGNATURE-----
+
+--=-TppS0kdnAgGMWIHUXMRx--
+

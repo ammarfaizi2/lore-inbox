@@ -1,69 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273622AbRI0QCG>; Thu, 27 Sep 2001 12:02:06 -0400
+	id <S273440AbRI0P7q>; Thu, 27 Sep 2001 11:59:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273623AbRI0QB4>; Thu, 27 Sep 2001 12:01:56 -0400
-Received: from hermes.toad.net ([162.33.130.251]:22762 "EHLO hermes.toad.net")
-	by vger.kernel.org with ESMTP id <S273624AbRI0QBj>;
-	Thu, 27 Sep 2001 12:01:39 -0400
-Message-ID: <3BB34D5C.15C76E1A@yahoo.co.uk>
-Date: Thu, 27 Sep 2001 12:01:32 -0400
-From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac15 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: OOM killer
+	id <S273622AbRI0P70>; Thu, 27 Sep 2001 11:59:26 -0400
+Received: from [141.158.127.119] ([141.158.127.119]:27123 "HELO jmcmullan")
+	by vger.kernel.org with SMTP id <S273440AbRI0P7P>;
+	Thu, 27 Sep 2001 11:59:15 -0400
+Date: Thu, 27 Sep 2001 11:57:10 -0400
+From: Jason McMullan <jmcmullan@linuxcare.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jason McMullan <jmcmullan@linuxcare.com>, linux-kernel@vger.kernel.org
+Subject: Re: Why is Device3Dfx driver (voodoo1/2) not in the kernel?
+Message-ID: <20010927115710.A23248@jmcmullan.evillabs.net>
+In-Reply-To: <9ou9u4$ee6$1@localhost.localdomain> <E15mZqU-0003kx-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <E15mZqU-0003kx-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Sep 27, 2001 at 01:00:50PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After meeting the OOM killer for the first time (not a pleasant meeting)
-I went looking for info about it and read through some of the threads
-that took place on l-k a few months ago.  I'm sure I didn't read
-everything, and I am far from being an expert in this area, but are my
-two cents anyway.
+On Thu, Sep 27, 2001 at 01:00:50PM +0100, Alan Cox wrote:
+> There are actually distinct similarities between some DRI drivers and what
+> Linus suggested the KGI people needed to be doing. Certain hardware isnt 
+> totally user safe (not on the extremes of the voodoo1 here) and the drivers
+> do small amounts of work to stop abuse. All mode changes, rendering
+> primitives and the like are however in userspace.
 
-It is all very well to have a "smart" function that tries to
-minimize the damage done when the OS has to start killing
-processes in order to recover memory.  However:
+	Rendering - definitely agree. Userspace.
 
-1) It's better if this situation doesn't arise in the first place, and,
-2) once it does arise, it's better to let the administrator decide 
-   what to kill.  Sometimes the administrator will get fired for killing
-   the database and sometimes he'll get fired for killing Netscape---
-   there is no way for the authors of Linux to know in advance.
+	Mode changing - Now there I can get into an argument. I
+still (after all these years) feel that the Kernel is the best
+place to put video mode control. That way 'killall -9 X' isn't
+nearly as nasty... The kernel could at least get you back to
+a text console.
 
-Some OSes don't allow memory overcommit at all.  On these OSes, a process
-will simply fail if it tries to allocate memory that's not available.
-That Linux allows processes to go ahead under such circumstances can,
-I suppose, be called a 'feature'.  But the result of that feature is
-that OOM can occur and then a kill decision has to be made.  How this
-decision is made ought to be under the administrator's control.
+	And now that XFree86 4 has a vm86 system to 'run the
+Video BIOS' for certain cards, it shouldn't be to hard to 
+emulate the old OS/2 system - in a vm86 session, use the BIOS
+to switch to all the supported modes, and record (via vm86
+io traps) everything the BIOS does. Then, in the driver,
+just 'play back' the scripts... Worked beatifully for OS/2
+back in the day for 2D framebuffers...
 
-How about assigning each process a property similar to its niceness
-which would be used to decide which process to kill in the event of
-OOM?  Let's call this property 'humility'.  By default, processes 
-would run with humility zero.  A process run with negative humility
-would never be allowed to proceed unless there was enough VM to back
-up its memory request.  A process with non-negative humility would
-be allowed to proceed under such circumstances, but it would be
-taking the chance that it would be killed later.
+	Anyway, I'll just let sleeping dogs lie and leave it
+at that.
 
-So the system starts to run out of memory.  If all processes have the
-same humility then the OOM-killer adjudicator is left to decide among
-them just as it does now.  Those with negative humility will never be
-killed, and they will never have to be killed because all the memory
-they allocated really exists.  Among remaining process, the humblest
-get killed first; among those equally humble, the baddest get killed.
+> I firmly believe you can do X11 with 3D in windows, including partial 
+> occlusion of 3d windows on a 3dfx voodoo1 or voodoo2 card. 
 
-So someday in the future I fire up my webserver and start Apache with
-negative humility since it's a mission-critical app.  My boss logs in
-and starts writing e-mail (humility 0 process).  There's memory 
-pressure, so I take the precaution of starting Netscape with
-    $ humble communicator
-to make sure that communicator gets the axe if we run oom.
+	As do I, but I lack three things: The time, The Specs, and
+The Hardware. :(
 
-Your humble servant,
-Thomas Hood
+-- 
+Jason McMullan, Senior Linux Consultant
+Linuxcare, Inc. 412.432.6457 tel, 412.656.3519 cell
+jmcmullan@linuxcare.com, http://www.linuxcare.com/
+Linuxcare. Putting open source to work.

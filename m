@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbVBPOwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262034AbVBPOyb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262031AbVBPOwt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 09:52:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbVBPOws
+	id S262034AbVBPOyb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 09:54:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbVBPOyb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 09:52:48 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:1936 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S262031AbVBPOwm (ORCPT
+	Wed, 16 Feb 2005 09:54:31 -0500
+Received: from mail.gmx.de ([213.165.64.20]:42968 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262034AbVBPOwz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 09:52:42 -0500
-Date: Wed, 16 Feb 2005 09:52:20 -0500
-From: Benjamin LaHaise <bcrl@bcrl.kvack.org>
-To: "Richard F. Rebel" <rrebel@whenu.com>
-Cc: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org
-Subject: Re: /proc/*/statm, exactly what does "shared" mean?
-Message-ID: <20050216145220.GA10400@kvack.org>
-References: <1108161173.32711.41.camel@rebel.corp.whenu.com> <Pine.LNX.4.61.0502121158190.18829@goblin.wat.veritas.com> <1108219160.12693.184.camel@blue.obulous.org>
-Mime-Version: 1.0
+	Wed, 16 Feb 2005 09:52:55 -0500
+X-Authenticated: #26200865
+Message-ID: <42135EAE.8030407@gmx.net>
+Date: Wed, 16 Feb 2005 15:54:38 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.2) Gecko/20040906
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: romano@dea.icai.upco.es
+CC: Norbert Preining <preining@logic.at>, Pavel Machek <pavel@suse.cz>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
+Subject: Re: [ACPI] Call for help: list of machines with working S3
+References: <20050214211105.GA12808@elf.ucw.cz> <20050215125555.GD16394@gamma.logic.tuwien.ac.at> <42121EC5.8000004@gmx.net> <20050215170837.GA6336@gamma.logic.tuwien.ac.at> <20050216093454.GC22816@pern.dea.icai.upco.es>
+In-Reply-To: <20050216093454.GC22816@pern.dea.icai.upco.es>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1108219160.12693.184.camel@blue.obulous.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 12, 2005 at 09:39:20AM -0500, Richard F. Rebel wrote:
-> That said, many mod_perl users are *VERY* interested in being able to
-> detect and observe how "shared" our forked children are.  Shared meaning
-> private pages shared with children (copy on write).  Is it even possible
-> to do this in 2.6 kernels?  If so, any pointers would be very helpful.
+Romano Giannetti schrieb:
+> On Tue, Feb 15, 2005 at 06:08:37PM +0100, Norbert Preining wrote:
+> 
+>>On Die, 15 Feb 2005, Carl-Daniel Hailfinger wrote:
+>>
+>>>To suspend and resume properly, call the following script as root:
+>>
+>>Success. 
+> 
+> I tried with my Sony Vaio FX701. No luck. It goes S3 ok, but it will never
+> come back (blank screen, HDD led fixed on). 
+> 
+> I am wishing to help, imply tell me what I have to do.
 
-One thing Hugh didn't mention is the background as to why the shared 
-statistic was changed: it comes back to the fact that it was a very 
-expensive statistic to calculate.  People running top on systems with 
-lots of virtual memory in use (ie lots of processes, applications with 
-shared memory segments) were seeing ridiculous cpu usage (100% for seconds 
-at a time) by top.  As a result, the statistics available from the statm 
-file were changed to counters making the read of statm an O(1) operation.  
-This dropped top's cpu usage on a busy system to a much more reasonable 
-<1%, making it possible to get an idea what a busy system is actually 
-busy with.
+Please tell us about your graphics chipset, your .config, your
+dmesg and the modules loaded. Then we my be able to help.
 
-		-ben
+
+Regards,
+Carl-Daniel
+
+P.S. If anyone of you is running SUSE 9.2, try their latest
+kernels from ftp.suse.com/pub/projects/kernel/kotd/i386/HEAD/
+Additionally, you may have to upgrade mkinitrd and udev with
+packages from ftp.suse.com/pub/projects and
+ftp.suse.com/pub/people (try searching around a bit and you'll
+surely find them).
+I'm running a kernel from there right now and can still use
+S3 without problems on my Samsung P35.
+-- 
+http://www.hailfinger.org/

@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbRBGC5X>; Tue, 6 Feb 2001 21:57:23 -0500
+	id <S129237AbRBGC4d>; Tue, 6 Feb 2001 21:56:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129771AbRBGC5N>; Tue, 6 Feb 2001 21:57:13 -0500
-Received: from hibernia.clubi.ie ([212.17.32.129]:44948 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP
-	id <S129406AbRBGC5C>; Tue, 6 Feb 2001 21:57:02 -0500
-Date: Wed, 7 Feb 2001 03:00:11 +0000 (GMT)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: <paul@fogarty.jakma.org>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [reiserfs-list] NFS and reiserfs
-In-Reply-To: <14976.46953.953266.499309@notabene.cse.unsw.edu.au>
-Message-ID: <Pine.LNX.4.31.0102070257130.13284-100000@fogarty.jakma.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129406AbRBGC4Y>; Tue, 6 Feb 2001 21:56:24 -0500
+Received: from [209.150.104.78] ([209.150.104.78]:57609 "EHLO jeffcovey.net")
+	by vger.kernel.org with ESMTP id <S129237AbRBGC4N>;
+	Tue, 6 Feb 2001 21:56:13 -0500
+Date: Tue, 6 Feb 2001 21:56:10 -0500
+From: jeff covey <jeff.covey@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: freshmeat editorial on journaling filesystems
+Message-ID: <20010206215610.T22705@jeffcovey.net>
+Reply-To: jeff covey <jeff.covey@pobox.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BOmey7/79ja+7F5w"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Feb 2001, Neil Brown wrote:
 
->   http://www.cse.unsw.edu.au/~neilb/patches/linux/2.4.2-pre1/patch-D-nfsirix
-> not yet submitted to Linus.
->
+--BOmey7/79ja+7F5w
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-ahh. didn't know. I have the first patch you sent me for the weird
-IRIX device file permissions checking - but i didn't notice this
-second pipe patch.
+We'd like to run an editorial this coming Saturday about the
+journaling filesystems available for Linux.  We'd like an author who
+isn't a developer on any of them so he/she can give an object analysis
+of the pros and cons of each and share thoughts on his/her opinions
+about which should be eventually be supported by the kernel.
 
-will give it whirl. thanks neil.
+If you would like to do this or have a recommendation of someone who
+would be good for it, please let me know privately.
 
-> NeilBrown
->
->
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org
-PGP5 key: http://www.clubi.ie/jakma/publickey.txt
--------------------------------------------
-Fortune:
-Overflow on /dev/null, please empty the bit bucket.
+Thanks,
+Jeff
 
-(how does my random fortunesig picker always seem to /know/ how to
-pick an appropriate one? :) )
+--BOmey7/79ja+7F5w
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6gLlKm5C2y50nCqURArj8AJ49TFatTkrPZvBg1a11GeghRpnfwQCfRo0K
+t60QM0ZJQaOyDKQIuFE3xr4=
+=HhhQ
+-----END PGP SIGNATURE-----
+
+--BOmey7/79ja+7F5w--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

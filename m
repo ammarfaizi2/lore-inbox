@@ -1,46 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265747AbUF2Mja@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265750AbUF2Mvu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265747AbUF2Mja (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 08:39:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265749AbUF2Mja
+	id S265750AbUF2Mvu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 08:51:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265755AbUF2Mvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 08:39:30 -0400
-Received: from everest.2mbit.com ([24.123.221.2]:21698 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S265747AbUF2Mj2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 08:39:28 -0400
-Message-ID: <40E162EF.7010607@greatcn.org>
-Date: Tue, 29 Jun 2004 20:39:11 +0800
-From: Coywolf Qi Hunt <coywolf@greatcn.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (Windows/20040626)
-X-Accept-Language: en-us, en
+	Tue, 29 Jun 2004 08:51:50 -0400
+Received: from mailgate.pit.comms.marconi.com ([169.144.68.6]:23193 "EHLO
+	mailgate.pit.comms.marconi.com") by vger.kernel.org with ESMTP
+	id S265750AbUF2Mvq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 08:51:46 -0400
+Message-ID: <313680C9A886D511A06000204840E1CF08F42FA3@whq-msgusr-02.pit.comms.marconi.com>
+From: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: "'andrebalsa@altern.org'" <andrebalsa@altern.org>,
+       "'Richard E. Gooch'" <rgooch@atnf.csiro.au>,
+       "'Ingo Molnar'" <mingo@elte.hu>, "'rml@tech9.net'" <rml@tech9.net>,
+       "'akpm@osdl.org'" <akpm@osdl.org>
+Subject: Linux scheduler (scheduling)  questions
+Date: Tue, 29 Jun 2004 08:51:07 -0400
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-X-Scan-Signature: dd674cfe4428f1d4135c3024d31be03a
-X-SA-Exim-Connect-IP: 218.24.187.61
-X-SA-Exim-Mail-From: coywolf@greatcn.org
-Subject: How about share all PFN_* ?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
-	*      [score: 0.0000]
-	*  3.0 RCVD_IN_AHBL_CNKR RBL: AHBL: sender is listed in the AHBL China/Korea blocks
-	*      [218.24.187.61 listed in cnkrbl.ahbl.org]
-X-SA-Exim-Version: 4.0 (built Wed, 05 May 2004 12:02:20 -0500)
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Hello Everyone,
 
-There's too many macros definitions PFN_UP PFN_DOWN PFN_PHYS PFN_ALIGN 
-scattered all over.
-How about a patch move them all into one header file(kernel.h or init.h)
-and share only one copy of them like what min and max. I'd like to make it.
+I  have "general"  Linux  OS scheduling  questions, especially with regards
+as those apply to the (latest) Linux  2.6  scheduler features (would really
+appreciate if whether/when/while answering those questions listed  below,
+you could pinpoint differences between Linux 2.6 and Linux 2.4 !): 
 
+0.  I was told that the Linux kernel could be configured with one of the 3
+(? ) different scheduling policies - could someone describe       
+     those to me in details ?
 
-       coywolf
+1.   How rescheduling is "induced" in above scheduling policies ?
+      Does at least one of above mentioned scheduling policies uses "clock
+tick" as a scheduling event ?
+     Also, releasing mutex lock (semaphore) in Linux application/user-space
+task - is it considered (by the sched) as a
+     "rescheduling event" ? - (in addition to "clock tick" event) - this is
+true for PSOS / VxWorks RTOSes.
+     
+2.  Linux 2.6 (I was told it is the same for Linux 2.4.21-15) has priorities
+0-99 for RT priorities and 100-139 for normal   (SCHED_NORMAL)   tasks.
 
--- 
-Coywolf Qi Hunt
-Admin of http://GreatCN.org and http://LoveCN.org
+> I presume that priorities 0-99 are "recommended" (or enforced ?) for
+> Linux kernel "native" tasks ... and "out or reach" for application
+> tasks (unless one dares to merge application into the Linux kernel,
+> masquerading it as a "system level command" - did anyone tried this ? -
+> I presume it is not recommended ...  )  ?
+> 
+Under what priority the OS system calls are executed ?
 
+3.  Is  priority inversion and its prevention (priority inheritance or
+priority ceilings) applicable to Linux ) for application/user-space tasks (
+with priorities in the range 100-139) ?
+> Similar question for the situation when the "application" process
+> executes "OS system call" in the kernel address space ?
+> Similar question for the RT tasks (which I presume are Linux kernel
+> "native" tasks, always executing in the kernel address space ? ) ?
+> 
+4. What about scheduling threads ? - as I have understood (from the FAQ on
+http://www.tux.org/lkml/ ), threads in Linux are implemented in the kernel
+space - is this information up to date, i.e. - is it applicable to Linux 2.6
+? and what it actually means 
+(does it mean that threads are always running in the kernel space ? - that
+sounds a bit strange ...).
+With what  priorities threads are running ? - do those priorities depend on
+the priority of the application/user space process from which the  clone
+system call was made  ?). 
+5. Deviating from the scheduling line of questions (but staying with threads
+issues): is there an option in clone(2)  to make threads 
+   not to run in the same  address space but rather act as independent
+process(es).
+
+> Thanks,
+> Best Regards,
+> Alex Povolotsky
+-----Original Message-----
+From: Ingo Molnar [mailto:mingo@elte.hu]
+Sent: Monday, June 28, 2004 10:40 AM
+To: Povolotsky, Alexander
+Subject: Re: Any differences (between 2.4 and 2.6) in Linux kernel
+scheduling
+
+Alexander,
+
+you might want to post your questions to linux-kernel@vger.kernel.org
+(or some other, RT related mailing list). The scheduler is described in
+a rudimentary way in Documentation/sched-design.txt, sched-coding.txt,
+with no focus on RT though.
+
+	Ingo
+
+>  
+> 
+> 

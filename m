@@ -1,33 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129392AbQLGLXu>; Thu, 7 Dec 2000 06:23:50 -0500
+	id <S129183AbQLGMNs>; Thu, 7 Dec 2000 07:13:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129908AbQLGLXl>; Thu, 7 Dec 2000 06:23:41 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:34771 "EHLO penguin.homenet")
-	by vger.kernel.org with ESMTP id <S129392AbQLGLXW>;
-	Thu, 7 Dec 2000 06:23:22 -0500
-Date: Thu, 7 Dec 2000 10:53:33 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: [patch-2.4.0-test12-pre6] truncate(2) permissions
-In-Reply-To: <Pine.LNX.4.21.0012071007420.970-100000@penguin.homenet>
-Message-ID: <Pine.LNX.4.21.0012071052250.970-100000@penguin.homenet>
+	id <S129707AbQLGMNi>; Thu, 7 Dec 2000 07:13:38 -0500
+Received: from mailgate.ics.forth.gr ([139.91.1.2]:32973 "EHLO
+	ext1.ics.forth.gr") by vger.kernel.org with ESMTP
+	id <S129183AbQLGMNZ>; Thu, 7 Dec 2000 07:13:25 -0500
+Posted-Date: Thu, 7 Dec 2000 13:41:41 +0200 (EET)
+Organization: 
+Date: Thu, 7 Dec 2000 13:42:13 +0200 (EET)
+From: Kotsovinos Vangelis <kotsovin@ics.forth.gr>
+To: linux-kernel@vger.kernel.org
+cc: Kotsovinos Vangelis <kotsovin@ics.forth.gr>
+Subject: Microsecond accuracy
+Message-ID: <Pine.GSO.4.10.10012071337530.7874-100000@athena.ics.forth.gr>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Dec 2000, Tigran Aivazian wrote:
-> a) we don't hit that test because permission takes care of it (for
-> regulars/dirs/symlinks but here only regulars are important)
 
-omit what is in brackets but everything in email and the patch itself are
-valid and tested. The detail in bracket above was unimportant since the
-main text provided enough proof.
+Is there any way to measure (with microsecond accuracy) the time of a
+program execution (without using Machine Specific Registers) ?
+I've already tried getrusage(), times() and clock() but they all have
+10 millisecond accuracy, even though they claim to have microsecond
+acuracy.
+The only thing that seems to work is to use one of the tools that measure
+performanc through accessing the machine specific registers. They give you
+the ability to measure the clock cycles used, but their accuracy is also
+very low from what I have seen up to now.
 
-Regards,
-Tigran
+Thank you very much in advance
+
+--) Vangelis
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,83 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263667AbTIHUMz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 16:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbTIHUMz
+	id S263549AbTIHUX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 16:23:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263581AbTIHUX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 16:12:55 -0400
-Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:11772 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id S263667AbTIHUMv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 16:12:51 -0400
-Date: Mon, 8 Sep 2003 14:11:34 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Oleg Drokin <green@namesys.com>
-Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Hans Reiser <reiser@namesys.com>,
-       linux-kernel@vger.kernel.org, Nikita Danilov <god@namesys.com>
-Subject: Re: First impressions of reiserfs4
-Message-ID: <20030908141133.M18482@schatzie.adilger.int>
-Mail-Followup-To: Oleg Drokin <green@namesys.com>,
-	Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-	Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
-	Nikita Danilov <god@namesys.com>
-References: <slrnbl12sv.i4g.erik@bender.home.hensema.net> <3F50D986.6080707@namesys.com> <20030831191419.A23940@bitwizard.nl> <20030908081206.GA17718@namesys.com>
-Mime-Version: 1.0
+	Mon, 8 Sep 2003 16:23:27 -0400
+Received: from srahubgw.sra.com ([163.252.31.6]:61195 "EHLO srahubgw.sra.com")
+	by vger.kernel.org with ESMTP id S263549AbTIHUXZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 16:23:25 -0400
+Message-ID: <16220.58678.399619.878405@irving.iisd.sra.com>
+From: David Garfield <garfield@irving.iisd.sra.com>
+To: linux-kernel@vger.kernel.org
+Cc: andersen@codepoet.org, Matthew Wilcox <willy@debian.org>
+Date: Mon, 8 Sep 2003 16:23:18 -0400
+Subject: Re: kernel header separation
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030908081206.GA17718@namesys.com>; from green@namesys.com on Mon, Sep 08, 2003 at 12:12:06PM +0400
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
+X-Mailer: VM 6.96 under Emacs 20.7.1
+References: <20030902191614.GR13467@parcelfarce.linux.theplanet.co.uk>
+	<20030903014908.GB1601@codepoet.org>
+	<20030905144154.GL18654@parcelfarce.linux.theplanet.co.uk>
+	<20030905211604.GB16993@codepoet.org>
+In-Reply-To: <20030905211604.GB16993@codepoet.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 08, 2003  12:12 +0400, Oleg Drokin wrote:
-> Hello!
-> On Sun, Aug 31, 2003 at 07:14:19PM +0200, Rogier Wolff wrote:
-> 
-> > Would it be possible to do something like: "pretend that there
-> > are always 100 million inodes free", and then report sensible
-> > numbers to "df -i"? 
-> 
-> This won't work. No sensible numbers would be there.
-> 
-> > There  is no installation program that will fail with: "Sorry, 
-> > you only have 100 million inodes free, this program will need
-> > 132 million after installation", and it allows me a quick way 
-> > of counting the number of actual files on the disk.... 
-> 
-> You cannot. statfs(2) only exports "Total number of inodes on disk" and
-> "number of free inodes on disk" values for fs. df substracts one from
-> another one to get "number of inodes in use".
-> Actually we export necessary numbers through sysfs for now. And we have
-> patch in our tree that just sets statfs(2) inode stuff to zero. You should
-> see it after next snapshot is released.
+Erik Andersen writes:
+ > On Fri Sep 05, 2003 at 03:41:54PM +0100, Matthew Wilcox wrote:
+ > > On Tue, Sep 02, 2003 at 07:49:09PM -0600, Erik Andersen wrote:
+ > > > Header files intended for use by users should probably drop
+ > > > linux/types.h just include <stdint.h>,,,  Then convert the 
+ > > > types over to ISO C99 types.
+ > > 
+ > > stdint.h is a userspace header.  I suppose we could clone it for the
+ > > kernel, but I don't see any need to.
+ > > 
+ > > > s/__u8/uint8_t/g
+ > > > s/__u16/uint16_t/g
+ > > > s/__u32/uint32_t/g
+ > > > s/__u64/uint64_t/g
+ > > 
+ > > i think all these _t types are ugly ;-(
+ > 
+ > They may be ugly, but they are standardized and have very 
+ > precise meanings defined by ISO C99, which is a very good
+ > thing for code interoperability...
+ > 
+ >  -Erik
 
-In a way, it would have been nice if "sys_statfs64()" had implemented the
-values as "files in use" and "files total" instead of the older (and less
-useful "files free").
+On the other hand, the ISO C99 definition is probably something like:
+an integral type capable of storing the values 0 through 255
+inclusive.  (ok, I don't have a copy of the new standard but I have
+seriously examined the old one.)  I would not count on uint8_t
+necessarily being unsigned on unusual hardware.  Linux on the other
+hand probably means __u8 as an exactly eight bit unsigned integer
+value.  While these may LOOK like identical statements, Linux is
+[probably] making a significantly stronger statement.
 
-However, that doesn't mean you can't return something useful to statfs().
-Since the linux VFS limits us to 2^32 - 1 inodes for now, you could still
-return 2^32 - 1 - num_in_use for "f_ffree" and 2^32 -1 for f_files, so that
-"df -i" shows a useful number for IUsed.
+I would say - keep the Linux types, and then document exactly what
+Linux means by them somewhere.  In particular, if Linux were ported to
+a 9/18/36 bit platform, what would the semantics of __u8 be?  (Ok,
+maybe the documentation should say such a port is not considered to be
+viable at this time.)
 
-
-Sadly, the sys_statfs64() API is broken such that the filesystem can't make
-a distinction between being called from sys_statfs64() and sys_statfs(),
-so you have to assume the 32-bit limits even for the 64-bit API.  We should
-really have a new FS method which is "statfs64()" that is optionally called
-from sys_statfs64() so the FS has a chance to return something different for
-64-bit callers.
-
-For Lustre, we can't be guaranteed to fit into the 32-bit f_blocks counts
-with 100TB filesystems, so we scale the f_bsize until the f_blocks fits into
-32 bits.  However, we would like to be able to return the correct values to
-sys_statfs64() if possible.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+--David Garfield
 

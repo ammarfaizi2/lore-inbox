@@ -1,48 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262320AbTENOCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 10:02:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTENOCC
+	id S262257AbTENN6I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 09:58:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbTENN5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 10:02:02 -0400
-Received: from uucp.cistron.nl ([62.216.30.38]:47885 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S262320AbTENOB0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 10:01:26 -0400
-From: dth@ncc1701.cistron.net (Danny ter Haar)
-Subject: Re: hdb: dma_timer_expiry: dma status == 0x64 [2.5.69]
-Date: Wed, 14 May 2003 14:14:13 +0000 (UTC)
-Organization: Cistron
-Message-ID: <b9tivl$2em$1@news.cistron.nl>
-References: <Pine.LNX.4.51.0305132143570.19932@dns.toxicfilms.tv> <20030514134704.GA1062@babylon.d2dc.net>
-X-Trace: ncc1701.cistron.net 1052921653 2518 62.216.30.38 (14 May 2003 14:14:13 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: dth@ncc1701.cistron.net (Danny ter Haar)
-To: linux-kernel@vger.kernel.org
+	Wed, 14 May 2003 09:57:54 -0400
+Received: from adsl-65-64-153-5.dsl.stlsmo.swbell.net ([65.64.153.5]:10463
+	"EHLO base.torri.linux") by vger.kernel.org with ESMTP
+	id S262306AbTENN4q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 09:56:46 -0400
+Subject: Re: Compile error including asm/uaccess.h
+From: Stephen Torri <storri@sbcglobal.net>
+To: ismail donmez <kde@smtp-send.myrealbox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1052919428.273b9220kde@smtp-send.myrealbox.com>
+References: <1052919428.273b9220kde@smtp-send.myrealbox.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-3QQmVncLC/AqXEc5aqEs"
+Organization: 
+Message-Id: <1052921988.25317.3.camel@base>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4- 
+Date: 14 May 2003 09:19:49 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zephaniah E. Hull <warp@babylon.d2dc.net> wrote:
->Happens only with heavy disk IO, running 2.5.69-mm3, happened with a few
->earlier kernels and sadly I don't remember which kernel it started on.
 
-I had similar problems on a uni-processor machine.
+--=-3QQmVncLC/AqXEc5aqEs
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Try this:
+> Dont include kernel headers in userspace OR define the needed variables t=
+o  make your userspace application compile.
+>=20
+> Nice report btw=20
+>=20
+> /ismail
 
-Disable IO-APIC in the kernel
+How then do you wrote an application to utilize kernel features? I am
+working on a real-time operating system (KURT - www.ittc.ku.edu/kurt)
+and need to include a header that exists in the kernel. The header is
+installed in the /usr/src/linux/include/linux/ but not in
+/usr/include/linux.
 
-EG:
- Processor type and features ->
-[*] Local APIC support on uniprocessors
-[ ] IO-APIC support on uniprocessors
+Thanks about the report. I got the idea from a library I help work on
+called ACE+TAO (www.cs.wustl.edu/~schmidt/ACE.html).
 
-This way i don't experience these errors anymore.
-I can only guess what causes these errors.
+Stephen
+--=20
+Stephen Torri <storri@sbcglobal.net>
 
-Danny
--- 
-Miguel   | "I can't tell if I have worked all my life or if
-de Icaza |  I have never worked a single day of my life,"
+--=-3QQmVncLC/AqXEc5aqEs
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+wlCEmXRzpT81NcgRAtWBAKC15Asqi5IRHZtsmvZZ229KiB26kACeJuIR
+ySmOz7YzdAzfGa5iiIpNaG0=
+=FZZb
+-----END PGP SIGNATURE-----
+
+--=-3QQmVncLC/AqXEc5aqEs--
 

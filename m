@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261664AbSKTVkz>; Wed, 20 Nov 2002 16:40:55 -0500
+	id <S262712AbSKTVnf>; Wed, 20 Nov 2002 16:43:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262712AbSKTVkz>; Wed, 20 Nov 2002 16:40:55 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:14980 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261664AbSKTVky>; Wed, 20 Nov 2002 16:40:54 -0500
-Subject: Re: Semaphore and Shared memory questions...
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Richard Whittaker <rwhittak@gnat.nwtel.ca>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <5.1.1.6.0.20021120133929.02485ae8@gnat.nwtel.ca>
-References: <5.1.1.6.0.20021120131444.02482858@gnat.nwtel.ca>
-	<5.1.1.6.0.20021120131444.02482858@gnat.nwtel.ca> 
-	<5.1.1.6.0.20021120133929.02485ae8@gnat.nwtel.ca>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 20 Nov 2002 22:16:34 +0000
-Message-Id: <1037830594.3267.94.camel@irongate.swansea.linux.org.uk>
+	id <S262779AbSKTVnf>; Wed, 20 Nov 2002 16:43:35 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:57590 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S262712AbSKTVne>; Wed, 20 Nov 2002 16:43:34 -0500
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <EDC461A30AC4D511ADE10002A5072CAD04C7A52A@orsmsx119.jf.intel.com> 
+References: <EDC461A30AC4D511ADE10002A5072CAD04C7A52A@orsmsx119.jf.intel.com> 
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: "'Ducrot Bruno'" <poup@poupinou.org>, Felix Seeger <seeger@sitewaerts.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20 ACPI 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 20 Nov 2002 21:47:22 +0000
+Message-ID: <25526.1037828842@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-20 at 21:42, Richard Whittaker wrote:
-> At 10:04 PM 11/20/2002 +0000, Alan Cox wrote:
-> 
-> >The sysctl interface and sysctl setting tools on boot exist precisely so
-> >you dont have to hack these things around
-> 
-> Allright... This is fine by me... One of my questions was (and still is), 
-> what do I pass to sysctl for setting /proc/sys/kernel/sem?...
-> 
-> Setting shmmax was easy, since it's only a single hex value, but sem is 
-> puzzling me... Is a space separated list of values going to work?...
 
-Right first guess. Its mostly historical that it isnt 4 values.
+andrew.grover@intel.com said:
+>  It would be great if someone could take a look at the sonypi driver
+> and see what can be done to integrate it better with ACPI. ACPI
+> includes an EC driver, so at the minimum, sonypi should use that
+> instead of poking the EC itself, perhaps. 
+
+Surely a proper driver should always be preferred over binary-only bytecode?
+
+The sonypi driver looks like it properly requests the regions it uses; they
+should be marked busy. Why is the ACPI code touching them?
+
+--
+dwmw2
+
 

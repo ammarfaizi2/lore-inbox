@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262462AbUCJHhW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 02:37:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262396AbUCJHhW
+	id S261959AbUCJHum (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 02:50:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbUCJHum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 02:37:22 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:54792 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262462AbUCJHhS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 02:37:18 -0500
+	Wed, 10 Mar 2004 02:50:42 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:25302 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S261959AbUCJHul (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 02:50:41 -0500
+Date: Wed, 10 Mar 2004 08:50:39 +0100
+From: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Redirection of STDERR
+Message-Id: <20040310085039.6c234fbc.Christoph.Pleger@uni-dortmund.de>
+In-Reply-To: <jehdwylz0x.fsf@sykes.suse.de>
+References: <20040308111349.030feea6.Christoph.Pleger@uni-dortmund.de>
+	<404DEAFD.8090802@bcgreen.com>
+	<jehdwylz0x.fsf@sykes.suse.de>
+Organization: Universitaet Dortmund
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; sparc-sun-solaris2.6)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Stefan Smietanowski <stesmi@stesmi.com>,
-       "Smart, James" <James.Smart@Emulex.com>
-Subject: Re: [Announce] Emulex LightPulse Device Driver
-Date: Wed, 10 Mar 2004 09:21:46 +0200
-X-Mailer: KMail [version 1.4]
-Cc: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-References: <3356669BBE90C448AD4645C843E2BF2802C014D7@xbl.ma.emulex.com> <404E5CC3.9010305@stesmi.com>
-In-Reply-To: <404E5CC3.9010305@stesmi.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200403100921.46432.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 March 2004 02:09, Stefan Smietanowski wrote:
-> Smart, James wrote:
-> > All,
-> >
-> > Emulex is embarking on an effort to open source the driver for its
-> > LightPulse Fibre Channel Adapter family. This effort will migrate
-> > Emulex's current code base to a driver centric to the Linux 2.6 kernel,
-> > with the goal to eventually gain inclusion in the base Linux kernel.
-> >
-> > A new project has been created on SourceForge to host this effort - see
-> > http://sourceforge.net/projects/lpfcxxxx/ . Further information, such as
-> > the lastest FAQ, can be found on the project site.
-> >
-> > We realize that this will be a significant effort for Emulex. We welcome
-> > any feedback that the community can provide us.
->
-> I wish to just tell you that I think you're doing the Right Thing(TM).
->
-> There are people that don't buy hardware for which the source isn't
-> either available or included in the standard kernel, even if there
-> are more patches or newer driver versions external to the main tree.
+Hello,
 
-Being bitten by "buggy firmware from hell", I, too, will abstain from
-using hardware from manufactures who do not open driver source
-for impossible-to-understand reasons.
---
-vda
+> >> In my initialization scripts for hotplug (written for bash) the
+> >> following command is used to redirect output which normally goes to
+> >> stderr to the system logger:
+> >> "exec 2> >(logger -t $0[$$])"
+> > I don't remember this syntax as legal.
+> 
+> That's the process substitution feature of bash, quite handy when you
+> want to get an fd connected to a pipe.
+
+I found out that the problem exists with bash 2.05b, but not with 2.05a.
+The reason is that with 2.05a the command uses the file descriptors
+under /dev/fd0 for the pipe, but with 2.05b the command creates a pipe
+under /tmp. Obviously, the 2.05b mechanism worked with Kernel 2.4, but
+not with 2.6.
+
+Christoph 

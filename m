@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129455AbQLYBfN>; Sun, 24 Dec 2000 20:35:13 -0500
+	id <S129523AbQLYBgX>; Sun, 24 Dec 2000 20:36:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129523AbQLYBfE>; Sun, 24 Dec 2000 20:35:04 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:17329 "EHLO
+	id <S129903AbQLYBgN>; Sun, 24 Dec 2000 20:36:13 -0500
+Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:32689 "EHLO
 	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S129455AbQLYBev>; Sun, 24 Dec 2000 20:34:51 -0500
-Message-ID: <3A469D11.B7DCFCD8@haque.net>
-Date: Sun, 24 Dec 2000 20:04:17 -0500
+	id <S129523AbQLYBgD>; Sun, 24 Dec 2000 20:36:03 -0500
+Message-ID: <3A469D5F.69655346@haque.net>
+Date: Sun, 24 Dec 2000 20:05:35 -0500
 From: "Mohammad A. Haque" <mhaque@haque.net>
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test13-pre4 i686)
 X-Accept-Language: en
@@ -21,8 +21,8 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Works fine under test13-pre4 here on a x86 and an ATAPI Creative 2x dvd
-drive using xine or dxr2 player.
+Actually... I just remembered that I have my kernel patched to bring it
+up-to-date with udf cvs.
 
 Dave Gilbert wrote:
 > 

@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262425AbSJ2SQm>; Tue, 29 Oct 2002 13:16:42 -0500
+	id <S262065AbSJ2SMx>; Tue, 29 Oct 2002 13:12:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262437AbSJ2SQm>; Tue, 29 Oct 2002 13:16:42 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24078 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262425AbSJ2SQg>;
-	Tue, 29 Oct 2002 13:16:36 -0500
-Message-ID: <3DBED1C8.5080404@pobox.com>
-Date: Tue, 29 Oct 2002 13:22:00 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S262152AbSJ2SMx>; Tue, 29 Oct 2002 13:12:53 -0500
+Received: from atlrel8.hp.com ([156.153.255.206]:30431 "HELO atlrel8.hp.com")
+	by vger.kernel.org with SMTP id <S262065AbSJ2SMl>;
+	Tue, 29 Oct 2002 13:12:41 -0500
+Message-ID: <3DBED111.96A3A1E8@hp.com>
+Date: Tue, 29 Oct 2002 11:18:57 -0700
+From: Khalid Aziz <khalid_aziz@hp.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Nikita Danilov <Nikita@Namesys.COM>
-CC: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
-       Reiserfs mail-list <Reiserfs-List@Namesys.COM>
-Subject: Re: [ANNOUNCE]: reiser4
-References: <15806.51536.985203.709475@laputa.namesys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Paul.Clements@steeleye.com
+Cc: Khalid Aziz <khalid@fc.hp.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5] Retrieve configuration information from kernel
+References: <Pine.LNX.4.10.10210291204590.28595-100000@clements.sc.steeleye.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov wrote:
+Paul Clements wrote:
+> 
+> Have you considered compressing the config info in order to reduce
+> the space wastage in the loaded kernel image? Could easily be 10's of KB
+> (not that that's a lot these days). The info would then be retrieved via
+> "gunzip -c", et al. instead of a simple "cat".
 
->Hello,
->
->Snapshot of reiser4 source code can be found at 
->http://www.namesys.com/snapshots/2002.10.29/.
->
->It is set of patches against current Linus BK tree (2.5.44).
->  
->
+I wanted to start with a simple implementation first. There are a couple
+of things that can be done in future to further improve meory usage: (1)
+Drop "CONFIG_" and "# CONFIG_" from each line and add it back when
+printing from /proc/ikconfig and extract-ikconfig script, (2) Compress
+the resulting configuration. Something to do in near future :)
 
-The current Linus BK tree is quite a bit different from 2.5.44 ;-)
+-- 
+Khalid
 
-Take a look at 2.5.44-bk1 at 
-ftp://ftp.kernel.org/pub/linux/kernel/v2.5/snapshots/
+====================================================================
+Khalid Aziz                                Linux and Open Source Lab
+(970)898-9214                                        Hewlett-Packard
+khalid@hp.com                                       Fort Collins, CO
 
-A -bk2 snapshot should appear within the hour, too, with heaps of 
-additional changes.
-
-    Jeff
-
-
-
-
+"The Linux kernel is subject to relentless development" 
+				- Alessandro Rubini

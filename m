@@ -1,81 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272495AbTHKKZ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 06:25:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272494AbTHKKZ7
+	id S272492AbTHKKWm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 06:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272493AbTHKKWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 06:25:59 -0400
-Received: from coruscant.franken.de ([193.174.159.226]:43668 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id S272495AbTHKKZ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 06:25:57 -0400
-Date: Mon, 11 Aug 2003 12:21:01 +0200
-From: Harald Welte <laforge@gnumonks.org>
-To: Christoph Hellwig <hch@infradead.org>, sal@agora.pl,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18/2.4.20 filemap.c pmd bug (was Re: Problem with mm in 2.4.19 and 2.4.20)
-Message-ID: <20030811102101.GG8953@sunbeam.de.gnumonks.org>
-References: <20030208121633.GB17017@virgin.gazeta.pl> <20030811073443.GA8953@sunbeam.de.gnumonks.org> <20030811104823.A15144@infradead.org>
+	Mon, 11 Aug 2003 06:22:42 -0400
+Received: from 204.Red-213-96-224.pooles.rima-tde.net ([213.96.224.204]:11024
+	"EHLO betawl.net") by vger.kernel.org with ESMTP id S272492AbTHKKWk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 06:22:40 -0400
+Date: Mon, 11 Aug 2003 12:22:36 +0200
+From: Santiago Garcia Mantinan <manty@manty.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0test3 problems on Acer TravelMate 260 (ALSA,ACPIvsSynaptics,yenta)
+Message-ID: <20030811102236.GA731@man.beta.es>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4BlIp4fARb6QCoOq"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030811104823.A15144@infradead.org>
-X-Operating-system: Linux sunbeam 2.6.0-test1-nftest
-X-Date: Today is Pungenday, the 4th day of Bureaucracy in the YOLD 3169
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---4BlIp4fARb6QCoOq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I've been evaluating kernel 2.6.0test3 on my Acer TravelMate 260 Laptop, it
+is a PIII Movile at 1GHz with intel chipset (i82801+i830M) 256 Megs of RAM.
 
-Hi Christian.  First of all, thanks for your quick reply.
+There are some weird old problems, like the yenta problem, the problem with
+the cardbus interface is that you have to insert the card twice so that it
+notices the card is in, everything else seems ok, on 2.4 there is the same
+problem, so I'm using the pcmcia-cs i82365 driver which is working
+perfectly. This is what the 2.6 yenta driver says on startup:
 
-On Mon, Aug 11, 2003 at 10:48:23AM +0100, Christoph Hellwig wrote:
-=20
-> Well, qlogic + lvm is vert prone of stack overflows. =20
+Yenta: CardBus bridge found at 0000:01:09.0 [1025:1024]
+Yenta IRQ list 02b8, PCI irq10
+Socket status: 30000007
 
-In my case, we use neither of them.
+This is what lspci tells about the cardbus interface:
 
-> You're using aic7xxx I assume? =20
+01:09.0 CardBus bridge: O2 Micro, Inc. OZ6912 Cardbus Controller
+        Subsystem: Acer Incorporated [ALI]: Unknown device 1024
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping+ SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 168
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at 10001000 (32-bit, non-prefetchable) [size=4K]
+        Bus: primary=01, secondary=02, subordinate=05, sec-latency=176
+        Memory window 0: 10400000-107ff000 (prefetchable)
+        Memory window 1: 10800000-10bff000
+        I/O window 0: 00001000-000010ff
+        I/O window 1: 00001400-000014ff
+        BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
+        16-bit legacy interface ports at 0001
+00: 17 12 72 69 87 00 10 04 00 00 07 06 00 a8 02 00
+10: 00 10 00 10 a0 00 00 02 01 02 05 b0 00 00 40 10
+20: 00 f0 7f 10 00 00 80 10 00 f0 bf 10 01 10 00 00
+30: fd 10 00 00 01 14 00 00 fd 14 00 00 0a 01 80 05
+40: 25 10 24 10 01 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-yes.  The device is reported as
+The ALSA problem is new, ALSA for 2.4 (0.9.4) is working perfectly, but the
+2.6.0 driver doesn't allow me to hear the beeper sound, the pcm sounds seem
+ok, but no matter what I do with the mixer, ALSA doesn't seem to drive the
+beeper sound to the speakers. The card driver is the snd_intel8x0 with its
+associated snd_ac97_codec, alsamixer says this about it:
+Card: Intel 82801CA-ICH3
+Chip: Cirrus Logic CS4299 rev 4
+And this is what lspci says:
 
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.8
-        <Adaptec aic7890/91 Ultra2 SCSI adapter>
-        aic7890/91: Ultra2 Wide Channel A, SCSI Id=3D7, 32/253 SCBs
+00:1f.5 Multimedia audio controller: Intel Corp. 82801CA/CAM AC'97 Audio
+(rev 02)
+        Subsystem: Acer Incorporated [ALI]: Unknown device 1024
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin B routed to IRQ 10
+        Region 0: I/O ports at a000 [size=256]
+        Region 1: I/O ports at a400 [size=64]
+00: 86 80 85 24 05 00 80 02 02 00 01 04 00 00 00 00
+10: 01 a0 00 00 01 a4 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 25 10 24 10
+30: 00 00 00 00 00 00 00 00 00 00 00 00 0a 02 00 00
 
+Also new is the problem that ACPI is causing on the Synaptics touchpad, the
+touchpad driver is loosing sync all the time, and I have discovered that
+only disabling ACPI this gets solved, there was no problem with ACPI as of
+2.4, but there was also no kernel Synaptics driver, however normal driver
+with the XFree Driver didn't have this problems. Without ACPI the touchpad
+driver works perfectly. I don't know what data can I provide to help
+tracking this down :-(
 
-> Some other interesting drivers?
+I don't have any problem to test patches or try to provide more info on any
+of this things.
 
-Well, there's a tulip based network board and one symbios SCSI controller
-(ncr53c8xx driver) in the system.  But since the '(scsi0:A:9:0): Locking
-max tag count at 64' message always indicates 'scsi0', I think it has to
-do with aic7xxx.
-
---=20
-- Harald Welte <laforge@gnumonks.org>               http://www.gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-Programming is like sex: One mistake and you have to support it your lifeti=
-me
-
---4BlIp4fARb6QCoOq
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/N24NXaXGVTD0i/8RAibUAJwJVMSkGH2cAGSskZdftjk30xVnIgCgojwD
-YGQTo1uukz3aDwCUHT1DNVw=
-=MDoy
------END PGP SIGNATURE-----
-
---4BlIp4fARb6QCoOq--
+Regards...
+-- 
+Manty/BestiaTester -> http://manty.net

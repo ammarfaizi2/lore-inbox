@@ -1,32 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263942AbUBHRW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 12:22:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263963AbUBHRW2
+	id S263937AbUBHRSv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 12:18:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263942AbUBHRSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 12:22:28 -0500
-Received: from [217.73.129.129] ([217.73.129.129]:41896 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S263942AbUBHRW2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 12:22:28 -0500
-Date: Sun, 8 Feb 2004 19:22:11 +0200
-Message-Id: <200402081722.i18HMBFT074505@car.linuxhacker.ru>
-From: Oleg Drokin <green@linuxhacker.ru>
-Subject: Re: 2.4.23 && md raid1 && reiserfs panic
-To: linux-kernel@vger.kernel.org, james@rcpt.to
-References: <20040207112302.GA2401@phobe.internal.pelicanmanufacturing.com.au>
+	Sun, 8 Feb 2004 12:18:50 -0500
+Received: from dsl-213-023-007-056.arcor-ip.net ([213.23.7.56]:13732 "EHLO
+	fusebox.fsfeurope.org") by vger.kernel.org with ESMTP
+	id S263937AbUBHRSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 12:18:49 -0500
+Date: Sun, 8 Feb 2004 18:17:07 +0100
+From: Georg C F Greve <greve@gnuhh.org>
+Message-Id: <200402081717.i18HH7Ub003181@brain.gnuhh.org>
+To: linux-kernel@vger.kernel.org
+CC: Ari Pollak <ajp@aripollak.com>
+Subject: Re: [PROBLEM] 2.6.3-rc1: still no suspend/resume on Centrino notebook
+In-Reply-To: <c05m86$20g$1qsea.gmane.org>
+References: <c05m86$20g$1qsea.gmane.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bromberger <james@rcpt.to> wrote:
 
-JB> The symptoms: rm a file from a working RAID1 md reiserfs filesystem, 
-JB> and I get a panic, rm(1) segfaults, and all further I/O to any interactive 
-JB> shells stop. The entire system is rednered incapable; reboot (via 
-JB> ctrl-alt-del) doesnt shutdown and the only action is to hard reset the box.
+ > I should clarify that this does not happen on *all* Centrino
+ > notebooks (and not the ones I've tried), only some.
 
-What if you run reiserfsck over the volume that seems to be corrupted,
-then fix the errors and then retry the operation?
+Do you still remember which notebooks you did _not_ encounter these
+problems with? More particularly which chipsets they had? I've seen so
+many reports for this problem that it would be interesting to know
+where it does _not_ exist.
 
-Bye,
-    Oleg
+The number of notebooks with that problem seems considerable -- people
+reported these problems on different Centrino notebooks from different
+vendors, particularly
+
+ ASUS M and S series
+ ACER TravelMate
+ IBM Thinkpad R50P
+
+that all seemed to have precisely one thing in common: the Intel 855GM
+centrino chipset.
+
+Similar problems have also been reported from Fujitsu-Siemens e6624
+notebook, which has an intel i830 chipset. As the kernel 2.6 currently
+seems to use the i830 AGP driver for the Intel 855GM chipset, those
+two might (or might not) be related.
+
+That we have not seen more reports is probably because people are
+still mostly using 2.4.x on their notebooks, which was better for
+suspend/resume (I'm using a patched 2.4.24 as I'm writing this).
+
+Regards,
+Georg

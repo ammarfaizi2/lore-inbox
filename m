@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265848AbUFDQrq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265861AbUFDQxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265848AbUFDQrq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 12:47:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265877AbUFDQrp
+	id S265861AbUFDQxG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 12:53:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265879AbUFDQxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 12:47:45 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:53956 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S265848AbUFDQrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 12:47:40 -0400
-Message-ID: <40C0A7B4.7020308@myrealbox.com>
-Date: Fri, 04 Jun 2004 09:47:48 -0700
-From: walt <wa1ter@myrealbox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a2) Gecko/20040531
+	Fri, 4 Jun 2004 12:53:06 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:56756
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S265861AbUFDQxD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 12:53:03 -0400
+Message-ID: <40C0A87A.3060609@redhat.com>
+Date: Fri, 04 Jun 2004 09:51:06 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a2) Gecko/20040601
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [2.6.7-rc2] Parport_pc module dependencies changed?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Ingo Molnar <mingo@elte.hu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [announce] [patch] NX (No eXecute) support for x86,   2.6.7-rc2-bk2
+References: <20040602205025.GA21555@elte.hu> <20040603230834.GF868@wotan.suse.de> <20040604092552.GA11034@elte.hu> <200406040826.15427.luto@myrealbox.com> <Pine.LNX.4.58.0406040830200.7010@ppc970.osdl.org> <20040604154142.GF16897@devserv.devel.redhat.com> <Pine.LNX.4.58.0406040843240.7010@ppc970.osdl.org> <20040604155138.GG16897@devserv.devel.redhat.com> <Pine.LNX.4.58.0406040856100.7010@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0406040856100.7010@ppc970.osdl.org>
+X-Enigmail-Version: 0.84.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recently (can't say exactly when) my printer and parallel Zip drive
-stopped working.
+Linus Torvalds wrote:
 
-Turns out the reason is that the parport_pc module no longer loads
-automatically along with the parport and ppa modules.
+> If things are really that good, why are we even worrying about this?
+> 
+> It sounds like we should just have NX on by default even for executables
+> that don't have any NX info records,
 
-Here's an excerpt (line-wrapped) from modules.dep:
+This is possible in one of the modes the FC kernel supports but not a
+good default.
 
-/lib/modules/2.6.7-rc2/kernel/drivers/scsi/ppa.ko: 
-/lib/modules/2.6.7-rc2/kernel/drivers/scsi/scsi_mod.ko /lib/mod
-ules/2.6.7-rc2/kernel/drivers/parport/parport.ko
+While most of the code we ship has no problems, 3rd party code is a
+completely different story.  Most of the time this code is not as
+cleanly written as the (cleaned-up) code we ship.  If anything, you can
+announce your intention to change the default in a few years and urge
+people to clean up their code.  If you want the maximum protection now
+go with Ingo's exec-shield patch and the /proc/sys/kernel/exec-shield
+entry which can be set to 2 to enable the strict mode.  That's certainly
+the best solution for edge servers but not for application servers
+running lots of dubious 3rd party code.
 
-/lib/modules/2.6.7-rc2/kernel/drivers/parport/parport_pc.ko: 
-/lib/modules/2.6.7-rc2/kernel/drivers/parport/parport.ko
-
-/lib/modules/2.6.7-rc2/kernel/drivers/parport/parport.ko:
-<missing line for parport_pc.ko ??>       <=================
-
-/lib/modules/2.6.7-rc2/kernel/drivers/char/lp.ko: 
-/lib/modules/2.6.7-rc2/kernel/drivers/parport/parport.ko
-
-
-Seems like parport_pc.ko should appear as a dependency for
-parport.ko, but doesn't.  (At least on on a PC, anyway.)
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

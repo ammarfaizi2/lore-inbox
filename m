@@ -1,108 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265219AbTIJPxl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 11:53:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265223AbTIJPxl
+	id S265105AbTIJPrN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 11:47:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265106AbTIJPrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 11:53:41 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:38920 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id S265219AbTIJPxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 11:53:37 -0400
-Message-ID: <24503.80.126.29.72.1063209215.squirrel@webmail.xs4all.nl>
-Date: Wed, 10 Sep 2003 17:53:35 +0200 (CEST)
-Subject: [Fwd: cat /proc/ide/ide1/hdc/identify hangs]
-From: "Jeroen Makkinje" <j.makkinje@xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Reply-To: j.makkinje@xs4all.nl
-User-Agent: SquirrelMail/1.4.2 [CVS]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 10 Sep 2003 11:47:13 -0400
+Received: from luli.rootdir.de ([213.133.108.222]:24497 "HELO luli.rootdir.de")
+	by vger.kernel.org with SMTP id S265105AbTIJPrJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 11:47:09 -0400
+Date: Wed, 10 Sep 2003 17:47:02 +0200
+From: Claas Langbehn <claas@rootdir.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, Andrew de Quincey <adq@lidskialf.net>,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] [2.6.0-test5-mm1] Suspend to RAM problems
+Message-ID: <20030910154702.GB1507@rootdir.de>
+References: <20030910103142.GA1053@rootdir.de> <20030910111312.GA847@rootdir.de> <20030910143837.GC2589@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030910143837.GC2589@elf.ucw.cz>
+Reply-By: Sa Sep 13 17:46:05 CEST 2003
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.0-test5-mm1 i686
+X-No-archive: yes
+X-Uptime: 17:46:05 up  4:29,  5 users,  load average: 0.11, 0.11, 0.04
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek wrote:
+
+> > APIC error on CPU0: 08(08)
+> > 
+> > ...and it repeats endlessly :(
+> > 
+> > my keyboard is dead afterwards.
+> 
+> Can you test on -test3 kernel?
+
+Ok, I will later today.
 
 
----------------------- Original Message -----------------------
-Subject: cat /proc/ide/ide1/hdc/identify hangs
-From:    "Jeroen Makkinje" <j.makkinje@xs4all.nl>
-Date:    Wed, September 10, 2003 3:11 pm
-To:      linux-ide@vger.kernel.org
----------------------------------------------------------------
+BTW: when I suspend from X11 with the nvidia-drivers, then
+the screen looks even worse :(
 
-
-My problem is simple:
-
-cat /proc/ide/ide1/hdc/identify
-does hang in version linux.2.6.0-test5
-but it does not hang in version
-./linux.2.4.20-4GB that comes default
-with SuSE 8.2.
-
-cat /proc/ide/ide1/hdc/capacity sometimes
-also hangs but not reproducable.
-
-I have executed the script ./gen_err
-(given below) to generate some information
-while running each of the kernel version.
-
-The output files are put in:
-http://www.xs4all.nl/~makkij/error_report/
-
-
-I did remove "hdc=ide-scsi" from
-the grub conf file. This had no effect.
-
-I hope you can assist me. Either to
-fix the problem or to  generate more infor-
-nation.
-
-The original posting is posted to
-linux-ide@vger.kernel.org
-
-I have send a copy to Andi Kleen
-He reported a similar problem
-with subject "taskfile merge breaking suse hwscan"
-
-
-
-==========
-./gen_err:
-==========
-
-#!/bin/bash
-rm -i *
-dmesg > dmesg
-(strace -v cat /proc/ide/ide1/hdc/identify ) &> strace_identify
-(strace -v cat /proc/ide/ide1/hdc/capacity ) &> strace_capacity
-cat /proc/ide/ide1/hdc/driver > driver
-cat /proc/ide/ide1/hdc/media > media
-cat /proc/ide/ide1/hdc/model > model
-cat /proc/ide/ide1/hdc/settings > settings
-sh
-/home/jeroenm/Documents/kernels/linux-2.6.0-test4/scripts/ver_linux
-> ver_linux
-cat /proc/version > version
-cat /proc/cpuinfo > cpuinfo
-cat /proc/modules > modules
-cat /proc/ioports > ioports
-lspci -vvv > lspci
-cat /proc/scsi/scsi > scsi
-cat /boot/grub/menu.lst > bootloader
-cat /proc/ide/sis > sis
-cat /proc/ide/drivers > drivers
-
-
-
-
-
--- 
-Jeroen Makkinje
-Pascalsingel 10
-1277 EL Huizen
-035-5257431
------------------------------
-j.makkinje@xs4all.nl
-fam.makkinje@hccnet.nl
-j.makkinje@chem.uu.nl

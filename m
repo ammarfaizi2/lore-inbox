@@ -1,60 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316682AbSHBRZk>; Fri, 2 Aug 2002 13:25:40 -0400
+	id <S313571AbSHBReP>; Fri, 2 Aug 2002 13:34:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316684AbSHBRZk>; Fri, 2 Aug 2002 13:25:40 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17161 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316682AbSHBRZj>; Fri, 2 Aug 2002 13:25:39 -0400
-Date: Fri, 2 Aug 2002 10:29:51 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: Benjamin LaHaise <bcrl@redhat.com>, Roman Zippel <zippel@linux-m68k.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       David Howells <dhowells@redhat.com>, <alan@redhat.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: manipulating sigmask from filesystems and drivers
-In-Reply-To: <20020802181300.B29814@kushida.apsleyroad.org>
-Message-ID: <Pine.LNX.4.44.0208021023040.914-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314459AbSHBReP>; Fri, 2 Aug 2002 13:34:15 -0400
+Received: from mail.esstech.com ([64.152.86.3]:9108 "HELO [64.152.86.3]")
+	by vger.kernel.org with SMTP id <S313571AbSHBReN>;
+	Fri, 2 Aug 2002 13:34:13 -0400
+Subject: ide prd table size
+From: Gerald Champagne <gerald.champagne@esstech.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 02 Aug 2002 12:30:46 -0500
+Message-Id: <1028309451.29024.659.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have a question about the calculation of the PRD_ENTRIES constant used
+in the ide code  The documentation for the size of PRD_ENTRIES says
+this:
+-----------------------------
+/*
+Our Physical Region Descriptor (PRD) table should be large enough to
+handle the biggest I/O request we are likely to see.  Since requests can
+have no more than 256 sectors, and since the typical blocksize is two or
+more sectors, we could get by with a limit of 128 entries here for the
+usual worst case.  Most requests seem to include some contiguous blocks,
+further reducing the number of table entries required.
+
+As it turns out though, we must allocate a full 4KB page for this, so
+the two PRD tables (ide0 & ide1) will each get half of that, allowing
+each to have about 256 entries (8 bytes each) from this.
+*/
+#define PRD_BYTES	8
+#define PRD_ENTRIES	(PAGE_SIZE / (2 * PRD_BYTES))
+-----------------------------
 
 
-On Fri, 2 Aug 2002, Jamie Lokier wrote:
->
-> Linus Torvalds wrote:
-> > Sending somebody a SIGKILL (or any signal that kills the process) is
-> > different (in my opinion) from a signal that interrupts a system call in
-> > order to run a signal handler.
->
-> So it's ok to have truncated log entries (or more realistically,
-> truncated simple database entries) if the logging program is killed?
+This looks a little outdated, but I'm interested in the second
+paragraph.  I don't see where multiple interfaces are sharing the same
+page.  The documentation here and for pci_alloc_consistent says that
+blocks are allocated in full pages.  This implies that the unused
+portion is wasted.
 
-This is why I said
+So...
 
- "Which is what we want in generic_file_read() (and _probably_
-  generic_file_write() as well, but that's slightly more debatable)"
+- Is the code wasting half of the page, and should PRD_ENTRIES be
+redefined to be larger?
 
-The "slightly more debatable" comes exactly from the thing you mention.
+- Am I misunderstanding the documentation, and is the other half of the
+page used somewhere else?
 
-The thing is, "read()" on a file doesn't have any side effects outside the
-process that does it, so if you kill the process, doing a partial read is
-always ok (yeah, you can come up with thread examples etc where you can
-see the state, but I think those are so contrieved as to not really merit
-much worry and certainly have no existing programs issues).
+- Am I misunderstanding the code, and do multiple interfaces share the
+page?
 
-With write(), you have to make a judgement call. Unlike read, a truncated
-write _is_ visible outside the killed process. But exactly like read()
-there _are_ system management reasons why you may really need to kill
-writers. So the debatable point comes from whether you want to consider a
-killing signal to be "exceptional enough" to warrant the partial write.
+- Should this be modified to use the pci_pool interface as defined in
+DMA-mapping.txt?
 
-I can see both sides. I personally think I'd prefer the "if I kill a
-process, I want it dead _now_" approach, but this definitely _is_ up for
-discussion (unlike the signal handler case).
+Thanks!
 
-		Linus
+Gerald
+
+
+
+
 

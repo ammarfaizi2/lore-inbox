@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272798AbRIMXT1>; Thu, 13 Sep 2001 19:19:27 -0400
+	id <S272830AbRIMXSH>; Thu, 13 Sep 2001 19:18:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272847AbRIMXTH>; Thu, 13 Sep 2001 19:19:07 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:45055 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S272798AbRIMXSo>;
-	Thu, 13 Sep 2001 19:18:44 -0400
-Date: Thu, 13 Sep 2001 16:19:03 -0700
+	id <S272798AbRIMXRw>; Thu, 13 Sep 2001 19:17:52 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:44540 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S272797AbRIMXR3>;
+	Thu, 13 Sep 2001 19:17:29 -0400
+Date: Thu, 13 Sep 2001 16:17:48 -0700
 To: Linus Torvalds <torvalds@transmeta.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>, Dag Brattli <dag@brattli.net>,
         Linux kernel mailing list <linux-kernel@vger.kernel.org>,
         linux-irda@pasta.cs.uit.no
-Subject: [IrDA patch] ir248_disco_fixes_4.diff
-Message-ID: <20010913161903.D7470@bougret.hpl.hp.com>
+Subject: [IrDA patch] ir248_sk_free_2.diff
+Message-ID: <20010913161748.B7470@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,224 +25,271 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir248_disco_fixes_4.diff :
-------------------------
-	o [CORRECT] Fix corner case where getting stuck in LMP state machine
-	o [CORRECT] Fix rare deadlock in LAP secondary state machine
-	o [FEATURE] Bypass LMP state machine when propagating discovery event
-		- Fix many case where event is discarded and not passed up
-		- Reduce overhead on a critical path
-	o [FEATURE] Properly do expiry when discovery is not active
+ir248_sk_free_2.diff :
+--------------------
+	o [CORRECT] Fix socket memory leak (leak struct sock on each socket)
+	o [CORRECT] Cleanup init/destroy socket code
+		- (kfree -> sk_free, skb_queue_purge, ...)
+	o [FEATURE] Cleanup comments & debugging code
 
-diff -u -p linux/include/net/irda/irlmp.d8.h linux/include/net/irda/irlmp.h
---- linux/include/net/irda/irlmp.d8.h	Thu Sep 13 11:49:34 2001
-+++ linux/include/net/irda/irlmp.h	Thu Sep 13 11:51:00 2001
-@@ -217,6 +217,7 @@ int  irlmp_disconnect_request(struct lsa
- void irlmp_discovery_confirm(hashbin_t *discovery_log);
- void irlmp_discovery_request(int nslots);
- struct irda_device_info *irlmp_get_discoveries(int *pn, __u16 mask);
-+void irlmp_do_expiry(void);
- void irlmp_do_discovery(int nslots);
- discovery_t *irlmp_get_discovery_response(void);
- void irlmp_discovery_expiry(discovery_t *expiry);
-diff -u -p linux/net/irda/irlmp.d8.c linux/net/irda/irlmp.c
---- linux/net/irda/irlmp.d8.c	Thu Sep 13 11:49:48 2001
-+++ linux/net/irda/irlmp.c	Thu Sep 13 11:51:00 2001
-@@ -693,10 +693,43 @@ void irlmp_disconnect_indication(struct 
- }
+diff -u -p linux/net/irda/af_irda.d8.c linux/net/irda/af_irda.c
+--- linux/net/irda/af_irda.d8.c	Thu Sep 13 11:23:51 2001
++++ linux/net/irda/af_irda.c	Thu Sep 13 11:24:28 2001
+@@ -98,6 +98,8 @@ static int irda_data_indication(void *in
+ 	struct sock *sk;
+ 	int err;
  
- /*
-+ * Function irlmp_do_expiry (void)
-+ *
-+ *    Do a cleanup of the discovery log (remove old entries)
-+ *
-+ * Note : separate from irlmp_do_discovery() so that we can handle
-+ * passive discovery properly.
-+ */
-+void irlmp_do_expiry()
-+{
-+	struct lap_cb *lap;
++	IRDA_DEBUG(3, __FUNCTION__ "()\n");
 +
-+	/*
-+	 * Expire discovery on all links which are *not* connected.
-+	 * On links which are connected, we can't do discovery
-+	 * anymore and can't refresh the log, so we freeze the
-+	 * discovery log to keep info about the device we are
-+	 * connected to. - Jean II
-+	 */
-+	lap = (struct lap_cb *) hashbin_get_first(irlmp->links);
-+	while (lap != NULL) {
-+		ASSERT(lap->magic == LMP_LAP_MAGIC, return;);
-+		
-+		if (lap->lap_state == LAP_STANDBY) {
-+			/* Expire discoveries discovered on this link */
-+			irlmp_expire_discoveries(irlmp->cachelog, lap->saddr,
-+						 FALSE);
-+		}
-+		lap = (struct lap_cb *) hashbin_get_next(irlmp->links);
-+	}
-+}
-+
-+/*
-  * Function irlmp_do_discovery (nslots)
-  *
-  *    Do some discovery on all links
-  *
-+ * Note : log expiry is done above.
-  */
- void irlmp_do_discovery(int nslots)
- {
-@@ -731,10 +764,6 @@ void irlmp_do_discovery(int nslots)
- 		ASSERT(lap->magic == LMP_LAP_MAGIC, return;);
- 		
- 		if (lap->lap_state == LAP_STANDBY) {
--			/* Expire discoveries discovered on this link */
--			irlmp_expire_discoveries(irlmp->cachelog, lap->saddr,
--						 FALSE);
+ 	self = (struct irda_sock *) instance;
+ 	ASSERT(self != NULL, return -1;);
+ 
+@@ -128,10 +130,10 @@ static void irda_disconnect_indication(v
+ 	struct irda_sock *self;
+ 	struct sock *sk;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
 -
- 			/* Try to discover */
- 			irlmp_do_lap_event(lap, LM_LAP_DISCOVERY_REQUEST, 
- 					   NULL);
-@@ -764,6 +793,9 @@ void irlmp_discovery_request(int nslots)
- 	 */
- 	if (!sysctl_discovery)
- 		irlmp_do_discovery(nslots);
-+	/* Note : we never do expiry here. Expiry will run on the
-+	 * discovery timer regardless of the state of sysctl_discovery
-+	 * Jean II */
- }
+ 	self = (struct irda_sock *) instance;
  
- /*
-diff -u -p linux/net/irda/irlmp_event.d8.c linux/net/irda/irlmp_event.c
---- linux/net/irda/irlmp_event.d8.c	Thu Sep 13 11:50:03 2001
-+++ linux/net/irda/irlmp_event.c	Thu Sep 13 11:51:00 2001
-@@ -150,6 +150,10 @@ void irlmp_discovery_timer_expired(void 
- {
- 	IRDA_DEBUG(4, __FUNCTION__ "()\n");
- 	
-+	/* We always cleanup the log (active & passive discovery) */ 
-+	irlmp_do_expiry();
++	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
 +
-+	/* Active discovery is conditional */
- 	if (sysctl_discovery)
- 		irlmp_do_discovery(sysctl_discovery_slots);
+ 	sk = self->sk;
+ 	if (sk == NULL)
+ 		return;
+@@ -155,8 +157,10 @@ static void irda_disconnect_indication(v
+ 	 * Note : all socket function do check sk->state, so we are safe...
+ 	 * Jean II
+ 	 */
+-	irttp_close_tsap(self->tsap);
+-	self->tsap = NULL;
++	if (self->tsap) {
++		irttp_close_tsap(self->tsap);
++		self->tsap = NULL;
++	}
  
-@@ -205,10 +209,6 @@ static void irlmp_state_standby(struct l
- 		
- 		irlap_discovery_request(self->irlap, &irlmp->discovery_cmd);
- 		break;
--	case LM_LAP_DISCOVERY_CONFIRM:
-- 		/* irlmp_next_station_state( LMP_READY); */
--		irlmp_discovery_confirm(irlmp->cachelog);
-- 		break;
- 	case LM_LAP_CONNECT_INDICATION:
- 		/*  It's important to switch state first, to avoid IrLMP to 
- 		 *  think that the link is free since IrLMP may then start
-@@ -274,6 +274,12 @@ static void irlmp_state_u_connect(struct
- 			irlmp_do_lsap_event(lsap, LM_LAP_CONNECT_CONFIRM, NULL);
- 			lsap = (struct lsap_cb*) hashbin_get_next(self->lsaps);
- 		}
-+		/* Note : by the time we get there (LAP retries and co),
-+		 * the lsaps may already have gone. This avoid getting stuck
-+		 * forever in LAP_ACTIVE state - Jean II */
-+		if (HASHBIN_GET_SIZE(self->lsaps) == 0) {
-+			irlmp_start_idle_timer(self, LM_IDLE_TIMEOUT);
-+		}
- 		break;
- 	case LM_LAP_CONNECT_REQUEST:
- 		/* Already trying to connect */
-@@ -287,6 +293,12 @@ static void irlmp_state_u_connect(struct
- 		while (lsap != NULL) {
- 			irlmp_do_lsap_event(lsap, LM_LAP_CONNECT_CONFIRM, NULL);
- 			lsap = (struct lsap_cb*) hashbin_get_next(self->lsaps);
-+		}
-+		/* Note : by the time we get there (LAP retries and co),
-+		 * the lsaps may already have gone. This avoid getting stuck
-+		 * forever in LAP_ACTIVE state - Jean II */
-+		if (HASHBIN_GET_SIZE(self->lsaps) == 0) {
-+			irlmp_start_idle_timer(self, LM_IDLE_TIMEOUT);
- 		}
- 		break;
- 	case LM_LAP_DISCONNECT_INDICATION:
-diff -u -p linux/net/irda/irlmp_frame.d8.c linux/net/irda/irlmp_frame.c
---- linux/net/irda/irlmp_frame.d8.c	Thu Sep 13 11:50:15 2001
-+++ linux/net/irda/irlmp_frame.c	Thu Sep 13 11:51:00 2001
-@@ -359,8 +359,9 @@ static void irlmp_discovery_timeout(u_lo
- 	self = (struct lap_cb *) priv;
+ 	/* Note : once we are there, there is not much you want to do
+ 	 * with the socket anymore, apart from closing it.
+@@ -180,10 +184,10 @@ static void irda_connect_confirm(void *i
+ 	struct irda_sock *self;
+ 	struct sock *sk;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
+-
+ 	self = (struct irda_sock *) instance;
+ 
++	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
++
+ 	sk = self->sk;
+ 	if (sk == NULL)
+ 		return;
+@@ -238,10 +242,10 @@ static void irda_connect_indication(void
+ 	struct irda_sock *self;
+ 	struct sock *sk;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
+-
+  	self = (struct irda_sock *) instance;
+ 
++	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
++
+ 	sk = self->sk;
+ 	if (sk == NULL)
+ 		return;
+@@ -358,14 +362,14 @@ static void irda_getvalue_confirm(int re
+ {
+ 	struct irda_sock *self;
+ 	
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
+-
+ 	self = (struct irda_sock *) priv;
+ 	if (!self) {
+ 		WARNING(__FUNCTION__ "(), lost myself!\n");
+ 		return;
+ 	}
+ 
++	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
++
+ 	/* We probably don't need to make any more queries */
+ 	iriap_close(self->iriap);
+ 	self->iriap = NULL;
+@@ -539,7 +543,7 @@ static int irda_open_lsap(struct irda_so
+  */
+ static int irda_find_lsap_sel(struct irda_sock *self, char *name)
+ {
+-	IRDA_DEBUG(2, __FUNCTION__ "(), name=%s\n", name);
++	IRDA_DEBUG(2, __FUNCTION__ "(%p, %s)\n", self, name);
+ 
+ 	ASSERT(self != NULL, return -1;);
+ 
+@@ -550,6 +554,8 @@ static int irda_find_lsap_sel(struct ird
+ 
+ 	self->iriap = iriap_open(LSAP_ANY, IAS_CLIENT, self,
+ 				 irda_getvalue_confirm);
++	if(self->iriap == NULL)
++		return -ENOMEM;
+ 
+ 	/* Treat unexpected signals as disconnect */
+ 	self->errno = -EHOSTUNREACH;
+@@ -777,11 +783,11 @@ static int irda_bind(struct socket *sock
+ 	struct irda_sock *self;
+ 	int err;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
+-
+ 	self = sk->protinfo.irda;
+ 	ASSERT(self != NULL, return -1;);
+ 
++	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
++
+ 	if (addr_len != sizeof(struct sockaddr_irda))
+ 		return -EINVAL;
+ 
+@@ -942,10 +948,10 @@ static int irda_connect(struct socket *s
+ 	struct irda_sock *self;
+ 	int err;
+ 
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
+-
+ 	self = sk->protinfo.irda;
+ 	
++	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
++
+ 	/* Don't allow connect for Ultra sockets */
+ 	if ((sk->type == SOCK_DGRAM) && (sk->protocol == IRDAPROTO_ULTRA))
+ 		return -ESOCKTNOSUPPORT;
+@@ -1063,22 +1069,29 @@ static int irda_create(struct socket *so
+ 		return -ESOCKTNOSUPPORT;
+ 	}
+ 
+-	/* Allocate socket */
++	/* Allocate networking socket */
+ 	if ((sk = sk_alloc(PF_IRDA, GFP_ATOMIC, 1)) == NULL)
+ 		return -ENOMEM;
+-	
++
++	/* Allocate IrDA socket */
+ 	self = kmalloc(sizeof(struct irda_sock), GFP_ATOMIC);
+ 	if (self == NULL) {
+-		kfree (sk);
++		sk_free(sk);
+ 		return -ENOMEM;
+ 	}
+ 	memset(self, 0, sizeof(struct irda_sock));
+ 
++	IRDA_DEBUG(2, __FUNCTION__ "() : self is %p\n", self);
++
+ 	init_waitqueue_head(&self->query_wait);
+ 
+-	self->sk = sk;
++	/* Initialise networking socket struct */ 
++	sock_init_data(sock, sk);	/* Note : set sk->refcnt to 1 */
++	sk->family = PF_IRDA;
++	sk->protocol = protocol;
++	/* Link networking socket and IrDA socket structs together */
+ 	sk->protinfo.irda = self;
+-	sock_init_data(sock, sk);
++	self->sk = sk;
+ 
+ 	switch (sock->type) {
+ 	case SOCK_STREAM:
+@@ -1110,8 +1123,6 @@ static int irda_create(struct socket *so
+ 		return -ESOCKTNOSUPPORT;
+ 	}		
+ 
+-	sk->protocol = protocol;
+-
+ 	/* Register as a client with IrLMP */
+ 	self->ckey = irlmp_register_client(0, NULL, NULL, NULL);
+ 	self->mask = 0xffff;
+@@ -1133,7 +1144,7 @@ static int irda_create(struct socket *so
+  */
+ void irda_destroy_socket(struct irda_sock *self)
+ {
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
++	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
+ 
  	ASSERT(self != NULL, return;);
  
--	/* Just handle it the same way as a discovery confirm */
--	irlmp_do_lap_event(self, LM_LAP_DISCOVERY_CONFIRM, NULL);
-+	/* Just handle it the same way as a discovery confirm,
-+	 * bypass the LM_LAP state machine (see below) */
-+	irlmp_discovery_confirm(irlmp->cachelog);
- }
+@@ -1187,12 +1198,47 @@ static int irda_release(struct socket *s
+ 	sk->state       = TCP_CLOSE;
+ 	sk->shutdown   |= SEND_SHUTDOWN;
+ 	sk->state_change(sk);
+-	sk->dead        = 1;
  
- /*
-@@ -377,8 +378,12 @@ static void irlmp_discovery_timeout(u_lo
-  *	  we always get ~100% of these.
-  *	o Make faster discovery, statistically divide time of discovery
-  *	  events by 2 (important for the latency aspect and user feel)
-+ *	o Even is we do active discovery, the other node might not
-+ *	  answer our discoveries (ex: Palm).
-+ *
-  * However, when both devices discover each other, they might attempt to
-- * connect to each other, and it would create collisions on the medium.
-+ * connect to each other following the discovery event, and it would create
-+ * collisions on the medium (SNRM battle).
-  * The trick here is to defer the event by a little delay to avoid both
-  * devices to jump in exactly at the same time...
-  *
-@@ -387,6 +392,14 @@ static void irlmp_discovery_timeout(u_lo
-  * period/timeout that may be set is 1s). The message triggering this
-  * event was the last of the discovery, so the medium is now free...
-  * Maybe more testing is needed to get the value right...
++	/* Destroy IrDA socket */
+ 	irda_destroy_socket(sk->protinfo.irda);
++	/* Prevent sock_def_destruct() to create havoc */
++	sk->protinfo.irda = NULL;
+ 
++	sock_orphan(sk);
+         sock->sk   = NULL;      
+-        sk->socket = NULL;      /* Not used, but we should do this. */
 +
-+ * One more problem : the other node might do only a single discovery
-+ * and connect immediately to us, and we would receive only a single
-+ * discovery indication event, and because of the delay, it will arrive
-+ * while the LAP is connected. That's another good reason to
-+ * bypass the LM_LAP state machine ;-)
-+ *
-+ * Jean II
-  */
- void irlmp_link_discovery_indication(struct lap_cb *self, 
- 				     discovery_t *discovery)
-@@ -427,8 +440,13 @@ void irlmp_link_discovery_confirm(struct
- 	if(timer_pending(&disco_delay))
- 		del_timer(&disco_delay);
++	/* Purge queues (see sock_init_data()) */
++	skb_queue_purge(&sk->receive_queue);
++
++	/* Destroy networking socket if we are the last reference on it,
++	 * i.e. if(sk->refcnt == 0) -> sk_free(sk) */
++	sock_put(sk);
++
++	/* Notes on socket locking and deallocation... - Jean II
++	 * In theory we should put pairs of sock_hold() / sock_put() to
++	 * prevent the socket to be destroyed whenever there is an
++	 * outstanding request or outstanding incomming packet or event.
++	 *
++	 * 1) This may include IAS request, both in connect and getsockopt.
++	 * Unfortunately, the situation is a bit more messy than it looks,
++	 * because we close iriap and kfree(self) above.
++	 * 
++	 * 2) This may include selective discovery in getsockopt.
++	 * Same stuff as above, irlmp registration and self are gone.
++	 *
++	 * Probably 1 and 2 may not matter, because it's all triggered
++	 * by a process and the socket layer already prevent the
++	 * socket to go away while a process is holding it, through
++	 * sockfd_put() and fput()...
++	 *
++	 * 3) This may include deferred TSAP closure. In particular,
++	 * we may receive a late irda_disconnect_indication()
++	 * Fortunately, (tsap_cb *)->close_pend should protect us
++	 * from that.
++	 *
++	 * I did some testing on SMP, and it looks solid. And the socket
++	 * memory leak is now gone... - Jean II
++	 */
  
--	/* Propagate event to the state machine */
--	irlmp_do_lap_event(self, LM_LAP_DISCOVERY_CONFIRM, NULL);
-+	/* Propagate event to various LSAPs registered for it.
-+	 * We bypass the LM_LAP state machine because
-+	 *	1) We do it regardless of the LM_LAP state
-+	 *	2) It doesn't affect the LM_LAP state
-+	 *	3) Faster, slimer, simpler, ...
-+	 * Jean II */
-+	irlmp_discovery_confirm(irlmp->cachelog);
+         return 0;
  }
- 
- #ifdef CONFIG_IRDA_CACHE_LAST_LSAP
-diff -u -p linux/net/irda/irlap_event.d8.c linux/net/irda/irlap_event.c
---- linux/net/irda/irlap_event.d8.c	Thu Sep 13 11:50:26 2001
-+++ linux/net/irda/irlap_event.c	Thu Sep 13 11:51:00 2001
-@@ -2018,7 +2018,7 @@ static int irlap_state_sclose(struct irl
- {
- 	int ret = 0;
+@@ -1585,11 +1631,11 @@ static int irda_shutdown(struct socket *
+ 	struct irda_sock *self;
+ 	struct sock *sk = sock->sk;
  
 -	IRDA_DEBUG(0, __FUNCTION__ "()\n");
-+	IRDA_DEBUG(1, __FUNCTION__ "()\n");
+-
+ 	self = sk->protinfo.irda;
+ 	ASSERT(self != NULL, return -1;);
  
- 	ASSERT(self != NULL, return -ENODEV;);
- 	ASSERT(self->magic == LAP_MAGIC, return -EBADR;);
-@@ -2048,6 +2048,9 @@ static int irlap_state_sclose(struct irl
- 		irlap_disconnect_indication(self, LAP_DISC_INDICATION);
- 		break;
- 	case WD_TIMER_EXPIRED:
-+		/* Always switch state before calling upper layers */
-+		irlap_next_state(self, LAP_NDM);
++	IRDA_DEBUG(1, __FUNCTION__ "(%p)\n", self);
 +
- 		irlap_apply_default_connection_parameters(self);
+ 	sk->state       = TCP_CLOSE;
+ 	sk->shutdown   |= SEND_SHUTDOWN;
+ 	sk->state_change(sk);
+@@ -1763,6 +1809,8 @@ static int irda_setsockopt(struct socket
+ 	self = sk->protinfo.irda;
+ 	ASSERT(self != NULL, return -1;);
+ 
++	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
++
+ 	if (level != SOL_IRLMP)
+ 		return -ENOPROTOOPT;
  		
- 		irlap_disconnect_indication(self, LAP_DISC_INDICATION);
+@@ -2028,6 +2076,8 @@ static int irda_getsockopt(struct socket
+ 	int offset, total;
+ 
+ 	self = sk->protinfo.irda;
++
++	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
+ 
+ 	if (level != SOL_IRLMP)
+ 		return -ENOPROTOOPT;

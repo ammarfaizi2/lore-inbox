@@ -1,69 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263489AbTDYHxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 03:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263488AbTDYHxZ
+	id S263493AbTDYHzX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 03:55:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263495AbTDYHzX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 03:53:25 -0400
-Received: from dsl0206.netquest.net ([206.117.109.206]:36305 "EHLO
-	arcadia.augart.com") by vger.kernel.org with ESMTP id S263489AbTDYHxY
+	Fri, 25 Apr 2003 03:55:23 -0400
+Received: from vicar.dcs.qmul.ac.uk ([138.37.88.163]:2217 "EHLO
+	mail.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP id S263493AbTDYHzW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 03:53:24 -0400
-Message-ID: <3EA8EC4D.4090506@augart.com>
-Date: Fri, 25 Apr 2003 01:05:33 -0700
-From: Steven Augart <steve@augart.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030423
-X-Accept-Language: en-us, en
+	Fri, 25 Apr 2003 03:55:22 -0400
+Date: Fri, 25 Apr 2003 09:07:25 +0100 (BST)
+From: Matt Bernstein <matt@theBachChoir.org.uk>
+To: Rafal Bujnowski <bujnor@go2.pl>
+cc: jds <jds@soltis.cc>, linux-kernel@vger.kernel.org
+Subject: Re: Modutils version for kernel 2.5.68-mm ?
+In-Reply-To: <20030425093924.3427fab9.bujnor@go2.pl>
+Message-ID: <Pine.LNX.4.53.0304250906020.22803@jester.mews>
+References: <20030424162406.M94538@soltis.cc> <20030425093924.3427fab9.bujnor@go2.pl>
+X-URL: http://www.theBachChoir.org.uk/
 MIME-Version: 1.0
-To: John Bradford <john@grabjohn.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Simple x86 Simulator (was: Re: Flame Linus to a crisp!)
-References: <200304250702.h3P72FZF000352@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200304250702.h3P72FZF000352@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-uvscan-result: clean (198yEt-0005gs-8m)
+X-Auth-User: jonquil.thebachchoir.org.uk
+X-uvscan-result: clean (198yEw-00060l-Sl)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We could not.  Consider just the 8 32-bit-wide legacy x86 registers, 
-excluding the MMX and FPU registers:
-(AX, BX, CX, DX, BP, SI, DI, SP).  32 bits x 8 = 2^256 independent 
-states to look up in the table, each state having 256 bits of 
-information.  2^264 total bits of information needed.  Assume 1 GB dimms 
-(2^30 * 8 bits each = 2^33 bits of info), with a volume of 10 cm^3 per 
-DIMM (including a tiny amount of space for air circulation.).
-Need 34508731733952818937173779311385127262255544860851932776 cubic 
-kilometers of space.
+At 09:39 +0200 Rafal Bujnowski wrote:
 
-Considerably larger than the volume of the earth, although admittedly 
-smaller than the total volume of the universe. 
-
---Steven Augart
-
-
-
-John Bradford wrote:
-
->>>I'd like to see an x86 completely in perf board. I thought my high
->>>school digital electronics type stuff looked bad...
->>>      
->>>
->>You could do it nowadays using dynamic binary translation, and an
->>absurdly simple CPU capable of accessing a large memory.  You'd need a
->>DIMM for the large memory, but get away with discrete logic for the
->>CPU if you really wanted to.
->>
->>At perf board sizes using discrete logic, expect it run run quite slow :)
->>    
->>
+>A "jds" <jds@soltis.cc> na to:
 >
->Could we not take this idea to it's logical extreme, and simply
->calculate the results of every opcode, on every value, for every state
->of all of the registers, and store them in an array of DIMMs, and
->simply look up the necessary results?  I.E. a cpu which is one _huge_
->look up table :-).
+>>    What is the version modutils for kernel 2.5.68 o 2.5.68-mmx for
+>>    RH9.0 and
 >
->John.
->  
->
+>On my Debian Sid with kernel 2.5.68 I have modutils 2.4.21. And it
+>works.
 
+I suspect your modutils has been patched.
+
+jds, just grab modutils-2.4.22-10 or later from rawhide.

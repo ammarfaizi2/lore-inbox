@@ -1,64 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281974AbRKUUjL>; Wed, 21 Nov 2001 15:39:11 -0500
+	id <S281973AbRKUUit>; Wed, 21 Nov 2001 15:38:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281975AbRKUUjA>; Wed, 21 Nov 2001 15:39:00 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:3568 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S281974AbRKUUiy>; Wed, 21 Nov 2001 15:38:54 -0500
-Message-ID: <3BFC10DB.4070705@redhat.com>
-Date: Wed, 21 Nov 2001 15:38:51 -0500
-From: Doug Ledford <dledford@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011115
-X-Accept-Language: en-us
+	id <S281974AbRKUUij>; Wed, 21 Nov 2001 15:38:39 -0500
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:27689 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S281973AbRKUUi0> convert rfc822-to-8bit; Wed, 21 Nov 2001 15:38:26 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+To: Andreas Dilger <adilger@turbolabs.com>, Hans Reiser <reiser@namesys.com>,
+        chaffee@cs.berkeley.edu
+Subject: Re: 2.4.15-pre1:  "bogus" message with reiserfs root and other weirdness
+Date: Wed, 21 Nov 2001 21:37:34 +0100
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org, Eric M <ground12@jippii.fi>
+In-Reply-To: <6893478.1006329318464.JavaMail.ground12@jippii.fi> <20011121111811.P1308@lynx.no>
+In-Reply-To: <20011121111811.P1308@lynx.no>
 MIME-Version: 1.0
-To: Jeff Merkey <jmerkey@timpanogas.org>
-CC: arjan@fenrus.demon.nl, linux-kernel@vger.kernel.org
-Subject: Re: [VM/MEMORY-SICKNESS] 2.4.15-pre7 kmem_cache_create invalid opcode
-In-Reply-To: <E166S8l-0007hs-00@fenrus.demon.nl> <002401c172ba$b46bed20$f5976dcf@nwfs> <3BFBFB4F.8090403@redhat.com> <002101c172c5$f2040cc0$f5976dcf@nwfs>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E166e8A-0000t2-00@mrvdom02.schlund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Merkey wrote:
+> > Machine booted ok and everything seemed to be ok, but i noticed a few
+> > weird messages in boot messages right before mounting the root-partition:
+> > FAT: bogus logical sector size 0
+> > FAT: bogus logical sector size 0
+> When the kernel is booting, it doesn't know the filesystem type of the
+> root fs, so it tries to mount the root device using all of the compiled-in
+> fs drivers, in the order they are listed in fs/Makefile.in.
+> It appears that the fat driver doesn't even check for a magic when it
+> starts trying to mount the filesystem, so it proceeds directly to
 
-> Doug,
-> 
-> I have seen some problems with the rpm build and default install of your
-> kernel sources.
-> NWFS and the SCI drivers will **NOT** build against it since you post in a
-> linux and linux-up kernel for lilo during boot. 
+To be complete we should also apply this patch.
 
-
-It would if you used my module build kit.
-
-> People using these drivers
-> who email me always have to do a "make distclean" to get stuff to build. 
-
-
-They (and you) think they do, but they don't.
-
-> I
-> am very familiar with the kernel.h
-> changes you guys put in that are different from stock kernels, but despite
-> this, it's
-> far from "plug and play" for a customer building third party kernel modules
-> on your rpms.
-
-
-
-See my build kit (which has been available since 6.2 incidentally). 
-Very plug and play for a kernel developer.
-
-
-
-
-
-
--- 
-
-  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-       Please check my web site for aic7xxx updates/answers before
-                       e-mailing me about problems
-
+diff -urN linux/fs/fat/inode.c linux-new/fs/fat/inode.c
+--- linux/fs/fat/inode.c        Thu Oct 25 09:02:26 2001
++++ linux-new/fs/fat/inode.c    Wed Nov 21 21:28:49 2001
+@@ -609,7 +609,8 @@
+                CF_LE_W(get_unaligned((unsigned short *) &b->sector_size));
+        if (!logical_sector_size
+            || (logical_sector_size & (logical_sector_size - 1))) {
+-               printk("FAT: bogus logical sector size %d\n",
++               if (!silent)
++                   printk("FAT: bogus logical sector size %d\n",
+                       logical_sector_size);
+                brelse(bh);
+                goto out_invalid;
+@@ -618,7 +619,8 @@
+        sbi->cluster_size = b->cluster_size;
+        if (!sbi->cluster_size
+            || (sbi->cluster_size & (sbi->cluster_size - 1))) {
+-               printk("FAT: bogus cluster size %d\n", sbi->cluster_size);
++               if (!silent)
++                   printk("FAT: bogus cluster size %d\n", sbi->cluster_size);
+                brelse(bh);
+                goto out_invalid;
+        }

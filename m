@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbULEXL7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbULEXOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbULEXL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 18:11:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbULEXLX
+	id S261413AbULEXOf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 18:14:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbULEXMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 18:11:23 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:10956 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261246AbULEXJV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 18:12:40 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:49031 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261413AbULEXJV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 5 Dec 2004 18:09:21 -0500
-Date: Sat, 4 Dec 2004 15:11:49 -0800
+Date: Sat, 4 Dec 2004 16:50:23 -0800
 From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: dipankar@in.ibm.com, rusty@au1.ibm.com, ak@suse.de, gareth@valinux.com,
-       davidm@hpl.hp.com
+To: linux@brodo.de
 Cc: linux-kernel@vger.kernel.org
-Subject: [RFC] Strange code in cpu_idle()
-Message-ID: <20041204231149.GA1591@us.ibm.com>
+Subject: Fw: Fw: [RFC] Strange code in cpu_idle()
+Message-ID: <20041205005022.GA2066@us.ibm.com>
 Reply-To: paulmck@us.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,6 +22,63 @@ Content-Disposition: inline
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Hello, Dominik,
+
+Ditto for acpi_processor_remove()...
+
+							Thanx, Paul
+
+----- Forwarded message from "Paul E. McKenney" <paulmck@us.ibm.com> -----
+
+Date: Sat, 4 Dec 2004 16:45:57 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: sfr@canb.auug.org.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Fw: [RFC] Strange code in cpu_idle()
+Reply-To: paulmck@us.ibm.com
+
+Hello, Steve,
+
+OK, I believe I found the other end of this:
+
+static void __exit apm_exit(void)
+{
+	int	error;
+
+	if (set_pm_idle) {
+		pm_idle = original_pm_idle;
+		/*
+		 * We are about to unload the current idle thread pm callback
+		 * (pm_idle), Wait for all processors to update cached/local
+		 * copies of pm_idle before proceeding.
+		 */
+		synchronize_kernel();
+	}
+
+Unfortunately, the idle loop is a quiescent state, so it is
+possible for synchronize_kernel() to return before the idle threads
+have returned.  So I don't believe RCU is useful here.  One other
+approach would be to keep a cpu mask, in which apm_exit() sets all
+bits, and pm_idle() clears its CPU's bit only if it is set.
+Then apm_exit() could wait for all CPU's bits to clear.
+
+There is probably a better way to do this, but that is what comes
+to mind immediately.
+
+Thoughts?
+
+					Thanx, Paul
+
+----- Forwarded message from "Paul E. McKenney" <paulmck@us.ibm.com> -----
+
+Date: Sat, 4 Dec 2004 15:11:49 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: dipankar@in.ibm.com, rusty@au1.ibm.com, ak@suse.de, gareth@valinux.com,
+	davidm@hpl.hp.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC] Strange code in cpu_idle()
+Reply-To: paulmck@us.ibm.com
 
 Hello!
 
@@ -176,3 +232,7 @@ diff -urpN -X ../dontdiff linux-2.5/arch/x86_64/kernel/process.c linux-2.5-idle_
  		}
  		schedule();
  	}
+
+----- End forwarded message -----
+
+----- End forwarded message -----

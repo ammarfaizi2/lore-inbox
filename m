@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129568AbQL0SVx>; Wed, 27 Dec 2000 13:21:53 -0500
+	id <S129953AbQL0Sk5>; Wed, 27 Dec 2000 13:40:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129757AbQL0SVo>; Wed, 27 Dec 2000 13:21:44 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:64994 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129568AbQL0SV2>; Wed, 27 Dec 2000 13:21:28 -0500
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] shmmin behaviour back to 2.2 behaviour
-In-Reply-To: <Pine.LNX.4.21.0012271316020.11471-100000@freak.distro.conectiva>
-From: Christoph Rohland <cr@sap.com>
-In-Reply-To: <Pine.LNX.4.21.0012271316020.11471-100000@freak.distro.conectiva>
-Message-ID: <m3ito5agyc.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
+	id <S130151AbQL0Skr>; Wed, 27 Dec 2000 13:40:47 -0500
+Received: from acct2.voicenet.com ([207.103.26.205]:9358 "HELO voicenet.com")
+	by vger.kernel.org with SMTP id <S129953AbQL0Skh>;
+	Wed, 27 Dec 2000 13:40:37 -0500
+Message-ID: <3A4A3082.A6975F7C@voicenet.com>
+Date: Wed, 27 Dec 2000 13:10:10 -0500
+From: safemode <safemode@voicenet.com>
+Organization: none
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10-pre3-scsi-ide i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@arm.com>
+CC: Felix von Leitner <leitner@convergence.de>, linux-kernel@vger.kernel.org
+Subject: Re: Abysmal RAID 0 performance on 2.4.0-test10 for IDE?
+In-Reply-To: <4.3.2.7.2.20001227105214.00beaf00@cam-pop.cambridge.arm.com>
 Content-Type: text/plain; charset=us-ascii
-Date: 27 Dec 2000 18:54:03 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo@conectiva.com.br> writes:
+Ruth Ivimey-Cook wrote:
 
-> On 27 Dec 2000, Christoph Rohland wrote:
-> > The following patchlet bring the handling of shmget with size zero
-> > back to the 2.2 behaviour. There seem to be programs out, which
-> > (erroneously) rely on this.
-> 
-> Just curiosity: do you know if any specification (POSIX?) defines this
-> behaviour? 
+>
+> On IDE, you don't. IDE never supports hot-swap, RAID or no. If you want
+> that, use SCSI.
 
-I don't think so. IMNSHO it is not legal to call shmget with size <
-SHMMIN. But there are programs which do that successfully on Linux
-2.2. And I learnt not to break them without reason.
-
-Greetings
-                Christoph
+That's not necessarily true.  There is work in linux to support Tri-stating
+the ide devices with the help of a custom card that will allow one to cut
+power to a specific ide device. Tri-stating allows Hot Swapping of ide
+devices now.  I even had a picture of the device the person is using to hot
+swap.  I'm sorry that I have forgotten this kernel hackers name as i have
+lost the original email Along with said picture. I'm pretty sure the person
+who gave it to me was 2.4.x's IDE guy but I cant be sure right now.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

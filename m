@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267595AbTB1Hz1>; Fri, 28 Feb 2003 02:55:27 -0500
+	id <S267645AbTB1H71>; Fri, 28 Feb 2003 02:59:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267602AbTB1Hz1>; Fri, 28 Feb 2003 02:55:27 -0500
-Received: from packet.digeo.com ([12.110.80.53]:43156 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267595AbTB1Hz0>;
-	Fri, 28 Feb 2003 02:55:26 -0500
-Date: Fri, 28 Feb 2003 00:06:34 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Duncan Sands <baldrick@wanadoo.fr>
-Cc: kernel@kolivas.org, dmccr@us.ibm.com, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: Rising io_load results Re: 2.5.63-mm1
-Message-Id: <20030228000634.6d23a30c.akpm@digeo.com>
-In-Reply-To: <200302280846.04002.baldrick@wanadoo.fr>
-References: <20030227025900.1205425a.akpm@digeo.com>
-	<20030227160656.40ebeb93.akpm@digeo.com>
-	<200302281128.06840.kernel@kolivas.org>
-	<200302280846.04002.baldrick@wanadoo.fr>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S267648AbTB1H71>; Fri, 28 Feb 2003 02:59:27 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:51154 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267645AbTB1H7Z>; Fri, 28 Feb 2003 02:59:25 -0500
+Date: Fri, 28 Feb 2003 09:08:47 +0100
+From: Andi Kleen <ak@muc.de>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linus <torvalds@transmeta.com>,
+       anton@samba.org, "David S. Miller" <davem@redhat.com>, ak@muc.de,
+       davidm@hpl.hp.com, schwidefsky@de.ibm.com, ralf@gnu.org, matthew@wil.cx
+Subject: Re: [PATCH][COMPAT] compat_sys_fcntl{,64} 1/9 Generic part
+Message-ID: <20030228080847.GA29108@averell>
+References: <20030228153349.600b73f7.sfr@canb.auug.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Feb 2003 08:05:38.0648 (UTC) FILETIME=[2E1D9580:01C2DF00]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030228153349.600b73f7.sfr@canb.auug.org.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Duncan Sands <baldrick@wanadoo.fr> wrote:
->
-> Hi Con, are you sure this is not the same for 2.5.63?
-> I left 2.5.63 running over night (doing nothing but run
-> KDE), and in the morning it was swapping heavily.
-> About 200MB was swapped out and this did not reduce
-> with usage.  According to top, 10% of memory was being
-> used by a Konsole with nothing in it (could be a memory
-> leak in Konsole).  After half an hour I gave up - it was
-> too unusable.  Maybe -mm1 just accentuates a problem
-> that is already there in 2.5.63.
-> 
+On Fri, Feb 28, 2003 at 05:33:49AM +0100, Stephen Rothwell wrote:
+> +static int get_compat_flock(struct flock *kfl, struct compat_flock *ufl)
+> +{
+> +	if (!access_ok(VERIFY_READ, ufl, sizeof(*ufl)) ||
+> +	    __get_user(kfl->l_type, &ufl->l_type) ||
+> +	    __get_user(kfl->l_whence, &ufl->l_whence) ||
+> +	    __get_user(kfl->l_start, &ufl->l_start) ||
+> +	    __get_user(kfl->l_len, &ufl->l_len) ||
+> +	    __get_user(kfl->l_pid, &ufl->l_pid))
 
-Please take a snapshot of /proc/meminfo and /proc/slabinfo
-if anything like this happens.
+Perhaps there should be really a big fat comment on top of compat.c
+that it depends on a hole on __PAGE_OFFSET if the arch allows passing
+64bit pointers to the compat functions.
+
+> +
+> +asmlinkage long compat_sys_fcntl(unsigned int fd, unsigned int cmd,
+> +		unsigned long arg)
+> +{
+> +	if ((cmd == F_GETLK64) || (cmd == F_SETLK64) || (cmd == F_SETLKW64))
+> +		return -EINVAL;
+
+That won't work for IA32 emulation. There are programs that call
+old style fcntl() with F_*LK64. Just drop the if here.
+
+> +	return compat_sys_fcntl64(fd, cmd, arg);
+
+-Andi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,63 +1,190 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313862AbSEIQXf>; Thu, 9 May 2002 12:23:35 -0400
+	id <S313882AbSEIQgk>; Thu, 9 May 2002 12:36:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313867AbSEIQXe>; Thu, 9 May 2002 12:23:34 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:57864 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S313862AbSEIQXd>;
-	Thu, 9 May 2002 12:23:33 -0400
-Date: Thu, 9 May 2002 08:23:29 -0700
-From: Greg KH <greg@kroah.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: mochel@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Problems with 2.5.14 PCI reorg and non-PCI architectures
-Message-ID: <20020509152329.GC17158@kroah.com>
-In-Reply-To: <20020509084424.GC15460@kroah.com> <200205091300.g49D0TY01841@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Thu, 11 Apr 2002 13:35:16 -0700
+	id <S313898AbSEIQgk>; Thu, 9 May 2002 12:36:40 -0400
+Received: from wiproecmx2.wipro.com ([164.164.31.6]:42635 "EHLO
+	wiproecmx2.wipro.com") by vger.kernel.org with ESMTP
+	id <S313882AbSEIQgi>; Thu, 9 May 2002 12:36:38 -0400
+From: "BALBIR SINGH" <balbir.singh@wipro.com>
+To: "Rusty Russell" <rusty@rustcorp.com.au>, <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] Hotplug CPU prep III: daemonize idle tasks
+Date: Thu, 9 May 2002 17:36:43 +0530
+Message-ID: <AAEGIMDAKGCBHLBAACGBAELNCHAA.balbir.singh@wipro.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPartTM-000-14d8fbe0-6342-11d6-a942-00b0d0d06be8"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <E175jcp-00022d-00@wagner.rustcorp.com.au>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 09, 2002 at 09:00:28AM -0400, James Bottomley wrote:
-> greg@kroah.com said:
-> > arch/i386/pci/dma.c now only contains pci_alloc_consistent() and
-> > pci_free_consistent().  What kind of configuration are you using that
-> > works without CONFIG_PCI and yet calls those functions?  Is it a
-> > ISA_PNP type configuration?  Do you have a .config that this fails on?
-> 
-> The problem is that this is not necessarily PCI related on other platforms.
-> 
-> My cross platform SCSI driver, 53c700.c, uses pci_alloc_consistent because it 
-> has to work on parisc archs as well (which do have consistent memory even 
-> though a few of them don't have PCI busses).  It was failing a test compile.  
-> I can manipulate the #ifdefs so that it doesn't use the consistent allocation 
-> functions on x86, but I think, in principle, cross platform drivers should be 
-> able to use these functions.
 
-But parisc has it's own implementation of pci_alloc_consistent(), so
-you're ok on that platform.  And it looks like only 2 scsi drivers use
-the 53c700.c code, lasi700.c and NCR_D700.c.  The NCR driver looks to
-need pci, and the lasi700 driver doesn't look like it will even compile
-on i386.
+This is a multi-part message in MIME format.
 
-No wait, the NCR driver needs Microchannel, is that true?
+------=_NextPartTM-000-14d8fbe0-6342-11d6-a942-00b0d0d06be8
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-I would like to push back and ask why you are calling a pci_* function
-from a driver that does not need pci.  Yes, I know it's a nice, generic
-function, but that hasn't stopped people from rewriting that same
-function a number of times in different forms in different places in the
-tree :)
+I tried a version of __daemonize in 2.4. It panics in
+schedule()
 
-In a perfect world, we should probably create a function like:
-	void *alloc_consistent (int flags, size_t size, dma_addr_t *dma_handle);
-to solve everyone's needs, but I'm not volunteering to do that :)
+        prepare_to_switch();
+        {
+                struct mm_struct *mm = next->mm;
+                struct mm_struct *oldmm = prev->active_mm;
+                if (!mm) {
+                        if (next->active_mm) BUG();
 
-I'll go move the file and send the changeset to Linus.
+I got hit by the BUG() in 2.4, I think prepare_to_switch has
+moved to specific archs in 2.5. A quick look showed that
+this issue no longer exists in 2.5.
 
-thanks,
+Comments,
+Balbir Singh.
 
-greg k-h
+|-----Original Message-----
+|From: linux-kernel-owner@vger.kernel.org
+|[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Rusty Russell
+|Sent: Thursday, May 09, 2002 2:20 PM
+|To: torvalds@transmeta.com
+|Cc: linux-kernel@vger.kernel.org
+|Subject: [PATCH] Hotplug CPU prep III: daemonize idle tasks
+|
+|
+|This patch introduces __daemonize(task), so idle tasks can be detached
+|after cloning (required for late creation of idle tasks).
+|
+|This is independent of the last two patches.
+|
+|Name: Daemonize idle task
+|Author: Rusty Russell
+|
+|D: This patch allows daemonize() to be called on another process (if
+|D: not started yet), and calls it on the idle task.
+|
+|diff -urN -I \$.*\$ --exclude TAGS -X 
+|/home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal 
+|working-2.5.14-dofork+clonepid/include/linux/sched.h 
+|tmp/include/linux/sched.h
+|--- working-2.5.14-dofork+clonepid/include/linux/sched.h	Thu 
+|May  9 18:25:21 2002
+|+++ tmp/include/linux/sched.h	Thu May  9 18:36:17 2002
+|@@ -654,7 +654,12 @@
+| extern void exit_sighand(struct task_struct *);
+| 
+| extern void reparent_to_init(void);
+|-extern void daemonize(void);
+|+extern void __daemonize(struct task_struct *);
+|+static inline void daemonize(void)
+|+{
+|+	__daemonize(current);
+|+}
+|+
+| extern task_t *child_reaper;
+| 
+| extern int do_execve(char *, char **, char **, struct pt_regs *);
+|diff -urN -I \$.*\$ --exclude TAGS -X 
+|/home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal 
+|working-2.5.14-dofork+clonepid/kernel/exit.c tmp/kernel/exit.c
+|--- working-2.5.14-dofork+clonepid/kernel/exit.c	Mon Apr 29 
+|16:00:29 2002
+|+++ tmp/kernel/exit.c	Thu May  9 18:36:17 2002
+|@@ -201,32 +201,30 @@
+|  *	Put all the gunge required to become a kernel thread without
+|  *	attached user resources in one place where it belongs.
+|  */
+|-
+|-void daemonize(void)
+|+void __daemonize(struct task_struct *tsk)
+| {
+| 	struct fs_struct *fs;
+| 
+|-
+| 	/*
+| 	 * If we were started as result of loading a module, close 
+|all of the
+| 	 * user space pages.  We don't need them, and if we didn't 
+|close them
+| 	 * they would be locked into memory.
+| 	 */
+|-	exit_mm(current);
+|+	exit_mm(tsk);
+| 
+|-	current->session = 1;
+|-	current->pgrp = 1;
+|-	current->tty = NULL;
+|+	tsk->session = 1;
+|+	tsk->pgrp = 1;
+|+	tsk->tty = NULL;
+| 
+| 	/* Become as one with the init task */
+| 
+|-	exit_fs(current);	/* current->fs->count--; */
+|+	exit_fs(tsk);	/* current->fs->count--; */
+| 	fs = init_task.fs;
+|-	current->fs = fs;
+|+	tsk->fs = fs;
+| 	atomic_inc(&fs->count);
+|- 	exit_files(current);
+|-	current->files = init_task.files;
+|-	atomic_inc(&current->files->count);
+|+ 	exit_files(tsk);
+|+	tsk->files = init_task.files;
+|+	atomic_inc(&tsk->files->count);
+| }
+| 
+| /*
+|diff -urN -I \$.*\$ --exclude TAGS -X 
+|/home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal 
+|working-2.5.14-dofork+clonepid/kernel/sched.c tmp/kernel/sched.c
+|--- working-2.5.14-dofork+clonepid/kernel/sched.c	Wed May  1 
+|15:09:29 2002
+|+++ tmp/kernel/sched.c	Thu May  9 18:45:17 2002
+|@@ -1555,6 +1555,8 @@
+| 	runqueue_t *idle_rq = cpu_rq(cpu), *rq = 
+|cpu_rq(idle->thread_info->cpu);
+| 	unsigned long flags;
+| 
+|+	if (idle != &init_task)
+|+		__daemonize(idle);
+| 	__save_flags(flags);
+| 	__cli();
+| 	double_rq_lock(idle_rq, rq);
+|
+|--
+|  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+|-
+|To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+|the body of a message to majordomo@vger.kernel.org
+|More majordomo info at  http://vger.kernel.org/majordomo-info.html
+|Please read the FAQ at  http://www.tux.org/lkml/
+
+------=_NextPartTM-000-14d8fbe0-6342-11d6-a942-00b0d0d06be8
+Content-Type: text/plain;
+	name="Wipro_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Wipro_Disclaimer.txt"
+
+**************************Disclaimer************************************
+      
+
+
+Information contained in this E-MAIL being proprietary to Wipro Limited
+is 'privileged' and 'confidential' and intended for use only by the
+individual or entity to which it is addressed. You are notified that any
+use, copying or dissemination of the information contained in the E-MAIL
+in any manner whatsoever is strictly prohibited.
+
+
+
+ ********************************************************************
+
+------=_NextPartTM-000-14d8fbe0-6342-11d6-a942-00b0d0d06be8--

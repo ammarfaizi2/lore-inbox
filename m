@@ -1,36 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270593AbRHNMBv>; Tue, 14 Aug 2001 08:01:51 -0400
+	id <S270583AbRHNL7b>; Tue, 14 Aug 2001 07:59:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270607AbRHNMBm>; Tue, 14 Aug 2001 08:01:42 -0400
-Received: from fatbird.isisweb.nl ([212.204.202.107]:55046 "HELO
-	fatbird.isisweb.nl") by vger.kernel.org with SMTP
-	id <S269761AbRHNMBX>; Tue, 14 Aug 2001 08:01:23 -0400
-Date: Tue, 14 Aug 2001 14:01:31 +0200 (CEST)
-From: Ime Smits <ime@isisweb.nl>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Camino 2 (82815/82820) v2.4.x eth/sound related lockups
-In-Reply-To: <E15WcZ9-0000zr-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0108141351320.3880-100000@fatbird.isisweb.nl>
+	id <S270584AbRHNL7L>; Tue, 14 Aug 2001 07:59:11 -0400
+Received: from DSL-1-226.isd.net ([198.144.10.226]:603 "HELO
+	aaieee.daisy-chan.org") by vger.kernel.org with SMTP
+	id <S270583AbRHNL7D>; Tue, 14 Aug 2001 07:59:03 -0400
+Date: Tue, 14 Aug 2001 02:07:30 -0500 (CDT)
+From: "Joshua b. Jore" <josh@greentechnologist.org>
+X-X-Sender: <josh@aaieee.daisy-chan.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Joshua Jore <moomonk@daisy-chan.org>,
+        Anton Altaparmakov <aia21@cus.cam.ac.uk>,
+        Helge Hafting <helgehaf@idb.hist.no>,
+        James Simmons <jsimmons@transvirtual.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] DMCA loop hole
+In-Reply-To: <20010811121054.D35@toy.ucw.cz>
+Message-ID: <Pine.BSO.4.33.0108140204380.22991-100000@aaieee.daisy-chan.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'd beg to differ with you on that. The way I've heard it is that writing
+viruses is not legal in the US. Some of you aren't here so you have your
+own laws but then you aren't bound by the DMCA. I recall that was the
+impetus for this thread in the first place.
 
-INDIVIDVVS VOCATVR Alan Cox DIE 14/8/2001 12:40 VERE SCRIPSIT:
+I'll just have to beg off and say that I've understood it that
+'educational' are as illegal as say, something you meant to release into
+the wide world.
 
-| Those are not so good. I was having similar problems on an i810 box with
-| onboard eepro100 until I disabled the pm stuff in 2.4.8ac2, but you
-| seem to be running that one
+Joshua Jore
+Minneapolis Ward 3, precinct 10
 
-Already figured that out. Oh, and I forget to mention that the same lockups
-happen with all 2.4  versions I was able to find on my boxen, including
-2.4.0, -ac7, 2.4.2, 2.4.5, 2.4.5-ac3, -ac5, 2.4.6,  2.4.7, 2.4.8 and -ac2,
-so this is not something introduced in recent kernels. With
-2.4.8-ac2 I  played with enabling/disabling ACPI & PM stuff and also APIC
-irq stuff as mentioned in the eepro100 thread. No go.
+"The irony of this man being imprisoned in the United States and longing
+to return to once-Communist Russia so he can regain his right to free
+speach is simply staggering."
 
-Ime
+On Sat, 11 Aug 2001, Pavel Machek wrote:
+
+> Hi!
+>
+> > You know, I've heard this arguement a few times in various contexts and
+> > it's bothered me everytime. If a virus was designed with specific
+> > properties that hinder unauthorized copyright infringement then attempts
+> > to circumvent the limitations would be an example of DMCA circumvention.
+> >
+> > This misses the whole point that in order to deliver the second and more
+> > important part of the virus requires the author to self-identify to the
+> > US federal government and somehow get them to prosecute the offender. Now
+>
+> Writing virus is not illegal (its just fine for educational purposes). Letting
+> it into wild probably is. So maybe author _could_ identify to government if
+> *he* did not sent virus in the wild.
+> 								Pavel
+> --
+> Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+> details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+>
+>
 

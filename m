@@ -1,66 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264524AbTEJXIL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 19:08:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264525AbTEJXIL
+	id S264526AbTEJXOy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 19:14:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264527AbTEJXOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 19:08:11 -0400
-Received: from 60.54.252.64.snet.net ([64.252.54.60]:16836 "EHLO
-	jaymale.blue-labs.org") by vger.kernel.org with ESMTP
-	id S264524AbTEJXIK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 19:08:10 -0400
-Message-ID: <3EBD8941.7070403@blue-labs.org>
-Date: Sat, 10 May 2003 19:20:33 -0400
-From: David Ford <david+powerix@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030509
+	Sat, 10 May 2003 19:14:53 -0400
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:41716 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP id S264526AbTEJXOw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 19:14:52 -0400
+Message-ID: <3EBD8ADF.5040803@attbi.com>
+Date: Sat, 10 May 2003 16:27:27 -0700
+From: Miles Lane <miles.lane@attbi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.4a) Gecko/20030403
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Norbert Wolff <norbert_wolff@t-online.de>
-CC: Andy Pfiffer <andyp@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: ALSA busted in 2.5.69
-References: <fa.j6n4o02.sl813a@ifi.uio.no>	<fa.juutvqv.1inovpj@ifi.uio.no>	<3EBBF00D.8040108@hotmail.com>	<1052507530.15922.37.camel@andyp.pdx.osdl.net> <20030510080440.3446cc96.norbert_wolff@t-online.de>
-In-Reply-To: <20030510080440.3446cc96.norbert_wolff@t-online.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.69-bk4 -- drivers/ide/ppc/pmac.c: 724: In function `pmac_find_ide_boot':
+ incompatible types in return
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shrug :)
+   gcc -Wp,-MD,drivers/ide/ppc/.pmac.o.d -D__KERNEL__ -Iinclude -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-Iarch/ppc -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple 
+-mstring -fomit-frame-pointer -nostdinc -iwithprefix include 
+-Idrivers/ide  -DKBUILD_BASENAME=pmac -DKBUILD_MODNAME=pmac -c -o 
+drivers/ide/ppc/pmac.o drivers/ide/ppc/pmac.c
+drivers/ide/ppc/pmac.c: In function `pmac_find_ide_boot':
+drivers/ide/ppc/pmac.c:724: incompatible types in return
+make[3]: *** [drivers/ide/ppc/pmac.o] Error 1
 
-I use devfs, all is magic.  All is [nearly always] correct.
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDESCSI=m
 
-David
+#
+# IDE chipset support/bugfixes
+#
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_ADMA=y
 
-Norbert Wolff wrote:
-
->On 09 May 2003 12:12:10 -0700
->Andy Pfiffer <andyp@osdl.org> wrote:
->
->  
->
->>I'm not using devfs, and I've had no luck getting ALSA to work on my
->>i810-audio system.  OSS works fine.
->>
->>Is there a step-by-step writeup available for morons like me that
->>haven't gotten ALSA working?
->>    
->>
->
->Hi Andy !
->
->The Problem seems to be that ALSA has moved their devices some weeks ago.
->In the alsa-driver-0.9.3a-Package (ftp://ftp.alsa-project.org) is a script
->called snddevices (attached) which creates the needed devices and links.
->
->Execute it as root and all should be fine ...
->
->Maybe this Script should be distributed with the Kernel too ?
->
->Regards,
->
->	Norbert
->
->
->  
->
+CONFIG_BLK_DEV_IDE_PMAC=y
+CONFIG_BLK_DEV_IDEDMA_PMAC=y
+CONFIG_BLK_DEV_IDEDMA_PMAC_AUTO=y
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_IDEDMA_IVB is not set
+CONFIG_BLK_DEV_IDE_MODES=y
 

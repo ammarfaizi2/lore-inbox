@@ -1,29 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbVC0O2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbVC0Oay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbVC0O2v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 09:28:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbVC0O2v
+	id S261694AbVC0Oay (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 09:30:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbVC0Oay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 09:28:51 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:10193 "EHLO
+	Sun, 27 Mar 2005 09:30:54 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:14545 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261670AbVC0O2s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 09:28:48 -0500
-Subject: Re: [PATCH] no need to check for NULL before calling kfree()
-	-fs/ext2/
+	id S261685AbVC0Oab (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 09:30:31 -0500
+Subject: Re: [PATCH] remove redundant NULL pointer checks prior to calling
+	kfree() in fs/nfsd/
 From: Arjan van de Ven <arjan@infradead.org>
 To: Denis Vlasenko <vda@ilport.com.ua>
 Cc: linux-os@analogic.com, Jesper Juhl <juhl-lkml@dif.dk>,
-       ext2-devel@lists.sourceforge.net,
-       Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200503271551.18342.vda@ilport.com.ua>
-References: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost>
-	 <Pine.LNX.4.61.0503261811001.9945@chaos.analogic.com>
-	 <1111913130.6297.24.camel@laptopd505.fenrus.org>
-	 <200503271551.18342.vda@ilport.com.ua>
+       Neil Brown <neilb@cse.unsw.edu.au>, nfs@lists.sourceforge.net,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200503271545.28335.vda@ilport.com.ua>
+References: <Pine.LNX.4.62.0503252319220.2498@dragon.hyggekrogen.localhost>
+	 <Pine.LNX.4.61.0503251731240.6372@chaos.analogic.com>
+	 <1111826041.6293.31.camel@laptopd505.fenrus.org>
+	 <200503271545.28335.vda@ilport.com.ua>
 Content-Type: text/plain
-Date: Sun, 27 Mar 2005 16:28:42 +0200
-Message-Id: <1111933722.6297.42.camel@laptopd505.fenrus.org>
+Date: Sun, 27 Mar 2005 16:30:19 +0200
+Message-Id: <1111933819.6297.45.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
@@ -43,42 +44,43 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-03-27 at 15:51 +0300, Denis Vlasenko wrote:
-> > > It's impossible to be otherwise. A call requires
-> > > that the return address be written to memory (the stack),
-> > > using register indirection (the stack-pointer).
+On Sun, 2005-03-27 at 15:45 +0300, Denis Vlasenko wrote:
+> On Saturday 26 March 2005 10:34, Arjan van de Ven wrote:
+> > On Fri, 2005-03-25 at 17:34 -0500, linux-os wrote:
+> > > On Fri, 25 Mar 2005, Jesper Juhl wrote:
+> > > 
+> > > > (please keep me on CC)
+> > > >
+> > > >
+> > > > checking for NULL before calling kfree() is redundant and needlessly
+> > > > enlarges the kernel image, let's get rid of those checks.
+> > > >
+> > > 
+> > > Hardly. ORing a value with itself and jumping on condition is
+> > > real cheap compared with pushing a value into the stack
 > > 
-> > and it's a so common pattern that it's optimized to death. Internally a
-> > call gets transformed to 2 uops or so, one is push eip, the other is the
-> > jmp (which gets then just absorbed by the "what is the next eip" logic,
-> > just as a "jmp"s are 0 cycles)
+> > which century are you from?
+> > "jumping on condition" can easily be 100+ cycles, depending on how
+> > effective the branch predictor is. Pushing a value onto the stack otoh
+> > is half a cycle.
 > 
-> Arjan, you overlook the fact that kfree() contains 'if(!p) return;' too.
-> call + test-and-branch can never be faster than test+and+branch
+> linux-os is right because kfree does NULL check with exactly
+> the same code sequence, test and branch:
 
-ok so for the non-null case you have
+I know it does. The thing is that you have *two* chances to get a branch
+mispredict now.
 
-test-nbranch-call-test-nbranch
-vs
-call-test-nbranch
+Now if kfree did NOT do the if but move it always to the caller, then
+you have somewhat different dynamics (since you then always if the
+conditional jump once no matter) but that is not the case.
 
-vs the null case where you get
-test-branch
-vs
-call-test-branch
+> I conclude that if(p) kfree(p) makes sense only if:
+> a) p is more often NULL than not, and
+> b) it's in the hot path (you don't want to save on code size)
+> 
+> Since (a) is not typical, I think Jesper's cleanups are ok.
 
-(I'm using nbranch here as a non-taken branch; it's also a conditional
-branch and it has the same misprediction possibility)
-
-in the non-null case with if you have *two* chances for the branch
-predictor to go wrong. (and "wrong" can also mean "cold, eg unknown"
-here) and always an extra "test-nbranch" sequence, which is probably a
-cycle at least
-
-the offset for that is the null-case-without-if where you have an extra
-"call", which is also half to a whole cycle.
-
-even in the null case it's dubious if there is gain, it depends on how
-the branch predictor happens to feel that day ;)
+note that to gain from teh branch predictor "more often than not"
+probably needs to be in the 20:1 ratio to actually gain.
 
 

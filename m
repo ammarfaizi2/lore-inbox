@@ -1,74 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136237AbRA1BMl>; Sat, 27 Jan 2001 20:12:41 -0500
+	id <S136303AbRA1BOl>; Sat, 27 Jan 2001 20:14:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136303AbRA1BMc>; Sat, 27 Jan 2001 20:12:32 -0500
-Received: from Huntington-Beach.Blue-Labs.org ([208.179.0.198]:4410 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S136237AbRA1BM1>; Sat, 27 Jan 2001 20:12:27 -0500
-Message-ID: <3A7371DE.8FFE4572@linux.com>
-Date: Sun, 28 Jan 2001 01:11:58 +0000
-From: David Ford <david@linux.com>
-Organization: Blue Labs Software
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: J Sloan <jjs@pobox.com>
-CC: Shawn Starr <Shawn.Starr@Home.com>, Aaron Lehmann <aaronl@vitelus.com>,
-        John Sheahan <john@reptechnic.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: ps hang in 241-pre10
-In-Reply-To: <3A724FD2.3DEB44C@reptechnic.com.au> <20010126204324.B10046@vitelus.com> <3A72817E.CFCF0D52@pobox.com> <3A7285D4.9409E63A@linux.com> <3A7295F6.621BBEC4@Home.com> <3A731E65.8BE87D73@pobox.com> <3A7359BB.7BBEE42A@linux.com> <3A736B05.9021CA37@pobox.com>
+	id <S136333AbRA1BOV>; Sat, 27 Jan 2001 20:14:21 -0500
+Received: from mailgate1.zdv.Uni-Mainz.DE ([134.93.8.56]:7645 "EHLO
+	mailgate1.zdv.Uni-Mainz.DE") by vger.kernel.org with ESMTP
+	id <S136303AbRA1BOJ>; Sat, 27 Jan 2001 20:14:09 -0500
+Date: Sun, 28 Jan 2001 02:10:25 +0100
+From: Dominik Kubla <dominik.kubla@uni-mainz.de>
+To: Gregory Maxwell <greg@linuxpower.cx>
+Cc: James Sutherland <jas88@cam.ac.uk>, David Schwartz <davids@webmaster.com>,
+        Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: hotmail not dealing with ECN
+Message-ID: <20010128021025.D800@uni-mainz.de>
+Mail-Followup-To: Dominik Kubla <dominik.kubla@uni-mainz.de>,
+	Gregory Maxwell <greg@linuxpower.cx>,
+	James Sutherland <jas88@cam.ac.uk>,
+	David Schwartz <davids@webmaster.com>,
+	Jamie Lokier <lk@tantalophile.demon.co.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <NCBBLIEPOCNJOAEKBEAKCECMNFAA.davids@webmaster.com> <Pine.SOL.4.21.0101272308030.701-100000@green.csi.cam.ac.uk> <20010127191159.B7467@xi.linuxpower.cx>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010127191159.B7467@xi.linuxpower.cx>; from greg@linuxpower.cx on Sat, Jan 27, 2001 at 07:11:59PM -0500
+X-No-Archive: yes
+Restrict: no-external-archive
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2.4.0-ac12, I played music for about 30 minutes without any problems.  I started up an mpeg in xmms and it
-locked in short order.  I'm sure now that it has something to do with the graphics.  What DGA or other config
-options do you have enabled for your game?
+On Sat, Jan 27, 2001 at 07:11:59PM -0500, Gregory Maxwell wrote:
 
-What video and sound card?
+> It's this kind of ignorance that makes the internet a less secure and stable
+> place.
 
-I have an ATI Rage LT Pro AGP-133 according to lspci.
+You have obviously absolutely no idea what you are talking about. Period.
 
--d
+> The network should not be a stateful device. If you need stateful
+> firewalling the only place it should be implimented is on the end node. If
+> management of that is a problem, then make an interface solve that problem
+> insted of breaking the damn network.
 
-J Sloan wrote:
+So how do you propose to secure devices like MRT's or X-Ray scanners or
+life-support in a hospital? Nowadays this equipment  is hooked to the
+internal network of the hospital and protected by really paranoid
+firewalls. Do you really want unneeded software on those devices?
 
-> Sorry, there was no xmms involved here -
->
-> The behavior occurred while playing unreal tournament.
->
-> But at least the sound card was in use, FWIW -
->
-> jjs
->
-> David Ford wrote:
->
-> > We've narrowed it down to "we're all running xmms" when it happend.
-> >
-> > -d
-> >
-> > J Sloan wrote:
-> >
-> > > Just for the record, the system where I saw the problem
-> > > has only ext2 -
-> >
-> > --
-> >   There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
-> >   The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > Please read the FAQ at http://www.tux.org/lkml/
+Or what about the computer systems in nuclear powerplants? In air defense
+systems?  Power grids? Water supply?
 
---
-  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
-  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
+Oh come on! Just reread some of the newspapers back from Dec 31 1999!
 
-
-
+Yours,
+  Dominik Kubla
+-- 
+          A lovely thing to see:                   Kobayashi Issa
+     through the paper window's holes               (1763-1828)
+                the galaxy.               [taken from: David Brin - Sundiver]
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130459AbRCFLGk>; Tue, 6 Mar 2001 06:06:40 -0500
+	id <S130431AbRCCIim>; Sat, 3 Mar 2001 03:38:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130458AbRCFLG3>; Tue, 6 Mar 2001 06:06:29 -0500
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:10500 "EHLO
-	bug.ucw.cz") by vger.kernel.org with ESMTP id <S130430AbRCFLGR>;
-	Tue, 6 Mar 2001 06:06:17 -0500
-Date: Fri, 2 Mar 2001 00:52:26 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Daniel Ridge <newt@scyld.com>
-Cc: beowulf@beowulf.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Will Mosix go into the standard kernel?
-Message-ID: <20010302005226.A35@(none)>
-In-Reply-To: <Pine.LNX.4.33.0102271829030.5502-100000@duckman.distro.conectiva> <Pine.LNX.4.21.0102281732210.22184-100000@eleanor.wdhq.scyld.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21.0102281732210.22184-100000@eleanor.wdhq.scyld.com>; from newt@scyld.com on Wed, Feb 28, 2001 at 06:06:37PM -0500
+	id <S130432AbRCCIid>; Sat, 3 Mar 2001 03:38:33 -0500
+Received: from [139.134.6.86] ([139.134.6.86]:51694 "EHLO mailin9.bigpond.com")
+	by vger.kernel.org with ESMTP id <S130431AbRCCIi1>;
+	Sat, 3 Mar 2001 03:38:27 -0500
+Message-ID: <3AA1D522.7050300@bigpond.net.au>
+Date: Sat, 03 Mar 2001 19:39:46 -1000
+From: Mark Reginald James <mrj@bigpond.net.au>
+Organization: WahSounds
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2 i686; en-US; 0.7) Gecko/20010119
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: TCP Congestion Window Bug?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi:
 
-> The Scyld system is based on BProc -- which requires only a 1K patch to
-> the kernel. This patch adds 339 net lines to the kernel, and changes 38
-> existing lines.
-> 
-> The Scyld 2-kernel-monte kernel inplace reboot facility is a 600-line
-> module which doesn't require any patches whatsoever.
+TCP only sends a packet if:
 
-There might be big difference in *complexity* of those patches. Distributions
-only change "unimportant" stuff. And 600 lines module is not small, either..
+         tcp_packets_in_flight(tp) < tp->snd_cwnd
 
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+         (function tcp_snd_test in include/net/tcp.h)
+
+but regards transmission as application-limited if
+
+         tp->packets_out < tp->snd_cwnd
+
+         (function tcp_cwnd_validate in include/net/tcp.h)
+
+So the kernel _always_ thinks the connection is
+application-limited, forcing many un-necessary
+reductions in the size of the congestion window.
+
+I think the condition in tcp_snd_test should be:
+
+         tcp_packets_in_flight(tp) <= tp->snd_cwnd
+
+Mark
 

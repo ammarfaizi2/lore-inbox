@@ -1,86 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbVAGT4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVAGUFs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261560AbVAGT4F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 14:56:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVAGTyG
+	id S261587AbVAGUFs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 15:05:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbVAGUEz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 14:54:06 -0500
-Received: from atlrel8.hp.com ([156.153.255.206]:55438 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S261554AbVAGTvA (ORCPT
+	Fri, 7 Jan 2005 15:04:55 -0500
+Received: from waste.org ([216.27.176.166]:37322 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261588AbVAGUDT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 14:51:00 -0500
-Subject: [PATCH] use modern format for PCI->APIC IRQ transform printks
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Greg Kroah-Hartman <greg@kroah.com>, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Fri, 07 Jan 2005 12:50:52 -0700
-Message-Id: <1105127452.25267.35.camel@eeyore>
+	Fri, 7 Jan 2005 15:03:19 -0500
+Date: Fri, 7 Jan 2005 12:02:46 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andreas Steinmetz <ast@domdv.de>,
+       Lee Revell <rlrevell@joe-job.com>, Chris Wright <chrisw@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       LAD mailing list <linux-audio-dev@music.columbia.edu>
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050107200245.GW2940@waste.org>
+References: <1104374603.9732.32.camel@krustophenia.net> <20050103140359.GA19976@infradead.org> <1104862614.8255.1.camel@krustophenia.net> <20050104182010.GA15254@infradead.org> <1104865034.8346.4.camel@krustophenia.net> <41DB4476.8080400@domdv.de> <1104898693.24187.162.camel@localhost.localdomain> <20050107011820.GC2995@waste.org> <87brc17pj6.fsf@sulphur.joq.us>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87brc17pj6.fsf@sulphur.joq.us>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use pci_name() rather than "(B%d,I%d,P%d)" when printing PCI
-IRQ information.  Compiled but untested.
+On Thu, Jan 06, 2005 at 11:54:05PM -0600, Jack O'Quin wrote:
+> Note that sched_setschedule() provides no way to handle the mlock()
+> requirement, which cannot be done from another process.
 
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+I'm pretty sure that part can be done by a privileged server handing
+out mlocked shared memory segments.
 
-===== arch/i386/pci/irq.c 1.53 vs edited =====
---- 1.53/arch/i386/pci/irq.c	2004-12-30 16:22:56 -07:00
-+++ edited/arch/i386/pci/irq.c	2005-01-07 11:11:11 -07:00
-@@ -735,7 +735,7 @@
- 	if (!pirq_table)
- 		return 0;
- 	
--	DBG("IRQ for %s:%d", pci_name(dev), pin);
-+	DBG("IRQ for %s[%c]", pci_name(dev), 'A' + pin);
- 	info = pirq_get_info(dev);
- 	if (!info) {
- 		DBG(" -> not found in routing table\n");
-@@ -892,16 +892,16 @@
- 					irq = IO_APIC_get_PCI_irq_vector(bridge->bus->number, 
- 							PCI_SLOT(bridge->devfn), pin);
- 					if (irq >= 0)
--						printk(KERN_WARNING "PCI: using PPB(B%d,I%d,P%d) to get irq %d\n", 
--							bridge->bus->number, PCI_SLOT(bridge->devfn), pin, irq);
-+						printk(KERN_WARNING "PCI: using PPB %s[%c] to get irq %d\n", 
-+							pci_name(bridge), 'A' + pin, irq);
- 				}
- 				if (irq >= 0) {
- 					if (use_pci_vector() &&
- 						!platform_legacy_irq(irq))
- 						irq = IO_APIC_VECTOR(irq);
- 
--					printk(KERN_INFO "PCI->APIC IRQ transform: (B%d,I%d,P%d) -> %d\n",
--						dev->bus->number, PCI_SLOT(dev->devfn), pin, irq);
-+					printk(KERN_INFO "PCI->APIC IRQ transform: %s[%c] -> IRQ %d\n",
-+						pci_name(dev), 'A' + pin, irq);
- 					dev->irq = irq;
- 				}
- 			}
-@@ -1051,8 +1051,8 @@
- 					irq = IO_APIC_get_PCI_irq_vector(bridge->bus->number, 
- 							PCI_SLOT(bridge->devfn), pin);
- 					if (irq >= 0)
--						printk(KERN_WARNING "PCI: using PPB(B%d,I%d,P%d) to get irq %d\n", 
--							bridge->bus->number, PCI_SLOT(bridge->devfn), pin, irq);
-+						printk(KERN_WARNING "PCI: using PPB %s[%c] to get irq %d\n", 
-+							pci_name(bridge), 'A' + pin, irq);
- 					dev = bridge;
- 				}
- 				dev = temp_dev;
-@@ -1061,8 +1061,8 @@
- 					if (!platform_legacy_irq(irq))
- 						irq = IO_APIC_VECTOR(irq);
- #endif
--					printk(KERN_INFO "PCI->APIC IRQ transform: (B%d,I%d,P%d) -> %d\n",
--						dev->bus->number, PCI_SLOT(dev->devfn), pin, irq);
-+					printk(KERN_INFO "PCI->APIC IRQ transform: %s[%c] -> IRQ %d\n",
-+						pci_name(dev), 'A' + pin, irq);
- 					dev->irq = irq;
- 					return 0;
- 				} else
+The trouble with introducing something into the kernel is that once
+done, it can't be undone. So you're absolutely going to meet
+resistance to anything that can be a) done sufficiently in userspace
+or b) can reasonably be done in a more generic manner so as to meet
+the needs of a wider future audience. The onus is on the submitter to
+meet these requirements because we can't easily kick out a broken API
+after we accept it.
 
-
+-- 
+Mathematics is the supreme nostalgia of our time.

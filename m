@@ -1,63 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbULEV3c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbULEVaE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261401AbULEV3c (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 16:29:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbULEV3b
+	id S261404AbULEVaE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 16:30:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbULEVaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 16:29:31 -0500
-Received: from rrcs-24-123-59-149.central.biz.rr.com ([24.123.59.149]:38469
-	"EHLO galon.ev-en.org") by vger.kernel.org with ESMTP
-	id S261401AbULEV3U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 16:29:20 -0500
-Message-ID: <41B37DA1.2010607@ev-en.org>
-Date: Sun, 05 Dec 2004 21:29:05 +0000
-From: Baruch Even <baruch@ev-en.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Cc: Lee Revell <rlrevell@joe-job.com>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Alessandro Amici <alexamici@fastwebnet.it>,
-       Miguel Angel Flores <maf@sombragris.com>, linux-kernel@vger.kernel.org
-Subject: Re: kernel development environment
-References: <41B1F97A.80803@sombragris.com>	 <200412042121.49274.alexamici@fastwebnet.it>	 <41B22381.10008@sombragris.com>	 <200412042237.48729.alexamici@fastwebnet.it>	 <1102196829.28776.46.camel@krustophenia.net>	 <41B22EDE.2060009@stud.feec.vutbr.cz>	 <1102200355.28776.58.camel@krustophenia.net>  <41B24A46.2010802@osdl.org> <1102204514.28776.79.camel@krustophenia.net> <41B25798.3080600@stud.feec.vutbr.cz>
-In-Reply-To: <41B25798.3080600@stud.feec.vutbr.cz>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 5 Dec 2004 16:30:04 -0500
+Received: from gprs215-105.eurotel.cz ([160.218.215.105]:29056 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261404AbULEV3y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 16:29:54 -0500
+Date: Sun, 5 Dec 2004 22:29:40 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFC] Add support to resume swsusp from initrd
+Message-ID: <20041205212940.GG1012@elf.ucw.cz>
+References: <1102279686.9384.22.camel@tyrosine> <20041205211230.GC1012@elf.ucw.cz> <1102281698.9384.29.camel@tyrosine>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1102281698.9384.29.camel@tyrosine>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Schmidt wrote:
-> Lee Revell wrote:
-> 
->> diff foo bar | xclip works perfectly with my mailer and does not
->> require a temporary file.
-> 
-> 
-> Pasting from xclip to Mozilla Thunderbird works for me IFF the selection 
-> is 4096 bytes or less. But it looks like a bug in xclip, not Mozilla. 
-> Try this:
-> 
-> $ (for i in `seq 1 4096`; do echo -n 'a'; done) | xclip
-> $ xclip -o
-> aaaaaaaaaaaa......aaa
-> 
-> $ (for i in `seq 1 4097`; do echo -n 'a'; done) | xclip
-> $ xclip -o
-> [hangs]
-> 
-> This is with SuSE 8.2 and xclip from a Debian package 
-> xclip_0.08-4_i386.deb .
+Hi!
 
-I've done some work on xclip in Debian so I thought to test it. It 
-doesn't happen to me on my Debian testing with xclip 0.08-4
+> > > echo -n "set 03:02" >/sys/power/resume
+> > 
+> > I'd prefer not to have this one. Is it actually usefull? Then resume
+> > could be triggered by echo -n "03:02" > /sys/power/resume...
+> 
+> resume_device is set by swsusp_read, which requires name_to_dev_t to be
+> working. At the point where that's called, the device driver hasn't been
+> loaded and we don't have the information to get the dev_t. Once the
+> driver has been loaded, name_to_dev_t has already been discarded (it's
+> marked __init). So we need to set resume_device somehow.
 
-After 4k of transfers the clipboard protocol means sending multiple 
-messages, I've did some fixes in that area a while ago and didn't hear 
-of any problems in that area.
+What about move of resume_device setup somewhere sooner?
 
-I'd be happy to hear of such problems, directly or in the Debian BTS.
+> Heh. Yes, that's no problem. A new bigdiff for -rc3 would be
+> helpful.
 
-Baruch
+Hmm, I'm still on 2.6.9, but this code did not change much. I'll
+generate it.
+
+> > You really need to make sure that userland processes are stopped
+> > before swsusp-resume is started. You should do freeze_process(). Then
+> > resume process depends on having enough memory available, so you
+> > probably want to free_some_memory() and warn in documentation about
+> > the fact.
+> 
+> Ok. I'll look into that. The main reason I want code like this is that
+> Debian use modular IDE drivers that are stored in the initrd. The disks
+> won't be touched until the root file system is mounted, and we'll
+> trigger the resume before then, so there shouldn't be any risk of data
+> loss. At this point, there shouldn't be any userspace running other than
+> a single shell script - do you think it's still a problem?
+
+Single shell script would probably do no harm, but then, you want this
+to go into mainline, not into Debian kernel, right? ;-).
+
+Actually freezing processes is good thing to do even for normal
+resume. We pretty much know there are no harmfull processes running
+there, but better safe than sorry.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267852AbRINTOZ>; Fri, 14 Sep 2001 15:14:25 -0400
+	id <S269413AbRINTQp>; Fri, 14 Sep 2001 15:16:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268702AbRINTOP>; Fri, 14 Sep 2001 15:14:15 -0400
-Received: from winds.org ([209.115.81.9]:46345 "EHLO winds.org")
-	by vger.kernel.org with ESMTP id <S267852AbRINTOF>;
-	Fri, 14 Sep 2001 15:14:05 -0400
-Date: Fri, 14 Sep 2001 15:14:27 -0400 (EDT)
-From: Byron Stanoszek <gandalf@winds.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Strange /dev/loop behavior
-Message-ID: <Pine.LNX.4.33.0109141505530.29038-100000@winds.org>
+	id <S269326AbRINTQf>; Fri, 14 Sep 2001 15:16:35 -0400
+Received: from relay01.cablecom.net ([62.2.33.101]:7951 "EHLO
+	relay01.cablecom.net") by vger.kernel.org with ESMTP
+	id <S268702AbRINTQc>; Fri, 14 Sep 2001 15:16:32 -0400
+Message-ID: <3BA257A5.E74DDBAB@bluewin.ch>
+Date: Fri, 14 Sep 2001 21:16:53 +0200
+From: Otto Wyss <otto.wyss@bluewin.ch>
+Reply-To: otto.wyss@bluewin.ch
+X-Mailer: Mozilla 4.78 (Macintosh; U; PPC)
+X-Accept-Language: de,en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: How errorproof is ext2 fs?
+In-Reply-To: <E15hebh-0007QK-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Over the months using kernels 2.2 and 2.4, I've seen some inconsistencies with
-the behavior of syncing data to filesystems mounted via loopback.
+> > This leaves me a bad taste of Linux in my mouth. Does ext2 fs really behave so
+> > worse in case of a crash? Okay Linux does not crash that often as MacOS does, so
+> 
+> That sounds like it behaved well. fsck didnt have enough info to safely
+> do all the fixup without asking you. Its not a reliability issue as such.
+> 
+Well it could also be the fact that almost no activity was going on on both
+systems. 
 
-Say I mounted a 32MB 'diskimage' file as ext2fs. My goal is to be able to make
-changes to this filesystem, 'sync' these changes, and then copy a compressed
-version of the filesystem via the network for a diskless machine to boot. This
-has to take place without unmounting the filesystem.
+> > it does not need a good  error proof fs. Still can't ext2 be made a little more
+> > error proof?
+> 
+> Ext3 is a journalled ext2. Its in the 2.4-ac kernel trees. Reiserfs in the
+> -ac tree also supports big endian boxes.
+> 
+At least ext2 and probably all the journalling fs lacks a feature the HFS+ from
+the Mac has (bad tongues might say "needs"), to keep open files without activity
+in a state where a crash has no effect. I don't know how it is done since I'm no
+fs expert but my experience with my Mac (resetting about once a month without
+loosing anything) shows that it's possible.
 
-When we started with Linux 2.2 in June 1999, I was able to use this script to
-accomplish the task:
+I'd rather like to see this feature appear in one fs for Linux (preferable
+ext2). I think it's always better to not have error instead of fixing them afterwards.
 
-# cat diskimage | gzip > diskimage.gz
-
-Starting with 2.2.17, it became evident that the file 'diskimage' in cache was
-not equivalent to the filesystem mounted loopback. The script was changed to
-the following to reflect that it was the device data itself that needed to be
-compressed:
-
-# cat /dev/loop0 | gzip > diskimage.gz
-
-Now last week we've upgraded these servers to 2.4 (2.4.9-ac7 specifically) and
-it appears that /dev/loop0 is inconsistent with the actual loopback filesystem
-contents (even after a 'sync'). The inconsistency is intermittent. Sometimes
-the script works, sometimes the data in the modified files on the diskless
-machine is corrupt, and it requires a second cat|gzip to fix.
-
-I've changed the script to use 'cat diskimage' again for the meantime, but I
-don't know if it's the absolute fix.
-
-
-Is there any known method of copying/compressing the loopback-mounted file-
-system that always guarantees consistency after a sync, without requiring the
-fs to be unmounted first?
-
-Thanks,
- Byron
-
--- 
-Byron Stanoszek                         Ph: (330) 644-3059
-Systems Programmer                      Fax: (330) 644-8110
-Commercial Timesharing Inc.             Email: byron@comtime.com
-
+O. Wyss

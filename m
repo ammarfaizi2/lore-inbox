@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261429AbSJMFXj>; Sun, 13 Oct 2002 01:23:39 -0400
+	id <S261431AbSJMFnQ>; Sun, 13 Oct 2002 01:43:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261431AbSJMFXj>; Sun, 13 Oct 2002 01:23:39 -0400
-Received: from packet.digeo.com ([12.110.80.53]:27278 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261429AbSJMFXj>;
-	Sun, 13 Oct 2002 01:23:39 -0400
-Message-ID: <3DA904B2.CC4E6738@digeo.com>
-Date: Sat, 12 Oct 2002 22:29:22 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.41 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Joseph D. Wagner" <wagnerjd@prodigy.net>
-CC: "'Matt Domsch'" <Matt_Domsch@Dell.com>,
-       "'Linux Kernel Development List'" <linux-kernel@vger.kernel.org>
-Subject: Re: [CFT][PATCH 2.5] x86 BIOS Enhanced Disk Drive services
-References: <20BF5713E14D5B48AA289F72BD372D68A3E27C-100000@AUSXMPC122.aus.amer.dell.com> <001d01c27274$42da70e0$b7261c43@joe>
-Content-Type: text/plain; charset=us-ascii
+	id <S261432AbSJMFnQ>; Sun, 13 Oct 2002 01:43:16 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:55179 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261431AbSJMFnP>;
+	Sun, 13 Oct 2002 01:43:15 -0400
+Date: Sat, 12 Oct 2002 22:42:12 -0700 (PDT)
+Message-Id: <20021012.224212.56861427.davem@redhat.com>
+To: skraw@ithnet.com
+Cc: ahu@ds9a.nl, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] USAGI IPsec
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021012140644.0d403b2c.skraw@ithnet.com>
+References: <20021012111759.GA10104@outpost.ds9a.nl>
+	<20021012.044137.42774593.davem@redhat.com>
+	<20021012140644.0d403b2c.skraw@ithnet.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Oct 2002 05:29:22.0740 (UTC) FILETIME=[7CA20F40:01C27279]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Joseph D. Wagner" wrote:
-> 
-> Sure!  Will I get paid?  Cause I sure as hell am not working for free.
-> 
+   From: Stephan von Krawczynski <skraw@ithnet.com>
+   Date: Sat, 12 Oct 2002 14:06:44 +0200
 
-External testing by the long-suffering body of well-meaning users
-is a critical factor in kernel development.
+   This was a 2.2.19 kernel with equal-cost-multipath enabled
+   and large routing-tables enabled.
 
-I see no reason why a prospective contribution from a Dell employee
-should be denied that.
-
-As someone once said: "In case you've forgotten, this is the Linux
-Kernel Development List, for DEVELOPERS.  Take your cyber-political,
-cyber-theology, and cyber-philosophy elsewhere!"
-
-Oh.  That was you.
+It doesn't surprise me that 2.2.x performs like crap under
+any real load btw :-)  It has none of the 2.3.x scalability
+and threading work.

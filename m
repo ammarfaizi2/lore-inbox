@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264685AbRFQDld>; Sat, 16 Jun 2001 23:41:33 -0400
+	id <S264684AbRFQDkB>; Sat, 16 Jun 2001 23:40:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264686AbRFQDlW>; Sat, 16 Jun 2001 23:41:22 -0400
-Received: from 200-206-139-161-br-arqfisb1.public.telesp.net.br ([200.206.139.161]:11013
-	"EHLO blackjesus.async.com.br") by vger.kernel.org with ESMTP
-	id <S264685AbRFQDlJ>; Sat, 16 Jun 2001 23:41:09 -0400
-Date: Sun, 17 Jun 2001 00:40:34 -0300 (BRT)
-From: Christian Robottom Reis <kiko@async.com.br>
-To: <eepro100@scyld.com>
-cc: <saw@saw.sw.com.sg>, <linux-kernel@vger.kernel.org>
-Subject: Re: eepro100 problems with 2.2.19 _and_ 2.4.0
-In-Reply-To: <Pine.LNX.4.32.0106161923290.339-100000@blackjesus.async.com.br>
-Message-ID: <Pine.LNX.4.32.0106170037020.191-100000@blackjesus.async.com.br>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264685AbRFQDjv>; Sat, 16 Jun 2001 23:39:51 -0400
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:30175 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S264684AbRFQDjo>; Sat, 16 Jun 2001 23:39:44 -0400
+Date: Sun, 17 Jun 2001 05:40:08 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: "Eric S. Raymond" <esr@thyrsus.com>, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net, rick@linuxmafia.com
+Subject: Re: Kernel configuration.  It's not just a job, it's an adventure!
+Message-ID: <20010617054008.O754@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <20010616222709.A11872@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010616222709.A11872@thyrsus.com>; from esr@thyrsus.com on Sat, Jun 16, 2001 at 10:27:09PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Jun 2001, Christian Robottom Reis wrote:
+On Sat, Jun 16, 2001 at 10:27:09PM -0400, Eric S. Raymond wrote:
+> > go buses
+> The buses room.  A sign reads `System buses and controller types'.
+> A passage leads upwards.
+> 
+> Specify the buses, disk controllers, and internal interconnection standards
+> that you want your kernel to support.
+> It is very dark.  If you continue, you are likely to be eaten by a grue.
+> There is an option named EISA here.
+> There is an option named PCI here.
+> There is an option named PNP here.
+> There is an option named PARPORT here.
+> There is an option named HOTPLUG here.
 
-> I'm having a ton of problems with a set of boxes that use an onboard
-> variant of the eepro100. I'm not sure what version it is (#$@#*&$@ Intel
-> documentation - motherboard is model D815EEA2) but eepro100-diag reports:
->
-> eepro100-diag.c:v2.05 6/13/2001 Donald Becker (becker@scyld.com)
->  http://www.scyld.com/diag/index.html
-> Index #1: Found a Intel i82562 Pro/100 V adapter at 0xdf00.
+> take HOTPLUG
+You can now plug, if you are hot enough.
 
-I've just tested with Intel's epro-1.6.6 driver, and it does work (the
-full bonanza works; simultaneous netperf and ftp and whatnot run with no
-errors or hangs). This makes my situation a bit easier (and my head a bit
-less confused, specially with Andrey pointing out the different versions
-to the driver).
+SCNR, but a nice game indeed ;-)
 
-I am _very_ willing to devote some time to getting this fixed in both the
-kernel and Donald's drivers if anyone is interested in tracking down the
-problem. I'm not very familiar with the hardware, but I have a test box I
-can use freely, a bit of time spare, and I can reproduce the problem
-easily. I'd hate to see somebody else go through what I have just had to,
-so it would be nice to see this fixed or documented in an official-ese
-place.
+Regards
 
-Take care,
---
-/\/\ Christian Reis, Senior Engineer, Async Open Source, Brazil
-~\/~ http://async.com.br/~kiko/ | [+55 16] 274 4311
-
+Ingo Oeser
+-- 
+Use ReiserFS to get a faster fsck and Ext2 to fsck slowly and gently.

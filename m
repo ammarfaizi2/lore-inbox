@@ -1,65 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286179AbSALMew>; Sat, 12 Jan 2002 07:34:52 -0500
+	id <S285972AbSALMs0>; Sat, 12 Jan 2002 07:48:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286184AbSALMeq>; Sat, 12 Jan 2002 07:34:46 -0500
-Received: from theirongiant.weebeastie.net ([203.62.148.50]:38531 "EHLO
-	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S286179AbSALMec>; Sat, 12 Jan 2002 07:34:32 -0500
-Date: Sat, 12 Jan 2002 23:34:23 +1100
-From: CaT <cat@zip.com.au>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, netfilter-devel@lists.samba.org
-Subject: Re: netfilter oops (Was: Re: Linux 2.4.18-pre2)
-Message-ID: <20020112123423.GD5211@zip.com.au>
-In-Reply-To: <20020112110438.GB7198@zip.com.au>
+	id <S286188AbSALMsR>; Sat, 12 Jan 2002 07:48:17 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:61713 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S285972AbSALMsL>;
+	Sat, 12 Jan 2002 07:48:11 -0500
+Date: Sat, 12 Jan 2002 05:45:35 -0700
+From: yodaiken@fsmlabs.com
+To: Robert Love <rml@tech9.net>
+Cc: Rob Landley <landley@trommello.org>, yodaiken@fsmlabs.com,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, nigel@nrg.org,
+        Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20020112054535.B3734@hq.fsmlabs.com>
+In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy> <20020111195018.A2008@hq.fsmlabs.com> <20020112042404.WCSI23959.femail47.sdc1.sfba.home.com@there> <1010815300.2011.16.camel@phantasy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020112110438.GB7198@zip.com.au>
-User-Agent: Mutt/1.3.25i
-Organisation: Furball Inc.
+User-Agent: Mutt/1.2i
+In-Reply-To: <1010815300.2011.16.camel@phantasy>; from rml@tech9.net on Sat, Jan 12, 2002 at 01:01:39AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 12, 2002 at 10:04:38PM +1100, CaT wrote:
-> Just did a test and it's not masquerading that's causing it. I'll need
-> to convert my filesystems to ext3 first because the crashes are not
-> going to be healthy for this box (or me... 45gig HD involved on a
-> pentium-200) and I'll experiment some more. It may be redirection
-> that's doing it.
+On Sat, Jan 12, 2002 at 01:01:39AM -0500, Robert Love wrote:
+> could even be merged.  Daniel Phillips suggested a passive tool on IRC. 
+> Preempt-stats works like this.  It is off-by-default and, when enabled,
+> measures time between lock and unlock, reporting the top 20 worst-cases.
 
-Ka-ching! Being able to use a fwded net connection without masq was the 
-needed clue. I looked at the patches and found this one:
+I think one of the problems with this entire debate is lack of meaningful
+numbers. Not for the first time, I propose that you test with something
+that tests application benefits instead of internal numbers that may not
+mean anything. For example, there is a simple test
+		/* user code */
+		get time.
+		count = 200*3600; /* one hour */
+		while(count--){
+			read cycle timer
+			clock_nanosleep(5 milliseconds)
+			read cycle timer
+			compute actual delay and difference from 5 milliseconds
+			store the worst case
+			}
+		get time.
+		printf("After one hour the worst deviation is %d clock ticks\n",worst);
+		printf("This was supposed to take one hour and it took %d", compute_elapsed());
 
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal
-linux-2.4.16/net/ipv4/netfilter/ip_fw_compat_redir.c
-linux-2.4.17/net/ipv4/netfilter/ip_fw_compat_redir.c
---- linux-2.4.16/net/ipv4/netfilter/ip_fw_compat_redir.c        Sat Aug 5 06:07:24 2000
-+++ linux-2.4.17/net/ipv4/netfilter/ip_fw_compat_redir.c        Thu Dec 27 12:46:11 2001
-@@ -206,6 +206,8 @@
-                        }
-                        list_prepend(&redirs, redir);
-                        init_timer(&redir->destroyme);
-+                       redir->destroyme.expires = jiffies + 75*HZ;
-+                       add_timer(&redir->destroyme);
-                }
-                /* In case mangling has changed, rewrite this part. */
-                redir->core = ((struct redir_core)
+		
 
-As it appeared to deal directly with compatability redirection I removed
-this one first and recompiled the kernel. Before, a minute or so of
-browsing via a redirected connection (to squid) would make the box go
-boom. I've just browsed for 15 minutes to different sites and the box
-has not gone down.
+> 
+> Begin working on the worst-case locks.  Solutions like Andrew's
+> low-latency and my lock-break are a start.  Better (at least in general)
+> solutions are to analyze the locks.  Localize them; make them finer
+> grained.  Analyze the algorithms.  Find the big problems.  Anyone look
 
-Now, if you need the oops then holler and I'll see what I can do about
-getting it to you. Writing it down would be a pain so I may opt for the
-null-modem cable which may take a week or so for me to get at though.
+The theory that "fine grained = better" is not proved. It's obvious that
+"fine grained = more time spent in the overhead of locking and unlocking locks and
+		potentially more time spent in lock contention
+		and lots more opportunities of cache ping-pong in real smp
+		and much harder to debug"
+But the performance gain that is supposed to balance that is often elusive.
+
+
+
+> at the tty layer lately?  Ugh.  Using the preemptive kernel as a base
+> and the analysis of the locks as a list of culprits, clean this cruft
+> up.  This would benefit SMP, too.  Perhaps a better locking construct is
+> useful.
+> 
+> The immediate result is good; the future is better.
+
+Removing synchronization by removing contention 
+is better engineering than fiddling about with synchronization
+primitives, but it is much harder.
+
 
 -- 
-SOCCER PLAYER IN GENITAL-BITING SCANDAL  ---  "It was something between
-friends that I thought would have no importance until this morning when
-I got up and saw all  the commotion in the news,"  Gallardo told a news
-conference. "It stunned me."
-Reyes told Marca that he had "felt a slight pinch."
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
+

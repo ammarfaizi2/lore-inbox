@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267102AbSLDVhV>; Wed, 4 Dec 2002 16:37:21 -0500
+	id <S267103AbSLDVoa>; Wed, 4 Dec 2002 16:44:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267106AbSLDVhV>; Wed, 4 Dec 2002 16:37:21 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:27143 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S267102AbSLDVhU>; Wed, 4 Dec 2002 16:37:20 -0500
-Date: Wed, 4 Dec 2002 22:44:48 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Shawn Starr <shawn.starr@datawire.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.50, ACPI] link error
-In-Reply-To: <200212041630.40446.shawn.starr@datawire.net>
-Message-ID: <Pine.LNX.4.44.0212042239590.2113-100000@serv>
-References: <200212041605.11935.shawn.starr@datawire.net>
- <Pine.LNX.4.44.0212042223270.2109-100000@serv> <200212041630.40446.shawn.starr@datawire.net>
+	id <S267104AbSLDVoa>; Wed, 4 Dec 2002 16:44:30 -0500
+Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:22923
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S267103AbSLDVo3>; Wed, 4 Dec 2002 16:44:29 -0500
+Date: Wed, 4 Dec 2002 16:50:50 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: "George G. Davis" <davis_g@attbi.com>, Jim Van Zandt <jrv@vanzandt.mv.com>,
+       <device@lanana.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Why does the _DoubleTalk card_ not have a major assigned?
+In-Reply-To: <20021204213325.GG2544@fs.tum.de>
+Message-ID: <Pine.LNX.4.44.0212041646190.775-100000@xanadu.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 4 Dec 2002, Adrian Bunk wrote:
 
-On Wed, 4 Dec 2002, Shawn Starr wrote:
+> This is indeed true for the Comtrol Rocketport card but there's no
+> major for the DoubleTalk card (and this is the card I wanted to write
+> about).
 
-> ACPI_SLEEP should only be required if the user selects SOFTWARE_SUSPEND. 
-> Otherwise if the user selects only ACPI_SLEEP then they don't get software 
-> suspend mode (S3).
-> 
-> Then problem is, I can't figure out how to get Kconfig to do this ;-(
+Maybe because it doesn't need a static major?  For funky hardware like the
+Doubletalk for which the number of Linux users worldwide can probably be
+counted on your fingers you can just grep /proc/devices for its allocated
+major and create the /dev node on the fly.
 
-This should do it:
 
-config ACPI_SLEEP
-	bool "Sleep States" if !SOFTWARE_SUSPEND
-	default SOFTWARE_SUSPEND
-	depends on X86
-
-bye, Roman
+Nicolas
 

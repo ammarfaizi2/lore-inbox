@@ -1,61 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317355AbSGXPt1>; Wed, 24 Jul 2002 11:49:27 -0400
+	id <S317371AbSGXQF1>; Wed, 24 Jul 2002 12:05:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317371AbSGXPt1>; Wed, 24 Jul 2002 11:49:27 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:28665 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id <S317355AbSGXPt0>; Wed, 24 Jul 2002 11:49:26 -0400
-Date: Wed, 24 Jul 2002 15:48:20 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Robert Love <rml@tech9.net>, David Mosberger <davidm@hpl.hp.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] VM accounting 1/3 trivial
-In-Reply-To: <1027463584.31782.148.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.21.0207241453420.1159-100000@localhost.localdomain>
+	id <S317380AbSGXQF1>; Wed, 24 Jul 2002 12:05:27 -0400
+Received: from ip68-9-71-221.ri.ri.cox.net ([68.9.71.221]:40492 "EHLO
+	mail.blue-labs.org") by vger.kernel.org with ESMTP
+	id <S317371AbSGXQF0>; Wed, 24 Jul 2002 12:05:26 -0400
+Message-ID: <3D3ED0E4.9020902@blue-labs.org>
+Date: Wed, 24 Jul 2002 12:08:04 -0400
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a+) Gecko/20020708
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: "J.A. Magallon" <jamagallon@able.es>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, John Covici <covici@ccs.covici.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: is flock broken in 2.4 or 2.5 kernels or what does this mean?
+References: <m37kjmik0g.fsf@ccs.covici.com> <1027441872.31787.139.camel@irongate.swansea.linux.org.uk> <20020723214410.GA3249@werewolf.able.es>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Bmilter: Processing completed, Bmilter version 0.1.0 build 762; timestamp 2002-07-24 12:08:08, message serial number 151360
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Jul 2002, Alan Cox wrote:
-> On Tue, 2002-07-23 at 18:27, Hugh Dickins wrote:
-> > First of three patches against 2.4.19-rc3-ac3 fixing some VM accounting.
-> > Could be split further, but this one too trivial to need much thought.
-> > 
-> > 1. do_munmap doesn't need an extra acct arg (and rc3-ac3 still leaves
-> >    arch files without it): just clear VM_ACCOUNT in mremap's move_vma.
-> 
-> Are you sure that is correct. I started off on that basis but never got
-> it to work reliably when mremap changes multiple vmas ?
+(Alan)
+Actually I posted a "is sendmail on crack?" question last month when 
+8.12.5 was released and this was in the release notes.  We got a bunch 
+of confirmations that Linux flock() was broken due to the accounting.
 
-Thank you, it is surely incorrect (in the case where the do_munmap does
-not cover the whole vma, leaving one or two pieces behind: I think that
-must be the case you're remembering).  Would a patch which (if necessary)
-reapplies VM_ACCOUNT to the leftover piece(s) be welcome, or would it
-just look like an ugly face-saving exercise?
+David
 
-> Can you split out items #2, #4 first of all and submit those alone, then
-> I can review each item on its own and run vm_validate tests
+J.A. Magallon wrote:
 
-Okay, will do, thanks.  And you will also ignore patches 2/3, 3/3 now,
-since David has given a clear vote for more MAP_NORESERVE consistency,
-and VM_NORESERVE would be more natural to pass from do_mmap_pgoff to
-shmem_file_setup than my VM_SHARED|VM_ACCOUNT abuse.
+>On 2002.07.23 Alan Cox wrote:
+>  
+>
+>>On Tue, 2002-07-23 at 15:41, John Covici wrote:
+>>    
+>>
+>>>In the latest release notes of sendmail I have read the following:
+>>>
+>>>		NOTE: Linux appears to have broken flock() again.  Unless
+>>>			the bug is fixed before sendmail 8.13 is shipped,
+>>>			8.13 will change the default locking method to
+>>>			fcntl() for Linux kernel 2.4 and later.  You may
+>>>			want to do this in 8.12 by compiling with
+>>>			-DHASFLOCK=0.  Be sure to update other sendmail
+>>>			related programs to match locking techniques.
+>>>
+>>>Can anyone tell me what this is all about -- is there any basis in
+>>>reality for what they are saying?
+>>>      
+>>>
+>>First I've heard of it, so it would be useful if someone has access to
+>>the sendmail problem report/test in question that shows it and I'll go
+>>find out.
+>>
+>>    
+>>
+>
+>Perhaps if you have your spool over nfs:
+>
+>man flock:
+>
+>NOTES
+>       flock(2) does not  lock  files  over  NFS.   Use  fcntl(2)
+>       instead:  that  does  work  over NFS, given a sufficiently
+>       recent version of Linux and a server which supports  lock­
+>       ing.
+>
+>       flock(2)  and fcntl(2) locks have different semantics with
+>       respect to forked processes and dup(2).
+>
+>  
+>
 
-But I'll still have a consistency problem with MAP_NORESERVE versus
-sysctl_overcommit_memory, when the latter is changed (> 1 or <= 1).
-The closest I can get to a consistent position is that do_mmap_pgoff
-only sets VM_NORESERVE if MAP_NORESERVE and sysctl_overcommit_memory
-<= 1 (as you wish), but that thereafter (in mprotect and in mremap,
-even when extending the mapping) VM_NORESERVE will be respected (and
-propagated when splitting) even while sysctl_overcommit_memory > 1.
-Mirroring the vice versa situation, of the reservations made when
-MAP_NORESERVE is ignored, and thereafter.
+-- 
+I may have the information you need and I may choose only HTML.  It's up to
+you. Disclaimer: I am not responsible for any email that you send me nor am
+I bound to any obligation to deal with any received email in any given
+fashion.  If you send me spam or a virus, I may in whole or part send you
+50,000 return copies of it. I may also publically announce any and all
+emails and post them to message boards, news sites, and even parody sites. 
+I may also mark them up, cut and paste, print, and staple them to telephone
+poles for the enjoyment of people without internet access.  This is not a
+confidential medium and your assumption that your email can or will be
+handled confidentially is akin to baring your backside, burying your head in
+the ground, and thinking nobody can see you butt nekkid and in plain view
+for miles away.  Don't be a cluebert, buy one from K-mart today.
 
-You might prefer more draconian enforcment, but I fear it
-could behave strangely.  Does the above sound fair to you?
-
-Hugh
 

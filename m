@@ -1,277 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262585AbUCJMao (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 07:30:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbUCJMan
+	id S262590AbUCJMcq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 07:32:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbUCJMcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 07:30:43 -0500
-Received: from mta05-svc.ntlworld.com ([62.253.162.45]:13517 "EHLO
-	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S262585AbUCJM30 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 07:29:26 -0500
-From: Richard Browning <richard@redline.org.uk>
-Organization: Redline Software Engineering
-To: linux-kernel@vger.kernel.org
-Subject: SMP + Hyperthreading / Asus PCDL Deluxe / Kernel 2.4.x 2.6.x / Crash/Freeze
-Date: Wed, 10 Mar 2004 12:27:32 +0000
-User-Agent: KMail/1.6
-MIME-Version: 1.0
+	Wed, 10 Mar 2004 07:32:45 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:1807
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262590AbUCJMcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 07:32:08 -0500
+Date: Wed, 10 Mar 2004 13:32:50 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
+Message-ID: <20040310123250.GG30940@dualathlon.random>
+References: <20040308202433.GA12612@dualathlon.random> <1078781318.4678.9.camel@laptop.fenrus.com> <20040308230845.GD12612@dualathlon.random> <20040309074747.GA8021@elte.hu> <20040309152121.GD8193@dualathlon.random> <20040309153620.GA9012@elte.hu> <20040309163345.GK8193@dualathlon.random> <20040309195752.GA16519@elte.hu> <20040309202744.GS8193@dualathlon.random> <20040310113501.GA1112@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403101227.32322.richard@redline.org.uk>
+In-Reply-To: <20040310113501.GA1112@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-**** SUMMARY
-Enabling hyperthreading on Asus PCDL Deluxe motherboard w/ 2xP4Xeon causes 
-system freeze in short order.
+On Wed, Mar 10, 2004 at 12:35:01PM +0100, Ingo Molnar wrote:
+> 
+> * Andrea Arcangeli <andrea@suse.de> wrote:
+> 
+> > the quality of such objrmap patch is still better than rmap. The DoS
+> > thing is doable with vmtruncate too in any kernel out there.
+> 
+> objrmap for now has a serious problem: test-mmap3.c locked up my box (i
+> couldnt switch text consoles for 30 minutes when i turned the box off).
+> 
+> I'm sure you'll fix it and i'm looking forward seeing it.  However, i'd
+> like to see the full fix instead of a promise to have this fixed
+> sometime the future.  There are valid application workloads that trigger
+> _worse_ vma patterns than test-mmap3.c does (UML being one such thing,
+> Oracle with indirect buffer-cache another - i'm sure there are other
+> apps too.).  Calling these applications 'exploits' doesnt help in
+> getting this thing fixed.  There's no problem with keeping this patchset
+> separate until it's regression-free.
+> 
+> > merging objrmap is the first step. Any other effort happens on top of
+> > it.
+> 
+> i'd like to see that effort combined with this code, and the full
+> picture.  Since this 'DoS property' is created by the current concept of
+> the patch, it's not a 'bug' that is easily fixed so we must not (and
+> cannot) sign up for it blindly, without seeing the full impact.  But
+> yes, it might be fixable.  Anyway - the 2.6 kernel is a stable tree and
+> i'm sure you know that avoiding regression is more important than
+> anything else.
 
-**** DESCRIPTION
-I have an Asus PCDL Deluxe P4Xeon motherboard which has a north/southbridge 
-combination allowing system memory to run at 533MHz . The motherboard has the 
-usual Asus onboard gigabit ethernet, AD1985 audio, Intel and Promise SATA 
-controllers, firewire. All are enabled and operate. I am running dual 2.8GHz 
-P4 Xeons.
+I'm fine to wait the whole work to be finished and to merge it all at
+once (still from separate incremental patches) instead of merging it in
+steps in mainline and your longer term confidence in our work is
+promising, thanks.
 
-When hyperthreading is disabled the system is perfectly stable and usable. No 
-operating artefacts seem to occur and SMP appears to workcorrectly.
+since I need this fixed fast, I may have to go the rbtree way to go
+safe (mainline could go with prio_trees in the long run instead).
 
-However when hyperthreading is enabled, the system operates for a brief period 
-(enough for KDE to boot, for example) before halting. When operating from the 
-command line it is usual to see a Machine Check Exception error immediately 
-prior to system failure.
+however I still disagree the objrmap I posted is a regression for
+applications like Oracle (dunno about uml). It's an obvious regression
+for your test-mmap3.c and that's why I call test-mmap3.c an exploit and
+not a "real app". Nobody would map 1 page per vma, get real, you have an
+hard time to convince me a real app is going to scatter vma with 4k
+aperture each. you wrote the very worst case that everybody is aware
+about, a real app scenario would not do that. Note that there's quite an
+huge amount of merging of file-vmas, you absolutely prevent that too.
 
-**** KEYWORDS
-SMP Hyperthreading Asus Xeon Freeze Crash
+Furthmore you said Oracle needs mlock to work "safe" with rmap. But with
+2.6 if you use mlock it will still not work. If you use 2.6+objrmap
+mlock will fix your DoS secenario too, and Oracle will work as fast as
+rmap+mlock in your rmap 2.4 implementation.
 
-**** KERNELS
-2.4.2x 2.6.x
+Also you're advocating for the "merging in steps" and keeing "2.6
+optimal", but you're ignoring the single reason you are forced to ship a
+2.4 kernel with 4:4 for every >4G machine. 2.6 mainline (the current
+2.6.3 step) has no way to be compiled with 4:4 model. So the current
+great 2.6 kernel has no way to work with any machine >4G (if you ship
+all PAE kernels with rmap compiled with 4:4 you must agree 2.6 mainline
+has no way to work on any kernel with >4G of ram, so you should not be
+surprised that I'm dealing with those issues currently). Is 2.6 an high
+end kernel with rmap? I supported 4G on x86 the first time with bigmem
+in 2.2.
 
-**** OOPS
-Not available
+Solving the problem by merging 4:4 instead of removing rmap is not the
+way to go IMHO since it doesn't fix the memory waste for 64bit archs
+compared to what we can do with 2.4 _mainline_ (64bit doesn't need
+pte-highmem and there are no highmem issues to solve there).
 
-**** CATALYST
-Enable hyperthreading
+At least with objrmap applied to 2.6, there would be a chance to survive
+the load on >4G boxes in a 2.6 mainline kernel.  Sure, you'd better be
+careful not to swapout heavy or it would risk to hang badly (if the app
+isn't using mlock, if the app uses mlock 2.6 will fly), but without
+objrmap it would lockup before you can worry about reaching swap (mlock
+or not).
 
-**** ENVIRONMENT
-Asus PCDL Deluxe motherboard
-(http://usa.asus.com/products/server/srv-mb/pc-dl/overview.HTM)
+So in practice I think it would been ok to merge objrmap as an
+intermediate step (it's not that I didn't evaluate those possibilities
+when I submitted it).
 
-**** SOFTWARE
-Gnu C                  3.3.2
-Gnu make               3.80
-util-linux             2.12
-mount                  2.12
-module-init-tools      0.9.15-pre4
-e2fsprogs              1.34
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Procps                 3.1.15
-Net-tools              1.60
-Kbd                    1.08
-Sh-utils               5.0.91
-Modules Loaded         fglrx eeprom i2c_isa lm75 i2c_i801 i2c_algo_bit i2c_dev 
-i2c_sensor i2c_core
-
-**** PROCESSOR
-NOTE Hyperthreading disabled
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Xeon(TM) CPU 2.80GHz
-stepping        : 7
-cpu MHz         : 2807.537
-cache size      : 512 KB
-physical id     : 0
-siblings        : 1
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
-cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
-bogomips        : 5537.79
-
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Xeon(TM) CPU 2.80GHz
-stepping        : 7
-cpu MHz         : 2807.537
-cache size      : 512 KB
-physical id     : 0
-siblings        : 1
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
-cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
-bogomips        : 5603.32
-
-**** MODULES
-fglrx 208932 7 - Live 0xe09d5000
-eeprom 11656 0 - Live 0xe08c9000
-i2c_isa 6144 0 - Live 0xe08b3000
-lm75 11908 0 - Live 0xe08c0000
-i2c_i801 12176 0 - Live 0xe089f000
-i2c_algo_bit 13832 0 - Live 0xe08bb000
-i2c_dev 14976 0 - Live 0xe08b6000
-i2c_sensor 7168 2 eeprom,lm75, Live 0xe08a3000
-i2c_core 27524 7 eeprom,i2c_isa,lm75,i2c_i801,i2c_algo_bit,i2c_dev,i2c_sensor, 
-Live 0xe08a8000
-
-**** DRIVER AND HARDWARE
-(IOPORTS)
-0000-001f : dma1
-0020-0021 : pic1
-0040-005f : timer
-0060-006f : keyboard
-0070-0077 : rtc
-0080-008f : dma page reg
-00a0-00a1 : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : libata
-01f0-01f7 : ide0
-0378-037a : parport0
-03c0-03df : vga+
-03f6-03f6 : ide0
-0500-051f : 0000:00:1f.3
-  0500-050f : i801-smbus
-0cf8-0cff : PCI conf1
-9000-9fff : PCI Bus #01
-  9000-90ff : 0000:01:00.0
-a000-afff : PCI Bus #02
-  a000-a01f : 0000:02:01.0
-    a000-a01f : e1000
-b000-b01f : 0000:00:1d.0
-  b000-b01f : uhci_hcd
-b400-b41f : 0000:00:1d.1
-  b400-b41f : uhci_hcd
-b800-b81f : 0000:00:1d.2
-  b800-b81f : uhci_hcd
-bc00-bc1f : 0000:00:1d.3
-  bc00-bc1f : uhci_hcd
-d800-d8ff : 0000:00:1f.5
-dc00-dc3f : 0000:00:1f.5
-f000-f00f : 0000:00:1f.2
-  f000-f00f : libata
-
-(IOMEM)
-00000000-0009f7ff : System RAM
-0009f800-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000d0000-000d0fff : Extension ROM
-000f0000-000fffff : System ROM
-00100000-1ffeffff : System RAM
-  00100000-0036a323 : Kernel code
-  0036a324-00492e7f : Kernel data
-1fff0000-1fff2fff : ACPI Non-volatile Storage
-1fff3000-1fffffff : ACPI Tables
-e0000000-e7ffffff : 0000:00:00.0
-e8000000-f7ffffff : PCI Bus #01
-  e8000000-efffffff : 0000:01:00.0
-  f0000000-f7ffffff : 0000:01:00.1
-f8000000-f9ffffff : PCI Bus #01
-  f9000000-f900ffff : 0000:01:00.0
-  f9010000-f901ffff : 0000:01:00.1
-fa000000-fa0fffff : PCI Bus #02
-  fa000000-fa01ffff : 0000:02:01.0
-    fa000000-fa01ffff : e1000
-fa100000-fa103fff : 0000:03:03.0
-fa104000-fa1047ff : 0000:03:03.0
-  fa104000-fa1047ff : ohci1394
-fa200000-fa2003ff : 0000:00:1d.7
-  fa200000-fa2003ff : ehci_hcd
-fa201000-fa2011ff : 0000:00:1f.5
-  fa201000-fa2011ff : Intel ICH5 - AC'97
-fa202000-fa2020ff : 0000:00:1f.5
-  fa202000-fa2020ff : Intel ICH5 - Controller
-fec00000-ffffffff : reserved
-
-**** PCI
-(lspci not available; here output of cat /proc/bus/pci/devices)
-0000    80862578        0       e0000008        00000000        00000000        
-00000000        00000000        00000000        00000000     08000000        
-00000000        00000000        00000000        00000000        00000000        
-00000000        agpgart-intel
-0008    80862579        0       00000000        00000000        00000000        
-00000000        00000000        00000000        00000000     00000000        
-00000000        00000000        00000000        00000000        00000000        
-00000000
-0018    8086257b        0       00000000        00000000        00000000        
-00000000        00000000        00000000        00000000     00000000        
-00000000        00000000        00000000        00000000        00000000        
-00000000
-00e8    808624d2        10      00000000        00000000        00000000        
-00000000        0000b001        00000000        00000000     00000000        
-00000000        00000000        00000000        00000020        00000000        
-00000000        uhci_hcd
-00e9    808624d4        13      00000000        00000000        00000000        
-00000000        0000b401        00000000        00000000     00000000        
-00000000        00000000        00000000        00000020        00000000        
-00000000        uhci_hcd
-00ea    808624d7        12      00000000        00000000        00000000        
-00000000        0000b801        00000000        00000000     00000000        
-00000000        00000000        00000000        00000020        00000000        
-00000000        uhci_hcd
-00eb    808624de        10      00000000        00000000        00000000        
-00000000        0000bc01        00000000        00000000     00000000        
-00000000        00000000        00000000        00000020        00000000        
-00000000        uhci_hcd
-00ef    808624dd        17      fa200000        00000000        00000000        
-00000000        00000000        00000000        00000000     00000400        
-00000000        00000000        00000000        00000000        00000000        
-00000000        ehci_hcd
-00f0    8086244e        0       00000000        00000000        00000000        
-00000000        00000000        00000000        00000000     00000000        
-00000000        00000000        00000000        00000000        00000000        
-00000000
-00f8    808624d0        0       00000000        00000000        00000000        
-00000000        00000000        00000000        00000000     00000000        
-00000000        00000000        00000000        00000000        00000000        
-00000000
-00fa    808624d1        12      00000000        00000000        00000000        
-00000000        0000f001        00000000        00000000     00000000        
-00000000        00000000        00000000        00000010        00000000        
-00000000        ata_piix
-00fb    808624d3        11      00000000        00000000        00000000        
-00000000        00000501        00000000        00000000     00000000        
-00000000        00000000        00000000        00000020        00000000        
-00000000        i801 smbus
-00fd    808624d5        11      0000d801        0000dc01        fa201000        
-fa202000        00000000        00000000        00000000     00000100        
-00000040        00000200        00000100        00000000        00000000        
-00000000        Intel ICH
-0100    10024e48        10      e8000008        00009001        f9000000        
-00000000        00000000        00000000        00000000     08000000        
-00000100        00010000        00000000        00000000        00000000        
-00020000
-0101    10024e68        0       f0000008        f9010000        00000000        
-00000000        00000000        00000000        00000000     08000000        
-00010000        00000000        00000000        00000000        00000000        
-00000000
-0208    80861019        12      fa000000        00000000        0000a001        
-00000000        00000000        00000000        00000000     00020000        
-00000000        00000020        00000000        00000000        00000000        
-00000000        e1000
-0318    104c8023        14      fa104000        fa100000        00000000        
-00000000        00000000        00000000        00000000     00000800        
-00004000        00000000        00000000        00000000        00000000        
-00000000        ohci1394
-
-**** SCSI
-/proc/scsi/scsi not available
+As for the DoS thing in security terms, truncate has the same issue. It
+maybe easier to kill the "exploit" since it returns to userspace every
+time, and userspace is not swapped out when it happens, but it would
+still waste an indefinite amount of time in kernel space. So providing
+an efficient means of the i_mmap vma lookup is a problem irrelevant to
+the objrmap patch for the vm, I think we agree on this. Doing that will
+fix all users (so the vm too).

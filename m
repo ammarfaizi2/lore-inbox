@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbULUUxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbULUU5a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261854AbULUUxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 15:53:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbULUUxQ
+	id S261855AbULUU5a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 15:57:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbULUU5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 15:53:16 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:62410 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261854AbULUUxK (ORCPT
+	Tue, 21 Dec 2004 15:57:30 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:40140 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261855AbULUU52 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 15:53:10 -0500
-Date: Tue, 21 Dec 2004 12:52:22 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-Cc: greg@kroah.com, linux-usb-devel@lists.sourceforge.net, rwhite@casabyte.com,
-       linux-kernel@vger.kernel.org, kingst@eecs.umich.edu,
-       paulkf@microgate.com, oleksiy@kharkiv.com.ua, reg@dwf.com,
-       clemens@dwf.com
-Subject: Re: Little rework of usbserial in 2.4
-Message-ID: <20041221125222.5754cdb2@lembas.zaitcev.lan>
-In-Reply-To: <29495f1d0412121547c0c644d@mail.gmail.com>
-References: <20041127173558.4011b177@lembas.zaitcev.lan>
-	<29495f1d0412121547c0c644d@mail.gmail.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 21 Dec 2004 15:57:28 -0500
+Date: Tue, 21 Dec 2004 15:57:17 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Arun C Murthy <acmurthy@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: at_fork & at_exit
+In-Reply-To: <41C835C7.2010203@gmail.com>
+Message-ID: <Pine.LNX.4.61.0412211556290.12392@chimarrao.boston.redhat.com>
+References: <41C835C7.2010203@gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Dec 2004 15:47:44 -0800, Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
+On Tue, 21 Dec 2004, Arun C Murthy wrote:
 
-> > diff -urpN -X dontdiff linux-2.4.28-bk3/drivers/usb/serial/usbserial.c linux-2.4.28-bk3-sx4/drivers/usb/serial/usbserial.c
-> > --- linux-2.4.28-bk3/drivers/usb/serial/usbserial.c     2004-11-22 23:04:19.000000000 -0800
+> Im looking for linux equivalent of the FreeBSD calls:
+>
+> 1. at_fork
+> 2. at_exit
 
-> > @@ -1803,6 +1820,12 @@ static void __exit usb_serial_exit(void)
-> > 
-> >         usb_deregister(&usb_serial_driver);
-> >         tty_unregister_driver(&serial_tty_driver);
-> > +
-> > +       while (!list_empty(&usb_serial_driver_list)) {
-> > +               err("%s - module is in use, hanging...\n", __FUNCTION__);
-> > +               set_current_state(TASK_UNINTERRUPTIBLE);
-> > +               schedule_timeout(5*HZ);
-> > +       }
+> Specifically im on RHEL3... any pointers are appreciated...
 
-> Please consider using msleep() here instead of schedule_timeout().
+What do you want to use them for ?
 
-No, Nish, it's 2.4. There's no msleep here. I can create something like
-"drivers/usb/serial/compat26.h", similar to include/linux/libata-compat.h,
-but I do not think it's worth the trouble at present juncture.
+If it is for security logging, it may be an option to use
+the syscall auditing code ...
 
--- Pete
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

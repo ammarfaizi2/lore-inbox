@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264873AbUEYO1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264891AbUEYOnH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264873AbUEYO1u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 10:27:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264876AbUEYO1u
+	id S264891AbUEYOnH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 10:43:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264895AbUEYOnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 10:27:50 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:55938 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264873AbUEYO1r (ORCPT
+	Tue, 25 May 2004 10:43:07 -0400
+Received: from mail.kroah.org ([65.200.24.183]:25299 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264891AbUEYOml (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 10:27:47 -0400
-Date: Tue, 25 May 2004 07:27:40 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: FabF <fabian.frederick@skynet.be>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.7rc1 vs 2.6.0
-Message-ID: <367240000.1085495259@[10.10.2.4]>
-In-Reply-To: <1085464727.3762.4.camel@localhost.localdomain>
-References: <1085464727.3762.4.camel@localhost.localdomain>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Tue, 25 May 2004 10:42:41 -0400
+Date: Tue, 25 May 2004 07:41:49 -0700
+From: Greg KH <greg@kroah.com>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [BK PATCH] PCI Express patches for 2.4.27-pre3
+Message-ID: <20040525144149.GB7252@kroah.com>
+References: <20040524210146.GA5532@kroah.com> <1085468008.2783.1.camel@laptop.fenrus.com> <20040525080006.GA1047@kroah.com> <20040525113231.GB29154@parcelfarce.linux.theplanet.co.uk> <20040525125452.GC3118@logos.cnet> <20040525130116.GA16852@devserv.devel.redhat.com> <20040525132413.GD29154@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20040525132413.GD29154@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	Here's trivial fgrep vs report (using ffb1) :
+On Tue, May 25, 2004 at 02:24:13PM +0100, Matthew Wilcox wrote:
+> On Tue, May 25, 2004 at 03:01:16PM +0200, Arjan van de Ven wrote:
+> > 
+> > On Tue, May 25, 2004 at 09:54:53AM -0300, Marcelo Tosatti wrote:
+> > > > > Marcelo, feel free to tell me otherwise if you do not want
+> > > > > this in the 2.4 tree. 
+> > > 
+> > > Is this code necessary for PCI-Express devices/busses to work properly?
+> > 
+> > afaik not. It's an enhancement to make config space access to them somewhat
+> > faster, but they just work using the existing method.
 > 
-> 2.6.7rc1 : 
-> Grepping  /usr/bin  :
-> 45% cpu - 38.06 RT Sec - 1.10 Sec in KM
-> Entries scanned : 1527
-> 85112 Kb analyzed this time
-> 
-> 2.6.0 : 
-> Grepping  /usr/bin  :
-> 51% cpu - 33.12 RT Sec - 1.10 Sec in KM
-> Entries scanned :1527
-> 85112 Kb analyzed this time
-> 
-> 	This is done against ext3 fs. Same .config, same box, same box state.
-> What relevance could explain this 5s delta ? IOW, what big ext3, mm new functionnalities have been plugged in-between ?
+> It also allows access to the top 3840 bytes of config space.  The *spec*
+> says you can't require access to that area for correct functioning of
+> the device, but we all know how much people love to follow specs.
 
-Take kernel profiles of both (see Documentation/basic_profiling.txt)
+As no one really has PCI Express devices at this time, who knows how
+badly the vendors will mess them up :)
 
-M.
+thanks,
 
+greg k-h

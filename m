@@ -1,935 +1,285 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267646AbTBQXR2>; Mon, 17 Feb 2003 18:17:28 -0500
+	id <S267639AbTBQXMt>; Mon, 17 Feb 2003 18:12:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267674AbTBQXQx>; Mon, 17 Feb 2003 18:16:53 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:14497 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S267649AbTBQXNz>;
-	Mon, 17 Feb 2003 18:13:55 -0500
-Date: Mon, 17 Feb 2003 18:23:35 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: greg@kroah.com
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] pnp - PnP BIOS Updates (6/13)
-Message-ID: <20030217182335.GA31438@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, greg@kroah.com,
-	linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S267644AbTBQXMt>; Mon, 17 Feb 2003 18:12:49 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46346 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267639AbTBQXMi> convert rfc822-to-8bit; Mon, 17 Feb 2003 18:12:38 -0500
+Date: Mon, 17 Feb 2003 15:18:43 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux v2.5.62
+Message-ID: <Pine.LNX.4.44.0302171515110.1150-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id h1HNMRF03298
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch solves the GPF bug(get current resources) that has been causing
-pnpbios lockups for well over a year before my involvement with this driver.
-The pnpbios proc interface should now be safe to use.  It also updates the
-pnpbios code to use the new parsing functions and simplifies pnp disable.
 
-Please apply,
-Adam
+Hmm.. Mostly lots of small updates, although the merge with Andrew
+included the RCU dcache patches from IBM that he has carried along for a
+while (ie fairly fundamnetal, but also very well tested).
+
+ARM, PPC, PPC64, alpha, kbuild.
+
+Oh, and as a sign that 2.6.x really _is_ approaching, people have started 
+sending me spelling fixes. Kernel coders are apparently all atrocious 
+spellers, and for some reason the spelling police always comes out of the 
+woodwork when stable releases get closer.
+
+		Linus
+
+---
+
+Summary of changes from v2.5.61 to v2.5.62
+============================================
+
+<d.mueller@elsoft.ch>:
+  o PPC32: Export additional symbols for CONFIG_4xx
+
+<tinglett@vnet.ibm.com>:
+  o ppc64: revised machine check exception handler
+  o ppc64: new scanlog interface
+
+Adrian Bunk <bunk@fs.tum.de>:
+  o [netdrvr] make CONFIG_MII one-line desc more pretty
+
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+  o Add printk levels to mtrr, also clarify
+  o merge the NEC98 parsing code
+  o make the io-apic printk generate less junk mail
+  o printk levels for mpparse
+  o remove bogowarning
+  o itanic people cant spell either
+  o nor PPC people ;)
+  o specialix fix from 2.4 missing in 2.5
+  o bring 2.5 arcnet into line with 2.4
+  o Fix aha1542
+  o mca 53c9x also needs mca-legacy
+  o another ia64 typo
+  o header update for arcnet updates (again to match 2.4)
+
+Andrew Morton <akpm@digeo.com>:
+  o ppc64: kill ppc64 unused var warning
+  o ppc64: fix warning in smp_prepare_cpus
+  o JFS build fix with gcc-2.95.3
+  o flush_tlb_all is not preempt safe
+  o move fault_in_pages_readable/writeable to header
+  o separate checks from generic_file_aio_write
+  o fix ext3 BUG due to race with truncate
+  o crc32 improvements
+  o dcache_rcu: revert fast_walk code
+  o dcache_rcu
+  o error checking in ext3 xattr code
+  o xattr: listxattr fix
+  o xattr: infrastructure for permission overrides
+  o xattr: allow kernel code to override EA permissions
+  o xattr: trusted extended attributes
+  o blk_congestion_wait tuning and lockup fix
+  o cciss driver update
+  o cciss, fix array bounds overrun
+  o direct-io return value fix
+  o direct-io: allow reading of the part-filled EOF block
+  o Fix ext3 build when EXT3_DEBUG is defined
+  o Make the world safe for -Wundef
+  o fix compile breakage on drivers/scsi/NCR53C9x.c
+  o Use table lookup for radix_tree_maxindex()
+  o elv_former_request reversion
+
+Andries E. Brouwer <andries.brouwer@cwi.nl>:
+  o add static, fix typo
+
+Anton Blanchard <anton@samba.org>:
+  o ppc64: add TCSBRKP
+  o ppc64: Remove sys32_mremap, not required on ppc64 since we alter
+    TASK_SIZE
+  o ppc64: fix compile warnings
+  o ppc64: clean up some of big bad sys_ppc32.c
+  o ppc64: always compile in 32bit ELF support
+  o ppc64: Never call event-scan faster than once per second, required
+    on some machines
+  o ppc64: dont attempt a traceback table lookup for userspace
+    addresses
+  o ppc64: warning fix, caused by me
+  o ppc64: use get_user in alignment exception handler
+  o ppc64: ptrace signal fix
+  o ppc64: make sure socketcall_table is 8 byte aligned
+  o ppc64: add set_tid_address and fadvise64
+  o disable printout of interrupts in /proc/stat on ppc64
+  o enable OFFB on ppc64
+  o remove stale comment
+  o compat futex fix
+
+Art Haas <ahaas@airmail.net>:
+  o C99 initializers for drivers/net/aironet4500_proc.c
+  o C99 initializers for drivers/char/rtc.c
+  o C99 initializers for drivers/cdrom/cdrom.c
+  o C99 initializers for drivers/net/arlan-proc.c
+
+Ben Collins <bcollins@debian.org>:
+  o IEEE-1394 Updates
+
+Brian Gerst <bgerst@didntduck.org>:
+  o remove .mod.c files in make clean
+
+Daniel Jacobowitz <drow@nevyn.them.org>:
+  o Clean up ptrace_setoptions and PT_* constants
+  o Set ptrace_message before PT_TRACE_EXIT
+
+Dave Kleikamp <shaggy@shaggy.austin.ibm.com>:
+  o JFS: Fix jfs_sync_fs
+
+Dominik Brodowski <linux@brodo.de>:
+  o pcmcia: add device_class pcmcia_socket, update devices & drivers
+  o pcmcia: use device_class->add_device/remove_device
+  o cpufreq: move frequency table helpers to extra module
+  o cpufreq: move /proc/cpufreq interface code to extra module
+  o cpufreq: fix compilation of ACPI if !CPU_FREQ
+  o pcmcia: small bugfix & cleanup
+
+François Romieu <romieu@fr.zoreil.com>:
+  o [netdrvr rrunner] small fixes and cleanups
+
+Jaroslav Kysela <perex@suse.cz>:
+  o ALSA update
+
+Jeff Wiedemeier <jeff.wiedemeier@hp.com>:
+  o alpha numa setup_memory leaves meaningless {min,max}_low_pfn
+  o delay marvel agp printk until after !hose check
+
+Jens Axboe <axboe@suse.de>:
+  o deadline ioscheduler bug fixes
+  o fix request-to-request front merging
+  o missing lock in get_request_wait()
+  o front merge fix (really!)
+
+Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>:
+  o kbuild: Always postprocess modules
+  o kbuild: Move the version magic generation into module
+    postprocessing
+  o kbuild: Use list of modules for "make modules_install"
+  o kbuild: Do module post processing in C
+  o kbuild: Add dependency info to modules
+  o kbuild: Add dependency info to modules
+  o kbuild: Figure endianness / word size at compile time
+  o kbuild: Merge file2alias into scripts/modpost.c
+  o kbuild: Rename some module postprocessing stuff
+  o kbuild: scripts/elfconfig.h is generated
+  o kbuild: Warn on undefined exported symbols
+  o kbuild: Fix modules_install w/o modules error
+  o kbuild: Fix a 64-bit issue in scripts/modpost.c
+  o kbuild: Fix a "make -j" bug
+
+Linus Torvalds <torvalds@home.transmeta.com>:
+  o Fix futex compile breakage introduced by the compat code
+  o Clean up and fix locking around signal rendering
+  o Do proper signal locking for the old-style /proc/stat too
+  o It's usually considered stupid to lock the same spinlock twice in
+    close succession. However, for this once we'll just call it
+    "inspired".
+  o Fix locking for "send_sig_info()", to avoid possible races with
+    signal state changes due to execve() and exit(). We need to hold
+    the tasklist lock to guarantee stability of "task->sighand".
+
+Marc Zyngier <mzyngier@freesurf.fr>:
+  o EISA/sysfs updates
+
+Matthew Wilcox <willy@debian.org>:
+  o Fix mandatory locking
+
+Paul Mackerras <paulus@samba.org>:
+  o PPC32: Changes to accommodate recent signal changes
+    (current->sighand)
+  o PPC32: Fix compile warnings in some programs used in the build
+    process
+  o PPC32: Add set_tid_address and fadvise64 system calls
+  o PPC32: declare pm_power_off
+  o PPC32: use ptrace_notify
+
+Randy Dunlap <rddunlap@osdl.org>:
+  o fix Documentation/cli-sti-removal.txt thinko
+
+Richard Henderson <rth@are.twiddle.net>:
+  o [ALPHA] Add missing sighand bits
+  o [ALPHA] Add isa_eth_io_copy_and_sum
+  o [ALPHA] Add fadvise64
+
+Rob Weryk <rjweryk@uwo.ca>:
+  o Fix small typo
+
+Robert Love <rml@tech9.net>:
+  o trivial: unused var in sunrpc
+
+Roger Luethi <rl@hellgate.ch>:
+  o [netdrvr via-rhine] trivial bits
+  o [netdrvr via-rhine] fix broken tx-underrun handling
+  o [netdrvr via-rhine] various duplex-related fixes
+  o [netdrvr via-rhine] reset function rewrite
+  o [netdrvr via-rhine] bump version, use constant instead of magic
+    number
+  o Fix 8139too device close
+
+Russell King <rmk@flint.arm.linux.org.uk>:
+  o [ARM] Fix resource initialisation for IOP310
+  o [ARM] Miscellaneous cleanups
+  o [ARM] Reduce scope of "safe_buffers"
+  o [ARM PATCH] 1372/1: EPXA10DB: Add missing include files to irq.c
+    for 2.5.59
+  o [ARM PATCH] 1373/1: EPXA10DB: Update def-config file
+  o [ARM PATCH] 1376/1: Use #defines for iq80310 serial port
+  o [ARM PATCH] 1377/1: Retain endianess state on XScale CPUs during
+    boot
+  o [ARM PATCH] 1368/1: Fix some typos in proc-armv/system.h
+  o [ARM] Better handling of bad IRQ implementations
+  o [ARM PATCH] 1380/1: Big-Endian support for jiffies
+  o [ARM] Add init_sighand for 2.5.60
+  o [ARM] Ensure backtrace terminates on corrupted frame pointers
+  o [ARM] Update Acorn SCSI drivers
+  o [ARM] Update wdt285 and wdt977 watchdog drivers
+  o [ARM] Add input_devclass support to SA1111 PS/2 port driver
+  o [ARM PATCH] 1099/4: trizeps MTD support
+  o [ARM] Update signal handling for ARM
+
+Rusty Russell <rusty@rustcorp.com.au>:
+  o kbuild: Module alias and device table support
+  o kbuild: Do modversions checks on module structure
+  o get rid of exec_usermodehelper, replace with call_usermodehelper
+  o kbuild: Fix non-verbose make modules_install output
+
+Sam Ravnborg <sam@ravnborg.org>:
+  o fix warning in kernel/dma.c
+  o char/drivers/random.c - fix warning
+
+Scott Anderson <scott_anderson@mvista.com>:
+  o PPC32: Invalidate the icache before use on PPC40x
+
+Stephen Rothwell <sfr@canb.auug.org.au>:
+  o compat_sys_futex 1/3 generic, parisc, ppc64, s390x and x86_64
+
+Steve French <stevef@smfhome1.austin.rr.com>:
+  o Merge in fixes from version 0.6.5 of the CIFS VFS.  Greatly
+    improved performance including improved distributed caching support
+    and support for readpages and larger read sizes. Cache data now
+    flushed properly at file close time. Socket and memory leak fixed. 
+    Fix two oops. Fix error logging and made more consistent.  Generic
+    sendfile added
+
+Steven Cole <elenstev@mesatop.com>:
+  o [tokenring proteon] trivial, spelling fix
+  o high pedantry in ppc spelling
+  o alpha typo fix
+  o 2.5.61 fix erroneous spellings of error
+  o 2.5.61 Reduce the number of "nuber" by four
+  o 2.5.61 fix spelling of necessary in 11 files
+  o fix different spellings of different and differences
+  o correct the spelling of correction and correctly
+  o more accurate spelling of accuracy
+  o yet more pedantry: complement vs compliment
+
+Tom Rini <trini@kernel.crashing.org>:
+  o PPC32: Fix some license drain bamage.  Noticed by Christoph Hellwig
 
 
---- a/drivers/pnp/pnpbios/core.c~	Tue Jan 14 05:58:04 2003
-+++ a/drivers/pnp/pnpbios/core.c	Sun Feb  9 10:45:42 2003
-@@ -142,6 +142,8 @@
- set_limit(cpu_gdt_table[cpu][(selname) >> 3], size); \
- } while(0)
- 
-+static struct desc_struct bad_bios_desc = { 0, 0x00409200 };
-+
- /*
-  * At some point we want to use this stack frame pointer to unwind
-  * after PnP BIOS oopses. 
-@@ -160,6 +162,8 @@
- {
- 	unsigned long flags;
- 	u16 status;
-+	struct desc_struct save_desc_40;
-+	int cpu;
- 
- 	/*
- 	 * PnP BIOSes are generally not terribly re-entrant.
-@@ -168,6 +172,10 @@
- 	if(pnp_bios_is_utter_crap)
- 		return PNP_FUNCTION_NOT_SUPPORTED;
- 
-+	cpu = get_cpu();
-+	save_desc_40 = cpu_gdt_table[cpu][0x40 / 8];
-+	cpu_gdt_table[cpu][0x40 / 8] = bad_bios_desc;
-+
- 	/* On some boxes IRQ's during PnP BIOS calls are deadly.  */
- 	spin_lock_irqsave(&pnp_bios_lock, flags);
- 
-@@ -207,6 +215,9 @@
- 		: "memory"
- 	);
- 	spin_unlock_irqrestore(&pnp_bios_lock, flags);
-+
-+	cpu_gdt_table[cpu][0x40 / 8] = save_desc_40;
-+	put_cpu();
- 	
- 	/* If we get here and this is set then the PnP BIOS faulted on us. */
- 	if(pnp_bios_is_utter_crap)
-@@ -236,6 +247,8 @@
- 	void *p = kmalloc( size, f );
- 	if ( p == NULL )
- 		printk(KERN_ERR "PnPBIOS: kmalloc() failed\n");
-+	else
-+		memset(p, 0, size);
- 	return p;
- }
- 
-@@ -664,381 +677,6 @@
- 
- #endif   /* CONFIG_HOTPLUG */
- 
--
--/* pnp current resource reading functions */
--
--
--static void add_irqresource(struct pnp_dev *dev, int irq)
--{
--	int i = 0;
--	while (pnp_irq_valid(dev, i) && i < DEVICE_COUNT_IRQ) i++;
--	if (i < DEVICE_COUNT_IRQ) {
--		dev->irq_resource[i].start = 
--		dev->irq_resource[i].end = (unsigned long) irq;
--		dev->irq_resource[i].flags = IORESOURCE_IRQ;  // Also clears _UNSET flag
--	}
--}
--
--static void add_dmaresource(struct pnp_dev *dev, int dma)
--{
--	int i = 0;
--	while (pnp_dma_valid(dev, i) && i < DEVICE_COUNT_DMA) i++;
--	if (i < DEVICE_COUNT_DMA) {
--		dev->dma_resource[i].start =
--		dev->dma_resource[i].end = (unsigned long) dma;
--		dev->dma_resource[i].flags = IORESOURCE_DMA;  // Also clears _UNSET flag
--	}
--}
--
--static void add_ioresource(struct pnp_dev *dev, int io, int len)
--{
--	int i = 0;
--	while (pnp_port_valid(dev, i) && i < DEVICE_COUNT_IO) i++;
--	if (i < DEVICE_COUNT_RESOURCE) {
--		dev->io_resource[i].start = (unsigned long) io;
--		dev->io_resource[i].end = (unsigned long)(io + len - 1);
--		dev->io_resource[i].flags = IORESOURCE_IO;  // Also clears _UNSET flag
--	}
--}
--
--static void add_memresource(struct pnp_dev *dev, int mem, int len)
--{
--	int i = 0;
--	while (pnp_mem_valid(dev, i) && i < DEVICE_COUNT_MEM) i++;
--	if (i < DEVICE_COUNT_RESOURCE) {
--		dev->mem_resource[i].start = (unsigned long) mem;
--		dev->mem_resource[i].end = (unsigned long)(mem + len - 1);
--		dev->mem_resource[i].flags = IORESOURCE_MEM;  // Also clears _UNSET flag
--	}
--}
--
--static unsigned char *node_current_resource_data_to_dev(struct pnp_bios_node *node, struct pnp_dev *dev)
--{
--	unsigned char *p = node->data, *lastp=NULL;
--	int i;
--
--	/*
--	 * First, set resource info to default values
--	 */
--	for (i=0;i<DEVICE_COUNT_IO;i++) {
--		dev->io_resource[i].start = 0;
--		dev->io_resource[i].end = 0;
--		dev->io_resource[i].flags = IORESOURCE_IO|IORESOURCE_UNSET;
--	}
--	for (i=0;i<DEVICE_COUNT_MEM;i++) {
--		dev->mem_resource[i].start = 0;
--		dev->mem_resource[i].end = 0;
--		dev->mem_resource[i].flags = IORESOURCE_MEM|IORESOURCE_UNSET;
--	}
--	for (i=0;i<DEVICE_COUNT_IRQ;i++) {
--		dev->irq_resource[i].start = (unsigned long)-1;
--		dev->irq_resource[i].end = (unsigned long)-1;
--		dev->irq_resource[i].flags = IORESOURCE_IRQ|IORESOURCE_UNSET;
--	}
--	for (i=0;i<DEVICE_COUNT_DMA;i++) {
--		dev->dma_resource[i].start = (unsigned long)-1;
--		dev->dma_resource[i].end = (unsigned long)-1;
--		dev->dma_resource[i].flags = IORESOURCE_DMA|IORESOURCE_UNSET;
--	}
--
--	/*
--	 * Fill in dev resource info
--	 */
--        while ( (char *)p < ((char *)node->data + node->size )) {
--        	if(p==lastp) break;
--
--                if( p[0] & 0x80 ) {// large item
--			switch (p[0] & 0x7f) {
--			case 0x01: // memory
--			{
--				int io = *(short *) &p[4];
--				int len = *(short *) &p[10];
--				add_memresource(dev, io, len);
--				break;
--			}
--			case 0x02: // device name
--			{
--				int len = *(short *) &p[1];
--				memcpy(dev->name, p + 3, len >= 80 ? 79 : len);
--				break;
--			}
--			case 0x05: // 32-bit memory
--			{
--				int io = *(int *) &p[4];
--				int len = *(int *) &p[16];
--				add_memresource(dev, io, len);
--				break;
--			}
--			case 0x06: // fixed location 32-bit memory
--			{
--				int io = *(int *) &p[4];
--				int len = *(int *) &p[8];
--				add_memresource(dev, io, len);
--				break;
--			}
--			} /* switch */
--                        lastp = p+3;
--                        p = p + p[1] + p[2]*256 + 3;
--                        continue;
--                }
--                if ((p[0]>>3) == 0x0f){ // end tag
--			p = p + 2;
--			goto end;
--                        break;
--			}
--                switch (p[0]>>3) {
--                case 0x04: // irq
--                {
--                        int i, mask, irq = -1;
--                        mask= p[1] + p[2]*256;
--                        for (i=0;i<16;i++, mask=mask>>1)
--                                if(mask & 0x01) irq=i;
--			add_irqresource(dev, irq);
--                        break;
--                }
--                case 0x05: // dma
--                {
--                        int i, mask, dma = -1;
--                        mask = p[1];
--                        for (i=0;i<8;i++, mask = mask>>1)
--                                if(mask & 0x01) dma=i;
--			add_dmaresource(dev, dma);
--                        break;
--                }
--                case 0x08: // io
--                {
--			int io= p[2] + p[3] *256;
--			int len = p[7];
--			add_ioresource(dev, io, len);
--                        break;
--                }
--		case 0x09: // fixed location io
--		{
--			int io = p[1] + p[2] * 256;
--			int len = p[3];
--			add_ioresource(dev, io, len);
--			break;
--		}
--                } /* switch */
--                lastp=p+1;
--                p = p + (p[0] & 0x07) + 1;
--
--        } /* while */
--	end:
--	if (pnp_port_valid(dev, 0) == 0 &&
--	    pnp_mem_valid(dev, 0) == 0 &&
--	    pnp_irq_valid(dev, 0) == 0 &&
--	    pnp_dma_valid(dev, 0) == 0)
--		dev->active = 0;
--	else
--		dev->active = 1;
--        return (unsigned char *)p;
--}
--
--
--/* pnp possible resource reading functions */
--
--static void read_lgtag_mem(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
--{
--	struct pnp_mem * mem;
--	mem = pnpbios_kmalloc(sizeof(struct pnp_mem),GFP_KERNEL);
--	if (!mem)
--		return;
--	memset(mem,0,sizeof(struct pnp_mem));
--	mem->min = ((p[3] << 8) | p[2]) << 8;
--	mem->max = ((p[5] << 8) | p[4]) << 8;
--	mem->align = (p[7] << 8) | p[6];
--	mem->size = ((p[9] << 8) | p[8]) << 8;
--	mem->flags = p[1];
--	pnp_add_mem_resource(dev,depnum,mem);
--	return;
--}
--
--static void read_lgtag_mem32(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
--{
--	struct pnp_mem32 * mem;
--	mem = pnpbios_kmalloc(sizeof(struct pnp_mem32),GFP_KERNEL);
--	if (!mem)
--		return;
--	memset(mem,0,sizeof(struct pnp_mem32));
--	memcpy(mem->data, p, 17);
--	pnp_add_mem32_resource(dev,depnum,mem);
--	return;
--}
--
--static void read_lgtag_fmem32(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
--{
--	struct pnp_mem32 * mem;
--	mem = pnpbios_kmalloc(sizeof(struct pnp_mem32),GFP_KERNEL);
--	if (!mem)
--		return;
--	memset(mem,0,sizeof(struct pnp_mem32));
--	memcpy(mem->data, p, 17);
--	pnp_add_mem32_resource(dev,depnum,mem);
--	return;
--}
--
--static void read_smtag_irq(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
--{
--	struct pnp_irq * irq;
--	irq = pnpbios_kmalloc(sizeof(struct pnp_irq),GFP_KERNEL);
--	if (!irq)
--		return;
--	memset(irq,0,sizeof(struct pnp_irq));
--	irq->map = (p[2] << 8) | p[1];
--	if (size > 2)
--		irq->flags = p[3];
--	pnp_add_irq_resource(dev,depnum,irq);
--	return;
--}
--
--static void read_smtag_dma(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
--{
--	struct pnp_dma * dma;
--	dma = pnpbios_kmalloc(sizeof(struct pnp_dma),GFP_KERNEL);
--	if (!dma)
--		return;
--	memset(dma,0,sizeof(struct pnp_dma));
--	dma->map = p[1];
--	dma->flags = p[2];
--	pnp_add_dma_resource(dev,depnum,dma);
--	return;
--}
--
--static void read_smtag_port(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
--{
--	struct pnp_port * port;
--	port = pnpbios_kmalloc(sizeof(struct pnp_port),GFP_KERNEL);
--	if (!port)
--		return;
--	memset(port,0,sizeof(struct pnp_port));
--	port->min = (p[3] << 8) | p[2];
--	port->max = (p[5] << 8) | p[4];
--	port->align = p[6];
--	port->size = p[7];
--	port->flags = p[1] ? PNP_PORT_FLAG_16BITADDR : 0;
--	pnp_add_port_resource(dev,depnum,port);
--	return;
--}
--
--static void read_smtag_fport(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
--{
--	struct pnp_port * port;
--	port = pnpbios_kmalloc(sizeof(struct pnp_port),GFP_KERNEL);
--	if (!port)
--		return;
--	memset(port,0,sizeof(struct pnp_port));
--	port->min = port->max = (p[2] << 8) | p[1];
--	port->size = p[3];
--	port->align = 0;
--	port->flags = PNP_PORT_FLAG_FIXED;
--	pnp_add_port_resource(dev,depnum,port);
--	return;
--}
--
--static unsigned char *node_possible_resource_data_to_dev(unsigned char *p, struct pnp_bios_node *node, struct pnp_dev *dev)
--{
--	int len, depnum, dependent;
--
--	if ((char *)p == NULL)
--		return NULL;
--	if (pnp_build_resource(dev, 0) == NULL)
--		return NULL;
--	depnum = 0; /*this is the first so it should be 0 */
--	dependent = 0;
--        while ( (char *)p < ((char *)node->data + node->size )) {
--
--                if( p[0] & 0x80 ) {// large item
--			len = (p[2] << 8) | p[1];
--			switch (p[0] & 0x7f) {
--			case 0x01: // memory
--			{
--				if (len != 9)
--					goto __skip;
--				read_lgtag_mem(p,len,depnum,dev);
--				break;
--			}
--			case 0x05: // 32-bit memory
--			{
--				if (len != 17)
--					goto __skip;
--				read_lgtag_mem32(p,len,depnum,dev);
--				break;
--			}
--			case 0x06: // fixed location 32-bit memory
--			{
--				if (len != 17)
--					goto __skip;
--				read_lgtag_fmem32(p,len,depnum,dev);
--				break;
--			}
--			} /* switch */
--                        p += len + 3;
--                        continue;
--                }
--		len = p[0] & 0x07;
--                switch ((p[0]>>3) & 0x0f) {
--		case 0x0f:
--		{
--			p = p + 2;
--        		return (unsigned char *)p;
--			break;
--		}
--                case 0x04: // irq
--                {
--			if (len < 2 || len > 3)
--				goto __skip;
--			read_smtag_irq(p,len,depnum,dev);
--			break;
--                }
--                case 0x05: // dma
--                {
--			if (len != 2)
--				goto __skip;
--			read_smtag_dma(p,len,depnum,dev);
--                        break;
--                }
--                case 0x06: // start dep
--                {
--			if (len > 1)
--				goto __skip;
--			dependent = 0x100 | PNP_RES_PRIORITY_ACCEPTABLE;
--			if (len > 0)
--				dependent = 0x100 | p[1];
--			pnp_build_resource(dev,dependent);
--			depnum = pnp_get_max_depnum(dev);
--                        break;
--                }
--                case 0x07: // end dep
--                {
--			if (len != 0)
--				goto __skip;
--			depnum = 0;
--                        break;
--                }
--                case 0x08: // io
--                {
--			if (len != 7)
--				goto __skip;
--			read_smtag_port(p,len,depnum,dev);
--                        break;
--                }
--		case 0x09: // fixed location io
--		{
--			if (len != 3)
--				goto __skip;
--			read_smtag_fport(p,len,depnum,dev);
--			break;
--		}
--                } /* switch */
--		__skip:
--                p += len + 1;
--
--        } /* while */
--
--        return NULL;
--}
--
- /* pnp EISA ids */
- 
- #define HEX(id,a) hex[((id)>>a) & 15]
-@@ -1075,20 +713,26 @@
- 		return;
-         while ( (char *)p < ((char *)node->data + node->size )) {
- 
--                if( p[0] & 0x80 ) {// large item
-+                if( p[0] & 0x80 ) {
- 			len = (p[2] << 8) | p[1];
--                        p += len + 3;
--                        continue;
--                }
-+			if ((p[0] & 0x7f) == 0x02) /* human readable name */
-+			{
-+				int size = *(short *) &p[1];
-+				memcpy(dev->dev.name, p + 3, len >= 80 ? 79 : size);
-+				break;
-+			}
-+			p += len + 3;
-+			continue;
-+		}
- 		len = p[0] & 0x07;
--                switch ((p[0]>>3) & 0x0f) {
--		case 0x0f:
-+		switch ((p[0]>>3) & 0x0f) {
-+		case 0x0f: /* end tag */
- 		{
-         		return;
- 			break;
- 		}
--                case 0x03: // compatible ID
--                {
-+		case 0x03: /* compatible ID */
-+		{
- 			if (len != 4)
- 				goto __skip;
- 			dev_id =  pnpbios_kmalloc(sizeof (struct pnp_id), GFP_KERNEL);
-@@ -1099,177 +743,20 @@
- 			memcpy(&dev_id->id, id, 7);
- 			pnp_add_id(dev_id, dev);
- 			break;
--                }
--                } /* switch */
--		__skip:
--                p += len + 1;
--
--        } /* while */
--}
--
--/* pnp resource writing functions */
--
--static void write_lgtag_mem(unsigned char *p, int size, struct pnp_mem *mem)
--{
--	if (!mem)
--		return;
--	p[2] = (mem->min >> 8) & 0xff;
--	p[3] = ((mem->min >> 8) >> 8) & 0xff;
--	p[4] = (mem->max >> 8) & 0xff;
--	p[5] = ((mem->max >> 8) >> 8) & 0xff;
--	p[6] = mem->align & 0xff;
--	p[7] = (mem->align >> 8) & 0xff;
--	p[8] = (mem->size >> 8) & 0xff;
--	p[9] = ((mem->size >> 8) >> 8) & 0xff;
--	p[1] = mem->flags & 0xff;
--	return;
--}
--
--static void write_smtag_irq(unsigned char *p, int size, struct pnp_irq *irq)
--{
--	if (!irq)
--		return;
--	p[1] = irq->map & 0xff;
--	p[2] = (irq->map >> 8) & 0xff;
--	if (size > 2)
--		p[3] = irq->flags & 0xff;
--	return;
--}
--
--static void write_smtag_dma(unsigned char *p, int size, struct pnp_dma *dma)
--{
--	if (!dma)
--		return;
--	p[1] = dma->map & 0xff;
--	p[2] = dma->flags & 0xff;
--	return;
--}
--
--static void write_smtag_port(unsigned char *p, int size, struct pnp_port *port)
--{
--	if (!port)
--		return;
--	p[2] = port->min & 0xff;
--	p[3] = (port->min >> 8) & 0xff;
--	p[4] = port->max & 0xff;
--	p[5] = (port->max >> 8) & 0xff;
--	p[6] = port->align & 0xff;
--	p[7] = port->size & 0xff;
--	p[1] = port->flags & 0xff;
--	return;
--}
--
--static void write_smtag_fport(unsigned char *p, int size, struct pnp_port *port)
--{
--	if (!port)
--		return;
--	p[1] = port->min & 0xff;
--	p[2] = (port->min >> 8) & 0xff;
--	p[3] = port->size & 0xff;
--	return;
--}
--
--static int node_set_resources(struct pnp_bios_node *node, struct pnp_cfg *config)
--{
--	int error = 0;
--	unsigned char *p = (char *)node->data, *lastp = NULL;
--	int len, port = 0, irq = 0, dma = 0, mem = 0;
--
--	if (!node)
--		return -EINVAL;
--	if ((char *)p == NULL)
--		return -EINVAL;
--        while ( (char *)p < ((char *)node->data + node->size )) {
--
--                if( p[0] & 0x80 ) {// large item
--			len = (p[2] << 8) | p[1];
--			switch (p[0] & 0x7f) {
--			case 0x01: // memory
--			{
--				if (len != 9)
--					goto __skip;
--				write_lgtag_mem(p,len,config->mem[mem]);
--				mem++;
--				break;
--			}
--			case 0x05: // 32-bit memory
--			{
--				if (len != 17)
--					goto __skip;
--				/* FIXME */
--				break;
--			}
--			case 0x06: // fixed location 32-bit memory
--			{
--				if (len != 17)
--					goto __skip;
--				/* FIXME */
--				break;
--			}
--			} /* switch */
--                        lastp = p+3;
--                        p = p + p[1] + p[2]*256 + 3;
--                        continue;
--                }
--		len = p[0] & 0x07;
--                switch ((p[0]>>3) & 0x0f) {
--		case 0x0f:
--		{
--        		goto done;
--			break;
- 		}
--                case 0x04: // irq
--                {
--			if (len < 2 || len > 3)
--				goto __skip;
--			write_smtag_irq(p,len,config->irq[irq]);
--			irq++;
--			break;
--                }
--                case 0x05: // dma
--                {
--			if (len != 2)
--				goto __skip;
--			write_smtag_dma(p,len,config->dma[dma]);
--			dma++;
--                        break;
--                }
--                case 0x08: // io
--                {
--			if (len != 7)
--				goto __skip;
--			write_smtag_port(p,len,config->port[port]);
--			port++;
--                        break;
--                }
--		case 0x09: // fixed location io
--		{
--			if (len != 3)
--				goto __skip;
--			write_smtag_fport(p,len,config->port[port]);
--			port++;
--			break;
- 		}
--                } /* switch */
- 		__skip:
--                p += len + 1;
--
--        } /* while */
-+		p += len + 1;
- 
--	/* we never got an end tag so this data is corrupt or invalid */
--	return -EINVAL;
--
--	done:
--	error = pnp_bios_set_dev_node(node->handle, (char)0, node);
--        return error;
-+	}
- }
- 
--static int pnpbios_get_resources(struct pnp_dev *dev)
-+static int pnpbios_get_resources(struct pnp_dev * dev, struct pnp_resource_table * res)
- {
- 	struct pnp_dev_node_info node_info;
- 	u8 nodenum = dev->number;
- 	struct pnp_bios_node * node;
--		
-+
- 	/* just in case */
- 	if(!pnpbios_is_dynamic(dev))
- 		return -EPERM;
-@@ -1278,18 +765,22 @@
- 	node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
- 	if (!node)
- 		return -1;
--	if (pnp_bios_get_dev_node(&nodenum, (char )0, node))
-+	if (pnp_bios_get_dev_node(&nodenum, (char )0, node)) {
-+		kfree(node);
- 		return -ENODEV;
--	node_current_resource_data_to_dev(node,dev);
-+	}
-+	pnp_parse_current_resources((char *)node->data,(char *)node->data + node->size,res);
-+	dev->active = pnp_is_active(dev);
- 	kfree(node);
- 	return 0;
- }
- 
--static int pnpbios_set_resources(struct pnp_dev *dev, struct pnp_cfg *config)
-+static int pnpbios_set_resources(struct pnp_dev * dev, struct pnp_resource_table * res)
- {
- 	struct pnp_dev_node_info node_info;
- 	u8 nodenum = dev->number;
- 	struct pnp_bios_node * node;
-+	int ret;
- 
- 	/* just in case */
- 	if (!pnpbios_is_dynamic(dev))
-@@ -1301,83 +792,42 @@
- 		return -1;
- 	if (pnp_bios_get_dev_node(&nodenum, (char )1, node))
- 		return -ENODEV;
--	if(node_set_resources(node, config)<0){
-+	if(!pnp_write_resources((char *)node->data,(char *)node->data + node->size,res)){
-+		kfree(node);
- 		return -1;
- 	}
-+	ret = pnp_bios_set_dev_node(node->handle, (char)0, node);
- 	kfree(node);
--	return 0;
-+	if (ret > 0)
-+		ret = -1;
-+	return ret;
- }
- 
- static int pnpbios_disable_resources(struct pnp_dev *dev)
- {
--	struct pnp_cfg * config = kmalloc(sizeof(struct pnp_cfg), GFP_KERNEL);
--	/* first we need to set everything to a disabled value */
--	struct pnp_port	port = {
--	.max	= 0,
--	.min	= 0,
--	.align	= 0,
--	.size	= 0,
--	.flags	= 0,
--	.pad	= 0,
--	};
--	struct pnp_mem	mem = {
--	.max	= 0,
--	.min	= 0,
--	.align	= 0,
--	.size	= 0,
--	.flags	= 0,
--	.pad	= 0,
--	};
--	struct pnp_dma	dma = {
--	.map	= 0,
--	.flags	= 0,
--	};
--	struct pnp_irq	irq = {
--	.map	= 0,
--	.flags	= 0,
--	.pad	= 0,
--	};
--	int i;
- 	struct pnp_dev_node_info node_info;
--	u8 nodenum = dev->number;
- 	struct pnp_bios_node * node;
--	if (!config)
--		return -1;
-+	int ret;
-+	
- 	/* just in case */
- 	if(dev->flags & PNPBIOS_NO_DISABLE || !pnpbios_is_dynamic(dev))
- 		return -EPERM;
--	memset(config, 0, sizeof(struct pnp_cfg));
- 	if (!dev || !dev->active)
- 		return -EINVAL;
--	for (i=0; i < 8; i++)
--		config->port[i] = &port;
--	for (i=0; i < 4; i++)
--		config->mem[i] = &mem;
--	for (i=0; i < 2; i++)
--		config->irq[i] = &irq;
--	for (i=0; i < 2; i++)
--		config->dma[i] = &dma;
--	dev->active = 0;
--
- 	if (pnp_bios_dev_node_info(&node_info) != 0)
- 		return -ENODEV;
-+	/* the value of this will be zero */
- 	node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
- 	if (!node)
--		return -1;
--	if (pnp_bios_get_dev_node(&nodenum, (char )1, node))
--		goto failed;
--	if(node_set_resources(node, config)<0)
--		goto failed;
--	kfree(config);
--	kfree(node);
--	return 0;
-- failed:
-+		return -ENOMEM;
-+	ret = pnp_bios_set_dev_node(dev->number, (char)0, node);
-+	dev->active = 0;
- 	kfree(node);
--	kfree(config);
--	return -1;
-+	if (ret > 0)
-+		ret = -1;
-+	return ret;
- }
- 
--
- /* PnP Layer support */
- 
- static struct pnp_protocol pnpbios_protocol = {
-@@ -1387,15 +837,47 @@
- 	.disable = pnpbios_disable_resources,
- };
- 
--static inline int insert_device(struct pnp_dev *dev)
-+static int insert_device(struct pnp_dev *dev, struct pnp_bios_node * node)
- {
- 	struct list_head * pos;
-+	unsigned char * p;
- 	struct pnp_dev * pnp_dev;
-+	struct pnp_id *dev_id;
-+	char id[8];
-+
-+	/* check if the device is already added */
-+	dev->number = node->handle;
- 	list_for_each (pos, &pnpbios_protocol.devices){
- 		pnp_dev = list_entry(pos, struct pnp_dev, protocol_list);
- 		if (dev->number == pnp_dev->number)
- 			return -1;
- 	}
-+
-+	/* set the initial values for the PnP device */
-+	dev_id = pnpbios_kmalloc(sizeof(struct pnp_id), GFP_KERNEL);
-+	if (!dev_id)
-+		return -1;
-+	pnpid32_to_pnpid(node->eisa_id,id);
-+	memcpy(dev_id->id,id,7);
-+	pnp_add_id(dev_id, dev);
-+	p = pnp_parse_current_resources((char *)node->data,
-+		(char *)node->data + node->size,&dev->res);
-+	p = pnp_parse_possible_resources((char *)p,
-+		(char *)node->data + node->size,dev);
-+	node_id_data_to_dev(p,node,dev);
-+	dev->active = pnp_is_active(dev);
-+	dev->flags = node->flags;
-+	if (!(dev->flags & PNPBIOS_NO_CONFIG))
-+		dev->capabilities |= PNP_CONFIGURABLE;
-+	if (!(dev->flags & PNPBIOS_NO_DISABLE))
-+		dev->capabilities |= PNP_DISABLE;
-+	dev->capabilities |= PNP_READ;
-+	if (pnpbios_is_dynamic(dev))
-+		dev->capabilities |= PNP_WRITE;
-+	if (dev->flags & PNPBIOS_REMOVABLE)
-+		dev->capabilities |= PNP_REMOVABLE;
-+	dev->protocol = &pnpbios_protocol;
-+
- 	pnp_add_device(dev);
- 	return 0;
- }
-@@ -1403,14 +885,11 @@
- static void __init build_devlist(void)
- {
- 	u8 nodenum;
--	char id[8];
--	unsigned char *pos;
- 	unsigned int nodes_got = 0;
- 	unsigned int devs = 0;
- 	struct pnp_bios_node *node;
- 	struct pnp_dev_node_info node_info;
- 	struct pnp_dev *dev;
--	struct pnp_id *dev_id;
- 
- 	if (!pnp_bios_present())
- 		return;
-@@ -1424,51 +903,15 @@
- 
- 	for(nodenum=0; nodenum<0xff; ) {
- 		u8 thisnodenum = nodenum;
--		/* We build the list from the "boot" config because
--		 * we know that the resources couldn't have changed
--		 * at this stage.  Furthermore some buggy PnP BIOSes
--		 * will crash if we request the "current" config
--		 * from devices that are can only be static such as
--		 * those controlled by the "system" driver.
--		 */
--		if (pnp_bios_get_dev_node(&nodenum, (char )1, node))
-+		if (pnp_bios_get_dev_node(&nodenum, (char )0, node))
- 			break;
- 		nodes_got++;
- 		dev =  pnpbios_kmalloc(sizeof (struct pnp_dev), GFP_KERNEL);
- 		if (!dev)
- 			break;
--		memset(dev,0,sizeof(struct pnp_dev));
--		dev_id =  pnpbios_kmalloc(sizeof (struct pnp_id), GFP_KERNEL);
--		if (!dev_id) {
--			kfree(dev);
--			break;
--		}
--		memset(dev_id,0,sizeof(struct pnp_id));
--		dev->number = thisnodenum;
--		strcpy(dev->name,"Unknown Device");
--		pnpid32_to_pnpid(node->eisa_id,id);
--		memcpy(dev_id->id,id,7);
--		pnp_add_id(dev_id, dev);
--		pos = node_current_resource_data_to_dev(node,dev);
--		pos = node_possible_resource_data_to_dev(pos,node,dev);
--		node_id_data_to_dev(pos,node,dev);
--		dev->flags = node->flags;
--		if (!(dev->flags & PNPBIOS_NO_CONFIG))
--			dev->capabilities |= PNP_CONFIGURABLE;
--		if (!(dev->flags & PNPBIOS_NO_DISABLE))
--			dev->capabilities |= PNP_DISABLE;
--		dev->capabilities |= PNP_READ;
--		if (pnpbios_is_dynamic(dev))
--			dev->capabilities |= PNP_WRITE;
--		if (dev->flags & PNPBIOS_REMOVABLE)
--			dev->capabilities |= PNP_REMOVABLE;
--
--		dev->protocol = &pnpbios_protocol;
--
--		if(insert_device(dev)<0) {
--			kfree(dev_id);
-+		if(insert_device(dev,node)<0)
- 			kfree(dev);
--		} else
-+		else
- 			devs++;
- 		if (nodenum <= thisnodenum) {
- 			printk(KERN_ERR "PnPBIOS: build_devlist: Node number 0x%x is out of sequence following node 0x%x. Aborting.\n", (unsigned int)nodenum, (unsigned int)thisnodenum);
-@@ -1563,6 +1006,8 @@
- 		pnp_bios_callpoint.segment = PNP_CS16;
- 		pnp_bios_hdr = check;
- 
-+		set_base(bad_bios_desc, __va((unsigned long)0x40 << 4));
-+		_set_limit((char *)&bad_bios_desc, 4095 - (0x40 << 4));
- 		for(i=0; i < NR_CPUS; i++)
- 		{
- 			Q2_SET_SEL(i, PNP_CS32, &pnp_bios_callfunc, 64 * 1024);

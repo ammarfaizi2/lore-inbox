@@ -1,49 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261310AbTC0Twy>; Thu, 27 Mar 2003 14:52:54 -0500
+	id <S261321AbTC0TyD>; Thu, 27 Mar 2003 14:54:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261321AbTC0Twy>; Thu, 27 Mar 2003 14:52:54 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:1255 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S261310AbTC0Twx>; Thu, 27 Mar 2003 14:52:53 -0500
-From: bunk@fs.tum.de
-Date: Thu, 27 Mar 2003 21:04:01 +0100
-To: Corey Minyard <minyard@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.4.21-pre6: IPMI unresolved symbols
-Message-ID: <20030327200401.GX24744@fs.tum.de>
+	id <S261326AbTC0TyD>; Thu, 27 Mar 2003 14:54:03 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:54792 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261321AbTC0TyC>;
+	Thu, 27 Mar 2003 14:54:02 -0500
+Date: Thu, 27 Mar 2003 12:04:13 -0800
+From: Greg KH <greg@kroah.com>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org,
+       andmike@us.ibm.com
+Subject: Re: 2.5.recent: device_remove_file() doesn't
+Message-ID: <20030327200413.GA1687@kroah.com>
+References: <3E8275AD.40603@pacbell.net> <Pine.LNX.4.33.0303271154080.1001-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.33.0303271154080.1001-100000@localhost.localdomain>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-: From: Adrian Bunk <bunk@fs.tum.de>
+On Thu, Mar 27, 2003 at 11:58:14AM -0600, Patrick Mochel wrote:
+> 
+> Greg/Mike, could you give this patch a shot and let me know if helps?
 
-panic_notifier_list and panic_timeout are not EXPORT_SYMBOL'ed in 
-kernel/panic.c resulting in the following unresolved symbol errors when 
-building IPMI modular:
+Yes, this seems to fix the symlink problem I was seeing before, thanks.
 
-<--  snip  -->
-
-...
-depmod: *** Unresolved symbols in /lib/modules/2.4.21-pre6/kernel/drivers/char/ipmi/ipmi_msghandler.o
-depmod:         panic_notifier_list
-depmod: *** Unresolved symbols in /lib/modules/2.4.21-pre6/kernel/drivers/char/ipmi/ipmi_watchdog.o
-depmod:         panic_notifier_list
-depmod:         panic_timeout
-...
-
-<--  snip  -->
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+greg k-h

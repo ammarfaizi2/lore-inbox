@@ -1,78 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286374AbRLJUP1>; Mon, 10 Dec 2001 15:15:27 -0500
+	id <S286368AbRLJURg>; Mon, 10 Dec 2001 15:17:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286368AbRLJUPQ>; Mon, 10 Dec 2001 15:15:16 -0500
-Received: from mail.ccur.com ([208.248.32.212]:19 "EHLO mail.ccur.com")
-	by vger.kernel.org with ESMTP id <S286371AbRLJUO7>;
-	Mon, 10 Dec 2001 15:14:59 -0500
-Subject: [RFC] Multiprocessor Control Interfaces
-From: Jason Baietto <jason.baietto@ccur.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 10 Dec 2001 15:14:47 -0500
-Message-Id: <1008015291.15138.0.camel@soybean>
-Mime-Version: 1.0
+	id <S286370AbRLJUR2>; Mon, 10 Dec 2001 15:17:28 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:60891 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S286368AbRLJURI>;
+	Mon, 10 Dec 2001 15:17:08 -0500
+Message-ID: <59885C5E3098D511AD690002A5072D3C42D7D2@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Kai Germaschewski'" <kai@tp1.ruhr-uni-bochum.de>
+Cc: "Acpi-linux (E-mail 2)" <acpi-devel@lists.sourceforge.net>,
+        linux-kernel@vger.kernel.org, Cory Bell <cory.bell@usa.net>,
+        John Clemens <john@deater.net>
+Subject: RE: ACPI IRQ routing (was [ACPI] ACPI source release updated (200
+	11205))
+Date: Mon, 10 Dec 2001 12:17:04 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All,
+> From: Kai Germaschewski [mailto:kai@tp1.ruhr-uni-bochum.de]
 
-I'm currently working on adding multiprocessor control interfaces
-to Linux.  My current efforts can be found here:
+Hi Kai,
 
-   http://www.ccur.com/realtime/oss
+I also got ACPI IRQ routing working on a system over the weekend. Sounds
+like yours is better, so great we'll adopt yours. Thanks for stepping up on
+this.
 
-These are clean-room implementations of similar tools that have
-been available in our proprietary *nix for quite some time, and
-so the interfaces have a fair amount of mileage under their belts.
-Note that the scope is somewhat wider than just MP.
+> I changed pci-irq.c to use the ACPI interrupt routing, and also added 
+> dynamic routing table support. The appended patch is a bit 
+> preliminary, 
+> but it works here, even for assigning irqs.
 
-There has been some discussion of "chaff" and other interfaces
-recently on this list, so in an effort to hopefully move towards
-a standard more quickly I've gotten permission from my employer
-to GPL the code I've written.  I'm very interested in comments
-and feedback on any or all of this work.
+> Further comments/to do:
+> o The ACPI PCI in general needs further cleanup and 
+> integration with the 
+>   normal PCI layer. I believe that should wait until the new device 
+>   infrastructure is in place, though. E.g., I think one can
+>   get rid of the static table which is currently setup in acpi_pci.c. 
 
-Here's the README file from the package:
+<shrug>. Once we get it working, we can get it working right, and save the
+1K.
 
+> o I'm not exactly happy with the way ACPI does things currently, but I
+>   didn't change it to keep the patch small. It uses multiple functions
+>   to parse the IRQ resource descriptor into a linked list of 
+>   "acpi_resource" which I then again have to convert back into the
+>   mask which was in the IRQ resource desriptor in the first place.
+>   About the same holds for the other way, instead of just setting
+>   up a five byte IRQ descriptor, I need to setup two "acpi_resource" 
+>   structs, calculate lengths, etc. which will eventually be 
+> converted to
+>   just the five bytes. IMO the conversion routines are unnecessary 
+>   bloat...	
 
-This package contains:
+Like I said above, I think it's too early to be optimizing this code. My
+main concern was more about integrating ACPI into pci-irq.c in a readable
+manner. It is pretty $PIR-specific (no surprise there). Anyways let me work
+with your new code and I will be able to comment more.
 
-   run(1)
-      A multiprocessor control command line tool.
+> o Things need to be made dynamic, i.e. try ACPI and if it 
+> doesn't work,
+>   fall back to the normal method. Also, a command line flag to disable
+>   acpi irq routing is probably a good idea.
 
-   mpadvise(3)
-      A multiprocessor control library interface.
+At this point, I'd think one to *enable* it would be better until the code
+is tested more.
 
-These services rely upon Robert Love's CPU Affinity patch
-(version 2.4.16-1 was used for testing) which is available here:
-
-   http://www.kernel.org/pub/linux/kernel/people/rml/cpu-affinity/v2.4/
-
-To build the code, simply unpack it and type "make".  The code has
-been tested on Red Hat 7.1 and 7.2 systems, though it is still
-fairly new and almost certainly contains bugs.
-
-An attempt was made to abstract the "cpuset" representation of
-the current system in order to have binaries that in theory
-could work on systems with more than 32 cpus.  For this to work,
-the run(1) command would need to be linked against a shared
-mpadvise(3) library (currently only a static library is made).
-
-This code is being released in the hopes that it will become
-the basis for the Linux multiprocessor control standard interfaces.
-I am very interested in getting feedback on this package,
-so please contact me via email or LKML if you have any.
-
-This source code is licensed under the GNU GPL Version 2.
-Copyright (C) 2001  Concurrent Computer Corporation
-
---
-Jason Baietto
-jason.baiett@ccur.com
-http://www.ccur.com/realtime/oss
-
-
+Regards -- Andy

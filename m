@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261281AbTEABeG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 21:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbTEABeG
+	id S261301AbTEABjc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 21:39:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbTEABjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 21:34:06 -0400
-Received: from ns.suse.de ([213.95.15.193]:26628 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261281AbTEABeF (ORCPT
+	Wed, 30 Apr 2003 21:39:32 -0400
+Received: from zero.aec.at ([193.170.194.10]:30993 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S261301AbTEABjb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 21:34:05 -0400
+	Wed, 30 Apr 2003 21:39:31 -0400
+Date: Thu, 1 May 2003 03:51:48 +0200
+From: Andi Kleen <ak@muc.de>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] Faster generic_fls
-References: <87d6j34jad.fsf@student.uni-tuebingen.de.suse.lists.linux.kernel>
-	<Pine.LNX.4.44.0304301801210.20283-100000@home.transmeta.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 01 May 2003 03:46:18 +0200
-In-Reply-To: <Pine.LNX.4.44.0304301801210.20283-100000@home.transmeta.com.suse.lists.linux.kernel>
-Message-ID: <p73ade730d1.fsf@oldwotan.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix prefetch patching in 2.5-bk
+Message-ID: <20030501015148.GB3616@averell>
+References: <20030501001511.GA2890@averell> <Pine.LNX.4.44.0304301814010.20283-100000@home.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0304301814010.20283-100000@home.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+On Thu, May 01, 2003 at 03:21:52AM +0200, Linus Torvalds wrote:
+> and making "sourcelen==0" a special case for replacement (replace with the 
+> proper destination length nop, instead of having that "0x90 0x90 0x90" 
+> sequence).
 
-> Yeah, except if you want best code generation you should probably use
-> 
-> 	static inline int fls(int x)
-> 	{
-> 		int bit;
-> 		/* Only well-defined for non-zero */
-> 		asm("bsrl %1,%0":"=r" (bit):"rm" (x));
+Note sure what you mean with 0x90 sequence.
 
-"g" should work for the second operand too and it'll give gcc
-slightly more choices with possibly better code.
+My original implementation used .rept to generate the correct number of 
+(single byte) nops based on the label length of the other case. 
+But it didn't work because I ran into at least one weird assembler bug (it internally 
+got confused on something and gave an impossible error message about a
+missing label). Also it only generated single byte nops.
 
-But the __builtin is probably preferable if gcc supports it because
-a builtin can be scheduled, inline assembly can't.
+In any case you need to pad the code to the correct number of bytes,
+I'm not sure how it can be done otherwise.
 
 -Andi

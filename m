@@ -1,614 +1,473 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbUKSTqB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbUKSTuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261553AbUKSTqB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 14:46:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbUKSTps
+	id S261572AbUKSTuG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 14:50:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbUKSTtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 14:45:48 -0500
-Received: from [220.248.27.114] ([220.248.27.114]:9631 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S261553AbUKSTl1 (ORCPT
+	Fri, 19 Nov 2004 14:49:51 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:36559 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261566AbUKSTof (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 14:41:27 -0500
-Date: Sat, 20 Nov 2004 03:40:07 +0800
-From: hugang@soulinfo.com
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Software Suspend split to two stage V2.
-Message-ID: <20041119194007.GA1650@hugang.soulinfo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Fri, 19 Nov 2004 14:44:35 -0500
+Date: Fri, 19 Nov 2004 11:44:15 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: torvalds@osdl.org, akpm@osdl.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
+       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: page fault scalability patch V11 [2/7]: page fault handler optimizations
+In-Reply-To: <Pine.LNX.4.58.0411190704330.5145@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0411191143340.24095@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.44.0411061527440.3567-100000@localhost.localdomain>
+  <Pine.LNX.4.58.0411181126440.30385@schroedinger.engr.sgi.com> 
+ <Pine.LNX.4.58.0411181715280.834@schroedinger.engr.sgi.com> 
+ <419D581F.2080302@yahoo.com.au>  <Pine.LNX.4.58.0411181835540.1421@schroedinger.engr.sgi.com>
+  <419D5E09.20805@yahoo.com.au>  <Pine.LNX.4.58.0411181921001.1674@schroedinger.engr.sgi.com>
+ <1100848068.25520.49.camel@gaston> <Pine.LNX.4.58.0411190704330.5145@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel Machek:
+Changelog
+        * Increase parallelism in SMP configurations by deferring
+          the acquisition of page_table_lock in handle_mm_fault
+        * Anonymous memory page faults bypass the page_table_lock
+          through the use of atomic page table operations
+        * Swapper does not set pte to empty in transition to swap
+        * Simulate atomic page table operations using the
+          page_table_lock if an arch does not define
+          __HAVE_ARCH_ATOMIC_TABLE_OPS. This still provides
+          a performance benefit since the page_table_lock
+          is held for shorter periods of time.
 
-  This patch using pagemap for PageSet2 bitmap, It increase suspend
-  speed, In my PowerPC suspend only need 5 secs, cool. 
+Signed-off-by: Christoph Lameter <clameter@sgi.com
 
-  Test passed in my ppc and x86 laptop.
-
-  ppc swsusp patch for 2.6.9
-   http://honk.physik.uni-konstanz.de/~agx/linux-ppc/kernel/
-  Have fun.
-
-diff -ur linux-2.6.9/kernel/power/disk.c linux-2.6.9-hg/kernel/power/disk.c
---- linux-2.6.9/kernel/power/disk.c	2004-10-20 16:00:53.000000000 +0800
-+++ linux-2.6.9-hg/kernel/power/disk.c	2004-11-20 01:07:09.000000000 +0800
-@@ -17,7 +17,6 @@
- #include <linux/fs.h>
- #include "power.h"
- 
--
- extern u32 pm_disk_mode;
- extern struct pm_ops * pm_ops;
- 
-@@ -26,7 +25,7 @@
- extern int swsusp_read(void);
- extern int swsusp_resume(void);
- extern int swsusp_free(void);
--
-+extern int pcs_suspend(int resume);
- 
- static int noresume = 0;
- char resume_file[256] = CONFIG_PM_STD_PARTITION;
-@@ -73,7 +72,7 @@
- 
- static int in_suspend __nosavedata = 0;
- 
--
-+#if 0
- /**
-  *	free_some_memory -  Try to free as much memory as possible
-  *
-@@ -91,7 +90,7 @@
- 	printk("|\n");
+Index: linux-2.6.9/mm/memory.c
+===================================================================
+--- linux-2.6.9.orig/mm/memory.c	2004-11-18 12:25:49.000000000 -0800
++++ linux-2.6.9/mm/memory.c	2004-11-19 06:38:53.000000000 -0800
+@@ -1330,8 +1330,7 @@
  }
- 
--
-+#endif
- static inline void platform_finish(void)
- {
- 	if (pm_disk_mode == PM_DISK_PLATFORM) {
-@@ -104,13 +103,14 @@
- {
- 	device_resume();
- 	platform_finish();
-+	pcs_suspend(2);
- 	enable_nonboot_cpus();
- 	thaw_processes();
- 	pm_restore_console();
- }
- 
- 
--static int prepare(void)
-+static int prepare(int resume)
- {
- 	int error;
- 
-@@ -130,9 +130,12 @@
- 	}
- 
- 	/* Free memory before shutting down devices. */
--	free_some_memory();
-+	//free_some_memory();
- 
- 	disable_nonboot_cpus();
-+	if ((error = pcs_suspend(resume))) {
-+		goto Finish;
-+	}
- 	if ((error = device_suspend(PM_SUSPEND_DISK)))
- 		goto Finish;
- 
-@@ -160,7 +163,7 @@
- {
- 	int error;
- 
--	if ((error = prepare()))
-+	if ((error = prepare(0)))
- 		return error;
- 
- 	pr_debug("PM: Attempting to suspend to disk.\n");
-@@ -226,7 +229,7 @@
- 
- 	pr_debug("PM: Preparing system for restore.\n");
- 
--	if ((error = prepare()))
-+	if ((error = prepare(1)))
- 		goto Free;
- 
- 	barrier();
-diff -ur linux-2.6.9/kernel/power/process.c linux-2.6.9-hg/kernel/power/process.c
---- linux-2.6.9/kernel/power/process.c	2004-10-20 16:00:53.000000000 +0800
-+++ linux-2.6.9-hg/kernel/power/process.c	2004-11-20 01:20:31.000000000 +0800
-@@ -4,8 +4,6 @@
-  *
-  * Originally from swsusp.
+
+ /*
+- * We hold the mm semaphore and the page_table_lock on entry and
+- * should release the pagetable lock on exit..
++ * We hold the mm semaphore
   */
--
--
- #undef DEBUG
- 
- #include <linux/smp_lock.h>
-diff -ur linux-2.6.9/kernel/power/swsusp.c linux-2.6.9-hg/kernel/power/swsusp.c
---- linux-2.6.9/kernel/power/swsusp.c	2004-10-20 16:00:53.000000000 +0800
-+++ linux-2.6.9-hg/kernel/power/swsusp.c	2004-11-20 03:21:47.000000000 +0800
-@@ -301,6 +301,12 @@
- 			printk( "." );
- 		error = write_page((pagedir_nosave+i)->address,
- 					  &((pagedir_nosave+i)->swap_address));
-+#ifdef PCS_DEBUG
-+		pr_debug("data_write: %p %p %u\n", 
-+				(void *)(pagedir_nosave+i)->address, 
-+				(void *)(pagedir_nosave+i)->orig_address,
-+				(pagedir_nosave+i)->swap_address);
-+#endif
- 	}
- 	printk(" %d Pages done.\n",i);
- 	return error;
-@@ -505,6 +511,316 @@
- 	return 0;
+ static int do_swap_page(struct mm_struct * mm,
+ 	struct vm_area_struct * vma, unsigned long address,
+@@ -1343,15 +1342,13 @@
+ 	int ret = VM_FAULT_MINOR;
+
+ 	pte_unmap(page_table);
+-	spin_unlock(&mm->page_table_lock);
+ 	page = lookup_swap_cache(entry);
+ 	if (!page) {
+  		swapin_readahead(entry, address, vma);
+  		page = read_swap_cache_async(entry, vma, address);
+ 		if (!page) {
+ 			/*
+-			 * Back out if somebody else faulted in this pte while
+-			 * we released the page table lock.
++			 * Back out if somebody else faulted in this pte
+ 			 */
+ 			spin_lock(&mm->page_table_lock);
+ 			page_table = pte_offset_map(pmd, address);
+@@ -1374,8 +1371,7 @@
+ 	lock_page(page);
+
+ 	/*
+-	 * Back out if somebody else faulted in this pte while we
+-	 * released the page table lock.
++	 * Back out if somebody else faulted in this pte
+ 	 */
+ 	spin_lock(&mm->page_table_lock);
+ 	page_table = pte_offset_map(pmd, address);
+@@ -1422,14 +1418,12 @@
  }
- 
-+/**
-+ *	calc_order - Determine the order of allocation needed for pagedir_save.
-+ *
-+ *	This looks tricky, but is just subtle. Please fix it some time.
-+ *	Since there are %nr_copy_pages worth of pages in the snapshot, we need
-+ *	to allocate enough contiguous space to hold 
-+ *		(%nr_copy_pages * sizeof(struct pbe)), 
-+ *	which has the saved/orig locations of the page.. 
-+ *
-+ *	SUSPEND_PD_PAGES() tells us how many pages we need to hold those 
-+ *	structures, then we call get_bitmask_order(), which will tell us the
-+ *	last bit set in the number, starting with 1. (If we need 30 pages, that
-+ *	is 0x0000001e in hex. The last bit is the 5th, which is the order we 
-+ *	would use to allocate 32 contiguous pages).
-+ *
-+ *	Since we also need to save those pages, we add the number of pages that
-+ *	we need to nr_copy_pages, and in case of an overflow, do the 
-+ *	calculation again to update the number of pages needed. 
-+ *
-+ *	With this model, we will tend to waste a lot of memory if we just cross
-+ *	an order boundary. Plus, the higher the order of allocation that we try
-+ *	to do, the more likely we are to fail in a low-memory situtation 
-+ *	(though	we're unlikely to get this far in such a case, since swsusp 
-+ *	requires half of memory to be free anyway).
+
+ /*
+- * We are called with the MM semaphore and page_table_lock
+- * spinlock held to protect against concurrent faults in
+- * multithreaded programs.
++ * We are called with the MM semaphore held.
+  */
+ static int
+ do_anonymous_page(struct mm_struct *mm, struct vm_area_struct *vma,
+ 		pte_t *page_table, pmd_t *pmd, int write_access,
+-		unsigned long addr)
++		unsigned long addr, pte_t orig_entry)
+ {
+ 	pte_t entry;
+ 	struct page * page = ZERO_PAGE(addr);
+@@ -1441,7 +1435,6 @@
+ 	if (write_access) {
+ 		/* Allocate our own private page. */
+ 		pte_unmap(page_table);
+-		spin_unlock(&mm->page_table_lock);
+
+ 		if (unlikely(anon_vma_prepare(vma)))
+ 			goto no_mem;
+@@ -1450,30 +1443,37 @@
+ 			goto no_mem;
+ 		clear_user_highpage(page, addr);
+
+-		spin_lock(&mm->page_table_lock);
+ 		page_table = pte_offset_map(pmd, addr);
+
+-		if (!pte_none(*page_table)) {
+-			pte_unmap(page_table);
+-			page_cache_release(page);
+-			spin_unlock(&mm->page_table_lock);
+-			goto out;
+-		}
+-		mm->rss++;
+ 		entry = maybe_mkwrite(pte_mkdirty(mk_pte(page,
+ 							 vma->vm_page_prot)),
+ 				      vma);
+-		lru_cache_add_active(page);
+ 		mark_page_accessed(page);
+-		page_add_anon_rmap(page, vma, addr);
+ 	}
+
+-	set_pte(page_table, entry);
++	/* update the entry */
++	if (!ptep_cmpxchg(vma, addr, page_table, orig_entry, entry)) {
++		if (write_access) {
++			pte_unmap(page_table);
++			page_cache_release(page);
++		}
++		goto out;
++	}
++	if (write_access) {
++		/*
++		 * These two functions must come after the cmpxchg
++		 * because if the page is on the LRU then try_to_unmap may come
++		 * in and unmap the pte.
++		 */
++		lru_cache_add_active(page);
++		page_add_anon_rmap(page, vma, addr);
++		mm->rss++;
++
++	}
+ 	pte_unmap(page_table);
+
+ 	/* No need to invalidate - it was non-present before */
+ 	update_mmu_cache(vma, addr, entry);
+-	spin_unlock(&mm->page_table_lock);
+ out:
+ 	return VM_FAULT_MINOR;
+ no_mem:
+@@ -1489,12 +1489,12 @@
+  * As this is called only for pages that do not currently exist, we
+  * do not need to flush old virtual caches or the TLB.
+  *
+- * This is called with the MM semaphore held and the page table
+- * spinlock held. Exit with the spinlock released.
++ * This is called with the MM semaphore held.
+  */
+ static int
+ do_no_page(struct mm_struct *mm, struct vm_area_struct *vma,
+-	unsigned long address, int write_access, pte_t *page_table, pmd_t *pmd)
++	unsigned long address, int write_access, pte_t *page_table,
++        pmd_t *pmd, pte_t orig_entry)
+ {
+ 	struct page * new_page;
+ 	struct address_space *mapping = NULL;
+@@ -1505,9 +1505,8 @@
+
+ 	if (!vma->vm_ops || !vma->vm_ops->nopage)
+ 		return do_anonymous_page(mm, vma, page_table,
+-					pmd, write_access, address);
++					pmd, write_access, address, orig_entry);
+ 	pte_unmap(page_table);
+-	spin_unlock(&mm->page_table_lock);
+
+ 	if (vma->vm_file) {
+ 		mapping = vma->vm_file->f_mapping;
+@@ -1605,7 +1604,7 @@
+  * nonlinear vmas.
+  */
+ static int do_file_page(struct mm_struct * mm, struct vm_area_struct * vma,
+-	unsigned long address, int write_access, pte_t *pte, pmd_t *pmd)
++	unsigned long address, int write_access, pte_t *pte, pmd_t *pmd, pte_t entry)
+ {
+ 	unsigned long pgoff;
+ 	int err;
+@@ -1618,13 +1617,12 @@
+ 	if (!vma->vm_ops || !vma->vm_ops->populate ||
+ 			(write_access && !(vma->vm_flags & VM_SHARED))) {
+ 		pte_clear(pte);
+-		return do_no_page(mm, vma, address, write_access, pte, pmd);
++		return do_no_page(mm, vma, address, write_access, pte, pmd, entry);
+ 	}
+
+ 	pgoff = pte_to_pgoff(*pte);
+
+ 	pte_unmap(pte);
+-	spin_unlock(&mm->page_table_lock);
+
+ 	err = vma->vm_ops->populate(vma, address & PAGE_MASK, PAGE_SIZE, vma->vm_page_prot, pgoff, 0);
+ 	if (err == -ENOMEM)
+@@ -1643,49 +1641,40 @@
+  * with external mmu caches can use to update those (ie the Sparc or
+  * PowerPC hashed page tables that act as extended TLBs).
+  *
+- * Note the "page_table_lock". It is to protect against kswapd removing
+- * pages from under us. Note that kswapd only ever _removes_ pages, never
+- * adds them. As such, once we have noticed that the page is not present,
+- * we can drop the lock early.
+- *
+- * The adding of pages is protected by the MM semaphore (which we hold),
+- * so we don't need to worry about a page being suddenly been added into
+- * our VM.
+- *
+- * We enter with the pagetable spinlock held, we are supposed to
+- * release it when done.
++ * Note that kswapd only ever _removes_ pages, never adds them.
++ * We need to insure to handle that case properly.
+  */
+ static inline int handle_pte_fault(struct mm_struct *mm,
+ 	struct vm_area_struct * vma, unsigned long address,
+ 	int write_access, pte_t *pte, pmd_t *pmd)
+ {
+ 	pte_t entry;
++	pte_t new_entry;
+
+ 	entry = *pte;
+ 	if (!pte_present(entry)) {
+-		/*
+-		 * If it truly wasn't present, we know that kswapd
+-		 * and the PTE updates will not touch it later. So
+-		 * drop the lock.
+-		 */
+ 		if (pte_none(entry))
+-			return do_no_page(mm, vma, address, write_access, pte, pmd);
++			return do_no_page(mm, vma, address, write_access, pte, pmd, entry);
+ 		if (pte_file(entry))
+-			return do_file_page(mm, vma, address, write_access, pte, pmd);
++			return do_file_page(mm, vma, address, write_access, pte, pmd, entry);
+ 		return do_swap_page(mm, vma, address, pte, pmd, entry, write_access);
+ 	}
+
++	/*
++	 * This is the case in which we only update some bits in the pte.
++	 */
++	new_entry = pte_mkyoung(entry);
+ 	if (write_access) {
+-		if (!pte_write(entry))
++		if (!pte_write(entry)) {
++			/* do_wp_page expects us to hold the page_table_lock */
++			spin_lock(&mm->page_table_lock);
+ 			return do_wp_page(mm, vma, address, pte, pmd, entry);
+-
+-		entry = pte_mkdirty(entry);
++		}
++		new_entry = pte_mkdirty(new_entry);
+ 	}
+-	entry = pte_mkyoung(entry);
+-	ptep_set_access_flags(vma, address, pte, entry, write_access);
+-	update_mmu_cache(vma, address, entry);
++	if (ptep_cmpxchg(vma, address, pte, entry, new_entry))
++		update_mmu_cache(vma, address, new_entry);
+ 	pte_unmap(pte);
+-	spin_unlock(&mm->page_table_lock);
+ 	return VM_FAULT_MINOR;
+ }
+
+@@ -1703,22 +1692,45 @@
+
+ 	inc_page_state(pgfault);
+
+-	if (is_vm_hugetlb_page(vma))
++	if (unlikely(is_vm_hugetlb_page(vma)))
+ 		return VM_FAULT_SIGBUS;	/* mapping truncation does this. */
+
+ 	/*
+-	 * We need the page table lock to synchronize with kswapd
+-	 * and the SMP-safe atomic PTE updates.
++	 * We rely on the mmap_sem and the SMP-safe atomic PTE updates.
++	 * to synchronize with kswapd
+ 	 */
+-	spin_lock(&mm->page_table_lock);
+-	pmd = pmd_alloc(mm, pgd, address);
++	if (unlikely(pgd_none(*pgd))) {
++		pmd_t *new = pmd_alloc_one(mm, address);
++		if (!new)
++			return VM_FAULT_OOM;
++
++		/* Insure that the update is done in an atomic way */
++		if (!pgd_test_and_populate(mm, pgd, new))
++			pmd_free(new);
++	}
++
++	pmd = pmd_offset(pgd, address);
++
++	if (likely(pmd)) {
++		pte_t *pte;
++
++		if (!pmd_present(*pmd)) {
++			struct page *new;
+
+-	if (pmd) {
+-		pte_t * pte = pte_alloc_map(mm, pmd, address);
+-		if (pte)
++			new = pte_alloc_one(mm, address);
++			if (!new)
++				return VM_FAULT_OOM;
++
++			if (!pmd_test_and_populate(mm, pmd, new))
++				pte_free(new);
++			else
++				inc_page_state(nr_page_table_pages);
++		}
++
++		pte = pte_offset_map(pmd, address);
++		if (likely(pte))
+ 			return handle_pte_fault(mm, vma, address, write_access, pte, pmd);
+ 	}
+-	spin_unlock(&mm->page_table_lock);
+ 	return VM_FAULT_OOM;
+ }
+
+Index: linux-2.6.9/include/asm-generic/pgtable.h
+===================================================================
+--- linux-2.6.9.orig/include/asm-generic/pgtable.h	2004-10-18 14:53:46.000000000 -0700
++++ linux-2.6.9/include/asm-generic/pgtable.h	2004-11-19 07:54:05.000000000 -0800
+@@ -134,4 +134,60 @@
+ #define pgd_offset_gate(mm, addr)	pgd_offset(mm, addr)
+ #endif
+
++#ifndef __HAVE_ARCH_ATOMIC_TABLE_OPS
++/*
++ * If atomic page table operations are not available then use
++ * the page_table_lock to insure some form of locking.
++ * Note thought that low level operations as well as the
++ * page_table_handling of the cpu may bypass all locking.
 + */
 +
-+static void calc_order(int *po, int *nr)
-+{
-+	int diff = 0;
-+	int order = 0;
-+
-+	do {
-+		diff = get_bitmask_order(SUSPEND_PD_PAGES(*nr)) - order;
-+		if (diff) {
-+			order += diff;
-+			*nr += 1 << diff;
-+		}
-+	} while(diff);
-+	*po = order;
-+}
-+
-+typedef int (*do_page_t)(struct page *page, void *p);
-+
-+static int foreach_zone_page(struct zone *zone, do_page_t fun, void *p)
-+{
-+	unsigned long flags;
-+	int inactive = 0, active = 0;
-+
-+	spin_lock_irqsave(&zone->lru_lock, flags);
-+	if (zone->nr_inactive) {
-+		struct list_head * entry = zone->inactive_list.prev;
-+		while (entry != &zone->inactive_list) {
-+			if (fun) {
-+				struct page * page = list_entry(entry, struct page, lru);
-+				inactive += fun(page, p);
-+			} else { 
-+				inactive ++;
-+			}
-+			entry = entry->prev;
-+		}
-+	}
-+	if (zone->nr_active) {
-+		struct list_head * entry = zone->active_list.prev;
-+		while (entry != &zone->active_list) {
-+			if (fun) {
-+				struct page * page = list_entry(entry, struct page, lru);
-+				active += fun(page, p);
-+			} else {
-+				active ++;
-+			}
-+			entry = entry->prev;
-+		}
-+	}
-+	spin_unlock_irqrestore(&zone->lru_lock, flags);
-+
-+	return (active + inactive);
-+}
-+
-+static unsigned long *pageset2map = NULL;
-+
-+#define PAGENUMBER(page) (page-mem_map)
-+#define PAGEINDEX(page) ((PAGENUMBER(page))/(8*sizeof(unsigned long)))
-+#define PAGEBIT(page) ((int) ((PAGENUMBER(page))%(8 * sizeof(unsigned long))))
-+
-+#define BITS_PER_PAGE (PAGE_SIZE * 8)
-+#define PAGES_PER_BITMAP ((max_mapnr + BITS_PER_PAGE - 1) / BITS_PER_PAGE)
-+#define BITMAP_ORDER (get_bitmask_order((PAGES_PER_BITMAP) - 1))
-+
-+#define PagePageset2(page) \
-+	test_bit(PAGEBIT(page), &pageset2map[PAGEINDEX(page)])
-+#define SetPagePageset2(page) \
-+	set_bit(PAGEBIT(page), &pageset2map[PAGEINDEX(page)])
-+
-+static int setup_pcs_pe(struct page *page, void *p)
-+{
-+	suspend_pagedir_t **pe = p;
-+	unsigned long pfn = page_to_pfn(page);
-+
-+	BUG_ON(PageReserved(page) && PageNosave(page));
-+	if (!pfn_valid(pfn)) {
-+		printk("not valid page\n");
-+		return 0;
-+	}
-+	if (PageNosave(page)) {
-+		printk("nosave\n");
-+		return 0;
-+	}
-+	if (PageReserved(page) /*&& pfn_is_nosave(pfn)*/) {
-+		printk("[nosave]\n");
-+		return 0;
-+	}
-+	if (PageSlab(page)) {
-+		printk("slab\n");
-+		return (0);
-+	}
-+	if (pe && *pe) {
-+		(*pe)->address = (long) page_address(page);
-+		(*pe) ++;
-+	}
-+	SetPagePageset2(page);
-+
-+	return (1);
-+}
-+
-+
-+static int count_pcs(struct zone *zone, suspend_pagedir_t **pe)
-+{
-+	return foreach_zone_page(zone, setup_pcs_pe, pe);	
-+}
-+#if 0
-+static int comp_pcs_page(struct page *page, void *p)
-+{
-+	struct page *pg = p;
-+	
-+	if (pg == page) return (1);
-+	else return (0);
-+}
++#ifndef __HAVE_ARCH_PTEP_CMPXCHG
++#define ptep_cmpxchg(__vma, __addr, __ptep, __oldval, __newval)		\
++({									\
++	int __rc;							\
++	spin_lock(&__vma->vm_mm->page_table_lock);			\
++	__rc = pte_same(*(__ptep), __oldval);				\
++	if (__rc) set_pte(__ptep, __newval);				\
++	spin_unlock(&__vma->vm_mm->page_table_lock);			\
++	__rc;								\
++})
 +#endif
 +
-+static int find_pcs(struct zone *zone, struct page *pg)
-+{
-+	return PagePageset2(pg);
-+	/* return foreach_zone_page(zone, comp_pcs_page, pg); */
-+}
-+
-+static suspend_pagedir_t *pagedir_cache = NULL;
-+static int nr_copy_pcs = 0;
-+static int pcs_order = 0;
-+
-+static int alloc_pagedir_cache(void)
-+{
-+	int need_nr_copy_pcs = nr_copy_pcs;
-+
-+	calc_order(&pcs_order, &need_nr_copy_pcs);
-+	pagedir_cache = (suspend_pagedir_t *)
-+		__get_free_pages(GFP_ATOMIC | __GFP_COLD, pcs_order);
-+	if (!pagedir_cache)
-+		return -ENOMEM;
-+	memset(pagedir_cache, 0, (1 << pcs_order) * PAGE_SIZE);
-+
-+	pr_debug("alloc pcs %p, %d\n", pagedir_cache, pcs_order);
-+
-+	return 0;
-+}
-+
-+static int pcs_alloc_pagemap(void) 
-+{
-+	pageset2map = (unsigned long *) 
-+		__get_free_pages(GFP_ATOMIC | __GFP_COLD, BITMAP_ORDER);
-+	memset(pageset2map, 0, (1 << BITMAP_ORDER) * PAGE_SIZE);
-+
-+	return 0;
-+}
-+
-+static int pcs_free_pagemap(void)
-+{
-+	if (pageset2map) {
-+		free_pages((unsigned long) pageset2map, BITMAP_ORDER);
-+		pageset2map = NULL;
-+	}
-+
-+	return (0);
-+}
-+
-+int bio_read_page(pgoff_t page_off, void * page);
-+
-+static int pcs_read(void)
-+{
-+	struct pbe * p;
-+	int error = 0, i;
-+	swp_entry_t entry;
-+
-+	printk( "Reading Page Caches (%d pages): ", nr_copy_pcs);
-+	for(i = 0, p = pagedir_cache; i < nr_copy_pcs && !error; i++, p++) {
-+		if (!(i%100))
-+			printk( "." );
-+		error = bio_read_page(swp_offset(p->swap_address),
-+				(void *)p->address);
-+#ifdef PCS_DEBUG
-+		pr_debug("pcs_read: %p %p %u\n", 
-+				(void *)p->address, (void *)p->orig_address, 
-+				swp_offset(p->swap_address));
++#ifndef __HAVE_ARCH_PGP_TEST_AND_POPULATE
++#define pgd_test_and_populate(__mm, __pgd, __pmd)			\
++({									\
++	int __rc;							\
++	spin_lock(&__mm->page_table_lock);				\
++	__rc = !pgd_present(*(__pgd));					\
++	if (__rc) pgd_populate(__mm, __pgd, __pmd);			\
++	spin_unlock(&__mm->page_table_lock);				\
++	__rc;								\
++})
 +#endif
-+	}
 +
-+	for (i = 0; i < nr_copy_pcs; i++) {
-+		entry = (pagedir_cache + i)->swap_address;
-+		if (entry.val)
-+			swap_free(entry);
-+	}
-+	free_pages((unsigned long)pagedir_cache, pcs_order);
-+
-+	printk(" %d done.\n",i);
-+
-+	return (0);
-+}
-+
-+static int pcs_write(void)
-+{
-+	int error = 0;
-+	int i;
-+
-+	printk( "Writing PageCaches to swap (%d pages): ", nr_copy_pcs);
-+	for (i = 0; i < nr_copy_pcs && !error; i++) {
-+		if (!(i%100))
-+			printk( "." );
-+		error = write_page((pagedir_cache+i)->address,
-+					  &((pagedir_cache+i)->swap_address));
-+#ifdef PCS_DEBUG
-+		pr_debug("pcs_write: %p %p %u\n", 
-+				(void *)(pagedir_cache+i)->address, 
-+				(void *)(pagedir_cache+i)->orig_address,
-+				(pagedir_cache+i)->swap_address);
++#ifndef __HAVE_PMD_TEST_AND_POPULATE
++#define pmd_test_and_populate(__mm, __pmd, __page)			\
++({									\
++	int __rc;							\
++	spin_lock(&__mm->page_table_lock);				\
++	__rc = !pmd_present(*(__pmd));					\
++	if (__rc) pmd_populate(__mm, __pmd, __page);			\
++	spin_unlock(&__mm->page_table_lock);				\
++	__rc;								\
++})
 +#endif
-+	}
-+	printk(" %d Pages done.\n",i);
 +
-+	return error;
-+}
-+
-+static void count_data_pages(void);
-+static int swsusp_alloc(void);
-+
-+int pcs_suspend(int resume)
-+{
-+	struct zone *zone;
-+	suspend_pagedir_t *pe = NULL;
-+	int error;
-+
-+	if (resume == 1) {
-+		return (0);
-+	}
-+	if (resume == 2) {
-+		pcs_read();
-+		pcs_free_pagemap();
-+		return (0);
-+	}
-+
-+	nr_copy_pcs = 0;
-+
-+	pcs_alloc_pagemap();
-+
-+	drain_local_pages();
-+	for_each_zone(zone) {
-+		if (!is_highmem(zone)) {
-+			nr_copy_pcs += count_pcs(zone, NULL);
-+		}
-+	}
-+
-+	printk("swsusp: Need to copy %u pcs\n", nr_copy_pcs);
-+
-+	if (nr_copy_pcs == 0) {
-+		return (0);
-+	}
-+
-+	if ((error = swsusp_swap_check()))
-+		return error;
-+
-+	if ((error = alloc_pagedir_cache())) {
-+		return error;
-+	}
-+
-+	drain_local_pages();
-+	count_data_pages();
-+	printk("swsusp(1/2): Need to copy %u pages, %u pcs\n",
-+			nr_copy_pages, nr_copy_pcs);
-+
-+	error = swsusp_alloc();
-+	if (error)
-+		return error;
-+	
-+	drain_local_pages();
-+	count_data_pages();
-+	printk("swsusp(2/2): Need to copy %u pages, %u pcs\n",
-+			nr_copy_pages, nr_copy_pcs);
-+
-+	pe = pagedir_cache;
-+
-+	drain_local_pages();
-+	for_each_zone(zone) {
-+		if (!is_highmem(zone)) {
-+			count_pcs(zone, &pe);
-+		}
-+	}
-+	error = pcs_write();
-+	if (error) 
-+		return error;
-+
-+	return (0);
-+}
- 
- static int pfn_is_nosave(unsigned long pfn)
- {
-@@ -547,7 +863,10 @@
- 		*zone_pfn += chunk_size - 1;
- 		return 0;
- 	}
--
-+	if ((zone->nr_inactive || zone->nr_active) && 
-+			find_pcs(zone, page)) {
-+		return 0;
-+	}
- 	return 1;
- }
- 
-@@ -557,9 +876,12 @@
- 	unsigned long zone_pfn;
- 
- 	nr_copy_pages = 0;
-+	nr_copy_pcs = 0;
- 
- 	for_each_zone(zone) {
- 		if (!is_highmem(zone)) {
-+			if (zone->nr_inactive || zone->nr_active)
-+				nr_copy_pcs += count_pcs(zone, NULL);
- 			for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn)
- 				nr_copy_pages += saveable(zone, &zone_pfn);
- 		}
-@@ -621,47 +943,6 @@
- }
- 
- 
--/**
-- *	calc_order - Determine the order of allocation needed for pagedir_save.
-- *
-- *	This looks tricky, but is just subtle. Please fix it some time.
-- *	Since there are %nr_copy_pages worth of pages in the snapshot, we need
-- *	to allocate enough contiguous space to hold 
-- *		(%nr_copy_pages * sizeof(struct pbe)), 
-- *	which has the saved/orig locations of the page.. 
-- *
-- *	SUSPEND_PD_PAGES() tells us how many pages we need to hold those 
-- *	structures, then we call get_bitmask_order(), which will tell us the
-- *	last bit set in the number, starting with 1. (If we need 30 pages, that
-- *	is 0x0000001e in hex. The last bit is the 5th, which is the order we 
-- *	would use to allocate 32 contiguous pages).
-- *
-- *	Since we also need to save those pages, we add the number of pages that
-- *	we need to nr_copy_pages, and in case of an overflow, do the 
-- *	calculation again to update the number of pages needed. 
-- *
-- *	With this model, we will tend to waste a lot of memory if we just cross
-- *	an order boundary. Plus, the higher the order of allocation that we try
-- *	to do, the more likely we are to fail in a low-memory situtation 
-- *	(though	we're unlikely to get this far in such a case, since swsusp 
-- *	requires half of memory to be free anyway).
-- */
--
--
--static void calc_order(void)
--{
--	int diff = 0;
--	int order = 0;
--
--	do {
--		diff = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages)) - order;
--		if (diff) {
--			order += diff;
--			nr_copy_pages += 1 << diff;
--		}
--	} while(diff);
--	pagedir_order = order;
--}
- 
- 
- /**
-@@ -673,13 +954,14 @@
- 
- static int alloc_pagedir(void)
- {
--	calc_order();
-+	calc_order(&pagedir_order, &nr_copy_pages);
- 	pagedir_save = (suspend_pagedir_t *)__get_free_pages(GFP_ATOMIC | __GFP_COLD,
- 							     pagedir_order);
- 	if (!pagedir_save)
- 		return -ENOMEM;
- 	memset(pagedir_save, 0, (1 << pagedir_order) * PAGE_SIZE);
- 	pagedir_nosave = pagedir_save;
-+	pr_debug("pagedir %p, %d\n", pagedir_save, pagedir_order);
- 	return 0;
- }
- 
-@@ -783,7 +1065,6 @@
- int suspend_prepare_image(void)
- {
- 	unsigned int nr_needed_pages = 0;
--	int error;
- 
- 	pr_debug("swsusp: critical section: \n");
- 	if (save_highmem()) {
-@@ -791,15 +1072,8 @@
- 		return -ENOMEM;
- 	}
- 
--	drain_local_pages();
--	count_data_pages();
--	printk("swsusp: Need to copy %u pages\n",nr_copy_pages);
- 	nr_needed_pages = nr_copy_pages + PAGES_FOR_IO;
- 
--	error = swsusp_alloc();
--	if (error)
--		return error;
--	
- 	/* During allocating of suspend pagedir, new cold pages may appear. 
- 	 * Kill them.
- 	 */
-@@ -1011,7 +1285,7 @@
- }
- 
- 
--static struct block_device * resume_bdev;
-+static struct block_device * resume_bdev __nosavedata;
- 
- /**
-  *	submit - submit BIO request.
-@@ -1151,6 +1425,11 @@
- 			printk( "." );
- 		error = bio_read_page(swp_offset(p->swap_address),
- 				  (void *)p->address);
-+#ifdef PCS_DEBUG
-+		pr_debug("data_read: %p %p %u\n", 
-+				(void *)p->address, (void *)p->orig_address, 
-+				swp_offset(p->swap_address));
 +#endif
- 	}
- 	printk(" %d done.\n",i);
- 	return error;
-@@ -1219,7 +1498,7 @@
- 	if (!IS_ERR(resume_bdev)) {
- 		set_blocksize(resume_bdev, PAGE_SIZE);
- 		error = read_suspend_image();
--		blkdev_put(resume_bdev);
-+		/* blkdev_put(resume_bdev); */
- 	} else
- 		error = PTR_ERR(resume_bdev);
- 
++
++#ifndef __HAVE_ARCH_PTEP_XCHG_FLUSH
++#define ptep_xchg_flush(__vma, __address, __ptep, __pteval)		\
++({									\
++	pte_t __p = __pte(xchg(&pte_val(*(__ptep)), pte_val(__pteval)));\
++	flush_tlb_page(__vma, __address);				\
++	__p;								\
++})
++
++#endif
++
+ #endif /* _ASM_GENERIC_PGTABLE_H */
+Index: linux-2.6.9/mm/rmap.c
+===================================================================
+--- linux-2.6.9.orig/mm/rmap.c	2004-11-19 06:38:51.000000000 -0800
++++ linux-2.6.9/mm/rmap.c	2004-11-19 06:38:53.000000000 -0800
+@@ -419,7 +419,10 @@
+  * @vma:	the vm area in which the mapping is added
+  * @address:	the user virtual address mapped
+  *
+- * The caller needs to hold the mm->page_table_lock.
++ * The caller needs to hold the mm->page_table_lock if page
++ * is pointing to something that is known by the vm.
++ * The lock does not need to be held if page is pointing
++ * to a newly allocated page.
+  */
+ void page_add_anon_rmap(struct page *page,
+ 	struct vm_area_struct *vma, unsigned long address)
+@@ -561,11 +564,6 @@
 
---
-Hu Gang / Steve
-Linux Registered User 204016
-GPG Public Key: http://soulinfo.com/~hugang/hugang.asc
+ 	/* Nuke the page table entry. */
+ 	flush_cache_page(vma, address);
+-	pteval = ptep_clear_flush(vma, address, pte);
+-
+-	/* Move the dirty bit to the physical page now the pte is gone. */
+-	if (pte_dirty(pteval))
+-		set_page_dirty(page);
+
+ 	if (PageAnon(page)) {
+ 		swp_entry_t entry = { .val = page->private };
+@@ -580,11 +578,15 @@
+ 			list_add(&mm->mmlist, &init_mm.mmlist);
+ 			spin_unlock(&mmlist_lock);
+ 		}
+-		set_pte(pte, swp_entry_to_pte(entry));
++		pteval = ptep_xchg_flush(vma, address, pte, swp_entry_to_pte(entry));
+ 		BUG_ON(pte_file(*pte));
+ 		mm->anon_rss--;
+-	}
++	} else
++		pteval = ptep_clear_flush(vma, address, pte);
+
++	/* Move the dirty bit to the physical page now the pte is gone. */
++	if (pte_dirty(pteval))
++		set_page_dirty(page);
+ 	mm->rss--;
+ 	page_remove_rmap(page);
+ 	page_cache_release(page);
+@@ -671,15 +673,21 @@
+ 		if (ptep_clear_flush_young(vma, address, pte))
+ 			continue;
+
+-		/* Nuke the page table entry. */
+ 		flush_cache_page(vma, address);
+-		pteval = ptep_clear_flush(vma, address, pte);
++		/*
++		 * There would be a race here with handle_mm_fault and do_anonymous_page
++		 * which  bypasses the page_table_lock if we would zap the pte before
++		 * putting something into it. On the other hand we need to
++		 * have the dirty flag setting at the time we replaced the value.
++		 */
+
+ 		/* If nonlinear, store the file page offset in the pte. */
+ 		if (page->index != linear_page_index(vma, address))
+-			set_pte(pte, pgoff_to_pte(page->index));
++			pteval = ptep_xchg_flush(vma, address, pte, pgoff_to_pte(page->index));
++		else
++			pteval = ptep_get_and_clear(pte);
+
+-		/* Move the dirty bit to the physical page now the pte is gone. */
++		/* Move the dirty bit to the physical page now that the pte is gone. */
+ 		if (pte_dirty(pteval))
+ 			set_page_dirty(page);
+
+

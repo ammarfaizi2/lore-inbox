@@ -1,65 +1,85 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316849AbSFFHDb>; Thu, 6 Jun 2002 03:03:31 -0400
+	id <S316848AbSFFHJn>; Thu, 6 Jun 2002 03:09:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316848AbSFFHDa>; Thu, 6 Jun 2002 03:03:30 -0400
-Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:48114 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S316880AbSFFHD3>; Thu, 6 Jun 2002 03:03:29 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, frankeh@watson.ibm.com, akpm@zip.com.au
-Subject: [PATCH] Futex update III: don't use put_page...
-Date: Thu, 06 Jun 2002 17:04:17 +1000
-Message-Id: <E17FrJh-0003jW-00@wagner.rustcorp.com.au>
+	id <S316852AbSFFHJm>; Thu, 6 Jun 2002 03:09:42 -0400
+Received: from jive.SoftHome.net ([66.54.152.27]:5547 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id <S316848AbSFFHJm>;
+	Thu, 6 Jun 2002 03:09:42 -0400
+Date: Thu, 6 Jun 2002 03:09:29 -0400
+From: "John L. Males" <jlmales@softhome.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Question Regarding "EXTRAVERSION" Specification
+Message-Id: <20020606030929.460bec3e.jlmales@softhome.net>
+Reply-To: jlmales@yahoo.com
+Organization: Toronto, Ontario - Canada
+X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature"; boundary="=_jive-19913-1023347383-0001-2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I know nothing of VM, but put_page on a page on the LRU list hits a
-BUG() inside __free_pages_ok().  Andrew Morton said this was right.
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-Name: Unpin page bug fix.
-Author: Rusty Russell
-Status: Tested on 2.5.20
+--=_jive-19913-1023347383-0001-2
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-D: This uses page_cache_release() instead of put_page(), as it might
-D: be a pagecache page.
+Hello,
 
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.20.1460/kernel/futex.c linux-2.5.20.1460.updated/kernel/futex.c
---- linux-2.5.20.1460/kernel/futex.c	Sat May 25 14:35:00 2002
-+++ linux-2.5.20.1460.updated/kernel/futex.c	Wed Jun  5 21:24:37 2002
-@@ -33,6 +33,7 @@
- #include <linux/futex.h>
- #include <linux/highmem.h>
- #include <linux/time.h>
-+#include <linux/pagemap.h>
- #include <asm/uaccess.h>
- 
- /* These mutexes are a very simple counter: the winner is the one who
-@@ -69,6 +70,14 @@
- 	return &futex_queues[hash_long(h, FUTEX_HASHBITS)];
- }
- 
-+static inline void unpin_page(struct page *page)
-+{
-+	/* Avoid releasing the page which is on the LRU list.  I don't
-+           know if this is correct, but it stops the BUG() in
-+           __free_pages_ok(). */
-+	page_cache_release(page);
-+}
-+
- static int futex_wake(struct list_head *head,
- 		      struct page *page,
- 		      unsigned int offset,
-@@ -218,7 +227,7 @@
- 	default:
- 		ret = -EINVAL;
- 	}
--	put_page(page);
-+	unpin_page(page);
- 
- 	return ret;
- }
+***** Please note I am not on the Linux Kernel Mailing List.  Please
+be so kind as to BCC copy me in on any reply to this inquiry.  Thanks
+in
+advance. *****
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+I have had a recent experience in using the "EXTRAVERSION" in the
+Linux 2.2.x Kernel series.  The context of my question applies to both
+the 2.2.x and 2.4.x Linux Kernels.
+
+The questions are:
+
+  1) Is there a specification that states the maximum length that the
+"EXTRAVERSION" string may be?
+  2) Does the Kernel make/build process enforce any specified limit of
+(1) above?
+  3) If (1) exists, where might it be documented?  I have tried to
+find out, but with no success thus far.
+  4) Is anyone aware that there may be some differences in what is
+supported by or works with the Kernel and the programs that support
+the Linux Kernel?
+
+
+Regards,
+
+John L. Males
+Willowdale, Ontario
+Canada
+06 June 2002 03:09
+
+
+==================================================================
+Please BCC me by replacing yahoo.com after the "@" as follows"
+TLD =         The last three letters of the word internet
+Domain name = The first four letters of the word software,
+              followed by the last four letters of the word
+              homeless.
+My appologies in advance for the jumbled eMail address
+and request to BCC me, but SPAM has become a very serious
+problem.  The eMail address in my header information is
+not a valid eMail address for me.  I needed to use a valid
+domain due to ISP SMTP screen rules.
+
+--=_jive-19913-1023347383-0001-2
+Content-Type: application/pgp-signature
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iEYEARECAAYFAjz/CrMACgkQsrsjS27q9xbE9QCggvDCM4QhxbUzKJN72NPrOhal
+AHgAoJWnBWzyGEaLsRZXL3NHc0xa8m8Z
+=s2VR
+-----END PGP SIGNATURE-----
+
+--=_jive-19913-1023347383-0001-2--

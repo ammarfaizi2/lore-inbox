@@ -1,175 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317520AbSIJQQm>; Tue, 10 Sep 2002 12:16:42 -0400
+	id <S317701AbSIJQVu>; Tue, 10 Sep 2002 12:21:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317619AbSIJQQm>; Tue, 10 Sep 2002 12:16:42 -0400
-Received: from dsl-213-023-020-046.arcor-ip.net ([213.23.20.46]:42961 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317520AbSIJQQj>;
-	Tue, 10 Sep 2002 12:16:39 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Chuck Lever <cel@citi.umich.edu>
-Subject: Re: invalidate_inode_pages in 2.5.32/3
-Date: Tue, 10 Sep 2002 18:13:52 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrew Morton <akpm@digeo.com>, Rik van Riel <riel@conectiva.com.br>,
-       <trond.myklebust@fys.uio.no>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.BSO.4.33.0209101036040.5887-100000@citi.umich.edu>
-In-Reply-To: <Pine.BSO.4.33.0209101036040.5887-100000@citi.umich.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17oneD-0007Dk-00@starship>
+	id <S317694AbSIJQVu>; Tue, 10 Sep 2002 12:21:50 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:29896 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S317673AbSIJQVq>; Tue, 10 Sep 2002 12:21:46 -0400
+Date: Tue, 10 Sep 2002 09:27:31 -0700
+From: Mike Anderson <andmike@us.ibm.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Patrick Mansfield <patmans@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [RFC] Multi-path IO in 2.5/2.6 ?
+Message-ID: <20020910162731.GA1249@beaverton.ibm.com>
+Mail-Followup-To: Lars Marowsky-Bree <lmb@suse.de>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	Patrick Mansfield <patmans@us.ibm.com>, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org
+References: <20020909095652.A21245@eng2.beaverton.ibm.com> <200209091734.g89HY5p11796@localhost.localdomain> <20020909184026.GD1334@beaverton.ibm.com> <20020910130201.GO2992@marowsky-bree.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020910130201.GO2992@marowsky-bree.de>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 September 2002 17:09, Chuck Lever wrote:
-> On Tue, 10 Sep 2002, Daniel Phillips wrote:
-> > On Tuesday 10 September 2002 01:51, Chuck Lever wrote:
-> > > rpciod must never call a function that sleeps.  if this happens, the whole
-> > > NFS client stops working until the function wakes up again.  this is not
-> > > really bogus -- it is similar to restrictions placed on socket callbacks.
-> >
-> > Ah, a warm body with answers :-)
-> >
-> > It *sounds* bogus: why should we be satisfied with a function that doesn't
-> > do its job reliably (invalidate_inode_pages) in order to avoid coming up
-> > with a way of keeping the client daemon from blocking?  How about having
-> > invalidate_inode_pages come back with "sorry boss, I couldn't complete the
-> > job so I started as much IO as I could and I'm back now, try again later"?
+Lars Marowsky-Bree [lmb@suse.de] wrote:
+> On 2002-09-09T11:40:26,
+>    Mike Anderson <andmike@us.ibm.com> said:
 > 
-> i'm not suggesting that invalidate_inode_pages behaves properly, i'm
-> simply trying to document why it works the way it does.
-
-And nicely too, thanks.
-
-> > > 3.  mmap'd pages must behave reasonably when a file's cache is purged.
-> > >     clean pages should be faulted back in.  what to do with dirty mmap'd
-> > >     pages?
-> >
-> > I don't know, sorry.  What?
+> > When you get into networking I believe we may get into path failover
+> > capability that is already implemented by the network stack. So the
+> > paths may not be visible to the block layer.
 > 
-> 'twas a rhetorical question.
-
-A rhetorical answer as well ;-)
-
-> i'm trying to understand this myself.  the
-> case of what to do with dirty mmap'd pages is somewhat sticky.
-
-What I meant was, could you please explain the problem with dirty mmaped
-pages.  I see you explained it below: you mean that writes to mmaps bypass
-the client, but the client really needs to know about them (and is
-largely ignorant of them at present).
-
-> > You've probably been through this before, but could you please explain
-> > the ground rules behind the cache purging strategy?
+> It depends. The block layer might need knowledge of the different paths for
+> load balancing.
 > 
-> i can answer the question "when does the NFS client purge a file's cached
-> data?"
+> > The utility does transcend SCSI, but transport / device specific
+> > characteristics may make "true" generic implementations difficult.
 > 
-> there are four major categories:
+> I disagree. What makes "generic" implementations difficult is the absolutely
+> mediocre error reporting and handling from the lower layers.
 > 
-> a.  directory changes require any cached readdir results be purged.
 
-That is, the client changes the directory itself?  I suppose an NFS
-server is incapable of reporting directory changes caused by other
-clients, because of being stateless.
+Where working on it. I have done a mid scsi_error cleanup patch for 2.5
+so that we can better view where we are at currently. Hopefully soon we
+can do some actual useful improvements.
 
->     ...this
->     forces the readdir results to be re-read from the server the next time
->     the client needs them.  this is what broke with the recent changes in
->     2.5.32/3 that triggered this thread.
+My main point on the previous comment though was that some transports may
+decide not to expose there paths (i.e. the may manage them at the
+transport layer) and the block layer would be unable to attach to
+individual paths.
+
+The second point I was trying to make is that if you look at most
+multi-path solutions across different operating systems once they have
+failover capability and move to support more performant / advanced
+multi-path solutions they need specific attributes of the device or
+path. These attributes have sometimes been called personalities. 
+
+Examples of these personalities are path usage models (failover,
+transparent failover, active load balancing), ports per controller
+config,  platform memory latency (NUMA), cache characteristics, special
+error decoding for device events, etc.
+
+I mention a few in these in this document.
+http://www-124.ibm.com/storageio/multipath/scsi-multipath/docs/index.html
+
+These personalities could be acquired at any level of the IO stack, but
+involve some API if we want to try and get as close as possible to
+"generic".
+
+> With multipathing, you want the lower level to hand you the error
+> _immediately_ if there is some way it could be related to a path failure and
+> no automatic retries should take place - so you can immediately mark the path
+> as faulty and go to another. 
 > 
-> b.  when the client discovers a file on the server was changed by some
->     other client, all pages in the page cache for that file are purged
->     (except the ones that can't be because they are locked, etc).  this
->     is the case that is hit most often and in async RPC tasks, and is
->     on many critical performance paths.
+
+Agreed, In a past O/S we worked hard to have our error policy structure
+so that transports worried about transport errors and devices worried
+about device errors. If a transport received a completion of an IO its
+job was done (we did have some edge case and heuristics to stop paths
+from cycling from disabled to enabled)
+
+> However, on a "access beyond end of device" or a clear read error, failing a
+> path is a rather stupid idea, but instead the error should go up immediately.
 > 
-> c.  when a file is locked or unlocked via lockf/fcntl, all pending writes
->     are pushed back to the server and any cached data in the page cache is
->     purged before the lock/unlock call returns.
 
-Do you mean, the client locks/unlocks the file, or some other client?
-I'm trying to fit this into my model of how the server must work.  It
-must be that the locked/unlocked state is recorded at the server, in
-the underlying file, and that the server reports the locked/unlocked
-state of the file to every client via attr results.  So now, why purge
-at *both* lock and unlock time?
+Agreed, each layer should only deal with error in there domain.
 
->     ...applications sometimes
->     depend on this behavior to checkpoint the client's cache.
+> This will need to be sorted regardless of the layer it is implemented in.
 > 
-> d.  some error occurred while reading a directory, or the object on the
->     server has changed type (like, a file becomes a directory but the
->     file handle is still the same -- a protocol error, but the client
->     checks for this just in case).
+> How far has this been already addressed in 2.5 ?
+
+See previous comment.
+
 > 
-> so let's talk about b.  before and after many operations, the NFS client
-> attempts to revalidate an inode.  this means it does a GETATTR operation,
-> or uses the attr results returned in many NFS requests, to compare the
-> file's size and mtime on the server with the same values it has cached
-> locally.  this revalidation can occur during XDR processing while the RPC
-> layer marshals and unmarshals the results of an NFS request.
+> > > > For sd, this means if you have n paths to each SCSI device, you are
+> > > > limited to whatever limit sd has divided by n, right now 128 / n.
+> > > > Having four paths to a device is very reasonable, limiting us to 32
+> > > > devices, but with the overhead of 128 devices. 
+> > > 
+> > > I really don't expect this to be true in 2.6.
+> > > 
+> > While the device space may be increased in 2.6 you are still consuming
+> > extra resources, but we do this in other places also.
+> 
+> For user-space reprobing of failed paths, it may be vital to expose the
+> physical paths too. Then "reprobing" could be as simple as
+> 
+> 	dd if=/dev/physical/path of=/dev/null count=1 && enable_path_again
+> 
+> I dislike reprobing in kernel space, in particular using live requests as
+> the LVM1 patch by IBM does it.
+> 
 
-OK, so if this revalidation fails the client does the purge, as you
-described in b.
 
-> i don't want to speculate too much without Trond around to keep me honest.
-> however, i think what we want here is behavior that is closer to category
-> c., with as few negative performance implications as possible.
+In the current mid-mp patch the paths are exposed through the proc
+interface and can be activated / state changed through a echo command. 
 
-Actually, this is really, really useful and gives me lots pointers I
-can follow for more details.
+While live requests are sometimes viewed as a bad things to activate a
+path very small IO sizes in optical networks a unreliable in
+determining anything but completely dead paths. The size of the payload
+is important.
 
-> i think one way to accomplish this is to create two separate revalidation
-> functions -- one that can be used by synchronous code in the NFS client
-> that uses the 100% bug killer, and one that can be used from async RPC
-> tasks that simply marks that a purge is necessary, and next time through
-> the sync one, the purge actually occurs.
+I believe the difference in views here is what to expose and what
+size/type of structure represents each piece of the nexus (b:c:t:l).
 
-That would certainly be easy from the VM side, then we could simply
-use a derivative of vmtruncate that leaves the file size alone, as
-Andrew suggested.
-
-If this method isn't satisfactory, then with considerably more effort
-we (you guys) could build a state machine in the client that relies
-on an (as yet unwritten but pretty straightforward) atomic purger with
-the ability to report the fact that it was unable to complete the
-purge atomically.
-
-Your suggestion is oh-so-much-easier.  I hope it works out.
-
-> the only outstanding issue then is how to handle pages that are dirtied
-> via mmap'd files, since they are touched without going through the NFS
-> client.
-
-Hmm.  And what do you want?  Would a function that walks through the
-radix tree and returns the OR of page_dirty for every page in it be
-useful?  That would be easy, but efficiency is another question.  I
-suppose that even if you had such a function, the need to poll
-mmaped files constantly would be a stopper.
-
-Would it be satisfactory to know within a second or two that the mmap
-was dirtied?  If so, the dirty scan could possibly be rolled into the
-regular refill_inactive/shrink_cache scan, though at some cost to
-structural cleanliness.
-
-Could the client mprotect the mmap, and receive a signal the first
-time somebody writes it?  Jeff Dike does things like that with UML
-and they seem to work pretty well.  Of these approaches, this is the
-one that sounds must satisfactory from the performance and
-correctness point of view, and it is a proven technique, however
-scary it may sound.
-
-You want to know about the dirty pages only so you can send them
-to the server, correct?  Not because the client needs to purge
-anything.
-
-> also, i'd really like to hear from maintainers of other network
-> file systems about how they manage cache coherency.
-
-Yes, unfortunately, if we break Samba, Tridge knows where I live ;-)
+-Mike
 
 -- 
-Daniel
+Michael Anderson
+andmike@us.ibm.com
+

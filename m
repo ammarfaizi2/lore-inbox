@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277379AbRJENfc>; Fri, 5 Oct 2001 09:35:32 -0400
+	id <S277381AbRJENlM>; Fri, 5 Oct 2001 09:41:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277380AbRJENfW>; Fri, 5 Oct 2001 09:35:22 -0400
-Received: from mnh-1-02.mv.com ([207.22.10.34]:64260 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S277379AbRJENfE>;
-	Fri, 5 Oct 2001 09:35:04 -0400
-Message-Id: <200110051453.JAA01618@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: adam.keys@HOTARD.engr.smu.edu.karaya.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Development Setups 
-In-Reply-To: Your message of "Thu, 04 Oct 2001 23:20:06 EST."
-             <20011005041759.OPDP14306.femail26.sdc1.sfba.home.com@there> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 05 Oct 2001 09:53:13 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S277380AbRJENkx>; Fri, 5 Oct 2001 09:40:53 -0400
+Received: from embolism.psychosis.com ([216.242.103.100]:37895 "EHLO
+	embolism.psychosis.com") by vger.kernel.org with ESMTP
+	id <S277381AbRJENkc>; Fri, 5 Oct 2001 09:40:32 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dave Cinege <dcinege@psychosis.com>
+Reply-To: dcinege@psychosis.com
+To: philippe.aubry@mangoosta.fr
+Subject: Re: [POT] Linux SAN?
+Date: Fri, 5 Oct 2001 09:42:27 -0400
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <Pine.LNX.4.21.0110032019480.12116-100000@dozer.dreamhost.com> <E15oxYi-00015G-00@schizo.psychosis.com> <01100422312200.01464@homer>
+In-Reply-To: <01100422312200.01464@homer>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E15pVCy-0006zo-00@schizo.psychosis.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-adam.keys@engr.smu.edu said:
-> Instead of having separate machines,  there is the possibility of
-> using the  Usermode port.  As I understand it this lags behind the -ac
-> and linus kernels  so it would be hard to test things like the new
-> VM's.
+On Thursday 04 October 2001 22:31, you wrote:
 
-Not really.  The latest UML is sometimes pretty far ahead of what's in the
--ac tree, but it usually works fine.  So, if you're interested in the generic
-kernel, and not UML itself, that shouldn't be a problem.  And currently, 
-the -ac tree is pretty close to my CVS.
+> For the HBA ( fibre channel adapter ) i use the module in the kernel CPQFC
+> is for a specific compaq HBA, but you can use use QLOGIC module or EMULEX (
+> but the EMULEX driver is not under GPL and you don't have source and it's
+> really convinient for the correction on the driver ) with support for FC.
 
-Also, the latest patches usually go pretty cleanly into the -linus pre kernels,
-so getting those running in UML shouldn't be hard.
+FYI to all interested in playing with Fibre Channel:
+The FC HBA driver put out by Qlogic works well but does a silly thing; it 
+enumerates devices from 0, instead of by the actually loop ID. This makes 
+it impossible to spec absolute paths to the device, as everything will
+shift when devices are moved on the FC loop.
 
->   Usermode would not be  suitable for driver development either.
+This one liner patch to qla2x00.c fixes this problem, by enumerating
+by loop id.
 
-This is just because no one has written the code to do it.  It is perfectly
-possible to do hardware device driver development in UML.  Various USB people
-have started trying to do USB driver development under UML, for example.
+ftp://ftp.psychosis.com/linux/fibrechannel/qla_fixid.c
 
-				Jeff
-
+-- 
+The time is now 22:19 (Totalitarian)  -  http://www.ccops.org/clock.html

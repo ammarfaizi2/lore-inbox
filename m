@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273881AbRKHPjA>; Thu, 8 Nov 2001 10:39:00 -0500
+	id <S274681AbRKHP6w>; Thu, 8 Nov 2001 10:58:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274194AbRKHPiu>; Thu, 8 Nov 2001 10:38:50 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:37509 "EHLO
-	mailout02.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S273881AbRKHPio>; Thu, 8 Nov 2001 10:38:44 -0500
-Date: Thu, 8 Nov 2001 16:38:22 +0100
-From: Tobias Diedrich <ranma@gmx.at>
-To: Peter Seiderer <Peter.Seiderer@ciselant.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What is the difference between 'login: root' and 'su -' ?
-Message-ID: <20011108163821.A26539@router.ranmachan.dyndns.org>
-Mail-Followup-To: Tobias Diedrich <ranma@gmx.at>,
-	Peter Seiderer <Peter.Seiderer@ciselant.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011107184710.A1410@zodiak.ecademix.com>
-Mime-Version: 1.0
+	id <S274434AbRKHP6m>; Thu, 8 Nov 2001 10:58:42 -0500
+Received: from [216.151.155.121] ([216.151.155.121]:65290 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S274368AbRKHP6Y>; Thu, 8 Nov 2001 10:58:24 -0500
+To: "Drizzt Do'Urden" <drizzt.dourden@iname.com>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "LLX" <llx@swissonline.ch>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Module Licensing? (thinking a little more)
+In-Reply-To: <NLEDJBJHJDOPHJOIBBAFIEINCGAA.drizzt.dourden@iname.com>
+From: Doug McNaught <doug@wireboard.com>
+Date: 08 Nov 2001 10:56:35 -0500
+In-Reply-To: "Drizzt Do'Urden"'s message of "Thu, 8 Nov 2001 15:53:09 +0100"
+Message-ID: <m3bsidxnm4.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011107184710.A1410@zodiak.ecademix.com>
-User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Seiderer wrote:
-> Hello,
-> tried today to mkfs.ext2 a partition of my disk and detected there is
-> a little difference between 'login: root' and 'su -'.
-[...]
-> 	--- SIGXFSZ (File size limit exceeded) ---
-> 	+++ killed by SIGXFSZ +++
+"Drizzt Do'Urden" <drizzt.dourden@iname.com> writes:
 
-I ran into the same Problem in SuSE 7.0 .
-Turned out it was pam_limits.so , try if it works if you comment out the
-line with pam_limits.so in it in /etc/pam.d/su .
-You probably have to recompile the pam libraries.
+> People always can license the binary driver with the asm source code
+> or a asm source with:
+> 
+> func:
+> 	dd 0xFF,0x01 
+> 	...
+> 
+> 
+> This is a mess also :)
 
+Read the GPL again, more carefully.
+
+-Doug
 -- 
-Tobias								PGP: 0x9AC7E0BC
+Let us cross over the river, and rest under the shade of the trees.
+   --T. J. Jackson, 1863

@@ -1,64 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266095AbSLOA3Z>; Sat, 14 Dec 2002 19:29:25 -0500
+	id <S266100AbSLOAeA>; Sat, 14 Dec 2002 19:34:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266100AbSLOA3Z>; Sat, 14 Dec 2002 19:29:25 -0500
-Received: from elin.scali.no ([62.70.89.10]:49418 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S266095AbSLOA3Y>;
-	Sat, 14 Dec 2002 19:29:24 -0500
-Date: Sun, 15 Dec 2002 01:37:27 +0100 (CET)
-From: Steffen Persvold <sp@scali.com>
-X-X-Sender: sp@sp-laptop.isdn.scali.no
-To: Russell King <rmk@arm.linux.org.uk>
-cc: arun4linux <arun4linux@indiatimes.com>,
-       Michael Richardson <mcr@sandelman.ottawa.on.ca>, <netdev@oss.sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Re: pci-skeleton duplex check
-In-Reply-To: <20021214161446.B23020@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0212150131400.1053-100000@sp-laptop.isdn.scali.no>
+	id <S266101AbSLOAeA>; Sat, 14 Dec 2002 19:34:00 -0500
+Received: from gaea.projecticarus.com ([195.10.228.71]:53174 "EHLO
+	gaea.projecticarus.com") by vger.kernel.org with ESMTP
+	id <S266100AbSLOAd7>; Sat, 14 Dec 2002 19:33:59 -0500
+Message-ID: <3DFBCFA2.7030603@walrond.org>
+Date: Sun, 15 Dec 2002 00:41:06 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Stephen Wille Padnos <stephen.willepadnos@verizon.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Symlink indirection
+References: <200212141355.gBEDtb7q000952@darkstar.example.net> <3DFB3983.3090602@walrond.org> <3DFB8B7C.10802@verizon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Dec 2002, Russell King wrote:
+Hi steve
 
-> On Sat, Dec 14, 2002 at 08:05:30PM +0530, arun4linux wrote:
-> > Interfaces should NEVER change in patch level versions.
-> > Just *DO NOT DO IT*.
-> > I do agree on this.
+Stephen Wille Padnos wrote:
 > 
-> Rubbish.
+> What would you expect to happen if you then did:
+> echo "d/w" > d/w
 > 
-> Think about what you've just said.  Patch level version changes are
-> things like 2.5.43 to 2.5.44 or 2.4.19 to 2.4.20.
+> Which physical directory would you expect a new file to go into?
 > 
-> You are saying that we shouldn't change any interfaces between (eg)
-> 2.5.43 and 2.5.44, but we should change every interface we want to
-> change between 2.4.15 and 2.5.0.
-> 
-> This is obviously completely bogus.  2.5 is a _development_ tree.
-> Everyone should expect anything, including interfaces to change
-> between each development patch level.
-> 
-> > This is a common complaint about linux kernel developers. And this always
-> > gives an insecure feeling  :-) for the device driver or kernel module
-> > programmers. 
-> 
-> If interfaces are changed without extremely good reason between two
-> _stable_ patch level versions, that would be a bug.
->
 
-There have been a few during 2.4... The alloc_kiovec stuff for instance 
-and zap_page_range. 2.2 was much more stable.
+Using my example:
 
-Interface changes in development series is (or atleast should be to 
-everyone using linux) a known "feature".
+mkdir a
+echo "a/x" > a/x
+echo "a/y" > a/y
+echo "a/z" > a/z
 
-Regards,
--- 
-  Steffen Persvold   |       Scali AS      
- mailto:sp@scali.com |  http://www.scali.com
-Tel: (+47) 2262 8950 |   Olaf Helsets vei 6
-Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY
+mkdir b
+echo "b/y" > b/y
+
+mkdir c
+echo "c/z" > c/z
+
+mkdir d
+mount --bind a d
+mount --bind --overlay b d
+mount --bind --overlay c d
+
+cat d/x
+"a/x"
+
+cat d/y
+"b/y"
+
+cat d/z
+"c/z"
+
+Then...
+
+echo "d/w" > d/w would create a new file in directory a.
+echo "d/y" > d/y would replace the file b/y
+etc...
+
+Is this sort of thing possible, or are there fundamental reasons that 
+would make it difficult?
+
+Andrew
 

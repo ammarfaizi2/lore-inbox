@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261783AbTD2L4T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 07:56:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbTD2L4T
+	id S261805AbTD2MAE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 08:00:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbTD2MAE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 07:56:19 -0400
-Received: from boden.synopsys.com ([204.176.20.19]:36807 "HELO
-	boden.synopsys.com") by vger.kernel.org with SMTP id S261783AbTD2L4S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 07:56:18 -0400
-Date: Tue, 29 Apr 2003 14:08:14 +0200
-From: Alex Riesen <alexander.riesen@synopsys.COM>
-To: Lamont Granquist <lamont@scriptkiddie.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SIGRTMIN, F_SETOWN(-getpgrp()) and threads
-Message-ID: <20030429120814.GF890@riesen-pc.gr05.synopsys.com>
-Reply-To: alexander.riesen@synopsys.COM
-References: <20030428162800.D83397-100000@uswest-dsl-142-38.cortland.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030428162800.D83397-100000@uswest-dsl-142-38.cortland.com>
-User-Agent: Mutt/1.4i
-Organization: Synopsys, Inc.
+	Tue, 29 Apr 2003 08:00:04 -0400
+Received: from [193.89.230.30] ([193.89.230.30]:1937 "EHLO
+	roadrunner.hulpsystems.net") by vger.kernel.org with ESMTP
+	id S261805AbTD2MAD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 08:00:03 -0400
+Message-ID: <1051618337.3eae6c218bd3c@roadrunner.hulpsystems.net>
+Date: Tue, 29 Apr 2003 14:12:17 +0200
+From: Martin List-Petersen <martin@list-petersen.dk>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+Cc: "David S. Miller" <davem@redhat.com>, bas.mevissen@hetnet.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: Broadcom BCM4306/BCM2050  support
+References: <1051596982.3eae18b640303@roadrunner.hulpsystems.net> <1051614381.21135.5.camel@rth.ninka.net> <3EAE644A.2000101@gmx.net>
+In-Reply-To: <3EAE644A.2000101@gmx.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2-cvs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lamont Granquist, Tue, Apr 29, 2003 01:34:21 +0200:
+Citat Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>:
+
+> > So don't blame the vendors on this one, several of them would love
+> > to publish drivers public for their cards, but simply cannot with
+> > upsetting federal regulators.
 > 
-> I'm attempting to send SIGRTMIN to an entire pgrp composed of threads.
-> I'm running into issues with the management thread getting this signal and
-> dying because it is uncaught in that thread.  Is there any way to make the
-> management thread ignore this signal?  (and i'm running linux 2.4.20-ish
-> and glibc-2.2.4-19.3)
+> /me wants binary only driver for these cards to build opensource driver
+> with ability to set "interesting" frequency range.
 > 
 
-ignore it before pthreads are initialized?
+It's there for Windows :) So ... 
 
-int main(int argc, char* argv[])
-{
-    signal(SIGRTMIN, SIG_IGN);
-    ...
-
+Regards,
+Martin List-Petersen
+martin at list-petersen dot dk
+--
+last|perl -pe '$_ x=/(..:..)...(.*)/&&"''"ge&&"''"lt'
+That's gonna be tough for Randal to beat...  :-)
+             -- Larry Wall in  <1991Apr29.072206.5621@jpl-devvax.jpl.nasa.gov>
 

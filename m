@@ -1,82 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293596AbSDUEMz>; Sun, 21 Apr 2002 00:12:55 -0400
+	id <S293603AbSDUENR>; Sun, 21 Apr 2002 00:13:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293603AbSDUEMy>; Sun, 21 Apr 2002 00:12:54 -0400
-Received: from w226.z064000207.nyc-ny.dsl.cnc.net ([64.0.207.226]:56369 "EHLO
-	carey-server.stronghold.to") by vger.kernel.org with ESMTP
-	id <S293596AbSDUEMx>; Sun, 21 Apr 2002 00:12:53 -0400
-Message-Id: <4.3.2.7.2.20020421001408.03b75bc0@mail.strongholdtech.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Sun, 21 Apr 2002 00:18:12 -0400
-To: Chris Abbey <linux@cabbey.net>, <linux-kernel@vger.kernel.org>
-From: "Nicolae P. Costescu" <nick@strongholdtech.com>
-Subject: Re: PDC20268 TX2 support?
-In-Reply-To: <Pine.LNX.4.33.0204201226530.25636-100000@tweedle.cabbey.ne
- t>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S310206AbSDUENQ>; Sun, 21 Apr 2002 00:13:16 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32274 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S293603AbSDUENP>; Sun, 21 Apr 2002 00:13:15 -0400
+Date: Sat, 20 Apr 2002 21:13:05 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Ian Molton <spyro@armlinux.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+In-Reply-To: <Pine.GSO.4.21.0204202347010.27210-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.44.0204202108410.10137-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fasttrak tx2 (we have lots of them) and things like Highpoint RocketRaid 
-133 really are not hardware raid, from what I understand. They have some 
-bios assist functions but the CPU does a lot of the work.
 
-3ware makes hardware raid cards. We switched to them - you can get a nice 2 
-channel one that blows the Fastrak tx2 and RocketRaid 133 away on 
-performance for $145  ($245 for the 4 channel 2 meg cache raid 1/10/5/jbod 
-model). My simple write 2 gig read 2 gig benchmark ran 50% faster  with the 
-3ware product than with the other 2 products.  Performance increases were 
-seen on KT133A athlon, i845 p4, and AMD MPX dual athlon systems. And the 
-3ware product has full driver source, and obviously full kernel support (we 
-use the drivers that are part of the 2.4.18 kernel). Not to mention the 
-3ware people know linux. We were able to ask them questions that would send 
-Promise and Highpoint tech support people running.
 
-We had to switch to 3ware because Promise and Highpoint wouldn't provide a 
-driver for anything other than 2.4.2/2.4.7 and wouldn't provide source. 
-Glad we did all around.
+On Sun, 21 Apr 2002, Alexander Viro wrote:
+>
+> "Linus documentation".
 
-At 12:33 PM 4/20/2002 -0500, Chris Abbey wrote:
->Today, Alan Cox wrote:
-> > > the 2.4.19 timeframe. I'm curious what level of support folks are
-> > > expecting? Just basic IDE, or support for the hardware raid features?
-> >
-> > What hardware raid features ?
->
->The FastTraK 100 TX2 has hardware raid (stripe/mirror) support, they
->have a binary only driver (scsi/ft.o) which presents this array as
->a scsi device... this is the level of function I was hoping was being
->integrated.
->
-> > AFAIK their only cards with hardware raid features are the supertrak 
-> 100 and
-> > SX6000.
->
->The fasttrak also has hardware raid, while it works, it works realtively
->well.
->
->The current 2.4.18 code recognizes the card and provides vanilla IDE
->access to the drives, unfortunately that isn't much use unless someone
->wants to try and RE their block allocation on the disks... a decidedly
->non-trivial endeavour I can assure you. ;(
->
->--
->Never make a technical decision based upon the politics of the situation.
->Never make a political decision based upon technical issues.
->The only place these realms meet is in the mind of the unenlightened.
->                         -- Geoffrey James, The Zen of Programming
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+In fact, we might as well have a whole subdirectory on "Managing Linus",
+which some people have become very good at.
 
-****************************************************
-Nicolae P. Costescu, Ph.D.  / Senior Developer
-Stronghold Technologies
-46040 Center Oak Plaza, Suite 160 / Sterling, Va 20166
-Tel: 571-434-1472 / Fax: 571-434-1478
+The BK docs that people are so in a huff over really _are_ less about BK
+itself, and almost entirely about how to use it to interface with me. Read
+them - they are just a "SubmittingPatches" for BK, along with scripts to
+automate it to get the format that I have found to be useful.
+
+Rememebr how many times people have asked for automated tools, and for
+getting notification about when I've applied a patch? You've got it. It's
+all there.
+
+Side note: remember the discussion that pushed me to _try_ BK in the first
+place?
+
+Who was it that said "Be careful what you pray for"? ;)
+
+		Linus
 

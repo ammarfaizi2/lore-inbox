@@ -1,86 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbRAXNSu>; Wed, 24 Jan 2001 08:18:50 -0500
+	id <S131802AbRAXNUv>; Wed, 24 Jan 2001 08:20:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129601AbRAXNSk>; Wed, 24 Jan 2001 08:18:40 -0500
-Received: from smtp6.mail.yahoo.com ([128.11.69.103]:31242 "HELO
-	smtp6.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129406AbRAXNSd>; Wed, 24 Jan 2001 08:18:33 -0500
-X-Apparently-From: <mahadev?kc@yahoo.com>
-Message-ID: <000b01c08608$427a8540$2e00a8c0@kcmahadev>
-From: "Mahadev K Cholachagudda" <mahadev_kc@yahoo.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <crossgcc@sources.redhat.com>, <gcc-help@gcc.gnu.org>
-Subject: Why only Linux uses GCC to compile the source code. please help
-Date: Wed, 24 Jan 2001 18:49:13 +0530
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6600
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+	id <S131876AbRAXNUl>; Wed, 24 Jan 2001 08:20:41 -0500
+Received: from p3EE3CA66.dip.t-dialin.net ([62.227.202.102]:11524 "HELO
+	emma1.emma.line.org") by vger.kernel.org with SMTP
+	id <S131802AbRAXNUd>; Wed, 24 Jan 2001 08:20:33 -0500
+Date: Wed, 24 Jan 2001 14:20:02 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [NFS] Linux 2.2.18 nfs v3 server bug (was: Incompatible: FreeBSD 4.2 client, Linux 2.2.18 nfsv3 server, read-only export)
+Message-ID: <20010124142002.A1405@emma1.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010123015612.H345@quadrajet.flashcom.com> <20010123162930.B5443@emma1.emma.line.org> <wuofwynsj5.fsf_-_@bg.sics.se> <20010123105350.B344@quadrajet.flashcom.com> <20010124041437.A28212@emma1.emma.line.org> <14958.28927.756597.940445@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <14958.28927.756597.940445@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Wed, Jan 24, 2001 at 17:06:55 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi to all,
+On Wed, 24 Jan 2001, Neil Brown wrote:
 
-Please include ****mailto:mahadev_kc@yahoo.com ***** in the reply list
-******as i am not a member of the list******.
+> freebsd-stable removed!  reiserfs gone. Who goes next:-? Alan?
 
-After i am going through the some part of the linux code, i wrote the
-following. Please review it and if you have any additions/modifications or
-comments please let me know.
+The bugs, I hope.
 
-Your help is really needed.
+> I stuffed up when I tried to interpret the error, but after much
+> sensible correction, here is a patch.  Please try it, and suggest any
+> other errs that should be tested for (or maybe we should invert the
+> sense of the test, and test for error codes that ACCESS is allowed to
+> return.
 
-Thanks for any help,
+This looks better and it makes FreeBSD able to ls the directory, and on
+touch /mnt/try, I get EROFS on the client, so this is okay; however, the
+access reply does not include EXECUTE permissions which I find strange,
+since the client lists this:
 
-Mahadev K Cholachagudda
+drwxrwxrwt  23 root  wheel  706 Jan  2 11:53 /mnt
 
+Evidently, the directory has execution permissions for everyone.
 
-The document is as below.
-
-Introduction:
-
-This document describes about the features of gcc which are very much
-necessary to compile the Linux and also about the features that an 'x'
-compiler does not have if used to compile the Linux.
-
-Details:
-
-1. The GCC has an explicit inline declaration for functions. So this option
-may enable the calling function to have the contents of some global
-variables in particular register.
-
-2. The GCC has an support for inline assembly with 'C' expression operands
-which can be used in 'C' functions.
-
-3. The GCC has a support for including the 'C' header files into the
-assembly source files.
-
-
-The problems if one uses 'x' compiler other than GCC.
-=====================================================
-
-1. He/she may not get the features of GCC listed above into the 'x'
-compiler.
-
-2. The Linux kernel mainly uses GCC. If the Linux kernel is made to compile
-using 'x' compiler other than GCC, then code updation will take time for 'x'
-compiler if a newer version or patch of Linux released.
-
-3. The Linux code may have some code which is purely based upon the data
-types e.g. for one processor the unsigned long may be 32 bits or 16 bits.
-
-
-
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
-
+-- 
+Matthias Andree
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

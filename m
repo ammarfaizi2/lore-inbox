@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264472AbTGBUVP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 16:21:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbTGBUVP
+	id S264328AbTGBUbp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 16:31:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264478AbTGBUbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 16:21:15 -0400
-Received: from lakemtao02.cox.net ([68.1.17.243]:39389 "EHLO
-	lakemtao02.cox.net") by vger.kernel.org with ESMTP id S264472AbTGBUVH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 16:21:07 -0400
-Date: Wed, 2 Jul 2003 16:36:02 -0400
-From: Wil Reichert <wilreichert@yahoo.com>
-To: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: highpoint driver problem, 2.4.21-ac4
-Message-Id: <20030702163602.2d07ad23.wilreichert@yahoo.com>
-In-Reply-To: <3F032991.3030201@gmx.at>
-References: <4FHn.4MD.1@gated-at.bofh.it>
-	<3F032991.3030201@gmx.at>
-Organization: NA
-X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Jul 2003 16:31:45 -0400
+Received: from mta8.srv.hcvlny.cv.net ([167.206.5.23]:14649 "EHLO
+	mta8.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S264328AbTGBUbo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 16:31:44 -0400
+Date: Wed, 02 Jul 2003 16:45:44 -0400
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: 64-bit network statistics (struct net_device_stats)
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@digeo.com>, Dave Jones <davej@codemonkey.org.uk>,
+       Linus Torvalds <torvalds@osdl.org>
+Message-id: <200307021646.03601.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: Text/Plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+Content-description: clearsigned data
+User-Agent: KMail/1.5.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > The on-board Highpoint controller (HPT372A) on my DFI NF2 is having
->  > issue.  Loading the hptraid module results in a 'No such device'
->  > message while the hpt366 module segfaults and leaves an oops in my
->  > logs.  These errors occur regardless of the disk/raid configuration
->  > in the hpt BIOS.   Following are the oops trace, an lsmod, the
->  > .config and a lspci -vvv.
-> 
-> The crash occurs in the hpt366 module. Loading hptraid will not work 
-> because it depends on the kernel to claim the disks of the raid volume 
-> (that is what hpt366 would do). I will add autoloading of the 
-> ide-controller module in the next raid-driver release. However, I do not 
-> know why the kernel oopses. You might want to try to build the hpt366 
-> code into the kernel instead of a module. If it works it would probably 
-> mean that "ide_hwif_t *hwif" was not properly initalized.
-I initially had all the hpt modules built into the kernel, but that would also produce an oops and die immediately after ID'ing the two drives I have on attached.  Would any more information be of use to you?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Wil
+Hello everyone,
+	I've been hacking for some time on those 64-bit statistics and I got to this 
+question:
+
+Does it make sense to make a new API layer to prevent network drivers from 
+accessing struct net_device_stats directly? Yes, I know someone (we - I?) 
+would have to check all the network drivers and change them accordingly.
+
+My idea would be something like this:
+
+	net_stats_add(<original field name>,<pointer to struct>,<number to be added>)	
+	net_stats_inc(<original field name>,<pointer to struct>)	
+	net_stats_set(<original field name>,<pointer to struct>,<number to set to>)	
+	net_stats_get(<original field name>,<pointer to struct>)	
+
+The point is that this new layer would enable us (me) to make changes to the 
+type of the fields in the struct (with minimal breakage).
+
+(I actually have done this [64-bit stats] - it appears to work ok, I'll hack 
+on a bit more, and release it to the masses.)
+
+Any thoughts?
+
+Jeff.
+
+- -- 
+bad pun of the week: the formula 1 control computer suffered from a race 
+condition
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/A0R/wFP0+seVj/4RAnqrAKCaNUwBGqgPHj1+Scq6C91bxo6nMACgle6h
+vm1MXVm2c4Mr9zI+LuH43OM=
+=uPyq
+-----END PGP SIGNATURE-----
+

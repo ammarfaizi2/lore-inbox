@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276461AbRJCQXV>; Wed, 3 Oct 2001 12:23:21 -0400
+	id <S276483AbRJCQaW>; Wed, 3 Oct 2001 12:30:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276469AbRJCQXC>; Wed, 3 Oct 2001 12:23:02 -0400
-Received: from colorfullife.com ([216.156.138.34]:37380 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S276461AbRJCQW5>;
-	Wed, 3 Oct 2001 12:22:57 -0400
-Message-ID: <001e01c14c27$bc542070$010411ac@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: <linux-kernel@vger.kernel.org>, "jamal" <hadi@cyberus.ca>
-Subject: Re: [patch] auto-limiting IRQ load take #2, irq-rewrite-2.4.11-F4
-Date: Wed, 3 Oct 2001 18:23:20 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S276465AbRJCQaP>; Wed, 3 Oct 2001 12:30:15 -0400
+Received: from chunnel.redhat.com ([199.183.24.220]:52986 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S276486AbRJCQaC>; Wed, 3 Oct 2001 12:30:02 -0400
+Date: Wed, 3 Oct 2001 17:30:16 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
+Subject: Re: lock_kiovec question
+Message-ID: <20011003173016.C5209@redhat.com>
+In-Reply-To: <3BB58FAF.D1AF2D25@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BB58FAF.D1AF2D25@colorfullife.com>; from manfred@colorfullife.com on Sat, Sep 29, 2001 at 11:09:03AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Oct 2001, Ingo Molnar wrote:
->
-> the attached patch contains a cleaned up version of IRQ
-> auto-mitigation.
->
+Hi,
 
-What's the purpose of the patch?
-Should it enable itself under load, or is it an emergency switch if a
-broken driver (or broken hardware) causes an IRQ storm that makes the
-computer unusable?
+On Sat, Sep 29, 2001 at 11:09:03AM +0200, Manfred Spraul wrote:
+> lock_kiovec tries to lock each page in the kiovec, and fails if it can't
+> lock one of the pages.
+> 
+> What if the zero page is mapped multiple times in the kiobuf?
 
-As an emergency switch it's a good idea.
-But it should never enable itself unless the box is nearly dead, and it
-can't replace NAPI and interrupt mitigation.
+Don't Do That then.  lock_kiobuf can be called if some caller really
+wants the kiobuf pages locked, but kiobuf page mapping is much cleaner
+in 2.4 than it had to be in 2.2 and there's no need to keep pages
+locked during the mapping.  raw IO doesn't ever use lock_kiobuf in
+2.4.
 
-> (i'd like to stress the point again that the goal of this approach
-> is *not* to be nice. This is an airbag mechanizm, it can and
-> will hurt performance. But my box does not lock up
-> anymore.)
->
-Ok, then I like the patch.
+> AFAICS map_user_pages doesn't break zero page mappings if it's called
+> with rw==WRITE (i.e write to disk, read from kiobuf)
 
---
-    Manfred
+Correct.  The raw IO code for 2.2 had to exempt zero pages from
+locking for this reason.
 
-
-
+Cheers,
+ Stephen

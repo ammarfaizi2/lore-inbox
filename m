@@ -1,72 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261316AbTDOM0L (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 08:26:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbTDOM0L 
+	id S261335AbTDOMbK (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 08:31:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbTDOMbK 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 08:26:11 -0400
-Received: from magic-mail.adaptec.com ([208.236.45.100]:16860 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP id S261287AbTDOM0I 
+	Tue, 15 Apr 2003 08:31:10 -0400
+Received: from f10.law8.hotmail.com ([216.33.241.10]:43279 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id S261335AbTDOMbI 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 08:26:08 -0400
-From: "Mathur, Shobhit" <Shobhit_mathur@adaptec.com>
-To: linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
-Message-ID: <3E9CA669.FEF1DDF7@adaptec.com>
-Date: Wed, 16 Apr 2003 06:10:09 +0530
-Organization: Adaptec
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-Subject: linux-source debugging with kgdb-patch
-X-Priority: 1 (Highest)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Apr 2003 08:31:08 -0400
+X-Originating-IP: [67.86.246.131]
+X-Originating-Email: [seandarcy@hotmail.com]
+From: "sean darcy" <seandarcy@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.67-bk4 & 5  - boot oops at  USB Mass Storage
+Date: Tue, 15 Apr 2003 08:42:53 -0400
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F102ZBNCogiwHsqhA5300000785@hotmail.com>
+X-OriginalArrivalTime: 15 Apr 2003 12:42:53.0881 (UTC) FILETIME=[887D3290:01C3034C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+2.5.67 boots fine. With bk4 or bk5 I get an oops right after:
 
-BACKGROUND:
+USB Mass Storage support registered
 
-I was keen to see kgdb running  for  purely academic reasons. Thus,
-I made a setup of 2 machines for source-level debugging of the
-linux-kernel. The procedure mentioned on the web-site
-[ kgdb.sourceforge.net] has  been adhered to.  I was able to
-successfully configure the setup. Also, I decided to use "ddd" front-end
-on gdb [local m/c]  for debugging  the kgdb-patched kernel on the remote
-machine, which is the usual setup for such debugging-efforts.
-    The m/c to be debugged stops with the message "Waiting for
-connection from remote gdb..." until the "target remote" command is run
-from the "gdb" prompt of "ddd", upon which the m/c to be debugged
-continues it's bootup till it shows the command-prompt.
+Unable to handle kernel NULL pointer dereference at virtual address 00000040
+printing EIP:
+c026af44
+*pde=00000000
+oops: 0002 [#1]
+cpu: 0
+EIP: 0060:[c026af44] Not tainted
 
-PROBLEM:
+On 2.5.67, dmesg gives:
 
-I was interested in setting a break-point in start_kernel thru' "ddd"
-such that the boot-up  of the m/c to be debugged could be analysed
-step-by-step remotely. Though, I am able to set the breakpoint in
-start_kernel(),
-the commands "run" or "continue" on the "gdb" prompt, only throw up the
-following errors :
+...............
+ehci-hcd 00:10.3: VIA Technologies, In USB 2.0
+ehci-hcd 00:10.3: irq 10, pci mem e0840e00
+Please use the 'usbfs' filetype instead, the 'usbdevfs' name is deprecated.
+ehci-hcd 00:10.3: new USB bus registered, assigned bus number 1
+ehci-hcd 00:10.3: USB 2.0 enabled, EHCI 1.00, driver 2003-Jan-22
+hub 1-0:0: USB hub found
+hub 1-0:0: 6 ports detected
+drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface driver 
+v2.0uhci-hcd 00:10.0: VIA Technologies, In USB
+uhci-hcd 00:10.0: irq 11, io base 0000dc00
+uhci-hcd 00:10.0: new USB bus registered, assigned bus number 2
+hub 2-0:0: USB hub found
+hub 2-0:0: 2 ports detected
+uhci-hcd 00:10.1: VIA Technologies, In USB (#2)
+uhci-hcd 00:10.1: irq 10, io base 0000e000
+uhci-hcd 00:10.1: new USB bus registered, assigned bus number 3
+hub 3-0:0: USB hub found
+hub 3-0:0: 2 ports detected
+uhci-hcd 00:10.2: VIA Technologies, In USB (#3)
+uhci-hcd 00:10.2: irq 5, io base 0000e400
+uhci-hcd 00:10.2: new USB bus registered, assigned bus number 4
+hub 4-0:0: USB hub found
+hub 4-0:0: 2 ports detected
+drivers/usb/core/usb.c: registered new driver usblp
+drivers/usb/class/usblp.c: v0.13: USB Printer Device Class driver
+Initializing USB Mass Storage driver...
+drivers/usb/core/usb.c: registered new driver usb-storage
+USB Mass Storage support registered.
+drivers/usb/core/usb.c: registered new driver hid
+drivers/usb/input/hid-core.c: v2.0:USB HID core driver
+mice: PS/2 mouse device common for all mice
+.........
 
-(gdb) info break
-Num Type           Disp Enb Address    What
-7   breakpoint      keep  y   0xc027e7f0 in start_kernel at
-init/main.c:614
-(gdb) run
-warning: shared library handler failed to enable breakpoint
-warning: Cannot insert breakpoint 7:
-Cannot access memory at address 0xc027e7f0
 
-QUESTION:
+I have a kt400 mobo.
 
-I very strongly suspect that this exercise follows a particular sequence
-of steps to get it right. Either I am missing some step or I am not
-following the "order".  In either case, I would be glad to receive some
-help/comments on my academic endeavour to be able to remotely debug the
-kernel.
+jay
 
-- Kindly let me know a solution
 
-- TIA
+_________________________________________________________________
 
-- Shobhit Mathur
+

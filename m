@@ -1,68 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269948AbUJNDY4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269950AbUJNDdO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269948AbUJNDY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 23:24:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269950AbUJNDYz
+	id S269950AbUJNDdO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 23:33:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269951AbUJNDdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 23:24:55 -0400
-Received: from virt10p.secure-wi.com ([209.216.203.97]:44203 "EHLO
-	virt10p.secure-wi.com") by vger.kernel.org with ESMTP
-	id S269948AbUJNDYp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 23:24:45 -0400
-Message-ID: <004f01c4b8a1$9ee2b6c0$41c8a8c0@Eshwar>
-From: "eshwar" <eshwar@moschip.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Raj" <inguva@gmail.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <005101c4b763$5e3cba60$41c8a8c0@Eshwar> <b2fa632f0410122315753f8886@mail.gmail.com> <001401c4b796$abcddfb0$41c8a8c0@Eshwar> <1097663878.4440.0.camel@localhost.localdomain>
-Subject: Re: Write USB Device Driver entry not called
-Date: Sat, 23 Oct 2004 07:12:56 +0530
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Oct 2004 23:33:14 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:31930 "EHLO
+	pd2mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S269950AbUJNDdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 23:33:10 -0400
+Date: Wed, 13 Oct 2004 21:28:26 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: select, jiffies, and SIGALRM
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <005d01c4b19d$de6e2a00$6601a8c0@northbrook>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+Content-type: text/plain; reply-type=original; charset=iso-8859-1; format=flowed
+Content-transfer-encoding: 7bit
 X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-MSMail-priority: Normal
+References: <fa.g84jc6u.73qi0a@ifi.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I agree but the return value from the vfs_write should not be the -EBADF
-(Bad File descriptor) it might be -EACCES (premission denied)... Correct me
-if I am wrong...
-
-this can be code in fs/read_write.c vfs_write()
-
- if (!(file->f_mode & FMODE_WRITE))
-  return -EACCES;
-
-Eshwar
-
------ Original Message -----
-From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-To: "eshwar" <eshwar@moschip.com>
-Cc: "Raj" <inguva@gmail.com>; "Linux Kernel Mailing List"
-<linux-kernel@vger.kernel.org>
-Sent: Wednesday, October 13, 2004 4:07 PM
-Subject: Re: Write USB Device Driver entry not called
+I see calls to getitimer, so I'm assuming it's also using setitimer. SIGALRM 
+is what you get when those timers go off - if it's not handling that, that's 
+a bug, but presumably the timer is in there for a reason..
 
 
-> On Iau, 2004-10-21 at 18:52, eshwar wrote:
-> > Open is sucessfull.... I don't think the problem the flags of open
+----- Original Message ----- 
+From: "Vx Glenn" <VxGlenn@gmail.com>
+Newsgroups: fa.linux.kernel
+To: <linux-net@vger.kernel.org>; <linux-kernel@vger.kernel.org>
+Sent: Wednesday, October 13, 2004 10:13 AM
+Subject: select, jiffies, and SIGALRM
+
+
+> Hi all,
 >
-> I do. See any book on C/Unix style file opening. For an existing file
-> you want
-> open("foo", O_flags)
+> I am seeing an issue relating to the jiffies counter wrapping around
+> at 0x7FFFFFFF.
 >
-> for a new file possibly
+> This is a legacy application, and when it runs on 32-bit Unix-Like
+> OS's, the application silently dies without leaving core after 248
+> days.
 >
-> open("foo", O_CREAT|o_flags, S_Iblah)
+> I was able to manipulate the jiffies counter and run the application.
+> I was able to reproduce the problem. I captured an strace log, and I
+> see that SIGALRM (alarm clock) is raised after select times out
+> (because of no data).
+>
+> I can add a signal handler to intercept the SIGALRM. But my question
+> is, why should the signal be raised?
+>
+> ---[ strace.log ]---
+> select(1024, [3 4 5 6], NULL, NULL, {0, 320000}) = 0 (Timeout)
+> getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={0, 684895}}) 
+> = 0
+> adjtimex({modes=32769, offset=0, freq=0, maxerror=16384000,
+> esterror=16384000, status=64, constant=2, precision=1,
+> tolerance=33554432, time={1097551596, 43475}}) = 5
+> getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={0, 684895}}) 
+> = 0
+> select(1024, [3 4 5 6], NULL, NULL, {1, 0}) = ? ERESTARTNOHAND (To be 
+> restarted)
+> --- SIGALRM (Alarm clock) @ 0 (0) ---
+> Process 4881 detached
+> ---[ eof strace.log ]---
 >
 >
+> Anyone have any ideas?
+>
+>
+> -- 
+> You're not your Job;
+> You're not the contents of your wallet.
+> You're the all singing all dancing crap of the world
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Please read the FAQ at  http://www.tux.org/lkml/ 
 

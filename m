@@ -1,126 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262415AbUK0BEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263088AbUKZXyE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262415AbUK0BEr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 20:04:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbUKZXy6
+	id S263088AbUKZXyE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 18:54:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263063AbUKZTkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 18:54:58 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:9413 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263116AbUKZTpM (ORCPT
+	Fri, 26 Nov 2004 14:40:49 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:4291 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262456AbUKZT1t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:45:12 -0500
-Subject: Re: Fw: ACPI bug causes cd-rom lock-ups (2.6.10-rc2)
-From: Len Brown <len.brown@intel.com>
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: Andrew Morton <akpm@osdl.org>, Linux kernel <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>,
-       Shaohua Li <shaohua.li@intel.com>
-In-Reply-To: <41A4CF1C.6090503@aknet.ru>
-References: <41990138.7080008@aknet.ru> <1101190148.19999.394.camel@d845pe>
-	 <41A4CF1C.6090503@aknet.ru>
-Content-Type: multipart/mixed; boundary="=-OU5Ryky+TwpiPsLFjJkv"
-Organization: 
-Message-Id: <1101336267.20008.5326.camel@d845pe>
+	Fri, 26 Nov 2004 14:27:49 -0500
+Date: Fri, 26 Nov 2004 00:46:35 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend 2 merge: 43/51: Utility functions.
+Message-ID: <20041125234635.GF2909@elf.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams> <1101299832.5805.371.camel@desktop.cunninghams>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 24 Nov 2004 17:44:27 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1101299832.5805.371.camel@desktop.cunninghams>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---=-OU5Ryky+TwpiPsLFjJkv
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Wed, 2004-11-24 at 13:12, Stas Sergeev wrote:
-> Hello.
+> These are the routines that I think could possibly be useful elsewhere
+> too.
 > 
-> Len Brown wrote:
+> - A snprintf routine that returns the number of bytes actually put into
+> the buffer, not the number that would have been put in if the buffer was
+> big enough.
+> - Routine for finding a proc dir entry (we use it to find /proc/splash
+> when)
+> - Support routines for dynamically allocated pageflags. Save those
+> precious bits!
 
-> > Did 2.6.9 work correctly?
-> Yes!
-
-> > Any difference with CONFIG_PNP=n?
-> Yes. The difference is that the problem
-> disappears.
-
-CONFIG_PNP_ACPI=n should workaround it too then, I expect.
-
-Please apply this debug patch to the failing kernel
-and send along the dmesg.  It will tell us how we
-messed up the irq penalties and improperly chose
-IRQ15 for a PCI device on this system.
-
-thanks,
--Len
+How many bits do you need? Two? I'd rather use thow two bits than have
+yet another abstraction. Also note that it is doing big order
+allocation.
 
 
---=-OU5Ryky+TwpiPsLFjJkv
-Content-Disposition: attachment; filename=link.patch
-Content-Type: text/plain; name=link.patch; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+								Pavel
+> +#define BITS_PER_PAGE (PAGE_SIZE * 8)
+> +#define PAGES_PER_BITMAP ((max_mapnr + BITS_PER_PAGE - 1) / BITS_PER_PAGE)
+> +#define BITMAP_ORDER (get_bitmask_order((PAGES_PER_BITMAP) - 1))
+> +
+> +/* clear_map
+> + *
+> + * Description:	Clear an array used to store local page flags.
+> + * Arguments:	unsigned long *:	The pagemap to be cleared.
+> + */
+> +
+> +void clear_map(unsigned long * pagemap)
+> +{
+> +	int size = (1 << BITMAP_ORDER) * PAGE_SIZE;
+> +	
+> +	memset(pagemap, 0, size);
+> +}
+> +
+> +/* allocate_local_pageflags
+> + *
+> + * Description:	Allocate a bitmap for local page flags.
+> + * Arguments:	unsigned long **:	Pointer to the bitmap.
+> + * 		int:			Whether to set nosave flags for the
+> + * 					newly allocated pages.
+> + * Note:	This looks suboptimal, but remember that we might be allocating
+> + * 		the Nosave bitmap here.
+> + */
+> +int allocate_local_pageflags(unsigned long ** pagemap, int setnosave)
+> +{
+> +	unsigned long * check;
+> +	int i;
+> +	if (*pagemap) {
+> +		printk("Error. Local pageflags map already allocated.\n");
+> +		clear_map(*pagemap);
+> +	} else {
+> +		check = (unsigned long *) __get_free_pages(GFP_ATOMIC,
+> +				BITMAP_ORDER);
+> +		if (!check) {
+> +			printk("Error. Unable to allocate memory for local page flags.");
+> +			return 1;
+> +		}
+> +		clear_map(check);
+> +		*pagemap = check;
+> +		if (setnosave) {
+> +			struct page * firstpage = 
+> +				virt_to_page((unsigned long) check);
+> +			for (i = 0; i < (1 << BITMAP_ORDER); i++)
+> +				SetPageNosave(firstpage + i);
+> +		}
+> +	}
+> +	return 0;
+> +}
+> +
+> +/* freemap
+> + *
+> + * Description:	Free a local pageflags bitmap.
+> + * Arguments:	unsigned long **: Pointer to the bitmap being freed.
+> + * Note:	Map being freed might be Nosave.
+> + */
+> +int free_local_pageflags(unsigned long ** pagemap)
+> +{
+> +	int i;
+> +	if (!*pagemap)
+> +		return 1;
+> +	else {
+> +		struct page * firstpage =
+> +			virt_to_page((unsigned long) *pagemap);
+> +		for (i = 0; i < (1 << BITMAP_ORDER); i++)
+> +			ClearPageNosave(firstpage + i);
+> +		free_pages((unsigned long) *pagemap, BITMAP_ORDER);
+> +		*pagemap = NULL;
+> +		return 0;
+> +	}
+> +}
+> +
+> +EXPORT_SYMBOL(suspend_snprintf);
+> +EXPORT_SYMBOL(allocate_local_pageflags);
+> +EXPORT_SYMBOL(free_local_pageflags);
+> +EXPORT_SYMBOL(find_proc_dir_entry);
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-===== drivers/acpi/pci_link.c 1.36 vs edited =====
---- 1.36/drivers/acpi/pci_link.c	2004-11-23 00:02:39 -05:00
-+++ edited/drivers/acpi/pci_link.c	2004-11-24 17:41:15 -05:00
-@@ -468,6 +468,17 @@
- 			/* >IRQ15 */
- };
- 
-+void
-+acpi_irq_penalty_dump(char *string)
-+{
-+	int i;
-+
-+	printk("ACPI %s: ", string);
-+	for (i = 0; i < ACPI_MAX_ISA_IRQ; ++i) {
-+		printk("%X ", acpi_irq_penalty[i]);
-+	}
-+	printk("\n");
-+}
- int __init
- acpi_irq_penalty_init(void)
- {
-@@ -476,6 +487,7 @@
- 	int			i = 0;
- 
- 	ACPI_FUNCTION_TRACE("acpi_irq_penalty_init");
-+	acpi_irq_penalty_dump("enter init");
- 
- 	/*
- 	 * Update penalties to facilitate IRQ balancing.
-@@ -507,6 +519,7 @@
- 	/* Add a penalty for the SCI */
- 	acpi_irq_penalty[acpi_fadt.sci_int] += PIRQ_PENALTY_PCI_USING;
- 
-+	acpi_irq_penalty_dump("exit init");
- 	return_VALUE(0);
- }
- 
-@@ -547,6 +560,7 @@
- 		irq = link->irq.possible[link->irq.possible_count - 1];
- 	}
- 
-+acpi_irq_penalty_dump("allocate");
- 	if (acpi_irq_balance || !link->irq.active) {
- 		/*
- 		 * Select the best IRQ.  This is done in reverse to promote
-@@ -570,6 +584,7 @@
- 		printk(PREFIX "%s [%s] enabled at IRQ %d\n", 
- 			acpi_device_name(link->device),
- 			acpi_device_bid(link->device), link->irq.active);
-+acpi_irq_penalty_dump("allocated");
- 	}
- 
- 	link->irq.initialized = 1;
-@@ -789,6 +804,7 @@
- void acpi_penalize_isa_irq(int irq)
- {
- 	acpi_irq_penalty[irq] += PIRQ_PENALTY_ISA_USED;
-+acpi_irq_penalty_dump("isa");
- }
- 
- /*
-
---=-OU5Ryky+TwpiPsLFjJkv--
-
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

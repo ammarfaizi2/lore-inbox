@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129878AbRARAj2>; Wed, 17 Jan 2001 19:39:28 -0500
+	id <S130024AbRARAkI>; Wed, 17 Jan 2001 19:40:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130287AbRARAjI>; Wed, 17 Jan 2001 19:39:08 -0500
-Received: from [129.94.172.186] ([129.94.172.186]:9711 "EHLO
+	id <S130287AbRARAj7>; Wed, 17 Jan 2001 19:39:59 -0500
+Received: from [129.94.172.186] ([129.94.172.186]:18671 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S130077AbRARAi7>; Wed, 17 Jan 2001 19:38:59 -0500
-Date: Thu, 18 Jan 2001 01:05:43 +1100 (EST)
+	id <S130024AbRARAjs>; Wed, 17 Jan 2001 19:39:48 -0500
+Date: Thu, 18 Jan 2001 01:28:13 +1100 (EST)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: <riel@localhost.localdomain>
-To: Christoph Hellwig <hch@ns.caldera.de>
-cc: Linus Torvalds <torvalds@transmeta.com>, <migo@elte.hu>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <20010110084235.A365@caldera.de>
-Message-ID: <Pine.LNX.4.31.0101180104050.31432-100000@localhost.localdomain>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        Andrea Arcangeli <andrea@suse.de>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Zlatko Calusic <zlatko@iskon.hr>, <linux-kernel@vger.kernel.org>
+Subject: Re: Subtle MM bug
+In-Reply-To: <Pine.LNX.4.10.10101101100001.4457-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.31.0101180126240.31432-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Jan 2001, Christoph Hellwig wrote:
+On Wed, 10 Jan 2001, Linus Torvalds wrote:
 
-> Simple.  Because I stated before that I DON'T even want the
-> networking to use kiobufs in lower layers.  My whole argument is
-> to pass a kiovec into the fileop instead of a page, because it
-> makes sense for other drivers to use multiple pages,
+> I looked at it a year or two ago myself, and came to the
+> conclusion that I don't want to blow up our page table size by a
+> factor of three or more, so I'm not personally interested any
+> more. Maybe somebody else comes up with a better way to do it,
+> or with a really compelling reason to.
 
-Now wouldn't it be great if we had one type of data
-structure that would work for both the network layer
-and the block layer (and v4l, ...)  ?
+OTOH, it _would_ get rid of all the balancing issues in one
+blow. And it would fix the aliasing issues and possibly the
+memory fragmentation problem too.
 
-If we constantly need to convert between zerocopy
-metadata type, I'm sure we'll lose most of the performance
-gain we started this whole idea for in the first place.
+And using something like Davem's lower-overhead reverse
+mapping layer, we might just be able to pull off all (or most)
+of the advantages with lower overhead ;)
 
-cheers,
+[this is something I will be looking into for 2.5]
+
+regards,
 
 Rik
 --

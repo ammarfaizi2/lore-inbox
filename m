@@ -1,73 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264895AbUFMIdX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265024AbUFMIg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264895AbUFMIdX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 04:33:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265024AbUFMIdX
+	id S265024AbUFMIg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 04:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265027AbUFMIg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 04:33:23 -0400
-Received: from sziami.cs.bme.hu ([152.66.242.225]:39297 "EHLO sziami.cs.bme.hu")
-	by vger.kernel.org with ESMTP id S264895AbUFMIdV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 04:33:21 -0400
-Date: Sun, 13 Jun 2004 10:33:08 +0200 (CEST)
-From: Koblinger Egmont <egmont@uhulinux.hu>
-X-X-Sender: egmont@sziami.cs.bme.hu
-To: Kalin KOZHUHAROV <kalin@ThinRope.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: information leak in vga console scrollback buffer
-In-Reply-To: <40CBC094.6050901@ThinRope.net>
-Message-ID: <Pine.LNX.4.58L0.0406131023260.18435@sziami.cs.bme.hu>
-References: <Pine.LNX.4.58L0.0406122137480.20424@sziami.cs.bme.hu>
- <20040612204352.GA22347@taniwha.stupidest.org> <Pine.LNX.4.58L0.0406122253580.25004@sziami.cs.bme.hu>
- <20040612205903.GA22428@taniwha.stupidest.org> <Pine.LNX.4.58L0.0406122301250.25004@sziami.cs.bme.hu>
- <40CBC094.6050901@ThinRope.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 13 Jun 2004 04:36:26 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:60425 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S265024AbUFMIgX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jun 2004 04:36:23 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: hch@infradead.org (Christoph Hellwig)
+Subject: Re: [PATCH] IDE update for 2.6.7-rc3 [1/12]
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Organization: Core
+In-Reply-To: <20040612103453.GB26482@infradead.org>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.25-1-686-smp (i686))
+Message-Id: <E1BZQSC-0006vd-00@gondolin.me.apana.org.au>
+Date: Sun, 13 Jun 2004 18:35:00 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Jun 2004, Kalin KOZHUHAROV wrote:
+Christoph Hellwig <hch@infradead.org> wrote:
+> On Fri, Jun 11, 2004 at 05:50:30PM +0200, Bartlomiej Zolnierkiewicz wrote:
+>> 
+>> Probably some drivers are still missed because I changed only
+>> these drivers that I knew that there are PCI cards using them.
+>> 
+>> If you know about PCI cards using other drivers please speak up.
+> 
+> IMHO the PCI ->probe methods should always be __devinit.  It's rather
+> hard to make sure they're never every hotplugged in any way, especially
+> with the dynamic id adding via sysfs thing.
 
-> OK, I think I got what you are trying to point out.
-> To reproduce:
-> 1. login to a (vga) console.
-> 2. less /etc/services; press space t oscroll a few screens
-> 3. logout
-> 4. login again on the same console (possibly as a different user)
-> 5. less /etc/resolv.conf
-> 6. press UpArrow, then Shift+PgUp
->
-> What is expected:
-> screen should not scroll past your file.
->
-> What happens:
-> You can view the previous text (from /etc/services)!!!
+Well the reason I made them all __devinit in my patch is because it
+also tries to maintain the same PCI probing order as a builtin kernel
+when IDE is built as a module.
 
-Here you didn't clear the scrollback buffer. Maybe you (or getty) executed
-a clear or a terminal reset but that only affects the visible part and not
-the scrollback buffer. There's absolutely no problem so far since everyone
-knows that the scrollback buffer only disappears when you switch to a
-different console.
+To do that all the PCI driver modules are loaded before probing takes
+place.  Therefore if any probing funciton is declared as __init then
+this will not work.
 
-My problem is that with a really-not-trivial-command-and-key-combination
-you can possibly see /etc/services (in your example) even _after_ you've
-switched to a different console and you are certain that the scrollback
-buffer is no longer available.
-
-And then what if it's not /etc/services but some private data of yours?
-Maybe other users can later access it. There's no way you can protect
-yourself against it. And you live in a false belief that your private data
-is scrolled out forever.
-
-Please forget your own test case. Repeat _exactly_ those steps _I_
-described in my original post. Then you'll understand what I'm talking
-about.
-
-You sure won't understand my problem if you believe that I'm wrong and
-want to convience me with your own interpretation of my words and your own
-(completely different) test case. Please stick to exactly what I reported.
-
-
-
+Cheers,
 -- 
-Egmont
+Visit Openswan at http://www.openswan.org/
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

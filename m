@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261393AbUCKOwu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 09:52:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbUCKOuS
+	id S261262AbUCKOy0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 09:54:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbUCKOw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 09:50:18 -0500
-Received: from grassmarket.ucs.ed.ac.uk ([129.215.166.64]:4241 "EHLO
-	grassmarket.ucs.ed.ac.uk") by vger.kernel.org with ESMTP
-	id S261393AbUCKOto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 09:49:44 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Reply-To: s0348365@sms.ed.ac.uk
-Organization: University of Edinburgh
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-Subject: Re: NVIDIA and 2.6.4?
-Date: Thu, 11 Mar 2004 14:52:23 +0000
-User-Agent: KMail/1.6
-References: <20040311123100.GE17760@rdlg.net>
-In-Reply-To: <20040311123100.GE17760@rdlg.net>
-Cc: linux-kernel@vger.kernel.org
+	Thu, 11 Mar 2004 09:52:58 -0500
+Received: from zero.aec.at ([193.170.194.10]:34822 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S261399AbUCKOvj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 09:51:39 -0500
+To: Bart Oldeman <bartoldeman@users.sourceforge.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] introduce a mmap MAP_DONTEXPAND flag
+References: <1yz3a-k2-33@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 18 Mar 2004 01:58:02 +0100
+In-Reply-To: <1yz3a-k2-33@gated-at.bofh.it> (Bart Oldeman's message of "Thu,
+ 11 Mar 2004 15:10:25 +0100")
+Message-ID: <m3d67bas4l.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403111452.24000.s0348365@sms.ed.ac.uk>
-X-Edinburgh-Scanned: at grassmarket.ucs.ed.ac.uk
-    with MIMEDefang 2.33, Sophie 3.04rc1, Sophos Anti-Virus 3.79
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 March 2004 12:31, Robert L. Harris wrote:
-[snip]
-> And that's just for starters.  Does anyone know if there's a way to get
-> this to compile cleanly or is it SoL until a new driver is released
-> (running 1.0.4191 currently).
+Bart Oldeman <bartoldeman@users.sourceforge.net> writes:
 
-Alternatively, pop along to http://minion.de/, where you can still pick up 2.6 
-patches for older drivers (we recognise that for some people, the newest 
-drivers break things).
+>  			return -EPERM;
+> --- include/asm-i386/mman.h~	Sat Oct 25 19:42:58 2003
+> +++ include/asm-i386/mman.h	Thu Mar 11 13:37:33 2004
+> @@ -22,6 +22,7 @@
+>  #define MAP_NORESERVE	0x4000		/* don't check for reservations */
+>  #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
+>  #define MAP_NONBLOCK	0x10000		/* do not block on IO */
+> +#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
 
--- 
-Cheers,
-Alistair.
+*always* when you change something in asm-i386 check if other architectures
+need changing too. Your patch would break compilation for everybody !i386
 
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/AI Undergraduate
-contact:    7/10 Darroch Court,
-            University of Edinburgh.
+-Andi
+

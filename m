@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272950AbTG3QSx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 12:18:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272955AbTG3QSx
+	id S272955AbTG3QXO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 12:23:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272960AbTG3QXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 12:18:53 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:8898 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S272950AbTG3QSw (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 12:18:52 -0400
-Date: Wed, 30 Jul 2003 18:18:39 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: John Bradford <john@grabjohn.com>, Riley@Williams.Name,
-       Linux-Kernel@vger.kernel.org
-Subject: Re: [2.6 patch] let broken drivers depend on BROKEN{,ON_SMP}
-Message-ID: <20030730161839.GB19356@fs.tum.de>
-References: <200307300911.h6U9BH2f000813@81-2-122-30.bradfords.org.uk> <20030730104421.GC28767@fs.tum.de> <20030730160403.GF12849@louise.pinerecords.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030730160403.GF12849@louise.pinerecords.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 30 Jul 2003 12:23:14 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:523 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S272955AbTG3QXN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 12:23:13 -0400
+Date: Wed, 30 Jul 2003 12:02:12 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "Serge A. Suchkov" <ss@e1.bmstu.ru>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2 bugreport
+In-Reply-To: <03072912312701.10545@XP1700>
+Message-ID: <Pine.LNX.3.96.1030730120100.31524A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 30, 2003 at 06:04:03PM +0200, Tomas Szepe wrote:
-> > [bunk@fs.tum.de]
-> > 
-> > If a _user_ of a stable kernel notices "it doesn't even compile" this 
-> > gives a very bad impression of the quality of the Linux kernel.
+On Tue, 29 Jul 2003, Serge A. Suchkov wrote:
+
 > 
-> The keyword in this sentence is "stable."
-> Could you maybe come up with this again at around 2.6.40? :)
+> Hi,
+> 
+> I"m test 2.6.0-test2, quick bugreport below...
+> 
+> 
+> 1) No logo in vesafb ;) (in 2.6.0-test1 logo present)
 
-The first stable kernel of the 2.6 kernel series will be 2.6.0.
-
-My patch or omething similar should go into 2.6 before 2.6.0 .
-Whether 2.6.0-test2 or 2.6.0-test15 is the right time is a different 
-question - as long as it's before 2.6.0 .
-
-> Tomas Szepe <szepe@pinerecords.com>
-
-cu
-Adrian
+There appears to be a problem with dependencies, if you just do a make
+again it seems to work (did for me).
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

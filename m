@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265400AbTBOXPz>; Sat, 15 Feb 2003 18:15:55 -0500
+	id <S265414AbTBOXPa>; Sat, 15 Feb 2003 18:15:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265402AbTBOXPz>; Sat, 15 Feb 2003 18:15:55 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:43591
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S265400AbTBOXPy>; Sat, 15 Feb 2003 18:15:54 -0500
-Date: Sat, 15 Feb 2003 18:24:22 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Con Kolivas <kernel@kolivas.org>
-cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: tbench as a load - DDOS attack?
-In-Reply-To: <200302161007.25149.kernel@kolivas.org>
-Message-ID: <Pine.LNX.4.50.0302151823130.16012-100000@montezuma.mastecende.com>
-References: <200302161007.25149.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265423AbTBOXPa>; Sat, 15 Feb 2003 18:15:30 -0500
+Received: from diale173.ppp.lrz-muenchen.de ([129.187.28.173]:8171 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S265414AbTBOXP3>; Sat, 15 Feb 2003 18:15:29 -0500
+Subject: ... nor can Alan[Re: was: PATCH: nor PPC people ;)]
+From: Daniel Egger <degger@fhm.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <E18k7wC-0007Ir-00@the-village.bc.nu>
+References: <E18k7wC-0007Ir-00@the-village.bc.nu>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0doy+W9ACimjREUsvs1O"
+Organization: 
+Message-Id: <1045351490.14304.32.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 16 Feb 2003 00:24:50 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Feb 2003, Con Kolivas wrote:
 
-> 
-> Zwane M suggested using tbench as a load to test one of his recent patches and 
-> gave me the idea to try using tbench_load in contest. Here are the first set 
-> of results I got while running tbench 4 continuously (uniprocessor machine):
-> 
-> tbench_load:
-> Kernel         [runs]   Time    CPU%    
-> test2420            1   180     38.9    
-> test2561            1   970     7.7   
-> 
-> This is a massive difference. Sure tbench was giving better numbers on 2.5.61 
-> but it caused a massive slowdown. I wondered whether this translates into 
-> being more susceptible to ping floods or DDOS attacks? You should have seen 
-> tbench 16 - 3546 seconds!
-> 
-> comments?
+--=-0doy+W9ACimjREUsvs1O
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Are you running this via loopback? Can you send a profile during the 
-2.4.20 run?
+Am Sam, 2003-02-15 um 20.25 schrieb Alan Cox:
 
-Thanks,
-	Zwane
+> +#define esr             0x3d4               /* exception syndrome regist=
+e    */
+                                                                     ^^^^^^=
+^
 
--- 
-function.linuxpower.ca
+--=20
+Servus,
+       Daniel
+
+--=-0doy+W9ACimjREUsvs1O
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+TsxBchlzsq9KoIYRAp7BAJ9diICJEoSYC3C7kQQrdCPH+MDNzgCfaGOJ
+UMrsyFl6mjLYVIs0Xd54XoA=
+=fgaN
+-----END PGP SIGNATURE-----
+
+--=-0doy+W9ACimjREUsvs1O--
+

@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263366AbUFBXhy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265378AbUFBXji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263366AbUFBXhy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 19:37:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265377AbUFBXhx
+	id S265378AbUFBXji (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 19:39:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262488AbUFBXji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 19:37:53 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:23937 "EHLO cloud.ucw.cz")
-	by vger.kernel.org with ESMTP id S263366AbUFBXhv (ORCPT
+	Wed, 2 Jun 2004 19:39:38 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:25217 "EHLO cloud.ucw.cz")
+	by vger.kernel.org with ESMTP id S265378AbUFBXj1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 19:37:51 -0400
-Date: Thu, 3 Jun 2004 01:39:18 +0200
+	Wed, 2 Jun 2004 19:39:27 -0400
+Date: Thu, 3 Jun 2004 01:40:54 +0200
 From: Vojtech Pavlik <vojtech@suse.cz>
-To: Erik Steffl <steffl@bigfoot.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: logitech mouseMan wheel doesn't work with 2.6.5
-Message-ID: <20040602233918.GA1366@ucw.cz>
-References: <40853060.2060508@bigfoot.com> <200404280741.08665.dtor_core@ameritech.net> <408FFC2A.3080504@bigfoot.com> <200404281824.05044.dtor_core@ameritech.net> <4090A1FA.1070202@bigfoot.com>
+To: Benoit Plessis <benoit@plessis.info>, linux-kernel@vger.kernel.org
+Subject: Re: Input system and keycodes > 256
+Message-ID: <20040602234054.GB1366@ucw.cz>
+References: <1082938686.21842.50.camel@osiris.localnet.fr> <20040426104850.GA791@fargo>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <4090A1FA.1070202@bigfoot.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040426104850.GA791@fargo>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 28, 2004 at 11:34:34PM -0700, Erik Steffl wrote:
-> Dmitry Torokhov wrote:
-> >On Wednesday 28 April 2004 01:47 pm, Erik Steffl wrote:
-> >>Dmitry Torokhov wrote:
-> >>
-> >>>What protocol are you using in XFree?
-> >>
-> >>  that's irrelevant, I got the results above without X running (by 
-> >
-> >No, it is not. Please change protocol in XF86Config to ExplorerPS/2.
-> ...
-> >Kernel only provides emulation of 3 protocols via /dev/psaux: bare PS/2,
-> >IntelliMouse PS/2 and Explorer PS/2. Since your program does not issue
-> >Intellimouse or Explorer protocol initialization sequences it gets just
-> >bare PS/2 protocol data - 2 axis, 3 buttons. Extra buttons are mapped onto
-> >first 3. For exact mapping consult drivers/input/mousedev.c
+On Mon, Apr 26, 2004 at 10:48:50AM +0000, David Gómez wrote:
+> Hi Benoit ;),
 > 
->   thanks, that makes sense, I tried ExplorerPS/2, it works better, the 
-> wheel works but side button is still same as button 2.
+> > There are two kind of addons keys, some works (scancode in the e0 XX
+> > form): Email, Prev, Next, Play/Pause, Vol+/-, Mute, ...
+> >  + some of thoses generate a simple keycode eg 
+> >      Vol+: 0x73 | 0xf3 (scancodes: 0xe0 0x30 | 0xe0 0xb0)
+> >  + some doesn't eg:
+> >      play: 0x00 0x81 0xa4 | 0x80 0x81 0xa4  (scancodes: 0xe0 0x22 | 0xe0
+> > 0xa2)
 > 
->   would it be different if I used /dev/input/mouse0? or 
-> /dev/input/mice?  kernel Documentation/input/input.txt seems to be 
-> fairly old (mentions  2.5/2.6 in future tense) and it says to use 
-> "ExplorerPS/2 if you want to use extra (up to 5) buttons" when 
-> discussing what /dev/input/mouse0 provides. Does that mean that there's 
-> no way to use extra side button (which is the sixth button)?
+> You could make them work using the 'setkeycodes' command to configure
+> the kernel tables, so you can put some setkeycodes lines in your init
+> scripts to make those extra keys always avaliable on your console.
 
-Yes, at this time you can't use the sixth button in X with a 2.6 kernel.
-An event driver for X would be needed instead of the ExplorerPS/2 one.
+Won't work for USB keyboards.
 
 -- 

@@ -1,85 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265288AbUAEUgK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 15:36:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265300AbUAEUgK
+	id S265390AbUAEUoT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 15:44:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265467AbUAEUoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 15:36:10 -0500
-Received: from wblv-238-222.telkomadsl.co.za ([165.165.238.222]:37505 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S265288AbUAEUgA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 15:36:00 -0500
-Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Soeren Sonnenburg <kernel@nn7.de>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, Willy Tarreau <willy@w.ods.org>,
-       szonyi calin <caszonyi@yahoo.com>, Con Kolivas <kernel@kolivas.org>,
-       Mark Hahn <hahn@physics.mcmaster.ca>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       gillb4@telusplanet.net
-In-Reply-To: <1073291940.8884.66.camel@localhost>
-References: <1073227359.6075.284.camel@nosferatu.lan>
-	 <20040104225827.39142.qmail@web40613.mail.yahoo.com>
-	 <20040104233312.GA649@alpha.home.local>
-	 <20040104234703.GY1882@matchmail.com>  <1073291940.8884.66.camel@localhost>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-S3w42REiLqjv5FTUfHkP"
-Message-Id: <1073335127.6075.335.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 05 Jan 2004 22:38:47 +0200
+	Mon, 5 Jan 2004 15:44:19 -0500
+Received: from fw.osdl.org ([65.172.181.6]:38373 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265390AbUAEUoM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 15:44:12 -0500
+Date: Mon, 5 Jan 2004 12:38:54 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Daniel Jacobowitz <dan@debian.org>, Rob Love <rml@ximian.com>,
+       rob@landley.net, Pascal Schmidt <der.eremit@email.de>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+In-Reply-To: <20040105205228.A1092@pclin040.win.tue.nl>
+Message-ID: <Pine.LNX.4.58.0401051224480.2153@home.osdl.org>
+References: <20040104034934.A3669@pclin040.win.tue.nl>
+ <Pine.LNX.4.58.0401031856130.2162@home.osdl.org> <20040104142111.A11279@pclin040.win.tue.nl>
+ <Pine.LNX.4.58.0401041302080.2162@home.osdl.org> <20040104230104.A11439@pclin040.win.tue.nl>
+ <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <20040105030737.GA29964@nevyn.them.org>
+ <Pine.LNX.4.58.0401041918260.2162@home.osdl.org> <20040105132756.A975@pclin040.win.tue.nl>
+ <Pine.LNX.4.58.0401050749490.21265@home.osdl.org> <20040105205228.A1092@pclin040.win.tue.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-S3w42REiLqjv5FTUfHkP
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2004-01-05 at 10:39, Soeren Sonnenburg wrote:
-> On Mon, 2004-01-05 at 00:47, Mike Fedyk wrote:
-> > On Mon, Jan 05, 2004 at 12:33:12AM +0100, Willy Tarreau wrote:
-> > > at a time. I have yet to understand why 'ls|cat' behaves
-> > > differently, but fortunately it works and it has already saved
-> > > me some useful time.
-> >=20
-> > cat probably does some buffering for you, and sends the output to xterm=
- in
-> > larger blocks.
->=20
-> interestingly running ls on a remote machine in a directory with a
-> similiar amount of files (local xterm with ssh connection to that
-> machine) is also as fast as this ls | cat workaround...
->=20
+On Mon, 5 Jan 2004, Andries Brouwer wrote:
+> 
+> > udev can then use those serial numbers to have a stable pathname
+> 
+> True. Provided that it knows how to get them.
 
-Maybe it is because the process generating the output, and the
-xterm is not on the same box?  The X server gets too much time,
-so the two childs (xterm and ls/whatever) do not get enough time?
-And that might be why renice +10 `pidof X` helps? Although that
-do not seem right, as the process level seems the same:
+And that is the _only_ thing that the "device number" actually is. It is a 
+cookie that the kernel has allocated for the device that the kernel knows 
+about. Nothing more.
 
-  xterm->bash->ssh vs xterm->bash->ls
+Go back and read my emails. Device numbers cannot have any meaning, they 
+literally are _only_ useful as cookies. 
 
-Might be because the startup time is ruled out (maybe that is
-the big issue - startup of child processes?).  Could it be that
-the 'ls | cat' situation now again influence startup times (now
-it is xterm->bash->ls->cat) if above could be taken as an reason?
+> The kernel driver knew all about the device.
 
+No. The kernel driver knows _of_ the device, it does not know "all about"  
+the device. And that's a big difference.
 
---=20
-Martin Schlemmer
+Quite often the kernel only knows that it found "a device". It has very
+limited knowledge about what the device is, and what it can do. That's why 
+we have tools like "smartd" etc, that know a lot more about devices than 
+the kernel often does.
 
---=-S3w42REiLqjv5FTUfHkP
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+In particular, the kernel driver knows _nothing_ about potential serial
+numbers or how to read them for different classes of devices.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+> Must udev also know all about all possible devices? Do I/O to these devices?
+> Or must sysfs export all data that could possibly be used?
 
-iD8DBQA/+ctXqburzKaJYLYRAgZOAJ0ZCkk0dxDKqHpsqd1ZgYWGLeMgbgCgiUUQ
-eaR7bLTBvxsjQZn5iTqsHFk=
-=9R4o
------END PGP SIGNATURE-----
+There is nothing to export. You seem to imply that the kernel somehow
+knows more than user space, but the reverse is generally true. 
 
---=-S3w42REiLqjv5FTUfHkP--
+In particular, the kernel should never have policy encoded in it, and 
+naming of a device is about pretty much nothing _but_ policy. Stuff that 
+the kernel literally has _zero_ knowledged about.
 
+Yes, the kernel knows the physical location, but that doesn't actually 
+help the kernel itself. It's exported through sysfs, yes, and udev, 
+together with the hotplug stuff, can be used to make up the "stable name". 
+
+Have you even _tried_ udev? Udev can do exactly things like find UUID's 
+off disks - something the kernel doesn't have a _clue_ about. When the 
+kernel sees a disk, it's just a disk. The kernel doesn't know if there is 
+an UUID embedded on the disk, and the kernel SHOULD NOT HAVE A POLICY to 
+try to find one.
+
+But for user space, the thing is trivially done: the kernel will notify
+user space about the fact that it found a device (without necessarily
+knowing what the heck the device is - quite common with USB or specialty
+SCSI devices). The kernel pretty much doesn't know _anything_ about things
+like laser range finders, cameras etc. It ends up classifying the device 
+on a very rough level, nothing more.
+
+And without knowing practically _anythign_ about the device, it still has
+to allocate a device number. Exactly so that somebody else can come around
+and poke at it, and maybe know that "ahh, this device is a USB-attached
+camera" or similar.
+
+Do you not see that fundamental issue? The kernel has to allocate a number 
+before a UUID or anythign else is necessarily available. 
+
+The UUID/serial number/type policy comes _later_.
+
+		Linus

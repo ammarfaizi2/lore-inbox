@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263227AbTECCBF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 22:01:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263228AbTECCBF
+	id S263228AbTECCBh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 22:01:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263229AbTECCBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 22:01:05 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:28938 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP id S263227AbTECCBE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 22:01:04 -0400
-Date: Fri, 2 May 2003 19:10:28 -0700
-From: jw schultz <jw@pegasys.ws>
+	Fri, 2 May 2003 22:01:37 -0400
+Received: from web20404.mail.yahoo.com ([66.163.169.92]:35386 "HELO
+	web20416.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263228AbTECCBd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 22:01:33 -0400
+Message-ID: <20030503021359.94789.qmail@web20416.mail.yahoo.com>
+Date: Fri, 2 May 2003 19:13:58 -0700 (PDT)
+From: Hao Zhuang <jerrey2000@yahoo.com>
+Subject: Fasttrak66 hangs with ACPI built in (2.4.18, 20)
 To: linux-kernel@vger.kernel.org
-Subject: Re: Did the SCO Group plant UnixWare source in the Linux kernel?
-Message-ID: <20030503021028.GE4191@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <ZIA7D8S737743.2233333333@Gilgamesh-frog.org> <20030502064349.A9988@infradead.org> <20030502125735.GA3409@ncsu.edu>
-Mime-Version: 1.0
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030502125735.GA3409@ncsu.edu>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 02, 2003 at 08:57:35AM -0400, jlnance@unity.ncsu.edu wrote:
-> On Fri, May 02, 2003 at 06:43:49AM +0100, Christoph Hellwig wrote:
-> 
-> > It might be more interesting to look for stolen Linux code in Unixware,
-> > I'd suggest with the support for a very well known Linux fileystem in
-> > the Linux compat addon product for UnixWare..
-> 
-> Wouldnt it be halirous if whatever code SCO is talking about when they
-> say there is Unix code in Linux turns out to be code some SCO employee
-> ripped out of some GPL program and stuck it into Unixware.  That is
-> actually far more likely than what they alledge.
+hi, all,
 
-Much of the commonality is probably no more a copy than
-having "her bosom heaved with anticipation" in a romance
-novel.
+i tried to build in ACPI support for kernel 2.4.18 and
+20. i have a Fasttrak66 raid and 3 other IDE disks. as
+long as i build in ACPI and enable any IDE devices,
+the bootup hangs before (or while, i guess) probing
+IDE for the device on Fasttrak66. say, every time the
+screen frozes as:
 
-As for Linux code in UnixWare, I seriously doubt there is
-that much code in UnixWare that was introduced by
-SCO/Caldera or Novell.  Almost all of it came to them via
-USL as part of SVR4.
+    ... ...
+    hda: ... /* my IDE disk 1 */ ...
+    hdc: ... /* my IDE disk 2 */ ...
+    hdd: ... /* my IDE disk 3 */ ...
 
-Actually, my guess is that any extensive code similarity is
-likely to be code incorporated into SVR4 from BSD or other
-sources and not SCO property.  The parade of copyright
-notices on SVR4 boot is a long one.
+(if boot up normally, there should be hde: and hdg:
+follow to show my harddisks connected to Fasttrak).
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+however, everything works fine if
 
-		Remember Cernan and Schmitt
+    either: no ACPI built-in
+    or:     i disable all the IDE disks (hda - hdd).
+
+i'm using ASUS mobo CUSL2, BIOS version 1009.
+
+thanks a lot for your precious time !
+
+- hao
+
+__________________________________
+Do you Yahoo!?
+The New Yahoo! Search - Faster. Easier. Bingo.
+http://search.yahoo.com

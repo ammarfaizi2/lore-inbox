@@ -1,56 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129065AbRBWNhf>; Fri, 23 Feb 2001 08:37:35 -0500
+	id <S129116AbRBWNjz>; Fri, 23 Feb 2001 08:39:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129243AbRBWNh0>; Fri, 23 Feb 2001 08:37:26 -0500
-Received: from p3.usnyc4.stsn.com ([199.106.219.3]:39177 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S129065AbRBWNhU>; Fri, 23 Feb 2001 08:37:20 -0500
-Date: Fri, 23 Feb 2001 10:38:17 -0300 (EST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@localhost.localdomain>
-To: Chris Evans <chris@scary.beasts.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.1 under heavy network load - more info
-In-Reply-To: <Pine.LNX.4.30.0102231247300.9832-100000@ferret.lmh.ox.ac.uk>
-Message-ID: <Pine.LNX.4.31.0102231033270.5517-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129183AbRBWNjf>; Fri, 23 Feb 2001 08:39:35 -0500
+Received: from felix.convergence.de ([212.84.236.131]:25992 "EHLO
+	convergence.de") by vger.kernel.org with ESMTP id <S129116AbRBWNjS>;
+	Fri, 23 Feb 2001 08:39:18 -0500
+Date: Fri, 23 Feb 2001 14:40:04 +0100
+From: Felix von Leitner <leitner@convergence.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: USB and 2.4.2: "uhci: host system error, PCI problems?"
+Message-ID: <20010223144004.A30274@convergence.de>
+Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Feb 2001, Chris Evans wrote:
-> On Wed, 21 Feb 2001, Rik van Riel wrote:
->
-> > I'm really interested in things which make Linux 2.4 break
-> > performance-wise since I'd like to have them fixed before the
-> > distributions start shipping 2.4 as default.
->
-> With kernel 2.4.1, I found that caching is way too aggressive. I
-> was running konqueror in 32Mb (the quest for a lightwieght
-> browser!) Unfortunately, the system seemed to insist on keeping
-> 16Mb used for caches, with 15Mb given to the application and X.
+This is the log.
 
-Wrong.
+Feb 23 14:35:53 hellhound kernel: usb.c: registered new driver usb_mouse
+Feb 23 14:35:53 hellhound kernel: PCI: Found IRQ 12 for device 00:07.2
+Feb 23 14:35:53 hellhound kernel: PCI: The same IRQ used for device 00:07.3
+Feb 23 14:35:53 hellhound kernel: PCI: The same IRQ used for device 00:0b.0
+Feb 23 14:35:53 hellhound kernel: uhci.c: USB UHCI at I/O 0xa400, IRQ 12
+Feb 23 14:35:53 hellhound kernel: uhci.c: detected 2 ports
+Feb 23 14:35:53 hellhound kernel: usb.c: new USB bus registered, assigned bus number 1
+Feb 23 14:35:53 hellhound kernel: hub.c: USB hub found
+Feb 23 14:35:53 hellhound kernel: hub.c: 2 ports detected
+Feb 23 14:35:53 hellhound kernel: PCI: Found IRQ 12 for device 00:07.3
+Feb 23 14:35:53 hellhound kernel: PCI: The same IRQ used for device 00:07.2
+Feb 23 14:35:53 hellhound kernel: PCI: The same IRQ used for device 00:0b.0
+Feb 23 14:35:53 hellhound kernel: uhci.c: USB UHCI at I/O 0xa800, IRQ 12
+Feb 23 14:35:53 hellhound kernel: uhci.c: detected 2 ports
+Feb 23 14:35:53 hellhound kernel: usb.c: new USB bus registered, assigned bus number 2
+Feb 23 14:35:53 hellhound kernel: hub.c: USB hub found
+Feb 23 14:35:53 hellhound kernel: hub.c: 2 ports detected
+Feb 23 14:35:53 hellhound usbmgr[2819]: start 0.4.4
+Feb 23 14:35:53 hellhound kernel: usb.c: registered new driver hid
+Feb 23 14:35:53 hellhound kernel: mice: PS/2 mouse device common for all mice
+Feb 23 14:35:53 hellhound insmod: Note: /etc/modules.conf is more recent than /lib/modules/2.4.2-fefe1/modules.dep
+Feb 23 14:35:53 hellhound usbmgr[2821]: "hid" was loaded
+Feb 23 14:35:53 hellhound usbmgr[2821]: "mousedev" was loaded
+Feb 23 14:35:53 hellhound usbmgr[2821]: open error "host"
+Feb 23 14:35:53 hellhound usbmgr[2824]: mount /proc/bus/usb
+Feb 23 14:35:53 hellhound kernel: uhci.c: root-hub INT complete: port1: 5ab port2: 58a data: 6
+Feb 23 14:35:53 hellhound kernel: hub.c: USB new device connect on bus1/1, assigned device number 22
+Feb 23 14:35:53 hellhound kernel: uhci.c: root-hub INT complete: port1: 58a port2: 58a data: 6
+Feb 23 14:35:53 hellhound kernel: mouse0: PS/2 mouse device for input0
+Feb 23 14:35:53 hellhound kernel: input0: Logitech USB Mouse on usb1:22.0
+Feb 23 14:35:53 hellhound kernel: uhci.c: root-hub INT complete: port1: 5a5 port2: 588 data: 4
+Feb 23 14:35:54 hellhound kernel: uhci.c: root-hub INT complete: port1: 58a port2: 58a data: 6
+Feb 23 14:35:54 hellhound usbmgr[2821]: class:0x9 subclass:0x0 protocol:0x0
+Feb 23 14:35:54 hellhound kernel: uhci.c: root-hub INT complete: port1: 588 port2: 588 data: 6
+Feb 23 14:35:54 hellhound usbmgr[2821]: USB device is matched the configuration
+Feb 23 14:35:54 hellhound usbmgr[2821]: "none" isn't loaded
+Feb 23 14:35:54 hellhound usbmgr[2821]: vendor:0x46d product:0xc00c
+Feb 23 14:35:54 hellhound usbmgr[2821]: class:0x3 subclass:0x1 protocol:0x2
+Feb 23 14:35:54 hellhound usbmgr[2821]: USB device is matched the configuration
+Feb 23 14:35:54 hellhound kernel: uhci: host system error, PCI problems?
+Feb 23 14:35:54 hellhound kernel: uhci: host controller halted. very bad
 
-Cache and processes are INCLUSIVE. Konquerer and your other
-applications will share a lot of memory with the cache. More
-precisely, everything which is backed by a file or has been
-swapped out once (and swapped back in later) will SHARE memory
-with both cache and processes.
 
-In 2.4.1-pre<something> the kernel swaps out cache 32 times more
-agressively than it scans pages in processes. Until we find a way
-to auto-balance these things, expect them to be wrong for at least
-some workloads ;(
+Any ideas?  It's a VIA based Athlon board.  Worked fine with 2.4.0 and
+2.4.1.  The only change was that I added rivafb, which finally adds
+Geforce support in 2.4.2.  /proc/interrupts does not show any interrupts
+assigned to rivafb, maybe there is a conflict?
 
-regards,
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+           CPU0
+  0:     457839          XT-PIC  timer
+  1:      24705          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  5:     156420          XT-PIC  eth0
+  8:          0          XT-PIC  rtc
+ 11:         26          XT-PIC  ncr53c8xx
+ 12:       5232          XT-PIC  usb-uhci, usb-uhci
+ 14:      17610          XT-PIC  ide0
+ 15:       2441          XT-PIC  ide1
+NMI:          0
+ERR:          0
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
 
+Felix

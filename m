@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266743AbUFRTte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265263AbUFRTtf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266743AbUFRTte (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 15:49:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265263AbUFRTsw
+	id S265263AbUFRTtf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 15:49:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266741AbUFRTsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 15:48:52 -0400
-Received: from outmail1.freedom2surf.net ([194.106.33.237]:55728 "EHLO
-	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S266552AbUFRTpo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 15:45:44 -0400
-Date: Fri, 18 Jun 2004 20:44:38 +0100
-From: Ian Molton <spyro@f2s.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org, greg@kroah.com,
-       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com
-Subject: Re: DMA API issues
-Message-Id: <20040618204438.35278560.spyro@f2s.com>
-In-Reply-To: <40D34078.5060909@pacbell.net>
-References: <1087582845.1752.107.camel@mulgrave>
-	<20040618193544.48b88771.spyro@f2s.com>
-	<1087584769.2134.119.camel@mulgrave>
-	<20040618195721.0cf43ec2.spyro@f2s.com>
-	<40D34078.5060909@pacbell.net>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.9.12-gtk2-20040617 (GTK+ 2.4.1; i686-pc-linux-gnu)
+	Fri, 18 Jun 2004 15:48:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:47788 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266758AbUFRTrS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 15:47:18 -0400
+Date: Fri, 18 Jun 2004 12:47:16 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Stop the Linux kernel madness
+Message-Id: <20040618124716.183669f8@lembas.zaitcev.lan>
+In-Reply-To: <mailman.1087541100.18231.linux-kernel2news@redhat.com>
+References: <40D232AD.4020708@opensound.com>
+	<mailman.1087541100.18231.linux-kernel2news@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Jun 2004 12:20:24 -0700
-David Brownell <david-b@pacbell.net> wrote:
+On Fri, 18 Jun 2004 08:40:15 +0200
+Arjan van de Ven <arjanv@redhat.com> wrote:
 
-> For example, if usbaudio uses usb_buffer_alloc to stream data,
-> that eliminates dma bouncing.  That's dma_alloc_coherent at
-> its core ... it should allocate from that 32K region.
+> On Fri, 2004-06-18 at 02:09, 4Front Technologies wrote:
 
-Agreed.
+> > I am writing this message to bring a huge problem to light. SuSE has been systematically
+> > forking the linux kernel and shipping all kinds of modifications and still call their
+> > kernels 2.6.5 (for example).
+> 
+> internal kernel apis change and are fair game. As a RH kernel maintainer
+> I can guarantee you that you will suffer too from internal kernel
+> changes in RH/Fedora kernels. Or from changes within the 2.6.x series.
+> Linux needs such changes to allow faster and cleaner development.
+
+Arjan, I agree with what you're saying, but it looks to me that the 4front
+guy was complaining about the lack of meaningful EXTRAVERSION. Hard to say
+for sure when he's raving though...
+
+-- Pete

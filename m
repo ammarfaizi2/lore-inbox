@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270070AbUJHR1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270069AbUJHR2W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270070AbUJHR1A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 13:27:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270067AbUJHR07
+	id S270069AbUJHR2W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 13:28:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270071AbUJHR2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 13:26:59 -0400
-Received: from open.hands.com ([195.224.53.39]:29907 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S270071AbUJHR0r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 13:26:47 -0400
-Date: Fri, 8 Oct 2004 18:37:50 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Brice.Goglin@ens-lyon.org, linux-kernel@vger.kernel.org
-Subject: Re: how do you call userspace syscalls (e.g. sys_rename) from inside kernel
-Message-ID: <20041008173750.GP5551@lkcl.net>
-References: <20041008130442.GE5551@lkcl.net> <41669DE0.9050005@didntduck.org> <20041008151837.GI5551@lkcl.net> <4166AFD0.2020905@ens-lyon.fr> <20041008162025.GL5551@lkcl.net> <20041008163701.GV5033@lug-owl.de>
+	Fri, 8 Oct 2004 13:28:22 -0400
+Received: from 208.177.141.226.ptr.us.xo.net ([208.177.141.226]:53851 "HELO
+	ash.lnxi.com") by vger.kernel.org with SMTP id S270067AbUJHR2K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 13:28:10 -0400
+Subject: Re: 2.6 noisy boot messages from gen_probe.c
+From: Thayne Harbaugh <tharbaugh@lnxi.com>
+Reply-To: tharbaugh@lnxi.com
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Cc: linux-kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <4165DD2C.1050209@eyal.emu.id.au>
+References: <4165DD2C.1050209@eyal.emu.id.au>
+Content-Type: text/plain
+Organization: Linux Networx
+Date: Fri, 08 Oct 2004 11:07:31 -0600
+Message-Id: <1097255252.29953.26.camel@tubarao>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041008163701.GV5033@lug-owl.de>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
+X-Mailer: Evolution 1.5.94.1 (1.5.94.1-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 08, 2004 at 06:37:01PM +0200, Jan-Benedict Glaw wrote:
-> On Fri, 2004-10-08 17:20:25 +0100, Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-> wrote in message <20041008162025.GL5551@lkcl.net>:
-> > On Fri, Oct 08, 2004 at 05:18:40PM +0200, Brice Goglin wrote:
+On Fri, 2004-10-08 at 10:19 +1000, Eyal Lebedinsky wrote:
+> I get this stuff at bootup, and I do not see why it should
+> interest me. Normally one wants to see only detected devices
+> and not failed probes. I did not enable any debug option
+> in the kernel.
 > 
-> > > mm_segment_t old_fs;
-> > > old_fs = get_fs();
-> > > set_fs(KERNEL_DS);
-> > > <do you stuff here>
-> > > set_fs(old_fs);
-> >  
-> >  that's it!  that's what i was looking for.  thank you.
+> It seems to come from
+> 	mtd/chips/gen_probe.c
+> I do have
+> 	CONFIG_MTD_ICHXROM=m
+> because I build all modules. So, should these printk's really
+> be KERN_WARNING or should they be removed?
 > 
-> Most probably, this is not what you were looking for. You just don't
-> know that yet (-:
- 
- *grin*.  yeh, like someone else privately responded saying i might want
- to look at compat_alloc_userspace() instead :)
+> Oct  8 09:58:45 eyal kernel: hub 5-0:1.0: 8 ports detected
+> Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+> Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+
+<SNIP>
+
+You'll get better response if you CC your message to those that are most
+interested.  Check the MAINTAINERS file:
+
+MEMORY TECHNOLOGY DEVICES
+P:      David Woodhouse
+M:      dwmw2@redhat.com
+W:      http://www.linux-mtd.infradead.org/
+L:      linux-mtd@lists.infradead.org
+S:      Maintained
+
 
 

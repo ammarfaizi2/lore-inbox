@@ -1,51 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264238AbUBOHGu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 02:06:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264267AbUBOHGu
+	id S264163AbUBOHDl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 02:03:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUBOHDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 02:06:50 -0500
-Received: from gate.crashing.org ([63.228.1.57]:31133 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S264238AbUBOHGs (ORCPT
+	Sun, 15 Feb 2004 02:03:41 -0500
+Received: from dp.samba.org ([66.70.73.150]:27541 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264163AbUBOHDk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 02:06:48 -0500
-Subject: [PATCH] Fix Oops & warning on PPC in rivafb
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1076828751.6957.6.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 15 Feb 2004 18:05:51 +1100
-Content-Transfer-Encoding: 7bit
+	Sun, 15 Feb 2004 02:03:40 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: Keith M Wesolowski <wesolows@foobazco.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH]: Sparc no longer Fucked Up
+Date: Sun, 15 Feb 2004 13:44:43 +1100
+Message-Id: <20040215070352.1B07F2C0F8@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+From: Keith M Wesolowski <wesolows@foobazco.org>
 
-Independently from the other fbdev updates I'm cooking (some of them will
-be in your mailbox rsn), this patch fixes an error in parameter passing
-to a function in rivafb (only used on ppc) that could cause an oops and
-definitely causes a warning at compile time.
+As of 2.6.3, restore_flags will no longer modify cwp on sparc.
+Therefore you can apply this patch to the locking guide.
 
-Please apply asap.
+[ Indeed.  I'll also remove the atomic comments from Hacking
+  Guide as part of my revision there when I get back to it.  --RR ]
 
-Ben.
-
-===== drivers/video/riva/fbdev.c 1.52 vs edited =====
---- 1.52/drivers/video/riva/fbdev.c	Fri Feb 13 03:39:59 2004
-+++ edited/drivers/video/riva/fbdev.c	Sun Feb 15 17:12:03 2004
-@@ -1615,8 +1615,9 @@
- }
+diff -Nru a/Documentation/DocBook/kernel-locking.tmpl b/Documentation/DocBook/kernel-locking.tmpl
+--- a/Documentation/DocBook/kernel-locking.tmpl	Sun Feb  8 15:07:26 2004
++++ b/Documentation/DocBook/kernel-locking.tmpl	Sun Feb  8 15:07:26 2004
+@@ -1444,27 +1444,6 @@
+     </para>
+    </sect1>
  
- #ifdef CONFIG_PPC_OF
--static int riva_get_EDID_OF(struct riva_par *par, struct pci_dev *pd)
-+static int riva_get_EDID_OF(struct fb_info *info, struct pci_dev *pd)
- {
-+	struct riva_par *par = (struct riva_par *) info->par;
- 	struct device_node *dp;
- 	unsigned char *pedid = NULL;
+-   <sect1 id="sparc">
+-    <title>The Fucked Up Sparc</title>
+-
+-    <para>
+-      Alan Cox says <quote>the irq disable/enable is in the register
+-      window on a sparc</quote>.  Andi Kleen says <quote>when you do
+-      restore_flags in a different function you mess up all the
+-      register windows</quote>.
+-    </para>
+-
+-    <para>
+-      So never pass the flags word set by
+-      <function>spin_lock_irqsave()</function> and brethren to another
+-      function (unless it's declared <type>inline</type>).  Usually no-one
+-      does this, but now you've been warned.  Dave Miller can never do
+-      anything in a straightforward manner (I can say that, because I have
+-      pictures of him and a certain PowerPC maintainer in a compromising
+-      position).
+-    </para>
+-   </sect1>
+-
+   </chapter>
  
+  <chapter id="Efficiency">
+
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
 

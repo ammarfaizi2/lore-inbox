@@ -1,104 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267519AbUG2XZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267467AbUG2XYp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267519AbUG2XZi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 19:25:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267531AbUG2XZh
+	id S267467AbUG2XYp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 19:24:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267518AbUG2XYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 19:25:37 -0400
-Received: from home.powernetonline.com ([66.84.210.20]:27582 "EHLO
-	home.uspower.net") by vger.kernel.org with ESMTP id S267519AbUG2XZX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 19:25:23 -0400
-Date: Thu, 29 Jul 2004 18:25:47 -0500
-From: John Lenz <jelenz@students.wisc.edu>
-To: Andrew Zabolotny <zap@homelink.ru>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: Backlight and LCD module patches [2]
-Message-ID: <20040729232547.GA4565@hydra.mshome.net>
-References: <20040617223517.59a56c7e.zap@homelink.ru> <20040725215917.GA7279@hydra.mshome.net> <20040728221141.158d8f14.zap@homelink.ru>
+	Thu, 29 Jul 2004 19:24:45 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:49885 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S267467AbUG2XYb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 19:24:31 -0400
+Date: Fri, 30 Jul 2004 01:24:27 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Kenneth =?iso-8859-1?Q?Aafl=F8y?= <lists@kenneth.aafloy.net>,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2-mm1: DVB: "errno" undefined
+Message-ID: <20040729232427.GK23589@fs.tum.de>
+References: <20040728020444.4dca7e23.akpm@osdl.org> <20040729212737.GH23589@fs.tum.de> <200407300044.13738.lists@kenneth.aafloy.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	Format=Flowed	DelSp=Yes
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20040728221141.158d8f14.zap@homelink.ru> (from zap@homelink.ru on Wed, Jul 28, 2004 at 13:11:41 -0500)
-X-Mailer: Balsa 2.0.17
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200407300044.13738.lists@kenneth.aafloy.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07/28/04 13:11:41, Andrew Zabolotny wrote:
-> On Sun, 25 Jul 2004 16:59:17 -0500
-> John Lenz <jelenz@students.wisc.edu> wrote:
+On Fri, Jul 30, 2004 at 12:44:13AM +0200, Kenneth Aafløy wrote:
+> On Thursday 29 July 2004 23:27, you wrote:
+> > I'm getting the following errors when trying to compile 2.6.8-rc2-mm1 as
+> > modular as possible (using gcc 2.95):
+> [snip]
+> > *** Warning: "errno" [drivers/media/dvb/frontends/tda1004x.ko] undefined!
+> > *** Warning: "errno" [drivers/media/dvb/frontends/sp887x.ko] undefined!
+> > *** Warning: "errno" [drivers/media/dvb/frontends/alps_tdlb7.ko] undefined!
+> [snip]
 > 
->>  The problem I see is that we would like something like a bus to   
->> match  together class devices.  What would be really nice is  
->> something  like   this.
->  This is impossible to do in a device-independent way. Only the   
-> drivers  know  how they can recognize each other. And if you're  
-> meaning the b/l  driver will  register the match function with the  
-> core, that's very similar to the  solution  I've described in my  
-> earlier messages.
+> This is still not fixed because we (linuxtv.org) have not submitted the 
+> changes necessary following this thread:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=108344912617115&w=2
+> 
+> This is about firmware loading in those modules, and we are working on 
+> converting those modules to i2c_kernel to take advantage of firmware_class.
+> 
+> Could the offending modules be marked as broken or something untill 
+> linuxtv-dvb can test and submit the dvb frontend updates, which should be 
+> sometime soon, but probably not in time for 2.6.8?
 
-That's what the match callback function is for.  The class match stuff  
-does not try and match anything together itself.  The provided match  
-callback function would have to do all the device specific matching  
-that needs to take place.  All the class_match stuff would do is make  
-sure the match function is called with every possible combination of fb  
-device and lcd device.
+The removal of errno from this three drivers is currently only in -mm.
 
-That is, we could remove the lcd_fb_list and lcd_device_list from this  
-patch because the class code would handle making sure the match  
-function is called.  The class_match->match function in the lcd_device  
-driver would then call the lcd_properties->match function.
+So unless someone forwards them (they were sent by Andi Kleen as gcc 3.5 
+build fixes, but he apparently didn't test a modular build) to Linus 
+which hopefully won't happen before the affected modules are properly 
+fixed, Linus' tree isn't affected.
 
-Secondly, we also wouldn't need to call lcd_fb_info_register from the  
-fb code either, since the fb code would register a class_device and  
-then the class_match code would attempt to match that fb device with a  
-lcd device by calling the lcd provided match function.
+> Kenneth
 
-(This is a little problematic since the fb code uses simple_class, so  
-there would need to be some changes there for this to take place... see  
-below)
+cu
+Adrian
 
-And we wouldn't need to reimplement those lists and rewrite all that  
-matching stuff in every driver (LED, Backlight, LCD)
+-- 
 
->  Speaking of your patch, I don't like the lcd_power_names array. The   
-> reason for  the 0-4 power status was to match that of VESA power  
-> states (0..4,  intermediate values mean intermediate power states,  
-> whatever they  mean  for  concrete devices). Besides, it makes end- 
-> user usage more complex  (instead of  just specifying a number in the  
-> 0-4 range you now have to *know* you  have to  specify "full off" and  
-> alike). Also it doesn't handle backlight, only  LCD.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-Ok.  I just tried to make it a little more verbose.  That is easy to  
-change back.
-
-I was more proposing the type of matching between fb and lcd devices  
-that happens in this patch.  It is completly independent of the base  
-code, each individual lcd device will implement a function to determine  
-if it is the lcd device for the given fb device.
-
-Actually, now that I think about it a bit more, I think the  
-lcd_properties->match function should take a device * as a paramater  
-instead of a fb_info *.  Insead of passing the fb_info pointer to the  
-match function, we really should be passing the actual device  
-structure.  For example, in the pxafb driver, it would register the  
-platform_device that it creates with either the class code (if  
-class_match is used) or with the lcdbase code.  This way the lcd driver  
-could examine the device * and look at for example which resources it  
-used, which memory region it was using, etc. and make its decision.
-
-That is, I see two options
-1) We use class_match.  Then we add an (optional) paramater to  
-register_framebuffer in fbmem.c which would be a device *.  This device  
-* would just be passed along to the class_simple_device_add function  
-and nothing else.  In this way the class_match->match function would be  
-able to extrat that device * and pass that along to the lcd_properties-
->match function.
-
-2) class_match doesn't get added.  Instead we just call  
-lcd_fb_device_register(struct device *) directly from the pxafb code  
-with the platform_device as a paramater.
-
-I would vote for number 1.

@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262173AbVBUXNd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262174AbVBUXO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262173AbVBUXNd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 18:13:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbVBUXNd
+	id S262174AbVBUXO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 18:14:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbVBUXO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 18:13:33 -0500
-Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:16900 "EHLO
+	Mon, 21 Feb 2005 18:14:26 -0500
+Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:57860 "EHLO
 	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id S262173AbVBUXNJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 18:13:09 -0500
-Message-ID: <421A6B00.5060501@superbug.co.uk>
-Date: Mon, 21 Feb 2005 23:13:04 +0000
-From: James Courtier-Dutton <James@superbug.co.uk>
+	id S262174AbVBUXOL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 18:14:11 -0500
+Message-ID: <421A6B42.2070108@superbug.demon.co.uk>
+Date: Mon, 21 Feb 2005 23:14:10 +0000
+From: James Courtier-Dutton <James@superbug.demon.co.uk>
 User-Agent: Mozilla Thunderbird 1.0 (X11/20041208)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
@@ -75,12 +75,13 @@ Pavel Machek wrote:
 > 
 > 								Pavel
 
-I am also getting strange effects. I boot into  2.6.11-rc4 and the 
-console fonts looks fine. Come back a day later and the console font has 
-  corrupt characters. E.g. Displays a "D" instead of an "L" and stuff 
+I am also getting strange effects. I boot into  2.6.11-rc4 and the
+console fonts looks fine. Come back a day later and the console font has
+  corrupt characters. E.g. Displays a "D" instead of an "L" and stuff
 like that. It is mostly readable, except for a few characters.
-It is only the local console that is corrupted. ssh into the box 
-displays correct characters, so all I can assume is that the VGA console 
-is being programmed with different characters. The bad characters also 
-survive a soft reboot( During BIOS boot up), until the linux kernel 
+It is only the local console that is corrupted. ssh into the box
+displays correct characters, so all I can assume is that the VGA console
+is being programmed with different characters. The bad characters also
+survive a soft reboot( During BIOS boot up), until the linux kernel
 starts booting, and then it switches to a good font.
+

@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271094AbTGPUBl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 16:01:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271095AbTGPUBl
+	id S271154AbTGPUET (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 16:04:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271155AbTGPUER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 16:01:41 -0400
-Received: from fw.osdl.org ([65.172.181.6]:710 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271094AbTGPUBh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 16:01:37 -0400
-Date: Wed, 16 Jul 2003 13:09:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
-Message-Id: <20030716130915.035a13ca.akpm@osdl.org>
-In-Reply-To: <20030716184609.GA1913@kroah.com>
-References: <20030716184609.GA1913@kroah.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 16 Jul 2003 16:04:17 -0400
+Received: from AMarseille-201-1-6-168.w80-11.abo.wanadoo.fr ([80.11.137.168]:10023
+	"EHLO gaston") by vger.kernel.org with ESMTP id S271154AbTGPUDw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 16:03:52 -0400
+Subject: Re: [PATCH] radeonfb 0.1.9 against 2.4.21pre2 (fwd)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: ajoshi@kernel.crashing.org
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10307161326280.22306-100000@gate.crashing.org>
+References: <Pine.LNX.4.10.10307161326280.22306-100000@gate.crashing.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1058386684.502.108.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 16 Jul 2003 22:18:05 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> wrote:
->
-> Here's a patch against 2.6.0-test1-mm that fixes up the different places
-> where we export a dev_t to userspace.  This fixes all of the compiler
-> warnings that were previously reported with these files.
+On Wed, 2003-07-16 at 20:28, ajoshi@kernel.crashing.org wrote:
+> Haha, ok this is geting ridiculous, it seems the childish games are still
+> being played.  I don't have time for this, Ben you can find a maintainer
+> for the driver or do it yourself.
 
-I added this as well:
+if you say so...
 
-static inline char *format_dev_t(char *buffer, dev_t dev)
-{
-	sprintf(buffer, "%04lx\n", (unsigned long)dev);
-	return buffer;
-}
+Marcelo, I can take over for now, I'd prefer someone with more time
+as the 2.6 version really need a total rewrite that I don't have time
+to do for now, so if there's any candidate, please speak up.
 
-tp be placed direct in a printk().
+Ben.
 
-We'll probably need to do something more fancy in here later, because once
-a dev_t becomes 32:32, it'll need to be printed out with "%016llx", which
-is daft.
-
-So we'll need to come up with some standardised way of presenting a dev_t
-to the user.  Presumably that will just be
-
-	sprintf(buf, "%d:%d", major(dev), minor(dev));
-	
-But if we do this, will it break your existing stuff?
-
-> If I should put the print_dev_t() function in a different header file,
-> please let me know.
-
-Seems OK.  Every kdev_t.h includer now needs to include kernel.h too.  Fair
-enough.

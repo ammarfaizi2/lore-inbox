@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280689AbRKFXd7>; Tue, 6 Nov 2001 18:33:59 -0500
+	id <S280670AbRKFXfs>; Tue, 6 Nov 2001 18:35:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280670AbRKFXds>; Tue, 6 Nov 2001 18:33:48 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:60800 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S280673AbRKFXdh>;
-	Tue, 6 Nov 2001 18:33:37 -0500
-Date: Tue, 06 Nov 2001 15:32:31 -0800 (PST)
-Message-Id: <20011106.153231.39156880.davem@redhat.com>
-To: maxk@qualcomm.com
-Cc: pcg@goof.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.13-ac5 && vtun not working
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <5.1.0.14.0.20011031095211.0dbc23f0@mail1>
-In-Reply-To: <20011031.003056.63128206.davem@redhat.com>
-	<20011031104323.A2263@schmorp.de>
-	<5.1.0.14.0.20011031095211.0dbc23f0@mail1>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S280673AbRKFXfi>; Tue, 6 Nov 2001 18:35:38 -0500
+Received: from philotas.hosting.pacbell.net ([216.100.99.24]:65501 "EHLO
+	philotas.hosting.pacbell.net") by vger.kernel.org with ESMTP
+	id <S280670AbRKFXf3>; Tue, 6 Nov 2001 18:35:29 -0500
+Reply-To: <imran.badr@cavium.com>
+From: "Imran Badr" <imran.badr@cavium.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Linux kernel 2.4 and TCP terminations per second.
+Date: Tue, 6 Nov 2001 15:34:23 -0800
+Message-ID: <017e01c1671b$91ab38e0$3b10a8c0@IMRANPC>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+In-Reply-To: <E161FY0-0002AE-00@the-village.bc.nu>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Maksim Krasnyanskiy <maxk@qualcomm.com>
-   Date: Wed, 31 Oct 2001 09:55:47 -0800
 
-   Here is the patch for TUN/TAP to remove that suboptimality :). 
-   So we won't call dev_alloc_name if name is not a template.
+I am running openssl with apache using modssl. I will have to look at
+whether could I use openssl with TUX or zeus.
 
-This won't work.  The whole purpose of calling dev_alloc_name
-is to twofold:
+Thanks.
 
-1) Make sure the name string is unique
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Alan Cox
+Sent: Tuesday, November 06, 2001 3:22 PM
+To: imran.badr@cavium.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux kernel 2.4 and TCP terminations per second.
 
-2) Copy that name into dev->name if it is unique
 
-I'm going to change dev_alloc_name() to allow non-'%' names
-instead, that is a better fix.
+> Does anybody know , what is the maximum number of TCP (http)
+> terminations/per second a server (single/dual/.. processor)  in todays
+> market can do, without much CPU load. The server would be running linux
+> kernel 2.4 and apache web server.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+If you are running any kind of high performance connections/second load then
+you dont run apache. That isnt what apache is good at
+
+thttpd will do 2000/sec on a decent box. zeus (non free) more, and tux
+(kernel http accelerator) holds some records
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

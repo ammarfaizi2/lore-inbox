@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267101AbUBFBLT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 20:11:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267104AbUBFBLT
+	id S267068AbUBFBRv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 20:17:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267073AbUBFBPs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 20:11:19 -0500
-Received: from kalmia.drgw.net ([209.234.73.41]:18562 "EHLO kalmia.hozed.org")
-	by vger.kernel.org with ESMTP id S267101AbUBFBKx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 20:10:53 -0500
-Date: Thu, 5 Feb 2004 19:10:51 -0600
-From: Troy Benjegerdes <hozer@hozed.org>
-To: "Hefty, Sean" <sean.hefty@intel.com>
-Cc: "Tillier, Fabian" <ftillier@infiniconsys.com>,
-       Chris Friesen <cfriesen@nortelnetworks.com>, Greg KH <greg@kroah.com>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org,
-       "Woodruff, Robert J" <woody@co.intel.com>,
-       "Magro, Bill" <bill.magro@intel.com>, woody@jf.intel.com,
-       infiniband-general@lists.sourceforge.net
-Subject: Re: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
-Message-ID: <20040206011051.GO11222@kalmia.hozed.org>
-References: <C1B7430B33A4B14F80D29B5126C5E94703262589@orsmsx401.jf.intel.com>
+	Thu, 5 Feb 2004 20:15:48 -0500
+Received: from ms-smtp-03.rdc-kc.rr.com ([24.94.166.129]:49624 "EHLO
+	ms-smtp-03.rdc-kc.rr.com") by vger.kernel.org with ESMTP
+	id S267068AbUBFBPg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 20:15:36 -0500
+Date: Thu, 5 Feb 2004 19:15:31 -0600
+From: Greg Norris <haphazard@kc.rr.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-usb-users@lists.sourceforge.net,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: usb mouse/keyboard problems under 2.6.2
+Message-ID: <20040206011531.GA2084@yggdrasil.localdomain>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>,
+	linux-usb-users@lists.sourceforge.net,
+	linux-usb-devel@lists.sourceforge.net
+References: <20040204174748.GA27554@yggdrasil.localdomain> <20040205142155.GA606@ucw.cz> <20040205160226.GA13471@yggdrasil.localdomain> <20040205230304.GA2195@yggdrasil.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <C1B7430B33A4B14F80D29B5126C5E94703262589@orsmsx401.jf.intel.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040205230304.GA2195@yggdrasil.localdomain>
+X-Operating-System: Linux yggdrasil 2.6.2-rc2 #1 SMP Thu Feb 5 19:00:03 CST 2004 i686 GNU/Linux
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 05, 2004 at 02:26:46PM -0800, Hefty, Sean wrote:
-> Personally, I'm amazed that professional developers have to discuss or
-> defend modular, portable code.
-
-You're new to linux-kernel, aren't you? ;)
-
+On Thu, Feb 05, 2004 at 05:03:04PM -0600, Greg Norris wrote:
+> Here's the output from dmesg, after rebuilding with CONFIG_USB_DEBUG
+> enabled.  It doesn't seem to be producing any output from after the
+> initialization completed (and the problem has recurred several times
+> since then), so please let me know if I should be going about this
+> differently.
 > 
-> Once the code has been submitted, then specific implementation problems
-> can be dealt with.
-> 
-> - Sean
+> Thanx!
 
+The problem appears to have been introduced in 2.6.2-rc2.  Can anyone
+tell me how to find the individual patches which were added between
+-rc1 and -rc2?  I can diff the trees easily enough, of course, but it
+would be much easier if I had a collection of discrete patches to work
+with.
 
---------------------------------------------------------------------------
-Troy Benjegerdes                'da hozer'                hozer@hozed.org  
+Thanx!
 
-Somone asked my why I work on this free (http://www.fsf.org/philosophy/)
-software stuff and not get a real job. Charles Shultz had the best answer:
-
-"Why do musicians compose symphonies and poets write poems? They do it
-because life wouldn't have any meaning for them if they didn't. That's why
-I draw cartoons. It's my life." -- Charles Shultz

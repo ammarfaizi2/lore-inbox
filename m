@@ -1,37 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272009AbTGRVNM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 17:13:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271935AbTGRVMa
+	id S271965AbTGRVHC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 17:07:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271880AbTGRVCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 17:12:30 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:39127
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S271909AbTGRVLV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 17:11:21 -0400
-Subject: Re: Bitkeeper
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Richard Stallman <rms@gnu.org>,
+	Fri, 18 Jul 2003 17:02:04 -0400
+Received: from smtp2.clear.net.nz ([203.97.37.27]:30852 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S271821AbTGRU7j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 16:59:39 -0400
+Date: Sat, 19 Jul 2003 09:05:57 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: Software suspend testing in 2.6.0-test1
+In-reply-to: <20030718180449.GB195@elf.ucw.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Patrick Mochel <mochel@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Peter Osterlund <petero2@telia.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030718204405.GA658@work.bitmover.com>
-References: <E19dbGS-00026T-9R@fencepost.gnu.org>
-	 <20030718204405.GA658@work.bitmover.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Message-id: <1058562197.2141.21.camel@laptop-linux>
 Organization: 
-Message-Id: <1058563409.19511.74.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 18 Jul 2003 22:23:30 +0100
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <20030718175045.GA195@elf.ucw.cz>
+ <Pine.LNX.4.44.0307181101110.22018-100000@cherise>
+ <20030718180449.GB195@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-07-18 at 21:44, Larry McVoy wrote:
-> I'm trying hard to stay out of this, I think Richard may be trolling,
-> but I need to make sure that people understand that what Richard is 
-> suggesting is violation of our license and copyright.
+Hi.
 
-Actually your license is simply irrelevant in most of thre world. You
-aren't allowed to forbid reverse engineering for interoperability.
+In 2.4, I ended up fusing the freezer and shrinking memory together. The
+essence is:
+
+freeze all other processes
+while need to free memory
+    unfreeze processes
+    shrink memory until think we have enough
+    freeze processes
+
+Regards,
+
+Nigel
+
+On Sat, 2003-07-19 at 06:04, Pavel Machek wrote:
+> Hi!
+> 
+> > > I wanted to avoid that: we do want user threads refrigerated at that
+> > > point so that we know noone is allocating memory as we are trying to
+> > > do memory shrink. I'd like to avoid having refrigerator run in two
+> > > phases....
+> > 
+> > But we should be the only process running, and we can guarantee that by 
+> > not sleeping and doing preempt_disable() when we begin. Especially 
+> > if we start the refrigeration sequence after we shrink
+> > memory. Right? 
+> 
+> If we refrigerate after we shrink, userspace can allocate everything
+> just after shrink.
+> 								Pavel
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
+
+You see, at just the right time, when we were still powerless,
+Christ died for the ungodly.
+	-- Romans 5:6, NIV.
 

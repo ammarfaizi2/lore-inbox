@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316404AbSFUWTZ>; Fri, 21 Jun 2002 18:19:25 -0400
+	id <S313638AbSFVAQ6>; Fri, 21 Jun 2002 20:16:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316492AbSFUWTY>; Fri, 21 Jun 2002 18:19:24 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:10761 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S316404AbSFUWTY>; Fri, 21 Jun 2002 18:19:24 -0400
-Subject: Re: Need IDE Taskfile Access
-To: tillman@viewcast.com (Scott Tillman)
-Date: Fri, 21 Jun 2002 23:40:40 +0100 (BST)
-Cc: dalecki@evision-ventures.com (Martin Dalecki),
-       B.Zolnierkiewicz@elka.pw.edu.pl (Bartlomiej Zolnierkiewicz),
-       arcolin@arcoide.com (Garet Cammer), linux-kernel@vger.kernel.org
-In-Reply-To: <CBELJEJGBEIGHCIMEDHNCEPBCIAA.tillman@viewcast.com> from "Scott Tillman" at Jun 19, 2002 06:43:57 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S314403AbSFVAQ5>; Fri, 21 Jun 2002 20:16:57 -0400
+Received: from codepoet.org ([166.70.99.138]:59030 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S313638AbSFVAQ5>;
+	Fri, 21 Jun 2002 20:16:57 -0400
+Date: Fri, 21 Jun 2002 18:17:00 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Ben Greear <greearb@candelatech.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Anyone get Linux on a Shuttle SpaceWalker SS40?
+Message-ID: <20020622001659.GA4339@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Ben Greear <greearb@candelatech.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <3D13BE09.40608@candelatech.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17LX56-0001nL-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <3D13BE09.40608@candelatech.com>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.18-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm working with a group of people in an effort to get Linux running on the
-> XBox.  The XBox uses a set of security PIO commands to restrict access to
-> the IDE drive, requiring a 32 byte password to be delivered before sector
-> access is allowed.  As far as I can tell from my investigations and from
-> earlier discussions with Andre there is currently no way to issue this
-> command.  If I'm wrong in my estimation just let me know how, otherwise I
-> simply wish add my voice to the (albeit small) outcry for supporting the
-> entire ATA spec.
+On Fri Jun 21, 2002 at 05:00:09PM -0700, Ben Greear wrote:
+> I got a cute (and very quiet) SS40 bare-bones system.  I put an
+> Athlon 1.8 and 256MB DDR (Generic, Samsung chips), and a cheap Maxtor 20GB 
+> HD.
 
-That would I suspect be something for the kerneli patch.
+Perhaps the "very quiet" is a clue...  No fan?
+
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279113AbRLDQUe>; Tue, 4 Dec 2001 11:20:34 -0500
+	id <S280978AbRLDQdf>; Tue, 4 Dec 2001 11:33:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278625AbRLDQUY>; Tue, 4 Dec 2001 11:20:24 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:436
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S279113AbRLDQUP>; Tue, 4 Dec 2001 11:20:15 -0500
-Date: Tue, 4 Dec 2001 11:11:15 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Christoph Hellwig <hch@caldera.de>, Keith Owens <kaos@ocs.com.au>,
-        kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Message-ID: <20011204111115.A15160@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Christoph Hellwig <hch@caldera.de>, Keith Owens <kaos@ocs.com.au>,
-	kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-	torvalds@transmeta.com
-In-Reply-To: <1861.1007341572@kao2.melbourne.sgi.com> <20011204131136.B6051@caldera.de> <20011204072808.A11867@thyrsus.com> <20011204133932.A8805@caldera.de> <20011204074815.A12231@thyrsus.com> <20011204140050.A10691@caldera.de> <20011204081640.A12658@thyrsus.com> <20011204142958.A14069@caldera.de>
+	id <S280967AbRLDQdY>; Tue, 4 Dec 2001 11:33:24 -0500
+Received: from mbr.sphere.ne.jp ([203.138.71.91]:60616 "EHLO mbr.sphere.ne.jp")
+	by vger.kernel.org with ESMTP id <S278625AbRLDQdM>;
+	Tue, 4 Dec 2001 11:33:12 -0500
+Date: Wed, 5 Dec 2001 01:32:53 +0900
+From: Bruce Harada <harada@mbr.sphere.ne.jp>
+To: David Chow <davidchow@rcn.com.hk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Unresolved symbols of loop device
+Message-Id: <20011205013253.767d2814.harada@mbr.sphere.ne.jp>
+In-Reply-To: <1007476721.1790.0.camel@cm61-15-169-117.hkcable.com.hk>
+In-Reply-To: <1007476721.1790.0.camel@cm61-15-169-117.hkcable.com.hk>
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.6; i686-pc-linux-gnu)
+X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011204142958.A14069@caldera.de>; from hch@caldera.de on Tue, Dec 04, 2001 at 02:29:58PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@caldera.de>:
-> With mconfig [side-effect chasing] can be implemented easily [...]
-> One toplevel config file can be implemented in CML1 easily,
+On 04 Dec 2001 22:38:41 +0800
+David Chow <davidchow@rcn.com.hk> wrote:
 
-You can spend all week telling us how easy it would be to implement
-all the CML2 benefits that CML1 doesn't have, if you like -- but one
-of the rules of this game is that an ounce of working code beats a
-pound of handwaving.
+> Dear all,
+> 
+> Since 2.4.1x, I found I always got the following error? Why? I am using
+> Redhat 7.2 stock standard. Why is that? I guess you people must have
+> been using loop device correctly... Thanks.
+> 
+> 
+> root]# modprobe loop
+> /lib/modules/2.4.14/kernel/drivers/block/loop.o: unresolved symbol
+> deactivate_page
+ [SNIP]
 
-When you've shown the list the bundle of CML1 implementation and 
-rulesfile patches that brings CML1 up to snuff, *then* you'll have
-grounds to argue that the switch to CML2 gains nothing.  
+"Redhat 7.2 stock standard" except for the kernel which you downloaded,
+compiled, found didn't work and then complained about without checking the
+list archives for messages from the ten thousand other people that had the
+same problem as you.
 
-So don't talk about it, *do it*!  Whether you succeed or fail, one of
-the two of us will get a valuable education from your attempt.  And
-until you succeed or fail, arguing is just wasting everyone else's time.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-Courage is resistance of fear, mastery of fear, not absence of fear.
+Even a Google search on "unresolved symbol deactivate_page" would have told
+you the answer.

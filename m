@@ -1,68 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262353AbUAGWmN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 17:42:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbUAGWmN
+	id S262015AbUAGW6w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 17:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbUAGW6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 17:42:13 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:32012 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262353AbUAGWmJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 17:42:09 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: 2.6.0 NFS-server low to 0 performance
-Date: 7 Jan 2004 22:30:05 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bti19d$7fn$1@gatekeeper.tmr.com>
-References: <Pine.LNX.4.44.0401060055570.1417-100000@poirot.grange> <Pine.LNX.4.44.0401071431520.479-100000@poirot.grange>
-X-Trace: gatekeeper.tmr.com 1073514605 7671 192.168.12.62 (7 Jan 2004 22:30:05 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Wed, 7 Jan 2004 17:58:52 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:60324 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S262015AbUAGW6v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 17:58:51 -0500
+Date: Wed, 7 Jan 2004 14:58:38 -0800
+To: Matthew Wilcox <willy@debian.org>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       jeremy@sgi.com
+Subject: Re: [RFC] Relaxed PIO read vs. DMA write ordering
+Message-ID: <20040107225838.GA6837@sgi.com>
+Mail-Followup-To: Matthew Wilcox <willy@debian.org>,
+	linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+	jeremy@sgi.com
+References: <20040107175801.GA4642@sgi.com> <20040107190206.GK17182@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040107190206.GK17182@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.4i
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.44.0401071431520.479-100000@poirot.grange>,
-Guennadi Liakhovetski  <g.liakhovetski@gmx.de> wrote:
-| On Tue, 6 Jan 2004, Guennadi Liakhovetski wrote:
-| 
-| > server with 2.6.0 kernel:
-| >
-| > fast:2.6.0-test11	2m21s (*)
-| > fast:2.4.20		16.5s
-| > SA1100:2.4		never finishes (*)
-| > PXA:2.4.21-rmk1-pxa1	as above
-| > PXA:2.6.0-rmk1-pxa	as above
-| >
-| > server: 2.4.21
-| >
-| > fast:2.6.0-test11	6s
-| > fast:2.4.20		5s
-| > SA1100:2.4.19-rmk7	3.22s
-| > PXA:2.4.21-rmk1-pxa1	7s
-| > PXA:2.6.0-rmk2-pxa	1) 50s (**)
-| > (***)			2) 27s (**)
-| 
-| s/fast/PC2/
-| 
-| Further, I tried the old 3c59x card - same problems persist. Also tried
-| PC2 as the server - same. nfs-utils version 1.0.6 (Debian Sarge). I sent a
-| copy of the yesterday's email + new details to nfs@lists.sourceforge.net,
-| netdev@oss.sgi.com, linux-net@vger.kernel.org.
-| 
-| Strange, that nobody is seeing this problem, but it looks pretty bad here.
-| Unless I missed some necessary update somewhere? The only one that seemed
-| relevant - nfs-utils on the server(s) from Documentation/Changes I
-| checked.
+On Wed, Jan 07, 2004 at 07:02:06PM +0000, Matthew Wilcox wrote:
+> So we want a pci_set_relaxed() macro / function() to set this bit
+> (otherwise dozens of drivers will start to try to set the bit themselves,
+> badly).  If this bit *isn't* set, setting the bit in the transaction will have
+> no effect, right?
 
-I'm sure you checked this, but does mii-tool show that you have
-negotiated the proper connection to the hub or switch? I found that my
-3cXXX and eepro100 cards were negotiating half duplex with the switches
-and cable modems, causing the throughput to go forth and conjugate the
-verb "to suck" until I fixed it.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Right, we'd want that call too.  And actually, if the bit in the command
+word isn't set, we're not allowed to set it in individual transactions.
+
+> How about always setting the bit in readb() and having a readb_ordered()
+> which doesn't set the bit in the transaction?  That way, drivers which
+> call pci_set_relaxed() have the responsibility to verify they're not
+> relying on these semantics and use readb_ordered() in any places that
+> they are.
+
+Yep, that would work too.
+
+Jesse

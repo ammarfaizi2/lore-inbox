@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282602AbRKZXta>; Mon, 26 Nov 2001 18:49:30 -0500
+	id <S282662AbRKZXyV>; Mon, 26 Nov 2001 18:54:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282658AbRKZXtU>; Mon, 26 Nov 2001 18:49:20 -0500
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:10113 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S282602AbRKZXtG>; Mon, 26 Nov 2001 18:49:06 -0500
-Message-ID: <002f01c176d4$f79a3f70$0201a8c0@HOMER>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: "Steve Brueggeman" <xioborg@yahoo.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <tgpu68gw34.fsf@mercury.rus.uni-stuttgart.de> <20011124103642.A32278@vega.ipal.net> <20011124184119.C12133@emma1.emma.line.org> <tgy9kwf02c.fsf@mercury.rus.uni-stuttgart.de> <4.3.2.7.2.20011124150445.00bd4240@10.1.1.42> <3C002D41.9030708@zytor.com> <0f050uosh4lak5fl1r07bs3t1ecdonc4c0@4ax.com>
-Subject: Re: Journaling pointless with today's hard disks?
-Date: Tue, 27 Nov 2001 00:49:19 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S282663AbRKZXyL>; Mon, 26 Nov 2001 18:54:11 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:52866 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S282662AbRKZXx7>;
+	Mon, 26 Nov 2001 18:53:59 -0500
+Date: Mon, 26 Nov 2001 15:53:47 -0800 (PST)
+Message-Id: <20011126.155347.45872112.davem@redhat.com>
+To: neilb@cse.unsw.edu.au
+Cc: trond.myklebust@fys.uio.no, nfs@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: Fix knfsd readahead cache in 2.4.15
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <15362.53694.192797.275363@esther.cse.unsw.edu.au>
+In-Reply-To: <15362.18626.303009.379772@charged.uio.no>
+	<15362.53694.192797.275363@esther.cse.unsw.edu.au>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Steve Brueggeman" <xioborg@yahoo.com>
-To: <linux-kernel@vger.kernel.org>
-Sent: Monday, November 26, 2001 7:05 PM
-Subject: Re: Journaling pointless with today's hard disks?
+   From: Neil Brown <neilb@cse.unsw.edu.au>
+   Date: Tue, 27 Nov 2001 10:35:26 +1100 (EST)
+   
+   This is definately a bug, but I don't think it is quite as dramatic as
+   you suggest.
+   
+   The "struct raparms" that ra points to will almost always be the last
+   one on the list, so ra->p_next will almost always be NULL anyway.
+   Nevertheless, it is a bug and your fix looks good.
 
-<snip>
+There are other problems remaining, this function is a logical
+mess.
 
-> >There is no "power monitor" in a PC system (at least not that is visible
-> >to the drive) -- if the drive needs it, it has to provide it itself.
-> >
-> >It's definitely the responsibility of the drive to recover gracefully
-> >from such an event, which means that it writes anything that it has
-> >committed to the host to write;
-> Correct.  If a write gets interrupted in the middle of it's operation,
-> it has not yet returned any completion status, (unless you've enabled
-> write-caching, in which case, you're already asking for trouble)  A
-> subsequent read of this half-written sector can return uncorrectable
-> status though, which would be unfortunate if this sector was your
-> allocation table, and the write was a read-modify-write.
->
-> >anything it hasn't gotten committed to
-> >write (but has received) can be written or not written, but must not
-> >cause a failure of the drive.
-> Reading a sector that was a partial-write because of a power-loss, and
-> returning UNCORRECTABLE status, is not a failure of the drive.
+1) depth is computed in the loop, but thrown away.
+   It is basically reassigned to a constant before
+   being used to index the statistics it is for.
 
-I sure think the drives could afford the teeny-weeny cost of a power failure
-detection unit, that when a power loss/sway is detected, halts all
-operations to the platters except for the writing of the current sector.
+2) raparm_cache is reassigned, and since the ra param list is
+   NULL terminated this can make the list shorter and shorter
+   and shorter until it is one entry deep.
 
-_____________________________________________________
-|  Martin Eriksson <nitrax@giron.wox.org>
-|  MSc CSE student, department of Computing Science
-|  Umeå University, Sweden
-
-
+Yikes :)

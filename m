@@ -1,124 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263040AbUJ1VGr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262955AbUJ1VHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263040AbUJ1VGr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 17:06:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263022AbUJ1VDe
+	id S262955AbUJ1VHv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 17:07:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263115AbUJ1VHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 17:03:34 -0400
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:60010 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262964AbUJ1VBz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 17:01:55 -0400
-From: Blaisorblade <blaisorblade_spam@yahoo.it>
-To: Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Why UML often does not build (was: Re: [PATCH] UML: Build fix for TT w/o SKAS)
-Date: Thu, 28 Oct 2004 22:54:21 +0200
-User-Agent: KMail/1.7.1
-Cc: Andrew Morton <akpm@osdl.org>, Jeff Dike <jdike@addtoit.com>
-References: <20041027053602.GB30735@taniwha.stupidest.org> <200410282104.30482.blaisorblade_spam@yahoo.it> <20041028193329.GF851@taniwha.stupidest.org>
-In-Reply-To: <20041028193329.GF851@taniwha.stupidest.org>
+	Thu, 28 Oct 2004 17:07:48 -0400
+Received: from [129.105.5.125] ([129.105.5.125]:25751 "EHLO
+	delta.ece.northwestern.edu") by vger.kernel.org with ESMTP
+	id S262955AbUJ1VDJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 17:03:09 -0400
+Message-ID: <41815EED.9070202@ece.northwestern.edu>
+Date: Thu, 28 Oct 2004 16:04:45 -0500
+From: Lei Yang <lya755@ece.northwestern.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040921
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: "\"Shesha B. \" Sreenivasamurthy" <shesha@inostor.com>
+Cc: LinuxKernel Group <linux-kernel@vger.kernel.org>,
+       kernelnewbies <kernelnewbies@nl.linux.org>
+Subject: Re: set blksize of block device
+References: <417FE6A8.5090803@ece.northwestern.edu>	 <417FE937.1040304@ece.northwestern.edu>	 <41804F04.4000300@ece.northwestern.edu> <1098981325.3279.5.camel@arcane>
+In-Reply-To: <1098981325.3279.5.camel@arcane>
+X-Enigmail-Version: 0.76.8.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410282254.21944.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 October 2004 21:33, Chris Wedgwood wrote:
-> On Thu, Oct 28, 2004 at 09:04:30PM +0200, Blaisorblade wrote:
-> > Hmm, this is true for some of them, not for other ones (mostly
-> > fixups, but some wrong).
+Shesha B. Sreenivasamurthy wrote:
 
-> ive been sending patches out for ages and they are getting nowhere.
-"Not getting an answer" does not mean "getting nowhere". I'm not absolutely 
-able, for instance, to understand the update for generic IRQs. I've seen the 
-"compile only" fixes from Jeff. And they were "compile-only". But 
-understanding the other changes from you is too difficult for me.
+>Firstly you cannot set the block size to lesser than 512. 
+>
+>When there is a request for the IO, you populate "struct req" data
+>structure which you will pass it to the kernel or lower level SCSI/SATA
+>driver. In the "struct req" there is a field "b_size" which may be what
+>you are interested in. At the user level you can use the IOCTLs to set
+>the block size of the RAW block device.
+>
+>-Shesha
+>  
+>
+I understand that for real block device (like hard disk), block size 
+cannot be less than 512. But to ramdisks, I think they are truely random 
+addressable, and should be able to move on blocks even with size of 2 bytes.
 
-About Jeff, I still keep CC'ing him every time, but as he has admitted 
-privately, he does not have the time to answer detailedly to each patch. 
-Since I'm here from some time, I'm now using my own judgement on some little 
-things (i.e. little compile-only fixes, or when a patch is being rejected for 
-questionable reasons, or when it is reportedly safe).
+Any comments?
 
-I don't try to touch the real UML core without getting a review from Jeff, and 
-anyone having a clue on what I'm doing is welcome.
+>On Wed, 2004-10-27 at 18:44, Lei Yang wrote:
+>  
+>
+>>If nobody could answer this question, what about another one? Is there a 
+>>system call or a kernel interface that would allow me to write a block 
+>>of data to block 1 of a certain block device?
+>>
+>>Thanks for your reply in advance!
+>>
+>>Lei
+>>
+>>Lei Yang wrote:
+>>
+>>    
+>>
+>>>Please cc me if you have answers to this, I am not on the list. Thanks 
+>>>a lot!
+>>>
+>>>Lei Yang wrote:
+>>>
+>>>      
+>>>
+>>>>Hello,
+>>>>
+>>>>I am learning block device drivers and have a newbie question. Given 
+>>>>a block device, is there anyway that I could set its block size? For 
+>>>>example, I want to write a block device driver that will work on an 
+>>>>existing block device.  In this driver, I want block size smaller. 
+>>>>(The idea looks confusing but I could explain if anybody is 
+>>>>interested :- )  However,  typically the block size is 1KB, now I 
+>>>>want to set it to 512 or 256.  Can I do it?
+>>>>
+>>>>TIA
+>>>>Lei
+>>>>
+>>>>        
+>>>>
+>>>
+>>>      
+>>>
+>>
+>>--
+>>Kernelnewbies: Help each other learn about the Linux kernel.
+>>Archive:       http://mail.nl.linux.org/kernelnewbies/
+>>FAQ:           http://kernelnewbies.org/faq/
+>>    
+>>
 
-> if people have better fixes, these have been weeks (in some cases
-> months) to get them in
 
-For instance, Jeff rejected the mconsole-proc rewrite. So, I tried harder, 
-then updated the patch to just #ifdef out his version, and was going to send 
-it in.
-
-However, you are not entirely wrong. Jeff does not scale enough to the rate of 
-kernel changes, and not even I can (I'm only a 1st year university student; 
-luckily they have not yet started teaching anything new).
-
-> > However, always CC both the -devel list (my request) and the LKML
-> > (Andrew's request to me some time ago) when sending UML patches.
-
-> i admit i've missed -devel most of the time,  i said ill do that from
-> now on
-
-> the fact remains, people have fixes that are weeks old or more and if
-> you dont submit them to get them merged, then please let another
-> potential suitable fix go in for now
-
-> UML often doesn't build and less often runs correctly --- it probably
-> one of the worst architectures for this in a sense (i don't know about
-> the obscure stuff, i bet those break too --- but nobody uses them
-> which isn't the case for UML)
-
-Well, this is true. There are mainly these reasons:
-
-1) the Linux Kernel often breaks when using certain GCC versions or certain 
-binutils, and has to be fixed.
-
-But UML is a binary doing the most unusual things on the world around, so it 
-must cope also with different versions of libc / binutils / host kernel.
-
-2) Uml is often not cared by mainline developers. It was merged in 2.6.9 and 
-remained unworking for ages just because Linus ignored UML patches for ages. 
-And right now, if UML does not compile it's for the Ingo Molnar's hardirq 
-patch and for a missed silly prototype change for a TTY api change (they 
-fixed the UML user, ended up changing one UML function prototype, forgot to 
-do a trivial update to one user. One missed "grep" invocation, in fact).
-
-3) Uml *is* strange. The kernel has his own linking script? Uml must have a 
-merged version of the userspace one from binutils and of the kernel one.
-
-Since it must remap its .text section away under his back, it has to copy the 
-kernel image and remap the data with one one-shot function, which is 
-statically linked - so you end up with symbol clashes on some glibc using 
-NPTL, for trivial reasons - and so on.
-
-4) We are too few. The currently active developers (and I mean only the one 
-which this month have being working on it) are:
-
-- Bodo Stroesser - he came in just now, but he's doing a tremendous work on 
-getting SYSEMU working well.
-
-- you, Chris
-
-- Gerd Knorr, the Suse UML packager and maintainer.
-
-- I and Jeff, for various other stuff.
-
-The number nearly doubles if you just include work done before this summer, 
-with Henrik Normstrod, M.A. Young and Ingo Molnar coming here. But that's the 
-fact.
-
-I.e., if after 2.6.9-rc4 for any reason I did not send the fixes (like being 
-overloaded or away from the net), Jeff probably would have sent them (he was 
-just about doing it). But let's say he was a bit away from the net, or he 
-forgot some build fixes, even 2.6.9 wouldn't have worked for UML.
-
-That said, with mainline inclusion UML is getting more work on from mainline. 
-At least, most API changes are handled by the ones who submit them.
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729

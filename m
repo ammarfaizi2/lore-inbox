@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293627AbSB1STG>; Thu, 28 Feb 2002 13:19:06 -0500
+	id <S293468AbSB1Szq>; Thu, 28 Feb 2002 13:55:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293647AbSB1SPn>; Thu, 28 Feb 2002 13:15:43 -0500
-Received: from 216-42-72-159.ppp.netsville.net ([216.42.72.159]:61904 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S293477AbSB1SNl>; Thu, 28 Feb 2002 13:13:41 -0500
-Date: Thu, 28 Feb 2002 13:12:40 -0500
-From: Chris Mason <mason@suse.com>
-To: James Bottomley <James.Bottomley@steeleye.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>
-cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3) 
-Message-ID: <3903140000.1014919960@tiny>
-In-Reply-To: <3746210000.1014911746@tiny>
-In-Reply-To: <200202281536.g1SFaqF02079@localhost.localdomain> <3746210000.1014911746@tiny>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S293163AbSB1Sxb>; Thu, 28 Feb 2002 13:53:31 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:16141 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S293674AbSB1Sud>; Thu, 28 Feb 2002 13:50:33 -0500
+Date: Thu, 28 Feb 2002 14:41:53 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Armin Schindler <mac@melware.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+        info@melware.de, petter wahlman <petter@bluezone.no>
+Subject: Re: [PATCH] 2.4.18 Eicon ISDN driver fix.
+In-Reply-To: <Pine.LNX.4.31.0202270850380.17482-100000@phoenix.one.melware.de>
+Message-ID: <Pine.LNX.4.21.0202281441330.2182-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Thursday, February 28, 2002 10:55:46 AM -0500 Chris Mason <mason@suse.com> wrote:
+On Wed, 27 Feb 2002, Armin Schindler wrote:
 
->> 
->> A longer term solution might be to keep the writeback cache but send down a 
->> SYNCHRONIZE CACHE command as part of the back end completion of a barrier 
->> write, so the fs wouldn't get a completion until the write was done and all 
->> the dirty cache blocks flushed to the medium.
+> The patch below fixes the race condition with copy_to_user and will
+> not introduce a new race. What can happen is that two reader-processes
+> may get mixed-up messages, but more than one reader isn't allowed here
+> anyway.
 > 
-> Right, they could just implement ORDERED_FLUSH in the barrier patch.
+> Please apply this patch to 2.4 and 2.2, it works for both.
 
-So, a little testing with scsi_info shows my scsi drives do have
-writeback cache on.  great.  What's interesting is they
-must be doing additional work for ordered tags.  If they were treating
-the block as written once in cache, using the tags should not change 
-performance at all.  But, I can clearly show the tags changing
-performance, and hear the drive write pattern change when tags are on.
+Armin, 
 
--chris
+Your patch does not apply cleanly against my tree.
+
+Please regenerate it.
 

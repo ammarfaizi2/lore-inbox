@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311291AbSCLR3a>; Tue, 12 Mar 2002 12:29:30 -0500
+	id <S311294AbSCLRfW>; Tue, 12 Mar 2002 12:35:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311310AbSCLR3U>; Tue, 12 Mar 2002 12:29:20 -0500
-Received: from [66.35.146.201] ([66.35.146.201]:14866 "EHLO int1.nea-fast.com")
-	by vger.kernel.org with ESMTP id <S311301AbSCLR3O>;
-	Tue, 12 Mar 2002 12:29:14 -0500
-Message-Id: <200203121729.MAA08522@int1.nea-fast.com>
-Content-Type: text/plain; charset=US-ASCII
-From: walter <walt@nea-fast.com>
-To: linux-kernel@vger.kernel.org
-Subject: oracle rmap kernel version
-Date: Tue, 12 Mar 2002 12:29:29 -0500
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S311295AbSCLRfM>; Tue, 12 Mar 2002 12:35:12 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:47820 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S311294AbSCLRfE>;
+	Tue, 12 Mar 2002 12:35:04 -0500
+Date: Tue, 12 Mar 2002 09:31:34 -0800 (PST)
+Message-Id: <20020312.093134.35196670.davem@redhat.com>
+To: beezly@beezly.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Sun GEM card looses TX on x86 32bit PCI
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1015887102.2051.4.camel@monkey>
+In-Reply-To: <1015881102.4312.10.camel@monkey>
+	<1015881814.4315.12.camel@monkey>
+	<1015887102.2051.4.camel@monkey>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does anyone have any production experience running Oracle 8i on Linux? I've 
-run it at home, RH 7.2 with vanilla 2.4.16 kernel all IDE drives, and its 
-fast. We are replacing our SUN/Oracle 8 servers at work in next couple of 
-months with Linux/Oracle 8i (Pentium 4 1GB ram).  My question is, what is the 
-best kernel version to use,  vanilla 2.4.x or a RH kernel built from the ac 
-tree with rmap. All drives will be SCSI. 
-I read an interview yesterday with Rik van Riel where he said rmap worked 
-better for db servers but I expect that he is partial to rmap 8-).
-Our web servers are running vanilla 2.4.16 and we haven't had a problem yet 
-(knock on wood).
+   From: Beezly <beezly@beezly.org.uk>
+   Date: 11 Mar 2002 22:51:42 +0000
 
-Thanks !
--- 
-Walter Anthony
-System Administrator
-National Electronic Attachment
-"If it's not broke....tweak it"
+   Ok, I've been fiddling around with the driver tonight and have managed
+   to get a little further by forcing the driver to do a full reset of the
+   chip when the RX buffer over flows. I achieved this by sticking a return
+   1; at the top of gem_rxmac_reset().
+   
+   I'm guessing this isn't an "optimal" reset for the situation but so far
+   it's having /reasonable/ results (i.e. I don't have to bring the
+   interface up and down every 30 seconds!).
+ ...   
+   Hope this helps,
+
+I'll follow up on this and figure out why my RX reset code
+isn't working after I finish up some 2.5.x work.
+
+But looking quickly I think I see what is wrong.  Please give
+this a try (and remember to remove your hacks before testing
+this :-):
+
+--- drivers/net/sungem.c.~1~	Mon Mar 11 04:24:13 2002
++++ drivers/net/sungem.c	Tue Mar 12 09:30:38 2002
+@@ -357,6 +357,7 @@ static int gem_rxmac_reset(struct gem *g
+ 
+ 		rxd->status_word = cpu_to_le64(RXDCTRL_FRESH(gp));
+ 	}
++	gp->rx_new = gp->rx_old = 0;
+ 
+ 	/* Now we must reprogram the rest of RX unit. */
+ 	desc_dma = (u64) gp->gblock_dvma;

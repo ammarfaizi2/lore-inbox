@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262616AbSI0VmW>; Fri, 27 Sep 2002 17:42:22 -0400
+	id <S261440AbSI0Vdz>; Fri, 27 Sep 2002 17:33:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262619AbSI0VmV>; Fri, 27 Sep 2002 17:42:21 -0400
-Received: from waste.org ([209.173.204.2]:58341 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S262616AbSI0VmV>;
-	Fri, 27 Sep 2002 17:42:21 -0400
-Date: Fri, 27 Sep 2002 16:47:22 -0500
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Daniel Jacobowitz <dan@debian.org>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Does kernel use system stdarg.h?
-Message-ID: <20020927214721.GK21969@waste.org>
+	id <S262627AbSI0Vdz>; Fri, 27 Sep 2002 17:33:55 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:35280 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261440AbSI0Vdy>;
+	Fri, 27 Sep 2002 17:33:54 -0400
+Date: Fri, 27 Sep 2002 14:38:41 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: James Bottomley <James.Bottomley@steeleye.com>, Jens Axboe <axboe@suse.de>,
+       Matthew Jacob <mjacob@feral.com>,
+       "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
+       Mathieu Chouquet-Stringer <mathieu@newview.com>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Warning - running *really* short on DMA buffers while doing file  transfers
+Message-ID: <20020927143841.A17108@eng2.beaverton.ibm.com>
+Mail-Followup-To: "Justin T. Gibbs" <gibbs@scsiguy.com>,
+	James Bottomley <James.Bottomley@steeleye.com>,
+	Jens Axboe <axboe@suse.de>, Matthew Jacob <mjacob@feral.com>,
+	"Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
+	Mathieu Chouquet-Stringer <mathieu@newview.com>,
+	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <200209271721.g8RHLTn05231@localhost.localdomain> <2628736224.1033160295@aslan.btc.adaptec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020927140543.GA5613@nevyn.them.org>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <2628736224.1033160295@aslan.btc.adaptec.com>; from gibbs@scsiguy.com on Fri, Sep 27, 2002 at 02:58:15PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 27, 2002 at 10:05:43AM -0400, Daniel Jacobowitz wrote:
-> On Fri, Sep 27, 2002 at 03:18:35PM -0200, Denis Vlasenko wrote:
-> > Reading specs from /usr/lib/gcc-lib/i686-pc-linux-gnu/3.0.3/specs
-> > Configured with: ../gcc-3.0.3/configure --prefix=/usr/app/gcc-3.0.3posix --exec-prefix=/usr/app/gcc-3.0.3posix --bindir=/usr/app/gcc-3.0.3posix/bin --libdir=/usr/lib --infodir=/usr/app/gcc-3.0.3posix/info --mandir=/usr/app/gcc-3.0.3posix/man --with-slibdir=/usr/lib --with-local-prefix=/usr/local --with-gxx-include-dir=/usr/include/g++-v3 --enable-threads=posix
-> > Thread model: posix
-> > gcc version 3.0.3
-> >  /usr/lib/gcc-lib/i686-pc-linux-gnu/3.0.3/cpp0 -lang-c -nostdinc -v
-> >                                                        ^^^^^^^^^
+On Fri, Sep 27, 2002 at 02:58:15PM -0600, Justin T. Gibbs wrote:
+> >> Hooks for sending ordered tags have been in the aic7xxx driver, at
+> >> least in FreeBSD's version, since '97.  As soon as the Linux cmd
+> >> blocks have such information it will be trivial to have the aic7xxx
+> >> driver issue the appropriate tag types.
+> > 
+> > They already do in 2.5, see scsi_populate_tag_msg() in scsi.h.  This
+> > assumes  you're using the generic tag queueing, which the aic7xxx
+> > doesn't, but you  could easily key the tag type off REQ_BARRIER.
 > 
-> That's not the problem.
+> If anyone wants to play with the updated aic7xxx and aic79xx drivers
+> (new port to 2.5, plus it honors the otag stuff), you can pick it up
+> from here:
 > 
-> > -I/usr/src/linux-2.5.36/include
-> > -iprefix /usr/sbin/../../lib/gcc-lib/i686-pc-linux-gnu/3.0.3/
 > 
-> That's the problem.  Where's the -iprefix coming from?   Your configure
-> doesn't specify /usr/sbin anywhere.
+> http://people.FreeBSD.org/~gibbs/linux/linux-2.5-aic79xxx.tar.gz
 > 
-> Verdict: bad GCC install or a 3.0.3 bug.  Might have to do with your
-> libdir-outside-of-prefix.
+> --
+> Justin
 
-I've got the same problem with -nostdinc with my Debian gcc-3.0 that
-I've been patching around. I assumed it was a problem with the
-kernel's Makefile, now you're saying it's the Debian package?
+Any 2.5 patch for the above? Or aic7xxx/Config.in and
+aic7xxx/Makefile for 2.5?
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
+Thanks.
+
+-- Patrick Mansfield

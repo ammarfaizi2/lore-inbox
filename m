@@ -1,52 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274684AbRIYW5I>; Tue, 25 Sep 2001 18:57:08 -0400
+	id <S274681AbRIYW62>; Tue, 25 Sep 2001 18:58:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274683AbRIYW47>; Tue, 25 Sep 2001 18:56:59 -0400
-Received: from lsmls02.we.mediaone.net ([24.130.1.15]:62669 "EHLO
-	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S274681AbRIYW4l>; Tue, 25 Sep 2001 18:56:41 -0400
-Message-ID: <3BB10BE4.A3ADC84E@kegel.com>
-Date: Tue, 25 Sep 2001 15:57:40 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: remote core dumping / just in time debugging
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S274683AbRIYW6T>; Tue, 25 Sep 2001 18:58:19 -0400
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:44961 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S274681AbRIYW6F>; Tue, 25 Sep 2001 18:58:05 -0400
+Message-Id: <5.1.0.14.2.20010925231124.0309ac70@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 25 Sep 2001 23:59:46 +0100
+To: Linus Torvalds <torvalds@transmeta.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [PATCH] invalidate buffers on blkdev_put
+Cc: Alexander Viro <viro@math.psu.edu>, Chris Mason <mason@suse.com>,
+        <linux-kernel@vger.kernel.org>, <andrea@suse.de>
+In-Reply-To: <Pine.LNX.4.33.0109242118540.29038-100000@penguin.transmeta
+ .com>
+In-Reply-To: <Pine.GSO.4.21.0109242333240.21827-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am looking at adding a hook to the kernel to allow
-core dumps to go somewhere other than ./core.  
+At 05:21 25/09/01, Linus Torvalds wrote:
+>On Mon, 24 Sep 2001, Alexander Viro wrote:
+> > OK, not exactly nay, but...  What you are trying to do is a workaround
+> > for problem that can be solved in somewhat saner way.  Namely, we can
+> > make getblk() return buffres backed by pages from device page cache.
+>
+>I now have the patches for this, but I have to fix up fs/block_dev.c to
+>also honour the block size thing because otherwise the two are still not
+>in sync.
+>
+>I'll send out a test-patch later this evening, I hope.
+>
+> > It's solvable, but not obvious.  It _does_ solve coherency problems between
+> > device page cache and buffer cache (thus killing update_buffers() and its
+> > ilk), but the last issue (new access path to page-private buffer_heads)
+> > may be rather nasty.
+>
+>It's certainly solvable, but it is also certainly very fraught with tons
+>of small details. I'll be very happy if people end up looking through the
+>patches _very_ critically (and don't even bother testing them if you don't
+>have a machine where you can lose a filesystem or two).
+>
+>Hopefully in another hour or two (but the first version is going to have
+>some ugly stuff in it still).
 
-Initially, I'm looking into allowing core to be a fifo (yeah, it's a
-hack, but supposedly it worked on solaris in 1998), but later I'll
-want to be able to set a default coredump handler for all processes.
+Looking at the patch, you introduce a static inline blksize_bits. Wouldn't 
+it be a lot more efficient to change the function to say:
 
-Looking at previous discussion on the topic, e.g. 
-Kenneth Albanowski (kjahds@kjahds.com)'s post "Re: core files" on 1999/01/01
-http://groups.google.com/groups?hl=en&selm=fa.m8ig46v.1b2q89r%40ifi.uio.no ,
-the scheme that comes to mind is:
+static inline unsigned int blksize_bits(unsigned int size)
+{
+         return ffs(size) - 1;
+}
 
-When the kernel wants to dump core on a process, it opens the fifo
-/dev/coredumper and writes the pid of the process to the fifo, then
-puts the process to sleep.  On error, no fifo, or fifo still full after 
-a couple minutes, it dumps core as before.
+and optionally, throw in a power of two assertion a-la:
 
-The process listening to /dev/coredumper reads the pid, then opens a fd
-to where it wants the core to be dumped to, then uses ptrace
-to request a core dump of the given pid to the given fd.
-The fd may be a normal file, or a socket or fifo (in which case the
-kernel uses padding rather than seeking to page boundaries).
+static inline unsigned int blksize_bits(unsigned int size)
+{
+         if (!(size & size - 1))
+                 return ffs(size) - 1;
+         BUG();
+}
 
-Security is maintained because /dev/coredumper can be owned by root and chmod 600,
-and because the daemon reading from it must have privs to use ptrace on
-the given process.
+Or am I barking mad and block sizes which are not a power of two are valid? (-;
 
-This would allow just-in-time debugging as well as remote core dumping.
+Your version is not too happy with such beasts either but it does round 
+down rather than do god knows what in arch specific ffs() implementation... 
+Haven't looked at non-ia32 code but at least ia32's implementation fails 
+miserably for non-powers of two by it's design. But it should be a lot 
+faster than doing the while loop considering ffs() just uses a single CPU 
+instruction instead of the loop (on ia32 anyway).
 
-Comments?
-- Dan
+Best regards,
+
+         Anton
+
+
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

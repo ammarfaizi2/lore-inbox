@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbULGTse@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbULGTsd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261917AbULGTse (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 14:48:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbULGTis
+	id S261932AbULGTsd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 14:48:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbULGTid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 14:38:48 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:41995 "HELO
+	Tue, 7 Dec 2004 14:38:33 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:41227 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261902AbULGTf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 14:35:29 -0500
-Date: Tue, 7 Dec 2004 20:35:22 +0100
+	id S261904AbULGTf1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 14:35:27 -0500
+Date: Tue, 7 Dec 2004 20:35:18 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] bio.c: make bio_destructor static (fwd)
-Message-ID: <20041207193522.GC7250@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] binfmt_script.c: make struct script_format static (fwd)
+Message-ID: <20041207193518.GB7250@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -28,35 +28,31 @@ The patch forwarded below still applies and compiles against
 Please apply.
 
 
+
 ----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
-Date:	Sat, 30 Oct 2004 18:44:50 +0200
+Date:	Sat, 30 Oct 2004 18:42:48 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] bio.c: make bio_destructor static
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] binfmt_script.c: make struct script_format static
 
 
-bio_destructor in fs/bio.c isn't used outside of this file, and after 
-quickly thinking about it I didn't find a reason why it should.
-
-The patch below makes it static.
+The patch below makes struct script_format in fs/binfmt_script.c static.
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Acked-by: Jens Axboe <axboe@suse.de>
 
---- linux-2.6.10-rc1-mm2-full/fs/bio.c.old	2004-10-30 13:53:41.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full/fs/bio.c	2004-10-30 13:56:16.000000000 +0200
-@@ -91,7 +91,7 @@
- /*
-  * default destructor for a bio allocated with bio_alloc()
-  */
--void bio_destructor(struct bio *bio)
-+static void bio_destructor(struct bio *bio)
- {
- 	const int pool_idx = BIO_POOL_IDX(bio);
- 	struct biovec_pool *bp = bvec_array + pool_idx;
+--- linux-2.6.10-rc1-mm2-full/fs/binfmt_script.c.old	2004-10-30 13:53:00.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/fs/binfmt_script.c	2004-10-30 13:53:25.000000000 +0200
+@@ -96,7 +96,7 @@
+ 	return search_binary_handler(bprm,regs);
+ }
+ 
+-struct linux_binfmt script_format = {
++static struct linux_binfmt script_format = {
+ 	.module		= THIS_MODULE,
+ 	.load_binary	= load_script,
+ };
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,31 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267365AbTBLPnK>; Wed, 12 Feb 2003 10:43:10 -0500
+	id <S267370AbTBLPn0>; Wed, 12 Feb 2003 10:43:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267361AbTBLPnK>; Wed, 12 Feb 2003 10:43:10 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6917 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267365AbTBLPnJ>;
-	Wed, 12 Feb 2003 10:43:09 -0500
-Message-ID: <3E4A6DBD.8050004@pobox.com>
-Date: Wed, 12 Feb 2003 10:52:29 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: 2.5.60 cheerleading...
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267361AbTBLPn0>; Wed, 12 Feb 2003 10:43:26 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9736 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267370AbTBLPnY>; Wed, 12 Feb 2003 10:43:24 -0500
+Date: Wed, 12 Feb 2003 15:53:10 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: Adam Belay <ambx1@neo.rr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.20][2.5.60] /proc/interrupts comparsion - two irqs for i8042?
+Message-ID: <20030212155310.C852@flint.arm.linux.org.uk>
+Mail-Followup-To: Shawn Starr <spstarr@sh0n.net>,
+	Adam Belay <ambx1@neo.rr.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0302121035420.147-100000@coredump.sh0n.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0302121035420.147-100000@coredump.sh0n.net>; from spstarr@sh0n.net on Wed, Feb 12, 2003 at 10:36:16AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just to counteract all the 2.5.60 bug reports...
+On Wed, Feb 12, 2003 at 10:36:16AM -0500, Shawn Starr wrote:
+>   1:         15          XT-PIC  i8042
+>  12:         60          XT-PIC  i8042
+> 
+> Interesting, why are we using two interrupts for the i8042 (keyboard).
 
-After the akpm wave of compile fixes, I booted 2.5.60-BK on my Wal-Mart 
-PC [via epia], and ran LTP on it, while also stressing it using 
-fsx-linux in another window.  The LTP run showed a few minor failures, 
-but overall 2.5.60-BK is surviving just fine, and with no corruption.
+i8042 != keyboard.
 
-So, it's working great for me :)
+i8042 == keyboard controller + (optionally) PS/2 mouse controller.
+
+IRQ1 = keyboard IRQ
+IRQ12 = PS/2 mouse IRQ
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

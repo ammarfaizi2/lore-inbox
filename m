@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264997AbUEVANO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264592AbUEVANP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264997AbUEVANO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 20:13:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264592AbUEVAEz
+	id S264592AbUEVANP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 20:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264657AbUEVAEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 20:04:55 -0400
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:34650 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264596AbUEUXsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 19:48:04 -0400
-Message-ID: <40ADB062.8050005@yahoo.com.au>
-Date: Fri, 21 May 2004 17:31:46 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: alexeyk@mysql.com, linuxram@us.ibm.com, peter@mysql.com,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: Random file I/O regressions in 2.6 [patch+results]
-References: <200405022357.59415.alexeyk@mysql.com>	<1084480888.22208.26.camel@dyn319386.beaverton.ibm.com>	<1084815010.13559.3.camel@localhost.localdomain>	<200405200506.03006.alexeyk@mysql.com>	<20040520145902.27647dee.akpm@osdl.org> <20040520152305.3dbfa00b.akpm@osdl.org>
-In-Reply-To: <20040520152305.3dbfa00b.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 21 May 2004 20:04:50 -0400
+Received: from mail.kroah.org ([65.200.24.183]:62689 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264592AbUEUXtH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 19:49:07 -0400
+Date: Fri, 21 May 2004 16:48:11 -0700
+From: Greg KH <greg@kroah.com>
+To: Jon Smirl <jonsmirl@yahoo.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Exporting PCI ROMs via syfs
+Message-ID: <20040521234811.GA13404@kroah.com>
+References: <20040521010510.84867.qmail@web14928.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040521010510.84867.qmail@web14928.mail.yahoo.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Thu, May 20, 2004 at 06:05:10PM -0700, Jon Smirl wrote:
+> GregKH has suggested that a good interface for accessing the contents of PCI
+> ROMs from user space would be to make them available from sysfs. What would be a
+> good way to structure the code for doing this? Should this be part of the pci
+> driver, and how would this interface into class_simple to make the attribute
+> appear?
 
-> Open questions are:
-> 
-> a) Why is 2.6 write coalescing so superior to 2.4?
-> 
-> b) Why is 2.6 issuing more read requests, for less data?
-> 
-> c) Why is Alexey seeing dissimilar results?
-> 
+No class_simple stuff, what about just the sysfs code for the pci device
+itself?  Like where we export the config info today?
 
+And yes, it sounds like we need a quirks file to keep some cards from
+doing bad things.
 
-Interesting. I am not too familiar with 2.4's IO scheduler,
-but 2.6's have pretty comprehensive merging systems. Could
-that be helping, Jens? Or is 2.4 pretty equivalent?
+thanks,
 
-What about things like maximum request size for 2.4 vs 2.6
-for example? This is another thing that can have an impact,
-especially for writes.
-
-I'll take a guess at b, and say it could be as-iosched.c.
-Another thing might be that 2.6 has smaller nr_requests than
-2.4, although you are unlikely to hid the read side limit
-with only 16 threads if they are doing sync IO.
-
-As for question c, has Alexey confirmed that it is indeed
-2.6-bk which has problems?
+greg k-h

@@ -1,191 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264616AbUEDVIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264618AbUEDVJq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264616AbUEDVIm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 17:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264618AbUEDVIl
+	id S264618AbUEDVJq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 17:09:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264628AbUEDVI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 17:08:41 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:28874 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S264616AbUEDVHN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 17:07:13 -0400
-content-class: urn:content-classes:message
+	Tue, 4 May 2004 17:08:56 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41192 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264614AbUEDVH5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 17:07:57 -0400
+Message-ID: <40980620.1040405@pobox.com>
+Date: Tue, 04 May 2004 17:07:44 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C4321B.BD233B08"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [PATCH] mxcsr patch for i386 & x86-64
-Date: Tue, 4 May 2004 14:06:59 -0700
-Message-ID: <E305A4AFB7947540BC487567B5449BA802CA7CDE@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] mxcsr patch for i386 & x86-64
-Thread-Index: AcQyFcZmjelREAtZRcGagBNix3NVuAABOGzw
-From: "Kamble, Nitin A" <nitin.a.kamble@intel.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+To: Linus Torvalds <torvalds@osdl.org>
+CC: "Kamble, Nitin A" <nitin.a.kamble@intel.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        "Nakajima, Jun" <jun.nakajima@intel.com>,
        "Mallick, Asit K" <asit.k.mallick@intel.com>,
        "Saxena, Sunil" <sunil.saxena@intel.com>
-X-OriginalArrivalTime: 04 May 2004 21:07:00.0183 (UTC) FILETIME=[BDBA5E70:01C4321B]
+Subject: Re: [PATCH] mxcsr patch for i386 & x86-64
+References: <E305A4AFB7947540BC487567B5449BA802CA7BEC@scsmsx402.sc.intel.com> <Pine.LNX.4.58.0405041201440.3271@ppc970.osdl.org> <Pine.LNX.4.58.0405041225080.3271@ppc970.osdl.org> <Pine.LNX.4.58.0405041322570.3271@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0405041322570.3271@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Linus Torvalds wrote:
+> --- 1.19/arch/i386/kernel/i387.c	Tue Feb  3 21:30:39 2004
+> +++ edited/arch/i386/kernel/i387.c	Tue May  4 13:15:10 2004
+> @@ -24,6 +25,21 @@
+>  #define HAVE_HWFP 1
+>  #endif
+>  
+> +static unsigned long mxcsr_feature_mask = 0xffffffff;
 
-------_=_NextPart_001_01C4321B.BD233B08
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+> --- 1.10/arch/x86_64/kernel/i387.c	Fri Jan 23 12:17:58 2004
+> +++ edited/arch/x86_64/kernel/i387.c	Tue May  4 13:07:35 2004
+> @@ -24,6 +24,18 @@
+>  #include <asm/ptrace.h>
+>  #include <asm/uaccess.h>
+>  
+> +unsigned long mxcsr_feature_mask = 0xffffffff;
+> +
+
+
+Minor/dumb question:  Is the above intentional?
+
+Would be nice to have them the same for consistency if nothing else. 
+i386 and x86-64 common code gets pasted and #include'd all the time.
+
+	Jeff
 
 
 
->Ok,
-> this is my counter-suggestion, based on your patch.
->
->Does this work for you guys? Please re-submit if it passes testing and
->otherwise looks good. I can't test it in any sane way..
->
->		Linus
-
-Yes it works. Only changes from your version of the patch are, mxcsr is
-made int for x86-64, and added a prototype for fpu_init to avoid a
-compile time warning.
-  The new patch is attached. Thanks a lot for the quick comments.
-
-Regards,
-Nitin
-
-------_=_NextPart_001_01C4321B.BD233B08
-Content-Type: application/octet-stream;
-	name="mxcsr_i386_x86-64_2.6.6-rc3_new.patch"
-Content-Transfer-Encoding: base64
-Content-Description: mxcsr_i386_x86-64_2.6.6-rc3_new.patch
-Content-Disposition: attachment;
-	filename="mxcsr_i386_x86-64_2.6.6-rc3_new.patch"
-
-LS0tIDIuNi42LXJjMy9hcmNoL2kzODYva2VybmVsL2NwdS9jb21tb24uYy5vcmlnCTIwMDQtMDUt
-MDMgMTg6MDA6MDMuMDAwMDAwMDAwIC0wNzAwCisrKyAyLjYuNi1yYzMvYXJjaC9pMzg2L2tlcm5l
-bC9jcHUvY29tbW9uLmMJMjAwNC0wNS0wNCAxMzozOTozMS4wMDAwMDAwMDAgLTA3MDAKQEAgLTQ1
-OCw2ICs0NTgsOSBAQAogICogYW5kIElEVC4gV2UgcmVsb2FkIHRoZW0gbmV2ZXJ0aGVsZXNzLCB0
-aGlzIGZ1bmN0aW9uIGFjdHMgYXMgYQogICogJ0NQVSBzdGF0ZSBiYXJyaWVyJywgbm90aGluZyBz
-aG91bGQgZ2V0IGFjcm9zcy4KICAqLworCitleHRlcm4gdm9pZCBmcHVfaW5pdCh2b2lkKTsKKwog
-dm9pZCBfX2luaXQgY3B1X2luaXQgKHZvaWQpCiB7CiAJaW50IGNwdSA9IHNtcF9wcm9jZXNzb3Jf
-aWQoKTsKQEAgLTUzNiw1ICs1MzksNSBAQAogCSAqLwogCWN1cnJlbnRfdGhyZWFkX2luZm8oKS0+
-c3RhdHVzID0gMDsKIAljdXJyZW50LT51c2VkX21hdGggPSAwOwotCXN0dHMoKTsKKwlmcHVfaW5p
-dCgpOwogfQotLS0gMi42LjYtcmMzL2FyY2gvaTM4Ni9rZXJuZWwvaTM4Ny5jLm9yaWcJMjAwNC0w
-NS0wMyAxODowMjoxNi4wMDAwMDAwMDAgLTA3MDAKKysrIDIuNi42LXJjMy9hcmNoL2kzODYva2Vy
-bmVsL2kzODcuYwkyMDA0LTA1LTA0IDEzOjI5OjM1LjAwMDAwMDAwMCAtMDcwMApAQCAtMTAsNiAr
-MTAsNyBAQAogCiAjaW5jbHVkZSA8bGludXgvY29uZmlnLmg+CiAjaW5jbHVkZSA8bGludXgvc2No
-ZWQuaD4KKyNpbmNsdWRlIDxsaW51eC9pbml0Lmg+CiAjaW5jbHVkZSA8YXNtL3Byb2Nlc3Nvci5o
-PgogI2luY2x1ZGUgPGFzbS9pMzg3Lmg+CiAjaW5jbHVkZSA8YXNtL21hdGhfZW11Lmg+CkBAIC0y
-NCw2ICsyNSwyMSBAQAogI2RlZmluZSBIQVZFX0hXRlAgMQogI2VuZGlmCiAKK3N0YXRpYyB1bnNp
-Z25lZCBsb25nIG14Y3NyX2ZlYXR1cmVfbWFzayA9IDB4ZmZmZmZmZmY7CisKK3N0YXRpYyB2b2lk
-IF9faW5pdCBteGNzcl9mZWF0dXJlX21hc2tfaW5pdCh2b2lkKQoreworCXVuc2lnbmVkIGxvbmcg
-bWFzayA9IDA7CisKKwlpZiAoY3B1X2hhc19meHNyKSB7CisJCW1lbXNldCgmY3VycmVudC0+dGhy
-ZWFkLmkzODcuZnhzYXZlLCAwLCBzaXplb2Yoc3RydWN0IGkzODdfZnhzYXZlX3N0cnVjdCkpOwor
-CQlhc20gdm9sYXRpbGUoImZ4c2F2ZSAlMCIgOiA6ICJtIiAoY3VycmVudC0+dGhyZWFkLmkzODcu
-ZnhzYXZlKSk7IAorCQltYXNrID0gY3VycmVudC0+dGhyZWFkLmkzODcuZnhzYXZlLm14Y3NyX21h
-c2s7CisJCWlmIChtYXNrID09IDBVTCkgbWFzayA9IDB4MDAwMGZmYmY7CisJfSAKKwlteGNzcl9m
-ZWF0dXJlX21hc2sgJj0gbWFzazsKK30KKwogLyoKICAqIFRoZSBfY3VycmVudF8gdGFzayBpcyB1
-c2luZyB0aGUgRlBVIGZvciB0aGUgZmlyc3QgdGltZQogICogc28gaW5pdGlhbGl6ZSBpdCBhbmQg
-c2V0IHRoZSBteGNzciB0byBpdHMgZGVmYXVsdApAQCAtMjA0LDEzICsyMjAsNiBAQAogCX0KIH0K
-IAotdm9pZCBzZXRfZnB1X214Y3NyKCBzdHJ1Y3QgdGFza19zdHJ1Y3QgKnRzaywgdW5zaWduZWQg
-c2hvcnQgbXhjc3IgKQotewotCWlmICggY3B1X2hhc194bW0gKSB7Ci0JCXRzay0+dGhyZWFkLmkz
-ODcuZnhzYXZlLm14Y3NyID0gKG14Y3NyICYgMHhmZmJmKTsKLQl9Ci19Ci0KIC8qCiAgKiBGWFNS
-IGZsb2F0aW5nIHBvaW50IGVudmlyb25tZW50IGNvbnZlcnNpb25zLgogICovCkBAIC0zNTUsOCAr
-MzY0LDggQEAKIAljbGVhcl9mcHUoIHRzayApOwogCWVyciA9IF9fY29weV9mcm9tX3VzZXIoICZ0
-c2stPnRocmVhZC5pMzg3LmZ4c2F2ZSwgJmJ1Zi0+X2Z4c3JfZW52WzBdLAogCQkJCXNpemVvZihz
-dHJ1Y3QgaTM4N19meHNhdmVfc3RydWN0KSApOwotCS8qIG14Y3NyIGJpdCA2IGFuZCAzMS0xNiBt
-dXN0IGJlIHplcm8gZm9yIHNlY3VyaXR5IHJlYXNvbnMgKi8KLQl0c2stPnRocmVhZC5pMzg3LmZ4
-c2F2ZS5teGNzciAmPSAweGZmYmY7CisJLyogbXhjc3IgcmVzZXJ2ZWQgYml0cyBtdXN0IGJlIG1h
-c2tlZCB0byB6ZXJvIGZvciBzZWN1cml0eSByZWFzb25zICovCisJdHNrLT50aHJlYWQuaTM4Ny5m
-eHNhdmUubXhjc3IgJj0gbXhjc3JfZmVhdHVyZV9tYXNrOwogCXJldHVybiBlcnIgPyAxIDogY29u
-dmVydF9meHNyX2Zyb21fdXNlciggJnRzay0+dGhyZWFkLmkzODcuZnhzYXZlLCBidWYgKTsKIH0K
-IApAQCAtNDU3LDggKzQ2Niw4IEBACiAJCWlmIChfX2NvcHlfZnJvbV91c2VyKCAmdHNrLT50aHJl
-YWQuaTM4Ny5meHNhdmUsIGJ1ZiwKIAkJCQkgIHNpemVvZihzdHJ1Y3QgdXNlcl9meHNyX3N0cnVj
-dCkgKSkKIAkJCXJldCA9IC1FRkFVTFQ7Ci0JCS8qIG14Y3NyIGJpdCA2IGFuZCAzMS0xNiBtdXN0
-IGJlIHplcm8gZm9yIHNlY3VyaXR5IHJlYXNvbnMgKi8KLQkJdHNrLT50aHJlYWQuaTM4Ny5meHNh
-dmUubXhjc3IgJj0gMHhmZmJmOworCQkvKiBteGNzciByZXNlcnZlZCBiaXRzIG11c3QgYmUgbWFz
-a2VkIHRvIHplcm8gZm9yIHNlY3VyaXR5IHJlYXNvbnMgKi8KKwkJdHNrLT50aHJlYWQuaTM4Ny5m
-eHNhdmUubXhjc3IgJj0gbXhjc3JfZmVhdHVyZV9tYXNrOwogCX0gZWxzZSB7CiAJCXJldCA9IC1F
-SU87CiAJfQpAQCAtNTUxLDMgKzU2MCwxMCBAQAogCX0KIAlyZXR1cm4gZnB2YWxpZDsKIH0KKwor
-dm9pZCBfX2luaXQgZnB1X2luaXQodm9pZCkKK3sKKwljbHRzKCk7CisJbXhjc3JfZmVhdHVyZV9t
-YXNrX2luaXQoKTsKKwlzdHRzKCk7Cit9Ci0tLSAyLjYuNi1yYzMvYXJjaC94ODZfNjQva2VybmVs
-L2kzODcuYy5vcmlnCTIwMDQtMDUtMDMgMTg6MDA6MzEuMDAwMDAwMDAwIC0wNzAwCisrKyAyLjYu
-Ni1yYzMvYXJjaC94ODZfNjQva2VybmVsL2kzODcuYwkyMDA0LTA1LTA0IDEzOjQ0OjM1LjAwMDAw
-MDAwMCAtMDcwMApAQCAtMjQsNiArMjQsMTggQEAKICNpbmNsdWRlIDxhc20vcHRyYWNlLmg+CiAj
-aW5jbHVkZSA8YXNtL3VhY2Nlc3MuaD4KIAordW5zaWduZWQgaW50IG14Y3NyX2ZlYXR1cmVfbWFz
-ayA9IDB4ZmZmZmZmZmY7CisKK3N0YXRpYyB2b2lkIG14Y3NyX2ZlYXR1cmVfbWFza19pbml0KHZv
-aWQpCit7CisJdW5zaWduZWQgbG9uZyBtYXNrOworCW1lbXNldCgmY3VycmVudC0+dGhyZWFkLmkz
-ODcuZnhzYXZlLCAwLCBzaXplb2Yoc3RydWN0IGkzODdfZnhzYXZlX3N0cnVjdCkpOworCWFzbSB2
-b2xhdGlsZSgiZnhzYXZlICUwIiA6IDogIm0iIChjdXJyZW50LT50aHJlYWQuaTM4Ny5meHNhdmUp
-KTsKKwltYXNrID0gY3VycmVudC0+dGhyZWFkLmkzODcuZnhzYXZlLm14Y3NyX21hc2s7CisJaWYg
-KG1hc2sgPT0gMFVMKSBtYXNrID0gMHgwMDAwZmZiZjsKKwlteGNzcl9mZWF0dXJlX21hc2sgJj0g
-bWFzazsKK30KKwogLyoKICAqIENhbGxlZCBhdCBib290dXAgdG8gc2V0IHVwIHRoZSBpbml0aWFs
-IEZQVSBzdGF0ZSB0aGF0IGlzIGxhdGVyIGNsb25lZAogICogaW50byBhbGwgcHJvY2Vzc2VzLgpA
-QCAtNDAsNiArNTIsOCBAQAogCiAJd3JpdGVfY3IwKG9sZGNyMCAmIH4oKDFVTDw8Myl8KDFVTDw8
-MikpKTsgLyogY2xlYXIgVFMgYW5kIEVNICovCiAKKwljbHRzKCk7CisJbXhjc3JfZmVhdHVyZV9t
-YXNrX2luaXQoKTsKIAkvKiBjbGVhbiBzdGF0ZSBpbiBpbml0ICovCiAJc3R0cygpOwogCWN1cnJl
-bnRfdGhyZWFkX2luZm8oKS0+c3RhdHVzID0gMDsKLS0tIDIuNi42LXJjMy9hcmNoL3g4Nl82NC9p
-YTMyL2ZwdTMyLmMub3JpZwkyMDA0LTA1LTAzIDE4OjAwOjAyLjAwMDAwMDAwMCAtMDcwMAorKysg
-Mi42LjYtcmMzL2FyY2gveDg2XzY0L2lhMzIvZnB1MzIuYwkyMDA0LTA1LTA0IDEzOjI5OjM1LjAw
-MDAwMDAwMCAtMDcwMApAQCAtMTU1LDcgKzE1NSw3IEBACiAJCQkJICAgICAmYnVmLT5fZnhzcl9l
-bnZbMF0sCiAJCQkJICAgICBzaXplb2Yoc3RydWN0IGkzODdfZnhzYXZlX3N0cnVjdCkpKQogCQkJ
-cmV0dXJuIC0xOwotCXRzay0+dGhyZWFkLmkzODcuZnhzYXZlLm14Y3NyICY9IDB4ZmZiZjsKKwkJ
-dHNrLT50aHJlYWQuaTM4Ny5meHNhdmUubXhjc3IgJj0gbXhjc3JfZmVhdHVyZV9tYXNrOwogCQl0
-c2stPnVzZWRfbWF0aCA9IDE7CiAJfSAKIAlyZXR1cm4gY29udmVydF9meHNyX2Zyb21fdXNlcigm
-dHNrLT50aHJlYWQuaTM4Ny5meHNhdmUsIGJ1Zik7Ci0tLSAyLjYuNi1yYzMvYXJjaC94ODZfNjQv
-aWEzMi9wdHJhY2UzMi5jLm9yaWcJMjAwNC0wNS0wMyAxODowMDozMS4wMDAwMDAwMDAgLTA3MDAK
-KysrIDIuNi42LXJjMy9hcmNoL3g4Nl82NC9pYTMyL3B0cmFjZTMyLmMJMjAwNC0wNS0wNCAxMzoy
-OTozNS4wMDAwMDAwMDAgLTA3MDAKQEAgLTM1NywxMCArMzU3LDEwIEBACiAJCS8qIG5vIGNoZWNr
-aW5nIHRvIGJlIGJ1Zy10by1idWcgY29tcGF0aWJsZSB3aXRoIGkzODYgKi8KIAkJX19jb3B5X2Zy
-b21fdXNlcigmY2hpbGQtPnRocmVhZC5pMzg3LmZ4c2F2ZSwgdSwgc2l6ZW9mKCp1KSk7CiAJCWNo
-aWxkLT51c2VkX21hdGggPSAxOwotCSAgICAgICAgY2hpbGQtPnRocmVhZC5pMzg3LmZ4c2F2ZS5t
-eGNzciAmPSAweGZmYmY7CisJCWNoaWxkLT50aHJlYWQuaTM4Ny5meHNhdmUubXhjc3IgJj0gbXhj
-c3JfZmVhdHVyZV9tYXNrOwogCQlyZXQgPSAwOyAKLQkJCWJyZWFrOwotCQl9CisJCWJyZWFrOwor
-CX0KIAogCWRlZmF1bHQ6CiAJCXJldCA9IC1FSU5WQUw7Ci0tLSAyLjYuNi1yYzMvaW5jbHVkZS9h
-c20teDg2XzY0L2kzODcuaC5vcmlnCTIwMDQtMDUtMDMgMTg6MDE6MDIuMDAwMDAwMDAwIC0wNzAw
-CisrKyAyLjYuNi1yYzMvaW5jbHVkZS9hc20teDg2XzY0L2kzODcuaAkyMDA0LTA1LTA0IDEzOjQ0
-OjEwLjAwMDAwMDAwMCAtMDcwMApAQCAtMjMsNiArMjMsOCBAQAogZXh0ZXJuIHZvaWQgaW5pdF9m
-cHUoc3RydWN0IHRhc2tfc3RydWN0ICpjaGlsZCk7CiBleHRlcm4gaW50IHNhdmVfaTM4NyhzdHJ1
-Y3QgX2Zwc3RhdGUgKmJ1Zik7CiAKK2V4dGVybiB1bnNpZ25lZCBpbnQgbXhjc3JfZmVhdHVyZV9t
-YXNrOworCiBzdGF0aWMgaW5saW5lIGludCBuZWVkX3NpZ25hbF9pMzg3KHN0cnVjdCB0YXNrX3N0
-cnVjdCAqbWUpIAogeyAKIAlpZiAoIW1lLT51c2VkX21hdGgpCkBAIC01MiwxMSArNTQsNiBAQAog
-CX0JCQkJCQkJXAogfSB3aGlsZSAoMCkKIAotI2RlZmluZSBsb2FkX214Y3NyKHZhbCkgZG8geyBc
-Ci0JCXVuc2lnbmVkIGxvbmcgX19teGNzciA9ICgodW5zaWduZWQgbG9uZykodmFsKSAmIDB4ZmZi
-Zik7IFwKLQkJYXNtIHZvbGF0aWxlKCJsZG14Y3NyICUwIiA6IDogIm0iIChfX214Y3NyKSk7IFwK
-LX0gd2hpbGUgKDApCi0KIC8qCiAgKiBwdHJhY2UgcmVxdWVzdCBoYW5kZXJzLi4uCiAgKi8KQEAg
-LTc1LDcgKzcyLDYgQEAKICNkZWZpbmUgc2V0X2ZwdV9jd2QodCx2YWwpICgodCktPnRocmVhZC5p
-Mzg3LmZ4c2F2ZS5jd2QgPSAodmFsKSkKICNkZWZpbmUgc2V0X2ZwdV9zd2QodCx2YWwpICgodCkt
-PnRocmVhZC5pMzg3LmZ4c2F2ZS5zd2QgPSAodmFsKSkKICNkZWZpbmUgc2V0X2ZwdV9meHNyX3R3
-ZCh0LHZhbCkgKCh0KS0+dGhyZWFkLmkzODcuZnhzYXZlLnR3ZCA9ICh2YWwpKQotI2RlZmluZSBz
-ZXRfZnB1X214Y3NyKHQsdmFsKSAoKHQpLT50aHJlYWQuaTM4Ny5meHNhdmUubXhjc3IgPSAodmFs
-KSYweGZmYmYpCiAKIHN0YXRpYyBpbmxpbmUgaW50IHJlc3RvcmVfZnB1X2NoZWNraW5nKHN0cnVj
-dCBpMzg3X2Z4c2F2ZV9zdHJ1Y3QgKmZ4KSAKIHsgCi0tLSAyLjYuNi1yYzMvaW5jbHVkZS9hc20t
-aTM4Ni9pMzg3Lmgub3JpZwkyMDA0LTA1LTAzIDE4OjAxOjMxLjAwMDAwMDAwMCAtMDcwMAorKysg
-Mi42LjYtcmMzL2luY2x1ZGUvYXNtLWkzODYvaTM4Ny5oCTIwMDQtMDUtMDQgMTM6Mjk6MzUuMDAw
-MDAwMDAwIC0wNzAwCkBAIC0xMiwxMCArMTIsMTMgQEAKICNkZWZpbmUgX19BU01fSTM4Nl9JMzg3
-X0gKIAogI2luY2x1ZGUgPGxpbnV4L3NjaGVkLmg+CisjaW5jbHVkZSA8bGludXgvaW5pdC5oPgor
-CiAjaW5jbHVkZSA8YXNtL3Byb2Nlc3Nvci5oPgogI2luY2x1ZGUgPGFzbS9zaWdjb250ZXh0Lmg+
-CiAjaW5jbHVkZSA8YXNtL3VzZXIuaD4KIAorZXh0ZXJuIHZvaWQgX19pbml0IGZwdV9pbml0KHZv
-aWQpOwogZXh0ZXJuIHZvaWQgaW5pdF9mcHUoc3RydWN0IHRhc2tfc3RydWN0ICopOwogLyoKICAq
-IEZQVSBsYXp5IHN0YXRlIHNhdmUgaGFuZGxpbmcuLi4KQEAgLTg5LDEyICs5Miw2IEBACiBleHRl
-cm4gdm9pZCBzZXRfZnB1X2N3ZCggc3RydWN0IHRhc2tfc3RydWN0ICp0c2ssIHVuc2lnbmVkIHNo
-b3J0IGN3ZCApOwogZXh0ZXJuIHZvaWQgc2V0X2ZwdV9zd2QoIHN0cnVjdCB0YXNrX3N0cnVjdCAq
-dHNrLCB1bnNpZ25lZCBzaG9ydCBzd2QgKTsKIGV4dGVybiB2b2lkIHNldF9mcHVfdHdkKCBzdHJ1
-Y3QgdGFza19zdHJ1Y3QgKnRzaywgdW5zaWduZWQgc2hvcnQgdHdkICk7Ci1leHRlcm4gdm9pZCBz
-ZXRfZnB1X214Y3NyKCBzdHJ1Y3QgdGFza19zdHJ1Y3QgKnRzaywgdW5zaWduZWQgc2hvcnQgbXhj
-c3IgKTsKLQotI2RlZmluZSBsb2FkX214Y3NyKCB2YWwgKSBkbyB7IFwKLQl1bnNpZ25lZCBsb25n
-IF9fbXhjc3IgPSAoKHVuc2lnbmVkIGxvbmcpKHZhbCkgJiAweGZmYmYpOyBcCi0JYXNtIHZvbGF0
-aWxlKCAibGRteGNzciAlMCIgOiA6ICJtIiAoX19teGNzcikgKTsgXAotfSB3aGlsZSAoMCkKIAog
-LyoKICAqIFNpZ25hbCBmcmFtZSBoYW5kbGVycy4uLgotLS0gMi42LjYtcmMzL2luY2x1ZGUvYXNt
-LWkzODYvcHJvY2Vzc29yLmgub3JpZwkyMDA0LTA1LTAzIDE4OjAwOjAzLjAwMDAwMDAwMCAtMDcw
-MAorKysgMi42LjYtcmMzL2luY2x1ZGUvYXNtLWkzODYvcHJvY2Vzc29yLmgJMjAwNC0wNS0wNCAx
-MzoyOTozNS4wMDAwMDAwMDAgLTA3MDAKQEAgLTMzMiw3ICszMzIsNyBAQAogCWxvbmcJZm9vOwog
-CWxvbmcJZm9zOwogCWxvbmcJbXhjc3I7Ci0JbG9uZwlyZXNlcnZlZDsKKwlsb25nCW14Y3NyX21h
-c2s7CiAJbG9uZwlzdF9zcGFjZVszMl07CS8qIDgqMTYgYnl0ZXMgZm9yIGVhY2ggRlAtcmVnID0g
-MTI4IGJ5dGVzICovCiAJbG9uZwl4bW1fc3BhY2VbMzJdOwkvKiA4KjE2IGJ5dGVzIGZvciBlYWNo
-IFhNTS1yZWcgPSAxMjggYnl0ZXMgKi8KIAlsb25nCXBhZGRpbmdbNTZdOwo=
-
-------_=_NextPart_001_01C4321B.BD233B08--

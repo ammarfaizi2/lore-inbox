@@ -1,81 +1,274 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270387AbRHMStz>; Mon, 13 Aug 2001 14:49:55 -0400
+	id <S270405AbRHMSyp>; Mon, 13 Aug 2001 14:54:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270401AbRHMStq>; Mon, 13 Aug 2001 14:49:46 -0400
-Received: from mail.nep.net ([12.23.44.24]:39184 "HELO nep.net")
-	by vger.kernel.org with SMTP id <S270387AbRHMSti>;
-	Mon, 13 Aug 2001 14:49:38 -0400
-Message-ID: <19AB8F9FA07FB0409732402B4817D75A038A5F@FILESERVER.SRF.srfarms.com>
-From: "Ryan C. Bonham" <Ryan@srfarms.com>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Hang problem on Tyan K7 Thunder resolved -- SB Live! heads-up
-Date: Mon, 13 Aug 2001 14:53:34 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S270401AbRHMSyh>; Mon, 13 Aug 2001 14:54:37 -0400
+Received: from draco.cus.cam.ac.uk ([131.111.8.18]:32692 "EHLO
+	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S270408AbRHMSyX>; Mon, 13 Aug 2001 14:54:23 -0400
+Message-Id: <5.1.0.14.2.20010813194733.03dc0a10@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 13 Aug 2001 19:54:32 +0100
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Hang problem on Tyan K7 Thunder resolved -- SB Live!
+  heads-up
+Cc: rui.p.m.sousa@clix.pt, alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds), pgallen@randomlogic.com,
+        linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Ok I am going to stick my two cents in here.. I am not a Linux programmer,
-and I am not going to pretend I am, but I do use Linux, have for quite some
-time.. I am also implementing Linux in a business.. At home I use custom
-built kernels, and play with experimental drivers, etc.. I patch/compile new
-kernels all the time. I am running 2.4.8 at my house..(I have a sound
-blaster live, and haven't had any problems with that...(all this is besides
-the point)..
-
-Anyways,  more to the point.. I don't see the problem with linus putting the
-new driver in the 2.4.8 kernel.. Users who are compiling their own kernels,
-know that a broken driver is a risk with any kernel.. And for the rest of
-the users that rely on Redhat or another Dist company to provide kernels,
-are fine, because I know Redhat won't package 2.4.8 with a broken sound
-driver like that.. They will either fix (patch) it, or use 2.4.7.. As far as
-this being a stable kernel release.. Ok that's true, so why not put it in
-the AC tree and work out the bugs with there instead of Linus kernel..
-
-So my basic question is; Alan, can you leave the new sound driver in your AC
-kernels? Your kernels are great, and I would love to run them with the new
-driver, even if it means I have to find some problems... 
-
-Ok i am done putting my two cents in where it is't wanted :)
-
-Ryan
-
-> -----Original Message-----
-> From: Linus Torvalds [mailto:torvalds@transmeta.com]
-> Sent: Sunday, August 12, 2001 6:10 PM
-> To: Alan Cox
-> Cc: Manuel McLure; linux-kernel@vger.kernel.org
-> Subject: Re: Hang problem on Tyan K7 Thunder resolved -- SB Live!
-> heads-up
-> 
-> 
-> 
-> On Sun, 12 Aug 2001, Alan Cox wrote:
+At 13:35 13/08/01, Alan Cox wrote:
+> > > It hung my SMP box solid
+> > > It spews white noise on my box with surround speakers
 > >
-> > so I think Linus should do the only sane thing - back it 
-> out. I'm backing
-> > it out of -ac. Of my three boxes, one spews noise, one 
-> locks up smp and
-> > one works.
-> 
-> The problem with backing it out is that apparently nobody has tried to
-> really maintain it for a year, and if it gets backed out 
-> nobody will even
-> bother to try to fix it. So I'll let it be for a while, at least.
-> 
-> 		Linus
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> > Digital or analog speakers?
+>
+>Analogue four output - I didnt know you had digital out working
+
+To follow myself up: the new driver as found in 2.4.9-pre2 works fine for 
+me on my GX440 dual celeron (Tyan Thunder Pro S1836DLUAN mobo). The driver 
+is compiled into the kernel and I only tried digital output connected to a 
+DTT2500 surround system.
+
+No hangs while playing several mp3s (in X 4.0.3), seeking around them, etc. 
+So the driver isn't all bad... It behaves exactly the same as the old one 
+for my limited application test set.
+
+Is it perhaps specific to the chipset and/or the actual type of SB Live 
+card? - I have the original SB Live! (lspci -vvv output below).
+
+Or does the hang only trigger when you do something specific? I could try 
+to reproduce...
+
+Anton
+
+00:00.0 Host bridge: Intel Corporation 440GX - 82443GX Host bridge
+         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr+ Stepping- SERR+ FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort+ >SERR- <PERR-
+         Latency: 64
+         Region 0: Memory at e0000000 (32-bit, prefetchable) [size=256M]
+         Capabilities: [a0] AGP version 1.0
+                 Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
+                 Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+00:01.0 PCI bridge: Intel Corporation 440GX - 82443GX AGP bridge (prog-if 
+00 [Normal decode])
+         Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV+ VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+         Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 64
+         Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+         I/O behind bridge: 0000c000-0000cfff
+         Memory behind bridge: fd300000-fe3fffff
+         Prefetchable memory behind bridge: d9000000-dd0fffff
+         BridgeCtl: Parity+ SERR- NoISA- VGA+ MAbort- >Reset- FastB2B+
+00:07.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
+         Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 0
+00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01) 
+(prog-if 80 [Master])
+         Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 64
+         Region 4: I/O ports at ffa0 [size=16]
+00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01) 
+(prog-if 00 [UHCI])
+         Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 64
+         Interrupt: pin D routed to IRQ 11
+         Region 4: I/O ports at ef80 [size=32]
+00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 02)
+         Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Interrupt: pin ? routed to IRQ 9
+00:10.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 03) 
+(prog-if 00 [Normal decode])
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 64, cache line size 08
+         Bus: primary=00, secondary=02, subordinate=02, sec-latency=64
+         I/O behind bridge: 0000d000-0000dfff
+         Memory behind bridge: fe400000-fe4fffff
+         Prefetchable memory behind bridge: 00000000dd100000-00000000dd100000
+         BridgeCtl: Parity+ SERR+ NoISA- VGA- MAbort- >Reset- FastB2B-
+         Capabilities: [dc] Power Management version 1
+                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=220mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+                 Bridge: PM- B3+
+00:11.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] 
+(rev 05)
+         Subsystem: Intel Corporation 82558 10/100 with Wake on LAN
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 64 (2000ns min, 14000ns max), cache line size 08
+         Interrupt: pin A routed to IRQ 11
+         Region 0: Memory at fd2ff000 (32-bit, prefetchable) [size=4K]
+         Region 1: I/O ports at ef40 [size=32]
+         Region 2: Memory at fea00000 (32-bit, non-prefetchable) [size=1M]
+         Expansion ROM at fe900000 [disabled] [size=1M]
+         Capabilities: [dc] Power Management version 1
+                 Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA 
+PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+00:12.0 SCSI storage controller: Adaptec AHA-2940U/UW / AHA-39xx / AIC-7895 
+(rev 04)
+         Subsystem: Adaptec AHA-2940U/2940UW Dual AHA-394xAU/AUW/AUWD AIC-7895B
+         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 64 (2000ns min, 2000ns max), cache line size 08
+         Interrupt: pin A routed to IRQ 10
+         Region 0: I/O ports at e400 [disabled] [size=256]
+         Region 1: Memory at febfe000 (32-bit, non-prefetchable) [size=4K]
+         Expansion ROM at febe0000 [disabled] [size=64K]
+         Capabilities: [dc] Power Management version 1
+                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+00:12.1 SCSI storage controller: Adaptec AHA-2940U/UW / AHA-39xx / AIC-7895 
+(rev 04)
+         Subsystem: Adaptec AHA-2940U/2940UW Dual AHA-394xAU/AUW/AUWD AIC-7895B
+         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 64 (2000ns min, 2000ns max), cache line size 08
+         Interrupt: pin B routed to IRQ 10
+         Region 0: I/O ports at e800 [disabled] [size=256]
+         Region 1: Memory at febff000 (32-bit, non-prefetchable) [size=4K]
+         Capabilities: [dc] Power Management version 1
+                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+00:14.0 Multimedia controller: Sigma Designs, Inc. REALmagic Hollywood Plus 
+DVD Decoder (rev 02)
+         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 64
+         Interrupt: pin A routed to IRQ 9
+         Region 0: Memory at fe800000 (32-bit, non-prefetchable) [size=1M]
+         Capabilities: [40] Power Management version 1
+                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 
+04) (prog-if 00 [VGA])
+         Subsystem: Matrox Graphics, Inc. Millennium G400 MAX/Dual Head 32Mb
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 64 (4000ns min, 8000ns max), cache line size 08
+         Interrupt: pin A routed to IRQ 10
+         Region 0: Memory at da000000 (32-bit, prefetchable) [size=32M]
+         Region 1: Memory at fe3fc000 (32-bit, non-prefetchable) [size=16K]
+         Region 2: Memory at fd800000 (32-bit, non-prefetchable) [size=8M]
+         Expansion ROM at fe3e0000 [disabled] [size=64K]
+         Capabilities: [dc] Power Management version 2
+                 Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+         Capabilities: [f0] AGP version 2.0
+                 Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
+                 Command: RQ=31 SBA+ AGP+ 64bit- FW- Rate=x1
+02:05.0 Multimedia audio controller: Creative Labs SB Live! EMU10000 (rev 05)
+         Subsystem: Creative Labs CT4620 SBLive!
+         Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 64 (500ns min, 5000ns max)
+         Interrupt: pin A routed to IRQ 9
+         Region 0: I/O ports at df80 [size=32]
+         Capabilities: [dc] Power Management version 1
+                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+02:05.1 Input device controller: Creative Labs SB Live! (rev 05)
+         Subsystem: Creative Labs Gameport Joystick
+         Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 64
+         Region 0: I/O ports at dff0 [size=8]
+         Capabilities: [dc] Power Management version 1
+                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+02:06.0 Multimedia video controller: Brooktree Corporation Bt878 (rev 11)
+         Subsystem: Hauppauge computer works Inc.: Unknown device 13eb
+         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 64 (4000ns min, 10000ns max)
+         Interrupt: pin A routed to IRQ 5
+         Region 0: Memory at dd1fe000 (32-bit, prefetchable) [size=4K]
+         Capabilities: [44] Vital Product Data
+         Capabilities: [4c] Power Management version 2
+                 Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+02:06.1 Multimedia controller: Brooktree Corporation Bt878 (rev 11)
+         Subsystem: Hauppauge computer works Inc.: Unknown device 13eb
+         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 64 (1000ns min, 63750ns max)
+         Interrupt: pin A routed to IRQ 5
+         Region 0: Memory at dd1ff000 (32-bit, prefetchable) [size=4K]
+         Capabilities: [44] Vital Product Data
+         Capabilities: [4c] Power Management version 2
+                 Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+
+
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

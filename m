@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288998AbSANTaY>; Mon, 14 Jan 2002 14:30:24 -0500
+	id <S288973AbSANTee>; Mon, 14 Jan 2002 14:34:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288990AbSANT3F>; Mon, 14 Jan 2002 14:29:05 -0500
-Received: from mout04.kundenserver.de ([195.20.224.89]:1608 "EHLO
-	mout04.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S288981AbSANT2c>; Mon, 14 Jan 2002 14:28:32 -0500
-Date: Mon, 14 Jan 2002 20:29:25 +0100
-From: Heinz Diehl <hd@cavy.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: slowdown with new scheduler.
-Message-ID: <20020114192925.GA4441@elfie.cavy.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020114124541.A32412@suse.de> <20020114172010.GA173@elfie.cavy.de>
+	id <S288960AbSANTdQ>; Mon, 14 Jan 2002 14:33:16 -0500
+Received: from zero.tech9.net ([209.61.188.187]:48132 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S288995AbSANTcU>;
+	Mon, 14 Jan 2002 14:32:20 -0500
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+From: Robert Love <rml@tech9.net>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, zippel@linux-m68k.org,
+        ken@canit.se, arjan@fenrus.demon.nl, landley@trommello.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020114160256.A2922@werewolf.able.es>
+In-Reply-To: <200201140033.BAA04292@webserver.ithnet.com>
+	<E16PvKx-00005L-00@the-village.bc.nu>
+	<20020114104532.59950d86.skraw@ithnet.com> 
+	<20020114160256.A2922@werewolf.able.es>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 14 Jan 2002 14:35:13 -0500
+Message-Id: <1011036915.4604.2.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020114172010.GA173@elfie.cavy.de>
-User-Agent: Mutt/1.3.25-current-20020102i (Linux 2.4.18-pre3 i586)
-Organization: private site in Mannheim/Germany
-X-PGP-Key: To get my public-key, send mail with subject 'get pgpkey'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Jan 14 2002, Heinz Diehl wrote:
+On Mon, 2002-01-14 at 10:02, J.A. Magallon wrote:
 
-> 2.4.18-pre3	 	    real    7m55.243s
-> 			    user    6m34.080s
-> 			    sys     0m27.610s
-> 
-> 2.4.18-pre+H7		    real    7m35.962s
-> 			    user    6m34.270s
-> 			    sys     0m27.700s
-> 
-> 2.4.18-pre3-ac2	    real    7m39.203s
-> 			    user    6m34.110s
-> 			    sys     0m28.740s
-> 
+> Yup. That remind me of...
+> Would there be any kernel call every driver is doing just to hide there
+> a conditional_schedule() so everyone does it even without knowledge of it ?
+> Just like Apple put the SystemTask() inside GetNextEvent()...
 
-2.4.18-pre3+H7+preempt-rml  real    6m58.983s
- 			    user    6m34.500s
- 			    sys     0m27.820s
+It's not nearly that easy.  If it were, we would all certainly switch to
+the preemptive kernel design, and preempt whenever and wherever we
+needed.
 
-:))
+Instead, we have to worry about reentrancy and thus can not preempt
+inside critical regions (denoted by spinlocks).  So we can't have
+preempt there, and have more work to do -- thus this discussion.
 
--- 
-# Heinz Diehl, 68259 Mannheim, Germany
+	Robert Love
+

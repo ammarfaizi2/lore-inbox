@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129875AbQK0QSL>; Mon, 27 Nov 2000 11:18:11 -0500
+        id <S129870AbQK0QVl>; Mon, 27 Nov 2000 11:21:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129950AbQK0QSB>; Mon, 27 Nov 2000 11:18:01 -0500
-Received: from web310.mail.yahoo.com ([216.115.105.75]:17166 "HELO
-        web310.mail.yahoo.com") by vger.kernel.org with SMTP
-        id <S129875AbQK0QRt>; Mon, 27 Nov 2000 11:17:49 -0500
-Message-ID: <20001127154743.27705.qmail@web310.mail.yahoo.com>
-Date: Mon, 27 Nov 2000 07:47:43 -0800 (PST)
-From: Kaustubh Phanse <ksphanse@yahoo.com>
-Subject: Error after make bzImage
+        id <S129950AbQK0QVb>; Mon, 27 Nov 2000 11:21:31 -0500
+Received: from mailx.planet-interkom.de ([195.182.114.81]:4615 "EHLO
+        mail.vi-internet.de") by vger.kernel.org with ESMTP
+        id <S129870AbQK0QVO>; Mon, 27 Nov 2000 11:21:14 -0500
+From: Niels Happel <nhappel@planet-interkom.de>
+Date: Mon, 27 Nov 2000 16:56:20 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
+Subject: Possible SCSI or ISOFS Bug in 2.4.0-test11
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <00112716562000.01054@ws-20>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello everybody,
 
-Hello!
+first of all: I am new to the linux-kernel list, so I don't know wheather 
+writing here is allowed for everybody or developers only.
 
-      I am trying to recompile my kernel after adding
-some patches... After making the changes, I first run
-make dep and then make clean...both run fine. However,
-after running make bzImage it gives me the following
-errors:
+Anyway, here it is:
 
-make[2]: *** [ksyms.o] Error 1
-make[2]: Leaving directory
-`/usr/src/linux-2.2.16/kernel'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory
-`/usr/src/linux-2.2.16/kernel'
-make: *** [_dir_kernel] Error 2                      
+Hardware (SCSI-only system):
 
-I was not able to figure out what may be causing this
-problem. Can some one please help me out with this
-one?
+Tekram 390 U2W (SYM53C8XX support compiled into the kernel)
+IBM U2W SCSI disks
+HP DAT SCSI Streamer
+Pioneer SCSI DVD
+Yamaha SCSI CD R/W
 
-Thank you very much
-Kaustubh
+Using kernel 2.4.0-test10 and earlier everything works fine. 
+Using 2.4.0-test11 with the same kernel configuration an error message 
+occured while accessing one of the mounted SCSI CD-ROMs:
+"kernel: _isofs_bmap: block < 0"
+Mounting them works fine, accessing them gives that error message.
+It can't be an SCSI CD-ROM hardware failure, because the error message 
+occured at both drives (Pioneer and Yamaha) and it doesn't matter which 
+CD-ROM I am using.
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Shopping - Thousands of Stores. Millions of Products.
-http://shopping.yahoo.com/
+
+Any hints?
+
+
+-- 
+Many greetings, 
+                    Niels!
+
+nhappel@planet-interkom.de
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

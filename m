@@ -1,67 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbVAMTOT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVAMTOV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261349AbVAMTOT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 14:14:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVAMTM3
+	id S261210AbVAMTOV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 14:14:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVAMQlz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 14:12:29 -0500
-Received: from orb.pobox.com ([207.8.226.5]:17839 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S261356AbVAMTHQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 14:07:16 -0500
-Subject: Re: [ck] 2.6.10-ck4
-From: Rodney Gordon II <meff@pobox.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux <linux-kernel@vger.kernel.org>, CK Kernel <ck@vds.kolivas.org>
-In-Reply-To: <41E680A2.3010000@kolivas.org>
-References: <41E680A2.3010000@kolivas.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-hJnhHHhOaD7IMPuAiX4N"
-Date: Thu, 13 Jan 2005 13:07:07 -0600
-Message-Id: <1105643227.6038.11.camel@ghreen>
+	Thu, 13 Jan 2005 11:41:55 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:34532 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261232AbVAMQl0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 11:41:26 -0500
+Subject: Re: thoughts on kernel security issues
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: grendel@caudium.net
+Cc: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050113035331.GC9176@beowulf.thanes.org>
+References: <20050112094807.K24171@build.pdx.osdl.net>
+	 <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>
+	 <20050112185133.GA10687@kroah.com>
+	 <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
+	 <20050112161227.GF32024@logos.cnet>
+	 <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>
+	 <20050112205350.GM24518@redhat.com>
+	 <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org>
+	 <20050113032506.GB1212@redhat.com>
+	 <20050113035331.GC9176@beowulf.thanes.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1105627951.4664.32.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 13 Jan 2005 15:36:33 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Iau, 2005-01-13 at 03:53, Marek Habersack wrote:
+> That might be, but note one thing: not everybody runs vendor kernels (for various
+> reasons). Now see what happens when the super-secret vulnerability (with
+> vendor fixes) is described in an advisory. A person managing a park of machines 
+> (let's say 100) with custom, non-vendor, kernels suddenly finds out that they 
+> have a buggy kernel and 100 machines to upgrade while the exploit and the
 
---=-hJnhHHhOaD7IMPuAiX4N
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Those running 2.4 non-vendor kernels are just fine because Marcelo
+chooses to work with vendor-sec while Linus chooses not to. I choose to
+work with vendor-sec so generally the -ac tree is also fairly prompt on
+fixing things. 
 
-On Fri, 2005-01-14 at 01:07 +1100, Con Kolivas wrote:
-> 2.6.10-ck3 was a brown paper bag release. A poorly considered last=20
-> minute change made for some odd starvation problems. For this release I=20
-> rewrote a large section of the staircase code that had been troubling me=20
-> and been getting steadily worse. In the process I've made the semantics=20
-> of resuming an old timeslice much simpler and more predictable.
+Given that base 2.6 kernels are shipped by Linus with known unfixed
+security holes anyone trying to use them really should be doing some
+careful thinking. In truth no 2.6 released kernel is suitable for
+anything but beta testing until you add a few patches anyway. 
 
-Very nice, though, I am still feeling a little bit of lag when compiling
-a kernel at nice 0 (-j2/3 helps and running at nice 10 fixes) which was
-not present in ck1/2, and not present in vanilla. I am assuming this
-will be really hard to track down :(
+2.6.9 for example went out with known holes and broken AX.25 (known) 
+2.6.10 went out with the known holes mostly fixed but memory corrupting
+bugs, AX.25 still broken and the wrong fix applied for the smb holes so
+SMB doesn't work on it
 
-As far as games and cedega, these problems and sound problems have been
-fixed! :)
+I still think the 2.6 model works well because its making very good
+progress and then others are doing testing and quality management on it.
+Linus is doing the stuff he is good at and other people are doing the
+stuff he doesn't.
 
-Now, if we can get rid of that lag at nice 0, it'd be perfect!
-
-Good work Con.
-
--r
---=20
-Rodney Gordon II (meff)             |         meff <at> pobox <dot> com
-
---=-hJnhHHhOaD7IMPuAiX4N
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBB5sbbwAh1Un/0srwRAmG4AKCWf6F3Dk5zYjLr9ICJDyOpN2UczgCeNJ73
-nG946IALq5M1RFuMW/ji7PE=
-=EMo8
------END PGP SIGNATURE-----
-
---=-hJnhHHhOaD7IMPuAiX4N--
+That change of model changes the security model too however.
 

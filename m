@@ -1,37 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264920AbUFLU7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264922AbUFLVAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264920AbUFLU7I (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 16:59:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264922AbUFLU7I
+	id S264922AbUFLVAo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 17:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264923AbUFLVAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 16:59:08 -0400
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:59114 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S264920AbUFLU7G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 16:59:06 -0400
-Date: Sat, 12 Jun 2004 13:59:03 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Koblinger Egmont <egmont@uhulinux.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: information leak in vga console scrollback buffer
-Message-ID: <20040612205903.GA22428@taniwha.stupidest.org>
-References: <Pine.LNX.4.58L0.0406122137480.20424@sziami.cs.bme.hu> <20040612204352.GA22347@taniwha.stupidest.org> <Pine.LNX.4.58L0.0406122253580.25004@sziami.cs.bme.hu>
+	Sat, 12 Jun 2004 17:00:43 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:49704 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S264922AbUFLVA3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 17:00:29 -0400
+Date: Sat, 12 Jun 2004 23:08:20 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andi Kleen <ak@muc.de>
+Cc: Steve Hemond <steve.hemond@sympatico.ca>, linux-kernel@vger.kernel.org
+Subject: Re: Inserting a module (2.6 kernel)
+Message-ID: <20040612210820.GA2405@mars.ravnborg.org>
+Mail-Followup-To: Andi Kleen <ak@muc.de>,
+	Steve Hemond <steve.hemond@sympatico.ca>,
+	linux-kernel@vger.kernel.org
+References: <24Zio-6xX-3@gated-at.bofh.it> <m3oentkqpd.fsf@averell.firstfloor.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58L0.0406122253580.25004@sziami.cs.bme.hu>
+In-Reply-To: <m3oentkqpd.fsf@averell.firstfloor.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 12, 2004 at 10:54:43PM +0200, Koblinger Egmont wrote:
+On Wed, Jun 09, 2004 at 11:47:58AM +0200, Andi Kleen wrote:
+> 
+> Now since 2.6.5 or so it needs: 
+> 
+> /* MODULE is not needed anymore */
+> #define __KERNEL__1 
+> #include <linux/module.h>
+> 
+> int init_module(void)
+> {
+>         printk("Hello world\n");
+>         return 0;
+> }
+> 
+> struct module __this_module
+> __attribute__((section(".gnu.linkonce.this_module"))) = {
+>         .name = "hello",
+>         .init = init_module,
+> };
 
-> Rationale? (At least an rtfm-like pointer to that?)
+Most of the glue above can be deleted if you just accept to use kbuild when
+building modules.
+So to compile your module use a simple Makefile:
+obj-m := mymodule.o
 
-Maybe I didn't full understand you.  Generally I find it desirable to
-be able to read things that scrolled off the screen a long time ago.
-It's very useful for unattended machines if I need to 'look' back.
+Then to compile the module use:
+make -C path/to/kernel/src M=`pwd`
 
-I take it you're talking about something beyond that?
+And to install it use:
+make -C path/to/kernel/src M=`pwd` modules_install
 
+And to clean up in the directory where the module is being compiled:
+make -C path/to/kernel/src M=`pwd` clean
 
-   --cw
+	Sam

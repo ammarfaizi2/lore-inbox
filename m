@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316649AbSHTJBq>; Tue, 20 Aug 2002 05:01:46 -0400
+	id <S316705AbSHTJGN>; Tue, 20 Aug 2002 05:06:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316659AbSHTJBq>; Tue, 20 Aug 2002 05:01:46 -0400
-Received: from [62.40.73.125] ([62.40.73.125]:43984 "HELO Router")
-	by vger.kernel.org with SMTP id <S316649AbSHTJBq>;
-	Tue, 20 Aug 2002 05:01:46 -0400
-Date: Tue, 20 Aug 2002 11:05:21 +0200
-From: Jan Hudec <bulb@cimice.maxinet.cz>
-To: Stephane Wirtel <stephane.wirtel@belgacom.net>
+	id <S316662AbSHTJGJ>; Tue, 20 Aug 2002 05:06:09 -0400
+Received: from dp.samba.org ([66.70.73.150]:37021 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S316675AbSHTJGG>;
+	Tue, 20 Aug 2002 05:06:06 -0400
+From: Rusty Trivial Russell <rusty@rustcorp.com.au>
+To: davem@vger.kernel.org, paulus@samba.org, marcelo@conectiva.com.br,
+       geert@linux-m68k.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: compil error with a LC_ALL="fr_BE@euro" !!! why ?
-Message-ID: <20020820090521.GA6981@vagabond>
-Mail-Followup-To: Jan Hudec <bulb@cimice.maxinet.cz>,
-	Stephane Wirtel <stephane.wirtel@belgacom.net>,
-	linux-kernel@vger.kernel.org
-References: <20020820081343.GB18679@debian>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020820081343.GB18679@debian>
-User-Agent: Mutt/1.4i
+Subject: [TRIVIAL] Simplify vt.c ifdef for sys_ioperm
+Date: Tue, 20 Aug 2002 19:06:59 +1000
+Message-Id: <20020820041036.4805C2C4AC@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 20, 2002 at 10:13:43AM +0200, Stephane Wirtel wrote:
-> when i compile the kernel with a LC_ALL="fr_BE@euro", i have many errors.
-> 
-> and when i use a LC_ALL="en_US", i don't have any problem.
+[ Looks right.  Marcelo pelase apply. ]
+From:  Milton Miller <miltonm@bga.com>
 
-Please include the error messages you get.
+  
+  Several architectures defined sys_ioperm but don't actually implement it:
+  
+  arch/m68k/kernel/sys_m68k.c: sys_ioperm return -ENOSYS
+  arch/sparc/kernel/setup.c: sys_ioperm return -EIO
+  arch/ppc/kernel/syscalls.c: sys_ioperm printk(KERN_ERR ...) return -EIO
+  
+  (vs current 2.4 bk  -- 2.4.20-pre2+)
+  
+  ===== drivers/char/vt.c 1.10 vs edited =====
 
--------------------------------------------------------------------------------
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+--- trivial-2.4.20-pre4/drivers/char/vt.c.orig	2002-08-20 18:01:05.000000000 +1000
++++ trivial-2.4.20-pre4/drivers/char/vt.c	2002-08-20 18:01:05.000000000 +1000
+@@ -481,7 +481,7 @@
+ 		ucval = keyboard_type;
+ 		goto setchar;
+ 
+-#if defined(__i386__) || defined(__mc68000__) || defined(__ppc__) || defined(__sparc__)
++#if defined(CONFIG_X86)
+ 		/*
+ 		 * These cannot be implemented on any machine that implements
+ 		 * ioperm() in user level (such as Alpha PCs).
+-- 
+  Don't blame me: the Monkey is driving
+  File: Milton Miller <miltonm@bga.com>: [PATCH] Simplify vt.c ifdef for sys_ioperm

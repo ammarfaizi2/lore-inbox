@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267597AbUBRPrj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 10:47:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267581AbUBRPri
+	id S264481AbUBRQa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 11:30:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266510AbUBRQa1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 10:47:38 -0500
-Received: from fw.osdl.org ([65.172.181.6]:25498 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267597AbUBRPrh (ORCPT
+	Wed, 18 Feb 2004 11:30:27 -0500
+Received: from ee.oulu.fi ([130.231.61.23]:49106 "EHLO ee.oulu.fi")
+	by vger.kernel.org with ESMTP id S264481AbUBRQaZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 10:47:37 -0500
-Date: Wed, 18 Feb 2004 07:47:21 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Intel vs AMD x86-64
-In-Reply-To: <16435.14044.182718.134404@alkaid.it.uu.se>
-Message-ID: <Pine.LNX.4.58.0402180744440.2686@home.osdl.org>
-References: <Pine.LNX.4.58.0402171739020.2686@home.osdl.org>
- <16435.14044.182718.134404@alkaid.it.uu.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 18 Feb 2004 11:30:25 -0500
+Date: Wed, 18 Feb 2004 18:30:15 +0200
+From: Flexy <flexy@ee.oulu.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Laptop problems with 2.4 & 2.6 (HP Omnibook 4150)
+Message-ID: <20040218163015.GA10416@ee.oulu.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2.4.23 kernel, keventd is not using much CPU time, but on 2.4.25-pre8 
+keventd is taking upto same amount as X. The difference is atleast a 
+decade or two. The configurations of these kernels are the same.
 
+On 2.6.3 kernel, events/0 is taking CPU time, much like keventd in 
+2.4.25-pre8.
 
-On Wed, 18 Feb 2004, Mikael Pettersson wrote:
-> 
-> What about naming? IA-64 is taken, AMD64 is too specific, Intel's
-> "IA-32e" sounds too vague, and I find x86-64 / x86_64 difficult to type.
-> "x64" perhaps?
+I'm using vanilla kernels from kernel.org on HP Omnibook 4150, PIII 500, 
+with BX chipset. 256MB memory, 3c589_cs.
 
-x86-64 it is. Maybe you can remap one of your function keys to send the 
-sequence ;)
+I'm happy to provide any additional information and do some testing, 
+if needed. Remember to put me on cc-list, I'm not subscribed.
 
-This whole "ia32" crap has always been ridiculous - nobody has _ever_ 
-called an x86 anything but x86, and Intel is just making it worse by 
-adding random illogical letters to the end.
+TIA,
 
-In contrast, x86-64 tells you _exactly_ what it's all about, and is what 
-the kernel has always called the architecture anyway.
-
-		Linus
+Flexy

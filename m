@@ -1,34 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317367AbSGZI1P>; Fri, 26 Jul 2002 04:27:15 -0400
+	id <S317374AbSGZIpK>; Fri, 26 Jul 2002 04:45:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317374AbSGZI1P>; Fri, 26 Jul 2002 04:27:15 -0400
-Received: from dsl-213-023-020-025.arcor-ip.net ([213.23.20.25]:15326 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317367AbSGZI1P>;
-	Fri, 26 Jul 2002 04:27:15 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: "David Luyer" <david@luyer.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.18-rc3-ac3: bug with using whole disks as filesystems
-Date: Fri, 26 Jul 2002 10:31:38 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <004a01c233ba$1a764f50$638317d2@pacific.net.au> <E17Xxjj-0005XT-00@starship>
-In-Reply-To: <E17Xxjj-0005XT-00@starship>
+	id <S317381AbSGZIpK>; Fri, 26 Jul 2002 04:45:10 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:42759 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S317374AbSGZIpJ>; Fri, 26 Jul 2002 04:45:09 -0400
+Message-ID: <3D410BA9.2090202@evision.ag>
+Date: Fri, 26 Jul 2002 10:43:21 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17Y0Vf-0006iv-00@starship>
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] IDE 106
+References: <Pine.LNX.4.33.0207241410040.3542-100000@penguin.transmeta.com>
+Content-Type: multipart/mixed;
+ boundary="------------080007050601030500020209"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 26 July 2002 07:33, I wrote:
-> There is no fundamental reason why we can't handle the larger
-> blocksizes.  It just didn't make it to the top of the list of things
-> to do for this cycle.  For now, all the mkfs's have to accomodate
-> this shortcoming.
+This is a multi-part message in MIME format.
+--------------080007050601030500020209
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Whoops, correction, the correct behaviour is to refuse to mount a
-filesystem that has oversize blocks.  Mkfs can and should go ahead and
-create such things if asked to.
+Small missing notch.
 
--- 
-Daniel
+--------------080007050601030500020209
+Content-Type: text/plain;
+ name="ide-106.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ide-106.diff"
+
+diff -durNp -x '*.[ao]' -x '*~' -x '*.cmd' -x '*.orig' -x '*.rej' -x 'vmlinu*' -x bzImage -x bootsect -x conmakehash -x setup -x build -x asm -x config -x '.*' -x consolemap_deftbl.c -x defkeymap.c -x devlist.h -x classlist.h -x autoconf.h -x compile.h -x version.h -x System.map -x gen-devlist -x fixdep -x split-include linux-2.5.28/drivers/ide/main.c linux/drivers/ide/main.c
+--- linux-2.5.28/drivers/ide/main.c	2002-07-26 09:50:44.000000000 +0200
++++ linux/drivers/ide/main.c	2002-07-26 10:15:57.000000000 +0200
+@@ -1069,7 +1069,6 @@ int ide_register_subdriver(struct ata_de
+ 
+ 	}
+ 	drive->revalidate = 1;
+-	drive->suspend_reset = 0;
+ 
+ 	return 0;
+ }
+
+--------------080007050601030500020209--
+

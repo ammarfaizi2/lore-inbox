@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287781AbSBHV6I>; Fri, 8 Feb 2002 16:58:08 -0500
+	id <S291883AbSBHV5I>; Fri, 8 Feb 2002 16:57:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291862AbSBHV6D>; Fri, 8 Feb 2002 16:58:03 -0500
-Received: from guzzi.amazon.com ([209.191.164.151]:49642 "HELO
-	guzzi.amazon.com") by vger.kernel.org with SMTP id <S287781AbSBHV5p>;
-	Fri, 8 Feb 2002 16:57:45 -0500
-Date: Fri, 8 Feb 2002 13:57:39 -0800 (PST)
-From: Lamont Granquist <lamont@amazon.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux@sparker.net, <linux-kernel@vger.kernel.org>
-Subject: Re: Sysrq enhancement: process kill facility
-In-Reply-To: <200202081819.g18IJPa22033@devserv.devel.redhat.com>
-Message-ID: <20020208134707.J47621-100000@synflood.amazon.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291862AbSBHV46>; Fri, 8 Feb 2002 16:56:58 -0500
+Received: from willow.seitz.com ([207.106.55.140]:22288 "EHLO willow.seitz.com")
+	by vger.kernel.org with ESMTP id <S287781AbSBHV4o>;
+	Fri, 8 Feb 2002 16:56:44 -0500
+From: Ross Vandegrift <ross@willow.seitz.com>
+Date: Fri, 8 Feb 2002 16:56:41 -0500
+To: David Garfield <garfield@irving.iisd.sra.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linus' email account is full. - Fwd: Mail System Error - Returned Mail
+Message-ID: <20020208165641.A25951@willow.seitz.com>
+In-Reply-To: <5.1.0.14.2.20020208201734.038322c0@pop.cus.cam.ac.uk> <a41cfi$fpr$1@cesium.transmeta.com> <15460.16213.450482.512797@irving.iisd.sra.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15460.16213.450482.512797@irving.iisd.sra.com>; from garfield@irving.iisd.sra.com on Fri, Feb 08, 2002 at 04:12:53PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Actually, I suspect the situation is somewhat simpler.  It is possible
+> transmet.com may only have one mailbox that everything funnels into.
+> Their mail is hosted by "registeredsite.com", which has a somewhat
+> invalid web presence (IP address = 10.0.0.1).
 
+Interesting.  In my battles against spam, a *HUGE* precentage has been linked
+with registeredsite.com.  Wouldn't be surprised if they were harvesting
+addresses, or some other such vile stuffs.
 
-On Fri, 8 Feb 2002, Pete Zaitcev wrote:
-> > You enter <alt>-<sysrq>-n ("nuke"), and then prompts for the pid.  It supports
-> > backspace and control-U.  On serial ports, it retains the same semantics:
-> > a break activates this as a sysrq sequence, but if more than 5-seconds pass
-> > without any input, it drops out of processing input as a sysrq.
->
-> I am afraid we'll have bash and perl in kernel before too long,
-> if this avenue is to be pursued.
->
-> Why don't you use something like SGI kdb for debugging kernels?
-
-Its very useful to have adequate debugging tools for productions systems.
-Something like SGIs kdb is too heavyweight and is not in the mainline
-linux kernel and will never, ever get pushed out to any of the production
-systems that I work on.  However, useful alt-sysrq tools to do post-mortem
-analysis of crashed production kernels is something which is extremely
-helpful.
-
-What would be *really* useful would be to have crash dump functionality in
-the mainline linux kernel.  That way you could take a dump and then do
-your post-mortem offline with a debugger.  Until then I'm all in favor of
-throwing bloat into alt-sysrq, since that seems to be Linus' preferred
-interface for doing post-mortem analysis.
-
+Ross Vandegrift
+ross@willow.seitz.com

@@ -1,48 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318109AbSHKSym>; Sun, 11 Aug 2002 14:54:42 -0400
+	id <S318086AbSHKSx4>; Sun, 11 Aug 2002 14:53:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318121AbSHKSym>; Sun, 11 Aug 2002 14:54:42 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42254 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318109AbSHKSyk>; Sun, 11 Aug 2002 14:54:40 -0400
-Date: Sun, 11 Aug 2002 12:00:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Daniel Phillips <phillips@arcor.de>
-cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
-In-Reply-To: <E17dndv-0001ei-00@starship>
-Message-ID: <Pine.LNX.4.44.0208111155460.9930-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318109AbSHKSx4>; Sun, 11 Aug 2002 14:53:56 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:21748 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318086AbSHKSxz>; Sun, 11 Aug 2002 14:53:55 -0400
+Subject: Re: 2.4.19: drivers/usb/printer.c usblpX on fire
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Samuel Flory <sflory@rackable.com>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, Pete de Zwart <dezwart@froob.net>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+In-Reply-To: <1028913064.1380.493.camel@flory.corp.rackablelabs.com>
+References: <20020809060344.GC6340@niflheim> 
+	<15699.31589.634056.607809@kim.it.uu.se> 
+	<1028913064.1380.493.camel@flory.corp.rackablelabs.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 11 Aug 2002 21:18:41 +0100
+Message-Id: <1029097121.16236.43.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2002-08-09 at 18:10, Samuel Flory wrote:
+>   The printer on fire message is the traditional Un*x error message for
+> unknown error on a printer.
 
-On Sun, 11 Aug 2002, Daniel Phillips wrote:
-
-> On Sunday 11 August 2002 00:42, Linus Torvalds wrote:
-> > For example, what do you do when somebody has a COW-page mapped into it's
-> > VM space and you want to start paging stuff out?
-> 
-> Clearly it requires a CoW break and swapping out that page won't free any 
-> memory directly, but it will in turn allow the cache page to be dropped.
-
-Well, that's the point. Is it really "clearly"?
-
-One alternative is to just instead remove it from the page cache, and add 
-it to the swap cache directly (and unmapping it). In fact, I _think_ that 
-is the right thing to do (yes, it only works if the page count is 2 (one 
-for page cache, one for the VM mapping), but that's very different from 
-breaking the COW and generating two separate pages.
-
-The "move directly to swap cache" is nice in that it doesn't add any new
-pages. But it's nasty in that it steals pages from the file cache, so that
-it basically turns a potentially sharable cache into a private cache that
-nobody else will see.
-
-See? You actually _do_ have choices on what to do.
-
-			Linus
+Linux maybe - unix no
 

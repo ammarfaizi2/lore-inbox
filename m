@@ -1,35 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281633AbRKZL5D>; Mon, 26 Nov 2001 06:57:03 -0500
+	id <S281624AbRKZMCP>; Mon, 26 Nov 2001 07:02:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281621AbRKZL4w>; Mon, 26 Nov 2001 06:56:52 -0500
-Received: from web14305.mail.yahoo.com ([216.136.173.81]:59916 "HELO
-	web14305.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S281624AbRKZL4q>; Mon, 26 Nov 2001 06:56:46 -0500
-Message-ID: <20011126115645.68957.qmail@web14305.mail.yahoo.com>
-Date: Mon, 26 Nov 2001 03:56:45 -0800 (PST)
-From: Hisham Kotry <etsh_cucu@yahoo.com>
-Subject: routing issue
+	id <S281638AbRKZMCD>; Mon, 26 Nov 2001 07:02:03 -0500
+Received: from mx0.gmx.net ([213.165.64.100]:762 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id <S281624AbRKZMB4>;
+	Mon, 26 Nov 2001 07:01:56 -0500
+Date: Mon, 26 Nov 2001 13:01:49 +0100 (MET)
+From: ragnagock@gmx.de
 To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: Re: Bootdisk minikernel to load full kernel via /linuxrc
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0004399983@gmx.net
+X-Authenticated-IP: [149.225.116.172]
+Message-ID: <32173.1006776109@www3.gmx.net>
+X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been trying to find a direct kernel hack that
-forces the linux kernel -any version- to use
-postrouting instead of prerouting, I have my reasons
-why I do not want to use netfilter, I currently use
-another FW, but I have this problem with routing, is
-there a way to fix it?
+> > 
+> > Hi,
+> > 
+> > How would a /linuxrc look like, if I want a small bootdisk to load
+> > a kernel from hdd? It has to boot just like loaded by loadlin or lilo
+> > so noone can boot the PC without the disk but I can fiddle around
+> > just like "normal"...
+> > 
+> > I'd be happy, if someone could help me.
+> 
 
-Thanks,
-etsh911
+Sorry, I forgot to mention that I want to have all partitions encrypted.
+And since there will be some kernel changes later on I don't want to
+create a boot disk every time. This means it can't be very big -> no CD-R.
 
-PS: please CC the replies to me, as I am not a
-subscriber to this list.
+> A) a small filesystem to mount the encrypted filesystems, and then start
+> the main system.
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! GeoCities - quick and easy web site hosting, just $8.95/month.
-http://geocities.yahoo.com/ps/info1
+How?
+Take a std floppy disk and boot a normal system from it... I ran out of
+space.
+
+> B) A dual-boot system, booting windows, with a normal kernel simply set to
+
+> boot from the partition linux is installed on.
+
+But why would I encrypt the linux part/haven't lilo installed then? 
+
+-- 
+GMX - Die Kommunikationsplattform im Internet.
+http://www.gmx.net
+

@@ -1,67 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277165AbRKSKDo>; Mon, 19 Nov 2001 05:03:44 -0500
+	id <S277152AbRKSKHo>; Mon, 19 Nov 2001 05:07:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277294AbRKSKDe>; Mon, 19 Nov 2001 05:03:34 -0500
-Received: from suphys.physics.usyd.edu.au ([129.78.129.1]:12029 "EHLO
-	suphys.physics.usyd.edu.au") by vger.kernel.org with ESMTP
-	id <S277165AbRKSKDS> convert rfc822-to-8bit; Mon, 19 Nov 2001 05:03:18 -0500
-Date: Mon, 19 Nov 2001 21:03:01 +1100 (EST)
-From: Tim Connors <tcon@Physics.usyd.edu.au>
-To: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
-cc: Dan Maas <dmaas@dcine.com>, linux-kernel@vger.kernel.org
-Subject: Re: Swap
-In-Reply-To: <3BF839AA.4050508@wanadoo.fr>
-Message-ID: <Pine.SOL.3.96.1011119210005.12304A-100000@suphys.physics.usyd.edu.au>
+	id <S277228AbRKSKHe>; Mon, 19 Nov 2001 05:07:34 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:57099 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277152AbRKSKHT>; Mon, 19 Nov 2001 05:07:19 -0500
+Subject: Re: VM-related Oops: 2.4.15pre1
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Mon, 19 Nov 2001 10:15:14 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0111181756260.7482-100000@penguin.transmeta.com> from "Linus Torvalds" at Nov 18, 2001 06:02:17 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E165lSM-000666-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Nov 2001, [ISO-8859-15] François Cami wrote:
-
-> Dan Maas wrote:
+> There's no point being a language lawyer and saying that gcc "could write
+> anything to value before it writes the final 2". Tha's not true. A compile
+> rthat does that is
 > 
-> 
-> > Still, it puzzles me why a system with no swap space would appear to be more
-> > responsive than one with swap (assuming their working sets are quite a bit
-> > smaller than total amount of RAM)... Can you do a controlled test somehow,
-> > to rule out any sort of placebo effect?
-> 
-> It's pretty simple... Try putting as much progs as you can into RAM
-> (but less than total RAM size) when you have RAM+swap.
-> Switching from one prog to another now takes time, because if you need
-> to go e.g. from mozilla to openoffice for example, if openoffice has
-> been swapped, it'll take ages.
-> 
-> Another good example is launching X and a few heavy X apps, going back
-> to console, doing a few things, like compiling different kernel trees.
-> If you have swap, the X + X apps will be swapped. going back to X will
-> take ages, because all that data + code has to be moved out to RAM to
-> cache the data in the two kernel trees.
-> If you don't have swap, maybe one, or both of the two kernel trees
-> will end up being not cached into main memory, depending on how much
-> RAM left you have. but going back to X will take 1 second instead of 20,
-> and thus the system will be more responsive.
-> 
-> It depends clearly on the situation you're in. I believe running with
-> swap is beneficial when your memory load is more than 75% of total
-> RAM, and less so when you have a few hundred megs of RAM left with all
-> useful apps loaded into RAM (which is not too unlikely these days,
-> due to the low price of SD/DDR RAM).
+>  (a) buggy as hell from a POSIX standpoint
 
-A perfect example of why a system _needs_ tuning knobs - this view of
-Linus's that we need a self tuning system is idiotic, because some of us
-don't care how long a kernel compile takes (or even how long it takes to
-serve a couple of web pages per hour), but _do_ care about the general
-system responsiveness. The system cannot predict what *I* the user wants
-out of it. Hence we need /proc interfaces to the the VM that say this is a
-compiling machine, or this is a desktop machine.....
+It would mean someone misdefined sig_atomic_t if it broke for assignment
 
--- 
-TimC -- http://www.physics.usyd.edu.au/~tcon/
+> And yes, the argument for "page->flags" is _exactly_ the same. Writing
+> intermediate values to "page->flags" that were never referenced by the
+> programmer is clearly such a violation of QoI that it is a bug even if
+> "sig_atomic_t" happens to be "int", and "page->flags" happens to be
+> "unsigned int".
 
-cat ~/.signature
-Passing cosmic ray (core dumped)
+If the code execution path is faster why shouldnt the compiler generate
+those patterns. You haven't told the variable that its volatile. Therefore
+the compiler is supposed to be optimising it.
 
+You can in theory get even stranger effects. Consider
+
+	if(!(flag&4))
+	{
+		blahblah++;
+		flag|=4;
+	}
+
+The compiler is completely at liberty to turn that into
+
+	test bit 2
+	jz 1f
+	inc blahblah
+	add #4, flag
+1f:
+
+because it knows the bit was clear and it knows the variable is not
+volatile.
+
+Having your own personal custom language dialect might be tempting but it is 
+normally something only the lisp community do.
+
+Alan

@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262900AbVDAUz3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262921AbVDAWF6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262900AbVDAUz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 15:55:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262899AbVDAUzD
+	id S262921AbVDAWF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 17:05:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262892AbVDAUyZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 15:55:03 -0500
+	Fri, 1 Apr 2005 15:54:25 -0500
 Received: from webmail.topspin.com ([12.162.17.3]:37423 "EHLO
 	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S262900AbVDAUvM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 15:51:12 -0500
+	id S262896AbVDAUvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 15:51:05 -0500
 Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH][11/27] IB/mthca: only free doorbell records in mem-free mode
-In-Reply-To: <2005411249.tAq0qtfjGbz3oHeg@topspin.com>
+Subject: [PATCH][6/27] IB/mthca: allocate correct number of doorbell pages
+In-Reply-To: <2005411249.cEJmE9mY2eziJTR6@topspin.com>
 X-Mailer: Roland's Patchbomber
 Date: Fri, 1 Apr 2005 12:49:52 -0800
-Message-Id: <2005411249.0RpxZQTVnbUL56cR@topspin.com>
+Message-Id: <2005411249.VaroeECWUvqcGQCD@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: akpm@osdl.org
 Content-Transfer-Encoding: 7BIT
 From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 01 Apr 2005 20:49:53.0013 (UTC) FILETIME=[5AA1AA50:01C536FC]
+X-OriginalArrivalTime: 01 Apr 2005 20:49:52.0575 (UTC) FILETIME=[5A5ED4F0:01C536FC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On error path, only free doorbell records if we're in mem-free mode.
+Doorbell record pages are allocated in HCA page size chunks (always
+4096 bytes), so we need to divide by 4096 and not PAGE_SIZE when
+figuring out how many pages we'll need space for.
 
 Signed-off-by: Roland Dreier <roland@topspin.com>
 
 
---- linux-export.orig/drivers/infiniband/hw/mthca/mthca_cq.c	2005-03-31 19:06:42.000000000 -0800
-+++ linux-export/drivers/infiniband/hw/mthca/mthca_cq.c	2005-04-01 12:38:24.207705852 -0800
-@@ -817,10 +817,12 @@
- err_out_mailbox:
- 	kfree(mailbox);
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_memfree.c	2005-04-01 12:38:19.911638409 -0800
++++ linux-export/drivers/infiniband/hw/mthca/mthca_memfree.c	2005-04-01 12:38:22.274125578 -0800
+@@ -446,7 +446,7 @@
  
--	mthca_free_db(dev, MTHCA_DB_TYPE_CQ_ARM, cq->arm_db_index);
-+	if (dev->hca_type == ARBEL_NATIVE)
-+		mthca_free_db(dev, MTHCA_DB_TYPE_CQ_ARM, cq->arm_db_index);
+ 	init_MUTEX(&dev->db_tab->mutex);
  
- err_out_ci:
--	mthca_free_db(dev, MTHCA_DB_TYPE_CQ_SET_CI, cq->set_ci_db_index);
-+	if (dev->hca_type == ARBEL_NATIVE)
-+		mthca_free_db(dev, MTHCA_DB_TYPE_CQ_SET_CI, cq->set_ci_db_index);
+-	dev->db_tab->npages     = dev->uar_table.uarc_size / PAGE_SIZE;
++	dev->db_tab->npages     = dev->uar_table.uarc_size / 4096;
+ 	dev->db_tab->max_group1 = 0;
+ 	dev->db_tab->min_group2 = dev->db_tab->npages - 1;
  
- err_out_icm:
- 	mthca_table_put(dev, dev->cq_table.table, cq->cqn);
 

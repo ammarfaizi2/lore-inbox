@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292532AbSBTV4i>; Wed, 20 Feb 2002 16:56:38 -0500
+	id <S292537AbSBTV52>; Wed, 20 Feb 2002 16:57:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292528AbSBTV42>; Wed, 20 Feb 2002 16:56:28 -0500
-Received: from tomts21.bellnexxia.net ([209.226.175.183]:5624 "EHLO
-	tomts21-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S292526AbSBTV4O>; Wed, 20 Feb 2002 16:56:14 -0500
-Date: Wed, 20 Feb 2002 16:55:48 -0800
-From: Jason Yan <jasonyanjk@yahoo.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Is there any story about the magic number 0x08048000 in  "ld" internal linker script ?
-X-mailer: FoxMail 4.0 beta 2 [cn]
-Message-Id: <20020220215605.KXU6407.tomts21-srv.bellnexxia.net@abc337>
+	id <S292535AbSBTV5J>; Wed, 20 Feb 2002 16:57:09 -0500
+Received: from callisto.affordablehost.com ([64.23.37.14]:3599 "HELO
+	callisto.affordablehost.com") by vger.kernel.org with SMTP
+	id <S292533AbSBTV45>; Wed, 20 Feb 2002 16:56:57 -0500
+Message-ID: <3C741BAF.9090300@keyed-upsoftware.com>
+Date: Wed, 20 Feb 2002 15:57:03 -0600
+From: David Stroupe <dstroupe@keyed-upsoftware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Q: PCI Driver ioremap
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I am creating a PCI driver for a custom card and want to write 0xffff to 
+a location offset from the base by 0x48 and
+have the following code:
 
-When I use gdb to trace/debug my program, I notice that the programe linear address always start from 0x8048xxx, then I use "ld --verbose" to display the internal linker script, I find an interesting address 0x08048000 :
+<snip>
+unsigned int io_addr;
+unsigned int io_size;
+void* base;
+pci_enable_device (pdev)
+io_addr = pci_resource_start(pdev, 0);
+io_size = pci_resource_len(pdev, 0);
+if ((pci_resource_flags(pdev, 0) & IORESOURCE_MEM)){
+       if(check_mem_region(io_addr, io_size))
+            DBG("Already In Use");//this is never reached
+        request_mem_region(io_addr, io_size , "Card Driver");
+        base=ioremap(io_addr, io_size);
+        if(base==0)
+           DBG("memory mapped wrong\n");//this is never reached
+        writew(0xffff, base + 0x48);
+<snip>
 
-SECTIONS
-{
-  /* Read-only sections, merged into text segment: */
-  . = 0x08048000 + SIZEOF_HEADERS
-  ......snip....
 
-that's where 0x8048xxx comes from. I'm just curious, why 0x08048000 not other number? Any story?
+The card is found, io_addr = 0xe9011000 and io_size = 0x200.
 
-Thanks,
+The write is unsuccessful or at least the data never reaches the card. 
+ What am I doing incorrectly?
 
-Jason 
-
-
-
+Thanks and best regards,
+David
 

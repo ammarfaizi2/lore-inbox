@@ -1,81 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264384AbTLQN37 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 08:29:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264397AbTLQN36
+	id S261406AbTLQN13 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 08:27:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264314AbTLQN13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 08:29:58 -0500
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:43780 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S264384AbTLQN34 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 08:29:56 -0500
-Subject: Re: 2.6.0-test11-mm1
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-In-Reply-To: <20031217035246.32adbf87.akpm@osdl.org>
-References: <20031217014350.028460b2.akpm@osdl.org>
-	 <20031217035246.32adbf87.akpm@osdl.org>
-Content-Type: multipart/mixed; boundary="=-IlfhZDU4nFj9LviihjCj"
-Message-Id: <1071667814.2588.0.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Wed, 17 Dec 2003 14:30:14 +0100
+	Wed, 17 Dec 2003 08:27:29 -0500
+Received: from jaguar.mkp.net ([192.139.46.146]:7079 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S261406AbTLQN10 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 08:27:26 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16352.22968.706710.576954@gargle.gargle.HOWL>
+Date: Wed, 17 Dec 2003 08:27:20 -0500
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: [patch] qla1280 crash fix in error handling
+X-Mailer: VM 7.03 under Emacs 21.2.1
+From: Jes Sorensen <jes@trained-monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-IlfhZDU4nFj9LviihjCj
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+The following patch fixes a big in the qla1280 driver where it would
+leave a pointer to an on the stack completion event in a command
+structure if qla1280_mailbox_command fails. The result is that the
+interrupt handler later tries to complete() garbage on the stack. The
+mailbox command can fail if a device on the bus decides to lock up etc.
 
-On Wed, 2003-12-17 at 12:52, Andrew Morton wrote:
+Patch relative to 2.6.0-test11 but should apply to the current BK tree
+as well.
 
-> And new breakage too!
+Cheers,
+Jes
 
-> Fix:
-> 
-> 
-> diff -puN arch/i386/kernel/cpu/intel.c~cpu_sibling_map-fixes-fix arch/i386/kernel/cpu/intel.c
-> --- 25/arch/i386/kernel/cpu/intel.c~cpu_sibling_map-fixes-fix	2003-12-17 03:31:56.000000000 -0800
-> +++ 25-akpm/arch/i386/kernel/cpu/intel.c	2003-12-17 03:46:25.000000000 -0800
-> @@ -8,9 +8,11 @@
->  #include <asm/processor.h>
->  #include <asm/msr.h>
->  #include <asm/uaccess.h>
-> +#include <asm/mpspec.h>
-> +#include <asm/apic.h>
->  
->  #include "cpu.h"
-> -#include "mach_apic.h"
-> +#include <mach_apic.h>
->  
->  extern int trap_init_f00f_bug(void);
-
-Does not apply cleanly, but this one does.
-
---=-IlfhZDU4nFj9LviihjCj
-Content-Disposition: attachment; filename=intel.c~cpu_sibling_map-fixes-fix
-Content-Type: text/x-patch; name=intel.c~cpu_sibling_map-fixes-fix; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -uNr linux-2.6.0-test11/arch/i386/kernel/cpu/intel.c linux-2.6.0-test11-mm1/arch/i386/kernel/cpu/intel.c
---- linux-2.6.0-test11/arch/i386/kernel/cpu/intel.c	2003-12-17 14:21:29.060115753 +0100
-+++ linux-2.6.0-test11-mm1/arch/i386/kernel/cpu/intel.c	2003-12-17 14:10:39.886919748 +0100
-@@ -9,9 +9,11 @@
- #include <asm/msr.h>
- #include <asm/uaccess.h>
- #include <asm/desc.h>
-+#include <asm/mpspec.h>
-+#include <asm/apic.h>
+--- linux-2.6.0-test11/drivers/scsi/orig/qla1280.c	Wed Dec 17 05:14:18 2003
++++ linux-2.6.0-test11/drivers/scsi/qla1280.c	Wed Dec 17 05:20:02 2003
+@@ -16,9 +16,13 @@
+ * General Public License for more details.
+ *
+ ******************************************************************************/
+-#define QLA1280_VERSION      "3.23.37"
++#define QLA1280_VERSION      "3.23.37.1"
+ /*****************************************************************************
+     Revision History:
++    Rev  3.23.37.1 December 17, 2003, Jes Sorensen
++	- Delete completion queue from srb if mailbox command failed to
++	  to avoid qla1280_done completeting qla1280_error_action's
++	  obsolete context
+     Rev  3.23.37 October 1, 2003, Jes Sorensen
+ 	- Make MMIO depend on CONFIG_X86_VISWS instead of yet another
+ 	  random CONFIG option
+@@ -1464,8 +1468,15 @@
+ 	/* If we didn't manage to issue the action, or we have no
+ 	 * command to wait for, exit here */
+ 	if (result == FAILED || handle == NULL ||
+-	    handle == (unsigned char *)INVALID_HANDLE)
++	    handle == (unsigned char *)INVALID_HANDLE) {
++		/*
++		 * Clear completion queue to avoid qla1280_done() trying
++		 * to complete the command at a later stage after we
++		 * have exited the current context
++		 */
++		sp->wait = NULL;
+ 		goto leave;
++	}
  
- #include "cpu.h"
--#include "mach_apic.h"
-+#include <mach_apic.h>
- 
- #ifdef CONFIG_X86_INTEL_USERCOPY
- /*
-
---=-IlfhZDU4nFj9LviihjCj--
-
+ 	/* set up a timer just in case we're really jammed */
+ 	init_timer(&timer);

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270172AbUJSXW5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269553AbUJSXW4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270172AbUJSXW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 19:22:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270197AbUJSXVE
+	id S269553AbUJSXW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 19:22:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270167AbUJSXWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 19:21:04 -0400
-Received: from mail.kroah.org ([69.55.234.183]:20618 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270169AbUJSWql convert rfc822-to-8bit
+	Tue, 19 Oct 2004 19:22:13 -0400
+Received: from mail.kroah.org ([69.55.234.183]:19338 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270164AbUJSWql convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 19 Oct 2004 18:46:41 -0400
 X-Fake: the user-agent is fake
-Subject: Re: [PATCH] PCI fixes for 2.6.9
+Subject: [PATCH] PCI fixes for 2.6.9
 User-Agent: Mutt/1.5.6i
-In-Reply-To: <10982257312950@kroah.com>
-Date: Tue, 19 Oct 2004 15:42:12 -0700
-Message-Id: <10982257322647@kroah.com>
+In-Reply-To: <20041019223752.GA9763@kroah.com>
+Date: Tue, 19 Oct 2004 15:42:11 -0700
+Message-Id: <1098225731207@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,86 +23,40 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1997.37.1, 2004/10/06 11:17:12-07:00, greg@kroah.com
+ChangeSet 1.1997.2.120, 2004/10/06 17:20:23-07:00, akpm@osdl.org
 
-[PATCH] PCI: remove pci_find_subsys() calls from cpufreq code.
+[PATCH] PCI: CONFIG_PCI=n build fix
 
+With CONFIG_PCI=n:
+
+arch/i386/kernel/cpu/cyrix.c: In function `init_cyrix':
+arch/i386/kernel/cpu/cyrix.c:285: `cyrix_55x0' undeclared (first use in this function)
+arch/i386/kernel/cpu/cyrix.c:285: (Each undeclared identifier is reported only once
+arch/i386/kernel/cpu/cyrix.c:285: for each function it appears in.)
+
+Make pci_dev_present() a macro.  It doesn't make sense to require that
+pci_device_id's be in scope when CONFIG_PCI=n
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- arch/i386/kernel/cpu/cpufreq/speedstep-ich.c |   15 ++++++++++-----
- 1 files changed, 10 insertions(+), 5 deletions(-)
+ include/linux/pci.h |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
 
-diff -Nru a/arch/i386/kernel/cpu/cpufreq/speedstep-ich.c b/arch/i386/kernel/cpu/cpufreq/speedstep-ich.c
---- a/arch/i386/kernel/cpu/cpufreq/speedstep-ich.c	2004-10-19 15:27:53 -07:00
-+++ b/arch/i386/kernel/cpu/cpufreq/speedstep-ich.c	2004-10-19 15:27:53 -07:00
-@@ -171,7 +171,7 @@
-  */
- static unsigned int speedstep_detect_chipset (void)
- {
--	speedstep_chipset_dev = pci_find_subsys(PCI_VENDOR_ID_INTEL,
-+	speedstep_chipset_dev = pci_get_subsys(PCI_VENDOR_ID_INTEL,
- 			      PCI_DEVICE_ID_INTEL_82801DB_12,
- 			      PCI_ANY_ID,
- 			      PCI_ANY_ID,
-@@ -179,7 +179,7 @@
- 	if (speedstep_chipset_dev)
- 		return 4; /* 4-M */
+diff -Nru a/include/linux/pci.h b/include/linux/pci.h
+--- a/include/linux/pci.h	2004-10-19 15:21:25 -07:00
++++ b/include/linux/pci.h	2004-10-19 15:21:25 -07:00
+@@ -894,8 +894,8 @@
  
--	speedstep_chipset_dev = pci_find_subsys(PCI_VENDOR_ID_INTEL,
-+	speedstep_chipset_dev = pci_get_subsys(PCI_VENDOR_ID_INTEL,
- 			      PCI_DEVICE_ID_INTEL_82801CA_12,
- 			      PCI_ANY_ID,
- 			      PCI_ANY_ID,
-@@ -188,7 +188,7 @@
- 		return 3; /* 3-M */
+ static inline struct pci_dev *pci_get_class(unsigned int class, struct pci_dev *from)
+ { return NULL; }
+-static inline int pci_dev_present(const struct pci_device_id *ids)
+-{ return 0; }
++
++#define pci_dev_present(ids)	(0)
  
- 
--	speedstep_chipset_dev = pci_find_subsys(PCI_VENDOR_ID_INTEL,
-+	speedstep_chipset_dev = pci_get_subsys(PCI_VENDOR_ID_INTEL,
- 			      PCI_DEVICE_ID_INTEL_82801BA_10,
- 			      PCI_ANY_ID,
- 			      PCI_ANY_ID,
-@@ -201,7 +201,7 @@
- 		static struct pci_dev *hostbridge;
- 		u8 rev = 0;
- 
--		hostbridge  = pci_find_subsys(PCI_VENDOR_ID_INTEL,
-+		hostbridge  = pci_get_subsys(PCI_VENDOR_ID_INTEL,
- 			      PCI_DEVICE_ID_INTEL_82815_MC,
- 			      PCI_ANY_ID,
- 			      PCI_ANY_ID,
-@@ -214,9 +214,11 @@
- 		if (rev < 5) {
- 			dprintk(KERN_INFO "cpufreq: hostbridge does not support speedstep\n");
- 			speedstep_chipset_dev = NULL;
-+			pci_dev_put(hostbridge);
- 			return 0;
- 		}
- 
-+		pci_dev_put(hostbridge);
- 		return 2; /* 2-M */
- 	}
- 
-@@ -411,8 +413,10 @@
- 	}
- 
- 	/* activate speedstep support */
--	if (speedstep_activate())
-+	if (speedstep_activate()) {
-+		pci_dev_put(speedstep_chipset_dev);
- 		return -EINVAL;
-+	}
- 
- 	return cpufreq_register_driver(&speedstep_driver);
- }
-@@ -425,6 +429,7 @@
-  */
- static void __exit speedstep_exit(void)
- {
-+	pci_dev_put(speedstep_chipset_dev);
- 	cpufreq_unregister_driver(&speedstep_driver);
- }
- 
+ static inline void pci_set_master(struct pci_dev *dev) { }
+ static inline int pci_enable_device(struct pci_dev *dev) { return -EIO; }
 

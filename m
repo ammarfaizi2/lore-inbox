@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVCTTeG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVCTTgb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbVCTTeG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 14:34:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVCTTeG
+	id S261249AbVCTTgb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 14:36:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVCTTga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 14:34:06 -0500
-Received: from mail.dif.dk ([193.138.115.101]:11985 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261252AbVCTTcl (ORCPT
+	Sun, 20 Mar 2005 14:36:30 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:65236 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261249AbVCTTgL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 14:32:41 -0500
-Date: Sun, 20 Mar 2005 20:34:23 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: linux-fbdev-devel@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][trivial] matroxfb_maven remove pointless semicolons
- after label
-In-Reply-To: <20050320191728.GF32717@vana.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.62.0503202033000.2508@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0503201737250.2501@dragon.hyggekrogen.localhost>
- <20050320191728.GF32717@vana.vc.cvut.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 20 Mar 2005 14:36:11 -0500
+Date: Sun, 20 Mar 2005 20:35:54 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp: Remove arch-specific references from generic code
+Message-ID: <20050320193554.GD1401@elf.ucw.cz>
+References: <20050316001207.GI21292@elf.ucw.cz> <20050319132815.4f51a7e5.akpm@osdl.org> <20050319220735.GC1835@elf.ucw.cz> <200503200129.35739.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503200129.35739.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Mar 2005, Petr Vandrovec wrote:
+Hi!
 
-> On Sun, Mar 20, 2005 at 05:41:01PM +0100, Jesper Juhl wrote:
-> > 
-> > Having a semicolon at the end as in  labelname:;  is pointless, remove.
+> > Do you think you could just send me diff between 2.6.12-rc1 and your
+> > tree? I'll merge it here.
 > 
-> As long as I'm maintainer of this code, I prefer to leave them here.
-> 							Petr Vandrovec
+> Sure, no problem, the diff follows. :-)  It contains the following changes:
 > 
-No problem. As you say, you're the maintainer. I just spotted them and 
-made the patch, it's ofcourse entirely up to you if you want to apply it 
-or not :-)
+> - remove swsusp_restore() (with the fix to return 0 from swsusp_arch_resume() on x86*)
+> - drop SUSPEND_PD_PAGES and pagedir_order
+> - fix possible memory leaks in swsusp_suspend()
+> 
+> The original patches are also attached in case you need them (they all apply to
+> 2.6.12-rc1).
+> 
+> Please let me know if that's ok.
+
+Thanks, applied to my tree. (Actually I applied 3 attachments, but
+that should be okay).
+									Pavel
 
 -- 
-Jesper Juhl
-
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

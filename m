@@ -1,87 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265994AbUF2TXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265932AbUF2T2N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265994AbUF2TXn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 15:23:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265983AbUF2TXn
+	id S265932AbUF2T2N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 15:28:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265981AbUF2T2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 15:23:43 -0400
-Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:20402 "HELO
-	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S265994AbUF2TWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 15:22:21 -0400
-From: BlaisorBlade <blaisorblade_spam@yahoo.it>
-To: Jeff Dike <jdike@addtoit.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Uploaded Uml patchset for 2.6.7(was: Re: Inclusion of UML in 2.6.8)
-Date: Tue, 29 Jun 2004 21:29:52 +0200
-User-Agent: KMail/1.5
-References: <200406261905.22710.blaisorblade_spam@yahoo.it> <20040626181048.GA16323@infradead.org> <20040627035311.GA8842@ccure.user-mode-linux.org>
-In-Reply-To: <20040627035311.GA8842@ccure.user-mode-linux.org>
-Cc: user-mode-linux-devel@lists.sourceforge.net
+	Tue, 29 Jun 2004 15:28:12 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:10960 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S265932AbUF2T14 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 15:27:56 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200406292129.52093.blaisorblade_spam@yahoo.it>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: PATCH: Further aacraid work
+Date: Tue, 29 Jun 2004 15:27:54 -0400
+Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189FF1D6D0@otce2k03.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PATCH: Further aacraid work
+Thread-Index: AcReC8UrR13XM/bjTJWqBKNI2C8CaQAASJvA
+From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+To: "Byron Stanoszek" <gandalf@winds.org>
+Cc: "Mark Haverkamp" <markh@osdl.org>, "Alan Cox" <alan@redhat.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "linux-scsi" <linux-scsi@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alle 05:53, domenica 27 giugno 2004, Jeff Dike ha scritto:
-> On Sat, Jun 26, 2004 at 07:10:48PM +0100, Christoph Hellwig wrote:
-> > Please send split patches.  E.g. linux/ghash.h should not ne
-> > reintroduced, it's completely fuly.
+Although I am gratified that 1.1.5-2345 works, and works well (*many*
+performance improvements have occurred in this driver, but some of those
+have reached Alan's patch), I am at a loss because I was sure that the
+lockup was associated with commands taking longer than 60 seconds to
+complete (a 'can happen' with a complicated RAID card with multiple
+targets, that unfortunately gives the SCSI layer and especially ext3
+some headaches). The workaround in the reset handler is to let the
+commands quiesce to give the Firmware some breathing space to respond to
+the test unit ready command that is issued to the target immediately
+following return from the reset handler.
 
-Anyway, I'm going to upload the whole patchset (as it is now); I just tarred 
-my ./patch-scripts folder, containing descriptions, .pc files and actual 
-patches. The updates from Jeff Dike are not very split, but everything I've 
-added is in his own separate patch. Little changes anyway.
+This not solving the problem has the implication, as Alan had noted,
+that this could be an issue with the adapter itself locking up or going
+unresponsive under load. Both reports, this one and "PERC 3/Di broken
+2.6.6-mm5 -> 2.6.7-rc1-mm" now smell of some subtle problems creeping
+in.
 
-I've problems with patch-bomb, so for now here is it:
+Can we get some additional tests on this?
 
-http://www.user-mode-linux.org/~blaisorblade/patches/bb/uml-patch-2.6.7-01-bb2.tar.bz2
+1) Does this problem occur on a single CPU (Hyperthreading disabled
+too)? I am assuming some locking issues appeared, mainly because of some
+restructuring in that code.
+2) If you turn off Cache (Read & Write), does the problem persist? This
+is the usual condition with older Firmware where the duration could be
+extended as a result of the priority at which a Cache Flush occurs
+blocking commands.
+3) The `Adaptec' driver has a beefed up health checker
+(aac_rx_check_health) in rx.c that may be useful for catching what is
+called a `blinkLED' report from the adapter. If this piece of code is
+moved into the 2.6.7 driver with a single printk reporting the return
+value from the health check in linit.c we may get a clue to the
+conditions of failure if it is in the adapter.
 
-The description of things is below (and in the patches headings, mostly).
+Sincerely -- Mark Salyzyn
 
-Also, my main fear is about 2.7: if it is split before UML is merged, it means 
-it won't be updated for all the API changes in 2.7.x.
-For who want to flame with "better leave it broken than just doing compile 
-fixes": who introduced set_page_count, for instance, grepped and changed it 
-everywhere, even in the UML tree. And there was no reason to do so; so it 
-would help us having UML in mainline, to react well to such updates.
+-----Original Message-----
+From: Byron Stanoszek [mailto:gandalf@winds.org] 
+Sent: Tuesday, June 29, 2004 3:03 PM
+To: Salyzyn, Mark
+Cc: Mark Haverkamp; Alan Cox; linux-kernel; linux-scsi
+Subject: RE: PATCH: Further aacraid work
 
-> That requires a little interface work inside UML, and that was the main
-> reason Andrew hasn't seen UML recently.
+On Tue, 29 Jun 2004, Salyzyn, Mark wrote:
+
+> I believe this nails the problem too.
 >
-> > Also your above arch_free_page needs some more
-> > discussion.
+> However, there is a corner case condition lurking on this (See my
+> currently unanswered email "error recovery and command completion" on
+> linux-scsi) where I try to deal with completing a command while error
+> recovery is triggered. Scsi_done will return doing *nothing*
+effectively
+> loosing the command completion.
 >
-> I think that can disappear.  In some cases, it might be handy for the arch
-> to see pages being freed, but right now, I believe that UML has no need for
-> it.
+> MarkH, I had talked to you about he addition of the scsi_add_timer
+> before calling scsi_done to address this condition. I do not believe
+> this to be the (Reliable and/or performance oriented) solution.
+>
+> Sincerely -- Mark Salyzyn
 
-Hmm, well, indeed that part was added just to support ubd-mmap, which you seem 
-to have decided to drop*, but removing it would be hard for me, since it 
-would mean doing a lot of checks to physmem handling; and I still don't want 
-to fight against all the bugs I'd create. I'm seeing a lot more ones simply 
-after switching to Mandrake 10 (don't flame me for this!) for my host.
+I've tested out both patches sent to me.
 
-The same thing holds for COW support: I cannot drop it so simply, since there 
-are some references to it in working UBD code. That code should just drop 
-them, since IIRC Jeff wants to make COW act on any two block devices; but 
-I've not time to do it.
+Test 1: aacraid-1.1.5-2245.tgz
 
-I could, instead, safely remove the /proc/mm support (for running nested UMLs 
-in SKAS mode); the patch for this was well tested, so it's included; I'm 
-providing a "combinediffed" version of them, since without removing SKAS the 
-patch will probably not apply. I've also split ghash.h out.
+Works flawlessly and speedily! The rsync completes, and doing a sync()
+(as
+called during a normal lilo update) takes roughly 1 second as opposed to
+20
+with the original aacraid patch from Alan Cox. Also, no SCSI hang
+message ever
+appears.
 
-* But when you say "It's vulnerable to the filesystem making changes to data 
-that it intends never to reach the disk" in your diary, you speak about a 
-performance problem, right? Or it is even broken?
+Test 2: Mark Haverkamp's linit.c patch
 
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
+The "SCSI hang" console message appears just as before during the
+'rsync',
+however (unlike before) the device is still usable for roughly 30
+seconds after
+the problem. During these 30 seconds, the 'rsync' process is hung, but I
+can
+still do a 'df', 'ls', and so on. After 30 seconds, the entire /dev/sda
+locks
+up and I have no choice but to reboot the system.
+
+  -Byron
 

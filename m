@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265654AbUG1FbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265531AbUG1Ftz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265654AbUG1FbY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 01:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265531AbUG1FbY
+	id S265531AbUG1Ftz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 01:49:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265810AbUG1Ftz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 01:31:24 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:10156 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265654AbUG1FbM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 01:31:12 -0400
-Date: Wed, 28 Jul 2004 07:31:08 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Recent 2.6 kernels can't read an entire ATAPI CD or DVD
-Message-ID: <20040728053107.GB11690@suse.de>
-References: <1090989052.3098.6.camel@camp4.serpentine.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1090989052.3098.6.camel@camp4.serpentine.com>
+	Wed, 28 Jul 2004 01:49:55 -0400
+Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:17007 "HELO
+	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265531AbUG1Ftx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 01:49:53 -0400
+Message-ID: <41073A6C.1050606@yahoo.com.au>
+Date: Wed, 28 Jul 2004 15:32:28 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Avi Kivity <avi@exanet.com>
+CC: Ulrich Weigand <weigand@i1.informatik.uni-erlangen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Deadlock during heavy write activity to userspace NFS
+References: <200407280232.EAA14567@faui1m.informatik.uni-erlangen.de> <41073710.2020306@exanet.com>
+In-Reply-To: <41073710.2020306@exanet.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 27 2004, Bryan O'Sullivan wrote:
-> Hi, Jens -
+Avi Kivity wrote:
+> Ulrich Weigand wrote:
 > 
-> I'm having trouble reading a DVD or CD image from an ATAPI drive that
-> identifies itself as a 'LITEON DVD-ROM LTD163D'.  This is with vanilla
-> 2.6.7 on a system running Fedora Core 2.
+>> Avi Kivity wrote:
+>>
+>>  
+>>
+>>> In our case, all block I/O is done using unbuffered I/O, and all 
+>>> memory is preallocated, so we don't need kswapd at all, just that 
+>>> small bit of memory that syscalls consume.
+>>>   
+>>
+>>
+>> Does your userspace process need to send/receive network packets
+>> in order to perform a write-out? 
 > 
-> Regardless of what I do, I get the same errors:
+> Yes.
 > 
->         Jul 27 21:18:30 camp4 kernel: hdc: command error: status=0x51 { DriveReady SeekComplete Error }
->         Jul 27 21:18:30 camp4 kernel: hdc: command error: error=0x54
->         Jul 27 21:18:30 camp4 kernel: end_request: I/O error, dev hdc, sector 837264
->         Jul 27 21:18:30 camp4 kernel: Buffer I/O error on device hdc, logical block 104658
+>> If so, how can you make sure your
+>> incoming packets aren't thrown away in out-of-memory situations?
+>> (Outgoing packets can use PF_MEMALLOC memory I guess, but incoming
+>> ones aren't associated to any process yet ...)
+>>
+>>  
+>>
+> I did nothing to address this. So far it works well, even under heavy 
+> load. I guess a general solution needs to address this as well.
 > 
-> I have ide-cd compiled as a module.  This occurs whether or not ide-cd
-> is loaded (I don't have ide-scsi enabled), and whether or not I have DMA
-> turned on.
+> The kernel NFS client (which kswapd depends on) has the same issue. Has 
+> anyone ever observed kswapd deadlock due to imcoming or outgoing NFS 
+> packets being discarded due to oom?
 > 
-> I don't believe there is anything wrong with the drive, as it used to
-> work OK on 2.4, 2.5, and early 2.6 kernels, and I believe the media to
-> be fine, as the disk in question plays back on a Mac and a DVD player.
-> 
-> Googling for "error=0x54", I see a lot of reports of this kind of
-> problem, but never with any resolutions, so I'm stumped.  Is there any
-> information I can give you that would help?
 
-When does this happen - during kernel load, or during run of init
-scripts?
+Yes this has been observed.
 
--- 
-Jens Axboe
-
+alloc_skb on the client needs to somehow know that traffic coming
+from the server is "MEMALLOC" and allowed to use memory reserves.

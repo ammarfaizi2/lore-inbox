@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbVCHVyg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262115AbVCHV4Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261573AbVCHVyg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 16:54:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbVCHVyf
+	id S262115AbVCHV4Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 16:56:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbVCHV4B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 16:54:35 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:58348 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261573AbVCHVyO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 16:54:14 -0500
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-From: Lee Revell <rlrevell@joe-job.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       paul@linuxaudiosystems.com, mpm@selenic.com, joq@io.com,
-       cfriesen@nortelnetworks.com, Chris Wright <chrisw@osdl.org>,
-       arjanv@redhat.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050308212027.GA17664@infradead.org>
-References: <20050112185258.GG2940@waste.org>
-	 <200501122116.j0CLGK3K022477@localhost.localdomain>
-	 <20050307195020.510a1ceb.akpm@osdl.org>
-	 <20050308035503.GA31704@infradead.org>
-	 <20050307201646.512a2471.akpm@osdl.org> <20050308042242.GA15356@elte.hu>
-	 <20050307202821.150bd023.akpm@osdl.org>
-	 <20050308043250.GA32746@infradead.org> <1110308156.4401.4.camel@mindpipe>
-	 <20050308212027.GA17664@infradead.org>
-Content-Type: text/plain
-Date: Tue, 08 Mar 2005 16:34:33 -0500
-Message-Id: <1110317673.5982.8.camel@mindpipe>
+	Tue, 8 Mar 2005 16:56:01 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26560 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262115AbVCHVzw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 16:55:52 -0500
+Date: Tue, 8 Mar 2005 22:55:37 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au, jgarzik@pobox.com,
+       linux-net@vger.kernel.org
+Subject: Re: Fix suspend/resume problems with b44
+Message-ID: <20050308215537.GD24188@elf.ucw.cz>
+References: <20050308094655.GA16775@elf.ucw.cz> <20050308101739.371968be.davem@davemloft.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050308101739.371968be.davem@davemloft.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-08 at 21:20 +0000, Christoph Hellwig wrote:
-> On Tue, Mar 08, 2005 at 01:55:55PM -0500, Lee Revell wrote:
-> > And as I mentioned a few times, the authors have neither the inclination
-> > nor the ability to do that, because they are not kernel hackers.  The
-> > realtime LSM was written by users (not developers) of the kernel, to
-> > solve a specific real world problem.  No one ever claimed it was the
-> > correct solution from the kernel POV.
+Hi!
+
+> > @@ -1934,6 +1936,9 @@
+> >  	if (!netif_running(dev))
+> >  		return 0;
+> >  
+> > +	if (request_irq(dev->irq, b44_interrupt, SA_SHIRQ, dev->name, dev))
+> > +		printk(KERN_ERR PFX "%s: request_irq failed\n", dev->name);
+> > +
 > 
-> And I told you that doesn't matter.  If someone wants a feature in they
-> should find a way to make it palable.  We're not accepting such excuses
-> to put in crap.
-> 
+> This is a hard error and means that bringup of the chip
+> will totally fail.  It definitely deserves something harder
+> than a printk(), but unfortunately ->resume() has no way
+> to cleanly fail.
 
-Fine.  Consider it a proof of concept.  I'm satisfied if any solution
-gets merged, it doesn't have to be this one.
-
-I am still confused about why the LSM framework was merged in the first
-place.
-
-Lee
-
+Any idea what to do there? I'd say that request_irq is very unlikely
+to fail given that it worked okay before suspend...
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,330 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263836AbUA3VFo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 16:05:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263723AbUA3VFo
+	id S263909AbUA3VT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 16:19:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263983AbUA3VT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 16:05:44 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:28136 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263836AbUA3VFR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 16:05:17 -0500
-Date: Fri, 30 Jan 2004 13:04:44 -0800
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] missing export of cpu_2_node
-Message-ID: <20040130130444.A12828@beaverton.ibm.com>
-References: <20040130122036.A12659@beaverton.ibm.com> <20040130123738.344975d1.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040130123738.344975d1.akpm@osdl.org>; from akpm@osdl.org on Fri, Jan 30, 2004 at 12:37:38PM -0800
+	Fri, 30 Jan 2004 16:19:56 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:40466 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S263909AbUA3VTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 16:19:49 -0500
+Message-ID: <401ACB54.1060304@techsource.com>
+Date: Fri, 30 Jan 2004 16:23:32 -0500
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Helge Hafting <helgehaf@aitel.hist.no>
+CC: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+       John Bradford <john@grabjohn.com>, chakkerz@optusnet.com.au,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Crazy idea:  Design open-source graphics chip
+References: <200401291629.i0TGTN7S001406@81-2-122-30.bradfords.org.uk> <40193A67.7080308@techsource.com> <200401291718.i0THIgbb001691@81-2-122-30.bradfords.org.uk> <4019472D.70604@techsource.com> <200401291855.i0TItHoU001867@81-2-122-30.bradfords.org.uk> <40195AE0.2010006@techsource.com> <401A33CA.4050104@aitel.hist.no> <401A8E0E.6090004@techsource.com> <Pine.LNX.4.55.0401301812380.10311@jurand.ds.pg.gda.pl> <401A9716.3040607@techsource.com> <20040130210915.GA4147@hh.idb.hist.no>
+In-Reply-To: <20040130210915.GA4147@hh.idb.hist.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 30, 2004 at 12:37:38PM -0800, Andrew Morton wrote:
-> Patrick Mansfield <patmans@us.ibm.com> wrote:
-> >
-> > While compiling on a NUMAQ with st as a module, cpu_2_node comes up as
-> > undefined:
-> > 
-> > WARNING: /lib/modules/2.6.2-rc2/kernel/drivers/scsi/st.ko needs unknown symbol cpu_2_node
+Alright then, how about this:  Assuming opencores has a PCI interface 
+and a DDR memory controller, I could write a CRT controller.  We can put 
+that into an FPGA and see what happens.
+
+
+Helge Hafting wrote:
+> On Fri, Jan 30, 2004 at 12:40:38PM -0500, Timothy Miller wrote:
 > 
-> I'm curious to know why st.o needs cpu_to_node().  I can't make it do it
-> here.  Can you check the cpp output and enlighten me?
+>>
+>>Maciej W. Rozycki wrote:
+>>
+>>>On Fri, 30 Jan 2004, Timothy Miller wrote:
+>>>
+>>>
+>>>
+>>>>>Another reason to drop VGA then - money.
+>>>>
+>>>>As soon as PC BIOS's don't require it, we can drop it.
+>>>
+> PC bioses don't need VGA and never did!
+> They use the int 0x10 handler provided by the graphichs card bios.
+> When you make the card - you get to write that bios. No problem!
+> 
+> I once used a dec rainbow - a pc with an ibm-incompatible screen.
+> The display memory was organized as a linked list of lines instead
+> of an array of characters.  It came with its own special version
+> of msdos 2.11.  Few ordinary dos programs would run on it,
+> beause most tried to access the "standard" 80x25 array instead
+> of using msdos for io.  Those who did the right thing worked, though.
+> 
+> (An odd machine in other ways too - it had a z80 controlling the
+> floppies and a 8088 controlling the screen and harddisk.
+> Early 80's asymmetric multiprocessor :-)
+> 
+> 
+> 
+>>>No PC BIOS recognizes a VGA.  The PC/AT firmware uses int 0x10 to
+>>>communicate with the console and as long as there is a handler there,
+>>>console output works.  Most systems will actually run without a handler,
+>>>too, but they'll usually complain to the speaker.  The handler is provided
+>>>by the ROM firmware of the primary graphics adapter.
+>>>
+>>>Old PC/AT firmware actually did recognize a few display adapters, namely
+>>>the CGA and the MDA which had no own firmware.  These days support for
+>>>these option is often absent, even though the setup program may provide an
+>>>option to select between CGA40/CGA80/MDA/none (the latter being equivalent
+>>>to an option such as an EGA or a VGA, providing its own firmware).
+>>>
+>>
+>>You're not entirely correct here.  I attempted to write a VGA BIOS for a 
+>>card which did not have hardware support for 80x25 text.
+>>
+>>I first tried intercepting int 0x10.  I quickly discovered that most DOS 
+>>programs bypass int 0x10 and write directly to the display memory.  As a 
+>>result, very little of what should have displayed actually did.
+>>
+> 
+> Sure, but we're not interested in "most dos programs", are we?
+> The pc bios bootup will work, it uses int 0x10.
+> lilo output will work.
+> linux kernel console output will work
+> X will work, either with the generic framebuffer driver, or with
+> a proper driver written for the open hardware.
+> 
+> 
+>>Next, I tried hanging off this timer interrupt.  I had two copies of the 
+>>text display, "now" and "what it was before".  I would compare the 
+>>characters and render any differences.  This worked quite well for DOS, 
+>>but the instant ANY OS switched to protected mode, they took over the 
+>>interrupt and all console messages stopped.  Actually, the same was true 
+>>for int 0x10.
+>>
+> 
+> If you want DOS application compatibility or windows compatibility
+> then you might need VGA.  But you started out talking about
+> open hardware for linux - and then you really don't need vga at all.
+> Not even an initial 80x25 character array. A kernel without vga
+> support (but some other console like fbcon) works fine.
+> 
+> 
+>>Even just the DOS shell command-line tends to bypass int 0x10 and write 
+>>directly to display memory.
+>>
+> 
+> Depends on what version of dos, but you can always get freedos for which
+> source code is available - if dos matters to you. It is something
+> I only ever use for flashing bios upgrades.
+> 
+> 
+>>Furthermore, 640x480x16 simply won't happen at all without direct 
+>>hardware support.  Some things rely on that (or mode X or whatever) for 
+>>initial splash screens.
+>>
+> 
+> Not in linux.  Of course you can reserve the legacy vga memory region
+> and just live with the loss of splash screens in dos.
+>  
+> 
+>>In the PC world, too many assumptions are made about the hardware for 
+>>any kind of software emulation to work.
+>>
+> 
+> Not in the pc world.  The pc is only hardware.  
+> The problem is the microsoft os world, but supporting that _isn't
+> necessary_ when you don't plan on high volumes.  I guess you
+> could get windows going - it uses proper display drivers these days
+> even if the installer doesn't. Install with vga card, swap driver,
+> shutdown, swap cards, power-on or some such.
+>  
+> 
+>>The suggestion that a general-purpose CPU on the graphics card could be 
+>>used to emulate it is correct, but the logic area of the general-purpose 
+>>CPU is greater than that of the dedicated VGA hardware.  Furthermore, 
+>>you can't just "stick a Z80 onto the board", because multi-chip 
+>>solutions up the board cost too much.
+> 
+> 
+> Thanks for the information, seems I don't know enough about board 
+> manufacturing.
+> 
+> 
+> Helge Hafting
+> 
+> 
 
-st.c usees alloc_pages(). include/linux/gfp.h:
-
-#define alloc_pages(gfp_mask, order) \
-                alloc_pages_node(numa_node_id(), gfp_mask, order)
-
-And in include/linux/mmzone.h:
-
-#define numa_node_id()          (cpu_to_node(smp_processor_id()))
-
-And asm-i386/topology.h has:
-
-static inline int cpu_to_node(int cpu)
-{
-        return cpu_2_node[cpu];
-}
-
-Also, here is my .config, maybe CONFIG_X86_NUMAQ must also be set to hit it?
-
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-
-CONFIG_EXPERIMENTAL=y
-CONFIG_BROKEN=y
-CONFIG_BROKEN_ON_SMP=y
-
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=16
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-CONFIG_KALLSYMS=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-
-CONFIG_X86_NUMAQ=y
-CONFIG_MPENTIUMIII=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_HPET_TIMER=y
-CONFIG_SMP=y
-CONFIG_NR_CPUS=32
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_CPUID=y
-CONFIG_HIGHMEM64G=y
-CONFIG_HIGHMEM=y
-CONFIG_X86_PAE=y
-CONFIG_NUMA=y
-CONFIG_DISCONTIGMEM=y
-CONFIG_HAVE_ARCH_BOOTMEM_NODE=y
-CONFIG_HIGHPTE=y
-CONFIG_HAVE_DEC_LOCK=y
-
-
-CONFIG_ACPI_BOOT=y
-
-
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_LEGACY_PROC=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-CONFIG_HOTPLUG=y
-
-CONFIG_PCMCIA_PROBE=y
-
-
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_MISC=y
-
-
-
-
-
-CONFIG_PNP=y
-
-
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_LBD=y
-
-
-CONFIG_SCSI=y
-CONFIG_SCSI_PROC_FS=y
-
-CONFIG_BLK_DEV_SD=y
-CONFIG_CHR_DEV_ST=m
-CONFIG_BLK_DEV_SR=m
-CONFIG_CHR_DEV_SG=m
-
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_REPORT_LUNS=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_LOGGING=y
-
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=32
-CONFIG_AIC7XXX_RESET_DELAY_MS=15000
-CONFIG_AIC7XXX_DEBUG_ENABLE=y
-CONFIG_AIC7XXX_DEBUG_MASK=0
-CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
-CONFIG_SCSI_EATA_PIO=m
-CONFIG_SCSI_QLOGIC_ISP=y
-CONFIG_SCSI_QLA2XXX_CONFIG=y
-CONFIG_SCSI_QLA2XXX=m
-CONFIG_SCSI_QLA23XX=m
-CONFIG_SCSI_DEBUG=m
-
-
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-CONFIG_MD_LINEAR=y
-CONFIG_MD_RAID0=y
-CONFIG_MD_RAID1=y
-CONFIG_MD_RAID5=y
-CONFIG_MD_MULTIPATH=y
-CONFIG_BLK_DEV_DM=y
-CONFIG_DM_IOCTL_V4=y
-
-
-CONFIG_IEEE1394=m
-
-
-
-CONFIG_IEEE1394_OHCI1394=m
-
-CONFIG_IEEE1394_SBP2=m
-
-
-CONFIG_NET=y
-
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-
-CONFIG_IPV6_SCTP__=y
-
-
-CONFIG_NETDEVICES=y
-
-CONFIG_DUMMY=m
-
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-
-CONFIG_NET_TULIP=y
-CONFIG_TULIP=y
-CONFIG_TULIP_MWI=y
-CONFIG_TULIP_MMIO=y
-CONFIG_NET_PCI=y
-CONFIG_ADAPTEC_STARFIRE=y
-
-
-
-
-
-
-
-
-
-
-
-CONFIG_INPUT=y
-
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_MOUSE_SERIAL=y
-
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_CONSOLE=y
-CONFIG_SERIAL_8250_NR_UARTS=4
-
-CONFIG_SERIAL_CORE=y
-CONFIG_SERIAL_CORE_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-
-
-
-
-CONFIG_RAW_DRIVER=y
-CONFIG_MAX_RAW_DEVS=256
-
-
-
-
-CONFIG_VIDEO_SELECT=y
-
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-
-
-CONFIG_USB=m
-CONFIG_USB_DEBUG=y
-
-CONFIG_USB_DEVICEFS=y
-
-CONFIG_USB_EHCI_HCD=m
-CONFIG_USB_OHCI_HCD=m
-CONFIG_USB_UHCI_HCD=m
-
-CONFIG_USB_STORAGE=m
-CONFIG_USB_STORAGE_DEBUG=y
-
-
-
-
-
-
-
-
-
-
-
-CONFIG_EXT2_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-
-CONFIG_ISO9660_FS=y
-
-
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_DEVPTS_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-
-
-
-CONFIG_MSDOS_PARTITION=y
-
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-
-CONFIG_PROFILING=y
-CONFIG_OPROFILE=y
-
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-
-
-
-CONFIG_CRC32=y
-CONFIG_X86_SMP=y
-CONFIG_X86_HT=y
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_X86_TRAMPOLINE=y
-CONFIG_PC=y

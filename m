@@ -1,256 +1,124 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276398AbRI2BNT>; Fri, 28 Sep 2001 21:13:19 -0400
+	id <S276397AbRI2BTB>; Fri, 28 Sep 2001 21:19:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276397AbRI2BNK>; Fri, 28 Sep 2001 21:13:10 -0400
-Received: from mailf.telia.com ([194.22.194.25]:33475 "EHLO mailf.telia.com")
-	by vger.kernel.org with ESMTP id <S276399AbRI2BMv>;
-	Fri, 28 Sep 2001 21:12:51 -0400
-Message-Id: <200109290113.f8T1DD728835@mailf.telia.com>
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+	id <S276399AbRI2BSw>; Fri, 28 Sep 2001 21:18:52 -0400
+Received: from Cambot.lecs.CS.UCLA.EDU ([131.179.144.110]:38662 "EHLO
+	cambot.lecs.cs.ucla.edu") by vger.kernel.org with ESMTP
+	id <S276397AbRI2BSd>; Fri, 28 Sep 2001 21:18:33 -0400
+Message-Id: <200109290118.f8T1Ixk05717@cambot.lecs.cs.ucla.edu>
 To: linux-kernel@vger.kernel.org
-Subject: [DATAPOINT] -ac16+ and increased readahead (ksoftirqd related?)
-Date: Sat, 29 Sep 2001 03:08:15 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Robert Cohen <robert.cohen@anu.edu.au>
+cc: jelson@circlemud.org
+Subject: [ANNOUNCE] FUSD v1.00: Framework for User-Space Devices
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_RHGEKC4V1BSDDZXN2VB4"
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <5714.1001726339.1@cambot.lecs.cs.ucla.edu>
+Date: Fri, 28 Sep 2001 18:18:59 -0700
+From: Jeremy Elson <jelson@circlemud.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On behalf of Sensoria Corporation, I'm happy to announce the first
+public release of FUSD, a Linux Framework for User-Space Devices.
 
---------------Boundary-00=_RHGEKC4V1BSDDZXN2VB4
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Briefly, FUSD lets you write user-space daemons that can respond to
+device-file callbacks on files in /dev.  These device files look and
+act just like any other device file from the point of view of a
+process trying to use them.  When the FUSD kernel module receives a
+file callback on a device being managed from user-space, it marshals
+the arguments into a message (including data copied from the caller,
+if necessary), blocks the caller, and sends the message to the daemon
+managing the device.  When the daemon generates a reply, the process
+happens in reverse, and the caller is unblocked.
 
-Hi,
+More information can be found at the official FUSD home page:
+http://www.circlemud.org/~jelson/software/fusd
 
-After receiving Robert Cohens mail concerning
-"[BENCH] Problems with IO throughput and fairness with 2.4.10 and 2.4.9-ac15"
-I replied about the possibility to increase READAHEAD again.
+I've pasted a portion of the README file below, which has a somewhat
+more detailed description of what FUSD is and does.  A much more
+comprehensive user manual is available on the web page (above).
 
-But since I was running the -ac16 (with swapoff patch) I decided to try it
-myself...
+Best regards,
+Jeremy
 
-First my attempts were not that sucessful. Changing /proc/sys/vm/max-readahead
-did not have any visible effect... (why not???)
-
-Then I found /proc/ide/hda/settings
-and changed "file_readahead:511" but got wery strange results...
-
-The start is very good but suddenly the HD starts to sound strange. A check
-with vmstat shows that there is a huge amount of context switches...
-
-Going back to zero (global) readahead did not help.
-So I rebooted the computer for more careful testing.
-
-vmstat-3 is output from vmstat 3
-file_readahead.settings is how I change the file_readahead
-
-The test I perform, for each value of file_readahead, is a diff between
-two huge, but identical, files.
-
-/RogerL
-
--- 
-Roger Larsson
-Skellefteå
-Sweden
+--------
 
 
+WHAT IS FUSD?
+=============
 
---------------Boundary-00=_RHGEKC4V1BSDDZXN2VB4
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="vmstat-3"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="vmstat-3"
+FUSD (pronounced "fused") is a Linux framework for proxying device
+file callbacks into user-space, allowing device files to be
+implemented by daemons instead of kernel code.  Despite being
+implemented in user-space, FUSD devices can look and act just like any
+other file under /dev which is implemented by kernel callbacks.
 
-ICAgcHJvY3MgICAgICAgICAgICAgICAgICAgICAgbWVtb3J5ICAgIHN3YXAgICAgICAgICAgaW8g
-ICAgIHN5c3RlbSAgICAgICAgIGNwdQogciAgYiAgdyAgIHN3cGQgICBmcmVlICAgYnVmZiAgY2Fj
-aGUgIHNpICBzbyAgICBiaSAgICBibyAgIGluICAgIGNzICB1cyAgc3kgIGlkCiAxICAwICAwICAg
-ICAgMCAyMTE3NDAgICAyMjg0ICAyNTMxMiAgIDAgICAwICAgNDA5ICAgIDM2ICAxNDMgICAxNDUg
-ICA5ICAgOSAgODIKIDAgIDAgIDAgICAgICAwIDIxMTY5NiAgIDIyODQgIDI1MzE2ICAgMCAgIDAg
-ICAgIDAgICAgIDAgIDEwMyAgICAzNCAgIDAgICAwIDEwMAogMCAgMCAgMCAgICAgIDAgMjExMDEy
-ICAgMjI4OCAgMjUzMTYgICAwICAgMCAgICAgMSAgICAxNSAgMTExICAgIDY3ICAgMSAgIDAgIDk5
-CiAwICAwICAwICAgICAgMCAyMTEwMTIgICAyMjg4ICAyNTMxNiAgIDAgICAwICAgICAwICAgICA3
-ICAxMDkgICAgNDggICAwICAgMCAxMDAKIDAgIDAgIDAgICAgICAwIDIxMTAwMCAgIDIyOTYgIDI1
-MzIwICAgMCAgIDAgICAgIDQgICAgIDAgIDEwNyAgICA0OCAgIDAgICAwIDEwMAogMCAgMCAgMCAg
-ICAgIDAgMjEwOTk2ICAgMjI5NiAgMjUzMjAgICAwICAgMCAgICAgMCAgICAgMCAgMTA2ICAgIDQz
-ICAgMCAgIDAgMTAwCiAwICAwICAwICAgICAgMCAyMTA5OTYgICAyMjk2ICAyNTMyMCAgIDAgICAw
-ICAgICAwICAgICAwICAxMDQgICAgMzcgICAwICAgMCAxMDAKIDAgIDAgIDAgICAgICAwIDIxMDk5
-NiAgIDIyOTYgIDI1MzIwICAgMCAgIDAgICAgIDAgICAgIDAgIDExNSAgICA2MCAgIDAgICAwIDEw
-MAogMCAgMCAgMCAgICAgIDAgMjEwOTgwICAgMjMwMCAgMjUzMjggICAwICAgMCAgICAgNCAgICAx
-OSAgMTE1ICAgIDU3ICAgMCAgIDAgMTAwCiAwICAxICAwICAgICAgMCAyMTA2MTYgICAyMzA4ICAy
-NTQ0NCAgIDAgICAwICAgIDQxICAgICAwICAxMDkgICAgNTIgICAwICAgMCAxMDAKIDAgIDEgIDAg
-ICAgICAwIDE4MTYzMiAgIDIzNDggIDUzNjgwICAgMCAgIDAgIDk0MjUgICAgIDAgIDMxOSAgIDE5
-MyAgIDIgICAzICA5NQogMCAgMSAgMCAgICAgIDAgMTQ4ODAwICAgMjM4MCAgODU2ODAgICAwICAg
-MCAxMDY3NyAgICAgMCAgMjY4ICAgMTUzICAgMiAgIDYgIDkyCiAwICAxICAwICAgICAgMCAxMTgw
-ODQgICAyNDEyIDExNTYxNiAgIDAgICAwICA5OTg4ICAgICAzICAyNTggICAxMzYgICAyICAgMyAg
-OTYKIDEgIDAgIDAgICAgICAwICA4NTc2OCAgIDI0MzYgMTQ3MTIwICAgMCAgIDAgMTA1MTEgICAg
-MzkgIDI3MyAgIDE3MCAgIDIgICA1ICA5NAogMSAgMCAgMCAgICAgIDAgIDUzNzIwICAgMjQ2OCAx
-NzgzNTIgICAwICAgMCAxMDQyMSAgICAgMCAgMjYyICAgMTQ1ICAgMyAgIDMgIDk0CiAxICAwICAw
-ICAgICAgMCAgMjMyNTIgICAyNTAwIDIwODA0OCAgIDAgICAwICA5OTA5ICAgICAwICAyNjMgICAx
-NDUgICAyICAgMyAgOTUKIDAgIDEgIDAgICAgICAwICAgMzA1NiAgIDI1MzIgMjI4ODY4ICAgMCAg
-IDAgMTA0MjEgICAgIDAgIDI4MyAgIDE0NCAgIDMgICA0ICA5MwogMSAgMCAgMCAgICAgIDAgICAz
-MDU2ICAgMjU2NCAyMjg4MzYgICAwICAgMCAxMDY3NyAgICAgMCAgMjY3ICAgMTU1ICAgMiAgIDQg
-IDk0CiAxICAwICAwICAgICAgMCAgIDMwNTYgICAyNTg4IDIyODgxMiAgIDAgICAwIDEwNzYwICAg
-ICAxICAyNjkgICAxNTAgICAzICAgNSAgOTIKIDAgIDEgIDAgICAgICAwICAgMzA1NiAgIDI2MjAg
-MjI4NzgwICAgMCAgIDAgMTA4NDggICAgIDAgIDI2OSAgIDE1MCAgIDMgICA2ICA5MQogMCAgMSAg
-MCAgICAgIDAgICAzMDU2ICAgMjY1MiAyMjg3NDggICAwICAgMCAgOTgyNCAgICAxNyAgMjc3ICAg
-MTQ1ICAgMSAgIDIgIDk3CiAgIHByb2NzICAgICAgICAgICAgICAgICAgICAgIG1lbW9yeSAgICBz
-d2FwICAgICAgICAgIGlvICAgICBzeXN0ZW0gICAgICAgICBjcHUKIHIgIGIgIHcgICBzd3BkICAg
-ZnJlZSAgIGJ1ZmYgIGNhY2hlICBzaSAgc28gICAgYmkgICAgYm8gICBpbiAgICBjcyAgdXMgIHN5
-ICBpZAogMSAgMSAgMCAgICAgIDAgICAzMDU2ICAgMjY4NCAyMjg3MTYgICAwICAgMCAxMTAxOSAg
-ICAgMCAgMjc0ICAgMTU3ICAgMSAgIDYgIDkzCiAwICAxICAwICAgICAgMCAgIDMwNTYgICAyNzE2
-IDIyODU2MCAgIDAgICAwIDEwNDIxICAgICAwICAyNjUgICAxNTIgICAzICAgNyAgOTAKIDEgIDAg
-IDAgICAgICAwICAgMzA1NiAgIDI3NDggMjI4NTI4ICAgMCAgIDAgMTA2NzcgICAgIDMgIDI2OCAg
-IDE1NCAgIDIgICAzICA5NQogMCAgMSAgMCAgICAgIDAgICAzMDU2ICAgMjc4MCAyMjg0OTYgICAw
-ICAgMCAxMDc2MyAgICAgMCAgMjY4ICAgMTU4ICAgMyAgIDYgIDkyCiAxICAwICAwICAgICAgMCAg
-IDMwNTYgICAyODEyIDIyODQ2NCAgIDAgICAwIDExMTg5ICAgICAwICAyNzYgICAxNTkgICA2ICAg
-NiAgODgKIDAgIDEgIDAgICAgICAwICAgMzA1NiAgIDI4NDQgMjI4NDMyICAgMCAgIDAgMTEwMTkg
-ICAgIDAgIDI3MiAgIDE1NyAgIDIgICA0ICA5NAogMCAgMSAgMCAgICAgIDAgICAzMDU2ICAgMjg3
-NiAyMjg0MDAgICAwICAgMCAxMTI3NSAgICAgMCAgMjc2ICAgMTU1ICAgMyAgIDMgIDk1CiAwICAx
-ICAwICAgICAgMCAgIDMwNTYgICAyOTI4IDIyODMyNCAgIDAgICAwIDEwMjA4ICAgICAwICAyNjYg
-ICAxNzkgICA1ICAgNCAgOTEKIDAgIDEgIDAgICAgICAwICAgMzA1NiAgIDI5NTIgMjI4MjY4ICAg
-MCAgIDAgMTAwNzcgICAgIDAgIDI1NyAgIDE0MSAgIDIgICA1ICA5MwogMCAgMCAgMCAgICAgIDAg
-ICAzMjgwICAgMjk3NiAyMjgyNDggICAwICAgMCAgNzUxNyAgICAgMCAgMjI0ICAgMTMzICAgMyAg
-IDIgIDk1CiAwICAwICAwICAgICAgMCAgIDMyODAgICAyOTc2IDIyODI0OCAgIDAgICAwICAgICAw
-ICAgICAwICAxMDQgICAgMzcgICAwICAgMCAxMDAKIDAgIDAgIDAgICAgICAwICAgMzI4MCAgIDI5
-NzYgMjI4MjQ4ICAgMCAgIDAgICAgIDAgICAgIDEgIDEwNCAgICAzMyAgIDAgICAwIDEwMAogMCAg
-MCAgMCAgICAgIDAgICAzMjgwICAgMjk3NiAyMjgyNDggICAwICAgMCAgICAgMCAgICAgMCAgMTA1
-ICAgIDM5ICAgMCAgIDAgMTAwCi0gLSAtCiAwICAwICAwICAgICAgMCAgIDMyNTYgICAyOTc2IDIy
-ODI4MCAgIDAgICAwICAgICAwICAgICAwICAxMDIgICAgMjggICAwICAgMCAxMDAKIDAgIDAgIDAg
-ICAgICAwICAgMzI1NiAgIDI5NzYgMjI4MjgwICAgMCAgIDAgICAgIDAgICAgIDQgIDEwMyAgICAz
-MiAgIDAgICAwIDEwMAogICBwcm9jcyAgICAgICAgICAgICAgICAgICAgICBtZW1vcnkgICAgc3dh
-cCAgICAgICAgICBpbyAgICAgc3lzdGVtICAgICAgICAgY3B1CiByICBiICB3ICAgc3dwZCAgIGZy
-ZWUgICBidWZmICBjYWNoZSAgc2kgIHNvICAgIGJpICAgIGJvICAgaW4gICAgY3MgIHVzICBzeSAg
-aWQKIDIgIDAgIDAgICAgICAwICAgMzA1NiAgIDI5NzYgMjI4MjUyICAgMCAgIDAgIDEwMzUgICAg
-IDAgIDEyNyAgICA1NSAgIDAgICAxICA5OQogMCAgMSAgMCAgICAgIDAgICAzMDU2ICAgMjk3NiAy
-MzA4MTIgICAwICAgMCAzMjk2MCAgICAgMCAgMzczICAgMTU4ICAgNyAgIDggIDg1CiAwICAxICAx
-ICAgICAgMCAgIDMwNTYgICAyOTc2IDIyODE4NCAgIDAgICAwIDI5MDQ3ICAgICAxICAzNjYgICAg
-NjMgIDE2ICAxMCAgNzUKIDAgIDEgIDAgICAgICAwICAgMzA1NiAgIDI5NzYgMjI4MzgwICAgMCAg
-IDAgMjk1ODEgICAgIDAgIDM0NSAgICA0MCAgIDQgICA4ICA4OAogMCAgMiAgMCAgICAgIDAgICAz
-MDU2ICAgMjk3NiAyMjg0MjAgICAwICAgMCAyNzExNiAgICAgMCAgMzQ0ICAgIDQwICAgMCAgIDMg
-IDk3CiAxICAwICAwICAgICAyNCAgIDMwNTYgICAyOTc2IDIyODQyNCAgIDAgICAwIDE1ODk3ICAg
-ICAwIDE0MTUgIDIzMDAgICAzICAgOSAgODgKIDAgIDEgIDAgICAgIDI4ICAgMzA1NiAgIDI5NzYg
-MjI4NDQ4ICAgMCAgIDAgIDEyMTEgICAgIDAgIDQwMyAgIDYzMSAgIDAgICAyICA5OAogMSAgMCAg
-MCAgICAgMjggICAzMDU2ICAgMjk3NiAyMjg0NDggICAwICAgMCAgIDk1NyAgICAgMSAgMzQxICAg
-NTA0ICAgMCAgIDEgIDk5CiAwICAxICAwICAgICAyOCAgIDMwNTYgICAyOTc2IDIyODQ0OCAgIDAg
-ICAwICA5MTU1ICAgICAwIDIzODkgIDQ2MDAgICA0ICAxMSAgODYKIDAgIDEgIDAgICAgIDI4ICAg
-MzA1NiAgIDI5NzYgMjI4NDQ4ICAgMCAgIDAgIDEyMDggICAgIDEgIDQwMyAgIDYzMSAgIDAgICAx
-ICA5OQogMSAgMCAgMSAgICAgMzYgICAzMDU2ICAgMjk3NiAyMjg0NDggICAwICAgMCAgOTc2NSAg
-ICAgMCAgNDkwICAgODA1ICAgMSAgIDMgIDk2CiAwICAxICAwICAgICA4NCAgIDMwNTYgICAyOTc2
-IDIyODUwNCAgIDAgICAwIDI5Njg5ICAgIDIwICAzMzkgICAgNDYgICAwICAgMyAgOTcKIDAgIDAg
-IDAgICAgIDg0ICAgMzI3MiAgIDI5NzYgMjI4NTE2ICAgMCAgIDAgIDQ0MzIgICAgMTIgIDIyNiAg
-ICAzNCAgIDAgICAxICA5OAogMCAgMCAgMCAgICAgODQgICAzMjcyICAgMjk3NiAyMjg1MTYgICAw
-ICAgMCAgICAgMCAgICAgMCAgMTAwICAgIDI0ICAgMCAgIDAgMTAwCiAwICAwICAwICAgICA4NCAg
-IDMyNzIgICAyOTc2IDIyODUxNiAgIDAgICAwICAgICAwICAgICAwICAxMDEgICAgMjcgICAwICAg
-MCAxMDAKIDAgIDAgIDAgICAgIDg0ICAgMzI2OCAgIDI5NzYgMjI4NTIwICAgMCAgIDAgICAgIDEg
-ICAgIDAgIDEwMyAgICAzNSAgIDAgICAwIDEwMAogMCAgMCAgMCAgICAgODQgICAzMjY4ICAgMjk3
-NiAyMjg1MjAgICAwICAgMCAgICAgMCAgICAgMCAgMTAzICAgIDMyICAgMCAgIDAgMTAwCiAwICAw
-ICAwICAgICA4NCAgIDMyNjggICAyOTc2IDIyODUyMCAgIDAgICAwICAgICAwICAgICAwICAxMDUg
-ICAgMzYgICAwICAgMCAxMDAKLSAtIC0KICAgcHJvY3MgICAgICAgICAgICAgICAgICAgICAgbWVt
-b3J5ICAgIHN3YXAgICAgICAgICAgaW8gICAgIHN5c3RlbSAgICAgICAgIGNwdQogciAgYiAgdyAg
-IHN3cGQgICBmcmVlICAgYnVmZiAgY2FjaGUgIHNpICBzbyAgICBiaSAgICBibyAgIGluICAgIGNz
-ICB1cyAgc3kgIGlkCiAwICAwICAwICAgICA4NCAgIDMyNjggICAyOTc2IDIyODUyMCAgIDAgICAw
-ICAgICAwICAgICAwICAxMDMgICAgMzIgICAwICAgMCAxMDAKIDAgIDAgIDAgICAgIDg0ICAgMzI2
-NCAgIDI5NzYgMjI4NTI0ICAgMCAgIDAgICAgIDEgICAgIDAgIDEwOCAgICA0NCAgIDAgICAwIDEw
-MAogMCAgMCAgMCAgICAgODQgICAzMjY0ICAgMjk3NiAyMjg1MjQgICAwICAgMCAgICAgMCAgICAg
-MCAgMTA2ICAgIDM5ICAgMCAgIDAgMTAwCiAwICAwICAwICAgICA4NCAgIDMyNjQgICAyOTc2IDIy
-ODUyNCAgIDAgICAwICAgICAwICAgICAwICAxMDAgICAgMjcgICAwICAgMCAxMDAKIDAgIDAgIDAg
-ICAgIDg0ICAgMzE2OCAgIDI5NzYgMjI4NjIwICAgMCAgIDAgICAgOTIgICAgIDAgIDExMiAgICA1
-NiAgIDAgICAwIDEwMAogMCAgMCAgMCAgICAgODQgICAzMTY4ICAgMjk3NiAyMjg2MjAgICAwICAg
-MCAgICAgMCAgICAgMCAgMTAzICAgIDI4ICAgMCAgIDAgMTAwCiAwICAxICAwICAgICA4NCAgIDMw
-NTYgICAyOTc2IDIyODUwNCAgIDAgICAwICAgMTUzICAgICAwICAxMTMgICAgNTMgICAwICAgMCAx
-MDAKIDEgIDAgIDEgICAgIDk2ICAgMzA1NiAgIDI5NzYgMjI4NTE2ICAgMCAgIDAgMzI2NjEgICAg
-IDMgIDM3MSAgIDE0MyAgIDMgICA4ICA4OQogMCAgMSAgMCAgICA0MDAgICAzMDU2ICAgMjk3NiAy
-Mjg2MjAgICAwICAgMCAyNzY5NyAgICAgMSAgMzU1ICAgIDQ0ICAgMSAgIDUgIDk0CiAwICAxICAw
-ICAgIDg3NiAgIDMwNTYgICAyOTc2IDIyODY1NiAgIDAgICAwIDI5NTQxICAgICAxICAzNDYgICAg
-NDIgICA0ICAgOSAgODcKIDAgIDEgIDAgICAxMDQwICAgMzA1NiAgIDI5NzYgMjI4NjM2ICAgMCAg
-IDAgMjcyNjcgICAgIDAgIDM0NCAgICA0MSAgIDAgICA2ICA5NAogMCAgMSAgMCAgIDExODQgICAz
-MDU2ICAgMjk3NiAyMjg2NTIgICAwICAgMCAgOTQyMSAgICAgMCAgMzYwICAgMjM0ICAgMCAgIDIg
-IDk4CiAwICAxICAwICAgMTE4NCAgIDMwNTYgICAyOTc2IDIyODY1MiAgIDAgICAwICAyMDMyICAg
-ICAwICA2MDkgIDEwNDIgICAwICAgMyAgOTcKIDAgIDEgIDAgICAxMjU2ICAgMzA1NiAgIDI5NzYg
-MjI4NjU2ICAgMCAgIDAgIDQ3NTYgICAgIDAgMTI4OSAgMjQwNCAgIDIgICA1ICA5MwogMCAgMSAg
-MCAgIDEyNTYgICAzMDU2ICAgMjk3NiAyMjg2NTYgICAwICAgMCAgMTQzMSAgICAgOSAgNDYwICAg
-NzQyICAgMCAgIDIgIDk4CiAwICAxICAwICAgMTI1NiAgIDMwNTYgICAyOTc2IDIyODY1NiAgIDAg
-ICAwICAxMTA1ICAgICAwICAzNzcgICA1NzYgICAwICAgMCAgOTkKIDAgIDEgIDAgICAxMjU2ICAg
-MzA1NiAgIDI5NzYgMjI4NjU2ICAgMCAgIDAgICA4OTMgICAgIDAgIDMyNCAgIDQ3MSAgIDAgICAx
-ICA5OQogMSAgMSAgMCAgIDEyNTYgICAzMDU2ICAgMjk3NiAyMjg2NTYgICAwICAgMCAgMTAxNiAg
-ICAgMCAgMzU0ICAgNTMzICAgMCAgIDIgIDk3CiAwICAxICAwICAgMTI1NiAgIDMwNTYgICAyOTc2
-IDIyODY1NiAgIDAgICAwICAgOTU1ICAgIDE1ICAzNDQgICA1MDggICAwICAgMiAgOTgKICAgcHJv
-Y3MgICAgICAgICAgICAgICAgICAgICAgbWVtb3J5ICAgIHN3YXAgICAgICAgICAgaW8gICAgIHN5
-c3RlbSAgICAgICAgIGNwdQogciAgYiAgdyAgIHN3cGQgICBmcmVlICAgYnVmZiAgY2FjaGUgIHNp
-ICBzbyAgICBiaSAgICBibyAgIGluICAgIGNzICB1cyAgc3kgIGlkCiAxICAwICAwICAgMTI1NiAg
-IDMyNzIgICAyOTc2IDIyODY2OCAgIDAgICAwICAgMjExICAgICAxICAxNTcgICAxNDAgICAwICAg
-MCAxMDAKIDAgIDAgIDAgICAxMjU2ICAgMzI2OCAgIDI5NzYgMjI4NjcyICAgMCAgIDAgICAgIDEg
-ICAgIDAgIDEwMSAgICAyOCAgIDAgICAwIDEwMAogMCAgMCAgMCAgIDEyNTYgICAzMjY4ICAgMjk3
-NiAyMjg2NzIgICAwICAgMCAgICAgMCAgICAgMSAgMTAxICAgIDI3ICAgMCAgIDAgMTAwCi0gLSAt
-CiAwICAwICAwICAgMTI1NiAgIDMyNjggICAyOTc2IDIyODY3MiAgIDAgICAwICAgICAwICAgICAw
-ICAxMDQgICAgMzYgICAwICAgMCAxMDAKIDAgIDAgIDAgICAxMjU2ICAgMzI2OCAgIDI5NzYgMjI4
-NjcyICAgMCAgIDAgICAgIDAgICAgIDEgIDEwOCAgICA0NCAgIDAgICAwIDEwMAogMCAgMCAgMCAg
-IDEyNTYgICAzMTY4ICAgMjk3NiAyMjg3NzIgICAwICAgMCAgICA4NyAgICAgMCAgMTExICAgIDUw
-ICAgMCAgIDEgIDk5CiAwICAwICAwICAgMTI1NiAgIDMxNjggICAyOTc2IDIyODc3MiAgIDAgICAw
-ICAgICAwICAgICAxICAxMDUgICAgMzcgICAwICAgMCAxMDAKIDAgIDAgIDAgICAxMjU2ICAgMzE2
-OCAgIDI5NzYgMjI4NzcyICAgMCAgIDAgICAgIDAgICAgIDAgIDEwMCAgICAyNyAgIDAgICAwIDEw
-MAogMCAgMCAgMCAgIDEyNTYgICAzMTY0ICAgMjk3NiAyMjg3NzYgICAwICAgMCAgICAgMCAgICAg
-MSAgMTAxICAgIDIzICAgMCAgIDAgMTAwCiAwICAxICAwICAgMTMzNiAgIDMwNTYgICAyOTc2IDIy
-ODY2OCAgIDAgICAwIDI2OTg0ICAgICAxICAzMzEgICAxNjEgICAzICAgNSAgOTIKIDAgIDEgIDAg
-ICAxNDA0ICAgMzA1NiAgIDI5NzYgMjI4NjcyICAgMCAgIDAgMjc4MjcgICAgIDAgIDM1NyAgICA0
-MiAgIDMgIDEyICA4NQogMCAgMSAgMCAgIDE0NjQgICAzMDU2ICAgMjk3NiAyMjg2ODggICAwICAg
-MCAyOTEyOCAgICAgMCAgMzQ2ICAgIDQwICAgMCAgIDUgIDk1CiAwICAxICAwICAgMTQ3NiAgIDMw
-NTYgICAxMDk2IDIzMDU3MiAgIDAgICAwIDI3MzIzICAgICAwICAzNDMgICAgNDIgICAwICAgNSAg
-OTUKIDEgIDAgIDAgICAxNDc2ICAgMzA1NiAgIDEwOTYgMjMwNTcyICAgMCAgIDAgIDYwNzkgICAg
-IDAgIDM4NSAgIDM0MiAgIDAgICAxICA5OAogMCAgMSAgMCAgIDE0NzYgICAzMDU2ICAgMTA5NiAy
-MzA1NzIgICAwICAgMCAgMTYzMiAgICAgMCAgNTA4ICAgODQ0ICAgMCAgIDIgIDk4CiAgIHByb2Nz
-ICAgICAgICAgICAgICAgICAgICAgIG1lbW9yeSAgICBzd2FwICAgICAgICAgIGlvICAgICBzeXN0
-ZW0gICAgICAgICBjcHUKIHIgIGIgIHcgICBzd3BkICAgZnJlZSAgIGJ1ZmYgIGNhY2hlICBzaSAg
-c28gICAgYmkgICAgYm8gICBpbiAgICBjcyAgdXMgIHN5ICBpZAogMSAgMSAgMCAgIDE0NzYgICAz
-MDU2ICAgMTA5NiAyMzA1NzIgICAwICAgMCAgMTkxNiAgICAgMCAgNTg5ICAxMDAzICAgMCAgIDIg
-IDk4CiAwICAwICAwICAgMTQ3NiAgIDMyNzIgICAxMDk2IDIzMDU4NCAgIDAgICAwICAxMTA5ICAg
-IDExICAzODcgICA1OTUgICAwICAgMSAgOTgKIDAgIDAgIDAgICAxNDc2ICAgMzI2OCAgIDEwOTYg
-MjMwNTg0ICAgMCAgIDAgICAgIDAgICAgIDMgIDEwMSAgICAyNiAgIDAgICAwIDEwMAogMCAgMCAg
-MCAgIDE0NzYgICAzMjY4ICAgMTA5NiAyMzA1ODQgICAwICAgMCAgICAgMCAgICAgMCAgMTAxICAg
-IDI3ICAgMCAgIDAgMTAwCiAwICAwICAwICAgMTQ3NiAgIDMyNjggICAxMDk2IDIzMDU4NCAgIDAg
-ICAwICAgICAwICAgIDE1ICAxMDkgICAgMzggICAwICAgMCAxMDAKIDAgIDAgIDAgICAxNDc2ICAg
-MzI2OCAgIDEwOTYgMjMwNTg0ICAgMCAgIDAgICAgIDAgICAgIDAgIDEyMSAgICA3NyAgIDAgICAw
-IDEwMAogMSAgMCAgMCAgIDE0NzYgICAzMjY4ICAgMTA5NiAyMzA1ODQgICAwICAgMCAgICAgMCAg
-ICAgMCAgMTA4ICAgIDQzICAgMCAgIDAgMTAwCiAwICAwICAwICAgMTQ3NiAgIDMyNjggICAxMDk2
-IDIzMDU4NCAgIDAgICAwICAgICAwICAgICAwICAxMDYgICAgMzkgICAwICAgMCAxMDAKIDAgIDAg
-IDAgICAxNDc2ICAgMzI2OCAgIDEwOTYgMjMwNTg0ICAgMCAgIDAgICAgIDAgICAgIDAgIDEwMiAg
-ICAyOSAgIDAgICAwIDEwMAogMCAgMCAgMCAgIDE0NzYgICAzMTY4ICAgMTA5NiAyMzA2ODQgICAw
-ICAgMCAgICA4NyAgICAgMCAgMTE0ICAgIDYwICAgMCAgIDAgMTAwCiAwICAxICAwICAgMTQ3NiAg
-IDMwNTYgICAxMDk2IDIzMDU2OCAgIDAgICAwICAgMzM1ICAgICAwICAxODUgICAxOTQgICAwICAg
-MSAgOTkKIDEgIDAgIDAgICAxNDc2ICAgMzA1NiAgIDEwOTYgMjMwNTY4ICAgMCAgIDAgIDExOTkg
-ICAgIDAgIDQwMSAgIDYyNyAgIDEgICAxICA5OAogMCAgMSAgMCAgIDE0NzYgICAzMDU2ICAgMTA5
-NiAyMzA1NjggICAwICAgMCAgMTI2MyAgICAgMCAgNDE2ICAgNjU4ICAgMCAgIDIgIDk3CiAwICAx
-ICAwICAgMTQ3NiAgIDMwNTYgICAxMDk2IDIzMDU2OCAgIDAgICAwICAxMTgzICAgICAwICAzOTYg
-ICA2MTggICAwICAgMiAgOTcKIDAgIDEgIDAgICAxNDc2ICAgMzA1NiAgIDEwOTYgMjMwNTY4ICAg
-MCAgIDAgICA3NDcgICAgIDEgIDI4OCAgIDQwMCAgIDEgICAwICA5OQogMSAgMCAgMCAgIDE0NzYg
-ICAzMDU2ICAgMTA5NiAyMzA1NjggICAwICAgMCAgMTc5MiAgICAgMCAgNTQ5ICAgOTIwICAgMCAg
-IDMgIDk3CiAwICAxICAwICAgMTQ3NiAgIDMwNTYgICAxMDk2IDIzMDU2OCAgIDAgICAwICAxNDA1
-ICAgICAxICA0NTIgICA3MjkgICAwICAgMSAgOTgKIDAgIDEgIDAgICAxNDc2ICAgMzA1NiAgIDEw
-OTYgMjMwNTY4ICAgMCAgIDAgICA4NDEgICAgIDAgIDMxMSAgIDQ0NyAgIDAgICAwIDEwMAogMCAg
-MSAgMCAgIDE0NzYgICAzMDU2ICAgMTA5NiAyMzA1NjggICAwICAgMCAgMTI2MSAgICAgMCAgNDE2
-ICAgNjU2ICAgMCAgIDEgIDk5CiAxICAwICAwICAgMTQ3NiAgIDMwNTYgICAxMDk2IDIzMDU2OCAg
-IDAgICAwICAxOTc1ICAgIDExICA1OTcgIDEwMTEgICAwICAgMSAgOTgK
+A user-space device driver can do many of the things that kernel
+drivers can't, such as perform a long-running computation, block while
+waiting for an event, or read files from the file system.  Unlike
+kernel drivers, a user-space device driver can use other device
+drivers--that is, access the network, talk to a serial port, get
+interactive input from the user, pop up GUI windows, or read from
+disks.  User-space drivers implemented using FUSD can be much easier to
+debug; it is impossible for them to crash the machine, are easily
+traceable using tools such as gdb, and can be killed and restarted
+without rebooting.  FUSD drivers don't have to be in C--Perl, Python,
+or any other language that knows how to read from and write to a file
+descriptor can work with FUSD.  User-space drivers can be swapped out,
+whereas kernel drivers lock physical memory.
 
---------------Boundary-00=_RHGEKC4V1BSDDZXN2VB4
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="file_readahead.settings"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="file_readahead.settings"
+FUSD drivers are conceptually similar to kernel drivers: a set of
+callback functions called in response to system calls made on file
+descriptors by user programs.  FUSD's C library provides a device
+registration function, similar to the kernel's devfs_register_chrdev()
+function, to create new devices.  fusd_register() accepts the device
+name and a structure full of pointers.  Those pointers are callback
+functions which are called in response to certain user system
+calls--for example, when a process tries to open, close, read from, or
+write to the device file.  The callback functions should conform to
+the standard definitions of POSIX system call behavior.  In many ways,
+the user-space FUSD callback functions are identical to their kernel
+counterparts.
 
-ZmlsZV9yZWFkYWhlYWQgICAgICAgICAgMCAgICAgICAgICAgICAgIDAgICAgICAgICAgICAgICAy
-MDk3MTUxICAgICAgICAgcncKZmlsZV9yZWFkYWhlYWQgICAgICAgICAgMzEgICAgICAgICAgICAg
-IDAgICAgICAgICAgICAgICAyMDk3MTUxICAgICAgICAgcncKZmlsZV9yZWFkYWhlYWQgICAgICAg
-ICAgNTExICAgICAgICAgICAgIDAgICAgICAgICAgICAgICAyMDk3MTUxICAgICAgICAgcncKZmls
-ZV9yZWFkYWhlYWQgICAgICAgICAgMTAyMyAgICAgICAgICAgIDAgICAgICAgICAgICAgICAyMDk3
-MTUxICAgICAgICAgcncKZmlsZV9yZWFkYWhlYWQgICAgICAgICAgMCAgICAgICAgICAgICAgIDAg
-ICAgICAgICAgICAgICAyMDk3MTUxICAgICAgICAgcncK
+The proxying of kernel system calls that makes this kind of program
+possible is implemented by FUSD, using a combination of a kernel
+module and cooperating user-space library.  The kernel module
+implements a character device, /dev/fusd, which is used as a control
+channel between the two.  fusd_register() uses this channel to send a
+message to the FUSD kernel module, telling the name of the device the
+user wants to register.  The kernel module, in turn, registers that
+device with the kernel proper using devfs.  devfs and the kernel don't
+know anything unusual is happening; it appears from their point of
+view that the registered devices are simply being implemented by the
+FUSD module.
 
---------------Boundary-00=_RHGEKC4V1BSDDZXN2VB4--
+Later, when kernel makes a callback due to a system call (e.g. when
+the character device file is opened or read), the FUSD kernel module's
+callback blocks the calling process, marshals the arguments of the
+callback into a message and sends it to user-space.  Once there, the
+library half of FUSD unmarshals it and calls whatever user-space
+callback the FUSD driver passed to fusd_register().  When that
+user-space callback returns a value, the process happens in reverse:
+the return value and its side-effects are marshaled by the library
+and sent to the kernel.  The FUSD kernel module unmarshals this
+message, matches it up with a corresponding outstanding request, and
+completes the system call.  The calling process is completely unaware
+of this trickery; it simply enters the kernel once, blocks, unblocks,
+and returns from the system call---just as it would for any other
+blocking call.
+
+One of the primary design goals of FUSD is stability.  It should
+not be possible for a FUSD driver to corrupt or crash the kernel,
+either due to error or malice.  Of course, a buggy driver itself may
+corrupt itself (e.g., due to a buffer overrun).  However, strict error
+checking is implemented at the user-kernel boundary which should
+prevent drivers from corrupting the kernel or any other user-space
+process---including the errant driver's own clients, and other FUSD
+drivers.
+
+For more information, please see the comprehensive documentation in
+the 'doc' directory.
+
+ Jeremy Elson <jelson@circlemud.org>
+ Sensoria Corporation
+ September 28, 2001

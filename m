@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313288AbSDOVUN>; Mon, 15 Apr 2002 17:20:13 -0400
+	id <S313293AbSDOVV2>; Mon, 15 Apr 2002 17:21:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313297AbSDOVUK>; Mon, 15 Apr 2002 17:20:10 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:7940 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S313288AbSDOVTI>; Mon, 15 Apr 2002 17:19:08 -0400
-Date: Mon, 15 Apr 2002 22:18:09 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
-        wli@holomorphy.com
+	id <S313297AbSDOVV1>; Mon, 15 Apr 2002 17:21:27 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:5604 "EHLO e21.nc.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S313293AbSDOVVZ>;
+	Mon, 15 Apr 2002 17:21:25 -0400
+Date: Mon, 15 Apr 2002 15:19:53 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org, wli@holomorphy.com
 Subject: Re: [PATCH] for_each_zone / for_each_pgdat
-Message-ID: <20020415221809.A22149@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
-	wli@holomorphy.com
-In-Reply-To: <Pine.LNX.4.44L.0204151755491.16531-100000@duckman.distro.conectiva> <Pine.LNX.4.33.0204151400200.13034-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+Message-ID: <1774420000.1018909193@flay>
+In-Reply-To: <Pine.LNX.4.44L.0204151755491.16531-100000@duckman.distro.conectiva>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 15, 2002 at 02:08:54PM -0700, Linus Torvalds wrote:
-> Which requires the user to use something like
-> 
-> 	for_each_zone(zone) {
-> 		...
-> 	} end_zone;
-> 
-> but doesn't need changing the double loop into a artificial single loop.
+> Because code that doesn't care about pgdats shouldn't have to
+> learn about them, IMHO.  I used to have the doubly nested for
+> loop in -rmap, but William Irwin came up with a way to make
+> it a singly nested loop for code that only cares about zones.
 
-Bah, wli's version is so much nicer to use - in my eyes that justifies
-the additional complexity in the macro.
+Can't you just have the simple single and double loops in mmzone.h,
+seperated by a #ifdef CONFIG_DISCONTIGMEM?
+
+I like the general abstraction idea of where you're going though.
+Is there a for_each_node already? Can't see one:
+
+#define for_each_node(nid) \
+	for (nid = 0; nid < numnodes; nid++)
+
+would allow us to change the assumption that nodes are numbered
+contiguously, starting from 0, more easily later on ... ?
+
+M.
+

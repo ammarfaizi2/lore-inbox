@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbTKLCu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 21:50:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbTKLCu0
+	id S261592AbTKLDBy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 22:01:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbTKLDBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 21:50:26 -0500
-Received: from fw.osdl.org ([65.172.181.6]:19936 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261484AbTKLCuT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 21:50:19 -0500
-Date: Tue, 11 Nov 2003 18:54:19 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Prasanna Meda <pmeda@akamai.com>
-Cc: tulip-users@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, danner@akamai.com, bmancuso@akamai.com
-Subject: Re: Poss. bug in tulip driver since 2.4.7
-Message-Id: <20031111185419.0ff7a596.akpm@osdl.org>
-In-Reply-To: <3FB1832C.35A52F9A@akamai.com>
-References: <3FB1832C.35A52F9A@akamai.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 11 Nov 2003 22:01:54 -0500
+Received: from out007pub.verizon.net ([206.46.170.107]:61657 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S261592AbTKLDBu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 22:01:50 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+To: Michal Kosmulski <M.Kosmulski@elka.pw.edu.pl>,
+       John Bradford <john@grabjohn.com>
+Subject: Re: ASUS CD-ROM problem reading CD-RW
+Date: Tue, 11 Nov 2003 22:01:46 -0500
+User-Agent: KMail/1.5.1
+Cc: <linux-kernel@vger.kernel.org>
+References: <Pine.SOL.4.30.0311112224550.26013-100000@mion.elka.pw.edu.pl>
+In-Reply-To: <Pine.SOL.4.30.0311112224550.26013-100000@mion.elka.pw.edu.pl>
+Organization: None that appears to be detectable by casual observers
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311112201.46020.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.61.203] at Tue, 11 Nov 2003 21:01:49 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prasanna Meda <pmeda@akamai.com> wrote:
+On Tuesday 11 November 2003 16:31, Michal Kosmulski wrote:
+>> > I own a 40x ASUS CD-ROM drive CD-S400 (this is an IDE drive but
+>> > it runs under ide-scsi).
+>>
+>> Why do you want to use it with IDE-SCSI?  Why not use it as a
+>> native IDE device?
 >
-> The inner for loop shown below was not
->  supposed to be  inside  the  outside  loop.
->  They  also use  the  same index i.
->  Due to  this, when mc_count is more than
->  14,  with non ASIX chips,  panics, corruptions
->  and  denial of services to multicast addresses
->  can  result!
-> 
->  http://lxr.linux.no/source/drivers/net/tulip/tulip_core.c#L1055
+>I like k3b and other kde tools dealing with CDs and they require the
+> use of ide-scsi at least as far as I know (I tried to use cdrecord
+> 2 without ide-scsi with k3b but without success). I use k3b because
+> I sometimes use an external usb cd-recorder. However it is
+> currently not connected to the system.
+>Michal
 
-So can you confirm that the driver works correctly with this change?
+k3b does indeed allow the use of straight ide access for at least 
+kernel 2.6.0-test9-mm2.  I'm running it that way.  Likewise, grip 
+seems to be happy as long as /dev/cdrom is a softlink to /dev/hdc.
+I'm running both of them that way here.
 
---- 25/drivers/net/tulip/tulip_core.c~tulip-hash-fix	2003-11-11 18:51:52.000000000 -0800
-+++ 25-akpm/drivers/net/tulip/tulip_core.c	2003-11-11 18:52:31.000000000 -0800
-@@ -979,12 +979,13 @@ static void build_setup_frame_hash(u16 *
- 	for (i = 0, mclist = dev->mc_list; mclist && i < dev->mc_count;
- 	     i++, mclist = mclist->next) {
- 		int index = ether_crc_le(ETH_ALEN, mclist->dmi_addr) & 0x1ff;
-+		int j;
- 
- 		set_bit_le(index, hash_table);
- 
--		for (i = 0; i < 32; i++) {
--			*setup_frm++ = hash_table[i];
--			*setup_frm++ = hash_table[i];
-+		for (j = 0; j < 32; j++) {
-+			*setup_frm++ = hash_table[j];
-+			*setup_frm++ = hash_table[j];
- 		}
- 		setup_frm = &tp->setup_frame[13*6];
- 	}
-
-_
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 

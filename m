@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281623AbRKPWxN>; Fri, 16 Nov 2001 17:53:13 -0500
+	id <S281631AbRKPW6X>; Fri, 16 Nov 2001 17:58:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281633AbRKPWxD>; Fri, 16 Nov 2001 17:53:03 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:38673 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S281623AbRKPWw6>;
-	Fri, 16 Nov 2001 17:52:58 -0500
-Date: Fri, 16 Nov 2001 23:52:42 +0100
-From: Jens Axboe <axboe@suse.de>
-To: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S281644AbRKPW6T>; Fri, 16 Nov 2001 17:58:19 -0500
+Received: from postfix2-1.free.fr ([213.228.0.9]:4271 "HELO postfix2-1.free.fr")
+	by vger.kernel.org with SMTP id <S281631AbRKPW57> convert rfc822-to-8bit;
+	Fri, 16 Nov 2001 17:57:59 -0500
+Date: Fri, 16 Nov 2001 21:12:33 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: "David S. Miller" <davem@redhat.com>
+Cc: <axboe@suse.de>, <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] block-highmem-all-18
-Message-ID: <20011116235242.E11826@suse.de>
-In-Reply-To: <20011116093927.E27010@suse.de> <20011116193057.O1825-100000@gerard>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20011116193057.O1825-100000@gerard>
+In-Reply-To: <20011116.135409.118971851.davem@redhat.com>
+Message-ID: <20011116205140.J2032-100000@gerard>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 16 2001, Gérard Roudier wrote:
-> Just to make things clear about how DMA width can be configured on the
-> driver at the moment and will ever be:
-> 
-> 1) The 3 DMA addressing modes (32 bit, 40 bit and 64 bit limited to 16*4Gb
->    are compiled options. The handshaking with other kernel parts is based
->    on the pci_set_dma_mask() interface.
-> 
-> 2) This DMA adressing mode will probably be auto-configurable on some
->    further driver version, but I donnot want any useless code to be
->    neither compiled nor executed by the driver for the 99,9.. % of
->    real machines  that only need legacy 32 bit DMA addressing (i.e.
->    Mode 0 in the driver context).
->    Other DMA modes will only apply to the few configurations that
->    can be probed as needing larger DMA addressing, even if larger DMA
->    addressing will not harm on machines that donnot need the feature.
->    As a result the DMA addressing mode will stay a compilation option,
->    optionnally auto-probed at 'make kernel|module' time.
-> 
-> Now that things are hopefully clearer:), I donnot see any relevance about
-> having any additionnal flag related to DMA addressing, at least as far as
-> the sym-2 driver is concerned.
 
-The can_dma_32 flag is purely a case of being very cautious and _only_
-enabling highmem I/O to drivers that have been tested as good! In a
-perfect world with perfect device drivers, it would not be needed and I
-would happily be using just the pci dma mask while the lions and lambs
-drink milk from the river. In the real world most drivers suck badly and
-the lambs turn bloody :-)
 
-BTW, I never expected sym2 to cause problems, at least the part I looked
-at handled this perfectly as I've stated before.
+On Fri, 16 Nov 2001, David S. Miller wrote:
 
-> Thanks a lot for your work (despite the odd 'may_dma_somewhat' flag I seem
-> not to like that much.:) )
+>    From: Gérard Roudier <groudier@free.fr>
+>    Date: Fri, 16 Nov 2001 19:59:02 +0100 (CET)
+>
+>    On Fri, 16 Nov 2001, Jens Axboe wrote:
+>
+>    > - Add sym2 can_dma_32 flag (me)
+>                 ^^^^^^^^^^ Pooaaahhh!:) What's this utter oddity ?
+>    Only dma 32 ? :-)
+>
+> It is workaround for buggy drivers, when set it means that single SG
+> list entry request will be handled correctly.  When clear it means
+> that single entry SG lists are to be avoided by the block layer.
+>
+> Many devices would explode when given single entry scatterlist. :(
+>
+> It's naming is questionable... that I agree with.  The name should be
+> more suggestive to what it really means.
 
-Hope I've cleared up the misunderstanding there.
+For now, it humanly means that the device is able to dma decimal value 32
+which does not look this great a feature, nor that serious a bug. :-) :o)
 
--- 
-Jens Axboe
+Thanks, anyway, for the clarification.
+
+  Gérard.
 

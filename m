@@ -1,44 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289255AbSBDXBv>; Mon, 4 Feb 2002 18:01:51 -0500
+	id <S289270AbSBDXJL>; Mon, 4 Feb 2002 18:09:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289260AbSBDXBb>; Mon, 4 Feb 2002 18:01:31 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:18100 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S289255AbSBDXB0>;
-	Mon, 4 Feb 2002 18:01:26 -0500
-Date: Tue, 5 Feb 2002 01:59:12 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Jussi Laako <jussi.laako@kolumbus.fi>
-Cc: Ed Tomlinson <tomlins@cam.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] improving O(1)-J9 in heavily threaded situations
-In-Reply-To: <3C5EE691.1E7C2ADF@kolumbus.fi>
-Message-ID: <Pine.LNX.4.33.0202050157170.19749-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289272AbSBDXJB>; Mon, 4 Feb 2002 18:09:01 -0500
+Received: from jalon.able.es ([212.97.163.2]:64947 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S289270AbSBDXIv>;
+	Mon, 4 Feb 2002 18:08:51 -0500
+Date: Tue, 5 Feb 2002 00:08:42 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: mingo@elte.hu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] O(1) scheduler, -K2
+Message-ID: <20020205000842.A10594@werewolf.able.es>
+In-Reply-To: <Pine.LNX.4.33.0202040621400.22435-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.33.0202040621400.22435-100000@localhost.localdomain>; from mingo@elte.hu on lun, feb 04, 2002 at 06:26:44 +0100
+X-Mailer: Balsa 1.3.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 4 Feb 2002, Jussi Laako wrote:
+On 20020204 Ingo Molnar wrote:
+>
+>the -K2 O(1) scheduler patch for kernels 2.5.3, 2.4.18-pre7 and 2.4.17 is
+>available at:
+>
+>    http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.3-K2.patch
+>    http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.4.17-K2.patch
+>    http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.4.18-pre7-K2.patch
+>
+>the -K2 patch includes fixes, cleanups, performance improvements and
+>interactivity improvements.
+>
+>Bug reports, comments, suggestions are welcome,
+>
 
-> My application uses three tier architecture where is low HAL layer
-> reading audio from soundcard which is compressed and sent (TCP) to
-> distributor process which decompresses the audio and distributes
-> (UNIX/LOCAL) it to clients. Distributor's clients are the CPU hogs
-> doing various processing tasks to the signal and then sending (TCP)
-> the results to the very thin user interface.
+Not usre if its a bug or my fault.
+To build bproc, I changed all
 
-Please renice your CPU hog soundcard processes to -11, does that make any
-difference? (under -K2)
+nice = current->nice   -----> nice = task_nice(current)
 
-> HAL and distributor are running as SCHED_FIFO, but CPU hog processing
-> tasks are dynamically fork()/exec()'d and run on default priority (not
-> as root). So I should nice user interfaces to 15+?
+but...
 
-is it more important to run these CPU hogs than to run interactive tasks?
-If yes then renice them to -11.
+werewolf:~# depmod -ae
+depmod: *** Unresolved symbols in /lib/modules/2.4.18-pre7-slb/bproc/bproc.o
+depmod:         task_nice
 
-	Ingo
+Perhaps a missing
 
+ EXPORT_SYMBOL(set_user_nice);
++EXPORT_SYMBOL(task_nice);
+
+in ksyms.c ??
+
+TIA
+
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.18-pre7-slb #1 SMP Mon Feb 4 21:21:52 CET 2002 i686

@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261323AbSJCVtI>; Thu, 3 Oct 2002 17:49:08 -0400
+	id <S261173AbSJCVjG>; Thu, 3 Oct 2002 17:39:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261335AbSJCVtI>; Thu, 3 Oct 2002 17:49:08 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:28147 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261323AbSJCVtI>; Thu, 3 Oct 2002 17:49:08 -0400
-Subject: Re: export of sys_call_table
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: bidulock@openss7.org
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021003153943.E22418@openss7.org>
-References: <20021003153943.E22418@openss7.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Oct 2002 23:02:40 +0100
-Message-Id: <1033682560.28850.32.camel@irongate.swansea.linux.org.uk>
+	id <S261305AbSJCVjF>; Thu, 3 Oct 2002 17:39:05 -0400
+Received: from pina.terra.com.br ([200.176.3.17]:20401 "EHLO pina.terra.com.br")
+	by vger.kernel.org with ESMTP id <S261173AbSJCVit>;
+	Thu, 3 Oct 2002 17:38:49 -0400
+Date: Thu, 3 Oct 2002 18:44:18 -0300
+From: Christian Reis <kiko@async.com.br>
+To: NFS@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.4.19+trond and diskless locking problems
+Message-ID: <20021003184418.K3869@blackjesus.async.com.br>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-03 at 22:39, Brian F. G. Bidulock wrote:
-> I see that RH, in their infinite wisdom, have seen fit to remove
-> the export of sys_call_table in 8.0 kernels breaking any loadable
-> modules that wish to implement non-implemented system calls such
-> as LiS's or iBCS implementation of putmsg/getmsg.
+Hey there,
 
-Overwriting syscall table entries is not safe. Its not safe because
-there is no locking mechanism, and its not safe because of the pentium
-III errata.
+We've got a network with about 20 diskless boxes at a client office.
+They've been running 2.4.19 (both the knfsd server and the clients) with
+Trond's patches for a while now, and though performance is really nice,
+occasionally one box or another will end up with a strange locking
+problem. 
 
-> Until now, loadable modules have been able to just overwrite
-> the non implemented point in the sys_call_table when they load
-> and putting it back when they unload.  There is no mechanism
-> for registering system calls.
+At bootup, and at shutdown, and for certain other tasks (reading utmp,
+etc) the box hangs for a long while (during which I suspect it is trying
+to lock). It hangs for about 300 seconds and then goes on normally.
 
-Not actually safely implementable. The right way to do this is a
-relevant 2.5 question. In general however you shouldnt need to register
-syscalls because the upper layer interfaces already exist (the LiS stuff
-is an example otherwise I grant). 
+When this happens, there is always a file left in /var/lib/nfs/sm
+(normally there are no files in there for none of the clients, even when
+they are on) for the hanging box. Is this normal?
 
-Alan
+We also occasionally get a log message in the server for this box like:
 
+    kernel:Aug 10 17:39:22 anthem kernel: lockd: cannot monitor 192.168.99.7
+
+Trond, can I get you more troubleshooting information, or should I try
+2.4.20-pre on server *and* clients? This is a bit wierd, but since I
+don't know a lot of what went on in the last changes, I'm not sure where
+to start looking.
+
+Take care,
+--
+Christian Reis, Senior Engineer, Async Open Source, Brazil.
+http://async.com.br/~kiko/ | [+55 16] 261 2331 | NMFL

@@ -1,73 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265215AbTLFRiu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 12:38:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265216AbTLFRiu
+	id S265218AbTLFRnm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 12:43:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265220AbTLFRnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 12:38:50 -0500
-Received: from ppp-RAS1-3-87.dialup.eol.ca ([64.56.226.87]:7296 "EHLO
-	node1.opengeometry.net") by vger.kernel.org with ESMTP
-	id S265215AbTLFRis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 12:38:48 -0500
-Date: Sat, 6 Dec 2003 12:38:50 -0500
-From: William Park <opengeometry@yahoo.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Re: SMP broken on Dell PowerEdge 4100/200 under 2.6.0-testxx?
-Message-ID: <20031206173850.GB362@node1.opengeometry.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <fa.jiqirm0.13gv2u@ifi.uio.no> <fa.f9f2gij.1kua0f@ifi.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <fa.f9f2gij.1kua0f@ifi.uio.no>
-User-Agent: Mutt/1.4.1i
+	Sat, 6 Dec 2003 12:43:42 -0500
+Received: from stinkfoot.org ([65.75.25.34]:37778 "EHLO stinkfoot.org")
+	by vger.kernel.org with ESMTP id S265218AbTLFRnk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 12:43:40 -0500
+Message-ID: <3FD215F9.8070506@stinkfoot.org>
+Date: Sat, 06 Dec 2003 12:46:33 -0500
+From: Ethan Weinstein <lists@stinkfoot.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20031103
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23: aic7xxx/aicasm fails to build
+References: <20031205093800.GV754@charite.de>
+In-Reply-To: <20031205093800.GV754@charite.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 06, 2003 at 10:59:01AM +0000, William Lee Irwin III wrote:
-> This leads to a similar conclusion to Stian Jordet's case. It's not
-> mistaking you for HT, it's the lack of an internal distinction between
-> the cases that need and don't need irq balancing.
+Ralf Hildebrandt wrote:
+> Hi!
+> 
+> When I try to build 2.4.23, I get:
+> 
+> ...
+> /usr/bin/make -C scsi
+> make[3]: Entering directory /usr/src/linux-2.4.23/drivers/scsi'
+> /usr/bin/make -C aic7xxx
+> make[4]: Entering directory /usr/src/linux-2.4.23/drivers/scsi/aic7xxx'
+> /usr/bin/make all_targets
+> make[5]: Entering directory /usr/src/linux-2.4.23/drivers/scsi/aic7xxx'
+> /usr/bin/make -C aicasm
+> make[6]: Entering directory /usr/src/linux-2.4.23/drivers/scsi/aic7xxx/aicasm'
+> yacc -d -b aicasm_gram aicasm_gram.y
+> mv aicasm_gram.tab.c aicasm_gram.c
+> mv aicasm_gram.tab.h aicasm_gram.h
+> yacc -d -b aicasm_macro_gram -p mm aicasm_macro_gram.y
+> mv aicasm_macro_gram.tab.c aicasm_macro_gram.c
+> mv aicasm_macro_gram.tab.h aicasm_macro_gram.h
+> lex  -oaicasm_scan.c aicasm_scan.l
+> lex  -Pmm -oaicasm_macro_scan.c aicasm_macro_scan.l
+> gcc -I/usr/include -I. aicasm.c aicasm_symbol.c aicasm_gram.c aicasm_macro_gram.c aicasm_scan.c aicasm_macro_scan.c -o aicasm -ld
+> aicasm_gram.y:1933: warning: type mismatch with previous implicit declaration
+> aicasm_gram.tab.c:3055: warning: previous implicit declaration of yyerror'
+> aicasm_gram.y:1933: warning: yyerror' was previously implicitly declared to return int'
+> aicasm_macro_gram.y:162: warning: type mismatch with previous implicit declaration
+> aicasm_macro_gram.tab.c:1275: warning: previous implicit declaration of mmerror'
+> aicasm_macro_gram.y:162: warning: mmerror' was previously implicitly declared to return int'
+> aicasm_scan.l: In function expand_macro':
+> aicasm_scan.l:522: error: yytext_ptr' undeclared (first use in this function)
+> aicasm_scan.l:522: error: (Each undeclared identifier is reported only once
+> aicasm_scan.l:522: error: for each function it appears in.)
+> make[6]: *** [aicasm] Error 1
+> make[6]: Leaving directory /usr/src/linux-2.4.23/drivers/scsi/aic7xxx/aicasm'
+> make[5]: *** [aicasm/aicasm] Error 2
+> make[5]: Leaving directory /usr/src/linux-2.4.23/drivers/scsi/aic7xxx'
+> make[4]: *** [first_rule] Error 2
+> make[4]: Leaving directory /usr/src/linux-2.4.23/drivers/scsi/aic7xxx'
+> make[3]: *** [_subdir_aic7xxx] Error 2
+> make[3]: Leaving directory /usr/src/linux-2.4.23/drivers/scsi'
+> make[2]: *** [_subdir_scsi] Error 2
+> make[2]: Leaving directory /usr/src/linux-2.4.23/drivers'
+> make[1]: *** [_dir_drivers] Error 2
+> make[1]: Leaving directory /usr/src/linux-2.4.23'
+> make: *** [stamp-build] Error 2
+> 
+Ralf,
 
-I have VP6 (Apollo Pro 133A, 82c694X/686B) dual-P3 (800MHz/133MHz).  I'm
-currently using MPS 1.1, because USB doesn't work with MPS 1.4 (or, it
-does but only with 'noapic').  And, I can report the same finding as
-others.
+I believe if you turn off
+CONFIG_AIC7XXX_BUILD_FIRMWARE in your config, it should build.
 
-Before:
--------
-           CPU0       CPU1       
-  0:      79365         63    IO-APIC-edge  timer
-  1:        215          1    IO-APIC-edge  i8042
-  2:          0          0          XT-PIC  cascade
-  4:       8654          0    IO-APIC-edge  serial
-  8:          1          1    IO-APIC-edge  rtc
- 12:         52          1    IO-APIC-edge  i8042
- 14:       2155          0    IO-APIC-edge  ide0
- 15:          2          0    IO-APIC-edge  ide1
- 17:          0          0   IO-APIC-level  eth0
-NMI:          0          0 
-LOC:      79231      79266 
-ERR:          0
-MIS:          0
-
-After 'noirqbalance':
----------------------
-           CPU0       CPU1       
-  0:      15039      16025    IO-APIC-edge  timer
-  1:         47         75    IO-APIC-edge  i8042
-  2:          0          0          XT-PIC  cascade
-  4:         21         43    IO-APIC-edge  serial
-  8:          2          0    IO-APIC-edge  rtc
- 12:         21         32    IO-APIC-edge  i8042
- 14:        828        410    IO-APIC-edge  ide0
- 15:          2          0    IO-APIC-edge  ide1
- 17:          0          0   IO-APIC-level  eth0
-NMI:          0          0 
-LOC:      30865      30900 
-ERR:          0
-MIS:          0
-
--- 
-William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>
-Linux solution for data management and processing. 
+Ethan

@@ -1,72 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268222AbUHFRvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268239AbUHFSGy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268222AbUHFRvu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 13:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268220AbUHFRtK
+	id S268239AbUHFSGy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 14:06:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268234AbUHFSEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 13:49:10 -0400
-Received: from zcamail05.zca.compaq.com ([161.114.32.105]:36612 "EHLO
-	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
-	id S268210AbUHFRoV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 13:44:21 -0400
-Date: Thu, 5 Aug 2004 16:32:20 -0500
-From: mikem <mikem@beardog.cca.cpqcorp.net>
-To: akpm@osdl.org, axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: cciss updates again [6/6] pdev->intr fix for 2.6.8-rc3
-Message-ID: <20040805213220.GE6578@beardog.americas.cpqcorp.net>
-Reply-To: mike.miller@hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Fri, 6 Aug 2004 14:04:11 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:1002 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S268226AbUHFSCU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 14:02:20 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C47BDF.78BB8B0A"
+Subject: RE: [PATCH] Automatically enable bigsmp on big HP machines
+Date: Fri, 6 Aug 2004 11:02:00 -0700
+Message-ID: <88056F38E9E48644A0F562A38C64FB60028F9BCE@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] Automatically enable bigsmp on big HP machines
+Thread-Index: AcR7USlqAz6B4eyMSxC5m8no9S44XQAhZDew
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 06 Aug 2004 18:02:01.0174 (UTC) FILETIME=[79087F60:01C47BDF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch 6 of 6
+This is a multi-part message in MIME format.
 
-This patch fixes our usage of pdev->intr. We were truncating it to an
-unchar. We were also reading it before calling pci_enable_device. This
-patch fixes both of those. Thanks to Bjorn Helgaas for the patch.
-Please apply in order.
+------_=_NextPart_001_01C47BDF.78BB8B0A
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+
+>-----Original Message-----
+>From: Andi Kleen [mailto:ak@suse.de]=20
+>
+>This won't work on big AMD boxes I think. They don't have a XAPIC.
+>
+>The other subarchitectures (es7000,summit) are usually=20
+>selected using ACPI=20
+>OEM tablesnow, you would need to make sure that it happens after that.
+>
+>Can you check that the there is really an XAPIC compatible APIC
+>somewhere in the system? (e.g. by reading the version number=20
+>from the APIC?)
+>Then I guess it would be ok.
+>
+>-Andi
+
+
+Here is the patch that I have.
+Somewhat tricky, it calls bigsmp_probe twice and default is=20
+no longer the last probe. But, I think this is the right way=20
+to identify bigsmp capable systems automatically.
 
 Thanks,
-mikem
--------------------------------------------------------------------------------
-diff -burpN lx268-rc3-p005/drivers/block/cciss.c lx268-rc3/drivers/block/cciss.c
---- lx268-rc3-p005/drivers/block/cciss.c	2004-08-05 11:21:05.069294000 -0500
-+++ lx268-rc3/drivers/block/cciss.c	2004-08-05 11:30:40.761776344 -0500
-@@ -2300,7 +2300,6 @@ static int find_PCI_BAR_index(struct pci
- static int cciss_pci_init(ctlr_info_t *c, struct pci_dev *pdev)
- {
- 	ushort subsystem_vendor_id, subsystem_device_id, command;
--	unchar irq = pdev->irq;
- 	__u32 board_id, scratchpad = 0;
- 	__u64 cfg_offset;
- 	__u32 cfg_base_addr;
-@@ -2359,11 +2358,11 @@ static int cciss_pci_init(ctlr_info_t *c
- 
- #ifdef CCISS_DEBUG
- 	printk("command = %x\n", command);
--	printk("irq = %x\n", irq);
-+	printk("irq = %x\n", pdev->irq);
- 	printk("board_id = %x\n", board_id);
- #endif /* CCISS_DEBUG */ 
- 
--	c->intr = irq;
-+	c->intr = pdev->irq;
- 
- 	/*
- 	 * Memory base addr is first addr , the second points to the config
-diff -burpN lx268-rc3-p005/drivers/block/cciss.h lx268-rc3/drivers/block/cciss.h
---- lx268-rc3-p005/drivers/block/cciss.h	2004-06-16 00:18:37.000000000 -0500
-+++ lx268-rc3/drivers/block/cciss.h	2004-08-05 11:30:40.762776192 -0500
-@@ -48,7 +48,7 @@ struct ctlr_info 
- 	unsigned long io_mem_addr;
- 	unsigned long io_mem_length;
- 	CfgTable_struct *cfgtable;
--	int	intr;
-+	unsigned int intr;
- 	int	interrupts_enabled;
- 	int 	max_commands;
- 	int	commands_outstanding;
+Venki
+
+------_=_NextPart_001_01C47BDF.78BB8B0A
+Content-Type: application/octet-stream;
+	name="bigsmp-default.patch"
+Content-Transfer-Encoding: base64
+Content-Description: bigsmp-default.patch
+Content-Disposition: attachment;
+	filename="bigsmp-default.patch"
+
+LS0tIGxpbnV4LTIuNi44LXJjMi9hcmNoL2kzODYva2VybmVsL3NldHVwLmMub3JnCTIwMDQtMDgt
+MDYgMTI6NDg6MDcuMDAwMDAwMDAwIC0wNzAwCisrKyBsaW51eC0yLjYuOC1yYzIvYXJjaC9pMzg2
+L2tlcm5lbC9zZXR1cC5jCTIwMDQtMDgtMDYgMTM6MTY6MjAuMDAwMDAwMDAwIC0wNzAwCkBAIC01
+MSw2ICs1MSwxMiBAQAogI2luY2x1ZGUgInNldHVwX2FyY2hfcHJlLmgiCiAjaW5jbHVkZSA8Ymlv
+c19lYmRhLmg+CiAKKyNpZmRlZiAgQ09ORklHX1g4Nl9MT0NBTF9BUElDCisjaW5jbHVkZSA8bWFj
+aF9hcGljLmg+CisjaW5jbHVkZSA8bWFjaF9tcHBhcnNlLmg+CisjZW5kaWYgIC8qIENPTkZJR19Y
+ODZfTE9DQUxfQVBJQyAqLworCisKIC8qIFRoaXMgdmFsdWUgaXMgc2V0IHVwIGJ5IHRoZSBlYXJs
+eSBib290IGNvZGUgdG8gcG9pbnQgdG8gdGhlIHZhbHVlCiAgICBpbW1lZGlhdGVseSBhZnRlciB0
+aGUgYm9vdCB0aW1lIHBhZ2UgdGFibGVzLiAgSXQgY29udGFpbnMgYSAqcGh5c2ljYWwqCiAgICBh
+ZGRyZXNzLCBhbmQgbXVzdCBub3QgYmUgaW4gdGhlIC5ic3Mgc2VnbWVudCEgKi8KQEAgLTEzNzAs
+MTIgKzEzNzYsOCBAQCB2b2lkIF9faW5pdCBzZXR1cF9hcmNoKGNoYXIgKipjbWRsaW5lX3ApCiAJ
+fQogI2VuZGlmCiAKLQogCWRtaV9zY2FuX21hY2hpbmUoKTsKIAotI2lmZGVmIENPTkZJR19YODZf
+R0VORVJJQ0FSQ0gKLQlnZW5lcmljX2FwaWNfcHJvYmUoKmNtZGxpbmVfcCk7Ci0jZW5kaWYJCiAJ
+aWYgKGVmaV9lbmFibGVkKQogCQllZmlfbWFwX21lbW1hcCgpOwogCkBAIC0xMzg5LDYgKzEzOTEs
+MTQgQEAgdm9pZCBfX2luaXQgc2V0dXBfYXJjaChjaGFyICoqY21kbGluZV9wKQogCQlnZXRfc21w
+X2NvbmZpZygpOwogI2VuZGlmCiAKKyNpZmRlZiBDT05GSUdfWDg2X0dFTkVSSUNBUkNICisJZ2Vu
+ZXJpY19hcGljX3Byb2JlKCpjbWRsaW5lX3ApOworI2VuZGlmCQorCisjaWZkZWYgIENPTkZJR19Y
+ODZfTE9DQUxfQVBJQworCWNsdXN0ZXJlZF9hcGljX2NoZWNrKCk7CisjZW5kaWYKKwogCXJlZ2lz
+dGVyX21lbW9yeShtYXhfbG93X3Bmbik7CiAKICNpZmRlZiBDT05GSUdfVlQKLS0tIGxpbnV4LTIu
+Ni44LXJjMi9hcmNoL2kzODYva2VybmVsL21wcGFyc2UuYy5vcmcJMjAwNC0wOC0wNiAxMTowNToz
+Ni4wMDAwMDAwMDAgLTA3MDAKKysrIGxpbnV4LTIuNi44LXJjMi9hcmNoL2kzODYva2VybmVsL21w
+cGFyc2UuYwkyMDA0LTA4LTA2IDEzOjAxOjE4LjAwMDAwMDAwMCAtMDcwMApAQCAtNjUsNiArNjUs
+OSBAQCBpbnQgbnJfaW9hcGljczsKIGludCBwaWNfbW9kZTsKIHVuc2lnbmVkIGxvbmcgbXBfbGFw
+aWNfYWRkcjsKIAordW5zaWduZWQgbG9uZyBkZWZfdG9fYmlnc21wID0gMDsKK3N0YXRpYyB1bnNp
+Z25lZCBsb25nIHhhcGljX3N1cHBvcnQgPSAxOworCiAvKiBQcm9jZXNzb3IgdGhhdCBpcyBkb2lu
+ZyB0aGUgYm9vdCB1cCAqLwogdW5zaWduZWQgaW50IGJvb3RfY3B1X3BoeXNpY2FsX2FwaWNpZCA9
+IC0xVTsKIHVuc2lnbmVkIGludCBib290X2NwdV9sb2dpY2FsX2FwaWNpZCA9IC0xVTsKQEAgLTIx
+NSw2ICsyMTgsMTQgQEAgdm9pZCBfX2luaXQgTVBfcHJvY2Vzc29yX2luZm8gKHN0cnVjdCBtcAog
+CQl2ZXIgPSAweDEwOwogCX0KIAlhcGljX3ZlcnNpb25bbS0+bXBjX2FwaWNpZF0gPSB2ZXI7CisJ
+aWYgKCFBUElDX1hBUElDKHZlcikpCisJCXhhcGljX3N1cHBvcnQgPSAwOworCisJaWYgKChudW1f
+cHJvY2Vzc29ycyA+IDgpICYmIHhhcGljX3N1cHBvcnQpCisJCWRlZl90b19iaWdzbXAgPSAxOwor
+CWVsc2UKKwkJZGVmX3RvX2JpZ3NtcCA9IDA7CisKIAliaW9zX2NwdV9hcGljaWRbbnVtX3Byb2Nl
+c3NvcnMgLSAxXSA9IG0tPm1wY19hcGljaWQ7CiB9CiAKQEAgLTQ4MSw3ICs0OTIsNiBAQCBzdGF0
+aWMgaW50IF9faW5pdCBzbXBfcmVhZF9tcGMoc3RydWN0IG1wCiAJCX0KIAkJKyttcGNfcmVjb3Jk
+OwogCX0KLQljbHVzdGVyZWRfYXBpY19jaGVjaygpOwogCWlmICghbnVtX3Byb2Nlc3NvcnMpCiAJ
+CXByaW50ayhLRVJOX0VSUiAiU01QIG1wdGFibGU6IG5vIHByb2Nlc3NvcnMgcmVnaXN0ZXJlZCFc
+biIpOwogCXJldHVybiBudW1fcHJvY2Vzc29yczsKLS0tIGxpbnV4LTIuNi44LXJjMi9hcmNoL2kz
+ODYva2VybmVsL2FjcGkvYm9vdC5jLm9yZwkyMDA0LTA4LTA2IDEzOjAyOjE1LjAwMDAwMDAwMCAt
+MDcwMAorKysgbGludXgtMi42LjgtcmMyL2FyY2gvaTM4Ni9rZXJuZWwvYWNwaS9ib290LmMJMjAw
+NC0wOC0wNiAxMzowMjoyMy4wMDAwMDAwMDAgLTA3MDAKQEAgLTQwLDcgKzQwLDYgQEAKICNpZmRl
+ZglDT05GSUdfWDg2XzY0CiAKIHN0YXRpYyBpbmxpbmUgdm9pZCAgYWNwaV9tYWR0X29lbV9jaGVj
+ayhjaGFyICpvZW1faWQsIGNoYXIgKm9lbV90YWJsZV9pZCkgeyB9Ci1zdGF0aWMgaW5saW5lIHZv
+aWQgY2x1c3RlcmVkX2FwaWNfY2hlY2sodm9pZCkgeyB9CiBzdGF0aWMgaW5saW5lIGludCBpb2Fw
+aWNfc2V0dXBfZGlzYWJsZWQodm9pZCkgeyByZXR1cm4gMDsgfQogI2luY2x1ZGUgPGFzbS9wcm90
+by5oPgogCkBAIC03NjYsNyArNzY1LDYgQEAgYWNwaV9wcm9jZXNzX21hZHQodm9pZCkKIAkJCQlh
+Y3BpX2lvYXBpYyA9IDE7CiAKIAkJCQlzbXBfZm91bmRfY29uZmlnID0gMTsKLQkJCQljbHVzdGVy
+ZWRfYXBpY19jaGVjaygpOwogCQkJfQogCQl9CiAJCWlmIChlcnJvciA9PSAtRUlOVkFMKSB7Ci0t
+LSBsaW51eC0yLjYuOC1yYzIvaW5jbHVkZS9hc20taTM4Ni9tcHNwZWMuaC5vcmcJMjAwNC0wOC0w
+NiAxMTozMjoyNi4wMDAwMDAwMDAgLTA3MDAKKysrIGxpbnV4LTIuNi44LXJjMi9pbmNsdWRlL2Fz
+bS1pMzg2L21wc3BlYy5oCTIwMDQtMDgtMDYgMTE6MzM6MDguMDAwMDAwMDAwIC0wNzAwCkBAIC0x
+MSw2ICsxMSw3IEBAIGV4dGVybiBpbnQgbXBfYnVzX2lkX3RvX2xvY2FsIFtNQVhfTVBfQlUKIGV4
+dGVybiBpbnQgcXVhZF9sb2NhbF90b19tcF9idXNfaWQgW05SX0NQVVMvNF1bNF07CiBleHRlcm4g
+aW50IG1wX2J1c19pZF90b19wY2lfYnVzIFtNQVhfTVBfQlVTU0VTXTsKIAorZXh0ZXJuIHVuc2ln
+bmVkIGxvbmcgZGVmX3RvX2JpZ3NtcDsKIGV4dGVybiB1bnNpZ25lZCBpbnQgYm9vdF9jcHVfcGh5
+c2ljYWxfYXBpY2lkOwogZXh0ZXJuIGludCBzbXBfZm91bmRfY29uZmlnOwogZXh0ZXJuIHZvaWQg
+ZmluZF9zbXBfY29uZmlnICh2b2lkKTsKLS0tIGxpbnV4LTIuNi44LXJjMi9pbmNsdWRlL2FzbS1p
+Mzg2L2FwaWNkZWYuaC5vcmcJMjAwNC0wOC0wNiAxMToxNDozOS4wMDAwMDAwMDAgLTA3MDAKKysr
+IGxpbnV4LTIuNi44LXJjMi9pbmNsdWRlL2FzbS1pMzg2L2FwaWNkZWYuaAkyMDA0LTA4LTA2IDEx
+OjE5OjE2LjAwMDAwMDAwMCAtMDcwMApAQCAtMTYsNiArMTYsNyBAQAogI2RlZmluZQkJCUdFVF9B
+UElDX1ZFUlNJT04oeCkJKCh4KSYweEZGKQogI2RlZmluZQkJCUdFVF9BUElDX01BWExWVCh4KQko
+KCh4KT4+MTYpJjB4RkYpCiAjZGVmaW5lCQkJQVBJQ19JTlRFR1JBVEVEKHgpCSgoeCkmMHhGMCkK
+KyNkZWZpbmUJCQlBUElDX1hBUElDKHgpCQkoKHgpJjB4MTQpCiAjZGVmaW5lCQlBUElDX1RBU0tQ
+UkkJMHg4MAogI2RlZmluZQkJCUFQSUNfVFBSSV9NQVNLCQkweEZGCiAjZGVmaW5lCQlBUElDX0FS
+QlBSSQkweDkwCi0tLSBsaW51eC0yLjYuOC1yYzIvYXJjaC9pMzg2L21hY2gtZ2VuZXJpYy9wcm9i
+ZS5jLm9yZwkyMDA0LTA4LTA2IDExOjMzOjUzLjAwMDAwMDAwMCAtMDcwMAorKysgbGludXgtMi42
+LjgtcmMyL2FyY2gvaTM4Ni9tYWNoLWdlbmVyaWMvcHJvYmUuYwkyMDA0LTA4LTA2IDEyOjM4OjQ1
+LjAwMDAwMDAwMCAtMDcwMApAQCAtMjYsNyArMjYsOCBAQCBzdHJ1Y3QgZ2VuYXBpYyAqYXBpY19w
+cm9iZVtdIF9faW5pdGRhdGEgCiAJJmFwaWNfc3VtbWl0LAogCSZhcGljX2JpZ3NtcCwgCiAJJmFw
+aWNfZXM3MDAwLAotCSZhcGljX2RlZmF1bHQsCS8qIG11c3QgYmUgbGFzdCAqLworCSZhcGljX2Rl
+ZmF1bHQsCisJJmFwaWNfYmlnc21wLCAKIAlOVUxMLAogfTsKIAotLS0gbGludXgtMi42LjgtcmMy
+L2FyY2gvaTM4Ni9tYWNoLWdlbmVyaWMvZGVmYXVsdC5jLm9yZwkyMDA0LTA4LTA2IDExOjM0OjIx
+LjAwMDAwMDAwMCAtMDcwMAorKysgbGludXgtMi42LjgtcmMyL2FyY2gvaTM4Ni9tYWNoLWdlbmVy
+aWMvZGVmYXVsdC5jCTIwMDQtMDgtMDYgMTM6MDk6MjkuMDAwMDAwMDAwIC0wNzAwCkBAIC0xOCw5
+ICsxOCwxNCBAQAogI2luY2x1ZGUgPGFzbS9tYWNoLWRlZmF1bHQvbWFjaF9pcGkuaD4KICNpbmNs
+dWRlIDxhc20vbWFjaC1kZWZhdWx0L21hY2hfbXBwYXJzZS5oPgogCi0vKiBzaG91bGQgYmUgY2Fs
+bGVkIGxhc3QuICovCitleHRlcm4gaW50IGRtaV9iaWdzbXA7CisKIHN0YXRpYyBfX2luaXQgaW50
+IHByb2JlX2RlZmF1bHQodm9pZCkKIHsgCisJaWYgKGRlZl90b19iaWdzbXApIHsKKwkJZG1pX2Jp
+Z3NtcCA9IDE7CisJCXJldHVybiAwOworCX0KIAlyZXR1cm4gMTsKIH0gCiAK
+
+------_=_NextPart_001_01C47BDF.78BB8B0A--

@@ -1,70 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263001AbREaDMF>; Wed, 30 May 2001 23:12:05 -0400
+	id <S263002AbREaDX3>; Wed, 30 May 2001 23:23:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263002AbREaDLz>; Wed, 30 May 2001 23:11:55 -0400
-Received: from cx595243-c.okc1.ok.home.com ([24.6.27.53]:4230 "EHLO
-	quark.localdomain") by vger.kernel.org with ESMTP
-	id <S263001AbREaDLu>; Wed, 30 May 2001 23:11:50 -0400
-From: Vincent Stemen <linuxkernel@AdvancedResearch.org>
-Date: Wed, 30 May 2001 22:11:00 -0500
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="US-ASCII"
-Cc: Mike Galbraith <mikeg@wen-online.de>, linux-kernel@vger.kernel.org
-To: Rik van Riel <riel@conectiva.com.br>,
-        Vincent Stemen <linuxkernel@AdvancedResearch.org>
-In-Reply-To: <Pine.LNX.4.21.0105301722510.13062-100000@imladris.rielhome.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0105301722510.13062-100000@imladris.rielhome.conectiva>
-Subject: Re: Plain 2.4.5 VM... (and 2.4.5-ac3)
+	id <S263003AbREaDXT>; Wed, 30 May 2001 23:23:19 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:17419 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S263002AbREaDXJ>;
+	Wed, 30 May 2001 23:23:09 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200105310323.f4V3N5I321727@saturn.cs.uml.edu>
+Subject: Re: How to know HZ from userspace?
+To: jlundell@pobox.com (Jonathan Lundell)
+Date: Wed, 30 May 2001 23:23:05 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <p05100316b73b3f2e80e2@[10.128.7.49]> from "Jonathan Lundell" at May 30, 2001 05:24:37 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Message-Id: <01053022110000.02370@quark>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 30 May 2001 15:30, Rik van Riel wrote:
-> On Wed, 30 May 2001, Vincent Stemen wrote:
-> > The problem is, that's not true.  These problems are not slipping
-> > through because of lack of testers.  As Alan said, the VM problem has
-> > been lurking, which means that it was known already.
->
-> Fully agreed, it went through because of a lack of hours
-> per day and the fact that the priority of developers was
-> elsewhere.
->
-> For me, for example, the priorities have mostly been with
-> bugs that bothered me or that bothered Conectiva's customers.
->
-> If you _really_ feel this strongly about the bug, you could
-> either try to increase the number of hours a day for all of
+Jonathan Lundell writes:
+> At 5:07 PM -0700 2001-05-30, H. Peter Anvin wrote:
 
-I sure wish I could :-).
+>>> If you now want to set those values from a userspace program / script in
+>>>  a portable manner, you need to be able to find out of HZ of the currently
+>>>  running kernel.
+>>
+>> Yes, but that's because the interfaces are broken.  The decision has
+>> been that these values should be exported using the default HZ for the
+>> architecture, and that it is the kernel's responsibility to scale them
+>> when HZ != USER_HZ.  I don't know if any work has been done in this
+>> area.
 
-> us or you could talk to my boss about hiring me as a consultant
-> to fix the problem for you on an emergency basis :)
-> The other two alternatives would be either waiting until
-> somebody gets around to fixing the bug or sending in a patch
-> yourself.
->
-> Trying to piss off developers has adverse effect on all four
-> of the methods above :)
->
+Nope.
 
-Why should my comments piss anybody off?  I am just trying to point
-out a problem, as I see it, an offer suggestions for improvement.
-Other developers will either agree with me or they wont.
-Contributions are not made only through writing code.  I contribute
-through code, bug reports, ideas, and suggestions.  I would love to
-dive in and try to help fix some of the kernel problems but my hands
-are just to full right now.
+HZ-derived values are not scaled in the /proc code.
+The real value is not available to apps. (Linus said so)
+People often change the HZ value.
 
-My comments are not meant to rush anybody and I am not criticizing how
-long it is taking.  I know everybody is doing everything they can just
-like I am, and they are doing a terrific job.  I am just suggesting a
-modification to the way the kernels are distributed that is more like
-the early versions that I hoped would allow us to maintain a stable
-kernel for distributions and production machines.
+Thus we have problems.
 
-- Vincent Stemen
+Maybe I'll post my disgusting hack. You _can_ get HZ out
+of /proc if you know where to look. >:-)
 
+> FWIW (perhaps not much in this context), the POSIX way is
+> sysconf(_SC_CLK_TCK) POSIX sysconf is pretty useful for this
+> kind of thing (not just HZ, either).
+
+That does not report the real value. It reports the default.

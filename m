@@ -1,51 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281214AbRLAAWt>; Fri, 30 Nov 2001 19:22:49 -0500
+	id <S281234AbRLAAYJ>; Fri, 30 Nov 2001 19:24:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283867AbRLAAWf>; Fri, 30 Nov 2001 19:22:35 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:6161 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S281214AbRLAAWU>;
-	Fri, 30 Nov 2001 19:22:20 -0500
-Date: Fri, 30 Nov 2001 22:22:07 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: "Paul G. Allen" <pgallen@randomlogic.com>,
-        "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>,
-        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>,
-        "kplug-lpsg@kernel-panic.org" <kplug-lpsg@kernel-panic.org>
-Subject: Re: Coding style - a non-issue
-In-Reply-To: <3C07D669.6C234598@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33L.0111302221180.4079-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S281245AbRLAAXk>; Fri, 30 Nov 2001 19:23:40 -0500
+Received: from kiln.isn.net ([198.167.161.1]:15144 "EHLO kiln.isn.net")
+	by vger.kernel.org with ESMTP id <S281234AbRLAAX3>;
+	Fri, 30 Nov 2001 19:23:29 -0500
+Message-ID: <3C0822EB.3E4C4852@isn.net>
+Date: Fri, 30 Nov 2001 20:23:07 -0400
+From: "Garst R. Reese" <reese@isn.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.16-pre1 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: small feature request
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Nov 2001, Jeff Garzik wrote:
-> "Paul G. Allen" wrote:
-> > IMEO, there is but one source as reference for coding style: A book by
-> > the name of "Code Complete". (Sorry, I can't remember the author and I
-> > no longer have a copy. Maybe my Brother will chime in here and fill in
-> > the blanks since he still has his copy.)
->
-> Hungarian notation???
->
-> That was developed by programmers with apparently no skill to
-> see/remember how a variable is defined.  IMHO in the Linux community
-> it's widely considered one of the worst coding styles possible.
-
-If your functions are so large that you need hungarian
-notation to figure out the type of each variable, chances
-are forgetting the variable type isn't the biggest of your
-problems ;)
-
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Would it possible to put a header on System.map indicating the kernel
+version?
+Sometimes my little brain forgets what kernel System.old is for.
+Thanks, Garst

@@ -1,30 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269693AbRHWSVM>; Thu, 23 Aug 2001 14:21:12 -0400
+	id <S269786AbRHWSWm>; Thu, 23 Aug 2001 14:22:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269786AbRHWSVC>; Thu, 23 Aug 2001 14:21:02 -0400
-Received: from adsl-209-76-109-63.dsl.snfc21.pacbell.net ([209.76.109.63]:2176
-	"EHLO adsl-209-76-109-63.dsl.snfc21.pacbell.net") by vger.kernel.org
-	with ESMTP id <S269693AbRHWSUu>; Thu, 23 Aug 2001 14:20:50 -0400
-Date: Thu, 23 Aug 2001 11:20:25 -0700
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Message-Id: <200108231820.f7NIKPk01202@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-To: Paul <set@pobox.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [OOPS] repeatable 2.4.8-ac7, 2.4.7-ac6 just run xdos
-In-Reply-To: <20010823140545.A224@squish.home.loc>
-In-Reply-To: <20010819004703.A226@squish.home.loc.suse.lists.linux.kernel> <3B831CDF.4CC930A7@didntduck.org.suse.lists.linux.kernel> <oupn14sny4f.fsf@pigdrop.muc.suse.de> <3B839E47.874F8F64@didntduck.org> <20010822141058.A18043@gruyere.muc.suse.de> <3B83A17C.CB8ABC53@didntduck.org> <20010822152203.A18873@gruyere.muc.suse.de> <20010822155226.A228@squish.home.loc> <20010823153419.A8743@gruyere.muc.suse.de> <20010823153419.A8743@gruyere.muc.suse.de> <20010823140545.A224@squish.home.loc>
-Reply-To: whitney@math.berkeley.edu
+	id <S269823AbRHWSWd>; Thu, 23 Aug 2001 14:22:33 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:17166 "EHLO
+	mailout02.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S269786AbRHWSWY>; Thu, 23 Aug 2001 14:22:24 -0400
+Message-ID: <3B854A28.31C7ACB8@t-online.de>
+Date: Thu, 23 Aug 2001 20:23:36 +0200
+From: Gunther.Mayer@t-online.de (Gunther Mayer)
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.6-ac5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: kuznet@ms2.inr.ac.ru
+CC: linux-kernel@vger.kernel.org
+Subject: Re: yenta_socket hangs sager laptop in kernel 2.4.6-> PNPBIOS life saver
+In-Reply-To: <200108231658.UAA07224@ms2.inr.ac.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In mailing-lists.linux-kernel, you wrote:
+kuznet@ms2.inr.ac.ru wrote:
+> 
+> Hello!
+> 
+> > We will see what happens. Certainly if someone wants to provide pnpbios code
+> > patches for -ac that grab and reserve the motherboard resources from the PCI
+> > code go ahead.
+> 
+> Khm... this does not look simple. Seems, right way involves modification
+> of each place, where the same ports are used by kernel.
 
-> 	Good! I have beaten on this a bit, and it is holding up
-> for me, and there are no problems using dosemu. My thanks to
-> everyone who responded to this bug.
+The PNP0C01 ports are not used by the kernel !
+No modifications necessary.
 
-FWIW, "me too" on 2.4.8-ac9.  dos -X would lock the machine after
-about 15 minutes (Alt-Sysrq-B would work), with this patch it is gone.
+Of course you can teach each driver about their PNP devices, e.g.
+my patch for parport_pc.c makes perfect io/irq/dma detection and
+saves users from the error-prone procedure to supply module parameters.
+Even serial now autodetects IRQ 10 when I give this in my BIOS setup !
 
-Wayne
+> pcmcia-cs had completely private resource manager, so that it just
+> did not worry about other subsystems and they still were able to allocate
+> the same resources.
+> 
+> Look f.e. at extermal example, pnpbios announces as "system" resource
+> all the memory. :-)
 
+So we have another way besides several INTs to detect the avail mem :-)
+
+> 
+> Pallaitive soultions, sort of reserving of ports >= 0x1000 using
+> this information do not look cool too.
+
+Gerd's patch rules out your objections and should be included
+unconditionally with pnpbios.o.
+
+Probably PNP0C02 wants to be reserved, too.

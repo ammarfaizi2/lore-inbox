@@ -1,61 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261198AbTD3VWD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 17:22:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbTD3VWD
+	id S262442AbTD3VYY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 17:24:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbTD3VYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 17:22:03 -0400
-Received: from fep02.superonline.com ([212.252.122.41]:14996 "EHLO
-	fep02.superonline.com") by vger.kernel.org with ESMTP
-	id S261198AbTD3VWB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 17:22:01 -0400
-Message-ID: <3EB0413D.2050200@superonline.com>
-Date: Thu, 01 May 2003 00:33:49 +0300
-From: "O.Sezer" <sezero@superonline.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: tr, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: alan@redhat.com, kernel@mandrakesoft.com
-Subject: Re: [PATCH 2.4.21-rc1] vesafb with large memory
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-9; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 30 Apr 2003 17:24:23 -0400
+Received: from [65.37.126.18] ([65.37.126.18]:12751 "EHLO the-penguin.otak.com")
+	by vger.kernel.org with ESMTP id S262442AbTD3VYW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 17:24:22 -0400
+Date: Wed, 30 Apr 2003 14:37:07 -0700
+From: Lawrence Walton <lawrence@the-penguin.otak.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Fusion MPT
+Message-ID: <20030430213707.GA5406@the-penguin.otak.com>
+Mail-Followup-To: Lawrence Walton <lawrence@the-penguin.otak.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Operating-System: Linux 2.5.68 on an i686
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So far, so good...
+Hello I just got in a amazing machine for testing the next couple weeks
+But am unable to get it to boot 2.5.x.
 
-I can happily boot, halt, play some opengl games, perform my daily
-routines, etc.  This should also be related to the bug recorded at
-Mandrake-bugzilla: http://qa.mandrakesoft.com/show_bug.cgi?id=3198 .
-I also reported this to kernel@mandrakesoft.com .
+The system is a dual xenon system with a Asus pr-dls533 MB, three gigs
+of ram and a Fusion MPT scsi subsystem.
 
-Regards;
-Özkan Sezer
+2.4.20 boots fine.
+
+Fusion MPT base driver 2.02.01
+Copyright (c) 1999-2002 LSI Logic Corporation
+mptbase: Initiating ioc0 bringup
+ioc0: 53C1030: Capabilities={Initiator}
+mptbase: Initiating ioc1 bringup
+ioc1: 53C1030: Capabilities={Initiator}
+mptbase: 2 MPT adapters found, 2 installed.
+Fusion MPT SCSI Host driver 2.02.01
+scsi0 : ioc0: LSI53C1030, FwRev=01012e00h, Ports=1, MaxQ=255, IRQ=22
+scsi1 : ioc1: LSI53C1030, FwRev=01012e00h, Ports=1, MaxQ=255, IRQ=23
 
 
--------- Original Message --------
-Subject: Re: [PATCH 2.4.21-rc1] vesafb with large memory
-Date: Wed, 30 Apr 2003 21:58:42 +0300
-From: O.Sezer <sezero@superonline.com>
-To: linux-kernel@vger.kernel.org
-CC: alan@lxorguk.ukuu.org.uk,  kernel@mandrakesoft.com
+2.5.68 and 68-bk9 the driver sees nothing.
 
-For the record:
+I'm still new to the hardware and may be missing somthing, but I doubt
+it.
 
-This patch posted by Adam Mercer solved my previously reported
-problem about the mmio clash of CDM680 and GeForce3-Ti200 / 128MB
-(see thread: "IDE siimage Problem" at:
-   http://marc.theaimsgroup.com/?l=linux-kernel&m=104773593910239&w=2
-   disscussed offlist with Alan).
-Very preliminary testing (no modules built, no initrd, only the
-vmlinuz) did not show any mmio clash and boot was fine.
-Dmesg and syslog files (gzipped) are attached. I may/will report
-more results upon more testing if/when necessary.
+I've made sure to have 
 
-Regards,
-Özkan Sezer
+CONFIG_BLK_DEV_SD=y
+set, and 
+CONFIG_FUSION=y
+CONFIG_FUSION_BOOT=y
+set, anyone have any ideas?
+
+The system is running current debian sid with the module-init-tools.
+
+
+
+-- 
+*--* Mail: lawrence@otak.com
+*--* Voice: 425.739.4247
+*--* Fax: 425.827.9577
+*--* HTTP://the-penguin.otak.com/~lawrence/
+--------------------------------------
+- - - - - - O t a k  i n c . - - - - - 
 
 

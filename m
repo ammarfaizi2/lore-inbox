@@ -1,62 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263123AbRFLTIh>; Tue, 12 Jun 2001 15:08:37 -0400
+	id <S263093AbRFLTIG>; Tue, 12 Jun 2001 15:08:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263058AbRFLTI2>; Tue, 12 Jun 2001 15:08:28 -0400
-Received: from gene.pbi.nrc.ca ([204.83.147.150]:19253 "EHLO gene.pbi.nrc.ca")
-	by vger.kernel.org with ESMTP id <S263106AbRFLTIU>;
-	Tue, 12 Jun 2001 15:08:20 -0400
-Date: Tue, 12 Jun 2001 13:07:11 -0600 (CST)
-From: <ognen@gene.pbi.nrc.ca>
-To: Christoph Hellwig <hch@ns.caldera.de>
-cc: <linux-kernel@vger.kernel.org>
+	id <S263058AbRFLTH4>; Tue, 12 Jun 2001 15:07:56 -0400
+Received: from mx01-a.netapp.com ([198.95.226.53]:5004 "EHLO mx01-a.netapp.com")
+	by vger.kernel.org with ESMTP id <S263093AbRFLTHp>;
+	Tue, 12 Jun 2001 15:07:45 -0400
+Date: Tue, 12 Jun 2001 12:06:40 -0700 (PDT)
+From: Kip Macy <kmacy@netapp.com>
+To: ognen@gene.pbi.nrc.ca
+cc: linux-kernel@vger.kernel.org
 Subject: Re: threading question
-In-Reply-To: <200106121858.f5CIwmX05650@ns.caldera.de>
-Message-ID: <Pine.LNX.4.30.0106121304320.24593-100000@gene.pbi.nrc.ca>
+In-Reply-To: <Pine.LNX.4.30.0106121213570.24593-100000@gene.pbi.nrc.ca>
+Message-ID: <Pine.GSO.4.10.10106121200330.20809-100000@orbit-fe.eng.netapp.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+This may sound like flamebait, but its not. Linux threads are basically
+just processes that share the same address space. Their performance is
+measurably worse than it is on most commercial Unixes and FreeBSD.
+They are not, or at least two years ago, were not POSIX compliant
+(they behaved badly with respect to signals). The impoverished
+implementation of threads is not an accidental oversight, threads are not
+looked upon favorably by most of the core linux kernel hackers. A quote
+from Larry McVoy's home page attributed to Alan Cox illustrates this
+reasonably well: "A computer is a state machine. Threads are for people
+who can't program state machines." Sorry for not being more helpful.
 
-due to the nature of the problem (a pairwise mutual alignment of n
-sequences results in mx. n^2 alignments which can each be done in a
-separate thread), I need to create and destroy the threads frequently.
+		-Kip
 
-I am not really comfortable with 1.4 - 1.5 speedups since the solution was
-intended as a Linux one primarily and it just happenned that it works (and
-now even better) on Solaris/SGI/OSF...
 
-Best regards,
-Ognen
+On Tue, 12 Jun 2001 ognen@gene.pbi.nrc.ca wrote:
 
-On Tue, 12 Jun 2001, Christoph Hellwig wrote:
-
-> In article <Pine.LNX.4.30.0106121213570.24593-100000@gene.pbi.nrc.ca> you wrote:
-> > On dual-CPU machines the speedups are as follows: my version
-> > is 1.88 faster than the sequential one on IRIX, 1.81 times on Solaris,
-> > 1.8 times on OSF/1, 1.43 times on Linux 2.2.x and 1.52 times on Linux 2.4
-> > kernel. Why are the numbers on Linux machines so much lower?
->
-> Does your measurement include the time needed to actually create the
-> threads or do you even frequently create and destroy threads?
->
-> The code for creating threads is _horribly_ slow in Linuxthreads due
-> to the way it is implemented.
->
-> > It is the
-> > same multi-threaded code, I am not using any tricks, the code basically
-> > uses PTHREAD_CREATE_DETACHED and PTHREAD_SCOPE_SYSTEM and the thread stack
-> > size is set to 8K (but the numbers are the same with larger/smaller stack
-> > sizes).
-> >
-> > Is there anything I am missing? Is this to be expected due to Linux way of
-> > handling threads (clone call)? I am just trying to explain the numbers and
-> > nothing else comes to mind....
->
-> Linuxthreads is a rather bad pthreads implementation performance-wise,
-> mostly due to the rather different linux-native threading model.
->
-> 	Christoph
+> Hello,
+> 
+> I am a summer student implementing a multi-threaded version of a very
+> popular bioinformatics tool. So far it compiles and runs without problems
+> (as far as I can tell ;) on Linux 2.2.x, Sun Solaris, SGI IRIX and Compaq
+> OSF/1 running on Alpha. I have ran a lot of timing tests compared to the
+> sequential version of the tool on all of these machines (most of them are
+> dual-CPU, although I am also running tests on 12-CPU Solaris and 108 CPU
+> SGI IRIX). On dual-CPU machines the speedups are as follows: my version
+> is 1.88 faster than the sequential one on IRIX, 1.81 times on Solaris,
+> 1.8 times on OSF/1, 1.43 times on Linux 2.2.x and 1.52 times on Linux 2.4
+> kernel. Why are the numbers on Linux machines so much lower? It is the
+> same multi-threaded code, I am not using any tricks, the code basically
+> uses PTHREAD_CREATE_DETACHED and PTHREAD_SCOPE_SYSTEM and the thread stack
+> size is set to 8K (but the numbers are the same with larger/smaller stack
+> sizes).
+> 
+> Is there anything I am missing? Is this to be expected due to Linux way of
+> handling threads (clone call)? I am just trying to explain the numbers and
+> nothing else comes to mind....
+> 
+> Best regards,
+> Ognen Duzlevski
+> -- 
+> ognen@gene.pbi.nrc.ca
+> Plant Biotechnology Institute
+> National Research Council of Canada
+> Bioinformatics team
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

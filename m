@@ -1,47 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262902AbUC2OYM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 09:24:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbUC2OYM
+	id S262882AbUC2ObQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 09:31:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262900AbUC2ObQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 09:24:12 -0500
-Received: from opersys.com ([64.40.108.71]:11022 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S262902AbUC2OYJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 09:24:09 -0500
-Message-ID: <406832E7.6040100@opersys.com>
-Date: Mon, 29 Mar 2004 09:29:59 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Mon, 29 Mar 2004 09:31:16 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:29583 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262882AbUC2ObN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 09:31:13 -0500
+Message-ID: <40681A59.2070002@namesys.com>
+Date: Mon, 29 Mar 2004 04:45:13 -0800
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Pavel Mironchik <p.mironchik@sam-solutions.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel / Userspace Data Transfer
-References: <1080528430.40678e2e9eb3a@www.beonline.com.au>	<406799F3.1020508@opersys.com> <20040329124542.019edd8b.p.mironchik@sam-solutions.net>
-In-Reply-To: <20040329124542.019edd8b.p.mironchik@sam-solutions.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Matt Miller <mmiller@hick.org>
+CC: linux-kernel@vger.kernel.org, demidov <demidov@namesys.com>,
+       reiserfs-dev@namesys.com, Nikita Danilov <god@namesys.com>
+Subject: Re: [PATCH] 2.6: improved fdmap
+References: <Pine.LNX.4.58.0403252228420.20049@jethro.hick.org>
+In-Reply-To: <Pine.LNX.4.58.0403252228420.20049@jethro.hick.org>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+There is some commonality of concepts between this and reiser4 flows.  I 
+thought you might find that of interest.
 
-Pavel Mironchik wrote:
-> The best Userspace-kernelspace-Userspace transfer thing is soket.
-> Unix or TCP/UDP sockets API is avaible from kernel space.
-> You should use it...
+Hans
 
-Sockets suck for the kind of application relayfs is used for. Try
-running LTT on sockets, for example, and let me know what type of
-performance you get. For simple transfers, maybe, but for real
-high-speed, large scale data transfers, sockets just don't cut it.
-That's where relayfs is most useful.
+Matt Miller wrote:
 
-Karim
+>+/*
+>+ * purpose
+>+ *
+>+ *    Map process memory ranges to virtual file descriptors.  This can be
+>+ *    thought of as being the opposite of mmap, simply, instead of mapping
+>+ *    a file's contents to a memory range, fdmap maps a memory range to
+>+ *    a virtual file.  This allows one to read, write, seek, and even
+>+ *    mmap the virtual file's contents as if it were a real file on disk.
+>+ *
+>+ * interface
+>+ *
+>+ *    fdmap exposes a new system call identifier.  The system call takes
+>+ *    arguments as the following prototype conveys:
+>+ *
+>+ *       int fdmap(void *addr, size_t len, int flags);
+>+ *
+>+ *    ``flags'' can be one of O_RDONLY, O_WRONLY, or O_RDWR.
+>+ *
+>+ *    syscall number
+>+ *
+>+ *       alpha, arm, ia32, sh: 274
+>+ *       sparc, sparc64: 218
+>+ *       ia64: 1259
+>+ *       m68k: 236
+>+ *       mips: 32b=4268 64b=5227 64be32=6231
+>+ *       parisc: 229
+>+ *       ppc, ppc64: 256
+>+ *       s390: 265
+>+ *       v850: 203
+>+ *
+>+ * based on
+>+ *
+>+ *    The underlying virtual filesystem code was adapted from sockfs.
+>+ *
+>+ * Matt Miller
+>+ * mmiller@hick.org
+>+ */
+>  
+>
+
+
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Hans
+
 

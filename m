@@ -1,103 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277966AbRJ1Jnq>; Sun, 28 Oct 2001 04:43:46 -0500
+	id <S278092AbRJ1Jx6>; Sun, 28 Oct 2001 04:53:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277968AbRJ1Jnh>; Sun, 28 Oct 2001 04:43:37 -0500
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:24824 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S277966AbRJ1JnT>; Sun, 28 Oct 2001 04:43:19 -0500
-Message-ID: <01bc01c15f95$4b6d88c0$4cb2a8c0@wipro.com>
-From: "Anand Ashok Kulkarni" <anand.karni@wipro.com>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011026013101.A1404@redhat.com> <Pine.GSO.3.96.1011026113847.14048A-100000@delta.ds2.pg.gda.pl> <20011026100346.C1663@redhat.com>
-Subject: Module loading and Kernel crash
-Date: Sun, 28 Oct 2001 15:08:35 +0530
+	id <S278095AbRJ1Jxt>; Sun, 28 Oct 2001 04:53:49 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:25300 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S278092AbRJ1Jxj>;
+	Sun, 28 Oct 2001 04:53:39 -0500
+Date: Sun, 28 Oct 2001 04:54:13 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Richard Gooch <rgooch@atnf.csiro.au>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Ryan Cumming <bodnar42@phalynx.dhs.org>, linux-kernel@vger.kernel.org
+Subject: Re: more devfs fun (Piled Higher and Deeper)
+In-Reply-To: <200110280845.f9S8jjJ25269@mobilix.atnf.CSIRO.AU>
+Message-ID: <Pine.GSO.4.21.0110280348320.23288-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="------------InterScan_NT_MIME_Boundary"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is a multi-part message in MIME format.
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+On Sun, 28 Oct 2001, Richard Gooch wrote:
 
-I have written a module which takes the packet from the kernel, stores some
-number of packets and then sends all if them out. But some how the kernel
-crashes after working for some time. how can i take care of that. the
-enqueing and dequeing functions take action on the same piece of memory.
-will using task queues for both of them work ?
-I have tried doin it...but even then the kernel konks.:-(
+> Complete fucking bullshit. Over the last several months, I've been
+> sending a steady stream of bugfix patches to Linus and the list, and
+> if you'd been paying attention, you'd notice that in time they've been
+> applied.
+
+OK, _now_ I'm really pissed off.  As far as I can see there is only
+one way to get you fix anything - posting to l-k.  This "steady
+stream" consists of what?  Let's see:
+
+0.118:	buffer underrun in try_modload().  Source: some Al Viro had hit
+the function in question in grep over tree and took a couple of minutes
+to read it.
+0.118:  moving down_read() - yes, it had fixed the instance of deadlock
+pointed to you by, damn, what a coincidence, same bastard.  Come to think
+of that, let me grep for down_read()...  Aha.
+
+static int devfs_follow_link (struct dentry *dentry, struct nameidata *nd)
+{
+    int err;
+    struct devfs_entry *de;
+
+    de = get_devfs_entry_from_vfs_inode (dentry->d_inode, TRUE);
+    if (!de) return -ENODEV;
+    down_read (&symlink_rwsem);
+    err = de->registered ? vfs_follow_link (nd,
+                                            de->u.symlink.linkname) : -ENODEV;
+    up_read (&symlink_rwsem);
+    return err;
+}   /*  End Function devfs_follow_link  */
+
+Umm... Hadn't we just been there?  Recursive down_read(&symlink_rwsem)...
+
+0.117: oh, wow - finally.  devfs_link() is gone.
+
+0.116: reverted previous broken patch, but result contained a deadlock instead
+of race.  Result of race scenario described on l-k by... damn, this asshole
+again.
+
+0.115: bogus fix for breakage introduced by blkdev-in-pagecache patch.  Hadn't
+got into Linus' tree, actually.
+
+0.114: introduced broken refcounting for symlinks (see 0.116)
+
+0.113: "quick and dirty hack" to protect symlink bodies.  Broken, at that.
+BTW, breakage in 0.113 and 0.114 hadn't stopped Mandrake from deciding that
+it fixed readlink() race and shipping the thing.  Funny, but race it was
+supposed to fix had been described in private email several months before.
+Then it was described on l-k.  Then description had been forwarded to Mandrake
+- after a question about potential breakage.  _Then_ (and I assume that it
+was a coincidence) said patches had appeared.
+
+0.111, 0.112: not a fix by any stretch of imagination.
+
+Oh, and before that we have a (finally, only after a year of mentioning
+the crap in question, heavy-weight rant on l-k when I've finally ran out
+of patience _and_ detailed discussion on the possible fixes) fix for
+expand-entry-table races.
 
 
+So far all I see is that beating you hard enough in public can make you
+fix the bugs explicitly pointed to you.  That's it.  As far as I can
+see you don't read your own code, judging by the fact that every damn
+look at fs/devfs/base.c shows a new hole within a couple of minutes
+_and_ said holes stay until posted on l-k.  Private mail doesn't work.
+You read it, reply and ignore.  About hundred kilobytes of evidence
+available at request.
 
-
------ Original Message -----
-From: "Richard Henderson" <rth@redhat.com>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: <torvalds@transmeta.com>; <alan@redhat.com>;
-<linux-kernel@vger.kernel.org>
-Sent: Friday, October 26, 2001 10:33 PM
-Subject: Re: alpha 2.4.13: fix taso osf emulation
-
-
-> On Fri, Oct 26, 2001 at 12:01:10PM +0200, Maciej W. Rozycki wrote:
-> >  The following trivial patch reportedly fixes OSF/1 programs using
-31-bit
-> > addressing.  It's already present in the -ac tree; I guess it just got
-> > lost during a merge.  It applies fine to 2.4.13.
->
-> This is the patch that Jay Estabrook forwarded me that I rejected
-> in favour of writing a special arch_get_unmapped_area.
->
-> > It used to do so.  It breaks things such as dynamic linking of shared
-> > objects linked at high load address.
->
-> Err, how?
->
-> > It breaks mmap() in principle, as it shouldn't fail when invoked with
-> > a non-zero, non-MAP_FIXED, invalid address if there is still address
-> > space available elsewhere.
->
-> No, it doesn't.  Or rather, it only does if you only bothered
-> to search once.  IMO one should search thrice: once at addr,
-> once at TASK_UNMAPPED_BASE, and once at PAGE_SIZE.
->
->
->
-> r~
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
------------------------------------------------------------------------------------------------------------------------
-Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
-is intended for use only by the individual or entity to which it is
-addressed, and may contain information that is privileged, confidential or
-exempt from disclosure under applicable law. If you are not the intended
-recipient or it appears that this mail has been forwarded to you without
-proper authority, you are notified that any use or dissemination of this
-information in any manner is strictly prohibited. In such cases, please
-notify us immediately at mailto:mailadmin@wipro.com and delete this mail
-from your records.
-------------------------------------------------------------------------------------------------------------------------
-
---------------InterScan_NT_MIME_Boundary--

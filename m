@@ -1,43 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262224AbVAEBdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262228AbVAEBYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262224AbVAEBdG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 20:33:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbVAEBcl
+	id S262228AbVAEBYF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 20:24:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVAEBXx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 20:32:41 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:3051 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262222AbVAEBap (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 20:30:45 -0500
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Jack O'Quin" <joq@io.com>, Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1104878646.17166.63.camel@localhost.localdomain>
-References: <1104374603.9732.32.camel@krustophenia.net>
-	 <20050103140359.GA19976@infradead.org>
-	 <1104862614.8255.1.camel@krustophenia.net>
-	 <20050104182010.GA15254@infradead.org>  <87u0pxhvn0.fsf@sulphur.joq.us>
-	 <1104865198.8346.8.camel@krustophenia.net>
-	 <1104878646.17166.63.camel@localhost.localdomain>
+	Tue, 4 Jan 2005 20:23:53 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:30903 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262187AbVAEBUW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 20:20:22 -0500
+Subject: Re: [RFC] [PATCH] merge *_vm_enough_memory()s into a common helper
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <m1u0pwls1w.fsf@clusterfs.com>
+References: <20050104214833.GA3420@IBM-BWN8ZTBWA01.austin.ibm.com>
+	 <m1u0pwls1w.fsf@clusterfs.com>
 Content-Type: text/plain
-Date: Tue, 04 Jan 2005 20:30:44 -0500
-Message-Id: <1104888644.18410.26.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
+Message-Id: <1104884106.24187.107.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 05 Jan 2005 00:15:09 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-01-05 at 00:01 +0000, Alan Cox wrote:
-> The problem with uid/gid based hacks is that they get really ugly to
-> administer really fast. Especially once you have users who need realtime
-> and hugetlb, and users who need one only.
+On Maw, 2005-01-04 at 22:59, Nikita Danilov wrote:
+> I don't think that CAP_SYS_ADMIN is proper capability for this:
+> CAP_SYS_ADMIN is catch-all that should be used only when no other
+> capability covers action being performed. In this case CAP_SYS_RESOURCE
+> seems to be a better fit, after all __vm_enough_memory() controls access
+> to a resource, plus file systems use CAP_SYS_RESOURCE to protect disk
+> blocks reserved for "root".
 
-Why?  Just make a realtime group and a hugetlb group and add users to
-one, the other, or both.
-
-Lee
+Its a heuristic for "system process" and works rather well.
+CAP_SYS_RESOURCE is about ignoring limits, this is about saving the
+administrators backside.
 

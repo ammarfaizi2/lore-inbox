@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131309AbRDBU0Q>; Mon, 2 Apr 2001 16:26:16 -0400
+	id <S130733AbRDBUv6>; Mon, 2 Apr 2001 16:51:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131316AbRDBU0H>; Mon, 2 Apr 2001 16:26:07 -0400
-Received: from postal.ic.sunysb.edu ([129.49.1.24]:36750 "EHLO
-	mail.ic.sunysb.edu") by vger.kernel.org with ESMTP
-	id <S131309AbRDBUZw>; Mon, 2 Apr 2001 16:25:52 -0400
-Date: Mon, 2 Apr 2001 16:25:11 -0400 (EDT)
-From: Fu-hau Hsu <fhsu@ic.sunysb.edu>
-To: linux-kernel@vger.kernel.org
-cc: Fu-hau Hsu <fhsu@ic.sunysb.edu>
-Subject: Memory maps
-Message-ID: <Pine.GSO.4.21.0104021611050.24682-100000@sparky.ic.sunysb.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131248AbRDBUvt>; Mon, 2 Apr 2001 16:51:49 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:48132 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S130733AbRDBUvk>; Mon, 2 Apr 2001 16:51:40 -0400
+Message-Id: <200104022050.f32KoRs93074@aslan.scsiguy.com>
+To: Douglas Gilbert <dougg@torque.net>
+cc: Peter Daum <gator@cs.tu-berlin.de>, linux-kernel@vger.kernel.org,
+   linux-scsi@vger.kernel.org
+Subject: Re: scsi bus numbering 
+In-Reply-To: Your message of "Sun, 01 Apr 2001 17:03:55 EDT."
+             <3AC797BB.D2AA2FE4@torque.net> 
+Date: Mon, 02 Apr 2001 14:50:27 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear freinds:
+>The intent is that all built in HBA drivers are
+>initialized _before_ the built in upper level 
+>drivers (e.g. sd). To get the effect you describe
+>the driver init order seems to have been:
+>  register ncr53c8xxx
+>  register sd
+>  register aic7xxx      # too late ...
 
- I have following questions about memory maps. I appreciate any
-suggestion.
+It is bogus that this stuff depends on link order to function
+correctly.  The driver is built and linked into the kernel in its
+current fashion to satisfy Linus' desire to make drivers as independant
+from the SCSI Makefile and Config file as possible.  I've modified
+how the driver is built for the 6.1.9 driver release so it will be
+linked in prior to the top level drivers.
 
- Q. (1)When a process is running, how can I get the range of data, stack,
-       and code segments, say the stack segment is from address 0x..... to
-       0x..... so do data segments and code segments?
-       PS: Under ELF format, there are several seperaed code and data
-           segments, but the process control table has only one pair of
-           pointers for each, Are the pointers still useful?
-    
-    (2) /proc/*/maps will show us those info, but how does it get these
-       info? 
-
-
-FuHau 
-
+--
+Justin

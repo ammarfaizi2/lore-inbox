@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262825AbVBCGzE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262484AbVBCG7c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262825AbVBCGzE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 01:55:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbVBCGzE
+	id S262484AbVBCG7c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 01:59:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbVBCG7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 01:55:04 -0500
-Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:4204 "HELO
-	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262825AbVBCGy4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 01:54:56 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: Possible bug in keyboard.c (2.6.10)
-Date: Thu, 3 Feb 2005 01:54:51 -0500
-User-Agent: KMail/1.7.2
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Roman Zippel <zippel@linux-m68k.org>,
-       Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0501270318290.4545@82.117.197.34> <20050130084154.GU8859@parcelfarce.linux.theplanet.co.uk> <200501301821.53924.dtor_core@ameritech.net>
-In-Reply-To: <200501301821.53924.dtor_core@ameritech.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502030154.52660.dtor_core@ameritech.net>
+	Thu, 3 Feb 2005 01:59:31 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:15851 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262520AbVBCG7U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 01:59:20 -0500
+Date: Wed, 2 Feb 2005 22:59:11 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Peter Osterlund <petero2@telia.com>
+Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org, dtor_core@ameritech.net,
+       zaitcev@redhat.com
+Subject: Re: Touchpad problems with 2.6.11-rc2
+Message-ID: <20050202225911.7efc0db4@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.58.0502022345320.18555@telia.com>
+References: <20050123190109.3d082021@localhost.localdomain>
+	<m3acqr895h.fsf@telia.com>
+	<20050201234148.4d5eac55@localhost.localdomain>
+	<m3lla64r3w.fsf@telia.com>
+	<20050202141117.688c8dd3@localhost.localdomain>
+	<Pine.LNX.4.58.0502022345320.18555@telia.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 30 January 2005 18:21, Dmitry Torokhov wrote:
-> On Sunday 30 January 2005 03:41, Al Viro wrote:
-> > On Sat, Jan 29, 2005 at 12:25:10PM +0100, Vojtech Pavlik wrote:
-> > > I know. As I said, this is a problem I know about, and will be fixed. I
-> > > was mainly interested whether anyone sees further problems in scenarios
-> > > which don't include device addition/removal.
-> > > 
-> > > We already fixed this in serio, and input and gameport are next in the
-> > > list.
-> > 
-> > OK, I'll bite.  What's to guarantee that no events will happen in
-> > the middle of serio_unregister_port(), right after we'd done
-> > serio_remove_pending_events()?
-> 
-> At this point serio is disconnected from driver and serio_interrupt
-> will only queue rescans only if serio->registered. I guess I will need
-> to protect change to serio->registered and take serio->lock to be
-> completely in clear.
-> 
+On Wed, 2 Feb 2005 23:58:05 +0100 (CET), Peter Osterlund <petero2@telia.com> wrote:
 
-Thinking about it some more - serio driver should take care of shutting
-off interrupt delivery either in ->close() or ->stop() methods so we
-don't really need to worry about having new events delivered here.
+> It didn't make any difference for the generated assembly code though,
+> using gcc 3.4.2 from Fedora Core 3.
 
--- 
-Dmitry
+OK, unary minus is fine then.
+
+What about using 'value' in place of 'fx(0)'?
+
+-- Pete

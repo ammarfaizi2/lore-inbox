@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136588AbREEEMi>; Sat, 5 May 2001 00:12:38 -0400
+	id <S136589AbREEEuz>; Sat, 5 May 2001 00:50:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136589AbREEEM3>; Sat, 5 May 2001 00:12:29 -0400
-Received: from femail4.sdc1.sfba.home.com ([24.0.95.84]:38832 "EHLO
-	femail4.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S136588AbREEEMV>; Sat, 5 May 2001 00:12:21 -0400
-Message-ID: <3AF37CD6.17677C56@home.com>
-Date: Fri, 04 May 2001 21:08:54 -0700
-From: Seth Goldberg <bergsoft@home.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
+	id <S136651AbREEEuo>; Sat, 5 May 2001 00:50:44 -0400
+Received: from MAIL1.ANDREW.CMU.EDU ([128.2.10.131]:14813 "EHLO
+	mail1.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id <S136589AbREEEui>; Sat, 5 May 2001 00:50:38 -0400
+Date: Sat, 5 May 2001 00:49:33 -0400 (EDT)
+From: Paul Komarek <komarek@andrew.cmu.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org, ross@willow.seitz.com,
+        komarek@andrew.cmu.edu, John Fremlin <chief@bandits.org>
+Subject: Re: 2.4.x APM interferes with FA311TX/natsemi.o
+In-Reply-To: <E14uN9K-0000fb-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21L.0105050029180.14755-100000@unix49.andrew.cmu.edu>
 MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: Joseph Carter <knghtbrd@debian.org>,
-        Aaron Tiensivu <mojomofo@mojomofo.com>, linux-kernel@vger.kernel.org
-Subject: Re: REVISED: Experimentation with Athlon and fast_page_copy
-In-Reply-To: <E14vmpN-000822-00@the-village.bc.nu> <006e01c0d4e9$3c0bd210$0300a8c0@methusela> <20010504172657.B14969@debian.org> <20010505155113.D29451@metastasis.f00f.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> 
-> On Fri, May 04, 2001 at 05:26:57PM -0700, Joseph Carter wrote:
-> 
->     I don't see how they figure, but in case there was any doubt I
->     have a VIA KT133A/686B board (Abit KT7A) and don't experience
->     anything resembling disk corruption unless the box crashes for
->     some other reason.  I do seem to be experiencing AGP problems in
->     spades, but my disks at least are fine.
-> 
-> I too seem no disk problems whatsoever (nothing really interesting
-> there, many people do not) but am also seeing AGP problems.
-> 
-> In fact, I had to disable AGP to stop X locking the box hard... yet
-> agpgart and the video driver (NVidia[1]) both claim to support the
-> chipset -- does anyone actually have this working?)
+On Tue, 1 May 2001, Alan Cox wrote:
 
-  My IWILL (KT133A) + GeForce 256 are working fine over AGP.
+> > When the call
+> >   apm_bios_call_simple(APM_FUNC_SET_STATE, 0x100, APM_STATE_READY, &eax)
+> > is made, the PMEEN (PME enable) bit in the CCSR register on my FA311
+> > mysteriously changes from 0 to 1, causing the card to stop processing
+> 
+> The Linux driver set the power management of the card off. The BIOS then 
+> rudely fiddled with it. If its not a laptop seriously consider just turning
+> off APM support. The Linux idle loop halts will do a fair job of power
+> saving anyway
 
-  --S
+Thanks to everyone that has helped me with this problem (Netgear FA311
+dies when apm.c's set_power_state() is called to unblank screen, for
+instance when an X server exits or the monitor is awakened from
+APM-induced sleep).  Since everyone has suggested work arounds, I'm going
+to assume it isn't worthwhile digging any deeper for causes.
+
+I've sent a two-line patch for the natsemi.c driver to the mainainers,
+which simply re-disables power management before checking if there are any
+packets to process in the receive buffer.  Turning off the APM screen
+blanking option in the kernel also works.  My patch isn't in the 2.4.4
+kernel -- perhaps the maintainers have a better idea than my hack, or are
+hoping to find one =-) -- but if anybody wants this patch, my email
+address should be valid at least until the 2.6.x kernels.
+
+-Paul Komarek
+komarek@andrew.cmu.edu
+
+
+

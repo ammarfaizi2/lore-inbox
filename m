@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263952AbTGYCPP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 22:15:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265531AbTGYCPP
+	id S265531AbTGYCWq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 22:22:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269354AbTGYCWq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 22:15:15 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:53403 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S263952AbTGYCPL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 22:15:11 -0400
-Date: Thu, 24 Jul 2003 22:19:55 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Torrey Hoffman <thoffman@arnor.net>, gaxt <gaxt@rogers.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux firewire devel <linux1394-devel@lists.sourceforge.net>
-Subject: Re: Firewire
-Message-ID: <20030725021955.GV1512@phunnypharm.org>
-References: <3F1FE06A.5030305@rogers.com> <20030724223522.GA23196@ruvolo.net> <20030724223615.GN1512@phunnypharm.org> <20030724230928.GB23196@ruvolo.net> <1059095616.1897.34.camel@torrey.et.myrio.com> <20030725012723.GF23196@ruvolo.net> <20030725012908.GT1512@phunnypharm.org> <20030725020027.GG23196@ruvolo.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030725020027.GG23196@ruvolo.net>
-User-Agent: Mutt/1.5.4i
+	Thu, 24 Jul 2003 22:22:46 -0400
+Received: from as6-4-8.rny.s.bonet.se ([217.215.27.171]:5385 "EHLO
+	pc2.dolda2000.com") by vger.kernel.org with ESMTP id S265531AbTGYCWp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 22:22:45 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Fredrik Tolf <fredrik@dolda2000.cjb.net>
+To: Bernd Eckenfels <ecki-lkm@lina.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: Net device byte statistics
+Date: Fri, 25 Jul 2003 04:37:50 +0200
+User-Agent: KMail/1.4.3
+References: <E19fqMF-0007me-00@calista.inka.de>
+In-Reply-To: <E19fqMF-0007me-00@calista.inka.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200307250437.50928.fredrik@dolda2000.cjb.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 24, 2003 at 07:00:27PM -0700, Chris Ruvolo wrote:
-> On Thu, Jul 24, 2003 at 09:29:08PM -0400, Ben Collins wrote:
-> > Could both you guys try this workaround? Should prove or disprove my
-> > theory.
-> 
-> Similar output (debug).  Diff of output and then full output follows.
+On Friday 25 July 2003 02.22, Bernd Eckenfels wrote:
+> it is for performance reasons. You can
 
-Just noticed that this doesn't even have anything to do with ohci1394.
-It's all local requests for config rom reads. Can you send me the debug
-with the below patch applied?
+I almost thought that would be it. I do understand that that code needs to be 
+really clean, but, correct me if I'm wrong, but isn't GCC's long long 
+implementation efficient enough to only add minimal overhead to that? On 
+IA32, it shouldn't take more than one or two more instructions (per counter), 
+and it seems to me that net_device_stats should still be small enough to 
+avoid any more cache misses.
+I'm no expert, of course, so if I'm wrong, please tell me.
 
-Index: linux-2.6/drivers/ieee1394/ieee1394_core.c
-===================================================================
---- linux-2.6/drivers/ieee1394/ieee1394_core.c	(revision 1013)
-+++ linux-2.6/drivers/ieee1394/ieee1394_core.c	(working copy)
-@@ -611,6 +611,7 @@
- 
-         list_for_each(lh, &host->pending_packets) {
-                 packet = list_entry(lh, struct hpsb_packet, list);
-+		HPSB_DEBUG("Checking tlabel %d\n", tlabel);
-                 if ((packet->tlabel == tlabel)
-                     && (packet->node_id == (data[1] >> 16))){
-                         break;
+> a) collect your numbers more often and asume wrap/reboot  if numbers
+> decrease
+> b) use iptables counters instead
 
+Currently, I'm sampling once a day, and although sampling more often could, of 
+course, solve the problem, it's just that I don't think that it should be 
+necessary.
+Do the iptables counters take the whole packet into account, or do they ignore 
+the ethernet header?
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
+> BTW: it is a very often discussed topic, personally (as net tools
+> maintainer) I would love to see 64bit counters here, but this still means
+> you have to sample often enough, so you do not lose numbers on crash.
+
+While that is true in theory, I'm just using it to estimate my home net usage, 
+and my router hasn't crashed this far, so I'm not very worried about that.
+
+Thank you very much for your input. For now, I'm just going to implement 64 
+bit counters in my kernel.
+
+Fredrik Tolf
+

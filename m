@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316782AbSFUU0M>; Fri, 21 Jun 2002 16:26:12 -0400
+	id <S316783AbSFUU1J>; Fri, 21 Jun 2002 16:27:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316783AbSFUU0L>; Fri, 21 Jun 2002 16:26:11 -0400
-Received: from [213.23.20.221] ([213.23.20.221]:20911 "EHLO starship")
-	by vger.kernel.org with ESMTP id <S316782AbSFUU0K>;
-	Fri, 21 Jun 2002 16:26:10 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Cort Dougan <cort@fsmlabs.com>, Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: Linux, the microkernel (was Re: latest linus-2.5 BK broken)
-Date: Fri, 21 Jun 2002 22:25:22 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Larry McVoy <lm@bitmover.com>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Benjamin LaHaise <bcrl@redhat.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Robert Love <rml@tech9.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0206201003500.8225-100000@home.transmeta.com> <3D136BEF.3030509@mandrakesoft.com> <20020621124634.H13628@host110.fsmlabs.com>
-In-Reply-To: <20020621124634.H13628@host110.fsmlabs.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17LUyA-0001wU-00@starship>
+	id <S316786AbSFUU1I>; Fri, 21 Jun 2002 16:27:08 -0400
+Received: from holomorphy.com ([66.224.33.161]:62147 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S316783AbSFUU1E>;
+	Fri, 21 Jun 2002 16:27:04 -0400
+Date: Fri, 21 Jun 2002 13:26:31 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+Cc: Erik McKee <camhanaich99@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: [BUGREPORT] kernel BUG in page_alloc.c:141!
+Message-ID: <20020621202631.GD22961@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+	Erik McKee <camhanaich99@yahoo.com>, linux-kernel@vger.kernel.org
+References: <20020621200613.GB22961@holomorphy.com> <Pine.LNX.4.44.0206211521130.14251-100000@chaos.physics.uiowa.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0206211521130.14251-100000@chaos.physics.uiowa.edu>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 June 2002 20:46, Cort Dougan wrote:
-> I don't see Linux being in serious jeopardy in the short-term of becoming
-> solaris.  It only aims at running on 1-4 processors and does a pretty good
-> job of that.  Most sane people realize, as Larry points out, that the
-> current design will not scale to 64 processors and beyond.  That's obvious,
-> it's not an alarmist or deep statement.  The key is to realize that it's
-> not _meant_ to scale that high right now.
+On Fri, Jun 21, 2002 at 12:15:28PM -0700, Erik McKee wrote:
+>>> Booted 2.5.24, and it ran fine for sometime, before it dead(live) locked,
+>>> causing a reboot.  Attempts to reboot were met with the following bug
+>>> immediatly after calibrating delay loop, which equates out to an
+>>> if(bad_range(buddy1,zone)) BUG; in __free_pages_ok:
 
-And originally, it was never meant to scale to more than one processor.
+On Fri, 21 Jun 2002, William Lee Irwin III wrote:
+>> This looks odd. Can you by any chance disassemble the parts before this?
+>> Or better yet, reproduce it with a kernel compiled with -g and objdump
+>> --source --disassemble vmlinux to get the disassembly of __free_pages_ok()?
 
--- 
-Daniel
+On Fri, Jun 21, 2002 at 03:23:13PM -0500, Kai Germaschewski wrote:
+> "make mm/page_alloc.lst" may simplify this task. However, the usage of the
+> various macros seems to confuse gcc -g / objdump somewhat, so the output
+> isn't as clear as it could be.
+> --Kai
+
+I've had to work around that before, I'll probably still be able to
+recognize it. It's still a royal PITA.
+
+Cheers,
+Bill

@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267131AbUBMRhm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 12:37:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267132AbUBMRhm
+	id S267134AbUBMRj5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 12:39:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267139AbUBMRj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 12:37:42 -0500
-Received: from ns.suse.de ([195.135.220.2]:61673 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267131AbUBMRhl (ORCPT
+	Fri, 13 Feb 2004 12:39:57 -0500
+Received: from mail.gmx.de ([213.165.64.20]:22502 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267134AbUBMRjx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 12:37:41 -0500
-Date: Sun, 15 Feb 2004 06:25:44 +0100
-From: Andi Kleen <ak@suse.de>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: torvalds@osdl.org, mingo@elte.hu, benh@kernel.crashing.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, drepper@redhat.com
-Subject: Re: [BUG] get_unmapped_area() change -> non booting machine
-Message-Id: <20040215062544.5e554a61.ak@suse.de>
-In-Reply-To: <20040213032604.GI25499@mail.shareable.org>
-References: <1076384799.893.5.camel@gaston>
-	<Pine.LNX.4.58.0402100814410.2128@home.osdl.org>
-	<20040210173738.GA9894@mail.shareable.org>
-	<20040213002358.1dd5c93a.ak@suse.de>
-	<20040212100446.GA2862@elte.hu>
-	<Pine.LNX.4.58.0402120833000.5816@home.osdl.org>
-	<20040213032604.GI25499@mail.shareable.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 13 Feb 2004 12:39:53 -0500
+X-Authenticated: #420190
+Message-ID: <402D0C3A.6070909@gmx.net>
+Date: Fri, 13 Feb 2004 18:41:14 +0100
+From: Marko Macek <Marko.Macek@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: Robert White <rwhite@casabyte.com>, linux-kernel@vger.kernel.org
+Subject: Re: ps/2 mouse problem with KVM switch
+References: <402602B9.1090005@gmx.net> <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAIH4lUMJJWUqlFPWIv65Y6gEAAAAA@casabyte.com> <20040213081231.GA247@ucw.cz>
+In-Reply-To: <20040213081231.GA247@ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Feb 2004 03:26:04 +0000
-Jamie Lokier <jamie@shareable.org> wrote:
+Vojtech Pavlik wrote:
 
-> Linus Torvalds wrote:
-> > One option is to mark the brk() VMA's as being grow-up (which they are), 
-> > and make get_unmapped_area() realize that it should avoid trying to 
-> > allocate just above grow-up segments or just below grow-down segments. 
-> > That's still something of a special case, but at least it's not "magic" 
-> > any more, now it's more of a "makes sense".
-> 
-> That reminds me.  What happens when grow-down stack VMAs finally bump
-> into another VMA.  Is there an unmapped guard page retained to segfault
-> the program, or does the program silently start overwriting the VMA it
-> bumped into?
+> Sadly enough, there is a soft reset command in the PS/2 protocol, and
+> the PS/2 interface is designed for hotplug, and because of that Linux
+> 2.6 can easily handle hotplugging of both PS/2 keyboards and mice,
+> including type detection, etc, BUT the KVM switches don't use that,
+> because Windows historically doesn't support unplugging a PS/2 mouse.
 
-In the standard kernel it silently overwrites, but in 2.4-aa there was a patch forever
-that adds a guard page.
+If the mouse gets into confusing state, I can "replug" it into the KVM 
+switch (while in Windows) and it works fine after that. I have also 
+noticed that when Windows is doing "resume" I must not switch away 
+before it is if I want my mouse to work (otherwise I will need to replug).
 
--Andi
+For Linux, I also need to switch from X to console and back when the 
+mouse is "confused".
+
+With 2.4 I repeat the the 2 steps described above my mouse works (incl 
+wheel) on both machines after that.
+
+> The most ugly part of the KVM switch in this play is that while the KVM
+> switch usually implements a virtual mouse for each of the machines, it
+> lets them all talk to the real one, and if they have different ideas
+> about what mode the mouse should be set to, well, then there goes the
+> road to madness.
+
+I guess I need to figure out how to force both machines to initialize 
+the mouse in the same way then...
+
+Regards,
+Mark
+
+

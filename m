@@ -1,61 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbULHWxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbULHXB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261399AbULHWxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 17:53:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbULHWxY
+	id S261398AbULHXB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 18:01:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbULHXB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 17:53:24 -0500
-Received: from darkwing.uoregon.edu ([128.223.142.13]:8446 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id S261399AbULHWxS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 17:53:18 -0500
-Date: Wed, 8 Dec 2004 14:11:23 -0800 (PST)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: Gene Heskett <gene.heskett@verizon.net>
-cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>
-Subject: Re: Mach Speed motherboard w/onboard video
-In-Reply-To: <200412081248.57255.gene.heskett@verizon.net>
-Message-ID: <Pine.LNX.4.61.0412081409350.14310@twin.uoregon.edu>
-References: <200412081140.33199.gene.heskett@verizon.net>
- <1102525014.30593.17.camel@krustophenia.net> <200412081248.57255.gene.heskett@verizon.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 8 Dec 2004 18:01:26 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:59826 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261398AbULHXBX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 18:01:23 -0500
+Date: Thu, 9 Dec 2004 10:01:18 +1100
+From: Greg Banks <gnb@sgi.com>
+To: Steve Lord <lord@xfs.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: negative dentry_stat.nr_unused causes aggressive dcache pruning
+Message-ID: <20041208230118.GC4239@sgi.com>
+References: <41B77D54.4080909@xfs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41B77D54.4080909@xfs.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Dec 2004, Gene Heskett wrote:
+On Wed, Dec 08, 2004 at 04:16:52PM -0600, Steve Lord wrote:
+> 
+> I have seen this stat go negative (just from booting up a multi cpu box),
+> and looking at the code, it is manipulated without locking in a number
+> of places. I have only seen this in real life on a 2.4 kernel, but 2.6
+> also looks vulnerable.
 
-> On Wednesday 08 December 2004 11:56, Lee Revell wrote:
->> On Wed, 2004-12-08 at 11:40 -0500, Gene Heskett wrote:
->>> Has a builtin video, called UniCrome in the propaganda.
->>>
->>> Are there usable linux drivers for this one?
->>
->> Yes, they are quite good actually:
->>
->> http://unichrome.sourceforge.net/
->>
->> The biggest problem is that the via DRM module is not in the kernel
->> yet. You will have to install it from dri.sourceforge.net CVS.  It
->> was in a recent -mm release but was dropped and unfortunately the
->> current version doesn't work with the -mm kernel.  Andrew Morton &
->> others have said they will try to get it back in soon.
->>
->> Lee
->
-> Unforch, this implies its for 2.6 kernels.  The machine in question
-> will be running 2.5.25-adeos, an rtai conversion kernel.  I'll take a
-> look and see if it might be buildable for that.  Thanks for the links.
+On early 2.6.x, a heavy streaming NFS load was a great way to trigger
+this.  I haven't seen it happen since
 
-If you don't care much about video performance the via embedded video 
-works fine for most applications... it's derived from their s3 aquisition.
+http://linus.bkbits.net:8080/linux-2.5/cset@40b8cf606MV-gl6VpDyWKzzW1jaIJw
 
-
->
-
+Greg.
 -- 
--------------------------------------------------------------------------- 
-Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu 
-GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
-
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.

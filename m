@@ -1,85 +1,131 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276640AbRJPTWA>; Tue, 16 Oct 2001 15:22:00 -0400
+	id <S276646AbRJPT2u>; Tue, 16 Oct 2001 15:28:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276643AbRJPTVu>; Tue, 16 Oct 2001 15:21:50 -0400
-Received: from postfix1-2.free.fr ([213.228.0.130]:33544 "HELO
-	postfix1-2.free.fr") by vger.kernel.org with SMTP
-	id <S276640AbRJPTVl> convert rfc822-to-8bit; Tue, 16 Oct 2001 15:21:41 -0400
-Date: Tue, 16 Oct 2001 21:16:30 +0200 (CEST)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: "David S. Miller" <davem@redhat.com>
-Cc: <jbglaw@lug-owl.de>, <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Oops while inserting sym53c8xx.o
-In-Reply-To: <20011016.022902.74752070.davem@redhat.com>
-Message-ID: <20011016205934.M356-100000@gerard>
+	id <S276650AbRJPT2b>; Tue, 16 Oct 2001 15:28:31 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:57100 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S276646AbRJPT23>; Tue, 16 Oct 2001 15:28:29 -0400
+Date: Tue, 16 Oct 2001 16:07:29 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Andrea Arcangeli <andrea@suse.de>
+Subject: [UNTESTED PATCH] Throttle VM allocators
+Message-ID: <Pine.LNX.4.21.0110161600110.10214-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi David,
+Hi,
 
-I missed this one, but, btw, it wasn't from me as you know. :-)
-OTOH, I use sym-2 instead since months. :)
+The following patch will throttle VM allocators in case we are below a
+given threshold of free memory. 
 
-Btw, sym-2 has a new PCI 64 bit DMA addressing mode using 16 segment
-registers. 4GB * 16 = 64 GB. The change is simple and can be back-ported
-to sym-1. It also support 40 bit addressing, but not both at the same
-time (compilation optionnable).
+This will make hunger allocators throttle more page reclamation, giving us
+a (hopefully) fair system wrt memory.
 
-Note that I would rather prefer to push sym-2 to kernel main-stream. This
-is planned, but condition was to prove sym-2 in kernel 2.5 first, but
-kernel 2.5 is very long to come.
+Please test this. I'm specially interested in interactivity during heavy
+VM pressure.
 
-The new 'up to 64 GB addressing DMA support' has no limitation regarding
-64 bit addressing and should better fit existing 64 bit machines. It is
-obviously untested since, for some obscure reasons, both SUN and COMPAQ
-missed to offer me a machine suitable for the testings. :-)
+Its against 2.4.12.
 
-sym-2.1.15 is available for download from ftp.tux.org. If you have time
-for giving it a try on some large memory machine, you may let me know
-the results.
+Thanks
 
-Bye for now,
-  Gérard.
+diff -Nur linux.orig/mm/page_alloc.c linux/mm/page_alloc.c
+--- linux.orig/mm/page_alloc.c	Thu Oct 11 16:04:56 2001
++++ linux/mm/page_alloc.c	Thu Oct 11 16:03:36 2001
+@@ -228,6 +228,22 @@
+ }
+ #endif
+ 
++static inline int vm_throttle(zone_t *classzone, unsigned int gfp_mask, unsigned int order)
++{
++	int progress;
++	if (in_interrupt())
++		BUG();
++
++	current->allocation_order = order;
++	current->flags |= PF_MEMALLOC | PF_FREE_PAGES;
++
++	progress = try_to_free_pages(classzone, gfp_mask, order);
++
++	current->flags &= ~(PF_MEMALLOC | PF_FREE_PAGES);
++
++	return progress;
++}
++
+ static struct page * FASTCALL(balance_classzone(zone_t *, unsigned int, unsigned int, int *));
+ static struct page * balance_classzone(zone_t * classzone, unsigned int gfp_mask, unsigned int order, int * freed)
+ {
+@@ -338,6 +354,16 @@
+ 	if (waitqueue_active(&kswapd_wait))
+ 		wake_up_interruptible(&kswapd_wait);
+ 
++	/* 
++	 * We're possibly going to eat memory from the min<->low
++	 * "reversed" area. Throttling page reclamation using
++	 * the allocators which reach this point will give us a 
++	 * fair system.
++	 */
++
++	if ((gfp_mask & __GFP_WAIT))
++		vm_throttle(classzone, gfp_mask, order);
++
+ 	zone = zonelist->zones;
+ 	for (;;) {
+ 		unsigned long min;
+@@ -386,7 +412,7 @@
+ 		if (!z)
+ 			break;
+ 
+-		if (zone_free_pages(z, order) > z->pages_min) {
++		if (zone_free_pages(z, order) > z->pages_low) {
+ 			page = rmqueue(z, order);
+ 			if (page)
+ 				return page;
+@@ -394,7 +420,13 @@
+ 	}
+ 
+ 	/* Don't let big-order allocations loop */
+-	if (order)
++	/* We have one special 1-order alloc user: fork().
++	 * It obviously cannot fail easily like other 
++	 * high order allocations. This could also be fixed
++	 * by having a __GFP_LOOP flag to indicate that the 
++	 * high order allocation is "critical". 
++	 */
++	if (order > 1)
+ 		return NULL;
+ 
+ 	/* Yield for kswapd, and try again */
+diff -Nur linux.orig/mm/vmscan.c linux/mm/vmscan.c
+--- linux.orig/mm/vmscan.c	Thu Oct 11 16:04:56 2001
++++ linux/mm/vmscan.c	Thu Oct 11 15:52:36 2001
+@@ -558,13 +558,14 @@
+ 	int priority = DEF_PRIORITY;
+ 	int nr_pages = SWAP_CLUSTER_MAX;
+ 
+-	do {
+-		nr_pages = shrink_caches(priority, classzone, gfp_mask, nr_pages);
+-		if (nr_pages <= 0)
+-			return 1;
++	nr_pages = shrink_caches(priority, classzone, gfp_mask, nr_pages);
++	if (nr_pages <= 0)
++		return 1;
++
++	ret = (nr_pages < SWAP_CLUSTER_MAX);
++
++	ret |= swap_out(priority, classzone, gfp_mask, SWAP_CLUSTER_MAX << 2);
+ 
+-		ret |= swap_out(priority, classzone, gfp_mask, SWAP_CLUSTER_MAX << 2);
+-	} while (--priority);
+ 
+ 	return ret;
+ }
 
-PS: The enabling of the new 64 GB DMA support requires a simple define
-    changes in the source. You cannot miss it.
 
-On Tue, 16 Oct 2001, David S. Miller wrote:
 
->
-> This should fix it, Linux please apply.
->
-> --- drivers/scsi/sym53c8xx.c.~1~	Mon Oct  8 21:04:56 2001
-> +++ drivers/scsi/sym53c8xx.c	Tue Oct 16 02:27:44 2001
-> @@ -13168,14 +13168,14 @@
->  	** in the size field.  We use normal 32-bit PCI addresses for
->  	** descriptors.
->  	*/
-> -	if (chip->features & FE_DAC) {
-> +	if (chip && (chip->features & FE_DAC)) {
->  		if (pci_set_dma_mask(pdev, (u64) 0xffffffffff))
->  			chip->features &= ~FE_DAC_IN_USE;
->  		else
->  			chip->features |= FE_DAC_IN_USE;
->  	}
->
-> -	if (!(chip->features & FE_DAC_IN_USE)) {
-> +	if (chip && !(chip->features & FE_DAC_IN_USE)) {
->  		if (pci_set_dma_mask(pdev, (u64) 0xffffffff)) {
->  			printk(KERN_WARNING NAME53C8XX
->  			       "32 BIT PCI BUS DMA ADDRESSING NOT SUPPORTED\n");
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+
 

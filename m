@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267701AbRGUQQi>; Sat, 21 Jul 2001 12:16:38 -0400
+	id <S267706AbRGUQSI>; Sat, 21 Jul 2001 12:18:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267706AbRGUQQ3>; Sat, 21 Jul 2001 12:16:29 -0400
-Received: from pop.gmx.net ([194.221.183.20]:6883 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S267701AbRGUQQZ>;
-	Sat, 21 Jul 2001 12:16:25 -0400
-Message-ID: <001901c11200$7e16adc0$c20e9c3e@host1>
-From: "peter k." <spam-goes-to-dev-null@gmx.net>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <000f01c111ff$73602ce0$c20e9c3e@host1>
-Subject: Re: 2.4.7: wtf is "ksoftirqd_CPU0"
-Date: Sat, 21 Jul 2001 18:15:35 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S267707AbRGUQR6>; Sat, 21 Jul 2001 12:17:58 -0400
+Received: from ohiper1-58.apex.net ([209.250.47.73]:29958 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S267706AbRGUQRr>; Sat, 21 Jul 2001 12:17:47 -0400
+Date: Sat, 21 Jul 2001 11:17:33 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: Detlev Offenbach <detlev@offenbach.fs.uunet.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: MO-Drive under 2.4.7 usinf vfat
+Message-ID: <20010721111732.A9618@hapablap.dyn.dhs.org>
+In-Reply-To: <01072115265800.02284@majestix>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01072115265800.02284@majestix>; from detlev@offenbach.fs.uunet.de on Sat, Jul 21, 2001 at 03:26:58PM +0200
+X-Uptime: 11:05am  up 14:47,  0 users,  load average: 1.00, 1.00, 1.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-i knew that i forgot to say something: i was using 2.4.6 before and i never
-saw that process with 2.4.6 or any other 2.4.x version
+On Sat, Jul 21, 2001 at 03:26:58PM +0200, Detlev Offenbach wrote:
+> Hi all,
+> 
+> I have just tested the new 2.4.7 kernel to see, whether it now works with a 
+> MO-Drive using the vfat filesystem. Unfortunately it still doesn't. Mounting 
+> a disk and writing to it is ok. However, when I try to read a file off the 
+> disk, the program crashes with a Segmentation fault and I get a oops in the 
+> messages file (see attachment). I tried ksymoops on this file, but either I 
+> did something wrong or it couldn't analyse it.
+> 
+> I hope, this issue will be fixed soon cause I would like to switch over to 
+> the 2.4 kernel series without scratching my set of MO-disks.
 
-
-> i just installed 2.4.7, now a new process called "ksoftirqd_CPU0" is
-started
-> automatically when booting (by the kernel obviously)? why? what does it
-do?
-> i didnt find any useful information on it in linuxdoc / linux-kernel
-> archives
-
-
+You might try the -ac series.  I recall 2048 byte blocks being
+implemented in its version of vfat (which is likely the problem you're
+hitting).  Perhaps that particular patch hasn't made it to Linus' tree,
+yet.
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell

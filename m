@@ -1,47 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269312AbRHLPG4>; Sun, 12 Aug 2001 11:06:56 -0400
+	id <S269350AbRHLPzN>; Sun, 12 Aug 2001 11:55:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269313AbRHLPGg>; Sun, 12 Aug 2001 11:06:36 -0400
-Received: from smtp.mailbox.net.uk ([195.82.125.32]:33478 "EHLO
-	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
-	id <S269312AbRHLPG0>; Sun, 12 Aug 2001 11:06:26 -0400
-Date: Sun, 12 Aug 2001 15:56:33 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: David Woodhouse <dwmw2@infradead.org>, kbuild-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: Announce: Kernel Build for 2.5, Release 1.1 is available.
-Message-ID: <20010812155633.B12253@flint.arm.linux.org.uk>
-In-Reply-To: <21485.997626973@redhat.com> <3742.997627694@ocs3.ocs-net>
+	id <S269351AbRHLPzD>; Sun, 12 Aug 2001 11:55:03 -0400
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:27403 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S269350AbRHLPy7>; Sun, 12 Aug 2001 11:54:59 -0400
+Subject: [PATCH] 2.4.8 -- LDM build fix
+From: Richard Russon <ntfs@flatcap.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99 (Preview Release)
+Date: 12 Aug 2001 16:55:07 +0100
+Message-Id: <997631708.5538.8.camel@home.flatcap.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3742.997627694@ocs3.ocs-net>; from kaos@ocs.com.au on Mon, Aug 13, 2001 at 12:48:14AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 13, 2001 at 12:48:14AM +1000, Keith Owens wrote:
-> No.  The aim is for a user to look at the makefile in a directory and
-> know everything that is created in that directory.  If you allow
-> creation of a file in one directory but storing it in another then you
-> have to search all makefiles to find out what is created in any
-> directory.  Horrible!
+Hi Linus,
 
-Can we have a makefile in include/asm-$(ARCH) then please?
+The LDM code (Windows Dynamic Disks) has been broken for a few
+revisions now.  Please apply this patch to fix it.
 
-I think stuff like:
-
-#include "../../../../arch/arm/constants.h"
-
-or
-
-#include "../../../../arch/arm/tools/mach-types.h"
-
-is even more disgusting.
+Cheers,
+  FlatCap (Rich)
+  ntfs@flatcap.org
 
 --
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+
+diff -urN linux-2.4.8/fs/partitions/ldm.c linux-2.4.8-ldm/fs/partitions/ldm.c
+--- linux-2.4.8/fs/partitions/ldm.c	Sun Aug 12 16:45:00 2001
++++ linux-2.4.8-ldm/fs/partitions/ldm.c	Sun Aug 12 16:44:53 2001
+@@ -141,7 +141,8 @@
+ 		printk(LDM_CRIT "Cannot find VBLK, database may be corrupt.\n");
+ 		return -1;
+ 	}
+-	if (BE16(buffer + 0x0E) == 0)	/* Record is not in use. */
++	if ((BE16(buffer + 0x0E) == 0) ||       /* Record is not in use. */
++	    (BE16(buffer + 0x0C) != 0))         /* Part 2 of an ext. record */
+ 		return 0;
+ 
+ 	/* FIXME: What about extended VBLKs? */
+diff -urN linux-2.4.8/fs/partitions/ldm.h linux-2.4.8-ldm/fs/partitions/ldm.h
+--- linux-2.4.8/fs/partitions/ldm.h	Sun Aug 12 14:57:56 2001
++++ linux-2.4.8-ldm/fs/partitions/ldm.h	Sun Aug 12 16:18:27 2001
+@@ -81,13 +81,13 @@
+ #define TOC_BITMAP2		"log"		/* bitmaps in the TOCBLOCK. */
+ 
+ /* Borrowed from msdos.c */
+-#define SYS_IND(p)		(get_unaligned(&p->sys_ind))
+-#define NR_SECTS(p)		({ __typeof__(p->nr_sects) __a =	\
+-					get_unaligned(&p->nr_sects);	\
++#define SYS_IND(p)		(get_unaligned(&(p)->sys_ind))
++#define NR_SECTS(p)		({ __typeof__((p)->nr_sects) __a =	\
++					get_unaligned(&(p)->nr_sects);	\
+ 					le32_to_cpu(__a);		\
+ 				})
+-#define START_SECT(p)		({ __typeof__(p->start_sect) __a =	\
+-					get_unaligned(&p->start_sect);	\
++#define START_SECT(p)		({ __typeof__((p)->start_sect) __a =	\
++					get_unaligned(&(p)->start_sect);\
+ 					le32_to_cpu(__a);		\
+ 				})
+ 
+
 

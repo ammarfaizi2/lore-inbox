@@ -1,107 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262385AbSJVXKD>; Tue, 22 Oct 2002 19:10:03 -0400
+	id <S262547AbSJVXUo>; Tue, 22 Oct 2002 19:20:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262397AbSJVXKC>; Tue, 22 Oct 2002 19:10:02 -0400
-Received: from d06lmsgate-5.uk.ibm.com ([195.212.29.5]:28407 "EHLO
-	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S262385AbSJVXKB>; Tue, 22 Oct 2002 19:10:01 -0400
-Subject: Re: 2.4 Ready list - Kernel Hooks
-To: Werner Almesberger <wa@almesberger.net>
-Cc: Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
-       "S Vamsikrishna" <vamsi_krishna@in.ibm.com>
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFD4366ECB.CE549043-ON80256C5A.007614F9@portsmouth.uk.ibm.com>
-From: "Richard J Moore" <richardj_moore@uk.ibm.com>
-Date: Wed, 23 Oct 2002 00:09:38 +0100
-X-MIMETrack: Serialize by Router on D06ML023/06/M/IBM(Release 5.0.9a |January 7, 2002) at
- 23/10/2002 00:15:59
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S262568AbSJVXUo>; Tue, 22 Oct 2002 19:20:44 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:62897 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262547AbSJVXUn>;
+	Tue, 22 Oct 2002 19:20:43 -0400
+Subject: Re: [Fastboot] [CFT] kexec syscall for 2.5.43 (linux booting linux)
+From: Andy Pfiffer <andyp@osdl.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org,
+       Werner Almesberger <wa@almesberger.net>
+In-Reply-To: <m1fzuyub3z.fsf@frodo.biederman.org>
+References: <m1k7kfzffk.fsf@frodo.biederman.org>
+	<1035241872.24994.21.camel@andyp> <m13cqzumx3.fsf@frodo.biederman.org>
+	<m1ptu3t3ec.fsf@frodo.biederman.org>  <m1fzuyub3z.fsf@frodo.biederman.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 22 Oct 2002 16:27:19 -0700
+Message-Id: <1035329239.24994.58.camel@andyp>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Werner Almesberger wrote:
-
->Richard J Moore wrote:
->> Kernel Hooks is also ready,
->
->I'm a bit puzzled as to what those hooks accomplish. They look
->like a less flexible but a little faster and more portable
->variant of kprobes.
->
->Is this what they are ? If yes, does it really make sense to
->have two so similar mechanisms for tapping into execution flows
->in the kernel ?
->
->- Werner
-
-Hello Werner, the two things are different:
-
-kprobes
--------
-
-This is kernel interface that allows kernel modules register to register
-one or more probes.
-A probes comprises a breakpoint location, a breakpoint handler and a post
-single-step handler.
-Why use the term probes? Because we don't intend to hijack the system,
-merely register a location where we can seamlessly gather data and
-continue.
-The sequence of events that occurs when code containing a probepoint
-executes are:
-1) The associated probe handler is invoked.
-2) The probe handler returns.
-3) The probed instruction is single-stepped.
-4) The post-single-step handler is called.
-5) The post-single-step handler returns.
-6) The probed code continues execution.
-
-kprobes confines itself to kernel-space probepoints, which are implemented
-using a breakpoint instruction.
-There are three incremental patches that Vamsi submitted today which extend
-krpobes as follows:
-1) debug register management - provides a kernel interface for debug
-register allocation and deallocation so debuggers can co-exists e.g
-kprobes, ptrace, kdb etc..
-2) kwatch points - allows probes to be set using debug registers. This
-allows probes to fire on data accesses for example.
-3) user space probes - this extends kprobes to be able to set probepoints
-in user space. Note probes are tracked by inode and offset so that they are
-global and relative to a module. This distinguishes kprobes user-space
-probes from ptrace implemented breakpoints.
+On Tue, 2002-10-22 at 01:33, Eric W. Biederman wrote:
+> Ok as promised kexec-tools-1.3.tar.gz is released.
+> 
+> The new test case it provides is
+> kexec -debug bzImage
+> 
+> The serial console must be initialized before using this.
+> 
+> [root@p4dp8-0 root]# kexec -debug bzImage-2.4.17.eb-amd768-eepro100-kexec-apic-lb-mtd2 ip=dhcp root=/dev/nfs console=tty0 console=ttyS0,9600 reboot=hard panic=5 ide0=ata66 verbose
+> setup16_end: 00091ac4
+> Shutting down devices
+> kexecing image
+> a
+> b
+> c
+> d
+> e
+> f
+> g
+> h
+> < All above are various points in x86-setup-16.S >
+> i < Printed from the first callback in setup.S, before protected mode is entered >
+> j < Printed from the second callback in setup.S, just before the kernel decompresser is run >
 
 
-dprobes
--------
-The four kprobes patches is almost equivalent to dprobes. Dprobes provides
-a generic RPN interpreter in which to define probe handler actions. We
-decided that RPN interpreter should be separated out from the breakpointing
-mechanism. It's just an example probe handler and can exist outside the
-kernel. Also having a set of callable interfaces is more flexible than just
-having an RPN language to define probe handlers. The dprobes project has
-evolved in to kprobes + a sample device driver that provide the generic RPN
-probe handler.
+joe:/boot # ./kexec-1.3 -debug linux-2.5 console=ttyS0,9600 reboot=hard
+verbose
+setup16_end: 00091a94
+kexecing image
+a
+b
+c
+d
+e
+f
+g
+h
 
-kernel hooks
-------------
-This is nothing more than a call-back mechanism such as could be used by
-LSM or LTT. The call-backs have to be statically coded into the source
-unlike kprobes where the call-back to a probe handler is implemented via a
-debug interrupt from a watchpoint or dynamically implanted INT3. We created
-kernel hooks for exactly the same reasons that LSM needs hooks - to allow
-ancillary function to exist outside the kernel, to avoid kernel bloat, to
-allow more than one function to be called from a given call-back (think of
-kdb and kprobes - both need to be called from do_debug).
+Wedged.
 
-Yes both kprobes and kernel hooks implement call-backs, but using INT3 to
-call functions is not the most efficient call mechanism, whereas implanting
-call back dynamically for debugging purposes is a tad more difficult if
-done by patching in a jmp or call instruction.
+Andy
 
-It's a case of horses for courses. kprobes is a debugging facility; kernel
-hooks is a static call-back mechanism.
-
-Richard
 

@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272201AbRIEPg6>; Wed, 5 Sep 2001 11:36:58 -0400
+	id <S272212AbRIEP4g>; Wed, 5 Sep 2001 11:56:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272202AbRIEPgs>; Wed, 5 Sep 2001 11:36:48 -0400
-Received: from blackhole.compendium-tech.com ([64.156.208.74]:61371 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S272201AbRIEPgj>; Wed, 5 Sep 2001 11:36:39 -0400
-Date: Wed, 5 Sep 2001 08:36:15 -0700 (PDT)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-X-X-Sender: <kernel@sol.compendium-tech.com>
-To: Hans Reiser <reiser@namesys.com>
-cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: ext2 -> reiserfs conversion?
-In-Reply-To: <3B8D2969.FCDF9B29@namesys.com>
-Message-ID: <Pine.LNX.4.33.0109050835380.448-100000@sol.compendium-tech.com>
+	id <S272213AbRIEP41>; Wed, 5 Sep 2001 11:56:27 -0400
+Received: from cpe-24-221-114-147.az.sprintbbd.net ([24.221.114.147]:19840
+	"EHLO localhost.digitalaudioresources.org") by vger.kernel.org
+	with ESMTP id <S272212AbRIEP4R>; Wed, 5 Sep 2001 11:56:17 -0400
+Message-ID: <3B964B29.8080400@digitalaudioresources.org>
+Date: Wed, 05 Sep 2001 08:56:25 -0700
+From: David Hollister <david@digitalaudioresources.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Eric Olson <ejolson@unr.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Athlon doesn't like Athlon optimisation?
+In-Reply-To: <200109050521.WAA26155@equinox.unr.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Aug 2001, Hans Reiser wrote:
+Eric Olson wrote:
+> Robert Redelmeier told me he has written a version of his burnMMX which 
+> uses K7 MMX 3DNow streaming cache bypass load/store instruction sequences
+> similar to what is used in linux/arch/i386/lib/mmx.c
+>  
+> It would be particularly interesting if someone with a problematic KT133A 
+> based motherboard would test it and report back.
 
-> Sorry, limited funds means tar is your only solution.
+Ran both burnK7 and burnMMX for 10+ minutes with no problems.  FWIW, burnMMX 
+didn't do much to my system temp, but burnK7 raised it by a good 8-9 degrees.
 
-but what about 'find' and 'cpio'? those work too :)
-
- Kelsey Hudson                                           khudson@ctica.com
- Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------
+-- 
+David Hollister
+Driversoft Engineering:  http://devicedrivers.com
+Digital Audio Resources: http://digitalaudioresources.org
 

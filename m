@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261776AbTKBTKb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 14:10:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261782AbTKBTKb
+	id S261784AbTKBTYb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 14:24:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbTKBTYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 14:10:31 -0500
-Received: from fw.osdl.org ([65.172.181.6]:29348 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261776AbTKBTKa (ORCPT
+	Sun, 2 Nov 2003 14:24:23 -0500
+Received: from mail.gmx.net ([213.165.64.20]:48830 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261784AbTKBTYF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 14:10:30 -0500
-Date: Sun, 2 Nov 2003 11:12:54 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Daniele Venzano <webvenza@libero.it>
-Cc: mochel@osdl.org, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sorceforge.net
-Subject: Re: [PATCH] Add PM support to sis900 network driver
-Message-Id: <20031102111254.481bcbfd.akpm@osdl.org>
-In-Reply-To: <20031102182852.GC18017@picchio.gall.it>
-References: <20031102182852.GC18017@picchio.gall.it>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 2 Nov 2003 14:24:05 -0500
+X-Authenticated: #20450766
+Date: Sun, 2 Nov 2003 20:22:23 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Christoph Hellwig <hch@infradead.org>
+cc: linux-scsi@vger.kernel.org, <linux-kernel@vger.kernel.org>,
+       <garloff@suse.de>, <gl@dsa-ac.de>
+Subject: Re: [PATCH] Re: AMD 53c974 SCSI driver in 2.6
+In-Reply-To: <20031031114616.A16435@infradead.org>
+Message-ID: <Pine.LNX.4.44.0311021933100.4615-100000@poirot.grange>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > > Any reason you fix this driver?  The tmcsim one for the same hardware
+> > > looks like much better structured (though a bit obsufacted :))?
 
-Daniele Venzano <webvenza@libero.it> wrote:
->
-> The attached patch adds support for suspend/resume to the sis900 driver.
+Ok, started looking at the tmscsim. A couple of questions:
 
-...
+1) After the "next" element has disappeared from the struct scsi_cmnd,
+what is the "correct" / preferred way to queue scsi commands in drivers?
+I saw aic7xxx (new) casting a part of struct scsi_pointer SCp in
+scsi_cmnd, starting from Status to a list_head (or an anology thereof),
+which doesn't seem very nice. Anyway, I didn't find any "standard" way for
+doing this. Should host_scribble be used?
 
-> +static int sis900_suspend(struct pci_dev *pci_dev, u32 state)
->  +{
->  +	struct net_device *net_dev = pci_get_drvdata(pci_dev);
->  +	struct sis900_private *sis_priv = net_dev->priv;
->  +	long ioaddr = net_dev->base_addr;
->  +	unsigned long flags;
->  +
->  +	if(!netif_running(net_dev))
->  +		return 0;
->  +	netif_stop_queue(net_dev);
->  +	
->  +	netif_device_detach(net_dev);
->  +	spin_lock_irqsave(&sis_priv->lock, flags);
->  +
->  +	/* Stop the chip's Tx and Rx Status Machine */
->  +	outl(RxDIS | TxDIS | inl(ioaddr + cr), ioaddr + cr);
->  +	
->  +	pci_set_power_state(pci_dev, 3);
+2) Actually, which scsi driver (or, better, several drivers) can be
+considered well-written and can be taken as examples? I tried looking at
+aic7xxx, as it is a pretty new one, but I am not sure if it is really a
+good example to follow and it is pretty big too.
 
-pci_set_power_state() can sleep, so we shouldn't be calling it
-under spin_lock_irqsave().  Is it necessary to hold the lock
-here?
+Thanks
+Guennadi
+
+P.S. Should this thread be taken to linux-scsi or is it better to continue
+it on lkml?
+---
+Guennadi Liakhovetski
+
+

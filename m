@@ -1,71 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265705AbRFXB4i>; Sat, 23 Jun 2001 21:56:38 -0400
+	id <S265706AbRFXCMw>; Sat, 23 Jun 2001 22:12:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265704AbRFXB4S>; Sat, 23 Jun 2001 21:56:18 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:63872 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265703AbRFXB4P>; Sat, 23 Jun 2001 21:56:15 -0400
-Date: Sat, 23 Jun 2001 21:56:06 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Der Herr Hofrat <der.herr@hofr.at>
+	id <S265707AbRFXCMm>; Sat, 23 Jun 2001 22:12:42 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:7941 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S265706AbRFXCMc>;
+	Sat, 23 Jun 2001 22:12:32 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: root@chaos.analogic.com
 cc: linux-kernel@vger.kernel.org
-Subject: Re: sizeof problem in kernel modules
-In-Reply-To: <200106231454.f5NEsKu14812@kanga.hofr.at>
-Message-ID: <Pine.LNX.3.95.1010623214533.21862B-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: sizeof problem in kernel modules 
+In-Reply-To: Your message of "Sat, 23 Jun 2001 21:56:06 -0400."
+             <Pine.LNX.3.95.1010623214533.21862B-100000@chaos.analogic.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 24 Jun 2001 12:12:24 +1000
+Message-ID: <19093.993348744@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Jun 2001, Der Herr Hofrat wrote:
+On Sat, 23 Jun 2001 21:56:06 -0400 (EDT), 
+"Richard B. Johnson" <root@chaos.analogic.com> wrote:
+>FYI, structures are designed to be accessed only by their member-names.
+>Therefore, the compiler is free to put members at any offset. In fact,
+>members, other than the first, don't even have to be in the order
+>written!
 
-> 
-> Hi !
-> 
->  can someone explain to me whats happening here ?
-> 
-> --simple.c--
-> #include <linux/module.h>
-> #include <linux/kernel.h>
-> 
-> struct { short x; long y; short z; }bad_struct;
-> struct { long y; short x; short z; }good_struct;
-> 
+Bzzt!  I don't know where people get these ideas from.  Extracts from
+the C9X draft.
 
-[SNIPPED...]
-> ---------------------------------------------------------------
-> 
-> I would expect both structs to be 8byte in size , or atleast the same size !
-> but good_struct turns out to be 8bytes and bad_struct 12 .
-> 
-> what am I doing wrong here ?
+  A structure type describes a sequentially allocated nonempty set of
+  member objects (and, in certain circumstances, an incomplete array),
+  each of which has an optionally specified name and possibly distinct
+  type.
 
-You are assuming something that is wrong. Many programmers use
-a structure as a "template", assuming that what they write is
-exactly what exists in memory. This is not how the 'C' standards
-are written! The only thing guaranteed by the standard is that
-the first structure member will exist as the same address as the
-structure itself -- nothing else.
+  When two pointers are compared ... If the objects pointed to are
+  members of the same aggregate object, pointers to structure members
+  declared later compare greater than pointers to members declared
+  earlier in the structure.
 
-So that structures can be used as templates, many compilers including
-gcc, have non-standard extensions that can be used to "pack" structure
-members.  __attribute__ ((packed)) will probably do what you want.
+  Two objects may be adjacent in memory because they are adjacent
+  elements of a larger array or adjacent members of a structure with no
+  padding between them,
 
-FYI, structures are designed to be accessed only by their member-names.
-Therefore, the compiler is free to put members at any offset. In fact,
-members, other than the first, don't even have to be in the order
-written!
+  As discussed in 6.2.5, a structure is a type consisting of a sequence
+  of members, whose storage is allocated in an ordered sequence,
 
+  Within  a structure object, the non-bit-field members and the units
+  in which bit-fields reside have addresses that increase in the order
+  in which they are declared
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+C requires that members of a structure be defined in ascending address
+order as specified by the programmer.  The compiler may not reorder
+structure fields, although bitfields are a special case.
 

@@ -1,87 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136750AbREIRBw>; Wed, 9 May 2001 13:01:52 -0400
+	id <S136746AbREIRAW>; Wed, 9 May 2001 13:00:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136679AbREIRBk>; Wed, 9 May 2001 13:01:40 -0400
-Received: from mailgw.prontomail.com ([216.163.180.10]:21268 "EHLO
-	c0mailgw09.prontomail.com") by vger.kernel.org with ESMTP
-	id <S136747AbREIRA6>; Wed, 9 May 2001 13:00:58 -0400
-Message-ID: <3AF97773.80DAFFC0@mvista.com>
-Date: Wed, 09 May 2001 09:59:31 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S136744AbREIRAO>; Wed, 9 May 2001 13:00:14 -0400
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:52744 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S136742AbREIRAD>; Wed, 9 May 2001 13:00:03 -0400
+Message-ID: <3AF9778F.B551ADFF@delusion.de>
+Date: Wed, 09 May 2001 18:59:59 +0200
+From: "Udo A. Steinberg" <reality@delusion.de>
+Organization: Disorganized
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-ac6 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: root@chaos.analogic.com, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 
-In-Reply-To: <E14xUfi-0002PB-00@the-village.bc.nu>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: USB Problem with reenabling hub
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> >     while(!!time_before(jiffies, timer))
-> >     {
-> >         if(!!(*event & mask))
-> >         {
-> >             stat = 0;
-> >             break;
-> >         }
-> >         schedule();
-> 
-> You want to yield as well otherwise you may just spin anyway
-> 
-> > Both of these procedures schedule() while waiting for something to
-> > happen. The wait can be very long (1 second) so I don't want to
-> > just spin eating CPU cycles. I have to give the CPU to somebody.
-> 
-> So use a timer
-> 
-> void tick_tick_boom(unsigned long l)
-> {
->         struct my_device *d = (struct my_device *)l;
-> 
->         if(its_still_busy(d))
->         {
->                 d->timer_count--;
->                 if(d->timer_count)
->                 {
->                         /* Try again until timer_count hits zero */
->                         add_timer(&t->timer, jiffies+1);
->                         return;
->                 }
->                 else
->                 {
->                         /* Lose some .. */
->                         d->event_status = TIMEOUT;
->                 }
->         }
->         else
->         {
->                 /* Win some .. */
->                 d->event_status = OK;
->         }
->         /* Wake up the invoker */
->         wake_up(&d->timer_wait);
-> }
 
-To clarify this a bit, the above code invokes itself with the timer and
-thus runs under the timer interrupt.  The first call to it would be made
-from your driver which would then sleep waiting for the wake_up, which
-will come either on success or when the timer_count has expired.  This
-code will poll each jiffie.
+Hi all,
 
-The key here is to use the wake_up/ sleep combination to pass control
-from the interrupt back to the driver.  This is not unlike what you must
-already be doing for interrupt completion.
+I have an USB hub built into my monitor (Eizo T761) which disconnects
+and powers down the hub when the monitor gets switched off. After
+switching it back on, a problem occurs with reenabling the ports on
+that USB hub. The kernel output follows.
 
-Do pay attention to getting the timer (&t->timer above) properly set up
-(see my first response or most any usage in the kernel).
+Comments anyone?
 
-Have I got this right Alan?
+Regards,
+Udo.
 
-George
+
+[Detect USB Ports on mainboard]
+
+usb.c: registered new driver usbdevfs
+usb.c: registered new driver hub
+PCI: Found IRQ 9 for device 00:04.2
+PCI: The same IRQ used for device 00:04.3
+PCI: The same IRQ used for device 00:09.0
+PCI: The same IRQ used for device 00:09.1
+PCI: The same IRQ used for device 00:0d.0
+uhci.c: USB UHCI at I/O 0xd400, IRQ 9
+usb.c: new USB bus registered, assigned bus number 1
+hub.c: USB hub found
+hub.c: 2 ports detected
+PCI: Found IRQ 9 for device 00:04.3
+PCI: The same IRQ used for device 00:04.2
+PCI: The same IRQ used for device 00:09.0
+PCI: The same IRQ used for device 00:09.1
+PCI: The same IRQ used for device 00:0d.0
+uhci.c: USB UHCI at I/O 0xd000, IRQ 9
+usb.c: new USB bus registered, assigned bus number 2
+hub.c: USB hub found
+hub.c: 2 ports detected
+
+[Detect USB HUB in monitor]
+
+hub.c: USB new device connect on bus1/1, assigned device number 2
+hub.c: USB hub found
+hub.c: 5 ports detected
+hub.c: USB new device connect on bus1/1/1, assigned device number 3
+usb.c: USB device 3 (vend/prod 0x56d/0x2) is not claimed by any active driver.
+hub.c: USB new device connect on bus2/2, assigned device number 2
+hub.c: USB hub found
+hub.c: 4 ports detected
+
+[switch monitor off]
+
+usb.c: USB disconnect on device 2
+usb.c: USB disconnect on device 3
+
+[switch monitor back on]
+hub.c: USB new device connect on bus1/1, assigned device number 4
+usb.c: USB device not accepting new address=4 (error=-110)
+hub.c: USB new device connect on bus1/1, assigned device number 5
+usb.c: USB device not accepting new address=5 (error=-110)

@@ -1,97 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262094AbUCTAcn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 19:32:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbUCTAcn
+	id S263182AbUCTAfp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 19:35:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbUCTAfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 19:32:43 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:16307 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262094AbUCTAck
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 19:32:40 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] barrier patch set
-Date: Sat, 20 Mar 2004 01:40:59 +0100
-User-Agent: KMail/1.5.3
-Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Chris Mason <mason@suse.com>
-References: <20040319153554.GC2933@suse.de> <200403200059.22234.bzolnier@elka.pw.edu.pl> <405B8CFD.2030909@pobox.com>
-In-Reply-To: <405B8CFD.2030909@pobox.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Mar 2004 19:35:45 -0500
+Received: from mail.kroah.org ([65.200.24.183]:2024 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263182AbUCTAfo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 19:35:44 -0500
+Date: Fri, 19 Mar 2004 16:35:08 -0800
+From: Greg KH <greg@kroah.com>
+To: Felix von Leitner <leitner@codeblau.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: usb broken in 2.6.5-rc1?
+Message-ID: <20040320003508.GA18295@kroah.com>
+References: <20040319234931.GA11183@codeblau.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200403200140.59543.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <20040319234931.GA11183@codeblau.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 of March 2004 01:14, Jeff Garzik wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> > The fact that spec says "supported" not "enabled" in description of
-> > word86 makes me wonder - can they be disabled? (FLUSH CACHE is mandatory
-> > for General feature set and FLUSH CACHE EXT is mandatory if 48-bit LBA is
-> > supported)
->
-> Yes, that's why there are separate 'supported' and 'enabled' bits for
-> each feature.
->
-> Words 82-84 are 'supported' bits.  Words 85-87 are 'enabled' bits.
-> These bits mirror each other, i.e. Word 83 and Word 86 have basically
-> the same bits, except that Word 86 definitions change _slightly_ since
-> the only bits that are relevant are the ones for features that can be
-> disabled/enabled.
->
-> You use set-features command to enable and disable these features, and
-> then the result shows up in subsequent identify-device command output.
->
-> If the driver is testing for a capability but does not enable it, then
-> always use the 'enabled' set of bits, not the 'supported' set of bits.
+On Sat, Mar 20, 2004 at 12:49:31AM +0100, Felix von Leitner wrote:
+> My mouse works, but this happens when I connect my USB 2.0 mass storage
+> device:
 
-This is quite obvious but I am talking about confusing wording in description
-of word86 - for some features 'enabled' is used and for others 'supported'
+Care to send this to the linux-usb-devel mailing list where it will
+reach the proper people?
 
-> > Jeff, please note that these bits were introduced by ATA-6 spec
-> > and take a look at ATA-5 spec:
-> >
-> > ...
-> > FLUSH CACHE
-> > General feature set
-> > - Mandatory for all devices
-> > ...
-> >
-> > and ATA-4 spec:
-> >
-> > ...
-> > FLUSH CACHE
-> > General feature set
-> > - Optional for all devices
-> > ...
-> >
-> > IMO to test if FLUSH CACHE works we should just issue it during disk
-> > setup and check result.  This way we can use FLUSH CACHE also on < ATA-6
-> > devices (there is a lot of them).
->
-> I disagree.  "just issue it" is how those LG cdrom drives got cooked.
+> Has anyone ever seen USB mass storage actually work under Linux?
 
-I'm aware of LG fun.  Jens already stated that current barrier implementation
-is disk-only and I'm talking about disks only.
+Heh, Loads of people have.
 
-If anybody reused CACHE FLUSH opcode for disk drive he/she deserves to loose.
-8)
+> Just curious.  This is a VIA chipset, by the way.
 
-> LG cdrom drives indicated in their identify-packet-device page that
-> flush-cache was not supported...  and then re-used the flush-cache ATA
-> opcode for their vendor-specific download-firmware command.  Combine
-> that with a Linux patch that didn't properly check for flush-cache
-> support.  Result: brick.
->
-> All drives that support flush-cache list the relevant bits in
-> identify-device, even on pre-ATA-6 devices.  Whether the feature was
-> optional or mandantory, we can check the feature bits.
+Ick, they are known to be buggy :(
 
-Hm. so this is undocumented in the spec?
+thanks,
 
-Bartlomiej
-
+greg k-h

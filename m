@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272798AbTG3H4t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 03:56:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272800AbTG3H4t
+	id S272797AbTG3HxP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 03:53:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272798AbTG3HxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 03:56:49 -0400
-Received: from f12.mail.ru ([194.67.57.42]:21260 "EHLO f12.mail.ru")
-	by vger.kernel.org with ESMTP id S272798AbTG3H4s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 03:56:48 -0400
-From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: post-halloween  server down=?koi8-r?Q?=3F?=
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [212.248.25.26]
-Date: Wed, 30 Jul 2003 11:56:47 +0400
-Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	  <arvidjaar@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E19hlpH-0006Ug-00.arvidjaar-mail-ru@f12.mail.ru>
+	Wed, 30 Jul 2003 03:53:14 -0400
+Received: from vtens.prov-liege.be ([193.190.122.60]:55887 "EHLO
+	mesepl.epl.prov-liege.be") by vger.kernel.org with ESMTP
+	id S272797AbTG3HxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 03:53:14 -0400
+Message-ID: <D9B4591FDBACD411B01E00508BB33C1B01BF8C95@mesadm.epl.prov-liege.be>
+From: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
+To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: pid_max ?
+Date: Wed, 30 Jul 2003 09:53:12 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-anybody knows what happened to this server? This is for a week already
-at least. Is this document maintained somwehre else?
+	I was looking at pid.c file and can't understand pid_max usage.
+It's defined as integer (signed) =PID_MAX_DEFAULT (which is 0x8000 (on old
+arch, integer max positive value isn't 32767 ? so 0x8000 -> -32768).
 
-TIA
+	In alloc_pidmap, 'if (pid>=pid_max)' should be in that case always
+true so pid=RESERVED_PIDS which is 300 (?).Why not use pid>PID_MAX_DEFAULT
+there and forget the pid_max definition ? and why do we have that '300'
+value ?
 
--andrey
-
-http://www.codemonkey.org.uk/post-halloween-2.5.txt
-
-While trying to retrieve the URL: http://www.codemonkey.org.uk/post-halloween-2.5.txt 
-
-The following error was encountered: 
-
-Connection Failed 
-The system returned: 
-
-    (111) Connection refused
-The remote host or network may be down. Please try the request again. 
-
+Regards,
+Fabian
 
 

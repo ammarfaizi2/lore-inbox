@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265108AbTAUGI2>; Tue, 21 Jan 2003 01:08:28 -0500
+	id <S265051AbTAUGHX>; Tue, 21 Jan 2003 01:07:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265187AbTAUGI2>; Tue, 21 Jan 2003 01:08:28 -0500
-Received: from samar.sasken.com ([164.164.56.2]:14826 "EHLO samar.sasken.com")
-	by vger.kernel.org with ESMTP id <S265108AbTAUGI0>;
-	Tue, 21 Jan 2003 01:08:26 -0500
-Date: Tue, 21 Jan 2003 11:47:23 +0530 (IST)
-From: Madhavi <madhavis@sasken.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Kernel debugger
-Message-ID: <Pine.LNX.4.33.0301211141580.8730-100000@pcz-madhavis.sasken.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265095AbTAUGHX>; Tue, 21 Jan 2003 01:07:23 -0500
+Received: from dhcp34.trinity.linux.conf.au ([130.95.169.34]:12416 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id <S265051AbTAUGHW>; Tue, 21 Jan 2003 01:07:22 -0500
+Subject: Re: NForce Chipset support in which kernels?
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Hanasaki JiJi <hanasaki@hanaden.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E287188.9030909@hanaden.com>
+References: <3E287188.9030909@hanaden.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1043052878.12182.26.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 20 Jan 2003 08:54:39 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2003-01-17 at 21:11, Hanasaki JiJi wrote:
+> Was considering the purchase of a Asus A7N266-VM AA with the following 
+> chipsets.   What kernel is needed to support all features? (onboard 
+> video/audio/nic)?
 
-Hi
+AGP isnt supported
+IDE is vaguely supported as of 2.4.21pre
+Audio is partially supported (no audio accelerator)
+NIC is not supported (no docs)
 
-I am currently testing a device driver on linux-2.4.19. This is
-implemented as a loadable kernel module.
-
-# Could anyone suggest a good debugger that can be used to debug kernel
-  modules?
-
-# When I tried using gdb with vmlinux and /proc/kcore, I am getting a
-  message saying that no debug symbols are found. How do I enable debug
-  symbols for linux kernel image? Kernel Debug is already enabled. Is
-  there some other configuration that needs to be there?
-
-Thanks in advance.
-
-regards
-Madhavi.
+Its very much a 'winputer'
 

@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270505AbTHQTTI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 15:19:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270510AbTHQTTI
+	id S270524AbTHQTUy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 15:20:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270642AbTHQTUy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 15:19:08 -0400
-Received: from main.gmane.org ([80.91.224.249]:14279 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S270505AbTHQTTD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 15:19:03 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jan Rychter <jan@rychter.com>
-Subject: Re: Requested FAQ addition - Mandrake and partial-i686 platforms
-Date: Sun, 17 Aug 2003 11:51:50 -0700
-Message-ID: <m2r83kce2h.fsf@tnuctip.rychter.com>
-References: <3F38FE5B.1030102@yahoo.com> <1060705037.12532.49.camel@dhcp22.swansea.linux.org.uk>
- <864r0lwmov.fsf@trasno.mitica>
+	Sun, 17 Aug 2003 15:20:54 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:42638 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S270524AbTHQTUv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 15:20:51 -0400
+Subject: Re: [PATCH] 9/8 Backport recent 2.6 IDE updates to 2.4.x
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: andersen@codepoet.org
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030817191701.GA23859@codepoet.org>
+References: <20030817191701.GA23859@codepoet.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1061148010.23520.0.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
-X-Complaints-To: usenet@sea.gmane.org
-X-Spammers-Please: blackholeme@rychter.com
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:TaEZ4nCrE1fiFidF51gR6Ay+vmw=
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 17 Aug 2003 20:20:12 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Transfer-Encoding: quoted-printable
+On Sul, 2003-08-17 at 20:17, Erik Andersen wrote:
+> IDE layer was reverted to a "late 2.4.19-pre-acX version" and has
+> been gone ever since...  Any particular reason the baby was
+> tossed out with the proverbial bathwater?
 
->>>>> "Juan" =3D=3D Juan Quintela <quintela@mandrakesoft.com> writes:
-[...]
- Juan> To make things worse, via c3 implement cmov instruction if all
- Juan> operands are in registers (i.e. no operand in memory), I know
- Juan> that this faked somebody that did a test on cmov :(
+In theory the device mapper can do the work ide-raid is doing and do it 
+better. That was the plan anyway
 
- Juan> To make history more intersting, new Via C3 have a complet cmov
- Juan> instruction.
+> Anyway, this patch fixes up the 2.4.x ide raid drivers so they
+> compile up with the latest and greatest.  I will leave it to 
+> others to decide if the pdcraid and silraid superblocks might
+> be located somewhere past the capacity of an unsigned long...
 
-Does anybody have the actual CPU revisions corresponding to these
-changes? There has been a lot of confusion over this.
-
-=2D-J.
-
---=-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/P87GLth4/7/QhDoRAs8WAKCHz9mhtI+HMOzMR/8Ifpi3Gu1V2gCfU5Vz
-LqrRMPYuSbowwYV9w/jE6cM=
-=3LBP
------END PGP SIGNATURE-----
---=-=-=--
+The 2.4 block layer has a 32bit block limit so if it does they'll have
+to use 2.6 anyway. Looks fine
 

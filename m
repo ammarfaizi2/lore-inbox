@@ -1,51 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132244AbRCVX1A>; Thu, 22 Mar 2001 18:27:00 -0500
+	id <S132243AbRCVX0j>; Thu, 22 Mar 2001 18:26:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132245AbRCVX0u>; Thu, 22 Mar 2001 18:26:50 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:43875 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S132244AbRCVX0m>; Thu, 22 Mar 2001 18:26:42 -0500
-Message-ID: <3ABA8B02.F28B333A@redhat.com>
-Date: Thu, 22 Mar 2001 18:30:10 -0500
-From: Doug Ledford <dledford@redhat.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S132244AbRCVX0a>; Thu, 22 Mar 2001 18:26:30 -0500
+Received: from feeder.cyberbills.com ([64.41.210.81]:8205 "EHLO
+	sjc-smtp2.cyberbills.com") by vger.kernel.org with ESMTP
+	id <S132243AbRCVX0O>; Thu, 22 Mar 2001 18:26:14 -0500
+Date: Thu, 22 Mar 2001 15:25:26 -0800 (PST)
+From: "Sergey Kubushin" <ksi@cyberbills.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Stephen Clouse <stephenc@theiqgroup.com>,
-        Guest section DW <dwguest@win.tue.nl>,
-        Rik van Riel <riel@conectiva.com.br>,
-        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <E14gDxd-0003Tw-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2-ac21
+In-Reply-To: <E14g9vt-000334-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.31ksi3.0103221518020.22784-100000@nomad.cyberbills.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > > How do you return an out of memory error to a C program that is out of memory
-> > > due to a stack growth fault. There is actually not a language construct for it
-> >
-> > Simple, you reclaim a few of those uptodate buffers.  My testing here has
-> 
-> If you have reclaimable buffers you are not out of memory. If oom is triggered
-> in that state it is a bug. If you are complaining that the oom killer triggers
-> at the wrong time then thats a completely unrelated issue.
+On Thu, 22 Mar 2001, Alan Cox wrote:
 
-Ummm, yeah, that would pretty much be the claim.  Real easy to reproduce too. 
-Take your favorite machine with lots of RAM, run just a handful of startup
-process and system daemons, then log in on a few terminals and do:
+Does not build for PPro/P-II. i586 is OK.
 
-while true; do bonnie -s (1/2 ram); done
+=== Cut ===
+ld -m elf_i386 -T /tmp/build-kernel/usr/src/linux-2.4.2ac21/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
+	--start-group \
+	arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
+	drivers/block/block.o drivers/char/char.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o  drivers/char/drm/drm.o drivers/net/fc/fc.o drivers/net/appletalk/appletalk.o drivers/net/tokenring/tr.o drivers/net/wan/wan.o drivers/atm/atm.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/video/video.o drivers/net/hamradio/hamradio.o drivers/md/mddev.o \
+	net/network.o \
+	/tmp/build-kernel/usr/src/linux-2.4.2ac21/arch/i386/lib/lib.a /tmp/build-kernel/usr/src/linux-2.4.2ac21/lib/lib.a /tmp/build-kernel/usr/src/linux-2.4.2ac21/arch/i386/lib/lib.a \
+	--end-group \
+	-o vmlinux
+arch/i386/mm/mm.o: In function `do_check_pgt_cache':
+arch/i386/mm/mm.o(.text+0x201): undefined reference to `get_pmd_slow'
+mm/mm.o: In function `clear_page_tables':
+mm/mm.o(.text+0x150): undefined reference to `pmd_free'
+mm/mm.o: In function `__pmd_alloc':
+mm/mm.o(.text+0x1fe4): undefined reference to `get_pmd_slow'
+mm/mm.o(.text+0x207a): undefined reference to `pmd_free'
+mm/mm.o(.text+0x208a): undefined reference to `pgd_populate'
+make: *** [vmlinux] Error 1
+=== Cut ===
 
-Pretty soon, system daemons will start to die.
+Here is the config (processor part). Full config is available on request.
+Everything's modular except romfs and initrd.
 
--- 
+=== Cut ===
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+CONFIG_M686=y
+# CONFIG_MPENTIUMIII is not set
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MCYRIXIII is not set
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_TOSHIBA=m
+CONFIG_MICROCODE=m
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+# CONFIG_NOHIGHMEM is not set
+# CONFIG_HIGHMEM4G is not set
+CONFIG_HIGHMEM64G=y
+CONFIG_HIGHMEM=y
+CONFIG_X86_PAE=y
+# CONFIG_MATH_EMULATION is not set
+CONFIG_MTRR=y
+CONFIG_SMP=y
+CONFIG_HAVE_DEC_LOCK=y
+=== Cut ===
 
- Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-      Please check my web site for aic7xxx updates/answers before
-                      e-mailing me about problems
+---
+Sergey Kubushin				Sr. Unix Administrator
+CyberBills, Inc.			Phone:	702-567-8857
+874 American Pacific Dr,		Fax:	702-567-8808
+Henderson, NV, 89014
+

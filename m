@@ -1,42 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319033AbSIDDdk>; Tue, 3 Sep 2002 23:33:40 -0400
+	id <S319035AbSIDDfL>; Tue, 3 Sep 2002 23:35:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319034AbSIDDdk>; Tue, 3 Sep 2002 23:33:40 -0400
-Received: from oumail.zero.ou.edu ([129.15.0.75]:2783 "EHLO r2d2")
-	by vger.kernel.org with ESMTP id <S319033AbSIDDdj>;
-	Tue, 3 Sep 2002 23:33:39 -0400
-Date: Tue, 03 Sep 2002 22:22:45 -0500
-From: Steve Kenton <skenton@ou.edu>
-Subject: [PATCH] redundant stddef.h in wait.h
-To: lkml <linux-kernel@vger.kernel.org>, skenton@ou.edu
-Message-id: <3D757C84.C8B26470@ou.edu>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i586)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en
+	id <S319036AbSIDDfL>; Tue, 3 Sep 2002 23:35:11 -0400
+Received: from mail.michigannet.com ([208.49.116.30]:48134 "EHLO
+	member.michigannet.com") by vger.kernel.org with ESMTP
+	id <S319035AbSIDDfJ>; Tue, 3 Sep 2002 23:35:09 -0400
+Date: Tue, 3 Sep 2002 23:39:38 -0400
+From: Paul <set@pobox.com>
+To: Con Kolivas <conman@kolivas.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Benchmarks for performance patches (-ck) for 2.4.19
+Message-ID: <20020904033938.GB4727@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>,
+	Con Kolivas <conman@kolivas.net>, linux-kernel@vger.kernel.org
+References: <1030957927.3d732b67b0257@kolivas.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1030957927.3d732b67b0257@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.5.32, include/linux/wait.h includes both kernel.h and stddef.h, but
-kernel.h already includes stddef.h.  So, should we just delete the
-redundant include of stddef.h?  There are others.  If this is OK, I will
-sent it and it's kin to trivial.
+Con Kolivas <conman@kolivas.net>, on Mon Sep 02, 2002 [07:12:07 PM] said:
+> Actually Paul was correct; the low latency branch was just -aa but in my never
+> ending descent into madness I have decided to add another branch as requested,
+> ck5-rl which has lowest latency with -rmap instead of -aa
+> 
+> Get it at the usual place:
+> http://kernel.kolivas.net
+> 
+> Con.
+> 
+> P.S. You're welcome Joe.
+> 
 
-Patch below for perusal and comments
+	Hi;
 
-Steve Kenton
+	pII 400x2 512M SMP
+	Running ck5-rl now. Benno's latencytest shows that
+schedualing latency is perhaps better than the patchset with
+the aa vm. My first run yeilded a max 2.7ms latency-- oddly
+during the /proc loading test, instead of disk write which
+seems most problematic here. Every other stress test yeilded
+1.6ms max latency. A second run managed to pull off 1.5ms
+max latency for most, and a 1.7ms latency for disk write.
+	Under extreme stress (make -j4 bzImage) while running
+the tests, both aa and rmap performed about the same. (3.5ms
+max lat.)
+	Under more general benchmarks, like lmbench, bonnie,
+hdparm, and a kernel build, rmap came out the same or just
+a little worse than aa. (in the context of these patchsets)
+	Andrew Morton's low latency patch seems to be the
+most signifigant aspect in acheiving these low schedualing
+latencies-- turning it off in /proc/sys/kernel/lowlatency
+results in readings, which are better than 2.4.19 virgin,
+but still unworkable for applications which require consistant
+low schedualing latency.
+	My focus on these tests is related to my (diletante)
+interest in audio processing and recording. I think the
+interactive 'feel' of the system is improved, but I didnt
+really have trouble with vanilla-- on this system, IO is
+my real limiter. I am curious how these patchsets affect games,
+but I dont have much gaming experience...
+	If anyone wants me to run any benchmarks, just
+ask. Thanks, Con. (and of course, the authors of the patchs)
 
---- include/linux/wait.h.orig Tue Sep  3 21:35:51 2002
-+++ include/linux/wait.h Tue Sep  3 21:36:00 2002
-@@ -12,7 +12,6 @@
-
- #include <linux/kernel.h>
- #include <linux/list.h>
--#include <linux/stddef.h>
- #include <linux/spinlock.h>
- #include <linux/config.h>
-
-
+Paul
+set@pobox.com
 

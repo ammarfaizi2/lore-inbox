@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262572AbUCOO2m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 09:28:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbUCOO2m
+	id S262580AbUCOOd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 09:33:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbUCOOd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 09:28:42 -0500
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:50614 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262572AbUCOO2l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 09:28:41 -0500
-Subject: IDE performance drop in 2.6.4?
-From: Tillmann Steinbrecher <t-st@t-st.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1079360942.2076.1.camel@paranoia.pallasnet.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 15 Mar 2004 15:29:02 +0100
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Mar 2004 09:33:58 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:23048 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S262580AbUCOOd5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 09:33:57 -0500
+Date: Mon, 15 Mar 2004 22:35:20 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: Carsten Otte <cotte@freenet.de>, linux-kernel@vger.kernel.org,
+       mszeredi@inf.bme.hu, herbert@13thfloor.at
+Subject: Re: unionfs
+In-Reply-To: <20040315131601.GC16615@wohnheim.fh-wedel.de>
+Message-ID: <Pine.LNX.4.58.0403152233490.19386@raven.themaw.net>
+References: <200403151235.25877.cotte@freenet.de> <20040315121934.GB16615@wohnheim.fh-wedel.de>
+ <Pine.LNX.4.58.0403152045290.14862@raven.themaw.net>
+ <20040315131601.GC16615@wohnheim.fh-wedel.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.5, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, REFERENCES,
+	REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 15 Mar 2004, [iso-8859-1] Jörn Engel wrote:
 
-I have the subjective impression that IDE performance has much decreased
-with 2.6.4, as opposed to earlier 2.6 series kernels. 
+> On Mon, 15 March 2004 20:47:05 +0800, Ian Kent wrote:
+> > On Mon, 15 Mar 2004, [iso-8859-1] Jörn Engel wrote:
+> > > 
+> > > You could also have some sort of 'hidden symlink', i.e. something that
+> > > behaves just like a file but is in fact a link to some other
+> > > filesystem.  If that other filesystem is not accessable, all
+> > > operations return -EIO.
+> > 
+> > Sounds a bit untidy.
+> 
+> If you have a cleaner idea, I'm open for suggestions.
+> 
+> > Has anyone checked http://www.filesystems.org/
+> > 
+> > What do you think?
+> 
+> Looks like an abstraction layer that still assumes a 1:1 mapping
+> between filesystems and devices, so it doesn't help.  Did I miss
+> something?
 
-With 2.6.3 and 2.6.2, I could unpack large files on my HD, copy them
-around, etc, without affecting MP3 playback. This is no longer the case
-with 2.6.4, MP3 playback frequently stutters when writing much data to
-disc. Kernel config is identical. I use cryptoloop (blowfish) so my
-performance problems may also have been introduced in the crypto code.
+I don't understand the requirement properly. Sorry.
 
-DMA is enabled for the HDs, looking at hdparm output, there seems to be
-nothing wrong.
-
-Has anybody else observed the same? Or is ist just a problem on my
-system?
-
-Please CC me replies, since I'm not subscribed.
-
-bye,
-Till
+Ian
 

@@ -1,70 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262859AbSLFOUR>; Fri, 6 Dec 2002 09:20:17 -0500
+	id <S262881AbSLFOXs>; Fri, 6 Dec 2002 09:23:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262876AbSLFOUR>; Fri, 6 Dec 2002 09:20:17 -0500
-Received: from lucidpixels.com ([66.45.37.187]:1413 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id <S262859AbSLFOUP>;
-	Fri, 6 Dec 2002 09:20:15 -0500
-Message-ID: <3DF0B3E2.8060104@lucidpixels.com>
-Date: Fri, 06 Dec 2002 09:27:46 -0500
-From: jpiszcz <jpiszcz@lucidpixels.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
-CC: netfilter-devel@lists.netfilter.org,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [Fwd: Question with printk warnings in ip_conntrack with 2.4.20.]
-References: <Pine.LNX.4.33.0212061448500.2648-100000@blackhole.kfki.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S262884AbSLFOXs>; Fri, 6 Dec 2002 09:23:48 -0500
+Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:27054 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262881AbSLFOXr>; Fri, 6 Dec 2002 09:23:47 -0500
+Subject: Re: [ACPI] RE: [BK PATCH] ACPI updates
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       Hanno =?ISO-8859-1?Q?B=F6ck?= <hanno@gmx.de>,
+       "Grover, Andrew" <andrew.grover@intel.com>, pavel@ucw.cz,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       acpi-devel@sourceforge.net
+In-Reply-To: <20021206131746.C10368@parcelfarce.linux.theplanet.co.uk>
+References: <EDC461A30AC4D511ADE10002A5072CAD04C7A576@orsmsx119.jf.intel.com>
+	<20021206125943.2199892e.hanno@gmx.de>
+	<20021206072932.B16173@devserv.devel.redhat.com> 
+	<20021206131746.C10368@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 Dec 2002 15:06:13 +0000
+Message-Id: <1039187173.23271.10.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sure:
+On Fri, 2002-12-06 at 13:17, Matthew Wilcox wrote:
+> > the 2.4 patch doesnt' actually offer suspend/resume capabilities; what
+> > else did you have in mind as required ?
+> 
+> booting?
 
-http://installkernel.tripod.com/tcpdump.log.bz2
+New compaqs, existing xmeta, new HP wont boot without the -ac IDE and
+the workarounds for ATi or fixes for ALi IDE. (Users should try to avoid
+the ati igp stuff for now btw - no X support, no pci routing support,
+most kernels wont run on it, no docs)
 
-Jozsef Kadlecsik wrote:
-
->On Thu, 5 Dec 2002, jpiszcz wrote:
->
->  
->
->>Stange?  I am just using vcheck (perl script) that goes out and checks
->>out software for the latest versions.
->>    
->>
->
->If the script uses active mode FTP and when that is refused by the server
->reverts back to passive mode, that is a natural explanation for such log
->entries.
->
->Could you record by tcpdump at least one such FTP session?
->
->  
->
->>Will there possibly be a /proc or kernel config option for warnings such
->>as these?
->>    
->>
->
->In my opinion a new directory tree /proc/sys/net/ipv4/netfilter is
->required so that tuning options could be easily added to the system.
->But that implies backward (in)compatibily issues...
->
->Regards,
->Jozsef
->-
->E-mail  : kadlec@blackhole.kfki.hu, kadlec@sunserv.kfki.hu
->PGP key : http://www.kfki.hu/~kadlec/pgp_public_key.txt
->Address : KFKI Research Institute for Particle and Nuclear Physics
->          H-1525 Budapest 114, POB. 49, Hungary
->
->
->
->  
->
-
+Alan
 

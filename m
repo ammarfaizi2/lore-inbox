@@ -1,75 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269105AbUIRC3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269104AbUIRChZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269105AbUIRC3J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 22:29:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269106AbUIRC3J
+	id S269104AbUIRChZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 22:37:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269106AbUIRChZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 22:29:09 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25259 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269105AbUIRC3A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 22:29:00 -0400
-Date: Fri, 17 Sep 2004 22:04:59 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: achim.leubner@intel.com
-Cc: linux-kernel@vger.kernel.org, achim@vortex.de
-Subject: Re: memory allocation error messages in system log
-Message-ID: <20040918010459.GA5660@logos.cnet>
-References: <NEBBILBHKLDLOMLDGKGNEEKDCIAA.Ingo.Freund@e-dict.net> <20040916211408.GE12022@logos.cnet>
-Mime-Version: 1.0
+	Fri, 17 Sep 2004 22:37:25 -0400
+Received: from ozlabs.org ([203.10.76.45]:47800 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S269104AbUIRChY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 22:37:24 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040916211408.GE12022@logos.cnet>
-User-Agent: Mutt/1.5.5.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16715.21984.137689.407420@cargo.ozlabs.ibm.com>
+Date: Fri, 17 Sep 2004 17:23:44 -0400
+From: Paul Mackerras <paulus@samba.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       David Gibson <david@gibson.dropbear.id.au>,
+       Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+       linuxppc64-dev@ozlabs.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PPC64] Remove LARGE_PAGE_SHIFT constant
+In-Reply-To: <1095446429.4088.3.camel@localhost>
+References: <20040917011320.GA6523@zax>
+	<20040917170328.GB2179@logos.cnet>
+	<1095446429.4088.3.camel@localhost>
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave Hansen writes:
 
-Achim,
+> Actually, if everybody makes sure to define PMD_SHIFT, we should be able
+> to use common macros, right?
 
-This is not the first person I see complaining about 
-exact same bug (memory allocation failure while reading
-/proc/scsi/gdt/xxx
+No, because LARGE_PAGE_SHIFT != PMD_SHIFT on ppc64.
 
-Do you have a card around so we can test?
-
-Thanks
-
-On Thu, Sep 16, 2004 at 06:14:08PM -0300, Marcelo Tosatti wrote:
-> On Thu, Sep 16, 2004 at 02:48:40PM +0200, Ingo Freund wrote:
-> > Hello,
-> > 
-> > I hope you guys can help, I cannot use any kernel 2.4 >23 without
-> > the here described problem.
-> > 
-> > [1.] One line summary of the problem:
-> > strange error messages concerning memory allocation
-> > 
-> > searching teh web for solutions to my problem I have already found
-> > a thread in a mailing list but no solution was mentioned, also the
-> > guys who talked about the error didn't answer to my direct mail.
-> > 
-> > [2.] Full description of the problem/report:
-> > The machine is a database server without any other service except sshd
-> > running. I do some tests on the ICP-Vortex GDT controller every 2 minutes.
-> > by using
-> > # cat /proc/scsi/gdt/2
-> > but the output of cat stops without beeing completed.
-> > 
-> > This is what I see in the syslog file every time when I use the cat
-> > command (the messages beginn after 3 days uptime):
-> > --> /var/log/messages
-> > kernel: __alloc_pages: 0-order allocation failed (gfp=0x21/0)
-> 
-> Ingo,
-> 
-> I've seen another report like this one - I'm convinced there
-> is something odd with the gdth proc handling code.
-> 
-> Can you "echo 1 > /proc/sys/vm/vm_gfp_debug" and 
-> rerun the "cat /proc/scsi/gdt/2" please?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Paul.

@@ -1,81 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314643AbSE0Iy1>; Mon, 27 May 2002 04:54:27 -0400
+	id <S314670AbSE0I4d>; Mon, 27 May 2002 04:56:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314670AbSE0Iy0>; Mon, 27 May 2002 04:54:26 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:20938 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S314643AbSE0Iy0>;
-	Mon, 27 May 2002 04:54:26 -0400
-Date: Mon, 27 May 2002 10:54:14 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-        Giuliano Pochini <pochini@shiny.it>, linux-kernel@vger.kernel.org,
-        "chen, xiangping" <chen_xiangping@emc.com>
-Subject: Re: Poor read performance when sequential write presents
-Message-ID: <20020527085414.GD17674@suse.de>
-In-Reply-To: <3CED4843.2783B568@zip.com.au> <XFMail.20020524105942.pochini@shiny.it> <3CEE0758.27110CAD@zip.com.au> <20020524094606.GH14918@holomorphy.com> <3CEE1035.1E67E1B8@zip.com.au> <20020527080632.GC17674@suse.de> <3CF1ECD1.A1BB2CF1@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S314680AbSE0I4c>; Mon, 27 May 2002 04:56:32 -0400
+Received: from mail0.epfl.ch ([128.178.50.57]:33036 "HELO mail0.epfl.ch")
+	by vger.kernel.org with SMTP id <S314670AbSE0I4c>;
+	Mon, 27 May 2002 04:56:32 -0400
+Message-ID: <3CF1F4C0.5080201@epfl.ch>
+Date: Mon, 27 May 2002 10:56:32 +0200
+From: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
+Organization: LTS-DE-EPFL
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, ja
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Alessandro Morelli <alex@alphac.it>, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: memory corruption with i815 chipset variant
+In-Reply-To: <fa.mm4ng1v.vmenaj@ifi.uio.no> <fa.gciunnv.cnaf99@ifi.uio.no> <3CF1EA3F.4070608@epfl.ch> <1022493086.11859.191.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 27 2002, Andrew Morton wrote:
-> Jens Axboe wrote:
-> > 
-> > ...
-> > > But in 2.5, head-activeness went away and as far as I know, IDE and SCSI are
-> > > treated the same.  Odd.
-> > 
-> > It didn't really go away, it just gets handled automatically now.
-> > elv_next_request() marks the request as started, in which case the i/o
-> > scheduler won't consider it for merging etc. SCSI removes the request
-> > directly after it has been marked started, while IDE leaves it on the
-> > queue until it completes. For IDE TCQ, the behaviour is the same as with
-> > SCSI.
+Alan Cox wrote:
+
 > 
-> It won't consider the active request at the head of the queue for 
-> merging (making the request larger).  But it _could_ consider the
-> request when making decisions about insertion (adding a new request
-> at the head of the queue because it's close-on-disk to the active
-> one).   Does it do that?
+> It certainly could be. If bits 29-31 maybe control things like memory
+> timings then it could do quite horrible things. Fixing it to leave the
+> ERRSTS register alone and keep bits 29-31 is definitely worth trying. If
+> that fixes it then its going to be easy enough to drop a fix into the
+> mainstream code
+> 
 
-Only when the front request isn't active is it safe to consider
-insertion in front of it. 2.5 does that exactly because it knows if the
-request has been started, while 2.4 has to guess by looking at the
-head-active flag and the plug status.
+OK, I have a patch almost ready to do that except, I am not sure about 
+what to do for those 3 bits...
 
-If the request is started, we will only consider placing in front of the
-2nd request not after the 1st. We could consider in between 1st and 2nd,
-that should be safe. In fact that should be perfectly safe, just move
-the barrier and started test down after the insert test. *req is the
-insert-after point.
+The *usual* call is :
+	pci_write_config_dword(agp_bridge.dev, INTEL_ATTBASE,
+			       agp_bridge.gatt_bus_addr);
 
-diff -Nru a/drivers/block/elevator.c b/drivers/block/elevator.c
---- a/drivers/block/elevator.c	Mon May 27 10:53:53 2002
-+++ b/drivers/block/elevator.c	Mon May 27 10:53:53 2002
-@@ -174,9 +174,6 @@
- 	while ((entry = entry->prev) != &q->queue_head) {
- 		__rq = list_entry_rq(entry);
- 
--		if (__rq->flags & (REQ_BARRIER | REQ_STARTED))
--			break;
--
- 		/*
- 		 * simply "aging" of requests in queue
- 		 */
-@@ -189,6 +186,9 @@
- 
- 		if (!*req && bio_rq_in_between(bio, __rq, &q->queue_head))
- 			*req = __rq;
-+
-+		if (__rq->flags & (REQ_BARRIER | REQ_STARTED))
-+			break;
- 
- 		if ((ret = elv_try_merge(__rq, bio))) {
- 			if (ret == ELEVATOR_FRONT_MERGE)
+Where 'gatt_bus_addr' is returned from a 'virt_to_phys' on 
+'gatt_table_real'.
 
+Should I mask those three bits out when writing or write
+'gatt_bus_addr >> 3' instead ? I am not too sure about the assumptions 
+that can be made about what returns 'virt_to_phys' ...
+
+Thanks in advance.
+
+Nicolas.
 -- 
-Jens Axboe
+Nicolas Aspert      Signal Processing Institute (ITS)
+Swiss Federal Institute of Technology (EPFL)
 

@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264945AbSKJQzg>; Sun, 10 Nov 2002 11:55:36 -0500
+	id <S264946AbSKJQzz>; Sun, 10 Nov 2002 11:55:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264946AbSKJQzg>; Sun, 10 Nov 2002 11:55:36 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:4106 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264945AbSKJQzf>; Sun, 10 Nov 2002 11:55:35 -0500
-Date: Sun, 10 Nov 2002 17:02:19 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Thomas Molina <tmolina@cox.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5 Problem Report Status for 10 Nov
-Message-ID: <20021110170219.A15424@flint.arm.linux.org.uk>
-Mail-Followup-To: Thomas Molina <tmolina@cox.net>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0211100834110.16968-100000@dad.molina>
+	id <S264950AbSKJQzz>; Sun, 10 Nov 2002 11:55:55 -0500
+Received: from [211.180.201.199] ([211.180.201.199]:26383 "HELO
+	mail.seilmedia.co.kr") by vger.kernel.org with SMTP
+	id <S264946AbSKJQzx>; Sun, 10 Nov 2002 11:55:53 -0500
+Message-ID: <B0000426257@mail.seilmedia.co.kr>
+Date: Sun, 10 Nov 2002 10:55:38 -0600
+From: "Rustom Hess" <offshoresuppliers@offshore-suppliers-directory.com>
+X-Priority: 3
+To: linux-kernel@vger.kernel.org
+Subject: 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0211100834110.16968-100000@dad.molina>; from tmolina@cox.net on Sun, Nov 10, 2002 at 10:31:56AM -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 10, 2002 at 10:31:56AM -0600, Thomas Molina wrote:
-> ------------------------------------------------------------------------
->    open   23 Oct 2002 2.5.x and 8250 UART problems
->   18. http://marc.theaimsgroup.com/?l=linux-kernel&m=103383019409525&w=2
+Offshore Suppliers Directory (http://www.OffshoreSuppliersDirectory.com) has just gotten better!
 
-No movement, and I don't particular see there's going to be any movement
-on this one.  There are too many variables that changed around the time
-that the serial code went in to allow the cause to be isolated.
+You know Offshore Suppliers Directory as the world's first published guide to offshore software development, services, and product suppliers. However, did you know it's a growing online B2B, buyer / supplier exchange as well?
 
-> ------------------------------------------------------------------------
->    open   15 Oct 2002 oops stopping serial
->   36. http://marc.theaimsgroup.com/?l=linux-kernel&m=103470900729987&w=2
+New features for BUYERS:
 
-Fixed.
+* RFPs and Projects:  You can post your RFPs to all suppliers or you can select just the suppliers you want to invite after a search. 
+* Offshore Resource Management System (ORMS): Nobody knows your requirements better than you.  Search for the right suppliers and invite them to respond to your RFP / Project all within ORMS! 
+* Search Utilities:  Perform basic and complex searches for offshore suppliers (both companies and independent contractors) at our unique ORMS. 
+* Purchase your advance copy of the Offshore Suppliers Directory at a  30% discount! Limited Time Offer!
 
-> ------------------------------------------------------------------------
->    open   24 Oct 2002 serial driver bug with asus motherboard
->   67. http://marc.theaimsgroup.com/?l=linux-kernel&m=103548912126308&w=2
+New features for SUPPLIERS:
 
-Awaiting feedback from Andrew Walrond; the code as of 2.5.46 allows
-better remote debugging of wrong/mis-detections.
+* Basic listings are FREE!  More comprehensive listings are available for purchase. Note: Buyers will search for suppliers by business and technology capabilities.  These fields are ONLY available with a paid listing.  If you want buyers to find you and invite you to bid on their RFP then upgrade to a 1-page or 2-page listing today. 
+* Our rates have been reduced!  A 1-page listing is now only $75.00 (was $125.00) and a 2-page listing is now only $125.00 (was 200.00)! 
+* Support for Independent Offshore Contractors.  Sometimes buyers just need one or two resources to support a project and now finding those individuals is simple.  It's like having Monster.com but for the offshore market! Make sure buyers find you! The cost is only $19.95 per year (that's only $0.05 per day!). 
+* List your offshore company! Your company information will be available to buyers around the world in both the printed directory and the online searches. 
+* We're sending FREE copies of the Offshore Suppliers Directory to key individuals at Fortune 500 companies! Make sure you have as much information as possible in the printed guide by purchasing a 1-page or 2-page listing so they choose your company as the right providers of services to meet their needs!  If you're not in the printed guide or online directory how can they select you? 
+* With our Offshore Resource Management System (ORMS) you don't have to register for RFPs, the system takes care of that automatically for you when you register as a Supplier or Independent Contractor!
 
-> ------------------------------------------------------------------------
->    open   07 Nov 2002 odd deref in serial_in
->   84. http://marc.theaimsgroup.com/?l=linux-kernel&m=103647077515688&w=2
+See us at the following sites!:
 
-Not my problem - it looks like something else is trampling on %ebx,
-although Zwane/myself are at a loss to locate the cause of that.
-(%ebx = "up" pointer, which must have been valid a few instructions
-previous to even get to this point in the code.  Could it be a compiler
-bug?)
+National Association of Software and Service Companies (NASSCOM): www.nasscom.org
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Outsourcing Russia - All about IT Outsourcing to Russia: www.outsourcing-russia.com
+
+Software Ireland - Ireland's leading FREE portal to the IT industry: www.softwareireland.com
+
+ 
+
+To Your Success,
+
+Offshore Suppliers Directory
+
+http://www.OffshoreSuppliersDirectory.com
+
+YOUR NAME WAS SELECTED AS A PERSON OR ORGANIZATION INVOLVED WITH TECHNOLOGY. 
+WE APOLOGIZE IF THIS EMAIL IS NOT APPLICABLE TO YOU. 
+THIS IS A ONE TIME SUBMISSION.  
+YOU DO NOT NEED TO SUBMIT A REMOVAL REQUEST.
 

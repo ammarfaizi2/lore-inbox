@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271809AbRIYWHR>; Tue, 25 Sep 2001 18:07:17 -0400
+	id <S271844AbRIYWJr>; Tue, 25 Sep 2001 18:09:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271747AbRIYWG6>; Tue, 25 Sep 2001 18:06:58 -0400
-Received: from atlrel7.hp.com ([192.151.27.9]:7953 "HELO atlrel7.hp.com")
-	by vger.kernel.org with SMTP id <S271514AbRIYWGr>;
-	Tue, 25 Sep 2001 18:06:47 -0400
-Message-ID: <C5C45572D968D411A1B500D0B74FF4A80418D54A@xfc01.fc.hp.com>
-From: "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
-To: "'Andrew Morton'" <akpm@zip.com.au>,
-        "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
-Subject: RE: 2.4.10 still slow compared to 2.4.5pre1
-Date: Tue, 25 Sep 2001 18:06:59 -0400
+	id <S271834AbRIYWJh>; Tue, 25 Sep 2001 18:09:37 -0400
+Received: from lambik.cc.kuleuven.ac.be ([134.58.10.1]:21255 "EHLO
+	lambik.cc.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id <S271844AbRIYWJ2>; Tue, 25 Sep 2001 18:09:28 -0400
+Message-Id: <200109252209.AAA32012@lambik.cc.kuleuven.ac.be>
+Content-Type: text/plain; charset=US-ASCII
+From: Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10 data corruption ?
+Date: Wed, 26 Sep 2001 00:09:53 +0200
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+op dinsdag 25 september 2001 20:22 , schreef Frank Dekervel  in 
+<200109251842.UAA25156@lambik.cc.kuleuven.ac.be> :
+
+> hello,
 > 
-> With a synchronous NFS export, I'd expect the disk throughput
-> to be lowered to such an extent that VM issues were not
-> significant in throughput.  But you have been seeing kswapd
-> problems so hmmm...
-
-We are comparing synchronous to synchronous between 2.4.5pre1 and 2.4.10 so
-I wouldn't expect such a difference.
-  
-> Conceivably this is a networking problem, and not an FS/VM
-> problem.  There were significant changes to the softirq
-> handling between 2.4.5 and 2.4.10, for example.
-
-I don't understand what the softirq is or how that could effect performance.
-If you could point me in a direction to look, I'll check that out.
- 
-> Could I suggest that you split these variables apart?  Perform
-> some comparative FS/VM testing between the kernels, and then
-> some comparative network testing?
-
-This was on my list of things to do, but I haven't gotten there yet. ;)
-Working on it though.
-
-> Is it possible to run the SFS clients on the same machine,
-> over loopback?
->
-
-I don't see me getting to this anytime in the near future.  If it will tell
-me what I need to know, I'll add it to my to do list.
-
-Cary 
+> two machines (both athlon) did strange things after i upgraded to 2.4.10
+> (started to crash at random, i got errors loading shared libs after
+> upgrading them and a reinstall of the same .deb's fixed it)
+> both are athlons, non-overclocked. On one of them i always ran 2.4, the
+> other is new so it could be a hardware failure ...
+> 
+> I didn't find (if there is) the actual corruption yet, i'll do md5sums on
+> the broken and the correct machines tomorrow.
+> Someone got similar problems ?
+> 
+> greetings,
+> Frank
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

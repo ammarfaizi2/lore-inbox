@@ -1,77 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265198AbTAJPUc>; Fri, 10 Jan 2003 10:20:32 -0500
+	id <S265190AbTAJPTT>; Fri, 10 Jan 2003 10:19:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265201AbTAJPUc>; Fri, 10 Jan 2003 10:20:32 -0500
-Received: from host217-36-81-41.in-addr.btopenworld.com ([217.36.81.41]:30664
-	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
-	id <S265198AbTAJPU2>; Fri, 10 Jan 2003 10:20:28 -0500
-Subject: Re: Kernel hooks just to get rid of copy_[to/from]_user() and
-	syscall overhead?
-From: Gianni Tedesco <gianni@ecsc.co.uk>
-To: Mihnea Balta <dark_lkml@mymail.ro>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200301101645.39535.dark_lkml@mymail.ro>
-References: <200301101645.39535.dark_lkml@mymail.ro>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-BV3ZPaNC+ZVYC1KynZll"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 10 Jan 2003 15:31:06 +0000
-Message-Id: <1042212666.21822.32.camel@lemsip>
-Mime-Version: 1.0
+	id <S265198AbTAJPTT>; Fri, 10 Jan 2003 10:19:19 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:14373 "EHLO
+	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
+	id <S265190AbTAJPTO>; Fri, 10 Jan 2003 10:19:14 -0500
+Date: Fri, 10 Jan 2003 15:29:19 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Daniel Ritz <daniel.ritz@gmx.ch>
+cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+       <daniel.ritz@alcatel.ch>, Robert Love <rml@tech9.net>
+Subject: Re: [PATCH 2.5] speedup kallsyms_lookup
+In-Reply-To: <1042192419.1415.49.camel@cast2.alcatel.ch>
+Message-ID: <Pine.LNX.4.44.0301101428420.1292-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 10 Jan 2003, Daniel Ritz wrote:
+> [please cc...you know why]
+> 
+> a patch to speed up the kallsyms_lookup() function while still doing
+> compression. 
+> - make 4 sections: addresses, lens, stem, strings
+> - only strncpy() when needed
+> - no strlen() at all (only in the script)
+> - save space we lose for len table by not making strings zero terminated
 
---=-BV3ZPaNC+ZVYC1KynZll
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+First impression is that it has good ideas, but seems inelegant
+(always easy to make that judgment on others' code! ignore me)
+and misses the main point.
 
-On Fri, 2003-01-10 at 14:45, Mihnea Balta wrote:
-> Hi,
->=20
-> I have to implement a system which grabs udp packets off a gigabit connec=
-tion,=20
-> take some basic action based on what they contain, repack their data with=
- a=20
-> custom protocol header and send them through a gigabit ethernet interface=
- on=20
-> broadcast.
->=20
-> I know how to do this in userspace, but I need to know if doing everyting=
- in=20
-> the kernel would show a considerable speed improvement due to removing=20
-> syscall and memory copy overhead. The system will be quite stressed, havi=
-ng=20
-> to deal with around 15-20000 packets/second.
+In earlier mail, Andi highlighted the performance criticality of top
+reading /proc/<pid>/wchan.  I think we have to decide which way to
+jump on that: either withdraw that functionality as too expensive,
+and minimize the table size and code stupidity (all those strncpy's of
+nearly 127! include/asm-i386/string.h strncpy seems in the wrong there);
+or speed kallsyms_lookup as much as possible (binary chop or whatever
+algorithm to locate symbol from address).  The current linear search
+through 6000(?) addresses is not nice, but of course the strncpy is
+making it much worse.
 
-mmap() packet socket interface eliminates the need for system calls when
-traffic is coming in at a high rate.  The kernel -> user copy is also
-eliminated, but its just replaced with a kernel -> kernel copy :P
+I didn't reply to that part of Andi's mail, not because I thought it
+irrelevant, quite the reverse; but because I didn't have an opinion
+which way to go, and hoped someone else would chime in.  I don't
+see how to proceed without deciding that.  CC'd rml since I believe
+he fathered /proc/<pid>/wchan.  Now, I'm inclined to say that anyone
+worried about memory occupancy just shouldn't switch CONFIG_KALLSYMS
+on, so it's speed we should aim for here.
 
-You could perhaps also use linux socket filters to minimize the number
-of packets you need to evaluate...
+If maximizing speed, then obviously the values should be sorted by
+value (as now, unlike in my patch), and maybe we forget all about
+stem compression?  If minimizing memory, then a combination of your
+patch and mine?
 
-Check out this sample code: http://www.scaramanga.co.uk/code-fu/lincap.c
+I hope I can leave this discussion to others: I just wanted to get
+my symbols printing out right, and noticed the current stem compression
+unnecessarily weak there; but I'm no expert on suitable algorithms.
 
-HTH
-
---=20
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
-
---=-BV3ZPaNC+ZVYC1KynZll
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA+Huc6kbV2aYZGvn0RAgMyAJ9k8b5dBs0pDKKxGcYcpRF4q38eTwCeMwSA
-JK7JWpSaYKsenks8H4jXzQk=
-=pfqa
------END PGP SIGNATURE-----
-
---=-BV3ZPaNC+ZVYC1KynZll--
+Hugh
 

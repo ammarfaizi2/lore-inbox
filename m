@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265154AbTANUOE>; Tue, 14 Jan 2003 15:14:04 -0500
+	id <S265171AbTANUSj>; Tue, 14 Jan 2003 15:18:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265196AbTANUOE>; Tue, 14 Jan 2003 15:14:04 -0500
-Received: from mail5.intermedia.net ([206.40.48.155]:32527 "EHLO
-	mail5.intermedia.net") by vger.kernel.org with ESMTP
-	id <S265154AbTANUOD>; Tue, 14 Jan 2003 15:14:03 -0500
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-From: Ranjeet Shetye <ranjeet.shetye2@zultys.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20030114193758.GB15412@mark.mielke.cc>
-References: <20030106173949.GA1712@gnuppy.monkey.org>
-	<E18Vtxz-0002cB-00@fencepost.gnu.org>
-	<20030107141758.GA10770@gnuppy.monkey.org>
-	<E18WB8Q-0004k6-00@fencepost.gnu.org>
-	<20030108115327.GA5020@gnuppy.monkey.org>
-	<E18WlrH-0000NO-00@fencepost.gnu.org> <20030110101043.A19070@uph.com>
-	<E18Xghf-0004GP-00@fencepost.gnu.org> <20030112125849.A28266@uph.com>
-	<E18YJvF-0007rd-00@fencepost.gnu.org> 
-	<20030114193758.GB15412@mark.mielke.cc>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 14 Jan 2003 12:23:32 +0100
-Message-Id: <1042543412.564.21.camel@ranjeet-linux-1>
-Mime-Version: 1.0
+	id <S265198AbTANUSi>; Tue, 14 Jan 2003 15:18:38 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:63110 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S265171AbTANUSh>; Tue, 14 Jan 2003 15:18:37 -0500
+Date: Tue, 14 Jan 2003 15:28:23 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Mark Mielke <mark@mark.mielke.cc>
+cc: DervishD <raul@pleyades.net>, Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Changing argv[0] under Linux.
+In-Reply-To: <20030114202359.GD15412@mark.mielke.cc>
+Message-ID: <Pine.LNX.3.95.1030114152443.13840C-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 14 Jan 2003, Mark Mielke wrote:
 
-hi Richard,
+> On Tue, Jan 14, 2003 at 02:56:35PM -0500, Richard B. Johnson wrote:
+> > Well I just grepped through usr/include/bits/posix1_lim.h and it
+> > shows 255 (with this 'C' library) so you are probably right.
+> > In any event, a "whole line of text" isn't going to overrun it. 
+> 
+> Looking at the code, it looks to me as if argv[0] can be any size up to
+> _SC_ARG_MAX, with the restraining factor being that the environment
+> variables and the other arguments must fit in the same space.
+> 
+> Is this not correct?
+> 
+> mark
 
-At the point in time when you started the GNU project, do you mind
-telling us how much of the GNU code was based on BSD and how much was
-not ?
+Don't think so. In my headers _SC_ARG_MAX is an enumerated type
+that is numerically equal to 0. It's in confname.h, the first
+element in the enumerated list.
 
-I am asking for a reasonably accurate percentage e.g. 20% BSD, 80%
-non-BSD, OR 85% BSD, 15% non-BSD. Something to that effect.
-Comments/Code/Headers whatever originated from the BSD team gets
-attributed to them, and the modifications you guys wrote are credited to
-the GNU project.
-
-Also, someone posted that the original GNU code was based on the BSD
-code and therefore the BSD licence, and one fine day the BSD licence was
-replaced with the GNU licence. Is that correct or incorrect ?
-
-thanks,
-Ranjeet Shetye.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 
 

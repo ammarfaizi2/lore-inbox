@@ -1,54 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315279AbSFTRQl>; Thu, 20 Jun 2002 13:16:41 -0400
+	id <S315285AbSFTRQw>; Thu, 20 Jun 2002 13:16:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315285AbSFTRQk>; Thu, 20 Jun 2002 13:16:40 -0400
-Received: from hq.tensilica.com ([65.205.227.29]:62707 "EHLO
-	mail-in.hq.tensilica.com") by vger.kernel.org with ESMTP
-	id <S315279AbSFTRQk>; Thu, 20 Jun 2002 13:16:40 -0400
-Message-ID: <3D120DEB.5040304@tensilica.com>
-Date: Thu, 20 Jun 2002 10:16:27 -0700
-From: RW Hawkins <rw@tensilica.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S315287AbSFTRQv>; Thu, 20 Jun 2002 13:16:51 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59659 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315285AbSFTRQt>; Thu, 20 Jun 2002 13:16:49 -0400
+Date: Thu, 20 Jun 2002 10:15:19 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
 To: Cort Dougan <cort@fsmlabs.com>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
        Benjamin LaHaise <bcrl@redhat.com>,
        Rusty Russell <rusty@rustcorp.com.au>, Robert Love <rml@tech9.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: latest linus-2.5 BK broken
-References: <Pine.LNX.4.44.0206191018510.2053-100000@home.transmeta.com> <m1d6umtxe8.fsf@frodo.biederman.org> <20020620103003.C6243@host110.fsmlabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20020620103003.C6243@host110.fsmlabs.com>
+Message-ID: <Pine.LNX.4.44.0206201003500.8225-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You're missing the point. Larry is saying "I have been down this road 
-before, take heed". We don't want to waste the time reinventing bloat 
-when we can learn from others mistakes.
 
--RW
 
- Cort Dougan wrote:
-
->"Beating the SMP horse to death" does make sense for 2 processor SMP
->machines.  When 64 processor machines become commodity (Linux is a
->commodity hardware OS) something will have to be done.  When research
->groups put Linux on 1k processors - it's an experiment.  I don't think they
->have much right to complain that Linux doesn't scale up to that level -
->it's not designed to.
+On Thu, 20 Jun 2002, Cort Dougan wrote:
 >
->That being said, large clusters are an interesting research area but it is
->_not_ a failing of Linux that it doesn't scale to them.
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
+> "Beating the SMP horse to death" does make sense for 2 processor SMP
+> machines.
 
+It makes fine sense for any tightly coupled system, where the tight
+coupling is cost-efficient.
 
+Today that means 2 CPU's, and maybe 4.
+
+Things like SMT (Intel calls it "HT") increase that to 4/8. It's just
+_cheaper_ to do that kind of built-in SMP support than it is to not use
+it.
+
+The important part of what Cort says is "commodity". Not the "small number
+of CPU's". Linux is focusing on SMP, because it is the ONLY INTERESTING
+HARDWARE BASE in the commodity space.
+
+ccNuma and clusters just aren't even on the _radar_ from a commodity
+standpoint. While commodity 4- and 8-way SMP is just a few years away.
+
+So because SMP hardware is cheap and efficient, all reasonable scalability
+work is done on SMP. And the fringe is just that - fringe. The
+numa/cluster fringe tends to try to use SMP approaches because they know
+they are a minority, and they want to try to leverage off the commodity.
+
+And it will continue to be this way for the forseeable future. People
+should just accept the fact.
+
+The only thing that may change the current state of affairs is that some
+cluster/numa issues are slowly percolating down and they may become more
+commoditized. For example, I think the AMD approach to SMP on the hammer
+series is "local memories" with a fast CPU interconnect. That's a lot more
+NUMA than we're used to in the PC space.
+
+On the other hand, another interesting trend seems to be that since
+commoditizing NUMA ends up being done with a lot of integration, the
+actual _latency_ difference is so small that those potential future
+commodity NUMA boxes can be considered largely UMA/SMP.
+
+And I guarantee Linux will scale up fine to 16 CPU's, once that is
+commodity. And the rest is just not all that important.
+
+		Linus
 

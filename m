@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316150AbSEJWdl>; Fri, 10 May 2002 18:33:41 -0400
+	id <S313767AbSEJWgo>; Fri, 10 May 2002 18:36:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316151AbSEJWdk>; Fri, 10 May 2002 18:33:40 -0400
-Received: from mail.gmx.de ([213.165.64.20]:4654 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S316150AbSEJWdj>;
-	Fri, 10 May 2002 18:33:39 -0400
-From: "Kosta Porotchkin" <kporotchkin@gmx.net>
-To: "Linux Kernel mailing List \(E-mail\)" <linux-kernel@vger.kernel.org>
-Subject: RE: PCI bus interrupts problem on dual Xeon SMP system
-Date: Fri, 10 May 2002 17:30:00 -0600
-Message-ID: <000f01c1f87b$40dbb150$a396a8c0@compaq12xl510a>
+	id <S313789AbSEJWgn>; Fri, 10 May 2002 18:36:43 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:48375 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S313767AbSEJWgm>;
+	Fri, 10 May 2002 18:36:42 -0400
+Message-ID: <3CDC4B5C.C3DB2533@mvista.com>
+Date: Fri, 10 May 2002 15:36:12 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 64-bit jiffies, a better solution
+In-Reply-To: <Pine.LNX.4.33.0205101451120.22516-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
-In-Reply-To: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since no one has answer to my question, I wish to add some extra data.
+Linus Torvalds wrote:
+> 
+> On Fri, 10 May 2002, george anzinger wrote:
+> >
+> > should work.  So here is a solution that does all the above and does
+> > NOT invade new name spaces:
+> 
+> Ok, looks fine, but I'd really rather move the "jiffies" linker games
+> into the per-architecture stuff, and get rid of the jiffies_at_jiffies_64
+> games.
+> 
+> It's just one line per architecture, after all.
+> 
+>                 Linus
+If that were only true.  The problem is that some architectures can be
+built with either endian.  Mips, for example, seems to take the endian
+stuff in as an environment variable.  The linker seems to know this
+stuff, but does not provide the "built in" to allow it to be used.
 
->The system can boot from any bus, download and run the kernel.
->The problem is discovered during the root (NFS) file system mount
->(NFS server timeout, - looks like no interrupts are coming from
->the Ethernet card after kernel initialization).
-
-The above assumption was checked by mounting the local file system. It is
-true, no interrupts are coming from the Ethernet card inserted in slots ##
-1,2,3,6 after kernel initialization.
-It should be a kernel BUG, since the same card in same slot is working
-before kernel starts (Etherboot is working excellent). In order to make a
-fair comparison I tested the latest 2.5.15 kernel too (with acpismp=force).
-The result was the same.
-
-Again, it is Intel E7500 chipset, which seems to have some problems @ Linux.
-I tried to search through this mail list, but did not find complaints about
-missing PCI interrupts on this platform.
-
-Any comments gurus can make?
-
-Kosta
-
----
-Outgoing mail is certified Virus Free.
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.361 / Virus Database: 199 - Release Date: 5/7/2002
-
-
+The info is available from the header files at compile time, but I could
+not find a clean way to export it to the Makefile, where we might choose
+which linker script to use.  I suppose we could run the linker script
+thru cpp if all else fails.  Any ideas?
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml

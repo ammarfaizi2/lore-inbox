@@ -1,82 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263618AbUAHEE0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 23:04:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263636AbUAHEE0
+	id S263639AbUAHEQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 23:16:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbUAHEQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 23:04:26 -0500
-Received: from adsl-216-158-28-251.cust.oldcity.dca.net ([216.158.28.251]:4224
-	"EHLO fukurou.paranoiacs.org") by vger.kernel.org with ESMTP
-	id S263618AbUAHEEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 23:04:24 -0500
-Date: Wed, 7 Jan 2004 23:04:16 -0500
-From: Ben Slusky <sluskyb@paranoiacs.org>
-To: Ruben Garcia <ruben@ugr.es>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [PATCH] Re: loop device changes the block size and causes misaligned accesses to the real device, which can't be processed
-Message-ID: <20040108040414.GA5017@fukurou.paranoiacs.org>
-Mail-Followup-To: Ruben Garcia <ruben@ugr.es>, linux-kernel@vger.kernel.org,
-	trivial@rustcorp.com.au
-References: <3FFC3BF4.6080105@ugr.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 7 Jan 2004 23:16:25 -0500
+Received: from out008pub.verizon.net ([206.46.170.108]:16589 "EHLO
+	out008.verizon.net") by vger.kernel.org with ESMTP id S263639AbUAHEQW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 23:16:22 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+To: Linus Torvalds <torvalds@osdl.org>, Olaf Hering <olh@suse.de>
+Subject: Re: removable media revalidation - udev vs. devfs or static /dev
+Date: Wed, 7 Jan 2004 23:16:18 -0500
+User-Agent: KMail/1.5.1
+Cc: Greg KH <greg@kroah.com>, Andrey Borzenkov <arvidjaar@mail.ru>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200401012333.04930.arvidjaar@mail.ru> <20040107205237.GB16832@suse.de> <Pine.LNX.4.58.0401071801310.12602@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0401071801310.12602@home.osdl.org>
+Organization: Organization: None that appears to be detectable by casual observers
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3FFC3BF4.6080105@ugr.es>
-User-Agent: Mutt/1.4i
+Message-Id: <200401072316.18169.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.205.61.108] at Wed, 7 Jan 2004 22:16:21 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 07 Jan 2004 18:03:48 +0100, Ruben Garcia wrote:
-> The loop device advertises a block size of 1024 even when configured 
-> over a cdrom.
-> 
-> When burning a ext2 on a cd, and mounting it directly, I get:
-> 
-> blocksize=2048;
-> 
-> when I losetup /dev/loop0 /dev/cdrom, and then try to mount, I get:
-> 
-> blocksize=1024; and then misaligned transfer; this results in not being 
-> able to read the superblock.
-> 
-> The loop device should be changed to export the same blocksize of the 
-> underlying device
+On Wednesday 07 January 2004 21:03, Linus Torvalds wrote:
+>On Wed, 7 Jan 2004, Olaf Hering wrote:
+>> > Then, user space can just access "/dev/sda1" or whatever, and
+>> > the act of accessing it will force the re-scan.
+>>
+>> How would that work? I mean, what will a tool that cares about a
+>> block event do? It will run a fdisk/parted -l /udev/sda to figure
+>> out what partitions are there (just to skip an extended partition
+>> sda5, as example) and finds no media. That tool will never run
+>> again on sda, unless a new block add event comes in. So some sort
+>> of polling is required for that class of devices.
+>
+>What is your problem?
+>
+>I'll use a very common and simple case that I do myself: use any USB
+> media reader to read a camera card. It will be a FAT filesystem on
+> the first partition, so your fstab might look like this:
+>
+>	/dev/sda1               /mnt/smartmedia         vfat   
+> noauto,user,ro  0 0
+>
+>and then you just do "mount /mnt/smartmedia", and you're done.
+>
+>This works. I do it all the time. You just stick in your card, and
+> mount it, and off it foes. No "fdisk" or "parted" _anywhere_.
 
-Huh, if you look at loop.c it appears to do that already (line 735) but
-it doesn't. This patch makes it so.
+I do too, except the card is still in my camera when I do it.  But, I 
+do have to ask, why the ro?  I regularly do housekeeping in the 
+camera once I've downloaded the images I want.  The only problem I've 
+had is related to deleting the first images all in a row.  Apparently 
+fat thinks an empty sector is the end of the directory.  So one must 
+delete on LIFO basis.
 
---- linux-2.6.0/drivers/block/loop.c-orig	2004-01-07 22:47:37.755375858 -0500
-+++ linux-2.6.0/drivers/block/loop.c	2004-01-07 22:48:04.990990082 -0500
-@@ -732,8 +732,6 @@
- 	mapping_set_gfp_mask(inode->i_mapping,
- 			     lo->old_gfp_mask & ~(__GFP_IO|__GFP_FS));
- 
--	set_blocksize(bdev, lo_blocksize);
--
- 	lo->lo_bio = lo->lo_biotail = NULL;
- 
- 	/*
-@@ -749,6 +747,7 @@
- 	if (S_ISBLK(inode->i_mode)) {
- 		request_queue_t *q = bdev_get_queue(lo_device);
- 
-+		blk_queue_hardsect_size(lo->lo_queue, q->hardsect_size);
- 		blk_queue_max_sectors(lo->lo_queue, q->max_sectors);
- 		blk_queue_max_phys_segments(lo->lo_queue,q->max_phys_segments);
- 		blk_queue_max_hw_segments(lo->lo_queue, q->max_hw_segments);
-@@ -757,6 +756,8 @@
- 		blk_queue_merge_bvec(lo->lo_queue, q->merge_bvec_fn);
- 	}
- 
-+	set_blocksize(bdev, lo_blocksize);
-+
- 	kernel_thread(loop_thread, lo, CLONE_KERNEL);
- 	down(&lo->lo_sem);
- 
-HTH,
+>		Linus
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Ben Slusky                      | The doctors x-rayed my head
-sluskyb@paranoiacs.org          | and found nothing.
-sluskyb@stwing.org              |               -Dizzy Dean
-PGP keyID ADA44B3B      
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+

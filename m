@@ -1,82 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265802AbRFXXuI>; Sun, 24 Jun 2001 19:50:08 -0400
+	id <S265807AbRFXXr6>; Sun, 24 Jun 2001 19:47:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265803AbRFXXt6>; Sun, 24 Jun 2001 19:49:58 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:20999 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S265802AbRFXXto>;
-	Sun, 24 Jun 2001 19:49:44 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200106242349.f5ONnhP34041@saturn.cs.uml.edu>
-Subject: Re: FAT32 superiority over ext2 :-)
-To: phillips@bonn-fries.net (Daniel Phillips)
-Date: Sun, 24 Jun 2001 19:49:43 -0400 (EDT)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan), linux-kernel@vger.kernel.org,
-        viro@math.psu.edu, phillips@bonn-fries.net, chaffee@cs.berkeley.edu,
-        storner@image.dk, mnalis-umsdos@voyager.hr
-In-Reply-To: <0106250122170H.00430@starship> from "Daniel Phillips" at Jun 25, 2001 01:22:17 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S265806AbRFXXrs>; Sun, 24 Jun 2001 19:47:48 -0400
+Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:14892
+	"EHLO bitmover.com") by vger.kernel.org with ESMTP
+	id <S265802AbRFXXrb>; Sun, 24 Jun 2001 19:47:31 -0400
+Date: Sun, 24 Jun 2001 16:47:29 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: Stephen Satchell <satch@fluent-access.com>, Martin Devera <devik@cdi.cz>,
+        bert hubert <ahu@ds9a.nl>,
+        "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>
+Subject: Re: Threads are processes that share more
+Message-ID: <20010624164729.G8832@work.bitmover.com>
+Mail-Followup-To: "J . A . Magallon" <jamagallon@able.es>,
+	Stephen Satchell <satch@fluent-access.com>,
+	Martin Devera <devik@cdi.cz>, bert hubert <ahu@ds9a.nl>,
+	"linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010620175937.A8159@home.ds9a.nl> <Pine.LNX.4.10.10106202036470.10363-100000@luxik.cdi.cz> <4.3.2.7.2.20010620150729.00b60710@mail.fluent-access.com> <20010621011031.B19922@werewolf.able.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010621011031.B19922@werewolf.able.es>; from jamagallon@able.es on Thu, Jun 21, 2001 at 01:10:31AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips writes:
-> On Monday 25 June 2001 00:54, Albert D. Cahalan wrote:
+On Thu, Jun 21, 2001 at 01:10:31AM +0200, J . A . Magallon wrote:
+> 
+> On 20010621 Stephen Satchell wrote:
+> >
+> >By the way, I'm surprised no one has mentioned that a synonym for "thread" 
+> >is "lightweight process".
+> >
+> 
+> In linux. Perhaps this the fault.
+> In IRIX, you have sprocs and threads. sprocs have independent pids and you
+> can control what you share (mappings, fd table...). Threads group under
+> same pid.
 
->> By dumb luck (?), FAT32 is compatible with the phase-tree algorithm
->> as seen in Tux2. This means it offers full data integrity.
->> Yep, it whips your typical journalling filesystem. Look at what
->> we have in the superblock (boot sector):
->>
->>     __u32  fat32_length;  /* sectors/FAT */
->>     __u16  flags;         /* bit 8: fat mirroring, low 4: active fat */
->>     __u8   version[2];    /* major, minor filesystem version */
->>     __u32  root_cluster;  /* first cluster in root directory */
->>     __u16  info_sector;   /* filesystem info sector */
->>
->> All in one atomic write, one can...
->>
->> 1. change the active FAT
->> 2. change the root directory
->> 3. change the free space count
->>
->> That's enough to atomically move from one phase to the next.
->> You create new directories in the free space, and make FAT
->> changes to an inactive FAT copy. Then you write the superblock
->> to atomically transition to the next phase.
->
-> Yes, FAT is what inspired me to go develop the algorithm.  However, two
-> words: 'lost clusters'.  Now that may just be an implemenation detail ;-)
+I think that's accurate.
 
-What lost clusters?
+> Linux chose the sproc way...
 
-Set bit 8 of "flags" (A_BF_BPBExtFlags to Microsoft) to disable
-FAT mirroring. Then the low 4 bits are a 0-based value that
-indicates which copy of the FAT should be used.
+That's not accurate.  The Linux way is an infinitely nicer architecture.
+For each thing that is shareable you have code like
 
-Assume we have 2 copies of the FAT, as is (was?) common. I'll call
-them X and Y. When we mount the filesystem, we disable FAT mirroring
-and mark FAT X active.
+	vm_fork(... flags)
+	{
+		if (flags & VM_SHARE) return;
+		do the work to fork the data structure
+	}
 
-Now we can make changes to FAT Y without affecting filesystem
-integrity. Windows will not use FAT Y. As is usual with the
-phase-tree algorithm, we use free space to create a new structure
-beside the old one.
-
-Time for a phase change:
-
-We have FAT Y, currently inactive, updated on disk.
-FAT X is active; it describes the current on-disk state.
-We have a new root directory on disk, sitting in free space.
-We have a new filesystem info sector on disk, sitting in free space.
-
-We write one single sector, then:
-
-FAT X becomes inactive, and will not be used by Windows.
-FAT Y becomes active; it describes the new on-disk state.
-The old root directory is marked free in FAT Y. Good!
-The old filesystem info sector is marked free in FAT Y. Good!
-
-Once the superblock goes to disk, FAT X may be written to.
+In other words, it's designed to be shared.  The IRIX stuff is disgusting,
+you really don't want anything to do with sproc().    It _sounds_ like they
+are the same but they aren't - for example, with sproc you get your very
+own TLB miss handler.  Doesn't that sound special?
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

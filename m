@@ -1,60 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264398AbTGBSxA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 14:53:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbTGBSxA
+	id S264394AbTGBSwI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 14:52:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264398AbTGBSwH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 14:53:00 -0400
-Received: from vaxjo.synopsys.com ([198.182.60.75]:34760 "EHLO
-	vaxjo.synopsys.com") by vger.kernel.org with ESMTP id S264398AbTGBSwz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 14:52:55 -0400
-Message-ID: <3F032D60.2060002@Synopsys.COM>
-Date: Wed, 02 Jul 2003 21:07:12 +0200
-From: Harald Dunkel <harri@synopsys.COM>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Wed, 2 Jul 2003 14:52:07 -0400
+Received: from [208.199.87.79] ([208.199.87.79]:219 "EHLO amboise.dolphin")
+	by vger.kernel.org with ESMTP id S264394AbTGBSv7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 14:51:59 -0400
+Date: Wed, 2 Jul 2003 12:06:23 -0700 (PDT)
+From: Francois Gouget <fgouget@free.fr>
+X-X-Sender: fgouget@amboise.dolphin
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Spelling fixes
+Message-ID: <Pine.LNX.4.44.0307021136350.16729-100000@amboise.dolphin>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: lapeyre@physics.arizona.edu, greg@kroah.com
-Subject: Re: [PATCH] USB updates for 2.4.21
-References: <20030702182249.GA11236@bacchus.optics.arizona.edu>
-In-Reply-To: <20030702182249.GA11236@bacchus.optics.arizona.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Lapeyre wrote:
-> Re: From: Greg KH (greg@kroah.com)
->     Date: Thu Jun 19 2003 - 19:40:35 EST 
-> 
-> Broken ehci-hcd things seem to be fixed with this patch. I had
-> numerous crashes, hangs, filesystem corruption, etc. with
->  2.4.19,20,21 until I applied this. I am using,
-> 
->  DVD burner in an external USB 2.0  enclosure (same as the one rebranded by Belkin)
->  IDE drive in the same model enclosure.
->  Epson 3200 scanner.
-> 
->  Using them before the patch, particularly simultaneously, caused driver crashes. They
->  seem to share the bus nicely now.
-> 
 
-The failure rate on accessing an IDE disk via USB 2.0 has been
-decreased dramatically with this patch, but I still get IO
-errors pretty frequently.
+The patch is large so I put it at the following URL. It was made
+against a clean 2.5.73 tree:
+http://fgouget.free.fr/tmp/linux-2.5.73.diff
 
-But the real bad part is: If there is an IO error, then I cannot
-sync _any_ of my mounted partitions anymore (all SCSI). A 'sync'
-gets stuck. All I can do is a power cycle.
+Here is the history of this patch. I am a Wine developer and I noticed
+that some spelling errors seem to come back over and over. From time to
+time I was doing a global grep in the Wine sources for a specific
+spelling error and sending a patch with the corresponding fixes. But
+that obviously is not very efficient.
 
-Would it be possible to decouple the mounted partitions somehow?
-I don't care for the disk with IO error, but a sync should not
-get stuck for a valid partition not showing any problems.
+So recently I wrote a small script that greps for a bunch of common
+spelling errors. This works much better:
+ * whenever I find a new type of spelling error I just add it to the
+   script
+ * I can re-run the script from time to time and recheck for all past
+   spelling errors on the new sources
+ * fixes are made by hand because I don't trust a script to do that kind
+   of changes
+ * because the script specifically checks for spelling errors, it has a
+   very low false positive rate, unlike (I suspect) dictionary-based
+   approaches that flag anything that's not in the dictionary (variable
+   names, techical terms, etc.)
+ * it's independent from the actual project so it works just as well on
+   the Linux sources and even web sites
 
+So while I initially developped the script for the Wine sources, I also
+tested it with the Linux and Mozilla sources and enriched it with
+common typos found there.
 
-Regards
+So now I'm submitting the resulting Linux patch for review and possible
+inclusion. I'd appreciate suggestions as to what the best approach would
+be for that. I'm thinking of sending it to the Linux Kernel Trivial
+Patch Monkey, possibly after splitting it a bit.
 
-Harri
+And finally, here is the script I used. Feel free to use it on any
+material you want and to modify it as you like. Let me know if
+you are interested in this script or have suggestions for improvement.
+
+(please CC me in replies)
+
+--- cut here ---
+#!/bin/sh
+
+mygrep()
+{
+    dir="$1"
+    shift
+    find "$dir" -follow -name CVS -prune -o -name linklint -prune -o \( ! -name '*~' -a ! -name '.#*' -a ! -name '*.diff' -a ! -name '*.gif' -a ! -name '*.jpg' -a ! -name '*.o' -a ! -name '*.png' -a ! -name '*.so' \) -type f -print0 | xargs -0 grep "$@"
+}
+
+if [ "$1" != "" ]
+then
+    dir="$1"
+    shift
+else
+    dir="."
+fi
+
+mygrep "$dir" "$@" -E -i "(icaly\\W|(less|more) then|necces|necesar|non  *existing|procces|reciev)" | egrep -v "ChangeLog(.OLD)?"
+mygrep "$dir" "$@" -E -i -w "(acc?eptible|adress?|appartments?|arithmatic|automaticly|careful[ly]|cateogor(y|ies)|comands?|(in|un)?compatab(le|ility|ilities)|(dis)?continous(ly)?|debug(ing|ed|er)|dependan(cy|cies|t)|depand(a|e)n(cy|cies|t)|effecien(t|cy)|existan(t|ce)|extentions?|grammer|happends?|(un)?impliment(ation|ed|er|ing)?|(un)?marshal(ed|ing)|oportunit(y|ies)|paramaters?|privi?lages?|refer(ing|ed)|seperat(e(d|s)?|ing|ions?|ors?)|subscribtions?|successfull|succesful(ly)?|sucess?ful(ly)?|(un)?suport(able|ed|er|ing|ive|ively)?|thier|wierd|(over|re)?writen)"
+--- cut here ---
+
+-- 
+Francois Gouget         fgouget@free.fr        http://fgouget.free.fr/
+The nice thing about meditation is that it makes doing nothing quite respectable
+                                  -- Paul Dean
 

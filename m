@@ -1,444 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263447AbTETBTA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 21:19:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263449AbTETBTA
+	id S263445AbTETBSf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 21:18:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbTETBSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 21:19:00 -0400
-Received: from dp.samba.org ([66.70.73.150]:11161 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263447AbTETBSc (ORCPT
+	Mon, 19 May 2003 21:18:34 -0400
+Received: from dp.samba.org ([66.70.73.150]:10649 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263445AbTETBSc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 19 May 2003 21:18:32 -0400
 From: Rusty Russell <rusty@rustcorp.com.au>
 To: akpm@zip.com.au
 Cc: linux-kernel@vger.kernel.org, David Mosberger-Tang <davidm@hpl.hp.com>,
        Dipankar Sarma <dipankar@in.ibm.com>
-Subject: [PATCH 3/3] kmalloc_percpu: interface change.
-Date: Tue, 20 May 2003 11:30:29 +1000
-Message-Id: <20030520013131.311552C09D@lists.samba.org>
+Subject: [PATCH 2/3] Per-cpu SMP unification
+Date: Tue, 20 May 2003 11:23:46 +1000
+Message-Id: <20030520013131.294E42C082@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Name: Change kmalloc_percpu interface
+[ Untested on ia64, but fairly trivial if I've broken something ].
+
+Name: Unification of per-cpu headers for SMP
 Author: Rusty Russell
-Status: Tested on 2.5.69-bk13
+Status: Trivial
 Depends: Misc/percpu-up-unify.patch.gz
-Depends: Misc/percpu-smp-unify.patch.gz
 
-D: Several tweaks to the kmalloc_percpu()/kfree_percpu() interface, to
-D: allow future implementations to be more flexible, and make easier to
-D: use now we can see how it's actually being used.
-D:
-D: 1) No flags argument: GFP_ATOMIC doesn't make much sense,
-D: 2) Explicit alignment argument, so we don't have to give SMP_CACHE_BYTES
-D:    alignment always,
-D: 3) Zeros memory, since most callers want that and it's not entirely
-D:    trivial,
-D: 4) Convenient type-safe wrapper which takes a typename, and
-D: 5) Rename to alloc_percpu/__alloc_percpu, since usage no longer
-D:    matches kmalloc.
+D: There's really only one sane way to implement accessing other CPU's
+D: variables, there's no real reason for archs to use a method other
+D: than __per_cpu_offset[], so move that from asm-*/percpu.h to
+D: linux/percpu.h.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22172-2.5.69-bk13-kmalloc_percpu-interface.pre/include/linux/percpu.h .22172-2.5.69-bk13-kmalloc_percpu-interface/include/linux/percpu.h
---- .22172-2.5.69-bk13-kmalloc_percpu-interface.pre/include/linux/percpu.h	2003-05-19 16:51:27.000000000 +1000
-+++ .22172-2.5.69-bk13-kmalloc_percpu-interface/include/linux/percpu.h	2003-05-19 16:51:27.000000000 +1000
-@@ -1,7 +1,8 @@
- #ifndef __LINUX_PERCPU_H
- #define __LINUX_PERCPU_H
- #include <linux/spinlock.h> /* For preempt_disable() */
--#include <linux/slab.h> /* For kmalloc_percpu() */
-+#include <linux/slab.h> /* For kmalloc() */
-+#include <linux/string.h> /* For memset() */
- #include <asm/percpu.h>
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .14538-linux-2.5.69-bk13/include/asm-generic/percpu.h .14538-linux-2.5.69-bk13.updated/include/asm-generic/percpu.h
+--- .14538-linux-2.5.69-bk13/include/asm-generic/percpu.h	2003-05-19 15:08:47.000000000 +1000
++++ .14538-linux-2.5.69-bk13.updated/include/asm-generic/percpu.h	2003-05-19 15:08:48.000000000 +1000
+@@ -5,16 +5,12 @@
+ #define __GENERIC_PER_CPU
+ #ifdef CONFIG_SMP
  
- /* Must be an lvalue. */
-@@ -21,7 +22,7 @@ struct percpu_data {
+-extern unsigned long __per_cpu_offset[NR_CPUS];
+-
+ /* Separate out the type, so (int[3], foo) works. */
+ #ifndef MODULE
+ #define DEFINE_PER_CPU(type, name) \
+     __attribute__((__section__(".data.percpu"))) __typeof__(type) name##__per_cpu
+ #endif
  
- /* 
-  * Use this to get to a cpu's version of the per-cpu object allocated using
-- * kmalloc_percpu.  If you want to get "this cpu's version", maybe you want
-+ * alloc_percpu.  If you want to get "this cpu's version", maybe you want
-  * to use get_cpu_ptr... 
-  */ 
- #define per_cpu_ptr(ptr, cpu)                   \
-@@ -30,19 +31,22 @@ struct percpu_data {
-         (__typeof__(ptr))__p->ptrs[(cpu)];	\
- })
+-/* var is in discarded region: offset to particular copy we want */
+-#define per_cpu(var, cpu) (*RELOC_HIDE(&var##__per_cpu, __per_cpu_offset[cpu]))
+ #define __get_cpu_var(var) per_cpu(var, smp_processor_id())
  
--extern void *kmalloc_percpu(size_t size, int flags);
--extern void kfree_percpu(const void *);
-+extern void *__alloc_percpu(size_t size, size_t align);
-+extern void free_percpu(const void *);
- extern void kmalloc_percpu_init(void);
+ #endif	/* SMP */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .14538-linux-2.5.69-bk13/include/asm-ia64/percpu.h .14538-linux-2.5.69-bk13.updated/include/asm-ia64/percpu.h
+--- .14538-linux-2.5.69-bk13/include/asm-ia64/percpu.h	2003-05-19 15:08:47.000000000 +1000
++++ .14538-linux-2.5.69-bk13.updated/include/asm-ia64/percpu.h	2003-05-19 15:08:48.000000000 +1000
+@@ -18,15 +18,12 @@
+ #include <linux/threads.h>
  
- #else /* CONFIG_SMP */
+ #ifdef CONFIG_SMP
+-extern unsigned long __per_cpu_offset[NR_CPUS];
+-
+ #ifndef MODULE
+ #define DEFINE_PER_CPU(type, name) \
+     __attribute__((__section__(".data.percpu"))) __typeof__(type) name##__per_cpu
+ #endif
  
- #define per_cpu_ptr(ptr, cpu) (ptr)
- 
--static inline void *kmalloc_percpu(size_t size, int flags)
-+static inline void *__alloc_percpu(size_t size, size_t align)
- {
--	return(kmalloc(size, flags));
-+	void *ret = kmalloc(size, GFP_KERNEL);
-+	if (ret)
-+		memset(ret, 0, size);
-+	return ret;
- }
--static inline void kfree_percpu(const void *ptr)
-+static inline void free_percpu(const void *ptr)
- {	
- 	kfree(ptr);
- }
-@@ -59,9 +63,13 @@ static inline void kmalloc_percpu_init(v
- 
+ #define __get_cpu_var(var)	(var##__per_cpu)
+-#define per_cpu(var, cpu)	(*RELOC_HIDE(&var##__per_cpu, __per_cpu_offset[cpu]))
  #endif /* CONFIG_SMP */
  
-+/* Simple wrapper for the common case: zeros memory. */
-+#define alloc_percpu(type) \
-+	((type *)(__alloc_percpu(sizeof(type), __alignof__(type))))
+ extern void setup_per_cpu_areas (void);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .14538-linux-2.5.69-bk13/include/linux/percpu.h .14538-linux-2.5.69-bk13.updated/include/linux/percpu.h
+--- .14538-linux-2.5.69-bk13/include/linux/percpu.h	2003-05-19 15:08:47.000000000 +1000
++++ .14538-linux-2.5.69-bk13.updated/include/linux/percpu.h	2003-05-19 15:08:48.000000000 +1000
+@@ -10,6 +10,10 @@
+ 
+ #ifdef CONFIG_SMP
+ 
++/* var is in discarded region: offset to particular copy we want */
++#define per_cpu(var, cpu) (*RELOC_HIDE(&var##__per_cpu, __per_cpu_offset[cpu]))
++extern unsigned long __per_cpu_offset[NR_CPUS];
 +
- /* 
-- * Use these with kmalloc_percpu. If
-- * 1. You want to operate on memory allocated by kmalloc_percpu (dereference
-+ * Use these with alloc_percpu. If
-+ * 1. You want to operate on memory allocated by alloc_percpu (dereference
-  *    and read/modify/write)  AND 
-  * 2. You want "this cpu's version" of the object AND 
-  * 3. You want to do this safely since:
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22172-2.5.69-bk13-kmalloc_percpu-interface.pre/include/linux/genhd.h .22172-2.5.69-bk13-kmalloc_percpu-interface/include/linux/genhd.h
---- .22172-2.5.69-bk13-kmalloc_percpu-interface.pre/include/linux/genhd.h	2003-05-05 12:37:12.000000000 +1000
-+++ .22172-2.5.69-bk13-kmalloc_percpu-interface/include/linux/genhd.h	2003-05-19 16:51:27.000000000 +1000
-@@ -160,16 +160,15 @@ static inline void disk_stat_set_all(str
- #ifdef  CONFIG_SMP
- static inline int init_disk_stats(struct gendisk *disk)
- {
--	disk->dkstats = kmalloc_percpu(sizeof (struct disk_stats), GFP_KERNEL);
-+	disk->dkstats = alloc_percpu(struct disk_stats);
- 	if (!disk->dkstats)
- 		return 0;
--	disk_stat_set_all(disk, 0);
- 	return 1;
- }
- 
- static inline void free_disk_stats(struct gendisk *disk)
- {
--	kfree_percpu(disk->dkstats);
-+	free_percpu(disk->dkstats);
- }
- #else	/* CONFIG_SMP */
- static inline int init_disk_stats(struct gendisk *disk)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22172-2.5.69-bk13-kmalloc_percpu-interface.pre/include/net/ipv6.h .22172-2.5.69-bk13-kmalloc_percpu-interface/include/net/ipv6.h
---- .22172-2.5.69-bk13-kmalloc_percpu-interface.pre/include/net/ipv6.h	2003-05-19 10:53:51.000000000 +1000
-+++ .22172-2.5.69-bk13-kmalloc_percpu-interface/include/net/ipv6.h	2003-05-19 16:51:27.000000000 +1000
-@@ -145,7 +145,7 @@ extern atomic_t			inet6_sock_nr;
- 
- int snmp6_register_dev(struct inet6_dev *idev);
- int snmp6_unregister_dev(struct inet6_dev *idev);
--int snmp6_mib_init(void *ptr[2], size_t mibsize);
-+int snmp6_mib_init(void *ptr[2], size_t mibsize, size_t mibalign);
- void snmp6_mib_free(void *ptr[2]);
- 
- struct ip6_ra_chain
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22172-2.5.69-bk13-kmalloc_percpu-interface.pre/kernel/ksyms.c .22172-2.5.69-bk13-kmalloc_percpu-interface/kernel/ksyms.c
---- .22172-2.5.69-bk13-kmalloc_percpu-interface.pre/kernel/ksyms.c	2003-05-19 10:53:51.000000000 +1000
-+++ .22172-2.5.69-bk13-kmalloc_percpu-interface/kernel/ksyms.c	2003-05-19 16:51:27.000000000 +1000
-@@ -98,8 +98,8 @@ EXPORT_SYMBOL(remove_shrinker);
- EXPORT_SYMBOL(kmalloc);
- EXPORT_SYMBOL(kfree);
- #ifdef CONFIG_SMP
--EXPORT_SYMBOL(kmalloc_percpu);
--EXPORT_SYMBOL(kfree_percpu);
-+EXPORT_SYMBOL(__alloc_percpu);
-+EXPORT_SYMBOL(free_percpu);
- EXPORT_SYMBOL(percpu_counter_mod);
- #endif
- EXPORT_SYMBOL(vfree);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22172-2.5.69-bk13-kmalloc_percpu-interface.pre/mm/slab.c .22172-2.5.69-bk13-kmalloc_percpu-interface/mm/slab.c
---- .22172-2.5.69-bk13-kmalloc_percpu-interface.pre/mm/slab.c	2003-05-19 10:53:52.000000000 +1000
-+++ .22172-2.5.69-bk13-kmalloc_percpu-interface/mm/slab.c	2003-05-19 16:51:27.000000000 +1000
-@@ -1939,26 +1939,18 @@ void * kmalloc (size_t size, int flags)
- 
- #ifdef CONFIG_SMP
- /**
-- * kmalloc_percpu - allocate one copy of the object for every present
-- * cpu in the system.
-+ * __alloc_percpu - allocate one copy of the object for every present
-+ * cpu in the system, zeroing them.
-  * Objects should be dereferenced using per_cpu_ptr/get_cpu_ptr
-  * macros only.
-  *
-  * @size: how many bytes of memory are required.
-- * @flags: the type of memory to allocate.
-- * The @flags argument may be one of:
-- *
-- * %GFP_USER - Allocate memory on behalf of user.  May sleep.
-- *
-- * %GFP_KERNEL - Allocate normal kernel ram.  May sleep.
-- *
-- * %GFP_ATOMIC - Allocation will not sleep.  Use inside interrupt handlers.
-+ * @align: the alignment, which can't be greater than SMP_CACHE_BYTES.
-  */
--void *
--kmalloc_percpu(size_t size, int flags)
-+void *__alloc_percpu(size_t size, size_t align)
- {
- 	int i;
--	struct percpu_data *pdata = kmalloc(sizeof (*pdata), flags);
-+	struct percpu_data *pdata = kmalloc(sizeof (*pdata), GFP_KERNEL);
- 
- 	if (!pdata)
- 		return NULL;
-@@ -1966,9 +1958,10 @@ kmalloc_percpu(size_t size, int flags)
- 	for (i = 0; i < NR_CPUS; i++) {
- 		if (!cpu_possible(i))
- 			continue;
--		pdata->ptrs[i] = kmalloc(size, flags);
-+		pdata->ptrs[i] = kmalloc(size, GFP_KERNEL);
- 		if (!pdata->ptrs[i])
- 			goto unwind_oom;
-+		memset(pdata->ptrs[i], 0, size);
- 	}
- 
- 	/* Catch derefs w/o wrappers */
-@@ -2025,14 +2018,14 @@ void kfree (const void *objp)
- 
- #ifdef CONFIG_SMP
- /**
-- * kfree_percpu - free previously allocated percpu memory
-- * @objp: pointer returned by kmalloc_percpu.
-+ * free_percpu - free previously allocated percpu memory
-+ * @objp: pointer returned by alloc_percpu.
-  *
-- * Don't free memory not originally allocated by kmalloc_percpu()
-+ * Don't free memory not originally allocated by alloc_percpu()
-  * The complemented objp is to check for that.
-  */
- void
--kfree_percpu(const void *objp)
-+free_percpu(const void *objp)
- {
- 	int i;
- 	struct percpu_data *p = (struct percpu_data *) (~(unsigned long) objp);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22172-2.5.69-bk13-kmalloc_percpu-interface.pre/net/ipv4/af_inet.c .22172-2.5.69-bk13-kmalloc_percpu-interface/net/ipv4/af_inet.c
---- .22172-2.5.69-bk13-kmalloc_percpu-interface.pre/net/ipv4/af_inet.c	2003-05-19 10:53:53.000000000 +1000
-+++ .22172-2.5.69-bk13-kmalloc_percpu-interface/net/ipv4/af_inet.c	2003-05-19 16:51:27.000000000 +1000
-@@ -1068,54 +1068,22 @@ static struct inet_protocol icmp_protoco
- 
- static int __init init_ipv4_mibs(void)
- {
--	int i;
--
--	net_statistics[0] =
--	    kmalloc_percpu(sizeof (struct linux_mib), GFP_KERNEL);
--	net_statistics[1] =
--	    kmalloc_percpu(sizeof (struct linux_mib), GFP_KERNEL);
--	ip_statistics[0] = kmalloc_percpu(sizeof (struct ip_mib), GFP_KERNEL);
--	ip_statistics[1] = kmalloc_percpu(sizeof (struct ip_mib), GFP_KERNEL);
--	icmp_statistics[0] =
--	    kmalloc_percpu(sizeof (struct icmp_mib), GFP_KERNEL);
--	icmp_statistics[1] =
--	    kmalloc_percpu(sizeof (struct icmp_mib), GFP_KERNEL);
--	tcp_statistics[0] = kmalloc_percpu(sizeof (struct tcp_mib), GFP_KERNEL);
--	tcp_statistics[1] = kmalloc_percpu(sizeof (struct tcp_mib), GFP_KERNEL);
--	udp_statistics[0] = kmalloc_percpu(sizeof (struct udp_mib), GFP_KERNEL);
--	udp_statistics[1] = kmalloc_percpu(sizeof (struct udp_mib), GFP_KERNEL);
-+	net_statistics[0] = alloc_percpu(struct linux_mib);
-+	net_statistics[1] = alloc_percpu(struct linux_mib);
-+	ip_statistics[0] = alloc_percpu(struct ip_mib);
-+	ip_statistics[1] = alloc_percpu(struct ip_mib);
-+	icmp_statistics[0] = alloc_percpu(struct icmp_mib);
-+	icmp_statistics[1] = alloc_percpu(struct icmp_mib);
-+	tcp_statistics[0] = alloc_percpu(struct tcp_mib);
-+	tcp_statistics[1] = alloc_percpu(struct tcp_mib);
-+	udp_statistics[0] = alloc_percpu(struct udp_mib);
-+	udp_statistics[1] = alloc_percpu(struct udp_mib);
- 	if (!
- 	    (net_statistics[0] && net_statistics[1] && ip_statistics[0]
- 	     && ip_statistics[1] && tcp_statistics[0] && tcp_statistics[1]
- 	     && udp_statistics[0] && udp_statistics[1]))
- 		return -ENOMEM;
- 
--	/* Set all the per cpu copies of the mibs to zero */
--	for (i = 0; i < NR_CPUS; i++) {
--		if (cpu_possible(i)) {
--			memset(per_cpu_ptr(net_statistics[0], i), 0,
--			       sizeof (struct linux_mib));
--			memset(per_cpu_ptr(net_statistics[1], i), 0,
--			       sizeof (struct linux_mib));
--			memset(per_cpu_ptr(ip_statistics[0], i), 0,
--			       sizeof (struct ip_mib));
--			memset(per_cpu_ptr(ip_statistics[1], i), 0,
--			       sizeof (struct ip_mib));
--			memset(per_cpu_ptr(icmp_statistics[0], i), 0,
--			       sizeof (struct icmp_mib));
--			memset(per_cpu_ptr(icmp_statistics[1], i), 0,
--			       sizeof (struct icmp_mib));
--			memset(per_cpu_ptr(tcp_statistics[0], i), 0,
--			       sizeof (struct tcp_mib));
--			memset(per_cpu_ptr(tcp_statistics[1], i), 0,
--			       sizeof (struct tcp_mib));
--			memset(per_cpu_ptr(udp_statistics[0], i), 0,
--			       sizeof (struct udp_mib));
--			memset(per_cpu_ptr(udp_statistics[1], i), 0,
--			       sizeof (struct udp_mib));
--		}
--	}
--
- 	(void) tcp_mib_init();
- 
- 	return 0;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22172-2.5.69-bk13-kmalloc_percpu-interface.pre/net/ipv4/route.c .22172-2.5.69-bk13-kmalloc_percpu-interface/net/ipv4/route.c
---- .22172-2.5.69-bk13-kmalloc_percpu-interface.pre/net/ipv4/route.c	2003-05-19 10:53:53.000000000 +1000
-+++ .22172-2.5.69-bk13-kmalloc_percpu-interface/net/ipv4/route.c	2003-05-19 16:51:27.000000000 +1000
-@@ -2695,16 +2695,9 @@ int __init ip_rt_init(void)
- 	ipv4_dst_ops.gc_thresh = (rt_hash_mask + 1);
- 	ip_rt_max_size = (rt_hash_mask + 1) * 16;
- 
--	rt_cache_stat = kmalloc_percpu(sizeof (struct rt_cache_stat),
--					GFP_KERNEL);
-+	rt_cache_stat = alloc_percpu(struct rt_cache_stat);
- 	if (!rt_cache_stat) 
- 		goto out_enomem1;
--	for (i = 0; i < NR_CPUS; i++) {
--		if (cpu_possible(i)) {
--			memset(per_cpu_ptr(rt_cache_stat, i), 0,
--			       sizeof (struct rt_cache_stat));
--		}
--	}
- 
- 	devinet_init();
- 	ip_fib_init();
-@@ -2740,7 +2733,7 @@ int __init ip_rt_init(void)
- out:
- 	return rc;
- out_enomem:
--	kfree_percpu(rt_cache_stat);
-+	free_percpu(rt_cache_stat);
- out_enomem1:
- 	rc = -ENOMEM;
- 	goto out;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22172-2.5.69-bk13-kmalloc_percpu-interface.pre/net/ipv6/af_inet6.c .22172-2.5.69-bk13-kmalloc_percpu-interface/net/ipv6/af_inet6.c
---- .22172-2.5.69-bk13-kmalloc_percpu-interface.pre/net/ipv6/af_inet6.c	2003-05-19 10:53:53.000000000 +1000
-+++ .22172-2.5.69-bk13-kmalloc_percpu-interface/net/ipv6/af_inet6.c	2003-05-19 16:51:27.000000000 +1000
-@@ -637,32 +637,25 @@ inet6_unregister_protosw(struct inet_pro
- }
- 
- int
--snmp6_mib_init(void *ptr[2], size_t mibsize)
-+snmp6_mib_init(void *ptr[2], size_t mibsize, size_t mibalign)
- {
- 	int i;
- 
- 	if (ptr == NULL)
- 		return -EINVAL;
- 
--	ptr[0] = kmalloc_percpu(mibsize, GFP_KERNEL);
-+	ptr[0] = __alloc_percpu(mibsize, mibalign);
- 	if (!ptr[0])
- 		goto err0;
- 
--	ptr[1] = kmalloc_percpu(mibsize, GFP_KERNEL);
-+	ptr[1] = __alloc_percpu(mibsize, mibalign);
- 	if (!ptr[1])
- 		goto err1;
- 
--	/* Zero percpu version of the mibs */
--	for (i = 0; i < NR_CPUS; i++) {
--		if (cpu_possible(i)) {
--			memset(per_cpu_ptr(ptr[0], i), 0, mibsize);
--			memset(per_cpu_ptr(ptr[1], i), 0, mibsize);
--		}
--	}
- 	return 0;
- 
- err1:
--	kfree_percpu(ptr[0]);
-+	free_percpu(ptr[0]);
- 	ptr[0] = NULL;
- err0:
- 	return -ENOMEM;
-@@ -673,18 +666,21 @@ snmp6_mib_free(void *ptr[2])
- {
- 	if (ptr == NULL)
- 		return;
--	kfree_percpu(ptr[0]);
--	kfree_percpu(ptr[1]);
-+	free_percpu(ptr[0]);
-+	free_percpu(ptr[1]);
- 	ptr[0] = ptr[1] = NULL;
- }
- 
- static int __init init_ipv6_mibs(void)
- {
--	if (snmp6_mib_init((void **)ipv6_statistics, sizeof (struct ipv6_mib)) < 0)
-+	if (snmp6_mib_init((void **)ipv6_statistics, sizeof (struct ipv6_mib),
-+			   __alignof__(struct ipv6_mib)) < 0)
- 		goto err_ip_mib;
--	if (snmp6_mib_init((void **)icmpv6_statistics, sizeof (struct icmpv6_mib)) < 0)
-+	if (snmp6_mib_init((void **)icmpv6_statistics, sizeof (struct icmpv6_mib),
-+			   __alignof__(struct ipv6_mib)) < 0)
- 		goto err_icmp_mib;
--	if (snmp6_mib_init((void **)udp_stats_in6, sizeof (struct udp_mib)) < 0)
-+	if (snmp6_mib_init((void **)udp_stats_in6, sizeof (struct udp_mib),
-+			   __alignof__(struct ipv6_mib)) < 0)
- 		goto err_udp_mib;
- 	return 0;
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22172-2.5.69-bk13-kmalloc_percpu-interface.pre/net/ipv6/proc.c .22172-2.5.69-bk13-kmalloc_percpu-interface/net/ipv6/proc.c
---- .22172-2.5.69-bk13-kmalloc_percpu-interface.pre/net/ipv6/proc.c	2003-05-19 10:53:53.000000000 +1000
-+++ .22172-2.5.69-bk13-kmalloc_percpu-interface/net/ipv6/proc.c	2003-05-19 16:51:27.000000000 +1000
-@@ -228,7 +228,8 @@ int snmp6_register_dev(struct inet6_dev 
- 	if (!idev || !idev->dev)
- 		return -EINVAL;
- 
--	if (snmp6_mib_init((void **)idev->stats.icmpv6, sizeof(struct icmpv6_mib)) < 0)
-+	if (snmp6_mib_init((void **)idev->stats.icmpv6, sizeof(struct icmpv6_mib),
-+			   __alignof__(struct ipv6_mib)) < 0)
- 		goto err_icmp;
- 
- #ifdef CONFIG_PROC_FS
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22172-2.5.69-bk13-kmalloc_percpu-interface.pre/net/sctp/protocol.c .22172-2.5.69-bk13-kmalloc_percpu-interface/net/sctp/protocol.c
---- .22172-2.5.69-bk13-kmalloc_percpu-interface.pre/net/sctp/protocol.c	2003-05-19 10:53:54.000000000 +1000
-+++ .22172-2.5.69-bk13-kmalloc_percpu-interface/net/sctp/protocol.c	2003-05-19 16:51:27.000000000 +1000
-@@ -880,34 +880,22 @@ static int __init init_sctp_mibs(void)
- {
- 	int i;
- 
--	sctp_statistics[0] = kmalloc_percpu(sizeof (struct sctp_mib),
--					    GFP_KERNEL);
-+	sctp_statistics[0] = alloc_percpu(struct sctp_mib);
- 	if (!sctp_statistics[0])
- 		return -ENOMEM;
--	sctp_statistics[1] = kmalloc_percpu(sizeof (struct sctp_mib),
--					    GFP_KERNEL);
-+	sctp_statistics[1] = alloc_percpu(struct sctp_mib);
- 	if (!sctp_statistics[1]) {
--		kfree_percpu(sctp_statistics[0]);
-+		free_percpu(sctp_statistics[0]);
- 		return -ENOMEM;
- 	}
--
--	/* Zero all percpu versions of the mibs */
--	for (i = 0; i < NR_CPUS; i++) {
--		if (cpu_possible(i)) {
--			memset(per_cpu_ptr(sctp_statistics[0], i), 0,
--					sizeof (struct sctp_mib));
--			memset(per_cpu_ptr(sctp_statistics[1], i), 0,
--					sizeof (struct sctp_mib));
--		}
--	}
- 	return 0;
- 
- }
- 
- static void cleanup_sctp_mibs(void)
- {
--	kfree_percpu(sctp_statistics[0]);
--	kfree_percpu(sctp_statistics[1]);
-+	free_percpu(sctp_statistics[0]);
-+	free_percpu(sctp_statistics[1]);
- }
- 
- /* Initialize the universe into something sensible.  */
+ struct percpu_data {
+ 	void *ptrs[NR_CPUS];
+ 	void *blkp;
 
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

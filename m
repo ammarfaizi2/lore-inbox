@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262888AbSJAW2K>; Tue, 1 Oct 2002 18:28:10 -0400
+	id <S262889AbSJAW2p>; Tue, 1 Oct 2002 18:28:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262882AbSJAW0i>; Tue, 1 Oct 2002 18:26:38 -0400
-Received: from c17997.eburwd3.vic.optusnet.com.au ([210.49.198.98]:52219 "EHLO
-	satisfactory.karma") by vger.kernel.org with ESMTP
-	id <S262879AbSJAWZa>; Tue, 1 Oct 2002 18:25:30 -0400
-Date: Wed, 2 Oct 2002 08:35:14 +1000
-From: Andrew Clausen <clausen@gnu.org>
-To: "Softhome.net" <Donlupi@Softhome.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.4.18 hangs on boot: "sim 710: No NCR53710 adapter found"
-Message-ID: <20021001223514.GC1109@gnu.org>
-References: <000801c2682f$e09359e0$4c8e4da4@pcdelupi> <20020930022936.GI1104@gnu.org> <003101c26920$3c27b3a0$69954da4@pcdelupi>
+	id <S262885AbSJAW2O>; Tue, 1 Oct 2002 18:28:14 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:30144 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262879AbSJAW0r>;
+	Tue, 1 Oct 2002 18:26:47 -0400
+Date: Tue, 01 Oct 2002 15:25:02 -0700 (PDT)
+Message-Id: <20021001.152502.31945919.davem@redhat.com>
+To: maxk@qualcomm.com
+Cc: thiel@ksan.de, marcelo@conectiva.com.br, davej@suse.de, max_mk@yahoo.com,
+       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: Re: Kernel TUN/TAP Documentation rework
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <5.1.0.14.2.20021001092848.078ba5d8@mail1.qualcomm.com>
+References: <20021001065516.GA18838@grok.noroute.de>
+	<5.1.0.14.2.20021001092848.078ba5d8@mail1.qualcomm.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <003101c26920$3c27b3a0$69954da4@pcdelupi>
-User-Agent: Mutt/1.4i
-X-Accept-Language: en,pt
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01, 2002 at 02:56:35AM -0500, Softhome.net wrote:
-> Hola Andrew (ahora sé tu nombre).
+   From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+   Date: Tue, 01 Oct 2002 09:29:49 -0700
 
-Hola Patricio (tambien ;)
+   Marcelo, Dave, please apply to your trees.
 
-I'll write in English, so everyone else can understand.  I think you
-can understand me :)
+Marcelo do you have this?  If not someone will need to retransmit
+the patch to me.
 
-> When the Partboot Disk is loading i receibe a message "sim 710:
-> No NCR53710 adapter found" and the computer stop and do nothing.
-
-Are you able to boot off an GNU/Linux installation CD?  (Eg: Red Hat,
-Debian, Mandrake)  Do you get the same problem?
-
-FYI: the kernel on that disk was contributed by Kent Robotti, which
-is 2.4.18.
-
-> Thank you for your help and now you have a friend in Chile.
-
-Cool :)
-
-Cheers,
-Andrew
-
-PS: we're not subscribed to linux-kernel
-
+Thanks.

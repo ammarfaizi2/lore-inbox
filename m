@@ -1,90 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbUFKIsZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262897AbUFKJjI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbUFKIsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 04:48:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbUFKIsZ
+	id S262897AbUFKJjI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 05:39:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263763AbUFKJjI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 04:48:25 -0400
-Received: from guardian.hermes.si ([193.77.5.150]:53001 "EHLO
-	guardian.hermes.si") by vger.kernel.org with ESMTP id S262009AbUFKIsW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 04:48:22 -0400
-Message-ID: <600B91D5E4B8D211A58C00902724252C01BC06BB@piramida.hermes.si>
-From: David Balazic <david.balazic@hermes.si>
-To: "'grub-devel@gnu.org'" <grub-devel@gnu.org>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Grub 1 troubleshooting, linux boot delayed problem
-Date: Fri, 11 Jun 2004 10:48:13 +0200
+	Fri, 11 Jun 2004 05:39:08 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:23305 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262897AbUFKJjB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 05:39:01 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+Subject: Re: UDP sockets bound to ANY send answers with wrong src ip address
+Date: Fri, 11 Jun 2004 12:30:35 +0300
+X-Mailer: KMail [version 1.4]
+Cc: netdev@oss.sgi.com, linux-net@vger.kernel.org, davem@redhat.com,
+       pekkas@netcore.fi, jmorris@redhat.com, linux-kernel@vger.kernel.org,
+       yoshfuji@linux-ipv6.org
+References: <200406091425.39324.vda@port.imtp.ilyichevsk.odessa.ua> <20040609.212430.123946645.yoshfuji@linux-ipv6.org>
+In-Reply-To: <20040609.212430.123946645.yoshfuji@linux-ipv6.org>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="ISO-8859-2"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200406111230.35481.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wednesday 09 June 2004 15:24, YOSHIFUJI Hideaki wrote:
+> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> says:
+> > I observe that UDP sockets listening on ANY
+> > send response packets with ip addr derived from
+> > ip address of interface which is used to send 'em
+> > instead of using dst ip address of client's packet.
+>
+> use IP_PKTINFO when responding the client.
 
-I found no other place, so I'll ask here.
+Thanks!
+With your help and some googling I've found and adapted 
+code to get dst ip of UDP packet.
 
-I have a problem booting linux with grub ( v 0.9.something ).
+Small test program successfully ran and reported correct
+dst addresses of incoming UDP packets.
 
-I use the commands ( in the grub shell that boots from my HD ):
-root (hd0,0)
-kernel /vmlinuz-2.6.xxx ro root=dev/hda2
-initrd /initrd-2.xxx
-boot
+Now, I am trying to fix (or shall I say 'improve'?) dnscache.
+You may find some code below my sig. It's a start.
 
-After entering the "boot" command, the screen is cleared and then nothing
-happens for 93 seconds.
-After that linux boot normally ( beginning with the message "Uncompressing
-linux..." and so on ).
-If I trim the kernel command line to only "kernel /vmlinuz-2.6.xxx ro" ,
-then the delay is 10 seconds.
+The problem is, how to _send replies_ with correct src ip?
+I can bind a temporary socket to needed src address,
+do a sendto(), then close socket. This will work,
+but this can introduce a race - any incoming
+packet to this (ip,port) will inadvertently
+be classified as belonging to temp socket!
+This is going to be a nasty bug, manifesting
+itself only under load.
 
-If I change the operating mode of the IDE adapter in BIOS to RAID, then the
-delay is infinite ( I waited
-8 hours ). Note that GRUB still loads andit can browse and "cat" files on
-the disk, so it is not a disk
-access problem.
+I looked into sendmsg(). Looks like ther is no way to
+indicate source ip.
 
-Can someone tell me how to find out what GRUB is doing after the "boot"
-command ?
-I tried to run "debug on" first, but it makes no change at all.
+Shall I use some other technique?
+--
+vda
 
-Maybe this is a linux kernel problem.
+#if defined IP_RECVDSTADDR
+# define DSTADDR_SOCKOPT IP_RECVDSTADDR
+# define DSTADDR_DATASIZE (CMSG_SPACE(sizeof(struct in_addr)))
+# define dstaddr(x) (CMSG_DATA(x))
+#elif defined IP_PKTINFO
+# define DSTADDR_SOCKOPT IP_PKTINFO
+# define DSTADDR_DATASIZE (CMSG_SPACE(sizeof(struct in_pktinfo)))
+# define dstaddr(x) (&(((struct in_pktinfo *)(CMSG_DATA(x)))->ipi_addr))
+#else
+# error "can't determine socket option"
+#endif
 
-Any help appreciated !
+int socket_recv4_dst(int s,char *buf,int len,char ip[4],uint16 *port, char ipdst[4])
+{
+  int r;
 
-Regards,
-David Bala¾ic
+  struct iovec iov[1];
+  struct sockaddr_in sa;
+  union control_data cmsg;
+  struct cmsghdr *cmsgptr;
+  struct msghdr msg;
 
-P.S.: It is a Fedora Core 2 system, the exact version numbers are
-grub-0.94-5 , kernel-2.6.5-1.358
+  iov[0].iov_base = buf;
+  iov[0].iov_len = len;
 
-P.P.S.: I know this is Red Hat related, but my question is general : What is
-happening between
-the GRUB "boot" command and linux printing "Uncompressing linux..." ?
-----------------------------------------------------------------------------
------------
-http://noepatents.org/           Innovation, not litigation !
----
-David Balazic                      mailto:david.balazic@hermes.si
-HERMES Softlab                 http://www.hermes-softlab.com
-Zagrebska cesta 104            Phone: +386 2 450 8851 
-SI-2000 Maribor
-Slovenija
-----------------------------------------------------------------------------
------------
-"Be excellent to each other." -
-Bill S. Preston, Esq. & "Ted" Theodore Logan
-----------------------------------------------------------------------------
------------
+  memset(&msg, 0, sizeof msg);
+  msg.msg_name = &sa;
+  msg.msg_namelen = sizeof sa;
+  msg.msg_iov = iov;
+  msg.msg_iovlen = 1;
+  msg.msg_control = &cmsg;
+  msg.msg_controllen = sizeof cmsg;
 
+  { // FIXME: we need to do it ONCE! move it into socket_bind4_dstaddropt()
+    int sockopt;
+    sockopt = 1;
+    if (setsockopt(s, IPPROTO_IP, DSTADDR_SOCKOPT, &sockopt, sizeof sockopt) == -1)
+      return -1;
+  }
 
+  //r = recvfrom(s,buf,len,0,(struct sockaddr *) &sa,&dummy);
+  r = recvmsg(s, &msg, 0);
+  if (r == -1) return -1;
+  // Here we retrieve destination IP and memorize it
+  for (cmsgptr = CMSG_FIRSTHDR(&msg);
+  cmsgptr != NULL;
+  cmsgptr = CMSG_NXTHDR(&msg, cmsgptr)) {
+    if (cmsgptr->cmsg_level == IPPROTO_IP
+    && cmsgptr->cmsg_type == DSTADDR_SOCKOPT) {
+      byte_copy(ipdst,4,(char *) dstaddr(cmsgptr));
+    }
+  }
 
-
-
-
-
+  return r;
+}
 

@@ -1,94 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267607AbUIUMOw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267615AbUIUMVl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267607AbUIUMOw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 08:14:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267619AbUIUMNT
+	id S267615AbUIUMVl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 08:21:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267614AbUIUMVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 08:13:19 -0400
-Received: from dialin-212-144-167-176.arcor-ip.net ([212.144.167.176]:65414
-	"EHLO karin.de.interearth.com") by vger.kernel.org with ESMTP
-	id S267612AbUIUMLQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 08:11:16 -0400
-In-Reply-To: <1095686020.26647.10.camel@localhost.localdomain>
-References: <20040919095857.GD17602@lain.chroot.de> <1095686020.26647.10.camel@localhost.localdomain>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-24--650186704"
-Message-Id: <3153148F-0BC7-11D9-9709-000A958E35DC@fhm.edu>
-Content-Transfer-Encoding: 7bit
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Aiko Barz <aiko@chroot.de>
-From: Daniel Egger <degger@fhm.edu>
-Subject: Re: WRT54G
-Date: Tue, 21 Sep 2004 14:10:13 +0200
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-X-Pgp-Agent: GPGMail 1.0.2
-X-Mailer: Apple Mail (2.619)
+	Tue, 21 Sep 2004 08:21:41 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:15297 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S267612AbUIUMVj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 08:21:39 -0400
+Date: Tue, 21 Sep 2004 13:21:38 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Christoph Hellwig <hch@infradead.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [BK tree] [drm] remove counter macros..
+In-Reply-To: <20040921130936.A22429@infradead.org>
+Message-ID: <Pine.LNX.4.58.0409211316310.22187@skynet>
+References: <Pine.LNX.4.58.0409211148290.22187@skynet> <20040921130936.A22429@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Apple-Mail-24--650186704
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+Well this was only a direct macro removal, I'm contemplating removing the
+counters as to be honest I'm not sure any drm developer as actually used
+them since day one .. (and maybe not even then)... but I'll leave that for
+another time, as there might be a wierd use of them somewhere...
 
-On 20.09.2004, at 15:13, Alan Cox wrote:
+Once I drop the ioctl macro, I'll probably start going back to see what
+stuff is probably not of any use anymore.. (counters are fairly high on
+that list..)..
 
->> This site http://www.linksys.com/support/gpl.asp also implies, that i
->> can redistribute those drivers and firmwares. But it is the same
->> problem with them. Those wrt54g-firmwares also contain non-GPL
->> sourcecodes and binaries.
+Dave.
 
-> It's up to Linksys what license they grant you for their non-free 
-> stuff.
-> If its linked with GPL stuff then it might be GPL because its a
-> derivative work. Sveasoft's only business is code they own the 
-> copyright
-> to themselves and didn't give other people rights to redistribute (or
-> gave them specifically revokable rights to distribute)
+On Tue, 21 Sep 2004, Christoph Hellwig wrote:
 
-IANAL but I'd very calm about this specific threat. Linksys published
-the complete source code to this router product including Makefiles
-to build your own firmware. The only parts which were only delivered
-as binaries are the tools to assemble a firmware, the bootloader and
-the helper code for the OpenSource module controlling the WLAN chipset.
+> While I definitly approve this patch is there a specific reason for this
+> array instead of individual members like
+>
+> 	lock_cnt, open_cnt, close_cnt, etc..?
+>
+> also the optional counters seem to be largely overlapping, why not always
+> all four thta exist and if some drivers don't want to update them they'd
+> just not update them
+>
 
-Most of the software they bundle is GPL (including the kernel, uclibc
-(LGPL), busybox, iptables, dnsmasq...) so Linksys is doing pretty well
-in releasing the source. The also include applications which are
-marked "propietary" but AFAIS they're not linked against any GPLed
-source so I'd consider them still as belonging to Linksys.
-
-IOW if Sveasoft is distributing any *part* of the original firmware
-(and they have to at least for the WLAN interface) they're in
-violation of the GPL *and* (probably illegally) distributing
-propietary applications written or licensed by Linksys. And I really
-doubt they changed the OS to something non-GPLed and use a
-completely different environment.
-
-If I were them I'd rather hide behind rock and hope that noone
-notices that they're violating licenses instead of threatening people.
-
-Servus,
-       Daniel
-
---Apple-Mail-24--650186704
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (Darwin)
-
-iQEVAwUBQVAaJjBkNMiD99JrAQKxXwf+JWD1SLL7CziGy5qZaBlarnuVHAQxKe1C
-rKzE3ACaY1BBmrTfjiy6OAGIpmtgYzkb65VavN5FzAeML9TWSP4idsBnA2cc1cfA
-RTznGYfpadvnIVuWfAMb3LjJUyMynX4AIbLqt30UR25ORuQi86sYE4MYOTPxHqZ5
-+nkpRDLAwjn6nUF8FvzHPghP6SISRUkCIH9Hpvgj9FZKLa1hF+DGwVPRvg+AdwFS
-TOOoocNdGFqro3gwTRQfZevw2acNDgdrUopMBQHfiDv9ISzoNGsOgNKw3p+29J+p
-95JZMXzn7OlpabOHb0zVrTV3OeH8HQW4wBDsRgtJxNNptQ0jbs7+5w==
-=gVEB
------END PGP SIGNATURE-----
-
---Apple-Mail-24--650186704--
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
 

@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266124AbTLIUxq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 15:53:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266125AbTLIUxp
+	id S266112AbTLIUtj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 15:49:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266120AbTLIUti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 15:53:45 -0500
-Received: from main.gmane.org ([80.91.224.249]:47330 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266124AbTLIUxl (ORCPT
+	Tue, 9 Dec 2003 15:49:38 -0500
+Received: from smtp08.iddeo.es ([62.81.186.18]:37078 "EHLO smtp08.retemail.es")
+	by vger.kernel.org with ESMTP id S266112AbTLIUth (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 15:53:41 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
-Date: Tue, 09 Dec 2003 21:53:37 +0100
-Message-ID: <yw1xr7zd1zn2.fsf@kth.se>
-References: <200312081536.26022.andrew@walrond.org> <20031208154256.GV19856@holomorphy.com>
- <3FD4CC7B.8050107@nishanet.com> <20031208233755.GC31370@kroah.com>
- <20031209061728.28bfaf0f.witukind@nsbm.kicks-ass.org>
- <3FD577E7.9040809@nishanet.com>
- <pan.2003.12.09.09.46.27.327988@dungeon.inka.de> <yw1x4qwai8yx.fsf@kth.se>
- <3FD62DB1.7040205@student.canterbury.ac.nz>
+	Tue, 9 Dec 2003 15:49:37 -0500
+Date: Tue, 9 Dec 2003 21:49:27 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
+Subject: Re: ACPI Bug: 2.6.0-test11, Incomplete pci bus scan
+Message-ID: <20031209204927.GA3051@werewolf.able.es>
+References: <BF1FE1855350A0479097B3A0D2A80EE0CC88D4@hdsmsx402.hd.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:FH1u9eWadHum1D5k/lrD9T3dY28=
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE0CC88D4@hdsmsx402.hd.intel.com> (from len.brown@intel.com on Tue, Dec 09, 2003 at 21:28:59 +0100)
+X-Mailer: Balsa 2.0.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Hunt <ojh16@student.canterbury.ac.nz> writes:
 
-> Måns Rullgård wrote:
->
->> Andreas Jellinghaus <aj@dungeon.inka.de> writes:
->>
->>>maybe add this to the faq?
->>>
->>>Q: devfs did load drivers when someone tried to open() a non existing
->>>device. will sysfs/hotplug/udev do this?
->>>
->>>A: there is no need to.
->>
->> I never like it when the answer is "you don't want to do this".  It
->> makes me think of a certain Redmond based company.
->>
-> No... that's MacOS.. it does everything you want it to do... if you
-> think otherwise, you're *wrong*,
+On 12.09, "Brown, Len" wrote:
+> Andrew,
+> This may be a duplicate of a dual P3 serverworks failure:
+> http://bugzilla.kernel.org/show_bug.cgi?id=1585
+> 
+> But as I've got no feedback on that bug, feel free to file a new one --
+> worst case we'll end up closing it as a dupe when we get to the bottom
+> of it.
+> 
 
-Quite true, I've never been able to use the old MacOS for more than a
-few minutes without a total system crash, only fixable by pulling the
-plug.  MacOS is right, I don't want to use it, and it didn't let me.
-Perfect.
-
-> although this isn't as applicable in MacOS X...
-
-It didn't crash, but it made me log out very quickly.
+Sorry, I know, but...
+I have my PhD exam in a couple days, so I have been busy.
+I will work on that again soon, I promise...
+Perhaps if I'm a 'doctor' I can make a better diagnose ;)
 
 -- 
-Måns Rullgård
-mru@kth.se
-
+J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
+werewolf!able!es                         \           It's better when it's free
+Mandrake Linux release 10.0 (Cooker) for i586
+Linux 2.6.0-test11-jam1 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-4mdk))

@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282104AbRKWJtr>; Fri, 23 Nov 2001 04:49:47 -0500
+	id <S282095AbRKWJwh>; Fri, 23 Nov 2001 04:52:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282103AbRKWJtM>; Fri, 23 Nov 2001 04:49:12 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:36110 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S282098AbRKWJsa>;
-	Fri, 23 Nov 2001 04:48:30 -0500
-Date: Fri, 23 Nov 2001 07:48:13 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Jochen Striepe <jochen@tolot.escape.de>
-Cc: rpjday <rpjday@mindspring.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: is 2.4.15 really available at www.kernel.org?
-In-Reply-To: <20011123094313.GB190@tolot.miese-zwerge.org>
-Message-ID: <Pine.LNX.4.33L.0111230747410.4079-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S282106AbRKWJwa>; Fri, 23 Nov 2001 04:52:30 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:20682 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S282095AbRKWJvo>;
+	Fri, 23 Nov 2001 04:51:44 -0500
+Date: Fri, 23 Nov 2001 12:48:42 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Partha Narayanan <partha@us.ibm.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] scheduler cache affinity improvement in 2.4 kernels by
+ Ingo Molnar
+In-Reply-To: <OF130223C2.EFFE9842-ON85256B07.0052CC33@raleigh.ibm.com>
+Message-ID: <Pine.LNX.4.33.0111231247210.3988-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Nov 2001, Jochen Striepe wrote:
 
-> I am *much* more irritated by:
->
-> $ uname -r
-> 2.4.15-greased-turkey
+On Sat, 17 Nov 2001, Partha Narayanan wrote:
 
-Would you really have preferred 2.4.15-sitting-duck  ?
+>      The UniProcessor throughput  was reduced by 40%.
+>      The 4-way throughput showed a very slight degradation of 1%.
+>      The 8-way throughput showed an improvemnet of 10%.
 
-cheers,
+thanks Partha for the measurements. I'll soon post an updated patch that
+also includes some of the suggestions from this list.
 
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
+	Ingo
 

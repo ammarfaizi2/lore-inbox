@@ -1,77 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbTEYBqt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 May 2003 21:46:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbTEYBqt
+	id S261280AbTEYDOS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 May 2003 23:14:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbTEYDOS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 May 2003 21:46:49 -0400
-Received: from RJ193194.user.veloxzone.com.br ([200.165.193.194]:64015 "EHLO
-	pervalidus.tk") by vger.kernel.org with ESMTP id S261265AbTEYBqr
+	Sat, 24 May 2003 23:14:18 -0400
+Received: from nn8.excitenetwork.com ([207.159.120.62]:33363 "EHLO
+	xmxpita.excite.com") by vger.kernel.org with ESMTP id S261280AbTEYDOR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 May 2003 21:46:47 -0400
-Date: Sat, 24 May 2003 22:59:48 -0300 (E. South America Standard Time)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <0@pervalidus.tk>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: What may be causing this ? ext3, hard drive, motherboard ?
-Message-ID: <Pine.WNT.4.55.0305242226390.1388@pervalidus>
-X-X-Sender: fredlwm@fastmail.fm
+	Sat, 24 May 2003 23:14:17 -0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21-rc3 PCMCIA serial_cs.c Reproducible Hang
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: ID = 21f2811f0b913155067498016a2ddcb2
+Reply-To: paragw@excite.com
+From: "Parag Warudkar" <paragw@excite.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: PHP
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20030525032719.AB01DB6B7@xmxpita.excite.com>
+Date: Sat, 24 May 2003 23:27:19 -0400 (EDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-3 days ago I noticed the following:
 
-May 22 00:29:25 pervalidus kernel: eth0: Too much work at interrupt, IntrStatus=0x0001.
-May 22 00:30:00 pervalidus last message repeated 17 times
-May 22 00:30:13 pervalidus last message repeated 5 times
-May 22 00:30:24 pervalidus kernel: eth0: Too much work at interrupt, IntrStatus=0x0001.
-May 22 00:30:33 pervalidus last message repeated 2 times
-May 22 00:30:34 pervalidus last message repeated 2 times
-May 22 00:35:21 pervalidus kernel: EXT3-fs error (device ide0(3,7)): ext3_new_b lock: Allocating block in system zone - block = 1573066
-May 22 00:38:51 pervalidus kernel: EXT3-fs error (device ide0(3,7)): ext3_new_inode: reserved inode or inode > inodes count - block_group = 0,inode=1
-May 22 00:38:51 pervalidus kernel: EXT3-fs error (device ide0(3,7)) in ext3_new_inode: IO failure
+[NOT SUBSCRIBED ]Pls. CC me to all replies.
 
-I was disconnected from the Internet and most commands stopped
-working with "Cannot execute binary file.".
+Using 2.4.21-rc3 - The kernel hangs in the process of booting, (No response to anything - including alt+sysrq) right after starting the PCMCIA service.
+Distro is RH 8.0 and I have CompactModem card in socket 1 -
+Cardctl ident reports this about the card:
+Socket 1:
+  product info: "PRETEC", "CompactModem 3.3V 56K", "021", "A"
+  manfid: 0x0013, 0x0000
+  function: 2 (serial)
+The hang is reproducible - always.
 
->From /var/log/syslog:
+Booting with RH kernel 2.4.20-21 doesn't show this problem.
+Looking at drivers/char/pcmcia there seem to be good amount of
+differences between plain 2.4.20 and 2.4.21-rc3 serial_cs.c.
 
-May 22 00:30:39 pervalidus modprobe: modprobe: Can't locate module binfmt-0804
-May 22 00:31:14 pervalidus last message repeated 26 times
-May 22 00:32:19 pervalidus last message repeated 52 times
-May 22 00:33:24 pervalidus last message repeated 52 times
-May 22 00:34:25 pervalidus last message repeated 52 times
-May 22 00:35:30 pervalidus last message repeated 52 times
-May 22 00:36:35 pervalidus last message repeated 52 times
-May 22 00:37:40 pervalidus last message repeated 52 times
-May 22 00:38:41 pervalidus last message repeated 54 times
-May 22 00:39:46 pervalidus last message repeated 54 times
-May 22 00:40:51 pervalidus last message repeated 54 times
-May 22 00:42:24 pervalidus last message repeated 8 times
+If I go back to serial_cs.c (v1.128) from 2.4.20 and compile it with 2.4.21-rc3, the hang is no longer reproducible. (BTW, serial_cs.c is compiled as a module)
 
-On reboot:
+Will try to narrow down to the change which actually causes the hang in
+2.4.21-rc3, so it can atleast be rolled back or better - fixed in 2.4.21.
 
-May 22 01:01:52 pervalidus kernel: EXT3-fs error (device ide0(3,7)): ext3_new_inode: reserved inode or inode > inodes count - block_group = 0,inode=2
-May 22 01:01:52 pervalidus kernel: EXT3-fs error (device ide0(3,7)) in ext3_new_inode: IO failure
+--
+Parag
 
-I manually ran fsck and it "fixed" (there were some messages
-about duplicate/bad blocks) everything, leaving 3 files I
-recovered in /lost+found, but this undeletable:
 
-br-s--xr-x    1 28260    28532      0,   0 Sep 22  2014 #1570049
 
-#1570049: setuid block special (0/0)
-
-smartmontools doesn't report any errors besides the high
-Hardware_ECC_Recovered, which increased after I ran all
-read-only Maxtor's Powermax tests (from 3 to almost 5 million),
-but the latter didn't find anything wrong either.
-
-Should I replace it ? There was also a crash today on Windows,
-and after using reset the hard drive restarted
-(Start_Stop_Count increased by 1), what it only does when you
-power on or use sleep / wake up.
-
--- 
-0@pervalidus.{tk, dyndns.org}
+_______________________________________________
+Join Excite! - http://www.excite.com
+The most personalized portal on the Web!

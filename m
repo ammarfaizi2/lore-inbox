@@ -1,81 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261530AbUBYSbF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 13:31:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbUBYSbE
+	id S261534AbUBYSee (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 13:34:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261536AbUBYSee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 13:31:04 -0500
-Received: from smtp.golden.net ([199.166.210.31]:35334 "EHLO
-	newsmtp.golden.net") by vger.kernel.org with ESMTP id S261530AbUBYSay
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 13:30:54 -0500
-Date: Wed, 25 Feb 2004 13:30:38 -0500
-From: Paul Mundt <lethal@linux-sh.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: "James H. Cloos Jr." <cloos@jhcloos.com>, linux-kernel@vger.kernel.org
-Subject: Re: make help ARCH=xx fun
-Message-ID: <20040225183038.GA24041@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	Tom Rini <trini@kernel.crashing.org>,
-	"James H. Cloos Jr." <cloos@jhcloos.com>,
-	linux-kernel@vger.kernel.org
-References: <m3y8qwv78e.fsf@lugabout.jhcloos.org> <20040222095021.GB2266@mars.ravnborg.org> <20040224215548.GF1052@smtp.west.cox.net> <20040225190049.GB2474@mars.ravnborg.org> <20040225180858.GW1052@smtp.west.cox.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="M9NhX3UHpAaciwkO"
-Content-Disposition: inline
-In-Reply-To: <20040225180858.GW1052@smtp.west.cox.net>
-User-Agent: Mutt/1.4.1i
+	Wed, 25 Feb 2004 13:34:34 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:29323 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261534AbUBYSd7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 13:33:59 -0500
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Early memory patch, revised
+References: <403ADCDD.8080206@zytor.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 25 Feb 2004 11:26:03 -0700
+In-Reply-To: <403ADCDD.8080206@zytor.com>
+Message-ID: <m1r7wjf22s.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
---M9NhX3UHpAaciwkO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Hi all,
+> 
+> This is the latest version of the i386 early memory cleanup patch.  It has the
+> additional advantage that it removes some of the special casing for VISWS --
+> this is still untested; if you have access to a VISWS *please* test this out.
+> 
+> The main difference other than the VISWS code is that it always sets up the GDT.
+> 
+> I agree with Eric this is a lot cleaner.
 
-On Wed, Feb 25, 2004 at 11:08:59AM -0700, Tom Rini wrote:
-> I can understand that.  How about:
-> for board in arch/$(ARCH)/configs/*defconfig; \
->  do \
->    if [ -f $board ]; then
->     ...
->    fi
->  done
->=20
-Simply just matching on *defconfig should be fine. I already changed this on
-matching defconfig-* for sh to get around matching SCCS.
+Thanks.  :)
 
-> > Also the "- Build for xxxxx" is not good enough.
->=20
-> Erm, it's usually something descriptive enough, if one is firmiliar with
-> the platform / what's intended to build.
->=20
-> > I will try to come up with a patch the uses a file named
-> > arch/$(ARCH)/configs/index.txt
->=20
-> The 'issue' with configs/index.txt, I'll wager, is that for every new
-> board, that's one more file to modify (and thus possibly conflict on).
->=20
-Agreed. The whole reason I did the automated "- Build for foo" thing is that
-it's completely automated, and people building should already know what the=
-ir
-target is (if not, they can look at arch/$(ARCH)/Kconfig and figure it out).
-I suppose it's not particularly descriptive, but it seems more sensible to
-have an abbreviated help text then none whatsoever.
+Two little tweaks I can think of.
+1) Can we reserve space between __bss_stop and _end for the page
+   tables and the bitmap of memory?   
+   
+   This should make it obvious that the early boot code is touching
+   that memory.
 
+2) Can we export _end in setup.S so a bootloader can verify the
+   kernel + bss will fit in memory?
 
---M9NhX3UHpAaciwkO
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Roughly the additions needed to vmlinux.lds.S look like:
++++ arch/i386/kernel/vmlinux.lds.S
+@@ -105,6 +105,18 @@
+ 	
+   __bss_start = .;		/* BSS */
+   .bss : { *(.bss) }
++  . = ALIGN(4);
+   __bss_stop = .; 
++ 
++  /* Reserve space for the initial page tables.
++   * A 1GB kernel needs 1MB of page tables.
++   * We must cover the first 1M ourselves and the initial memory bitmap.
++   * In the worst (1G kernel + 36G of ram) case this increases our
++   * page table size by 3K.
++   */
++  . += (((__bss_stop - _text + 4095) / 4096) + ((4*1024*1024) / 4096)) * 4 ;
++  
++  /* Reserve space for the initial memory bitmap 2^36/4096/8 = 2MB */
++  . += 2*1024*1024;
+ 
+   _end = . ;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQFAPOnO1K+teJFxZ9wRAuo1AJ9bzcpRlDgc4+/FE8xU0TFWXbbodACcDWN3
-uohckYY1qstgj+Ks/x5irt4=
-=2YL5
------END PGP SIGNATURE-----
-
---M9NhX3UHpAaciwkO--
+Eric

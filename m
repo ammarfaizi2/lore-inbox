@@ -1,114 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135844AbRAYSgl>; Thu, 25 Jan 2001 13:36:41 -0500
+	id <S135726AbRAYShv>; Thu, 25 Jan 2001 13:37:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135845AbRAYSgb>; Thu, 25 Jan 2001 13:36:31 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:27150 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S135584AbRAYSgX>;
-	Thu, 25 Jan 2001 13:36:23 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200101251835.VAA09183@ms2.inr.ac.ru>
-Subject: Re: Linux 2.2.16 through 2.2.18preX TCP hang bug triggered by rsync
-To: manfred@colorfullife.com (Manfred Spraul)
-Date: Thu, 25 Jan 2001 21:35:48 +0300 (MSK)
-Cc: davem@redhat.com (Dave Miller), ak@muc.de (Andi Kleen),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3A6F3C4A.27E148E9@colorfullife.com> from "Manfred Spraul" at Jan 24, 1 09:34:18 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S135891AbRAYShm>; Thu, 25 Jan 2001 13:37:42 -0500
+Received: from office.globe.cz ([212.27.204.26]:17417 "HELO gw.office.globe.cz")
+	by vger.kernel.org with SMTP id <S135845AbRAYShZ>;
+	Thu, 25 Jan 2001 13:37:25 -0500
+Received: from ondrej.office.globe.cz (10.1.2.22)
+  by vger.kernel.org with SMTP; 25 Jan 2001 18:37:22 -0000
+To: Tim Fletcher <tim@parrswood.manchester.sch.uk>
+Cc: Chris Mason <mason@suse.com>, <linux-kernel@vger.kernel.org>
+Subject: ACPI error in 2.4.1-pre10 @ via82c686 (Was: 2.4.1-pre10 slowdown at boot.)
+In-Reply-To: <Pine.LNX.4.30.0101251821260.5984-100000@pine.parrswood.manchester.sch.uk>
+From: Ondrej Sury <ondrej@globe.cz>
+Date: 25 Jan 2001 19:37:16 +0100
+In-Reply-To: <Pine.LNX.4.30.0101251821260.5984-100000@pine.parrswood.manchester.sch.uk>
+Message-ID: <874ryn5vhf.fsf@ondrej.office.globe.cz>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
 MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+--=-=-=
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: quoted-printable
 
-I take my words back. Manfred is right, this requirement is not a MUST.
+Tim Fletcher <tim@parrswood.manchester.sch.uk> writes:
 
-Real problem is much worse, and it is wholly on the shame of solaris.
-Tcpdump shows at least two different bugs there.
+> > > Are you using a VIA ide chipset? because a much slower version of the
+> > > driver has been put in recently
+> >
+> > Yes, I am.  Is it THAT slow?  That could be it, I will try to be more
+> > patient on next boot.
+>=20
+> I think that it is a temporey "safe but slow" driver until Vojtech Pavlik
+> gets the driver to a state he and Andre Hendrick are happy with. iirc the
+> driver has dma disabled for all VIA chipsets
 
+I have discovered that it wasn't reiserfs problem.  I have disabled ACPI in
+BIOS and everything is ok.  So I assume that something has changed in ACPI
+between pre9 and pre10 versions and that something is broken in _my_
+system.
 
-  2060  16:31:42.879337 eth0 < dynamic.ih.lucent.com.39406 > static.8664: . 675
-80:67580(0) ack 1582261 win 1460 (DF)
-  2061  16:31:42.907940 eth0 > static.8664 > dynamic.ih.lucent.com.39406: . 158
-3721:1583721(0) ack 67580 win 1460 (DF)
+=2D-=20
+Ond=F8ej Sur=FD <ondrej@globe.cz>         Globe Internet s.r.o. http://glob=
+e.cz/
+Tel: +420235365000   Fax: +420235365009         Pl=E1ni=E8kova 1, 162 00 Pr=
+aha 6
+Mob: +420605204544   ICQ: 24944126             Mapa: http://globe.namape.cz/
+GPG fingerprint:          CC91 8F02 8CDE 911A 933F  AE52 F4E6 6A7C C20D F273
+--=-=-=
+Content-Type: application/pgp-signature
 
-All is OK until now. Solaris's state should be:
+-----BEGIN PGP MESSAGE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Processed by Mailcrypt 3.5.5 and Gnu Privacy Guard <http://www.gnupg.org/>
 
-SND.NXT=SND.UNA=67580
-SND.WND=1460
-RCV.NXT=1582261
-
-  2062  16:31:42.908620 eth0 < dynamic.ih.lucent.com.39406 > static.8664: . 675
-80:67581(1) ack 1583721 win 0 (DF)
-
-Solaris sends one byte.
-
-SND.NXT++
-RCV.NXT=1583721
-
-
-  2063  16:31:43.098761 eth0 > static.8664 > dynamic.ih.lucent.com.39406: . 158
-3721:1583721(0) ack 67581 win 1460 (DF)
-
-We ACK it.
-
-  2064  16:31:43.100993 eth0 < dynamic.ih.lucent.com.39406 > static.8664: P 675
-81:68456(875) ack 1583721 win 0 (DF)
-  2065  16:31:43.101524 eth0 < dynamic.ih.lucent.com.39406 > static.8664: P 684
-56:69041(585) ack 1583721 win 0 (DF)
-
-Solaris sends two segments, filling all the window.
-
-SND.NXT=69041
-
-
-  2066  16:31:43.108759 eth0 > static.8664 > dynamic.ih.lucent.com.39406: . 158
-3720:1583720(0) ack 69041 win 0 (DF)
-
-We send zero window probe. SEG.SEQ=1583720.
-
-Solaris accepts ACK from it!!! (bug #1) But does not accept window.
-
-So, now it thinks that SND.UNA=SND.NXT=69041
-		       SND.WND=1460
-
-State is corrupted.
-
-This is hard bug. But it is still not fatal. Actually, such corruptions
-(but by different reasons) are common with stacks, which borrowed code
-from BSD. Look into tcp-impl, Subj: "Send window update algorithm ..."
-They are recoverable, provided stack is sane.
-
-
-  2067  16:31:43.110623 eth0 < dynamic.ih.lucent.com.39406 > static.8664: P 690
-41:69628(587) ack 1583721 win 0 (DF)
-
-Solaris send some crap out of window, because of corrupted state.
-No problems.
-
-
-  2068  16:31:43.110679 eth0 > static.8664 > dynamic.ih.lucent.com.39406: . 158
-3721:1583721(0) ack 69041 win 0 (DF)
-
-We tell "No pasaran", of course.
-
-According to rules, Solaris must shrink window now.
-This is the only way to recover corrupted state.
-
-
-  2069  16:31:43.111641 eth0 < dynamic.ih.lucent.com.39406 > static.8664: P 696
-28:70501(873) ack 1583721 win 0 (DF)
-
-It does not. And this is point after which recovery is impossible.
-Fatal bug#2.
-
-
-To resume: it is impossible to help to this from Linux side.
-We may accept ACK&WIN from out-of-window segments, and this
-will help in this case _occasionally_. But  Solaris is still
-deemed to lockup randomly with such sawdust in the head.
-
-Alexey
+iEYEARECAAYFAjpwcmEACgkQ9OZqfMIN8nP7KgCfV/FFiws8Yr5uFJJlJzPxCm0c
+KIAAnAmFfTe672JiL7zkk12Qq2GZEziw
+=W6qU
+-----END PGP MESSAGE-----
+--=-=-=--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271837AbRHUT3B>; Tue, 21 Aug 2001 15:29:01 -0400
+	id <S271840AbRHUTmn>; Tue, 21 Aug 2001 15:42:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271836AbRHUT2w>; Tue, 21 Aug 2001 15:28:52 -0400
-Received: from post-10.mail.nl.demon.net ([194.159.73.20]:15347 "EHLO
-	post.mail.nl.demon.net") by vger.kernel.org with ESMTP
-	id <S271835AbRHUT2j>; Tue, 21 Aug 2001 15:28:39 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Eric Jan <fugitive@fugitive.demon.nl>
-Reply-To: fugitive@fugitive.demon.nl
-Organization: Linux
-To: linux-kernel@vger.kernel.org
-Subject: re: bug... fatal error
-Date: Tue, 21 Aug 2001 21:31:46 +0000
-X-Mailer: KMail [version 1.2]
+	id <S271839AbRHUTmd>; Tue, 21 Aug 2001 15:42:33 -0400
+Received: from smtp1.libero.it ([193.70.192.51]:64651 "EHLO smtp1.libero.it")
+	by vger.kernel.org with ESMTP id <S271840AbRHUTmV>;
+	Tue, 21 Aug 2001 15:42:21 -0400
+Message-ID: <3B82B988.50DE308A@iname.com>
+Date: Tue, 21 Aug 2001 21:42:00 +0200
+From: Luca Montecchiani <m.luca@iname.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01082121314601.02208@localhost.localdomain>
-Content-Transfer-Encoding: 8bit
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [FAQ?] More ram=less performance (maximum cacheable RAM)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 August 2001 21:10, Eric Jan wrote:
-> When using "tiny" for taskbar, and auto-hide, selecting/klicking the
-> enlarged first (K) (KDE) icon, after the taskbar goes to (auto)hide, i get
-> a fatal error (black screen,bombs at the bottom) I use Red-Hat 7.1 (no
-> updates). typing root password in req.box, brings me back.
+I've recently updated my K6-2 from 128 to 256mbytes (2x128 pc133 dimms)
+compiling kernel take now 13 minutes instead of 9 minutes :(
 
+Ram is so cheap and socket7 is far from the death, time for a FAQ?
 
-Sorry, for this, tried this again, but its the lock screen function, but this 
-is not onscreen, but it should be, it fooled me....
+Here some description from http://9-muses.com/freak/reviews/super7.shtml :
+The Level2 Cache determines the board's maximum cacheable RAM. 
+Boards equipped with 512k can cache up to 128MB of RAM while
+those equipped with 1MB can handle up to 256MB of RAM. If you're using all
+of the RAM cacheable by the the L2 cache, performance is enhanced. Once you
+go above the maximum cacheable RAM, performance is lost. What this means to
+you is the more cache the better. For some users, 64MB or even 128MB of RAM
+is enough, but who knows, somewhere down the road, you might want to upgrade
+to 256MB. It's nice to know your board can handle the extra memory without
+worrying about losing performance.
 
+More technical information can be found here :
+http://www.pcguide.com/ref/mbsys/cache/char_Cacheability.htm
+
+Patch and other info about non cacheable ram here :
+http://www.keryan.org/brad/slram/
+
+ciao,
+luca
 -- 
+------------------------------------------------------------------
+E-mail......: Luca Montecchiani <m.luca@iname.com>
+W.W.W.......: http://i.am/m.luca - http://luca.myip.org
+Speakfreely.: sflwl -hlwl.fourmilab.ch luca@
+I.C.Q.......: 17655604
+-----------------------=(Linux since 1995)=-----------------------
 
-Eric Jan.
-
-(using RH7.1)
+Non esiste vento favorevole per il marinaio che non sa dove andare
+                                                          Seneca

@@ -1,57 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVBNR2j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbVBNR3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261493AbVBNR2j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 12:28:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbVBNR2j
+	id S261498AbVBNR3J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 12:29:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbVBNR3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 12:28:39 -0500
-Received: from ns9.hostinglmi.net ([213.194.149.146]:33239 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261493AbVBNR2e
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 12:28:34 -0500
-Date: Mon, 14 Feb 2005 18:29:44 +0100
-From: DervishD <lkml@dervishd.net>
-To: "Srinivas G." <srinivasg@esntechnologies.co.in>,
-       linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: How to get the maximum output from dmesg command
-Message-ID: <20050214172944.GA17334@DervishD>
-Mail-Followup-To: "Srinivas G." <srinivasg@esntechnologies.co.in>,
-	linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
-References: <4EE0CBA31942E547B99B3D4BFAB3481134E2AE@mail.esn.co.in> <20050214161950.GA10253@DervishD> <20050214164810.GA12738@ime.usp.br>
+	Mon, 14 Feb 2005 12:29:09 -0500
+Received: from irulan.endorphin.org ([80.68.90.107]:30469 "EHLO
+	irulan.endorphin.org") by vger.kernel.org with ESMTP
+	id S261498AbVBNR26 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 12:28:58 -0500
+Subject: Re: [PATCH 01/04] Adding cipher mode context information to
+	crypto_tfm
+From: Fruhwirth Clemens <clemens@endorphin.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, michal@logix.cz, adam@yggdrasil.com
+In-Reply-To: <20050214090726.2d099d96.davem@davemloft.net>
+References: <Xine.LNX.4.44.0502101247390.9159-100000@thoron.boston.redhat.com>
+	 <1108387234.8086.37.camel@ghanima>
+	 <20050214075655.6dec60cb.davem@davemloft.net>
+	 <1108400799.23133.34.camel@ghanima>
+	 <20050214090726.2d099d96.davem@davemloft.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-7nK3NhocAA8lCOth/lZv"
+Date: Mon, 14 Feb 2005 18:28:55 +0100
+Message-Id: <1108402135.23133.48.camel@ghanima>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050214164810.GA12738@ime.usp.br>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Rogério :)
 
- * Rogério Brito <rbrito@ime.usp.br> dixit:
-> Srinivas G. <srinivasg@esntechnologies.co.in> wrote:
-> > I saw in printk.c file under source directory. There I found LOG_BUF_LEN
-> > is 16384.
-> Sorry if this is obvious, but have you considered using the -s option of
-> dmesg?
+--=-7nK3NhocAA8lCOth/lZv
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-    Of course, there is no point in making your LOG_BUF larger in the
-kernel if dmesg is going to present just 2^14 bytes at most. You have
-to use -s, Srinivas.
+On Mon, 2005-02-14 at 09:07 -0800, David S. Miller wrote:
+> On Mon, 14 Feb 2005 18:06:39 +0100
+> Fruhwirth Clemens <clemens@endorphin.org> wrote:
+>=20
+> > There is nothing wrong with having special methods, that lack generalit=
+y
+> > but are superior in performance. There is something wrong, when there
+> > are no other. And there are no other for holding three kmappings or mor=
+e
+> > concurrently.
+>=20
+> You want more resources in a context where no such thing exists,
+> in interrupt processing context.  There the stack is limited, allocatable
+> memory is limited, etc. etc. etc.  And all of this is because you cannot
+> sleep in interrupt context.
 
-    Raúl Núñez de Arenas Coronado
+I have said nothing about sleeping in interrupt or softirq context.
 
--- 
-Linux Registered User 88736
-http://www.dervishd.net & http://www.pleyades.net/
-It's my PC and I'll cry if I want to...
+First, one has to make kmap fallible. Second, ensure that it does not
+fail often. This can be done by creating a page table pool, where kmap
+can allocate page tables from, when all of the remaining page tables are
+full. The mempool is of course refilled at the next occasion.
+
+For stuff, that cannot be allowed to fail, kmap_atomic is still there.
+--=20
+Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
+
+--=-7nK3NhocAA8lCOth/lZv
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCEN/XbjN8iSMYtrsRAlFcAJ95zvM/FaRHrdZy4KHVmnOCeE54wwCeJBqs
+6vY+6Mp05gopBfEPM0xffJE=
+=b4Xd
+-----END PGP SIGNATURE-----
+
+--=-7nK3NhocAA8lCOth/lZv--

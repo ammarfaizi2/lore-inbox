@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262228AbTCWD0w>; Sat, 22 Mar 2003 22:26:52 -0500
+	id <S262243AbTCWD23>; Sat, 22 Mar 2003 22:28:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262236AbTCWD0w>; Sat, 22 Mar 2003 22:26:52 -0500
-Received: from hiauly1.hia.nrc.ca ([132.246.100.193]:5638 "EHLO
-	hiauly1.hia.nrc.ca") by vger.kernel.org with ESMTP
-	id <S262228AbTCWD0w>; Sat, 22 Mar 2003 22:26:52 -0500
-Message-Id: <200303230337.h2N3bhAC026836@hiauly1.hia.nrc.ca>
-Subject: Re: [parisc-linux] Re: [Linux-ia64] Announce: modutils 2.4.24 is available
-To: kaos@ocs.com.au (Keith Owens)
-Date: Sat, 22 Mar 2003 22:37:43 -0500 (EST)
-From: "John David Anglin" <dave@hiauly1.hia.nrc.ca>
-Cc: willy@debian.org, linux-kernel@vger.kernel.org,
-       parisc-linux@parisc-linux.org
-In-Reply-To: <8755.1048390145@ocs3.intra.ocs.com.au> from "Keith Owens" at Mar 23, 2003 02:29:05 pm
-X-Mailer: ELM [version 2.4 PL25]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S262244AbTCWD23>; Sat, 22 Mar 2003 22:28:29 -0500
+Received: from rth.ninka.net ([216.101.162.244]:43929 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S262243AbTCWD22>;
+	Sat, 22 Mar 2003 22:28:28 -0500
+Subject: Re: smp overhead, and rwlocks considered harmful
+From: "David S. Miller" <davem@redhat.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030322175816.225a1f23.akpm@digeo.com>
+References: <20030322175816.225a1f23.akpm@digeo.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048390771.20776.5.camel@rth.ninka.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 22 Mar 2003 19:39:31 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -#if defined(ARCH_ia64) || defined(ARCH_ppc64)
-> +#if defined(ARCH_ia64) || defined(ARCH_ppc64) || defined(ARCH_hppa64)
->  #define HAS_FUNCTION_DESCRIPTORS
->  #endif
+On Sat, 2003-03-22 at 17:58, Andrew Morton wrote:
+> I've always been a bit skeptical about rwlocks - if you're holding the lock
+> for long enough for a significant amount of reader concurrency, you're
+> holding it for too long.  eg:  tasklist_lock.
 
-The 32-bit hppa port also has function descriptors.
+I totally agree with you Andrew, on modern SMP systems rwlocks
+are basically worthless.  I think we should kill them off and
+convert all instances to spinlocks or some better primitive (perhaps
+a more generalized big reader lock, Roman Zippel had something...)
 
-Dave
 -- 
-J. David Anglin                                  dave.anglin@nrc-cnrc.gc.ca
-National Research Council of Canada              (613) 990-0752 (FAX: 952-6602)
+David S. Miller <davem@redhat.com>

@@ -1,83 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268287AbTAMULC>; Mon, 13 Jan 2003 15:11:02 -0500
+	id <S268285AbTAMUKw>; Mon, 13 Jan 2003 15:10:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268269AbTAMULB>; Mon, 13 Jan 2003 15:11:01 -0500
-Received: from pc-80-192-208-23-mo.blueyonder.co.uk ([80.192.208.23]:21128
-	"EHLO efix.biz") by vger.kernel.org with ESMTP id <S268287AbTAMUKx>;
-	Mon, 13 Jan 2003 15:10:53 -0500
-Subject: Linux 2.4.21-pre3-ac3 and KT400
-From: Edward Tandi <ed@efix.biz>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1042489183.2617.28.camel@wires.home.biz>
+	id <S268269AbTAMUKw>; Mon, 13 Jan 2003 15:10:52 -0500
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:62048 "EHLO w-patman.des")
+	by vger.kernel.org with ESMTP id <S268267AbTAMUKs>;
+	Mon, 13 Jan 2003 15:10:48 -0500
+Date: Mon, 13 Jan 2003 12:16:57 -0800
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Paul Rolland <rol@witbe.net>
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de, rol@as2917.net,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 2.5.56] Scsi not compiling without /proc support
+Message-ID: <20030113121657.A16667@beaverton.ibm.com>
+References: <009001c2ba32$3b4bcdf0$2101a8c0@witbe>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 13 Jan 2003 20:19:43 +0000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <009001c2ba32$3b4bcdf0$2101a8c0@witbe>; from rol@witbe.net on Sun, Jan 12, 2003 at 01:00:42PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm new to this list and most of the e-mail here seems to be very
-low-level, so I'm not so sure if this is the right forum for these kinds
-of questions -please do point me in the right direction...
+On Sun, Jan 12, 2003 at 01:00:42PM +0100, Paul Rolland wrote:
+> Hello,
+> 
+> This quick patch is used to remove calls to functions in charge of
+> registering/unregistering within /proc when /proc support is not
+> enabled.
+> 
+> Paul Rolland, rol@as2917.net
+> 
+> diff -uN linux-2.5.56/drivers/scsi/hosts.c
+> linux-2.5.56-work/drivers/scsi/hosts.c
+> --- linux-2.5.56/drivers/scsi/hosts.c   2003-01-10 21:11:20.000000000
+> +0100
+> +++ linux-2.5.56-work/drivers/scsi/hosts.c      2003-01-12
+> 12:42:59.000000000 +0100
+> @@ -345,7 +345,9 @@
+>         shost->hostt->present--;
+>  
+>         /* Cleanup proc */
+> +#ifdef CONFIG_PROC_FS
+>         scsi_proc_host_rm(shost);
+> +#endif
+>  
+>         kfree(shost);
+>  }
+> @@ -456,7 +458,9 @@
+>  found:
+>         spin_unlock(&scsi_host_list_lock);
+>  
+> +#ifdef CONFIG_PROC_FS
+>         scsi_proc_host_add(shost);
+> +#endif
+>  
+>         shost->eh_notify = &sem;
+>         kernel_thread((int (*)(void *)) scsi_error_handler, (void *)
+> shost, 0);
+> 
 
-I am running Linux on an ASUS A7V8X, VIA KT400 chipset motherboard. The
-processor is a 1.5GHz Athlon XP. I started experimenting with new-ish
-kernels again because of the general lack of kernel support for this
-chipset in stock kernels. 3 questions below:
+Paul -
 
+This should really be:
 
-1) I have 1GB ram, but I cannot get high memory support to work. It
-falls over during boot. I've seen discussions about AMD cache issues,
-but has it been fixed yet? Is it supposed to work?
+--- 1.54/drivers/scsi/scsi.h	Sat Dec 21 08:54:22 2002
++++ edited/drivers/scsi/scsi.h	Mon Jan 13 11:35:11 2003
+@@ -502,8 +502,8 @@
+ static inline void scsi_exit_procfs(void) { ; }
+ static inline void proc_print_scsidevice(Scsi_Device * sdev, char *buffer, int *size, int len) { ; }
+ 
+-static inline void scsi_proc_host_add(struct Scsi_Host *);
+-static inline void scsi_proc_host_rm(struct Scsi_Host *);
++static inline void scsi_proc_host_add(struct Scsi_Host *shost) { ; }
++static inline void scsi_proc_host_rm(struct Scsi_Host *shost) { ; }
+ #endif /* CONFIG_PROC_FS */
+ 
+ /*
 
-
-2) The audio driver. It works and this is the main reason why I use this
-version of the kernel. The issue I have with it, is that if I start
-certain applications (gaim, macromedia flash player 6 for example), esd
-gets itself into some kind of hung/blocked state. When this happens, I
-need to kill -9 esd and re-start it. Games and xmms work however. The
-reason I ask about this is that the downloaded driver from the viaarena
-works on a stock kernel without this glitch. Is this a known problem?
-
-
-3) I get the following messages at boot-time:
-Jan 13 18:23:05 wires kernel: Freeing unused kernel memory: 128k freed
-Jan 13 18:23:05 wires kernel: hda: dma_intr: status=0x51 { DriveReady
-SeekComplete Error }
-Jan 13 18:23:05 wires kernel: hda: dma_intr: error=0x84 {
-DriveStatusError BadCRC }
-Jan 13 18:23:05 wires kernel: hda: dma_intr: status=0x51 { DriveReady
-SeekComplete Error }
-Jan 13 18:23:05 wires kernel: hda: dma_intr: error=0x84 {
-DriveStatusError BadCRC }
-Jan 13 18:23:05 wires kernel: hda: dma_intr: status=0x51 { DriveReady
-SeekComplete Error }
-Jan 13 18:23:05 wires kernel: hda: dma_intr: error=0x84 {
-DriveStatusError BadCRC }
-Jan 13 18:23:05 wires kernel: hda: dma_intr: status=0x51 { DriveReady
-SeekComplete Error }
-Jan 13 18:23:05 wires kernel: hda: dma_intr: error=0x84 {
-DriveStatusError BadCRC }
-Jan 13 18:23:05 wires kernel: blk: queue c0437940, I/O limit 4095Mb
-(mask 0xffffffff)
-Jan 13 18:23:05 wires kernel: hdb: DMA disabled
-Jan 13 18:23:05 wires kernel: ide0: reset: success
-Jan 13 18:23:05 wires kernel: spurious 8259A interrupt: IRQ7.
-
-Naturally, this is quite alarming. Everything works though, so am I safe
-in just ignoring this noise?
-
-
-4) Does anyone know whether I can get the ethernet interface to work
-using stock kernel net device drivers (yes VIA supply the source, but
-I'd rather use stock drivers)? I thought it was the via-rhine driver,
-but it doesn't seem to recognise the chip. Anyone got it working?
-
-
-I'd appreciate some help with this (great) motherboard.
-
-Ed-T.
-
+-- Patrick Mansfield

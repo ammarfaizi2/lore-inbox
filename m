@@ -1,68 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281835AbRKZPoM>; Mon, 26 Nov 2001 10:44:12 -0500
+	id <S281842AbRKZPrx>; Mon, 26 Nov 2001 10:47:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281842AbRKZPoC>; Mon, 26 Nov 2001 10:44:02 -0500
-Received: from abasin.nj.nec.com ([138.15.150.16]:1800 "HELO abasin.nj.nec.com")
-	by vger.kernel.org with SMTP id <S281835AbRKZPnn>;
-	Mon, 26 Nov 2001 10:43:43 -0500
-From: Sven Heinicke <sven@research.nj.nec.com>
+	id <S281894AbRKZPrd>; Mon, 26 Nov 2001 10:47:33 -0500
+Received: from [168.159.129.100] ([168.159.129.100]:3334 "EHLO
+	mxic1.isus.emc.com") by vger.kernel.org with ESMTP
+	id <S281842AbRKZPra>; Mon, 26 Nov 2001 10:47:30 -0500
+Message-ID: <93F527C91A6ED411AFE10050040665D00241AB08@corpusmx1.us.dg.com>
+From: berthiaume_wayne@emc.com
+To: lk@tantalophile.demon.co.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Multicast Broadcast
+Date: Mon, 26 Nov 2001 10:47:11 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15362.25385.224210.438095@abasin.nj.nec.com>
-Date: Mon, 26 Nov 2001 10:43:37 -0500 (EST)
-To: linux-kernel@vger.kernel.org
-Subject: Oops 2.4.15-pre1aa1
-In-Reply-To: <20011116132520.A6204@lucon.org>
-X-Mailer: VM 6.72 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	One potential work-around is a patch to
+net/ipv4/igmp.c:ip_mc_join_group.
+For example:
 
-I came back from my Turkey Day weekend to the following, hand copied
-but I beleive it is accurate:
+#ifdef DUAL_MCAST_BIND
+   if(!imr->imr_ifindex) {
+      imr->ifindex=2;  /* eth0 */
+      err=ip_mc_join_group(sk, imr);
+      if (!err) {
+        imr->ifindex=3; /* eth1 */
+        err=ip_mc_join_group(sk, imr);
+      }
+      return err;
+   }
+#else
+   if(!imr->imr_ifindex)
+     in_dev = ip_mc_find_dev(imr);
+#endif
 
-__alloc_pages: 0-order allocation failed (gfp=0xf0/0)
-__alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
-__alloc_pages: 0-order allocation failed (gfp=0x70/0)
-Unable to handle kernel paging request at virtual address 3cdd5c20
-  Printing eip:
-*pde=00000000
-Oops: 0000
-CPU: 0
-EIP: 0010:[<c01126f8>] Not tainted
-EFLAGS: 00010046
-eax: 00000000 ebx: 3cdd5c20 ecx: 00000000 edx: 3cdd5c20
-esi: 20268f25 edi: c027e000 edp: df065de8 esp: df065dc0
-Process mcrawler (pid: 26574, stockpage=df065000)
-Stack: 00000268 d1b3eec0 c0204468 df064000 fffffc18 00000000 df064000 7fffffff
-       e3c13434 df064000 df065e18 c0112447 dba078e0 c01e7e67 dba078e0 00000000
-       c01eb6f2 d6a078e0 e3c13400 00000246 e3c13434 e3c13434 c02ed300 c01fd05f
-Call Trace: [<c0204468>][<c0112447>][<c01e7e67>][<c01e7e67>][<c01eb6f2>][<c01fd05f>]
-  [<c01fd6cf>][<c02160c9>][<c01e4b31>][<c01292fc>][<c01e4c48>][<c0134d76>]
+	I'm hoping that there is another way.
 
-  [<c0134bc9>][<c0106f1b>]
-Code: 8b 02 89 c3 0f 18 03 81 fa 60 8f 26 c0 0f 85 6a ff ff ff 8b
+Wayne
+EMC Corp
+ObjectStorEngineering
+4400 Computer Drive
+M/S F213
+Westboro,  MA    01580
 
-This system has 4G of memory and two processors.  It was booted on
-November 12th at about 10am and lasted until November 26 at about 5am.
-I was usinmg the aa kernel as the vanilla kernel was freezing up the
-system often with no Oops, and it provided some unwanted swapping.
-The vanilla kernel never lasted more then a few days.
+email:       Berthiaume_Wayne@emc.com
 
-The syslog shows:
+"One man can make a difference, and every man should try."  - JFK
 
-Nov 15 16:04:44 ps1 kernel: __alloc_pages: 0-order allocation failed (gfp=0xf0/0)
-Nov 15 16:04:44 ps1 kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
-Nov 15 16:04:44 ps1 kernel: __alloc_pages: 0-order allocation failed (gfp=0x70/0)
 
-but it lasted happily for days after that with nothing to report.  The
-mcrawler program is a inhouse program that does lots of network IO and
-a good about of disk IO.  It was running for like 5 days when the
-system crashed.
+-----Original Message-----
+From: Jamie Lokier [mailto:lk@tantalophile.demon.co.uk]
+Sent: Friday, November 23, 2001 3:53 PM
+To: berthiaume_wayne@emc.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Multicast Broadcast
 
-I just upgraded to 2.4.15-pre9aa1.  Is there a better kernel to try?
-Might any more information be helpful.
 
-  Sven
+berthiaume_wayne@emc.com wrote:
+> 	I have a cluster that I wish to be able to perform a multicast
+> broadcast over two backbones, primary and secondary, simultaneously. The
+two
+> eth's are bound to the same VIP. When I perform the broadcast, it only
+goes
+> out on eth0. 
+
+I have seen this problem when trying to use an NTP server to multicast
+to two ethernets.  Unfortunately, NTP's output would only send to one of
+the networks (eth0).
+
+I never did find a workaround.
+
+-- Jamie

@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288685AbSA0VQK>; Sun, 27 Jan 2002 16:16:10 -0500
+	id <S288716AbSA0VTB>; Sun, 27 Jan 2002 16:19:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288686AbSA0VQA>; Sun, 27 Jan 2002 16:16:00 -0500
-Received: from zero.tech9.net ([209.61.188.187]:30739 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S288685AbSA0VPq>;
-	Sun, 27 Jan 2002 16:15:46 -0500
-Subject: Re: [CFT] Bus mastering support for IDE CDROM audio
-From: Robert Love <rml@tech9.net>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C5119E0.6E5C45B6@zip.com.au>
-In-Reply-To: <3C5119E0.6E5C45B6@zip.com.au>
-Content-Type: text/plain
+	id <S288686AbSA0VSv>; Sun, 27 Jan 2002 16:18:51 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38922 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288732AbSA0VSj>; Sun, 27 Jan 2002 16:18:39 -0500
+Subject: Re: When will CLONE_THREAD be available in a thread package?
+To: george@mvista.com (george anzinger)
+Date: Sun, 27 Jan 2002 20:56:52 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <3C4C9122.384C675C@mvista.com> from "george anzinger" at Jan 21, 2002 02:07:30 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 27 Jan 2002 16:21:12 -0500
-Message-Id: <1012166472.812.7.camel@phantasy>
-Mime-Version: 1.0
+Message-Id: <E16UwM8-0002hb-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-01-25 at 03:40, Andrew Morton wrote:
-> Reading audio from IDE CDROMs always uses PIO.  This patch
-> teaches the kernel to use DMA for the CDROMREADAUDIO ioctl.
-> [...]
-> This code has not been tested for its effects upon SCSI-based
-> CDROM readers.  It needs to be.
+> A bit off topic, but....
+> 
+> CLONE_THREAD has been in the kernel for a bit, but is their a threads
+> package for user land that uses it?  If not when?
 
-Andrew,
+Right at the moment nothing uses it - and its rather useless. I've been going
+over the small version of the ibm patches which do finally seem to offer a
+way to get the signal behaviour for posix thread crap right without punishing
+sane programming.
 
-I wanted to confirm success of testing the patch with a SCSI CD-ROM
-(Plextor UltraPlex Wide on aic7xxx).  I used your updated patch off your
-website.
-
-Audio rip completed without error.  Performance seems the same, which I
-assume is to be expected with SCSI readers.
-
-	Robert Love
 

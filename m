@@ -1,179 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129440AbRCFTwW>; Tue, 6 Mar 2001 14:52:22 -0500
+	id <S129284AbRCFT4b>; Tue, 6 Mar 2001 14:56:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129446AbRCFTwN>; Tue, 6 Mar 2001 14:52:13 -0500
-Received: from pollux.cse.Buffalo.EDU ([128.205.35.2]:21753 "EHLO
-	pollux.cse.Buffalo.EDU") by vger.kernel.org with ESMTP
-	id <S129440AbRCFTv7>; Tue, 6 Mar 2001 14:51:59 -0500
-Date: Tue, 6 Mar 2001 14:51:34 -0500 (EST)
-From: Jason Rappleye <rappleye@cse.Buffalo.EDU>
-To: linux-kernel@vger.kernel.org
-cc: andre@linux-ide.org, jonesm@ccr.buffalo.edu
-Subject: [RECAP] timeout waiting for DMA
-In-Reply-To: <Pine.GSO.4.21.0102261526330.15135-100000@pollux.cse.Buffalo.EDU>
-Message-ID: <Pine.GSO.4.21.0103061427450.6843-100000@pollux.cse.Buffalo.EDU>
+	id <S129444AbRCFT4X>; Tue, 6 Mar 2001 14:56:23 -0500
+Received: from pop.gmx.net ([194.221.183.20]:49106 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S129284AbRCFT4K>;
+	Tue, 6 Mar 2001 14:56:10 -0500
+Message-ID: <3AA540AD.5BEDF2B0@gmx.de>
+Date: Tue, 06 Mar 2001 20:55:25 +0100
+From: ernte23@gmx.de
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre2 i586)
+X-Accept-Language: de-DE, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: kernel bug
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hello,
 
-Hi,
+I tried the linux 2.4.3-pre2 patch and it crashed like this.
+i do not know what this is about, but maybe it helps someone:
 
-I'd like to thank those who responded to my message. Here's a recap of the
-suggestions and results. My original email appears at the end. For those
-of you that are getting errors that look like this:
+----------
+kernel BUG at page_alloc.c:75!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[__free_pages_ok+62/840]
+EFLAGS: 00010286
+eax: 0000001f   ebx: c11f2fb0   ecx: 00000000   edx: ffffffff
+esi: c11f2fb0   edi: 00000000   ebp: 00000011   esp: c7f9df60
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 3, stackpage=c7f9d000)
+Stack: c01f21e5 c01f2373 0000004b c11f2fd8 c11f2fb0 c0220558 00000011
+c0220558 
+       00000010 c0fa9680 00000003 c0129e79 c012b6ae c012a075 00010f00
+00000000 
+       00000004 00000000 00000000 00000000 00000004 00000000 0000007f
+c012a6f0 
+Call Trace: [page_launder+805/2072] [__free_pages+26/28]
+[page_launder+1313/2072] [do_try_to_free_pages+52/124] [kswapd+115/272]
+[empty_bad_page+0/4096] [kernel_thread+35/48]
+----------
 
-kernel: hda: timeout waiting for DMA 
-kernel: ide_dmaproc: chipset supported ide_dma_timeout func only: 14 
-kernel: hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-kernel: hda: DMA disabled
-
-PLEAE read this and try the suggestions listed before posting here
-again. I'm sure it'll save everyone some time and give the developers more
-valuable feedback than "it doesn't work."
-
--Mark Hahn <hahn@coffee.psychology.mcmaster.ca> :
-
-> Andre says that the problem is that (apparently all) ide busmaster
-> engines share a common flaw: when they starve for PCI access,
-> they glitch.  resetting them is the only solution, and in his latest
-> patches, he has code that does this (without losing the use-dma bit).
-
-So I applied ide.2.4.1-p8-01172001 to 2.4.2, with a reject in the hpt
-source, which _I_ didn't care about (we have Serverworks boards) and
-enabled the "Attempt to HACK around chipsets that TIMEOUT" option (under
-ATA works in progress). This didn't work for me. YMMV.
-
--Jasmeet Sidhu <jsidhu@arraycomm.com>
-> Iv'e seen this on a system with 36" IDE ata/100 cables.  I have the same 
-> exact system using 24" IDE ultra ata/100 cables and I get no such 
-> errors.  These two systems are exactly the same and are using the same 
-> drivers, same hardware.
-> The only difference is the type of cable used.  Could this be due to bad 
-> cables as well?  (I know tha CRC errors are caused by bad cables, but
-> this is the only difference in the two boxes that I have).
-
-> Keep the cables as short as possible, 18" is supposed to be the limit.
-
-Our cables are ~ 12" long, and are sliced up every 5 lines or so to fit
-"neatly" in our 1U cases. So I don't think this is contributing to the
-problem, at least not in our case. Still, a good thing to check.
-
--Daniela Engert <dani@ngrt.de>
-
-> Reduce the IDE channel speed to UltraDMA mode 1 or less.
-
-Both with and without Andre's patch, udma mode 1 and 0 both exhibited the
-same problem. However, switching to mulitword DMA 2 (hdparm -X34 /dev/hdX) 
-worked just fine WITH Andre's patch. Without the patch we still experienced 
-the problem. Hmm...I just got an email saying that the new BIOS for our
-machines disables udma in lieu of PIO mode 4 because it "doesn't work" on
-our boards (Serverworks LE III chipset). Great. So you might have better
-luck with udma 1 and 0 than we are. 
-
-So, at the moment, _I_ personally suggest a) applying Andre's latest ide
-patch, b) trying a lower udma setting or multiword 2 DMA, and c) checking
-your cables. You're not really "losing" performance by dropping down to a
-different udma mode or mword2, since it's certainly better than pio 4 :-)
-
-Andre, I can replicate this behavior 100% of the time, if you need someone
-to do testing let me know, I'm more than happy to help out in any way I
-can. Though I might not be a good candidate due to the damn Serverworks
-chipset :-(
-
-Hope this helps,
-
-j
-
-On Mon, 26 Feb 2001, Jason Rappleye wrote:
-
-> 
-> Hi,
-> 
-> I'm running kernel 2.4.2 on an SGI 1100 (dual PIIIs) with a Serverworks
-> III LE based motherboard. The disk is a Seagate ST330630A. The disk has
-> DMA enabled at boot time :
-> 
-> hda: ST330630A, ATA DISK drive
-> hda: 59777640 sectors (30606 MB) w/2048KiB Cache, CHS=3720/255/63, UDMA(33)
-> 
-> (also verified using hdparm)
-> 
-> but after a while (eg partway through running bonnie with a 1GB file) I
-> get the following errors:
-> 
-> Feb 24 22:51:02 nash2 kernel: hda: timeout waiting for DMA 
-> Feb 24 22:51:02 nash2 kernel: ide_dmaproc: chipset supported ide_dma_timeout 
-> func only: 14 
-> Feb 24 22:51:02 nash2 kernel: hda: irq timeout: status=0x58 { DriveReady
-> SeekComplete DataRequest }
-> <repeats a few times>
-> Feb 24 22:51:32 nash2 kernel: hda: DMA disabled
-> 
-> I can reenable DMA without any problems, but after some additional disk
-> activity (eg running bonnie again), the error occurs again. 
-> 
-> Additional information on my hardware is given below. Any suggestions on
-> how this can be resolved?
-> 
-> Thanks,
-> 
-> Jason
-> 
-> hdparm -i /dev/hda
-> 
-> /dev/hda:
-> 
->  Model=ST330630A, FwRev=3.21, SerialNo=3CK0JDFE
->  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs RotSpdTol>.5% }
->  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=0
->  BuffType=0(?), BuffSize=2048kB, MaxMultSect=16, MultSect=off
->  DblWordIO=no, OldPIO=2, DMA=yes, OldDMA=2
->  CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=59777640
->  tDMA={min:120,rec:120}, DMA modes: mword0 mword1 mword2 
->  IORDY=on/off, tPIO={min:240,w/IORDY:120}, PIO modes: mode3 mode4 
->  UDMA modes: mode0 mode1 *mode2 mode3 mode4 
-> 
-> Relevant portion of /proc/pci:
-> 
->   Bus  0, device  15, function  1:
->     IDE interface: PCI device 1166:0211 (ServerWorks) (rev 0).
->       Master Capable.  Latency=64.  
->       I/O at 0x3080 [0x308f].
-> 
-> Relevant portion of lspci -v:
-> 
-> 00:0f.1 IDE interface: Relience Computer: Unknown device 0211 (prog-if 8a
-> [Master SecP PriP])
-> 	Flags: bus master, medium devsel, latency 64
-> 	I/O ports at 3080 [size=16]
-> 
-> 
-> --
-> Jason Rappleye
-> rappleye@buffalo.edu		
-> http://www.ccr.buffalo.edu/jason.htm
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
---
-Jason Rappleye
-rappleye@buffalo.edu		
-http://www.ccr.buffalo.edu/jason.htm
+/proc/pci: PCI devices found:
+  Bus  0, device   0, function  0:
+    Host bridge: VIA Technologies, Inc. VT82C597 [Apollo VP3] (rev 4).
+      Master Capable.  Latency=16.  
+      Prefetchable 32 bit memory at 0xe0000000 [0xe3ffffff].
+  Bus  0, device   1, function  0:
+    PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo
+MVP3/Pro133x AGP] (rev 0).
+      Master Capable.  No bursts.  Min Gnt=12.
+  Bus  0, device   7, function  0:
+    ISA bridge: VIA Technologies, Inc. VT82C586/A/B PCI-to-ISA [Apollo
+VP] (rev 71).
+  Bus  0, device   7, function  1:
+    IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 6).
+      Master Capable.  Latency=64.  
+      I/O at 0xf000 [0xf00f].
+  Bus  0, device   7, function  3:
+    Host bridge: VIA Technologies, Inc. VT82C586B ACPI (rev 16).
+  Bus  0, device   8, function  0:
+    Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 2).
+      IRQ 11.
+      Master Capable.  Latency=64.  Min Gnt=12.Max Lat=128.
+      I/O at 0xd400 [0xd43f].
+  Bus  0, device   9, function  0:
+    Network controller: AVM Audiovisuelles MKTG & Computer System GmbH
+A1 ISDN [Fritz] (rev 2).
+      IRQ 10.
+      Non-prefetchable 32 bit memory at 0xea001000 [0xea00101f].
+      I/O at 0xd800 [0xd81f].
+  Bus  0, device  10, function  0:
+    SCSI storage controller: Symbios Logic Inc. (formerly NCR) 53c895
+(rev 1).
+      IRQ 5.
+      Master Capable.  Latency=64.  Min Gnt=30.Max Lat=64.
+      I/O at 0xdc00 [0xdcff].
+      Non-prefetchable 32 bit memory at 0xea003000 [0xea0030ff].
+      Non-prefetchable 32 bit memory at 0xea000000 [0xea000fff].
+  Bus  0, device  11, function  0:
+    Ethernet controller: VIA Technologies, Inc. Ethernet Controller (rev
+66).
+      IRQ 7.
+      Master Capable.  Latency=64.  Min Gnt=3.Max Lat=8.
+      I/O at 0xe000 [0xe0ff].
+      Non-prefetchable 32 bit memory at 0xea002000 [0xea0020ff].
+  Bus  1, device   0, function  0:
+    VGA compatible controller: nVidia Corporation Riva TnT2 [NV5] (rev
+21).
+      IRQ 11.
+      Master Capable.  Latency=64.  Min Gnt=5.Max Lat=1.
+      Non-prefetchable 32 bit memory at 0xe4000000 [0xe4ffffff].
+      Prefetchable 32 bit memory at 0xe6000000 [0xe7ffffff].
 
 
-
-
-
-
-
-
+thank you,
+Felix T.
 

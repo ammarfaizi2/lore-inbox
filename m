@@ -1,47 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135345AbRDRVID>; Wed, 18 Apr 2001 17:08:03 -0400
+	id <S135354AbRDRVeH>; Wed, 18 Apr 2001 17:34:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135348AbRDRVHx>; Wed, 18 Apr 2001 17:07:53 -0400
-Received: from cr5112-a.ktchnr1.on.wave.home.com ([24.112.107.106]:44281 "EHLO
-	insight.worldvisions.ca") by vger.kernel.org with ESMTP
-	id <S135345AbRDRVHu>; Wed, 18 Apr 2001 17:07:50 -0400
-Date: Wed, 18 Apr 2001 17:05:32 -0400
-From: Avery Pennarun <apenwarr@worldvisions.ca>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: John Fremlin <chief@bandits.org>, sfr@linuxcare.com.au,
-        linux-kernel@vger.kernel.org
-Subject: Re: Let init know user wants to shutdown
-Message-ID: <20010418170532.A6306@worldvisions.ca>
-In-Reply-To: <m27l0i58i3.fsf@boreas.yi.org.> <E14pyHg-0005cJ-00@the-village.bc.nu>
+	id <S135357AbRDRVd5>; Wed, 18 Apr 2001 17:33:57 -0400
+Received: from D8FA50AA.ptr.dia.nextlink.net ([216.250.80.170]:65008 "EHLO
+	tetsuo.applianceware.com") by vger.kernel.org with ESMTP
+	id <S135354AbRDRVdr>; Wed, 18 Apr 2001 17:33:47 -0400
+Date: Wed, 18 Apr 2001 14:33:16 -0700
+From: Mike Panetta <mpanetta@applianceware.com>
+To: linux-kernel@vger.kernel.org
+Subject: kernel panic when using loop device on kernel 2.4.3
+Message-ID: <20010418143316.A955@tetsuo.applianceware.com>
+Mail-Followup-To: Mike Panetta <mpanetta@applianceware.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="W/nzBZO5zC0uMSeA"
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <E14pyHg-0005cJ-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Apr 18, 2001 at 09:10:37PM +0100
+User-Agent: Mutt/1.2.5i
+Organization: ApplianceWare
+X-Mailer: mutt (ruff!  ruff!)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 18, 2001 at 09:10:37PM +0100, Alan Cox wrote:
 
-> > willing to exercise this power. We would not break compatibility with
-> > any std kernel by instead having a apmd send a "reject all" ioctl
-> > instead, and so deal with events without having the pressure of having
-> > to reject or accept them, and let us remove all the veto code from the
-> > kernel driver. Or am I missing something?
-> 
-> That sounds workable. But the same program could reply to the events just
-> as well as issue the ioctl 8)
+--W/nzBZO5zC0uMSeA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-AFAICT some APM BIOSes get impatient if you don't acknowledge/reject the
-requests fast enough, and start to go bananas.  By always rejecting requests
-and then making user requests instead at some time later, we might eliminate
-this problem (or just cause new ones).
+I have been getting kernel panics on kernel 2.4.3
+when using the loop device on a rather regular basis.
+I get a kernel panic but no oops message.  The kernel
+panic message says Kernel panic: invalid blocksize passed
+to set_blocksize.  I saw that someone else on the list
+has had these problems as well but I have seen no response.
+Has a fix for this bug been posted that I have not seen?
+Is the fix in any current stable or AC kernel?  As far as
+I know I am not using any strange options.  The only thing
+I can think of would be that multiple people are using the
+loopback device at the same time.  This is because the box
+that is having the problems is a build server for a custom
+software distro.  We use the loopback filesystem to create
+the boot image.  The box is a 4way xeon with 1GB of ram.
+Are there any known issues with loopback and SMP?  Or even
+loopback and multiple mounts/usage?
 
-Also, I don't think the "critical suspend" message can be rejected at all,
-so it would have to be a special case where currently I don't think it's too
-bad.
+ver_linux output attached.
 
-Have fun,
+Thanks,
+Mike
+-- 
 
-Avery
+--W/nzBZO5zC0uMSeA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=ver-linux
+
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+ 
+Linux optimus.applianceware.com 2.4.3 #2 SMP Wed Apr 18 06:00:29 PDT 2001 i686 unknown
+ 
+Gnu C                  2.96
+Gnu make               3.79.1
+binutils               2.10.91.0.2
+util-linux             2.10r
+modutils               2.4.2
+e2fsprogs              1.19
+reiserfsprogs          3.x.0b
+Linux C Library        2.2.2
+Dynamic linker (ldd)   2.2.2
+Procps                 2.0.7
+Net-tools              1.57
+Console-tools          0.3.3
+Sh-utils               2.0
+Modules Loaded         
+
+--W/nzBZO5zC0uMSeA--

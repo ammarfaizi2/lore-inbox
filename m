@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266477AbUH0JeA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266085AbUH0Jdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266477AbUH0JeA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 05:34:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269384AbUH0J2l
+	id S266085AbUH0Jdh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 05:33:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269382AbUH0JZD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 05:28:41 -0400
-Received: from web41504.mail.yahoo.com ([66.218.93.87]:52120 "HELO
-	web41504.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S269388AbUH0J0H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 05:26:07 -0400
-Message-ID: <20040827092605.63433.qmail@web41504.mail.yahoo.com>
-Date: Fri, 27 Aug 2004 10:26:05 +0100 (BST)
-From: =?iso-8859-1?q?Arne=20Henrichsen?= <ahenric@yahoo.com>
-Subject: Re: sys_sem* undefined
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040826092825.0fc2eeb9.rddunlap@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 27 Aug 2004 05:25:03 -0400
+Received: from nysv.org ([213.157.66.145]:19610 "EHLO nysv.org")
+	by vger.kernel.org with ESMTP id S269386AbUH0JVk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 05:21:40 -0400
+Date: Fri, 27 Aug 2004 12:19:54 +0300
+To: Hans Reiser <reiser@namesys.com>, Jamie Lokier <jamie@shareable.org>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040827091954.GZ1284@nysv.org>
+References: <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org> <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk> <20040826001152.GB23423@mail.shareable.org> <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk> <20040826010049.GA24731@mail.shareable.org> <412DA40B.5040806@namesys.com> <20040826183532.GP1501@ca-server1.us.oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040826183532.GP1501@ca-server1.us.oracle.com>
+User-Agent: Mutt/1.5.6i
+From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From an application (userspace) or from inside the
-> kernel?
+On Thu, Aug 26, 2004 at 11:35:32AM -0700, Joel Becker wrote:
+>	Question:  Is "cat /foo/bar/baz.tar.gz/metas" the attribute
+>directory or a directory in the tarball named "metas"?
 
-I need to do the syscalls from kernel space. Basically
-I am porting our custom vxWorks driver to Linux. We
-want to basically keep the structure of the vxWorks
-driver the same, so I am porting the individual
-vxWorks functions such as semBcreate, semGive etc.
-Thats why I want to use the SysV IPC semaphores, as
-they seem to most closely resemble the vxWorks ones. I
-know that there are much better ways of writing a
-driver, but that wouldn't fit in with the currect
-structure we have at the moment.
+This has been fought over on the reiserfs-list ad nauseaum, but
+it's a valid point.
 
-Now if I want to call lets say sys_semget() from
-kernel space, must I use the _syscall3() function? I
-saw some people using this. 
+That's why I tend to rename metas/ into ..metas/ to avoid
+name clashes, even if I've never had a directory named metas/
+apart from what Reiser4 ships.
 
-Thanks for the help.
-Arne
+It is then debatable if it should be renamed before it's too
+late, have it renamable in the kernel configs (and the name
+exported via /sys or something) or just leave it be.
 
+-- 
+mjt
 
-	
-	
-		
-___________________________________________________________ALL-NEW Yahoo! Messenger - all new features - even more fun!  http://uk.messenger.yahoo.com

@@ -1,104 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261733AbVANAYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVAMVDH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261733AbVANAYa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 19:24:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVANAWc
+	id S261683AbVAMVDH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 16:03:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbVAMVAD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 19:22:32 -0500
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:33709 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261733AbVANASR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 19:18:17 -0500
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: blaisorblade_spam@yahoo.it
-Subject: Re: [patch 02/11] uml: fix compilation for missing headers
-Date: Fri, 14 Jan 2005 01:20:43 +0100
-User-Agent: KMail/1.7.1
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, jdike@addtoit.com,
-       user-mode-linux-devel@lists.sourceforge.net
-References: <20050113210051.99326AB30@zion>
-In-Reply-To: <20050113210051.99326AB30@zion>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Thu, 13 Jan 2005 16:00:03 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:13242 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261438AbVAMUz6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 15:55:58 -0500
+Subject: Re: [PATCH] release_pcibus_dev() crash
+From: John Rose <johnrose@austin.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050113202532.GA30780@kroah.com>
+References: <1105576756.8062.17.camel@sinatra.austin.ibm.com>
+	 <1105638551.30960.16.camel@sinatra.austin.ibm.com>
+	 <20050113181850.GA24952@kroah.com>
+	 <200501131021.19434.jbarnes@engr.sgi.com>
+	 <20050113183729.GA25049@kroah.com>
+	 <1105647135.30960.22.camel@sinatra.austin.ibm.com>
+	 <20050113202532.GA30780@kroah.com>
+Content-Type: text/plain
+Message-Id: <1105649679.30960.27.camel@sinatra.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 13 Jan 2005 14:54:39 -0600
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501140120.44329.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, I reposted the same patch inside the bunch of ones, hope it's not a 
-problem. However, I've seen some more problems which I didn't fix in the 
-patch:
-> +#if 0
->  #define LAST_GENERIC_SYSCALL __NR_vperfctr_read
-> +#else
-> +#define LAST_GENERIC_SYSCALL __NR_keyctl
-> +#endif
->
->  #if LAST_GENERIC_SYSCALL > LAST_ARCH_SYSCALL
->  #define LAST_SYSCALL LAST_GENERIC_SYSCALL
-> @@ -54,11 +58,14 @@ extern syscall_handler_t sys_get_mempoli
->  extern syscall_handler_t sys_set_mempolicy;
->  extern syscall_handler_t sys_sys_kexec_load;
->  extern syscall_handler_t sys_sys_setaltroot;
-> +
-> +#if 0
->  extern syscall_handler_t sys_vperfctr_open;
->  extern syscall_handler_t sys_vperfctr_control;
->  extern syscall_handler_t sys_vperfctr_unlink;
->  extern syscall_handler_t sys_vperfctr_iresume;
->  extern syscall_handler_t sys_vperfctr_read;
-> +#endif
->
->  syscall_handler_t *sys_call_table[] = {
->   [ __NR_restart_syscall ] = (syscall_handler_t *) sys_restart_syscall,
-> @@ -273,7 +280,10 @@ syscall_handler_t *sys_call_table[] = {
->   [ __NR_mq_timedreceive ] = (syscall_handler_t *) sys_mq_timedreceive,
->   [ __NR_mq_notify ] = (syscall_handler_t *) sys_mq_notify,
->   [ __NR_mq_getsetattr ] = (syscall_handler_t *) sys_mq_getsetattr,
-> +#if 0
->   [ __NR_sys_kexec_load ] = (syscall_handler_t *) sys_kexec_load,
-> +#endif
-> + [ __NR_sys_kexec_load ] = (syscall_handler_t *) sys_ni_syscall,
->   [ __NR_waitid ] = (syscall_handler_t *) sys_waitid,
->  #if 0
->   [ __NR_sys_setaltroot ] = (syscall_handler_t *) sys_sys_setaltroot,
-This is left alone, but this way, the "285" syscall is not set at all, while 
-it should be sys_ni_syscall like for what I commented out (apart the ones at 
-the end).
-> @@ -281,11 +291,14 @@ syscall_handler_t *sys_call_table[] = {
->   [ __NR_add_key ] = (syscall_handler_t *) sys_add_key,
->   [ __NR_request_key ] = (syscall_handler_t *) sys_request_key,
->   [ __NR_keyctl ] = (syscall_handler_t *) sys_keyctl,
-> + /* These syscalls are still in -mm only*/
-> +#if 0
->   [ __NR_vperfctr_open ] = (syscall_handler_t *) sys_vperfctr_open,
->   [ __NR_vperfctr_control ] = (syscall_handler_t *) sys_vperfctr_control,
->   [ __NR_vperfctr_unlink ] = (syscall_handler_t *) sys_vperfctr_unlink,
->   [ __NR_vperfctr_iresume ] = (syscall_handler_t *) sys_vperfctr_iresume,
->   [ __NR_vperfctr_read ] = (syscall_handler_t *) sys_vperfctr_read,
-> +#endif
->
->   ARCH_SYSCALLS
->   [ LAST_SYSCALL + 1 ... NR_syscalls ] =
-> _
-While looking at the unistd.h code, I discovered another bug (for i386) - I'm 
-posting it here to avoid forgetting it:
+> Care to redo this?
 
-/*
- * user-visible error numbers are in the range -1 - -128: see
- * <asm-i386/errno.h>
- */
+Good points.  How's this:
 
-But in include/asm-generic/errno.h, there is a problem:
+Signed-off-by: John Rose <johnrose@austin.ibm.com>
 
-#define EKEYREVOKED     128     /* Key has been revoked */
-#define EKEYREJECTED    129     /* Key was rejected by service */
+diff -puN drivers/pci/probe.c~01_release_pcibus_dev drivers/pci/probe.c
+--- 2_6_linus_2/drivers/pci/probe.c~01_release_pcibus_dev	2005-01-13 14:49:21.000000000 -0600
++++ 2_6_linus_2-johnrose/drivers/pci/probe.c	2005-01-13 14:49:21.000000000 -0600
+@@ -70,7 +70,7 @@ static void pci_remove_legacy_files(stru
+ }
+ #else /* !HAVE_PCI_LEGACY */
+ static inline void pci_create_legacy_files(struct pci_bus *bus) { return; }
+-static inline void pci_remove_legacy_files(struct pci_bus *bus) { return; }
++void pci_remove_legacy_files(struct pci_bus *bus) { return; }
+ #endif /* HAVE_PCI_LEGACY */
+ 
+ /*
+@@ -86,7 +86,7 @@ static ssize_t pci_bus_show_cpuaffinity(
+ 		buf[ret++] = '\n';
+ 	return ret;
+ }
+-static CLASS_DEVICE_ATTR(cpuaffinity, S_IRUGO, pci_bus_show_cpuaffinity, NULL);
++CLASS_DEVICE_ATTR(cpuaffinity, S_IRUGO, pci_bus_show_cpuaffinity, NULL);
+ 
+ /*
+  * PCI Bus Class
+@@ -95,10 +95,6 @@ static void release_pcibus_dev(struct cl
+ {
+ 	struct pci_bus *pci_bus = to_pci_bus(class_dev);
+ 
+-	pci_remove_legacy_files(pci_bus);
+-	class_device_remove_file(&pci_bus->class_dev,
+-				 &class_device_attr_cpuaffinity);
+-	sysfs_remove_link(&pci_bus->class_dev.kobj, "bridge");
+ 	if (pci_bus->bridge)
+ 		put_device(pci_bus->bridge);
+ 	kfree(pci_bus);
+diff -puN drivers/pci/remove.c~01_release_pcibus_dev drivers/pci/remove.c
+--- 2_6_linus_2/drivers/pci/remove.c~01_release_pcibus_dev	2005-01-13 14:49:21.000000000 -0600
++++ 2_6_linus_2-johnrose/drivers/pci/remove.c	2005-01-13 14:49:21.000000000 -0600
+@@ -61,15 +61,18 @@ int pci_remove_device_safe(struct pci_de
+ }
+ EXPORT_SYMBOL(pci_remove_device_safe);
+ 
+-void pci_remove_bus(struct pci_bus *b)
++void pci_remove_bus(struct pci_bus *pci_bus)
+ {
+-	pci_proc_detach_bus(b);
++	pci_proc_detach_bus(pci_bus);
+ 
+ 	spin_lock(&pci_bus_lock);
+-	list_del(&b->node);
++	list_del(&pci_bus->node);
+ 	spin_unlock(&pci_bus_lock);
+-
+-	class_device_unregister(&b->class_dev);
++	pci_remove_legacy_files(pci_bus);
++	class_device_remove_file(&pci_bus->class_dev,
++		&class_device_attr_cpuaffinity);
++	sysfs_remove_link(&pci_bus->class_dev.kobj, "bridge");
++	class_device_unregister(&pci_bus->class_dev);
+ }
+ EXPORT_SYMBOL(pci_remove_bus);
+ 
+diff -puN drivers/pci/pci.h~01_release_pcibus_dev drivers/pci/pci.h
+--- 2_6_linus_2/drivers/pci/pci.h~01_release_pcibus_dev	2005-01-13 14:49:21.000000000 -0600
++++ 2_6_linus_2-johnrose/drivers/pci/pci.h	2005-01-13 14:50:06.000000000 -0600
+@@ -59,12 +59,14 @@ struct pci_visit {
+ extern int pci_visit_dev(struct pci_visit *fn,
+ 			 struct pci_dev_wrapped *wrapped_dev,
+ 			 struct pci_bus_wrapped *wrapped_parent);
++extern void pci_remove_legacy_files(struct pci_bus *bus);
+ 
+ /* Lock for read/write access to pci device and bus lists */
+ extern spinlock_t pci_bus_lock;
+ 
+ extern int pcie_mch_quirk;
+ extern struct device_attribute pci_dev_attrs[];
++extern struct class_device_attribute class_device_attr_cpuaffinity;
+ 
+ /**
+  * pci_match_one_device - Tell if a PCI device structure has a matching
 
-I.e. the range has changed...
-I think that the max errno value should become a macro defined in errno.h.
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-http://www.user-mode-linux.org/~blaisorblade
+_
+
+

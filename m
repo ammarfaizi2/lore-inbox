@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262742AbREVTgT>; Tue, 22 May 2001 15:36:19 -0400
+	id <S262744AbREVThT>; Tue, 22 May 2001 15:37:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262745AbREVTf7>; Tue, 22 May 2001 15:35:59 -0400
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:55575 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S262742AbREVTfv>; Tue, 22 May 2001 15:35:51 -0400
-Date: Tue, 22 May 2001 14:35:42 -0500 (CDT)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Dax Kelson <dax@gurulabs.com>, linux-kernel@vger.kernel.org
-Subject: Re: Xircom RealPort versus 3COM 3C3FEM656C
-In-Reply-To: <E152HYH-0002LB-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.96.1010522143239.29188A-100000@mandrakesoft.mandrakesoft.com>
+	id <S262747AbREVThJ>; Tue, 22 May 2001 15:37:09 -0400
+Received: from waste.org ([209.173.204.2]:31748 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S262744AbREVThF>;
+	Tue, 22 May 2001 15:37:05 -0400
+Date: Tue, 22 May 2001 14:38:27 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Guest section DW <dwguest@win.tue.nl>
+cc: Anton Altaparmakov <aia21@cam.ac.uk>, Alexander Viro <viro@math.psu.edu>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] struct char_device
+In-Reply-To: <20010522212238.A11203@win.tue.nl>
+Message-ID: <Pine.LNX.4.30.0105221427320.19818-100000@waste.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 May 2001, Alan Cox wrote:
+On Tue, 22 May 2001, Guest section DW wrote:
 
-> > I currently have three Xircom RealPort Carbus modem/fast ethernet cards.
-> > The current driver blows major chunks (it has very poor performance, and
-> > stops working under load).  I'm told the driver issues are because of
-> > hardware issues. The really nice feature of this card is the form factor
-> > though.
-> 
-> Before you give up on the xircom thing, try the -ac kernel and set the box
-> up to use xircom_cb not xircom_tulip_cb
-> 
-> That might help a lot
+> On Tue, May 22, 2001 at 11:08:16AM -0500, Oliver Xymoron wrote:
+>
+> > > >+       struct list_head        hash;
+>
+> > > Why not name consistently with the struct block_device?
+> > >          struct list_head        cd_hash;
+>
+> > Because foo_ is a throwback to the days when C compilers had a single
+> > namespace for all structure elements, not a readability aid. If you need
+> > foo_ to know what type of structure you're futzing with, you need to name
+> > your variables better.
+>
+> One often has to go through all occurrences of a variable or
+> field of a struct. That is much easier with cd_hash and cd_dev
+> than with hash and dev.
+>
+> No, it is a good habit, these prefixes, even though it is no longer
+> necessary because of the C compiler.
 
-Note that the reason why xircom_cb for all cases is that it sets the
-card into promisc mode, in all cases.  This punishes your CPU and laptop
-battery on a loaded network.
+A better habit is encapsulating your data structures well enough that the
+entire kernel doesn't feel the need to go digging through them. The fact
+that you have to change many widely-scattered instances of something
+points to bad modularity. Supporting that practice with verbose naming is
+not doing yourself a favor in the long run.
 
-Promisc mode is required because (AFAIK) Xircoms under the same PCI id
-can use any one of three setup frame formats, and only one format is
-known.
+If you must, use accessor functions instead. At best you'll be able to
+make sweeping semantic changes in one spot. At worst, you'll be able to
+grep for it.
 
-So, you are right, xircom_cb will help a lot in most cases, but the
-hardware sucks.  I recommend avoiding it...
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
-	Jeff
-
-
-P.S. If anybody knows Xircom engineers, we would love a tech contact...
 

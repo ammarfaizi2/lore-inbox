@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312488AbSCYSbI>; Mon, 25 Mar 2002 13:31:08 -0500
+	id <S312491AbSCYSf2>; Mon, 25 Mar 2002 13:35:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312490AbSCYSa6>; Mon, 25 Mar 2002 13:30:58 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:43278 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S312488AbSCYSaw>;
-	Mon, 25 Mar 2002 13:30:52 -0500
-Date: Mon, 25 Mar 2002 10:30:11 -0800
-From: Greg KH <greg@kroah.com>
-To: Jan-Marek Glogowski <glogow@stud.fbi.fh-darmstadt.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB Microsoft Natural KeyB not recogniced as a HID device
-Message-ID: <20020325183011.GA29011@kroah.com>
-In-Reply-To: <Pine.LNX.4.30.0203251825130.29093-600000@stud.fbi.fh-darmstadt.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Mon, 25 Feb 2002 16:24:10 -0800
+	id <S312490AbSCYSfT>; Mon, 25 Mar 2002 13:35:19 -0500
+Received: from stat8.steeleye.com ([63.113.59.41]:11527 "EHLO
+	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id <S312491AbSCYSfA>; Mon, 25 Mar 2002 13:35:00 -0500
+Date: Mon, 25 Mar 2002 13:33:02 -0500 (EST)
+From: Paul Clements <kernel@steeleye.com>
+Reply-To: Paul.Clements@steeleye.com
+To: Andrew Morton <akpm@zip.com.au>
+cc: Neil Brown <neilb@cse.unsw.edu.au>,
+        Paul Clements <Paul.Clements@steeleye.com>, marcelo@conectiva.com.br,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.18 raid1 - fix SMP locking/interrupt errors, fix
+ resync  counter errors
+In-Reply-To: <3C9E6014.BB3DE865@zip.com.au>
+Message-ID: <Pine.LNX.4.10.10203251324570.5915-100000@clements.sc.steeleye.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 25, 2002 at 06:57:59PM +0100, Jan-Marek Glogowski wrote:
-> Hi
-> 
-> I have a problem with my Microsoft Natural USB Keyboard.
-> 
-> Since I moved from kernel 2.4.18-rc2-ac1 to 2.4.19-pre3-ac6 the keybord
-> isn't recogniced as a HID device anymore and I just get an error message,
-> when I reconnect it. The usb driver finds the integrated hub but not the
-> keyboard itself.
+On Sun, 24 Mar 2002, Andrew Morton wrote:
 
-Can you try the patches at:
-	http://marc.theaimsgroup.com/?l=linux-usb-devel&m=101684196109355
-and also:
-	http://marc.theaimsgroup.com/?l=linux-usb-devel&m=101684207509482
+> However a bare spin_unlock_irq() in a function means that
+> callers which wish to keep interrupts disabled are subtly
+> subverted.   We've had bugs from this before.
 
-And let us know if they help you out?
+Yes, that was precisely what was happening in raid1. There were
+"nested" spin_lock_irq() calls.
 
-If not, try renaming 'usbmodules' on your box to something else (like
-'usbmodules.orig' and seeing if that solves your problem?
+> So the irqrestore functions are much more robust.  I believe
+> that they should be the default choice.  The non-restore
+> versions should be viewed as a micro-optimised version,
+> to be used with caution.  The additional expense of the save/restore
+> is quite tiny - 20-30 cycles, perhaps.
 
-thanks,
+I was wondering about the performance of these. I was reluctant 
+to change all occurrences of spin_lock_irq() to the save/restore 
+versions, even though that seemed like the safest thing to do, so 
+I had to analyze every code path where spin_locks were involved 
+to see which ones absolutely needed to change...very tedious. 
 
-greg k-h
+Thanks for the explanations.
+
+--
+Paul
+

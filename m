@@ -1,36 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268526AbUI3JD5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268688AbUI3JGW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268526AbUI3JD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 05:03:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268648AbUI3JD5
+	id S268688AbUI3JGW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 05:06:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268658AbUI3JGV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 05:03:57 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:17668 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S268526AbUI3JD4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 05:03:56 -0400
-In-Reply-To: <20040930042303.GS16057@certainkey.com>
-References: <20040924005938.19732.qmail@science.horizon.com> <20040929171027.GJ16057@certainkey.com> <20040929193117.GB6862@thunk.org> <20040929202707.GO16057@certainkey.com> <20040929215315.GB6769@thunk.org> <20040930002100.GQ16057@certainkey.com> <20040930042303.GS16057@certainkey.com>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <A62FF564-12BF-11D9-B5F2-000D9352858E@linuxmail.org>
-Content-Transfer-Encoding: 7bit
-Cc: linux@horizon.com, "Theodore Ts'o" <tytso@mit.edu>, jmorris@redhat.com,
-       linux-kernel@vger.kernel.org, cryptoapi@lists.logix.cz
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [PROPOSAL/PATCH 2] Fortuna PRNG in /dev/random
-Date: Thu, 30 Sep 2004 11:03:52 +0200
-To: Jean-Luc Cooke <jlcooke@certainkey.com>
-X-Mailer: Apple Mail (2.619)
+	Thu, 30 Sep 2004 05:06:21 -0400
+Received: from styx.suse.cz ([82.119.242.94]:38791 "EHLO shadow.suse.cz")
+	by vger.kernel.org with ESMTP id S268609AbUI3JGI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 05:06:08 -0400
+Date: Thu, 30 Sep 2004 11:06:37 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andi Kleen <ak@muc.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Readd panic blinking in 2.6
+Message-ID: <20040930090637.GA7157@ucw.cz>
+References: <m3llet4456.fsf@averell.firstfloor.org> <20040929132134.GA3770@ucw.cz> <20040930084224.GA28779@muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040930084224.GA28779@muc.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 30, 2004, at 06:23, Jean-Luc Cooke wrote:
+On Thu, Sep 30, 2004 at 10:42:24AM +0200, Andi Kleen wrote:
+> > 
+> > Something like
+> > 
+> > 	spin_lock_irqsave(&i8042_lock, flags);
+> > 	i8042_flush();
+> > 	i8042_ctr &= ~I8042_CTR_KBDINT & ~I8042_CTR_AUXINT;
+> > 	i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR);
+> > 	i8042_wait_write();
+> > 	i8042_write_data(0xed);
+> > 	i8042_wait_read();
+> > 	i8042_flush();
+> > 	i8042_wait_write();
+> > 	i8042_write_data(led);
+> > 	i8042_wait_read();
+> > 	i8042_flush();
+> > 	spin_unlock_irqrestore(&i8042_lock, flags);
+> > 
+> > would be safer and more correct.
+> 
+> That all takes far too many locks.
 
-> <fortuna-2.6.8.1.patch>
+Ouch, yes. Just ignore the locks then. As it is, it would deadlock
+immediately.
 
-You said AES and SHA-256 _must_ be built-in, but I can't see any code 
-on your patch that enforces selection of those config options. Thus, 
-it's possible to compile the kernel when CONFIG_CRYPTO_SHA256=n and 
-CONFIG_CRYPTO_AES=n although, of course, it will fail.
+> The risk of deadlocking during
+> panic is too great. I think the delay is fine (worked great under 2.4),
+> just need to fix the IBF issue you mentioned.
 
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266638AbSLQT3w>; Tue, 17 Dec 2002 14:29:52 -0500
+	id <S266443AbSLQTdQ>; Tue, 17 Dec 2002 14:33:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266733AbSLQT3w>; Tue, 17 Dec 2002 14:29:52 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:30988 "EHLO
+	id <S265787AbSLQTdQ>; Tue, 17 Dec 2002 14:33:16 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:31756 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S266638AbSLQT3I>; Tue, 17 Dec 2002 14:29:08 -0500
-Date: Tue, 17 Dec 2002 14:34:38 -0500 (EST)
+	id <S266443AbSLQTdP>; Tue, 17 Dec 2002 14:33:15 -0500
+Date: Tue, 17 Dec 2002 14:39:24 -0500 (EST)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Karina <kgs@acabtu.com.mx>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Trouble with kernel 2.4.18-18.7.x
-In-Reply-To: <1039553498.14302.58.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.3.96.1021217142857.20007C-100000@gatekeeper.tmr.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel for Pentium 4 hyperthreading?
+In-Reply-To: <20021215155819.GC20335@suse.de>
+Message-ID: <Pine.LNX.3.96.1021217143514.20007D-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 Dec 2002, Alan Cox wrote:
+On Sun, 15 Dec 2002, Dave Jones wrote:
 
-> So it looks like its ok. Do file the kmod: failed to exec report in
-> https://bugzilla.redhat.com/bugzilla however. Regardless of it not being
-> a problem in your case it does want fixing
+> On Sun, Dec 15, 2002 at 04:47:39PM +0100, Vergoz Michael (SYSDOOR) wrote:
+>  > Hi,
+>  > 
+>  > It's possible to enable HT on any pentium 4, you just have to patch the bios
+>  > :P
+> 
+> A rumour perpetuated by many, and achieved by none to my knowledge.
 
-It appears that recent RH build initrd files w/o all of the stuff in
-modules.conf. Perhaps only the first SCSI adaptor, perhaps just ignoring
-the ones which don't match the build hardware. I suspect the latter, since
-even using --with= in a manual mkinitrd failed (silently) to include the
-modules. I can't tell you how much that sucks if you build kernels for
-multiple machines on a compile server.
+If W2k can tell if I enable HT or not, I assume it's really on.
+Particularly if it then tells me I have more than two CPUs, my license
+doesn't cover that, and it doesn't love me anymore.
 
-Also, I installed 2.4.18-18.8.0 and it put a bunch of overlong label=
-statements in lilo.conf, then ran lilo and didn't check the status. Since
-it had deleted the old kernel that left a totally unbootable system. Guess
-RH really likes grub and only tests upgrades and such with that.
-
-I will report this later tonight when I'm willing to take the time to
-prepare a proper bug report.
+Actually, 2.5.recent can get this right using APCI and will also work.
+Guess the rumor is true, although I would say "many P4" rather than "all
+P4" because I believe Intel disables one sibling at the bonding step
+(based on information elsewhere) for some CPUs.
 
 -- 
 bill davidsen <davidsen@tmr.com>

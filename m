@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287919AbSBMRiV>; Wed, 13 Feb 2002 12:38:21 -0500
+	id <S288005AbSBMRjF>; Wed, 13 Feb 2002 12:39:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287966AbSBMRiN>; Wed, 13 Feb 2002 12:38:13 -0500
-Received: from maile.telia.com ([194.22.190.16]:59857 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S287919AbSBMRiB> convert rfc822-to-8bit;
-	Wed, 13 Feb 2002 12:38:01 -0500
-Message-ID: <006701c1b4b4$b8ef7ba0$0b02a8c0@pcu80>
-From: "Per Persson" <per.persson@gnosjo.pp.se>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <fa.j3e61kv.181e63g@ifi.uio.no>
-Subject: Re: Unable to compile 2.5.4: "control reaches end of non-void functionm"
-Date: Wed, 13 Feb 2002 18:34:35 +0100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+	id <S287966AbSBMRiw>; Wed, 13 Feb 2002 12:38:52 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:22224 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S287939AbSBMRip>; Wed, 13 Feb 2002 12:38:45 -0500
+Date: Wed, 13 Feb 2002 10:38:15 -0700
+Message-Id: <200202131738.g1DHcF726164@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: "David S. Miller" <davem@redhat.com>
+Cc: alan@lxorguk.ukuu.org.uk, akpm@zip.com.au, linux-kernel@vger.kernel.org,
+        ralf@uni-koblenz.de
+Subject: Re: [patch] printk and dma_addr_t
+In-Reply-To: <20020213.033641.102576462.davem@redhat.com>
+In-Reply-To: <20020213.013557.74564240.davem@redhat.com>
+	<E16awZq-0004s4-00@the-village.bc.nu>
+	<20020213.033641.102576462.davem@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
-
-I had the same problem but found the following post from David Howells.
-
-  /Per
-
-
-> Subject: [PATCH] 2.5.4 compile error fix
->
+David S. Miller writes:
+>    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+>    Date: Wed, 13 Feb 2002 10:23:50 +0000 (GMT)
+>    
+>    So how do they modify the printf format rules in gcc ?
+>    
+> Because they can claim that they are part of the C environment, and
+> for the most part they are right so their extensions go into gcc's
+> magic list.
 > 
-> Hi Linus,
+> In fact I'd claim their case to be plugging holes in the standards
+> specified set of printf format strings. :-)
 > 
-> This patch fixes <asm-i386/processor.h> trying to access task_struct (which
-> can't have been defined at that point).
-> 
-> David
-> 
-> diff -uNr linux-2.5.4/include/asm-i386/processor.h linux-orn-254/include/asm-i386/processor.h
-> --- linux-2.5.4/include/asm-i386/processor.h Mon Feb 11 09:41:35 2002
-> +++ linux-orn-254/include/asm-i386/processor.h Mon Feb 11 10:29:29 2002
-> @@ -439,10 +439,7 @@
->  /*
->   * Return saved PC of a blocked thread.
->   */
-> -static inline unsigned long thread_saved_pc(struct task_struct *tsk)
-> -{
-> - return ((unsigned long *)tsk->thread->esp)[3];
-> -}
-> +#define thread_saved_pc(TSK) (((unsigned long *)(TSK)->thread.esp)[3])
->  
->  unsigned long get_wchan(struct task_struct *p);
->  #define KSTK_EIP(tsk) (((unsigned long *)(4096+(unsigned long)(tsk)->thread_info))[1019])
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Hey... we could "borrow" one of these printf format strings we
+> don't have any need for in the kernel and pretend that is for
+> "dma_addr_t". :-)
 
+Eeeep! I know you put a smiley there, but don't even think that!
 
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

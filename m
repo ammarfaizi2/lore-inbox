@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262788AbTJYUMp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 16:12:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262789AbTJYUMp
+	id S262796AbTJYU1q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 16:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262797AbTJYU1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 16:12:45 -0400
-Received: from main.gmane.org ([80.91.224.249]:39321 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262788AbTJYUMo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 16:12:44 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: [PATCHSET] 0/3 A dynamic cpufreq governor
-Date: Sat, 25 Oct 2003 22:07:59 +0200
-Message-ID: <yw1xfzhhhyhs.fsf@kth.se>
-References: <88056F38E9E48644A0F562A38C64FB6007796A@scsmsx403.sc.intel.com>
+	Sat, 25 Oct 2003 16:27:46 -0400
+Received: from cpc1-cwma1-5-0-cust4.swan.cable.ntl.com ([80.5.120.4]:52407
+	"EHLO dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262796AbTJYU1p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Oct 2003 16:27:45 -0400
+Subject: Re: [RFC] must fix lists
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Nick Piggin <piggin@cyberone.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "viro@parcelfarce.linux.theplanet.co.uk" 
+	<viro@parcelfarce.linux.theplanet.co.uk>,
+       Albert Cahalan <albert@users.sourceforge.net>, Andi Kleen <ak@suse.de>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Dominik Brodowski <linux@brodo.de>,
+       "David S. Miller" <davem@redhat.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Jens Axboe <axboe@suse.de>, Lars Marowsky-Bree <lmb@suse.de>,
+       Mike Anderson <andmike@us.ibm.com>,
+       Patrick Mansfield <patmans@us.ibm.com>,
+       Russell King <rmk@arm.linux.org.uk>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20031023172323.A10588@osdlab.pdx.osdl.net>
+References: <3F94C833.8040204@cyberone.com.au>
+	 <1066943359.6102.14.camel@dhcp23.swansea.linux.org.uk>
+	 <20031023172323.A10588@osdlab.pdx.osdl.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1067113087.10272.4.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:qwwZ+ugqT3446HTgTvBnZgT06Bk=
-Cc: cpufreq@www.linux.org.uk
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-4) 
+Date: Sat, 25 Oct 2003 21:18:08 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com> writes:
+On Gwe, 2003-10-24 at 01:23, Chris Wright wrote:
+> > Someone also needs to go fix all the 2.4 security holes still in 2.6
+> > last time I checked - things like the execve holes and execve versus
+> > proc races.
+> 
+> I thought these had been fixed, but I'd be happy to take a look.
 
-> This is the "new and improved" version of the patch  
-> that was sent out earlier this week. Thanks for all the 
-> feedback/suggestions.
-> (lkml subject line reference for previous thread -
-> "Dynamic cpufreq governor and updates to ACPI P-state driver")
-
-Is there any way this thing can be made to work on a Pentium 4 M,
-using p4-clockmod for frequency changing?
-
--- 
-Måns Rullgård
-mru@kth.se
+I got mail from a guy at intel implying the unshare_files stuff wasnt in
+2.6 yet
 

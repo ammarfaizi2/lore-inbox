@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbULPU62@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbULPU7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262016AbULPU62 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 15:58:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbULPU61
+	id S261461AbULPU7i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 15:59:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbULPU7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 15:58:27 -0500
-Received: from host62-24-231-113.dsl.vispa.com ([62.24.231.113]:36514 "EHLO
-	cenedra.walrond.org") by vger.kernel.org with ESMTP id S262016AbULPU5o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 15:57:44 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.10-rc2 start_udev very slow
-Date: Thu, 16 Dec 2004 20:57:25 +0000
-User-Agent: KMail/1.7.1
-Cc: Greg KH <greg@kroah.com>
-References: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org> <200411171932.47163.andrew@walrond.org> <20041216155643.GB27421@kroah.com>
-In-Reply-To: <20041216155643.GB27421@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 16 Dec 2004 15:59:38 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:27878 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262014AbULPU6g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 15:58:36 -0500
+Subject: Re: 2.6 flavours
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jurriaan <thunder7@xs4all.nl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041216203740.GA23365@middle.of.nowhere>
+References: <003901c4e3ab$d86c8580$0e25fe0a@pysiak>
+	 <20041216203740.GA23365@middle.of.nowhere>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412162057.25244.andrew@walrond.org>
-X-Spam-Score: 0.0 (/)
+Message-Id: <1103226893.21823.31.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 16 Dec 2004 19:54:54 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 Dec 2004 15:56, Greg KH wrote:
-> On Wed, Nov 17, 2004 at 07:32:47PM +0000, Andrew Walrond wrote:
-> > I noticed that when upgrading from 2.6.8.1 to rc2, start_udev now takes
-> > 10-15s after printing
-> >
-> > "Creating initial udev device nodes:"
->
-> udevstart should be used instead of start_udev.  It goes a lot faster
-> and fixes odd startup dependancies that are needed.
+On Iau, 2004-12-16 at 20:37, Jurriaan wrote:
+> I've understood the 2.6.x-ac kernels started with some ide work, then
+> included some serial fixes, and may or may not have other bug fixes.
+> >From what I read, they are not as all-including as the 2.4.x-ac kernels
+> were. Those I recognize most in the 2.6.x-mm kernels.
 
-I'm using 048 at the moment. Works great, but if I replace start_udev with 
-udevstart in my init scripts as you suggest, it all goes horribly wrong...
+2.6.x-mm is more like some of the work the old 2.4-ac did in merging new
+stuff (its also worth noting that 2.4-ac ended up more stable than 2.4
+at times so -mm might be stable)
 
-udevstart is just a symlink to udev, but start_udev is a script which:
- - mounts ramfs
- - runs udevstart
- - makes some extra nodes not exported by sysfs (stdin/out/err)
+The -ac tree is trying to be fairly conservative. When I merge stuff
+that is a little less conservative because it has to be done then I've
+tried to put a note in the relnotes for that release warning people its
+more testing grade.
 
-So I guess I need to migrate this functionality to my init system before I can 
-call udevstart directly.
+> Whatever you think best, of course. That may be the release where Alan
+> says 'Here's the new, experimental next-generation SATA code. It'll
+> probably break every partition you have. Send me bug-reports' :-)
 
-Is that list of  'extra nodes not exported by sysfs likely to change?'
+That would be Jeff 8)
 
-Andrew Walrond
+

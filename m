@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262823AbSJON6p>; Tue, 15 Oct 2002 09:58:45 -0400
+	id <S263188AbSJON4h>; Tue, 15 Oct 2002 09:56:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262824AbSJON6p>; Tue, 15 Oct 2002 09:58:45 -0400
-Received: from mta03ps.bigpond.com ([144.135.25.135]:65006 "EHLO
-	mta03ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S262823AbSJON6o> convert rfc822-to-8bit; Tue, 15 Oct 2002 09:58:44 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Srihari Vijayaraghavan <harisri@bigpond.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: 2.4.20-pre10aa1 oops report (was Re: Linux-2.4.20-pre8-aa2 oops report. [solved])
-Date: Wed, 16 Oct 2002 00:13:02 +1000
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <fd1cf102287.102287fd1cf@bigpond.com> <200210152305.32641.harisri@bigpond.com>
-In-Reply-To: <200210152305.32641.harisri@bigpond.com>
+	id <S263193AbSJON4h>; Tue, 15 Oct 2002 09:56:37 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:38152 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S263188AbSJON4g>; Tue, 15 Oct 2002 09:56:36 -0400
+Date: Tue, 15 Oct 2002 16:01:52 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: kbuild-devel <kbuild-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: linux kernel conf 0.9
+In-Reply-To: <Pine.NEB.4.44.0210151528310.20607-100000@mimas.fachschaften.tu-muenchen.de>
+Message-ID: <Pine.LNX.4.44.0210151556570.338-100000@serv>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210160013.02220.harisri@bigpond.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-> That precisely is the reason. The bad news is that system crashes when
-> agpgart and radeon are compiled as modules, and the good news is that I am
-> unable to crash it when they are not.
+On Tue, 15 Oct 2002, Adrian Bunk wrote:
 
-My goodness, I have spoken too early I guess. The -aa kernel crashes whether 
-agpgart and radeon are modules or not.
- 
-> Mainline (2.4.20-pre10) is stable when agpgart and radeon are compiled as
-> modules.
+> $ cd /tmp/
+> $ tar xzf lkc-0.9.tar.gz
+> $ cd lkc-0.9
+> $ make
+> ...
+> $ cd ~/linux/kernel-2.5
+> $ tar xzf linux-2.5.42.tar.gz
+> $ cd linux-2.5.42
+> $ bzcat /tmp/lkc-0.9-2.5.42.diff.bz2 |patch -p1
+> ...
+> $ /tmp/lkc-0.9/lkcc i386
 
-That holds true still.
+Umm, now I see the problem, the patch already contains everything, so you
+don't need to convert anything after applying it. If you want to convert
+your kernel tree, it's best to use 'make install KERNELSRC=...' target in
+lkc.
 
-> The problem is much easier to reproduce than I thought, just log in and log
-> out of XFree86/Gnome few times (3 or more times in my case) is more than
-> adequate to crash it.
-
-That is still the case.
--- 
-Hari
-harisri@bigpond.com
+bye, Roman
 

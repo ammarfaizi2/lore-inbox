@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264650AbTEQCOz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 22:14:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264651AbTEQCOz
+	id S261166AbTEQCV1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 22:21:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTEQCV1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 22:14:55 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:5810 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264650AbTEQCOz (ORCPT
+	Fri, 16 May 2003 22:21:27 -0400
+Received: from dp.samba.org ([66.70.73.150]:57522 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261166AbTEQCV0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 22:14:55 -0400
-Date: Fri, 16 May 2003 19:27:01 -0700 (PDT)
-Message-Id: <20030516.192701.35038312.davem@redhat.com>
-To: Riley@Williams.Name
-Cc: chas@cmf.nrl.navy.mil, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] allow atm to be loaded as a module
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <BKEGKPICNAKILKJKMHCAMEJBDAAA.Riley@Williams.Name>
-References: <20030516.134642.104055055.davem@redhat.com>
-	<BKEGKPICNAKILKJKMHCAMEJBDAAA.Riley@Williams.Name>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 16 May 2003 22:21:26 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "David S. Miller" <davem@redhat.com>
+Cc: akpm@zip.com.au, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       davidm@hpl.hp.com, rth@twiddle.net
+Subject: Re: [PATCH] Unlimited per-cpu allocation 
+In-reply-to: Your message of "Thu, 15 May 2003 22:42:32 MST."
+             <20030515.224232.63031915.davem@redhat.com> 
+Date: Sat, 17 May 2003 11:58:55 +1000
+Message-Id: <20030517023420.7FCE42C04F@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Riley Williams" <Riley@Williams.Name>
-   Date: Sat, 17 May 2003 02:13:50 +0100
-   
-   David: {Shrug} If you say so...
+In message <20030515.224232.63031915.davem@redhat.com> you write:
+>    From: Rusty Russell <rusty@rustcorp.com.au>
+>    Date: Fri, 16 May 2003 15:30:36 +1000
+> 
+>    D: This patch allows an unlimited number of per-cpu allocations.
+> 
+> Except, of course, on IA64.  Maybe I missed the end of some thread,
+> but I thought we had all agreed that this kind of limitation was
+> a showstopper.
 
-Please educate yourself by reading Documentation/CodingStyle
+Not breaking IA64 is nice, but it's not an inherent "IA64 can't do it"
+thing.
 
-It's not "what david says", it's actually documented what
-source code in the tree should look like.
+IA64 could just use the generic mechanism, like everyone else.  But
+they do the tricky 64k mapping thing.  As I pointed out, maybe their
+decision would have to be rethought if that proves inadaquate.
+
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

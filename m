@@ -1,128 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263098AbUJ2Go5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263116AbUJ2Gpd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263098AbUJ2Go5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 02:44:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263116AbUJ2Go5
+	id S263116AbUJ2Gpd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 02:45:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUJ2Gpd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 02:44:57 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:11120 "EHLO
-	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S263098AbUJ2Gov (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 02:44:51 -0400
-Date: Fri, 29 Oct 2004 00:52:01 -0600
-From: Chad Christopher Giffin <typo@shaw.ca>
-Subject: Linuxant/Conexant HSF/HCF Modem Drivers Unlocked
-To: linux-kernel@vger.kernel.org
-Reply-to: typo@shaw.ca
-Message-id: <1099032721.23148.5.camel@localhost>
-Organization: T-Net Information Systems
-MIME-version: 1.0
-X-Mailer: Evolution 2.0.0
-Content-type: multipart/signed; boundary="=-LSYm1bBnWbqIRzwPwOgp";
- protocol="application/pgp-signature"; micalg=pgp-sha1
+	Fri, 29 Oct 2004 02:45:33 -0400
+Received: from almesberger.net ([63.105.73.238]:38151 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S263116AbUJ2Gp1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 02:45:27 -0400
+Date: Fri, 29 Oct 2004 03:44:44 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Blaisorblade <blaisorblade_spam@yahoo.it>,
+       user-mode-linux-devel@lists.sourceforge.net,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Jeff Dike <jdike@addtoit.com>
+Subject: Re: [uml-devel] Re: Why UML often does not build (was: Re: [PATCH] UML: Build fix for TT w/o SKAS)
+Message-ID: <20041029034444.A24523@almesberger.net>
+References: <20041027053602.GB30735@taniwha.stupidest.org> <200410282254.21944.blaisorblade_spam@yahoo.it> <20041028214242.GB2269@taniwha.stupidest.org> <200410290149.31665.blaisorblade_spam@yahoo.it> <20041029002831.GD12434@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041029002831.GD12434@taniwha.stupidest.org>; from cw@f00f.org on Thu, Oct 28, 2004 at 05:28:31PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Wedgwood wrote:
+> the problem here is that ptrace semantics are not well defined to
+> anything subtle can and will break from time to time
 
---=-LSYm1bBnWbqIRzwPwOgp
-Content-Type: multipart/mixed; boundary="=-jzbpt0FvvmxME0OsJk6I"
+I wonder what the "correct" solution for this would be: write a
+specification for Linux ptrace, or try to get the POSIX folks
+interested ?
 
+Given that we get subtle ptrace breakages quite regularly, it
+would be nice to see this eventually get resolved. "The
+implementation is the specification" doesn't seem to work well
+in this case.
 
---=-jzbpt0FvvmxME0OsJk6I
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+BTW, things have improved around UML quite a bit recently, and I
+think this is to no small amount due to Paolo's work.
 
-I couldn't help but notice that the Linuxant Modem drivers appear to be
-GPL'd, as a strings of the modules shows that License=3DGPL.
+- Werner
 
-Therefor, it seems to be O.K. to send this script out to unlock them.
-Perhaps the script should be GPL'd.
-
-Attached is a perl script that generates the keys to the GPL'd Linuxant
-Modem Drivers for HCF and HSF modems.
-
-Please do not use this script on Non-GPL'd modules ;-) =20
-As that would clearly be illegal.
-
-
-
---=20
-Chad Christopher Giffin
-mailto:typo@shaw.ca
-
-There are 10 kinds of people in this world... those who understand
-binary and those who do not.   -- Anonymous
-
-
---=-jzbpt0FvvmxME0OsJk6I
-Content-Disposition: attachment; filename=keygen.pl
-Content-Type: application/x-perl; name=keygen.pl
-Content-Transfer-Encoding: base64
-
-IyEvdXNyL2Jpbi9wZXJsCnVzZSBEaWdlc3Q6Ok1ENSAgcXcobWQ1X2hleCk7CnByaW50ZiAiVXNh
-Z2UgOiBrZXlnZW4ucGwgZS1tYWlsIGtleS1pZFxuZS1tYWlsIDogdGhlIG9uZSB5b3UgcHJvdmlk
-ZWRcbmtleS1pZCA6IHByb3ZpZGVkIGJ5IGhjZi9oc2Zjb25maWdcbiI7CgokcGFkID0gcGFjaygi
-SDIwNDgiLCAiMDAwMDAwMDA5NjMwMDc3NzJjNjEwZWVlYmE1MTA5OTkxOWM0NmQwNzhmZjQ2YTcw
-MzVhNTYzZTlhMzk1NjQ5ZTMyODhkYjBlYTRiOGRjNzkxZWU5ZDVlMDg4ZDlkMjk3MmI0Y2I2MDli
-ZDdjYjE3ZTA3MmRiOGU3OTExZGJmOTA2NDEwYjcxZGYyMjBiMDZhNDg3MWI5ZjNkZTQxYmU4NDdk
-ZDRkYTFhZWJlNGRkNmQ1MWI1ZDRmNGM3ODVkMzgzNTY5ODZjMTNjMGE4NmI2NDdhZjk2MmZkZWNj
-OTY1OGE0ZjVjMDExNGQ5NmMwNjYzNjMzZDBmZmFmNTBkMDg4ZGM4MjA2ZTNiNWUxMDY5NGNlNDQx
-NjBkNTcyNzE2N2EyZDFlNDAzM2M0N2Q0MDQ0YmZkODUwZGQyNmJiNTBhYTVmYWE4YjUzNTZjOThi
-MjQyZDZjOWJiZGI0MGY5YmNhY2UzNmNkODMyNzU1Y2RmNDVjZjBkZDZkYzU5M2RkMWFiYWMzMGQ5
-MjYzYTAwZGU1MTgwNTFkN2M4MTY2MWQwYmZiNWY0YjQyMTIzYzRiMzU2OTk5NWJhY2YwZmE1YmRi
-ODllYjgwMjI4MDg4ODA1NWZiMmQ5MGNjNjI0ZTkwYmIxODc3YzZmMmYxMTRjNjg1OGFiMWQ2MWMx
-M2QyZDY2YjY5MDQxZGM3NjA2NzFkYjAxYmMyMGQyOTgyYTEwZDVlZjg5ODViMTcxMWZiNWI2MDZh
-NWU0YmY5ZjMzZDRiOGU4YTJjOTA3NzgzNGY5MDAwZjhlYTgwOTk2MTg5ODBlZTFiYjBkNmE3ZjJk
-M2Q2ZDA4OTc2YzY0OTEwMTVjNjNlNmY0NTE2YjZiNjI2MTZjMWNkODMwNjU4NTRlMDA2MmYyZWQ5
-NTA2NmM3YmE1MDExYmMxZjQwODgyNTdjNDBmZjVjNmQ5YjA2NTUwZTliNzEyZWFiOGJlOGI3Yzg4
-YjlmY2RmMWRkZDYyNDkyZGRhMTVmMzdjZDM4YzY1NGNkNGZiNTg2MWIyNGRjZTUxYjUzYTc0MDBi
-Y2EzZTIzMGJiZDQ0MWE1ZGY0YWQ3OTVkODNkNmRjNGQxYTRmYmY0ZDZkMzZhZTk2OTQzZmNkOTZl
-MzQ0Njg4NjdhZGQwYjg2MGRhNzMyZDA0NDRlNTFkMDMzMzVmNGMwYWFhYzk3YzBkZGQzYzcxMDU1
-MGFhNDEwMjI3MTAxMDBiYmU4NjIwMGNjOTI1YjU2ODU3YjM4NTZmMjAwOWQ0NjZiOTlmZTQ2MWNl
-MGVmOWRlNWU5OGM5ZDkyOTIyOThkMGIwYjRhOGQ3YzcxNzNkYjM1OTgxMGRiNDJlM2I1Y2JkYjdh
-ZDZjYmFjMDIwODNiOGVkYjZiM2JmOWEwY2UyYjYwMzlhZDJiMTc0Mzk0N2Q1ZWFhZjc3ZDI5ZDE1
-MjZkYjA0ODMxNmRjNzMxMjBiNjNlMzg0M2I2NDk0M2U2YTZkMGRhODVhNmE3YTBiY2YwZWU0OWRm
-ZjA5OTMyN2FlMDAwYWIxOWUwNzdkNDQ5MzBmZjBkMmEzMDg4NzY4ZjIwMTFlZmVjMjA2Njk1ZDU3
-NjJmN2NiNjc2NTgwNzEzNjZjMTllNzA2NmI2ZTc2MWJkNGZlZTAyYmQzODk1YTdhZGExMGNjNGFk
-ZDY3NmZkZmI5ZjlmOWVmYmU4ZTQzYmViNzE3ZDU4ZWIwNjBlOGEzZDZkNjdlOTNkMWExYzRjMmQ4
-Mzg1MmYyZGY0ZmYxNjdiYmQxNjc1N2JjYTZkZDA2YjUzZjRiMzZiMjQ4ZGEyYjBkZDg0YzFiMGFh
-ZmY2NGEwMzM2NjA3YTA0NDFjM2VmNjBkZjU1ZGY2N2E4ZWY4ZTZlMzE3OWJlNjk0NjhjYjM2MWNi
-MWE4MzY2YmNhMGQyNmYyNTM2ZTI2ODUyOTU3NzBjY2MwMzQ3MGJiYmI5MTYwMjIyMmYyNjA1NTVi
-ZTNiYmFjNTI4MGJiZGIyOTI1YWI0MmIwNDZhYjM1Y2E3ZmZkN2MyMzFjZmQwYjU4YjllZDkyYzFk
-YWVkZTViYjBjMjY0OWIyNmYyNjNlYzljYTM2YTc1MGE5MzZkMDJhOTA2MDk5YzNmMzYwZWViODU2
-NzA3NzIxMzU3MDAwNTgyNGFiZjk1MTQ3YWI4ZTJhZTJiYjE3YjM4MWJiNjBjOWI4ZWQyOTIwZGJl
-ZDVlNWI3ZWZkYzdjMjFkZmRiMGJkNGQyZDM4NjQyZTJkNGYxZjhiM2RkNjg2ZTgzZGExZmNkMTZi
-ZTgxNWIyNmI5ZjZlMTc3YjA2Zjc3NDdiNzE4ZTY1YTA4ODg3MDZhMGZmZmNhM2IwNjY2NWMwYjAx
-MTFmZjllNjU4ZjY5YWU2MmY4ZDNmZjZiNjE0NWNmNmMxNjc4ZTIwYWEwZWVkMjBkZDc1NDgzMDQ0
-ZWMyYjMwMzM5NjEyNjY3YTdmNzE2NjBkMDRkNDc2OTQ5ZGI3NzZlM2U0YTZhZDFhZWRjNWFkNmQ5
-NjYwYmRmNDBmMDNiZDgzNzUzYWViY2E5YzU5ZWJiZGU3ZmNmYjI0N2U5ZmZiNTMwMWNmMmJkYmQ4
-YWMyYmFjYTMwOTNiMzUzYTZhM2I0MjQwNTM2ZDBiYTkzMDZkN2NkMjk1N2RlNTRiZjY3ZDkyMzJl
-N2E2NmIzYjg0YTYxYzQwMjFiNjg1ZDk0MmI2ZjJhMzdiZTBiYjRhMThlMGNjMzFiZGYwNTVhOGRl
-ZjAyMmQiKTsKCkBwYWQgPSB1bnBhY2soIkwyNTYiLCRwYWQpOwoKQG93bmVyID0gdW5wYWNrKCJD
-KiIsJEFSR1ZbMF0pOwpAcmVnaWQgPSByZXZlcnNlIHVucGFjaygiQyoiLCBwYWNrKCJIKiIsIHN1
-YnN0cigkQVJHVlsxXSw1LDQpLnN1YnN0cigkQVJHVlsxXSwxMCw0KSkpOwoKQHRhYiA9IChAcmVn
-aWQsIEBvd25lcik7CiRnID0gJHBhZFs3MV07Cgpmb3JlYWNoICRjKEB0YWIpCnsKCSRpID0gKCRj
-XiRnKSAmIDB4ZmY7CgkkZyA9ICgkZz4+OCkgXiAkcGFkWyRpXTsKfQoKJGtleSA9ICRnIDw8IDE2
-OwokZyA9ICgkZz4+OCkgXiAoJHBhZFskZyAmIDB4ZmZdKTsKJGcgPSAoJGc+PjgpIF4gKCRwYWRb
-JGcgJiAweGZmXSk7CiRrZXkgPSAka2V5IHwgKCAoKCRnPj4xNileJGcpICYgMHhmZmZmKTsKCiRr
-ZXlzdHIgPSAgdWModW5wYWNrKCJIKiIsIHBhY2soIk4iLCRrZXkpKSk7CiRkaWdlc3QgPSBtZDVf
-aGV4KCIka2V5c3RyXG4iKTsKCiRrZXlzdHIgPSAka2V5c3RyLnVjKHN1YnN0cigkZGlnZXN0LDAs
-NCkpOwoka2V5c3RyID1+IHMvXiguLikoLi4pKC4uKSguLikoLi4pKC4uKSQvXDEtXDItXDMtXDQt
-XDUtXDYvOwpwcmludGYgImtleTogICVzXG4iLCAka2V5c3RyOwo=
-
-
---=-jzbpt0FvvmxME0OsJk6I--
-
---=-LSYm1bBnWbqIRzwPwOgp
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBgeiRE11tuFHhP4oRAuVLAJsFDhnKvcOprrJbu8FTz2GgpOu+ngCfRWcD
-GsWv/13BMpei6ccNZavj3Vs=
-=GRyF
------END PGP SIGNATURE-----
-
---=-LSYm1bBnWbqIRzwPwOgp--
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

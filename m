@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129715AbRBILLN>; Fri, 9 Feb 2001 06:11:13 -0500
+	id <S130499AbRBILVg>; Fri, 9 Feb 2001 06:21:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130411AbRBILLE>; Fri, 9 Feb 2001 06:11:04 -0500
-Received: from mgw-x2.nokia.com ([131.228.20.22]:9857 "EHLO mgw-x2.nokia.com")
-	by vger.kernel.org with ESMTP id <S129715AbRBILKw>;
-	Fri, 9 Feb 2001 06:10:52 -0500
-Message-ID: <6D1A8E7871B9D211B3B00008C7490AA564530F@treis03nok>
-From: Patrick.Stickler@nokia.com
-To: linux-kernel@vger.kernel.org
-Subject: Kernel panics on C1VN and RH 6.2 or 7.0
-Date: Fri, 9 Feb 2001 13:10:48 +0200 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2652.78)
-Content-Type: text/plain
+	id <S130479AbRBILVQ>; Fri, 9 Feb 2001 06:21:16 -0500
+Received: from passion.cambridge.redhat.com ([172.16.18.67]:29060 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S130411AbRBILVM>; Fri, 9 Feb 2001 06:21:12 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.LNX.4.10.10102081055350.9940-100000@clueserver.org> 
+In-Reply-To: <Pine.LNX.4.10.10102081055350.9940-100000@clueserver.org> 
+To: Alan Olsen <alan@clueserver.org>
+Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, Alex Deucher <adeucher@UU.NET>,
+        linux-kernel@vger.kernel.org, jhartmann@valinux.com
+Subject: Re: [OT] Re: 2.4.x, drm, g400 and pci_set_master 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 09 Feb 2001 11:19:39 +0000
+Message-ID: <4881.981717579@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi, 
+alan@clueserver.org said:
+>  Both drivers want Matrox's HALlib. (Which is x86 binary only.) Matrox
+> will not release the info on that interface to the chipset.  (Using
+> the standard corporate excuse whenever they don't want to do something
+> "Intelectual Property concerns".)
 
-I'm trying to install RH Linux on my C1VN and am getting
-some strange behavior that doesn't correspond to any of the
-various HOWTO's etc. on putting Linux on the C1VN.
+> Good luck on getting them to make an Alpha version of the library or
+> get them to release the underlying library interface specs. 
 
-I'm wondering if the amount of RAM matters (I have 192MB,
-the others all seem to have 128MB) or maybe I have one
-of the broken CPU's.
+I submitted a patch to XFree86 on Tuesday which drives the primary head of
+G450. It's a cleaned up version of Matrox's own code, and it works on Alpha
+for me. Dual head will come later - we have the example code in matroxfb to
+work from. All the binary-only HALlib does is mode setup - all the
+acceleration is done in the open source code anyway, even when the HALlib 
+is present.
 
-No matter whether I try to install 6.2 or 7.0, via CD-ROM
-or network, somewhere during the install (at random places)
-I get a kernel panic with an error message such as:
+ ftp://ftp.uk.linux.org/pub/people/dwmw2/X/mga-G450-patch
 
-   Unable to handle kernel paging request at virtual address ...
+--
+dwmw2
 
-I've also gotten a few Oops: messages.
 
-I had the default BIOS settings, but also tried turning off
-plug and play, as I'd seen mention elsewhere that that was
-problemmatic with the ANSA sound drivers, but no difference.
-
-This is particularly puzzling as there seem to be lots of
-folks who have had no problems putting the stock RH 6.2 or
-7.0 dists on their C1VN's. I've tried different media and
-over the network, so it's not that I have a corrupt dist.
-Very odd...
-
-I'm hoping that one of you kernel guru's who has a C1VN
-(terve Linus ;-) might have a clue why mine seems to behave
-differently than everyone elses...  Maybe it's just the cold
-weather ;-)
-
-Thanks in advance,
-
-Patrick Stickler
-Nokia Networks
-Tampere, Finland
-
-patrick.stickler@nokia.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

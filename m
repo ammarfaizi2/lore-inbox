@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262458AbTLWWlD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 17:41:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbTLWWlD
+	id S262695AbTLWXBn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 18:01:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbTLWXB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 17:41:03 -0500
-Received: from amsfep14-int.chello.nl ([213.46.243.22]:17224 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262458AbTLWWlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 17:41:00 -0500
-From: Jos Hulzink <josh@stack.nl>
+	Tue, 23 Dec 2003 18:01:29 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:50659 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262695AbTLWXBZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 18:01:25 -0500
+Date: Tue, 23 Dec 2003 18:01:20 -0500
+From: Alan Cox <alan@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.7 (future kernel) wish
-Date: Tue, 23 Dec 2003 23:42:17 +0100
-User-Agent: KMail/1.5.3
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Subject: 2.4 IDE hotplug disk change and size change problem
+Message-ID: <20031223230120.GA5771@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200312232342.17532.josh@stack.nl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Some people found that the
 
-First of all... Compliments about 2.6.0. It is a superb kernel, with very few 
-serious bugs, and for me it runs stable like a rock from the very first 
-moment.
+	hdparm -b0 
+	swap disk for a larger one
+	hdparm -b1
 
-As an end user, Linux doesn't give me a good feeling on one particular item 
-yet: Error handling. 
+would then go nuts with disks IFF the new disk was larger and fdisk wasnt run.
 
-What do I mean ? Well... for example: Pull out your USB stick with a mounted 
-fs on it. Linux doesn't really seem to like it, got weird problems etc. It 
-will survive, sure, but the user got no clue and data are lost for sure. Bad 
-sectors on a disk... Linux will pass, but even 2.6.0 went very slow, 
-unresponsive when a floppy with bad sectors went into the drive. Many other 
-non-critical or solvable problems that are dealt with in a way that makes 
-linux survive (most of the times), but not in a way that is neat from the 
-user point of view.
+Can folks seeing this try the following guess at the problem (I dont currently
+have any hotpluggable IDE working except CD/DVD bays)
 
-It all just doesn't feel like Linux is doing the best it can to "rescue the 
-user" when something is going wrong. Technically speaking, it's not only the 
-task of the kernel to do so, but for an end user it makes the difference 
-between an OS that does its job, and an OS that does its job nicely.
 
-I think it's hard to describe what I mean exactly, but I hope you get the 
-feeling. I too know that some of this is not within scope of the kernel (it's 
-not the kernels task to tell the user "put back the USB drive or data is 
-lost"), but after dealing with broken floppies again, I thought it was time 
-to write my feelings to the list.
+--- ide.c~	2003-12-23 22:45:50.000000000 +0000
++++ ide.c	2003-12-23 22:51:26.000000000 +0000
+@@ -826,7 +826,11 @@
+ 	for (unit = 0; unit < MAX_DRIVES; ++unit) {
+ 		ide_drive_t *drive = &hwif->drives[unit];
+ 		if(drive->present && !drive->dead)
++		{
++			drive->revalidate = 1;
+ 			ide_attach_drive(drive);
++			ide_revalidate_disk(MKDEV(hwif->major, unit<<PARTN_BITS));
++		}
+ 	}
+ 	our_drive->usage++;
+ 	return 0;
 
-Best regards, and thanks for the wonderful world of Linux,
-
-Jos
 

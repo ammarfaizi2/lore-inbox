@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262597AbVCVJ4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262591AbVCVJ7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262597AbVCVJ4o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 04:56:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbVCVJ4o
+	id S262591AbVCVJ7K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 04:59:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbVCVJ7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 04:56:44 -0500
-Received: from fire.osdl.org ([65.172.181.4]:29632 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262597AbVCVJ4l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 04:56:41 -0500
-Date: Tue, 22 Mar 2005 01:55:38 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Miguelanxo Otero Salgueiro <miguelanxo@telefonica.net>
-Cc: linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
-Subject: Re: 2.6.11: suspending laptop makes system randomly unstable
-Message-Id: <20050322015538.5db28ed5.akpm@osdl.org>
-In-Reply-To: <423FE7C5.8080402@telefonica.net>
-References: <422618F0.3020508@telefonica.net>
-	<20050321141049.5d804609.akpm@osdl.org>
-	<423FE7C5.8080402@telefonica.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 22 Mar 2005 04:59:10 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:37338 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262591AbVCVJ7F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 04:59:05 -0500
+From: Michael Stickel <michael.stickel@4g-systems.biz>
+To: ppopov@embeddedalley.com
+Subject: Re: Bitrotting serial drivers
+Date: Tue, 22 Mar 2005 10:58:35 +0100
+User-Agent: KMail/1.7
+Cc: Ralf Baechle <ralf@linux-mips.org>, Andrew Morton <akpm@osdl.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+       linux-mips@linux-mips.org
+References: <20050319172101.C23907@flint.arm.linux.org.uk> <20050320224028.GB6727@linux-mips.org> <423DFE7C.7040406@embeddedalley.com>
+In-Reply-To: <423DFE7C.7040406@embeddedalley.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503221058.35903.michael.stickel@4g-systems.biz>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:f72049c8971f462876d14eb8b3ccbbf1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miguelanxo Otero Salgueiro <miguelanxo@telefonica.net> wrote:
->
-> >You appear to have about five bugs here.  Do any of them remain in
->  >2.6.12-rc1?
->  >  
->  >
->  Well, one thing outstands: the synaptic touchpad is now really 
->  comfortable to use. Almost everything works, including simple and double 
->  clicks, and scrolling. Dragging is still broken. I must note I'm now 
->  using a synaptic Xinput driver, as suggested.
-> 
->  The system seems much more stable in regard to suspension/resuming. The 
->  USB subsystem has kept working the first time I suspended and everything 
->  came back perfect. The second one in a row, the USB subsystem was 
->  halted, but doing a "modprobe -r uhci_hcd; modprobe uhci_hcd" made my 
->  USB periferals (keyboard and mouse) work again.
-> 
->  As for the battery charging pattern, I can't say anything definitive, 
->  but it looks good ATM.
-> 
->  No more "Ramdom Nasty Things(tm)", the clock works ok and there are no 
->  issues with proccess spawning.
-> 
->  9/10?
+If we leave the driver for the au1x00 as it is it should not have the 
+register_serial / unregister_serial functions and it should be renamed to 
+something else, e.g. ttySAxxx like it is done for the internal serial port of 
+the strongarm (sa1100).
 
-Let's go for 10/10.  I assume that dragging _used_ to work, yes?
+I have thought about the serial driver and came along this.
+I we take a look at the hardware, we have a chip, the 8250 and its successors 
+and the chip is integrated into some kind of hardware. So the chip has an 
+interface. It has some address lines for register access, it has data lines 
+and some controll lines. It also has an interrupt pin, some (GP)IO-Pins, that 
+are freely programmable and a clock input.  The chip is integrated thru some 
+interface as I mentioned before. It can be an ISA-IO card or a PCI card or a 
+multiport card, where more than one chip is accessed thru the same io-range 
+and the hip to access is selected thru a single register. The au1x00 serial 
+driver is like an ISA card except that the chip is mapped to a memory region 
+instead of an io-region and the fact, that we can calculate the baud_base 
+using the pll configuration of the au1x00, if we assume a 12MHz oscilator, 
+which is standard for the au1x00.
 
-Also, I'd consider it a regression that you had to go and find new X
-drivers due to a kernel change.  We shouldn't do that.
+We need some access methods to access the chip registers, some way to handle 
+intterupts, some way to deal with the gpio-pins, and we need a way to get the 
+clock input of the chip. What should the serial-chip driver know about and 
+what should the card driver know about.
+
+It's like the streams concept, where the chip driver does not know how to 
+access the chip or what resources it uses, but what to do with the chip.
+
+Regards,
+Michael

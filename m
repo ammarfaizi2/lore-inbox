@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266199AbSL1RIP>; Sat, 28 Dec 2002 12:08:15 -0500
+	id <S266224AbSL1R13>; Sat, 28 Dec 2002 12:27:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266218AbSL1RIO>; Sat, 28 Dec 2002 12:08:14 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:28933 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S266199AbSL1RIO>;
-	Sat, 28 Dec 2002 12:08:14 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212281715.gBSHFkf3001354@darkstar.example.net>
-Subject: Re: Want a random entropy source?
-To: rmk@arm.linux.org.uk (Russell King)
-Date: Sat, 28 Dec 2002 17:15:46 +0000 (GMT)
+	id <S266228AbSL1R13>; Sat, 28 Dec 2002 12:27:29 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:972 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
+	id <S266224AbSL1R12>; Sat, 28 Dec 2002 12:27:28 -0500
+Date: Sat, 28 Dec 2002 09:41:49 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [RFT][PATCH] generic device DMA implementation
+To: James Bottomley <James.Bottomley@steeleye.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20021228164750.A5217@flint.arm.linux.org.uk> from "Russell King" at Dec 28, 2002 04:47:50 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-id: <3E0DE25D.10701@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+References: <200212281613.gBSGDTn02392@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I have never understood how a 16-bit DAC or ADC can have noise above
-> > 96 dB.  Surely _by definition_ a 16-bit DAC or ADC is one that does
-> > not have noise above that level.
-> 
-> You're assuming that the ADC input is coupled to a noiseless source.
-> Most ADCs have a chunk of analogue circuitry just before them which
-> is a nice source of noise.
-> 
-> Not only will noise be picked up via disconnected inputs, but it will
-> also be picked up via the power supply and ground connections to that
-> analogue circuit.  How much of that noise gets into the ADC input is
-> dependent on the quality, design and physical layout of the analogue
-> circuit.
+James Bottomley wrote:
+> OK, the attached is a sketch of an implementation of bus_type operations.
 
-Right...  So basically it can be claimed to be a 16-bit ADC as long as
-it is noiseless above 96 dB, when all of the inputs to the ADC are
-correctly terminated directly at the ADC inputs.
+Quick reaction ....
 
-I just think it's funny that loads of "16-bit" soundcards are
-effectively only 12-bit soundcards :-).  Especially as that's about
-the noise-floor of good quality vinyl :-).
+Those signatures look more or less right, at a quick glance,
+except that allocating N bytes should pass a __GFP_WAIT flag.
+(And of course, allocating a mapping needs a failure return.)
 
-> (As a side note, it's interesting that (what used to be) Crystal
-> Semiconductor published a large chunk of information on the layout of
-> boards including the routing of power supplies for combined digital
-> and analogue circuits (and ADCs fall into that category.))
+That bus_dma_ops is more of a "vtable" approach, and I confess
+I'd been thinking of hanging some object that had internal state
+as well as method pointers.  (Call it a "whatsit" for the moment.)
 
-Good idea - I'd be grateful if more manufacturers would supply a
-datasheet at all :-).
+That'd make it possible for layered busses like USB and SCSI
+to just reference the "whatsit" from the parent bus in their
+layered "struct device" objects. [1]
 
-John.
+In many cases that'd just end up being a ref to the "platform
+whatsit", eliminating a conditional test from the hot path from
+your sketch as well as an entire set of new "platform_*()" APIs.
+
+- Dave
+
+[1] That is, resembling what Benjamin Herrenschmidt suggested:
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102389432006266&w=2
+
+
+
+
+
+

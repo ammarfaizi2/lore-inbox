@@ -1,41 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264597AbSIVXWp>; Sun, 22 Sep 2002 19:22:45 -0400
+	id <S264616AbSIVXTT>; Sun, 22 Sep 2002 19:19:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264618AbSIVXWo>; Sun, 22 Sep 2002 19:22:44 -0400
-Received: from p0052.as-l042.contactel.cz ([194.108.237.52]:4992 "EHLO
-	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S264597AbSIVXWo>;
-	Sun, 22 Sep 2002 19:22:44 -0400
-Date: Mon, 23 Sep 2002 01:23:04 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Peter <cogwepeter@cogweb.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-ac4 ncpmount
-Message-ID: <20020922232304.GC2771@ppc.vc.cvut.cz>
-References: <Pine.LNX.4.44.0209221038300.21911-100000@greenie.frogspace.net>
+	id <S264618AbSIVXTT>; Sun, 22 Sep 2002 19:19:19 -0400
+Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:28553 "EHLO
+	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S264616AbSIVXTR>; Sun, 22 Sep 2002 19:19:17 -0400
+Date: Mon, 23 Sep 2002 00:59:18 +0200
+From: Richard Zidlicky <rz@linux-m68k.org>
+To: Peter Waechtler <pwaechtler@mac.com>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] 6/11 sound/oss replace cli()
+Message-ID: <20020923005918.B1975@linux-m68k.org>
+References: <50EF4A49-CDA2-11D6-8873-00039387C942@mac.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209221038300.21911-100000@greenie.frogspace.net>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <50EF4A49-CDA2-11D6-8873-00039387C942@mac.com>; from pwaechtler@mac.com on Sat, Sep 21, 2002 at 10:40:08PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 22, 2002 at 10:46:31AM -0700, Peter wrote:
-> 
-> When I mount a Novell Netware file server on 2.4.19-ac4, I can access it
-> with a file browser (konqueror, lynx), but ls gives "Stale NFS file
-> handle" and other bash commands such as find fail. 2.4.16 works fine.
-> 
-> Cheers,
-> Peter
-> 
-> #strace ls
-> open(".", O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_DIRECTORY) = -1 ESTALE (Stale 
-> NFS file handle)
+On Sat, Sep 21, 2002 at 10:40:08PM +0200, Peter Waechtler wrote:
+> I left the IRQ handler as is: releasing and requesting an IRQ
+> handler on every frame.
 
-It should be fixed in latest 2.4.20-preX from Marcelo. VFS rules
-for dentry's d_revalidate changed between 2.4.18 and 2.4.19, and I did not
-notice that because of I use 2.5.x only.
-							Petr Vandrovec
-							vandrove@vc.cvut.cz
+Thanks,
+Richard
+
+> 
+> --- vanilla-2.5.36/sound/oss/dmasound/dmasound_q40.c	Sat Aug 10 
+> 00:03:13 2002
+> +++ linux-2.5-cli-oss/sound/oss/dmasound/dmasound_q40.c	Sat Sep 21 
+> 18:53:15 2002
+> @@ -459,28 +459,32 @@
+>   		  */
+>   	         return;
+>   	}
+> -	save_flags(flags); cli();
+> +	spin_lock_irqsave(&dmasound.lock, flags);
+>   	Q40PlayNextFrame(1);
+> -	restore_flags(flags);
+> +	spin_unlock_irqrestore_flags(&dmasound.lock, flags);
+>   }
+> 
+>   static void Q40StereoInterrupt(int irq, void *dummy, struct pt_regs *fp)
+>   {
+> +	spin_lock(&dmasound.lock);
+>           if (q40_sc>1){
+>               *DAC_LEFT=*q40_pp++;
+>   	    *DAC_RIGHT=*q40_pp++;
+>   	    q40_sc -=2;
+>   	    master_outb(1,SAMPLE_CLEAR_REG);
+>   	}else Q40Interrupt();
+> +	spin_unlock(&dmasound.lock);
+>   }
+>   static void Q40MonoInterrupt(int irq, void *dummy, struct pt_regs *fp)
+>   {
+> +	spin_lock(&dmasound.lock);
+>           if (q40_sc>0){
+>               *DAC_LEFT=*q40_pp;
+>   	    *DAC_RIGHT=*q40_pp++;
+>   	    q40_sc --;
+>   	    master_outb(1,SAMPLE_CLEAR_REG);
+>   	}else Q40Interrupt();
+> +	spin_unlock(&dmasound.lock);
+>   }
+>   static void Q40Interrupt(void)
+>   {

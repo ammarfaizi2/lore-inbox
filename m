@@ -1,68 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282816AbRLORJZ>; Sat, 15 Dec 2001 12:09:25 -0500
+	id <S282829AbRLORfz>; Sat, 15 Dec 2001 12:35:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282815AbRLORJP>; Sat, 15 Dec 2001 12:09:15 -0500
-Received: from chabotc.xs4all.nl ([213.84.192.197]:19072 "EHLO
-	chabotc.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S282816AbRLORI7>; Sat, 15 Dec 2001 12:08:59 -0500
-Subject: Re: Unfreeable buffer/cache problem in 2.4.17-rc1 still there
-From: Chris Chabot <chabotc@reviewboard.com>
+	id <S282821AbRLORfq>; Sat, 15 Dec 2001 12:35:46 -0500
+Received: from maile.telia.com ([194.22.190.16]:2760 "EHLO maile.telia.com")
+	by vger.kernel.org with ESMTP id <S282829AbRLORfe>;
+	Sat, 15 Dec 2001 12:35:34 -0500
+Date: Sat, 15 Dec 2001 18:35:29 +0100 (MET)
+From: Jurij Smakov <jurij.smakov@telia.com>
+X-X-Sender: jurij@bobcat
 To: linux-kernel@vger.kernel.org
-Cc: hahn@physics.mcmaster.ca, andrea@suse.de, marcelo@conectiva.com.br,
-        brownfld@irridia.com
-In-Reply-To: <Pine.LNX.4.33.0112151141280.19022-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.33.0112151141280.19022-100000@coffee.psychology.mcmaster.ca>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 15 Dec 2001 18:09:00 +0100
-Message-Id: <1008436141.13195.0.camel@gandalf.chabotc.com>
-Mime-Version: 1.0
+Subject: PDC20265 IDE controller trouble
+Message-ID: <Pine.GHP.4.43.0112151828220.9103-100000@bobcat>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Han wrote,
-> first, forget silly crap like top; look at the /proc files.
-> inode/dentry caches are just slab caches, which afaik 
-> are not considered part of the 'cached' that top is talking about.
-> (since top preceeds slab and is referring to buffer+page caches.)
+Hi!
 
-Man somebody got out of the wrong side of the bed this morning ;-) The
-problem is that those prety user end lights are the only things the user
-see's ;-) So it might be worth considering exporting this 'secret'
-information to the user end (count it as cache in /proc/memusage?)
+Recently I've got an Asus TUSL2 motherboard, which has an extra Promise
+IDE RAID controller with a PDC20265 chip. I've connected two IBM 60 GB
+disks to it (one disk per channel). I am using kernel 2.4.17-pre8
+(with CONFIG_BLK_DEV_PDC202XX=y and with/without CONFIG_PDC202XX_BURST=y),
+which nicely detects the extra controller and both disks, hde and hdg. If
+I test the writing and reading speed (hdparm -t, dd if=/dev/zero of=test
+...) separately for each disk, I get the expected figures, like 36-37
+MB/sec for reading, about 30 MB/sec for writing. If, however, I try to
+write simultaneously to both disks, the performance drops drastically. The
+rate for writing is then something like 3.5 MB/sec (!). I wonder if anyone
+have seen anything like that or might have any ideas on how to solve the
+problem.
 
-> what makes you think there's anything wrong with this?  you have tons of
-> memory, and aren't using it hard, so the kernel uses it to cache files,
-> inodes, dentries, etc.
+Suspecting the hardware, I've posted this message to
+comp.os.linux.hardware first, but no one have seen such a behaviour. I
+have also tried different sets of IDE cables.
 
-I know, cache is good. However first of all, 400 to 600 mb of cache used
-for dentries/inodes seems a little steep to me (as not kernel hacker),
-and when i do fire up memory hogging applications (mysql,apache,java
-etc) the 'evaporated' memory is not returned for those applications.
-Resulting in heavy swapping and a non-responsive system. For a dual p3
-with 1 gig of ram, this feels like a problem, yes ;-)
-do note then when i do a simple find /, it do see the memory being used
-in cached and buffers. This is not the case for the 'missing memory'
+Best regards and TIA,
 
-Ken Brownfield wrote,
-> I think "updatedb" at 4am is what you're looking for...  How much disk
-> space do you have on this system?
-The system has 2 x 18Gb scsi disks (/ and /home) and a single raid0 volume (4x 80 gig ide) as archival storage. Doing a find | wc -l on the archives alone tells me i have more then 340000 files there.. (ranging between a few bytes to  > 1 gig)
 
-But indeed, when i run updatedb, the problem of non-visable memory (for
-me using top / free anyways) does apear.. good catch!
+Jurij.
 
-Andrea wrote,
-> this is an icache/dcache problem, can you reproduce on 2.4.17rc1aa1,
-> it will shrink more aggressively.
-
-doing that (updatedb), i dont have to wait a day or so to see what
-happens, mem free (+buffers + cache from /proc/meminfo) is around 550Mb,
-'used memory' (counting ps aux res usage) is < 100Mb. So quite a couple
-of megabytes have disapeard again ;/
-
-	-- Chris
-
+P.S. Please cc responses to me, because I'm not on the list.
 

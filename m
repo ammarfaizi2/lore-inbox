@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129131AbRBXRN1>; Sat, 24 Feb 2001 12:13:27 -0500
+	id <S129397AbRBXRcz>; Sat, 24 Feb 2001 12:32:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129333AbRBXRNR>; Sat, 24 Feb 2001 12:13:17 -0500
-Received: from quattro.sventech.com ([205.252.248.110]:36872 "HELO
-	quattro.sventech.com") by vger.kernel.org with SMTP
-	id <S129131AbRBXRNP>; Sat, 24 Feb 2001 12:13:15 -0500
-Date: Sat, 24 Feb 2001 12:13:13 -0500
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Pifko Krisztian <pifko@kirowski.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] philips rush usb support
-Message-ID: <20010224121312.S16341@sventech.com>
-In-Reply-To: <Pine.LNX.4.30.0102241730370.19866-100000@pifko.kirowski.com>
-Mime-Version: 1.0
+	id <S129447AbRBXRcp>; Sat, 24 Feb 2001 12:32:45 -0500
+Received: from web1301.mail.yahoo.com ([128.11.23.151]:27409 "HELO
+	web1301.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129397AbRBXRck>; Sat, 24 Feb 2001 12:32:40 -0500
+Message-ID: <20010224173234.14673.qmail@web1301.mail.yahoo.com>
+Date: Sat, 24 Feb 2001 09:32:34 -0800 (PST)
+From: Mark Swanson <swansma@yahoo.com>
+Subject: 242-ac3 loop bug
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4i
-In-Reply-To: <Pine.LNX.4.30.0102241730370.19866-100000@pifko.kirowski.com>; from Pifko Krisztian on Sat, Feb 24, 2001 at 05:39:32PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 24, 2001, Pifko Krisztian <pifko@kirowski.com> wrote:
-> I've made a patch which adds usb support for the philips
-> rush mp3 player. The driver is mainly the rio500 driver
-> only the rush specific parts were modified.
-> 
-> The patch is against 2.4.2.
-> 
-> It uses char 180 65 at /dev/usb/rush.
-> 
-> Userspace stuff should be found at http://openrush.sourceforge.net
-> if you have a rush. It works for me on ia32 with the model sa125.
+First, good job on the loop device. It's rock stable for me - except
+when I try to load the blowfish module which oops the kernel and
+crashes the loop device:-) No problem, I just use another cipher.
 
-Why can't the entire driver be in userspace? It appears it uses a
-completely proprietary protocol and you've created a completely
-proprietary interface to the kernel.
+The bug I'm reporting is that when a loop device is in use the load of
+the machine stays at 1.00 even though nothing is happening. If I umount
+the loop filesystem the load goes down to 0.00.
 
-JE
+> ps -aux | grep loop
+1674 tty1     DW<   0:00 [loop0]
 
+The system is doing nothing to the loop filesystem.
+Strange that the process isn't logging any cpu usage time. It's
+definately responsible for the 1.00 load.
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Get email at your own domain with Yahoo! Mail. 
+http://personal.mail.yahoo.com/

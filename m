@@ -1,46 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280647AbRKJNeL>; Sat, 10 Nov 2001 08:34:11 -0500
+	id <S280646AbRKJNi3>; Sat, 10 Nov 2001 08:38:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280646AbRKJNd4>; Sat, 10 Nov 2001 08:33:56 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:39182 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S280637AbRKJNcv>;
-	Sat, 10 Nov 2001 08:32:51 -0500
-Date: Sat, 10 Nov 2001 14:32:49 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Wayne Whitney <whitney@math.berkeley.edu>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Any lingering Athlon bugs in Kernel 2.4.14?
-In-Reply-To: <200111100916.fAA9Gct11298@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-Message-ID: <Pine.LNX.4.33.0111101431320.27286-100000@Expansa.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280653AbRKJNiU>; Sat, 10 Nov 2001 08:38:20 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:39181 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S280646AbRKJNiN>;
+	Sat, 10 Nov 2001 08:38:13 -0500
+Date: Sat, 10 Nov 2001 14:37:58 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linux Kernel Developer <linux_developer@hotmail.com>
+Cc: J Sloan <jjs@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: CPQARRAY driver horribly broken in 2.4.14
+Message-ID: <20011110143758.D17902@suse.de>
+In-Reply-To: <F5uLCTaogxLDp7mvjkO00000742@hotmail.com> <3BEB5149.B0B7990F@pobox.com> <OE36joYAPNXRPmcarcR0001ece1@hotmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="cWoXeonUoKmBZSoM"
+Content-Disposition: inline
+In-Reply-To: <OE36joYAPNXRPmcarcR0001ece1@hotmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, it was a typo, KT!33 and KT133A.
-The bios bug has been reported for many KT133A chipsets, but if you take
-the time to consult the lkml archive, some report are concerning KT133
-chipset.
+
+--cWoXeonUoKmBZSoM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Fri, Nov 09 2001, Linux Kernel Developer wrote:
+> Hi,
+> 
+>     Thanks a lot for the help.  Any particular reason to use the new driver
+> now or should I just wait until 2.4.15 is release?
+> 
+>     Guess I didn't need to do all that debugging.  Bug may have already been
+> caught.  8-)
+> 
+>     However I did notice something.  The patch you've included below covers
+> the cciss.c file?  My system is using the cpqarray driver.  And I fixed the
+> problem by replacing the cpqarray.[ch], ida_cmd.h, and ida_ioctl.h files.  I
+> don't think the patch below would have done anything for me as I'm pretty
+> sure the cciss.c file isn't used by the cpqarray driver and since I didn't
+> change out the cciss.c file in my now working kernel source tree (linux
+> 2.4.14-lkd1 8-D).
+
+You needed the cciss equivalent of the one posted, attached.
+
+-- 
+Jens Axboe
 
 
+--cWoXeonUoKmBZSoM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=cciss-dequeue-1
 
-On Sat, 10 Nov 2001, Wayne Whitney wrote:
+--- linux/drivers/block/cciss.c~	Thu Nov  8 11:36:24 2001
++++ linux/drivers/block/cciss.c	Thu Nov  8 11:37:03 2001
+@@ -1307,6 +1307,8 @@
+ 	if (( c = cmd_alloc(h, 1)) == NULL)
+ 		goto startio;
+ 
++	blkdev_dequeue_request(creq);
++
+ 	spin_unlock_irq(&io_request_lock);
+ 
+ 	c->cmd_type = CMD_RWREQ;      
+@@ -1386,12 +1388,6 @@
+ 
+ 	spin_lock_irq(&io_request_lock);
+ 
+-	blkdev_dequeue_request(creq);
+-
+-        /*
+-         * ehh, we can't really end the request here since it's not
+-         * even started yet. for now it shouldn't hurt though
+-         */
+ 	addQ(&(h->reqQ),c);
+ 	h->Qdepth++;
+ 	if(h->Qdepth > h->maxQsinceinit)
 
-> In mailing-lists.linux-kernel, Luigi Genoni wrote:
->
-> > On Fri, 9 Nov 2001, Calin A. Culianu wrote:
->
-> > > Specifically what chipsets are affected, and/or what things in the BIOS
-> > > can trigger problems?
-> >
-> > VIA KT133 KT133 for sure, with abit bios 1.3R. but We saw report of other
-> > bios with similar problema.
->
-> I just wanted to ask for a clarification, because "VIA KT133 KT133"
-> looks like a typo of some sort.  Does the problem really affect some
-> KT133 motherboards?  I thought it was KT133A specific.
->
-> Thanks, Wayne
->
-
+--cWoXeonUoKmBZSoM--

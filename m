@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318126AbSFTGSr>; Thu, 20 Jun 2002 02:18:47 -0400
+	id <S318127AbSFTGY0>; Thu, 20 Jun 2002 02:24:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318127AbSFTGSq>; Thu, 20 Jun 2002 02:18:46 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:28367 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S318126AbSFTGSq>;
-	Thu, 20 Jun 2002 02:18:46 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S318128AbSFTGYZ>; Thu, 20 Jun 2002 02:24:25 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60175 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318127AbSFTGYY>; Thu, 20 Jun 2002 02:24:24 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Need IDE Taskfile Access
+Date: 19 Jun 2002 23:24:09 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <aerse9$edd$1@cesium.transmeta.com>
+References: <3D1038CC.3090108@evision-ventures.com> <CBELJEJGBEIGHCIMEDHNCEPBCIAA.tillman@viewcast.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15633.29638.375426.808878@napali.hpl.hp.com>
-Date: Wed, 19 Jun 2002 23:18:46 -0700
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Linus <torvalds@transmeta.com>, LKML <linux-kernel@vger.kernel.org>,
-       Trivial Kernel Patches <trivial@rustcorp.com.au>
-Subject: Re: [PATCH] dup_task_struct can be static
-In-Reply-To: <20020620121813.4d1e075f.sfr@canb.auug.org.au>
-References: <20020620121813.4d1e075f.sfr@canb.auug.org.au>
-X-Mailer: VM 7.03 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 20 Jun 2002 12:18:13 +1000, Stephen Rothwell <sfr@canb.auug.org.au> said:
+Followup to:  <CBELJEJGBEIGHCIMEDHNCEPBCIAA.tillman@viewcast.com>
+By author:    "Scott Tillman" <tillman@viewcast.com>
+In newsgroup: linux.dev.kernel
+> 
+> PS: flames about why we are supporting the XBox (a design of the Evil
+> Empire) will be summarily ignored.  I can only point you to it's HDTV, NTSC,
+> PAL, and possibly VGA outputs, it's dvd/cd drive, and it's $199 USD price
+> tag.
+> 
 
-  Stephen> Hi Linus,
-  Stephen> [There may be lots of these depending on how bored I get :-)]
+Not to mention M$ takes a loss for every hardware unit sold.
 
-  Stephen> dup_task_struct is defined and used only in kernel/fork.c.
-
-  Stephen> [This is not quite true, as arch/ia64/kernel/process.c also
-  Stephen> defines a global dup_task_struct function, but I don't know
-  Stephen> how it could ever be called.]
-
-It does---once you apply a small patch by David Howells which hasn't
-made it into Linus' tree yet.
-
-	--david
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

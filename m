@@ -1,68 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262019AbUBWTra (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 14:47:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbUBWTra
+	id S262023AbUBWTzX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 14:55:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbUBWTzX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 14:47:30 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:38796 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262015AbUBWTrQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 14:47:16 -0500
-Subject: [PATCH] linux-2.6.3_time-interpolator-fix_A0
-From: john stultz <johnstul@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Chris McDermott <lcm@us.ibm.com>, ia64 <linux-ia64@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>,
-       David Mosberger <davidm@hpl.hp.com>
-In-Reply-To: <16435.3326.193311.110598@napali.hpl.hp.com>
-References: <1077081648.985.27.camel@cog.beaverton.ibm.com>
-	 <1077086574.985.56.camel@cog.beaverton.ibm.com>
-	 <16435.3326.193311.110598@napali.hpl.hp.com>
-Content-Type: text/plain
-Message-Id: <1077565468.19860.78.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 23 Feb 2004 11:44:29 -0800
+	Mon, 23 Feb 2004 14:55:23 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:13723 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S262021AbUBWTzR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 14:55:17 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16442.23201.23710.686062@napali.hpl.hp.com>
+Date: Mon, 23 Feb 2004 11:55:13 -0800
+To: john stultz <johnstul@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Chris McDermott <lcm@us.ibm.com>,
+       ia64 <linux-ia64@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>,
+       David Mosberger <davidm@hpl.hp.com>
+Subject: Re: [PATCH] linux-2.6.3_time-interpolator-fix_A0
+In-Reply-To: <1077565468.19860.78.camel@cog.beaverton.ibm.com>
+References: <1077081648.985.27.camel@cog.beaverton.ibm.com>
+	<1077086574.985.56.camel@cog.beaverton.ibm.com>
+	<16435.3326.193311.110598@napali.hpl.hp.com>
+	<1077565468.19860.78.camel@cog.beaverton.ibm.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Resending to Andrew and LKML]
+>>>>> On Mon, 23 Feb 2004 11:44:29 -0800, john stultz <johnstul@us.ibm.com> said:
 
-All,
-	In developing the ia64-cyclone patch, which implements a cyclone based
-time interpolator, I found the following bug which could cause time
-inconsistencies. 
+  John> This patch removes the incorrect call to
+  John> time_interpolator_update and was found to resolve the time
+  John> inconsistencies I had seen while developing the ia64-cyclone
+  John> patch.
 
-In update_wall_time_one_tick(), which is called each timer interrupt, we
-call time_interpolator_update(delta_nsec) where delta_nsec is
-approximately NSEC_PER_SEC/HZ. This directly correlates with the changes
-to xtime which occurs in update_wall_time_one_tick().
+  John> Please consider for inclusion.
 
-However in update_wall_time(), on a second overflow, we again call
-time_interpolator_update(NSEC_PER_SEC). However while the components of
-xtime are being changed, the overall value of xtime does not (nsec is
-decremented NSEC_PER_SEC and sec is incremented).  Thus this call to
-time_interpolator_update is incorrect.
+In case it isn't clear: this patch has my support.
 
-This patch removes the incorrect call to time_interpolator_update and
-was found to resolve the time inconsistencies I had seen while
-developing the ia64-cyclone patch.
-
-Please consider for inclusion.
-
-
-diff -Nru a/kernel/timer.c b/kernel/timer.c
---- a/kernel/timer.c	Wed Feb 18 12:04:03 2004
-+++ b/kernel/timer.c	Wed Feb 18 12:04:03 2004
-@@ -677,7 +677,6 @@
- 	if (xtime.tv_nsec >= 1000000000) {
- 	    xtime.tv_nsec -= 1000000000;
- 	    xtime.tv_sec++;
--	    time_interpolator_update(NSEC_PER_SEC);
- 	    second_overflow();
- 	}
- }
-
-
+	--david

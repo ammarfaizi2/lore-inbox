@@ -1,89 +1,389 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264716AbVBEAu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266525AbVBEAoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264716AbVBEAu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 19:50:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263217AbVBEAuU
+	id S266525AbVBEAoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 19:44:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265279AbVBEAiP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 19:50:20 -0500
-Received: from rproxy.gmail.com ([64.233.170.201]:10348 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S264748AbVBEAsp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 19:48:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Pq5a2VtJRQVwlKE9yISAHHIUk0eK56iAV18Bv6FSEjEui0uWuTFb+knAH9WyJ4dAuj0lhl31qzqBpK6//fg47Kj4n3dsWQIUgkKcBt5kUk2Vs6i5bFy3QR66BtMZ6TOCwfUwZE992pIK0iXY1YU3UCtz0Yopoxo0V8Wr750dl7o=
-Message-ID: <9e47339105020416486cf19738@mail.gmail.com>
-Date: Fri, 4 Feb 2005 19:48:45 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Subject: Re: Legacy IO spaces (was Re: [RFC] Reliable video POSTing on resume)
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ncunningham@linuxmail.org, ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Matthew Garrett <mjg59@srcf.ucam.org>
-In-Reply-To: <200502041534.03004.jbarnes@engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 4 Feb 2005 19:38:15 -0500
+Received: from natnoddy.rzone.de ([81.169.145.166]:7058 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S266546AbVBEAdd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 19:33:33 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] PPC/PPC64: Introduce CPU_HAS_FEATURE() macro
+Date: Sat, 5 Feb 2005 01:22:21 +0100
+User-Agent: KMail/1.6.2
+Cc: linuxppc64-dev <linuxppc64-dev@ozlabs.org>, Andrew Morton <akpm@osdl.org>,
+       Tom Rini <trini@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
+       "H. Peter Anvin" <hpa@zytor.com>
+References: <20050204072254.GA17565@austin.ibm.com> <200502041336.59892.arnd@arndb.de> <1107560989.2189.119.camel@gaston>
+In-Reply-To: <1107560989.2189.119.camel@gaston>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_CHBBCzWHaeUdQZn";
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-References: <20050122134205.GA9354@wsc-gmbh.de>
-	 <200502041010.13220.jbarnes@engr.sgi.com>
-	 <9e4733910502041459500ae8d3@mail.gmail.com>
-	 <200502041534.03004.jbarnes@engr.sgi.com>
+Message-Id: <200502050122.27254.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > /sys/class/pci_bus I show three buses. You wouldn't want the
-> > legacy_io/mem attributes on each of these three buses since that
-> > implies three independent address spaces.
-> >
-> > [jonsmirl@jonsmirl pci_bus]$ ls /sys/class/pci_bus
-> > 0000:00  0000:01  0000:02
-> 
-> In that case they'll all point to the same memory and I/O space.  On the
-> machines I coded it on, each bus has its own space.
 
-If they all point to the same space, I can't tell whether I have three
-legacy spaces or one. I need to know how many legacy spaces there are
-in order to know how many VGA cards can simultaneously be enabled.
+--Boundary-02=_CHBBCzWHaeUdQZn
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> We might have to add more arch code in that case, but I thought it might be
-> easiest for apps if they could just open the space for the bus they're
-> interested in and it would be routed correctly.  I think that'll be ok so
-> long as two apps aren't trying to do stuff on the bus at the same time.
-> 
-> > In order to know how many VGA many simultaneous VGA devices you can
-> > have there needs to be some way to count the number of legacy address
-> > spaces. Maybe there should be a /sys/class/legacy to describe the
-> > legacy spaces. Is it possible to have the same legacy space aliased at
-> > two different addresses depending on which root bus is used to get to
-> > it?
+On S=FCnnavend 05 Februar 2005 00:49, Benjamin Herrenschmidt wrote:
+> On Fri, 2005-02-04 at 13:36 +0100, Arnd Bergmann wrote:
+> > I have a somewhat similar patch that does the same to the
+> > systemcfg->platform checks. I'm not sure if we should use the same inli=
+ne
+> > function for both checks, but I do think that they should be used in a
+> > similar way, e.g. CPU_HAS_FEATURE(x) and PLATFORM_HAS_FEATURE(x).
+>=20
+> Note that I would prefer cpu_has_feature(), it doesn't strictly have to
+> be a macro and has function semantics anyway.
 
-What I meant by the questions is how can my video reset program ask
-these questions, it needs to know the answers in order to properly
-reset the VGA hardware.  There needs to be some way to figure out the
-answers from sysfs info.
+> > [ ... ]=20
+> > which will always result in the shortest code for any combination of
+> > CONFIG_PPC_ISERIES, CONFIG_PPC_PSERIES and the other platforms.
+>=20
+> That's a good idea !
 
-1) how many legacy spaces are there
-no way to tell 
-2) how many VGA devices are in each space
-no way to tell, you need to know which legacy space each card is in
-3) how do I do VGA bus routing to access the VGA device
-I've posted code that starts doing this
-4) how do I address each of the devices.
-The routing code I posted needs to be update to handle multiple spaces.
+This is the patch to evaluate CPU_HAS_FEATURE() at compile time whenever
+possible. Testing showed that vmlinux shrinks around 4000 bytes with
+g5_defconfig. I also checked that pSeries code is completely unaltered
+semantically when support for all CPU types is enabled, although a few
+instructions are emitted in a different order by gcc.
 
-For example I might have a machine with 3 spaces, 2 vga in #1, 1 in #2
-and zero in #3. In that case I can have two active VGA's. My home
-machine has one space and 2 vga's so I can have one active. There
-needs to be enough info available to figure this out.
+I have made cpu_has_feature() an inline function that expects the full
+name of a feature bit while the CPU_HAS_FEATURE() macro still behaves
+the same way as in Olofs original patch for now.
 
-Or maybe the answer is simpler, if the legacy_io/mem attributes exist,
-then you can assume each bus has it's own legacy space. If they don't
-exist then there is a single legacy space. Is this a safe assumption?
+I'm not sure if I got the Kconfig dependencies right, maybe you can
+check them.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+
+=2D--
+Index: linux-2.6-64/include/asm-ppc64/cputable.h
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+=2D-- linux-2.6-64.orig/include/asm-ppc64/cputable.h	2005-02-05 01:24:58.97=
+5674192 +0100
++++ linux-2.6-64/include/asm-ppc64/cputable.h	2005-02-05 01:26:17.328762712=
+ +0100
+@@ -66,9 +66,6 @@
+ extern struct cpu_spec		cpu_specs[];
+ extern struct cpu_spec		*cur_cpu_spec;
+=20
+=2D#define CPU_HAS_FEATURE(x)	(cur_cpu_spec->cpu_features & CPU_FTR_##x)
+=2D
+=2D
+ /* firmware feature bitmask values */
+ #define FIRMWARE_MAX_FEATURES 63
+=20
+@@ -154,6 +151,80 @@
+ #define CPU_FTR_PPCAS_ARCH_V2	(CPU_FTR_PPCAS_ARCH_V2_BASE | CPU_FTR_16M_PA=
+GE)
+ #endif
+=20
++/* We only set the altivec features if the kernel was compiled with altivec
++ * support
++ */
++#ifdef CONFIG_ALTIVEC
++#define CPU_FTR_ALTIVEC_COMP	CPU_FTR_ALTIVEC
++#define PPC_FEATURE_HAS_ALTIVEC_COMP PPC_FEATURE_HAS_ALTIVEC
++#else
++#define CPU_FTR_ALTIVEC_COMP	0
++#define PPC_FEATURE_HAS_ALTIVEC_COMP    0
++#endif
++
++enum {
++	CPU_FTR_POWER3 =3D CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB |
++			 CPU_FTR_HPTE_TABLE | CPU_FTR_IABR | CPU_FTR_PMC8,
++	CPU_FTR_RS64   =3D CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB |
++			 CPU_FTR_HPTE_TABLE | CPU_FTR_IABR | CPU_FTR_PMC8 |
++			 CPU_FTR_MMCRA,
++	CPU_FTR_POWER4 =3D CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB |
++			 CPU_FTR_HPTE_TABLE | CPU_FTR_PPCAS_ARCH_V2 |
++			 CPU_FTR_PMC8 | CPU_FTR_MMCRA,
++	CPU_FTR_PPC970 =3D CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB |
++			 CPU_FTR_HPTE_TABLE | CPU_FTR_PPCAS_ARCH_V2 |
++			 CPU_FTR_ALTIVEC_COMP | CPU_FTR_CAN_NAP |
++			 CPU_FTR_PMC8 | CPU_FTR_MMCRA,
++	CPU_FTR_POWER5 =3D CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB |
++			 CPU_FTR_HPTE_TABLE | CPU_FTR_PPCAS_ARCH_V2 |
++			 CPU_FTR_MMCRA | CPU_FTR_SMT | CPU_FTR_COHERENT_ICACHE |
++			 CPU_FTR_LOCKLESS_TLBIE | CPU_FTR_MMCRA_SIHV,
++	CPU_FTR_COMPATIBLE =3D CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB |
++			 CPU_FTR_HPTE_TABLE | CPU_FTR_PPCAS_ARCH_V2,
++	CPU_FTR_POSSIBLE =3D
++#ifdef CONFIG_CPU_POWER3
++			 CPU_FTR_POWER3 |
++#endif
++#ifdef CONFIG_CPU_RS64
++			 CPU_FTR_RS64 |
++#endif
++#ifdef CONFIG_CPU_POWER4
++			 CPU_FTR_POWER4 |
++#endif
++#ifdef CONFIG_CPU_PPC970
++			 CPU_FTR_PPC970 |
++#endif
++#ifdef CONFIG_CPU_POWER5
++			 CPU_FTR_POWER5 |
++#endif
++			 0,
++	CPU_FTR_ALWAYS =3D
++#ifdef CONFIG_CPU_POWER3
++			 CPU_FTR_POWER3 &
++#endif
++#ifdef CONFIG_CPU_RS64
++			 CPU_FTR_RS64 &
++#endif
++#ifdef CONFIG_CPU_POWER4
++			 CPU_FTR_POWER4 &
++#endif
++#ifdef CONFIG_CPU_PPC970
++			 CPU_FTR_PPC970 &
++#endif
++#ifdef CONFIG_CPU_POWER5
++			 CPU_FTR_POWER5 &
++#endif
++			 CPU_FTR_POSSIBLE,
++};
++
++static inline int cpu_has_feature(unsigned long feature)
++{
++	return (CPU_FTR_ALWAYS & feature) ||
++	       (CPU_FTR_POSSIBLE & feature & cur_cpu_spec->cpu_features);
++}
++
++#define CPU_HAS_FEATURE(x) cpu_has_feature(CPU_FTR_##x)
++
+ #define COMMON_PPC64_FW	(0)
+ #endif
+=20
+Index: linux-2.6-64/arch/ppc64/Kconfig
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+=2D-- linux-2.6-64.orig/arch/ppc64/Kconfig	2005-02-05 01:24:31.098912104 +0=
+100
++++ linux-2.6-64/arch/ppc64/Kconfig	2005-02-05 01:25:01.430301032 +0100
+@@ -107,6 +107,31 @@
+ 	bool
+ 	default y
+=20
++config CPU_POWER3
++	bool
++	default y
++	depends on (PPC_ISERIES || PPC_PSERIES) && !POWER4_ONLY
++
++config CPU_RS64
++	bool
++	default y
++	depends on (PPC_ISERIES || PPC_PSERIES) && !POWER4_ONLY
++
++config CPU_POWER4
++	bool
++	default y
++	depends on PPC_ISERIES || PPC_PSERIES
++
++config CPU_PPC970
++	bool
++	default y
++	depends on PPC_PSERIES || PPC_PMAC || PPC_MAPLE
++
++config CPU_POWER5
++	bool
++	default y
++	depends on PPC_PSERIES
++
+ # VMX is pSeries only for now until somebody writes the iSeries
+ # exception vectors for it
+ config ALTIVEC
+Index: linux-2.6-64/arch/ppc64/kernel/cputable.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+=2D-- linux-2.6-64.orig/arch/ppc64/kernel/cputable.c	2005-02-05 01:24:31.09=
+8912104 +0100
++++ linux-2.6-64/arch/ppc64/kernel/cputable.c	2005-02-05 01:25:01.431300880=
+ +0100
+@@ -33,137 +33,94 @@
+ extern void __setup_cpu_ppc970(unsigned long offset, struct cpu_spec* spec=
+);
+=20
+=20
+=2D/* We only set the altivec features if the kernel was compiled with alti=
+vec
+=2D * support
+=2D */
+=2D#ifdef CONFIG_ALTIVEC
+=2D#define CPU_FTR_ALTIVEC_COMP	CPU_FTR_ALTIVEC
+=2D#define PPC_FEATURE_HAS_ALTIVEC_COMP PPC_FEATURE_HAS_ALTIVEC
+=2D#else
+=2D#define CPU_FTR_ALTIVEC_COMP	0
+=2D#define PPC_FEATURE_HAS_ALTIVEC_COMP    0
+=2D#endif
+=2D
+ struct cpu_spec	cpu_specs[] =3D {
+     {	/* Power3 */
+ 	    0xffff0000, 0x00400000, "POWER3 (630)",
+=2D	    CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_HPTE_TABLE |
+=2D		    CPU_FTR_IABR | CPU_FTR_PMC8,
+=2D	    COMMON_USER_PPC64,
++	    CPU_FTR_POWER3, COMMON_USER_PPC64,
+ 	    128, 128,
+ 	    __setup_cpu_power3,
+ 	    COMMON_PPC64_FW
+     },
+     {	/* Power3+ */
+ 	    0xffff0000, 0x00410000, "POWER3 (630+)",
+=2D	    CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_HPTE_TABLE |
+=2D		    CPU_FTR_IABR | CPU_FTR_PMC8,
+=2D	    COMMON_USER_PPC64,
++	    CPU_FTR_POWER3, COMMON_USER_PPC64,
+ 	    128, 128,
+ 	    __setup_cpu_power3,
+ 	    COMMON_PPC64_FW
+     },
+     {	/* Northstar */
+ 	    0xffff0000, 0x00330000, "RS64-II (northstar)",
+=2D	    CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_HPTE_TABLE |
+=2D		    CPU_FTR_IABR | CPU_FTR_PMC8 | CPU_FTR_MMCRA,
+=2D	    COMMON_USER_PPC64,
++	    CPU_FTR_RS64, COMMON_USER_PPC64,
+ 	    128, 128,
+ 	    __setup_cpu_power3,
+ 	    COMMON_PPC64_FW
+     },
+     {	/* Pulsar */
+ 	    0xffff0000, 0x00340000, "RS64-III (pulsar)",
+=2D	    CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_HPTE_TABLE |
+=2D		    CPU_FTR_IABR | CPU_FTR_PMC8 | CPU_FTR_MMCRA,
+=2D	    COMMON_USER_PPC64,
++	    CPU_FTR_RS64, COMMON_USER_PPC64,
+ 	    128, 128,
+ 	    __setup_cpu_power3,
+ 	    COMMON_PPC64_FW
+     },
+     {	/* I-star */
+ 	    0xffff0000, 0x00360000, "RS64-III (icestar)",
+=2D	    CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_HPTE_TABLE |
+=2D		    CPU_FTR_IABR | CPU_FTR_PMC8 | CPU_FTR_MMCRA,
+=2D	    COMMON_USER_PPC64,
++	    CPU_FTR_RS64, COMMON_USER_PPC64,
+ 	    128, 128,
+ 	    __setup_cpu_power3,
+ 	    COMMON_PPC64_FW
+     },
+     {	/* S-star */
+ 	    0xffff0000, 0x00370000, "RS64-IV (sstar)",
+=2D	    CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_HPTE_TABLE |
+=2D		    CPU_FTR_IABR | CPU_FTR_PMC8 | CPU_FTR_MMCRA,
+=2D	    COMMON_USER_PPC64,
++	    CPU_FTR_RS64, COMMON_USER_PPC64,
+ 	    128, 128,
+ 	    __setup_cpu_power3,
+ 	    COMMON_PPC64_FW
+     },
+     {	/* Power4 */
+ 	    0xffff0000, 0x00350000, "POWER4 (gp)",
+=2D	    CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_HPTE_TABLE |
+=2D		    CPU_FTR_PPCAS_ARCH_V2 | CPU_FTR_PMC8 | CPU_FTR_MMCRA,
+=2D	    COMMON_USER_PPC64,
++	    CPU_FTR_POWER4, COMMON_USER_PPC64,
+ 	    128, 128,
+ 	    __setup_cpu_power4,
+ 	    COMMON_PPC64_FW
+     },
+     {	/* Power4+ */
+ 	    0xffff0000, 0x00380000, "POWER4+ (gq)",
+=2D	    CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_HPTE_TABLE |
+=2D		    CPU_FTR_PPCAS_ARCH_V2 | CPU_FTR_PMC8 | CPU_FTR_MMCRA,
+=2D	    COMMON_USER_PPC64,
++	    CPU_FTR_POWER4, COMMON_USER_PPC64,
+ 	    128, 128,
+ 	    __setup_cpu_power4,
+ 	    COMMON_PPC64_FW
+     },
+     {	/* PPC970 */
+ 	    0xffff0000, 0x00390000, "PPC970",
+=2D	    CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_HPTE_TABLE |
+=2D		    CPU_FTR_PPCAS_ARCH_V2 | CPU_FTR_ALTIVEC_COMP |
+=2D		    CPU_FTR_CAN_NAP | CPU_FTR_PMC8 | CPU_FTR_MMCRA,
+=2D	    COMMON_USER_PPC64 | PPC_FEATURE_HAS_ALTIVEC_COMP,
++	    CPU_FTR_PPC970, COMMON_USER_PPC64 | PPC_FEATURE_HAS_ALTIVEC_COMP,
+ 	    128, 128,
+ 	    __setup_cpu_ppc970,
+ 	    COMMON_PPC64_FW
+     },
+     {	/* PPC970FX */
+ 	    0xffff0000, 0x003c0000, "PPC970FX",
+=2D	    CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_HPTE_TABLE |
+=2D		    CPU_FTR_PPCAS_ARCH_V2 | CPU_FTR_ALTIVEC_COMP |
+=2D		    CPU_FTR_CAN_NAP | CPU_FTR_PMC8 | CPU_FTR_MMCRA,
+=2D	    COMMON_USER_PPC64 | PPC_FEATURE_HAS_ALTIVEC_COMP,
++	    CPU_FTR_PPC970, COMMON_USER_PPC64 | PPC_FEATURE_HAS_ALTIVEC_COMP,
+ 	    128, 128,
+ 	    __setup_cpu_ppc970,
+ 	    COMMON_PPC64_FW
+     },
+     {	/* Power5 */
+ 	    0xffff0000, 0x003a0000, "POWER5 (gr)",
+=2D	    CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_HPTE_TABLE |
+=2D		    CPU_FTR_PPCAS_ARCH_V2 | CPU_FTR_MMCRA | CPU_FTR_SMT |
+=2D		    CPU_FTR_COHERENT_ICACHE | CPU_FTR_LOCKLESS_TLBIE |
+=2D		    CPU_FTR_MMCRA_SIHV,
+=2D	    COMMON_USER_PPC64,
++	    CPU_FTR_POWER5, COMMON_USER_PPC64,
+ 	    128, 128,
+ 	    __setup_cpu_power4,
+ 	    COMMON_PPC64_FW
+     },
+     {	/* Power5 */
+ 	    0xffff0000, 0x003b0000, "POWER5 (gs)",
+=2D	    CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_HPTE_TABLE |
+=2D		    CPU_FTR_PPCAS_ARCH_V2 | CPU_FTR_MMCRA | CPU_FTR_SMT |
+=2D		    CPU_FTR_COHERENT_ICACHE | CPU_FTR_LOCKLESS_TLBIE |
+=2D		    CPU_FTR_MMCRA_SIHV,
+=2D	    COMMON_USER_PPC64,
++	    CPU_FTR_POWER5, COMMON_USER_PPC64,
+ 	    128, 128,
+ 	    __setup_cpu_power4,
+ 	    COMMON_PPC64_FW
+     },
+     {	/* default match */
+ 	    0x00000000, 0x00000000, "POWER4 (compatible)",
+=2D  	    CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_HPTE_TABLE |
+=2D		    CPU_FTR_PPCAS_ARCH_V2,
+=2D	    COMMON_USER_PPC64,
++	    CPU_FTR_COMPATIBLE, COMMON_USER_PPC64,
+ 	    128, 128,
+ 	    __setup_cpu_power4,
+ 	    COMMON_PPC64_FW
+
+--Boundary-02=_CHBBCzWHaeUdQZn
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBCBBHC5t5GS2LDRf4RAl4SAJ9h43dYrLP1lyMv7GJFtRrHjv0ttwCfWELv
+8OkfHhJ6x6ZY11po8IwTsn8=
+=R0q2
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_CHBBCzWHaeUdQZn--

@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271783AbRHRFbI>; Sat, 18 Aug 2001 01:31:08 -0400
+	id <S271788AbRHRF5m>; Sat, 18 Aug 2001 01:57:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271785AbRHRFa6>; Sat, 18 Aug 2001 01:30:58 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:34636 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S271784AbRHRFar>; Sat, 18 Aug 2001 01:30:47 -0400
-Date: Sat, 18 Aug 2001 01:31:01 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: johannes@erdfelt.com
-Cc: linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>
-Subject: Patch for bizzare oops in USB
-Message-ID: <20010818013101.A7058@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S271787AbRHRF5c>; Sat, 18 Aug 2001 01:57:32 -0400
+Received: from 35.roland.net ([65.112.177.35]:15365 "EHLO earth.roland.net")
+	by vger.kernel.org with ESMTP id <S271786AbRHRF5T>;
+	Sat, 18 Aug 2001 01:57:19 -0400
+Message-ID: <00df01c127a8$c354ad20$bb1cfa18@JimWS>
+From: "Jim Roland" <jroland@roland.net>
+To: "dlang" <dlang@enabledparadigm.com>, <dmaynor@iceland.oit.gatech.edu>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0108161947460.5456-100000@web.lang.hm>
+Subject: Re: Aliases
+Date: Sat, 18 Aug 2001 00:43:52 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I ran webcam(1) with ov511 and if I hit ^C, the box oopses.
-Apparently, the following happens:
+Having recently gone from 2.2 to 2.4 what's the device convention now?  I
+thought it was eth0 (example) and eth0:0 .. eth0:255, but knew kernel 2.4
+would take it further.
 
-1. On SIGINT, v4l closes ov511, which isses a string of
-   control requests to quescent the cam.
-2. One of those requests enters usb_internal_control_msg
-   where it submits the URB and does schedule_timeout().
-3. Since the signal is pending [sic], it does not wait,
-   but spins testing urb->status.
-4. The interrupt is taken on other CPU and it gets into
-   sohci_return_urb, then clears status and calls urb_rm_priv.
-5. The user thread sees that status becomes zero and *frees the URB*.
-6. The urb_rm_priv takes a spinlock and does its dirty buseness.
-7. User thread reallocates the URB and resubmits it,
-   waiting on the spinlock meanwhile.
-8. urb_rm_priv zaps urb->dev in the URB which was already
-   freed and reallocated and releases the spinlock.
-9. The user thread keels over deep inside td_submit_urb()
-   dereferencing urb->dev->something
+----- Original Message -----
+From: "dlang" <dlang@enabledparadigm.com>
+To: <dmaynor@iceland.oit.gatech.edu>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Thursday, August 16, 2001 9:48 PM
+Subject: Re: Aliases
 
-Took me a couple of days to figure it all out. :)
 
-diff -ur -X dontdiff linux-2.4.8/drivers/usb/usb.c linux-2.4.8-e/drivers/usb/usb.c
---- linux-2.4.8/drivers/usb/usb.c	Tue Jul 24 14:20:56 2001
-+++ linux-2.4.8-e/drivers/usb/usb.c	Fri Aug 17 22:03:27 2001
-@@ -1066,7 +1066,7 @@
-   
- 	awd.wakeup = &wqh;
- 	init_waitqueue_head(&wqh); 	
--	current->state = TASK_INTERRUPTIBLE;
-+	current->state = TASK_UNINTERRUPTIBLE;	/* MUST BE SO. -- zaitcev */
- 	add_wait_queue(&wqh, &wait);
- 	urb->context = &awd;
- 	status = usb_submit_urb(urb);
+> I haven't run into it yet, and yesterday I setup a box with >1700
+>
+> David Lang
+>
+>
+>
+> On Thu, 16 Aug 2001 dmaynor@iceland.oit.gatech.edu wrote:
+>
+> > Date: Thu, 16 Aug 2001 17:11:27 -0400
+> > From: dmaynor@iceland.oit.gatech.edu
+> > To: linux-kernel@vger.kernel.org
+> > Subject: Aliases
+> >
+> > Is their a limit on the number of alias interfaces you can have under
+2.4?
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

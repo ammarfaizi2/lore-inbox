@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266195AbUARBQc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 20:16:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266205AbUARBQc
+	id S265818AbUARBOt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 20:14:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266025AbUARBOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 20:16:32 -0500
-Received: from mail0-96.ewetel.de ([212.6.122.96]:60605 "EHLO mail0.ewetel.de")
-	by vger.kernel.org with ESMTP id S266195AbUARBQa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 20:16:30 -0500
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Making MO drive work with ide-cd
-In-Reply-To: <1f8mw-3Qk-1@gated-at.bofh.it>
-References: <1f8mw-3Qk-1@gated-at.bofh.it>
-Date: Sun, 18 Jan 2004 02:16:18 +0100
-Message-Id: <E1Ai1Y2-0000cj-00@neptune.local>
-From: Pascal Schmidt <der.eremit@email.de>
-X-CheckCompat: OK
+	Sat, 17 Jan 2004 20:14:49 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:29584 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S265818AbUARBOs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 20:14:48 -0500
+Date: Sat, 17 Jan 2004 23:11:08 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: Stephen Smoogen <smoogen@lanl.gov>, linux-kernel@vger.kernel.org
+Subject: Re: AIC7xxx kernel problem with 2.4.2[234] kernels
+In-Reply-To: <2582475408.1074292759@aslan.btc.adaptec.com>
+Message-ID: <Pine.LNX.4.58L.0401172303260.32216@logos.cnet>
+References: <1074289406.5752.5.camel@smoogen2.lanl.gov>
+ <2582475408.1074292759@aslan.btc.adaptec.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Jan 2004 00:50:04 +0100, you wrote in linux.kernel:
 
-> By some coincidence I got hold of an MO drive today. Under 2.4.21
-> and 2.6.1 using ide-scsi all seems to work at first sight.
 
-For me, it doesn't work at all with ide-scsi in 2.6. 2.4 is fine
-in that regard.
+On Fri, 16 Jan 2004, Justin T. Gibbs wrote:
 
-> With ide-cd I get errors only.
-> Not surprising: ide-cd expects a CD so sends READ_TOC and
-> gets "illegal request / invalid command" back.
-> The appropriate command is READ CAPACITY.
+> > Booting problems with aic7xxx with stock kernel 2.4.24.
+>
+> ...
+>
+> > Unexpected busfree while idle
+> > SEQ 0x01
+>
+> A problem with similar symptoms was corrected in driver version 6.2.37
+> back in August of last year.  Can you try using the latest driver source
+> from here:
+>
+> 	http://people.FreeBSD.org/~gibbs/linux/SRC/
+>
+> and see if your problem persists?  The aic79xx driver archive at the
+> above location includes both the aic7xxx and aic79xx drivers.  If this
+> does not resolve your problem there are other debugging options we can
+> enable that may aid in tracking down the problem.
 
-There is a patch by me with some rework by Jens Axboe in -mm that
-corrects this situation. It hasn't seen much testing, though.
+Hi Justin,
 
-By the way, what hardware sector size does your MO use? I have
-only tested my patch with 2048 byte sector size - everything else
-is unlikely to work with ide-cd...
- 
-> Are there cases where ide-cd is useful?
-> Should we retarget ide_optical to ide-scsi?
+Stephen informed me privately that aic7xxx_old works for him.
 
-Please fill the whole disk and then reread and compare via ide-scsi.
-That never worked for me in 2.6 using ide-scsi, but it does work
-with the patch in -mm.
+About the aic7xxx update, well, I believe aic7xxx 6.2.36 is pretty stable
+(I dont remember seeing any reliable bug report and I also cant find one
+in lkml archives) except this one (and a pair of "lockup on initialization
+with SMP").
 
-I agree that the situation in mainline as it is now is undesirable,
-only mounting prewritten discs read-only works.
+What bugs are you aware of in 2.4's aic7xxx ?
 
--- 
-Ciao,
-Pascal
+

@@ -1,77 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130433AbRCGIOq>; Wed, 7 Mar 2001 03:14:46 -0500
+	id <S130434AbRCGIX0>; Wed, 7 Mar 2001 03:23:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130434AbRCGIOg>; Wed, 7 Mar 2001 03:14:36 -0500
-Received: from servo.isi.edu ([128.9.160.111]:59911 "EHLO servo.isi.edu")
-	by vger.kernel.org with ESMTP id <S130433AbRCGIOV>;
-	Wed, 7 Mar 2001 03:14:21 -0500
-Message-Id: <200103070813.f278DUw06475@servo.isi.edu>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Mapping a piece of one process' addrspace to another? 
-In-Reply-To: Message from Marcelo Tosatti <marcelo@conectiva.com.br> 
-   of "Wed, 07 Mar 2001 03:02:14 -0300." <Pine.LNX.4.21.0103070301310.1548-100000@freak.distro.conectiva> 
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <6472.983952810.1@servo.isi.edu>
-Date: Wed, 07 Mar 2001 00:13:30 -0800
-From: Jeremy Elson <jelson@circlemud.org>
+	id <S130435AbRCGIXG>; Wed, 7 Mar 2001 03:23:06 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:47856 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S130434AbRCGIW4>; Wed, 7 Mar 2001 03:22:56 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200103070820.f278KpD04486@webber.adilger.net>
+Subject: Re: RAID, 2.4.2 and Buslogic
+In-Reply-To: <Pine.LNX.4.33.0103061015130.1695-100000@twinlark.arctic.org> from
+ Jauder Ho at "Mar 6, 2001 11:53:07 pm"
+To: Jauder Ho <jauderho@carumba.com>
+Date: Wed, 7 Mar 2001 01:20:51 -0700 (MST)
+CC: lnz@dandelion.com, alan@www.linux.org.uk, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti writes:
->On Wed, 7 Mar 2001, Alexander Viro wrote:
->> You are reinventing the wheel.
->> man ptrace (see PTRACE_{PEEK,POKE}{TEXT,DATA} and PTRACE_{ATTACH,CONT,DETACH})
->
->With ptrace data will be copied twice. As far as I understood, Jeremy
->wants to avoid that. 
+Jauder Ho writes:
+> My story is somewhat similar to what Dick Johnson has encountered except
+> this is with 2.4.2 running on a pentium 200.
+> 
+> EXT2-fs error (device md(9,0)): ext2_add_entry: bad entry in directory
+> #343396:
+> inode out of bounds - offset=0, inode=343396, rec_len=12, name_len=1
+> EXT2-fs error (device md(9,0)): ext2_write_inode: bad inode number: 12
+> 
+> EXT2-fs error (device md(9,0)): free_inode: reserved inode or nonexistent
+> inode
+> kernel BUG at inode.c:885!
 
-Yes - I've been looking at the sys_ptrace code and it seems that it
-does two copies through the kernel (but, using access_process_vm
-instead of copy_from_user -- I'm not sure how they differ).  I'm
-trying to reduce the number of copies by giving one process a pointer
-into another process's address space.
+Inode 12 is a perfectly valid inode number for any filesystem, so your
+ext2 superblock must have been corrupt (or zeroed out) at this point.
+The value for sb->u.ext2_sb.s_es->s_inodes_count must have been < 12
+(likely zero), which would explain all of these errors.  Strange.
 
-Right now, my code looks something like this: (it might make more
-sense if you know that I've written a framework for writing user-space
-device drivers... I'm going to be releasing it soon, hopefully after I
-resolve this performance problem.  Or maybe before, if it's hard.)
+I have posted (twice) a patch which would prevent the BUG from happening.
+Granted, it won't help your RAID/SCSI corruption problem (*).  Please see
 
-   Process X: (any arbitrary process)
-        read(fd, my_local_buffer);
-   Kernel:
-        [notifies process Y that X needs data]
-   Process Y: (the userspace device driver)
-        memcpy(my_local_buffer, data_destined_for_process_x);
-        write(fd, my_local_buffer);
-   Kernel (in sys_write:)
-        copy_from_user(kernel_buffer, Y's my_local_buffer);
-        copy_to_user(X's my_local_buffer, kernel_buffer);     
+  [PATCH] sanity checks for ext2 root inode
 
-Now, this all works fine, but it's slower than I'd like.  I used SGI's
-kernprof (oss.sgi.com/projects/kernprof) and found that the kernel was
-spending most of its time (like 70%) in copy_to_user and
-copy_from_user.  So, I am hoping to make this all go faster, while
-hopefully preserving correctness, by changing to something like this:
+in l-k archives.  I don't think this is in either Linus' or Alan's tree.
 
-   Process X:
-        read(fd, my_local_buffer);
-   Kernel:
-        [maps X's my_local_buffer to Y's address space]
-        [notifies process Y that X needs data, and sends along a
-	 pointer to write data to, or a handle usable by shmat,
-         or something]
-   Process Y:
-         memcpy(X's my_local_buffer, data_destined_for_process_x);
+Cheers, Andreas
 
-If I'm lucky we can avoid both copy_to_user and copy_from_user.
-
-This would be easy if X was a "cooperative" process because we could
-just set up a shared memory segment between the two processes.  The
-problem is that X is not cooperative -- it can be any existing
-program.
-
-Regards,
-Jeremy
+(*) in normal cases this prevents a small filesystem corruption from
+    halting the system, but in your case, the BUG may have prevented
+    larger corruption by halting the system before more damage was done?
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

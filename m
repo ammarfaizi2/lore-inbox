@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266295AbUFPO2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266298AbUFPOdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266295AbUFPO2A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 10:28:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266321AbUFPO0Y
+	id S266298AbUFPOdG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 10:33:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266313AbUFPObf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 10:26:24 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:5805 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S266307AbUFPOYV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 10:24:21 -0400
-Message-Id: <200406160149.i5G1nCC1004688@eeyore.valparaiso.cl>
-To: Alexandre Oliva <aoliva@redhat.com>
-cc: Matthias Schniedermeyer <ms@citd.de>,
-       Cesar Eduardo Barros <cesarb@nitnet.com.br>,
-       linux-kernel@vger.kernel.org, Alexander Viro <viro@math.psu.edu>
-Subject: Re: [PATCH] O_NOATIME support 
-In-Reply-To: Message from Alexandre Oliva <aoliva@redhat.com> 
-   of "15 Jun 2004 16:02:12 -0300." <orbrjkabm3.fsf@free.redhat.lsd.ic.unicamp.br> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Tue, 15 Jun 2004 21:49:12 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Wed, 16 Jun 2004 10:31:35 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:35757 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S266316AbUFPO2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 10:28:15 -0400
+Message-ID: <40D058F3.5070109@nortelnetworks.com>
+Date: Wed, 16 Jun 2004 10:28:03 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Sabharwal, Atul" <atul.sabharwal@intel.com>
+CC: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [Announce] Non Invasive Kernel Monitor for threads/processes
+References: <66539F0E7F15B44C9C0FC50D0FF024F7B1A324@orsmsx407>
+In-Reply-To: <66539F0E7F15B44C9C0FC50D0FF024F7B1A324@orsmsx407>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexandre Oliva <aoliva@redhat.com> said:
-> On Jun 14, 2004, Matthias Schniedermeyer <ms@citd.de> wrote:
+Sabharwal, Atul wrote:
 
-[...]
+> How does auditing work in the event of a process failure ? There would
+> be
+> no system call triggered in that case.  Also, my initial thoughts are
+> that the non-invasive Kmonitor is lesser performance impact when
+> compared
+> to auditing. I would spend some time developing sample code to confirm
+> it.
 
-> -> You can disable updating the atime for the whole filesystem.
-> 
-> As a sysadmin that intends to use atime as proof, you don't do that.
+Just to put in my $.02.  We developed a very simple (even simpler than Kmonitor 
+in that it didn't track fork/exec) way for a process to get notified when other 
+processes exited (properly or otherwise).  We want to use this in the field for 
+a lifecycle monitoring function (a sort of super-init) so it needs to be as 
+lightweight as possible.  I'd love to be able to use something from the mainline 
+kernel, but it has to be field-runnable without slowing stuff down.
 
-And you disable touch(1) too?
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Chris

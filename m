@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264226AbUDSAju (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 20:39:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264229AbUDSAju
+	id S264228AbUDSArE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 20:47:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbUDSArE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 20:39:50 -0400
-Received: from florence.buici.com ([206.124.142.26]:27011 "HELO
-	florence.buici.com") by vger.kernel.org with SMTP id S264226AbUDSAjs
+	Sun, 18 Apr 2004 20:47:04 -0400
+Received: from mail.shareable.org ([81.29.64.88]:52131 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S264228AbUDSArC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 20:39:48 -0400
-Date: Sun, 18 Apr 2004 17:39:47 -0700
-From: Marc Singer <elf@buici.com>
-To: Rik van Riel <riel@redhat.com>
-Cc: Marc Singer <elf@buici.com>, Andrew Morton <akpm@osdl.org>,
-       wli@holomorphy.com, linux-kernel@vger.kernel.org
-Subject: Re: vmscan.c heuristic adjustment for smaller systems
-Message-ID: <20040419003947.GA15958@flea>
-References: <20040418061529.GF19595@flea> <Pine.LNX.4.44.0404182025290.10183-100000@chimarrao.boston.redhat.com>
+	Sun, 18 Apr 2004 20:47:02 -0400
+Date: Mon, 19 Apr 2004 01:46:57 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: chris@scary.beasts.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Nasty 2.6 sendfile() bug / regression; affects vsftpd
+Message-ID: <20040419004657.GD11064@mail.shareable.org>
+References: <Pine.LNX.4.58.0404180026490.16486@sphinx.mythic-beasts.com> <Pine.LNX.4.58.0404172005260.23917@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0404182025290.10183-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <Pine.LNX.4.58.0404172005260.23917@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 18, 2004 at 08:26:13PM -0400, Rik van Riel wrote:
-> On Sat, 17 Apr 2004, Marc Singer wrote:
-> 
-> > I thought I sent a message about this.  I've found that the problem
-> > *only* occurs when there is exactly one process running.
-> 
-> BINGO!  ;)
-> 
-> Looks like this could be the referenced bits not being
-> flushed from the MMU and not found by the VM...
+Looking at related code, sys_sendfile64 a few lines down.
 
-Can you be a little more verbose for me?  The ARM MMU doesn't keep
-track of page references, AFAICT.  How does a context switch change
-this?  
+	if (unlikely(copy_from_user(&pos, offset, sizeof(loff_t))))
+		return -EFAULT;
 
-I have looked into the case where the TLB for an old page isn't being
-flushed (by design), but I've been unable to fix the problem by
-forcing a TLB flush whenever a PTE is zeroed.
+	if (unlikely(put_user(pos, offset)))
+		return -EFAULT;
 
+It seems odd that put_user() is used to write an 8-byte value, but
+get_user() cannot be used read one.  I looked in <asm-i386/uaccess.h>
+and indeed the asymmetry is there.
+
+Is there a reason why put_user() supports 1/2/4/8 bytes and get_user()
+supports only 1/2/4 bytes?
+
+-- Jamie

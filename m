@@ -1,35 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265607AbTFND5I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 23:57:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265608AbTFND5I
+	id S265610AbTFND6X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 23:58:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265611AbTFND6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 23:57:08 -0400
-Received: from ip68-111-188-90.sd.sd.cox.net ([68.111.188.90]:21201 "EHLO
-	rei.moonkingdom.net") by vger.kernel.org with ESMTP id S265607AbTFND5H
+	Fri, 13 Jun 2003 23:58:23 -0400
+Received: from 12-234-128-127.client.attbi.com ([12.234.128.127]:9424 "EHLO
+	andrei.myip.org") by vger.kernel.org with ESMTP id S265610AbTFND6R
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 23:57:07 -0400
-Date: Fri, 13 Jun 2003 21:10:55 -0700
-From: Marc Wilson <msw@cox.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: WESTERN DIGITAL 200GB IDE DRIVES GO OFFLINE - HOW TO FIX
-Message-ID: <20030614041055.GE2357@moonkingdom.net>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.53.0306111115530.14178@p500> <1055346538.2420.3.camel@dhcp22.swansea.linux.org.uk> <3EE75FF0.3080702@treblig.org> <20030611172712.GB31051@gtf.org> <20030611180055.GA30456@hobbes.itsari.int> <20030611230831.GA17250@mcgroarty.net>
+	Fri, 13 Jun 2003 23:58:17 -0400
+Subject: generic method to assign IRQs
+From: Florin Andrei <florin@andrei.myip.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1055563922.11874.29.camel@rivendell.home.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030611230831.GA17250@mcgroarty.net>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-1) 
+Date: 13 Jun 2003 21:12:02 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 11, 2003 at 06:08:31PM -0500, Brian McGroarty wrote:
-> Is there a way to perform this update without throwing down for a
-> Windows CD or DOS and a floppy drive?
+Is there any generic method to manually assign IRQs to devices? Not
+something that applies to one kernel module or another, but something
+that works in general.
 
-Sure.  Get a copy of FreeDOS.  Their bootable CD is just the ticket.
+It happens quite often, especially on multimedia workstations, when
+multiple devices get assigned the same IRQ, the performance goes down
+the toilet, and users experience strange things like "my video capture
+application stutters when my system sends/receives traffic on the
+network card."
+In such cases, the usual recommendation is to "shuffle the PCI cards
+around." Sometimes that works, sometimes it doesn't. It definitely
+doesn't apply to laptops.
+Another trick is to enable APIC in the kernel. While this is not a
+direct solution, it helps sometimes by providing a larger IRQ space. In
+some rare cases it makes the systems less stable.
+
+However, quite often i've heard people saying "i wish i could just
+manually assign IRQs to devices, just like i do on That Other Operating
+System."
+
+This issue may not matter much on "normal" systems, but it matters a
+whole bunch on multimedia machines. Not being able to untangle like five
+or six devices assigned to the same IRQ may render an otherwise powerful
+system totally unusable for any decent media purpose (i'm talking here
+about simple tasks such as watching movies, not necessarily of
+professional stuff, which is even more demanding).
+
+Any suggestions?
+
+Thanks,
 
 -- 
- Marc Wilson |     "It was a virgin forest, a place where the Hand of
- msw@cox.net |     Man had never set foot."
+Florin Andrei
+
+http://florin.myip.org/
+

@@ -1,1001 +1,234 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261371AbSLONGS>; Sun, 15 Dec 2002 08:06:18 -0500
+	id <S266520AbSLONL0>; Sun, 15 Dec 2002 08:11:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261463AbSLONGS>; Sun, 15 Dec 2002 08:06:18 -0500
-Received: from gateway.cinet.co.jp ([210.166.75.129]:48961 "EHLO
-	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S261371AbSLONGE>; Sun, 15 Dec 2002 08:06:04 -0500
-Message-ID: <3DFC7F7A.A3DE194C@cinet.co.jp>
-Date: Sun, 15 Dec 2002 22:11:22 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.50-ac1-pc98smp i686)
-X-Accept-Language: ja
+	id <S266528AbSLONL0>; Sun, 15 Dec 2002 08:11:26 -0500
+Received: from vsmtp3.tin.it ([212.216.176.223]:5282 "EHLO smtp3.cp.tin.it")
+	by vger.kernel.org with ESMTP id <S266520AbSLONLU>;
+	Sun, 15 Dec 2002 08:11:20 -0500
+Message-ID: <3DFC81C2.4020807@tin.it>
+Date: Sun, 15 Dec 2002 14:21:06 +0100
+From: AnonimoVeneziano <voloterreno@tin.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021210 Debian/1.2.1-3
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCHSET] PC-9800 addtional for 2.5.50-ac1 (19/21)
-References: <3DFC50E9.656B96D0@cinet.co.jp>
-Content-Type: multipart/mixed;
- boundary="------------1A01343B438699210B0197A3"
+To: linux-kernel@vger.kernel.org
+Subject: Re: IDE-CD and VT8235 issue!!!
+References: <3DFB7B21.7040004@tin.it> <200212142019.14449.black666@inode.at> <3DFBC4F3.2070603@tin.it>
+In-Reply-To: <3DFBC4F3.2070603@tin.it>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------1A01343B438699210B0197A3
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+Here the "kern.log" file in the loading of the ide support, so you can 
+examine better the problem, Thank you very much, Bye
 
-NEC PC-9800 subarchitecture support patch for 2.5.50-ac1 (19/21)
-This patch is for SCSI driver.
-I separate scsicam98.c from scsicam.c and do some cleanup.
+PS= The load of ide-cd is at the end, because I've load it after the 
+system start.
 
-diffstat:
- drivers/scsi/Kconfig        |    7 +
- drivers/scsi/Makefile       |   10 +
- drivers/scsi/pc980155.c     |  263 ++++++++++++++++++++++++++++++++++++++++++++
- drivers/scsi/pc980155.h     |   47 +++++++
- drivers/scsi/pc980155regs.h |   89 ++++++++++++++
- drivers/scsi/scsi_scan.c    |    1 
- drivers/scsi/scsi_syms.c    |    4 
- drivers/scsi/scsicam98.c    |  192 ++++++++++++++++++++++++++++++++
- drivers/scsi/sd.c           |   24 +++-
- drivers/scsi/wd33c93.c      |   57 ++++++---
- drivers/scsi/wd33c93.h      |    5 
- 11 files changed, 677 insertions(+), 22 deletions(-)
-
-Regards,
-Osamu Tomita
---------------1A01343B438699210B0197A3
-Content-Type: text/plain; charset=iso-2022-jp;
- name="scsi.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="scsi.patch"
-
-diff -urN linux/drivers/scsi/Kconfig linux98/drivers/scsi/Kconfig
---- linux/drivers/scsi/Kconfig	Mon Nov 11 15:46:15 2002
-+++ linux98/drivers/scsi/Kconfig	Mon Nov 11 16:53:06 2002
-@@ -1729,6 +1729,13 @@
- 	  see the picture at
- 	  <http://amiga.multigraph.com/photos/oktagon.html>.
- 
-+config SCSI_PC980155
-+	tristate "NEC PC-9801-55 SCSI support"
-+	depends on PC9800 && SCSI
-+	help
-+	  If you have the NEC PC-9801-55 SCSI interface card or compatibles
-+	  for NEC PC-9801/PC-9821, say Y.
-+
- #      bool 'Cyberstorm Mk III SCSI support (EXPERIMENTAL)' CONFIG_CYBERSTORMIII_SCSI
- #      bool 'GVP Turbo 040/060 SCSI support (EXPERIMENTAL)' CONFIG_GVP_TURBO_SCSI
- endmenu
-diff -urN linux/drivers/scsi/Makefile linux98/drivers/scsi/Makefile
---- linux/drivers/scsi/Makefile	2002-11-28 07:36:17.000000000 +0900
-+++ linux98/drivers/scsi/Makefile	2002-12-14 15:08:42.000000000 +0900
-@@ -31,6 +31,7 @@
- obj-$(CONFIG_A3000_SCSI)	+= a3000.o	wd33c93.o
- obj-$(CONFIG_A2091_SCSI)	+= a2091.o	wd33c93.o
- obj-$(CONFIG_GVP11_SCSI)	+= gvp11.o	wd33c93.o
-+obj-$(CONFIG_SCSI_PC980155)	+= pc980155.o	wd33c93.o
- obj-$(CONFIG_MVME147_SCSI)	+= mvme147.o	wd33c93.o
- obj-$(CONFIG_SGIWD93_SCSI)	+= sgiwd93.o	wd33c93.o
- obj-$(CONFIG_CYBERSTORM_SCSI)	+= NCR53C9x.o	cyberstorm.o
-@@ -122,9 +123,16 @@
- obj-$(CONFIG_BLK_DEV_SR)	+= sr_mod.o
- obj-$(CONFIG_CHR_DEV_SG)	+= sg.o
- 
--scsi_mod-objs	:= scsi.o hosts.o scsi_ioctl.o constants.o scsicam.o \
-+scsi_mod-objs	:= scsi.o hosts.o scsi_ioctl.o constants.o \
- 		   scsi_error.o scsi_lib.o scsi_scan.o scsi_syms.o
- 
-+ifneq ($(CONFIG_PC9800),y)
-+scsi_mod-objs	+= scsicam.o
-+else
-+export-objs	+= wd33c93.o
-+scsi_mod-objs	+= scsicam98.o
-+endif
-+
- ifdef CONFIG_PROC_FS
- scsi_mod-objs	+= scsi_proc.o
- endif
-diff -urN linux/drivers/scsi/pc980155.c linux98/drivers/scsi/pc980155.c
---- linux/drivers/scsi/pc980155.c	1970-01-01 09:00:00.000000000 +0900
-+++ linux98/drivers/scsi/pc980155.c	2002-12-15 12:09:04.000000000 +0900
-@@ -0,0 +1,263 @@
-+#include <linux/kernel.h>
-+#include <linux/types.h>
-+#include <linux/mm.h>
-+#include <linux/blk.h>
-+#include <linux/sched.h>
-+#include <linux/version.h>
-+#include <linux/init.h>
-+#include <linux/ioport.h>
-+#include <linux/interrupt.h>
-+
-+#include <asm/page.h>
-+#include <asm/pgtable.h>
-+#include <asm/irq.h>
-+#include <asm/dma.h>
-+#include <linux/module.h>
-+
-+#include "scsi.h"
-+#include "hosts.h"
-+#include "wd33c93.h"
-+#include "pc980155.h"
-+#include "pc980155regs.h"
-+
-+#define DEBUG
-+
-+#include<linux/stat.h>
-+
-+static inline void __print_debug_info(unsigned int);
-+static inline void __print_debug_info(unsigned int a){}
-+#define print_debug_info() __print_debug_info(base_io);
-+
-+#define NR_BASE_IOS 4
-+static int nr_base_ios = NR_BASE_IOS;
-+static unsigned int base_ios[NR_BASE_IOS] = {0xcc0, 0xcd0, 0xce0, 0xcf0};
-+static unsigned int  SASR;
-+static unsigned int  SCMD;
-+static wd33c93_regs regs = {&SASR, &SCMD};
-+
-+static struct Scsi_Host *pc980155_host = NULL;
-+
-+static void pc980155_intr_handle(int irq, void *dev_id, struct pt_regs *regp);
-+
-+inline void pc980155_dma_enable(unsigned int base_io){
-+  outb(0x01, REG_CWRITE);
-+  WAIT();
-+}
-+inline void pc980155_dma_disable(unsigned int base_io){
-+  outb(0x02, REG_CWRITE);
-+  WAIT();
-+}
-+
-+
-+static void pc980155_intr_handle(int irq, void *dev_id, struct pt_regs *regp)
-+{
-+  wd33c93_intr(pc980155_host);
-+}
-+
-+static int dma_setup(Scsi_Cmnd *sc, int dir_in){
-+  /*
-+   * sc->SCp.this_residual : transfer count
-+   * sc->SCp.ptr : distination address (virtual address)
-+   * dir_in : data direction (DATA_OUT_DIR:0 or DATA_IN_DIR:1)
-+   *
-+   * if success return 0
-+   */
-+
-+   /*
-+    * DMA WRITE MODE
-+    * bit 7,6 01b single mode (this mode only)
-+    * bit 5   inc/dec (default:0 = inc)
-+    * bit 4   auto initialize (normaly:0 = off)
-+    * bit 3,2 01b memory -> io
-+    *         10b io -> memory
-+    *         00b verify
-+    * bit 1,0 channel
-+    */
-+  disable_dma(sc->host->dma_channel);
-+  set_dma_mode(sc->host->dma_channel, 0x40 | (dir_in ? 0x04 : 0x08));
-+  clear_dma_ff(sc->host->dma_channel);
-+  set_dma_addr(sc->host->dma_channel, virt_to_phys(sc->SCp.ptr));
-+  set_dma_count(sc->host->dma_channel, sc->SCp.this_residual);
-+#if 0
-+#ifdef DEBUG
-+  printk("D%d(%x)D", sc->SCp.this_residual);
-+#endif
-+#endif
-+  enable_dma(sc->host->dma_channel);
-+
-+  pc980155_dma_enable(sc->host->io_port);
-+
-+  return 0;
-+}
-+
-+static void dma_stop(struct Scsi_Host *instance, Scsi_Cmnd *sc, int status){
-+  /*
-+   * instance: Hostadapter's instance
-+   * sc: scsi command
-+   * status: True if success
-+   */
-+
-+  pc980155_dma_disable(sc->host->io_port);
-+
-+  disable_dma(sc->host->dma_channel);
-+}  
-+
-+/* return non-zero on detection */
-+static inline int pc980155_test_port(wd33c93_regs regs)
-+{
-+	/* Quick and dirty test for presence of the card. */
-+	if (READ_AUX_STAT() == 0xff)
-+		return 0;
-+	return 1;
-+}
-+
-+static inline int
-+pc980155_getconfig(unsigned int base_io, wd33c93_regs regs,
-+		    unsigned char* irq, unsigned char* dma,
-+		    unsigned char* scsi_id)
-+{
-+	static unsigned char irqs[] = { 3, 5, 6, 9, 12, 13 };
-+	unsigned char result;
-+  
-+	printk(KERN_DEBUG "PC-9801-55: base_io=%x SASR=%x SCMD=%x\n",
-+		base_io, *regs.SASR, *regs.SCMD);
-+	result = read_wd33c93(regs, WD_RESETINT);
-+	printk(KERN_DEBUG "PC-9801-55: getting config (%x)\n", result);
-+	*scsi_id = result & 0x07;
-+	*irq = (result >> 3) & 0x07;
-+	if (*irq > 5) {
-+		printk(KERN_ERR "PC-9801-55 (base %#x): impossible IRQ (%d)"
-+			" - other device here?\n", base_io, *irq);
-+		return 0;
-+	}
-+
-+	*irq = irqs[*irq];
-+	result = inb(REG_STATRD);
-+	WAIT();
-+	*dma = result & 0x03;
-+	if (*dma == 1) {
-+		printk(KERN_ERR
-+			"PC-9801-55 (base %#x): impossible DMA channl (%d)"
-+			" - other device here?\n", base_io, *dma);
-+		return 0;
-+	}
-+#ifdef DEBUG
-+	printk("PC-9801-55: end of getconfig\n");
-+#endif
-+	return 1;
-+}
-+
-+/* return non-zero on detection */
-+int scsi_pc980155_detect(Scsi_Host_Template* tpnt)
-+{
-+	unsigned int base_io;
-+	unsigned char irq, dma, scsi_id;
-+	int i;
-+#ifdef DEBUG
-+	unsigned char debug;
-+#endif
-+  
-+	for (i = 0; i < nr_base_ios; i++) {
-+		base_io = base_ios[i];
-+		SASR = REG_ADDRST;
-+		SCMD = REG_CONTRL;
-+
-+    /*    printk("PC-9801-55: SASR(%x = %x)\n", SASR, REG_ADDRST); */
-+		if (check_region(base_io, 6))
-+			continue;
-+		if (! pc980155_test_port(regs))
-+			continue;
-+
-+		if (!pc980155_getconfig(base_io, regs, &irq, &dma, &scsi_id))
-+			continue;
-+#ifdef DEBUG
-+		printk("PC-9801-55: config: base io = %x, irq = %d, dma channel = %d, scsi id = %d\n",
-+			base_io, irq, dma, scsi_id);
-+#endif
-+		if (request_irq(irq, pc980155_intr_handle, 0, "PC-9801-55",
-+				 NULL)) {
-+			printk(KERN_ERR
-+				"PC-9801-55: unable to allocate IRQ %d\n",
-+				irq);
-+			continue;
-+		}
-+		if (request_dma(dma, "PC-9801-55")) {
-+			printk(KERN_ERR "PC-9801-55: "
-+				"unable to allocate DMA channel %d\n", dma);
-+			free_irq(irq, NULL);
-+			continue;
-+		}
-+
-+		request_region(base_io, 6, "PC-9801-55");
-+		pc980155_host = scsi_register(tpnt, sizeof(struct WD33C93_hostdata));
-+		pc980155_host->this_id = scsi_id;
-+		pc980155_host->io_port = base_io;
-+		pc980155_host->n_io_port = 6;
-+		pc980155_host->irq = irq;
-+		pc980155_host->dma_channel = dma;
-+
-+#ifdef DEBUG
-+		printk("PC-9801-55: scsi host found at %x irq = %d, use dma channel %d.\n", base_io, irq, dma);
-+		debug = read_aux_stat(regs);
-+		printk("PC-9801-55: aux: %x ", debug);
-+		debug = read_wd33c93(regs, 0x17);
-+		printk("status: %x\n", debug);
-+#endif
-+
-+		pc980155_int_enable(regs);
-+  
-+		wd33c93_init(pc980155_host, regs, dma_setup, dma_stop,
-+			      WD33C93_FS_12_15);
-+    
-+		return 1;
-+	}
-+
-+	printk("PC-9801-55: not found\n");
-+	return 0;
-+}
-+
-+int pc980155_proc_info(char *buf, char **start, off_t off, int len,
-+			int hostno, int in)
-+{
-+	/* NOT SUPPORTED YET! */
-+
-+	if (in) {
-+		return -EPERM;
-+	}
-+	*start = buf;
-+	return sprintf(buf, "Sorry, not supported yet.\n");
-+}
-+
-+int pc980155_setup(char *str)
-+{
-+next:
-+  if (!strncmp(str, "io:", 3)){
-+    base_ios[0] = simple_strtoul(str+3,NULL,0);
-+    nr_base_ios = 1;
-+    while (*str > ' ' && *str != ',')
-+      str++;
-+    if (*str == ','){
-+      str++;
-+      goto next;
-+    }
-+  }
-+  return 0;
-+}
-+
-+int scsi_pc980155_release(struct Scsi_Host *pc980155_host)
-+{
-+#ifdef MODULE
-+        pc980155_int_disable(regs);
-+        release_region(pc980155_host->io_port, pc980155_host->n_io_port);
-+        free_irq(pc980155_host->irq, NULL);
-+        free_dma(pc980155_host->dma_channel);
-+        wd33c93_release();
-+#endif
-+    return 1;
-+}
-+
-+__setup("pc980155=", pc980155_setup);
-+
-+Scsi_Host_Template driver_template = SCSI_PC980155;
-+
-+#include "scsi_module.c"
-diff -urN linux/drivers/scsi/pc980155.h linux98/drivers/scsi/pc980155.h
---- linux/drivers/scsi/pc980155.h	1970-01-01 09:00:00.000000000 +0900
-+++ linux98/drivers/scsi/pc980155.h	2002-12-15 12:05:05.000000000 +0900
-@@ -0,0 +1,47 @@
-+/*
-+ *  PC-9801-55 SCSI host adapter driver
-+ *
-+ *  Copyright (C) 1997-2000  Kyoto University Microcomputer Club
-+ *			     (Linux/98 project)
-+ */
-+
-+#ifndef _SCSI_PC9801_55_H
-+#define _SCSI_PC9801_55_H
-+
-+#include <linux/types.h>
-+#include <linux/kdev_t.h>
-+#include <scsi/scsicam.h>
-+
-+int wd33c93_queuecommand(Scsi_Cmnd *, void (*done)(Scsi_Cmnd *));
-+int wd33c93_abort(Scsi_Cmnd *);
-+int wd33c93_reset(Scsi_Cmnd *, unsigned int);
-+int scsi_pc980155_detect(Scsi_Host_Template *);
-+int scsi_pc980155_release(struct Scsi_Host *);
-+int pc980155_proc_info(char *, char **, off_t, int, int, int);
-+
-+#ifndef CMD_PER_LUN
-+#define CMD_PER_LUN 2
-+#endif
-+
-+#ifndef CAN_QUEUE
-+#define CAN_QUEUE 16
-+#endif
-+
-+#define SCSI_PC980155 {	.proc_name =		"PC-9801-55",		\
-+  			.name =			"SCSI PC-9801-55",	\
-+			.proc_info =		pc980155_proc_info,	\
-+			.detect =		scsi_pc980155_detect,	\
-+			.release =		scsi_pc980155_release,	\
-+			/* command: use queue command */		\
-+			.queuecommand =		wd33c93_queuecommand,	\
-+			.abort =		wd33c93_abort,		\
-+			.reset =		wd33c93_reset,		\
-+			.bios_param =		scsicam_bios_param,	\
-+			.can_queue =		CAN_QUEUE,		\
-+			.this_id =		7,			\
-+			.sg_tablesize =		SG_ALL,			 \
-+			.cmd_per_lun =		CMD_PER_LUN, /* dont use link command */ \
-+			.unchecked_isa_dma =	1, /* use dma **XXXX***/ \
-+			.use_clustering =	ENABLE_CLUSTERING }
-+
-+#endif /* _SCSI_PC9801_55_H */
-diff -urN linux/drivers/scsi/pc980155regs.h linux98/drivers/scsi/pc980155regs.h
---- linux/drivers/scsi/pc980155regs.h	Thu Jan  1 09:00:00 1970
-+++ linux98/drivers/scsi/pc980155regs.h	Mon Dec  3 18:44:10 2001
-@@ -0,0 +1,89 @@
-+#ifndef __PC980155REGS_H
-+#define __PC980155REGS_H
-+
-+#include "wd33c93.h"
-+
-+#define REG_ADDRST (base_io+0)
-+#define REG_CONTRL (base_io+2)
-+#define REG_CWRITE (base_io+4)
-+#define REG_STATRD (base_io+4)
-+
-+#define WD_MEMORYBANK 0x30
-+#define WD_RESETINT   0x33
-+
-+#if 0
-+#define WAIT() outb(0x00,0x5f)
-+#else
-+#define WAIT() do{}while(0)
-+#endif
-+
-+static inline uchar read_wd33c93(const wd33c93_regs regs, uchar reg_num)
-+{
-+  uchar data;
-+  outb(reg_num, *regs.SASR);
-+  WAIT();
-+  data = inb(*regs.SCMD);
-+  WAIT();
-+  return data;
-+}
-+
-+static inline uchar read_aux_stat(const wd33c93_regs regs)
-+{
-+  uchar result;
-+  result = inb(*regs.SASR);
-+  WAIT();
-+  /*  printk("PC-9801-55: regp->SASR(%x) = %x\n", regp->SASR, result); */
-+  return result;
-+}
-+#define READ_AUX_STAT() read_aux_stat(regs)
-+
-+static inline void write_wd33c93(const wd33c93_regs regs, uchar reg_num,
-+				 uchar value)
-+{
-+  outb(reg_num, *regs.SASR);
-+  WAIT();
-+  outb(value, *regs.SCMD);
-+  WAIT();
-+}
-+
-+
-+#define write_wd33c93_cmd(regs,cmd) write_wd33c93(regs,WD_COMMAND,cmd)
-+
-+static inline void write_wd33c93_count(const wd33c93_regs regs,
-+					unsigned long value)
-+{
-+   outb(WD_TRANSFER_COUNT_MSB, *regs.SASR);
-+   WAIT();
-+   outb((value >> 16) & 0xff, *regs.SCMD);
-+   WAIT();
-+   outb((value >> 8)  & 0xff, *regs.SCMD);
-+   WAIT();
-+   outb( value        & 0xff, *regs.SCMD);
-+   WAIT();
-+}
-+
-+
-+static inline unsigned long read_wd33c93_count(const wd33c93_regs regs)
-+{
-+unsigned long value;
-+
-+   outb(WD_TRANSFER_COUNT_MSB, *regs.SASR);
-+   value = inb(*regs.SCMD) << 16;
-+   value |= inb(*regs.SCMD) << 8;
-+   value |= inb(*regs.SCMD);
-+   return value;
-+}
-+
-+static inline void write_wd33c93_cdb(const wd33c93_regs regs, unsigned int len,
-+					unsigned char cmnd[])
-+{
-+  int i;
-+  outb(WD_CDB_1, *regs.SASR);
-+  for (i=0; i<len; i++)
-+    outb(cmnd[i], *regs.SCMD);
-+}
-+
-+#define pc980155_int_enable(regs)  write_wd33c93(regs, WD_MEMORYBANK, read_wd33c93(regs, WD_MEMORYBANK) | 0x04)
-+#define pc980155_int_disable(regs) write_wd33c93(regs, WD_MEMORYBANK, read_wd33c93(regs, WD_MEMORYBANK) & ~0x04)
-+
-+#endif
-diff -urN linux/drivers/scsi/scsi_scan.c linux98/drivers/scsi/scsi_scan.c
---- linux/drivers/scsi/scsi_scan.c	Mon Nov 18 13:29:52 2002
-+++ linux98/drivers/scsi/scsi_scan.c	Tue Nov 19 11:04:14 2002
-@@ -129,6 +129,7 @@
- 	{"MITSUMI", "CD-R CR-2201CS", "6119", BLIST_NOLUN},	/* locks up */
- 	{"RELISYS", "Scorpio", NULL, BLIST_NOLUN},	/* responds to all lun */
- 	{"MICROTEK", "ScanMaker II", "5.61", BLIST_NOLUN},	/* responds to all lun */
-+	{"NEC", "D3856", "0009", BLIST_NOLUN},
- 
- 	/*
- 	 * Other types of devices that have special flags.
-diff -urN linux/drivers/scsi/scsi_syms.c linux98/drivers/scsi/scsi_syms.c
---- linux/drivers/scsi/scsi_syms.c	2002-11-28 07:36:00.000000000 +0900
-+++ linux98/drivers/scsi/scsi_syms.c	2002-12-14 14:27:53.000000000 +0900
-@@ -95,6 +95,10 @@
- EXPORT_SYMBOL(scsi_host_put);
- EXPORT_SYMBOL(scsi_device_types);
- 
-+/* For PC-9800 architecture support */
-+extern struct scsi_device *sd_find_params_by_bdev(struct block_device *, char **, sector_t *);
-+EXPORT_SYMBOL(sd_find_params_by_bdev);
-+
- /*
-  * Externalize timers so that HBAs can safely start/restart commands.
-  */
-diff -urN linux/drivers/scsi/scsicam98.c linux98/drivers/scsi/scsicam98.c
---- linux/drivers/scsi/scsicam98.c	1970-01-01 09:00:00.000000000 +0900
-+++ linux98/drivers/scsi/scsicam98.c	2002-12-14 14:55:28.000000000 +0900
-@@ -0,0 +1,192 @@
-+/*
-+ *
-+ *  scsicam98.c
-+ *   SCSI CAM support functions for NEC PC-9801 , use for HDIO_GETGEO, etc.
-+ *
-+ *  Copyright (c) 1999-2002 Osamu Tomita <tomita@cinet.co.jp>
-+ *    Based on scsicam.c written by Drew Eckhardt
-+ *
-+ */
-+
-+#include <linux/module.h>
-+
-+#include <linux/fs.h>
-+#include <linux/genhd.h>
-+#include <linux/kernel.h>
-+#include <linux/blk.h>
-+#include <linux/buffer_head.h>
-+#include <asm/unaligned.h>
-+#include "scsi.h"
-+#include "hosts.h"
-+#include <scsi/scsicam.h>
-+#include <asm/pc9800.h>
-+
-+
-+unsigned char *scsi_bios_ptable(struct block_device *dev)
-+{
-+	unsigned char *res = kmalloc(66, GFP_KERNEL);
-+	if (res) {
-+		struct block_device *bdev = dev->bd_contains;
-+		struct buffer_head *bh = __bread(bdev, 0, block_size(bdev));
-+		if (bh) {
-+			memcpy(res, bh->b_data + 0x1be, 66);
-+			brelse(bh);
-+		} else {
-+			kfree(res);
-+			res = NULL;
-+		}
-+	}
-+	return res;
-+}
-+
-+/*
-+ * Function : static int scsi_partsize(unsigned char *buf, unsigned long 
-+ *     capacity,unsigned int *cyls, unsigned int *hds, unsigned int *secs);
-+ *
-+ * Purpose : to determine the BIOS mapping used to create the partition
-+ *      table, storing the results in *cyls, *hds, and *secs 
-+ *
-+ * Returns : -1 on failure, 0 on success.
-+ *
-+ */
-+
-+int scsi_partsize(unsigned char *buf, unsigned long capacity,
-+	       unsigned int *cyls, unsigned int *hds, unsigned int *secs)
-+{
-+	struct partition *p = (struct partition *)buf, *largest = NULL;
-+	int i, largest_cyl;
-+	int cyl, ext_cyl, end_head, end_cyl, end_sector;
-+	unsigned int logical_end, physical_end, ext_physical_end;
-+
-+
-+	if (*(unsigned short *) (buf + 64) == 0xAA55) {
-+		for (largest_cyl = -1, i = 0; i < 4; ++i, ++p) {
-+			if (!p->sys_ind)
-+				continue;
-+#ifdef DEBUG
-+			printk("scsicam98 : partition %d has system \n", i);
-+#endif
-+			cyl = p->cyl + ((p->sector & 0xc0) << 2);
-+			if (cyl > largest_cyl) {
-+				largest_cyl = cyl;
-+				largest = p;
-+			}
-+		}
-+	}
-+	if (largest) {
-+		end_cyl = largest->end_cyl + ((largest->end_sector & 0xc0) << 2);
-+		end_head = largest->end_head;
-+		end_sector = largest->end_sector & 0x3f;
-+
-+		if (end_head + 1 == 0 || end_sector == 0)
-+			return -1;
-+
-+#ifdef DEBUG
-+		printk("scsicam98 : end at h = %d, c = %d, s = %d\n",
-+		       end_head, end_cyl, end_sector);
-+#endif
-+
-+		physical_end = end_cyl * (end_head + 1) * end_sector +
-+		    end_head * end_sector + end_sector;
-+
-+		/* This is the actual _sector_ number at the end */
-+		logical_end = get_unaligned(&largest->start_sect)
-+		    + get_unaligned(&largest->nr_sects);
-+
-+		/* This is for >1023 cylinders */
-+		ext_cyl = (logical_end - (end_head * end_sector + end_sector))
-+		    / (end_head + 1) / end_sector;
-+		ext_physical_end = ext_cyl * (end_head + 1) * end_sector +
-+		    end_head * end_sector + end_sector;
-+
-+#ifdef DEBUG
-+		printk("scsicam98 : logical_end=%d physical_end=%d ext_physical_end=%d ext_cyl=%d\n"
-+		  ,logical_end, physical_end, ext_physical_end, ext_cyl);
-+#endif
-+
-+		if ((logical_end == physical_end) ||
-+		  (end_cyl == 1023 && ext_physical_end == logical_end)) {
-+			*secs = end_sector;
-+			*hds = end_head + 1;
-+			*cyls = capacity / ((end_head + 1) * end_sector);
-+			return 0;
-+		}
-+#ifdef DEBUG
-+		printk("scsicam98 : logical (%u) != physical (%u)\n",
-+		       logical_end, physical_end);
-+#endif
-+	}
-+	return -1;
-+}
-+
-+/* XXX - For now, we assume the first (i.e. having the least host_no)
-+   real (i.e. non-emulated) host adapter shall be BIOS-controlled one.
-+   We *SHOULD* invent another way.  */
-+
-+static inline struct Scsi_Host *first_real_host(void)
-+{
-+	struct Scsi_Host *h = NULL;
-+
-+	while ((h = scsi_host_get_next(h)))
-+		if (!h->hostt->emulated)
-+			break;
-+
-+	return h;
-+}
-+
-+extern struct scsi_device *sd_find_params_by_bdev(struct block_device *, char **, sector_t *);
-+
-+/*
-+ * Function : int scsicam_bios_param (struct block_device *bdev, ector_t capacity, int *ip)
-+ *
-+ * Purpose : to determine the BIOS mapping used for a drive in a 
-+ *      SCSI-CAM system, storing the results in ip as required
-+ *      by the HDIO_GETGEO ioctl().
-+ *
-+ * Returns : -1 on failure, 0 on success.
-+ *
-+ */
-+
-+int scsicam_bios_param(struct block_device *bdev, sector_t capacity, int *ip)
-+{
-+	char *name;
-+	struct scsi_device *device = sd_find_params_by_bdev(bdev, &name, NULL);
-+
-+	if (device && first_real_host() == device->host && device->id < 7
-+	    && __PC9800SCA_TEST_BIT(PC9800SCA_DISK_EQUIPS, device->id))
-+	{
-+		const u8 *p = (&__PC9800SCA(u8, PC9800SCA_SCSI_PARAMS)
-+			       + device->id * 4);
-+
-+		ip[0] = p[1];	/* # of heads */
-+		ip[1] = p[0];	/* # of sectors/track */
-+		ip[2] = *(u16 *)&p[2] & 0x0FFF;	/* # of cylinders */
-+		if (p[3] & (1 << 6)) { /* #-of-cylinders is 16-bit */
-+			ip[2] |= (ip[0] & 0xF0) << 8;
-+			ip[0] &= 0x0F;
-+		}
-+		printk(KERN_INFO "%s: "
-+			"BIOS parameters CHS:%d/%d/%d, %u bytes %s sector\n",
-+			name, ip[2], ip[0], ip[1], 256 << ((p[3] >> 4) & 3),
-+			p[3] & 0x80 ? "hard" : "soft");
-+		return 0;
-+	}
-+
-+	/* Assume PC-9801-92 compatible parameters for HAs without BIOS.  */
-+	ip[0] = 8;
-+	ip[1] = 32;
-+	ip[2] = capacity / (8 * 32);
-+	if (ip[2] > 65535) {	/* if capacity >= 8GB */
-+		/* Recent on-board adapters seem to use this parameter.  */
-+		ip[1] = 128;
-+		ip[2] = capacity / (8 * 128);
-+		if (ip[2] > 65535) { /* if capacity >= 32GB  */
-+			/* Clip the number of cylinders.  Currently this
-+			   is the limit that we deal with.  */
-+			ip[2] = 65535;
-+		}
-+	}
-+	printk(KERN_INFO "%s: BIOS parameters CHS:%d/%d/%d (assumed)\n",
-+		name, ip[2], ip[0], ip[1]);
-+	return 0;
-+}
-diff -urN linux/drivers/scsi/sd.c linux98/drivers/scsi/sd.c
---- linux/drivers/scsi/sd.c	Mon Nov 18 13:29:51 2002
-+++ linux98/drivers/scsi/sd.c	Tue Nov 19 11:04:14 2002
-@@ -195,6 +195,7 @@
- 		case HDIO_GETGEO:   /* Return BIOS disk parameters */
- 		{
- 			struct hd_geometry *loc = (struct hd_geometry *)arg;
-+			extern int pc98;
- 
- 			if (!loc)
- 				return -EINVAL;
-@@ -210,7 +211,7 @@
- 			/* override with calculated, extended default, 
- 			   or driver values */
- 	
--			if (host->hostt->bios_param) {
-+			if (!pc98 && host->hostt->bios_param) {
- 				host->hostt->bios_param(sdp, bdev,
- 							capacity, diskinfo);
- 			} else
-@@ -1297,6 +1298,27 @@
- 	kfree(sdkp);
- }
- 
-+struct scsi_device *sd_find_params_by_bdev(struct block_device *bdev, char **disk_name, sector_t *capacity)
-+{
-+	struct scsi_disk *sdkp;
-+	int major = major(to_kdev_t(bdev->bd_dev));
-+
-+	spin_lock(&sd_devlist_lock);
-+	list_for_each_entry(sdkp, &sd_devlist, list) {
-+		if (sdkp->disk->major == major) {
-+			if (capacity)
-+				*capacity = sdkp->capacity;
-+			if (disk_name)
-+				*disk_name = sdkp->disk->disk_name;
-+			spin_unlock(&sd_devlist_lock);
-+			return sdkp->device;
-+		}
-+	}
-+
-+	spin_unlock(&sd_devlist_lock);
-+	return NULL;
-+}
-+
- /**
-  *	init_sd - entry point for this driver (both when built in or when
-  *	a module).
-diff -urN linux/drivers/scsi/wd33c93.c linux98/drivers/scsi/wd33c93.c
---- linux/drivers/scsi/wd33c93.c	Mon Nov 18 13:29:50 2002
-+++ linux98/drivers/scsi/wd33c93.c	Tue Nov 19 11:04:14 2002
-@@ -84,6 +84,7 @@
- #include <linux/init.h>
- #include <asm/irq.h>
- #include <linux/blk.h>
-+#include <linux/spinlock.h>
- 
- #include "scsi.h"
- #include "hosts.h"
-@@ -173,7 +174,11 @@
- MODULE_PARM(setup_strings, "s");
- #endif
- 
-+static spinlock_t wd_lock = SPIN_LOCK_UNLOCKED;
- 
-+#if defined(CONFIG_SCSI_PC980155) || defined(CONFIG_SCSI_PC980155_MODULE)
-+#include "pc980155regs.h"
-+#else /* !CONFIG_SCSI_PC980155 */
- 
- static inline uchar read_wd33c93(const wd33c93_regs regs, uchar reg_num)
- {
-@@ -203,6 +208,7 @@
-    *regs.SCMD = cmd;
-    mb();
- }
-+#endif /* CONFIG_SCSI_PC980155 */
- 
- 
- static inline uchar read_1_byte(const wd33c93_regs regs)
-@@ -220,6 +226,7 @@
-    return x;
- }
- 
-+#if !defined(CONFIG_SCSI_PC980155) && !defined(CONFIG_SCSI_PC980155_MODULE)
- 
- static void write_wd33c93_count(const wd33c93_regs regs, unsigned long value)
- {
-@@ -244,6 +251,7 @@
-    mb();
-    return value;
- }
-+#endif /* !CONFIG_SCSI_PC980155 */
- 
- 
- /* The 33c93 needs to be told which direction a command transfers its
-@@ -385,8 +393,7 @@
-     * sense data is not lost before REQUEST_SENSE executes.
-     */
- 
--   save_flags(flags);
--   cli();
-+   spin_lock_irqsave(&wd_lock, flags);
- 
-    if (!(hostdata->input_Q) || (cmd->cmnd[0] == REQUEST_SENSE)) {
-       cmd->host_scribble = (uchar *)hostdata->input_Q;
-@@ -407,7 +414,7 @@
- 
- DB(DB_QUEUE_COMMAND,printk(")Q-%ld ",cmd->pid))
- 
--   restore_flags(flags);
-+   spin_unlock_irqrestore(&wd_lock, flags);
-    return 0;
- }
- 
-@@ -428,7 +435,6 @@
- struct WD33C93_hostdata *hostdata = (struct WD33C93_hostdata *)instance->hostdata;
- const wd33c93_regs regs = hostdata->regs;
- Scsi_Cmnd *cmd, *prev;
--int i;
- 
- DB(DB_EXECUTE,printk("EX("))
- 
-@@ -591,9 +597,16 @@
-     * (take advantage of auto-incrementing)
-     */
- 
--      *regs.SASR = WD_CDB_1;
--      for (i=0; i<cmd->cmd_len; i++)
--         *regs.SCMD = cmd->cmnd[i];
-+#if defined(CONFIG_SCSI_PC980155) || defined(CONFIG_SCSI_PC980155_MODULE)
-+      write_wd33c93_cdb(regs, cmd->cmd_len, cmd->cmnd);
-+#else /* !CONFIG_SCSI_PC980155 */
-+      {
-+         int i;
-+         *regs.SASR = WD_CDB_1;
-+         for (i = 0; i < cmd->cmd_len; i++)
-+            *regs.SCMD = cmd->cmnd[i];
-+      }
-+#endif /* CONFIG_SCSI_PC980155 */
- 
-    /* The wd33c93 only knows about Group 0, 1, and 5 commands when
-     * it's doing a 'select-and-transfer'. To be safe, we write the
-@@ -765,7 +778,7 @@
-    if (!(asr & ASR_INT) || (asr & ASR_BSY))
-       return;
- 
--   save_flags(flags);
-+   local_save_flags(flags);
- 
- #ifdef PROC_STATISTICS
-    hostdata->int_cnt++;
-@@ -831,7 +844,7 @@
-      * is here...
-      */
- 
--    restore_flags(flags);
-+    local_irq_restore(flags);
- 
- /* We are not connected to a target - check to see if there
-  * are commands waiting to be executed.
-@@ -1085,7 +1098,7 @@
-                write_wd33c93_cmd(regs, WD_CMD_NEGATE_ACK);
-                hostdata->state = S_CONNECTED;
-             }
--         restore_flags(flags);
-+         local_irq_restore(flags);
-          break;
- 
- 
-@@ -1117,7 +1130,7 @@
- /* We are no longer  connected to a target - check to see if
-  * there are commands waiting to be executed.
-  */
--       restore_flags(flags);
-+            local_irq_restore(flags);
-             wd33c93_execute(instance);
-             }
-          else {
-@@ -1200,7 +1213,7 @@
-  * there are commands waiting to be executed.
-  */
-     /* look above for comments on scsi_done() */
--    restore_flags(flags);
-+         local_irq_restore(flags);
-          wd33c93_execute(instance);
-          break;
- 
-@@ -1228,7 +1241,7 @@
-                else
-                   cmd->result = cmd->SCp.Status | (cmd->SCp.Message << 8);
-                cmd->scsi_done(cmd);
--          restore_flags(flags);
-+               local_irq_restore(flags);
-                break;
-             case S_PRE_TMP_DISC:
-             case S_RUNNING_LEVEL2:
-@@ -1693,7 +1706,7 @@
-    return 1;
- }
- 
--__setup("wd33c93", wd33c93_setup);
-+__setup("wd33c93=", wd33c93_setup);
- 
- 
- /* check_setup_args() returns index if key found, 0 if not
-@@ -1831,10 +1844,9 @@
- 
- 
-    { unsigned long flags;
--     save_flags(flags);
--     cli();
-+     spin_lock_irqsave(&wd_lock, flags);
-      reset_wd33c93(instance);
--     restore_flags(flags);
-+     spin_unlock_irqrestore(&wd_lock, flags);
-    }
- 
-    printk("wd33c93-%d: chip=%s/%d no_sync=0x%x no_dma=%d",instance->host_no,
-@@ -1928,8 +1940,7 @@
-       return len;
-       }
- 
--   save_flags(flags);
--   cli();
-+   spin_lock_irqsave(&wd_lock, flags);
-    bp = buf;
-    *bp = '\0';
-    if (hd->proc & PR_VERSION) {
-@@ -2004,7 +2015,7 @@
-          }
-       }
-    strcat(bp,"\n");
--   restore_flags(flags);
-+   spin_unlock_irqrestore(&wd_lock, flags);
-    *start = buf;
-    if (stop) {
-       stop = 0;
-@@ -2032,4 +2043,10 @@
- {
- }
- 
-+EXPORT_SYMBOL(wd33c93_reset);
-+EXPORT_SYMBOL(wd33c93_init);
-+EXPORT_SYMBOL(wd33c93_release);
-+EXPORT_SYMBOL(wd33c93_abort);
-+EXPORT_SYMBOL(wd33c93_queuecommand);
-+EXPORT_SYMBOL(wd33c93_intr);
- MODULE_LICENSE("GPL");
-diff -urN linux/drivers/scsi/wd33c93.h linux98/drivers/scsi/wd33c93.h
---- linux/drivers/scsi/wd33c93.h	Sat Oct 12 13:21:35 2002
-+++ linux98/drivers/scsi/wd33c93.h	Sat Oct 12 14:18:53 2002
-@@ -186,8 +186,13 @@
- 
-    /* This is what the 3393 chip looks like to us */
- typedef struct {
-+#if defined(CONFIG_SCSI_PC980155) || defined(CONFIG_SCSI_PC980155_MODULE)
-+   volatile unsigned int   *SASR;
-+   volatile unsigned int   *SCMD;
-+#else
-    volatile unsigned char  *SASR;
-    volatile unsigned char  *SCMD;
-+#endif
- } wd33c93_regs;
- 
- 
-
---------------1A01343B438699210B0197A3--
+Dec 11 00:05:36 valinor kernel: klogd 1.4.1#11, log source = /proc/kmsg 
+started.
+Dec 11 00:05:36 valinor kernel: Inspecting /boot/System.map-2.4.20
+Dec 11 00:05:36 valinor kernel: Loaded 14676 symbols from 
+/boot/System.map-2.4.20.
+Dec 11 00:05:36 valinor kernel: Symbols match kernel version 2.4.20.
+Dec 11 00:05:36 valinor kernel: Loaded 72 symbols from 4 modules.
+Dec 11 00:05:36 valinor kernel: Linux version 2.4.20 (root@valinor) (gcc 
+version 2.95.4 20011002 (Debian prerelease)) #1 Tue Dec 10 23:56:37 CET 2002
+Dec 11 00:05:36 valinor kernel: BIOS-provided physical RAM map:
+Dec 11 00:05:36 valinor kernel:  BIOS-e820: 0000000000000000 - 
+000000000009fc00 (usable)
+Dec 11 00:05:36 valinor kernel:  BIOS-e820: 000000000009fc00 - 
+00000000000a0000 (reserved)
+Dec 11 00:05:36 valinor kernel:  BIOS-e820: 00000000000f0000 - 
+0000000000100000 (reserved)
+Dec 11 00:05:36 valinor kernel:  BIOS-e820: 0000000000100000 - 
+000000001fff0000 (usable)
+Dec 11 00:05:36 valinor kernel:  BIOS-e820: 000000001fff0000 - 
+000000001fff8000 (ACPI data)
+Dec 11 00:05:36 valinor kernel:  BIOS-e820: 000000001fff8000 - 
+0000000020000000 (ACPI NVS)
+Dec 11 00:05:36 valinor kernel:  BIOS-e820: 00000000fec00000 - 
+00000000fec01000 (reserved)
+Dec 11 00:05:36 valinor kernel:  BIOS-e820: 00000000fee00000 - 
+00000000fee01000 (reserved)
+Dec 11 00:05:36 valinor kernel:  BIOS-e820: 00000000fff80000 - 
+0000000100000000 (reserved)
+Dec 11 00:05:36 valinor kernel: 511MB LOWMEM available.
+Dec 11 00:05:36 valinor kernel: On node 0 totalpages: 131056
+Dec 11 00:05:36 valinor kernel: zone(0): 4096 pages.
+Dec 11 00:05:36 valinor kernel: zone(1): 126960 pages.
+Dec 11 00:05:36 valinor kernel: zone(2): 0 pages.
+Dec 11 00:05:36 valinor kernel: Kernel command line: auto 
+BOOT_IMAGE=Linux ro root=305 video=vesa:ywrap,mtrr
+Dec 11 00:05:36 valinor kernel: Initializing CPU#0
+Dec 11 00:05:36 valinor kernel: Detected 2255.176 MHz processor.
+Dec 11 00:05:36 valinor kernel: Console: colour dummy device 80x25
+Dec 11 00:05:36 valinor kernel: Calibrating delay loop... 4495.76 BogoMIPS
+Dec 11 00:05:36 valinor kernel: Memory: 516504k/524224k available (990k 
+kernel code, 7332k reserved, 377k data, 80k init, 0k highmem)
+Dec 11 00:05:36 valinor kernel: Dentry cache hash table entries: 65536 
+(order: 7, 524288 bytes)
+Dec 11 00:05:36 valinor kernel: Inode cache hash table entries: 32768 
+(order: 6, 262144 bytes)
+Dec 11 00:05:36 valinor kernel: Mount-cache hash table entries: 8192 
+(order: 4, 65536 bytes)
+Dec 11 00:05:36 valinor kernel: Buffer-cache hash table entries: 32768 
+(order: 5, 131072 bytes)
+Dec 11 00:05:36 valinor kernel: Page-cache hash table entries: 131072 
+(order: 7, 524288 bytes)
+Dec 11 00:05:36 valinor kernel: CPU: L1 I Cache: 64K (64 bytes/line), D 
+cache 64K (64 bytes/line)
+Dec 11 00:05:36 valinor kernel: CPU: L2 Cache: 256K (64 bytes/line)
+Dec 11 00:05:36 valinor kernel: Intel machine check architecture supported.
+Dec 11 00:05:36 valinor kernel: Intel machine check reporting enabled on 
+CPU#0.
+Dec 11 00:05:36 valinor kernel: CPU:     After generic, caps: 0383fbff 
+c1c3fbff 00000000 00000000
+Dec 11 00:05:36 valinor kernel: CPU:             Common caps: 0383fbff 
+c1c3fbff 00000000 00000000
+Dec 11 00:05:36 valinor kernel: CPU: AMD Athlon(tm) XP 2400+ stepping 01
+Dec 11 00:05:36 valinor kernel: Enabling fast FPU save and restore... done.
+Dec 11 00:05:36 valinor kernel: Enabling unmasked SIMD FPU exception 
+support... done.
+Dec 11 00:05:36 valinor kernel: Checking 'hlt' instruction... OK.
+Dec 11 00:05:36 valinor kernel: POSIX conformance testing by UNIFIX
+Dec 11 00:05:36 valinor kernel: mtrr: v1.40 (20010327) Richard Gooch 
+(rgooch@atnf.csiro.au)
+Dec 11 00:05:36 valinor kernel: mtrr: detected mtrr type: Intel
+Dec 11 00:05:36 valinor kernel: PCI: PCI BIOS revision 2.10 entry at 
+0xfdaf1, last bus=1
+Dec 11 00:05:36 valinor kernel: PCI: Using configuration type 1
+Dec 11 00:05:36 valinor kernel: PCI: Probing PCI hardware
+Dec 11 00:05:36 valinor kernel: PCI: Using IRQ router default 
+[1106/3177] at 00:11.0
+Dec 11 00:05:36 valinor kernel: PCI: Hardcoded IRQ 14 for device 00:11.1
+Dec 11 00:05:36 valinor kernel: Linux NET4.0 for Linux 2.4
+Dec 11 00:05:36 valinor kernel: Based upon Swansea University Computer 
+Society NET3.039
+Dec 11 00:05:36 valinor kernel: Initializing RT netlink socket
+Dec 11 00:05:36 valinor kernel: Starting kswapd
+Dec 11 00:05:36 valinor kernel: devfs: v1.12c (20020818) Richard Gooch 
+(rgooch@atnf.csiro.au)
+Dec 11 00:05:36 valinor kernel: devfs: boot_options: 0x1
+Dec 11 00:05:36 valinor kernel: vesafb: framebuffer at 0xd8000000, 
+mapped to 0xe0800000, size 65536k
+Dec 11 00:05:36 valinor kernel: vesafb: mode is 1024x768x32, 
+linelength=4096, pages=1
+Dec 11 00:05:36 valinor kernel: vesafb: protected mode interface info at 
+c000:b7d0
+Dec 11 00:05:36 valinor kernel: vesafb: pmi: set display start = 
+c00cb815, set palette = c00cb89a
+Dec 11 00:05:36 valinor kernel: vesafb: pmi: ports = 3b4 3b5 3ba 3c0 3c1 
+3c4 3c5 3c6 3c7 3c8 3c9 3cc 3ce 3cf 3d0 3d1 3d2 3d3 3d4 3d5 3da
+Dec 11 00:05:36 valinor kernel: vesafb: scrolling: ywrap using protected 
+mode interface, yres_virtual=16384
+Dec 11 00:05:36 valinor kernel: vesafb: directcolor: size=8:8:8:8, 
+shift=24:16:8:0
+Dec 11 00:05:36 valinor kernel: Console: switching to colour frame 
+buffer device 128x48
+Dec 11 00:05:36 valinor kernel: fb0: VESA VGA frame buffer device
+Dec 11 00:05:36 valinor kernel: pty: 256 Unix98 ptys configured
+Dec 11 00:05:36 valinor kernel: Real Time Clock Driver v1.10e
+Dec 11 00:05:36 valinor kernel: Uniform Multi-Platform E-IDE driver 
+Revision: 6.31
+Dec 11 00:05:36 valinor kernel: ide: Assuming 33MHz system bus speed for 
+PIO modes; override with idebus=xx
+Dec 11 00:05:36 valinor kernel: VP_IDE: IDE controller on PCI bus 00 dev 89
+Dec 11 00:05:36 valinor kernel: PCI: Hardcoded IRQ 14 for device 00:11.1
+Dec 11 00:05:36 valinor kernel: VP_IDE: chipset revision 6
+Dec 11 00:05:36 valinor kernel: VP_IDE: not 100%% native mode: will 
+probe irqs later
+Dec 11 00:05:36 valinor kernel: ide: Assuming 33MHz system bus speed for 
+PIO modes; override with idebus=xx
+Dec 11 00:05:36 valinor kernel: VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 
+controller on pci00:11.1
+Dec 11 00:05:36 valinor kernel:     ide0: BM-DMA at 0xfc00-0xfc07, BIOS 
+settings: hda:DMA, hdb:DMA
+Dec 11 00:05:36 valinor kernel:     ide1: BM-DMA at 0xfc08-0xfc0f, BIOS 
+settings: hdc:DMA, hdd:DMA
+Dec 11 00:05:36 valinor kernel: hda: QUANTUM FIREBALLP AS30.0, ATA DISK 
+drive
+Dec 11 00:05:36 valinor kernel: hdb: MAXTOR 6L060J3, ATA DISK drive
+Dec 11 00:05:36 valinor kernel: hdc: _NEC DV-5800A, ATAPI CD/DVD-ROM drive
+Dec 11 00:05:36 valinor kernel: hdd: PCRW804, ATAPI CD/DVD-ROM drive
+Dec 11 00:05:36 valinor kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Dec 11 00:05:36 valinor kernel: ide1 at 0x170-0x177,0x376 on irq 15
+Dec 11 00:05:36 valinor kernel: blk: queue c0293364, I/O limit 4095Mb 
+(mask 0xffffffff)
+Dec 11 00:05:36 valinor kernel: hda: 58633344 sectors (30020 MB) 
+w/1902KiB Cache, CHS=3649/255/63, UDMA(100)
+Dec 11 00:05:36 valinor kernel: blk: queue c02934b0, I/O limit 4095Mb 
+(mask 0xffffffff)
+Dec 11 00:05:36 valinor kernel: hdb: 117266688 sectors (60041 MB) 
+w/1819KiB Cache, CHS=7299/255/63, UDMA(133)
+Dec 11 00:05:36 valinor kernel: Partition check:
+Dec 11 00:05:36 valinor kernel:  /dev/ide/host0/bus0/target0/lun0: p1 p2 
+p3 < p5 p6 p7 p8 >
+Dec 11 00:05:36 valinor kernel:  /dev/ide/host0/bus0/target1/lun0: p1 p2 
+< p5 > p3
+Dec 11 00:05:36 valinor kernel: NET4: Linux TCP/IP 1.0 for NET4.0
+Dec 11 00:05:36 valinor kernel: IP Protocols: ICMP, UDP, TCP, IGMP
+Dec 11 00:05:36 valinor kernel: IP: routing cache hash table of 4096 
+buckets, 32Kbytes
+Dec 11 00:05:36 valinor kernel: TCP: Hash tables configured (established 
+32768 bind 32768)
+Dec 11 00:05:36 valinor kernel: reiserfs: checking transaction log 
+(device 03:05) ...
+Dec 11 00:05:36 valinor kernel: Using r5 hash to sort names
+Dec 11 00:05:36 valinor kernel: ReiserFS version 3.6.25
+Dec 11 00:05:36 valinor kernel: VFS: Mounted root (reiserfs filesystem) 
+readonly.
+Dec 11 00:05:36 valinor kernel: Mounted devfs on /dev
+Dec 11 00:05:36 valinor kernel: Freeing unused kernel memory: 80k freed
+Dec 11 00:05:36 valinor kernel: NET4: Unix domain sockets 1.0/SMP for 
+Linux NET4.0.
+Dec 11 00:05:36 valinor kernel: Adding Swap: 506036k swap-space 
+(priority -1)
+Dec 11 00:05:36 valinor kernel: Adding Swap: 506036k swap-space 
+(priority -2)
+Dec 11 00:05:36 valinor kernel: Serial driver version 5.05c (2001-07-08) 
+with MANY_PORTS SHARE_IRQ SERIAL_PCI enabled
+Dec 11 00:05:36 valinor kernel: ttyS00 at 0x03f8 (irq = 4) is a 16550A
+Dec 11 00:05:36 valinor kernel: ttyS01 at 0x02f8 (irq = 3) is a 16550A
+Dec 11 00:05:36 valinor kernel: reiserfs: checking transaction log 
+(device 03:01) ...
+Dec 11 00:05:36 valinor kernel: Using r5 hash to sort names
+Dec 11 00:05:36 valinor kernel: ReiserFS version 3.6.25
+Dec 11 00:05:36 valinor kernel: reiserfs: checking transaction log 
+(device 03:06) ...
+Dec 11 00:05:36 valinor kernel: Using r5 hash to sort names
+Dec 11 00:05:36 valinor kernel: ReiserFS version 3.6.25
+Dec 11 00:05:36 valinor kernel: reiserfs: checking transaction log 
+(device 03:07) ...
+Dec 11 00:05:36 valinor kernel: Using r5 hash to sort names
+Dec 11 00:05:36 valinor kernel: ReiserFS version 3.6.25
+Dec 11 00:05:36 valinor kernel: reiserfs: checking transaction log 
+(device 03:08) ...
+Dec 11 00:05:36 valinor kernel: Using r5 hash to sort names
+Dec 11 00:05:36 valinor kernel: ReiserFS version 3.6.25
+Dec 11 00:05:36 valinor kernel: Journalled Block Device driver loaded
+Dec 11 00:05:36 valinor kernel: kjournald starting.  Commit interval 5 
+seconds
+Dec 11 00:05:36 valinor kernel: EXT3 FS 2.4-0.9.19, 19 August 2002 on 
+ide0(3,67), internal journal
+Dec 11 00:05:36 valinor kernel: EXT3-fs: mounted filesystem with ordered 
+data mode.
+Dec 11 00:05:36 valinor kernel: kjournald starting.  Commit interval 5 
+seconds
+Dec 11 00:05:36 valinor kernel: EXT3 FS 2.4-0.9.19, 19 August 2002 on 
+ide0(3,69), internal journal
+Dec 11 00:05:36 valinor kernel: EXT3-fs: mounted filesystem with ordered 
+data mode.
+Dec 11 00:05:51 valinor kernel: SCSI subsystem driver Revision: 1.00
+Dec 11 00:05:56 valinor kernel: hdc: status timeout: status=0xd0 { Busy }
+Dec 11 00:05:56 valinor kernel: hdc: DMA disabled
+Dec 11 00:05:56 valinor kernel: hdc: drive not ready for command
+Dec 11 00:06:26 valinor kernel: hdc: ATAPI reset timed-out, status=0x80
+Dec 11 00:06:31 valinor kernel: ide1: reset: success
+Dec 11 00:06:31 valinor kernel: hdc: status timeout: status=0x80 { Busy }
+Dec 11 00:06:31 valinor kernel: hdc: drive not ready for command
+Dec 11 00:06:43 valinor kernel: Kernel logging (proc) stopped.
+Dec 11 00:06:43 valinor kernel: Kernel log daemon terminating.
 

@@ -1,62 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265851AbUAKMqs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 07:46:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265860AbUAKMqs
+	id S265876AbUAKMyO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 07:54:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265877AbUAKMyO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 07:46:48 -0500
-Received: from imf.math.ku.dk ([130.225.103.32]:20650 "EHLO imf.math.ku.dk")
-	by vger.kernel.org with ESMTP id S265851AbUAKMqq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 07:46:46 -0500
-Date: Sun, 11 Jan 2004 13:46:41 +0100 (CET)
-From: Peter Berg Larsen <pebl@math.ku.dk>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Gunter =?iso-8859-1?Q?K=F6nigsmann?= <gunter.koenigsmann@gmx.de>,
-       <linux-kernel@vger.kernel.org>,
-       Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: Synaptics Touchpad workaround for strange behavior after Sync
- loss (With Patch).
-In-Reply-To: <20040111081046.GA25497@ucw.cz>
-Message-ID: <Pine.LNX.4.40.0401111326480.16947-100000@shannon.math.ku.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 11 Jan 2004 07:54:14 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37388 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265876AbUAKMyH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 07:54:07 -0500
+Date: Sun, 11 Jan 2004 12:54:04 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: martin f krafft <madduck@madduck.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 2.6: can't get 3c575/PCMCIA working - other PCMCIA card work
+Message-ID: <20040111125404.E1931@flint.arm.linux.org.uk>
+Mail-Followup-To: martin f krafft <madduck@madduck.net>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20040106111939.GA2046@piper.madduck.net> <20040111120053.C1931@flint.arm.linux.org.uk> <20040111123208.GA4766@piper.madduck.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040111123208.GA4766@piper.madduck.net>; from madduck@madduck.net on Sun, Jan 11, 2004 at 01:32:08PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 11, 2004 at 01:32:08PM +0100, martin f krafft wrote:
+> The card is a 3CCFE575BT-D. Under 2.4 with Hinds' pcmcia-cs modules,
+> the driver was called 3c575_cs. Under 2.6 with the kernel drivers,
+> only 3c574_cs exists. I assumed that 3c574_cs would also support the
+> 3c575_cs, but I guess I am wrong.
 
-On Sun, 11 Jan 2004, Vojtech Pavlik wrote:
+The situation in vanilla 2.4 and 2.6 kernels is as follows: xxx_cs
+drivers only drive PCMCIA cards.  They do not drive Cardbus cards -
+Cardbus cards look exactly like normal PCI cards, and are therefore
+the drivers are handled by the PCI subsystem.  PCMCIA helps out only
+to detect the card insertion/removal events.
 
-> > I dont have a machine with active multiplexing so the the patch is
-> > untested. It warns when the mouse is removed, and tries to recover
-> > if multiplexing is disabled.
->
-> It's nice, but er definitely shouldn't call i8042_enable_mux() from the
-> interrupt handler, because i8042_command() waits for characters arriving
-> in the interrupt handler, so we could get into rather nasty recursions.
+Hope this helps to make things a little clearer.
 
-Are you sure? The i8042_command does spin_lock_irqsave(&i8042_lock,
-flags), i8042_wait_read, i8042_read_data and unlock. It seems a good place
-for me as the 8042s buffer is just flush by the interrupt. Well except for
-the fact it is in the interrupt handler :)
+> A 3CCFE574BT works just fine with 574_cs (although upon removal,
+> ifconfig will hang in the 'D' state forever. I guess that's
+> a separate issue though. I will research this and post another time.
 
-I cannot see a simple/fast solution: All data read in the interrupt must
-be processed otherwise kbd data might be lost. I dont want
-I8042_BUFFER_SIZE calls to serio_rescan/reconnect, as serio is not smart
-enought to only do it once. The mux port number(s) must be remembered if
-serio is called after the loop. I dont like any further calls to
-i8042_flush as it troughs away both kbd and aux data.
+Indeed.
 
-hmm, I actually want the handler to look something like:
+> > Could you insert the card, and then provide the output of lspci -vx ?
+> 
+> ftp://ftp.madduck.net/scratch/3c575-lspci.gz [1.5Kb]
 
- if (str & I8042_STR_MUXERR)
-          i8042_handle_aux_data
- else
-          i8042_handle_kbd_data
+... which seems to be exactly the same as my 3ccfe575bt card I have here.
+I note though that the product description seems to be wrong (the PCI IDs
+are identical.)  The card is most definitely "3CCFE575BT" and not "3c575".
 
-That way i8042_flush can call handle_*_data depending on what to flush.
+Yours:
 
-Peter
+02:00.0 Ethernet controller: 3Com Corporation 3c575 [Megahertz] 10/100 LAN Card Bus (rev 01)
+        Subsystem: 3Com Corporation 3C575 Megahertz 10/100 LAN Cardbus PC Card
 
+Mine:
 
+04:00.0 Ethernet controller: 3Com Corporation 3CCFE575BT Cyclone CardBus (rev 01)
+        Subsystem: 3Com Corporation 3C575 Megahertz 10/100 LAN Cardbus PC Card
 
+Socket 1:
+  product info: "3Com Corporation", "3CCFE575BT", "LAN Cardbus Card", "001"
+  manfid: 0x0101, 0x5157
+  function: 6 (network)
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

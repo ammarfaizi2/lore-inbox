@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262412AbUKDTqt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262408AbUKDTuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262412AbUKDTqt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 14:46:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbUKDTqQ
+	id S262408AbUKDTuF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 14:50:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbUKDTkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 14:46:16 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:11495 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262412AbUKDTnO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 14:43:14 -0500
-Date: Thu, 4 Nov 2004 20:44:16 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: john cooper <john.cooper@timesys.com>
-Cc: Mark_H_Johnson@raytheon.com, Karsten Wiese <annabellesgarden@yahoo.de>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.1
-Message-ID: <20041104194416.GC10107@elte.hu>
-References: <OF5DB3F102.6D3B4834-ON86256F42.00598BFD@raytheon.com> <20041104163012.GA3498@elte.hu> <20041104163254.GA3810@elte.hu> <418A7BFB.6020501@timesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 Nov 2004 14:40:16 -0500
+Received: from mra03.ex.eclipse.net.uk ([212.104.129.88]:12171 "EHLO
+	mra03.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
+	id S262405AbUKDTgi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 14:36:38 -0500
+From: Ian Hastie <ianh@iahastie.clara.net>
+To: Valdis.Kletnieks@vt.edu
+Subject: Re: support of older compilers
+Date: Thu, 4 Nov 2004 19:36:26 +0000
+User-Agent: KMail/1.7.1
+Cc: Adam Heath <doogie@debian.org>, Chris Wedgwood <cw@f00f.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <41894779.10706@techsource.com> <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com> <200411041704.iA4H4sdZ014948@turing-police.cc.vt.edu>
+In-Reply-To: <200411041704.iA4H4sdZ014948@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <418A7BFB.6020501@timesys.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200411041936.27100.ianh@iahastie.local.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 04 Nov 2004 17:04, Valdis.Kletnieks@vt.edu wrote:
+> On Thu, 04 Nov 2004 10:50:38 CST, Adam Heath said:
+> > I didn't deny the speed difference of older and newer compilers.
+> >
+> > But why is this an issue when compiling a kernel?  How often do you
+> > compile your kernel?
+>
+> If you're working on older hardware (note the number of people on this
+> list still using 500mz Pentium3 and similar), and a kernel developer, the
+> difference between 2 hours to build a kernel and 4 hours to build a
+> kernel matters quite a bit.
 
-* john cooper <john.cooper@timesys.com> wrote:
+How often is it necessary to do a full rebuild of the kernel?  If the 
+dependencies in the make system work properly then only the amended parts 
+should be recompiled.  That'd be a much bigger time saving than just using an 
+older compiler.
 
-> > plus there's the 'priority inheritance dependency-chain closure' bug
-> > noticed by John Cooper - that should only affect the latency of RT 
-> > tasks though.
-> 
-> This is a fairly gnarly problem to address.  The obvious solution is
-> to hold spinlocks in the mutexes as the dependency tree is atomically
-> traversed.  However this will deadlock under MP due to the
-> unpredictable order of mutexes traversed.  If the dependency chain is
-> not traversed (and semantics applied) atomically, races exist which
-> cause promotion decisions to be made on [now] stale data.
+-- 
+Ian.
 
-is the order of locks in the dependency chain really unpredictable? If
-two chain walkers get two locks in opposite order, doesnt that mean that
-the lock ordering (as attempted by the blocked tasks) is deadlock-prone
-already? I.e. this scenario should not happen.
-
-	Ingo
+EOM

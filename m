@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286925AbSAIOf3>; Wed, 9 Jan 2002 09:35:29 -0500
+	id <S286942AbSAIOsN>; Wed, 9 Jan 2002 09:48:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286942AbSAIOfT>; Wed, 9 Jan 2002 09:35:19 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:21492 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S286925AbSAIOfL>; Wed, 9 Jan 2002 09:35:11 -0500
-Date: Wed, 9 Jan 2002 15:34:37 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: cw@f00f.org, Alan Cox <alan@lxorguk.ukuu.org.uk>, swsnyder@home.com,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: "APIC error on CPUx" - what does this mean?
-In-Reply-To: <E67476B613D@vcnet.vc.cvut.cz>
-Message-ID: <Pine.GSO.3.96.1020109143542.4719B-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S286959AbSAIOsB>; Wed, 9 Jan 2002 09:48:01 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:32714 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S286942AbSAIOrv>; Wed, 9 Jan 2002 09:47:51 -0500
+Date: Wed, 9 Jan 2002 06:47:57 -0800 (PST)
+From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+To: Daniel Tuijnman <daniel@ATComputing.nl>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Memory management problems in 2.4.16
+In-Reply-To: <20020109143434.A20955@ATComputing.nl>
+Message-ID: <Pine.LNX.4.33.0201090640080.13260-100000@shell1.aracnet.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Jan 2002, Petr Vandrovec wrote:
+On Wed, 9 Jan 2002, Daniel Tuijnman wrote:
 
-> I have an idea that with outb() spurious IRQ happens some time 
-> after Promise deasserts IRQ, while with outb_p() it happens when 
-> we mask it. Unfortunately stack traces at arrival of spurious 
-> IRQ (available on request, 120KB uncompressed) do not agree with 
-> this idea - they always lead to default_idle. It is possible that 
-> it always arrives in default_idle because of my CPU is so fast 
-> that even endless stream of IRQs from 8259 arrives always when 
-> CPU is in default_idle, but I have some doubts that 1GHz is fast 
-> enough to see such effect.
+> I installed a 2.4.16 kernel on a 486DX2-50 machine with 8MB memory and
+> 24MB swap and got insurmountable problems.
 
- Note that if you are observing a spurious IRQ due to the trailing
-interval of a level-triggered interrupt signal it's quite reasonable you
-see a stack trace back to default_idle().  Such an IRQ happens just after
-do_IRQ() (actually code following ret_from_intr) for the prevously
-delivered real IRQ returns.  If your system is not heavy loaded (little
-time spent in the userland) most IRQs arrive in idle(), thus spurious ones
-do so as well.  A backtrace for a spurious IRQ and for the preceding real
-one should point to the same root.
+[snip]
 
- If you see spurious IRQs due to glitches the backtraces may differ.  It
-should be possible to observe under a load. 
+> It seems to me that something definitely is wrong with the kernel's
+> memory management.
 
- Still it's weird for *all* the devices you have to deassert their IRQ
-lines so late.  It would be worth verifying if that is the case, e.g. by
-adding an udelay() just after code that is meant to cause a device to
-deassert its IRQ line.  If the problem persists regardless of the delays,
-chances are there is an erratum in the APIC or in the chipset.
+Well ... maybe *in theory* 2.4.16 should work on a machine with that
+little RAM but I'd say in practice Linux has simply outgrown your
+machine. Have you tried any other 2.4 kernels, say, before 2.4.10 when
+the VM changed?  Have you considered going to a garage sale and spending
+the local equivalent of $25 or $30 US for a more powerful computer?
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+--
+M. Edward "Now if I could get Linux to run on a Tandy 200" Borasky
+
+znmeb@borasky-research.net
+http://www.borasky-research.net
+
+If they named a street after Picabo Street, would it be called Picabo
+Street, Street Street or Picabo Street Street?
 

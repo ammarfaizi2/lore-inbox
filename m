@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbVADNJm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVADNL2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261622AbVADNJm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 08:09:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbVADNJX
+	id S261613AbVADNL2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 08:11:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbVADNL2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 08:09:23 -0500
-Received: from holomorphy.com ([207.189.100.168]:26246 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261622AbVADNJD (ORCPT
+	Tue, 4 Jan 2005 08:11:28 -0500
+Received: from gprs214-115.eurotel.cz ([160.218.214.115]:31918 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261613AbVADNKe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 08:09:03 -0500
-Date: Tue, 4 Jan 2005 04:57:38 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Diego Calleja <diegocg@teleline.es>, Willy Tarreau <willy@w.ods.org>,
-       davidsen@tmr.com, aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
-       linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Message-ID: <20050104125738.GC2708@holomorphy.com>
-References: <20050102221534.GG4183@stusta.de> <41D87A64.1070207@tmr.com> <20050103003011.GP29332@holomorphy.com> <20050103004551.GK4183@stusta.de> <20050103011935.GQ29332@holomorphy.com> <20050103053304.GA7048@alpha.home.local> <20050103142412.490239b8.diegocg@teleline.es> <20050103134727.GA2980@stusta.de>
+	Tue, 4 Jan 2005 08:10:34 -0500
+Date: Tue, 4 Jan 2005 14:10:20 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: dm: introduce pm_message_t
+Message-ID: <20050104131020.GC3981@elf.ucw.cz>
+References: <20050104123938.GA13716@elf.ucw.cz> <20050104130515.B18550@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050103134727.GA2980@stusta.de>
-Organization: The Domain of Holomorphy
+In-Reply-To: <20050104130515.B18550@flint.arm.linux.org.uk>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 03, 2005 at 02:24:12PM +0100, Diego Calleja wrote:
->> 2.6 will stop having small issues in each release until 2.7 is forked just
->> like 2.4 broke things until 2.5 was forked. The difference IMO
->> is that linux development now avoids things like the unstability which the
->> 2.4.10 changes caused and things like the fs corruption bugs we saw in 2.4
+Hi!
 
-On Mon, Jan 03, 2005 at 02:47:27PM +0100, Adrian Bunk wrote:
-> The 2.6.9 -> 2.6.10 patch is 28 MB, and while the changes that went into 
-> 2.4 were limited since the most invasive patches were postponed for 2.5, 
-> now _all_ patches go into 2.6 .
-> Yes, -mm gives a bit more testing coverage, but it doesn't seem to be 
-> enough for this vast amount of changes.
+> > +FREEZE -- stop DMA and interrupts, and be prepared to reinit HW from
+> > +scratch. That probably means stop accepting upstream requests, the
+> > +actual policy of what to do with them beeing specific to a given
+> 
+> busy busy bee.  I think you mean "being".
 
-No amount of testing coverage will ever suffice. You're trying to
-empirically establish the nonexistence of something, which is only
-possible to repudiate, and never to verify.
-
-
--- wli
+Fixed locally, thanks. I guess I can fix this one with followup patch
+if it indeed gets merged.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

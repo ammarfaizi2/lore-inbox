@@ -1,80 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276444AbRJHGGj>; Mon, 8 Oct 2001 02:06:39 -0400
+	id <S276643AbRJHGUf>; Mon, 8 Oct 2001 02:20:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276445AbRJHGGa>; Mon, 8 Oct 2001 02:06:30 -0400
-Received: from point41.gts.donpac.ru ([213.59.116.41]:42759 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S276444AbRJHGGR>;
-	Mon, 8 Oct 2001 02:06:17 -0400
-Date: Mon, 8 Oct 2001 10:06:49 +0400
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] buglet in arch/i386/setup.c (2.4.10-ac7)
-Message-ID: <20011008100649.A17440@orbita1.ru>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Bn2rw/3z4jIqBvZU"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Uptime: 9:30am  up 31 days, 57 min,  1 user,  load average: 1.08, 1.04, 1.00
-X-Uname: Linux orbita1.ru 2.2.20pre2 
-From: Andrey Panin <pazke@orbita1.ru>
+	id <S276616AbRJHGUY>; Mon, 8 Oct 2001 02:20:24 -0400
+Received: from dict.and.org ([63.113.167.10]:25779 "EHLO mail.and.org")
+	by vger.kernel.org with ESMTP id <S276457AbRJHGUN>;
+	Mon, 8 Oct 2001 02:20:13 -0400
+To: Richard Henderson <rth@twiddle.net>
+Cc: Andreas Schwab <schwab@suse.de>, Andi Kleen <ak@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.10-pre11 -- __builtin_expect
+In-Reply-To: <20010918031813.57E1062ABC@oscar.casa.dyndns.org.suse.lists.linux.kernel>
+	<E15jBLy-0008UF-00@the-village.bc.nu.suse.lists.linux.kernel>
+	<9o6j9l$461$1@cesium.transmeta.com.suse.lists.linux.kernel>
+	<oup4rq0bwww.fsf_-_@pigdrop.muc.suse.de>
+	<jeelp4rbtf.fsf@sykes.suse.de>
+	<20010918143827.A16003@gruyere.muc.suse.de>
+	<nn3d59qzho.fsf@code.and.org> <jezo7gu78f.fsf@sykes.suse.de>
+	<nnvgi4prod.fsf@code.and.org> <jeofnwsinb.fsf@sykes.suse.de>
+	<20011004115204.A11463@twiddle.net>
+From: James Antill <james@and.org>
+Content-Type: text/plain; charset=US-ASCII
+Date: 08 Oct 2001 02:17:33 -0400
+In-Reply-To: <20011004115204.A11463@twiddle.net>
+Message-ID: <nnvghqodtu.fsf@code.and.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Richard Henderson <rth@twiddle.net> writes:
 
---Bn2rw/3z4jIqBvZU
-Content-Type: multipart/mixed; boundary="sm4nu43k4a2Rpi4c"
-Content-Disposition: inline
+> On Thu, Sep 27, 2001 at 06:28:08PM +0200, Andreas Schwab wrote:
+> > You're right, seems like __builtin_expect is really only defined for pure
+> > boolean values.
+> 
+> I think the documentation mentions the current deficiency in that area.
+> It is _supposed_ to be defined for all integral and pointer types, but
+> that is hard with the current built-in infrastructure in the C front end.
 
+ The documentation in the info files doesn't suggest that, in fact it
+says...
 
---sm4nu43k4a2Rpi4c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+    Since you are limited to integral expressions for EXP, you should
+    use constructions such as
 
-Hi,
+          if (__builtin_expect (ptr != NULL, 1))
+            error ();
 
-function ppro_with_ram_bug() really contains one bug :))
-return 0 is missing at the end of it and IMHO its return value is=20
-always nonzero because of this bug.
+     when testing pointer or floating-point values.
 
-Best regards.
-
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
-.asc
---sm4nu43k4a2Rpi4c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-ppro_with_ram_bug
-Content-Transfer-Encoding: quoted-printable
-
-diff -urN -X /usr/dontdiff linux.vanilla/arch/i386/kernel/setup.c linux/arc=
-h/i386/kernel/setup.c
---- linux.vanilla/arch/i386/kernel/setup.c	Tue Oct  2 21:06:54 2001
-+++ linux/arch/i386/kernel/setup.c	Sat Oct  6 23:28:44 2001
-@@ -2925,6 +2925,7 @@
- 		return 1;
- 	}
- 	printk(KERN_INFO "Your Pentium Pro seems ok.\n");
-+	return 0;
- }
- =09
- /*
-
---sm4nu43k4a2Rpi4c--
-
---Bn2rw/3z4jIqBvZU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7wUJ4Bm4rlNOo3YgRAhkAAJ92YeQGttDC+l/8gYTwG8Oyd6FkOQCfQ42F
-FUb41nBKpeX3mHV/XO6kRiA=
-=4QFS
------END PGP SIGNATURE-----
-
---Bn2rw/3z4jIqBvZU--
+-- 
+# James Antill -- james@and.org
+:0:
+* ^From: .*james@and\.org
+/dev/null

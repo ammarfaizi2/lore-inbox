@@ -1,128 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbVADFgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262037AbVADFmQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261542AbVADFgP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 00:36:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbVADFgP
+	id S262037AbVADFmQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 00:42:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbVADFmQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 00:36:15 -0500
-Received: from fw.osdl.org ([65.172.181.6]:33463 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261542AbVADFgK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 00:36:10 -0500
-Message-ID: <41DA29D6.3020001@osdl.org>
-Date: Mon, 03 Jan 2005 21:29:58 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ian Smith <the.pond@dsl.pipex.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10 - problem with cx88-cards.c
-References: <41D5585E.6040201@dsl.pipex.com>
-In-Reply-To: <41D5585E.6040201@dsl.pipex.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Jan 2005 00:42:16 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:16141 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S262045AbVADFmJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 00:42:09 -0500
+Date: Tue, 4 Jan 2005 06:33:48 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Thomas Graf <tgraf@suug.ch>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Bill Davidsen <davidsen@tmr.com>,
+       Adrian Bunk <bunk@stusta.de>, Diego Calleja <diegocg@teleline.es>,
+       wli@holomorphy.com, aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
+       linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+Message-ID: <20050104053348.GB19945@alpha.home.local>
+References: <20050103134727.GA2980@stusta.de> <Pine.LNX.3.96.1050103115639.27655A-100000@gatekeeper.tmr.com> <20050103183621.GA2885@thunk.org> <20050103185927.C3442@flint.arm.linux.org.uk> <20050104002452.GA8045@thunk.org> <20050104031229.GE26856@postel.suug.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050104031229.GE26856@postel.suug.ch>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Smith wrote:
-> I am trying to get a Hauppauge Nova-T working.  The chip IDs are 
-> cx22702-15 and cx23882-19.
+On Tue, Jan 04, 2005 at 04:12:29AM +0100, Thomas Graf wrote:
+> * Theodore Ts'o <20050104002452.GA8045@thunk.org> 2005-01-03 19:24
+> > On Mon, Jan 03, 2005 at 06:59:27PM +0000, Russell King wrote:
+> > > It is also the model we used until OLS this year - there was a 2.6
+> > > release about once a month prior to OLS.  Post OLS, it's now once
+> > > every three months or there abouts, which, IMO is far too long.
+> > 
+> > I was thinking more about every week or two (ok, two releases in a day
+> > like we used to do in the 2.3 days was probably too freequent :-), but
+> > sure, even going to a once-a-month release cycle would be better than
+> > the current 3 months between 2.6.x releases.
 > 
-> Relevant configs:
-> 
-> CONFIG_VIDEO_CX88_DVB=m
-> CONFIG_DVB=y
-> CONFIG_DVB_CORE=m
-> CONFIG_DVB_AV7110=m
-> # CONFIG_DVB_AV7110_OSD is not set
-> CONFIG_DVB_BUDGET=m
-> CONFIG_DVB_BUDGET_CI=m
-> CONFIG_DVB_BUDGET_AV=m
-> CONFIG_DVB_BUDGET_PATCH=m
-> CONFIG_DVB_TTUSB_BUDGET=m
-> CONFIG_DVB_TTUSB_DEC=m
-> # CONFIG_DVB_DIBUSB is not set
-> # CONFIG_DVB_CINERGYT2 is not set
-> CONFIG_DVB_B2C2_SKYSTAR=m
-> # CONFIG_DVB_B2C2_USB is not set
-> CONFIG_DVB_BT8XX=m
-> # Supported DVB Frontends
-> # Customise DVB Frontends
-> # DVB-S (satellite) frontends
-> CONFIG_DVB_STV0299=m
-> # CONFIG_DVB_CX24110 is not set
-> CONFIG_DVB_TDA8083=m
-> # CONFIG_DVB_TDA80XX is not set
-> CONFIG_DVB_MT312=m
-> CONFIG_DVB_VES1X93=m
-> # DVB-T (terrestrial) frontends
-> CONFIG_DVB_SP8870=m
-> CONFIG_DVB_SP887X=m
-> CONFIG_DVB_CX22700=m
-> CONFIG_DVB_CX22702=m
-> CONFIG_DVB_L64781=m
-> CONFIG_DVB_TDA1004X=m
-> # CONFIG_DVB_NXT6000 is not set
-> CONFIG_DVB_MT352=m
-> # CONFIG_DVB_DIB3000MB is not set
-> # CONFIG_DVB_DIB3000MC is not set
-> # DVB-C (cable) frontends
-> # CONFIG_DVB_ATMEL_AT76C651 is not set
-> CONFIG_DVB_VES1820=m
-> CONFIG_DVB_TDA10021=m
-> CONFIG_DVB_STV0297=m
-> CONFIG_VIDEO_BUF_DVB=m
-> 
-> Problem is the kernel build fails (nb. this is with a completely 
-> pristine source tree):
-> 
-> Kernel: arch/i386/boot/bzImage is ready
-> make[1]: Leaving directory `/usr/src/linux-2.6.10'
-> /usr/bin/make    ARCH=i386 \
->                      modules
-> make[1]: Entering directory `/usr/src/linux-2.6.10'
->   CHK     include/linux/version.h
-> make[2]: `arch/i386/kernel/asm-offsets.s' is up to date.
->   CC [M]  drivers/media/video/cx88/cx88-cards.o
-> drivers/media/video/cx88/cx88-cards.c: In function `hauppauge_eeprom_dvb':
-> drivers/media/video/cx88/cx88-cards.c:694: error: `PLLTYPE_DTT7595' 
-> undeclared (first use in this function)
-> drivers/media/video/cx88/cx88-cards.c:694: error: (Each undeclared 
-> identifier is reported only once
-> drivers/media/video/cx88/cx88-cards.c:694: error: for each function it 
-> appears in.)
-> drivers/media/video/cx88/cx88-cards.c:698: error: `PLLTYPE_DTT7592' 
-> undeclared (first use in this function)
-> drivers/media/video/cx88/cx88-cards.c: In function `cx88_card_setup':
-> drivers/media/video/cx88/cx88-cards.c:856: error: `PLLTYPE_DTT7579' 
-> undeclared (first use in this function)
-> make[5]: *** [drivers/media/video/cx88/cx88-cards.o] Error 1
-> make[4]: *** [drivers/media/video/cx88] Error 2
-> make[3]: *** [drivers/media/video] Error 2
-> make[2]: *** [drivers/media] Error 2
-> make[1]: *** [drivers] Error 2
-> make[1]: Leaving directory `/usr/src/linux-2.6.10'
-> make: *** [stamp-build] Error 2
-> 
-> Hope someone can shed some light on this - patches welcomed.  BTW I am 
-> not subscribed, but I will be monitoring the archives so no need to cc 
-> if you can't be bothered ;)
+> It definitely satifies many of the impatients but it doesn't solve the
+> stability problem. Many bugs do not show up on developer machines until
+> just right after the release (as you pointed out already). rc releases
+> don't work out as expected due to various reasons, i think one of them
+> is that rc releases don't get announced on the newstickers, extra work
+> is required to patch the kernel etc.
 
-Well, apparently you enabled 'BROKEN' file builds:
-config VIDEO_CX88_DVB
-         tristate "DVB Support for cx2388x based TV cards"
-         depends on VIDEO_CX88 && DVB_CORE && BROKEN
+The problem with -rc is that there are two types of people :
+  - the optimists who think "good, it's already rc. I'll download it and
+    run it as soon as it's released"
+ - the pessimists who think "I killed my machine twice with rc, let's leave
+   it to other brave testers".
 
-so my suggestion is that you ask the DVB people about it.
- From the MAINTAINTERS file:
+These two problems are solvable with the same solution : no rc anymore.
+I agree with Ted. A version every week or 2 weeks is good. People will
+run random versions, some will report problems, others not. After that,
+you know the differences between exact releases, you don't have to parse
+28 MB changes. And you can also ask them to upgrade or downgrade and
+quickly find where the bug entered.
 
-DVB SUBSYSTEM AND DRIVERS
-P:	LinuxTV.org Project
-M: 	linux-dvb-maintainer@linuxtv.org
-L: 	linux-dvb@linuxtv.org (subscription required)
-W:	http://linuxtv.org/developer/dvb.xml
-S:	Supported
+Others will find stable versions they will want to stick to for some time,
+which would also improve the bugs detection. At the time of 2.1, there were
+many people using it because there were known stable versions (thanks to
+Alan, btw). I remember having run an NFS server on 2.1.131-ac13 which was
+fast an rock solid at this time.
 
--- 
-~Randy
+Today's -rc system slows down testing. I also look at 2.4 : people only
+test 2.4 when there is a new release. Between releases, very few people
+such Adrian and a few others recompile a full kernel and report problems.
+When you don't have much free time, you don't want to spend it testing
+pre-releases which you think did not change from the previous one.
+
+> What about doing a test release
+> just before releasing the final version. I'm not talking about yet
+> another 2 weeks period but rather just 2-3 days and at most 2 bk
+> releases in between. Full tarball must be available to make it as
+> easy as possible. I'm quite sure there are a lot of willing testers
+> simply too lazy to take a shot at every single rc release. If things
+> get really worse and huge fixes are required the final release could
+> be defered in favour of another rc cycle.
+
+if it's 2-3 days, it's reasonnable I think. It should let some people
+report build problems just before the real one.
+
+Regards,
+Willy
+

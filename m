@@ -1,59 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263131AbTENXFv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 19:05:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263139AbTENXFv
+	id S263084AbTENXDl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 19:03:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbTENXDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 19:05:51 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:47568
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263131AbTENXFu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 19:05:50 -0400
-Date: Thu, 15 May 2003 01:18:38 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-Cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: 2.4.21rc2aa1
-Message-ID: <20030514231838.GP1429@dualathlon.random>
-References: <20030514202258.GF1429@dualathlon.random> <3EC2C5AC.6050709@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EC2C5AC.6050709@gmx.net>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+	Wed, 14 May 2003 19:03:41 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:7687 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263084AbTENXDj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 19:03:39 -0400
+Date: Thu, 15 May 2003 00:16:27 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Pavel Machek <pavel@ucw.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [BUG] 2.5.69 - no setfont and loadkeys on tty > 1
+In-Reply-To: <20030514224212.GA8124@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0305142346380.14201-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 15, 2003 at 12:39:40AM +0200, Carl-Daniel Hailfinger wrote:
-> Andrea Arcangeli wrote:
+
+> Well, it would be nice to set the default font for newly created fonts
+
+> Perhaps you need to make old ioctls 2.4.X compatible and introduce new
+> ioctl that sets only "this" console?
+
+PIO_FONTRESET ioctl which is old and the flag KD_FONT_OP_SET_DEFAULT.
+I have to look at the setfont code to see if it sets this flag. I bet 
+it doesn't. I don't see a flag to tell setfont to use this font as the 
+default font for all terminals :-( The good news is you can tell which tty 
+to change the fonts on (-c /dev/ttyX). So setfont has the idea of setting
+a single tty but due to a bug in the console layer it set all terminals. 
+I guess we need to update setfont for setting all terminals.
+
+> Do this:
 > 
-> > Only in 2.4.21rc2aa1: 00_remove_inode_page-prune_icache-smp-race-1
-> > 
-> > 	Fix mm corrupting SMP race between remove_inode_page and prune_icache.
-> > 	Found by Chris Mason.
+> pavel@amd:~$ echo -e '\e[?8c'
 > 
-> Any chance this will get into mainline before 2.4.21?
+> Notice cursor changes to block. Switch to another console. Oops, block
+> cursor, too.
 
-it's obviously safe so I think yes:
+Ug!!!! I have cursor_shape in struct display for this reason. Will have to 
+trace to find the problem.
 
---- x/mm/filemap.c.~1~	2003-04-24 16:37:50.000000000 +0200
-+++ x/mm/filemap.c	2003-04-24 17:05:10.000000000 +0200
-@@ -100,9 +100,10 @@ static inline void remove_page_from_inod
- 	if (mapping->a_ops->removepage)
- 		mapping->a_ops->removepage(page);
- 	
--	mapping->nrpages--;
- 	list_del(&page->list);
- 	page->mapping = NULL;
-+	wmb();
-+	mapping->nrpages--;
- }
- 
- static inline void remove_page_from_hash_queue(struct page * page)
+> > appears the flashing is the issue. I will see if a hardware cursor
+> > also has
+
+   Your right. I realize my logic error. I was literally thinking too black 
+and white. In the case of a cursor that is a white thin line at the bottom 
+and a grey background. That is whole cursor image!! The mask should be
+the font image to be drawn. 
+   You can think of it as the cursor being a big grey cookie with white 
+frosting decoration on the bottom. Then I come with my font shape cookie 
+cutter and cut it out.  
+
+> >     KDGKBDTYPE.   (Wow, I can't believe we still have this. It should die)
+> 
+> What is that? I can not see it in 2.5.X.
+
+Line 420 in vt_ioctl.c. 
 
 
-Marcelo please apply, thanks!
-
-Andrea

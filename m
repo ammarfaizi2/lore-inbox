@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274710AbRIUAAZ>; Thu, 20 Sep 2001 20:00:25 -0400
+	id <S274709AbRITXzF>; Thu, 20 Sep 2001 19:55:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274711AbRIUAAP>; Thu, 20 Sep 2001 20:00:15 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:34698 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S274710AbRITX75>;
-	Thu, 20 Sep 2001 19:59:57 -0400
-Date: Thu, 20 Sep 2001 16:59:53 -0700 (PDT)
-Message-Id: <20010920.165953.102611286.davem@redhat.com>
-To: acme@conectiva.com.br
-Cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org, paulus@samba.org
-Subject: Re: [PATCH][RFC] spin_trylock_bh
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20010915172659.A1916@conectiva.com.br>
-In-Reply-To: <20010915172659.A1916@conectiva.com.br>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S274710AbRITXyz>; Thu, 20 Sep 2001 19:54:55 -0400
+Received: from sushi.toad.net ([162.33.130.105]:14047 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S274709AbRITXym>;
+	Thu, 20 Sep 2001 19:54:42 -0400
+Message-ID: <3BAA81B3.4C284258@yahoo.co.uk>
+Date: Thu, 20 Sep 2001 19:54:27 -0400
+From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] PnP BIOS no-irq/IRQ0 bug
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-   Date: Sat, 15 Sep 2001 17:26:59 -0300
+Here is a one-character patch which may be self-explanatory.
+The irq should be initialized to -1 (i.e., "no irq") rather
+than 0 (i.e., IRQ0) so that the irq field in the pci_dev will
+be -1 and not 0 if the PnP BIOS returns an irq mask with no
+bits set.     // Thomas <jdthood_AT_yahoo.co.uk>
 
-   	Please see if this is acceptable, I noticed this while working on
-   the locks for NetBEUI 8) Patch is against 2.4.9, but it should apply to
-   latest prepatch. It was being used in the ppp code for quite some time.
-   
-This patch looks fine to me...
-
-Later,
-David S. Miller
-davem@redhat.com
+--- linux-2.4.9-ac10/drivers/pnp/pnp_bios.c_ORIG	Thu Sep 20 18:54:59 2001
++++ linux-2.4.9-ac10/drivers/pnp/pnp_bios.c	Thu Sep 20 18:55:22 2001
+@@ -716,7 +716,7 @@
+ static void __init pnpbios_rawdata_2_pci_dev(struct pnp_bios_node *node, struct pci_dev *pci_dev)
+ {
+ 	unsigned char *p = node->data, *lastp=NULL;
+-        int mask,i,io,irq=0,len,dma=-1;
++        int mask,i,io,irq=-1,len,dma=-1;
+ 
+ 	memset(pci_dev, 0, sizeof(struct pci_dev));
+         while ( (char *)p < ((char *)node->data + node->size )) {

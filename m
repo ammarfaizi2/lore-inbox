@@ -1,129 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261845AbUKCTm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbUKCToc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261845AbUKCTm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 14:42:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbUKCTlQ
+	id S261840AbUKCToc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 14:44:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbUKCTng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 14:41:16 -0500
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:47229 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261845AbUKCTiM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 14:38:12 -0500
-From: Blaisorblade <blaisorblade_spam@yahoo.it>
-To: user-mode-linux-user@lists.sourceforge.net,
-       user-mode-linux-devel@lists.sourceforge.net,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Uml: hostfs sendfile support (was: Re: [uml-user] 2.6.9 uml & sysemu,hostfs)
-Date: Wed, 3 Nov 2004 20:37:56 +0100
-User-Agent: KMail/1.7.1
-Cc: nils toedtmann <user-mode-linux-user@nils.toedtmann.net>
-References: <20041102150339.GA6904@gandalf.intern.marcant.net> <200411030003.38983.blaisorblade_spam@yahoo.it> <20041103011704.GD17954@gandalf.intern.marcant.net>
-In-Reply-To: <20041103011704.GD17954@gandalf.intern.marcant.net>
+	Wed, 3 Nov 2004 14:43:36 -0500
+Received: from web26110.mail.ukl.yahoo.com ([217.12.10.234]:43106 "HELO
+	web26110.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261857AbUKCTln (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 14:41:43 -0500
+Message-ID: <20041103194142.36592.qmail@web26110.mail.ukl.yahoo.com>
+Date: Wed, 3 Nov 2004 20:41:42 +0100 (CET)
+From: Roland Kaeser <roli8200@yahoo.de>
+Subject: Re: [uml-user] Harddisk Shutdown while UML Guest Shutdown
+To: Blaisorblade <blaisorblade_spam@yahoo.it>,
+       user-mode-linux-user@lists.sourceforge.net
+Cc: Roland Kaeser <roli8200@yahoo.de>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200411032000.34677.blaisorblade_spam@yahoo.it>
 MIME-Version: 1.0
-Message-Id: <200411032037.56892.blaisorblade_spam@yahoo.it>
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_UOTiBo8/nc0xqSZ"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_UOTiBo8/nc0xqSZ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hello
 
-On Wednesday 03 November 2004 02:17, nils toedtmann wrote:
-> On Wed, Nov 03, 2004 at 12:03:38AM +0100, Blaisorblade wrote:
-> > On Tuesday 02 November 2004 16:03, nils toedtmann wrote:
+I've forgotten one point. The guest kernel creates a (how is the correct english
+word for this?) a memory error (German Speicherfehler) so it seems that the kernel
+crashes. I have to say that I run the guest system with root privileges (on the root
+account).
 
-> [...]
-
-> > >  * hostfs is still broken in 2.6.9, see thread "more hostfs
-> > >    problems w/ current patches (2.4, 2.6)". Last working version is
-> > >    uml-patch-2.4.26-1.
-
-> > I don't remember at the moment.
-
-> httpd cannot read files from hostfs (but httpd can list directories,
-> and the httpd user can `cat`, `less`, ... files from hostfs). Strace
-> shows that "sendfile()" fails.
-
-Ok, this makes sense.
-
-It's not, probably, a *bug* in the strict sense, but rather a missing feature. 
-I've checked that to support sendfile on 2.6 kernels special help is needed 
-from the FS (i.e., it must implement a special sendfile() function).
-
-So, if you want to use httpd, either don't use in on hostfs, or use it on 2.4, 
-or recompile apache disabling the usage of sendfile(). This is a new notice I 
-get, however.
-
-That said, there is a possibility the patch is just a one-liner. It seems 
-there is generic support for this. Try the attached one. Report what happens, 
-please, so I know what to do with it. If it works, it will be included in 
-next release.
-
-> > But I guess you mean 2.4.24-1, right?
-
-> Right (i did not read my `uname` correctly ;-)
-
-> > That
-> > thread reports 2.4.26-1 as completely broken, and nobody has yet
-> > disagreed (including me).
-
-> Me too
-Ok, nothing new here.
-
-> > >  * "cat /proc/sysemu" and the gedpid()-benchmark verify that sysemu
-> > >    is active. But when i do "echo 0 > /proc/sysemu" the uml just
-> > >    dies. According to <http://sysemu.sourceforge.net/> sysemu should
-> > >    be disabled instead.
-
-> > > Host runs 2.6.8.1 with skas3-2.6.7-v5.
-
-> > The second problem is solved by updating to skas3-v7 on the host (don't
-> > use a 2.6.9 host kernel because the guest UML gives still some problems,
-> > which will be soon fixed; it is a UML bug, not a SKAS bug, so the patch
-> > will be for the guest, not for the host).
-
-> Do i get it right: all guest kernels have a bug which strikes only on a
-> 2.6.9 host, with or without a skas patch (you mean the "zombie bug"?). So
-> until a patch is there, i should use 2.6.8.1 + host-skas3-2.6.7-v7.
-Yes, this is exactly what happens.
-
-Bye
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-
---Boundary-00=_UOTiBo8/nc0xqSZ
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="uml-add-sendfile.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="uml-add-sendfile.patch"
+Roland
 
 
+ --- Blaisorblade <blaisorblade_spam@yahoo.it> schrieb: 
+> On Wednesday 03 November 2004 08:53, Roland Kaeser wrote:
+> > Hello
+> >
+> > I starting the UML Kernel with the following command:
+> >
+> > /install/uml/kernel/vmlinux mem=128M devfs=nomount con=xterm
+> > eth0=tuntap,,,1.1.1.1 eth1=tuntap,,,2.2.2.2 root=/dev/root
+> > rootflags=/install/uml/instances/hostfc2install rootfstype=hostfs
+> >
+> > The system starts up successfully, and opens all the xterm for the
+> > consoles. I can login and work with the guest system.
+> > Then I shut down the guest system from inside the guest system using the
+> > command init 0 or shutdown.
+> 
+> > The guest shuts down normally.
+> > But in the moment when the uml kernel exits in the xterm where I started
+> > it, I CAN HEAR the harddisk of the host goes down.
+> 
+> Ok, with this explaination, I can believe that this happens. Sorry for my 
+> first answer, I first took the most likely idea, i.e. the hard disk spins 
+> down because it's no more used, but the host kernel is still alive and 
+> kicking, and the hard drive will spin up when needed. Anyway, this 
+> description, w
+> 
+> You are using a vanilla host kernel (2.6.9), so you have no SKAS patch 
+> running, i.e. this is a host kernel bug, actually, and it is pretty severe. 
+> Attach your .config in next email.
+> 
+> Can you please report that (including the kernel panic message) to LKML, 
+> CC:ing the -devel list? Also, could you try that with different host kernels? 
+> Different setups? Are you running your UML as root or not? If you are running 
+> it as root, then try running it with an unprivileged userid.
+> 
+> > After this, nothing happens more on the host, even the mouse freezes. I
+> > cannot start an other program or even access the harddisk or login on a
+> > other tty.
+> 
+> > It freezes the whole guest system. 
+> You mean obiously the "host" system (i.e. the hardware one; "guest" refers to 
+> the UML instance).
+> > About a minute later I get a 
+> > Kernel Panic from the host kernel
+> Try to copy and send the text of the panic, (most of the numbers can be 
+> omitted, even because they are often hard to decode; the list of function 
+> calls is more important than anything else).
+> -- 
+> Paolo Giarrusso, aka Blaisorblade
+> Linux registered user n. 292729
+>  
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
 
- vanilla-linux-2.6.9-paolo/fs/hostfs/hostfs_kern.c |    1 +
- 1 files changed, 1 insertion(+)
+	
 
-diff -puN fs/hostfs/hostfs_kern.c~uml-add-sendfile fs/hostfs/hostfs_kern.c
---- vanilla-linux-2.6.9/fs/hostfs/hostfs_kern.c~uml-add-sendfile	2004-11-03 20:33:11.847943768 +0100
-+++ vanilla-linux-2.6.9-paolo/fs/hostfs/hostfs_kern.c	2004-11-03 20:34:08.254368688 +0100
-@@ -393,6 +393,7 @@ int hostfs_fsync(struct file *file, stru
- static struct file_operations hostfs_file_fops = {
- 	.llseek		= generic_file_llseek,
- 	.read		= generic_file_read,
-+	.sendfile	= generic_file_sendfile,
- 	.write		= generic_file_write,
- 	.mmap		= generic_file_mmap,
- 	.open		= hostfs_file_open,
-_
-
---Boundary-00=_UOTiBo8/nc0xqSZ--
-
+	
+		
+___________________________________________________________
+Gesendet von Yahoo! Mail - Jetzt mit 100MB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

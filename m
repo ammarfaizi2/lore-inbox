@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267376AbTAOVxh>; Wed, 15 Jan 2003 16:53:37 -0500
+	id <S267374AbTAOVzH>; Wed, 15 Jan 2003 16:55:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267380AbTAOVxh>; Wed, 15 Jan 2003 16:53:37 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:17087 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267376AbTAOVxf>; Wed, 15 Jan 2003 16:53:35 -0500
-Date: Wed, 15 Jan 2003 14:01:38 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Protasevich, Natalie" <Natalie.Protasevich@Unisys.Com>,
-       "'William Lee Irwin III'" <wli@holomorphy.com>
-cc: "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
-       "'anton@samba.org'" <anton@samba.org>,
-       "'Nakajima, Jun'" <jun.nakajima@intel.com>,
-       Zwane Mwaikambo <zwane@holomorphy.com>
-Subject: Re: 48GB NUMA-Q boots, with major IO-APIC hassles
-Message-ID: <156310000.1042668097@titus>
-In-Reply-To: <3FAD1088D4556046AEC48D80B47B478C022BD904@usslc-exch-4.slc.unisys.com>
-References: <3FAD1088D4556046AEC48D80B47B478C022BD904@usslc-exch-4.slc.unisys.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S267375AbTAOVzG>; Wed, 15 Jan 2003 16:55:06 -0500
+Received: from [66.70.28.20] ([66.70.28.20]:32264 "EHLO
+	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
+	id <S267374AbTAOVzF>; Wed, 15 Jan 2003 16:55:05 -0500
+Date: Wed, 15 Jan 2003 23:03:17 +0100
+From: DervishD <raul@pleyades.net>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Jakob Oestergaard <jakob@unthought.net>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Changing argv[0] under Linux.
+Message-ID: <20030115220317.GL47@DervishD>
+References: <20030114220401.GB241@DervishD> <20030114230418.GB4603@doc.pdx.osdl.net> <20030114231141.GC4603@doc.pdx.osdl.net> <20030115044644.GA18608@mark.mielke.cc> <20030115082527.GA22689@pegasys.ws> <20030115114130.GD66@DervishD> <20030115131617.GA8621@unthought.net> <20030115162219.GB86@DervishD> <20030115164731.GB8621@unthought.net> <jeel7ehzon.fsf@sykes.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <jeel7ehzon.fsf@sykes.suse.de>
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> (3) setup_ioapic_ids_from_mpc() panic()'s.
->> -- the clustered_apic_mode check and/or its current equivalent
->> -- no longer suffices with 16 IO-APIC's. Turn off all the
->> -- renumbering logic and hardcode the numbers to alternate
->> -- between 13 and 14, where they belong.
->> -- The real issue here is that the phys_id_present_map is not
->> -- properly per- APIC bus. The physid's of IO-APIC's are
->> -- irrelevant from the standpoint of the rest of the kernel,
->> -- but are inexplicably used to identify them throughout the
->> -- rest of arch/i386/ when physids are nothing resembling
->> -- unique identifiers in multiple APIC bus systems. This
-> 
-> I also have a problem with setup_ioapic_ids_from_mpc(). I opt for 0xFF as
-> max io_apic phys_id (and leave it alone!), because even though we have fewer
-> IO-APICs than that, I'd like to keep the actual numbers from MP table or
-> ACPI, because all APIC and IO-APIC id's on ES7000 are 8 bit, unique, and
-> meaningful (used as a bitmaps) when I have to implement CPU, PCI hot plug
-> and dynamic partitioning (I hate to think of possible confusing tables and
-> dependencies I will have to maintain otherwise...). 
-> 
-> Could this routine be made with alternative architecturally private path (as
-> a hook or with a hook inside)?
+    Hi Andreas :)
 
-I don't think changing the Linux data structures is a problem, but you
-need to be really careful not to change anything for normal machines
-when writing out to / reading from the IO-APIC - that stuff is too fragile, 
-and breaks on strange machines in wierd ways. 
+> |> down, mainly because it's ugly - and I hate programs that mess with
+> |> argv[0].
+> argv[0] is not required to point to the actual file name of the
+> executable, and in fact, most of the time it won't.
+> Btw, don't use it for setuid programs, it's a huge security hole you can
+> drive a truck through.
 
-If you can find a clean way to change the internal stuff, and just wrap 
-the in/out interfaces, that would seem best to me ...
+    Yes, I suppose that exec'ing whatever is in argv0 is not a good
+idea :((( Didn't think about it.
 
-M.
+    Any suggestion on how to get the binary name from the core image?
 
+    Thanks a lot for the warning, Andreas :)
+
+    Raúl

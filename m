@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282224AbRKWTo0>; Fri, 23 Nov 2001 14:44:26 -0500
+	id <S282234AbRKWTof>; Fri, 23 Nov 2001 14:44:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282216AbRKWToQ>; Fri, 23 Nov 2001 14:44:16 -0500
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:43141 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S282213AbRKWTn4>;
-	Fri, 23 Nov 2001 14:43:56 -0500
-Message-ID: <3BFEA6F1.33E3F1BF@pobox.com>
-Date: Fri, 23 Nov 2001 11:43:45 -0800
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.15-pre9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: war <war@starband.net>
-CC: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
-Subject: Re: Which gcc version?
-In-Reply-To: <20011123125137Z282133-17408+17815@vger.kernel.org> <3BFE5447.3AFDFFD3@starband.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S282217AbRKWTo1>; Fri, 23 Nov 2001 14:44:27 -0500
+Received: from ns.xdr.com ([209.48.37.1]:13463 "EHLO xdr.com")
+	by vger.kernel.org with ESMTP id <S282215AbRKWToH>;
+	Fri, 23 Nov 2001 14:44:07 -0500
+Date: Fri, 23 Nov 2001 11:44:11 -0800
+From: Dave Ashley (linux mailing list) <linux@xdr.com>
+Message-Id: <200111231944.fANJiBX30625@xdr.com>
+To: linux-kernel@vger.kernel.org
+Subject: bd_t structure + net configuration
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually there is no need to go download yet
-another compiler -
+I'm working on bringing up linux in an embedded environment, and the box
+is diskless and uses bootp to get its kernel + ramdisk. It uses ppcboot
+to get that information. We've modified ppcboot to pass more information
+to linux in the bd_t (board info) structure, specifically
+ip address
+netmask
+default gateway
+dns server
+hostname
 
-The gcc-2.96 shipped with redhat will work
-perfectly for compiling your kernel -
+The question is how to get linux to use this information? I couldn't find
+anything in the kernel source to do that. I had a temporary solution where
+linux invokes dhcpcd to get the information again, but the problem there is
+there are 2 dhcp servers on our network and the ip addresses assigned didn't
+match between the bootp stage and the dhcp stage later. And there is an
+efficiency problem--since the information is already in the box at the bootp
+time, why bother with dhcp later?
 
-See Documentation/Changes, line 87 for a
-heads-up
+I was surprised to find no built in mechanism to configure networking from
+the boardinfo information.
 
-cu
+Anyway what I ended up doing was modifying fs/proc/proc_misc.c to add a
+file /proc/boardinfo, which has the information visible. Then during booting,
+when networking would be initialized, I examine that file to know how to
+set everything up.
 
-jjs
+What I did was have the /proc/boardinfo file appear like an sh script, so
+when cat'd it looks like this:
+ifconfig eth0 192.168.0.20 netmask 255.255.255.0
+route add default gw 192.168.0.75
+echo nameserver 192.168.0.76 > /etc/resolv.conf
+hostname box1102
 
-war wrote:
+(The numbers here are just examples, they change depending on the bootp
+information).
 
-> You should use gcc-2.95.3.
->
-> Roy Sigurd Karlsbakk wrote:
->
-> > hi all
-> >
-> > I just wonder...
-> > With a clean rh72 install, I've got two gcc versions installed in parllel,
-> > 2.96 and 3.0.2. Which one should I use to compile the kernel?
+I modified one of the startup scripts to configure networking:
+cat /proc/boardinfo > /tmp/bi
+sh /tmp/bi
+rm /tmp/bi
 
+The only information used from the bd_t structure was the mac address of
+the ethernet card, originally. The bd_t structure appears as the global
+__res pointer.
+
+I'm wondering if there is a prefered way of doing this? Also why does it
+seem like setting up networking from the bd_t structure hasn't been done
+before?
+
+Thoughts? Comments? Anything welcome.
+
+-Dave

@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130364AbQKTUMk>; Mon, 20 Nov 2000 15:12:40 -0500
+	id <S130592AbQKTUNK>; Mon, 20 Nov 2000 15:13:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130335AbQKTUMX>; Mon, 20 Nov 2000 15:12:23 -0500
-Received: from front7m.grolier.fr ([195.36.216.57]:46263 "EHLO
-	front7m.grolier.fr") by vger.kernel.org with ESMTP
-	id <S129831AbQKTULr>; Mon, 20 Nov 2000 15:11:47 -0500
-Message-ID: <3A197E1A.A936D847@neurontech.fr>
-Date: Mon, 20 Nov 2000 20:40:10 +0100
-From: Vincent Marty <jvmarty@neurontech.fr>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre22 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Vincent Marty <vmarty@neurontech.fr>,
-        Dominique Gence <dgence@neurontech.fr>
-Subject: Dual Via694 M/B locks during 2.4.0-test11 boot. APIC pb ?
+	id <S130589AbQKTUND>; Mon, 20 Nov 2000 15:13:03 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:32524 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S129831AbQKTUMc>;
+	Mon, 20 Nov 2000 15:12:32 -0500
+Date: Mon, 20 Nov 2000 21:42:16 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Ben Collins <bcollins@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bug in large files ext2 in 2.4.0-test11 ?
+Message-ID: <20001120214216.S28963@mea-ext.zmailer.org>
+In-Reply-To: <D69EF5976ED@vcnet.vc.cvut.cz> <20001120141641.Y619@visi.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20001120141641.Y619@visi.net>; from bcollins@debian.org on Mon, Nov 20, 2000 at 02:16:41PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Mon, Nov 20, 2000 at 02:16:41PM -0500, Ben Collins wrote:
+> > > Do programs compiled against a glibc with LFS (2.4.x kernel) support, and
+> > > using that LFS support, work on kernel 2.2.x machines?
+> > 
+> > Yes. Even glibc (2.2) compiled against kernel without LFS support has LFS
+> > interface. Of course limited to 2GB files only.
+> 
+> On some platforms...
+> 
+> E.g. I can already access > 2gig files on my ultrasparc :)
 
-I am using a Gigabyte 6VXDC7 Dual Pentium III MB.
-This motherboard uses a Via 694 chipset. cf
-http://www.giga-byte.com/products/6vxdc7.htm
+	And I can do so on Alpha, which has forever had 64-bit file sizes
+	also at the kernel side.
 
-With the 2.4.0-test11-pre1 kernel the system freezes during boot. I
-suspect APIC pbs.
+	All glibc since 2.1 have user-visible interfaces of 64-bit
+	file-sizes, but the glibc/kernel interface depends on what
+	kernel headers have been used when compiling glibc.
 
-Can anybody help me ?
-Thanks. Vincent
+	Just for comparison, RedHat delivers glibc compiled with
+	2.3.nn/2.4.0 headers -> newer interfaces are supported.
 
-Below is the content of the screen when 2.4.0-test11-pre1 freezes during
-boot.
+> Ben
+> /  Ben Collins  --  ...on that fantastic voyage...  --  Debian GNU/Linux   \
+> `  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
 
-Getting VERSION : 40011
-Getting VERSION : 40011
-Getting ID : 0
-Getting ID : f000000
-Getting LVT0 : 700
-Getting LVT1 : 400
-enabled ExtINT on CPU#0
-ESR value before enabling vector : 00000084
-ESR value after enabling vector : 00000000
-CPU present map : 3
-Booting processor 1/1 eip 2000
-Setting warm reset code and vector
-1
-2
-3
-Asserting INIT
-Waiting for send to finish...
-+ Deasserting INIT.
-Waiting for send to finish...
-+# startup loops : 2
-Sending STARTUP #1.
-After apic_write
-Startup point 1
-Waiting for send to finish...
-+
-
+/Matti Aarnio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

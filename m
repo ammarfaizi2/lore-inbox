@@ -1,31 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278720AbRJXTLC>; Wed, 24 Oct 2001 15:11:02 -0400
+	id <S279574AbRJXTOc>; Wed, 24 Oct 2001 15:14:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279567AbRJXTKx>; Wed, 24 Oct 2001 15:10:53 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:37810 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S278720AbRJXTKq>;
-	Wed, 24 Oct 2001 15:10:46 -0400
-Date: Wed, 24 Oct 2001 13:22:16 -0500
-From: EvilTypeGuy <eviltypeguy@qeradiant.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Simplify serverworks workaround.
-Message-ID: <20011024132216.I15867@virtucon.warpcore.org>
-Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011024185512.A6207@suse.de>
-Mime-Version: 1.0
+	id <S279575AbRJXTOY>; Wed, 24 Oct 2001 15:14:24 -0400
+Received: from freeside.toyota.com ([63.87.74.7]:20486 "EHLO toyota.com")
+	by vger.kernel.org with ESMTP id <S279574AbRJXTOK>;
+	Wed, 24 Oct 2001 15:14:10 -0400
+Message-ID: <3BD7131C.5B939BE@lexus.com>
+Date: Wed, 24 Oct 2001 12:14:36 -0700
+From: J Sloan <jjs@lexus.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
+CC: "David S. Miller" <davem@redhat.com>, jgarzik@mandrakesoft.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: acenic breakage in 2.4.13-pre
+In-Reply-To: <20011024204913.A18191@sith.mimuw.edu.pl>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011024185512.A6207@suse.de>
-User-Agent: Mutt/1.3.23i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 24, 2001 at 06:55:12PM +0100, Dave Jones wrote:
-> Linus, Richard,
->  Patch below makes the workaround for Serverworks LE chipsets
->  a little simpler, and also adds a printk to let people know
->  why they can't use Write-combining.
+Jan Rekorajski wrote:
 
-Do the serverworks HE chipsets have the same problem?
+> No. It's plain old egcs 1.1.2 (gcc 2.91.66). I can try with gcc 2.95.x
+> but 2.96 or 3.x are no-no for me :)
+
+That's bizzare, 2.96 has been working nicely
+on all of my 30-40 Red Hat 7.x boxes. All sorts
+of configs, from single P5-166 to Quad PPRO
+with highmem, various vendors -
+
+web, mail, dns, firewall, vpn, X workstations,
+database, and all running kernels compiled
+with gcc-2.96 , and everything running like
+a top.
+
+cu
+
+jjs
+
+
+
 

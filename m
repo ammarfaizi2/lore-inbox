@@ -1,111 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268278AbUJQS7A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268254AbUJQTBI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268278AbUJQS7A (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 14:59:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268330AbUJQS7A
+	id S268254AbUJQTBI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 15:01:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268294AbUJQTBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 14:59:00 -0400
-Received: from ts2-075.twistspace.com ([217.71.122.75]:64987 "EHLO entmoot.nl")
-	by vger.kernel.org with ESMTP id S268278AbUJQS6h (ORCPT
+	Sun, 17 Oct 2004 15:01:08 -0400
+Received: from holomorphy.com ([207.189.100.168]:35225 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268254AbUJQTBE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 14:58:37 -0400
-Message-ID: <002b01c4b483$b2bef130$161b14ac@boromir>
-From: "Martijn Sipkema" <martijn@entmoot.nl>
-To: "Buddy Lucas" <buddy.lucas@gmail.com>
-Cc: "Lars Marowsky-Bree" <lmb@suse.de>,
-       "David Schwartz" <davids@webmaster.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-References: <20041016062512.GA17971@mark.mielke.cc> <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com> <20041017133537.GL7468@marowsky-bree.de> <5d6b657504101707175aab0fcb@mail.gmail.com> <20041017150509.GC10280@mark.mielke.cc> <5d6b65750410170840c80c314@mail.gmail.com> <000801c4b46f$b62034b0$161b14ac@boromir> <5d6b65750410171033d9d83ab@mail.gmail.com>
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Date: Sun, 17 Oct 2004 20:58:39 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+	Sun, 17 Oct 2004 15:01:04 -0400
+Date: Sun, 17 Oct 2004 12:00:54 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
+Cc: Norbert Preining <preining@logic.at>, linux-kernel@vger.kernel.org,
+       luc@saillard.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: rc4-mm1 and pwc-unofficial: kernel BUG and scheduling while atomic [u]
+Message-ID: <20041017190054.GB5607@holomorphy.com>
+References: <20041017073614.GC7395@gamma.logic.tuwien.ac.at> <20041017093018.GY5607@holomorphy.com> <1098038131.15115.8.camel@nosferatu.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1098038131.15115.8.camel@nosferatu.lan>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Buddy Lucas" <buddy.lucas@gmail.com>
-> On Sun, 17 Oct 2004 18:35:34 +0100, Martijn Sipkema <martijn@entmoot.nl> wrote:
-> > From: "Buddy Lucas" <buddy.lucas@gmail.com>
-> > > On Sun, 17 Oct 2004 11:05:09 -0400, Mark Mielke <mark@mark.mielke.cc> wrote:
-> > > > On Sun, Oct 17, 2004 at 04:17:06PM +0200, Buddy Lucas wrote:
-> > > > > On Sun, 17 Oct 2004 15:35:37 +0200, Lars Marowsky-Bree <lmb@suse.de> wrote:
-> > > > > > The SuV spec is actually quite detailed about the options here:
-> > > > > >         A descriptor shall be considered ready for reading when a call
-> > > > > >         to an input function with O_NONBLOCK clear would not block,
-> > > > > >         whether or not the function would transfer data successfully.
-> > > > > >         (The function might return data, an end-of-file indication, or
-> > > > > >         an error other than one indicating that it is blocked, and in
-> > > > > >         each of these cases the descriptor shall be considered ready for
-> > > > > >         reading.)
-> > > > > But it says nowhere that the select()/recvmsg() operation is atomic, right?
-> > > >
-> > > > This is a distraction. If the call to select() had been substituted
-> > > > with a call to recvmsg(), it would have blocked. Instead, select() is
-> > > > returning 'yes, you can read', and then recvmsg() is blocking. The
-> > > > select() lied. The information is all sitting in the kernel packet
-> > >
-> > > No. A million things might happen between select() and recvmsg(), both
-> > > in kernel and application. For a consistent behaviour throughout all
-> > > possibilities, you *have* to assume that any read on a blocking fd may
-> > > block, and that a fd ready for reading at select() time might not be
-> > > readable once the app gets to recvmsg() -- for whatever reason.
-> > 
-> > It is perfectly possible to not have a million things happen between
-> > select() and recvmsg() and POSIX defines what can happen and what
-> > can't; it states that a process calling select() on a socket will not block
-> > on a subsequent recvmsg() on that socket.
-> > 
-> > > And indeed, that implies that select() on blocking fds is generally
-> > > not useful if you expect to bypass the blocking through select().
-> > > Personally,  I think any application that implements this expectation
-> > > is broken. (If only because you might have to do a second read() or
-> > > recvmsg() which will either result in a crappy select() loop or a
-> > > broken read()/recvmsg() loop).
-> > 
-> > The way select() is defined in POSIX effectively means that once an
-> > application has done a select() on a socket, the data that caused
-> > select() to return is committed, i.e. it can no longer be dropped and
-> > should be considered received by the application; this has nothing
-> 
-> That is plainly wrong. Data is never received by an application before
-> recvmsg() has succeeded.
+On Sun, 2004-10-17 at 02:30 -0700, William Lee Irwin III wrote:
+>> You need to right shift the argument by PAGE_SHIFT.
 
-I didn't say it was, but that from the view of the UDP protocol it is, i.e.
-a UDP packet can not be dropped from that point onwards.
+On Sun, Oct 17, 2004 at 08:35:31PM +0200, Martin Schlemmer [c] wrote:
+> I am trying to get vesafb-tng to work with rc4-mm1, but are not sure
+> when to shift the argument by PAGE_SHIFT, and when not to.  The patches
+> from you in rc4-mm1 sometimes shifts the second arg, other times the
+> third, and other times not at all.  Is there a easy way for a mostly
+> clueless person to figure out when to shift what argument and when not?
 
-> > to do with UDP being unreliable and being unreliable for the sake
-> > of it is not what UDP was meant for.
-> > 
-> > Whether you think an application that is written to use select() as
-> > defined in POSIX is broken is not really important. The fact remains
-> > that Linux currently implements a select() that is _not_ POSIX
-> > compliant and is so solely for performance reasons. I personally think
-> > correct behaviour is much more important.
-> 
-> All I'm saying is, that applications that are not correct now, will
-> probably not be correct even if we change the way Linux handles this
-> situation. The sanest thing really seems to accept the fact that any
-> read() on a blocking fd might block, even if the programmer thinks it
-> really shouldn't.
-> 
-> But then I am one of those who thinks it's sane to check for
-> EWOULDBLOCK on a nonblocking socket after blocking in select().
+Please point out where these inconsistencies occur and I will repair
+them.
 
-A POSIX comliant implementation would never do this.
-
-> Let's just document this and move on to something more important.
-
-It actually _is_ important. Just implement select() and recvmsg() as
-described in the standard.
+Only the third argument changed, from a physical address to a pfn.
 
 
---ms
-
+-- wli

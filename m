@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136630AbREAPfb>; Tue, 1 May 2001 11:35:31 -0400
+	id <S136639AbREAPnc>; Tue, 1 May 2001 11:43:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136634AbREAPfV>; Tue, 1 May 2001 11:35:21 -0400
-Received: from smtp102.urscorp.com ([38.202.96.105]:44811 "EHLO
-	smtp102.urscorp.com") by vger.kernel.org with ESMTP
-	id <S136630AbREAPfE>; Tue, 1 May 2001 11:35:04 -0400
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        netdev@oss.sgi.com
-Subject: Re: isa_read/write not available on ppc - solution suggestions ??
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-From: mike_phillips@urscorp.com
-Message-ID: <OF7A9C6B22.E1638E60-ON85256A3F.004EADC7@urscorp.com>
-Date: Tue, 1 May 2001 11:27:31 -0400
-X-MIMETrack: Serialize by Router on SMTP102/URSCorp(Release 5.0.5 |September 22, 2000) at
- 05/01/2001 11:30:50 AM,
-	Serialize complete at 05/01/2001 11:30:50 AM
+	id <S136637AbREAPnW>; Tue, 1 May 2001 11:43:22 -0400
+Received: from pc-62-30-76-3-az.blueyonder.co.uk ([62.30.76.3]:5892 "EHLO
+	mnemosyne.j-harris.dircon.co.uk") by vger.kernel.org with ESMTP
+	id <S136635AbREAPnN>; Tue, 1 May 2001 11:43:13 -0400
+Message-ID: <3AEED9A8.56205EBE@uwe.ac.uk>
+Date: Tue, 01 May 2001 16:43:14 +0100
+From: Jamie Harris <Jamie.Harris@uwe.ac.uk>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.3 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Erin Jones <erin@internationalcomputing.com>
+CC: linux-admin@vger.kernel.org, linux-kernel@vger.kernel.org,
+        bristol@lists.lug.org.uk
+Subject: Re: More!! Kernel NULL pointer, over my head... (DOH!)
+In-Reply-To: <Pine.WNT.4.33.0105010601460.-1864577-100000@proteus.j-harris.dircon.co.uk> <01c801c0d252$6a916a80$1601b10a@internationalcomputing.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->mike_phillips@urscorp.com wrote:
->> 
->> To get the pcmcia ibmtr driver (ibmtr/ibmtr_cs) working on ppc, all the
->> isa_read/write's have to be changed to regular read/write due to the 
-lack
->> of the isa_read/write functions for ppc.
+Erin Jones wrote:
+> 
+> are you sure this works:
+> gzip -d ; tar xvf myFile.tar.gz?????
+> shouldn't it be
+> gzip -cd myFile.tar.gz | tar xvf -
 
-> Treat it like a PCI device and use ioremap().  Then change isa_readl()
-> to readl() etc.
+I think I have proven myself unworth of your help by producing the
+above, obvious to everyone, else cockup.  As unworthy as I am, here I go
+again...
 
-Bleurgh, the latest version of the driver (not in the kernel yet) searches 
-for turbo based cards by checking the isa address space from 0xc0000 - 
-0xe0000 in 8k chunks. So we'd have to ioremap each 8k section, check it, 
-find out the adapter isn't there and then iounmap it. 
+As suggested by Phil on Bristol LUG I've fsck'd my filesystems.  Got
+something interesting in the process though.  Booted using some
+Slackware 7.1 (2.2.16) disks to fsck / and got similar errors to those
+already described :(  Yet the system came up...  As there wasn't any
+swap configured I can pretty much rule that out, and I had not attempted
+to mount any file systems...  These are the same disks I used to carry
+out the inital install and I did't get problems then...  I am starting
+to think Hardware but have been told that a copy of ksymoops might shed
+some more light...
 
-Oh well, if that's what it takes =:0
+Thanks again.
 
-Mike
 
+Jamie...
+
+-- 
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+ ***    Slowly and surely the UNIX crept up on the Nintendo user...   
+***
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+-----BEGIN GEEK CODE BLOCK-----Version: 3.1
+GCS/ED d-(++) s:+ a- C+++>++++$ U+++>$ P++++ L+++>+++++ E+(---) W++ N o?
+K? w(++++) O- M V? PS PE? Y PGP- t+ 5 X- R- tv- b++ DI++ D+++ G e++ h*
+r++>+++ y+++
+------END GEEK CODE BLOCK------

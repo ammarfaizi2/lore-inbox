@@ -1,78 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263220AbTH0Gx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 02:53:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263230AbTH0Gx3
+	id S263193AbTH0Gue (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 02:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263203AbTH0Gud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 02:53:29 -0400
-Received: from holomorphy.com ([66.224.33.161]:15541 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263220AbTH0Gx1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 02:53:27 -0400
-Date: Tue, 26 Aug 2003 23:54:35 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.0-test4 -- add context switch counters
-Message-ID: <20030827065435.GV4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Peter Chubb <peterc@gelato.unsw.edu.au>, akpm@digeo.com,
-	linux-kernel@vger.kernel.org
-References: <16204.520.61149.961640@wombat.disy.cse.unsw.edu.au>
+	Wed, 27 Aug 2003 02:50:33 -0400
+Received: from us01smtp1.synopsys.com ([198.182.44.79]:4559 "EHLO
+	boden.synopsys.com") by vger.kernel.org with ESMTP id S263193AbTH0Gu3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 02:50:29 -0400
+Date: Wed, 27 Aug 2003 08:50:16 +0200
+From: Alex Riesen <alexander.riesen@synopsys.COM>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: akpm@zip.com.au, mingo@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] Futex minor fixes
+Message-ID: <20030827065016.GA11214@Synopsys.COM>
+Reply-To: alexander.riesen@synopsys.COM
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	akpm@zip.com.au, mingo@redhat.com, linux-kernel@vger.kernel.org
+References: <20030826092631.GN16080@Synopsys.COM> <20030827051853.1E6422C0EA@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16204.520.61149.961640@wombat.disy.cse.unsw.edu.au>
-Organization: The Domain of Holomorphy
+In-Reply-To: <20030827051853.1E6422C0EA@lists.samba.org>
+Organization: Synopsys, Inc.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 27, 2003 at 10:57:44AM +1000, Peter Chubb wrote:
-> Currently, the context switch counters reported by getrusage() are
-> always zero.  The appended patch adds fields to struct task_struct to
-> count context switches, and adds code to do the counting.
-> The patch adds 4 longs to struct task struct, and a single addition to
-> the fast path in schedule().
+Rusty Russell, Wed, Aug 27, 2003 04:40:14 +0200:
+> In message <20030826092631.GN16080@Synopsys.COM> you write:
+> > Rusty Russell, Tue, Aug 26, 2003 05:05:56 +0200:
+> > > Hi Andrew, Ingo,
+> > > 
+> > > 	This was posted before, but dropped.
+> > > 
+> > > Name: Minor futex comment tweaks and cleanups
+> > > Author: Rusty Russell
+> > > Status: Tested on 2.6.0-test4-bk2
+> > > 
+> > > D: Changes:
+> > > D: 
+> > > D: (1) don't return 0 from futex_wait if we are somehow
+> > > D: spuriously woken up, return -EINTR on any such case,
+> > 
+> > Here. EINTR is often (if not always) assumed to be caused by a signal.
+> > And someone may rightfully depend on it being that way.
+> 
+> Yes.  Changed code to loop in this case.  I don't know of anyone who
+> actually randomly wakes processes, but just in case.  Returning "0"
+> always means as "you were woken up by someone using FUTEX_WAKE", and
+> some callers *need to know*.
+> 
+> How's this?
 
-Thanks, this will be useful. We're still missing a fair number of them:
+Now it's consistent with what EINTR conventionally mean :)
 
-struct  rusage {
-        struct timeval ru_utime;        /* user time used */
-        struct timeval ru_stime;        /* system time used */
-        long    ru_maxrss;              /* maximum resident set size */
-        long    ru_ixrss;               /* integral shared memory size */
-        long    ru_idrss;               /* integral unshared data size */
-        long    ru_isrss;               /* integral unshared stack size */
-        long    ru_minflt;              /* page reclaims */
-        long    ru_majflt;              /* page faults */
-        long    ru_nswap;               /* swaps */
-        long    ru_inblock;             /* block input operations */
-        long    ru_oublock;             /* block output operations */
-        long    ru_msgsnd;              /* messages sent */
-        long    ru_msgrcv;              /* messages received */
-        long    ru_nsignals;            /* signals received */
-        long    ru_nvcsw;               /* voluntary context switches */
-        long    ru_nivcsw;              /* involuntary " */
-};
-
+> Rusty.
+> --
 ...
+> +
+> +	/* Were we woken up (and removed from queue)?  Always return
+> +	 * success when this happens. */
+>  	if (!unqueue_me(&q))
+>  		ret = 0;
+> -	put_page(q.page);
+> +	else if (time == 0)
+> +		ret = -ETIMEDOUT;
+> +	else if (signal_pending(current))
+> +		ret = -EINTR;
+> +	else
+> +		/* Spurious wakeup somehow.  Loop. */
+> +		goto again;
+>  
+>  	return ret;
 
-                case RUSAGE_SELF:
-                        jiffies_to_timeval(p->utime, &r.ru_utime);
-                        jiffies_to_timeval(p->stime, &r.ru_stime);
-                        r.ru_minflt = p->min_flt;
-                        r.ru_majflt = p->maj_flt;
-                        r.ru_nswap = p->nswap;
-                        break;
+Btw, what could that spurious wakeups be?
+It set to loop unconditionally, so if the source of wakeup insists on
+wakeing up the code could result in endless loop, right?
 
-and we're worse off yet: "FIXME! Get the fault counts properly!" ...
-AFAICT literally the only useful number here is utime/stime.
+-alex
 
-
--- wli
-
-P.S.:
-The stuff in /proc/$PID/statm isn't a big deal; I've got full 2.4.x
-semantics (modulo the VSZ correction) with fully O(1) algorithmic
-overhead in some patch originally by bcrl I forward ported somewhere.

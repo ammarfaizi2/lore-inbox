@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285229AbSCRP0w>; Mon, 18 Mar 2002 10:26:52 -0500
+	id <S287858AbSCRPhQ>; Mon, 18 Mar 2002 10:37:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285720AbSCRP0m>; Mon, 18 Mar 2002 10:26:42 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:25731
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S285229AbSCRP0a>; Mon, 18 Mar 2002 10:26:30 -0500
-Date: Mon, 18 Mar 2002 08:25:12 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Larry McVoy <lm@bitmover.com>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        James Bottomley <James.Bottomley@SteelEye.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Problems using new Linux-2.4 bitkeeper repository.
-Message-ID: <20020318152512.GE3762@opus.bloom.county>
-In-Reply-To: <20020316083059.A10086@work.bitmover.com> <3C9375B7.3070808@mandrakesoft.com> <20020316085213.B10086@work.bitmover.com> <3C937B82.60500@mandrakesoft.com> <20020316091452.E10086@work.bitmover.com> <3C938027.4040805@mandrakesoft.com> <30393.1016362174@redhat.com> <20020317075443.A15420@work.bitmover.com> <16049.1016382201@redhat.com> <23384.1016390069@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S289025AbSCRPhH>; Mon, 18 Mar 2002 10:37:07 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:57566 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S287858AbSCRPhC>; Mon, 18 Mar 2002 10:37:02 -0500
+Date: Mon, 18 Mar 2002 08:36:37 -0700
+Message-Id: <200203181536.g2IFabF18869@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: Felix Braun <Felix.Braun@mail.McGill.ca>, linux-kernel@vger.kernel.org
+Subject: Re: devfs mounted twice in linux 2.4.19-pre3
+In-Reply-To: <200203180639.g2I6dVq27119@Port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 17, 2002 at 06:34:29PM +0000, David Woodhouse wrote:
+Denis Vlasenko writes:
+> On 17 March 2002 09:19, Felix Braun wrote:
+> > Hi Richard,
+> >
+> > I just noticed that devfs is listed twice in /proc/mounts in linux
+> > 2.4.19-pre3, which confuses my shutdown script. Under 2.4.19-pre my
+> > /proc/mounts looks like this:
+> >
+> > devfs /dev devfs rw 0 0
+> > /dev/ide/host0/bus0/target0/lun0/part5 / reiserfs rw 0 0
+> > none /dev devfs rw 0 0
+> > /proc /proc proc rw 0 0
+> > /dev/discs/disc0/part1 /dos vfat rw 0 0
+> > /dev/discs/disc0/part9 /opt reiserfs rw,noatime 0 0
+> > none /dev/pts devpts rw 0 0
+> > /dev/discs/disc0/part7 /usr reiserfs rw 0 0
+> > none /dev/shm tmpfs rw 0 0
+> >
+> > whereas under 2.4.18 the first line didn't show up. Is that a
+> > misconfiguration on my part?
 > 
-> lm@bitmover.com said:
-> >  Then you get to save them as diffs, unedit the files, and put them
-> > back  after the merge. 
+> Maybe you mount devfs manually after kernel did the same?
+> devfs /dev devfs rw 0 0 - most probably mounted by initscripts
+> none /dev devfs rw 0 0 - by kernel
 > 
-> I can do better than that. If I save them as diffs, I don't get to use your 
-> cute merge tools. I could commit them with a throwaway changelog, do the 
-> pull and use the merge tools, then copy the resulting files, undo both the 
-> pull and the previous merge, do the pull again and then lock the files and 
-> drop the previously-saved copies into place.
+> Look into /var/log/messages for:
+> kernel: VFS: Mounted root (nfs filesystem).
+> kernel: Mounted devfs on /dev   <============ do yo have this?
 
-Well, what we're doing in PPC-land is we've got one tree, 'linuxppc-2.5'
-which is linux-2.5 + for-linus-ppc* trees + hacks/fixes for current
-problems.  So when we do any work you make a clone of a linux-2.5 tree
-to work in, a clone of the linuxppc-2.5 tree (to pull your work tree
-into and then test).  Once things are good in the linux-2.5-work tree,
-you pull that into a for-linus tree and tell linus to merge that. 
+No, I don't think that's the problem. I now also have two devfs
+entries in /proc/mounts with 2.4.19-pre3. My boot scripts don't mount
+devfs. I'm looking into the problem. It seems to have something to do
+with Al's changes to the boot sequence code.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

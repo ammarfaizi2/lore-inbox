@@ -1,19 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261486AbUKFW0h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbUKFW3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261486AbUKFW0h (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 17:26:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbUKFW0h
+	id S261489AbUKFW3t (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 17:29:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbUKFW3s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 17:26:37 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:64005 "HELO
+	Sat, 6 Nov 2004 17:29:48 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:13062 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261486AbUKFWZN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 17:25:13 -0500
-Date: Sat, 6 Nov 2004 23:24:32 +0100
+	id S261489AbUKFW3O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 17:29:14 -0500
+Date: Sat, 6 Nov 2004 23:28:39 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] small ftape cleanups
-Message-ID: <20041106222431.GR1295@stusta.de>
+To: Corey Minyard <minyard@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RFC: [2.6 patch] small IPMI cleanup
+Message-ID: <20041106222839.GS1295@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,597 +22,363 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below does cleanups under drivers/char/rio/ including the 
-following:
+The patch below does the following changes to the IPMI code:
 - remove some completely unused code
 - make some needlessly global code static
 
+This inlcldes the removal of some EXPORT_SYMBOL'ed code with zero users.
+
+Is this patch OK or are in-kernel users for these functions pending?
+
 
 diffstat output:
- drivers/char/ftape/compressor/zftape-compress.c |    4 
- drivers/char/ftape/lowlevel/fc-10.c             |    4 
- drivers/char/ftape/lowlevel/fdc-io.c            |   67 ++--------------
- drivers/char/ftape/lowlevel/fdc-io.h            |    5 -
- drivers/char/ftape/lowlevel/ftape-bsm.c         |    8 +
- drivers/char/ftape/lowlevel/ftape-bsm.h         |    1 
- drivers/char/ftape/lowlevel/ftape-ctl.c         |   15 +--
- drivers/char/ftape/lowlevel/ftape-ctl.h         |    1 
- drivers/char/ftape/lowlevel/ftape-init.c        |    6 -
- drivers/char/ftape/lowlevel/ftape-io.c          |   24 -----
- drivers/char/ftape/lowlevel/ftape-io.h          |    4 
- drivers/char/ftape/lowlevel/ftape-proc.c        |    4 
- drivers/char/ftape/lowlevel/ftape-rw.c          |    2 
- drivers/char/ftape/lowlevel/ftape-rw.h          |    1 
- drivers/char/ftape/zftape/zftape-buffers.c      |    7 -
- drivers/char/ftape/zftape/zftape-buffers.h      |    1 
- drivers/char/ftape/zftape/zftape-init.c         |   13 ---
- drivers/char/ftape/zftape/zftape-init.h         |    1 
- drivers/char/ftape/zftape/zftape-rw.c           |    1 
- drivers/char/ftape/zftape/zftape-rw.h           |    1 
- drivers/char/ftape/zftape/zftape-vtbl.c         |    4 
- drivers/char/ftape/zftape/zftape-vtbl.h         |    1 
- drivers/char/ftape/zftape/zftape_syms.c         |    1 
- 23 files changed, 31 insertions(+), 145 deletions(-)
+ drivers/char/ipmi/ipmi_msghandler.c |   99 ----------------------------
+ drivers/char/ipmi/ipmi_poweroff.c   |    6 -
+ drivers/char/ipmi/ipmi_si_intf.c    |    4 -
+ drivers/char/ipmi/ipmi_watchdog.c   |   17 ----
+ include/linux/ipmi.h                |   63 -----------------
+ 5 files changed, 7 insertions(+), 182 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/compressor/zftape-compress.c.old	2004-11-06 21:35:54.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/compressor/zftape-compress.c	2004-11-06 21:36:04.000000000 +0100
-@@ -27,10 +27,6 @@
-  *     changed * appropriately. See below.
-  */
- 
-- char zftc_src[] ="$Source: /homes/cvs/ftape-stacked/ftape/compressor/zftape-compress.c,v $";
-- char zftc_rev[] = "$Revision: 1.1.6.1 $";
-- char zftc_dat[] = "$Date: 1997/11/16 15:15:56 $";
--
- #include <linux/version.h>
- #include <linux/errno.h>
- #include <linux/mm.h>
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/fc-10.c.old	2004-11-06 21:36:15.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/fc-10.c	2004-11-06 21:36:30.000000000 +0100
-@@ -56,13 +56,13 @@
- #include "../lowlevel/fdc-io.h"
- #include "../lowlevel/fc-10.h"
- 
--__u16 inbs_magic[] = {
-+static __u16 inbs_magic[] = {
- 	0x3, 0x3, 0x0, 0x4, 0x7, 0x2, 0x5, 0x3, 0x1, 0x4,
- 	0x3, 0x5, 0x2, 0x0, 0x3, 0x7, 0x4, 0x2,
- 	0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7
- };
- 
--__u16 fc10_ports[] = {
-+static __u16 fc10_ports[] = {
- 	0x180, 0x210, 0x2A0, 0x300, 0x330, 0x340, 0x370
- };
- 
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/fdc-io.h.old	2004-11-06 21:39:01.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/fdc-io.h	2004-11-06 21:42:09.000000000 +0100
-@@ -210,7 +210,6 @@
- extern volatile fdc_mode_enum fdc_mode;
- extern int fdc_setup_error;	/* outdated ??? */
- extern wait_queue_head_t ftape_wait_intr;
--extern int ftape_motor;		/* fdc motor line state */
- extern volatile int ftape_current_cylinder; /* track nr FDC thinks we're on */
- extern volatile __u8 fdc_head;	/* FDC head */
- extern volatile __u8 fdc_cyl;	/* FDC track */
-@@ -231,15 +230,11 @@
- extern int fdc_ready_wait(unsigned int timeout);
- extern int fdc_command(const __u8 * cmd_data, int cmd_len);
- extern int fdc_result(__u8 * res_data, int res_len);
--extern int fdc_issue_command(const __u8 * out_data, int out_count,
--			     __u8 * in_data, int in_count);
- extern int fdc_interrupt_wait(unsigned int time);
--extern int fdc_set_seek_rate(int seek_rate);
- extern int fdc_seek(int track);
- extern int fdc_sense_drive_status(int *st3);
- extern void fdc_motor(int motor);
- extern void fdc_reset(void);
--extern int fdc_recalibrate(void);
- extern void fdc_disable(void);
- extern int fdc_fifo_threshold(__u8 threshold,
- 			      int *fifo_state, int *lock_state, int *fifo_thr);
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/fdc-io.c.old	2004-11-06 21:42:21.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/fdc-io.c	2004-11-06 22:02:43.000000000 +0100
-@@ -50,7 +50,7 @@
- 
- /*      Global vars.
-  */
--int ftape_motor;
-+static int ftape_motor;
- volatile int ftape_current_cylinder = -1;
- volatile fdc_mode_enum fdc_mode = fdc_idle;
- fdc_config_info fdc;
-@@ -86,6 +86,8 @@
- 
- static char ftape_id[] = "ftape";  /* used by request irq and free irq */
- 
-+static int fdc_set_seek_rate(int seek_rate);
-+
- void fdc_catch_stray_interrupts(int count)
+--- linux-2.6.10-rc1-mm3-full/include/linux/ipmi.h.old	2004-11-06 22:09:50.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/include/linux/ipmi.h	2004-11-06 22:10:56.000000000 +0100
+@@ -253,7 +253,6 @@
  {
+ 	msg->done(msg);
+ }
+-struct ipmi_recv_msg *ipmi_alloc_recv_msg(void);
+ 
+ struct ipmi_user_hndl
+ {
+@@ -303,32 +302,6 @@
+ unsigned char ipmi_get_my_LUN(ipmi_user_t user);
+ 
+ /*
+- * Send a command request from the given user.  The address is the
+- * proper address for the channel type.  If this is a command, then
+- * the message response comes back, the receive handler for this user
+- * will be called with the given msgid value in the recv msg.  If this
+- * is a response to a command, then the msgid will be used as the
+- * sequence number for the response (truncated if necessary), so when
+- * sending a response you should use the sequence number you received
+- * in the msgid field of the received command.  If the priority is >
+- * 0, the message will go into a high-priority queue and be sent
+- * first.  Otherwise, it goes into a normal-priority queue.
+- * The user_msg_data field will be returned in any response to this
+- * message.
+- *
+- * Note that if you send a response (with the netfn lower bit set),
+- * you *will* get back a SEND_MSG response telling you what happened
+- * when the response was sent.  You will not get back a response to
+- * the message itself.
+- */
+-int ipmi_request(ipmi_user_t      user,
+-		 struct ipmi_addr *addr,
+-		 long             msgid,
+-		 struct kernel_ipmi_msg *msg,
+-		 void             *user_msg_data,
+-		 int              priority);
+-
+-/*
+  * Like ipmi_request, but lets you specify the number of retries and
+  * the retry time.  The retries is the number of times the message
+  * will be resent if no reply is received.  If set to -1, the default
+@@ -351,18 +324,6 @@
+ 			 unsigned int     retry_time_ms);
+ 
+ /*
+- * Like ipmi_request, but lets you specify the slave return address.
+- */
+-int ipmi_request_with_source(ipmi_user_t      user,
+-			     struct ipmi_addr *addr,
+-			     long             msgid,
+-			     struct kernel_ipmi_msg  *msg,
+-			     void             *user_msg_data,
+-			     int              priority,
+-			     unsigned char    source_address,
+-			     unsigned char    source_lun);
+-
+-/*
+  * Like ipmi_request, but with messages supplied.  This will not
+  * allocate any memory, and the messages may be statically allocated
+  * (just make sure to do the "done" handling on them).  Note that this
+@@ -381,16 +342,6 @@
+ 			     int                  priority);
+ 
+ /*
+- * Do polling on the IPMI interface the user is attached to.  This
+- * causes the IPMI code to do an immediate check for information from
+- * the driver and handle anything that is immediately pending.  This
+- * will not block in anyway.  This is useful if you need to implement
+- * polling from the user like you need to send periodic watchdog pings
+- * from a crash dump, or something like that.
+- */
+-void ipmi_poll_interface(ipmi_user_t user);
+-
+-/*
+  * When commands come in to the SMS, the user can register to receive
+  * them.  Only one user can be listening on a specific netfn/cmd pair
+  * at a time, you will get an EBUSY error if the command is already
+@@ -420,17 +371,6 @@
+ int ipmi_set_gets_events(ipmi_user_t user, int val);
+ 
+ /*
+- * Register the given user to handle all received IPMI commands.  This
+- * will fail if anyone is registered as a command receiver or if
+- * another is already registered to receive all commands.  NOTE THAT
+- * THIS IS FOR EMULATION USERS ONLY, DO NOT USER THIS FOR NORMAL
+- * STUFF.
+- */
+-int ipmi_register_all_cmd_rcvr(ipmi_user_t user);
+-int ipmi_unregister_all_cmd_rcvr(ipmi_user_t user);
+-
+-
+-/*
+  * Called when a new SMI is registered.  This will also be called on
+  * every existing interface when a new watcher is registered with
+  * ipmi_smi_watcher_register().
+@@ -463,9 +403,6 @@
+ /* Validate that the given IPMI address is valid. */
+ int ipmi_validate_addr(struct ipmi_addr *addr, int len);
+ 
+-/* Return 1 if the given addresses are equal, 0 if not. */
+-int ipmi_addr_equal(struct ipmi_addr *addr1, struct ipmi_addr *addr2);
+-
+ #endif /* __KERNEL__ */
+ 
+ 
+--- linux-2.6.10-rc1-mm3-full/drivers/char/ipmi/ipmi_msghandler.c.old	2004-11-06 22:11:18.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/char/ipmi/ipmi_msghandler.c	2004-11-06 22:12:58.000000000 +0100
+@@ -49,7 +49,7 @@
+ #define PFX "IPMI message handler: "
+ #define IPMI_MSGHANDLER_VERSION "v33"
+ 
+-struct ipmi_recv_msg *ipmi_alloc_recv_msg(void);
++static struct ipmi_recv_msg *ipmi_alloc_recv_msg(void);
+ static int ipmi_init_msghandler(void);
+ 
+ static int initialized = 0;
+@@ -294,44 +294,6 @@
+ 	unsigned int events;
+ };
+ 
+-int
+-ipmi_register_all_cmd_rcvr(ipmi_user_t user)
+-{
+-	unsigned long flags;
+-	int           rv = -EBUSY;
+-
+-	write_lock_irqsave(&(user->intf->users_lock), flags);
+-	write_lock(&(user->intf->cmd_rcvr_lock));
+-	if ((user->intf->all_cmd_rcvr == NULL)
+-	    && (list_empty(&(user->intf->cmd_rcvrs))))
+-	{
+-		user->intf->all_cmd_rcvr = user;
+-		rv = 0;
+-	}
+-	write_unlock(&(user->intf->cmd_rcvr_lock));
+-	write_unlock_irqrestore(&(user->intf->users_lock), flags);
+-	return rv;
+-}
+-
+-int
+-ipmi_unregister_all_cmd_rcvr(ipmi_user_t user)
+-{
+-	unsigned long flags;
+-	int           rv = -EINVAL;
+-
+-	write_lock_irqsave(&(user->intf->users_lock), flags);
+-	write_lock(&(user->intf->cmd_rcvr_lock));
+-	if (user->intf->all_cmd_rcvr == user)
+-	{
+-		user->intf->all_cmd_rcvr = NULL;
+-		rv = 0;
+-	}
+-	write_unlock(&(user->intf->cmd_rcvr_lock));
+-	write_unlock_irqrestore(&(user->intf->users_lock), flags);
+-	return rv;
+-}
+-
+-
+ #define MAX_IPMI_INTERFACES 4
+ static ipmi_smi_t ipmi_interfaces[MAX_IPMI_INTERFACES];
+ 
+@@ -389,7 +351,7 @@
+ 	up_read(&smi_watchers_sem);
+ }
+ 
+-int
++static int
+ ipmi_addr_equal(struct ipmi_addr *addr1, struct ipmi_addr *addr2)
+ {
+ 	if (addr1->addr_type != addr2->addr_type)
+@@ -1360,26 +1322,6 @@
+ 	return rv;
+ }
+ 
+-int ipmi_request(ipmi_user_t      user,
+-		 struct ipmi_addr *addr,
+-		 long             msgid,
+-		 struct kernel_ipmi_msg  *msg,
+-		 void             *user_msg_data,
+-		 int              priority)
+-{
+-	return i_ipmi_request(user,
+-			      user->intf,
+-			      addr,
+-			      msgid,
+-			      msg,
+-			      user_msg_data,
+-			      NULL, NULL,
+-			      priority,
+-			      user->intf->my_address,
+-			      user->intf->my_lun,
+-			      -1, 0);
+-}
+-
+ int ipmi_request_settime(ipmi_user_t      user,
+ 			 struct ipmi_addr *addr,
+ 			 long             msgid,
+@@ -1426,28 +1368,6 @@
+ 			      -1, 0);
+ }
+ 
+-int ipmi_request_with_source(ipmi_user_t      user,
+-			     struct ipmi_addr *addr,
+-			     long             msgid,
+-			     struct kernel_ipmi_msg  *msg,
+-			     void             *user_msg_data,
+-			     int              priority,
+-			     unsigned char    source_address,
+-			     unsigned char    source_lun)
+-{
+-	return i_ipmi_request(user,
+-			      user->intf,
+-			      addr,
+-			      msgid,
+-			      msg,
+-			      user_msg_data,
+-			      NULL, NULL,
+-			      priority,
+-			      source_address,
+-			      source_lun,
+-			      -1, 0);
+-}
+-
+ static int ipmb_file_read_proc(char *page, char **start, off_t off,
+ 			       int count, int *eof, void *data)
+ {
+@@ -1702,14 +1622,6 @@
+ 	return;
+ }
+ 
+-void ipmi_poll_interface(ipmi_user_t user)
+-{
+-	ipmi_smi_t intf = user->intf;
+-
+-	if (intf->handlers->poll)
+-		intf->handlers->poll(intf->send_info);
+-}
+-
+ int ipmi_register_smi(struct ipmi_smi_handlers *handlers,
+ 		      void		       *send_info,
+ 		      unsigned char            version_major,
+@@ -3211,15 +3123,11 @@
+ module_init(ipmi_init_msghandler_mod);
+ MODULE_LICENSE("GPL");
+ 
+-EXPORT_SYMBOL(ipmi_alloc_recv_msg);
+ EXPORT_SYMBOL(ipmi_create_user);
+ EXPORT_SYMBOL(ipmi_destroy_user);
+ EXPORT_SYMBOL(ipmi_get_version);
+-EXPORT_SYMBOL(ipmi_request);
+ EXPORT_SYMBOL(ipmi_request_settime);
+ EXPORT_SYMBOL(ipmi_request_supply_msgs);
+-EXPORT_SYMBOL(ipmi_request_with_source);
+-EXPORT_SYMBOL(ipmi_poll_interface);
+ EXPORT_SYMBOL(ipmi_register_smi);
+ EXPORT_SYMBOL(ipmi_unregister_smi);
+ EXPORT_SYMBOL(ipmi_register_for_cmd);
+@@ -3227,12 +3135,9 @@
+ EXPORT_SYMBOL(ipmi_smi_msg_received);
+ EXPORT_SYMBOL(ipmi_smi_watchdog_pretimeout);
+ EXPORT_SYMBOL(ipmi_alloc_smi_msg);
+-EXPORT_SYMBOL(ipmi_register_all_cmd_rcvr);
+-EXPORT_SYMBOL(ipmi_unregister_all_cmd_rcvr);
+ EXPORT_SYMBOL(ipmi_addr_length);
+ EXPORT_SYMBOL(ipmi_validate_addr);
+ EXPORT_SYMBOL(ipmi_set_gets_events);
+-EXPORT_SYMBOL(ipmi_addr_equal);
+ EXPORT_SYMBOL(ipmi_smi_watcher_register);
+ EXPORT_SYMBOL(ipmi_smi_watcher_unregister);
+ EXPORT_SYMBOL(ipmi_set_my_address);
+--- linux-2.6.10-rc1-mm3-full/drivers/char/ipmi/ipmi_poweroff.c.old	2004-11-06 22:14:05.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/char/ipmi/ipmi_poweroff.c	2004-11-06 22:14:32.000000000 +0100
+@@ -45,9 +45,9 @@
+ extern void (*pm_power_off)(void);
+ 
+ /* Stuff from the get device id command. */
+-unsigned int mfg_id;
+-unsigned int prod_id;
+-unsigned char capabilities;
++static unsigned int mfg_id;
++static unsigned int prod_id;
++static unsigned char capabilities;
+ 
+ /* We use our own messages for this operation, we don't let the system
+    allocate them, since we may be in a panic situation.  The whole
+--- linux-2.6.10-rc1-mm3-full/drivers/char/ipmi/ipmi_si_intf.c.old	2004-11-06 22:15:03.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/char/ipmi/ipmi_si_intf.c	2004-11-06 22:15:27.000000000 +0100
+@@ -1331,7 +1331,7 @@
+ static int acpi_failure = 0;
+ 
+ /* For GPE-type interrupts. */
+-void ipmi_acpi_gpe(void *context)
++static void ipmi_acpi_gpe(void *context)
+ {
+ 	struct smi_info *smi_info = context;
+ 	unsigned long   flags;
+@@ -2251,7 +2251,7 @@
+ }
+ module_init(init_ipmi_si);
+ 
+-void __exit cleanup_one_si(struct smi_info *to_clean)
++static void __exit cleanup_one_si(struct smi_info *to_clean)
+ {
+ 	int           rv;
  	unsigned long flags;
-@@ -103,7 +105,7 @@
-  *  If usecs == 0 then just test status, else wait at least for usecs.
-  *  Returns -ETIME on timeout. Function must be calibrated first !
-  */
--int fdc_wait(unsigned int usecs, __u8 mask, __u8 state)
-+static int fdc_wait(unsigned int usecs, __u8 mask, __u8 state)
- {
- 	int count_1 = (fdc_calibr_count * usecs +
-                        fdc_calibr_count - 1) / fdc_calibr_time;
-@@ -129,18 +131,12 @@
- 	fdc_wait(usecs, 0, 1);	/* will always timeout ! */
- }
- 
--int fdc_ready_out_wait(unsigned int usecs)
-+static int fdc_ready_out_wait(unsigned int usecs)
- {
- 	fdc_usec_wait(FT_RQM_DELAY);	/* wait for valid RQM status */
- 	return fdc_wait(usecs, FDC_DATA_OUT_READY, FDC_DATA_OUT_READY);
- }
- 
--int fdc_ready_in_wait(unsigned int usecs)
--{
--	fdc_usec_wait(FT_RQM_DELAY);	/* wait for valid RQM status */
--	return fdc_wait(usecs, FDC_DATA_OUT_READY, FDC_DATA_IN_READY);
--}
--
- void fdc_wait_calibrate(void)
- {
- 	ftape_calibrate("fdc_wait",
-@@ -341,7 +337,7 @@
- /*      Handle command and result phases for
-  *      commands without data phase.
-  */
--int fdc_issue_command(const __u8 * out_data, int out_count,
-+static int fdc_issue_command(const __u8 * out_data, int out_count,
- 		      __u8 * in_data, int in_count)
- {
- 	TRACE_FUN(ft_t_any);
-@@ -497,7 +493,7 @@
- 
- /*  Reprogram the 82078 registers to use Data Rate Table 1 on all drives.
-  */
--void fdc_set_drive_specs(void)
-+static void fdc_set_drive_specs(void)
- {
- 	__u8 cmd[] = { FDC_DRIVE_SPEC, 0x00, 0x00, 0x00, 0x00, 0xc0};
- 	int result;
-@@ -705,7 +701,7 @@
- 
- /*      Specify FDC seek-rate (milliseconds)
-  */
--int fdc_set_seek_rate(int seek_rate)
-+static int fdc_set_seek_rate(int seek_rate)
- {
- 	/* set step rate, dma mode, and minimal head load and unload times
- 	 */
-@@ -803,49 +799,6 @@
- 	TRACE_EXIT 0;
- }
- 
--/*      Recalibrate and wait until home.
-- */
--int fdc_recalibrate(void)
--{
--	__u8 out[2];
--	int st0;
--	int pcn;
--	int retry;
--	int old_seek_rate = fdc_seek_rate;
--	TRACE_FUN(ft_t_any);
--
--	TRACE_CATCH(fdc_set_seek_rate(6),);
--	out[0] = FDC_RECAL;
--	out[1] = ft_drive_sel;
--	ft_seek_completed = 0;
--	TRACE_CATCH(fdc_command(out, 2),);
--	/*    Handle interrupts until ft_seek_completed or timeout.
--	 */
--	for (retry = 0;; ++retry) {
--		TRACE_CATCH(fdc_interrupt_wait(2 * FT_SECOND),);
--		if (ft_seek_completed) {
--			TRACE_CATCH(fdc_sense_interrupt_status(&st0, &pcn),);
--			if ((st0 & ST0_SEEK_END) == 0) {
--				if (retry < 1) {
--					continue; /* some drives/fdc's
--						   * give an extra interrupt
--						   */
--				} else {
--					TRACE_ABORT(-EIO, ft_t_err,
--				    "no seek-end after seek completion !??");
--				}
--			}
--			break;
--		}
--	}
--	ftape_current_cylinder = pcn;
--	if (pcn != 0) {
--		TRACE(ft_t_err, "failed: resulting track = %d", pcn);
--	}
--	TRACE_CATCH(fdc_set_seek_rate(old_seek_rate),);
--	TRACE_EXIT 0;
--}
--
- static int perpend_mode; /* set if fdc is in perpendicular mode */
- 
- static int perpend_off(void)
-@@ -1079,7 +1032,7 @@
-  */
- static __u8 fdc_save_state[2];
- 
--int fdc_probe(void)
-+static int fdc_probe(void)
- {
- 	__u8 cmd[1];
- 	__u8 stat[16]; /* must be able to hold dumpregs & save results */
-@@ -1308,7 +1261,7 @@
- 	TRACE_EXIT IRQ_RETVAL(handled);
- }
- 
--int fdc_grab_irq_and_dma(void)
-+static int fdc_grab_irq_and_dma(void)
- {
- 	TRACE_FUN(ft_t_any);
- 
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-bsm.h.old	2004-11-06 21:44:51.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-bsm.h	2004-11-06 21:44:58.000000000 +0100
-@@ -60,7 +60,6 @@
- extern void update_bad_sector_map(__u8 * buffer);
- extern void ftape_extract_bad_sector_map(__u8 * buffer);
- extern SectorMap ftape_get_bad_sector_entry(int segment_id);
--extern void      ftape_put_bad_sector_entry(int segment_id, SectorMap mask);
- extern __u8 *ftape_find_end_of_bsm_list(__u8 * address);
- extern void ftape_init_bsm(void);
- 
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-bsm.c.old	2004-11-06 21:45:16.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-bsm.c	2004-11-06 22:01:52.000000000 +0100
-@@ -47,6 +47,10 @@
- } mode_type;
- 
- #if 0
-+static void ftape_put_bad_sector_entry(int segment_id, SectorMap new_map);
-+#endif
-+
-+#if 0
- /*  fix_tape converts a normal QIC-80 tape into a 'wide' tape.
-  *  For testing purposes only !
-  */
-@@ -375,7 +379,8 @@
+--- linux-2.6.10-rc1-mm3-full/drivers/char/ipmi/ipmi_watchdog.c.old	2004-11-06 22:15:42.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/char/ipmi/ipmi_watchdog.c	2004-11-06 22:16:04.000000000 +0100
+@@ -366,20 +366,6 @@
  	}
  }
  
--void ftape_put_bad_sector_entry(int segment_id, SectorMap new_map)
-+#if 0
-+static void ftape_put_bad_sector_entry(int segment_id, SectorMap new_map)
- {
- 	SectorCount *ptr = (SectorCount *)bad_sector_map;
- 	int count;
-@@ -438,6 +443,7 @@
- 	}
- 	TRACE_EXIT;
- }
-+#endif  /*  0  */
- 
- SectorMap ftape_get_bad_sector_entry(int segment_id)
- {
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-ctl.h.old	2004-11-06 21:47:35.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-ctl.h	2004-11-06 21:48:11.000000000 +0100
-@@ -158,6 +158,5 @@
- 				 unsigned int data_rate,
- 				 unsigned int tape_len);
- extern int  ftape_calibrate_data_rate(unsigned int qic_std);
--extern int  ftape_init_drive(void);
- extern const ftape_info *ftape_get_status(void);
- #endif
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-ctl.c.old	2004-11-06 21:48:20.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-ctl.c	2004-11-06 21:49:27.000000000 +0100
-@@ -113,11 +113,6 @@
- #endif
- }
- 
--void ftape_set_status(const ftape_info *status)
+-/* Do a delayed shutdown, with the delay in milliseconds.  If power_off is
+-   false, do a reset.  If power_off is true, do a power down.  This is
+-   primarily for the IMB code's shutdown. */
+-void ipmi_delayed_shutdown(long delay, int power_off)
 -{
--	ftape_status = *status;
+-	ipmi_ignore_heartbeat = 1;
+-	if (power_off) 
+-		ipmi_watchdog_state = WDOG_TIMEOUT_POWER_DOWN;
+-	else
+-		ipmi_watchdog_state = WDOG_TIMEOUT_RESET;
+-	timeout = delay;
+-	ipmi_set_timeout(IPMI_SET_TIMEOUT_HB_IF_NECESSARY);
 -}
 -
- static int ftape_not_operational(int status)
- {
- 	/* return true if status indicates tape can not be used.
-@@ -210,7 +205,7 @@
- 	return i;
+ /* We use a semaphore to make sure that only one thing can send a
+    heartbeat at one time, because we only have one copy of the data.
+    The semaphore is claimed when the set_timeout is sent and freed
+@@ -1084,8 +1070,5 @@
+ 	ipmi_unregister_watchdog();
  }
- 
--void ftape_detach_drive(void)
-+static void ftape_detach_drive(void)
- {
- 	TRACE_FUN(ft_t_any);
- 
-@@ -241,7 +236,7 @@
- 		ft_history.rewinds = 0;
- }
- 
--int ftape_activate_drive(vendor_struct * drive_type)
-+static int ftape_activate_drive(vendor_struct * drive_type)
- {
- 	int result = 0;
- 	TRACE_FUN(ft_t_flow);
-@@ -301,7 +296,7 @@
- 	TRACE_EXIT result;
- }
- 
--int ftape_get_drive_status(void)
-+static int ftape_get_drive_status(void)
- {
- 	int result;
- 	int status;
-@@ -374,7 +369,7 @@
- 	TRACE_EXIT 0;
- }
- 
--void ftape_log_vendor_id(void)
-+static void ftape_log_vendor_id(void)
- {
- 	int vendor_index;
- 	TRACE_FUN(ft_t_flow);
-@@ -580,7 +575,7 @@
- 	TRACE_EXIT 0;
- }
- 
--int ftape_init_drive(void)
-+static int ftape_init_drive(void)
- {
- 	int status;
- 	qic_model model;
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-init.c.old	2004-11-06 21:50:37.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-init.c	2004-11-06 21:50:58.000000000 +0100
-@@ -48,12 +48,6 @@
- #include "../lowlevel/ftape-proc.h"
- #include "../lowlevel/ftape-tracing.h"
- 
--/*      Global vars.
-- */
--char ft_src[] __initdata = "$Source: /homes/cvs/ftape-stacked/ftape/lowlevel/ftape-init.c,v $";
--char ft_rev[] __initdata = "$Revision: 1.8 $";
--char ft_dat[] __initdata = "$Date: 1997/11/06 00:38:08 $";
+ module_exit(ipmi_wdog_exit);
 -
- 
- #if defined(MODULE) && !defined(CONFIG_FT_NO_TRACE_AT_ALL)
- static int ft_tracing = -1;
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-io.h.old	2004-11-06 21:51:28.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-io.h	2004-11-06 21:51:48.000000000 +0100
-@@ -65,9 +65,6 @@
- 			       unsigned int timeout,
- 			       int *status);
- extern int  ftape_parameter(unsigned int parameter);
--extern int  ftape_parameter_wait(unsigned int parameter,
--				 unsigned int timeout,
--				 int *status);
- extern int ftape_report_operation(int *status,
- 				  qic117_cmd_t  command,
- 				  int result_length);
-@@ -80,7 +77,6 @@
- extern int ftape_report_status(int *status);
- extern int ftape_ready_wait(unsigned int timeout, int *status);
- extern int ftape_seek_head_to_track(unsigned int track);
--extern int ftape_in_error_state(int status);
- extern int ftape_set_data_rate(unsigned int new_rate, unsigned int qic_std);
- extern int ftape_report_error(unsigned int *error,
- 			      qic117_cmd_t *command,
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-io.c.old	2004-11-06 21:51:57.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-io.c	2004-11-06 21:52:34.000000000 +0100
-@@ -350,7 +350,7 @@
- 	return result;
- }
- 
--int ftape_parameter_wait(unsigned int parm, unsigned int timeout, int *status)
-+static int ftape_parameter_wait(unsigned int parm, unsigned int timeout, int *status)
- {
- 	int result;
- 
-@@ -503,16 +503,6 @@
- 	TRACE_EXIT 0;
- }
- 
--int ftape_in_error_state(int status)
--{
--	TRACE_FUN(ft_t_any);
+-EXPORT_SYMBOL(ipmi_delayed_shutdown);
 -
--	if ((status & QIC_STATUS_READY) && (status & QIC_STATUS_ERROR)) {
--		TRACE_ABORT(1, ft_t_warn, "warning: error status set!");
--	}
--	TRACE_EXIT 0;
--}
--
- int ftape_report_configuration(qic_model *model,
- 			       unsigned int *rate,
- 			       int *qic_std,
-@@ -617,7 +607,7 @@
- 	TRACE_EXIT (result < 0) ? -EIO : 0;
- }
- 
--int ftape_report_rom_version(int *version)
-+static int ftape_report_rom_version(int *version)
- {
- 
- 	if (ftape_report_operation(version, QIC_REPORT_ROM_VERSION, 8) < 0) {
-@@ -627,16 +617,6 @@
- 	}
- }
- 
--int ftape_report_signature(int *signature)
--{
--	int result;
--
--	result = ftape_command(28);
--	result = ftape_report_operation(signature, 9, 8);
--	result = ftape_command(30);
--	return (result < 0) ? -EIO : 0;
--}
--
- void ftape_report_vendor_id(unsigned int *id)
- {
- 	int result;
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-proc.c.old	2004-11-06 21:52:50.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-proc.c	2004-11-06 21:53:22.000000000 +0100
-@@ -174,8 +174,8 @@
- 	return len;
- }
- 
--int ftape_read_proc(char *page, char **start, off_t off,
--		    int count, int *eof, void *data)
-+static int ftape_read_proc(char *page, char **start, off_t off,
-+			   int count, int *eof, void *data)
- {
- 	char *ptr = page;
- 	size_t len;
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-rw.h.old	2004-11-06 21:53:40.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-rw.h	2004-11-06 21:53:51.000000000 +0100
-@@ -101,7 +101,6 @@
- extern buffer_struct *ftape_get_buffer  (ft_buffer_queue_t pos);
- extern int            ftape_buffer_id   (ft_buffer_queue_t pos);
- extern void           ftape_reset_buffer(void);
--extern int  ftape_read_id(void);
- extern void ftape_tape_parameters(__u8 drive_configuration);
- extern int  ftape_wait_segment(buffer_state_enum state);
- extern int  ftape_dumb_stop(void);
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-rw.c.old	2004-11-06 21:54:04.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-rw.c	2004-11-06 21:54:14.000000000 +0100
-@@ -301,7 +301,7 @@
- 
- /*      Read Id of first sector passing tape head.
-  */
--int ftape_read_id(void)
-+static int ftape_read_id(void)
- {
- 	int status;
- 	__u8 out[2];
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-buffers.h.old	2004-11-06 21:54:29.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-buffers.h	2004-11-06 21:54:48.000000000 +0100
-@@ -37,7 +37,6 @@
- extern int   zft_vmalloc_once(void *new, size_t size);
- extern int   zft_vcalloc_once(void *new, size_t size);
- extern int   zft_vmalloc_always(void *new, size_t size);
--extern int   zft_vcalloc_always(void *new, size_t size);
- extern void  zft_vfree(void *old, size_t size);
- extern void *zft_kmalloc(size_t size);
- extern void  zft_kfree(void *old, size_t size);
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-buffers.c.old	2004-11-06 21:54:57.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-buffers.c	2004-11-06 21:55:09.000000000 +0100
-@@ -87,13 +87,6 @@
- 	TRACE_ABORT(0, ft_t_noise,
- 		    "allocated buffer @ %p, %d bytes", *(void **)new, size);
- }
--int zft_vcalloc_always(void *new, size_t size)
--{
--	TRACE_FUN(ft_t_flow);
--
--	zft_vfree(new, size);
--	TRACE_EXIT zft_vcalloc_once(new, size);
--}
- int zft_vmalloc_always(void *new, size_t size)
- {
- 	TRACE_FUN(ft_t_flow);
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape_syms.c.old	2004-11-06 21:55:50.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape_syms.c	2004-11-06 21:56:00.000000000 +0100
-@@ -35,7 +35,6 @@
- 
- /* zftape-init.c */
- EXPORT_SYMBOL(zft_cmpr_register);
--EXPORT_SYMBOL(zft_cmpr_unregister);
- /* zftape-read.c */
- EXPORT_SYMBOL(zft_fetch_segment_fraction);
- /* zftape-buffers.c */
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-init.h.old	2004-11-06 21:56:21.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-init.h	2004-11-06 21:57:26.000000000 +0100
-@@ -70,7 +70,6 @@
- /* zftape-init.c defined global functions.
-  */
- extern int                  zft_cmpr_register(struct zft_cmpr_ops *new_ops);
--extern struct zft_cmpr_ops *zft_cmpr_unregister(void);
- extern int                  zft_cmpr_lock(int try_to_load);
- 
- #endif
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-init.c.old	2004-11-06 21:57:33.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-init.c	2004-11-06 21:58:02.000000000 +0100
-@@ -46,10 +46,6 @@
- #include "../zftape/zftape-ctl.h"
- #include "../zftape/zftape-buffers.h"
- 
--char zft_src[] __initdata = "$Source: /homes/cvs/ftape-stacked/ftape/zftape/zftape-init.c,v $";
--char zft_rev[] __initdata = "$Revision: 1.8 $";
--char zft_dat[] __initdata = "$Date: 1997/11/06 00:48:56 $";
--
- MODULE_AUTHOR("(c) 1996, 1997 Claus-Justus Heine "
- 	      "(claus@momo.math.rwth-aachen.de)");
- MODULE_DESCRIPTION(ZFTAPE_VERSION " - "
-@@ -278,15 +274,6 @@
- 	}
- }
- 
--struct zft_cmpr_ops *zft_cmpr_unregister(void)
--{
--	struct zft_cmpr_ops *old_ops = zft_cmpr_ops;
--	TRACE_FUN(ft_t_flow);
--
--	zft_cmpr_ops = NULL;
--	TRACE_EXIT old_ops;
--}
--
- /*  lock the zft-compressor() module.
-  */
- int zft_cmpr_lock(int try_to_load)
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-rw.h.old	2004-11-06 21:58:16.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-rw.h	2004-11-06 21:58:29.000000000 +0100
-@@ -79,7 +79,6 @@
- extern int zft_deblock_segment;
- extern zft_status_enum zft_io_state;
- extern int zft_header_changed;
--extern int zft_bad_sector_map_changed;
- extern int zft_qic113; /* conform to old specs. and old zftape */
- extern int zft_use_compression;
- extern unsigned int zft_blk_sz;
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-rw.c.old	2004-11-06 21:58:36.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-rw.c	2004-11-06 21:58:44.000000000 +0100
-@@ -45,7 +45,6 @@
- int zft_deblock_segment = -1;
- zft_status_enum zft_io_state = zft_idle;
- int zft_header_changed;
--int zft_bad_sector_map_changed;
- int zft_qic113; /* conform to old specs. and old zftape */
- int zft_use_compression;
- zft_position zft_pos = {
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-vtbl.h.old	2004-11-06 21:59:14.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-vtbl.h	2004-11-06 21:59:20.000000000 +0100
-@@ -152,7 +152,6 @@
- /* exported functions */
- extern void  zft_init_vtbl             (void);
- extern void  zft_free_vtbl             (void);
--extern void  zft_new_vtbl_entry        (void);
- extern int   zft_extract_volume_headers(__u8 *buffer);
- extern int   zft_update_volume_table   (unsigned int segment);
- extern int   zft_open_volume           (zft_position *pos,
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-vtbl.c.old	2004-11-06 21:59:29.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-vtbl.c	2004-11-06 21:59:59.000000000 +0100
-@@ -62,7 +62,7 @@
- static zft_volinfo  eot_vtbl;
- static zft_volinfo *cur_vtbl;
- 
--inline void zft_new_vtbl_entry(void)
-+static inline void zft_new_vtbl_entry(void)
- {
- 	struct list_head *tmp = &zft_last_vtbl->node;
- 	zft_volinfo *new = zft_kmalloc(sizeof(zft_volinfo));
-@@ -248,7 +248,7 @@
-  * that buffer already contains the old volume-table, so that vtbl
-  * entries without the zft_volume flag set can savely be ignored.
-  */
--void zft_create_volume_headers(__u8 *buffer)
-+static void zft_create_volume_headers(__u8 *buffer)
- {   
- 	__u8 *entry;
- 	struct list_head *tmp;
+ module_init(ipmi_wdog_init);
+ MODULE_LICENSE("GPL");
 

@@ -1,52 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315374AbSHGQbP>; Wed, 7 Aug 2002 12:31:15 -0400
+	id <S318778AbSHGQqQ>; Wed, 7 Aug 2002 12:46:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318216AbSHGQbP>; Wed, 7 Aug 2002 12:31:15 -0400
-Received: from virtmail.zianet.com ([216.234.192.37]:13263 "HELO zianet.com")
-	by vger.kernel.org with SMTP id <S315374AbSHGQbI>;
-	Wed, 7 Aug 2002 12:31:08 -0400
-Message-ID: <3D514E75.4080909@zianet.com>
-Date: Wed, 07 Aug 2002 10:44:37 -0600
-From: kwijibo@zianet.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020802
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com
-Subject: Re: Tigon3 and jumbo frames
-References: <3D5045C1.6050302@zianet.com> <20020807.033820.126760020.davem@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S318779AbSHGQqP>; Wed, 7 Aug 2002 12:46:15 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:24704
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S318778AbSHGQqO>; Wed, 7 Aug 2002 12:46:14 -0400
+Date: Wed, 7 Aug 2002 09:49:45 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Paul Mackerras <paulus@samba.org>
+Subject: [PATCH][RESEND x 2] A generic RTC driver [2/3]
+Message-ID: <20020807164945.GF744@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok ok, I believe you.  There was some arp weirdness
-going on between the gigi card and another eth device.
-I belive I have it figured out now, sorry to bug ya.
+This is part 2 of 3 of the genrtc driver work.  This is the PPC portion
+of the patch, which creates include/asm-ppc/rtc.h.  This has been in the
+PPC bitkeeper tree for over a month now.  I can have Paul Mackerras send
+this to you instead, if you prefer.
 
-Steve
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
 
-David S. Miller wrote:
-
->   From: kwijibo@zianet.com
->   Date: Tue, 06 Aug 2002 15:55:13 -0600
->
->   Does the new version of the tigon 3 (tg3) drivers support jumbo
->   frames?
->
->It works, use a direct connection between two tg3 cards if you
->don't believe us :-)
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
-
-
-
+--- /dev/null	1969-12-31 17:00:00.000000000 -0700
++++ linux-2.5/include/asm-ppc/rtc.h	2002-07-23 09:20:47.000000000 -0700
+@@ -0,0 +1,92 @@
++/* 
++ * inclue/asm-ppc/rtc.h
++ *
++ * Copyright 2002 MontaVista Software Inc.
++ * Author: Tom Rini <trini@mvista.com>
++ *
++ * Based on:
++ * include/asm-m68k/rtc.h
++ *
++ * Copyright Richard Zidlicky
++ * implementation details for genrtc/q40rtc driver
++ *
++ * And the old drivers/macintosh/rtc.c which was heavily based on:
++ * Linux/SPARC Real Time Clock Driver
++ * Copyright (C) 1996 Thomas K. Dyas (tdyas@eden.rutgers.edu)
++ *
++ * With additional work by Paul Mackerras and Franz Sirl.
++ */
++/* permission is hereby granted to copy, modify and redistribute this code
++ * in terms of the GNU Library General Public License, Version 2 or later,
++ * at your option.
++ */
++
++#ifndef __ASM_RTC_H__
++#define __ASM_RTC_H__
++
++#ifdef __KERNEL__
++
++#include <linux/rtc.h>
++
++#include <asm/machdep.h>
++#include <asm/time.h>
++
++#define RTC_PIE 0x40		/* periodic interrupt enable */
++#define RTC_AIE 0x20		/* alarm interrupt enable */
++#define RTC_UIE 0x10		/* update-finished interrupt enable */
++
++extern void gen_rtc_interrupt(unsigned long);
++
++/* some dummy definitions */
++#define RTC_SQWE 0x08		/* enable square-wave output */
++#define RTC_DM_BINARY 0x04	/* all time/date values are BCD if clear */
++#define RTC_24H 0x02		/* 24 hour mode - else hours bit 7 means pm */
++#define RTC_DST_EN 0x01	        /* auto switch DST - works f. USA only */
++
++static inline void get_rtc_time(struct rtc_time *time)
++{
++	if (ppc_md.get_rtc_time) {
++		unsigned long nowtime;
++
++		nowtime = (ppc_md.get_rtc_time)();
++
++		to_tm(nowtime, time);
++
++		time->tm_year -= 1900;
++		time->tm_mon -= 1; /* Make sure userland has a 0-based month */
++	}
++}
++
++/* Set the current date and time in the real time clock. */
++static inline void set_rtc_time(struct rtc_time *time)
++{
++	if (ppc_md.get_rtc_time) {
++		unsigned long nowtime;
++
++		nowtime = mktime(time->tm_year+1900, time->tm_mon+1,
++				time->tm_mday, time->tm_hour, time->tm_min,
++				time->tm_sec);
++
++		(ppc_md.set_rtc_time)(nowtime);
++	}
++}
++
++static inline unsigned int get_rtc_ss(void)
++{
++	struct rtc_time h;
++
++	get_rtc_time(&h);
++	return h.tm_sec;
++}
++
++static inline int get_rtc_pll(struct rtc_pll_info *pll)
++{
++	return -EINVAL;
++}
++static inline int set_rtc_pll(struct rtc_pll_info *pll)
++{
++	return -EINVAL;
++}
++
++#endif /* __KERNEL__ */
++#endif /* __ASM_RTC_H__ */

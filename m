@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132771AbRANNNc>; Sun, 14 Jan 2001 08:13:32 -0500
+	id <S132629AbRANNRB>; Sun, 14 Jan 2001 08:17:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132696AbRANNNV>; Sun, 14 Jan 2001 08:13:21 -0500
-Received: from kamov.deltanet.ro ([193.226.175.3]:28434 "HELO
-	kamov.deltanet.ro") by vger.kernel.org with SMTP id <S132702AbRANNNL>;
-	Sun, 14 Jan 2001 08:13:11 -0500
-Date: Sun, 14 Jan 2001 15:12:57 +0200
-From: Petru Paler <ppetru@ppetru.net>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-pre3+zerocopy: weird messages
-Message-ID: <20010114151257.J1394@ppetru.net>
-In-Reply-To: <20010114121105.B1394@ppetru.net> <14945.32886.671619.99921@pizda.ninka.net> <20010114124549.D1394@ppetru.net> <14945.34414.185794.396720@pizda.ninka.net> <20010114132845.F1394@ppetru.net> <14945.36440.59585.376942@pizda.ninka.net> <20010114141003.G1394@ppetru.net>
-Mime-Version: 1.0
+	id <S132655AbRANNQv>; Sun, 14 Jan 2001 08:16:51 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:58779 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S132629AbRANNQl>;
+	Sun, 14 Jan 2001 08:16:41 -0500
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.13i
-In-Reply-To: <20010114141003.G1394@ppetru.net>; from ppetru@ppetru.net on Sun, Jan 14, 2001 at 02:10:03PM +0200
+Content-Transfer-Encoding: 7bit
+Message-ID: <14945.42633.188963.984765@pizda.ninka.net>
+Date: Sun, 14 Jan 2001 05:15:53 -0800 (PST)
+To: Andi Kleen <ak@suse.de>
+Cc: Igmar Palsenberg <i.palsenberg@jdimedia.nl>,
+        Harald Welte <laforge@gnumonks.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0 + iproute2
+In-Reply-To: <20010114133140.A23640@gruyere.muc.suse.de>
+In-Reply-To: <20010114124659.A23188@gruyere.muc.suse.de>
+	<Pine.LNX.4.30.0101141309160.16758-100000@jdi.jdimedia.nl>
+	<20010114133140.A23640@gruyere.muc.suse.de>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 14, 2001 at 02:10:03PM +0200, Petru Paler wrote:
-> On Sun, Jan 14, 2001 at 03:32:40AM -0800, David S. Miller wrote:
-> > Petru Paler writes:
-> >  > > Oh, I think I know why this happens.  Can you add this patch, and next
-> >  > > time the UDP bad csum message appears, tell me if it says "UDP packet
-> >  > > with bad csum was fragmented." in the next line of your syslog
-> >  > > messages?  Thanks.
-> 
-> Jan 14 06:54:08 grey kernel: Undo loss 193.230.129.57/34342 c2 l0 ss2/2 p0
-> Jan 14 06:56:40 grey kernel: udp v4 hw csum failure.
-> Jan 14 06:57:05 grey kernel: Undo partial loss 193.230.129.57/34342 c1 l5 ss2/3 p5        
-> 
-> So no "UDP packet with bad csum was fragmented" line. This is the first
-> one though, will let you know if the fragmented thing occurs.
 
-Got more "udp v4 hw csum failure" messages but still no "UDP packet with bad csum was fragmented".
+Andi Kleen writes:
+ > David's /proc/errno_strings
 
---
-Petru Paler, mailto:ppetru@ppetru.net
-http://www.ppetru.net - ICQ: 41817235
+David put a smiley at the end of that sentence, he was kidding and was
+trying to show you how rediculious keeping errno strings in the kernel
+is.
+
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbVCCK02@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262404AbVCCK1D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262329AbVCCK02 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 05:26:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbVCCK02
+	id S262404AbVCCK1D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 05:27:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262409AbVCCK1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 05:26:28 -0500
-Received: from scrat.hensema.net ([62.212.82.150]:10636 "EHLO
-	scrat.hensema.net") by vger.kernel.org with ESMTP id S262329AbVCCK0Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 05:26:25 -0500
-From: Erik Hensema <erik@hensema.net>
+	Thu, 3 Mar 2005 05:27:03 -0500
+Received: from levante.wiggy.net ([195.85.225.139]:28340 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S262404AbVCCK06 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 05:26:58 -0500
+Date: Thu, 3 Mar 2005 11:26:55 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, greg@kroah.com, torvalds@osdl.org,
+       rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
 Subject: Re: RFD: Kernel release numbering
-Date: Thu, 3 Mar 2005 10:26:24 +0000 (UTC)
-Message-ID: <slrnd2dpig.icg.erik@bender.home.hensema.net>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002733.GH10124@redhat.com> <42268037.3040300@osdl.org>
-Reply-To: erik@hensema.net
-User-Agent: slrn/0.9.8.0 (Linux)
-To: linux-kernel@vger.kernel.org
+Message-ID: <20050303102655.GC31559@wiggy.net>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Jeff Garzik <jgarzik@pobox.com>, greg@kroah.com, torvalds@osdl.org,
+	rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
+References: <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002047.GA10434@kroah.com> <Pine.LNX.4.58.0503021710430.25732@ppc970.osdl.org> <20050303081958.GA29524@kroah.com> <4226CCFE.2090506@pobox.com> <20050303090106.GC29955@kroah.com> <4226D655.2040902@pobox.com> <20050303021506.137ce222.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050303021506.137ce222.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Connect-IP: <locally generated>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap (rddunlap@osdl.org) wrote:
-> Maybe I don't understand?  Is someone expecting distro
-> quality/stability from kernel.org kernels?
-> I don't, but maybe I'm one of those minorities.
+Previously Andrew Morton wrote:
+> I'd say that mainline kernel.org for the past couple of years has been a
+> technology, not a product.
 
-There are few distributors who can sufficiently QA the kernel
-they ship. I think only Redhat/Fedora, Novell/Suse and
-Mandrake/Conectiva currently have *good* testing procedures and
-good QA. Most other distributions basically ship the vanilla
-Linus kernel (or Alan kernel) with some basic patches applied.
+If you consider mainline a technology and distributions your main users,
+what is the use of a stable release every months or two months? No
+distribution is going to updates its release that often. Looking at the
+Debian kernel packages it took at least a month just to get a single
+release ready for distro use. Needless to say, Debian (or any other
+distro) is not going to go through that for every release.
 
-Besides that, a *lot* of admins still prefer to compile their own
-kernel. I often encounter admins who still don't know about the
-2.6 development scheme and blindly compile each shiny new 2.6
-kernel released by Linus.
+We already saw that with 2.0, 2.2 and 2.4 kernels: distributions rarely
+used the last mainline release but older released with (a sometimes
+huge amount of) patches.
 
-So basically what I'm trying to tell is: it could be time to
-start the 2.7 series to have some room for experimentation. That
-is what Linus enjoys doing (*) and that is what Linus is good at.
-Leave the 2.6 kernel to Alan or someone else.
+So continueing that thought pattern; why not go for something like 6
+month release cycles? That seems to fit with a distro release cycles.
 
-However, I think a 2.6.x-mm kernel is still a good idea after 2.7
-branches. The -mm kernel could be a collection of backports from
-the 2.7 kernel, waiting to be included in the 2.6 kernel.
+> So I'd suspect that on average, kernel releases are getting more stable. 
+> But the big big problem we have is that even though we fixed ten things for
+> each one thing we broke, those single breakages tend to be prominent, and
+> people get upset.  It's fairly bad PR that Dell Inspiron keyboards don't
+> work in 2.6.11, for example...
 
-The 3.x.y kernel could be the place for very wild
-experimentation. I'd love to see a kernel which supports a
-object-relational non-POSIX compatible filesystem, ready for
-2010's storage requirements. But that's just me.
+same for latitude keyboards after a resume I just discovered :(
 
-(*) I've got a magic Linus brain reader device.
+Wichert.
+
 -- 
-Erik Hensema <erik@hensema.net>
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.

@@ -1,90 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315544AbSHASXQ>; Thu, 1 Aug 2002 14:23:16 -0400
+	id <S316608AbSHAS0m>; Thu, 1 Aug 2002 14:26:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316397AbSHASXQ>; Thu, 1 Aug 2002 14:23:16 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:46353 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S315544AbSHASXP>;
-	Thu, 1 Aug 2002 14:23:15 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200208011826.g71IQH0383895@saturn.cs.uml.edu>
-Subject: Re: Linux 2.4.19ac3rc3 on IBM x330/x340 SMP - "ps" time skew
-To: ltd@cisco.com (Lincoln Dale)
-Date: Thu, 1 Aug 2002 14:26:17 -0400 (EDT)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
-       david_luyer@pacific.net.au (David Luyer),
-       alan@lxorguk.ukuu.org.uk ('Alan Cox'), linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20020801190102.0295bea0@mira-sjcm-3.cisco.com> from "Lincoln Dale" at Aug 01, 2002 09:40:29 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S316609AbSHAS0m>; Thu, 1 Aug 2002 14:26:42 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:29966 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S316608AbSHAS0l>; Thu, 1 Aug 2002 14:26:41 -0400
+Date: Thu, 1 Aug 2002 14:24:18 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Jens Axboe <axboe@suse.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] block/elevator updates + deadline i/o scheduler
+In-Reply-To: <20020801085152.GC1096@suse.de>
+Message-ID: <Pine.LNX.3.96.1020801141845.15133B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lincoln Dale writes:
-> At 09:33 PM 31/07/2002 -0400, Albert D. Cahalan wrote:
+On Thu, 1 Aug 2002, Jens Axboe wrote:
 
->> No shit. Now, how do you create a ps executable that handles
->> a 2.4.xx kernel with a modified HZ value? People did this all
->> the time. I got many bug reports from these people, so don't
->> go saying they don't exist. Remember: one executable, running
->> on both of the these:
->
-> thanks for the rant.  most entertaining.  for what its worth, i wasn't 
-> trolling.
->
->> 2.2.xx i386 as shipped by Linus
->> 2.4.xx i386 with HZ modified
->
-> (i assume you mean 2.4.xx i386 as shipped by Linus)
+> On Tue, Jul 30 2002, Bill Davidsen wrote:
 
-No.
+> > Now a request, if someone is running a database app and tests this I'd
+> > love to see the results. I expect things like LMbench to show more threads
+> > ending at the same time, but will it help a reall app?
+> 
+> Note that the deadline i/o scheduler only considers deadlines on
+> individual requests so far, so there's no real guarentee that process X,
+> Y, and Z will receive equal share of the bandwidth. This is something
+> I'm thinking about, though.
 
-"Debian GNU/Linux 3.0 released July 19th, 2002
-...
-This version of Debian supports the 2.2 and 2.4
-releases of the Linux kernel."
+I'm not sure that equal bandwidth and deadline are compatible, some
+processes may need more bandwidth to meet deadlines. I'm not unhappy about
+that, it's the reads waiting in a flood of write or vice-versa that
+occasionally make an app really rot.
+ 
+> My testing does seem to indicate that the deadline scheduler is fairer
+> than the linus scheduler, but ymmv.
+> 
+> > I bet it was tested briefly on IDE, my last use of IDE a week or so ago
+> > lasted until I did "make dep" and the output went all over every attached
+> > drive :-( Still, nice to know it will work if IDE makes it into 2.5.
+> 
+> :/
+> 
+> I'll say that 2.5.29 IDE did work fine for the testing I did with the
+> deadline scheduler, at least it survived a dbench 64 (that's about the
+> testing it got).
 
->> Come on, write the code if you think it's so easy.
->> You get bonus points for supporting 2.0.xx kernels
->> and the IA-64 kernel with that same executable.
->
-> i suspect you're confusing me with someone else.
+Hum, looks as if I should plan to retest with 29 and the deadline patches.
+My personal test is a program doing one read/sec while making CD images
+(mkisofs) on a machine with large memory. It tends to build the whole
+700MB in memory and then bdflush decides it should be written and the read
+latency totally goes to hell. I will say most of this can be tuned out at
+some small cost to total performance (thanks Andrea).
 
-Yes and no. You seem to express a common opinion.
-Unlike the others, you may have provided a more
-reliable hack than the one currently used.
-
-> in either case, for ELF executables, the kernel puts the CLOCKS_PER_TICK on 
-> the stack when loading an elf binary.
-> this is defined to be HZ on all platforms except ia32 where its set to 
-> 100.  one would hope that if you redefine HZ to something else, you also 
-> remember to redefine CLOCKS_PER_TICK to that same value too.
-
-Uh... that's not good. It makes AT_CLKTCK unreliable on i386, cris,
-mips, and mips64. I'll have to think about your "one would hope".
-
-> the following code determines the value of CLOCKS_PER_TICK in a reliable 
-> manner on the hosts i have here (2.4.xx, 2.5.xx, ia32):
-> i don't have any alpha or ia64 boxes here, but i'm confident it'll still 
-> give you the correct result.
-
-Thank you very much. I'll have to try this on a 64-bit box.
-It works on 32-bit ppc with the 2.4.16 kernel.
-
-> the code doesn't work on a 2.2.16 box here, given 2.2.16 doesn't have 
-> AT_CLKTCK, but i believe that is incidental to this discussion.
-
-Not really, but I might rely on sysconf() when AT_CLKTCK is missing.
-Then I can tolerate:
-
-a. any unmodified kernel, except alpha arch @ 1200HZ and user-mode @ 20HZ
-b. any 2.4.xx kernel with HZ==CLOCKS_PER_SEC, even with an old libc
-c. any 2.6.xx kernel, even with an old libc
-
-That might be good enough. Asking users to run 2.4.xx if they want
-to play with HZ is pretty reasonable. Asking them to run 2.5.xx,
-or hack up the proc filesystem, is not.
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

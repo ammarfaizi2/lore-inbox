@@ -1,64 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261340AbUDSRnp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 13:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbUDSRnp
+	id S261421AbUDSRuU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 13:50:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbUDSRuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 13:43:45 -0400
-Received: from waste.org ([209.173.204.2]:22916 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261340AbUDSRnn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 13:43:43 -0400
-Date: Mon, 19 Apr 2004 12:42:54 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Hariprasad Nellitheertha <hari@in.ibm.com>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, mingo@elte.hu,
-       suparna@in.ibm.com
-Subject: Re: Problem with Netpoll based netdumping and NAPI
-Message-ID: <20040419174254.GQ1175@waste.org>
-References: <20040419125148.GA4495@in.ibm.com>
+	Mon, 19 Apr 2004 13:50:20 -0400
+Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:17673 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S261421AbUDSRuR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 13:50:17 -0400
+Date: Mon, 19 Apr 2004 19:50:34 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Fabian Fenaut <fabian.fenaut@free.fr>
+Cc: sensors@Stimpy.netroedge.com, greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: Sensors (W83627HF) in Tyan S2882
+Message-Id: <20040419195034.24664469.khali@linux-fr.org>
+In-Reply-To: <40840A18.8070907@free.fr>
+References: <1082387882.4083edaa52780@imp.gcu.info>
+	<200404191600.i3JG0ElX089970@zone3.gcu-squad.org>
+	<20040419190133.351d1401.khali@linux-fr.org>
+	<40840A18.8070907@free.fr>
+Reply-To: sensors@stimpy.netroedge.com
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040419125148.GA4495@in.ibm.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[changed cc: from linux-net to netdev]
+> Ok, so I suppose this is the appropriate patch :
 
-On Mon, Apr 19, 2004 at 06:21:48PM +0530, Hariprasad Nellitheertha wrote:
-> Hi All,
-> 
-> I am facing a problem while trying to network dump using LKCD. My 
-> debugging so far indicates that this is due to both NAPI and NETPOLL 
-> being enabled.
-> 
-> I am using LKCD on the 2.6.5 kernel and both the client and server are 
-> i386 boxes. The dumping machine has an e100 card. I have built the kernel
-> with both CONFIG_E100_NAPI and CONFIG_NET_POLL_CONTROLLER (and the other
-> netpoll related options) selected.
-> 
-> LKCD uses netpoll for its network dump implementation. The problem we see
-> is that the network dump driver does not receive any packet from the 
-> card driver and hence dumping fails. In e100_intr(), we call 
-> netif_rx_schedule() if we are using the NAPI feature. netif_rx_schedule, 
-> in turn, ends up adding the processing of this packet to the NET_RX_SOFTIRQ 
-> softirq.
+Except that it doesn't apply, yes ;)
 
-Netpoll should be manually calling the NAPI poll function like this 
-after calling the interrupt handler (in netpoll_poll()):
-
-      /* If scheduling is stopped, tickle NAPI bits */
-         if(trapped && np->dev->poll &&
-            test_bit(__LINK_STATE_RX_SCHED, &np->dev->state))
-                 np->dev->poll(np->dev, &budget);
-
-Please ensure that LKCD is calling netpoll_set_trap(1) which tells it
-that packet scheduling is stopped.
-
-I've tested this path primarily with tg3 and kgdb-over-ethernet, but
-it should be functionally quite similar to e100 and lkcd.
+I suspect that your email client is converting tabs to spaces.
 
 -- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

@@ -1,37 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263011AbTEGI4C (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 04:56:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263012AbTEGI4C
+	id S263013AbTEGJJy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 05:09:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbTEGJJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 04:56:02 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:41856 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263011AbTEGI4B (ORCPT
+	Wed, 7 May 2003 05:09:54 -0400
+Received: from axion.xs4all.nl ([213.84.8.90]:40234 "EHLO axion.demon.nl")
+	by vger.kernel.org with ESMTP id S263013AbTEGJJw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 04:56:01 -0400
-Date: Wed, 07 May 2003 01:00:59 -0700 (PDT)
-Message-Id: <20030507.010059.39173270.davem@redhat.com>
-To: chas@cmf.nrl.navy.mil
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] clip locking and more atmvcc cleanup
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200305070026.h470QP503306@relax.cmf.nrl.navy.mil>
-References: <200305070026.h470QP503306@relax.cmf.nrl.navy.mil>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Wed, 7 May 2003 05:09:52 -0400
+Date: Wed, 7 May 2003 11:22:22 +0200
+From: Monchi Abbad <kernel@axion.demon.nl>
+To: linux-kernel@vger.kernel.org
+Subject: dvbdev fixes ( /dev/dvb/adapter0demux0 -> /dev/dvb/adapter0/demux0
+Message-ID: <20030507092222.GA18446@axion.demon.nl>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="HcAYCG3uE/tztfnV"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: chas williams <chas@cmf.nrl.navy.mil>
-   Date: Tue, 6 May 2003 20:26:25 -0400
-   
-   [ATM]: clip should lock the individual table entires
- ...
-   [ATM]: listenq and backlog are redundant with existing sk members
-          (a 'listen' socket never recv's data so you dont typically
-          need a seperate listenq -- even for atm)
-   
-Applied, thanks.
+
+--HcAYCG3uE/tztfnV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+I found a mistake in the dvbdev.c file when creating the dvb /devfs files, it created /dev/dvb/adapter0device0 instead of /dev/dvb/adapter0/device0. But here is a simple fix.
+
+Monchi.
+
+--HcAYCG3uE/tztfnV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="patch-dvbdev.diff"
+
+--- linux/drivers/media/dvb/dvb-core/dvbdev.c2	2003-05-05 01:53:07.000000000 +0200
++++ linux/drivers/media/dvb/dvb-core/dvbdev.c	2003-05-07 10:14:30.000000000 +0200
+@@ -219,7 +219,7 @@
+ 
+ 	list_add_tail (&dvbdev->list_head, &adap->device_list);
+ 
+-	sprintf(name, "dvb/adapter%d%s%d", adap->num, dnames[type], id);
++	sprintf(name, "dvb/adapter%d/%s%d", adap->num, dnames[type], id);
+ 	devfs_register(NULL, name, 0, DVB_MAJOR, nums2minor(adap->num, type, id),
+ 			S_IFCHR | S_IRUSR | S_IWUSR, dvbdev->fops, dvbdev);
+ 
+@@ -234,7 +234,7 @@
+ void dvb_unregister_device(struct dvb_device *dvbdev)
+ {
+ 	if (dvbdev) {
+-		devfs_remove("dvb/adapter%d%s%d", dvbdev->adapter->num,
++		devfs_remove("dvb/adapter%d/%s%d", dvbdev->adapter->num,
+ 				dnames[dvbdev->type], dvbdev->id);
+ 		list_del(&dvbdev->list_head);
+ 		kfree(dvbdev);
+
+--HcAYCG3uE/tztfnV--

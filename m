@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316070AbSETPA6>; Mon, 20 May 2002 11:00:58 -0400
+	id <S316079AbSETPD3>; Mon, 20 May 2002 11:03:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316079AbSETPA4>; Mon, 20 May 2002 11:00:56 -0400
-Received: from 209-6-202-152.c3-0.nwt-ubr1.sbo-nwt.ma.cable.rcn.com ([209.6.202.152]:5363
-	"EHLO chezrutt.dyndns.org") by vger.kernel.org with ESMTP
-	id <S316075AbSETPAw>; Mon, 20 May 2002 11:00:52 -0400
-From: John Ruttenberg <rutt@chezrutt.com>
-MIME-Version: 1.0
+	id <S316075AbSETPD3>; Mon, 20 May 2002 11:03:29 -0400
+Received: from codepoet.org ([166.70.14.212]:27289 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S316079AbSETPD1>;
+	Mon, 20 May 2002 11:03:27 -0400
+Date: Mon, 20 May 2002 09:03:26 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCHSET] Linux 2.4.19-pre8-jam3
+Message-ID: <20020520150325.GA31566@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	"J.A. Magallon" <jamagallon@able.es>,
+	Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020520140720.GE4429@werewolf.able.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15593.3999.95559.132928@localhost.localdomain>
-Date: Mon, 20 May 2002 11:00:47 -0400
-To: Marc Lehmann <schmorp@schmorp.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dell Inspiron i8100 with 2 batteries
-In-Reply-To: <20020520140909.GA29491@schmorp.de>
-X-Mailer: VM 6.96 under Emacs 20.7.1
-Reply-to: rutt@chezrutt.com
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.18-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks.  That did the trick.  I was beginning to suspect the A8+ bios I was
-using and beginning to suspect that a downgrade was in order.  But you gave me
-the courage to try.
+On Mon May 20, 2002 at 04:07:20PM +0200, J.A. Magallon wrote:
+> Hi all.
+> 
+> Some updates and fixes collected from the list are worth a new release.
+> 
+> Changes:
+> - vm-35, bdflush-tuning
+> - exit-reaper race fix
+> - ext3 updates (0.9.18) and fixes (registration order, warning about
+>   ext3-root-mounted-as-ext2)
+> - sensors update to current 2.6.4-cvs
+> 
+> So, abstract is: vm-35 and ext3-0.9.18.
+> 
+> Enjoy it !!
 
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre8-jam3.tar.gz
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre8-jam3/
 
-Marc Lehmann:
-> On Fri, May 17, 2002 at 10:25:06AM -0400, John Ruttenberg <rutt@chezrutt.com> wrote:
-> > I am using 2.4.18 and have a Dell I8100 with 2 batteries.  If combined charge
-> 
-> I also have this notebook, and the APM bios is rather broken. You might try
-> downgrading your BIOS to A07 or so, that *could* help (it helped here).
-> 
-> ACPI doesn't work stably on that machine (not here, at least), and doesn't
-> seem to be desirable, as reading battery status freezes the machine for
-> 0.2s ;)
-> 
-> -- 
->       -----==-                                             |
->       ----==-- _                                           |
->       ---==---(_)__  __ ____  __       Marc Lehmann      +--
->       --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
->       -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
->     The choice of a GNU generation                       |
->                                                          |
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

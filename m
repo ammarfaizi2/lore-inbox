@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262740AbVBBVC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262366AbVBBUJI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262740AbVBBVC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 16:02:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbVBBVCN
+	id S262366AbVBBUJI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 15:09:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262517AbVBBT7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 16:02:13 -0500
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:58639 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262445AbVBBVAo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 16:00:44 -0500
-Date: Wed, 2 Feb 2005 21:00:46 +0000 (GMT)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-       Christoph Lameter <clameter@sgi.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: A scrub daemon (prezeroing)
-In-Reply-To: <20050202153256.GA19615@logos.cnet>
-Message-ID: <Pine.LNX.4.61L.0502022000470.9448@blysk.ds.pg.gda.pl>
-References: <Pine.LNX.4.58.0501211228430.26068@schroedinger.engr.sgi.com>
- <1106828124.19262.45.camel@hades.cambridge.redhat.com> <20050202153256.GA19615@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 2 Feb 2005 14:59:43 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:5636 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262779AbVBBTwg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 14:52:36 -0500
+Date: Wed, 2 Feb 2005 20:52:34 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] update Computone MAINTAINERS entry
+Message-ID: <20050202195234.GI3313@stusta.de>
+References: <20041120002559.GB2754@stusta.de> <20041119194735.63d2a257.akpm@osdl.org> <20041220191530.GA25986@alcove.wittsend.com> <20050101172832.GB14319@stusta.de> <20050118015604.GB31238@alcove.wittsend.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050118015604.GB31238@alcove.wittsend.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Feb 2005, Marcelo Tosatti wrote:
+On Mon, Jan 17, 2005 at 08:56:04PM -0500, Michael H. Warfield wrote:
+> On Sat, Jan 01, 2005 at 06:28:32PM +0100, Adrian Bunk wrote:
+>...
+> > It seems you are still active :-) , so why is it "Orphaned"?
+> 
+> 	Good question.  Probably someone jumping the gun a bit because
+> I haven't been very active on that driver lately.  I do tend to drop
+> off the radar for months at a time, depending on other projects and
+> engagements.  I haven't done updates to the driver in the 2.6 kernel
+> and, yes, it is broken.
+>...
 
-> > Some architectures tend to have spare DMA engines lying around. There's
-> > no need to use the CPU for zeroing pages. How feasible would it be for
-> > scrubd to use these?
-[...]
-> I suppose you are talking about DMA engines which are not being driven 
-> by any driver ?
+What about the patch below?
 
- E.g. the Broadcom's MIPS64-based SOCs have four general purpose DMA 
-engines onchip which can transfer data to/from the memory controller in 
-32-byte chunks over the 256-bit internal bus.  We have hardly any use for 
-these devices and certainly not for all four of them.
+cu
+Adrian
 
-> Sounds very interesting idea to me. Guess it depends on whether the cost of 
-> DMA write for memory zeroing, which is memory architecture/DMA engine dependant, 
-> offsets the cost of CPU zeroing.
 
- I suppose so, at least with the Broadcom's chips you avoid cache 
-trashing, yet you don't need to care about stale data as coherency between 
-CPUs and the onchip memory controller is maintained automatically by 
-hardware.
+<--  snip  -->
 
-  Maciej
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.11-rc2-mm2-full/MAINTAINERS.old	2005-02-02 18:51:25.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/MAINTAINERS	2005-02-02 18:52:13.000000000 +0100
+@@ -561,10 +561,9 @@
+ 
+ COMPUTONE INTELLIPORT MULTIPORT CARD
+ P:	Michael H. Warfield
+-M:	Michael H. Warfield <mhw@wittsend.com>
++M:	mhw@wittsend.com
+ W:	http://www.wittsend.com/computone.html
+-L:	linux-computone@lazuli.wittsend.com
+-S:	Orphaned
++S:	Maintained
+ 
+ COSA/SRP SYNC SERIAL DRIVER
+ P:	Jan "Yenya" Kasprzak
+

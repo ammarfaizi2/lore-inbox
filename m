@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261497AbREOUti>; Tue, 15 May 2001 16:49:38 -0400
+	id <S261486AbREOUti>; Tue, 15 May 2001 16:49:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261486AbREOUt2>; Tue, 15 May 2001 16:49:28 -0400
-Received: from coruscant.franken.de ([193.174.159.226]:42502 "EHLO
+	id <S261494AbREOUt3>; Tue, 15 May 2001 16:49:29 -0400
+Received: from coruscant.franken.de ([193.174.159.226]:40454 "EHLO
 	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S261484AbREOUtT>; Tue, 15 May 2001 16:49:19 -0400
-Date: Sun, 13 May 2001 19:43:35 -0300
+	id <S261482AbREOUtS>; Tue, 15 May 2001 16:49:18 -0400
+Date: Sun, 13 May 2001 19:39:56 -0300
 From: Harald Welte <laforge@gnumonks.org>
-To: God <atm@sdk.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernelnotes.org down
-Message-ID: <20010513194335.Q26722@corellia.laforge.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0105061522440.23642-100000@scotch.homeip.net>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Ben Greear <greearb@candelatech.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@muc.de>
+Subject: Re: [PATCH] arp_filter patch for 2.4.4 kernel.
+Message-ID: <20010513193956.P26722@corellia.laforge.distro.conectiva>
+In-Reply-To: <3AF4720F.35574FDD@candelatech.com> <15092.32371.139915.110859@pizda.ninka.net> <3AF49617.1B3C48AF@candelatech.com> <15092.37426.648280.631914@pizda.ninka.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.14i
-In-Reply-To: <Pine.LNX.4.21.0105061522440.23642-100000@scotch.homeip.net>; from atm@sdk.ca on Sun, May 06, 2001 at 09:32:28PM -0400
+In-Reply-To: <15092.37426.648280.631914@pizda.ninka.net>; from davem@redhat.com on Sat, May 05, 2001 at 04:52:18PM -0700
 X-Operating-System: Linux corellia.laforge.distro.conectiva 2.4.3
 X-Date: Today is Sweetmorn, the 58th day of Discord in the YOLD 3167
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 06, 2001 at 09:32:28PM -0400, God wrote:
-> 
-> Hiya,
-> 
-> Just a few quickies ....
-> 
-> One, is kernelnotes.org down ?  .. I can't get to it (times out), I've
-> tried from a few boxes on different networks just incase it was on my end
-> .. (since I've compiled ecn in, MANY things don't seem to be working
-> ... even the best search engine in the world .. dogpile, doesn't work
-> .. grr) .. enough of that.
+On Sat, May 05, 2001 at 04:52:18PM -0700, David Miller wrote:
 
-kernelnotes.org is down for quite some time. We've noted that a few weeks
-ago, as netfilter.kernelnotes.org was suddenly no longer reachable. We've
-now removed the references to netfilter.kernelnotes.org and created another
-mirror (netfilter.gnumonks.org) for the netfilter-related stuff.
+>  > No idea, haven't tried to use netfilter.  With this patch, though,
+>  > it's as easy as:
+> 
+> I know, the problem is if some existing facility can be made
+> to do it, I'd rather it be done that way.
 
-We haven't heared anything from kernelnotes.org since
+of course.
+
+> I'd be interested in seeing netfilter rules or a new netfilter
+> kernel module which would do arpfilter as well.
+
+the problem is, that netfilter hooks are currently only in the IPv4
+and IPv6 packet paths. as ARP is not an IPv4 protocol, but another
+protocol residing at layer 3, the arp code bypasses all netfilter hooks,
+and is - as a result - not handled by any IP tables.
+
+If you would want to do it using netfilter (the hooks only) and a hook-
+attaching module, you need to add ARP netfilter hooks first.
+
+If you want to filter arp packets, you need the netfilter hooks in the ARP
+code, as well as a new 'arptables' module and a userspace tool allowing
+modification of those arp tables.
+
+So I see no clean solution for using netfilter in this case. It's one
+of the scenario where netfilter/iptables layer-three-protocol boundness
+hurts.
+
+> David S. Miller
 
 -- 
 Live long and prosper

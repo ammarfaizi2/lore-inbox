@@ -1,66 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318175AbSGQBSS>; Tue, 16 Jul 2002 21:18:18 -0400
+	id <S318180AbSGQBVP>; Tue, 16 Jul 2002 21:21:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318176AbSGQBSR>; Tue, 16 Jul 2002 21:18:17 -0400
-Received: from matrix.rvs.uni-bielefeld.de ([129.70.123.40]:37275 "EHLO
+	id <S318177AbSGQBVO>; Tue, 16 Jul 2002 21:21:14 -0400
+Received: from matrix.rvs.uni-bielefeld.de ([129.70.123.40]:40091 "EHLO
 	mail.rvs.uni-bielefeld.de") by vger.kernel.org with ESMTP
-	id <S318175AbSGQBRp>; Tue, 16 Jul 2002 21:17:45 -0400
-Subject: [PATCH] Bluetooth Subsystem PC Card drivers for 2.4.19-rc2
+	id <S318180AbSGQBUM>; Tue, 16 Jul 2002 21:20:12 -0400
+Subject: [PATCH] Bluetooth Subsystem PC Card drivers for 2.5.26
 From: Marcel Holtmann <marcel@holtmann.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Maksim Krasnyanskiy <maxk@qualcomm.com>,
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Dave Jones <davej@suse.de>, Maksim Krasnyanskiy <maxk@qualcomm.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        BlueZ Mailing List <bluez-devel@lists.sourceforge.net>
-Content-Type: multipart/mixed; boundary="=-zrl7dsTE1UJxDoyUom5y"
+Content-Type: multipart/mixed; boundary="=-zTVceH595AVRvJG7Sij5"
 X-Mailer: Ximian Evolution 1.0.5 
-Date: 17 Jul 2002 03:17:02 +0200
-Message-Id: <1026868838.7774.7.camel@pegasus>
+Date: 17 Jul 2002 03:21:34 +0200
+Message-Id: <1026869120.7771.10.camel@pegasus>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-zrl7dsTE1UJxDoyUom5y
+--=-zTVceH595AVRvJG7Sij5
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-Hi Marcelo, 
+Hi Linus, 
 
 this patch updates the PC Card drivers of the Bluetooth subsystem. It
 modifies the following files: 
 
-linux-2.4.19-rc2/CREDITS 
-linux-2.4.19-rc2/MAINTAINERS 
-linux-2.4.19-rc2/Documentation/Configure.help 
-linux-2.4.19-rc2/drivers/bluetooth/Config.in 
-linux-2.4.19-rc2/drivers/bluetooth/Makefile 
-linux-2.4.19-rc2/drivers/bluetooth/bluecard_cs.c 
-linux-2.4.19-rc2/drivers/bluetooth/bt3c_cs.c 
-linux-2.4.19-rc2/drivers/bluetooth/dtl1_cs.c 
-
-All three drivers are complete independent and has been tested for a
-long time. The drivers are stable and ready for the 2.4 kernel. 
-
-With these drivers in the final 2.4.19 Kernel, it will be very easy for
-the Linux users to take a step into the Bluetooth world. 
+linux-2.5.26/CREDITS 
+linux-2.5.26/MAINTAINERS 
+linux-2.5.26/drivers/bluetooth/Config.help 
+linux-2.5.26/drivers/bluetooth/Config.in 
+linux-2.5.26/drivers/bluetooth/Makefile 
+linux-2.5.26/drivers/bluetooth/bluecard_cs.c 
+linux-2.5.26/drivers/bluetooth/bt3c_cs.c 
+linux-2.5.26/drivers/bluetooth/dtl1_cs.c 
 
 Regards 
 
 Marcel 
 
 
---=-zrl7dsTE1UJxDoyUom5y
-Content-Disposition: attachment; filename=patch-2.4.19-rc2-bluez-pccard-drivers
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/x-patch; name=patch-2.4.19-rc2-bluez-pccard-drivers;
-	charset=ISO-8859-1
 
-diff -urN linux-2.4.19-rc2/CREDITS linux-2.4.19-rc2-mh/CREDITS
---- linux-2.4.19-rc2/CREDITS	Wed Jul 17 02:41:57 2002
-+++ linux-2.4.19-rc2-mh/CREDITS	Wed Jul 17 02:43:38 2002
-@@ -1329,6 +1329,12 @@
+--=-zTVceH595AVRvJG7Sij5
+Content-Disposition: attachment; filename=patch-2.5.26-bluez-pccard-drivers
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/x-patch; name=patch-2.5.26-bluez-pccard-drivers; charset=ISO-8859-1
+
+diff -urN linux-2.5.26/CREDITS linux-2.5.26-mh/CREDITS
+--- linux-2.5.26/CREDITS	Wed Jul 17 01:49:27 2002
++++ linux-2.5.26-mh/CREDITS	Wed Jul 17 02:50:49 2002
+@@ -1337,6 +1337,12 @@
  S: Provo, Utah 84606-5607
  S: USA
 =20
@@ -73,22 +66,30 @@ diff -urN linux-2.4.19-rc2/CREDITS linux-2.4.19-rc2-mh/CREDITS
  N: Rob W. W. Hooft
  E: hooft@EMBL-Heidelberg.DE
  D: Shared libs for graphics-tools and for the f2c compiler
-diff -urN linux-2.4.19-rc2/Documentation/Configure.help linux-2.4.19-rc2-mh=
-/Documentation/Configure.help
---- linux-2.4.19-rc2/Documentation/Configure.help	Wed Jul 17 02:41:57 2002
-+++ linux-2.4.19-rc2-mh/Documentation/Configure.help	Wed Jul 17 02:43:38 20=
-02
-@@ -20494,10 +20494,36 @@
-   Bluetooth HCI DTL1 (PC Card) driver.
-   This driver provides support for Bluetooth PCMCIA devices with
-   Nokia DTL1 interface:
--     Nokia Bluetooth PC Card, Socketcom Bluetooth CF module
-+     Nokia Bluetooth Card
-+     Socket Bluetooth CF Card
+diff -urN linux-2.5.26/MAINTAINERS linux-2.5.26-mh/MAINTAINERS
+--- linux-2.5.26/MAINTAINERS	Wed Jul 17 01:49:35 2002
++++ linux-2.5.26-mh/MAINTAINERS	Wed Jul 17 02:50:49 2002
+@@ -270,6 +270,12 @@
+ W:	http://bluez.sf.net
+ S:	Maintained
 =20
++BLUETOOTH SUBSYSTEM (PC Card Drivers)
++P:	Marcel Holtmann
++M:	marcel@holtmann.org
++W:	http://www.holtmann.org/linux/bluetooth/
++S:	Maintained
++
+ BTTV VIDEO4LINUX DRIVER
+ P:	Gerd Knorr
+ M:	kraxel@bytesex.org
+diff -urN linux-2.5.26/drivers/bluetooth/Config.help linux-2.5.26-mh/driver=
+s/bluetooth/Config.help
+--- linux-2.5.26/drivers/bluetooth/Config.help	Wed Jul 17 01:49:32 2002
++++ linux-2.5.26-mh/drivers/bluetooth/Config.help	Wed Jul 17 02:50:49 2002
+@@ -62,6 +62,20 @@
    Say Y here to compile support for HCI DTL1 devices into the
    kernel or say M to compile it as module (dtl1_cs.o).
-+
+=20
 +HCI BT3C (PC Card) device driver
 +CONFIG_BLUEZ_HCIBT3C
 +  Bluetooth HCI BT3C (PC Card) driver.
@@ -103,41 +104,14 @@ diff -urN linux-2.4.19-rc2/Documentation/Configure.help linux-2.4.19-rc2-mh=
 +  Say Y here to compile support for HCI BT3C devices into the
 +  kernel or say M to compile it as module (bt3c_cs.o).
 +
-+HCI BlueCard (PC Card) device driver
-+CONFIG_BLUEZ_HCIBLUECARD
-+  Bluetooth HCI BlueCard (PC Card) driver.
-+  This driver provides support for Bluetooth PCMCIA devices with
-+  Anycom BlueCard interface:
-+     Anycom Bluetooth PC Card
-+     Anycom Bluetooth CF Card
-+
-+  Say Y here to compile support for HCI BlueCard devices into the
-+  kernel or say M to compile it as module (bluecard_cs.o).
-=20
- # The following options are for Linux when running on the Hitachi
- # SuperH family of RISC microprocessors.
-diff -urN linux-2.4.19-rc2/MAINTAINERS linux-2.4.19-rc2-mh/MAINTAINERS
---- linux-2.4.19-rc2/MAINTAINERS	Wed Jul 17 02:41:58 2002
-+++ linux-2.4.19-rc2-mh/MAINTAINERS	Wed Jul 17 02:43:38 2002
-@@ -266,6 +266,12 @@
- W:	http://bluez.sf.net
- S:	Maintained
-=20
-+BLUETOOTH SUBSYSTEM (PC Card Drivers)
-+P:	Marcel Holtmann
-+M:	marcel@holtmann.org
-+W:	http://www.holtmann.org/linux/bluetooth/
-+S:	Maintained
-+
- BTTV VIDEO4LINUX DRIVER
- P:	Gerd Knorr
- M:	kraxel@bytesex.org
-diff -urN linux-2.4.19-rc2/drivers/bluetooth/Config.in linux-2.4.19-rc2-mh/=
-drivers/bluetooth/Config.in
---- linux-2.4.19-rc2/drivers/bluetooth/Config.in	Wed Jul 17 02:42:04 2002
-+++ linux-2.4.19-rc2-mh/drivers/bluetooth/Config.in	Wed Jul 17 02:43:38 200=
-2
-@@ -14,6 +14,10 @@
+ HCI BlueCard (PC Card) device driver
+ CONFIG_BLUEZ_HCIBLUECARD
+   Bluetooth HCI BlueCard (PC Card) driver.
+diff -urN linux-2.5.26/drivers/bluetooth/Config.in linux-2.5.26-mh/drivers/=
+bluetooth/Config.in
+--- linux-2.5.26/drivers/bluetooth/Config.in	Wed Jul 17 01:49:35 2002
++++ linux-2.5.26-mh/drivers/bluetooth/Config.in	Wed Jul 17 02:50:49 2002
+@@ -14,6 +14,8 @@
 =20
  dep_tristate 'HCI DTL1 (PC Card) driver' CONFIG_BLUEZ_HCIDTL1 $CONFIG_PCMC=
 IA $CONFIG_BLUEZ
@@ -145,1189 +119,420 @@ IA $CONFIG_BLUEZ
 +dep_tristate 'HCI BT3C (PC Card) driver' CONFIG_BLUEZ_HCIBT3C $CONFIG_PCMC=
 IA $CONFIG_BLUEZ
 +
-+dep_tristate 'HCI BlueCard (PC Card) driver' CONFIG_BLUEZ_HCIBLUECARD $CON=
+ dep_tristate 'HCI BlueCard (PC Card) driver' CONFIG_BLUEZ_HCIBLUECARD $CON=
 FIG_PCMCIA $CONFIG_BLUEZ
-+
+=20
  dep_tristate 'HCI VHCI (Virtual HCI device) driver' CONFIG_BLUEZ_HCIVHCI $=
 CONFIG_BLUEZ
-=20
- endmenu
-diff -urN linux-2.4.19-rc2/drivers/bluetooth/Makefile linux-2.4.19-rc2-mh/d=
-rivers/bluetooth/Makefile
---- linux-2.4.19-rc2/drivers/bluetooth/Makefile	Wed Jul 17 02:42:04 2002
-+++ linux-2.4.19-rc2-mh/drivers/bluetooth/Makefile	Wed Jul 17 02:43:38 2002
-@@ -14,6 +14,8 @@
- uart-$(CONFIG_BLUEZ_HCIUART_H4)	+=3D hci_h4.o
-=20
+diff -urN linux-2.5.26/drivers/bluetooth/Makefile linux-2.5.26-mh/drivers/b=
+luetooth/Makefile
+--- linux-2.5.26/drivers/bluetooth/Makefile	Wed Jul 17 01:49:38 2002
++++ linux-2.5.26-mh/drivers/bluetooth/Makefile	Wed Jul 17 02:50:49 2002
+@@ -6,6 +6,7 @@
+ obj-$(CONFIG_BLUEZ_HCIVHCI)	+=3D hci_vhci.o
+ obj-$(CONFIG_BLUEZ_HCIUART)	+=3D hci_uart.o
  obj-$(CONFIG_BLUEZ_HCIDTL1)	+=3D dtl1_cs.o
 +obj-$(CONFIG_BLUEZ_HCIBT3C)	+=3D bt3c_cs.o
-+obj-$(CONFIG_BLUEZ_HCIBLUECARD)	+=3D bluecard_cs.o
+ obj-$(CONFIG_BLUEZ_HCIBLUECARD)	+=3D bluecard_cs.o
 =20
- include $(TOPDIR)/Rules.make
+ hci_uart-y				:=3D hci_ldisc.o
+diff -urN linux-2.5.26/drivers/bluetooth/bluecard_cs.c linux-2.5.26-mh/driv=
+ers/bluetooth/bluecard_cs.c
+--- linux-2.5.26/drivers/bluetooth/bluecard_cs.c	Wed Jul 17 01:49:33 2002
++++ linux-2.5.26-mh/drivers/bluetooth/bluecard_cs.c	Wed Jul 17 02:50:49 200=
+2
+@@ -89,16 +89,16 @@
+ } bluecard_info_t;
 =20
-diff -urN linux-2.4.19-rc2/drivers/bluetooth/bluecard_cs.c linux-2.4.19-rc2=
--mh/drivers/bluetooth/bluecard_cs.c
---- linux-2.4.19-rc2/drivers/bluetooth/bluecard_cs.c	Thu Jan  1 01:00:00 19=
-70
-+++ linux-2.4.19-rc2-mh/drivers/bluetooth/bluecard_cs.c	Wed Jul 17 02:43:38=
- 2002
-@@ -0,0 +1,1113 @@
-+/*
-+ *
-+ *  Bluetooth driver for the Anycom BlueCard (LSE039/LSE041)
-+ *
-+ *  Copyright (C) 2001-2002  Marcel Holtmann <marcel@holtmann.org>
-+ *
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License version 2 as
-+ *  published by the Free Software Foundation;
-+ *
-+ *  Software distributed under the License is distributed on an "AS
-+ *  IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
-+ *  implied. See the License for the specific language governing
-+ *  rights and limitations under the License.
-+ *
-+ *  The initial developer of the original code is David A. Hinds
-+ *  <dahinds@users.sourceforge.net>.  Portions created by David A. Hinds
-+ *  are Copyright (C) 1999 David A. Hinds.  All Rights Reserved.
-+ *
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/types.h>
-+#include <linux/sched.h>
-+#include <linux/timer.h>
-+#include <linux/errno.h>
-+#include <linux/ptrace.h>
-+#include <linux/ioport.h>
-+#include <linux/spinlock.h>
-+#include <linux/skbuff.h>
-+#include <asm/io.h>
-+
-+#include <pcmcia/version.h>
-+#include <pcmcia/cs_types.h>
-+#include <pcmcia/cs.h>
-+#include <pcmcia/cistpl.h>
-+#include <pcmcia/ciscode.h>
-+#include <pcmcia/ds.h>
-+#include <pcmcia/cisreg.h>
-+
-+#include <net/bluetooth/bluetooth.h>
-+#include <net/bluetooth/hci_core.h>
-+
-+
-+
-+/* =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D Module parameters =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D */
-+
-+
-+/* Bit map of interrupts to choose from */
-+static u_int irq_mask =3D 0x86bc;
-+static int irq_list[4] =3D { -1 };
-+
-+MODULE_PARM(irq_mask, "i");
-+MODULE_PARM(irq_list, "1-4i");
-+
-+MODULE_AUTHOR("Marcel Holtmann <marcel@holtmann.org>");
-+MODULE_DESCRIPTION("BlueZ driver for the Anycom BlueCard (LSE039/LSE041)")=
-;
-+MODULE_LICENSE("GPL");
-+
-+
-+
-+/* =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D Local structures =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D */
-+
-+
-+typedef struct bluecard_info_t {
-+	dev_link_t link;
-+	dev_node_t node;
-+
-+	struct hci_dev hdev;
-+
-+	spinlock_t lock;		/* For serializing operations */
-+	struct timer_list timer;	/* For LED control */
-+
-+	struct sk_buff_head txq;
-+	unsigned long tx_state;
-+
-+	unsigned long rx_state;
-+	unsigned long rx_count;
-+	struct sk_buff *rx_skb;
-+
-+	unsigned char ctrl_reg;
-+	unsigned long hw_state;		/* Status of the hardware and LED control */
-+} bluecard_info_t;
-+
-+
+=20
+-void bluecard_config(dev_link_t * link);
 +void bluecard_config(dev_link_t *link);
-+void bluecard_release(u_long arg);
+ void bluecard_release(u_long arg);
+-int bluecard_event(event_t event, int priority, event_callback_args_t * ar=
+gs);
 +int bluecard_event(event_t event, int priority, event_callback_args_t *arg=
 s);
-+
-+static dev_info_t dev_info =3D "bluecard_cs";
-+
-+dev_link_t *bluecard_attach(void);
-+void bluecard_detach(dev_link_t *);
-+
+=20
+ static dev_info_t dev_info =3D "bluecard_cs";
+=20
+ dev_link_t *bluecard_attach(void);
+ void bluecard_detach(dev_link_t *);
+=20
+-dev_link_t *dev_list =3D NULL;
 +static dev_link_t *dev_list =3D NULL;
-+
-+
-+/* Default baud rate: 57600, 115200, 230400 or 460800 */
-+#define DEFAULT_BAUD_RATE  230400
-+
-+
-+/* Hardware states */
-+#define CARD_READY             1
-+#define CARD_HAS_PCCARD_ID     4
-+#define CARD_HAS_POWER_LED     5
-+#define CARD_HAS_ACTIVITY_LED  6
-+
-+/* Transmit states  */
-+#define XMIT_SENDING         1
-+#define XMIT_WAKEUP          2
-+#define XMIT_BUFFER_NUMBER   5	/* unset =3D buffer one, set =3D buffer two=
- */
-+#define XMIT_BUF_ONE_READY   6
-+#define XMIT_BUF_TWO_READY   7
-+#define XMIT_SENDING_READY   8
-+
-+/* Receiver states */
-+#define RECV_WAIT_PACKET_TYPE   0
-+#define RECV_WAIT_EVENT_HEADER  1
-+#define RECV_WAIT_ACL_HEADER    2
-+#define RECV_WAIT_SCO_HEADER    3
-+#define RECV_WAIT_DATA          4
-+
-+/* Special packet types */
-+#define PKT_BAUD_RATE_57600   0x80
-+#define PKT_BAUD_RATE_115200  0x81
-+#define PKT_BAUD_RATE_230400  0x82
-+#define PKT_BAUD_RATE_460800  0x83
-+
-+
-+/* These are the register offsets */
-+#define REG_COMMAND     0x20
-+#define REG_INTERRUPT   0x21
-+#define REG_CONTROL     0x22
-+#define REG_RX_CONTROL  0x24
-+#define REG_CARD_RESET  0x30
-+#define REG_LED_CTRL    0x30
-+
-+/* REG_COMMAND */
-+#define REG_COMMAND_TX_BUF_ONE  0x01
-+#define REG_COMMAND_TX_BUF_TWO  0x02
-+#define REG_COMMAND_RX_BUF_ONE  0x04
-+#define REG_COMMAND_RX_BUF_TWO  0x08
-+#define REG_COMMAND_RX_WIN_ONE  0x00
-+#define REG_COMMAND_RX_WIN_TWO  0x10
-+
-+/* REG_CONTROL */
-+#define REG_CONTROL_BAUD_RATE_57600   0x00
-+#define REG_CONTROL_BAUD_RATE_115200  0x01
-+#define REG_CONTROL_BAUD_RATE_230400  0x02
-+#define REG_CONTROL_BAUD_RATE_460800  0x03
-+#define REG_CONTROL_RTS               0x04
-+#define REG_CONTROL_BT_ON             0x08
-+#define REG_CONTROL_BT_RESET          0x10
-+#define REG_CONTROL_BT_RES_PU         0x20
-+#define REG_CONTROL_INTERRUPT         0x40
-+#define REG_CONTROL_CARD_RESET        0x80
-+
-+/* REG_RX_CONTROL */
-+#define RTS_LEVEL_SHIFT_BITS  0x02
-+
-+
-+
-+/* =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D LED handling routines =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D */
-+
-+
-+void bluecard_activity_led_timeout(u_long arg)
-+{
+=20
+=20
+ /* Default baud rate: 57600, 115200, 230400 or 460800 */
+@@ -171,7 +171,7 @@
+=20
+ void bluecard_activity_led_timeout(u_long arg)
+ {
+-	bluecard_info_t *info =3D (bluecard_info_t *) arg;
 +	bluecard_info_t *info =3D (bluecard_info_t *)arg;
-+	unsigned int iobase =3D info->link.io.BasePort1;
-+
-+	if (test_bit(CARD_HAS_ACTIVITY_LED, &(info->hw_state))) {
-+		/* Disable activity LED */
-+		outb(0x08 | 0x20, iobase + 0x30);
-+	} else {
-+		/* Disable power LED */
-+		outb(0x00, iobase + 0x30);
-+	}
-+}
-+
-+
+ 	unsigned int iobase =3D info->link.io.BasePort1;
+=20
+ 	if (test_bit(CARD_HAS_ACTIVITY_LED, &(info->hw_state))) {
+@@ -184,7 +184,7 @@
+ }
+=20
+=20
+-static void bluecard_enable_activity_led(bluecard_info_t * info)
 +static void bluecard_enable_activity_led(bluecard_info_t *info)
-+{
-+	unsigned int iobase =3D info->link.io.BasePort1;
-+
-+	if (test_bit(CARD_HAS_ACTIVITY_LED, &(info->hw_state))) {
-+		/* Enable activity LED */
-+		outb(0x10 | 0x40, iobase + 0x30);
-+
-+		/* Stop the LED after HZ/4 */
-+		mod_timer(&(info->timer), jiffies + HZ / 4);
-+	} else {
-+		/* Enable power LED */
-+		outb(0x08 | 0x20, iobase + 0x30);
-+
-+		/* Stop the LED after HZ/2 */
-+		mod_timer(&(info->timer), jiffies + HZ / 2);
-+	}
-+}
-+
-+
-+
-+/* =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+ {
+ 	unsigned int iobase =3D info->link.io.BasePort1;
+=20
+@@ -208,8 +208,7 @@
+ /* =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D Interrupt handling =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D */
-+
-+
+=20
+=20
+-static int bluecard_write(unsigned int iobase, unsigned int offset,
+-			  __u8 * buf, int len)
 +static int bluecard_write(unsigned int iobase, unsigned int offset, __u8 *=
 buf, int len)
-+{
-+	int i, actual;
-+
-+	actual =3D (len > 15) ? 15 : len;
-+
-+	outb_p(actual, iobase + offset);
-+
-+	for (i =3D 0; i < actual; i++)
-+		outb_p(buf[i], iobase + offset + i + 1);
-+
-+	return actual;
-+}
-+
-+
+ {
+ 	int i, actual;
+=20
+@@ -224,7 +223,7 @@
+ }
+=20
+=20
+-static void bluecard_write_wakeup(bluecard_info_t * info)
 +static void bluecard_write_wakeup(bluecard_info_t *info)
-+{
-+	if (!info) {
-+		printk(KERN_WARNING "bluecard_cs: Call of write_wakeup for unknown devic=
+ {
+ 	if (!info) {
+ 		printk(KERN_WARNING "bluecard_cs: Call of write_wakeup for unknown devic=
 e.\n");
-+		return;
-+	}
-+
-+	if (!test_bit(XMIT_SENDING_READY, &(info->tx_state)))
-+		return;
-+
-+	if (test_and_set_bit(XMIT_SENDING, &(info->tx_state))) {
-+		set_bit(XMIT_WAKEUP, &(info->tx_state));
-+		return;
-+	}
-+
-+	do {
-+		register unsigned int iobase =3D info->link.io.BasePort1;
-+		register unsigned int offset;
-+		register unsigned char command;
-+		register unsigned long ready_bit;
-+		register struct sk_buff *skb;
-+		register int len;
-+
-+		clear_bit(XMIT_WAKEUP, &(info->tx_state));
-+
-+		if (!(info->link.state & DEV_PRESENT))
-+			return;
-+
-+		if (test_bit(XMIT_BUFFER_NUMBER, &(info->tx_state))) {
+@@ -253,15 +252,13 @@
+ 			return;
+=20
+ 		if (test_bit(XMIT_BUFFER_NUMBER, &(info->tx_state))) {
+-			if (!test_bit
+-			    (XMIT_BUF_TWO_READY, &(info->tx_state)))
 +			if (!test_bit(XMIT_BUF_TWO_READY, &(info->tx_state)))
-+				break;
-+			offset =3D 0x10;
-+			command =3D REG_COMMAND_TX_BUF_TWO;
-+			ready_bit =3D XMIT_BUF_TWO_READY;
-+		} else {
+ 				break;
+ 			offset =3D 0x10;
+ 			command =3D REG_COMMAND_TX_BUF_TWO;
+ 			ready_bit =3D XMIT_BUF_TWO_READY;
+ 		} else {
+-			if (!test_bit
+-			    (XMIT_BUF_ONE_READY, &(info->tx_state)))
 +			if (!test_bit(XMIT_BUF_ONE_READY, &(info->tx_state)))
-+				break;
-+			offset =3D 0x00;
-+			command =3D REG_COMMAND_TX_BUF_ONE;
-+			ready_bit =3D XMIT_BUF_ONE_READY;
-+		}
-+
-+		if (!(skb =3D skb_dequeue(&(info->txq))))
-+			break;
-+
-+		if (skb->pkt_type & 0x80) {
-+			/* Disable RTS */
-+			info->ctrl_reg |=3D REG_CONTROL_RTS;
-+			outb(info->ctrl_reg, iobase + REG_CONTROL);
-+		}
-+
-+		/* Activate LED */
-+		bluecard_enable_activity_led(info);
-+
-+		/* Send frame */
-+		len =3D bluecard_write(iobase, offset, skb->data, skb->len);
-+
-+		/* Tell the FPGA to send the data */
-+		outb_p(command, iobase + REG_COMMAND);
-+
-+		/* Mark the buffer as dirty */
-+		clear_bit(ready_bit, &(info->tx_state));
-+
-+		if (skb->pkt_type & 0x80) {
-+
-+			wait_queue_head_t wait;
-+			unsigned char baud_reg;
-+
-+			switch (skb->pkt_type) {
-+			case PKT_BAUD_RATE_460800:
-+				baud_reg =3D REG_CONTROL_BAUD_RATE_460800;
-+				break;
-+			case PKT_BAUD_RATE_230400:
-+				baud_reg =3D REG_CONTROL_BAUD_RATE_230400;
-+				break;
-+			case PKT_BAUD_RATE_115200:
-+				baud_reg =3D REG_CONTROL_BAUD_RATE_115200;
-+				break;
-+			case PKT_BAUD_RATE_57600:
-+				/* Fall through... */
-+			default:
-+				baud_reg =3D REG_CONTROL_BAUD_RATE_57600;
-+				break;
-+			}
-+
-+			/* Wait until the command reaches the baseband */
-+			init_waitqueue_head(&wait);
-+			interruptible_sleep_on_timeout(&wait, HZ / 10);
-+
-+			/* Set baud on baseband */
-+			info->ctrl_reg &=3D ~0x03;
-+			info->ctrl_reg |=3D baud_reg;
-+			outb(info->ctrl_reg, iobase + REG_CONTROL);
-+
-+			/* Enable RTS */
-+			info->ctrl_reg &=3D ~REG_CONTROL_RTS;
-+			outb(info->ctrl_reg, iobase + REG_CONTROL);
-+
-+			/* Wait before the next HCI packet can be send */
-+			interruptible_sleep_on_timeout(&wait, HZ);
-+
-+		}
-+
-+		if (len =3D=3D skb->len) {
-+			kfree_skb(skb);
-+		} else {
-+			skb_pull(skb, len);
-+			skb_queue_head(&(info->txq), skb);
-+		}
-+
-+		info->hdev.stat.byte_tx +=3D len;
-+
-+		/* Change buffer */
-+		change_bit(XMIT_BUFFER_NUMBER, &(info->tx_state));
-+
-+	} while (test_bit(XMIT_WAKEUP, &(info->tx_state)));
-+
-+	clear_bit(XMIT_SENDING, &(info->tx_state));
-+}
-+
-+
+ 				break;
+ 			offset =3D 0x00;
+ 			command =3D REG_COMMAND_TX_BUF_ONE;
+@@ -272,11 +269,9 @@
+ 			break;
+=20
+ 		if (skb->pkt_type & 0x80) {
+-
+ 			/* Disable RTS */
+ 			info->ctrl_reg |=3D REG_CONTROL_RTS;
+ 			outb(info->ctrl_reg, iobase + REG_CONTROL);
+-
+ 		}
+=20
+ 		/* Activate LED */
+@@ -349,8 +344,7 @@
+ }
+=20
+=20
+-static int bluecard_read(unsigned int iobase, unsigned int offset,
+-			 __u8 * buf, int size)
 +static int bluecard_read(unsigned int iobase, unsigned int offset, __u8 *b=
 uf, int size)
-+{
-+	int i, n, len;
-+
-+	outb(REG_COMMAND_RX_WIN_ONE, iobase + REG_COMMAND);
-+
-+	len =3D inb(iobase + offset);
-+	n =3D 0;
-+	i =3D 1;
-+
-+	while (n < len) {
-+
-+		if (i =3D=3D 16) {
-+			outb(REG_COMMAND_RX_WIN_TWO, iobase + REG_COMMAND);
-+			i =3D 0;
-+		}
-+
-+		buf[n] =3D inb(iobase + offset + i);
-+
-+		n++;
-+		i++;
-+
-+	}
-+
-+	return len;
-+}
-+
-+
+ {
+ 	int i, n, len;
+=20
+@@ -378,7 +372,7 @@
+ }
+=20
+=20
+-static void bluecard_receive(bluecard_info_t * info, unsigned int offset)
 +static void bluecard_receive(bluecard_info_t *info, unsigned int offset)
-+{
-+	unsigned int iobase;
-+	unsigned char buf[31];
-+	int i, len;
-+
-+	if (!info) {
-+		printk(KERN_WARNING "bluecard_cs: Call of receive for unknown device.\n"=
-);
-+		return;
-+	}
-+
-+	iobase =3D info->link.io.BasePort1;
-+
-+	if (test_bit(XMIT_SENDING_READY, &(info->tx_state)))
-+		bluecard_enable_activity_led(info);
-+
-+	len =3D bluecard_read(iobase, offset, buf, sizeof(buf));
-+
-+	for (i =3D 0; i < len; i++) {
-+
-+		/* Allocate packet */
-+		if (info->rx_skb =3D=3D NULL) {
-+			info->rx_state =3D RECV_WAIT_PACKET_TYPE;
-+			info->rx_count =3D 0;
-+			if (!(info->rx_skb =3D bluez_skb_alloc(HCI_MAX_FRAME_SIZE, GFP_ATOMIC))=
-) {
-+				printk(KERN_WARNING "bluecard_cs: Can't allocate mem for new packet.\n=
-");
-+				return;
-+			}
-+		}
-+
-+		if (info->rx_state =3D=3D RECV_WAIT_PACKET_TYPE) {
-+
+ {
+ 	unsigned int iobase;
+ 	unsigned char buf[31];
+@@ -410,7 +404,7 @@
+=20
+ 		if (info->rx_state =3D=3D RECV_WAIT_PACKET_TYPE) {
+=20
+-			info->rx_skb->dev =3D (void *) &(info->hdev);
 +			info->rx_skb->dev =3D (void *)&(info->hdev);
-+			info->rx_skb->pkt_type =3D buf[i];
-+
-+			switch (info->rx_skb->pkt_type) {
-+
-+			case 0x00:
-+				/* init packet */
-+				if (offset !=3D 0x00) {
-+					set_bit(XMIT_BUF_ONE_READY, &(info->tx_state));
-+					set_bit(XMIT_BUF_TWO_READY, &(info->tx_state));
-+					set_bit(XMIT_SENDING_READY, &(info->tx_state));
-+					bluecard_write_wakeup(info);
-+				}
-+
-+				kfree_skb(info->rx_skb);
-+				info->rx_skb =3D NULL;
-+				break;
-+
-+			case HCI_EVENT_PKT:
-+				info->rx_state =3D RECV_WAIT_EVENT_HEADER;
-+				info->rx_count =3D HCI_EVENT_HDR_SIZE;
-+				break;
-+
-+			case HCI_ACLDATA_PKT:
-+				info->rx_state =3D RECV_WAIT_ACL_HEADER;
-+				info->rx_count =3D HCI_ACL_HDR_SIZE;
-+				break;
-+
-+			case HCI_SCODATA_PKT:
-+				info->rx_state =3D RECV_WAIT_SCO_HEADER;
-+				info->rx_count =3D HCI_SCO_HDR_SIZE;
-+				break;
-+
-+			default:
-+				/* unknown packet */
-+				printk(KERN_WARNING "bluecard_cs: Unknown HCI packet with type 0x%02x =
-received.\n", info->rx_skb->pkt_type);
-+				info->hdev.stat.err_rx++;
-+
-+				kfree_skb(info->rx_skb);
-+				info->rx_skb =3D NULL;
-+				break;
-+
-+			}
-+
-+		} else {
-+
-+			*skb_put(info->rx_skb, 1) =3D buf[i];
-+			info->rx_count--;
-+
-+			if (info->rx_count =3D=3D 0) {
-+
-+				int dlen;
-+				hci_event_hdr *eh;
-+				hci_acl_hdr *ah;
-+				hci_sco_hdr *sh;
-+
-+				switch (info->rx_state) {
-+
-+				case RECV_WAIT_EVENT_HEADER:
+ 			info->rx_skb->pkt_type =3D buf[i];
+=20
+ 			switch (info->rx_skb->pkt_type) {
+@@ -469,20 +463,20 @@
+ 				switch (info->rx_state) {
+=20
+ 				case RECV_WAIT_EVENT_HEADER:
+-					eh =3D (hci_event_hdr *) (info->rx_skb->data);
 +					eh =3D (hci_event_hdr *)(info->rx_skb->data);
-+					info->rx_state =3D RECV_WAIT_DATA;
-+					info->rx_count =3D eh->plen;
-+					break;
-+
-+				case RECV_WAIT_ACL_HEADER:
+ 					info->rx_state =3D RECV_WAIT_DATA;
+ 					info->rx_count =3D eh->plen;
+ 					break;
+=20
+ 				case RECV_WAIT_ACL_HEADER:
+-					ah =3D (hci_acl_hdr *) (info->rx_skb->data);
 +					ah =3D (hci_acl_hdr *)(info->rx_skb->data);
-+					dlen =3D __le16_to_cpu(ah->dlen);
-+					info->rx_state =3D RECV_WAIT_DATA;
-+					info->rx_count =3D dlen;
-+					break;
-+
-+				case RECV_WAIT_SCO_HEADER:
+ 					dlen =3D __le16_to_cpu(ah->dlen);
+ 					info->rx_state =3D RECV_WAIT_DATA;
+ 					info->rx_count =3D dlen;
+ 					break;
+=20
+ 				case RECV_WAIT_SCO_HEADER:
+-					sh =3D (hci_sco_hdr *) (info->rx_skb->data);
 +					sh =3D (hci_sco_hdr *)(info->rx_skb->data);
-+					info->rx_state =3D RECV_WAIT_DATA;
-+					info->rx_count =3D sh->dlen;
-+					break;
-+
-+				case RECV_WAIT_DATA:
-+					hci_recv_frame(info->rx_skb);
-+					info->rx_skb =3D NULL;
-+					break;
-+
-+				}
-+
-+			}
-+
-+		}
-+
-+
-+	}
-+
-+	info->hdev.stat.byte_rx +=3D len;
-+}
-+
-+
-+void bluecard_interrupt(int irq, void *dev_inst, struct pt_regs *regs)
-+{
-+	bluecard_info_t *info =3D dev_inst;
-+	unsigned int iobase;
-+	unsigned char reg;
-+
-+	if (!info) {
-+		printk(KERN_WARNING "bluecard_cs: Call of irq %d for unknown device.\n",=
- irq);
-+		return;
-+	}
-+
-+	if (!test_bit(CARD_READY, &(info->hw_state)))
-+		return;
-+
-+	iobase =3D info->link.io.BasePort1;
-+
-+	spin_lock(&(info->lock));
-+
-+	/* Disable interrupt */
-+	info->ctrl_reg &=3D ~REG_CONTROL_INTERRUPT;
-+	outb(info->ctrl_reg, iobase + REG_CONTROL);
-+
-+	reg =3D inb(iobase + REG_INTERRUPT);
-+
-+	if ((reg !=3D 0x00) && (reg !=3D 0xff)) {
-+
-+		if (reg & 0x04) {
-+			bluecard_receive(info, 0x00);
-+			outb(0x04, iobase + REG_INTERRUPT);
-+			outb(REG_COMMAND_RX_BUF_ONE, iobase + REG_COMMAND);
-+		}
-+
-+		if (reg & 0x08) {
-+			bluecard_receive(info, 0x10);
-+			outb(0x08, iobase + REG_INTERRUPT);
-+			outb(REG_COMMAND_RX_BUF_TWO, iobase + REG_COMMAND);
-+		}
-+
-+		if (reg & 0x01) {
-+			set_bit(XMIT_BUF_ONE_READY, &(info->tx_state));
-+			outb(0x01, iobase + REG_INTERRUPT);
-+			bluecard_write_wakeup(info);
-+		}
-+
-+		if (reg & 0x02) {
-+			set_bit(XMIT_BUF_TWO_READY, &(info->tx_state));
-+			outb(0x02, iobase + REG_INTERRUPT);
-+			bluecard_write_wakeup(info);
-+		}
-+
-+	}
-+
-+	/* Enable interrupt */
-+	info->ctrl_reg |=3D REG_CONTROL_INTERRUPT;
-+	outb(info->ctrl_reg, iobase + REG_CONTROL);
-+
-+	spin_unlock(&(info->lock));
-+}
-+
-+
-+
-+/* =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D Device specific HCI commands =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D */
-+
-+
-+static int bluecard_hci_set_baud_rate(struct hci_dev *hdev, int baud)
-+{
+ 					info->rx_state =3D RECV_WAIT_DATA;
+ 					info->rx_count =3D sh->dlen;
+ 					break;
+@@ -571,9 +565,8 @@
+=20
+ static int bluecard_hci_set_baud_rate(struct hci_dev *hdev, int baud)
+ {
+-	bluecard_info_t *info =3D (bluecard_info_t *) (hdev->driver_data);
 +	bluecard_info_t *info =3D (bluecard_info_t *)(hdev->driver_data);
-+	struct sk_buff *skb;
-+
-+	/* Ericsson baud rate command */
-+	unsigned char cmd[] =3D { HCI_COMMAND_PKT, 0x09, 0xfc, 0x01, 0x03 };
-+
-+	if (!(skb =3D bluez_skb_alloc(HCI_MAX_FRAME_SIZE, GFP_ATOMIC))) {
-+		printk(KERN_WARNING "bluecard_cs: Can't allocate mem for new packet.\n")=
-;
-+		return -1;
-+	}
-+
-+	switch (baud) {
-+	case 460800:
-+		cmd[4] =3D 0x00;
-+		skb->pkt_type =3D PKT_BAUD_RATE_460800;
-+		break;
-+	case 230400:
-+		cmd[4] =3D 0x01;
-+		skb->pkt_type =3D PKT_BAUD_RATE_230400;
-+		break;
-+	case 115200:
-+		cmd[4] =3D 0x02;
-+		skb->pkt_type =3D PKT_BAUD_RATE_115200;
-+		break;
-+	case 57600:
-+		/* Fall through... */
-+	default:
-+		cmd[4] =3D 0x03;
-+		skb->pkt_type =3D PKT_BAUD_RATE_57600;
-+		break;
-+	}
-+
+ 	struct sk_buff *skb;
+-	int i;
+=20
+ 	/* Ericsson baud rate command */
+ 	unsigned char cmd[] =3D { HCI_COMMAND_PKT, 0x09, 0xfc, 0x01, 0x03 };
+@@ -604,8 +597,7 @@
+ 		break;
+ 	}
+=20
+-	for (i =3D 0; i < sizeof(cmd); i++)
+-		*skb_put(skb, 1) =3D cmd[i];
 +	memcpy(skb_put(skb, sizeof(cmd)), cmd, sizeof(cmd));
-+
-+	skb_queue_tail(&(info->txq), skb);
-+
-+	bluecard_write_wakeup(info);
-+
-+	return 0;
-+}
-+
-+
-+
-+/* =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D HCI interface =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D */
-+
-+
-+static int bluecard_hci_flush(struct hci_dev *hdev)
-+{
+=20
+ 	skb_queue_tail(&(info->txq), skb);
+=20
+@@ -621,7 +613,7 @@
+=20
+ static int bluecard_hci_flush(struct hci_dev *hdev)
+ {
+-	bluecard_info_t *info =3D (bluecard_info_t *) (hdev->driver_data);
 +	bluecard_info_t *info =3D (bluecard_info_t *)(hdev->driver_data);
-+
-+	/* Drop TX queue */
-+	skb_queue_purge(&(info->txq));
-+
-+	return 0;
-+}
-+
-+
-+static int bluecard_hci_open(struct hci_dev *hdev)
-+{
+=20
+ 	/* Drop TX queue */
+ 	skb_queue_purge(&(info->txq));
+@@ -632,7 +624,7 @@
+=20
+ static int bluecard_hci_open(struct hci_dev *hdev)
+ {
+-	bluecard_info_t *info =3D (bluecard_info_t *) (hdev->driver_data);
 +	bluecard_info_t *info =3D (bluecard_info_t *)(hdev->driver_data);
-+	unsigned int iobase =3D info->link.io.BasePort1;
-+
-+	bluecard_hci_set_baud_rate(hdev, DEFAULT_BAUD_RATE);
-+
-+	if (test_and_set_bit(HCI_RUNNING, &(hdev->flags)))
-+		return 0;
-+
-+	/* Enable LED */
-+	outb(0x08 | 0x20, iobase + 0x30);
-+
-+	return 0;
-+}
-+
-+
-+static int bluecard_hci_close(struct hci_dev *hdev)
-+{
+ 	unsigned int iobase =3D info->link.io.BasePort1;
+=20
+ 	bluecard_hci_set_baud_rate(hdev, DEFAULT_BAUD_RATE);
+@@ -649,7 +641,7 @@
+=20
+ static int bluecard_hci_close(struct hci_dev *hdev)
+ {
+-	bluecard_info_t *info =3D (bluecard_info_t *) (hdev->driver_data);
 +	bluecard_info_t *info =3D (bluecard_info_t *)(hdev->driver_data);
-+	unsigned int iobase =3D info->link.io.BasePort1;
-+
-+	if (!test_and_clear_bit(HCI_RUNNING, &(hdev->flags)))
-+		return 0;
-+
-+	bluecard_hci_flush(hdev);
-+
-+	/* Disable LED */
-+	outb(0x00, iobase + 0x30);
-+
-+	return 0;
-+}
-+
-+
-+static int bluecard_hci_send_frame(struct sk_buff *skb)
-+{
-+	bluecard_info_t *info;
+ 	unsigned int iobase =3D info->link.io.BasePort1;
+=20
+ 	if (!test_and_clear_bit(HCI_RUNNING, &(hdev->flags)))
+@@ -667,14 +659,14 @@
+ static int bluecard_hci_send_frame(struct sk_buff *skb)
+ {
+ 	bluecard_info_t *info;
+-	struct hci_dev *hdev =3D (struct hci_dev *) (skb->dev);
 +	struct hci_dev *hdev =3D (struct hci_dev *)(skb->dev);
-+
-+	if (!hdev) {
-+		printk(KERN_WARNING "bluecard_cs: Frame for unknown HCI device (hdev=3DN=
+=20
+ 	if (!hdev) {
+ 		printk(KERN_WARNING "bluecard_cs: Frame for unknown HCI device (hdev=3DN=
 ULL).");
-+		return -ENODEV;
-+	}
-+
+ 		return -ENODEV;
+ 	}
+=20
+-	info =3D (bluecard_info_t *) (hdev->driver_data);
 +	info =3D (bluecard_info_t *)(hdev->driver_data);
-+
-+	switch (skb->pkt_type) {
-+	case HCI_COMMAND_PKT:
-+		hdev->stat.cmd_tx++;
-+		break;
-+	case HCI_ACLDATA_PKT:
-+		hdev->stat.acl_tx++;
-+		break;
-+	case HCI_SCODATA_PKT:
-+		hdev->stat.sco_tx++;
-+		break;
-+	};
-+
-+	/* Prepend skb with frame type */
-+	memcpy(skb_push(skb, 1), &(skb->pkt_type), 1);
-+	skb_queue_tail(&(info->txq), skb);
-+
-+	bluecard_write_wakeup(info);
-+
-+	return 0;
-+}
-+
-+
-+static void bluecard_hci_destruct(struct hci_dev *hdev)
-+{
-+}
-+
-+
+=20
+ 	switch (skb->pkt_type) {
+ 	case HCI_COMMAND_PKT:
+@@ -703,8 +695,7 @@
+ }
+=20
+=20
+-static int bluecard_hci_ioctl(struct hci_dev *hdev, unsigned int cmd,
+-			      unsigned long arg)
 +static int bluecard_hci_ioctl(struct hci_dev *hdev, unsigned int cmd, unsi=
 gned long arg)
-+{
-+	return -ENOIOCTLCMD;
-+}
-+
-+
-+
-+/* =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+ {
+ 	return -ENOIOCTLCMD;
+ }
+@@ -714,7 +705,7 @@
+ /* =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D Card services HCI interaction =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D */
-+
-+
+=20
+=20
+-int bluecard_open(bluecard_info_t * info)
 +int bluecard_open(bluecard_info_t *info)
-+{
-+	unsigned int iobase =3D info->link.io.BasePort1;
-+	struct hci_dev *hdev;
-+	unsigned char id;
-+
-+	spin_lock_init(&(info->lock));
-+
-+	init_timer(&(info->timer));
-+	info->timer.function =3D &bluecard_activity_led_timeout;
+ {
+ 	unsigned int iobase =3D info->link.io.BasePort1;
+ 	struct hci_dev *hdev;
+@@ -724,7 +715,7 @@
+=20
+ 	init_timer(&(info->timer));
+ 	info->timer.function =3D &bluecard_activity_led_timeout;
+-	info->timer.data =3D (u_long) info;
 +	info->timer.data =3D (u_long)info;
-+
-+	skb_queue_head_init(&(info->txq));
-+
-+	info->rx_state =3D RECV_WAIT_PACKET_TYPE;
-+	info->rx_count =3D 0;
-+	info->rx_skb =3D NULL;
-+
-+	id =3D inb(iobase + 0x30);
-+
-+	if ((id & 0x0f) =3D=3D 0x02)
-+		set_bit(CARD_HAS_PCCARD_ID, &(info->hw_state));
-+
-+	if (id & 0x10)
-+		set_bit(CARD_HAS_POWER_LED, &(info->hw_state));
-+
-+	if (id & 0x20)
-+		set_bit(CARD_HAS_ACTIVITY_LED, &(info->hw_state));
-+
-+	/* Reset card */
-+	info->ctrl_reg =3D REG_CONTROL_BT_RESET | REG_CONTROL_CARD_RESET;
-+	outb(info->ctrl_reg, iobase + REG_CONTROL);
-+
-+	/* Turn FPGA off */
-+	outb(0x80, iobase + 0x30);
-+
-+	/* Wait some time */
-+	set_current_state(TASK_INTERRUPTIBLE);
-+	schedule_timeout(HZ / 100);
-+
-+	/* Turn FPGA on */
-+	outb(0x00, iobase + 0x30);
-+
-+	/* Activate card */
-+	info->ctrl_reg =3D REG_CONTROL_BT_ON | REG_CONTROL_BT_RES_PU;
-+	outb(info->ctrl_reg, iobase + REG_CONTROL);
-+
-+	/* Enable interrupt */
-+	outb(0xff, iobase + REG_INTERRUPT);
-+	info->ctrl_reg |=3D REG_CONTROL_INTERRUPT;
-+	outb(info->ctrl_reg, iobase + REG_CONTROL);
-+
-+	/* Start the RX buffers */
-+	outb(REG_COMMAND_RX_BUF_ONE, iobase + REG_COMMAND);
-+	outb(REG_COMMAND_RX_BUF_TWO, iobase + REG_COMMAND);
-+
-+	/* Signal that the hardware is ready */
-+	set_bit(CARD_READY, &(info->hw_state));
-+
-+	/* Drop TX queue */
-+	skb_queue_purge(&(info->txq));
-+
-+	/* Control the point at which RTS is enabled */
-+	outb((0x0f << RTS_LEVEL_SHIFT_BITS) | 1, iobase + REG_RX_CONTROL);
-+
-+	/* Timeout before it is safe to send the first HCI packet */
-+	set_current_state(TASK_INTERRUPTIBLE);
+=20
+ 	skb_queue_head_init(&(info->txq));
+=20
+@@ -781,7 +772,8 @@
+=20
+ 	/* Timeout before it is safe to send the first HCI packet */
+ 	set_current_state(TASK_INTERRUPTIBLE);
+-	schedule_timeout((HZ * 5) / 4);	// or set it to 3/2
 +	schedule_timeout((HZ * 5) / 4);		// or set it to 3/2
 +
-+
-+	/* Initialize and register HCI device */
-+
-+	hdev =3D &(info->hdev);
-+
-+	hdev->type =3D HCI_PCCARD;
-+	hdev->driver_data =3D info;
-+
-+	hdev->open =3D bluecard_hci_open;
-+	hdev->close =3D bluecard_hci_close;
-+	hdev->flush =3D bluecard_hci_flush;
-+	hdev->send =3D bluecard_hci_send_frame;
-+	hdev->destruct =3D bluecard_hci_destruct;
-+	hdev->ioctl =3D bluecard_hci_ioctl;
-+
-+	if (hci_register_dev(hdev) < 0) {
-+		printk(KERN_WARNING "bluecard_cs: Can't register HCI device %s.\n", hdev=
-->name);
-+		return -ENODEV;
-+	}
-+
-+	return 0;
-+}
-+
-+
+=20
+ 	/* Initialize and register HCI device */
+=20
+@@ -806,7 +798,7 @@
+ }
+=20
+=20
+-int bluecard_close(bluecard_info_t * info)
 +int bluecard_close(bluecard_info_t *info)
-+{
-+	unsigned int iobase =3D info->link.io.BasePort1;
-+	struct hci_dev *hdev =3D &(info->hdev);
-+
-+	bluecard_hci_close(hdev);
-+
-+	clear_bit(CARD_READY, &(info->hw_state));
-+
-+	/* Reset card */
-+	info->ctrl_reg =3D REG_CONTROL_BT_RESET | REG_CONTROL_CARD_RESET;
-+	outb(info->ctrl_reg, iobase + REG_CONTROL);
-+
-+	/* Turn FPGA off */
-+	outb(0x80, iobase + 0x30);
-+
-+	if (hci_unregister_dev(hdev) < 0)
-+		printk(KERN_WARNING "bluecard_cs: Can't unregister HCI device %s.\n", hd=
-ev->name);
-+
-+	return 0;
-+}
-+
-+
-+
-+/* =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D Card services =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D */
-+
-+
-+static void cs_error(client_handle_t handle, int func, int ret)
-+{
-+	error_info_t err =3D { func, ret };
-+
-+	CardServices(ReportError, handle, &err);
-+}
-+
-+
-+dev_link_t *bluecard_attach(void)
-+{
-+	bluecard_info_t *info;
-+	client_reg_t client_reg;
-+	dev_link_t *link;
-+	int i, ret;
-+
-+	/* Create new info device */
-+	info =3D kmalloc(sizeof(*info), GFP_KERNEL);
-+	if (!info)
-+		return NULL;
-+	memset(info, 0, sizeof(*info));
-+
-+	link =3D &info->link;
-+	link->priv =3D info;
-+
-+	link->release.function =3D &bluecard_release;
+ {
+ 	unsigned int iobase =3D info->link.io.BasePort1;
+ 	struct hci_dev *hdev =3D &(info->hdev);
+@@ -858,7 +850,7 @@
+ 	link->priv =3D info;
+=20
+ 	link->release.function =3D &bluecard_release;
+-	link->release.data =3D (u_long) link;
 +	link->release.data =3D (u_long)link;
-+	link->io.Attributes1 =3D IO_DATA_PATH_WIDTH_8;
-+	link->io.NumPorts1 =3D 8;
-+	link->irq.Attributes =3D IRQ_TYPE_EXCLUSIVE | IRQ_HANDLE_PRESENT;
-+	link->irq.IRQInfo1 =3D IRQ_INFO2_VALID | IRQ_LEVEL_ID;
-+
-+	if (irq_list[0] =3D=3D -1)
-+		link->irq.IRQInfo2 =3D irq_mask;
-+	else
-+		for (i =3D 0; i < 4; i++)
-+			link->irq.IRQInfo2 |=3D 1 << irq_list[i];
-+
-+	link->irq.Handler =3D bluecard_interrupt;
-+	link->irq.Instance =3D info;
-+
-+	link->conf.Attributes =3D CONF_ENABLE_IRQ;
-+	link->conf.Vcc =3D 50;
-+	link->conf.IntType =3D INT_MEMORY_AND_IO;
-+
-+	/* Register with Card Services */
-+	link->next =3D dev_list;
-+	dev_list =3D link;
-+	client_reg.dev_info =3D &dev_info;
-+	client_reg.Attributes =3D INFO_IO_CLIENT | INFO_CARD_SHARE;
-+	client_reg.EventMask =3D
+ 	link->io.Attributes1 =3D IO_DATA_PATH_WIDTH_8;
+ 	link->io.NumPorts1 =3D 8;
+ 	link->irq.Attributes =3D IRQ_TYPE_EXCLUSIVE | IRQ_HANDLE_PRESENT;
+@@ -883,9 +875,9 @@
+ 	client_reg.dev_info =3D &dev_info;
+ 	client_reg.Attributes =3D INFO_IO_CLIENT | INFO_CARD_SHARE;
+ 	client_reg.EventMask =3D
+-	    CS_EVENT_CARD_INSERTION | CS_EVENT_CARD_REMOVAL |
+-	    CS_EVENT_RESET_PHYSICAL | CS_EVENT_CARD_RESET |
+-	    CS_EVENT_PM_SUSPEND | CS_EVENT_PM_RESUME;
 +		CS_EVENT_CARD_INSERTION | CS_EVENT_CARD_REMOVAL |
 +		CS_EVENT_RESET_PHYSICAL | CS_EVENT_CARD_RESET |
 +		CS_EVENT_PM_SUSPEND | CS_EVENT_PM_RESUME;
-+	client_reg.event_handler =3D &bluecard_event;
-+	client_reg.Version =3D 0x0210;
-+	client_reg.event_callback_args.client_data =3D link;
-+
-+	ret =3D CardServices(RegisterClient, &link->handle, &client_reg);
-+	if (ret !=3D CS_SUCCESS) {
-+		cs_error(link->handle, RegisterClient, ret);
-+		bluecard_detach(link);
-+		return NULL;
-+	}
-+
-+	return link;
-+}
-+
-+
+ 	client_reg.event_handler =3D &bluecard_event;
+ 	client_reg.Version =3D 0x0210;
+ 	client_reg.event_callback_args.client_data =3D link;
+@@ -901,7 +893,7 @@
+ }
+=20
+=20
+-void bluecard_detach(dev_link_t * link)
 +void bluecard_detach(dev_link_t *link)
-+{
-+	bluecard_info_t *info =3D link->priv;
-+	dev_link_t **linkp;
-+	int ret;
-+
-+	/* Locate device structure */
-+	for (linkp =3D &dev_list; *linkp; linkp =3D &(*linkp)->next)
-+		if (*linkp =3D=3D link)
-+			break;
-+
-+	if (*linkp =3D=3D NULL)
-+		return;
-+
-+	del_timer(&link->release);
-+	if (link->state & DEV_CONFIG)
+ {
+ 	bluecard_info_t *info =3D link->priv;
+ 	dev_link_t **linkp;
+@@ -917,7 +909,7 @@
+=20
+ 	del_timer(&link->release);
+ 	if (link->state & DEV_CONFIG)
+-		bluecard_release((u_long) link);
 +		bluecard_release((u_long)link);
-+
-+	if (link->handle) {
-+		ret =3D CardServices(DeregisterClient, link->handle);
-+		if (ret !=3D CS_SUCCESS)
-+			cs_error(link->handle, DeregisterClient, ret);
-+	}
-+
-+	/* Unlink device structure, free bits */
-+	*linkp =3D link->next;
-+
-+	kfree(info);
-+}
-+
-+
+=20
+ 	if (link->handle) {
+ 		ret =3D CardServices(DeregisterClient, link->handle);
+@@ -932,8 +924,7 @@
+ }
+=20
+=20
+-static int get_tuple(int fn, client_handle_t handle, tuple_t * tuple,
+-		     cisparse_t * parse)
 +static int get_tuple(int fn, client_handle_t handle, tuple_t *tuple, cispa=
 rse_t *parse)
-+{
-+	int i;
-+
-+	i =3D CardServices(fn, handle, tuple);
-+	if (i !=3D CS_SUCCESS)
-+		return CS_NO_MORE_ITEMS;
-+
-+	i =3D CardServices(GetTupleData, handle, tuple);
-+	if (i !=3D CS_SUCCESS)
-+		return i;
-+
-+	return CardServices(ParseTuple, handle, tuple, parse);
-+}
-+
-+
-+#define first_tuple(a, b, c) get_tuple(GetFirstTuple, a, b, c)
-+#define next_tuple(a, b, c) get_tuple(GetNextTuple, a, b, c)
-+
+ {
+ 	int i;
+=20
+@@ -952,7 +943,7 @@
+ #define first_tuple(a, b, c) get_tuple(GetFirstTuple, a, b, c)
+ #define next_tuple(a, b, c) get_tuple(GetNextTuple, a, b, c)
+=20
+-void bluecard_config(dev_link_t * link)
 +void bluecard_config(dev_link_t *link)
-+{
-+	client_handle_t handle =3D link->handle;
-+	bluecard_info_t *info =3D link->priv;
-+	tuple_t tuple;
-+	u_short buf[256];
-+	cisparse_t parse;
-+	config_info_t config;
-+	int i, n, last_ret, last_fn;
-+
+ {
+ 	client_handle_t handle =3D link->handle;
+ 	bluecard_info_t *info =3D link->priv;
+@@ -962,7 +953,7 @@
+ 	config_info_t config;
+ 	int i, n, last_ret, last_fn;
+=20
+-	tuple.TupleData =3D (cisdata_t *) buf;
 +	tuple.TupleData =3D (cisdata_t *)buf;
-+	tuple.TupleOffset =3D 0;
-+	tuple.TupleDataMax =3D 255;
-+	tuple.Attributes =3D 0;
-+
-+	/* Get configuration register information */
-+	tuple.DesiredTuple =3D CISTPL_CONFIG;
-+	last_ret =3D first_tuple(handle, &tuple, &parse);
-+	if (last_ret !=3D CS_SUCCESS) {
-+		last_fn =3D ParseTuple;
-+		goto cs_failed;
-+	}
-+	link->conf.ConfigBase =3D parse.config.base;
-+	link->conf.Present =3D parse.config.rmask[0];
-+
-+	/* Configure card */
-+	link->state |=3D DEV_CONFIG;
-+	i =3D CardServices(GetConfigurationInfo, handle, &config);
-+	link->conf.Vcc =3D config.Vcc;
-+
-+	link->conf.ConfigIndex =3D 0x20;
-+	link->io.NumPorts1 =3D 64;
-+	link->io.IOAddrLines =3D 6;
-+
-+	for (n =3D 0; n < 0x400; n +=3D 0x40) {
-+		link->io.BasePort1 =3D n ^ 0x300;
-+		i =3D CardServices(RequestIO, link->handle, &link->io);
-+		if (i =3D=3D CS_SUCCESS)
-+			break;
-+	}
-+
-+	if (i !=3D CS_SUCCESS) {
-+		cs_error(link->handle, RequestIO, i);
-+		goto failed;
-+	}
-+
-+	i =3D CardServices(RequestIRQ, link->handle, &link->irq);
-+	if (i !=3D CS_SUCCESS) {
-+		cs_error(link->handle, RequestIRQ, i);
-+		link->irq.AssignedIRQ =3D 0;
-+	}
-+
-+	i =3D CardServices(RequestConfiguration, link->handle, &link->conf);
-+	if (i !=3D CS_SUCCESS) {
-+		cs_error(link->handle, RequestConfiguration, i);
-+		goto failed;
-+	}
-+
-+	MOD_INC_USE_COUNT;
-+
-+	if (bluecard_open(info) !=3D 0)
-+		goto failed;
-+
+ 	tuple.TupleOffset =3D 0;
+ 	tuple.TupleDataMax =3D 255;
+ 	tuple.Attributes =3D 0;
+@@ -1010,12 +1001,12 @@
+ 		goto failed;
+ 	}
+=20
+-
+ 	MOD_INC_USE_COUNT;
+=20
+ 	if (bluecard_open(info) !=3D 0)
+ 		goto failed;
+=20
 +	strcpy(info->node.dev_name, info->hdev.name);
-+	link->dev =3D &info->node;
-+	link->state &=3D ~DEV_CONFIG_PENDING;
-+
-+	return;
-+
-+cs_failed:
-+	cs_error(link->handle, last_fn, last_ret);
-+
-+failed:
+ 	link->dev =3D &info->node;
+ 	link->state &=3D ~DEV_CONFIG_PENDING;
+=20
+@@ -1025,13 +1016,13 @@
+ 	cs_error(link->handle, last_fn, last_ret);
+=20
+ failed:
+-	bluecard_release((u_long) link);
 +	bluecard_release((u_long)link);
-+}
-+
-+
-+void bluecard_release(u_long arg)
-+{
+ }
+=20
+=20
+ void bluecard_release(u_long arg)
+ {
+-	dev_link_t *link =3D (dev_link_t *) arg;
 +	dev_link_t *link =3D (dev_link_t *)arg;
-+	bluecard_info_t *info =3D link->priv;
-+
-+	if (link->state & DEV_PRESENT)
-+		bluecard_close(info);
-+
-+	MOD_DEC_USE_COUNT;
-+
-+	link->dev =3D NULL;
-+
-+	CardServices(ReleaseConfiguration, link->handle);
-+	CardServices(ReleaseIO, link->handle, &link->io);
-+	CardServices(ReleaseIRQ, link->handle, &link->irq);
-+
-+	link->state &=3D ~DEV_CONFIG;
-+}
-+
-+
+ 	bluecard_info_t *info =3D link->priv;
+=20
+ 	if (link->state & DEV_PRESENT)
+@@ -1049,8 +1040,7 @@
+ }
+=20
+=20
+-int bluecard_event(event_t event, int priority,
+-		   event_callback_args_t * args)
 +int bluecard_event(event_t event, int priority, event_callback_args_t *arg=
 s)
-+{
-+	dev_link_t *link =3D args->client_data;
-+	bluecard_info_t *info =3D link->priv;
-+
-+	switch (event) {
-+	case CS_EVENT_CARD_REMOVAL:
-+		link->state &=3D ~DEV_PRESENT;
-+		if (link->state & DEV_CONFIG) {
-+			bluecard_close(info);
-+			mod_timer(&link->release, jiffies + HZ / 20);
-+		}
-+		break;
-+	case CS_EVENT_CARD_INSERTION:
-+		link->state |=3D DEV_PRESENT | DEV_CONFIG_PENDING;
-+		bluecard_config(link);
-+		break;
-+	case CS_EVENT_PM_SUSPEND:
-+		link->state |=3D DEV_SUSPEND;
-+		/* Fall through... */
-+	case CS_EVENT_RESET_PHYSICAL:
-+		if (link->state & DEV_CONFIG)
-+			CardServices(ReleaseConfiguration, link->handle);
-+		break;
-+	case CS_EVENT_PM_RESUME:
-+		link->state &=3D ~DEV_SUSPEND;
-+		/* Fall through... */
-+	case CS_EVENT_CARD_RESET:
-+		if (DEV_OK(link))
+ {
+ 	dev_link_t *link =3D args->client_data;
+ 	bluecard_info_t *info =3D link->priv;
+@@ -1079,8 +1069,7 @@
+ 		/* Fall through... */
+ 	case CS_EVENT_CARD_RESET:
+ 		if (DEV_OK(link))
+-			CardServices(RequestConfiguration, link->handle,
+-				     &link->conf);
 +			CardServices(RequestConfiguration, link->handle, &link->conf);
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+
-+
-+/* =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D Module initialization =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D */
-+
-+
-+int __init init_bluecard_cs(void)
-+{
-+	servinfo_t serv;
-+	int err;
-+
-+	CardServices(GetCardServicesInfo, &serv);
-+	if (serv.Revision !=3D CS_RELEASE_CODE) {
-+		printk(KERN_NOTICE "bluecard_cs: Card Services release does not match!\n=
-");
-+		return -1;
-+	}
-+
-+	err =3D register_pccard_driver(&dev_info, &bluecard_attach, &bluecard_det=
-ach);
-+
-+	return err;
-+}
-+
-+
-+void __exit exit_bluecard_cs(void)
-+{
-+	unregister_pccard_driver(&dev_info);
-+
-+	while (dev_list !=3D NULL)
-+		bluecard_detach(dev_list);
-+}
-+
-+
-+module_init(init_bluecard_cs);
-+module_exit(exit_bluecard_cs);
+ 		break;
+ 	}
+=20
+@@ -1120,3 +1109,5 @@
+=20
+ module_init(init_bluecard_cs);
+ module_exit(exit_bluecard_cs);
 +
 +EXPORT_NO_SYMBOLS;
-diff -urN linux-2.4.19-rc2/drivers/bluetooth/bt3c_cs.c linux-2.4.19-rc2-mh/=
-drivers/bluetooth/bt3c_cs.c
---- linux-2.4.19-rc2/drivers/bluetooth/bt3c_cs.c	Thu Jan  1 01:00:00 1970
-+++ linux-2.4.19-rc2-mh/drivers/bluetooth/bt3c_cs.c	Wed Jul 17 02:43:38 200=
-2
+diff -urN linux-2.5.26/drivers/bluetooth/bt3c_cs.c linux-2.5.26-mh/drivers/=
+bluetooth/bt3c_cs.c
+--- linux-2.5.26/drivers/bluetooth/bt3c_cs.c	Thu Jan  1 01:00:00 1970
++++ linux-2.5.26-mh/drivers/bluetooth/bt3c_cs.c	Wed Jul 17 02:50:49 2002
 @@ -0,0 +1,946 @@
 +/*
 + *
@@ -1886,7 +1091,7 @@ d).\n", -pid);
 +	spin_lock_irq(&current->sigmask_lock);
 +	tmpsig =3D current->blocked;
 +	siginitsetinv(&current->blocked, sigmask(SIGKILL) | sigmask(SIGSTOP));
-+	recalc_sigpending(current);
++	recalc_sigpending();
 +	spin_unlock_irq(&current->sigmask_lock);
 +
 +	result =3D waitpid(pid, NULL, __WCLONE);
@@ -1894,7 +1099,7 @@ d).\n", -pid);
 +	/* Allow signals again */
 +	spin_lock_irq(&current->sigmask_lock);
 +	current->blocked =3D tmpsig;
-+	recalc_sigpending(current);
++	recalc_sigpending();
 +	spin_unlock_irq(&current->sigmask_lock);
 +
 +	if (result !=3D pid) {
@@ -2313,11 +1518,10 @@ L_IO_LINES_MASK) <=3D 3)) {
 +module_exit(exit_bt3c_cs);
 +
 +EXPORT_NO_SYMBOLS;
-diff -urN linux-2.4.19-rc2/drivers/bluetooth/dtl1_cs.c linux-2.4.19-rc2-mh/=
-drivers/bluetooth/dtl1_cs.c
---- linux-2.4.19-rc2/drivers/bluetooth/dtl1_cs.c	Wed Jul 17 02:42:04 2002
-+++ linux-2.4.19-rc2-mh/drivers/bluetooth/dtl1_cs.c	Wed Jul 17 02:43:38 200=
-2
+diff -urN linux-2.5.26/drivers/bluetooth/dtl1_cs.c linux-2.5.26-mh/drivers/=
+bluetooth/dtl1_cs.c
+--- linux-2.5.26/drivers/bluetooth/dtl1_cs.c	Wed Jul 17 01:49:31 2002
++++ linux-2.5.26-mh/drivers/bluetooth/dtl1_cs.c	Wed Jul 17 02:50:49 2002
 @@ -75,23 +75,22 @@
 =20
 =20
@@ -2964,6 +2168,12 @@ eived.\n", info->rx_skb->pkt_type);
 -  struct sk_buff *s;
 -  nsh_t nsh;
 -
+-
+-  if (!hdev) {
+-    printk(KERN_WARNING "dtl1_cs: Frame for unknown HCI device (hdev=3DNUL=
+L).");
+-    return -ENODEV;
+-  }
 +static int dtl1_hci_send_frame(struct sk_buff *skb)
 +{
 +	dtl1_info_t *info;
@@ -2971,34 +2181,14 @@ eived.\n", info->rx_skb->pkt_type);
 +	struct sk_buff *s;
 +	nsh_t nsh;
 =20
--  if (!hdev) {
--    printk(KERN_WARNING "dtl1_cs: Frame for unknown HCI device (hdev=3DNUL=
-L).");
--    return -ENODEV;
--  }
+-  info =3D (dtl1_info_t *)(hdev->driver_data);
 +	if (!hdev) {
 +		printk(KERN_WARNING "dtl1_cs: Frame for unknown HCI device (hdev=3DNULL)=
 .");
 +		return -ENODEV;
 +	}
 =20
--  info =3D (dtl1_info_t *)(hdev->driver_data);
 +	info =3D (dtl1_info_t *)(hdev->driver_data);
-=20
-+	switch (skb->pkt_type) {
-+	case HCI_COMMAND_PKT:
-+		hdev->stat.cmd_tx++;
-+		nsh.type =3D 0x81;
-+		break;
-+	case HCI_ACLDATA_PKT:
-+		hdev->stat.acl_tx++;
-+		nsh.type =3D 0x82;
-+		break;
-+	case HCI_SCODATA_PKT:
-+		hdev->stat.sco_tx++;
-+		nsh.type =3D 0x83;
-+		break;
-+	};
 =20
 -  switch (skb->pkt_type) {
 -  case HCI_COMMAND_PKT:
@@ -3014,32 +2204,45 @@ L).");
 -    nsh.type =3D 0x83;
 -    break;
 -  };
-+	nsh.zero =3D 0;
-+	nsh.len =3D skb->len;
++	switch (skb->pkt_type) {
++	case HCI_COMMAND_PKT:
++		hdev->stat.cmd_tx++;
++		nsh.type =3D 0x81;
++		break;
++	case HCI_ACLDATA_PKT:
++		hdev->stat.acl_tx++;
++		nsh.type =3D 0x82;
++		break;
++	case HCI_SCODATA_PKT:
++		hdev->stat.sco_tx++;
++		nsh.type =3D 0x83;
++		break;
++	};
 =20
 -  nsh.zero =3D 0;
 -  nsh.len =3D skb->len;
-+	s =3D bluez_skb_alloc(NSHL + skb->len + 1, GFP_ATOMIC);
-+	skb_reserve(s, NSHL);
-+	memcpy(skb_put(s, skb->len), skb->data, skb->len);
-+	if (skb->len & 0x0001)
-+		*skb_put(s, 1) =3D 0;	/* PAD */
++	nsh.zero =3D 0;
++	nsh.len =3D skb->len;
 =20
 -  s =3D bluez_skb_alloc(NSHL + skb->len + 1, GFP_ATOMIC);
 -  skb_reserve(s, NSHL);
 -  memcpy(skb_put(s, skb->len), skb->data, skb->len);
 -  if (skb->len & 0x0001)
 -    *skb_put(s, 1) =3D 0;  /* PAD */
-+	/* Prepend skb with Nokia frame header and queue */
-+	memcpy(skb_push(s, NSHL), &nsh, NSHL);
-+	skb_queue_tail(&(info->txq), s);
++	s =3D bluez_skb_alloc(NSHL + skb->len + 1, GFP_ATOMIC);
++	skb_reserve(s, NSHL);
++	memcpy(skb_put(s, skb->len), skb->data, skb->len);
++	if (skb->len & 0x0001)
++		*skb_put(s, 1) =3D 0;	/* PAD */
 =20
 -  /* Prepend skb with Nokia frame header and queue */
 -  memcpy(skb_push(s, NSHL), &nsh, NSHL);
 -  skb_queue_tail(&(info->txq), s);
-+	dtl1_write_wakeup(info);
++	/* Prepend skb with Nokia frame header and queue */
++	memcpy(skb_push(s, NSHL), &nsh, NSHL);
++	skb_queue_tail(&(info->txq), s);
 =20
-+	kfree_skb(skb);
++	dtl1_write_wakeup(info);
 =20
 -  dtl1_write_wakeup(info);
 -
@@ -3047,7 +2250,8 @@ L).");
 -
 -
 -  return 0;
--
++	kfree_skb(skb);
+=20
 +	return 0;
  }
 =20
@@ -3077,78 +2281,80 @@ d long arg)
 =20
 =20
 -int dtl1_open(dtl1_info_t *info) {
+-
+-  unsigned long flags;
+-  unsigned int iobase =3D info->link.io.BasePort1;
+-  struct hci_dev *hdev;
 +int dtl1_open(dtl1_info_t *info)
 +{
 +	unsigned long flags;
 +	unsigned int iobase =3D info->link.io.BasePort1;
 +	struct hci_dev *hdev;
 =20
--  unsigned long flags;
--  unsigned int iobase =3D info->link.io.BasePort1;
--  struct hci_dev *hdev;
 +	spin_lock_init(&(info->lock));
 =20
+-  spin_lock_init(&(info->lock));
 +	skb_queue_head_init(&(info->txq));
 =20
--  spin_lock_init(&(info->lock));
+-  skb_queue_head_init(&(info->txq));
 +	info->rx_state =3D RECV_WAIT_NSH;
 +	info->rx_count =3D NSHL;
 +	info->rx_skb =3D NULL;
 =20
--  skb_queue_head_init(&(info->txq));
-+	set_bit(XMIT_WAITING, &(info->tx_state));
-=20
 -  info->rx_state =3D RECV_WAIT_NSH;
 -  info->rx_count =3D NSHL;
 -  info->rx_skb =3D NULL;
-+	spin_lock_irqsave(&(info->lock), flags);
++	set_bit(XMIT_WAITING, &(info->tx_state));
 =20
 -  set_bit(XMIT_WAITING, &(info->tx_state));
++	spin_lock_irqsave(&(info->lock), flags);
+=20
 +	/* Reset UART */
 +	outb(0, iobase + UART_MCR);
 =20
+-  spin_lock_irqsave(&(info->lock), flags);
 +	/* Turn off interrupts */
 +	outb(0, iobase + UART_IER);
 =20
--  spin_lock_irqsave(&(info->lock), flags);
+-  /* Reset UART */
+-  outb(0, iobase + UART_MCR);
 +	/* Initialize UART */
 +	outb(UART_LCR_WLEN8, iobase + UART_LCR);	/* Reset DLAB */
 +	outb((UART_MCR_DTR | UART_MCR_RTS | UART_MCR_OUT2), iobase + UART_MCR);
 =20
--  /* Reset UART */
--  outb(0, iobase + UART_MCR);
-+	info->ri_latch =3D inb(info->link.io.BasePort1 + UART_MSR) & UART_MSR_RI;
-=20
 -  /* Turn off interrupts */
 -  outb(0, iobase + UART_IER);
-+	/* Turn on interrupts */
-+	outb(UART_IER_RLSI | UART_IER_RDI | UART_IER_THRI, iobase + UART_IER);
++	info->ri_latch =3D inb(info->link.io.BasePort1 + UART_MSR) & UART_MSR_RI;
 =20
 -  /* Initialize UART */
 -  outb(UART_LCR_WLEN8, iobase + UART_LCR);  /* Reset DLAB */
 -  outb((UART_MCR_DTR | UART_MCR_RTS | UART_MCR_OUT2), iobase + UART_MCR);
-+	spin_unlock_irqrestore(&(info->lock), flags);
++	/* Turn on interrupts */
++	outb(UART_IER_RLSI | UART_IER_RDI | UART_IER_THRI, iobase + UART_IER);
 =20
 -  info->ri_latch =3D inb(info->link.io.BasePort1 + UART_MSR) & UART_MSR_RI=
 ;
++	spin_unlock_irqrestore(&(info->lock), flags);
+=20
+-  /* Turn on interrupts */
+-  outb(UART_IER_RLSI | UART_IER_RDI | UART_IER_THRI, iobase + UART_IER);
 +	/* Timeout before it is safe to send the first HCI packet */
 +	set_current_state(TASK_INTERRUPTIBLE);
 +	schedule_timeout(HZ * 2);
 =20
--  /* Turn on interrupts */
--  outb(UART_IER_RLSI | UART_IER_RDI | UART_IER_THRI, iobase + UART_IER);
-=20
 -  spin_unlock_irqrestore(&(info->lock), flags);
-+	/* Initialize and register HCI device */
 =20
-+	hdev =3D &(info->hdev);
++	/* Initialize and register HCI device */
 =20
 -  /* Timeout before it is safe to send the first HCI packet */
 -  set_current_state(TASK_INTERRUPTIBLE);
 -  schedule_timeout(HZ * 2);
++	hdev =3D &(info->hdev);
+=20
 +	hdev->type =3D HCI_PCCARD;
 +	hdev->driver_data =3D info;
 =20
+-  /* Initialize and register HCI device */
 +	hdev->open =3D dtl1_hci_open;
 +	hdev->close =3D dtl1_hci_close;
 +	hdev->flush =3D dtl1_hci_flush;
@@ -3156,8 +2362,6 @@ d long arg)
 +	hdev->destruct =3D dtl1_hci_destruct;
 +	hdev->ioctl =3D dtl1_hci_ioctl;
 =20
--  /* Initialize and register HCI device */
--
 -  hdev =3D &(info->hdev);
 -
 -  hdev->type =3D HCI_PCCARD;
@@ -3193,39 +2397,39 @@ me);
 -  unsigned long flags;
 -  unsigned int iobase =3D info->link.io.BasePort1;
 -  struct hci_dev *hdev =3D &(info->hdev);
--
--
--  dtl1_hci_close(hdev);
--
--
--  spin_lock_irqsave(&(info->lock), flags);
--
--  /* Reset UART */
--  outb(0, iobase + UART_MCR);
 +int dtl1_close(dtl1_info_t *info)
 +{
 +	unsigned long flags;
 +	unsigned int iobase =3D info->link.io.BasePort1;
 +	struct hci_dev *hdev =3D &(info->hdev);
 =20
--  /* Turn off interrupts */
--  outb(0, iobase + UART_IER);
 +	dtl1_hci_close(hdev);
 =20
--  spin_unlock_irqrestore(&(info->lock), flags);
+-  dtl1_hci_close(hdev);
 +	spin_lock_irqsave(&(info->lock), flags);
 =20
 +	/* Reset UART */
 +	outb(0, iobase + UART_MCR);
 =20
--  if (hci_unregister_dev(hdev) < 0)
--    printk(KERN_WARNING "dtl1_cs: Can't unregister HCI device %s.\n", hdev=
-->name);
+-  spin_lock_irqsave(&(info->lock), flags);
 +	/* Turn off interrupts */
 +	outb(0, iobase + UART_IER);
 =20
+-  /* Reset UART */
+-  outb(0, iobase + UART_MCR);
 +	spin_unlock_irqrestore(&(info->lock), flags);
 =20
+-  /* Turn off interrupts */
+-  outb(0, iobase + UART_IER);
+-
+-  spin_unlock_irqrestore(&(info->lock), flags);
+-
+-
+-  if (hci_unregister_dev(hdev) < 0)
+-    printk(KERN_WARNING "dtl1_cs: Can't unregister HCI device %s.\n", hdev=
+->name);
+-
+-
 -  return 0;
 +	if (hci_unregister_dev(hdev) < 0)
 +		printk(KERN_WARNING "dtl1_cs: Can't unregister HCI device %s.\n", hdev->=
@@ -3776,27 +2980,26 @@ n > 8)) {
  }
 =20
 =20
-@@ -903,33 +826,29 @@
+@@ -903,35 +826,33 @@
  /* =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D Module initialization =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D */
 =20
 =20
 -int __init init_dtl1_cs(void) {
+-
+-  servinfo_t serv;
+-  int err;
 +int __init init_dtl1_cs(void)
 +{
 +	servinfo_t serv;
 +	int err;
 =20
--  servinfo_t serv;
--  int err;
 +	CardServices(GetCardServicesInfo, &serv);
 +	if (serv.Revision !=3D CS_RELEASE_CODE) {
 +		printk(KERN_NOTICE "dtl1_cs: Card Services release does not match!\n");
 +		return -1;
 +	}
-=20
-+	err =3D register_pccard_driver(&dev_info, &dtl1_attach, &dtl1_detach);
 =20
 -  CardServices(GetCardServicesInfo, &serv);
 -  if (serv.Revision !=3D CS_RELEASE_CODE) {
@@ -3810,7 +3013,8 @@ n > 8)) {
 -
 -
 -  return err;
--
++	err =3D register_pccard_driver(&dev_info, &dtl1_attach, &dtl1_detach);
+=20
 +	return err;
  }
 =20
@@ -3829,6 +3033,10 @@ n > 8)) {
  }
 =20
 =20
+ module_init(init_dtl1_cs);
+ module_exit(exit_dtl1_cs);
++
++EXPORT_NO_SYMBOLS;
 
---=-zrl7dsTE1UJxDoyUom5y--
+--=-zTVceH595AVRvJG7Sij5--
 

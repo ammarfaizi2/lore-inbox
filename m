@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313288AbSDJQQ6>; Wed, 10 Apr 2002 12:16:58 -0400
+	id <S313289AbSDJQSL>; Wed, 10 Apr 2002 12:18:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313289AbSDJQQ5>; Wed, 10 Apr 2002 12:16:57 -0400
-Received: from mail.sonytel.be ([193.74.243.200]:53214 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S313288AbSDJQQ4>;
-	Wed, 10 Apr 2002 12:16:56 -0400
-Date: Wed, 10 Apr 2002 18:12:43 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Byron Stanoszek <gandalf@winds.org>
-cc: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
-        "'davidsen@tmr.com'" <davidsen@tmr.com>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: RE: Using video memory as system memory
-In-Reply-To: <Pine.LNX.4.44.0204101146050.13516-100000@winds.org>
-Message-ID: <Pine.GSO.4.21.0204101809380.9914-100000@vervain.sonytel.be>
+	id <S313293AbSDJQSK>; Wed, 10 Apr 2002 12:18:10 -0400
+Received: from exchange.macrolink.com ([64.173.88.99]:32782 "EHLO
+	exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S313289AbSDJQSJ>; Wed, 10 Apr 2002 12:18:09 -0400
+Message-ID: <11E89240C407D311958800A0C9ACF7D13A776C@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'Gabor Kerenyi'" <wom@tateyama.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: how to write driver for PCI cards
+Date: Wed, 10 Apr 2002 09:18:05 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Apr 2002, Byron Stanoszek wrote:
-> On Wed, 10 Apr 2002, Holzrichter, Bruce wrote:
-> > That is a neat idea, though.  The PCI/AGP bus may be a limiting factor for
-> > this as well, correct?  As far as speed, I believe most video cards have
-> > fast memory, vram, or sram, but it's only useful transferring between the
-> > Video GPU, and Video cards memory, as the bus to the video card is the
-> > bottleneck.
-> 
-> Yeah. In fact in some responses the 'slow speed' consideration was so much that
-> they all say I'd be better off writing a block driver and making use of the
-> memory more as a swap device rather than as system RAM.
-> 
-> Has anyone out there done this yet? I figure I'd ask before reinventing
-> anything.. :)
+Hi Gabor,
 
-drivers/block/z2ram.c does this for RAM in the Amiga Zorro II space.
+> There is a good news (at least for me), my company would like to 
+> have a Linux driver for its card. And this great task is mine. 
+> So I'm going to write a driver.
 
-(Why? Because you cannot use Zorro II RAM as system RAM on machines equipped
- with a Zorro III bus because on those machines Zorro II RAM doesn't support
- read-modify-write cycles.)
+What kind of card is it? serial, SCSI, network? ...
 
-Gr{oetje,eeting}s,
+> But I don't know where to start. OK, the interface and how the 
+> driver should be written is clear(more or less) but I don't have 
+> any documents for it. 
 
-						Geert
+A good place to start is to find and study an existing Linux driver 
+for a similar device. 
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> Can anyone give me some online docs about PCI bus? (I found some 
+> info about PCI-9050 chip but it doesn't contain what I need.)
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Did you mean PLX-9050 PCI interface chip? This is a widely used chip
+and should have several examples. If your device uses interrupts, you 
+will need to know how the kind of interrupt sources (edge, level) and 
+how they are connected to the 9050.
+
+A Linux PCI HOW-TO file is at http://www.tldp.org/HOWTO/PCI-HOWTO.html.
+General Linux PCI driver info is in /usr/src/linux*/Documentation/pci.txt.
+See also /usr/src/linux*/Documentation/devices.txt. That's a start. 
+
+Good luck,
+Ed Vance
 

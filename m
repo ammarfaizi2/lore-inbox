@@ -1,70 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316682AbSG0Edi>; Sat, 27 Jul 2002 00:33:38 -0400
+	id <S318696AbSG0FLB>; Sat, 27 Jul 2002 01:11:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318696AbSG0Edh>; Sat, 27 Jul 2002 00:33:37 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22283 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316682AbSG0Edh>;
-	Sat, 27 Jul 2002 00:33:37 -0400
-Message-ID: <3D422553.6B126242@zip.com.au>
-Date: Fri, 26 Jul 2002 21:45:07 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3-ac3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: linux-kernel@vger.kernel.org, lse <lse-tech@lists.sourceforge.net>,
-       riel@conectiva.com.br
-Subject: Re: [RFC] Scalable statistics counters using kmalloc_percpu
-References: Your message of "Fri, 26 Jul 2002 11:46:34 MST."
-	             <3D41990A.EDC1A530@zip.com.au> <20020727015833.D0C534134@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii
+	id <S318697AbSG0FLB>; Sat, 27 Jul 2002 01:11:01 -0400
+Received: from dns1.arrancar.com ([209.92.187.33]:46767 "EHLO
+	core.arrancar.com") by vger.kernel.org with ESMTP
+	id <S318696AbSG0FLA>; Sat, 27 Jul 2002 01:11:00 -0400
+Subject: Re: Funding GPL projects or funding the GPL?
+From: Federico Ferreres <fferreres@ojf.com>
+To: Gerhard Mack <gmack@innerfire.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0207262242230.4655-100000@innerfire.net>
+References: <Pine.LNX.4.44.0207262242230.4655-100000@innerfire.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 27 Jul 2002 02:10:30 -0300
+Message-Id: <1027746635.2155.30.camel@fede>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
+On Sat, 2002-07-27 at 00:02, Gerhard Mack wrote:
+
+> you would need to get every last person who submitted a patch to
+> relicence.
+
+That's a real problem (and that's probably why Sun tries to be the
+copyright holder in OO)
+
+> I just don't see the point of trying to argue for what is essentially an
+> imposibillity and that's even if everyone here agrees to it.
+
+Maybe the kernel would be wrong place to start, besides the kernel is
+already well funded. (It could provoke a demostration or cascading
+effect).
+
+> 	Gerhard
+>
+> PS There is something to be had here that is better than money.. it's a
+> chance to read and learn from the best.  I'm not kernel level yet but I do
+> contribute to other projects.  I learn a lot just by reading and one day I
+> hope to have code good enough to be slammed by Alan Cox, Al Viro or even
+> Linus himself ;)
+
+Yes, that's clear. It's great. You learn, then you contribute back. But
+that doesn't allow you to pay your bills, does it? The thing is massive
+amounts of people _don't_ code, never will, are willing to contribute
+but don't do it, because they are not beign asked for support in the
+right way. You need them to know they'll put $10 and get $100.000.000
+worth every year. 
+
+But if OSS finds a better way to fund developement, it certainly won't
+hurt your learning experience. It may well improve it (more code, more
+research, more accesibility). The point is to allow more people full
+dedication to OSS.
+
+
+Federico
+PD: Maybe some day we'll find out the perfect solution.
+
+
+> --
+> Gerhard Mack
 > 
-> > > +       for( i=0; i < NR_CPUS; i++ )
-> > > +               res += *per_cpu_ptr(stctr->ctr, i);
-> > > +       return res;
-> > > +}
-> >
-> > Oh dear.  Most people only have two CPUs.
-> >
-> > Rusty, can we *please* fix this?  Really soon?
+> gmack@innerfire.net
 > 
-> Linus just applied the hotplug cpu boot patch in bk, which gives
-> cpu_possible(i), for exactly this purpose.
-
-Good.  And will it be possible to iterate across all CPUs
-without having to iterate across NR_CPUS?
-
-> > General comment:  we need to clean up the kernel_stat stuff.  We
-> > cannot just make it per-cpu because it is 32k in size already.  I
-> > would suggest that we should break out the disk accounting and
-> > make the rest of kernel_stat per CPU.
+> <>< As a computer I find your faith in technology amusing.
 > 
-> kernel_stat is dynamically allocated???
 
-No.  It's jut a big lump of bss.
- 
-> Personally, I think that dynamically allocated per-cpu datastructures,
-> like dynamically-allocated brlocks, are something we might need
-> eventually, but look at what a certain driver did with the "make it
-> per-cpu" concept already.  I don't want to rush in that direction.
 
-What driver is that?
-
-And no, we need to do something about the NR_CPUS bloat Right Now.
-
-In my build there is a quarter megabyte of per cpu data.  And that
-does not include the (currently small) .data.percpu * 32.
-
-The is pretty much entirely wasted memory, and it will only get
-worse. Making NR_CPUS compile-time configurable is a lame solution.
-Wasting the memory is out of the question.
-
-Dynamic allocation is the only thing left, yes?
-
--

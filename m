@@ -1,47 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263564AbTIBGnR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 02:43:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263569AbTIBGnR
+	id S263557AbTIBGgY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 02:36:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263560AbTIBGgY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 02:43:17 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:18862 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263564AbTIBGnO (ORCPT
+	Tue, 2 Sep 2003 02:36:24 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:3806 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S263557AbTIBGgW convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 02:43:14 -0400
-Date: Tue, 2 Sep 2003 08:33:50 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Tejun Huh <tejun@aratech.co.kr>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: [PATCH] Race condition in del_timer_sync (2.5)
-In-Reply-To: <20030902025927.GA12121@atj.dyndns.org>
-Message-ID: <Pine.LNX.4.56.0309020820330.3654@localhost.localdomain>
-References: <20030902025927.GA12121@atj.dyndns.org>
+	Tue, 2 Sep 2003 02:36:22 -0400
+From: Stefan Winter <mail@stefan-winter.de>
+To: "Brown, Len" <len.brown@intel.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: no keyboard and mouse on 2.6.0-test4 (notebook)
+Date: Tue, 2 Sep 2003 08:34:44 +0200
+User-Agent: KMail/1.5.3
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCE1@hdsmsx402.hd.intel.com>
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FCE1@hdsmsx402.hd.intel.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200309020834.44830.mail@stefan-winter.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On Tue, 2 Sep 2003, Tejun Huh wrote:
+acpi=off does not make any difference. Yesterday I compiled a 2.5.25 kernel 
+and got some more info: during boot, the warning message
+i8042.c: Couldnt get IRQ1 for KBD0
+(or similar, the messages passed by quickly and, of course, scroll lock didn´t 
+work:-) appeared.
 
->  This patch fixes a race between del_timer_sync and recursive timers.
-> Current implementation allows the value of timer->base that is used for
-> timer_pending test to be fetched before finishing running_timer test, so
-> it's possible for a recursive time to be pending after del_timer_sync.  
-> Adding smp_rmb before timer_pending removes the race.
+Plus, I have got a correction concerning the BIOS warning after reboot:
+> > warns about "No interrupts from keyboard 0" and the BIOS
+Actually, the warning is "No interrupts from TIMER 0." As a sidenote, the BIOS 
+in question seems somewhat broken. It reports overlapping MTRR regions and 
+sets the PCI cache line size incorrectly, according to the kernel. 
+Furthermore it reports bad refresh rates for my TFT display to the X server. 
+After all, I wouldn´t be surprised if this all relates to the f*cked up BIOS 
+(it is some "Insyde BIOS 1.07").
 
-good catch. Have you ever trigger this bug, or did you find it via code
-review?
+If it helps, I can go down the kernel versions to locate the version where it 
+broke.
 
-just to explore the scope of this problem a bit more: at first glance all
-other timer_pending() uses seem to be safe. del_timer_sync()'s
-timer_pending() use is special, because it's next to the ->running_timer
-check without any barriers inbetween - so we could indeed in theory end up
-with having the two reads reordered and a freshly added timer (on another
-CPU) not being recognized properly. Also, this is the only timer API call
-that guarantees the complete stopping of a timer.
+Greetings,
 
-	Ingo
+Stefan Winter
+
+> Stefan,
+> Did earlier versions of 2.6 (or 2.5) work?
+> Does booting 2.6.0-test4 with acpi=off make any difference?
+>
+> Curious that vanilla 2.4.x has an issue with kbd interrupts on this box,
+> but SuSE 8.2 does not.  Apparently SuSE 8.2 has a fix or workaround for
+> this box that isn't in the baseline -- anybody know what it is?
+>
+> Thanks,
+> -Len
+>
+> > [7.7.] Other information that might be relevant to the problem
+> >        (please look in /proc and include all information that you
+> >        think to be relevant):
+> > sunshine:/proc # cat interrupts
+> >            CPU0
+> >   0:    4574746          XT-PIC  timer
+> >   1:         14          XT-PIC  i8042
+> >   2:          0          XT-PIC  cascade
+> >   5:          2          XT-PIC  ohci1394, VIA8233
+> >   9:          5          XT-PIC  acpi
+> >  10:       4029          XT-PIC  eth0
+> >  11:          0          XT-PIC  ehci_hcd
+> >  12:         89          XT-PIC  i8042
+> >  14:       5523          XT-PIC  ide0
+> >  15:         45          XT-PIC  ide1
+> > NMI:          0
+> > LOC:    4570927
+> > ERR:      62338
+> > MIS:          0
+> >
+> > [X.] Other notes, patches, fixes, workarounds:
+> > the interrupt count on INT1,CPU0 (see /proc/interrupts above) does not
+> > increase after key pressures. It looks like the interrupt
+> > from the keyboard
+> > isn´t caught. There is an issue on 2.4.x kernels that may
+> > relate to that
+> > problem: after running the kernel and restarting it with
+> > "init 6", the BIOS
+> > warns about "No interrupts from keyboard 0" and the BIOS
+> > password entry
+> > field doesn´t catch keypresses any more [this is only an
+> > issue with the
+> > vanilla kernel - SuSE 8.2´s patched kernel is fine]. An "init 0" and
+> > re-poweron solves that issue in 2.4.x kernels. Maybe the 2.6. kernel
+> > encounters that phenomenon earlier.
+

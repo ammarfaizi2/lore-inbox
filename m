@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265517AbSKSOsz>; Tue, 19 Nov 2002 09:48:55 -0500
+	id <S266256AbSKSOw1>; Tue, 19 Nov 2002 09:52:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265657AbSKSOsy>; Tue, 19 Nov 2002 09:48:54 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:61102 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265517AbSKSOst>;
-	Tue, 19 Nov 2002 09:48:49 -0500
+	id <S266274AbSKSOw1>; Tue, 19 Nov 2002 09:52:27 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:51639 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266256AbSKSOw0>; Tue, 19 Nov 2002 09:52:26 -0500
 Subject: Re: [LTP] Re: LTP - gettimeofday02 FAIL
-From: Paul Larson <plars@linuxtestproject.org>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: jim.houston@attbi.com, lkml <linux-kernel@vger.kernel.org>,
-       high-res-timers-discourse@lists.sourceforge.net,
-       ltp-list@lists.sourceforge.net, jim.houston@ccur.com
-In-Reply-To: <20021119140205.GA30120@suse.de>
-References: <200211190127.gAJ1RWg11023@linux.local>
-	<1037713044.24031.15.camel@plars>  <20021119140205.GA30120@suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-g0ChaGCpt92dlHjgTOF6"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 19 Nov 2002 08:50:02 -0600
-Message-Id: <1037717403.21246.21.camel@plars>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: Paul Larson <plars@linuxtestproject.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <p73adk5vdra.fsf@oldwotan.suse.de>
+References: <200211190127.gAJ1RWg11023@linux.local.suse.lists.linux.kernel>
+	<1037713044.24031.15.camel@plars.suse.lists.linux.kernel> 
+	<p73adk5vdra.fsf@oldwotan.suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 19 Nov 2002 15:27:31 +0000
+Message-Id: <1037719651.12118.7.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2002-11-19 at 14:24, Andi Kleen wrote:
+> It is very hard to solve properly and efficiently. When you search the
+> list archives you will find long threads about the problem
+> (search for "TSC" and gettimeofday and perhaps HPET or cyclone). Last one 
+> was one or two weeks ago.
+> 
+> The problem has been there always in some way in linux, now it is just
+> exposed in LTP because it tests for it.
 
---=-g0ChaGCpt92dlHjgTOF6
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, 2002-11-19 at 08:02, Dave Jones wrote:
-> On Tue, Nov 19, 2002 at 07:37:23AM -0600, Paul Larson wrote:
->  > > I just tried gettimeofday02 on an old pentium-pro dual processor, an=
-d yes
->  > > the time goes backwards with a 2.5.48 kernel.
->  > This has been noticed, I've posted to lkml about it.  The only person
->  > who replied to me seems to be suggesting it is a hardware issue, but I
->  > can't believe it is impossible to work around.
->=20
-> Especially if earlier kernels got it right..
-This is bug #100 in bugme if anyone wants to track it.=20
-http://bugme.osdl.org/show_bug.cgi?id=3D100
-
--Paul Larson
-
---=-g0ChaGCpt92dlHjgTOF6
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEABECAAYFAj3aT5oACgkQbkpggQiFDqe7wwCdFuDolrQneCdsdrp40wcpmmki
-euIAniAwfsQcxiGCg6KGGJ3PyApvSnsK
-=ZXpg
------END PGP SIGNATURE-----
-
---=-g0ChaGCpt92dlHjgTOF6--
+Dual ppro boxes normally run with a locked synchronous TSC clock. That
+suggests the newer code broke stuff. It may also be due to the bug in
+the 2.5 timer handling code (missing delays on timer reads, incorrect
+assumption that the timer never reads its limit value during the timer 
+switch back to zero)
 

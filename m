@@ -1,58 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136144AbRECHTG>; Thu, 3 May 2001 03:19:06 -0400
+	id <S136145AbRECHar>; Thu, 3 May 2001 03:30:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136146AbRECHS4>; Thu, 3 May 2001 03:18:56 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:62153 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S136138AbRECHSn>;
-	Thu, 3 May 2001 03:18:43 -0400
-Message-ID: <3AF10648.C5986A8E@mandrakesoft.com>
-Date: Thu, 03 May 2001 03:18:32 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
+	id <S136159AbRECHaj>; Thu, 3 May 2001 03:30:39 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:46094 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S136161AbRECHab>; Thu, 3 May 2001 03:30:31 -0400
+Date: 03 May 2001 09:13:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <80BTbB7Hw-B@khms.westfalen.de>
+In-Reply-To: <20010430104231.C3294@bug.ucw.cz>
+Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
+X-Mailer: CrossPoint v3.12d.kh6 R/C435
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: unsigned long ioremap()?
-In-Reply-To: <Pine.LNX.4.05.10105030852330.9438-100000@callisto.of.borg> <15089.979.650927.634060@pizda.ninka.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <20010430104231.C3294@bug.ucw.cz>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> There is a school of thought which believes that:
-> 
-> struct xdev_regs {
->         u32 reg1;
->         u32 reg2;
-> };
-> 
->         val = readl(&regs->reg2);
-> 
-> is cleaner than:
-> 
-> #define REG1 0x00
-> #define REG2 0x04
-> 
->         val = readl(regs + REG2);
-> 
-> I'm personally ambivalent and believe that both cases should be allowed.
+pavel@suse.cz (Pavel Machek)  wrote on 30.04.01 in <20010430104231.C3294@bug.ucw.cz>:
 
-Agreed...  Tangent a bit, I wanted to plug using macros which IMHO make
-code even more readable:
+> PS: Hmm, how do you do timewarp for just one userland appliation with
+> this installed?
 
-	val = RTL_R32(REG2);
-	RTL_W32(REG2, val);
+1. What on earth for?
 
-Since these are driver-private, if you are only dealing with one chip
-you could even shorten things to "R32" and "W32", if that doesn't offend
-any sensibilities :)
+2. How do you do it today, and why wouldn't that work?
 
--- 
-Jeff Garzik      | Game called on account of naked chick
-Building 1024    |
-MandrakeSoft     |
+
+MfG Kai

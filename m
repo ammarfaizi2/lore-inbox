@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbULIUsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbULIUtC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbULIUsL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 15:48:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbULIUsL
+	id S261614AbULIUtC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 15:49:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbULIUtC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 15:48:11 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:28839 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261613AbULIUsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 15:48:07 -0500
-Message-Id: <200412092048.iB9Km5gq012308@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
-To: rich turner <rich@storix.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: initrd and fc3 
-In-Reply-To: Your message of "Thu, 09 Dec 2004 11:28:01 PST."
-             <1102620480.19320.8.camel@rich> 
-From: Valdis.Kletnieks@vt.edu
-References: <1102620480.19320.8.camel@rich>
+	Thu, 9 Dec 2004 15:49:02 -0500
+Received: from mail.kroah.org ([69.55.234.183]:53156 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261614AbULIUs7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 15:48:59 -0500
+Date: Thu, 9 Dec 2004 12:42:23 -0800
+From: Greg KH <greg@kroah.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, ak@suse.de
+Subject: Re: [PATCH] PCI/x86-64: build with PCI=n
+Message-ID: <20041209204223.GA27309@kroah.com>
+References: <20041130172354.2bd60e89.rddunlap@osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1211351157P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 09 Dec 2004 15:48:05 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041130172354.2bd60e89.rddunlap@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1211351157P
-Content-Type: text/plain; charset=us-ascii
+On Tue, Nov 30, 2004 at 05:23:54PM -0800, Randy.Dunlap wrote:
+> 
+> Fix (most of) x64-64 kernel build for CONFIG_PCI=n.  Fixes these 2 errors:
+> 
+> 1. arch/x86_64/kernel/built-in.o(.text+0x8186): In function `quirk_intel_irqbalance':
+> : undefined reference to `raw_pci_ops'
+> 
+> Kconfig change:
+> 2. arch/x86_64/kernel/pci-gart.c:194: error: `pci_bus_type' undeclared (first use in this function)
+> 
+> Still does not fix this one:
+> drivers/built-in.o(.text+0x3dcd8): In function `pnpacpi_allocated_resource':
+> : undefined reference to `pcibios_penalize_isa_irq'
+> 
+> Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
 
-On Thu, 09 Dec 2004 11:28:01 PST, rich turner said:
+Applied, thanks.
 
-(off-list reply)
-
-> upon system boot, the kernel executes, checks to see if the initrd is
-> initramfs (it isnt), finds the initrd (ext2), mounts it, and then
-> immediately exits without executing linuxrc.
-
-Are you *sure* linuxrc isn't run at all?
-
-You might want to run a test 'mkinitrd' and look at what FC3 expects to find
-in there (yes, it generates a cpio archive, just extract it into a scratch
-directory), then compare that to your initrd and see if you're missing something
-(permissions, a directory, etc).
-
-It's possible that the linuxrc is running, not outputting anything to the
-console, and hitting an error that causes further progress to fail, making it
-LOOK like it's not running at all.
-
---==_Exmh_1211351157P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBuLoEcC3lWbTT17ARAimDAJ4nhnio3PfX0/WDSyppMM6JYFEMPACgm0UZ
-5xC3jLfb0GFSYsxA59oQt0A=
-=VlSr
------END PGP SIGNATURE-----
-
---==_Exmh_1211351157P--
+greg k-h

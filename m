@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265244AbUATHam (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 02:30:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265246AbUATHam
+	id S265163AbUATHXW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 02:23:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265168AbUATHXW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 02:30:42 -0500
-Received: from [66.35.79.110] ([66.35.79.110]:16298 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S265244AbUATHal (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 02:30:41 -0500
-Date: Mon, 19 Jan 2004 23:30:32 -0800
-From: Tim Hockin <thockin@hockin.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Rusty Russell <rusty@au1.ibm.com>, vatsa@in.ibm.com,
+	Tue, 20 Jan 2004 02:23:22 -0500
+Received: from mail-10.iinet.net.au ([203.59.3.42]:7112 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S265163AbUATHXU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 02:23:20 -0500
+Message-ID: <400CD4B5.6020507@cyberone.com.au>
+Date: Tue, 20 Jan 2004 18:11:49 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tim Hockin <thockin@hockin.org>
+CC: Rusty Russell <rusty@au1.ibm.com>, vatsa@in.ibm.com,
        linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
        rml@tech9.net
 Subject: Re: CPU Hotplug: Hotplug Script And SIGPWR
-Message-ID: <20040120073032.GB12638@hockin.org>
-References: <20040116174446.A2820@in.ibm.com> <20040120060027.91CC717DE5@ozlabs.au.ibm.com> <20040120063316.GA9736@hockin.org> <400CCE2F.2060502@cyberone.com.au> <20040120065207.GA10993@hockin.org> <400CD4B5.6020507@cyberone.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <400CD4B5.6020507@cyberone.com.au>
-User-Agent: Mutt/1.4.1i
+References: <20040116174446.A2820@in.ibm.com> <20040120060027.91CC717DE5@ozlabs.au.ibm.com> <20040120063316.GA9736@hockin.org> <400CCE2F.2060502@cyberone.com.au> <20040120065207.GA10993@hockin.org>
+In-Reply-To: <20040120065207.GA10993@hockin.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 20, 2004 at 06:11:49PM +1100, Nick Piggin wrote:
-> I thought hotplug is allowed to fail? Thus you can have a hung system.
-> Or what if the hotplug script itself becomes TASK_UNRUNNABLE? What if the
-> process needs a guaranteed scheduling latency?
 
-I guess a hotplug script MAY fail.  I don't think it's a good idea to make
-your CPU hotplug script fail.  May and Misght are different.  It's up to the
-implementor whether the script can get into a failure condition.
 
-The hotplug script can only become unrunnable if you yank out all the CPUs
-on the system.  I'd assume it would have an affinity of 0xffffffff.
+Tim Hockin wrote:
 
-What if <which> process needs guaranteed scheduling latency?  Do we really
-_guarantee_ scheduling latency *anywhere*?
+>On Tue, Jan 20, 2004 at 05:43:59PM +1100, Nick Piggin wrote:
+>
+>>>I think the sanest thing for a CPU removal is to migrate everything off the
+>>>processor in question, move unrunnable tasks into TASK_UNRUNNABLE state,
+>>>then notify /sbin/hotplug.  The hotplug script can then find and handle the
+>>>unrunnable tasks.  No SIGPWR grossness needed.
+>>>
+>>>Code against 2.4 at http://www.hockin.org/~thockin/procstate - it was
+>>>heavily tested and I *think* it is all correct (for that kernel snapshot).
+>>>
+>>Seems less robust and more ad hoc than SIGPWR, however.
+>>
+>
+>Disagree.  SIGPWR will kill any process that doesn't catch it.  That's
+>policy.  It seems more robust to let the hotplug script decide what to do.
+>If it wants to kill each unrunnable task with SIGPWR, it can.  But if it
+>wants to let them live, it can.
+>
+
+I thought hotplug is allowed to fail? Thus you can have a hung system.
+Or what if the hotplug script itself becomes TASK_UNRUNNABLE? What if the
+process needs a guaranteed scheduling latency?
+
+(I dropped lhcs-devel@lists.sourceforge.net because its moderated)
+
 

@@ -1,57 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265675AbTCCPZ2>; Mon, 3 Mar 2003 10:25:28 -0500
+	id <S266224AbTCCPeK>; Mon, 3 Mar 2003 10:34:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265725AbTCCPZ2>; Mon, 3 Mar 2003 10:25:28 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:7818 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id <S265675AbTCCPZ1>;
-	Mon, 3 Mar 2003 10:25:27 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15971.30297.165727.589583@laputa.namesys.com>
-Date: Mon, 3 Mar 2003 18:35:53 +0300
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+	id <S266233AbTCCPeK>; Mon, 3 Mar 2003 10:34:10 -0500
+Received: from twilight.ucw.cz ([195.39.74.230]:10730 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S266224AbTCCPeI>;
+	Mon, 3 Mar 2003 10:34:08 -0500
+Date: Mon, 3 Mar 2003 16:44:24 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Oleg Drokin <green@namesys.com>, Andrew Morton <akpm@digeo.com>,
-       mason@suse.com, trond.myklebust@fys.uio.no, jaharkes@cs.cmu.edu,
+Cc: Nicholas Wourms <nwourms@netscape.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 iget5_locked port attempt to 2.4
-In-Reply-To: <1046708741.6509.5.camel@irongate.swansea.linux.org.uk>
-References: <20030220175309.A23616@namesys.com>
-	<20030220154924.7171cbd7.akpm@digeo.com>
-	<20030221220341.A9325@namesys.com>
-	<20030221200440.GA23699@delft.aura.cs.cmu.edu>
-	<20030303170924.B3371@namesys.com>
-	<1046708741.6509.5.camel@irongate.swansea.linux.org.uk>
-X-Mailer: VM 7.07 under 21.5  (beta9) "brussels sprouts" XEmacs Lucid
-X-Uboat-Death-Message: BOMBED BY ENORMOUS GNATS. WEB PAGES. SINKING. U-859.
+Subject: Re: Incorrect 80 wire detection with amd 760mpx & 2.4.21-pre4-ac7
+Message-ID: <20030303164424.A6078@ucw.cz>
+References: <3E615645.4010206@netscape.net> <1046571368.24901.2.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="MGYHOYXEY6WxJCY8"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1046571368.24901.2.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Sun, Mar 02, 2003 at 02:16:08AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
- > On Mon, 2003-03-03 at 14:09, Oleg Drokin wrote:
- > > Hello!
- > > 
- > >    It's me again, I basically got no reply for this iget5_locked patch
- > >    I have now. Would there be any objections if I try push it to Marcelo
- > >    tomorrow? ;)
- > 
- > I just binned it. Certainly its not the kind of stuff I want to test in -ac, 
- > too many VFS changes outside reiserfs
 
-In 2.4 there is a race when find_actor is used in conjunction with
-->read_inode2, because inode_lock is released before calling
-->read_inode2 and hence, find_actor cannot safely rely on
-initialisations of inode's private part done in ->read_inode2. This is
-why in 2.5 iget5_locked takes special "set" callback that is called from
-under inode_lock. It so happened that reiserfs is the only (is it?) file
-system that used both find_actor and ->read_inode2, but whole API is
-just broken and should be fixed.
+--MGYHOYXEY6WxJCY8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
- > 
+On Sun, Mar 02, 2003 at 02:16:08AM +0000, Alan Cox wrote:
+> On Sun, 2003-03-02 at 00:54, Nicholas Wourms wrote:
+> > FYI:
+> > I suspect that: 
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=104619727013220&w=2
+> > is related to my problem.
+> > 
+> > Anyhow, I'm using a UDMA5 WesternDigital drive on a ASUS 
+> > K7M266-D motherboard.  With a plain, stock 2.4.20 kernel, 
+> > the viper driver properly recognizes which channel has the 
+> 
+> Yep. I'll apply the obvious fix if Vojtech doesn't. Its on the known
+> list
 
-Nikita.
+Obvious fix attached.
+
+-- 
+Vojtech Pavlik
+SuSE Labs
+
+--MGYHOYXEY6WxJCY8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="obvious-fix.diff"
+
+--- linux-2.4.20-pre4-ac/drivers/ide/pci/amd74xx.c	Fri Feb 28 17:05:25 2003
++++ linux-2.4.20-pre4-amd8111/drivers/ide/pci/amd74xx.c	Fri Feb 28 17:19:37 2003
+@@ -1,5 +1,5 @@
+ /*
+- * Version 2.9
++ * Version 2.10
+  *
+  * AMD 755/756/766/8111 and nVidia nForce IDE driver for Linux.
+  *
+@@ -103,7 +103,7 @@
+ 
+ 	amd_print("----------AMD BusMastering IDE Configuration----------------");
+ 
+-	amd_print("Driver Version:                     2.9");
++	amd_print("Driver Version:                     2.10");
+ 	amd_print("South Bridge:                       %s", bmide_dev->name);
+ 
+ 	pci_read_config_byte(dev, PCI_REVISION_ID, &t);
+@@ -309,7 +309,8 @@
+ 
+ 		case AMD_UDMA_100:
+ 			pci_read_config_byte(dev, AMD_CABLE_DETECT, &t);
+-			amd_80w = ((u & 0x3) ? 1 : 0) | ((u & 0xc) ? 2 : 0);
++			pci_read_config_dword(dev, AMD_UDMA_TIMING, &u);
++			amd_80w = ((t & 0x3) ? 1 : 0) | ((t & 0xc) ? 2 : 0);
+ 			for (i = 24; i >= 0; i -= 8)
+ 				if (((u >> i) & 4) && !(amd_80w & (1 << (1 - (i >> 4))))) {
+ 					printk(KERN_WARNING "AMD_IDE: Bios didn't set cable bits corectly. Enabling workaround.\n");
+
+--MGYHOYXEY6WxJCY8--

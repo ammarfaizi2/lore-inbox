@@ -1,235 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261853AbUCDL52 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 06:57:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbUCDL51
+	id S261851AbUCDMC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 07:02:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbUCDMC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 06:57:27 -0500
-Received: from usmimesweeper.bluearc.com ([63.203.197.133]:43792 "EHLO
-	usmimesweeper.bluearc.com") by vger.kernel.org with ESMTP
-	id S261853AbUCDL4x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 06:56:53 -0500
-Message-ID: <AD4480A509455343AEFACCC231BA850FF1013F@ukexchange>
-From: Martin Dorey <mdorey@bluearc.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: init_dev accesses out-of-bounds tty index
-Date: Thu, 4 Mar 2004 11:56:46 -0000 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Thu, 4 Mar 2004 07:02:28 -0500
+Received: from mailgate.wolfson.co.uk ([194.217.161.2]:16593 "EHLO
+	wolfsonmicro.com") by vger.kernel.org with ESMTP id S261851AbUCDMC0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 07:02:26 -0500
+Subject: [PATCH] AC97 WM9713 power and audio changes
+From: Liam Girdwood <liam.girdwood@wolfsonmicro.com>
+To: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-fgLwFz+5/Z/WS0NDtZs3"
+Message-Id: <1078401740.3382.270.camel@cearnarfon>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 04 Mar 2004 12:02:20 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And again:
 
-Mar  4 10:48:08 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Mar  4 10:48:36 doozer kernel: Unable to handle kernel paging request at
-virtual address e2a1d004
-Mar  4 10:48:36 doozer kernel:  printing eip:
-Mar  4 10:48:36 doozer kernel: c0248738
-Mar  4 10:48:36 doozer kernel: *pde = 0008c067
-Mar  4 10:48:36 doozer kernel: Oops: 0000 [#1]
-Mar  4 10:48:36 doozer kernel: CPU:    1
-Mar  4 10:48:36 doozer kernel: EIP:    0060:[tty_open+858/878]    Not
-tainted
-Mar  4 10:48:36 doozer kernel: EFLAGS: 00010286
-Mar  4 10:48:36 doozer kernel: EIP is at tty_open+0x35a/0x36e
-Mar  4 10:48:36 doozer kernel: eax: e2a1d000   ebx: d1149e9c   ecx: fffffffa
-edx: 00008802
-Mar  4 10:48:36 doozer kernel: esi: 00000000   edi: d6e90f6c   ebp: c61f5f08
-esp: c61f5edc
-Mar  4 10:48:36 doozer kernel: ds: 007b   es: 007b   ss: 0068
-Mar  4 10:48:36 doozer kernel: Process sh (pid: 9713, threadinfo=c61f4000
-task=d1bf69d0)
-Mar  4 10:48:36 doozer kernel: Stack: d6e90000 c61f5ef4 c011e73a 8802e8d5
-00500000 00000000 c01674a0 c0520100 
-Mar  4 10:48:36 doozer kernel:        d1149e9c 00000000 c61f4000 c61f5f30
-c01670d2 d1149e9c d6e90f6c c61f5f30 
-Mar  4 10:48:36 doozer kernel:        c0520100 d6e90f6c d6e90f6c d1149e9c
-c0166fa5 c61f5f50 c015ce54 d1149e9c 
-Mar  4 10:48:36 doozer kernel: Call Trace:
-Mar  4 10:48:36 doozer kernel:  [kernel_map_pages+49/93]
-kernel_map_pages+0x31/0x5d
-Mar  4 10:48:36 doozer kernel:  [cdev_get+91/185] cdev_get+0x5b/0xb9
-Mar  4 10:48:36 doozer kernel:  [chrdev_open+301/698]
-chrdev_open+0x12d/0x2ba
-Mar  4 10:48:36 doozer kernel:  [chrdev_open+0/698] chrdev_open+0x0/0x2ba
-Mar  4 10:48:36 doozer kernel:  [dentry_open+336/545]
-dentry_open+0x150/0x221
-Mar  4 10:48:36 doozer kernel:  [filp_open+93/95] filp_open+0x5d/0x5f
-Mar  4 10:48:36 doozer kernel:  [sys_open+85/133] sys_open+0x55/0x85
-Mar  4 10:48:36 doozer kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Mar  4 10:48:36 doozer kernel: 
-Mar  4 10:48:36 doozer kernel: Code: 8b 70 04 80 ce 08 8b 40 08 89 45 f0 89
-57 18 e9 11 fd ff ff 
-Mar  4 10:48:40 doozer kernel:  <7>request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Mar  4 10:48:57 doozer kernel: Unable to handle kernel paging request at
-virtual address e2a1d004
-Mar  4 10:48:57 doozer kernel:  printing eip:
-Mar  4 10:48:57 doozer kernel: c0248738
-Mar  4 10:48:57 doozer kernel: *pde = 0008c067
-Mar  4 10:48:57 doozer kernel: Oops: 0000 [#2]
-Mar  4 10:48:57 doozer kernel: CPU:    0
-Mar  4 10:48:57 doozer kernel: EIP:    0060:[tty_open+858/878]    Not
-tainted
-Mar  4 10:48:57 doozer kernel: EFLAGS: 00010286
-Mar  4 10:48:57 doozer kernel: EIP is at tty_open+0x35a/0x36e
-Mar  4 10:48:57 doozer kernel: eax: e2a1d000   ebx: d1149e9c   ecx: fffffffa
-edx: 00008802
-Mar  4 10:48:57 doozer kernel: esi: 00000000   edi: f07aef6c   ebp: dc5eff08
-esp: dc5efedc
-Mar  4 10:48:57 doozer kernel: ds: 007b   es: 007b   ss: 0068
-Mar  4 10:48:57 doozer kernel: Process sh (pid: 12063, threadinfo=dc5ee000
-task=eee739d0)
-Mar  4 10:48:57 doozer kernel: Stack: f07ae000 dc5efef4 c011e73a 8802e8d5
-00500000 00000000 c01674a0 c0520100 
-Mar  4 10:48:57 doozer kernel:        d1149e9c 00000000 dc5ee000 dc5eff30
-c01670d2 d1149e9c f07aef6c dc5eff30 
-Mar  4 10:48:57 doozer kernel:        c0520100 f07aef6c f07aef6c d1149e9c
-c0166fa5 dc5eff50 c015ce54 d1149e9c 
-Mar  4 10:48:57 doozer kernel: Call Trace:
-Mar  4 10:48:57 doozer kernel:  [kernel_map_pages+49/93]
-kernel_map_pages+0x31/0x5d
-Mar  4 10:48:57 doozer kernel:  [cdev_get+91/185] cdev_get+0x5b/0xb9
-Mar  4 10:48:57 doozer kernel:  [chrdev_open+301/698]
-chrdev_open+0x12d/0x2ba
-Mar  4 10:48:57 doozer kernel:  [chrdev_open+0/698] chrdev_open+0x0/0x2ba
-Mar  4 10:48:57 doozer kernel:  [dentry_open+336/545]
-dentry_open+0x150/0x221
-Mar  4 10:48:57 doozer kernel:  [filp_open+93/95] filp_open+0x5d/0x5f
-Mar  4 10:48:57 doozer kernel:  [sys_open+85/133] sys_open+0x55/0x85
-Mar  4 10:48:57 doozer kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Mar  4 10:48:57 doozer kernel: 
-Mar  4 10:48:57 doozer kernel: Code: 8b 70 04 80 ce 08 8b 40 08 89 45 f0 89
-57 18 e9 11 fd ff ff 
-Mar  4 10:48:58 doozer kernel:  <1>Unable to handle kernel paging request at
-virtual address e2a1d004
-Mar  4 10:48:58 doozer kernel:  printing eip:
-Mar  4 10:48:58 doozer kernel: c0248738
-Mar  4 10:48:58 doozer kernel: *pde = 0008c067
-Mar  4 10:48:58 doozer kernel: Oops: 0000 [#3]
-Mar  4 10:48:58 doozer kernel: CPU:    1
-Mar  4 10:48:58 doozer kernel: EIP:    0060:[tty_open+858/878]    Not
-tainted
-Mar  4 10:48:58 doozer kernel: EFLAGS: 00010286
-Mar  4 10:48:58 doozer kernel: EIP is at tty_open+0x35a/0x36e
-Mar  4 10:48:58 doozer kernel: eax: e2a1d000   ebx: d1149e9c   ecx: fffffffa
-edx: 00008802
-Mar  4 10:48:58 doozer kernel: esi: 00000000   edi: f0815f6c   ebp: f5f89f08
-esp: f5f89edc
-Mar  4 10:48:58 doozer kernel: ds: 007b   es: 007b   ss: 0068
-Mar  4 10:48:58 doozer kernel: Process sh (pid: 12251, threadinfo=f5f88000
-task=e7be99d0)
-Mar  4 10:48:58 doozer kernel: Stack: f0815000 f5f89ef4 c011e73a 8802e8d5
-00500000 00000000 c01674a0 c0520100 
-Mar  4 10:48:58 doozer kernel:        d1149e9c 00000000 f5f88000 f5f89f30
-c01670d2 d1149e9c f0815f6c f5f89f30 
-Mar  4 10:48:58 doozer kernel:        c0520100 f0815f6c f0815f6c d1149e9c
-c0166fa5 f5f89f50 c015ce54 d1149e9c 
-Mar  4 10:48:58 doozer kernel: Call Trace:
-Mar  4 10:48:58 doozer kernel:  [kernel_map_pages+49/93]
-kernel_map_pages+0x31/0x5d
-Mar  4 10:48:58 doozer kernel:  [cdev_get+91/185] cdev_get+0x5b/0xb9
-Mar  4 10:48:58 doozer kernel:  [chrdev_open+301/698]
-chrdev_open+0x12d/0x2ba
-Mar  4 10:48:58 doozer kernel:  [chrdev_open+0/698] chrdev_open+0x0/0x2ba
-Mar  4 10:48:58 doozer kernel:  [dentry_open+336/545]
-dentry_open+0x150/0x221
-Mar  4 10:48:58 doozer kernel:  [filp_open+93/95] filp_open+0x5d/0x5f
-Mar  4 10:48:58 doozer kernel:  [sys_open+85/133] sys_open+0x55/0x85
-Mar  4 10:48:58 doozer kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Mar  4 10:48:58 doozer kernel: 
-Mar  4 10:48:58 doozer kernel: Code: 8b 70 04 80 ce 08 8b 40 08 89 45 f0 89
-57 18 e9 11 fd ff ff 
-Mar  4 10:49:12 doozer kernel:  <7>request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Mar  4 10:49:44 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Mar  4 10:50:01 doozer /USR/SBIN/CRON[16852]: (martind) CMD (ping -c 4 kenny
-> /dev/null || ~/bin/doozer-to-kenny)
-Mar  4 10:50:16 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Mar  4 10:50:48 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Mar  4 10:51:52 doozer last message repeated 2 times
-Mar  4 10:52:24 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Mar  4 10:52:35 doozer kernel: Unable to handle kernel paging request at
-virtual address 0000109c
-Mar  4 10:52:35 doozer kernel:  printing eip:
-Mar  4 10:52:35 doozer kernel: c0247554
-Mar  4 10:52:35 doozer kernel: *pde = 00000000
-Mar  4 10:52:35 doozer kernel: Oops: 0000 [#4]
-Mar  4 10:52:35 doozer kernel: CPU:    1
-Mar  4 10:52:35 doozer kernel: EIP:    0060:[init_dev+33/1332]    Not
-tainted
-Mar  4 10:52:35 doozer kernel: EFLAGS: 00010246
-Mar  4 10:52:35 doozer kernel: EIP is at init_dev+0x21/0x534
-Mar  4 10:52:35 doozer kernel: eax: 4046cbcb   ebx: d1149e9c   ecx: c046a65c
-edx: 4046cbcb
-Mar  4 10:52:35 doozer kernel: esi: 00001000   edi: de1bdf6c   ebp: e65c1ed4
-esp: e65c1e88
-Mar  4 10:52:35 doozer kernel: ds: 007b   es: 007b   ss: 0068
-Mar  4 10:52:35 doozer kernel: Process sh (pid: 17956, threadinfo=e65c0000
-task=db72f9d0)
-Mar  4 10:52:35 doozer kernel: Stack: 4046cbcb c14b4588 c14b4588 00000000
-e65c1ec0 c011e3e7 00000000 e65c1ec0 
-Mar  4 10:52:35 doozer kernel:        c0174e43 c007a6f4 de1bd000 c14b4588
-00000000 00000000 e65c1ee0 00000292 
-Mar  4 10:52:35 doozer kernel:        d1149e9c 00001000 de1bdf6c e65c1f08
-c0248473 00001000 4046cbcb e65c1ef4 
-Mar  4 10:52:35 doozer kernel: Call Trace:
-Mar  4 10:52:35 doozer kernel:  [__change_page_attr+36/456]
-__change_page_attr+0x24/0x1c8
-Mar  4 10:52:35 doozer kernel:  [dput+36/607] dput+0x24/0x25f
-Mar  4 10:52:35 doozer kernel:  [tty_open+149/878] tty_open+0x95/0x36e
-Mar  4 10:52:35 doozer kernel:  [cdev_get+91/185] cdev_get+0x5b/0xb9
-Mar  4 10:52:35 doozer kernel:  [chrdev_open+301/698]
-chrdev_open+0x12d/0x2ba
-Mar  4 10:52:35 doozer kernel:  [chrdev_open+0/698] chrdev_open+0x0/0x2ba
-Mar  4 10:52:35 doozer kernel:  [dentry_open+336/545]
-dentry_open+0x150/0x221
-Mar  4 10:52:35 doozer kernel:  [filp_open+93/95] filp_open+0x5d/0x5f
-Mar  4 10:52:35 doozer kernel:  [sys_open+85/133] sys_open+0x55/0x85
-Mar  4 10:52:35 doozer kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Mar  4 10:52:35 doozer kernel: 
-Mar  4 10:52:35 doozer kernel: Code: 8b 86 9c 00 00 00 8b 1c 90 85 db 74 62
-8b 83 a0 00 00 00 a9 
-Mar  4 10:52:54 doozer rpc.mountd: authenticated mount request from
-blenkinsop.dev.bluearc.com:879 for /u112/martind (/u112)
-Mar  4 10:52:56 doozer kernel:  <7>request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Mar  4 10:53:02 doozer /USR/SBIN/CRON[18015]: (mail) CMD (  if [ -x
-/usr/sbin/exim -a -f /etc/exim/exim.conf ]; then /usr/sbin/exim -q ; fi)
-Mar  4 10:53:28 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Mar  4 10:53:54 doozer automount[18035]: running expiration on path
-/var/autofs/net/dogsbody.dev.bluearc.com
-Mar  4 10:53:54 doozer automount[18035]: expired
-/var/autofs/net/dogsbody.dev.bluearc.com
-Mar  4 10:54:00 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Mar  4 10:54:11 doozer rpc.mountd: authenticated unmount request from
-dogsbody.dev.bluearc.com:843 for /u112/martind (/u112)
-Mar  4 10:54:32 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Mar  4 10:55:01 doozer /USR/SBIN/CRON[18058]: (martind) CMD (ping -c 4 kenny
-> /dev/null || ~/bin/doozer-to-kenny)
-Mar  4 10:55:04 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Mar  4 10:55:36 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Mar  4 10:56:40 doozer last message repeated 2 times
-Mar  4 10:57:44 doozer last message repeated 2 times
-Mar  4 10:58:48 doozer last message repeated 2 times
-Mar  4 11:00:00 doozer syslogd 1.4.1#13: restart.
+--=-fgLwFz+5/Z/WS0NDtZs3
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
--- 
+Hi,
+
+I've attached a patch against 2.4.25 that improves performance and power
+levels in the WM9713. 
+
+Jeff, this depends on the previous AC97 patch I sent.
+
+Changes:-
+
+  o Lower power consumption
+  o Better quality playback and record.
+  o Codec specific init() is now done after initialisation of the mixer
+channel volumes. This prevents any init settings being clobbered by the
+mixer volumes.
 
 
-*********************************************************************
-This e-mail and any attachment is confidential. It may only be read, copied and used by the intended recipient(s). If you are not the intended recipient(s), you may not copy, use, distribute, forward, store or disclose this e-mail or any attachment. If you are not the intended recipient(s) or have otherwise received this e-mail in error, you should destroy it and any attachment and notify the sender by reply e-mail or send a message to sysadmin@bluearc.com
-*********************************************************************
+Liam  
+
+--=-fgLwFz+5/Z/WS0NDtZs3
+Content-Disposition: attachment; filename=wm9713.diff
+Content-Type: text/x-patch; name=wm9713.diff; charset=
+Content-Transfer-Encoding: 7bit
+
+diff -urN a/drivers/sound/ac97_codec.c b/drivers/sound/ac97_codec.c
+--- a/drivers/sound/ac97_codec.c	2004-03-04 10:24:26.000000000 +0000
++++ b/drivers/sound/ac97_codec.c	2004-03-04 10:29:17.000000000 +0000
+@@ -932,11 +932,6 @@
+ 	codec->recmask_io = ac97_recmask_io;
+ 	codec->mixer_ioctl = ac97_mixer_ioctl;
+ 
+-	/* codec specific initialization for 4-6 channel output or secondary codec stuff */
+-	if (codec->codec_ops->init != NULL) {
+-		codec->codec_ops->init(codec);
+-	}
+-
+ 	/* initialize mixer channel volumes */
+ 	for (i = 0; i < SOUND_MIXER_NRDEVICES; i++) {
+ 		struct mixer_defaults *md = &mixer_defaults[i];
+@@ -947,6 +942,11 @@
+ 		ac97_set_mixer(codec, md->mixer, md->value);
+ 	}
+ 
++	/* codec specific initialization for 4-6 channel output or secondary codec stuff */
++	if (codec->codec_ops->init != NULL) {
++		codec->codec_ops->init(codec);
++	}
++	
+ 	/*
+ 	 *	Volume is MUTE only on this device. We have to initialise
+ 	 *	it but its useless beyond that.
+@@ -1104,10 +1104,12 @@
+ /* WM9713 */
+ static int wolfson_init13(struct ac97_codec * codec)
+ {
+-	codec->codec_write(codec, AC97_MASTER_VOL_STEREO, 0x0000);
+-	codec->codec_write(codec, AC97_HEADPHONE_VOL, 0x0000); 
+ 	codec->codec_write(codec, AC97_RECORD_GAIN, 0x00a0);	
+-	codec->codec_write(codec, AC97_EXTEND_MODEM_STAT, 0x0000);
++	codec->codec_write(codec, AC97_POWER_CONTROL, 0x0000);
++	codec->codec_write(codec, AC97_EXTENDED_MODEM_ID, 0xDA00);
++	codec->codec_write(codec, AC97_EXTEND_MODEM_STAT, 0x3810);
++	codec->codec_write(codec, AC97_PHONE_VOL, 0x0808);
++	codec->codec_write(codec, AC97_PCBEEP_VOL, 0x0808);
+ 	return 0;
+ }
+
+--=-fgLwFz+5/Z/WS0NDtZs3--
 

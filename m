@@ -1,56 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVC0TZn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVC0T0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261466AbVC0TZn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 14:25:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVC0TZn
+	id S261468AbVC0T0O (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 14:26:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbVC0T0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 14:25:43 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:42292 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261466AbVC0TZi (ORCPT
+	Sun, 27 Mar 2005 14:26:14 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:957 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261468AbVC0TZq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 14:25:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=FCFFf6wCmXHuMs+ZEy+D2BnezUOJ7P4lrbGdabSaJH27wWXTkYbP2Byan3ibiusC3S1iPwGiTnTe+7izU0dbruHQVvNV6d18KJ3NdAUWsrcCFs1/15z6IwjLRRryI9X4x9Q/ljaAcz7/bB+601I8NuQh1UcPRHAEQqUTElzichs=
-Message-ID: <84144f0205032711257b5ca1e2@mail.gmail.com>
-Date: Sun, 27 Mar 2005 22:25:37 +0300
-From: Pekka Enberg <penberg@gmail.com>
-Reply-To: Pekka Enberg <penberg@gmail.com>
-To: Dave Jones <davej@redhat.com>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	Sun, 27 Mar 2005 14:25:46 -0500
+Subject: Re: [Ext2-devel] Re: OOM problems on 2.6.12-rc1 with many fsx tests
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, andrea@suse.de, mjbligh@us.ibm.com,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       penberg@cs.helsinki.fi
-Subject: Re: [PATCH] no need to check for NULL before calling kfree() -fs/ext2/
-In-Reply-To: <20050327174026.GA708@redhat.com>
+       ext2-devel <ext2-devel@lists.sourceforge.net>
+In-Reply-To: <1111883038.3633.9.camel@dyn318043bld.beaverton.ibm.com>
+References: <20050315204413.GF20253@csail.mit.edu>
+	 <20050316003134.GY7699@opteron.random>
+	 <20050316040435.39533675.akpm@osdl.org>
+	 <20050316183701.GB21597@opteron.random>
+	 <1111607584.5786.55.camel@localhost.localdomain>
+	 <20050325135630.28cd492c.akpm@osdl.org>
+	 <1111788665.21169.54.camel@dyn318077bld.beaverton.ibm.com>
+	 <1111883038.3633.9.camel@dyn318043bld.beaverton.ibm.com>
+Content-Type: text/plain
+Organization: IBM LTC
+Date: Sun, 27 Mar 2005 11:22:32 -0800
+Message-Id: <1111951352.4313.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost>
-	 <Pine.LNX.4.61.0503251726010.6354@chaos.analogic.com>
-	 <1111825958.6293.28.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.61.0503261811001.9945@chaos.analogic.com>
-	 <Pine.LNX.4.62.0503270044350.3719@dragon.hyggekrogen.localhost>
-	 <1111881955.957.11.camel@mindpipe>
-	 <Pine.LNX.4.62.0503271246420.2443@dragon.hyggekrogen.localhost>
-	 <20050327065655.6474d5d6.pj@engr.sgi.com>
-	 <Pine.LNX.4.61.0503271708350.20909@yvahk01.tjqt.qr>
-	 <20050327174026.GA708@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Mar 2005 12:40:26 -0500, Dave Jones <davej@redhat.com> wrote:
-> Am I the only person who is completely fascinated by the
-> effort being spent here micro-optimising something thats
-> almost never in a path that needs optimising ?
-> I'd be amazed if any of this masturbation showed the tiniest
-> blip on a real workload, or even on a benchmark other than
-> one crafted specifically to test kfree in a loop.
+On Sat, 2005-03-26 at 16:23 -0800, Mingming Cao wrote:
+> On Fri, 2005-03-25 at 14:11 -0800, Badari Pulavarty wrote:
+> > On Fri, 2005-03-25 at 13:56, Andrew Morton wrote:
+> > > Mingming Cao <cmm@us.ibm.com> wrote:
+> > > >
+> > > > I run into OOM problem again on 2.6.12-rc1. I run some(20) fsx tests on
+> > > > 2.6.12-rc1 kernel(and 2.6.11-mm4) on ext3 filesystem, after about 10
+> > > > hours the system hit OOM, and OOM keep killing processes one by one. I
+> > > > could reproduce this problem very constantly on a 2 way PIII 700MHZ with
+> > > > 512MB RAM. Also the problem could be reproduced on running the same test
+> > > > on reiser fs.
+> > > > 
+> > > > The fsx command is:
+> > > > 
+> > > > ./fsx -c 10 -n -r 4096 -w 4096 /mnt/test/foo1 &
+> > > 
+> > > I was able to reproduce this on ext3.  Seven instances of the above leaked
+> > > 10-15MB over 10 hours.  All of it permanently stuck on the LRU.
+> > > 
+> > > I'll continue to poke at it - see what kernel it started with, which
+> > > filesystems it affects, whether it happens on UP&&!PREEMPT, etc.  Not a
+> > > quick process.
+> > 
+> > I reproduced *similar* issue with 2.6.11. The reason I say similar, is
+> > there is no OOM kill, but very low free memory and machine doesn't
+> > respond at all. (I booted my machine with 256M memory and ran 20 copies
+> > of fsx on ext3).
+> > 
+> > 
+> 
+> Yes, I re-run the same test on 2.6.11 for 24 hours, like Badari see on
+> his machine, my machine did not go to OOM on 2.6.11,still alive, but
+> memory is very low(only 5M free). Killed all fsx and umount the ext3
+> filesystem did not bring back much memory. I will going to rerun the
+> tests without the mapped read/write to see what happen.
+> 
+> 
 
-Indeed. The NULL checks are redundant and thus need to go. If someone
-can show a measurable performance regression in the kernel for a
-realistic workload, kfree() can be turned into an inline function
-which will take care of it. The microbenchmarks are fun but should not
-stand in the way of merging the kfree() cleanups from Jesper and
-others.
+Run fsx tests without mapped IO on 2.6.11 seems fine.  Here is
+the /proc/meminfo after 18 hours run:
 
-                        Pekka
+# cat /proc/meminfo
+MemTotal:       510464 kB
+MemFree:          6004 kB
+Buffers:        179420 kB
+Cached:           9144 kB
+SwapCached:          0 kB
+Active:         313236 kB
+Inactive:       171380 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       510464 kB
+LowFree:          6004 kB
+SwapTotal:     1052216 kB
+SwapFree:      1052216 kB
+Dirty:            2100 kB
+Writeback:           0 kB
+Mapped:          24884 kB
+Slab:            14788 kB
+CommitLimit:   1307448 kB
+Committed_AS:    78032 kB
+PageTables:        720 kB
+VmallocTotal:   516024 kB
+VmallocUsed:      1672 kB
+VmallocChunk:   514352 kB
+
+elm3b92:~ # killall -9 fsx
+elm3b92:~ # cat /proc/meminfo
+MemTotal:       510464 kB
+MemFree:         21332 kB
+Buffers:        179668 kB
+Cached:           8828 kB
+SwapCached:          0 kB
+Active:         298748 kB
+Inactive:       171152 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       510464 kB
+LowFree:         21332 kB
+SwapTotal:     1052216 kB
+SwapFree:      1052216 kB
+Dirty:            1140 kB
+Writeback:           0 kB
+Mapped:          11648 kB
+Slab:            14632 kB
+CommitLimit:   1307448 kB
+Committed_AS:    59800 kB
+PageTables:        492 kB
+VmallocTotal:   516024 kB
+VmallocUsed:      1672 kB
+VmallocChunk:   514352 kB
+
+elm3b92:~ # umount /mnt/ext3
+elm3b92:~ # cat /proc/meminfo
+MemTotal:       510464 kB
+MemFree:        181636 kB
+Buffers:         22092 kB
+Cached:           6740 kB
+SwapCached:          0 kB
+Active:         151284 kB
+Inactive:       158948 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       510464 kB
+LowFree:        181636 kB
+SwapTotal:     1052216 kB
+SwapFree:      1052216 kB
+Dirty:               0 kB
+Writeback:           0 kB
+Mapped:          11656 kB
+Slab:            14052 kB
+CommitLimit:   1307448 kB
+Committed_AS:    59800 kB
+PageTables:        492 kB
+VmallocTotal:   516024 kB
+VmallocUsed:      1672 kB
+VmallocChunk:   514352 kB
+
+

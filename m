@@ -1,101 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267818AbTGMODP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 10:03:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267998AbTGMODP
+	id S267861AbTGMNvs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 09:51:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267912AbTGMNvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 10:03:15 -0400
-Received: from out001pub.verizon.net ([206.46.170.140]:44223 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP id S267818AbTGMODN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 10:03:13 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-To: "Riley Williams" <Riley@Williams.Name>,
-       "David Ford" <david+powerix@blue-labs.org>,
-       "Ryan Underwood" <nemesis-lists@icequake.net>
-Subject: Re: Forking shell bombs
-Date: Sun, 13 Jul 2003 10:17:56 -0400
-User-Agent: KMail/1.5.1
-Cc: <linux-kernel@vger.kernel.org>
-References: <BKEGKPICNAKILKJKMHCAOELCENAA.Riley@Williams.Name>
-In-Reply-To: <BKEGKPICNAKILKJKMHCAOELCENAA.Riley@Williams.Name>
-Organization: None that appears to be detectable by casual observers
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 13 Jul 2003 09:51:48 -0400
+Received: from h004005b9b492.ne.client2.attbi.com ([24.60.209.71]:60843 "EHLO
+	joehill.bostoncoop.net") by vger.kernel.org with ESMTP
+	id S267861AbTGMNvo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 09:51:44 -0400
+Date: Sun, 13 Jul 2003 10:06:28 -0400
+From: Adam Kessel <adam@bostoncoop.net>
+To: linux-kernel@vger.kernel.org
+Subject: DVD/CD Read Problem: cdrom_decode_status: status=0x51 {DriveReady SeekComplete Error}
+Message-ID: <20030713140627.GA761@joehill.bostoncoop.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307131017.56814.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.62.27] at Sun, 13 Jul 2003 09:17:58 -0500
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 13 July 2003 05:10, Riley Williams wrote:
->Hi all.
->
->It sounds like what is required is some way of basically saying
->"Don't permit new processes to be created if CPU usage > 75%"
->(where the 75% is configurable but less than 100%).
->
-Which would immediately cause problems for anyone running setiathome.  
-My cpu useage has been 100% for 5 years.
+I get the following errors and an unkillable process when trying to play
+DVDs, using the latest 2.5.75: 
 
->Best wishes from Riley.
->---
-> * Nothing as pretty as a smile, nothing as ugly as a frown.
->
-> > -----Original Message-----
-> > From: linux-kernel-owner@vger.kernel.org
-> > [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of David
-> > Ford Sent: Wednesday, July 09, 2003 4:08 PM
-> > To: Ryan Underwood
-> > Cc: linux-kernel@vger.kernel.org
-> > Subject: Re: Forking shell bombs
-> >
-> > No such thing exists.  I can have 10,000 processes doing nothing
-> > and have a load average of 0.00.  I can have 100 processes each
-> > sucking cpu as fast as the electrons flow and have a dead box.
-> >
-> > Learn how to manage resource limits and you can tuck another
-> > feather into your fledgeling sysadmin hat ;)
-> >
-> > david
-> >
-> > Ryan Underwood wrote:
-> >> Hi,
-> >>
-> >> On Tue, Jul 08, 2003 at 04:43:18PM -0400, jhigdon wrote:
-> >>> Have you tried this on any 2.5.x kernels? Just curious to see
-> >>> what it does, I plan on giving it a go later.
-> >>
-> >> I haven't, but a previous poster indicated that they had
-> >> (2.5.74) with the same results.
-> >>
-> >> I wonder if we could find an upper limit on the number of
-> >> allowable processes that would leave the box in a workable
-> >> state?  Unfortunately, I don't have a spare box to test such
-> >> things on at the moment. ;)
-> >>
-> >> Thanks,
->
->---
->Outgoing mail is certified Virus Free.
->Checked by AVG anti-virus system (http://www.grisoft.com).
->Version: 6.0.500 / Virus Database: 298 - Release Date: 10-Jul-2003
->
->-
->To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+Jul 13 00:15:03 joehill kernel: hdc: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+Jul 13 00:15:03 joehill kernel: hdc: cdrom_decode_status: error=0x30LastFailedSense 0x03 
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.26% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+and sometimes: 
 
+Jul 13 00:15:03 joehill kernel: hdc: ide_intr: huh? expected NULL handler on exit 
+
+This problem has been discussed several times before on this list[1], but with
+no resolution or fixes that I can find.  
+
+I don't believe this is a userspace issue.  Other OS's are able to deal with
+playing video DVDs by skipping read errors quickly.  There should be some one
+way to tell the kernel not to keep retrying for certain (i.e., non-data)
+CD/DVDs.  I can't see any possible way to do this in application space, though.  
+
+I've tried building the kernel with CONFIG_IDEDISK_MULTI_MODE as per some
+suggestions on this list. This may have made a small difference, although it
+might have also just been a lucky run.  
+
+I also tried setting ERROR_MAX and ERROR_RESET to 0 in ide-cd.c, which did
+shorten the "hanging" duration, but didn't fix it entirely, and also seems like
+a bad way to fix this problem.  
+
+I'm not sure why it's getting errors at all, incidentally, as this occurs
+with brand new DVDs out of the shrink wrap, and a relatively new DVD
+player (HP F2015B, manufactured by Quanta).  
+
+--Adam Kessel
+
+[1] Most recently in April of this year:
+
+"Bug in linux kernel when playing DVDs."
+http://www.ussg.iu.edu/hypermail/linux/kernel/0304.3/0769.html
+
+And in March:
+
+"Help please: DVD ROM read difficulty"
+http://www.ussg.iu.edu/hypermail/linux/kernel/0303.0/1570.html

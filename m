@@ -1,73 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290958AbSBFXyi>; Wed, 6 Feb 2002 18:54:38 -0500
+	id <S290983AbSBGAHw>; Wed, 6 Feb 2002 19:07:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290967AbSBFXy2>; Wed, 6 Feb 2002 18:54:28 -0500
-Received: from bitmover.com ([192.132.92.2]:36298 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S290958AbSBFXyT>;
-	Wed, 6 Feb 2002 18:54:19 -0500
-Date: Wed, 6 Feb 2002 15:54:18 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-Message-ID: <20020206155418.B21185@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C618AFD.7148EEAA@linux-m68k.org> <Pine.LNX.4.33.0202061529280.1714-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0202061529280.1714-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Feb 06, 2002 at 03:36:01PM -0800
+	id <S290977AbSBGAHh>; Wed, 6 Feb 2002 19:07:37 -0500
+Received: from ns.suse.de ([213.95.15.193]:261 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S290966AbSBGAGT>;
+	Wed, 6 Feb 2002 19:06:19 -0500
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: want opinions on possible glitch in 2.4 network error reporting
+In-Reply-To: <3C6192A5.911D5B4F@nortelnetworks.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+In-Reply-To: Chris Friesen's message of "6 Feb 2002 21:30:28 +0100"
+X-Mailer: Gnus v5.7/Emacs 20.6
+Date: 07 Feb 2002 01:06:15 +0100
+Message-ID: <p73it9a9mvc.fsf@oldwotan.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 06, 2002 at 03:36:01PM -0800, Linus Torvalds wrote:
-> do) I still usually need to do at least some minimal editing of the commit
-> message etc (removing stuff like "Hi Linus" etc).
+Chris Friesen <cfriesen@nortelnetworks.com> writes:
 
-And I think once we finalize the generic patch comment format, you will
-be able to scan it email, see it looks good, and dump it to apply and
-move on.  Then people can send you mail like what is below and it's 
-painless.  Aside from the coffee/tea issues.
+> I've been looking around in the 2.4 networking stack, and I noticed that when
+> the tulip (and no doubt many other) driver cannot put any more outgoing packets
+> on the queue, it calls netif_stop_queue().  Then, in dev_queue_xmit() we check
+> this flag by calling netif_queue_stopped().  My concern is that if this flag is
+> true, we return -ENETDOWN.  Is this really the proper return code for this? If
+> anything, the network is too active.  It seems to me that it would make more
+> sense to have some kind of congestion return code rather than claiming that the
+> network is down.
 
-Hi Linus, 
+The ENETDOWN path you're seeing only applies to queueless devices (like
+loopback or a tunnel device). These should only set the queued stopped
+flag when something is terrible wrong. 
+ 
+All real network devices have a queue and go through the qdisc. 
 
-How's the wife and kids, mine are fine, here's a patch that makes coffee
-from /dev/coffee bits, see the changelog.  Next week we will send you
-the patch which removes /dev/emacs and replaces it with /dev/vi, the
-one true editor.  I trust you will have no issues with these patches.
+> 
+> I think it would make sense to return -ENOBUFS in this case, as its already
+> listed in the sendto() man page, and the description matches the error because
+> the command could succeed if retried.
+> 
+> I ran into a somewhat related issue on a 2.2.16 system, where I had an app that
+> was calling sendto() on 217000 packets/sec, even though the wire could only
+> handle about 127000 packets/sec.  I got no errors at all in sendto, even though
+> over a third of the packets were not actually being sent.
 
-Thank you,
+The qdisc queue acts like an IP network and deletes unnecessary packets. 
+There is no provision to block when it fills because that would have
+many sideeffects and complicate the stack a lot. There is an return
+code though that is passed up when the queue fills (NET_XMIT_DROP or
+NET_XMIT_CN), but it's currently only used by TCP but not passed to 
+user space for UPD/RAW. It could be probably done with a special
+socket option if there is a clear need.
 
-Joe Hacker.
-
-### Comments for ChangeSet
-This is the coffee patch.  It is the one true coffee patch and it should
-put an end to the coffee versus tea debate.  There is no /dev/tea, there
-is only a /dev/coffee, in spite of our best efforts to implement /dev/tea,
-we could not fix the problem of multiple Oopses on SMP machines when we
-did a "cat /dev/tea > /dev/cup".  "cat /dev/coffee > /dev/cup" always
-works, so we think this is proof positive that coffee is better than tea.
-
-### Comments for drivers/char/coffee.c
-I like coffee, I don't like tea,
-I'm as happy as a little wired bee.
-
-### Comments for drivers/char/tea.c
-Didn't work.  It's a sign from above.
-
-<diffs>
-
-
-:-)
-
-Yup, a little punchy back here at BitMover, but trying to maintain a sense
-of humor.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+-Andi

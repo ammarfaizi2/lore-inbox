@@ -1,35 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129953AbRA2QwH>; Mon, 29 Jan 2001 11:52:07 -0500
+	id <S129051AbRA2RCB>; Mon, 29 Jan 2001 12:02:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130355AbRA2Qv7>; Mon, 29 Jan 2001 11:51:59 -0500
-Received: from mail.mediaways.net ([193.189.224.113]:21721 "HELO
-	mail.mediaways.net") by vger.kernel.org with SMTP
-	id <S129953AbRA2Qvq>; Mon, 29 Jan 2001 11:51:46 -0500
-Date: Mon, 29 Jan 2001 17:21:55 +0100
-From: Walter Hofmann <walter.hofmann@physik.stud.uni-erlangen.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: jamal <hadi@cyberus.ca>, Chris Wedgwood <cw@f00f.org>,
-        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: ECN: Clearing the air
-Message-ID: <20010129172155.A4712@frodo.uni-erlangen.de>
-In-Reply-To: <20010128150813.A1595@metastasis.f00f.org> <Pine.GSO.4.30.0101272110470.24762-100000@shell.cyberus.ca> <20010128225530.A1300@bug.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010128225530.A1300@bug.ucw.cz>; from pavel@suse.cz on Sun, Jan 28, 2001 at 10:55:30PM +0100
+	id <S129306AbRA2RBv>; Mon, 29 Jan 2001 12:01:51 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:39162 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S129051AbRA2RBd>; Mon, 29 Jan 2001 12:01:33 -0500
+Date: Mon, 29 Jan 2001 11:01:31 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.10.10101281949200.13259-100000@zeus.fh-brandenburg.de>
+In-Reply-To: <3A7459AA.84CDCF7B@colorfullife.com>
+Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-ID: <Ys3tl.A.KcH.rHad6@dinero.interactivesi.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 Jan 2001, Pavel Machek wrote:
+This is driving me crazy!  There is absolutely no documentation anywhere that
+tells you when to use or not use sleep_on or spin_lock_whatever or any of these
+calls.  How is anyone supposed to know how to use these functions?!  The post I
+quoted below just proves that a lot of people think they know but apparently
+don't!  In fact, I predict that an argument between the two posters and a few
+others will soon ensue over who is right.
 
-> Does not that mean that Linux 2.0.10 mistakenly announces it is ECN
-> capable when offered ECN connection?
+What makes it more frustrating is that some people on this list talk as if
+things things are common knowledge.  I've been following this mailing list for
+months, and until today I had no idea sleep_on was bad.  All the documentation
+I've read to date freely uses sleep_on in the sample code.  In fact, I still
+don't even know WHY it's bad.  Not only that, but what am I supposed to use
+instead? 
 
-No, the RFC deals with this.
+This is what I find most frustrating about Linux.  If I were a Windows driver
+programmer, I could walk into any bookstore and pick up any of a dozen books
+that explains everything, leaving no room for doubt.
 
-Walter
+
+** Reply to message from Roman Zippel <zippel@fh-brandenburg.de> on Sun, 28 Jan
+2001 19:51:57 +0100 (MET)
+
+> Hi,
+> 
+> On Sun, 28 Jan 2001, Manfred Spraul wrote:
+> 
+> > And one more point for the Janitor's list:
+> > Get rid of superflous irqsave()/irqrestore()'s - in 90% of the cases
+> > either spin_lock_irq() or spin_lock() is sufficient. That's both faster
+> > and better readable.
+> > 
+> > spin_lock_irq(): you know that the function is called with enabled
+> > interrupts.
+> > spin_lock(): can be used in hardware interrupt handlers when only one
+> > hardware interrupt uses that spinlocks (most hardware drivers), or when
+> > all hardware interrupt handler set the SA_INTERRUPT flag (e.g. rtc and
+> > timer interrupt)
+> 
+> This is not a bug and only helps to make drivers nonportable. Please,
+> don't do this.
+> 
+> bye, Roman
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+
+
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
+
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

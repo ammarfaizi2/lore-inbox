@@ -1,113 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262540AbVCJMPi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262543AbVCJMRN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262540AbVCJMPi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 07:15:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVCJMPh
+	id S262543AbVCJMRN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 07:17:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbVCJMRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 07:15:37 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:47272 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S262540AbVCJMOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 07:14:37 -0500
-Message-ID: <423039A6.5010301@grupopie.com>
-Date: Thu, 10 Mar 2005 12:12:22 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: inconsistent kallsyms data [2.6.11-mm2]
-References: <20050308033846.0c4f8245.akpm@osdl.org> <20050308192900.GA16882@isilmar.linta.de> <20050308123554.669dd725.akpm@osdl.org> <20050308204521.GA17969@isilmar.linta.de> <422EF2B0.7070304@grupopie.com> <422F59A3.9010209@grupopie.com>
-In-Reply-To: <422F59A3.9010209@grupopie.com>
-Content-Type: multipart/mixed;
- boundary="------------010309020306030704030603"
+	Thu, 10 Mar 2005 07:17:12 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10459 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262543AbVCJMRF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 07:17:05 -0500
+Date: Thu, 10 Mar 2005 12:17:01 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Omkhar Arasaratnam <iamroot@ca.ibm.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>, tgall@us.ibm.com,
+       antonb@au1.ibm.com, James Bottomley <James.Bottomley@SteelEye.com>,
+       Matthew Wilcox <matthew@wil.cx>
+Subject: Re: [BUG] 2.6.11- sym53c8xx Broken on pp64
+Message-ID: <20050310121701.GD21986@parcelfarce.linux.theplanet.co.uk>
+References: <422FA817.4060400@ca.ibm.com> <1110420620.32525.145.camel@gaston> <422FBACF.90108@ca.ibm.com> <422FC042.40303@ca.ibm.com> <Pine.LNX.4.58.0503091944030.2530@ppc970.osdl.org> <1110434383.32525.184.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1110434383.32525.184.camel@gaston>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010309020306030704030603
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Paulo Marques wrote:
-> [...]
-> A simple and robust way is to do the sampling on a list of symbols 
-> sorted by symbol name. This way, even if the symbol positions that are 
-> given to scripts/kallsyms change, the symbols sampled will be the same.
+On Thu, Mar 10, 2005 at 04:59:43PM +1100, Benjamin Herrenschmidt wrote:
+> Ok, we have it working here on a similar machine with 2.6.11 and failing
+> in a similar way with bk which is why I asked ;)
 > 
-> I'll do the patch to do this and send it ASAP.
+> The bk problem is found & fixed here tho. I'll send a patch later, it's
+> a bug with ppc64 iounmap() not properly flushing the hash table after
+> the set_pte_at() patch due to some crap in our custom implementation of
+> that guy.
 
-Ok, here it is.
-
-Dominik can you try the attached patch and see if it solves the problem?
-
-It it does, I'll do a correct [PATCH] post later with all the 
-signed-off-by and subject and stuff.
-
-Please make sure you test with the same configuration that produces the 
-error, because this is a pretty hard to hit bug. The needed conditions are:
-
-  - 'nm' changes the order of 2 aliased symbols from the 1st to the 2nd pass
-  - one of those symbols get sampled for token optimization. With your 
-configuration the sampling was about 1 out of 12.
-  - the difference in the name of those symbols makes the algorithm 
-select different tokens. As 1024 symbols are used to produce the tokens, 
-changing just one of these symbols can easily go unnoticed.
-  - the difference in the tokens selected makes the size of the 
-compressed data change, so that it goes above (or below) an alignment 
-boundary. In your case it only changed 2 bytes in size, but it crossed a 
-4 byte alignment boundary.
-
-With your .config file but a different set of tools (gcc, binutils 
-versions) I couldn't trigger the bug in my machine.
+Heh, the devel version of sym2 (that isn't submitted yet because
+it depends on a few changes to the SPI transport that James hasn't
+integrated yet) would probably fix this as it doesn't call iounmap()
+until the driver exits.
 
 -- 
-Paulo Marques - www.grupopie.com
-
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)
-
---------------010309020306030704030603
-Content-Type: text/plain;
- name="kallpatch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="kallpatch"
-
---- ./scripts/kallsyms.c.orig	2005-03-10 11:00:26.000000000 +0000
-+++ ./scripts/kallsyms.c	2005-03-10 11:11:50.000000000 +0000
-@@ -499,11 +499,30 @@ static void forget_symbol(unsigned char 
- 		forget_token(symbol + i, len - i);
- }
- 
-+/* sort the symbols by address->name so that even if aliased symbols 
-+ * change position, or the symbols are not supplied in address order
-+ * the algorithm will work nevertheless */
-+
-+static int sort_by_address_name(const void *a, const void *b)
-+{
-+	struct sym_entry *sa, *sb;
-+
-+	sa = (struct sym_entry *) a;
-+	sb = (struct sym_entry *) b;
-+
-+	if (sa->addr != sb->addr)
-+		return sa->addr - sb->addr;
-+
-+	return strcmp(sa->sym + 1, sb->sym + 1);
-+}
-+
- /* set all the symbol flags and do the initial token count */
- static void build_initial_tok_table(void)
- {
- 	int i, use_it, valid;
- 
-+	qsort(table, cnt, sizeof(table[0]), sort_by_address_name);
-+
- 	valid = 0;
- 	for (i = 0; i < cnt; i++) {
- 		table[i].flags = 0;
-
---------------010309020306030704030603--
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

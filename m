@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277609AbRJRImb>; Thu, 18 Oct 2001 04:42:31 -0400
+	id <S277629AbRJRJJ3>; Thu, 18 Oct 2001 05:09:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277618AbRJRImW>; Thu, 18 Oct 2001 04:42:22 -0400
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:55690 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S277609AbRJRImI>; Thu, 18 Oct 2001 04:42:08 -0400
-Date: Thu, 18 Oct 2001 09:38:47 +0100 (BST)
-From: James Sutherland <jas88@cam.ac.uk>
-X-X-Sender: <jas88@yellow.csi.cam.ac.uk>
-To: Ben Greear <greearb@candelatech.com>
-cc: Neil Brown <neilb@cse.unsw.edu.au>, <linux-fsdevel@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: RFC - tree quotas for Linux (2.4.12, ext2)
-In-Reply-To: <3BCE6E6E.3DD3C2D6@candelatech.com>
-Message-ID: <Pine.SOL.4.33.0110180937420.13081-100000@yellow.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277633AbRJRJJK>; Thu, 18 Oct 2001 05:09:10 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:62307 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S277629AbRJRJJE>; Thu, 18 Oct 2001 05:09:04 -0400
+Date: Thu, 18 Oct 2001 11:09:14 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: "3.5GB user address space" option.
+Message-ID: <20011018110914.J12055@athlon.random>
+In-Reply-To: <1981072193242.20011018021819@spylog.com> <9qlmcb$4h4$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <9qlmcb$4h4$1@cesium.transmeta.com>; from hpa@zytor.com on Wed, Oct 17, 2001 at 09:38:35PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Oct 2001, Ben Greear wrote:
-
-> Neil Brown wrote:
+On Wed, Oct 17, 2001 at 09:38:35PM -0700, H. Peter Anvin wrote:
+> Followup to:  <1981072193242.20011018021819@spylog.com>
+> By author:    "Oleg A. Yurlov" <kris@spylog.com>
+> In newsgroup: linux.dev.kernel
 > >
-> > Hi,
-> >  In my ongoing effort to provide centralised file storage that I can
-> >  be proud of, I have put together some code to implement tree quotas.
-> >
-> >  The idea of a tree quota is that the block and inode usage of a file
-> >  is charged to the (owner of the root of the) tree rather than the
-> >  owner (or group owner) of the file.
-> >  This will (I hope) make life easier for me.  There are several
-> >  reasons that I have documented (see URL below) but a good one is that
-> >  they are transparent and predictable.  du -s $HOME should *always*
-> >  match your usage according to "quota".
->
-> Err, except maybe when you also own a file in /home/idiot/idiots_unprotected_storage_dir
-> (This relates not at all to your patch/comments.)
+> > 
+> >         Hi, folks,
+> > 
+> >         How  I  can  use  3.5GB  in my apps ? I try malloc() and get error on 2G
+> > bounce... :-(
+> > 
+> >         Hardware - SMP server, 2Gb RAM, 8Gb swap, kernel 2.4.12aa1.
+> > 
+> 
+> Get a 64-bit CPU.  You're running into a fundamental limit of 32-bit
+> architectures.
 
-No - "the ... usage of a file is charged to the tree, RATHER THAN THE
-OWNER OF THE FILE". So, in this case, if you own a file in ~idiot/foo,
-idiot's quota is charged for the file, not you.
+Actually 3.5G per-process is theoretically possible using a careful
+userspace as Rik suggested with -aa after enabling the proper
+compile time configuration option. So for apps that needs say 3G
+per-process it should work just fine. But of course for anything that
+needs more than that 64bit is the right way to go :)
 
-
-James.
--- 
-"Our attitude with TCP/IP is, `Hey, we'll do it, but don't make a big
-system, because we can't fix it if it breaks -- nobody can.'"
-
-"TCP/IP is OK if you've got a little informal club, and it doesn't make
-any difference if it takes a while to fix it."
-		-- Ken Olson, in Digital News, 1988
-
+Andrea

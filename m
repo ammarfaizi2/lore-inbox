@@ -1,70 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271183AbTHRAyr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 20:54:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271184AbTHRAyr
+	id S271146AbTHRAq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 20:46:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271148AbTHRAq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 20:54:47 -0400
-Received: from relay2.EECS.Berkeley.EDU ([169.229.60.28]:6030 "EHLO
-	relay2.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
-	id S271183AbTHRAyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 20:54:46 -0400
-Subject: Re: [PATCH 2.4] i2c-dev user/kernel bug and mem leak
-From: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, Jean Delvare <khali@linux-fr.org>,
-       sensors@Stimpy.netroedge.com, vsu@altlinux.ru
-In-Reply-To: <20030815235127.GA5697@kroah.com>
-References: <20030803192312.68762d3c.khali@linux-fr.org>
-	<20030804193212.11786d06.vsu@altlinux.ru>
-	<20030805103240.02221bed.khali@linux-fr.org>
-	<20030805210704.GA5452@kroah.com>
-	<20030806100702.78298ffe.khali@linux-fr.org>
-	<1060886657.1006.7121.camel@dooby.cs.berkeley.edu>
-	<20030814190954.GA2492@kroah.com>
-	<1060912895.1006.7160.camel@dooby.cs.berkeley.edu>
-	<20030815211329.GB4920@kroah.com>
-	<1060985846.302.17.camel@dooby.cs.berkeley.edu> 
-	<20030815235127.GA5697@kroah.com>
-Content-Type: text/plain
+	Sun, 17 Aug 2003 20:46:29 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:7387 "EHLO
+	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S271146AbTHRAq2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 20:46:28 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: [PATCH] Re: make htmldocs is broken.
+Date: Sun, 17 Aug 2003 20:46:22 -0400
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200308170618.35939.rob@landley.net> <3F3FEEAF.2070608@pobox.com>
+In-Reply-To: <3F3FEEAF.2070608@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 17 Aug 2003 17:54:36 -0700
-Message-Id: <1061168082.16691.120.camel@dooby.cs.berkeley.edu>
-Mime-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200308172046.22362.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-08-15 at 16:51, Greg KH wrote:
-> On Fri, Aug 15, 2003 at 03:17:25PM -0700, Robert T. Johnson wrote:
-> > For this particular bug (before all the patches started flying around),
-> > you'd have to add a kernel annotation to the "struct i2c_msg" field
-> > buf.
-> 
-> Look at 2.6, that annotatation is already there.
+On Sunday 17 August 2003 17:07, Jeff Garzik wrote:
+> Rob Landley wrote:
+> > Does this command live on default installs of SuSE or debian or
+> > something? (Or maybe it was in RH 7 or so and has been removed?)
+>
+> Red Hat and Debian ship this program in their current distros, in the
+> transfig package.
+>
+> 	Jeff
 
-I just double-checked my copy of linux-2.6.0-test3, and I don't see it. 
-Just to make sure we're talking about the same thing, I'm looking at
-include/linux/i2c.h:402, i.e. the definition of field buf in struct
-i2c_msg.
+But it's not installed by default.  Okay...
 
-Now I see you have the msgs field of i2c_rdwr_ioctl_arg annotated as
-__user.  That should've generated a warning from sparse.  Looks like a
-bug in sparse to me.
+How bout this one then? :)
 
-> Nice, is cqual released somewhere so that we can compare it and start
-> using it, like we already use sparse?
+>Working on: /home/landley/linux/linux-2.6.0-test3/Documentation/DocBook/sis900.sgml
+>Done.
+>  DOCPROC Documentation/DocBook/kernel-api.sgml
+>docproc: kernel/pm.c: No such file or directory
+>make[1]: *** [Documentation/DocBook/kernel-api.sgml] Error 139
+>make: *** [htmldocs] Error 2
 
-I just discussed it with the other developers, and we'll work on getting
-a release out in the next week or so.  It still has rough edges, but
-feedback from kernel developers like yourself will be invaluable.
+Possibly due to me upgrading to test3-bk5.  The following patch seems to
+fix it, although there are 8 zillion warnings build everything from there on
+down...
 
-> Yes it is, one of the paramaters in those functions is the size of the
-> buffer :)
+--- temp/Documentation/DocBook/kernel-api.tmpl  2003-08-17 20:40:39.000000000 -0400
++++ linux-2.6.0-test3/Documentation/DocBook/kernel-api.tmpl     2003-08-17 20:40:54.000000000 -0400
+@@ -206,7 +206,7 @@
 
-Oh.  Now I'm sold on your solution.  Thanks for pointing that out.
+   <chapter id="pmfuncs">
+      <title>Power Management</title>
+-!Ekernel/pm.c
++!Ekernel/power/pm.c
+   </chapter>
 
-Best,
+   <chapter id="blkdev">
+
+
 Rob
-
-

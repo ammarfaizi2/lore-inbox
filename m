@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283327AbRLDV2k>; Tue, 4 Dec 2001 16:28:40 -0500
+	id <S281268AbRLDVba>; Tue, 4 Dec 2001 16:31:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281268AbRLDV2V>; Tue, 4 Dec 2001 16:28:21 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:30965 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S283327AbRLDV2S>; Tue, 4 Dec 2001 16:28:18 -0500
-Message-ID: <3C0D3FD8.59346BBF@mvista.com>
-Date: Tue, 04 Dec 2001 13:27:52 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+	id <S283469AbRLDVbU>; Tue, 4 Dec 2001 16:31:20 -0500
+Received: from mail118.mail.bellsouth.net ([205.152.58.58]:4399 "EHLO
+	imf18bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S283459AbRLDVbP>; Tue, 4 Dec 2001 16:31:15 -0500
+Message-ID: <3C0D409C.1E4CD9F0@mandrakesoft.com>
+Date: Tue, 04 Dec 2001 16:31:08 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: nigel@nrg.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] improve spinlock debugging
-In-Reply-To: <Pine.LNX.4.40.0112041314010.595-100000@cosmic.nrg.org>
+To: Rob Myers <rob.myers@gtri.gatech.edu>
+CC: Michael Clark <michael@metaparadigm.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Benjamin LaHaise <bcrl@redhat.com>
+Subject: Re: [PATCH] - 2.4.16 ns83820 optical support (Netgear GA621)
+In-Reply-To: <3C0CED3B.7030409@metaparadigm.com> <1007501048.14051.28.camel@ransom>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Gamble wrote:
-> 
-> On Tue, 4 Dec 2001, george anzinger wrote:
-> >                               For example, preemption currently counts
-> > up on spin_lock and disable irq, counting the spin_lockirq twice.  In
-> 
-> That's not correct: we don't count it twice because we don't count
-> local_irq_disable etc., only the spin locks.  Because...
-> 
-> >                                               (Oh, and since the irq
-> > inhibits preemption all by itself, we don't need to count it either.)
-> 
-> ...so we don't.
+Rob Myers wrote:
+> are references to dev->net_dev.name valid before
+> register_netdev(&dev->net_dev) in ns83820_init_one()?
 
-Right, but we do count spin_lockirq (just once).  See other email, this
-time.
+no.  register_netdev is where an interface number(name) is assigned.
 
 -- 
-George           george@mvista.com
-High-res-timers: http://sourceforge.net/projects/high-res-timers/
-Real time sched: http://sourceforge.net/projects/rtsched/
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+

@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314451AbSEYOQS>; Sat, 25 May 2002 10:16:18 -0400
+	id <S314634AbSEYOSR>; Sat, 25 May 2002 10:18:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314456AbSEYOQR>; Sat, 25 May 2002 10:16:17 -0400
-Received: from [80.120.128.82] ([80.120.128.82]:46866 "EHLO hofr.at")
-	by vger.kernel.org with ESMTP id <S314451AbSEYOQR>;
-	Sat, 25 May 2002 10:16:17 -0400
-From: Der Herr Hofrat <der.herr@mail.hofr.at>
-Message-Id: <200205251321.g4PDLLU16552@hofr.at>
-Subject: Re: RTAI/RtLinux
-In-Reply-To: <1022334170.15111.199.camel@rawpower> from Erwin Rol at "May 25,
- 2002 03:42:50 pm"
-To: Erwin Rol <erwin@muffin.org>
-Date: Sat, 25 May 2002 15:21:21 +0200 (CEST)
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        RTAI users <rtai@rtai.org>
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S314637AbSEYOSQ>; Sat, 25 May 2002 10:18:16 -0400
+Received: from ivimey.org ([194.106.52.201]:62023 "EHLO gatemaster.ivimey.org")
+	by vger.kernel.org with ESMTP id <S314634AbSEYOSP>;
+	Sat, 25 May 2002 10:18:15 -0400
+Date: Sat, 25 May 2002 15:18:00 +0100 (BST)
+From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+X-X-Sender: ruthc@sharra.ivimey.org
+To: Jeremy White <jwhite@codeweavers.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: isofs unhide option:  troubles with Wine
+In-Reply-To: <1022301029.2443.28.camel@jwhiteh>
+Message-ID: <Pine.LNX.4.44.0205251513280.10327-100000@sharra.ivimey.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> > LGPL can be used as GPL. If you haven't even read the license do that
-> > before the flamewar please.
-> > 
-> 
-> I know this, the point is that when you use the LGPL to be used as the
-> GPL it is not really LGPL anymore. A binary program using GLIBC depends
-> on the fact that GLIBC allows that (because of its LGPL license). What i
-> wanted to say is that "allowance" might be taken away by the patent
-> license.
+On 24 May 2002, Jeremy White wrote:
 
-The basic problem is again that some people want to have the privileges of 
-GPL without the responsibilities of GPL. That is a very old debate and I
-don't think it is sensible to krank it through again. Do GPL work and
-you can use the services of the comunity, do non-GPL and you need to 
-get these services under other terms. I realy don't see whats so wrong
-unfair and evil about this.
+>Greetings,
+>
+>When installing Microsoft Office with Wine, we find that some
+>MS CDs have certain files marked as hidden on the CD.
 
-> It is like a patent on VM management, or some other kernel internal
-> technique, does that mean that that patent is also has something to say
-> about ppl that write programs for that OS ? The same with LXRT (the
-> userspace part of RTAI), its implementation might fall under the patent,
-> but does the program that uses the LXRT services also fall under the
-> patent ? 
+>Unfortunately, I don't have a strong feeling for what the
+>'right' solution is.  I see several options:
+>
+>    1.  Invert the logic of the option, make it 'hide' instead
+>        of unhide, and so unhide is the default.
 
-The question of derived work is realy exhaustively discused and there are
-plenty of statements on this including statements by the FSF itselfe.
-mere agregation of work does not put you under any copywrite restrictions,
-derived work does - drawing this line is not easy and expecting anybody to
-give you "the definitive guide on derived work" is a bit naiv.
-You might want to scan the FSF statements on these issues...
+I don't see the point of this...
 
-hofrat
+>    2.  Make it possible to set this mount option from user
+>        space (I don't like this, but it would get me around
+>        the problem).
+
+?? do you mean use of -oremount ?  possible, I suppose. Doesn't seem much 
+better than (1) to me though.
+
+>    3.  Make it so that isofs/dir.c still strips out hidden
+>        files, but enable isofs/namei.c to return a hidden file that
+>        is opened directly by name.
+
+Yes. Do this, or something like it.
+
+AFAIK, Windows "hidden" files are supposed to behave much like Unix 'dot' 
+files (.login, etc), so IMO the kernel should not use the hidden bit at all. 
+Instead, it should be 'ls' et al that do this. Now, I guess this isn't 
+particularly practical without changing fileutils and many other things, so I 
+would suggest that the kernel is changed to pass on, if possible, but 
+basically ignore the 'hidden' bit.
+
+Regards,
+
+Ruth
+
+-- 
+Ruth Ivimey-Cook
+Software engineer and technical writer.
+

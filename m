@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268052AbUH1Vxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268067AbUH1VvT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268052AbUH1Vxi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 17:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268073AbUH1Vxf
+	id S268067AbUH1VvT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 17:51:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268052AbUH1VvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 17:53:35 -0400
-Received: from colo.lackof.org ([198.49.126.79]:35514 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S268052AbUH1Vx3 (ORCPT
+	Sat, 28 Aug 2004 17:51:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:39897 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268073AbUH1Vs3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 17:53:29 -0400
-Date: Sat, 28 Aug 2004 15:53:26 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Jon Smirl <jonsmirl@yahoo.com>, Greg KH <greg@kroah.com>,
-       Jesse Barnes <jbarnes@engr.sgi.com>, Martin Mares <mj@ucw.cz>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-Message-ID: <20040828215326.GE20230@colo.lackof.org>
-References: <20040827164303.GW16196@parcelfarce.linux.theplanet.co.uk> <20040827222938.12618.qmail@web14922.mail.yahoo.com> <20040828163521.GD16196@parcelfarce.linux.theplanet.co.uk>
+	Sat, 28 Aug 2004 17:48:29 -0400
+Date: Sat, 28 Aug 2004 14:46:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ext2 mount options doc
+Message-Id: <20040828144630.13df93e0.akpm@osdl.org>
+In-Reply-To: <20040828213014.GA2079@apps.cwi.nl>
+References: <UTC200408271606.i7RG6tV27596.aeb@smtp.cwi.nl>
+	<Pine.LNX.4.58.0408271104300.14196@ppc970.osdl.org>
+	<20040828011959.GC16444@apps.cwi.nl>
+	<Pine.LNX.4.58.0408271856071.14196@ppc970.osdl.org>
+	<20040828213014.GA2079@apps.cwi.nl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040828163521.GD16196@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.3.28i
-X-Home-Page: http://www.parisc-linux.org/
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 28, 2004 at 05:35:21PM +0100, Matthew Wilcox wrote:
-> > If reading past 1MB for those ROMs causes a reboots, could something be
-> > wrong in the IA64 fault handing code?
-> 
-> No, that's normal behaviour on ia64 -- unacknowledged PCI reads cause a
-> machine check rather than reading ffffffff like x86 does.
+Andries Brouwer <Andries.Brouwer@cwi.nl> wrote:
+>
+> Updated mount.8, and in the process added a few words to
+>  Documentation/filesystems/ext2.txt too.
 
-Only on HP IA64 machines (just like on HP parisc machines).
-Intel IA64 machines return -1 or garbage on Master Abort
-(due to timeout) just like the IA32 platforms.
+Linus's ext2.txt has recently been updated, so your patch generates 100%
+rejects.
 
-grant

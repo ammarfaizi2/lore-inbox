@@ -1,68 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264409AbUENBqA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264414AbUENBsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264409AbUENBqA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 21:46:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264414AbUENBqA
+	id S264414AbUENBsK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 21:48:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264512AbUENBsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 21:46:00 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:21911 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S264409AbUENBp6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 21:45:58 -0400
-Message-ID: <40A424D3.7060006@gilfillan.org>
-Date: Thu, 13 May 2004 20:45:55 -0500
-From: Perry Gilfillan <perrye@gilfillan.org>
-Reply-To: perrye@gilfillan.org
-Organization: Duck Tape Anonymous
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.5b) Gecko/20030827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: sensors <lm78@stimpy.netroedge.com>, kernel <linux-kernel@vger.kernel.org>
-Subject: Any one using i2c-voodoo3 module on the 2.6 kernel?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 13 May 2004 21:48:09 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:2730 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S264414AbUENBrt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 21:47:49 -0400
+Date: Fri, 14 May 2004 10:48:38 +0900
+From: "Y.Ishikawa" <y.ishikawa@soft.fujitsu.com>
+Subject: Re: [rft] testing BSD accounting format on different archs
+To: tim@physik3.uni-rostock.de
+Cc: linux-kernel@vger.kernel.org, y.ishikawa@soft.fujitsu.com
+Message-id: <20040514104838.7e052881.y.ishikawa@soft.fujitsu.com>
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Content-type: MULTIPART/MIXED; BOUNDARY="Boundary_(ID_n6dFki5Z4JaFsbkA48nMYA)"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+
+--Boundary_(ID_n6dFki5Z4JaFsbkA48nMYA)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+
 Hello,
 
-I've made some progress with the v3tv project.  Using the recent 2.4 
-kernels, with various patches for v4l2, i2c-2.8.x, and sensors-2.8.x, 
-I've got all of the v4l modules to attach to the i2c-voodoo3 module.
+>Date Sat, 24 Apr 2004 13:46:54 +0200 (CEST)
+>From Tim Schmielau <>
+>Subject [rft] testing BSD accounting format on different archs
+>
+>I intend to modify the format of the BSD accounting file in a way that
+>
+>  a) allows cross-platform compatibility using patched acct tools and
+ >  b) is fully binary compatible with the current format.
+>
+>To make sure these goals are met on all platforms, I'd like to see the
+>output of the attached program on all linux ports *except* x86
+>(I want to keep my Inbox manageable:).
 
-I've also got a v4l2 radio device working on the 2.4 kernel :)
+Please see the attachment for details of the result of acct after applying
+your patch.
 
-Now I'd like to start looking at the 2.6 kernel.  At this point it does 
-not seem that the i2c-voodoo3 module is loading correctly.  The module 
-is totaly silent in the logs, so I can't offer any immediate list of 
-symptoms, except to say I can find no reference to it in the sysfs and 
-proc directories.
+My machine is:
+  2 SMP of Itanium 2 (1.2GHz)
+  Memory: 8 Gbytes
+  Kernel: 2.6.6
 
-The client module probe functions never see the Voodoo3 adapter.
+BTW. how is your development for "version2" that you posted in this Mar.19.
+I have been interested in your V2 format. The account data is very 
+useful for performance analysis of processes. It would be more convenient 
+if acct datainclude pid and ppid.
+Naturally I understood V2 would have some incompatibility against current
+acct structure. However I'm sure the value of acct data would become larger
+in V2.
+I hope V2 structure would be included in 2.7 successfully.
+I also found tgid is useful in multithread environment, especially NPTL, to
+identify the thread and process of a work-unit. Could you add a tgid field
+in your V2 structure?
 
-The call to pci_module_init returns zero. Replacing that with a call to 
-pci_register_driver yeilds a one, but this may not be representative, 
-since pci_register_driver always returns a non-zero value.
+Regards,
+Y.Ishikawa
 
-I'm going to add more printk's to the pci-driver.c file, and reboot when 
-I have time for it.
+===< program message >================================================
 
-I'd appreciate any advice on where to look first, and where in sysfs to 
-look for evidence that the module loaded correctly.
+ia64 ia64 ia64 GNU/Linux
 
-Has anyone used the Banshee or Voodoo3 card with the i2c-voodoo3 module 
-in the 2.6 kernel with success?
+             v0  v1  v2
+ac_flag       0   0   0
+ac_version        1   1
+ac_uid16      2   2   2
+ac_gid16      4   4   4
+ ac_tty        6   6   6
+ac_btime      8   8   8
+ac_utime     12  12  12
+ac_stime     14  14  14
+ac_etime     16  16  16
+ac_mem       18  18  18
+ac_io        20  20  20
+ac_rw        22  22  22
+ac_minflt    24  24  24
+ac_majflt    26  26  26
+ac_swaps     28  28  28
+ac_ahz           30  36
+ac_exitcode  32  32  32
+ac_comm      36  36  38
+ac_etime_hi      53  55
+ac_etime_lo      54  56
+ac_uid           56  60
+ac_gid           60  64
+sizeof(struct acct)
+             64  64  68
 
+    01 00 04 03  06 05 08 07  0c 0b 0a 09  0e 0d 10 0f
+    12 11 14 13  16 15 18 17  1a 19 1c 1b  1e 1d 00 00
+    24 23 22 21  25 26 27 28  29 2a 2b 2c  2d 2e 2f 30
+    31 32 33 34  35 f0 f1 f2  f3 f4 f5 f6  f7 f8 f9 00
 
+    01 02 04 03  06 05 08 07  0c 0b 0a 09  0e 0d 10 0f
+    12 11 14 13  16 15 18 17  1a 19 1c 1b  1e 1d 20 1f
+    24 23 22 21  25 26 27 28  29 2a 2b 2c  2d 2e 2f 30
+    31 32 33 34  35 36 38 37  3c 3b 3a 39  40 3f 3e 3d
 
-Thanks,
+    01 02 04 03  06 05 08 07  0c 0b 0a 09  0e 0d 10 0f
+    12 11 14 13  16 15 18 17  1a 19 1c 1b  1e 1d 00 00
+    24 23 22 21  20 1f 25 26  27 28 29 2a  2b 2c 2d 2e
+    2f 30 31 32  33 34 35 36  38 37 00 00  3c 3b 3a 39
 
-Perry
------
-Projects:
-   V3TV:		http://www.gilfillan.org/v3tv/
-   VPX3224:	http://www.gilfillan.org/vpx3224/
-   V3TV-radio:	http://www.gilfillan.org/v3tv-v4l2/
-   snd-tvmixer:	http://www.gilfillan.org/ALSA/
+--Boundary_(ID_n6dFki5Z4JaFsbkA48nMYA)
+Content-type: application/octet-stream; name=acct_test_nQPpjh
+Content-disposition: attachment; filename=acct_test_nQPpjh
+Content-transfer-encoding: base64
 
+AQAEAwYFCAcMCwoJDg0QDxIRFBMWFRgXGhkcGx4dAAAkIyIhJSYnKCkqKywtLi8wMTIzNDXw8fLz
+9PX29/j5AAECBAMGBQgHDAsKCQ4NEA8SERQTFhUYFxoZHBseHSAfJCMiISUmJygpKissLS4vMDEy
+MzQ1Njg3PDs6OUA/Pj0BAgQDBgUIBwwLCgkODRAPEhEUExYVGBcaGRwbHh0AACQjIiEgHyUmJygp
+KissLS4vMDEyMzQ1Njg3AAA8Ozo5
 
+--Boundary_(ID_n6dFki5Z4JaFsbkA48nMYA)--

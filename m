@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266488AbRHAKcR>; Wed, 1 Aug 2001 06:32:17 -0400
+	id <S266464AbRHAKcr>; Wed, 1 Aug 2001 06:32:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266464AbRHAKcH>; Wed, 1 Aug 2001 06:32:07 -0400
-Received: from mta2n.bluewin.ch ([195.186.1.211]:45287 "EHLO mta2n.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S266400AbRHAKb6>;
-	Wed, 1 Aug 2001 06:31:58 -0400
-Message-ID: <3B5D8A0A002D181A@mta2n.bluewin.ch> (added by postmaster@bluewin.ch)
-From: "Per Jessen" <per.jessen@enidan.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-laptop@vger.kernel.org" <linux-laptop@vger.kernel.org>
-Date: Wed, 01 Aug 2001 12:40:01 +0200
-Reply-To: "Per Jessen" <per.jessen@enidan.com>
-X-Mailer: PMMail 98 Professional (2.01.1600) For Windows 95 (4.0.1111)
+	id <S266469AbRHAKch>; Wed, 1 Aug 2001 06:32:37 -0400
+Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:59662 "EHLO
+	mercury.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id <S266464AbRHAKc0>; Wed, 1 Aug 2001 06:32:26 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.2.13] memory leak in NFS if a sever goes away?
+In-Reply-To: <tgsnfdkrsu.fsf@mercury.rus.uni-stuttgart.de>
+	<20010731232456.A13258@emma1.emma.line.org>
+From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+Date: 01 Aug 2001 12:32:19 +0200
+In-Reply-To: <20010731232456.A13258@emma1.emma.line.org> (Matthias Andree's message of "Tue, 31 Jul 2001 23:24:56 +0200")
+Message-ID: <tgy9p4jcjw.fsf@mercury.rus.uni-stuttgart.de>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Subject: Re: PCMCIA control I82365 stops working with 2.4.4
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 May 2001 20:23:03 +0100, Per Jessen wrote:
+Matthias Andree <matthias.andree@stud.uni-dortmund.de> writes:
 
->I recently installed 2.4.4 on my toshiba tecra8100 laptop, and
->noticed that the load of the i82365 module no longer works.
->The PCIC is not detected.
->I switched back to 2.4.3, and everything works fine.
+> > Are there some known issues with 2.2.13, for example, a memory leak in
+> > the NFS code which is triggered in this specific situation?
+> 
+> There are known security threats in 2.2.x which have been fixed in
+> 2.2.16, and there have been VM fixes in a later version, and further
+> minor but numerable security fixes in 2.2.19.
 
-I have since moved on to 2.4.5, 2.4.6 and 2.4.7 - the i82365 is
-still not being detected. Should I be talking to Toshiba about this ?
-Not having the i82365 module loaded means not being able to use my
-PCMCIA network card - pretty bad situation. 
+The system has already been installed from scratch, using a more
+recent kernel version.  I agree that the kind of information I'm
+looking for is not crucial for running a current Linux kernel, but we
+were specifically asked to explain what has happened to the machine
+(and we do have satisfactory explanations for other strange things
+which were obsvered---no it wasn't hacked ;-), but this problem still
+remains a bit mysterious.  I just wanted to make sure that the problem
+described in my first posting is not a once well-known issue with
+2.2.13 or other 2.2.x kernels, and that I didn't miss an obvious
+explanation.
 
-Also, I have WinNT installed too - when I switch between WinNT boot
-Linux, unless I press RESET, my PCMCIA card is not properly recognised.
-This I can live with, but it's still a bug.
-
-Am I addressing the right mailing-list ? I'll copy this to lkml,
-just in case. 
-
-
-regards,
-Per 
-
-
-
-
-regards,
-Per Jessen, Principal Engineer, ENIDAN Technologies Ltd
-http://www.enidan.com - home of the J1 serial console.
-
-----------------------------------------------------------
-Please note:  This message is intended for the use of the individual to 
-whom it is addressed and may contain information which is privileged, 
-confidential and exempt from disclosure under applicable law. If the reader 
-of this message is not the intended, or is not the employee or agent 
-responsible for delivering the message to the intended recipient, you are 
-hereby notified that any dissemination, distribution, or copying of this
-communication is strictly prohibited.  If you have received this 
-communication in error, please notify the sender immediately by return
-email.  Thank you.
-
-
+-- 
+Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
+University of Stuttgart           http://cert.uni-stuttgart.de/
+RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

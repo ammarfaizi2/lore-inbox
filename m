@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbUE0FOP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbUE0Fip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbUE0FOP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 01:14:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbUE0FOP
+	id S261421AbUE0Fip (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 01:38:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbUE0Fip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 01:14:15 -0400
-Received: from pri-dns2.mtco.com ([207.179.200.252]:56289 "HELO
-	pri-dns2.mtco.com") by vger.kernel.org with SMTP id S261418AbUE0FOK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 01:14:10 -0400
-From: Tom Felker <tcfelker@mtco.com>
-To: Matthias Schniedermeyer <ms@citd.de>
-Subject: Re: why swap at all?
-Date: Thu, 27 May 2004 00:14:09 -0500
-User-Agent: KMail/1.6.2
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-References: <S265353AbUEZI1M/20040526082712Z+1294@vger.kernel.org> <40B47D4C.6050206@yahoo.com.au> <20040526123740.GA14584@citd.de>
-In-Reply-To: <20040526123740.GA14584@citd.de>
+	Thu, 27 May 2004 01:38:45 -0400
+Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:30309 "HELO
+	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261421AbUE0Fim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 01:38:42 -0400
+Message-ID: <40B57EDF.8060405@yahoo.com.au>
+Date: Thu, 27 May 2004 15:38:39 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Matthias Schniedermeyer <ms@citd.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: why swap at all?
+References: <S265353AbUEZI1M/20040526082712Z+1294@vger.kernel.org> <40B4590A.1090006@yahoo.com.au> <200405260934.i4Q9YblP000762@81-2-122-30.bradfords.org.uk> <40B467DA.4070600@yahoo.com.au> <20040526101001.GA13426@citd.de> <40B47278.6090309@yahoo.com.au> <20040526105837.GA13810@citd.de> <40B47D4C.6050206@yahoo.com.au> <20040526122705.GA14320@citd.de>
+In-Reply-To: <20040526122705.GA14320@citd.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405270014.10096.tcfelker@mtco.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 26 May 2004 7:37 am, Matthias Schniedermeyer wrote:
+Matthias Schniedermeyer wrote:
+> On Wed, May 26, 2004 at 09:19:40PM +1000, Nick Piggin wrote:
 
-> program to kernel: "i read ONCE though this file caching not useful".
+>>OK, this is obviously bad. Do you get this behaviour with 2.6.5
+>>or 2.6.6? If so, can you strace the program while it is writing
+>>an ISO? (just send 20 lines or so). Or tell me what program you
+>>use to create them and how to create one?
+> 
+> 
+> program: mkisofs
+> kernel: 2.4.4-2.4.25, 2.6.4-2.6.6
+> (To say it in other words, i never (seen/felt) a difference in 3 years.
+> So if there is a difference i just didn't realized there is one)
+> The current kernel is 2.6.5 as 2.6.6 sometimes just "hangs"
+> 
+> Just throw together some lage files (My files are all >= 350MB, the
+> "typical" case is about 4-5files with 800-1000MB each) and then
+> mkisofs -J -r -o <image> <source-dir>
+> I store the image files on another HDD to get best possibel throughput.
+> My HDDs (these are "normal" IDE-HDDs) are capable of delivering about
+> 35-40MB/s, the last time i measured i got about 70MB/s aggregated
+> throughput while creating an image-file.
+> 
 
-Very true.  The system is based on the assumption that just-used pages are 
-more useful that older pages, and it slows when this isn't true.  We need 
-ways to tell the kernel whether the assumption holds.
-
-(What follows are progressively more impossible ideas that I have no idea how 
-to implement.)
-
-O_STREAMING and a flag to not cache a file when it closes are a good start.  
-
-It would also be useful to do this on a per-process basis.  For example, you 
-could set a running shell so that its (and it's children's) files are 
-O_STREAMING, and use that shell to launch your one-time greps.
-
-Ulimit could set a limit on how much cache a process and its children could 
-use.  (How much overhead this would this entail?)  That would take the place 
-of the above, and it might also be useful for shell server admins who don't 
-want one user trashing everyone's interactivity.
-
-Most drastic would be to change the way to choose pages to throw out.  
-Different processes or pages could have different priorities, so you could 
-mark interactive processes as keepers even if you haven't used them in days.
-
-It's probably impossible because the kernel only knows about faults, but you 
-could give frequently but not recently used pages (your day-old browser 
-window) priority over recently but not frequently used pages (your one-time 
-grep).  You'd also need a way to allow cache to grow, which this would 
-otherwise curtail.
-
--- 
-Tom Felker, <tcfelker@mtco.com>
-<http://vlevel.sourceforge.net> - Stop fiddling with the volume knob.
-
-Alchemists became chemists when they stopped keeping secrets.
+Thanks. I'll see if I can reproduce.

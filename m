@@ -1,83 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262727AbUCJR7S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 12:59:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbUCJR7S
+	id S262742AbUCJSAC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 13:00:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbUCJR7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 12:59:18 -0500
-Received: from [193.108.190.253] ([193.108.190.253]:25472 "EHLO
-	pluto.linuxkonsulent.dk") by vger.kernel.org with ESMTP
-	id S262727AbUCJR7K convert rfc822-to-8bit (ORCPT
+	Wed, 10 Mar 2004 12:59:25 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:47042 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262734AbUCJR7R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 12:59:10 -0500
-Subject: Re: UID/GID mapping system
-From: =?ISO-8859-1?Q?S=F8ren?= Hansen <sh@warma.dk>
-To: Jesse Pollard <jesse@cats-chateau.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <04031009285900.02381@tabby>
-References: <1078775149.23059.25.camel@luke> <04030910465700.32521@tabby>
-	 <1078855981.1768.12.camel@homer>  <04031009285900.02381@tabby>
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <1078941525.1343.19.camel@homer>
+	Wed, 10 Mar 2004 12:59:17 -0500
+Date: Wed, 10 Mar 2004 09:59:08 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org, <James.Smart@Emulex.com>,
+       linux-scsi@vger.kernel.org
+Subject: Re: [Announce] Emulex LightPulse Device Driver
+Message-Id: <20040310095908.33b2082f.zaitcev@redhat.com>
+In-Reply-To: <mailman.1078908361.15239.linux-kernel2news@redhat.com>
+References: <3356669BBE90C448AD4645C843E2BF2802C014D7@xbl.ma.emulex.com>
+	<mailman.1078908361.15239.linux-kernel2news@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 10 Mar 2004 18:58:46 +0100
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ons, 2004-03-10 kl. 16:28 skrev Jesse Pollard:
-> > Er.. no. I just use the uid_t and gid_t. Are they 64bit?
-> 32 bits currently.
+On Wed, 10 Mar 2004 03:35:09 -0500
+Jeff Garzik <jgarzik@pobox.com> wrote:
 
-Ok.. But those are the data types in use in the v-nodes, right?
+> I'm only part way through a review of the driver, but I felt there is a 
+> rather large and important issue that needs addressing...  "wrappers."
 
-> > > and unlimited number of groups assigned to a single user?
-> > No. That's not my problem, is it? I just provide the mapping system.
-> but the mapping system has to be able to handle it.
+Jeff, I agree completely that Emulex code is infested with wrappers
+so much that it's harmful. However, the particular example you selected
+you interpret wrong.
 
-How do you figure that?
+> void
+> elx_sli_lock(elxHBA_t * phba, unsigned long *iflag)
 
-> > The maps are on the client, so that's no issue. The trick is to make it
-> > totally transparent to the filesystem being mounted, be it networked or
-> > non-networked.
-> The server cannot trust the clients to do the right thing.
+Flag problem on sparc is fixed by Keith Wesolowsky for 2.6.3-rcX,
+and it never existed on sparc64, which keeps CWP in a separate register.
 
-The server can't trust the client as it is now anyway. The client can do
-whatever it wants already. There is no security impact as I see it.
+Why it took years to resolve is that the expirience showed that
+there is no legitimate reason to pass flags as arguments. Every damn
+time it was done, the author was being stupid. Keith resolved it
+primarily because it was an unorthogonality in sparc implementation.
 
-> The server cannot trust the client.
+> But this bug is only an example that serves to highlight the importance 
+> of directly using Linux API functions throughout your code.  It may 
+> sound redundant, but "Linux code should look like Linux code."  This 
+> emphasis on style may sound trivial, but it's important for 
+> review-ability, long term maintenance, and as we see here, bug prevention.
 
-I know! That's an entirely different issue. The very nanosecond you give
-another machine access to your filesystem, you're up shit creek anyway.
-The only difference between the way things are now and after the system
-I'm suggesting is in place, is that the ownerships will look sane on the
-client. What possible extra security implications could this cause?
+Yes yes yes. This is the way elx_sli_lock is harmful, not because
+of its passing flags.
 
-> Since different organizations are in charge of the server, how can that server trust
-> the client?
-
-Please explain how you in any way can trust a client mounting an nfs
-export from your server? You can't. All you can do is keep your fingers
-crossed and your hacksaw sharpened (in case you want a more hands-on
-security scheme). Maps or no maps, this is the same issue.
-
-> A violation (even minor) on the client could cause a significant
-> violation of the server.
-
-Yes. Just like it can now.
-
-> As in a shipping department mounting a server, and a financial client
-> mounting from the same server - a violation on the shipping client COULD
-> expose financial data; and the server not even know. Or worse - the 
-> shipping depeartment has been outsourced...
-> The server MUST control access to its resources.
-
-Yes. As always. 
-
-If you have an idea for a patch that fixes all these issues, I'll more
-than happy to see it.
-
--- 
-Søren Hansen <sh@warma.dk>
-
+-- Pete

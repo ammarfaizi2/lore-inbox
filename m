@@ -1,49 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266780AbUGLKUz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266783AbUGLKWC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266780AbUGLKUz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 06:20:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266781AbUGLKUz
+	id S266783AbUGLKWC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 06:22:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266782AbUGLKWB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 06:20:55 -0400
-Received: from mproxy.gmail.com ([216.239.56.246]:44214 "HELO mproxy.gmail.com")
-	by vger.kernel.org with SMTP id S266780AbUGLKUy (ORCPT
+	Mon, 12 Jul 2004 06:22:01 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:63668 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S266783AbUGLKVs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 06:20:54 -0400
-Message-ID: <4d8e3fd304071203204c51f6c4@mail.gmail.com>
-Date: Mon, 12 Jul 2004 12:20:53 +0200
-From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-To: Hans Reiser <reiser@namesys.com>
-Subject: Re: Ext3 File System "Too many files" with snort
-Cc: Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
-       jmerkey@comcast.net, Pete Harlan <harlan@artselect.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <40F02E05.8090401@namesys.com>
+	Mon, 12 Jul 2004 06:21:48 -0400
+Date: Mon, 12 Jul 2004 12:21:24 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Daniel Phillips <phillips@istop.com>, sdake@mvista.com,
+       David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
+Message-ID: <20040712102124.GH3933@marowsky-bree.de>
+References: <200407050209.29268.phillips@redhat.com> <200407101657.06314.phillips@redhat.com> <1089501890.19787.33.camel@persist.az.mvista.com> <200407111544.25590.phillips@istop.com> <20040711210624.GC3933@marowsky-bree.de> <1089615523.2806.5.camel@laptop.fenrus.com> <20040712100547.GF3933@marowsky-bree.de> <20040712101107.GA31013@devserv.devel.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <070920041920.2370.40EEEFFD000B341B000009422200763704970A059D0A0306@comcast.net> <40EF797E.6060601@namesys.com> <20040710083347.GC6386@redhat.com> <40F02963.5040500@namesys.com> <20040710174432.GA18719@infradead.org> <40F02E05.8090401@namesys.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040712101107.GA31013@devserv.devel.redhat.com>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Jul 2004 10:57:25 -0700, Hans Reiser <reiser@namesys.com> wrote:
-> Christoph Hellwig wrote:
-[...]
-> Lindows does it right.
+On 2004-07-12T12:11:07,
+   Arjan van de Ven <arjanv@redhat.com> said:
 
-I dunno how Lindows manage the release process,
-but as I already wrote in a different thread, I don't unserstand why
-the linux kernel release process can't be supported by a suite of test
-that has to be passed before being released a new -rc or final
-version.
+> well the problem is that you cannot prevent a syscall from blocking really.
+> O_NONBLOCK only impacts the waiting for IO/socket buffer space to not do so
+> (in general), it doesn't impact the memory allocation strategies by
+> syscalls. And there's a whopping lot of that in the non-boring syscalls...
+> So while your heartbeat process won't block during getpid, it'll eventually
+> need to do real work too .... and I'm quite certain that will lead down to
+> GFP_KERNEL memory allocations.
 
-It seems there are now the all the tools we need but we are note using
-them to manage the releases.
+Sure, but the network IO is isolated from the main process via a _very
+careful_ non-blocking IO using sockets library, so that works out well.
+The only scenario which could still impact this severely would be that
+the kernel did not schedule the soft-rr tasks often enough or all NICs
+being so overloaded that we can no longer send out the heartbeat
+packets, and some more silly conditions. In either case I'd venture that
+said node is so unhealthy that it is quite rightfully evicted from the
+cluster. A node which is so overloaded should not be starting any new
+resources whatsoever.
 
-I'm referring to LTP, compile stats and regression test from OSDL.
+However, of course this is more difficult for the case where you are in
+the write path needed to free some memory; alas, swapping to a GFS mount
+is probably a realllllly silly idea, too.
+
+But again, I'd rather like to see this solved (memory pools for
+userland, PF_ etc), because it's relevant for many scenarios requiring
+near-hard-realtime properties, and the answer surely can't be to push it
+all into the kernel.
 
 
-Ciao,
-               Paolo
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
 -- 
-paoloc.doesntexist.org
+High Availability & Clustering	    \ ever tried. ever failed. no matter.
+SUSE Labs, Research and Development | try again. fail again. fail better.
+SUSE LINUX AG - A Novell company    \ 	-- Samuel Beckett
+

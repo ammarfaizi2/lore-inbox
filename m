@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266195AbRF3PBW>; Sat, 30 Jun 2001 11:01:22 -0400
+	id <S266201AbRF3PjY>; Sat, 30 Jun 2001 11:39:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266196AbRF3PBM>; Sat, 30 Jun 2001 11:01:12 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25100 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S266195AbRF3PBE>;
-	Sat, 30 Jun 2001 11:01:04 -0400
-Date: Sat, 30 Jun 2001 16:01:01 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: alan@lxorguk.ukuu.org.uk, kaos@ocs.com.au, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.6-pre6: numerous dep_{bool,tristate} $CONFIG_ARCH_xxx bugs
-Message-ID: <20010630160101.G12788@flint.arm.linux.org.uk>
-In-Reply-To: <200106301457.HAA14801@adam.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200106301457.HAA14801@adam.yggdrasil.com>; from adam@yggdrasil.com on Sat, Jun 30, 2001 at 07:57:10AM -0700
+	id <S266203AbRF3PjP>; Sat, 30 Jun 2001 11:39:15 -0400
+Received: from saga3.Stanford.EDU ([171.64.15.133]:36015 "EHLO
+	saga3.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S266201AbRF3PjC>; Sat, 30 Jun 2001 11:39:02 -0400
+Date: Sat, 30 Jun 2001 08:38:49 -0700 (PDT)
+From: Ted Unangst <tedu@stanford.edu>
+To: Dmitri Pogosyan <pogosyan@cita.utoronto.ca>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: The latest Microsoft FUD.  This time from BillG, himself.
+In-Reply-To: <fa.hs4no6v.h0k6ok@ifi.uio.no>
+Message-ID: <Pine.GSO.4.31.0106300834230.23377-100000@saga3.Stanford.EDU>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 30, 2001 at 07:57:10AM -0700, Adam J. Richter wrote:
-> 	So, I guess something like Keith Owens's patch would be the
-> way to go, with some additional definitions (CONFIG_AGP, CONFIG_PCI,
-> CONFIG_ISA, CONFIG_EISA, CONFIG_PCMCIA, and possibly others).  I am
-> not sure which other conditionals might also be incorrectly ignored by
-> some instances of dep_xxx.  Below, I have included a list of the 52
-> CONFIG_* variables that are used as arguments to dep_xxx in 2.4.6-pre6
-> and appear in arch/*/config.in.
+On Sat, 30 Jun 2001, Dmitri Pogosyan wrote:
 
-I have confirmed that Keith Owens patch doesn't work with xconfig - you
-can't select any option which has been define_bool'd to 'n'.
+> Well, this is an old as world argument used to take your freedom away -
+> 'law obeying citizens have nothing to fear'
+
+except that you are opting in, by purchasing the product.
+
+> Why not allow police to search your car at every moment they wish ?
+> If you have nothing to hide, it is just a minor inconvenience, but how
+> many criminals will be caught !  Let us put permanent roadblocks at
+> every
+> entrance to the cities !
+
+microsoft != government.  the us constitution only applies to government,
+not private industries, and certainly wouldn't help you, in canada.
+
+> And now I have to ask permission every time I put my own purchased CD in
+> my computer and explain and prove that I'm not a pirate.  Speak about
+> living in freedom.
+
+you purchased it, meaning you wanted it.  nobody, except maybe your boss
+made you buy it, and then you can always get a new job.  you have as much
+freedom as you want, don't use ms products if you don't like them.
+
+ted
 
 --
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+"I promise you a police car on every sidewalk."
+      - M. Barry Mayor of Washington, DC
 

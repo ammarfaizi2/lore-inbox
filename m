@@ -1,70 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261873AbTIZDig (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 23:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbTIZDig
+	id S261914AbTIZDvo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 23:51:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbTIZDvo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 23:38:36 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:32387 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261873AbTIZDie (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 23:38:34 -0400
-Subject: Re: HT not working by default since 2.4.22
-From: Len Brown <len.brown@intel.com>
-To: Jeff Garzik <jgarzik@pobox.com>
+	Thu, 25 Sep 2003 23:51:44 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:51177 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261914AbTIZDvm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 23:51:42 -0400
+Date: Thu, 25 Sep 2003 23:49:51 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Len Brown <len.brown@intel.com>
 Cc: marcelo@parcelfarce.linux.theplanet.co.uk,
        Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        "Nakajima, Jun" <jun.nakajima@intel.com>
-In-Reply-To: <3F738288.5060304@pobox.com>
-References: <Pine.LNX.4.44.0309251426570.30864-100000@parcelfarce.linux.theplanet.co.uk>
-	 <3F738288.5060304@pobox.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1064547463.2981.833.camel@dhcppc4>
+Subject: Re: HT not working by default since 2.4.22
+Message-ID: <20030926034951.GA12338@gtf.org>
+References: <Pine.LNX.4.44.0309251426570.30864-100000@parcelfarce.linux.theplanet.co.uk> <3F738288.5060304@pobox.com> <1064547463.2981.833.camel@dhcppc4>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 25 Sep 2003 23:37:43 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1064547463.2981.833.camel@dhcppc4>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Unfortunately CONFIG_ACPI_HT_ONLY outside and independent of CONFIG_ACPI 
-> proved a bit confusing.
-
-It was outside, but it wasn't independent -- and _that_ I think was the
-source of confusion.
-
-CONFIG_ACPI depended on CONFIG_ACPI_HT.  This looked good on paper
-because CONFIG_ACPI_HT is a sub-set of CONFIG_ACPI...
-
-But people who wanted ACPI but didn't want HT (eg. everybody with a PIII
-laptop...) were perplexed that they had to "enable HT" in order to get
-ACPI.
-
-> How about the more simple CONFIG_HYPERTHREAD or CONFIG_HT?
+On Thu, Sep 25, 2003 at 11:37:43PM -0400, Len Brown wrote:
+> > How about the more simple CONFIG_HYPERTHREAD or CONFIG_HT?
+> > 
+> > If enabled and CONFIG_SMP is set, then we will attempt to discover HT 
+> > via ACPI tables, regardless of CONFIG_ACPI value.
 > 
-> If enabled and CONFIG_SMP is set, then we will attempt to discover HT 
-> via ACPI tables, regardless of CONFIG_ACPI value.
+> Yes, except I think we should keep the name CONFIG_ACPI_HT_ONLY since it
+> says exactly what it does.
+> 
+> Hopefully I can make it looke clear in the menus --
+> I think on the config menus for CONFIG_ACPI_HT_ONLY and CONFIG_ACPI
+> should be mutually exclusive.
 
-Yes, except I think we should keep the name CONFIG_ACPI_HT_ONLY since it
-says exactly what it does.
+Now that I've thought of it (aren't I humble), I rather like CONFIG_HT.
+It's simple and it's effects should be obvious to both developer and
+user:
 
-Hopefully I can make it looke clear in the menus --
-I think on the config menus for CONFIG_ACPI_HT_ONLY and CONFIG_ACPI
-should be mutually exclusive.
+	CONFIG_HT, CONFIG_ACPI == ACPI
+	!CONFIG_HT, CONFIG_ACPI == ACPI
+	CONFIG_HT, !CONFIG_ACPI == HT-only ACPI
+	!CONFIG_HT, !CONFIG_ACPI == no ACPI
 
-> Or... (I know multiple people will shoot me for saying this) we could 
-> resurrect acpitable.[ch], and build that when CONFIG_ACPI is disabled.
-
-The question about configs is independent of the acpitable.[ch] vs
-table.c implementation.  No, we should not return to maintaining two
-copies of the acpi table code.
-
-thanks,
--Len
+Following the "autoconf model", what we really want to be testing with
+CONFIG_xxx is _features_, where possible. "hyperthreading: yes/no" is
+IMO more clear than "do I want ht-only ACPI or full ACPI", while at the
+same time being more fine-grained and future-proof.
 
 
+> > Or... (I know multiple people will shoot me for saying this) we could 
+> > resurrect acpitable.[ch], and build that when CONFIG_ACPI is disabled.
+> 
+> The question about configs is independent of the acpitable.[ch] vs
+> table.c implementation.  No, we should not return to maintaining two
+> copies of the acpi table code.
+
+Point; agreed.
+
+	Jeff
 
 

@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315419AbSH0Ix2>; Tue, 27 Aug 2002 04:53:28 -0400
+	id <S315415AbSH0Iva>; Tue, 27 Aug 2002 04:51:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315427AbSH0Ix2>; Tue, 27 Aug 2002 04:53:28 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:25233 "HELO ulima.unil.ch")
-	by vger.kernel.org with SMTP id <S315419AbSH0Ix1>;
-	Tue, 27 Aug 2002 04:53:27 -0400
-Date: Tue, 27 Aug 2002 10:57:45 +0200
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Interdiff of AC series?
-Message-ID: <20020827085745.GF25765@ulima.unil.ch>
-References: <20020826123340.GD25765@ulima.unil.ch> <20020826132511.GA11762@neon.hh59.org> <20020826201142.GA4183@ulima.unil.ch> <20020826220745.GQ959@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="H+4ONPRPur6+Ovig"
-Content-Disposition: inline
-In-Reply-To: <20020826220745.GQ959@redhat.com>
-User-Agent: Mutt/1.4i
+	id <S315416AbSH0Iva>; Tue, 27 Aug 2002 04:51:30 -0400
+Received: from mx7.sac.fedex.com ([199.81.194.38]:7693 "EHLO mx7.sac.fedex.com")
+	by vger.kernel.org with ESMTP id <S315415AbSH0Iv3>;
+	Tue, 27 Aug 2002 04:51:29 -0400
+Date: Tue, 27 Aug 2002 16:55:00 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Erik Andersen <andersen@codepoet.org>
+cc: Jeff Chua <jchua@fedex.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [BUG] initrd >24MB corruption (fwd)
+In-Reply-To: <20020827025616.GA6998@codepoet.org>
+Message-ID: <Pine.LNX.4.44.0208271648040.26407-100000@boston.corp.fedex.com>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/27/2002
+ 04:55:36 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/27/2002
+ 04:55:39 PM,
+	Serialize complete at 08/27/2002 04:55:39 PM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---H+4ONPRPur6+Ovig
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Mon, 26 Aug 2002, Erik Andersen wrote:
 
-On Mon, Aug 26, 2002 at 11:07:45PM +0100, Tim Waugh wrote:
+> How much total ram does your system have?
 
-> > I know how to make interdiff, what I would like is to fetch less bits
-> > with my modem connection...
->=20
-> You know that interdiff only needs the two patches, and not the entire
-> trees?
+640MB.
 
-Please don't CC to me: I am on the ml...
-Yes I know, but: what does that change if the resaon I would like to
-have interdiff is to avoid dowloading big patches?
 
-Thank you,
+Jeff.
 
-	Gr=E9goire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
 
---H+4ONPRPur6+Ovig
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9az8HFDWhsRXSKa0RAqFCAJ9EYq8k21P54jDBtPFCpAFmfpJpjACfVNFa
-ih/+8NyeQIlDproos3PkqYM=
-=dLEz
------END PGP SIGNATURE-----
-
---H+4ONPRPur6+Ovig--

@@ -1,102 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261864AbULUWU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbULUWWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261864AbULUWU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 17:20:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbULUWU3
+	id S261882AbULUWWz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 17:22:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbULUWWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 17:20:29 -0500
-Received: from smtp.andrew.cmu.edu ([128.2.10.83]:14769 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261864AbULUWUR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 17:20:17 -0500
-Date: Tue, 21 Dec 2004 17:20:15 -0500 (EST)
-From: "Nathaniel W. Filardo" <nwf@andrew.cmu.edu>
-To: Ingo Molnar <mingo@elte.hu>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] XFS crash using Realtime Preemption patch
-In-Reply-To: <20041221104042.GA31843@elte.hu>
-Message-ID: <Pine.LNX.4.60-041.0412211649220.11361@unix49.andrew.cmu.edu>
-References: <Pine.LNX.4.60-041.0412182025220.5487@unix49.andrew.cmu.edu>
- <20041221104042.GA31843@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 21 Dec 2004 17:22:55 -0500
+Received: from thunk.org ([69.25.196.29]:59370 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261882AbULUWWu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 17:22:50 -0500
+Date: Tue, 21 Dec 2004 17:19:24 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Greg KH <greg@kroah.com>, Adrian Bunk <bunk@stusta.de>,
+       Dan Dennedy <dan@dennedy.org>, Ben Collins <bcollins@debian.org>,
+       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
+Message-ID: <20041221221924.GA12709@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Lee Revell <rlrevell@joe-job.com>, Greg KH <greg@kroah.com>,
+	Adrian Bunk <bunk@stusta.de>, Dan Dennedy <dan@dennedy.org>,
+	Ben Collins <bcollins@debian.org>,
+	Linux1394-Devel <linux1394-devel@lists.sourceforge.net>,
+	linux-kernel@vger.kernel.org
+References: <20041220015320.GO21288@stusta.de> <1103508610.3724.69.camel@kino.dennedy.org> <20041220022503.GT21288@stusta.de> <1103510535.1252.18.camel@krustophenia.net> <1103516870.3724.103.camel@kino.dennedy.org> <20041220225324.GY21288@stusta.de> <1103583486.1252.102.camel@krustophenia.net> <20041221171702.GE1459@kroah.com> <1103649633.9220.12.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1103649633.9220.12.camel@krustophenia.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 21, 2004 at 12:20:32PM -0500, Lee Revell wrote:
+> On Tue, 2004-12-21 at 09:17 -0800, Greg KH wrote:
+> > On Mon, Dec 20, 2004 at 05:58:06PM -0500, Lee Revell wrote:
+> > > On Mon, 2004-12-20 at 23:53 +0100, Adrian Bunk wrote:
+> > > > The solution is simple:
+> > > > The vendor or services provider submits his driver for inclusion into 
+> > > > the kernel which is the best solution for everyone.
+> > > > 
+> > > 
+> > > What if the driver is under development and doesn't work yet?
+> > 
+> > Many drivers have been accepted into the kernel tree before they worked
+> > properly :)
+> 
+> Yeah but I hope you can understand why someone would be hesitant to
+> submit a broken driver.  It just makes the author look bad.  I would not
+> feel right submitting something that didn't work.
 
+That's what CONFIG_EXPERIMENTAL is for....
 
-On Tue, 21 Dec 2004, Ingo Molnar wrote:
-
->
-> * Nathaniel W. Filardo <nwf@andrew.cmu.edu> wrote:
->
->> Hello all.
->>
->> Using 2.6.10-rc3-mm1-V0.7.33-04 and TCFQ ver 17, I get the following
->> crash while trying to sync the portage tree, though the system seems
->> stable under interactive load (read: an rm command went OK prior to
->> this crash).
->>
->> Machine is a 933MHz transmeta laptop with IDE disk.
->>
->> Any more information you need?
->> --nwf;
->>
->> kernel BUG at kernel/rt.c:1210!
->
-> Seems like an XFS bug at first sight. The BUG() means that an up_write()
-> was done while a down_read() was active for the lock. Does XFS really do
-> this? Initialization/destruction bugs can possibly cause such messages
-> too.
-
->From what I can make of the XFS code, it looks fine.  Somebody's either 
-being horribly rude to memory (stomp) or there's some other issue... 
-sadly, the machine is a laptop and thus nigh on impossible to get any real 
-debugging out of.
-
-I don't *think* it's memory issues as it's pretty reproducable and is 
-exactly the same every time I've tried.
-
-Open to suggestions.
-
---nwf;
-
-> Here's the call sequence:
->
->> EIP is at up_write+0x8c/0xa0
->>  [<c01d2d5c>] xfs_iunlock+0x7c/0xa0 (32)
-
-fs/xfs/linux-2.6/mrlock.h: mrunlock( mrlock_t *mrp )
- 	Switches behavior based on mr_writer flag as to whether to
- 	up_read or up_write.  Since we're taking the up_write branch,
- 	we should look for where a down_read was called.  This can
- 	come through via a mraccessf or mrtryaccess.
-
- 	  if (mrp->mr_writer) {
- 	    mrp->mr_writer = 0;
- 	    up_write(&mrp->mr_lock);
- 	  } else {
- 	    up_read(&mrp->mr_lock);
- 	  }
-
-fs/xfs/xfs_iget.c
- 	calls mrunlock() inlined - see abov
- 		on ip->i_lock and/or ip->i_iolock, based on flags
-
->>  [<c01d728c>] xfs_iflush+0x1cc/0x440 (12)
-
-fs/xfs/xfs_inode.c
- 	ASSERT's that ip->i_lock is already taken, so we're probably
- 	chasing after that one.
-
->>  [<c01d85a0>] xfs_inode_item_push+0x10/0x20 (60)
-
-fs/xfs/xfs_inode_item.c
- 	ASSERT's that lock is already taken
-
->>  [<c01ebd0a>] xfs_trans_push_ail+0x1aa/0x1e0 (8)
-
-fs/xfs/xfs_trans_ail.c
- 	through IOP_TRYLOCK (maps to xfs_inode_item_trylock)
- 	through xfs_ilock_nowait (SHARED)
- 	locks both ip->i_lock and ip->i_iolock through mrtryaccess()
+						- Ted

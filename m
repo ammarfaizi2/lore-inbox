@@ -1,33 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261268AbRETDPW>; Sat, 19 May 2001 23:15:22 -0400
+	id <S261403AbRETD0w>; Sat, 19 May 2001 23:26:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261396AbRETDPN>; Sat, 19 May 2001 23:15:13 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:21000 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S261268AbRETDPD>;
-	Sat, 19 May 2001 23:15:03 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Ben Bridgwater <bennyb@ntplx.net>
-cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Brown-paper-bag bug in m68k, sparc, and sparc64 config files 
-In-Reply-To: Your message of "Sat, 19 May 2001 22:14:33 -0400."
-             <3B072889.1DC9E69A@ntplx.net> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 20 May 2001 13:14:52 +1000
-Message-ID: <12428.990328492@ocs3.ocs-net>
+	id <S261402AbRETD0n>; Sat, 19 May 2001 23:26:43 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:13063 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261399AbRETD0g>; Sat, 19 May 2001 23:26:36 -0400
+Date: Sat, 19 May 2001 20:26:20 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: Matthew Wilcox <matthew@wil.cx>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Alexander Viro <viro@math.psu.edu>, Andrew Clausen <clausen@gnu.org>,
+        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+In-Reply-To: <200105200248.f4K2mws02918@mobilix.ras.ucalgary.ca>
+Message-ID: <Pine.LNX.4.21.0105192017480.28666-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 May 2001 22:14:33 -0400, 
-Ben Bridgwater <bennyb@ntplx.net> wrote:
->To present a dumbed down UI targeted for "Aunt Millie" or
->whoever against the protests of the mainstream kernel tool audience
->makes zero sense to me, as don't Eric's repeated antagonistic comments.
 
-How many times do we have to say this?  CML2 supports everybody from
-Aunt Millie (novice mode) through non-standard machine configurations
-(expert mode) through Linus (vi .config, make oldconfig).  Pick the
-level of configuration that you need.
+On Sat, 19 May 2001, Richard Gooch wrote:
+>
+> Matthew Wilcox writes:
+> > On Sat, May 19, 2001 at 10:22:55PM -0400, Richard Gooch wrote:
+> > > The transaction(2) syscall can be just as easily abused as ioctl(2) in
+> > > this respect.
+> > 
+> > But read() and write() cannot.
+> 
+> Sure they can. I can pass a pointer to a structure to either of them.
+
+You're missing the point.
+
+It's ok to do "read()/write()" on structures. In fact, people do that all
+the time (and then they complain about the file not being portable ;)
+
+The problem with ioctl is that not only are people passing ioctl's
+pointers to structures, but:
+ - they're not telling how big the structure is
+ - the structure can have pointers to other places
+ - sometimes it modifies the structure passed in
+
+None of which are "network-nice". Basically, ioctl() is historically used
+as a "pass any crap into driver xxxx, and the driver - and ONLY the driver
+- will know what to do with it".
+
+And when _only_ a driver knows what the arguments mean, upper layers can't
+encapsulate them. Upper layers cannot make a packet of the argument and
+send it over the network to another machine. Upper layers cannot do
+sanity-checking on things like "is this argument a valid pointer". Which
+means, for example, that not only can you not send the ioctl arguments
+anywhere, but ioctl's have also historically been a hot-bed of bugs.
+
+Example traditional ioctl bugs: use kernel pointers to access the argument
+(because it just happens to work on x86, never mind the fact that if the
+argument is bad you'll get a kernel oops and/or a serious security error).
+Other example: different drivers/f ilesystems implementing the same ioctl,
+but disagreeing on what the argument means (is it a pointer to an integer
+argument, or the integer itself?).
+
+Now, the advantage of using read()/write() is (a) that it's unambiguous
+where the argument comes from and how big it is and (b) because of that
+the _psychology_ is different. You don't get into this "pass random crap
+around, let the kernel modify user data structures directly" mentality.
+
+And psychology is important.
+
+		Linus
 

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262766AbTJNTau (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 15:30:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262784AbTJNTau
+	id S262407AbTJNTfz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 15:35:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262357AbTJNTfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 15:30:50 -0400
-Received: from havoc.gtf.org ([63.247.75.124]:55265 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S262766AbTJNTat (ORCPT
+	Tue, 14 Oct 2003 15:35:55 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:56545 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262407AbTJNTcS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 15:30:49 -0400
-Date: Tue, 14 Oct 2003 15:30:48 -0400
+	Tue, 14 Oct 2003 15:32:18 -0400
+Date: Tue, 14 Oct 2003 15:32:14 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: New queue:  net-drivers-exp
-Message-ID: <20031014193048.GA22739@gtf.org>
+Subject: [BK PATCHES] 2.4.x experimental net driver updates
+Message-ID: <20031014193214.GA23154@gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,24 +22,25 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Over time while using BK, I have developed "queues", or buckets, into
-which patches are sorted.  One of the key ones are the
-net-drivers-2.[45] queues, which are staging areas for sending
-net-driver-related patches to Marcelo and Linus.
+BK users:
 
-With the "bug fixes only" freeze in 2.6, I took the opportunity to send
-some of the non-bugfix patches to a new pair of queues,
-"net-drivers-2.[45]-exp", with "-exp" meaning experimental.
+	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.4-exp
 
-The contents of net-drivers-2.[45]-exp will be patches pending for
-Marcelo or Linus, but ones that need to "stew" for a little while.
-Brand new features and drivers will sit here for a week or two, usually,
-to allow for greater public review and testing.
+GNU diff:
+ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.4/2.4.22-bk34-netdrvr-exp1.patch.bz2
 
-See upcoming 2.4 and 2.6 postings for BitKeeper and patch URLs.
+This will update the following files:
 
-	Jeff
+ drivers/net/8139too.c    |   51 +++++++++++++++--------
+ drivers/net/Makefile.lib |    1 
+ drivers/net/natsemi.c    |  101 +++++++++++++++--------------------------------
+ 3 files changed, 68 insertions(+), 85 deletions(-)
 
+through these ChangeSets:
 
+<jgarzik@redhat.com> (03/10/14 1.1191)
+   [netdrvr natsemi] backport 2.6 fixes and cleanups
 
+<krishnakumar@naturesoft.net> (03/10/14 1.1190)
+   [netdrvr 8139too] support netif_msg_* interface
 

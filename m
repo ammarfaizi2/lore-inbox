@@ -1,168 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130300AbQKGXJr>; Tue, 7 Nov 2000 18:09:47 -0500
+	id <S130073AbQKGXN1>; Tue, 7 Nov 2000 18:13:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130481AbQKGXJh>; Tue, 7 Nov 2000 18:09:37 -0500
-Received: from boss.staszic.waw.pl ([195.205.163.66]:39439 "EHLO
-	boss.staszic.waw.pl") by vger.kernel.org with ESMTP
-	id <S130300AbQKGXJa>; Tue, 7 Nov 2000 18:09:30 -0500
-Date: Wed, 8 Nov 2000 00:09:38 +0100 (CET)
-From: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
-To: linux-kernel@vger.kernel.org
-cc: torvalds@transmeta.com
-Subject: [PATCH] 
-Message-ID: <Pine.LNX.4.21.0011080005410.1628-200000@tricky>
+	id <S130202AbQKGXNR>; Tue, 7 Nov 2000 18:13:17 -0500
+Received: from k2.llnl.gov ([134.9.1.1]:42730 "EHLO k2.llnl.gov")
+	by vger.kernel.org with ESMTP id <S130073AbQKGXNG>;
+	Tue, 7 Nov 2000 18:13:06 -0500
+Message-ID: <3A08455E.F3583D1B@scs.ch>
+Date: Tue, 07 Nov 2000 10:09:34 -0800
+From: Reto Baettig <baettig@scs.ch>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.17ext3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1578824213-973638578=:1628"
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Alpha SMP problem
+Content-Type: multipart/mixed;
+ boundary="------------ECD6238D6E478D72F2A72E2C"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+This is a multi-part message in MIME format.
+--------------ECD6238D6E478D72F2A72E2C
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
---8323328-1578824213-973638578=:1628
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Hi
 
+I have a problem whith Alpha SMP's which seems to be kernel-related. I
+discussed this on the bug-glibc list but everybody seems to agree that
+it cannot be a libc problem.
 
-I hitted few items from Dawson Engler's list of potential kmalloc/kfree
-bugs...
+I attached a little testprogram which reproduces the bug in < 1Minute. 
+BUT: IT MUST BE STARTED AT LEAST TWICE!
 
---
-Bartlomiej Zolnierkiewicz
-<bkz@linux-ide.org>
+The strange thing is that a single instance of the program runs just
+fine. When I start the program a second time, I get segfaults and/or
+stuck threads.
 
---8323328-1578824213-973638578=:1628
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="kmkf-bugs-1.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.21.0011080009380.1628@tricky>
-Content-Description: 
-Content-Disposition: attachment; filename="kmkf-bugs-1.diff"
+We could reproduce this behaviour on different Machines, both with linux
+2.2.14 and 2.4.0-test10, but 
+ONLY ON ALPHA SMP MACHINES.
 
-LS0tIGxpbnV4LTI0MHQxMC9kcml2ZXJzL2lkZS9pZGUtcHJvYmUuYwlUdWUg
-T2N0ICAzIDAwOjE2OjUxIDIwMDANCisrKyBsaW51eC9kcml2ZXJzL2lkZS9p
-ZGUtcHJvYmUuYwlUdWUgTm92ICA3IDAwOjI1OjM1IDIwMDANCkBAIC02NTIs
-NiArNjUzLDEwIEBADQogCQlod2dyb3VwID0gbWF0Y2gtPmh3Z3JvdXA7DQog
-CX0gZWxzZSB7DQogCQlod2dyb3VwID0ga21hbGxvYyhzaXplb2YoaWRlX2h3
-Z3JvdXBfdCksIEdGUF9LRVJORUwpOw0KKwkJaWYoIWh3Z3JvdXApIHsNCisJ
-CQlyZXN0b3JlX2ZsYWdzKGZsYWdzKTsNCisJCQlyZXR1cm4gMTsNCisJCX0N
-CiAJCW1lbXNldChod2dyb3VwLCAwLCBzaXplb2YoaWRlX2h3Z3JvdXBfdCkp
-Ow0KIAkJaHdncm91cC0+aHdpZiAgICAgPSBod2lmLT5uZXh0ID0gaHdpZjsN
-CiAJCWh3Z3JvdXAtPnJxICAgICAgID0gTlVMTDsNCkBAIC03NDYsMTEgKzc1
-MSwyMyBAQA0KIAl9DQogCW1pbm9ycyAgICA9IHVuaXRzICogKDE8PFBBUlRO
-X0JJVFMpOw0KIAlnZCAgICAgICAgPSBrbWFsbG9jIChzaXplb2Yoc3RydWN0
-IGdlbmRpc2spLCBHRlBfS0VSTkVMKTsNCisJaWYoIWdkKQ0KKwkJZ290byBj
-bGVhbnVwX2dkOw0KIAlnZC0+c2l6ZXMgPSBrbWFsbG9jIChtaW5vcnMgKiBz
-aXplb2YoaW50KSwgR0ZQX0tFUk5FTCk7DQorCWlmKCFnZC0+c2l6ZXMpDQor
-CQlnb3RvIGNsZWFudXBfZ2Rfc2l6ZXM7DQogCWdkLT5wYXJ0ICA9IGttYWxs
-b2MgKG1pbm9ycyAqIHNpemVvZihzdHJ1Y3QgaGRfc3RydWN0KSwgR0ZQX0tF
-Uk5FTCk7DQorCWlmKCFnZC0+cGFydCkNCisJCWdvdG8gY2xlYW51cF9nZF9w
-YXJ0Ow0KIAlicyAgICAgICAgPSBrbWFsbG9jIChtaW5vcnMqc2l6ZW9mKGlu
-dCksIEdGUF9LRVJORUwpOw0KKwlpZighYnMpDQorCQlnb3RvIGNsZWFudXBf
-YnM7DQogCW1heF9zZWN0ICA9IGttYWxsb2MgKG1pbm9ycypzaXplb2YoaW50
-KSwgR0ZQX0tFUk5FTCk7DQorCWlmKCFtYXhfc2VjdCkNCisJCWdvdG8gY2xl
-YW51cF9tYXhfc2VjdDsNCiAJbWF4X3JhICAgID0ga21hbGxvYyAobWlub3Jz
-KnNpemVvZihpbnQpLCBHRlBfS0VSTkVMKTsNCisJaWYoIW1heF9yYSkNCisJ
-CWdvdG8gY2xlYW51cF9tYXhfcmE7DQogDQogCW1lbXNldChnZC0+cGFydCwg
-MCwgbWlub3JzICogc2l6ZW9mKHN0cnVjdCBoZF9zdHJ1Y3QpKTsNCiANCkBA
-IC03NzksMTIgKzc5NiwxNiBAQA0KIAlnZC0+cmVhbF9kZXZpY2VzPSBod2lm
-OwkJCS8qIHB0ciB0byBpbnRlcm5hbCBkYXRhICovDQogCWdkLT5uZXh0CT0g
-TlVMTDsJCQkvKiBsaW5rZWQgbGlzdCBvZiBtYWpvciBkZXZzICovDQogCWdk
-LT5mb3BzICAgICAgICA9IGlkZV9mb3BzOyAgICAgICAgICAgICAvKiBmaWxl
-IG9wZXJhdGlvbnMgKi8NCi0JZ2QtPmRlX2Fycgk9IGttYWxsb2MgKHNpemVv
-ZiAqZ2QtPmRlX2FyciAqIHVuaXRzLCBHRlBfS0VSTkVMKTsNCi0JZ2QtPmZs
-YWdzCT0ga21hbGxvYyAoc2l6ZW9mICpnZC0+ZmxhZ3MgKiB1bml0cywgR0ZQ
-X0tFUk5FTCk7DQotCWlmIChnZC0+ZGVfYXJyKQ0KLQkJbWVtc2V0IChnZC0+
-ZGVfYXJyLCAwLCBzaXplb2YgKmdkLT5kZV9hcnIgKiB1bml0cyk7DQotCWlm
-IChnZC0+ZmxhZ3MpDQotCQltZW1zZXQgKGdkLT5mbGFncywgMCwgc2l6ZW9m
-ICpnZC0+ZmxhZ3MgKiB1bml0cyk7DQorCWlmKHVuaXRzKSB7DQorCQlnZC0+
-ZGVfYXJyID0ga21hbGxvYyAoc2l6ZW9mICpnZC0+ZGVfYXJyICogdW5pdHMs
-IEdGUF9LRVJORUwpOw0KKwkJaWYoIWdkLT5kZV9hcnIpDQorCQkJZ290byBj
-bGVhbnVwX2dkX2RlX2FycjsNCisJCWdkLT5mbGFncyAgPSBrbWFsbG9jIChz
-aXplb2YgKmdkLT5mbGFncyAqIHVuaXRzLCBHRlBfS0VSTkVMKTsNCisJCWlm
-KCFnZC0+ZmxhZ3MpDQorCQkJZ290byBjbGVhbnVwX2dkX2ZsYWdzOw0KKwkJ
-bWVtc2V0KGdkLT5kZV9hcnIsIDAsIHNpemVvZiAqZ2QtPmRlX2FyciAqIHVu
-aXRzKTsNCisJCW1lbXNldChnZC0+ZmxhZ3MsIDAsIHNpemVvZiAqZ2QtPmZs
-YWdzICogdW5pdHMpOw0KKwl9DQogDQogCWZvciAoZ2RwID0gJmdlbmRpc2tf
-aGVhZDsgKmdkcDsgZ2RwID0gJigoKmdkcCktPm5leHQpKSA7DQogCWh3aWYt
-PmdkID0gKmdkcCA9IGdkOwkJCS8qIGxpbmsgb250byB0YWlsIG9mIGxpc3Qg
-Ki8NCkBAIC04MDIsNiArODIzLDI2IEBADQogCQkJCWRldmZzX21rX2RpciAo
-aWRlX2RldmZzX2hhbmRsZSwgbmFtZSwgTlVMTCk7DQogCQl9DQogCX0NCisJ
-cmV0dXJuOw0KKw0KK2NsZWFudXBfZ2RfZmxhZ3M6DQorCWtmcmVlKGdkLT5m
-bGFncyk7DQorY2xlYW51cF9nZF9kZV9hcnI6DQorCWtmcmVlKGdkLT5kZV9h
-cnIpOw0KK2NsZWFudXBfbWF4X3JhOg0KKwlrZnJlZShtYXhfcmEpOw0KK2Ns
-ZWFudXBfbWF4X3NlY3Q6DQorCWtmcmVlKG1heF9zZWN0KTsNCitjbGVhbnVw
-X2JzOg0KKwlrZnJlZShicyk7DQorY2xlYW51cF9nZF9wYXJ0Og0KKwlrZnJl
-ZShnZC0+cGFydCk7DQorY2xlYW51cF9nZF9zaXplczoNCisJa2ZyZWUoZ2Qt
-PnNpemVzKTsNCitjbGVhbnVwX2dkOg0KKwlrZnJlZShnZCk7DQorDQorCXBy
-aW50ayhLRVJOX0VSUiAiaWRlLXByb2JlOiBub3QgZW5vdWdoIG1lbW9yeSBm
-b3IgaW5pdF9nZW5kaXNrKClcbiIpOw0KIH0NCiANCiBzdGF0aWMgaW50IGh3
-aWZfaW5pdCAoaWRlX2h3aWZfdCAqaHdpZikNCi0tLSBsaW51eC0yNDB0MTAv
-ZHJpdmVycy9pMm8vaTJvX2NvbmZpZy5jCVR1ZSBPY3QgIDMgMDA6MTU6MzQg
-MjAwMA0KKysrIGxpbnV4L2RyaXZlcnMvaTJvL2kyb19jb25maWcuYwlNb24g
-Tm92ICA2IDIyOjQxOjQxIDIwMDANCkBAIC00OTksNiArNDk5LDggQEANCiAJ
-aWYoIXJlcykNCiAJew0KIAkJaTJvX3VubG9ja19jb250cm9sbGVyKGMpOw0K
-KwkJcHJpbnRrKEtFUk5fSU5GTyAiaTJvX2NvbmZpZzogY291bGQgbm90IGdl
-dCByZXNcbiIpOw0KKwkJaWYoa2NtZC5xbGVuKSBrZnJlZShxdWVyeSk7DQog
-CQlyZXR1cm4gLUVOT01FTTsNCiAJfQ0KIA0KLS0tIGxpbnV4LTI0MHQxMC9k
-cml2ZXJzL2kyby9pMm9fY29yZS5jCVRodSBPY3QgMTkgMjI6MDU6MDEgMjAw
-MA0KKysrIGxpbnV4L2RyaXZlcnMvaTJvL2kyb19jb3JlLmMJTW9uIE5vdiAg
-NiAyMjo0OTo1NSAyMDAwDQpAQCAtMTY2NCw2ICsxNjY0LDcgQEANCiAJCQl7
-DQogCQkJCXByaW50ayhLRVJOX0VSUiAiJXM6IFRpbWVvdXQgd2FpdGluZyBm
-b3IgSU9QIHJlc2V0LlxuIiwgDQogCQkJCQkJYy0+bmFtZSk7IA0KKwkJCQlr
-ZnJlZShzdGF0dXMpOw0KIAkJCQlyZXR1cm4gLUVUSU1FRE9VVDsgDQogCQkJ
-fSANCiAJCQlzY2hlZHVsZSgpOyANCi0tLSBsaW51eC0yNDB0MTAvZHJpdmVy
-cy9zY3NpL2VhdGFfZG1hLmMJVHVlIE9jdCAgMyAxNDoyNzo0NCAyMDAwDQor
-KysgbGludXgvZHJpdmVycy9zY3NpL2VhdGFfZG1hLmMJTW9uIE5vdiAgNiAy
-MzoyMTowNCAyMDAwDQpAQCAtOTA5LDggKzkwOSwxNyBAQA0KIA0KICAgICBj
-cCA9IChzdHJ1Y3QgZWF0YV9jY2IgKikga21hbGxvYyhzaXplb2Yoc3RydWN0
-IGVhdGFfY2NiKSwNCiAJCQkJICAgICBHRlBfQVRPTUlDIHwgR0ZQX0RNQSk7
-DQorICAgIGlmKCFjcCkgew0KKwlwcmludGsoS0VSTl9FUlIgImVhdGFfZG1h
-OiBvdXQgb2YgRE1BIG1lbW9yeVxuIik7DQorCXJldHVybiBOVUxMOw0KKyAg
-ICB9DQogICAgIHNwID0gKHN0cnVjdCBlYXRhX3NwICopIGttYWxsb2Moc2l6
-ZW9mKHN0cnVjdCBlYXRhX3NwKSwgDQogCQkJCQkgICAgIEdGUF9BVE9NSUMg
-fCBHRlBfRE1BKTsNCisgICAgaWYoIXNwKSB7DQorCXByaW50ayhLRVJOX0VS
-UiAiZWF0YV9kbWE6IG91dCBvZiBETUEgbWVtb3J5XG4iKTsNCisJa2ZyZWUo
-Y3ApOw0KKwlyZXR1cm4gTlVMTDsNCisgICAgfQ0KIA0KICAgICBidWZmID0g
-ZG1hX3NjcmF0Y2g7DQogIA0KQEAgLTE0NTksMTEgKzE0NjgsMTUgQEANCiAg
-ICAgdHBudC0+cHJvY19uYW1lID0gImVhdGFfZG1hIjsNCiANCiAgICAgc3Rh
-dHVzID0ga21hbGxvYyg1MTIsIEdGUF9BVE9NSUMgfCBHRlBfRE1BKTsNCisg
-ICAgaWYoIXN0YXR1cykgew0KKwlwcmludGsoS0VSTl9FUlIgImVhdGFfZG1h
-OiBub3QgZW5vdWdoIERNQSBtZW1vcnkgdG8gcHJvYmUgZm9yIGhvc3RzIVxu
-Iik7DQorCXJldHVybiAwOw0KKyAgICB9DQogICAgIGRtYV9zY3JhdGNoID0g
-a21hbGxvYygxMDI0LCBHRlBfQVRPTUlDIHwgR0ZQX0RNQSk7DQotDQotICAg
-IGlmKHN0YXR1cyA9PSBOVUxMIHx8IGRtYV9zY3JhdGNoID09IE5VTEwpIHsN
-Ci0JcHJpbnRrKCJlYXRhX2RtYTogY2FuJ3QgYWxsb2NhdGUgZW5vdWdoIG1l
-bW9yeSB0byBwcm9iZSBmb3IgaG9zdHMgIVxuIik7DQotCXJldHVybigwKTsN
-CisgICAgaWYoIWRtYV9zY3JhdGNoKSB7DQorCXByaW50ayhLRVJOX0VSUiAi
-ZWF0YV9kbWE6IG5vdCBlbm91Z2ggRE1BIG1lbW9yeSB0byBwcm9iZSBmb3Ig
-aG9zdHMhXG4iKTsNCisJa2ZyZWUoc3RhdHVzKTsNCisJcmV0dXJuIDA7DQog
-ICAgIH0NCiANCiAgICAgZG1hX3NjcmF0Y2ggKz0gNDsNCi0tLSBsaW51eC0y
-NDB0MTAvZHJpdmVycy9zY3NpL2hvc3RzLmMJVHVlIE9jdCAzMSAxMToyMDox
-NSAyMDAwDQorKysgbGludXgvZHJpdmVyL3Njc2kvaG9zdHMuYwlNb24gTm92
-ICA2IDIzOjQwOjQ1IDIwMDANCkBAIC0xNjgsNyArMTY4LDE4IEBADQogICAg
-IHJldHZhbC0+bG9hZGVkX2FzX21vZHVsZSA9IDE7DQogICAgIGlmIChmbGFn
-X25ldykgew0KIAlzaG4gPSAoU2NzaV9Ib3N0X05hbWUgKikga21hbGxvYyhz
-aXplb2YoU2NzaV9Ib3N0X05hbWUpLCBHRlBfQVRPTUlDKTsNCisJaWYoIXNo
-bikgew0KKwkJcHJpbnRrKEtFUk5fRVJSICJzY3NpOiBvdXQgb2YgbWVtb3J5
-IGluIHNjc2lfcmVnaXN0ZXJcbiIpOw0KKwkJa2ZyZWUocmV0dmFsKTsNCisJ
-CXJldHVybiBOVUxMOw0KKwl9DQogCXNobi0+bmFtZSA9IGttYWxsb2MoaG5h
-bWVfbGVuICsgMSwgR0ZQX0FUT01JQyk7DQorCWlmKCFzaG4tPm5hbWUpIHsN
-CisJCXByaW50ayhLRVJOX0VSUiAic2NzaTogb3V0IG9mIG1lbW9yeSBpbiBz
-Y3NpX3JlZ2lzdGVyXG4iKTsNCisJCWtmcmVlKHNobik7DQorCQlrZnJlZShy
-ZXR2YWwpOw0KKwkJcmV0dXJuIE5VTEw7DQorCX0NCiAJaWYgKGhuYW1lX2xl
-biA+IDApDQogCSAgICBzdHJuY3B5KHNobi0+bmFtZSwgaG5hbWUsIGhuYW1l
-X2xlbik7DQogCXNobi0+bmFtZVtobmFtZV9sZW5dID0gMDsNCi0tLSBsaW51
-eC0yNDB0MTAvZHJpdmVycy9zY3NpL2lwcy5jCVR1ZSBPY3QgIDMgMTQ6Mjc6
-NDUgMjAwMA0KKysrIGxpbnV4L2RyaXZlcnMvc2NzaS9pcHMuYwlNb24gTm92
-ICA2IDIzOjQ4OjIyIDIwMDANCkBAIC00NTUyLDYgKzQ1NTIsOCBAQA0KIA0K
-ICAgIC8qIEFsbG9jYXRlIG1lbW9yeSBmb3IgdGhlIENDQnMgKi8NCiAgICBo
-YS0+c2NicyA9IChpcHNfc2NiX3QgKikga21hbGxvYyhoYS0+bWF4X2NtZHMg
-KiBzaXplb2YoaXBzX3NjYl90KSwgR0ZQX0FUT01JQ3xHRlBfRE1BKTsNCisg
-ICBpZighaGEtPnNjYnMpDQorICAgICAgcmV0dXJuIDA7DQogDQogICAgbWVt
-c2V0KGhhLT5zY2JzLCAwLCBoYS0+bWF4X2NtZHMgKiBzaXplb2YoaXBzX3Nj
-Yl90KSk7DQogDQo=
---8323328-1578824213-973638578=:1628--
+Here's my configuration:
+
+Linux reto1 2.4.0-test10 #2 SMP Tue Oct 31 19:39:51 PST 2000 alpha
+unknown
+                            ^^^                              ^^^^^
+Kernel modules         2.3.19
+Gnu C                  egcs-2.91.66
+Gnu Make               3.78.1
+Binutils               2.9.5.0.22
+Linux C Library        2.1.3
+Dynamic linker         ldd (GNU libc) 2.1.3
+Procps                 2.0.6
+Mount                  2.10f
+Net-tools              1.54
+Console-tools          0.3.3
+Sh-utils               2.0
+Modules Loaded         nfs lockd sunrpc
+
+Any ideas?
+
+Please tell me when you need more information, or give me some pointers
+where I could start to dig...
+
+TIA
+
+Reto
+--------------ECD6238D6E478D72F2A72E2C
+Content-Type: application/octet-stream;
+ name="malloctest.tgz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="malloctest.tgz"
+
+H4sIADHC+DkAA+1WW2/bNhTOK/krTtM1kJzYluxcgKQpmtVp+5D4IXWBAVtgyNJxTEwXj6KT
+eIX/+w5JWZGTbH1Khw38YFji4bnf7Mvod5yKFLdeEEEYBIeH+1tBEB4c9Q4aT4vwMNgKjnpB
+0O/vh71D4u/1D8ItCF7SqTUWpYokwNYkQqXEzd/yfe/+P4oPHy/OPn2BU2gPrs7Ph6Ors+GI
+XwxqajpXM4lRwvno7OrT+UgTsyhNi1hhqYBzej+Gn7zq1uc8TjHKjzmTGbSnjRuIC4n8347X
+YRMPtezEL2XjO/PfPzoM1/N/0D8gvrDf2++5+f8R6LY4tKDZBXTWpCss50VeikmKx3RQBfxs
+MwBelYr3ZVx24plfCXwWpSrk8piFYTugTwAfaHEoTBiTE2Locs5fizxOFwnC21IlqZh0Zu+a
+tGXZVcs5ls+QRYaPqEqK/GaTVu2qTWJUlijVY1rWJbUKM03nrxP6DcwRhl8vx6PPV+dngy8Q
+Bpx3W6AjUzNRQiRltAR6yQsFc1kopHwlMFlCtlB4T06DUJAUaDlypEtKmpafYFMA42hRItwh
+qUQo8pS05golJZ+uxZTMIdhASiNeKpGmpBnKIkPyJb+BQlaMS7ot5nNMTILTIr9hwJiajSX+
+8WsjnGta29+CPVidcK5TTAGTpFzECjLMxvQK3ziLZzQKrcliesIZ+QQJpqjwhK/WTCR9W4iE
+j2bjAabR0jNcyuckXKnTlbqNUh0TPUiA2beOuh2XGJMfierSQghOmjcLe+UlCt6AvvUp8IqL
+gQFZIHdi5VEYw68XF5vfO1aXT85aHyFbjqt+GMemET0w9BZMF3m8Vx0ieUPeA+Nszazg/oSM
+UX69R/I792trVoOW9XXeGJtTM6qpt70pAShlIX/Lt32tkTG8F8prh+QkW9V+fpSInnUmayZy
+XZcWvZx6j4l+Rko4u5vRfzcvtF6YA3iviKn9ztbO12bramnLRMgmHjlEzT3Sja0/2byQKqJa
+UsdiXi6k7sDImGu/o34w3sMsKql9MYc7KZSiJ3ETBw09LFGZCWfMjptXS746NTnTMW/cVf5p
+8lRnYC1gKLW0Fa5JVoiowTqF69G9PPtlfHE+BC8Mevst/eXb9A6KEU2Wp0eD4h0PF88mmZ6k
+sRR/ItU/xVzniWidhkFmKRtePe0xXc09qOrp75CEyflGnUi/7nUZ5UmReX7LOqe//CqMLv0N
+G4zp4MMuhLZotW27rD3S8iipnc1883oR2Livd3dNz2wGFmodD83zcOfDk94xjD+oe2ywzzZP
+7TyVxcS5YroVaAJ5FoncJN8UWW8noRmmtDA9YcoI4m1jL9Jxd9dW5Wktbes8VNPUyRd2fPk6
+YxCCVfCQKr2/qmytF8OlKVrZHRkLx9VGsH6d/oNXtYI3+wK296CqqLg2Blh9PDWbctWwaNaO
+9VSiWshcD83K/QF3cHBwcHBwcHBwcHBwcHBwcHBwcHBwcHD4f+Mv6p3CBgAoAAA=
+--------------ECD6238D6E478D72F2A72E2C--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

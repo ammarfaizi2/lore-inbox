@@ -1,37 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbUKTJh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbUKTJm0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbUKTJh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 04:37:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbUKTJh1
+	id S261345AbUKTJm0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 04:42:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbUKTJm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 04:37:27 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9990 "EHLO
+	Sat, 20 Nov 2004 04:42:26 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14086 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261422AbUKTJf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 04:35:29 -0500
-Date: Sat, 20 Nov 2004 09:35:22 +0000
+	id S261345AbUKTJmZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 04:42:25 -0500
+Date: Sat, 20 Nov 2004 09:42:19 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
 To: Adrian Bunk <bunk@stusta.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] pcmcia/yenta_socket.c: remove an unused function
-Message-ID: <20041120093522.C7482@flint.arm.linux.org.uk>
+Subject: Re: [2.6 patch] pcmcia/yenta_socket.c: make cardbus_type static
+Message-ID: <20041120094219.D7482@flint.arm.linux.org.uk>
 Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
 	linux-kernel@vger.kernel.org
-References: <20041028231326.GD3207@stusta.de> <20041029002509.GW29142@stusta.de>
+References: <20041113030207.GV2249@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041029002509.GW29142@stusta.de>; from bunk@stusta.de on Fri, Oct 29, 2004 at 02:25:09AM +0200
+In-Reply-To: <20041113030207.GV2249@stusta.de>; from bunk@stusta.de on Sat, Nov 13, 2004 at 04:02:07AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 02:25:09AM +0200, Adrian Bunk wrote:
-> The patch below removes an unused function from 
-> drivers/pcmcia/yenta_socket.c
+On Sat, Nov 13, 2004 at 04:02:07AM +0100, Adrian Bunk wrote:
+> Since there's no user outside this file, cardbus_type in 
+> drivers/pcmcia/yenta_socket.c can be made static.
 
-I'd rather not remove this function - it's part of a logical set of IO
-primitives for this device.
+Applied, thanks.
 
 -- 
 Russell King

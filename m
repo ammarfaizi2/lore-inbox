@@ -1,41 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbVB1UzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbVB1UzH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261737AbVB1UzX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 15:55:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVB1UzW
+	id S261736AbVB1UzH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 15:55:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbVB1UzG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 15:55:22 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:52789 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261737AbVB1UzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 15:55:11 -0500
-Date: Mon, 28 Feb 2005 20:53:41 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Chris Wright <chrisw@osdl.org>
-cc: Darren Hart <dvhltc@us.ibm.com>, akpm@osdl.org, andrea@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] allow vma merging with mlock et. al.
-In-Reply-To: <20050228203307.GL15867@shell0.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.61.0502282051100.28577@goblin.wat.veritas.com>
-References: <421E74B5.3040701@us.ibm.com> 
-    <20050225171122.GE28536@shell0.pdx.osdl.net> 
-    <20050225220543.GC15867@shell0.pdx.osdl.net> 
-    <Pine.LNX.4.61.0502261626330.20871@goblin.wat.veritas.com> 
-    <20050228203307.GL15867@shell0.pdx.osdl.net>
+	Mon, 28 Feb 2005 15:55:06 -0500
+Received: from relay.uni-heidelberg.de ([129.206.100.212]:40892 "EHLO
+	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id S261736AbVB1Uy3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 15:54:29 -0500
+From: Bernd Schubert <bernd.schubert@pci.uni-heidelberg.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@muc.de>
+Subject: x86_64: 32bit emulation problems
+Date: Mon, 28 Feb 2005 21:54:03 +0100
+User-Agent: KMail/1.6.2
+Cc: nfs@lists.sourceforge.net, bernd-schubert@gmx.de
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200502282154.08009.bernd.schubert@pci.uni-heidelberg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Feb 2005, Chris Wright wrote:
-> 
-> Successive mlock/munlock calls can leave fragmented vmas because they can
-> be split but not merged.  Give mlock et. al. full vma merging support.
-> While we're at it, move *pprev assignment above first split_vma in
-> mprotect_fixup to keep it in step with mlock_fixup (which for mlockall
-> ignores errors yet still needs a valid prev pointer).
-> 
-> Signed-off-by: Chris Wright <chrisw@osdl.org>
+Hi,
 
-Acked-by: Hugh Dickins <hugh@veritas.com>
+I'm just looking into a very strange problem. Some of our systems have 
+athlon64 CPUs. Due to our diskless nfs environment we currently still prefer 
+a 32bit userspace environment, but would like to be able to use a 64-bit 
+chroot environment.
+
+Well, currently there seems to be a stat64()  NFS problem when a x86_64 kernel 
+is booted and stat64() comes from a 32bit libc.
+
+Here's just an example:
+
+hitchcock:/home/bernd/src/tests# ./test_stat64 /mnt/test/yp
+stat() works fine.
+
+
+hitchcock:/home/bernd/src/tests# ./test_stat32 /mnt/test/yp
+stat for /mnt/test/yp failed 
+
+
+The test program looks rather simple:
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+#include <stdlib.h>
+
+
+int main(int argc, char **argv)
+{
+        char *dir;
+        struct stat buf;
+
+        dir = argv[1];
+
+        if (stat (dir, &buf) == -1)
+                fprintf(stderr, "stat for %s failed \n", dir);
+        else
+                fprintf(stderr, "stat() works fine.\n");
+        return (0);
+}
+
+
+Here are the strace outputs:
+=====================
+
+32bit:
+------
+hitchcock:/home/bernd/src/tests# strace32 ./test_stat32 /mnt/test/yp
+execve("./test_stat32", ["./test_stat32", "/mnt/test/yp"], [/* 39 vars */]) = 
+0
+uname({sys="Linux", node="hitchcock", ...}) = 0
+brk(0)                                  = 0x80ad000
+brk(0x80ce000)                          = 0x80ce000
+stat64("/mnt/test/yp", {st_mode=S_IFDIR|0755, st_size=2704, ...}) = 0
+write(2, "stat for /mnt/test/yp failed \n", 30stat for /mnt/test/yp failed 
+) = 30
+exit_group(0)                           = ?
+
+64bit:
+-------
+hitchcock:/home/bernd/src/tests# strace ./test_stat64 /mnt/test/yp
+execve("./test_stat64", ["./test_stat64", "/mnt/test/yp"], [/* 39 vars */]) = 
+0
+uname({sys="Linux", node="hitchcock", ...}) = 0
+brk(0)                                  = 0x572000
+brk(0x593000)                           = 0x593000
+stat("/mnt/test/yp", {st_mode=S_IFDIR|0755, st_size=2704, ...}) = 0
+write(2, "stat() works fine.\n", 19stat() works fine.
+)    = 19
+_exit(0)                                = ?
+
+
+
+Anyone having an idea whats going on? The ethereal capture also looks pretty 
+normal. The kernel of this system is 2.6.9, but it also happens on another 
+system with 2.6.11-rc5.
+As usual we are using unfs3 for /etc and /var, but for me that looks like a 
+client problem. I'm even not sure if this is limited to NFS at all.
+
+
+Thanks in advance,
+ Bernd

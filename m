@@ -1,32 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131733AbRDPRmM>; Mon, 16 Apr 2001 13:42:12 -0400
+	id <S131756AbRDPRwQ>; Mon, 16 Apr 2001 13:52:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131756AbRDPRmD>; Mon, 16 Apr 2001 13:42:03 -0400
-Received: from kweetal.tue.nl ([131.155.2.7]:11071 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S131733AbRDPRlp>;
-	Mon, 16 Apr 2001 13:41:45 -0400
-Message-ID: <20010416194147.A16559@win.tue.nl>
-Date: Mon, 16 Apr 2001 19:41:47 +0200
-From: Guest section DW <dwguest@win.tue.nl>
-To: ebiederm@xmission.com (Eric W. Biederman),
-        "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Unisys pc keyboard new keys patch, kernel 2.4.3
-In-Reply-To: <20010413150219.A440@napalm.go.cz> <20010414002120.A15596@win.tue.nl> <9b83i5$ha7$1@cesium.transmeta.com> <m1itk5tl1k.fsf@frodo.biederman.org>
-Mime-Version: 1.0
+	id <S131806AbRDPRwG>; Mon, 16 Apr 2001 13:52:06 -0400
+Received: from mailgw.prontomail.com ([216.163.180.10]:35601 "EHLO
+	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
+	id <S131756AbRDPRv5>; Mon, 16 Apr 2001 13:51:57 -0400
+Message-ID: <3ADB30B8.109D48E3@mvista.com>
+Date: Mon, 16 Apr 2001 10:49:44 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Pavel Machek <pavel@suse.cz>, SodaPop <soda@xirr.com>,
+        alexey@datafoundation.com, linux-kernel@vger.kernel.org
+Subject: Re: [test-PATCH] Re: [QUESTION] 2.4.x nice level
+In-Reply-To: <Pine.LNX.4.21.0104161118180.14442-100000@imladris.rielhome.conectiva>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <m1itk5tl1k.fsf@frodo.biederman.org>; from Eric W. Biederman on Mon, Apr 16, 2001 at 12:29:11AM -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 16, 2001 at 12:29:11AM -0600, Eric W. Biederman wrote:
+Rik van Riel wrote:
+> 
+> On Thu, 12 Apr 2001, Pavel Machek wrote:
+> 
+> > > One rule of optimization is to move any code you can outside the loop.
+> > > Why isn't the nice_to_ticks calculation done when nice is changed
+> > > instead of EVERY recalc.?  I guess another way to ask this is, who needs
+> >
+> > This way change is localized very nicely, and it is "obviously right".
+> 
+> Except for two obvious things:
+> 
+> 1. we need to load the nice level anyway
+> 2. a shift takes less cycles than a load on most
+>    CPUs
+> 
+Gosh, what am I missing here?  I think "top" and "ps" want to see the
+"nice" value so it needs to be available and since the NICE_TO_TICK()
+function looses information (i.e. is not reversible) we can not compute
+it from ticks.  Still, yes we need to load something, but is it nice? 
+Why not the result of the NICE_TO_TICK()?  
 
-> If we can try to keycodes in 8-bits it would be nice.  The difficulty
-> is that X cannot handle more than 8-bits without telling it you have
-> multiple keyboards.  The keycode (at least in X) is exported to
-> X applications.  This is certainly something to coordinate with the
-> XFree folks about.  If you really need more then 8-bits. 
+A shift and a subtract are fast, yes, but this loop runs over all tasks
+(not just the run list).  This loop can put a real dent in preemption
+times AND the notion of turning on interrupts while it is done can run
+into some interesting race conditions.  (This is why the MontaVista
+scheduler does the loop without dropping the lock, AFTER optimizing the
+h... out of it.)
 
-X keycodes are unrelated to Linux keycodes.
+What am I missing?
+
+George

@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267096AbTGOKkK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 06:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267100AbTGOKkK
+	id S267134AbTGOKop (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 06:44:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267140AbTGOKop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 06:40:10 -0400
-Received: from smtphost.cis.strath.ac.uk ([130.159.196.96]:65459 "EHLO
-	smtphost.cis.strath.ac.uk") by vger.kernel.org with ESMTP
-	id S267096AbTGOKkI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 06:40:08 -0400
-Date: Tue, 15 Jul 2003 11:53:09 +0100
-From: iain d broadfoot <ibroadfo@cis.strath.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test1 hurrah
-Message-ID: <20030715105309.GA1357@iain-vaio-fx405>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Tue, 15 Jul 2003 06:44:45 -0400
+Received: from c213-100-44-190.swipnet.se ([213.100.44.190]:55827 "EHLO
+	joelm.2y.net") by vger.kernel.org with ESMTP id S267134AbTGOKoo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 06:44:44 -0400
+Subject: Re: Inspiron 8000 makes high pitch noise only with 2.6.0-test1
+From: Joel Metelius <joel.metelius@home.se>
+To: Daniel.Dorau@alumni.TU-Berlin.DE
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3438.194.175.125.228.1058264884.squirrel@mailbox.TU-Berlin.DE>
+References: <4299.194.175.125.228.1058254785.squirrel@mailbox.TU-Berlin.DE>
+	 <1058258721.2423.2.camel@joelm.2y.net>
+	 <3438.194.175.125.228.1058264884.squirrel@mailbox.TU-Berlin.DE>
+Content-Type: text/plain
+Message-Id: <1058266721.2716.3.camel@joelm.2y.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Editor: Vim http://www.vim.org/
-X-Operating-System: Linux/2.6.0-test1 (i686)
-X-Uptime: 11:46:27 up 8 min,  5 users,  load average: 0.69, 1.78, 1.19
-X-Message-Flag: Outlook viruses can be made to send private documents from your hard drive to any or all recipients from your address book. But it only happens about once a month or so, so it's okay. Just keep on using it.
-User-Agent: Mutt/1.5.4i
-X-CIS-MailScanner: Found to be clean
-X-CIS-MailScanner-SpamCheck: not spam, SpamAssassin (score=-8, required 5,
-	BAYES_00 -5.20, USER_AGENT_MUTT -2.80)
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 15 Jul 2003 12:58:41 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-compile, boot, play.
+Yes, it was discussed at LKML in May (search the archive around May 13).
 
-all good so far, after a few config niggles.
+I think the board idle the processor anyway, my dell latitude does it,
+so you don't need linux to do it.
 
-wireless LAN working, USB mouse, acpi etc all seem fine.
+/joel
 
-i hadn't tried any of the .5 series mainly through lack of time, so i
-was a little worried that something would go boom - a happy
-misconception.
+On Tue, 2003-07-15 at 12:28, Daniel.Dorau@alumni.TU-Berlin.DE wrote:
+> Joel,
+> thank you. I will try this. But doesn't this mean, that it will
+> consume more power? My belief is that this had worked with
+> 2.4 without that noise.
+> You said it helped you and others. Has this been discussed on
+> this or some other mailing list?
+> 
+> Thank you
+> Daniel
+> 
+> > try turning off
+> >
+> > CONFIG_APM_CPU_IDLE
+> >
+> > it help me and others, but it had nothing to do with ethernet
+> > drivers...
+> 
+> > /joel
+> >
+> > On Tue, 2003-07-15 at 09:39, Daniel.Dorau@alumni.TU-Berlin.DE wrote:
+> >> Hi there,
+> >> yesterday I tried the 2.6.0-test1 kernel for the first time.
+> >> Installation went flawlessly. However I noticed a high pitch
+> >> noise from my notebook everytime after the ethernet driver
+> >> was loaded, no matter which one (eepro100 or e100).
 
-thanks `grep N: /usr/local/src/linux-2.6.0-test1/CREDITS`,
-
-iain
-
--- 
-wh33, y1p33 3tc.
-
-"If sharing a thing in no way diminishes it, it is not rightly owned if it is
-not shared." -St. Augustine

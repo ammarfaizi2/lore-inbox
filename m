@@ -1,55 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262443AbUBXUtn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 15:49:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbUBXUtn
+	id S262455AbUBXUrh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 15:47:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbUBXUpc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 15:49:43 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:14487 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S262443AbUBXUtH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 15:49:07 -0500
-Subject: cryptoapi highmem bug
-From: Christophe Saout <christophe@saout.de>
-To: James Morris <jmorris@intercode.com.au>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1077655754.14858.0.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 24 Feb 2004 21:49:14 +0100
+	Tue, 24 Feb 2004 15:45:32 -0500
+Received: from smtpq2.home.nl ([213.51.128.197]:15579 "EHLO smtpq2.home.nl")
+	by vger.kernel.org with ESMTP id S262443AbUBXUoQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 15:44:16 -0500
+From: Gertjan van Wingerde <gwingerde@home.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Cisco vpnclient prevents proper shutdown starting with 2.6.2
+Date: Tue, 24 Feb 2004 21:41:40 +0100
+User-Agent: KMail/1.6
+Cc: ptoal@cisco.com, jhp@pobox.com
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200402242141.40208.gwingerde@home.nl>
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Patrick, et al.
 
-someone noticed strange corruptions with dm-crypt and highmem. After I
-found out that I could force my machine to use highmem even though it
-only has 256MB, I finally found the problem after some debugging:
+Even though this seems to work, the real problem seems to lie in the cisco_ipsec module itself.
+It looks like it is registering a netdevice notifier at ioctl time, which seems to deadlock in the lock
+that has been introduced in 2.6.2. Moving the registration to module initialisation time (with the
+proper checks in the event handler itself to only act when VPN is up) seems to resolve the
+issue.
 
-The problem is in cbc_process (well, partly):
+Patch to Cisco vpnclient 4.0.3.B is below.
 
->      const int need_stack = (src == dst);
->      u8 stack[need_stack ? crypto_tfm_alg_blocksize(tfm) : 0];
->      u8 *buf = need_stack ? stack : dst;
+	MvG,
 
-src == dst fails if the page was in highmem because crypto_kmap will
-assign two different virtual addresses for the same page.
+		Gertjan.
 
-The result is data corruption.
+diff -u --recursive vpnclient/interceptor.c vpnclient-new/interceptor.c
+--- vpnclient/interceptor.c	2003-10-30 02:27:34.000000000 +0100
++++ vpnclient-new/interceptor.c	2004-02-24 21:26:36.000000000 +0100
+@@ -364,11 +364,6 @@
+         error = VPNIFUP_FAILURE;
+         goto error_exit;
+     }
+-    error = register_netdevice_notifier(&interceptor_notifier);
+-    if (error)
+-    {
+-        goto error_exit;
+-    }
+ 
+     vpn_is_up = TRUE;
+     return error;
+@@ -388,8 +383,6 @@
+ {
+     int i;
+ 
+-    unregister_netdevice_notifier(&interceptor_notifier);
+-
+     cleanup_frag_queue();
+     /*restore IP packet handler */
+     if (original_ip_handler.pt != NULL)
+@@ -436,6 +429,9 @@
+ {
+     struct net_device *dev = (struct net_device *) val;
+ 
++    if (!vpn_is_up)
++	return 1;
++
+     switch (event)
+     {
+     case NETDEV_REGISTER:
+@@ -853,6 +849,8 @@
+         CNICallbackTable = *PCNICallbackTable;
+         CniPluginDeviceCreated();
+ 
++        register_netdevice_notifier(&interceptor_notifier);
++
+         if ((status = register_netdev(&interceptor_dev)) != 0)
+         {
+             printk(KERN_INFO "%s: error %d registering device \"%s\".\n",
+@@ -876,6 +874,9 @@
+     CniPluginUnload();
+ 
+     unregister_netdev(&interceptor_dev);
++
++    unregister_netdevice_notifier(&interceptor_notifier);
++
+     return;
+ }
+ 
 
-How could this be fixed?
 
-scapperwalk_map could check if this page was already mapped (walk_in)
-and reuse the virtual address if so. So a single page is only mapped
-once and the check in cbc_process will work.
+>Hi Patrick,
+>
+>Just a data point..
+>
+>I reversed this patch on a system running 2.6.3-mm2, and vpnclient now
+>works.
+>
+>/harley
+>
+>> Newsgroups: fa.linux.kernel
+>> Subject: RE: Cisco vpnclient prevents proper shutdown starting with 2.6.2
+>> From: Patrick Toal <ptoal@cisco.com>
+>> To: linux-kernel@vger.kernel.org
+>> Date: Mon, 23 Feb 2004 01:36:17 GMT
+>> 
+>> Sid Boyce wrote:
+>> > I tried using this client with up to 2.6.1-mm5 and ended up with Dead
+>> > processes for cvpnd and vpnclient, nothing else was affected, went
+>> > back to 2.4.x kernel.
+>> > Regards
+>> > Sid
+>> 
+>> Sid, et al. 
+>> 
+>> First, before anyone starts deluging me with questions, you should know
+>> that even though my details say Cisco, I am an SE in the field, _not_ a
+>> developer.  Second, please reply to me off-list, as I do not subscribe
+>> to the LK list.  
+>> 
+>> That being said, I think I've tracked this down to a recent change in
+>> the net/core/dev.c file.  I reversed the patch to
+>> register_netdevice_notifier below, and the vpnclient now works fine. 
+>> This is called by the handle_vpnup routine in interceptor.c of the
+>> vpnclient kernel module.
+>> 
+>> I am _not_ a kernel developer, nor do I spend the majority of my time
+>> programming, so I haven't been able to figure out _why_ these changes
+>> cause the module to freeze.  I'd be interested if anyone could tell me
+>> the answer to that question. :-)
+>> 
+>> Regards,
+>> Patrick
+>> 
 
-I can really use the src == dst case because I would need to allocate
-unnecessary buffers (at least 512 bytes at a time and per cpu).
-
-(I just hacked dm-crypt to allocate 512 bytes on the stack and use it
-temporarily and kmap around myself to copy it back and the problem is
-gone. Ugly.)
-
-
+<snip>

@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262142AbVCJAzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbVCJAzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262142AbVCJAzH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 19:55:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbVCJAx2
+	id S262285AbVCJAzF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 19:55:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbVCJApu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 19:53:28 -0500
-Received: from mail.kroah.org ([69.55.234.183]:60063 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262635AbVCJAmf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 19:42:35 -0500
-Date: Wed, 9 Mar 2005 16:18:12 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [BK PATCH] AOE fixes for 2.6.11
-Message-ID: <20050310001812.GA31984@kroah.com>
+	Wed, 9 Mar 2005 19:45:50 -0500
+Received: from mail.kroah.org ([69.55.234.183]:54943 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262627AbVCJAma convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 19:42:30 -0500
+Cc: gregkh@suse.de
+Subject: [PATCH] debugfs: fix bool built-in type.
+In-Reply-To: <1110414382208@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 9 Mar 2005 16:26:22 -0800
+Message-Id: <11104143823768@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ChangeSet 1.2034, 2005/03/09 15:24:27-08:00, gregkh@suse.de
 
-Here are some AOE driver fixes and documentation updates.  These have
-all been in the -mm releases for a while.
+[PATCH] debugfs: fix bool built-in type.
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/2.6.11/aoe
+Thanks to Alessandro Rubini <rubini@gnudd.com> for pointing this out.
 
-Individual patches will follow, sent to the linux-kernel list.
-
-thanks,
-
-greg k-h
-
- Documentation/aoe/aoe.txt         |   13 +++++++++---
- Documentation/aoe/status.sh       |    7 ++++--
- Documentation/aoe/udev-install.sh |   36 ++++++++++++++++++++++++++++-----
- Documentation/aoe/udev.txt        |   23 +++++++++++++++++++++
- drivers/block/aoe/aoe.h           |    1 
- drivers/block/aoe/aoechr.c        |   41 ++------------------------------------
- drivers/block/aoe/aoecmd.c        |    8 ++++---
- 7 files changed, 77 insertions(+), 52 deletions(-)
------
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
-Alexander Nyberg:
-  o AoE warning on 64-bit archs
+ fs/debugfs/file.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Ed L. Cashin:
-  o aoe: drivers/block/aoe/aoechr.c cleanups
-  o aoe status.sh: handle sysfs not in /etc/mtab
-  o aoe: fail IO on disk errors
-  o aoe: update documentation for udev users
-  o aoe: add documentation for udev users
+
+diff -Nru a/fs/debugfs/file.c b/fs/debugfs/file.c
+--- a/fs/debugfs/file.c	2005-03-09 16:23:02 -08:00
++++ b/fs/debugfs/file.c	2005-03-09 16:23:02 -08:00
+@@ -186,7 +186,7 @@
+ 	char buf[3];
+ 	u32 *val = file->private_data;
+ 	
+-	if (val)
++	if (*val)
+ 		buf[0] = 'Y';
+ 	else
+ 		buf[0] = 'N';
 

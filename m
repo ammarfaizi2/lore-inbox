@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265641AbUFCQZf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265642AbUFCQ23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265641AbUFCQZf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 12:25:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265642AbUFCQZf
+	id S265642AbUFCQ23 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 12:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265645AbUFCQ23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 12:25:35 -0400
-Received: from mail.kroah.org ([65.200.24.183]:13212 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265641AbUFCQZ3 (ORCPT
+	Thu, 3 Jun 2004 12:28:29 -0400
+Received: from mail.kroah.org ([65.200.24.183]:31645 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265642AbUFCQ21 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 12:25:29 -0400
-Date: Thu, 3 Jun 2004 09:24:02 -0700
+	Thu, 3 Jun 2004 12:28:27 -0400
+Date: Thu, 3 Jun 2004 09:27:13 -0700
 From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org, ak@suse.de,
-       rusty@rustcorp.com.au
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Paul Jackson <pj@sgi.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
 Subject: Re: [PATCH] fix sys cpumap for > 352 NR_CPUS
-Message-ID: <20040603162402.GB3022@kroah.com>
-References: <20040602161115.1340f698.pj@sgi.com> <20040602162330.0664ec5d.akpm@osdl.org> <20040602165902.73dfc977.pj@sgi.com> <20040602171724.2221f97e.akpm@osdl.org>
+Message-ID: <20040603162712.GA3291@kroah.com>
+References: <20040602161115.1340f698.pj@sgi.com> <1086222156.29391.337.camel@bach>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040602171724.2221f97e.akpm@osdl.org>
+In-Reply-To: <1086222156.29391.337.camel@bach>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 02, 2004 at 05:17:24PM -0700, Andrew Morton wrote:
-> Paul Jackson <pj@sgi.com> wrote:
-> >
-> > > Can't we just stick a PAGE_SIZE in here?
-> > 
-> > We could - either way works about as well.  Is there something special
-> > about PAGE_SIZE here?  Is that in fact what sysfs is making available?
+On Thu, Jun 03, 2004 at 10:22:36AM +1000, Rusty Russell wrote:
+> On Thu, 2004-06-03 at 09:11, Paul Jackson wrote:
+> > +	/*
+> > +	 * Hack alert:
+> > +	 * 1) This could overwrite a buffer w/o warning.  Someone should
+> > +	 *     pass us a buffer size (count) or use seq_file or something
+> > +	 *     to avoid buffer overrun risks.
 > 
-> Think so.  Greg, can you confirm that a SYSDEV_ATTR's handler can safely
-> assume that it has a PAGE_SIZE buffer to write to?
+> Then just use -1UL as the arg to scnprintf, if you don't have a real
+> number.  That way the overflow will at least have a chance of detection
+> in the sysfs code, which I think it should check in
+> file.c:fill_read_buffer().  Greg?
 
-Yes, that is correct.
+We do check for an error in that function, so returning any negative
+error value for a show() sysfs callback will be handled properly.
 
 thanks,
 

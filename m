@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270345AbTGRTp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 15:45:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270302AbTGRTod
+	id S270360AbTGRTyA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 15:54:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270319AbTGRTwH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 15:44:33 -0400
-Received: from dsl-gte-19434.linkline.com ([64.30.195.78]:14211 "EHLO server")
-	by vger.kernel.org with ESMTP id S270350AbTGRToN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 15:44:13 -0400
-References: <Pine.LNX.4.55L.0307052151180.21992@freak.distro.conectiva>
-            <064101c34644$3d917850$3400a8c0@W2RZ8L4S02>
-            <Pine.LNX.4.55L.0307100025160.6316@freak.distro.conectiva>
-            <042801c3472c$f4539f80$3400a8c0@W2RZ8L4S02>
-            <Pine.LNX.4.55L.0307110953370.28177@freak.distro.conectiva>
-            <06e301c347c7$2a779590$3400a8c0@W2RZ8L4S02>
-            <Pine.LNX.4.55L.0307111405320.29894@freak.distro.conectiva>
-            <002b01c347e9$36a04110$f300a8c0@W2RZ8L4S02>
-            <Pine.LNX.4.55L.0307111749160.5537@freak.distro.conectiva>
-            <001801c348a0$9dab91e0$3400a8c0@W2RZ8L4S02>
-            <Pine.LNX.4.55L.0307141145340.23121@freak.distro.conectiva>
-            <00fd01c34c8d$a03a4960$3400a8c0@W2RZ8L4S02>
-            <Pine.LNX.4.55L.0307171545460.1789@freak.distro.c onectiva>
-            <014501c34c9b$d93d4920$3400a8c0@W2RZ8L4S02>
-            <Pine.LNX.4.55L.0307171649340.2003@freak.distro.c onectiva>
-            <01d701c34cc0$7f698740$3400a8c0@W2RZ8L4S02>
-            <Pine.LNX.4.55L.0307180925580.6642@freak.dis tro.conectiva>
-            <002e01c34d41$687dbe30$3400a8c0@W2RZ8L4S02>
-            <Pine.LNX.4.55L.0307181421550.7889@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.55L.0307181421550.7889@freak.distro.conectiva>
-From: "Jim Gifford" <maillist@jg555.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.22-pre6 deadlock
-Date: Fri, 18 Jul 2003 12:59:07 -0700
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-ID: <courier.3F18518C.00003D85@server>
+	Fri, 18 Jul 2003 15:52:07 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:20965 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S270360AbTGRTvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 15:51:53 -0400
+Date: Fri, 18 Jul 2003 16:06:41 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Richard Stallman <rms@gnu.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Bitkeeper
+In-Reply-To: <E19dbGS-00026T-9R@fencepost.gnu.org>
+Message-ID: <Pine.LNX.4.44.0307181603340.21716-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is part of the antivirus program, information is available here. 
+On Fri, 18 Jul 2003, Richard Stallman wrote:
 
-http://www.dazuko.org 
+> I think it would be appropriate at this point to write a free client
+> that talks with Bitkeeper,
+
+Maybe.  I'll leave that decision to whomever decides to
+invest his time and/or money in implementing such software.
+
+> and for Linux developers to start switching to that from Bitkeeper.
+
+That would be a bit premature.  I certainly wouldn't switch
+to a piece of software that doesn't exist yet. ;)
+
+To put it more bluntly: free software would have to implement
+a very significant amount of Bitkeeper's functionality before
+I would ever consider switching to it.
+
+At the moment there simply is no equivalent free alternative
+to Bitkeeper, so there's nothing to switch to.  Once such an
+alternative exists we could continue this debate.
+
+kind regards,
+
+Rik
+-- 
+Great minds drink alike.
 

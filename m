@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290285AbSAOVbA>; Tue, 15 Jan 2002 16:31:00 -0500
+	id <S290287AbSAOVbZ>; Tue, 15 Jan 2002 16:31:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290287AbSAOVay>; Tue, 15 Jan 2002 16:30:54 -0500
-Received: from 213-96-124-18.uc.nombres.ttd.es ([213.96.124.18]:55020 "HELO
-	dardhal") by vger.kernel.org with SMTP id <S290285AbSAOVak>;
-	Tue, 15 Jan 2002 16:30:40 -0500
-Date: Tue, 15 Jan 2002 22:30:29 +0100
-From: Jose Luis Domingo Lopez <jdomingo@internautas.org>
+	id <S290288AbSAOVbL>; Tue, 15 Jan 2002 16:31:11 -0500
+Received: from khms.westfalen.de ([62.153.201.243]:16873 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S290287AbSAOVbH>; Tue, 15 Jan 2002 16:31:07 -0500
+Date: 15 Jan 2002 21:44:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17 instability with i2c ?
-Message-ID: <20020115213029.GB7584@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1010951831.3241.0.camel@penarol01> <15425.60130.574569.697952@cerise.nosuchdomain.co.uk> <002a01c19dab$4de66dc0$a52efea9@tosh>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <002a01c19dab$4de66dc0$a52efea9@tosh>
-User-Agent: Mutt/1.3.25i
+Message-ID: <8Gu-Kwrmw-B@khms.westfalen.de>
+In-Reply-To: <20020115172413.GD7030@vitelus.com>
+Subject: Re: Hardwired drivers are going away?
+X-Mailer: CrossPoint v3.12d.kh8 R/C435
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <Pine.LNX.4.40.0201141045130.22904-100000@dlang.diginsite.com> <20020114131050.E14747@thyrsus.com> <Pine.LNX.4.40.0201141045130.22904-100000@dlang.diginsite.com> <20020115172413.GD7030@vitelus.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 15 January 2002, at 09:59:21 -0000,
-Shaf Ali wrote:
+aaronl@vitelus.com (Aaron Lehmann)  wrote on 15.01.02 in <20020115172413.GD7030@vitelus.com>:
 
-> I am having problems with a machine and cannot pin down why it's abruptly
-> rebooting...
-> I can find no messages in any of the logs !
-> 
-> My theories are pointing the blame towards the following configuration :
-> Redhat 7.2
-> kernel 2.4.17 patched with i2c-2.6.2.tar.gz.
-> 
-Using i2c 2.6.2 for a while now, with 2.4.17, for use with some TV
-capture cards, and no problems so far.
+> I agree with all of yours. IMHO, the proposed scheme for 2.5 is plain
+> bad. It will require an initrd (initramfs, or whatever), and force
+> kernel installation to be more difficult. The performance overhead
+> sounds like a major downside, epsecially when currently people know
+> what hardware they have and build things into the kernel accordingly.
 
--- 
-José Luis Domingo López
-Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
- 
-jdomingo AT internautas DOT   org  => Spam at your own risk
+Installation more difficult? Significant performance overhead?
 
+What *are* you smoking?
+
+MfG Kai

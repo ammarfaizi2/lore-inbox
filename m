@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265300AbTF1RP0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 13:15:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265303AbTF1RP0
+	id S265256AbTF1Rs0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 13:48:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265323AbTF1Rs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 13:15:26 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:47242 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S265300AbTF1RPZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 13:15:25 -0400
-Date: Sat, 28 Jun 2003 10:29:59 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.73-mm1 falling over in SDET
-Message-Id: <20030628102959.455f689f.akpm@digeo.com>
-In-Reply-To: <45120000.1056810681@[10.10.2.4]>
-References: <45120000.1056810681@[10.10.2.4]>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 28 Jun 2003 13:48:26 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:53262 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S265256AbTF1RsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 13:48:25 -0400
+Subject: Re: patch-O1int-0306281420 for 2.5.73 interactivity
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Mike Galbraith <efault@gmx.de>, Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Martin Schlemmer <azarah@gentoo.org>,
+       Roberto Orenstein <rstein@brturbo.com>
+In-Reply-To: <200306281516.12975.kernel@kolivas.org>
+References: <200306281516.12975.kernel@kolivas.org>
+Content-Type: text/plain
+Message-Id: <1056823357.597.2.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 28 Jun 2003 20:02:37 +0200
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Jun 2003 17:29:42.0341 (UTC) FILETIME=[DC194F50:01C33D9A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
-> The killer SDET has got you, but this is all I got from the chewed
-> remains. Maybe the EIP is enough? ;-) I guess that's a NULL ptr
-> dereference, though garbled somewhat.
+On Sat, 2003-06-28 at 07:16, Con Kolivas wrote:
+> The interactivity for tasks is based on the sleep avg accumulated divided by 
+> the running time of the task. However since the accumulated time is not 
+> linear with time it now works on the premise that running time is an 
+> exponential function entirely. Pat Erley was the genius who implemented this 
+> simple exponential function in surprisingly low overhead integer maths.
 > 
-> Unable to handle kernel <1pa>Uginnabgl re eqtoue hsta ndatle  vikertrnuaell  NadULdrL espos inaftecr71 d11er0
-> er penricent iantg v eiirtp:ua            ef
->  cad01drc4es37s a             l
-> 000*0pd00e 0     0
-> 00 p00ri00nt00in
-> g Oeiopps: 0000 [#1]
-> SMP 
-> CPU:    -266755620
-> EIP:    0060:[<c01c437a>]    Not tainted VLI
-> EFLAGS: 00010083
-> EIP is at drive_stat_acct+0x76/0xcc
+> Also added was some jiffy wrap logic (as if anyone would still be running my 
+> patch in 50 days :P).
+> 
+> Long sleepers were reclassified as idle according to the new exponential 
+> logic.
+> 
+> If you test, please note this works better at 1000Hz.
 
-Interesting CPU number.
+Currently testing on 2.5.73-mm2, with both patches (patch-O1int and
+patch-granularity) plus HZ=1000. The result is quite impressive. Under
+load, X still suffer a little lag and behaves a little worse than the
+combo patch from Mike Galbraith + Ingo, but now XMMS doesn't skip even
+when clicking a link inside Evolution.
 
-The mangled output is supposed to be fixed.  Looks like it
-only partially worked.  Why doesn't someone fix this?
+Please, let me more time to work with this new patched kernel a little
+bit more to see if I can find any strange issues.
 
-No, it ain't a lot of use really.  Is it repeatable?  If
-so does changing elevators make it go away?

@@ -1,104 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264828AbTFQW07 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 18:26:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264978AbTFQW07
+	id S264979AbTFQWbT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 18:31:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264981AbTFQWbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 18:26:59 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:61907 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264828AbTFQW0s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 18:26:48 -0400
-Date: Wed, 18 Jun 2003 00:40:35 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Cc: trivial@rustcorp.com.au
-Subject: [patch] 2.5.70-mm2: aha1740.c doesn't compile. (fwd)
-Message-ID: <20030617224035.GG29247@fs.tum.de>
+	Tue, 17 Jun 2003 18:31:18 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:48090 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264979AbTFQWbN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 18:31:13 -0400
+Date: Tue, 17 Jun 2003 15:40:37 -0700 (PDT)
+Message-Id: <20030617.154037.78070671.davem@redhat.com>
+To: jamagallon@able.es
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: [PATCHES] 2.4.x net driver updates
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030617222750.GE13990@werewolf.able.es>
+References: <20030612194926.GA7653@gtf.org>
+	<20030617222750.GE13990@werewolf.able.es>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The problem described below still exists in 2.5.72. A patch to fix it 
-is:
+   From: "J.A. Magallon" <jamagallon@able.es>
+   Date: Wed, 18 Jun 2003 00:27:50 +0200
 
---- linux-2.5.72/drivers/scsi/aha1740.c.old	2003-06-18 00:36:51.000000000 +0200
-+++ linux-2.5.72/drivers/scsi/aha1740.c	2003-06-18 00:36:55.000000000 +0200
-@@ -102,6 +102,7 @@
-     if (len > length)
- 	len = length;
-     return len;
-+}
- 
- 
- static int aha1740_makecode(unchar *sense, unchar *status)
+   Any info about the RX_POLLING (NAPI) option for e1000 ?
+   What is that for ?
 
+Software based interrupt mitigation, see:
 
-I've tested the compilation with 2.5.72.
+Documentation/networking/NAPI_HOWTO.txt
 
-Please apply
-Adrian
+and more specifically:
 
-
-
------ Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
-
-Date:	Thu, 29 May 2003 21:40:03 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@digeo.com>,
-    Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org,
-    llinux-scsi@vger.kernel.org
-Subject: [patch] 2.5.70-mm2: aha1740.c doesn't compile.
-
-It seems the following compile error comes from Linus' tree:
-
-<--  snip  -->
-
-...
-  CC      drivers/scsi/aha1740.o
-...
-drivers/scsi/aha1740.c:613: syntax error at end of input
-...
-make[2]: *** [drivers/scsi/aha1740.o] Error 1
-
-<--  snip  -->
-
-
-The culprit is the following bogus part of a patch (please _revert_ it):
-
-
-linux-2.5.70/drivers/scsi/aha1740.c	2003-05-26 19:16:33.000000000 -0700
-25/drivers/scsi/aha1740.c	2003-05-28 23:52:00.000000000 -0700
-@@ -108,7 +102,6 @@ static int aha1740_proc_info(char *buffe
-     if (len > length)
- 	len = length;
-     return len;
--}
- 
- 
- static int aha1740_makecode(unchar *sense, unchar *status)
-
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
+http://www.cyberus.ca/~hadi/usenix-paper.tgz
 

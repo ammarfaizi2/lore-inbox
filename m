@@ -1,51 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266446AbUAIJYu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 04:24:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266450AbUAIJYu
+	id S266462AbUAIJrM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 04:47:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266463AbUAIJrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 04:24:50 -0500
-Received: from fw.osdl.org ([65.172.181.6]:29647 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266445AbUAIJYs (ORCPT
+	Fri, 9 Jan 2004 04:47:11 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:39124 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266462AbUAIJrB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 04:24:48 -0500
-Date: Fri, 9 Jan 2004 01:25:07 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Limit hash table size
-Message-Id: <20040109012507.12773323.akpm@osdl.org>
-In-Reply-To: <B05667366EE6204181EABE9C1B1C0EB5802441@scsmsx401.sc.intel.com>
-References: <B05667366EE6204181EABE9C1B1C0EB5802441@scsmsx401.sc.intel.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Jan 2004 04:47:01 -0500
+Date: Fri, 9 Jan 2004 04:46:46 -0500 (EST)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: Jesper Juhl <juhl-lkml@dif.dk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] variable size and signedness issues in ldt.c -
+ potential problem?
+In-Reply-To: <8A43C34093B3D5119F7D0004AC56F4BC074AFBC9@difpst1a.dif.dk>
+Message-ID: <Pine.LNX.4.58.0401090440180.27298@devserv.devel.redhat.com>
+References: <8A43C34093B3D5119F7D0004AC56F4BC074AFBC9@difpst1a.dif.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
->
-> The issue of exceedingly large hash tables has been discussed on the
->  mailing list a while back, but seems to slip through the cracks.
-> 
->  What we found is it's not a problem for x86 (and most other
->  architectures) because __get_free_pages won't be able to get anything
->  beyond order MAX_ORDER-1 (10) which means at most those hash tables are
->  4MB each (assume 4K page size).  However, on ia64, in order to support
->  larger hugeTLB page size, the MAX_ORDER is bumped up to 18, which now
->  means a 2GB upper limits enforced by the page allocator (assume 16K page
->  size).  PPC64 is another example that bumps up MAX_ORDER.
-> 
->  Last time I checked, the tcp ehash table is taking a whooping (insane!)
->  2GB on one of our large machine.  dentry and inode hash tables also take
->  considerable amount of memory.
-> 
->  This patch just enforces all the hash tables to have a max order of 10,
->  which limits them down to 16MB each on ia64.  People can clean up other
->  part of table size calculation.  But minimally, this patch doesn't
->  change any hash sizes already in use on x86.
 
-Fair enough; it's better than what we had before and Mr Networking is OK
-with it ;)  I can't say that I can think of anything smarter.  Thanks.
+On Thu, 8 Jan 2004, Jesper Juhl wrote:
 
+> I'm hunting the kernel source for any potential problem I can find (and
+> hopefully fix), and I've come across something that looks like a
+> possible problem in arch/i386/kernel/ldt.c
+> 
+> First thing that looks suspicious is this bit in read_ldt() :
+> 
+>         for (i = 0; i < size; i += PAGE_SIZE) {
+> 		...
+> 	}
+> 
+> 'i' is a plain int while 'size' is an 'unsigned long' leaving the
+> possibility that if size contains a value greater than what a signed int
+> can hold then this code won't do the right thing, either 'i' will wrap
+> around to zero and the loop will never exit or something "unknown" will
+> happen (as far as I know, what happens when an int overflows is
+> implementation defined). [...]
+
+but the user does not control 'newsize'. Can you outline a scenario in 
+where the value could overflow?
+
+> The second thing is that in the body of the 'for' loop there is this
+> comparison :
+> 
+> if (bytes > PAGE_SIZE)
+
+no, the value of bytes is really limited. Again, can you suggest a
+scenario in where this could overflow?
+
+> I know that the only user of read_ldt() and write_ldt() is
+> sys_modify_ldt() , and the arguments for read_ldt and write_ldt thus
+> have to match sys_modify_ldt, but why is the 'bytecount' argument for
+> sys_modify_ldt an 'unsigned long' and the return type an 'int' ? The
+> signedness of the return type makes sense given that it't supposed to
+> return -1 on error. But on success, in the case where it calls read_ldt,
+> it's supposed to return the actual number of bytes read. But if the
+> number of bytes to read is given as an unsigned long, and the number
+> actually read exceeds the size of a signed int then the return value
+> will get truncated upon return - how can that be right? [...]
+
+LDT size is limited by LDT_ENTRY_SIZE*LDT_ENTRIES. We explicitly truncate
+bytecount to this range so unsigned vs. signed makes no difference.
+
+> [...] And if the return value can never exceed what a signed int can
+> hold, then why is it possible to request an unsigned long amount of
+> bytes to read in the first place?
+
+that's quite common for the interface definitions. Since we are on x86
+unsigned long == unsigned int.
+
+> and finally a purely style related thing (sure, call me pedantic); in both
+> read_ldt() and write_ldt() 'mm' is declared as
+> 
+> struct mm_struct * mm = current->mm;
+
+yep, you are right, this is the wrong style.
+
+	Ingo

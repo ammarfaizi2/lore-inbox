@@ -1,48 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265524AbSJSF4U>; Sat, 19 Oct 2002 01:56:20 -0400
+	id <S265514AbSJSFid>; Sat, 19 Oct 2002 01:38:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265525AbSJSF4U>; Sat, 19 Oct 2002 01:56:20 -0400
-Received: from web10504.mail.yahoo.com ([216.136.130.154]:9489 "HELO
-	web10504.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S265524AbSJSF4T>; Sat, 19 Oct 2002 01:56:19 -0400
-Message-ID: <20021019060221.92006.qmail@web10504.mail.yahoo.com>
-Date: Fri, 18 Oct 2002 23:02:21 -0700 (PDT)
-From: Andy Tai <lichengtai@yahoo.com>
-Reply-To: atai@atai.org
-Subject: Re: Tigon3 driver problem with raw socket on 2.4.20-pre10-ac2
-To: "David S. Miller" <davem@redhat.com>, atai@atai.org
-Cc: linux-kernel@vger.kernel.org, greearb@candelatech.com
-In-Reply-To: <20021017.231249.14334285.davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265523AbSJSFid>; Sat, 19 Oct 2002 01:38:33 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:4047 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265514AbSJSFic>;
+	Sat, 19 Oct 2002 01:38:32 -0400
+Date: Fri, 18 Oct 2002 22:36:52 -0700 (PDT)
+Message-Id: <20021018.223652.16894430.davem@redhat.com>
+To: skip.ford@verizon.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.44 net/ipv4/raw.c NF_IP_LOCAL_OUT undefined
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200210190459.g9J4x8vk008923@pool-141-150-241-241.delv.east.verizon.net>
+References: <200210190459.g9J4x8vk008923@pool-141-150-241-241.delv.east.verizon.net>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for your sugestion.  With Linux 2.4.19, the
-problem goes away.  So something is wrong with the
-2.4.20-pre kernels as related to the AMD Athlon...
+   From: Skip Ford <skip.ford@verizon.net>
+   Date: Sat, 19 Oct 2002 00:59:08 -0400
 
-Thanks again for your help.
+   net/ipv4/raw.c needs to include netfilter_ipv4.h instead of just
+   netfilter.h
 
-Andy
-
---- "David S. Miller" <davem@redhat.com> wrote:
->    From: Andy Tai <lichengtai@yahoo.com>
->    Date: Thu, 17 Oct 2002 21:44:02 -0700 (PDT)
-> 
->    Thus this indicates the problem is in the Tigon3
-> driver.
-> 
-> Please retest with 2.4.19.
-> 
-> There have actually been a lot of Athlon based
-> problem reports in the
-> 2.4.20 series.  
-> 
-
-
-__________________________________________________
-Do you Yahoo!?
-Y! Web Hosting - Let the expert host your web site
-http://webhosting.yahoo.com/
+Thanks for the fix, applied.

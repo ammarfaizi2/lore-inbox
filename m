@@ -1,118 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267135AbRGJUUg>; Tue, 10 Jul 2001 16:20:36 -0400
+	id <S267121AbRGJU2r>; Tue, 10 Jul 2001 16:28:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267134AbRGJUUQ>; Tue, 10 Jul 2001 16:20:16 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:23738 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S267133AbRGJUUL>;
-	Tue, 10 Jul 2001 16:20:11 -0400
-Date: Tue, 10 Jul 2001 11:48:50 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] SCI Scalable Coherent Interface Drivers 1.7-1 Released
-Message-ID: <20010710114850.A2865@vger.timpanogas.org>
+	id <S267125AbRGJU2i>; Tue, 10 Jul 2001 16:28:38 -0400
+Received: from oxmail4.ox.ac.uk ([163.1.2.33]:5508 "EHLO oxmail.ox.ac.uk")
+	by vger.kernel.org with ESMTP id <S267121AbRGJU2Z>;
+	Tue, 10 Jul 2001 16:28:25 -0400
+Date: Tue, 10 Jul 2001 21:19:50 +0100
+From: Malcolm Beattie <mbeattie@sable.ox.ac.uk>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Timur Tabi <ttabi@interactivesi.com>, linux-kernel@vger.kernel.org
+Subject: Re: What is the truth about Linux 2.4's RAM limitations?
+Message-ID: <20010710211950.A70@sable.ox.ac.uk>
+In-Reply-To: <3B4B3570.9090104@interactivesi.com> <Pine.LNX.3.95.1010710131403.18337A-100000@chaos.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.3.95.1010710131403.18337A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Tue, Jul 10, 2001 at 01:35:43PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Richard B. Johnson writes:
+> On Tue, 10 Jul 2001, Timur Tabi wrote:
+> 
+> > Chris Wedgwood wrote:
+> > 
+> > >How does FreeBSD do this? What about other OSs? Do they map out most
+> > >of userland on syscall entry and map it in as required for their
+> > >equivalents to copy_to/from_user? (Taking the performance hit in doing
+> > >so?)
+> > >
+> > 
+> > I don't know about *BSD, but in Windows NT/2000, even drivers run in 
+> > virtual space.  The OS is not monolithic, so address spaces are general 
+>   ^^^^^^^^^^^^^
+> > not "shared" as they are in Linux.
+>        ^^^^^^^
+> 
+> Therefore, it was most reasonable to have the kernel exist within
+> each tasks address space. With modern processors, it doesn't make
+> very much difference, you could have user space start at virtual
+> address 0 and extend to virtual address 0xffffffff. However, this would
+> not be Unix. It would also force the kernel to use additional
+> CPU cycles when addressing a tasks virtual address space,
+> i.e., when data are copied to/from user to kernel space.
 
+This is rather misleading and Intel-architecture-specific rather than
+Unix-specific. For example, Linux on S/390 uses a complete 2Gb address
+space (31 bits; the limit of addressability on the 32-bit S/390
+architecture) for the current task and a separate 2GB address space for
+the kernel. The kernel is not mapped into the "current" address space
+but features of the architecture which provide for separate concurrent
+address spaces via special registers are used. Copies between kernel
+space and user space use special instructions which reference these
+address space registers automagically.
 
-Version 1.7-1 of the Dolphin PCI-SCI (Scalable Coherent Interface) 
-drivers for Linux kernels 2.2 and 2.4 are have been released and
-are available for download at ftp.timpanogas.org and www.timpanogas.org.
-Numerous enhancements have been added to this release, including 
-enhanced support for X-Y dual fabric SCI rings. 
+--Malcolm
 
-Bug fixes and modifications contained in this release:
-
-  
-IRM 1.10.6 ( March 4th 2001 )
-
-*Genif: Added implementation of SPEEP_OK for sci_create_segment()
-*Solaris X86: Fixed build_IRM and added dummy function for hostbridge
- manipulation. Thanks to Joachim Worringen.
-*2d Torus topology support enhanced ( only for D33x family ) Requres
- recompilation of the IRM driver with the ENABLE_MESH_TOPOLOGY_SUPPORT
- flag seg. More info in IRM/drv/src/prolog.h.
-*VxWorks: Fixed Interrupt registration problem that could cause loss of
- interrupts
-
-IRM 1.10.7 ( April 26th 2001 )
-
-*Added initial entry for Intel i960 support ( not completed ).
-*Solaris X86: Completed hostbridge manipulation functionality. Tested
- and verified on Solaris 7 / ServerWorks. Thanks to Joachim Worringen.
-*Added support for 2D torus topology in scidiag.
-*Solaris SPARC: Added support for hostbridge detecting D330 as "name=pci11c8,40"
-
-IRM 1.10.8 ( 22th May 2001 )
-
-*Added support for adapter D230 (PSB66 - LC3). A PCI reset will reset the LC3.
- This functionality is a request from Siemens.
-*Added autodetection of topology. ENABLE_MESH_TOPOLOGY_SUPPORT no
- longer needed.
-*PSB64 not properly supported. Full support from next release again.
-
-IRM 1.10.9 ( 25th May 2001 )
-
-*Code to support PSB64 again added
-*VxWorks: Updated to support psb66 ( D33x family ) on PowerPC
-*updated sciconfig to set and get link-frequency, prefetch and
- no-prefetch space size for more than one adapter.
-*Fixed problem for Solaris 2.5.1 in build_IRM, and added exit 1 status
- for compilation faults.
-*Solaris:Added option for skipping all_build variants in package create
- script.
-
-
-IRM 1.10.10 ( 5th June 2001 )
-*Added support for 2D torus up to 15x15 nodes
-*Added support for ServerWorks HE idenitying with device id 0x00081166 
-
-
-IRM 1.10.11 ( 19th June 2001 )
-*Disabled speculative hold as default for psb66
-*Added extra check to make sure that a new DMA transfer (DMA kick) is not 
- done before the previous DMA transfer has completed.
-*Bug fix for 2d-mesh topology using nodeId 200.
-*Linux:Added property to reduce mapping of prefetchspace to less than
- PCI MEMSIZE
-*Linux: Bigphysarea patch requirement disabled as default for linux 2.4
-
-SISCI 1.10.7 ( 26th April 2001 )
-*Added initial entry for Intel i960 support ( not completed ).
-*Linux:Enabled MMX intructions support in sciMemCopy()
-*Cleaned up and simplified common IOCTL and MMAP code.
-*VxWorks: Added support for cache line manipulation for in sciMemcopy,
- and added new map flag SCI_FLAG_WRITE_BACK_CACHE_MAP.
-*sci ping pong benchmark updated. (SISCI/cmd/test/scipp) Tested on VxWorks/Linux.
-
-SISCI 1.10.8 ( 22th May 2001 )
-*Solaris: Optimalization in sciMemCopy().
-*Linux: Added flag SLEEP_OK to call to sci_create_segment. Memory
- allocaiton thread may now sleep while Linux is allocating memory.
-*Linux: Removed erronous DIS/src/SISCI/src/LINUX/os/mmapcode.h
-*Linux: Fixed bug in SISCI callback functionality and enabled by default.
-*Added implementation of new SCIFlush() SISCI function. Please note that this
- function and signature is subject to change.
-
-
-SISCI 1.10.9 ( 25th May 2001 )
-*VxWorks: Added support for PSB66 adatpters
-
-SISCI 1.10.10 ( 5th June 2001 )
-*Added support for ServerWorks HE idenifying with device id 0x00081166 
-
-SISCI 1.10.11 ( 19th June 2001 )
-*New IOCTL interface for NT and Windows 2000
-*LINUX: Fixed problem with SMP variable not being exported on some systems
-
-Please direct and problems, bug reports, or suggestions regarding this 
-release to jmerkey@timpanogas.org or hugo@dolphinics.no.
-
-Jeff Merkey
-TRG
-
-
+-- 
+Malcolm Beattie <mbeattie@sable.ox.ac.uk>   <-- This email address will break
+Unix Systems Programmer                   when I quit OUCS on Jul 20th. Send
+Oxford University Computing Services    private mail to mbeattie@clueful.co.uk
+                                      I'll sort out my IBM email address soon.

@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262184AbTCRG01>; Tue, 18 Mar 2003 01:26:27 -0500
+	id <S261997AbTCRGYq>; Tue, 18 Mar 2003 01:24:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262186AbTCRG01>; Tue, 18 Mar 2003 01:26:27 -0500
-Received: from smtp2.clear.net.nz ([203.97.37.27]:42407 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP
-	id <S262184AbTCRG00>; Tue, 18 Mar 2003 01:26:26 -0500
-Date: Tue, 18 Mar 2003 18:35:02 +1200
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: [PATCH] Don't refill pcp lists during SWSUSP.
-In-reply-to: <20030317222018.5c7f7a56.akpm@digeo.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1047969302.2309.16.camel@laptop-linux.cunninghams>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <1047945372.1714.19.camel@laptop-linux.cunninghams>
- <20030317160556.4efc880f.akpm@digeo.com>
- <1047965222.2430.3.camel@laptop-linux.cunninghams>
- <20030317222018.5c7f7a56.akpm@digeo.com>
+	id <S262178AbTCRGYq>; Tue, 18 Mar 2003 01:24:46 -0500
+Received: from otter.mbay.net ([206.55.237.2]:6919 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S261997AbTCRGYp> convert rfc822-to-8bit;
+	Tue, 18 Mar 2003 01:24:45 -0500
+From: John Alvord <jalvo@mbay.net>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63))
+Date: Mon, 17 Mar 2003 22:35:26 -0800
+Message-ID: <sffd7vk3otsn0s7uhgvu1gkp2v0q6qv0cq@4ax.com>
+References: <200303172143.h2HLhLql010853@pincoya.inf.utfsm.cl> <200303180608.h2I68mu23488@Port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200303180608.h2I68mu23488@Port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: Forte Agent 1.92/32.570
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-03-18 at 18:20, Andrew Morton wrote:
-> Nigel Cunningham <ncunningham@clear.net.nz> wrote:
-> > I said I was going to use dynamically allocated bitmaps instead of page
-> > flags. Do you mind if I do use pageflags after all (at least for the
-> > moment)? I've used one in the generate_free_page_map patch, and need one
-> > more to mark pages which will be saved in another pageset.
-> > 
-> 
-> I think it'd be best to avoid using more flags if poss.  We are getting
-> short, and designing for this now is probably less trauma than going
-> through and redoing your stuff later.
+On Tue, 18 Mar 2003 08:05:30 +0200, Denis Vlasenko
+<vda@port.imtp.ilyichevsk.odessa.ua> wrote:
 
-Okay. I'll add the dynamic bitmap code and redo the previous patch.
+>On 17 March 2003 23:43, Horst von Brand wrote:
+>> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> said:
+>> > On 15 March 2003 20:34, Horst von Brand wrote:
+>> > > Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> said:
+>>
+>> [...]
+>>
+>> > > > Why not? Disassemble from, say, EIP-16 and check whether you
+>> > > > have an instruction starting exactly at EIP. If no, repeat from
+>> > > > EIP-15, -14... You are guaranteed to succeed at EIP-0  ;)
+>> > >
+>> > > But your previous success (if any) doesn't mean anything, and
+>> > > might even screw up the decoding after EIP
+>> >
+>> > How come? If I started to decode at EIP-n and got a sequence of
+>> > instructions at EIP-n, EIP-n+k1, EIP-n+k2, EIP-n+k3..., EIP,
+>> > instructions prior to EIP can be wrong. Instruction at EIP
+>> > and all subsequent ones ought to be right.
+>>
+>> Iff you exactly hit EIP that way (sure, should check). But wrong
+>> previous instructions _will_ confuse people or start them on all kind
+>> of wild goose chases. Too much work for a dubious gain.
+>
+>You are right. But that is better than showing no prior instructions
+>at all. And most of the time (can I say 90% ?) prior instructions
+>will be ok.
 
-Regards,
+You can also show the instruction sequences that make sense and let
+the human figure out the correct sequence when there are multiples.
 
-Nigel
-
--- 
-Nigel Cunningham
-495 St Georges Road South, Hastings 4201, New Zealand
-
-Be diligent to present yourself approved to God as a workman who does
-not need to be ashamed, handling accurately the word of truth.
-	-- 2 Timothy 2:14, NASB.
-
+john

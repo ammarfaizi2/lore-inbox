@@ -1,101 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbTFSVuH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 17:50:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbTFSVuH
+	id S261151AbTFSV7S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 17:59:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbTFSV7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 17:50:07 -0400
-Received: from user-vc8fdp3.biz.mindspring.com ([216.135.183.35]:36878 "EHLO
-	mail.nateng.com") by vger.kernel.org with ESMTP id S261222AbTFSVuB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 17:50:01 -0400
-X-RAV-AntiVirus: This e-mail has been scanned for viruses on host: mail.nateng.com
-Date: Thu, 19 Jun 2003 15:04:38 -0700 (PDT)
-From: Sir Ace <chandler@nateng.com>
-X-X-Sender: chandler@jordan.eng.nateng.com
-To: linux-kernel@vger.kernel.org
-Subject: IRQ Issues:
-Message-ID: <Pine.LNX.4.53.0306191445020.10241@jordan.eng.nateng.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 19 Jun 2003 17:59:18 -0400
+Received: from vsmtp4.tin.it ([212.216.176.224]:26867 "EHLO vsmtp4.tin.it")
+	by vger.kernel.org with ESMTP id S261151AbTFSV7Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 17:59:16 -0400
+Date: Fri, 20 Jun 2003 00:13:13 +0000
+From: Giuliano Pochini <pochini@shiny.it>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [OOPS] 2.4.21+pppoe
+Message-Id: <20030620001313.2f8e3279.pochini@shiny.it>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I sent this to both the video, and normal lists, because my issue is video
-but it seems to be a problem outside of the video sub-system:
+When a pppoe connection is up, any change to the ethernet config causes an
+oops. In this case I did "ifconfig eth0 down", but it also oopses if I add
+a secondary address. These are two oopses caused by the command above:
 
-2.5.72 yeilds these:
 
-PCI: Probing PCI hardware
-PCI: Probing PCI hardware (bus 00)
-PCI: Using IRQ router VIA [1106/3147] at 00:11.0
-PCI: IRQ 0 for device 00:05.0 doesn't match PIRQ mask - try pci=usepirqmask
-PCI: IRQ 0 for device 00:09.0 doesn't match PIRQ mask - try pci=usepirqmask
-PCI: IRQ 0 for device 00:09.1 doesn't match PIRQ mask - try pci=usepirqmask
-PCI: Found IRQ 11 for device 00:09.1
-PCI: Sharing IRQ 11 with 00:0d.0
-PCI: Sharing IRQ 11 with 01:00.0
-PCI: IRQ 0 for device 00:09.2 doesn't match PIRQ mask - try pci=usepirqmask
-PCI: IRQ 0 for device 00:0c.0 doesn't match PIRQ mask - try pci=usepirqmask
-PCI: IRQ 0 for device 00:0e.0 doesn't match PIRQ mask - try pci=usepirqmask
-PCI: IRQ 0 for device 00:0f.0 doesn't match PIRQ mask - try pci=usepirqmask
-PCI: IRQ 0 for device 00:10.0 doesn't match PIRQ mask - try pci=usepirqmask
-PCI: Enabling device 00:0c.0 (0004 -> 0007)
-PCI: IRQ 0 for device 00:0c.0 doesn't match PIRQ mask - try pci=usepirqmask
-PCI: Assigned IRQ 5 for device 00:0c.0
-PCI: Sharing IRQ 5 with 00:09.0
+NIP: D2036E48 XER: 00000000 LR: D2036E1C SP: C7BCFE20 REGS: c7bcfd70 TRAP: 0300    Not tainted
+MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+TASK = c7bce000[1012] 'pppd' Last syscall: 102
+last math c7bce000 last altivec 00000000
+GPR00: 000000F0 C7BCFE20 C7BCE000 00000000 CF54848F 00000006 CF54848F 00000010
+GPR08: 000030D4 00000000 00000006 C0012FF0 40000089 10053474 10050000 10050000
+GPR16: 10050000 10050000 10050000 10050000 00009032 07BCFF40 00000000 C00060B4
+GPR24: C0270000 00000000 C7BCFE58 100496B4 CF548460 C0271AA0 C7E5A040 C0270000
+Call backtrace:
+D2036E1C C014201C C0142AA4 C0005E7C 10050000 0FDE98C4 1000620C
+0FE5FF70 00000000
+Warning (Oops_read): Code line not seen, dumping what data is available
 
-What I have is 4 Osprey 100 Vid cap cards. {Bt848}
-I've done a lot of work to tear through this so, please forgive the length
-of this mail...
+>>NIP; d2036e48 <[pppoe]pppoe_connect+120/2f0>   <=====
+Trace; d2036e1c <[pppoe]pppoe_connect+f4/2f0>
+Trace; c014201c <tcp_read_sock+1cb4/19a6c>
+Trace; c0142aa4 <tcp_read_sock+273c/19a6c>
+Trace; c0005e7c <set_context+287c/28a8>
+Trace; 10050000 Before first symbol
+Trace; 0fde98c4 Before first symbol
+Trace; 1000620c Before first symbol
+Trace; 0fe5ff70 Before first symbol
+Trace; 00000000 Before first symbol
 
-Kernel linux-2.4.18-17.7.x {puke, redhat yes I know}
-with bt support built in, I got {or similar}:
+[I rebooted here]
 
-bttv1: irq: SCERR risc_count=3530a82c
-bttv1: irq: SCERR risc_count=3530a834
-bttv1: irq: SCERR risc_count=3530a82c
-bttv1: irq: SCERR risc_count=3530a834
-bttv1: irq: SCERR risc_count=3530a82c
-bttv1: aiee: error loops
+NIP: D2036E48 XER: 00000000 LR: D2036E1C SP: CAE47E20 REGS: cae47d70 TRAP: 0300    Not tainted
+MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+TASK = cae46000[943] 'pppd' Last syscall: 102
+last math cae46000 last altivec 00000000
+GPR00: 000000F0 CAE47E20 CAE46000 00000000 CF54BF6F 00000006 CF54BF6F 00000010
+GPR08: 00003634 00000000 00000006 C0013574 40000089 10053474 10050000 10050000
+GPR16: 10050000 10050000 10050000 10050000 00009032 0AE47F40 00000000 C0005EB0
+GPR24: C0230000 00000000 CAE47E58 100496B4 CF54BF40 C0235980 CAFE7680 C0230000
+Call backtrace:
+D2036E1C C011E74C C011F1D4 C0005C7C 10050000 0FDE98C4 1000620C
+0FE5FF70 00000000
+Warning (Oops_read): Code line not seen, dumping what data is available
 
-bttv1: irq: SCERR risc_count=3530a82c
-bttv1: aiee: error loops
-bttv1: resetting chip
+>>NIP; d2036e48 <[pppoe]pppoe_connect+120/2f0>   <=====
+Trace; d2036e1c <[pppoe]pppoe_connect+f4/2f0>
+Trace; c011e74c <sock_create+56c/10e4>
+Trace; c011f1d4 <sock_create+ff4/10e4>
+Trace; c0005c7c <set_context+267c/28a8>
+Trace; 10050000 Before first symbol
+Trace; 0fde98c4 Before first symbol
+Trace; 1000620c Before first symbol
+Trace; 0fe5ff70 Before first symbol
+Trace; 00000000 Before first symbol
 
-Since I am recording live video streams from these inputs, I am screwed
-when the chip resets, because in that instant the device dissappears.
-It does come back once the IC reset is done, but that is too long to save
-the app that is useing it.
 
-Anyway:
-2.4.21 Stock with compiled in bt support does the same
-2.4.21 Stock with bt as a module is the same:
-2.4.21 with no bt support, but using bttv standalone drivers 0.7.97 is the same:
-2.4.21 with no bt support, but using bttv standalone drivers 0.7.106 is thesame:
+23 warnings and 1 error issued.  Results may not be reliable.
 
-2.4.21 with no bt support, but using bttv standalone drivers 0.9.10 yields:
-bttv0: timeout: risc=34a6d03c, bits: HSYNC OFLOW
-bttv0: reset, reinitialize
-bttv3: timeout: risc=358a203c, bits: HSYNC OFLOW
-bttv3: reset, reinitialize
-bttv1: timeout: risc=34a6c03c, bits: HSYNC OFLOW
-bttv1: reset, reinitialize
 
-2.5.72 when detecting the cards shows the output at the top of this mail:
-and this latre on:
-bttv0: timeout: risc=37cd803c, bits: HSYNC OFLOW
-bttv0: reset, reinitialize
-warning: process `update' used the obsolete bdflush system call
-Fix your initscripts?
-bttv3: timeout: risc=37cc903c, bits: HSYNC OFLOW
-bttv3: reset, reinitialize
+[Giu@Jay Giu]$ uname -a
+Linux Jay 2.4.21 #1 sab giu 14 15:41:20 UTC 2003 ppc unknown
+[root@Jay root]# pppd --help
+pppd version 2.4.2b1
 
-I have no alternative to fixing it because I am not putting windows on the
-machine.....  So please help ;)  I'll send whatever info anyone wants, but
-I need to know what you need to figure out what's up.....   I don't know
-enough to help fix it other than giving info.
 
-  --Sir Ace
+
+
+--
+Bye.
+   Giuliano.
 

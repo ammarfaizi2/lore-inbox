@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129664AbQLQPu1>; Sun, 17 Dec 2000 10:50:27 -0500
+	id <S129370AbQLQQAL>; Sun, 17 Dec 2000 11:00:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129675AbQLQPuR>; Sun, 17 Dec 2000 10:50:17 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:46351 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129664AbQLQPuL>; Sun, 17 Dec 2000 10:50:11 -0500
-Subject: Re: [PATCH] link time error in drivers/mtd (240t13p2)
-To: kaos@ocs.com.au (Keith Owens)
-Date: Sun, 17 Dec 2000 15:20:40 +0000 (GMT)
-Cc: dwmw2@infradead.org (David Woodhouse), rasmus@jaquet.dk (Rasmus Andersen),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <2181.977050264@ocs3.ocs-net> from "Keith Owens" at Dec 17, 2000 09:51:04 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129675AbQLQQAB>; Sun, 17 Dec 2000 11:00:01 -0500
+Received: from sweet.diamond.org ([208.5.57.115]:21517 "EHLO mx1.diamond.org")
+	by vger.kernel.org with ESMTP id <S129370AbQLQP7x>;
+	Sun, 17 Dec 2000 10:59:53 -0500
+Date: Sun, 17 Dec 2000 10:29:54 -0500 (EST)
+From: Glen Shere <linux-kernel@lists.diamond.org>
+To: Linus Torvalds <torvalds@transmeta.com>, Keith Owens <kaos@ocs.com.au>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: using kernel headers from user space
+Message-ID: <Pine.LNX.4.21.0012170954180.1876-100000@sweet.diamond.org>
+X-Easter-Egg: Best Wishes from Glen Shere
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E147fcB-0004ET-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> David Woodhouse <dwmw2@infradead.org> wrote:
-> >The conditional compilation is far more obvious to people than subtle
-> >issues with link order. So I prefer to avoid the latter at all costs.
-> 
-> The rest of the kernel already depends totally on these "subtle" issues
-> with link order.  Why should mtd be different?
 
-Why should mtd be broken just because the rest of the Makefiles are
+Keith Owens wrote:
+> Linus has spoken, it is an error for user space applications to
+> include kernel headers.  Even modutils does not include
+> linux/module.h, instead it has a portable (2.0 through 2.4) local
+> definition of struct module.
+
+Oh my.  This isn't clear to the part-time kernel hacker; to install
+[...]linux/include/linux in /usr/include/linux implies that those headers
+can and should be used in user-space.  I've already done this several
+times, in order to use kernel structures from user space.  Whoops :-)
+
+Perhaps the header files that are intended to be used only within the
+kernel tree could be moved to a seperate directory, and then not installed
+in /usr/include.  Obviously 2.5 material, if Linus is so inclined.
+
+I would rather a build break when what's defined in a kernel header file
+gets changed (such as a critical structure, or the like) and further
+maintenance of the user-space utilities is needed; a "heads-up" to the
+maintainer if nothing else.  The recent episode with klogd is a fine
+example of how well that would work.  If klogd had its own copies of
+headers and built fine, we all would quite possibly still not know about
+the inconsistency.
+
+-Glen
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

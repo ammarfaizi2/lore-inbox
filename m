@@ -1,73 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266192AbUGONI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266193AbUGONKH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266192AbUGONI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 09:08:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUGONI0
+	id S266193AbUGONKH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 09:10:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266194AbUGONKH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 09:08:26 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23686 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266192AbUGONIY
+	Thu, 15 Jul 2004 09:10:07 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25991 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266193AbUGONJ4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 09:08:24 -0400
-Date: Thu, 15 Jul 2004 09:03:47 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>, lmb@suse.de,
-       arjanv@redhat.com, phillips@istop.com, sdake@mvista.com,
-       teigland@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
-Message-ID: <20040715120347.GA17412@logos.cnet>
-References: <20040712101107.GA31013@devserv.devel.redhat.com> <20040712102124.GH3933@marowsky-bree.de> <20040712102818.GB31013@devserv.devel.redhat.com> <20040712115003.GV3933@marowsky-bree.de> <20040712120127.GB16604@devserv.devel.redhat.com> <20040712131312.GY3933@marowsky-bree.de> <40F294D2.3010203@yahoo.com.au> <20040712135432.57d0133c.akpm@osdl.org> <20040714121920.GA2350@elf.ucw.cz> <40F5E9A0.3050402@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40F5E9A0.3050402@yahoo.com.au>
-User-Agent: Mutt/1.5.5.1i
+	Thu, 15 Jul 2004 09:09:56 -0400
+Message-ID: <40F68212.2020405@pobox.com>
+Date: Thu, 15 Jul 2004 09:09:38 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mikael Pettersson <mikpe@csd.uu.se>
+CC: axboe@suse.de, wli@holomorphy.com, B.Zolnierkiewicz@elka.pw.edu.pl,
+       akpm@osdl.org, dgilbert@interlog.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH][2.6.8-rc1-mm1] drivers/scsi/sg.c gcc341 inlining fix
+References: <200407150946.i6F9kqXn010635@harpo.it.uu.se>
+In-Reply-To: <200407150946.i6F9kqXn010635@harpo.it.uu.se>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 15, 2004 at 12:19:12PM +1000, Nick Piggin wrote:
-> Pavel Machek wrote:
-> >Hi!
-> >
-> >
-> >>>I don't see why it would be a problem to implement a "this task
-> >>>facilitates page reclaim" flag for userspace tasks that would take
-> >>>care of this as well as the kernel does.
-> >>
-> >>Yes, that has been done before, and it works - userspace "block drivers"
-> >>which permanently mark themselves as PF_MEMALLOC to avoid the obvious
-> >>deadlocks.
-
-Andrew, as curiosity, what userspace "block driver" sets PF_MEMALLOC for
-normal operation?
-
-> >>Note that you can achieve a similar thing in current 2.6 by acquiring
-> >>realtime scheduling policy, but that's an artifact of some brainwave which
-> >>a VM hacker happened to have and isn't a thing which should be relied 
-> >>upon.
-> >>
-> >>A privileged syscall which allows a task to mark itself as one which
-> >>cleans memory would make sense.
-> >
-> >
-> >Does it work?
-> >
-> >I mean, in kernel, we have some memory cleaners (say 5), and they
-> >need, say, 1MB total reserved memory.
-> >
-> >Now, if you add another task with PF_MEMALLOC. But now you'd need
-> >1.2MB reserved memory, and you only have 1MB. Things are obviously
-> >going to break at some point.
-> >								Pavel
+Mikael Pettersson wrote:
+> On Wed, 14 Jul 2004 23:12:54 -0700, William Lee Irwin III wrote:
 > 
-> Well you'd have to be more careful than that. In particular
-> you wouldn't just be starting these things up, let alone
-> have them allocate 1MB in to free some memory.
+>>Jeff Garzik <jgarzik@pobox.com> wrote:
+>>
+>>>>>Or you could just call it "gcc is dumb" rather than a compiler bug.
+>>
+>>On Wed, Jul 14 2004, Andrew Morton wrote:
+>>[... code snippet ...]
+>>
+>>>>is pretty dumb too.  I don't see any harm if this compiler feature/problem
+>>>>pushes us to fix the above in the obvious way.
+>>
+>>On Thu, Jul 15, 2004 at 07:56:56AM +0200, Jens Axboe wrote:
+>>
+>>>Excuse my ignorance, but why on earth would that be dumb? Looks
+>>>perfectly legit to me, and I have to agree with Jeff that the compiler
+>>>is exceedingly dumb if it fails to inline that case.
+>>
+>>Enter gcc...
+>>
+>>Maybe "the obvious way" is sending a someone off to whip gcc into shape,
+>>or possibly reporting it as a gcc problem.
 > 
-> This situation would still blow up whether you did it in
-> kernel or not.
+> 
+> It shows you guys aren't compiler writers.
 
-Indeed, such PF_MEMALLOC app can probably kill the system if it bugs
-allocating lots of memory from the lower reservations. It needs
-some limitation. 
+Actually, I have written most of a [simple] compiler backend.
+
+
+> Compilers for top-down (define-before-use) languages like C
+> have traditionally also worked in a top-down fashion, processing
+> one top-level declaration at a time. Forward references are
+> either errors, or are (when a proper declaration is in scope)
+> left to the linker to resolve.
+> 
+> Processing an entire compilation-unit (e.g. whole C file)
+> as a single unit is typically _only_ done when either the
+> language semantics requires it (not C, but e.g. Haskell),
+> or when very high optimisation levels are requested.
+
+Or in the case where you parse the entire file, then generate code for 
+the entire file in a separate pass.  Which does NOT imply 
+unit-at-a-time, for the readers at home.  It just implies generation of 
+the AST.
+
+
+> In the case of gcc-3.4.1 failing to inline, you are asking
+> gcc to do something (peeking forward) which it never has
+> promised to do. And with the kernel using -fno-unit-at-a-time
+> for stack conservation reasons, gcc is actually being _told_
+> not to do global compilation.
+> 
+> This is not a gcc bug, nor is it being "exceedingly dumb".
+
+Actually, yes it is.
+
+	Jeff
+
+

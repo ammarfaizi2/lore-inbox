@@ -1,33 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129666AbRCAPzn>; Thu, 1 Mar 2001 10:55:43 -0500
+	id <S129675AbRCAP7z>; Thu, 1 Mar 2001 10:59:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129669AbRCAPze>; Thu, 1 Mar 2001 10:55:34 -0500
-Received: from kanga.kvack.org ([216.129.200.3]:17931 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id <S129666AbRCAPzZ>;
-	Thu, 1 Mar 2001 10:55:25 -0500
-Date: Thu, 1 Mar 2001 10:51:22 -0500 (EST)
-From: <kernel@kvack.org>
-To: Ofer Fryman <ofer@shunra.co.il>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Intel-e1000 for Linux 2.0.36-pre14
-In-Reply-To: <F1629832DE36D411858F00C04F24847A11DECF@SALVADOR>
-Message-ID: <Pine.LNX.3.96.1010301104826.2411E-100000@kanga.kvack.org>
+	id <S129674AbRCAP7f>; Thu, 1 Mar 2001 10:59:35 -0500
+Received: from cninexchsrv01.crane.navy.mil ([164.227.4.52]:40459 "EHLO
+	cninexchsrv01.crane.navy.mil") by vger.kernel.org with ESMTP
+	id <S129669AbRCAP71>; Thu, 1 Mar 2001 10:59:27 -0500
+Message-ID: <AF6E1CA59D6AD1119C3A00A0C9893C9A04F570EC@cninexchsrv01.crane.navy.mil>
+From: Friedrich Steven E CONT CNIN <friedrich_s@crane.navy.mil>
+To: "Linux Kernel List (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Looking for best resource for device driver programmers
+Date: Thu, 1 Mar 2001 10:59:25 -0500 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Mar 2001, Ofer Fryman wrote:
+I'm a real-time developer new to the Linux platform.  I'm currently trying
+to write my first linux kernel device driver.
 
-> I need a giga fiber PMC cards for linux2.0.36-pre14, the only cards I know
-> are either Intel based or level-one lxt-1001 card, the level-one lxt-1001
-> has very bad performance so I cannot use it.
+Anyone know the best web site or mailing list to ask questions about linux
+device driver and kernel issues for a programmer like me?
 
-Well, 2.0 kernels are sufficiently old that there's little likelyhood of
-newer gige drivers supporting them unless you do the work yourself.  My
-personal recommendation would be moving to a 2.2 or 2.4 kernel and using
-an Acenic.
 
-		-bem
 
+Steven Friedrich

@@ -1,50 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263226AbUCYQYe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 11:24:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263234AbUCYQYe
+	id S263240AbUCYQZG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 11:25:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263243AbUCYQZG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 11:24:34 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:31138 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263226AbUCYQYd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 11:24:33 -0500
-Message-ID: <004101c41285$4e820270$6800a8c0@comcast.net>
-From: "John Hawkes" <hawkes@sgi.com>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>, "Andi Kleen" <ak@suse.de>,
-       "Ingo Molnar" <mingo@elte.hu>
-Cc: <piggin@cyberone.com.au>, <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
-       <kernel@kolivas.org>, <rusty@rustcorp.com.au>, <ricklind@us.ibm.com>,
-       <anton@samba.org>, <lse-tech@lists.sourceforge.net>,
-       <mbligh@aracnet.com>
-References: <7F740D512C7C1046AB53446D3720017301119907@scsmsx402.sc.intel.com>
-Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
-Date: Thu, 25 Mar 2004 08:19:28 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6600
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+	Thu, 25 Mar 2004 11:25:06 -0500
+Received: from node-402418b2.mdw.onnet.us.uu.net ([64.36.24.178]:9462 "EHLO
+	found.lostlogicx.com") by vger.kernel.org with ESMTP
+	id S263240AbUCYQYz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 11:24:55 -0500
+Date: Thu, 25 Mar 2004 10:17:39 -0600
+From: Brandon Low <lostlogic@gentoo.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc2-mm2 still does not boot but it progress : seems to be console font related
+Message-ID: <20040325161739.GC999@lostlogicx.com>
+References: <406172C9.8000706@free.fr> <20040324095236.68cb1deb.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040324095236.68cb1deb.akpm@osdl.org>
+X-Operating-System: Linux found.lostlogicx.com 2.6.1-mm2
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-> We have found some performance regressions (e.g. SPECjbb) with the
-> scheduler on a large IA-64 NUMA machine, and we are debugging it. On SMP
-> machines, we haven't seen performance regressions.
+I was having a similar problem, and with nothing else on the system
+changed, applying the patch fixed it.  Was freezing at "freeing unused
+kernel memory" without the patch.
 
-I've run a flavor of AIM7 and kernbench on a variety of ia64-NUMA CPU counts,
-ranging up to 128p (and my 2.6.4 + Piggin-scheduler kernel hangs during boot
-at >=192p, vs. 2.6.4 + vanilla-scheduler booting and running at 512p), and the
-Piggin scheduler is 10-15% slower at 64p, and even worse at 128p.  I did,
-however, produce superior performance (superior to the vanilla scheduler) with
-AIM7 by increasing the sched_domain->busy_factor by 4x.  I tried a few other
-things, but nothing improved performance on these big systems better than a
-simple increase of busy_factor.
+Thanks,
 
-John Hawkes
+Brandon
 
-
+On Wed, 03/24/04 at 09:52:36 -0800, Andrew Morton wrote:
+> Eric Valette <eric.valette@free.fr> wrote:
+> >
+> > I have compiled a completely clean, unpatched (I mean except of course 
+> >  rc2-mm2) and I can still not manage to finish booting. However, this 
+> >  time, I get a little bit further AND system seems to hang exactly at the 
+> >  same place each time (which was not the case with rc2-mm1). In fact I 
+> >  managed to have the same behavior after removing the initramfs patches 
+> >  from rc2-mm1 and fixing some other things using bk snapshots diffs (SCSI 
+> >  st driver).
+> > 
+> >  It hangs when executing :
+> >  /etc/init.d/console-screen.sh after displaying:
+> > 
+> >  Setting up general console font..
+> > 
+> >  Attached is a shell trace of a working session on
+> >  2.6.5-rc1-mm2. It basically does (twice wonder why!) a loop of :
+> > 
+> > 
+> >  /usr/bin/consolechars --tty=/dev/vc/[X] -f lat0-16
+> > 
+> >  I also traced the set of system calls /usr/bin/consolechars does via ptrace.
+> > 
+> >  Of course, the same shell script, same binaries and same settings works 
+> >  for 2.6.5-rc1-mm2
+> 
+> Are you using devfs?  If so, please try the below patch (I don't see why,
+> but..)
+> 
+> Can a sysrq-T or sysrq-P trace be generated when it has died?  You may need
+> to alter your initscripts so they do not stick a zero in
+> /proc/sys/kernel/sysrq.
+> 
+> ---
+> 
+>  25-akpm/drivers/char/vt.c |    7 ++++++-
+>  1 files changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff -puN drivers/char/vt.c~a drivers/char/vt.c
+> --- 25/drivers/char/vt.c~a	2004-03-24 09:49:10.285591688 -0800
+> +++ 25-akpm/drivers/char/vt.c	2004-03-24 09:50:54.355770616 -0800
+> @@ -2471,10 +2471,13 @@ static int con_open(struct tty_struct *t
+>  				tty->winsize.ws_row = video_num_lines;
+>  				tty->winsize.ws_col = video_num_columns;
+>  			}
+> +			release_console_sem();
+>  			vcs_make_devfs(tty);
+> +			goto out;
+>  		}
+>  	}
+>  	release_console_sem();
+> +out:
+>  	return ret;
+>  }
+>  
+> @@ -2484,11 +2487,13 @@ static void con_close(struct tty_struct 
+>  	if (tty && tty->count == 1) {
+>  		struct vt_struct *vt;
+>  
+> -		vcs_remove_devfs(tty);
+>  		vt = tty->driver_data;
+>  		if (vt)
+>  			vc_cons[vt->vc_num].d->vc_tty = NULL;
+>  		tty->driver_data = 0;
+> +		release_console_sem();
+> +		vcs_remove_devfs(tty);
+> +		return;
+>  	}
+>  	release_console_sem();
+>  }
+> 
+> _
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,78 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269389AbUJLARL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269379AbUJLAPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269389AbUJLARL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 20:17:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269382AbUJLARK
+	id S269379AbUJLAPl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 20:15:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269381AbUJLAPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 20:17:10 -0400
-Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:9859
-	"EHLO zion.localdomain") by vger.kernel.org with ESMTP
-	id S269377AbUJLAQ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 20:16:56 -0400
-Subject: [patch 6/6] uml: export more Symbols
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it
-From: blaisorblade_spam@yahoo.it
-Date: Tue, 12 Oct 2004 02:16:35 +0200
-Message-Id: <20041012001636.12CB88693@zion.localdomain>
+	Mon, 11 Oct 2004 20:15:41 -0400
+Received: from rproxy.gmail.com ([64.233.170.202]:43154 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269379AbUJLAPi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 20:15:38 -0400
+Message-ID: <35fb2e5904101117156b033f6b@mail.gmail.com>
+Date: Tue, 12 Oct 2004 01:15:34 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: how do you call userspace syscalls (e.g. sys_rename) from inside kernel
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20041008130442.GE5551@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20041008130442.GE5551@lkcl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 8 Oct 2004 14:04:42 +0100, Luke Kenneth Casson Leighton
+<lkcl@lkcl.net> wrote:
+> could someone kindly advise me on the location of some example code in
+> the kernel which calls one of the userspace system calls from inside the
+> kernel?
 
-Adds a lot more EXPORT_SYMBOLS calls.
+Hi Luke,
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
+I enjoyed your recent talk at OxLUG in which you mentioned this
+briefly. Could you please send me the source that you are working on
+so that I can take a look and make suggestions if tha'ts useful - I
+posted to the OxLUG list but you're not actually on it and although I
+now have your address from someone, this post reminded me.
 
- linux-2.6.9-current-paolo/arch/um/kernel/irq.c     |    2 ++
- linux-2.6.9-current-paolo/arch/um/kernel/ksyms.c   |    1 +
- linux-2.6.9-current-paolo/arch/um/kernel/physmem.c |    5 +++++
- 3 files changed, 8 insertions(+)
+I've copied lkml for two reasons - a). Someone else might want to take
+a look. b). I sat and talked with Luke for a while about this, he's
+not a typical "I want to do stuff in the kernel I should be doing from
+userspace" kind of person in my opinion (there might still be a better
+way but until I see more what he's actually doing then I can't work
+out what).
 
-diff -puN arch/um/kernel/irq.c~uml-export-Symbols arch/um/kernel/irq.c
---- linux-2.6.9-current/arch/um/kernel/irq.c~uml-export-Symbols	2004-10-12 01:22:08.000000000 +0200
-+++ linux-2.6.9-current-paolo/arch/um/kernel/irq.c	2004-10-12 01:22:08.000000000 +0200
-@@ -441,6 +441,8 @@ int um_request_irq(unsigned int irq, int
- 		err = activate_fd(irq, fd, type, dev_id);
- 	return(err);
- }
-+EXPORT_SYMBOL(um_request_irq);
-+EXPORT_SYMBOL(reactivate_fd);
- 
- /* this was setup_x86_irq but it seems pretty generic */
- int setup_irq(unsigned int irq, struct irqaction * new)
-diff -puN arch/um/kernel/ksyms.c~uml-export-Symbols arch/um/kernel/ksyms.c
---- linux-2.6.9-current/arch/um/kernel/ksyms.c~uml-export-Symbols	2004-10-12 01:22:08.000000000 +0200
-+++ linux-2.6.9-current-paolo/arch/um/kernel/ksyms.c	2004-10-12 01:22:08.000000000 +0200
-@@ -60,6 +60,7 @@ EXPORT_SYMBOL(strncpy_from_user_skas);
- EXPORT_SYMBOL(copy_to_user_skas);
- EXPORT_SYMBOL(copy_from_user_skas);
- #endif
-+EXPORT_SYMBOL(uml_strdup);
- 
- EXPORT_SYMBOL(os_stat_fd);
- EXPORT_SYMBOL(os_stat_file);
-diff -puN arch/um/kernel/physmem.c~uml-export-Symbols arch/um/kernel/physmem.c
---- linux-2.6.9-current/arch/um/kernel/physmem.c~uml-export-Symbols	2004-10-12 01:22:08.000000000 +0200
-+++ linux-2.6.9-current-paolo/arch/um/kernel/physmem.c	2004-10-12 01:22:08.000000000 +0200
-@@ -8,6 +8,7 @@
- #include "linux/slab.h"
- #include "linux/vmalloc.h"
- #include "linux/bootmem.h"
-+#include "linux/module.h"
- #include "asm/types.h"
- #include "asm/pgtable.h"
- #include "kern_util.h"
-@@ -220,6 +221,10 @@ void physmem_forget_descriptor(int fd)
- 	kfree(desc);
- }
- 
-+EXPORT_SYMBOL(physmem_forget_descriptor);
-+EXPORT_SYMBOL(physmem_remove_mapping);
-+EXPORT_SYMBOL(physmem_subst_mapping);
-+
- void arch_free_page(struct page *page, int order)
- {
- 	void *virt;
-_
+Jon.

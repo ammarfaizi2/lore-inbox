@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315799AbSEOODe>; Wed, 15 May 2002 10:03:34 -0400
+	id <S315842AbSEOOFJ>; Wed, 15 May 2002 10:05:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315842AbSEOODd>; Wed, 15 May 2002 10:03:33 -0400
-Received: from zeke.inet.com ([199.171.211.198]:64702 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S315799AbSEOODc>;
-	Wed, 15 May 2002 10:03:32 -0400
-From: "Jordan Breeding" <jordan.breeding@inet.com>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Cc: "Jordan Breeding" <jordan.breeding@inet.com>,
-        "Jordan Breeding" <jordan.breeding@attbi.com>
-Subject: Problem with nmi watchdog
-Date: Wed, 15 May 2002 09:01:58 -0500
-Message-ID: <HAEOIKGLLLDPLCHFOMMOAECNCAAA.jordan.breeding@inet.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S316075AbSEOOFI>; Wed, 15 May 2002 10:05:08 -0400
+Received: from jalon.able.es ([212.97.163.2]:7585 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S315842AbSEOOFH>;
+	Wed, 15 May 2002 10:05:07 -0400
+Date: Wed, 15 May 2002 16:04:55 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Jan Nieuwenhuizen <janneke@gnu.org>
+Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19pre8-ac3 -- thread_info?
+Message-ID: <20020515140455.GA2186@werewolf.able.es>
+In-Reply-To: <200205141244.g4ECi6P29886@devserv.devel.redhat.com> <87ptzxlnzn.fsf@peder.flower>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-  I have a Tyan Thunder K7 (S2462UNG) which does not like using the nmi
-watchdog automatically.  If I boot up nmi_watchdog=1 then the machine show
-no interrupt in the nmi columns of /proc/interrupts.  While checking the
-boot log I see the message about CPU#0 being stuck.  This is made more
-interesting by the fact that if I boot using nmi_watchdog=2 then everything
-works fine.  Why will the automatic detection using nmi_watchdog=1 not work
-(my current kernel is 2.5.15-dj1)?  Thanks.
+On 2002.05.15 Jan Nieuwenhuizen wrote:
+>
+>It seems that 2.4.19pre8-ac3 introduced the use of thread_info, but
+>it's not defined in sched.h?
+>
+>Greetings,
+>Jan.
+>
+>gcc -D__KERNEL__ -I/var/src/linux-2.4/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4    -nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=sched  -fno-omit-frame-pointer -O2 -c -o sched.o sched.c
+>sched.c: In function `migration_thread':
+>sched.c:1595: structure has no member named `thread_info'
+>sched.c:1600: structure has no member named `thread_info'
+>sched.c:1606: structure has no member named `thread_info'
+>sched.c:1574: warning: `cpu_src' might be used uninitialized in this function
+>make[2]: *** [sched.o] Error 1
+>
 
-Jordan Breeding
+Sure it has been added ?
+It can be the O1-sched patch or the O1-updates from rml, when extracted from
+2.5 still use that.
+Just change every occurence of:
 
+p->thread_info->cpu
+
+to
+
+p->cpu.
+
+Hope this helps.
+
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre8-jam2 #3 SMP lun may 13 00:49:15 CEST 2002 i686

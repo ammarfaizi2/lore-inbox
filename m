@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265426AbUEZKVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265428AbUEZK2A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265426AbUEZKVv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 06:21:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265427AbUEZKVv
+	id S265428AbUEZK2A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 06:28:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265429AbUEZK2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 06:21:51 -0400
-Received: from ptb-relay03.plus.net ([212.159.14.214]:38923 "EHLO
-	ptb-relay03.plus.net") by vger.kernel.org with ESMTP
-	id S265426AbUEZKVh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 06:21:37 -0400
-Message-ID: <40B46F97.7040803@mauve.plus.com>
-Date: Wed, 26 May 2004 11:21:11 +0100
-From: Ian Stirling <ian.stirling@mauve.plus.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: Giuliano Pochini <pochini@denise.shiny.it>,
-       "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
-       Tom Vier <tmv@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel 2.6.6 IDE shutdown problems.
-References: <BAY18-F105X7rz6AvEm0002622f@hotmail.com> <20040524171656.GA19026@bounceswoosh.org> <Pine.LNX.4.58.0405251101240.1197@denise.shiny.it> <200405251703.43000.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200405251703.43000.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 26 May 2004 06:28:00 -0400
+Received: from mail02.hansenet.de ([213.191.73.62]:16069 "EHLO
+	webmail.hansenet.de") by vger.kernel.org with ESMTP id S265428AbUEZK16
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 06:27:58 -0400
+Date: Wed, 26 May 2004 12:26:58 +0200
+From: Malte =?ISO-8859-1?B?U2NocvZkZXI=?= <Malte.Schroeder@hanse.net>
+To: Stan Bubrouski <stan@ccs.neu.edu>
+Cc: Andi Kleen <ak@muc.de>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Bad X-performance on 2.6.6 & 2.6.7-rc1 on x86-64
+Message-Id: <20040526122658.2121389e@highlander.Home.LAN>
+In-Reply-To: <1085520021.1393.4168.camel@duergar>
+References: <1ZqbC-5Gl-13@gated-at.bofh.it>
+	<m3r7t9d3li.fsf@averell.firstfloor.org>
+	<20040525122659.395783f4@highlander.Home.LAN>
+	<20040525123636.GA13817@colin2.muc.de>
+	<1085520021.1393.4168.camel@duergar>
+Reply-To: MalteSch@gmx.de
+X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Wed__26_May_2004_12_26_58_+0200_1dDtVacsQutX_sth"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> On Tuesday 25 of May 2004 11:05, Giuliano Pochini wrote:
-> 
->>On Mon, 24 May 2004, Eric D. Mudama wrote:
->>
->>>Picture a nice fast drive doing 100 writes/second to the media... if
->>>you give it over 200 writes at a time, it'll occupy your 2 seconds.
->>>Newer drives with 8MB or larger buffers are certainly capable of
->>>caching a lot more than 200 writes...
->>
->>Quite unlikely. Usually disks have a big cache but it can hold a very
->>limited number of blocks. 8MB of cache is probably divided in 8 blocks
->>of 1MB each.
-> 
-> 
-> No.
+--Signature=_Wed__26_May_2004_12_26_58_+0200_1dDtVacsQutX_sth
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-It is indeed likely that the worst case is around 16000 writes, which if
-on seperate tracks may take over 30 seconds to complete if done individually.
+> And Malte, are you using emu10k1 driver per chance?
+Yes, emu10k1/alsa on sb audigy.
 
-However, it's likely that any drive designer with a clue would allocate a
-couple of journal tracks, so that the write cache and two backup copies can
-be stored for replay when the drive is powered on again.
+--=20
+---------------------------------------
+Malte Schr=F6der
+MalteSch@gmx.de
+ICQ# 68121508
+---------------------------------------
 
-Why do I suspect that some designers don't have clue, or haven't really thought
-enough about this case.
+
+--Signature=_Wed__26_May_2004_12_26_58_+0200_1dDtVacsQutX_sth
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAtHD14q3E2oMjYtURAjn2AKDm13UENfE5CJXRdeNg85uTpowacwCdH/HM
+osImjEfeT8FzYU1ytW99/GM=
+=l+cH
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__26_May_2004_12_26_58_+0200_1dDtVacsQutX_sth--

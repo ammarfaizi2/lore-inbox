@@ -1,76 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280034AbRJ3RAP>; Tue, 30 Oct 2001 12:00:15 -0500
+	id <S280037AbRJ3REz>; Tue, 30 Oct 2001 12:04:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280023AbRJ3RAF>; Tue, 30 Oct 2001 12:00:05 -0500
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:1178 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S280030AbRJ3RAC>; Tue, 30 Oct 2001 12:00:02 -0500
-Message-ID: <3BDEDC50.3070605@antefacto.com>
-Date: Tue, 30 Oct 2001 16:58:56 +0000
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S280053AbRJ3REq>; Tue, 30 Oct 2001 12:04:46 -0500
+Received: from www-cache.iisc.ernet.in ([144.16.64.3]:60427 "EHLO
+	iisc.ernet.in") by vger.kernel.org with ESMTP id <S280035AbRJ3RE1>;
+	Tue, 30 Oct 2001 12:04:27 -0500
+Date: Tue, 30 Oct 2001 22:35:00 +0530 (GMT+05:30)
+From: "V.Muni Chandra Reddy" <mcreddy@ece.iisc.ernet.in>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel Panic :  Unable to mount root fs on 03:06
+Message-ID: <Pine.SUN.3.96.1011030223256.24724A-100000@eis>
 MIME-Version: 1.0
-To: Audun Jan Myrhol <audun@q-free.com>
-CC: linux-kernel@vger.kernel.org, ras2@tant.com
-Subject: Re: Problem with SanDisk Compact Flash disks on IDE with kernel 2.4.x
-In-Reply-To: <3BDED5D5.7C985134@q-free.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You've been bitten by this "feature" also.
-Note it's been in the list many times. See:
-http://www.cs.helsinki.fi/linux/linux-kernel/2001-12/0405.html
+Hi,
 
-In summary you need the following kernel parameter:
-hdb=flash (I know your hdb is NOT flash but this is
-consistent with this "feature").
+I recently upgraded my Thinkpad with 20GB HDD, and installed Redhat 7.1
+with kernel version 2.4.2-2. After this, I am facing a strange problem
+booting
+under Linux. BTW, my machine also has Windows :) 
 
-BTW testing with 2.2.18, hdb would silently be ignored.
-Kernel panic is well probably more consistent with this
-"feature".
+Whenever I am in Linux, and _softboot_ the system by choosing Linux at the
+lilo prompt, the boot process stops with the following message.
 
-Any progress/more info on why this "feature" is required?
+---------------------------------------------------------------------------
+EXT2-fs: unable to read superblock
+isofs_read_super: bread failed, dev=03:06, iso_blknum=16,block=32
+Kernel panic: Unable to mount root fs on 03:06
+---------------------------------------------------------------------------
 
-Padraig.
+Surprisingly, whenever I _hardboot_ the system and choose Linux at the
+lilo
+the system boots normally without any problem.
 
-Audun Jan Myrhol wrote:
+Can you help me out with this problem ?
 
-> I have a lot of problems when trying to use a SanDisk Compact Flash
-> card with an IDE adapter as an IDE disk on kernel 2.4.x.
-> The Compact Flash disks may be used perfectly with the old age MSDOS
-> 6.2 either alone or with a normal IDE disk on the same controller. It
-> is also possible to use the Compact Flash with success with kernel
-> 2.2.14 and 2.2.16.
-> 
-> When used with kernel 2.4.x (tried 2,5,7,12,13, various compile
-> options) I have so far found it impossible to get the Compact Flash
-> working together with a standard IDE disk on the same controller. A
-> typical scenario is: Standard IDE disk as hda full system installed,
-> the CF with IDE adapter as hdb (empty/unformatted/dos formatted /ext2
-> formatted, tried "everything"). The boot sequence is normal until LILO
-> attempts to mount VFS. Then no disk is accessible on the IDE bus, and
-> I get kernel panic. Identical sympthoms are seen when using an IDE
-> FlashDrive from SanDisk.
-> 
-> I have installed a stripped down system based on kernel 2.2.14 on one
-> CF disk as hda, that works, with or without a normal IDE disk as hdb.
-> If I change the kernel on that CF to 2.4.13 and removes the hdb IDE
-> disk, the kernel is able to mount VFS and complete normal boot.
-> 
-> Any ideas for fix / workaround, I haven't found anything in the
-> archives?
-> 
-> System info:
-> 
-> CPU card: Aaeon 6890B with Celeron and 440BX chipset. 
-> SanDisk 64 MB Compact Flash card: SDCFB-64 or
-> SanDisk 96 MB Flash Drive (IDE interface) : SD25B-96
-> 
-> Audun Myrhol
-> R&D engineer
 
+Regards,
+M.C.Reddy.
 

@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263094AbTCSSUs>; Wed, 19 Mar 2003 13:20:48 -0500
+	id <S263112AbTCSSkq>; Wed, 19 Mar 2003 13:40:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263099AbTCSSUr>; Wed, 19 Mar 2003 13:20:47 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:35040 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S263094AbTCSSUq>; Wed, 19 Mar 2003 13:20:46 -0500
-Message-ID: <65D5A07B5098D511BDDA0002A508E64F0995E8EF@orsmsx110.jf.intel.com>
-From: "Brugger, Andrea L" <andrea.l.brugger@intel.com>
-To: "'clg-discussion@osdl.org'" <clg-discussion@osdl.org>,
-       "'linux-ha-dev@lists.community.tummy.com'" 
-	<linux-ha-dev@lists.community.tummy.com>,
-       "'ocf@lists.community.tummy.com'" <ocf@lists.community.tummy.com>,
-       "'openipmi-developer@lists.sourceforge.net'" 
-	<openipmi-developer@lists.sourceforge.net>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'freshmeat-news@lists.freshmeat.net'" 
-	<freshmeat-news@lists.freshmeat.net>
-Subject: [ANNOUNCE] OpenHPI -- an implementation for SAForum's HPI 
-Date: Wed, 19 Mar 2003 10:31:33 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	id <S263118AbTCSSkp>; Wed, 19 Mar 2003 13:40:45 -0500
+Received: from packet.digeo.com ([12.110.80.53]:29634 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S263112AbTCSSko>;
+	Wed, 19 Mar 2003 13:40:44 -0500
+Date: Wed, 19 Mar 2003 10:51:35 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: george anzinger <george@mvista.com>
+Cc: tim@physik3.uni-rostock.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix nanosleep() granularity bumps
+Message-Id: <20030319105135.1fe21020.akpm@digeo.com>
+In-Reply-To: <3E78B226.6050908@mvista.com>
+References: <Pine.LNX.4.33.0303190832430.32325-100000@gans.physik3.uni-rostock.de>
+	<3E78384A.6040406@mvista.com>
+	<20030319014230.3412298e.akpm@digeo.com>
+	<3E78B226.6050908@mvista.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Mar 2003 18:51:32.0980 (UTC) FILETIME=[8F589B40:01C2EE48]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Project Announcement:
+george anzinger <george@mvista.com> wrote:
+>
+> Andrew Morton wrote:
+> > george anzinger <george@mvista.com> wrote:
+> > 
+> >>The attached patch is for 2.5.65.  As of this moment, the bk patch has 
+> >>not been posted to the snapshots directory.  I will wait for that to 
+> >>update.
+> > 
+> > 
+> > Don't use the snapshots directory.  Use
+> > 
+> > 	http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/
+> 
+> but then I need to pull each patch ... :)
+> 
 
-I'd like to introduce the OpenHPI project at http://openhpi.sf.net.  The
-intent of this project is to produce an implementation of the Service
-Availability Forum's Hardware Platform Interface (HPI).  HPI provides a
-universal interface for creating resource system models, typically for
-chassis and rack based servers, but extendable for other problem domains
-such as clustering, virtualization, and simulation.
+No.  The link at the top:
 
-We are currently in the design phase of the project and are soliciting
-involvement with others in the community.  
+	"Gzipped full patch from v2.5.65 to ChangeSet 1.1171" 
 
-Our goal is to have modular hardware support that can be implemented using a
-plugin architecture.  This would allow a top-level OpenHPI implementation to
-be independent of the underlying hardware platform(s).  We are also just
-getting a build environment up and a stubbed-out library implementation
-available.  Work has also just begun regarding the planning and development
-of a certification suite for the HPI implementation.  
-
-For more information and how you can become involed please see...
-
-Project Website: 
-http://openhpi.sf.net
-
-Mailing List: 
-http://lists.sourceforge.net/lists/listinfo/openhpi-devel
-
-
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-Andrea Brugger
-Software Engineer 
-Intel Corporation -- Telecom Software Programs
- 
-This email message does not necessarily represent or express the opinions of
-Intel Corporation.
+is the diff from 2.5.65 to tip-of-tree.

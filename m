@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262821AbRE3Vx3>; Wed, 30 May 2001 17:53:29 -0400
+	id <S262829AbRE3V7T>; Wed, 30 May 2001 17:59:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262823AbRE3VxU>; Wed, 30 May 2001 17:53:20 -0400
-Received: from marine.sonic.net ([208.201.224.37]:65106 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S262821AbRE3Vvr>;
-	Wed, 30 May 2001 17:51:47 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Wed, 30 May 2001 14:44:14 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ln -s broken on 2.4.5
-Message-ID: <20010530144414.I24802@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010530233005.A27497@caldera.de>
-User-Agent: Mutt/1.3.18i
+	id <S262826AbRE3V7J>; Wed, 30 May 2001 17:59:09 -0400
+Received: from waste.org ([209.173.204.2]:8235 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S262829AbRE3V67>;
+	Wed, 30 May 2001 17:58:59 -0400
+Date: Wed, 30 May 2001 17:00:49 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Dawson Engler <engler@csl.Stanford.EDU>, <linux-kernel@vger.kernel.org>,
+        <mc@cs.Stanford.EDU>
+Subject: Re: [CHECKER] 2.4.5-ac4 non-init functions calling init functions 
+In-Reply-To: <26484.991258403@redhat.com>
+Message-ID: <Pine.LNX.4.30.0105301658440.29616-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 30, 2001 at 11:30:05PM +0200, Marcus Meissner wrote:
-> The problem is only there if you specify a directory for the linked to
-> component.
-> 
-> [marcus@wine /tmp]$ strace -f ln -s fupp/berk xxx
+On Wed, 30 May 2001, David Woodhouse wrote:
 
-Is it only a directory, or the length?
+>
+> engler@csl.Stanford.EDU said:
+> > drivers/mtd/docprobe.c:195:DoC_Probe: ERROR:INIT: non-init fn
+> > 'DoC_Probe' calling init fn 'doccheck'
+>
+> Strictly speaking, not actually a bug. DoC_Probe() itself is only ever
+> called from __init code. But it's probably not worth trying to make the
+> checker notice that situation - I've fixed it anyway by making DoC_Probe()
+> __init too, which saves a bit more memory. Thanks.
 
-ln -s fupp_berk xxx 
+Anything that's only called or used by functions marked init is a
+candidate for being marked init. I suspect there's still quite a bit out
+there that meets this description.
 
-for instance.
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

@@ -1,64 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263434AbTLQFaT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 00:30:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263447AbTLQFaT
+	id S263447AbTLQGHs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 01:07:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263463AbTLQGHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 00:30:19 -0500
-Received: from mail-06.iinet.net.au ([203.59.3.38]:52405 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263434AbTLQFaP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 00:30:15 -0500
-Message-ID: <3FDFE95C.9050901@cyberone.com.au>
-Date: Wed, 17 Dec 2003 16:27:56 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@redhat.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Anton Blanchard <anton@samba.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>, Mark Wong <markw@osdl.org>
-Subject: Re: [PATCH] improve rwsem scalability (was Re: [CFT][RFC] HT scheduler)
-References: <20031208155904.GF19412@krispykreme> <3FD50456.3050003@cyberone.com.au> <20031209001412.GG19412@krispykreme> <3FD7F1B9.5080100@cyberone.com.au> <3FD81BA4.8070602@cyberone.com.au> <3FD8317B.4060207@cyberone.com.au> <20031211115222.GC8039@holomorphy.com> <3FD86C70.5000408@cyberone.com.au> <20031211132301.GD8039@holomorphy.com> <3FD8715F.9070304@cyberone.com.au> <20031211133207.GE8039@holomorphy.com> <3FD88D93.3000909@cyberone.com.au> <3FD91F5D.30005@cyberone.com.au> <Pine.LNX.4.58.0312120440400.14103@devserv.devel.redhat.com> <3FDA5842.9090109@cyberone.com.au> <3FDBB261.5010208@cyberone.com.au>
-In-Reply-To: <3FDBB261.5010208@cyberone.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 17 Dec 2003 01:07:47 -0500
+Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:36370 "EHLO
+	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
+	id S263447AbTLQGHq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 01:07:46 -0500
+Subject: [Answer] Re: Linux 2.4.24-pre1: Instant reboot
+From: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Matthias Andree <matthias.andree@gmx.de>,
+       Dick Johnson <root@chaos.analogic.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+In-Reply-To: <20031216223833.GC12564@merlin.emma.line.org>
+References: <3FDF63A2.9090205@enterprise.bidmc.harvard.edu> 
+	<20031216223833.GC12564@merlin.emma.line.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 17 Dec 2003 01:07:21 -0500
+Message-Id: <1071641243.5423.27.camel@ktkhome>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Short answer to my previous post on this subject:
 
+    CONFIG_EDD=y + Athlon + VIA KT266A = triple fault on boot.
 
-Nick Piggin wrote:
+Longer answer:
 
->
->
-> Nick Piggin wrote:
->
->>
->>
->>
->> The benchmark dies at 160 rooms unfortunately. Probably something in 
->> the JVM.
->>
->> I'll do a larger number of runs around the 130-150 mark.
->>
->
-> OK, this is an average of 5 runs at 145, 150, 155 rooms with my scheduler
-> patches, with and without my rwsem patch. Its all over the place, but 
-> I think
-> rwsem does give a small but significant improvement.
->
-> http://www.kerneltrap.org/~npiggin/rwsem2.png
+Dick Johnson asked,
+> What CPU did you compile it for?
 
+Compiled 2.4.24-pre1 for Athlon/K7.  I also tried it with generic i386,
+which made no difference.
 
-What do you think? Is there any other sorts of benchmarks I should try?
-The improvement I think is significant, although volanomark is quite
-erratic and doesn't show it well.
+Matthias Andree wrote:
+> I've seen this, too, with XFS=y and OOM_KILLER=n,
 
-I don't see any problem with moving the wakeups out of the rwsem's spinlock.
+If I didn't have 2 hours sleep, I would have hacked rc.sysinit to
+auto-compile my linux kernel with a binary search looking for the
+culprit, iterating if the BIOS rebooted an old kernel; but I was too
+tired today for scriping foo.  :-)  So I did it the old fashioned way.
 
+Turns out, after about a dozen compile/reboot loops, I narrowed it down
+repeatably to the "x86 BIOS Enhanced Disk Drive support" (CONFIG_EDD)
+option.  I can turn off just about every .config option, turn that one
+on, and the kernel triple faults upon boot.  This is the first time that
+a 2.4.x kernel has ever triple faulted on boot on my system.  As
+mentioned above, CPU choice makes no difference.
+
+Marcelo:  Perhaps have the author of whatever patch interacts with
+CONFIG_EDD work a bit more on getting the patch right for various
+platforms.  The (EXPERIMENTAL) feature worked just fine for me on
+2.4.22...24.2.23, but the current -pre1 bombs for athlon/via_kt266a.
+
+Kris
 

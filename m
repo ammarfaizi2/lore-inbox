@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264495AbTEaX3z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 19:29:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264501AbTEaX3z
+	id S264501AbTEaXf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 19:35:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264506AbTEaXf2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 19:29:55 -0400
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:11745 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S264495AbTEaX3x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 19:29:53 -0400
-Message-ID: <3ED93DB1.1080301@pacbell.net>
-Date: Sat, 31 May 2003 16:41:37 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: Andrew Morton <akpm@digeo.com>, greg@kroah.com,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [patch] 2.5.70-mm3: usb_gadget_* several times defined
-References: <20030531013716.07d90773.akpm@digeo.com> <20030531210752.GK29425@fs.tum.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 31 May 2003 19:35:28 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:702 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264501AbTEaXf1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 19:35:27 -0400
+Date: Sat, 31 May 2003 16:48:16 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, akpm@digeo.com,
+       hch@infradead.org
+Subject: Re: Always passing mm and vma down (was: [RFC][PATCH] Convert do_no_page() to a hook to avoid DFS race)
+Message-ID: <20030531234816.GB1408@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20030530164150.A26766@us.ibm.com> <20030531104617.J672@nightmaster.csn.tu-chemnitz.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030531104617.J672@nightmaster.csn.tu-chemnitz.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-
+On Sat, May 31, 2003 at 10:46:18AM +0200, Ingo Oeser wrote:
+> On Fri, May 30, 2003 at 04:41:50PM -0700, Paul E. McKenney wrote:
+> > -struct page *
+> > -ia32_install_shared_page (struct vm_area_struct *vma, unsigned long address, int no_share)
+> > +int
+> > +ia32_install_shared_page (struct mm_struct *mm, struct vm_area_struct *vma, unsigned long address, int write_access, pmd_t *pmd)
 > 
-> The following patch fixes it (drivers/usb/Makefile now includes gadget/
-> entries):
-
-
-No, the better fix is to revert whatever change added
-USB_GADGET into drivers/usb/Makefile ... the slave/gadget
-side API needs to be independent of the master/host side
-code.
-
-
-
-> --- linux-2.5.70-mm3/drivers/Makefile.old	2003-05-31 23:00:25.000000000 +0200
-> +++ linux-2.5.70-mm3/drivers/Makefile	2003-05-31 23:00:44.000000000 +0200
-> @@ -37,7 +37,6 @@
->  obj-$(CONFIG_PARIDE) 		+= block/paride/
->  obj-$(CONFIG_TC)		+= tc/
->  obj-$(CONFIG_USB)		+= usb/
-> -obj-$(CONFIG_USB_GADGET)	+= usb/gadget/
->  obj-$(CONFIG_INPUT)		+= input/
->  obj-$(CONFIG_GAMEPORT)		+= input/gameport/
->  obj-$(CONFIG_SERIO)		+= input/serio/
+> Why do we always pass mm and vma down, even if vma->vm_mm
+> contains the mm, where the vma belongs to? Is the connection
+> between a vma and its mm also protected by the mmap_sem?
 > 
+> Is this really necessary or an oversight and we waste a lot of
+> stack in a lot of places?
 > 
-> 
-> cu
-> Adrian
-> 
+> If we just need it for accounting: We need current->mm, if we
+> need it to locate the next vma relatively to this vma, vma->vm_mm
+> is the one.
 
+Interesting point.  The original do_no_page() API does this
+as well:
 
+	static int
+	do_no_page(struct mm_struct *mm, struct vm_area_struct *vma,
+		   unsigned long address, int write_access, pte_t *page_table, pmd_t *pmd)
 
+As does do_anonymous_page().  I assumed that there were corner
+cases where this one-to-one correspondence did not exist, but
+must confess that I did not go looking for them.
+
+Or is this a performance issue, avoiding a dereference and
+possible cache miss?
+
+					Thanx, Paul

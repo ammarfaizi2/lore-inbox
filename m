@@ -1,899 +1,169 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262198AbTLUGia (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 01:38:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbTLUGia
+	id S262196AbTLUG2p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 01:28:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbTLUG2p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 01:38:30 -0500
-Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:47746 "HELO
-	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262198AbTLUGhx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 01:37:53 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 PATCH/RFC] Firmware loader - fix races and resource dealloocation problems
-Date: Sun, 21 Dec 2003 01:37:39 -0500
-User-Agent: KMail/1.5.4
-Cc: Manuel Estrada Sainz <ranty@debian.org>, Patrick Mochel <mochel@osdl.org>
+	Sun, 21 Dec 2003 01:28:45 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:17050
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S262196AbTLUG2l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 01:28:41 -0500
+Message-ID: <3FE53D27.5090406@redhat.com>
+Date: Sat, 20 Dec 2003 22:26:47 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031216
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312210137.41343.dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+CC: Linus Torvalds <torvalds@osdl.org>
+Subject: O_CANLINK and flink
+X-Enigmail-Version: 0.82.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------090000030502090602090802"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------090000030502090602090802
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-It seems that implementation of the firmware loader is racy as it relies
-on kobject hotplug handler. Unfortunately that handler runs too early,
-before firmware class attributes controlling the loading process, are
-created. This causes firmware loading fail at least half of the times on
-my laptop.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Another problem that I see is that the present implementation tries to free
-some of the allocated resources manually instead of relying on driver model.
-Particularly damaging is freeing fw_priv in request_firmware. Although the
-code calls fw_remove_class_device (which in turns calls 
-class_device_unregister) the freeing of class device and all its attributes
-can be delayed as the attribute files may still be held open by the
-userspace handler or any other program. Subsequent access to these files
-could cause trouble.
+This is a refresh of a patch I've sent quite some time ago (in April).
+That old patch introduced a flink() syscall without proper security
+measures.  I've now integrated a proposal for how to fix it.
 
-Also, there is no protection from overwriting firmware image once it has
-been committed.
+int flink (int fd, const char *newname)
 
-I tried to correct all 3 problems in the patch below. It creates a custom
-hotplug handler that is called from request_hardware. I tried to mimic the
-hotplug handler from kobject - it's nice to have DEVPATH pointing to the
-right place - so I exported kobject_get_path_length and kobject_fill_path
-(former get_kobj_path_length and fill_kobj_patch). I think these 2 should
-not be considered "implementation details" and exporting them is OK.
-Write access to firmware device class attributes is protected by a semaphore
-and the code refuses any updates once firmware loading has been committed or
-aborted. Firmware 
+The file associated with fd is linked with the newname.  But this will
+only succeed if the file descriptor fd was created with the O_CANLINK
+flag set.  It is not possible to set O_CANLINK afterwards,
+fcntl(F_SETFL) cannot set the bit, this is important.
 
-Dmitry
-
-===================================================================
+The changes to implement this are pretty trivial.  The patch consists of
+more than a few lines only because the link code is reusing as much as
+possible in the link() and flink() code and the O_* flags definitions
+were reformatted.
 
 
-ChangeSet@1.1521, 2003-12-21 01:00:41-05:00, dtor_core@ameritech.net
-  - Provide handcrafted hotplug method as generic one runs too early.
-  - Do not allow changes to firmware image once it has been committed.
-  - Correctly free resources.
+The purpose of this change is two fold.
+
+For now it is possible to use this functionality in a couple of ways:
+
+~ we can create quasi-anonymous files.  Like
+
+    fd = open ("RANDOM", O_EXCL|O_CREAT|O_CANLINK|O_RDWR, 0600);
+    unlink ("RANDOM");
+    ... do some work ...
+    if (work is auccessful)
+      flink (fd, "REALNAME");
+    close (fd)
+
+~ file descriptors which are passed to a process (by inheritance from
+the parent, through Unix sockets, ...) can be linked to the filesystem.
 
 
- drivers/base/firmware_class.c |  530 +++++++++++++++++++++++++-----------------
- include/linux/kobject.h       |    2 
- lib/kobject.c                 |   29 +-
- 3 files changed, 347 insertions(+), 214 deletions(-)
+Longer-term I think the kernel should support real anonymous files which
+can optionally be created with the O_CANLINK flag.  This would "only"
+save the unlink() call in the example above but not having the file at
+all in the filesystem namespace eliminates one more possible attack vector.
 
+This patch covers so far only x86.
 
-===================================================================
+- --
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
+iD8DBQE/5T0n2ijCOnn/RHQRAmEOAJ9ZiAfMl0EcudUUREFki0Axpp/MLwCfc9qS
+HMTHoEkve1Tjc70jQTvdElw=
+=InNQ
+-----END PGP SIGNATURE-----
 
+--------------090000030502090602090802
+Content-Type: text/plain;
+ name="d-canlink"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="d-canlink"
 
-diff -Nru a/drivers/base/firmware_class.c b/drivers/base/firmware_class.c
---- a/drivers/base/firmware_class.c	Sun Dec 21 01:03:27 2003
-+++ b/drivers/base/firmware_class.c	Sun Dec 21 01:03:27 2003
-@@ -7,12 +7,14 @@
-  *
-  */
- 
-+#include <linux/kobject.h>
- #include <linux/device.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/timer.h>
- #include <linux/vmalloc.h>
- #include <asm/hardirq.h>
-+#include <asm/semaphore.h>
- 
- #include <linux/firmware.h>
- #include "base.h"
-@@ -21,124 +23,109 @@
- MODULE_DESCRIPTION("Multi purpose firmware loading support");
- MODULE_LICENSE("GPL");
- 
-+#define FW_STATE_NEW		0
-+#define FW_STATE_LOADING	1
-+#define FW_STATE_LOADED		2
-+#define FW_STATE_ABORTED	3
-+
- static int loading_timeout = 10;	/* In seconds */
- 
- struct firmware_priv {
--	char fw_id[FIRMWARE_NAME_MAX];
-+	struct semaphore semaphore;
- 	struct completion completion;
- 	struct bin_attribute attr_data;
- 	struct firmware *fw;
-+	int state;
- 	int loading;
--	int abort;
- 	int alloc_size;
- 	struct timer_list timeout;
- };
- 
--static ssize_t
--firmware_timeout_show(struct class *class, char *buf)
--{
--	return sprintf(buf, "%d\n", loading_timeout);
--}
--
- /**
-- * firmware_timeout_store:
-- * Description:
-- *	Sets the number of seconds to wait for the firmware.  Once
-- *	this expires an error will be return to the driver and no
-- *	firmware will be provided.
-+ * firmware loading attribute
-  *
-- *	Note: zero means 'wait for ever'
-- *  
-+ *	Controls process of loading firmware into kernel.
-+ *	The relevant values are: 
-+ *
-+ *	 1: Start a load, discarding any previous partial load.
-+ *	 0: Conclude the load and handle the data to the driver code.
-+ *	-1: Conclude the load with an error and discard any written data.
-+ *
-+ *	Note: If no firmware has been loaded 0 is equivalent to -1
-  **/
--static ssize_t
--firmware_timeout_store(struct class *class, const char *buf, size_t count)
-+static void firmware_start_loading(struct firmware_priv *fw_priv)
- {
--	loading_timeout = simple_strtol(buf, NULL, 10);
--	return count;
-+	fw_priv->state = FW_STATE_LOADING;
-+	vfree(fw_priv->fw->data);
-+	fw_priv->fw->data = NULL;
-+	fw_priv->fw->size = 0;
-+	fw_priv->alloc_size = 0;
- }
- 
--static CLASS_ATTR(timeout, 0644, firmware_timeout_show, firmware_timeout_store);
--
--static void  fw_class_dev_release(struct class_device *class_dev);
--int firmware_class_hotplug(struct class_device *dev, char **envp,
--			   int num_envp, char *buffer, int buffer_size);
--
--static struct class firmware_class = {
--	.name		= "firmware",
--	.hotplug	= firmware_class_hotplug,
--	.release	= fw_class_dev_release,
--};
--
--int
--firmware_class_hotplug(struct class_device *class_dev, char **envp,
--		       int num_envp, char *buffer, int buffer_size)
-+static void firmware_abort_loading(struct firmware_priv *fw_priv)
- {
--	struct firmware_priv *fw_priv = class_get_devdata(class_dev);
--	int i = 0;
--	char *scratch = buffer;
--
--	if (buffer_size < (FIRMWARE_NAME_MAX + 10))
--		return -ENOMEM;
--	if (num_envp < 1)
--		return -ENOMEM;
-+	fw_priv->state = FW_STATE_ABORTED;
-+	wmb();
-+	complete(&fw_priv->completion);
-+}
- 
--	envp[i++] = scratch;
--	scratch += sprintf(scratch, "FIRMWARE=%s", fw_priv->fw_id) + 1;
--	return 0;
-+static void firmware_finish_loading(struct firmware_priv *fw_priv)
-+{
-+	fw_priv->state = FW_STATE_LOADED;
-+	wmb();
-+	complete(&fw_priv->completion);
- }
- 
--static ssize_t
--firmware_loading_show(struct class_device *class_dev, char *buf)
-+static ssize_t firmware_loading_show(struct class_device *class_dev, char *buf)
- {
- 	struct firmware_priv *fw_priv = class_get_devdata(class_dev);
- 	return sprintf(buf, "%d\n", fw_priv->loading);
- }
- 
--/**
-- * firmware_loading_store: - loading control file
-- * Description:
-- *	The relevant values are: 
-- *
-- *	 1: Start a load, discarding any previous partial load.
-- *	 0: Conclude the load and handle the data to the driver code.
-- *	-1: Conclude the load with an error and discard any written data.
-- **/
--static ssize_t
--firmware_loading_store(struct class_device *class_dev,
--		       const char *buf, size_t count)
-+static ssize_t firmware_loading_store(struct class_device *class_dev,
-+				      const char *buf, size_t count)
- {
- 	struct firmware_priv *fw_priv = class_get_devdata(class_dev);
--	int prev_loading = fw_priv->loading;
-+	int retval = count;
- 
--	fw_priv->loading = simple_strtol(buf, NULL, 10);
-+	down(&fw_priv->semaphore);
- 
--	switch (fw_priv->loading) {
--	case -1:
--		fw_priv->abort = 1;
--		wmb();
--		complete(&fw_priv->completion);
--		break;
--	case 1:
--		kfree(fw_priv->fw->data);
--		fw_priv->fw->data = NULL;
--		fw_priv->fw->size = 0;
--		fw_priv->alloc_size = 0;
--		break;
--	case 0:
--		if (prev_loading == 1)
--			complete(&fw_priv->completion);
--		break;
--	}
-+	if (fw_priv->state <= FW_STATE_LOADING) {
-+		fw_priv->loading = simple_strtol(buf, NULL, 10);
- 
--	return count;
-+		switch (fw_priv->loading) {
-+		case -1:
-+			firmware_abort_loading(fw_priv);
-+			break;
-+		case 1:
-+			firmware_start_loading(fw_priv);
-+			break;
-+		case 0:
-+			if (fw_priv->state == FW_STATE_LOADING && fw_priv->fw->size)
-+				firmware_finish_loading(fw_priv); 
-+			else
-+				firmware_abort_loading(fw_priv);
-+			break;
-+		}
-+	} else
-+		retval = -EACCES;
-+
-+	up(&fw_priv->semaphore);
-+
-+	return retval;
- }
- 
- static CLASS_DEVICE_ATTR(loading, 0644,
--			firmware_loading_show, firmware_loading_store);
-+			 firmware_loading_show, firmware_loading_store);
- 
--static ssize_t
--firmware_data_read(struct kobject *kobj,
--		   char *buffer, loff_t offset, size_t count)
-+/**
-+ * firmware data attribute
-+ *
-+ *	Data written to the 'data' attribute will be later handled to
-+ *	the driver as a firmware image.
-+ **/
-+static ssize_t firmware_data_read(struct kobject *kobj,
-+		   		  char *buffer, loff_t offset, size_t count)
- {
- 	struct class_device *class_dev = to_class_dev(kobj);
- 	struct firmware_priv *fw_priv = class_get_devdata(class_dev);
-@@ -152,8 +139,8 @@
- 	memcpy(buffer, fw->data + offset, count);
- 	return count;
- }
--static int
--fw_realloc_buffer(struct firmware_priv *fw_priv, int min_size)
-+
-+static int fw_realloc_buffer(struct firmware_priv *fw_priv, int min_size)
- {
- 	u8 *new_data;
- 
-@@ -164,7 +151,7 @@
- 	if (!new_data) {
- 		printk(KERN_ERR "%s: unable to alloc buffer\n", __FUNCTION__);
- 		/* Make sure that we don't keep incomplete data */
--		fw_priv->abort = 1;
-+		fw_priv->state = FW_STATE_ABORTED;
- 		return -ENOMEM;
- 	}
- 	fw_priv->alloc_size += PAGE_SIZE;
-@@ -177,33 +164,33 @@
- 	return 0;
- }
- 
--/**
-- * firmware_data_write:
-- *
-- * Description:
-- *
-- *	Data written to the 'data' attribute will be later handled to
-- *	the driver as a firmware image.
-- **/
--static ssize_t
--firmware_data_write(struct kobject *kobj,
--		    char *buffer, loff_t offset, size_t count)
-+static ssize_t firmware_data_write(struct kobject *kobj,
-+				   char *buffer, loff_t offset, size_t count)
- {
- 	struct class_device *class_dev = to_class_dev(kobj);
- 	struct firmware_priv *fw_priv = class_get_devdata(class_dev);
- 	struct firmware *fw = fw_priv->fw;
- 	int retval;
- 
--	retval = fw_realloc_buffer(fw_priv, offset + count);
--	if (retval)
--		return retval;
-+	down(&fw_priv->semaphore);
- 
--	memcpy(fw->data + offset, buffer, count);
-+	if (fw_priv->state != FW_STATE_LOADING) {
-+		retval = -EACCES;
-+	} else {
-+		retval = fw_realloc_buffer(fw_priv, offset + count);
- 
--	fw->size = max_t(size_t, offset + count, fw->size);
-+		if (!retval) {
-+			memcpy(fw->data + offset, buffer, count);
-+			fw->size = max_t(size_t, offset + count, fw->size);
-+			retval = count;
-+		}
-+	}
- 
--	return count;
-+	up(&fw_priv->semaphore);
-+
-+	return retval;
- }
-+
- static struct bin_attribute firmware_attr_data_tmpl = {
- 	.attr = {.name = "data", .mode = 0644},
- 	.size = 0,
-@@ -211,73 +198,228 @@
- 	.write = firmware_data_write,
- };
- 
--static void
--fw_class_dev_release(struct class_device *class_dev)
-+/**
-+ * firmware timeout attribute
-+ *
-+ *	Applies to all instances of firmware loaders (it is a class
-+ *	attribute.
-+ *
-+ *	Sets the number of seconds to wait for the firmware.  Once
-+ *	this expires an error will be return to the driver and no
-+ *	firmware will be provided.
-+ *
-+ *	Note: zero means 'wait for ever'
-+ *  
-+ **/
-+static void firmware_class_timeout(u_long data)
- {
--	kfree(class_dev);
-+	struct firmware_priv *fw_priv = (struct firmware_priv *) data;
-+	
-+	down(&fw_priv->semaphore);
-+
-+	firmware_abort_loading(fw_priv);
-+
-+	up(&fw_priv->semaphore);
- }
- 
--static void
--firmware_class_timeout(u_long data)
-+static ssize_t firmware_timeout_show(struct class *class, char *buf)
- {
--	struct firmware_priv *fw_priv = (struct firmware_priv *) data;
--	fw_priv->abort = 1;
--	wmb();
--	complete(&fw_priv->completion);
-+	return sprintf(buf, "%d\n", loading_timeout);
- }
- 
--static inline void
--fw_setup_class_device_id(struct class_device *class_dev, struct device *dev)
-+static ssize_t firmware_timeout_store(struct class *class, 
-+				      const char *buf, size_t count)
- {
--	/* XXX warning we should watch out for name collisions */
--	strncpy(class_dev->class_id, dev->bus_id, BUS_ID_SIZE);
--	class_dev->class_id[BUS_ID_SIZE - 1] = '\0';
-+	loading_timeout = simple_strtol(buf, NULL, 10);
-+	return count;
- }
--static int
--fw_setup_class_device(struct class_device **class_dev_p,
--		      const char *fw_name, struct device *device)
-+
-+static CLASS_ATTR(timeout, 0644, firmware_timeout_show, firmware_timeout_store);
-+
-+/**
-+ * fw_class_hotplug
-+ *
-+ *	Dummy hotplug handler that inhibits driver model core generating
-+ *	hotplug events when firmware class device is created or destroyed.
-+ *	The code hotplug events can not be used because when firmware class
-+ *	device is registered its attributes are not awailable yet and they
-+ *	are needed by userspace to communicate with the kernel.
-+ **/
-+static int fw_class_hotplug(struct class_device *class_dev, char **envp,
-+			    int num_envp, char *buffer, int buffer_size)
- {
--	int retval = 0;
--	struct firmware_priv *fw_priv = kmalloc(sizeof (struct firmware_priv),
--						GFP_KERNEL);
--	struct class_device *class_dev = kmalloc(sizeof (struct class_device),
--						 GFP_KERNEL);
-+	return -ENODEV;
-+}
-+
-+/**
-+ * firmware_hotplug
-+ *
-+ *	Generates handcrafted hotplug event mimicing events from the
-+ *	driver model core. It is called after the class device is
-+ *	registered. 
-+ **/
-+static int firmware_hotplug(struct class_device *class_dev, const char *fw_name)
-+{
-+	char *argv[3], *envp[5];
-+	char *buf, *scratch, *path;
-+	int path_len;
-+	int i = 0;
-+	int retval;
-+
-+	if (!hotplug_path[0])
-+		return -ENODEV;
-+	
-+	if (!(buf = scratch = kmalloc(1024, GFP_KERNEL))) {
-+		printk(KERN_ERR "%s: not enough memory allocating environment\n",
-+		       __FUNCTION__);
-+		return -ENOMEM;
-+	}
- 
--	if (!fw_priv || !class_dev) {
-+	argv[0] = hotplug_path;
-+	argv[1] = "firmware";
-+	argv[2] = 0;
-+
-+	envp[i++] = "HOME=/";
-+	envp[i++] = "PATH=/sbin:/bin:/usr/sbin:/usr/bin";
-+	envp[i++] = "ACTION=add";
-+
-+	path_len = kobject_get_path_length(&class_dev->kobj);
-+        path = kmalloc(path_len, GFP_KERNEL);
-+        if (!path) {
- 		retval = -ENOMEM;
--		goto error_kfree;
-+                goto out;
- 	}
--	memset(fw_priv, 0, sizeof (*fw_priv));
--	memset(class_dev, 0, sizeof (*class_dev));
-+        kobject_fill_path(&class_dev->kobj, path, path_len);
- 
--	init_completion(&fw_priv->completion);
--	memcpy(&fw_priv->attr_data, &firmware_attr_data_tmpl,
--	       sizeof (firmware_attr_data_tmpl));
-+        envp [i++] = scratch;
-+        scratch += sprintf(scratch, "DEVPATH=%s", path) + 1;
- 
--	strncpy(&fw_priv->fw_id[0], fw_name, FIRMWARE_NAME_MAX);
--	fw_priv->fw_id[FIRMWARE_NAME_MAX - 1] = '\0';
-+	envp[i++] = scratch;
-+	scratch += sprintf(scratch, "FIRMWARE=%s", fw_name) + 1;
- 
--	fw_setup_class_device_id(class_dev, device);
--	class_dev->dev = device;
-+	envp[i++] = 0;
-+
-+	retval = call_usermodehelper(argv[0], argv, envp, 0);
-+
-+out:
-+	kfree(buf);
-+
-+	return retval;
-+}
-+
-+static void fw_class_dev_release(struct class_device *class_dev)
-+{
-+	struct firmware_priv *fw_priv = class_get_devdata(class_dev);
-+
-+	if (fw_priv->state != FW_STATE_LOADED)
-+		release_firmware(fw_priv->fw);
-+
-+	kfree(fw_priv);
-+	kfree(class_dev);
-+}
- 
-+static struct class firmware_class = {
-+	.name		= "firmware",
-+	.hotplug	= fw_class_hotplug,
-+	.release	= fw_class_dev_release,
-+};
-+
-+static void fw_setup_class_device_id(struct class_device *class_dev,
-+				     struct device *dev)
-+{
-+	/* XXX warning we should watch out for name collisions */
-+	strlcpy(class_dev->class_id, dev->bus_id, BUS_ID_SIZE);
-+}
-+
-+static struct class_device *fw_alloc_class_device(struct device *device)
-+{
-+	struct firmware *firmware;
-+	struct firmware_priv *fw_priv;
-+	struct class_device *class_dev;
-+	int retval;
-+ 
-+	firmware = kmalloc(sizeof (struct firmware), GFP_KERNEL);
-+	if (!firmware) {
-+		printk(KERN_ERR "%s: kmalloc(struct firmware) failed\n",
-+		       __FUNCTION__);
-+		retval = -ENOMEM;
-+		goto err_out; 
-+	}
-+
-+	memset(firmware, 0, sizeof (*firmware));
-+       
-+	fw_priv = kmalloc(sizeof(struct firmware_priv), GFP_KERNEL);
-+	if (!fw_priv) {
-+		printk(KERN_ERR "%s: kmalloc(struct firmware_priv) failed\n",
-+		       __FUNCTION__);
-+		goto err_out_free_firmware;
-+        }
-+
-+	memset(fw_priv, 0, sizeof (*fw_priv));
-+	init_MUTEX(&fw_priv->semaphore);
-+	init_completion(&fw_priv->completion);
-+	fw_priv->attr_data = firmware_attr_data_tmpl;
-+	fw_priv->fw = firmware;
-+	init_timer(&fw_priv->timeout);
- 	fw_priv->timeout.function = firmware_class_timeout;
- 	fw_priv->timeout.data = (u_long) fw_priv;
--	init_timer(&fw_priv->timeout);
- 
-+	class_dev = kmalloc(sizeof(struct class_device), GFP_KERNEL);
-+	if (!class_dev) {
-+		printk(KERN_ERR "%s: kmalloc(struct class_device) failed\n",
-+		       __FUNCTION__);
-+		goto err_out_free_fw_priv;
-+	}
-+
-+	memset(class_dev, 0, sizeof(*class_dev));
-+	fw_setup_class_device_id(class_dev, device);
-+	class_dev->dev = device;
- 	class_dev->class = &firmware_class;
- 	class_set_devdata(class_dev, fw_priv);
-+
-+	return class_dev;
-+
-+err_out_free_fw_priv:
-+	kfree(fw_priv);
-+err_out_free_firmware:
-+	kfree(firmware);
-+err_out:
-+	return NULL;
-+}
-+
-+static int fw_setup_class_device(struct class_device **class_dev_p,
-+		      		 struct device *device)
-+{
-+	struct class_device *class_dev = fw_alloc_class_device(device);
-+	struct firmware_priv *fw_priv;
-+	int retval;
-+
-+	if (!class_dev) {
-+		retval = -ENOMEM;
-+		goto err_out;
-+	}
-+
-+	fw_priv = class_get_devdata(class_dev);
-+
- 	retval = class_device_register(class_dev);
- 	if (retval) {
- 		printk(KERN_ERR "%s: class_device_register failed\n",
- 		       __FUNCTION__);
--		goto error_kfree;
-+		fw_class_dev_release(class_dev);
-+		retval = -ENOMEM;
-+		goto err_out;
- 	}
- 
-+	/*
-+	 * We successfully registered class_dev, now we should not
-+	 * manually free resources as they will be freed automatically.
-+	 */
-+
- 	retval = sysfs_create_bin_file(&class_dev->kobj, &fw_priv->attr_data);
--	if (retval) {
-+	if (retval) { 
- 		printk(KERN_ERR "%s: sysfs_create_bin_file failed\n",
- 		       __FUNCTION__);
--		goto error_unreg_class_dev;
-+		goto err_out_unregister;
- 	}
- 
- 	retval = class_device_create_file(class_dev,
-@@ -285,43 +427,18 @@
- 	if (retval) {
- 		printk(KERN_ERR "%s: class_device_create_file failed\n",
- 		       __FUNCTION__);
--		goto error_remove_data;
-+		goto err_out_unregister;
- 	}
- 
--	fw_priv->fw = kmalloc(sizeof (struct firmware), GFP_KERNEL);
--	if (!fw_priv->fw) {
--		printk(KERN_ERR "%s: kmalloc(struct firmware) failed\n",
--		       __FUNCTION__);
--		retval = -ENOMEM;
--		goto error_remove_loading;
--	}
--	memset(fw_priv->fw, 0, sizeof (*fw_priv->fw));
--
--	goto out;
-+	*class_dev_p = class_dev;
-+	return 0;
- 
--error_remove_loading:
--	class_device_remove_file(class_dev, &class_device_attr_loading);
--error_remove_data:
--	sysfs_remove_bin_file(&class_dev->kobj, &fw_priv->attr_data);
--error_unreg_class_dev:
-+err_out_unregister:
- 	class_device_unregister(class_dev);
--error_kfree:
--	kfree(fw_priv);
--	kfree(class_dev);
-+err_out:
- 	*class_dev_p = NULL;
--out:
--	*class_dev_p = class_dev;
- 	return retval;
- }
--static void
--fw_remove_class_device(struct class_device *class_dev)
--{
--	struct firmware_priv *fw_priv = class_get_devdata(class_dev);
--
--	class_device_remove_file(class_dev, &class_device_attr_loading);
--	sysfs_remove_bin_file(&class_dev->kobj, &fw_priv->attr_data);
--	class_device_unregister(class_dev);
--}
- 
- /** 
-  * request_firmware: - request firmware to hotplug and wait for it
-@@ -335,20 +452,21 @@
-  *	should be distinctive enough not to be confused with any other
-  *	firmware image for this or any other device.
-  **/
--int
--request_firmware(const struct firmware **firmware, const char *name,
--		 struct device *device)
-+int request_firmware(const struct firmware **firmware,
-+		     const char *name, struct device *device)
- {
- 	struct class_device *class_dev;
- 	struct firmware_priv *fw_priv;
--	int retval;
-+	int retval = 0;
- 
--	if (!firmware)
--		return -EINVAL;
-+	if (!firmware) {
-+		retval = -EINVAL;
-+		goto out; 
-+	}
- 
- 	*firmware = NULL;
- 
--	retval = fw_setup_class_device(&class_dev, name, device);
-+	retval = fw_setup_class_device(&class_dev, device);
- 	if (retval)
- 		goto out;
- 
-@@ -359,19 +477,20 @@
- 		add_timer(&fw_priv->timeout);
- 	}
- 
--	wait_for_completion(&fw_priv->completion);
-+	retval = firmware_hotplug(class_dev, name);
-+	if (retval)
-+		goto out_device_unregister;
- 
-+	wait_for_completion(&fw_priv->completion);
- 	del_timer(&fw_priv->timeout);
--	fw_remove_class_device(class_dev);
- 
--	if (fw_priv->fw->size && !fw_priv->abort) {
-+	if (fw_priv->state == FW_STATE_LOADED)
- 		*firmware = fw_priv->fw;
--	} else {
-+	else
- 		retval = -ENOENT;
--		vfree(fw_priv->fw->data);
--		kfree(fw_priv->fw);
--	}
--	kfree(fw_priv);
-+
-+out_device_unregister:
-+	class_device_unregister(class_dev);	
- out:
- 	return retval;
- }
-@@ -379,11 +498,11 @@
- /**
-  * release_firmware: - release the resource associated with a firmware image
-  **/
--void
--release_firmware(const struct firmware *fw)
-+void release_firmware(const struct firmware *fw)
- {
- 	if (fw) {
--		vfree(fw->data);
-+		if (fw->data)
-+			vfree(fw->data);
- 		kfree(fw);
- 	}
- }
-@@ -397,8 +516,7 @@
-  *	Note: This will not be possible until some kind of persistence
-  *	is available.
-  **/
--void
--register_firmware(const char *name, const u8 *data, size_t size)
-+void register_firmware(const char *name, const u8 *data, size_t size)
- {
- 	/* This is meaningless without firmware caching, so until we
- 	 * decide if firmware caching is reasonable just leave it as a
-@@ -415,8 +533,7 @@
- 	void (*cont)(const struct firmware *fw, void *context);
- };
- 
--static void
--request_firmware_work_func(void *arg)
-+static void request_firmware_work_func(void *arg)
- {
- 	struct firmware_work *fw_work = arg;
- 	const struct firmware *fw;
-@@ -443,11 +560,9 @@
-  *	@fw may be %NULL if firmware request fails.
-  *
-  **/
--int
--request_firmware_nowait(
--	struct module *module,
--	const char *name, struct device *device, void *context,
--	void (*cont)(const struct firmware *fw, void *context))
-+int request_firmware_nowait(struct module *module,
-+			    const char *name, struct device *device, void *context,
-+			    void (*cont)(const struct firmware *fw, void *context))
- {
- 	struct firmware_work *fw_work = kmalloc(sizeof (struct firmware_work),
- 						GFP_ATOMIC);
-@@ -471,27 +586,26 @@
- 	return 0;
- }
- 
--static int __init
--firmware_class_init(void)
-+static int __init firmware_class_init(void)
- {
- 	int error;
-+
- 	error = class_register(&firmware_class);
- 	if (error) {
- 		printk(KERN_ERR "%s: class_register failed\n", __FUNCTION__);
--	}
--	error = class_create_file(&firmware_class, &class_attr_timeout);
--	if (error) {
--		printk(KERN_ERR "%s: class_create_file failed\n",
--		       __FUNCTION__);
--		class_unregister(&firmware_class);
-+	} else {
-+		error = class_create_file(&firmware_class, &class_attr_timeout);
-+		if (error) {
-+			printk(KERN_ERR "%s: class_create_file failed\n",
-+			       __FUNCTION__);
-+			class_unregister(&firmware_class);
-+		}
- 	}
- 	return error;
- 
- }
--static void __exit
--firmware_class_exit(void)
-+static void __exit firmware_class_exit(void)
- {
--	class_remove_file(&firmware_class, &class_attr_timeout);
- 	class_unregister(&firmware_class);
- }
- 
-diff -Nru a/include/linux/kobject.h b/include/linux/kobject.h
---- a/include/linux/kobject.h	Sun Dec 21 01:03:27 2003
-+++ b/include/linux/kobject.h	Sun Dec 21 01:03:27 2003
-@@ -56,6 +56,8 @@
- extern struct kobject * kobject_get(struct kobject *);
- extern void kobject_put(struct kobject *);
- 
-+extern int kobject_get_path_length(struct kobject *);
-+extern void kobject_fill_path(struct kobject *, char *, int);
- 
- struct kobj_type {
- 	void (*release)(struct kobject *);
-diff -Nru a/lib/kobject.c b/lib/kobject.c
---- a/lib/kobject.c	Sun Dec 21 01:03:27 2003
-+++ b/lib/kobject.c	Sun Dec 21 01:03:27 2003
-@@ -64,9 +64,12 @@
- 	return container_of(entry,struct kobject,entry);
- }
- 
-+/**
-+ *	kobject_get_path_length - get length of path to the object.
-+ *	@kobj:	object in question.
-+ */
- 
--#ifdef CONFIG_HOTPLUG
--static int get_kobj_path_length(struct kset *kset, struct kobject *kobj)
-+int kobject_get_path_length(struct kobject *kobj)
- {
- 	int length = 1;
- 	struct kobject * parent = kobj;
-@@ -82,10 +85,21 @@
- 	return length;
- }
- 
--static void fill_kobj_path(struct kset *kset, struct kobject *kobj, char *path, int length)
-+EXPORT_SYMBOL(kobject_get_path_length);
-+
-+/**
-+ *	kobject_get_path_length - get length of path to the object.
-+ *	@kobj:		object in question.
-+ *	@path:		buffer where path should go
-+ *	@length:	length of the buffer obtained by calling
-+ *			kobject_get_path_length 
-+ */
-+
-+void kobject_fill_path(struct kobject *kobj, char *path, int length)
- {
- 	struct kobject * parent;
- 
-+	memset(path, 0x00, length);
- 	--length;
- 	for (parent = kobj; parent; parent = parent->parent) {
- 		int cur = strlen(kobject_name(parent));
-@@ -98,6 +112,10 @@
- 	pr_debug("%s: path = '%s'\n",__FUNCTION__,path);
- }
- 
-+EXPORT_SYMBOL(kobject_fill_path);
-+
-+#ifdef CONFIG_HOTPLUG
-+
- #define BUFFER_SIZE	1024	/* should be enough memory for the env */
- #define NUM_ENVP	32	/* number of env pointers */
- static unsigned long sequence_num;
-@@ -163,12 +181,11 @@
- 	envp [i++] = scratch;
- 	scratch += sprintf(scratch, "SEQNUM=%ld", seq) + 1;
- 
--	kobj_path_length = get_kobj_path_length (kset, kobj);
-+	kobj_path_length = kobject_get_path_length (kobj);
- 	kobj_path = kmalloc (kobj_path_length, GFP_KERNEL);
- 	if (!kobj_path)
- 		goto exit;
--	memset (kobj_path, 0x00, kobj_path_length);
--	fill_kobj_path (kset, kobj, kobj_path, kobj_path_length);
-+	kobject_fill_path (kobj, kobj_path, kobj_path_length);
- 
- 	envp [i++] = scratch;
- 	scratch += sprintf (scratch, "DEVPATH=%s", kobj_path) + 1;
+LS0tIGxpbnV4LTIuNi9hcmNoL2kzODYva2VybmVsL2VudHJ5LlMtY2FubGluawkyMDAzLTEx
+LTIxIDIwOjMxOjAxLjAwMDAwMDAwMCAtMDgwMAorKysgbGludXgtMi42L2FyY2gvaTM4Ni9r
+ZXJuZWwvZW50cnkuUwkyMDAzLTEyLTIwIDIxOjMzOjI3LjAwMDAwMDAwMCAtMDgwMApAQCAt
+ODgyLDUgKzg4Miw2IEBACiAJLmxvbmcgc3lzX3V0aW1lcwogIAkubG9uZyBzeXNfZmFkdmlz
+ZTY0XzY0CiAJLmxvbmcgc3lzX25pX3N5c2NhbGwJLyogc3lzX3ZzZXJ2ZXIgKi8KKwkubG9u
+ZyBzeXNfZmxpbmsKIAogc3lzY2FsbF90YWJsZV9zaXplPSguLXN5c19jYWxsX3RhYmxlKQot
+LS0gbGludXgtMi42L2ZzL25hbWVpLmMtY2FubGluawkyMDAzLTEwLTAyIDEzOjU3OjMwLjAw
+MDAwMDAwMCAtMDcwMAorKysgbGludXgtMi42L2ZzL25hbWVpLmMJMjAwMy0xMi0yMCAyMToz
+Mjo1MC4wMDAwMDAwMDAgLTA4MDAKQEAgLTE3LDYgKzE3LDcgQEAKICNpbmNsdWRlIDxsaW51
+eC9pbml0Lmg+CiAjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+CiAjaW5jbHVkZSA8bGludXgv
+c2xhYi5oPgorI2luY2x1ZGUgPGxpbnV4L2ZpbGUuaD4KICNpbmNsdWRlIDxsaW51eC9mcy5o
+PgogI2luY2x1ZGUgPGxpbnV4L25hbWVpLmg+CiAjaW5jbHVkZSA8bGludXgvcXVvdGFvcHMu
+aD4KQEAgLTE4NDcsMTAgKzE4NDgsMTEgQEAKICAqIHdpdGggbGludXggMi4wLCBhbmQgdG8g
+YXZvaWQgaGFyZC1saW5raW5nIHRvIGRpcmVjdG9yaWVzCiAgKiBhbmQgb3RoZXIgc3BlY2lh
+bCBmaWxlcy4gIC0tQURNCiAgKi8KLWFzbWxpbmthZ2UgbG9uZyBzeXNfbGluayhjb25zdCBj
+aGFyIF9fdXNlciAqIG9sZG5hbWUsIGNvbnN0IGNoYXIgX191c2VyICogbmV3bmFtZSkKK3N0
+YXRpYyBsb25nIGxpbmtfY29tbW9uKHN0cnVjdCB2ZnNtb3VudCAqb2xkX21udCwgc3RydWN0
+IGRlbnRyeSAqb2xkX2RlbnRyeSwKKwkJCWNvbnN0IGNoYXIgX191c2VyICogbmV3bmFtZSkK
+IHsKIAlzdHJ1Y3QgZGVudHJ5ICpuZXdfZGVudHJ5OwotCXN0cnVjdCBuYW1laWRhdGEgbmQs
+IG9sZF9uZDsKKwlzdHJ1Y3QgbmFtZWlkYXRhIG5kOwogCWludCBlcnJvcjsKIAljaGFyICog
+dG87CiAKQEAgLTE4NTgsMzIgKzE4NjAsNTYgQEAKIAlpZiAoSVNfRVJSKHRvKSkKIAkJcmV0
+dXJuIFBUUl9FUlIodG8pOwogCi0JZXJyb3IgPSBfX3VzZXJfd2FsayhvbGRuYW1lLCAwLCAm
+b2xkX25kKTsKLQlpZiAoZXJyb3IpCi0JCWdvdG8gZXhpdDsKIAllcnJvciA9IHBhdGhfbG9v
+a3VwKHRvLCBMT09LVVBfUEFSRU5ULCAmbmQpOwogCWlmIChlcnJvcikKLQkJZ290byBvdXQ7
+CisJCWdvdG8gZXhpdDsKIAllcnJvciA9IC1FWERFVjsKLQlpZiAob2xkX25kLm1udCAhPSBu
+ZC5tbnQpCisJaWYgKG9sZF9tbnQgIT0gbmQubW50KQogCQlnb3RvIG91dF9yZWxlYXNlOwog
+CW5ld19kZW50cnkgPSBsb29rdXBfY3JlYXRlKCZuZCwgMCk7CiAJZXJyb3IgPSBQVFJfRVJS
+KG5ld19kZW50cnkpOwogCWlmICghSVNfRVJSKG5ld19kZW50cnkpKSB7Ci0JCWVycm9yID0g
+dmZzX2xpbmsob2xkX25kLmRlbnRyeSwgbmQuZGVudHJ5LT5kX2lub2RlLCBuZXdfZGVudHJ5
+KTsKKwkJZXJyb3IgPSB2ZnNfbGluayhvbGRfZGVudHJ5LCBuZC5kZW50cnktPmRfaW5vZGUs
+IG5ld19kZW50cnkpOwogCQlkcHV0KG5ld19kZW50cnkpOwogCX0KIAl1cCgmbmQuZGVudHJ5
+LT5kX2lub2RlLT5pX3NlbSk7CiBvdXRfcmVsZWFzZToKIAlwYXRoX3JlbGVhc2UoJm5kKTsK
+LW91dDoKLQlwYXRoX3JlbGVhc2UoJm9sZF9uZCk7CiBleGl0OgogCXB1dG5hbWUodG8pOwog
+CiAJcmV0dXJuIGVycm9yOwogfQogCithc21saW5rYWdlIGxvbmcgc3lzX2xpbmsoY29uc3Qg
+Y2hhciAqb2xkbmFtZSwgY29uc3QgY2hhciAqbmV3bmFtZSkKK3sKKwlzdHJ1Y3QgbmFtZWlk
+YXRhIG9sZF9uZDsKKwlpbnQgZXJyb3I7CisKKwllcnJvciA9IF9fdXNlcl93YWxrKG9sZG5h
+bWUsIDAsICZvbGRfbmQpOworCWlmICghZXJyb3IpIHsKKwkJZXJyb3IgPSBsaW5rX2NvbW1v
+bihvbGRfbmQubW50LCBvbGRfbmQuZGVudHJ5LCBuZXduYW1lKTsKKwkJcGF0aF9yZWxlYXNl
+KCZvbGRfbmQpOworCX0KKwlyZXR1cm4gZXJyb3I7Cit9CisKK2FzbWxpbmthZ2UgbG9uZyBz
+eXNfZmxpbmsodW5zaWduZWQgaW50IGZkLCBjb25zdCBjaGFyICpuZXduYW1lKQoreworCXN0
+cnVjdCBmaWxlICpmaWxlOworCWludCBlcnJvciA9IC1FQkFERjsKKworCWZpbGUgPSBmZ2V0
+KGZkKTsKKwlpZiAoZmlsZSkgeworCQllcnJvciA9IC1FUEVSTTsKKwkJaWYgKGZpbGUtPmZf
+ZmxhZ3MgJiBPX0NBTkxJTkspCisJCQllcnJvciA9IGxpbmtfY29tbW9uKGZpbGUtPmZfdmZz
+bW50LCBmaWxlLT5mX2RlbnRyeSwKKwkJCQkJICAgIG5ld25hbWUpOworCQlmcHV0KGZpbGUp
+OworCX0KKwlyZXR1cm4gZXJyb3I7Cit9CisKIC8qCiAgKiBUaGUgd29yc3Qgb2YgYWxsIG5h
+bWVzcGFjZSBvcGVyYXRpb25zIC0gcmVuYW1pbmcgZGlyZWN0b3J5LiAiUGVydmVydGVkIgog
+ICogZG9lc24ndCBldmVuIHN0YXJ0IHRvIGRlc2NyaWJlIGl0LiBTb21lYm9keSBpbiBVQ0Ig
+aGFkIGEgaGVjayBvZiBhIHRyaXAuLi4KLS0tIGxpbnV4LTIuNi9pbmNsdWRlL2FzbS1pMzg2
+L2ZjbnRsLmgtY2FubGluawkyMDAyLTA5LTI2IDEyOjE2OjUzLjAwMDAwMDAwMCAtMDcwMAor
+KysgbGludXgtMi42L2luY2x1ZGUvYXNtLWkzODYvZmNudGwuaAkyMDAzLTEyLTIwIDIxOjI2
+OjM5LjAwMDAwMDAwMCAtMDgwMApAQCAtMTQsMTIgKzE0LDEzIEBACiAjZGVmaW5lIE9fQVBQ
+RU5ECSAgMDIwMDAKICNkZWZpbmUgT19OT05CTE9DSwkgIDA0MDAwCiAjZGVmaW5lIE9fTkRF
+TEFZCU9fTk9OQkxPQ0sKLSNkZWZpbmUgT19TWU5DCQkgMDEwMDAwCi0jZGVmaW5lIEZBU1lO
+QwkJIDAyMDAwMAkvKiBmY250bCwgZm9yIEJTRCBjb21wYXRpYmlsaXR5ICovCi0jZGVmaW5l
+IE9fRElSRUNUCSAwNDAwMDAJLyogZGlyZWN0IGRpc2sgYWNjZXNzIGhpbnQgKi8KLSNkZWZp
+bmUgT19MQVJHRUZJTEUJMDEwMDAwMAotI2RlZmluZSBPX0RJUkVDVE9SWQkwMjAwMDAwCS8q
+IG11c3QgYmUgYSBkaXJlY3RvcnkgKi8KLSNkZWZpbmUgT19OT0ZPTExPVwkwNDAwMDAwIC8q
+IGRvbid0IGZvbGxvdyBsaW5rcyAqLworI2RlZmluZSBPX1NZTkMJCSAgMDEwMDAwCisjZGVm
+aW5lIEZBU1lOQwkJICAwMjAwMDAJLyogZmNudGwsIGZvciBCU0QgY29tcGF0aWJpbGl0eSAq
+LworI2RlZmluZSBPX0RJUkVDVAkgIDA0MDAwMAkvKiBkaXJlY3QgZGlzayBhY2Nlc3MgaGlu
+dCAqLworI2RlZmluZSBPX0xBUkdFRklMRQkgMDEwMDAwMAorI2RlZmluZSBPX0RJUkVDVE9S
+WQkgMDIwMDAwMAkvKiBtdXN0IGJlIGEgZGlyZWN0b3J5ICovCisjZGVmaW5lIE9fTk9GT0xM
+T1cJIDA0MDAwMDAJLyogZG9uJ3QgZm9sbG93IGxpbmtzICovCisjZGVmaW5lIE9fQ0FOTElO
+SwkwMTAwMDAwMAkvKiBmbGluayBjYW4gYmUgdXNlZCAqLwogCiAjZGVmaW5lIEZfRFVQRkQJ
+CTAJLyogZHVwICovCiAjZGVmaW5lIEZfR0VURkQJCTEJLyogZ2V0IGNsb3NlX29uX2V4ZWMg
+Ki8KLS0tIGxpbnV4LTIuNi9pbmNsdWRlL2FzbS1pMzg2L3VuaXN0ZC5oLWNhbmxpbmsJMjAw
+My0xMC0wMiAxMzo1NzozMC4wMDAwMDAwMDAgLTA3MDAKKysrIGxpbnV4LTIuNi9pbmNsdWRl
+L2FzbS1pMzg2L3VuaXN0ZC5oCTIwMDMtMTItMjAgMjI6MjU6MjEuMDAwMDAwMDAwIC0wODAw
+CkBAIC0yNzksOCArMjc5LDkgQEAKICNkZWZpbmUgX19OUl91dGltZXMJCTI3MQogI2RlZmlu
+ZSBfX05SX2ZhZHZpc2U2NF82NAkyNzIKICNkZWZpbmUgX19OUl92c2VydmVyCQkyNzMKKyNk
+ZWZpbmUgX19OUl9mbGluawkJMjc0CiAKLSNkZWZpbmUgTlJfc3lzY2FsbHMgMjc0CisjZGVm
+aW5lIE5SX3N5c2NhbGxzIDI3NQogCiAvKiB1c2VyLXZpc2libGUgZXJyb3IgbnVtYmVycyBh
+cmUgaW4gdGhlIHJhbmdlIC0xIC0gLTEyNDogc2VlIDxhc20taTM4Ni9lcnJuby5oPiAqLwog
+Cg==
+--------------090000030502090602090802--

@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264095AbTE0TaU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 15:30:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264099AbTE0TaS
+	id S264097AbTE0Tfj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 15:35:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264101AbTE0Tfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 15:30:18 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:18309 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264095AbTE0TaH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 15:30:07 -0400
-Date: Tue, 27 May 2003 21:43:22 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCHES] add ata scsi driver
-Message-ID: <20030527194322.GV845@suse.de>
-References: <20030527065436.GX845@suse.de> <Pine.LNX.4.44.0305270734320.20127-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 May 2003 15:35:39 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:46086 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S264097AbTE0Tff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 15:35:35 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH 2.4.21-rc4] Fix oom killer braindamage
+Date: Tue, 27 May 2003 21:46:04 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>,
+       Jens Axboe <axboe@suse.de>
+References: <200305272104.05802.m.c.p@wolk-project.de> <200305272130.43814.m.c.p@wolk-project.de> <Pine.LNX.4.55L.0305271631590.9487@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.55L.0305271631590.9487@freak.distro.conectiva>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0305270734320.20127-100000@home.transmeta.com>
+Message-Id: <200305272145.30738.m.c.p@wolk-project.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 27 2003, Linus Torvalds wrote:
-> 
-> On Tue, 27 May 2003, Jens Axboe wrote:
-> > 
-> > Here's something ridicolously simple, that just wont start a new tag if
-> > the oldest tag is older than 100ms. Clearly nothing for submission, but
-> > it gets the point across.
-> 
-> Yes, I think something like this should work very well.
+On Tuesday 27 May 2003 21:34, Marcelo Tosatti wrote:
 
-Agree, it should take the edge of crappy hardware at least.
+Hi Marcelo,
 
-> In fact, it might fit in very well indeed with AS - and in general it
-> might be a good idea to have some nice interface for the IO scheduler to
-> give this kind of ordering hints down to the hardware.
+>  - 2.4.22 is going to be a short release, meaning we will have this
+>    bug fixed soon in a final release.
+>  - the bug is around for quite some time now, its not very critical.
+>  - its -rc stage.
+k.
 
-And deadline, they share the same request expire mechanism. But I read
-your hint, I'll add the hint and fix this for real. Was waiting for the
-other tcq patch to be comitted as they overlap, but I see that is in
-so...
+> I will work with Jens, Axboe and Andrea to get this properly fixed in .22
+> in case Andrea patch is not OK.
+great. Just remember: fix-pausing-2 fix does _not_ fix the pauses/stops/mouse 
+is dead/keyboard is dead/ problem. It fixes the "process stuck in D state" 
+problem.
 
--- 
-Jens Axboe
+Please bear it in mind.
+
+ciao, Marc
 

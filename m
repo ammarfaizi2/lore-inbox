@@ -1,916 +1,665 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262773AbUKXSgy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262777AbUKXSjs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262773AbUKXSgy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 13:36:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbUKXSgu
+	id S262777AbUKXSjs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 13:39:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262787AbUKXSjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 13:36:50 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:7858 "HELO
+	Wed, 24 Nov 2004 13:39:43 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:4530 "HELO
 	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262773AbUKXSch (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 13:32:37 -0500
-Subject: Suspend 2 merge: 46/51: LZF support.
+	id S262772AbUKXScR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 13:32:17 -0500
+Subject: Suspend 2 merge: 44/51: Text UI plugin.
 From: Nigel Cunningham <ncunningham@linuxmail.org>
 Reply-To: ncunningham@linuxmail.org
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 In-Reply-To: <1101292194.5805.180.camel@desktop.cunninghams>
 References: <1101292194.5805.180.camel@desktop.cunninghams>
 Content-Type: text/plain
-Message-Id: <1101300108.5805.380.camel@desktop.cunninghams>
+Message-Id: <1101299939.5805.374.camel@desktop.cunninghams>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 25 Nov 2004 00:02:09 +1100
+Date: Thu, 25 Nov 2004 00:01:51 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is LZF support, contributed under a dual license (see below) by
-Marc Lehmann. It flies! (Those stats in the debug info in an earlier
-patch were real!).
+Here's our plugin that is used to display text output on the console.
+When the console loglevel is 0 or 1, the user gets a nice progress bar.
+Higher levels display increasing levels of debugging output.
 
-diff -ruN 852-lzf-old/kernel/power/lzf/lzf_c.c 852-lzf-new/kernel/power/lzf/lzf_c.c
---- 852-lzf-old/kernel/power/lzf/lzf_c.c	1970-01-01 10:00:00.000000000 +1000
-+++ 852-lzf-new/kernel/power/lzf/lzf_c.c	2004-11-04 16:27:41.000000000 +1100
-@@ -0,0 +1,220 @@
+diff -ruN 850-text-ui-old/kernel/power/suspend_text.c 850-text-ui-new/kernel/power/suspend_text.c
+--- 850-text-ui-old/kernel/power/suspend_text.c	1970-01-01 10:00:00.000000000 +1000
++++ 850-text-ui-new/kernel/power/suspend_text.c	2004-11-15 09:41:00.000000000 +1100
+@@ -0,0 +1,629 @@
 +/*
-+ * Copyright (c) 2000-2003 Marc Alexander Lehmann <pcg@goof.com>
-+ * 
-+ * Redistribution and use in source and binary forms, with or without modifica-
-+ * tion, are permitted provided that the following conditions are met:
-+ * 
-+ *   1.  Redistributions of source code must retain the above copyright notice,
-+ *       this list of conditions and the following disclaimer.
-+ * 
-+ *   2.  Redistributions in binary form must reproduce the above copyright
-+ *       notice, this list of conditions and the following disclaimer in the
-+ *       documentation and/or other materials provided with the distribution.
-+ * 
-+ *   3.  The name of the author may not be used to endorse or promote products
-+ *       derived from this software without specific prior written permission.
-+ * 
-+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
-+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MER-
-+ * CHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
-+ * EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPE-
-+ * CIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTH-
-+ * ERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
-+ * OF THE POSSIBILITY OF SUCH DAMAGE.
++ * kernel/power/suspend2_text_display.c
 + *
-+ * Alternatively, the contents of this file may be used under the terms of
-+ * the GNU General Public License version 2 (the "GPL"), in which case the
-+ * provisions of the GPL are applicable instead of the above. If you wish to
-+ * allow the use of your version of this file only under the terms of the
-+ * GPL and not to allow others to use your version of this file under the
-+ * BSD license, indicate your decision by deleting the provisions above and
-+ * replace them with the notice and other provisions required by the GPL. If
-+ * you do not delete the provisions above, a recipient may use your version
-+ * of this file under either the BSD or the GPL.
-+ */
-+
-+#define HSIZE (1 << (HLOG))
-+
-+/*
-+ * don't play with this unless you benchmark!
-+ * decompression is not dependent on the hash function
-+ * the hashing function might seem strange, just believe me
-+ * it works ;)
-+ */
-+#define FRST(p) (((p[0]) << 8) + p[1])
-+#define NEXT(v,p) (((v) << 8) + p[2])
-+#define IDX(h) ((((h ^ (h << 5)) >> (3*8 - HLOG)) + h*3) & (HSIZE - 1))
-+/*
-+ * IDX works because it is very similar to a multiplicative hash, e.g.
-+ * (h * 57321 >> (3*8 - HLOG))
-+ * the next one is also quite good, albeit slow ;)
-+ * (int)(cos(h & 0xffffff) * 1e6)
-+ */
-+
-+#if 0
-+/* original lzv-like hash function */
-+# define FRST(p) (p[0] << 5) ^ p[1]
-+# define NEXT(v,p) ((v) << 5) ^ p[2]
-+# define IDX(h) ((h) & (HSIZE - 1))
-+#endif
-+
-+#define        MAX_LIT        (1 <<  5)
-+#define        MAX_OFF        (1 << 13)
-+#define        MAX_REF        ((1 <<  8) + (1 << 3))
-+
-+/*
-+ * compressed format
-+ *
-+ * 000LLLLL <L+1>    ; literal
-+ * LLLOOOOO oooooooo ; backref L
-+ * 111OOOOO LLLLLLLL oooooooo ; backref L+7
-+ *
-+ */
-+
-+unsigned int
-+lzf_compress (const void *const in_data, unsigned int in_len,
-+	      void *out_data, unsigned int out_len, void *hbuf)
-+{
-+  const u8 **htab = hbuf;
-+  const u8 **hslot;
-+  const u8 *ip = (const u8 *)in_data;
-+        u8 *op = (u8 *)out_data;
-+  const u8 *in_end  = ip + in_len;
-+        u8 *out_end = op + out_len;
-+  const u8 *ref;
-+
-+  unsigned int hval = FRST (ip);
-+  unsigned long off;
-+           int lit = 0;
-+
-+#if INIT_HTAB
-+# if USE_MEMCPY
-+    memset (htab, 0, sizeof (htab));
-+# else
-+    for (hslot = htab; hslot < htab + HSIZE; hslot++)
-+      *hslot++ = ip;
-+# endif
-+#endif
-+
-+  for (;;)
-+    {
-+      if (ip < in_end - 2)
-+        {
-+          hval = NEXT (hval, ip);
-+          hslot = htab + IDX (hval);
-+          ref = *hslot; *hslot = ip;
-+
-+          if (1
-+#if INIT_HTAB && !USE_MEMCPY
-+              && ref < ip /* the next test will actually take care of this, but this is faster */
-+#endif
-+              && (off = ip - ref - 1) < MAX_OFF
-+              && ip + 4 < in_end
-+              && ref > (u8 *)in_data
-+#if STRICT_ALIGN
-+              && ref[0] == ip[0]
-+              && ref[1] == ip[1]
-+              && ref[2] == ip[2]
-+#else
-+              && *(u16 *)ref == *(u16 *)ip
-+              && ref[2] == ip[2]
-+#endif
-+            )
-+            {
-+              /* match found at *ref++ */
-+              unsigned int len = 2;
-+              unsigned int maxlen = in_end - ip - len;
-+              maxlen = maxlen > MAX_REF ? MAX_REF : maxlen;
-+
-+              do
-+                len++;
-+              while (len < maxlen && ref[len] == ip[len]);
-+
-+              if (op + lit + 1 + 3 >= out_end)
-+                return 0;
-+
-+              if (lit)
-+                {
-+                  *op++ = lit - 1;
-+                  lit = -lit;
-+                  do
-+                    *op++ = ip[lit];
-+                  while (++lit);
-+                }
-+
-+              len -= 2;
-+              ip++;
-+
-+              if (len < 7)
-+                {
-+                  *op++ = (off >> 8) + (len << 5);
-+                }
-+              else
-+                {
-+                  *op++ = (off >> 8) + (  7 << 5);
-+                  *op++ = len - 7;
-+                }
-+
-+              *op++ = off;
-+
-+#if ULTRA_FAST
-+              ip += len;
-+              hval = FRST (ip);
-+              hval = NEXT (hval, ip);
-+              htab[IDX (hval)] = ip;
-+              ip++;
-+#else
-+              do
-+                {
-+                  hval = NEXT (hval, ip);
-+                  htab[IDX (hval)] = ip;
-+                  ip++;
-+                }
-+              while (len--);
-+#endif
-+              continue;
-+            }
-+        }
-+      else if (ip == in_end)
-+        break;
-+
-+      /* one more literal byte we must copy */
-+      lit++;
-+      ip++;
-+
-+      if (lit == MAX_LIT)
-+        {
-+          if (op + 1 + MAX_LIT >= out_end)
-+            return 0;
-+
-+          *op++ = MAX_LIT - 1;
-+#if USE_MEMCPY
-+          memcpy (op, ip - MAX_LIT, MAX_LIT);
-+          op += MAX_LIT;
-+          lit = 0;
-+#else
-+          lit = -lit;
-+          do
-+            *op++ = ip[lit];
-+          while (++lit);
-+#endif
-+        }
-+    }
-+
-+  if (lit)
-+    {
-+      if (op + lit + 1 >= out_end)
-+	return 0;
-+
-+      *op++ = lit - 1;
-+      lit = -lit;
-+      do
-+	*op++ = ip[lit];
-+      while (++lit);
-+    }
-+
-+  return op - (u8 *) out_data;
-+}
-diff -ruN 852-lzf-old/kernel/power/lzf/lzf_d.c 852-lzf-new/kernel/power/lzf/lzf_d.c
---- 852-lzf-old/kernel/power/lzf/lzf_d.c	1970-01-01 10:00:00.000000000 +1000
-+++ 852-lzf-new/kernel/power/lzf/lzf_d.c	2004-11-04 16:27:41.000000000 +1100
-@@ -0,0 +1,98 @@
-+/*
-+ * Copyright (c) 2000-2002 Marc Alexander Lehmann <pcg@goof.com>
-+ * 
-+ * Redistribution and use in source and binary forms, with or without modifica-
-+ * tion, are permitted provided that the following conditions are met:
-+ * 
-+ *   1.  Redistributions of source code must retain the above copyright notice,
-+ *       this list of conditions and the following disclaimer.
-+ * 
-+ *   2.  Redistributions in binary form must reproduce the above copyright
-+ *       notice, this list of conditions and the following disclaimer in the
-+ *       documentation and/or other materials provided with the distribution.
-+ * 
-+ *   3.  The name of the author may not be used to endorse or promote products
-+ *       derived from this software without specific prior written permission.
-+ * 
-+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
-+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MER-
-+ * CHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
-+ * EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPE-
-+ * CIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTH-
-+ * ERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
-+ * OF THE POSSIBILITY OF SUCH DAMAGE.
-+ *
-+ * Alternatively, the contents of this file may be used under the terms of
-+ * the GNU General Public License version 2 (the "GPL"), in which case the
-+ * provisions of the GPL are applicable instead of the above. If you wish to
-+ * allow the use of your version of this file only under the terms of the
-+ * GPL and not to allow others to use your version of this file under the
-+ * BSD license, indicate your decision by deleting the provisions above and
-+ * replace them with the notice and other provisions required by the GPL. If
-+ * you do not delete the provisions above, a recipient may use your version
-+ * of this file under either the BSD or the GPL.
-+ */
-+
-+unsigned int 
-+lzf_decompress (const void *const in_data,  unsigned int in_len,
-+                void             *out_data, unsigned int out_len)
-+{
-+  u8 const *ip = in_data;
-+  u8       *op = out_data;
-+  u8 const *const in_end  = ip + in_len;
-+  u8       *const out_end = op + out_len;
-+
-+  do
-+    {
-+      unsigned int ctrl = *ip++;
-+
-+      if (ctrl < (1 << 5)) /* literal run */
-+        {
-+          ctrl++;
-+
-+          if (op + ctrl > out_end)
-+            return 0;
-+
-+#if USE_MEMCPY
-+          memcpy (op, ip, ctrl);
-+          op += ctrl;
-+          ip += ctrl;
-+#else
-+          do
-+            *op++ = *ip++;
-+          while (--ctrl);
-+#endif
-+        }
-+      else /* back reference */
-+        {
-+          unsigned int len = ctrl >> 5;
-+
-+          u8 *ref = op - ((ctrl & 0x1f) << 8) - 1;
-+
-+          if (len == 7)
-+            len += *ip++;
-+          
-+          ref -= *ip++;
-+
-+          if (op + len + 2 > out_end)
-+            return 0;
-+
-+          if (ref < (u8 *)out_data)
-+            return 0;
-+
-+          *op++ = *ref++;
-+          *op++ = *ref++;
-+
-+          do
-+            *op++ = *ref++;
-+          while (--len);
-+        }
-+    }
-+  while (op < out_end && ip < in_end);
-+
-+  return op - (u8 *)out_data;
-+}
-+
-diff -ruN 852-lzf-old/kernel/power/suspend_lzf.c 852-lzf-new/kernel/power/suspend_lzf.c
---- 852-lzf-old/kernel/power/suspend_lzf.c	1970-01-01 10:00:00.000000000 +1000
-+++ 852-lzf-new/kernel/power/suspend_lzf.c	2004-11-11 08:46:15.000000000 +1100
-@@ -0,0 +1,554 @@
-+/*
-+ * kernel/power/lzf_compress.c
-+ *
-+ * Copyright (C) 2003 Marc Lehmann <pcg@goof.com>
-+ * Copyright (C) 2003,2004 Nigel Cunningham <ncunningham@linuxmail.org>
++ * Copyright (C) 2002-2004 Nigel Cunningham <ncunningham@linuxmail.org>
 + *
 + * This file is released under the GPLv2.
 + *
-+ * This file contains data compression routines for suspend,
-+ * using LZH compression.
++ * Routines for Software Suspend's user interface.
++ * 
++ * The user interface includes support for a text mode 'nice display'.
 + *
++ * The 'nice display' is text based and implements a progress bar and
++ * (optional) textual progress, as well as an overall description of
++ * the current action and the display of a header and the code version.
++ *
++ * It uses /dev/console, and thus also works on a serial console.
 + */
++#define SUSPEND_TEXT_MODE_C
++
++//#define __KERNEL_SYSCALLS__
 +
 +#include <linux/suspend.h>
-+#include <linux/module.h>
-+#include <linux/highmem.h>
-+#include <linux/vmalloc.h>
-+
++#include <linux/console.h>
++#include <linux/selection.h>
++#include <linux/tty.h>
++#include <linux/vt_kern.h>
++ 
 +#include "plugins.h"
 +#include "proc.h"
 +#include "suspend.h"
 +
-+static int expected_lzf_compression = 0;
-+
 +/*
-+ * size of hashtable is (1 << HLOG) * sizeof (char *)
-+ * decompression is independent of the hash table size
-+ * the difference between 15 and 14 is very small
-+ * for small blocks (and 14 is also faster).
-+ * For a low-memory configuration, use HLOG == 13;
-+ * For best compression, use 15 or 16.
++ * The original macros use currcons, which we don't have access to.
 + */
-+#ifndef HLOG
-+# define HLOG 14
++#undef video_num_columns
++#define video_num_columns	(vc_cons[fg_console].d->vc_cols)
++#undef video_num_lines
++#define video_num_lines		(vc_cons[fg_console].d->vc_rows)
++
++static int barwidth = 0, barposn = -1, newbarposn = 0;
++static int draw_progress_bar = 1;
++static char print_buf[1024];	/* Same as printk - should be safe */
++
++/* We remember the last header that was (or could have been) displayed for
++ * use during log level switches */
++static char lastheader[512];
++static int lastheader_message_len = 0;
++
++static void hide_cursor(void);
++static void unblank_screen_via_file(void);
++
++static int suspend_console_fd = -1;
++static struct termios termios;
++static int lastloglevel = -1;
++
++#ifdef CONFIG_DEVFS_FS
++static int mounted_devfs = 0;
 +#endif
 +
-+/*
-+ * sacrifice some compression quality in favour of compression speed.
-+ * (roughly 1-2% worse compression for large blocks and
-+ * 9-10% for small, redundant, blocks and >>20% better speed in both cases)
-+ * In short: enable this for binary data, disable this for text data.
-+ */
-+#ifndef ULTRA_FAST
-+# define ULTRA_FAST 1
-+#endif
-+
-+#define STRICT_ALIGN 0
-+#define USE_MEMCPY 1
-+#define INIT_HTAB 0
-+
-+#include "lzf/lzf_c.c"
-+#include "lzf/lzf_d.c"
-+
-+static struct suspend_plugin_ops lzf_compression_ops;
-+static struct suspend_plugin_ops * next_driver;
-+
-+static void *compression_workspace = NULL;
-+static u8 *local_buffer = NULL;
-+static struct page * local_buffer_page = NULL;
-+static u8 *page_buffer = NULL;
-+static struct page * page_buffer_page = NULL;
-+static unsigned int bufofs;
-+
-+static __nosavedata unsigned long bytes_in = 0, bytes_out = 0;
-+
-+/* allocate_compression_space
-+ *
-+ * Description:	Allocate space for use in [de]compressing our data.
-+ *		Each call must have a matching call to free_memory.
-+ * Returns:	Int: Zero if successful, -ENONEM otherwise.
-+ */
-+
-+static inline int allocate_compression_space(void)
-+{
-+	BUG_ON(compression_workspace);
-+
-+	compression_workspace = vmalloc_32((1<<HLOG)*sizeof(char *));
-+	if (!compression_workspace) {
-+		printk(KERN_WARNING
-+			"Failed to allocate %d bytes for lzf workspace\n",
-+			(1<<HLOG)*sizeof(char *));
-+		return -ENOMEM;
++#define cond_console_print(chars) \
++	if (suspend_console_fd > -1) { \
++		int count = strlen(chars); \
++		sys_write(suspend_console_fd, chars, count); \
++		hide_cursor(); \
++		unblank_screen_via_file();  \
 +	}
++
++static void move_cursor_to(unsigned char * xy)
++{
++	char buf[10];
 +	
-+	return 0;
++	snprintf(buf, 10, "\233%d;%dH", xy[1], xy[0]);
++	cond_console_print(buf);
 +}
 +
-+/* free_zlib_memory
++static void clear_display(void)
++{
++	char buf[4] = "\2332J";
++	unsigned char home[2] = { 0, 0 };
++	
++	cond_console_print(buf);
++	move_cursor_to(home);
++}
++
++static void hide_cursor(void)
++{
++	char buf[6] = "\033[?1c";
++	if (suspend_console_fd > -1)
++		sys_write(suspend_console_fd, buf, 5);
++}
++
++static void restore_cursor(void)
++{
++	char buf[6] = "\033[?0c";
++	if (suspend_console_fd > -1)
++		sys_write(suspend_console_fd, buf, 5);
++}
++
++static void unblank_screen_via_file(void)
++{
++	char buf[6] = "\033[13]";
++	if (suspend_console_fd > -1)
++		sys_write(suspend_console_fd, buf, 5);
++}
++
++/* prepare_status
++ * Description:	Prepare the 'nice display', drawing the header and version,
++ * 		along with the current action and perhaps also resetting the
++ * 		progress bar.
++ * Arguments:	int printalways: Whether to print the action when debugging
++ * 		is on.
++ * 		int clearbar: Whether to reset the progress bar.
++ * 		const char *fmt, ...: The action to be displayed.
++ */
++static void text_prepare_status(int printalways, int clearbar, const char *fmt, va_list args)
++{
++	unsigned char posn[2];
++
++	if (fmt)
++		lastheader_message_len = vsnprintf(lastheader, 512, fmt, args);
++
++	if (console_loglevel >= SUSPEND_ERROR) {
++
++		if (printalways)
++			printk("\n** %s\n", lastheader);
++		return;
++	}
++	
++	barwidth = (video_num_columns - 2 * (video_num_columns / 4) - 2);
++
++	/* Print version */
++	posn[0] = (unsigned char) (0);
++	posn[1] = (unsigned char) (video_num_lines);
++	move_cursor_to(posn);
++	cond_console_print(SUSPEND_CORE_VERSION);
++
++	/* Print header */
++	posn[0] = (unsigned char) ((video_num_columns - 31) / 2);
++	posn[1] = (unsigned char) ((video_num_lines / 3) - 3);
++	move_cursor_to(posn);
++
++	cond_console_print("S O F T W A R E   S U S P E N D");
++		
++	/* Print action */
++	posn[1] = (unsigned char) (video_num_lines / 3);
++	posn[0] = (unsigned char) 0;
++	move_cursor_to(posn);
++	
++	/* Clear old message */
++	for (barposn = 0; barposn < video_num_columns; barposn++) 
++		cond_console_print(" ");
++
++	posn[0] = (unsigned char)
++		((video_num_columns - lastheader_message_len) / 2);
++	move_cursor_to(posn);
++	cond_console_print(lastheader);
++	
++	if (draw_progress_bar) {
++		/* Draw left bracket of progress bar. */
++		posn[0] = (unsigned char) (video_num_columns / 4);
++		posn[1]++;
++		move_cursor_to(posn);
++		cond_console_print("[");
++
++		/* Draw right bracket of progress bar. */
++		posn[0] = (unsigned char) 
++			(video_num_columns - (video_num_columns / 4) - 1);
++		move_cursor_to(posn);
++		cond_console_print("]");
++
++		if (clearbar) {
++			/* Position at start of progress */
++			posn[0] = (unsigned char) (video_num_columns / 4 + 1);
++			move_cursor_to(posn);
++
++			/* Clear bar */
++			for (barposn = 0; barposn < barwidth; barposn++)
++				cond_console_print(" ");
++			move_cursor_to(posn);
++		}
++	}
++	
++	hide_cursor();
++
++	barposn = 0;
++}
++
++/* text_loglevel_change
 + *
-+ * Description:	Frees memory allocated by the allocation routine (above).
++ * Description:	Update the display when the user changes the log level.
++ * Returns:	Boolean indicating whether the level was changed.
 + */
 +
-+static inline void free_memory(void)
++static void text_loglevel_change(void)
 +{
-+	if (!compression_workspace)
++	/* Calculate progress bar width. Note that whether the
++	 * splash screen is on might have changed (this might be
++	 * the first call in a new cycle), so we can't take it
++	 * for granted that the width is the same as last time
++	 * we came in here */
++	barwidth = (video_num_columns - 2 * (video_num_columns / 4) - 2);
++	barposn = 0;
++
++	/* Only reset the display if we're switching between nice display
++	 * and displaying debugging output */
++	
++	if (console_loglevel >= SUSPEND_ERROR) {
++		char message[35];
++		if (lastloglevel < SUSPEND_ERROR)
++			clear_display();
++
++		snprintf(message, 35,
++			"Switched to console loglevel %d.\n", 
++			console_loglevel);
++		cond_console_print(message);
++
++		if (lastloglevel < SUSPEND_ERROR) {
++			cond_console_print(lastheader);
++			cond_console_print("\n");
++		}
++	
++	} else if (lastloglevel >= SUSPEND_ERROR) {
++		clear_display();
++	
++		/* Get the nice display or last action [re]drawn */
++		text_prepare_status(1, 0, NULL, NULL);
++	}
++	
++	lastloglevel = console_loglevel;
++}
++/* text_update_progress
++ *
++ * Description: Update the progress bar and (if on) in-bar message.
++ * Arguments:	UL value, maximum: Current progress percentage (value/max).
++ * 		const char *fmt, ...: Message to be displayed in the middle
++ * 		of the progress bar.
++ * 		Note that a NULL message does not mean that any previous
++ * 		message is erased! For that, you need prepare_status with
++ * 		clearbar on.
++ * Returns:	Unsigned long: The next value where status needs to be updated.
++ * 		This is to reduce unnecessary calls to text_update_progress.
++ */
++unsigned long text_update_progress(unsigned long value, unsigned long maximum,
++		const char *fmt, va_list args)
++{
++	unsigned long next_update = 0;
++	int bitshift = generic_fls(maximum) - 16;
++	unsigned char posn[2];
++	int message_len = 0;
++
++	if (!barwidth)
++		barwidth = (video_num_columns - 2 * (video_num_columns / 4) - 2);
++
++	if (!maximum)
++		return maximum;
++
++	if (value < 0)
++		value = 0;
++
++	if (value > maximum)
++		value = maximum;
++
++	/* Try to avoid math problems - we can't do 64 bit math here
++	 * (and shouldn't need it - anyone got screen resolution
++	 * of 65536 pixels or more?) */
++	if (bitshift > 0) {
++		unsigned long temp_maximum = maximum >> bitshift;
++		unsigned long temp_value = value >> bitshift;
++		newbarposn = (int) (temp_value * barwidth / temp_maximum);
++	} else
++		newbarposn = (int) (value * barwidth / maximum);
++	
++	if (newbarposn < barposn)
++		barposn = 0;
++
++	next_update = ((newbarposn + 1) * maximum / barwidth) + 1;
++
++	if ((console_loglevel >= SUSPEND_ERROR) || (!draw_progress_bar))
++		return next_update;
++
++	/* Update bar */
++	if (draw_progress_bar) {
++		posn[1] = (unsigned char) ((video_num_lines / 3) + 1);
++
++		/* Clear bar if at start */
++		if (!barposn) {
++			posn[0] = (unsigned char) (video_num_columns / 4 + 1);
++			move_cursor_to(posn);
++			for (; barposn < barwidth; barposn++)
++				cond_console_print(" ");
++			barposn = 0;
++		}
++		posn[0] = (unsigned char) (video_num_columns / 4 + 1 + barposn);
++		move_cursor_to(posn);
++
++		for (; barposn < newbarposn; barposn++)
++			cond_console_print("-");
++	}
++
++	/* Print string in progress bar on loglevel 1 */
++	if ((fmt) && (console_loglevel)) {
++		message_len = vsnprintf(print_buf, sizeof(print_buf), " ", NULL);
++		message_len += vsnprintf(print_buf + message_len,
++				sizeof(print_buf) - message_len, fmt, args);
++		message_len += vsnprintf(print_buf + message_len,
++				sizeof(print_buf) - message_len, " ", NULL);
++
++		if (message_len) {
++			posn[0] = (unsigned char)
++				((video_num_columns - message_len) / 2);
++			posn[1] = (unsigned char)
++				((video_num_lines / 3) + 1);
++			move_cursor_to(posn);
++			cond_console_print(print_buf);
++		}
++	}
++
++	barposn = newbarposn;
++	hide_cursor();
++	
++	return next_update;
++}
++
++extern asmlinkage long sys_ioctl(unsigned int fd, unsigned int cmd, 
++		unsigned long arg);
++
++static void text_message(unsigned long section, unsigned long level,
++		int normally_logged,
++		const char *fmt, va_list args)
++{
++	int printed_len = 0;
++
++	if ((section) && (!TEST_DEBUG_STATE(section)))
 +		return;
 +
-+	vfree(compression_workspace);
-+	compression_workspace = NULL;
-+}
-+
-+/* ---- Local buffer management ---- */
-+
-+/* allocate_local_buffer
-+ *
-+ * Description:	Allocates a page of memory for buffering output.
-+ * Returns:	Int: Zero if successful, -ENONEM otherwise.
-+ */
-+
-+static int allocate_local_buffer(void)
-+{
-+	if (!local_buffer) {
-+		local_buffer = (char *) get_zeroed_page(GFP_ATOMIC);
-+	
-+		if (!local_buffer) {
-+			printk(KERN_ERR
-+				"Failed to allocate the local buffer for "
-+				"lzf compression driver.\n");
-+			return -ENOMEM;
-+		}
-+		local_buffer_page = virt_to_page(local_buffer);
-+	}
-+
-+	if (!page_buffer) {
-+		page_buffer = (char *) get_zeroed_page(GFP_ATOMIC);
-+	
-+		if (!page_buffer) {
-+			printk(KERN_ERR
-+				"Failed to allocate the page buffer for "
-+				"lzf compression driver.\n");
-+			return -ENOMEM;
-+		}
-+		page_buffer_page = virt_to_page(page_buffer);
-+	}
-+
-+	return 0;
-+}
-+
-+/* free_local_buffer
-+ *
-+ * Description:	Frees memory allocated for buffering output.
-+ */
-+
-+static inline void free_local_buffer(void)
-+{
-+	if (local_buffer)
-+		free_pages((unsigned long) local_buffer, 0);
-+
-+	local_buffer = NULL;
-+	local_buffer_page = NULL;
-+
-+	if (page_buffer)
-+		free_pages((unsigned long) page_buffer, 0);
-+
-+	page_buffer = NULL;
-+	page_buffer_page = NULL;
-+}
-+
-+/* ---- Exported functions ---- */
-+
-+/* write_init()
-+ *
-+ * Description:	Allocate buffers and prepare to compress data.
-+ * Arguments:	Stream_number:	Ignored.
-+ * Returns:	Zero on success, -ENOMEM if unable to vmalloc.
-+ */
-+
-+static int lzf_write_init(int stream_number)
-+{
-+	int result;
-+	
-+	next_driver = get_next_filter(&lzf_compression_ops);
-+
-+	if (!next_driver) {
-+		printk("LZF Compression Driver: Argh! No one wants my output!");
-+		return -ECHILD;
-+	}
-+
-+	if ((result = allocate_compression_space()))
-+		return result;
-+	
-+	if ((result = allocate_local_buffer()))
-+		return result;
-+
-+	/* Only reset the stats if starting to write an image */
-+	if (stream_number == 2)
-+		bytes_in = bytes_out = 0;
-+	
-+	bufofs = 0;
-+
-+	return 0;
-+}
-+
-+/* lzf_write()
-+ *
-+ * Description:	Helper function for write_chunk. Write the compressed data.
-+ * Arguments:	u8*:		Output buffer to be written.
-+ * 		unsigned int:	Length of buffer.
-+ * Return:	int:		Result to be passed back to caller.
-+ */
-+
-+static int lzf_write (u8 *buffer, unsigned int len)
-+{
-+	int ret;
-+
-+	bytes_out += len;
-+
-+	while (len + bufofs > PAGE_SIZE) {
-+		unsigned int chunk = PAGE_SIZE - bufofs;
-+		memcpy (local_buffer + bufofs, buffer, chunk);
-+		buffer += chunk;
-+		len -= chunk;
-+		bufofs = 0;
-+		if ((ret = next_driver->ops.filter.write_chunk(local_buffer_page)) < 0)
-+			return ret;
-+	}
-+	memcpy (local_buffer + bufofs, buffer, len);
-+	bufofs += len;
-+	return 0;
-+}
-+
-+/* lzf_write_chunk()
-+ *
-+ * Description:	Compress a page of data, buffering output and passing on
-+ * 		filled pages to the next plugin in the pipeline.
-+ * Arguments:	Buffer_page:	Pointer to a buffer of size PAGE_SIZE, 
-+ * 				containing data to be compressed.
-+ * Returns:	0 on success. Otherwise the error is that returned by later
-+ * 		plugins, -ECHILD if we have a broken pipeline or -EPERM if
-+ * 		zlib errs.
-+ */
-+
-+static int lzf_write_chunk(struct page * buffer_page)
-+{
-+	int ret; 
-+	u16 len;
-+	char * buffer_start = kmap(buffer_page);
-+	
-+	bytes_in += PAGE_SIZE;
-+
-+	len = lzf_compress(buffer_start, PAGE_SIZE, page_buffer,
-+			PAGE_SIZE - 3, compression_workspace);
-+
-+	if ((ret = lzf_write((u8 *)&len, 2)) >= 0) {
-+		if (len) // some compression
-+			ret = lzf_write(page_buffer, len);
-+		else
-+			ret = lzf_write(buffer_start, PAGE_SIZE);
-+	}
-+	kunmap(buffer_page);
-+	return ret;
-+}
-+
-+/* write_cleanup()
-+ *
-+ * Description: Write unflushed data and free workspace.
-+ * Returns:	Result of writing last page.
-+ */
-+
-+static int lzf_write_cleanup(void)
-+{
-+	int ret;
-+	
-+	ret = next_driver->ops.filter.write_chunk(local_buffer_page);
-+
-+	free_memory();
-+	free_local_buffer();
-+
-+	return ret;
-+}
-+
-+/* read_init()
-+ *
-+ * Description:	Prepare to read a new stream of data.
-+ * Arguments:	int: Section of image about to be read.
-+ * Returns:	int: Zero on success, error number otherwise.
-+ */
-+
-+static int lzf_read_init(int stream_number)
-+{
-+	int result;
-+
-+	next_driver = get_next_filter(&lzf_compression_ops);
-+
-+	if (!next_driver) {
-+		printk("LZF Compression Driver: Argh! No one wants "
-+				"to feed me data!");
-+		return -ECHILD;
++	if (level == SUSPEND_STATUS) {
++		text_prepare_status(1, 0, fmt, args);
++		return;
 +	}
 +	
-+	if ((result = allocate_local_buffer()))
-+		return result;
++	if (level > console_loglevel)
++		return;
 +
-+	bufofs = PAGE_SIZE;
++	printed_len = vsnprintf(print_buf + printed_len,
++			sizeof(print_buf) - printed_len, fmt, args);
 +
-+	return 0;
-+}
 +
-+/* lzf_read()
-+ *
-+ * Description:	Read data into compression buffer.
-+ * Arguments:	u8 *:		Address of the buffer.
-+ * 		unsigned int:	Length
-+ * Returns:	int:		Result of reading the image chunk.
-+ */
-+
-+static int lzf_read (u8 * buffer, unsigned int len)
-+{
-+	int ret;
-+
-+	while (len + bufofs > PAGE_SIZE) {
-+		unsigned int chunk = PAGE_SIZE - bufofs;
-+		memcpy(buffer, local_buffer + bufofs, chunk);
-+		buffer += chunk;
-+		len -= chunk;
-+		bufofs = 0;
-+		if ((ret = next_driver->ops.filter.read_chunk(
-+					local_buffer_page, SUSPEND_SYNC)) < 0) {
-+			return ret;
-+		}
-+	}
-+	memcpy (buffer, local_buffer + bufofs, len);
-+	bufofs += len;
-+	return 0;
-+}
-+
-+/* lzf_read_chunk()
-+ *
-+ * Description:	Retrieve data from later plugins and decompress it until the
-+ * 		input buffer is filled.
-+ * Arguments:	Buffer_start: 	Pointer to a buffer of size PAGE_SIZE.
-+ * 		Sync:		Whether the previous plugin (or core) wants its
-+ * 				data synchronously.
-+ * Returns:	Zero if successful. Error condition from me or from downstream
-+ * 		on failure.
-+ */
-+
-+static int lzf_read_chunk(struct page * buffer_page, int sync)
-+{
-+	int ret; 
-+	u16 len;
-+	char * buffer_start = kmap(buffer_page);
-+
-+	/* 
-+	 * All our reads must be synchronous - we can't decompress
-+	 * data that hasn't been read yet.
-+	 */
-+
-+	if ((ret = lzf_read ((u8 *)&len, 2)) >= 0) {
-+		if (len == 0) { // uncompressed
-+			ret = lzf_read(buffer_start, PAGE_SIZE);
-+		} else { // compressed
-+			if ((ret = lzf_read(page_buffer, len)) >= 0) {
-+				ret = lzf_decompress(page_buffer, len, buffer_start, PAGE_SIZE);
-+				if (ret != PAGE_SIZE)
-+					ret = -EPERM; // why EPERM??
-+				else
-+					ret = 0;
-+			}
-+		}
-+	}
-+	kunmap(buffer_page);
-+	return ret;
-+}
-+
-+/* read_cleanup()
-+ *
-+ * Description:	Clean up after reading part or all of a stream of data.
-+ * Returns:	int: Always zero. Never fails.
-+ */
-+
-+static int lzf_read_cleanup(void)
-+{
-+	free_local_buffer();
-+	return 0;
-+}
-+
-+/* lzf_print_debug_stats
-+ *
-+ * Description:	Print information to be recorded for debugging purposes into a
-+ * 		buffer.
-+ * Arguments:	buffer: Pointer to a buffer into which the debug info will be
-+ * 			printed.
-+ * 		size:	Size of the buffer.
-+ * Returns:	Number of characters written to the buffer.
-+ */
-+
-+static int lzf_print_debug_stats(char * buffer, int size)
-+{
-+	int pages_in = bytes_in >> PAGE_SHIFT, 
-+		pages_out = bytes_out >> PAGE_SHIFT;
-+	int len;
-+	
-+	/* Output the compression ratio achieved. */
-+	len = suspend_snprintf(buffer, size, "- LZF Compressor enabled.\n");
-+	if (pages_in)
-+		len+= suspend_snprintf(buffer+len, size - len,
-+		  "  Compressed %ld bytes into %ld (%d percent compression).\n",
-+		  bytes_in, bytes_out, (pages_in - pages_out) * 100 / pages_in);
-+	return len;
-+}
-+
-+/* compression_memory_needed
-+ *
-+ * Description:	Tell the caller how much memory we need to operate during
-+ * 		suspend/resume.
-+ * Returns:	Unsigned long. Maximum number of bytes of memory required for
-+ * 		operation.
-+ */
-+
-+static unsigned long lzf_memory_needed(void)
-+{
-+	return PAGE_SIZE * 2 + (1<<HLOG)*sizeof(char *);
-+}
-+
-+static unsigned long lzf_storage_needed(void)
-+{
-+	return 2 * sizeof(unsigned long);
-+}
-+
-+/* lzf_save_config_info
-+ *
-+ * Description:	Save informaton needed when reloading the image at resume time.
-+ * Arguments:	Buffer:		Pointer to a buffer of size PAGE_SIZE.
-+ * Returns:	Number of bytes used for saving our data.
-+ */
-+
-+static int lzf_save_config_info(char * buffer)
-+{
-+	*((unsigned long *) buffer) = bytes_in;
-+	*((unsigned long *) (buffer + sizeof(unsigned long))) = bytes_out;
-+	*((int *) (buffer + 2 * sizeof(unsigned long))) = expected_lzf_compression;
-+	return 2 * sizeof(unsigned long) + sizeof(int);
-+}
-+
-+/* lzf_load_config_info
-+ *
-+ * Description:	Reload information needed for decompressing the image at 
-+ * 		resume time.
-+ * Arguments:	Buffer:		Pointer to the start of the data.
-+ *		Size:		Number of bytes that were saved.
-+ */
-+
-+static void lzf_load_config_info(char * buffer, int size)
-+{
-+	if(size == 2 * sizeof(unsigned long) + sizeof(int)) {
-+		bytes_in = *((unsigned long *) buffer);
-+		bytes_out = *((unsigned long *) (buffer + sizeof(unsigned long)));
-+		expected_lzf_compression = *((int *) (buffer + 2 * sizeof(unsigned long)));
++	if ((TEST_ACTION_STATE(SUSPEND_LOGALL)) ||
++	    (normally_logged)) {
++		/* If we didn't print anything, don't do the \n anyway! */
++		if (!printed_len)
++			return;
++		printk(print_buf);
 +	} else
-+		printk("Suspend LZF config info size mismatch: settings ignored.\n");
++		cond_console_print(print_buf);
++}
++/*
++ *
++ */
++
++static void suspend_get_dev_console(void)
++{
++	if (suspend_console_fd > -1)
++		return;
++
++	suspend_console_fd = sys_open("/dev/console", O_RDWR | O_NONBLOCK, 0);
++	if (suspend_console_fd < 0) {
++		sys_mkdir("/dev", 0700);
++#ifdef CONFIG_DEVFS_FS
++		sys_mount("devfs", "/dev", "devfs", 0, NULL);
++		mounted_devfs = 1;
++#endif
++		suspend_console_fd = sys_open("/dev/console", O_RDWR | O_NONBLOCK, 0);
++	}
++	if (suspend_console_fd < 0) {
++		printk("Can't open /dev/console. Error value was %d.\n",
++				suspend_console_fd);
++		suspend_console_fd = -1;
++		return;
++	}
++
++	sys_ioctl(suspend_console_fd, TCGETS, (long)&termios);
++	termios.c_lflag &= ~ICANON;
++	sys_ioctl(suspend_console_fd, TCSETSF, (long)&termios);
++}
++
++/* prepare_console
++ *
++ */
++static void text_prepare_console(void)
++{
++	suspend_get_dev_console();
++
++	if (console_loglevel < 2)
++		clear_display();
++
++	lastloglevel = console_loglevel;
++}
++
++/* cleanup_console
++ *
++ * Description: Close our handle on /dev/console. Must be done
++ * earlier than pm_restore_console to avoid problems with other
++ * processes trying to grab it when thawed.
++ */
++
++static void cleanup_console(void)
++{
++	if (console_loglevel < 2)
++		clear_display();
++	restore_cursor();
++	termios.c_lflag |= ICANON;
++	sys_ioctl(suspend_console_fd, TCSETSF, (long)&termios);
++	sys_close(suspend_console_fd);
++	suspend_console_fd = -1;
++
++#ifdef CONFIG_DEVFS_FS
++	if (mounted_devfs)
++		sys_umount("/dev", 0);
++#endif
++	
++	lastloglevel = -1;
 +	return;
 +}
 +
-+/* lzf_get_expected_compression
-+ * 
-+ * Description:	Returns the expected ratio between data passed into this plugin
-+ * 		and the amount of data output when writing.
-+ * Returns:	100 if the plugin is disabled. Otherwise the value set by the
-+ * 		user via our proc entry.
-+ */
-+
-+static int lzf_get_expected_compression(void)
++static void text_redraw(void)
 +{
-+	return 100 - expected_lzf_compression;
++	sys_ioctl(suspend_console_fd, TIOCL_BLANKSCREEN, (long)&termios);
++	sys_ioctl(suspend_console_fd, TIOCL_UNBLANKSCREEN, (long)&termios);
++}
++
++static int text_keypress(unsigned int key)
++{
++	switch (key) {
++		case 48:
++			console_loglevel = 0;
++			break;
++		case 49:
++			console_loglevel = 1;
++			break;
++#ifdef CONFIG_SOFTWARE_SUSPEND_DEBUG
++		case 122:
++			/* `: Toggle slow */
++			suspend_action ^= (1 << SUSPEND_SLOW);
++			suspend2_core_ops->schedule_message(7);
++			break;
++		case 1:
++			/* F1: Toggle any section debugging. */
++			suspend_debug_state ^= (1 << SUSPEND_ANY_SECTION);
++			suspend2_core_ops->schedule_message(20);
++			break;
++		case 2:
++			/* F2: Freeze. */
++			suspend_debug_state ^= (1 << SUSPEND_FREEZER);
++			suspend2_core_ops->schedule_message(21);
++			break;
++		case 3:
++			/* F3: Eat Memory */
++			suspend_debug_state ^= (1 << SUSPEND_EAT_MEMORY);
++			suspend2_core_ops->schedule_message(22);
++			break;
++		case 4:
++			/* F4: Pagesets. */
++			suspend_debug_state ^= (1 << SUSPEND_PAGESETS);
++			suspend2_core_ops->schedule_message(23);
++			break;
++		case 5:
++			/* F5: IO. */
++			suspend_debug_state ^= (1 << SUSPEND_IO);
++			suspend2_core_ops->schedule_message(24);
++			break;
++		case 6:
++			/* F6: Bmapping of pages */
++			suspend_debug_state ^= (1 << SUSPEND_BMAP);
++			suspend2_core_ops->schedule_message(25);
++			break;
++		case 7:
++			/* F7: Writer */
++			suspend_debug_state ^= (1 << SUSPEND_WRITER);
++			suspend2_core_ops->schedule_message(26);
++			break;
++		case 8:
++			/* F8: Memory */
++			suspend_debug_state ^= (1 << SUSPEND_MEMORY);
++			suspend2_core_ops->schedule_message(27);
++			break;
++		case 9:
++			/* F9: Ranges */
++			suspend_debug_state ^= (1 << SUSPEND_RANGES);
++			suspend2_core_ops->schedule_message(28);
++			break;
++		case 10:
++			/* F10: Memory Pool */
++			suspend_debug_state ^= (1 << SUSPEND_MEM_POOL);
++			suspend2_core_ops->schedule_message(29);
++			break;
++		case 11:
++			/* F11: Nosave */
++			suspend_debug_state ^= (1 << SUSPEND_NOSAVE);
++			suspend2_core_ops->schedule_message(30);
++			break;
++		case 12:
++			/* F12: Integrity */
++			suspend_debug_state ^= (1 << SUSPEND_INTEGRITY);
++			suspend2_core_ops->schedule_message(31);
++			break;
++		case 112:
++			/* During suspend, toggle pausing with P */
++			suspend_action ^= (1 << SUSPEND_PAUSE);
++			suspend2_core_ops->schedule_message(1);
++			break;
++		case 115:
++			/* Otherwise, if S pressed, toggle single step */
++			suspend_action ^= (1 << SUSPEND_SINGLESTEP);
++			suspend2_core_ops->schedule_message(3);
++			break;
++		case 108:
++			/* Otherwise, if L pressed, toggle logging everything */
++			suspend_action ^= (1 << SUSPEND_LOGALL);
++			suspend2_core_ops->schedule_message(4);
++			break;
++		case 116:
++			/* T: Toggle freezing timers */
++			clear_suspend_state(SUSPEND_TIMER_FREEZER_ON);
++			suspend2_core_ops->schedule_message(99);
++			break;
++		case 50:
++		case 51:
++		case 52:
++		case 53:
++		case 54:
++		case 55:
++		case 56:
++		case 57:
++			console_loglevel = ((key - 48));
++			break;
++#endif
++		default:
++			return 0;
++	}
++	return 1;
 +}
 +
 +/*
-+ * data for our proc entries.
++ * User interface specific /proc/suspend entries.
 + */
 +
-+static struct suspend_proc_data expected_compression_proc_data = {
-+	.filename			= "expected_lzf_compression",
-+	.permissions			= PROC_RW,
-+	.type				= SUSPEND_PROC_DATA_INTEGER,
-+	.data = {
-+		.integer = {
-+			.variable	= &expected_lzf_compression,
-+			.minimum	= 0,
-+			.maximum	= 99,
-+		}
-+	}
-+};
++static struct suspend_plugin_ops text_mode_ops;
 +
-+static struct suspend_proc_data disable_compression_proc_data = {
-+	.filename			= "disable_lzf_compression",
-+	.permissions			= PROC_RW,
-+	.type				= SUSPEND_PROC_DATA_INTEGER,
-+	.data = {
++static struct suspend_proc_data proc_params[] = {
++	{ .filename			= "text_mode_progress_bar",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_INTEGER,
++	  .data = {
++		  .integer = {
++			  .variable	= &draw_progress_bar,
++			  .minimum	= 0,
++			  .maximum	= 1,
++
++		  }
++	  }
++	},
++	
++	{ .filename			= "disable_textmode_support",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_INTEGER,
++	  .data = {
 +		.integer = {
-+			.variable	= &lzf_compression_ops.disabled,
++			.variable	= &text_mode_ops.disabled,
 +			.minimum	= 0,
 +			.maximum	= 1,
 +		}
++	  }
 +	}
 +};
 +
-+/*
-+ * Ops structure.
-+ */
-+
-+static struct suspend_plugin_ops lzf_compression_ops = {
-+	.type			= FILTER_PLUGIN,
-+	.name			= "LZF Page Compressor",
-+	.memory_needed 		= lzf_memory_needed,
-+	.print_debug_info	= lzf_print_debug_stats,
-+	.save_config_info	= lzf_save_config_info,
-+	.load_config_info	= lzf_load_config_info,
-+	.storage_needed		= lzf_storage_needed,
++static struct suspend_plugin_ops text_mode_ops = {
++	.type					= UI_PLUGIN,
++	.name					= "Text Mode Support",
 +	.ops = {
-+		.filter = {
-+			.write_init		= lzf_write_init,
-+			.write_chunk		= lzf_write_chunk,
-+			.write_cleanup		= lzf_write_cleanup,
-+			.read_init		= lzf_read_init,
-+			.read_chunk		= lzf_read_chunk,
-+			.read_cleanup		= lzf_read_cleanup,
-+			.expected_compression	= lzf_get_expected_compression,
++		.ui = {
++			.prepare		= text_prepare_console,	
++			.log_level_change	= text_loglevel_change,
++			.message		= text_message,
++			.update_progress	= text_update_progress,
++			.cleanup		= cleanup_console,
++			.keypress		= text_keypress,
++			.post_kernel_restore_redraw =
++				text_redraw,
 +		}
 +	}
 +};
 +
 +/* ---- Registration ---- */
 +
-+static __init int lzf_load(void)
++static __init int text_mode_load(void)
 +{
++	int i, numfiles = sizeof(proc_params) / sizeof(struct suspend_proc_data);
 +	int result;
 +
-+	if (!(result = suspend_register_plugin(&lzf_compression_ops))) {
-+		printk("Software Suspend LZF Compression Driver registered.\n");
-+		suspend_register_procfile(&expected_compression_proc_data);
-+		suspend_register_procfile(&disable_compression_proc_data);
++	if (!(result = suspend_register_plugin(&text_mode_ops))) {
++		printk("Software Suspend text mode support loaded.\n");
++		for (i=0; i< numfiles; i++)
++			suspend_register_procfile(&proc_params[i]);
 +	}
 +	return result;
 +}
 +
 +#ifdef MODULE
-+static __exit void lzf_unload(void)
++static __exit void text_mode_unload(void)
 +{
-+	printk("Software Suspend LZF Compression Driver unloading.\n");
-+	suspend_unregister_procfile(&expected_compression_proc_data);
-+	suspend_unregister_procfile(&disable_compression_proc_data);
-+	suspend_unregister_plugin(&lzf_compression_ops);
++	int i, numfiles = sizeof(proc_params) / sizeof(struct suspend_proc_data);
++
++	printk("Software Suspend text mode support unloading.\n");
++
++	for (i=0; i< numfiles; i++)
++		suspend_unregister_procfile(&proc_params[i]);
++	
++	suspend_unregister_plugin(&text_mode_ops);
 +}
 +
-+
-+module_init(lzf_load);
-+module_exit(lzf_unload);
++module_init(text_mode_load);
++module_exit(text_mode_unload);
 +MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Marc Lehmann");
-+MODULE_DESCRIPTION("LZF Compression support for Suspend2");
++MODULE_AUTHOR("Nigel Cunningham");
++MODULE_DESCRIPTION("Suspend2 Text Mode support");
 +#else
-+late_initcall(lzf_load);
++late_initcall(text_mode_load);
 +#endif
 
 

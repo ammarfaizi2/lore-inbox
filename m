@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVDDIsT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbVDDIvt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbVDDIsT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 04:48:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVDDIsT
+	id S261183AbVDDIvt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 04:51:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVDDIvt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 04:48:19 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:38380 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261182AbVDDIsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 04:48:04 -0400
-Subject: Re: [ACPI] Re: [RFC 0/6] S3 SMP support with physcial CPU hotplug
-From: Li Shaohua <shaohua.li@intel.com>
-To: ncunningham@cyclades.com
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       ACPI List <acpi-devel@lists.sourceforge.net>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>, Len Brown <len.brown@intel.com>,
-       Pavel Machek <pavel@suse.cz>
-In-Reply-To: <1112601670.3757.6.camel@desktop.cunningham.myip.net.au>
-References: <1112580342.4194.329.camel@sli10-desk.sh.intel.com>
-	 <20050403193750.40cdabb2.akpm@osdl.org>
-	 <1112582553.4194.349.camel@sli10-desk.sh.intel.com>
-	 <20050403194807.32fd761a.akpm@osdl.org>
-	 <1112582947.4194.352.camel@sli10-desk.sh.intel.com>
-	 <1112601670.3757.6.camel@desktop.cunningham.myip.net.au>
-Content-Type: text/plain
-Message-Id: <1112604263.4194.367.camel@sli10-desk.sh.intel.com>
+	Mon, 4 Apr 2005 04:51:49 -0400
+Received: from rproxy.gmail.com ([64.233.170.192]:10887 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261183AbVDDIvk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 04:51:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=qIep0c8nVwIoLuoTmnrrFAX9iPrOpdyIblLhnDKBzEkBeSuxb4L0xKkpPdMLm/N28uZjLBB/2Kg8LX0AG/DnFWdJG/b6z8okpT1D4pRvaOfOh+tv2Qn3+DIW/1raB8rvBm9b2AKnjpX89kxX5qcCEQol12fGW2QLKP7O7Q5q6cM=
+Message-ID: <59ab6ac1050404015133699168@mail.gmail.com>
+Date: Mon, 4 Apr 2005 10:51:39 +0200
+From: =?ISO-8859-1?Q?Jose_=C1ngel_De_Bustos_P=E9rez?= 
+	<jadebustos@gmail.com>
+Reply-To: =?ISO-8859-1?Q?Jose_=C1ngel_De_Bustos_P=E9rez?= 
+	  <jadebustos@gmail.com>
+To: Triffid Hunter <triffid_hunter@funkmunch.net>
+Subject: Re: A problem with kswapd
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4250F5CB.4070605@funkmunch.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 04 Apr 2005 16:44:23 +0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+References: <59ab6ac105040400423fefd96a@mail.gmail.com>
+	 <4250F5CB.4070605@funkmunch.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-04-04 at 16:01, Nigel Cunningham wrote:
-> Hi.
+On Apr 4, 2005 10:07 AM, Triffid Hunter <triffid_hunter@funkmunch.net> wrote:
+> try 2.4.30 which has just been released (unchanged from 2.4.30-rc4)
 > 
-> I'm switching suspend2 to use hotplug too. Li, I'll try adding your
-> patches as well as Zwane's if you like 
-Great!
 
-> (suspend2 can enter S3, S4 or S5
-> after writing the image). I'd love to try it on my HT desktop, and
-> hotplug will get more testing too :>
-Unfortunately, my patches break Pavel's swsusp SMP, as my patches break
-current 'cpu_up' mechanism. S4 doesn't require to boot AP CPUs from real
-mode.
+Sorry kernel is 2.4.21.
 
-Thanks,
-Shaohua
+We have other machines in the "same" conditions and they have a normal
+behavour. We don't know the reason for this awkward behavour.
 
+I don't know if we can change to kernel 2.4.20, its a production
+machine and I have to check if that kernel has official support.
+
+> Jose Ángel De Bustos Pérez wrote:
+> > Hi,
+> >
+> > I have a problem with kswapd and I didn't find anything in the
+> > archives of the list (I hope not having missed someone).
+> >
+> > kswapd is using 100% of CPU in a suse sles8 with kernel 2.4.241. This
+> > machine has its FS under LVM and ResiserFS, except for /boot which is
+> > in ext2.
+> >
+> > Any idea? Thanks in advance.
+> 
+
+
+-- 
+____________________________________
+Atentamente, José Angel de Bustos Pérez
+
+jadebustos@linuxmail.org
+jadebustos@gmail.com
+
+Jabber ID jadebustos@jabber.org
+ICQ ID 200368358

@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279257AbRKAQ1B>; Thu, 1 Nov 2001 11:27:01 -0500
+	id <S279261AbRKAQZV>; Thu, 1 Nov 2001 11:25:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279250AbRKAQ0v>; Thu, 1 Nov 2001 11:26:51 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44038 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S279257AbRKAQ0f>; Thu, 1 Nov 2001 11:26:35 -0500
+	id <S279257AbRKAQZL>; Thu, 1 Nov 2001 11:25:11 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:5798 "EHLO softhome.net")
+	by vger.kernel.org with ESMTP id <S279250AbRKAQY7>;
+	Thu, 1 Nov 2001 11:24:59 -0500
+Message-ID: <3BE1777F.30705@softhome.net>
+Date: Thu, 01 Nov 2001 16:25:35 +0000
+From: Ricardo Martins <thecrown@softhome.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en, pt
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Stress testing 2.4.14-pre6
-Date: Thu, 1 Nov 2001 16:24:09 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9rrsv9$b9l$1@penguin.transmeta.com>
-In-Reply-To: <3BE073B6.BDCB3D56@redhat.com>
-X-Trace: palladium.transmeta.com 1004631988 14366 127.0.0.1 (1 Nov 2001 16:26:28 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 1 Nov 2001 16:26:28 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+Subject: on exit xterm  totally wrecks linux 2.4.11 to 2.4.14-pre6 (unkillable processes)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3BE073B6.BDCB3D56@redhat.com>,
-Bob Matthews  <bmatthews@redhat.com> wrote:
->Hi Linus,
->
->We've been doing some stress-testing on 2.4.14-pre6 and have encountered
->a couple of problems.  The platform is an 8xPIII with 8G RAM and 32G
->swap.  After running Cerberus for about 3 hours, the machine hung
->completely.  I was not able to switch VC's.
+I'm using Linux kernel 2.4.10, and since the fatidic 2.4.11 release ( i 
+tried 2.4.11 (one day :)))) 2.4.12, 2.4.13 and 2.4.14-pre6) I get the 
+same bug on and on (that means I can reproduce the experience and obtain 
+the same results).
 
-There is some race somewhere - I've found one interrupt race (that
-actually seems to exist in the 2.2.x VM too, but is probably _much_
-harder to trigger where an interrupt at _just_ the right time will
-corrupt the per-process local page list.  That looks so unlikely that I
-doubt that is it, but I'm looking for others (the irq one wasn't even a
-SMP race - it's on UP too, surprise surprise). 
+Procedure
+In X windows (version 4.1.0 compiled from the sources) when writing 
+"exit" in xterm to close the terminal emulator, the window freezes, and 
+from that moment on, every process becomes "unkillable", including xterm 
+and X (ps also freezes), and there's no way to shutdown GNU/Linux in a 
+sane way (must hit reset or poweroff).
 
-Working on it, in other words.
+Environment
+I used Glibc 2.2.4 and GCC 3.0.1 (tried with 2.95.3, obtained the same 
+results).
 
-		Linus
+The odd thing is, that with the same configuration, kernel 2.4.10 works 
+just fine, but every other release since then ends up doing the same 
+thing (the system can't maintain integrity after writing "exit" and 
+hiting enter in xterm).
+
+Please help me, I getting slightly mad with the situation.
+
+Ricardo Martins
+

@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137072AbREKHHe>; Fri, 11 May 2001 03:07:34 -0400
+	id <S135339AbREHUsl>; Tue, 8 May 2001 16:48:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137068AbREKHH0>; Fri, 11 May 2001 03:07:26 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:6404 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S137073AbREKHG5>;
-	Fri, 11 May 2001 03:06:57 -0400
-Date: Mon, 7 May 2001 18:42:25 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Chris Wedgwood <cw@f00f.org>, Andrea Arcangeli <andrea@suse.de>,
-        Jens Axboe <axboe@suse.de>, Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, volodya@mindspring.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-Message-ID: <20010507184224.A32@(none)>
-In-Reply-To: <20010506153218.A11911@tapu.f00f.org> <Pine.GSO.4.21.0105052338580.26799-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.GSO.4.21.0105052338580.26799-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sat, May 05, 2001 at 11:59:17PM -0400
+	id <S135328AbREHUsc>; Tue, 8 May 2001 16:48:32 -0400
+Received: from fe100.worldonline.dk ([212.54.64.211]:55304 "HELO
+	fe100.worldonline.dk") by vger.kernel.org with SMTP
+	id <S135344AbREHUsW>; Tue, 8 May 2001 16:48:22 -0400
+Message-ID: <3AF9A3EA.8080209@eisenstein.dk>
+Date: Wed, 09 May 2001 22:09:14 +0200
+From: Jesper Juhl <juhl@eisenstein.dk>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-mosix i586; en-US; m18) Gecko/20010131 Netscape6/6.01
+X-Accept-Language: en, da
+MIME-Version: 1.0
+To: Ronald Bultje <rbultje@ronald.bitfreak.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Patch to improve readability of sock_rcvlowat() - comments wanted...
+In-Reply-To: <3AF72A19.7030009@eisenstein.dk> <20010507235541.Q4514@tux.bitfreak.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gHi!
+Ronald Bultje wrote:
 
-> >     It's not exactly "kernel-based fsck". What I've been talking about
-> >     is secondary filesystem providing coherent access to primary fs
-> >     metadata.  I.e. mount -t ext2meta -o master=/usr none /mnt and
-> >     then access through /mnt/super, /mnt/block_bitmap, etc.
-> > 
-> > Call me stupid --- but what exactly does the above actually achieve?
-> > Why would you do this?
+> On 2001.05.08 01:04:57 +0200 Jesper Juhl wrote:
 > 
-> Coherent access to metadata? Well, for one thing, it allows stuff like
-> tunefs and friends on mounted fs. What's more useful, it allows to
-> do things like access to boot code, which is _not_ safe to do through
-> device access - usually you have superblock in vicinity and no warranties
-> about the things that will be overwritten on umount. Same for debugging
-> stuff, IO stats, etc. - access through secondary tree is much saner
-> than inventing tons of ioctls for dealing with that. Moreover, it allows
-> fsck and friends to get rid of code duplication - while the repair
-> logics, etc. stays in userland (where it belongs) layout information
-> is already handled in the kernel. No need to duplicate it in userland...
-
-OTOH with current way if you make mistake in kernel, fsck will not
-automatically inherit it; therefore fsck is likely to work even if
-kernel ext2 is b0rken [and that's fairly important]
-
-> Besides, with moving bitmaps, etc. into pagecache it becomes trivial
-> to implement.
+>> static inline int sock_rcvlowat(struct sock *sk, int waitall, int len)
+>> {
+>>          int r = len;
+>>          if (!waitall)
+>>                  r = min(sk->rcvlowat, len);
+>>          return max(1,r);
+>> }
+>> 
 > 
-> BTW, we have another ugly chunk of code - duplicated between kernel
-> and userland and nasty in both incarnations. I mean handling of the
-> partition tables. Kernel should be able to read and parse them -
-> otherwise they are useless, right? Now, we have a bunch of userland
+> 
+> return max(1, waitall ? len : min(sk->rcvlowat, len));
+> 
+> Although I doubt this is more readable... :-)
+> 
 
-No. You might want to see (via fdisk) partition table, even through
-*your* kernel can not read it.
-								Pavel
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+IMO your version is less readable than the 4-liner above, and the code 
+it generates is a lot bigger than both the original and the proposed 
+replacement - but thank you for the suggestion...
+
+- Jesper Juhl - juhl@eisenstein.dk
 

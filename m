@@ -1,155 +1,143 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265849AbTL3WQj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 17:16:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265335AbTL3WPK
+	id S265841AbTL3WUF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 17:20:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265881AbTL3WTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 17:15:10 -0500
-Received: from mail.kroah.org ([65.200.24.183]:56257 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265849AbTL3WGj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 17:06:39 -0500
-Subject: Re: [PATCH] i2c driver fixes for 2.6.0
-In-Reply-To: <10728219711872@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 30 Dec 2003 14:06:11 -0800
-Message-Id: <10728219711203@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Tue, 30 Dec 2003 17:19:14 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:23474
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S265841AbTL3WKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 17:10:30 -0500
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: Software suspend in 2.6.0
+Date: Tue, 30 Dec 2003 16:09:23 -0600
+User-Agent: KMail/1.5.4
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>
+References: <200312300000.05201.rob@landley.net> <1072808436.2741.34.camel@laptop-linux>
+In-Reply-To: <1072808436.2741.34.camel@laptop-linux>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312301609.23407.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1496.8.34, 2003/12/17 16:06:50-08:00, mhoffman@lightlink.com
+On Tuesday 30 December 2003 12:20, Nigel Cunningham wrote:
+> Hi Rob.
+>
+> Do you have a preemptive kernel? If so, it could be that you're getting
+> 'bad scheduling while atomic' messages. Could you check dmesg after the
+> second suspend?
 
-[PATCH] I2C: lm75 chip driver conversion routine fixes
+Here's a cut and past of the relevant section.  (It's really ugly.)
+----------
+VFS: busy inodes on changed media.
+VFS: busy inodes on changed media.
+Stopping tasks: 
+================================================================
+===================================================|
+Freeing memory: <6>eth0: New link status: AP Out of Range (0004)
+.<6>eth0: New link status: AP In Range (0005)
+eth0: New link status: AP Out of Range (0004)
+eth0: New link status: AP In Range (0005)
+eth0: New link status: AP Out of Range (0004)
+eth0: New link status: AP In Range (0005)
+.<6>eth0: New link status: AP Out of Range (0004)
+eth0: New link status: AP In Range (0005)
+eth0: New link status: AP Changed (0003)
+.<6>eth0: New link status: AP Out of Range (0004)
+eth0: New link status: AP In Range (0005)
+.<6>eth0: New link status: AP Out of Range (0004)
+.<6>eth0: New link status: AP In Range (0005)
+.<6>eth0: New link status: AP Out of Range (0004)
+....<6>eth0: New link status: AP In Range (0005)
+eth0: New link status: AP Changed (0003)
+.<6>eth0: New link status: AP Out of Range (0004)
+................................|
+hdc: start_power_step(step: 0)
+hdc: completing PM request, suspend
+hda: start_power_step(step: 0)
+hda: start_power_step(step: 1)
+hda: complete_power_step(step: 1, stat: 50, err: 0)
+hda: completing PM request, suspend
+PM: Attempting to suspend to disk.
+PM: snapshotting memory.
+PM: Image restored successfully.
+hda: Wakeup request inited, waiting for !BSY...
+hda: start_power_step(step: 1000)
+eth0: New link status: Connected (0001)
+blk: queue cb54ae00, I/O limit 4095Mb (mask 0xffffffff)
+hda: completing PM request, resume
+hdc: Wakeup request inited, waiting for !BSY...
+hdc: start_power_step(step: 1000)
+hdc: completing PM request, resume
+Restarting tasks... done
+VFS: busy inodes on changed media.
+psmouse.c: Mouse at isa0060/serio1/input0 lost synchronization, throwing 2 
+bytes
+ away.
+drivers/usb/core/usb.c: registered new driver usbfs
+drivers/usb/core/usb.c: registered new driver hub
+ohci_hcd: 2003 Oct 13 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
+ohci_hcd: block sizes: ed 64 td 64
+ohci_hcd 0000:00:14.0: OHCI Host Controller
+ohci_hcd 0000:00:14.0: irq 10, pci mem cc07c000
+ohci_hcd 0000:00:14.0: new USB bus registered, assigned bus number 1
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 2 ports detected
+hub 1-0:1.0: new USB device on port 2, assigned address 2
+drivers/usb/net/pegasus.c: v0.5.12 (2003/06/06):Pegasus/Pegasus II USB 
+Ethernet
+driver
+drivers/usb/net/pegasus.c: setup Pegasus II specific registers
+eth1: Hawking UF100 10/100 Ethernet
+drivers/usb/core/usb.c: registered new driver pegasus
+drivers/usb/net/pegasus.c: intr status -84
+drivers/usb/net/pegasus.c: intr status -84
+drivers/usb/net/pegasus.c: intr status -84
+drivers/usb/net/pegasus.c: intr status -84
+drivers/usb/net/pegasus.c: intr status -84
+drivers/usb/net/pegasus.c: intr status -84
+python2.2: numerical sysctl 1 23 is obsolete.
+drivers/usb/net/pegasus.c: intr status -84
+drivers/usb/net/pegasus.c: intr status -84
+drivers/usb/net/pegasus.c: intr status -84
+drivers/usb/net/pegasus.c: intr status -84
+drivers/usb/net/pegasus.c: intr status -84
+drivers/usb/net/pegasus.c: intr status -84
+----------
 
-This patch is based on the lm_sensors project CVS, from revisions 1.45 and 1.1
-of lm75.c and lm75.h, respectively.
+The "busy inodes on changed media" stuff is from the cd-rom drive.  It's 
+repeated about 8 gazillion times before the suspend, and a few afterwards.
 
-The patch fixes the conversion routines (according to datasheet) and moves
-them into a header file - as these conversions can be used by several drivers
-which emulate LM75s as subclients.  Also, temps are now reported in 1/1000 C
-in sysfs as per documentation.
+All the "new link status" messages were me coming home from the university of 
+texas, with the laptop in my bag doing its "I am suspending very slowly" 
+thing for 15 minutes.  It still hadn't suspended when I got home (5 minutes 
+later), it finally powered off lying next to my bed as I was reading (maybe 
+20 minutes from the initial suspend request).  This is not at all unusual, it 
+may actually take more time with each susequent suspend attempt.  (It seems 
+the swap file usage goes up as well, although I haven't examined it closely.  
+This is just a vague impression.)
 
+After I resumed, it I fiddled with the USB port to add a second ethernet 
+device (ifconfig eth0 down, ifconfig eth1 up to go from built-in wireless to 
+a cat 5 connection.)  The messages from pegasus.c about intr status -84 then 
+continue for several pages, but don't seem to be hurting anything.  I do know 
+I have to rmmod the usb stuff before I suspend or it freezes on resume 
+complaining about USB.  (This was true in -test11, anyway.  Haven't tried it 
+under 2.6.0.)
 
- drivers/i2c/chips/lm75.c |   28 ++++++++------------------
- drivers/i2c/chips/lm75.h |   49 +++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 58 insertions(+), 19 deletions(-)
+2.6.0 is definitely a ".0" release as far as my logs are concerned... :)
 
+> Regards,
+>
+> Nigel
 
-diff -Nru a/drivers/i2c/chips/lm75.c b/drivers/i2c/chips/lm75.c
---- a/drivers/i2c/chips/lm75.c	Tue Dec 30 12:30:01 2003
-+++ b/drivers/i2c/chips/lm75.c	Tue Dec 30 12:30:01 2003
-@@ -25,6 +25,7 @@
- #include <linux/slab.h>
- #include <linux/i2c.h>
- #include <linux/i2c-sensor.h>
-+#include "lm75.h"
- 
- 
- /* Addresses to scan */
-@@ -44,13 +45,6 @@
- #define LM75_REG_TEMP_HYST	0x02
- #define LM75_REG_TEMP_OS	0x03
- 
--/* Conversions. Rounding and limit checking is only done on the TO_REG
--   variants. Note that you should be a bit careful with which arguments
--   these macros are called: arguments may be evaluated more than once.
--   Fixing this is just not worth it. */
--#define TEMP_FROM_REG(val)	((((val & 0x7fff) >> 7) * 5) | ((val & 0x8000)?-256:0))
--#define TEMP_TO_REG(val)	(SENSORS_LIMIT((val<0?(0x200+((val)/5))<<7:(((val) + 2) / 5) << 7),0,0xffff))
--
- /* Each client has this additional data */
- struct lm75_data {
- 	struct semaphore	update_lock;
-@@ -83,15 +77,12 @@
- static int lm75_id = 0;
- 
- #define show(value)	\
--static ssize_t show_##value(struct device *dev, char *buf)	\
--{								\
--	struct i2c_client *client = to_i2c_client(dev);		\
--	struct lm75_data *data = i2c_get_clientdata(client);	\
--	int temp;						\
--								\
--	lm75_update_client(client);				\
--	temp = TEMP_FROM_REG(data->value);			\
--	return sprintf(buf, "%d\n", temp * 100);		\
-+static ssize_t show_##value(struct device *dev, char *buf)		\
-+{									\
-+	struct i2c_client *client = to_i2c_client(dev);			\
-+	struct lm75_data *data = i2c_get_clientdata(client);		\
-+	lm75_update_client(client);					\
-+	return sprintf(buf, "%d\n", LM75_TEMP_FROM_REG(data->value));	\
- }
- show(temp_max);
- show(temp_hyst);
-@@ -102,9 +93,8 @@
- {								\
- 	struct i2c_client *client = to_i2c_client(dev);		\
- 	struct lm75_data *data = i2c_get_clientdata(client);	\
--	int temp = simple_strtoul(buf, NULL, 10) / 100;		\
--								\
--	data->value = TEMP_TO_REG(temp);			\
-+	int temp = simple_strtoul(buf, NULL, 10);		\
-+	data->value = LM75_TEMP_TO_REG(temp);			\
- 	lm75_write_value(client, reg, data->value);		\
- 	return count;						\
- }
-diff -Nru a/drivers/i2c/chips/lm75.h b/drivers/i2c/chips/lm75.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/drivers/i2c/chips/lm75.h	Tue Dec 30 12:30:01 2003
-@@ -0,0 +1,49 @@
-+/*
-+    lm75.h - Part of lm_sensors, Linux kernel modules for hardware
-+             monitoring
-+    Copyright (c) 2003 Mark M. Hoffman <mhoffman@lightlink.com>
-+
-+    This program is free software; you can redistribute it and/or modify
-+    it under the terms of the GNU General Public License as published by
-+    the Free Software Foundation; either version 2 of the License, or
-+    (at your option) any later version.
-+
-+    This program is distributed in the hope that it will be useful,
-+    but WITHOUT ANY WARRANTY; without even the implied warranty of
-+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+    GNU General Public License for more details.
-+
-+    You should have received a copy of the GNU General Public License
-+    along with this program; if not, write to the Free Software
-+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+*/
-+
-+/*
-+    This file contains common code for encoding/decoding LM75 type
-+    temperature readings, which are emulated by many of the chips
-+    we support.  As the user is unlikely to load more than one driver
-+    which contains this code, we don't worry about the wasted space.
-+*/
-+
-+#include <linux/i2c-sensor.h>
-+
-+/* straight from the datasheet */
-+#define LM75_TEMP_MIN (-55000)
-+#define LM75_TEMP_MAX 125000
-+
-+/* TEMP: 0.001C/bit (-55C to +125C)
-+   REG: (0.5C/bit, two's complement) << 7 */
-+static inline u16 LM75_TEMP_TO_REG(int temp)
-+{
-+	int ntemp = SENSORS_LIMIT(temp, LM75_TEMP_MIN, LM75_TEMP_MAX);
-+	ntemp += (ntemp<0 ? -250 : 250);
-+	return (u16)((ntemp / 500) << 7);
-+}
-+
-+static inline int LM75_TEMP_FROM_REG(u16 reg)
-+{
-+	/* use integer division instead of equivalent right shift to
-+	   guarantee arithmetic shift and preserve the sign */
-+	return ((s16)reg / 128) * 500;
-+}
-+
+Rob
 

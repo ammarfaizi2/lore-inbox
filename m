@@ -1,65 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbUKNIyx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbUKNI6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261258AbUKNIyx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 03:54:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbUKNIyx
+	id S261263AbUKNI6k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 03:58:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbUKNI6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 03:54:53 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:18407 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261258AbUKNIy1 (ORCPT
+	Sun, 14 Nov 2004 03:58:40 -0500
+Received: from news.suse.de ([195.135.220.2]:34026 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261263AbUKNI6h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 03:54:27 -0500
-Date: Sun, 14 Nov 2004 09:54:26 +0100
+	Sun, 14 Nov 2004 03:58:37 -0500
+Date: Sun, 14 Nov 2004 09:58:31 +0100
 From: Andi Kleen <ak@suse.de>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       Alan Cox <alan@redhat.com>
-Subject: Re: [PATCH] lockless MCE i386 port
-Message-ID: <20041114085426.GE16795@wotan.suse.de>
-References: <Pine.LNX.4.61.0411090126190.3047@musoma.fsmlabs.com> <Pine.LNX.4.61.0411130627050.3062@musoma.fsmlabs.com>
+To: Grant Grundler <grundler@parisc-linux.org>
+Cc: Michael Chan <mchan@broadcom.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       akpm@osdl.org, greg@kroah.com,
+       "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>
+Subject: Re: [PATCH] pci-mmconfig fix for 2.6.9
+Message-ID: <20041114085831.GF16795@wotan.suse.de>
+References: <B1508D50A0692F42B217C22C02D849720312DED3@NT-IRVA-0741.brcm.ad.broadcom.com> <20041113194634.GC3023@colo.lackof.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0411130627050.3062@musoma.fsmlabs.com>
+In-Reply-To: <20041113194634.GC3023@colo.lackof.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +#define MCE_LOG_LEN 32
-> +#define MCE_OVERFLOW 0		/* bit 0 in flags means overflow */
-> +#define MCE_LOG_SIGNATURE	"MACHINECHECK"
-> +#define MCE_GET_RECORD_LEN	_IOR('M', 1, int)
-> +#define MCE_GET_LOG_LEN		_IOR('M', 2, int)
-> +#define MCE_GETCLEAR_FLAGS	_Io
+On Sat, Nov 13, 2004 at 12:46:34PM -0700, Grant Grundler wrote:
+> On Sat, Nov 13, 2004 at 08:22:50AM -0800, Michael Chan wrote:
+> > > If I got the discussion so far correctly then the PCI-SGI spec does not
+> > > guarantee that there is no posting, but you know that the chipset
+> > > you are using right now doesn't do it.
+> > 
+> > Yes, that's my understanding of the spec. Grant Grundler does not agree
+> >  and thinks that non-posting is the only compliant implementation.
+> 
+> That's not what I said. I think we do agree. I'll rephrase.
+> The code currently in arch/i386 and arch/x86_64 support a chipset that
+> is compliant with the part of the spec that requires non-postable
+> config writes.
+> 
+> Other chipsets can implement postable config space. To be compliant
+> with the ECN, the architecture must define a method to guarantee
+> the posted writes have reached the target device. I think the
+> ECN we've been talking about assumes that method will be implemented
+> in firmware somehow and NOT as a direct access method in the OS.
+
+Hmm, but there is no way for the chipset to tell us that this 
+is needed. 
+
+Perhaps we really need to special case this and add posted pci config
+writes to handle Michael's power management issue properly. 
+
+That would be definitely the safer approach.
+
+> 
+> > I wish he was right as it would be the easiest to deal with.
+> > We contacted Intel about the out-of-spec readl when writing to
+> > the PMCSR to change power state as they were the original author
+> > of the mmconfig code. Their solution was to remove the readl after
+> > confirming that mmconfig was non-posted on their chipsets.
+> 
+> That means someone has to introduce a new method to access
+> mmconfig if they implement postable writes.
 
 
-Just noticed this: 
-
-First I think it would be better if you used the same format
-(with u64) as x86-64 because this is a user visible interface,
-and we get problems with 32bit emulation if it's too different.
-
-Also it would allow to share the mcelog.c codebase.
-
-> +
-> +struct mce {
-> +	u64 tsc;	/* cpu timestamp counter */
-> +	u32 stsl;
-> +	u32 stsh;
-> +	u32 miscl;
-> +	u32 misch;
-> +	u32 addrl;
-> +	u32 addrh;
-> +	u32 mcgstl;
-> +	u32 mcgsth;
-> +	u32 eip;
-> +	u8  cs;		/* code segment */
-> +	u8  bank;	/* machine check bank */
-> +	u8  cpu;	/* cpu that raised the error */
-> +	u8  finished;	/* entry is valid */
-> +	void *ext_arg;	/* extended feature arg */
-
-A pointer? That doesn't make sense. This record must 
-be self contained because it is passed by read() 
+Problem is that it adds silently a very subtle bug and there
+is no way I know of for ACPI to tell the firmware it shouldn't use
+posting. The driver should know when the read is forbidden though.
 
 -Andi

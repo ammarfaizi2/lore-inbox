@@ -1,77 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262963AbTJEDqG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 23:46:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbTJEDqG
+	id S262965AbTJEDyI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 23:54:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262968AbTJEDyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 23:46:06 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:42949 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S262963AbTJEDqD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 23:46:03 -0400
-Date: Sat, 4 Oct 2003 20:45:33 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Larry McVoy <lm@bitmover.com>, Rob Landley <rob@landley.net>,
-       andersen@codepoet.org, "Henning P. Schmiedehausen" <hps@intermeta.de>,
-       Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
-Message-ID: <20031005034533.GA29679@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	viro@parcelfarce.linux.theplanet.co.uk,
-	Larry McVoy <lm@bitmover.com>, Rob Landley <rob@landley.net>,
-	andersen@codepoet.org,
-	"Henning P. Schmiedehausen" <hps@intermeta.de>,
-	Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-References: <20030914064144.GA20689@codepoet.org> <bk30f1$ftu$2@tangens.hometree.net> <20030915055721.GA6556@codepoet.org> <200310041952.09186.rob@landley.net> <20031005010521.GA21138@work.bitmover.com> <20031005023428.GI7665@parcelfarce.linux.theplanet.co.uk>
+	Sat, 4 Oct 2003 23:54:08 -0400
+Received: from mail.kroah.org ([65.200.24.183]:14766 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262965AbTJEDyE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 23:54:04 -0400
+Date: Sat, 4 Oct 2003 20:48:17 -0700
+From: Greg KH <greg@kroah.com>
+To: reg@dwf.com
+Cc: linux-kernel@vger.kernel.org, reg@orion.dwf.com
+Subject: Re: trying to get udev running with 2.6.0-test6
+Message-ID: <20031005034816.GA9384@kroah.com>
+References: <20031004213909.GA8566@kroah.com> <200310050209.h9529gSm002941@orion.dwf.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031005023428.GI7665@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
-	required 7, AWL)
+In-Reply-To: <200310050209.h9529gSm002941@orion.dwf.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 05, 2003 at 03:34:28AM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Sat, Oct 04, 2003 at 06:05:21PM -0700, Larry McVoy wrote:
-> > 
-> > Yeah, but Linus stating his position about a license doesn't mean diddly.
-> > The kernel is licensed under a license, that license is a contract that
-> > people enter into.  To the extent that it is enforceable, that license
-> > determines what happens, Linus can't retroactively decide to interpret
-> > the license a different way.  The license can't enforce things which
-> > the law doesn't allow.  In particular, the law understands a concept of
-> > a boundary.  And Linus' comments notwithstanding, modules are a pretty
-> > clear boundary.  Even the GPL acks this, it knows that anything which
-> > is clearly separable is not covered.
+On Sat, Oct 04, 2003 at 08:09:42PM -0600, reg@dwf.com wrote:
 > 
-> Oh, for fuck sake!  Larry, grep the damn tree for EXPORT_SYMBOL.  And
-> count them.  _IF_ it would be a relatively sane set of primitives - sure,
-> no arguments.  It's not.  Nowhere near that.
+> I did a couple of greps of the code, found that there was some debugging
+> support, changed the syslog to print this stuff out, and ran your two tests.
+> 
+> My problem is in the same place in both, probably 80 lines or so in, where
+> I get the sequence:
+> 
+>     Oct  4 19:41:52 orion udev: udev_init: sysfs_path = /sysfs
+>     Oct  4 19:41:52 orion udev: get_class_dev: looking at    
+> /sysfs/class/tty/ttyUSB0
+>     Oct  4 19:41:52 orion udev: get_class_dev: sysfs_open_class_device failed
+> 
+> And, yes your code is smart enough to find the sysfs, nomatter whare it is 
+> mounted,
+> be that /sys or /sysfs.  For the other test the middle line is replaced with
+> 
+>     Oct  4 19:57:35 orion udev: get_class_dev: looking at /sysfs/block/sda
+> 
+> In neither case does the LAST component of the name exist in the real /dev 
+> filesystem.
 
-You're missing what the law sees as a boundary.  It's really simple,
-as far as I can tell, and it doesn't matter how many symbols there are
-or are not.  If you can pull out one wad of code and drop in another
-and everything works as before then that is a boundary.
+Then the test wouldn't have helped you out any, as it needs those
+devices present.  Those tests were what I used in debugging, I need to
+build them up into some real test cases.
 
-A great example of this is a device driver.  Again, I'm not a lawyer
-although I've spent a fair amount of time discussing this topic with
-lawyers, but it sure seems like that an objective judge would say that
-the GPL cannot cross the device driver boundary.
+>     Oct  4 20:06:35 orion kernel: hub 3-0:1.0: new USB device on port 2, 
+> assigned address 4
+>     Oct  4 20:06:35 orion udev: main: looking at /devices/pci0000:00/0000:00:0d
+> .0/usb3/3-2
+>     Oct  4 20:06:35 orion udev: main: not block or class
+>     Oct  4 20:06:35 orion udev: main: looking at /devices/pci0000:00/0000:00:0d
+> .0/usb3/3-2/3-2:2.0
+>     Oct  4 20:06:35 orion udev: main: not block or class
 
-People get all worked up over this but when they do then they should
-also claim that system calls are not a boundary either.
+Hm, does this USB device actually work on your machine?  Do you have the
+usb-storage driver and the scsi stuff loaded?  You need to have that
+loaded for udev to be able to work.
 
-By the way, I have no personal or business desire to argue this one way
-or the other, I'm not trying to make money off of something like a driver
-linked with the kernel or anything remotely similar.  All I'm doing is
-telling you what I understand to be the law.  You can do with it what
-you will but don't shoot the messenger (or at least don't expect me to
-change my tune when you do).
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+> But just a REALLY dumb question, one that should be answered in the README or 
+> INSTALL or something.  If this *were* working, where would I expect to
+> see the new fs entry appear?  in /udev, in /dev, somewhare else?  Ive
+> been looking everywhere, but with the above error, havent seen
+> anything yet.
+
+You should see the device node created in /udev.  But it should also
+show up in sysfs too, and it doesn't seem like that is hapening, so udev
+can't really work yet.
+
+Thanks for putting up with some very rough code.
+
+Hope this helps,
+
+greg k-h

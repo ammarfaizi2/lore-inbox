@@ -1,80 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261872AbULaMIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbULaMIE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbULaMIG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 07:08:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbULaMHr
+	id S261943AbULaMIE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 07:08:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbULaMHe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 07:07:47 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58530 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261872AbULaMGH
+	Fri, 31 Dec 2004 07:07:34 -0500
+Received: from out007pub.verizon.net ([206.46.170.107]:33759 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S261868AbULaMFz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 07:06:07 -0500
-Date: Fri, 31 Dec 2004 07:16:01 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Felipe Erias <charles.swann@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Queues when accessing disks
-Message-ID: <20041231091601.GB10834@logos.cnet>
-References: <169c13c404123019322a766f64@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 31 Dec 2004 07:05:55 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.10-ac1
+Date: Fri, 31 Dec 2004 07:05:52 -0500
+User-Agent: KMail/1.7
+Cc: Jan Dittmer <jdittmer@ppp0.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <1104103881.16545.2.camel@localhost.localdomain> <200412302006.19872.gene.heskett@verizon.net> <41D52275.8030100@ppp0.net>
+In-Reply-To: <41D52275.8030100@ppp0.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <169c13c404123019322a766f64@mail.gmail.com>
-User-Agent: Mutt/1.5.5.1i
+Message-Id: <200412310705.52976.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.52.185] at Fri, 31 Dec 2004 06:05:54 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 31, 2004 at 04:32:59AM +0100, Felipe Erias wrote:
-> Hi,
+On Friday 31 December 2004 04:57, Jan Dittmer wrote:
+>Gene Heskett wrote:
+>> On Thursday 30 December 2004 18:38, Alan Cox wrote:
+>>
+>> Thanks for the reply Alan, I appreciate it.
+>>
+>>>On Iau, 2004-12-30 at 05:05, Gene Heskett wrote:
+>>>>some sort of an error message that looks like it may be memory
+>>>>related.  There's a pair of half giggers in here, running at 333
+>>>>fsb, but they are supposedly rated for a 400 mhz fsb. Thats
+>>>>presumably because I have turned on the MCE stuffs.
+>>>
+>>>MCE's generally come from the processor. To decode it you need to
+>>>know what CPU and then get the manuals out and decode the bits.
+>
+>Here is a tool for it: (parsemce.c)
+>
+>http://www.kernel.org/pub/linux/kernel/people/davej/tools/
+>
+>Though I do not know for which processors it is supposed to work.
+>
+>Jan
 
-Hi Felipe,
+Well, I've played with it some, but it doesn't seem to see the MCE 
+events that are in fact in /var/log/messages.
+[root@coyote root]# parsemce -i </var/log/messages
+This file contains no MCE dump
+[root@coyote root]# parsemce -f /var/log/messages
+This file contains no MCE dump
 
-> I'm trying to apply queuing theory to the study of the GNU/Linux kernel.
-> Right now, I'm focusing in the queue of processes that appears when they
-> try to access an I/O device (specifically, an IDE HD).
+If I feed it the lines with the numbers it reports something about an 
+invalid IP on restart.
 
-Interesting!
+[root@coyote root]# parsemce -e Bank 2: d40040000000017a -b Bank 2: -s 
+d40040000000017a
+Status: (ba) Error IP valid
+Restart IP invalid.
 
-> When they want to read data, it behaves as a usual queue: several clients (processes) that
-> require attention from a server (disk / driver / ...). The case when they want
-> to write data is a bit more tricky, because of the cache buffers used by the OS,
-> and maybe could be modelized by a network of queues. 
+The exact same output is obtained from the Bank 1 message & numbers 
+too.
 
-Well read's also go through the pagecache, so you "suffer" from the same caching 
-issue.
+So I think I do not know how to use it.  Or the severeity of the 
+report isn't high enough.  The logfile is currently about 1.27 megs 
+but that doesn't seem to be a problem.  I haven't seen any more of 
+them since I turned off the nonfatal exceptions in .config.  The 
+logfile has several hundred K of samba errors from the plain 2.6.10 
+kernel.
 
-> Both cases are
-> interesting for my work, but I'll take the reading one first, just
-> because it seems
-> a bit more simple 'a priori'.
-> 
-> To modelize the queue, I need to get some information:
->  - what processes claim attention from the disk
->  - when they do it
->  - when they begin to be served
->  - when they finish being served
-
-Its a bit more complicated than that because requests will be often shared, and 
-its not always the process who initiates the request who actually perform it.
-
-For example writes are often performed by pdflush (the flushing daemon) and not 
-the process(es) which initiated them.
-
-Another thing is that on a real system you will have a _huge_ amount of statistical data.
-
-> To get all this information, maybe I could hack my kernel a bit to write
-> a line to a log on every access to the HD, or account the IRQs from
-> the IDE channels... I also have the feeling that this queuing problem could
-> dissappear o became more hidden if DMA were enabled.
-> 
-> To be true, I'm a bit lost and that's why I ask for your help.
-
-Linux Trace Toolkit can give you detailed per-process statistics. You should
-take a look at it 
-
-http://www.opersys.com/LTT/
-
-Good luck!
-
-
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.31% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

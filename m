@@ -1,60 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289783AbSBEUVH>; Tue, 5 Feb 2002 15:21:07 -0500
+	id <S289803AbSBEUcT>; Tue, 5 Feb 2002 15:32:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289794AbSBEUU6>; Tue, 5 Feb 2002 15:20:58 -0500
-Received: from acl.lanl.gov ([128.165.147.1]:63093 "HELO acl.lanl.gov")
-	by vger.kernel.org with SMTP id <S289783AbSBEUUs>;
-	Tue, 5 Feb 2002 15:20:48 -0500
-Date: Tue, 5 Feb 2002 13:20:46 -0700
-From: "Erik A. Hendriks" <hendriks@lanl.gov>
-To: marcelo@conectiva.com.br, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Linux 2.4.17,2.5.3 process ID allocator isn't quite SMP safe.
-Message-ID: <20020205132046.D5217@lanl.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S289806AbSBEUcJ>; Tue, 5 Feb 2002 15:32:09 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:18700 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP
+	id <S289803AbSBEUb7>; Tue, 5 Feb 2002 15:31:59 -0500
+Message-ID: <00c301c1ae83$fc92ea40$760010ac@edumazet>
+From: "Eric Dumazet" <eric.dumazet@cosmosbay.com>
+To: "Rik van Riel" <riel@conectiva.com.br>, "Pavel Machek" <pavel@suse.cz>
+Cc: "Jeff Garzik" <garzik@havoc.gtf.org>, <arjan@fenrus.demon.nl>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0202051644340.12225-100000@duckman.distro.conectiva>
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+Date: Tue, 5 Feb 2002 21:30:05 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The get_pid function in kernel/fork.c returns the value of last_pid
-after releasing the lock protecting it.  On SMPs, I have observed two
-processes occasionally being assigned the same process ID as a result.
+> On Tue, 5 Feb 2002, Pavel Machek wrote:
+>
+> > > > > the biggest reason for this is that we *suck* at readahead for
+mmap....
+> > > >
+> > > > Is there not also fault overhead and similar issues related to
+mmap(2)
+> > > > in general, that are not present with read(2)/write(2)?
+> > >
+> > > If a fault is more expensive than a system call, we're doing
+> > > something wrong in the page fault path ;)
+> >
+> > You can read 128K at a time, but you can't fault 128K...
+>
+> Why not ?
+>
+> If the pages are present (read-ahead) and the page table
+> is present, I see no reason why we couldn't fill in 32
+> page table entries at once.
+>
+> Rik
 
-I'm pretty sure the sequence of events looks like this: The first
-process releases the lock after coming up with a suitable pid (stored
-in last_pid).  Then after it releases the lock but before it does the
-return (IRQ or something happens here to create delay?) another
-processor comes a long and updates it.  Then get_pid returns the value
-of last_pid which is now the pid chosen by the other process.
+Well, filling 32 page tables entries at once is certainly a big readahead...
+for the common cases.
 
-Attached below is a little patch to fix it.
+Maybe this high number could be a result of a madavise(..., MADV_SEQUENTIAL
+or MAP_WILLNEED)
+Solaris does exactly this kind of trick.
 
-- Erik
-
---- linux-2.4.17/kernel/fork.c.orig	Mon Feb  4 14:53:31 2002
-+++ linux-2.4.17/kernel/fork.c	Mon Feb  4 14:53:53 2002
-@@ -85,6 +85,7 @@
- {
- 	static int next_safe = PID_MAX;
- 	struct task_struct *p;
-+	int pid;
- 
- 	if (flags & CLONE_PID)
- 		return current->pid;
-@@ -120,9 +121,10 @@
- 		}
- 		read_unlock(&tasklist_lock);
- 	}
-+	pid = last_pid;
- 	spin_unlock(&lastpid_lock);
- 
--	return last_pid;
-+	return pid;
- }
- 
- static inline int dup_mmap(struct mm_struct * mm)
+Eric
 
 

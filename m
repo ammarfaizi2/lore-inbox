@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266166AbUHAUUL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266170AbUHAU1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266166AbUHAUUL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 16:20:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266173AbUHAUUL
+	id S266170AbUHAU1N (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 16:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266173AbUHAU1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 16:20:11 -0400
-Received: from ctb-mesg6.saix.net ([196.25.240.78]:35218 "EHLO
-	ctb-mesg6.saix.net") by vger.kernel.org with ESMTP id S266166AbUHAUUF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 16:20:05 -0400
-Subject: Re: 2.6.8-rc2-np1
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <4104DC13.3050201@yahoo.com.au>
-References: <4104DC13.3050201@yahoo.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Ca8wNybWayxUnEc0eJL/"
-Message-Id: <1091391786.9815.2.camel@nosferatu.lan>
+	Sun, 1 Aug 2004 16:27:13 -0400
+Received: from bbned23-32-100.dsl.hccnet.nl ([80.100.32.23]:25297 "EHLO
+	fw-loc.vanvergehaald.nl") by vger.kernel.org with ESMTP
+	id S266170AbUHAU1M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Aug 2004 16:27:12 -0400
+Date: Sun, 1 Aug 2004 22:26:59 +0200
+From: Toon van der Pas <toon@hout.vanvergehaald.nl>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SCSI removable devices problem
+Message-ID: <20040801202659.GA30205@hout.vanvergehaald.nl>
+References: <20040801141931.6e026422.pochini@shiny.it> <20040801092421.3f138fac.rddunlap@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 01 Aug 2004 22:23:06 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040801092421.3f138fac.rddunlap@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Aug 01, 2004 at 09:24:21AM -0700, Randy.Dunlap wrote:
+> On Sun, 1 Aug 2004 14:19:31 +0200 Giuliano Pochini wrote:
+> 
+> > mount: /dev/sdb1 is not a valid block device
+> 
+> I think that it's been this way for some time now...
+> 
+> Does using
+> 	blockdev --rereadpt /dev/sdb1
+> help?
 
---=-Ca8wNybWayxUnEc0eJL/
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+You probably meant to write:
+	blockdev --rereadpt /dev/sdb
 
-On Mon, 2004-07-26 at 12:25, Nick Piggin wrote:
-
-Hi,
-
-> http://www.kerneltrap.org/~npiggin/2.6.8-rc2-np1/
->=20
-> There is also a patch against 2.6.8-rc1-mm1. The naming scheme is a bit
-> confused at the moment :(
->=20
-
-Any chance of doing a patch against -bk11 ?  I did try to do this
-myself (can forward if you like - its against -bk11 with the domain
-patches from -mm1), but the lru_pages changes is a bit sticky (for
-me at least), and I am not sure if its Ok ...
-
-
-Thanks,
-
---=20
-Martin Schlemmer
-
---=-Ca8wNybWayxUnEc0eJL/
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBDVEqqburzKaJYLYRAqK8AJ9fFM1SI/0cQQd23m6sQT9OS/k43gCePQWe
-uUm+8BfdhNqRGsLdJqdYUUM=
-=4vub
------END PGP SIGNATURE-----
-
---=-Ca8wNybWayxUnEc0eJL/--
-
+Regards,
+Toon.
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

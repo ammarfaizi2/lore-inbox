@@ -1,38 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132900AbRDQWAH>; Tue, 17 Apr 2001 18:00:07 -0400
+	id <S132901AbRDQWBj>; Tue, 17 Apr 2001 18:01:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132901AbRDQV75>; Tue, 17 Apr 2001 17:59:57 -0400
-Received: from postfix1-2.free.fr ([213.228.0.130]:17938 "HELO
-	postfix1-2.free.fr") by vger.kernel.org with SMTP
-	id <S132900AbRDQV7u>; Tue, 17 Apr 2001 17:59:50 -0400
-Message-ID: <3ADCBAA3.8F78775A@free.fr>
-Date: Tue, 17 Apr 2001 23:50:27 +0200
-From: Phil <philippe.amelant@free.fr>
-X-Mailer: Mozilla 4.76 [fr] (X11; U; Linux 2.4.3 i686)
+	id <S132904AbRDQWBb>; Tue, 17 Apr 2001 18:01:31 -0400
+Received: from central.caverock.net.nz ([210.55.207.1]:45839 "EHLO
+	central.caverock.net.nz") by vger.kernel.org with ESMTP
+	id <S132901AbRDQWAz>; Tue, 17 Apr 2001 18:00:55 -0400
+Message-ID: <3ADCBBA3.760C71CE@flying-brick.caverock.net.nz>
+Date: Wed, 18 Apr 2001 09:54:46 +1200
+From: viking <viking@flying-brick.caverock.net.nz>
+Organization: The Flying Brick Computer
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.3 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Ide performance (was RAID0 Performance problems)
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: James Simmons <jsimmons@linux-fbdev.org>
+CC: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org
+Subject: Won't Power down (Was: More about 2.4.3 timer problems)
+In-Reply-To: <Pine.LNX.4.10.10104170922070.2330-100000@www.transvirtual.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le 15 Apr 2001 21:08:04 +0200, Andreas Peter a écrit :
-> Hi,
-> I've posted about performance problems with my RAID0 setup.
-> RAID works fine, but it's too slow.
+James Simmons wrote:
 
-Hi
+> >Thanks, that solved my problem.  Have added it to the patch...
+> >THe patch & 2.4.3 kernel seem to be working well, except that I can't get
+> >PowerOff to kick in - it stops dead there, where it used to power down.
+>
+> Is this the case when the patch is removed as well. When does this occur
+> exactly? After you load the module? Do you get any oops messages or does
+> it just hang.
 
-I have the same problem, but i think it 's a BX chipset related problem.
+<comedy>
+Module? What module?  I don't need no steenking module to power down.
+I jest pull de plug outta de wall!
+</comedy>
 
-I Have a BP6 whit a BX chipset and a htp 366 chipset.
-on a single device, hdparm report ~ 18/19 MB/s
+It has happened with both straight kernel, and patched.
+Incidentally, Andrew, thanks for that patch. And thanks to
+James Simmons too, for that Makefile fix.
+I get (on a Mandrake 7.2+bits of 8 system) roughly:
 
-with 2 devices on the same chipset (hda/hdc) 
-hdparm report ~ 9 MB/s each
+Starting killall script [OK}
+Setting hardware clock to system time  [OK]
+Unmounting filesystems [OK]
+The system is halted.   <===== issued by rc  script
+Power Down.         <========= issued by printk
 
-with 2 devices not on the same chipset (hda/hdg)
-hdparm report ~ 16/17 MB/s
+... and it stops there... instead of turning the power off like it did under
+2.2.18 and earlier.
+No kernel oops message.  Also, SysRq-O doesn't work - it just puts SysRq: up
+on the screen.
+The other SysRq functions  I've tried work - (Kill), (Sync), (reBoot).
+Thanks for your continued monitoring.
+
+--
+ /|   _,.:*^*:.,   |\           Cheers from the Viking family,
+| |_/'  viking@ `\_| |            including Pippin, our cat
+|    flying-brick    | $FunnyMail  Bilbo   : Now far ahead the Road has gone,
+ \_.caverock.net.nz_/     5.39    in LOTR  : Let others follow it who can!
+
+
+

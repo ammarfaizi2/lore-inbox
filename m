@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261491AbSJYQsJ>; Fri, 25 Oct 2002 12:48:09 -0400
+	id <S261489AbSJYQvN>; Fri, 25 Oct 2002 12:51:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261490AbSJYQsJ>; Fri, 25 Oct 2002 12:48:09 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:60826 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261489AbSJYQsH>;
-	Fri, 25 Oct 2002 12:48:07 -0400
-Date: Fri, 25 Oct 2002 18:53:54 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Markus Plail <plail@web.de>
-Cc: linux-kernel@vger.kernel.org, Vegard.Lima@hia.no,
-       matthias.welk@fokus.gmd.de
-Subject: Re: [Bug] 2.5.44-ac2 cdrom eject panic
-Message-ID: <20021025165354.GG4153@suse.de>
-References: <20021025103631.GA588@giantx.co.uk> <20021025103938.GN4153@suse.de> <87adl2is1u.fsf@gitteundmarkus.de> <20021025144224.GW4153@suse.de> <87pttyh3r5.fsf@gitteundmarkus.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87pttyh3r5.fsf@gitteundmarkus.de>
+	id <S261490AbSJYQvN>; Fri, 25 Oct 2002 12:51:13 -0400
+Received: from 1-116.ctame701-1.telepar.net.br ([200.181.137.116]:43191 "EHLO
+	1-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261489AbSJYQvM>; Fri, 25 Oct 2002 12:51:12 -0400
+Date: Fri, 25 Oct 2002 14:57:09 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: James Cleverdon <jamesclv@us.ibm.com>
+cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@digeo.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Kswapd madness in 2.4 kernels
+In-Reply-To: <200210242026.13071.jamesclv@us.ibm.com>
+Message-ID: <Pine.LNX.4.44L.0210251456210.1995-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.44L.0210251456212.1995@imladris.surriel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 25 2002, Markus Plail wrote:
-> Hi Jens!
-> 
-> * Jens Axboe writes:
-> >Please try:
-> >*.kernel.org/pub/linux/kernel/people/axboe/patches/v2.5/2.5.44/sgio-16.bz2
->                                                                      ^^16b
-> >That should fix the silly panic.
-> 
-> Yes it does. I can't burn though. I attached the cdrecord output. Hava
-> a look at the Blocks numbers. Although the image is only 500MB, it says
-> it wouldn't fit on the disc which is 700MB. In another try it wanted to
-> start burning although I had a bought audio CD in the burner.
+On Thu, 24 Oct 2002, James Cleverdon wrote:
 
-As a hack, can you change:
+> We have some customers with some fairly beefy servers.  They can get the
+> system into an unusable state that has been reported on lkml before.
 
-	if ((rq->flags & REQ_BLOCK_PC) && !rq->errors)
-		rq->errors = sense_key;
+> The two attached patches applied to 2.4.19 fix the problem on our test boxes.
+>
+> Are these patches still considered a good idea for 2.4?  Is there something
+> better I should be using?
 
-in drivers/ide/ide-cd.c:cdrom_decode_status() to
+Yes, these patches are a good idea.  I'm curious why they
+haven't been submitted to Marcelo yet ;)
 
-	if ((rq->flags & REQ_BLOCK_PC) && !rq->errors)
-		rq->errors = 2;
-
+Rik
 -- 
-Jens Axboe
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 

@@ -1,33 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261821AbVCLBSg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261822AbVCLBWf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261821AbVCLBSg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 20:18:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261828AbVCLBSg
+	id S261822AbVCLBWf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 20:22:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261828AbVCLBWf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 20:18:36 -0500
-Received: from lakshmi.addtoit.com ([198.99.130.6]:46352 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261821AbVCLBRr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 20:17:47 -0500
-Message-Id: <200503120346.j2C3j9Jp006543@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: Adrian Bunk <bunk@stusta.de>
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [PATCH 4/9] UML - Export gcov symbol based on gcc version 
-In-Reply-To: Your message of "Sat, 12 Mar 2005 00:37:22 +0100."
-             <20050311233722.GS3723@stusta.de> 
-References: <200503100216.j2A2G2DN015232@ccure.user-mode-linux.org> <20050310225340.GD3205@stusta.de> <200503111849.j2BImsJp003370@ccure.user-mode-linux.org> <20050311165526.GA3723@stusta.de> <200503112354.j2BNrFJp005237@ccure.user-mode-linux.org>  <20050311233722.GS3723@stusta.de> 
+	Fri, 11 Mar 2005 20:22:35 -0500
+Received: from fire.osdl.org ([65.172.181.4]:24196 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261822AbVCLBWa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 20:22:30 -0500
+Date: Fri, 11 Mar 2005 17:22:28 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] Prefaulting
+Message-Id: <20050311172228.773cf03d.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503110444220.19419@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0503110444220.19419@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 11 Mar 2005 22:45:09 -0500
-From: Jeff Dike <jdike@addtoit.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bunk@stusta.de said:
-> No, my claim is that no sane gcc 3.3 defines __gcov_init. 
+Christoph Lameter <clameter@sgi.com> wrote:
+>
+> This patch allows to aggregate multiple page faults into a single one. It
+> does that by detecting that an application generates a sequence of page
+> faults.
+> 
+> ...
+> Results that show the impact of this patch are available at
+> http://oss.sgi.com/projects/page_fault_performance/
 
-Ah, OK.  Thanks for the clarification.
+There are a lot of numbers there.  Was there an executive summary?
 
-				Jeff
+>From a quick peek it seems that the patch makes negligible difference for a
+kernel compilation when prefaulting 1-2 pages and slows the workload down
+quite a lot when prefaulting up to 16 pages.
 
+And for the uniprocessor "200 Megabyte allocation without prezeroing. 
+Single thread." workload it appears that the prefault patch slowed it down
+by 4x.
+
+Am I misreading the results?  If not, it's a bit disappointing.

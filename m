@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289001AbSAFSie>; Sun, 6 Jan 2002 13:38:34 -0500
+	id <S289004AbSAFSkE>; Sun, 6 Jan 2002 13:40:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289003AbSAFSiZ>; Sun, 6 Jan 2002 13:38:25 -0500
-Received: from unknown-1-11.wrs.com ([147.11.1.11]:16820 "EHLO mail.wrs.com")
-	by vger.kernel.org with ESMTP id <S289001AbSAFSiO>;
-	Sun, 6 Jan 2002 13:38:14 -0500
-From: mike stump <mrs@windriver.com>
-Date: Sun, 6 Jan 2002 10:37:26 -0800 (PST)
-Message-Id: <200201061837.KAA19546@kankakee.wrs.com>
-To: dewar@gnat.com, guerby@acm.org
-Subject: Re: [PATCH] C undefined behavior fix
-Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org, paulus@samba.org,
-        trini@kernel.crashing.org, velco@fadata.bg
+	id <S289005AbSAFSjy>; Sun, 6 Jan 2002 13:39:54 -0500
+Received: from mercury.ccmr.cornell.edu ([128.84.231.97]:58891 "EHLO
+	mercury.ccmr.cornell.edu") by vger.kernel.org with ESMTP
+	id <S289004AbSAFSjk>; Sun, 6 Jan 2002 13:39:40 -0500
+From: Daniel Freedman <freedman@ccmr.cornell.edu>
+Date: Sun, 6 Jan 2002 13:39:39 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
+Message-ID: <20020106133939.A6408@ccmr.cornell.edu>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: dewar@gnat.com
-> To: dewar@gnat.com, guerby@acm.org
-> Date: Sun,  6 Jan 2002 08:43:53 -0500 (EST)
 
-> The point is that the implementation of a write has, given your
-> quote from the RM, pretty much no choice but to do an exactly
-> "correct" write, but for a read, there is nothing to stop reading
-> MORE than the minimum, the requirement of atomicity is still
-> met.
+On Jan 01 2002, H. Peter Anvin (hpa@zytor.com) wrote:
+> By author: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> >
+> > > 2. Isn't the boundary at 2^30 really irrelevant and the three "correct"
+> > > zones are (0 - 2^24-1), (2^24 - 2^32-1) and (2^32 - 2^36-1)?
+> >
+> > Nope. The limit for directly mapped memory is 2^30.
+> >
+> 
+> 2^30-2^27 to be exact (assuming a 3:1 split and 128MB vmalloc zone.)
+> 
+>         -hpa
 
-Ok, we can agree the wording in the standard sucks.  Though, I think
-we might be able to agree on the intent and goal of the wording.  It
-isn't allowed to mandate the byte read/write, as the machine may not
-support it, and that would artificially constrain the machine from
-being implementable on the platform, and this would be a bad idea.
+For my better understanding, where's the 128MB vmalloc zone assumption
+defined, please?
 
-I think the goal and intent, for Ada and C as well, is to say that the
-compiler will generate what is possible from assembly code written by
-an expert on the platform, using the best fitting access that is
-possible.
+I'm pretty sure I understand that the 3:1 split you refer to is
+defined by PAGE_OFFSET in asm-i386/page.h
 
-Once we understand the standard and the motivation behind it, and what
-it is trying to provide our users, and how our users might reasonably
-use it, we can mandate for ourselves as a quality of implementation
-issue, if you would like to call it that, those reasonable semantics.
-Should we fail to provide them, and should users want them, then it is
-finally up to the users to more completely describe the language they
-want, and refine the language standards to include it.  But, in spite
-of that, we don't have to go out of our way to do stupid things, nor
-should be brow beat our users with, your code isn't conformant
-needlessly.  It is all to easy to do that, we should resist the
-temptation.
+But when I tried to find the answer in the source for the vmalloc
+zone, I looked in linux/mm.h, linux/mmzone.h, linux/vmalloc.h, and
+mm/vmalloc.c, but couldn't find anything there or in O'Reilly's kernel
+book that I could follow/understand.
+
+Thanks for any pointers.
+
+Take care,
+
+Daniel
+
+-- 
+Daniel A. Freedman
+Laboratory for Atomic and Solid State Physics
+Department of Physics
+Cornell University

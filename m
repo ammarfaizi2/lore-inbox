@@ -1,76 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266417AbSL2Prk>; Sun, 29 Dec 2002 10:47:40 -0500
+	id <S264962AbSL2QWf>; Sun, 29 Dec 2002 11:22:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266431AbSL2Prk>; Sun, 29 Dec 2002 10:47:40 -0500
-Received: from web13204.mail.yahoo.com ([216.136.174.189]:54279 "HELO
-	web13204.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S266417AbSL2Pri>; Sun, 29 Dec 2002 10:47:38 -0500
-Message-ID: <20021229155600.95805.qmail@web13204.mail.yahoo.com>
-Date: Sun, 29 Dec 2002 07:56:00 -0800 (PST)
-From: Anomalous Force <anomalous_force@yahoo.com>
-Subject: Re: holy grail
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Werner Almesberger <wa@almesberger.net>, ebiederm@xmission.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.50L.0212281842020.26879-100000@imladris.surriel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265012AbSL2QWf>; Sun, 29 Dec 2002 11:22:35 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:45194 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S264962AbSL2QWe>; Sun, 29 Dec 2002 11:22:34 -0500
+Message-Id: <4.3.2.7.2.20021229173032.00b57740@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Sun, 29 Dec 2002 17:31:30 +0100
+To: linux-kernel@vger.kernel.org
+From: margitsw@t-online.de (Margit Schubert-While)
+Subject: Re: [PATCHSET] 2.4.21-pre2-jp15
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ld -m elf_i386 -T /var/tmp/linux-2.4.20/arch/i386/vmlinux.lds -e stext 
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o 
+init/version.o init/do_mounts.o \
+         --start-group \
+         arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o 
+mm/mm.o fs/fs.o ipc/ipc.o \
+          drivers/acpi/acpi.o drivers/char/char.o drivers/block/block.o 
+drivers/misc/misc.o drivers/net/net.o drivers/media/media.o 
+drivers/char/drm/drm.o drivers/net/fc/fc.o 
+drivers/net/appletalk/appletalk.o drivers/net/tokenring/tr.o 
+drivers/net/wan/wan.o drivers/atm/atm.o drivers/ide/idedriver.o 
+drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/pci/driver.o 
+drivers/net/pcmcia/pcmcia_net.o drivers/net/wireless/wireless_net.o 
+drivers/video/video.o drivers/net/hamradio/hamradio.o drivers/md/mddev.o 
+drivers/isdn/vmlinux-obj.o drivers/sensors/sensor.o \
+         net/network.o \
+         grsecurity/grsec.o \
+         crypto/crypto.o \
+         /var/tmp/linux-2.4.20/arch/i386/lib/lib.a 
+/var/tmp/linux-2.4.20/lib/lib.a /var/tmp/linux-2.4.20/arch/i386/lib/lib.a \
+         --end-group \
+         -o vmlinux
+drivers/char/char.o: In function `sysrq_handle_preempt_log':
+drivers/char/char.o(.text+0x1c79e): undefined reference to `show_preempt_log'
+make: *** [vmlinux] Error 1
 
---- Rik van Riel <riel@conectiva.com.br> wrote:
-> On Sat, 28 Dec 2002, Anomalous Force wrote:
-> > --- Werner Almesberger <wa@almesberger.net> wrote:
-> >
-> > > because it would be completely unmaintainable (1,2). (I expect
-> to
-> >
-> > this is not true. if the system were an integral part of the
-> overall
-> > design, then programming would include it apriori.
-> 
-> This has been said before, but "for some reason" everybody
-> who said it went quiet the moment they started working on
-> a patch and have never been heard from again.
-> 
-> Either they're still working on the problem (after a four
-> years) or they've moved on to an easier/realistic project.
+Margit 
 
-i have stated this would be extremely difficult. no single person
-could attempt this without the support of the other developers as
-the effort must include all aspects of the kernel to some extent.
-the original discussion for this was to show that kexec() _could_
-become something that is a holy grail amoung kernel developers:
-hot-swap. if all of the kernel developers think this can not be done,
-then it is not worth discussion any further. for a single person to
-make this happen, it would require that a single kernel version
-become frozen, and all aspects of it altered to support the
-operations of hot swapping. in such a senario, the development of
-the mainstream kernel would have progressed to the point that
-any attempting to apply a patch would prove futile as the code base
-for the patch has become obsolete. it is for this reason that i say
-it would take the awareness of all the developers moving forward.
-
-> 
-> regards,
-> 
-> Rik
-> -- 
-> Bravely reimplemented by the knights who say "NIH".
-> http://www.surriel.com/		http://guru.conectiva.com/
-> Current spamtrap:  <a
-href=mailto:"october@surriel.com">october@surriel.com</a>
-
-
-=====
-Main Entry: anom·a·lous 
-1 : inconsistent with or deviating from what is usual, normal, or expected: IRREGULAR, UNUSUAL
-2 (a) : of uncertain nature or classification (b) : marked by incongruity or contradiction : PARADOXICAL
-synonym see IRREGULAR
-
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
-http://mailplus.yahoo.com

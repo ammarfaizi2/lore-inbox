@@ -1,52 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263840AbUEXCj5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263845AbUEXClp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263840AbUEXCj5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 22:39:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263842AbUEXCj5
+	id S263845AbUEXClp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 22:41:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263842AbUEXClo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 22:39:57 -0400
-Received: from holomorphy.com ([207.189.100.168]:33670 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263840AbUEXCj4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 22:39:56 -0400
-Date: Sun, 23 May 2004 19:39:52 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Phy Prabab <phyprabab@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 4g/4g for 2.6.6
-Message-ID: <20040524023952.GL1833@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Phy Prabab <phyprabab@yahoo.com>, linux-kernel@vger.kernel.org
-References: <20040523194302.81454.qmail@web90007.mail.scd.yahoo.com> <Pine.LNX.4.58.0405231329460.25502@ppc970.osdl.org>
+	Sun, 23 May 2004 22:41:44 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:45300 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S263845AbUEXCll (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 22:41:41 -0400
+Date: Sun, 23 May 2004 22:41:36 -0400
+From: Tom Vier <tmv@comcast.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel 2.6.6 IDE shutdown problems.
+Message-ID: <20040524024136.GB2502@zero>
+Reply-To: Tom Vier <tmv@comcast.net>
+References: <BAY18-F105X7rz6AvEm0002622f@hotmail.com> <200405151506.20765.bzolnier@elka.pw.edu.pl> <c8bdqv$lib$1@gatekeeper.tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0405231329460.25502@ppc970.osdl.org>
+In-Reply-To: <c8bdqv$lib$1@gatekeeper.tmr.com>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 23, 2004 at 01:32:19PM -0700, Linus Torvalds wrote:
-> Quite frankly, a number of us are hoping that we can make them
-> unnecessary. The cost of the 4g/4g split is absolutely _huge_ on some
-> things, including basic stuff like kernel compiles.
-> The only valid reason for the 4g split is that the VM doesn't always 
-> behave well with huge amounts of highmem. The anonvma stuff in 2.6.7-pre1 
-> is hoped to make that much less of an issue.
-> Personally, if we never need to merge 4g for real, I'll be really really 
-> happy. I see it as a huge ugly hack.
+On Mon, May 17, 2004 at 06:25:51PM -0400, Bill Davidsen wrote:
+> I would think that if the drive didn't properly flush cache on shutdown 
+> that it might cause corruption. Feel free to tell me no drive would 
+> bahave like that ;-)
 
-The performance can be improved by using a u area to store and map
-things like vmas, kernel stacks, pagetables, file handles and
-descriptor tables, and the like with supervisor privileges in the same
-set of pagetables as the user context so that system calls may be
-serviced without referencing the larger global kernel data area, which
-would require the %cr3 reload. This does, however, seem at odds with
-Linux' design in a number of respects, e.g. vmas etc. are on lists
-containing elements belonging to different contexts. I suspect kernels
-doing this would have to architect their page replacement algorithms
-and truncate() semantics so as to avoid these out-of-context accesses
-or otherwise suffer these operations being inefficient.
+why not add a one or two second delay before? i doubt any drive holds its
+writeback that long.
 
--- wli
+-- 
+Tom Vier <tmv@comcast.net>
+DSA Key ID 0x15741ECE

@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132021AbRCVOeK>; Thu, 22 Mar 2001 09:34:10 -0500
+	id <S132028AbRCVO13>; Thu, 22 Mar 2001 09:27:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132032AbRCVOeA>; Thu, 22 Mar 2001 09:34:00 -0500
-Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:65295 "HELO
-	ztxmail05.ztx.compaq.com") by vger.kernel.org with SMTP
-	id <S132021AbRCVOdp>; Thu, 22 Mar 2001 09:33:45 -0500
-Reply-To: <frey@cxau.zko.dec.com>
-From: "Martin Frey" <frey@scs.ch>
-To: "'Benjamin Herrenschmidt'" <benh@kernel.crashing.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: kernel_thread vs. zombie
-Date: Thu, 22 Mar 2001 06:32:52 -0800
-Message-ID: <004c01c0b2dc$fa6ab3e0$90600410@SCHLEPPDOWN>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20010322114927.14509@mailhost.mipsys.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
-Importance: Normal
+	id <S132030AbRCVO1S>; Thu, 22 Mar 2001 09:27:18 -0500
+Received: from elektra.higherplane.net ([203.37.52.137]:3498 "EHLO
+	elektra.higherplane.net") by vger.kernel.org with ESMTP
+	id <S132028AbRCVO1L>; Thu, 22 Mar 2001 09:27:11 -0500
+Date: Fri, 23 Mar 2001 01:30:29 +1100
+From: john slee <indigoid@higherplane.net>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Where's Alan?
+Message-ID: <20010323013029.F28007@higherplane.net>
+In-Reply-To: <ggnjbtciq3909gn5kg0iqqj2jqk3j7f1it@4ax.com> <99cnj3$5ij$1@voyager.cistron.net> <15033.59920.519379.825531@pizda.ninka.net> <3ABA03F1.74C74A90@coppice.org> <15034.1416.38648.681507@pizda.ninka.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <15034.1416.38648.681507@pizda.ninka.net>; from davem@redhat.com on Thu, Mar 22, 2001 at 06:00:40AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Mar 22, 2001 at 06:00:40AM -0800, David S. Miller wrote:
+> 
+> Steve Underwood writes:
+>  > "David S. Miller" wrote:
+>  > > They needed some help from him to position Mir for it's
+>  > > final descent.
+>  >
+>  > Strange. I thought his key skill was stopping things from crashing!
+> 
+> This crash was inevitable, he's just making sure the disks get
+> sync'd.
 
->How do I force a kernel thread to always be a child of init and never
->become a zombie ?
->
->I do call daemonize at the beginning of the thread (as it won't do
->anything with files, signals or whatever), but that doesn't 
->seem to be enough.
->
-Have a look at:
-http://www.scs.ch/~frey/linux/kernelthreads.html
-I have an example there that starts and stops kernel threads
-from init_module and never produced a zombie.
-I use the same code also to start threads from ioctl and it
-works for me. I tested it on UP and SMP, Intel and Alpha,
-2.2.18 and 2.4.2.
-
-Regards,
-
-Martin
+he won't even get a free taco for his efforts :-(
 
 -- 
-Supercomputing Systems AG       email: frey@scs.ch
-Martin Frey                     web:   http://www.scs.ch/~frey/
-at Compaq Computer Corporation  phone: +1 603 884 4266
-ZKO2-3P09, 110 Spit Brook Road, Nashua, NH 03062
-
+"Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson

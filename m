@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129527AbRBLSQG>; Mon, 12 Feb 2001 13:16:06 -0500
+	id <S129276AbRBLSe5>; Mon, 12 Feb 2001 13:34:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130350AbRBLSPz>; Mon, 12 Feb 2001 13:15:55 -0500
-Received: from ns.suse.de ([213.95.15.193]:5135 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129527AbRBLSPu>;
-	Mon, 12 Feb 2001 13:15:50 -0500
-Date: Mon, 12 Feb 2001 18:48:16 +0100
-From: Olaf Hering <olh@suse.de>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, autofs@linux.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: race in autofs / nfs
-Message-ID: <20010212184816.C3778@suse.de>
-In-Reply-To: <20010211211701.A7592@suse.de> <3A86F6AA.1416F479@transmeta.com> <shsbss8i8iq.fsf@charged.uio.no> <20010212111448.A28932@suse.de> <20010212125115.B30552@suse.de> <3A881FA7.2C5C8CBE@transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A881FA7.2C5C8CBE@transmeta.com>; from hpa@transmeta.com on Mon, Feb 12, 2001 at 09:38:47AM -0800
+	id <S129405AbRBLSeq>; Mon, 12 Feb 2001 13:34:46 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:32158 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S129276AbRBLSec>;
+	Mon, 12 Feb 2001 13:34:32 -0500
+Date: Mon, 12 Feb 2001 13:33:50 -0500 (EST)
+From: Richard A Nelson <cowboy@vnet.ibm.com>
+X-X-Sender: <cowboy@badlands.lexington.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.2.19pre10:x!
+In-Reply-To: <E14SNMh-0007fo-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0102121329410.22778-100000@badlands.lexington.ibm.com>
+X-No-Markup: yes
+x-No-ProductLinks: yes
+x-No-Archive: yes
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 12, H. Peter Anvin wrote:
+On Mon, 12 Feb 2001, Alan Cox wrote:
 
-> Olaf Hering wrote:
-> > 
-> > The autofs4.o is the culprit, it works perfect with autofs.o.
-> > 
-> > What would happen if I stick with autofs.o now?
-> > The docu recommends autofs4 in modules.conf.
-> > 
-> 
-> I don't know who came up with that idea.  You should use the module that
-> matches your daemon, and not try to hack around so that there is a
-> module/daemon mismatch.
+> > First, I'm glad I wasn't hallucinating, and that the mail did indeed get
+> > seen by someone.
+> >
+> > Second, instead of reverting, can't we simply move those two lines up a
+> > bit:
+>
+> Possibly but its a minor item that doesnt really matter anyway so leaving it
+> is fine
 
-cantaloupe:~ # /usr/sbin/automount -v 
-Linux automount version 4.0.0
+Ah, but it does matter !  We break compatibility with other systems (and
+our manpages, and possibly standards) if we don't mark the segment
+IPC_PRIVATE upon removal -
 
+Marking the segment IPC_PRIVATE allows its continued use by those alread
+connected to the segment (until the count drops to zero, and its
+deleted), but *prevents* new users from attaching to the segment.
 
-We had 4.0pre7 in 7.0 and 4.0pre9 in 7.1.
-I would really like to know _where_ it hangs, Trond sent me a printk
-patch but this one was not called. 
-I will try to get a i386 SMP machine to see if its ppc specific.
-
-
-Gruss Olaf
-
+I started down this road because we weren't marking the segment, was
+delighted to see it done in pre3 - but it seemed like the setting
+wasn't always done ;-{
 -- 
- $ man clone
+Rick Nelson
+Life'll kill ya                         -- Warren Zevon
+Then you'll be dead                     -- Life'll kill ya
 
-BUGS
-       Main feature not yet implemented...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

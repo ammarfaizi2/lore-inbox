@@ -1,66 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267310AbSLEMmp>; Thu, 5 Dec 2002 07:42:45 -0500
+	id <S267312AbSLEMqn>; Thu, 5 Dec 2002 07:46:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267311AbSLEMmp>; Thu, 5 Dec 2002 07:42:45 -0500
-Received: from ns.suse.de ([213.95.15.193]:47621 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267310AbSLEMmo>;
-	Thu, 5 Dec 2002 07:42:44 -0500
-To: Chris Adams <cmadams@hiwaay.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: #! incompatible -- binfmt_script.c broken?
-References: <20021204205945.A233182@hiwaay.net>
-	<20021205121250.GE15405@merlin.emma.line.org>
-X-Yow: Somewhere in suburban Honolulu, an unemployed bellhop is whipping up
- a batch of illegal psilocybin chop suey!!
-From: Andreas Schwab <schwab@suse.de>
-Date: Thu, 05 Dec 2002 13:50:18 +0100
-In-Reply-To: <20021205121250.GE15405@merlin.emma.line.org> (Matthias
- Andree's message of "Thu, 5 Dec 2002 13:12:50 +0100")
-Message-ID: <jebs40635h.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.3.50 (ia64-suse-linux)
+	id <S267313AbSLEMqn>; Thu, 5 Dec 2002 07:46:43 -0500
+Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:56749 "HELO
+	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id <S267312AbSLEMqm>; Thu, 5 Dec 2002 07:46:42 -0500
+From: "Joseph D. Wagner" <wagnerjd@prodigy.net>
+To: "'Shane Helms'" <shanehelms@eircom.net>, "'Ed Vance'" <EdV@macrolink.com>,
+       "'jeff millar'" <wa1hco@adelphia.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: is KERNEL developement finished, yet ???
+Date: Thu, 5 Dec 2002 06:54:17 -0600
+Message-ID: <000901c29c5d$6d194760$2e833841@joe>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+In-Reply-To: <200212051224.50317.shanehelms@eircom.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree <matthias.andree@gmx.de> writes:
+> if you're implying that we can start once
+> again from bottom, and come up with something
+> better that unix (which has been opensource,
+> around for long while, tested and developed
+> by many as well) I _HIGHLY_ doubt, and disagree.
 
-|> On Wed, 04 Dec 2002, Chris Adams wrote:
-|> 
-|> > Try the following under your shell.  On Solaris and Tru64 sh and ksh, it
-|> > is handled with no error.  Under bash (on Linux, Solaris, and Tru64), it
-|> > returns an error:
-|> > 
-|> > $ set "-- xyzzy"
-|> > $ echo $?
-|> > 
-|> > According to SUSv3, bash is not compliant, because for set, under the
-|> > section "CONSEQUENCES OF ERRORS" is listed "None." and the "EXIT STATUS"
-|> > is "Zero."
-|> 
-|> > Fix the shell(s).
-|> 
-|> That's correct. But how do you derive that the sh command line must
-|> behave the same? The sh command is not the sh special built-in.
-|> 
-|> However, it would be reasonable if a /bin/sh set $1 to be "-- xyzzy" if
-|> a file "foo" with
-|> 
-|> #! /bin/sh -- xyzzy
-|> 
-|> was executed (as path = [/bin/sh] argv = [./foo] [-- xyzzy]);
-|> and although I didn't check, I wonder how shells without the "--" long
-|> options parse that line.
+Yes and no.
 
-POSIX is quite clear about that: only "--" as a single argument is
-defined, other uses are undefined.
+Unix (and Linux) developers are far too concerned with clinging to the
+30-year-old outdated POSIX standard, which creates numerous problems when
+trying to advance new features.  For example, the POSIX standard is the
+reason we have the three-by-three secure permissions on files (three users:
+owner, group, everyone; three permissions: read, write, execute) instead of
+Access Control Lists (ACL's).
 
-Andreas.
+This is not a design flaw per say, but let's face it: Unix would be a lot
+more secure (and more flexible in it's security) with ACL's.
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Microsoft Windows has had ACL's since 1991 (Windows NT 3.5?); that was 11
+years ago.  Linux is just now developing ACL's in some of the beta kernels.
+(By "Linux" I mean the official Linux kernel as distributed by
+www.kernel.org not these stupid add-on's and patches released by
+third-parties)
+
+> I doubt there be any such errors (mistakes) if ANY
+
+I don't know of any mistakes per say, but if I had to do it over again,
+there's about a thousands things I'd do differently (preference in design
+choices, not mistakes) especially not to cling so religiously to POSIX
+compliance.
+

@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135444AbRDVXUo>; Sun, 22 Apr 2001 19:20:44 -0400
+	id <S136308AbRDWAGD>; Sun, 22 Apr 2001 20:06:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135455AbRDVXUe>; Sun, 22 Apr 2001 19:20:34 -0400
-Received: from chaplin.csd.uwo.ca ([129.100.10.252]:9164 "EHLO
-	chaplin.csd.uwo.ca") by vger.kernel.org with ESMTP
-	id <S135444AbRDVXUU>; Sun, 22 Apr 2001 19:20:20 -0400
-Date: Sun, 22 Apr 2001 19:21:42 -0400 (EDT)
-From: "J. Liu" <jliu@csd.uwo.ca>
-To: mec@shout.net, linux-kernel@vger.kernel.org
-Subject: error in Menuconfig
-Message-ID: <Pine.LNX.3.96.1010422191707.10957A-100000@dba007.csd.uwo.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135481AbRDWAFx>; Sun, 22 Apr 2001 20:05:53 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:23560 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S135468AbRDWAFg>;
+	Sun, 22 Apr 2001 20:05:36 -0400
+Date: Sun, 22 Apr 2001 20:05:38 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+Cc: Alexander Viro <viro@math.psu.edu>, Francois Romieu <romieu@cogenit.fr>,
+        CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: Request for comment -- a better attribution system
+Message-ID: <20010422200538.A32011@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+	Alexander Viro <viro@math.psu.edu>,
+	Francois Romieu <romieu@cogenit.fr>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <esr@thyrsus.com> <200104222322.f3MNMje8007324@sleipnir.valparaiso.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200104222322.f3MNMje8007324@sleipnir.valparaiso.cl>; from vonbrand@sleipnir.valparaiso.cl on Sun, Apr 22, 2001 at 07:22:45PM -0400
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Horst von Brand <vonbrand@sleipnir.valparaiso.cl>:
+> Then explain to everybody here in a language they'll understand _what_ is
+> wrong and _why_. Then propose a solution.
 
-Q> scripts/Menuconfig: MCmenu39: command not found
- 
-Please report this to the maintainer <mec@shout.net>.  You may also
-send a problem report to <linux-kernel@vger.kernel.org>.
- 
-Please indicate the kernel version you are trying to configure and
-which menu you were trying to enter when this error occurred.
- 
-make: *** [menuconfig] Error 1    
+I'm on it.  You'll see the results fairly shortly.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-
-SuSE Linux 7.1 Professional, Kernel 2.2.18
-
-I got this error message when I was trying to add ACL patch to the kernel.
-
-
+Strict gun laws are about as effective as strict drug laws...It pains
+me to say this, but the NRA seems to be right: The cities and states
+that have the toughest gun laws have the most murder and mayhem.
+        -- Mike Royko, Chicago Tribune

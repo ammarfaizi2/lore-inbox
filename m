@@ -1,36 +1,39 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154713AbPFIGSw>; Wed, 9 Jun 1999 02:18:52 -0400
-Received: by vger.rutgers.edu id <S154651AbPFIGSo>; Wed, 9 Jun 1999 02:18:44 -0400
-Received: from marvin.muc.de ([193.149.48.2]:3577 "HELO marvin.muc.de") by vger.rutgers.edu with SMTP id <S154592AbPFIGSA>; Wed, 9 Jun 1999 02:18:00 -0400
-To: muc-lists-linux-kernel@moderators.muc.de
-Path: news.btx.dtag.de!not-for-mail
-From: Gerald Engelhardt <gren@innoregio.net>
-Newsgroups: muc.lists.linux-kernel
-Subject: Linux Internet Service Center
-Date: Wed, 09 Jun 1999 08:13:06 +0200
-Organization: www.innoregio.net
-Message-ID: <375E05F2.A9B2437B@innoregio.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Trace: news08.btx.dtag.de 928909067 5057 04292409961-0001 990609 06:17:47
-X-Complaints-To: abuse@t-online.de
-X-Mailer: Mozilla 4.5 [de]C-CCK-MCD QXW03202  (Win95; I)
-X-Accept-Language: de,en
+Received: by vger.rutgers.edu via listexpand id <S155016AbPFKJ07>; Fri, 11 Jun 1999 05:26:59 -0400
+Received: by vger.rutgers.edu id <S154844AbPFKJ0s>; Fri, 11 Jun 1999 05:26:48 -0400
+Received: from styx.cs.kuleuven.ac.be ([134.58.40.3]:52011 "EHLO styx.cs.kuleuven.ac.be") by vger.rutgers.edu with ESMTP id <S154807AbPFKJ0Z>; Fri, 11 Jun 1999 05:26:25 -0400
+Date: Fri, 11 Jun 1999 11:26:09 +0200 (CEST)
+From: Geert Uytterhoeven <Geert.Uytterhoeven@cs.kuleuven.ac.be>
+To: Denis Oliver Kropp <dok@fischlustig.de>
+cc: LKML <linux-kernel@vger.rutgers.edu>
+Subject: Re: FBIO_COPYBOX, FBIO_RECTFILL
+In-Reply-To: <99060823022501.00994@master>
+Message-ID: <Pine.LNX.4.10.9906111124590.19262-100000@mercator.cs.kuleuven.ac.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hallo,
-die gemeinnützige Bürgerinitiative www.innoRegio.net organisiert
-europaweit Existenzgründungen in einem Europa der innovativen Regionen.
-Kommunikationszentren sind die Agoras (Webs) und hierfür soll ein
-Franchising System mittelständischer Provider und Internet Service
-Center mit gleichem proprietärem Leistungsspektrum auf Linux-Basis
-aufgebaut werden. Schaut doch mal rein und macht mit.
+On Tue, 8 Jun 1999, Denis Oliver Kropp wrote:
+> I like fbdev very well, but I would apreciate a method
+> for hardware blits and fills.
+> Would be very easy to add this functionality to fbcon.
+> I tested it with matroxfb.
+> E.g. ClanLib that uses fbdev would be times faster.
+> 
+> Any oppinions?
 
-Gerald Engelhardt
-gren@innoRegio.net
+Generic hardware blits do not belong in the kernel.
 
+Reasoning: http://www.cs.kuleuven.ac.be/~geert/Linux/Expo/.
 
+Greetings,
+
+						Geert
+
+--
+Geert Uytterhoeven                     Geert.Uytterhoeven@cs.kuleuven.ac.be
+Wavelets, Linux/{m68k~Amiga,PPC~CHRP}  http://www.cs.kuleuven.ac.be/~geert/
+Department of Computer Science -- Katholieke Universiteit Leuven -- Belgium
 
 
 -

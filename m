@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271269AbTGWW1a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 18:27:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271358AbTGWW1a
+	id S271365AbTGWWa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 18:30:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271367AbTGWWaZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 18:27:30 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:3823 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S271269AbTGWW10
+	Wed, 23 Jul 2003 18:30:25 -0400
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:4847 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S271365AbTGWWaR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 18:27:26 -0400
-Subject: Re: [uClinux-dev] Kernel 2.6 size increase
+	Wed, 23 Jul 2003 18:30:17 -0400
+Subject: Re: [uClinux-dev] Kernel 2.6 size increase - get_current()?
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Bernardo Innocenti <bernie@develer.com>, Christoph Hellwig <hch@lst.de>,
-       uClinux development list <uclinux-dev@uclinux.org>,
+To: Bernardo Innocenti <bernie@develer.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       "David S. Miller" <davem@redhat.com>, uclinux-dev@uclinux.org,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030723222747.GF643@alpha.home.local>
+In-Reply-To: <200307240035.38502.bernie@develer.com>
 References: <200307232046.46990.bernie@develer.com>
-	 <20030723193246.GA836@lst.de> <200307232357.25128.bernie@develer.com>
-	 <200307240007.15377.bernie@develer.com>
-	 <20030723222747.GF643@alpha.home.local>
+	 <20030723132256.58ee50e7.davem@redhat.com>
+	 <20030723212755.A608@infradead.org> <200307240035.38502.bernie@develer.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1058999665.6890.19.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1058999786.6890.21.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Jul 2003 23:34:26 +0100
+Date: 23 Jul 2003 23:37:22 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-07-23 at 23:27, Willy Tarreau wrote:
-> I was interested in using a very minimal pre-boot kernel with kexec which would
-> automatically select a valid image among several ones. But 500 kB overhead for
-> a boot loader quickly refrained me...
+On Mer, 2003-07-23 at 23:35, Bernardo Innocenti wrote:
+> It's a sequence of 6 instructions, 18 bytes long, clobbering 4 registers.
+> The compiler cannot see around it.
+> This takes 18*11 = 198 bytes just for invoking the 'current'
+> macro so many times.
 
-Something like the GPL'd eCos might be a better option (or on x86 there
-is the 64K Linux 8086)
+Unless you support SMP I'm not sure I understand why m68k nommu changed
+from using a global for current_task ?
 

@@ -1,44 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287827AbSBCW0C>; Sun, 3 Feb 2002 17:26:02 -0500
+	id <S287828AbSBCW1N>; Sun, 3 Feb 2002 17:27:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287831AbSBCWZw>; Sun, 3 Feb 2002 17:25:52 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21252 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S287827AbSBCWZs>; Sun, 3 Feb 2002 17:25:48 -0500
-Message-ID: <3C5DB8B7.4030304@zytor.com>
-Date: Sun, 03 Feb 2002 14:24:55 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
+	id <S287831AbSBCW05>; Sun, 3 Feb 2002 17:26:57 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:11653 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S287828AbSBCW0k>;
+	Sun, 3 Feb 2002 17:26:40 -0500
+Date: Mon, 4 Feb 2002 01:24:20 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Steffen Persvold <sp@scali.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Short question regarding generic_make_request()
+In-Reply-To: <3C5DB730.B54B17B4@scali.com>
+Message-ID: <Pine.LNX.4.33.0202040123540.19055-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Rob Landley <landley@trommello.org>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>,
-        "Erik A. Hendriks" <hendriks@lanl.gov>,
-        Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-        Werner Almesberger <wa@almesberger.net>
-Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
-In-Reply-To: <m1elk7d37d.fsf@frodo.biederman.org> <m1y9ia76f7.fsf@frodo.biederman.org> <3C5D91EB.4000900@zytor.com> <20020203221750.HMXG18301.femail20.sdc1.sfba.home.com@there>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
 
-> 
-> And el-torito bootable CDs basically glue a floppy image onto the front of 
-> the CD and lie to the bios to say "oh yeah, I'm a floppy, boot from me".  
-> Luckily, they can use the old 2.88 "extended density" floppy standard IBM 
-> tried to launch years ago which never got anywhere, but which most BIOS's 
-> recognize.  But that's still a fairly small place to try to stick a whole 
-> system...
-> 
+On Sun, 3 Feb 2002, Steffen Persvold wrote:
 
+> OK, so are there any other way I can submit a block request from a
+> tasklet (that is interrupt context, right ?) ?
 
-They can be; they can also run in a mode where they can access arbitrary 
-blocks on the CD (ISOLINUX runs in this mode.)
+submitting IO is something that needs a process context currently, ie. a
+helper kernel thread.
 
-	-hpa
-
+	Ingo
 

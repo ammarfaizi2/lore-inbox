@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269515AbRGaWdp>; Tue, 31 Jul 2001 18:33:45 -0400
+	id <S269512AbRGaWdF>; Tue, 31 Jul 2001 18:33:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269513AbRGaWdf>; Tue, 31 Jul 2001 18:33:35 -0400
-Received: from boreas.isi.edu ([128.9.160.161]:4313 "EHLO boreas.isi.edu")
-	by vger.kernel.org with ESMTP id <S269508AbRGaWd2>;
-	Tue, 31 Jul 2001 18:33:28 -0400
-To: Riley Williams <rhw@MemAlpha.CX>
-cc: Matti Aarnio <matti.aarnio@zmailer.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: OT: Virii on vger.kernel.org lists 
-In-Reply-To: Your message of "Tue, 31 Jul 2001 23:17:13 BST."
-             <Pine.LNX.4.33.0107312312360.31582-100000@infradead.org> 
-Date: Tue, 31 Jul 2001 15:33:11 -0700
-Message-ID: <1661.996618791@ISI.EDU>
-From: Craig Milo Rogers <rogers@ISI.EDU>
+	id <S269508AbRGaWcp>; Tue, 31 Jul 2001 18:32:45 -0400
+Received: from anime.net ([63.172.78.150]:18703 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S269507AbRGaWcm>;
+	Tue, 31 Jul 2001 18:32:42 -0400
+Date: Tue, 31 Jul 2001 15:32:39 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
+To: Jussi Laako <jlaako@pp.htv.fi>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+In-Reply-To: <3B672C6B.9AC418B0@pp.htv.fi>
+Message-ID: <Pine.LNX.4.30.0107311526360.13810-100000@anime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> > Better than that, simply strip all non-text MIME attachments, or
-> > bounce the messages containing them.  End of story.
->
->Two problems with that:
->
-> 1. Some virii are text attachments. Your fix doesn't deal wioth them.
+On Wed, 1 Aug 2001, Jussi Laako wrote:
+> I'd be very happy with full data journalling even with 50% performance
+> penalty... There are applications that require extreme data integrity all
+> times no matter what happens.
 
-	I'm not aware of the TEXT/PLAIN viruses (ignoring jokes, er,
-social comments, about the GPL).  Could you point me to a sample?
+How about an idea I proposed a while back, 'integrity loopback'?
 
-> 2. The maintainer of the XXX driver just uploaded a large patch that
->    fixes a major bug in their driver to the mailing list, and zip'd
->    it up to reduce its size. You just bounced it...
+A loopback device which writes a CRC with each block and checks the CRC
+when read back.
 
-	I recall from past discussions that there's considerable
-sentiment on l-k that zip'd patches are undesirable.  If the patch is
-inconveniently large, it can be split into several messages, or placed
-on an FTP server.  Inconvenient for the developer, maybe, but better
-for the list as a whole.
+So if you have a flaky DMA controller, bad cables, etc you will know
+instantly. It would at least help catch the 'silent corruption' cases.
 
-	Separately, I think we've spent enough time with the off-topic
-topic.  Perhaps we can move the discussion offline?
+-Dan
 
-					Craig Milo Rogers
-
+-- 
+[-] Omae no subete no kichi wa ore no mono da. [-]
 

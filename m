@@ -1,120 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262391AbUKDTuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262388AbUKDT6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262391AbUKDTuF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 14:50:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbUKDTkE
+	id S262388AbUKDT6M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 14:58:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262393AbUKDTyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 14:40:04 -0500
-Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:41392 "EHLO
-	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S262427AbUKDTdw convert rfc822-to-8bit (ORCPT
+	Thu, 4 Nov 2004 14:54:23 -0500
+Received: from fw.osdl.org ([65.172.181.6]:13512 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262388AbUKDTw2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 14:33:52 -0500
-X-OB-Received: from unknown (205.158.62.81)
-  by wfilter.us4.outblaze.com; 4 Nov 2004 19:33:49 -0000
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+	Thu, 4 Nov 2004 14:52:28 -0500
+Date: Thu, 4 Nov 2004 11:52:22 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: question on common error-handling idiom
+In-Reply-To: <4187E920.1070302@nortelnetworks.com>
+Message-ID: <Pine.LNX.4.58.0411041140410.2187@ppc970.osdl.org>
+References: <4187E920.1070302@nortelnetworks.com>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Clayton Weaver" <cgweav@email.com>
-To: linux-kernel@vger.kernel.org
-Date: Thu, 04 Nov 2004 14:33:49 -0500
-Subject: Re: support of older compilers
-X-Originating-Ip: 172.159.84.227
-X-Originating-Server: ws1-2.us4.outblaze.com
-Message-Id: <20041104193349.9DE511F50B1@ws1-2.us4.outblaze.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->If people are willing to download and compile
->a new kernel (and migrating from 2.4 to 2.6
->is non-trivial for some systems, like RH9),
->why aren't they willing to also download
->and build a new compiler?
 
-It is not necessarily that they are unwilling,
-it is a question of trust (in the output
-of the compiler) and of the inconvenience of
-multiple concurrent gcc version installations
-(paths; hint: this needs to be simpler).
 
-Example:
+On Tue, 2 Nov 2004, Chris Friesen wrote:
+> 
+> While nice to read, it would seem that it might be more efficient to do the 
+> following:
+> 
+> if (error condition) {
+> 	err = -ERRORCODE;
+> 	goto out;
+> }
+> 
+> 
+> Is there any particular reason why the former is preferred?  Is the compiler 
+> smart enough to optimize away the additional write in the non-error path?
 
-I've been using gcc-2.95.3 with a security-patched
-glibc-2.2.5, and I wanted to upgrade to glibc-2.3.2
-(lots of bugs gone and more Posix/SUS compliance
-added in the years in between 2.2.5 and 2.3.2).
+Quite often, the additional write is _faster_ in the non-error path.
 
-For that I needed gcc-3.x. So, in succession,
-I downloaded and compiled gcc-3.3.2, 3.4.0, and 3.4.1,
-against both glibc-2.2.5 and glibc-2.3.2, with the
-latest binutils at the time (which works with any
-of those compiler and glibc versions).
+If it's a plain register, the obvious code generation for the above is
 
-I found that none of the gcc 3.x versions could
-correctly compile a construct like this
-(independent of runtime glibc version):
+		..
+		testl error-condition
+		je no_error
+		movl $-XXX,%eax
+		jmp out;
+	no_error:
+		...
 
-file1.h:
+which is a lot slower (for the common non-error case) than
 
-/* header boilerplate to avoid multiple #includes of
-   the same file */
+	
+		movl $-XXX,%eax
+		testl error-condition
+		jne out
 
-#define STR1  "string 1"
+because forward branches are usually predicted not-taken when no other 
+prediction exists.
 
-file2.c:
+You can do the same thing with
 
-#include "file1.h"
+	if (unlikely(error condition)) {
+		err = -ERRORCODE;
+		goto out;
+	}
 
-const char * str2 = "whatever"STR1"stuff this\n\
-string has in it"STR1" and so on ad infinitum\n\
-"STR1"yada yada"; 
+which is hopefully even better, but the fact is, the regular
 
-/* this was actually about 40 lines, maybe more,
-   with maybe 10 instances of "../"STR1"..." */
+	err = -ERRORCODE;
+	if (error condition)
+		goto out;
 
-All of the gcc-3.x versions would bail with
-an error trying to compile that str2 definition
-in file2.c.
+is just _smaller_ and simpler and quite often more readable anyway.
 
-They didn't always fail on literal string
-concatenation (IIRC some short ones compiled
-ok), but they consistently failed to concatenate
-literal strings correctly for some source
-files that gcc-2.95.3 would compile correctly
-every time.
+It has the added advantage that it tends to stylistically match what I 
+consider the proper error return behaviour, ie
 
-(The glibc trees had distributor patches, so I filed
-the bug report via their support, in order for
-them to see whether their patches were responsible
-for the error, assuming that they would forward
-it on if not.)
+	err = function_returns_errno(...)
+	if (err)
+		goto out;
 
-In sum: for production code it doesn't matter
-what all a new C compiler version can do that
-the old one could not if it won't compile
-quite ordinary standard C correctly.
+ie it looks syntactically identical when "error condition" and the error 
+value happen to be one and the same. Which is, after all, _the_ most 
+common case.
 
-"So what else is wrong with it that we
-aren't seeing?"
+So I personally tend to prefer the simple format for several reasons. 
+It's small, it's consistent, and it maps well to good code generation.
 
-It would be good to have bugs fixed in the
-new compilers, because they obviously have
-some advantages (I noticed that gcc-3.4.x
-seemed quite a bit faster than 2.95.3 when
-compiling glibc, and it would nice if as
-no longer randomly choked on the x86 code
-generated after using -fprofile-arcs and
--fbranch-probabilities, something that
-occasionally happens with gcc-2.95.3).
+The code generation part ends up being nice when something goes wrong.  
+When somebody sends in an oops, I often end up having to look at the
+disassembly (and no, a fancy debugger wouldn't help - I'm talking about
+the disassembly of the "code" portion of the oops itself, and matching it
+up with the source tree - the oops doesn't come with the whole binary),
+and then having code generation match the source makes things a _lot_
+easier.
 
-But one does occasionally need to get some
-other work done besides new compiler
-development.
+Does it make sense for other projects? Dunno. But it is, as you noted, a 
+common idiom in the kernel. Getting used to it just makes it even more 
+readable.
 
--- 
-___________________________________________________________
-Sign-up for Ads Free at Mail.com
-http://promo.mail.com/adsfreejump.htm
-
+			Linus

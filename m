@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266188AbUH0Pi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266296AbUH0Pif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266188AbUH0Pi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 11:38:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266216AbUH0Piz
+	id S266296AbUH0Pif (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 11:38:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266295AbUH0Pie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 11:38:55 -0400
-Received: from atropo.wseurope.com ([195.110.122.67]:41180 "EHLO
-	atropo.wseurope.com") by vger.kernel.org with ESMTP id S266188AbUH0Pgj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 11:36:39 -0400
-From: Fabio Coatti <cova@ferrara.linux.it>
-Organization: FerraraLUG
-To: Gergely Tamas <dice@mfa.kfki.hu>
-Subject: Re: data loss in 2.6.9-rc1-mm1
-Date: Fri, 27 Aug 2004 17:36:34 +0200
-User-Agent: KMail/1.7
-Cc: Hugh Dickins <hugh@veritas.com>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Andrew Morton <akpm@osdl.org>, Ram Pai <linuxram@us.ibm.com>,
+	Fri, 27 Aug 2004 11:38:34 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:60938 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266216AbUH0Pg4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 11:36:56 -0400
+Date: Fri, 27 Aug 2004 16:36:54 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Patrick Gefre <pfg@sgi.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-ia64@vger.kernel.org,
        linux-kernel@vger.kernel.org
-References: <200408271455.03733.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.44.0408271448041.4725-100000@localhost.localdomain> <20040827141828.GA19272@mfa.kfki.hu>
-In-Reply-To: <20040827141828.GA19272@mfa.kfki.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Subject: Re: Latest Altix I/O code reorganization code
+Message-ID: <20040827163654.A32236@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Patrick Gefre <pfg@sgi.com>, linux-ia64@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <200408042014.i74KE8fD141211@fsgi900.americas.sgi.com> <20040806141836.A9854@infradead.org> <411AAABB.8070707@sgi.com> <412F4EC9.7050003@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200408271736.34672.cova@ferrara.linux.it>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <412F4EC9.7050003@sgi.com>; from pfg@sgi.com on Fri, Aug 27, 2004 at 10:10:01AM -0500
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alle 16:18, venerdì 27 agosto 2004, Gergely Tamas ha scritto:
->  > Hmm, 2.6.9-rc1-mm1 looks like not a release to trust your (page
->  > size multiple) data to!  You should find the patch below fixes it
->  > (and, I hope, the issue the erroneous patches were trying to fix).
->  >
->  > Signed-off-by: Hugh Dickins <hugh@veritas.com>
+On Fri, Aug 27, 2004 at 10:10:01AM -0500, Patrick Gefre wrote:
+> io_init.c  iomv.c  Makefile  pci  pci_dma.c  pci_extension.c
+> 
+> arch/ia64/sn/ioif/pci:
+> Makefile  pcibr_ate.c  pcibr_dma.c  pcibr_provider.c  pcibr_reg.c  xtalk_providers.c
+> 
+
+So why are pci_dma.c and pci_extensions.c not under pci?  You probably should
+just kill that pci subdir, too when there's just two other files left.  Or
+move those two to kernel/ and have a pci/ subdir which seems to fit other
+ports quite well.  But I'd rather see the functional changes first and then
+do renaming of unchanged files last anyway so you changed get actually
+reviewable.  The current patchkit is not.
 
 
-JFYI: It seems that this patch fixes my problem with rpm database as well; 
-thanks a lot.
-
-
--- 
-Fabio "Cova" Coatti    http://members.ferrara.linux.it/cova     
-Ferrara Linux Users Group           http://ferrara.linux.it
-GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
-Old SysOps never die... they simply forget their password.

@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289988AbSAKPWg>; Fri, 11 Jan 2002 10:22:36 -0500
+	id <S289984AbSAKPYG>; Fri, 11 Jan 2002 10:24:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289987AbSAKPW0>; Fri, 11 Jan 2002 10:22:26 -0500
-Received: from smtp04.wxs.nl ([195.121.6.59]:36080 "EHLO smtp04.wxs.nl")
-	by vger.kernel.org with ESMTP id <S289984AbSAKPWU>;
-	Fri, 11 Jan 2002 10:22:20 -0500
-Subject: Re: [PATCH] Combined APM patch
-From: Thomas Hood <jdthood@mail.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 11 Jan 2002 10:22:24 -0500
-Message-Id: <1010762545.788.2.camel@thanatos>
+	id <S289989AbSAKPX5>; Fri, 11 Jan 2002 10:23:57 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18697 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S289984AbSAKPXi>; Fri, 11 Jan 2002 10:23:38 -0500
+Date: Fri, 11 Jan 2002 15:23:32 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] O(1) scheduler, -H5
+Message-ID: <20020111152332.C31366@flint.arm.linux.org.uk>
+In-Reply-To: <20020111145811.B31366@flint.arm.linux.org.uk> <E16P3W4-0007vd-00@the-village.bc.nu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16P3W4-0007vd-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jan 11, 2002 at 03:22:48PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Is it not good practice to note when the code _assumes_ zero-
->> initialization?  I have seen comments like these elsewhere in
->> the kernel sources.
->
-> Comments should _not_ echo code.  One should assumes that the reader
-> knows the language.  Instead, comments should explain _what the
-> purpose_  of that line of code or section of code is if it is not
-> obvious to those that the comments are written to.
+On Fri, Jan 11, 2002 at 03:22:48PM +0000, Alan Cox wrote:
+> > Unfortunately it wasn't a simple "replace global irq with spinlocks" - some
+> > code also got moved around so its not clear that the problem was fixed by
+> > the spinlocks or the code reordering.  I'd rather know which it was.
+> 
+> The code re-ordering fixes the bug. The spinlocks are an unrelated change
+> that belong in a seperate diff.
 
-I agree that comments should not try to explain C to the
-reader.  Comments should provide additional information,
-such as telling the reader what the code is supposed to
-do (as opposed to what it actually does, which may or may
-not be the same thing).
+This is at odds with the evidence at present:
 
-In the line
-    static int suspends_pending; /* = 0 */
-the comment is not there to tell the reader that the variable
-is initialized to zero.  It is there to tell the reader that
-the variable _needs to be_ initialized to zero in order for
-the code to work properly.  This is useful information,
-because if someone later wants to modify the code to make
-this variable non-static, the comment tells that person that
-the variable will need an initializer.
+| I'll give it a try, but from what I experienced in those days was that
+| adding the _spinlock protection_ finally solved all.
 
---
-Thomas
+He tried 2.4.17 without patch which locked up, and then he tried 2.4.17
+with the patch, which didn't.  Unfortunately it contains both the reordering
+and the spinlocking.
 
+I'm trying to work with him at the moment to find out which change fixed
+the problem.
 
-
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

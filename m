@@ -1,92 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131630AbRDFPpv>; Fri, 6 Apr 2001 11:45:51 -0400
+	id <S131742AbRDFPtB>; Fri, 6 Apr 2001 11:49:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131733AbRDFPpl>; Fri, 6 Apr 2001 11:45:41 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:48139 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id <S131630AbRDFPpa>; Fri, 6 Apr 2001 11:45:30 -0400
-From: Norbert Preining <preining@logic.at>
-Date: Fri, 6 Apr 2001 17:44:42 +0200
-To: linux-kernel@vger.kernel.org
-Subject: gcc oopses with 2.4.3
-Message-ID: <20010406174442.A19874@alpha.logic.tuwien.ac.at>
-Mime-Version: 1.0
+	id <S131756AbRDFPsv>; Fri, 6 Apr 2001 11:48:51 -0400
+Received: from smtp.mountain.net ([198.77.1.35]:11278 "EHLO riker.mountain.net")
+	by vger.kernel.org with ESMTP id <S131742AbRDFPsc>;
+	Fri, 6 Apr 2001 11:48:32 -0400
+Message-ID: <3ACDE4F5.BF04F941@mountain.net>
+Date: Fri, 06 Apr 2001 11:47:01 -0400
+From: Tom Leete <tleete@mountain.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.3 i486)
+X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
+MIME-Version: 1.0
+To: smaneesh@in.ibm.com, Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: Race in fs/proc/generic.c:make_inode_number()
+In-Reply-To: <3ACBFF4C.97AA345F@mountain.net> <3ACC82DA.11D76D45@mountain.net> <20010406173129.A14391@in.ibm.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Maneesh Soni wrote:
+> 
+> Just a couple of points:
+> 
+> On Thu, Apr 05, 2001 at 10:36:10AM -0400, Tom Leete wrote:
+> [...]
+> > +spinlock_t proc_alloc_map_lock = RW_LOCK_UNLOCKED;
+> > +
+> Why not make this static?
+> Initializer should be SPIN_LOCK_UNLOCKED.
+> 
 
-I get frequent `internal compiler error', killed with Sig 4  or Sig 11
-and sometimes Ooops from compiling X or kernel. 
+Thanks, you're right on both counts.
 
-System: 2.4.3-vanilla, reiserfs, glibc-2.1.3
-[~] gcc -v
-Reading specs from /usr/lib/gcc-lib/i486-suse-linux/2.95.2/specs
-gcc version 2.95.2 19991024 (release)
+Linus, Alan, this version is more correct. I also checked for other uses of
+proc_alloc_map[], The only case is in deallocation, and it looks ok to me.
 
-
-Here a decoded Ooops:
-
-ksymoops 0.7c on i586 2.4.3.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.3/ (default)
-     -m /boot/System.map-2.4.3 (specified)
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-c0145e41
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[ext2_new_block+317/1808]
-EFLAGS: 00010282
-eax: 00000000   ebx: c7261de8   ecx: 00000000   edx: 00000000
-esi: c6dab000   edi: 00000000   ebp: c7261dec   esp: c7261d9c
-ds: 0018   es: 0018   ss: 0018
-Process cc1 (pid: 20767, stackpage=c7261000)
-Stack: c2f280e0 00000001 c7261e3c 00000001 c01675d0 00000000 00000000 c6dab038 
-       c6dab034 c7261e7c c7261e94 c020e91c 00000001 00000009 00000008 c7cc7c00 
-       c1265800 00000000 c473c9e0 c1264120 c7261e40 c014755c c2f280e0 00000001 
-Call Trace: [search_by_key+2028/3140] [ext2_alloc_block+120/128] [ext2_alloc_branch+41/456] [ext2_get_block+695/1152] [create_empty_buffers+23/108] [__block_prepare_write+234/560] [block_prepare_write+29/52] 
-Code: 74 04 31 d2 eb 52 83 be c8 00 00 00 08 77 20 8d 04 bd 00 00 
-Using defaults from ksymoops -t elf32-i386 -a i386
-
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   74 04                     je     6 <_EIP+0x6> 00000006 Before first symbol
-Code;  00000002 Before first symbol
-   2:   31 d2                     xor    %edx,%edx
-Code;  00000004 Before first symbol
-   4:   eb 52                     jmp    58 <_EIP+0x58> 00000058 Before first symbol
-Code;  00000006 Before first symbol
-   6:   83 be c8 00 00 00 08      cmpl   $0x8,0xc8(%esi)
-Code;  0000000d Before first symbol
-   d:   77 20                     ja     2f <_EIP+0x2f> 0000002f Before first symbol
-Code;  0000000f Before first symbol
-   f:   8d 04 bd 00 00 00 00      lea    0x0(,%edi,4),%eax
-
-
-I hope it helps a bit, but it doesn't look like ;-)
-
-Please Cc: me any answers, thanks!
-
-Best wishes
-
-Norbert
-
+Tom
 
 -- 
-ciao
-norb
+The Daemons lurk and are dumb. -- Emerson
 
-+-------------------------------------------------------------------+
-| Norbert Preining              http://www.logic.at/people/preining |
-| University of Technology Vienna, Austria        preining@logic.at |
-| DSA: 0x09C5B094 (RSA: 0xCF1FA165) mail subject: get [DSA|RSA]-key |
-+-------------------------------------------------------------------+
+diff -u linux-2.4.3/fs/proc/generic.c.orig linux-2.4.3/fs/proc/generic.c
+--- linux-2.4.3/fs/proc/generic.c.orig	Thu Apr  5 10:03:02 2001
++++ linux-2.4.3/fs/proc/generic.c	Thu Apr  5 10:22:48 2001
+@@ -192,13 +192,22 @@
+ 
+ static unsigned char proc_alloc_map[PROC_NDYNAMIC / 8];
+ 
++spinlock_t proc_alloc_map_lock = RW_LOCK_UNLOCKED;
++
+ static int make_inode_number(void)
+ {
+-	int i = find_first_zero_bit((void *) proc_alloc_map, PROC_NDYNAMIC);
+-	if (i<0 || i>=PROC_NDYNAMIC) 
+-		return -1;
++	int i;
++	spin_lock(&proc_alloc_map_lock);
++	i = find_first_zero_bit((void *) proc_alloc_map, PROC_NDYNAMIC);
++	if (i<0 || i>=PROC_NDYNAMIC) {
++		i = -1;
++		goto out;
++	}
+ 	set_bit(i, (void *) proc_alloc_map);
+-	return PROC_DYNAMIC_FIRST + i;
++	i += PROC_DYNAMIC_FIRST;
++out:
++	spin_unlock(&proc_alloc_map_lock);
++	return i;
+ }
+ 
+ static int proc_readlink(struct dentry *dentry, char *buffer, int buflen)

@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262693AbTDVAha (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 20:37:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262700AbTDVAha
+	id S262682AbTDVAuF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 20:50:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262700AbTDVAuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 20:37:30 -0400
-Received: from 198.216-123-194-0.interbaun.com ([216.123.194.198]:50075 "EHLO
-	mail.harddata.com") by vger.kernel.org with ESMTP id S262693AbTDVAh3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 20:37:29 -0400
-Date: Mon, 21 Apr 2003 18:49:33 -0600
-From: Michal Jaegermann <michal@harddata.com>
-To: linux-kernel@vger.kernel.org
-Subject: ENE Technology flash memory reader
-Message-ID: <20030421184933.A17766@mail.harddata.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Mon, 21 Apr 2003 20:50:05 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:61058 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S262682AbTDVAuD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 20:50:03 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 22 Apr 2003 03:02:06 +0200 (MEST)
+Message-Id: <UTC200304220102.h3M126n06187.aeb@smtp.cwi.nl>
+To: hpa@zytor.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new system call mknod64
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have here on a machine a flash card reader with a PCI id 1524:0510.
-In a verbose mode from 'lspci' it identifies itself as
+[You prefer sending to l-k only. But my mailbox is aeb@cwi.nl,
+and l-k is read elsewhere. What you send there I may or may not see.
+If you want me to see it, please cc.]
 
-00:10.1 FLASH memory: ENE Technology Inc: Unknown device 0510
-	Subsystem: Asustek Computer, Inc.: Unknown device 1724
-	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin B routed to IRQ 3
-	Region 0: I/O ports at 8400 [size=128]
-	Capabilities: [a0] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+>> u64, or, if you prefer, as struct { u32 major, minor; }.
+
+> Any reason why we don't just *make it* a struct?
+
+Well, I have also done that of course. Both struct and u64 work well.
+Since only kdev_t.h knows about the actual structure of kdev_t
+it is very easy to switch.
+
+--------------
+typedef struct {
+        u32 major;
+        u32 minor;
+} kdev_t;
+
+#define major(dev)      ((dev).major)
+#define minor(dev)      ((dev).minor)
+#define mk_kdev(major, minor)   ((kdev_t) { major, minor } )
+
+#define HASHDEV(dev)    (major(dev) ^ minor(dev))       /* arbitrary */
+#define NODEV           (mk_kdev(0,0))
+#define kdev_none(dev)  (major(dev) == 0 && minor(dev) == 0)
+
+static inline int kdev_same(kdev_t dev1, kdev_t dev2)
+{
+        return (dev1.major == dev2.major) && (dev1.minor == dev2.minor);
+}
+--------------
+
+(there are some defines in the tty code that have to be adapted,
+that is all)
 
 
-This seems to be somewhat integrated with a bus controller 1524:1411, a.k.a
+>> sys_mknod takes unsigned int (instead of dev_t)
+>> sys_mknod64 takes two unsigned ints.
 
-00:10.0 CardBus bridge: ENE Technology Inc: Unknown device 1411 (rev 01)
-	Subsystem: ENE Technology Inc: Unknown device 1411
+> Why unsigned int?  If we have a legacy call it should presumably use
+> the legacy __u16 format.
 
-A Windows driver (at least 0510 part of it) treats that as some
-kind of a SCSI device.
+That would become rather ugly. The present situation is not u16,
+it depends on the architecture. But unsigned int covers the
+present situation on all architectures.
 
-So far I cannot make Linux with 2.4.x kernels to recognize that
-gizmo.  Does anybody know if there is a device driver which would
-make this workable in Linux?
-
-Apparently some details about it one can find in
-http://www.tssc.de/download/docs/List%20of%20supported%20devices.pdf
-
-   Thanks,
-   Michal
+Andries

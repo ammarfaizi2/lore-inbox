@@ -1,79 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265124AbUD3JTU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265129AbUD3JWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265124AbUD3JTU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 05:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265126AbUD3JTU
+	id S265129AbUD3JWU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 05:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265130AbUD3JWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 05:19:20 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:40459 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S265124AbUD3JTR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 05:19:17 -0400
-Date: Fri, 30 Apr 2004 12:18:33 +0300
-From: vda@port.imtp.ilyichevsk.odessa.ua
-X-Mailer: The Bat! (v1.44)
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-X-Priority: 3 (Normal)
-Message-ID: <18781898240.20040430121833@port.imtp.ilyichevsk.odessa.ua>
-To: Tim Connors <tconnors+linuxkernel1083305837@astro.swin.edu.au>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       <brettspamacct@fastclick.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re[2]: ~500 megs cached yet 2.6.5 goes into swap hell
-In-reply-To: <Pine.LNX.4.53.0404301646510.11320@tellurium.ssi.swin.edu.au>
-References: <40904A84.2030307@yahoo.com.au>
- <200404292001.i3TK1BYe005147@eeyore.valparaiso.cl>
- <slrn-0.9.7.4-14292-10175-200404301617-tc@hexane.ssi.swin.edu.au>
- <4091F38C.3010400@yahoo.com.au>
- <Pine.LNX.4.53.0404301646510.11320@tellurium.ssi.swin.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 30 Apr 2004 05:22:19 -0400
+Received: from mailfe02.swip.net ([212.247.154.33]:19591 "EHLO
+	mailfe02.swip.net") by vger.kernel.org with ESMTP id S265129AbUD3JWM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 05:22:12 -0400
+X-T2-Posting-ID: 8K36kL4f8d1GI2lMBg03PQ==
+X-Originating-IP: [192.106.52.2]
+From: <lapo.pasqui@tele2.it>
+To: linux-kernel@vger.kernel.org
+Subject: sata_sis driver does not detect SATA HD on P4S800D MB (2.6.6-rc1)
+Date: Fri, 30 Apr 2004 11:22:11 +0200
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+Message-ID: <auto-000027004750@mailfe02.swip.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Tim,
+Hi all,
+I've tried everything to make my HD being detected by the sata_sis driver.
+I've googled around and I notice there are no succesfully stories with the sata_driver and the P4S800D  MB.
 
-Friday, April 30, 2004, 10:05:19 AM, you wrote:
-TC> Parts of X and the window manager also get swapped out, so when I move to
-TC> another virtual page, I get to watch fvwm redraw the screen - this is not
-TC> too painful though, because only a few megs need be swapped back in
-TC> (although the HD is seeking all over the place as things thrash about, so
-TC> it does still take non-negligible amount of time). Mozilla takes about 30
-TC> seconds to swap back in (~50-100MB - again, lots of thrashing from the
+Whilst there are no problem with the sis964 chipset  in general, a few complain some difficulties with the MB P4S800D.
 
-I don't want to say that you're seeing optimal behavior,
-just a different angle of view: wny in hell browser should
-have such ridiculously large RSS? Why it tries to keep
-so much stuff in the RAM?
+http://lkml.org/lkml/2004/4/3/34
+http://www.linuxquestions.org/questions/history/160949
 
-Multimedia content (jpegs etc) is typically cached in
-filesystem, so Mozilla polluted pagecache with it when
-it saved JPEGs to the cache *and* then it keeps 'em in RAM
-too, which doubles RAM usage. Most probably more, there
-is severe internal fragmentation problems after you use
-such a large application for several hours straight.
-Why not reread JPEG whenever you need it? If you are
-using Mozilla right now, it will be in pagecache.
-When you are away, cache will be discarded, no need
-to page out Mozilla pages with JPEG content - because
-there aren't Mozilla pages with JPEG content!
-RSS is smaller, less internal fragmentation, everyone's
-happy.
+I'm confident the HW is set up correctly (winXP is working).
+Whem the driver is probing the HW, it always get this 
 
-(I don't specifically target Mozilla, it have shown some
-improvement recently. Replace with your favorite
-monstrosity)
+ata1: no device found (phy stat 8276fffe)
 
-Kernel folks probably can improve kernel behavior.
-Next version of $BloatyApp will happily "use"
-gained performance and improved RAM management
-as an excuse for even less optimal code.
+Looking at the code, it looks like the SATA status register never gets cleared.
 
-It's a vicious circle.
---
-vda
+I'm using the version 2.6.6-rc1 version of the kernel and this is what I get
+(I also enabled the "Driver Core verbose debug messages")
 
+cat /var/log/messages
+[snip]
+Apr 28 20:06:28 vanessa kernel: PCI: Found IRQ 10 for device 0000:00:05.0
+Apr 28 20:06:28 vanessa kernel: ata_device_add: ENTER
+Apr 28 20:06:28 vanessa kernel: ata_host_add: ENTER
+Apr 28 20:06:28 vanessa kernel: ata_port_start: prd alloc, virt f763b000, dma 3763b000
+Apr 28 20:06:28 vanessa kernel: ata1: SATA max UDMA/133 cmd 0xEFF0 ctl 0xEFE6 bmdma 0xEF90 irq 10
+Apr 28 20:06:28 vanessa kernel: ata_host_add: ENTER
+Apr 28 20:06:28 vanessa kernel: ata_thread_iter: ata1: thr_state THR_PROBE_START
+Apr 28 20:06:28 vanessa kernel: ata_port_start: prd alloc, virt f76f4000, dma 376f4000
+Apr 28 20:06:28 vanessa kernel: ata2: SATA max UDMA/133 cmd 0xEFA8 ctl 0xEFE2 bmdma 0xEF98 irq 10
+Apr 28 20:06:28 vanessa kernel: ata_device_add: probe begin
+Apr 28 20:06:28 vanessa kernel: ata_device_add: ata1: probe begin
+Apr 28 20:06:28 vanessa kernel: ata_device_add: ata1: probe-wait begin
+Apr 28 20:06:28 vanessa kernel: ata_thread_iter: ata2: thr_state THR_PROBE_START
+Apr 28 20:06:28 vanessa kernel: ata_thread_iter: ata1: new thr_state THR_PORT_RESET, returning 0
+Apr 28 20:06:28 vanessa kernel: ata_thread_iter: ata1: thr_state THR_PORT_RESET
+Apr 28 20:06:29 vanessa kernel: ata1: no device found (phy stat 8276fffe)
+Apr 28 20:06:29 vanessa kernel: ata_thread_iter: ata1: new thr_state THR_PROBE_FAILED, returning 0
+Apr 28 20:06:29 vanessa kernel: ata_thread_iter: ata1: thr_state THR_PROBE_FAILED
+Apr 28 20:06:29 vanessa kernel: ata_thread_iter: ata1: new thr_state THR_AWAIT_DEATH, returning 0
+Apr 28 20:06:29 vanessa kernel: ata_thread_iter: ata1: thr_state THR_AWAIT_DEATH
+Apr 28 20:06:29 vanessa kernel: ata_thread_iter: ata1: new thr_state THR_AWAIT_DEATH, returning -1
+Apr 28 20:06:29 vanessa kernel: ata_device_add: ata1: probe-wait end
+Apr 28 20:06:29 vanessa kernel: scsi1 : sata_sis
+Apr 28 20:06:29 vanessa kernel: ata_device_add: ata2: probe begin
+Apr 28 20:06:29 vanessa kernel: ata_device_add: ata2: probe-wait begin
+Apr 28 20:06:29 vanessa kernel: ata_thread_iter: ata2: new thr_state THR_PORT_RESET, returning 0
+Apr 28 20:06:29 vanessa kernel: ata_thread_iter: ata2: thr_state THR_PORT_RESET
+Apr 28 20:06:29 vanessa kernel: ata2: no device found (phy stat 008f0f98)
+Apr 28 20:06:29 vanessa kernel: ata_thread_iter: ata2: new thr_state THR_PROBE_FAILED, returning 0
+Apr 28 20:06:29 vanessa kernel: ata_thread_iter: ata2: thr_state THR_PROBE_FAILED
+Apr 28 20:06:29 vanessa kernel: ata_thread_iter: ata2: new thr_state THR_AWAIT_DEATH, returning 0
+Apr 28 20:06:29 vanessa kernel: ata_thread_iter: ata2: thr_state THR_AWAIT_DEATH
+Apr 28 20:06:29 vanessa kernel: ata_thread_iter: ata2: new thr_state THR_AWAIT_DEATH, returning -1
+Apr 28 20:06:29 vanessa kernel: ata_device_add: ata2: probe-wait end
+Apr 28 20:06:29 vanessa kernel: scsi2 : sata_sis
+Apr 28 20:06:29 vanessa kernel: ata_device_add: probe begin
+Apr 28 20:06:29 vanessa kernel: ata_scsi_dump_cdb: CDB (1:0,0,0) 12 00 00 00 24 00 62 f7 6c
+Apr 28 20:06:29 vanessa kernel: ata_device_add: EXIT, returning 2
+[snip]
+
+Below is my HD description
+MB P4S800D
+SATA controller SIS 964/180
+SATA HD MAXTOR D.MaxPlus9 6Y160P0
+3 IDE devices
+
+I'm not part of this mailing list so, please, if you whish, CC me to this address
+lapo.pasqui@tele2.it
+
+Could it be a Mother board related issue?
+Can somebody help? Can someone provide me with a datasheet for the SIS 964 chip and or the meaning of the 0x8276fffe value for the register?
+I would like to help (and to be helped ;)
+
+Thanks a lot
+  Lapo
+
+-------------------------------------------------
+WebMail Tele2 http://www.tele2.it
+-------------------------------------------------
 

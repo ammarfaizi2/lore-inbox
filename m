@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262085AbRETQ7C>; Sun, 20 May 2001 12:59:02 -0400
+	id <S262084AbRETQ6c>; Sun, 20 May 2001 12:58:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262086AbRETQ6w>; Sun, 20 May 2001 12:58:52 -0400
-Received: from isis.its.uow.edu.au ([130.130.68.21]:29901 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S262085AbRETQ6l>; Sun, 20 May 2001 12:58:41 -0400
-Message-ID: <3B07F6B8.4EAB0142@uow.edu.au>
-Date: Mon, 21 May 2001 02:54:16 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-ac9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
-Subject: Re: alpha iommu fixes
-In-Reply-To: <20010518214617.A701@jurassic.park.msu.ru> <20010519155502.A16482@athlon.random> <20010519231131.A2840@jurassic.park.msu.ru>, <20010519231131.A2840@jurassic.park.msu.ru>; <20010520044013.A18119@athlon.random> <3B07AF49.5A85205F@uow.edu.au> <20010520154958.E18119@athlon.random>, <20010520154958.E18119@athlon.random>; <20010520181803.I18119@athlon.random> <3B07EEFE.43DDBA5C@uow.edu.au>,
-		<3B07EEFE.43DDBA5C@uow.edu.au>; from andrewm@uow.edu.au on Mon, May 21, 2001 at 02:21:18AM +1000 <20010520184411.K18119@athlon.random>
+	id <S262086AbRETQ6X>; Sun, 20 May 2001 12:58:23 -0400
+Received: from t2.redhat.com ([199.183.24.243]:13300 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S262084AbRETQ6L>; Sun, 20 May 2001 12:58:11 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20010520031807.G23718@parcelfarce.linux.theplanet.co.uk> 
+In-Reply-To: <20010520031807.G23718@parcelfarce.linux.theplanet.co.uk>  <Pine.GSO.4.21.0105190416190.3724-100000@weyl.math.psu.edu> <E1517Jf-0008PV-00@the-village.bc.nu> <200105191851.f4JIpNK00364@mobilix.ras.ucalgary.ca> 
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Alexander Viro <viro@math.psu.edu>, Andrew Clausen <clausen@gnu.org>,
+        Ben LaHaise <bcrl@redhat.com>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sun, 20 May 2001 17:57:05 +0100
+Message-ID: <17695.990377825@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 
-> > I can't find *any* pci_map_single() in the 2.4.4-ac9 tree
-> > which can fail, BTW.
-> 
-> I assume you mean that no one single caller of pci_map_single is
-> checking if it failed or not (because all pci_map_single can fail).
 
-No.  Most of the pci_map_single() implementations just
-use virt_to_bus()/virt_to_phys().  Even sparc64's fancy
-iommu-based pci_map_single() always succeeds.
+matthew@wil.cx said:
+>  I can tell you haven't had to write any 32-bit ioctl emulation code
+> for a 64-bit kernel recently.
+
+If that had been done right the first time, you wouldn't have had to either.
+For that matter, it's often the case that if the ioctl had been done right
+the first time, nobody would have had to fix it up for any architecture.
+
+I made the mistake of using machine-specific types in some ioctls, but 
+fixed them as soon as I realised some poor sod was going to have to write 
+and maintain the ugly conversion code.
+
+For pointers, sometimes it's justified. Often however, as in my case, it
+was just stupidity on the part of the original coder and should be fixed.
+Although I suppose I have the advantage that I don't have to worry too much
+about binary compatibility for the things I changed.
+
+--
+dwmw2
+
+

@@ -1,45 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272106AbRHWBc6>; Wed, 22 Aug 2001 21:32:58 -0400
+	id <S272107AbRHWBg2>; Wed, 22 Aug 2001 21:36:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272107AbRHWBcs>; Wed, 22 Aug 2001 21:32:48 -0400
-Received: from aslan.scsiguy.com ([63.229.232.106]:56326 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S272106AbRHWBcn>; Wed, 22 Aug 2001 21:32:43 -0400
-Message-Id: <200108230132.f7N1WkY22194@aslan.scsiguy.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: groudier@free.fr, axboe@suse.de, skraw@ithnet.com, phillips@bonn-fries.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: With Daniel Phillips Patch 
-In-Reply-To: Your message of "Wed, 22 Aug 2001 18:08:58 PDT."
-             <20010822.180858.89278064.davem@redhat.com> 
-Date: Wed, 22 Aug 2001 19:32:46 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S272175AbRHWBgS>; Wed, 22 Aug 2001 21:36:18 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:24838 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S272107AbRHWBgJ>;
+	Wed, 22 Aug 2001 21:36:09 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15236.23943.260421.31691@cargo.ozlabs.ibm.com>
+Date: Thu, 23 Aug 2001 11:33:59 +1000 (EST)
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (comments requested) adding finer-grained timing to PPC 
+ add_timer_randomness()
+In-Reply-To: <3B8423B9.29B1293A@nortelnetworks.com>
+In-Reply-To: <Pine.LNX.4.33.0108221702300.12521-100000@terbidium.openservices.net>
+	<3B8423B9.29B1293A@nortelnetworks.com>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   From: "Justin T. Gibbs" <gibbs@scsiguy.com>
->   Date: Wed, 22 Aug 2001 18:55:21 -0600
->   
->   Then it is poorly named.  How about "pci_dma32_t".  Or better yet,
->   uint32_t.  How do the guys writing SBUS drivers like the fact that
->   all of this mapping stuff is so PCI centric?
->   
->Please actually take a look at a few SBUS drivers before
->you open your big mouth.  SBUS drivers use a totally different
->API.
+Chris Friesen writes:
 
-Perhaps its different for SBUS, but its not different for ISA
-or EISA.  The main point here is that if a single driver has
-multiple bus attachements they either "luck out" and can use a
-"pci api" to talk to their non-pci devices (the aic7xxx driver talks
-EISA/VL/PCI) or they have to have different mapping paths (SBUS/PCI driver).
-Do you believe that it is architecturally correct to have a single
-api or multiple apis?  From your "big mouth" comment above, I assume
-the later.  From the driver's standpoint, the task is pretty much the
-same, with perhaps different contraints on the types of address that
-can be supported by the device.  The "pci" api already allows you
-to express this.
+> > +extern int have_timebase;
+> >   ...
+> 
+> > Am I missing something, or should at least one of these not be extern?
+> 
+> 
+> Okay, I feel dumb.  You're right of course. I guess I must have missed the
+> compiler warning.
 
---
-Justin
+I accidently deleted the message with the patch, but my comment would
+be that the way we have tended to handle this sort of thing is by
+reading the PVR register (processor version register) each time rather
+than by setting a flag in memory and testing that, since I expect that
+reading a special-purpose register in the CPU should be faster than
+doing a load from memory.
+
+In the 2.4 tree we have code that works out a cpu features word from
+the PVR value.  The cpu features word has bits for things like does
+the cpu have the TB register, does the MMU use a hash table, does the
+cpu have separate I and D caches, etc.
+
+The other thing you could consider is using the value in the
+decrementer register rather than the TB or RTC.  The timer interrupt
+is signalled when the DEC transitions from 0 to -1, and the DEC keeps
+decrementing (at the same rate that the TB increments, on cpus which
+have a TB).  I assume that the source of randomness that you are
+trying to capture is the jitter in the timer (decrementer) interrupt
+latency.  AFAICS you could get that from DEC just as well as from the
+TB/RTC and it would have the advantage that you would not need a
+conditional on the processor version.
+
+There is a list, linuxppc-dev@lists.linuxppc.org, where you will find
+a greater concentration of PPC kernel developers.  There is nothing
+wrong with discussing this stuff on linux-kernel but you may perhaps
+get more informed responses on linuxppc-dev. :)
+
+Paul.

@@ -1,89 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264174AbTEGSSc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 14:18:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264177AbTEGSSc
+	id S264152AbTEGSXi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 14:23:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264160AbTEGSXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 14:18:32 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:1667 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264174AbTEGSSb
+	Wed, 7 May 2003 14:23:38 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:56453 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S264152AbTEGSXh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 14:18:31 -0400
-Date: Wed, 7 May 2003 14:33:56 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: petter wahlman <petter@bluezone.no>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The disappearing sys_call_table export.
-In-Reply-To: <1052330844.3739.840.camel@badeip>
-Message-ID: <Pine.LNX.4.53.0305071429390.13499@chaos>
-References: <1052321673.3727.737.camel@badeip>  <Pine.LNX.4.53.0305071147510.12652@chaos>
-  <1052323711.3739.750.camel@badeip>  <Pine.LNX.4.53.0305071247360.12878@chaos>
- <1052330844.3739.840.camel@badeip>
+	Wed, 7 May 2003 14:23:37 -0400
+Date: Wed, 07 May 2003 09:20:22 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       Jonathan Lundell <linux@lundell-bros.com>
+cc: root@chaos.analogic.com, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: top stack (l)users for 2.5.69
+Message-ID: <15160000.1052324417@[10.10.2.4]>
+In-Reply-To: <20030507175531.GF19324@wohnheim.fh-wedel.de>
+References: <20030507132024.GB18177@wohnheim.fh-wedel.de> <Pine.LNX.4.53.0305070933450.11740@chaos> <20030507135657.GC18177@wohnheim.fh-wedel.de> <Pine.LNX.4.53.0305071008080.11871@chaos> <p05210601badeeb31916c@[207.213.214.37]> <20030507175531.GF19324@wohnheim.fh-wedel.de>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 May 2003, petter wahlman wrote:
+>> Does 2.5 use a separate interrupt stack? (Excuse my ignorance; I 
+>> haven't been paying attention.) Total stack-page usage in the 2.4 
+>> model, at any rate, is the sum of the task struct, the usage of any 
+>> task-level thread (system calls, pretty much), any softirq (including 
+>> the network protocol & routing handlers, and any netfilter modules), 
+>> and some number of possibly-nested hard interrupts.
+> 
+> Depends on the architecture. s390 does, ppc didn't as of 2.4.2, the
+> rest I'm not sure about. But this is another requirement for stack
+> reduction to 4k for most platforms, if not all.
 
-> On Wed, 2003-05-07 at 18:59, Richard B. Johnson wrote:
-> > On Wed, 7 May 2003, petter wahlman wrote:
-> >
-> > > On Wed, 2003-05-07 at 18:00, Richard B. Johnson wrote:
-> > > > On Wed, 7 May 2003, petter wahlman wrote:
-> > > >
-> > > > >
-> > > > > It seems like nobody belives that there are any technically valid
-> > > > > reasons for hooking system calls, but how should e.g anti virus
-> > > > > on-access scanners intercept syscalls?
-> > > > > Preloading libraries, ptracing init, patching g/libc, etc. are
-> > > >   ^^^^^^^^^^^^^^^^^^^
-> > > >                     |________  Is the way to go. That's how
-> > > > you communicate every system-call to a user-mode daemon that
-> > > > does whatever you want it to do, including phoning the National
-> > > > Security Administrator if that's the policy.
-> > > >
-> > > > > obviously not the way to go.
-> > > > >
-> > > >
-> > > > Oviously wrong.
-> > >
-> > >
-> > > And how would you force the virus to preload this library?
-> > >
-> > > -p.
-> > >
-> >
-> > The same way you would force a virus to not be statically linked.
-> > You make sure that only programs that interface with the kernel
-> > thorugh your hooks can run on that particular system.
-> >
->
-> Can you please elaborate.
-> How would you implement the access control without modifying the
-> respective syscalls or the system_call(), and would you'r
-> solution be possible to implement run time?
->
-> Regards,
->
+There are patches to make i386 do this (and use 4K stacks as a config option) 
+from Dave Hansen and Ben LaHaise in 2.5-mjb tree. 
+ 
+>> One thing that would help (aside from separate interrupt stacks) 
+>> would be a guard page below the stack. That wouldn't require any 
+>> physical memory to be reserved, and would provide positive indication 
+>> of stack overflow without significant runtime overhead.
+> 
+> Yes, that should work. It needs some additional code in the page fault
+> handler to detect this case, but that shouldn't slow the system down
+> too much.
 
-The program loader for shared-library programs is ld.so or
-ld-linux.so. It's the thing that mmaps the shared libraries
-and, eventually calls _start: in the beginning of the program:
+There's stack overflow detection in there as well.
 
-execve("/bin/ps", ["ps"], [/* 32 vars */]) = 0
-brk(0)                                  = 0x804c748
-open("/etc/ld.so.preload", O_RDONLY)    = 3 <<<<<<--- your hooks here!!
-fstat(3, {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
-old_mmap(NULL, 0, PROT_READ|PROT_WRITE, MAP_PRIVATE, 3, 0) = 0
-close(3)                                = 0
-
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+M.
 

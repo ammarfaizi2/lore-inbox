@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265963AbUFOU6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265957AbUFOVGD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265963AbUFOU6m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 16:58:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265964AbUFOU6m
+	id S265957AbUFOVGD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 17:06:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265962AbUFOVGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 16:58:42 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:10538 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S265963AbUFOU6i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 16:58:38 -0400
-Date: Tue, 15 Jun 2004 23:07:39 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 1/5] kbuild: default kernel image
-Message-ID: <20040615210739.GM2310@mars.ravnborg.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@osdl.org>
-References: <20040614204029.GA15243@mars.ravnborg.org> <20040614204405.GB15243@mars.ravnborg.org> <20040614220549.L14403@flint.arm.linux.org.uk> <20040615044020.GC16664@mars.ravnborg.org> <20040615093807.A1164@flint.arm.linux.org.uk> <20040615085952.GA19197@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040615085952.GA19197@infradead.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 15 Jun 2004 17:06:03 -0400
+Received: from ns1.goquest.com ([12.18.108.6]:21644 "HELO mail.goquest.com")
+	by vger.kernel.org with SMTP id S265957AbUFOVGB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 17:06:01 -0400
+X-Qmail-Scanner-Mail-From: fedora@rooker.dyndns.org via mail.goquest.com
+X-Qmail-Scanner: 1.20st (Clear:RC:1(67.65.232.5):SA:0(0.0/5.0):. Processed in 7.042969 secs)
+Message-ID: <001101c4531c$7a7c6960$3205a8c0@pixl>
+From: "Peter Maas" <fedora@rooker.dyndns.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: 3ware 9500S Drivers (mm kernel)
+Date: Tue, 15 Jun 2004 16:05:24 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 at 09:59:52AM +0100, Christoph Hellwig wrote:
-> On Tue, Jun 15, 2004 at 09:38:07AM +0100, Russell King wrote:
-> > AFAIAC, if the boot loader does not support the standard Image or
-> > zImage format, both of which are the fully documented "official"
-> > ARM kernel formats, it is up to the boot loader to provide whatever
-> > scripts or programs are needed to manipulate the output of the kernel
-> > build to whatever the boot loader wants.
-> 
-> And we have /sbin/installkernel and ~/bin/installkernel as defined hooks
-> for that.
+I've been using the 3ware 9500 drivers in the mm kernel for a while now
+without any problems, this is on a dual opteron with a 9500S-12 controller
+with 6 disk formatted as a raid-5. Are these going to be included in the
+vanilla kernel soon?
 
-installkernel is a hack to install a kernel for current machine mainly.
-Not what I consider a good generic solution.
+My only complaints with the drivers are that smartctl doesnt work with them
+(fedora core 2), and the 3ware management tools from the 3ware cd wont work
+with the mm drivers (wont detect controller).
 
-> In fact I'd love to reduce what the kernel builds to just
-> vmlinux and vmlinux.gz, but I guess all those lilo user will kill me ;-)
-I do not see the point in this.
-Better make life easier - but in a nice and structured way.
-Take a look at arch/ppc/boot/simple to see that the bootloader step is not trivial..
-The concept with a clean and lean kernel that cannot be used in real-life without
-doing lot's of stuff is a dead end.
+Thanks
 
+Peter Maas
 
-	Sam

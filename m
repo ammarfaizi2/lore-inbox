@@ -1,72 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281283AbRLABD3>; Fri, 30 Nov 2001 20:03:29 -0500
+	id <S281289AbRLABFt>; Fri, 30 Nov 2001 20:05:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281289AbRLABDT>; Fri, 30 Nov 2001 20:03:19 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:51974 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S281283AbRLABDK>; Fri, 30 Nov 2001 20:03:10 -0500
-Date: Fri, 30 Nov 2001 17:13:38 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Larry McVoy <lm@bitmover.com>
-cc: Andrew Morton <akpm@zip.com.au>, Daniel Phillips <phillips@bonn-fries.net>,
-        Henning Schmiedehausen <hps@intermeta.de>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
-In-Reply-To: <20011130155740.I14710@work.bitmover.com>
-Message-ID: <Pine.LNX.4.40.0111301636010.1600-100000@blue1.dev.mcafeelabs.com>
+	id <S283859AbRLABFj>; Fri, 30 Nov 2001 20:05:39 -0500
+Received: from web20504.mail.yahoo.com ([216.136.226.139]:54788 "HELO
+	web20504.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S281289AbRLABFW>; Fri, 30 Nov 2001 20:05:22 -0500
+Message-ID: <20011201010521.31804.qmail@web20504.mail.yahoo.com>
+Date: Sat, 1 Dec 2001 02:05:21 +0100 (CET)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Re: Please tag tested releases of the 2.4.x kernel
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Nov 2001, Larry McVoy wrote:
+> Are you volunteering to keep up on which kernels had
+> what erratas?
 
-[ A lot of stuff Pro-Sun ]
+well, at least there's a very simple way to get
+valuable information : install a voting system on a
+web site (kernel.org...) so that people who go there
+to get a new kernel can also tell which kernel
+they're using, the approximative uptime they have,
+if they encountered problems, if they had to
+patch it to gain stability, and eventually what they
+do with it (io/net/desktop/all).
 
-Wait a minute.
-Wasn't it you that were screaming against Sun, leaving their team because
-their SMP decisions about scaling sucked, because their OS was bloated
-like hell with sync spinlocks, saying that they tried to make it scale but
-they failed miserably ?
-What is changed now to make Solaris, a fairly vanishing OS, to be the
-reference OS/devmodel for every kernel developer ?
-Wasn't it you that were saying that Linux will never scale with more than
-2 CPUs ?
-Isn't Linux SMP improved from the very first implementation ?
-Isn't Linux SMP improved from the very first implementation w/out losing
-reliability ?
-Why you don't try to compare 2.0.36 with 2.4.x let's say on a 8 way SMP ?
-Why should it stop improving ?
-Because you know that adding fine grained spinlocks will make the OS
-complex to maintain and bloated ... like it was Solaris before you
-suddendly changed your mind.
+A further step could be to qualify recensed patches
+on the net in the same manner. There *are* ways to
+get very stable kernels even now, for a given
+application. Not everyone has the same needs of
+course, but it could help even the maintainers by
+giving them a more global feedback about which
+patches could most likely be included with low risk.
 
+I think that if even one tenth of the LKML
+subscribers rank their kernels at least once a week,
+we'll quickly see some stable and unusable kernels.
 
-<YOUR QUOTE>
->     Then people want more performance.  So they thread some more and now
->     the locks aren't 1:1 to the objects.  What a lock covers starts to
->     become fuzzy.  Thinks break down quickly after this because what
->     happens is that it becomes unclear if you are covered or not and
->     it's too much work to figure it out, so each time a thing is added
->     to the kernel, it comes with a lock.  Before long, your 10 or 20
->     locks are 3000 or more like what Solaris has.  This is really bad,
->     it hurts performance in far reaching ways and it is impossible to
->     undo.
-</YOUR QUOTE>
-
-I kindly agree with this, just curious to understand which kind of amazing
-architectural solution Solaris took to be a reference for SMP
-development/scaling.
+Just my 2 cents,
+Willy
 
 
 
 
-- Davide
-
-
-
-
-
-
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Courrier : http://courrier.yahoo.fr

@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263023AbUKYJAH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbUKYJPY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263023AbUKYJAH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Nov 2004 04:00:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263025AbUKYJAH
+	id S263024AbUKYJPY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Nov 2004 04:15:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbUKYJPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Nov 2004 04:00:07 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:35208 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S263023AbUKYJAD
+	Thu, 25 Nov 2004 04:15:24 -0500
+Received: from tron.kn.vutbr.cz ([147.229.191.152]:36623 "EHLO
+	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S263024AbUKYJOM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Nov 2004 04:00:03 -0500
-X-Envelope-From: kraxel@bytesex.org
-To: pawfen@wp.pl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MTRR vesafb and wrong X performance
-References: <1101338139.1780.9.camel@PC3.dom.pl>
-From: Gerd Knorr <kraxel@bytesex.org>
-Organization: SUSE Labs, Berlin
-Date: 25 Nov 2004 09:49:47 +0100
-In-Reply-To: <1101338139.1780.9.camel@PC3.dom.pl>
-Message-ID: <87y8gq5n4k.fsf@bytesex.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Thu, 25 Nov 2004 04:14:12 -0500
+Message-ID: <41A59CBF.2030408@stud.feec.vutbr.cz>
+Date: Thu, 25 Nov 2004 09:50:07 +0100
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041005)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: a.hocquel@oreka.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.4.28 and prism54
+References: <41A509F9.5020302@oreka.com>
+In-Reply-To: <41A509F9.5020302@oreka.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Flag: NO
+X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
+  identified this incoming email as possible spam.  The original message
+  has been attached to this so you can view it (if it isn't spam) or block
+  similar future email.  If you have any questions, see
+  the administrator of that system for details.
+  ____
+  Content analysis details:   (-4.2 points, 6.0 required)
+  ____
+   pts rule name              description
+  ---- ---------------------- --------------------------------------------
+   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
+  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                              [score: 0.0000]
+  ____
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pawel Fengler <pawfen@wp.pl> writes:
+Alexandre wrote:
+> I decided to look for .config configuration for prism54, but even if I
+> can find "title" in Wireless sub-menu, I can't choose it ! (with both
+> "make menuconfig" and "make config")
 
-> Recenly, I test five big distributions with almost all kernels
-> from 2.4.21 to 2.6.9 on several slow computers with many different
-> (not quite new) graphics cards (most of them - nvidia: Riva TNT,
-> GeForce, GeForce2 and S3Savage).
+Maybe you don't have CONFIG_EXPERIMENTAL or CONFIG_HOTPLUG enabled.
 
-> Every time when I use 2.6.x kernel I get warnigs (in xorg.log) similar
-> this:
-> (WW) NV(0): Failed to set up write-combining range
-> (0xe3000000,0x1000000)
+Michal
 
-Try 2.6.10-rc2 -- should be fixed there.
-
-  Gerd
-
--- 
-#define printk(args...) fprintf(stderr, ## args)

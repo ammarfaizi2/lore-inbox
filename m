@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278841AbRJZS6H>; Fri, 26 Oct 2001 14:58:07 -0400
+	id <S278842AbRJZTFw>; Fri, 26 Oct 2001 15:05:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278842AbRJZS5x>; Fri, 26 Oct 2001 14:57:53 -0400
-Received: from ns1.system-techniques.com ([199.33.245.254]:17025 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S278841AbRJZS5e>; Fri, 26 Oct 2001 14:57:34 -0400
-Date: Fri, 26 Oct 2001 14:58:10 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Looking for bsd file system tools under linux .
-Message-ID: <Pine.LNX.4.33.0110261427220.5754-100000@filesrv1.baby-dragons.com>
+	id <S278892AbRJZTFn>; Fri, 26 Oct 2001 15:05:43 -0400
+Received: from lsd.nurk.org ([208.8.184.53]:37003 "HELO lsd.nurk.org")
+	by vger.kernel.org with SMTP id <S278842AbRJZTFc>;
+	Fri, 26 Oct 2001 15:05:32 -0400
+Date: Fri, 26 Oct 2001 12:06:44 -0700 (PDT)
+From: Sean Swallow <sean@swallow.org>
+To: linux-kernel@vger.kernel.org
+Subject: 3Com PCI 3c905C Tornado with later kernels
+Message-ID: <Pine.LNX.4.40.0110261142110.1175-100000@lsd.nurk.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+List,
 
-	Hello All ,  I am looking for pointers to bsd file system tools
-	for use under Linux .  A couple of searchs left me empty .
-	I am hoping someone here has a pointer or two .
-	What this is for is ,  I have a disk drive off of a bsd4.2 system
-	that may have been used in a penetration of another system .
-	The fstab file points at there having been a /var file system but
-	when I do a 'fdisk -l' a partition for /var does not exist .  Only
-	two partitions are there for / & /usr .  I am looking for some
-	tools to see if the partiton was removed or if 'parted' may have
-	been been used to squeese it out .  Thank you for any pointers .
-		JimL
+I am having a problem with a 3c905C and later kernels (2.4.9, 2.4.12 and
+2.4.13).  When I try to use my 3c905C with these kernels I get this error
+message:
 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+Cannot open netlink socket: Address family not supported by protocol
+
+Kernel 2.4.7 works fine with this nic tho. I also tried this on another
+machine with the same results.
+
+Any suggestions?
+
+thank you,
+
+-- 
+Sean J. Swallow
+pgp (6.5.2) keyfile @ https://nurk.org/keyfile.txt
 
 

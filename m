@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135714AbRDSVQX>; Thu, 19 Apr 2001 17:16:23 -0400
+	id <S135718AbRDSVUE>; Thu, 19 Apr 2001 17:20:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135717AbRDSVQO>; Thu, 19 Apr 2001 17:16:14 -0400
-Received: from t2.redhat.com ([199.183.24.243]:10493 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S135714AbRDSVP5>; Thu, 19 Apr 2001 17:15:57 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <200104192004.VAA01094@raistlin.arm.linux.org.uk> 
-In-Reply-To: <200104192004.VAA01094@raistlin.arm.linux.org.uk> 
-To: rmk@arm.linux.org.uk
-Cc: esr@thyrsus.com, linux-kernel@vger.kernel.org (CML2),
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Dead symbol elimination, stage 1 
-Mime-Version: 1.0
+	id <S135716AbRDSVTy>; Thu, 19 Apr 2001 17:19:54 -0400
+Received: from runyon.cygnus.com ([205.180.230.5]:47248 "EHLO cygnus.com")
+	by vger.kernel.org with ESMTP id <S135719AbRDSVTn>;
+	Thu, 19 Apr 2001 17:19:43 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alexander Viro <viro@math.psu.edu>,
+        Abramo Bagnara <abramo@alsa-project.org>, Alon Ziv <alonz@nolaviz.org>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Mike Kravetz <mkravetz@sequent.com>
+Subject: Re: light weight user level semaphores
+In-Reply-To: <Pine.LNX.4.31.0104191347480.1182-100000@penguin.transmeta.com>
+Reply-To: drepper@cygnus.com (Ulrich Drepper)
+X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
+X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
+From: Ulrich Drepper <drepper@redhat.com>
+Date: 19 Apr 2001 14:18:53 -0700
+In-Reply-To: Linus Torvalds's message of "Thu, 19 Apr 2001 13:49:05 -0700 (PDT)"
+Message-ID: <m3pue8ziyq.fsf@otr.mynet.cygnus.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Thelxepeia)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 19 Apr 2001 22:15:53 +0100
-Message-ID: <22056.987714953@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-rmk@arm.linux.org.uk said:
->  For instance, a quick scan of my latest ARM patch reveals: 
-> src@raistlin:[2]:<1009> grep 'diff.*Config.in' rmk1
-> diff -urN linux-orig/drivers/mtd/Config.in linux/drivers/mtd/Config.in
+> > I fail to see how this works across processes.
+> 
+> It's up to FS_create() to create whatever shared mapping is needed.
 
-Please could you make sure that whatever changes you have are in my CVS - 
-I'm working on getting ready to sync up.
+No, the point is that FS_create is *not* the one creating the shared
+mapping.  The user is explicitly doing this her/himself.
 
---
-dwmw2
-
-
+-- 
+---------------.                          ,-.   1325 Chesapeake Terrace
+Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
+Red Hat          `--' drepper at redhat.com   `------------------------

@@ -1,89 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261908AbULOG44@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbULOHPJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261908AbULOG44 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 01:56:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbULOG44
+	id S261913AbULOHPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 02:15:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262233AbULOHPI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 01:56:56 -0500
-Received: from ns.suse.de ([195.135.220.2]:27336 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261908AbULOG4v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 01:56:51 -0500
-Date: Wed, 15 Dec 2004 07:56:50 +0100
-From: Andi Kleen <ak@suse.de>
-To: mst@mellanox.co.il, linux-kernel@vger.kernel.org
-Cc: pavel@suse.cz, discuss@x86-64.org, gordon.jin@intel.com
-Subject: unregister_ioctl32_conversion and modules. ioctl32 revisited.
-Message-ID: <20041215065650.GM27225@wotan.suse.de>
-Mime-Version: 1.0
+	Wed, 15 Dec 2004 02:15:08 -0500
+Received: from jade.aracnet.com ([216.99.193.136]:45032 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S261913AbULOHO7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 02:14:59 -0500
+Date: Tue, 14 Dec 2004 23:14:46 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andi Kleen <ak@suse.de>, Brent Casavant <bcasavan@sgi.com>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH 0/3] NUMA boot hash allocation interleaving
+Message-ID: <686170000.1103094885@[10.10.2.4]>
+In-Reply-To: <20041215040854.GC27225@wotan.suse.de>
+References: <Pine.SGI.4.61.0412141140030.22462@kzerza.americas.sgi.com> <9250000.1103050790@flay> <20041214191348.GA27225@wotan.suse.de> <19030000.1103054924@flay> <Pine.SGI.4.61.0412141720420.22462@kzerza.americas.sgi.com> <20041215040854.GC27225@wotan.suse.de>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo,
+>> > > I originally was a bit worried about the TLB usage, but it doesn't
+>> > > seem to be a too big issue (hopefully the benchmarks weren't too
+>> > > micro though)
+>> > 
+>> > Well, as long as we stripe on large page boundaries, it should be fine,
+>> > I'd think. On PPC64, it'll screw the SLB, but ... tough ;-) We can either
+>> > turn it off, or only do it on things larger than the segment size, and
+>> > just round-robin the rest, or allocate from node with most free.
+>> 
+>> Is there a reasonably easy-to-use existing infrastructure to do this?
+> 
+> No. It will be a lot of work actually, requiring new code for 
+> each architecture and may even be impossible on some. 
+> The current hugetlb code is not really suitable for this
+> because it requires an preallocated pool and only works
+> for user space.
 
-There seems to be an unfixable module unload race in the current
-register_ioctl32_conversion support. The problem is that
-there is no way to wait for a conversion handler is blocked
-in a sleeping *_user access before module unloading. The module
-count is also not increase in this case.
+Well hold on a sec. We don't need to use the hugepages pool for this,
+do we? This is the same as using huge page mappings for the whole of
+kernel space on ia32. As long as it's a kernel mapping, and 16MB aligned
+and contig, we get it for free, surely?
 
-I previously thought it could be avoided by always putting
-the compat wrapper into the same module and using the reference
-counting that is done by VFS on ->module of the char device or
-file system converted. But that doesn't work because 
-the ioctl32 lookup is independent from the file descriptor
-and a conversion handler can be entered even after ->release
-when the right number is passed.
+> Also at least on IA64 the large page size is usually 1-2GB 
+> and that would seem to be a little too large to me for
+> interleaving purposes. Also it may prevent the purpose 
+> you implemented it - not using too much memory from a single
+> node. 
 
-One way to fix it would be to put a pointer to the module
-into the compat ioctl hash table and increase the module count atomically
-from the compat code. But that would bloat the hash table a lot
-and I don't like it very much. Also you would either break the
-register_ioctl32_conversion prototype or make it a macro
-and assume all calls are from the same module, which is also 
-quite ugly.
+Yes, that'd bork it. But I thought that they had a large sheaf of
+mapping sizes to chose from on ia64?
+ 
+> Using other page sizes would be probably tricky because the 
+> linux VM can currently barely deal with two page sizes.
+> I suspect handling more would need some VM infrastructure effort
+> at least in the changed port. 
 
-A better solution would be to switch the few users of 
-register_ioctl32_conversion() over to a new ->ioctl32 method
-in file_operations and do the conversion from there. This would
-avoid the race because the VFS will take care of the module
-count in open/release.
+For the general case I'd agree. But this is a setup-time only tweak
+of the static kernel mapping, isn't it?
 
-Michael did a patch for this some time ago for a different motivation -
-he had some benchmarks where the hash table lookup hurt and it was
-noticeable faster to use a O(1) ->ioctl32 lookup from the file_operations
-for his application.
+I'm not saying it needs doing now. But it's an interesting future
+enhancement.
 
-An useful side effect would be also to the ability to support 
-a per device ioctl name space. While the core kernel doesn't have
-much (any?) ioctls with duplicated numbers this mistake seems
-to be quite common in out of tree drivers and it is hard to 
-fix without breaking compatibility.
-
-And it would be faster for this case of course too, so even performance
-critical in kernel ioctls could be slowly converted to ioctl32
-I wouldn't do it for all, because the current central tables work
-reasonably well for them and most ioctls are not speed critical
-anyways.
-
-As for in kernel code it won't affect much code because near 
-all conversion handlers in the main tree are not modular (alsa 
-is one exception, there are a few others e.g. in some raid drivers). 
-I expect it will be a bigger problem in the future though as ioctl 
-emulation becomes more widespread and is done more in individual drivers.
-
-averell:lsrc/v2.6/linux% gid register_ioctl32_conversion | wc -l
-75
-averell:lsrc/v2.6/linux% 
-
-In tree users are alsa, aaraid, fusion, some s390 stuff, sisfb, alsa
-
-My proposal would be to dust off Michael's patch and convert 
-all users in tree over to ioctl32 and then deprecate and later remove
-(un)register_ioctl32_conversion 
-
-Comments?
-
--Andi
+M.

@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314096AbSHBNpB>; Fri, 2 Aug 2002 09:45:01 -0400
+	id <S313537AbSHBNnX>; Fri, 2 Aug 2002 09:43:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314085AbSHBNo5>; Fri, 2 Aug 2002 09:44:57 -0400
-Received: from host194.steeleye.com ([216.33.1.194]:61705 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S314096AbSHBNor>; Fri, 2 Aug 2002 09:44:47 -0400
-Message-Id: <200208021348.g72Dm7q03058@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: suparna@in.ibm.com
-cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, axboe@kernel.org,
-       B.Zolnierkiewicz@elka.pw.edu.pl, akpm@zip.com.au
-Subject: Re: [PATCH] Bio Traversal Changes 
-In-Reply-To: Message from Suparna Bhattacharya <suparna@in.ibm.com> 
-   of "Fri, 02 Aug 2002 18:05:13 +0530." <20020802180513.A1802@in.ibm.com> 
+	id <S313563AbSHBNnX>; Fri, 2 Aug 2002 09:43:23 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:33296 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S313537AbSHBNnW>;
+	Fri, 2 Aug 2002 09:43:22 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Dave Jones <davej@suse.de>
+Cc: Felipe W Damasio <felipewd@terra.com.br>,
+       Linux-kernel <linux-kernel@vger.kernel.org>, trivial@rustcorp.com.au
+Subject: Re: [PATCH] __devexit_p macro 
+In-reply-to: Your message of "Fri, 02 Aug 2002 14:33:49 +0200."
+             <20020802143348.G25761@suse.de> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 02 Aug 2002 08:48:06 -0500
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Date: Fri, 02 Aug 2002 23:46:39 +1000
+Message-ID: <3483.1028295999@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The SCSI changes (small that they are) look reasonable.
+On Fri, 2 Aug 2002 14:33:49 +0200, 
+Dave Jones <davej@suse.de> wrote:
+>On Fri, Aug 02, 2002 at 09:24:56AM +0000, Felipe W Damasio wrote:
+> > +#ifdef MODULE || CONFIG_HOTPLUG
+> > +#define __devexit_p(x)  &(x)
+> > +#else
+> >  #define __devexit_p(x)  0
+> >  #endif
+>
+>Instead of making this a maze of #if/else's, you can acheive
+>the same effect with the following patch that has been in my
+>tree for a few months.. (hand pasted, may not apply cleanly)
 
-This does look like it exposes an existing problem in the tag/barrier 
-approach, though.
-
-The bio can be split by making multiple requests over segements of the bio, 
-correct?  If this is a BIO_RW_BARRIER, then each of these requests will be a 
-REQ_BARRIER.  However, in the SCSI paradigm where we translate REQ_BARRIER to 
-ordered tag, each of the requests will get a new ordered tag as it comes back 
-around through end_that_request_first, potentially allowing other tags to be 
-inserted in between these, which would be incorrect, since other bios would be 
-inserted in between the segments of this one, thus violating the barrier.
-
-Is the above correct?  If it is, I may have finally found a use for linked 
-scsi tasks (gives you the ability to have one tag cover multiple commands).
-
-James
-
+Better still, copy the end of 2.5.19-rc5/include/linux/init.h to
+2.5.30, from #ifdef CONFIG_HOTPLUG onwards.  There is no point in
+having slight differences between the 2.4 and 2.5 versions, ATM they
+should be the same.
 

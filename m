@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271373AbRHOTf0>; Wed, 15 Aug 2001 15:35:26 -0400
+	id <S271386AbRHOTfR>; Wed, 15 Aug 2001 15:35:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271387AbRHOTfR>; Wed, 15 Aug 2001 15:35:17 -0400
-Received: from 64-42-29-14.atgi.net ([64.42.29.14]:31504 "HELO
-	mail.clouddancer.com") by vger.kernel.org with SMTP
-	id <S271373AbRHOTfI>; Wed, 15 Aug 2001 15:35:08 -0400
+	id <S271374AbRHOTfG>; Wed, 15 Aug 2001 15:35:06 -0400
+Received: from imap.digitalme.com ([193.97.97.75]:31135 "EHLO digitalme.com")
+	by vger.kernel.org with ESMTP id <S271373AbRHOTez>;
+	Wed, 15 Aug 2001 15:34:55 -0400
+Subject: Problems with sound in 2.4.x (.7 and .8 definitely) with CS4248
+From: Trever Adams <vichu@digitalme.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: WANTED: Re: VM lockup with 2.4.8 / 2.4.8pre8
-In-Reply-To: <9lc0ek$l5k$1@ns1.clouddancer.com>
-In-Reply-To: <Pine.GSO.4.10.10108131229270.27903-100000@press-gopher.uchicago.edu>    <Pine.LNX.4.33L.0108131451470.6118-100000@imladris.rielhome.conectiva> <20010814220545.D31070@pasky.ji.cz> <Pine.LNX.4.33L.0108131451470.6118-100000@imladris.rielhome.conectiva>;    from riel@conectiva.com.br on Mon, Aug 13, 2001 at 02:55:42PM -0300 <9lc0ek$l5k$1@ns1.clouddancer.com>
-Reply-To: klink@clouddancer.com
-Message-Id: <20010815193521.4DDE8783F5@mail.clouddancer.com>
-Date: Wed, 15 Aug 2001 12:35:21 -0700 (PDT)
-From: klink@clouddancer.com (Colonel)
+Date: Wed, 15 Aug 2001 19:24:51 GMT
+MIME-Version: 1.0
+Content-type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Message-Id: <20010815193502Z271373-760+2100@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In clouddancer.list.kernel, you wrote:
->
->Why we are giving so big importance to root processes? Yes, they are
->important, but they are even more likely to flood our memory, because
->limits don't apply to them. I propose to just divide their badness
->by 2, not by 4.
+Whether it be MP3, OGG, or whatever, I cannot play sound
+without getting the following message in 2.4.7 and 2.4.8 (I
+don't believe I tried any other versions).  However, I
+believe it works (unless hardware failure has happened in
+the past 6 mos) in 2.2.x.
 
-Gee, lets punish everybody in case of one bad app...
+Sound: DMA (output) timed out - IRQ/DRQ config error?
 
+My hardware is a CTX EzBook 800 series laptop with a Mobile
+AMD 300 MHZ K6-2 with 128 Meg of memory (EDO I believe). 
+The CS device is built in.
 
->I also propose to half badness of processes with pid < 1000 - those
->processes are usually also important, because they are called during
->boot-time and they usually handle important system affairs.
+Sorry that I cannot provide much more at the moment.  This
+problem does happen with 80%+ of memory free and nearly
+nothing in swap.
 
+My heat sink goop has dried out and I will be replacing that
+in about 4 days, however, I am not sure this is the problem.
 
-The belief that boot started processes remain under a pid < 1000 is
-flawed.  Simple example: the postfix mail server.
+Any questions I will answer... so please don't ignore me
+because I didn't have too much I could offer, but with help
+I can answer.
 
+Trever
 
--- 
-Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
 

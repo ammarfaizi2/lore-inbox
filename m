@@ -1,55 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262118AbTEEJYC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 05:24:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbTEEJYB
+	id S262123AbTEEJjD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 05:39:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbTEEJjD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 05:24:01 -0400
-Received: from lily.comarch.pl ([195.116.193.4]:2576 "EHLO lily.comarch.pl")
-	by vger.kernel.org with ESMTP id S262118AbTEEJX4 (ORCPT
+	Mon, 5 May 2003 05:39:03 -0400
+Received: from pop.gmx.net ([213.165.65.60]:32332 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262123AbTEEJjC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 05:23:56 -0400
-Message-ID: <005001c312e9$b6000380$d805840a@nbsobczak>
-From: "Wojciech Sobczak" <Wojciech.Sobczak@comarch.pl>
-To: "Martin J. Bligh" <mbligh@aracnet.com>, <linux-kernel@vger.kernel.org>
-References: <01d601c30f17$f3ffadf0$b312840a@nbsobczak> <3270000.1051712524@[10.10.2.4]> <021501c30f27$e02be4a0$b312840a@nbsobczak> <4360000.1051715907@[10.10.2.4]>
-Subject: Re: IBM x440 problems on 2.4.20 to 2.4.20-rc1-ac3
-Date: Mon, 5 May 2003 11:35:45 +0200
+	Mon, 5 May 2003 05:39:02 -0400
+Message-ID: <3EB6341B.9000700@gmx.net>
+Date: Mon, 05 May 2003 11:51:23 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Felix von Leitner <felix-kernel@fefe.de>
+CC: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [2.5.68] Scalability issues
+References: <20030504173956.GA28370@codeblau.de> <20030504194451.GA29196@codeblau.de> <1052079133.27465.14.camel@rth.ninka.net> <20030505075118.GA352@codeblau.de>
+In-Reply-To: <20030505075118.GA352@codeblau.de>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
->>> SuSE works well, at least the SLES edition does.
+Felix von Leitner wrote:
+> Thus spake David S. Miller (davem@redhat.com):
+> 
+>>>Here is the ksymoops output.  The taint came from the nvidia kernel
+>>>module, X was not running, so the module did not do anything at the
+>>>time.
 >>
->> but shoudn't it be platform independent? this is only kernel or
->> meaby i need new gcc... or meaby something else?....
->
-> You need the kernel itself. It's the apic handling that's mostly
-> different.
+>>Not true, if it got loaded it did something.
+>>
+>>Either reproduce without the nvidia module loaded, or take
+>>your report to nvidia.
+> 
+> Thank you for this stunning display of unprofessionalism and zealotry.
 
-ok, thanks to all folks for help,
-i'm now using 2.5.68 with linux-isp patch for qlogic support, system is
-working nice, i see all 8 processors but cpuinfo shows only 199 bogomips,
-but system performance is much much higher :), so meaby this is some kind of
-not important bug.
-as for now i will try to swich to 2.4.21-rc1 as Keith Mannthey gave me
-working kernel config for 2.4
+No, we have to thank you for that.
 
-so now  i've got one of them (servers) for kernel testing :)
+> People like you keep free software alive.
 
-from the battle field - i tryied to run on 2.5.68-mm3 tree but system hangs
-on processors recognition.
+Yes indeed.
+me@linux:~> grep -iC4 "davem" MAINTAINERS
+ CRYPTO API
+ P:     James Morris
+ M:     jmorris@intercode.com.au
+ P:     David S. Miller
+ M:     davem@redhat.com
+ W      http://samba.org/~jamesm/crypto/
+ L:     linux-kernel@vger.kernel.org
+ S:     Maintained
 
-as for qlogic support with linux-isp - is this driver with failover support?
+--
+ S:     Maintained
 
-regards
-WS
+ NETWORKING [IPv4/IPv6]
+ P:     David S. Miller
+ M:     davem@redhat.com
+ P:     Alexey Kuznetsov
+ M:     kuznet@ms2.inr.ac.ru
+ P:     Pekka Savola (ipv6)
+ M:     pekkas@netcore.fi
+--
+ S:     Maintained
+
+ UltraSPARC (sparc64):
+ P:     David S. Miller
+ M:     davem@redhat.com
+ P:     Eddie C. Dost
+ M:     ecd@skynet.be
+ P:     Jakub Jelinek
+ M:     jj@sunsite.ms.mff.cuni.cz
+me@linux:~> grep -iC4 "felix" MAINTAINERS CREDITS
+me@linux:~> grep -iC4 "fefe" MAINTAINERS CREDITS
+me@linux:~> grep -iC4 "leitner" MAINTAINERS CREDITS
+me@linux:~>
+
+Over and out.
 

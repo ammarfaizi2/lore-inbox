@@ -1,79 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263308AbUCSAWK (ORCPT <rfc822;willy@w.ods.org>);
+	id S263335AbUCSAWK (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 18 Mar 2004 19:22:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263358AbUCRXyK
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263308AbUCSASL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 18:54:10 -0500
-Received: from fw.osdl.org ([65.172.181.6]:35508 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263335AbUCRXiv (ORCPT
+	Thu, 18 Mar 2004 19:18:11 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:12209 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263169AbUCSAQF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 18:38:51 -0500
-Message-Id: <200403182338.i2INcgE05434@mail.osdl.org>
-Date: Thu, 18 Mar 2004 15:38:15 -0800 (PST)
-From: markw@osdl.org
-Subject: Re: 2.6.4-mm2
-To: axboe@suse.de
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20040318192707.GV22234@suse.de>
+	Thu, 18 Mar 2004 19:16:05 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: colpatch@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] nodemask_t ia64 changes [6/7]
+Date: Thu, 18 Mar 2004 16:15:18 -0800
+User-Agent: KMail/1.6.1
+References: <1079651085.8149.177.camel@arrakis>
+In-Reply-To: <1079651085.8149.177.camel@arrakis>
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403181615.18498.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Mar, Jens Axboe wrote:
-> On Thu, Mar 18 2004, Andrew Morton wrote:
->> > Comparing one pair of readprofile results, I find it curious that
->> > dm_table_unplug_all and dm_table_any_congested show up near the top of a
->> > 2.6.4-mm2 profile when they haven't shown up before in 2.6.3.
->> 
->> 14015190 poll_idle                                241641.2069
->> 175162 generic_unplug_device                    1317.0075
->> 165480 __copy_from_user_ll                      1272.9231
->> 161151 __copy_to_user_ll                        1342.9250
->> 152106 schedule                                  85.0705
->> 142395 DAC960_LP_InterruptHandler               761.4706
->> 113677 dm_table_unplug_all                      1386.3049
->>  65420 __make_request                            45.5571
->>  64832 dm_table_any_congested                   697.1183
->>  37913 try_to_wake_up                            32.2939
->> 
->> That's broken.  How many disks are involve in the DM stack?
->> 
->> The relevant code was reworked subsequent to 2.6.4-mm2.  Maybe we fixed
->> this, but I cannot immediately explain what you're seeing here.
-> 
-> Ugh that looks really bad, I wonder how it could possibly ever be this
-> bad. Mark, please do do a run with 2.6.5-rc1-mm2, I'd very much like to
-> see the profile there. If things get this bad, I need to think some more
-> about how to best handle the 'when to invoke request_fn on unplug calls'
-> logic again.
-> 
-> Actually, please also do a run with 2.6.5-rc1-mm2 + inlined patch. For
-> non-stacked dm on dm it should work and could make a lot of difference
-> for you.
-> 
-> --- drivers/block/ll_rw_blk.c~	2004-03-18 20:26:17.088531084 +0100
-> +++ drivers/block/ll_rw_blk.c	2004-03-18 20:26:44.773554953 +0100
-> @@ -1134,11 +1134,8 @@
->  	if (test_bit(QUEUE_FLAG_STOPPED, &q->queue_flags))
->  		return;
->  
-> -	/*
-> -	 * always call down, since we can race now with setting the plugged
-> -	 * bit outside of the queue lock
-> -	 */
-> -	blk_remove_plug(q);
-> +	if (!blk_remove_plug(q))
-> +		return;
->  
->  	/*
->  	 * was plugged, fire request_fn if queue has stuff to do
-> 
+On Thursday 18 March 2004 3:04 pm, Matthew Dobson wrote:
+> nodemask_t-06-ia64.patch - Changes to ia64 specific code.  Untested. 
+> Code review & testing requested.
 
-http://developer.osdl.org/markw/dbt2-pgsql/409/
+diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.4-vanilla/arch/ia64/kernel/smpboot.c linux-2.6.4-nodemask_t-ia64/arch/ia64/kernel/smpboot.c
+--- linux-2.6.4-vanilla/arch/ia64/kernel/smpboot.c	Wed Mar 10 18:55:24 2004
++++ linux-2.6.4-nodemask_t-ia64/arch/ia64/kernel/smpboot.c	Thu Mar 11 16:02:22 2004
+@@ -474,7 +474,7 @@ build_cpu_to_node_map (void)
+ {
+ 	int cpu, i, node;
+ 
+-	for(node=0; node<MAX_NUMNODES; node++)
++	for_each_node(node)
+ 		cpus_clear(node_to_cpu_mask[node]);
 
-There are the results with 2.6.5-rc1-mm2 with your patch with a 512kb
-stripe width.  The throughput didn't improve but it did cut the ticks
-for dm_table_unplug_all in half.  Should I continue with smaller stripe
-widths?
+This is your API, so you'd probably know, but might this not end up
+initializing some of the node_to_cpu_mask array?  Oh, nevermind, it
+looks like this won't just get online nodes...
+
+@@ -134,11 +137,11 @@ static void __init reassign_cpu_only_nod
+
+I'm not sure about this reassign_cpu_only_node() stuff, Bob Picco
+would though...
+
+diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.4-vanilla/arch/ia64/sn/fakeprom/fpmem.c linux-2.6.4-nodemask_t-ia64/arch/ia64/sn/fakeprom/fpmem.c
+--- linux-2.6.4-vanilla/arch/ia64/sn/fakeprom/fpmem.c	Wed Mar 10 18:55:26 2004
++++ linux-2.6.4-nodemask_t-ia64/arch/ia64/sn/fakeprom/fpmem.c	Thu Mar 11 12:01:24 2004
+
+I'm hoping this file will eventually go away, but the change looks ok.
+
+diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.4-vanilla/arch/ia64/sn/io/machvec/pci_bus_cvlink.c linux-2.6.4-nodemask_t-ia64/arch/ia64/sn/io/machvec/pci_bus_cvlink.c
+--- linux-2.6.4-vanilla/arch/ia64/sn/io/machvec/pci_bus_cvlink.c	Wed Mar 10 18:55:37 2004
++++ linux-2.6.4-nodemask_t-ia64/arch/ia64/sn/io/machvec/pci_bus_cvlink.c	Thu Mar 11 14:42:49 2004
+@@ -791,7 +791,6 @@ sn_pci_init (void)
+ 	struct list_head *ln;
+ 	struct pci_bus *pci_bus = NULL;
+ 	struct pci_dev *pci_dev = NULL;
+-	extern int numnodes;
+
+Neat, saved a bad extern.
+
+@@ -62,7 +62,7 @@ find_lboard_nasid(lboard_t *start, nasid
+ 		    (start->brd_nasid == nasid))
+ 			return start;
+ 
+-		if (numionodes == numnodes)
++		if (numionodes == num_online_nodes())
+ 			start = KLCF_NEXT_ANY(start);
+ 		else
+ 			start = KLCF_NEXT(start);
+@@ -95,7 +95,7 @@ find_lboard_class_nasid(lboard_t *start,
+ 		    (start->brd_nasid == nasid))
+ 			return start;
+ 
+-		if (numionodes == numnodes)
++		if (numionodes == num_online_nodes())
+ 			start = KLCF_NEXT_ANY(start);
+
+@@ -210,7 +210,7 @@ io_module_init(void)
+     /*
+      * Second scan, look for headless/memless board hosted by compute nodes.
+      */
+-    for (node = numnodes; node < numionodes; node++) {
++    for (node = num_online_nodes(); node < numionodes; node++) {
+ 	nasid_t		nasid;
+
+Here's the ionode stuff I was talking about...
+
+diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.4-vanilla/include/asm-ia64/numa.h linux-2.6.4-nodemask_t-ia64/include/asm-ia64/numa.h
+--- linux-2.6.4-vanilla/include/asm-ia64/numa.h	Wed Mar 10 18:55:25 2004
++++ linux-2.6.4-nodemask_t-ia64/include/asm-ia64/numa.h	Thu Mar 11 12:01:24 2004
+@@ -59,7 +59,7 @@ extern struct node_cpuid_s node_cpuid[NR
+  */
+ 
+ extern u8 numa_slit[MAX_NUMNODES * MAX_NUMNODES];
+-#define node_distance(from,to) (numa_slit[from * numnodes + to])
++#define node_distance(from,to) (numa_slit[from * num_online_nodes() + to])
+
+Might the SLIT contain offline nodes too?  I can imagine that it might
+for hotplug aware hardware...
+
+ 
+ /* klnuma.c */
+-extern void replicate_kernel_text(int numnodes);
++extern void replicate_kernel_text(void);  /* TODO: is this used??? */
+ extern unsigned long get_freemem_start(cnodeid_t cnode);
+-extern void setup_replication_mask(int maxnodes);
++extern void setup_replication_mask(void); /* TODO: is this used??? */
+
+Nope, it was at one time, but didn't provide much benefit (we should
+probably benchmark it again on a really large system...).
+
+Other than that, it looks ok.  Now I've got to test it.
+
+Thanks,
+Jesse
+
+
+
+

@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314392AbSETImK>; Mon, 20 May 2002 04:42:10 -0400
+	id <S314396AbSETI6L>; Mon, 20 May 2002 04:58:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314389AbSETImJ>; Mon, 20 May 2002 04:42:09 -0400
-Received: from m206-234.dsl.tsoft.com ([198.144.206.234]:16315 "EHLO
-	jojda.2y.net") by vger.kernel.org with ESMTP id <S314392AbSETImI>;
-	Mon, 20 May 2002 04:42:08 -0400
-Message-ID: <3CE8B6E0.CFC6879D@bigfoot.com>
-Date: Mon, 20 May 2002 01:42:08 -0700
-From: Erik Steffl <steffl@bigfoot.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en, sk, ru
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: lost interrupt hell - Plea for Help
-In-Reply-To: <200205191225.OAA25457@harpo.it.uu.se>
+	id <S314684AbSETI6K>; Mon, 20 May 2002 04:58:10 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:20616 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S314396AbSETI6J>;
+	Mon, 20 May 2002 04:58:09 -0400
+Date: Mon, 20 May 2002 18:55:00 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Miller <davem@redhat.com>
+Subject: Re: [RFC][PATCH] TIMER_BH-less smptimers
+Message-ID: <20020520085500.GB14488@krispykreme>
+In-Reply-To: <20020516185448.A8069@in.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson wrote:
-> 
-> On Sun, 19 May 2002 00:14:42 -0700, Erik Steffl wrote:
-> >> Yeah, the spurious interrupt does seem to be an AMD apic problem, but the lost
-> >> interrupt (on ripping audio) seems to be a VIA chipset problem, as people
-> >> with KT266 chipsets are having boot problems / audio rip problems regardless
-> >> of the processor type. Lucky me, I get both ;)
-> >
-> >  doesn't anybody know what the problem is? while it was reported quite
-> >a few times there was no helpful response to the problem (positive
-> >(fix)or negative (it's unlikely to be fixed).
-> 
-> As the person who added AMD K7 local APIC support to the kernel, I
-> consider the _real_ problem to be the lack of adequate documentation.
-> AMD has almost no documentation on the K7's machine-specific features,
-> and VIA similarly don't seem keen on documenting their chipsets.
-> 
-> If someone were to find AMD K7 documentation at the level of Intel's
-> IA32 Volume 3 manual (245272-006), and AMD K7 errata docs at the level
-> of Intel's PIII (244453-nn) and P4 (249199-nn) specification updates,
-> then I'd be happy to look at the K7 spurious interrupt problem.
 
-  is the same true for 'lost interrupt' during audio ripping problem? I
-mean it is fairly specific command so it might not be so hard to debug.
-I have no experience with kernel - is there info available to get me
-started in right direction?
+Hi Dipankar,
 
-	erik
+> I have been experimenting with Ingo's smptimers and I ended up
+> extending it a little bit. I would really appreciate comments
+> on whether these things make sense or not.
+
+I tried it out and found that we were context switching like crazy.
+It seems we were always running the timers out of a tasklet because
+we never unlocked the net_bh_lock.
+
+Anton
+
+diff -urN linux-2.5_smptimers/kernel/timer.c linux-2.5_tux/kernel/timer.c
+--- linux-2.5_smptimers/kernel/timer.c	Mon May 20 18:48:18 2002
++++ linux-2.5_tux/kernel/timer.c	Mon May 20 18:41:32 2002
+@@ -694,6 +694,7 @@
+ 		__run_timers(base);
+ 
+         hardirq_endlock(cpu);
++        spin_unlock(&net_bh_lock);
+         spin_unlock(&global_bh_lock);
+         return;
+ resched_net:
+@@ -733,6 +734,7 @@
+ 		__run_timers(base);
+ 
+ 	hardirq_endlock(cpu);
++	spin_unlock(&net_bh_lock);
+ 	spin_unlock(&global_bh_lock);
+ 	local_irq_enable();
+ 	local_bh_enable();

@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262000AbUKCX1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262004AbUKCXbn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262000AbUKCX1w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 18:27:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbUKCXYu
+	id S262004AbUKCXbn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 18:31:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbUKCX2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 18:24:50 -0500
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:58460 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261979AbUKCXWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 18:22:07 -0500
-From: Blaisorblade <blaisorblade_spam@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] [PATCH] UML: Use PTRACE_KILL instead of SIGKILL to kill host-OS processes (take #2)
-Date: Thu, 4 Nov 2004 00:19:07 +0100
-User-Agent: KMail/1.7.1
-Cc: Gerd Knorr <kraxel@bytesex.org>, Chris Wedgwood <cw@f00f.org>,
-       Jeff Dike <jdike@addtoit.com>, Anton Altaparmakov <aia21@cam.ac.uk>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-References: <20041103113736.GA23041@taniwha.stupidest.org> <200411032028.44376.blaisorblade_spam@yahoo.it> <20041103201836.GB29289@bytesex>
-In-Reply-To: <20041103201836.GB29289@bytesex>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Nov 2004 18:28:34 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:55463 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S261999AbUKCX16 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 18:27:58 -0500
+Date: Thu, 4 Nov 2004 00:27:45 +0100
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] avoid semi-infinite loop when mounting bad ext2
+Message-ID: <20041103232744.GA10325@apps.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411040019.07884.blaisorblade_spam@yahoo.it>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 November 2004 21:18, Gerd Knorr wrote:
-> > I'm going to test this. I thought that Gerd Knorr patch (which I sent
-> > cc'ing LKML and most of you) already solved this (I actually modified
-> > that one,
+The routine ext2_readdir() will, when reading a directory page
+returns an error, try the next page, without reporting the
+error to user space. That is bad, and the patch below changes that.
 
-> Not sure whenever tt is fixed with my patch, I've tested skas only
+In my case the filesystem was damaged, and ext2_readdir wanted
+to read 60000+ pages and wrote as many error messages to syslog
+("attempt to access beyond end"), not what one wants.
 
-I've tested it, and it works in fact.
+Andries
 
-> (I'm 
-> building skas-only dynamically linked kernels these days because due to
-> working on x11 framebuffer stuff which needs dynamically linked libX11).
-> So if Chris actually tested TT then his patch probably is ok and needed
-> as well ...
-
-Actually, from looking at Jeff Dike comment, it seem that the new kill (the 
-one you've changed) is executed earlier and more reliably than the 1st one, 
-the one Chris identified.
-
-So we could ask Jeff to see if he can remove the earlier kill, the one 
-affected by the Chris Wedgwood.
+[no doubt a similar patch is appropriate for ext3]
 
 
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
+diff -uprN -X /linux/dontdiff a/fs/ext2/dir.c b/fs/ext2/dir.c
+--- a/fs/ext2/dir.c	2004-10-30 21:44:02.000000000 +0200
++++ b/fs/ext2/dir.c	2004-11-04 00:14:14.000000000 +0100
+@@ -275,7 +275,8 @@ ext2_readdir (struct file * filp, void *
+ 				   "bad page in #%lu",
+ 				   inode->i_ino);
+ 			filp->f_pos += PAGE_CACHE_SIZE - offset;
+-			continue;
++			ret = -EIO;
++			goto done;
+ 		}
+ 		kaddr = page_address(page);
+ 		if (need_revalidate) {

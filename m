@@ -1,59 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbUJ3XY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbUJ3XZw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbUJ3XY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 19:24:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbUJ3XWW
+	id S261419AbUJ3XZw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 19:25:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbUJ3XV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 19:22:22 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:15012 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261377AbUJ3XPu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 19:15:50 -0400
-From: James Cleverdon <jamesclv@us.ibm.com>
-Reply-To: jamesclv@us.ibm.com
-Organization: IBM LTC (xSeries Solutions
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [Patch] x86-64: fix sibling map again!
-Date: Sat, 30 Oct 2004 16:15:23 -0700
-User-Agent: KMail/1.5.4
-Cc: Suresh Siddha <suresh.b.siddha@intel.com>, ak@suse.de, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-References: <20041029170215.A26372@unix-os.sc.intel.com> <200410291735.32175.jamesclv@us.ibm.com> <20041030125604.GF14735@wotan.suse.de>
-In-Reply-To: <20041030125604.GF14735@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 30 Oct 2004 19:21:57 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:52171 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261436AbUJ3XUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 19:20:07 -0400
+Subject: [OT] Re: code bloat [was Re: Semaphore assembly-code bug]
+From: Lee Revell <rlrevell@joe-job.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Tim Hockin <thockin@hockin.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <200410310213.37712.vda@port.imtp.ilyichevsk.odessa.ua>
+References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel>
+	 <200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua>
+	 <20041030222720.GA22753@hockin.org>
+	 <200410310213.37712.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain
+Date: Sat, 30 Oct 2004 19:20:04 -0400
+Message-Id: <1099178405.1441.7.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410301615.23066.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I suppose not.  It seems a bit unnecessary, but OK if it makes
-them happy.  Maybe Intel has something in mind for 2008.
+On Sun, 2004-10-31 at 02:13 +0300, Denis Vlasenko wrote:
+> It's sort of frightening that someone will need to
+> rewrite Xlib or, say, OpenOffice :(
 
+I think very few application developers understand the point Linus made
+- that bigger code IS slower code due to cache misses.  If this were
+widely understood we would be in pretty good shape.
 
-On Saturday 30 October 2004 05:56 am, Andi Kleen wrote:
-> On Fri, Oct 29, 2004 at 05:35:32PM -0700, James Cleverdon wrote:
-> > Hey Suresh,
-> >
-> > Can you tell me why Intel considers cpuid to be The One True
-> > Way(TM) to get sibling info?  Especially on x86-64, which
-> > doesn't have the same level of APIC weirdness that i386 does.
-> >
-> > (I won't even mention the fact that someone messed up on the
-> > MSR the BIOS can use to set bits 7:5 in the cpuid ID value.
-> > It should allow the BIOS to set bits 7:3.)
->
-> I have no great opinion on either ways, but I suppose
-> it is best to do the same thing as i386 and apply Suresh's patch.
->
-> James, any strong objections?
->
-> -Andi
-
--- 
-James Cleverdon
-IBM LTC (xSeries Linux Solutions)
-{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot comm
+Lee
 

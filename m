@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267114AbUBRW3W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 17:29:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267148AbUBRW3W
+	id S268192AbUBRVoK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 16:44:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268199AbUBRVoJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 17:29:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:36805 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267114AbUBRW3U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 17:29:20 -0500
-Date: Wed, 18 Feb 2004 14:28:49 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: tridge@samba.org
-cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: UTF-8 and case-insensitivity
-In-Reply-To: <Pine.LNX.4.58.0402181422180.2686@home.osdl.org>
-Message-ID: <Pine.LNX.4.58.0402181427230.2686@home.osdl.org>
-References: <16433.38038.881005.468116@samba.org> <16433.47753.192288.493315@samba.org>
- <Pine.LNX.4.58.0402170704210.2154@home.osdl.org> <16434.41376.453823.260362@samba.org>
- <c0uj52$3mg$1@terminus.zytor.com> <Pine.LNX.4.58.0402171859570.2686@home.osdl.org>
- <4032D893.9050508@zytor.com> <Pine.LNX.4.58.0402171919240.2686@home.osdl.org>
- <16435.55700.600584.756009@samba.org> <Pine.LNX.4.58.0402181422180.2686@home.osdl.org>
+	Wed, 18 Feb 2004 16:44:09 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:50189 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S268192AbUBRVoE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 16:44:04 -0500
+Date: Wed, 18 Feb 2004 21:43:57 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: rihad <rihad@mail.ru>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: rivafb woes
+In-Reply-To: <4033BE48.1080900@mail.ru>
+Message-ID: <Pine.LNX.4.44.0402182143420.10389-100000@phoenix.infradead.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Th emost recent cards are not supported. Its being worked on.
 
-On Wed, 18 Feb 2004, Linus Torvalds wrote:
+
+On Wed, 18 Feb 2004, rihad wrote:
+
+> I can't get rivafb to work on my GF-MX440! Am I wrong in thinking that
+> CONFIG_FB_RIVA is a drop-in faster replacement for CONFIG_FB_VESA? Or do
+> I need both of them compiled in? All I get when trying to boot is a
+> blank or a messed up screen. The penguin is there though :) Here's the
+> relevant lines of my lilo.conf:
 > 
-> That's not my problem. That is _your_ problem, and I don't care. I 
-> disagree violently with the notion that we would push this down to a 
-> filesystem level.
+> vga=0x317
+> image=/boot/vmlinuz-2.6.3
+>        append="video=rivafb:1024x768-16@60"
 > 
-> Sorry, but there are limits to how much we care about broken operating 
-> systems.
+> $ lspci
+> [snip]
+> 01:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 MX
+> 440] (rev a3)
+> 
+> TIA!
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Side note: this only matters for cold cache entries anyway, so I doubt 
-you'll see any performance improvement on a file server from passing the 
-brain damage down to the lower levels. 
-
-And I bet the performance advantages of _not_ doing native case 
-insensitivity are likely to dominate hugely.
-
-		Linus

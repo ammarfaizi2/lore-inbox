@@ -1,84 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261672AbUCQRUa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 12:20:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261716AbUCQRUa
+	id S261612AbUCQRaN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 12:30:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbUCQRaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 12:20:30 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:2689 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261672AbUCQRU2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 12:20:28 -0500
-Date: Wed, 17 Mar 2004 18:20:26 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Philippe Elie <phil.el@wanadoo.fr>,
-       Thomas Schlichter <thomas.schlichter@web.de>
-Cc: Andrew Morton <akpm@osdl.org>, Andreas Schwab <schwab@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6.4-rc2] bogus semicolon behind if()
-In-Reply-To: <20040310060804.GB2958@zaniah>
-Message-ID: <Pine.LNX.4.55.0403171752040.14525@jurand.ds.pg.gda.pl>
-References: <200403090014.03282.thomas.schlichter@web.de>
- <20040308162947.4d0b831a.akpm@osdl.org> <20040309070127.GA2958@zaniah>
- <200403091208.20556.thomas.schlichter@web.de> <20040310060804.GB2958@zaniah>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 17 Mar 2004 12:30:13 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:13762 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261612AbUCQRaG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 12:30:06 -0500
+Date: Wed, 17 Mar 2004 09:29:59 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: pingc@wacom.com
+Cc: vojtech@suse.cz, zaitcev@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Wacom USB driver patch
+Message-Id: <20040317092959.5e00fab4.zaitcev@redhat.com>
+In-Reply-To: <Pine.LNX.4.58L.0402262354190.1653@logos.cnet>
+References: <Pine.LNX.4.58L.0402262354190.1653@logos.cnet>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Mar 2004, Philippe Elie wrote:
+Dear Ping,
 
-> > As I wrote a few days ago I have problems with that ChangeSet,
-> >   (http://marc.theaimsgroup.com/?l=linux-kernel&m=107840458123059&w=2)
-> > so I did examine it closer.
+Vojtech posted your 2.6 patch to linux-kernel yesterday, so I examined it
+(Subject: [PATCH 32/44] Update of Wacom driver from Ping Cheng (from Wacom)).
+Unlike the 2.4 version, it does not feature a reset thread. Please tell
+me why that thread was required in 2.4.
+
+Or perhaps it was present in your original submission which I lost and
+Vojtech removed that element of the patch?
+
+Yours truly,
+-- Pete
+
+> Date: Fri, 20 Feb 2004 14:29:04 -0800
+> From: Ping Cheng <pingc@wacom.com>
+> To: 'Vojtech Pavlik ' <vojtech@suse.cz>, 'Pete Zaitcev ' <zaitcev@redhat.com>
+> Cc: "'linux-kernel@vger.kernel.org '" <linux-kernel@vger.kernel.org>
+> Subject: RE: Wacom USB driver patch
 > 
-> errmm, http://tinyurl.com/2jbe4
+>  <<wacom_2.4.patch>>
+> The attached patch is against the latest versions of wacom.c and hid-core.c
+> at  http://linux.bkbits.net:8080/linux-2.4.
 > 
-> Maciej, you wrote this patch, any comment ?
-
- Yep, that's a stupid typo, but the bug would only trigger for a system
-that would have:
-
-1. a discrete 82489DX APIC,
-
-2. a functional TSC,
-
-3. a timer interrupt working through the I/O APIC,
-
-4. a working I/O APIC NMI watchdog.
-
-Such systems used to actually exist, but you'd have a hard time trying to
-find one.
-
- Here's an obvious update.  Thomas, thanks for spotting it.
-
-  Maciej
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
-patch-2.6.4-timer_ack-fix-0
-diff -up --recursive --new-file linux-2.6.4.macro/arch/i386/kernel/io_apic.c linux-2.6.4/arch/i386/kernel/io_apic.c
---- linux-2.6.4.macro/arch/i386/kernel/io_apic.c	2004-03-17 17:09:29.000000000 +0000
-+++ linux-2.6.4/arch/i386/kernel/io_apic.c	2004-03-17 17:11:07.000000000 +0000
-@@ -2195,7 +2195,7 @@ static inline void check_timer(void)
- 				disable_8259A_irq(0);
- 				setup_nmi();
- 				enable_8259A_irq(0);
--				if (check_nmi_watchdog() < 0);
-+				if (check_nmi_watchdog() < 0)
- 					timer_ack = !cpu_has_tsc;
- 			}
- 			return;
-@@ -2219,7 +2219,7 @@ static inline void check_timer(void)
- 				add_pin_to_irq(0, 0, pin2);
- 			if (nmi_watchdog == NMI_IO_APIC) {
- 				setup_nmi();
--				if (check_nmi_watchdog() < 0);
-+				if (check_nmi_watchdog() < 0)
- 					timer_ack = !cpu_has_tsc;
- 			}
- 			return;
+> Ping
+> 
+> -----Original Message-----
+> From: Vojtech Pavlik
+> To: Pete Zaitcev
+> Cc: Ping Cheng; linux-kernel@vger.kernel.org
+> Sent: 2/13/04 12:13 AM
+> Subject: Re: Wacom USB driver patch
+> 
+> On Thu, Feb 12, 2004 at 07:28:09PM -0800, Pete Zaitcev wrote:
+> > On Thu, 12 Feb 2004 16:55:47 -0800
+> > Ping Cheng <pingc@wacom.com> wrote:
+> >
+> > > The wacom.c at http://linux.bkbits.net:8080/linux-2.4 is way out of date and
+> > > people are still working on/using 2.4 releases. Should I make a patch for
+> > > 2.4?
+> >
+> > We plan to support 2.4 based releases for several years yet. If Vojtech
+> > approves what you did for 2.6, I am all for a backport to Marcelo tree.
+> > Marcelo is not very forthcoming with approvals these days, but perhaps
+> > it may be folded into some update. But as usual I would like to avoid
+> > carrying a patch in Red Hat tree, if at all possible.
+> 
+> Agreed. Same for us at SUSE.
+> 
+> -- 
+> Vojtech Pavlik
+> SuSE Labs, SuSE CR

@@ -1,51 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279754AbRKAUnh>; Thu, 1 Nov 2001 15:43:37 -0500
+	id <S279778AbRKAVBI>; Thu, 1 Nov 2001 16:01:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279767AbRKAUn1>; Thu, 1 Nov 2001 15:43:27 -0500
-Received: from quark.didntduck.org ([216.43.55.190]:40964 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S279754AbRKAUnO>; Thu, 1 Nov 2001 15:43:14 -0500
-Message-ID: <3BE1B3C5.E3D630D9@didntduck.org>
-Date: Thu, 01 Nov 2001 15:42:45 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+	id <S279771AbRKAVA6>; Thu, 1 Nov 2001 16:00:58 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:32012 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S279768AbRKAVAm>; Thu, 1 Nov 2001 16:00:42 -0500
+Message-ID: <3BE1B6CD.7DA43A6C@zip.com.au>
+Date: Thu, 01 Nov 2001 12:55:41 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13-ac2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Nick LeRoy <nleroy@cs.wisc.edu>
-CC: "Jeffrey W. Baker" <jwbaker@acm.org>, linux-kernel@vger.kernel.org
-Subject: Re: on exit xterm  totally wrecks linux 2.4.11 to 2.4.14-pre6 
- (unkillable processes)
-In-Reply-To: <Pine.LNX.4.33.0111011212220.27747-100000@windmill.gghcwest.com> <200111012035.fA1KZMG11816@schroeder.cs.wisc.edu>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.4.14-pre6
+In-Reply-To: message from Linus Torvalds on Wednesday October 31,
+		<Pine.LNX.4.33.0110310809200.32460-100000@penguin.transmeta.com> <15329.8658.642254.284398@notabene.cse.unsw.edu.au>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick LeRoy wrote:
+Neil Brown wrote:
 > 
-> On Thursday 01 November 2001 14:13, you wrote:
-> > On Thu, 1 Nov 2001, Nick LeRoy wrote:
-> > > Marked experiment, for now.  What about when it's no longer
-> > > "experimental"? Configuring a kernel to enable such a feature should
-> > > *not* break applications, especially something as prolific as xterm.
-> >
-> > Are you sure you know what you are talking about?  Devfs causes this
-> > problem because of a defect, not by design.  It is marked experimental
-> > because it's loaded with such defects.  Don't use it until the
-> > experimental tag is removed, if you are not prepared for some malfunction.
+> ...
+> What I would like is that as soon as a buffer was marked "dirty", it
+> would get passed down to the driver (or at least to the
+> block-device-layer) with something like
+>     submit_bh(WRITEA, bh);
+> i.e. a write ahead. (or is it write-behind...)
+> The device handler (the elevator algorithm for normal disks, other
+> code for other devices) could keep them ordered in whatever way it
+> chooses, and feed them into the queues at some appropriate time.
 > 
-> Yeah, I think that I know what I'm talking about.  The question was:  Should
-> devfs be fixed, or should xterm be fixed.  I don't know how serious it is, or
-> exactly what the nature of the problem is (haven't followed the thread that
-> closely), but, from the "mile high" point of view, this defect, be it design
-> or just a one-line bug, needs to be fixed before it can be tagged
-> "non-experimental".  I don't understand why people would think otherwise, to
-> be honest.
 
-Fix devfs.  If the kernel lets a user program crash it, it's a kernel
-bug.
+Sounds sensible to me.
 
---
+In many ways, it's similar to the current scheme when it's used
+with an enormous request queue - all writeable blocks in the
+system are candidates for request merging.  But your proposal
+is a whole lot smarter.
 
-				Brian Gerst
+In particular, the current kupdate scheme of writing the
+dirty block list out in six chunks, five seconds apart
+does potentially miss out on a very large number of merging
+opportunities.  Your proposal would fix that.
+
+Another potential microoptimisation would be to write out
+clean blocks if that helps merging.  So if we see a write
+for blocks 1,2,3,5,6,7 and block 4 is known to be in memory,
+then write it out too.  I suspect this would be a win for
+ATA but a loss for SCSI.  Not sure.
+
+But I have a gut feel that all this is in the noisefloor,
+compared to The Big Problem.  It's just a matter of identifying
+and fixing TBP.  Fixing the fdatasync() thing didn't help,
+because ext2_write_inode() for a new file has to read the
+inode block from disk.  Fixing that, by doing an async preread
+of the inode's block in ext2_new_inode() didn't help either,
+I suspect because my working set was so large that the VM
+tossed out my preread before I got to use it.  A few more days
+poking is needed.
+
+
+
+Oh.  I have a gripe concerning prune_icache().  The design
+idea behind keventd is that it's a "process context bottom
+half handler".  It's used for things like cardbus hotplug
+interrupt handlers, handling tty hangups, etc.  It should
+probably run SCHED_FIFO.
+
+Using keventd to synchronously flush large amounts of 
+data out to disk constitutes gross abuse - it's being blocked
+from performing its designed duties for many seconds.  Can we
+please not do that?  We already have kswapd, kupdate, bdflush,
+which should be sufficient.
+
+-

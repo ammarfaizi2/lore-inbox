@@ -1,48 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267937AbTBSD1i>; Tue, 18 Feb 2003 22:27:38 -0500
+	id <S267956AbTBSD0R>; Tue, 18 Feb 2003 22:26:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267935AbTBSD1i>; Tue, 18 Feb 2003 22:27:38 -0500
-Received: from ns1.mountaincable.net ([24.215.0.11]:3490 "EHLO
-	ns1.mountaincable.net") by vger.kernel.org with ESMTP
-	id <S267937AbTBSD1K>; Tue, 18 Feb 2003 22:27:10 -0500
-Subject: linux 2.5: crypto core + block devices + ???
-From: desrt <desrt@desrt.ca>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1045625825.2879.8.camel@nothing.desrt.ca>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1- 
-Date: 18 Feb 2003 22:37:05 -0500
-Content-Transfer-Encoding: 7bit
+	id <S267951AbTBSDZU>; Tue, 18 Feb 2003 22:25:20 -0500
+Received: from dp.samba.org ([66.70.73.150]:63163 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267935AbTBSDY1>;
+	Tue, 18 Feb 2003 22:24:27 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: Roman Zippel <zippel@linux-m68k.org>, kuznet@ms2.inr.ac.ru,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Is an alternative module interface needed/possible? 
+In-reply-to: Your message of "Tue, 18 Feb 2003 14:22:57 -0300."
+             <20030218142257.A10210@almesberger.net> 
+Date: Wed, 19 Feb 2003 14:30:46 +1100
+Message-Id: <20030219033429.9DA592C0CC@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+In message <20030218142257.A10210@almesberger.net> you write:
+> Next round: possible remedies and their side-effects. As
+> usual, if you disagree with something, please holler.
+> 
+> If yes, let's look at possible (and not overly insane) solutions,
+> using remove_proc_entry as a case study:
+> 
+> 1) still don't kfree, and leave it to the user to somehow
+>    minimize the damage. (Good luck :-)
+> 
+> 2) add a callback that is invoked when the proc entry gets
+>    deleted. (This callback may be called before remove_proc_entry
+>    completes.) Problem: unload/return race for modules.
 
-I've recently been poking around the 2.5 source tree.  I've noticed that
-we now have crypto built into the stock kernel distribution (good).  The
-loopback driver doesn't appear to support using the crypto API though.
-(bad)
+OK.  For reference, the "state of 2.4" solution (which is also the
+"state of 2.5" solution) looks like:
 
-Looking at the way the crypto api works (ie: skatterlists) makes it seem
-vaguely compatible with what I've read about the new block device IO
-mechanisms in 2.5.  Is this an accident?  Is there some generic crypto
-support for block devices planned that will obsolete using the loopback
-driver to this end? (like the pages get decrypted upon loading into the
-buffer cache from the physical media or whatever? i'm not really sure
-how all the block device stuff works,...)
+> 	struct proc_dir_entry *de = create_proc_entry(...);
+> 	void *my_data;
+> 
+> 	de->data = my_data = kmalloc(...);
+=====>  de->owner = THIS_MODULE;
+> 	...
+> 	remove_proc_entry(...);
+> 	/* what happens with "my_data", formerly known as "de->data" ? */
 
-If there are no deeper motives here and the intention is to continue
-supporting encrypted filesystems via the loopback interface, is there
-anyone working on the project?  It seems a little bit slow (or
-uncertain) with respects to the 2.5 kernels.  If somebody is needed to
-write some code, I'd be willing to write a loopback transfer function to
-interact with the crypto core.  (I'd have no idea where to start for the
-generic block device crypto ramblings mentioned above...)
+And have proc_file_operations do the standard owner get and release:
 
-Anyway.. thanks in advance.  Please CC replies to my address as I'm not
-a list member.
-Ryan
+	open: proc_open,
+	release: proc_release,
 
+static int proc_open(struct inode *inode, struct file *filp)
+{
+	struct proc_dir_entry *dp = PDE(inode);
+	if (!try_module_get(dp->owner))
+		return -ENOENT;
+	return 0;
+}
+
+static int proc_release(struct inode *inode, struct file *filp)
+{
+	struct proc_dir_entry *dp = PDE(inode);
+	module_put(dp->owner);
+	return 0;
+}
+
+Now, if remove_proc_entry() is called from module_exit(), the kfree()
+works fine, since (1) we wouldn't be in module_exit() if the proc
+entry was in used, and (2) the try_module_get() prevents any new
+users.
+
+Of course, if you wanted to remove the entry at any other time
+(eg. hotplug), this doesn't help you one damn bit (which is kind of
+your point).
+
+> 3) change remove_proc_entry or add remove_proc_entry_wait that
+>    works like remove_proc_entry, but blocks until the entry is
+>    deleted. Problem: may sleep "forever".
+
+This is what network devices do, and what the sockopt registration
+code does, too, so this is already in the kernel, too.  It's not
+great, but it becomes a noop for the module deregistration stuff.
+
+Thanks!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

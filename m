@@ -1,64 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261574AbREOVcS>; Tue, 15 May 2001 17:32:18 -0400
+	id <S261578AbREOVjJ>; Tue, 15 May 2001 17:39:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261573AbREOVcA>; Tue, 15 May 2001 17:32:00 -0400
-Received: from iq.pvv.ntnu.no ([129.241.210.223]:52488 "HELO iq.pvv.ntnu.no")
-	by vger.kernel.org with SMTP id <S261559AbREOVb1>;
-	Tue, 15 May 2001 17:31:27 -0400
-Date: Tue, 15 May 2001 23:31:23 +0200 (CEST)
-From: =?ISO-8859-1?Q?Karl_Erik_=D8y=F8ygard?= <oyoy@pvv.ntnu.no>
-To: <linux-kernel@vger.kernel.org>
-Subject: "kernel: attempt to access beyond end of device" on 2.2.18
-Message-ID: <Pine.BSF.4.33.0105152330180.37736-100000@verden.pvv.ntnu.no>
+	id <S261579AbREOVi7>; Tue, 15 May 2001 17:38:59 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:46733 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261578AbREOViy>;
+	Tue, 15 May 2001 17:38:54 -0400
+Date: Tue, 15 May 2001 17:38:52 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Timothy A. Seufert" <tas@appsig.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <3B019F2E.7CC8C39A@appsig.com>
+Message-ID: <Pine.GSO.4.21.0105151733540.22958-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-I've seen reports of simmilar problems from time to time, but none recently.
-I've seen no explanation to the cause of these errors, nor any fix, but I've had
-these errors on two different machines, so the problem might still exist. Also,
-I sometimes get FS corruption, so any help on this problem would be greatly
-appreciated.
-
-I get these errors every few weeks on one of my machines running 2.2.18 with
-only IDE disks, e2fs only. (hda2 is my root fs)
-
-May 15 12:15:18 brutus-debian kernel: dev 03:02 blksize=1024 blocknr=1918115950
-sector=-458735396 size=1024 count=1
-May 15 12:15:18 brutus-debian kernel: attempt to access beyond end of device
-May 15 12:15:18 brutus-debian kernel: 03:02: rw=0, want=673214562, limit=562464
-May 15 12:15:18 brutus-debian kernel: dev 03:02 blksize=1024 blocknr=673214561
-sector=1346429122 size=1024 count=1
-May 15 12:15:18 brutus-debian kernel: EXT2-fs warning (device ide0(3,2)):
-ext2_free_blocks: bit already cleared for block 532867
-
-# lspci -v
-00:00.0 Host bridge: Intel Corporation 430HX - 82439HX TXC [Triton II] (rev 03)
-        Flags: bus master, medium devsel, latency 32
-
-00:01.0 ISA bridge: Intel Corporation 82371SB PIIX3 ISA [Natoma/Triton II] (rev
-01)
-        Flags: bus master, medium devsel, latency 0
-
-00:01.1 IDE interface: Intel Corporation 82371SB PIIX3 IDE [Natoma/Triton II]
-(prog-if 80 [Master])
-        Flags: bus master, medium devsel, latency 32
-        I/O ports at ffa0
 
 
-I have no idea where to start looking, but if someone have any ideas, I'll
-try to help track this down.
+On Tue, 15 May 2001, Timothy A. Seufert wrote:
 
+> Why not take it a step further than just devices?  This is a perfect
+> model for supporting named forks.
 
-Regards,
--oyoy-
+Because unlike devices you need to be able to tar the tree up, copy it,
+edit, etc.
 
--CC: me...
-
-
-
+Please, don't mix _that_ flamewar into the thread, OK?
 

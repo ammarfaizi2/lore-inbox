@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262282AbULMT51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbULMTyC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbULMT51 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 14:57:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbULMTyU
+	id S261333AbULMTyC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 14:54:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262287AbULMTwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 14:54:20 -0500
-Received: from bv-n-3b5d.adsl.wanadoo.nl ([212.129.187.93]:16137 "EHLO
-	legolas.dynup.net") by vger.kernel.org with ESMTP id S262316AbULMTtS
+	Mon, 13 Dec 2004 14:52:09 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:58868 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262278AbULMTfU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 14:49:18 -0500
-From: Rudmer van Dijk <rudmer@legolas.dynup.net>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-rc3-mm1
-Date: Mon, 13 Dec 2004 20:49:11 +0100
-User-Agent: KMail/1.7.2
-Cc: marado@student.dei.uc.pt, linux-kernel@vger.kernel.org
-References: <20041213020319.661b1ad9.akpm@osdl.org> <200412131910.24255.rudmer@legolas.dynup.net> <20041213113336.02a0abfd.akpm@osdl.org>
-In-Reply-To: <20041213113336.02a0abfd.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 13 Dec 2004 14:35:20 -0500
+Subject: Re: dynamic-hz
+From: john stultz <johnstul@us.ibm.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Pavel Machek <pavel@suse.cz>, Con Kolivas <kernel@kolivas.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041213110852.GQ16322@dualathlon.random>
+References: <20041211142317.GF16322@dualathlon.random>
+	 <20041212163547.GB6286@elf.ucw.cz>
+	 <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org>
+	 <20041212234256.GK6272@elf.ucw.cz>
+	 <cone.1102896588.31702.10669.502@pc.kolivas.org>
+	 <20041213104321.GB7340@elf.ucw.cz>
+	 <20041213110852.GQ16322@dualathlon.random>
+Content-Type: text/plain
+Message-Id: <1102966592.1281.397.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 13 Dec 2004 11:36:32 -0800
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412132049.11750.rudmer@legolas.dynup.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 December 2004 20:33, Andrew Morton wrote:
-> Rudmer van Dijk <rudmer@legolas.dynup.net> wrote:
-> > > OTOH, while I had no problems with the previous mm's or with
-> > > 2.6.10-rc3,
-> > >
-> >  > with -rc3-mm1 kdm has an weird function: with kdm/unstable uptodate
-> >  > 4:3.3.1-3 from Debian it just restarts X when it's going to show the
-> >  > login/password form, restarting over and over.
-> >
-> >  saw it too with gdm on Gentoo,
->
-> It's probably the ioctl screwup.
->
->
-> From: Mikael Pettersson <mikpe@csd.uu.se>
->
-> The ioctl-cleanup.patch in 2.6.10-rc3-mm1 broke the file ioctls: FIONREAD
-> etc.  These ioctls have inline code for S_ISREG() cases, but should be
-> redirected to ->ioctl() for other cases.  ioctl-cleanup.patch removed that
-> redirection.
->
-> For me, both emacs and X refused to start from a console with ENOTTY
-> errors; at least emacs got the ENOTTY from FIONREAD.
->
+On Mon, 2004-12-13 at 03:08, Andrea Arcangeli wrote:
+> On Mon, Dec 13, 2004 at 11:43:21AM +0100, Pavel Machek wrote:
+> > Doing lot less per timer tick is not going to help much... You cpu
+> 
+> I also doubt we can do significantly less per timer tick. 
 
-the patch fixed it, all is working now.
+Well, I'd like see the timeofday timekeeping work reduced so we don't do
+it every tick. Instead it would become a scheduled event that goes off
+every second or so.
 
-thanks,
+thanks
+-john
 
- Rudmer

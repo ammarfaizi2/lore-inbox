@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129652AbRAMVpZ>; Sat, 13 Jan 2001 16:45:25 -0500
+	id <S129523AbRAMV4j>; Sat, 13 Jan 2001 16:56:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129792AbRAMVpP>; Sat, 13 Jan 2001 16:45:15 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:11792 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129652AbRAMVo4>;
-	Sat, 13 Jan 2001 16:44:56 -0500
-Date: Sat, 13 Jan 2001 22:44:30 +0100
-From: Andi Kleen <ak@suse.de>
-To: Krzysztof Rusocki <lkml@braxis.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 (w/XFS) & reset_xmit_timer
-Message-ID: <20010113224430.A17213@gruyere.muc.suse.de>
-In-Reply-To: <20010113221142.A3913@main.braxis.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010113221142.A3913@main.braxis.co.uk>; from lkml@braxis.co.uk on Sat, Jan 13, 2001 at 10:11:42PM +0100
+	id <S129584AbRAMV43>; Sat, 13 Jan 2001 16:56:29 -0500
+Received: from nrg.org ([216.101.165.106]:41282 "EHLO nrg.org")
+	by vger.kernel.org with ESMTP id <S129523AbRAMV4X>;
+	Sat, 13 Jan 2001 16:56:23 -0500
+Date: Sat, 13 Jan 2001 13:56:18 -0800 (PST)
+From: Nigel Gamble <nigel@nrg.org>
+Reply-To: nigel@nrg.org
+To: Roger Larsson <roger.larsson@norran.net>
+cc: george anzinger <george@mvista.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Latency: allowing resheduling while holding spin_locks
+In-Reply-To: <01011315231600.01469@dox>
+Message-ID: <Pine.LNX.4.05.10101131335380.10740-100000@cosmic.nrg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 13, 2001 at 10:11:42PM +0100, Krzysztof Rusocki wrote:
-> 
-> Hi,
-> 
-> Since 2.4.0 (from XFS CVS source tree) i get such things from kernel:
-> 
-> Jan 13 20:55:48 main kernel: reset_xmit_timer sk=c299b9a0 1 when=0x6061, caller=c0218f88 
+On Sat, 13 Jan 2001, Roger Larsson wrote:
+> A rethinking of the rescheduling strategy...
 
-It's harmless. Just ignore them or comment out the printk if it bothers
-you.
+Actually, I think you have more-or-less described how successful
+preemptible kernels have already been developed, given that your
+"sleeping spin locks" are really just sleeping mutexes (or binary
+semaphores).
 
+1.  Short critical regions are protected by spin_lock_irq().  The maximum
+value of "short" is therefore bounded by the maximum time we are happy
+to disable (local) interrupts - ideally ~100us.
 
--Andi
+2.  Longer regions are protected by sleeping mutexes.
+
+3.  Algorithms are rearchitected until all of the highly contended locks
+are of type 1, and only low contention locks are of type 2.
+
+This approach has the advantage that we don't need to use a no-preempt
+count, and test it on exit from every spinlock to see if a preempting
+interrupt that has caused a need_resched has occurred, since we won't
+see the interrupt until it's safe to do the preemptive resched.
+
+Nigel Gamble                                    nigel@nrg.org
+Mountain View, CA, USA.                         http://www.nrg.org/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

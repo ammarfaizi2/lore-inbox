@@ -1,80 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264659AbRFPVP7>; Sat, 16 Jun 2001 17:15:59 -0400
+	id <S264662AbRFPV1o>; Sat, 16 Jun 2001 17:27:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264660AbRFPVPt>; Sat, 16 Jun 2001 17:15:49 -0400
-Received: from smtp-rt-3.wanadoo.fr ([193.252.19.155]:4008 "EHLO
-	apicra.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S264659AbRFPVPn>; Sat, 16 Jun 2001 17:15:43 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: pci_disable_device() vs. arch
-Date: Sat, 16 Jun 2001 23:14:49 +0200
-Message-Id: <20010616211449.2117@smtp.wanadoo.fr>
-In-Reply-To: <3B2BC57F.408A9B18@mandrakesoft.com>
-In-Reply-To: <3B2BC57F.408A9B18@mandrakesoft.com>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S264663AbRFPV1f>; Sat, 16 Jun 2001 17:27:35 -0400
+Received: from dialin-194-29-61-106.berlin.gigabell.net ([194.29.61.106]:36612
+	"EHLO server1.localnet") by vger.kernel.org with ESMTP
+	id <S264662AbRFPV1Y>; Sat, 16 Jun 2001 17:27:24 -0400
+Date: Sat, 16 Jun 2001 23:27:40 +0200
+From: =?ISO-8859-1?Q?Ren=E9?= Rebe <rene.rebe@gmx.net>
+To: =?ISO-8859-1?Q?Ren=E9?= Rebe <rene.rebe@gmx.net>
+Cc: jsimmons@transvirtual.com, linux-kernel@vger.kernel.org,
+        ademar@conectiva.com.br, rolf@sir-wum.de,
+        linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: sis630 - help needed debugging in the kernel
+Message-Id: <20010616232740.092475e2.rene.rebe@gmx.net>
+In-Reply-To: <20010613232502.34fd0237.rene.rebe@gmx.net>
+In-Reply-To: <20010613172320.306d5208.rene.rebe@gmx.net>
+	<Pine.LNX.4.10.10106130952590.16375-100000@transvirtual.com>
+	<20010613232502.34fd0237.rene.rebe@gmx.net>
+Organization: FreeSourceCommunity ;-)
+X-Mailer: Sylpheed version 0.4.99 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->Its not clutter -- what you are doing is hiding pieces of the driver
->from the driver maintainer.  pcibios_enable_device should not be
->cluttered up with such mess, too.
+Hi all!
 
-Well... pcibios_enable_device() has to at least make sure the device
-gets powered up as it's powered down after PCI probe. Except if we
-end up calling pci_set_power_state() to power it up early in the
-sungem driver.
+On Wed, 13 Jun 2001 23:25:02 +0200
+René Rebe <rene.rebe@gmx.net> wrote:
 
->I point out that I recently fixed a bug where Via interrupts were being
->assigned incorrectly.  If I had not done a global grep for Via
->irq-related code, I would have missed the spot where the PPC code was
->doing a kludge for one of the four on-board Via devices, hardcoding the
->USB irq number to 11.
+> Thanks for the quick reply!
+> 
+> On Wed, 13 Jun 2001 09:54:21 -0700 (PDT)
+> James Simmons <jsimmons@transvirtual.com> wrote:
+> 
+> > 
+> > > I currently try to debug why the sisfb driver crashes my machine. (SIS 630
+> > > based laptop - linux-2.4.5-ac13).
+> > 
+> > You can do one of two things. Post both System.map and the complete oops
+> > or you can run ksymoops on the oops. I can find the problem then. Thanks.
+> 
+> ksymoops' output is attached.
 
-Hrm... interrupt routing on some PPC-based motherboard is quite a
-mess, fortunately that's not the case on pmacs. The IRQ assignement
-has to be part of the arch AFAIK, only the arch knows on which
-interrupt line of the controller a given chip is wired and how
-interrupt controllers are cascaded.
+Is there any result with this trace??
 
->Correct.  If your driver uses the API correctly, then when/if we want to
->mess around with hotplug resource assignment, we can un-assign resources
->as we like.  Since there aren't too many users of pci_disable_device so
->far, I want to make sure early adopters get it right.
+[...]
 
-Well... at least with sungem, there's no such risk as the entire bus
-(up to the host bridge) where it lives is internal to the UniNorth
-ASIC.
+k33p h4ck1n6 René
 
->Can you give a -specific- example of arch code that is -not- sungem
->related, but needs to occur when one powers-down a sungem MAC?
->
->If the PM code is related to sungem, it belongs in sungem.
->So far I don't see a need for arch-specific hooks anywhere...
+-- 
+René Rebe (Registered Linux user: #127875)
+http://www.rene.rebe.myokay.net/
+-Germany-
 
-Hrm... let me try again...
-
-Powering down individual devices can be controlled by the PCI PM
-capabilities, or in some cases (at least 2 cases here on UniNorth
-based pmacs) by other bits in the host bridge.
-
-What I suggest if for pci_bus to have an optional set_power_state
-function that is called when a device on that bus calls
-pci_set_power_state(). This function would then be able to implement
-those cases where power control is possible, while not done
-via PCI PM caps.
-
-A pci_bus structure exist for both "root" busses and busses under
-PCI<->PCI bridges, so effectively, there's a pci_bus structure per
-bridge (beeing host or PCI<->PCI). I beleive it makes sense for
-the bridge to have a way to handle the child power state. 
-
-Ben
-
-
+Anyone sending unwanted advertising e-mail to this address will be charged
+$25 for network traffic and computing time. By extracting my address from
+this message or its header, you agree to these terms.

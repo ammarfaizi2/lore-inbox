@@ -1,60 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263646AbUASWvO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 17:51:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264434AbUASWvN
+	id S263942AbUASW5o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 17:57:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264941AbUASW5o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 17:51:13 -0500
-Received: from gprs214-67.eurotel.cz ([160.218.214.67]:12417 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263646AbUASWt6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 17:49:58 -0500
-Date: Mon, 19 Jan 2004 21:45:51 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: ncunningham@users.sourceforge.net, Hugang <hugang@soulinfo.com>,
-       ncunningham@clear.net.nz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       debian-powerpc@lists.debian.org
-Subject: Re: Help port swsusp to ppc.
-Message-ID: <20040119204551.GB380@elf.ucw.cz>
-References: <20040119105237.62a43f65@localhost> <1074483354.10595.5.camel@gaston> <1074489645.2111.8.camel@laptop-linux> <1074490463.10595.16.camel@gaston>
+	Mon, 19 Jan 2004 17:57:44 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:18100 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S263942AbUASW5j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 17:57:39 -0500
+Date: Mon, 19 Jan 2004 14:57:27 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: admin@kornet.net, postmaster@kornet.net, abuse@kornet.net
+Subject: Fwd: [ERR] [2.6][smbfs] smb_open & smb_readpage_sync errors in kernel log
+Message-ID: <20040119225727.GU8664@srv-lnx2600.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, admin@kornet.net,
+	postmaster@kornet.net, abuse@kornet.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1074490463.10595.16.camel@gaston>
-X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Looks like someone has misconfigured this mail server...
 
-> > That idea is to have a section that doesn't get replaced when we copy
-> > the original kernel back. Thus, small amounts of data that suspend uses
-> > or stores can be given the __nosave attribute. An example is the cpu
-> > frequency value, which should match the boot kernel, not the value at
-> > suspend time.
-> 
-> That's very hairy... You basically assume the boot kernel and the
-> restore kernel are completely identical, which isn't something I would
-> do. I didn't have time to dive into it, but I do/did intend to implement
-> swsusp on ppc and I would eventually resume the whole environement
-> straight from the bootloader without kernel help.
+It shouldn't be bouncing to everyone sending to the list, and the mailserver
+should be looking at the Return-path: header.
 
-Well, then what you do is not swsusp.
+----- Forwarded message from postmaster@kornet.net -----
 
-swsusp does assume same kernel during suspend and resume. Doing resume
-within bootloader (and thus avoiding this) would be completely
-different design.
+Delivery-date: Mon, 19 Jan 2004 14:50:52 -0800
+Auto-Submitted: auto-generated
+Date: Tue, 20 Jan 2004 07:51:05 +0900
+From: postmaster@kornet.net
+To: mfedyk@matchmail.com
+Subject: [ERR] [2.6][smbfs] smb_open & smb_readpage_sync errors in kernel log
+X-MsgID: 1074552665755977959.0.ppp15
+X-Spam-DCC: : 
+X-Spam-Checker-Version: SpamAssassin 2.61 (1.212.2.1-2003-12-09-exp) on 
+	fileserver.matchmail.com
+X-Spam-Level: 
+X-Spam-Status: No, hits=-4.7 required=7.0 tests=BAYES_00,NO_REAL_NAME 
+	autolearn=no version=2.61
 
-> Also, I haven't looked in details, but when switching to the "new" kernel
-> from the "loader" (boot) one, do you shut down all devices properly ?
-> This switch could actually be fairly similar to a kexec pass in this
-> regard.
+Transmit Report:
 
-I hope we do shut devices down. In my tree at least.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+ To: pupuru@kornet.net, 452 Requested action not taken: insufficient system storage.[28,-1,41]
+
+X-MsgID: 1074552665511616396.0.ppp15
+Date:	Mon, 19 Jan 2004 10:44:35 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6][smbfs] smb_open & smb_readpage_sync errors in kernel log
+Y-Message-ID: <20040119184435.GT8664@srv-lnx2600.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+User-Agent: Mutt/1.5.4i
+X-Mailing-List:	linux-kernel@vger.kernel.org
+
+I've been getting these error messages in my kernel forever, I think even
+with 2.2 kernels, and it's still there in 2.6:
+
+smb_open: config/SAM open failed, result=-26
+smb_readpage_sync: config/SAM open failed, error=-26
+
+It does this for several locked system files on the windows machines.
+
+This happens during a find command run on the mounted share from one of my
+scripts that compares file dates.
+
+Can these printk calls be removed?
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+----- End forwarded message -----

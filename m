@@ -1,71 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262077AbVCNXNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbVCNXQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262077AbVCNXNt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 18:13:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbVCNXNh
+	id S262071AbVCNXQN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 18:16:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbVCNXOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 18:13:37 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:34485
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262022AbVCNXNG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 18:13:06 -0500
-Date: Mon, 14 Mar 2005 15:11:42 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: tony.luck@intel.com, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, hugh@veritas.com
-Subject: Re: bad pgd/pmd in latest BK on ia64
-Message-Id: <20050314151142.716903cb.davem@davemloft.net>
-In-Reply-To: <20050314143442.2ab086c9.davem@davemloft.net>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F031272AF@scsmsx401.amr.corp.intel.com>
-	<20050314143442.2ab086c9.davem@davemloft.net>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Mon, 14 Mar 2005 18:14:09 -0500
+Received: from smtp220.tiscali.dk ([62.79.79.114]:1807 "EHLO
+	smtp220.tiscali.dk") by vger.kernel.org with ESMTP id S262071AbVCNXNR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 18:13:17 -0500
+Subject: Re: pam and nice-rt-prio-rlimits
+From: Vegard Lima <Vegard.Lima@hia.no>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050314214336.GG3163@waste.org>
+References: <1110791657.1807.11.camel@pingvin.krs.hia.no>
+	 <20050314214336.GG3163@waste.org>
+Content-Type: text/plain; charset=utf-8
+Date: Tue, 15 Mar 2005 00:13:15 +0100
+Message-Id: <1110841995.3976.11.camel@tordenfugl.lima.heim>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Mar 2005 14:34:42 -0800
-"David S. Miller" <davem@davemloft.net> wrote:
-
-> On Mon, 14 Mar 2005 14:06:09 -0800
-> "Luck, Tony" <tony.luck@intel.com> wrote:
-> 
-> > Trying to boot a build of the latest BK on ia64 I see
-> > a series of messages like this:
+må den 14.03.2005 Klokka 13:43 (-0800) skreiv Matt Mackall:
+> On Mon, Mar 14, 2005 at 10:14:17AM +0100, Vegard Lima wrote:
+> > Hello,
 > > 
-> > mm/memory.c:99: bad pgd e0000001feba4000.
-> > mm/memory.c:99: bad pgd e0000001febac000.
-> > mm/memory.c:99: bad pgd e0000001febc0d10.
+> > in the long thread on "[request for inclusion] Realtime LSM" there
+> > doesn't appear to be too many people who has actually tested the
+> > nice-and-rt-prio-rlimits.patch. Well, it works for me...
+> > 
+> > However, the patch to pam_limits posted here:
+> >   http://lkml.org/lkml/2005/1/14/174
+> > is a little bit aggressive on the semi-colon side.
 > 
-> Things are similarly busted on sparc64 for me as well.
-> Things instantly reboot right after the kernel tries
-> to open an initial console.
+> It would be more helpful if you pointed out the exact bug. But I think
+> I spotted the bug in question the first time around.
 
-As a followup, when I get an instant reboot like this
-it usually means that some loop walking over memory
-doesn't terminate properly.  Once the first access to
-bogus I/O addresses (past the end of physical RAM)
-happens, the machine soft reboots.
+Sorry, the incremental patch looks like this
 
-I therefore suspect the pgwalk patches.
+--- Linux-PAM-0.77/modules/pam_limits/pam_limits.c-rtprio	2005-03-15 00:04:30.000000000 +0100
++++ Linux-PAM-0.77/modules/pam_limits/pam_limits.c	2005-03-15 00:04:58.000000000 +0100
+@@ -370,16 +370,15 @@
+             limit_value *= 1024;
+             break;
+         case RLIMIT_NICE:
+-            limit_value = 19 - limit_value;
+             if (limit_value > 39)
+ 		limit_value = 39;
+-	    if (limit_value < 0);
++	    if (limit_value < 0)
+ 		limit_value = 0;
+             break;
+         case RLIMIT_RTPRIO:
+             if (limit_value > 99)
+ 		limit_value = 99;
+-	    if (limit_value < 0);
++	    if (limit_value < 0)
+ 		limit_value = 0;
+             break;
+     }
 
-One thing to note on sparc64 (I'm not sure on ia64) is
-that the address passed into handle_mm_fault() can have
-non-PAGE_MASK bits set in it (these are state bits from
-the MMU miss handlers).
 
-Does ia64 cause something similar to happen?
+The conversion
+  limit_value = 19 - limit_value;
+takes place in can_nice() in kernel/schec.c and had to be removed.
 
-This never caused problems before, but it may be causing
-troubles with the new pgwalk macros.  For example, the
-new do { } while() loops test for exactness in the loop
-termination test.  If there are low bits set in "addr",
-we'll walk right past "end" in the loops and go on like
-that forever.
+> Please double-check and test this patch from -mm, which will likely
+> show up in mainline:
+> 
+> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm3/broken-out/nice-and-rt-prio-rlimits.patch
 
-I cannot, however, yet see a path where the handle_mm_fault()
-address gets passed into the new pgwalk macro loops.  That
-is what I'm searching for now :-)
+Sound good.
+I've tested with both 2.6.11-mm3 and 2.6.11-bk10 + patch above.
+jackd starts OK with realtime scheduling and playing with nice seems OK
+when I have positive values for "rt_priority" and "nice" in limits.conf.
+
+
+Thanks,
+-- 
+Vegard Lima
+

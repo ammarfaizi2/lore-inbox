@@ -1,95 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269747AbTGUL1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 07:27:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269755AbTGUL1Y
+	id S269671AbTGULXA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 07:23:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269685AbTGULW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 07:27:24 -0400
-Received: from ns.suse.de ([213.95.15.193]:38927 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269747AbTGUL1K (ORCPT
+	Mon, 21 Jul 2003 07:22:59 -0400
+Received: from dp.samba.org ([66.70.73.150]:28141 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S269671AbTGULWz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 07:27:10 -0400
-Message-ID: <3F1BD193.3080701@suse.de>
-Date: Mon, 21 Jul 2003 13:42:11 +0200
-From: Hannes Reinecke <hare@suse.de>
-Organization: SuSE Linux AG
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021204
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] include/linux/personality.h
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------020307050502090908030307"
+	Mon, 21 Jul 2003 07:22:55 -0400
+From: Rusty Trivial Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [TRIVIAL] Re: Remove chatty printk on CPU bringup.
+Date: Mon, 21 Jul 2003 21:28:09 +1000
+Message-Id: <20030721113757.489C32C6B8@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020307050502090908030307
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+[ Only having one processor is not an error.  It still happens to some
+  people: let's not deprive them of their bogomips printk as well --RR ]
 
-Hi all,
 
-the attached patch encloses the kernel-only parts of personality.h with
-__KERNEL__ to prevent them to be visible in userspace. This also fixes
-the nameclash between the macro personality() with the syscall
-personality() if the header file is included in an userspace program.
-Patch is against 2.4.21, should apply to 2.6.0-test1 equally.
+From:  Nick Piggin <piggin@cyberone.com.au>
 
-Cheers,
+  
+  Rusty Russell wrote:
+  
+  >In message <3F092E1F.7060406@cyberone.com.au> you write:
+  >
+  >>Hi Rusty,
+  >>That reminds me of this minor irritation. Maybe you
+  >>could get it applied. _Or_, do the else block
+  >>unconditionally - which would get a more consistent
+  >>output. Either way I fail to see how its an error.
+  >>
+  >
+  >Hmm, this means an SMP configuration is found, but there's only one
+  >CPU.  Does this actually happen for you?
+  >
+  
+  I test with SMP kernels on that computer I use at IBM. That
+  is how I came across the error.
+  
+  >
+  >If so, agreed.  My crash box is SMP: can you eliminate that branch
+  >entirely and do a test boot for me?
+  >
+  I don't have a UP here to test with, and the test doesn't
+  trigger with nosmp. Anyway the following compiles and boots
+  on SMP.
+  
 
-Hannes
+--- trivial-2.5.75-bk3/arch/i386/kernel/smpboot.c.orig	2003-07-21 21:22:56.000000000 +1000
++++ trivial-2.5.75-bk3/arch/i386/kernel/smpboot.c	2003-07-21 21:22:56.000000000 +1000
+@@ -937,6 +937,7 @@
+ static void __init smp_boot_cpus(unsigned int max_cpus)
+ {
+ 	int apicid, cpu, bit, kicked;
++	unsigned long bogosum = 0;
+ 
+ 	/*
+ 	 * Setup boot CPU information
+@@ -1050,24 +1051,23 @@
+ 	 */
+ 
+ 	Dprintk("Before bogomips.\n");
+-	if (!cpucount) {
+-		printk(KERN_ERR "Error: only one processor found.\n");
+-	} else {
+-		unsigned long bogosum = 0;
+-		for (cpu = 0; cpu < NR_CPUS; cpu++)
+-			if (cpu_callout_map & (1<<cpu))
+-				bogosum += cpu_data[cpu].loops_per_jiffy;
+-		printk(KERN_INFO "Total of %d processors activated (%lu.%02lu BogoMIPS).\n",
+-			cpucount+1,
+-			bogosum/(500000/HZ),
+-			(bogosum/(5000/HZ))%100);
+-		Dprintk("Before bogocount - setting activated=1.\n");
+-	}
++	for (cpu = 0; cpu < NR_CPUS; cpu++)
++		if (cpu_callout_map & (1<<cpu))
++			bogosum += cpu_data[cpu].loops_per_jiffy;
++	printk(KERN_INFO
++		"Total of %d processors activated (%lu.%02lu BogoMIPS).\n",
++		cpucount+1,
++		bogosum/(500000/HZ),
++		(bogosum/(5000/HZ))%100);
++	Dprintk("Before bogocount - setting activated=1.\n");
+ 
+ 	if (smp_b_stepping)
+ 		printk(KERN_WARNING "WARNING: SMP operation may be unreliable with B stepping processors.\n");
+ 
+-	/* Don't taint if we are running SMP kernel on a single non-MP approved Athlon  */
++	/*
++	 * Don't taint if we are running SMP kernel on a single non-MP
++	 * approved Athlon
++	 */
+ 	if (tainted & TAINT_UNSAFE_SMP) {
+ 		if (cpucount)
+ 			printk (KERN_INFO "WARNING: This combination of AMD processors is not suitable for SMP.\n");
 -- 
-Dr. Hannes Reinecke			hare@suse.de
-SuSE Linux AG				S390 & zSeries
-Deutschherrnstr. 15-19			+49 911 74053 688
-90429 Nürnberg				http://www.suse.de
-
-
---------------020307050502090908030307
-Content-Type: text/plain;
- name="personality.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="personality.patch"
-
---- linux-2.4.21-7/include/linux/personality.h.orig	2003-07-21 13:06:24.000000000 +0200
-+++ linux-2.4.21-7/include/linux/personality.h	2003-07-21 13:07:53.000000000 +0200
-@@ -1,6 +1,8 @@
- #ifndef _LINUX_PERSONALITY_H
- #define _LINUX_PERSONALITY_H
- 
-+#ifdef __KERNEL__
-+
- /*
-  * Handling of different ABIs (personalities).
-  */
-@@ -22,6 +24,7 @@
- extern unsigned long abi_defhandler_libcso;
- extern int abi_fake_utsname;
- 
-+#endif /* __KERNEL__ */
- 
- /*
-  * Flags for bug emulation.
-@@ -69,6 +72,7 @@
- 	PER_MASK =		0x00ff,
- };
- 
-+#ifdef __KERNEL__
- 
- /*
-  * Description of an execution domain.
-@@ -127,4 +131,6 @@
- 		__MOD_DEC_USE_COUNT(ep->module);	\
- } while (0)
- 
-+#endif /* __KERNEL__ */
-+
- #endif /* _LINUX_PERSONALITY_H */
-
-
---------------020307050502090908030307--
-
+  What is this? http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/
+  Don't blame me: the Monkey is driving
+  File: Nick Piggin <piggin@cyberone.com.au>: Re: [TRIVIAL] Remove chatty printk on CPU bringup.

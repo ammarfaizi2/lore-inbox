@@ -1,132 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265487AbUIMIYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266376AbUIMI3x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265487AbUIMIYf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 04:24:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUIMIYf
+	id S266376AbUIMI3x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 04:29:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266364AbUIMI3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 04:24:35 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:15600 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S265487AbUIMIY3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 04:24:29 -0400
-Date: Mon, 13 Sep 2004 10:24:09 +0200 (CEST)
-From: "Simon.Derr" <derrs@openx3.frec.bull.fr>
-To: Paul Jackson <pj@sgi.com>
-cc: Simon Derr <simon.derr@bull.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cpusets: alternative fix for possible race in
- cpuset_tasks_read()
-In-Reply-To: <20040911010120.572595e3.pj@sgi.com>
-Message-ID: <Pine.LNX.4.61.0409131012010.18437@openx3.frec.bull.fr>
-References: <Pine.LNX.4.58.0409101632100.2891@daphne.frec.bull.fr>
- <20040911010120.572595e3.pj@sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 13 Sep 2004 04:29:53 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:60310 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S266425AbUIMI3u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 04:29:50 -0400
+Date: Mon, 13 Sep 2004 10:31:00 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Roel van der Made <roel@telegraafnet.nl>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, torvalds@osdl.org, wli@holomorphy.com
+Subject: Re: [PATCH]: Re: kernel 2.6.9-rc1-mm4 oops
+Message-ID: <20040913083100.GA16921@elte.hu>
+References: <20040912184804.GC19067@telegraafnet.nl> <4145550F.8030601@sw.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4145550F.8030601@sw.ru>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+* Kirill Korotaev <dev@sw.ru> wrote:
 
-On Sat, 11 Sep 2004, Paul Jackson wrote:
+> This patch removes sighand checks from the next_thread(), since they
+> are incorrect and has nothing to do with the next_thread() function.
+> So they could trigger BUG() when there were no actually bug at all.
 
-> Here's an alternative fix for the race condition on read that Simon
-> reports.
->
-> Andrew,
->
->  Don't apply this one yet, until Simon Derr gets a chance to
->  compare with his alternative patch, and render his analysis.
->
-> Move the code that sets up the character buffer of text to read out
-> when reading a "tasks" file from the read routine to the open routine.
->
-> Multiple cloned threads could be doing the first read on a shared
-> file descriptor open on a "tasks" file, resulting in confused
-> or leaked kernel memory as multiple threads initialized the same
-> file private_data at the same time.  Rather than add locks to the
-> initialization code, move it into the open(), where it belongs anyway.
+the problem is, generally it is not valid to have a thread on the thread
+list that has no ->sighand structure. This is what happens when we exit
+a task:
 
-Indeed, this code belongs to open(). It was in read() for foolish reasons.
+        write_lock_irq(&tasklist_lock);
+	...
+        __exit_sighand(p);
+        __unhash_process(p);
 
-Your patch looks good, but I polished it a bit, so we do the buffer 
-allocation in open() only when the file is opened for reading.
+the BUG() is useful for all the code that uses next_thread() - you can
+only do a safe next_thread() iteration if you've locked ->sighand.
 
-Signed-off-by: Paul Jackson
-Signed-off-by: Simon Derr <simon.derr@bull.net>
+there's one exception: in the procfs code we can get a reference to
+almost-dead tasks as well that are not even in the tasklist. (This is a
+relatively new thing introduced by me that can happen due to the
+preemptability of some of the exit path.)
 
-Index: mm4/kernel/cpuset.c
-===================================================================
---- mm4.orig/kernel/cpuset.c	2004-09-07 11:36:18.000000000 +0200
-+++ mm4/kernel/cpuset.c	2004-09-13 09:43:02.282327670 +0200
-@@ -1052,13 +1052,16 @@ static int pid_array_to_buf(char *buf, i
-  	return cnt;
-  }
+so i believe your fix papers over the real bug which is the use of an
+almost-dead task for thread iterations. Since we've already done
+__unhash_process() not doing the BUG introduces a more subtle bug: the
+use of the stale PID pointers! So i believe the right fix is the one
+below, which (under the safety of read_lock(tasklock)) checks for the
+availability of task->sighand - and skips the thread iterations if so.
 
--static inline struct ctr_struct *cpuset_tasks_mkctr(struct file *file)
-+static int cpuset_tasks_open(struct inode *unused, struct file *file)
-  {
-  	struct cpuset *cs = __d_cs(file->f_dentry->d_parent);
-  	struct ctr_struct *ctr;
-  	pid_t *pidarray;
-  	int npids;
-  	char c;
-+ 
-+	if (!(file->f_mode & FMODE_READ))
-+		return 0;
+	Ingo
 
-  	ctr = kmalloc(sizeof(*ctr), GFP_KERNEL);
-  	if (!ctr)
-@@ -1087,14 +1090,14 @@ static inline struct ctr_struct *cpuset_
-
-  	kfree(pidarray);
-  	file->private_data = (void *)ctr;
--	return ctr;
-+	return 0;
-
-  err2:
-  	kfree(pidarray);
-  err1:
-  	kfree(ctr);
-  err0:
--	return NULL;
-+	return -ENOMEM;
-  }
-
-  static ssize_t cpuset_tasks_read(struct file *file, char __user *buf,
-@@ -1102,13 +1105,6 @@ static ssize_t cpuset_tasks_read(struct
-  {
-  	struct ctr_struct *ctr = (struct ctr_struct *)file->private_data;
-
--	/* allocate buffer and fill it on first call to read() */
--	if (!ctr) {
--		ctr = cpuset_tasks_mkctr(file);
--		if (!ctr)
--			return -ENOMEM;
--	}
--
-  	if (*ppos + nbytes > ctr->bufsz)
-  		nbytes = ctr->bufsz - *ppos;
-  	if (copy_to_user(buf, ctr->buf + *ppos, nbytes))
-@@ -1121,12 +1117,8 @@ static int cpuset_tasks_release(struct i
-  {
-  	struct ctr_struct *ctr;
-
--	/* we have nothing to do if no read-access is needed */
--	if (!(file->f_mode & FMODE_READ))
--		return 0;
--
--	ctr = (struct ctr_struct *)file->private_data;
--	if (ctr) {
-+	if (file->f_mode & FMODE_READ) {
-+		ctr = (struct ctr_struct *)file->private_data;
-  		kfree(ctr->buf);
-  		kfree(ctr);
-  	}
-@@ -1139,6 +1131,7 @@ static int cpuset_tasks_release(struct i
-
-  static struct cftype cft_tasks = {
-  	.name = "tasks",
-+	.open = cpuset_tasks_open,
-  	.read = cpuset_tasks_read,
-  	.release = cpuset_tasks_release,
-  	.private = FILE_TASKLIST,
+--- linux/fs/proc/array.c.orig
++++ linux/fs/proc/array.c
+@@ -356,7 +356,7 @@ static int do_task_stat(struct task_stru
+ 			stime = task->signal->stime;
+ 		}
+ 	}
+-	if (whole) {
++	if (whole && task->sighand) {
+ 		t = task;
+ 		do {
+ 			min_flt += t->min_flt;

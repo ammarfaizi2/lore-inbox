@@ -1,70 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130765AbRA2VtF>; Mon, 29 Jan 2001 16:49:05 -0500
+	id <S130761AbRA2VtZ>; Mon, 29 Jan 2001 16:49:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130761AbRA2Vsz>; Mon, 29 Jan 2001 16:48:55 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:15216
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S129396AbRA2Vsq>; Mon, 29 Jan 2001 16:48:46 -0500
-Date: Mon, 29 Jan 2001 22:48:38 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: lnz@dandelion.com
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH] drivers/scsi/BusLogic.c: No resource probing before pci_enable_device (241p11)
-Message-ID: <20010129224838.I603@jaquet.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
+	id <S130897AbRA2VtF>; Mon, 29 Jan 2001 16:49:05 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:33017 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129396AbRA2VtC>; Mon, 29 Jan 2001 16:49:02 -0500
+Date: Mon, 29 Jan 2001 19:47:54 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Rasmus Andersen <rasmus@jaquet.dk>
+cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] guard mm->rss with page_table_lock (241p11)
+In-Reply-To: <20010129224311.H603@jaquet.dk>
+Message-ID: <Pine.LNX.4.21.0101291946540.1321-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Mon, 29 Jan 2001, Rasmus Andersen wrote:
+> On Mon, Jan 29, 2001 at 07:30:01PM -0200, Rik van Riel wrote:
+> > On Mon, 29 Jan 2001, Rasmus Andersen wrote:
+> > 
+> > > Please comment. Or else I will continue to sumbit it :)
+> > 
+> > The following will hang the kernel on SMP, since you're
+> > already holding the spinlock here. Try compiling with
+> > CONFIG_SMP and see what happens...
+> 
+> You are right. Sloppy research by me :(
+> 
+> New patch below with the vmscan part removed.
 
-The following patch makes drivers/scsi/BusLogic.c wait with probing
-pdev->irq and pdev->resource[] until we call pci_enable_device. This
-is recommended due to hot-plug considerations (according to Jeff Garzik).
+Have you bothered to also check the rest?
 
-It applies against ac12 and 241p11.
+Don't be surprised if there are more places
+like this. Please compile your kernel with
+CONFIG_SMP and test if your changes work
+before submitting them into the stable kernel.
 
-Comments?
+regards,
 
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
---- linux-ac12-clean/drivers/scsi/BusLogic.c	Sat Jan 27 21:16:24 2001
-+++ linux-ac12/drivers/scsi/BusLogic.c	Sat Jan 27 21:32:33 2001
-@@ -770,15 +770,19 @@
-       BusLogic_ModifyIOAddressRequest_T ModifyIOAddressRequest;
-       unsigned char Bus = PCI_Device->bus->number;
-       unsigned char Device = PCI_Device->devfn >> 3;
--      unsigned int IRQ_Channel = PCI_Device->irq;
--      unsigned long BaseAddress0 = pci_resource_start(PCI_Device, 0);
--      unsigned long BaseAddress1 = pci_resource_start(PCI_Device, 1);
--      BusLogic_IO_Address_T IO_Address = BaseAddress0;
--      BusLogic_PCI_Address_T PCI_Address = BaseAddress1;
-+      unsigned int IRQ_Channel;
-+      unsigned long BaseAddress0;
-+      unsigned long BaseAddress1;
-+      BusLogic_IO_Address_T IO_Address;
-+      BusLogic_PCI_Address_T PCI_Address;
- 
-       if (pci_enable_device(PCI_Device))
-       	continue;
-       
-+      IRQ_Channel = PCI_Device->irq;
-+      IO_Address  = BaseAddress0 = pci_resource_start(PCI_Device, 0);
-+      PCI_Address = BaseAddress1 = pci_resource_start(PCI_Device, 1);
-+
-       if (pci_resource_flags(PCI_Device, 0) & IORESOURCE_MEM)
- 	{
- 	  BusLogic_Error("BusLogic: Base Address0 0x%X not I/O for "
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
-
-"The obvious mathematical breakthrough would be development of an easy way
-to factor large prime numbers." 
-  -- Bill Gates, The Road Ahead, Viking Penguin (1995)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

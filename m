@@ -1,38 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318182AbSGRQPc>; Thu, 18 Jul 2002 12:15:32 -0400
+	id <S318229AbSGRQRm>; Thu, 18 Jul 2002 12:17:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318227AbSGRQPb>; Thu, 18 Jul 2002 12:15:31 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:64773 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S318182AbSGRQPb>;
-	Thu, 18 Jul 2002 12:15:31 -0400
-Date: Thu, 18 Jul 2002 09:17:11 -0700
-From: Greg KH <greg@kroah.com>
-To: Guillaume Boissiere <boissiere@adiglobal.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
-Message-ID: <20020718161711.GD15037@kroah.com>
-References: <3D361091.13618.16DC46FB@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D361091.13618.16DC46FB@localhost>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Thu, 20 Jun 2002 15:05:16 -0700
+	id <S318252AbSGRQRm>; Thu, 18 Jul 2002 12:17:42 -0400
+Received: from divine.city.tvnet.hu ([195.38.100.154]:13317 "EHLO
+	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
+	id <S318229AbSGRQRl>; Thu, 18 Jul 2002 12:17:41 -0400
+Date: Thu, 18 Jul 2002 17:22:31 +0200 (MEST)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: Robert Love <rml@tech9.net>
+cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] strict VM overcommit for stock 2.4
+In-Reply-To: <1026495039.1750.379.camel@sinai>
+Message-ID: <Pine.LNX.4.30.0207181714420.30902-100000@divine.city.tvnet.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 18, 2002 at 12:49:21AM -0400, Guillaume Boissiere wrote:
-> o Replace initrd by initramfs                     (H. Peter Anvin, Al Viro)
 
-A few of the features above, need this feature, so I would move it up to
-"before feature freeze".  Well I hope it happens, that way we can
-actually get most of the above done :)
+On 12 Jul 2002, Robert Love wrote:
 
-And there are patches available for this on Al Viro's site, but I don't
-know the current state of them.
+> I still encourage testing and comments.
 
-thanks,
+Quickly looking through the patch I can't see what prevents total loss of
+control at constant memory pressure. For more please see:
+	http://www.uwsg.iu.edu/hypermail/linux/kernel/0108.2/0310.html
 
-greg k-h
+    Szaka
+

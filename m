@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285389AbRLNPHD>; Fri, 14 Dec 2001 10:07:03 -0500
+	id <S285388AbRLNPHN>; Fri, 14 Dec 2001 10:07:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285390AbRLNPGx>; Fri, 14 Dec 2001 10:06:53 -0500
-Received: from web12305.mail.yahoo.com ([216.136.173.103]:57606 "HELO
-	web12305.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S285389AbRLNPGg>; Fri, 14 Dec 2001 10:06:36 -0500
-Message-ID: <20011214150635.93222.qmail@web12305.mail.yahoo.com>
-Date: Fri, 14 Dec 2001 07:06:35 -0800 (PST)
-From: Stephen Cameron <smcameron@yahoo.com>
-Subject: [PATCH] cciss 2.5.0 for 2.5.1-pre11
+	id <S285390AbRLNPHD>; Fri, 14 Dec 2001 10:07:03 -0500
+Received: from w240.z209220232.was-dc.dsl.cnc.net ([209.220.232.240]:18188
+	"EHLO yendi.dmeyer.net") by vger.kernel.org with ESMTP
+	id <S285391AbRLNPGr>; Fri, 14 Dec 2001 10:06:47 -0500
+Date: Fri, 14 Dec 2001 10:06:38 -0500
+From: dmeyer@dmeyer.net
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+Subject: Re: reiser4 (was Re: [PATCH] Revised extended attributes  interface)
+Message-ID: <20011214100638.A7268@jhereg.dmeyer.net>
+Reply-To: dmeyer@dmeyer.net
+In-Reply-To: <20011214051604.723C52B54A@marcus.pants.nu> <3C19DE41.6000507@namesys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Newsgroups: local.linux.kernel
+In-Reply-To: <3C19DE41.6000507@namesys.com>
+Organization: dmeyer.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig (hch@ns.caldera.de) wrote:
-
-> In article <20011211151050.12948.qmail@web12308.mail.yahoo.com> you wrote:
-> >
-> > Here's a patch for the cciss driver in the 2.5.1-pre8 tree
-> > (patch also applies to 2.5.1-pre9): <
-> > http://geocities.com/dotslashstar/cciss_2.5.0_for_2.5.1-pre8.txt
-> >
-> > This patch:
-> >
-> > * adds support for SCSI tape drives. 
-> > * adds support for dynamically adding and removing      
-> > logical volumes on the fly.
+In article <3C19DE41.6000507@namesys.com> you write:
+> Brad Boyer wrote:
+> >In particular, the files in the snapshot keep
+> >the same inode number as the actual file. Just remember that clever
+> >solutions that almost fit the traditional model can have strange
+> >results over time.
 > 
-> * sets hardsectsizes to '0' for invalid volumes, causing devisions by zero
->    in ll_rw_block().
+> Can you detail the problem?
 
-I think I fixed this. (thanks for the patch).
+Anything that uses something like file1.st_dev==file2.st_dev &&
+file1.st_ino==file2.st_ino to decide if two filenames point to the
+same file can get terribly confused.  For example,
 
-> * backs out random fixes done in the mainline
+$ ls -li .snapshot/hourly.0/.zshrc .zshrc
+1411878 -rw-r--r--    1     1247 Mar 19  2001 .snapshot/hourly.0/.zshrc
+1411878 -rw-r--r--    1     1248 Dec 14 09:51 .zshrc
 
-I can't see what you mean here.  What "random fixes" are 
-you referring to? 
-.
-Here is a new patch against 2.5.1-pre11:
-http://www.geocities.com/smcameron/cciss_2.5.0_for_2.5.1-pre11.patch.gz
+Clearly, the file has been modified since the hourly.0 snapshot; however
 
--- steve
+$ cp .snapshot/hourly.0/.zshrc .zshrc
+cp: `.snapshot/hourly.0/.zshrc' and `.zshrc' are the same file
 
+you can't copy the snapshot on top of the current version, since they
+have the same inode number.  A somewhat contrived example, perhaps,
+but I have been bitten by something similar in the real world.  One of
+the things I would like to be able to do with a snapshot is to open a
+file in emacs, open a snapshot in another window, and compare the two
+files with ediff.  And you can't; emacs treats the original and the
+snapshot as if they were the same file - just like cp does - even
+though the file contents are different.
 
-
-
-
-__________________________________________________
-Do You Yahoo!?
-Check out Yahoo! Shopping and Yahoo! Auctions for all of
-your unique holiday gifts! Buy at http://shopping.yahoo.com
-or bid at http://auctions.yahoo.com
+-- 
+Dave Meyer
+dmeyer@dmeyer.net

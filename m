@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135255AbRDRTLX>; Wed, 18 Apr 2001 15:11:23 -0400
+	id <S135259AbRDRTON>; Wed, 18 Apr 2001 15:14:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135254AbRDRTLE>; Wed, 18 Apr 2001 15:11:04 -0400
-Received: from m492-mp1-cvx1c.col.ntl.com ([213.104.77.236]:4224 "EHLO
-	[213.104.77.236]") by vger.kernel.org with ESMTP id <S135253AbRDRTK7>;
-	Wed, 18 Apr 2001 15:10:59 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: <sfr@linuxcare.com.au>, <linux-kernel@vger.kernel.org>,
-        <apenwarr@worldvisions.ca>
-Subject: Re: Let init know user wants to shutdown
-In-Reply-To: <E14pqYS-0004Y3-00@the-village.bc.nu>
-From: John Fremlin <chief@bandits.org>
-Date: 18 Apr 2001 20:10:44 +0100
-In-Reply-To: Alan Cox's message of "Wed, 18 Apr 2001 12:55:26 +0100 (BST)"
-Message-ID: <m27l0i58i3.fsf@boreas.yi.org.>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
+	id <S135263AbRDRTOE>; Wed, 18 Apr 2001 15:14:04 -0400
+Received: from mhub5.tc.umn.edu ([160.94.218.235]:18610 "EHLO mhub5.tc.umn.edu")
+	by vger.kernel.org with ESMTP id <S135259AbRDRTNy>;
+	Wed, 18 Apr 2001 15:13:54 -0400
+Date: Wed, 18 Apr 2001 14:13:33 -0500 (CDT)
+From: Grant Erickson <erick205@umn.edu>
+To: Linux I2C Mailing List <linux-i2c@pelican.tk.uni-linz.ac.at>,
+        Linux/PPC Embedded Mailing List 
+	<linuxppc-embedded@lists.linuxppc.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Kernel Real Time Clock (RTC) Support for I2C Devices
+Message-Id: <Pine.SOL.4.20.0104181408540.10793-100000@garnet.tc.umn.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+I have been unable to find an answer for this in the LKML archives, so I
+am hoping someone on this list might perhaps have some insight or pointers
+thereto on this question.
 
-> > I'm wondering if that veto business is really needed. Why not reject
-> > *all* APM rejectable events, and then let the userspace event handler
-> > send the system to sleep or turn it off? Anybody au fait with the APM
-> > spec?
-> 
-> Because apmd is optional
+I have an embedded board with a PowerPC 405GP on which Linux 2.4.2
+(MontaVista's version thereof) is running swimmingly. Attached to that
+PowerPC's I2C controller is a Dallas DS1307 I2C RTC.
 
-The veto stuff only comes into action, iff someone has registered as
-willing to exercise this power. We would not break compatibility with
-any std kernel by instead having a apmd send a "reject all" ioctl
-instead, and so deal with events without having the pressure of having
-to reject or accept them, and let us remove all the veto code from the
-kernel driver. Or am I missing something?
+>From the looks of drivers/char/rtc.c it would appear that this kernel
+driver only supports bus-attached RTCs such as the mentioned MC146818. Is
+this correct?
+
+What is the correct access method / kernel tie-in for supporting such an
+I2C-based RTC device using the "standard" interfaces?
+
+My hope is to use 'hwclock' from util-linux w/o modification. Is this
+reasonable?
+
+Thanks,
+
+Grant Erickson
+
 
 -- 
+ Grant Erickson                       University of Minnesota Alumni
+  o mail:erick205@umn.edu                                 1996 BSEE
+  o http://www.umn.edu/~erick205                          1998 MSEE
 
-	http://www.penguinpowered.com/~vii
+

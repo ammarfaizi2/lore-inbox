@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265003AbTGFOJl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 10:09:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266657AbTGFOJl
+	id S266676AbTGFO0p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 10:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266677AbTGFO0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 10:09:41 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:16028 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S265003AbTGFOJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 10:09:40 -0400
-Date: Sun, 6 Jul 2003 11:21:49 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Brad Chapman <jabiru_croc@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Confusion regarding the 2.4 prepatches and snapshots
-In-Reply-To: <20030706131354.26756.qmail@web40002.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.55L.0307061112340.30050@freak.distro.conectiva>
-References: <20030706131354.26756.qmail@web40002.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 6 Jul 2003 10:26:45 -0400
+Received: from imap.gmx.net ([213.165.64.20]:28064 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266676AbTGFO0o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 10:26:44 -0400
+Date: Sun, 6 Jul 2003 16:41:14 +0200
+From: diemumiee@gmx.de
+To: linux-kernel@vger.kernel.org
+Subject: ATI IGP Support
+Message-ID: <20030706144114.GA23881@durix.hallo.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="pWyiEgJYm5f9v55/"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--pWyiEgJYm5f9v55/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, 6 Jul 2003, Brad Chapman wrote:
+Hi,=20
+Is there currently any work done at the ATI IGP 320 chipsets?
+Any kernel patches that I could test?
 
-> Hi!
->
-> I just noticed that hpa now has a link to a set of 2.4 BitKeeper
-> snapshots, just below the link to the 2.4 prepatches. I would just like
-> to know why snapshots _and_ prepatches are both being provided ATST,
-> and what both sets of kernel patches contain respective to each other.
+Regards
+Andreas Pokorny
 
-2.4-bk are daily snapshots generated automatically from "current" BK tree.
+--pWyiEgJYm5f9v55/
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-It makes the testing process easier for people who are using the latest
-2.4 code.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
--pre's are released by me.
+iD8DBQE/CDUKURwbI8A03OsRAiSEAKCzF0IOuuyZTjJIY0q70OXOpVze4ACfR/Cq
+4Sx1Bn+2jwpfuzEQSnNziVs=
+=nb+7
+-----END PGP SIGNATURE-----
 
-
-Both of them are generated from the same tree, its just the timing that
-changes.
+--pWyiEgJYm5f9v55/--

@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263760AbUBRHmh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 02:42:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263777AbUBRHmh
+	id S263775AbUBRHzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 02:55:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbUBRHzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 02:42:37 -0500
-Received: from david.siemens.de ([192.35.17.14]:17037 "EHLO david.siemens.de")
-	by vger.kernel.org with ESMTP id S263760AbUBRHme (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 02:42:34 -0500
-From: Christoph Stueckjuergen <christoph.stueckjuergen@siemens.com>
-Organization: Siemens AG
-To: Nick Piggin <piggin@cyberone.com.au>, Bill Davidsen <davidsen@tmr.com>
-Subject: Re: 2.6.1 Scheduler Latency Measurements (Preemption diabled/enabled)
-Date: Wed, 18 Feb 2004 08:42:22 +0100
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <200402031724.17994.christoph.stueckjuergen@siemens.com> <4032DEEA.1060007@tmr.com> <4032E4F0.8080307@cyberone.com.au>
-In-Reply-To: <4032E4F0.8080307@cyberone.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Feb 2004 02:55:09 -0500
+Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:11957 "EHLO
+	mailout.schmorp.de") by vger.kernel.org with ESMTP id S263775AbUBRHzF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 02:55:05 -0500
+Date: Wed, 18 Feb 2004 08:54:58 +0100
+From: Marc Lehmann <pcg@schmorp.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: UTF-8 and case-insensitivity
+Message-ID: <20040218075458.GH1146@schmorp.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <16433.38038.881005.468116@samba.org> <Pine.LNX.4.58.0402162034280.30742@home.osdl.org> <16433.47753.192288.493315@samba.org> <Pine.LNX.4.58.0402170704210.2154@home.osdl.org> <16434.41376.453823.260362@samba.org> <Pine.LNX.4.58.0402171531570.2154@home.osdl.org> <16434.56190.639555.554525@samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200402180842.22967.christoph.stueckjuergen@siemens.com>
+In-Reply-To: <16434.56190.639555.554525@samba.org>
+X-Operating-System: Linux version 2.4.24 (root@cerebro) (gcc version 2.95.4 20011002 (Debian prerelease)) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 18. Februar 2004 05:07 schrieb Nick Piggin:
-> > Have you considered repeating your test on 2.6.3-rc3-mm1 or similar
-> > with all of the most recent thinking on scheduling?
->
-> They shouldn't make a difference here. Christoph is using
-> realtime scheduling, so he's really measuring preempt off
-> time + context switch overhead. The actual scheduler can't
-> really help here.
+On Wed, Feb 18, 2004 at 02:26:54PM +1100, tridge@samba.org wrote:
+> Even within UCS-2 land the case-mapping table is sparse as only some
+> characters have a upper/lower mapping. In fact, there are just 636
+> characters out of 64k that have an upper/lower case mapping that isn't
+> the identity. That is across *all* languages that windows uses for
+> UCS-2.
 
-I set up these measurements for a course on Embedded Linux and I must repeat 
-them with a current kernel anyway when the course actually starts. If 
-anything changes, I will let you know!
+This is because scripts differentiating between upper and lower case are
+rare exceptions in the world.
 
-Christoph
+Unfortunately, commonly used exceptions, and still locale dependent.
 
+Having a samba-helper kernel module that would contain this table (I am
+confident that it's only a single table in existing versions of windows,
+but maybe they improve that in future versions) could solve this problem.
+
+I still wonder wether it ever can be made efficient, though.
+
+-- 
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |

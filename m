@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263057AbTJYVyo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 17:54:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263060AbTJYVyo
+	id S263060AbTJYV5O (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 17:57:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263110AbTJYV5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 17:54:44 -0400
-Received: from griffin-can-au.getin2net.com ([203.43.225.34]:25604 "EHLO
-	griffin-can-au.getin2net.com") by vger.kernel.org with ESMTP
-	id S263057AbTJYVyn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 17:54:43 -0400
-Subject: Re: [Linux-fbdev-devel] VesaFB/OFFb power management.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Reply-To: benh@kernel.crashing.org
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.44.0310222359470.25125-100000@phoenix.infradead.org>
-References: <Pine.LNX.4.44.0310222359470.25125-100000@phoenix.infradead.org>
-Content-Type: text/plain
+	Sat, 25 Oct 2003 17:57:13 -0400
+Received: from ip3e83a512.speed.planet.nl ([62.131.165.18]:23609 "EHLO
+	made0120.speed.planet.nl") by vger.kernel.org with ESMTP
+	id S263060AbTJYV5L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Oct 2003 17:57:11 -0400
+Message-ID: <3F9AF1AB.3000304@planet.nl>
+Date: Sat, 25 Oct 2003 23:56:59 +0200
+From: Stef van der Made <svdmade@planet.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Heavy disk activity without apperant reason
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1067118878.3570.17.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 25 Oct 2003 23:54:38 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-10-23 at 01:09, James Simmons wrote:
-> I like to be able to suspend and resume these drivers. I noticed the 
-> SA1100 driver does this using struct device_driver. Is it possible to do 
-> this for VesaFB/OFFb ? What would be the bus field then?There isn't much you can do with offb. This is a completely static
-driver that inherits from the HW as it was set by the firmware and
-can't change anything later on... except the palette with some hacks
-on some known cards...
 
-Ben.
+On my AMD athlon system with 512MB memory I sometimes get a lot of disk 
+activity the activity normaly lasts for about 10 seconds and after that 
+the disk stays relativily quiet as expected with the load on the system. 
+When I look into top I don't see any programs that could explain the 
+disk activity. The system is in most cases not using any swap.
+
+The system configuration is as following.
+
+AMS athlon 1400
+512MB main mem
+18GB scsi disk 10K
+29160 adaptec scsi controller
+using a via kt2666 chipset
+
+I'm not sure if I should log a bug and what the problem area could be.
+
+Thanks in advance for helping out,
+
+Stef
 

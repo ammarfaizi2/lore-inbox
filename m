@@ -1,67 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVAMTOV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVAMTOU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbVAMTOV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 14:14:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVAMQlz
+	id S261269AbVAMTOU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 14:14:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbVAMTL7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 11:41:55 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:34532 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261232AbVAMQl0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 11:41:26 -0500
-Subject: Re: thoughts on kernel security issues
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: grendel@caudium.net
-Cc: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050113035331.GC9176@beowulf.thanes.org>
-References: <20050112094807.K24171@build.pdx.osdl.net>
-	 <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>
-	 <20050112185133.GA10687@kroah.com>
-	 <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
-	 <20050112161227.GF32024@logos.cnet>
-	 <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>
-	 <20050112205350.GM24518@redhat.com>
-	 <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org>
-	 <20050113032506.GB1212@redhat.com>
-	 <20050113035331.GC9176@beowulf.thanes.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105627951.4664.32.camel@localhost.localdomain>
+	Thu, 13 Jan 2005 14:11:59 -0500
+Received: from zero.voxel.net ([209.123.232.253]:52442 "EHLO zero.voxel.net")
+	by vger.kernel.org with ESMTP id S261362AbVAMTIw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 14:08:52 -0500
+Subject: Re: 2.6.10-as1
+From: Andres Salomon <dilinger@voxel.net>
+To: Daniel Drake <dsd@gentoo.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <41E6D5F8.2040901@gentoo.org>
+References: <1105605448.7316.13.camel@localhost>
+	 <41E6D5F8.2040901@gentoo.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-tK1WkF6cZrE3N7vjqdsX"
+Date: Thu, 13 Jan 2005 14:08:39 -0500
+Message-Id: <1105643319.5148.3.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 13 Jan 2005 15:36:33 +0000
+X-Mailer: Evolution 2.0.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-01-13 at 03:53, Marek Habersack wrote:
-> That might be, but note one thing: not everybody runs vendor kernels (for various
-> reasons). Now see what happens when the super-secret vulnerability (with
-> vendor fixes) is described in an advisory. A person managing a park of machines 
-> (let's say 100) with custom, non-vendor, kernels suddenly finds out that they 
-> have a buggy kernel and 100 machines to upgrade while the exploit and the
 
-Those running 2.4 non-vendor kernels are just fine because Marcelo
-chooses to work with vendor-sec while Linus chooses not to. I choose to
-work with vendor-sec so generally the -ac tree is also fairly prompt on
-fixing things. 
+--=-tK1WkF6cZrE3N7vjqdsX
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Given that base 2.6 kernels are shipped by Linus with known unfixed
-security holes anyone trying to use them really should be doing some
-careful thinking. In truth no 2.6 released kernel is suitable for
-anything but beta testing until you add a few patches anyway. 
+On Thu, 2005-01-13 at 20:11 +0000, Daniel Drake wrote:
+> Hi,
+>=20
+> Andres Salomon wrote:
+> > I'm announcing a new kernel tree; -as.  The goal of this tree is to for=
+m
+> > a stable base for vendors/distributors to use for their kernels.  In
+> > order to do this, I intend to include only security fixes and obvious
+> > bugfixes, from various sources.  I do not intend to include driver
+> > updates, large subsystem fixes, cleanups, and so on.  Basically, this i=
+s
+> > what I'd want 2.6.10.1 to contain.
+>=20
+> After all of the recent discussion it's nice to see someone step up and d=
+o this :)
+> Thanks a lot, I'm sure I will find it useful when producing gentoo's kern=
+el=20
+> packages..
+>=20
+> Just one suggestion- maybe could you distinguish security patches from=20
+> bugfixes? I.e. prepend or append the security patches with "sec" or somet=
+hing?
+>=20
 
-2.6.9 for example went out with known holes and broken AX.25 (known) 
-2.6.10 went out with the known holes mostly fixed but memory corrupting
-bugs, AX.25 still broken and the wrong fix applied for the smb holes so
-SMB doesn't work on it
+I could certainly do that.  Right now, I mark them w/ [SECURITY] in the
+changelog.
 
-I still think the 2.6 model works well because its making very good
-progress and then others are doing testing and quality management on it.
-Linus is doing the stuff he is good at and other people are doing the
-stuff he doesn't.
 
-That change of model changes the security model too however.
+--=20
+Andres Salomon <dilinger@voxel.net>
+
+--=-tK1WkF6cZrE3N7vjqdsX
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBB5sc378o9R9NraMQRAlLhAKCTDxlOQVmQ57Qyftbj46vAOAfExgCgmLwi
+vaO2L09DU33nVchUJUDpsEg=
+=MKk8
+-----END PGP SIGNATURE-----
+
+--=-tK1WkF6cZrE3N7vjqdsX--
 

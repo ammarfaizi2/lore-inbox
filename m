@@ -1,52 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271144AbVBEEBr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S272427AbVBEENl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271144AbVBEEBr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 23:01:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271164AbVBEEBr
+	id S272427AbVBEENl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 23:13:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272438AbVBEENl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 23:01:47 -0500
-Received: from fw.osdl.org ([65.172.181.6]:34257 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271144AbVBEEBl (ORCPT
+	Fri, 4 Feb 2005 23:13:41 -0500
+Received: from naru.ramix.jp ([218.45.113.209]:63501 "EHLO mail.ramix.jp")
+	by vger.kernel.org with ESMTP id S272427AbVBEENf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 23:01:41 -0500
-Date: Fri, 4 Feb 2005 20:01:33 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: ambx1@neo.rr.com (Adam Belay)
-Cc: castet.matthieu@free.fr, linux-kernel@vger.kernel.org, vojtech@suse.cz
-Subject: Re: [patch] ns558 bug
-Message-Id: <20050204200133.53d77c08.akpm@osdl.org>
-In-Reply-To: <20050205034832.GC7998@neo.rr.com>
-References: <4203D476.4040706@free.fr>
-	<20050205004311.GA7998@neo.rr.com>
-	<20050204190614.6cfd68ce.akpm@osdl.org>
-	<20050205030813.GB7998@neo.rr.com>
-	<20050204192115.65ea246a.akpm@osdl.org>
-	<20050205034832.GC7998@neo.rr.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 4 Feb 2005 23:13:35 -0500
+Date: Sat, 05 Feb 2005 13:13:32 +0900
+From: YOSHIMURA Keitaro <ramsy@linux.or.jp>
+To: linux-kernel@vger.kernel.org
+Subject: ftp.kernel.org was broken
+Message-Id: <20050205115136.01F6.RAMSY@linux.or.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.12.01 [ja]
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.2-5; AVE: 6.29.0.11; VDF: 6.29.0.103; host: naru.ramix.jp)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ambx1@neo.rr.com (Adam Belay) wrote:
->
->  As a more general solution for all drivers, I've been thinking about doing
->  something like this in the long term.
-> 
->  int ret;
->  if (!(ret = register_driver(&ns558_driver)))
->  	return ret;
->  add_driver_protocol(&ns558_driver, &ns558_pnp);
->  add_driver_protocol(&ns558_driver, &ns558_isa);
-> 
->  and then on exit:
-> 
->  unregister_driver(&ns558_driver); /* this tears down any successfully
->  				     registered bus protocol automatically */
-> 
-> 
->  For now a less invasive solution might be better.
+Hi.
 
-Well the thing oopses the kernel at present.  Your call, Adam.  Something
-to make it work acceptably for now would suit.
+ftp.kernel.org is broken. 
+The contents are empty, and root(uid/gid) is displayed as 0 though /pub
+directory is seen. 
+Will you be maintaining it now?
+If it is it, you might stop the ftp daemon. 
+(Though it might be a breakdown of the disk or something. )
+
+--
+<|> YOSHIMURA 'ramsy' Keitaro / Japan Linux Association
+<|> mailto:ramsy@linux.or.jp
+<|> http://jla.linux.or.jp/index.html
+

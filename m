@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318502AbSGSMft>; Fri, 19 Jul 2002 08:35:49 -0400
+	id <S318509AbSGSMgr>; Fri, 19 Jul 2002 08:36:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318504AbSGSMft>; Fri, 19 Jul 2002 08:35:49 -0400
-Received: from 12-237-135-160.client.attbi.com ([12.237.135.160]:16646 "EHLO
-	Midgard.attbi.com") by vger.kernel.org with ESMTP
-	id <S318502AbSGSMfs> convert rfc822-to-8bit; Fri, 19 Jul 2002 08:35:48 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Kelledin <kelledin+LKML@skarpsey.dyndns.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
-Date: Fri, 19 Jul 2002 07:38:44 -0500
-User-Agent: KMail/1.4.2
-References: <Pine.LNX.4.44.0207182339080.3378-100000@hawkeye.luckynet.adm> <200207190619.g6J6Jo2112432@pimout5-int.prodigy.net>
-In-Reply-To: <200207190619.g6J6Jo2112432@pimout5-int.prodigy.net>
+	id <S318508AbSGSMgq>; Fri, 19 Jul 2002 08:36:46 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:1664 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S318505AbSGSMgN>; Fri, 19 Jul 2002 08:36:13 -0400
+Date: Fri, 19 Jul 2002 08:39:07 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: venom@sns.it
+cc: Robert Sinko <RSinko@island.com>,
+       "'Hubbard, Dwight'" <DHubbard@midamerican.com>, Matt_Domsch@Dell.com,
+       linux-kernel@vger.kernel.org
+Subject: RE: Wrong CPU count
+In-Reply-To: <Pine.LNX.4.43.0207191409110.18007-100000@cibs9.sns.it>
+Message-ID: <Pine.LNX.3.95.1020719082245.159A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207190738.44584.kelledin+LKML@skarpsey.dyndns.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 18 July 2002 07:21 pm, Rob Landley wrote:
-> That's probably good enough for me, actually.  Now my NEXT
-> unanswered question is why the heck Darpa's "Information 
-> Awareness Office" has a picture of the Bavarian Illuminati in 
-> its logo, but I doubt that's something this list can help me 
-> with.  Me, I would have picked the gnomes of zurich.  Or the 
-> UFOs, for the second attack.  Or in the expansion pack, The 
-> Networks, since transferrable power is so useful anyway...
+On Fri, 19 Jul 2002 venom@sns.it wrote:
 
-_You_ are a curious young man.  Now curiosity can have 
-repercussions--but lucky you, you get rewarded with a nice 
-Vanilla Coke.
+> 
+> yes, as bios option.
+> 
+> On my point of view it would be interesting to verify is hyperthreading is
+> really usefull or not.
+> 
 
-I believe you will find its delicate hint of vanilla flavor 
-alluring, refreshing.
+It would be interesting to determine if "hyperthreading" in the CPU 
+actually exists. It may just be an artifact of dual instruction units,
+actually a defect (perhaps harmless), that is hyped as a feature.
 
-I'm glad you like it.  Bruno!
+For instance, it has long been known that if a CPU were to have as
+many instruction units as possible instruction branches, program
+jumps upon logical conditions would not slow the machine down. The
+hardware just continues using the instruction unit that contains the
+correct program-flow while the others are re-loaded.
 
-*door slams*
+I guess that this is what is happening. After all, the processor only
+has "so-many" connections to the outside world so it can't actually
+function as two processors but, as Clinton said; "It depends upon what
+is is..."
 
-:D
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 
--- 
-Kelledin
-"If a server crashes in a server farm and no one pings it, does 
-it still cost four figures to fix?"
-
-P.S. I can't believe I was able to summon so much of that damn 
-commercial to memory.  I hate vanilla coke.  Then again, I can't 
-believe I was right about the 'i' in inode either.

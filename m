@@ -1,104 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263387AbTJUWjt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 18:39:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263388AbTJUWjt
+	id S263328AbTJUWx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 18:53:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263345AbTJUWx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 18:39:49 -0400
-Received: from 24-216-47-96.charter.com ([24.216.47.96]:37255 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id S263387AbTJUWjq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 18:39:46 -0400
-Date: Tue, 21 Oct 2003 18:39:36 -0400
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Zan Lynx <zlynx@acm.org>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test8 and HIGMEM = segfaults and panics?
-Message-ID: <20031021223936.GI2617@rdlg.net>
-Mail-Followup-To: Zan Lynx <zlynx@acm.org>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <20031021155337.GF2617@rdlg.net> <1066762982.5055.3.camel@localhost.localdomain> <20031021195834.GG2617@rdlg.net> <1066771573.5055.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TKDEsImF70pdVIl+"
-Content-Disposition: inline
-In-Reply-To: <1066771573.5055.8.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.4i
+	Tue, 21 Oct 2003 18:53:27 -0400
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:26847 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S263328AbTJUWxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 18:53:24 -0400
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+To: James Simmons <jsimmons@infradead.org>
+Subject: Re: 2.6.0-test8-mm1
+Date: Wed, 22 Oct 2003 00:53:08 +0200
+User-Agent: KMail/1.5.9
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, Andrew Morton <akpm@osdl.org>,
+       <Valdis.Kletnieks@vt.edu>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>
+References: <Pine.LNX.4.44.0310212141290.32738-100000@phoenix.infradead.org>
+In-Reply-To: <Pine.LNX.4.44.0310212141290.32738-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_Zjbl/DXgFz8jHL1";
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200310220053.13547.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---TKDEsImF70pdVIl+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--Boundary-02=_Zjbl/DXgFz8jHL1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
-
-
-
-I can recompile it and run it for a bit.  What debug options would be
-useful for this?
-
-When I had it enabled I had this:
-
-# CONFIG_NOHIGHMEM is not set
-CONFIG_HIGHMEM4G=3Dy
-# CONFIG_HIGHMEM64G is not set
-CONFIG_HIGHMEM=3Dy
-CONFIG_HIGHPTE=3Dy
-
-
-
-Thus spake Zan Lynx (zlynx@acm.org):
-
-> On Tue, 2003-10-21 at 13:58, Robert L. Harris wrote:
-> > Yup, I've played musical DIMMS as well.  It's currently up running with
-> > 1.5G install without the HIGMEM and I've taxed it pretty hard today
-> > without issue.
-> >=20
-> > What kernel are you running on?
-> >=20
-> > They are registered.
-> >=20
->=20
-> Kernel 2.6.0-test8.
-> It's a Tyan MPX board with 4 512MB sticks of ECC registered 266 DDR.
->=20
-> Here's the highmem bit of my config file:
-> # CONFIG_NOHIGHMEM is not set
-> CONFIG_HIGHMEM4G=3Dy
-> # CONFIG_HIGHMEM64G is not set
-> CONFIG_HIGHMEM=3Dy
-> CONFIG_HIGHPTE=3Dy
->=20
-> So, I don't think it's a general bug.
->=20
-> --=20
-> Zan Lynx <zlynx@acm.org>
-
-
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-Life is not a destination, it's a journey.
-  Microsoft produces 15 car pileups on the highway.
-    Don't stop traffic to stand and gawk at the tragedy.
-
---TKDEsImF70pdVIl+
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
 Content-Disposition: inline
+
+On Tuesday 21 October 2003 22:42, James Simmons wrote:
+> > > This patch was fine.  2.6.0-test8 with this patch booted and
+> > > looked no different from plain 2.6.0-test8.  I am using it for
+> > > writing this.  The problems must be in mm1 somehow.
+> > >
+> > > Helge Hafting
+>
+> Yeah!!!
+>
+> > Well here I've got same problems for -test8 + fbdev-patch as with
+> > -test8-mm1. I've compiled the kernel with most DEBUG_* options enabled
+> > (all but DEBUG_INFO and KGDB) and see the same cursor and image
+> > corruption as with -mm1 and the same options enabled.
+> >
+> > Should I try compiling this kernel without the DEBUG_* options and watch
+> > if I get the invalidate_list Oops again?
+>
+> Yes. I'm using vesafb and I have no problems. I liek to see what the
+> problem really is.
+
+OK, without any of the DEBUG_* options enabled the kernel SEEMS to work wit=
+h=20
+no problems. But I don't know how I can assure there actually is no memory=
+=20
+corruption...
+
+=46or me the big question stays why enabling the DEBUG_* options results in=
+ a=20
+corrupt cursor and the false dots on the top of each row... (with both=20
+kernels)
+
+And, of course, why enabling vesafb in -mm1 leads to memory corruption. (as=
+=20
+Vladis already mentioned, the same binary works if vesafb is not enabled vi=
+a=20
+the 'vga=3Dxxx' boot option).
+
+Regards
+   Thomas
+
+--Boundary-02=_Zjbl/DXgFz8jHL1
+Content-Type: application/pgp-signature
+Content-Description: signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE/lbWo8+1vMONE2jsRAt2+AKDdqbTMbcrNg5Pz5XgMBcOf276S2ACfVDLG
-8ytmOq9e/th2JfGT9H1hEIk=
-=503q
+iD8DBQA/lbjZYAiN+WRIZzQRAvGRAKCuUBwbluco5bce9zPQBSbC8jLtrgCg3XkE
+nHSZ8YP/Y/UZPkjRbiV4lNY=
+=0KWD
 -----END PGP SIGNATURE-----
 
---TKDEsImF70pdVIl+--
+--Boundary-02=_Zjbl/DXgFz8jHL1--

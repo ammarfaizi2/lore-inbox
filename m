@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261499AbTCGLZL>; Fri, 7 Mar 2003 06:25:11 -0500
+	id <S261498AbTCGLZf>; Fri, 7 Mar 2003 06:25:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261520AbTCGLZL>; Fri, 7 Mar 2003 06:25:11 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:17577
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261499AbTCGLZK>; Fri, 7 Mar 2003 06:25:10 -0500
-Subject: Re: [PATCH] move SWAP option in menu
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Gabriel Paubert <paubert@iram.es>
-Cc: Tom Rini <trini@kernel.crashing.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       randy.dunlap@verizon.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030307100330.GA4758@iram.es>
-References: <3E657EBD.59E167D6@verizon.net> <20030305181748.GA11729@iram.es>
-	 <20030305131444.1b9b0cf2.rddunlap@osdl.org>
-	 <20030306184332.GA23580@ip68-0-152-218.tc.ph.cox.net>
-	 <20030306193344.GA29166@iram.es>
-	 <1046984808.18158.115.camel@irongate.swansea.linux.org.uk>
-	 <20030307100330.GA4758@iram.es>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047040872.20794.7.camel@irongate.swansea.linux.org.uk>
+	id <S261526AbTCGLZf>; Fri, 7 Mar 2003 06:25:35 -0500
+Received: from angband.namesys.com ([212.16.7.85]:28803 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S261498AbTCGLZe>; Fri, 7 Mar 2003 06:25:34 -0500
+Date: Fri, 7 Mar 2003 14:36:07 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5] memleak in load_elf_binary?
+Message-ID: <20030307143607.E7347@namesys.com>
+References: <20030307141247.D7347@namesys.com> <20030307032532.17d37207.akpm@digeo.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 07 Mar 2003 12:41:12 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030307032532.17d37207.akpm@digeo.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-03-07 at 10:03, Gabriel Paubert wrote:
-> > Linux 8086 can swap because it can use CS/DS updates to relocate code/data.
-> 
-> Unless I miss a subtle trick, that's using the segment registers as a
-> poor man's MMU. You can share library code with far calls but you can't 
-> use "far" data pointers, can you?
+Hello!
 
-Linux 8086 doesnt support "far" anything. The segment registers are
-being used as base registers, and on 8086 "limit" isnt available.
+On Fri, Mar 07, 2003 at 03:25:32AM -0800, Andrew Morton wrote:
+> >    I am still playing with improving memleak detector thing from smatch project.
+> >    Seems there is a memleak in fs/binfmt_elf.c::load_elf_binary() in current 2.5
+> >    If setup_arg_pages() fails (line 638 in my sources) we do return but 
+> >    not freeing possibly allocated elf_interpreter (line 520) and 
+> >    allocated elf_phdata (line 500) areas.
+> >    Is this looking real? At least it looks real for me (I am trying to get
+> >    number of false positives way down).
+> Yes, you're right.  And there's a second one further down.
 
+Ah, hm? Can you be mo precise? I do not see it.
+
+Next return I see is in line 745, and the memory is freed before it.
+
+Bye,
+    Oleg

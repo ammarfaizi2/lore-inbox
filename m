@@ -1,96 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270539AbRHNTbN>; Tue, 14 Aug 2001 15:31:13 -0400
+	id <S268902AbRHNTcd>; Tue, 14 Aug 2001 15:32:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270757AbRHNTbD>; Tue, 14 Aug 2001 15:31:03 -0400
-Received: from ns.caldera.de ([212.34.180.1]:56975 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S270539AbRHNTaz>;
-	Tue, 14 Aug 2001 15:30:55 -0400
-Date: Tue, 14 Aug 2001 21:30:23 +0200
-Message-Id: <200108141930.f7EJUNj01929@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: chrisc@shad0w.org.uk (Chris Crowther)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] CDP handler for linux
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <Pine.LNX.4.33.0108141934130.3283-100000@monolith.shad0w.org.uk>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S270695AbRHNTcO>; Tue, 14 Aug 2001 15:32:14 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:51463 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S270757AbRHNTcL>;
+	Tue, 14 Aug 2001 15:32:11 -0400
+Date: Tue, 14 Aug 2001 16:32:01 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: "Jon 'tex' Boone" <tex@delamancha.org>
+Cc: <linux-kernel@vger.kernel.org>, <kernelnewbies@nl.linux.org>
+Subject: Re: WANTED: Re: VM lockup with 2.4.8 / 2.4.8pre8
+In-Reply-To: <m38zgmpin8.fsf@amicus.delamancha.org>
+Message-ID: <Pine.LNX.4.33L.0108141631320.6118-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Chis,
+On Tue, 14 Aug 2001, Jon 'tex' Boone wrote:
 
-In article <Pine.LNX.4.33.0108141934130.3283-100000@monolith.shad0w.org.uk> you wrote:
-> 	I've been working on an addition to the kernel over the past
-> couple of days that enables the kernel to interpret CDP (Cisco Discovery
-> Protocol) packets which can be transmited by various pieces of Cisco kit.
+> > mm/vmscan.c::kswapd()
+> > 	else if (out_of_memory()) {
+> > 		oom_kill()
+> >
+> > mm/oom_kill.c::out_of_memory()
 >
-> 	I've got it to the stage where it will read neighbors packets and
-> display them via a /proc/net entry, but I've only really tested it with
-> the router I have access to here, so I was wondering:
+>     Should said volunteer(s) work with stock 2.4.8?
 
+No real need, the OOM functions are basically unchanged.
 
+regards,
 
-> --- linux-2.4/net/cdp/Makefile	Thu Jan  1 01:00:00 1970
-> +++ linux-2.4.7-cdp/net/cdp/Makefile	Thu Aug  9 12:11:44 2001
-> @@ -0,0 +1,25 @@
-> +#
-> +# Makefile for the Linux CDP layer.
-> +#
-> +# Note! Dependencies are done automagically by 'make dep', which also
-> +# removes any old dependencies. DON'T put your own dependencies here
-> +# unless it's something special (ie not a .c file).
-> +#
-> +# Note 2! The CFLAGS definition is now in the main makefile...
-> +
-> +# We only get in/to here if CONFIG_CDP = 'y' or 'm'
-> +
-> +O_TARGET := cdp.o
-> +
-> +export-objs = af_cdp.o
+Rik
+--
+IA64: a worthy successor to i860.
 
-You don't export symbols, so you don't need to add your object to export-objs.
+http://www.surriel.com/		http://distro.conectiva.com/
 
-> +
-> +obj-y	:= af_cdp.o
-> +
-> +ifeq ($(CONFIG_CDP),m)
-> +  obj-m += $(O_TARGET)
-> +endif
-> +
-> +include $(TOPDIR)/Rules.make
-> +
-> +tar:
-> +		tar -cvf /dev/f1 .
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 
-Kill this tar rule, please :)
-
-> diff -urN -X dontdiff linux-2.4/net/cdp/af_cdp.c linux-2.4.7-cdp/net/cdp/af_cdp.c
-> --- linux-2.4/net/cdp/af_cdp.c	Thu Jan  1 01:00:00 1970
-> +++ linux-2.4.7-cdp/net/cdp/af_cdp.c	Tue Aug 14 19:14:11 2001
-> @@ -0,0 +1,509 @@
-> +/*
-> + *      Implements a CDP handler.
-> + *
-> + * 	This code is derived from protocol specifications by Cisco Systems
-> + *	and various code culled from the Kernel source tree, mostly the IPX
-> + *	code.
-> + *
-> + *	Unless otherwise commented, all revisions by Chris Crowther.
-> + *
-> + *	Revision 0.1.0:	Initial coding.
-> + *	Revision 0.1.1:	Incoming CDP packet handling working, prefix's and addresses
-> + *			need handling still.
-> + *
-> + *	Portions Copyright (c) 2001 Chris Crowther.
-
-I think it's all yours, isn't it?
-
-
-Besides this little nitpicks I'd like to give you the advise to send this
-to linuxnetdev, too.
-
-	Christoph
-
--- 
-Whip me.  Beat me.  Make me maintain AIX.

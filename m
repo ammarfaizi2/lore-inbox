@@ -1,80 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUHNNaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUHNNhS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbUHNNaY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 09:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUHNNaX
+	id S262085AbUHNNhS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 09:37:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUHNNhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 09:30:23 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:47852 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262062AbUHNNaS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 09:30:18 -0400
-Date: Sat, 14 Aug 2004 13:27:02 +0000
-From: bde@underley.eu.org
-Subject: new O E M software
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <3I9HHL4BF056JGL5@vger.kernel.org>
-In-Reply-To: <3I9HHL4BF056JGL5@vger.kernel.org>
-Message-ID: <0LJ87D0GB4H0KCCL@underley.eu.org>
+	Sat, 14 Aug 2004 09:37:18 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:29931 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S262085AbUHNNhN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 09:37:13 -0400
+Date: Sat, 14 Aug 2004 09:41:10 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, mulix@mulix.org,
+       gene.heskett@verizon.net
+Subject: Re: [RFC] HOWTO find oops location
+In-Reply-To: <20040814091106.GO17907@granada.merseine.nu>
+Message-ID: <Pine.LNX.4.58.0408140904290.18353@montezuma.fsmlabs.com>
+References: <200408141153.06625.vda@port.imtp.ilyichevsk.odessa.ua>
+ <20040814091106.GO17907@granada.merseine.nu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-O E M (Original Equipment Manufacturer) software includes all essential
-components of Microsoft Retail products excluding support from Microsoft.
-Retail version comes in a fancy box, O E M does not. You will receive
-installation CDs only (no original retail packing).
-Although O E M software does not come with a box or a manual, it is the
-typical and actual software, no trial or demo versions.
+There are a few very simple methods i use all the time;
 
-http://www.lookoo.biz/
+compile with CONFIG_DEBUG_INFO (it's safe to select the option and
+recompile after the oops even) and then;
 
-RedHat Linux 9.0
-Retail price: $79.99
-Our low Price: $60.00
-You Save: $19.99
+Unable to handle kernel NULL pointer dereference at virtual address 0000000c
+ printing eip:
+c046a188
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT SMP DEBUG_PAGEALLOC
+Modules linked in:
+CPU:    0
+EIP:    0060:[<c046a188>]    Not tainted VLI
+EFLAGS: 00010246   (2.6.6-mm3)
+EIP is at serial_open+0x38/0x170
+[...]
 
-Adobe Photoshop CS V 8.0 PC
-Retail price: $609.99
-Our low Price: $80.00
-You Save: $529.99
+(gdb) list *serial_open+0x38
+0xc046a188 is in serial_open (drivers/usb/serial/usb-serial.c:465).
+460
+461             /* get the serial object associated with this tty pointer */
+462             serial = usb_serial_get_by_index(tty->index);
+463
+464             /* set up our port structure making the tty driver remember our port object, and us it */
+465             portNumber = tty->index - serial->minor;
+466             port = serial->port[portNumber];
+467             tty->driver_data = port;
+468
+469             port->tty = tty;
 
-Adobe Pagemaker V 7.0 PC
-Retail price: $599.95
-Our low Price: $80.00
-You Save: $519.95
-   
-Adobe Illustrator CS V 11.0 PC
-Retail price: $599.95
-Our low Price: $80.00
-You Save: $519.95
+And then for cases where you deadlock and the NMI watchdog triggers with
+%eip in a lock section;
 
-CorelDraw Graphics Suite V 12 PC
-Retail price: $349.95
-Our low Price: $100.00
-You Save: $249.95
-   
-Microsoft SQL Server 2000
-Retail price: $1450.00
-Our low Price: $90.00
-You Save: $1360.00
+NMI Watchdog detected LOCKUP on CPU0,
+eip c0119e5e, registers:
+Modules linked in:
+CPU:    0
+EIP:    0060:[<c0119e5e>]    Tainted:
+EFLAGS: 00000086   (2.6.7)
+EIP is at .text.lock.sched+0x89/0x12b
+[...]
 
-Microsoft Office XP Professional
-Retail price: $499.95
-Our low Price: $100.00
-You Save: $399.95
+(gdb) disassemble 0xc0119e5e
+Dump of assembler code for function Letext:
+[...]
+0xc0119e59 <Letext+132>:        repz nop
+0xc0119e5b <Letext+134>:        cmpb   $0x0,(%edi)
+0xc0119e5e <Letext+137>:        jle    0xc0119e59 <Letext+132>
+0xc0119e60 <Letext+139>:        jmp    0xc0118183 <scheduler_tick+487>
 
-Microsoft Windows 2000 Professional
-Retail price: $320.00
-Our low Price: $50.00
-You Save: $270.00
- 
-Symantec Norton Antivirus 2004 Professional
-Retail price: $69.95
-Our low Price: $15.00
-You Save: $54.95
+(gdb) list *scheduler_tick+487
+0xc0118183 is in scheduler_tick (include/asm/spinlock.h:124).
+119             if (unlikely(lock->magic != SPINLOCK_MAGIC)) {
+120                     printk("eip: %p\n", &&here);
+121                     BUG();
+122             }
+123     #endif
+124             __asm__ __volatile__(
+125                     spin_lock_string
+126                     :"=m" (lock->lock) : : "memory");
+127     }
 
-or site is http://www.lookoo.biz/
+But that's not much help since it's pointing to an inline function and not
+the real lock location, so just subtract a few bytes;
 
+(gdb) list *scheduler_tick+450
+0xc011815e is in scheduler_tick (kernel/sched.c:2021).
+2016            cpustat->system += sys_ticks;
+2017
+2018            /* Task might have expired already, but not scheduled off yet */
+2019            if (p->array != rq->active) {
+2020                    set_tsk_need_resched(p);
+2021                    goto out;
+2022            }
+2023            spin_lock(&rq->lock);
+
+So we have our lock location. Then there are cases where there is a "Bad
+EIP" most common ones are when a bad function pointer is followed or if
+some of the kernel text or a module got unloaded/unmapped (e.g. via
+__init). You can normally determine which is which by noting that bad eip
+for unloaded text normally looks like a valid virtual address.
+
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+00000000
+*pde = 00000000
+Oops: 0000 [#1]
+CPU: 0
+EIP: 0060:[<00000000>] Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00210246
+[...]
+Call Trace:
+ [<c01dbbfb>] smb_readdir+0x4fb/0x6e0
+ [<c0165560>] filldir64+0x0/0x130
+ [<c016524a>] vfs_readdir+0x8a/0x90
+ [<c0165560>] filldir64+0x0/0x130
+ [<c01656fd>] sys_getdents64+0x6d/0xa6
+ [<c0165560>] filldir64+0x0/0x130
+ [<c010adff>] syscall_call+0x7/0xb
+Code: Bad EIP value.
+
+>From there you're best off examining the call trace to find the culprit.

@@ -1,65 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290739AbSBSQUC>; Tue, 19 Feb 2002 11:20:02 -0500
+	id <S291466AbSBSQWD>; Tue, 19 Feb 2002 11:22:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286343AbSBSQTx>; Tue, 19 Feb 2002 11:19:53 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:56793 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S291463AbSBSQTf>; Tue, 19 Feb 2002 11:19:35 -0500
-Date: Tue, 19 Feb 2002 10:19:23 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200202191619.KAA72194@tomcat.admin.navo.hpc.mil>
-To: roy@karlsbakk.net, "Jens Schmidt" <j.schmidt@paradise.net.nz>,
-        linux-kernel@vger.kernel.org, j.schmidt@paradise.net.nz
-Subject: Re: secure erasure of files?
-X-Mailer: [XMailTool v3.1.2b]
+	id <S291465AbSBSQVy>; Tue, 19 Feb 2002 11:21:54 -0500
+Received: from zok.sgi.com ([204.94.215.101]:63877 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S291452AbSBSQVf>;
+	Tue, 19 Feb 2002 11:21:35 -0500
+Subject: Re: BKL removal from VFS
+From: Steve Lord <lord@sgi.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Nakayama Shintaro <nakayama@tritech.co.jp>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        lse-tech@lists.sourceforge.net, linux-fsdevel@vger.kernel.org,
+        shojima@tritech.co.jp, Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <Pine.GSO.4.21.0202191102430.9938-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0202191102430.9938-100000@weyl.math.psu.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 19 Feb 2002 10:19:11 -0600
+Message-Id: <1014135551.3393.103.camel@jen.americas.sgi.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------  Received message begins Here  ---------
-
+On Tue, 2002-02-19 at 10:11, Alexander Viro wrote:
 > 
-> >I would strongly encourage somebody with fluent Norsk/English skills
-> >to do a translation and post it to the list.
 > 
-> I'll do my very best ...
+> On 19 Feb 2002, Steve Lord wrote:
 > 
-> (translated by Roy Sigurd Karlsbakk - please don't spam me in case of bad
-> speling :)
+> > Al, I am not proposing this to go in, but what is your opinion on a
+> > change like this? XFS does not need the BKL at all, so for some aim7
+> > experiments on large systems this  patch was used to bypass the BKL for
+> > filesystems which state they can live without it:
 > 
-> With permission from the leader of Research and Deveopment department, I
-> quote his complete answer:
+> > +#define lock_kernel_optional(ip)	\
+> > +	if (!(ip->i_flags & S_NOBKL))	lock_kernel()
+> > +
 > 
-> I'll try to answer your questions:
+> Denied.  No way in hell that (or similar) will ever go in.  Locking must
+> be consistent, _period_.  No provisions for "legacy drivers" and crap
+> like that - it's a standard policy in all kernel and that had been discussed
+> a lot of times.
 > 
-> The short answer is: No. It is not possible to read data that are (really)
-> physically overwritten.
-
-[snip]
-
-In the non-destructive read case - true.
-
-HOWEVER: forensic specialists can:
-
-	http://www.cs.auckland.ac.nz/~pgut001/secure_del.html
-or (same paper)
-	http://www.usenix.org/publications/library/proceedings/sec96/full_papers/gutmann/
-
+> _Please_, check 2.5.  We already don't take BKL on majority of directory
+> operations.  The rest will follow pretty soon.
 > 
-> Addition:
+> In particular, in current Linus' tree there are 3 (three) instances of
+> lock_kernel() in fs/namei.c.  Namely, ->permission() and two calls of
+> d_move().  The latter will go when ->d_parent mess is cleaned up.  The
+> former will go as soon as we get to ->setattr()/->permission() cleanups -
+> hopefully in a week or so.
 > 
-> Still, it should be said that this is being argued upon between the
-> 'wise' ones. This is - there are people that mean it is possible
-> to read/recover overwritten data. But we have, as mentioned above,
-> not found any scientific documentation or decriptions of how this
-> can be done.
+> In general, such changes are done by global lock shifting - simultaneous
+> for all instances and being a trivial search-and-replace.  Once the lock
+> is taken inside the method individual filesystems/drivers/etc. can
+> shrink the protected areas - in separate patches.
+> 
+> That's how it works - and that's how it had been done for most of the methods
+> already.  Magic flags that make locking different for different instances
+> are Not Good.  And not needed - see above for the usual way to do that stuff.
 
-See the paper referenced above. There may be more recent documents, but
-this one is quite clear on the limitations of erasure using the standard
-drive electronics.
+Whoa, light blue touch paper and stand back! Like I said I was not proposing
+this to go into the kernel, just asking your opinion. Yes I am aware of the
+changes going into locking in 2.5 and like the way things are going there,
+XFS is ticking along quite happily in 2.5.5-pre1 here.
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+Steve
 
-Any opinions expressed are solely my own.
+-- 
+
+Steve Lord                                      voice: +1-651-683-3511
+Principal Engineer, Filesystem Software         email: lord@sgi.com

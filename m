@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268075AbUH1UY3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268078AbUH1U1D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268075AbUH1UY3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 16:24:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268059AbUH1UWl
+	id S268078AbUH1U1D (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 16:27:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268041AbUH1UYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sat, 28 Aug 2004 16:24:50 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:15820 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266512AbUH1UWl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 28 Aug 2004 16:22:41 -0400
-Received: from holomorphy.com ([207.189.100.168]:7081 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266512AbUH1UVV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 16:21:21 -0400
-Date: Sat, 28 Aug 2004 13:21:20 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: Re: [2/5] consolidate bit waiting code patterns
-Message-ID: <20040828202120.GX5492@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <20040828200549.GR5492@holomorphy.com> <20040828200659.GS5492@holomorphy.com> <20040828200841.GT5492@holomorphy.com>
+Date: Sat, 28 Aug 2004 22:22:32 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mrmacman_g4@mac.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch][1/3] ipc/ BUG -> BUG_ON conversions
+Message-ID: <20040828202232.GL12772@fs.tum.de>
+References: <20040828151137.GA12772@fs.tum.de> <20040828151544.GB12772@fs.tum.de> <098EB4E1-F90C-11D8-A7C9-000393ACC76E@mac.com> <20040828162633.GG12772@fs.tum.de> <20040828125816.206ef7fa.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040828200841.GT5492@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20040828125816.206ef7fa.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 28, 2004 at 01:08:41PM -0700, William Lee Irwin III wrote:
-> Eliminate specialized page and bh waitqueue hashing structures in favor
-> of a standardized structure, using wake_up_bit() to wake waiters using
-> the standardized wait_bit_key structure.
+On Sat, Aug 28, 2004 at 12:58:16PM -0700, Andrew Morton wrote:
+> Adrian Bunk <bunk@fs.tum.de> wrote:
+> >
+> >  > Anything you put in BUG_ON() must *NOT* have side effects.
+> >  >...
+> > 
+> >  I'd have said exactly the same some time ago, but I was convinced by 
+> >  Arjan that if done correctly, a BUG_ON() with side effects is possible  
+> >  with no extra cost even if you want to make BUG configurably do nothing.
 > 
-> Index: wait-2.6.9-rc1-mm1/fs/buffer.c
-> ===================================================================
-> --- wait-2.6.9-rc1-mm1.orig/fs/buffer.c	2004-08-28 09:43:30.305969176 -0700
-> +++ wait-2.6.9-rc1-mm1/fs/buffer.c	2004-08-28 09:47:21.232862952 -0700
-> @@ -43,26 +43,6 @@
->  
->  #define BH_ENTRY(list) list_entry((list), struct buffer_head, b_assoc_buffers)
+> Nevertheless, I think I'd prefer that we not move code which has
+> side-effects into BUG_ONs.  For some reason it seems neater that way.
+> 
+> Plus one would like to be able to do
+> 
+> 	BUG_ON(strlen(str) > 22);
+> 
+> and have strlen() not be evaluated if BUG_ON is disabled.
+> 
+> A minor distinction, but one which it would be nice to preserve.
 
-Sorry, the Subject: line should have been titled "standardize bit
-waiting data type".
+OTOH, only very few people use the disabled BUG_ON, and a statement 
+with a side effect might stay there unnoticed for some time.
 
+If it's a
+  #define BUG_ON(x)
+and in one place something with a side effect slipped into the BUG_ON, 
+you have a classical example for a heisenbug...
 
--- wli
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

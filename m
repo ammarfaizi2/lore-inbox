@@ -1,64 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317888AbSHLMAH>; Mon, 12 Aug 2002 08:00:07 -0400
+	id <S317887AbSHLLwZ>; Mon, 12 Aug 2002 07:52:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317891AbSHLMAH>; Mon, 12 Aug 2002 08:00:07 -0400
-Received: from ppp-217-133-217-5.dialup.tiscali.it ([217.133.217.5]:38552 "EHLO
-	home.ldb.ods.org") by vger.kernel.org with ESMTP id <S317888AbSHLMAG>;
-	Mon, 12 Aug 2002 08:00:06 -0400
-Subject: Re: [PATCH] [2.5] asm-generic/atomic.h and changes to arm, parisc,
-	mips, m68k, sh, cris to use it
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Roman Zippel <zippel@linux-m68k.org>,
-       Linux-Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20995.1029151008@redhat.com>
-References: <1028850350.28882.121.camel@irongate.swansea.linux.org.uk> 
-	<Pine.LNX.4.44.0208082357170.8911-100000@serv>
-	<1028844681.1669.80.camel@ldb>   <20995.1029151008@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-FSGQDFUJR5MQe51Ot+eh"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 12 Aug 2002 14:03:41 +0200
-Message-Id: <1029153821.4713.13.camel@ldb>
+	id <S317888AbSHLLwZ>; Mon, 12 Aug 2002 07:52:25 -0400
+Received: from B5220.pppool.de ([213.7.82.32]:45229 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S317887AbSHLLwY>; Mon, 12 Aug 2002 07:52:24 -0400
+Subject: Re: mmapping large files hits swap in 2.4?
+From: Daniel Egger <degger@fhm.edu>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3D577BC3.5BD0DE4@aitel.hist.no>
+References: <Pine.LNX.4.33.0208101437380.838-100000@coffee.psychology.mcmaster.ca>
+	<1029018000.2539.7.camel@sonja.de.interearth.com> 
+	<3D577BC3.5BD0DE4@aitel.hist.no>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 12 Aug 2002 13:41:56 +0200
+Message-Id: <1029152517.27391.20.camel@sonja.de.interearth.com>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Mon, 2002-08-12 um 11.11 schrieb Helge Hafting:
+ 
+> In short - memory used to cache your big mmapped file don't merely 
+> compete with memory used for caching other parts of that file.
+> It competes with all other swappable (or discardable) memory
+> in the system, and some of that might go to the swap device.
 
---=-FSGQDFUJR5MQe51Ot+eh
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+That's what I though.
 
-On Mon, 2002-08-12 at 13:16, David Woodhouse wrote:
-> 
-> alan@lxorguk.ukuu.org.uk said:
-> >  Possibly not - volatile doesnt guarantee the compiler won't do
-> > 	x = 1
-> > 	add *p into x
-> > 	store x into *p
-> 
-> Er, AIUI 'volatile' guarantees that '*p++' will do precisely that. It's a 
-> load, an add and a store, and the rules about volatile mean that the load 
-> and the store _must_ be separate.
+> Maybe you only need a little of that big file at a time - but
+> the VM system cannot know that.  It simply looks at _all_
+> memory, considers "what is recently used, and what is _not_"
+> and goes on to swap/writeback the latter parts.
 
-I noticed that while testing how rmk's code behaved differently than
-mine (and corrected in the v2 patch).
-Before that, I just assumed that since the CPU must anyway issue a
-separate load and store, the compiler would use the faster instruction
-(that's why there is a LOCK prefix in the i386 instruction set).
+Actually I need 95% and the file will grow on demand so it's pretty
+hefty in use; I really need to invent some hack to avoid touching
+the memory as much as we do now without any need.
 
+> You have enough RAM, but was all of it _free_ according to free?
+> Lots of it will usually be in use as cache, so something must be
+> evicted.  Cache are freed sometimes, swapping happens at
+> other times.
 
---=-FSGQDFUJR5MQe51Ot+eh
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Interestingly the behaviour seems to be quite different on PPC vs.
+i386. On my PPC machine with 256 MB RAM I have constant use swap and
+all of the "free" memory is used as cache. On a i386 maschine with
+512MB RAM the kernel never touched a single byte of swap and around
+150MB are always free. Both machines always have a load > 1 and are
+used for big compile jobs like gcc, OpenOffice and alike.
+ 
+-- 
+Servus,
+       Daniel
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9V6Qcdjkty3ft5+cRAtv4AJ9vHSVBZshyveJpn2CfcMMwVlKHiQCeNFf1
-2+25AhFYgCtq6fseSV9usBA=
-=pwoL
------END PGP SIGNATURE-----
-
---=-FSGQDFUJR5MQe51Ot+eh--

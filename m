@@ -1,75 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbTIEMZC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 08:25:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262507AbTIEMZC
+	id S262575AbTIEMj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 08:39:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262595AbTIEMj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 08:25:02 -0400
-Received: from chello080108023209.34.11.vie.surfer.at ([80.108.23.209]:61825
-	"HELO leto2.endorphin.org") by vger.kernel.org with SMTP
-	id S262499AbTIEMY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 08:24:59 -0400
-Date: Fri, 5 Sep 2003 14:25:01 +0200
-To: John Bradford <john@grabjohn.com>
-Cc: joern@wohnheim.fh-wedel.de, linux-kernel@vger.kernel.org
-Subject: Re: nasm over gas?
-Message-ID: <20030905122501.GA3250@leto2.endorphin.org>
-References: <200309051225.h85CPOYr000323@81-2-122-30.bradfords.org.uk>
+	Fri, 5 Sep 2003 08:39:28 -0400
+Received: from mail.netbeat.de ([62.208.140.19]:41229 "HELO mail.netbeat.de")
+	by vger.kernel.org with SMTP id S262575AbTIEMj0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 08:39:26 -0400
+Subject: Re: 2.6.0-test4-mm6
+From: Jan Ischebeck <mail@jan-ischebeck.de>
+To: Nick Sanders <sandersn@btinternet.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200309051210.25773.sandersn@btinternet.com>
+References: <1062758896.2085.19.camel@JHome.uni-bonn.de>
+	 <200309051210.25773.sandersn@btinternet.com>
+Content-Type: text/plain
+Message-Id: <1062765582.2081.3.camel@JHome.uni-bonn.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
-Content-Disposition: inline
-In-Reply-To: <200309051225.h85CPOYr000323@81-2-122-30.bradfords.org.uk>
-User-Agent: Mutt/1.3.28i
-From: Fruhwirth Clemens <clemens-dated-1063628701.d72f@endorphin.org>
-X-Delivery-Agent: TMDA/0.51 (Python 2.1.3 on Linux/i686)
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 05 Sep 2003 14:39:42 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---PNTmBPCT7hxwcZjr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Sep 05, 2003 at 01:25:24PM +0100, John Bradford wrote:
-> > > Are there any buffer overflows or other security holes?
-> > > How can you be sure about it?
+Am Fr, 2003-09-05 um 13.10 schrieb Nick Sanders:
 > >
-> > How can you be sure? Mathematical program verification applies quite ba=
-dly
-> > to assembler.
->=20
-> The point is, if somebody does find a bug they will want to
-> re-assemble with Gas after they've fixed it.
+> > 3. The oss mixer emulation doesn't load correctly, I get the following
+> > messages in the syslog, f.e. after a "modprobe snd-mixer-oss":
+> >
+> > snd: Unknown parameter `device_mode'
+> 
+> I had to remove the device_mode option from below in /lib/modules/
+> modprobe.conf. It happens in test4 too i think.
+> 
+> options snd major=116 cards_limit=4 device_mode=0660
 
-If you referring to my precompiled masm binaries, yes, if one wants to
-change the source, getting masm is not nice.
+Even if I remove the device_mode part I still get unresolved symbols
+loading snd-oss-mixer.
 
-But if the source is writting in nasm, nasm (LGPL) can be installed
-easily..=20
 
-However, the kernel folks seem to dislike to depend on an additional tool.
-Actually that's the answer to my original question. Now I just have to
-ponder if I favour the preferences of the kernel over the prefs of user spa=
-ce
-programs. There are lots of user space crypto implementations, which are
-potential candidates.. and for theses apps an additional dependency on nasm
-is no problem.
+-- 
+Jan Ischebeck <mail@jan-ischebeck.de>
 
-Regards, Clemens
-
---PNTmBPCT7hxwcZjr
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE/WICdW7sr9DEJLk4RAluPAJwMwLNNSlT2rc3WfSafPhMFsBMmywCgkEn1
-0bzcn991DbapHo82cZLq0bY=
-=VlrY
------END PGP SIGNATURE-----
-
---PNTmBPCT7hxwcZjr--

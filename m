@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130165AbRBGWuV>; Wed, 7 Feb 2001 17:50:21 -0500
+	id <S129352AbRBGWtv>; Wed, 7 Feb 2001 17:49:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130495AbRBGWuM>; Wed, 7 Feb 2001 17:50:12 -0500
-Received: from hilbert.umkc.edu ([134.193.4.60]:9481 "HELO tesla.umkc.edu")
-	by vger.kernel.org with SMTP id <S130165AbRBGWuE>;
-	Wed, 7 Feb 2001 17:50:04 -0500
-Message-ID: <3A81D0E5.B9F3794E@kasey.umkc.edu>
-Date: Wed, 07 Feb 2001 16:49:09 -0600
-From: "David L. Nicol" <david@kasey.umkc.edu>
-Organization: University of Missouri - Kansas City   supercomputing infrastructure
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i586)
-X-Accept-Language: en
+	id <S130165AbRBGWtl>; Wed, 7 Feb 2001 17:49:41 -0500
+Received: from winds.org ([207.48.83.9]:61200 "EHLO winds.org")
+	by vger.kernel.org with ESMTP id <S129352AbRBGWt3>;
+	Wed, 7 Feb 2001 17:49:29 -0500
+Date: Wed, 7 Feb 2001 17:47:56 -0500 (EST)
+From: Byron Stanoszek <gandalf@winds.org>
+To: Jason Ford <jason@heymax.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: aacraid 2.4.0 kernel
+In-Reply-To: <PNEPLDDEADCDEBANKDDHEEGPCAAA.jason@heymax.com>
+Message-ID: <Pine.LNX.4.21.0102071746060.7611-100000@winds.org>
 MIME-Version: 1.0
-To: Peter Samuelson <peter@cadcamlab.org>
-CC: Wakko Warner <wakko@animx.eu.org>, linux-kernel@vger.kernel.org
-Subject: Re: OK to mount multiple FS in one dir?
-In-Reply-To: <3A7E1942.5090903@goingware.com> <20010205180646.B32155@cadcamlab.org> <033601c09075$a60e43e0$de00a8c0@homeip.net> <20010206154616.A9875@animx.eu.org> <20010207002510.A10556@cadcamlab.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Samuelson wrote:
- 
-> A more useful thing to fall out of the same hacking is loopback
-> mounting -- i.e. the same filesystem mounted multiple places.  In
-> Linux-land I guess we call it 'mount --bind'.
-> 
-> Peter
+On Wed, 7 Feb 2001, Jason Ford wrote:
 
-Does this kind of thing play nice with nfs and coda, in terms of
-change notifications and write-backs? In distributed FS we've got
-the same thing mounted multiple places, of course, but not on the
-same machine
+> I see in the archives of this mailing list that someone was working on the
+> aacraid driver for the 2.4 kernel however that post was almost 2 months old.
+> I know Alan Cox denied inclusion of the driver due to the poor nature it was
+> written for the 2.2 tree. Every post that I have seen so far has just said
+> that Adaptec is working on it. However, I am sure there are many people out
+> there like myself that have to support this card in enviroments that would
+> be benifical to upgrade to 2.4 kernel. I am not a part of this list however
+> have been scouring through geocrawler.com archives of this list everyday for
+> the last month hoping and waiting.
 
+While it's totally unofficial, I have a patch for aacraid 1.0.6 for 2.4.1-ac5.
+I have not tested it yet, but it compiles cleanly. I'd like to hear any results
+(good or bad) you have on it.
 
+You can find it at:
+
+  ftp://ftp.winds.org/linux/patches/2.4.1/aacraid-2.4.1-1.0.6.patch
+
+Regards,
+ Byron
 
 -- 
-                      David Nicol 816.235.1187 dnicol@cstp.umkc.edu
-                           Pedestrians always have the right of way
+Byron Stanoszek                         Ph: (330) 644-3059
+Systems Programmer                      Fax: (330) 644-8110
+Commercial Timesharing Inc.             Email: byron@comtime.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292418AbSBPQpH>; Sat, 16 Feb 2002 11:45:07 -0500
+	id <S292414AbSBPQt5>; Sat, 16 Feb 2002 11:49:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292428AbSBPQo5>; Sat, 16 Feb 2002 11:44:57 -0500
-Received: from ulima.unil.ch ([130.223.144.143]:10112 "HELO ulima.unil.ch")
-	by vger.kernel.org with SMTP id <S292418AbSBPQou>;
-	Sat, 16 Feb 2002 11:44:50 -0500
-Date: Sat, 16 Feb 2002 17:44:48 +0100
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: matrox and 2.5.5-pre1 don't compile
-Message-ID: <20020216164448.GB19843@ulima.unil.ch>
+	id <S292428AbSBPQtr>; Sat, 16 Feb 2002 11:49:47 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:43272
+	"EHLO golux.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S292414AbSBPQtc>; Sat, 16 Feb 2002 11:49:32 -0500
+Date: Sat, 16 Feb 2002 11:22:21 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dave Jones <davej@suse.de>, Robert Love <rml@tech9.net>,
+        Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Disgusted with kbuild developers
+Message-ID: <20020216112221.A32311@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@suse.de>,
+	Robert Love <rml@tech9.net>,
+	Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020216105425.A31986@thyrsus.com> <E16c7rR-0006Z5-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E16c7rR-0006Z5-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Feb 16, 2002 at 04:38:53PM +0000
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> You can force a side effect in both directions. The language provides the
+> information to do that, the current -toolset- can't handle this.
+> 
+> At any point you ask a question you can "wind back" and compute the set
+> of changes that are needed and re-ask only the needed questions.
 
-make[2]: Entering directory `/usr/src/linux-2.5/drivers/video'
-make -C matrox
-make[3]: Entering directory `/usr/src/linux-2.5/drivers/video/matrox'
-make all_targets
-make[4]: Entering directory `/usr/src/linux-2.5/drivers/video/matrox'
-gcc -D__KERNEL__ -I/usr/src/linux-2.5/include -Wall -Wstrict-prototypes -Wno-trigra
-phs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-sta
-ck-boundary=2 -march=i686   -DKBUILD_BASENAME=matroxfb_base  -DEXPORT_SYMTAB -c mat
-roxfb_base.c
-matroxfb_base.c: In function `matroxfb_ioctl':
-matroxfb_base.c:1062: warning: implicit declaration of function `matroxfb_switch'
-matroxfb_base.c: In function `initMatrox2':
-matroxfb_base.c:1792: incompatible types in assignment
-make[4]: *** [matroxfb_base.o] Error 1
-make[4]: Leaving directory `/usr/src/linux-2.5/drivers/video/matrox'
-make[3]: *** [first_rule] Error 2
-make[3]: Leaving directory `/usr/src/linux-2.5/drivers/video/matrox'
-make[2]: *** [_subdir_matrox] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.5/drivers/video'
-make[1]: *** [_subdir_video] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5/drivers'
-make: *** [_dir_drivers] Error 2
-363.240u 23.050s 6:48.24 94.6%  0+0k 0+0io 506239pf+0w
-Exit 2
+I spent over a month in early 2000 trying a similar approach.  I tried it
+with CML1, and I tried it with increasingly enriched dialects of CML1
+(magic comments carrying extra semantic information, that sort of thing).
 
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+The results were (a) ugly, and (b) broken.  I struggled against this
+for a long time, because I knew what a horrible revolving bitch and
+maintaining a parallel rulebase in a new formalism was going to be.
+
+As you no doubt realize, the problem of deducing the forcing
+information from CMl1 markup is efectively equivalent to the problem
+of writing a mechanical CML1-to-CML2 translator.  So I have a
+suggestion: if you want to prove that it's possible to extract all the
+info for side-effect forcing from CML1, do it by writing such a
+translator.
+
+I believe you will fail, as I did and as Jeff Garzik implicitly predicted.
+If you fail, the process will teach you what I had to learn the hard way 
+two years back.  If you succeed, people who are whingeing about wanting
+a bug-for-bug rulebase translation will get what they want.
+
+Don't tell me to do it.  Been there, done that, have the battle scars.
+If there were any way I could have avoided maintaining my own rulebase,
+you better believe I'd have done it.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>

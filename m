@@ -1,57 +1,200 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261667AbTJMK7F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 06:59:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbTJMK7F
+	id S261680AbTJMLEG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 07:04:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbTJMLD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 06:59:05 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54433 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261667AbTJMK7C (ORCPT
+	Mon, 13 Oct 2003 07:03:57 -0400
+Received: from holomorphy.com ([66.224.33.161]:41093 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261664AbTJMLDw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 06:59:02 -0400
-Date: Mon, 13 Oct 2003 04:02:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] Kernel thread signal handling.
-Message-Id: <20031013040219.6ad71a57.akpm@osdl.org>
-In-Reply-To: <1066041096.24015.431.camel@hades.cambridge.redhat.com>
-References: <1066041096.24015.431.camel@hades.cambridge.redhat.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 13 Oct 2003 07:03:52 -0400
+Date: Mon, 13 Oct 2003 04:06:53 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Kirill Korotaev <kk@sw.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Invalidate_inodes can be very slow
+Message-ID: <20031013110653.GG16158@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Kirill Korotaev <kk@sw.ru>, linux-kernel@vger.kernel.org
+References: <200310131318.09234.kk@sw.ru> <20031013095347.GF16158@holomorphy.com> <200310131446.25921.kk@sw.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310131446.25921.kk@sw.ru>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse <dwmw2@infradead.org> wrote:
->
->  1. We need disallow_signal() to complement allow_signal().
-> 
->  2. We need a function which does dequeue_signal() _with_ locking.
-> 
->  3. We might need a better name for #2. Change if you care.
-> 
->  4. We need allow_signal() to actually allow signals other than
->     SIGKILL. Currently they get either converted to SIGKILL or
->     silently dropped, according to whether your kernel thread
->     happens to have sa_handler set for the signal in question.
-> 
->     It would be nicer to fix this in the signal delivery code
->     itself if (!tsk->mm) rather than by faking a handler in
->     allow_signal(). I'm not touching the signal delivery code
->     with a bargepole though. Hopefully the proposed change to
->     allow_signal() will provoke someone else into doing so.
+At some point in the past, I wrote:
+>> Untested brute-force forward port to 2.6.0-test7-bk4. No idea if the
+>> locking is correct or if list movement is done in all needed places.
 
-Sigh.  Using signals to communicate with kernel threads is evil.  It keeps
-on breaking and each site does it differently and we've had plenty of bugs
-due to this practice.
+On Mon, Oct 13, 2003 at 02:46:25PM +0400, Kirill Korotaev wrote:
+> First of all, thanks for forward port. I think this patch is quite usefull
+> for both 2.4 and 2.6 kernels, but I can't check it on all kernels myself.
+> comments:
+> 1. why have you replaced list_del with list_del_init in my patch?
+> It's not required.
+> 2. locks are ok, as for i_list, i_hash lists.
+> 3. Missed 
+> +list_add(&inode->i_sb_list, &sb->s_inodes);
+> in get_new_inode_fast() function. Please add it.
+> I looked through, everything else looks ok.
+> [your patch]
 
-Signals are for userspace and the signal developers shouldn't have to worry
-about weird in-kernel abuse and we have other simpler, more reliable
-mechanisms available in-kernel and even more such ranting you get the
-point.
-
-Is there no way in which jffs2 can be weaned off this obnoxious habit?
+list_del_init() was for consistency with the surrounding ->i_list
+deletions, hence erring on the side of caution.
+Amended patch below, addressing point 3.
 
 
+diff -prauN linux-2.6.0-test7-bk4/fs/inode.c inode-2.6.0-test7-bk4-1/fs/inode.c
+--- linux-2.6.0-test7-bk4/fs/inode.c	2003-10-08 12:24:51.000000000 -0700
++++ inode-2.6.0-test7-bk4-1/fs/inode.c	2003-10-13 03:44:06.000000000 -0700
+@@ -285,7 +285,7 @@ static void dispose_list(struct list_hea
+ /*
+  * Invalidate all inodes for a device.
+  */
+-static int invalidate_list(struct list_head *head, struct super_block * sb, struct list_head * dispose)
++static int invalidate_list(struct list_head *head, struct list_head *dispose)
+ {
+ 	struct list_head *next;
+ 	int busy = 0, count = 0;
+@@ -298,13 +298,11 @@ static int invalidate_list(struct list_h
+ 		next = next->next;
+ 		if (tmp == head)
+ 			break;
+-		inode = list_entry(tmp, struct inode, i_list);
+-		if (inode->i_sb != sb)
+-			continue;
++		inode = list_entry(tmp, struct inode, i_sb_list);
+ 		invalidate_inode_buffers(inode);
+ 		if (!atomic_read(&inode->i_count)) {
+ 			hlist_del_init(&inode->i_hash);
+-			list_del(&inode->i_list);
++			list_del(&inode->i_sb_list);
+ 			list_add(&inode->i_list, dispose);
+ 			inode->i_state |= I_FREEING;
+ 			count++;
+@@ -340,10 +338,7 @@ int invalidate_inodes(struct super_block
+ 
+ 	down(&iprune_sem);
+ 	spin_lock(&inode_lock);
+-	busy = invalidate_list(&inode_in_use, sb, &throw_away);
+-	busy |= invalidate_list(&inode_unused, sb, &throw_away);
+-	busy |= invalidate_list(&sb->s_dirty, sb, &throw_away);
+-	busy |= invalidate_list(&sb->s_io, sb, &throw_away);
++	busy = invalidate_list(&sb->s_inodes, &throw_away);
+ 	spin_unlock(&inode_lock);
+ 
+ 	dispose_list(&throw_away);
+@@ -443,6 +438,7 @@ static void prune_icache(int nr_to_scan)
+ 				continue;
+ 		}
+ 		hlist_del_init(&inode->i_hash);
++		list_del_init(&inode->i_sb_list);
+ 		list_move(&inode->i_list, &freeable);
+ 		inode->i_state |= I_FREEING;
+ 		nr_pruned++;
+@@ -553,6 +549,7 @@ struct inode *new_inode(struct super_blo
+ 		spin_lock(&inode_lock);
+ 		inodes_stat.nr_inodes++;
+ 		list_add(&inode->i_list, &inode_in_use);
++		list_add(&inode->i_sb_list, &sb->s_inodes);
+ 		inode->i_ino = ++last_ino;
+ 		inode->i_state = 0;
+ 		spin_unlock(&inode_lock);
+@@ -601,6 +598,7 @@ static struct inode * get_new_inode(stru
+ 
+ 			inodes_stat.nr_inodes++;
+ 			list_add(&inode->i_list, &inode_in_use);
++			list_add(&inode->i_sb_list, &sb->s_inodes);
+ 			hlist_add_head(&inode->i_hash, head);
+ 			inode->i_state = I_LOCK|I_NEW;
+ 			spin_unlock(&inode_lock);
+@@ -649,6 +647,7 @@ static struct inode * get_new_inode_fast
+ 			inode->i_ino = ino;
+ 			inodes_stat.nr_inodes++;
+ 			list_add(&inode->i_list, &inode_in_use);
++			list_add(&inode->i_sb_list, &sb->s_inodes);
+ 			hlist_add_head(&inode->i_hash, head);
+ 			inode->i_state = I_LOCK|I_NEW;
+ 			spin_unlock(&inode_lock);
+@@ -984,6 +983,7 @@ void generic_delete_inode(struct inode *
+ 	struct super_operations *op = inode->i_sb->s_op;
+ 
+ 	list_del_init(&inode->i_list);
++	list_del_init(&inode->i_sb_list);
+ 	inode->i_state|=I_FREEING;
+ 	inodes_stat.nr_inodes--;
+ 	spin_unlock(&inode_lock);
+@@ -1031,6 +1031,7 @@ static void generic_forget_inode(struct 
+ 		hlist_del_init(&inode->i_hash);
+ 	}
+ 	list_del_init(&inode->i_list);
++	list_del_init(&inode->i_sb_list);
+ 	inode->i_state|=I_FREEING;
+ 	inodes_stat.nr_inodes--;
+ 	spin_unlock(&inode_lock);
+@@ -1228,27 +1229,11 @@ void remove_dquot_ref(struct super_block
+ 		return;	/* nothing to do */
+ 	spin_lock(&inode_lock);	/* This lock is for inodes code */
+ 	/* We don't have to lock against quota code - test IS_QUOTAINIT is just for speedup... */
+- 
+-	list_for_each(act_head, &inode_in_use) {
+-		inode = list_entry(act_head, struct inode, i_list);
+-		if (inode->i_sb == sb && IS_QUOTAINIT(inode))
+-			remove_inode_dquot_ref(inode, type, &tofree_head);
+-	}
+-	list_for_each(act_head, &inode_unused) {
+-		inode = list_entry(act_head, struct inode, i_list);
+-		if (inode->i_sb == sb && IS_QUOTAINIT(inode))
+-			remove_inode_dquot_ref(inode, type, &tofree_head);
+-	}
+-	list_for_each(act_head, &sb->s_dirty) {
+-		inode = list_entry(act_head, struct inode, i_list);
+-		if (IS_QUOTAINIT(inode))
+-			remove_inode_dquot_ref(inode, type, &tofree_head);
+-	}
+-	list_for_each(act_head, &sb->s_io) {
+-		inode = list_entry(act_head, struct inode, i_list);
++
++	list_for_each_entry(inode, &sb->s_inodes)
+ 		if (IS_QUOTAINIT(inode))
+ 			remove_inode_dquot_ref(inode, type, &tofree_head);
+-	}
++ 
+ 	spin_unlock(&inode_lock);
+ 
+ 	put_dquot_list(&tofree_head);
+diff -prauN linux-2.6.0-test7-bk4/fs/super.c inode-2.6.0-test7-bk4-1/fs/super.c
+--- linux-2.6.0-test7-bk4/fs/super.c	2003-10-08 12:24:04.000000000 -0700
++++ inode-2.6.0-test7-bk4-1/fs/super.c	2003-10-13 02:28:22.000000000 -0700
+@@ -66,6 +66,7 @@ static struct super_block *alloc_super(v
+ 		INIT_LIST_HEAD(&s->s_files);
+ 		INIT_LIST_HEAD(&s->s_instances);
+ 		INIT_HLIST_HEAD(&s->s_anon);
++		INIT_LIST_HEAD(&s->s_inodes);
+ 		init_rwsem(&s->s_umount);
+ 		sema_init(&s->s_lock, 1);
+ 		down_write(&s->s_umount);
+diff -prauN linux-2.6.0-test7-bk4/include/linux/fs.h inode-2.6.0-test7-bk4-1/include/linux/fs.h
+--- linux-2.6.0-test7-bk4/include/linux/fs.h	2003-10-08 12:24:03.000000000 -0700
++++ inode-2.6.0-test7-bk4-1/include/linux/fs.h	2003-10-13 02:37:13.000000000 -0700
+@@ -369,6 +369,7 @@ struct block_device {
+ struct inode {
+ 	struct hlist_node	i_hash;
+ 	struct list_head	i_list;
++	struct list_head	i_sb_list;
+ 	struct list_head	i_dentry;
+ 	unsigned long		i_ino;
+ 	atomic_t		i_count;
+@@ -687,6 +688,7 @@ struct super_block {
+ 	atomic_t		s_active;
+ 	void                    *s_security;
+ 
++	struct list_head	s_inodes;	/* all inodes */
+ 	struct list_head	s_dirty;	/* dirty inodes */
+ 	struct list_head	s_io;		/* parked for writeback */
+ 	struct hlist_head	s_anon;		/* anonymous dentries for (nfs) exporting */

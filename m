@@ -1,54 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264752AbUEKOHk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264756AbUEKOKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264752AbUEKOHk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 10:07:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264755AbUEKOHj
+	id S264756AbUEKOKh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 10:10:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264759AbUEKOKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 10:07:39 -0400
-Received: from nevyn.them.org ([66.93.172.17]:27025 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S264752AbUEKOHb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 10:07:31 -0400
-Date: Tue, 11 May 2004 10:07:22 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Fabiano Ramos <ramos_fabiano@yahoo.com.br>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, Andi Kleen <ak@muc.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ptrace in 2.6.5
-Message-ID: <20040511140722.GA13568@nevyn.them.org>
-Mail-Followup-To: Davide Libenzi <davidel@xmailserver.org>,
-	Fabiano Ramos <ramos_fabiano@yahoo.com.br>,
-	OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-	Andi Kleen <ak@muc.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1UlcA-6lq-9@gated-at.bofh.it> <m365b4kth8.fsf@averell.firstfloor.org> <1084220684.1798.3.camel@slack.domain.invalid> <877jvkx88r.fsf@devron.myhome.or.jp> <873c67yk5v.fsf@devron.myhome.or.jp> <20040510225818.GA24796@nevyn.them.org> <1084236054.1763.25.camel@slack.domain.invalid> <Pine.LNX.4.58.0405102253480.1156@bigblue.dev.mdolabs.com> <Pine.LNX.4.58.0405102324350.1156@bigblue.dev.mdolabs.com> <Pine.LNX.4.58.0405102340260.1156@bigblue.dev.mdolabs.com>
+	Tue, 11 May 2004 10:10:36 -0400
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:65445 "EHLO
+	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id S264756AbUEKOJB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 10:09:01 -0400
+Date: Tue, 11 May 2004 10:08:53 -0400
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Steve French <smfltc@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCEMENT PATCH COW] proof of concept impementation of cowlinks
+Message-ID: <20040511140853.GT24211@delft.aura.cs.cmu.edu>
+Mail-Followup-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+	Steve French <smfltc@us.ibm.com>, linux-kernel@vger.kernel.org
+References: <20040506131731.GA7930@wohnheim.fh-wedel.de> <20040508224835.GE29255@atrey.karlin.mff.cuni.cz> <20040510155359.GB16182@wohnheim.fh-wedel.de> <20040510192601.GA11362@delft.aura.cs.cmu.edu> <20040511100232.GA31673@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0405102340260.1156@bigblue.dev.mdolabs.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040511100232.GA31673@wohnheim.fh-wedel.de>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 10, 2004 at 11:41:53PM -0700, Davide Libenzi wrote:
-> On Mon, 10 May 2004, Davide Libenzi wrote:
+On Tue, May 11, 2004 at 12:02:32PM +0200, Jörn Engel wrote:
+> > Copyfile can trivially be implemented in libc. I don't see why it would
+> > have to be a system call. If a network filesystem wants to optimize the
+> > file copying it could do this based on the sendfile data. If source and
+> > destination are within the same filesystem and we're copying the whole
+> > file starting at offset 0, send a copyfile RPC.
 > 
-> > On Mon, 10 May 2004, Davide Libenzi wrote:
-> > 
-> > > On the kernel side, this would be pretty much solved by issuing a ptrace 
-> > > op, with a modified EIP (+2) on return from a syscall (if in single-step 
-> > > mode).
-> > 
-> > Actaully, the EIP should not be changed (since it already points to the 
-> > intruction following INT 0x80) and I believe it is sufficent to replace 
-> > the test for _TIF_SYSCALL_TRACE with (_TIF_SYSCALL_TRACE | TIF_SINGLESTEP) 
-> > in the system call return path. This should generate a ptrace trap with 
-> > EIP pointing to the next instruction following INT 0x80.
+> Can you explain this to Steve?  I'm still quite clueless about network
+> filesystems, but it sounded as if such an optimization was impossible
+> to do in cifs without a combined create/copy/unlink_on_error system
+> call.
 > 
-> The patch below (for i386) should work.
+> If your suggestion works and the network filesystems can be changed to
+> work independently of a struct file*, I agree with you that copyfile()
+> is a stupid idea and should be forgotten.
 
-Yeah, that's what I was suggesting.  I think the patch is right.
+I would probably do it by overriding the file_operations.sendfile
+function. A first approximation of a possible implementation follows. I
+went a bit crazy on the comments. The only problem is that the type of
+target is unknown, block/loop.c and nfsd/vfs.c are using sendfile to
+to send to something that is not a struct file.
 
--- 
-Daniel Jacobowitz
+Jan
+
+int my_file_sendfile(struct file *in_file, loff_t *ppos, size_t count,
+		     read_actor_t actor, void __user *target)
+{
+    struct file *out_file = NULL;
+
+    /* We have to check the read_actor callback function to see if the
+     * target actually points at a struct file. */
+    if (actor != file_send_actor)
+	goto copy_local;
+
+    /* are both source and destination within the same file system
+     * mountpoint? */
+    if (in_file->f_dentry->d_inode->i_sb != out_file->f_dentry->d_inode->i_sb)
+	goto copy_local;
+
+    /* are we copying the entire source file? */
+    if (*ppos != 0 || count != in_file->f_dentry->d_inode->i_size)
+	goto copy_local;
+
+    /* and are we at least overwriting the complete destination file?
+       (alternatively we could check that the out_file is currently empty) */
+    if (out_file->f_pos != 0 || out_file->f_dentry->d_inode->i_size > count)
+	goto copy_local;
+
+    /* we are in luck and can send a copyfile rpc */
+    int err = make_copyfile_rpc(in_file, out_file);
+
+    /* we probably should force a refresh of out_file as it changed on
+     * the server and not locally */
+    MY_I(out_file->f_dentry->d_inode)->time = 0;
+    return err;
+
+copy_local:
+    /* no luck, we're sending to something that isn't a file or in the
+     * same filesystem, or we only copy a partial file. any case, we
+     * have to perform the copy locally. */
+    return generic_file_sendfile(in_file, ppos, count, actor, target);
+}
+

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264593AbTDPVDM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 17:03:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264595AbTDPVDM
+	id S264591AbTDPVB1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 17:01:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264593AbTDPVB1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 17:03:12 -0400
-Received: from jordan.pp.org.pl ([213.186.82.147]:32672 "EHLO jordan.pp.org.pl")
-	by vger.kernel.org with ESMTP id S264593AbTDPVDK (ORCPT
+	Wed, 16 Apr 2003 17:01:27 -0400
+Received: from jordan.pp.org.pl ([213.186.82.147]:31648 "EHLO jordan.pp.org.pl")
+	by vger.kernel.org with ESMTP id S264591AbTDPVB0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 17:03:10 -0400
-Date: Wed, 16 Apr 2003 22:16:12 +0200
-From: Bartlomiej Czardybon <czar@jordan.pp.org.pl>
+	Wed, 16 Apr 2003 17:01:26 -0400
+Date: Wed, 16 Apr 2003 22:14:07 +0200
+From: Bartlomiej Czardybon <bart@czardybon.net>
 To: linux-kernel@vger.kernel.org
 Subject: uhci_hcd kernel panic in 2.5.67
-Message-ID: <20030416201612.GC8570@pik-net.pl>
+Message-ID: <20030416201407.GA8570@pik-net.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline

@@ -1,92 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbUKOOSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbUKOOdE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbUKOOSu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 09:18:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbUKOOSu
+	id S261604AbUKOOdE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 09:33:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbUKOOdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 09:18:50 -0500
-Received: from mailr.eris.qinetiq.com ([128.98.1.9]:2241 "HELO
-	mailr.qinetiq-tim.net") by vger.kernel.org with SMTP
-	id S261602AbUKOOSM convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 09:18:12 -0500
-From: Mark Watts <m.watts@eris.qinetiq.com>
-Organization: QinetiQ
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Documentation/networking/bonding.txt update
-Date: Mon, 15 Nov 2004 14:23:05 +0000
-User-Agent: KMail/1.6.1
-Cc: bonding-devel@lists.sourceforge.net
-MIME-Version: 1.0
+	Mon, 15 Nov 2004 09:33:04 -0500
+Received: from almesberger.net ([63.105.73.238]:5385 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S261604AbUKOOc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 09:32:59 -0500
+Date: Mon, 15 Nov 2004 11:32:42 -0300
+From: Werner Almesberger <werner@almesberger.net>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Generalize prio_tree (1/3)
+Message-ID: <20041115113242.R28802@almesberger.net>
+References: <20041114235646.K28802@almesberger.net> <419830FD.7000007@yahoo.com.au> <20041115030750.L28802@almesberger.net> <41988CA2.8050407@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200411151423.05457.m.watts@eris.qinetiq.com>
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.12; VDF: 6.28.0.72; host: mailr.qinetiq-tim.net)
+In-Reply-To: <41988CA2.8050407@yahoo.com.au>; from nickpiggin@yahoo.com.au on Mon, Nov 15, 2004 at 10:01:54PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Nick Piggin wrote:
+> ... but humor me, you _are_ ensuring the following doesn't get
+> reordered, say:
+> 
+> (write, sect 100), (barrier), (write, sect 200)
 
+Ah you found the case I didn't mention :-) Yes, that's handled
+somewhere else. When the ABISS elevator sees a barrier, it just
+pushes the current sort tree for non-reads (writes and weird
+stuff) to a FIFO list.
 
-Updates to Documentation/networking/bonding.txt to reflect an apparent change 
-in how to load the bonding.o driver more than once (Based on experience with 
-migrating a quad-nic/dual-bond server from 2.4.x to 2.6.x).
+So writes don't benefit that much from priorities. The good
+thing is that they also happen to need them less ;-)
 
+Hmm, I just see that power down (suspend and shutdown) sneaked out
+again. Well, easy enough to fix.
 
-Signed-off-by: Mark Watts <m.watts@eris.qinetiq.com>
+> No comment on your prio tree generalization, sorry. Other than: it
+> seems to be unfortunately quite ugly.
 
+I know. Unfortunately, there doesn't seem to be a nice alternative
+that doesn't either require additional fields (e.g. in MM, only half
+of the key is not stored in the tree, the other half is calculated)
+or *very* busy callbacks.
 
-diff -Nurd linux-2.6.9/Documentation/networking/bonding.txt
-linux-2.6.9-mrw/Documentation/networking/bonding.txt
-- --- linux-2.6.9/Documentation/networking/bonding.txt    2004-10-18
-22:53:45.000000000 +0100
-+++ linux-2.6.9-mrw/Documentation/networking/bonding.txt        2004-11-02
-09:48:05.831738136 +0000
-@@ -418,17 +418,27 @@
- driver multiple times allows each instance of the driver to have differing
- options.
+Of course, if Rajesh or the MM folks in general think that storing
+the whole key in the tree is fine, I wouldn't complain :-)
 
-+Note: 2.6 kernel modules are capable of being loaded multiple times without
-+being explicitly loaded twice. The bonding.o driver however, defaults to
-+only allowing you to load it once, unless you use the max_bonds parameter.
-+Using "-o bonding1" is depreciated for 2.6 kernels.
-+
- For example, to configure two bonding interfaces, one with mii link
- monitoring performed every 100 milliseconds, and one with ARP link
-- -monitoring performed every 200 milliseconds, the /etc/conf.modules should
-+monitoring performed every 200 milliseconds, the /etc/modprobe.conf should
- resemble the following:
+> (eg. add the patch to the front
+> of your ABISS elevator if you submit it to 2.6 or -mm).
 
- alias bond0 bonding
- alias bond1 bonding
+Ah no, the ABISS elevator won't go into the kernel - it's just for
+experimenting. But Jens is planning to add the overlap handling to
+the block device layer. So the user is well on its way :-) It's just
+more convenient if we can do this one step at a time, particularly
+since prio_tree is a very general concept (much like lists or
+red-black trees) anyway.
 
-+# For Kernel 2.4 (/etc/modules.conf or conf.modules):
- options bond0 miimon=100
- options bond1 -o bonding1 arp_interval=200 arp_ip_target=10.0.0.1
+> But I don't have strong feelings on the matter. If Rajesh says its OK
+> to go ahead as is, that would be fine by me :)
 
-+# for Kernel 2.6:
-+options bond0 miimon=100 max_bonds=2
-+options bond1 arp_interval=200 arp_ip_target=10.0.0.1
-+
- Configuring Multiple ARP Targets
- ================================
+Cool. Thanks !
 
+- Werner
 
-
-- -- 
-Mark Watts
-Senior Systems Engineer
-QinetiQ Trusted Information Management
-Trusted Solutions and Services group
-GPG Public Key ID: 455420ED
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBmLvJBn4EFUVUIO0RAm5BAJ9+NiHTHtdUwdR3NE69dnD0Y7tQ3gCgxMUY
-CfRSAabygSimbUgRHRPO05s=
-=mu17
------END PGP SIGNATURE-----
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271758AbTG2OoY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 10:44:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271838AbTG2OoX
+	id S271899AbTG2Omq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 10:42:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271900AbTG2Omq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 10:44:23 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:43244 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S271758AbTG2OoW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 10:44:22 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Timothy Miller <miller@techsource.com>
-Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
-Date: Wed, 30 Jul 2003 09:46:41 -0500
-User-Agent: KMail/1.5.2
-Cc: Andrew Morton <akpm@osdl.org>, ed.sweetman@wmich.edu,
-       eugene.teo@eugeneteo.net, linux-kernel@vger.kernel.org,
-       kernel@kolivas.org
-References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <200307271517.55549.phillips@arcor.de> <3F267CF9.40500@techsource.com>
-In-Reply-To: <3F267CF9.40500@techsource.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Jul 2003 10:42:46 -0400
+Received: from zero.aec.at ([193.170.194.10]:264 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S271899AbTG2Omo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 10:42:44 -0400
+Date: Tue, 29 Jul 2003 16:41:29 +0200
+From: Andi Kleen <ak@muc.de>
+To: Erich Focht <efocht@hpce.nec.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>, Andi Kleen <ak@muc.de>,
+       torvalds@osdl.org
+Subject: Re: [patch] scheduler fix for 1cpu/node case
+Message-ID: <20030729144129.GA30393@averell>
+References: <200307280548.53976.efocht@gmx.net> <3900670000.1059422153@[10.10.2.4]> <200307282218.19578.efocht@hpce.nec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307300946.41674.phillips@arcor.de>
+In-Reply-To: <200307282218.19578.efocht@hpce.nec.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 July 2003 08:56, Timothy Miller wrote:
-> ...since we're dealing with real-time and audio issues, is there any
-> way we can do this:  When the interrupt arrives from the sound card so
-> that the driver needs to set up DMA for the next block or whatever it
-> does, move any processes which talk to an audio device to the head of
-> the process queue?
+On Mon, Jul 28, 2003 at 10:18:19PM +0200, Erich Focht wrote:
+> > > So x86_64 platforms
+> > > (but not only those!) suffer and whish to switch off the NUMA
+> > > scheduler while keeping NUMA memory management on.
+> >
+> > Right - I have a patch to make it a config option (CONFIG_NUMA_SCHED)
+> > ... I'll feed that upstream this week.
+> 
+> That's one way, but the proposed patch just solves the problem (in a
+> more general way, also for other NUMA cases). If you deconfigure NUMA
+> for a NUMA platform, we'll have problems switching it back on when
+> adding smarter things like node affine or homenode extensions.
 
-That would be a good thing.  To clarify, there are typically two buffers 
-involved:
+That's one important point IMHO. Currently Opteron does not really 
+need the NUMA scheduler, but it will be in future with such extensions.
+This means it would be better if the current scheduler supports 
+it already so that it can be easily extended.
 
-  - A short DMA buffer
-  - A longer buffer into which the audio process generates samples
+Thanks for the patch.
 
-There are several cycles through the short buffer for each cycle through the 
-long buffer.  On one of these cycles, the contents of the long buffer will 
-drop below some threshold and the refill process should be scheduled, 
-according to your suggestion.  Developing a sane API for that seems a little 
-challenging.  Somebody should just hack this and demonstrate the benefit.
-
-In the meantime, the SCHED_SOFTRR proposal provides a way of closely 
-approximating the above behaviour without being intrusive or 
-application-specific.
-
-Regards,
-
-Daniel
-
+-Andi

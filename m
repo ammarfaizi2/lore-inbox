@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263772AbUGNEEI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264461AbUGNEKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263772AbUGNEEI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 00:04:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264461AbUGNEEI
+	id S264461AbUGNEKi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 00:10:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265431AbUGNEKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 00:04:08 -0400
-Received: from havoc.gtf.org ([216.162.42.101]:57016 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S263772AbUGNEEF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 00:04:05 -0400
-Date: Wed, 14 Jul 2004 00:04:03 -0400
-From: David Eger <eger@havoc.gtf.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, rmk@arm.linux.org.uk
-Subject: Re: [PATCH] pmac_zilog: initialize port spinlock on all init paths
-Message-ID: <20040714040403.GA29729@havoc.gtf.org>
-References: <20040712075113.GB19875@havoc.gtf.org> <20040712082104.GA22366@havoc.gtf.org> <20040712220935.GA20049@havoc.gtf.org> <20040713003935.GA1050@havoc.gtf.org> <1089692194.1845.38.camel@gaston>
+	Wed, 14 Jul 2004 00:10:38 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:55774 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S264461AbUGNEKe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 00:10:34 -0400
+Date: Wed, 14 Jul 2004 06:10:26 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Peter Zaitsev <peter@mysql.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VM Problems in 2.6.7 (Too active OOM Killer)
+Message-ID: <20040714041026.GX974@dualathlon.random>
+References: <1089771823.15336.2461.camel@abyss.home> <20040714031701.GT974@dualathlon.random> <1089776640.15336.2557.camel@abyss.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1089692194.1845.38.camel@gaston>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1089776640.15336.2557.camel@abyss.home>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 12, 2004 at 11:16:34PM -0500, Benjamin Herrenschmidt wrote:
-> On Mon, 2004-07-12 at 19:39, David Eger wrote:
-> > Dear Ben,
-> > 
-> > This patch fixes the Zilog driver so it doesn't freak on my TiBook.
-> > [patch that initializes port->lock in pmac_zilog.c
->
-> The spinlock should be initialized by the serial core when registering
-> the ports ... can you find out for me how do you end up with the
-> port not registered but still trying to use the lock ? 
+On Tue, Jul 13, 2004 at 08:44:02PM -0700, Peter Zaitsev wrote:
+> The reason for me to disable swap both in 2.4 and 2.6 is - it really
+> hurts performance. In some cases performance can be 2-3 times slower
+> with swap file enabled.   Using O_DIRECT and mlock() for buffers helps 
+> but not completely.
 
-After some testing, I found that the pmac_zilog Oops (which claims we've
-not initialized port->lock) only occurs when I also enable 8250/16550
-serial support (CONFIG_SERIAL_8250)
-
-I'll try to track down what's going on on the plane tomorrow, but I'm 
-curious to hear if any of the recent csets might have caused this...
-(hence the cc: rmk)
-
-> > ( of course, it still spews diahrea of 'IN from bad port XXXXXXXX'
-> >   but then, I don't have the hardware.... still, seems weird that OF
-> >   would report that I do have said hardware :-/ )
-> 
-> The IN from bad port is a different issue, it's probably issued by
-> another driver trying to tap legacy hardware, either serial.o or
-> ps/2 kbd, I suppose, check what else of that sort you have in your
->  .config
-
-Sure enough, the "IN from bad port XXXXXXXX" ended up being the i8042
-serial PC keyboard driver, enabled with CONFIG_SERIO_I8042.  Don't know
-why that's in ppc defconfig....
-
--dte
+in 2.4 you can disable swap just fine (with oom killer disabled). until
+I/somebody fix 2.6 you can workaround this problem while still avoiding
+to swap much by setting /proc/sys/vm/swappiness to 0 or similar to tell
+the VM "please don't swap" even if swap is enabled ;). That will still
+prevent the oom killer to kick in. The oom killer is forbidden to run
+as long as `free` tells you that >= 4k of swap are still available to the
+OS. There are no other fundamental vm problems left I'm aware of in
+latest 2.6 besides these no-swap and oom issues.

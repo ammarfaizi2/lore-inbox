@@ -1,99 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262746AbTL2DjU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 22:39:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbTL2DjU
+	id S262652AbTL2Dpt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 22:45:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbTL2Dpt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 22:39:20 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:43013
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262746AbTL2DjS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 22:39:18 -0500
-Date: Sun, 28 Dec 2003 19:37:37 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: akmiller@nzol.net
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ide: "lost interrupt" with 2.6.0
-In-Reply-To: <1072657930.3fef760a50062@webmail.nzol.net>
-Message-ID: <Pine.LNX.4.10.10312281934150.32122-100000@master.linux-ide.org>
+	Sun, 28 Dec 2003 22:45:49 -0500
+Received: from 12-211-64-253.client.attbi.com ([12.211.64.253]:61081 "EHLO
+	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
+	id S262652AbTL2Dpr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 22:45:47 -0500
+Message-ID: <3FEFA36A.5050307@comcast.net>
+Date: Sun, 28 Dec 2003 19:45:46 -0800
+From: Walt H <waltabbyh@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031121
+X-Accept-Language: en-us
 MIME-Version: 1.0
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Can't eject a previously mounted CD?
+References: <3FEF89D5.4090103@comcast.net> <3FEF8BB1.6090704@wmich.edu>
+In-Reply-To: <3FEF8BB1.6090704@wmich.edu>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ed Sweetman wrote:
+> I'd have to say the december 17th listed changes are the culprit here.
+> I'm definitely not up to figuring out what change is the bad one.  If
+> any of the cdrom/ide-cd people wanna have me get some data from them
+> then just tell me how.  I've tried viewing the debug output from the
+> modules with no success in figuring out the problem.
+> 
+> 
 
-Accusys is a stolen technology from Dupli-Disk, there are law suits
-pending the last time I heard.
+Luckily for me, I built my cdrom drivers as modules, so I could play :)
+I turned on debugging, and noticed that cdi->use_count continues to increment by
+2 for each access. In cdrom_release, only one cdi->use_count-- exists, so the
+driver never gets to 0 use count and releases. I noticed in
+drivers/cdrom/cdrom.c line 753:
 
-If it was based on the original firmware of the Dupli-Disk, it has totally
-wrong state machines for executing hdparm style callers.
+        if (!ret) cdi->use_count++;
 
-I know the FSM's are wrong because I fixed them for Dupli-Disk.
-How they operate, I can not disclose.  But Accusys can not handle correct
-settings for FSM to Taskfile.
+Which is our second increment, but I can't find two decrements, because the
+check further down won't ever be true if the above is true. Hence, two
+increments and only 1 dec when we reach cdrom_release. What I did, was add a
+conditional decrement right before the open_for_data call, which makes the value
+of use_count like it used to be prior to the Mt. Rainier patches. Seems kinda
+hacky :)
 
-Cheers,
+-Walt
 
-Andre Hedrick
-LAD Storage Consulting Group
+--- /usr/src/linux/drivers/cdrom/cdrom.c        2003-12-25 09:53:59.000000000 -0800
++++ linux-2.6.0-mm1/drivers/cdrom/cdrom.c       2003-12-28 19:42:04.174098225 -0800
+@@ -744,4 +744,7 @@
+        }
 
-On Mon, 29 Dec 2003 akmiller@nzol.net wrote:
++       if (cdi->use_count > 0)
++               cdi->use_count--;
++
+        /* if this was a O_NONBLOCK open and we should honor the flags,
+         * do a quick open without drive/disc integrity checks. */
+@@ -931,5 +934,5 @@
+        struct cdrom_device_ops *cdo = cdi->ops;
 
-> I am seeing "lost interrupt" during kernel init, immediately after the drive is
-> probed.
-> 
-> The system boots under 2.2.x, using the kernel supplied with the current stable
-> Debian release. I have not yet tried it with 2.4.x(I had to transfer 2.6.x as
-> split on floppies as the network device won't work with 2.2.x).
-> 
-> Data is copied by hand from the monitor, so accuracy not guaranteed(but I think
-> its correct)...
-> 
-> Relevant lspci line, after booting under 2.2.x...
-> 00:1f.1 IDE interface: Intel Corp. 82820 820 (Camino 2) Chipset IDE U100 (rev
-> 05)
-> 
-> We have had problems with these devices(ACS7500, a transparent IDE RAID
-> controller from Accusys) on other boards where the BIOS wouldn't boot them, so
-> they may be doing something weird with the standards. The BIOS on this board
-> can allow the system to boot correctly off this device.
-> 
-> Relevant part of the output on bootup...
-> hda: Accusys ACS7500 C5VL, ATA DISK drive
-> ide0 at 0x1f0-0x1f7, 0x3f6 on irq 14
-> hdc: LG CD-ROM CRD-8522B, ATAPI CD/DVD-ROM drive
-> ide1 at 0x170-0x177,0x376 on irq 15
-> hda: 234441648 sectors(120034 MB) w/2048 KiB Cache, CHS=16383/255/63
-> hda:<4>hda: lost interrupt
-> lost interrupt
-> lost interrupt
-> (continues forever)
-> 
-> I have tried (without success) enabling all workarounds in the kernel config,
-> disabling APIC(noapic on command line, this is a single P4), disconnecting the
-> CDROM from the secondary IDE, swapping the disk onto the secondary IDE,
-> disabling DMA-by-default in the kernel config, disabling DMA in the BIOS setup,
-> setting the PIO mode in the BIOS setup to 0, and trying the old driver on the
-> primary interface(which failed because the device has too many cylinders).
-> 
-> Has anyone else seen this sort of problem? (Sorry if this is a known issue, I
-> couldn't find anything that seemed to be the same in the archives). Has anyone
-> got an ACS7500 running under 2.6.0, or 2.4.x for any recent kernel?
-> 
-> If you anyone needs any more info I should be able to get it, but remember I
-> can't actually boot into 2.6.0 only the 2.2.x kernel.
-> -- 
-> Yours sincerely,
-> Andrew
-> 
-> 
-> -------------------------------------------------
-> This mail sent through NZOL Webmail: http://webmail.nzol.net/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+-       cdinfo(CD_CLOSE, "entering cdrom_release\n");
++       cdinfo(CD_CLOSE, "entering cdrom_release\n");
+
+        if (cdi->use_count > 0)
+
+
 

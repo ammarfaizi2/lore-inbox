@@ -1,41 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268856AbUI2TRq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268883AbUI2TTM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268856AbUI2TRq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 15:17:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268883AbUI2TRq
+	id S268883AbUI2TTM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 15:19:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268890AbUI2TTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 15:17:46 -0400
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:22465 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S268856AbUI2TRp convert rfc822-to-8bit (ORCPT
+	Wed, 29 Sep 2004 15:19:11 -0400
+Received: from [63.227.221.253] ([63.227.221.253]:17587 "EHLO home.keithp.com")
+	by vger.kernel.org with ESMTP id S268886AbUI2TS4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 15:17:45 -0400
-From: Bernd Schubert <bernd-schubert@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2: isofs oops
-Date: Wed, 29 Sep 2004 21:17:40 +0200
-User-Agent: KMail/1.6.2
-References: <200409292008.17149.bernd-schubert@web.de>
-In-Reply-To: <200409292008.17149.bernd-schubert@web.de>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200409292117.42312.bernd-schubert@web.de>
+	Wed, 29 Sep 2004 15:18:56 -0400
+X-Mailer: exmh version 2.3.1 11/28/2001 with nmh-1.1
+To: Discuss issues related to the xorg tree <xorg@freedesktop.org>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       dri-devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Keith Packard <keithp@keithp.com>
+Subject: Re: New DRM driver model - gets rid of DRM() macros! 
+From: Keith Packard <keithp@keithp.com>
+In-Reply-To: Your message of "Wed, 29 Sep 2004 15:39:37 BST."
+             <415AC929.6070700@tungstengraphics.com> 
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-600504980P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 29 Sep 2004 12:16:49 -0700
+Message-Id: <E1CCjwX-0002Y0-9S@evo.keithp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is reproducable with 2.6.9-rc2, however 2.6.9-rc2-mm4 works fine.
-
-Cheers,
-	Bernd
+--==_Exmh_-600504980P
+Content-Type: text/plain; charset=us-ascii
 
 
--- 
-Bernd Schubert
-Physikalisch Chemisches Institut / Theoretische Chemie
-Universität Heidelberg
-INF 229
-69120 Heidelberg
-e-mail: bernd.schubert@pci.uni-heidelberg.de
+Around 15 o'clock on Sep 29, Keith Whitwell wrote:
+
+> A future X-on-GL world where regular applications are presumably doing direct 
+> rendering will change that assumption...
+
+I'm not planning on eliminating the X protocol in this environment, so 
+unless cairo really takes off and applications start coding to cairo-on-GL 
+instead of cairo-on-X-on-GL, then we'll have about the same number of 
+contexts, although the X context will be more rational than it currently 
+is.
+
+-keith
+
+
+
+--==_Exmh_-600504980P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Exmh version 2.3.1 11/28/2001
+
+iD8DBQFBWwohQp8BWwlsTdMRAkY4AKCuhi8k2WdLVL9ZJSU0be0snpmWwwCfdQPU
+dcxkFklrsMNnDExcmD77Vnw=
+=2gip
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-600504980P--

@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261910AbVACWZd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbVACWmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261910AbVACWZd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 17:25:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbVACWXU
+	id S261918AbVACWmO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 17:42:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbVACWjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 17:23:20 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:23936 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261776AbVACWOt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 17:14:49 -0500
-Date: Mon, 3 Jan 2005 22:14:42 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Felipe Alfaro Solana <lkml@mac.com>
-Cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@stusta.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       Andries Brouwer <aebr@win.tue.nl>,
-       William Lee Irwin III <wli@debian.org>
-Subject: Re: starting with 2.7
-Message-ID: <20050103221441.GA26732@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Felipe Alfaro Solana <lkml@mac.com>, Rik van Riel <riel@redhat.com>,
-	linux-kernel@vger.kernel.org,
-	Horst von Brand <vonbrand@inf.utfsm.cl>,
-	Adrian Bunk <bunk@stusta.de>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-	Andries Brouwer <aebr@win.tue.nl>,
-	William Lee Irwin III <wli@debian.org>
-References: <200501032059.j03KxOEB004666@laptop11.inf.utfsm.cl> <0F9DCB4E-5DD1-11D9-892B-000D9352858E@mac.com> <Pine.LNX.4.61.0501031648300.25392@chimarrao.boston.redhat.com> <5B2E0ED4-5DD3-11D9-892B-000D9352858E@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5B2E0ED4-5DD3-11D9-892B-000D9352858E@mac.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 3 Jan 2005 17:39:18 -0500
+Received: from terminus.zytor.com ([209.128.68.124]:19102 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261929AbVACWZo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 17:25:44 -0500
+Message-ID: <41D9C635.1090703@zytor.com>
+Date: Mon, 03 Jan 2005 14:24:53 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: sfrench@samba.org, linux-ntfs-dev@lists.sourceforge.net,
+       samba-technical@lists.samba.org, aia21@cantab.net,
+       hirofumi@mail.parknet.co.jp,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: FAT, NTFS, CIFS and DOS attributes
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Gosh! I bought an ATI video card, I bought a VMware license, etc.... I 
-> want to keep using them. Changing a "stable" kernel will continuously 
-> annoy users and vendors.
+Hello all,
 
-So buy some Operating System that supports the propritary software of
-your choice but stop annoying us.
+I recently posted to LKML a patch to get or set DOS attribute flags for 
+fatfs.  That patch used ioctl().  It was suggested that a better way 
+would be using xattrs, although the xattr mechanism seems clumsy to me, 
+and has namespace issues.
 
+I also think it would be good to have a unified interface for FAT, NTFS 
+and CIFS for these attributes.
+
+I noticed that CIFS has a placeholder "user.DosAttrib" in cifs/xattr.c, 
+although it doesn't seem to be implemented.
+
+Questions:
+
+a) is xattr the right thing?  It seems to be a fairly complex and 
+ill-thought-out mechanism all along, especially the whole namespace 
+business (what is a system attribute to one filesystem is a user 
+attribute to another, for example.)
+
+b) if xattr is the right thing, shouldn't this be in the system 
+namespace rather than the user namespace?
+
+c) What should the representation be?  Binary byte?  String containing a 
+subset of "rhsvda67" (barf)?
+
+	-hpa

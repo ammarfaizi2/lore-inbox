@@ -1,39 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279228AbRJaVFl>; Wed, 31 Oct 2001 16:05:41 -0500
+	id <S280513AbRJaVGb>; Wed, 31 Oct 2001 16:06:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280511AbRJaVFb>; Wed, 31 Oct 2001 16:05:31 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54022 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S279228AbRJaVFU>; Wed, 31 Oct 2001 16:05:20 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: 2.4.14-pre6
-Date: 31 Oct 2001 13:05:35 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9rpp2v$7j2$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0110302349550.31996-100000@penguin.transmeta.com> <Pine.LNX.4.33.0110312032110.18881-100000@titan.lahn.de>
+	id <S280512AbRJaVGW>; Wed, 31 Oct 2001 16:06:22 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:29963 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S280511AbRJaVGI>; Wed, 31 Oct 2001 16:06:08 -0500
+Date: Wed, 31 Oct 2001 22:05:17 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Andreas Dilger <adilger@turbolabs.com>
+cc: Gerhard Mack <gmack@innerfire.net>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        vda <vda@port.imtp.ilyichevsk.odessa.ua>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] Re: Nasty suprise with uptime
+In-Reply-To: <20011031135215.O16554@lynx.no>
+Message-ID: <Pine.LNX.4.30.0110312157060.30141-100000@gans.physik3.uni-rostock.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.33.0110312032110.18881-100000@titan.lahn.de>
-By author:    Philipp Matthias Hahn <pmhahn@titan.lahn.de>
-In newsgroup: linux.dev.kernel
-> 
-> > Other changes:
-> linux/zlib_fs.h is still missing in you tree and breaks compilation of
-> fs/cramfs and other.
-> 
+On Wed, 31 Oct 2001, Andreas Dilger wrote:
 
-I have submitted patches to Linus to make cramfs and zisofs work.
+> What about the following.  Since jiffies wraps are extremely rare, it
+> should be enough to have something along the lines of the following
+> in the uptime code only (or globally accessible for any code that
+> needs to use a full 64-bit jiffies value):
+>
+> u64 get_jiffies64(void)
+> {
+> 	static unsigned long jiffies_hi = 0;
+> 	static unsigned long jiffies_last = INITIAL_JIFFIES;
+>
+> 	/* probably need locking for this part */
+> 	if (jiffies < jiffies_last) {	/* We have a wrap */
+> 		jiffies_hi++;
+> 		jiffies_last = jiffies;
+> 	}
+>
+> 	return (jiffies | ((u64)jiffies_hi) << LONG_SHIFT));
+> }
+>
+> This means you need to call something that _checks_ the uptime
+> (or needs the 64-bit jiffies value) at least once every 1.3 years.
+> If you don't do it at least that often, you probably don't care
+> about the uptime anyways.
+>
+> This only impacts anything that really needs a 64-bit jiffies count,
+> and has zero impact everywhere else.
+>
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+I initially thought of that too. My objection was that boxes with long
+uptimes typically get forgotten in a corner until years later someone
+checks uptime again.
+
+However, I fully agree with your importance argument and believe this
+proposal to be the best one.
+
+Tim
+

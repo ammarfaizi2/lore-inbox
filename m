@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262685AbREOJDv>; Tue, 15 May 2001 05:03:51 -0400
+	id <S262693AbREOJLL>; Tue, 15 May 2001 05:11:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262692AbREOJDl>; Tue, 15 May 2001 05:03:41 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:15886 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S262685AbREOJDd>;
-	Tue, 15 May 2001 05:03:33 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200105150902.NAA29079@ms2.inr.ac.ru>
-Subject: Re: NETDEV_CHANGE events when __LINK_STATE_NOCARRIER is modified
-To: andrewm@uow.edu.au (Andrew Morton)
-Date: Tue, 15 May 2001 13:02:55 +0400 (MSK DST)
-Cc: jgarzik@mandrakesoft.com, davem@redhat.COM, linux-kernel@vger.kernel.org
-In-Reply-To: <3B006F84.C1427EB3@uow.edu.au> from "Andrew Morton" at May 15, 1 09:51:32 am
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S262698AbREOJLC>; Tue, 15 May 2001 05:11:02 -0400
+Received: from 20dyn175.com21.casema.net ([213.17.90.175]:37124 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S262693AbREOJKT>;
+	Tue, 15 May 2001 05:10:19 -0400
+Date: Tue, 15 May 2001 11:09:40 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 To Pending Device Number Registrants
+Message-ID: <20010515110940.A14060@home.ds9a.nl>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010515094835.A13650@home.ds9a.nl> <E14zabB-0002DM-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre4i
+In-Reply-To: <E14zabB-0002DM-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, May 15, 2001 at 09:54:33AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Tue, May 15, 2001 at 09:54:33AM +0100, Alan Cox wrote:
+> > So I would think that this block of new major number allocations holds for
+> > 2.5 and not 2.4. Also, if I'm correct, 2.4 won't be needing a lot of new
+> > major numbers anyhow.
+> 
+> I wouldnt bet on that. Going to a 32bit dev_t internally without user space
+> noticing would keep it seems to be quite doable if we have to. Right now doesnt
+> worry me, in 2 years time when 2.6 is approaching release the picture might
+> have changed a fair bit
 
-> It protects the as-yet-unchanged PCI and Cardbus drivers from a
-> fatal race.
+I think that we then have two distinct problems: 1) finding a solution for 2.4
+that does not change userspace 2) finding a solution for 2.5/2.6 that is
+Right.
 
-Fatal race remained.
+Personally I'm not sure what 2.4 stands to gain from a redesign. While 2.4
+is obviously developing, a stable series needs to solve real problems or
+improve performance - I know the way major numbers are allocated right now
+is ugly and doesn't scale very well. But is 2.4 the place to fix that?
 
-Andrew, you start again the story about white bull. 8)
-We have already discussed this. Device cannot stay in device list
-uninitialzied. Period.
+So the question is: does this new policy hold for 2.4 as well and if so,
+why.
 
-I am sorry, but no compromise is possible. With Jeff's approach all
-the references to init_etherdev and dev_probe_lock must be eliminated
-in 2.4.
+Regards,
 
+bert
 
-> and sys_ioctl() both do lock_kernel().  If xxx_probe() drops the BKL,
-
-Again, BKL has nothing to do with this (and ioctl does not hold it)
-It looks like you forgot all the discussion around your own patch. 8)
-
-If you want I can retransmit the mails which resulted in your patch?
-
-Alexey
+-- 
+http://www.PowerDNS.com      Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet

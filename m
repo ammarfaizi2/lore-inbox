@@ -1,99 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263561AbUDPSHd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 14:07:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbUDPSHc
+	id S262542AbUDPSHo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 14:07:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbUDPSHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 14:07:32 -0400
-Received: from fw.osdl.org ([65.172.181.6]:4324 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263561AbUDPSHH (ORCPT
+	Fri, 16 Apr 2004 14:07:44 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:34533 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S263567AbUDPSH3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 14:07:07 -0400
-Date: Fri, 16 Apr 2004 11:01:49 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] use Kconfig.debug (v3-proposed) (was: Re: [PATCH] use
- Kconfig.debug (v2))
-Message-Id: <20040416110149.3e353333.rddunlap@osdl.org>
-In-Reply-To: <200404161042.21164@WOLK>
-References: <20040415220338.3e351293.rddunlap@osdl.org>
-	<200404161042.21164@WOLK>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Apr 2004 14:07:29 -0400
+To: linux-kernel@vger.kernel.org, dev@able.be, netdev@oss.sgi.com
+Subject: Re: Kernel panic using frame relay protocol and IPSec
+References: <407E93F9.3010105@able.be>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Fri, 16 Apr 2004 18:10:23 +0200
+In-Reply-To: <407E93F9.3010105@able.be> (Wim Ceulemans's message of "Thu, 15
+ Apr 2004 15:54:01 +0200")
+Message-ID: <m3ad1b3nv4.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Apr 2004 10:42:21 +0200 Marc-Christian Petersen wrote:
+Wim Ceulemans <wim.ceulemans@able.be> writes:
 
-| On Friday 16 April 2004 07:03, Randy.Dunlap wrote:
-| 
-| Hi Randy,
-| 
-| > Use generic lib/Kconfig.debug and arch-specific arch/*/Kconfig.debug.
-| > Move KALLSYMS to generic debugging menu.
-| > Changes from version 1:
-| > 1.  remove global !CRIS && !H8300 from lib/Kconfig.debug;
-| > 2.  for CRIS and H8300, don't source lib/Kconfig.debug (not used);
-| > 3.  corrected several lib/Kconfig.debug ARCH usages;
-| > 4.  small change in generic debug menu order (moved SPINLOCK
-| > 	options together);
-| > Ready for testing IMO.  More comments?
-| 
-| yes. I'd like to see it this way:
-| 
-| Changes from version 2:
-| 1.  Early Printk should not depend on EMBEDDED
-| 2.  change "if foobar" to "depend on"
+> We are using kernel 2.4.24 and super-freeswan 1.99.8.
+> When using the frame relay protocol when a psk tunnel is established,
+> we are seeing a kernel panic when we ping through the tunnel.
 
-These mean the same thing to the config software, so I don't
-care which way it's done.
+Short version of my email to Wim:
 
-| 3.  remove endif's superfluous because of 2.
-| 4.  Move KALLSYMS some places lower
-
-Then let's move KALLSYMS to the very end of the menu.
-At the very least it should be after the last "depends on
-DEBUG_KERNEL" entry, but it still interferes with that
-dependency chain as either of us has it.
-
-| 5.  Add some more "depend on DEBUG_KERNEL" to indent the menu
-| 6.  Remove trailing new lines in some arch specific Kconfig.debug
-| 7.  move depends on DEBUG_KERNEL for arch/m68k/Kconfig.debug to
-|     the menu so you only see that menu if you select DEBUG_KERNEL
-|     You can't select anything there if DEBUG_KERNEL is N.
-
-Maybe do the same for parisc and s390, so that they don't show up
-at all?
-
-sparc is the same way:  only entry(s) depend on DEBUG_KERNEL.
-Same for x86_64.
-
-However, I did it that way for "future-proofing".  Makes it
-easy for someone to add an entry without having to think about
-higher-level parameters/values etc.
-
-| 8.  Whitespace cleanups
-| 
-| Comments?
-
-Yes... and you?
+It looks like a known bug - IPSEC code seems to ignore
+dev->hard_header_len = 10 requirement for PVC devices and passes skbs
+which have less than 10 bytes of header space. Not sure how does it
+work with Ethernet which requires 14 bytes, though. It might be a good
+idea to investigate.
 
 
-| Everything else is fine with me.
-| 
-| All-in-One v3-proposed is here:
-|  http://www.kernel.org/pub/linux/kernel/people/mcp/linux-2.6/kconf-debug-v3-proposed-2.6.6-rc1.patch
-| 
-| Update from v2 to v3-proposed is here too:
-|  http://www.kernel.org/pub/linux/kernel/people/mcp/linux-2.6/kconf-debug-v2-to-v3-proposed-2.6.6-rc1.patch
+I wonder if the FR behavior is correct - i.e. is it OK to set
+dev->hard_header_len = 10 and expect that all skbs passed to
+dev->hard_start_xmit() will have at least 10 bytes of space before
+the data?
 
-
-Thanks,
---
-~Randy
+Does the situation depend on dev->hard_header being non-NULL?
+-- 
+Krzysztof Halasa, B*FH

@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267303AbTGHNko (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 09:40:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267308AbTGHNjN
+	id S267300AbTGHNoc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 09:44:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267307AbTGHNoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 09:39:13 -0400
-Received: from maile.telia.com ([194.22.190.16]:6864 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id S267336AbTGHNiA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 09:38:00 -0400
-X-Original-Recipient: <linux-kernel@vger.kernel.org>
-Subject: 2.5.74-mm2 sleeping debug
-From: Christian Axelsson <smiler@lanil.mine.nu>
-Reply-To: smiler@lanil.mine.nu
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-IWGAiKEuPrhFgEC0lETP"
-Organization: LANIL
-Message-Id: <1057672135.6856.32.camel@sm-wks1.lan.irkk.nu>
+	Tue, 8 Jul 2003 09:44:32 -0400
+Received: from 12-226-168-214.client.attbi.com ([12.226.168.214]:53382 "EHLO
+	marta.kurtwerks.com") by vger.kernel.org with ESMTP id S267300AbTGHNoa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 09:44:30 -0400
+Date: Tue, 8 Jul 2003 09:59:06 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Jamie Lokier <jamie@shareable.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: syscall __NR_mmap2
+Message-ID: <20030708135906.GW16938@kurtwerks.com>
+References: <Pine.LNX.4.53.0307071655470.22074@chaos> <20030708003656.GC12127@mail.jlokier.co.uk> <Pine.LNX.4.53.0307080749160.24488@chaos>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4- 
-Date: 08 Jul 2003 15:52:21 +0200
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.53.0307080749160.24488@chaos>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.21-krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoth Richard B. Johnson:
+> On Tue, 8 Jul 2003, Jamie Lokier wrote:
+> 
+> > Richard B. Johnson wrote:
+> > > mmap2(0xb8000, 8192, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_FIXED, 3, 0xb8000) = 0xb8000
+> >
+> > You meant to write:
+> >
+> > 	mmap2(0xb8000, 8192, PROT_READ|PROT_WRITE,
+> > 	      MAP_SHARED|MAP_FIXED, 3, 0xb8000 >> 12);
+> >
+> > The offset argument to mmap2 is divided by PAGE_SIZE.
+> > That is the whole point of mmap2 :)
+> >
+> > -- Jamie
+> 
+> Okay. Do you know where that's documented? Nothing in linux/Documentation,
+> and nothing in any headers. Do you have to read the code to find out?
+> 
+> So, the address is now the offset in PAGES, not bytes. Seems logical,
+> but there is no clue in any documentation.
 
---=-IWGAiKEuPrhFgEC0lETP
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+With the possible exception of the man mmap2 ;-)
 
-Got a few of these, I think they are from the nvidia module.
-I'll get back when I find out howto trigger it.
+DESCRIPTION
+       The  function  mmap2  operates  in exactly the same way as
+       mmap(2), except that the final argument specifies the off­
+       set  into  the  file  in  units  of  the  system page size
+       (instead of bytes).  This enables applications that use  a
 
-Debug: sleeping function called from illegal context at
-mm/page_alloc.c:545
-Call Trace:
- [<c0118b03>] __might_sleep+0x63/0x70
- [<c01345ba>] __alloc_pages+0x2a/0x2d0
- [<c010a891>] do_IRQ+0x111/0x130
- [<c0115b45>] pte_alloc_one+0x15/0x50
- [<c013bd1f>] pte_alloc_map+0x3f/0xe0
- [<c013ccf8>] remap_page_range+0xb8/0x1f0
- [<e4a38172>] nv_kern_mmap+0x2f6/0x330 [nvidia]
- [<c0137c73>] kmem_cache_alloc+0x23/0x60
- [<c013f223>] do_mmap_pgoff+0x3e3/0x600
- [<c010e9a1>] old_mmap+0x101/0x140
- [<c0108f47>] syscall_call+0x7/0xb
 
---=20
-Christian Axelsson
-smiler@lanil.mine.nu
-
---=-IWGAiKEuPrhFgEC0lETP
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/CsvGyqbmAWw8VdkRArW+AJ9xOOhJACtmHpUMHN+yMJzR9T+6TQCfWI2w
-N2XjDU0WaqqEcth49gBqUy8=
-=MTCo
------END PGP SIGNATURE-----
-
---=-IWGAiKEuPrhFgEC0lETP--
-
+-- 
+"I have a very firm grasp on reality!  I can reach out and strangle it
+any time!"

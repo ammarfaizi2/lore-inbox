@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265771AbRGBCe2>; Sun, 1 Jul 2001 22:34:28 -0400
+	id <S265361AbRGBCtM>; Sun, 1 Jul 2001 22:49:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265361AbRGBCeS>; Sun, 1 Jul 2001 22:34:18 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:48402 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S265351AbRGBCeG>;
-	Sun, 1 Jul 2001 22:34:06 -0400
-Date: Sun, 1 Jul 2001 23:33:52 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Alex Khripin <akhripin@morgoth.mit.edu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Soft updates for 2.5?
-In-Reply-To: <200106301041.f5UAfCVM012803@morgoth.mit.edu>
-Message-ID: <Pine.LNX.4.33L.0107012331360.19985-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266032AbRGBCtC>; Sun, 1 Jul 2001 22:49:02 -0400
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:39692 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S265797AbRGBCsy>; Sun, 1 Jul 2001 22:48:54 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: rhw@MemAlpha.CX, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
+Subject: Re: [PATCH] Re: 2.4.6p6: dep_{bool,tristate} $CONFIG_ARCH_xxx bugs 
+In-Reply-To: Your message of "Sun, 01 Jul 2001 19:25:11 MST."
+             <200107020225.TAA02230@adam.yggdrasil.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 02 Jul 2001 12:48:26 +1000
+Message-ID: <22864.994042106@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Jun 2001, Alex Khripin wrote:
+On Sun, 1 Jul 2001 19:25:11 -0700, 
+"Adam J. Richter" <adam@yggdrasil.com> wrote:
+>	Does anyone know if there is any code that would break if
+>we put quotation marks around the $CONFIG_xxxx references in the
+>dep_xxx commands in all of the Config.in files?
 
-> There was a discussion in October, 2000, about the Granger and
-> McKusick paper on soft updates for the BSD FFS. Reading the thread,
-> nothing conclusive seemed to come out of it.
+That has the same problem that AC was worried about.  Variables that
+used to be treated as "undefined, don't care" are now treated as
+"undefined, assume n and forbid".
 
-What you want is ext3.
-
-It is a journaling version of ext2, which basically
-means you get all the advantages of soft updates and
-a bit more (due to the atomicity that journaled
-transactions can give you).
-
-It should be superior to softupdates in both the
-consistency area and the performance area (due to
-the fact that stuff is in the journal, you have
-more freedom to reorder the writes to the "main"
-part of the filesystem).
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+As long as there is any ambiguity about how a rule is meant to treat
+undefined variables, treating all undefined variables as 'n' is not
+safe.  Before making a global change like this, first verify that no
+rule treats undefined variables as "don't care".  Otherwise something
+will break.
 

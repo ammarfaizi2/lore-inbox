@@ -1,67 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265191AbUAJOzh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 09:55:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265201AbUAJOzg
+	id S265201AbUAJO4P (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 09:56:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265203AbUAJO4P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 09:55:36 -0500
-Received: from smtp014.mail.yahoo.com ([216.136.173.58]:3256 "HELO
-	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265191AbUAJOze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 09:55:34 -0500
-Message-ID: <4000125A.3020108@yahoo.es>
-Date: Sat, 10 Jan 2004 09:55:22 -0500
-From: Roberto Sanchez <rcsanchez97@yahoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.1-mm2
-References: <20040110014542.2acdb968.akpm@osdl.org>
-In-Reply-To: <20040110014542.2acdb968.akpm@osdl.org>
-X-Enigmail-Version: 0.82.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigDE0B507CD424250292161865"
+	Sat, 10 Jan 2004 09:56:15 -0500
+Received: from null.rsn.bth.se ([194.47.142.3]:65472 "EHLO null.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S265201AbUAJO4F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 09:56:05 -0500
+Subject: Re: 2.4.24 eth0: TX underrun, threshold adjusted.
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: "Gabor Z. Papp" <gzp@papp.hu>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, Feldman@tux.rsn.bth.se,
+       Scott <scott.feldman@intel.com>
+In-Reply-To: <x665fkb59o@gzp>
+References: <x665fkb59o@gzp>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-VMta6VoKtw3n3wcoTs0f"
+Message-Id: <1073746559.752.44.camel@tux.rsn.bth.se>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 10 Jan 2004 15:56:00 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigDE0B507CD424250292161865
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1/2.6.1-mm2/
-> 
+--=-VMta6VoKtw3n3wcoTs0f
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I am still seeng the constant lockups that started with -rc2-mm1.
-For the moment I have reverted to -rc1-mm1.  My setup:
+On Sat, 2004-01-10 at 09:02, Gabor Z. Papp wrote:
+> Replacing 2.4.23 with 2.4.24 went without any error I noticed.
+>=20
+> After 8h uptime I have connected the first nfsroot client.
+>=20
+> In the server host klog got 12 "eth0: TX underrun, threshold adjusted."
+> messages while the client started to mount the dirs.
 
-Athlon XP 2500+
-1 GB memory
-nForce2 mobo at 333MHz FSB
+> eth0: TX underrun, threshold adjusted.
+> [10 times]
+> eth0: TX underrun, threshold adjusted.
 
-If there is anything I can do to help track this down, please
-let me know.  But, I am not yet much of a kernel hacker, so I
-will need instruction.
+> eth0 intel eepro100
 
--Roberto Sanchez
+I think you ran the eepro100 driver in 2.4.23 and now in 2.4.24 you are
+using the e100 driver, am I correct?
 
---------------enigDE0B507CD424250292161865
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+This isn't really an error, it's an indicator that the pci-bus doesn't
+really keep up, then the NIC has to increase the threshold (it tries to
+start sending the packet out before it's fully transferred from main
+memory to the NIC, it hopes the rest of the packet will have been
+transferred in time, this message indicates that it wasn't so the NIC
+had to increase the threshold of how much of the packet has to have been
+transferred before it starts sending it out)
+
+This happens with the eepro100 driver as well but it doesn't tell you
+about it, it just increases the threshold and goes on.
+The e100 driver tells you about it _and_ it actually decreases the
+threshold if there hasn't been any underruns for a while, and when it is
+decreased, the threshold gets too small and you get an underrun
+again....
+
+I hope this helps to explain this message.
+
+Scott (cc'd), do you know why the e100 driver insists on decreasing the
+threshold all the time? It's decreased when there havn't been any
+underruns for a while (and there havn't been any underruns for a while
+just because we increased the threshold). This _will_ give lots and lots
+of these messages on machines where the pci is a bit too slow. How about
+not decreasing it at all? Or only telling the user about the situation
+until we have decreased it for the first time, then it shuts up as this
+message gets quite annoying.
+
+I can see that we might want to decrease the threshold if the reason for
+it was temporary high load on the pci-bus, but that we will never know.
+Or maybe increase the limit of which the decreasing is based, iirc it
+only decreases if the threshold is above some value. I see the
+decrease/increase "loop" here quite a bit on amd768 (mpx) chipsets.
+
+--=20
+/Martin
+
+--=-VMta6VoKtw3n3wcoTs0f
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFAABJkTfhoonTOp2oRAsHAAKDQh++LpXGNlTL9XbZTrbuIXgWb8QCfV7dc
-F4yiGwRTP5NSoMiFxgXzduA=
-=MVFz
+iD8DBQBAABJ+Wm2vlfa207ERAkItAJ4gw6co0x5mlubEmHJ+ferXjS8iiwCgrYJA
+d6oPW+tvcbdLNYNyLv4TBgk=
+=+ruC
 -----END PGP SIGNATURE-----
 
---------------enigDE0B507CD424250292161865--
+--=-VMta6VoKtw3n3wcoTs0f--

@@ -1,62 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318359AbSHEKik>; Mon, 5 Aug 2002 06:38:40 -0400
+	id <S318371AbSHEKsF>; Mon, 5 Aug 2002 06:48:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318366AbSHEKik>; Mon, 5 Aug 2002 06:38:40 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:13289 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S318359AbSHEKik>;
-	Mon, 5 Aug 2002 06:38:40 -0400
-Date: Mon, 5 Aug 2002 12:40:54 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@muc.de>
-Cc: Richard Zidlicky <rz@linux-m68k.org>, Jeff Dike <jdike@karaya.com>,
-       Alan Cox <alan@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user
- mode linux]
-In-Reply-To: <m3u1mb5df3.fsf@averell.firstfloor.org>
-Message-ID: <Pine.LNX.4.44.0208051223430.8173-100000@localhost.localdomain>
+	id <S318373AbSHEKsF>; Mon, 5 Aug 2002 06:48:05 -0400
+Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:53770 "EHLO
+	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S318371AbSHEKsD>; Mon, 5 Aug 2002 06:48:03 -0400
+Date: Mon, 5 Aug 2002 12:51:35 +0200 (CEST)
+From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+To: Oleg Drokin <green@namesys.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: reiserfs blocks long on getdents64() during concurrent write
+In-Reply-To: <20020805135420.A30430@namesys.com>
+Message-ID: <Pine.LNX.4.44.0208051243430.31879-100000@pc40.e18.physik.tu-muenchen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On 4 Aug 2002, Andi Kleen wrote:
+On Mon, 5 Aug 2002, Oleg Drokin wrote:
 
-> > actually the opposite is true, on a 2.2 GHz P4:
-> > 
-> >   $ ./lat_sig catch
-> >   Signal handler overhead: 3.091 microseconds
-> > 
-> >   $ ./lat_ctx -s 0 2
-> >   2 0.90
-> > 
-> > ie. *process to process* context switches are 3.4 times faster than signal
-> > delivery. Ie. we can switch to a helper thread and back, and still be
-> > faster than a *single* signal.
+> Hello!
 > 
-> This is because the signal save/restore does a lot of unnecessary stuff.
-> One optimization I implemented at one time was adding a SA_NOFP signal
-> bit that told the kernel that the signal handler did not intend to
-> modify floating point state (few signal handlers need FP) It would not
-> save the FPU state then and reached quite some speedup in signal
-> latency.
+> On Mon, Aug 05, 2002 at 11:22:49AM +0200, Roland Kuhn wrote:
+> 
+> > BTW: was it directly clear for you for what the do_journal_begin_r() was 
+> > waiting? I'm not so familiar with fs coding, especially the locking...
+> 
+> I'd say that it's waiting for journal lock that was captured by kupdated
+> (or something like that) doing periodic write_super() calls, when it thinks
+> memory is low. Our tests some time ago shown that once memory is lower than
+> some value, write_super() "method" is called for every superblock that
+> have "dirty" flag set. In reiserfs that flushes the journal, and while journal
+> is being flushed, nobody can create new transactions obviously, and since
+> ls changes directory's atime in normal case, it want to open new transaction.
+> Unfortunatelly dirty flag for reiserfs gets set way to often than necessary,
+> we have some patches that should help this (from Chris Mason).
+> You can try these for yourself too, for example from here:
+> ftp://ftp.suse.com/pub/people/mason/patches/data-logging/02-commit_super-8-relocation.diff.gz 
+> 
+I will try it immediately. And I will try to find documentation on how 
+this all is working, so I can understand the implications. Does the 
+"flushing" also happen, when the journal is full? Or is it possible to 
+begin a new journal while the old one is written out?
 
-well, we have an optimization in this area already - if the thread
-receiving the signal has not used any FPU registers during its current
-scheduled atom yet then we do not save the FPU state into the signal
-frame.
+> > than in the 2.4.18-3 case, where it took about 1 minute for ls to come 
+> > back. 
+> 
+> So you might try the patch I mentioned or you can mount with nodiratime mount
+> option to prevent updqting of directory atimes, but having atimes still to be
+> updated on regular files at the same time.
+> 
+Interesting mount option, though I think very few application actually use 
+atime anyway, isn't it?
 
-lat_sig uses the FPU so this cost is added. If the FPU saving cost is
-removed then signal delivery latency is still 2.0 usecs - slightly more
-than twice as expensive as a context-switch - so it's not a win. And
-threads can do queued events that amortizes context switch overhead, while
-queued signals generate per-event signal delivery, so signal delivery
-costs are not amortized.
+Ciao,
+					Roland
 
-(Not that i advocate SIGIO or helper threads for highperformance IO -
-Ben's aio interface is the fastest and most correct approach.)
-
-	Ingo
++---------------------------+-------------------------+
+|    TU Muenchen            |                         |
+|    Physik-Department E18  |  Raum    3558           |
+|    James-Franck-Str.      |  Telefon 089/289-12592  |
+|    85747 Garching         |                         |
++---------------------------+-------------------------+
 

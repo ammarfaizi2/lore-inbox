@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267023AbTCEXw3>; Wed, 5 Mar 2003 18:52:29 -0500
+	id <S266965AbTCFAGJ>; Wed, 5 Mar 2003 19:06:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267038AbTCEXw3>; Wed, 5 Mar 2003 18:52:29 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:64676
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267023AbTCEXw2>; Wed, 5 Mar 2003 18:52:28 -0500
-Subject: Re: Unable to boot a raw kernel image :??
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: DervishD <raul@pleyades.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E662B2E.6080304@zytor.com>
-References: <20021129132126.GA102@DervishD> <3DF08DD0.BA70DA62@gmx.de>
-	 <b453er$qo7$1@cesium.transmeta.com> <20030305161244.GB19439@DervishD>
-	 <3E662B2E.6080304@zytor.com>
+	id <S267039AbTCFAGJ>; Wed, 5 Mar 2003 19:06:09 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:4817 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S266965AbTCFAGI>;
+	Wed, 5 Mar 2003 19:06:08 -0500
+Subject: [KEXEC][2.5.64] kexec for 2.5.64 available
+From: Andy Pfiffer <andyp@osdl.org>
+To: Eric Biederman <ebiederm@xmission.com>
+Cc: fastboot@osdl.org,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1046912881.15971.29.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1046909807.29868.31.camel@andyp.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 06 Mar 2003 01:08:02 +0000
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 05 Mar 2003 16:16:47 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-03-05 at 16:51, H. Peter Anvin wrote:
-> It doesn't work for anything but old legacy floppies.  I have already
-> sent the code to Alan for 2.5-ac and to Andi for x86-64 (where it has
-> already been integrated); if anyone wants to try to persuade Marcelo to
+Eric,
 
-It seems completely inappropriate to remove a feature from the 'stable'
-kernel tree.
+I have a patch set available for kexec for 2.5.64.  I haved checked it
+on a 1-way system, the 2-way test is pending an fsck of a partition that
+was unfortunately eaten earlier today.
 
-Alan
+The patches are available for download from OSDL's patch lifecycle
+manager (PLM):
+
+Patch Stack for kexec for 2.5.64:
+
+        kexec base for 2.5.64 (based upon 2.5.63 version)
+        http://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1656
+
+        kexec hwfixes for 2.5.64 (based upon 2.5.63 version)
+        http://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1657
+
+        kexec usemm change (allowed 2-way to previously work for me):
+        http://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1658
+
+        optional change to defconfig to CONFIG_KEXEC=y
+        http://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1659
+
+The patches are also available (with matching kexec-tools-1.8 --
+unchanged from the 2.5.63 version) here:
+http://www.osdl.org/archive/andyp/kexec/2.5.64/
+
+Regards,
+Andy
+
 

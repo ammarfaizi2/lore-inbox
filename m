@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264098AbTEWXFi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 19:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264169AbTEWXFi
+	id S264169AbTEWXLG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 19:11:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264198AbTEWXLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 19:05:38 -0400
-Received: from bart.one-2-one.net ([217.115.142.76]:45573 "EHLO
+	Fri, 23 May 2003 19:11:06 -0400
+Received: from bart.one-2-one.net ([217.115.142.76]:16647 "EHLO
 	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S264098AbTEWXFh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 19:05:37 -0400
-Date: Sat, 24 May 2003 01:25:20 +0200 (CEST)
+	id S264169AbTEWXLF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 19:11:05 -0400
+Date: Sat, 24 May 2003 01:31:03 +0200 (CEST)
 From: Martin Diehl <lists@mdiehl.de>
 X-X-Sender: martin@notebook.home.mdiehl.de
-To: "David S. Miller" <davem@redhat.com>
-cc: akpm@digeo.com, Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
-       Jean Tourrilhes <jt@hpl.hp.com>, <shemminger@osdl.org>
-Subject: Re: [2.5.69] rtnl-deadlock with usermodehelper and keventd
-In-Reply-To: <20030523.024308.94566989.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0305240115130.11940-100000@notebook.home.mdiehl.de>
+To: Stian Jordet <liste@jordet.nu>
+cc: Jean Tourrilhes <jt@hpl.hp.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: irtty_sir cannot be unloaded
+In-Reply-To: <1053700929.711.1.camel@chevrolet.hybel>
+Message-ID: <Pine.LNX.4.44.0305240127040.11940-100000@notebook.home.mdiehl.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 May 2003, David S. Miller wrote:
+On 23 May 2003, Stian Jordet wrote:
 
->    But nope, unfortunately it's still hanging! I've just tested with 
->    2.5.69-bk15. Running into the same deadlock due to sleeping with rtnl 
->    hold. This time however it seems it's triggered from sysfs side!
-> 
-> Stephen, you need to do the device class stuff outside of the RTNL
-> lock please.
-> 
-> At least I didn't add this bug :-)
-> 
-> This should fix it.
+> > I bet pcmcia works without hotplug ;-)
+> I might be blind or stupid (or both), but when I disable hotplug, I
 
-Well, back online now pretty late ;-)
+Sorry for the confusion, you are right. I meant it works without userland 
+hotplug stuff, but that's a mood point as you need to enable kernel 
+hotplug to get the pcmcia option even presented - ENOTENOUGHCOFFEIN 8)
 
-Yes, as was already reported I can also confirm from testing the deadlock 
-is gone now. Thanks for resolving this issue!
+> can't enable cardbus at all. :) But davem's patch worked just fine :)
+> *happy*
 
-Just a minor question before the thread gets closed: Don't we have the 
-same problem in the register path? register_netdevice is running unter 
-rtnl and calls netdev_register_sysfs. I've never seen a deadlock there, 
-but I'd expect this to sleep for hotplug usermode completion as well.
-Maybe this is just what you meant by your comment above ;-)
+Yep, looks pretty good now.
 
 Martin
 

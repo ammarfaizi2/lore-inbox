@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315536AbSEQJs0>; Fri, 17 May 2002 05:48:26 -0400
+	id <S315535AbSEQJym>; Fri, 17 May 2002 05:54:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315537AbSEQJsZ>; Fri, 17 May 2002 05:48:25 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:41626 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S315536AbSEQJsY>;
-	Fri, 17 May 2002 05:48:24 -0400
-Date: Fri, 17 May 2002 02:35:06 -0700 (PDT)
-Message-Id: <20020517.023506.105129697.davem@redhat.com>
-To: rusty@rustcorp.com.au
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: AUDIT: copy_from_user is a deathtrap. 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <E178eMm-0000NO-00@wagner.rustcorp.com.au>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S315537AbSEQJyl>; Fri, 17 May 2002 05:54:41 -0400
+Received: from B57a0.pppool.de ([213.7.87.160]:14349 "HELO Nicole.fhm.edu")
+	by vger.kernel.org with SMTP id <S315535AbSEQJyk>;
+	Fri, 17 May 2002 05:54:40 -0400
+Subject: Tell the harddrive to map badblocks?
+From: Daniel Egger <degger@fhm.edu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 17 May 2002 11:50:54 +0200
+Message-Id: <1021629054.15079.9.camel@sonja.de.interearth.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Rusty Russell <rusty@rustcorp.com.au>
-   Date: Fri, 17 May 2002 19:49:40 +1000
-   
-   Sorry I wasn't clear: I'm saying *replace*, not add,
+Hija,
 
-I don't understand what you are proposing then.  There are some
-instances that do want to know how many bytes did make it before
-the -EFAULT event.
+how do I tell the harddrive to do it's badblock mapping in hardware
+if hdparm -D1 doesn't work and ext3 keeps on accessing the cracked
+sectors even with the corrupted pieces being in the badblocks list
+of the filesystem?
 
-You have to add a new version of the interface to handle both
-the case that cares about the length copied successfully and
-the case that only cares about -EFAULT vs. !-EFAULT
+-- 
+Servus,
+       Daniel
+

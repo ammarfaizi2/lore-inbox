@@ -1,67 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271922AbTGYEIF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 00:08:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271923AbTGYEIF
+	id S271923AbTGYEMY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 00:12:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271924AbTGYEMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 00:08:05 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:16284 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S271922AbTGYEIB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 00:08:01 -0400
-Date: Fri, 25 Jul 2003 00:12:34 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Sam Bromley <sbromley@cogeco.ca>
-Cc: Torrey Hoffman <thoffman@arnor.net>, gaxt <gaxt@rogers.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux firewire devel <linux1394-devel@lists.sourceforge.net>
-Subject: Re: Firewire
-Message-ID: <20030725041234.GX1512@phunnypharm.org>
-References: <3F1FE06A.5030305@rogers.com> <20030724223522.GA23196@ruvolo.net> <20030724223615.GN1512@phunnypharm.org> <20030724230928.GB23196@ruvolo.net> <1059095616.1897.34.camel@torrey.et.myrio.com> <20030725012723.GF23196@ruvolo.net> <20030725012908.GT1512@phunnypharm.org> <1059103424.24427.108.camel@daedalus.samhome.net>
+	Fri, 25 Jul 2003 00:12:23 -0400
+Received: from www.opensource-ca.org ([168.234.203.30]:26077 "EHLO
+	guug.galileo.edu") by vger.kernel.org with ESMTP id S271923AbTGYEMX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 00:12:23 -0400
+Date: Thu, 24 Jul 2003 22:22:35 -0600
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Hollis Blanchard <hollisb@us.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       David McCullough <davidm@snapgear.com>, uclinux-dev@uclinux.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ihar Philips Filipau <filia@softhome.net>
+Subject: Re: [uClinux-dev] Kernel 2.6 size increase - get_current()?
+Message-ID: <20030725042235.GA7777@guug.org>
+References: <3038B2BC-BE10-11D7-B453-000A95A0560C@us.ibm.com> <20030724212000.GC12002@werewolf.able.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1059103424.24427.108.camel@daedalus.samhome.net>
+In-Reply-To: <20030724212000.GC12002@werewolf.able.es>
 User-Agent: Mutt/1.5.4i
+From: Otto Solares <solca@guug.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> For what it's worth, I'm experiencing this as well.
-> In the hopes of helping, I provide the dmesg
-> output results after applying the above patch to Rev 1013.
-> (Running 2.6.0-test1-ac1).
+On Thu, Jul 24, 2003 at 11:20:00PM +0200, J.A. Magallon wrote:
+> Or you just define must_inline, and let gcc inline the rest of 'inlines',
+> based on its own rule of functions size, adjusting the parameters
+> to gcc to assure (more or less) that what is inlined fits in cache of
+> the processor one is building for...
+> (this can be hard, help from gcc hackers will be needed...)
 
-Please compile with debug enabled so I can get all the output. Also,
-update using this patch instead of my last one.
+IMO just a CONFIG_INLINE_FUNCTIONS will work, if you
+want to conserve space in detriment of speed simply
+don't select this option, else you have speed but
+a big kernel.
 
-Index: linux-2.6/drivers/ieee1394/ieee1394_core.c
-===================================================================
---- linux-2.6/drivers/ieee1394/ieee1394_core.c	(revision 1013)
-+++ linux-2.6/drivers/ieee1394/ieee1394_core.c	(working copy)
-@@ -609,8 +609,11 @@
- 
-         spin_lock_irqsave(&host->pending_pkt_lock, flags);
- 
-+	HPSB_DEBUG("TLABEL: Checking for tlabel %d", tlabel);
-+
-         list_for_each(lh, &host->pending_packets) {
-                 packet = list_entry(lh, struct hpsb_packet, list);
-+		HPSB_DEBUG("TLABEL: tlabel %d in list", packet->tlabel, tlabel);
-                 if ((packet->tlabel == tlabel)
-                     && (packet->node_id == (data[1] >> 16))){
-                         break;
-@@ -622,7 +625,8 @@
-                 dump_packet("contents:", data, 16);
-                 spin_unlock_irqrestore(&host->pending_pkt_lock, flags);
-                 return;
--        }
-+        } else
-+		HPSB_DEBUG("TLABEL: Found tlabel");
- 
-         switch (packet->tcode) {
-         case TCODE_WRITEQ:
+-solca
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/

@@ -1,100 +1,129 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S156702AbPLQRiE>; Fri, 17 Dec 1999 12:38:04 -0500
-Received: by vger.rutgers.edu id <S156534AbPLQRek>; Fri, 17 Dec 1999 12:34:40 -0500
-Received: from [212.102.170.10] ([212.102.170.10]:4152 "EHLO ads.htl.de") by vger.rutgers.edu with ESMTP id <S156607AbPLQReL>; Fri, 17 Dec 1999 12:34:11 -0500
-Message-ID: <385A741E.A58470F6@htl.de>
-Date: Fri, 17 Dec 1999 18:34:22 +0100
-From: Andreas Scherbaum <adsmail@htl.de>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.13 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.rutgers.edu
-Subject: Re: Do Routing-policies have effect on local-originated packets?
-References: <199912171611.TAA01369@ms2.inr.ac.ru>
+Received: by vger.rutgers.edu via listexpand id <S156683AbPLSRmU>; Sun, 19 Dec 1999 12:42:20 -0500
+Received: by vger.rutgers.edu id <S156550AbPLSRl7>; Sun, 19 Dec 1999 12:41:59 -0500
+Received: from va-su-140.valinux.com ([209.81.8.140]:2161 "EHLO mail.valinux.com") by vger.rutgers.edu with ESMTP id <S156622AbPLSRlv>; Sun, 19 Dec 1999 12:41:51 -0500
+Date: Sun, 19 Dec 1999 09:41:36 -0800
+From: "H . J . Lu" <hjl@valinux.com>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: nfs@mail1.sourceforge.net, linux kernel <linux-kernel@vger.rutgers.edu>, alan@lxorguk.ukuu.org.uk
+Subject: nfs-utils 0.1.5 is released.
+Message-ID: <19991219094136.A4016@valinux.com>
+References: <199912190029.AAA08880@raistlin.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0pre3i
+In-Reply-To: <199912190029.AAA08880@raistlin.arm.linux.org.uk>
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-> It was removed closer to the end of 2.1.xx.
+On Sun, Dec 19, 1999 at 12:29:27AM +0000, Russell King wrote:
+> Hi hjl,
 > 
-> > So what's the current status, are locally originated packets
-> > policy-routed or aren't they,
+> I'm sure this is a FAQ, but where can I find knfsd-1.4.7.tar.gz (which
+> is referenced in Alan's 2.2.14pre15 patch)?
 
-Hei all,
+The knfsd tar file has been replaced by nfs-utils.
 
-so we have a little problem:
-I have a machine with 4 network cards and a ip from the same subnet on
-every card.
-(Dont ask me, why we have 4 cards for it ;-)
-Ok, here's my setup:
-
------ cut -----
-IP=/usr/sbin/ip
-ROUTE=/sbin/route
-
-ROUTER="192.168.0.102"
-IP0=192.168.0.200
-IP1=192.168.0.201
-IP2=192.168.0.202
-IP3=192.168.0.203
-NM="192.168.0.0/24"
-
-# set up interfaces
-$IP addr add $IP0 dev eth0
-$IP addr add $IP1 dev eth1
-$IP addr add $IP2 dev eth2
-$IP addr add $IP3 dev eth3
-$IP link set eth0 up
-$IP link set eth1 up
-$IP link set eth2 up
-$IP link set eth3 up
-
-# add rules
-$IP rule add from $IP0/32 pref 100 table 10
-$IP rule add from $IP1/32 pref 200 table 20
-$IP rule add from $IP2/32 pref 300 table 30
-$IP rule add from $IP3/32 pref 400 table 40
-$ROUTE add -host $ROUTER dev eth0
-
-# set routing tables
-$IP route add $NM dev eth0 table 10
-$IP route add default via $ROUTER table 10
-$IP route add $NM dev eth1 table 20
-$IP route add default via $ROUTER table 20
-$IP route add $NM dev eth2 table 30
-$IP route add default via $ROUTER table 30
-$IP route add $NM dev eth3 table 40
-$IP route add default via $ROUTER table 40 
-$ROUTE add default gw $ROUTER
------ cut -----
-
-Now i have the following problem:
-All UDP packages are created with the right ip, but routed trough the
-first network card.
-
-Here's a tcpdump (sending a nameserver request to the second ip ...)
-$ host 192.168.0.1 192.168.0.201
-
-# tcpdump -p -i eth1:
-18:13:59.988575 192.168.0.15.1128 > 192.168.0.201.domain: 34740+ (28)
-18:14:00.036535 192.168.0.15.1128 > 192.168.0.201.domain: 34741+ (28)
-
-# tcpdump -p -i eth0:
-18:14:09.514938 192.168.0.201.domain > 192.168.0.15.1128: 16413 1/3/3
-(161)
-18:14:09.570556 192.168.0.201.domain > 192.168.0.15.1128: 16414 0/1/0
-(81)
-
-Why is the kernel sending this packages trough the first interface and
-how can i change it to using the right interface?
-
-
-Regards
 
 -- 
+H.J. Lu (hjl@gnu.org)
+--
+This is the Linux NFS utility package version 0.1.5. It is based on
+knfsd 1.4.7.
 
-                                  ads
-                                  Andreas Scherbaum
+WARNING: The NFS servers in Linux 2.2 to 2.2.13 are not compatible with
+other NFS client implemenations. If you plan to use Linux 2.2.x as an
+NFS server for non-Linux NFS clients, you should get the Linux NFS
+kernel from the Linux NFS CVS server:
+
+1. Set the environment variable, CVS_RSH, to ssh.
+2. Login to the Linux NFS CVS server:
+
+# cvs -z 3 -d:pserver:anonymous@cvs.linuxnfs.sourceforge.org:/cvsroot/nfs login
+
+without password if it is your first time.
+
+3. Check out the current Linux 2.2 NFS kernel:
+
+a. From the NFS V2 branch:
+
+# cvs -z 3 -d:pserver:anonymous@cvs.linuxnfs.sourceforge.org:/cvsroot/nfs co -r linux-2-2-nfsv2 linux-2.2
+
+b. From the main trunk:
+
+# cvs -z 3 -d:pserver:anonymous@cvs.linuxnfs.sourceforge.org:/cvsroot/nfs co linux-2.2
+
+4. If you don't want to use the current NFS kernel, you can find out
+for which kernels the NFS patch is available:
+
+# cd linux-2.2
+# cvs -z 9 -d:pserver:anonymous@cvs.linuxnfs.sourceforge.org:/cvsroot/nfs status -v Makefile
+
+Then generate the kernel patch:
+
+# cvs -z 3 -d:pserver:anonymous@cvs.linuxnfs.sourceforge.org:/cvsroot/nfs rdiff -ko -u -r linux-2-2-xx -r linux-2-2-xx-nfsv2-xxxxx linux-2.2
+
+If there is no NFS patch for the kernel you are interested in, you have
+to make a patch closest to your kernel version and apply it by hand.
+
+There is a Linux NFS kernel source tree for Linux 2.3, linux-2.3, on
+the Linux NFS CVS server. We will need all the help we can get. To
+contribute to the Linux NFS project, please go to
+
+http://www.linuxnfs.sourceforge.org
+
+You register yourself. Please send an email to
+nfs-admin@linuxnfs.sourceforge.org with
+
+1. Your user id on www.linuxnfs.sourceforge.org.
+2. The area in NFS you'd like to work on.
+
+You will be notified when it is done.
+
+There is a Linux NFS mailing list at
+
+http://lists.sourceforge.net/mailman/listinfo/nfs/                                                               
+You can subscribe it and search the mailing list archive via a web
+browser.
+
+The nfs-utils package is available from the CVS server:
+
+# cvs -z 3 -d:pserver:anonymous@cvs.linuxnfs.sourceforge.org:/cvsroot/nfs co nfs-utils
+
+will get the latest version.
+
+The files are
+
+ftp://ftp.linuxnfs.sourceforge.org/pub/nfs/nfs-utils-0.1.5.tar.gz
+ftp://ftp.linuxnfs.sourceforge.org/pub/nfs/nfs-utils-0.1.4-0.1.5.diff.gz
+
+To compile, just do
+
+# ./configure
+# make
+
+# make install
+
+will install the nfs-utils binaries. You have to install the NFS
+service scripts. There are 2 in etc/redhat provided for RedHat 6.x.
+They are tested on RedHat 6.1.
+
+On RedHat 6.1, you can use
+
+# rpm -ta nfs-utils-0.1.5.tar.gz
+
+to build the source and binary RPMs.
+
+If your mount from util-linux is too old, you will need 2 patches:
+
+ftp://ftp.linuxnfs.sourceforge.org/pub/nfs/util-linux-2.9o-mount-nfsv3.patch
+ftp://ftp.linuxnfs.sourceforge.org/pub/nfs/util-linux-2.9w-mount-nfsv3try.patch
+
+Thanks.
+
+
+H.J.
+hjl@lucon.org
+12/19/99
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

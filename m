@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265610AbUATRKp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 12:10:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265611AbUATRKo
+	id S265609AbUATRK1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 12:10:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265610AbUATRK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 12:10:44 -0500
-Received: from mk-smarthost-4.mail.uk.tiscali.com ([212.74.114.40]:31494 "EHLO
-	mk-smarthost-4.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
-	id S265610AbUATRKe convert rfc822-to-8bit (ORCPT
+	Tue, 20 Jan 2004 12:10:27 -0500
+Received: from fw.osdl.org ([65.172.181.6]:40633 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265609AbUATRKT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 12:10:34 -0500
-Date: Tue, 20 Jan 2004 18:10:24 +0100
-Message-ID: <40081C050000A965@mk-cpfrontend-4.mail.uk.tiscali.com>
-From: mari88@tiscali.co.uk
-Subject: Solution 
-To: mari88@tiscali.co.uk
-MIME-Version: 1.0
+	Tue, 20 Jan 2004 12:10:19 -0500
+Date: Tue, 20 Jan 2004 09:10:35 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] -mm5 has no i2c on amd64
+Message-Id: <20040120091035.0fb7b3ee.akpm@osdl.org>
+In-Reply-To: <20040120124626.GA20023@bytesex.org>
+References: <20040120124626.GA20023@bytesex.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ancient Spiritual Temple of Africa
-Consult us for optimum spiritual help.
-Telephone: 234 8056182137
-Fax: 234 1 7592626
-E-mail: afro_temple@yahoo.ca
-We see to the total remedy to the following: -
-*Job/Office Promotion
-*Business/Trading progress money success Rings
-*Love/Marriage spell binding gem/Command (Do as I say Amulets)
-*Quick/long Ejaculation periods
-* Pool-Lottery-Raffle-Money Winning Powers
-*Hex breaking/Course repelling therapy
-*Exam Success
-*Victory in Contest/Sports
-*Spiritual Powers/Boon
-*Society Initiation
-*Barrenness/Importance Therapy
-*Healing of Aliments and general Diseases
-*Spiritual Counseling/ Deliverance
-*Contract/Job Securing
-*Talent Developing
-*Yoga Meditation/Transcendental Classes
-*Traveling Success
-All are therapeutically and spiritually infused in gem ? gold ? silver ?
-perfume ? power ?incense ? Oil ? cream etc and are very efficacious and
-Para Psychological for your comfort and Joy.
-We also sell all religious items and transcendental books made of Africa,
-Europe and Asian culture.
-Whatever your problem ????????come we will help you.
-Contact us today for a difference in your life.
-Thanks management!
+Gerd Knorr <kraxel@bytesex.org> wrote:
+>
+>   Hi,
+> 
+> trivial fix ...
+> 
+>   Gerd
+> 
+> ==============================[ cut here ]==============================
+> --- linux-mm5-2.6.1/arch/x86_64/Kconfig.i2c	2004-01-20 13:14:42.000000000 +0100
+> +++ linux-mm5-2.6.1/arch/x86_64/Kconfig	2004-01-20 13:15:10.000000000 +0100
+> @@ -429,6 +429,8 @@
+>  
+>  source "drivers/char/Kconfig"
+>  
+> +source "drivers/i2c/Kconfig"
+> +
+>  source "drivers/misc/Kconfig"
+>  
 
+Ah-hah!  That's why the ppc64 kbuild system is whining about undefined but
+used i2c symbols:
 
+drivers/ieee1394/Kconfig:60:warning: enable is only allowed with boolean and tristate symbols
+drivers/media/video/Kconfig:13:warning: enable is only allowed with boolean and tristate symbols
 
-
+So this change needs to be propagated to other architectures as well.

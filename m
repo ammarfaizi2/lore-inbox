@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263619AbTLDWDQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 17:03:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263620AbTLDWDQ
+	id S263544AbTLDWFi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 17:05:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbTLDWFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 17:03:16 -0500
-Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:18305
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S263619AbTLDWDO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 17:03:14 -0500
-Date: Thu, 4 Dec 2003 17:02:13 -0500 (EST)
+	Thu, 4 Dec 2003 17:05:38 -0500
+Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:4224 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S263544AbTLDWFb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 17:05:31 -0500
+Date: Thu, 4 Dec 2003 17:04:01 -0500 (EST)
 From: Zwane Mwaikambo <zwane@holomorphy.com>
-To: "Russell \"Elik\" Rademacher" <elik@webspires.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Hyperthreading Xeons Support - 2.4 Kernel - Patch Anyone?
-In-Reply-To: <5410840093.20031204145242@webspires.com>
-Message-ID: <Pine.LNX.4.58.0312041701540.27578@montezuma.fsmlabs.com>
-References: <5410840093.20031204145242@webspires.com>
+To: John Stoffel <stoffel@lucent.com>
+cc: grundig@teleline.es, Mathieu Chouquet-Stringer <mathieu@newview.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: SMP Kernel 2.6.0-test11 doesn't boot on a Dell 410
+In-Reply-To: <16335.44623.99755.811085@gargle.gargle.HOWL>
+Message-ID: <Pine.LNX.4.58.0312041702470.27578@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0312041607180.27578@montezuma.fsmlabs.com>
+ <16335.44623.99755.811085@gargle.gargle.HOWL>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Dec 2003, Russell "Elik" Rademacher wrote:
+On Thu, 4 Dec 2003, John Stoffel wrote:
 
-> Hello folks,
 >
->     I been wondering what the position on the developers on the hyperthreading on 2.4.x series kernels? I know it is fully supported in 2.6.x series, but it used to be supported on 2.4.20 and below and now it disappeared on 2.4.21 to 2.4.23 as far reporting the hyperthreaded Xeons processors.  If there is a patch for this that enables it and support it, I would appreciate it so I can get this back on the kernel and have it running.
+> Zwane> I have a dual PII PW 410 too but with an A10 bios, the attached
+> Zwane> config boots on mine. It's beginning to look like an ACPI/bios
+> Zwane> revision problem.
 >
->     Lot of my clients are complaining about it saying they spents $$$$ for Xeons processors and linux 2.4.x don't support it anymore or don't report the number of processors properly anymore.  I for one want to shut them up. :)
+> I've got the A10 bios as well, and the system boots and works fine
+> with 2.4.22 + DM patch.  I don't think there's a newer BIOS available
+> either, so that route is out.
+>
+> I did work on getting this system to boot at one point under the early
+> 2.6.0-test series, but it was unstable so I fell back to 2.4.2x and
+> I've been there since.
+>
+> It's also a very upto date Debian unstable/testing system as well.
+>
+> I've looked at the bugzilla notes, but nothing really pokes out at
+> me.  I guess my next test is to try to compile/boot without SMP turned
+> on.
 
-Turn on ACPI
-
+That's interesting, that box has been tracking most of 2.5/2.6
+development. So far i haven't hit any problems which were specific to it.
+This is in a dual cpu configuration. I'd be interested to know whether my
+.config boots at all on your system.

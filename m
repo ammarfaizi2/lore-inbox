@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290707AbSBSIUT>; Tue, 19 Feb 2002 03:20:19 -0500
+	id <S290731AbSBSI2M>; Tue, 19 Feb 2002 03:28:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290616AbSBSIUK>; Tue, 19 Feb 2002 03:20:10 -0500
-Received: from [195.163.186.27] ([195.163.186.27]:27281 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S290609AbSBSITz>;
-	Tue, 19 Feb 2002 03:19:55 -0500
-Date: Tue, 19 Feb 2002 10:19:53 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Zoran Davidovac <zdavid@unicef.org.yu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Something Wrong with LKML ????
-Message-ID: <20020219101953.X628@mea-ext.zmailer.org>
-In-Reply-To: <E17wsrr-0007bD-00@wagner.rustcorp.com.au> <3C71B2FC.2D35A6C2@unicef.org.yu>
+	id <S290616AbSBSI2B>; Tue, 19 Feb 2002 03:28:01 -0500
+Received: from f108.pav2.hotmail.com ([64.4.37.108]:16656 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S290731AbSBSI1u>;
+	Tue, 19 Feb 2002 03:27:50 -0500
+X-Originating-IP: [156.153.255.134]
+From: "kumar M" <kumarm4@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: kumarm4@hotmail.com
+Subject: Incrementing module use count of a low level driver
+Date: Tue, 19 Feb 2002 08:27:44 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C71B2FC.2D35A6C2@unicef.org.yu>; from zdavid@unicef.org.yu on Tue, Feb 19, 2002 at 03:05:48AM +0100
+Content-Type: text/plain; format=flowed
+Message-ID: <F108b1youmxTcuS4Eek00004f56@hotmail.com>
+X-OriginalArrivalTime: 19 Feb 2002 08:27:44.0600 (UTC) FILETIME=[4DF34D80:01C1B91F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 19, 2002 at 03:05:48AM +0100, Zoran Davidovac wrote:
-> Date:	Tue, 19 Feb 2002 03:05:48 +0100
-> From:	Zoran Davidovac <zdavid@unicef.org.yu>
-> To:	linux-kernel@vger.kernel.org
-> Subject: Something Wrong with LKML ????
-> 
-> >From Feb 13 09:23:09 until now Tue Feb 19 03:00:08 CET 2002 
-> I did not get any mail from relay=vger.kernel.org [12.107.208.194]
-> 
-> something wrong ?
-> or am I unsubscribed of this list because
-> my mail box was off for few hours 
-> during upgrade ?
+Hi,
 
-   Yes, sort of.   We got a large bunch of "relaying denied"
-   bounces from your domain's backup MX server.
+I want to increment the module use count of
+a SCSI HBA driver from my module which is a block driver.
+How can I achieve this from my code?
 
-   Use the tool:   http://vger.kernel.org/mxverify.html
-   to see, how your email setup appears to the email senders.
+TIA,
+Kumar
 
-> please CC on mail I not sure I am on list.
-> Thank You,
-> 	Zoran
 
-/Matti Aarnio
+
+
+
+
+_________________________________________________________________
+MSN Photos is the easiest way to share and print your photos: 
+http://photos.msn.com/support/worldwide.aspx
+

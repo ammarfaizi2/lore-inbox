@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130225AbRAPOky>; Tue, 16 Jan 2001 09:40:54 -0500
+	id <S130549AbRAPOme>; Tue, 16 Jan 2001 09:42:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130549AbRAPOko>; Tue, 16 Jan 2001 09:40:44 -0500
-Received: from felix.convergence.de ([212.84.236.131]:64778 "EHLO
-	convergence.de") by vger.kernel.org with ESMTP id <S130225AbRAPOkl>;
-	Tue, 16 Jan 2001 09:40:41 -0500
-Date: Tue, 16 Jan 2001 15:40:13 +0100
-From: Felix von Leitner <leitner@convergence.de>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: O_ANY  [was: Re: 'native files', 'object fingerprints' [was: sendpath()]]
-Message-ID: <20010116154013.C32180@convergence.de>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010116061342.C12650@cadcamlab.org> <Pine.LNX.4.30.0101161329230.947-100000@elte.hu>
+	id <S130663AbRAPOmY>; Tue, 16 Jan 2001 09:42:24 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:28681 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S130549AbRAPOmU>; Tue, 16 Jan 2001 09:42:20 -0500
+Date: Tue, 16 Jan 2001 15:41:16 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: jamal <hadi@cyberus.ca>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: Is sendfile all that sexy?
+Message-ID: <20010116154116.A8213@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20010116001633.A3343@bug.ucw.cz> <Pine.GSO.4.30.0101160845490.17392-100000@shell.cyberus.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.30.0101161329230.947-100000@elte.hu>; from mingo@elte.hu on Tue, Jan 16, 2001 at 01:33:44PM +0100
+X-Mailer: Mutt 1.0i
+In-Reply-To: <Pine.GSO.4.30.0101160845490.17392-100000@shell.cyberus.ca>; from hadi@cyberus.ca on Tue, Jan 16, 2001 at 08:47:22AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus spake Ingo Molnar (mingo@elte.hu):
-> if you read my (radical) proposal, the identification is based on a kernel
-> pointer and a 256-bit random integer. So non-negative integers are not
-> needed. (file-IO system-calls would be modified to detect if 'Unix file
-> descriptors' or pointers to 'native file descriptors' are passed to them,
-> so this is truly radical.)
+Hi!
 
-Yuck, don't pass pointers in kernel space to user space!
-NT does it and look what kernel call argument verification havoc it
-wrought over them!
+> > > TWO observations:
+> > > - Given Linux's non-pre-emptability of the kernel i get the feeling that
+> > > sendfile could starve other user space programs. Imagine trying to send a
+> > > 1Gig file on 10Mbps pipe in one shot.
+> >
+> > Hehe, try sigkilling process doing that transfer. Last time I tried it
+> > it did not work.
+> 
+> >From Alexey's response: it does get descheduled possibly every sndbuf
+> send. So you should be able to sneak that sigkill.
 
-Felix
+Did you actually tried it? Last time I did the test, SIGKILL did not
+make it in. sendfile did not actually check for signals...
+
+(And you could do something like send 100MB from cache into dev
+null. I do not see where sigkill could sneak in in this case.)
+								Pavel
+-- 
+The best software in life is free (not shareware)!		Pavel
+GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

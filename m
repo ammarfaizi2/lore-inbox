@@ -1,56 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268224AbUIPVMx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263448AbUIPVS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268224AbUIPVMx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 17:12:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268268AbUIPVMx
+	id S263448AbUIPVS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 17:18:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266357AbUIPVS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 17:12:53 -0400
-Received: from run.smurf.noris.de ([192.109.102.41]:28104 "EHLO
-	server.smurf.noris.de") by vger.kernel.org with ESMTP
-	id S268224AbUIPVMv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 17:12:51 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Newsgroups: smurf.list.linux.kernel
-Subject: Re: offtopic: how to break huge patch into smaller independent patches?
-Date: Thu, 16 Sep 2004 23:11:48 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2004.09.16.21.11.47.825104@smurf.noris.de>
-References: <41474B15.8040302@nortelnetworks.com> <20040914201210.GE13788@redhat.com>
-NNTP-Posting-Host: kiste.smurf.noris.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: server.smurf.noris.de 1095369108 21578 192.109.102.35 (16 Sep 2004 21:11:48 GMT)
-X-Complaints-To: smurf@noris.de
-NNTP-Posting-Date: Thu, 16 Sep 2004 21:11:48 +0000 (UTC)
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+	Thu, 16 Sep 2004 17:18:56 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:33034 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S263448AbUIPVSw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 17:18:52 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>,
+       "'debian-user@lists.debian.org'" <debian-user@lists.debian.org>,
+       linuxppc-embedded@lists.linuxppc.org,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: problem with initialization while accessing NFS mounted root file  system during the Linux 2.6 boot
+Date: Fri, 17 Sep 2004 00:18:29 +0300
+User-Agent: KMail/1.5.4
+References: <313680C9A886D511A06000204840E1CF0A647182@whq-msgusr-02.pit.comms.marconi.com>
+In-Reply-To: <313680C9A886D511A06000204840E1CF0A647182@whq-msgusr-02.pit.comms.marconi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409170018.29445.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Dave Jones wrote:
+On Thursday 16 September 2004 21:23, Povolotsky, Alexander wrote:
+> > Hi,
+> >
+> > I've managed to program U-boot bootloader and now am trying to boot my
+> > PQ2FADS-VR board " vanilla" with Linux 2.6.8-rc4 ...but I have problem
+> > with the  initialization while accessing NFS mounted root file system ...
+> > .
+> >
+> > I have NFS server running on my Windows XP Laptop (that is all I am
+> > allowed to have, no Linux hosts machine available to me ...). I copied
+> > entire "fadsroot" directory from Arabella's CD-ROM into my "fadsroot"
+> > directory on my D-drive and made this directory nfs-shared-mountable (I
+> > have propagated permissions from "fadsroot" down to all subfolders within
+> > "fadsroot" ...).
 
-> diffsplit will split it into a patch-per-file, which could be
-> a good start. If you have multiple changes touching the same file
-> however, things get a bit more fun, and you get to spend a lot
-> of time in your favorite text editor glueing bits together.
+Windows NFS server... ugh...
 
-You can rip the bits apart instead, and leave the glueing and rip-patching
-to the computer.
+> > I noticed several errors during the copy process - complaining that I am
+> > over-writing the files being already copied - is it an issue with "letter
+> > case" ? - are there files on the Arabella's CD-ROM "fadsroot", which have
+> > same names but differ just in the letter case used ?
+>
+> What file system support I need to configure while bulding the kernel for
+> such case ?
+>
+> > Anyway I am getting the following error during the end of the boot:
+> > ......
+> > device=eth0, addr=192.168.1.103, mask=255.255.255.0, gw=255.255.255.255,
+> > host=192.168.1.103, domain=, nis-domain=(none),
+> > bootserver=255.255.255.255, rootserver=192.168.1.100, rootpath=
+> > Looking up port of RPC 100003/2 on 192.168.1.100
+> > Looking up port of RPC 100005/1 on 192.168.1.100
+> > VFS: Mounted root (nfs filesystem).
+> > Freeing unused kernel memory: 272k init
+> > Warning: unable to open an initial console.
 
-- edit patch file:
-  - delete all the parts you don't want applied; freely hand-edit stuff,
-    and don't worry about the pesky line numbers
-  - save to new patch file
-- run "rediff" to fix up the new file
-- run "interdiff" to create a second, clean patch file
-  containing just the deleted parts
-- iterate until finished
+/dev/console doesn't exist. No wonder. Windows NFS server
+can't provide device nodes, I suspect. Use devfs, or
+better still, use initrd (see below).
 
-All of this is part of the nice patchutils package.
+> > Kernel panic: No init found.  Try passing init= option to kernel.
+> >  <0>Rebooting in 180 seconds..
+> >
+> > My U-boot environment is:
+> > => printenv
+> > bootdelay=5
+> > bootcmd=bootm 200000
+> > ipaddr=192.168.1.103
+> > serverip=192.168.1.100
+> > ethaddr=08:00:17:00:00:03
+> > bootargs=root /dev/nfs rw nfsroot=192.168.1.100:/home/apovolot/fadsroot
+> > baudrate=19200
+> > stdin=serial
+> > stdout=serial
+> > stderr=serial
+> >
+> > Any ideas ?
 
-NB: if all else fails, use espdiff(1).
--- 
-Matthias Urlichs
+I am using initrd for early userspace & NFS root mount.
+Initrd allows me to do various non-trivial setup tricks
+before I exec init.
+
+Also I can troubleshoot stuff by booting with
+init=/bin/sh (launches busybox shell in initrd)
+instead of init=/linuxrc
+
+My initrd image is at work. Do you want me to send
+it to you tomorrow?
+--
+vda
+

@@ -1,67 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262237AbSJFWVZ>; Sun, 6 Oct 2002 18:21:25 -0400
+	id <S262226AbSJFWTC>; Sun, 6 Oct 2002 18:19:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262239AbSJFWVZ>; Sun, 6 Oct 2002 18:21:25 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:35276 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S262237AbSJFWVK>;
-	Sun, 6 Oct 2002 18:21:10 -0400
-Date: Mon, 7 Oct 2002 00:26:47 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200210062226.AAA10733@harpo.it.uu.se>
-To: linux-kernel@vger.kernel.org, tmolina@cox.net
-Subject: Re: 2.5.40:  problem with configuration system
-Cc: mec@shout.net
+	id <S262230AbSJFWTC>; Sun, 6 Oct 2002 18:19:02 -0400
+Received: from vitelus.com ([64.81.243.207]:41231 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S262226AbSJFWTC>;
+	Sun, 6 Oct 2002 18:19:02 -0400
+Date: Sun, 6 Oct 2002 15:24:33 -0700
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: William Lee Irwin III <wli@holomorphy.com>, Gigi Duru <giduru@yahoo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: The end of embedded Linux?
+Message-ID: <20021006222433.GB9785@vitelus.com>
+References: <20021005193650.17795.qmail@web13202.mail.yahoo.com> <20021006004438.GG10722@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021006004438.GG10722@holomorphy.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Oct 2002 16:28:09 -0500 (CDT), Thomas Molina wrote:
->I was configuring a kernel for a rescue disk, so lots of things were not 
->configured that normally would be.  At the end of the compile I get:
->
->arch/i386/kernel/built-in.o: In function `MP_processor_info':
->arch/i386/kernel/built-in.o(.text.init+0x31ab): undefined reference to 
->`Dprintk'
-...
-># CONFIG_DEBUG_KERNEL is not set
->CONFIG_X86_EXTRA_IRQS=y
->CONFIG_X86_FIND_SMP_CONFIG=y
->CONFIG_X86_MPPARSE=y
->
->The thing I don't understand is why they should be set to y.  My 
->understanding from reading the source is that they should only be y if 
->CONFIG_X86_LOCAL_APIC is y.  That should only happen if CONFIG_SMP is not 
->y and CONFIG_X86_UP_APIC is y.  The enclosed .config file shows this isn't 
->the case.  What am I missing?
+On Sat, Oct 05, 2002 at 05:44:38PM -0700, William Lee Irwin III wrote:
+> Even better, if you yourself took action to correct this regression it
+> would be as welcome as any other Linux development activity.
 
-This happened to me recently when I copied a .config which had
-UP_APIC=y and used make config to disable UP_APIC. The problem in
-my case was that the good ole' Configure script doesn't always
-reach a fixpoint in one iteration: the fact that LOCAL_APIC=y at the
-start is sufficient for it to emit MPPARSE=y at the end, even though
-LOCAL_APIC got disabled. A 'make oldconfig' should fix the situation.
-
-This is not the only case where Configure gets it wrong. There is
-a bug involving dep_tristate, forward dependencies, and toggling
-module support which I reported to LKML ages ago (with a fix), but
-nobody cared so... FWIW, the fix to that bug is included below.
-
-/Mikael
-
---- linux-2.5.40/scripts/Configure.~1~	Thu Oct  3 00:00:00 2002
-+++ linux-2.5.40/scripts/Configure	Thu Oct  3 18:32:20 2002
-@@ -316,7 +316,13 @@
- 	      return
- 	      ;;
- 	    m)
--	      need_module=1
-+	      # Note: "m" means "module" only when CONFIG_MODULES=y,
-+	      # otherwise it really means "y". This matters when
-+	      # a dep_tristate dependency is a forward reference
-+	      # which we haven't yet "corrected" from "m" to "y".
-+	      if [ "$CONFIG_MODULES" = "y" ]; then
-+		need_module=1
-+	      fi
- 	      ;;
- 	  esac
- 	  shift
+It seems to me that what would be even better than patches is a
+general awareness of bloat and an attitude discouraging adding any
+bloat whatsoever to the base kernel. Proactive bloat prevention is a
+much better solution than asking embedded developers to send fixes
+whenever someone increases the size of the core kernel unnecessarily.
+Let's prevent a Mozilla here.

@@ -1,56 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264688AbTD0RhR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 13:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264693AbTD0RhR
+	id S264706AbTD0Rjg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 13:39:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264708AbTD0Rjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 13:37:17 -0400
-Received: from pop.gmx.net ([213.165.64.20]:33557 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264688AbTD0RhQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 13:37:16 -0400
-Message-Id: <5.2.0.9.2.20030427195004.021ead80@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Sun, 27 Apr 2003 19:54:00 +0200
-To: linux-kernel@vger.kernel.org
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: Houston, I think we have a problem
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>
-In-Reply-To: <5.2.0.9.2.20030427193908.0220bee8@pop.gmx.net>
-References: <32170000.1051464570@[10.10.2.4]>
- <5.2.0.9.2.20030427191459.00caed60@pop.gmx.net>
- <5.2.0.9.2.20030427090009.01f89870@pop.gmx.net>
- <5.2.0.9.2.20030427090009.01f89870@pop.gmx.net>
- <5.2.0.9.2.20030427191459.00caed60@pop.gmx.net>
+	Sun, 27 Apr 2003 13:39:35 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:472 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S264706AbTD0Rjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 13:39:32 -0400
+Date: Sun, 27 Apr 2003 19:51:47 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: rmoser <mlmoser@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Re:  Swap Compression
+Message-ID: <20030427175147.GA5174@wohnheim.fh-wedel.de>
+References: <200304251848410590.00DEC185@smtp.comcast.net> <20030426091747.GD23757@wohnheim.fh-wedel.de> <200304261148590300.00CE9372@smtp.comcast.net> <20030426160920.GC21015@wohnheim.fh-wedel.de> <200304262224040410.031419FD@smtp.comcast.net> <20030427090418.GB6961@wohnheim.fh-wedel.de> <200304271324370750.01655617@smtp.comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200304271324370750.01655617@smtp.comcast.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 07:41 PM 4/27/2003 +0200, Mike Galbraith wrote:
->At 10:29 AM 4/27/2003 -0700, Martin J. Bligh wrote:
->> >> > To reproduce this 100% of the time, simply compile virgin 2.5.68
->> >> > up/preempt, reduce your ram to 128mb, and using gcc-2.95.3 as to not
->> >> > overload the vm, run a make -j30 bzImage in an ext3 partition on a
->> >> > P3/500 single ide disk box.  No, you don't really need to meet all of
->> >> > those restrictions... you'll see the problem on a big hairy chested
->> >> > box as well, just not as bad as I see it on my little box.  The first
->> >> > symptom of the problem you will notice is a complete lack of swap
->> >> > activity along with highly improbable quantities of unused ram were
->> >> > all those hungry cc1's getting regular CPU feedings.
->> >>
->> >> Yes, that's why I don't use ext3 ;-) It's known broken, akpm is fixing
->> >> it.
->> >
->> > I'm not at all convinced (must say I wouldn't mind at _all_ being
->> > convinced) that it's ext3... that just _seems_ to be worst easily
->> > reproducible case for some un-(expletive deleted)-known reason.
->>
->>Well, that's easy to test. Mount the fs as ext2, and see if it goes away.
->
->
->Sure, btdt very first thing, and that's why I'm not convinced that ext3 is 
->the core problem.  I see "it" in ext2 as well, just less so.
+On Sun, 27 April 2003 13:24:37 -0400, rmoser wrote:
+> >int fox_compress(unsigned char *input, unsigned char *output,
+> >		uint32_t inlen, uint32_t *outlen);
+> >
+> >int fox_decompress(unsigned char *input, unsigned char *output,
+> >		uint32_t inlen, uint32_t *outlen);
+> 
+> Ey? uint32_t*?  I assume that's a mistake....
 
-P.S.  I'm fishing for hints.  I'm (severely) hooked by the problem. 
+Nope. outlen is changed, you need a pointer here.
 
+> Anyhow, this wasn't what
+> I was asking.  What I was asking was about how to determine how much
+> data to send to compress it.  Read the message again, the whole thing
+> this time.
+
+I did. But modularity is the key here. The whole idea may be great or
+plain bullshit, depending on the benchmarks. Which one it is depends
+on the compression algorithm used, among other things. Maybe your
+compression algo is better for some machines, zlib for others, etc.
+
+Why should someone decide on an algorithm before measuring?
+
+> >Then the mm code can pick any useful size for compression.
+> 
+> Eh?  I rather the code alloc space itself and do all its own handling.  That
+> way you don't have to second-guess the buffer size for decompressed
+> data if you don't do all-at-once decompression (i.e. decompressing x86
+> segments, all-at-once would be to decompress the whole compressed
+> block of N size to 64k, where partial would be to pull in N/n at a time and
+> decompress in n sets of N/n, which would give varying sized output).
+
+Segments are old, stupid and x86 only. What you want is a number of
+pages, maybe just one at a time. Always compress chunks of the same
+size and you don't have to guess the decompressed size.
+
+> Another thing is that the code isn't made to strictly stick to compressing
+> or decompressing a whole input all at once; you may break down the
+> input into smaller pieces.  Therefore it does need to think about how much
+> it's gonna actually tell you to pull off when you inquire about the size to
+> remove from the stream (for compression at least), because you might
+> break it if you pull too much data off midway through compression.  The
+> advantage of this method is in when you're A) Compressing files, and
+> B) trying to do this kind of thing on EXTREMELY low RAM systems,
+> where you can't afford to pass whole buffers back and forth.  (Think 4 meg)
+
+a) Even with 4M, two pages of 4k each don't hurt that much. If they
+do, the whole compression trick doesn't pay off at all.
+b) Compression ratios usually suck with small buffers.
+
+> You do actually understand the code, right?  I have this weird habit of
+> making code and doing such obfuscating comments that people go
+> "WTF is this?" when they see it.  Then again, you're probably about
+> 12 classes past me in C programming, so maybe it's just my logic that's
+> flawed. :)
+
+I didn't look that far yet. What you could do, is read through
+/usr/src/linux/Documentation/CodingStyle. It is just so much nicer
+(and faster) to read and sticking to it usually produces better code.
+
+Jörn
+
+-- 
+Beware of bugs in the above code; I have only proved it correct, but
+not tried it.
+-- Donald Knuth

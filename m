@@ -1,64 +1,67 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317005AbSFKLYk>; Tue, 11 Jun 2002 07:24:40 -0400
+	id <S317007AbSFKLpY>; Tue, 11 Jun 2002 07:45:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317006AbSFKLYj>; Tue, 11 Jun 2002 07:24:39 -0400
-Received: from nixpbe.pdb.siemens.de ([192.109.2.33]:37846 "EHLO
-	nixpbe.pdb.sbs.de") by vger.kernel.org with ESMTP
-	id <S317005AbSFKLYi>; Tue, 11 Jun 2002 07:24:38 -0400
-Subject: Re: Serverworks OSB4 in impossible state
-From: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
-To: Daniela Engert <dani@ngrt.de>
-Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <20020611064201.9F55DEDBE@mail.medav.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 11 Jun 2002 13:25:25 +0200
-Message-Id: <1023794726.23733.375.camel@biker.pdb.fsc.net>
-Mime-Version: 1.0
+	id <S317008AbSFKLpX>; Tue, 11 Jun 2002 07:45:23 -0400
+Received: from [195.20.224.249] ([195.20.224.249]:43781 "EHLO samoa.sitewaerts")
+	by vger.kernel.org with ESMTP id <S317007AbSFKLpX>;
+	Tue, 11 Jun 2002 07:45:23 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Felix Seeger <seeger@sitewaerts.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Problem with ACPI or framebuffer (no output while startup)
+Date: Tue, 11 Jun 2002 13:45:23 +0200
+User-Agent: KMail/1.4.1
+In-Reply-To: <200206111124.09320.seeger@sitewaerts.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200206111345.23419.seeger@sitewaerts.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Alan, I am cc'ing you on this because I read elsewhere that you want 
-osb4-bug@ide.cabal.tm to be forwarded to you, and that address still
-bounces]. 
+Ok it is ACPI.
+I disabled Framebuffer and is was the same effect.
 
-I have tried the following:
-
-- comment out the code that stalls the machine when the condition in
-  question is encountered.
-- run dd over a couple of good blocks on the CD.
-- run dd over the corrupted blocks. This leads now to very similar
-  errors as in the PIO case.
-- reenable DMA with hdparm, because it is automatically disabled by the
-  ide-cd driver if an error occurs (why that? the error has nothing to
-  do with DMA here).
-- repeat the first dd command on the good blocks and compare the
-  results.
-
-The results are identical, thus I cannot verify the "4 byte shift" Alan
-has been talking about. Of course this is a CD-ROM only scenario, thus
-I can't tell anything about hard disks.
-
-Is it possible that the 4-byte shift occurs only with some particular
-(older?) version of the chipset? 
-
-In any case, the condition that usually causes Linux to stall is 
-indeed a perfectly valid condition for DMA when the device transfers
-less data than it's supposed to. I doubt that hanging the system 
-without more detailed checks is the right measure to take there.
-
-Martin
- 
--- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1	    mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
+have fun
+Felix
 
 
-
-
+Am Dienstag, 11. Juni 2002 11:24 schrieb Felix Seeger:
+> Hi
+>
+> I'm running 2.4.18-pre9
+> I disabled APM, because I ACPI won't work with enabled APM.
+> Maybe this is normal.
+>
+> Laptop: Sony vaio pcg-qr10
+>
+> I boot with frame buffer and vga=normal (fb doesn't work, no tux...)
+> And now:
+>
+> tbxface-0099 [01] ACPI_load_tables : ACPI Tables successfully loaded
+> Parsing Methods :...................
+> 154 Control Methods found and parsed (479 nodes total)
+> ACPI Namespave successfully loaded at root c02fd500
+> ACPI: Core Subsystem version [20011018]
+> evxfevnt-0081 [02] Acpi_enable : Transition to ACPI mode successful
+> Executing device _INI methods: ............. (13 points)
+>
+> After that the output stops but the systems starts up, onyl the output...
+>
+> What is my problem ACPI or Frame Buffer. I've have VESA 2.0 and vga
+> configured.
+>
+> Do I need special vag= options ?
+> All options from the manual don't work, lilo takes only the default lilo
+> options. (my lilo supports hex 0x things if you trust the manpage)
+>
+>
+> thanks
+> have fun
+> Felix
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

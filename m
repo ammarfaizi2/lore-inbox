@@ -1,62 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262712AbVBYOv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262660AbVBYO5c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262712AbVBYOv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 09:51:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262713AbVBYOv0
+	id S262660AbVBYO5c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 09:57:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262690AbVBYO5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 09:51:26 -0500
-Received: from smarthost1.sentex.ca ([64.7.153.18]:16146 "EHLO
-	smarthost1.sentex.ca") by vger.kernel.org with ESMTP
-	id S262712AbVBYOvY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 09:51:24 -0500
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: <Valdis.Kletnieks@vt.edu>
-Cc: "'Greg Folkert'" <greg@gregfolkert.net>,
-       "'LKML'" <linux-kernel@vger.kernel.org>
-Subject: RE: Greg's Policy! (was Re: Linus' policies?) 
-Date: Fri, 25 Feb 2005 09:51:34 -0500
-Organization: Connect Tech Inc.
-Message-ID: <005c01c51b49$8016af20$294b82ce@stuartm>
+	Fri, 25 Feb 2005 09:57:32 -0500
+Received: from moutng.kundenserver.de ([212.227.126.177]:28922 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262660AbVBYO5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 09:57:25 -0500
+From: Amon Ott <ao@rsbac.org>
+Organization: RSBAC
+To: RSBAC <rsbac@rsbac.org>, RSBAC-Announce <rsbac-announce@rsbac.org>,
+       linux-kernel@vger.kernel.org, sec@linux-sec.net,
+       bugtraq@securityfocus.com
+Subject: Announce: RSBAC v1.2.4 released
+User-Agent: KMail/1.6.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Cc: announce-l@lists.adamantix.org, Suse-Security <suse-security@suse.com>
+Date: Fri, 25 Feb 2005 15:56:43 +0100
+Content-Type: multipart/signed;
+  boundary="nextPart4910875.O8cgs1zRLo";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <200502250656.j1P6uLTS022935@turing-police.cc.vt.edu>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Message-Id: <200502251556.54119.ao@rsbac.org>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:e784f4497a7e52bfc8179ee7209408c3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Valdis.Kletnieks@vt.edu
-> Remember that Linus has *always* reserved the right to change his mind
-> if a "sufficiently good" idea came along.  So it's not as 
-> much a "The Emperor
-> Penguin Has Decreed" as "Nobody's made a sufficiently 
-> convincing case to Linus".
-> (And I've never seen Linus claim to be totally consistent on 
-> what qualifies as
-> "sufficiently" - he can be a lot more stubborn about some 
-> things and flexible on
-> on others)
+--nextPart4910875.O8cgs1zRLo
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-From: Theodore Ts'o
-> The distributions (by and large) honor it, but other than that, you
-> seem to have a slightly overinflated view how much weight and how much
-> formalities such statements actually have.
-> 
-> The problem with collecting it, as other people have pointd out, is
-> that it implies that all such statements are valid forever (such as a
-> Pope's encyclical) or that we have some formal way of blessing a
-> statement by sprinkling Holy Penguin Pee on it, or some way of
-> retracting such a blessing (probably involving some ceremony involving
-> turning a candle upside down and snuffing it out :-).   
 
-<sigh> I was in a hurry and mimiced the wording of the referenced
-post, nothing more, nothing less. Policy would have been a better
-choice. I am under no illusions about validity or duration or whatnot.
+Rule Set Based Access Control (RSBAC) v1.2.4 has been released! Full=20
+information and downloads are available from http://www.rsbac.org
 
-..Stu
+RSBAC Key Features:
 
+    * Free Open Source (GPL) Linux kernel security extension
+    * Independent of governments and big companies
+    * Several well-known and new security models, e.g. MAC, ACL and RC
+    * Control over individual user and program network accesses
+    * Fully access controlled kernel level user management
+    * Any combination of models possible
+    * Easily extendable: write your own model for runtime registration
+    * On-access virus scanning with Dazuko interface
+    * Support for current kernels in 2.4 and 2.6 series
+    * Stable for production use since January 2000
+
+Major new features in v1.2.4:
+
+    * Fully access controlled kernel level user and group management
+    * Transaction support for administration
+    * Complete list of changes at=20
+http://www.rsbac.org/download/code/v1.2.4/changes-v1.2.4.txt
+
+This announcement has been delayed after the release to let early=20
+adopters try it hard first. Two important security bugfixes have been=20
+released in the meantime. You can always find the latest bugfixes at=20
+http://www.rsbac.org/download/bugfixes, they are already included in=20
+the pre-patched kernel sources (-bfX) at=20
+http://www.rsbac.org/download/kernels/v1.2.4/
+
+Please forward this announcement to where you think it is applicable,=20
+e.g.  local or national security lists, newspapers or magazines, or=20
+your favourite Internet forum.
+
+=46eedback is always welcome!
+
+Amon.
+=2D-=20
+http://www.rsbac.org - GnuPG: 2048g/5DEAAA30 2002-10-22
+
+--nextPart4910875.O8cgs1zRLo
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBCHzy2q9yn6h5RTo8RAqJmAJ9f+GeEQPzf8TZxdNocoKT4HfWfwgCeOX6f
+6aFrFEiid4eUrukxl+dKxGI=
+=xHSf
+-----END PGP SIGNATURE-----
+
+--nextPart4910875.O8cgs1zRLo--

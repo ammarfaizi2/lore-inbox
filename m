@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263587AbTDNRiY (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 13:38:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263590AbTDNRiY (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 13:38:24 -0400
-Received: from inet-mail4.oracle.com ([148.87.2.204]:59783 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id S263587AbTDNRiX (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 13:38:23 -0400
-Date: Mon, 14 Apr 2003 10:48:18 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.67-mm2
-Message-ID: <20030414174818.GR4917@ca-server1.us.oracle.com>
-References: <20030412180852.77b6c5e8.akpm@digeo.com>
+	id S263585AbTDNRjN (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 13:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263590AbTDNRjN (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 13:39:13 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19982 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263585AbTDNRjK (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 13:39:10 -0400
+Date: Mon, 14 Apr 2003 18:50:52 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: James Bourne <jbourne@hardrock.org>
+Cc: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       Martin Schlemmer <azarah@gentoo.org>,
+       Ken Brownfield <brownfld@irridia.com>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       KML <linux-kernel@vger.kernel.org>
+Subject: Re: Oops: ptrace fix buggy
+Message-ID: <20030414185052.D22754@flint.arm.linux.org.uk>
+Mail-Followup-To: James Bourne <jbourne@hardrock.org>,
+	=?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+	Martin Schlemmer <azarah@gentoo.org>,
+	Ken Brownfield <brownfld@irridia.com>,
+	Marc-Christian Petersen <m.c.p@wolk-project.de>,
+	KML <linux-kernel@vger.kernel.org>
+References: <20030414144709.GE10347@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0304141048390.24506-100000@cafe.hardrock.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030412180852.77b6c5e8.akpm@digeo.com>
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0304141048390.24506-100000@cafe.hardrock.org>; from jbourne@hardrock.org on Mon, Apr 14, 2003 at 11:09:02AM -0600
+X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 12, 2003 at 06:08:52PM -0700, Andrew Morton wrote:
-> . I've changed the 32-bit dev_t patch to provide a 12:20 split rather than
->   16:16.  This patch is starting to drag a bit and unless someone stops me I
->   might just go submit the thing.
+On Mon, Apr 14, 2003 at 11:09:02AM -0600, James Bourne wrote:
+> will need to be looked at as these are ones which contain references to
+> SUBVERSION...  References to EXTRAVERSION also reside in these files.  It
+> would just be better to do the "right thing" IMHO.
 
-	Cool, but before you go off and push, maybe kick the appropriate
-folks about making the 32/64 decision?
+Note that EXTRAVERSION is not numeric.  A kernel version string can be
+like:
 
-Joel
+2.4.19-rmk7-pxa2
+
+which definitely is not numeric.  Anything which assumes it is would be
+broken.
 
 -- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-"When choosing between two evils, I always like to try the one
- I've never tried before."
-        - Mae West
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127

@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262949AbTCSIHg>; Wed, 19 Mar 2003 03:07:36 -0500
+	id <S262972AbTCSILu>; Wed, 19 Mar 2003 03:11:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262955AbTCSIHg>; Wed, 19 Mar 2003 03:07:36 -0500
-Received: from tag.witbe.net ([81.88.96.48]:14089 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id <S262949AbTCSIHH>;
-	Wed, 19 Mar 2003 03:07:07 -0500
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Juha Poutiainen'" <pode@iki.fi>, <linux-kernel@vger.kernel.org>
-Subject: Re: L2 cache detection in Celeron 2GHz (P4 based)
-Date: Wed, 19 Mar 2003 09:18:04 +0100
-Message-ID: <00b801c2edf0$105d7750$6100a8c0@witbe>
+	id <S262973AbTCSILt>; Wed, 19 Mar 2003 03:11:49 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:5616 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S262972AbTCSILs>;
+	Wed, 19 Mar 2003 03:11:48 -0500
+Message-ID: <3E7828C3.2070304@mvista.com>
+Date: Wed, 19 Mar 2003 00:22:27 -0800
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Andrew Morton <akpm@digeo.com>
+CC: async@cc.gatech.edu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] limits on SCHED_FIFO tasks
+References: <20030318185135.D1361@tokyo.cc.gatech.edu>	<3E77C40D.4090700@mvista.com> <20030318190407.37a39db1.akpm@digeo.com>
+In-Reply-To: <20030318190407.37a39db1.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-In-Reply-To: <20030319064743.GA1683@a28a>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Andrew Morton wrote:
+> george anzinger <george@mvista.com> wrote:
+> 
+>>If the issue is regaining control after some RT task goes into a loop, 
+>>the way this is usually done is to keep a session around with a higher 
+>>priority.  Using this concept, one might provide tools that, from 
+>>userland, insure that such a session exists prior to launching the 
+>>"suspect" code.  I fail to see the need for this sort of code in the 
+>>kernel.
+> 
+> 
+> That works, until your shell calls ext3_mark_inode_dirty(), which blocks on
+> kjournald activity.  kjournald is SCHED_OTHER, and never runs...
+> 
+That is classic priority inversion.  It would be "nice" to find a fix 
+for that :)  I think that the proposed action should not be triggered 
+until there is some "notice" that something is wrong.  I suppose it 
+could be a watchdog timer of some sort.  Still, if the priority 
+inversion issue were solved, all the rest could be done in user land.
 
-> Kernel doesn't seem to detect L2 cache in 2GHz Pentium4 based 
-> Celeron. 
-> Most likely it is working normally (BIOS detects it and no 
-> system speed 
-> is ok), but it's not shown in dmesg or /proc/cpuinfo.
+> 
+> 
 
-Got the same problem...
-You can also add that the L1 detection doesn't seem to be correct
-either : 
-0K Instruction cache, and 8K data cache for L1... This is not much
-for instruction, it seems it should be 12K...
-
-Regards,
-Paul
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

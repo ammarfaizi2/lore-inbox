@@ -1,67 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262362AbSI2BVm>; Sat, 28 Sep 2002 21:21:42 -0400
+	id <S262363AbSI2BZS>; Sat, 28 Sep 2002 21:25:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262363AbSI2BVm>; Sat, 28 Sep 2002 21:21:42 -0400
-Received: from h108-129-61.datawire.net ([207.61.129.108]:13776 "EHLO
-	mail.datawire.net") by vger.kernel.org with ESMTP
-	id <S262362AbSI2BVl> convert rfc822-to-8bit; Sat, 28 Sep 2002 21:21:41 -0400
-From: Shawn Starr <spstarr@sh0n.net>
-Organization: sh0n.net
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: [PROBLEM] 2.5.39 - might_sleep() exception - ACPI/APIC, UML compile  issues on MP 2000+
-Date: Sat, 28 Sep 2002 21:26:48 -0400
-User-Agent: KMail/1.4.6
-Cc: linux-kernel@vger.kernel.org, Jeff Dike <jdike@karaya.com>
-References: <200209280428.23572.spstarr@sh0n.net> <3D956D06.D7370490@digeo.com>
-In-Reply-To: <3D956D06.D7370490@digeo.com>
+	id <S262364AbSI2BZS>; Sat, 28 Sep 2002 21:25:18 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16402 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262363AbSI2BZR>; Sat, 28 Sep 2002 21:25:17 -0400
+Date: Sat, 28 Sep 2002 18:31:45 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Jeff Garzik <jgarzik@pobox.com>, Larry Kessler <kessler@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       "Andrew V. Savochkin" <saw@saw.sw.com.sg>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Richard J Moore <richardj_moore@uk.ibm.com>
+Subject: Re: v2.6 vs v3.0
+In-Reply-To: <Pine.LNX.4.44.0209280934540.13549-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0209281826050.2198-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200209282126.48790.spstarr@sh0n.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I don't get that error anymore but UML won't compile:
+On Sat, 28 Sep 2002, Ingo Molnar wrote:
+> 
+> i consider the VM and IO improvements one of the most important things
+> that happened in the past 5 years - and it's definitely something that
+> users will notice. Finally we have a top-notch VM and IO subsystem (in
+> addition to the already world-class networking subsystem) giving
+> significant improvements both on the desktop and the server - the jump
+> from 2.4 to 2.5 is much larger than from eg. 2.0 to 2.4.
 
-Unless im doing something wrong this is how i've been building UML (in 2.4)
+Hey, _if_ people actually are universally happy with the VM in the current
+2.5.x tree, I'll happily call the dang thing 5.0 or whatever (just
+kidding, but yeah, that would be a good enough reason to bump the major
+number).
 
-make menuconfig ARCH=um
-make modules ARCH=um
-make modules_install ARCH=um
-make linux ARCH=um
+However, I'll believe that when I see it. Usually people don't complain 
+during a development kernel, because they think they shouldn't, and then 
+when it becomes stable (ie when the version number changes) they are 
+surprised that the behabviour didn't magically improve, and _then_ we get 
+tons of complaints about how bad the VM is under their load.
 
-Is this correct?
+Am I hapyy with current 2.5.x?  Sure. Are others? Apparently. But does 
+that mean that we have a top-notch VM and we should bump the major number? 
+I wish.
 
-Shawn.
+The block IO cleanups are important, and that was the major thing _I_ 
+personally wanted from the 2.5.x tree when it was opened. I agree with you 
+there. But I don't think they are major-number-material.
 
-On September 28, 2002 04:49 am, Andrew Morton wrote:
+Anyway, people who are having VM trouble with the current 2.5.x series, 
+please _complain_, and tell what your workload is. Don't sit silent and 
+make us think we're good to go.. And if Ingo is right, I'll do the 3.0.x 
+thing.
 
-> Shawn Starr wrote:
-> > ...
-> > 3) Compile errors with UML:
-> >
-> > In file included from sched.c:19:
-> > /usr/src/linux-2.5.39/include/linux/mm.h:165: parse error before
-> > "pte_addr_t" /usr/src/linux-2.5.39/include/linux/mm.h:165: warning: no
-> > semicolon at end of struct or union
-> > /usr/src/linux-2.5.39/include/linux/mm.h:165: warning: no semicolon at
-> > end of struct or union /usr/src/linux-2.5.39/include/linux/mm.h:166:
-> > warning: type defaults to `int' in declaration of `pte'
->
-> It's strange that this ever worked.  Does this fix?
->
-> --- linux-2.5.39/include/asm-um/pgtable.h	Sun Sep 15 20:53:43 2002
-> +++ 25/include/asm-um/pgtable.h	Sat Sep 28 01:47:43 2002
-> @@ -215,6 +215,8 @@ static inline void set_pte(pte_t *pteptr
->  	if(pte_present(*pteptr)) *pteptr = pte_mknewprot(*pteptr);
->  }
->
-> +typedef pte_t *pte_addr_t;
-> +
->  /*
->   * (pmds are folded into pgds so this doesnt get actually called,
->   * but the define is needed for a generic inline function.)
+		Linus
 

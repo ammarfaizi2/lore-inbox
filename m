@@ -1,44 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264530AbUIZWmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264665AbUIZWoX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264530AbUIZWmO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 18:42:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264571AbUIZWmO
+	id S264665AbUIZWoX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 18:44:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbUIZWoX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 18:42:14 -0400
-Received: from gprs214-244.eurotel.cz ([160.218.214.244]:48513 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S264530AbUIZWmN (ORCPT
+	Sun, 26 Sep 2004 18:44:23 -0400
+Received: from mail.dif.dk ([193.138.115.101]:35490 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S264665AbUIZWoK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 18:42:13 -0400
-Date: Mon, 27 Sep 2004 00:41:56 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Stefan Seyfried <seife@suse.de>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.9-rc2-mm3: swsusp horribly slow on AMD64
-Message-ID: <20040926224156.GR28810@elf.ucw.cz>
-References: <200409251214.28743.rjw@sisk.pl> <200409261906.10635.rjw@sisk.pl> <20040926183449.GA28810@elf.ucw.cz> <200409262125.38271.rjw@sisk.pl> <41572B34.3010209@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41572B34.3010209@suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sun, 26 Sep 2004 18:44:10 -0400
+Date: Mon, 27 Sep 2004 00:51:09 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Stephen Hemminger <shemminger@osdl.org>,
+       Nico Schottelius <nico-kernel@schottelius.org>
+Subject: [PATCH] add sysfs attribute 'carrier' for net devices
+Message-ID: <Pine.LNX.4.61.0409270041460.2886@dragon.hygekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > I guess it will, but I'll check.
-> 
-> please try attached patch first. The comments should explain it pretty
-> well. It seems to have helped me: without it, sysrq-p during writing
-> (even if not that slow) almost always was in pccardd, now it is idling
-> in swapper task.
-> Maybe i am totally wrong but you may give it a shot.
+Hi,
 
-I do not think it is right, interrupts may be needed for writing
-image.
-									Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Here's a patch that adds a new sysfs attribute for net devices. The new 
+attribute 'carrier' exposes the result of netif_carrier_ok() so that when 
+a network device has carrier the attribute value is 1 and when there is no 
+carrier the attribute value is 0.
+Very rellevant attribute for network devices in my oppinion, and sysfs is 
+the logical place for it.
+
+I've tested this only on my own machine, but I get the expected results:
+
+With network cable plugged into eth0 : 
+
+juhl@dragon:~$ cat /sys/class/net/eth0/carrier
+1
+juhl@dragon:~$
+
+With network cable unplugged : 
+
+juhl@dragon:~$ cat /sys/class/net/eth0/carrier
+0
+juhl@dragon:~$
+
+Please review and consider applying.
+
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+diff -u linux-2.6.9-rc2-bk5-orig/net/core/net-sysfs.c linux-2.6.9-rc2-bk5/net/core/net-sysfs.c
+--- linux-2.6.9-rc2-bk5-orig/net/core/net-sysfs.c	2004-09-14 23:19:53.000000000 +0200
++++ linux-2.6.9-rc2-bk5/net/core/net-sysfs.c	2004-09-27 00:24:01.000000000 +0200
+@@ -126,8 +126,21 @@
+ 	return -EINVAL;
+ }
+ 
++static ssize_t show_carrier(struct class_device *dev, char *buf)
++{
++	struct net_device *net = to_net_dev(dev);
++	if (netif_running(net)) {
++		if (netif_carrier_ok(net))
++			return snprintf(buf, 3, "%d\n", 1);
++		else
++			return snprintf(buf, 3, "%d\n", 0);
++	}
++	return -EINVAL;
++}
++
+ static CLASS_DEVICE_ATTR(address, S_IRUGO, show_address, NULL);
+ static CLASS_DEVICE_ATTR(broadcast, S_IRUGO, show_broadcast, NULL);
++static CLASS_DEVICE_ATTR(carrier, S_IRUGO, show_carrier, NULL);
+ 
+ /* read-write attributes */
+ NETDEVICE_SHOW(mtu, fmt_dec);
+@@ -186,6 +199,7 @@
+ 	&class_device_attr_type,
+ 	&class_device_attr_address,
+ 	&class_device_attr_broadcast,
++	&class_device_attr_carrier,
+ 	NULL
+ };
+ 
+

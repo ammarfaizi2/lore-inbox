@@ -1,67 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132334AbQKDB2x>; Fri, 3 Nov 2000 20:28:53 -0500
+	id <S132347AbQKDB3d>; Fri, 3 Nov 2000 20:29:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132347AbQKDB2n>; Fri, 3 Nov 2000 20:28:43 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:45330 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S132334AbQKDB2f>; Fri, 3 Nov 2000 20:28:35 -0500
-Date: Fri, 3 Nov 2000 19:28:17 -0600
-To: TenThumbs <tenthumbs@cybernex.net>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18pre18: many calls to kwhich
-Message-ID: <20001103192817.J1041@wire.cadcamlab.org>
-In-Reply-To: <3A017FBB.AF8C596D@cybernex.net>
+	id <S132361AbQKDB3P>; Fri, 3 Nov 2000 20:29:15 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:54567 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S132347AbQKDB3J>; Fri, 3 Nov 2000 20:29:09 -0500
+Date: Sat, 4 Nov 2000 02:29:05 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Gareth Hughes <gareth@valinux.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, dledford@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: SETFPXREGS fix
+Message-ID: <20001104022905.E32767@athlon.random>
+In-Reply-To: <20001103174105.C857@athlon.random> <3A034F28.5DB994F4@valinux.com> <20001104020709.D32767@athlon.random> <3A0362BD.D6068EDE@valinux.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A017FBB.AF8C596D@cybernex.net>; from tenthumbs@cybernex.net on Thu, Nov 02, 2000 at 09:52:43AM -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+In-Reply-To: <3A0362BD.D6068EDE@valinux.com>; from gareth@valinux.com on Sat, Nov 04, 2000 at 12:13:33PM +1100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Nov 04, 2000 at 12:13:33PM +1100, Gareth Hughes wrote:
+> Yes, we can certainly mask out the mxcsr value in both cases.  I just
+	  ^^^
+s/can/must/
 
-[TenThumbs]
-> I noticed that kwhich is called a lot:
-> 
-> make oldconfig:        10
-> make dep:              65
-> make bzImage modules: 142
+> think this makes the code a lot simpler and cleaner as a result - three
 
-Yes indeed, I suggested the ':=' when kwhich first went in, for this
-reason.  I suspect my mail was either ignored or overlooked.
+I agree about the three vs one copy issue. Anyways my first priority was that
+the the code was safe, and the previous one was completly safe too (ok, I admit
+I had to check out the asm generated before trusting it 8).
 
-That whole raft of variables uses '=' instead of ':=' and I've
-occasionally wondered if this was intentional.  Possibly so, because
-arch/{mips,m68k}/Makefile both set CROSS_COMPILE, which wouldn't work
-if the toplevel used ':='.
-
-I don't like it, though.  I think the user should be assumed to either
-have a standard toolchain installed, in which case gcc and binutils
-should be in the path under standard names --- or the user should know
-enough to specify ARCH= and CROSS_COMPILE= on the compile line.
-
-
-Alan: to avoid the 'CROSS_COMPILE defined too early' problem in the
-stable series, I suggest the following, which will at least prevent the
-kwhich script from being execed 200 times as reported.
-
-Peter
-
---- 2.2.18pre19/Makefile~	Fri Nov  3 19:20:31 2000
-+++ 2.2.18pre19/Makefile	Fri Nov  3 19:26:08 2000
-@@ -28,8 +28,8 @@
- #	kgcc for Conectiva and Red Hat 7
- #	otherwise 'cc'
- #
--CC	=$(shell if [ -n "$(CROSS_COMPILE)" ]; then echo $(CROSS_COMPILE)gcc; else \
--	$(CONFIG_SHELL) scripts/kwhich gcc272 2>/dev/null || $(CONFIG_SHELL) scripts/kwhich kgcc 2>/dev/null || echo cc; fi) \
-+FOUNDCC := $(shell $(CONFIG_SHELL) scripts/kwhich gcc272 kgcc cc 2>/dev/null)
-+CC	=$(shell if [ -n "$(CROSS_COMPILE)" ]; then echo $(CROSS_COMPILE)gcc; else echo $(FOUNDCC); fi) \
- 	-D__KERNEL__ -I$(HPATH)
- CPP	=$(CC) -E
- AR	=$(CROSS_COMPILE)ar
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313592AbSDZCwr>; Thu, 25 Apr 2002 22:52:47 -0400
+	id <S313596AbSDZDL4>; Thu, 25 Apr 2002 23:11:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313596AbSDZCwq>; Thu, 25 Apr 2002 22:52:46 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:43414 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S313592AbSDZCwq>;
-	Thu, 25 Apr 2002 22:52:46 -0400
-Date: Thu, 25 Apr 2002 19:43:01 -0700 (PDT)
-Message-Id: <20020425.194301.90782367.davem@redhat.com>
-To: terje.eggestad@scali.com
+	id <S313601AbSDZDL4>; Thu, 25 Apr 2002 23:11:56 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:23282 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S313596AbSDZDLz>; Thu, 25 Apr 2002 23:11:55 -0400
+Date: Thu, 25 Apr 2002 20:11:52 -0700
+From: Chris Wright <chris@wirex.com>
+To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Possible bug with UDP and SO_REUSEADDR. Was Re: [PATCH]
- zerocopy NFS updated
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1019738265.7409.1100.camel@pc-16.office.scali.no>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Subject: [PATCH] 2.5.10 BKL not always released in sem_exit()
+Message-ID: <20020425201152.A1337@figure1.int.wirex.com>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Terje Eggestad <terje.eggestad@scali.com>
-   Date: 25 Apr 2002 14:37:44 +0200
+Hi Linus,
 
-   However writing a test server that stand in blocking wait on a UDP
-   socket, and start two instances of the server it's ALWAYS the server
-   last started that get the udp message, even if it's not in blocking
-   wait, and the first started server is. 
-   
-   Smells like a bug to me, this behavior don't make much sence. 
-   
-   Using stock 2.4.17.
+The patch below fixes sem_exit() so that the BKL is always released.
 
-Can you post your test server/client application so that I
-don't have to write it myself and guess how you did things?
+thanks,
+-chris
 
-Thanks.
+===== ipc/sem.c 1.5 vs edited =====
+--- 1.5/ipc/sem.c	Tue Apr 23 17:15:25 2002
++++ edited/ipc/sem.c	Thu Apr 25 20:01:02 2002
+@@ -1176,8 +1176,10 @@
+ 	}
+ 
+ 	undo_list = current->sysvsem.undo_list;
+-	if ((undo_list == NULL) || (atomic_read(&undo_list->refcnt) != 1))
++	if ((undo_list == NULL) || (atomic_read(&undo_list->refcnt) != 1)) {
++		unlock_kernel();
+ 		return;
++	}
+ 
+ 	/* There's no need to hold the semundo list lock, as current
+          * is the last task exiting for this undo list.

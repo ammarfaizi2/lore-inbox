@@ -1,47 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130656AbQK1WoC>; Tue, 28 Nov 2000 17:44:02 -0500
+        id <S129255AbQK1XJy>; Tue, 28 Nov 2000 18:09:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131320AbQK1Wnx>; Tue, 28 Nov 2000 17:43:53 -0500
-Received: from e166066.upc-e.chello.nl ([213.93.166.66]:25348 "EHLO Ion.var.cx")
-        by vger.kernel.org with ESMTP id <S131273AbQK1Wnq>;
-        Tue, 28 Nov 2000 17:43:46 -0500
-Date: Tue, 28 Nov 2000 23:13:34 +0100
-From: Frank v Waveren <fvw@var.cx>
+        id <S129319AbQK1XJo>; Tue, 28 Nov 2000 18:09:44 -0500
+Received: from 225-VALL-X5.libre.retevision.es ([62.83.215.225]:4992 "EHLO
+        looping.es") by vger.kernel.org with ESMTP id <S129255AbQK1XJg>;
+        Tue, 28 Nov 2000 18:09:36 -0500
+Date: Tue, 28 Nov 2000 23:48:51 +0100
+From: Ragnar Hojland Espinosa <ragnar@jazzfree.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] no RLIMIT_NPROC for root, please
-Message-ID: <20001128231334.A438@var.cx>
-In-Reply-To: <20001128222040.H2680@sith.mimuw.edu.pl> <E140slT-000565-00@the-village.bc.nu>
+Subject: 2.4.0-t11: IDE probe failed
+Message-ID: <20001128234851.B168@macula.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E140slT-000565-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Nov 28, 2000 at 09:58:14PM +0000
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 0.95.6i
+Organization: Mediocrity Naysayers Ltd
+X-Homepage: http://maculaisdeadsoimmovingit/lightside
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 28, 2000 at 09:58:14PM +0000, Alan Cox wrote:
-> > Because you want to be able to `kill <pid>`?
-> > And if you are over-limits you can't?
-> Wrong. limit is a shell built in
-
-I assume you mean kill is a shell builtin. Depending on your shell. :-).
-It's still a real pain when you want to get the pid of the offending
-proces(ses). You could of course do something like
-for a in /proc/*; do echo -en "$a "; cat $a/cmdline; echo; done (it'll
-barf a lot, but give a reasonable picture)...
-
-Anyways, this is all not relevant, imho the whole point is moot.
-"I don't like root having rlimits."
-"So don't setrlimit root."
-
-No reason to ditch functionality.
-
+I still get those at random (and no, I'm not hot-rebooting from ms windows)
+Normally the cookie is 0xfffffff8 or similar.
 -- 
+____/|  Ragnar Højland     Freedom - Linux - OpenGL      Fingerprint  94C4B
+\ o.O|                                                   2F0D27DE025BE2302C
+ =(_)=  "Thou shalt not follow the NULL pointer for      104B78C56 B72F0822
+   U     chaos and madness await thee at its end."       hkp://keys.pgp.com
 
-                        Frank v Waveren
-                        fvw@[var.cx|stack.nl|chello.nl|dse.nl]
-                        ICQ# 10074100
+Handle via comment channels only.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

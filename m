@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290833AbSAaCZP>; Wed, 30 Jan 2002 21:25:15 -0500
+	id <S290837AbSAaCdZ>; Wed, 30 Jan 2002 21:33:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290834AbSAaCZE>; Wed, 30 Jan 2002 21:25:04 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:17257 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S290833AbSAaCYp>; Wed, 30 Jan 2002 21:24:45 -0500
-Date: Thu, 31 Jan 2002 03:25:40 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Momchil Velikov <velco@fadata.bg>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] Radix tree page cache
-Message-ID: <20020131032540.W1309@athlon.random>
-In-Reply-To: <87sn8ny4af.fsf@fadata.bg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <87sn8ny4af.fsf@fadata.bg>; from velco@fadata.bg on Wed, Jan 30, 2002 at 10:25:44PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S290838AbSAaCdQ>; Wed, 30 Jan 2002 21:33:16 -0500
+Received: from lsanca1-ar27-4-63-184-089.vz.dsl.gtei.net ([4.63.184.89]:19840
+	"EHLO barbarella.hawaga.org.uk") by vger.kernel.org with ESMTP
+	id <S290837AbSAaCdD>; Wed, 30 Jan 2002 21:33:03 -0500
+Date: Wed, 30 Jan 2002 18:32:55 -0800 (PST)
+From: Ben Clifford <benc@hawaga.org.uk>
+To: Pawel Worach <pawel.worach@mysun.com>
+cc: <linux-kernel@vger.kernel.org>, <dledford@redhat.com>
+Subject: Re: 2.5.3 won't compile (i810_audio)
+In-Reply-To: <3C5870E2.7030102@mysun.com>
+Message-ID: <Pine.LNX.4.33.0201301829510.2090-100000@barbarella.hawaga.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 10:25:44PM +0200, Momchil Velikov wrote:
-> Linus,
-> 
-> Please, consider for inclusion in 2.5.3 series the following radix
-> tree page cache patch.
+On Wed, 30 Jan 2002, Pawel Worach wrote:
 
-Please benchmark on files 10giga large, only do cached I/O (reads are
-fine) between 9G and 10G offset for example.
+> The new i810_audio driver merged into 2.5.3 won't compile.
 
-dbench or others handling not very huge files are not interesting
-benchmarks for this, for them per-inode rbtree was faster too. the only
-problem are the very huge files, the hashtable guarantees the same
-performance on small and huge files.
+I made the following one line change, and it seems to be working.
 
-Andrea
+--- drivers/sound/i810_audio.c-src	Wed Jan 30 18:30:51 2002
++++ drivers/sound/i810_audio.c	Wed Jan 30 18:22:39 2002
+@@ -1669,7 +1669,7 @@
+ 	if (size > (PAGE_SIZE << dmabuf->buforder))
+ 		goto out;
+ 	ret = -EAGAIN;
+-	if (remap_page_range(vma->vm_start, virt_to_phys(dmabuf->rawbuf),
++	if (remap_page_range(vma, vma->vm_start, virt_to_phys(dmabuf->rawbuf),
+ 			     size, vma->vm_page_prot))
+ 		goto out;
+ 	dmabuf->mapped = 1;
+
+
+-- 
+Ben Clifford     benc@hawaga.org.uk     GPG: 30F06950
+Job Required in Los Angeles - Will do most things unix or IP for money.
+http://www.hawaga.org.uk/resume/resume001.pdf
+Live Ben-cam: http://barbarella.hawaga.org.uk/benc-cgi/watchers.cgi
+
+

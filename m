@@ -1,82 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261687AbTKTKvG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 05:51:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbTKTKvG
+	id S261605AbTKTLQs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 06:16:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbTKTLQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 05:51:06 -0500
-Received: from mail3.cc.huji.ac.il ([132.64.1.21]:23502 "EHLO
-	mail3.cc.huji.ac.il") by vger.kernel.org with ESMTP id S261687AbTKTKvC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 05:51:02 -0500
-Message-ID: <3FBC9C94.4030603@mscc.huji.ac.il>
-Date: Thu, 20 Nov 2003 12:51:00 +0200
-From: Voicu Liviu <pacman@mscc.huji.ac.il>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030906
-X-Accept-Language: en-us, en, he
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org, kerin@recruit2recruit.net
-Subject: Re: 2.6.0-test9-mm4 (only) and vmware
-References: <20031120014718.GA22764@holomorphy.com> <20031119232246.GA20840@64m.dyndns.org> <20031120023457.GC22764@holomorphy.com> <20031119234037.GC20840@64m.dyndns.org> <20031120025730.GD22764@holomorphy.com> <3FBC917E.7090506@mscc.huji.ac.il> <20031120101830.GH22764@holomorphy.com> <3FBC9604.1020007@mscc.huji.ac.il> <20031120103117.GI22764@holomorphy.com> <3FBC996F.2060902@mscc.huji.ac.il> <20031120104220.GJ22764@holomorphy.com>
-In-Reply-To: <20031120104220.GJ22764@holomorphy.com>
-X-Enigmail-Version: 0.76.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 20 Nov 2003 06:16:48 -0500
+Received: from fmr03.intel.com ([143.183.121.5]:1186 "EHLO hermes.sc.intel.com")
+	by vger.kernel.org with ESMTP id S261605AbTKTLQp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 06:16:45 -0500
+Subject: [BKPATCH] ACPI for 2.4
+From: Len Brown <len.brown@intel.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+In-Reply-To: <1069189083.2970.540.camel@dhcppc4>
+References: <1069189083.2970.540.camel@dhcppc4>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1069326962.16410.49.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 20 Nov 2003 06:16:03 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
+Hi Marcelo, please do a 
 
->William Lee Irwin III wrote:
->  
->
->>>What -bk24 branch?
->>>      
->>>
->
->On Thu, Nov 20, 2003 at 12:37:35PM +0200, Voicu Liviu wrote:
->  
->
->>http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/patch-2.6.0-test9-bk24.bz2
->>    
->>
->
->It has nothing to do with that, no. It is specific to 2.6.0-test9-mm4.
->
-Ah, sorry, I got comfussed!
-Any way to get vmware working with  2.6.0-test9 or with 2.6.0-test9-bk24?
-Thanks
+	bk pull http://linux-acpi.bkbits.net/linux-acpi-release-2.4.23
 
->
->
->-- wli
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
+	A panic fix from Matt Wilcox via 2.6, and a build fix from me.
+	(List of kernels built below.)
+	Same caveat as before, I've not booted on x86_64 hardware.
+
+thanks,
+-Len
+
+ps. a plain patch is also available here:
+ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.4.23-rc2/acpi-20031002-2.4.23-rc2.diff.gz
+
+This will update the following files:
+
+ arch/i386/kernel/acpi.c     |    7 +++----
+ arch/i386/kernel/dmi_scan.c |    5 ++---
+ arch/i386/kernel/pci-pc.c   |   12 ++----------
+ arch/i386/kernel/setup.c    |    9 +++------
+ arch/x86_64/kernel/acpi.c   |   19 ++-----------------
+ arch/x86_64/kernel/e820.c   |    9 +++++----
+ arch/x86_64/kernel/pci-pc.c |   10 +---------
+ arch/x86_64/kernel/setup.c  |    2 +-
+ drivers/acpi/pci_root.c     |    4 +---
+ include/asm-i386/acpi.h     |    6 ++++--
+ include/asm-x86_64/acpi.h   |    9 ++++-----
+ 11 files changed, 28 insertions(+), 64 deletions(-)
+
+through these ChangeSets:
+
+<len.brown@intel.com> (03/11/20 1.1208)
+   [ACPI] "pci=noacpi" -- 2.4.23 specific part of previous 2.4.22 fix
+
+<len.brown@intel.com> (03/11/20 1.1063.44.53)
+   [ACPI] "pci=noacpi" -- replace two sets of flags with one: acpi_noirq
+
+<willy@debian.org> (03/11/19 1.1063.44.52)
+   [PATCH] Fix panic-at-boot
+   
+   This fixes a panic-at-boot when ACPI Hotplug PCI is compiled in, but
+   ACPI is disabled.  It just makes sure that the list is properly
+   initialized statically instead of depending on runtime initialization
+   that may or may not happen.
 
 
--- 
-Liviu Voicu
-Assistant Programmer and network support
-Computation Center, Mount Scopus
-Hebrew University of Jerusalem
-Tel: 972(2)-5881253
-E-mail: "Liviu Voicu"<pacman@mscc.huji.ac.il>
+x86_64:
+1. errs.ACPI.PCI.SMP.X86_LOCAL_APIC.X86_IO_APIC
+2. errs.ACPI.PCI.X86_LOCAL_APIC.X86_IO_APIC
+3. errs.ACPI.SMP.X86_LOCAL_APIC.X86_IO_APIC
+4. errs.ACPI.X86_LOCAL_APIC.X86_IO_APIC
+5. errs.DEBUG_KERNEL.ACPI.PCI.SMP.X86_LOCAL_APIC.X86_IO_APIC
+6. errs.DEBUG_KERNEL.ACPI.PCI.X86_LOCAL_APIC.X86_IO_APIC
+7. errs.DEBUG_KERNEL.ACPI.SMP.X86_LOCAL_APIC.X86_IO_APIC
+8. errs.DEBUG_KERNEL.ACPI.X86_LOCAL_APIC.X86_IO_APIC
+9. errs.DEBUG_KERNEL.PCI.SMP.X86_LOCAL_APIC.X86_IO_APIC
+10. errs.DEBUG_KERNEL.PCI.X86_LOCAL_APIC.X86_IO_APIC
+11. errs.DEBUG_KERNEL.SMP.X86_LOCAL_APIC.X86_IO_APIC
+12. errs.DEBUG_KERNEL.X86_LOCAL_APIC.X86_IO_APIC
+13. errs.PCI.SMP.X86_LOCAL_APIC.X86_IO_APIC
+14. errs.PCI.X86_LOCAL_APIC.X86_IO_APIC
+15. errs.SMP.X86_LOCAL_APIC.X86_IO_APIC
+16. errs.X86_LOCAL_APIC.X86_IO_APIC
+16 SUCCESS in 16 ATTEMPTS
 
-/**
- * cat /usr/src/linux/arch/i386/boot/bzImage > /dev/dsp
- * ( and the voice of God will be heard! )
- *
- */
-
-Click here to see my GPG signature:
-----------------------------------
-	http://search.keyserver.net:11371/pks/lookup?template=netensearch%2Cnetennomatch%2Cnetenerror&search=pacman%40mscc.huji.ac.il&op=vindex&fingerprint=on&submit=Get+List
+i386:
+1. errs.
+2. errs.ACPI
+3. errs.ACPI.PCI
+4. errs.ACPI.PCI.SMP.X86_LOCAL_APIC.X86_IO_APIC
+5. errs.ACPI.PCI.X86_LOCAL_APIC
+6. errs.ACPI.PCI.X86_LOCAL_APIC.X86_IO_APIC
+7. errs.ACPI.SMP.X86_LOCAL_APIC.X86_IO_APIC
+8. errs.ACPI.X86_LOCAL_APIC
+9. errs.ACPI.X86_LOCAL_APIC.X86_IO_APIC
+10. errs.DEBUG_KERNEL
+11. errs.DEBUG_KERNEL.ACPI
+12. errs.DEBUG_KERNEL.ACPI.PCI
+13. errs.DEBUG_KERNEL.ACPI.PCI.SMP.X86_LOCAL_APIC.X86_IO_APIC
+14. errs.DEBUG_KERNEL.ACPI.PCI.X86_LOCAL_APIC
+15. errs.DEBUG_KERNEL.ACPI.PCI.X86_LOCAL_APIC.X86_IO_APIC
+16. errs.DEBUG_KERNEL.ACPI.SMP.X86_LOCAL_APIC.X86_IO_APIC
+17. errs.DEBUG_KERNEL.ACPI.X86_LOCAL_APIC
+18. errs.DEBUG_KERNEL.ACPI.X86_LOCAL_APIC.X86_IO_APIC
+19. errs.DEBUG_KERNEL.PCI
+20. errs.DEBUG_KERNEL.PCI.SMP.X86_LOCAL_APIC.X86_IO_APIC
+21. errs.DEBUG_KERNEL.PCI.X86_LOCAL_APIC
+22. errs.DEBUG_KERNEL.PCI.X86_LOCAL_APIC.X86_IO_APIC
+23. errs.DEBUG_KERNEL.SMP.X86_LOCAL_APIC.X86_IO_APIC
+24. errs.DEBUG_KERNEL.X86_LOCAL_APIC
+25. errs.DEBUG_KERNEL.X86_LOCAL_APIC.X86_IO_APIC
+26. errs.PCI
+27. errs.PCI.SMP.X86_LOCAL_APIC.X86_IO_APIC
+28. errs.PCI.X86_LOCAL_APIC
+29. errs.PCI.X86_LOCAL_APIC.X86_IO_APIC
+30. errs.SMP.X86_LOCAL_APIC.X86_IO_APIC
+31. errs.X86_LOCAL_APIC
+32. errs.X86_LOCAL_APIC.X86_IO_APIC
+32 SUCCESS in 32 ATTEMPTS
 
 

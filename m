@@ -1,75 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271598AbRIJTGN>; Mon, 10 Sep 2001 15:06:13 -0400
+	id <S271613AbRIJTNY>; Mon, 10 Sep 2001 15:13:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271612AbRIJTGE>; Mon, 10 Sep 2001 15:06:04 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:6858 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S271598AbRIJTFu>; Mon, 10 Sep 2001 15:05:50 -0400
-Date: Mon, 10 Sep 2001 15:06:08 -0400
-From: Chris Mason <mason@suse.com>
-To: Daniel Phillips <phillips@bonn-fries.net>,
-        Andrea Arcangeli <andrea@suse.de>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Andreas Dilger <adilger@turbolabs.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.4.10-pre5
-Message-ID: <1494520000.1000148768@tiny>
-In-Reply-To: <20010910032901Z16134-26183+710@humbolt.nl.linux.org>
-In-Reply-To: <20010910001556Z16150-26183+680@humbolt.nl.linux.org>
- <20010910023312Z16066-26183+700@humbolt.nl.linux.org>
- <1381380000.1000090938@tiny>
- <20010910032901Z16134-26183+710@humbolt.nl.linux.org>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S271617AbRIJTNO>; Mon, 10 Sep 2001 15:13:14 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:36875 "EHLO
+	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S271613AbRIJTM6>; Mon, 10 Sep 2001 15:12:58 -0400
+Message-ID: <3B9D1078.54860A60@t-online.de>
+Date: Mon, 10 Sep 2001 21:11:52 +0200
+From: SPATZ1@t-online.de (Frank Schneider)
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.3-test i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: AIC + RAID1 error? (was: Re: aic7xxx errors)
+In-Reply-To: <200109072337.f87NbPY92715@aslan.scsiguy.com> <3B9CC525.7E26ABC2@mediascape.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Monday, September 10, 2001 05:36:07 AM +0200 Daniel Phillips
-<phillips@bonn-fries.net> wrote:
-
-> Well, I really wonder if buffers are the right transport medium for
-> variable,  large blocks, aka extents.  Personally, I think buffers will
-> have disappeared  or mutated unrecognizably by the time we get around to
-> adding extents to ext2  or its descendents.  Note that XFS already
-> implements extents on Linux, by  mapping them onto the pagecache I
-> believe.
-
-Yes, JFS as well, but this is somewhat unrelated to using buffers as io
-handles.
-
+Olaf Zaplinski schrieb:
 > 
->> If we relax the rules to allow multiple buffer heads for
->> the same physical spot on disk, things get easier, and the FS is
->> responsible for not doing something stupid with it.  
->> 
->> The data is still consistent either way, there are just multiple io
->> handles.
+> Okay, I tested it today, compiled 2.4.9ac10 with the new driver and TCQ set
+> to 32. I built the driver as a module to make sure that the machine at least
+> boots into runlevel 3 (I have no console access, only access to the reset
+> switch).
 > 
-> Were you thinking of one mapping for all buffers on a given partition?
+> I rebooted and inserted the driver with 'modprobe aic7xxx', remembered that
+> I forgot the verbose flag, removed the driver with 'modprobe -r' and
+> re-inserted it with 'modprobe aic7xxx aic7xxx=verbose'. The machine was
+> still alive then. But right after entering 'raidhotadd /dev/md1 /dev/sda1'
+> the machine hung. reiserfs erased the last lines of /var/log/messages, but
+> AFAIK the verbose driver output showed no errors.
+> 
+> But how can I help to reproduce the error? Of course I could break the
+> mirror, compile the driver into the kernel (non-module) and do some stress
+> test on the SCSI drive. But it's not so good when I drive this machine into
+> a hang too often.
+> 
+> I compiled the old driver now, also with TCQ set to 32, and the machine
+> seems to work fine.
+> 
 
-one mapping for all buffers accessed through getblk, get_hash_table, bread,
-and the block device.
+Hello...
 
-> If  so, how did you plan to handle different buffer sizes?  Were you
-> planning to  keep the existing buffer hash chain or use the page cache
-> hash chain, as I  did for ext2_getblk?
+I`m also in the moment testing with my raid-problem where one drive
+falls out of the raid...till now it did not happen with the old driver,
+but that means nothing as it only happened once a week or so.
 
-It would be through page->buffers.  Of course, this part is entirely
-uncoded, but the nice thing about an address space on top of the physical
-device is that bh->b_blocknr and bh->b_size directly compute to the offset
-in the device.  This means the order of the buffers on page->buffers does
-not have to be related to the location of the data they point to.
+Something other made me wonder:
+I ran the machine several times with the *new* aic7xxx-driver (TCQ=32)
+and the "aic7xxx=verbose" commandline, and i noticed the following:
+At every reboot (made by "reboot", RH7.1), the machine was not able to
+stop the raid5 correctly...it un-mounted the mountpoint (/home) and then
+it normaly wants to stop the raid...(you see the messages "mdrecoveryd
+got waken up...") but that did not work and after some time (30sec) the
+kernel Ooopsed. This was reproducable and only occured if booted with
+the "aic7xxx=verbose" kernel-parameter.
+The effect after reboot was, that the raid had to be resynced because
+one partition (that which always falls out) was damaged or at least
+seemed to.
+(The filesystem was clean, that was already unmounted as the oops
+occured.)
 
-So, along the lines of what Andrea suggested, buffer heads can be allocated
-as needed, regardless of the blocksizes already in use in the page.  The
-current blkdev page cache code would need to be updated to use this idea,
-but it should work.
+Perhaps someone can test if this is reproducable with his machine
+too...i use kernel 2.4.3, raid is built-in, also the aic7xxx, there are
+three raid-disks (LVD, aic7xxx-controller on Mobo) in a raid5 mounted as
+/home.
 
--chris
+Solong...
+Frank.
 
+--
+Frank Schneider, <SPATZ1@T-ONLINE.DE>.                           
+Microsoft isn't the answer.
+Microsoft is the question, and the answer is NO.
+... -.-

@@ -1,173 +1,150 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270855AbTG0QSq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 12:18:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270856AbTG0QSq
+	id S270845AbTG0QRO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 12:17:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270851AbTG0QRO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 12:18:46 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:50189 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S270855AbTG0QSR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 12:18:17 -0400
-To: Ren <l.s.r@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Consolidate dot-stripping code
-References: <20030727171002.3f8eaed5.l.s.r@web.de>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Mon, 28 Jul 2003 01:33:23 +0900
-In-Reply-To: <20030727171002.3f8eaed5.l.s.r@web.de>
-Message-ID: <871xwcvsj0.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sun, 27 Jul 2003 12:17:14 -0400
+Received: from smtp4.wanadoo.fr ([193.252.22.26]:52936 "EHLO
+	mwinf0501.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S270845AbTG0QRL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 12:17:11 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="CvhCMv4UCr"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 27 Jul 2003 18:33:43 +0200
+From: Pascal Brisset <pascal.brisset-ml@wanadoo.fr>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] Data corruption with cryptoloop, 2.6.0-test1
+Message-Id: <20030727163223.B2BD44002C7@mwinf0501.wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ren <l.s.r@web.de> writes:
 
-> Hi,
-> 
-> there are several places inside fs/vfat/namei.c where the length of a
-> struct qstr without any trailing dots is calculated. The patch below
-> adds a function vfat_qstrlen() which does that and makes use of it.
-> 
-> This cuts down on code size. Binary size is unchanged, because
-> vfat_qstrlen() is inline'd. It could be un-inline'd later.
+--CvhCMv4UCr
+Content-Type: text/plain; charset=us-ascii
+Content-Description: message body text
+Content-Transfer-Encoding: 7bit
 
-Thanks. Looks good to me. But vfat_qstrlen is bit bogus name. I
-renamed it to vfat_striptail_len, and it un-inlined.
+linux-2.6.0-test1, util-linux-2.12, RedHat 9, i386.
 
-What do you think of this?
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+The script below demonstrates data corruption when transfering
+large files (larger than physical RAM) with cryptoloop and AES.
+Individual bytes are altered on 512-byte boundaries.
 
-diff -puN fs/vfat/namei.c~vfat_striptail fs/vfat/namei.c
---- linux-2.6.0-test1/fs/vfat/namei.c~vfat_striptail	2003-07-28 01:18:18.000000000 +0900
-+++ linux-2.6.0-test1-hirofumi/fs/vfat/namei.c	2003-07-28 01:27:17.000000000 +0900
-@@ -114,6 +114,17 @@ vfat_strnicmp(struct nls_table *t, const
- 	return 0;
- }
- 
-+/* returns the length of a struct qstr, ignoring trailing dots */
-+static unsigned int vfat_striptail_len(struct qstr *qstr)
-+{
-+	unsigned int len = qstr->len;
-+
-+	while (len && qstr->name[len-1] == '.')
-+		len--;
-+
-+	return len;
-+}
-+
- /*
-  * Compute the hash for the vfat name corresponding to the dentry.
-  * Note: if the name is invalid, we leave the hash code unchanged so
-@@ -122,15 +133,7 @@ vfat_strnicmp(struct nls_table *t, const
-  */
- static int vfat_hash(struct dentry *dentry, struct qstr *qstr)
- {
--	const unsigned char *name;
--	int len;
--
--	len = qstr->len;
--	name = qstr->name;
--	while (len && name[len-1] == '.')
--		len--;
--
--	qstr->hash = full_name_hash(name, len);
-+	qstr->hash = full_name_hash(qstr->name, vfat_striptail_len(qstr));
- 
- 	return 0;
- }
-@@ -145,13 +148,11 @@ static int vfat_hashi(struct dentry *den
- {
- 	struct nls_table *t = MSDOS_SB(dentry->d_inode->i_sb)->nls_io;
- 	const unsigned char *name;
--	int len;
-+	unsigned int len;
- 	unsigned long hash;
- 
--	len = qstr->len;
- 	name = qstr->name;
--	while (len && name[len-1] == '.')
--		len--;
-+	len = vfat_striptail_len(qstr);
- 
- 	hash = init_name_hash();
- 	while (len--)
-@@ -167,15 +168,11 @@ static int vfat_hashi(struct dentry *den
- static int vfat_cmpi(struct dentry *dentry, struct qstr *a, struct qstr *b)
- {
- 	struct nls_table *t = MSDOS_SB(dentry->d_inode->i_sb)->nls_io;
--	int alen, blen;
-+	unsigned int alen, blen;
- 
- 	/* A filename cannot end in '.' or we treat it like it has none */
--	alen = a->len;
--	blen = b->len;
--	while (alen && a->name[alen-1] == '.')
--		alen--;
--	while (blen && b->name[blen-1] == '.')
--		blen--;
-+	alen = vfat_striptail_len(a);
-+	blen = vfat_striptail_len(b);
- 	if (alen == blen) {
- 		if (vfat_strnicmp(t, a->name, b->name, alen) == 0)
- 			return 0;
-@@ -188,15 +185,11 @@ static int vfat_cmpi(struct dentry *dent
-  */
- static int vfat_cmp(struct dentry *dentry, struct qstr *a, struct qstr *b)
- {
--	int alen, blen;
-+	unsigned int alen, blen;
- 
- 	/* A filename cannot end in '.' or we treat it like it has none */
--	alen = a->len;
--	blen = b->len;
--	while (alen && a->name[alen-1] == '.')
--		alen--;
--	while (blen && b->name[blen-1] == '.')
--		blen--;
-+	alen = vfat_striptail_len(a);
-+	blen = vfat_striptail_len(b);
- 	if (alen == blen) {
- 		if (strncmp(a->name, b->name, alen) == 0)
- 			return 0;
-@@ -761,7 +754,7 @@ static int vfat_add_entry(struct inode *
- 	struct msdos_dir_slot *dir_slots;
- 	loff_t offset;
- 	int slots, slot;
--	int res, len;
-+	int res;
- 	struct msdos_dir_entry *dummy_de;
- 	struct buffer_head *dummy_bh;
- 	loff_t dummy_i_pos;
-@@ -771,10 +764,7 @@ static int vfat_add_entry(struct inode *
- 	if (dir_slots == NULL)
- 		return -ENOMEM;
- 
--	len = qname->len;
--	while (len && qname->name[len-1] == '.')
--		len--;
--	res = vfat_build_slots(dir, qname->name, len,
-+	res = vfat_build_slots(dir, qname->name, vfat_striptail_len(qname),
- 			       dir_slots, &slots, is_dir);
- 	if (res < 0)
- 		goto cleanup;
-@@ -825,12 +815,9 @@ static int vfat_find(struct inode *dir,s
- {
- 	struct super_block *sb = dir->i_sb;
- 	loff_t offset;
--	int res,len;
-+	int res;
- 
--	len = qname->len;
--	while (len && qname->name[len-1] == '.') 
--		len--;
--	res = fat_search_long(dir, qname->name, len,
-+	res = fat_search_long(dir, qname->name, vfat_striptail_len(qname),
- 			(MSDOS_SB(sb)->options.name_check != 's'),
- 			&offset,&sinfo->longname_offset);
- 	if (res>0) {
+The problem occurs:
+- when the encrypted filesystem is ext2/ext3/jf, but not msdos/vfat.
+- with swap disabled
+- with crypto_yield() disabled
+- with cipher_null instead of AES (after patching crypto_null.c).
 
-_
+This looks like a race condition between flushing and loops.
+Could someone confirm this ?
+
+Pascal
+
+
+--CvhCMv4UCr
+Content-Type: text/plain
+Content-Disposition: inline;
+	filename="cryptoloop-test.sh"
+Content-Transfer-Encoding: 7bit
+
+#!/bin/sh
+
+echo "Data will be destroyed. Please edit this script first."
+exit 1
+
+SIZE=256                      # Set this to more than physical RAM (MB).
+FS=/dev/hda10
+# FS=/tmp/cryptoloop-test.fs  # No corruption with file-backed loops.
+FSTYPE=ext2
+LOOP=/dev/loop10
+MOUNT=/tmp/cryptoloop-test
+DATA=/dev/zero
+CIPHER=aes
+# CIPHER=cipher_null          #  Must fix crypto_null.c first.
+
+modprobe cryptoloop
+modprobe crypto_null
+modprobe aes
+
+[ -b $FS ]  ||  dd if=/dev/zero of=$FS bs=1M count=$((SIZE+10))
+echo 0123456789ABCDEF  |  losetup -p 0 -e $CIPHER $LOOP $FS  ||  exit 1
+mkfs -t $FSTYPE $LOOP  ||  exit 1
+mkdir -p $MOUNT
+mount -t $FSTYPE $LOOP $MOUNT  ||  exit 1
+
+dd if=$DATA bs=1M count=$SIZE of=$MOUNT/x 
+hexdump $MOUNT/x  |  head
+
+# Result (should be all 0000):
+#
+# 0000000 0000 0000 0000 0000 0000 0000 0000 0000
+# *
+# 0010000 00e0 0000 0000 0000 0000 0000 0000 0000
+# 0010010 0000 0000 0000 0000 0000 0000 0000 0000
+# *
+# 0010200 00e0 0000 0000 0000 0000 0000 0000 0000
+# 0010210 0000 0000 0000 0000 0000 0000 0000 0000
+# *
+# 0010400 00e0 0000 0000 0000 0000 0000 0000 0000
+# 0010410 0000 0000 0000 0000 0000 0000 0000 0000
+
+umount $MOUNT
+losetup -d $LOOP
+[ -b $FS ]  ||  rm $FS
+
+
+--CvhCMv4UCr
+Content-Type: text/plain
+Content-Disposition: inline;
+	filename="crypto_null.c.patch"
+Content-Transfer-Encoding: 7bit
+
+diff -ru linux-2.6.0-test1.orig/crypto/crypto_null.c linux-2.6.0-test1/crypto/crypto_null.c
+--- linux-2.6.0-test1.orig/crypto/crypto_null.c	2003-07-14 05:33:47.000000000 +0200
++++ linux-2.6.0-test1/crypto/crypto_null.c	2003-07-28 18:07:34.000000000 +0200
+@@ -22,8 +22,9 @@
+ #include <asm/scatterlist.h>
+ #include <linux/crypto.h>
+ 
+-#define NULL_KEY_SIZE		0
+-#define NULL_BLOCK_SIZE		1
++#define NULL_MIN_KEY_SIZE	0
++#define NULL_MAX_KEY_SIZE	32   /* losetup always uses LO_KEY_SIZE */
++#define NULL_BLOCK_SIZE		8 /* Prevents oops in cryptoloop ? */
+ #define NULL_DIGEST_SIZE	0
+ 
+ static int null_compress(void *ctx, const u8 *src, unsigned int slen,
+@@ -48,10 +49,10 @@
+ { return 0; }
+ 
+ static void null_encrypt(void *ctx, u8 *dst, const u8 *src)
+-{ }
++{ memcpy(dst, src, NULL_BLOCK_SIZE); }
+ 
+ static void null_decrypt(void *ctx, u8 *dst, const u8 *src)
+-{ }
++{ memcpy(dst, src, NULL_BLOCK_SIZE); }
+ 
+ static struct crypto_alg compress_null = {
+ 	.cra_name		=	"compress_null",
+@@ -87,9 +88,9 @@
+ 	.cra_module		=	THIS_MODULE,
+ 	.cra_list		=	LIST_HEAD_INIT(cipher_null.cra_list),
+ 	.cra_u			=	{ .cipher = {
+-	.cia_min_keysize	=	NULL_KEY_SIZE,
+-	.cia_max_keysize	=	NULL_KEY_SIZE,
+-	.cia_ivsize		=	0,
++	.cia_min_keysize	=	NULL_MIN_KEY_SIZE,
++	.cia_max_keysize	=	NULL_MAX_KEY_SIZE,
++	.cia_ivsize		=	8,  /* Prevents oops in cryptoloop ? */
+ 	.cia_setkey		= 	null_setkey,
+ 	.cia_encrypt		=	null_encrypt,
+ 	.cia_decrypt		=	null_decrypt } }
+
+
+
+--CvhCMv4UCr--
+

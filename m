@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269742AbUJAKVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269745AbUJAKVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269742AbUJAKVp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 06:21:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269744AbUJAKVp
+	id S269745AbUJAKVv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 06:21:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269744AbUJAKVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 06:21:45 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:53405 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S269742AbUJAKVo (ORCPT
+	Fri, 1 Oct 2004 06:21:51 -0400
+Received: from gprs214-29.eurotel.cz ([160.218.214.29]:36224 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S269745AbUJAKVr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 06:21:44 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Fri, 1 Oct 2004 06:21:47 -0400
+Date: Fri, 1 Oct 2004 12:21:35 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Kevin Fenzi <kevin-linux-kernel@scrye.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc3 software suspend (pmdisk) stopped working
+Message-ID: <20041001102135.GB18786@elf.ucw.cz>
+References: <415C2633.3050802@0Bits.COM> <20040930155644.BFF1CD6F5D@voldemort.scrye.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16733.12213.315295.653547@napali.hpl.hp.com>
-Date: Fri, 1 Oct 2004 03:21:41 -0700
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       kai@germaschewski.name, sam@ravnborg.org, davidm@hpl.hp.com
-Subject: Re: [ia64 patch 2.6.9-rc3] build: ccache/distcc fix for ia64
-In-Reply-To: <20041001101040.GA25104@elte.hu>
-References: <20041001101040.GA25104@elte.hu>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <20040930155644.BFF1CD6F5D@voldemort.scrye.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 1 Oct 2004 12:10:40 +0200, Ingo Molnar <mingo@elte.hu> said:
+Hi!
 
-  Ingo> the (tested) patch below fixes ccache/distcc-assisted building
-  Ingo> of the ia64 tree. (CC is "ccache distcc gcc" in that case, not
-  Ingo> a simple one-word "gcc" - this confused the check-gas and
-  Ingo> toolchain-flags scripts.)
+> Mitch> Hi, Anyone noticed that pmdisk software suspend stopped working
+> Mitch> in -rc3 ?  In -rc2 it worked just fine. My script was
+> 
+> Mitch>   chvt 1 echo -n shutdown >/sys/power/disk echo -n disk
+> Mitch> >/sys/power/state chvt 7
+> 
+> Mitch> In -rc3 it appears to write pages out to disk, but never shuts
+> Mitch> down the machine. Is there something else i need to do or am
+> Mitch> missing ?
+> 
+> What do you get from:
+> 
+> cat /sys/power/disk
+> ?
+> 
+> If it says "platform" you might try: 
+> 
+> echo "shutdown" > /sys/power/disk
+> 
+> I wonder how many of Pavel's speed improvment patches went in with the
+> pmdisk/swsusp merge in rc3? I guess I can try it and see. :) 
 
-Looks fine to me.
+The most important speed fix is not there, I wanted it to do take more
+testing...
 
-Thanks,
-
-	--david
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

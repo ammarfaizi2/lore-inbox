@@ -1,71 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbUJ3QQx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbUJ3QQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261194AbUJ3QQx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 12:16:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbUJ3QQx
+	id S261193AbUJ3QQs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 12:16:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbUJ3QQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 12:16:53 -0400
-Received: from mail.kroah.org ([69.55.234.183]:59544 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261212AbUJ3P3m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 11:29:42 -0400
-Date: Fri, 29 Oct 2004 20:49:20 -0700
-From: Greg KH <greg@kroah.com>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Oleksiy <Oleksiy@kharkiv.com.ua>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: pl2303/usb-serial driver problem in 2.4.27-pre6
-Message-ID: <20041030034920.GA1501@kroah.com>
-References: <416A6CF8.5050106@kharkiv.com.ua> <20041012171004.GB11750@kroah.com> <20041023180625.GA12113@logos.cnet> <1098572412.5996.6.camel@at2.pipehead.org> <1098576844.5996.27.camel@at2.pipehead.org> <1098908206.2856.17.camel@deimos.microgate.com>
+	Sat, 30 Oct 2004 12:16:48 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35088 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261270AbUJ3QCu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 12:02:50 -0400
+Date: Sat, 30 Oct 2004 17:02:47 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Tim_T_Murphy@Dell.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG][2.6.8.1] serial driver hangs SMP kernel, but not the UP kernel
+Message-ID: <20041030170247.B15392@flint.arm.linux.org.uk>
+Mail-Followup-To: Tim_T_Murphy@Dell.com, linux-kernel@vger.kernel.org
+References: <4B0A1C17AA88F94289B0704CFABEF1AB0B4CC6@ausx2kmps304.aus.amer.dell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1098908206.2856.17.camel@deimos.microgate.com>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4B0A1C17AA88F94289B0704CFABEF1AB0B4CC6@ausx2kmps304.aus.amer.dell.com>; from Tim_T_Murphy@Dell.com on Fri, Oct 29, 2004 at 06:30:01PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 27, 2004 at 03:16:46PM -0500, Paul Fulghum wrote:
-> On Sat, 2004-10-23 at 19:14, Paul Fulghum wrote:
-> > This change fits the reported symptom (loss of receive data).
-> > 
-> > The change preserves line status errors
-> > across multiple read interrupt callbacks until the error
-> > can be applied to the contents of the next read bulk callback.
-> > 
-> > What looks wrong to me is that the line status error,
-> > which should be associated with an individual character,
-> > is applied to the entire contents of the next bulk read.
-> > Wouldn't this potentially invalidate good data?
-> > 
-> > I'm not familiar with the operation of USB-serial converters,
-> > so I don't know exactly how the flow of read interrupt and
-> > read bulk callbacks are implemented to handle character errors.
-> > 
-> > If I was to guess, before the change, errors were lost
-> > (overwritten by the next read interrupt callback)
-> > so the mask was added to preserve the error.
-> > But the error is applied to more data than it should,
-> > causing loss of valid receive data.
+On Fri, Oct 29, 2004 at 06:30:01PM -0500, Tim_T_Murphy@Dell.com wrote:
 > 
-> USB CDC 1.1 does not specify how these error indications
-> relate to subsequent bulk data packets. I could not find
-> manufacturer info that helps. BSD drivers don't do
-> error processing at all.
+> > Well, if you forward lspci -vvx and the "maddr" and "irqno"
+> information
+> > (in private mail if you prefer) then I'll fix 8250_pci to work.
 > 
-> Here is a patch that applies the error only to the
-> next receive byte instead of all bytes in the
-> next read bulk packet.
-> 
-> Greg: Any comment?
+> maddr:	10		# note, this is for the UP kernel. for SMP,
+> maddr=201
+> irqno:	ec40
+> lspci -d 1028:0008 -vvx:
 
-Your patch looks sane, thanks.
+Ok, could you check whether this patch automatically detects the serial
+port please?
 
-> Oleksiy: Can you try this patch?
+Thanks.
 
-Let us know if this works or not.  If so, Paul, care to resend this for
-2.6 also?
+diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej orig/drivers/serial/8250_pci.c linux/drivers/serial/8250_pci.c
+--- orig/drivers/serial/8250_pci.c	Sat Oct 23 11:39:13 2004
++++ linux/drivers/serial/8250_pci.c	Sat Oct 30 16:57:59 2004
+@@ -1026,6 +1026,7 @@ enum pci_board_num_t {
+ 
+ 	pbn_b1_bt_2_921600,
+ 
++	pbn_b1_1_1382400,
+ 	pbn_b1_2_1382400,
+ 	pbn_b1_4_1382400,
+ 	pbn_b1_8_1382400,
+@@ -1253,6 +1254,12 @@ static struct pci_board pci_boards[] __d
+ 		.uart_offset	= 8,
+ 	},
+ 
++	[pbn_b1_1_1382400] = {
++		.flags		= FL_BASE1,
++		.num_ports	= 1,
++		.base_baud	= 1382400,
++		.uart_offest	= 8,
++	},
+ 	[pbn_b1_2_1382400] = {
+ 		.flags		= FL_BASE1,
+ 		.num_ports	= 2,
+@@ -2109,6 +2116,13 @@ static struct pci_device_id serial_pci_t
+ 		pbn_b0_bt_1_460800 },
+ 
+ 	/*
++	 * Dell Remote Access Card III - Tim_T_Murphy@Dell.com
++	 */
++	{	PCI_VENDOR_ID_DELL, PCI_DEVICE_ID_DELL_RACIII,
++		PCI_ID_ANY, PCI_ID_ANY, 0, 0,
++		pbn_b1_1_1382400 },
++
++	/*
+ 	 * RAStel 2 port modem, gerg@moreton.com.au
+ 	 */
+ 	{	PCI_VENDOR_ID_MORETON, PCI_DEVICE_ID_RASTEL_2PORT,
+diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej orig/include/linux/pci_ids.h linux/include/linux/pci_ids.h
+--- orig/include/linux/pci_ids.h	Sat Oct 23 11:40:03 2004
++++ linux/include/linux/pci_ids.h	Sat Oct 30 16:52:46 2004
+@@ -522,6 +522,7 @@
+ #define PCI_DEVICE_ID_AI_M1435		0x1435
+ 
+ #define PCI_VENDOR_ID_DELL              0x1028
++#define PCI_DEVICE_ID_DELL_RACIII	0x0008
+ 
+ #define PCI_VENDOR_ID_MATROX		0x102B
+ #define PCI_DEVICE_ID_MATROX_MGA_2	0x0518
 
-thanks,
-
-greg k-h
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

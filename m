@@ -1,85 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289374AbSAVSzm>; Tue, 22 Jan 2002 13:55:42 -0500
+	id <S289351AbSAVS7A>; Tue, 22 Jan 2002 13:59:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289350AbSAVSxD>; Tue, 22 Jan 2002 13:53:03 -0500
-Received: from p15.dynadsl.ifb.co.uk ([194.105.168.15]:20455 "HELO smeg")
-	by vger.kernel.org with SMTP id <S289346AbSAVSu7>;
-	Tue, 22 Jan 2002 13:50:59 -0500
-From: "Lee Packham" <linux@mswinxp.net>
-To: "'Daniel Nofftz'" <nofftz@castor.uni-trier.de>,
-        "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] amd athlon cooling on kt266/266a chipset
-Date: Tue, 22 Jan 2002 18:51:12 -0000
-Message-ID: <000901c1a375$c3493320$8119fea9@lee>
+	id <S289352AbSAVS6v>; Tue, 22 Jan 2002 13:58:51 -0500
+Received: from sycorax.lbl.gov ([128.3.5.196]:21134 "EHLO sycorax.lbl.gov")
+	by vger.kernel.org with ESMTP id <S289351AbSAVS6e>;
+	Tue, 22 Jan 2002 13:58:34 -0500
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Alex Romosan <romosan@sycorax.lbl.gov>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18-pre5
+In-Reply-To: <Pine.LNX.4.21.0201221538310.2059-100000@freak.distro.conectiva>
+From: Alex Romosan <romosan@sycorax.lbl.gov>
+Date: 22 Jan 2002 10:58:22 -0800
+In-Reply-To: <Pine.LNX.4.21.0201221538310.2059-100000@freak.distro.conectiva> (message from Marcelo Tosatti on Tue, 22 Jan 2002 15:40:57 -0200 (BRST))
+Message-ID: <87hepedxgx.fsf@sycorax.lbl.gov>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <Pine.LNX.4.40.0201221801210.11025-100000@infcip10.uni-trier.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maybe.... just maybe... attach the patch?
+Marcelo Tosatti <marcelo@conectiva.com.br> writes:
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Daniel Nofftz
-Sent: 22 January 2002 17:15
-To: Linux Kernel Mailing List
-Subject: [patch] amd athlon cooling on kt266/266a chipset
+> On 22 Jan 2002, Alex Romosan wrote:
+> 
+> > Marcelo Tosatti <marcelo@conectiva.com.br> writes:
+> > 
+> > > Well, here goes pre5.
+> > > 
+> > > 
+> > 
+> > this patch seems to be generated against pre4, not 2.4.17. just a
+> > heads up.
+> 
+> Eeek. Right.
+> 
+> I've just uploaded a new patch on top of the old one. 
 
-hi there!
+the two patches are not quite equivalent. if i now try to reverse the
+patch i get two failures:
 
-a few month ago someone has posted a patch for enabling the disconneect
-on STPGND detect function in the kt133/kt133a chipset. for those who
-don't
-know what this does: it sets a bit in a register of the northbridge of
-the
-chipset to enable the power saving modes of the athlon/duron/athlon xp
-prozessors.
-i did not found any patch which enables this function on an kt266/kt266a
-board. so i modified this patch (
-http://groups.google.com/groups?q=via_disconnect&hl=en&selm=linux.kernel
-.20010903002855.A645%40gondor.com&rnum=1
-)
-to support the kt266 and kt266a chipset to.
+patching file net/ipv4/icmp.c
+Hunk #3 FAILED at 495.
+1 out of 3 hunks FAILED -- saving rejects to file net/ipv4/icmp.c.rej
+patching file net/ipv4/ipconfig.c
+patching file net/ipv4/netfilter/ip_conntrack_standalone.c
+patching file net/ipv6/icmp.c
+Unreversed patch detected!  Ignore -R? [n] 
+Apply anyway? [n] 
+Skipping patch.
+1 out of 1 hunk ignored -- saving rejects to file net/ipv6/icmp.c.rej
+patching file net/ipv6/tcp_ipv6.c
 
-now i am looking for people to test the patch and repord, whether it
-works
-allright on other computers than my computer (i tested this patch on an
-epox 8kha+ whith an xp1600+).
+i think i'll download a pristine 2.4.17 and start again.
 
-if you want to test this patch:
-1. first apply the patch
-2. enable generel-setup -> acpi , acpi-bus-maager , prozessor
-   in the kernel config
-3. add to the "append" line in /etc/lilo.conf the "amd_disconnect=yes"
-statemand (or after reboot enter at the kernel-boot-prompt
-"amd_disconnect=yes")
-4. build a knew kernel
-5. report to me, whether you have problems ...
+--alex--
 
-if the patch gets a good feedback, maybe it is something for the
-official
-kernel tree ?
 
-daniel
-
-# Daniel Nofftz
-# Sysadmin CIP-Pool Informatik
-# University of Trier(Germany), Room V 103
-# Mail: daniel@nofftz.de
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+| I believe the moment is at hand when, by a paranoiac and active |
+|  advance of the mind, it will be possible (simultaneously with  |
+|  automatism and other passive states) to systematize confusion  |
+|  and thus to help to discredit completely the world of reality. |

@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265780AbUEZTfo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265781AbUEZTw0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265780AbUEZTfo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 15:35:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265781AbUEZTfo
+	id S265781AbUEZTw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 15:52:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265782AbUEZTw0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 15:35:44 -0400
-Received: from grunt22.ihug.com.au ([203.109.249.142]:46046 "EHLO
-	grunt22.ihug.com.au") by vger.kernel.org with ESMTP id S265780AbUEZTfm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 15:35:42 -0400
-Subject: Re: [Fwd: Re: drivers DB and id/ info registration]
-From: Zenaan Harkness <zen@freedbms.net>
-To: linux-kernel@vger.kernel.org, debian-devel@lists.debian.org
-In-Reply-To: <20040526182919.GA25978@kroah.com>
-References: <1085548092.2909.60.camel@zen8100a.freedbms.net>
-	 <20040526182919.GA25978@kroah.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1085600051.2468.17.camel@zen8100a.freedbms.net>
+	Wed, 26 May 2004 15:52:26 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:63940 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265781AbUEZTwY (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 15:52:24 -0400
+Message-Id: <200405261952.i4QJqMKI012335@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Zenaan Harkness <zen@freedbms.net>
+Cc: linux-kernel@vger.kernel.org, debian-devel@lists.debian.org
+Subject: Re: [Fwd: Re: drivers DB and id/ info registration] 
+In-Reply-To: Your message of "Thu, 27 May 2004 05:34:11 +1000."
+             <1085600051.2468.17.camel@zen8100a.freedbms.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <1085548092.2909.60.camel@zen8100a.freedbms.net> <20040526182919.GA25978@kroah.com>
+            <1085600051.2468.17.camel@zen8100a.freedbms.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 27 May 2004 05:34:11 +1000
+Content-Type: multipart/signed; boundary="==_Exmh_-763300980P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 26 May 2004 15:52:22 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-05-27 at 04:29, Greg KH wrote:
-> On Wed, May 26, 2004 at 03:08:13PM +1000, Zenaan Harkness wrote:
-> > I think we need to somehow make it easy for manufacturers to submit
-> > information about their hardware - something centralized, kernel- and
-> > distro- neutral, that can be widely advertised to manufacturers.
-> 
-> What kind of information?  Device ids are pretty useless in and of
-> themselves.  What we need are device specs in order to produce proper
-> drivers.  Without that information, just having a device id is
-> pointless.
+--==_Exmh_-763300980P
+Content-Type: text/plain; charset=us-ascii
 
-Except if a manufacturer actually went to the trouble of listing their
-device id, name and email or web contact, then they may well get a
-better picture of how many people are (attempting) to user their device
-on a free os.
+On Thu, 27 May 2004 05:34:11 +1000, Zenaan Harkness <zen@freedbms.net>  said:
+> Except if a manufacturer actually went to the trouble of listing their
+> device id, name and email or web contact, then they may well get a
+> better picture of how many people are (attempting) to user their device
+> on a free os.
 
-If, when I plug in my widget, I get a dialog saying "Your Funky Widget
-X has been detected but has no driver, <click here> to send an email
-requesting support." it is reassuring to me that my "OS" recognizes the
-device, it is easy for me to see that there is currently no driver
-(saves me googling for how long?) and makes it easy to register my
-interest in getting support. Registration might go via this centralized
-repository then to the company, for tracking.
+I suspect that the number of companies that have realized that there is a
+market outside Wintel, but who haven't done *anything* to support it,
+is vanishingly small.
 
-So of course, the question is how many companies will submit only
-device identification information?
+> So of course, the question is how many companies will submit only
+> device identification information?
 
-Perhaps users can submit some, and surely at least _some_ companies,
-and/ or their employees, will do so too.
+Probably very few.  Among other things, doing that flags the company as
+"yes, we *do* realize you guys are a market, but not one worth writing a
+driver for".  That's worse PR for the company than "they haven't Heard
+The Word yet...."
 
-Still pointless?
 
-ta
-zen
+--==_Exmh_-763300980P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAtPV2cC3lWbTT17ARAlHHAJ0bj9uJrGhn5YNvxUt1zYcMp1hPMgCg7sEV
+y2xhr08uAVG2YtsVI/jCU04=
+=SLuf
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-763300980P--

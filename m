@@ -1,58 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278187AbRJLWpP>; Fri, 12 Oct 2001 18:45:15 -0400
+	id <S278190AbRJLWzh>; Fri, 12 Oct 2001 18:55:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278188AbRJLWpF>; Fri, 12 Oct 2001 18:45:05 -0400
-Received: from web12707.mail.yahoo.com ([216.136.173.244]:45576 "HELO
-	web12707.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S278187AbRJLWo4>; Fri, 12 Oct 2001 18:44:56 -0400
-Message-ID: <20011012224527.14338.qmail@web12707.mail.yahoo.com>
-Date: Sat, 13 Oct 2001 00:45:27 +0200 (CEST)
-From: =?iso-8859-1?q?Ortiz=20Samuel?= <sambaufr@yahoo.fr>
-Subject: nr_local_pages and local_pages
-To: andrea@suse.de
+	id <S278191AbRJLWz0>; Fri, 12 Oct 2001 18:55:26 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:7781 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S278190AbRJLWzR>; Fri, 12 Oct 2001 18:55:17 -0400
+Date: Sat, 13 Oct 2001 00:55:26 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ortiz Samuel <sambaufr@yahoo.fr>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Subject: Re: nr_local_pages and local_pages
+Message-ID: <20011013005526.G714@athlon.random>
+In-Reply-To: <20011012224527.14338.qmail@web12707.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011012224527.14338.qmail@web12707.mail.yahoo.com>; from sambaufr@yahoo.fr on Sat, Oct 13, 2001 at 12:45:27AM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrea !                                           
-                                                      
-                                                      
-                                                      
-                                                      
-                                                      
-                                                      
-                                                      
-I spent some time reading the balance_classzone code,
-but there are still                                   
-                                                      
-                                                      
- some stuff I can't get. The main ones are the meaning
-and use of the                                        
-                                                      
-                                                      
- following fields in the task structure :             
-                                                      
-                                                      
-                                                      
+On Sat, Oct 13, 2001 at 12:45:27AM +0200, Ortiz Samuel wrote:
+> Hi Andrea !                                           
+>                                                       
+>                                                       
+>                                                       
+>                                                       
+>                                                       
+>                                                       
+>                                                       
+> I spent some time reading the balance_classzone code,
+> but there are still                                   
+>                                                       
+>                                                       
+>  some stuff I can't get. The main ones are the meaning
+> and use of the                                        
+>                                                       
+>                                                       
+>  following fields in the task structure :             
+>                                                       
+>                                                       
+>                                                       
+> 
+> - nr_local_pages                                      
+>                                                       
+>                                                       
+>                                                       
+> - local_pages
+> 
+> What are they for ? What do they mean ?
 
-- nr_local_pages                                      
-                                                      
-                                                      
-                                                      
-- local_pages
+we're balancing memory synchronously because we need to recycle some
+memory for ourself in order to succeed the allocation. Now if we succeed
+in freeing some page we keep this page for ourself while we free the
+next pages. So we work for ourself and not for somebody else. With the
+"goto rebalance" this isn't required anymore to avoid failing
+allocations, but still it should be good to provide better fariness, to
+avoid somebody stuck freeing memory hard, and all other tasks eating the
+free ram that such innocent task is producing in a starved loop.
 
-What are they for ? What do they mean ?
-
-Thanks in advance for your answers.
-
-Regards,
-Samuel.               
-
-___________________________________________________________
-Un nouveau Nokia Game commence. 
-Allez sur http://fr.yahoo.com/nokiagame avant le 3 novembre
-pour participer à cette aventure tous médias.
+Andrea

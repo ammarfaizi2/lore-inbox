@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317499AbSGXSth>; Wed, 24 Jul 2002 14:49:37 -0400
+	id <S317474AbSGXSpS>; Wed, 24 Jul 2002 14:45:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317497AbSGXSth>; Wed, 24 Jul 2002 14:49:37 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:785 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S317512AbSGXStH>; Wed, 24 Jul 2002 14:49:07 -0400
-Date: Wed, 24 Jul 2002 11:52:03 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Dave Jones <davej@suse.de>
-cc: Guillaume Boissiere <boissiere@adiglobal.com>,
+	id <S317483AbSGXSpS>; Wed, 24 Jul 2002 14:45:18 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47118 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317474AbSGXSpQ>; Wed, 24 Jul 2002 14:45:16 -0400
+Date: Wed, 24 Jul 2002 11:48:10 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
        <linux-kernel@vger.kernel.org>
-Subject: Re: [STATUS 2.5]  July 24, 2002
-In-Reply-To: <20020724114204.G16446@suse.de>
-Message-ID: <Pine.LNX.4.44.0207241150380.9506-100000@www.transvirtual.com>
+Subject: Re: [PATCH] 'select' failure or signal should not update timeout
+In-Reply-To: <20020724144433.B7192@kushida.apsleyroad.org>
+Message-ID: <Pine.LNX.4.33.0207241142320.2117-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->  > > o in -dj      Rewrite of the console layer                    (James Simmons)
->  >
->  > It was introduce in 2.5.25.
->
-> But there are still some sizable chunks of it in my tree pending merge.
-> I went through yesterday and threw out a lot of whitespace noise, but
-> there are still some 'functional' diffs there that need either pushing
-> to Linus, or dropping. From the look of the ones I skimmed, they need
-> to go to Linus, but I'll let you decide.
+On Wed, 24 Jul 2002, Jamie Lokier wrote:
+> 
+> Typical soft real-time code looks a bit like this pseudo-code (excuse
+> the bugs :-):
 
-It will be going to linus. I broke up that work into 3 changesets. I sent
-the first and I'm about to send the second. The third I will work on this
-weekend. Then I should be caught up to your tree. I still have more work
-tho to push but that is for later.
+Yup, looks familiar.
+
+The thing is, we cannot change existing select semantics, and the question 
+is whether what most soft-realtime wants is actually select, or whether 
+people really want a "waittimeofday()".
+
+Like your example, the only uses I've had personally (DVD playback) have
+really had an empty select, so it wasn't really select itself that was 
+horribly important.
+
+		Linus
 

@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130356AbQK1RvT>; Tue, 28 Nov 2000 12:51:19 -0500
+        id <S130300AbQK1SAk>; Tue, 28 Nov 2000 13:00:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130355AbQK1RvK>; Tue, 28 Nov 2000 12:51:10 -0500
-Received: from nread2.inwind.it ([212.141.53.75]:1750 "EHLO relay4.inwind.it")
-        by vger.kernel.org with ESMTP id <S130277AbQK1Ru7>;
-        Tue, 28 Nov 2000 12:50:59 -0500
-Message-Id: <3.0.6.32.20001128182352.00b5fa80@pop.tiscalinet.it>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Tue, 28 Nov 2000 18:23:52 +0100
-To: "David S. Miller" <davem@redhat.com>
-From: Lorenzo Allegrucci <lenstra@tiscalinet.it>
-Subject: Re: lmbench on linux-2.4.0-test[4-11]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200011280957.BAA06040@pizda.ninka.net>
-In-Reply-To: <3.0.6.32.20001128110817.00acae30@pop.tiscalinet.it>
- <3.0.6.32.20001128110817.00acae30@pop.tiscalinet.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+        id <S130231AbQK1SAb>; Tue, 28 Nov 2000 13:00:31 -0500
+Received: from gl177a.Glassen.BoNet.AC ([212.217.128.37]:2321 "HELO
+        findus.dhs.org") by vger.kernel.org with SMTP id <S129652AbQK1SAO>;
+        Tue, 28 Nov 2000 13:00:14 -0500
+Message-ID: <3A23EB9D.5FB93159@findus.dhs.org>
+Date: Tue, 28 Nov 2000 18:30:05 +0100
+From: Petter Sundlöf <odd@findus.dhs.org>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: XFree 4.0.1/NVIDIA 0.9-5/2.4.0-testX/11 woes
+In-Reply-To: <E140oQ8-0004mF-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 01.57 28/11/00 -0800, you wrote:
->   Date:   Tue, 28 Nov 2000 11:08:17 +0100
->   From: Lorenzo Allegrucci <lenstra@tiscalinet.it>
->
->   Does anyone confirm this problem?
->
->Increase the space between the two numbers configured in
->/proc/sys/net/ipv4/ip_local_port_range, try a configuration
->such as:
->
->echo "32768 61000" >/proc/sys/net/ipv4/ip_local_port_range
->
->I bet the problem goes away then.
+I bought this card on the promise that there'd be open drivers.
 
-ip_local_port_range already comes with such configuration.
-Anyhow, now even test1 shows the problem :-(
-I can run lmbench on 2.2.x kernels only.
-BTW, all local services (smtp, telnet etc) work well.
-Any ideas?
+Sigh.
 
---
-Lorenzo
+I shall forward the bug report to NVIDIA.
+
+Alan Cox wrote:
+> 
+> > My graphics card is a NVIDIA GeForce DDR, using the 0.9-5 release. For
+> > -test11 I had to patch 0.9-5 (but this was only a very trivial patch, I
+> > am told).
+> 
+> If you are using the nvidia kernel module you should tell nvidia. Nobody
+> else can help you since they obfuscated the code
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,144 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136418AbRD3AOk>; Sun, 29 Apr 2001 20:14:40 -0400
+	id <S136415AbRD3AKk>; Sun, 29 Apr 2001 20:10:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136417AbRD3AOe>; Sun, 29 Apr 2001 20:14:34 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:30039 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S136409AbRD3AOX>; Sun, 29 Apr 2001 20:14:23 -0400
-Date: Mon, 30 Apr 2001 02:13:45 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Gregory Maxwell <greg@linuxpower.cx>
-Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>,
-        "David S. Miller" <davem@redhat.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
-Message-ID: <20010430021345.E923@athlon.random>
-In-Reply-To: <Pine.LNX.4.33.0104281752290.10866-100000@localhost.localdomain> <20010428215301.A1052@gruyere.muc.suse.de> <200104282256.f3SMuRW15999@vindaloo.ras.ucalgary.ca> <9cg7t7$gbt$1@cesium.transmeta.com> <3AEBF782.1911EDD2@mandrakesoft.com> <15083.64180.314190.500961@pizda.ninka.net> <20010429153229.L679@nightmaster.csn.tu-chemnitz.de> <200104291848.f3TIm6821037@vindaloo.ras.ucalgary.ca> <20010429221159.U706@nightmaster.csn.tu-chemnitz.de> <20010429161827.B17539@xi.linuxpower.cx>
+	id <S136416AbRD3AKb>; Sun, 29 Apr 2001 20:10:31 -0400
+Received: from dutidad.twi.tudelft.nl ([130.161.158.199]:17804 "EHLO dutidad")
+	by vger.kernel.org with ESMTP id <S136415AbRD3AKQ>;
+	Sun, 29 Apr 2001 20:10:16 -0400
+Date: Mon, 30 Apr 2001 02:10:15 +0200
+From: "Charl P. Botha" <c.p.botha@its.tudelft.nl>
+To: linux-kernel@vger.kernel.org
+Cc: jgarzik@mandrakesoft.com
+Subject: Re: 2.4.4 Sound corruption [FIXED]
+Message-ID: <20010430021015.A7925@dutidad.twi.tudelft.nl>
+Reply-To: "Charl P. Botha" <c.p.botha@its.tudelft.nl>
+In-Reply-To: <20010429165501.A7545@dutidad.twi.tudelft.nl> <20010430012915.A7885@dutidad.twi.tudelft.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010429161827.B17539@xi.linuxpower.cx>; from greg@linuxpower.cx on Sun, Apr 29, 2001 at 04:18:27PM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010430012915.A7885@dutidad.twi.tudelft.nl>; from c.p.botha@its.tudelft.nl on Mon, Apr 30, 2001 at 01:29:15AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 29, 2001 at 04:18:27PM -0400, Gregory Maxwell wrote:
-> having both the code and a comprehensive jump-table might become tough in a
+I have found the problem.  The VIA latency patch in
+linux/drivers/pci/quirks.c at line 92 (quirk_vialatency()) should NOT be
+applied for the VIA VT82C686A (only for the 686B).  On my machine (at least)
+it's causing problems (as documented below) and this bug (along with fix) is
+only applicable on the 686B southbridge.
 
-In the x86-64 implementation there's no jump table. The original design
-had a jump table but Peter raised the issue that indirect jumps are very
-costly and he suggested to jump to a fixed virtual address instead, I
-agreed with his suggestion. So this is what I implemented for x86-64
-with regard to the userspace vsyscall API (which will be used by glibc):
+I have removed this code and everything is now fine on my system.  The
+problem is that the 686A and 686B have the same PCI IDs, else I would have
+submitted a patch.
 
-	enum vsyscall_num {
-		__NR_vgettimeofday,
-		__NR_vtime,
-	};
-	
-	#define VSYSCALL_ADDR(vsyscall_nr) (VSYSCALL_START+VSYSCALL_SIZE*(vsyscall_nr))
+Should I send this information anywhere else to make sure it gets applied in
+new kernels?
 
-the linker can prelink the vsyscall virtual address into the binary as a
-weak symbol and the dynamic linker will need to patch it only if
-somebody is overriding the weak symbol with a LD_PRELOAD.
+On Mon, Apr 30, 2001 at 01:29:15AM +0200, Charl P. Botha wrote:
+> FWIW, I have established that my sound broke between 2.4.4-pre5 and
+> 2.4.4-pre6.  I.e. in pre5 it works and in pre6 it doesn't, same .config.  If
+> anyone has any clues, I'd be glad to know.
+> 
+> On Sun, Apr 29, 2001 at 04:55:01PM +0200, Charl P. Botha wrote:
+> > 2.4.4 has broken sound here in a very strange way.  I have a debian testing
+> > system, Abit KT7 (thus VIA KT133 chipset) and SB PC128 (es1371-based) sound
+> > card.
+> > 
+> > Up until 2.4.3 everything was fine.  Now, however, when I send _anything_ to
+> > /dev/dsp, I get continuous high-pitched beeping (nothing remotely resembling
+> > what the sound card should be doing).  
+> > 
+> > The strange thing is that when I cause hard disk activity (find / -name "*")
+> > the correct sound is produced in time with hard disc accesses (I have tried
+> > this with DMA enabled and disabled on the drive, same results).  Also, when I
+> > switch desktops (icewm, XFree86 4.0.2, Nvidia 0.9.767 drivers) the correct
+> > sound is (very) momentarily produced (almost non-detectibly).  After these
+> > periods of lucidity, the sound card returns to its high-pitched cacophony.
+> > 
+> > I have attached copies of both /proc/interrupts and /proc/pci.  If anyone
+> > requires more information, please say the word.  I am not subscribed to this
+> > list.
+> > 
+> > Best regards,
+> > 
+> > -- 
+> > charl p. botha      | computer graphics and cad/cam 
+> > http://cpbotha.net/ | http://www.cg.its.tudelft.nl/
+> 
+> >            CPU0       
+> >   0:     320161          XT-PIC  timer
+> >   1:      19658          XT-PIC  keyboard
+> >   2:          0          XT-PIC  cascade
+> >   8:          1          XT-PIC  rtc
+> >   9:          0          XT-PIC  usb-uhci, usb-uhci
+> >  10:     272660          XT-PIC  nvidia
+> >  11:      93973          XT-PIC  eth0, es1371
+> >  12:      42760          XT-PIC  PS/2 Mouse
+> >  14:      39388          XT-PIC  ide0
+> >  15:          5          XT-PIC  ide1
+> > NMI:          0 
+> > ERR:          0
+> 
+> > PCI devices found:
+> >   Bus  0, device   0, function  0:
+> >     Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 3).
+> >       Prefetchable 32 bit memory at 0xd8000000 [0xdbffffff].
+> >   Bus  0, device   1, function  0:
+> >     PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP] (rev 0).
+> >       Master Capable.  No bursts.  Min Gnt=12.
+> >   Bus  0, device   7, function  0:
+> >     ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 34).
+> >   Bus  0, device   7, function  1:
+> >     IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 16).
+> >       Master Capable.  Latency=32.  
+> >       I/O at 0xd000 [0xd00f].
+> >   Bus  0, device   7, function  2:
+> >     USB Controller: VIA Technologies, Inc. UHCI USB (rev 16).
+> >       IRQ 9.
+> >       Master Capable.  Latency=32.  
+> >       I/O at 0xd400 [0xd41f].
+> >   Bus  0, device   7, function  3:
+> >     USB Controller: VIA Technologies, Inc. UHCI USB (#2) (rev 16).
+> >       IRQ 9.
+> >       Master Capable.  Latency=32.  
+> >       I/O at 0xd800 [0xd81f].
+> >   Bus  0, device   7, function  4:
+> >     Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 48).
+> >       IRQ 11.
+> >   Bus  0, device   8, function  0:
+> >     Multimedia video controller: Brooktree Corporation Bt878 (rev 17).
+> >       IRQ 9.
+> >       Master Capable.  Latency=32.  Min Gnt=16.Max Lat=40.
+> >       Prefetchable 32 bit memory at 0xde000000 [0xde000fff].
+> >   Bus  0, device   8, function  1:
+> >     Multimedia controller: Brooktree Corporation Bt878 (rev 17).
+> >       IRQ 9.
+> >       Master Capable.  Latency=32.  Min Gnt=4.Max Lat=255.
+> >       Prefetchable 32 bit memory at 0xde001000 [0xde001fff].
+> >   Bus  0, device   9, function  0:
+> >     Ethernet controller: Accton Technology Corporation SMC2-1211TX (rev 16).
+> >       IRQ 11.
+> >       Master Capable.  Latency=32.  Min Gnt=32.Max Lat=64.
+> >       I/O at 0xdc00 [0xdcff].
+> >       Non-prefetchable 32 bit memory at 0xde002000 [0xde0020ff].
+> >   Bus  0, device  13, function  0:
+> >     Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 8).
+> >       IRQ 11.
+> >       Master Capable.  Latency=32.  Min Gnt=12.Max Lat=128.
+> >       I/O at 0xe000 [0xe03f].
+> >   Bus  1, device   0, function  0:
+> >     VGA compatible controller: nVidia Corporation NV11 (rev 161).
+> >       IRQ 10.
+> >       Master Capable.  Latency=248.  Min Gnt=5.Max Lat=1.
+> >       Non-prefetchable 32 bit memory at 0xdc000000 [0xdcffffff].
+> >       Prefetchable 32 bit memory at 0xd0000000 [0xd7ffffff].
+> 
+> 
+> -- 
+> charl p. botha      | computer graphics and cad/cam 
+> http://cpbotha.net/ | http://www.cg.its.tudelft.nl/
 
-Virtual address space is relatively cheap. Currently the 64bit
-vgettimeofday bytecode + data is nearly 200 bytes, and the first two
-slots are large 512bytes each. So with 1024 bytes we do the whole thing,
-and we still have space for further 6 vsyscalls without paying any
-additional tlb entry.
-
-(the implementation of the above #define will change shortly but the
-VSYSCALL_ADDR() API for glibc will remain the same)
-
-Andrea
+-- 
+charl p. botha      | computer graphics and cad/cam 
+http://cpbotha.net/ | http://www.cg.its.tudelft.nl/

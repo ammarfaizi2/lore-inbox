@@ -1,71 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310769AbSDMWIK>; Sat, 13 Apr 2002 18:08:10 -0400
+	id <S310806AbSDMXAO>; Sat, 13 Apr 2002 19:00:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310806AbSDMWIJ>; Sat, 13 Apr 2002 18:08:09 -0400
-Received: from jalon.able.es ([212.97.163.2]:35548 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S310769AbSDMWIJ>;
-	Sat, 13 Apr 2002 18:08:09 -0400
-Date: Sun, 14 Apr 2002 00:08:00 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: linux as a minicomputer ?
-Message-ID: <20020413220800.GA4283@werewolf.able.es>
-In-Reply-To: <E16wSh5-0000ue-00@the-village.bc.nu> <3CB88713.4070209@zytor.com> <200204131937.g3DJbw607029@vindaloo.ras.ucalgary.ca> <3CB889C7.2080907@zytor.com> <200204131949.g3DJnhD07302@vindaloo.ras.ucalgary.ca>
+	id <S310917AbSDMXAN>; Sat, 13 Apr 2002 19:00:13 -0400
+Received: from pc-62-31-74-83-ed.blueyonder.co.uk ([62.31.74.83]:16004 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S310806AbSDMXAM>; Sat, 13 Apr 2002 19:00:12 -0400
+Date: Sat, 13 Apr 2002 23:59:48 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andrew Morton <akpm@zip.com.au>, Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Andrea Arcangeli <andrea@suse.de>
+Cc: Stephen Tweedie <sct@redhat.com>, linux-kernel@vger.kernel.org
+Subject: [RFC] Patch: aliasing bug in blockdev-in-pagecache?
+Message-ID: <20020413235948.E4937@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.4
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-On 2002.04.13 Richard Gooch wrote:
->H. Peter Anvin writes:
->> Richard Gooch wrote:
->> > 
->> > Actually, there is some impedance matching. I've seen monitors with
->> > hi/lo impedance switches. And I've used 15 m long high-quality VGA
->> > cables. The result has been pretty good.
->> > 
->> 
->> The best I've seen is to use Sun D-sub coax or plain coax inputs on
->> the monitors that have them.  Those are impedance matched and can be
->> extended without problem.
->
->Sure, coax inputs are the best. But there are still problems. Even
->expensive coax has higher attenuation at higher frequencies, so the
->longer the cable, the more fuzziness you get. Also, there are
->differential delay effects between the R, G and B components. You
->don't want the pixel components to arrive at different times. So
->there's a length limitation there as well.
->
->But even though coax is better, VGA isn't that bad. 15 m gets you
->quite a lot of terminals in a web kiosk (or undergrad computer lab).
->
->BTW: I agree that X terminals suck. Even worse are SunRays. Ug!
->
+I think there's a data-corruption possible in both ext2 and ext3 (and
+in fact any filesystem which uses bread) if user space is reading from
+the filesystem's buffered block device during live fs activity.
 
-We have built a 'pseudo-CAVE' for presentations, and have six vgas
-feeding sony projectors with cabling between 15 and 20m, running
-at 1024x768@32. Quality is ok.
+I've recently been seeing an ext3 assert failure where the filesystem
+comes across a buffer which is unexpectedly locked, while running a
+dump(8) on the live filesystem.  Now, I do _not_ want to start another
+debate about whether it's sane to do that or not!  But the mounted
+kernel filesystem should still survive if the user is only reading
+from the buffered device.
 
-The problem is finding good PCI vga cards, even finding any,
-good or bad. Now they are TNT-M64. I'm also aware that SiS has some,
-but nothing special. But, to use it as terminals, they could be ok.
+The problem turns out to be in block_read_full_page().  The page cache
+IO code assumes that IO is synchronised at the page level, but any
+kernel code using getblk() (or sb_read() or related functions) to
+access the buffers at the same time will bypass the page locking.
 
-And coax is not so good. Even with expensive cable, the bounces of
-the signal made me see double like drunk. Video did not worked right
-until we got _golden_ connectors and soldered with silver. Believe
-me you could even put more mony on the cables that on the box.
+So if block_read_full_page() encounters a page which bread() is
+already reading into cache, it will see the page unlocked but the
+buffer_head locked and !uptodate.  However, it ignores the bh lock,
+seeing only that the buffer is !uptodate, and so it then locks the bh
+itself and submits a read IO.
 
-Physics is funny...
+Unfortunately, if the bread() wins the race for the wait_on_buffer
+after the initial IO, we can already have started to modify the buffer
+contents by the time that block_read_full_page() starts the new IO.
+So we read stale contents from disk on top of the modified contents in
+cache.
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre6-jam1 #1 SMP Sun Apr 7 00:50:05 CEST 2002 i686
+To solve this, we really do need to have block_read_full_page() test
+the uptodate state under protection of the buffer_head lock.  We
+already go through 3 stages in block_read_full_page(): gather the
+buffers needing IO, then lock them, then submit the IO.  To be safe,
+we need a final test for buffer_uptodate() *after* we have locked the
+required buffers.
+
+I've verified that the scenario above is definitely happening, and I'm
+currently testing the patch below.  I'm using 2.4 for the testing
+right now, but 2.5 seems to have the same problem at first glance.
+
+Comments?
+
+--Stephen
+
+
+--- fs/buffer.c.~1~	Fri Apr 12 17:59:09 2002
++++ fs/buffer.c	Sat Apr 13 21:09:36 2002
+@@ -1902,9 +1902,14 @@
+ 	}
+ 
+ 	/* Stage 3: start the IO */
+-	for (i = 0; i < nr; i++)
+-		submit_bh(READ, arr[i]);
+-
++	for (i = 0; i < nr; i++) {
++		struct buffer_head * bh = arr[i];
++		if (buffer_uptodate(bh))
++			end_buffer_io_async(bh, 1);
++		else
++			submit_bh(READ, bh);
++	}
++	
+ 	return 0;
+ }
+ 

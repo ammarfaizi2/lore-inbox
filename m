@@ -1,67 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290575AbSARBsu>; Thu, 17 Jan 2002 20:48:50 -0500
+	id <S290577AbSARBuK>; Thu, 17 Jan 2002 20:50:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290578AbSARBsk>; Thu, 17 Jan 2002 20:48:40 -0500
-Received: from 12-234-33-29.client.attbi.com ([12.234.33.29]:6723 "HELO
-	top.worldcontrol.com") by vger.kernel.org with SMTP
-	id <S290575AbSARBsb>; Thu, 17 Jan 2002 20:48:31 -0500
-From: brian@worldcontrol.com
-Date: Thu, 17 Jan 2002 17:46:48 -0800
-To: "Trever L. Adams" <tadams-lists@myrealbox.com>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Andrea Scrimieri <livore@karma.oltrelinux.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Rik spreading bullshit about VM
-Message-ID: <20020118014648.GA5250@top.worldcontrol.com>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	"Trever L. Adams" <tadams-lists@myrealbox.com>,
-	Rik van Riel <riel@conectiva.com.br>,
-	Andrea Scrimieri <livore@karma.oltrelinux.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0201171113270.32617-100000@imladris.surriel.com> <1011303665.1230.5.camel@aurora>
-Mime-Version: 1.0
+	id <S290578AbSARBuB>; Thu, 17 Jan 2002 20:50:01 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:29942 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S290577AbSARBty>;
+	Thu, 17 Jan 2002 20:49:54 -0500
+Date: Thu, 17 Jan 2002 17:31:07 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Marc Lehmann <pcg@schmorp.de>
+cc: Andre Hedrick <andre@linuxdiskcert.org>, linux-kernel@vger.kernel.org
+Subject: Re: DO NOT USE IT (Re: linux-2.5.3-pre1 and IDE Driver Trouble)
+ FATAL
+In-Reply-To: <20020118010443.GB5550@schmorp.de>
+Message-ID: <Pine.LNX.4.10.10201171730120.2561-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1011303665.1230.5.camel@aurora>
-User-Agent: Mutt/1.3.25i
-X-No-Archive: yes
-X-Noarchive: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Let us not forget about 'deconstructionism':
+That problem is now fixed in 2.5.3-pre1-2 + arch_compatablity.patch
 
-    deconstructionism -- (a philosophical theory of criticism ...
-    that seeks to expose deep-seated contradictions in a work
-    by delving below its surface meaning)
 
-It doesn't even matter what Rik thinks he wrote.  The real meaning is
-what *we*, the readers, can devolve from his writings.
+On Fri, 18 Jan 2002, Marc Lehmann wrote:
 
-8-)
-
-- Brian Litzinger <brian@worldcontrol.com>
-
-> On Thu, 2002-01-17 at 08:15, Rik van Riel wrote:
-> > Which part of "to interprete" do you not understand ?
+> On Wed, Jan 16, 2002 at 01:07:46PM -0800, Andre Hedrick <andre@linuxdiskcert.org> wrote:
 > > 
-> > Interpreting my text is reading it and building a
-> > meaning for the words in your head. It doesn't mean
-> > the text needs to be changed ... the meaning can be
-> > different for each person reading the exact same
-> > words.
-
-
-On Thu, Jan 17, 2002 at 04:41:02PM -0500, Trever L. Adams wrote:
-> To an extant anyone is responsible for how another takes (interprets)
-> what they say.  Culture is that combined collection of knowledge of the
-> human race.  It is your responsibility as a human to be as clear as
-> possible (within reason).
+> > If the driver falls out of DMA, DEADBOX!!!!
+> > There is a conflict of BIO and ACB and it is very fatal.
 > 
-> Were you that clear?  It seems not, but I don't know.  Just don't say
-> you have no responsibility for how others take what you say, because
-> that is just dog crap.  No communication or collaboration would ever
-> take place if we all had that attitude. (It most likely couldn't take
-> place, let alone wouldn't.)
+> As a matter of fact, this is not much different to 2.4 behaviour. hdparm
+> -d1 on a busy disk kills the machine, with interrupts turned off (tested
+> on all my machines (all SMP, btw), with linux-2.4.13-ac7, 2.4.17 and
+> 2.4.17+ide-patch), on both my promise, piix and via controllers.
+> 
+> Also, hdparm -w gives me:
+> 
+> Jan  7 05:40:47 (none) kernel: bug: kernel timer added twice at c01cc2e9. 
+> Jan  7 05:40:54 (none) kernel: ide1: reset: success 
+> 
+> and then both hdc and hdd are dead, which is only for a short time after
+> which the machine freezes (software watchdog doesn't help).
+> 
+> (under 2.2, using hdparmn on the same hardware was safe, at least with
+> respect to hdparm -d1).
+> 
+> -- 
+>       -----==-                                             |
+>       ----==-- _                                           |
+>       ---==---(_)__  __ ____  __       Marc Lehmann      +--
+>       --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+>       -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+>     The choice of a GNU generation                       |
+>                                                          |
+> 
+
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
+

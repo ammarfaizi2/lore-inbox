@@ -1,918 +1,652 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318966AbSHFCqm>; Mon, 5 Aug 2002 22:46:42 -0400
+	id <S318411AbSHFHc6>; Tue, 6 Aug 2002 03:32:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318968AbSHFCqm>; Mon, 5 Aug 2002 22:46:42 -0400
-Received: from patan.Sun.COM ([192.18.98.43]:29865 "EHLO patan.sun.com")
-	by vger.kernel.org with ESMTP id <S318966AbSHFCqe>;
-	Mon, 5 Aug 2002 22:46:34 -0400
-Message-ID: <3D4F3962.3050303@sun.com>
-Date: Mon, 05 Aug 2002 19:50:10 -0700
-From: Tim Hockin <thockin@sun.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] nvram - add Cobalt support
-Content-Type: multipart/mixed;
- boundary="------------060701010208090907080103"
+	id <S318384AbSHFHc4>; Tue, 6 Aug 2002 03:32:56 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:61074 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S318411AbSHFHcn>;
+	Tue, 6 Aug 2002 03:32:43 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] kprobes for 2.5.30 
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+       vamsi_krishna@in.ibm.com
+In-reply-to: Your message of "Mon, 05 Aug 2002 22:48:38 MST."
+             <Pine.LNX.4.44.0208052247380.1171-100000@home.transmeta.com> 
+Date: Tue, 06 Aug 2002 17:22:15 +1000
+Message-Id: <20020806073804.690DE4BA4@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060701010208090907080103
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In message <Pine.LNX.4.44.0208052247380.1171-100000@home.transmeta.com> you wri
+te:
+> 
+> On Tue, 6 Aug 2002, Rusty Russell wrote:
+> > 
+> > I am reading from this that we *should* be explicitly disabling
+> > preemption in interrupt handlers if we rely on the cpu number not
+> > changing underneath us, even if it's (a) currently unneccessary, and
+> > (b) arch-specific code.
+> 
+> But do_irq() already does that.
 
-This patch adds support for Cobalt systems to the nvram driver.  In the 
-process, the nvram symbols were exported, and a few other minor cleanup 
-went in.  This iwll soon be available through bk, but I thought I'd 
-solicit any gripes before I push it up. :)
+Right, that's what I wanted to check.
 
-This is another in a series of patches trying desperately to get our 
-tree synced :).  If it all looks ok, I'll ask Marcelo and Linus to pull it.
+> You mean _exception_ handlers. It's definitely not unnecessary. Exceptions 
+> can very much be preempted.
 
-Tim
+The patch changes traps 1 and 3 (debug & int3) to interrupt gates
+though.  
 
--- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Cobalt Server Appliances
-thockin@sun.com
+In fact, the removal of the #ifdef CONFIG_KPROBES around that change
+introduced a bug: we didn't reenable interrupts like the older code
+expects.
 
---------------060701010208090907080103
-Content-Type: text/plain;
- name="bk-rev-1.582.2.81.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="bk-rev-1.582.2.81.patch"
+Vamsi, what do you think of this patch?  Is it neccessary to restore
+interrupts before handle_vm86_trap (the original patch didn't do this
+either, not sure if it's required).
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.582.2.80 -> 1.582.2.81
-#	include/linux/nvram.h	1.1     -> 1.3    
-#	drivers/char/nvram.c	1.9     -> 1.11   
-#	drivers/char/Makefile	1.18    -> 1.19   
-#	Documentation/Configure.help	1.110   -> 1.111  
-#	               (new)	        -> 1.2     include/linux/cobalt-nvram.h
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/08/02	th122948@scl3.sfbay.sun.com	1.582.2.81
-# Add Cobalt Networks support to nvram driver
-# export nvram interfaces
-# general cleanup of nvram driver
-# protect nvram state with a lock
-# fix nvram O_EXCL hack to actually work
-# --------------------------------------------
-#
-diff -Nru a/Documentation/Configure.help b/Documentation/Configure.help
---- a/Documentation/Configure.help	Mon Aug  5 18:55:26 2002
-+++ b/Documentation/Configure.help	Mon Aug  5 18:55:26 2002
-@@ -18187,9 +18187,10 @@
- CONFIG_NVRAM
-   If you say Y here and create a character special file /dev/nvram
-   with major number 10 and minor number 144 using mknod ("man mknod"),
--  you get read and write access to the 50 bytes of non-volatile memory
--  in the real time clock (RTC), which is contained in every PC and
--  most Ataris.
-+  you get read and write access to the extra bytes of non-volatile
-+  memory in the real time clock (RTC), which is contained in every PC
-+  and most Ataris.  The actual number of bytes varies, depending on the
-+  nvram in the system, but is usually 114 (128-14 for the RTC).
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+Name: Kprobes for i386
+Author: Vamsi Krishna S
+Status: Experimental
+
+D: This patch allows trapping at almost any kernel address, useful for
+D: various kernel-hacking tasks, and building on for more
+D: infrastructure.  This patch is x86 only, but other archs can add
+D: support as required.
+
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.30/arch/i386/Config.help working-2.5.30-kprobes/arch/i386/Config.help
+--- linux-2.5.30/arch/i386/Config.help	Mon Jun 17 23:19:15 2002
++++ working-2.5.30-kprobes/arch/i386/Config.help	Tue Aug  6 16:52:59 2002
+@@ -967,3 +967,9 @@ CONFIG_SOFTWARE_SUSPEND
+   absence of features.
  
-   This memory is conventionally called "CMOS RAM" on PCs and "NVRAM"
-   on Ataris. /dev/nvram may be used to view settings there, or to
-diff -Nru a/drivers/char/Makefile b/drivers/char/Makefile
---- a/drivers/char/Makefile	Mon Aug  5 18:55:26 2002
-+++ b/drivers/char/Makefile	Mon Aug  5 18:55:26 2002
-@@ -24,7 +24,7 @@
- export-objs     :=	busmouse.o console.o keyboard.o sysrq.o \
- 			misc.o pty.o random.o selection.o serial.o \
- 			sonypi.o tty_io.o tty_ioctl.o generic_serial.o \
--			au1000_gpio.o
-+			au1000_gpio.o nvram.o
+   For more information take a look at Documentation/swsusp.txt.
++
++CONFIG_KPROBES
++  Kprobes allows you to trap at almost any kernel address, using
++  register_kprobe(), and providing a callback function.  This is useful
++  for kernel debugging, non-intrusive instrumentation and testing.  If
++  in doubt, say "N".
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.30/arch/i386/config.in working-2.5.30-kprobes/arch/i386/config.in
+--- linux-2.5.30/arch/i386/config.in	Sat Jul 27 15:24:35 2002
++++ working-2.5.30-kprobes/arch/i386/config.in	Tue Aug  6 16:52:59 2002
+@@ -415,6 +415,7 @@ if [ "$CONFIG_DEBUG_KERNEL" != "n" ]; th
+    if [ "$CONFIG_HIGHMEM" = "y" ]; then
+       bool '  Highmem debugging' CONFIG_DEBUG_HIGHMEM
+    fi
++   bool '  Probes' CONFIG_KPROBES
+ fi
  
- mod-subdirs	:=	joystick ftape drm drm-4.0 pcmcia
+ endmenu
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.30/arch/i386/kernel/entry.S working-2.5.30-kprobes/arch/i386/kernel/entry.S
+--- linux-2.5.30/arch/i386/kernel/entry.S	Fri Aug  2 11:15:05 2002
++++ working-2.5.30-kprobes/arch/i386/kernel/entry.S	Tue Aug  6 16:52:59 2002
+@@ -430,9 +430,16 @@ device_not_available_emulate:
+ 	jmp ret_from_exception
  
-diff -Nru a/drivers/char/nvram.c b/drivers/char/nvram.c
---- a/drivers/char/nvram.c	Mon Aug  5 18:55:26 2002
-+++ b/drivers/char/nvram.c	Mon Aug  5 18:55:26 2002
-@@ -3,6 +3,7 @@
+ ENTRY(debug)
++	pushl %eax
++	SAVE_ALL
++	movl %esp,%edx
+ 	pushl $0
+-	pushl $do_debug
+-	jmp error_code
++	pushl %edx
++	call do_debug
++	addl $8,%esp
++	testl %eax,%eax 
++	jnz restore_all
++	jmp ret_from_exception
+ 
+ ENTRY(nmi)
+ 	pushl %eax
+@@ -445,9 +452,16 @@ ENTRY(nmi)
+ 	RESTORE_ALL
+ 
+ ENTRY(int3)
++	pushl %eax
++	SAVE_ALL
++	movl %esp,%edx
+ 	pushl $0
+-	pushl $do_int3
+-	jmp error_code
++	pushl %edx
++	call do_int3
++	addl $8,%esp
++	cmpl $0,%eax 
++	jnz restore_all
++	jmp ret_from_exception
+ 
+ ENTRY(overflow)
+ 	pushl $0
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.30/arch/i386/kernel/traps.c working-2.5.30-kprobes/arch/i386/kernel/traps.c
+--- linux-2.5.30/arch/i386/kernel/traps.c	Sat Jul 27 15:24:35 2002
++++ working-2.5.30-kprobes/arch/i386/kernel/traps.c	Tue Aug  6 17:04:15 2002
+@@ -5,6 +5,9 @@
   *
-  * Copyright (C) 1997 Roman Hodek <Roman.Hodek@informatik.uni-erlangen.de>
-  * idea by and with help from Richard Jelinek <rj@suse.de>
-+ * Portions copyright (c) 2001,2002 Sun Microsystems (thockin@sun.com)
-  *
-  * This driver allows you to access the contents of the non-volatile memory in
-  * the mc146818rtc.h real-time clock. This chip is built into all PCs and into
-@@ -10,9 +11,10 @@
-  * "NVRAM" (NV stands for non-volatile).
-  *
-  * The data are supplied as a (seekable) character device, /dev/nvram. The
-- * size of this file is 50, the number of freely available bytes in the memory
-- * (i.e., not used by the RTC itself).
-- * 
-+ * size of this file is dependant on the controller.  The usual size is 114,
-+ * the number of freely available bytes in the memory (i.e., not used by the
-+ * RTC itself).
+  *  Pentium III FXSR, SSE support
+  *	Gareth Hughes <gareth@valinux.com>, May 2000
 + *
-  * Checksums over the NVRAM contents are managed by this driver. In case of a
-  * bad checksum, reads and writes return -EIO. The checksum can be initialized
-  * to a sane state either by ioctl(NVRAM_INIT) (clear whole NVRAM) or
-@@ -28,25 +30,35 @@
-  *
-  * 	1.1	Cesar Barros: SMP locking fixes
-  * 		added changelog
-+ * 	1.2	Erik Gilling: Cobalt Networks support
-+ * 		Tim Hockin: general cleanup, Cobalt support
++ *  Dynamic Probes (kprobes) support
++ *  	Vamsi Krishna S <vamsi_krishna@in.ibm.com>, July, 2002
   */
  
--#define NVRAM_VERSION		"1.1"
-+#define NVRAM_VERSION	"1.2"
- 
- #include <linux/module.h>
- #include <linux/config.h>
- #include <linux/sched.h>
- #include <linux/smp_lock.h>
-+#include <linux/nvram.h>
- 
- #define PC		1
- #define ATARI		2
-+#define COBALT		3
- 
- /* select machine configuration */
- #if defined(CONFIG_ATARI)
--#define MACH ATARI
-+#  define MACH ATARI
- #elif defined(__i386__) || defined(__x86_64__) || defined(__arm__)  /* and others?? */
- #define MACH PC
-+#  if defined(CONFIG_COBALT)
-+#    include <linux/cobalt-nvram.h>
-+#    define MACH COBALT
-+#  else
-+#    define MACH PC
-+#  endif
- #else
--#error Cannot build nvram driver for this machine configuration.
-+#  error Cannot build nvram driver for this machine configuration.
- #endif
- 
- #if MACH == PC
-@@ -58,10 +70,23 @@
- #define PC_CKS_RANGE_START	2
- #define PC_CKS_RANGE_END	31
- #define PC_CKS_LOC		32
-+#define NVRAM_BYTES		(128-NVRAM_FIRST_BYTE)
-+
-+#define mach_check_checksum	pc_check_checksum
-+#define mach_set_checksum	pc_set_checksum
-+#define mach_proc_infos		pc_proc_infos
-+
-+#endif
-+
-+#if MACH == COBALT
-+
-+#define CHECK_DRIVER_INIT()     1
-+
-+#define NVRAM_BYTES		(128-NVRAM_FIRST_BYTE)
- 
--#define	mach_check_checksum	pc_check_checksum
--#define	mach_set_checksum	pc_set_checksum
--#define	mach_proc_infos		pc_proc_infos
-+#define mach_check_checksum	cobalt_check_checksum
-+#define mach_set_checksum	cobalt_set_checksum
-+#define mach_proc_infos		cobalt_proc_infos
- 
- #endif
- 
-@@ -79,9 +104,9 @@
- #define ATARI_CKS_RANGE_END	47
- #define ATARI_CKS_LOC		48
- 
--#define	mach_check_checksum	atari_check_checksum
--#define	mach_set_checksum	atari_set_checksum
--#define	mach_proc_infos		atari_proc_infos
-+#define mach_check_checksum	atari_check_checksum
-+#define mach_set_checksum	atari_set_checksum
-+#define mach_proc_infos		atari_proc_infos
- 
- #endif
- 
-@@ -98,7 +123,6 @@
- #include <linux/ioport.h>
- #include <linux/fcntl.h>
- #include <linux/mc146818rtc.h>
--#include <linux/nvram.h>
- #include <linux/init.h>
- #include <linux/proc_fs.h>
+ /*
+@@ -24,6 +27,7 @@
  #include <linux/spinlock.h>
-@@ -107,15 +131,11 @@
- #include <asm/uaccess.h>
- #include <asm/system.h>
+ #include <linux/interrupt.h>
+ #include <linux/highmem.h>
++#include <linux/kprobes.h>
  
-+static spinlock_t nvram_state_lock = SPIN_LOCK_UNLOCKED;
- static int nvram_open_cnt;	/* #times opened */
- static int nvram_open_mode;	/* special open modes */
--
--#define	NVRAM_WRITE		1	/* opened for writing (exclusive) */
--#define	NVRAM_EXCL		2	/* opened with O_EXCL */
--
--#define	RTC_FIRST_BYTE		14	/* RTC register number of first
--					 * NVRAM byte */
--#define	NVRAM_BYTES		128-RTC_FIRST_BYTE /* number of NVRAM bytes */
-+#define NVRAM_WRITE		1 /* opened for writing (exclusive) */
-+#define NVRAM_EXCL		2 /* opened with O_EXCL */
- 
- static int mach_check_checksum(void);
- static void mach_set_checksum(void);
-@@ -126,95 +146,85 @@
+ #ifdef CONFIG_EISA
+ #include <linux/ioport.h>
+@@ -50,6 +54,7 @@
+ #include <asm/cobalt.h>
+ #include <asm/lithium.h>
  #endif
++#include <linux/hash.h>
  
- /*
-- * These are the internal NVRAM access functions, which do NOT disable
-- * interrupts and do not check the checksum. Both tasks are left to higher
-- * level function, so they need to be done only once per syscall.
-- */
--
--static __inline__ unsigned char
--nvram_read_int(int i)
--{
--	return CMOS_READ(RTC_FIRST_BYTE + i);
--}
--
--static __inline__ void
--nvram_write_int(unsigned char c, int i)
--{
--	CMOS_WRITE(c, RTC_FIRST_BYTE + i);
--}
--
--static __inline__ int
--nvram_check_checksum_int(void)
--{
--	return mach_check_checksum();
--}
--
--static __inline__ void
--nvram_set_checksum_int(void)
--{
--	mach_set_checksum();
--}
--
--#if MACH == ATARI
--
--/*
-- * These non-internal functions are provided to be called by other parts of
-+ * These functions are provided to be called internally or by other parts of
-  * the kernel. It's up to the caller to ensure correct checksum before reading
-  * or after writing (needs to be done only once).
-  *
-- * They're only built if CONFIG_ATARI is defined, because Atari drivers use
-- * them. For other configurations (PC), the rest of the kernel can't rely on
-- * them being present (this driver may not be configured at all, or as a
-- * module), so they access config information themselves.
-+ * It is worth noting that these functions all access bytes of general
-+ * purpose memory in the NVRAM - that is to say, they all add the
-+ * NVRAM_FIRST_BYTE offset.  Pass them offsets into NVRAM as if you did not 
-+ * know about the RTC cruft.
-  */
+ #include <linux/irq.h>
+ #include <linux/module.h>
+@@ -297,6 +302,162 @@ static inline void die_if_kernel(const c
+ 		die(str, regs, err);
+ }
  
- unsigned char
-+__nvram_read_byte(int i)
++/* trap3/1 are intr gates for kprobes.  So, restore the status of IF,
++ * if necessary, before executing the original int3/1 (trap) handler.
++ */
++static inline void restore_interrupts(struct pt_regs *regs)
 +{
-+	return CMOS_READ(NVRAM_FIRST_BYTE + i);
++	if (regs->eflags & IF_MASK)
++		__asm__ __volatile__ ("sti");
 +}
 +
-+unsigned char
- nvram_read_byte(int i)
- {
- 	unsigned long flags;
- 	unsigned char c;
- 
- 	spin_lock_irqsave(&rtc_lock, flags);
--	c = nvram_read_int(i);
-+	c = __nvram_read_byte(i);
- 	spin_unlock_irqrestore(&rtc_lock, flags);
- 	return c;
- }
- 
- /* This races nicely with trying to read with checksum checking (nvram_read) */
- void
-+__nvram_write_byte(unsigned char c, int i)
++#ifdef CONFIG_KPROBES
++/* kprobe_status settings */
++#define KPROBE_HIT_ACTIVE	0x00000001
++#define KPROBE_HIT_SS		0x00000002
++
++static struct kprobe *current_kprobe;
++static unsigned long kprobe_status, kprobe_old_eflags, kprobe_saved_eflags;
++
++/*
++ * returns non-zero if opcode modifies the interrupt flag.
++ */
++static inline int is_IF_modifier(u8 opcode)
 +{
-+	CMOS_WRITE(c, NVRAM_FIRST_BYTE + i);
++	switch(opcode) {
++		case 0xfa: 	/* cli */
++		case 0xfb:	/* sti */
++		case 0xcf:	/* iret/iretd */
++		case 0x9d:	/* popf/popfd */
++			return 1;
++	}
++	return 0;
 +}
 +
-+void
- nvram_write_byte(unsigned char c, int i)
- {
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&rtc_lock, flags);
--	nvram_write_int(c, i);
-+	__nvram_write_byte(c, i);
- 	spin_unlock_irqrestore(&rtc_lock, flags);
- }
- 
- int
-+__nvram_check_checksum(void)
++static inline void disarm_kprobe(struct kprobe *p, struct pt_regs *regs)
 +{
-+	return mach_check_checksum();
++	*p->addr = p->opcode;
++	regs->eip = (unsigned long)p->addr;
 +}
 +
-+int
- nvram_check_checksum(void)
- {
- 	unsigned long flags;
- 	int rv;
- 
- 	spin_lock_irqsave(&rtc_lock, flags);
--	rv = nvram_check_checksum_int();
-+	rv = __nvram_check_checksum();
- 	spin_unlock_irqrestore(&rtc_lock, flags);
- 	return rv;
- }
- 
- void
-+__nvram_set_checksum(void)
++/*
++ * Interrupts are disabled on entry as trap3 is an interrupt gate and they
++ * remain disabled thorough out this function.
++ */
++static int kprobe_handler(struct pt_regs *regs)
 +{
-+	mach_set_checksum();
-+}
++	struct kprobe *p;
++	int ret = 0;
++	u8 *addr = (u8 *)(regs->eip-1);
 +
-+void
- nvram_set_checksum(void)
- {
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&rtc_lock, flags);
--	nvram_set_checksum_int();
-+	__nvram_set_checksum();
- 	spin_unlock_irqrestore(&rtc_lock, flags);
- }
- 
--#endif /* MACH == ATARI */
--
- /*
-  * The are the file operation function for user access to /dev/nvram
-  */
-@@ -239,17 +249,17 @@
- static ssize_t
- nvram_read(struct file *file, char *buf, size_t count, loff_t *ppos)
- {
--	char contents[NVRAM_BYTES];
-+	unsigned char contents[NVRAM_BYTES];
- 	unsigned i = *ppos;
--	char *tmp;
-+	unsigned char *tmp;
- 
- 	spin_lock_irq(&rtc_lock);
- 
--	if (!nvram_check_checksum_int())
-+	if (!__nvram_check_checksum())
- 		goto checksum_err;
- 
- 	for (tmp = contents; count-- > 0 && i < NVRAM_BYTES; ++i, ++tmp)
--		*tmp = nvram_read_int(i);
-+		*tmp = __nvram_read_byte(i);
- 
- 	spin_unlock_irq(&rtc_lock);
- 
-@@ -268,23 +278,24 @@
- static ssize_t
- nvram_write(struct file *file, const char *buf, size_t count, loff_t *ppos)
- {
--	char contents[NVRAM_BYTES];
-+	unsigned char contents[NVRAM_BYTES];
- 	unsigned i = *ppos;
--	char *tmp;
-+	unsigned char *tmp;
-+	int len;
- 
--	if (copy_from_user(contents, buf, (NVRAM_BYTES - i) < count ?
--	    (NVRAM_BYTES - i) : count))
-+	len = (NVRAM_BYTES - i) < count ? (NVRAM_BYTES - i) : count;
-+	if (copy_from_user(contents, buf, len))
- 		return -EFAULT;
- 
- 	spin_lock_irq(&rtc_lock);
- 
--	if (!nvram_check_checksum_int())
-+	if (!__nvram_check_checksum())
- 		goto checksum_err;
- 
- 	for (tmp = contents; count-- > 0 && i < NVRAM_BYTES; ++i, ++tmp)
--		nvram_write_int(*tmp, i);
-+		__nvram_write_byte(*tmp, i);
- 
--	nvram_set_checksum_int();
-+	__nvram_set_checksum();
- 
- 	spin_unlock_irq(&rtc_lock);
- 
-@@ -305,27 +316,28 @@
- 
- 	switch (cmd) {
- 
--	case NVRAM_INIT:	/* initialize NVRAM contents and checksum */
-+	case NVRAM_INIT:
-+		/* initialize NVRAM contents and checksum */
- 		if (!capable(CAP_SYS_ADMIN))
- 			return -EACCES;
- 
- 		spin_lock_irq(&rtc_lock);
- 
- 		for (i = 0; i < NVRAM_BYTES; ++i)
--			nvram_write_int(0, i);
--		nvram_set_checksum_int();
-+			__nvram_write_byte(0, i);
-+		__nvram_set_checksum();
- 
- 		spin_unlock_irq(&rtc_lock);
- 		return 0;
- 
--	case NVRAM_SETCKS:	/* just set checksum, contents unchanged
--				 * (maybe useful after checksum garbaged
--				 * somehow...) */
-+	case NVRAM_SETCKS:
-+		/* just set checksum, contents unchanged (maybe useful after 
-+		 * checksum garbaged somehow...) */
- 		if (!capable(CAP_SYS_ADMIN))
- 			return -EACCES;
- 
- 		spin_lock_irq(&rtc_lock);
--		nvram_set_checksum_int();
-+		__nvram_set_checksum();
- 		spin_unlock_irq(&rtc_lock);
- 		return 0;
- 
-@@ -337,29 +349,40 @@
- static int
- nvram_open(struct inode *inode, struct file *file)
- {
-+	spin_lock(&nvram_state_lock);
++	/* We're in an interrupt, but this is clear and BUG()-safe. */
++	preempt_disable();
 +
- 	if ((nvram_open_cnt && (file->f_flags & O_EXCL)) ||
- 	    (nvram_open_mode & NVRAM_EXCL) ||
--	    ((file->f_mode & 2) && (nvram_open_mode & NVRAM_WRITE)))
-+	    ((file->f_mode & 2) && (nvram_open_mode & NVRAM_WRITE))) {
-+		spin_unlock(&nvram_state_lock);
- 		return -EBUSY;
-+	}
- 
- 	if (file->f_flags & O_EXCL)
- 		nvram_open_mode |= NVRAM_EXCL;
- 	if (file->f_mode & 2)
- 		nvram_open_mode |= NVRAM_WRITE;
- 	nvram_open_cnt++;
-+
-+	spin_unlock(&nvram_state_lock);
-+
- 	return 0;
- }
- 
- static int
- nvram_release(struct inode *inode, struct file *file)
- {
--	lock_kernel();
-+	spin_lock(&nvram_state_lock);
-+
- 	nvram_open_cnt--;
--	if (file->f_flags & O_EXCL)
-+
-+	/* if only one instance is open, clear the EXCL bit */
-+	if (nvram_open_mode & NVRAM_EXCL)
- 		nvram_open_mode &= ~NVRAM_EXCL;
- 	if (file->f_mode & 2)
- 		nvram_open_mode &= ~NVRAM_WRITE;
--	unlock_kernel();
-+
-+	spin_unlock(&nvram_state_lock);
- 
- 	return 0;
- }
-@@ -383,7 +406,7 @@
- 
- 	spin_lock_irq(&rtc_lock);
- 	for (i = 0; i < NVRAM_BYTES; ++i)
--		contents[i] = nvram_read_int(i);
-+		contents[i] = __nvram_read_byte(i);
- 	spin_unlock_irq(&rtc_lock);
- 
- 	*eof = mach_proc_infos(contents, buffer, &len, &begin, offset, size);
-@@ -397,7 +420,7 @@
- 
- /* This macro frees the machine specific function from bounds checking and
-  * this like that... */
--#define	PRINT_PROC(fmt,args...)					\
-+#define PRINT_PROC(fmt,args...)					\
- 	do {							\
- 		*len += sprintf(buffer+*len, fmt, ##args);	\
- 		if (*begin + *len > offset + size)		\
-@@ -477,11 +500,13 @@
- {
- 	int i;
- 	unsigned short sum = 0;
-+	unsigned short expect;
- 
- 	for (i = PC_CKS_RANGE_START; i <= PC_CKS_RANGE_END; ++i)
--		sum += nvram_read_int(i);
--	return ((sum & 0xffff) ==
--	    ((nvram_read_int(PC_CKS_LOC)<<8) | nvram_read_int(PC_CKS_LOC+1)));
-+		sum += __nvram_read_byte(i);
-+	expect = __nvram_read_byte(PC_CKS_LOC)<<8 |
-+	    __nvram_read_byte(PC_CKS_LOC+1);
-+	return ((sum & 0xffff) == expect);
- }
- 
- static void
-@@ -491,9 +516,9 @@
- 	unsigned short sum = 0;
- 
- 	for (i = PC_CKS_RANGE_START; i <= PC_CKS_RANGE_END; ++i)
--		sum += nvram_read_int(i);
--	nvram_write_int(sum >> 8, PC_CKS_LOC);
--	nvram_write_int(sum & 0xff, PC_CKS_LOC + 1);
-+		sum += __nvram_read_byte(i);
-+	__nvram_write_byte(sum >> 8, PC_CKS_LOC);
-+	__nvram_write_byte(sum & 0xff, PC_CKS_LOC + 1);
- }
- 
- #ifdef CONFIG_PROC_FS
-@@ -518,7 +543,7 @@
- 	int type;
- 
- 	spin_lock_irq(&rtc_lock);
--	checksum = nvram_check_checksum_int();
-+	checksum = __nvram_check_checksum();
- 	spin_unlock_irq(&rtc_lock);
- 
- 	PRINT_PROC("Checksum status: %svalid\n", checksum ? "" : "not ");
-@@ -576,6 +601,177 @@
- 
- #endif /* MACH == PC */
- 
-+#if MACH == COBALT
-+
-+/* the cobalt CMOS has a wider range of it's checksum */
-+static int cobalt_check_checksum(void)
-+{
-+	int i;
-+	unsigned short sum = 0;
-+	unsigned short expect;
-+
-+	for (i = COBT_CMOS_CKS_START; i <= COBT_CMOS_CKS_END; ++i) {
-+		if ((i == COBT_CMOS_CHECKSUM) || (i == (COBT_CMOS_CHECKSUM+1)))
-+			continue;
-+
-+		sum += __nvram_read_byte(i);
-+	}
-+	expect = __nvram_read_byte(COBT_CMOS_CHECKSUM) << 8 |
-+	    __nvram_read_byte(COBT_CMOS_CHECKSUM+1);
-+	return ((sum & 0xffff) == expect);
-+}
-+
-+static void cobalt_set_checksum(void)
-+{
-+	int i;
-+	unsigned short sum = 0;
-+
-+	for (i = COBT_CMOS_CKS_START; i <= COBT_CMOS_CKS_END; ++i) {
-+		if ((i == COBT_CMOS_CHECKSUM) || (i == (COBT_CMOS_CHECKSUM+1)))
-+			continue;
-+
-+		sum += __nvram_read_byte(i);
++	/* Check we're not actually recursing */
++	if (kprobe_running()) {
++		/* We *are* holding lock here, so this is safe.
++                   Disarm the probe we just hit, and ignore it. */
++		p = get_kprobe(addr);
++		/* If it's not ours, can't be delete race, (we hold lock). */
++		if (p) {
++			disarm_kprobe(p, regs);
++			ret = 1;
++		}
++		goto out;
 +	}
 +
-+	__nvram_write_byte(sum >> 8, COBT_CMOS_CHECKSUM);
-+	__nvram_write_byte(sum & 0xff, COBT_CMOS_CHECKSUM+1);
-+}
-+
-+#ifdef CONFIG_PROC_FS
-+
-+static int cobalt_proc_infos(unsigned char *nvram, char *buffer, int *len,
-+	off_t *begin, off_t offset, int size)
-+{
-+	int i;
-+	unsigned int checksum;
-+	unsigned int flags;
-+	char sernum[14];
-+	char *key = "cNoEbTaWlOtR!";
-+	unsigned char bto_csum;
-+
-+	spin_lock_irq(&rtc_lock);
-+	checksum = __nvram_check_checksum();
-+	spin_unlock_irq(&rtc_lock);
-+
-+	PRINT_PROC("Checksum status: %svalid\n", checksum ? "" : "not ");
-+
-+	flags = nvram[COBT_CMOS_FLAG_BYTE_0] << 8 
-+	    | nvram[COBT_CMOS_FLAG_BYTE_1];
-+
-+	PRINT_PROC("Console: %s\n",
-+		flags & COBT_CMOS_CONSOLE_FLAG ?  "on": "off");
-+
-+	PRINT_PROC("Firmware Debug Messages: %s\n",
-+		flags & COBT_CMOS_DEBUG_FLAG ? "on": "off");
-+
-+	PRINT_PROC("Auto Prompt: %s\n",
-+		flags & COBT_CMOS_AUTO_PROMPT_FLAG ? "on": "off");
-+
-+	PRINT_PROC("Shutdown Status: %s\n",
-+		flags & COBT_CMOS_CLEAN_BOOT_FLAG ? "clean": "dirty");
-+
-+	PRINT_PROC("Hardware Probe: %s\n",
-+		flags & COBT_CMOS_HW_NOPROBE_FLAG ? "partial": "full");
-+
-+	PRINT_PROC("System Fault: %sdetected\n",
-+		flags & COBT_CMOS_SYSFAULT_FLAG ? "": "not ");
-+
-+	PRINT_PROC("Panic on OOPS: %s\n",
-+		flags & COBT_CMOS_OOPSPANIC_FLAG ? "yes": "no");
-+
-+	PRINT_PROC("Delayed Cache Initialization: %s\n",
-+		flags & COBT_CMOS_DELAY_CACHE_FLAG ? "yes": "no");
-+
-+	PRINT_PROC("Show Logo at Boot: %s\n",
-+		flags & COBT_CMOS_NOLOGO_FLAG ? "no": "yes");
-+
-+	PRINT_PROC("Boot Method: ");
-+	switch (nvram[COBT_CMOS_BOOT_METHOD]) {
-+	case COBT_CMOS_BOOT_METHOD_DISK:
-+		PRINT_PROC("disk\n");
-+		break;
-+
-+	case COBT_CMOS_BOOT_METHOD_ROM:
-+		PRINT_PROC("rom\n");
-+		break;
-+
-+	case COBT_CMOS_BOOT_METHOD_NET:
-+		PRINT_PROC("net\n");
-+		break;
-+
-+	default:
-+		PRINT_PROC("unknown\n");
-+		break;
++	lock_kprobes();
++	p = get_kprobe(addr); 
++	if (!p) {
++		unlock_kprobes();
++		/* Unregistered (on another cpu) after this hit?  Ignore */
++		if (*addr != BREAKPOINT_INSTRUCTION)
++			ret = 1;
++		/* Not one of ours: let kernel handle it */
++	out:
++		preempt_enable_no_resched();
++		return ret;
 +	}
 +
-+	PRINT_PROC("Primary Boot Device: %d:%d\n",
-+		nvram[COBT_CMOS_BOOT_DEV0_MAJ],
-+		nvram[COBT_CMOS_BOOT_DEV0_MIN] );
-+	PRINT_PROC("Secondary Boot Device: %d:%d\n",
-+		nvram[COBT_CMOS_BOOT_DEV1_MAJ],
-+		nvram[COBT_CMOS_BOOT_DEV1_MIN] );
-+	PRINT_PROC("Tertiary Boot Device: %d:%d\n",
-+		nvram[COBT_CMOS_BOOT_DEV2_MAJ],
-+		nvram[COBT_CMOS_BOOT_DEV2_MIN] );
++	kprobe_status = KPROBE_HIT_ACTIVE;
++	current_kprobe = p;
++	kprobe_saved_eflags = kprobe_old_eflags 
++		= (regs->eflags & (TF_MASK|IF_MASK));
++	if (is_IF_modifier(p->opcode))
++		kprobe_saved_eflags &= ~IF_MASK;
 +
-+	PRINT_PROC("Uptime: %d\n",
-+		nvram[COBT_CMOS_UPTIME_0] << 24 |
-+		nvram[COBT_CMOS_UPTIME_1] << 16 |
-+		nvram[COBT_CMOS_UPTIME_2] << 8  |
-+		nvram[COBT_CMOS_UPTIME_3]);
++	p->pre_handler(p, regs);
 +
-+	PRINT_PROC("Boot Count: %d\n",
-+		nvram[COBT_CMOS_BOOTCOUNT_0] << 24 |
-+		nvram[COBT_CMOS_BOOTCOUNT_1] << 16 |
-+		nvram[COBT_CMOS_BOOTCOUNT_2] << 8  |
-+		nvram[COBT_CMOS_BOOTCOUNT_3]);
++	regs->eflags |= TF_MASK;
++	regs->eflags &= ~IF_MASK;
 +
-+	/* 13 bytes of serial num */
-+	for (i=0 ; i<13 ; i++) {
-+		sernum[i] = nvram[COBT_CMOS_SYS_SERNUM_0 + i];
-+	}
-+	sernum[13] = '\0';
-+
-+	checksum = 0;
-+	for (i=0 ; i<13 ; i++) {
-+		checksum += sernum[i] ^ key[i];
-+	}
-+	checksum = ((checksum & 0x7f) ^ (0xd6)) & 0xff;
-+
-+	PRINT_PROC("Serial Number: %s", sernum);
-+	if (checksum != nvram[COBT_CMOS_SYS_SERNUM_CSUM]) {
-+		PRINT_PROC(" (invalid checksum)");
-+	}
-+	PRINT_PROC("\n");
-+
-+	PRINT_PROC("Rom Revison: %d.%d.%d\n", nvram[COBT_CMOS_ROM_REV_MAJ],
-+		nvram[COBT_CMOS_ROM_REV_MIN], nvram[COBT_CMOS_ROM_REV_REV]);
-+
-+	PRINT_PROC("BTO Server: %d.%d.%d.%d", nvram[COBT_CMOS_BTO_IP_0],
-+		nvram[COBT_CMOS_BTO_IP_1], nvram[COBT_CMOS_BTO_IP_2],
-+		nvram[COBT_CMOS_BTO_IP_3]);
-+	bto_csum = nvram[COBT_CMOS_BTO_IP_0] + nvram[COBT_CMOS_BTO_IP_1]
-+		+ nvram[COBT_CMOS_BTO_IP_2] + nvram[COBT_CMOS_BTO_IP_3];
-+	if (bto_csum != nvram[COBT_CMOS_BTO_IP_CSUM]) {
-+		PRINT_PROC(" (invalid checksum)");
-+	}
-+	PRINT_PROC("\n");
-+
-+	if (flags & COBT_CMOS_VERSION_FLAG
-+	 && nvram[COBT_CMOS_VERSION] >= COBT_CMOS_VER_BTOCODE) {
-+		PRINT_PROC("BTO Code: 0x%x\n",
-+			nvram[COBT_CMOS_BTO_CODE_0] << 24 |
-+			nvram[COBT_CMOS_BTO_CODE_1] << 16 |
-+			nvram[COBT_CMOS_BTO_CODE_2] << 8 |
-+			nvram[COBT_CMOS_BTO_CODE_3]);
-+	}
-+
++	/* We hold lock, now we remove breakpoint and single step. */
++	disarm_kprobe(p, regs);
++	kprobe_status = KPROBE_HIT_SS;
 +	return 1;
 +}
-+#endif /* CONFIG_PROC_FS */
 +
-+#endif /* MACH == COBALT */
-+
- #if MACH == ATARI
- 
- static int
-@@ -585,9 +781,9 @@
- 	unsigned char sum = 0;
- 
- 	for (i = ATARI_CKS_RANGE_START; i <= ATARI_CKS_RANGE_END; ++i)
--		sum += nvram_read_int(i);
--	return (nvram_read_int(ATARI_CKS_LOC) == (~sum & 0xff) &&
--	    nvram_read_int(ATARI_CKS_LOC + 1) == (sum & 0xff));
-+		sum += __nvram_read_byte(i);
-+	return (__nvram_read_byte(ATARI_CKS_LOC) == (~sum & 0xff) &&
-+	    __nvram_read_byte(ATARI_CKS_LOC + 1) == (sum & 0xff));
- }
- 
- static void
-@@ -597,9 +793,9 @@
- 	unsigned char sum = 0;
- 
- 	for (i = ATARI_CKS_RANGE_START; i <= ATARI_CKS_RANGE_END; ++i)
--		sum += nvram_read_int(i);
--	nvram_write_int(~sum, ATARI_CKS_LOC);
--	nvram_write_int(sum, ATARI_CKS_LOC + 1);
-+		sum += __nvram_read_byte(i);
-+	__nvram_write_byte(~sum, ATARI_CKS_LOC);
-+	__nvram_write_byte(sum, ATARI_CKS_LOC + 1);
- }
- 
- #ifdef CONFIG_PROC_FS
-@@ -716,4 +912,11 @@
- 
- MODULE_LICENSE("GPL");
- 
--EXPORT_NO_SYMBOLS;
-+EXPORT_SYMBOL(__nvram_read_byte);
-+EXPORT_SYMBOL(nvram_read_byte);
-+EXPORT_SYMBOL(__nvram_write_byte);
-+EXPORT_SYMBOL(nvram_write_byte);
-+EXPORT_SYMBOL(__nvram_check_checksum);
-+EXPORT_SYMBOL(nvram_check_checksum);
-+EXPORT_SYMBOL(__nvram_set_checksum);
-+EXPORT_SYMBOL(nvram_set_checksum);
-diff -Nru a/include/linux/cobalt-nvram.h b/include/linux/cobalt-nvram.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/linux/cobalt-nvram.h	Mon Aug  5 18:55:26 2002
-@@ -0,0 +1,109 @@
++static void rearm_kprobe(struct kprobe *p, struct pt_regs *regs)
++{
++	regs->eflags &= ~TF_MASK;
++	*p->addr = BREAKPOINT_INSTRUCTION;
++}
++	
 +/*
-+ * $Id: cobalt-nvram.h,v 1.20 2001/10/17 23:16:55 thockin Exp $
-+ * cobalt-nvram.h : defines for the various fields in the cobalt NVRAM
-+ *
-+ * Copyright 2001,2002 Sun Microsystems, Inc.
++ * Interrupts are disabled on entry as trap1 is an interrupt gate and they
++ * remain disabled thorough out this function.  And we hold kprobe lock.
 + */
++static int post_kprobe_handler(struct pt_regs *regs)
++{
++	if (current_kprobe->post_handler)
++		current_kprobe->post_handler(current_kprobe, regs, 0);
 +
-+#ifndef COBALT_NVRAM_H
-+#define COBALT_NVRAM_H
++	/*
++	 * We singlestepped with interrupts disabled. So, the result on
++	 * the stack would be incorrect for "pushfl" instruction.
++	 */
++	if (current_kprobe->opcode == 0x9c) { /* pushfl */
++		regs->esp &= ~(TF_MASK | IF_MASK);
++		regs->esp |= kprobe_old_eflags;
++	}
 +
-+#include <linux/nvram.h>
++	rearm_kprobe(current_kprobe, regs);
++	regs->eflags |= kprobe_saved_eflags;
 +
-+#define COBT_CMOS_INFO_MAX		0x7f	/* top address allowed */
-+#define COBT_CMOS_BIOS_DRIVE_INFO	0x12	/* drive info would go here */
++	unlock_kprobes();
++	preempt_enable_no_resched();
 +
-+#define COBT_CMOS_CKS_START		NVRAM_OFFSET(0x0e)
-+#define COBT_CMOS_CKS_END		NVRAM_OFFSET(0x7f)
++        /*
++	 * if somebody else is singlestepping across a probe point, eflags
++	 * will have TF set, in which case, continue the remaining processing
++	 * of do_debug, as if this is not a probe hit.
++	 */
++	if (regs->eflags & TF_MASK)
++		return 0;
++	return 1;
++}
 +
-+/* flag bytes - 16 flags for now, leave room for more */
-+#define COBT_CMOS_FLAG_BYTE_0		NVRAM_OFFSET(0x10)
-+#define COBT_CMOS_FLAG_BYTE_1		NVRAM_OFFSET(0x11)
++/* Interrupts disabled, kprobe_lock held. */
++int kprobe_fault_handler(struct pt_regs *regs, int trapnr)
++{
++	if (current_kprobe->fault_handler
++	    && current_kprobe->fault_handler(current_kprobe, regs, trapnr))
++		return 1;
 +
-+/* flags in flag bytes - up to 16 */
-+#define COBT_CMOS_FLAG_MIN		0x0001
-+#define COBT_CMOS_CONSOLE_FLAG		0x0001 /* console on/off */
-+#define COBT_CMOS_DEBUG_FLAG		0x0002 /* ROM debug messages */
-+#define COBT_CMOS_AUTO_PROMPT_FLAG	0x0004 /* boot to ROM prompt? */
-+#define COBT_CMOS_CLEAN_BOOT_FLAG	0x0008 /* set by a clean shutdown */
-+#define COBT_CMOS_HW_NOPROBE_FLAG	0x0010 /* go easy on the probing */
-+#define COBT_CMOS_SYSFAULT_FLAG		0x0020 /* system fault detected */
-+#define COBT_CMOS_OOPSPANIC_FLAG	0x0040 /* panic on oops */
-+#define COBT_CMOS_DELAY_CACHE_FLAG	0x0080 /* delay cache initialization */
-+#define COBT_CMOS_NOLOGO_FLAG		0x0100 /* hide "C" logo @ boot */
-+#define COBT_CMOS_VERSION_FLAG		0x0200 /* the version field is valid */
-+#define COBT_CMOS_FLAG_MAX		0x0200
++	if (kprobe_status & KPROBE_HIT_SS) {
++		rearm_kprobe(current_kprobe, regs);
++        	regs->eflags |= kprobe_old_eflags;
 +
-+/* leave byte 0x12 blank - Linux looks for drive info here */
++		unlock_kprobes();
++		preempt_enable_no_resched();
++	}
++	return 0;
++}
++#else
++static inline int post_kprobe_handler(struct pt_regs *regs) { return 0; }
++static inline int kprobe_handler(struct pt_regs *regs) { return 0; }
++#endif /* CONFIG_KPROBES */
 +
-+/* CMOS structure version, valid if COBT_CMOS_VERSION_FLAG is true */
-+#define COBT_CMOS_VERSION		NVRAM_OFFSET(0x13)
-+#define COBT_CMOS_VER_BTOCODE		1 /* min. version needed for btocode */
-+
-+/* index of default boot method */
-+#define COBT_CMOS_BOOT_METHOD		NVRAM_OFFSET(0x20)
-+#define COBT_CMOS_BOOT_METHOD_DISK	0
-+#define COBT_CMOS_BOOT_METHOD_ROM	1
-+#define COBT_CMOS_BOOT_METHOD_NET	2
-+
-+#define COBT_CMOS_BOOT_DEV_MIN		NVRAM_OFFSET(0x21)
-+/* major #, minor # of first through fourth boot device */
-+#define COBT_CMOS_BOOT_DEV0_MAJ		NVRAM_OFFSET(0x21)
-+#define COBT_CMOS_BOOT_DEV0_MIN		NVRAM_OFFSET(0x22)
-+#define COBT_CMOS_BOOT_DEV1_MAJ		NVRAM_OFFSET(0x23)
-+#define COBT_CMOS_BOOT_DEV1_MIN		NVRAM_OFFSET(0x24)
-+#define COBT_CMOS_BOOT_DEV2_MAJ		NVRAM_OFFSET(0x25)
-+#define COBT_CMOS_BOOT_DEV2_MIN		NVRAM_OFFSET(0x26)
-+#define COBT_CMOS_BOOT_DEV3_MAJ		NVRAM_OFFSET(0x27)
-+#define COBT_CMOS_BOOT_DEV3_MIN		NVRAM_OFFSET(0x28)
-+#define COBT_CMOS_BOOT_DEV_MAX		NVRAM_OFFSET(0x28)
-+
-+/* checksum of bytes 0xe-0x7f */
-+#define COBT_CMOS_CHECKSUM		NVRAM_OFFSET(0x2e)
-+
-+/* running uptime counter, units of 5 minutes (32 bits =~ 41000 years) */
-+#define COBT_CMOS_UPTIME_0		NVRAM_OFFSET(0x30)
-+#define COBT_CMOS_UPTIME_1		NVRAM_OFFSET(0x31)
-+#define COBT_CMOS_UPTIME_2		NVRAM_OFFSET(0x32)
-+#define COBT_CMOS_UPTIME_3		NVRAM_OFFSET(0x33)
-+
-+/* count of successful boots (32 bits) */
-+#define COBT_CMOS_BOOTCOUNT_0		NVRAM_OFFSET(0x38)
-+#define COBT_CMOS_BOOTCOUNT_1		NVRAM_OFFSET(0x39)
-+#define COBT_CMOS_BOOTCOUNT_2		NVRAM_OFFSET(0x3a)
-+#define COBT_CMOS_BOOTCOUNT_3		NVRAM_OFFSET(0x3b)
-+
-+/* 13 bytes: system serial number, same as on the back of the system */
-+#define COBT_CMOS_SYS_SERNUM_LEN	13
-+#define COBT_CMOS_SYS_SERNUM_0		NVRAM_OFFSET(0x40)
-+#define COBT_CMOS_SYS_SERNUM_1		NVRAM_OFFSET(0x41)
-+#define COBT_CMOS_SYS_SERNUM_2		NVRAM_OFFSET(0x42)
-+#define COBT_CMOS_SYS_SERNUM_3		NVRAM_OFFSET(0x43)
-+#define COBT_CMOS_SYS_SERNUM_4		NVRAM_OFFSET(0x44)
-+#define COBT_CMOS_SYS_SERNUM_5		NVRAM_OFFSET(0x45)
-+#define COBT_CMOS_SYS_SERNUM_6		NVRAM_OFFSET(0x46)
-+#define COBT_CMOS_SYS_SERNUM_7		NVRAM_OFFSET(0x47)
-+#define COBT_CMOS_SYS_SERNUM_8		NVRAM_OFFSET(0x48)
-+#define COBT_CMOS_SYS_SERNUM_9		NVRAM_OFFSET(0x49)
-+#define COBT_CMOS_SYS_SERNUM_10		NVRAM_OFFSET(0x4a)
-+#define COBT_CMOS_SYS_SERNUM_11		NVRAM_OFFSET(0x4b)
-+#define COBT_CMOS_SYS_SERNUM_12		NVRAM_OFFSET(0x4c)
-+/* checksum for serial num - 1 byte */
-+#define COBT_CMOS_SYS_SERNUM_CSUM	NVRAM_OFFSET(0x4f)
-+
-+#define COBT_CMOS_ROM_REV_MAJ		NVRAM_OFFSET(0x50)
-+#define COBT_CMOS_ROM_REV_MIN		NVRAM_OFFSET(0x51)
-+#define COBT_CMOS_ROM_REV_REV		NVRAM_OFFSET(0x52)
-+
-+#define COBT_CMOS_BTO_CODE_0		NVRAM_OFFSET(0x53)
-+#define COBT_CMOS_BTO_CODE_1		NVRAM_OFFSET(0x54)
-+#define COBT_CMOS_BTO_CODE_2		NVRAM_OFFSET(0x55)
-+#define COBT_CMOS_BTO_CODE_3		NVRAM_OFFSET(0x56)
-+
-+#define COBT_CMOS_BTO_IP_CSUM		NVRAM_OFFSET(0x57)
-+#define COBT_CMOS_BTO_IP_0		NVRAM_OFFSET(0x58)
-+#define COBT_CMOS_BTO_IP_1		NVRAM_OFFSET(0x59)
-+#define COBT_CMOS_BTO_IP_2		NVRAM_OFFSET(0x5a)
-+#define COBT_CMOS_BTO_IP_3		NVRAM_OFFSET(0x5b)
-+
-+#endif /* COBALT_NVRAM_H */
-diff -Nru a/include/linux/nvram.h b/include/linux/nvram.h
---- a/include/linux/nvram.h	Mon Aug  5 18:55:26 2002
-+++ b/include/linux/nvram.h	Mon Aug  5 18:55:26 2002
-@@ -4,14 +4,24 @@
- #include <linux/ioctl.h>
+ static inline unsigned long get_cr2(void)
+ {
+ 	unsigned long address;
+@@ -326,6 +487,8 @@ static void inline do_trap(int trapnr, i
+ 		panic("do_trap: can't hit this");
+ 	}
+ #endif	
++	if (kprobe_running() && kprobe_fault_handler(regs, trapnr))
++		return;
  
- /* /dev/nvram ioctls */
--#define NVRAM_INIT		_IO('p', 0x40) /* initialize NVRAM and set checksum */
--#define	NVRAM_SETCKS	_IO('p', 0x41) /* recalculate checksum */
-+#define NVRAM_INIT	_IO('p', 0x40) /* initialize NVRAM and set checksum */
-+#define NVRAM_SETCKS	_IO('p', 0x41) /* recalculate checksum */
-+
-+/* for all current systems, this is where NVRAM starts */
-+#define NVRAM_FIRST_BYTE    14
-+/* all these functions expect an NVRAM offset, not an absolute */
-+#define NVRAM_OFFSET(x)   ((x)-NVRAM_FIRST_BYTE)
+ 	if (!(regs->xcs & 3))
+ 		goto kernel_trap;
+@@ -392,7 +555,6 @@ asmlinkage void do_##name(struct pt_regs
+ }
  
- #ifdef __KERNEL__
--extern unsigned char nvram_read_byte( int i );
--extern void nvram_write_byte( unsigned char c, int i );
--extern int nvram_check_checksum( void );
--extern void nvram_set_checksum( void );
-+/* __foo is foo without grabbing the rtc_lock - get it yourself */
-+extern unsigned char __nvram_read_byte(int i);
-+extern unsigned char nvram_read_byte(int i);
-+extern void __nvram_write_byte(unsigned char c, int i);
-+extern void nvram_write_byte(unsigned char c, int i);
-+extern int __nvram_check_checksum(void);
-+extern int nvram_check_checksum(void);
-+extern void __nvram_set_checksum(void);
-+extern void nvram_set_checksum(void);
+ DO_VM86_ERROR_INFO( 0, SIGFPE,  "divide error", divide_error, FPE_INTDIV, regs->eip)
+-DO_VM86_ERROR( 3, SIGTRAP, "int3", int3)
+ DO_VM86_ERROR( 4, SIGSEGV, "overflow", overflow)
+ DO_VM86_ERROR( 5, SIGSEGV, "bounds", bounds)
+ DO_ERROR_INFO( 6, SIGILL,  "invalid operand", invalid_op, ILL_ILLOPN, regs->eip)
+@@ -408,6 +570,9 @@ asmlinkage void do_general_protection(st
+ {
+ 	if (regs->eflags & VM_MASK)
+ 		goto gp_in_vm86;
++	
++	if (kprobe_running() && kprobe_fault_handler(regs, 13))
++		return;
+ 
+ 	if (!(regs->xcs & 3))
+ 		goto gp_in_kernel;
+@@ -508,6 +673,15 @@ asmlinkage void do_nmi(struct pt_regs * 
+ 	inb(0x71);		/* dummy */
+ }
+ 
++asmlinkage int do_int3(struct pt_regs *regs, long error_code)
++{
++	if (kprobe_handler(regs))
++		return 1;
++	restore_interrupts(regs);
++	do_trap(3, SIGTRAP, "int3", 1, regs, error_code, NULL);
++	return 0;
++}
++
+ /*
+  * Our handling of the processor debug registers is non-trivial.
+  * We do not clear them on entry and exit from the kernel. Therefore
+@@ -530,7 +704,7 @@ asmlinkage void do_nmi(struct pt_regs * 
+  * find every occurrence of the TF bit that could be saved away even
+  * by user code)
+  */
+-asmlinkage void do_debug(struct pt_regs * regs, long error_code)
++asmlinkage int do_debug(struct pt_regs * regs, long error_code)
+ {
+ 	unsigned int condition;
+ 	struct task_struct *tsk = current;
+@@ -552,6 +726,9 @@ asmlinkage void do_debug(struct pt_regs 
+ 
+ 	/* Mask out spurious TF errors due to lazy TF clearing */
+ 	if (condition & DR_STEP) {
++		if (kprobe_running() && post_kprobe_handler(regs))
++			return 1;
++		restore_interrupts(regs);
+ 		/*
+ 		 * The TF error should be masked out only if the current
+ 		 * process is not traced and if the TRAP flag has been set
+@@ -565,7 +742,8 @@ asmlinkage void do_debug(struct pt_regs 
+ 			goto clear_TF;
+ 		if ((tsk->ptrace & (PT_DTRACE|PT_PTRACED)) == PT_DTRACE)
+ 			goto clear_TF;
+-	}
++	} else
++		restore_interrupts(regs);
+ 
+ 	/* Ok, finally something we can handle */
+ 	tsk->thread.trap_no = 1;
+@@ -588,15 +766,16 @@ clear_dr7:
+ 	__asm__("movl %0,%%db7"
+ 		: /* no output */
+ 		: "r" (0));
+-	return;
++	return 0;
+ 
+ debug_vm86:
++	restore_interrupts(regs);
+ 	handle_vm86_trap((struct kernel_vm86_regs *) regs, error_code, 1);
+-	return;
++	return 0;
+ 
+ clear_TF:
+ 	regs->eflags &= ~TF_MASK;
+-	return;
++	return 0;
+ }
+ 
+ /*
+@@ -760,6 +939,8 @@ asmlinkage void math_state_restore(struc
+ 	struct task_struct *tsk = current;
+ 	clts();		/* Allow maths ops (or we recurse) */
+ 
++	if (kprobe_running() && kprobe_fault_handler(&regs, 7))
++		return;
+ 	if (!tsk->used_math)
+ 		init_fpu(tsk);
+ 	restore_fpu(tsk);
+@@ -943,9 +1124,9 @@ void __init trap_init(void)
  #endif
  
- #endif  /* _LINUX_NVRAM_H */
-
---------------060701010208090907080103--
-
+ 	set_trap_gate(0,&divide_error);
+-	set_trap_gate(1,&debug);
++	_set_gate(idt_table+1,14,3,&debug);
+ 	set_intr_gate(2,&nmi);
+-	set_system_gate(3,&int3);	/* int3-5 can be called from all */
++	_set_gate(idt_table+3,14,3,&int3);
+ 	set_system_gate(4,&overflow);
+ 	set_system_gate(5,&bounds);
+ 	set_trap_gate(6,&invalid_op);
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.30/arch/i386/mm/fault.c working-2.5.30-kprobes/arch/i386/mm/fault.c
+--- linux-2.5.30/arch/i386/mm/fault.c	Sat Jul 27 15:24:35 2002
++++ working-2.5.30-kprobes/arch/i386/mm/fault.c	Tue Aug  6 16:52:59 2002
+@@ -19,6 +19,7 @@
+ #include <linux/init.h>
+ #include <linux/tty.h>
+ #include <linux/vt_kern.h>		/* For unblank_screen() */
++#include <linux/kprobes.h>
+ 
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+@@ -154,6 +155,9 @@ asmlinkage void do_page_fault(struct pt_
+ 
+ 	/* get the address */
+ 	__asm__("movl %%cr2,%0":"=r" (address));
++
++	if (kprobe_running() && kprobe_fault_handler(regs, 14))
++		return;
+ 
+ 	/* It's safe to allow irq's after cr2 has been saved */
+ 	if (regs->eflags & X86_EFLAGS_IF)
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.30/include/asm-i386/kprobes.h working-2.5.30-kprobes/include/asm-i386/kprobes.h
+--- linux-2.5.30/include/asm-i386/kprobes.h	Thu Jan  1 10:00:00 1970
++++ working-2.5.30-kprobes/include/asm-i386/kprobes.h	Tue Aug  6 16:52:59 2002
+@@ -0,0 +1,20 @@
++#ifndef _ASM_KPROBES_H
++#define _ASM_KPROBES_H
++/*
++ *  Dynamic Probes (kprobes) support
++ *  	Vamsi Krishna S <vamsi_krishna@in.ibm.com>, July, 2002
++ *	Mailing list: dprobes@www-124.ibm.com
++ */
++#include <linux/smp.h>
++#include <linux/types.h>
++
++struct pt_regs;
++
++typedef u8 kprobe_opcode_t;
++
++/* Doesn't exist if !CONFIG_KPROBES, but calls optimized out. */
++extern int kprobe_fault_handler(struct pt_regs *regs, int trapnr);
++
++#define BREAKPOINT_INSTRUCTION	0xcc
++
++#endif /* _ASM_KPROBES_H */
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.30/include/linux/kprobes.h working-2.5.30-kprobes/include/linux/kprobes.h
+--- linux-2.5.30/include/linux/kprobes.h	Thu Jan  1 10:00:00 1970
++++ working-2.5.30-kprobes/include/linux/kprobes.h	Tue Aug  6 16:52:59 2002
+@@ -0,0 +1,54 @@
++#ifndef _LINUX_KPROBES_H
++#define _LINUX_KPROBES_H
++#include <linux/config.h>
++#include <linux/list.h>
++#include <asm/kprobes.h>
++
++struct kprobe;
++struct pt_regs;
++
++typedef void (*kprobe_pre_handler_t)(struct kprobe *, struct pt_regs *);
++typedef void (*kprobe_post_handler_t)(struct kprobe *, struct pt_regs *,
++				      unsigned long flags);
++typedef int (*kprobe_fault_handler_t)(struct kprobe *, struct pt_regs *,
++				      int trapnr);
++
++struct kprobe {
++	struct list_head list;
++
++	/* location of the probe point */
++	kprobe_opcode_t *addr;
++
++	 /* Called before addr is executed. */
++	kprobe_pre_handler_t pre_handler;
++
++	/* Called after addr is executed, unless... */
++	kprobe_post_handler_t post_handler;
++
++	 /* ... called if executing addr causes a fault (eg. page fault).
++	  * Return 1 if it handled fault, otherwise kernel will see it. */
++	kprobe_fault_handler_t fault_handler;
++
++	/* Saved opcode (which has been replaced with breakpoint) */
++	kprobe_opcode_t opcode;
++};
++
++#ifdef CONFIG_KPROBES
++/* Locks kprobe: irq must be disabled */
++void lock_kprobes(void);
++void unlock_kprobes(void);
++
++/* kprobe running now on this CPU? */
++int kprobe_running(void);
++
++/* Get the kprobe at this addr (if any).  Must have called lock_kprobes */
++struct kprobe *get_kprobe(void *addr);
++
++int register_kprobe(struct kprobe *p);
++void unregister_kprobe(struct kprobe *p);
++#else
++static inline int kprobe_running(void) { return 0; }
++static inline int register_kprobe(struct kprobe *p) { return -ENOSYS; }
++static inline void unregister_kprobe(struct kprobe *p) { }
++#endif
++#endif /* _LINUX_KPROBES_H */
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.30/kernel/Makefile working-2.5.30-kprobes/kernel/Makefile
+--- linux-2.5.30/kernel/Makefile	Sat Jul 27 15:24:39 2002
++++ working-2.5.30-kprobes/kernel/Makefile	Tue Aug  6 16:52:59 2002
+@@ -10,7 +10,7 @@
+ O_TARGET := kernel.o
+ 
+ export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o exec_domain.o \
+-		printk.o platform.o suspend.o
++		printk.o platform.o suspend.o kprobes.o
+ 
+ obj-y     = sched.o dma.o fork.o exec_domain.o panic.o printk.o \
+ 	    module.o exit.o itimer.o time.o softirq.o resource.o \
+@@ -23,6 +23,7 @@ obj-$(CONFIG_MODULES) += ksyms.o
+ obj-$(CONFIG_PM) += pm.o
+ obj-$(CONFIG_BSD_PROCESS_ACCT) += acct.o
+ obj-$(CONFIG_SOFTWARE_SUSPEND) += suspend.o
++obj-$(CONFIG_KPROBES) += kprobes.o
+ 
+ ifneq ($(CONFIG_IA64),y)
+ # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.30/kernel/kprobes.c working-2.5.30-kprobes/kernel/kprobes.c
+--- linux-2.5.30/kernel/kprobes.c	Thu Jan  1 10:00:00 1970
++++ working-2.5.30-kprobes/kernel/kprobes.c	Tue Aug  6 16:52:59 2002
+@@ -0,0 +1,94 @@
++/* Support for kernel probes.
++   (C) 2002 Vamsi Krishna S <vamsi_krishna@in.ibm.com>.
++*/
++#include <linux/kprobes.h>
++#include <linux/spinlock.h>
++#include <linux/hash.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <asm/cacheflush.h>
++#include <asm/errno.h>
++
++#define KPROBE_HASH_BITS 6
++#define KPROBE_TABLE_SIZE (1 << KPROBE_HASH_BITS)
++
++static struct list_head kprobe_table[KPROBE_TABLE_SIZE];
++
++static unsigned int kprobe_cpu = NR_CPUS;
++static spinlock_t kprobe_lock = SPIN_LOCK_UNLOCKED;
++
++int kprobe_running(void)
++{
++	return kprobe_cpu == smp_processor_id();
++}
++
++/* Locks kprobe: irqs must be disabled */
++void lock_kprobes(void)
++{
++	spin_lock(&kprobe_lock);
++	kprobe_cpu = smp_processor_id();
++}
++
++void unlock_kprobes(void)
++{
++	kprobe_cpu = NR_CPUS;
++	spin_unlock(&kprobe_lock);
++}
++
++/* You have to be holding the kprobe_lock */
++struct kprobe *get_kprobe(void *addr)
++{
++	struct list_head *head, *tmp;
++
++	head = &kprobe_table[hash_ptr(addr, KPROBE_HASH_BITS)];
++	list_for_each(tmp, head) {
++		struct kprobe *p = list_entry(tmp, struct kprobe, list);
++		if (p->addr == addr)
++			return p;
++	}
++	return NULL;
++}
++
++int register_kprobe(struct kprobe *p)
++{
++	int ret = 0;
++
++	spin_lock_irq(&kprobe_lock);
++	if (get_kprobe(p->addr)) {
++		ret = -EEXIST;
++		goto out;
++	}
++	list_add(&p->list, &kprobe_table[hash_ptr(p->addr, KPROBE_HASH_BITS)]);
++
++	p->opcode = *p->addr;
++	*p->addr = BREAKPOINT_INSTRUCTION;
++	flush_icache_range(p->addr, p->addr + sizeof(kprobe_opcode_t));
++ out:
++	spin_unlock_irq(&kprobe_lock);
++	return ret;
++}
++
++void unregister_kprobe(struct kprobe *p)
++{
++	spin_lock_irq(&kprobe_lock);
++	*p->addr = p->opcode;
++	list_del(&p->list);
++	flush_icache_range(p->addr, p->addr + sizeof(kprobe_opcode_t));
++	spin_unlock_irq(&kprobe_lock);
++}
++
++static int __init init_kprobes(void)
++{
++	int i;
++
++	/* FIXME allocate the probe table, currently defined statically */
++	/* initialize all list heads */
++	for (i = 0; i < KPROBE_TABLE_SIZE; i++)
++		INIT_LIST_HEAD(&kprobe_table[i]);
++
++	return 0;
++}
++__initcall(init_kprobes);
++
++EXPORT_SYMBOL_GPL(register_kprobe);
++EXPORT_SYMBOL_GPL(unregister_kprobe);

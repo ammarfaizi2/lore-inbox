@@ -1,81 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265407AbUFHXI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265455AbUFHX2O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265407AbUFHXI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 19:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265405AbUFHXI3
+	id S265455AbUFHX2O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 19:28:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265463AbUFHX2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 19:08:29 -0400
-Received: from mail.dif.dk ([193.138.115.101]:50080 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S265395AbUFHXID convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 19:08:03 -0400
-Date: Wed, 9 Jun 2004 01:07:18 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au,
-       "David S. Miller" <davem@redhat.com>,
-       =?ISO-8859-1?Q?Ulisses_Alonso_Camar=F3?= <uaca@alumni.uv.es>
-Subject: Re: [PATCH] Trivial, add missing newline at EOF in
- Documentation/networking/packet_mmap.txt
-In-Reply-To: <20040606194354.GA10081@elf.ucw.cz>
-Message-ID: <8A43C34093B3D5119F7D0004AC56F4BC082C7F8D@difpst1a.dif.dk>
-References: <8A43C34093B3D5119F7D0004AC56F4BC082C7F88@difpst1a.dif.dk>
- <20040606194354.GA10081@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 8 Jun 2004 19:28:14 -0400
+Received: from mail.kroah.org ([65.200.24.183]:54148 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265455AbUFHX2N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 19:28:13 -0400
+Date: Tue, 8 Jun 2004 16:26:38 -0700
+From: Greg KH <greg@kroah.com>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.6-rc2 RFT] Add's class support to cpuid.c
+Message-ID: <20040608232638.GC17100@kroah.com>
+References: <98460000.1086215543@dyn318071bld.beaverton.ibm.com> <40BE6CA9.9030403@zytor.com> <20040603193256.GD23564@kroah.com> <7430000.1086729016@dyn318071bld.beaverton.ibm.com> <10660000.1086732946@dyn318071bld.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <10660000.1086732946@dyn318071bld.beaverton.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Jun 2004, Pavel Machek wrote:
+On Tue, Jun 08, 2004 at 03:15:47PM -0700, Hanna Linder wrote:
+> > 
+> > Here is the patch that uses a cpu hotplug callback, to allow dynamic support 
+> > of cpu id for classes in sysfs.
+> > 
+> > This patch applies on top of the one I sent out earlier that Greg included.
+> > I do not have access to hardware that supports cpu hotswapping (virtually or not) 
+> > so have not been able to test that aspect of the patch. However, the original
+> > functionality of listing static cpu's still works.
+> > 
+> > Please consider for testing or inclusion. 
+> > 
+> > Signed-off-by Hanna Linder <hannal@us.ibm.com>
+> > 
+> > Thanks.
+> > 
+> > Hanna Linder
+> > IBM Linux Technology Center
+> 
+> Gregkh found a small bug in the error path. Here is the fixed version:
 
-> Hi!
->
-> > Missing newlines at the end of files make them less pleasing to work with
-> > for a number of tools that work on a line-by-line basis, and for source files
-> > it will cause gcc to emit a warning. So, I desided to add that missing
-> > newline to the few files in the kernel that are missing it.
-> > This patch makes no functional changes at all to the kernel.
-> > Patch is against 2.6.7-rc2
-> >
-> > Here's the patch adding a newline to
-> > Documentation/networking/packet_mmap.txt
->
-> Perhaps you should strip headers/lkml signature of packet_mmap.txt?
-> 									Pavel
+Looks good, I've added it to my trees.
 
-That makes sense to me, here's an updated patch against 2.6.7-rc3
-(adding David S. Miller and Ulisses Alonso Camaró to the CC list since the
-comment I'm removing at the top involves them (hope I got the right
-persons behind "DaveM" & "Ulisses" there)) :
+thanks,
 
-
---- linux-2.6.7-rc3/Documentation/networking/packet_mmap.txt-orig	2004-06-09 00:58:12.000000000 +0200
-+++ linux-2.6.7-rc3/Documentation/networking/packet_mmap.txt	2004-06-09 00:58:30.000000000 +0200
-@@ -1,11 +1,4 @@
-
--DaveM:
--
--If you agree with it I will send two small patches to modify
--kernel's configure help.
--
--	Ulisses
--
- --------------------------------------------------------------------------------
- + ABSTRACT
- --------------------------------------------------------------------------------
-@@ -405,8 +398,3 @@ then poll for frames.
-
-    Jesse Brandeburg, for fixing my grammathical/spelling errors
-
-->>> EOF
---
--To unsubscribe from this list: send the line "unsubscribe linux-net" in
--the body of a message to majordomo@vger.kernel.org
--More majordomo info at  http://vger.kernel.org/majordomo-info.html
-\ No newline at end of file
-
-
---
-Jesper Juhl <juhl-lkml@dif.dk>
-
+greg k-h

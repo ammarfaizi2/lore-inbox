@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266762AbUHCRr7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266769AbUHCRtN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266762AbUHCRr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 13:47:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266764AbUHCRr7
+	id S266769AbUHCRtN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 13:49:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266778AbUHCRtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 13:47:59 -0400
-Received: from centaur.acm.jhu.edu ([128.220.223.65]:24745 "EHLO
-	centaur.acm.jhu.edu") by vger.kernel.org with ESMTP id S266762AbUHCRry
+	Tue, 3 Aug 2004 13:49:13 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:41618 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S266769AbUHCRsQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 13:47:54 -0400
-Date: Tue, 3 Aug 2004 13:47:54 -0400
-From: Jack Lloyd <lloyd@randombit.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] get_random_bytes returns the same on every boot
-Message-ID: <20040803174753.GA16361@acm.jhu.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0407222254440.3652@pingvin.fazekas.hu> <cemg09$hun$1@abraham.cs.berkeley.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cemg09$hun$1@abraham.cs.berkeley.edu>
-X-GPG-Key-ID: 4DCDF398
-X-GPG-Key-Fingerprint: 2DD2 95F9 C7E3 A15E AF29 80E1 D6A9 A5B9 4DCD F398
+	Tue, 3 Aug 2004 13:48:16 -0400
+Message-ID: <410FCF9A.0@rtr.ca>
+Date: Tue, 03 Aug 2004 13:47:06 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Todd Poynor <tpoynor@mvista.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       tim.bird@am.sony.com, dsingleton@mvista.com
+Subject: Re: [PATCH] Configure IDE probe delays
+References: <20040730191100.GA22201@slurryseal.ddns.mvista.com> <1091226922.5083.13.camel@localhost.localdomain> <410AEDC8.6030901@pobox.com>
+In-Reply-To: <410AEDC8.6030901@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 02, 2004 at 10:42:17PM +0000, David Wagner wrote:
-> Balint Marton  wrote:
-> >At boot time, get_random_bytes always returns the same random data, as if
-> >there were a constant random seed.  [This is because no entropy is
-> >available yet.]
-> 
-> Are there any consequences of this for security?  A number of network
-> functions call get_random_bytes() to get unguessable numbers; if those
-> numbers are guessable, security might be compromised.  Note that most init
-> scripts save randomness state from the last reboot and fill it into the
-> entropy pool after boot, but before then any callers to get_random_bytes()
-> might be vulnerable.  Has anyone ever audited all places that call
-> get_random_bytes() to see if any of them might pose a security exposure
-> during the window of time between boot and execution of init scripts?
-> For instance, are TCP sequence numbers, SYN cookies, etc. vulnerable?
+I'm the dude responsible for the infamous "50 milliseconds" here.
 
-If the init scripts haven't run, then most likely your machine doesn't have an
-IP address configured anyway. On some distros the network is configured before
-the saved entropy is added to the pool, but most servers don't get started
-until afterward.
+I agree that (1) it is overkill, (2) it could be optimised,
+and (3) it is very very non-standard.
 
-> (Needless to say, seeding the pool with just the time of day and the
-> system hostname is not enough to defend against such attacks.)
+But it also works extraordinarilly well.  I still am very active
+with ATA and SATA driver development, and the basic Linux IDE probe
+works for me on vendor hardware where their own standards-specific
+routines sometimes fail (even in their windows drivers).
 
-I can't think of much else the machine could be adding at the point before init
-is created. The TSC isn't going to be very unpredicable, since the machine just
-booted, but it might have a few bits of entropy. Hardware serial numbers?
-Fixed, and largely easy to get ahold of. I'm out of ideas.
+If possible, it would be best to let it be, and over time it will
+be less and less important as SATA and kin take over the universe.
 
-Hmmm, it just occured to me that you could include process execution details
-(owner, pathname, pid/ppid, timestamp) into the entropy pool, sort of like a
-Cryptlib generator but in kernel space. But again, that isn't of much use
-before the kernel creates init.
+Every time I tried to tweak it to be faster, it seemed to break
+some system or another.
 
--Jack
+One possibility here would be to augment it with reset signature probing,
+and/or a cyl-high read/write test.  These could speed things up for
+more mainstream cases.  But I'm not going to touch what's there myself!
+
+Cheers
+-- 
+Mark Lord
+(hdparm keeper & the original "Linux IDE Guy")

@@ -1,55 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271825AbRISTPe>; Wed, 19 Sep 2001 15:15:34 -0400
+	id <S272546AbRISTQo>; Wed, 19 Sep 2001 15:16:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274139AbRISTPY>; Wed, 19 Sep 2001 15:15:24 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:29445 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S271825AbRISTPE>;
-	Wed, 19 Sep 2001 15:15:04 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Arjan van de Ven <arjanv@redhat.com>
-Date: Wed, 19 Sep 2001 21:15:17 MET-1
+	id <S274139AbRISTQe>; Wed, 19 Sep 2001 15:16:34 -0400
+Received: from gte1-22.ce.ftel.net ([206.24.95.226]:26004 "EHLO spinics.net")
+	by vger.kernel.org with ESMTP id <S272546AbRISTQV>;
+	Wed, 19 Sep 2001 15:16:21 -0400
+From: ellis@spinics.net
+Message-Id: <200109191916.f8JJGUc28394@spinics.net>
+Subject: Re: 2.4.9-ac10 hangs on CDROM read error
+To: linux-kernel@vger.kernel.org
+Date: Wed, 19 Sep 2001 12:16:29 -0700 (PDT)
+In-Reply-To: <0010919133023.G639@suse.de>
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <3EDB9E14576@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 Sep 01 at 19:55, Arjan van de Ven wrote:
-> 
-> Ok but that part is simple:
-> 
-> run
-> 
-> http://www.fenrus.demon.nl/athlon.c
 
-Small question - is it OK that 'faster_copy' is faster than
-'even_faster'? By only few percents, but... It is dual cpu Tyan,
-with two AMD MP 1.2MHz, with 1022:700C AMD hostbridge. I'll
-check KT133 at home if I'll remember...
-                                        Thanks,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
+>Could one of you hook up a serial console and attempt to capture any
+>oops info?
 
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $ 
-clear_page() tests 
-clear_page function 'warm up run'    took 13967 cycles per page
-clear_page function '2.4 non MMX'    took 9298 cycles per page
-clear_page function '2.4 MMX fallback'   took 9284 cycles per page
-clear_page function '2.4 MMX version'    took 8508 cycles per page
-clear_page function 'faster_clear_page'  took 4016 cycles per page
-clear_page function 'even_faster_clear'  took 3916 cycles per page
+It doesn't oops (at least for me).  The system just freezes solid.
 
-copy_page() tests 
-copy_page function 'warm up run'     took 15118 cycles per page
-copy_page function '2.4 non MMX'     took 17002 cycles per page
-copy_page function '2.4 MMX fallback'    took 16978 cycles per page
-copy_page function '2.4 MMX version'     took 15163 cycles per page
-copy_page function 'faster_copy'     took 8569 cycles per page
-copy_page function 'even_faster'     took 8805 cycles per page

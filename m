@@ -1,35 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262842AbVCDBJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262853AbVCDBNk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262842AbVCDBJY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 20:09:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262840AbVCDBE5
+	id S262853AbVCDBNk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 20:13:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262840AbVCDBJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 20:04:57 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:11784 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S262842AbVCDBCi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 20:02:38 -0500
-To: Greg KH <greg@kroah.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH][3/26] IB/mthca: improve CQ locking part 1
-X-Message-Flag: Warning: May contain useful information
-References: <2005331520.cHJfJcRbBu1fFgB6@topspin.com>
-	<4227AD34.4050002@pobox.com> <20050304005824.GA18411@kroah.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Thu, 03 Mar 2005 17:02:36 -0800
-In-Reply-To: <20050304005824.GA18411@kroah.com> (Greg KH's message of "Thu,
- 3 Mar 2005 16:58:24 -0800")
-Message-ID: <527jkonryr.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 04 Mar 2005 01:02:36.0418 (UTC) FILETIME=[DABEE620:01C52055]
+	Thu, 3 Mar 2005 20:09:39 -0500
+Received: from fire.osdl.org ([65.172.181.4]:64734 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262837AbVCDBH4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 20:07:56 -0500
+Date: Thu, 3 Mar 2005 17:07:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: roland@topspin.com, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH][26/26] IB: MAD cancel callbacks
+ fromthread
+Message-Id: <20050303170752.7bc42e86.akpm@osdl.org>
+In-Reply-To: <20050303170109.72e8a3f2.akpm@osdl.org>
+References: <ORSMSX401FRaqbC8wSA0000000e@orsmsx401.amr.corp.intel.com>
+	<52fyzcnsup.fsf@topspin.com>
+	<20050303170109.72e8a3f2.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Greg> Sure, I have no problem accepting that into the pci core.
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> Roland Dreier <roland@topspin.com> wrote:
+> >
+> >     >> don't add casts to a void pointer, that's silly.
+> > 
+> > How should we handle this nit?  Should I post a new version of this
+> > patch or an incremental diff that fixes it up?
+> > 
+> 
+> I'll fix it up.
 
-What would pci_irq_sync() do exactly?
-
- - R.
+Actually, seeing as 15/26 has vanished into the ether and there have been
+quite a few comments, please resend everything.

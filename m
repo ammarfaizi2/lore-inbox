@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318990AbSIIVOn>; Mon, 9 Sep 2002 17:14:43 -0400
+	id <S319022AbSIIVZK>; Mon, 9 Sep 2002 17:25:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318991AbSIIVOn>; Mon, 9 Sep 2002 17:14:43 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:11436 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S318990AbSIIVOl>;
-	Mon, 9 Sep 2002 17:14:41 -0400
-Message-ID: <3D7D105D.7050604@colorfullife.com>
-Date: Mon, 09 Sep 2002 23:19:25 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
-Subject: Re: Calculating kernel logical address ..
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S319024AbSIIVZK>; Mon, 9 Sep 2002 17:25:10 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:36083 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S319022AbSIIVZJ>; Mon, 9 Sep 2002 17:25:09 -0400
+Date: Mon, 9 Sep 2002 14:24:30 -0700
+From: Chris Wright <chris@wirex.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org,
+       Trivial Kernel Patches <trivial@rustcorp.com.au>
+Subject: [TRIVIAL] 2.5.34 kernel-api DocBook fix
+Message-ID: <20020909142430.A2017@figure1.int.wirex.com>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org,
+	Trivial Kernel Patches <trivial@rustcorp.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Nobody seems to have come forth to implement a thought-out scatter/gather,
-> map-user-pages library infrastructure so I'd be a bit reluctant to
-> break stuff without offering a replacement.
-> 
+Update kernel-api.tmpl to reflect mtrr changes so that the docs will build.
 
-We'd need one.
+thanks,
+-chris
 
-get_user_pages() is broken if a kernel module access the virtual address 
-of the page and the cpu caches are not coherent:
-Most of the flush functions need the vma pointer, but it's impossible to 
-guarantee that it still exists when the get_user_pages() user calls 
-page_cache_release().
-
---
-	Manfred
-
+--- 2.5.34/Documentation/DocBook/kernel-api.tmpl	Wed Jul 31 07:43:38 2002
++++ 2.5.34-doc/Documentation/DocBook/kernel-api.tmpl	Mon Sep  9 13:19:29 2002
+@@ -161,7 +161,7 @@
+      </sect1>
+ 
+      <sect1><title>MTRR Handling</title>
+-!Earch/i386/kernel/mtrr.c
++!Earch/i386/kernel/cpu/mtrr/main.c
+      </sect1>
+      <sect1><title>PCI Support Library</title>
+ !Edrivers/pci/pci.c

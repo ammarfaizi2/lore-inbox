@@ -1,29 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289759AbSAJWyA>; Thu, 10 Jan 2002 17:54:00 -0500
+	id <S289766AbSAJXAA>; Thu, 10 Jan 2002 18:00:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289760AbSAJWxu>; Thu, 10 Jan 2002 17:53:50 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46094 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289759AbSAJWxh>; Thu, 10 Jan 2002 17:53:37 -0500
-Subject: Re: memory-mapped i/o barrier
-To: jbarnes@sgi.com (Jesse Barnes)
-Date: Thu, 10 Jan 2002 23:05:04 +0000 (GMT)
-Cc: davem@redhat.com, ralf@uni-koblenz.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20020110134859.A729245@sgi.com> from "Jesse Barnes" at Jan 10, 2002 01:48:59 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S289767AbSAJW7u>; Thu, 10 Jan 2002 17:59:50 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:34831 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S289766AbSAJW7i>; Thu, 10 Jan 2002 17:59:38 -0500
+Date: Thu, 10 Jan 2002 15:04:59 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: Mike Kravetz <kravetz@us.ibm.com>, Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Anton Blanchard <anton@samba.org>, george anzinger <george@mvista.com>,
+        Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [patch] O(1) scheduler, -G1, 2.5.2-pre10, 2.4.17 (fwd)
+In-Reply-To: <Pine.LNX.4.33.0201110142160.12174-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.40.0201101501550.1493-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16OoFt-0005pt-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ia64, and I'm wondering if you guys will accept something similar.  On
-> mips64, mmiob() could just be implemented as a 'sync', but I'm not
-> sure how to do it (or if it's even necessary) on other platforms.
+On Fri, 11 Jan 2002, Ingo Molnar wrote:
 
-Wouldn't it be wise to pass the device to this. Someone somewhere is going
-to have to read a bus dependant chipset register and need to know which
-pci_device * is involved ?
+> indeed. The question is, should we migrate processes around just to get
+> 100% fairness in 'top' output? The (implicit) cost of a task migration
+> (caused by the destruction & rebuilding of cache state) can be 10
+> milliseconds easily on a system with big caches.
+
+10 ms is exactly what i've observed while i was coding the BMQS balance
+code. Leaving a cpu idle for more than 10ms will make real tests like
+kernel builds to suffer performance degradation. By using 10ms i always
+got the same time of the standard scheduler.
+
+
+
+
+- Davide
+
+

@@ -1,50 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261503AbSIZUd2>; Thu, 26 Sep 2002 16:33:28 -0400
+	id <S261491AbSIZUoO>; Thu, 26 Sep 2002 16:44:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261504AbSIZUd2>; Thu, 26 Sep 2002 16:33:28 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:22795 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261503AbSIZUd1>;
-	Thu, 26 Sep 2002 16:33:27 -0400
-Date: Thu, 26 Sep 2002 13:37:16 -0700
-From: Greg KH <greg@kroah.com>
-To: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
-Cc: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-Subject: Re: [PATCH] accessfs v0.5 ported to LSM - 1/2
-Message-ID: <20020926203716.GA7048@kroah.com>
-References: <878z1rpfb4.fsf@goat.bogus.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <878z1rpfb4.fsf@goat.bogus.local>
-User-Agent: Mutt/1.4i
+	id <S261492AbSIZUoO>; Thu, 26 Sep 2002 16:44:14 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:2198 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S261491AbSIZUoM>;
+	Thu, 26 Sep 2002 16:44:12 -0400
+Message-ID: <3D9372D3.3000908@colorfullife.com>
+Date: Thu, 26 Sep 2002 22:49:23 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 3/4] slab reclaim balancing
+References: <3D931608.3040702@colorfullife.com> <3D9345C4.74CD73B8@digeo.com> <3D935655.1030606@colorfullife.com> <3D9364BA.A2CA02C5@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 24, 2002 at 05:39:43PM +0200, Olaf Dietsche wrote:
-> Hi,
+Andrew Morton wrote:
 > 
-> Accessfs is a new file system to control access to system resources.
-> For further information see the help text.
+> Was the microbenchmark actually touching the memory which it was
+> allocating from slab?  If so then yes, we'd expect to see cache
+> misses against those cold pages coming out of the buddy.
+>  
+
+No, it was just measuring the cost of the kmem_cache_grow/shrink.
+
+Btw, 140 cycles for kmem_cache_alloc+free is inflated - someone enabled 
+kmem_cache_alloc_head() even in the no-debugging version.
+As expected, done by Andrea, who neither bothered to cc me, nor actually 
+understood the code.
+
 > 
-> Changes:
-> - ported to LSM
-> - support capabilities
-> - merged ipv4/ipv6 into ip
+>>For SMP and slabs that are per-cpu cached, the change could be right,
+>>because the arrays should absorb bursts. But I do not think that the
+>>change is the right approach for UP.
 > 
-> This part (1/2) adds a hook to LSM to enable control based on the port
-> number.
+> 
+> I'd suggest that we wait until we have slab freeing its pages into
+> the hotlists, and allocating from them.  That should pull things back.
+ >
+You are asking a interesting question:
 
-I like this, it looks quite nice.
+The slab is by design far from LIFO - it tries to find pages with no 
+allocated objects, that are possible to return to the page allocator. It 
+doesn't try to optimize for cache hit rates.
 
-You might want to provide a patch against the development LSM tree
-(available at lsm.immunix.org) as that tree already has a lot of ip_*
-hooks that have not been submitted to the networking group yet.  If you
-do this, I would be glad to add this patch to the LSM tree, which will
-keep you from having to do the forward port for all new kernel versions
-that come out, if you want.  A number of other security related projects
-are already in this tree (SELinux, DTE, LIDS, and others.)
+Is that actually the right approach? For large objects, it would be 
+possible to cripple the freeable slabs list, and to perform the cache 
+hit optimization (i.e. per-cpu LIFO) in page_alloc.c, but that doesn't 
+work with small objects.
 
-thanks,
+On SMP, the per-cpu arrays are the LIFO and should give good cache hit 
+rates. On UP, I haven't enabled them, because they could increase the 
+internal fragmentation of the slabs.
 
-greg k-h
+Perhaps we should enable the arrays on UP, too, and thus improve the 
+cache hit rates? If there is no increase in fragmentation, we could 
+ignore it. Otherwise we could replace the 3-list Bonwick slab with 
+another backend, something that's stronger at reducing the internal 
+fragmentation.
+
+--
+	Manfred
+
+

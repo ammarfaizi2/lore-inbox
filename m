@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317066AbSGCQYb>; Wed, 3 Jul 2002 12:24:31 -0400
+	id <S317068AbSGCQaf>; Wed, 3 Jul 2002 12:30:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317068AbSGCQYa>; Wed, 3 Jul 2002 12:24:30 -0400
-Received: from [213.4.129.129] ([213.4.129.129]:15202 "EHLO tsmtp6.mail.isp")
-	by vger.kernel.org with ESMTP id <S317066AbSGCQY3>;
-	Wed, 3 Jul 2002 12:24:29 -0400
-Date: Wed, 3 Jul 2002 18:29:23 +0200
-From: Diego Calleja <diegocg@teleline.es>
-To: khromy@lnuxlab.ath.cx (khromy)
-Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org, ext3-users@redhat.com
+	id <S317072AbSGCQae>; Wed, 3 Jul 2002 12:30:34 -0400
+Received: from mtiwmhc23.worldnet.att.net ([204.127.131.48]:25568 "EHLO
+	mtiwmhc23.worldnet.att.net") by vger.kernel.org with ESMTP
+	id <S317068AbSGCQad>; Wed, 3 Jul 2002 12:30:33 -0400
+Date: Wed, 3 Jul 2002 12:38:00 -0400
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org,
+       ext3-users@redhat.com
 Subject: Re: sync slowness. ext3 on VIA vt82c686b
-Message-Id: <20020703182923.65e84356.diegocg@teleline.es>
-In-Reply-To: <20020703043655.GA3346@lnuxlab.ath.cx>
-References: <20020703022051.GA2669@lnuxlab.ath.cx>
-	<3D226E86.695D27F3@zip.com.au>
-	<20020703033538.GA3004@lnuxlab.ath.cx>
-	<3D227621.B0A5C826@zip.com.au>
-	<20020703040301.GA3233@lnuxlab.ath.cx>
-	<20020703043655.GA3346@lnuxlab.ath.cx>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Message-ID: <20020703163800.GA5689@lnuxlab.ath.cx>
+References: <20020703094031.GA4462@lnuxlab.ath.cx> <200207031057.MAA03204@cave.bitwizard.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200207031057.MAA03204@cave.bitwizard.nl>
+User-Agent: Mutt/1.3.28i
+From: khromy@lnuxlab.ath.cx (khromy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jul 2002 00:36:55 -0400
-khromy@lnuxlab.ath.cx (khromy) escribió:
-> I just tried with my Promise UDMA100 card with another cable and same 
-> problem.  Any other ideas? Should I try rc1-aa1?
+On Wed, Jul 03, 2002 at 12:57:45PM +0200, Rogier Wolff wrote:
+> That said, maybe there is a whole lot of (random) reads going on 
+> on that disk? Are you swapping at the same time? Or maybe your
+> dayly "updatedb" is running?
 
-I'not an expert, but yes, why not try another kernel version, like
-rc1-aa1 or the 2.5 tree?
+Nope, I've even been running without swap.. And nope, no updatedb
+running at the time either..
 
-You should run badblocks to see if there's something wrong in the disk,
-but if you can't see any output from the kernel when yo try to copy the
-file, I think this won't be the problem...
-
-
-
-> 
-> -- 
-> L1:	khromy		;khromy(at)lnuxlab.ath.cx
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+L1:	khromy		;khromy(at)lnuxlab.ath.cx

@@ -1,45 +1,38 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <160779-27300>; Mon, 1 Feb 1999 05:04:25 -0500
-Received: by vger.rutgers.edu id <160742-27302>; Mon, 1 Feb 1999 05:04:05 -0500
-Received: from parasite.irisa.fr ([131.254.12.47]:48381 "EHLO parasite.irisa.fr" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <160763-27302>; Mon, 1 Feb 1999 05:03:50 -0500
-To: Richard Gooch <rgooch@atnf.csiro.au>
-Cc: linux-kernel@vger.rutgers.edu
-Subject: Re: [PATCH] [NEW] msr v1 available
-References: <199901220720.SAA06460@vindaloo.atnf.CSIRO.AU>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-From: "David Mentr'e" <David.Mentre@irisa.fr>
-Date: 01 Feb 1999 11:16:17 +0100
-In-Reply-To: Richard Gooch's message of "Fri, 22 Jan 1999 18:20:04 +1100"
-Message-ID: <wd87lu2whse.fsf@parate.irisa.fr>
-User-Agent: Gnus/5.070072 (Pterodactyl Gnus v0.72) Emacs/20.3
+Received: by vger.rutgers.edu via listexpand id <168502-27302>; Mon, 1 Feb 1999 18:31:10 -0500
+Received: by vger.rutgers.edu id <161785-27300>; Mon, 1 Feb 1999 18:20:28 -0500
+Received: from TEQUILA.CS.YALE.EDU ([128.36.229.152]:1463 "EHLO tequila.cs.yale.edu" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <168243-27302>; Mon, 1 Feb 1999 17:58:37 -0500
+To: linux-kernel@vger.rutgers.edu
+From: Stefan Monnier <monnier+lists/linux/kernel/news/@tequila.cs.yale.edu>
+Newsgroups: lists.linux.kernel
+Subject: Re: Page coloring HOWTO [ans]
+References: <"4S1CG3.0.Tz5.-gvis"@tequila.cs.yale.edu>
+Date: 01 Feb 1999 18:11:18 -0500
+Message-ID: <5llnihwwh5.fsf@tequila.cs.yale.edu>
+X-Newsreader: Gnus v5.5/Emacs 20.3
+Path: tequila.cs.yale.edu
+NNTP-Posting-Host: tequila.cs.yale.edu
+X-Trace: 1 Feb 1999 18:11:18 -0500, tequila.cs.yale.edu
 Sender: owner-linux-kernel@vger.rutgers.edu
 
- Hi Richard,
+>>>>> "Richard" == Richard Gooch <rgooch@atnf.csiro.au> writes:
+> OK, I was reading points (a) and (b) as though they were, in effect,
+> the required specificiations for an algorithm to yield the best
+> pages. Are they just comments on how the particular algorithm you
+> mentioned works?
 
-Richard Gooch <rgooch@atnf.csiro.au> writes:
+I believe the requirement is really something like "make the behavior more
+predictable" (not just deterministic).  To reach this goal, you have to somehow
+make sure that non-colliding virtual addresses turn into non-colliding physical
+addresses and vice-versa (this way the compiler gets a fair chance to
+statically figure out how to lay things out to avoid collisions).
 
-> It is my hope that the device driver interfaces are sufficiently
-> generic that they will be appropriate for other CPU architectures. I'd
-> welcome feedback from the non-x86 hackers out there.
+Of course, the other possible requirement is just to make things more
+deterministic.  It looks like Dave's alg is aiming for determinism rather than
+predictability.
 
-I'm far from a hacker but regarding API, you should check that your
-interface could support the PerfAPI effort. This API is aiming at
-providing the same *programmer* interface on many OS. 
 
- PerfAPI - Performance Data Standard and API
-  http://icl.cs.utk.edu/projects/papi/
-
-Another question: does your patch support SMP systems ?
-
-I'll try to put a link on my web page
-(http://www.irisa.fr/prive/dmentre/linux-counters/). 
-
-Hope it helps,
-david
--- 
- David.Mentre@irisa.fr -- http://www.irisa.fr/prive/dmentre/
- Opinions expressed here are only mine.
+	Stefan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

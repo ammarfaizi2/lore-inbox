@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131231AbRAQGxh>; Wed, 17 Jan 2001 01:53:37 -0500
+	id <S132002AbRAQG4h>; Wed, 17 Jan 2001 01:56:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132002AbRAQGx1>; Wed, 17 Jan 2001 01:53:27 -0500
-Received: from mail.crc.dk ([130.226.184.8]:15121 "EHLO mail.crc.dk")
-	by vger.kernel.org with ESMTP id <S131231AbRAQGxT>;
-	Wed, 17 Jan 2001 01:53:19 -0500
-Message-ID: <3A65415C.5A0D57F@crc.dk>
-Date: Wed, 17 Jan 2001 07:53:16 +0100
-From: Mogens Kjaer <mk@crc.dk>
-Organization: Carlsberg Laboratory
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: da, en, de
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: nfs client problem in kernel 2.4.0
-In-Reply-To: <3A6466E3.AB55716@crc.dk> <shsy9wb334a.fsf@charged.uio.no>
+	id <S132575AbRAQG41>; Wed, 17 Jan 2001 01:56:27 -0500
+Received: from mailgate.att-unisource.net ([195.206.66.146]:8625 "HELO
+	mailgate.eqip.net") by vger.kernel.org with SMTP id <S132002AbRAQG4O>;
+	Wed, 17 Jan 2001 01:56:14 -0500
+Path: Home.Lunix!not-for-mail
+Subject: Re: Is sendfile all that sexy?
+Date: Wed, 17 Jan 2001 06:56:09 +0000 (UTC)
+Organization: lunix confusion services
+In-Reply-To: <UTC200101161350.OAA141869.aeb@ark.cwi.nl>
+NNTP-Posting-Host: kali.eth
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Trace: quasar.home.lunix 979714569 26234 10.253.0.3 (17 Jan 2001
+    06:56:09 GMT)
+X-Complaints-To: abuse-0@ton.iguana.be
+NNTP-Posting-Date: Wed, 17 Jan 2001 06:56:09 +0000 (UTC)
+X-Newsreader: knews 1.0b.0
+Xref: Home.Lunix mail.linux.kernel:69993
+X-Mailer: Perl5 Mail::Internet v1.32
+Message-Id: <943fm9$pjq$1@post.home.lunix>
+From: linux-kernel@ton.iguana.be (Ton Hospel)
+To: linux-kernel@vger.kernel.org
+Reply-To: linux-kernel@ton.iguana.be (Ton Hospel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
+In article <UTC200101161350.OAA141869.aeb@ark.cwi.nl>,
+	Andries.Brouwer@cwi.nl writes:
+> 
+> I am afraid I have missed most earlier messages in this thread.
+> However, let me remark that the problem of assigning a
+> file descriptor is the one that is usually described by
+> "priority queue". The version of Peter van Emde Boas takes
+> time O(loglog N) for both open() and close().
+> Of course this is not meant to suggest that we use it.
+> 
+Fascinating ! But how is this possible ? What stops me from
+using this algorithm from entering N values and extracting 
+them again in order and so end up with a O(N*log log N)
+sorting algorithm ? (which would be better than log N! ~ N*logN)
 
-> I'll bet it's the lseek that's screwing things up again. IIRC IRIX has
-> an export option to cause it to generate 32-bit readdir cookies. Could
-> you please try enabling it?
-
-Sorry, I forgot to mention this: This option was already enabled.
-
-Mogens
--- 
-Mogens Kjaer, Carlsberg Laboratory, Dept. of Chemistry
-Gamle Carlsberg Vej 10, DK-2500 Valby, Denmark
-Phone: +45 33 27 53 25, Fax: +45 33 27 47 08
-Email: mk@crc.dk Homepage: http://www.crc.dk
+(at least the web pages I found about this seem to suggest you
+can use this on any set with a full order relation)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

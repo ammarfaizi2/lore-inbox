@@ -1,67 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbUJ3WDp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbUJ3WJS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261339AbUJ3WDp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 18:03:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbUJ3WDp
+	id S261350AbUJ3WJS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 18:09:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbUJ3WJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 18:03:45 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:36613 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261339AbUJ3WDl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 18:03:41 -0400
-Date: Sun, 31 Oct 2004 00:03:09 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Roman Zippel <zippel@linux-m68k.org>, Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] let FW_LOADER select HOTPLUG
-Message-ID: <20041030220309.GE4374@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 30 Oct 2004 18:09:18 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:36586 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261350AbUJ3WJQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 18:09:16 -0400
+Message-ID: <4184124B.4090602@comcast.net>
+Date: Sat, 30 Oct 2004 15:14:35 -0700
+From: Z Smith <plinius@comcast.net>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: in-kernel GUI project
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-If it wasn't for external modules, FW_LOADER wasn't user-visible.
-Let FW_LOADER select HOTPLUG To make the dependencies easier for users.
+I've been developing an in-kernel 2D GUI for kernel 2.6.
+It's based on the framebuffer with the event subsystem
+providing mouse and keyboard. I'd like to welcome you all
+to take a look at the current work at
+   home.comcast.net/~plinius/fbui.html.
 
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm2-full/drivers/base/Kconfig.old	2004-10-30 23:51:28.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full/drivers/base/Kconfig	2004-10-30 23:51:40.000000000 +0200
-@@ -20,7 +20,7 @@
- 
- config FW_LOADER
- 	tristate "Hotplug firmware loading support"
--	depends on HOTPLUG
-+	select HOTPLUG
- 	---help---
- 	  This option is provided for the case where no in-kernel-tree modules
- 	  require hotplug firmware loading support, but a module built outside
---- linux-2.6.10-rc1-mm2-full/drivers/net/wireless/Kconfig.old	2004-10-30 23:56:20.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full/drivers/net/wireless/Kconfig	2004-10-30 23:56:39.000000000 +0200
-@@ -309,9 +309,10 @@
- 
- comment "Prism GT/Duette 802.11(a/b/g) PCI/Cardbus support"
- 	depends on NET_RADIO && PCI
-+
- config PRISM54
- 	tristate 'Intersil Prism GT/Duette/Indigo PCI/Cardbus' 
--	depends on PCI && NET_RADIO && EXPERIMENTAL && HOTPLUG
-+	depends on PCI && NET_RADIO && EXPERIMENTAL
- 	select FW_LOADER
- 	---help---
- 	  Enable PCI and Cardbus support for the following chipset based cards:
---- linux-2.6.10-rc1-mm2-full/drivers/net/tokenring/Kconfig.old	2004-10-30 23:57:10.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full/drivers/net/tokenring/Kconfig	2004-10-30 23:57:21.000000000 +0200
-@@ -84,7 +84,7 @@
- 
- config TMS380TR
- 	tristate "Generic TMS380 Token Ring ISA/PCI adapter support"
--	depends on TR && (PCI || ISA) && HOTPLUG
-+	depends on TR && (PCI || ISA)
- 	select FW_LOADER
- 	---help---
- 	  This driver provides generic support for token ring adapters
+Thanks,
+Zack Smith

@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261550AbRE1XL7>; Mon, 28 May 2001 19:11:59 -0400
+	id <S261616AbRE1XNt>; Mon, 28 May 2001 19:13:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261616AbRE1XLt>; Mon, 28 May 2001 19:11:49 -0400
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:15920
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S261550AbRE1XLi>; Mon, 28 May 2001 19:11:38 -0400
-Date: Tue, 29 May 2001 00:11:34 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Meelis Roos <mroos@linux.ee>
+	id <S261666AbRE1XNj>; Mon, 28 May 2001 19:13:39 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37897 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261616AbRE1XNd>;
+	Mon, 28 May 2001 19:13:33 -0400
+Date: Tue, 29 May 2001 00:12:56 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Vadim Lebedev <vlebedev@aplio.fr>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch]: ide dma timeout retry in pio
-Message-ID: <20010529001134.C29504@work.bitmover.com>
-Mail-Followup-To: Meelis Roos <mroos@linux.ee>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010528231809.A29504@work.bitmover.com> <E154VwD-0005CB-00@roos.tartu-labor>
+Subject: Re: Potenitial security hole in the kernel
+Message-ID: <20010529001256.F9203@flint.arm.linux.org.uk>
+In-Reply-To: <003601c0e7bf$41953080$0101a8c0@LAP>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <E154VwD-0005CB-00@roos.tartu-labor>; from mroos@linux.ee on Tue, May 29, 2001 at 12:56:37AM +0200
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <003601c0e7bf$41953080$0101a8c0@LAP>; from vlebedev@aplio.fr on Mon, May 28, 2001 at 11:43:38PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 29, 2001 at 12:56:37AM +0200, Meelis Roos wrote:
-> LM> For what it is worth, in the recent postings I made about this topic, you
-> LM> suggested that it was bad cabling, I swapped the cabling, same problem.
-> LM> I swapped the mother board from Abit K7T to ASUS A7V and all cables worked
-> LM> fine.
-> 
-> Similar info about KT7 - changing cables (both 30 and 80 wire) on Abit KT7 did
-> not help, still CRC errors (with all disks tried). So it looks like some KT7
-> boards have problems with IDE interface cabling or smth. like that.
+On Mon, May 28, 2001 at 11:43:38PM +0200, Vadim Lebedev wrote:
+> Please correct me if i'm wrong but it seems to me that i've stumbled on
+> really BIG security hole in the signal handling code.
 
-I don't think it is a cabling problem, I think it is that motherboard.  I
-suspect that the chipset on that motherboard is not well supported by
-Linux.  
+I don't think there's problem, unless I'm missing something.
 
-As an aside, I am less than impressed with the IDE support in Linux.
-It's been a constant source of problems for the last couple of years
-and it doesn't seem to get fixed.  We seem to get lots of chip sets 
-almost working and then move on to the next one.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+> The problem IMO is that the signal handling code stores a processor context
+> on the user-mode stack frame which is active while
+> the signal handler is running.
+
+User context (defined by 'regs') is stored onto the user stack.
+However, when context is restored, certain checks are done, including
+making sure that the segment registers cs and ss are their user mode
+versions (or'd with 3), and the processor flags are non-privileged.
+
+This means that when the kernel does eventually return to user space,
+if the user has pointed the EIP address at panic(), by the time we
+jump there the processor will not be in a privileged mode, and panic()
+won't do anything (you'll probably end up with a page fault caused by
+the processor fetching instructions from kernel space).
+
+However, that said, I don't know x86 in depth (I'm the ARM guy), so
+don't take this as gospel, but should be sufficient to point you in
+the right direction.  (check the segment registers, check the eflags
+register, hell, try it out for real and see what happens)!
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

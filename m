@@ -1,69 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262330AbTJIQ5f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 12:57:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbTJIQ5f
+	id S262241AbTJIQyg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 12:54:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbTJIQyg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 12:57:35 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:24242 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262330AbTJIQ51 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 12:57:27 -0400
-Subject: Re: [RFC] disable_irq()/enable_irq() semantics and ide-probe.c
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F858EF8.5080105@pobox.com>
-References: <3F858885.1070202@colorfullife.com> <3F858EF8.5080105@pobox.com>
-Content-Type: text/plain
-Message-Id: <1065718629.663.3.camel@gaston>
+	Thu, 9 Oct 2003 12:54:36 -0400
+Received: from newsmtp.golden.net ([199.166.210.106]:26899 "EHLO
+	newsmtp.golden.net") by vger.kernel.org with ESMTP id S262241AbTJIQyd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 12:54:33 -0400
+Date: Thu, 9 Oct 2003 12:54:28 -0400
+From: Paul Mundt <lethal@linux-sh.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] net/sunrpc/clnt.c compile fix
+Message-ID: <20031009165428.GA12093@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <20031009161350.GA9170@linux-sh.org> <shsr81mnz8i.fsf@charged.uio.no> <20031009164048.GA12029@linux-sh.org> <16261.37335.822076.188805@charged.uio.no>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 09 Oct 2003 18:57:10 +0200
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
+Content-Disposition: inline
+In-Reply-To: <16261.37335.822076.188805@charged.uio.no>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-10-09 at 18:38, Jeff Garzik wrote:
-> Manfred Spraul wrote:
-> > I'd like to use that for nic shutdown for natsemi:
-> > 
-> >    disable_irq();
-> >    shutdown_nic();
-> >    free_irq();
-> >    enable_irq();
-> 
-> 
-> Why not just shutdown the NIC inside spin_lock_irqsave or disable_irq, 
-> and then free_irq separately?
-> 
-> If you can't stop the NIC hardware from generating interrupts, that's a 
-> driver bug.  And if the driver cannot handle its interrupt handler 
-> between the spin_unlock_irqrestore() and free_irq() (shared irq case), 
-> it's also buggy.
 
-Actually you may still get a stale irq ;) The problem is that IRQs are
-typically an asynchronous event, and an irq can be sort of "queued" up
-(especially if it's a level one) in the PIC... though at least this
-won't be a stale level irq so you won't deadlock in an irq handler that
-can do nothing...
+--jRHKVT23PllUwdXP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Anyway, I quite like the idea. I've been trying to avoid taking a lock
-in some similar shutdown routine for sungem, because some bits in there
-need a few ms delay to workaround a chip bug (or machine sleep will
-break) and I want to schedule. Breaking the lock makes things ugly,
-beeing able to just disable_irq before/after is nice.
+On Thu, Oct 09, 2003 at 12:50:31PM -0400, Trond Myklebust wrote:
+> It's not a true process pid, but more of a tag on each struct
+> rpc_task. It turns out to be more helpful when you are tracing the
+> (d|)printk() debugging info, since a process may have several rpc_task
+> in flight at any point in time.
+>=20
+Sounds reasonable. Does this look ok?
 
-The problem of course is when that irq is shared... you are suddently
-shutting off for a potentially long time a neighbour irq, bad bad...
-(at least I know that on pmac, sungem irq is never shared).
+--- linux-sh-2.6.0-test7.orig/net/sunrpc/clnt.c	Thu Oct  9 09:42:45 2003
++++ linux-sh-2.6.0-test7/net/sunrpc/clnt.c	Thu Oct  9 12:53:05 2003
+@@ -961,19 +961,19 @@
+ 	case RPC_SUCCESS:
+ 		return p;
+ 	case RPC_PROG_UNAVAIL:
+-		printk(KERN_WARNING "RPC: %4d call_verify: program %u is unsupported by =
+server %s\n",
+-				task->tk_pid, (unsigned int)task->tk_client->cl_prog,
++		printk(KERN_WARNING "RPC: call_verify: program %u is unsupported by serv=
+er %s\n",
++				(unsigned int)task->tk_client->cl_prog,
+ 				task->tk_client->cl_server);
+ 		goto out_eio;
+ 	case RPC_PROG_MISMATCH:
+-		printk(KERN_WARNING "RPC: %4d call_verify: program %u, version %u unsupp=
+orted by server %s\n",
+-				task->tk_pid, (unsigned int)task->tk_client->cl_prog,
++		printk(KERN_WARNING "RPC: call_verify: program %u, version %u unsupporte=
+d by server %s\n",
++				(unsigned int)task->tk_client->cl_prog,
+ 				(unsigned int)task->tk_client->cl_vers,
+ 				task->tk_client->cl_server);
+ 		goto out_eio;
+ 	case RPC_PROC_UNAVAIL:
+-		printk(KERN_WARNING "RPC: %4d call_verify: proc %p unsupported by progra=
+m %u, version %u on server %s\n",
+-				task->tk_pid, task->tk_msg.rpc_proc,
++		printk(KERN_WARNING "RPC: call_verify: proc %p unsupported by program %u=
+, version %u on server %s\n",
++				task->tk_msg.rpc_proc,
+ 				task->tk_client->cl_prog,
+ 				task->tk_client->cl_vers,
+ 				task->tk_client->cl_server);
 
-Ben.
-  
+--jRHKVT23PllUwdXP
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/hZLE1K+teJFxZ9wRAmSVAJ9SaWanaVDHcHO4d1tmL9nLdnZidgCfSH9W
+Q/xTABBBoi+AUlFXyb//Lpk=
+=+I7J
+-----END PGP SIGNATURE-----
+
+--jRHKVT23PllUwdXP--

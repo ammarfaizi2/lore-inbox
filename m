@@ -1,78 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287408AbSBDSLi>; Mon, 4 Feb 2002 13:11:38 -0500
+	id <S287388AbSBDSO6>; Mon, 4 Feb 2002 13:14:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274862AbSBDSL3>; Mon, 4 Feb 2002 13:11:29 -0500
-Received: from proxyscan.quakenet.org ([213.221.173.2]:53253 "EHLO
-	grail.phat-pipe.net") by vger.kernel.org with ESMTP
-	id <S287408AbSBDSLY>; Mon, 4 Feb 2002 13:11:24 -0500
-From: "Darren Smith" <data@barrysworld.com>
-To: "'Aaron Sethman'" <androsyn@ratbox.org>
-Cc: "'Andrew Morton'" <akpm@zip.com.au>, "'Dan Kegel'" <dank@kegel.com>,
-        "'Vincent Sweeney'" <v.sweeney@barrysworld.com>,
-        <linux-kernel@vger.kernel.org>, <coder-com@undernet.org>,
-        "'Kevin L. Mitchell'" <klmitch@mit.edu>
-Subject: RE: [Coder-Com] Re: PROBLEM: high system usage / poor SMP network performance
-Date: Mon, 4 Feb 2002 18:11:23 -0000
-Message-ID: <000001c1ada7$5ad5cfb0$5c5a1e3e@wilma>
+	id <S284138AbSBDSOt>; Mon, 4 Feb 2002 13:14:49 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:2700 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S287388AbSBDSOj>; Mon, 4 Feb 2002 13:14:39 -0500
+Message-ID: <3C5ECF8C.1744549C@redhat.com>
+Date: Mon, 04 Feb 2002 18:14:36 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-26beta.16smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How to check the kernel compile options ?
+In-Reply-To: <E16XmqC-0007lb-00@the-village.bc.nu> <3C5EC104.A3412D56@uni-mb.si> <E16Xmjc-0001uS-00@Princess> <E16XnUr-0004mf-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-In-Reply-To: <Pine.LNX.4.44.0202041239310.4584-100000@simon.ratbox.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I mean I added a usleep() before the poll in s_bsd.c for the undernet
-2.10.10 code.
 
- timeout = (IRCD_MIN(delay2, delay)) * 1000;
- + usleep(100000); <- New Line
- nfds = poll(poll_fds, pfd_count, timeout);
+> > What he is saying is that you can't do that, generically. Some options are
+> > available at runtime through /proc, but most are not. You need to check what
+> > happend back at compile time.
+> 
+> Right, there is a religious issue here: some core kernel hackers believe
+> that it is wrong to encode kernel configuration in the kernel, and that
+> is why it's not available.  Technically it is not difficult, nor is it
+> difficult to make it memory-efficient.
 
-And now we're using 1/8th the cpu! With no noticeable effects.
-
-Regards
-
-Darren.
-
------Original Message-----
-From: Aaron Sethman [mailto:androsyn@ratbox.org] 
-Sent: 04 February 2002 17:41
-To: Darren Smith
-Cc: 'Andrew Morton'; 'Dan Kegel'; 'Vincent Sweeney';
-linux-kernel@vger.kernel.org; coder-com@undernet.org; 'Kevin L.
-Mitchell'
-Subject: RE: [Coder-Com] Re: PROBLEM: high system usage / poor SMP
-network performance
-
-
-On Mon, 4 Feb 2002, Darren Smith wrote:
-
-> Hi
->
-> I've been testing the modified Undernet (2.10.10) code with Vincent
-> Sweeney based on the simple usleep(100000) addition to s_bsd.c
->
-> PRI NICE  SIZE    RES STATE  C   TIME   WCPU    CPU | # USERS
->  2   0 96348K 96144K poll   0  29.0H 39.01% 39.01%  |  1700 <- Without
-> Patch
-> 10   0 77584K 77336K nanslp 0   7:08  5.71%  5.71%  |  1500 <- With
-> Patch
-Were you not putting a delay argument into poll(), or perhaps not
-letting
-it delay long enough?  If you just do poll with a timeout of 0, its
-going
-to suck lots of cpu.
-
-Regards,
-
-Aaron
-
-
-
+It's silly to put it permanently in unswappable memory; putting it in 
+/lib/modules/`uname -r/
+somewhere does make tons of sense instead.

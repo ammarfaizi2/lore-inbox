@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262245AbVBVI0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262248AbVBVIhP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262245AbVBVI0f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 03:26:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbVBVI0d
+	id S262248AbVBVIhP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 03:37:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbVBVIhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 03:26:33 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:42196 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262245AbVBVI0b (ORCPT
+	Tue, 22 Feb 2005 03:37:15 -0500
+Received: from math.ut.ee ([193.40.36.2]:51329 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S262248AbVBVIhK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 03:26:31 -0500
-Date: Tue, 22 Feb 2005 09:24:54 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: raybry@sgi.com, mort@wildopensource.com, pj@sgi.com,
-       linux-kernel@vger.kernel.org, hilgeman@sgi.com, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH/RFC] A method for clearing out page cache
-Message-ID: <20050222082454.GA2401@elte.hu>
-References: <20050214154431.GS26705@localhost> <20050214193704.00d47c9f.pj@sgi.com> <20050221192721.GB26705@localhost> <20050221134220.2f5911c9.akpm@osdl.org> <421A607B.4050606@sgi.com> <20050221144108.40eba4d9.akpm@osdl.org> <20050222075304.GA778@elte.hu> <20050222000710.5ad0d8c1.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050222000710.5ad0d8c1.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 22 Feb 2005 03:37:10 -0500
+Date: Tue, 22 Feb 2005 10:36:36 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: Tom Rini <trini@kernel.crashing.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linuxppc-dev@ozlabs.org, Christian Kujau <evil@g-house.de>,
+       Sebastian Heutling <sheutlin@gmx.de>, Sven Hartge <hartge@ds9.gnuu.de>
+Subject: Re: [PATCH 2.6.10-rc3][PPC32] Fix Motorola PReP (PowerstackII Utah)
+ PCI IRQ map
+In-Reply-To: <20041206185416.GE7153@smtp.west.cox.net>
+Message-ID: <Pine.SOC.4.61.0502221031230.6097@math.ut.ee>
+References: <20041206185416.GE7153@smtp.west.cox.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> The PCI IRQ map for the old Motorola PowerStackII (Utah) boards was
+> incorrect, but this breakage wasn't exposed until 2.5, and finally fixed
+> until recently by Sebastian Heutling <sheutlin@gmx.de>.
 
-* Andrew Morton <akpm@osdl.org> wrote:
+Yesterday I finally got around to testing it. It seems the patch has 
+been applied in Linus's tree so I downloaded the latest BK and tried it.
 
-> >  . enable users to
-> >  specify an 'allocation priority' of some sort, which kicks out the
-> >  pagecache on the local node - or something like that.
-> 
-> Yes, that would be preferable - I don't know what the difficulty is
-> with that.  sys_set_mempolicy() should provide a sufficiently good
-> hint.
+Still does not work for me but this time it's different. Before the 
+patch SCSI worked fine but PCI NICs caused hangs. Now I can't test PCI 
+NICs because even the onboard 53c825 SCSI hangs - seems it gets no 
+interrupts.
 
-yes. I'm not against some flushing mechanism for debugging or test
-purposes (it can be useful to start from a new, clean state - and as
-such the sysctl for root only and depending on KERNEL_DEBUG is probably
-better than an explicit syscall), but the idea to give a flushing API to
-applications is bad i believe.
+It detects the HBA, tries device discovery, gets a timeout, ABORT, 
+timeout, TARGET RESET, timeout, BUS RESET, timeout, HOST RESET and there 
+it hangs.
 
-It is the 'easy and incorrect path' to a number of NUMA (and non-NUMA)
-VM problems and i fear that it will destroy the evolution of VM
-priority/placement/affinity APIs (NUMAlib, etc.).
+Does it work for anyone else on Powerstack II Pro4000 (Utah)?
 
-At least making it sufficiently painful to use (via the originally
-proposed root-only sysctl) could still preserve some of the incentive to
-provide a clean solution for applications. 'Time to market' constraints
-should not be considered when adding core mechanisms.
-
-	Ingo
+-- 
+Meelis Roos (mroos@linux.ee)

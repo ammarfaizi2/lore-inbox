@@ -1,41 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278679AbRJ1VbC>; Sun, 28 Oct 2001 16:31:02 -0500
+	id <S278682AbRJ1Vkx>; Sun, 28 Oct 2001 16:40:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278680AbRJ1Vaw>; Sun, 28 Oct 2001 16:30:52 -0500
-Received: from smtp.chello.fr ([212.186.224.11]:22185 "EHLO frmta00.chello.fr")
-	by vger.kernel.org with ESMTP id <S278679AbRJ1Vai>;
-	Sun, 28 Oct 2001 16:30:38 -0500
-Message-ID: <3BDC7945.9166B90D@chello.fr>
-Date: Sun, 28 Oct 2001 22:31:49 +0100
-From: "Fabrice Lorrain (home)" <fabrice.lorrain@chello.fr>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-althair i686)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
+	id <S278683AbRJ1Vko>; Sun, 28 Oct 2001 16:40:44 -0500
+Received: from pl038.nas921.ichikawa.nttpc.ne.jp ([210.165.234.38]:7737 "EHLO
+	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S278682AbRJ1Vkf>;
+	Sun, 28 Oct 2001 16:40:35 -0500
+Date: Mon, 29 Oct 2001 06:39:06 +0900
+From: Bruce Harada <bruce@ask.ne.jp>
 To: linux-kernel@vger.kernel.org
-Subject: arp cache tuning in 2.4.x (x >= 10)
-Content-Type: text/plain; charset=us-ascii
+Subject: 2.2.20-pre11 fails to compile (still)
+Message-Id: <20011029063906.609cbe6b.bruce@ask.ne.jp>
+X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.8; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(please CC, I'm not on the list)
-(a CC to lorrain@univ-mlv.fr would be appreciated to)
-Hi,
 
-For quite some time now, I have "Neighbour table overflow." on
-one of our router (serving more than 1000 boxes).
+I sent a similar report to the list earlier. I've had some more time to look at
+the problem myself, but 2.2.20-pre11 still fails to compile for me, as it stops
+in the changes in process.c, signal.c and traps.c. Examples of the errors are:
 
-A bunch of google search gave me to answer :
-1 - playing with /proc/sys/net/ipv4/neigh/default/gc_thres*
-2 - configure CONFIG_ARPD and find an user-space arp daemon.
+-------
+make[1]: Entering directory `/usr/src/linux-2.2.20/arch/i386/kernel'
+cc -D__KERNEL__ -I/usr/src/linux-2.2.20/include -Wall -Wstrict-prototypes -O2
+-fomit-frame-pointer  -pipe -fno-strength-reduce -m486 -malign-loops=2
+-malign-jumps=2 -malign-functions=2 -DCPU=586   -c -o process.o process.c
+process.c: In function `sys_execve':
+process.c:812: structure has no member named `ptrace'
+process.c:812: `PT_DTRACE' undeclared (first use this function)
+process.c:812: (Each undeclared identifier is reported only once
+process.c:812: for each function it appears in.)
+make[1]: *** [process.o] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.2.20/arch/i386/kernel'
+make: *** [_dir_arch/i386/kernel] Error 2
+-------
 
-Can any of you guys give more explanations on both solutions?
-Mainly : 
-- what are sane value for 1),
-- is 2 really a "sane" solution (from Configure.help :
-"This code is experimental and also obsolete").
+I reverted the change:
 
-Thanks,
+-               current->flags &= ~PF_DTRACE;
++               current->ptrace &= ~PT_DTRACE;
 
-	Fab
+and process.c then compiled. However, signals.c then hit a problem with the
+following change:
+
+-              if ((current->flags & PF_PTRACED) && signr != SIGKILL) {
++              if ((current->ptrace & PT_PTRACED) && signr != SIGKILL) {
+
+After reverting that, the compile then stops in traps.c:
+
+-------
+cc -D__KERNEL__ -I/usr/src/linux-2.2.20/include -Wall -Wstrict-prototypes -O2
+-fomit-frame-pointer  -pipe -fno-strength-reduce -m486 -malign-loops=2
+-malign-jumps=2 -malign-functions=2 -DCPU=586   -c -o traps.o traps.c
+traps.c: In function `do_debug':
+traps.c:383: structure has no member named `ptrace'
+traps.c:383: `PT_DTRACE' undeclared (first use this function)
+traps.c:383: (Each undeclared identifier is reported only once
+traps.c:383: for each function it appears in.)
+traps.c:383: `PT_PTRACED' undeclared (first use this function)
+make[1]: *** [traps.o] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.2.20/arch/i386/kernel'
+make: *** [_dir_arch/i386/kernel] Error 2
+-------
+
+I believe these changes are related to the SUID ptrace fixes, but why am I
+missing the definitions for these symbols? I can keep on reverting the changes
+to get it compiled, but I'd rather figure out what's going wrong.
+The system is an old Slackware 3.6 box with libc5 (ver 5.4.46).
+
+
+Bruce

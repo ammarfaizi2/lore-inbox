@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267612AbTALW4S>; Sun, 12 Jan 2003 17:56:18 -0500
+	id <S267629AbTALXEu>; Sun, 12 Jan 2003 18:04:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267618AbTALW4S>; Sun, 12 Jan 2003 17:56:18 -0500
-Received: from almesberger.net ([63.105.73.239]:21510 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S267612AbTALW4O>; Sun, 12 Jan 2003 17:56:14 -0500
-Date: Sun, 12 Jan 2003 20:04:48 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: uaca@alumni.uv.es,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dveitch@unimelb.edu.au
-Subject: Re: How much we can trust packet timestamping
-Message-ID: <20030112200448.G1516@almesberger.net>
-References: <20021230112838.GA928@pusa.informat.uv.es> <1041253743.13097.3.camel@irongate.swansea.linux.org.uk> <20030110190706.A6866@almesberger.net> <1042253032.32431.28.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1042253032.32431.28.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Sat, Jan 11, 2003 at 02:43:52AM +0000
+	id <S267628AbTALXEu>; Sun, 12 Jan 2003 18:04:50 -0500
+Received: from mta2.srv.hcvlny.cv.net ([167.206.5.5]:18871 "EHLO
+	mta2.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S267629AbTALXEs>; Sun, 12 Jan 2003 18:04:48 -0500
+Date: Sun, 12 Jan 2003 18:11:41 -0500
+From: Rob Wilkens <robw@optonline.net>
+Subject: Re: any chance of 2.6.0-test*?
+In-reply-to: <20030112225228.GP31238@vitelus.com>
+To: Aaron Lehmann <aaronl@vitelus.com>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-to: robw@optonline.net
+Message-id: <1042413101.3162.184.camel@RobsPC.RobertWilkens.com>
+Organization: Robert Wilkens
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
+ <1042400094.1208.26.camel@RobsPC.RobertWilkens.com>
+ <20030112211530.GP27709@mea-ext.zmailer.org>
+ <1042406849.3162.121.camel@RobsPC.RobertWilkens.com>
+ <Pine.LNX.4.50L.0301121939170.26759-100000@imladris.surriel.com>
+ <1042407845.3162.131.camel@RobsPC.RobertWilkens.com>
+ <20030112214937.GM31238@vitelus.com>
+ <1042409239.3162.136.camel@RobsPC.RobertWilkens.com>
+ <20030112221802.GN31238@vitelus.com>
+ <1042410897.1209.165.camel@RobsPC.RobertWilkens.com>
+ <20030112225228.GP31238@vitelus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> You run NTP between the host clock and the nic timer.
+On Sun, 2003-01-12 at 17:52, Aaron Lehmann wrote:
+> On Sun, Jan 12, 2003 at 05:34:58PM -0500, Rob Wilkens wrote:
+> > You're wrong.  You wouldn't have to jump over them any more than you
+> > have to jump over the "goto" statement.
+> 
+> The goto is a conditional jump. You propose replacing it with a
+> conditional jump past the error handling code predicated on the
+> opposite condition. Where's the improvement?
 
-While NTP is a good synchronization source (frequently the only
-affordable one around), I'm not so sure it's such a good tool
-for correcting drift. If you have a look at figure 5 in
-http://www.cubinlab.ee.mu.oz.au/~darryl/tscclock_final.pdf.gz
-you'll see that NTP uses drift to correct for offset errors, so
-using NTP directly doesn't yield a clock that remains stable
-unless it's constantly getting corrected by NTP.
+The goto is absolutely not a conditional jump.  The if that precedes it
+is conditional.  The goto is not.  The if is already there.
 
-What should work better is to use NTP only as a reference for
-offset, and then calibrate the hardware clock from that.
-Particularly the TSC is very stable, so there isn't much drift
-to worry about.
+-Rob
 
-But what I'm after is the interface between kernel and user space,
-and any kernel-internal interfaces that may be needed. If people
-really want to use NTP directly on hardware clocks, I guess my
-approach 1) (export everything to user space, and let user space
-worry about the details) would then be the appropriately flexible
-choice ?
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

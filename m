@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261955AbREMXkS>; Sun, 13 May 2001 19:40:18 -0400
+	id <S262023AbREMX6C>; Sun, 13 May 2001 19:58:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262016AbREMXkI>; Sun, 13 May 2001 19:40:08 -0400
-Received: from femail24.sdc1.sfba.home.com ([24.0.95.149]:58111 "EHLO
-	femail24.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S261951AbREMXj4>; Sun, 13 May 2001 19:39:56 -0400
-Date: Sun, 13 May 2001 19:39:48 -0400 (EDT)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: Hacksaw <hacksaw@hacksaw.org>
-cc: <Wayne.Brown@altec.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Not a typewriter 
-In-Reply-To: <200105112143.f4BLhDu08419@habitrail.home.fools-errant.com>
-Message-ID: <Pine.LNX.4.33.0105131936120.1590-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-X-Spam-To: uce@ftc.gov
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262019AbREMX5w>; Sun, 13 May 2001 19:57:52 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:37784 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S262016AbREMX5h>;
+	Sun, 13 May 2001 19:57:37 -0400
+Date: Mon, 14 May 2001 01:57:33 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200105132357.BAA40155.aeb@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk
+Subject: Re: [NEW SCSI DRIVER] for 53c700 chip and NCR_D700 card against 2.4.4
+Cc: James.Bottomley@HansenPartnership.com, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 May 2001, Hacksaw wrote:
+>> If I am not mistaken, Richard Hirst has also done work on this thing.
 
->Well, I can't disagree. Unix's biggest turn off was the stupid command names.
+> He did 53c710+. The 700 and 700/66 are much less capable devices.
 
-I agree partially with that, but as someone who's used DCL in
-VMS, I can say meaningful names are no better.  People don't want
-to type SHOW DIRECTORY or CREATE /DIRECTORY /PERMISSIONS=blah
-blah.. and when given DCL, once people understand how to create
-logical names (the equiv of aliases in unix) they alias the above
-verbose garbage down to 2-4 letter cryptic looking names.  I
-don't know anyone who has used VMS for more than 3 months who
-hasn't done the above.  Problem is that everyone chooses their
-own cryptic shortcuts from everyone else.  At least in UNIX, the
-short cryptic names are the same everywhere, and you can alias
-them to larger names if you like.
+Yes. But long ago he wrote:
+---
+You need quite a different driver from the 53c710 drivers that
+exist, because 53c700 doesn't have DSA register.  I've attached
+a diff for 2.4.0-test9 which adds sim700.{c,h,scr}.  That driver
+is supposed to handle 53c700 and 53c710 and be a replacement for
+sim710.c.
+---
 
+> the NCR 53c700/66 is mapped at 0xCC0-0xCFF.
 
+Good! You are well-organized. I also had that someplace.
 
-------------------------------------------------------------------------
-Signature poll:  I'm planning on getting a 12 or 16 port autosensing
-10/100 ethernet switch soon for home use, and am interested in hearing
-others recommendations on what to buy.  Cost isn't as important as is
-functionality and quality.  Any suggestions appreciated.
-------------------------------------------------------------------------
+> system board id ... mac address
+
+I am not quite sure what you mean by System Board Id.
+The EISA ID of this thing is INT3061.
+
+Andries
 

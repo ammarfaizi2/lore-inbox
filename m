@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264275AbTL2VwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 16:52:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbTL2VwZ
+	id S264288AbTL2WAY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 17:00:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264289AbTL2WAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 16:52:25 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:36238 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264275AbTL2VwY
+	Mon, 29 Dec 2003 17:00:24 -0500
+Received: from hell.sks3.muni.cz ([147.251.210.31]:21952 "EHLO
+	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S264288AbTL2WAX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 16:52:24 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 29 Dec 2003 13:52:24 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-cc: ramon.rey@hispalinux.es, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>
-Subject: Re: 2.6.0-mm2
-In-Reply-To: <1072731446.5170.4.camel@teapot.felipe-alfaro.com>
-Message-ID: <Pine.LNX.4.44.0312291351150.2380-100000@bigblue.dev.mdolabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 29 Dec 2003 17:00:23 -0500
+Date: Mon, 29 Dec 2003 22:59:13 +0100
+From: Lukas Hejtmanek <xhejtman@hell.sks3.muni.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Peter Berg Larsen <pebl@math.ku.dk>,
+       Santiago Garcia Mantinan <manty@manty.net>,
+       Michal Jaegermann <michal@harddata.com>, linux-kernel@vger.kernel.org,
+       andrew.grover@intel.com
+Subject: ACPI problems (was: Re: Synaptics PS/2 driver and 2.6.0-test11)
+Message-ID: <20031229215913.GH916@mail.muni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Dec 2003, Felipe Alfaro Solana wrote:
+Hello,
 
-> The same happens here. cdrecord is broken under -mm, but works fine with
-> plain 2.6.0.
+I've found that problem with synaptics is really related to some ACPI troubles.
+I've suspected synaptics touchpad to do some interrupt bursts and it does.
+Just single button press and relelase generates about 500 interrupts!!! I wonder
+if it is driver related or really hardware related...
 
-cdrecord works fine here (-mm1) using hdX=ide-cd and dev=ATAPI:...
+I've found that modem driver (slamr module for built in soft modem) suffers from
+the same problem. Gnome battery stat applet freezes connection. 
 
+However with 2.4.23 kernel is all OK. So it seems to be something broken with
+ACPI. 
 
+I remind that gnome battery stat applet causes many lost interrupts. (Interrupt
+timeout in i8042.c)
 
-- Davide
-
-
+-- 
+Luká¹ Hejtmánek

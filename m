@@ -1,79 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263169AbUCYOxk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 09:53:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263177AbUCYOxk
+	id S263185AbUCYO6a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 09:58:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263184AbUCYO6a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 09:53:40 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:20204 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263169AbUCYOxf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 09:53:35 -0500
-Date: Thu, 25 Mar 2004 09:53:34 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
+	Thu, 25 Mar 2004 09:58:30 -0500
+Received: from bristol.phunnypharm.org ([65.207.35.130]:24709 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S263185AbUCYO62 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 09:58:28 -0500
+Date: Thu, 25 Mar 2004 09:26:43 -0500
+From: Ben Collins <bcollins@debian.org>
 To: linux-kernel@vger.kernel.org
-Subject: [SELINUX] check return value for receive node permission (fwd)
-Message-ID: <Xine.LNX.4.44.0403250952540.32174-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: 2.0.x kernels and stack leak under high interrupt load
+Message-ID: <20040325142643.GP2255@phunnypharm.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks like this got lost while lkml was down.
+I'm working on a problem I'm having in 2.0 kernels (embedded product, no
+chance of upgrading to 2.2/2.4/whatever, so that's not a good
+suggestion :)
 
----------- Forwarded message ----------
-Date: Thu, 25 Mar 2004 00:56:02 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, linux-kernel@vger.kernel.org
-Subject: [SELINUX] check return value for receive node permission
+The problem is that under heavy interrupt load, tasks that are in the
+middle of a syscall will get constantly rescheduled. Eventually one of
+these stacks will eat up all the kernel stack associated with it, and
+crash. I've put checks in do_bottom_half() to catch this and do a
+backtrace. The backtrace is full of nothing but ret_from_sys_call and
+do_bottom_half's (like 10 ret_from_sys_call's then a do_bottom_half).
 
-This patch fixes a bug where the return value for a permission call is not 
-checked.
+All of this rescheduling (because the interrupts come in so fast that
+the ret_from_sys_call cannot complete) eventually eats up the stack.
+When we first noticed this it just ended up being a gross backtrace that
+meant nothing (corrupted). The check in do_bottom_half allowed me to
+test the stack size and oops before it got corrupted.
 
-The bug was introduced when I added some code in the following changeset:
+The high interrupt load in this case is caused by a constant high load
+of 64-byte UDP packets. This may not be normal load, but it's possible
+to generate this in some sort of DoS attempt. It is also unrelated to
+the ethernet driver. I've been able to reproduce this on several
+machines using different NIC's and drivers.
 
-<http://linux.bkbits.net:8080/linux-2.5/diffs/security/selinux/hooks.c@1.19?nav=index.html|src/|src/security|src/security/selinux|hist/security/selinux/hooks.c>
+Anyone seen this issue before or can suggest a fix?
 
-Code was added after this line:
-
-	err = avc_has_perm(isec->sid, node_sid, SECCLASS_NODE, node_perm, NULL, &ad);
-
-without adding an explicit check of 'err', which was previously returned 
-from the function rather than being checked.  i.e. it would drop through 
-to:
-
-	out:	
- 		return err;
-
- 	}
-
-With the new code added, err can (and typically would) be overwritten with 
-a successful value, causing the permission check to not deny permission if 
-needed.  The intended denial would have been logged.
-
-The patch below fixes this problem.
-
-Please apply.
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
-
-diff -urN -X dontdiff linux-2.6.5-rc2-mm2.o/security/selinux/hooks.c linux-2.6.5-rc2-mm2.w2/security/selinux/hooks.c
---- linux-2.6.5-rc2-mm2.o/security/selinux/hooks.c	2004-03-24 23:06:30.000000000 -0500
-+++ linux-2.6.5-rc2-mm2.w2/security/selinux/hooks.c	2004-03-25 00:46:49.582735736 -0500
-@@ -3040,6 +3040,8 @@
- 		goto out;
- 	
- 	err = avc_has_perm(isec->sid, node_sid, SECCLASS_NODE, node_perm, NULL, &ad);
-+	if (err)
-+		goto out;
- 
- 	if (recv_perm) {
- 		u32 port_sid;
-
-
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

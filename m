@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317922AbSFNOYn>; Fri, 14 Jun 2002 10:24:43 -0400
+	id <S317607AbSFNOjq>; Fri, 14 Jun 2002 10:39:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317923AbSFNOYm>; Fri, 14 Jun 2002 10:24:42 -0400
-Received: from h24-71-173-70.ss.shawcable.net ([24.71.173.70]:38812 "EHLO
-	valhalla.homelinux.org") by vger.kernel.org with ESMTP
-	id <S317922AbSFNOYm>; Fri, 14 Jun 2002 10:24:42 -0400
-Date: Fri, 14 Jun 2002 08:22:08 -0600 (CST)
-From: "Jason C. Pion" <jpion@valhalla.homelinux.org>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Nick Evgeniev <nick@octet.spb.ru>, Andre Hedrick <andre@linux-ide.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: linux 2.4.19-preX IDE bugs
-In-Reply-To: <Pine.LNX.3.96.1020614082716.9892C-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0206140745001.15871-100000@valhalla.homelinux.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317923AbSFNOjp>; Fri, 14 Jun 2002 10:39:45 -0400
+Received: from mtvwca1-smrly1.gtei.net ([128.11.176.196]:24479 "HELO
+	mtvwca1-smrly1.gtei.net") by vger.kernel.org with SMTP
+	id <S317607AbSFNOjo>; Fri, 14 Jun 2002 10:39:44 -0400
+To: linux-kernel@vger.kernel.org
+Cc: nick@coelacanth.com
+Subject: Arkeia Back + v2.4.18
+From: Nick Papadonis <nick@bose.com>
+Organization: None
+X-Face: 01-z%.O)i7LB;Cnxv)c<Qodw*J*^HU}]Y-1MrTwKNn<1_w&F$rY\\NU6U\ah3#y3r<!M\n9
+ <vK=}-Z{^\-b)djP(pD{z1OV;H&.~bX4Tn'>aA5j@>3jYX:)*O6:@F>it.>stK5,i^jk0epU\$*cQ9
+ !)Oqf[@SOzys\7Ym}:2KWpM=8OCC`
+Date: Thu, 13 Jun 2002 14:00:24 -0400
+Message-Id: <m38z5jvz2f.fsf@noop.bombay>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.1 (Cuyahoga Valley,
+ i686-pc-linux)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Jun 2002, Bill Davidsen wrote:
+Is anyone having kernel lock ups using 'Arkeia backup' with kernel
+v2.4.18?
 
-> Clearly *any* problem which only happens with SMP isn't as wide-spread,
-> and if you are running uni then there should not be a problem. Given that
+Network backups start out fine, however cause the kernel to lock up
+half way through.  I read that v2.2.16 solved problems for the
+v2.2.x series kernel, but haven't read anything on v2.4.x.
 
-This system is a Tyan S2460 with 2 AMD 1600+ processors.  I am not booting 
-with the "noapic" option.  (Haven't needed to)  The Promise Ultra133TX2 
-(20269) runs very happily with the AMD7411 that is on the mobo.  The 
-Promise BIOS recognizes both attached drives as UDMA(133) and the kernel 
-sets them up and uses them properly.  I do not need to do anything special 
-at boot time either.  It just works!
+Were there any big changes in memory management between v2.2 and v2.2?
 
-> earlier and later similar chipset have a sticky bit and no problem, I
-> think it would be reasonable to protect people in a stable kernel. If the
-> config file needed to be patched and there were a warning on the next
-> line, that would certainly assure they knew they were taking a risk.
+Thanks
 
-I agree that some kind of warning (maybe the "EXPERIMENTAL" note in 
-menuconfig) is appropriate for drivers that have known issues with certain 
-pieces of hardware.  However, I can not condone pulling the driver from 
-the kernel.  If it is working perfectly for some people, we would be 
-penalizing them.
+- Nick
 
-Later,
-	Jason
+My configuration is:
+--------------------
+Linux v2.4.18
+RH 7.2-en
+
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.4
+        <Adaptec 29160 Ultra160 SCSI adapter>
+        aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
+
+  Vendor: HP        Model: C1537A            Rev: L812
+  Type:   Sequential-Access                  ANSI SCSI revision: 02
+(scsi0:A:2): 10.000MB/s transfers (10.000MHz, offset 32)
+
+arkeia-arkc-4.2.1-1.i386.rpm
+arkeia-client-4.2.17-2.i386.rpm
+arkeia-gui-4.2.7-2.i386.rpm    
+arkeia-server-shareware-4.2.10-1.i386.rpm
+
 

@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276903AbRJCHvQ>; Wed, 3 Oct 2001 03:51:16 -0400
+	id <S276907AbRJCHyQ>; Wed, 3 Oct 2001 03:54:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276905AbRJCHvG>; Wed, 3 Oct 2001 03:51:06 -0400
-Received: from [195.66.192.167] ([195.66.192.167]:41735 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S276903AbRJCHu6>; Wed, 3 Oct 2001 03:50:58 -0400
-Date: Wed, 3 Oct 2001 10:49:35 +0200
-From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: The Bat! (v1.44)
-Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Organization: IMTP
-X-Priority: 3 (Normal)
-Message-ID: <694747236.20011003104935@port.imtp.ilyichevsk.odessa.ua>
-To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: System reset on Kernel 2.4.10
-In-Reply-To: <527872464EC@vcnet.vc.cvut.cz>
-In-Reply-To: <527872464EC@vcnet.vc.cvut.cz>
+	id <S276908AbRJCHyH>; Wed, 3 Oct 2001 03:54:07 -0400
+Received: from p3EE3E475.dip.t-dialin.net ([62.227.228.117]:44302 "EHLO
+	srv.sistina.com") by vger.kernel.org with ESMTP id <S276906AbRJCHx4>;
+	Wed, 3 Oct 2001 03:53:56 -0400
+Date: Wed, 3 Oct 2001 09:53:39 +0200
+From: "Heinz J . Mauelshagen" <mauelshagen@sistina.com>
+To: linux-kernel@vger.kernel.org
+Cc: mge@sistina.com
+Subject: *** ANNOUNCEMENT *** LVM 1.0.1-rc3 available at www.sistina.com
+Message-ID: <20011003095339.A19833@sistina.com>
+Reply-To: mauelshagen@sistina.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Petr,
-Wednesday, October 03, 2001, 2:02:28 PM, you wrote:
-PV> Look at fs/binfmt_elf.c, at line 642 (in -ac2). There is
 
-PV> error = elf_map(....)
+Hi all,
 
-PV> but nobody bothers with checking error value, it even tries it
-PV> to use as an offset if stars are in wrong constellation.
-PV> If you could add these lines below the call:
+LVM 1.0.1-rc3 supports both version 1 and 2 of the metadata.
 
-PV> if ((unsigned long)error >= (unsigned long)(-256)) {
-PV>   set_fs(old_fs);
-PV>   printk(KERN_DEBUG "Something went wrong with elf_map()\n");
-PV>   kfree(elf_phdata);
-PV>   send_sig(SIGSEGV, current, 0);
-PV>   return 0;
-PV> }
+There's *no* need to run any metadata update tools.
 
-PV> and then report results...
+A tarball is available now at
 
-It fixes reboot for me. Now vmlinux segfaults, and I see
-"Something went wrong with elf_map()" in the log.
--- 
-Best regards, VDA
-mailto:VDA@port.imtp.ilyichevsk.odessa.ua
+   <http://www.sistina.com/>
+
+for download (Follow the "LVM 1.0" link).
+
+This release contains minor changes to LVM 1.0.1-rc2.
+
+See the CHANGELOG file contained in the tarball for further information.
+
+Feed back LVM related information to <linux-lvm@sistina.com>.
+
+Thanks a lot for your support of LVM.
 
 
+Regards,
+Heinz    -- The LVM Guy --
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+Heinz Mauelshagen                                 Sistina Software Inc.
+Senior Consultant/Developer                       Am Sonnenhang 11
+                                                  56242 Marienrachdorf
+                                                  Germany
+Mauelshagen@Sistina.com                           +49 2626 141200
+                                                       FAX 924446
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

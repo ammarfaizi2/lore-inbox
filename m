@@ -1,87 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292850AbSCELvO>; Tue, 5 Mar 2002 06:51:14 -0500
+	id <S292928AbSCELwo>; Tue, 5 Mar 2002 06:52:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292911AbSCELvG>; Tue, 5 Mar 2002 06:51:06 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:29196 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S292850AbSCELut>; Tue, 5 Mar 2002 06:50:49 -0500
-Message-ID: <3C84B093.5020401@evision-ventures.com>
-Date: Tue, 05 Mar 2002 12:48:35 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.6-pre2 IDE cleanup 16
-In-Reply-To: <Pine.LNX.4.44.0203051307080.12437-100000@netfinity.realnet.co.sz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S292914AbSCELwf>; Tue, 5 Mar 2002 06:52:35 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:30666 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S292907AbSCELwV>; Tue, 5 Mar 2002 06:52:21 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 5 Mar 2002 03:52:14 -0800
+Message-Id: <200203051152.DAA05010@adam.yggdrasil.com>
+To: davem@redhat.com
+Subject: Re: Does kmalloc always return address below 4GB?
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
-> On Tue, 5 Mar 2002, Martin Dalecki wrote:
-> 
-> 
->>- Disable configuration of the task file stuff. It is going to go away
->>   and will be replaced by a truly abstract interface based on
->>   functionality and *not* direct mess-up of hardware.
->>
-> 
-> Could you elaborate just a tad on that.
+>Just use pci_alloc_consistent, it never gives you
+>anything larger than 32-bit addresses, please read the
+>documentation :-)
 
-The task file stuff was basically providing a mapping between
-every single possible ATA/ATAPI/whatever device command to the
-ioctl interface. It was for example including mechanisms to initiate
-DMA transfers into nirvana. This is not a good thing
-for the following reasons:
+	I see the smiley, but let me point out that I have
+read Documentation/DMA-mapping.txt and I was misled by this
+sentence:
 
-1. The standard itself changes quite frequently.
+| If you acquired your memory via the page allocator
+| (i.e. __get_free_page*()) or the generic memory allocators
+| (i.e. kmalloc() or kmem_cache_alloc()) then you may DMA to/from
+| that memory using the addresses returned from those routines.
 
-2. I would rather expect that the cornercases (read: not used by Win32)
-    of this interface will not be implemented properly or the
-    implementations will be either broken or not complete. This is making
-    this interface really questionable for general use.
-    As an added bonus this is introducing magnificient possibilities for
-    failure or even true hardware breakdown (possible).
-    Bah. It is right now the fact that 80% of this stuff isn't
-    implemented on older drives.
+	It might be a good idea to rephrase it.  If I knew what that
+sentence I would propose a patch to the DMA-mapping.txt file, but I
+honestly don't know what proposition that sentence is supposed
+to convey.  If there really is no guarantee that this sentence is
+conveying, then I guess the sentence should be deleted.
 
-3. The code implementing it is of really really poor quality and very
-    heavy wight. It makes it really hard to target the true problems the
-    driver has on a far more trivial level.
+	Anyhow, thanks for your quick clarification.  The driver
+breaking on 64-bit architectures was exactly what I was worried about.
 
-4. One should have an ioctl setting the drivers silence policy based on
-    a switch choice value for example instead of an ioctl, which contains
-    the corresponding ATA command packet. This would allow for example
-    to support drives in the future if the most common method of
-    configuring this changes. Or one could for example identify silent
-    operation mode of disks with rotation speed trottle on DVD drives.
-
-5. It is necessary to integrate most features found there with other
-    kernel functionality context (suspend and reset come to mind as
-    first). It doesn't therefore make *any* sense to expose this
-    interface to user space.
-
-    (This is the abstraction problem.)
-
-And infally:
-
-5. No body is using it as of now and therefore nobody should miss it. No
-    other OS out there has something similar, so maybe they don't need
-    it? I find it allways ridiculous to see that Win32's ATA drivers are
-    by the fact 3 smaller then the one found in linux.
-
-6. Some special commands found there (unless issuing IRQ's) can be
-    entierly handled in userspace.
-
-Home it helps.
-
-PS. If you are still in doubt, please:
-
-1. Look at ide-taskfile.c and vommit ;-).
-2. Try to show me a usufull programm using this.
-3. Count the number of "options" of the IDE driver entry in menuconfig.
-
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

@@ -1,261 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262665AbTDEVfm (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 16:35:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262671AbTDEVfm (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 16:35:42 -0500
-Received: from smtp-102.noc.nerim.net ([62.4.17.102]:47109 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S262665AbTDEVfh (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 5 Apr 2003 16:35:37 -0500
-Date: Sat, 5 Apr 2003 23:49:27 +0200
-From: Jerome Chantelauze <jerome.chantelauze@finix.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21-pre7
-Message-ID: <20030405214927.GA12244@i486X33>
-References: <Pine.LNX.4.53L.0304041815110.32674@freak.distro.conectiva>
+	id S262680AbTDEVvZ (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 16:51:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262682AbTDEVvZ (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 16:51:25 -0500
+Received: from almesberger.net ([63.105.73.239]:14606 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S262680AbTDEVvX (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 5 Apr 2003 16:51:23 -0500
+Date: Sat, 5 Apr 2003 19:02:43 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: linux-kernel@vger.kernel.org, LTT-Dev <ltt-dev@shafik.org>
+Subject: Re: [RFC/FYI] reliable markers (hooks/probes/taps/...)
+Message-ID: <20030405190243.B19288@almesberger.net>
+References: <20030403070758.A18709@almesberger.net> <20030404224652.A19288@almesberger.net> <3E8F0DEF.C50FB29C@opersys.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="NzB8fVQJ5HfG6fxh"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53L.0304041815110.32674@freak.distro.conectiva>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <3E8F0DEF.C50FB29C@opersys.com>; from karim@opersys.com on Sat, Apr 05, 2003 at 12:10:07PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Karim Yaghmour wrote:
+> We've already got a small program that does this for LTT statements
+> which we plan to use in the future: genevent.
 
---NzB8fVQJ5HfG6fxh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This looks like a clear improvement, and the markup needed in the
+kernel is also pretty straightforward.
 
-On Fri, Apr 04, 2003 at 06:15:52PM -0300, Marcelo Tosatti wrote:
-> 
-> So here goes -pre7. Hopefully the last -pre.
-> 
-> Please try it.
+But my approach actually goes a bit further: I don't even need to
+know types, because I can extract them from debugging information.
+Clearly, there is a limit on how useful this is. E.g. if a variable
+changes its type from "int" to "struct something *", anything using
+it will need to know. But at least changes like "int" -> "unsigned
+long" or -> "whatever_t" don't need to be synchronized.
 
-Hi.
+Furthermore, the markers are for desperate cases, where the
+debugging information does not allow us to find arguments or
+variables, or even the location for placing the breakpoint. On
+function entry, it should be possible to access arguments without
+any markup in the code. I'll examine that part soon.
 
-It seems the 2.4.21-pre7 doesn't build without pci support.
+Generally, my idea is to gather as much useful information from
+debugging data as possible. A few observations so far (based on
+using DWARF2 information; all this is on the kernel, with the usual
+optimizations):
 
-***********
-ld -m elf_i386 -T /usr/src/linux-2.4.21-pre7/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o init/do_mounts.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/video/video.o drivers/media/media.o \
-        net/network.o \
-        /usr/src/linux-2.4.21-pre7/arch/i386/lib/lib.a /usr/src/linux-2.4.21-pre7/lib/lib.a /usr/src/linux-2.4.21-pre7/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-arch/i386/kernel/kernel.o: In function `broken_pirq':
-arch/i386/kernel/kernel.o(.text.init+0x32c4): undefined reference to `broken_440gx_bios'
-arch/i386/kernel/kernel.o(.text.init+0x32ce): undefined reference to `pci_probe'make: *** [vmlinux] Error 1
-*************
+ - gcc provides accurate type and name information
 
-My .config is attached.
+ - location of static or extern functions is accurate, but there
+   doesn't seem to be a reliable means for determining where the
+   function prologue ends [10000]
 
-A 2.4.21-pre6 with the same options builds.
+ - the location of inlined functions is less accurate than for
+   non-inlined functions [10003]
 
-Regards
---
-Jerome Chantelauze
+ - labels (as in "goto foo;") are completely erratic (that's one
+   reason for markers) [10001, 10002, 10003]
 
---NzB8fVQJ5HfG6fxh
-Content-Type: text/plain; charset=us-ascii
-Content-Description: .config
-Content-Disposition: attachment; filename=config
+ - variable locations information is frequently only useful if
+   we're after the prologue, and it does not accurately reflect
+   register copies, and such (that's another reason for markers)
+   [10005]
 
-#
-# Automatically generated by make menuconfig: don't edit
-#
-CONFIG_X86=y
-CONFIG_UID16=y
+ - call frame information seems to be almost sufficient for
+   emulating a function return. "Almost" because I also need to
+   analyze the add N,%esp instruction following the call. I'm
+   not sure yet if there isn't a better way, though.
 
-#
-# Code maturity level options
-#
-# CONFIG_EXPERIMENTAL is not set
+The numbers in square brackets are the gcc PRs I've submitted.
+(http://gcc.gnu.org/cgi-bin/gnatsweb.pl)
 
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_KMOD=y
+Without optimization, some things look better, of course.
 
-#
-# Processor type and features
-#
-CONFIG_M486=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=4
-CONFIG_X86_USE_STRING_486=y
-CONFIG_X86_ALIGNMENT_16=y
-CONFIG_X86_PPRO_FENCE=y
-CONFIG_NOHIGHMEM=y
+I'm not sure how much help we can expect from the gcc side. Some
+of these things may just be too hard to fix. And others can't be
+usefully fixed at all (e.g. the markers tell gcc where the focal
+points are, where it has to relax optimization for accessibility).
 
-#
-# General setup
-#
-CONFIG_NET=y
-CONFIG_ISA=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=m
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=m
+Some thing I haven't looked at yet:
 
-#
-# Parallel port support
-#
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_CML1=m
+ - using line numbers to specify locations. With optimization, I
+   expect total disaster here. Also, line numbers are too volatile
+   for few things but manual debugging.
 
-#
-# Block devices
-#
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_RAM=m
-CONFIG_BLK_DEV_RAM_SIZE=4096
+ - passing structures as arguments, or returning them from functions
 
-#
-# Networking options
-#
-CONFIG_PACKET=y
-CONFIG_NETFILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_SYN_COOKIES=y
+ - unusual (i.e. large) alignment settings. Perhaps I'll eventually
+   need to know CFLAGS in order to reconstruct some things.
 
-#
-#   IP: Netfilter Configuration
-#
-CONFIG_IP_NF_COMPAT_IPCHAINS=m
-CONFIG_IP_NF_NAT_NEEDED=y
+> Of course this is just a begining. We're open to suggestions and
+> contributions.
 
-#
-# ATA/IDE/MFM/RLL support
-#
-CONFIG_IDE=y
+Same thing here :-) My goal is to reduce the markup that has to
+be done on the kernel to the bare minimum. The "reliable markers"
+are the least intrusive way I could think of for handling those
+cases where nothing else works (e.g. in the middle of a function).
 
-#
-# IDE, ATA and ATAPI Block devices
-#
-CONFIG_BLK_DEV_HD_ONLY=y
-CONFIG_BLK_DEV_HD=y
-CONFIG_BLK_DEV_IDE_MODES=y
+It would be nice to have a "global" clobber, though. I.e. one that
+flushes and invalidates all values cached in registers, and that
+forces all evaluations happening prior in the nominal execution
+flow to be carried out, including initialization of function-local
+variables. That way, reliable markers wouldn't need the list of
+things that might be looked at.
 
-#
-# SCSI support
-#
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_SD_EXTRA_DEVS=40
-CONFIG_BLK_DEV_SR=m
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_CHR_DEV_SG=m
+- Werner
 
-#
-# SCSI low-level drivers
-#
-CONFIG_SCSI_AHA1542=y
-
-#
-# Network device support
-#
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_ISA=y
-CONFIG_NE2000=y
-
-CONFIG_PPP=m
-CONFIG_PPP_ASYNC=m
-CONFIG_PPP_DEFLATE=m
-CONFIG_PPP_BSDCOMP=m
-CONFIG_SLIP=m
-CONFIG_SLIP_COMPRESSED=y
-
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=m
-
-#
-# Watchdog Cards
-#
-CONFIG_RTC=y
-
-#
-# File systems
-#
-CONFIG_AUTOFS4_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=m
-
-#
-# Network File Systems
-#
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_SUNRPC=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-
-#
-# Partition Types
-#
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-
-#
-# Native Language Support
-#
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_ISO8859_1=y
-CONFIG_NLS_ISO8859_15=m
-CONFIG_NLS_UTF8=m
-
-#
-# Console drivers
-#
-CONFIG_VGA_CONSOLE=y
-
-#
-# Sound
-#
-CONFIG_SOUND=m
-CONFIG_SOUND_OSS=m
-CONFIG_SOUND_DMAP=y
-CONFIG_SOUND_SB=m
-
-#
-# Library routines
-#
-CONFIG_ZLIB_INFLATE=m
-CONFIG_ZLIB_DEFLATE=m
-
---NzB8fVQJ5HfG6fxh--
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

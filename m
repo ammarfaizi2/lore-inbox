@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280817AbRLJEff>; Sun, 9 Dec 2001 23:35:35 -0500
+	id <S281504AbRLJF14>; Mon, 10 Dec 2001 00:27:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281504AbRLJEf0>; Sun, 9 Dec 2001 23:35:26 -0500
-Received: from front2.mail.megapathdsl.net ([66.80.60.30]:6158 "EHLO
-	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S280817AbRLJEfP>; Sun, 9 Dec 2001 23:35:15 -0500
-Subject: 2.5.1-pre8 -- Compile failure in ide-floppy.c
-From: Miles Lane <miles@megapathdsl.net>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0+cvs.2001.12.04.08.57 (Preview Release)
-Date: 09 Dec 2001 20:37:29 -0800
-Message-Id: <1007959053.29716.0.camel@stomata.megapathdsl.net>
+	id <S286162AbRLJF1o>; Mon, 10 Dec 2001 00:27:44 -0500
+Received: from pcow028o.blueyonder.co.uk ([195.188.53.124]:5899 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S281504AbRLJF1f>;
+	Mon, 10 Dec 2001 00:27:35 -0500
+Date: Mon, 10 Dec 2001 04:48:49 +0000
+From: Ian Molton <spyro@armlinux.org>
+To: linux-kernel@vger.kernel.org
+Subject: slow read performance...
+Message-Id: <20011210044849.538c84c6.spyro@armlinux.org>
+Reply-To: spyro@armlinux.org
+Organization: The dragon roost
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; )
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
+I've just run bonnie (Im curious :) and got some disappointing figures.
 
-make[2]: Entering directory `/usr/src/linux/drivers/ide'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon  -DMODULE   -c -o ide-floppy.o ide-floppy.c
-ide-floppy.c: In function `idefloppy_end_request':
-ide-floppy.c:699: warning: comparison between pointer and integer
-ide-floppy.c:699: warning: comparison between pointer and integer
-ide-floppy.c: In function `idefloppy_queue_pc_head':
-ide-floppy.c:779: incompatible types in assignment
-ide-floppy.c: In function `idefloppy_create_rw_cmd':
-ide-floppy.c:1214: warning: comparison between pointer and integer
-ide-floppy.c: In function `idefloppy_do_request':
-ide-floppy.c:1243: switch quantity not an integer
-ide-floppy.c:1258: warning: unsigned int format, pointer arg (arg 2)
-ide-floppy.c:1246: warning: unreachable code at beginning of switch statement
-ide-floppy.c: In function `idefloppy_queue_pc_tail':
-ide-floppy.c:1276: incompatible types in assignment
-make[2]: *** [ide-floppy.o] Error 1
+Im running a Duron @ 976MHz, on an ASUS A7M (76x northbridge, via 686B
+southbridge)
 
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=m
-CONFIG_BLK_DEV_IDEFLOPPY=m
+the machine has 256MB RAM and a seagate ST320413A UDMA 100 harddisc as the
+only device on the primary ide interface.
 
+UDMA is /on/, and all in hdparm looks OK - 32 bit IO etc.
 
+write speed is fine (22-30MB/sec) but reads are horribly slow, as little as
+9MB/sec and I havent seen >16MB/sec yet.
+
+I am using a 400MB test in bonnie to remove linuxs disc cache from the
+equation, as suggested by someone here.
+
+I thought HDDs were supposed to /read/ faster than they write?
+
+if 9MB/sec normal? seems low... I thought UDMA 100 discs were up around the
+30MB/sec mark for reads...
+
+or does bonnie just report unrealistic read speeds? the machine 'feels'
+responsive enough...
+
+TIA...

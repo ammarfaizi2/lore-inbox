@@ -1,68 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271353AbTGQJcY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 05:32:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271357AbTGQJcY
+	id S271359AbTGQJfG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 05:35:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271362AbTGQJfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 05:32:24 -0400
-Received: from pop015pub.verizon.net ([206.46.170.172]:22258 "EHLO
-	pop015.verizon.net") by vger.kernel.org with ESMTP id S271353AbTGQJcP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 05:32:15 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
-To: Greg KH <greg@kroah.com>
-Subject: Re: [BK PATCH] USB update for 2.4.22-pre5
-Date: Thu, 17 Jul 2003 05:47:03 -0400
-User-Agent: KMail/1.5.1
+	Thu, 17 Jul 2003 05:35:05 -0400
+Received: from 13.2-host.augustakom.net ([80.81.2.13]:41088 "EHLO phoebee")
+	by vger.kernel.org with ESMTP id S271359AbTGQJey (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 05:34:54 -0400
+Date: Thu, 17 Jul 2003 11:49:46 +0200
+From: Martin Zwickel <martin.zwickel@technotrend.de>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-References: <20030714170817.GA23458@kroah.com> <200307162219.36290.gene.heskett@verizon.net> <20030717041037.GA4532@kroah.com>
-In-Reply-To: <20030717041037.GA4532@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307170547.03264.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at pop015.verizon.net from [151.205.62.27] at Thu, 17 Jul 2003 04:47:08 -0500
+Subject: Re: 2.6.0-t1: problems with modules
+Message-Id: <20030717114946.32ac462a.martin.zwickel@technotrend.de>
+In-Reply-To: <20030716083326.0c92c4f6.rddunlap@osdl.org>
+References: <20030715113610.371df42b.martin.zwickel@technotrend.de>
+	<20030716083326.0c92c4f6.rddunlap@osdl.org>
+Organization: TechnoTrend AG
+X-Mailer: Sylpheed version 0.9.0claws93 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Linux Phoebee 2.4.21-rc4 i686 Intel(R) Pentium(R) 4 CPU
+ 2.40GHz
+X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
+ ?J0GVZ4&
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.6_esrN+m:_0Q49"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 17 July 2003 00:10, Greg KH wrote:
->On Wed, Jul 16, 2003 at 10:19:36PM -0400, Gene Heskett wrote:
->> So I repeat, something in that -pre5 to -pre6 patching of the usb
->> stuffs broke this.  Possibly even this patchset below.
->
->If you just back out the usb patches in -pre6 does it help?
->
->There is only 1 patch in here that might possibly be in code that
-> you are hitting, the change to drivers/usb/usb.c  If you change
-> that back, does it help?
+--=.6_esrN+m:_0Q49
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-I don't know, and likely won't try very soon as I just got back to the 
-house from putting my wife in the shop, complications from emphesima.  
-Long time 3 pack a day smoker, can't quit.
 
->I'd also really suggest asking the quick cam driver authors, as this
->driver isn't in the kernel tree so we have no idea what it could be
->doing.
+Thanks for the hints!
+Got it working now. (well, not the way i supposed to do, but it works... :)
 
-My conversations with them haven't enlightened me, so I'm now waiting 
-on a phone call from the SunPlus folks to see if I can obtain any 
-data on the chipset in that camera, which is newer than what the 
-qcam-vc folks had when they wrote that.
+Regards,
+Martin
 
->thanks,
->
->greg k-h
+ps.: the kbuild system is strange
 
 -- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.26% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+MyExcuse:
+waste water tank overflowed onto computer
 
+Martin Zwickel <martin.zwickel@technotrend.de>
+Research & Development
+
+TechnoTrend AG <http://www.technotrend.de>
+
+--=.6_esrN+m:_0Q49
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/FnE6mjLYGS7fcG0RAppfAJ9nx2i8dHxPQbiNbmhnOBj5D6SMbwCfRJ+Q
+nvSnEoQ1zFRCZbi3LS588W4=
+=tVv4
+-----END PGP SIGNATURE-----
+
+--=.6_esrN+m:_0Q49--

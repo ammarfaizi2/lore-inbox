@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263417AbTIBBI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 21:08:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263419AbTIBBI5
+	id S263406AbTIBBYd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 21:24:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263413AbTIBBYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 21:08:57 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:8577
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263417AbTIBBIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 21:08:54 -0400
-Date: Tue, 2 Sep 2003 03:09:03 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Xose Vazquez Perez <xose@wanadoo.es>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.22pre7aa1: unresolved in sk98lin
-Message-ID: <20030902010903.GA1599@dualathlon.random>
-References: <3F53EC5F.5090005@wanadoo.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F53EC5F.5090005@wanadoo.es>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Mon, 1 Sep 2003 21:24:33 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27836 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263406AbTIBBYb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 21:24:31 -0400
+Message-ID: <3F53F142.5050909@pobox.com>
+Date: Mon, 01 Sep 2003 21:24:18 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: Christoph Hellwig <hch@infradead.org>,
+       Tigran Aivazian <tigran@veritas.com>, linux-kernel@vger.kernel.org,
+       tigran@aivazian.fsnet.co.uk
+Subject: Re: dontdiff for 2.6.0-test4
+References: <Pine.GSO.4.44.0309010754480.1106-100000@north.veritas.com> <20030901163958.A24464@infradead.org> <20030901162244.GA1041@mars.ravnborg.org> <3F537CDD.3040809@pobox.com> <20030901171806.GB1041@mars.ravnborg.org>
+In-Reply-To: <20030901171806.GB1041@mars.ravnborg.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 02, 2003 at 03:03:27AM +0200, Xose Vazquez Perez wrote:
-> Andrea Arcangeli wrote:
+Sam Ravnborg wrote:
+> On Mon, Sep 01, 2003 at 01:07:41PM -0400, Jeff Garzik wrote:
 > 
-> > I'm CCing the authors of the driver, is there a new version or are we the
-> > first triggering it? I can fix it myself but I'd prefer to avoid any
-> > duplication since it's not a one liner.
+>>dontdiff must know about many things that 'make mrproper' need not care 
+>>about:
+>>
+>>	files with ".bak" suffix
+>>	files with "~" suffix
+>>	BitKeeper, CVS, RCS, SCCS directories
 > 
-> 2.4.23-prex driver is very old(v6.02 Dec-2002)
-> patch-2.4.22-ac1 has more recent version but latest are at SK web site:
-> http://www.syskonnect.com/syskonnect/support/driver/htm/sk98lin.htm
+> 
+> make mrproper already cares about all those.
+> Fragments from top-level Makefile:
 
-applied, thanks.
 
-Andrea
+I stand corrected :)  However, I think it's a tangent:
 
-/*
- * If you refuse to depend on closed software for a critical
- * part of your business, these links may be useful:
- *
- * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.5/
- * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.4/
- * http://www.cobite.com/cvsps/
- *
- * svn://svn.kernel.org/linux-2.6/trunk
- * svn://svn.kernel.org/linux-2.4/trunk
- */
+dontdiff is a file that's useful precisely because of the form its in. 
+So, as something that's proven itself useful to a bunch of people, I 
+definitely think it has a home somewhere in Documentation/*  It need not 
+be referenced in any way by kbuild; that's not a big deal.  The two 
+really serve different purposes.
+
+	Jeff
+
+
+

@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292662AbSBUReG>; Thu, 21 Feb 2002 12:34:06 -0500
+	id <S292663AbSBUReq>; Thu, 21 Feb 2002 12:34:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292663AbSBURd4>; Thu, 21 Feb 2002 12:33:56 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:41992 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S292662AbSBURdm>; Thu, 21 Feb 2002 12:33:42 -0500
-Message-ID: <3C752F41.4050303@evision-ventures.com>
-Date: Thu, 21 Feb 2002 18:32:49 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.5 IDE cleanup 11
-In-Reply-To: <E16dtkW-0006yW-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S292664AbSBUReh>; Thu, 21 Feb 2002 12:34:37 -0500
+Received: from ns.suse.de ([213.95.15.193]:22021 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S292663AbSBUReW>;
+	Thu, 21 Feb 2002 12:34:22 -0500
+Date: Thu, 21 Feb 2002 18:34:20 +0100
+From: Dave Jones <davej@suse.de>
+To: Gregor Jasny <gjasny@wh8.tu-dresden.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.5 - Linking error
+Message-ID: <20020221183420.L5583@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Gregor Jasny <gjasny@wh8.tu-dresden.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <200202211711.g1LHBYAH014952@backfire.WH8.TU-Dresden.De>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200202211711.g1LHBYAH014952@backfire.WH8.TU-Dresden.De>; from gjasny@wh8.tu-dresden.de on Thu, Feb 21, 2002 at 06:11:34PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->>This is the next round of IDE driver cleanups.
->>
-> 
-> How about fixing the stuff you've already messed up (like putting the
-> drive present flags and the probe return back) ? The changes you made
+On Thu, Feb 21, 2002 at 06:11:34PM +0100, Gregor Jasny wrote:
+ > drivers/net/net.o(.data+0xd4): undefined reference to `local symbols in 
+ > discarded section .text.exit'
+ > make[1]: *** [vmlinux] Error 1
+ > make[1]: Leaving directory `/usr/src/linux-2.5.5'
+ > What must I change that it links properly?
 
-Please note that *this* stuff was messed up before as well.
+See 'Compile errors' in http://www.codemonkey.org.uk/Linux-2.5.html
 
-In esp using a CardBus ide adapter will give you after first
-plug: /dev/hdc, after second plug /dev/hde and so on... on 2.4.17.
-
-I'm just rying to clarify the code-flow before stuff like the above
-can be cleaned up.
-
-And please note that it certainly was and isn't a good idea
-to call the module initialization routine twice. OK?
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

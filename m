@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbTE2KV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 06:21:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbTE2KV7
+	id S262115AbTE2KWR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 06:22:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbTE2KWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 06:21:59 -0400
-Received: from holomorphy.com ([66.224.33.161]:59782 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262114AbTE2KVz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 06:21:55 -0400
-Date: Thu, 29 May 2003 03:35:03 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Stewart Smith <stewartsmith@mac.com>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: buffer_head.b_bsize type
-Message-ID: <20030529103503.GZ8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Stewart Smith <stewartsmith@mac.com>, linux-kernel@vger.kernel.org,
-	trivial@rustcorp.com.au
-References: <746529B0-91C0-11D7-9488-00039346F142@mac.com>
+	Thu, 29 May 2003 06:22:16 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9745 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262115AbTE2KWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 06:22:11 -0400
+Date: Thu, 29 May 2003 11:35:19 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, axobe@in.ibm.com,
+       Rusty <rusty@rustcorp.com.au>
+Subject: Re: rd.o module refcount problem
+Message-ID: <20030529113519.B18348@flint.arm.linux.org.uk>
+Mail-Followup-To: Maneesh Soni <maneesh@in.ibm.com>,
+	LKML <linux-kernel@vger.kernel.org>, axobe@in.ibm.com,
+	Rusty <rusty@rustcorp.com.au>
+References: <20030529102510.GA1251@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <746529B0-91C0-11D7-9488-00039346F142@mac.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030529102510.GA1251@in.ibm.com>; from maneesh@in.ibm.com on Thu, May 29, 2003 at 03:55:10PM +0530
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 29, 2003 at 08:29:40PM +1000, Stewart Smith wrote:
-> The buffer_head structure (include/linux/buffer_head.h) uses a u32 type 
-> while everywhere else (e.g. bread) the size parameter is of type int.
-> Currently on all architectures u32 is defined as unsigned int. We 
-> should probably not be doing unsigned and signed swaps. And you should 
-> never really have a negative size of a buffer.
-> So, there are two solutions: either change the buffer_head struct to be 
-> int so it matches everywhere else, or change everywhere else.
-> The attached patch does the change in one place. Although perhaps 
-> changing everywhere else would be better. Thoughts? I'm happy to make 
-> up the patch if needed.
-> Applies cleanly to 2.5.69 and 2.5.70 and has been tested on i386 
-> without causing any further problems (that I can see at least).
+On Thu, May 29, 2003 at 03:55:10PM +0530, Maneesh Soni wrote:
+> The module ref count for rd.o module is not adjusted and remains 1 while
+> doing the following things. 
+> 
+> [root@llm01 mod]# insmod /sdb/linux-2.5.70/drivers/block/rd.o
+> [root@llm01 mod]# lsmod
+> Module                  Size  Used by
+> rd                      5568  0 - Live 0xf88b5000
+> [root@llm01 mod]# mkfs -t ext2 /dev/ram0
+> .
+> .
+> [root@llm01 mod]# lsmod
+> Module                  Size  Used by
+> rd                      5568  1 - Live 0xf88b5000
+> 
+> mount/umount of /dev/ram0 does not change the rd.o module ref count. 
+> 
+> So, who is supposed to release the rd.o module gracefully? 
+> Also mount /dev/ram0 should hold a ref and umount should release the same.
+> 
+> Same test on 2.4.20 looks correct and mount increments the ref count and
+> umount decrements the ref count.
 
-Could we go the other way and make all users of b_size use unsigned?
+I think you'll find you have to tell the ramdisk to invalidate its contents
+before the module count drops.
 
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Thanks.
-
-
--- wli

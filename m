@@ -1,173 +1,469 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261919AbULCD2o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261916AbULCDcI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261919AbULCD2o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 22:28:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbULCD2o
+	id S261916AbULCDcI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 22:32:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbULCDcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 22:28:44 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:16015 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261390AbULCD2X convert rfc822-to-8bit (ORCPT
+	Thu, 2 Dec 2004 22:32:08 -0500
+Received: from [61.48.52.229] ([61.48.52.229]:9711 "EHLO adam.yggdrasil.com")
+	by vger.kernel.org with ESMTP id S261916AbULCDae (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 22:28:23 -0500
-Date: Fri, 03 Dec 2004 03:28:20 +0000
-From: Willem Riede <osst@riede.org>
-Subject: Re: [PATCH] SCSI tape: remove use of file_count(), was Re:
- [patchset] Lockfree fd lookup 0 of 5
-To: Kai Makisara <Kai.Makisara@kolumbus.fi>
-Cc: Ravikiran G Thirumalai <kiran@in.ibm.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>
-References: <20040902062229.GB1312@vitalstatistix.in.ibm.com>
-	<20040917055845.GA3468@in.ibm.com> <20040917001555.6dbee4fd.akpm@osdl.org>
-	<20040917103201.GA3785@in.ibm.com>
-	<Pine.LNX.4.58.0409170811300.2338@ppc970.osdl.org>
-	<Pine.LNX.4.60.0409171857040.5201@spektro.metla.fi>
-	<20040917201745.GD3975@in.ibm.com>
-	<Pine.LNX.4.60.0409172338360.5736@spektro.metla.fi>
-	<20040920143737.GC21581@in.ibm.com>
-	<Pine.LNX.4.58.0409202053350.2814@kai.makisara.local>
-	<20041130131150.GE23329@impedimenta.in.ibm.com>
-	<Pine.LNX.4.61.0411302217120.4818@kai.makisara.local>
-In-Reply-To: <Pine.LNX.4.61.0411302217120.4818@kai.makisara.local> (from
-	Kai.Makisara@kolumbus.fi on Tue Nov 30 15:30:26 2004)
-X-Mailer: Balsa 2.2.6
-Message-Id: <1102044500l.4013l.5l@serve.riede.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
+	Thu, 2 Dec 2004 22:30:34 -0500
+Date: Thu, 2 Dec 2004 19:20:35 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200412030320.iB33KZI03215@adam.yggdrasil.com>
+To: maneesh@in.ibm.com
+Subject: [Patch] Do not allocate sysfs_dirent.s_children for non-directories
+Cc: akpm@osdl.org, chrisw@osdl.org, greg@kroah.com,
+       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/30/2004 03:30:26 PM, Kai Makisara wrote:
-> On Tue, 30 Nov 2004, Ravikiran G Thirumalai wrote:
-> 
-> > Kai, can you mail the latest version of this patch to lkml?  Willem, can
-> > you make a patch similar to this for osst.c and mail it to lkml?
-> > 
-> OK. The patch at the end of this message modifies st so that file_count() 
-> is not used. It has been used to find the last call to the st_flush() 
-> method for possible writing of the final filemark and rewinding the tape. 
-> While these have been in st_flush(), it has been possible to return errors 
-> in the return value of close(). The patch moves these operations to
-> st_release() 
-> and logs the possible errors since it is not possible to return these 
-> errors to the user any more. Flushing the tape drive buffer is added to  
-> st_flush() to minimise the possibility of errors not reported at close().
-> 
-> The patch is against 2.6.10-rc2-bk13, it compiles, and is lightly tested. 
-> It should not be applied unless file_count() really is removed.
+	The following patch, against a heavily hacked 2.6.10-rc2-bk15
+sysfs tree, removes the s_children field from sysfs_dirent and
+creates a new structure just for directories named sysfs_dir, which
+embeds a sysfs_dirent and also adds s_children.  Directories allocate
+a sysfs_dir; non-directories allocate a sysfs_dirent.  There are
+two separate kmem caches for the different data types.
 
-Here is the equivalent patch for osst.c -- the same considerations apply.
-It has been compiled, and tested, and works for me.
+	Not allocating s_children from each non-directory saves
+two pointers (8 bytes) for each of the 2573 non-directory nodes
+in my sysfs tree, or about 20kB on unswappable memory, but
+having another kmem cache probably wastes an average of half
+a page in memory fragmentation and then there is are few
+bytes from the new code and the additional kmem_cache_t
+structure, so I would guess it probably saves about 16kB in
+practice.
 
-Signed-off-by: Willem Riede <osst@riede.org>
+	In the future, I hope to make a similar change for symbolic
+links.
 
---- /home/wriede/kernel/linux-2.6.10-rc2/drivers/scsi/osst.c	2004-12-01
-19:31:49.000000000 -0500
-+++ ./osst.c	2004-12-02 18:51:55.000000000 -0500
-@@ -4590,22 +4590,38 @@
+	By the way, this patch will also make it easier for me to
+try to unpin sysfs directories because there are a few other
+fields specific to directories that I would want to store
+in sysfs_dir.
+
+                    __     ______________
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l
+
+diff -u5 linux.prev/fs/sysfs/dir.c linux/fs/sysfs/dir.c
+--- linux.prev/fs/sysfs/dir.c	2004-12-02 14:51:01.000000000 +0800
++++ linux/fs/sysfs/dir.c	2004-12-03 10:36:20.000000000 +0800
+@@ -29,38 +29,46 @@
+ };
+ 
+ /*
+  * Allocates a new sysfs_dirent and links it to the parent sysfs_dirent
+  */
+-static struct sysfs_dirent * sysfs_new_dirent(struct sysfs_dirent * parent_sd,
+-						void * element)
++static struct sysfs_dirent * sysfs_new_dirent(struct sysfs_dir * parent_sd,
++					      void * element, int type)
  {
- 	int            result = 0, result2;
- 	OS_Scsi_Tape * STp  = filp->private_data;
--	struct st_modedef      * STm  = &(STp->modes[STp->current_mode]);
--	struct st_partstat  * STps = &(STp->ps[STp->partition]);
- 	Scsi_Request * SRpnt = NULL;
--	char         * name = tape_name(STp);
+ 	struct sysfs_dirent * sd;
  
--	if (file_count(filp) > 1)
--		return 0;
-+	if (down_interruptible(&STp->lock))
-+		return (-ERESTARTSYS);
+-	sd = kmem_cache_alloc(sysfs_dir_cachep, GFP_KERNEL);
+-	if (!sd)
+-		return NULL;
++	if (sysfs_type_dir(type)) {
++		struct sysfs_dir * sdir;
++		sdir = kmem_cache_alloc(sysfs_dir_cachep, GFP_KERNEL);
++		if (!sdir)
++			return NULL;
++		INIT_LIST_HEAD(&sdir->s_children);
++		sd = &sdir->s_ent;
++	} else {
++		sd = kmem_cache_alloc(sysfs_dirent_cachep, GFP_KERNEL);
++		if (!sd)
++			return NULL;
++	}
  
--	if ((STps->rw == ST_WRITING || STp->dirty) && !STp->pos_unknown) {
-+	if ((STp->ps[STp->partition].rw == ST_WRITING || STp->dirty) &&
-!STp->pos_unknown) {
- 		STp->write_type = OS_WRITE_DATA;
- 		result = osst_flush_write_buffer(STp, &SRpnt);
- 		if (result != 0 && result != (-ENOSPC))
- 			goto out;
-+		/* wait for writing to complete */
-+		result2 = osst_flush_drive_buffer(STp, &SRpnt);
-+		if (result == 0)
-+			result = result2;
+ 	memset(sd, 0, sizeof(*sd));
+-	INIT_LIST_HEAD(&sd->s_children);
+ 	list_add(&sd->s_sibling, &parent_sd->s_children);
+ 	sd->s_element = element;
++	sd->s_type = type;
+ 
+ 	return sd;
+ }
+ 
+-int sysfs_make_dirent(struct sysfs_dirent * parent_sd, struct dentry * dentry,
++int sysfs_make_dirent(struct sysfs_dir * parent_sd, struct dentry * dentry,
+ 			void * element, umode_t mode, int type)
+ {
+ 	struct sysfs_dirent * sd;
+ 
+-	sd = sysfs_new_dirent(parent_sd, element);
++	sd = sysfs_new_dirent(parent_sd, element, type);
+ 	if (!sd)
+ 		return -ENOMEM;
+ 
+ 	sd->s_mode = mode;
+-	sd->s_type = type;
+ 	sd->s_dentry = dentry;
+ 	if (dentry) {
+ 		dentry->d_fsdata = sd;
+ 		dentry->d_op = &sysfs_dentry_ops;
  	}
--	if ( STps->rw >= ST_WRITING && !STp->pos_unknown) {
-+out:
-+	up(&STp->lock);
-+	return result;
-+}
+@@ -94,17 +102,19 @@
+ static int create_dir(void *element, struct dentry * p,
+ 		      const char * n, struct dentry ** d, int type)
+ {
+ 	int error;
+ 	umode_t mode = S_IFDIR| S_IRWXU | S_IRUGO | S_IXUGO;
++	struct sysfs_dir *parent_sd;
  
+ 	down(&p->d_inode->i_sem);
+ 	*d = sysfs_get_dentry(p,n);
+ 	if (!IS_ERR(*d)) {
+ 		error = sysfs_create(*d, mode, init_dir);
+ 		if (!error) {
+-			error = sysfs_make_dirent(p->d_fsdata, *d, element,
++			parent_sd = dentry_to_sysfs_dir(p);
++			error = sysfs_make_dirent(parent_sd, *d, element,
+ 						  mode, type);
+ 			if (!error) {
+ 				p->d_inode->i_nlink++;
+ 				(*d)->d_op = &sysfs_dentry_ops;
+ 				d_rehash(*d);
+@@ -122,11 +132,12 @@
+ 
+ int sysfs_create_subdir(struct kobject * k,
+ 			const struct attribute_group *grp,
+ 			struct dentry ** d)
+ {
+-	return create_dir(grp, k->dentry, grp->name, d, SYSFS_ATTR_GROUP);
++	return create_dir((void*)grp, k->dentry, grp->name, d,
++			  SYSFS_ATTR_GROUP);
+ }
+ 
+ /**
+  *	sysfs_create_dir - create a directory for an object.
+  *	@parent:	parent parent object.
+@@ -203,11 +214,11 @@
+ }
+ 
+ static struct dentry * sysfs_lookup(struct inode *dir, struct dentry *dentry,
+ 				struct nameidata *nd)
+ {
+-	struct sysfs_dirent * parent_sd = dentry->d_parent->d_fsdata;
++	struct sysfs_dir * parent_sd = dentry_to_sysfs_dir(dentry->d_parent);
+ 	struct sysfs_dirent * sd;
+ 	int err = 0;
+ 
+ 	list_for_each_entry(sd, &parent_sd->s_children, s_sibling) {
+ 		if (sd->s_type & SYSFS_NOT_PINNED) {
+@@ -267,20 +278,20 @@
+  */
+ 
+ void sysfs_remove_dir(struct kobject * kobj)
+ {
+ 	struct dentry * dentry = dget(kobj->dentry);
+-	struct sysfs_dirent * parent_sd;
++	struct sysfs_dir * parent_sd;
+ 	struct sysfs_dirent * sd, * tmp;
+ 
+ 	if (!dentry)
+ 		return;
+ 
+ 	pr_debug("sysfs %s: removing dir\n",dentry->d_name.name);
+ 	down(&dentry->d_inode->i_sem);
+-	parent_sd = dentry->d_fsdata;
+-	list_for_each_entry_safe(sd, tmp, &parent_sd->s_children, s_sibling) {
++	parent_sd = dentry_to_sysfs_dir(dentry);
++	list_for_each_entry_safe(sd,tmp,&parent_sd->s_children,s_sibling) {
+ 		if (!sd->s_element || !(sd->s_type & SYSFS_NOT_PINNED))
+ 			continue;
+ 		sysfs_drop_dentry(sd, dentry);
+ 		list_del_init(&sd->s_sibling);
+ 		sysfs_put(sd);
+@@ -331,14 +342,14 @@
+ }
+ 
+ static int sysfs_dir_open(struct inode *inode, struct file *file)
+ {
+ 	struct dentry * dentry = file->f_dentry;
+-	struct sysfs_dirent * parent_sd = dentry->d_fsdata;
++	struct sysfs_dir * parent_sd = dentry_to_sysfs_dir(dentry);
+ 
+ 	down(&dentry->d_inode->i_sem);
+-	file->private_data = sysfs_new_dirent(parent_sd, NULL);
++	file->private_data = sysfs_new_dirent(parent_sd, NULL, SYSFS_CURSOR);
+ 	up(&dentry->d_inode->i_sem);
+ 
+ 	return file->private_data ? 0 : -ENOMEM;
+ 
+ }
+@@ -350,10 +361,13 @@
+ 
+ 	down(&dentry->d_inode->i_sem);
+ 	list_del_init(&cursor->s_sibling);
+ 	up(&dentry->d_inode->i_sem);
+ 
++	BUG_ON(cursor->s_dentry != NULL);
++	release_sysfs_dirent(cursor);
 +
-+/* Close the device and release it */
-+static int os_scsi_tape_close(struct inode * inode, struct file * filp)
+ 	return 0;
+ }
+ 
+ /* Relationship between s_mode and the DT_xxx types */
+ static inline unsigned char dt_type(struct sysfs_dirent *sd)
+@@ -362,11 +376,11 @@
+ }
+ 
+ static int sysfs_readdir(struct file * filp, void * dirent, filldir_t filldir)
+ {
+ 	struct dentry *dentry = filp->f_dentry;
+-	struct sysfs_dirent * parent_sd = dentry->d_fsdata;
++	struct sysfs_dir * parent_sd = dentry_to_sysfs_dir(dentry);
+ 	struct sysfs_dirent *cursor = filp->private_data;
+ 	struct list_head *p, *q = &cursor->s_sibling;
+ 	ino_t ino;
+ 	int i = filp->f_pos;
+ 
+@@ -395,10 +409,11 @@
+ 				const char * name;
+ 				int len;
+ 
+ 				next = list_entry(p, struct sysfs_dirent,
+ 						   s_sibling);
++
+ 				if (!next->s_element)
+ 					continue;
+ 
+ 				name = sysfs_get_name(next);
+ 				len = strlen(name);
+@@ -436,11 +451,11 @@
+ 			return -EINVAL;
+ 	}
+ 	if (offset != file->f_pos) {
+ 		file->f_pos = offset;
+ 		if (file->f_pos >= 2) {
+-			struct sysfs_dirent *sd = dentry->d_fsdata;
++			struct sysfs_dir *sd = dentry_to_sysfs_dir(dentry);
+ 			struct sysfs_dirent *cursor = file->private_data;
+ 			struct list_head *p;
+ 			loff_t n = file->f_pos - 2;
+ 
+ 			list_del(&cursor->s_sibling);
+diff -u5 linux.prev/fs/sysfs/file.c linux/fs/sysfs/file.c
+--- linux.prev/fs/sysfs/file.c	2004-11-07 13:02:53.000000000 +0800
++++ linux/fs/sysfs/file.c	2004-12-02 23:19:56.000000000 +0800
+@@ -355,11 +355,11 @@
+ };
+ 
+ 
+ int sysfs_add_file(struct dentry * dir, const struct attribute * attr, int type)
+ {
+-	struct sysfs_dirent * parent_sd = dir->d_fsdata;
++	struct sysfs_dir * parent_sd = dentry_to_sysfs_dir(dir);
+ 	umode_t mode = (attr->mode & S_IALLUGO) | S_IFREG;
+ 	int error = 0;
+ 
+ 	down(&dir->d_inode->i_sem);
+ 	error = sysfs_make_dirent(parent_sd, NULL, (void *) attr, mode, type);
+diff -u5 linux.prev/fs/sysfs/inode.c linux/fs/sysfs/inode.c
+--- linux.prev/fs/sysfs/inode.c	2004-12-02 14:51:01.000000000 +0800
++++ linux/fs/sysfs/inode.c	2004-12-03 00:43:39.000000000 +0800
+@@ -146,11 +146,11 @@
+ }
+ 
+ void sysfs_hash_and_remove(struct dentry * dir, const char * name)
+ {
+ 	struct sysfs_dirent * sd;
+-	struct sysfs_dirent * parent_sd = dir->d_fsdata;
++	struct sysfs_dir * parent_sd = dentry_to_sysfs_dir(dir);
+ 
+ 	down(&dir->d_inode->i_sem);
+ 	list_for_each_entry(sd, &parent_sd->s_children, s_sibling) {
+ 		if (!sd->s_element)
+ 			continue;
+diff -u5 linux.prev/fs/sysfs/mount.c linux/fs/sysfs/mount.c
+--- linux.prev/fs/sysfs/mount.c	2004-12-02 11:55:02.000000000 +0800
++++ linux/fs/sysfs/mount.c	2004-12-02 23:27:39.000000000 +0800
+@@ -15,21 +15,24 @@
+ #define SYSFS_MAGIC 0x62656572
+ 
+ struct vfsmount *sysfs_mount;
+ struct super_block * sysfs_sb = NULL;
+ kmem_cache_t *sysfs_dir_cachep;
++kmem_cache_t *sysfs_dirent_cachep;
+ 
+ static struct super_operations sysfs_ops = {
+ 	.statfs		= simple_statfs,
+ 	.drop_inode	= generic_delete_inode,
+ };
+ 
+-static struct sysfs_dirent sysfs_root = {
+-	.s_sibling	= LIST_HEAD_INIT(sysfs_root.s_sibling),
++static struct sysfs_dir sysfs_root = {
+ 	.s_children	= LIST_HEAD_INIT(sysfs_root.s_children),
+-	.s_element	= NULL,
+-	.s_type		= SYSFS_ROOT,
++	.s_ent		= {
++		.s_sibling	= LIST_HEAD_INIT(sysfs_root.s_ent.s_sibling),
++		.s_element	= NULL,
++		.s_type		= SYSFS_ROOT,
++	}
+ };
+ 
+ static int sysfs_fill_super(struct super_block *sb, void *data, int silent)
+ {
+ 	struct inode *inode;
+@@ -56,11 +59,11 @@
+ 	if (!root) {
+ 		pr_debug("%s: could not get root dentry!\n",__FUNCTION__);
+ 		iput(inode);
+ 		return -ENOMEM;
+ 	}
+-	root->d_fsdata = &sysfs_root;
++	root->d_fsdata = &sysfs_root.s_ent;
+ 	sb->s_root = root;
+ 	return 0;
+ }
+ 
+ static struct super_block *sysfs_get_sb(struct file_system_type *fs_type,
+@@ -77,16 +80,22 @@
+ 
+ int __init sysfs_init(void)
+ {
+ 	int err = -ENOMEM;
+ 
+-	sysfs_dir_cachep = kmem_cache_create("sysfs_dir_cache",
+-					      sizeof(struct sysfs_dirent),
++	sysfs_dir_cachep = kmem_cache_create("sysfs_dir",
++					      sizeof(struct sysfs_dir),
+ 					      0, 0, NULL, NULL);
+ 	if (!sysfs_dir_cachep)
+ 		goto out;
+ 
++	sysfs_dirent_cachep = kmem_cache_create("sysfs_dirent",
++					      sizeof(struct sysfs_dirent),
++					      0, 0, NULL, NULL);
++	if (!sysfs_dirent_cachep)
++		goto out_no_dirent_cachep;
++
+ 	err = register_filesystem(&sysfs_fs_type);
+ 	if (!err) {
+ 		sysfs_mount = kern_mount(&sysfs_fs_type);
+ 		if (IS_ERR(sysfs_mount)) {
+ 			printk(KERN_ERR "sysfs: could not mount!\n");
+@@ -97,8 +106,10 @@
+ 	} else
+ 		goto out_err;
+ out:
+ 	return err;
+ out_err:
++	kmem_cache_destroy(sysfs_dirent_cachep);
++out_no_dirent_cachep:
+ 	kmem_cache_destroy(sysfs_dir_cachep);
+ 	goto out;
+ }
+diff -u5 linux.prev/fs/sysfs/symlink.c linux/fs/sysfs/symlink.c
+--- linux.prev/fs/sysfs/symlink.c	2004-11-07 13:02:53.000000000 +0800
++++ linux/fs/sysfs/symlink.c	2004-12-02 23:57:01.000000000 +0800
+@@ -43,11 +43,11 @@
+ 	}
+ }
+ 
+ static int sysfs_add_link(struct dentry * parent, char * name, struct kobject * target)
+ {
+-	struct sysfs_dirent * parent_sd = parent->d_fsdata;
++	struct sysfs_dir * parent_sd = dentry_to_sysfs_dir(parent);
+ 	struct sysfs_symlink * sl;
+ 	int error = 0;
+ 
+ 	error = -ENOMEM;
+ 	sl = kmalloc(sizeof(*sl), GFP_KERNEL);
+diff -u5 linux.prev/fs/sysfs/sysfs.h linux/fs/sysfs/sysfs.h
+--- linux.prev/fs/sysfs/sysfs.h	2004-12-02 15:29:39.000000000 +0800
++++ linux/fs/sysfs/sysfs.h	2004-12-03 00:51:44.000000000 +0800
+@@ -1,32 +1,38 @@
+ #include <linux/time.h>
+ #include <linux/sysfs.h>
+ 
++#define SYSFS_CURSOR		0
+ #define SYSFS_ROOT		0x0001
+ #define SYSFS_DIR		0x0002
+ #define SYSFS_KOBJ_ATTR 	0x0004
+ #define SYSFS_KOBJ_BIN_ATTR	0x0008
+ #define SYSFS_ATTR_GROUP	0x0010
+ #define SYSFS_KOBJ_LINK 	0x0020
+ #define SYSFS_NOT_PINNED	(SYSFS_KOBJ_ATTR | SYSFS_KOBJ_BIN_ATTR | SYSFS_KOBJ_LINK)
+ 
+ struct sysfs_dirent {
+ 	struct list_head	s_sibling;
+-	struct list_head	s_children;
+ 	void 			* s_element;
+-	int			s_type;
++	unsigned short		s_type;
+ 	umode_t			s_mode;
+ 	struct dentry		* s_dentry;
+ };
+ 
++struct sysfs_dir {
++	struct list_head	s_children;
++	struct sysfs_dirent	s_ent;
++};
++
+ extern struct vfsmount * sysfs_mount;
+ extern kmem_cache_t *sysfs_dir_cachep;
++extern kmem_cache_t *sysfs_dirent_cachep;
+ 
+ extern struct inode * sysfs_new_inode(mode_t mode);
+ extern int sysfs_create(struct dentry *, int mode, int (*init)(struct inode *));
+ 
+-extern int sysfs_make_dirent(struct sysfs_dirent *, struct dentry *, void *,
++extern int sysfs_make_dirent(struct sysfs_dir *, struct dentry *, void *,
+ 				umode_t, int);
+ extern struct dentry * sysfs_get_dentry(struct dentry *, const char *);
+ 
+ extern int sysfs_add_file(struct dentry *, const struct attribute *, int);
+ extern void sysfs_hash_and_remove(struct dentry * dir, const char * name);
+@@ -48,10 +54,29 @@
+ struct sysfs_symlink {
+ 	char * link_name;
+ 	struct kobject * target_kobj;
+ };
+ 
++static inline int sysfs_type_dir(int s_type)
 +{
-+	int                 result = 0, result2;
-+	OS_Scsi_Tape       * STp   = filp->private_data;
-+	struct st_modedef  * STm   = &(STp->modes[STp->current_mode]);
-+	struct st_partstat * STps  = &(STp->ps[STp->partition]);
-+	Scsi_Request       * SRpnt = NULL;
-+	char               * name  = tape_name(STp);
++	return (s_type == SYSFS_DIR ||
++		s_type == SYSFS_ATTR_GROUP ||
++		s_type == SYSFS_ROOT);
++}
 +
-+	if ( STps->rw >= ST_WRITING && !STp->pos_unknown) {
- #if DEBUG
- 		if (debugging) {
- 			printk(OSST_DEB_MSG "%s:D: File length %ld bytes.\n",
-@@ -4620,6 +4636,10 @@
- 			printk(OSST_DEB_MSG "%s:D: Buffer flushed, %d EOF(s)
-written\n",
- 					       name, 1+STp->two_fm);
- #endif
-+                if (result) {
-+                        printk(KERN_ERR "%s: Writing closing filemark
-failed.\n", name);
-+                        STp->pos_unknown = 1;
-+                }
- 	}
- 	else if (!STp->rew_at_close) {
- 		STps = &(STp->ps[STp->partition]);
-@@ -4646,11 +4666,17 @@
- 			STps->drv_block = 0;
- 			STps->eof = ST_FM;
- 		}
-+		if (result) {
-+			printk(KERN_ERR "%s: Final tape positioning
-failed.\n", name);
-+			STp->pos_unknown = 1;
-+		}
- 	}
--
--out:
- 	if (STp->rew_at_close) {
- 		result2 = osst_position_tape_and_confirm(STp, &SRpnt,
-STp->first_data_ppos);
-+		if (result2 < 0) {
-+			printk(KERN_ERR "%s: Auto-rewind failed.\n", name);
-+			STp->pos_unknown = 1;
-+		}
- 		STps->drv_file = STps->drv_block = STp->frame_seq_number =
-STp->logical_blk_num = 0;
- 		if (result == 0 && result2 < 0)
- 			result = result2;
-@@ -4669,19 +4695,6 @@
- 	STp->write_count = 0;
- 	STp->read_count  = 0;
++static inline struct sysfs_dir * to_sysfs_dir(struct sysfs_dirent *ent)
++{
++	BUG_ON(!sysfs_type_dir(ent->s_type));
++	return container_of(ent, struct sysfs_dir, s_ent);
++}
++
++static inline struct sysfs_dir *dentry_to_sysfs_dir(struct dentry * dentry)
++{
++	struct sysfs_dirent * sd = dentry->d_fsdata;
++	return to_sysfs_dir(sd);
++}
++
+ static inline struct kobject * to_kobj(struct dentry * dentry)
+ {
+ 	struct sysfs_dirent * sd = dentry->d_fsdata;
  
--	return result;
--}
--
--
--/* Close the device and release it */
--static int os_scsi_tape_close(struct inode * inode, struct file * filp)
--{
--	int result = 0;
--	OS_Scsi_Tape * STp = filp->private_data;
--	Scsi_Request * SRpnt = NULL;
--
--	if (SRpnt) scsi_release_request(SRpnt);
--
- 	if (STp->door_locked == ST_LOCKED_AUTO)
- 		do_door_lock(STp, 0);
+ 	if (sd->s_type == SYSFS_ATTR_GROUP)
+@@ -101,11 +126,14 @@
+ 		struct sysfs_symlink * sl = sd->s_element;
+ 		kfree(sl->link_name);
+ 		kobject_put(sl->target_kobj);
+ 		kfree(sl);
+ 	}
+-	kmem_cache_free(sysfs_dir_cachep, sd);
++	if (sysfs_type_dir(sd->s_type))
++		kmem_cache_free(sysfs_dir_cachep, to_sysfs_dir(sd));
++	else
++		kmem_cache_free(sysfs_dirent_cachep, sd);
+ }
  
-
-
+ static inline void sysfs_put(struct sysfs_dirent * sd)
+ {
+ 	if (list_empty(&sd->s_sibling) && sd->s_dentry == NULL)

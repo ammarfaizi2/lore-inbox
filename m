@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVCZU7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbVCZU7u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261259AbVCZU7P (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 15:59:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVCZU7P
+	id S261265AbVCZU7u (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 15:59:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVCZU7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 15:59:15 -0500
-Received: from hera.kernel.org ([209.128.68.125]:4247 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261259AbVCZU7L (ORCPT
+	Sat, 26 Mar 2005 15:59:50 -0500
+Received: from hera.kernel.org ([209.128.68.125]:6295 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261265AbVCZU7o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 15:59:11 -0500
-Date: Sat, 26 Mar 2005 13:07:01 -0300
+	Sat, 26 Mar 2005 15:59:44 -0500
+Date: Sat, 26 Mar 2005 12:39:06 -0300
 From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.30-rc2
-Message-ID: <20050326160701.GD19501@logos.cnet>
-References: <20050326004631.GC17637@logos.cnet> <20050326112256.GN30052@alpha.home.local> <1111837493.8042.2.camel@laptopd505.fenrus.org>
+To: Andreas Arens <andras@t-online.de>
+Cc: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.30-rc2 - fix for CAN-2005-0794: Potential DOS in load_elf_library
+Message-ID: <20050326153906.GA19501@logos.cnet>
+References: <200503261314.01633.andras@t-online.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1111837493.8042.2.camel@laptopd505.fenrus.org>
+In-Reply-To: <200503261314.01633.andras@t-online.de>
 User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 26, 2005 at 12:44:53PM +0100, Arjan van de Ven wrote:
-> On Sat, 2005-03-26 at 12:22 +0100, Willy Tarreau wrote:
-> > Marcelo,
-> > 
-> > here's a patch from Dave Jones, which is already in 2.6 and which I've
-> > used in my local tree for 6 months now. It removes a useless NULL check
-> > in zlib_inflateInit2_(), since 'z' is already dereferenced one line
-> > before the test. Can in go in 2.4.30 please ?
+On Sat, Mar 26, 2005 at 01:14:01PM +0100, Andreas Arens wrote:
+> Hi Marcelo, Herbert,
 > 
-> I don't see how such a cleanup-only patch would be a candidate for 2.4
-> at all, let alone to go into a -rc3 or a 2.4.30 final at this stage...
+> I'm just reading the patch so don't know of any hidden side-effects which
+> might cure it, but this clearly looks like a possibly deadlocking typo in 
+> fs/binfmt_elf.c to me:
+> >
+> >-       while (elf_phdata->p_type != PT_LOAD) elf_phdata++;
+> >+       while (elf_phdata->p_type != PT_LOAD)
+> >+               eppnt++;
 > 
-> Can you explain why this one is so important that it has to go in so
-> late?
+> Shouldn't this be:
+> 
+> -       while (elf_phdata->p_type != PT_LOAD) elf_phdata++;
+> +       while (eppnt->p_type != PT_LOAD)
+> +               eppnt++;
 
-I second. 
+Doh.
 
-Willy, please resend the other ones for 2.4.31-pre ok?
-
-Should have held the JFS one also.
-
+Yes, it is. I change it accordingly, will release another -rc :( 

@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271734AbRHUQTC>; Tue, 21 Aug 2001 12:19:02 -0400
+	id <S271732AbRHUQUb>; Tue, 21 Aug 2001 12:20:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271732AbRHUQSv>; Tue, 21 Aug 2001 12:18:51 -0400
-Received: from relay01.cablecom.net ([62.2.33.101]:16143 "EHLO
-	relay01.cablecom.net") by vger.kernel.org with ESMTP
-	id <S271733AbRHUQSs>; Tue, 21 Aug 2001 12:18:48 -0400
-Message-Id: <200108211618.f7LGIxk06055@mail.swissonline.ch>
-Content-Type: text/plain; charset=US-ASCII
-From: Christian Widmer <cwidmer@iiic.ethz.ch>
-Reply-To: cwidmer@iiic.ethz.ch
-To: Kristian <kristian@korseby.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: massive filesystem corruption with 2.4.9
-Date: Tue, 21 Aug 2001 18:18:52 +0200
-X-Mailer: KMail [version 1.3]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15ZC3L-0007s7-00@the-village.bc.nu> <3B8285A9.8030306@korseby.net>
-In-Reply-To: <3B8285A9.8030306@korseby.net>
+	id <S271735AbRHUQUV>; Tue, 21 Aug 2001 12:20:21 -0400
+Received: from ip144.gte21.rb1.bel.nwlink.com ([207.202.191.144]:28654 "EHLO
+	mail.intra.calle.org") by vger.kernel.org with ESMTP
+	id <S271732AbRHUQUI>; Tue, 21 Aug 2001 12:20:08 -0400
+Date: Tue, 21 Aug 2001 09:20:17 -0700 (PDT)
+From: Olivier Calle <olivier@calle.org>
+To: Robert Baruch <autophile@starband.net>
+cc: Matthew Dharm <mdharm-usb@one-eyed-alien.net>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH] one-liner fix to sddr09.c for >= 64MB SmartMedia
+Message-ID: <Pine.LNX.4.33.0108210909030.9955-100000@tesla.intra.calle.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > If your disk is in UDMA33/66 mode you can pretty rule the 
->  > disk out as the data is protected
-i think this should be with the promise driver.
+Hello,
 
->  > If you have a VIA chipset, especially if there is an SB Live! in the
->  > machine then that may be the cause (fixes in 2.4.8-ac, should be a fix
->  > in 2.4.9 but Linus tree also applies another bogus change but which
->  > should be harmless)
-it was an intel LX chipset
+I found a problem with getting the LBA <-> PBA mapping from a 64MB
+SmartMedia card in an SDDR09 card reader.  The mapping is read from the
+card into 2 128k sg's.  The problem occurs when looking at the data in the
+second sg.  The memory is accessed with an offset from the beginning of
+all the data, regardless of which sg is being read from.  So, in the case
+of the second sg, the data read is actually whatever memory is right after
+the memory allocated to that sg.
 
-that it is a memory problem i also don't belive. that ram work for over 2 year
-with no errors found with memtest (memtset86, intels memtest) compiling
-seveal times xfree86 and an many many times several kernels. 
+Here is the one-liner fix.  It worked with my card and I believe this
+should work for larger cards, althought I have none to test with.
 
-and i never had any problems. until i tried the first time a 2.4.x kernel on 
-the fileserver (that was 2.4.6). so i moved the fileserver back to 2.2.19.
+--- sddr09.c.orig	Sat Apr 28 10:36:28 2001
++++ sddr09.c	Tue Aug 21 08:35:19 2001
+@@ -693,7 +693,7 @@
+ 	// scatterlist block i*64/128k = i*(2^6)*(2^-17) = i*(2^-11)
+
+ 	for (i=0; i<numblocks; i++) {
+-		ptr = sg[i>>11].address+(i<<6);
++		ptr = sg[i>>11].address+((i<<6)&0x1ffff);
+ 		if (ptr[0]!=0xFF || ptr[1]!=0xFF || ptr[2]!=0xFF ||
+ 		    ptr[3]!=0xFF || ptr[4]!=0xFF || ptr[5]!=0xFF) {
+ 			US_DEBUGP("PBA %04X has no logical mapping: reserved area = "
+
+Hopefully this will make it into the kernel in the near future.
+
+-- 
+Olivier Calle
+
+internet: <olivier@calle.org>
+work tel: 425-446-5088    home tel: 360-658-2692     To err is human,
+callsign: N7TAP, class: General                      to really foul up
+job:      Fluke Networks, Sr. Software Engineer      requires the root
+WWW Page URL: http://calle.org/olivier/              password...
+Psalm 48:14                        SPU Electrical Engineering Graduate
+

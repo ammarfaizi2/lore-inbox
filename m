@@ -1,139 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262543AbSJGSuY>; Mon, 7 Oct 2002 14:50:24 -0400
+	id <S262651AbSJGTp3>; Mon, 7 Oct 2002 15:45:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262546AbSJGSuX>; Mon, 7 Oct 2002 14:50:23 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:49916 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S262543AbSJGSuN>;
-	Mon, 7 Oct 2002 14:50:13 -0400
-Message-ID: <3DA1D87E.81A1351C@mvista.com>
-Date: Mon, 07 Oct 2002 11:54:54 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S262652AbSJGTp3>; Mon, 7 Oct 2002 15:45:29 -0400
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:10804 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S262651AbSJGTp1>;
+	Mon, 7 Oct 2002 15:45:27 -0400
+From: <Hell.Surfers@cwctv.net>
+To: jhf@rivenstone.net, swdlinunx@earthlink.net, linux-kernel@vger.kernel.org
+Date: Mon, 7 Oct 2002 20:50:34 +0100
+Subject: RE: PC speaker dead in 2.5.40?
 MIME-Version: 1.0
-To: Nicolas Pitre <nico@cam.org>
-CC: Mark Mielke <mark@mark.mielke.cc>, "David S. Miller" <davem@redhat.com>,
-       Russell King <rmk@arm.linux.org.uk>, simon@baydel.com,
-       alan@lxorguk.ukuu.org.uk, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: The end of embedded Linux?
-References: <Pine.LNX.4.44.0210071307420.913-100000@xanadu.home>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1034020234408"
+Message-ID: <003ab16491907a2DTVMAIL10@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolas Pitre wrote:
-> 
-> On Mon, 7 Oct 2002, Mark Mielke wrote:
-> 
-> > On Mon, Oct 07, 2002 at 09:02:33AM -0700, David S. Miller wrote:
-> > >    From: Nicolas Pitre <nico@cam.org>
-> > >    Date: Mon, 7 Oct 2002 12:05:16 -0400 (EDT)
-> > >    2) Not inlining inb() and friend reduce the bloat but then you further
-> > >       impact performances on CPUs which are generally many order of
-> > >       magnitude slower than current desktop machines.
-> > > I don't buy this one.  You are saying that the overhead of a procedure
-> > > call is larger than the overhead of going out over the I/O bus to
-> > > touch a device?
-> >
-> > I think the key phrase is 'further impact'.
-> >
-> > If anything, the procedure call increases latency.
-> >
-> > Although... I don't see why CONFIG_TINY wouldn't be able to decide whether
-> > inb() should be inlined or not...
-> 
-> Please don't mix up the issues.
-> 
-> The problems with inb() and friends as it stands in the embedded world right
-> now as to do with code cleanness not kernel image bloat.  Nothing to be
-> solved with CONFIG_TINY.  Please let's keep those issues separate.
-> 
-> Here's the IO macro issue:  On some embedded platforms the IO bus is only 8
-> bit wide or only 16 bit wide, or address lines are shifted so registers
-> offsets are not the same, etc.  All this because embedded platforms are
-> often using standard ISA peripheral chipsets since they can be easily glued
-> to any kind of bare buses or static memory banks.
-> 
-> The nice thing here is the fact that only by modifying inb() and friends you
-> can reuse most current kernel drivers without further modifications.
-> However the modifs to inb() are often different whether the peripheral in
-> question is wired to a static memory bank, to the PCMCIA space or onto some
-> expansion board via a CPLD or other weirdness some hardware designers are
-> pleased to come with.  Hence no global inb() and friend tweaking is possible
-> without some performance hit by using a runtime fixup based on the address
-> passed to them.
-> 
-> We therefore end up with something that looks like this in each drivers for
-> which a fixup is needed:
-> 
-> #ifdef CONFIG_ASSABET_NEPONSET
-> 
-> /*
->  * These functions allow us to handle IO addressing as we wish - this
->  * ethernet controller can be connected to a variety of busses.  Some
->  * busses do not support 16 bit or 32 bit transfers.  --rmk
->  */
-> static inline u8 smc_inb(u_int base, u_int reg)
-> {
->         u_int port = base + reg * 4;
-> 
->         return readb(port);
-> }
-> 
-> static inline u16 smc_inw(u_int base, u_int reg)
-> {
->         u_int port = base + reg * 4;
-> 
->         return readb(port) | readb(port + 4) << 8;
-> }
-> 
-> static inline void smc_outb(u8 val, u_int base, u_int reg)
-> {
->         u_int port = base + reg * 4;
-> 
->         writeb(val, port);
-> }
-> 
-> static inline void smc_outw(u16 val, u_int base, u_int reg)
-> {
->         u_int port = base + reg * 4;
-> 
->         writeb(val, port);
->         writeb(val >> 8, port + 4);
-> }
-> 
-> #endif
-> 
-> As you can see such code duplicated multiple times for all bus arrangements
-> in existence out there is just not pretty and was refused by Alan.  We lack
-> a global lightweight IO abstraction to nicely override the default IO macros
-> for individual drivers at compile time to fix that problem optimally and
-> keep the driver proper clean.
 
-Uh, what about stuff like this (from tulip.h):
- 
-#ifndef USE_IO_OPS
-#undef inb
-#undef inw
-#undef inl
-#undef outb
-#undef outw
-#undef outl
-#define inb(addr) readb((void*)(addr))
-#define inw(addr) readw((void*)(addr))
-#define inl(addr) readl((void*)(addr))
-#define outb(val,addr) writeb((val), (void*)(addr))
-#define outw(val,addr) writew((val), (void*)(addr))
-#define outl(val,addr) writel((val), (void*)(addr))
-#endif /* !USE_IO_OPS */
+--1034020234408
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+whats the technical reason.
+
+Cheers, Dean.
+
+On 	Mon, 7 Oct 2002 03:08:57 -0400 	jhf@rivenstone.net (Joseph Fannin) wrote:
+
+--1034020234408
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Mon, 7 Oct 2002 20:17:35 +0100
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S262544AbSJGSwL>; Mon, 7 Oct 2002 14:52:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S262554AbSJGSvx>; Mon, 7 Oct 2002 14:51:53 -0400
+Received: from dhcp31182033.columbus.rr.com ([24.31.182.33]:48770 "EHLO
+	caphernaum.rivenstone.net") by vger.kernel.org with ESMTP
+	id <S262548AbSJGSvS>; Mon, 7 Oct 2002 14:51:18 -0400
+Received: by caphernaum.rivenstone.net (Postfix, from userid 1000)
+	id 5EDEE37965; Mon,  7 Oct 2002 03:08:57 -0400 (EDT)
+Date: Mon, 7 Oct 2002 03:08:57 -0400
+To: Steve Dover <swdlinunx@earthlink.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PC speaker dead in 2.5.40?
+Message-ID: <20021007070857.GA1927@rivenstone.net>
+Mail-Followup-To: Steve Dover <swdlinunx@earthlink.net>,
+	linux-kernel@vger.kernel.org
+References: <3DA1BD31.4040707@earthlink.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ibTvN161/egqYuK8"
+Content-Disposition: inline
+In-Reply-To: <3DA1BD31.4040707@earthlink.net>
+User-Agent: Mutt/1.4i
+From: jhf@rivenstone.net (Joseph Fannin)
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
 
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+--ibTvN161/egqYuK8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Oct 07, 2002 at 11:58:25AM -0500, Steve Dover wrote:
+> Configuring a kernel with Sound support with either
+> OSS or ALSA, I still get nothing from my PC speaker.
+> Works fine under 2.4.18.
+
+    Look under all the submenus in the Input section of
+    "menuconfig" for the speaker entry and enable it.
+
+    There's a good technical reason why the speaker is an input
+    device, but hiding it in the menus is *bad*.
+
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>=20
+
+--=20
+Joseph Fannin
+jhf@rivenstone.net
+
+"Anyone who quotes me in their sig is an idiot." -- Rusty Russell.
+
+--ibTvN161/egqYuK8
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9oTMJWv4KsgKfSVgRAmMFAJ0eRR8PR+l8NGWQZkyo/Rs/duDrGQCeO959
+3guOAe0wW5jyTwmGSeEXZ2g=
+=4x3B
+-----END PGP SIGNATURE-----
+
+--ibTvN161/egqYuK8--
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--1034020234408--
+
+

@@ -1,56 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268060AbUJDMJN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268074AbUJDMMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268060AbUJDMJN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 08:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268069AbUJDMJN
+	id S268074AbUJDMMn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 08:12:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268076AbUJDMMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 08:09:13 -0400
-Received: from rproxy.gmail.com ([64.233.170.197]:3346 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268060AbUJDMJJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 08:09:09 -0400
-Message-ID: <4d8e3fd3041004050927c42438@mail.gmail.com>
-Date: Mon, 4 Oct 2004 14:09:08 +0200
-From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Reply-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-To: Jari Ruusu <jariruusu@users.sourceforge.net>
-Subject: Re: [PATCH] AES x86-64-asm impl.
-Cc: Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@osdl.org>,
-       Florian Bohrer <florian.bohrer@t-online.de>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org
-In-Reply-To: <41613937.8BF0FE0D@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <2KWl4-wq-25@gated-at.bofh.it>
-	 <m3acv4zz5f.fsf@averell.firstfloor.org>
-	 <41613937.8BF0FE0D@users.sourceforge.net>
+	Mon, 4 Oct 2004 08:12:43 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.82]:60902 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S268072AbUJDMMd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 08:12:33 -0400
+Date: Mon, 4 Oct 2004 08:12:32 -0400 (EDT)
+From: William Knop <wknop@andrew.cmu.edu>
+To: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: libata badness
+Message-ID: <Pine.LNX.4.60-041.0410040656001.2350@unix48.andrew.cmu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 04 Oct 2004 14:51:19 +0300, Jari Ruusu
-<jariruusu@users.sourceforge.net> wrote:
-> Andi Kleen wrote:
-> > Florian.Bohrer@t-online.de (Florian Bohrer) writes:
-> > > the asm-code is from Jari Ruusu (loop-aes).
-> > > the org. glue-code is from Fruhwirth Clemens.
-> >
-> > Thanks. I will add it to the x86-64 patchkit.
-> 
-> Here we go again...
-> 
-> Linus promised that he will not merge my code, and I am quite happy with my
-> code not being anywhere near mainline linux cryptoapi.
-> 
-> Linus, please consider dropping this.
+Hi all,
 
-I guess Linus will do so,
-but may I ask you why don't you want to see your code merged in mainline ?
+I'm running a raid5 array atop a few sata drives via a promise tx4 
+controller. The kernel is the official fedora lk 2.6.8-1, although I had 
+run a few different kernels (never entirely successfully) with this array 
+in the past.
 
-Thanks.
+In fact, this past weekend, I was getting oopses and panics (on lk 
+2.6.8.1, 2.6.9-rc3, 2.6.9-rc3-mm1, and 2.6.9-rc3 w/ Jeff Garzik's recent 
+libata patches) all of which happened when rebuilding a spare drive in the 
+array. Unfortunately, somehow my root filesystem (ext3) got blown away-- 
+it was on a reliable scsi drive (no bad blocks; I checked afterwards), and 
+an adaptec aic7xxx host. The ram was good; I ran memtest86 on it. I'm 
+assuming this was caused by some major kernel corruption, originating from 
+libata.
 
--- 
-Paolo
-Personal home page: www.ciarrocchi.tk
-See my photos: http://paolociarrocchi.fotopic.net/
-Buy cool stuff here: http://www.cafepress.com/paoloc
+I have since rebuilt my computer using an AMD Sempron (basically a Duron) 
+rather than a P4. Other than that (cpu + m/b), it's the same hardware.
+
+The errors I got over the weekend are similar to the one I just captured 
+on my fresh fc2/lk2.6.8-1 install (at the same point; the spare disk had 
+begun rebuilding). It's attached below.
+
+Anyway, I haven't been able to find any other reports of this, so I'm at a 
+loss about what to do. I hesitate to bring my array up at all now, for 
+fear of blowing it away. Any assistance would be greatly appriciated.
+
+Thanks much,
+Will
+
+
+---------- SNIP ----------
+Unable to handle kernel paging request at virtual address 01000004
+  printing eip:
+229e4d8c
+*pde = 00000000
+Oops: 0000 [#1]
+Modules linked in: raid5 xor sata_promise md5 ipv6 parport_pc lp parport 
+autofs4 sunrpc sk98lin sg joydev dm_mod uhci_hcd ehci_hcd button battery 
+asus_acpi ac ext3 jbd sata_via libata aic7xxx sd_mod scsi_mod
+CPU:    0
+EIP:    0060:[<229e4d8c>]    Not tainted
+EFLAGS: 00010206   (2.6.8-1.521)
+EIP is at handle_stripe+0x29a/0x1407 [raid5]
+eax: 00000001   ebx: 00000000   ecx: 00915cb8   edx: 21f7e1c0
+esi: 1ccbd118   edi: 21f7e1c0   ebp: 01000000   esp: 1d300f28
+ds: 007b   es: 007b   ss: 0068
+Process md0_raid5 (pid: 2626, threadinfo=1d300000 task=1d317970)
+Stack: 2283eb57 20db8000 21f7e1c0 21c30288 1ccbd204 20db8000 00000001 
+1ccbd158
+        00000002 00000000 00000000 00000001 00000000 00000000 00000001 
+00000000
+        00000001 00000001 00000000 00000003 1ccbd0ac 21f7e1c0 1ccbd0ac 
+21f76c00
+Call Trace:
+  [<2283eb57>] ata_scsi_queuecmd+0xbe/0xc7 [libata]
+  [<229e6b1c>] raid5d+0x1ce/0x2f8 [raid5]
+  [<0228f5d2>] md_thread+0x227/0x256
+  [<0211be05>] autoremove_wake_function+0x0/0x2d
+  [<0211be05>] autoremove_wake_function+0x0/0x2d
+  [<0228f3ab>] md_thread+0x0/0x256
+  [<021041d9>] kernel_thread_helper+0x5/0xb
+Code: 8b 55 04 83 c1 08 8b 45 00 83 d3 00 39 da 72 0e 0f 87 e0 01
+---------- SNIP ----------
+

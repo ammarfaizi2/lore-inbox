@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293619AbSCKFaX>; Mon, 11 Mar 2002 00:30:23 -0500
+	id <S293623AbSCKFsS>; Mon, 11 Mar 2002 00:48:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293621AbSCKFaN>; Mon, 11 Mar 2002 00:30:13 -0500
-Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:23304 "EHLO
-	mail.cvsnt.org") by vger.kernel.org with ESMTP id <S293619AbSCKF35>;
-	Mon, 11 Mar 2002 00:29:57 -0500
-Mailbox-Line: From tmh@nothing-on.tv  Mon Mar 11 05:29:53 2002
-Mailbox-Line: From tmh@nothing-on.tv  Mon Mar 11 05:29:50 2002
-From: Tony Hoyle <tmh@nothing-on.tv>
-Subject: Re: New motherboard...  not a lot works yet :-)
-Date: Mon, 11 Mar 2002 05:28:32 +0000
-Organization: cvsnt.org news server
-Message-ID: <3C8C4080.5080208@nothing-on.tv>
-In-Reply-To: <3C8C3911.9030206@nothing-on.tv> <1015823916.853.37.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: sisko.my.home 1015824589 8481 192.168.2.3 (11 Mar 2002 05:29:49 GMT)
-X-Complaints-To: abuse@cvsnt.org
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-To: linux-kernel@vger.kernel.org
+	id <S293624AbSCKFsH>; Mon, 11 Mar 2002 00:48:07 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:15622
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S293623AbSCKFsB>; Mon, 11 Mar 2002 00:48:01 -0500
+Date: Sun, 10 Mar 2002 21:47:23 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Reid Hekman <reid_hekman@yahoo.com>
+cc: "Barry K. Nathan" <barryn@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: Suspend support for IDE
+In-Reply-To: <1015805489.15071.10.camel@zeus>
+Message-ID: <Pine.LNX.4.10.10203102145340.9328-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
+On 10 Mar 2002, Reid Hekman wrote:
 
-> Try Alan's ac tree - Alan himself wrote some drivers for the AMD 760MPX
-> devices.  Perhaps he filled in the pci ids, too.
+> On Sat, 2002-03-09 at 18:52, Barry K. Nathan wrote: 
+> > > > Why should I tell the drive to power down? It is going to loose its
+> > > > power, anyway (I believe in both S3 and S4).
+> > > 
+> > > So it can shut itself down nicely and do any housework it wants to do
+> > > (like flushing the cache if the cache flush command isnt supported.. its
+> > >  optional in older ATA standards)
+> > 
+> > Or, in the case of newer IBM TravelStars, so that the drive can unload
+> > its head properly instead of having to do an uncontrolled emergency unload
+> > that shortens the drive's life and makes an awful screeching noise.
+> 
+> Eeep. Have we just set the wayback machine for 15 years ago? I don't
+> remember seeing PARK.COM in /sbin recently. 
+> 
+> Sorry, couldn't resist. 
 
-I'll try that, although the AGP is recognised correctly so I wonder if 
-those patches are already in... the 762 probably has different IDs to 
-the 760.
+No, I put it in the NOTIFY calls with some help from Tim Hockin!
+Since the end-user generally does not need to know how to deal w/ these
+issues, the kernel had better get smart but who knows if it made in in
+there in 2.4 yet and whether it got broke in 2.5 or not.
 
-Tony
+Regards,
+
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
 

@@ -1,77 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265938AbUGNV7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264936AbUGNWBx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265938AbUGNV7N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 17:59:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265947AbUGNV7N
+	id S264936AbUGNWBx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 18:01:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265947AbUGNWBx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 17:59:13 -0400
-Received: from web40001.mail.yahoo.com ([66.218.78.19]:50786 "HELO
-	web40001.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265938AbUGNV7I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 17:59:08 -0400
-Message-ID: <20040714215907.93421.qmail@web40001.mail.yahoo.com>
-Date: Wed, 14 Jul 2004 14:59:07 -0700 (PDT)
-From: Song Wang <wsonguci@yahoo.com>
-Subject: Re: kbuild support to build one module with multiple separate components?
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: sam@ravnborg.org, kbuild-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040709215700.GB4316@linux-mips.org>
-MIME-Version: 1.0
+	Wed, 14 Jul 2004 18:01:53 -0400
+Received: from fed1rmmtao07.cox.net ([68.230.241.32]:34520 "EHLO
+	fed1rmmtao07.cox.net") by vger.kernel.org with ESMTP
+	id S264936AbUGNWBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 18:01:51 -0400
+Date: Wed, 14 Jul 2004 15:01:50 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Joseph Fannin <jhf@rivenstone.net>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@lists.linuxppc.org
+Subject: Re: 2.6.7-mm7
+Message-ID: <20040714220150.GM21856@smtp.west.cox.net>
+References: <20040708235025.5f8436b7.akpm@osdl.org> <20040709203852.GA1997@samarkand.rivenstone.net> <20040709141103.592c4655.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040709141103.592c4655.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Ralf
+On Fri, Jul 09, 2004 at 02:11:03PM -0700, Andrew Morton wrote:
 
-Thanks for the reply.
-
-I looked through kbuild documentation. This is
-a variable called lib-y to build .a, for instance,
-
-lib-y := a.o, b.o
-
-Then lib.a will be produced. However, in this case,
-you can build a lib.a for each sub module, but
-they will have the same name, I don't know how you
-can link them together.
-
-I think the current kbuild system does simplify 
-the Makefiles in 2.6, but it also reduces the
-flexibility.
-
--Song
-
---- Ralf Baechle <ralf@linux-mips.org> wrote:
-> On Tue, Jul 06, 2004 at 04:00:50PM -0700, Song Wang
-> wrote:
 > 
-> > This is wrong, because kbuild will treat A as
-> > independent module. All I want is to treat
-> > A as component of the only module mymodule.o. It
-> > should be linked to mymodule.o
-> > 
-> > Any idea on how to write a kbuild Makefile to
-> > support such kind of single module produced
-> > by linking multiple components and each component
-> > is located in separate directory? Thanks.
+> jhf@rivenstone.net (Joseph Fannin) wrote:
+> >
+> > On Thu, Jul 08, 2004 at 11:50:25PM -0700, Andrew Morton wrote:
+> > >
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm7/
+> >
+> > > +detect-too-early-schedule-attempts.patch
+> > >
+> > >  Catch attempts to call the scheduler before it is ready to go.
+> >
+> >     With this patch, my Powermac (ppc32) spews 711 (I think)
+> > warning messages during bootup.
 > 
-> That's a limitation in the current kbuild system. 
-> You either have to put
-> all files into a single directory or if you don't
-> want that split your
-> module into several independant modules.  What I
-> haven't tried is using
-> .a libraries but they're generally deprecated in
-> kbuild.
+> hm, OK.  It could be that the debug patch is a bit too aggressive, or that
+> ppc got lucky and happens to always be in state TASK_RUNNING when these
+> calls to schedule() occur.
 > 
->   Ralf
+> Maybe this task incorrectly has _TIF_NEED_RESCHED set?
 > 
+> Anyway, ppc guys: please take a look at the results from
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm7/broken-out/detect-too-early-schedule-attempts.patch
+> and check that the kernel really should be calling schedule() at this time
+> and place, let us know?
 
+Now that kallsyms data is OK, I took a quick look.. and all of this
+comes from generic code, at least on the machine I tried.  So if the
+code shouldn't be calling schedule() then, it's a more generic problem..
 
+... or I'm not following.
 
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail Address AutoComplete - You start. We finish.
-http://promotions.yahoo.com/new_mail 
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,66 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131318AbRCHLSb>; Thu, 8 Mar 2001 06:18:31 -0500
+	id <S131330AbRCHLhW>; Thu, 8 Mar 2001 06:37:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131320AbRCHLSW>; Thu, 8 Mar 2001 06:18:22 -0500
-Received: from aragorn.ics.muni.cz ([147.251.4.33]:59787 "EHLO
-	aragorn.ics.muni.cz") by vger.kernel.org with ESMTP
-	id <S131318AbRCHLSF>; Thu, 8 Mar 2001 06:18:05 -0500
-Newsgroups: cz.muni.redir.linux-kernel
-Path: news
-From: Zdenek Kabelac <kabi@i.am>
-Subject: Re: static scheduling - SCHED_IDLE?
-Message-ID: <3AA76A53.CEC1B234@i.am>
-Date: Thu, 8 Mar 2001 11:17:39 GMT
-To: ludovic <ludovic.fernandez@sun.com>
-X-Nntp-Posting-Host: dual.fi.muni.cz
+	id <S131333AbRCHLhN>; Thu, 8 Mar 2001 06:37:13 -0500
+Received: from 13dyn210.delft.casema.net ([212.64.76.210]:35596 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S131330AbRCHLhB>; Thu, 8 Mar 2001 06:37:01 -0500
+Message-Id: <200103081136.MAA19995@cave.bitwizard.nl>
+Subject: SX driver patch.
+To: alan@lxorguk.ukuu.org.uk
+Date: Thu, 8 Mar 2001 12:36:32 +0100 (MET)
+CC: linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary=ELM984051392-17746-0_
 Content-Transfer-Encoding: 7bit
-X-Accept-Language: cs, en
-Content-Type: text/plain; charset=iso-8859-2
-In-Reply-To: <3AA6A97A.1EDE6A0B@sun.com>
-Mime-Version: 1.0
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac19-RTL3.11b i686)
-Organization: unknown
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ludovic wrote:
-> 
-> Oswald Buddenhagen wrote:
-> >
-> > > The problem with these things it that sometimes such a task may hold
-> > > a lock, which can prevent higher-priority tasks from running.
-> > >
-> > true ... three ideas:
-> > - a sort of temporary priority elevation (the opposite of SCHED_YIELD)
-> >   as long as the process holds some lock
-> > - automatically schedule the task, if some higher-priorized task wants
-> >   the lock
-> > - preventing the processes from aquiring locks at all (obviously this
-> >   is not possible for required locks inside the kernel, but i don't
-> >   know enough about this)
-> >
-> > > A solution would be to make sure that these tasks get at least one
-> > > time slice every 3 seconds or so, so they can release any locks
-> > > they might be holding and the system as a whole won't livelock.
-> > >
-> > did "these" apply only to the tasks, that actually hold a lock?
-> > if not, then i don't like this idea, as it gives the processes
-> > time for the only reason, that it _might_ hold a lock. this basically
-> > undermines the idea of static classes. in this case, we could actually
-> > just make the "nice" scale incredibly large and possibly nonlinear,
-> > as mark suggested.
-> >
-> 
-> Since the linux kernel is not preemptive, the problem is a little
-> bit more complicated; A low priority kernel thread won't lose the
-> CPU while holding a lock except if it wants to. That simplifies the
-> locking problem you mention but the idea of background low priority
-> threads that run when the machine is really idle is also not this
-> simple.
 
-You seem to have a sence for black humor right :) ?
-As this is purely a complete nonsence 
-- you were talking about M$Win3.11 right ?
-(are you really the employ of Sun ??)
+--ELM984051392-17746-0_
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
+
+Hi Alan,
+
+A client noted that we forgot to implement breaks in the SX
+driver. Turns out to be easy. Moreover... I actually tested this
+patch!  (Somehow the Makefile entry for SX got stomped on, that's
+fixed here too.)
+
+				Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 
+
+--ELM984051392-17746-0_
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: attachment; filename=sx-2.2.19-pre16.diff
+Content-Description: /usr/src/sx-2.2.19-pre16.diff
+Content-Transfer-Encoding: 7bit
+
+diff -ur linux-2.2.19-pre16.clean/drivers/char/Makefile linux-2.2.19-pre16.sx/drivers/char/Makefile
+--- linux-2.2.19-pre16.clean/drivers/char/Makefile	Thu Mar  8 12:30:33 2001
++++ linux-2.2.19-pre16.sx/drivers/char/Makefile	Thu Mar  8 12:31:22 2001
+@@ -200,7 +200,13 @@
+   endif
+ endif
+ 
+-obj-$(CONFIG_SX) += sx.o generic_serial.o
++ifeq ($(CONFIG_SX),y)
++O_OBJS += sx.o generic_serial.o
++else
++  ifeq ($(CONFIG_SX),m)
++  M_OBJS += sx.o generic_serial.o
++  endif
++endif
+ 
+ ifeq ($(CONFIG_RIO),y)
+ O_OBJS += rio/rio.o generic_serial.o
+diff -ur linux-2.2.19-pre16.clean/drivers/char/sx.c linux-2.2.19-pre16.sx/drivers/char/sx.c
+--- linux-2.2.19-pre16.clean/drivers/char/sx.c	Thu Jan  4 16:27:07 2001
++++ linux-2.2.19-pre16.sx/drivers/char/sx.c	Thu Mar  8 12:31:22 2001
+@@ -1799,6 +1799,20 @@
+ }
+ 
+ 
++static void sx_break (struct tty_struct * tty, int flag)
++{
++	struct sx_port *port = tty->driver_data;
++	int rv;
++
++	if (flag) 
++		rv = sx_send_command (port, HS_START, -1, HS_IDLE_BREAK);
++	else 
++		rv = sx_send_command (port, HS_STOP, -1, HS_IDLE_OPEN);
++	if (rv != 1) printk (KERN_ERR "sx: couldn't send break (%x).\n",
++			read_sx_byte (port->board, CHAN_OFFSET (port, hi_hstat)));
++}
++
++
+ static int sx_ioctl (struct tty_struct * tty, struct file * filp, 
+                      unsigned int cmd, unsigned long arg)
+ {
+@@ -1867,7 +1881,6 @@
+ 			sx_reconfigure_port(port);
+ 		}
+ 		break;
+-
+ 	default:
+ 		rc = -ENOIOCTLCMD;
+ 		break;
+@@ -2247,6 +2260,7 @@
+ 	sx_driver.table = sx_table;
+ 	sx_driver.termios = sx_termios;
+ 	sx_driver.termios_locked = sx_termios_locked;
++	sx_driver.break_ctl = sx_break;
+ 
+ 	sx_driver.open	= sx_open;
+ 	sx_driver.close = gs_close;
+
+--ELM984051392-17746-0_--

@@ -1,158 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbVBAP3B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262043AbVBAPi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262039AbVBAP3B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 10:29:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVBAP3A
+	id S262043AbVBAPi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 10:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262044AbVBAPiT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 10:29:00 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37865 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262039AbVBAP2Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 10:28:24 -0500
-To: Vivek Goyal <vgoyal@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, fastboot <fastboot@lists.osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, Maneesh Soni <maneesh@in.ibm.com>,
-       Hariprasad Nellitheertha <hari@in.ibm.com>,
-       suparna bhattacharya <suparna@in.ibm.com>
-Subject: Re: [Fastboot] [PATCH] Reserving backup region for kexec based crashdumps.
-References: <overview-11061198973484@ebiederm.dsl.xmission.com>
-	<1106294155.26219.26.camel@2fwv946.in.ibm.com>
-	<m1sm4v2p5t.fsf@ebiederm.dsl.xmission.com>
-	<1106305073.26219.46.camel@2fwv946.in.ibm.com>
-	<m17jm72fy1.fsf@ebiederm.dsl.xmission.com>
-	<1106475280.26219.125.camel@2fwv946.in.ibm.com>
-	<m18y6gf6mj.fsf@ebiederm.dsl.xmission.com>
-	<1106833527.15652.146.camel@2fwv946.in.ibm.com>
-	<m1zmyueh4c.fsf@ebiederm.dsl.xmission.com>
-	<1106917583.15652.234.camel@2fwv946.in.ibm.com>
-	<m1r7k5e1ql.fsf@ebiederm.dsl.xmission.com>
-	<1107271039.15652.839.camel@2fwv946.in.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 01 Feb 2005 08:26:24 -0700
-In-Reply-To: <1107271039.15652.839.camel@2fwv946.in.ibm.com>
-Message-ID: <m13bwgb8tb.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Tue, 1 Feb 2005 10:38:19 -0500
+Received: from lennier.cc.vt.edu ([198.82.162.213]:3476 "EHLO
+	lennier.cc.vt.edu") by vger.kernel.org with ESMTP id S262043AbVBAPhh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 10:37:37 -0500
+Message-ID: <009b01c50873$f33bc910$680aa8c0@descartes2>
+From: "John T. Williams" <jtwilliams@vt.edu>
+To: <vintya@excite.com>, <linux-kernel@vger.kernel.org>
+Cc: <linux-c-programming@vger.kernel.org>
+References: <20050201135857.154ED1E491@xprdmailfe25.nwk.excite.com>
+Subject: Re: Problem in accessing executable files
+Date: Tue, 1 Feb 2005 10:37:30 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal <vgoyal@in.ibm.com> writes:
+This is just a thought.
 
-> Well, trying to put the already discussed ideas together.  I was
-> planning to work on following design. Please comment.
-> 
-> Crashed Kernel <-->Capture Kernel(or User Space) Interface:
-> ----------------------------------------------------------
-> 
-> The whole idea is that Crash image is represented in ELF Core format.
-> These ELF Headers are prepared by kexec-tools user space and put in one
-> segment. Address of start of image is passed to the capture kernel(or
-> user space) using one command line (eg. crashimage=). Now either kernel
-> space or user space can parse the elf headers and extract required
-> information and export final kernel elf core image.
+Text files are better able to handle small faults. ie an extra space or
+characters or even an unreadable piece of data might not cause the file to
+become unreadable by most text editors.  Binary files aren't as flexible.
+Every bit could be an instruction to the processor and might cause a seg
+fault.
 
-Sounds sane.  We need to make certain there is a checksum of that
-region but putting it in a separate segment should ensure that.
+Just to test the theory, I would start by making the encrypt decrypt
+function only effect the first byte.  If doing this doesn't cause a seg
+fault, I would recheck my decrypt encrypt algorithm to make sure it doesn't
+pad or expand at any point. maybe use them on a regular file and the an
+md5sum on the file before and after, just to make extra sure.
 
-I also think we need to look at the name crashimage= and see if we
-can find something more descriptive.  But that is minor.  Possibly
-elfcorehdr=  We have a little while to think about that one before we
-are stuck.
 
-> > ebiederm@xmission.com wrote: 
-> > If we were using an ELF header I would include one PT_NOTE program 
-> > header per cpu (Giving each cpu it's own area to mess around in).
-> > And I would use one PT_LOAD segment per possible memory zone.
-> > So in the worst case (current sgi altix) (MAX_NUMNODES=256,
-> > MAX_NR_ZONES=3, MAX_NR_CPUS=1024) 256*3+1024 = 1792 program
-> > headers.   At 56 bytes per 64bit program header that is 100352 bytes
-> > or 98KiB.  A little bit expensive.  A tuned data structure with
-> > 64bit base and size would only consume 1792*16 = 28672 or 28KiB.
-> 
-> If I prepare One elf header for each physical contiguous memory area (as
-> obtained from /proc/iomem) instead of per zone, then number of elf
-> headers will come down significantly. 
+----- Original Message ----- 
+From: "Vineet Joglekar" <vintya@excite.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <linux-c-programming@vger.kernel.org>
+Sent: Tuesday, February 01, 2005 8:58 AM
+Subject: Problem in accessing executable files
 
-A clarification on terminology we are talking about struct Elf64_Phdr
-here.  There is only one Elf header.  That seems to be clear farther
-down.
 
-> I don't have any idea on number of
-> actual physically contiguous regions present per machine, but roughly
-> assuming it to be 1 per node, it will lead to 256 + 1024 = 1280 program
-> headers.At 56 bytes per 64 bit program header this will amount to 70KB. 
-> 
-> This is worst case estimate and on lower end machines this will require
-> much less a space. On machines as big as 1024 cpus, this should not be a
-> concern, as big machines come with big RAMs.
+>
+> Hi all,
+>
+> I am trying to add some cryptographic functionality to ext2 file system
+for my masters project. I am working with kernel 2.4.21
+>
+> since the routines do_generic_file_read and do_generic_file_write are used
+in reading and writing, I am decrypting and encrypting the data in the resp.
+functions. This is working fine for regular data files. If I try to copy /
+execute executable files, I am getting segmentation fault. In kernel
+messages, I see same functions (read and write) getting called for the
+executables also. If I comment encrypt/decrypt functions, its working fine.
+>
+> Now since it is working for regular text files, I suppose there is not a
+problem in my encrypt/decrypt routines, then what might be going wrong?
+>
+> Thanks and regards,
+>
+> Vineet
+>
+> _______________________________________________
+> Join Excite! - http://www.excite.com
+> The most personalized portal on the Web!
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+linux-c-programming" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Agreed.  Size is not the primary issue.  There is some clear waste
-but that is a secondary concern.  Not performing a 1-1 mapping
-to the kernel data structures also seems to be a win, as the concepts
-are noticeably different.
- 
-> Eric, do you still think that ELF headers are inappropriate to be passed
-> across interface boundary.
 
-I have serious concerns about the kernel generating the ELF headers
-and only delivering them after the kernel has crashed.  Because
-then we run into questions of what information can be trusted.  If we
-avoid that issue I am not too concerned.
- 
-> ELF headers can be prepared by kexec-tools in advance and put into one
-> of the data segments. This requires following information to be
-> available to user space.
-
-For a first round doing it in user space sounds sane.  Obtaining
-the information at the time of load is much more robust.
-
-> - Starting address of space reserved by kernel for notes section
-> (crash_notes[]). Probably can be obtained from /proc/kallsysms?
-
-At least for a start.
- 
-> - NR_CPUS. May be sysconf(_SC_NPROCESSORS_CONF) should be
-> sufficient.
-
-Either that or /proc/cpuinfo.  But the sysconf approach looks more
-robust at this point.
-
-> - Size of memory reserved per cpu. No clue how to get that? Any
-> suggestions? 
-> 	May be hard-coding like 1K area per cpu should be to address the
-> 	future needs ?
-
-The nice thing about doing this in user space is that we can hack
-something together and get each side of the interface sorted
-out independently.  i.e. We can hard code it for now.  Sort out
-the users and then come back and make certain we have the information
-exported cleanly. 1K per cpu currently matches the kernel code so
-it is a good place to start :)
-
-It does look like getting the size of each array element is a problem,
-so the current kernel code certainly needs to be revisited.  And
-there are quite a few other things pieces of how we are obtaining
-the information that can be fixed as well.
-
-> Regarding Backup Region
-> -----------------------
-> 
-> - Kexec user space does the reservation for backup region segment.
-> - Purgatory copies the backup data to backup region. (Already
-> implemented)
-> - A separate elf header is prepared to represent backed up memory
-> region. And "offset" field of this program header can contain the actual
-> physical address where backup contents are stored. 
-
-I like that.  I was thinking a virtual versus physical address
-separation.  But using the offset field is much more appropriate,
-and it leaves us the potential of doing something nice like specifying
-the kernels virtual address later on.  Looking exclusively at the
-offset field to know which memory addresses to dump sounds good.
-For now we should have virtual==physical==offset except for the
-backup region.
-
-This sounds like a good place to start.
-
-Eric

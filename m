@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269436AbRHGDFP>; Mon, 6 Aug 2001 23:05:15 -0400
+	id <S270044AbRHGDOq>; Mon, 6 Aug 2001 23:14:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270044AbRHGDEz>; Mon, 6 Aug 2001 23:04:55 -0400
-Received: from [211.100.84.134] ([211.100.84.134]:62990 "HELO linux.tcpip.cxm")
-	by vger.kernel.org with SMTP id <S269436AbRHGDEs>;
-	Mon, 6 Aug 2001 23:04:48 -0400
-Date: Tue, 7 Aug 2001 11:04:51 +0800
-From: hugang <linuxbest@soul.com.cn>
-To: chen_xiangping@emc.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems in using loadLin
-Message-Id: <20010807110451.312b4ffd.linuxbest@soul.com.cn>
-In-Reply-To: <20010807105559.32d36713.hugang@linux.tcpip.cxm>
-In-Reply-To: <276737EB1EC5D311AB950090273BEFDD043BC549@elway.lss.emc.com>
-	<20010807105559.32d36713.hugang@linux.tcpip.cxm>
-Organization: soul
-X-Mailer: Sylpheed version 0.5.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S270045AbRHGDOh>; Mon, 6 Aug 2001 23:14:37 -0400
+Received: from bender.toppoint.de ([195.244.243.2]:36846 "EHLO
+	mail.toppoint.de") by vger.kernel.org with ESMTP id <S270044AbRHGDOQ>;
+	Mon, 6 Aug 2001 23:14:16 -0400
+>Received: (from netzwurm@localhost)
+	by gandalf.discordia (8.9.3/8.9.3/Debian 8.9.3-21) id EAA23876
+	for linux-kernel@vger.kernel.org; Tue, 7 Aug 2001 04:28:10 +0200
+Date: Tue, 7 Aug 2001 04:28:10 +0200
+From: David Spreen <david@spreen.de>
+To: linux-kernel@vger.kernel.org
+Subject: Encrypted Swap
+Message-ID: <20010807042810.A23855@foobar.toppoint.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 6 Aug 2001 10:20:46 -0400 
-> "chen, xiangping" <chen_xiangping@emc.com> wrote:
-> 
-> > Hi,
-> > 
-> > I am trying to use loadlin to boot up a machine. But after I 
-> > replaced the bzImage, the kernel fails to boot up. It prints 
-> > out error messages like:
-> > 	...
-> > 	VFS: Mounted root (ext2 filesystem) readonly
-> > 	Freeing unused kernel memory : 96K freed
-> > 	Warning: unable to open an initial console
-> > 	Kernel panic: No init found. Try passing init= option to kernel.
-> > 
-> > The boot.bat file is:
-> > 	loadlin.exe bzImage ro root=0x0821
-> > 
-> > Thanks,
-> > 
-> > Xiangping
-> 
-> 	I thinks this problem  that is root=0x821 is not real root partition.
-> 
-> -- 
-> Best Regard!
-> 礼！
-> ----------------------------------------------------
-> hugang : 胡刚 	GNU/Linux User
-> email  : gang_hu@soul.com.cn linuxbest@soul.com.cn
-> Tel    : +861068425741/2/3/4
-> Web    : http://www.soul.com.cn
-> 
-> 	Beijing Soul technology Co.Ltd.
-> 	   北京众志和达科技有限公司
-> ----------------------------------------------------
+Hey there,
+I was just searching for swap-encryption-solutions in the lkml-archive.
+Did I get the point saying ther's no way to do swap encryption
+in linux right now? (Well, a swapfile in an encrypted kerneli
+partition r something like that is not really what I want to
+do I think).
+
+so long...
+
+David
+-- 
+  __          _              | David "netzwurm" Spreen      Kiel, Germany
+ / _|___  ___| |__  __ _ _ _ | http://www.netzwurm.cc/      david@spreen.de
+|  _/ _ \/ _ \ '_ \/ _` | '_|| gnupg key (on keyservers):   C8B6823A
+|_| \___/\___/_.__/\__,_|_|  | CellPhone:                   +49 173 3874061
+

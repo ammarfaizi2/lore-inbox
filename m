@@ -1,66 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312302AbSC2XPD>; Fri, 29 Mar 2002 18:15:03 -0500
+	id <S312311AbSC2Xub>; Fri, 29 Mar 2002 18:50:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312304AbSC2XOy>; Fri, 29 Mar 2002 18:14:54 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:53639 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S312302AbSC2XOq>;
-	Fri, 29 Mar 2002 18:14:46 -0500
-Date: Sat, 30 Mar 2002 00:07:47 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
-        Dave Jones <davej@suse.de>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] P4/Xeon Thermal LVT support
-Message-ID: <20020329230745.GD9974@elf.ucw.cz>
-In-Reply-To: <E16qHy4-0005l7-00@the-village.bc.nu> <Pine.GSO.3.96.1020328133623.11187A-100000@delta.ds2.pg.gda.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S312314AbSC2XuV>; Fri, 29 Mar 2002 18:50:21 -0500
+Received: from louise.pinerecords.com ([212.71.160.16]:18949 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S312311AbSC2XuN>; Fri, 29 Mar 2002 18:50:13 -0500
+Date: Sat, 30 Mar 2002 00:36:52 +0100 (CET)
+From: tomas szepe <kala@pinerecords.com>
+To: linux-kernel@vger.kernel.org, Bill Davidsen <davidsen@tmr.com>
+Subject: Re: 2.4.18 SPARC SMP oops
+In-Reply-To: <Pine.LNX.3.96.1020326173956.9836A-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.44.0203300021320.240-100000@louise.pinerecords.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+hi,
 
-> > >  How can't it be critical?  Your system is overheating.  It is about to
-> > > fail -- depending on the configuration, it'll either crash or be shut down
-> > 
-> > Neither. It will drop to a much lower clock speed. You can set it to overheat
-> > and blow up but thats a mostly undocumented mtrr 8) The default behaviour is
-> > to throttle back hard
-> 
->  Depending on the reason of an overheat condition this may circumvent the
-> problem or not.  As I already stated you may have fire in the room (and
-> not all computer rooms seem to have automatic extinguishing systems). 
-> Hardware failures are not to be treated lightly. 
 
-Overheat is not neccessarily hardware failure.
+> > The following oops is more-or-less-deterministically reproducible
+> > on my dual-processor SPARCstation 10 with 160MB RAM. It tends to send
+> > the system down under heavy load caused by either sendmail/procmail
+> > or apache. I first came across the bug at around 2.4.17, though it's
+> > probably been lurking in the kernel much longer. I've gone through
+> > quite a bit of trouble attempting to get the oops barf at me in 2.2.x
+> > in case it's my hw config that's behind the whole problem, but I haven't
+> > run into any breakdowns, 2.2.21-rc2 included.
+>
+> Assuming that you can handle your load, at least briefly, with a single
+> CPU, have you tried booting with 'nosmp' on this machine? A serious test
+> would build without SMP to get the whole locking stuff to go away, but
+> this is quick and dirty.
+>
+> I'm convinced that there are evils still lurking in SMP after all these
+> years.
 
-You see, I have a notebook. I put pen in it to stop the fan. Hardware
-is pretty much okay, but, well, pen does not allow fan to spin.
+Bad news, everyone. I'm definitely able to reproduce the very same fatal oops
+on a UP kernel as well. Couldn't find a SPARC32 equivalent of i386's "nosmp,"
+so I was forced to recompile the kernel (2.4.18-rc4) with CONFIG_SMP undefined
+and do a "serious test" anyway.
 
-What's the best behaviour? Throttle is okay.
+Running something like the following kills the machine flat:
 
-I take the same notebook, let it compile kernel, put it into my bed,
-and cover it. What should happen? Throttle is okay. I'll get warm bed
-and compiled kernel.
+#!/bin/sh
+i=0; while [ ! "$i" = "500" ]; do
+	/bin/echo testmail.| /bin/mail -s test autoreply@localhost
+	i=$(/usr/bin/expr $i + 1)
+done
 
-Is there something better you propose notebook to do.
+For a ksymoops decode of the oops in question and more, please look up my
+former post in this thread.
 
-And now, you have fire at server room. All cpus throtle, then are
-burn. Does it matter if they throttled? No.
+Looks like it's back to 2.2 for all SPARC/Linux users for the time being.
 
-And now, you have your must-be-running server at university. Its fan
-fails. What do you want it to do? Throttle is the best thing. (It
-might deliver mail slightly slower, but it can probably handle load
-during the night so I can get there).
 
-So it seems to me throttle is always right answer.
-									Pavel
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+-Tomas Szepe
+pub 1024d/8e316a84 2002-01-29   tomas szepe <kala@pinerecords.com>
+openpgp f/print 2955 2eea c4b8 b09e 7ae1  4d5d 68e3 d606 8e31 6a84
+

@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265282AbUAMUBw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 15:01:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265369AbUAMUBQ
+	id S265127AbUAMUUP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 15:20:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265375AbUAMUUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 15:01:16 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:16852 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S265282AbUAMUBH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 15:01:07 -0500
-Date: Tue, 13 Jan 2004 19:59:57 +0000
-From: Dave Jones <davej@redhat.com>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: Where are 2.6.x upgrade notes?
-Message-ID: <20040113195957.GC29400@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Maciej Soltysiak <solt@dns.toxicfilms.tv>,
-	Kernel Mailinglist <linux-kernel@vger.kernel.org>
-References: <87ptdocmf1.fsf@stark.xeocode.com> <003801c3d9c4$2c2dead0$0e25fe0a@southpark.ae.poznan.pl>
+	Tue, 13 Jan 2004 15:20:15 -0500
+Received: from fw.osdl.org ([65.172.181.6]:16622 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265127AbUAMUUM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 15:20:12 -0500
+Date: Tue, 13 Jan 2004 12:21:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, digiLinux@dgii.com, acme@conectiva.com.br,
+       arobinso@nyx.net, support@moxa.com.tw, christoph@lameter.com,
+       pgmdsg@ibi.com, richard@sleepie.demon.co.uk, R.E.Wolff@BitWizard.nl,
+       fritz@isdn4linux.de, reginak@cyclades.com, oli@bv.ro, jeff@uclinux.org,
+       mleslie@lineo.ca, macro@ds2.pg.gda.pl
+Subject: Re: [3/3] 2.6 broken serial drivers
+Message-Id: <20040113122115.50265601.akpm@osdl.org>
+In-Reply-To: <20040113174219.E7256@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.44.0401131148070.18661-100000@eloth>
+	<20040113113650.A2975@flint.arm.linux.org.uk>
+	<20040113114948.B2975@flint.arm.linux.org.uk>
+	<20040113171544.B7256@flint.arm.linux.org.uk>
+	<20040113174219.E7256@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <003801c3d9c4$2c2dead0$0e25fe0a@southpark.ae.poznan.pl>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 13, 2004 at 11:58:14AM +0100, Maciej Soltysiak wrote:
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+>
+> --- 1.14/drivers/net/wan/pc300_tty.c	Thu Sep 11 18:40:53 2003
+> +++ edited/drivers/net/wan/pc300_tty.c	Tue Jan 13 14:42:34 2004
+> @@ -583,6 +583,14 @@
+>  	CPC_TTY_DBG("%s: IOCTL cmd %x\n",cpc_tty->name,cmd);
+>  	
+>  	switch (cmd) { 
+> +#error This is broken.  See comments.
 
- > I think the 'Known Gotchas' section could be extended by
- > new problems that might appear. ALSA being muted issue
- > is not included there.
+Grumble.  This breaks allmodconfig.  #warning, please.
 
-I take patches..
-
-		Dave
 

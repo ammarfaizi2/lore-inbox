@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268861AbRIQPBn>; Mon, 17 Sep 2001 11:01:43 -0400
+	id <S273644AbRIQPjc>; Mon, 17 Sep 2001 11:39:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269593AbRIQPBe>; Mon, 17 Sep 2001 11:01:34 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:40901 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S268861AbRIQPBY>; Mon, 17 Sep 2001 11:01:24 -0400
-Message-ID: <3BA61054.9C82042B@vnet.ibm.com>
-Date: Mon, 17 Sep 2001 15:01:40 +0000
-From: Tom Gall <tom_gall@vnet.ibm.com>
-Reply-To: tom_gall@vnet.ibm.com
-Organization: IBM
-X-Mailer: Mozilla 4.61 [en] (X11; U; Linux 2.2.10 i686)
-X-Accept-Language: en
+	id <S273646AbRIQPjW>; Mon, 17 Sep 2001 11:39:22 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13067 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S273644AbRIQPjN>; Mon, 17 Sep 2001 11:39:13 -0400
+Date: Mon, 17 Sep 2001 08:38:37 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+cc: Daniel Phillips <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: broken VM in 2.4.10-pre9
+In-Reply-To: <20010917011157.A22989@cs.cmu.edu>
+Message-ID: <Pine.LNX.4.33.0109170835310.8836-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Tom Rini <trini@kernel.crashing.org>, paulus@samba.org,
-        rusty@rustcorp.com.au
-Subject: Re: [PATCH] bzImage target for PPC
-In-Reply-To: <E15ipks-0006sS-00@wagner> <20010916212538.F14279@cpe-24-221-152-185.az.sprintbbd.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini wrote:
-> 
-> On Mon, Sep 17, 2001 at 02:11:34PM +1000, Rusty Russell wrote:
-> 
-> > All the instructions (including the message after "make oldconfig")
-> > talk about "make bzImage".  So I suppose it's best to give in to this
-> > rampant Intelism 8)
-> 
-> What about 'bzlilo' and 'zlilo' ? Those are mentioned too.  Linus, please
-> don't apply this.  Hopefully Paul will say that too. :)
 
-I'm with Tom on this. Don't apply this one. Additionally in the ppc64 camp we
-like our ppc brothern have been sticking with zImage. It seems (least to me)
-that it's reasonably documented in ppc and ppc64 circles. Perhaps tho it would
-be appropriate to add a short little blurb in the  README for the various
-architectures.
+On Mon, 17 Sep 2001, Jan Harkes wrote:
+>
+> >  - COW issue mentioned above. Probably trivially fixed by something like
+>
+> The COW is triggered by a pagefault, so the page will be accessed and
+> the hardware bits (both accessed and dirty) should get set automatically.
 
-> Tom Rini (TR1265)
-> http://gate.crashing.org/~trini/
+No.
 
-Regards,
+The point is that yes, the bits are set in the _page_table_, but we've
+never set them on the physical page.
 
-Tom
+And the COW fault will switch the page table entry to a new page, so if we
+don't set the referenced bit on the physical page at that time, we _never_
+will.
 
--- 
-Tom Gall - PPC64 Code Monkey     "Where's the ka-boom? There was
-Linux Technology Center           supposed to be an earth
-(w) tom_gall@vnet.ibm.com         shattering ka-boom!"
-(w) 507-253-4558                 -- Marvin Martian
-(h) tgall@rochcivictheatre.org
-http://www.ibm.com/linux/ltc/projects/ppc
+		Linus
+

@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263910AbTDVXrG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 19:47:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263913AbTDVXrG
+	id S263913AbTDVXsz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 19:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263914AbTDVXsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 19:47:06 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:2270 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263910AbTDVXrE (ORCPT
+	Tue, 22 Apr 2003 19:48:55 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:61119 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263913AbTDVXsv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 19:47:04 -0400
-Date: Tue, 22 Apr 2003 16:48:43 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] HT scheduler, sched-2.5.68-A9
-Message-ID: <1490710000.1051055323@flay>
-In-Reply-To: <Pine.LNX.4.44.0304211509010.11700-100000@devserv.devel.redhat.com>
-References: <Pine.LNX.4.44.0304211509010.11700-100000@devserv.devel.redhat.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Tue, 22 Apr 2003 19:48:51 -0400
+Date: Tue, 22 Apr 2003 17:02:32 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+Reply-To: Hanna Linder <hannal@us.ibm.com>
+To: akpm@digeo.com
+cc: hannal@us.ibm.com, linux-kernel@vger.kernel.org, tytso@mit.edu
+Subject: [PATCH 2.5.68-mm1] lockmeter fix from tytso
+Message-ID: <162650000.1051056152@w-hlinder>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -24,116 +24,179 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> the attached patch (against 2.5.68 or BK-curr) is the latest
-> implementation of the "no compromises" HT-scheduler. I fixed a couple of
-> bugs, and the scheduler is now stable and behaves properly on a
-> 2-CPU-2-sibling HT testbox. The patch can also be downloaded from:
-> 
-> 	http://redhat.com/~mingo/O(1)-scheduler/
-> 
-> bug reports, suggestions welcome,
 
-Hmmm. When the machine is loaded up fully, this seems OK, but for lower
-loads, it seems to have a significant degredation. This is on my normal
-16-way machine, no HT at all ... just checking for degredations. At a
-guess, maybe it's bouncing stuff around between runqueues under low
-loads?
+Hi,
 
-Are there things embedded in here that change stuff for non-HT machines?
+This is a fix from Ted Ts'o that I have tested and ported to the 
+2.5.68-mm1 kernel. Here is the note from Ted describing the
+problem:
 
-M.
+> ridiculous hold times for a network spin lock that I *knew* wasn't
+> right.  What was happening was that networking code was using
+> spin_lock_bh to enter the lock, did some work, then called a function
+> which called spin_unlock to temporarily release the lock, and then
+> called spin_lock.  The top level function then called spin_unlock_bh.
+> Because spin_{lock,unlock}_bh wasn't being metered, the result was
+> ridiculous hold times.
 
-DISCLAIMER: SPEC(tm) and the benchmark name SDET(tm) are registered
-trademarks of the Standard Performance Evaluation Corporation. This 
-benchmarking was performed for research purposes only, and the run results
-are non-compliant and not-comparable with any published results.
 
-Results are shown as percentages of the first set displayed
+Here is the patch. However, in order to test it I discovered that
+the config LOCKMETER part of the original patch has been dropped.
+I have included the code to add it back in for the i386 arch. Let
+me know if there was a reason to remove it from the config ;)
 
-SDET 1  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.68       100.0%         0.7%
-                2.5.68-ht        72.9%         1.8%
+Thanks a lot for fixing the preempt problem too. I definitely
+owe you one...
 
-SDET 2  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.68       100.0%         2.8%
-                2.5.68-ht        73.7%         2.1%
+Hanna
 
-SDET 4  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.68       100.0%         1.0%
-                2.5.68-ht        62.5%        47.0%
+----------
 
-SDET 8  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.68       100.0%         0.6%
-                2.5.68-ht        92.6%         1.0%
-
-SDET 16  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.68       100.0%         0.1%
-                2.5.68-ht       100.0%         0.5%
-
-SDET 32  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.68       100.0%         0.4%
-                2.5.68-ht        99.1%         0.6%
-
-SDET 64  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.68       100.0%         0.2%
-                2.5.68-ht        99.0%         0.1%
-
-SDET 128  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.68       100.0%         0.1%
-                2.5.68-ht        99.0%         0.1%
-
-diffprofile for SDET 4:
-
-     12339    28.7% total
-     10551    27.0% default_idle
-       313    75.6% page_add_rmap
-       240   110.1% copy_page_range
-       192   243.0% do_wp_page
-       174    31.1% page_remove_rmap
-        51    20.6% zap_pte_range
-        48    65.8% do_anonymous_page
-        48    41.0% find_get_page
-        48   160.0% copy_mm
-        41    41.4% __d_lookup
-        38    44.7% __copy_to_user_ll
-        34    82.9% __copy_user_intel
-        32   110.3% copy_process
-        28    28.9% release_pages
-        27   158.8% current_kernel_time
-        23   121.1% release_task
-        23    35.4% kmem_cache_free
-        20   125.0% free_hot_cold_page
-        17    77.3% buffered_rmqueue
-        15   100.0% __copy_from_user_ll
-        15    24.2% do_no_page
-        13    16.9% do_page_fault
-        12    44.4% pte_alloc_one
-        12    57.1% schedule
-        12   400.0% copy_files
-        11    73.3% exit_notify
-        10    29.4% path_lookup
-         9   180.0% dup_task_struct
-         9    27.3% atomic_dec_and_lock
-         7    31.8% handle_mm_fault
-         7   140.0% block_invalidatepage
-         7    38.9% __pte_chain_free
-         7    14.0% clear_page_tables
-         7   116.7% fd_install
-         7    77.8% write_profile
-         7   350.0% generic_delete_inode
-         6    54.5% ext2_update_inode
-         6    60.0% do_page_cache_readahead
-         6    66.7% dentry_open
-
-Which looks like maybe more off-node NUMA accesses in there ...
-is there some new rebalance mechanism that could be bouncing
-stuff across nodes?
+diff -Nrup -Xdontdiff linux-2.5.68-mm1/arch/i386/Kconfig linux-lockmeter/arch/i386/Kconfig
+--- linux-2.5.68-mm1/arch/i386/Kconfig	Tue Apr 22 14:45:33 2003
++++ linux-lockmeter/arch/i386/Kconfig	Tue Apr 22 16:38:36 2003
+@@ -1573,6 +1573,13 @@ config DEBUG_SPINLOCK_SLEEP
+ 	  If you say Y here, various routines which may sleep will become very
+ 	  noisy if they are called with a spinlock held.	
+ 
++config LOCKMETER
++	bool "Kernel lock metering"
++	depends on SMP
++	help
++	  Say Y to enable kernel lock metering, which adds overhead to SMP locks,
++	  but allows you to see various statistics using the lockstat command.
++
+ config KGDB
+ 	bool "Include kgdb kernel debugger"
+ 	depends on DEBUG_KERNEL
+diff -Nrup -Xdontdiff linux-2.5.68-mm1/include/linux/spinlock.h linux-lockmeter/include/linux/spinlock.h
+--- linux-2.5.68-mm1/include/linux/spinlock.h	Tue Apr 22 14:45:45 2003
++++ linux-lockmeter/include/linux/spinlock.h	Tue Apr 22 14:46:28 2003
+@@ -400,6 +400,27 @@ do { \
+ 				({preempt_enable(); local_bh_enable(); 0;});})
+ 
+ #ifdef CONFIG_LOCKMETER
++#undef spin_lock
++#undef spin_trylock
++#undef spin_unlock
++#undef spin_lock_irqsave
++#undef spin_lock_irq
++#undef spin_lock_bh
++#undef read_lock
++#undef read_unlock
++#undef write_lock
++#undef write_unlock
++#undef write_trylock
++#undef spin_unlock_bh
++#undef read_lock_irqsave
++#undef read_lock_irq
++#undef read_lock_bh
++#undef read_unlock_bh
++#undef write_lock_irqsave
++#undef write_lock_irq
++#undef write_lock_bh
++#undef write_unlock_bh
++
+ #define spin_lock(lock) \
+ do { \
+ 	preempt_disable(); \
+@@ -414,6 +435,35 @@ do { \
+ 	preempt_enable(); \
+ } while (0)
+ 
++#define spin_lock_irqsave(lock, flags) \
++do { \
++	local_irq_save(flags); \
++	preempt_disable(); \
++	_metered_spin_lock(lock); \
++} while (0)
++
++#define spin_lock_irq(lock) \
++do { \
++	local_irq_disable(); \
++	preempt_disable(); \
++	_metered_spin_lock(lock); \
++} while (0)
++
++#define spin_lock_bh(lock) \
++do { \
++	local_bh_disable(); \
++	preempt_disable(); \
++	_metered_spin_lock(lock); \
++} while (0)
++
++#define spin_unlock_bh(lock) \
++do { \
++	_metered_spin_unlock(lock); \
++	preempt_enable(); \
++	local_bh_enable(); \
++} while (0)
++
++
+ #define read_lock(lock)                ({preempt_disable(); _metered_read_lock(lock);})
+ #define read_unlock(lock)      ({_metered_read_unlock(lock); preempt_enable();})
+ #define write_lock(lock)       ({preempt_disable(); _metered_write_lock(lock);})
+@@ -426,6 +476,62 @@ do { \
+ 	preempt_enable_no_resched(); \
+ } while (0)
+ 
++#define read_lock_irqsave(lock, flags) \
++do { \
++	local_irq_save(flags); \
++	preempt_disable(); \
++	_metered_read_lock(lock); \
++} while (0)
++
++#define read_lock_irq(lock) \
++do { \
++	local_irq_disable(); \
++	preempt_disable(); \
++	_metered_read_lock(lock); \
++} while (0)
++
++#define read_lock_bh(lock) \
++do { \
++	local_bh_disable(); \
++	preempt_disable(); \
++	_metered_read_lock(lock); \
++} while (0)
++
++#define read_unlock_bh(lock) \
++do { \
++	_metered_read_unlock(lock); \
++	preempt_enable(); \
++	local_bh_enable(); \
++} while (0)
++
++#define write_lock_irqsave(lock, flags) \
++do { \
++	local_irq_save(flags); \
++	preempt_disable(); \
++	_metered_write_lock(lock); \
++} while (0)
++
++#define write_lock_irq(lock) \
++do { \
++	local_irq_disable(); \
++	preempt_disable(); \
++	_metered_write_lock(lock); \
++} while (0)
++
++#define write_lock_bh(lock) \
++do { \
++	local_bh_disable(); \
++	preempt_disable(); \
++	_metered_write_lock(lock); \
++} while (0)
++
++#define write_unlock_bh(lock) \
++do { \
++	_metered_write_unlock(lock); \
++	preempt_enable(); \
++	local_bh_enable(); \
++} while (0)
++
+ #endif /* !CONFIG_LOCKMETER */
+ 
+ /* "lock on reference count zero" */
 

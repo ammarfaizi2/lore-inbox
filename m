@@ -1,59 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbVDCMPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVDCMSg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbVDCMPI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 08:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbVDCMPI
+	id S261704AbVDCMSg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 08:18:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbVDCMSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 08:15:08 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:16396 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261702AbVDCMPC
+	Sun, 3 Apr 2005 08:18:36 -0400
+Received: from [213.170.72.194] ([213.170.72.194]:50660 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261704AbVDCMSb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 08:15:02 -0400
-Date: Sun, 3 Apr 2005 22:14:27 +1000
-To: Andrew Morton <akpm@osdl.org>
-Cc: linville@redhat.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: Oops in set_spdif_output in i810_audio
-Message-ID: <20050403121427.GC21388@gondor.apana.org.au>
-References: <20050402162840.29a65623.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050402162840.29a65623.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Sun, 3 Apr 2005 08:18:31 -0400
+Message-ID: <424FDF15.3090006@yandex.ru>
+Date: Sun, 03 Apr 2005 16:18:29 +0400
+From: "Artem B. Bityuckiy" <dedekind@yandex.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en, ru, en-us
+MIME-Version: 1.0
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "Artem B. Bityuckiy" <dedekind@infradead.org>, dwmw2@infradead.org,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       jmorris@redhat.com, svenning@post5.tele.dk,
+       YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+Subject: Re: [RFC] CryptoAPI & Compression
+References: <1111766900.4566.20.camel@sauron.oktetlabs.ru> <20050326044421.GA24358@gondor.apana.org.au> <1112030556.17983.35.camel@sauron.oktetlabs.ru> <20050331095151.GA13992@gondor.apana.org.au> <424FD653.7020204@yandex.ru> <20050403114704.GC21255@gondor.apana.org.au> <424FDB0F.6000304@yandex.ru> <20050403120709.GB21388@gondor.apana.org.au>
+In-Reply-To: <20050403120709.GB21388@gondor.apana.org.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 02, 2005 at 04:28:40PM -0800, Andrew Morton wrote:
-> 
-> *** These are init messages & oops:
-> i810_audio: Unknown symbol ac97_set_dac_rate
-> i810_audio: Unknown symbol ac97_release_codec
-> i810_audio: Unknown symbol ac97_set_adc_rate
-> i810_audio: Unknown symbol ac97_alloc_codec
-> i810_audio: Unknown symbol ac97_probe_codec
+Herbert Xu wrote:
+> Each crypto/deflate user gets their own private zlib instance.
+> Where is the problem?
+Hmm, OK. No problems, that was just RFC. :-)
 
-The codec initialisation failed so the codec is NULL.
-
-> EIP is at i810_set_spdif_output+0x22/0x160 [i810_audio]
-
-Boom as we dereferenced the codec.
-
-Is there any reason why we should allow i810_probe to succeed
-when there is no codec?
-
-If not we can make i810_ac97_init fail in this case.
-
-If so then we'll have to make sure that every dereference of
-codec in this driver checks whether it's NULL.
-
-I personally don't see a reason why we should allow it to
-continue when the codec doesn't exist.  What do you guys think?
-
-Cheers,
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.

@@ -1,58 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268247AbUH2SAP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268248AbUH2SJm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268247AbUH2SAP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 14:00:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268248AbUH2SAO
+	id S268248AbUH2SJm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 14:09:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268250AbUH2SJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 14:00:14 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:38629 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S268247AbUH2R75 (ORCPT
+	Sun, 29 Aug 2004 14:09:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:33483 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268248AbUH2SJj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 13:59:57 -0400
-Date: Sun, 29 Aug 2004 20:01:35 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Daniel Schmitt <pnambic@unu.nu>, "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mark_H_Johnson@raytheon.com
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q4
-Message-ID: <20040829180135.GA28767@elte.hu>
-References: <20040828194449.GA25732@elte.hu> <200408282210.03568.pnambic@unu.nu> <20040828203116.GA29686@elte.hu> <1093727453.8611.71.camel@krustophenia.net> <20040828211334.GA32009@elte.hu> <1093727817.860.1.camel@krustophenia.net> <1093737080.1385.2.camel@krustophenia.net> <1093746912.1312.4.camel@krustophenia.net> <20040829054339.GA16673@elte.hu> <1093762642.1348.3.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1093762642.1348.3.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sun, 29 Aug 2004 14:09:39 -0400
+Date: Sun, 29 Aug 2004 11:09:22 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Christoph Hellwig <hch@infradead.org>, Craig Milo Rogers <rogers@isi.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Termination of the Philips Webcam Driver (pwc)
+In-Reply-To: <1093790181.27934.44.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0408291102010.2295@ppc970.osdl.org>
+References: <20040826233244.GA1284@isi.edu>  <20040827004757.A26095@infradead.org>
+  <Pine.LNX.4.58.0408261700320.2304@ppc970.osdl.org>
+ <1093790181.27934.44.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
 
-> > > The problem only occurs when CONFIG_PREEMPT_HARDIRQS=y.  Works fine
-> > > otherwise.
-> > 
-> > i suspect it's the generic_synchronize_irq() change. Does -Q4 boot?:
-> > 
-> >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-Q4
-> > 
-> > -Q4 reverts this change. (this doesnt solve the problems Scott noticed
-> > though.)
-> > 
-> > another solution would be to boot Q3 with preempt_hardirqs=0 and then
-> > turn on threading for all IRQs but the keyboard.
-> > 
+On Sun, 29 Aug 2004, Alan Cox wrote:
 > 
-> Nope, neither of these fixes the problem.
+> He is not sole author. Large parts of the code are based on other
+> authors work and simply copied from the standard framework. Please put
+> back the version without the hooks. It is useful to all sorts of people
+> in that form.
 
-the correct boot parameter is hardirq-preempt=0.
+Are you willing to stand up for that and be the maintainer for it?
 
-	Ingo
+I'm disgusted by how many people have been complaining, yet when I ask 
+people to step up and actually _do_ something about it, people suddenly 
+become very quiet, or continue complaining about it ignoring the 
+fundamental issue.
+
+Everybody (including you, Alan, so don't go hoity-toity on us) has
+apparently totally ignored my calls for a new maintainer, and asking the 
+people involved who wrote parts of the driver for their input. I quote an 
+email from me:
+
+	Date: Fri, 27 Aug 2004 11:13:09 -0700 (PDT)
+	From: Linus Torvalds <torvalds@osdl.org>
+	To: Xavier Bestel <xavier.bestel@free.fr>
+	Cc: Christoph Hellwig <hch@infradead.org>,
+	    Craig Milo Rogers <rogers@isi.edu>,
+	    Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	    webcam@smcc.demon.nl
+	Subject: Re: Termination of the Philips Webcam Driver (pwc)
+
+	On Fri, 27 Aug 2004, Xavier Bestel wrote:
+	> 
+	> What if someone steps up and want to maintain and extend this piece of
+	> code ? Will you forbid him (as in "not in my tree") ?
+
+	I'd suggest you contact the people who have worked on that driver (there's 
+	certainly people outside of nemosoft, at least according to the 
+	changelogs) and see what they feel like and try to gauge how much they 
+	were part of driver development. 
+
+	...
+
+I've got _lots_ of emails in my mailbox complaining.
+
+I don't have a _single_ one actually responding for my calls to actually 
+_do_ something about the driver.
+
+Until people turn from whiners to doers, nothing will happen.
+
+			Linus

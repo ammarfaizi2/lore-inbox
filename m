@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262607AbVCaXu1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262117AbVDAAJA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262607AbVCaXu1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 18:50:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262595AbVCaXtR
+	id S262117AbVDAAJA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 19:09:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbVCaXuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 18:49:17 -0500
-Received: from mail.kroah.org ([69.55.234.183]:42208 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262540AbVCaXYN convert rfc822-to-8bit
+	Thu, 31 Mar 2005 18:50:18 -0500
+Received: from mail.kroah.org ([69.55.234.183]:45024 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262543AbVCaXYO convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 18:24:13 -0500
+	Thu, 31 Mar 2005 18:24:14 -0500
 Cc: khali@linux-fr.org
-Subject: [PATCH] I2C: Fix some i2c algorithm initialization
-In-Reply-To: <11123113924150@kroah.com>
+Subject: [PATCH] i2c: add adt7461 chip support to lm90 driver's Kconfig entry
+In-Reply-To: <11123113952683@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Thu, 31 Mar 2005 15:23:12 -0800
-Message-Id: <11123113922117@kroah.com>
+Date: Thu, 31 Mar 2005 15:23:15 -0800
+Message-Id: <11123113951873@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,84 +24,41 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2335, 2005/03/31 14:09:20-08:00, khali@linux-fr.org
+ChangeSet 1.2347, 2005/03/31 14:31:59-08:00, khali@linux-fr.org
 
-[PATCH] I2C: Fix some i2c algorithm initialization
+[PATCH] i2c: add adt7461 chip support to lm90 driver's Kconfig entry
 
-While searching for i2c_algorithm declarations missing their
-.functionality member, I found three of them which were not properly
-initialized. i2c-algo-ite and i2c_sibyte_algo do not use the C99
-initialization syntax, and i2c-ibm_iic.c explicitely initializes NULL
-members. Following patch puts some order in there.
+Hi Greg, James, all,
+
+> > > Attached is another version of my adt7461 patch, for inclusion in
+> > > the 2.6 tree. Reviewed by Jean.
+>
+> May we have an additional patch to Kconfig for this one?
+
+Here it finally comes.
+
+This simple patch adds a mention to the ADT7461 chip in Kconfig, now
+that the lm90 driver supports it.
 
 Signed-off-by: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
- drivers/i2c/algos/i2c-algo-ite.c    |   13 +++++--------
- drivers/i2c/algos/i2c-algo-sibyte.c |   13 +++++--------
- drivers/i2c/busses/i2c-ibm_iic.c    |    4 ----
- 3 files changed, 10 insertions(+), 20 deletions(-)
+ drivers/i2c/chips/Kconfig |    3 +++
+ 1 files changed, 3 insertions(+)
 
 
-diff -Nru a/drivers/i2c/algos/i2c-algo-ite.c b/drivers/i2c/algos/i2c-algo-ite.c
---- a/drivers/i2c/algos/i2c-algo-ite.c	2005-03-31 15:17:46 -08:00
-+++ b/drivers/i2c/algos/i2c-algo-ite.c	2005-03-31 15:17:46 -08:00
-@@ -713,14 +713,11 @@
- /* -----exported algorithm data: -------------------------------------	*/
+diff -Nru a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
+--- a/drivers/i2c/chips/Kconfig	2005-03-31 15:16:17 -08:00
++++ b/drivers/i2c/chips/Kconfig	2005-03-31 15:16:17 -08:00
+@@ -233,6 +233,9 @@
+ 	  LM86, LM89 and LM99, Analog Devices ADM1032 and Maxim MAX6657 and
+ 	  MAX6658 sensor chips.
  
- static struct i2c_algorithm iic_algo = {
--	"ITE IIC algorithm",
--	I2C_ALGO_IIC,
--	iic_xfer,		/* master_xfer	*/
--	NULL,				/* smbus_xfer	*/
--	NULL,				/* slave_xmit		*/
--	NULL,				/* slave_recv		*/
--	algo_control,			/* ioctl		*/
--	iic_func,			/* functionality	*/
-+	.name		= "ITE IIC algorithm",
-+	.id		= I2C_ALGO_IIC,
-+	.master_xfer	= iic_xfer,
-+	.algo_control	= algo_control, /* ioctl */
-+	.functionality	= iic_func,
- };
- 
- 
-diff -Nru a/drivers/i2c/algos/i2c-algo-sibyte.c b/drivers/i2c/algos/i2c-algo-sibyte.c
---- a/drivers/i2c/algos/i2c-algo-sibyte.c	2005-03-31 15:17:46 -08:00
-+++ b/drivers/i2c/algos/i2c-algo-sibyte.c	2005-03-31 15:17:46 -08:00
-@@ -136,14 +136,11 @@
- /* -----exported algorithm data: -------------------------------------	*/
- 
- static struct i2c_algorithm i2c_sibyte_algo = {
--	"SiByte algorithm",
--	I2C_ALGO_SIBYTE,
--	NULL,                           /* master_xfer          */
--	smbus_xfer,                   	/* smbus_xfer           */
--	NULL,				/* slave_xmit		*/
--	NULL,				/* slave_recv		*/
--	algo_control,			/* ioctl		*/
--	bit_func,			/* functionality	*/
-+	.name		= "SiByte algorithm",
-+	.id		= I2C_ALGO_SIBYTE,
-+	.smbus_xfer	= smbus_xfer,
-+	.algo_control	= algo_control, /* ioctl */
-+	.functionality	= bit_func,
- };
- 
- /* 
-diff -Nru a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
---- a/drivers/i2c/busses/i2c-ibm_iic.c	2005-03-31 15:17:46 -08:00
-+++ b/drivers/i2c/busses/i2c-ibm_iic.c	2005-03-31 15:17:46 -08:00
-@@ -630,10 +630,6 @@
- 	.name 		= "IBM IIC algorithm",
- 	.id   		= I2C_ALGO_OCP,
- 	.master_xfer 	= iic_xfer,
--	.smbus_xfer	= NULL,
--	.slave_send	= NULL,
--	.slave_recv	= NULL,
--	.algo_control	= NULL,
- 	.functionality	= iic_func
- };
++	  The Analog Devices ADT7461 sensor chip is also supported, but only
++	  if found in ADM1032 compatibility mode.
++
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called lm90.
  
 

@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262474AbTCRP6L>; Tue, 18 Mar 2003 10:58:11 -0500
+	id <S262483AbTCRP6i>; Tue, 18 Mar 2003 10:58:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262479AbTCRP6L>; Tue, 18 Mar 2003 10:58:11 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:42762 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262474AbTCRP6J>; Tue, 18 Mar 2003 10:58:09 -0500
-Date: Tue, 18 Mar 2003 16:09:02 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Alexander Hoogerhuis <alexh@ihatent.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.65-mm1
-Message-ID: <20030318160902.C21945@flint.arm.linux.org.uk>
-Mail-Followup-To: Alexander Hoogerhuis <alexh@ihatent.com>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030318031104.13fb34cc.akpm@digeo.com> <87adfs4sqk.fsf@lapper.ihatent.com> <87bs08vfkg.fsf@lapper.ihatent.com>
+	id <S262486AbTCRP6i>; Tue, 18 Mar 2003 10:58:38 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:25770 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S262483AbTCRP6f>;
+	Tue, 18 Mar 2003 10:58:35 -0500
+Date: Tue, 18 Mar 2003 17:09:31 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: netdev@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: interop success, ip6sec Linux 2.5.65 vs FreeBSD 4.7-STABLE
+Message-ID: <20030318160931.GA9529@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>, netdev@oss.sgi.com,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <87bs08vfkg.fsf@lapper.ihatent.com>; from alexh@ihatent.com on Tue, Mar 18, 2003 at 04:51:11PM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 18, 2003 at 04:51:11PM +0100, Alexander Hoogerhuis wrote:
-> Oh well, I've had one hang within 10 minutes of booting, came back and
-> the machine was unresponsive (mouse and keyboard under X, unable to
-> switch to console). Apart from that I've got two funnies in my boot
-> messages:
+Thanks to Niels Bakker I can report that stock Linux 2.5.65 can talk IP6SEC
+with FreeBSD 4.7-STABLE (KAME 20010528/FreeBSD). It worked on the first try.
 
-Could you send the full bus information for all devices (lspci -vv),
-and the contents of /proc/iomem and /proc/ioports ?
+This using ipsec-tools-0.2.2 and manual keying. Racoon is reported not to
+listen on IPv6 sockets yet, but we didn't try this.
 
-I don't believe there's anything in my PCI updates which should have
-changed the behaviour - they were touching mainly the scanning for
-devices, and the way we write resources back into the hardware.  The
-latter rarely happens on x86, except for cardbus devices.
+The configuration used is that described in
+http://lartc.org/howto/lartc.ipsec.html 'Intro with Manual Keying', with
+IPv4 addresses replaced by IPv6 addresses.
+
+Thanks for making this possible!
+
+Regards,
+
+Bert
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+http://netherlabs.nl                         Consulting

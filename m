@@ -1,44 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262744AbUF0ORW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262756AbUF0ORf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262744AbUF0ORW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 10:17:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUF0ORW
+	id S262756AbUF0ORf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 10:17:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbUF0ORf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 10:17:22 -0400
-Received: from tor.morecom.no ([64.28.24.90]:54445 "EHLO tor.morecom.no")
-	by vger.kernel.org with ESMTP id S262744AbUF0ORU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 10:17:20 -0400
-Subject: Re: mode data=journal in ext3. Is it safe to use?
-From: Petter Larsen <pla@morecom.no>
-To: Daniel Pittman <daniel@rimspace.net>
-Cc: ext3 <ext3-users@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <87wu26mto2.fsf@enki.rimspace.net>
-References: <40FB8221D224C44393B0549DDB7A5CE83E31B1@tor.lokal.lan>
-	 <1087322976.1874.36.camel@pla.lokal.lan> <40D06C0B.7020005@techsource.com>
-	 <1087460983.2765.34.camel@pla.lokal.lan> <87wu26mto2.fsf@enki.rimspace.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1088345837.5288.1.camel@pla.lokal.lan>
+	Sun, 27 Jun 2004 10:17:35 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:24524 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262756AbUF0ORa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 10:17:30 -0400
+Date: Sun, 27 Jun 2004 16:17:23 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>, perex@suse.cz
+Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: [patch] 2.6.7-mm3 ALSA gus compile error
+Message-ID: <20040627141723.GT18303@fs.tum.de>
+References: <20040626233105.0c1375b2.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sun, 27 Jun 2004 16:17:17 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040626233105.0c1375b2.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > We are using ext3 on a compact flash disk in an embedded device. So we
-> > are not using RAID systems.
-> 
-> Watch out - even with the internal wear leveling the CF disk will do,
-> ext3 is still a pretty heavy filesystem to use there.
-> 
->      Daniel
+On Sat, Jun 26, 2004 at 11:31:05PM -0700, Andrew Morton wrote:
+>...
+> All 198 patches
+>...
+> bk-alsa.patch
+>...
 
-Well, which filesystem would you then used for read-write on this CF?
+This causes the following compile error:
 
+<--  snip  -->
+
+...
+  LD      .tmp_vmlinux1
+sound/built-in.o(.text+0xfb4ae): In function `snd_gus_synth_new_device':
+: undefined reference to `snd_seq_iwffff_init'
+make: *** [.tmp_vmlinux1] Error 1
+
+<--  snip  -->
+
+
+It seems the following is required:
+
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.6.7-mm3-full/sound/core/seq/instr/Makefile.old	2004-06-27 14:42:55.000000000 +0200
++++ linux-2.6.7-mm3-full/sound/core/seq/instr/Makefile	2004-06-27 14:43:19.000000000 +0200
+@@ -19,5 +19,5 @@
+ # Toplevel Module Dependency
+ obj-$(call sequencer,$(CONFIG_SND_OPL3_LIB)) += snd-ainstr-fm.o
+ obj-$(call sequencer,$(CONFIG_SND_OPL4_LIB)) += snd-ainstr-fm.o
+-obj-$(call sequencer,$(CONFIG_SND_GUS_SYNTH)) += snd-ainstr-gf1.o snd-ainstr-simple.o
++obj-$(call sequencer,$(CONFIG_SND_GUS_SYNTH)) += snd-ainstr-gf1.o snd-ainstr-simple.o snd-ainstr-iw.o
+ obj-$(call sequencer,$(CONFIG_SND_TRIDENT)) += snd-ainstr-simple.o
+
+
+
+cu
+Adrian
 
 -- 
-Petter Larsen
-cand. scient.
-moreCom as
-913 17 222
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

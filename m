@@ -1,48 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270716AbTGPMfV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 08:35:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270726AbTGPMfV
+	id S270743AbTGPMh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 08:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270744AbTGPMh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 08:35:21 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36102 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S270716AbTGPMfN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 08:35:13 -0400
-Date: Wed, 16 Jul 2003 13:50:02 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: "YOSHIFUJI Hideaki / _$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: IPv6 warnings
-Message-ID: <20030716135002.A6151@flint.arm.linux.org.uk>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	"YOSHIFUJI Hideaki / _$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
-	linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-References: <20030716113657.A24009@flint.arm.linux.org.uk> <20030716.200728.47761016.yoshfuji@linux-ipv6.org> <20030716053635.69b29fa6.davem@redhat.com>
+	Wed, 16 Jul 2003 08:37:28 -0400
+Received: from dhcp160176008.columbus.rr.com ([24.160.176.8]:7178 "EHLO
+	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
+	id S270743AbTGPMhZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 08:37:25 -0400
+From: "Joseph Fannin" <jhf@rivenstone.net>
+Date: Wed, 16 Jul 2003 08:52:14 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Error using mii-tool on 2.6-test, 2.4 okay
+Message-ID: <20030716125213.GA6582@rivenstone.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030716053635.69b29fa6.davem@redhat.com>; from davem@redhat.com on Wed, Jul 16, 2003 at 05:36:35AM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 05:36:35AM -0700, David S. Miller wrote:
-> On Wed, 16 Jul 2003 20:07:28 +0900 (JST)
-> YOSHIFUJI Hideaki / _$B5HF#1QL@ <yoshfuji@linux-ipv6.org> wrote:
-> 
-> > > Destroying alive neighbour c18c2a44
-> > > [<c015bb84>] (dst_destroy+0x0/0x168) from [<bf00d024>] (ndisc_dst_gc+0x74/0xa4 [ipv6])
-> > 
-> > Please try this.
-> 
-> Indeed, patch applied, thanks you.
 
-The patch seems to fix the problem, thanks.
+--azLHFNyN32YCQGCU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
 
+	I've just switched another of my boxes over to 2.6-test; so
+far, I've had only one problem -- attempts to force the network card
+(tulip-based) to full-duplex with mii-tool fail with:
+
+SIOCGMIIPHY on 'eth0' failed: Operation not supported
+no MII interfaces found
+
+       The same command works fine in 2.4.  This the packaged mii-tool
+in Debian unstable (1.9 2000/04/28).  I've tried rebuilding the
+package on another very similar machine, but the error remains.
+Ethtool also doesn't work, but I'm not sure it did with 2.4 and this
+card either.
+
+       One thing that caught my eye: I have CONFIG_MII set to "y".
+Are mii-tool and CONFIG_MII mutually exclusive?  CONFIG_TULIP is "m";
+should CONFIG_MII be "m" too?   =20
+
+
+--=20
+Joseph Fannin
+jhf@rivenstone.net
+
+"Linus, please apply.  Breaks everything.  But is cool." -- Rusty Russell.
+
+--azLHFNyN32YCQGCU
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/FUp9Wv4KsgKfSVgRAvZlAKCgz5Jd8lpJb6ZGMJRMf7wKVw6O5QCfQcKj
+rYo2zcKbO1Ofj3kFoXGiNYE=
+=YNHy
+-----END PGP SIGNATURE-----
+
+--azLHFNyN32YCQGCU--

@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262351AbTINIqe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 04:46:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbTINIqe
+	id S262332AbTINIl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 04:41:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262336AbTINIl7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 04:46:34 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:49557 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262351AbTINIqc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 04:46:32 -0400
-Date: Sun, 14 Sep 2003 10:44:51 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
-cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.23-pre4: failed at atyfb_base.c
-In-Reply-To: <Pine.LNX.4.44.0309131948230.27449-100000@deadlock.et.tudelft.nl>
-Message-ID: <Pine.GSO.4.21.0309141043590.2634-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Sun, 14 Sep 2003 04:41:59 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:14976 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S262332AbTINIl5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 04:41:57 -0400
+Date: Sun, 14 Sep 2003 09:52:02 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200309140852.h8E8q2ep000355@81-2-122-30.bradfords.org.uk>
+To: ak@muc.de, david.lang@digitalinsight.com
+Subject: Re: RFC: [2.6 patch] better i386 CPU selection
+Cc: alan@lxorguk.ukuu.org.uk, bunk@fs.tum.de, davej@redhat.com,
+       linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Sep 2003, [ISO-8859-1] Daniël Mantione wrote:
-> On Sat, 13 Sep 2003, Geert Uytterhoeven wrote:
-> > --- linux-2.4.23-pre4/drivers/video/aty/atyfb_base.c.orig	Sat Sep 13 16:29:48 2003
-> > +++ linux-2.4.23-pre4/drivers/video/aty/atyfb_base.c	Fri Sep 12 12:50:36 2003
-> > @@ -313,7 +313,7 @@
-> >      int pll, mclk, xclk;
-> >      u32 features;
-> >  } aty_chips[] __initdata = {
-> 
-> > -    /* Note to kernel maintainers: Please resfuse any patch to change a clock rate,
-> > +    /* Note to kernel maintainers: Please REFUSE any patch to change a clock rate,
-> 
-> Haha! Was it the spelling error or was the message not strong enough? ;-)
+> > > I don't like the current user interface that says "if you want to
+> > > support both an Athlon and a Pentium 4 in your kernel use the Pentium III
+> > > option. And for better optimization, also check the "generic" option".
 
-I didn't do that. The capitals were in the latest version you sent me...
+If we go with the bitmap of processors to support idea, the generic option will be unnecessary.
 
-Gr{oetje,eeting}s,
+You would then be able to:
 
-						Geert
+* Support, (I.E. include workarounds for, and not include instructions
+  that are not supported by), as many or as few processors as you
+  desire.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+* Optimise, (I.E. set alignment, and code generation within the subset
+  of instructions permitted in the 'Support' selection above), for one
+  specific processor.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+> > The big issue with your ifdefing of workarounds is that it causes subtle
+> > support problems. A lot of settings for specific CPUs boot and work
+> > fine on other CPUs (possibly with small performance impact, but they're
+> > rarely noticeable without explicit benchmarking). Just when you don't
+> > include the workarounds for the bugs on these other CPUs it will boot and
+> > even run, but fail mysteriously once a month. And that would be a support
+> > nightmare.
 
+> it sounds like a nessasary part of this patch would be to detect the CPU
+> type and complain VERY loudly if it's not one supported by the build.
+>
+> This is probably a good idea anyway.
+
+It is a good idea for 99% of kernels, but still needs to be configurable.
+
+Maybe the option should not be present in the kernel configurator, and
+require manual editing of the .config file to enable it.
+
+John.

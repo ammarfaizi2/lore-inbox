@@ -1,101 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVABLBg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbVABLXI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261248AbVABLBg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 06:01:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVABLBf
+	id S261157AbVABLXI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 06:23:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbVABLXI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 06:01:35 -0500
-Received: from mail.linicks.net ([217.204.244.146]:46208 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S261248AbVABLBa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 06:01:30 -0500
-From: Nick Warne <nick@linicks.net>
-To: Herbert Poetzl <herbert@13thfloor.at>
-Subject: Re: kswapd0 oops -> debug information
-Date: Sun, 2 Jan 2005 11:01:21 +0000
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <200411271311.25997.nick@linicks.net> <200411271721.21847.nick@linicks.net> <20050102074112.GA31709@mail.13thfloor.at>
-In-Reply-To: <20050102074112.GA31709@mail.13thfloor.at>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 2 Jan 2005 06:23:08 -0500
+Received: from mailgate1.uni-kl.de ([131.246.120.5]:42728 "EHLO
+	mailgate1.uni-kl.de") by vger.kernel.org with ESMTP id S261157AbVABLXE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 06:23:04 -0500
+Date: Sun, 2 Jan 2005 00:41:11 +0100
+From: Eduard Bloch <edi@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10: e100 network broken after swsusp/resume
+Message-ID: <20050101234111.GA27099@zombie.inka.de>
+References: <20041228144741.GA2969@butterfly.hjsoft.com> <1104269125.21123.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-Message-Id: <200501021101.21117.nick@linicks.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1104269125.21123.4.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 02 January 2005 07:41, Herbert Poetzl wrote:
+#include <hallo.h>
+* Håkan Lindqvist [Tue, Dec 28 2004, 10:25:25PM]:
 
-> > The book I have re the make /dir/file.s states that it will produce
-> > assembler with _line_ numbers to corresponding C code.  That is where I
-> > got lost, as it doesn't.
->
-> hmm, sorry for the late reply, but better late
-> than not at all ...
->
-> if you do
->
->  make fs/file.s V=1
->
-> you'll see what make actually does to compile
-> the source code into assembler code ...
->
-> make -f scripts/Makefile.build obj=scripts/basic
-> make -f scripts/Makefile.build obj=scripts
-> make -f scripts/Makefile.build obj=fs fs/file.s
->   gcc -Wp,-MD,fs/.file.s.d -nostdinc -iwithprefix include -D__KERNEL__
-> -Iinclude  -Wall -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
-> -fno-common -O2     -fomit-frame-pointer -g -pipe -msoft-float
-> -mpreferred-stack-boundary=2  -march=i586 -Iinclude/asm-i386/mach-default  
->   -DKBUILD_BASENAME=file -DKBUILD_MODNAME=file -S -o fs/file.s fs/file.c
->
-> and if that final gcc command does include a -g
-> (which can be controlled by CONFIG_DEBUG_INFO, or
-> simply added by hand), then the output will contain
-> lines like this:
->
->         .loc 1 45 0
->         .loc 1 46 0
->
-> which reference the file and line number in the
-> source code. files are 'declared' with lines:
->
->         .file   "file.c"
->         .file 1 "fs/file.c"
->         .file 2 "include/linux/posix_types.h"
->
-> so you can pretty easy find the code in the
-> source. a different, but sometimes easier approach
-> is to use 'addr2line' on the kernel binary (if it
-> was compiled with CONFIG_DEBUG_INFO) to get the
-> source line from a kernel address ...
->
->  addr2line -e vmlinux c0123456
->
-> HTH,
-> Herbert
+> > ifplugd can see the link status change when i plug and unplug the cable,
+> > but the dhclient it runs just tries and retries to get an ip without
+> > success.
+> 
+> 
+> I seem to get the same problem on my IBM Thinkpad X31.
+> 
+> At least e100 and snd-intel8x0 break down that way on suspend/resume.
+> (http://marc.theaimsgroup.com/?l=linux-kernel&m=110419612421765&w=2)
 
-Hi Herbert,
+Similar with USB on Toshiba Satellite Pro 2100. After resume, the
+hardware simply does not work - the driver loads, but no USB input event
+does ever reach the userspace. Reloading all USB drivers does not help.
 
-Thanks for reply.
+0000:00:1d.0 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #1) (rev 02)
+0000:00:1d.1 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #2) (rev 02)
+0000:00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev 42)
 
-I will file this for when needed again for future reference, as I have moved 
-back to 2.6.4 kernel, as that tree never once produces a kswapd oops and just 
-runs and runs and runs.
-
-I just don't know why > 2.6.4 kernels produce oops on my system - I have been 
-through change log looking at all the relevant stuff, but can't really see 
-anything obvious.  I have built kernels 'clean' from bottom up, but all 
-produce kswapd oops within a few days - except 2.6.4.
-
-I wish this box wasn't my LAN gateway, otherwise I wouldn't mine when it does 
-go AWOL and I could debug at my leisure.
-
-Thanks for help,
-
-Nick
+Regards,
+Eduard.
 -- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+  "After watching my newly-retired dad spend two weeks learning how to
+  make a new folder, it became obvious that "intuitive" mostly means
+  "what the writer or speaker of intuitive likes".
+- Bruce Ediger, bediger@teal.csn.org, on X the intuitiveness of a Mac interface

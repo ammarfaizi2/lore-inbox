@@ -1,289 +1,210 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261945AbVANXBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261993AbVANXPg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261945AbVANXBo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 18:01:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbVANW7q
+	id S261993AbVANXPg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 18:15:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVANXOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 17:59:46 -0500
-Received: from twister.ispgateway.de ([80.67.18.17]:34492 "EHLO
-	twister.ispgateway.de") by vger.kernel.org with ESMTP
-	id S261416AbVANWz6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 17:55:58 -0500
-Date: Fri, 14 Jan 2005 23:55:55 +0100
-From: Steffen Moser <lists@steffen-moser.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.29-rc2
-Message-ID: <20050114225555.GA17714@steffen-moser.de>
-Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	linux-kernel@vger.kernel.org
-References: <20050112151334.GC32024@logos.cnet>
-Mime-Version: 1.0
+	Fri, 14 Jan 2005 18:14:16 -0500
+Received: from opersys.com ([64.40.108.71]:15112 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261953AbVANXB5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 18:01:57 -0500
+Message-ID: <41E85123.7080005@opersys.com>
+Date: Fri, 14 Jan 2005 18:09:23 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: tglx@linutronix.de
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.11-rc1-mm1
+References: <20050114002352.5a038710.akpm@osdl.org> <1105740276.8604.83.camel@tglx.tec.linutronix.de>
+In-Reply-To: <1105740276.8604.83.camel@tglx.tec.linutronix.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050112151334.GC32024@logos.cnet>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
 
-* On Wed, Jan 12, 2005 at 01:13 PM (-0200), Marcelo Tosatti wrote:
+[repost. first reply had wrong lkml CC.]
 
-> Here goes the second release candidate of v2.4.29.
+Hello Thomas,
 
-I've just encountered a little problem with both "linux-2.4.29-rc1" 
-and "linux-2.4.29-rc2" on one of two machines. 
+First, thanks for the feedback, it's greatly appreciated.
 
+Lots of stuff in here. I don't mean to drop any of your arguments, but
+I'm going to reply to this in a way that makes this reply and further
+responses as useful as possible to outsiders. Let me know if you
+think I've dropped something important.
 
-[1.] One line summary of the problem: 
+Thomas Gleixner wrote:
 
-Kernel module "serial.o" cannot be loaded
-
-
-[2.] Full description of the problem/report:
-
-I cannot load the module "serial.o" anymore, so I won't have serial 
-port support (which is needed to have the machine communicating with
-the UPS):
-
- | fsa01:~ # modprobe serial
- | /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: unresolved symbol tty_ldisc_flush
- | /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: unresolved symbol tty_wakeup
- | /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: insmod /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o failed
- | /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: insmod serial failed
-
-Up to now I've tested 2.4.29-rc1 and 2.4.29-rc2 only on two machines
-("fsa01": SuSE Linux 7.2, "gateway": SuSE Linux 8.0). 
-
-So far I can only state:
-
- - The problem only occurs on machine "fsa01" - using both 
-   "2.4.29-rc1" and "2.4.29-rc2". 
-
- - The problem doesn't occur using 2.4.27 and 2.4.28 on the same
-   machine using the same ".config" which can be found here [1].
-
- - There is no (!) problem on "gateway" (there I've only tested
-   "2.4.29-rc1", yet). "gateway"'s ".config" can be found here [2]. 
- 
- - I haven't tested "2.4.29-pre1" ... "2.4.29-pre3", yet. So I can't
-   say which kernel version "introduced" the problem.
-
- 
-[3.] Keywords (i.e., modules, networking, kernel):
-
-modules, tty
+>> The "non-locking" claim is nice, but a do { } while loop in the slot
+>> reservation for every event including a do { } while loop in the slow
+>> path is just a replacement of locking without actually using a lock. I
+>> don't care whether this is likely or unlikely to happen, it's just bogus
+>> to add a non constant time path for debugging/tracing purposes.
 
 
-[4.] Kernel version (from /proc/version):
-
- | fsa01:~ # cat /proc/version
- | Linux version 2.4.29-rc2 (root@fsa01) (gcc version 2.95.3 20010315 (SuSE)) #3 Fri Jan 14 20:21:08 CET 2005
-
-"2.4.29-rc1" is also affected on the same machine.
+relayfs implements two schemes: lockless and locking. The later uses
+standard linear locking mechanisms. If you need stringent constant
+time, you know what to do.
 
 
-[5.] Output of Oops.. message (if applicable) with symbolic information 
-     resolved (see Documentation/oops-tracing.txt):
-
-There is no Oops message, even "dmesg" and "/var/log/messages"
-respectively don't show anything wrong besides:
-
- | Jan 14 21:02:09 fsa01 insmod: /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: insmod char-major-4 failed
-
-which is generated during boot up.
+>> Default timestamp measuring with do_gettimeofday is also contrary to the
+>> non locking argument. There is
+>> a) a lock in there
+>> b) it might loop because it's a sequential lock.
 
 
-[6.] A small shell script or example program which triggers the
-     problem (if possible):
-
-I just try to insert the module "serial.o"
-
-
-[7.] Environment
-
-[7.1.] Software (add the output of the ver_linux script here)
-
- - fsa01 (problem occurs):
-
- | If some fields are empty or look unusual you may have an old version.
- | Compare to the current minimal requirements in Documentation/Changes.
- | 
- | Linux fsa01 2.4.29-rc2 #3 Fri Jan 14 20:21:08 CET 2005 i686 unknown
- | 
- | Gnu C                  2.95.3
- | Gnu make               3.79.1
- | binutils               2.10.91.0.4
- | util-linux             2.11l
- | mount                  2.11l
- | modutils               2.4.5
- | e2fsprogs              1.25
- | pcmcia-cs              3.1.25
- | quota-tools            3.08.
- | Linux C Library        x    1 root     root      1341670 Dec 18  2001 /lib/libc.so.6
- | Dynamic linker (ldd)   2.2.2
- | Procps                 2.0.7
- | Net-tools              1.60
- | Kbd                    1.04
- | Sh-utils               2.0
- | Modules Loaded         ipv6 3c59x ipchains
-
- - gateway (no problem):
-
- | If some fields are empty or look unusual you may have an old version.
- | Compare to the current minimal requirements in Documentation/Changes.
- | 
- | Linux gateway 2.4.29-rc1 #4 Tue Jan 11 14:57:41 CET 2005 i686 unknown
- | 
- | Gnu C                  2.95.3
- | Gnu make               3.79.1
- | util-linux             2.11n
- | mount                  2.11n
- | modutils               2.4.12
- | e2fsprogs              1.26
- | jfsutils               1.0.15
- | xfsprogs               2.0.0
- | PPP                    2.4.1
- | Linux C Library        x    1 root     root      1394302 Aug 10  2002 /lib/libc.so.6
- | Dynamic linker (ldd)   2.2.5
- | Procps                 2.0.7
- | Net-tools              1.60
- | Kbd                    1.06
- | Sh-utils               2.0
- | Modules Loaded         serial ip_nat_ftp ip_conntrack_ftp ipt_REJECT
- |                        iptable_filter ipt_MASQUERADE iptable_nat ip_conntrack 
- |                        ip_tables ipv6 3c59x
-
-[7.2.] Processor information (from /proc/cpuinfo):
-
- | v00001@fsa01:~ > cat /proc/cpuinfo
- | processor       : 0
- | vendor_id       : GenuineIntel
- | cpu family      : 6
- | model           : 8
- | model name      : Pentium III (Coppermine)
- | stepping        : 10
- | cpu MHz         : 871.032
- | cache size      : 256 KB
- | fdiv_bug        : no
- | hlt_bug         : no
- | f00f_bug        : no
- | coma_bug        : no
- | fpu             : yes
- | fpu_exception   : yes
- | cpuid level     : 2
- | wp              : yes
- | flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr sse
- | bogomips        : 1736.70
+That's true, but that's not a limitation of relayfs per se. We'd gladly
+use any timing facility available to us. We already use the TSC when
+available.
 
 
-[7.3.] Module information (from /proc/modules):
-
- | v00001@fsa01:~ > cat /proc/modules
- | ipv6                  144736  -1 (autoclean)
- | 3c59x                  25088   1 (autoclean)
- | ipchains               37504   0
+>> If you have no TSC you can do at least a jiffies + event-number based,
+>> not so finegrained tracing which gives you at least the timeline of the
+>> events.
 
 
-[7.4.] Loaded driver and hardware information (/proc/ioports,
-       /proc/iomem):
-
- | v00001@fsa01:~ > cat /proc/ioports
- | 0000-001f : dma1
- | 0020-003f : pic1
- | 0040-005f : timer
- | 0060-006f : keyboard
- | 0080-008f : dma page reg
- | 00a0-00bf : pic2
- | 00c0-00df : dma2
- | 00f0-00ff : fpu
- | 01f0-01f7 : ide0
- | 03c0-03df : vga+
- | 03f6-03f6 : ide0
- | 0cf8-0cff : PCI conf1
- | a000-a01f : Intel Corp. 82801BA/BAM USB (Hub #2)
- | a400-a41f : Intel Corp. 82801BA/BAM USB (Hub #1)
- | a800-a80f : Intel Corp. 82801BA IDE U100
- |   a800-a807 : ide0
- |   a808-a80f : ide1
- | b800-b87f : 3Com Corporation 3c905C-TX/TX-M [Tornado] (#2)
- |   b800-b87f : 02:0d.0
- | d000-d07f : 3Com Corporation 3c905C-TX/TX-M [Tornado]
- |   d000-d07f : 02:0c.0
- | d400-d4ff : Adaptec AIC-7892A U160/m
- | d800-d87f : Silicon Integrated Systems [SiS] 86C326 5598/6326
- | e800-e80f : Intel Corp. 82801BA/BAM SMBus
-
- | v00001@fsa01:~ > cat /proc/iomem
- | 00000000-0009f7ff : System RAM
- | 0009f800-0009ffff : reserved
- | 000a0000-000bffff : Video RAM area
- | 000c0000-000c7fff : Video ROM
- | 000c8000-000ce5ff : Extension ROM
- | 000d0000-000d07ff : Extension ROM
- | 000d4000-000d47ff : Extension ROM
- | 000f0000-000fffff : System ROM
- | 00100000-1ffeafff : System RAM
- |   00100000-0022d5a6 : Kernel code
- |   0022d5a7-002af243 : Kernel data
- | 1ffeb000-1ffeefff : ACPI Tables
- | 1ffef000-1fffefff : reserved
- | 1ffff000-1fffffff : ACPI Non-volatile Storage
- | f5000000-f500007f : 3Com Corporation 3c905C-TX/TX-M [Tornado] (#2)
- | f5800000-f580007f : 3Com Corporation 3c905C-TX/TX-M [Tornado]
- | f6000000-f6000fff : Adaptec AIC-7892A U160/m
- |   f6000000-f6000fff : aic7xxx
- | f6800000-f680ffff : Silicon Integrated Systems [SiS] 86C326 5598/6326
- | f7800000-f7ffffff : Silicon Integrated Systems [SiS] 86C326 5598/6326
- | f8000000-fbffffff : Intel Corp. 82815 815 Chipset Host Bridge and Memory Controller Hub
- | ffff0000-ffffffff : reserved
+Interesting. I've added this to the to-do list.
 
 
-[7.5.] PCI information ('lspci -vvv' as root):
-
-Find this information at [3] (fsa01) and [4] (gateway).
-
-
-[7.6.] SCSI information (from /proc/scsi/scsi):
-
- | v00001@fsa01:~ > cat /proc/scsi/scsi
- | Attached devices:
- | Host: scsi0 Channel: 00 Id: 00 Lun: 00
- |   Vendor: IBM      Model: DPSS-336950M     Rev: S96H
- |   Type:   Direct-Access                    ANSI SCSI revision: 03
- | Host: scsi0 Channel: 00 Id: 01 Lun: 00
- |   Vendor: IBM      Model: DPSS-336950M     Rev: S96H
- |   Type:   Direct-Access                    ANSI SCSI revision: 03
- | Host: scsi0 Channel: 00 Id: 03 Lun: 00
- |   Vendor: HP       Model: C1537A           Rev: L005
- |   Type:   Sequential-Access                ANSI SCSI revision: 02
- | Host: scsi0 Channel: 00 Id: 04 Lun: 00
- |   Vendor: IBM      Model: DNES-318350      Rev: SA30
- |   Type:   Direct-Access                    ANSI SCSI revision: 03
- | Host: scsi0 Channel: 00 Id: 05 Lun: 00
- |   Vendor: IBM      Model: DNES-318350      Rev: SA30
- |   Type:   Direct-Access                    ANSI SCSI revision: 03
+>> There is also no need to do time diff calculations / conversions, this
+>> can be done in userspace postprocessing.
 
 
-[7.7.] Other information that might be relevant to the problem
-       (please look in /proc and include all information that you
-       think to be relevant):
+Ah yes, that's the kind of thing that you learn by getting bitten by it.
+The problem is the size of the data stream. Diffs are an easy and a
+rather inexpensive way of reducing trace sizes. Logging 2 or 4 more bytes
+per event when you've got tens of thousands of events occuring per second
+does have a noticeable impact. If this is really a sticking point, we
+could provide a way for writing full time-stamps.
 
-If you need more information or testing, please let me know... 
 
-I suppose the problem isn't related to the hardware of "fsa01" but 
-perhaps to the different ".config" or the different version of the 
-modutils, for example. 
+>> you do. In space constraint systems relayfs is even worse as it needs
+>> more memory than the plain ringbuffer.
 
-Are you or is someone else able to reproduce the problem I have?
 
-TIA!
+Don't get us wrong, we can strip this down to make this a stupid ring-
+buffer. But the fact of the matter is that in trying to use such a thing,
+you will find yourself reimplementing the exact things we did for the
+same purposes.
 
-Bye,
-Steffen
 
-[1] http://www.steffen-moser.de/temp/ml/lkml/2005-01-14_01/fsa01_config 
-[2] http://www.steffen-moser.de/temp/ml/lkml/2005-01-14_01/gateway_config
-[3] http://www.steffen-moser.de/temp/ml/lkml/2005-01-14_01/fsa01_lspci
-[4] http://www.steffen-moser.de/temp/ml/lkml/2005-01-14_01/gateway_lspci
+>> The ringbuffer has a nice advantage. In case the system crashes you can
+>> retrieve the last and therefor most interesting information from the
+>> ringbuffer without any hassle via BDI or in the worstcase via a serial
+>> dump. You can even copy the tail of the buffer into a permanent storage
+>> like buffered SRAM so it can be retrieved after reboot.
+
+
+And there's a reason why you can't do that with relayfs? We've looked at
+this and interfacing between relayfs and crashdump is trivial.
+
+
+>> Splitting the trace into different paths is nice to have but I don't see
+>> a single point which cannot be done by a userspace (hostside)
+>> postprocessing tool. It adds another non time constant component to the
+>> trace path. Even the per CPU ringbuffers can be nicely synchronized by a
+>> userspace postprocessing tool without adding complex synchronization
+>> functions.
+
+
+Again life is a merciless teacher. LTT did initially start with a single
+eat-your-breakfeast-dinner-and-supper-in-one-place buffer. But that just
+doesn't scale. If you're doing flight-recording, for example, you need
+to have a separate channel which contains process creation/exit,
+otherwise you have a hard time interepreting the data.
+
+
+>> In case of time related tracing it's just overkill. The printk
+>> information is mostly a string, which can be replaced by the address on
+>> which the printk is happening. The maybe available arguments can be
+>> dumped in binary form. All this information can be converted into human
+>> readable form by postprocessing.
+
+
+I'm sorry, I don't understand your argument here.
+
+
+>> I wonder whether the various formatting options of the trace are really
+>> of any value. I need neither strings, HEX strings nor XML formatted
+>> information from the kernel. Max. 8192 Byte of user information makes me
+>> frown. Tracing is not a copy to userspace function or am I missing
+>> something ?
+
+
+Dynamically created custom events and events directed by the likes of
+DProbes need something to write to, and user-space utilities must have
+a way of determining what format this data was written in. That's all
+there is to see here.
+
+
+>> All tracepoints are unconditionally compiled into the kernel, whether
+>> they are enabled or not. Why is it neccecary to check the enabled bit
+>> for information I'm not interested in ? Why can't I compile this away by
+>> not enabling the tracepoint at all.
+
+
+But you can. Have a look at include/linux/ltt-events.h:
+#else /* defined(CONFIG_LTT) */
+#define ltt_ev(ID, DATA)
+#define ltt_ev_trap_entry(ID, EIP)
+#define ltt_ev_trap_exit()
+#define ltt_ev_irq_entry(ID, KERNEL)
+#define ltt_ev_irq_exit()
+#define ltt_ev_schedchange(OUT, IN)
+#define ltt_ev_soft_irq(ID, DATA)
+#define ltt_ev_process(ID, DATA1, DATA2)
+#define ltt_ev_process_exit(DATA1, DATA2)
+#define ltt_ev_file_system(ID, DATA1, DATA2, FILE_NAME)
+#define ltt_ev_timer(ID, SDATA, DATA1, DATA2)
+#define ltt_ev_memory(ID, DATA)
+#define ltt_ev_socket(ID, DATA1, DATA2)
+#define ltt_ev_ipc(ID, DATA1, DATA2)
+#define ltt_ev_network(ID, DATA)
+#define ltt_ev_heartbeat()
+#endif /* defined(CONFIG_LTT) */
+
+
+>> I don't need to point out the various coding style issues again, but I
+>> question if
+>> 	atomic_set(&var), atomic_read(&var) | bit);
+>> which can be found on several places is really doing what it's suggests
+>> to do.
+
+
+If there are actual code snippets you think are broken, we'll gladly
+fix them.
+
+
+>> I did a short test on a 300MHz PIII box and the maximum time spent in
+>> the log path (interrupts disabled during measurement) is about 30us.
+>> Extrapolated to a 74MHz ARM SoC it will sum up to ~ 90-120us, what makes
+>> it purely useless.
+
+
+Granted tracing is not free, but please avoid spreading FUD without
+actually carrying out proper testing. We've done quite a large number
+of tests and we've demonstrated over and over that LTT, and ltt-over-
+relayfs, is actually very efficient. If you're interested in actual
+test data, then you may want to check out the following:
+http://www.opersys.com/ftp/pub/LTT/Documentation/ltt-usenix.ps.gz
+http://lwn.net/Articles/13870/
+
+We are aware of the cost of the various tracing components, as you
+can see by my earlier posting about early-checking to minimize the
+cost of the tracing hooks for kernel compiled with them, and are
+open for any optimization. If you have any concrete suggestions, save
+the scrap-everything-I-know-better (which is really unproductive as
+you would anyway have to go down the same path we have), we are more
+than willing to entertain them.
+
+Karim
+--
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

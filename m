@@ -1,72 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264216AbTICSXe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 14:23:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264170AbTICSWj
+	id S264272AbTICS3V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 14:29:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264234AbTICS3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 14:22:39 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28885 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264239AbTICSTk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 14:19:40 -0400
-Date: Wed, 3 Sep 2003 11:19:28 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Jamie Lokier <jamie@shareable.org>, Rusty Russell <rusty@rustcorp.com.au>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Alternate futex non-page-pinning and COW fix
-In-Reply-To: <Pine.LNX.4.44.0309031859370.2336-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0309031111050.31853-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 3 Sep 2003 14:29:16 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:5505 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S264272AbTICS27 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 14:28:59 -0400
+Message-Id: <200309031828.h83ISvgF008722@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Larry McVoy <lm@bitmover.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Scaling noise 
+In-Reply-To: Your message of "Wed, 03 Sep 2003 11:07:55 PDT."
+             <20030903180755.GE5769@work.bitmover.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com> <20030903173213.GC5769@work.bitmover.com> <20030903180702.GQ4306@holomorphy.com>
+            <20030903180755.GE5769@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-937080232P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 03 Sep 2003 14:28:57 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_-937080232P
+Content-Type: text/plain; charset=us-ascii
 
-On Wed, 3 Sep 2003, Hugh Dickins wrote:
-> > 
-> > The VM itself should only ever care about VM_SHARED. Because that's the 
-> > only bit that has real semantic meaning.
+On Wed, 03 Sep 2003 11:07:55 PDT, Larry McVoy <lm@bitmover.com>  said:
+> On Wed, Sep 03, 2003 at 11:07:02AM -0700, William Lee Irwin III wrote:
+
+> > You're thinking single-application again. Systems run more than one
+> > thing at once.
 > 
-> To that part of the kernel interested in dirty pages, yes.
-> But when interested in futexes, it seems not.
+> Then explain why hyperthreading is turned off by default in Windows.
 
-I don't like it.
+I haven't actually checked, but is it possible that the Windows HT support
+suffers from the same scaling issues as the rest of the Windows innards?  To
+tie  this in with what Mike Dell said - perhaps the reason he's selling mostly
+1/2/4 CPU boxes is because the dominant operating system blows chunks with
+more, and in the common desktop scenario enabling HT was actually slower than
+leaving it off?
 
-If the patches can't be made to work for private mappings, then there's
-something fundamentally wrong with them.
 
-A non-writable shared mapping has degenerated into a private mapping since
-the very first releases of Linux that supported mmap. It started out as a
-"hey, we don't support true writable shared mappings, but we _do_ support
-cache coherency on read-only mmaps through the normal private mappings,
-so..".
+--==_Exmh_-937080232P
+Content-Type: application/pgp-signature
 
-And even later on, when true shared mappings were supported, we continued
-the "degenerate to a private mapping" approach because the private
-mappings tend to be simpler and require less overhead (exactly because
-they don't need to worry about dirty bits).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-So part of the picture is that this is just how the Linux VM fundamentally 
-works. 
+iD8DBQE/VjLocC3lWbTT17ARAl65AJ9iFlwGVWyeh58YehtjF6hY/Zo7FQCfdiYb
+FQIk7ZkgX5DrmjDG0BJDMaI=
+=l7PN
+-----END PGP SIGNATURE-----
 
-The other part of the picture is that futex'es should "just work" even 
-when it comes to regular private mappings. Regardless of any VM_SHARED or 
-VM_MAYSHARE bits. Even if the user did a totally private mmap() in the 
-first place, that does not mean that the futex shouldn't work properly.
-
-So the thing boils down to:
-
- - if the futex works on a proper private mapping, then the downgrade is 
-   still proper, and the futex should never care about anything but a real
-   VM_SHARED.
-
- - if the futex doesn't work with a proper private mapping, then that is a 
-   bug _regardless_ of anything else, and VM_SHARED vs VM_MAYSHARE never 
-   enters into the picture anyway.
-
-What?
-
-		Linus
-
+--==_Exmh_-937080232P--

@@ -1,71 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285335AbRLGAU7>; Thu, 6 Dec 2001 19:20:59 -0500
+	id <S285329AbRLGAXT>; Thu, 6 Dec 2001 19:23:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285339AbRLGAUt>; Thu, 6 Dec 2001 19:20:49 -0500
-Received: from sproxy.gmx.de ([213.165.64.20]:18465 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S285335AbRLGAUo>;
-	Thu, 6 Dec 2001 19:20:44 -0500
-Date: Fri, 7 Dec 2001 01:20:37 +0100
-From: Rene Rebe <rene.rebe@gmx.net>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: greg@kroah.com, jonathan@daria.co.uk, linux-kernel@vger.kernel.org,
-        Clifford Wolf <clifford@clifford.at>,
-        Valentin Ziegler <ziegler@informatik.hu-berlin.de>
+	id <S285341AbRLGAXA>; Thu, 6 Dec 2001 19:23:00 -0500
+Received: from 12-224-36-149.client.attbi.com ([12.224.36.149]:6663 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S285329AbRLGAWy>;
+	Thu, 6 Dec 2001 19:22:54 -0500
+Date: Thu, 6 Dec 2001 16:21:55 -0800
+From: Greg KH <greg@kroah.com>
+To: Rene Rebe <rene.rebe@gmx.net>
+Cc: jonathan@daria.co.uk, linux-kernel@vger.kernel.org
 Subject: Re: Q: device(file) permissions for USB
-Message-Id: <20011207012037.71556cb0.rene.rebe@gmx.net>
-In-Reply-To: <Pine.GSO.4.21.0112061903230.29985-100000@binet.math.psu.edu>
-In-Reply-To: <20011207005707.6a09706a.rene.rebe@gmx.net>
-	<Pine.GSO.4.21.0112061903230.29985-100000@binet.math.psu.edu>
-Organization: FreeSourceCommunity ;-)
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Message-ID: <20011206162155.R2710@kroah.com>
+In-Reply-To: <fa.ljcupnv.1ghotjk@ifi.uio.no> <664.3c0fd1b7.a66fa@trespassersw.daria.co.uk> <20011206223050.179cd30e.rene.rebe@gmx.net> <20011206152721.M2710@kroah.com> <20011207004521.19a131d4.rene.rebe@gmx.net> <20011206160055.O2710@kroah.com> <20011207011134.04c2a4af.rene.rebe@gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011207011134.04c2a4af.rene.rebe@gmx.net>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Thu, 08 Nov 2001 18:50:27 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Dec 2001 19:09:57 -0500 (EST)
-Alexander Viro <viro@math.psu.edu> wrote:
-
-> On Fri, 7 Dec 2001, Rene Rebe wrote:
+On Fri, Dec 07, 2001 at 01:11:34AM +0100, Rene Rebe wrote:
 > 
-> > > > usbdevfs does not require devfs, which enables the majority of Linux
-> > > > users to actually use it.
-> > > 
-> > > s/majority of/& sane/
-> > 
-> > Writing bash scripts is easier than adding two lines to devfsd.conf?? Btw.
-> > sane users do not use such a mahor/messy distro ...
-> 
-> Sane users don't run stuff with known unfixable security holes.  The only
-> variant that has any promise to get that crap fixed got no testing to
-> speak about.
+> Ok I did not searched this far. But this way you also change the nodes for
+> USB hard-discs, net-interfaces, ... to 666 - the same insecure as my find
+> solotion ...
 
-Hm. OK. Due to lag of time I was too long not on the mailing-list. :-(
-I this is true it is a very strong point aganst devfs :-[[
+I was making a simple script, to match your simple defvsd line.  Yes,
+you can (and should) make this more complex.  See the linux-hotplug
+mailing list for a recent discussion by the gphoto developers about
+this very problem.
 
-> Ask Richard if you don't believe me - or grep the l-k archives.  Again,
-> all variants of devfs up to and including 2.4.16 are unfixable according
-> to devfs author.
+> OK. Might be well for backward-compatibility - but the devfs solution
+> would be a very nice option.
 
-Hm.
+Will not happen.
 
-> BTW, which distro are you talking about?
+thanks,
 
-ROCK Linux (www.rocklinux.org)
-
-k33p h4ck1n6
-  René
-
--- 
-René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
-
-eMail:    rene.rebe@gmx.net
-          rene@rocklinux.org
-
-Homepage: http://www.tfh-berlin.de/~s712059/index.html
-
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.
+greg k-h

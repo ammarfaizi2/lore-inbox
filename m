@@ -1,87 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263869AbRFDTIa>; Mon, 4 Jun 2001 15:08:30 -0400
+	id <S261837AbRFDTLK>; Mon, 4 Jun 2001 15:11:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261851AbRFDTIU>; Mon, 4 Jun 2001 15:08:20 -0400
-Received: from adsl-63-199-250-45.dsl.sndg02.pacbell.net ([63.199.250.45]:11270
-	"EHLO ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S263797AbRFDTIB>; Mon, 4 Jun 2001 15:08:01 -0400
-Date: Mon, 4 Jun 2001 12:07:57 -0700
-From: Matthew Dharm <mdharm@one-eyed-alien.net>
-To: Jerry Frana <franaj@coiinc.com>
-Cc: Kernel Developer List <linux-kernel@vger.kernel.org>
-Subject: Re: USB-storage and 2.4.2
-Message-ID: <20010604120757.C31810@one-eyed-alien.net>
-Mail-Followup-To: Jerry Frana <franaj@coiinc.com>,
-	Kernel Developer List <linux-kernel@vger.redhat.com>
-In-Reply-To: <200106040108.f5418D823560@mail.coiinc.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="oTHb8nViIGeoXxdp"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200106040108.f5418D823560@mail.coiinc.com>; from franaj@coiinc.com on Sun, Jun 03, 2001 at 08:08:25PM -0500
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2001 Matthew Dharm, all rights reserved.
+	id <S261471AbRFDTLA>; Mon, 4 Jun 2001 15:11:00 -0400
+Received: from shell.cyberus.ca ([209.195.95.7]:34179 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S261837AbRFDTKo>;
+	Mon, 4 Jun 2001 15:10:44 -0400
+Date: Mon, 4 Jun 2001 15:08:51 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Pete Zaitcev <zaitcev@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <netdev@oss.sgi.com>
+Subject: Re: [PATCH] support for Cobalt Networks (x86 only) systems (forrealthis
+In-Reply-To: <Pine.LNX.4.33.0106031401050.31050-100000@kenzo.iwr.uni-heidelberg.de>
+Message-ID: <Pine.GSO.4.30.0106041502550.19655-100000@shell.cyberus.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---oTHb8nViIGeoXxdp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Try 2.4.5, which has some assorted fixes that should solve this problem.
+On Sun, 3 Jun 2001, Bogdan Costescu wrote:
 
-Matt
+> On Sat, 2 Jun 2001, jamal wrote:
+>
+> > Still, the tx watchdogs are a good source of fault detection in the case
+> > of non-availabilty of MII detection and even with the presence of MII.
+>
+> Agreed. But my question was a bit different: is there any legit situation
+> where Tx timeouts can happen in a row _without_ having a link loss ? In
+> this situation, we'd have false positives...
 
-On Sun, Jun 03, 2001 at 08:08:25PM -0500, Jerry Frana wrote:
-> Hi, i've been having a problem with my usb zip drive (older 100mb model)
->=20
-> it's 100% repeateble:=20
->=20
-> copy a large file to anywhere, and within a minute or so:=20
-> copy stops dead.
-> and the following appears in the syslog:
->=20
-> Jun  3 21:10:56 int-21h kernel: uhci: host controller process error. some=
-thing bad happened
-> Jun  3 21:10:56 int-21h kernel: uhci: host controller halted. very bad
->=20
-> my machine is a K6-3/350, kernel 2.4.2, via mvp3 chipset
->=20
-> if you need any more info, please let me know,
->=20
-> Thanks
-> David F.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Two places:
+1) no MII indicators
+2) shaky hardware and MII bounces. Is it on, is it off? What is going on?
+You  could use them to "probe" to make sure that infact the MII indicators
+are not false positives.
 
---=20
-Matthew Dharm                              Home: mdharm@one-eyed-alien.net=
-=20
-Senior Software Designer, Momentum Computer
+Your mileage may vary.
 
-C:  Why are you upgrading to NT?
-AJ: It must be the sick, sadistic streak that runs through me.
-					-- Chief and A.J.
-User Friendly, 5/12/1998
+>
+> > "Dynamic" in the above sense means trying to totaly avoid making it a
+> > synchronous poll. The poll rate is a function of how many packets go out
+> > that device per average measurement time. Basically, the period that the
+> > user space app dumps "hello" netlink packets to the kernel is a variable.
+>
+> Sounds nice, but could this be implemented light enough ?
+>
 
---oTHb8nViIGeoXxdp
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Not as simple as synchronous polls.
+Note, however, simple/light does not imply the best.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+cheers,
+jamal
 
-iD8DBQE7G9yNz64nssGU+ykRAjyyAKDotzigRFtb1RvtuZ8YEzzhavISIACggDZo
-iY9tI1onyzpUqnAj1SeYj4I=
-=L3gC
------END PGP SIGNATURE-----
 
---oTHb8nViIGeoXxdp--

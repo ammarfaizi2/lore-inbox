@@ -1,97 +1,156 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316359AbSEZUiy>; Sun, 26 May 2002 16:38:54 -0400
+	id <S316380AbSEZUi4>; Sun, 26 May 2002 16:38:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316380AbSEZUha>; Sun, 26 May 2002 16:37:30 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42768 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316388AbSEZUhN>;
-	Sun, 26 May 2002 16:37:13 -0400
-Message-ID: <3CF14834.7FF3E72E@zip.com.au>
-Date: Sun, 26 May 2002 13:40:20 -0700
+	id <S316383AbSEZUhm>; Sun, 26 May 2002 16:37:42 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41232 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316374AbSEZUg2>;
+	Sun, 26 May 2002 16:36:28 -0400
+Message-ID: <3CF14808.B2CFA91A@zip.com.au>
+Date: Sun, 26 May 2002 13:39:36 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 5/18] mark swapout pages PageWriteback()
+CC: lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: [patch 4/18] fix loop driver for large BIOs
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Fix bug in the loop driver.
 
-Pages which are under writeout to swap are locked, and not
-PageWriteback().  So page allocators do not throttle against them in
-shrink_caches().
+When presented with a multipage BIO, loop is overindexing the first
+page in the BIO rather than advancing to the second page.  It scribbles
+on the backing file and/or on kernel memory.
 
-This causes enormous list scans and general coma under really heavy
-swapout loads.
+This happens with multipage BIO-based pagecache I/O and presumably with
+O_DIRECT also.
 
-One fix would be to teach shrink_cache() to wait on PG_locked for swap
-pages.  The other approach is to set both PG_locked and PG_writeback
-for swap pages so they can be handled in the same manner as file-backed
-pages in shrink_cache().
+The fix is much-needed with the multipage-BIO patches - using that code
+on loop-backed filesystems has rather messy results.
 
-This patch takes the latter approach.
 
 =====================================
 
---- 2.5.18/fs/buffer.c~swap-writeback	Sat May 25 23:26:46 2002
-+++ 2.5.18-akpm/fs/buffer.c	Sun May 26 00:50:20 2002
-@@ -544,6 +544,14 @@ static void end_buffer_async_read(struct
- 	 */
- 	if (page_uptodate && !PageError(page))
- 		SetPageUptodate(page);
-+
-+	/*
-+	 * swap page handling is a bit hacky.  A standalone completion handler
-+	 * for swapout pages would fix that up.  swapin can use this function.
-+	 */
-+	if (PageSwapCache(page) && PageWriteback(page))
-+		end_page_writeback(page);
-+
- 	unlock_page(page);
- 	return;
+--- 2.5.18/drivers/block/loop.c~loop-large-bio	Sat May 25 23:26:45 2002
++++ 2.5.18-akpm/drivers/block/loop.c	Sat May 25 23:26:45 2002
+@@ -168,7 +168,8 @@ static void figure_loop_size(struct loop
+ 					
+ }
  
-@@ -2271,6 +2279,9 @@ int brw_kiovec(int rw, int nr, struct ki
-  * calls block_flushpage() under spinlock and hits a locked buffer, and
-  * schedules under spinlock.   Another approach would be to teach
-  * find_trylock_page() to also trylock the page's writeback flags.
-+ *
-+ * Swap pages are also marked PageWriteback when they are being written
-+ * so that memory allocators will throttle on them.
-  */
- int brw_page(int rw, struct page *page,
- 		struct block_device *bdev, sector_t b[], int size)
-@@ -2301,6 +2312,11 @@ int brw_page(int rw, struct page *page,
- 		bh = bh->b_this_page;
- 	} while (bh != head);
- 
-+	if (rw == WRITE) {
-+		BUG_ON(PageWriteback(page));
-+		SetPageWriteback(page);
-+	}
-+
- 	/* Stage 2: start the IO */
- 	do {
- 		struct buffer_head *next = bh->b_this_page;
---- 2.5.18/mm/swap_state.c~swap-writeback	Sat May 25 23:26:46 2002
-+++ 2.5.18-akpm/mm/swap_state.c	Sun May 26 00:50:19 2002
-@@ -36,10 +36,8 @@ static int swap_writepage(struct page *p
-  * swapper_space doesn't have a real inode, so it gets a special vm_writeback()
-  * so we don't need swap special cases in generic_vm_writeback().
-  *
-- * FIXME: swap pages are locked, but not PageWriteback while under writeout.
-- * This will confuse throttling in shrink_cache().  It may be advantageous to
-- * set PG_writeback against swap pages while they're also locked.  Either that,
-- * or special-case swap pages in shrink_cache().
-+ * Swap pages are PageLocked and PageWriteback while under writeout so that
-+ * memory allocators will throttle against them.
-  */
- static int swap_vm_writeback(struct page *page, int *nr_to_write)
+-static int lo_send(struct loop_device *lo, struct bio *bio, int bsize, loff_t pos)
++static int
++do_lo_send(struct loop_device *lo, struct bio_vec *bvec, int bsize, loff_t pos)
  {
+ 	struct file *file = lo->lo_backing_file; /* kudos to NFsckingS */
+ 	struct address_space *mapping = file->f_dentry->d_inode->i_mapping;
+@@ -178,12 +179,13 @@ static int lo_send(struct loop_device *l
+ 	unsigned long index;
+ 	unsigned size, offset;
+ 	int len;
++	int ret = 0;
+ 
+ 	down(&mapping->host->i_sem);
+ 	index = pos >> PAGE_CACHE_SHIFT;
+ 	offset = pos & (PAGE_CACHE_SIZE - 1);
+-	len = bio->bi_size;
+-	data = bio_data(bio);
++	data = kmap(bvec->bv_page) + bvec->bv_offset;
++	len = bvec->bv_len;
+ 	while (len > 0) {
+ 		int IV = index * (PAGE_CACHE_SIZE/bsize) + offset/bsize;
+ 		int transfer_result;
+@@ -221,14 +223,34 @@ static int lo_send(struct loop_device *l
+ 		page_cache_release(page);
+ 	}
+ 	up(&mapping->host->i_sem);
+-	return 0;
++out:
++	kunmap(bvec->bv_page);
++	return ret;
+ 
+ unlock:
+ 	unlock_page(page);
+ 	page_cache_release(page);
+ fail:
+ 	up(&mapping->host->i_sem);
+-	return -1;
++	ret = -1;
++	goto out;
++}
++
++static int
++lo_send(struct loop_device *lo, struct bio *bio, int bsize, loff_t pos)
++{
++	unsigned vecnr;
++	int ret = 0;
++
++	for (vecnr = 0; vecnr < bio->bi_vcnt; vecnr++) {
++		struct bio_vec *bvec = &bio->bi_io_vec[vecnr];
++
++		ret = do_lo_send(lo, bvec, bsize, pos);
++		if (ret < 0)
++			break;
++		pos += bvec->bv_len;
++	}
++	return ret;
+ }
+ 
+ struct lo_read_data {
+@@ -262,26 +284,46 @@ static int lo_read_actor(read_descriptor
+ 	return size;
+ }
+ 
+-static int lo_receive(struct loop_device *lo, struct bio *bio, int bsize, loff_t pos)
++static int
++do_lo_receive(struct loop_device *lo,
++		struct bio_vec *bvec, int bsize, loff_t pos)
+ {
+ 	struct lo_read_data cookie;
+ 	read_descriptor_t desc;
+ 	struct file *file;
+ 
+ 	cookie.lo = lo;
+-	cookie.data = bio_data(bio);
++	cookie.data = kmap(bvec->bv_page) + bvec->bv_offset;
+ 	cookie.bsize = bsize;
+ 	desc.written = 0;
+-	desc.count = bio->bi_size;
++	desc.count = bvec->bv_len;
+ 	desc.buf = (char*)&cookie;
+ 	desc.error = 0;
+ 	spin_lock_irq(&lo->lo_lock);
+ 	file = lo->lo_backing_file;
+ 	spin_unlock_irq(&lo->lo_lock);
+ 	do_generic_file_read(file, &pos, &desc, lo_read_actor);
++	kunmap(bvec->bv_page);
+ 	return desc.error;
+ }
+ 
++static int
++lo_receive(struct loop_device *lo, struct bio *bio, int bsize, loff_t pos)
++{
++	unsigned vecnr;
++	int ret = 0;
++
++	for (vecnr = 0; vecnr < bio->bi_vcnt; vecnr++) {
++		struct bio_vec *bvec = &bio->bi_io_vec[vecnr];
++
++		ret = do_lo_receive(lo, bvec, bsize, pos);
++		if (ret < 0)
++			break;
++		pos += bvec->bv_len;
++	}
++	return ret;
++}
++
+ static inline int loop_get_bs(struct loop_device *lo)
+ {
+ 	return block_size(lo->lo_device);
 
 
 -

@@ -1,66 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262860AbUB0Nuu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 08:50:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262867AbUB0Nut
+	id S262879AbUB0NxX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 08:53:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262867AbUB0NxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 08:50:49 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56587 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262860AbUB0Nue (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 08:50:34 -0500
-Date: Fri, 27 Feb 2004 13:50:19 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Michael Frank <mhf@linuxmail.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       Mark Gross <mgross@linux.co.intel.com>, arjanv@redhat.com,
-       Tim Bird <tim.bird@am.sony.com>, root@chaos.analogic.com,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Why no interrupt priorities?
-Message-ID: <20040227135019.A24457@flint.arm.linux.org.uk>
-Mail-Followup-To: Michael Frank <mhf@linuxmail.org>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	"Grover, Andrew" <andrew.grover@intel.com>,
-	Mark Gross <mgross@linux.co.intel.com>, arjanv@redhat.com,
-	Tim Bird <tim.bird@am.sony.com>, root@chaos.analogic.com,
-	Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <F760B14C9561B941B89469F59BA3A84702C932F2@orsmsx401.jf.intel.com> <1077859968.22213.163.camel@gaston> <opr30muhyf4evsfm@smtp.pacific.net.th> <20040227090548.A15644@flint.arm.linux.org.uk> <opr306i5cm4evsfm@smtp.pacific.net.th>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <opr306i5cm4evsfm@smtp.pacific.net.th>; from mhf@linuxmail.org on Fri, Feb 27, 2004 at 09:31:43PM +0800
+	Fri, 27 Feb 2004 08:53:23 -0500
+Received: from pileup.ihatent.com ([217.13.24.22]:62994 "EHLO
+	pileup.ihatent.com") by vger.kernel.org with ESMTP id S262879AbUB0NvR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 08:51:17 -0500
+To: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Gentoo mm-sources-2.6.3 kenrel's problem
+References: <20040227124205.84877.qmail@span.corp.yahoo.com>
+	<yw1xishsy9e4.fsf@kth.se>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 27 Feb 2004 14:49:56 +0100
+In-Reply-To: <yw1xishsy9e4.fsf@kth.se>
+Message-ID: <87ptc04oor.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 27, 2004 at 09:31:43PM +0800, Michael Frank wrote:
-> On Fri, 27 Feb 2004 09:05:48 +0000, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > On Fri, Feb 27, 2004 at 02:26:31PM +0800, Michael Frank wrote:
-> >> Is this to imply that edge triggered shared interrupts are used anywhere?
-> >
-> > It is (or used to be) rather common with serial ports.  Remember that
-> > COM1 and COM3 were both defined to use IRQ4 and COM2 and COM4 to use
-> > IRQ3.
-> >
-> >> Never occured to me to use shared IRQ's edge triggered as this mode
-> >> _cannot_ work reliably for HW limitations.
-> >
-> > The serial driver takes great care with this - when we service such an
-> > interrupt, we keep going until we have scanned all the devices until
-> > such time that we can say "all devices are no longer signalling an
-> > interrupt".
-> >
-> > This is something it has always done - it's nothing new.
-> >
-> 
-> Sorry, i think the serial driver IRQ is level triggered :)
+mru@kth.se (Måns Rullgård) writes:
 
-That's actually incorrect.  Serial devices are (were) connected to the
-old ISA PICs which are definitely edge triggered.
+> duoduo <kfduoduo@yahoo.com> writes:
+> 
+> >  when i issue sync command immediately after deleting
+> > a large file or directory, the whole system will
+> > freeze
+> > with no reaction, only could do rebooting
+> 
+> What filesystem?  What type of disk?  Does the machine respond to
+> network?  Is the error easily reproducible?  Try it at a text console
+> and see if there's a panic message.
+> 
+
+I'm seeing this on a handfull of HP DL360G3's, all using the
+cciss-driver for RAID; running 2.6.3-mm2 (with Andrews sync-fix
+patch). Currently installed with gentoo "testing" (~x86 keyword), and
+they will hang on occation when running mke2fs, and about half the
+time when executing something like this:
+
+umount /some/dir && mke2fs -j -L /some/dir /dev/cciss/c0d0p5 && mount /some/dir
+
+All filesystems (12 of them) are formatted as ext3, I'm using udev,
+not devfs FWIW. Let me know if I can be of more help.
+
+The machines will be fully respons network-wise, it only seems that
+disk I/O hangs at that point; it wont perform a new login or an
+already open prompt won't do anything but hang at that point.
+
+mvh,
+A
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

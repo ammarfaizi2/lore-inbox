@@ -1,45 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261860AbTDUSaT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 14:30:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTDUSaT
+	id S261886AbTDUSbm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 14:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbTDUSbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 14:30:19 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18703 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S261860AbTDUSaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 14:30:18 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] new system call mknod64
-Date: 21 Apr 2003 11:42:18 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b81e2a$tev$1@cesium.transmeta.com>
-References: <20030421191013.A9655@infradead.org> <Pine.LNX.4.44.0304211117260.3101-100000@home.transmeta.com> <20030421193546.A10287@infradead.org>
+	Mon, 21 Apr 2003 14:31:42 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:39158 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261886AbTDUSbj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 14:31:39 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780C2636A5@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'H. Peter Anvin'" <hpa@zytor.com>,
+       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: "'Greg KH'" <greg@kroah.com>, "'karim@opersys.com'" <karim@opersys.com>,
+       "'Martin Hicks'" <mort@wildopensource.com>,
+       "'Daniel Stekloff'" <dsteklof@us.ibm.com>,
+       "'Patrick Mochel'" <mochel@osdl.org>,
+       "'Randy.Dunlap'" <rddunlap@osdl.org>, "'pavel@ucw.cz'" <pavel@ucw.cz>,
+       "'jes@wildopensource.com'" <jes@wildopensource.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'wildos@sgi.com'" <wildos@sgi.com>,
+       "'Tom Zanussi'" <zanussi@us.ibm.com>
+Subject: RE: [patch] printk subsystems
+Date: Mon, 21 Apr 2003 11:42:53 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20030421193546.A10287@infradead.org>
-By author:    Christoph Hellwig <hch@infradead.org>
-In newsgroup: linux.dev.kernel
+> From: H. Peter Anvin [mailto:hpa@zytor.com]
 > 
-> Umm, no.  You're far to major/minor biased to realized live get a lot
-> sipler for use if we don't do any complicated mapping of old dev_t
-> to the larger dev_t.  With the proper ranges we can just map it
-> numerically 1:1 to the new dev_t.  Yes, that means it's all in one
-> new "major".  But who cares?
+> Perez-Gonzalez, Inaky wrote:
+> >
+> > Hey! Come on! You don't think I am that lame, do you? Man what
+> > a fame I do have!
+> >
+> > Before the device vaporizes, it recalls the message, so there is
+> > no message to read - the same way you take away the sysfs data from
+> > the sysfs tree ...
 > 
+> If you think that will happen with printk(), then, quite frankly, you're
+> seriously deluded.
 
-Everyone who has to fix up the resulting mess.  There is such a thing
-as backwards compatibility, you know, and it's usually a good thing.
+I am kind of deluded, that's for sure. And sore too, but that's another one.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+I tend to agree with you; however, it can be done. You would need to adapt
+a circular buffer to work with kue. Not a big deal though - just an space 
+allocator (that would recall the oldest messages if in need of space) and
+the 
+'destructor' would just clear the space.
+
+If I get to modify the code to make the destructor thing work (any of these
+days), then it will be possible to do it without modifying kue at all.
+
+Now that I think about it, it would work - but I don't think it'd be
+really worth it (the per-message overhead would be big for printk,
+I'd say). For the record, I really think relayfs could be a better
+answer [with the limited reading that so far I had about it].
+
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)

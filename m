@@ -1,72 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133019AbRD3NqF>; Mon, 30 Apr 2001 09:46:05 -0400
+	id <S135216AbRD3NtP>; Mon, 30 Apr 2001 09:49:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135216AbRD3Npz>; Mon, 30 Apr 2001 09:45:55 -0400
-Received: from ausxc08.us.dell.com ([143.166.99.216]:43337 "EHLO
-	ausxc08.us.dell.com") by vger.kernel.org with ESMTP
-	id <S133019AbRD3Npm>; Mon, 30 Apr 2001 09:45:42 -0400
-Message-ID: <CDF99E351003D311A8B0009027457F1402F7EB8F@ausxmrr501.us.dell.com>
-From: Mark_Rusk@Dell.com
-To: linux-kernel@vger.kernel.org
-Subject: RE: ServerWorks LE and MTRR
-Date: Mon, 30 Apr 2001 08:44:00 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S135241AbRD3NtF>; Mon, 30 Apr 2001 09:49:05 -0400
+Received: from dutidad.twi.tudelft.nl ([130.161.158.199]:20620 "EHLO dutidad")
+	by vger.kernel.org with ESMTP id <S135216AbRD3Nsy>;
+	Mon, 30 Apr 2001 09:48:54 -0400
+Date: Mon, 30 Apr 2001 15:48:52 +0200
+From: "Charl P. Botha" <c.p.botha@its.tudelft.nl>
+To: kiza@gmx.net
+Cc: linux-kernel@vger.kernel.org
+Subject: pci/quirks.c - VIA PCI latency in 2.4.4
+Message-ID: <20010430154852.D8052@dutidad.twi.tudelft.nl>
+Reply-To: "Charl P. Botha" <c.p.botha@its.tudelft.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had sent the original patch to Alan back in the Feb. to correct problems
-with XFree 4.0.2 and LE chipsets.  I will check that the problem is
-corrected with Rev's >5. We would see complete system lockups when the Xfree
-server would use write-combining mtrr segments. 
+You're right, this is a problem, your solution is not entirely correct
+though (the south bridge has to be checked, but the patch is to the config
+registers of the pci-host bridge).  Please see my patch posted on this list
+with subject "Re: 2.4.4 Sound corruption [PATCH] NEW, ignore previous
+patch".
 
------Original Message-----
-From: Dave Jones [mailto:davej@suse.de]
-Sent: Sunday, April 29, 2001 8:06 PM
-To: Steffen Persvold
-Cc: lkml; troels@thule.no
-Subject: Re: ServerWorks LE and MTRR
-
-
-On Sun, 29 Apr 2001, Steffen Persvold wrote:
-
-> ...
-> Therefore please consider my small patch to allow the
-> good ones to be able to use write-combining. I have several rev 06 and
-they are
-> working fine with this patch.
-> ...
-
-ObPedant:
- Can you make a note of this in the comment a few lines above also,
-so others who stumble across this code know why the check is there.
-afaik, this chipset info isn't public, so it may not be obvious
-in the future why the check has been added.
-
-Just something simple like..
-
--    /* ServerWorks LE chipsets have problems with  write-combining
-+    /* ServerWorks LE chipsets < rev 6 have problems with write-combining
-       Don't allow it and  leave room for other chipsets to be tagged */
-
-
-Otherwise, if this works for everyone else with rev 6+ serverworks
-chipsets, looks ok to me.
-
-regards,
-
-Dave.
+Regards,
 
 -- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+charl p. botha      | computer graphics and cad/cam 
+http://cpbotha.net/ | http://www.cg.its.tudelft.nl/

@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262555AbTCMVqr>; Thu, 13 Mar 2003 16:46:47 -0500
+	id <S262566AbTCMVt3>; Thu, 13 Mar 2003 16:49:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262556AbTCMVqr>; Thu, 13 Mar 2003 16:46:47 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:4997 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S262555AbTCMVqq>; Thu, 13 Mar 2003 16:46:46 -0500
-Message-Id: <200303132155.h2DLtsRU015899@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.2 03/12/2003 with nmh-1.0.4+dev
-To: Bongani Hlope <bonganilinux@mweb.co.za>
-Cc: Maciej Soltysiak <solt@dns.toxicfilms.tv>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5 XFree and nvidia geforce. 
-In-Reply-To: Your message of "Thu, 13 Mar 2003 23:16:15 +0200."
-             <20030313231615.07563914.bonganilinux@mweb.co.za> 
-From: Valdis.Kletnieks@vt.edu
-References: <3E70086B.6080408@lemur.sytes.net> <20030313201624.GA29107@suse.de> <Pine.LNX.4.51.0303132026210.24455@dns.toxicfilms.tv>
-            <20030313231615.07563914.bonganilinux@mweb.co.za>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1027552332P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 13 Mar 2003 16:55:54 -0500
+	id <S262567AbTCMVt3>; Thu, 13 Mar 2003 16:49:29 -0500
+Received: from mx12.arcor-online.net ([151.189.8.88]:32418 "EHLO
+	mx12.arcor-online.net") by vger.kernel.org with ESMTP
+	id <S262566AbTCMVtX>; Thu, 13 Mar 2003 16:49:23 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Zack Brown <zbrown@tumblerings.org>
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+Date: Thu, 13 Mar 2003 23:04:02 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
+References: <200303130052.h2D0qFFT001062@eeyore.valparaiso.cl> <20030313165652.7CF10109CC9@mx12.arcor-online.net> <20030313214807.GA11535@renegade>
+In-Reply-To: <20030313214807.GA11535@renegade>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20030313220008.43DD710860C@mx12.arcor-online.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1027552332P
-Content-Type: text/plain; charset=us-ascii
+On Thu 13 Mar 03 22:48, Zack Brown wrote:
+> On Thu, Mar 13, 2003 at 06:00:48PM +0100, Daniel Phillips wrote:
+> > Does anybody have a convenient mailing list for this design discussion?
+>
+> Keep in mind that one part of the discussion is to figure out what is
+> and is not required for adoption by the kernel team. For that, this is
+> probably the best place to discuss it. Otherwise, it's just the same
+> tail-chasing that has been going on with the various version control
+> projects up till now.
 
-On Thu, 13 Mar 2003 23:16:15 +0200, Bongani Hlope said:
+Well, I know that, but HPA declared it offtopic and I wish to respect that.  
 
-> If you don't inteand to run 3d applications, then you don't need the
-> nvidia drivers (both for 2.4 and 2.5), but if you want 3d acceleration,
-> the you best bet is 2.4 + nvidia
+> Later on, people can just be referred to an existing feature description,
+> which will cut down on future flamewars on lkml.
 
-For reasons I don't claim to understand, the nvidia drivers have much
-better 2D acceleration as well.  And with the patches from www.minion.de
-they work acceptably under 2.5.64, modulo a few issues:
+Right, but we went well beyond what the features should be and started into 
+the implementation details.  I'm getting a lot out of it, personally, but 
+others may not be.
 
-At least on my Dell laptop (GeForce 440 2Go), the 'GLX' extension will wedge up
-the X server (ctl-alt-del still reboots, so the kernel is still there).
+Regards,
 
-Restarting the X server hangs the machine sometimes.
-
-I'm going to take a shot at debugging those two issues now that my office is
-remodelled and I have a fighting chance of hooking something to the serial
-port for debugging. ;)
-
-
---==_Exmh_-1027552332P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+cP5pcC3lWbTT17ARAu94AKCo3WAseTncft1c+IzmFXTSVruHzQCfSNJ3
-ltTfCzkFI4qUiUSr33CjgA4=
-=iQAC
------END PGP SIGNATURE-----
-
---==_Exmh_-1027552332P--
+Daniel

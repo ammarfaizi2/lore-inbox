@@ -1,76 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263244AbVBCWqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVBCWSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263244AbVBCWqi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 17:46:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263020AbVBCWqh
+	id S261214AbVBCWSp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 17:18:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263261AbVBCWP0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 17:46:37 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:20389 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263269AbVBCWpw (ORCPT
+	Thu, 3 Feb 2005 17:15:26 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:63406 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S262578AbVBCWBI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 17:45:52 -0500
-Date: Thu, 3 Feb 2005 14:45:38 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Andrew Morton <akpm@osdl.org>
-cc: torvalds@osdl.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, jlan@sgi.com
-Subject: Re: move-accounting-function-calls-out-of-critical-vm-code-paths.patch
-In-Reply-To: <20050203140904.7c67a144.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0502031436460.26183@schroedinger.engr.sgi.com>
-References: <20050110184617.3ca8d414.akpm@osdl.org>
- <Pine.LNX.4.58.0502031319440.25268@schroedinger.engr.sgi.com>
- <20050203140904.7c67a144.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 3 Feb 2005 17:01:08 -0500
+Date: Thu, 3 Feb 2005 23:00:59 +0100
+From: Stelian Pop <stelian@popies.net>
+To: lm@bitmover.com, "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+Message-ID: <20050203220059.GD5028@deep-space-9.dsnet>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>, lm@bitmover.com,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+References: <20050202155403.GE3117@crusoe.alcove-fr> <200502030028.j130SNU9004640@terminus.zytor.com> <20050203033459.GA29409@bitmover.com> <20050203193220.GB29712@sd291.sivit.org> <20050203202049.GC20389@bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050203202049.GC20389@bitmover.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Feb 2005, Andrew Morton wrote:
+On Thu, Feb 03, 2005 at 12:20:49PM -0800, Larry McVoy wrote:
 
-> Has any performance testing been done?
+> > As Peter said, once every 6 hours is fine. Or even more often, what
+> > the heck, as I said in a previous post I don't think an incremental
+> > export is that much costly. It could be done at the same time as
+> > the -bkX patches...
+> 
+> I'll see what I can do.
 
-Jay did some performance testing and found minor performance increases
-without my page fault patches. But then the performance without the page
-fault patches is already so bad due to the page_table_lock
-contention that this is not so important.
+Thanks.
 
-> > acct_update_integrals is only useful to call if stime changes otherwise
-> > it will simply return. It is therefore best to relocate the function call
-> > to acct_update_integral into the function that updates stime which is
-> > account_system_time and remove it from the vm code paths.
->
-> But that changes (breaks) the semantics significantly.  A task will now
-> only have its BSD accounting fields updated when it happens to be
-> interrupted by the timer.  Some tasks:
->
-> 	for ( ; ; ) {
-> 		nanosleep(2 milliseconds);
-> 		do_stuff_for(0.5 milliseconds);
-> 	}
->
-> will see their BSD accounting fields remaining stuck firmly at zero.
->
-> I think?
+> > Speaking from the out-BK point of view, what would really be nice
+> > is better granularity in the CVS export (a 1-1 changeset to CVS commit
+> > mapping). I know this involves playing with CVS branches and could
+> > be a bit tricky but should be doable.
+> 
+> I have two problems with this request:
 
-Accounting is only effective is stime changes even with the current
-code. If the process never gets its stime increased then also the
-accounting does nothing. There is no change in that behavior.
+I really don't want to start a new BK flamewar. You asked what could
+you do and I said what would be nice to have. End of story.
 
-> > update_mem_hiwater finds the rss hiwater mark. RSS limits are checked in
-> > account_system_time().
->
-> Linux doesn't check rss limits anywhere.  We check CPU usage in
-> account_system_time().
+>     - The idea that the granularity in CVS is unreasonable is pure
 
-Yuck. I was mistaken in what check_rlimit does.
+I didn't say it was unreasonable, I said it could be better.
 
-> Most of this could be fixed up by updating these counters at schedule()
-> time as well, although that would become somewhat inaccurate if we later
-> decide to implement rss enforcement at pagefault time.
+>       nonesense.  Here's the data as of this email:
+> 
+> 		CVS		BitKeeper [*]
+> 	Deltas	235,956		280,212
 
-Right. I hope that Roland's changes for higher resolution of cputime would
-make that possible. But this is Jay's thing not mine. I just want to make
-sure that the CSA patches does not get in the way of our attempts to
-improve the performance of the page fault handler. In the discussions on
-linux-mm there was also some concern about adding these calls.
+Indeed, for now the differences are rather small. But with more and
+more BK trees and more merges between them the proportion will raise.
+
+If Andrew were to start using BK today we could immediately lose
+(on the CVS side) a big part of the history.
+
+>     - It is not at all an easy thing to do in CVS, we looked at it and 
+>       guessed it is about 3 man months of work.
+
+I may be stupid, but I did write several months ago a bitkeeper to
+prcs conversion tool, and this followed BK branches. It's a 269 lines 
+python script including documentation. I can send you that if you like.
+
+The script does basically:
+	for each bk changeset {
+		get cset parent, merge parent, tags, comment, date
+		prcs checkout -r bktoprcsbranch(cset) parent
+		for each bk changeset rename {
+			prcs rename 
+		}
+		bk export changeset
+		if merge parent {
+			prcs merge with merge parent
+		}
+		if cset ends in .1 {
+			prcs create branch
+		}
+		prcs checkin bktoprcsbranch(cset)
+		if bk has tag {
+			prcs tag
+		}
+	}
+
+	with bktoprcsbranch(cset) returning the bk 'branch', 
+	1 for the 'trunk' and x.y.z for a x.y.z.t revision.
+
+It is a bit difficult to get it right wrt renames, deletes etc, and
+it can take quite a while to execute, but 3 man month work is a bit
+extreme.
+
+> So let's see what's reasonable.  In order for you to get the last 16%
+> of the granularity, which you need because you want to compete with us,
+> you'd like us to do another 3 man months of work. What would you say i> you
+> were me in this situation? 
+
+I thought the competition was between the tools not the data inside...
+Why is that every time someone wants the full history of the kernel
+you think it wants to compete with you ? That history is not even a
+secret, everybody can get it from BK/web or by running the free
+edition of BK (if allowed).
+
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>

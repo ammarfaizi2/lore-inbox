@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289002AbSAUByL>; Sun, 20 Jan 2002 20:54:11 -0500
+	id <S289000AbSAUByW>; Sun, 20 Jan 2002 20:54:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288999AbSAUBxv>; Sun, 20 Jan 2002 20:53:51 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:56709 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S289000AbSAUBxk>;
-	Sun, 20 Jan 2002 20:53:40 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Re: Hardwired drivers are going away? 
-In-Reply-To: Your message of "Sun, 20 Jan 2002 17:30:12 -0800."
-             <3C4B6F24.C2750F51@zip.com.au> 
+	id <S288999AbSAUByL>; Sun, 20 Jan 2002 20:54:11 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:20648 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S289000AbSAUBxy> convert rfc822-to-8bit;
+	Sun, 20 Jan 2002 20:53:54 -0500
+Date: Sun, 20 Jan 2002 17:52:04 -0800 (PST)
+Message-Id: <20020120.175204.18636524.davem@redhat.com>
+To: martin.macok@underground.cz
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [andrewg@tasmail.com: remote memory reading through tcp/icmp]
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020121015209.A26413@sarah.kolej.mff.cuni.cz>
+In-Reply-To: <20020121015209.A26413@sarah.kolej.mff.cuni.cz>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 21 Jan 2002 12:53:28 +1100
-Message-ID: <32505.1011578008@kao2.melbourne.sgi.com>
+Content-Type: Text/Plain; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Jan 2002 17:30:12 -0800, 
-Andrew Morton <akpm@zip.com.au> wrote:
->I suspect none of these "Heads" spend much time in protracted
->email debug sessions.  Because the *first* thing you do is
->ask the tester to compile the relevant driver into the
->kernel.
->
->The problems which the removal of this option will cause include:
->
->1: Inability to look up symbols in the kernel elf image.
->2: Breaks the kernel profiler
->3: breaks kgdb
->4: breaks ksymoops.
->
->How often have we seen nonsensical backtraces here because
->modules were involved?   Possibly we can include a table
->of module base addresses in the Oops output and teach ksymoops
->about it.
+   From: Martin Maèok <martin.macok@underground.cz>
+   Date: Mon, 21 Jan 2002 01:52:09 +0100
 
-You see nonsensical backtraces because people persist in using the oops
-decode option of klogd which is broken when faced with modules.  Turn
-off klogd oops (klogd -x) and you get a raw backtrace which ksymoops
-can handle.  Guess why these entries are in /proc/ksyms?
+   Any comments on this?
+   
+Pretty simple to fix, from Andi Kleen:
 
-c48a2300 __insmod_3c589_cs_S.bss_L4	[3c589_cs]
-c48a0000 __insmod_3c589_cs_O/lib/modules/2.4.17-xfs/kernel/drivers/net/pcmcia/3c589_cs.o_M3C332CFF_V132113	[3c589_cs]
-c48a22a0 __insmod_3c589_cs_S.data_L96	[3c589_cs]
-c48a1820 __insmod_3c589_cs_S.rodata_L1152	[3c589_cs]
-c48a0060 __insmod_3c589_cs_S.text_L6064	[3c589_cs]
-
-ksymoops uses the __insmod entries to work out exactly where each
-module is, it gives an accurate backtrace with modules.  man insmod for
-details.
-
-Kernel debuggers like kgdb and kdb use kallsyms which has full support
-for modules.  kgdb can also use the __insmod entries in /proc/ksyms to
-tell gdb where each module was loaded.
-
-ksymoops has a save map option (-s) which writes out the combined
-system map, including the kernel and all symbols from all modules.
-
-Sure, a dynamic system requires a little more work, but it has all been
-done.  Just kill the broken klogd code so it stops corrupting log data.
-
+--- linux-work/net/ipv4/icmp.c-o	Tue Jan 15 11:05:17 2002
++++ linux-work/net/ipv4/icmp.c	Sun Jan 20 23:31:29 2002
+@@ -495,7 +495,7 @@
+ 	icmp_param.data.icmph.checksum=0;
+ 	icmp_param.csum=0;
+ 	icmp_param.skb=skb_in;
+-	icmp_param.offset=skb_in->nh.raw - skb_in->data;
++	icmp_param.offset=skb_in->data - skb_in->nh.raw;
+ 	icmp_out_count(icmp_param.data.icmph.type);
+ 	icmp_socket->sk->protinfo.af_inet.tos = tos;
+ 	ipc.addr = iph->saddr;
+--- linux-work/net/ipv6/icmp.c-o	Thu Sep 20 23:12:56 2001
++++ linux-work/net/ipv6/icmp.c	Sun Jan 20 23:40:03 2002
+@@ -361,7 +361,7 @@
+ 	msg.icmph.icmp6_pointer = htonl(info);
+ 
+ 	msg.skb = skb;
+-	msg.offset = skb->nh.raw - skb->data;
++	msg.offset = skb->data - skb->nh.raw; 
+ 	msg.csum = 0;
+ 	msg.daddr = &hdr->saddr;

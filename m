@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262201AbSKHPtv>; Fri, 8 Nov 2002 10:49:51 -0500
+	id <S262218AbSKHPvb>; Fri, 8 Nov 2002 10:51:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262208AbSKHPtv>; Fri, 8 Nov 2002 10:49:51 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:2835 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S262201AbSKHPtv>;
-	Fri, 8 Nov 2002 10:49:51 -0500
-Date: Fri, 8 Nov 2002 16:55:37 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: installing modules to ($PREFIX)/lib/modules/2.....
-Message-ID: <20021108155537.GA1027@mars.ravnborg.org>
-Mail-Followup-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <20021108154132.GC1319@rdlg.net>
+	id <S262230AbSKHPvb>; Fri, 8 Nov 2002 10:51:31 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:2460 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262218AbSKHPv2>; Fri, 8 Nov 2002 10:51:28 -0500
+Subject: Re: Switch DVB to generic crc32.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Holger Waechtler <holger@convergence.de>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3DCBC2E3.5040503@convergence.de>
+References: <28280.1036753951@passion.cambridge.redhat.com> 
+	<3DCBC2E3.5040503@convergence.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 08 Nov 2002 16:21:19 +0000
+Message-Id: <1036772479.16651.12.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021108154132.GC1319@rdlg.net>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 08, 2002 at 10:41:32AM -0500, Robert L. Harris wrote:
->   I've compiled my kernel and modules but want to install the modules to
-> /tmp/lib/modules/2.4.18 so I can tar that up and move it to the server
-> in question.  Is there a system for doing this built into the kernel
-> compile structure I haven't found yet?
+On Fri, 2002-11-08 at 13:57, Holger Waechtler wrote:
+> Alan: do you have doubts or is there a reason not to apply the last 
+> patchset I sent you on Tue, 29 Oct 2002? (well - it was kind of huge, 
+> but all the namespace fixes and cleanups should justify the patch's 
+> size, not?)
 
-make INSTALL_PATH=/tmp modules_install
-IIRC this is true for 2.4 as well.
+I've just been rather busy thats all
 
-	Sam

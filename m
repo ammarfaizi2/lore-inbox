@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287513AbSA1XOd>; Mon, 28 Jan 2002 18:14:33 -0500
+	id <S287545AbSA1XSX>; Mon, 28 Jan 2002 18:18:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287545AbSA1XOZ>; Mon, 28 Jan 2002 18:14:25 -0500
-Received: from theirongiant.zip.net.au ([61.8.0.198]:63620 "EHLO
-	theirongiant.zip.net.au") by vger.kernel.org with ESMTP
-	id <S287513AbSA1XOI>; Mon, 28 Jan 2002 18:14:08 -0500
-Date: Tue, 29 Jan 2002 10:13:09 +1100
-From: CaT <cat@zip.com.au>
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-        Swsusp mailing list <swsusp@lister.fornax.hu>
-Subject: Re: [swsusp] swsusp for 2.4.17 -- newer ide supported
-Message-ID: <20020128231309.GD655@zip.com.au>
-In-Reply-To: <20020128100704.GA3013@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020128100704.GA3013@elf.ucw.cz>
-User-Agent: Mutt/1.3.25i
-Organisation: Furball Inc.
+	id <S287657AbSA1XSN>; Mon, 28 Jan 2002 18:18:13 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:1796 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S287616AbSA1XR7>; Mon, 28 Jan 2002 18:17:59 -0500
+Date: Mon, 28 Jan 2002 18:17:54 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200201282317.g0SNHs326065@devserv.devel.redhat.com>
+To: wpeter@us.ibm.com, linux-kernel@vger.kernel.org
+Cc: Jens Axboe <axboe@suse.de>
+Subject: Re: Encountered a Null Pointer Problem on the SCSI Layer
+In-Reply-To: <mailman.1012257244.13523.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.1012257244.13523.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 28, 2002 at 11:07:05AM +0100, Pavel Machek wrote:
-> Hi!
+> --- linux/drivers/scsi/sd.c     Fri Jan 25 14:01:07 2002
+> +++ linux-2.4.17-diskio/drivers/scsi/sd.c       Fri Jan 25 13:57:01 2002
+> @@ -279,7 +279,7 @@
+>         target = DEVICE_NR(dev);
 > 
-> This is newer version of swsusp patch. It now supports newer ide
-> driver (which just about everybody uses). It sometimes fails to
-> suspend when top is running, otherwise no bugs are known. Try to break
-> this one!
-> 								Pavel
+>         dpnt = &rscsi_disks[target];
+> -       if (!dpnt)
+> +       if (!dpnt->device)
+>                 return NULL;    /* No such device */
+>         return &dpnt->device->request_queue;
+>  }
 
-Having just (accidentally :) found out that my laptop does not survive 3
-days on suspend to ram I gotta ask... Will this version work with ext3?
-If so then I can try and break it. I just don't wanna use something that
-is known to be rude to filesystems. I like my data. :)
+> Wai Yee Peter Wong
 
--- 
-SOCCER PLAYER IN GENITAL-BITING SCANDAL  ---  "It was something between
-friends that I thought would have no importance until this morning when
-I got up and saw all  the commotion in the news,"  Gallardo told a news
-conference. "It stunned me."
-Reyes told Marca that he had "felt a slight pinch."
-      -- http://www.azcentral.com/offbeat/articles/1129soccer29-ON.html
+There's one more of theese
+
+--- linux-2.4.18-pre1/drivers/scsi/sd.c	Fri Nov  9 14:05:06 2001
++++ linux-2.4.18-pre1-p3/drivers/scsi/sd.c	Mon Jan 28 14:46:11 2002
+@@ -302,7 +302,7 @@
+ 
+ 	dpnt = &rscsi_disks[dev];
+ 	if (devm >= (sd_template.dev_max << 4) ||
+-	    !dpnt ||
++	    !dpnt->device ||
+ 	    !dpnt->device->online ||
+  	    block + SCpnt->request.nr_sectors > sd[devm].nr_sects) {
+ 		SCSI_LOG_HLQUEUE(2, printk("Finishing %ld sectors\n", SCpnt->request.nr_sectors));
+
+-- Pete

@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132265AbQLIW0p>; Sat, 9 Dec 2000 17:26:45 -0500
+	id <S131532AbQLIWdR>; Sat, 9 Dec 2000 17:33:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132251AbQLIW0f>; Sat, 9 Dec 2000 17:26:35 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:65287 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S132238AbQLIW0b>; Sat, 9 Dec 2000 17:26:31 -0500
-Date: Sat, 9 Dec 2000 15:51:35 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Willy Tarreau <wtarreau@free.fr>
-Cc: Mark Sutton <mes@capelazo.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: NTFS repair tools]
-Message-ID: <20001209155135.A14957@vger.timpanogas.org>
-In-Reply-To: <Pine.GSO.4.10.10012082329290.27791-100000@lazo.capelazo.com> <976380540.3a32627c184c3@imp.free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <976380540.3a32627c184c3@imp.free.fr>; from wtarreau@free.fr on Sat, Dec 09, 2000 at 05:49:00PM +0100
+	id <S131542AbQLIWdI>; Sat, 9 Dec 2000 17:33:08 -0500
+Received: from 154.145.126.209.cari.net ([209.126.145.154]:11783 "EHLO
+	newportharbornet.com") by vger.kernel.org with ESMTP
+	id <S131532AbQLIWct>; Sat, 9 Dec 2000 17:32:49 -0500
+Date: Sat, 9 Dec 2000 14:03:08 -0800 (PST)
+From: Bob Lorenzini <hwm@ns.newportharbornet.com>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18-25 DELL Laptop Video Problems
+In-Reply-To: <20001209154916.A14937@vger.timpanogas.org>
+Message-ID: <Pine.LNX.4.21.0012091400590.17164-100000@newportharbornet.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 09, 2000 at 05:49:00PM +0100, Willy Tarreau wrote:
+On Sat, 9 Dec 2000, Jeff V. Merkey wrote:
 
-Alan has spoken.  If DANGEROUS doesn't get their attention, what 
-will?
+> 
+> 
+> 2.2.18-25 with Frame Buffer enabled will frizt and trash LCD displays
+> on DELL laptop computers when the system kicks into graphics mode,
+> and attempts to display the penguin images on the screen.  It 
+> renders the anaconda installer dead in the water when you attempt 
+> even a text mode install (not graphics) of a 2.2.18-25 kernel (and 24)
+> on a DELL laptop.  Is there a way to turn on frame buffer without 
+> kicking the kernel into mode 274 and killing DELL laptops during
+> a text based install?
 
-Jeff
+Jeff the change that broke or first broke is in 2.2.17-15 if thats any help.
 
-> One problem with warnings at compile time is that in many cases, administrators
-> use kernels provided by friends or collegues that "know linux better than them".
-> If an admin uses a kernel in which write support has been activated to mount
-> an NTFS file system without providing any option, he will get it mount R/W
-> without any warning, then may destroy it at the first mistake or so.
-> 
-> perhaps we should add an option such as "force" to mount an NTFS r/w, and as
-> suggested by JBG, print a KERN_EMERG message when attempting to mount it r/w
-> without the "force" option.
-> 
-> we could also add a static counter which will make the first r/w mount always
-> fail, to ensure people will read the message, and which would prevent people
-> from mounting r/w from fstab.
-> 
-> just my $0.02.
-> 
-> BTW, I like the message about microsoft preventing from fixing the driver ;-)
-> 
-> Cheers,
-> Willy
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+Bob
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

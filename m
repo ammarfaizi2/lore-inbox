@@ -1,72 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261205AbSITGrT>; Fri, 20 Sep 2002 02:47:19 -0400
+	id <S261399AbSITHFG>; Fri, 20 Sep 2002 03:05:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261207AbSITGrT>; Fri, 20 Sep 2002 02:47:19 -0400
-Received: from mta06bw.bigpond.com ([139.134.6.96]:41166 "EHLO
-	mta06bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S261205AbSITGrS>; Fri, 20 Sep 2002 02:47:18 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: Reg Clemens <reg@dwf.com>, linux-kernel@vger.kernel.org
-Subject: Re: Dont understand hdc=ide-scsi behaviour.
-Date: Fri, 20 Sep 2002 16:46:00 +1000
-User-Agent: KMail/1.4.5
-References: <200209192108.g8JL8iT6010419@orion.dwf.com>
-In-Reply-To: <200209192108.g8JL8iT6010419@orion.dwf.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	id <S261509AbSITHFG>; Fri, 20 Sep 2002 03:05:06 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:26601 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261399AbSITHFE>;
+	Fri, 20 Sep 2002 03:05:04 -0400
+Date: Fri, 20 Sep 2002 09:09:55 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Brad Hards <bhards@bigpond.net.au>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Meelis Roos <mroos@linux.ee>,
+       linux-kernel@vger.kernel.org
+Subject: Re: compile error in pre7-ac2: usb & input
+Message-ID: <20020920090955.B79295@ucw.cz>
+References: <Pine.LNX.4.44.0209191555240.1928-100000@ondatra.tartu-labor> <20020919155452.A75192@ucw.cz> <200209200709.20787.bhards@bigpond.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200209201646.00202.bhards@bigpond.net.au>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200209200709.20787.bhards@bigpond.net.au>; from bhards@bigpond.net.au on Fri, Sep 20, 2002 at 07:09:20AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Sep 20, 2002 at 07:09:20AM +1000, Brad Hards wrote:
 
-On Fri, 20 Sep 2002 07:08, Reg Clemens wrote:
-> I dont understand the behaviour of kernel 2.4.18 (and probably all others)
-> when I put the line
-> 		hdc=ide-scsi
-> on the load line.
->
-> I would EXPECT to get the ide-scsi driver for hdc (my cdwriter) but instead
-> get it for BOTH hdc and hdd, the cdwriter and the zip drive.
->
-> After starting this way (with hdc=ide-scsi), I find that
-> 	/dev/cdrom2 -> /dev/scd0
-> and that to access the zip drive I have to use /dev/sda1 (or /dev/sda4)
-There are two slightly different things happening, I think.
+> On Thu, 19 Sep 2002 23:54, Vojtech Pavlik wrote:
+> > On Thu, Sep 19, 2002 at 04:04:08PM +0300, Meelis Roos wrote:
+> > > drivers/usb/usbdrv.o: In function `hidinput_hid_event':
+> > > drivers/usb/usbdrv.o(.text+0x11573): undefined reference to `input_event'
+> > > drivers/usb/usbdrv.o(.text+0x115ee): undefined reference to `input_event'
+> > > drivers/usb/usbdrv.o(.text+0x11600): undefined reference to `input_event'
+> > > drivers/usb/usbdrv.o(.text+0x11641): undefined reference to `input_event'
+> > > drivers/usb/usbdrv.o(.text+0x11664): undefined reference to `input_event'
+> > > drivers/usb/usbdrv.o(.text+0x11682): more undefined references to
+> > > `input_event' follow drivers/usb/usbdrv.o: In function
+> > > `hidinput_connect':
+> > > drivers/usb/usbdrv.o(.text+0x118d4): undefined reference to
+> > > `input_register_device' drivers/usb/usbdrv.o: In function
+> > > `hidinput_disconnect':
+> > > drivers/usb/usbdrv.o(.text+0x118f3): undefined reference to
+> > > `input_unregister_device'
+> >
+> > Well, you enabled HID as built-in and Input as modular. HID needs Input.
+> Not quite. CONFIG_USB + CONFIG_USB_HIDDEV doesn't need input. Unfortunately 
+> CONFIG_USB_HIDINPUT does, and it is a dep_bool.
+> The only clean way I can see is to build HID as three seperate modules - a 
+> core, the input interface, and the hiddev interface.  Even that is pretty 
+> ugly.
 
-1. When you say hdc=ide-scsi, you are telling the IDE system that you don't 
-want to use the normal IDE interfaces to userland (such as ide-cdrom), but 
-instead want all access to this device to be accessed through the SCSI 
-midlayer (and associated SCSI interfaces, like the sg and scd drivers). So 
-ide-scsi becomes the driver, instead of ide-cdrom. You should be able to see 
-this in /proc/ide/hdc/driver
+More modules, oh no!
 
-2. ide-scsi is greedy, and will grab any IDE device without a driver. ATAPI 
-floppy devices (hopefully) like your zip drive need the IDE floppy device 
-driver, which is probably not loaded. What does CONFIG_BLK_DEV_IDEFLOPPY 
-equal in your kernel config?
-
-> I would EXPECT to get to them via /dev/hdd1 or /dev/hdd4.
-And you will, with the right driver loaded :-)
-
-> Did I miss something or is this a bug????
-If you load ide-floppy before ide-scsi, and it still doesn't work, then there 
-is a bug.
-
-Brad
-- -- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9isQoW6pHgIdAuOMRAtfvAJ9QxzwAyyaLFRIHisEiZ9oEzGm9ngCfZMHB
-X/OxH0BykeRSrQKAKj22u2Y=
-=E/AW
------END PGP SIGNATURE-----
-
+-- 
+Vojtech Pavlik
+SuSE Labs

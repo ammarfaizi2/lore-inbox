@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265789AbUGZU42@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266048AbUGZU7G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265789AbUGZU42 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 16:56:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265305AbUGZUz4
+	id S266048AbUGZU7G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 16:59:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUGZU6C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 16:55:56 -0400
-Received: from ss1000.ms.mff.cuni.cz ([195.113.20.8]:62361 "EHLO
-	ss1000.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S265978AbUGZUmd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 16:42:33 -0400
-Date: Mon, 26 Jul 2004 22:42:28 +0200
-From: Rudo Thomas <rudo@matfyz.cz>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Lee Revell <rlrevell@joe-job.com>, Jens Axboe <axboe@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Lenar L?hmus <lenar@vision.ee>,
+	Mon, 26 Jul 2004 16:58:02 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:47015 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266065AbUGZUp7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 16:45:59 -0400
+Date: Mon, 26 Jul 2004 22:47:20 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Lenar L?hmus <lenar@vision.ee>,
        linux-kernel <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>
-Subject: no luck with max_sectors_kb (Re: voluntary-preempt-2.6.8-rc2-J4)
-Message-ID: <20040726204228.GA1231@ss1000.ms.mff.cuni.cz>
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
-	Lee Revell <rlrevell@joe-job.com>, Jens Axboe <axboe@suse.de>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Lenar L?hmus <lenar@vision.ee>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <20040713122805.GZ21066@holomorphy.com> <40F3F0A0.9080100@vision.ee> <20040713143947.GG21066@holomorphy.com> <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <20040726100103.GA29072@elte.hu> <20040726101536.GA29408@elte.hu>
+Subject: [patch] voluntary-preempt-2.6.8-rc2-J7
+Message-ID: <20040726204720.GA26561@elte.hu>
+References: <20040713122805.GZ21066@holomorphy.com> <40F3F0A0.9080100@vision.ee> <20040713143947.GG21066@holomorphy.com> <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040726101536.GA29408@elte.hu>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040726124059.GA14005@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Changes since -J3:
-> > 
-> >  - make block device max_sectors sysfs tunable. There's a new entry
-> >    /sys/block/*/queue/max_sectors_kb which stores the current max 
-> >    request size in KB. You can write it to change the size.
-> > 
-> > [...]
->
-> i've refined the patch (new version attached below): drivers use
-> blk_queue_max_sectors() to set the maximum # of sectors that the driver
-> or hw can handle.
-> 
-> so i've introduced a new queue entry called max_hw_sectors, and the new
-> /sys entry listens to this maximum and only updates max_sectors. This
-> entry is also exported to /sys as a readonly entry. (so that users can
-> see the maximum the driver supports.)
 
-Hi there.
+i've uploaded -J7:
 
-I do not seem to have success with tuning the max_sectors_kb value.
+   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-J7
 
-After setting it to 32 (the hw max is 128), userland programs fail with I/O
-errors. Setting it back to 128 gets it back to working, sort of. The errors
-probably get bufferred somewhere.
+Changes since -J4:
 
-During the "bad" setting (32), messages like this one show up in kernel log.
+- fix the latency that occurs when a large number of files are deleted: 
+  the guilty one is select_parent() - this should fix the Bonnie latency 
+  reported by Lee Revell.
 
-bio too big device hda3 (104 > 64)
+[ the ones below add conditional reschedule points that dont affect 
+  users who have kernel_preemption turned on:]
 
-I am using J7 voluntary_preemption patch (set at 2:1), cfq io scheduler,
-via82cxxx IDE driver. I will gladly provide further details.
+- fix /proc/PID/maps latencies
 
-Rudo.
+- fix latencies triggered by 'df' on a large filesystem
+
+- fix exec() latency when dealing with large environments
+
+- add might_sleep() to lock_buffer()
+
+	Ingo

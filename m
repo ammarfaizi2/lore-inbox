@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262174AbULLXrv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbULLXth@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262174AbULLXrv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 18:47:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbULLXrv
+	id S262176AbULLXth (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 18:49:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262178AbULLXtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 18:47:51 -0500
-Received: from rproxy.gmail.com ([64.233.170.197]:46191 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262174AbULLXrp (ORCPT
+	Sun, 12 Dec 2004 18:49:33 -0500
+Received: from gprs214-177.eurotel.cz ([160.218.214.177]:13189 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262175AbULLXtV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 18:47:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=oIcp6gydFX7IkPsKkAz5gzEgpT54Y5kg+gD+rIxW1vulyHCYy3TtD1eb41nwdKMt8yZvzY+fAI8Uqk3ql7khtIOpk1z6nX5i7Anqj53GmqFRW6JCJayMcIWvFtD86yr4GAaZeHRlHroT0aWjzYgeMBdddD9opBMYbcUIaiQCNDg=
-Message-ID: <29495f1d0412121547c0c644d@mail.gmail.com>
-Date: Sun, 12 Dec 2004 15:47:44 -0800
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: Little rework of usbserial in 2.4
-Cc: greg@kroah.com, linux-usb-devel@lists.sourceforge.net, rwhite@casabyte.com,
-       linux-kernel@vger.kernel.org, kingst@eecs.umich.edu,
-       paulkf@microgate.com, oleksiy@kharkiv.com.ua, reg@dwf.com,
-       clemens@dwf.com
-In-Reply-To: <20041127173558.4011b177@lembas.zaitcev.lan>
+	Sun, 12 Dec 2004 18:49:21 -0500
+Date: Mon, 13 Dec 2004 00:42:56 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: dynamic-hz
+Message-ID: <20041212234256.GK6272@elf.ucw.cz>
+References: <20041211142317.GF16322@dualathlon.random> <20041212163547.GB6286@elf.ucw.cz> <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041127173558.4011b177@lembas.zaitcev.lan>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41BCD5F3.80401@kolivas.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 Nov 2004 17:35:58 -0800, Pete Zaitcev <zaitcev@redhat.com> wrote:
-> Hi, Greg, hi, guys:
+Hi!
 
-<snip>
-
-> diff -urpN -X dontdiff linux-2.4.28-bk3/drivers/usb/serial/usbserial.c linux-2.4.28-bk3-sx4/drivers/usb/serial/usbserial.c
-> --- linux-2.4.28-bk3/drivers/usb/serial/usbserial.c     2004-11-22 23:04:19.000000000 -0800
-> +++ linux-2.4.28-bk3-sx4/drivers/usb/serial/usbserial.c 2004-11-27 10:36:49.000000000 -0800
-
-<snip>
-
-> @@ -1803,6 +1820,12 @@ static void __exit usb_serial_exit(void)
+> >The overhead is a single l1 cacheline in the paths manipulating HZ
+> >(rather than having an immediate value hardcoded in the asm, it reads it
+> >from a memory location not in the icache). Plus there are some
+> >conversion routines in the USER_HZ usages. It's not a measurable
+> >difference.
 > 
->         usb_deregister(&usb_serial_driver);
->         tty_unregister_driver(&serial_tty_driver);
-> +
-> +       while (!list_empty(&usb_serial_driver_list)) {
-> +               err("%s - module is in use, hanging...\n", __FUNCTION__);
-> +               set_current_state(TASK_UNINTERRUPTIBLE);
-> +               schedule_timeout(5*HZ);
-> +       }
+> Just being devils advocate here...
+> 
+> I had variable Hz in my tree for a while and found there was one 
+> solitary purpose to setting Hz to 100; to silence cheap capacitors.
+> 
+> The rest of my users that were setting Hz to 100 for so-called 
+> performance gains were doing so under the false impression that cpu 
+> usage was lower simply because of the woefully inaccurate cpu usage 
+> calcuation at 100Hz.
+> 
+> The performance benefit, if any, is often lost in noise during 
+> benchmarks and when there, is less than 1%. So I was wondering if you 
+> had some specific advantage in mind for this patch? Is there some 
+> arch-specific advantage? I can certainly envision disadvantages to lower Hz.
 
-Please consider using msleep() here instead of schedule_timeout().
-
-Thanks,
-Nish
+Actually, I measured about 1W power savings with HZ=100. That's about
+as much as spindown of disk saves...
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263740AbUHGRUG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263761AbUHGRUq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263740AbUHGRUG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 13:20:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263761AbUHGRUG
+	id S263761AbUHGRUq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 13:20:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbUHGRUq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 13:20:06 -0400
-Received: from vsmtp4alice-fr.tin.it ([212.216.176.150]:13050 "EHLO
-	vsmtp4.tin.it") by vger.kernel.org with ESMTP id S263740AbUHGRTv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 13:19:51 -0400
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-From: Frediano Ziglio <freddyz77@tin.it>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: mj@ucw.cz, James.Bottomley@steeleye.com, axboe@suse.de,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200408071217.i77CHUKm006973@burner.fokus.fraunhofer.de>
-References: <200408071217.i77CHUKm006973@burner.fokus.fraunhofer.de>
-Content-Type: text/plain
-Message-Id: <1091899191.4254.19.camel@freddy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sat, 07 Aug 2004 19:19:51 +0200
-Content-Transfer-Encoding: 7bit
+	Sat, 7 Aug 2004 13:20:46 -0400
+Received: from wl-193.226.227-253-szolnok.dunaweb.hu ([193.226.227.253]:29412
+	"EHLO szolnok.dunaweb.hu") by vger.kernel.org with ESMTP
+	id S263761AbUHGRUj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 13:20:39 -0400
+Message-ID: <41150F58.9080305@freemail.hu>
+Date: Sat, 07 Aug 2004 19:20:24 +0200
+From: Zoltan Boszormenyi <zboszor@freemail.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.4.1) Gecko/20031114
+X-Accept-Language: hu, en-US
+MIME-Version: 1.0
+To: For users of Fedora Core releases <fedora-list@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Different . and .. directories on ext3 made with x86-64 mke2fs?
+References: <41150848.6050601@freemail.hu>
+In-Reply-To: <41150848.6050601@freemail.hu>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il sab, 2004-08-07 alle 14:17, Joerg Schilling ha scritto:
-> >From: Martin Mares <mj@ucw.cz>
+And I forgot to write that I run 2.6.8-rc2 with
+voluntary-preempt-2.6.8-rc2-I4.
+
+Zoltan Boszormenyi írta:
+> I have a dual-boot machine with FC1/i386 and FC2/x86-64 installed.
+> They share /home and /tmp but have different / , /boot , /var , /usr
+> partitions. Recently I almost filled up my /home but I needed still more
+> space and mounted my x86-64 partitions under i386 FC1.
 > 
-> >> It seems that you are not really interested to understand how it works :-(
+> This message bothers me when I start mkisofs in a directory that is on
+> a partition that was mke2fs'd under x86-64 FC2:
 > 
-> >I am interested, but I life is too short to read the full docs of all existing
-> >OS's. Can you give me at least a pointer to the relevant section?
+> Unknown file type (unallocated) ./.. - ignoring and continuing.
 > 
-> I already did! ---> "man path_to_inst"
+> The burned ISOs are OK, but what's with this "./.." file?
 > 
-
-... omissis ...
-
-Could we start again this thread in a less polemical way ??
-
->From my point of view there are two problems:
-1- linux device naming
-2- linux cd-rom problems (real or not)
-
-1- My experience with unices it's not so long however taking a HP-UX
-course I liked very much having tools to scan for new hardware and a
-unique device identification numbering however I don't understand why a
-single device should have many different devices based on behavior (like
-scd0/sg0, raw/not raw, video0/audio for a grabber and so on). A friend
-of mine (not a Linux guru but a simple user) simply said "why there are
-so many files in /dev ?"
-
-2- since we all use cdrecord (and/or its library) to burn CDs under
-Linux if cdrecord do not works under Linux users (me too) thinks that
-Linux do not support well cd-burning. So scgcheck has to work. There are
-also some recent mail on LKML about cd-burning problems (with firewire
-and usb) so there are some problems... I experience "no error" errors
-too (so I can confirm it's a real problem).
-
-freddy77
-
+> Best regards,
+> Zoltán Böszörményi
 

@@ -1,79 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261914AbTKTPdT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 10:33:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbTKTPdT
+	id S261909AbTKTPkp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 10:40:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbTKTPkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 10:33:19 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:52211 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261914AbTKTPdR convert rfc822-to-8bit
+	Thu, 20 Nov 2003 10:40:45 -0500
+Received: from sea2-dav43.sea2.hotmail.com ([207.68.164.15]:41989 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261909AbTKTPko
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 10:33:17 -0500
-Content-Type: text/plain;
-  charset="utf-8"
-From: Daniel Stekloff <dsteklof@us.ibm.com>
-To: Olaf Hering <olh@suse.de>, Greg KH <greg@kroah.com>
-Subject: Re: [ANNOUNCE] udev 006 release
-Date: Thu, 20 Nov 2003 07:25:34 -0800
-User-Agent: KMail/1.4.1
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       christophe.varoqui@free.fr, patmans@us.ibm.com
-References: <20031119162912.GA20835@kroah.com> <20031119234708.GC23529@kroah.com> <20031120065920.GC14930@suse.de>
-In-Reply-To: <20031120065920.GC14930@suse.de>
+	Thu, 20 Nov 2003 10:40:44 -0500
+X-Originating-IP: [80.204.235.254]
+X-Originating-Email: [pupilla@hotmail.com]
+From: "Marco Berizzi" <pupilla@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: ipsec on kernel 2.6.0-test9
+Date: Thu, 20 Nov 2003 16:41:31 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200311200725.34868.dsteklof@us.ibm.com>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1123
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1123
+Message-ID: <Sea2-DAV43yDd3OJXsN000001a7@hotmail.com>
+X-OriginalArrivalTime: 20 Nov 2003 15:40:43.0301 (UTC) FILETIME=[A86CBD50:01C3AF7C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 19 November 2003 10:59 pm, Olaf Hering wrote:
->  On Wed, Nov 19, Greg KH wrote:
-> > 	- I've added two external programs to the udev tarball, under
-> > 	  the extras/ directory.  They are the scsi-id program from Pat
-> > 	  Mansfield, and the multipath program from Christophe Varoqui.
-> > 	  Both of them can work as CALLOUT programs.  I don't think they
-> > 	  currently build properly within the tree, by linking against
-> > 	  klibc, but patches to their Makefiles to fix this would be
-> > 	  gladly accepted :)
+Me again.
+I have downloaded kame-snap kit from
+ftp://ftp.kame.net/pub/kame/snap/kame-20031117-freebsd49-snap.tgz ,
+untarred and kame/IMPLEMENTATION report this:
+
+...
+- Tunnel mode IPComp is not working right.  KAME box can generate
+tunnelled
+  IPComp packet, however, cannot accept tunneled IPComp packet.
+...
+
+Is this the problem?
+
+Marco Berizzi wrote:
+
+
+> Hello everybody.
+> I'm playing with ipsec on linux 2.6.0-test9 + ipsec-tools-0.2.2
+> I would like to implement a simple esp-tunnel with ipcomp. This is my
+> setkey init file:
 >
-> There is no make install target for the headers and the libs. Both
-> packages disgree on the location. I use the patch below. Can you make a
-> decision where the headers should be located?
-
-
-As a note, the package sysfsutils that contains libsysfs installs the headers 
-into /usr/include/sysfs. Are we going to have conflicts since udev has its 
-own private libsysfs statically included? Should the extra programs build off 
-udev's libsysfs, since they are included with the package? Or, should they 
-require a shared libsysfs from sysfsutils? If udev is to have its own static 
-edition of libsysfs, perhaps it'd be best if it didn't install headers and 
-the extras either used its static version or required the shared libsysfs to 
-be installed.
-
-Thanks,
-
-Dan
-
-
-> --- scsi_id/scsi_id.c
-> +++ scsi_id/scsi_id.c	2003/11/19 21:25:38
-> @@ -33,7 +33,7 @@
->  #include <stdarg.h>
->  #include <ctype.h>
->  #include <sys/stat.h>
-> -#include <sys/libsysfs.h>
-> +#include <libsysfs.h>
->  #include "scsi_id.h"
+> /usr/local/sbin/setkey -c <<EOF
+> flush;
+> spdflush;
+> spdadd 10.1.2.0/24 10.1.1.0/24 any -P in ipsec
+>     ipcomp/tunnel/172.16.1.247-172.16.1.226/require
+>     esp/tunnel/172.16.1.247-172.16.1.226/require;
 >
->  #ifndef VERSION
-> --- scsi_id/scsi_serial.c
-> +++ scsi_id/scsi_serial.c	2003/11/19 21:25:42
-> @@ -31,7 +31,7 @@
->  #include <unistd.h>
->  #include <syslog.h>
->  #include <scsi/sg.h>
-> -#include <sys/libsysfs.h>
-> +#include <libsysfs.h>
->  #include "scsi_id.h"
->  #include "scsi.h"
-
+> spdadd 10.1.1.0/24 10.1.2.0/24 any -P out ipsec
+>     ipcomp/tunnel/172.16.1.226-172.16.1.247/require
+>     esp/tunnel/172.16.1.226-172.16.1.247/require;
+> EOF
+...
+> Am I doing something wrong?  Without ipcomp things are working good.
+> My env: Slackware 9.1 gcc 3.2.3 kernel 2.6.0-test9 glibc 2.3.2
+> ipsec-tools-0.2.2 (Cocorita=172.16.1.247 K2=172.16.1.226 connected by
+> two 3C905 100Mbit/s)
+> Any feedback are welcome.
+> TIA.
+>
+> PS: Please cc me. I'm not subscribed to the list

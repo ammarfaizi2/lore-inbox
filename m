@@ -1,85 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267076AbTALOSN>; Sun, 12 Jan 2003 09:18:13 -0500
+	id <S267050AbTALOd6>; Sun, 12 Jan 2003 09:33:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267050AbTALOSN>; Sun, 12 Jan 2003 09:18:13 -0500
-Received: from [212.169.188.21] ([212.169.188.21]:9999 "EHLO mail.cool.de")
-	by vger.kernel.org with ESMTP id <S267044AbTALOSK>;
-	Sun, 12 Jan 2003 09:18:10 -0500
-Message-ID: <3E217B22.7040309@cool.de>
-Date: Sun, 12 Jan 2003 15:26:42 +0100
-From: Bernd Driegert <bd@cool.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: de-de, en-us, de, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: linux-hams@vger.kernel.org
-Subject: [RFC][PATCH] mkiss.[ch]
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-1.4, required 5,
-	PATCH_UNIFIED_DIFF, SPAM_PHRASE_00_01, USER_AGENT,
-	USER_AGENT_MOZILLA_UA, X_ACCEPT_LANG)
+	id <S267089AbTALOd6>; Sun, 12 Jan 2003 09:33:58 -0500
+Received: from mta3.srv.hcvlny.cv.net ([167.206.5.9]:21753 "EHLO
+	mta3.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S267050AbTALOd5>; Sun, 12 Jan 2003 09:33:57 -0500
+Date: Sun, 12 Jan 2003 09:40:48 -0500
+From: Rob Wilkens <robw@optonline.net>
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+In-reply-to: <20030112070914.AAA21737%shell.webmaster.com@whenever>
+To: David Schwartz <davids@webmaster.com>
+Cc: mark@mark.mielke.cc, Linux kernel list <linux-kernel@vger.kernel.org>
+Reply-to: robw@optonline.net
+Message-id: <1042382448.849.8.camel@RobsPC.RobertWilkens.com>
+Organization: Robert Wilkens
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <20030112070914.AAA21737%shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch does (hopefully):
-1) change MOD_xxx_USE_COUNT to module calls
-2) change cli() to use spin_lock
+On Sun, 2003-01-12 at 02:09, David Schwartz wrote:
+> 	No, I've never used vxWorks, I just understand the difference 
 
-Can someone check:
-a) ist it right in terms of usage (it's my first try for cleanup)
-b) does it work with the appropriate HW, since im no ham-guy
+For reference, they're looking at replacing PowerMAX with Linux in the
+vxWorks suite..  They're calling it RedHawk Linunx.  See the article
+from Steve Brosky (my former manager) over here at : 
 
-Bernd
+http://www.linuxdevices.com/articles/AT8610061752.html
 
---- linux-2.5.56/drivers/net/hamradio/mkiss.h   Sun Jan 12 14:22:50 2003
-+++ mkiss.h     Sun Jan 12 14:24:22 2003
-@@ -55,6 +55,7 @@
-  #define CRC_MODE_NONE   0
-  #define CRC_MODE_FLEX   1
-  #define CRC_MODE_SMACK  2
-+       spinlock_t      driver_lock;
-  };
+Download the full pdf if you're interested.. All of their systems are
+"Hawk" systems.. PowerHawk, NightHawk, MediaHawk.. This is a play on the
+RedHat name because it's based on RedHat, so they call it RedHawk.
 
-  #define AX25_MAGIC             0x5316
---- linux-2.5.56/drivers/net/hamradio/mkiss.c   Mon Nov 18 05:29:57 2002
-+++ mkiss.c     Sun Jan 12 15:55:06 2003
-@@ -253,8 +253,7 @@
-                 return;
-         }
+What's cool about this is that even though I quit there for mental
+health reasons, if I decided to become an active contributor for linux,
+I could sort of become a volunteer employee.  (I'm still not sure how
+much of my time I want to spend in kernel work.  I'm also learning
+OpenGL, and orderred a book on Brain Theory and Neural Netowrks which
+will probably occupy a good chunk of my time in the coming months.  All 
+of these require different types of thinking and work on the computer,
+so I may not waste much time in the kernel "reinventing the wheel" as it
+were.)
 
--       save_flags(flags);
--       cli();
-+       spin_lock_irqsave(&ax->driver_lock, flags);
-
-         oxbuff    = ax->xbuff;
-         ax->xbuff = xbuff;
-@@ -285,7 +284,7 @@
-         ax->mtu      = dev->mtu + 73;
-         ax->buffsize = len;
-
--       restore_flags(flags);
-+       spin_unlock_irqrestore(&ax->driver_lock, flags);
-
-         if (oxbuff != NULL)
-                 kfree(oxbuff);
-@@ -676,7 +675,7 @@
-                 tmp_ax->mkiss = ax;
-         }
-
--       MOD_INC_USE_COUNT;
-+       try_module_get(THIS_MODULE);
-
-         /* Done.  We have linked the TTY line to a channel. */
-         return ax->dev->base_addr;
-@@ -696,7 +695,7 @@
-         ax->tty        = NULL;
-
-         ax_free(ax);
--       MOD_DEC_USE_COUNT;
-+       module_put(THIS_MODULE);
-  }
-
+-Rob
 

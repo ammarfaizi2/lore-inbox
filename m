@@ -1,63 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263270AbUKUH0x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261922AbUKUHnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263270AbUKUH0x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 02:26:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263274AbUKUH0x
+	id S261922AbUKUHnT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 02:43:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbUKUHnK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 02:26:53 -0500
-Received: from pop.gmx.net ([213.165.64.20]:52908 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263270AbUKUH0u (ORCPT
+	Sun, 21 Nov 2004 02:43:10 -0500
+Received: from mail.euroweb.hu ([193.226.220.4]:57229 "HELO mail.euroweb.hu")
+	by vger.kernel.org with SMTP id S261922AbUKUHnC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 02:26:50 -0500
-X-Authenticated: #8922711
-From: "Gerold J. Wucherpfennig" <gjwucherpfennig@gmx.net>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Kernel thoughts of a Linux user
-Date: Sat, 20 Nov 2004 11:31:12 +0100
-User-Agent: KMail/1.6.82
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200411201131.12987.gjwucherpfennig@gmx.net>
+	Sun, 21 Nov 2004 02:43:02 -0500
+To: pavel@ucw.cz
+CC: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+In-reply-to: <20041118144634.GA7922@openzaurus.ucw.cz> (message from Pavel
+	Machek on Thu, 18 Nov 2004 15:46:34 +0100)
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu> <20041117190055.GC6952@openzaurus.ucw.cz> <E1CUVkG-0005sV-00@dorka.pomaz.szeredi.hu> <20041117204424.GC11439@elf.ucw.cz> <E1CUhTd-0006c8-00@dorka.pomaz.szeredi.hu> <20041118144634.GA7922@openzaurus.ucw.cz>
+Message-Id: <E1CVmN5-0007qq-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Sun, 21 Nov 2004 08:42:55 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, Nov 18, 2004 at 06:59:27PM +0100, Gerold J. Wucherpfennig wrote:
-> > 
-> > - Make sysfs optional and enable to publish kernel <-> userspace data
-> > especially the kernel's KObject data across the kernel's netlink interface 
-as
-> > it has been summarized on www.kerneltrap.org. This will avoid the
-> > deadlocks sysfs does introduce when some userspace app holds an open file
-> > handle of an sysfs object (KObject) which is to be removed. An importrant 
-side 
-> > effect for embedded systems will be that the RAM overhead introduced by 
-sysfs
-> > will vaporize.
+
+> Ok, this one works, I agree... But it will be way slower than coda's
+> file-backed approach, right?
+
+No.  In both cases there will be two memory copies:
+
+  - from userspace fs to pagecache
+  - from pagecache to read buffer
+
+And vica versa for write.  FUSE will have some overhead of context
+switches, but in the optimal case (sequential read), the readahead
+code will bundle read requests, and with a 128MByte read, the cost of
+a context switch is probably infinitesimal.
+
+> > In the second case there is no deadlock, because the memory subsystem
+> > doesn't wait for data to be written.  If the filesystem refuses to
+> > write back data in a timely manner, memory will get full and OOM
+> > killer will go to work.  Deadlock simply cannot happen.
 > 
-> What RAM overhead?  With 2.6.10-rc2 the memory footprint of sysfs has
-> been drasticly shrunk.
+> Hmmm, so if userspace part is swapped out and data is dirtied
+> "too quickly", OOM is practically guaranteed? That is not nice.
 
-Sorry I my kernel knowledge only consists of kerneltrap.org news :-(
-I didn't knew that.
- 
-> 
-> What deadlocks are you referring to?
-> 
+Yeah.  I imagined, that the kernel won't assign all it's free pages to
+file mappings, but people on the list enlightened me to the contrary.
 
+There seem to be two kinds of solutions:
 
-I don't know if it are deadlocks, please read last years article from lwn:
-http://lwn.net/Articles/36850/
+  1) make the userspace part aware of the memory allocation problems
+
+  2) limit the number of pages that can be dirtied
 
 
-> And the netlink interface for hotplug events is already present in the
-> latest kernel.
+I don't really like 1) because that really kills the point of
+implementing the filesystem in userspace.
 
-I don't know much about netlink. But sysfs --> libsysfs --> hal --> dbus
-seems to be a lot of an overhead. Maybe create an in-kernel queue
-for hardware information requests and publish the hardware information
-with netlink would be a little less overhead??? Just a though...
+So I would go along the lines of 2).  However there is no way to know
+when pages are dirtied (ther is no fault), so accounting the dirty
+pages exactly is not possible.  However accounting the _writable_
+pages should be possible with no overhead, since there is a fault when
+the page of a mapping is first touched.
 
+Limiting these pages for FUSE, would mean that the user could do
+writable mmap, but with the performance penaly of having a limited
+number of pages present in memory.  If the userspace FS refuses to
+write back data, the filesystem user will be blocked until the
+writeback is completed.  No deadlock (hopefully).
+
+Miklos

@@ -1,128 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261986AbVBALHL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261989AbVBALNZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261986AbVBALHL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 06:07:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbVBALHK
+	id S261989AbVBALNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 06:13:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbVBALNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 06:07:10 -0500
-Received: from [81.187.167.50] ([81.187.167.50]:26844 "EHLO kylie.comodo.net")
-	by vger.kernel.org with ESMTP id S261986AbVBALG6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 06:06:58 -0500
-Message-ID: <41FF6360.9010506@comodo.com>
-Date: Tue, 01 Feb 2005 16:39:20 +0530
-From: Sabarinathan <sabarinathan@comodo.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Problem in Kernel-2.6.11-rc2 Compilation
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 1 Feb 2005 06:13:25 -0500
+Received: from coyote.holtmann.net ([217.160.111.169]:13458 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S261989AbVBALNT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 06:13:19 -0500
+Subject: Re: Patch to add usbmon
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050201003218.478f031e@localhost.localdomain>
+References: <20050131212903.6e3a35e5@localhost.localdomain>
+	 <20050201071000.GF20783@kroah.com>
+	 <20050201003218.478f031e@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 01 Feb 2005 12:13:03 +0100
+Message-Id: <1107256383.9652.26.camel@pegasus>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-X-Comodo-ClamAV-Virus-Check-By: kylie.comodo.net - PASSED!
-X-Comodo-ClamAV-Virus-Version: ClamAV 0.80/694/Sun Jan 30 21:15:10 2005
-X-Comodo-F-Prot-Virus-Check-By: kylie.comodo.net - PASSED!
-X-Comodo-F-Prot-Virus-Program: F-PROT ANTIVIRUS Program version: 4.5.3 Engine version: 3.16.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Hi Pete,
 
-Now i am using kernel-2.6.10 in my fedora core 2 machine, i have 
-downloaded the kernel-2.6.11-rc2 then created the default config file 
-and i run the make command , it compiled all the kernel modules then i 
-run the make modules , it shows some few lines and terminate the process 
-so i am not able to make the kernel modules.After i switch over the 
-kernel 2.6.5-1.358 that is default kernel in fedora core 2, this time i 
-am able to make and install the kernel modules without any problem, 
-anybody tell me what is the problem in that place
+today I just thought to give usbmon a try. Previously I used a hacked
+devio thing around usbfs_snoop to monitor the USB communication between
+a VMware and the Linux host.
 
+Greg, will such patch accepted for inclusion or will usbfs_snoop go away
+when usbmon is included?
 
- # make modules
-  CHK     include/linux/version.h
-make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
-  CC [M]  drivers/acpi/video.o
-  CC [M]  drivers/acpi/ibm_acpi.o
-  CC [M]  drivers/base/firmware_class.o
-  CC [M]  drivers/char/agp/intel-mch-agp.o
-  CC [M]  drivers/net/dummy.o
-  CC [M]  drivers/net/s2io.o
-  CC [M]  drivers/scsi/dpt_i2o.o
-drivers/scsi/dpt_i2o.c: In function `adpt_isr':
-drivers/scsi/dpt_i2o.c:2031: warning: passing arg 1 of `readl' makes 
-pointer from integer without a cast
-drivers/scsi/dpt_i2o.c:2032: warning: passing arg 1 of `readl' makes 
-pointer from integer without a cast
-drivers/scsi/dpt_i2o.c:2043: warning: passing arg 1 of `readl' makes 
-pointer from integer without a cast
-drivers/scsi/dpt_i2o.c:2044: warning: passing arg 2 of `writel' makes 
-pointer from integer without a cast
-drivers/scsi/dpt_i2o.c:2047: warning: passing arg 1 of `readl' makes 
-pointer from integer without a cast
-drivers/scsi/dpt_i2o.c:2049: warning: passing arg 1 of `readl' makes 
-pointer from integer without a cast
-drivers/scsi/dpt_i2o.c:2056: warning: passing arg 1 of `readl' makes 
-pointer from integer without a cast
-drivers/scsi/dpt_i2o.c:2063: warning: passing arg 1 of `readl' makes 
-pointer from integer without a cast
-drivers/scsi/dpt_i2o.c:2070: warning: passing arg 1 of `readl' makes 
-pointer from integer without a cast
-drivers/scsi/dpt_i2o.c: In function `adpt_i2o_to_scsi':
-drivers/scsi/dpt_i2o.c:2240: warning: passing arg 1 of `readl' makes 
-pointer from integer without a cast
-drivers/scsi/dpt_i2o.c:2244: warning: passing arg 1 of `readl' makes 
-pointer from integer without a cast
-drivers/scsi/dpt_i2o.c:2249: warning: passing arg 1 of `readl' makes 
-pointer from integer without a cast
-drivers/scsi/dpt_i2o.c:2260: warning: passing arg 1 of `readl' makes 
-pointer from integer without a cast
-  CC [M]  drivers/scsi/ipr.o
-  CC [M]  drivers/scsi/sata_sis.o
-  CC [M]  drivers/scsi/sata_sx4.o
-  CC [M]  drivers/usb/input/touchkitusb.o
-  CC [M]  drivers/usb/misc/cytherm.o
-  CC [M]  drivers/usb/misc/phidgetservo.o
-  CC [M]  net/ipv4/netfilter/iptable_raw.o
-  CC [M]  net/ipv4/netfilter/ipt_NOTRACK.o
-  CC [M]  lib/libcrc32c.o
-  Building modules, stage 2.
-  MODPOST
-  CC      drivers/acpi/ibm_acpi.mod.o
-  LD [M]  drivers/acpi/ibm_acpi.ko
-  CC      drivers/acpi/video.mod.o
-  LD [M]  drivers/acpi/video.ko
-  CC      drivers/base/firmware_class.mod.o
-  LD [M]  drivers/base/firmware_class.ko
-  CC      drivers/char/agp/intel-mch-agp.mod.o
-  LD [M]  drivers/char/agp/intel-mch-agp.ko
-  CC      drivers/net/dummy.mod.o
-  LD [M]  drivers/net/dummy.ko
-  CC      drivers/net/s2io.mod.o
-  LD [M]  drivers/net/s2io.ko
-  CC      drivers/scsi/dpt_i2o.mod.o
-  LD [M]  drivers/scsi/dpt_i2o.ko
-  CC      drivers/scsi/ipr.mod.o
-  LD [M]  drivers/scsi/ipr.ko
-  CC      drivers/scsi/sata_sis.mod.o
-  LD [M]  drivers/scsi/sata_sis.ko
-  CC      drivers/scsi/sata_sx4.mod.o
-  LD [M]  drivers/scsi/sata_sx4.ko
-  CC      drivers/usb/input/touchkitusb.mod.o
-  LD [M]  drivers/usb/input/touchkitusb.ko
-  CC      drivers/usb/misc/cytherm.mod.o
-  LD [M]  drivers/usb/misc/cytherm.ko
-  CC      drivers/usb/misc/phidgetservo.mod.o
-  LD [M]  drivers/usb/misc/phidgetservo.ko
-  CC      lib/libcrc32c.mod.o
-  LD [M]  lib/libcrc32c.ko
-  CC      net/ipv4/netfilter/ipt_NOTRACK.mod.o
-  LD [M]  net/ipv4/netfilter/ipt_NOTRACK.ko
-  CC      net/ipv4/netfilter/iptable_raw.mod.o
-  LD [M]  net/ipv4/netfilter/iptable_raw.ko
-#
+> > First off, why make usbmon a module?  You aren't allowing it to happen,
+> > so just take out the parts of the patch that allow it.
+> 
+> No, I do allow it. This way I can load and unload it when debugging it.
+> Perhaps in the future we may simply link it with usbcore, but for now
+> it is a separate module. Also, I do not think it's possible not to build
+> it as a module when usbcore is a module.
+> 
+> I do not think it's a good idea for most users to build it as a module,
+> but it's not prohibited.
 
--- 
+By accident I removed the debugfs option from my kernel config and this
+makes usbmon totally useless. So I think the module approach is wrong
+from my point of view. Why not compile it always and if debugfs is
+available, then enable it when the usbcore gets loaded?
+
+And btw don't you think that you split your code into too much separate
+files? I count less than 900 lines of code.
+
+However it works fine for me, but I can't find a document that describes
+the information (without looking at the code) you get, when running cat
+on a specific bus. I think for using cat this format should be a lot
+more easier to read by humans. With my devio patch I used something
+like:
+
+control urb endpoint 0x00 flags 0x00 buflen 3 actlen 0
+bRequestType 0x20 bRequest 0x00 wValue 0 wIndex 0 wLength 3
+pipe 0x80003900 flags 0x00 buffer f7f2e4e0 length 3 setup f64895a0 start 0 packets 0 interval 0
+data 36 fc 00
+
+Especially the information about endpoint, type of the URB and the data
+should be presented in a better way. I would insert a space after each
+byte of data to make it easier to read. Instead of using the URB pointer
+for the id, I think it makes sense to present the device number of that
+device. If you have multiple devices on the bus you can differ between
+them.
+
+Only my 2 cents. Keep on the good work. I really like it and it will
+become very handy to me, I think.
+
 Regards
-Sabarinathan.A
+
+Marcel
 
 

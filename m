@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261270AbTKDTKe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 14:10:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbTKDTKe
+	id S261276AbTKDTPq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 14:15:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbTKDTPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 14:10:34 -0500
-Received: from nat-68-172-17-106.ne.rr.com ([68.172.17.106]:10484 "EHLO
-	trip.jpj.net") by vger.kernel.org with ESMTP id S261270AbTKDTKd
+	Tue, 4 Nov 2003 14:15:46 -0500
+Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:55313
+	"EHLO muru.com") by vger.kernel.org with ESMTP id S261276AbTKDTPp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 14:10:33 -0500
-Subject: ext3 performance inconsistencies, 2.4/2.6
-From: Paul Venezia <pvenezia@jpj.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1067973024.23788.24.camel@d8000>
+	Tue, 4 Nov 2003 14:15:45 -0500
+Date: Tue, 4 Nov 2003 11:15:04 -0800
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, psavo@iki.fi, clepple@ghz.cc
+Subject: Re: [PATCH] amd76x_pm on 2.6.0-test9 cleanup
+Message-ID: <20031104191504.GB1042@atomide.com>
+References: <20031104002243.GC1281@atomide.com> <1067971295.11436.66.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 04 Nov 2003 14:10:24 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1067971295.11436.66.camel@cog.beaverton.ibm.com>
+User-Agent: Mutt/1.5.4i
+From: Tony Lindgren <tony@atomide.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been running bonnie++ filesystems testing on an IBM x335 server
-recently. This box uses the MPT RAID controller, but I've disabled the
-RAID and am addressing the disks individually. I'm getting wildly
-different results between 2.4.20-20-9 (RedHat mod), 2.4.22 (stock), and
-2.6.0-test9.
+* john stultz <johnstul@us.ibm.com> [031104 10:43]:
+> On Mon, 2003-11-03 at 16:22, Tony Lindgren wrote:
+> > After a year of not having access to my dual athlon box I finally ran
+> > apt-get dist-upgrade on it :)
+> > 
+> > I also did some cleanup on the amd76x_pm to make the amd76x_pm to load as 
+> > module, and to remove some unnecessary PCI code.
+> 
+> I've received some reports that this patch causes time problems.
+> 
+> Have those issues been looked into further, or addressed? 
 
-The full results are here: http://groove.jpj.net/x335-test.html
+I've heard of timing problems if it's compiled in, but supposedly they don't
+happen when loaded as module.
 
-The base distro is RedHat 9, there are no extraneous daemons running or
-modules loaded. I'm using a dedicated drive as the scratch directory.
-I'm looking for some insight as to why I'm seeing such a disparity in
-performance.
+Then the 2.4 version does not load if i2c-amd756 is loaded, but this may
+have been already fixed by this patch, I have not verified it yet though.
 
-The server has Dual P4 3.06Ghz CPUs, 1.5GB RAM, two 36GB Ultra320 disks.
+I have problem where my S2460 goes into sleep for a while if compiled in, 
+but this does not happen when loaded as module.
 
-bonnie++ is run as
+So it looks like there are some dependencies to other drivers that need to
+be sorted out, or amd76x_pm needs to be loaded after some other
+initializations.
 
-bonnie++ -d /test -s 3g -m x335-`uname -r` -n 200 -x 2 -u root -q 
-
-Thanks 
-
--Paul
-
+Tony

@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262034AbVCZLXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVCZLcx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262034AbVCZLXP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 06:23:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbVCZLXO
+	id S262041AbVCZLcx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 06:32:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVCZLcx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 06:23:14 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:8456 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262034AbVCZLXB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 06:23:01 -0500
-Date: Sat, 26 Mar 2005 12:22:56 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.30-rc2
-Message-ID: <20050326112256.GN30052@alpha.home.local>
-References: <20050326004631.GC17637@logos.cnet>
+	Sat, 26 Mar 2005 06:32:53 -0500
+Received: from [213.170.72.194] ([213.170.72.194]:26567 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261752AbVCZLcv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 06:32:51 -0500
+Subject: Re: [RFC] CryptoAPI & Compression
+From: "Artem B. Bityuckiy" <dedekind@infradead.org>
+Reply-To: dedekind@infradead.org
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: dwmw2@infradead.org, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org
+In-Reply-To: <20050326044421.GA24358@gondor.apana.org.au>
+References: <1111766900.4566.20.camel@sauron.oktetlabs.ru>
+	 <20050326044421.GA24358@gondor.apana.org.au>
+Content-Type: text/plain
+Organization: MTD
+Date: Sat, 26 Mar 2005 14:32:48 +0300
+Message-Id: <1111836768.4566.24.camel@sauron.oktetlabs.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050326004631.GC17637@logos.cnet>
-User-Agent: Mutt/1.4i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo,
+On Sat, 2005-03-26 at 15:44 +1100, Herbert Xu wrote:
+> I've whipped up something quick and called it crypto_comp_pcompress.
+> How does this interface look to you?
+Thanks for the patch. At the first glance it looks OK. I'll try to use
+it and add the deflate method which in fact is already implemented in
+JFFS2. I'll send you my results.
 
-here's a patch from Dave Jones, which is already in 2.6 and which I've
-used in my local tree for 6 months now. It removes a useless NULL check
-in zlib_inflateInit2_(), since 'z' is already dereferenced one line
-before the test. Can in go in 2.4.30 please ?
-
-Thanks,
-Willy
-
---- ./lib/zlib_inflate/inflate.c.orig	Tue Jan  7 15:50:49 2003
-+++ ./lib/zlib_inflate/inflate.c	Sat Sep 18 17:30:59 2004
-@@ -50,8 +50,6 @@
-       return Z_VERSION_ERROR;
- 
-   /* initialize state */
--  if (z == Z_NULL)
--    return Z_STREAM_ERROR;
-   z->msg = Z_NULL;
-   z->state = &WS(z)->internal_state;
-   z->state->blocks = Z_NULL;
+-- 
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.
 

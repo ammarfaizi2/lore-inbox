@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261485AbSJZTUw>; Sat, 26 Oct 2002 15:20:52 -0400
+	id <S261497AbSJZTmf>; Sat, 26 Oct 2002 15:42:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261497AbSJZTUw>; Sat, 26 Oct 2002 15:20:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24069 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261485AbSJZTUv>;
-	Sat, 26 Oct 2002 15:20:51 -0400
-Message-ID: <3DBAEC79.5050605@pobox.com>
-Date: Sat, 26 Oct 2002 15:26:49 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S261510AbSJZTmf>; Sat, 26 Oct 2002 15:42:35 -0400
+Received: from 3-090.ctame701-1.telepar.net.br ([200.193.161.90]:52611 "EHLO
+	3-090.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261497AbSJZTme>; Sat, 26 Oct 2002 15:42:34 -0400
+Date: Sat, 26 Oct 2002 17:48:11 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: "Nakajima, Jun" <jun.nakajima@intel.com>, Robert Love <rml@tech9.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "'Dave Jones'" <davej@codemonkey.org.uk>,
+       "'akpm@digeo.com'" <akpm@digeo.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'chrisl@vmware.com'" <chrisl@vmware.com>,
+       "'Martin J. Bligh'" <mbligh@aracnet.com>
+Subject: Re: [PATCH] hyper-threading information in /proc/cpuinfo
+In-Reply-To: <20021026004320.GA1676@werewolf.able.es>
+Message-ID: <Pine.LNX.4.44L.0210261746520.1697-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Andreas Steinmetz <ast@domdv.de>
-CC: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: rootfs exposure in /proc/mounts
-References: <Pine.GSO.4.21.0210261458460.29768-100000@steklov.math.psu.edu> <3DBAE931.7000409@domdv.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Steinmetz wrote:
+On Sat, 26 Oct 2002, J.A. Magallon wrote:
 
-> Alexander Viro wrote:
->
->>
->> On Sat, 26 Oct 2002, Andreas Steinmetz wrote:
->>
->>
->>> Maybe I do oversee the obious but:
->>>
->>> can somebody please explain why rootfs is exposed in /proc/mounts (I 
->>> do mean the "rootfs / rootfs rw 0 0" entry) and if there is a good 
->>> reason for the exposure?
->>
->>
->>
->> Mostly the fact that it _is_ mounted and special-casing its removal from
->> /proc/mounts is more PITA than it's worth.
->>
-> Acceptable but somewhat sad as it confuses e.g. "umount -avt noproc" 
-> which is somewhat standard in shutdown/reboot scripts (using a 
-> softlink from /etc/mtab to /proc/mounts).
+> Summary:
 
+> - each package can handle several (someone said 128+ ;) ) processor cores.
+>   We really do not mind if they are really independent (power4) or not
+>   (xeon, ht)
 
-Bug 1 - don't softlink directly to /proc/mounts :)  embedded guys 
-typically do this, and you see why it bites you in the ass :)
+Here is the big opinion of difference.  Apparently people _do_
+care, otherwise they would have never asked for HT evil twins
+to be reported separately in /proc.
 
-Bug 2 - "noproc" clearly does not avoid ramfs mounts, which is rootfs's 
-filesystem type.  And more and more ramfs filesystems will be appearing, 
-so that should be taken into consideration.
+kind regards,
 
-Sounds like userspace slackness to me, and nothing that the kernel guys 
-need to worry about...
-
-    Jeff
-
-
-
-
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 

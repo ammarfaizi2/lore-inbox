@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272276AbTHIIJm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 04:09:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272277AbTHIIJl
+	id S272286AbTHIIwL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 04:52:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272287AbTHIIwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 04:09:41 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:58020 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S272276AbTHIIJk (ORCPT
+	Sat, 9 Aug 2003 04:52:11 -0400
+Received: from rth.ninka.net ([216.101.162.244]:50908 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S272286AbTHIIwK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 04:09:40 -0400
-Date: Sat, 9 Aug 2003 01:04:18 -0700
+	Sat, 9 Aug 2003 04:52:10 -0400
+Date: Sat, 9 Aug 2003 01:51:42 -0700
 From: "David S. Miller" <davem@redhat.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, jmorris@intercode.com.au
-Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
-Message-Id: <20030809010418.3b01b2eb.davem@redhat.com>
-In-Reply-To: <20030809074459.GQ31810@waste.org>
-References: <20030809074459.GQ31810@waste.org>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+To: Willy Tarreau <willy@w.ods.org>
+Cc: jamie@shareable.org, albert@users.sourceforge.net,
+       linux-kernel@vger.kernel.org, chip@pobox.com
+Subject: Re: [PATCH] 2.4.22pre10: {,un}likely_p() macros for pointers
+Message-Id: <20030809015142.56190015.davem@redhat.com>
+In-Reply-To: <20030809081346.GC29616@alpha.home.local>
+References: <1060087479.796.50.camel@cube>
+	<20030809002117.GB26375@mail.jlokier.co.uk>
+	<20030809081346.GC29616@alpha.home.local>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Aug 2003 02:44:59 -0500
-Matt Mackall <mpm@selenic.com> wrote:
+On Sat, 9 Aug 2003 10:13:46 +0200
+Willy Tarreau <willy@w.ods.org> wrote:
 
-> The attached (lightly tested) patch gets rid of the SHA in the
-> /dev/random code and replaces it with cryptoapi, leaving us with just
-> one SHA implementation.
- ...
->  __u32 secure_tcp_syn_cookie(__u32 saddr, __u32 daddr, __u16 sport,
->  		__u16 dport, __u32 sseq, __u32 count, __u32 data)
- ...
-> +	tfm = crypto_alloc_tfm("sha1", 0);
+> (how could !!x be 0 if x isn't ?)
 
-secure_tcp_syn_cookie() is called from software interrupt
-context, therefore it may not sleep.
+I believe the C language allows for systems where the NULL pointer is
+not zero.
 
-So you cannot call crypto_alloc_tfm() here, which can sleep.
+I can't think of any reason why the NULL macro exists otherwise.
 
-Not to mention that calling crypto_alloc_tfm() for every TCP
-connection creation is absurdly expensive.
+However, even if I'm right, I dread the guy who has to make other
+people's code work on such a platform.  Using normal boolean tests for
+NULL pointer checks is just too common.
 
-Same thing in check_tcp_syn_cookie().
-
-Also, same problem exists with extract_entropy() which also must be
-callable from software interrupt context, and thus the
-crypto_alloc_tfm() alloc calls you added there are illegal too.
-
-This patch needs tons of work.

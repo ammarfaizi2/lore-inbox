@@ -1,62 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281276AbRKESol>; Mon, 5 Nov 2001 13:44:41 -0500
+	id <S281283AbRKETFu>; Mon, 5 Nov 2001 14:05:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281278AbRKESob>; Mon, 5 Nov 2001 13:44:31 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:6 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S281276AbRKESo1>;
-	Mon, 5 Nov 2001 13:44:27 -0500
-Message-ID: <3BE6DC56.5A0984A4@osdl.org>
-Date: Mon, 05 Nov 2001 10:37:10 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederman@lnxi.com>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.14-pre8 Alt-SysRq-[TM] failure during lockup...
-In-Reply-To: <m3wv15n5c9.fsf@DLT.linuxnetworx.com>
+	id <S281282AbRKETFk>; Mon, 5 Nov 2001 14:05:40 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:9276 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S281281AbRKETFa>; Mon, 5 Nov 2001 14:05:30 -0500
+Date: Mon, 5 Nov 2001 20:05:30 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jeff Dike <jdike@karaya.com>
+Cc: Ryan Cumming <bodnar42@phalynx.dhs.org>, linux-kernel@vger.kernel.org
+Subject: Re: Special Kernel Modification
+Message-ID: <20011105200530.G18319@athlon.random>
+In-Reply-To: <20011105175337.D18319@athlon.random> <200111052018.PAA03082@ccure.karaya.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <200111052018.PAA03082@ccure.karaya.com>; from jdike@karaya.com on Mon, Nov 05, 2001 at 03:18:42PM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric W. Biederman" wrote:
-> 
-> Summary:  I triggered a condition in 2.4.14-pre8 where SysRq triggered
-> but would not print reports.  I managed to unstick the condition but
-> had played to much to determine the root cause.  My guess is that
-> somehow my default loglevel was messed up.  Full information is
-> provided just case I did not muddy the waters too much.
+On Mon, Nov 05, 2001 at 03:18:42PM -0500, Jeff Dike wrote:
+> eliminating caching as much as possible.  If the metadata/data ratio is
+> small, then the metadata caching probably won't be noticable.
 
-Do you know what the console loglevel was when you tried
-to use Alt-SysRq-M (show_mem) or Alt-SysRq-T (show tasks ==
-show_state)?  (first value listed in /proc/sys/kernel/printk file)
+yes, of course the metadata/data ratio is very small, O_DIRECT isn't
+slower than rawio infact (assuming the file isn't fragmented).
 
-show_mem() and show_state() don't modify the current value of
-console_loglevel; they depend on the sysrq handler to do that.
-That value could be too low/small.
-
-E.g., if console_loglevel is 4, show_mem and show_state don't
-show me anything on the console either, but they are added
-to the log file.
-
-[rubout]
-
-> I then tried playing with sysrq and this is where I got worried.
-> Alt-SysRq-Space gave the menu as normal.
-> Alt-SysRq-M (showMem) printed just: "SysRq: Show Memory"
-> Alt-SysRq-T (showTasks) printed just: "Sysrq: Show State"
-> 
-> Which is extremely strange the reports which should be at a higher
-> loglevel were not displayed.
-> 
-> Then I typoed and pressed. Alt-SysRq-E (tErm) and I started getting the
-> reports back.
-
-Aye, sysrq_handle_term sets console_loglevel to 8 and leaves it there.
-
-[rubout]
-
-~Randy
+Andrea

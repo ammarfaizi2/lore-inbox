@@ -1,66 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbVBBAbk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVBBAez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261858AbVBBAbk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 19:31:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVBBAbk
+	id S261554AbVBBAez (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 19:34:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbVBBAey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 19:31:40 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:31634 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S261858AbVBBAbh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 19:31:37 -0500
-Date: Wed, 2 Feb 2005 00:31:36 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] Helping prezoring with reduced fragmentation allocation
-In-Reply-To: <Pine.LNX.4.58.0502011604130.5406@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0502020026040.16992@skynet>
-References: <20050201171641.CC15EE5E8@skynet.csn.ul.ie>
- <Pine.LNX.4.58.0502011110560.3436@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0502011929020.16992@skynet> <Pine.LNX.4.58.0502011604130.5406@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 1 Feb 2005 19:34:54 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:32903 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261554AbVBBAeu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 19:34:50 -0500
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A2)
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: John Stultz <johnstul@us.ibm.com>
+Cc: Tim Bird <tim.bird@am.sony.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1107304056.2040.212.camel@cog.beaverton.ibm.com>
+References: <1106607089.30884.10.camel@cog.beaverton.ibm.com>
+	 <41FFFD4F.9050900@am.sony.com>
+	 <1107298089.2040.184.camel@cog.beaverton.ibm.com>
+	 <1107299672.13413.25.camel@desktop.cunninghams>
+	 <1107300730.2040.195.camel@cog.beaverton.ibm.com>
+	 <1107302640.13413.62.camel@desktop.cunninghams>
+	 <1107304056.2040.212.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Message-Id: <1107304619.13413.66.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 02 Feb 2005 11:36:59 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Feb 2005, Christoph Lameter wrote:
+Hi.
 
-> On Tue, 1 Feb 2005, Mel Gorman wrote:
->
-> > > Would it not be better to zero the global 2^MAX_ORDER pages by the scrub
-> > > daemon and have a global zeroed page list? That way you may avoid zeroing
-> > > when splitting pages?
-> > >
-> >
-> > Maybe, but right now when there are no 2^MAX_ORDER pages, the scrub daemon
-> > is going to be doing nothing which is why I think it needs to look at the
-> > free pages of lower orders.
-> >
-> > That is solveable though in one of two ways. One, the scrub daemon can
-> > zero pages from the global list and then add them to the USERZERO pool. It
-> > has the advantage of requiring no more memory and is simple. The second is
-> > to create a second global list. However, I think it only makes sense to
-> > have this as part of the scrub daemon patch (I can write it if thats a
-> > problem) rather than a standalone patch from me.
->
-> Approach one is fine and I will do an update the remaining prezero patches
-> to do just that.
+On Wed, 2005-02-02 at 11:27, john stultz wrote:
+> > We call the suspend and resume methods because the suspend is supposed
+> > to achieve atomicity, and the resume is necessary for us to be able to
+> > write the image. (Remember that these calls are invoked as part of the
+> > drivers_suspend and drivers_resume code). Until recently the
+> > sysdev_suspend and resume methods weren't called and things did still
+> > work, but that was an omission and we did then run into time issues.
+> 
+> Ah! Ok, thanks for the summary.
 
-There is another problem with approach one. Assuming all 2^MAX_ORDER pages
-have been zeroed and in USERZERO pool and there are no other free pages,
-an allocation for the USERRCLM pool would search all the other pools
-before finding the zerod pages. This could really slow things up but it is
-not a problem approach two suffers from.
+No problem.
 
-> When will your patches be in Linus tree? ;-)
->
+> > > > > I've only lightly tested the suspend code, but on my system I didn't see
+> > > > > very much drift appear. Regardless, it should be better then what the
+> > > > > current suspend/resume code does, which doesn't keep any sub-second
+> > > > > resolution across suspend.
+> > > > 
+> > > > My question is, "Is there a way we can get sub-second resolution without
+> > > > waiting for the start of a new second four times in a row?" I'm sure
+> > > > there must be.
+> > > 
+> > > Well, I'm not sure what else we could use for the persistent clock, but
+> > > I'd be happy to change the read/set_persistent_clock function to use it.
+> > 
+> > Is it possible to still use the persistent clock, but do the math for
+> > the portions of seconds?
+> 
+> I'm not sure what you mean? Given the patch Tim just sent, it seems the
+> issue is the CMOS only gives us second resolution, so we try to increase
+> our accuracy by aligning the reads so we return when the second changes.
+> We can avoid the read-alignment which speeds things up, but introduces
+> up to a second worth of drift. If that's ok, then the trade off is worth
+> it.
+> 
+> Alternative persistent clocks like the efi clock might provide better
+> resolution and could then avoid this issue. Although I don't know for
+> sure.
 
-Your guess is as good as mine :) . I am fairly sure the allocator is
-somewhere in Andrew's list of patches to look at to consider for inclusion
-into -mm so I suppose it'll get a spin in that tree when he feels it's
-ready.
+Ah. Okay. I hadn't looked that closely so that I realised the CMOS only
+gives the accuracy we're using. Humble apologies. So then, I agree: it
+would be best if we can move to something with greater precision and
+make mileage from it. Is that an option on all x86 machines though? I
+guess cmos is the lowest common denominator :<
 
+Nigel
 -- 
-Mel Gorman
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
+
+Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
+

@@ -1,84 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262820AbVA1X27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262819AbVA1X2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262820AbVA1X27 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 18:28:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262814AbVA1X27
+	id S262819AbVA1X2i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 18:28:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262820AbVA1X1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 18:28:59 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:62877 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262830AbVA1X2t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 18:28:49 -0500
-Date: Sat, 29 Jan 2005 00:28:16 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Olaf Hering <olh@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] idle thread preemption fix
-Message-ID: <20050128232816.GA12586@elte.hu>
-References: <200501082318.j08NI6Kg027877@hera.kernel.org> <20050128224317.GA6197@suse.de>
+	Fri, 28 Jan 2005 18:27:43 -0500
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:7690 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S262819AbVA1X10
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 18:27:26 -0500
+Date: Fri, 28 Jan 2005 15:25:33 -0800
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Esben Nielsen <simlo@phys.au.dk>, Rui Nuno Capela <rncbc@rncbc.org>,
+       "K.R. Foley" <kr@cybsft.com>,
+       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       mark_h_johnson@raytheon.com, Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
+       Lee Revell <rlrevell@joe-job.com>, Shane Shrybman <shrybman@aei.ca>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       "Igor Manyilov (auriga)" <manyilov@lnxw.com>
+Subject: Re: Real-time rw-locks (Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-15)
+Message-ID: <20050128232533.GA7267@nietzsche.lynx.com>
+References: <20041214113519.GA21790@elte.hu> <Pine.OSF.4.05.10412271404440.25730-100000@da410.ifa.au.dk> <20050128073856.GA2186@elte.hu> <1106939910.14321.37.camel@lade.trondhjem.org> <20050128194546.GA348@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050128224317.GA6197@suse.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050128194546.GA348@elte.hu>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Olaf Hering <olh@suse.de> wrote:
-
-> Whats the purpose of local_irq_disable() here? Locks up my toys in
-> atkbd_init or IP hash foo functions.
-
-fix already posted a couple of days ago, see:
-
---
-* Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-
-> Hi Ingo !
+On Fri, Jan 28, 2005 at 08:45:46PM +0100, Ingo Molnar wrote:
+> * Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> > If you do have a highest interrupt case that causes all activity to
+> > block, then rwsems may indeed fit the bill.
+> > 
+> > In the NFS client code we may use rwsems in order to protect stateful
+> > operations against the (very infrequently used) server reboot recovery
+> > code. The point is that when the server reboots, the server forces us
+> > to block *all* requests that involve adding new state (e.g. opening an
+> > NFSv4 file, or setting up a lock) while our client and others are
+> > re-establishing their existing state on the server.
 > 
-> Could you explain me precisely what is the race you are fixing by
-> adding local_irq_disable() to rest_init() ?
+> it seems the most scalable solution for this would be a global flag plus
+> per-CPU spinlocks (or per-CPU mutexes) to make this totally scalable and
+> still support the requirements of this rare event. An rwsem really
+> bounces around on SMP, and it seems very unnecessary in the case you
+> described.
+> 
+> possibly this could be formalised as an rwlock/rwlock implementation
+> that scales better. brlocks were such an attempt.
 
-it can be bad for the idle task to hold the BKL and to have preemption
-enabled - in such a situation the scheduler will get confused if an
-interrupt triggers a forced preemption in that small window. But it's
-not necessary to keep IRQs disabled after the BKL has been dropped. In
-fact i think IRQ-disabling doesnt have to be done at all, the patch
-below ought to solve this scenario equally well, and should solve the
-PPC side-effects too.
+>From how I understand it, you'll have to have a global structure to
+denote an exclusive operation and then take some additional cpumask_t
+representing the spinlocks set and use it to iterate over when doing a
+PI chain operation.
 
-Tested ontop of 2.6.11-rc2 on x86 PREEMPT+SMP and PREEMPT+!SMP (which
-IIRC were the config variants that triggered the original problem), on
-an SMP and on a UP system.
+Locking of each individual parametric typed spinlock might require
+a raw_spinlock manipulate lists structures, which, added up, is rather
+heavy weight.
 
-	Ingo
+No only that, you'd have to introduce a notion of it being counted
+since it could also be aquired/preempted  by another higher priority
+thread on that same procesor.  Not having this semantic would make the
+thread in that specific circumstance effectively non-preemptable (PI
+scheduler indeterminancy), where the mulipule readers portion of a
+real read/write (shared-exclusve) lock would have permitted this.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+	http://people.lynuxworks.com/~bhuey/rt-share-exclusive-lock/rtsem.tgz.1208
 
---- linux/init/main.c.orig
-+++ linux/init/main.c
-@@ -373,14 +373,9 @@ static void noinline rest_init(void)
- {
- 	kernel_thread(init, NULL, CLONE_FS | CLONE_SIGHAND);
- 	numa_default_policy();
--	/*
--	 * Re-enable preemption but disable interrupts to make sure
--	 * we dont get preempted until we schedule() in cpu_idle().
--	 */
--	local_irq_disable();
--	preempt_enable_no_resched();
- 	unlock_kernel();
-- 	cpu_idle();
-+	preempt_enable_no_resched();
-+	cpu_idle();
- } 
- 
- /* Check for early params. */
+Is our attempt at getting real shared-exclusive lock semantics in a
+blocking lock and may still be incomplete and buggy. Igor is still
+working on this and this is the latest that I have of his work. Getting
+comments on this approach would be a good thing as I/we (me/Igor)
+believed from the start that this approach is correct.
+
+Assuming that this is possible with the current approach, optimizing
+it to avoid CPU ping-ponging is an important next step
+
+bill
+

@@ -1,41 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273810AbRIXOXB>; Mon, 24 Sep 2001 10:23:01 -0400
+	id <S273788AbRIXOiH>; Mon, 24 Sep 2001 10:38:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273867AbRIXOWu>; Mon, 24 Sep 2001 10:22:50 -0400
-Received: from CPE-61-9-150-176.vic.bigpond.net.au ([61.9.150.176]:1270 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S273810AbRIXOWh>; Mon, 24 Sep 2001 10:22:37 -0400
-Message-ID: <3BAF41AA.5014DF6E@eyal.emu.id.au>
-Date: Tue, 25 Sep 2001 00:22:34 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-pre15 i686)
-X-Accept-Language: en
+	id <S273922AbRIXOiA>; Mon, 24 Sep 2001 10:38:00 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:55310 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S273788AbRIXOhq>;
+	Mon, 24 Sep 2001 10:37:46 -0400
+Date: Mon, 24 Sep 2001 11:37:56 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux VM design
+In-Reply-To: <12730310183.20010924170539@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.33L.0109241136210.19147-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.10-pre15 -> final breaks IOAPIC on UP?
-In-Reply-To: <E15lWVi-0002eV-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > So, I believe that any IOAPIC related change between 2.4.10-pre15 and
-> > 2.4.10-final breaks my X11 here.
-> 
-> Uniprocessor IO-APIC only works for some machines. It also subtly changes
-> IRQ delivery timing properties which may be worth checking too
+On Mon, 24 Sep 2001, VDA wrote:
 
-I have an SMP machine (Epox D3VA, 2xPIII/933) which needs "noapic" boot
-or it fails to read the "partition check" (lost interrupt). It is this
-way since 2.4.8 and around 2.4.9-ac12 I checked and it had the same
-problem. The problem is 100% reproducible.
+> RvR> http://linux-mm.org/
+>
+> I was there today. Good. Can this stuff be placed as
+> Doc/mv/vm2.4rik
+> to prevent it from being outdated in 2-3 months?
 
-I believe there are still some problems with apic even on SMP. Maybe
-only on some mobos?
+Putting documents in the kernel tree has never worked
+as a means of keeping them up to date.
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>
+Unless, of course, you're volunteering to keep them
+up to date ;)
+
+> Also I'd like to be enlightened why this:
+>
+> >Virtual Memory Management Policy
+> >--------------------------------
+> >The basic principle of the Linux VM system is page aging.
+
+> is better than plain simple LRU?
+>
+> We definitely need VM FAQ to have these questions answered once per VM
+> design, not once per week :-)
+
+
+
+> RvR> The only thing missing is an explanation of Andrea's
+> RvR> VM, but knowing Andrea's enthusiasm at documentation
+> RvR> I wouldn't really count on that any time soon ;)
+>
+> :-)
+>
+> --
+> Best regards, VDA
+> mailto:VDA@port.imtp.ilyichevsk.odessa.ua
+>
+>
+
+Rik
+-- 
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

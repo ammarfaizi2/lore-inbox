@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268401AbUIBTdD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268346AbUIBTfI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268401AbUIBTdD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 15:33:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268474AbUIBTdD
+	id S268346AbUIBTfI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 15:35:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUIBTfI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 15:33:03 -0400
-Received: from sycorax.lbl.gov ([128.3.5.196]:5052 "EHLO sycorax.lbl.gov")
-	by vger.kernel.org with ESMTP id S268401AbUIBTcD (ORCPT
+	Thu, 2 Sep 2004 15:35:08 -0400
+Received: from holomorphy.com ([207.189.100.168]:60623 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268346AbUIBTe6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 15:32:03 -0400
-To: Thomas Davis <tadavis@lbl.gov>
-Cc: Stuart Young <cef-lkml@optusnet.com.au>, linux-kernel@vger.kernel.org,
-       len.brown@intel.com
-Subject: Re: 2.6.9-rc1 : Weirdness after shutdown - ACPI or Suspend bug?
-References: <200409012020.42482.cef-lkml@optusnet.com.au>
-	<200409012352.21576.cef-lkml@optusnet.com.au>
-	<41363D89.2070604@lbl.gov>
-From: Alex Romosan <romosan@sycorax.lbl.gov>
-Date: Thu, 02 Sep 2004 12:30:56 -0700
-In-Reply-To: <41363D89.2070604@lbl.gov> (message from Thomas Davis on Wed,
- 01 Sep 2004 14:22:17 -0700)
-Message-ID: <877jrcv573.fsf@sycorax.lbl.gov>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 2 Sep 2004 15:34:58 -0400
+Date: Thu, 2 Sep 2004 12:34:54 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] i386 reduce spurious interrupt noise
+Message-ID: <20040902193454.GI5492@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>
+References: <20040902192820.GA6427@taniwha.stupidest.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040902192820.GA6427@taniwha.stupidest.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Davis <tadavis@lbl.gov> writes:
+On Thu, Sep 02, 2004 at 12:28:20PM -0700, Chris Wedgwood wrote:
+> i386 hardware can (and does) see spurious interrupts from time to
+> tome.  Ideally I would like the printk removed completely but this is
+> probably good enough for now.
 
-> HOWEVER, using swsusp2, hibernating the machine works, but it
-> refuses to wake back up until you pull the AC power and battery out.
+Please check printk_ratelimit().
 
-on my thinkpad t40 after suspending to ram the machine wakes up but
-then it shuts off. shutdown works fine though.
 
---alex--
-
--- 
-| I believe the moment is at hand when, by a paranoiac and active |
-|  advance of the mind, it will be possible (simultaneously with  |
-|  automatism and other passive states) to systematize confusion  |
-|  and thus to help to discredit completely the world of reality. |
+-- wli

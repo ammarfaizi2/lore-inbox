@@ -1,67 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbTHSTDK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 15:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbTHSTDE
+	id S261271AbTHSSxk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 14:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbTHSSmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 15:03:04 -0400
-Received: from granite.aspectgroup.co.uk ([212.187.249.254]:61684 "EHLO
-	letters.pc.aspectgroup.co.uk") by vger.kernel.org with ESMTP
-	id S261243AbTHSTAy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 15:00:54 -0400
-Message-ID: <353568DCBAE06148B70767C1B1A93E625EAB5F@post.pc.aspectgroup.co.uk>
-From: Richard Underwood <richard@aspectgroup.co.uk>
-To: "'David S. Miller'" <davem@redhat.com>
+	Tue, 19 Aug 2003 14:42:35 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:45452 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S272309AbTHSS2t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 14:28:49 -0400
+Date: Tue, 19 Aug 2003 11:21:03 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Richard Underwood <richard@aspectgroup.co.uk>
 Cc: skraw@ithnet.com, willy@w.ods.org, alan@lxorguk.ukuu.org.uk,
        carlosev@newipnet.com, lamont@scriptkiddie.org, davidsen@tmr.com,
        bloemsaa@xs4all.nl, marcelo@conectiva.com.br, netdev@oss.sgi.com,
        linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
        linux-kernel@vger.kernel.org
-Subject: RE: [2.4 PATCH] bugfix: ARP respond on all devices
-Date: Tue, 19 Aug 2003 20:00:44 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+Message-Id: <20030819112103.373fce27.davem@redhat.com>
+In-Reply-To: <353568DCBAE06148B70767C1B1A93E625EAB5D@post.pc.aspectgroup.co.uk>
+References: <353568DCBAE06148B70767C1B1A93E625EAB5D@post.pc.aspectgroup.co.uk>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote: 
-> > 	IP packets you mean? You don't? ;) It would depend on why you're
-> > doing it naturally. Mostly, I'd have thought that if a host 
-> doesn't have an
-> > IP number it doesn't get to use ARP.
-> 
-> Of course it gets to use ARP, nothing prevents this.
-> 
-> If I know that IP X has my configuration information, I
-> have every right to send X a packet from zero-net to
-> ask for that information before I have any IP addresses
-> attached to the interface.
-> 
-	Ick! And how is IP X going to get the information back? Broadcast
-it, too? Here was me thinking that protocols like BOOTP and DHCP were
-appropriate for this.
+On Tue, 19 Aug 2003 19:05:13 +0100
+Richard Underwood <richard@aspectgroup.co.uk> wrote:
 
-	If you are going to send from 0.0.0.0, then I assume there's
-something in the ARP standard to say "don't cache this ARP request" - I must
-have missed it. If so, that's a special case - no need to spoil things
-elsewhere, though.
+> 	The ARP request represents all FUTURE
+> packets being sent out that interface, not just the one single packet that
+> happened to kick of this ARP request.
 
-> Also, when one specifies a specific device in an output
-> address and we cannot find the IP part of the address
-> in the routing tables, we still procure a valid route for
-> the requester.
-> 
-	Well, what do you do currently? If the packet you're routeing came
-from another host, there's no way in hell you can use their IP address in an
-ARP request ... is there? I certainly hope you don't go that far!!!
+That's RIGHT!  And by your own argument the source address
+in the ARP request IS IRRELEVANT and is to be ignored!
 
-	If it's a locally generated packet, then the next hop must be on the
-same subnet as the address it's coming from - there's your IP number.
-
-> Besides normal IP addresses, multicast tools use these
-> facilities.
-> 
-	Multicast uses ARP? That's news to me!
-
-		Richard
+Ok, I've lost 3 days of talking about ARP non-stop, I think
+I'll take a break from these threads for a while, it's getting
+to be a bit much.

@@ -1,66 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273298AbTHKUVa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 16:21:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273403AbTHKUVa
+	id S272493AbTHKUvs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 16:51:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272796AbTHKUvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 16:21:30 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:46556 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S273298AbTHKUVY convert rfc822-to-8bit
+	Mon, 11 Aug 2003 16:51:48 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:14838 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S272493AbTHKUvp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 16:21:24 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-x-mimeole: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [Dri-devel] Re: [PATCH] CodingStyle fixes for drm_agpsupport
-Date: Mon, 11 Aug 2003 13:21:22 -0700
-Message-ID: <A98078D7EF5BEA4D8D8FD797FFBBC75F0453FCEA@fmsmsx402.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Dri-devel] Re: [PATCH] CodingStyle fixes for drm_agpsupport
-Thread-Index: AcNgQYU6e5g2q3aDSCy6yclYVw1o0AAAwzug
-From: "Sottek, Matthew J" <matthew.j.sottek@intel.com>
-To: <dri-devel@lists.sourceforge.net>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 11 Aug 2003 20:21:22.0288 (UTC) FILETIME=[21857F00:01C36046]
+	Mon, 11 Aug 2003 16:51:45 -0400
+Date: Mon, 11 Aug 2003 13:51:09 -0700
+From: long <tlnguyen@snoqualmie.dp.intel.com>
+Message-Id: <200308112051.h7BKp9ZU003007@snoqualmie.dp.intel.com>
+To: greg@kroah.com, tlnguyen@snoqualmie.dp.intel.com
+Subject: Re: Updated MSI Patches
+Cc: jun.nakajima@intel.com, linux-kernel@vger.kernel.org,
+       pcihpd-discuss@lists.sourceforge.net, tom.l.nguyen@intel.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Is there any way to dynamically detect if hardware can support MSI?
+> The MSI patch dynamically detects whether hardware devices can support
+> MSI once the CONFIG_PCI_MSI is set during kernel built.
 
-> if (!pointer) {
->	return (whatever);
-> }
->
->
->because it's consistent, and guaranteed safe from stupid
->parsing errors that can waste days of debug time when
->someone decides to add to it.
->("its just a little change that cant hurt anything", ha ha)
+> So why would we ever want CONFIG_PCI_MSI to not be set?  I'm just
+> trying to make options dynamically happen without users having to 
+> worry about setting a kernel option or not.
 
-I've always been an "Always use brackets" evangelist for two
-reasons.
-1) The time it takes to write the code fragment is noise
-compared to the amount of cumulative time that everyone else
-will spend reading it over it's lifespan. This is more true
-in open source than it ever was in the closed source world.
-Making the code explicit saves everyone time in the longrun.
+> If you enable this option, will boxes that do not support it stop
+> working? Once users enable this option, all devices that do not 
+> support MSI are still working. These devices are by default using
+> IRQ pin assertion as interrupt generated mechanism since all 
+> pre-assigned vectors to any enabled IOxAPICs are reserved.
 
-2) There are some very real ways that bracketless code will
-get broken. Either someone adds a line that didn't notice the
-lack of brackets or, someone accidentally uses a multi-line
-macro.
+> Good, so we can always enable this option, so it doesn't even need 
+> to be an option :)
+Agree. Will eliminate CONFIG_PCI_MSI to make this option dynamically 
+happens.
 
-i.e.
-   if(foo)
-     DEBUG_PRINT("Foo!\n");
+> A driver has to be modified to use this option, right?  Do you have 
+> any drivers that have been modified?  Without that, I don't think we
+> can test this patch out, right?
+> MSI support may be transparent to some device drivers.
 
-works great for 100 years until someone recodes the DEBUG_PRINT
-macro to be 2 lines. The Linux kernel often has plain looking
-functions or variables that end up being macros (and may only
-expand to multi-line on some platforms) which could easily get
-you into such a situation.
+> Yet you provide an api for drivers to use, right?  Why would a driver
+> want to use this api instead of just having the hardware work properly
+> on its own?  I guess I'm confused as to how to modify drivers to 
+> support this, or if that's even needed to be done.
+There are two types of MSI capable devices: one supports the MSI 
+capability structure and other supports the MSI-X capability structure.
+The patches provide two APIs msix_alloc_vectors/msix_free_vectors for 
+only devices, which support the MSI-X capability structure, to request
+for additional messages. By default, each MSI/MSI-X capable device 
+function is allocated with one vector for below reasons:
+- To achieve a backward compatibility with existing drivers if possible.
+- Due to the current implementation of vector assignment, all devices 
+  that support the MSI-capability structure work with no more than one 
+  allocated vector.
+- The hardware devices, which support the MSI-X capability structure, 
+  may indicate the maximum capable number of vectors supported (32 
+  vectors as example). However, the device drivers may require only 
+  four. With provided APIs, the optimization of MSI vector allocation 
+  is achievable.
 
+The existing driver is required to be modified if and only if its
+hardware/software synchronization is not provided; that means, the 
+hardware device may generate multiple messages from the same vector. 
+These messages may be lost; the results may be unpredictable. To 
+overcome this issue, the existing driver driver requires to provide 
+the hardware/software synchronization to ask its hardware device to 
+generate one message at a time.
+    
+> > +++ linux-2.6.0-test2-create-vectorbase/include/asm-i386/mach-default/irq_vectors.h	2003-08-05 09:25:54.000000000 -0400
+> > @@ -76,9 +76,14 @@
+> >   * Since vectors 0x00-0x1f are used/reserved for the CPU,
+> >   * the usable vector space is 0x20-0xff (224 vectors)
+> >   */
+> > +#define NR_VECTORS 256
+> 
+> >Will this _always_ be the value?  Can boxes have bigger numbers (I
+> >haven't seen the spec, so I don't know...)
+> Yes, this will always be 256 since the current CPU architecture
+> supports a maximum of 256 vectors.
 
+> The "current" one does. What happens in a few months when I go to help
+> bring up the next gen hardware platform?  Will I run into the problem
+> that this number needs to be increased?  Can we determine it at
+> run-time?
+I hope there may be a way to determine the number of vectors supported 
+by CPU during the run-time. I look at the file ../include/asm-i386/mach-
+default/irq_vectors.h, the maximum of vectors (256) is already well 
+commented.
 
+> > +u32 device_nomsi_list[DRIVER_NOMSI_MAX] = {0, };
+> 
+> >Shouldn't this be static?
+> 
+> > +u32 device_msi_list[DRIVER_NOMSI_MAX] = {0, };
+> 
+> >Same with this one?
+> 
+> In the initial design draft, I am thinking of defining
+> DRIVER_NOMSI_MAX as 32 since it may be impossible to have more than 32
+> MSI capable devices populated in the same system. I will add some
+> comments to it and look forward for your comments.
+
+> Um, I ment the variable is in the global symbol table, and it doesn't
+> look like it needs to be.
+
+> But your comment about number of devices is also a good one.  Any way
+> we can figure that out at run-time too?  What happens when I hot-add 
+> the 33 MSI capable device?  Or just boot with that many devices (I've 
+> seen boxes with 100s of pci devices all attached to one system)?
+The defined variable DRIVER_NOMSI_MAX in device_msi_list[] and 
+device_nomsi_list[] are used to serve mainly as debug purposes since 
+most IHVs have not yet validated their hardware devices. If one of 
+the system has more than 32 MSI capable devices, users can enable MSI 
+on all devices by default (by setting CONFIG_PCI_MSI_ON_SPECIFIC_DEVICES
+to 'n') and use boot parameter "device_nomsi=" to disable some devices,
+which have bugs in MSI. In summary, there are two options provided:
+Option 1: Enable MSI on all MSI capable devices by default and use boot
+parameter "device_nomsi=" to disable specific devices, which have bugs 
+in MSI.
+This option is selected by setting CONFIG_PCI_MSI_ON_SPECIFIC_DEVICES to
+'n'. Note that if this option is chosen, then the use of "device_msi=" 
+is no longer necessary.
+Option 2 (default): Enable individual MSI capable devices as validation
+purpose by using the boot parameter "device_msi=" to select which 
+devices the kernel supports MSI. Note that if this option is chosen, 
+then the use of "device_nomsi" id no longer necessary. This is by 
+default because users may not know how many MSI capable devices 
+populated in their systems and how many of these have bugs in MSI.
+
+Either one of these options is chosen, I do not think you have any 
+issue of hot-adding the 33 MSI capable device.
+
+Thanks,
+Long

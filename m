@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129030AbQKEBpT>; Sat, 4 Nov 2000 20:45:19 -0500
+	id <S129247AbQKEBqt>; Sat, 4 Nov 2000 20:46:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129247AbQKEBpJ>; Sat, 4 Nov 2000 20:45:09 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:23309 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129030AbQKEBpA>; Sat, 4 Nov 2000 20:45:00 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Linux-2.4.0-test10
-Date: 4 Nov 2000 17:44:57 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8u2e2p$2ju$1@cesium.transmeta.com>
-In-Reply-To: <E13qiR9-0008FT-00@the-village.bc.nu> <20001102171717.L1876@redhat.com> <20001104194937.E3423@wonderland.linux.it>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+	id <S129577AbQKEBqj>; Sat, 4 Nov 2000 20:46:39 -0500
+Received: from mailgate1.zdv.Uni-Mainz.DE ([134.93.8.56]:56012 "EHLO
+	mailgate1.zdv.Uni-Mainz.DE") by vger.kernel.org with ESMTP
+	id <S129247AbQKEBq1>; Sat, 4 Nov 2000 20:46:27 -0500
+Date: Sun, 5 Nov 2000 02:46:21 +0100
+From: Dominik Kubla <dominik.kubla@uni-mainz.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3 vs. JFS file locations...
+Message-ID: <20001105024621.A29327@uni-mainz.de>
+Mail-Followup-To: "H. Peter Anvin" <hpa@zytor.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3A02D150.E7E87398@usa.net> <200011031725.eA3HPwP12932@webber.adilger.net> <8tv3tm$iqg$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+User-Agent: Mutt/1.0.1i
+In-Reply-To: <8tv3tm$iqg$1@cesium.transmeta.com>; from hpa@zytor.com on Fri, Nov 03, 2000 at 11:33:10AM -0800
+X-No-Archive: yes
+Restrict: no-external-archive
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20001104194937.E3423@wonderland.linux.it>
-By author:    "Marco d'Itri" <md@Linux.IT>
-In newsgroup: linux.dev.kernel
->
-> On Nov 02, "Stephen C. Tweedie" <sct@redhat.com> wrote:
+On Fri, Nov 03, 2000 at 11:33:10AM -0800, H. Peter Anvin wrote:
 > 
->  >2.2 O_SYNC is actually broken too --- it doesn't sync all metadata (in
->  >particular, it doesn't update the inode), but I'd rather fix that for
->  >2.4 rather than change 2.2, as the main users of O_SYNC, databases,
->  >are writing to preallocated files anyway.
-> What about fsync(2)? Will it update metadata too?
+> How about naming it something that doesn't end in -fs, such as
+> "journal" or "jfsl" (Journaling Filesystem Layer?)
 > 
 
-It better.  fdatasync(), if implemented, is allowed to skip that
-requirement.
+Why?  I'd rather rename IBM's jfs to ibmjfs and be done with it.
 
-	-hpa
+Yours,
+  Dominik Kubla
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+http://petition.eurolinux.org/index_html - No Software Patents In Europe!
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

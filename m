@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290272AbSAOUQa>; Tue, 15 Jan 2002 15:16:30 -0500
+	id <S289631AbSAOUVA>; Tue, 15 Jan 2002 15:21:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290273AbSAOUQV>; Tue, 15 Jan 2002 15:16:21 -0500
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:21662 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S290272AbSAOUQP>; Tue, 15 Jan 2002 15:16:15 -0500
-Date: Tue, 15 Jan 2002 20:16:13 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2-2.1.3 is available
-In-Reply-To: <20020115145324.A5772@thyrsus.com>
-Message-ID: <Pine.SOL.3.96.1020115201156.26402C-100000@libra.cus.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290273AbSAOUUu>; Tue, 15 Jan 2002 15:20:50 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:2136 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S290270AbSAOUUm>; Tue, 15 Jan 2002 15:20:42 -0500
+Date: Tue, 15 Jan 2002 15:20:38 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Hubertus Franke <frankeh@watson.ibm.com>, linux-kernel@vger.kernel.org,
+        lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] zerocopy pipe, new version
+Message-ID: <20020115152038.G6853@redhat.com>
+In-Reply-To: <002701c19638$400f15f0$010411ac@local> <011001c19de8$ec1d4800$1cdb0209@diz.watson.ibm.com> <20020115145747.F6853@redhat.com> <001801c19e00$71c355a0$010411ac@local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <001801c19e00$71c355a0$010411ac@local>; from manfred@colorfullife.com on Tue, Jan 15, 2002 at 09:08:45PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Jan 2002, Eric S. Raymond wrote:
+On Tue, Jan 15, 2002 at 09:08:45PM +0100, Manfred Spraul wrote:
+> My patch is definitively WIP - right now I again broke the -ENOMEM and
+> -EFAULT handling.
 
-> The latest version is always available at <http://www.tuxedo.org/~esr/cml2/>.
-> 
-> Release 2.1.3: Tue Jan 15 14:41:45 EST 2002
-> 	* Resync with 2.4.18-pre3 and 2.5.2.
-> 	* It is now possible to declare explicit saveability predicates.
-> 	* The `vitality' flag is gone from the language.  Instead, the 
-> 	  autoprober detects the type of your root filesystem and forces
-> 	  its symbol to Y.
-> 
-> The interactive configurators remain stable; no bugs of any kind have been 
-> reported since 6 Jan.  I'm waiting on an update of the probe tables from
-> Giacomo Catenazzi before releasing 2.2.0.
+I am aware of that, but the lse-tech posting made it sound as if things are 
+great now since the SMP numbers improved.  Please folks, remember that UP 
+numbers are important too.
 
-</me ignorant of current state of cml2>I sometimes configure and compile
-kernels for different computers on my athlon due to the extremely fast
-compile time on the athlon. The autoprober would interfere here extremely
-badly. Is it disabled by default? I.e. if I do make menuconfig or make
-oldconfig will the autoprober temper with my choices?
-
-Best regards,
-
-	Anton
+		-ben
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+Fish.

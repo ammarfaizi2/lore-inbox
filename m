@@ -1,86 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267435AbUJHGAp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267576AbUJHGIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267435AbUJHGAp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 02:00:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267576AbUJHGAp
+	id S267576AbUJHGIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 02:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267968AbUJHGIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 02:00:45 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:30673 "EHLO
-	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S267435AbUJHGAm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 02:00:42 -0400
-Date: Fri, 08 Oct 2004 14:55:16 +0900 (JST)
-Message-Id: <20041008.145516.26538192.t-kochi@bq.jp.nec.com>
-To: jbarnes@engr.sgi.com
-Cc: nickpiggin@yahoo.com.au, colpatch@us.ibm.com, pj@sgi.com,
-       mbligh@aracnet.com, akpm@osdl.org, ckrm-tech@lists.sourceforge.net,
+	Fri, 8 Oct 2004 02:08:16 -0400
+Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:19331 "HELO
+	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267576AbUJHGIO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 02:08:14 -0400
+Message-ID: <41662EC8.4040308@yahoo.com.au>
+Date: Fri, 08 Oct 2004 16:08:08 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Takayoshi Kochi <t-kochi@bq.jp.nec.com>
+CC: jbarnes@engr.sgi.com, colpatch@us.ibm.com, pj@sgi.com, mbligh@aracnet.com,
+       akpm@osdl.org, ckrm-tech@lists.sourceforge.net,
        lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
        simon.derr@bull.net, frankeh@watson.ibm.com
 Subject: Re: [Lse-tech] Re: [RFC PATCH] scheduler: Dynamic sched_domains
-From: Takayoshi Kochi <t-kochi@bq.jp.nec.com>
-In-Reply-To: <200410071001.07516.jbarnes@engr.sgi.com>
-References: <1097110266.4907.187.camel@arrakis>
-	<4164A664.9040005@yahoo.com.au>
-	<200410071001.07516.jbarnes@engr.sgi.com>
-X-Mailer: Mew version 3.3 on Emacs 21.3 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+References: <1097110266.4907.187.camel@arrakis>	<4164A664.9040005@yahoo.com.au>	<200410071001.07516.jbarnes@engr.sgi.com> <20041008.145516.26538192.t-kochi@bq.jp.nec.com>
+In-Reply-To: <20041008.145516.26538192.t-kochi@bq.jp.nec.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Takayoshi Kochi wrote:
 
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-Subject: [Lse-tech] Re: [RFC PATCH] scheduler: Dynamic sched_domains
-Date: Thu, 7 Oct 2004 10:01:07 -0700
-
-> On Wednesday, October 6, 2004 7:13 pm, Nick Piggin wrote:
-> > Hmm, what was my word for them... yeah, disjoint. We can do that now,
-> > see isolcpus= for a subset of the functionality you want (doing larger
-> > exclusive sets would probably just require we run the setup code once
-> > for each exclusive set we want to build).
+> Yup, if SD_NODES_PER_DOMAIN is set to 4, our 32-way TX-7 have 
+> two disjoint domains ;(
+> (though the current default is 6 for ia64...)
 > 
-> Yeah, and unfortunately since I added the code for overlapping domains w/o 
-> adding a top level domain at the same time, we have disjoint domains by 
-> default on large systems.
-
-Yup, if SD_NODES_PER_DOMAIN is set to 4, our 32-way TX-7 have 
-two disjoint domains ;(
-(though the current default is 6 for ia64...)
-
-I think the default configuration of the scheduler domains should be
-as identical to its real hardware topology as possible, and should
-modify the default only when necessary (e.g. for Altix).
-
-Right now with the sched domain scheduler, we have to setup the 
-domain hierarcy only at boot time statically, which makes it harder to
-find the optimal domain topology/parameter.  The dynamic patch
-makes it easier to modify the default configuration.
-
-If the scheduler gains more dynamic configurability like what Jesse
-said, it adds more flexibility for runtime optimization and seems
-a way to go.  I'm not sure runtime configurability of domain topology
-is necessary for all users, but it's extremely useful for developers.
-
-I'll look into the Matt's patch further.
-
-> > Also, how will you do overlapping domains that SGI want to do (see
-> > arch/ia64/kernel/domain.c in -mm kernels)?
-> >
-> > node2 wants to balance between node0, node1, itself, node3, node4.
-> > node4 wants to balance between node2, node3, itself, node5, node6.
-> > etc.
-> >
-> > I think your lists will get tangled, no?
+> I think the default configuration of the scheduler domains should be
+> as identical to its real hardware topology as possible, and should
+> modify the default only when necessary (e.g. for Altix).
 > 
-> Yeah, but overlapping domains aren't a requirement.  In fact, making the 
-> scheduling domains dynamically configurable is probably a *much* better 
-> route, since I doubt that some default overlap setup will be optimal for many 
-> workloads (that doesn't mean we shouldn't have good defaults though).  Being 
-> able to configure the rebalance and tick rates of the various domains would 
-> also be a good thing (the defaults could be keyed off of the number of CPUs 
-> and/or nodes in the domain).
 
----
-Takayoshi Kochi
+That is the idea. Unfortunately the ia64 modifications are ia64 wide.
+I don't think it should be too hard to make it sn2 only.
+
+> Right now with the sched domain scheduler, we have to setup the 
+> domain hierarcy only at boot time statically, which makes it harder to
+> find the optimal domain topology/parameter.  The dynamic patch
+> makes it easier to modify the default configuration.
+> 
+
+No you don't have to. If you have a look at the work in -mm, basically
+the whole thing gets recreated on every hoplug operation. It would be
+trivial to modify some parameters then reinit the domains in the same
+way.
+
+N disjoint domains can be trivially handled by making N passes over
+the init code, each using a different set of CPUs as its
+"cpu_possible_map". This can easily be done dynamically by using
+the above method.
+
+> If the scheduler gains more dynamic configurability like what Jesse
+> said, it adds more flexibility for runtime optimization and seems
+> a way to go.  I'm not sure runtime configurability of domain topology
+> is necessary for all users, but it's extremely useful for developers.
+> 
+
+That would be nice. The patch queue is pretty well clogged up at the
+moment, so I'm not going to look at the scheduler again until all the
+patches from -mm get into 2.6.10-bk.

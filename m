@@ -1,63 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310292AbSCBDAo>; Fri, 1 Mar 2002 22:00:44 -0500
+	id <S310296AbSCBDXd>; Fri, 1 Mar 2002 22:23:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310293AbSCBDAg>; Fri, 1 Mar 2002 22:00:36 -0500
-Received: from smtp-out-7.wanadoo.fr ([193.252.19.26]:44766 "EHLO
-	mel-rto7.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S310292AbSCBDAZ>; Fri, 1 Mar 2002 22:00:25 -0500
-Message-ID: <3C8040F2.9060208@wanadoo.fr>
-Date: Sat, 02 Mar 2002 04:03:14 +0100
-From: eddantes@wanadoo.fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
-X-Accept-Language: en-us
+	id <S310298AbSCBDXY>; Fri, 1 Mar 2002 22:23:24 -0500
+Received: from [210.214.0.152] ([210.214.0.152]:3713 "EHLO partha.home.net")
+	by vger.kernel.org with ESMTP id <S310296AbSCBDXQ>;
+	Fri, 1 Mar 2002 22:23:16 -0500
+Message-ID: <3C80945C.4CDBB229@yahoo.com>
+Date: Sat, 02 Mar 2002 08:59:08 +0000
+From: Bhasker C V <spssjp@yahoo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SSSCA: We're in trouble now
-In-Reply-To: <Pine.LNX.4.05.10203021402030.4035-100000@marina.lowendale.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Problem compiling lvm with kernel 2.5.5
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
-Neale Banks wrote:
+ there is a problem compiling lvm and raid modules ( either as module or internal to kernel )
+for kernel version 2.5.5
 
-[snip]
+ the error is as follows
+lvm.c:240: warning: `struct bio' declared inside parameter list
+lvm.c:240: warning: its scope is only this definition or declaration, which is probably not what you want.
+lvm.c:266: warning: `struct bio' declared inside parameter list
+lvm.c:272: parse error before `userlv_t'
+lvm.c:273: parse error before `userlv_t'
+lvm.c:275: parse error before `userlv_t'
+lvm.c:295: warning: `struct bio' declared inside parameter list
+lvm.c:311: parse error before `LVM_RELEASE_NAME'
+lvm.c:363: unknown field `owner' specified in initializer
+lvm.c:363: warning: initialization from incompatible pointer type
+lvm.c:364: field `open' already initialized
+lvm.c:365: field `release' already initialized
+lvm.c:365: warning: initialization from incompatible pointer type
+lvm.c:366: field `ioctl' already initialized
+--- snipped ----
 
- > All too true.  However, given the quality of BIOS code we have seen
- > over the years, the thought of your average BIOS programmer
- > implementing cryptographic techniques does provide some amusement
- > ;-)
+However older ( k 2.4.7-10) lvm compiles fine except that i am not able to load it into the kernel at runtime ( version mismatch and if i do a force insmod then it shows unresolved symbol
+
+lvm.o: unresolved symbol lvm_hash_link
+lvm.o: unresolved symbol lvm_snapshot_fill_COW_page
+lvm.o: unresolved symbol lvm_snapshot_alloc
+lvm.o: unresolved symbol lvm_drop_snapshot
+lvm.o: unresolved symbol lvm_init_fs
+lvm.o: unresolved symbol lvm_snapshot_release
+lvm.o: unresolved symbol lvm_fs_remove_vg
+lvm.o: unresolved symbol lvm_fin_fs
+lvm.o: unresolved symbol lvm_snapshot_remap_block
+lvm.o: unresolved symbol gendisk_head
+lvm.o: unresolved symbol lvm_fs_remove_lv
+lvm.o: unresolved symbol lvm_write_COW_table_block
+lvm.o: unresolved symbol lvm_fs_remove_pv
+lvm.o: unresolved symbol lvm_fs_create_vg
+lvm.o: unresolved symbol lvm_fs_create_lv
+lvm.o: unresolved symbol lvm_snapshot_COW
+lvm.o: unresolved symbol lvm_get_blksize
+lvm.o: unresolved symbol lvm_snapshot_alloc_hash_table
+lvm.o: unresolved symbol lvm_fs_create_pv
+lvm.o: unresolved symbol hardsect_size
 
 
-PnP crypto? I'd love to see it. :)
-That could actually be used somehow as some sort of pseudo-random 
-generator, given the legendary oh-so-predictable behaviour of most 
-BIOSes, even in normal circumstances... :D
+
+--
+Bye,
+Bhasker C V
+Web: http://spssjp.8m.com
+
+If you want to feel rich, just count all the things you have that money can't buy
 
 
- > Any chance of any manafacturers open-sourcing their BIOS?
-
-
-Uhmm... Odds: 1 in <buffer overflow>
-Considering that they seem to see BIOSes as the easiest way to hide 
-hardware design mistakes, they probably wont.
-
-OTOH, why not sticking Linux straight into BIOS flash chips?
-Have a look here (sorry if you already knew):
-http://www.linuxbios.org/
-http://freebios.sourceforge.net/
-
-Or just implement an OpenFirmware BIOS (that's cool! :)?
-http://www.freiburg.linux.de/openbios/
-
-
- > Regards, Neale.
-
-
-All hope is not lost! ;)
-
-Have fun.
-/Dantes
 

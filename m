@@ -1,66 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275224AbRIZOM7>; Wed, 26 Sep 2001 10:12:59 -0400
+	id <S275219AbRIZOL3>; Wed, 26 Sep 2001 10:11:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275225AbRIZOMt>; Wed, 26 Sep 2001 10:12:49 -0400
-Received: from rover.bsdimp.com ([204.144.255.66]:45837 "EHLO
-	rover.village.org") by vger.kernel.org with ESMTP
-	id <S275224AbRIZOMf>; Wed, 26 Sep 2001 10:12:35 -0400
-Message-Id: <200109261412.f8QECs767151@harmony.village.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: BSD-Linux FlameWar over SoftRAID
-Date: Wed, 26 Sep 2001 08:12:54 -0600
-From: Warner Losh <imp@harmony.village.org>
+	id <S275220AbRIZOLU>; Wed, 26 Sep 2001 10:11:20 -0400
+Received: from mail.spylog.com ([194.67.35.220]:14312 "HELO mail.spylog.com")
+	by vger.kernel.org with SMTP id <S275219AbRIZOLM>;
+	Wed, 26 Sep 2001 10:11:12 -0400
+Date: Wed, 26 Sep 2001 18:07:48 +0400
+From: "Oleg A. Yurlov" <kris@spylog.com>
+X-Mailer: The Bat! (v1.53d)
+Reply-To: "Oleg A. Yurlov" <kris@spylog.com>
+Organization: SpyLOG Ltd.
+X-Priority: 3 (Normal)
+Message-ID: <1601012257268.20010926180748@spylog.com>
+To: andrea@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.4.10aa1 - 0-order allocation failed.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[[ This message is sent as a private person and is not an official
-   statement from FreeBSD's core team. ]]
 
-: It is clear that BSD is going off the deep end.
+        Hi, Andrea,
 
-Actually, I'm on the FreeBSD core team.  BSD is not going off the deep
-end.  People in slashdot are going off the deep end.  The reporter
-that reported it didn't bother to do his homework.  The reporter erred
-in not checking with those in the Linux development efforts to find if
-the issue had been resolved.  The fact that it had been resolved at
-least 12 hours before the story hit slashdot (I saw pointers to
-patches which corrected the problems posted to an IRC channel the
-night before I saw it on slashdot).
+        We have next problem on our servers:
 
-The fact of the matter is that the code was copied from FreeBSD
-verbatium, or with minor alterations.  That's not a problem at all,
-since our license allows for that.  The problem came in that Soren's
-name was removed from the headers which he'd put a lot of time into.
-The problem was corrected, no big deal except for the weirdos on
-slashdot.
+Sep 26 11:22:39 sol kernel: __alloc_pages: 0-order allocation failed (gfp=0x20/0)
+Sep 26 11:22:39 sol kernel: f048dd94 e02ab000 00000000 00000020 00000000 00000020 00000020 e298f820 
+Sep 26 11:22:39 sol kernel:        e298f844 00000001 e030a56c e030a6c4 00000020 00000000 e01382be 00000000 
+Sep 26 11:22:39 sol kernel:        e013874a e013488c 00000000 e298f820 00000202 e298f898 00000202 00000246 
+Sep 26 11:22:39 sol kernel: Call Trace: [put_dirty_page+122/132] [flush_old_exec+234/572] [sys_ustat+212/268] [kill_super+232/352] [unix_gc+394/748] 
+Sep 26 11:22:39 sol kernel:    [Unused_offset+27374/99203] [Unused_offset+12842/99203] [call_spurious_interrupt+14521/27705] [Unused_offset+43342/99203] [call_spurious_interrupt+14615/27705] [call_spurious_interrupt+16483/27705] 
+Sep 26 11:22:39 sol kernel:    [Unused_offset+90704/99203] [ipgre_rcv+233/636] [ipgre_rcv+503/636] [fcntl_getlk+327/624] [do_invalid_TSS+43/96] 
+Sep 26 11:22:39 sol kernel: __alloc_pages: 0-order allocation failed (gfp=0x20/0)
+Sep 26 11:22:39 sol kernel: f048ddd4 e02ab000 00000000 00000020 00000000 00000020 00000020 e298f820 
+Sep 26 11:22:39 sol kernel:        e298f844 00000001 e030a56c e030a6c4 00000020 00000000 e01382be 00000000 
+Sep 26 11:22:39 sol kernel:        e013874a e013488c 00000000 e298f820 00000202 e298f898 00000202 00000246 
+Sep 26 11:22:39 sol kernel: Call Trace: [put_dirty_page+122/132] [flush_old_exec+234/572] [sys_ustat+212/268] [kill_super+232/352] [unix_gc+394/748] 
+Sep 26 11:22:39 sol kernel:    [Unused_offset+27374/99203] [call_spurious_interrupt+13905/27705] [call_spurious_interrupt+17048/27705] [Unused_offset+90704/99203] [ipgre_rcv+233/636] [ipgre_rcv+503/636] 
+Sep 26 11:22:39 sol kernel:    [fcntl_getlk+327/624] [do_invalid_TSS+43/96] 
 
-FreeBSD's core team has never issued any statements on this issue, nor
-have we made any demands.  Frankly, I think that this is way overblown
-as well.  People should remember that slashdot isn't reality and that
-it should be taken with a grain of salt.
+        Also, we see next in process status:
 
-Healthy code and concept sharing between Linux and FreeBSD (and
-between any opensource groups) is in everyone's best interest to
-continue the cooperative competition that we've had in the past.
+USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
+vz         927  0.0 625.1 43900 4267034752 ? S    08:10   0:00 hits
+vz        1030  0.0 625.1 43900 4267034752 ? S    08:11   0:00 hits
+vz        4561  1.3 625.1 45948 4267034724 ? S    10:48   0:00 hits
+root      4564  0.0  0.0  1460  548 pts/2    S    10:48   0:00 grep hits
+vz        4566  0.0 625.1 45948 4267034724 ? S    10:48   0:00 hits
 
-I won't address the supposed borrowing from Linux -> FreeBSD in the
-IDE driver in the head of this thread, since I've not done any
-research on that topic.  I do know Soren has access to all the IDE/ATA
-specs and is bright enough to dig what's necessary out of them.  Let's
-be careful of tossing accusations of theft in a public forum when it
-is possible that he figured it out himself.  Prior availability in
-Linux doesn't mean that later groups necessarily took anything from
-Linux to make their code work.  Let's not loose sight of the fact that
-there's plenty of bright people with good will who do good work in
-both groups.
+        After these errors we see some uninterruptable processes (with flag D in
+process  status),  gdb  say  that function "fdatasync" called and no returned...
+Soft reboot not work.
 
-So take a deep breath and realize that this isn't the end of the
-world.
+        Server   has   2  CPUs (Pentium III Katmai), 2Gb RAM, 2Gb swap, Hardware
+RAID (Mylex DAC960PTL1 PCI RAID Controller).
 
-Warner Losh
+        Any ideas ?
 
-[[ who released ObjectBuilder for Linux as the first (or one of the
-   first) "demoware" product for Linux back in 1992 or 1993 and did
-   some Linux/Mips work.  He now happens to be the FreeBSD pccard
-   maintainer and in FreeBSD's governing body named core.  ]]
+--
+Oleg A. Yurlov aka Kris Werewolf, SysAdmin      OAY100-RIPN
+mailto:kris@spylog.com                          +7 095 332-03-88
+

@@ -1,68 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265757AbTGDDun (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 23:50:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265760AbTGDDun
+	id S265742AbTGDDtE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 23:49:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265753AbTGDDtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 23:50:43 -0400
-Received: from main.gmane.org ([80.91.224.249]:41925 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265757AbTGDDul (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 23:50:41 -0400
-Mail-Followup-To: linux-kernel@vger.kernel.org
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: ilmari@ilmari.org (Dagfinn Ilmari =?iso-8859-1?q?Manns=E5ker?=)
-Subject: Re: rfcomm oops in 2.5.74
-Date: Fri, 04 Jul 2003 06:04:58 +0200
-Organization: Program-, Informasjons- og Nettverksteknologisk Gruppe, UiO
-Message-ID: <d8jfzlnym1h.fsf@wirth.ping.uio.no>
-References: <d8jznjvzr07.fsf@wirth.ping.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@main.gmane.org
-Mail-Copies-To: never
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
- (i386-debian-linux-gnu)
-Cancel-Lock: sha1:woINrYrsW9VTnYEw+CYQkIS4zfc=
-Cc: bluez-devel@lists.sourceforge.net
+	Thu, 3 Jul 2003 23:49:04 -0400
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:26268 "EHLO
+	jaymale.blue-labs.org") by vger.kernel.org with ESMTP
+	id S265742AbTGDDtC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 23:49:02 -0400
+Message-ID: <3F04FD21.4090709@blue-labs.org>
+Date: Fri, 04 Jul 2003 00:05:53 -0400
+From: David Ford <david+powerix@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030702
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: laptop w/ external keyboard misprint FYI
+References: <3EFC7716.8050804@blue-labs.org> <20030703090317.A24322@ucw.cz>
+In-Reply-To: <20030703090317.A24322@ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ilmari@ilmari.org (Dagfinn Ilmari Mannsåker) writes:
+Well...I'm typing on the keyboard right now :)
 
-> Calling socket(PF_BLUETOOTH, SOCK_RAW, BTPROTO_RFCOMM) on 2.5.74
-> segfaults and gives the below oops. module.h:297 is
-> BUG_ON(module_refcount(module) == 0) in __module_get(), which is called
-> from rfcomm_sock_alloc() via sk_set_owner().
+Any info I can give that can help?
 
-It turns out that net/bluetooth/rfcomm/sock.c (and
-net/bluetooth/hci_sock.c) had been left out when net_proto_family gained
-an owner field, here's a patch that fixes them both. Now I can transfer
-pictures from my phone over OBEX Object Push again :)
+David
 
---- net/bluetooth/rfcomm/sock.c~	2003-07-02 22:50:14.000000000 +0200
-+++ net/bluetooth/rfcomm/sock.c	2003-07-04 05:24:15.000000000 +0200
-@@ -878,6 +878,7 @@
- 
- static struct net_proto_family rfcomm_sock_family_ops = {
- 	.family		= PF_BLUETOOTH,
-+	.owner		= THIS_MODULE,
- 	.create		= rfcomm_sock_create
- };
- 
---- net/bluetooth/hci_sock.c~	2003-07-02 22:49:11.000000000 +0200
-+++ net/bluetooth/hci_sock.c	2003-07-04 05:24:54.000000000 +0200
-@@ -632,6 +632,7 @@
- 
- struct net_proto_family hci_sock_family_ops = {
- 	.family = PF_BLUETOOTH,
-+	.owner	= THIS_MODULE,
- 	.create = hci_sock_create,
- };
- 
+Vojtech Pavlik wrote:
 
--- 
-ilmari
+>On Fri, Jun 27, 2003 at 12:55:50PM -0400, David Ford wrote:
+>
+>  
+>
+>>Kernel 2.5.73, first time I've used an external keyboard
+>>
+>>When I plug my external Logitech keyboard into my laptop, (shared 
+>>keyboard/mouse port), dmesg output indicates a generic mouse was 
+>>attached instead of a keyboard.  The keyboard works, it's just the dmesg 
+>>info that's inaccurate.
+>>
+>>Keyboard plugged in:
+>>input: PS/2 Generic Mouse on isa0060/serio1
+>>
+>>Mouse plugged in:
+>>input: PS/2 Logitech Mouse on isa0060/serio1
+>>    
+>>
+>
+>Honestly, I don't think this is possible. If your keyboard is detected
+>as a mouse, it cannot work a a keyboard. Though maybe your
+>keyboard/mouse controller BIOS may be playing tricks on us.
+>
+>  
+>
 

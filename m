@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133036AbRAKXpB>; Thu, 11 Jan 2001 18:45:01 -0500
+	id <S129631AbRAKXpl>; Thu, 11 Jan 2001 18:45:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132710AbRAKXoo>; Thu, 11 Jan 2001 18:44:44 -0500
-Received: from jalon.able.es ([212.97.163.2]:24060 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S131017AbRAKXo1>;
-	Thu, 11 Jan 2001 18:44:27 -0500
-Date: Fri, 12 Jan 2001 00:44:19 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: gregg_99@mailcity.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Cannot compile my kernel due to unpredictible situations:
-Message-ID: <20010112004419.A751@werewolf.able.es>
+	id <S132904AbRAKXpc>; Thu, 11 Jan 2001 18:45:32 -0500
+Received: from [203.22.103.145] ([203.22.103.145]:11016 "HELO liih.org")
+	by vger.kernel.org with SMTP id <S132710AbRAKXpZ>;
+	Thu, 11 Jan 2001 18:45:25 -0500
+Date: Fri, 12 Jan 2001 10:45:19 +1100 (EST)
+From: Yin Tan Cui <cyt@liih.org>
+To: <gregg_99@mailcity.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Cannot compile my kernel due to unpredictible situations: 
 In-Reply-To: <HKPKHOJMBOBKGAAA@mailcity.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <HKPKHOJMBOBKGAAA@mailcity.com>; from gregg_99@lycos.com on Fri, Jan 12, 2001 at 00:30:47 +0100
-X-Mailer: Balsa 1.0.1
+Message-ID: <Pine.LNX.4.30.0101121039590.1542-100000@flash.liih.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 11 Jan 2001, Gregg Lloyd wrote:
 
-On 2001.01.12 Gregg Lloyd wrote:
-> the right 2.4 kernel?? (Kernel howto talks about going to /usr/src/linux and
-> start compiling..but current /usr/src/linux is a link to my current 2.2.5
+>Hi,
+>I have downloaded linux kernel 2.4.
+>In /usr/src, I did untar the file:
+>gzip -cd  linux-2.4.0.tar.gz  | tar xvf -
+>I see several files being copied to several locations (/linux/Documentation,
+>/linux/arch/..etc..). The problem is that there's no linux 2.4   directory created
+>under /usr/src or anywhere else on my system! Anyway, there's nothing new
+>under /usr/src!!!
+
+I guess it has overwrite the files in /usr/src/linux which is the link to
+your linux-2.2.5. this is why you did not see any new file/dir created.
+
+>how can I make sure that I  am  re-compiling my kernel (currently kernel 2.2.5) with
+>the right 2.4 kernel?? (Kernel howto talks about going to /usr/src/linux and
+>start compiling..but current /usr/src/linux is a link to my current 2.2.5
 > kernel !!!)
-> 
-So you have just wrote kernel2.4 OVER your kernel2.2.
 
-Kernel tarballs always untar and give a directory named 'linux'. So suppose
-you have a setup like:
-ls /usr/src:
-linux -> linux-2.2.5
-linux-2.2.5
+but the files in /usr/src/linux has probably being overwritten by files
+from 2.4.0.
 
-If you untar linux-2.4.0.tar.gz in /usr/src, it writes over 'linux' that points
-to you 2.2.5.
-What I usually do is
-rm -f linux (is just a link)
-gtar zxf linux-2.4.0.tar.gz (gives a new REAL directory named 'linux')
-mv linux linux-2.4.0
-ln -s linux-2.4.0 linux
-
-I don't know why kernels are not tarred as linux-X.X.X, but there will be
-a reason, I suppose... (that will ease very much everyone's life).
-
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
-
-Linux werewolf 2.4.0-ac5 #1 SMP Wed Jan 10 23:36:11 CET 2001 i686
+you should always remove the link /usr/src/linux before you untar the
+kernel under /use/src or untar it in some other directory and rename it
+and then move it under /usr/src.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

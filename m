@@ -1,67 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261661AbSIXMtf>; Tue, 24 Sep 2002 08:49:35 -0400
+	id <S261660AbSIXNDL>; Tue, 24 Sep 2002 09:03:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261662AbSIXMtf>; Tue, 24 Sep 2002 08:49:35 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:48132 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S261661AbSIXMte>; Tue, 24 Sep 2002 08:49:34 -0400
-Date: Tue, 24 Sep 2002 22:54:36 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: "Michel Eyckmans (MCE)" <mce@pi.be>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, <netfilter-devel@lists.samba.org>
-Subject: [PATCH] export find_task_by_pid() for 2.5.38
-In-Reply-To: <200209230019.g8N0JmvC003642@jebril.pi.be>
-Message-ID: <Mutt.LNX.4.44.0209242252160.1028-100000@blackbird.intercode.com.au>
+	id <S261662AbSIXNDK>; Tue, 24 Sep 2002 09:03:10 -0400
+Received: from 62-190-203-127.pdu.pipex.net ([62.190.203.127]:9476 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S261660AbSIXNDK>; Tue, 24 Sep 2002 09:03:10 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200209231615.g8NGFNu1001833@darkstar.example.net>
+Subject: Re: scsi error.
+To: andrew.r.cress@intel.com (Cress, Andrew R)
+Date: Mon, 23 Sep 2002 17:15:23 +0100 (BST)
+Cc: alex14641@yahoo.com, linux-kernel@vger.kernel.org
+In-Reply-To: <A5974D8E5F98D511BB910002A50A66470580D1F1@hdsmsx103.hd.intel.com> from "Cress, Andrew R" at Sep 23, 2002 07:35:35 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Sep 2002, Michel Eyckmans (MCE) wrote:
+> You apparently have a Data Parity Error on your SCSI bus.  Probably your
+> external SCSI drive has a cable or terminator problem.  You can confirm this
+> by disconnecting the external SCSI cable to see if the other drives come up
+> ok.  
+> You may be missing some termination, either via an external terminator or by
+> turning on the drive's TERMPWR jumper on the external drive (depending on
+> the type of disk cabinet you have).  Or, the external SCSI cable may be
+> faulty (usually bent pins).
 
-> By the way, 2.3.38 gives me this:
-> 
-> depmod: *** Unresolved symbols in /lib/modules/2.5.38/kernel/net/ipv4/netfilter/ipt_owner.o
-> depmod:         find_task_by_pid
-> 
+Also, it could be that you are using a cable designed for a Mac - those cables often don't have all of the GND lines individually connected, and can cause seemingly random problems.
 
-Below is a patch which exports the function, which used to be an inline.  
-(This is also an issue for ip6t_owner).
-
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
-
-diff -urN -X dontdiff linux-2.5.38.orig/kernel/Makefile linux-2.5.38.w1/kernel/Makefile
---- linux-2.5.38.orig/kernel/Makefile	Tue Sep 24 19:23:03 2002
-+++ linux-2.5.38.w1/kernel/Makefile	Tue Sep 24 22:14:47 2002
-@@ -3,7 +3,7 @@
- #
- 
- export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o exec_domain.o \
--		printk.o platform.o suspend.o dma.o
-+		printk.o platform.o suspend.o dma.o pid.o
- 
- obj-y     = sched.o fork.o exec_domain.o panic.o printk.o \
- 	    module.o exit.o itimer.o time.o softirq.o resource.o \
-diff -urN -X dontdiff linux-2.5.38.orig/kernel/pid.c linux-2.5.38.w1/kernel/pid.c
---- linux-2.5.38.orig/kernel/pid.c	Tue Sep 24 19:23:03 2002
-+++ linux-2.5.38.w1/kernel/pid.c	Tue Sep 24 22:23:56 2002
-@@ -23,6 +23,7 @@
- #include <linux/slab.h>
- #include <linux/init.h>
- #include <linux/bootmem.h>
-+#include <linux/module.h>
- 
- #define PIDHASH_SIZE 4096
- #define pid_hashfn(nr) ((nr >> 8) ^ nr) & (PIDHASH_SIZE - 1)
-@@ -217,3 +218,5 @@
- 		attach_pid(current, i, 0);
- 	}
- }
-+
-+EXPORT_SYMBOL(find_task_by_pid);
-
+John

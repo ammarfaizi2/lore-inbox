@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129134AbRCTJ0K>; Tue, 20 Mar 2001 04:26:10 -0500
+	id <S129282AbRCTJ3a>; Tue, 20 Mar 2001 04:29:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129282AbRCTJ0A>; Tue, 20 Mar 2001 04:26:00 -0500
-Received: from [213.158.195.134] ([213.158.195.134]:39441 "EHLO
-	plwawtl0.pl.ccbeverages.com") by vger.kernel.org with ESMTP
-	id <S129134AbRCTJZt>; Tue, 20 Mar 2001 04:25:49 -0500
-From: "Tomasz Sterna" <smoku@jaszczur.org>
-Date: Tue, 20 Mar 2001 10:16:36 +0100
+	id <S129321AbRCTJ3K>; Tue, 20 Mar 2001 04:29:10 -0500
+Received: from hercules.telenet-ops.be ([195.130.132.33]:49366 "HELO
+	smtp1.pandora.be") by vger.kernel.org with SMTP id <S129282AbRCTJ3C>;
+	Tue, 20 Mar 2001 04:29:02 -0500
+Date: Tue, 20 Mar 2001 10:28:06 +0100 (CET)
+From: Wouter Verhelst <wouter.verhelst@advalvas.be>
 To: linux-kernel@vger.kernel.org
-Subject: standard_io_resources[]
-Message-ID: <20010320101636.A4226@plwawtl0.pl.ccbeverages.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Subject: CDROM and harddisk fighting over DMA
+Message-ID: <Pine.LNX.4.21.0103201018080.370-100000@rock.dezevensprong.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I couldn't find a maintainer of the code, so I'm writing here.
+(I'm not subscribed to linux-kernel, so please CC any answers. TIA)
 
-In kernel 2.4.1 in arch/i386/kernel/setup.c there is:
+Hello
 
---- arch/i386/kernel/setup.c
-struct resource standard_io_resources[] = {
-        { "dma1", 0x00, 0x1f, IORESOURCE_BUSY },
-        { "pic1", 0x20, 0x3f, IORESOURCE_BUSY },
-        { "timer", 0x40, 0x5f, IORESOURCE_BUSY },
-        { "keyboard", 0x60, 0x6f, IORESOURCE_BUSY },
-        { "dma page reg", 0x80, 0x8f, IORESOURCE_BUSY },
-        { "pic2", 0xa0, 0xbf, IORESOURCE_BUSY },
-        { "dma2", 0xc0, 0xdf, IORESOURCE_BUSY },
-        { "fpu", 0xf0, 0xff, IORESOURCE_BUSY }
-};
----
+Since I bought my new harddisk (a Maxtor 40GB of about a half year old
+now), I've had errors over my console like this:
 
-which fix-allocate some io-resources.
-What is the reason for that?
-Isn't that a job of the device drivers?
+hda: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
 
-In KGI we have our own keyboard driver which tries to allocate the 
-kayboard I/O range for itself, and when it does io_check_region() it 
-fails. What should I do?
+hda is my harddisk. The CDROM was first connected to hdb, but I changed
+that to hdc, trying to get rid of these errors. This did not resolve the
+issue.
+After playing around a bit, I found out that these errors occur when both
+the CDROM and the harddisk are being accessed at the same time (well,
+almost; it's not an SMP system ;-). I managed to fix it by disabling DMA 
+on the harddisk, using hdparm. Disabling DMA on the CDROM, by contrast,
+did not resolve the issue.
 
+However, as this slows down my data throughput speed quite drastically,
+I'd like to do this differently.
+
+I first posted this to comp.os.linux.setup, but did not get any useful
+information. I believe it's not some misconfiguration from my side, so I
+sent this here since this mailinglist is listed as relevant mailinglist
+for the IDE subsystem; however, if this is the wrong place to ask, please
+redirect.
 
 -- 
-http://www.jaszczur.org/~smoku/
+wouter dot verhelst at advalvas in belgium
+
+Real men don't take backups.
+They put their source on a public FTP-server and let the world mirror it.
+					-- Linus Torvalds
+

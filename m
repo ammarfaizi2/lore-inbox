@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbUKJE6u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261881AbUKJE6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261882AbUKJE6u (ORCPT <rfc822;willy@w.ods.org>);
+	id S261881AbUKJE6u (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 9 Nov 2004 23:58:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbUKJE6L
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbUKJE6D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 23:58:11 -0500
-Received: from l247150.ppp.asahi-net.or.jp ([218.219.247.150]:57255 "EHLO
-	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S261882AbUKJEzY
+	Tue, 9 Nov 2004 23:58:03 -0500
+Received: from l247150.ppp.asahi-net.or.jp ([218.219.247.150]:56487 "EHLO
+	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S261881AbUKJEzV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 23:55:24 -0500
-Date: Wed, 10 Nov 2004 13:55:23 +0900
-Message-ID: <m2y8hapakk.wl%ysato@users.sourceforge.jp>
+	Tue, 9 Nov 2004 23:55:21 -0500
+Date: Wed, 10 Nov 2004 13:55:20 +0900
+Message-ID: <m2zn1qpakn.wl%ysato@users.sourceforge.jp>
 From: Yoshinori Sato <ysato@users.sourceforge.jp>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix "extern inline"
+Subject: [PATCH] H8/300 vmlinux.lds update
 User-Agent: Wanderlust/2.11.30 (Wonderwall) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.6 (Marutamachi) APEL/10.6 Emacs/21.3 (i386-pc-linux-gnu)
  MULE/5.0 (SAKAKI)
@@ -25,27 +25,363 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Yoshinori Sato <ysato@users.sourceforge.jp>
 
-===== include/linux/bitops.h 1.6 vs edited =====
---- 1.6/include/linux/bitops.h	2004-05-03 05:04:34 +09:00
-+++ edited/include/linux/bitops.h	2004-11-08 15:36:48 +09:00
-@@ -42,7 +42,7 @@
-  * fls: find last bit set.
-  */
+diff -Nru a/arch/h8300/kernel/vmlinux.lds.S b/arch/h8300/kernel/vmlinux.lds.S
+--- a/arch/h8300/kernel/vmlinux.lds.S	2004-11-10 13:42:15 +09:00
++++ b/arch/h8300/kernel/vmlinux.lds.S	2004-11-10 13:42:15 +09:00
+@@ -1,60 +1,48 @@
+ #define VMLINUX_SYMBOL(_sym_) _##_sym_
+ #include <asm-generic/vmlinux.lds.h>
+-#include <asm/thread_info.h>
+ #include <linux/config.h>
  
--extern __inline__ int generic_fls(int x)
-+static __inline__ int generic_fls(int x)
++/* target memory map */
+ #ifdef CONFIG_H8300H_GENERIC
+-#ifdef CONFIG_ROMKERNEL
+-#include "../platform/h8300h/generic/rom.ld"
+-#endif
+-#ifdef CONFIG_RAMKERNEL
+-#include "../platform/h8300h/generic/ram.ld"
+-#endif
++#define ROMTOP  0x000000
++#define ROMSIZE 0x200000
++#define RAMTOP  0x200000
++#define RAMSIZE 0x200000
+ #endif
+ 
+ #ifdef CONFIG_H8300H_AKI3068NET
+-#ifdef CONFIG_ROMKERNEL
+-#include "../platform/h8300h/aki3068net/rom.ld"
+-#endif
+-#ifdef CONFIG_RAMKERNEL
+-#include "../platform/h8300h/aki3068net/ram.ld"
+-#endif
++#define ROMTOP  0x000000
++#define ROMSIZE 0x080000
++#define RAMTOP  0x400000
++#define RAMSIZE 0x200000
+ #endif
+ 
+ #ifdef CONFIG_H8300H_H8MAX
+-#ifdef CONFIG_ROMKERNEL
+-#include "../platform/h8300h/h8max/rom.ld"
+-#endif
+-#ifdef CONFIG_RAMKERNEL
+-#include "../platform/h8300h/h8max/ram.ld"
+-#endif
++#define ROMTOP  0x000000
++#define ROMSIZE 0x080000
++#define RAMTOP  0x400000
++#define RAMSIZE 0x200000
+ #endif
+ 
+ #ifdef CONFIG_H8300H_SIM
+-#ifdef CONFIG_ROMKERNEL
+-#include "../platform/h8300h/generic/rom.ld"
+-#endif
+-#ifdef CONFIG_RAMKERNEL
+-#include "../platform/h8300h/generic/ram.ld"
+-#endif
++#define ROMTOP  0x000000
++#define ROMSIZE 0x200000
++#define RAMTOP  0x200000
++#define RAMSIZE 0x200000
+ #endif
+ 
+ #ifdef CONFIG_H8S_SIM
+-#ifdef CONFIG_ROMKERNEL
+-#include "../platform/h8s/generic/rom.ld"
+-#endif
+-#ifdef CONFIG_RAMKERNEL
+-#include "../platform/h8s/generic/ram.ld"
+-#endif
++#define ROMTOP  0x000000
++#define ROMSIZE 0x200000
++#define RAMTOP  0x200000
++#define RAMSIZE 0x200000
+ #endif
+ 
+ #ifdef CONFIG_H8S_EDOSK2674
+-#ifdef CONFIG_ROMKERNEL
+-#include "../platform/h8s/edosk2674/rom.ld"
+-#endif
+-#ifdef CONFIG_RAMKERNEL
+-#include "../platform/h8s/edosk2674/ram.ld"
+-#endif
++#define ROMTOP  0x000000
++#define ROMSIZE 0x400000
++#define RAMTOP  0x400000
++#define RAMSIZE 0x800000
+ #endif
+ 
+ #if defined(CONFIG_H8300H_SIM) || defined(CONFIG_H8S_SIM)
+@@ -66,68 +54,45 @@
+ SECTIONS
  {
- 	int r = 32;
+ #if defined(CONFIG_ROMKERNEL)
++	. = ROMTOP; 
+ 	.vectors :
+ 	{
+ 	__vector = . ;
+ 		*(.vectors*)
+-	} > vector
+-#endif
+-#if defined(CONFIG_RAMKERNEL)
+-	.bootvec :
++	}
++#else
++	. = RAMTOP; 
++	.bootvec :	
+ 	{
+ 		*(.bootvec)
+-	} > ram
++	}
+ #endif
+         .text :
+ 	{
+ #if defined(CONFIG_ROMKERNEL)
+-		*(.int_redirect)
++	*(.int_redirect)
+ #endif
+ 	__stext = . ;
+         	*(.text)
+ 	SCHED_TEXT
+-	. = ALIGN(0x4) ;
+-		*(.exit.text)
+-		*(.text.*)
+-	. = ALIGN(0x4) ;
+-		*(.exitcall.exit)
+-	. = ALIGN(0x4) ;
+-		*(.kstrtab)
+-	. = ALIGN(0x4) ;
+-		*(.rodata*)
++	LOCK_TEXT
++	__etext = . ;
+ 	. = ALIGN(16);          /* Exception table              */
+ 	___start___ex_table = .;
+ 		*(__ex_table)
+ 	___stop___ex_table = .;
  
-@@ -71,7 +71,7 @@
- 	return r;
+-        ___start___ksymtab = .;  /* Kernel symbol table          */
+-		 *(__ksymtab)
+-	___stop___ksymtab = .;
+-
+-	___start___ksymtab_gpl = .;	/* Kernel symbol table: GPL-only symbols */
+-
+-	*(__ksymtab_gpl)
+-	___stop___ksymtab_gpl = .;
+-
+-	___start___kcrctab = .;	/* Kernel symbol table: Normal symbols */
+-	*(__kcrctab)
+-	___stop___kcrctab = .;
+-
+-	___start___kcrctab_gpl = .;	/* Kernel symbol table: GPL-only symbols */
+-	*(__kcrctab_gpl)
+-	___stop___kcrctab_gpl = .;
+-
+-	*(__ksymtab_strings)	/* Kernel symbol table: strings */
+-
+-	. = ALIGN(0x4) ;
+-	__etext = . ;
++	RODATA
+ #if defined(CONFIG_ROMKERNEL)
+-	} > rom
++	SECURITY_INIT
+ #endif
+-#if defined(CONFIG_RAMKERNEL)
+-	} > ram
++	ROEND = .; 
++#if defined(CONFIG_ROMKERNEL)
++	. = RAMTOP;
++	.data :	AT(ROEND)
++#else
++	.data :	
+ #endif
+-	.data : AT( ADDR(.text)+SIZEOF(.text))
+ 	{
+ 	__sdata = . ;
+ 	___data_start = . ;
+@@ -162,6 +127,8 @@
+ 	___con_initcall_start = .;
+ 		*(.con_initcall.init)
+ 	___con_initcall_end = .;
++		*(.exit.text)
++		*(.exit.data)
+ 		. = ALIGN(4);
+ 	___initramfs_start = .;
+   		*(.init.ramfs)
+@@ -169,13 +136,13 @@
+ 	. = ALIGN(0x4) ;
+ 	___init_end = .;
+ 	__edata = . ;
+-	} > ram
++	}
++#if defined(CONFIG_RAMKERNEL)
++	SECURITY_INIT
++#endif
+ 	__begin_data = LOADADDR(.data) ;
+ #if defined(CONFIG_ROMKERNEL)
+-	.erom :
+-	{
+-	__erom = . ;
+-	} > erom
++	__erom = LOADADDR(.data) + SIZEOF(.data) ;
+ #endif
+         .bss : 
+         {
+@@ -188,15 +155,19 @@
+ 	__ebss = . ;
+ 	__end = . ;
+ 	__ramstart = .;
+-	} > ram
++	}
++	/DISCARD/ : {
++		*(.exitcall.exit)
++	}
++
+         .romfs :	
+ 	{
+ 		*(.romfs*)
+-	} > ram
++	}
++	. = RAMTOP+RAMSIZE; 
+         .dummy :
+         {
+ 	COMMAND_START = . - 0x200 ;
+ 	__ramend = . ;
+-	} > eram
++	}
  }
- 
--extern __inline__ int get_bitmask_order(unsigned int count)
-+static __inline__ int get_bitmask_order(unsigned int count)
- {
- 	int order;
- 	
+-
+diff -Nru a/arch/h8300/platform/h8300h/aki3068net/ram.ld b/arch/h8300/platform/h8300h/aki3068net/ram.ld
+--- a/arch/h8300/platform/h8300h/aki3068net/ram.ld	2004-11-10 13:42:15 +09:00
++++ /dev/null	Wed Dec 31 16:00:00 196900
+@@ -1,11 +0,0 @@
+-/* AE-3068 (aka. aki3068net) RAM */
+-
+-OUTPUT_ARCH(h8300h)
+-ENTRY("__start")
+-
+-MEMORY 
+-	{
+-	ram    : ORIGIN = 0x400000, LENGTH = 0x600000-0x400000
+-	eram   : ORIGIN = 0x600000, LENGTH = 0
+-        iram   : ORIGIN = 0xffbf20, LENGTH = 0x4000
+-	}
+diff -Nru a/arch/h8300/platform/h8300h/generic/ram.ld b/arch/h8300/platform/h8300h/generic/ram.ld
+--- a/arch/h8300/platform/h8300h/generic/ram.ld	2004-11-10 13:42:15 +09:00
++++ /dev/null	Wed Dec 31 16:00:00 196900
+@@ -1,11 +0,0 @@
+-/* Generic RAM */
+-
+-OUTPUT_ARCH(h8300h)
+-ENTRY("__start")
+-
+-MEMORY 
+-	{
+-	ram    : ORIGIN = 0x400000, LENGTH = 0x200000
+-	eram   : ORIGIN = 0x600000, LENGTH = 0
+-        iram   : ORIGIN = 0xffbf20, LENGTH = 0x4000
+-	}
+diff -Nru a/arch/h8300/platform/h8300h/generic/rom.ld b/arch/h8300/platform/h8300h/generic/rom.ld
+--- a/arch/h8300/platform/h8300h/generic/rom.ld	2004-11-10 13:42:15 +09:00
++++ /dev/null	Wed Dec 31 16:00:00 196900
+@@ -1,12 +0,0 @@
+-OUTPUT_ARCH(h8300h)
+-ENTRY("__start")
+-
+-MEMORY 
+-	{
+-	vector : ORIGIN = 0x000000, LENGTH = 0x000100
+-	rom    : ORIGIN = 0x000100, LENGTH = 0x200000-0x000100
+-	erom   : ORIGIN = 0x200000, LENGTH = 0
+-	ram    : ORIGIN = 0x200000, LENGTH = 0x400000
+-	eram   : ORIGIN = 0x600000, LENGTH = 0
+-	}
+-
+diff -Nru a/arch/h8300/platform/h8300h/h8max/ram.ld b/arch/h8300/platform/h8300h/h8max/ram.ld
+--- a/arch/h8300/platform/h8300h/h8max/ram.ld	2004-11-10 13:42:15 +09:00
++++ /dev/null	Wed Dec 31 16:00:00 196900
+@@ -1,11 +0,0 @@
+-/* H8MAX RAM */
+-
+-OUTPUT_ARCH(h8300h)
+-ENTRY("__start")
+-
+-MEMORY 
+-	{
+-	ram    : ORIGIN = 0x400000, LENGTH = 0x600000-0x400000
+-	eram   : ORIGIN = 0x600000, LENGTH = 0
+-        iram   : ORIGIN = 0xfffd20, LENGTH = 0x100
+-	}
+diff -Nru a/arch/h8300/platform/h8s/edosk2674/crt0_rom.S b/arch/h8300/platform/h8s/edosk2674/crt0_rom.S
+--- a/arch/h8300/platform/h8s/edosk2674/crt0_rom.S	2004-11-10 13:42:15 +09:00
++++ b/arch/h8300/platform/h8s/edosk2674/crt0_rom.S	2004-11-10 13:42:15 +09:00
+@@ -181,7 +181,7 @@
+ 	.long	__start
+ 	.long	__start
+ vector	=	2
+-	.rept	126-1
++	.rept	126
+ 	.long	_interrupt_redirect_table+vector*4
+ vector	=	vector + 1
+ 	.endr
+diff -Nru a/arch/h8300/platform/h8s/edosk2674/ram.ld b/arch/h8300/platform/h8s/edosk2674/ram.ld
+--- a/arch/h8300/platform/h8s/edosk2674/ram.ld	2004-11-10 13:42:15 +09:00
++++ /dev/null	Wed Dec 31 16:00:00 196900
+@@ -1,10 +0,0 @@
+-/* EDOSK-2674R RAM */
+-
+-OUTPUT_ARCH(h8300s)
+-ENTRY("__start")
+-
+-MEMORY 
+-	{
+-	ram    : ORIGIN = 0x400000, LENGTH = 0xc00000-0x400000
+-	eram   : ORIGIN = 0xc00000, LENGTH = 0
+-	}
+diff -Nru a/arch/h8300/platform/h8s/edosk2674/rom.ld b/arch/h8300/platform/h8s/edosk2674/rom.ld
+--- a/arch/h8300/platform/h8s/edosk2674/rom.ld	2004-11-10 13:42:15 +09:00
++++ /dev/null	Wed Dec 31 16:00:00 196900
+@@ -1,11 +0,0 @@
+-OUTPUT_ARCH(h8300s)
+-ENTRY("__start")
+-
+-MEMORY 
+-	{
+-	vector : ORIGIN = 0x000000, LENGTH = 0x000200
+-	rom    : ORIGIN = 0x000200, LENGTH = 0x100000-0x000200
+-	erom   : ORIGIN = 0x100000, LENGTH = 0
+-	ram    : ORIGIN = 0x400000, LENGTH = 0xc00000-0x400000
+-	eram   : ORIGIN = 0xc00000, LENGTH = 0
+-	}
+diff -Nru a/arch/h8300/platform/h8s/generic/ram.ld b/arch/h8300/platform/h8s/generic/ram.ld
+--- a/arch/h8300/platform/h8s/generic/ram.ld	2004-11-10 13:42:15 +09:00
++++ /dev/null	Wed Dec 31 16:00:00 196900
+@@ -1,8 +0,0 @@
+-OUTPUT_ARCH(h8300s)
+-ENTRY("__start")
+-
+-MEMORY 
+-	{
+-	ram    : ORIGIN = 0x400000, LENGTH = 0x200000
+-	eram   : ORIGIN = 0x600000, LENGTH = 0
+-	}
+diff -Nru a/arch/h8300/platform/h8s/generic/rom.ld b/arch/h8300/platform/h8s/generic/rom.ld
+--- a/arch/h8300/platform/h8s/generic/rom.ld	2004-11-10 13:42:15 +09:00
++++ /dev/null	Wed Dec 31 16:00:00 196900
+@@ -1,11 +0,0 @@
+-OUTPUT_ARCH(h8300s)
+-ENTRY("__start")
+-
+-MEMORY 
+-	{
+-	vector : ORIGIN = 0x000000, LENGTH = 0x000200
+-	rom    : ORIGIN = 0x000200, LENGTH = 0x200000-0x000200
+-	erom   : ORIGIN = 0x200000, LENGTH = 0
+-	ram    : ORIGIN = 0x200000, LENGTH = 0x400000
+-	eram   : ORIGIN = 0x600000, LENGTH = 0
+-	}
+
 -- 
 Yoshinori Sato
 <ysato@users.sourceforge.jp>

@@ -1,71 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131037AbQLTCqZ>; Tue, 19 Dec 2000 21:46:25 -0500
+	id <S130861AbQLTDSH>; Tue, 19 Dec 2000 22:18:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131036AbQLTCqQ>; Tue, 19 Dec 2000 21:46:16 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:56588 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S131017AbQLTCqB>;
-	Tue, 19 Dec 2000 21:46:01 -0500
-Date: Wed, 20 Dec 2000 03:13:32 +0100
-From: Kurt Garloff <garloff@suse.de>
-To: Linux SCSI list <linux-scsi@vger.kernel.org>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: DC390/tmscsim-2.0f SCSI driver released
-Message-ID: <20001220031332.C27881@garloff.suse.de>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Linux SCSI list <linux-scsi@vger.kernel.org>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
+	id <S130868AbQLTDR6>; Tue, 19 Dec 2000 22:17:58 -0500
+Received: from kleopatra.acc.umu.se ([130.239.18.150]:20125 "EHLO
+	kleopatra.acc.umu.se") by vger.kernel.org with ESMTP
+	id <S130861AbQLTDRn>; Tue, 19 Dec 2000 22:17:43 -0500
+Date: Wed, 20 Dec 2000 03:47:10 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Marc Joosen <mjoosen@us.ibm.com>
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] e820 memory detection fix for ThinkPad
+Message-ID: <20001220034709.E8435@khan.acc.umu.se>
+In-Reply-To: <OF28B11D4D.E0E35F30-ON852569BA.007BEF88@pok.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="JgQwtEuHJzHdouWu"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux 2.2.16 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TUE/NL, SuSE/FRG
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <OF28B11D4D.E0E35F30-ON852569BA.007BEF88@pok.ibm.com>; from mjoosen@us.ibm.com on Tue, Dec 19, 2000 at 07:16:40PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 19, 2000 at 07:16:40PM -0500, Marc Joosen wrote:
+> 
+> 
+>   Hi Alan, lkml-readers,
+> 
+>   This is a tiny patch to make the int15/e820 memory mapping work on IBM
+> ThinkPads. Until now, I have had to give lilo a mem= option with one meg
+> of RAM less than I actually have, so ACPI events don't overwrite any
+> data. The only alternative was to use one of the patches available on
+> http://www.pell.portland.or.us/~orc/Memory/, but these are quite big. I
+> tracked down the problem, at least for the ThinkPad 600X (2645-4EU), to
+> arch/i386/boot/setup.S: apparently the bios doesn't retain the value of
+> register %edx, so after the first entry is read the ascii word `SMAP' is
+> lost and further entries won't be recognized. The solution is simple,
+> just move the assignment 6 lines down so it's inside the loop that is
+> done for every entry.
+>   This patch is for 2.4.0-test7..12, but it should work for pre13
+> kernels and even 2.2 kernels with the memory map backport:
+> 
+> --- linux/arch/i386/boot/setup.S.orig    Sat Dec  9 05:56:07 2000
+> +++ linux/arch/i386/boot/setup.S   Sat Dec  9 06:43:03 2000
+> @@ -292,7 +292,6 @@
+>  #
+> 
+>  meme820:
+> -    movl $0x534d4150, %edx        # ascii `SMAP'
+>      xorl %ebx, %ebx               # continuation counter
+>      movw $E820MAP, %di            # point into the whitelist
+>                               # so we can have the bios
+> @@ -300,6 +299,7 @@
+> 
+>  jmpe820:
+>      movl $0x0000e820, %eax        # e820, upper word zeroed
+> +    movl $0x534d4150, %edx        # ascii `SMAP'
+>      movl $20, %ecx           # size of the e820rec
+>      pushw     %ds                 # data record.
+>      popw %es
 
---JgQwtEuHJzHdouWu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+If this simple patch solves your problem, great! But in that case,
+PLEASE add a note telling WHY the assignment is done for every
+iteration; else some smarthead will probably submit a patch someday
+in the future along the lines of "assigning this only once makes the
+loop faster"...
 
-Hi,
+Anyhow, good spotting!
 
-I finally finished to fix bugs WRT kernel 2.4 of the=20
-Tekram DC390 / AM53C974 / tmscsim SCSI driver.
-Therefore, I released the version 2.0f, which you may find on
-http://www.garloff.de/kurt/linux/dc390/
-ftp://ftp.suse.com/pub/people/garloff/linux/dc390/
 
-The driver should work better than ever since with both 2.2 and 2.4=20
-kernels. (Maybe even 2.0, I didn't test.)
-I'd be glad to get some feedback. If it's positive, I'll ask Alan and
-Linus to put it into the mainstream kernel.
-
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE GmbH, Nuernberg, FRG                               SCSI, Security
-
---JgQwtEuHJzHdouWu
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6QBXMxmLh6hyYd04RAokVAKCYgHQPi3gOxZ5Q4X9jRXNCUfwu4QCgys5t
-sGUstIIz2MPzte/8tjPr7/8=
-=s0x9
------END PGP SIGNATURE-----
-
---JgQwtEuHJzHdouWu--
+Regards: David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,64 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129719AbRCAQow>; Thu, 1 Mar 2001 11:44:52 -0500
+	id <S129749AbRCAQnb>; Thu, 1 Mar 2001 11:43:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129718AbRCAQom>; Thu, 1 Mar 2001 11:44:42 -0500
-Received: from [62.90.5.51] ([62.90.5.51]:37896 "EHLO salvador.shunra.co.il")
-	by vger.kernel.org with ESMTP id <S129712AbRCAQoa>;
-	Thu, 1 Mar 2001 11:44:30 -0500
-Message-ID: <F1629832DE36D411858F00C04F24847A11DED1@SALVADOR>
-From: Ofer Fryman <ofer@shunra.co.il>
-To: "'root@chaos.analogic.com'" <root@chaos.analogic.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Intel-e1000 for Linux 2.0.36-pre14
-Date: Thu, 1 Mar 2001 18:49:07 +0200 
+	id <S129741AbRCAQnV>; Thu, 1 Mar 2001 11:43:21 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:58240 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129712AbRCAQnF>; Thu, 1 Mar 2001 11:43:05 -0500
+Date: Thu, 1 Mar 2001 11:42:14 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Matthew Jacob <mjacob@feral.com>
+cc: kernel@kvack.org, Ofer Fryman <ofer@shunra.co.il>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Intel-e1000 for Linux 2.0.36-pre14
+In-Reply-To: <Pine.BSF.4.21.0103010812200.11811-100000@beppo.feral.com>
+Message-ID: <Pine.LNX.3.95.1010301113407.13933A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2448.0)
-Content-Type: text/plain;
-	charset="WINDOWS-1255"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Richard,
+On Thu, 1 Mar 2001, Matthew Jacob wrote:
 
-I guess I have know choice but to try your suggestion.
-
-Ofer
-
------Original Message-----
-From: Richard B. Johnson [mailto:root@chaos.analogic.com]
-Sent: Thursday, March 01, 2001 6:02 PM
-To: kernel@kvack.org
-Cc: Ofer Fryman; 'linux-kernel@vger.kernel.org'
-Subject: Re: Intel-e1000 for Linux 2.0.36-pre14
-
-
-On Thu, 1 Mar 2001 kernel@kvack.org wrote:
-
-> On Thu, 1 Mar 2001, Ofer Fryman wrote:
 > 
-> > I managed to compiled e1000 for Linux 2.0.36-pre14, I can also load it
-> > successfully. 
-> > With the E1000_IMS_RXSEQ bit set in IMS_ENABLE_MASK I get endless
-interrupts
-> > and the computer freezes, without this bit set it works but I cannot
-receive
-> > or send anything.
 > 
-> Intel refuses to provide complete documentation for any of their ethernet
-> cards.  I recommend purchasing alternative products from vendors like 3com
-> and National Semiconduct who are cooperative in providing data needed by
-> the development community.
+> On Thu, 1 Mar 2001, Richard B. Johnson wrote:
 > 
+> > On Thu, 1 Mar 2001 kernel@kvack.org wrote:
+> > 
+> > > On Thu, 1 Mar 2001, Ofer Fryman wrote:
+> > > 
+> > > > I managed to compiled e1000 for Linux 2.0.36-pre14, I can also load it
+> > > > successfully. 
+> > > > With the E1000_IMS_RXSEQ bit set in IMS_ENABLE_MASK I get endless interrupts
+> > > > and the computer freezes, without this bit set it works but I cannot receive
+> > > > or send anything.
+> > > 
+> > > Intel refuses to provide complete documentation for any of their ethernet
+> > > cards.  I recommend purchasing alternative products from vendors like 3com
+> > > and National Semiconduct who are cooperative in providing data needed by
+> > > the development community.
+> > > 
+> > 
+> > Well Intel has been a continual contributor to Linux and BSD. Somebody
+> > is not getting to the right person. There are lazy people at all
+> > companies. 
+> 
+> Sorry, I don't believe that that this is correct in this case. I spoke on the
+> telephone with the "Manager for Open Source Systems", and the concept of
+> releasing documents to that a driver could be written whose source would be
+> available was a concept too far. He kept on asking about NDAs- I kept on
+> saying, yes, I'll sign an NDA (presumably so knowledge of advanced features,
+> such as VLAN taggging, e.g., would not be released if they did not want it to
+> be)- but the basic driver source would have to be OPEN! (this was for *BSD,
+> but that's the same as linux in this case- we *all* want the damned source
+> open). No meeting of minds. I have been trying this on and off for two years
+> so that I can properly support the Wiseman && Livengood chipsets in *BSD. No
+> luck, ergo, reverse engineering of what little they release with the Linux
+> driver is the order of the day still. The Linux driver, btw, is pretty clearly
+> a port of an NT driver- which is quite amusing.
+> 
+> FWIW.....I just think that the overall company policy within Intel, much like
+> that of NetApp and others, is, "Open Source? Well, maybe, err,umm.. "...  It's
+> just not that important to them (as a company, they think). That said- if you
+> can get access to said documentation (which I understand comes in a certain
+> notebook that indicates releasing outside of Intel is a firing offense)- more
+> power to you!
+> 
+> -matt
 
-Well Intel has been a continual contributor to Linux and BSD. Somebody
-is not getting to the right person. There are lazy people at all
-companies. 
+The way I've gotten so-called proprietary information in the past is
+to let the world know that "boneserver.analogic.com" 204.178.40.210 is
+an open ftp site in which I don't even log what's uploaded and downloaded.
 
-Here is a compressed `grep` of linux-kernel mail headers from Intel
-who had something useful to say during the past year. Maybe you
-can ask one of them for the information you need? You just need to
-find an advocate at a big company.
+I check it once or twice a week to see if somebody has sent me anything
+of interest. Sometimes, persons unknown to me, have deposited information
+that I need. 
+
+Now I seem to need some programming information on the Intel e-1000.
+I'll keep you informed if anything turns up.
 
 Cheers,
 Dick Johnson
@@ -68,4 +88,5 @@ Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 "Memory is like gasoline. You use it up when you are running. Of
 course you get it all back when you reboot..."; Actual explanation
 obtained from the Micro$oft help desk.
+
 

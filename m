@@ -1,69 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292475AbSBUPyY>; Thu, 21 Feb 2002 10:54:24 -0500
+	id <S292476AbSBUP6O>; Thu, 21 Feb 2002 10:58:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292467AbSBUPyO>; Thu, 21 Feb 2002 10:54:14 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38667 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292475AbSBUPyD>;
-	Thu, 21 Feb 2002 10:54:03 -0500
-Message-ID: <3C751819.9B5A88BB@mandrakesoft.com>
-Date: Thu, 21 Feb 2002 10:54:01 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jason Lunz <j@trellisinc.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: linux kernel config converter
-In-Reply-To: <Pine.LNX.4.44.0202210636020.8696-100000@dlang.diginsite.com> <3C750CCF.989B1FDD@mandrakesoft.com> <20020221154123.GA6543@trellisinc.com>
+	id <S292480AbSBUP6G>; Thu, 21 Feb 2002 10:58:06 -0500
+Received: from boink.boinklabs.com ([162.33.131.250]:38160 "EHLO
+	boink.boinklabs.com") by vger.kernel.org with ESMTP
+	id <S292476AbSBUP55>; Thu, 21 Feb 2002 10:57:57 -0500
+Date: Thu, 21 Feb 2002 10:57:56 -0500
+From: Charlie Wilkinson <cwilkins@boinklabs.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Hard lock-ups on RH7.2 install - Via Chipset?
+Message-ID: <20020221105756.A9728@boink.boinklabs.com>
+In-Reply-To: <20020212105658.D11655@boink.boinklabs.com> <E16agiR-0002Sv-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0i
+In-Reply-To: <E16agiR-0002Sv-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Feb 12, 2002 at 05:27:39PM +0000
+X-Home-Sweet-Home: RedHat 6.0 / Linux 2.2.12 on an AMD K6-225
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jason Lunz wrote:
+On Tue, Feb 12, 2002 at 05:27:39PM +0000, Alan Cox waxed eloquent:
 > 
-> Jeff Garzik wrote:
-> > David Lang wrote:
-> >> I'll argue that _not_ doing this violated the principle of lease surprise,
-> >> if you turn a feature on and immediatly back off why should anything in
-> >> your config be any different then it was before you turned it on?
-> >
-> > Imagine this case:
-> >
-> > make xconfig # select CONFIG_USB_HID, which auto-selects CONFIG_INPUT
-> > { time passes }
-> > make xconfig # de-select CONFIG_USB_HID
-> >
-> > On the second 'make xconfig', should CONFIG_INPUT be automatically
-> > de-selected?  No.  Because that is making the assumption that the person
-> > does not want to continue to make the input API available.
+> > What I found was that writing out to any two drives was fine.  Writing to
+> > all four will consistently lock up the machine after about 5-10 seconds.
+> > So it seems load related.  (No, I didn't try three drives.)
+[...]
+> Its just another identical report of VIA + high PCI load hanging. It might
+> be the promise drivers it might be the chipset. However people have run the
+> same set up on intel boards without seeing this kind of problem so its
+> not clear.
 > 
-> It depends. When CONFIG_USB_HID auto-selected CONFIG_INPUT, did the user
-> know about it? Or did it just happen automagically behind the scenes? If
-> it was turned on silently, and the subsequent de-select of
-> CONFIG_USB_HID silently left CONFIG_INPUT turned on, I'd say that
-> violates least-surprise.
-> 
-> On the other hand, if turning on CONFIG_USB_HID then prompts "to do
-> that, I also have to turn on CONFIG_INPUT", i suppose it's ok to leave
-> CONFIG_INPUT turned on later.
+> 2.4.18pre9-ac has the newer ide layer, but Im dubious that will help
 
-You do have a point, because there is a small change that a
-configuration symbol can be auto-enabled without prompting.
+I can confirm that it still locks up.  :/  What can I do to help?
+Anyone I should beat on, or send beer and pizza to?
 
-This is more just standard Unix pragmatism, treating auto-remove
-operations with far more caution than auto-enable operations, precisely
-for cases like the example one above.  Only when one has pretty much
-complete control of environment do you want to make the assumption that
-a 'remove' op is the perfect complement of the 'add' op.
-
-	Jeff
-
+-cw-
 
 -- 
-Jeff Garzik      | "Why is it that attractive girls like you
-Building 1024    |  always seem to have a boyfriend?"
-MandrakeSoft     | "Because I'm a nympho that owns a brewery?"
-                 |             - BBC TV show "Coupling"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            Charlie Wilkinson - cwilkins@boinklabs.com - N3HAZ
+Parental Unit, UNIX Admin, Homebrewer, Cat Lover, Spam Fighter, HAM, SWLer...
+    Visit the Radio For Peace International Website: http://www.rfpi.org/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            CLOBBER INTERNET SPAM:  See!! <http://spam.abuse.net/>        
+                                   Join!! <http://www.cauce.org/>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+QOTD:
+The 50-50-90 rule: Anytime you have a 50-50 chance of getting something
+right, there's a 90% probability you'll get it wrong.

@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315111AbSEHUV4>; Wed, 8 May 2002 16:21:56 -0400
+	id <S315115AbSEHU0V>; Wed, 8 May 2002 16:26:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315115AbSEHUVz>; Wed, 8 May 2002 16:21:55 -0400
-Received: from w007.z208177138.sjc-ca.dsl.cnc.net ([208.177.141.7]:61331 "HELO
-	mail.gurulabs.com") by vger.kernel.org with SMTP id <S315111AbSEHUVx>;
-	Wed, 8 May 2002 16:21:53 -0400
-Date: Wed, 8 May 2002 14:21:51 -0600 (MDT)
-From: Dax Kelson <dax@gurulabs.com>
-X-X-Sender: dkelson@mooru.gurulabs.com
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-cc: "torvalds@transmeta.com" <torvalds@transmeta.com>,
-        "alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>,
-        "marcelo@conectiva.com.br" <marcelo@conectiva.com.br>
-Subject: [RFC] Making capabilites useful with legacy apps
-In-Reply-To: <Pine.LNX.4.33.0205082029060.14553-100000@sphinx.mythic-beasts.com>
-Message-ID: <Pine.LNX.4.44.0205081403120.10496-100000@mooru.gurulabs.com>
+	id <S315119AbSEHU0U>; Wed, 8 May 2002 16:26:20 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54034 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315115AbSEHU0U>; Wed, 8 May 2002 16:26:20 -0400
+Subject: Re: [PATCH] IDE 58
+To: benh@kernel.crashing.org (Benjamin Herrenschmidt)
+Date: Wed, 8 May 2002 21:44:01 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds),
+        dalecki@evision-ventures.com (Martin Dalecki),
+        andre@linux-ide.org (Andre Hedrick),
+        bjorn.wesen@axis.com (Bjorn Wesen), paulus@samba.org (Paul Mackerras),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <20020508194931.25660@smtp.wanadoo.fr> from "Benjamin Herrenschmidt" at May 08, 2002 09:49:31 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E175YI5-0002LD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I though about that, but what about corner cases where only a single
+> register can be accessed ? (typically alt status). Provide specific
+> routines ? Also, how does the extended addressing works ? by writing
+> several times to the cyl registers ? That would have to be dealt with
+> as well in each host driver then.
 
-In attempt to make capabilites more useful before the filesytem support 
-arrives, I would like to "wrap" non-capabilities aware apps.
+There are lots of cases we don't care about speed - things like setup of
+the controller, changing UDMA mode etc. 
 
-For example:
+> Right. We could go the darwin (apple) way and have taskfile_load/store
+> functions doing the entire registers controlled by a bitmask of which
+> registers has to be touched. it has a cost (testing each bit and
+> conditionally branching, which can suck hard) but probably less than
 
-# capwrap --user nobody --grp nobody --cap CAP_NET_BIND_SERVICE nc -l -p 80
+Get yourself a conditional move instruction 8)
 
-The wrapper would look like:
+> an indirect function call which isn't predictable.
 
-1 prtctl(PR_SET_KEEPCAPS, 1)
-2 setreuid(uid,uid)  
-3 setregid(gid,gid)
-4 desired_caps = cap_from_text(argv[caps])
-5 capsetp(0,desired_caps)
-6 execvp(argv[legacyapp])
+Or you have a small set of such functions for the critical paths - ie doing
+actual block I/O which pass the set of values required to do that operation
+and do the stores. What are the performance critical paths
 
-This wrapper[1] (that would increase security) won't work with the current 
-kernel though, because at step 6, all capabilities are cleared.
+	Begin a disk write
+	Begin a disk read
+	PIO transfer in
+	PIO transfer out
+	End a disk I/O fastpaths (no error case)
 
-It looks like when a non uid 0 process execs, all capabilities are 
-cleared.
+	Maybe ATAPI command writes ?
 
-The wrapper could also support chroot and setrlimit.
+beyond that I doubt the rest are critical 
 
-Dax Kelson
-Guru Labs
-
-[1] Marc Heuse wrote "compartment" that does caps OR set*uid, but not both 
-(see my discussion above)
-
+Alan

@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263228AbSJaQbv>; Thu, 31 Oct 2002 11:31:51 -0500
+	id <S262876AbSJaQru>; Thu, 31 Oct 2002 11:47:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263218AbSJaQar>; Thu, 31 Oct 2002 11:30:47 -0500
-Received: from waste.org ([209.173.204.2]:40879 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S263215AbSJaQam>;
-	Thu, 31 Oct 2002 11:30:42 -0500
-Date: Thu, 31 Oct 2002 10:36:50 -0600
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: What's left over.
-Message-ID: <20021031163650.GC25906@waste.org>
-References: <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com> <Pine.GSO.4.21.0210302135150.13031-100000@weyl.math.psu.edu>
+	id <S262811AbSJaQru>; Thu, 31 Oct 2002 11:47:50 -0500
+Received: from mario.gams.at ([194.42.96.10]:22093 "EHLO mario.gams.at")
+	by vger.kernel.org with ESMTP id <S262876AbSJaQq5> convert rfc822-to-8bit;
+	Thu, 31 Oct 2002 11:46:57 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.3
+From: Bernd Petrovitsch <bernd@gams.at>
+To: Matt Porter <porter@cox.net>
+cc: Mark Mielke <mark@mark.mielke.cc>, Adrian Bunk <bunk@fs.tum.de>,
+       Rasmus Andersen <rasmus@jaquet.dk>, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_TINY 
+References: <20021031100855.A3407@home.com> 
+In-reply-to: Your message of "Thu, 31 Oct 2002 10:08:55 MST."
+             <20021031100855.A3407@home.com> 
+X-url: http://www.luga.at/~bernd/
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0210302135150.13031-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Date: Thu, 31 Oct 2002 17:52:59 +0100
+Message-ID: <22051.1036083179@frodo.gams.co.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 30, 2002 at 09:43:29PM -0500, Alexander Viro wrote:
-> 
-> 
-> On Wed, 30 Oct 2002, Linus Torvalds wrote:
-> 
-> > > ext2/ext3 ACLs and Extended Attributes
-> > 
-> > I don't know why people still want ACL's. There were noises about them for 
-> > samba, but I'v enot heard anything since. Are vendors using this?
-> 
-> Because People Are Stupid(tm).  Because it's cheaper to put "ACL support: yes"
-> in the feature list under "Security" than to make sure than userland can cope
-> with anything more complex than  "Me Og.  Og see directory.  Directory Og's.
-> Nobody change it".  C.f. snake oil, P.T.Barnum and esp. LSM users
+Matt Porter <porter@cox.net> wrote:
+>Thank you.  This is exactly why in the last CONFIG_TINY thread I made
+>it clear that a one-size-fits-all option is not all that helpful for
+>serious embedded systems designers.
+>
+>Collecting these parameters in a single tweaks.h file and perhaps using
+>things like CONFIG_TINY, CONFIG_DESKTOP, CONFIG_FOO as profile selectors
 
-It's nearly useless in a Unix-only context, true, however there's a rather
-serious impedance mismatch for serving files to Windows that this
-addresses. Emulating ACLs on the fly with groups to fit into the
-Windows model is mostly doable but ain't pretty. 
+In an ideal world there would be several options invidually 
+selectable.
 
+	Bernd
 -- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
+Bernd Petrovitsch                              Email : bernd@gams.at
+g.a.m.s gmbh                                  Fax : +43 1 205255-900
+Prinz-Eugen-Straﬂe 8                    A-1040 Vienna/Austria/Europe
+                     LUGA : http://www.luga.at
+
+

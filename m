@@ -1,78 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132807AbRARWV4>; Thu, 18 Jan 2001 17:21:56 -0500
+	id <S131582AbRARWWZ>; Thu, 18 Jan 2001 17:22:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135868AbRARWVq>; Thu, 18 Jan 2001 17:21:46 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:28778 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S132807AbRARWVk>; Thu, 18 Jan 2001 17:21:40 -0500
-Date: Thu, 18 Jan 2001 23:16:51 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Rick Jones <raj@cup.hp.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-Message-ID: <20010118231651.L28276@athlon.random>
-In-Reply-To: <20010118225432.K28276@athlon.random> <Pine.LNX.4.30.0101182254170.2880-100000@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0101182254170.2880-100000@elte.hu>; from mingo@elte.hu on Thu, Jan 18, 2001 at 10:57:20PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S135539AbRARWWH>; Thu, 18 Jan 2001 17:22:07 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:47609 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S135868AbRARWWA>; Thu, 18 Jan 2001 17:22:00 -0500
+Date: Thu, 18 Jan 2001 16:21:58 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010118161000.A3487@mediaone.net>
+In-Reply-To: <001c01c08199$387205f0$067039c3@cintasverdes> <001c01c08199$387205f0$067039c3@cintasverdes> 
+	from Jorge Boncompte (DTI2) on 01/18/2001 15:54
+Subject: Re: ERR in /proc/interrupts
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-Id: <20010118222204Z135868-404+1119@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 18, 2001 at 10:57:20PM +0100, Ingo Molnar wrote:
-> 
-> On Thu, 18 Jan 2001, Andrea Arcangeli wrote:
-> 
-> > > {
-> > >         int val = 1;
-> > >         setsockopt(req->sock, IPPROTO_TCP, TCP_CORK,
-> > > 			(char *)&val,sizeof(val));
-> > >         val = 0;
-> > >         setsockopt(req->sock, IPPROTO_TCP, TCP_CORK,
-> > > 			(char *)&val,sizeof(val));
-> > > }
-> > >
-> > > differ from what you posted. It does the same in my opinion. Maybe we are
-> > > not talking about the same thing?
-> >
-> > The above is equivalent to SIOCPUSH _only_ if the caller wasn't using either
-> > TCP_NODELAY or TCP_CORK.
-> 
-> why? I can restore whatever state i want, the above is just a mechanizm to
+** Reply to message from Tim Walberg <tewalberg@mediaone.net> on Thu, 18 Jan
+2001 16:10:00 -0600
 
-This is a possible slow (but userspace based) implementation of SIOCPUSH:
 
-{
-	int was_set_tcp_cork, was_set_tcp_nodelay, val
+> A quick perusal of the 2.2.18 source code (I don't have
+> a copy of 2.4.x handy) shows that it's directly
+> related to the number of IPIs (inter-processor
+> interrupts) the system has taken. I'm not real
+> sure under what conditions this occurs, but it's
+> someplace to start...
 
-	getsockopt(TCP_CORK, &was_set_tcp_cork)
-	if (was_set_tcp_cork)
-		val = 0
-	else if (!was_set_tcp_nodelay)
-		val = 1
-	else
-		return
-		
-	setsockopt(TCP_CORK, &val)
-	val = !!val
-	setsockopt(TCP_CORK, &val)
-}
+I thought one reason why IPI's were used was to synchronize the CPUs for a
+cache flush.  That hardly sounds like an error condition to me.
 
-Your one ins't.
 
-BTW, the simmetry between getsockopt/setsockopt further bias how SIOCPUSH
-doesn't fit into the setsockopt options but it fits very well into the ioctl
-categorty instead. There's simply no state one can return via getsockopt for
-the SIOCPUSH functionality. It's not setting any option, it's just doing one
-thing that controls the I/O.
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
 
-Andrea
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

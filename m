@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbTIPOhE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 10:37:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbTIPOhE
+	id S261889AbTIPOfz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 10:35:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbTIPOfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 10:37:04 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:19851 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S261925AbTIPOhA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 10:37:00 -0400
-X-Sender-Authentication: net64
-Date: Tue, 16 Sep 2003 16:36:58 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-Cc: neilb@cse.unsw.edu.au, linux-kernel@vger.kernel.org
-Subject: Re: experiences beyond 4 GB RAM with 2.4.22
-Message-Id: <20030916163658.4b1a8c5c.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.44.0309161132530.1636-100000@logos.cnet>
-References: <20030916153658.3081af6c.skraw@ithnet.com>
-	<Pine.LNX.4.44.0309161132530.1636-100000@logos.cnet>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 16 Sep 2003 10:35:55 -0400
+Received: from math.ut.ee ([193.40.5.125]:9418 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S261889AbTIPOfv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 10:35:51 -0400
+Date: Tue, 16 Sep 2003 17:35:49 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: linux-kernel@vger.kernel.org
+Subject: df hangs on nfs automounter in 2.6.0-current
+Message-ID: <Pine.GSO.4.44.0309161732480.19310-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Sep 2003 11:33:27 -0300 (BRT)
-Marcelo Tosatti <marcelo.tosatti@cyclades.com.br> wrote:
+Current 2.6.0 (2.6.0-test5+BK as of 16.09) hangs on df when
+the am_utils automounter is in use. It displays hda* partitions and next
+by mountpoint list is amd but then df hangs, wchan is rpc_execu*
 
-> > Well, I do understand the bounce buffer problem, but honestly the current way
-> > of handling the situation seems questionable at least. If you ever tried such a
-> > system you notice it is a lot worse than just dumping the additional ram above
-> > 4GB. You can really watch your network connections go bogus which is just
-> > unacceptable. 
-> 
-> All is fine with 4GB? 
+dmesg only tells
+nfs warning: mount version older than kernel
+like it always does with current 2.6 kernels for me.
 
-Absolutely perfect.
+x86, debian unstable.
 
-Regards,
-Stephan
+-- 
+Meelis Roos (mroos@linux.ee)
+

@@ -1,40 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVAMVSx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbVAMVGi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbVAMVSx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 16:18:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVAMVPC
+	id S261695AbVAMVGi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 16:06:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbVAMVEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 16:15:02 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:31195 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261689AbVAMVMB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 16:12:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=t4FQ8cK92pDUFNojtfzvKZvwcM0grSEhZNn037nwX185z944I1IjaOeblPDp9qNrN+PeF2opqHo2b/Lktfa1kw0VGYtho1rbefNLGFl+CeyP3NLUhNWpkYuyCBPZFkY+AjYM7nPEbMJ8rlg5X4SANl/KFxXquAvTz2AHe+cjKYc=
-Message-ID: <a36005b5050113131179d932eb@mail.gmail.com>
-Date: Thu, 13 Jan 2005 13:11:58 -0800
-From: Ulrich Drepper <drepper@gmail.com>
-Reply-To: Ulrich Drepper <drepper@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: propolice support for linux
-In-Reply-To: <20050113134620.GA14127@boetes.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 13 Jan 2005 16:04:30 -0500
+Received: from moutng.kundenserver.de ([212.227.126.184]:33011 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261695AbVAMVCf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 16:02:35 -0500
+From: Christian Borntraeger <cborntra@de.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH] reintroduce EXPORT_SYMBOL(task_nice) for binfmt_elf32
+Date: Thu, 13 Jan 2005 22:02:24 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <200501132042.31215.cborntra@de.ibm.com> <20050113194807.GA28010@infradead.org>
+In-Reply-To: <20050113194807.GA28010@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-References: <20050113134620.GA14127@boetes.org>
+Content-Disposition: inline
+Message-Id: <200501132202.25048.cborntra@de.ibm.com>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aside from all the arguments about why this patch isn't good for the
-kernel, everybody should be aware that the ProPolice gcc patches are
-pretty unusable.  They rely in recognizing certain tree patterns which
-for some architectures do not exist, and for others can look
-differently, depending on the optimization.  To paraphrase one of the
-gcc developers: "this kind of functionality should be written to work
-_with_ gcc, not _against_ it as the propolice patch does".
+Christoph Hellwig wrote:
+> On Thu, Jan 13, 2005 at 08:42:30PM +0100, Christian Borntraeger wrote:
+> > export was the fact, that binfmt_elf is no longer modular.
+> > Unfortunately that is not true in the emulation case on s390 and
+> > (untested) sparc64.
+>
+> I'd suggest putting it under CONFIG_COMPAT.
 
-Before you suggest using something like this patch you better first
-inform yourself by asking the people who actually know the code which
-is modified.
+Agreed. Better?
+
+Signed-Off: Christian Borntraeger <cborntra@de.ibm.com>
+
+--- a/kernel/sched.c	2005-01-12 01:42:35 +01:00
++++ b/kernel/sched.c	2005-01-13 21:59:15 +01:00
+@@ -3187,6 +3187,10 @@
+ 	return TASK_NICE(p);
+ }
+ 
++#ifdef CONFIG_COMPAT
++EXPORT_SYMBOL(task_nice);
++#endif
++
+ /**
+  * idle_cpu - is a given cpu idle currently?
+  * @cpu: the processor in question.

@@ -1,91 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273372AbRI0Pi0>; Thu, 27 Sep 2001 11:38:26 -0400
+	id <S273366AbRI0Phq>; Thu, 27 Sep 2001 11:37:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273382AbRI0PiR>; Thu, 27 Sep 2001 11:38:17 -0400
-Received: from mail.case.pt ([194.65.97.60]:11014 "EHLO case_primary.case.pt")
-	by vger.kernel.org with ESMTP id <S273372AbRI0Ph6>;
-	Thu, 27 Sep 2001 11:37:58 -0400
-Message-ID: <01C14771.B0EC0960.rui.ribeiro@case.pt>
-From: Rui Ribeiro <rui.ribeiro@case.pt>
-Reply-To: "rui.ribeiro@case.pt" <rui.ribeiro@case.pt>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Bug in khttpd, kernel 2.4.10 -- khttpd crashing when apache is not running ; corresponding HTTP error message
-Date: Thu, 27 Sep 2001 16:30:16 +0100
-Organization: Case, S.A.
-X-Mailer: Microsoft Internet E-mail/MAPI - 8.0.0.4211
+	id <S273371AbRI0Phg>; Thu, 27 Sep 2001 11:37:36 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:11392 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S273366AbRI0Ph1>; Thu, 27 Sep 2001 11:37:27 -0400
+Date: Thu, 27 Sep 2001 11:37:33 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Norbert Roos <n.roos@berlin.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: System hangs during interruptible_sleep_on_timeout() under 2.4.9
+In-Reply-To: <3BB33E88.ACD1E426@berlin.de>
+Message-ID: <Pine.LNX.3.95.1010927112759.1310A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="---- =_NextPart_000_01C14771.B0EC0960"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 27 Sep 2001, Norbert Roos wrote:
 
------- =_NextPart_000_01C14771.B0EC0960
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+> Ingo Molnar wrote:
+> 
+> > are you sure timer interrupts are processed while you are waiting for the
+> > timeout to expire? I'd suggest to put a:
+> > 
+> >         printk("<%d>", irq);
+> > 
+> > into arch/i386/kernel/irq.c:do_IRQ().
+> 
+> Until the call of interruptible_sleep_on_timeout(), timer interrupts
+> were processed. Right after the call no more output is made.
+> 
+[SNIPPED...]
 
+wait_queue_head_t wait_thing;
 
-Howdy,
+Interruptible_sleep_on_timeount(&wait_thing, timeout), now requires
+that "wait_thing" must have been initialized with:
 
-First I would like to say hello to everyone in this list.
+init_waitqueue_head(&wait_thing);
 
-I'm running kernel 2.4.10 (Intel), and performing experiments with the 
-khttpd server compiled as a module. I am writing to this list concerning a 
-couple of things I noticed in khttpd, and offering a fix. If this is 
-already a known fact, I didn't find it in the archives.
+If you didn't do this before this object was used, all bets are
+off.
 
-Problem description:
------------------------------
-
-I began noticing that it crashed always with a kernel error or hanging the 
-machine when apache was not running. When the machine survived, it also 
-returned a 403 error,  with a "Permission denied" message.
-
-
-The hack:
-------------------
-
-Upon source investigation, I noticed that at 
-/usr/src/linux/net/khttpd/userspace.c, at the function Userspace, in the 
-place where's the user-daemon no present case is coded, a structure element 
-is not released.
-
-After correction, I have also changed the 403 error (permission denied), to 
-a 503 Service Unavailable, as I believe it's more correct. If the khttpd 
-daemon can't call Apache (or other userspace daemon) when it's not capable 
-of processing the request, it's better to give a 503 message than a 403, 
-for  my and the users'  sanity sake.
-
-So, in the  2.4.10 kernel source tree, in the already mentioned 
-/usr/src/linux/net/khttpd/userspace.c, at line 114, you can make the 
-following changes:
-
-Send403(CurrentRequest->sock); to Send50x(CurrentRequest-sock);
-
-Append the following lines after the Send50x:
-sock_release(CurrentRequest->sock);
-CurrentRequest->sock=NULL;
-
-A diff file is included as an attachment.
-
-Regards,
---
-Rui Ribeiro
-Network and Security consultant
-http://www.case.pt
+Also, you cannot sleep during an interrupt or when you are holding
+a spin-lock that disables interrupts.
 
 
-P.S. A copy of this message has already been sent to khttpd users list.
------- =_NextPart_000_01C14771.B0EC0960
-Content-Type: application/octet-stream; name="userspace.diff"
-Content-Transfer-Encoding: base64
+> __asm__ __volatile__("pushfl ; popl %0":"=g" (x): /* no input */)
+> 
+> (x ist the variable where the IRQ flags are stored)
+> I'm not familiar with x86 assembler; is it possible that something can
+> go wrong here?
 
-MTAxZDEwMA0KPCANCjEwMmExMDINCj4gCQkJDQoxMTMsMTE5YzExMywxMTUNCjwgCQ0KPCAvKiBS
-dWkgKi8NCjwgCQkJU2VuZDUweChDdXJyZW50UmVxdWVzdC0+c29jayk7IC8qIFNvcnJ5LCBubyBn
-by4uLiAqLw0KPCAJCQlzb2NrX3JlbGVhc2UoQ3VycmVudFJlcXVlc3QtPnNvY2spOw0KPCAJCQlD
-dXJyZW50UmVxdWVzdC0+c29jayA9IE5VTEw7CSAvKiBXZSBubyBsb25nZXIgb3duIGl0ICovDQo8
-IC8qIEVuZCBSdWkgKi8NCjwgDQotLS0NCj4gCQkJDQo+IAkJCVNlbmQ0MDMoQ3VycmVudFJlcXVl
-c3QtPnNvY2spOyAvKiBTb3JyeSwgbm8gZ28uLi4gKi8NCj4gCQkJDQo=
+This is correct. The flags are pushed then popped into the
+variable provided.
 
------- =_NextPart_000_01C14771.B0EC0960--
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

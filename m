@@ -1,66 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131206AbRC3Ii5>; Fri, 30 Mar 2001 03:38:57 -0500
+	id <S131232AbRC3JP7>; Fri, 30 Mar 2001 04:15:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131224AbRC3Iir>; Fri, 30 Mar 2001 03:38:47 -0500
-Received: from 110-moc-1.acn.waw.pl ([212.76.40.110]:6148 "HELO
-	gateway.softpress.com.pl") by vger.kernel.org with SMTP
-	id <S131206AbRC3Iih>; Fri, 30 Mar 2001 03:38:37 -0500
-Message-ID: <004a01c0b8f4$ec6755a0$0ad1a8c0@softpress.com.pl>
-From: "Andrzej Orchowski" <A.Orchowski@softpress.com.pl>
-To: <linux-kernel@vger.kernel.org>
-Subject: 3c509 driver bug
-Date: Fri, 30 Mar 2001 10:39:24 +0200
+	id <S131233AbRC3JPt>; Fri, 30 Mar 2001 04:15:49 -0500
+Received: from web1502.mail.yahoo.com ([128.11.23.180]:62224 "HELO
+	web1502.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S131232AbRC3JPl>; Fri, 30 Mar 2001 04:15:41 -0500
+Message-ID: <20010330091500.2583.qmail@web1502.mail.yahoo.com>
+Date: Fri, 30 Mar 2001 01:15:00 -0800 (PST)
+From: Jeffrey Ingber <jhingber@yahoo.com>
+Subject: build of Zoran ZR36060 driver broken in 2.4.3
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-sorry for this non-proffesional way of sending bug report and patch 
-(I'm new to Linux, couldn't find utility to create patch). Fix is based
-upon of the code analysis rather (and obviosly my working environment)
-then 3Com tech docs. Anyway lets start...
+The build of the Zoran ZR36060 driver appears to be
+broken when building buz.c.  FYI, I don't even have
+the option "Include Support for Iomga Buz" selected.
 
-1. Bug Summary
-Inproper interface setting in 3Com 509 nic driver 1.16 (2.2)
+SuSE 7.1, gcc 2.95.2, on a dual i686 BX
 
-2. Bug Description
-Bug exists in 3Com 509 nic driver version 1.16 (2.2) by Donald J. Becker.
-Under some circomstances the nic interface (10BaseT, AUI, BNC) is set
-inproperly usually causing the card to stop working.
-The unwanted and/or strange behaviour occures esspecially with more then
-one 509 nics present.
+make -C video modules
+make[3]: Entering directory
+`/usr/src/linux-2.4.3-64GB-SMP/drivers/media/video'
+gcc -D__KERNEL__
+-I/usr/src/linux-2.4.3-64GB-SMP/include -Wall
+-Wstrict-prototypes -O2 -fomit-frame-pointer
+-fno-strict-aliasing -pipe
+-mpreferred-stack-boundary=2 -march=i686 -DMODULE
+-DMODVERSIONS -include
+/usr/src/linux-2.4.3-64GB-SMP/include/linux/modversions.h
+  -DEXPORT_SYMTAB -c videodev.c
+gcc -D__KERNEL__
+-I/usr/src/linux-2.4.3-64GB-SMP/include -Wall
+-Wstrict-prototypes -O2 -fomit-frame-pointer
+-fno-strict-aliasing -pipe
+-mpreferred-stack-boundary=2 -march=i686 -DMODULE
+-DMODVERSIONS -include
+/usr/src/linux-2.4.3-64GB-SMP/include/linux/modversions.h
+  -c -o buz.o buz.c
+buz.c: In function `v4l_fbuffer_alloc':
+buz.c:188: `KMALLOC_MAXSIZE' undeclared (first use in
+this function)
+buz.c:188: (Each undeclared identifier is reported
+only once
+buz.c:188: for each function it appears in.)
+buz.c: In function `jpg_fbuffer_alloc':
+buz.c:262: `KMALLOC_MAXSIZE' undeclared (first use in
+this function)
+buz.c:256: warning: `alloc_contig' might be used
+uninitialized in this function
+buz.c: In function `jpg_fbuffer_free':
+buz.c:322: `KMALLOC_MAXSIZE' undeclared (first use in
+this function)
+buz.c:316: warning: `alloc_contig' might be used
+uninitialized in this function
+buz.c: In function `zoran_ioctl':
+buz.c:2837: `KMALLOC_MAXSIZE' undeclared (first use in
+this function)
+make[3]: *** [buz.o] Error 1
+make[3]: Leaving directory
+`/usr/src/linux-2.4.3-64GB-SMP/drivers/media/video'
+make[2]: *** [_modsubdir_video] Error 2
+make[2]: Leaving directory
+`/usr/src/linux-2.4.3-64GB-SMP/drivers/media'
+make[1]: *** [_modsubdir_media] Error 2
+make[1]: Leaving directory
+`/usr/src/linux-2.4.3-64GB-SMP/drivers'
+make: *** [_mod_drivers] Error 2
 
-Internally the code sets the interface type in if_port variable. It is set
-upon of eeprom value in several places depending on the nic type:
-PnP, ISA, EISA. After if_port assigment code flows to found: label
-in which the different parameters are gathered together (to dev variable)
-to set the nic.
-Unfortunatelly in that place if_port is used condidionally which I believe
-is inherited from previous driver versions.
 
-/* Fix is simple enough not to include any attachments. Here it is */
-The line (around #451)
-    dev->if_port = (dev->mem_start & 0x1f) ? dev->mem_start & 3: if_port;
-should be replaced simply with
-    dev->if_port = if_port;
-
-3. Keywords
-networking, kernel, 3Com, 3C509, modules, drivers
-
-4. Kernel version
-I checked buggy driver is distributed with kernel version 2.2 and 2.4.2
-(and probably all earlier kernel versions dated after Feb 1998).
-
-Cheers
-Andrzej Orchowski
-andor@softpress.com.pl
-> 
-
+__________________________________________________
+Do You Yahoo!?
+Get email at your own domain with Yahoo! Mail. 
+http://personal.mail.yahoo.com/?.refer=text

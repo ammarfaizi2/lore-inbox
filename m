@@ -1,55 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVAWW60@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVAWXAT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261372AbVAWW60 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 17:58:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261373AbVAWW6Z
+	id S261375AbVAWXAT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 18:00:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVAWXAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 17:58:25 -0500
-Received: from mail.suse.de ([195.135.220.2]:52680 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261372AbVAWW6S (ORCPT
+	Sun, 23 Jan 2005 18:00:17 -0500
+Received: from fw.osdl.org ([65.172.181.6]:29122 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261373AbVAWW7Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 17:58:18 -0500
-From: Andreas Gruenbacher <agruen@suse.de>
-To: tridge@osdl.org
-Subject: Re: [ea-in-inode 0/5] Further fixes
-Date: Sun, 23 Jan 2005 23:58:09 +0100
-User-Agent: KMail/1.7.1
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>,
-       Andreas Dilger <adilger@clusterfs.com>, Alex Tomas <alex@clusterfs.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <20050120020124.110155000@suse.de> <1106351172.19651.102.camel@winden.suse.de> <16884.8352.76012.779869@samba.org>
-In-Reply-To: <16884.8352.76012.779869@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 23 Jan 2005 17:59:24 -0500
+Date: Sun, 23 Jan 2005 14:59:23 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, "Michael A. Halcrow" <mike@halcrow.us>,
+       Serge Hallyn <hallyn@cs.wm.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] security/seclvl.c: make some code static
+Message-ID: <20050123145923.U469@build.pdx.osdl.net>
+References: <20050123101640.GG3212@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501232358.09926.agruen@suse.de>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050123101640.GG3212@stusta.de>; from bunk@stusta.de on Sun, Jan 23, 2005 at 11:16:40AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+* Adrian Bunk (bunk@stusta.de) wrote:
+> This patch makes some needlessly global code static.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-On Sunday 23 January 2005 23:09, Andrew Tridgell wrote:
-> Andreas,
->
->  > Tridge, can you beat the code some more?
->  >
->  > Andrew has the five fixes in 2.6.11-rc1-mm2.
->
-> It seemed to pass dbench runs OK, but then I started simultaneously
-> running dbench and nbench on two different disks (I have a new test
-> machine with more disks available). I am getting failures like this:
->
-> Jan 23 06:54:38 dev4-003 kernel: journal_bmap: journal block not found at
-> offset 1036 on sdc1 Jan 23 06:54:38 dev4-003 kernel: Aborting journal on
-> device sdc1.
+ACK, I'll push this up if Andrew doesn't grab it.
 
-Are you using data journaling on that filesystem? Does this test pass with the 
-patches backed out? With an external journal?
-
-Thanks,
+thanks,
+-chris
 -- 
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX PRODUCTS GMBH
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

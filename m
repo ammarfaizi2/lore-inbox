@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267969AbUBRThH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 14:37:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267967AbUBRThH
+	id S267981AbUBRTt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 14:49:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267985AbUBRTt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 14:37:07 -0500
-Received: from gprs156-45.eurotel.cz ([160.218.156.45]:20354 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S267966AbUBRThD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 14:37:03 -0500
-Date: Wed, 18 Feb 2004 20:36:24 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][1/6] A different KGDB stub
-Message-ID: <20040218193624.GA408@elf.ucw.cz>
-References: <20040217220249.GB16881@smtp.west.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040217220249.GB16881@smtp.west.cox.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Wed, 18 Feb 2004 14:49:56 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:33679 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S267981AbUBRTtz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 14:49:55 -0500
+Message-ID: <003601c3f658$5b46afe0$0e25fe96@pysiak>
+From: "Maciej Soltysiak" <solt@dns.toxicfilms.tv>
+To: <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0402172013320.2686@home.osdl.org> <yw1xad3gd7l5.fsf@ford.guide><200402181417.06553.ianh@iahastie.local.net> <yw1x1xoscvl8.fsf@ford.guide> <002f01c3f632$29783f90$0e25fe96@pysiak> <Pine.LNX.4.58.0402181342030.670@pervalidus.dyndns.org> <1077130933.31049.11.camel@telecentrolivre> <Pine.LNX.4.58.0402181612140.670@pervalidus.dyndns.org> <1077132367.30936.16.camel@telecentrolivre>
+Subject: Re: [REALLY STUPID] Re: Linux 2.6.3
+Date: Wed, 18 Feb 2004 20:49:44 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Spam-Rating: 0 1.6.2 0/1000/N
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>  Actually, there is license problems with that.
+I bet some authors would agree to grant freely the licence to have the image
+of their long forgotten creations distributed in the logo of a non-profit
+project which is Linux.
 
-> The following is the core bits to this KGDB stub.
+btw. I am preparing a web page on the proposals, stay tuned.
 
-What are those weak functions good for? Can't we simply assume that
-any architecture that allows CONFIG_KGDB provides neccessary
-functions?
-								Pavel
-PS: Also.. how to proceed? Should I split your patches into "normal"
-and "lite" parts and submit to Amit?
+Regards,
+Maciej
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

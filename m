@@ -1,32 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132914AbRDUUpT>; Sat, 21 Apr 2001 16:45:19 -0400
+	id <S132922AbRDUUqu>; Sat, 21 Apr 2001 16:46:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132919AbRDUUpJ>; Sat, 21 Apr 2001 16:45:09 -0400
-Received: from pc57-cam4.cable.ntl.com ([62.253.135.57]:22402 "EHLO
-	kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
-	id <S132914AbRDUUow>; Sat, 21 Apr 2001 16:44:52 -0400
-X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Jochen Striepe <jochen@tolot.escape.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.4-pre6 does not compile 
-In-Reply-To: Message from Russell King <rmk@arm.linux.org.uk> 
-   of "Sat, 21 Apr 2001 21:34:30 BST." <20010421213430.D7576@flint.arm.linux.org.uk> 
-In-Reply-To: <20010421221728.C4077@tolot.escape.de>  <20010421213430.D7576@flint.arm.linux.org.uk> 
+	id <S132921AbRDUUqm>; Sat, 21 Apr 2001 16:46:42 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:17427 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S132920AbRDUUqb>;
+	Sat, 21 Apr 2001 16:46:31 -0400
+Date: Sat, 21 Apr 2001 16:46:59 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: Request for comment -- a better attribution system
+Message-ID: <20010421164659.A4704@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Alexander Viro <viro@math.psu.edu>,
+	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <200104212023.f3LKN7P188973@saturn.cs.uml.edu> <Pine.GSO.4.21.0104211630130.27021-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 21 Apr 2001 21:44:41 +0100
-From: Philip Blundell <philb@gnu.org>
-Message-Id: <E14r4FF-000105-00@kings-cross.london.uk.eu.org>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0104211630130.27021-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sat, Apr 21, 2001 at 04:34:29PM -0400
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Its because you're using a version of gcc which doesn't have
->__builtin_expect (eg, egcs 1.1.2, some versions of gcc 2.95).
+Alexander Viro <viro@math.psu.edu>:
+> The real problem is that large part of the kernel has no permanent
+> maintainers. Which makes the whole (overdesigned) idea completely moot.
 
-No 2.95.x has __builtin_expect.  There might be some 2.95-derived GNUpro that 
-supports it but I doubt anyone is using those to build kernels.
+One of the problems this `overdesign' can help solve is actually identifying
+the parts that have semi-permanent maintainers, and the parts that don't.
 
-p.
+One way to use the meta-information, for example, would be to use it to 
+periodically poll maintainers to find out if they're still active.
+
+Another is to be able to generate reports on exactly how much of the kernel
+is in "Maintained" or "Supported" status.  I think it would be worth 
+making this change just so we could know that.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+What if you were an idiot, and what if you were a member of Congress?
+But I repeat myself.
+        -- Mark Twain
 
 

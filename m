@@ -1,109 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315944AbSEGTAS>; Tue, 7 May 2002 15:00:18 -0400
+	id <S315898AbSEGTCW>; Tue, 7 May 2002 15:02:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315945AbSEGTAR>; Tue, 7 May 2002 15:00:17 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:37115 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S315944AbSEGTAP>; Tue, 7 May 2002 15:00:15 -0400
-Date: Tue, 7 May 2002 20:55:25 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: linux-kernel@vger.kernel.org
-Subject: [patch] #include <linux/pagemap.h> in fs/partitions/check.h
-Message-ID: <Pine.NEB.4.44.0205072048460.9347-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315952AbSEGTCV>; Tue, 7 May 2002 15:02:21 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:11524 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S315898AbSEGTCU>;
+	Tue, 7 May 2002 15:02:20 -0400
+Date: Tue, 7 May 2002 11:02:37 -0700
+From: Greg KH <greg@kroah.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.14 IDE 56
+Message-ID: <20020507180237.GA1396@kroah.com>
+In-Reply-To: <20020507171946.29430@mailhost.mipsys.com> <Pine.LNX.4.33.0205071053070.6307-100000@segfault.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Tue, 09 Apr 2002 16:52:37 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+On Tue, May 07, 2002 at 11:29:10AM -0700, Patrick Mochel wrote:
+> 
+> Which gives you a default name for the device. With /sbin/hotplug, simple 
+> userspace policy, and symlinks in /dev, you can emulate the current device 
+> hierarchy. So, you get a device naming solution that gives you only the 
+> device names for the devices you have. 
+> 
+> This approach also de-emphasizes the dependency on major and minor 
+> numbers. If device nodes are created in kernel space initially, userspace 
+> doesn't need to know what the major/minor is for a particular device. The 
+> symlink to the device node is all that's need to operate on the device. 
+> 
+> Without the need to coordinate between kernel and userspace, at least some 
+> majors/minors can be dynamically allocated as the subsystems and devices 
+> are registered with the core. (These can then be exported via files in 
+> driverfs). (This is similar to the dynamic allocation of minor numbers in 
+> the USB subsystem that showed up recently...)
 
-fs/partitions/check.h uses page_cache_release that is
+And is exactly why this showed up in the USB subsystem :)
 
-  #define page_cache_release(x)   __free_page(x)
+> Oh, and it's with a modern, clean filesystem, 1/5 the size of devfs. 
 
-in linux/pagemap.h but check.h doesn't include this file. This resulted in
-the following compile error:
+And it removes the dependency of devfsd and its interface, replacing it
+with the existing /sbin/hotplug interface.  This allows different people
+to implement different naming schemes if they so desire, moving naming
+policy out of the kernel into userspace, where it belongs.
 
-<--  snip  -->
-
-...
-gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-modular/include -Wall
--Wstr
-ict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe
--mprefe
-rred-stack-boundary=2 -march=k6   -nostdinc -I
-/usr/lib/gcc-lib/i386-linux/2.95.
-4/include -DKBUILD_BASENAME=acorn  -c -o acorn.o acorn.c
-In file included from acorn.c:21:
-check.h: In function `put_dev_sector':
-check.h:13: warning: implicit declaration of function `page_cache_release'
-...
-ld -m elf_i386 -T
-/home/bunk/linux/kernel-2.4/linux-modular/arch/i386/vmlinux.lds -e stext
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
-init/version.o init/do_mounts.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
-mm/mm.o fs/fs.o ipc/ipc.o \
-         drivers/acpi/acpi.o drivers/char/char.o drivers/block/block.o
-drivers/misc/misc.o drivers/net/net.o drivers/media/media.o
-drivers/char/drm/drm.o drivers/net/fc/fc.o
-drivers/net/appletalk/appletalk.o drivers/net/tokenring/tr.o
-drivers/net/wan/wan.o drivers/atm/atm.o drivers/cdrom/driver.o
-drivers/pci/driver.o drivers/net/pcmcia/pcmcia_net.o
-drivers/net/wireless/wireless_net.o drivers/video/video.o
-drivers/net/hamradio/hamradio.o drivers/md/mddev.o
-drivers/isdn/vmlinux-obj.o arch/i386/math-emu/math.o \
-        net/network.o \
-        /home/bunk/linux/kernel-2.4/linux-modular/arch/i386/lib/lib.a
-/home/bunk/linux/kernel-2.4/linux-modular/lib/lib.a
-/home/bunk/linux/kernel-2.4/linux-modular/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-fs/fs.o: In function `riscix_partition':
-fs/fs.o(.text+0x2810b): undefined reference to `page_cache_release'
-fs/fs.o: In function `linux_partition':
-fs/fs.o(.text+0x281d0): undefined reference to `page_cache_release'
-fs/fs.o: In function `adfspart_check_ADFS':
-fs/fs.o(.text+0x28238): undefined reference to `page_cache_release'
-fs/fs.o(.text+0x28281): undefined reference to `page_cache_release'
-fs/fs.o: In function `adfspart_check_ICSLinux':
-fs/fs.o(.text+0x28371): undefined reference to `page_cache_release'
-fs/fs.o(.text+0x283e7): more undefined references to `page_cache_release'
-follow
-make: *** [vmlinux] Error 1
-...
-
-<--  snip  -->
+Yes, there will probably be a "default" naming scheme, matching what we
+have today, but the ability to replace it with another one is _so_ much
+easier than having to try to tie into devfsd (like the devreg
+implementation does: http://www-124.ibm.com/devreg/ )
 
 
-The fix is simple:
-
-
---- fs/partitions/check.h.old	Tue May  7 20:46:21 2002
-+++ fs/partitions/check.h	Tue May  7 20:47:01 2002
-@@ -2,6 +2,9 @@
-  * add_partition adds a partitions details to the devices partition
-  * description.
-  */
-+
-+#include <linux/pagemap.h>
-+
- void add_gd_partition(struct gendisk *hd, int minor, int start, int size);
-
- typedef struct {struct page *v;} Sector;
-
-
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
+greg k-h

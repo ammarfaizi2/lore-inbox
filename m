@@ -1,51 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268332AbRHBCiG>; Wed, 1 Aug 2001 22:38:06 -0400
+	id <S268001AbRHBA0G>; Wed, 1 Aug 2001 20:26:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268343AbRHBCh4>; Wed, 1 Aug 2001 22:37:56 -0400
-Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:18823 "EHLO
-	pga.intervu.net") by vger.kernel.org with ESMTP id <S268332AbRHBChp>;
-	Wed, 1 Aug 2001 22:37:45 -0400
-Message-ID: <3B68BED6.5754F8F2@randomlogic.com>
-Date: Wed, 01 Aug 2001 19:45:42 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S268021AbRHBAZ4>; Wed, 1 Aug 2001 20:25:56 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53772 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268001AbRHBAZq>; Wed, 1 Aug 2001 20:25:46 -0400
+Subject: Re: 3ware Escalade problems
+To: jmerkey@vger.timpanogas.org (Jeff V. Merkey)
+Date: Thu, 2 Aug 2001 01:26:22 +0100 (BST)
+Cc: ransom@cfa.harvard.edu (Scott Ransom), linux-kernel@vger.kernel.org
+In-Reply-To: <20010801143935.A21157@vger.timpanogas.org> from "Jeff V. Merkey" at Aug 01, 2001 02:39:35 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: SMP possible with AMD CPUs?
-In-Reply-To: <Pine.LNX.4.33.0108021006550.1389-100000@mobile.torri.linux>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15S6Ji-00085T-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Torri wrote:
-> 
-> Are the AMD CPUs really geared at the silicon level for true SMP? Some
-> friend of mine says that just because you can pull the state pin by a
-> chipset to remove the CPU and start another doesn't say the CPU is really
-> made for SMP. It just says that they have made it work through the
-> chipset. I am not sure if the Intel family are really true SMP or not.
-> 
-> I would apprecite some feedback on this.
-> 
+> I am also using 8 way escalade adapters, and am seeing a host of problems.
 
-The Athlon Thunderbird as well as the Athlon MP (which uses the new Palamino [sp?]) core) both have true SMP support. All the Athlon's have a bus that is based
-upon the Alpha EV6 bus, which supports multiple processors (greater than just 2) running and a bus speed up to 400MHz (too bad the systems themselves can't
-support this kind of speed). The MP chips have a faster core and some additional logic that gives them a 10 - 20% boost in performance over a straight Athlon.
-Part of this logic is a feature such that, in the case of a cache miss, the CPU will check the cache on the other CPU to see if it has the data it needs. If it
-does, it loads from that CPU, avoiding a memory access.
+I've seen no problems since the 1.02.00.005 driver. 
 
-In addition, the EV6 bus has a separate bus for each CPU, as compared to the Intel SMP bus architecture which shares the bus. An Intel SMP machine will share
-the available host bus bandwidth between the two CPUs, where the Athlon has a separate bus for each one.
+> The first and foremore is that the gendisk head in 2.4.X is not being 
+> initialized properly in the driver.  I have reported these problems to
 
-PGA
+The gendisk comes from the scsi midlayer so you want linux-scsi for that
 
--- 
-Paul G. Allen
-UNIX Admin II/Programmer
-Akamai Technologies, Inc.
-www.akamai.com
-Work: (858)909-3630
-Cell: (858)395-5043

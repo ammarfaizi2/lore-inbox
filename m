@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261726AbTCQO7g>; Mon, 17 Mar 2003 09:59:36 -0500
+	id <S261715AbTCQPH1>; Mon, 17 Mar 2003 10:07:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261727AbTCQO7g>; Mon, 17 Mar 2003 09:59:36 -0500
-Received: from holomorphy.com ([66.224.33.161]:14042 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261726AbTCQO7f>;
-	Mon, 17 Mar 2003 09:59:35 -0500
-Date: Mon, 17 Mar 2003 07:10:04 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rik van Riel <riel@surriel.com>
-Cc: Paul Albrecht <palbrecht@uswest.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4 vm, program load, page faulting, ...
-Message-ID: <20030317151004.GR20188@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Rik van Riel <riel@surriel.com>,
-	Paul Albrecht <palbrecht@uswest.net>, linux-kernel@vger.kernel.org
-References: <002401c2eb78$cca714e0$d5bb0243@oemcomputer> <Pine.LNX.4.44.0303171001030.2571-100000@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
+	id <S261720AbTCQPH1>; Mon, 17 Mar 2003 10:07:27 -0500
+Received: from comtv.ru ([217.10.32.4]:55765 "EHLO comtv.ru")
+	by vger.kernel.org with ESMTP id <S261715AbTCQPH0>;
+	Mon, 17 Mar 2003 10:07:26 -0500
+X-Comment-To: Matthew Wilcox
+To: Matthew Wilcox <willy@debian.org>
+Cc: Andreas Dilger <adilger@clusterfs.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, Andrew Morton <akpm@digeo.com>
+Subject: Re: [Ext2-devel] [PATCH] distributed counters for ext2 to avoid group scaning
+References: <m3el5773to.fsf@lexa.home.net>
+	<20030316104447.D12806@schatzie.adilger.int>
+	<m3bs0bugca.fsf@lexa.home.net>
+	<20030317151108.GC28607@parcelfarce.linux.theplanet.co.uk>
+From: Alex Tomas <bzzz@tmi.comex.ru>
+Organization: HOME
+Date: 17 Mar 2003 18:09:54 +0300
+In-Reply-To: <20030317151108.GC28607@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <m3ptoqjagt.fsf@lexa.home.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303171001030.2571-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Mar 2003, Paul Albrecht wrote:
->> ... Why does the kernel page fault on text pages, present in the page
->> cache, when a program starts? Couldn't the pte's for text present in the
->> page cache be resolved when they're mapped to memory?
+>>>>> Matthew Wilcox (MW) writes:
+ MW> And then we have 3 of these (an additional 3k..).  Per
+ MW> blockgroup.  My 4GB / has 30 blockgroups; my 30GB /home has 232.
+ MW> So that's a little under 8 per GB.  My _laptop_ has a 40GB drive,
+ MW> so that's on the order of 320 blockgroups -- almost an additional
+ MW> megabyte of ram consumed for these counters.
 
-On Mon, Mar 17, 2003 at 10:02:21AM -0500, Rik van Riel wrote:
-> The mmap() syscall only sets up the VMA info, it doesn't
-> fill in the page tables. That only happens when the process
-> page faults.
-> Note that filling in a bunch of page table entries mapping
-> already present pagecache pages at exec() time might be a
-> good idea.  It's just that nobody has gotten around to that
-> yet...
+no-no!
 
-SVR4 did and saw an improvement wrt. page fault rate, according to
-Vahalia.
+_one_ dcounter to maintain number of free blocks _per_ fs.
+_one_ dcounter to maintain number of inode blocks _per_ fs.
+_one_ dcounter to maintain number of dirs _per_ fs.
 
-I'd like to see whether this is useful for Linux.
+3 dcounter per fs. no more.
 
 
--- wli
+
+

@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275303AbTHMTKw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 15:10:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275305AbTHMTKw
+	id S275326AbTHMTQJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 15:16:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275328AbTHMTQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 15:10:52 -0400
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:25357 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S275303AbTHMTKv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 15:10:51 -0400
-Date: Wed, 13 Aug 2003 16:10:52 -0300
-From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
+	Wed, 13 Aug 2003 15:16:09 -0400
+Received: from uns-y1.unisinos.br ([200.188.162.1]:24732 "EHLO
+	sav03.unisinos.br") by vger.kernel.org with ESMTP id S275326AbTHMTQH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 15:16:07 -0400
+From: Lucas Correia Villa Real <lucasvr@gobolinux.org>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Subject: Re: 2.4.21 + NFS oops
+Date: Wed, 13 Aug 2003 16:12:49 -0300
+User-Agent: KMail/1.5
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.22-rc2 fix warnings deprecated in fs/ntfs
-Message-Id: <20030813161052.04860fb4.vmlinuz386@yahoo.com.ar>
-In-Reply-To: <Pine.LNX.4.44.0308131141050.4279-100000@localhost.localdomain>
-References: <20030813054747.1dde3a87.vmlinuz386@yahoo.com.ar>
-	<Pine.LNX.4.44.0308131141050.4279-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i486-slackware-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <200308121440.24983.lucasvr@gobolinux.org> <20030812233256.21c80830.skraw@ithnet.com>
+In-Reply-To: <20030812233256.21c80830.skraw@ithnet.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308131612.49627.lucasvr@gobolinux.org>
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Aug 2003 11:41:46 -0300 (BRT), Marcelo Tosatti wrote:
+On Tuesday 12 August 2003 06:32 pm, Stephan von Krawczynski wrote:
+> On Tue, 12 Aug 2003 14:40:24 -0300
 >
+> Lucas Correia Villa Real <lucasvr@gobolinux.org> wrote:
+> > Hi,
+> >
+> > I have been trying to export an reiserfs partition on NFS. I can mount it
+> > remotely and even create files on it, but I always got a kernel oops when
+> > trying to remove any file. I have also tryied to export another
+> > partition, formatted as ext2 (but keeping my root fs as reiserfs), but
+> > the problem has persisted.
 >
->On Wed, 13 Aug 2003, Gerardo Exequiel Pozzi wrote:
->
->> Hi Marcelo,
->> 
->> I created a patch that fix these warnings in gcc 3.2, please apply
->it.
->
->Gerardo, 
->
->The patch looks good but I wont apply it now. I prefer getting it
->throught the NTFS maintainer. Can you send this to him? 
->
+> Have you tried to compile your kernel with another compiler (i.e. not gcc
+> 3.2.X) ?
 
-Thanks for you response, ok, now I am going to create one second part
-that corrects around 100 warnings (the same deprecated) when option
-DEBUG in the Makefile activates, and send to Anton Altaparmakov, so
-that it is contacted with you.
+Well, I have just compiled it with GCC 2.95.3, and I got the same kernel oops.
+By the way, I have formatted the whole disk with XFS, so it seems like this 
+isn't a reiserfs issue. 
 
-Best regards,
- djgera
+Anyone suffering from NFS on 2.4.21, too, or any ideas...?
 
-
--- 
-Gerardo Exequiel Pozzi ( djgera )
-http://www.vmlinuz.com.ar http://www.djgera.com.ar
-KeyID: 0x1B8C330D
-Key fingerprint = 0CAA D5D4 CD85 4434 A219  76ED 39AB 221B 1B8C 330D
+Lucas

@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275385AbRIZRtd>; Wed, 26 Sep 2001 13:49:33 -0400
+	id <S275386AbRIZRtb>; Wed, 26 Sep 2001 13:49:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275381AbRIZRtU>; Wed, 26 Sep 2001 13:49:20 -0400
-Received: from mpdr0.cleveland.oh.ameritech.net ([206.141.223.14]:18304 "EHLO
-	mailhost.cle.ameritech.net") by vger.kernel.org with ESMTP
-	id <S275383AbRIZRsI>; Wed, 26 Sep 2001 13:48:08 -0400
-Date: Wed, 26 Sep 2001 13:48:26 -0400 (EDT)
-From: Stephen Torri <storri@ameritech.net>
-X-X-Sender: <torri@base.torri.linux>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.9-ac15 (double entries for DRI cards)
-Message-ID: <Pine.LNX.4.33.0109261340560.1820-100000@base.torri.linux>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275389AbRIZRtQ>; Wed, 26 Sep 2001 13:49:16 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:9689 "EHLO
+	e33.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S275385AbRIZRtC>; Wed, 26 Sep 2001 13:49:02 -0400
+Date: Wed, 26 Sep 2001 10:48:00 -0700
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Ben LaHaise <bcrl@redhat.com>,
+        Andrea Arcangeli <andrea@suse.de>
+Subject: Re: [patch] softirq performance fixes, cleanups, 2.4.10.
+Message-ID: <20010926104800.A1143@w-mikek2.des.beaverton.ibm.com>
+In-Reply-To: <Pine.LNX.4.33.0109261729570.5644-200000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0109261729570.5644-200000@localhost.localdomain>; from mingo@elte.hu on Wed, Sep 26, 2001 at 06:44:03PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In "Character Devices" when configuring the kernel using xconfig there are
-double entries for video cards under Direct Rendering Manager.  The
-following cards are reported twice:
+On Wed, Sep 26, 2001 at 06:44:03PM +0200, Ingo Molnar wrote:
+> +void __unwakeup_process(struct task_struct * p, long state)
+> +{
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&runqueue_lock, flags);
+> +	if (!p->has_cpu && (p != current) && task_on_runqueue(p)) {
+> +		del_from_runqueue(p);
+> +		p->state = state;
+> +	}
+> +	spin_unlock_irqrestore(&runqueue_lock, flags);
+> +}
 
-3dfx Banshee/Voodoo3+
-3dlabs GMX 2000
-ATI Rage 128
-ATI Radeon
-Intel I810
-Matrox G200/G400/G450
+Is it really possible for a task to be 'current' without having
+'has_cpu' set?  If so, then don't you need to compare p to
+'current' on all CPUs since 'current' is CPU specific?
 
-They menu is correct when doing menuconfig. They are only reported once.
-The bug is repeatable.
-
-kernel: 2.4.9 patched with 2.4.9-ac15.
-gcc: 3.0.2 (snapshot)
-
-Stephen
-
+-- 
+Mike Kravetz                                  kravetz@us.ibm.com
+IBM Linux Technology Center       (we're not at Sequent anymore)

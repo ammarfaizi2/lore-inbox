@@ -1,32 +1,194 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261798AbSJDSbX>; Fri, 4 Oct 2002 14:31:23 -0400
+	id <S261879AbSJDTeN>; Fri, 4 Oct 2002 15:34:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261804AbSJDSbX>; Fri, 4 Oct 2002 14:31:23 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:9982 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261798AbSJDSbX>; Fri, 4 Oct 2002 14:31:23 -0400
-Subject: Re: 3DNOW Question/MMX Support in 2.4.X tree
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021004121543.A29145@vger.timpanogas.org>
-References: <20021004121543.A29145@vger.timpanogas.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 04 Oct 2002 19:45:27 +0100
-Message-Id: <1033757127.31839.49.camel@irongate.swansea.linux.org.uk>
+	id <S261872AbSJDTeN>; Fri, 4 Oct 2002 15:34:13 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:49537 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261794AbSJDTeG>; Fri, 4 Oct 2002 15:34:06 -0400
+Date: Fri, 4 Oct 2002 12:40:43 -0700
+From: Mike Anderson <andmike@us.ibm.com>
+To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] scsi_debug new scan fix
+Message-ID: <20021004194043.GB9544@beaverton.ibm.com>
+Mail-Followup-To: linux-scsi@vger.kernel.org,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-10-04 at 20:15, Jeff V. Merkey wrote:
-> I noticed that the MMX libraries seem tied to CYRIX and AMD builds 
-> in the config scripts.  I am wondering if MMX support for Intel 
-> is not supported in 2.4.X kernels except for these processor types.
-> The code appears to be usable on Intel.
+This is a resend of a previous patch.
 
-MMX copies are only a win on some processors, so we only use it in
-kernel there. MMX itself works on all processors
+If you use scsi_debug the patch below fixes a problem that has existed
+since the updated scan code was merged in. scsi_debug previously assumed
+that the scsi_device used to probe and the device permanently added to the
+host_queue would be the same. This caused scsi_debug to allocate some
+internal data and key it off the scsi_device pointer for later use.  This
+resulted in scsi_debug failing all IO post scanning. This patch corrects
+this problem.
+
+Note:
+	Douglas Gilbert is the maintainer of this driver.
+	dougg@gear.torque.net
+	http://www.torque.net/sg/
+
+	During Douglas Gilbert's time-off he connects when he can so it
+	maybe a bit until he can address this.
+
+	In the interim this patch makes scsi_debug functional.
+
+
+The full patch is available at:
+http://www-124.ibm.com/storageio/patches/2.5/scsi-debug
+
+-andmike
+--
+Michael Anderson
+andmike@us.ibm.com
+
+ scsi_debug.c |   59 +++++++++++++++++++++++++++++++----------------------------
+ 1 files changed, 31 insertions(+), 28 deletions(-)
+
+-----
+
+diff -Nru a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
+--- a/drivers/scsi/scsi_debug.c	Fri Oct  4 07:53:21 2002
++++ b/drivers/scsi/scsi_debug.c	Fri Oct  4 07:53:21 2002
+@@ -108,9 +108,13 @@
+ #define SDEBUG_SENSE_LEN 32
+ 
+ struct sdebug_dev_info {
+-	Scsi_Device * sdp;
+ 	unsigned char sense_buff[SDEBUG_SENSE_LEN];	/* weak nexus */
++	unsigned int channel;
++	unsigned int target;
++	unsigned int lun;
++	struct Scsi_Host *host;
+ 	char reset;
++	char used;
+ };
+ static struct sdebug_dev_info * devInfop;
+ 
+@@ -154,7 +158,7 @@
+ static int resp_report_luns(unsigned char * cmd, unsigned char * buff,
+ 			    int bufflen, struct sdebug_dev_info * devip);
+ static void timer_intr_handler(unsigned long);
+-static struct sdebug_dev_info * devInfoReg(Scsi_Device * sdp);
++static struct sdebug_dev_info * devInfoReg(Scsi_Cmnd *scmd);
+ static void mk_sense_buffer(struct sdebug_dev_info * devip, int key, 
+ 			    int asc, int asq, int inbandLen);
+ static int check_reset(Scsi_Cmnd * SCpnt, struct sdebug_dev_info * devip);
+@@ -222,7 +226,7 @@
+ 		return schedule_resp(SCpnt, NULL, done, 0, 0);
+         }
+ 
+-	if ((target > driver_template.this_id) || (SCpnt->lun != 0))
++	if (SCpnt->lun != 0)
+ 		return schedule_resp(SCpnt, NULL, done, 
+ 				     DID_NO_CONNECT << 16, 0);
+ #if 0
+@@ -230,14 +234,10 @@
+ 	       (int)SCpnt->device->host->host_no, (int)SCpnt->device->id,
+ 	       SCpnt->device, (int)*cmd);
+ #endif
+-	if (NULL == SCpnt->device->hostdata) {
+-		devip = devInfoReg(SCpnt->device);
+-		if (NULL == devip)
+-			return schedule_resp(SCpnt, NULL, done, 
+-					     DID_NO_CONNECT << 16, 0);
+-		SCpnt->device->hostdata = devip;
+-	}
+-	devip = SCpnt->device->hostdata;
++	devip = devInfoReg(SCpnt);
++	if (NULL == devip)
++		return schedule_resp(SCpnt, NULL, done, 
++				     DID_NO_CONNECT << 16, 0);
+ 
+         if ((SCSI_DEBUG_OPT_EVERY_NTH & scsi_debug_opts) &&
+             (scsi_debug_every_nth > 0) &&
+@@ -474,8 +474,8 @@
+ 		int dev_id_num, len;
+ 		char dev_id_str[6];
+ 		
+-		dev_id_num = ((devip->sdp->host->host_no + 1) * 1000) + 
+-			      devip->sdp->id;
++		dev_id_num = ((devip->host->host_no + 1) * 1000) + 
++			      devip->target;
+ 		len = snprintf(dev_id_str, 6, "%d", dev_id_num);
+ 		len = (len > 6) ? 6 : len;
+ 		if (0 == cmd[2]) { /* supported vital product data pages */
+@@ -870,21 +870,28 @@
+ 	return 0;
+ }
+ 
+-static struct sdebug_dev_info * devInfoReg(Scsi_Device * sdp)
++static struct sdebug_dev_info * devInfoReg(Scsi_Cmnd *scmd)
+ {
+ 	int k;
+ 	struct sdebug_dev_info * devip;
+ 
+ 	for (k = 0; k < scsi_debug_num_devs; ++k) {
+ 		devip = &devInfop[k];
+-		if (devip->sdp == sdp)
++		if ((devip->channel == scmd->channel) &&
++		    (devip->target == scmd->target) &&
++		    (devip->lun == scmd->lun) &&
++		    (devip->host == scmd->host))
+ 			return devip;
+ 	}
+ 	for (k = 0; k < scsi_debug_num_devs; ++k) {
+ 		devip = &devInfop[k];
+-		if (NULL == devip->sdp) {
+-			devip->sdp = sdp;
++		if (!devip->used) {
++			devip->channel = scmd->channel;
++			devip->target = scmd->target;
++			devip->lun = scmd->lun;
++			devip->host = scmd->host;
+ 			devip->reset = 1;
++			devip->used = 1;
+ 			memset(devip->sense_buff, 0, SDEBUG_SENSE_LEN);
+ 			devip->sense_buff[0] = 0x70;
+ 			return devip;
+@@ -934,19 +941,15 @@
+ 
+ static int scsi_debug_device_reset(Scsi_Cmnd * SCpnt)
+ {
+-	Scsi_Device * sdp;
+-	int k;
++	struct sdebug_dev_info * devip;
+ 
+ 	if (SCSI_DEBUG_OPT_NOISE & scsi_debug_opts)
+ 		printk(KERN_INFO "scsi_debug: device_reset\n");
+ 	++num_dev_resets;
+-	if (SCpnt && ((sdp = SCpnt->device))) {
+-		for (k = 0; k < scsi_debug_num_devs; ++k) {
+-			if (sdp->hostdata == (devInfop + k))
+-				break;
+-		}
+-		if (k < scsi_debug_num_devs)
+-			devInfop[k].reset = 1;
++	if (SCpnt) {
++		devip = devInfoReg(SCpnt);
++		if (devip)
++			devip->reset = 1;
+ 	}
+ 	return SUCCESS;
+ }
+@@ -960,9 +963,9 @@
+ 	if (SCSI_DEBUG_OPT_NOISE & scsi_debug_opts)
+ 		printk(KERN_INFO "scsi_debug: bus_reset\n");
+ 	++num_bus_resets;
+-	if (SCpnt && ((sdp = SCpnt->device)) && ((hp = sdp->host))) {
++	if (SCpnt && ((sdp = SCpnt->device)) && ((hp = SCpnt->host))) {
+ 		for (k = 0; k < scsi_debug_num_devs; ++k) {
+-			if (hp == devInfop[k].sdp->host)
++			if (hp == devInfop[k].host)
+ 				devInfop[k].reset = 1;
+ 		}
+ 	}
 

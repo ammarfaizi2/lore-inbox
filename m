@@ -1,75 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274243AbRISWyT>; Wed, 19 Sep 2001 18:54:19 -0400
+	id <S274246AbRISW6t>; Wed, 19 Sep 2001 18:58:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274244AbRISWyJ>; Wed, 19 Sep 2001 18:54:09 -0400
-Received: from puma.inf.ufrgs.br ([143.54.11.5]:21510 "EHLO inf.ufrgs.br")
-	by vger.kernel.org with ESMTP id <S274243AbRISWx6>;
-	Wed, 19 Sep 2001 18:53:58 -0400
-Date: Wed, 19 Sep 2001 19:55:04 -0300 (EST)
-From: Roberto Jung Drebes <drebes@inf.ufrgs.br>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
-In-Reply-To: <Pine.LNX.4.30.0109191509480.29421-100000@anime.net>
-Message-ID: <Pine.GSO.4.21.0109191946550.1374-100000@jacui>
+	id <S274245AbRISW6a>; Wed, 19 Sep 2001 18:58:30 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59478 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S274244AbRISW60>; Wed, 19 Sep 2001 18:58:26 -0400
+To: "Rob Fuller" <rfuller@nsisoftware.com>
+Cc: "David S. Miller" <davem@redhat.com>, <alan@lxorguk.ukuu.org.uk>,
+        <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>
+Subject: Re: broken VM in 2.4.10-pre9
+In-Reply-To: <878A2048A35CD141AD5FC92C6B776E4907B7A5@xchgind02.nsisw.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 Sep 2001 16:48:44 -0600
+In-Reply-To: <878A2048A35CD141AD5FC92C6B776E4907B7A5@xchgind02.nsisw.com>
+Message-ID: <m11yl2g5kj.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Sep 2001, Dan Hollis wrote:
+"Rob Fuller" <rfuller@nsisoftware.com> writes:
 
-> We definitely need more data points too. So far we dont have any athlon.c
-> data for kt133a with the bit on and off, only kt133.
+> In my one contribution to this thread I wrote:
+> 
+> "One argument for reverse mappings is distributed shared memory or
+> distributed file systems and their interaction with memory mapped files.
+> For example, a distributed file system may need to invalidate a specific
+> page of a file that may be mapped multiple times on a node."
+> 
+> I believe reverse mappings are an essential feature for memory mapped
+> files in order for Linux to support sophisticated distributed file
+> systems or distributed shared memory.  In general, this memory is NOT
+> anonymous.  As such, it should not affect the performance of a
+> fork/exec/exit.
+> 
+> I suppose I confused the issue when I offered a supporting argument for
+> reverse mappings.  It's not reverse mappings for anonymous pages I'm
+> advocating, but reverse mappings for mapped file data.
 
-My system is a kt133a, that show the bug. I have run a hundred tests,
-first in a Athlon optimized kernel with the patch (55.7=0) then with a non
-optimized kernel (55.7=1).
+The reverse mapping issue is not do we have a way to find where in the page
+tables a page is mapped.  But if we keep track of it in a data structure
+that allows us to do so extremely quickly.  The worst case for our current
+data structures to unmap one page is O(page mappings).
 
-Here are some typical results:
+For distributed filesystems contention sucks.  No matter how you play it
+contention for file data will never be a fast case.  Not if you have
+very many people contending for the data.  So this isn't a fast case.
 
-K7 optimized:
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $ 
-clear_page() tests 
-clear_page function 'warm up run'        took 19862 cycles per page
-clear_page function '2.4 non MMX'        took 12296 cycles per page
-clear_page function '2.4 MMX fallback'   took 12068 cycles per page
-clear_page function '2.4 MMX version'    took 14936 cycles per page
-clear_page function 'faster_clear_page'  took 4393 cycles per page
-clear_page function 'even_faster_clear'  took 4362 cycles per page
+Additionally our current data structures are optimized for unmapping
+page ranges.  Since if your contention case is sane you will be
+grabbing more than 4k at a time our looping through the vm_areas of
+a mapping should be more efficient than doing that loop once for
+each page that needs to be unmapped.
 
-copy_page() tests 
-copy_page function 'warm up run'         took 22513 cycles per page
-copy_page function '2.4 non MMX'         took 26280 cycles per page
-copy_page function '2.4 MMX fallback'    took 26275 cycles per page
-copy_page function '2.4 MMX version'     took 22537 cycles per page
-copy_page function 'faster_copy'         took 10983 cycles per page
-copy_page function 'even_faster'         took 11122 cycles per page
+Eric
 
-and here without:
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $ 
-clear_page() tests 
-clear_page function 'warm up run'        took 12871 cycles per page
-clear_page function '2.4 non MMX'        took 12325 cycles per page
-clear_page function '2.4 MMX fallback'   took 12586 cycles per page
-clear_page function '2.4 MMX version'    took 12021 cycles per page
-clear_page function 'faster_clear_page'  took 4401 cycles per page
-clear_page function 'even_faster_clear'  took 4370 cycles per page
 
-copy_page() tests 
-copy_page function 'warm up run'         took 19568 cycles per page
-copy_page function '2.4 non MMX'         took 25353 cycles per page
-copy_page function '2.4 MMX fallback'    took 25316 cycles per page
-copy_page function '2.4 MMX version'     took 19541 cycles per page
-copy_page function 'faster_copy'         took 11052 cycles per page
-copy_page function 'even_faster'         took 10785 cycles per page
 
-I thought that when I run the program in the non-optimized kernel with
-55.7=1, the program was supposed to crash the system, but it doesn't seem
-to do. Isn't the program the K7 optimized fast_copy_page()? Weird.
-
---
-Roberto Jung Drebes <drebes@inf.ufrgs.br>
-Porto Alegre, RS - Brasil
-http://www.inf.ufrgs.br/~drebes/
 

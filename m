@@ -1,99 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262591AbUBYXxu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 18:53:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262511AbUBYXvL
+	id S262511AbUBYXxw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 18:53:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbUBYXuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 18:51:11 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:40689 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261621AbUBYXsG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 18:48:06 -0500
-Date: Wed, 25 Feb 2004 15:48:02 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 2195] New: Reproduced bug 1594: kernel BUG at mm/slab.c:1269
-Message-ID: <4430000.1077752882@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Feb 2004 18:50:37 -0500
+Received: from ns.schottelius.org ([213.146.113.242]:3968 "HELO
+	scice.schottelius.org") by vger.kernel.org with SMTP
+	id S262274AbUBYXtC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 18:49:02 -0500
+Date: Thu, 26 Feb 2004 00:49:44 +0100
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: Nathan Scott <nathans@sgi.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: another hard disk broken or xfs problems?
+Message-ID: <20040225234944.GD187@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	Nathan Scott <nathans@sgi.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040225220051.GA187@schottelius.org> <20040225223428.GD640@frodo>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gDGSpKKIBgtShtf+"
 Content-Disposition: inline
+In-Reply-To: <20040225223428.GD640@frodo>
+X-MSMail-Priority: (u_int) -1
+X-Mailer: echo $message | gpg -e $sender  -s | netcat mailhost 25
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+Organization: http://nerd-hosting.net/
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=2195
 
-           Summary: Reproduced bug 1594: kernel BUG at mm/slab.c:1269
-    Kernel Version: 2.6.3
-            Status: NEW
-          Severity: normal
-             Owner: akpm@digeo.com
-         Submitter: schofield@ftw.at
+--gDGSpKKIBgtShtf+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Nathan Scott [Thu, Feb 26, 2004 at 09:34:28AM +1100]:
+> > I am now using a brand new 40GB Hitachi hard disk for my notebook and
+> > today I got the first problems:
+> >=20
+> >=20
+> > Starting XFS recovery on filesystem: hda3 (dev: hda3)
+> > Ending XFS recovery on filesystem: hda3 (dev: hda3)
+> > VFS: Mounted root (xfs filesystem) readonly.
+> > Mounted devfs on /dev
+> > Freeing unused kernel memory: 156k freed
+> > XFS mounting filesystem hda1
+> > Starting XFS recovery on filesystem: hda1 (dev: hda1)
+> > Ending XFS recovery on filesystem: hda1 (dev: hda1)
+> > XFS mounting filesystem loop0
+> > Starting XFS recovery on filesystem: loop0 (dev: loop0)
+> > XFS internal error XFS_WANT_CORRUPTED_GOTO at line 1589 of file fs/xfs/=
+xfs_alloc.c.  Caller 0xc0198272
+> > Call Trace: [<c0197151>]  [<c0198272>]  [<c0198272>]  [<c01c7fff>]  [<c=
+01ee628>]  [<c01e5286>]  [<c01e5355>]  [<c01e6b04>]  [<c01d24fa>]  [<c01dd2=
+cc>]  [<c01e83bd>]  [<c0203c60>]  [<c01d908f>]  [<c01f02c6>]  [<c02048e3>] =
+ [<c02046c8>]  [<c0215517>]  [<c0185764>]  [<c015c835>]  [<c015c268>]  [<c0=
+204890>]  [<c0204630>]  [<c015c4af>]  [<c0171ee8>]  [<c01721f4>]  [<c017204=
+4>]  [<c01725ef>]  [<c010b34b>]=20
+> > Ending XFS recovery on filesystem: loop0 (dev: loop0)
+> > Adding 192772k swap on /dev/discs/disc0/part2.  Priority:-1 extents:1
+> >=20
+> >=20
+> > I got this after a clean shutdown. Just tell me it's an xfs error and my
+> > harddisk is fine...
+>=20
+> Filesystem recovery doesn't run after a clean shutdown...
 
-Distribution: Mepis / Debian sid x86
+That's what I assume(d), too.
 
-Hardware Environment: x86: Intel P4 1.6GHz
+> the "Starting/Ending XFS recovery" messages indicate that
+> all of your filesystems were not unmounted by the look of
+> it.
 
-Software Environment: 
+That's true and interesting, as I did a shutdown -o (poweroff) from minit, =
+which
+should have unmounted the partions. I'll retry this with -h (halt only)
+this evening.
 
-gcc (GCC) 3.3.3 (Debian)
+> [...]=20
+> So, doesn't look like a hard disk error to me, and nor does it
+> look like an XFS problem.  You should be able to run xfs_repair
+> on your loopback file to fix the problem.
 
-config file:
-http://userver.ftw.at/~ejs/resources/config_2.6.3_kernel_bug
+Will reboot in half an hour, but I think as the recovery was done, it
+won't have any problems anymore.
 
-kernel compiled for this config file for x86:
-http://userver.ftw.at/~ejs/resources/bzImage_2.6.3_kernel_bug
+There are still some questions open for me:
 
-Patched kernel from 2.6.2 to 2.6.3 with official patch at
-http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.6%2Fpatch-2.6.3.bz2.
-B
+1. why is it an internal xfs error?
+2. why does it print a call trace?
+3. how can I find out what's wrong / what should I do when seeing call
+   traces? And what should I've done before (adding debugging somewhere?)
 
-Problem Description:
+Have a nice night,
 
-Same bug as #1594; line number incremented by one since 2.6.0-test10 ... 
+Nico
 
-Before the 2.6.3 patch yesterday this bug did not occur.  Since then it occurs
-each reboot.  The system has been unstable today, but I cannot isolate the cause.
+--=20
+Keep it simple & stupid, use what's available.
+pgp: 8D0E E27A          | Nico Schottelius
+http://nerd-hosting.net | http://linux.schottelius.org
 
-Message in /var/log/messages:
+--gDGSpKKIBgtShtf+
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-...
-Feb 24 11:58:44 polaris kernel: kmem_cache_create: duplicate cache dm_io
-Feb 24 11:58:44 polaris kernel: ------------[ cut here ]------------
-Feb 24 11:58:44 polaris kernel: kernel BUG at mm/slab.c:1269!
-Feb 24 11:58:44 polaris kernel: invalid operand: 0000 [#1]
-Feb 24 11:58:44 polaris kernel: CPU:    0
-Feb 24 11:58:44 polaris kernel: EIP:    0060:[<c013a45c>]    Not tainted
-Feb 24 11:58:44 polaris kernel: EFLAGS: 00010202
-Feb 24 11:58:44 polaris kernel: EIP is at kmem_cache_create+0x3ac/0x49c
-Feb 24 11:58:44 polaris kernel: eax: 00000029   ebx: f7df46dc   ecx: c04006f8
-edx: 00000282
-Feb 24 11:58:44 polaris kernel: esi: c0320502   edi: f89a2ebb   ebp: f7d13cc8
-esp: f797df40
-Feb 24 11:58:44 polaris kernel: ds: 007b   es: 007b   ss: 0068
-Feb 24 11:58:44 polaris kernel: Process modprobe (pid: 924, threadinfo=f797c000
-task=f7cc6080)
-Feb 24 11:58:44 polaris kernel: Stack: c03077a0 f89a2eb5 00000000 f797df5c f7d13
-d04 c0000000 fffffffc 00000000
-Feb 24 11:58:44 polaris kernel:        00000000 f797c000 f89a5c60 c034da58 f8849
-03b f89a2eb5 00000010 00000080
-Feb 24 11:58:44 polaris kernel:        00000000 00000000 00000000 00000000 f8849
-0a9 c034da70 f797c000 f89a5f00
-Feb 24 11:58:44 polaris kernel: Call Trace:
-Feb 24 11:58:44 polaris kernel:  [<f884903b>] local_init+0x3b/0x98 [dm_mod]
-Feb 24 11:58:44 polaris kernel:  [<f88490a9>] dm_init+0x11/0x3d [dm_mod]
-Feb 24 11:58:44 polaris kernel:  [<c0131996>] sys_init_module+0x117/0x228
-Feb 24 11:58:44 polaris kernel:  [<c010a86b>] syscall_call+0x7/0xb
-Feb 24 11:58:44 polaris kernel:
-Feb 24 11:58:44 polaris kernel: Code: 0f 0b f5 04 c7 6f 30 c0 8b 0b e9 76 ff ff
-ff 8b 47 34 c7 04
-...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Steps to reproduce:
+iD8DBQFAPTSXzGnTqo0OJ6QRAsFvAJ0c+aPavYe7XF4wTYq/AriUhL1OpgCeMoOg
+JlykhKIznbXrEUF6aLjQLyo=
+=JZIx
+-----END PGP SIGNATURE-----
 
-Try booting with the kernel cited above, or booting from a kernel compiled with
-the 2.6.3 sources and the config file given ...
-
-
+--gDGSpKKIBgtShtf+--

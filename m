@@ -1,60 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131459AbRD1HdK>; Sat, 28 Apr 2001 03:33:10 -0400
+	id <S131949AbRD1Hej>; Sat, 28 Apr 2001 03:34:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132316AbRD1Hc7>; Sat, 28 Apr 2001 03:32:59 -0400
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:32253 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S131459AbRD1Hcq>; Sat, 28 Apr 2001 03:32:46 -0400
-Message-Id: <5.0.2.1.2.20010428092215.00a68b30@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Sat, 28 Apr 2001 09:32:36 +0100
-To: Steffen Persvold <sp@scali.no>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Question regarding kernel threads and userlevel
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3AEA11F5.3D54828@scali.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S132316AbRD1He3>; Sat, 28 Apr 2001 03:34:29 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:33295 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S131949AbRD1HeW>;
+	Sat, 28 Apr 2001 03:34:22 -0400
+Date: Sat, 28 Apr 2001 09:32:33 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Fabio Riccardi <fabio@chromium.com>
+Cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Christopher Smith <x@xman.org>, Andrew Morton <andrewm@uow.edu.au>,
+        "Timothy D. Witham" <wookie@osdlab.org>, <David_J_Morse@Dell.com>
+Subject: X15 alpha release: as fast as TUX but in user space
+Message-ID: <Pine.LNX.4.33.0104280923520.12895-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 01:42 28/04/2001, Steffen Persvold wrote:
->I have a question regarding kernel threads : Are kernel threads treated 
->equally in terms of scheduling as normal userlevel processes ??
 
-I'm sure someone will correct me if I am wrong but I would think that 
-kernel threads are treated the same as the kernel, i.e. they are not 
-pre-emptied unless you call schedule yourself or you sleep.
+On Fri, 27 Apr 2001, Fabio Riccardi wrote:
 
->kernel thread gets scheduled and tries to get the same lock it will 
->deadlock because the userlevel process never gets back control and 
->releases the lock.
+> I'd like to announce the first release of X15 Alpha 1, a _user space_
+> web server that is as fast as TUX.
 
-It never gets pre-emptied according to the above so it would spin for ever. 
-You would need a SMP system which would be running the user space code on a 
-second CPU to unlock again. (And if your kernel thread is holding any other 
-locks which the user mode thread will take along it's kernel code path you 
-will deadlock, too.)
+great, the first TUX clone! ;-)
 
-If my suggestion above is correct then you can fix this by doing:
+This should put the accusations to rest that Linux got the outstandingly
+high SPECweb99 scores only because the webserver was in kernel-space. It's
+the 2.4 kernel's high performance that enabled those results, having the
+web-server in kernel-space didnt have much effect. TUX was and remains a
+testbed to test high-performance webserving (and FTP serving), without the
+API-exporting overhead of userspace.
 
-while (!spin_trylock())
-         schedule();
+[i suspect the small performance advantage of X15 is due to subtle
+differences in the SPECweb99 user-space module: eg. while the TUX code was
+written, tested and ready to use mmap()-enabled
+TUXAPI_alloc_read_objectbuf(), it wasnt enabled actually. I sent Fabio a
+mail how to enable it, perhaps he can do some tests to confirm this
+suspicion?]
 
-Which will forcefully schedule to allow your processes to run and you know 
-that as soon as you drop out of the loop you are holding the lock. If you 
-want you could also add in a counter a display a warning or something if 
-you don't manage to acquire a lock after several tries, perhaps just for 
-debugging purposes.
+doing a TUX 2.0 SPECweb99 benchmark on the latest -ac kernels, 86% of time
+is spent in generic parts of the kernel, 12% of time is spent in the
+user-space SPECweb99 module, and only 2% of time is spent in TUX-specific
+kernel code.
 
-Best regards,
+doing the same test with the original TUX 1.0 code shows that more than
+50% of CPU time was spent in TUX-specific code.
 
-         Anton
+what does this mean? In the roughly 6 months since TUX 1.0 was released,
+we moved much of the TUX 1.0 -only improvements into the generic kernel
+(most of which was made available to user-space as well), and TUX itself
+became smaller and smaller (and used more and more generic parts of the
+kernel). So in effect X15 is executing 50% TUX code :-)
 
+(there are still a number of performance improvement patches pending that
+are not integrated yet: the pagecache extreme-scalability patch and the
+smptimers patch. These patches speed both X15 and TUX up.)
 
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+(there is one thing though that can never be 'exported to user-space': to
+isolate possibly untrusted binary application code from the server itself,
+without performance degradation. So we always have to be mentally open to
+the validity of kernel-space services.)
+
+	Ingo
 

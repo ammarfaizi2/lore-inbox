@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269633AbUJAAXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269634AbUJAAaY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269633AbUJAAXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 20:23:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269636AbUJAAXQ
+	id S269634AbUJAAaY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 20:30:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269637AbUJAAaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 20:23:16 -0400
-Received: from fw.osdl.org ([65.172.181.6]:10943 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269633AbUJAAXD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 20:23:03 -0400
-Date: Thu, 30 Sep 2004 17:22:59 -0700
-From: Chris Wright <chrisw@osdl.org>
+	Thu, 30 Sep 2004 20:30:24 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:24736
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S269634AbUJAAaW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 20:30:22 -0400
+Date: Thu, 30 Sep 2004 17:28:59 -0700
+From: "David S. Miller" <davem@davemloft.net>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Chris Wright <chrisw@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/4] mlockall(MCL_FUTURE) unlocks currently locked mappings
-Message-ID: <20040930172259.Y1924@build.pdx.osdl.net>
-References: <20040929114244.Q1924@build.pdx.osdl.net> <20040930164744.30db3fdc.akpm@osdl.org>
+Cc: jgarzik@pobox.com, colin@colino.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Revert mistakenly applied patch to sungem
+Message-Id: <20040930172859.6d4eb4e8.davem@davemloft.net>
+In-Reply-To: <20040930170159.0291728b.akpm@osdl.org>
+References: <20040930100156.6012a290@pirandello>
+	<415C91E0.7070005@pobox.com>
+	<20040930170159.0291728b.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040930164744.30db3fdc.akpm@osdl.org>; from akpm@osdl.org on Thu, Sep 30, 2004 at 04:47:44PM -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrew Morton (akpm@osdl.org) wrote:
-> Chris Wright <chrisw@osdl.org> wrote:
-> >
-> > Calling mlockall(MCL_FUTURE) will erroneously unlock any currently locked
-> > mappings.  Fix this up, and while we're at it, remove the essentially
-> > unused error variable.
-> 
-> eek.
-> 
-> I've always assumed that mlockall(MCL_FUTURE) pins all your current pages
-> as well as future ones.  But no, that's what MCL_CURRENT|MCL_FUTURE does.
-> 
-> So when we fix this bug, we'll break my buggy test apps.
-> 
-> I wonder what other apps we'll break?
+On Thu, 30 Sep 2004 17:01:59 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-I don't think it will break apps.  The only difference is that it won't
-unlock already locked mappings.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+> > > Following is the reverse patch to reverse my stuff :)
+> > > Sorry about that.
+> > > 
+> > > Signed-off-by: Colin Leroy <colin@colino.net>
+> > 
+> > Andrew are you picking up this one?
+> 
+> umm, sure.  That's another 40 patches in my future yet ;)
+
+Andrew/Jeff, don't worry about this one I'm taking care of it in
+my tree already.
+
+I added the mistake I should fix it up :)

@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265564AbTGDM2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 08:28:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265606AbTGDM2Q
+	id S265955AbTGDMgG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 08:36:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266008AbTGDMgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 08:28:16 -0400
-Received: from lvs00-fl.valueweb.net ([216.219.253.199]:49032 "EHLO
-	ams013.ftl.affinity.com") by vger.kernel.org with ESMTP
-	id S265564AbTGDM2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 08:28:15 -0400
-Message-ID: <3F05761E.9060205@coyotegulch.com>
-Date: Fri, 04 Jul 2003 08:42:06 -0400
-From: Scott Robert Ladd <coyote@coyotegulch.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: James Simmons <jsimmons@infradead.org>
-CC: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: New fbdev updates.
-References: <Pine.LNX.4.44.0307031847570.16727-100000@phoenix.infradead.org>
-In-Reply-To: <Pine.LNX.4.44.0307031847570.16727-100000@phoenix.infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Jul 2003 08:36:06 -0400
+Received: from zamok.crans.org ([138.231.136.6]:61100 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S265955AbTGDMgF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 08:36:05 -0400
+Date: Fri, 4 Jul 2003 14:50:30 +0200
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.74-mm1 fails to boot due to APIC trouble, 2.5.73mm3 works.
+Message-ID: <20030704125030.GA914@darwin.crans.org>
+References: <20030703023714.55d13934.akpm@osdl.org> <3F054109.2050100@aitel.hist.no> <20030704093531.GA26348@holomorphy.com> <20030704095004.GB26348@holomorphy.com> <20030704100217.GC26348@holomorphy.com> <20030704100749.GD26348@holomorphy.com> <3F05610C.4050202@aitel.hist.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F05610C.4050202@aitel.hist.no>
+X-Warning: Email may contain unsmilyfied humor and/or satire.
+User-Agent: Mutt/1.5.4i
+From: Vincent Hanquez <tab@tuxfamily.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons wrote:
->    I have updates to the framebuffer layer. Alot of bug fixes accumlated. 
-> A couple of driver updates as well. I have more code to go in but haven't 
-> had time to add them in. Please test. This is not the final code going in 
-> just yet. More needs to be done.
+On Fri, Jul 04, 2003 at 01:12:12PM +0200, Helge Hafting wrote:
+> I applied both of your recent patches, and the patched
+> 2.5.74-mm1 kernel came up fine. :-)
 
-Any chance of getting the radeonfb DFP-on-DVI working? I'm more than
-willing to work on it, if no one else has the hardware. I can at least
-try to get it working on the Radeon 9000.
+theses patchs fix the problem for me too.
 
 -- 
-Scott Robert Ladd
-Coyote Gulch Productions (http://www.coyotegulch.com)
-
-
-
+Tab

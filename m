@@ -1,87 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264962AbSKJRHS>; Sun, 10 Nov 2002 12:07:18 -0500
+	id <S264963AbSKJRAs>; Sun, 10 Nov 2002 12:00:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264967AbSKJRHS>; Sun, 10 Nov 2002 12:07:18 -0500
-Received: from packet.digeo.com ([12.110.80.53]:48833 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264962AbSKJRHN>;
-	Sun, 10 Nov 2002 12:07:13 -0500
-Message-ID: <3DCE93CF.79AF516C@digeo.com>
-Date: Sun, 10 Nov 2002 09:13:51 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S264965AbSKJRAs>; Sun, 10 Nov 2002 12:00:48 -0500
+Received: from adsl-66-124-76-105.dsl.sntc01.pacbell.net ([66.124.76.105]:29200
+	"EHLO www.baywinds.org") by vger.kernel.org with ESMTP
+	id <S264963AbSKJRAq>; Sun, 10 Nov 2002 12:00:46 -0500
+Message-ID: <3DCE929E.6010307@baywinds.org>
+Date: Sun, 10 Nov 2002 09:08:46 -0800
+From: Bruce Ferrell <bferrell@baywinds.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Miquel van Smoorenburg <miquels@cistron.nl>,
-       "David S. Miller" <davem@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.46: kernel BUG at kernel/timer.c:333!
-References: <aqj8bf$ff2$1@ncc1701.cistron.net> <3DCD5917.FEEA7C5D@digeo.com> <20021110153236.A18563@cistron.nl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Nov 2002 17:13:51.0815 (UTC) FILETIME=[8A880D70:01C288DC]
+To: john slee <indigoid@higherplane.net>
+CC: Shlomi Fish <shlomif@vipe.stud.technion.ac.il>,
+       linux-kernel@vger.kernel.org
+Subject: Re: An Analysis of BitKeeper and BitMover's Strategy
+References: <Pine.LNX.4.33L2.0211091206500.30597-100000@vipe.technion.ac.il> <20021110004847.GB17478@higherplane.net>
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms050708080803020904010405"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miquel van Smoorenburg wrote:
+This is a cryptographically signed message in MIME format.
+
+--------------ms050708080803020904010405
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+While the posting wasn't directly linked to kernel development, I did 
+find the analysis to be thought provoking.  I think calling it spam 
+MIGHT be too strong.
+
+john slee wrote:
+> On Sat, Nov 09, 2002 at 12:18:24PM +0200, Shlomi Fish wrote:
 > 
-> According to Andrew Morton:
-> > Miquel van Smoorenburg wrote:
-> > > I can reliably crash 2.5.X on one of our newsservers (dual PIII/450, GigE,
-> > > lots of disk- and network I/O).
-> > >
-> > > kernel BUG at kernel/timer.c:333!
-> >
-> > There are timer fixes in Linus's current tree.  The problem which
-> > they address could cause this BUG.
+>>As part of the "Better SCM" site (that is still under construction), I
+>>wrote a few essays about BitKeeper:
 > 
-> I've booted 2.5.46bk5 on the machine, and it has been running for over
-> 2 hours with extra heavy diskio. That reliably crashed the machine
-> in about 45 minutes with 2.4.45 and 2.5.46, machine is still up now.
-
-OK, thanks.
-
 > 
-> I'm still seeing the buffer layer error at fs/buffer.c:1623,
-> though. Happens when a blockdev is close()d. Is a fix for
-> this in -mm2? Does -mm2 include -bk5 ?  If so I'll put that
-> on it and keep an eye on it tomorrow, see what happens.
-
-This is a blockdev which was under mmap(), yes?  No, I haven't looked at
-that yet.  It'll be a matter of just killing the warning.
-
-mmapping a blockdev is a pretty dopey thing to do, btw.  It doesn't
-allow the use of highmem, the IO uses tiny BIOs (in fact I think
-it uses 512-byte or 1k blocksize too) and there are buffer_heads
-all over the place.  You'll get better results from mmapping a
-regular file.
- 
-> Debug messages I'm still seeing:
-> (note that I compiled IPv6 into the kernel since we're slowly moving
-> our network to IPv6 but that it is otherwise unused right now, and
-> that the previous kernels that crashed on me didn't have IPv6 in it)
+> please do not spam the list with this crap
 > 
-> Uninitialised timer!
-> This is just a warning.  Your computer is OK
-> function=0xc0285748, data=0xf78a6680
-> Call Trace:
->  [<c0122610>] check_timer_failed+0x40/0x54
->  [<c0285748>] igmp6_timer_handler+0x0/0x58
->  [<c0122b12>] del_timer+0x16/0x84
->  [<c02855d8>] igmp6_join_group+0x94/0x124
-
-I missed one there.
+> j.
+> 
 
 
---- 25/net/ipv6/mcast.c~ip6-mcast-timer	Sun Nov 10 09:12:28 2002
-+++ 25-akpm/net/ipv6/mcast.c	Sun Nov 10 09:12:44 2002
-@@ -296,6 +296,7 @@ int ipv6_dev_mc_inc(struct net_device *d
- 	}
- 
- 	memset(mc, 0, sizeof(struct ifmcaddr6));
-+	init_timer(&mc->mca_timer);
- 	mc->mca_timer.function = igmp6_timer_handler;
- 	mc->mca_timer.data = (unsigned long) mc;
- 
+--------------ms050708080803020904010405
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
-_
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJVDCC
+AwgwggJxoAMCAQICAwiT+DANBgkqhkiG9w0BAQQFADCBkjELMAkGA1UEBhMCWkExFTATBgNV
+BAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUx
+HTAbBgNVBAsTFENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVl
+bWFpbCBSU0EgMjAwMC44LjMwMB4XDTAyMTAyODAxNTI0MFoXDTAzMTAyODAxNTI0MFowRzEf
+MB0GA1UEAxMWVGhhd3RlIEZyZWVtYWlsIE1lbWJlcjEkMCIGCSqGSIb3DQEJARYVYmZlcnJl
+bGxAYmF5d2luZHMub3JnMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAy2inuSUZ
+p80wIOkP5WzcckQogjd4WulnexxU1zdTY9RLegX1fYYg2tSuMlCVpknZXMzl2EHD2xXS88eR
+KIGK569ZF4wKAd0XdmRoCrjdUc3+j6yion5oqoAmyZVxwEs3X9YEFORLzKW4gVIB5u2jFUQQ
+dQ5rqzGAUz5vfKpb8rbyH2/4474I2y9ne3cxlIImVBP2a34w3Ge4gP0l0Eun5i3jTMiGbkUG
+hKbCrdhEffklhkHObvArSFbxFTBEMbBRbFS+zyFihYw69YzHNg9qz1A0NefQZGVHzARhNZFQ
+1EMhqDHudIi3EntiPdN9ZeliTPOvdMPTkA8lqereV4VktQIDAQABozIwMDAgBgNVHREEGTAX
+gRViZmVycmVsbEBiYXl3aW5kcy5vcmcwDAYDVR0TAQH/BAIwADANBgkqhkiG9w0BAQQFAAOB
+gQC/iqmf5Flmqm7JlIpLbWh+R/gOZlTZlLCOHoXd1kiTdDuXVTTzPQWvmyZZ5QqoNOCFb7Ue
+lVosyF7XzJ+G6cR8Dj/BGeQlt+EXLRiZbJ8mOK1lm+9fUon7KixPQDkX60/SQgLDJUWNeCL5
+67HtIVoCpcOuIxJu43UzPQhT59MBjTCCAwgwggJxoAMCAQICAwiT+DANBgkqhkiG9w0BAQQF
+ADCBkjELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2Fw
+ZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsTFENlcnRpZmljYXRlIFNlcnZpY2Vz
+MSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFpbCBSU0EgMjAwMC44LjMwMB4XDTAyMTAyODAx
+NTI0MFoXDTAzMTAyODAxNTI0MFowRzEfMB0GA1UEAxMWVGhhd3RlIEZyZWVtYWlsIE1lbWJl
+cjEkMCIGCSqGSIb3DQEJARYVYmZlcnJlbGxAYmF5d2luZHMub3JnMIIBIjANBgkqhkiG9w0B
+AQEFAAOCAQ8AMIIBCgKCAQEAy2inuSUZp80wIOkP5WzcckQogjd4WulnexxU1zdTY9RLegX1
+fYYg2tSuMlCVpknZXMzl2EHD2xXS88eRKIGK569ZF4wKAd0XdmRoCrjdUc3+j6yion5oqoAm
+yZVxwEs3X9YEFORLzKW4gVIB5u2jFUQQdQ5rqzGAUz5vfKpb8rbyH2/4474I2y9ne3cxlIIm
+VBP2a34w3Ge4gP0l0Eun5i3jTMiGbkUGhKbCrdhEffklhkHObvArSFbxFTBEMbBRbFS+zyFi
+hYw69YzHNg9qz1A0NefQZGVHzARhNZFQ1EMhqDHudIi3EntiPdN9ZeliTPOvdMPTkA8lqere
+V4VktQIDAQABozIwMDAgBgNVHREEGTAXgRViZmVycmVsbEBiYXl3aW5kcy5vcmcwDAYDVR0T
+AQH/BAIwADANBgkqhkiG9w0BAQQFAAOBgQC/iqmf5Flmqm7JlIpLbWh+R/gOZlTZlLCOHoXd
+1kiTdDuXVTTzPQWvmyZZ5QqoNOCFb7UelVosyF7XzJ+G6cR8Dj/BGeQlt+EXLRiZbJ8mOK1l
+m+9fUon7KixPQDkX60/SQgLDJUWNeCL567HtIVoCpcOuIxJu43UzPQhT59MBjTCCAzgwggKh
+oAMCAQICEGZFcrfMdPXPY3ZFhNAukQEwDQYJKoZIhvcNAQEEBQAwgdExCzAJBgNVBAYTAlpB
+MRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMR
+VGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2
+aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3
+DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMDA4MzAwMDAwMDBaFw0w
+NDA4MjcyMzU5NTlaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRIw
+EAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNh
+dGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzAw
+gZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAN4zMqZjxwklRT7SbngnZ4HF2ogZgpcO40Qp
+imM1Km1wPPrcrvfudG8wvDOQf/k0caCjbZjxw0+iZdsN+kvx1t1hpfmFzVWaNRqdknWoJ67Y
+cvm6AvbXsJHeHOmr4BgDqHxDQlBRh4M88Dm0m1SKE4f/s5udSWYALQmJ7JRr6aFpAgMBAAGj
+TjBMMCkGA1UdEQQiMCCkHjAcMRowGAYDVQQDExFQcml2YXRlTGFiZWwxLTI5NzASBgNVHRMB
+Af8ECDAGAQH/AgEAMAsGA1UdDwQEAwIBBjANBgkqhkiG9w0BAQQFAAOBgQAxsUtHXfkBceX1
+U2xdedY9mMAmE2KBIqcS+CKV6BtJtyd7BDm6/ObyJOuR+r3sDSo491BVqGz3Da1MG7wD9LXr
+okefbKIMWI0xQgkRbLAaadErErJAXWr5edDqLiXdiuT82w0fnQLzWtvKPPZE6iZph39Ins6l
+n+eE2MliYq0FxjGCAycwggMjAgEBMIGaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2Vz
+dGVybiBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UE
+CxMUQ2VydGlmaWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJT
+QSAyMDAwLjguMzACAwiT+DAJBgUrDgMCGgUAoIIBYTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcN
+AQcBMBwGCSqGSIb3DQEJBTEPFw0wMjExMTAxNzA4NDZaMCMGCSqGSIb3DQEJBDEWBBTJjNQw
+N2/V6c31KAv/8sDE7mh7gTBSBgkqhkiG9w0BCQ8xRTBDMAoGCCqGSIb3DQMHMA4GCCqGSIb3
+DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggqhkiG9w0DAgIBKDCBrQYLKoZI
+hvcNAQkQAgsxgZ2ggZowgZIxCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUx
+EjAQBgNVBAcTCUNhcGUgVG93bjEPMA0GA1UEChMGVGhhd3RlMR0wGwYDVQQLExRDZXJ0aWZp
+Y2F0ZSBTZXJ2aWNlczEoMCYGA1UEAxMfUGVyc29uYWwgRnJlZW1haWwgUlNBIDIwMDAuOC4z
+MAIDCJP4MA0GCSqGSIb3DQEBAQUABIIBAGtqa7AwEsxX6lD7Z6xQuJNjynkEdwvb9KG1etFV
+ezGrR3h0OiFRQbk3Hla2By8g8dW/ozDjlOBtlOwgXmnZAV45XX7XRSdCCFBonqyqv34/iBjf
+ee6LRM2MPI/SJAZ6+3oHMDRBXxBCVkxVF1zoLv8MZR97mW5uZDeHp4z2xxul8545USwuMUWn
+1vHQqpVzanOf+JWDbKS9jfQ40gtMhgTUnWb9Cw6Laz9djvnDkjlqGuSRW6cItEsCxZqviz8w
+qoZviFvtvd1+JVzOEsJemhKVe+b6HWZfp3ERqOAS1wKI9ugVN4TG21c7eKdDlUtfTK0ICpL1
++bVTasm+MrGXlbcAAAAAAAA=
+--------------ms050708080803020904010405--
+

@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262429AbTJAPjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 11:39:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbTJAPi5
+	id S262384AbTJAPkr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 11:40:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbTJAPkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 11:38:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:33256 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262384AbTJAPix (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 11:38:53 -0400
-Date: Wed, 1 Oct 2003 08:30:21 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: ocsy@yandex.ru
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to use module in 2.6
-Message-Id: <20031001083021.125e817d.rddunlap@osdl.org>
-In-Reply-To: <1065009240.1144.46.camel@ocsy>
-References: <1065006634.1144.39.camel@ocsy>
-	<slrnbnlem5.566.usenet.2117@home.andreas-s.net>
-	<1065009240.1144.46.camel@ocsy>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Wed, 1 Oct 2003 11:40:46 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31128 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262384AbTJAPkm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 11:40:42 -0400
+Date: Wed, 1 Oct 2003 16:40:40 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: "Lisa R. Nelson" <lisanels@cableone.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: File Permissions are incorrect. Security flaw in Linux
+Message-ID: <20031001154040.GU7665@parcelfarce.linux.theplanet.co.uk>
+References: <1065012013.4078.2.camel@lisaserver> <20031001132318.GS7665@parcelfarce.linux.theplanet.co.uk> <1065017722.2995.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1065017722.2995.10.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01 Oct 2003 15:54:00 +0400 ocsy <ocsy@yandex.ru> wrote:
+On Wed, Oct 01, 2003 at 08:15:23AM -0600, Lisa R. Nelson wrote:
+> Excuse me? Have you even read about permissions on Unix?  I tried this
+> on a Sun Unix system, and the Sun functions correctly.  What you are
+> saying is stupid; If all directories are wide open, NO files are
+> protected in any way, even if they are read only and owned by root?  Get
+> real.  
 
-| Yes i make it))Kernel comile and modules was done (make modules after
-| that make modules_install)And than reboot....
-| But after that I type insmod <module_name> and I see on a screen a
-| LITTLE warning (fatal error) that talk to me module can be load to the
-| kernel becouse it have old format))
+What, create a world-writable directory without sticky bit and then wonder
+why everyone can remove files from there?
 
-insmod module.ko, not insmod module.o
+Would you mind posting the list of systems (with versions, preferably)
+where that behaviour would *not* match v7, 2.xBSD, 4.xBSD and derivatives
+(including SunOS 4), SunOS 5.5, SunOS 5.6, SunOS 5.7,  SunOS 5.8, Linux,
+OSF/1, etc.?
 
-Or (preferable) use modprobe module
+In particular, I'm most curious about the exact version of "Sun Unix"
+you claim to have tried that on.  That, and output of ls -ld on the
+directory in question.
 
-| I think than I must look for modutils (witch can support kernell 2.6 new
-| modules format) but I can't find it...
+> I've worked on more OS's than you can imagine, and for many years.  This
 
-modutils are for before 2.6.
-2.6 uses module-init-tools only.
-
---
-~Randy
+The sad thing being, that's one claim I do *not* doubt.  Lusers' ability
+to avoid learning for years had stopped amazing me a long time ago...

@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbTGHMyA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 08:54:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262148AbTGHMyA
+	id S267297AbTGHM4z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 08:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267298AbTGHM4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 08:54:00 -0400
-Received: from adicia.telenet-ops.be ([195.130.132.56]:39821 "EHLO
-	adicia.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S262073AbTGHMxy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 08:53:54 -0400
-Date: Tue, 8 Jul 2003 15:10:48 +0200
-From: Vincent Touquet <vincent.touquet@pandora.be>
-To: joe briggs <jbriggs@briggsmedia.com>
-Cc: vincent.touquet@pandora.be, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [Bug report] System lockups on Tyan S2469 and lots of io [smp boot time problems too :(]
-Message-ID: <20030708131047.GG14044@ns.mine.dnsalias.org>
-Reply-To: vincent.touquet@pandora.be
-References: <20030706210243.GA25645@lea.ulyssis.org> <20030708101950.GB14044@ns.mine.dnsalias.org> <200307080959.54247.jbriggs@briggsmedia.com>
-Mime-Version: 1.0
+	Tue, 8 Jul 2003 08:56:55 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:21400 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S267297AbTGHM4b
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 08:56:31 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307080959.54247.jbriggs@briggsmedia.com>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16138.49898.424148.525523@laputa.namesys.com>
+Date: Tue, 8 Jul 2003 17:11:06 +0400
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] parallel directory operations
+In-Reply-To: <877k6tuh5g.fsf@gw.home.net>
+References: <87wuetukpa.fsf@gw.home.net.suse.lists.linux.kernel>
+	<p73brw5qmxk.fsf@oldwotan.suse.de>
+	<87of05ujfo.fsf@gw.home.net>
+	<20030708134601.7992e64a.ak@suse.de>
+	<87fzlhuif0.fsf@gw.home.net>
+	<20030708141136.18e0034f.ak@suse.de>
+	<877k6tuh5g.fsf@gw.home.net>
+X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta14) "cassava" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 08, 2003 at 09:59:54AM -0400, joe briggs wrote:
->Vincent - 
->I wonder if what is really happening is a problem in the in the arbitration 
->between the PCI bus and the local bus that the onboard IDE devices are.  In 
->your case the problem (onboard IDE device data corruption) manifests when you 
->are performing sustained transfers (large files) between the onboard IDE 
->device and a PCI block device (the 3ware RAID).
+Alex Tomas writes:
+ > >>>>> Andi Kleen (AK) writes:
+ > 
+ >  AK> On Tue, 08 Jul 2003 15:50:27 +0000
+ >  AK> bzzz@tmi.comex.ru wrote:
+ > 
+ >  >> well, it makes sense. AFAIU, only problem with this solution is that we need
+ >  >> very well-tuned hash function.
+ > 
+ >  AK> A small rbtree or similar would work too. Linux already has the utility code for this.
+ >  AK> And a fast path to avoid the overhead when it isn't needed (e.g. first locker uses a 
+ >  AK> preallocated lock node, which is cheap to queue)
+ > 
+ > hmm. interesting! thanks for review.
+ > 
 
-Yes, that seems very feasible.
+By taking this approach one step further you may just add a semaphore
+into struct dentry and take it instead of directory ->i_sem. I think
+Alexander Viro tried something similar in the past, but it slowed down
+common case when there is no concurrent access to the directory.
 
->In my case, the same problem 
->manifests when I have sustained data activity from multiple frame grabbers to 
->memory, then from memory to RAID.  When the system drive is used (code load, 
->swap, etc.) it gets corrupted.  My point is, the onboard data device only 
->seems to get corrupted when there is lots of i/o activity with PCI 
->bus-masters that are DMA'ing data to/from memory.  What do you think?
+ > 
 
-I had the same lockups too when pumping a lot of data over the network
-onto the array on a similar mainboard (Tyan S2468). So maybe there is
-the added problem that there is funny things going on on the PCI bus.
-Maybe the problem only occurs when you stress the bus and the dma is not
-the real culprit, it just enables high transfers and hence corruption on
-the PCI bus.
-
-I would very much like to nail this one down, as its nasty.
-
-regards,
-
-v
+Nikita.

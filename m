@@ -1,89 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262469AbVAPKHJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262470AbVAPKHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262469AbVAPKHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 05:07:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbVAPKHJ
+	id S262470AbVAPKHU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 05:07:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbVAPKHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 05:07:09 -0500
-Received: from wproxy.gmail.com ([64.233.184.200]:25750 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262469AbVAPKHA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 05:07:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=IhDfzP8uSYEd9duz90XZsAGrNOMmYx+t/FKtYKi5RbVwoh7fxyRzey0VussHvFqeytigpDH9h1JawEk4nTu0bgSVlE8hJw0aN1C4hLu2kipskm4rxSnYJdaHtoBNWPddhW+VKfHaYw0SIh7xtYZ2y9kncu+iBgy3WigEI/KscJY=
-Message-ID: <4d6522b90501160206306b0140@mail.gmail.com>
-Date: Sun, 16 Jan 2005 12:06:59 +0200
-From: Edjard Souza Mota <edjard@gmail.com>
-Reply-To: Edjard Souza Mota <edjard@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: User space out of memory approach
-Cc: Ilias Biris <xyz.biris@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1105630523.4644.52.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 16 Jan 2005 05:07:19 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:38116 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262470AbVAPKHG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 05:07:06 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: hugang@soulinfo.com
+Subject: Re: 2.6.10-mm3: swsusp: out of memory on resume (was: Re: Ho ho ho - Linux v2.6.10)
+Date: Sun, 16 Jan 2005 11:07:24 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, qemu-devel@nongnu.org
+References: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org> <200501152220.42129.rjw@sisk.pl> <20050116055420.GA11880@hugang.soulinfo.com>
+In-Reply-To: <20050116055420.GA11880@hugang.soulinfo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-References: <3f250c71050110134337c08ef0@mail.gmail.com>
-	 <4d6522b9050110144017d0c075@mail.gmail.com>
-	 <20050110200514.GA18796@logos.cnet>
-	 <1105403747.17853.48.camel@tglx.tec.linutronix.de>
-	 <4d6522b90501101803523eea79@mail.gmail.com>
-	 <1105433093.17853.78.camel@tglx.tec.linutronix.de>
-	 <1105461106.16168.41.camel@localhost.localdomain>
-	 <4e1a70d1050111111614670f32@mail.gmail.com>
-	 <4e1a70d10501111246391176b@mail.gmail.com>
-	 <1105630523.4644.52.camel@localhost.localdomain>
+Content-Disposition: inline
+Message-Id: <200501161107.24883.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Thanks Alan...
-
-> > well looking into Alan's email again I think I answered thinking on
-> > the wrong side :-) that the suggestion was to switch off OOM
-> > altogether and be done with all the discussion... tsk tsk tsk too
-> > defensive and hasty I guess :-)
+On Sunday, 16 of January 2005 06:54, hugang@soulinfo.com wrote:
+> On Sat, Jan 15, 2005 at 10:20:42PM +0100, Rafael J. Wysocki wrote:
+> > > > > > 
+> > > > > > 2.6.11-rc1-mm1 
+> > > > > >  -> 2005-1-14.core.diff 	core patch		TEST PASSED
+> > > > > >   -> 2005-1-14.x86_64.diff	x86_64 patch	NOT TESTED
+> > > > > 
+> > > > > Unfortunately, on x86_64 it goes south on suspend, probably somwhere in write_pagedir(),
+> > > > > but I'm not quite sure as I can't make it print any useful stuff to the serial console
+> > > > > (everything is dumped to a virtual tty only).  Seemingly, it prints some
+> > > > > "write_pagedir: ..." debug messages and then starts to print garbage in
+> > > > > an infinite loop.
+> > 
+> > I have some good news for you. :-)
+> > 
+> > The patch actually works fine on my box.  What I thought was a result of an infinite loop,
+> > turned out to be "only" a debug output from it, which is _really_ excessive.  After I had
+> > commented out the most of pr_debug()s in your code, it works nicely and I like it very
+> > much.  Thanks a lot for porting it to x86_64!
+> > 
+> Cool, Current I making software suspend also works in Qemu X86_64
+> emulation, Here is a update patch to making copyback more safed and 
+> possible to improve copyback speed.
 > 
-> Thats what mode 2 is all about. There are some problems with over-early
-> triggering of OOM that Andrea fixed that are still relevant (or stick
-> "never OOM if mode == 2" into your kernel)
+> I change the swsusp_arch_resume to nosave section, the in memory copy
+> back it not touch this code. before not change that to nosave section,
+> I'm also geting a infinite loop in copy_one_page, From the qemu in_asm,
+> I sure that loop in copy_one_page, when I change it to nosave section,
+> that problem go away, I dont' sure tha't good idea to fixed it, but
+> current it works in my qemu, Can someone owner x86_64 test it.
 > 
-> > Did I get it right this time Alan?
-> 
-> Basically yes - the real problem with the OOM situation is there is no
-> correct answer. People have spent years screwing around with the OOM
-> killer selection logic and while you can make it pick large tasks or old
-> tasks or growing tasks easily nobody has a good heuristic about what to
-> die because it depends on the users wishes. OOM requires AF_TELEPATHY
-> sockets and we don't have them.
->
-> 
-> For most users simply not allowing the mess to occur solves the problem
-> - not all but most.
-> 
+> I disable Flush TLB after copy page, It speedup the in qemu, But I can't
+> sure the right thing in real machine, can someone give me point.
 
-What do you think about the point we are trying to make, i.e., moving the
-ranking of PIDs to be killed to user space? Or, making user have some influence
-on it? We were misunderstood because the patch we sent was to make "a slight"
-organization in the way OOM killer compute rates to PIDs, not to change its
-selection logic. But now, we can discuss (I mean implement)
-alternative selection
-logics without messing the code at kernel space. The parameters and
-criteria on how
-to combine them can be open to more people test it according to platform and, if
-not user, at least according to application memory consumpition pattern.
+Could you, please, make a patch against -rc1-mm1 with your previous patch
+applied?  It would be much easier to apply. :-)
 
-Well, while AF_TELEPATH socket is not on its way :) ... we may at
-least experiment
-different raking policies.
+Greets,
+RJW
 
-br
-
-Edard
- 
 
 -- 
-"In a world without fences ... who needs Gates?"
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262315AbTJFOwt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 10:52:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbTJFOwt
+	id S262176AbTJFOz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 10:55:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbTJFOz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 10:52:49 -0400
-Received: from pub237.cambridge.redhat.com ([213.86.99.237]:28413 "EHLO
-	executor.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id S262315AbTJFOws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 10:52:48 -0400
-Subject: Re: [PATCH] Memory leak in mtd/chips/cfi_cmdset_0020
-From: David Woodhouse <dwmw2@redhat.com>
-To: Felipe W Damasio <felipewd@terra.com.br>
-Cc: linux-mtd@lists.infradead.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F81820F.2000602@terra.com.br>
-References: <3F81800A.5000500@terra.com.br>
-	 <1065451568.22491.215.camel@hades.cambridge.redhat.com>
-	 <3F81820F.2000602@terra.com.br>
-Content-Type: text/plain
+	Mon, 6 Oct 2003 10:55:59 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:10635 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S262176AbTJFOz6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 10:55:58 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: Red Hat UK Ltd.
-Message-Id: <1065451964.22491.217.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
-Date: Mon, 06 Oct 2003 15:52:44 +0100
+Message-ID: <16257.33403.756457.433093@gargle.gargle.HOWL>
+Date: Mon, 6 Oct 2003 16:55:55 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Otavio Salvador <otavio@debian.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test6-bk7: kernel freeze if try to change to console
+In-Reply-To: <87vfr2ttev.fsf@retteb.casa>
+References: <87d6db2gw0.fsf@retteb.casa>
+	<16257.17952.546250.954616@gargle.gargle.HOWL>
+	<87vfr2ttev.fsf@retteb.casa>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-10-06 at 11:54 -0300, Felipe W Damasio wrote:
-> 	He did...I didn't ;)
+Otavio Salvador writes:
+ > Mikael Pettersson <mikpe@csd.uu.se> writes:
+ > 
+ > > Otavio Salvador writes:
+ > >  > Folks,
+ > >  > 
+ > >  > I'm using kernel 2.6.0-test6-bk7 and have some problems. If I try to
+ > >  > change to console from X my system freeze. I'm including my .config
+ > >  > file bellow.
+ > >
+ > > I have a hunch but I need to see your boot dmesg log to confirm.
+ > > Please post it.
+ > 
+ > Hello,
+ > 
+ > Here is it.
 
-Heh, OK. 
+Ok now I'm confused. The .config you posted earlier stated that
+you had both UP_APIC and APM_DISPLAY_BLANK enabled. Your dmesg
+log indicates that you're running on a 1.6GHz Athlon-XP, but
+there's no mention of APIC anything in the dmesg log.
 
-> 	If you want, updated patch is attached.
+So either your Athlon has had its local APIC disabled, or you
+changed the .config to exclude UP_APIC.
 
-I'd already done it, but thanks.
+In any case, APM_DISPLAY_BLANK is known to sometimes lock up when it
+blanks the console (e.g., when X exists). This is because some graphics
+card BIOSen can't handle local APIC interrupts (e.g., the timer).
+The workaround is to disable either APM_DISPLAY_BLANK or UP_APIC.
 
--- 
-dwmw2
+/Mikael

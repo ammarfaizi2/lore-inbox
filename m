@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261485AbTDHQiv (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 12:38:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbTDHQiv (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 12:38:51 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35748 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261485AbTDHQit (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 12:38:49 -0400
-Date: Tue, 8 Apr 2003 17:50:26 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [3/3] PCI segment support
-Message-ID: <20030408165026.GA23430@parcelfarce.linux.theplanet.co.uk>
-References: <20030407234411.GT23430@parcelfarce.linux.theplanet.co.uk> <20030408203824.A27019@jurassic.park.msu.ru>
+	id S261528AbTDHQve (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 12:51:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbTDHQve (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 12:51:34 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:18416 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261528AbTDHQvd (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 12:51:33 -0400
+Subject: Re: Uncompressing Linux... Ok, booting the kernel.
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: FRODRIGUEZC@REPSOLYPF.COM
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <B93FC7A08A0B954C9590761383E59C9F4951A9@dti.ypf.com.ar>
+References: <B93FC7A08A0B954C9590761383E59C9F4951A9@dti.ypf.com.ar>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-vNL5LITckNkcLkE5cuXS"
+Organization: Red Hat, Inc.
+Message-Id: <1049821384.1580.7.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030408203824.A27019@jurassic.park.msu.ru>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 08 Apr 2003 19:03:04 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 08, 2003 at 08:38:24PM +0400, Ivan Kokshaysky wrote:
-> On Tue, Apr 08, 2003 at 12:44:11AM +0100, Matthew Wilcox wrote:
-> >  - Add segment to pci_bus.
-> >  - Change the sysfs name of each device to include a 16-bit segment ID.
-> 
-> First of all, the "segment" name is extremely misleading. PCI spec
-> assumes everywhere that "segment" is a group of devices sitting
-> on the same wires (ie primary and secondary buses of the PCI-to-PCI
-> bridge are *different* segments).
 
-I don't mind changing it to `domain', I prefer the term myself.
-ACPI calls it `_SEG' so I went with segment.
+--=-vNL5LITckNkcLkE5cuXS
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> Second, why not
-> 
-> -	strcpy(dev->dev.bus_id,dev->slot_name);
-> +	sprintf(dev->dev.bus_id, "%04x:%s", pci_controller_num(dev),
-> +		dev->slot_name);
-> 
-> ?
+On Tue, 2003-04-08 at 18:51, FRODRIGUEZC@REPSOLYPF.COM wrote:
+> Please, if someone can help me... the problem is, that all I see is:
+>=20
+> Uncompressing Linux... Ok, booting the kernel.=20
+>=20
+> The kernel type is OK, because the same kernel is happily running on anot=
+her Pentium III Xeon.
+> Actually this kernel was compiled by the people at SAP and I am supposed =
+to make it run without
+> making any changes. Actually I do not have the info on how this kernel wa=
+s compiled
+> (or with what patches).
 
-Because it's possible to have multiple pci root bridges in the same
-pci domain.  This is true on at least HP's ia64 & parisc boxes.
+You can just ask SAP about that... the GPL specifies that they have to
+give that to you then.
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+
+--=-vNL5LITckNkcLkE5cuXS
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+kwDHxULwo51rQBIRAgCAAKCiAGm8z3fKb+EMWnDElAYnj9lUxwCeOnKl
+yJxvqouERqkiHNgkeXaNMK8=
+=cCe/
+-----END PGP SIGNATURE-----
+
+--=-vNL5LITckNkcLkE5cuXS--

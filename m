@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262400AbTEIIuX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 04:50:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262385AbTEIIuX
+	id S262382AbTEIInq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 04:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262383AbTEIInq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 04:50:23 -0400
-Received: from outbound01.telus.net ([199.185.220.220]:20205 "EHLO
-	priv-edtnes03-hme0.telusplanet.net") by vger.kernel.org with ESMTP
-	id S262400AbTEIIuU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 04:50:20 -0400
-Subject: Re: 2.4.21-rc boot stalls
-From: Bob Gill <gillb4@telusplanet.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1052392048.10038.9.camel@dhcp22.swansea.linux.org.uk>
-References: <1052371307.2703.43.camel@localhost.localdomain> 
-	<1052392048.10038.9.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 09 May 2003 03:04:22 -0600
-Message-Id: <1052471062.2087.57.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Fri, 9 May 2003 04:43:46 -0400
+Received: from pat.uio.no ([129.240.130.16]:34432 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262382AbTEIIno (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 04:43:44 -0400
+From: Terje Malmedal <terje.malmedal@usit.uio.no>
+To: alan@lxorguk.ukuu.org.uk
+CC: terje.eggestad@scali.com, hch@infradead.org, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org, D.A.Fedorov@inp.nsk.su
+In-reply-to: <1052405926.10037.55.camel@dhcp22.swansea.linux.org.uk> (message
+	from Alan Cox on 08 May 2003 15:58:48 +0100)
+Subject: Re: The disappearing sys_call_table export.
+MIME-Version: 1.0
+Message-Id: <E19E3fm-0000Mt-00@aqualene.uio.no>
+Date: Fri, 9 May 2003 10:56:10 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-05-08 at 05:07, Alan Cox wrote:
-> On Iau, 2003-05-08 at 06:21, Bob Gill wrote:
-> > Hi. I just built 2.4.21-rc.  It hangs on boot.  More specifically, I
-> > get: 
-> > hda: (ide_dma_test_irq) called while not waiting
-> > blk queue c031e840
-> > I/O limit 4095 Mb (mask 0xffffffff)
-> > setting using_dma_to 1 (on)
-> 
-> Do you have APIC support or ACPI enabled ?
-> 
-(from the build script)
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
 
-# CONFIG_HOTPLUG_PCI_ACPI is not set
-# CONFIG_ACPI is not set
+[Alan Cox]
+> On Iau, 2003-05-08 at 13:25, Terje Malmedal wrote:
+>> How about a
+>> 
+>> EXPORT_SYMBOL_GPL_AND_DONT_EVEN_THINK_ABOUT_SENDING_A_BUG_REPORT(sys_call_table);
 
-My motherboard has the SiS645 chipset.  
-The SiS961 is the I/O APIC (ACPI 1.0b and APM 1.2 Compliant).
+> Its in read only space nowdays anyway
 
-Currently my BIOS ACPI is set to suspend to standby (but I don't use it
-and so haven't configured it in the kernel). 
+>> A server for an online internet game had several months of uptime and
+>> I needed to rotate the log-files so I made a module which trapped
+>> sys_write and closed and reopened the file with a new name before
+>> continuing[1]. 
 
-I will rebuild the kernel with ACPI support and let you know the results
-(later today...after sleep).
+> man ptrace
 
-Thanks for your reply,
+Did not work on multi-threaded programs at the time(at least strace
+didn't), nowadays I'd use gdb as I explained in the original mail.
 
-Bob 
+The point is that I used to get a convenient mechanism for working
+around or fixing bugs in the kernel and applications without any
+downtime. This is are very useful capability to have even if it is
+only needed rarely.
 
+Is there any reasonable way to be able to do modify a running kernel
+like this? I assume I can't count on the method from Phrack working
+forever...
+
+-- 
+ - Terje
+malmedal@usit.uio.no

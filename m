@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264779AbSKVBrs>; Thu, 21 Nov 2002 20:47:48 -0500
+	id <S264790AbSKVB40>; Thu, 21 Nov 2002 20:56:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264785AbSKVBrs>; Thu, 21 Nov 2002 20:47:48 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:19144 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S264779AbSKVBrr>; Thu, 21 Nov 2002 20:47:47 -0500
-Message-ID: <25282B06EFB8D31198BF00508B66D4FA03EA5B12@fmsmsx114.fm.intel.com>
-From: "Seth, Rohit" <rohit.seth@intel.com>
-To: "'William Lee Irwin III'" <wli@holomorphy.com>,
-       "Seth, Rohit" <rohit.seth@intel.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, akpm@digeo.com,
-       torvalds@transmeta.com
-Subject: RE: hugetlb page patch for 2.5.48-bug fixes
-Date: Thu, 21 Nov 2002 17:54:22 -0800
+	id <S264795AbSKVB40>; Thu, 21 Nov 2002 20:56:26 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:38143 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S264790AbSKVB4Z>; Thu, 21 Nov 2002 20:56:25 -0500
+Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A536@orsmsx119.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Stelian Pop'" <stelian.pop@fr.alcove.com>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@sourceforge.net,
+       Patrick Mochel <mochel@osdl.org>
+Subject: RE: [PATCH] Allow others to use ACPI EC interface
+Date: Thu, 21 Nov 2002 18:03:27 -0800
 MIME-Version: 1.0
 X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Bill for your comments. 
-
-> Okay, first off why are you using a list linked through page->private?
-> page->list is fully available for such tasks.
-
-Don't really need a list_head kind of thing for always inorder complete
-traversal. list_head (slightly) adds fat in data structures as well as
-insertaion/removal. Please le me know if anything that prohibits the use of
-page_private field for internal use.
+> From: Stelian Pop [mailto:stelian.pop@fr.alcove.com] 
+> Well, not directly related to the EC thing but rather to the 
+> ACPI/sonypi
+> integration, but maybe you noticed that the sonypi driver also
+> re-implements some code which is originally defined in the ACPI bios
+> (SRS, DIS methods on "SPIC" ACPI object). 
 > 
-> Second, the if (key == NULL) check in hugetlb_release_key() 
-> is bogus; someone is forgetting to check for NULL, probably 
-> in alloc_shared_hugetlb_pages().
-> 
-This if condition will be removed.  It does not serve any purpose.  As there
-is no way to release_key without a valid key.
+> One day I should really call some ACPI exported function to do this,
+> but last time I looked at this (3 months ago ?), the ACPI API (the one
+> exported to external users) was still changing each day. 
 
-> Third, the hugetlb_release_key() in unmap_hugepage_range() is 
-> the one that should be removed [along with its corresponding 
-> mark_key_busy()], not the one in sys_free_hugepages(). 
-> unmap_hugepage_range() is doing neither setup nor teardown of 
-> the key itself, only the pages and PTE's. I would say 
-> key-level refcounting belongs to sys_free_hugepages().
-> 
-> Bill
-> 
-It is not mandatory that user app calls free_pages.  Or even in case of app
-aborts this call will not be made.  The internal structures are always
-released during the exit (with last ref count) along with free of underlying
-physical pages.  
+Yeah I think the interface is settling down. You should be able to look at
+the code in drivers/acpi or drivers/hotplug/acpiphp* for examples.
 
-rohit
+>From looking at other Sony ACPI BIOSes I've collected, it appears that SPIC
+has a hardware ID (HID) in the ACPI namespace. It seems analogous to the
+Toshiba Laptop Extras device in drivers/acpi.
+
+Indeed, I think a sonypi driver that assumes ACPI will be much shorter and
+look quite different from the current one. But since we have resolved the EC
+contention issues, this need not be addressed immediately.
+
+Regards -- Andy
+
+PS IIRC there is the idea of a "platform enumerator" that will suitably
+generalize the mobo enumeration function ACPI performs on x86 for other
+platforms, but I don't think that has been implemented yet.

@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285006AbRLMTjL>; Thu, 13 Dec 2001 14:39:11 -0500
+	id <S285042AbRLMTjw>; Thu, 13 Dec 2001 14:39:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285042AbRLMTjB>; Thu, 13 Dec 2001 14:39:01 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:49156 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S285006AbRLMTit>;
-	Thu, 13 Dec 2001 14:38:49 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200112131938.WAA02795@ms2.inr.ac.ru>
-Subject: Re: TCP LAST-ACK state broken in 2.4.17-pre2
-To: Mika.Liljeberg@welho.com (Mika Liljeberg)
-Date: Thu, 13 Dec 2001 22:38:35 +0300 (MSK)
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org, mika.liljeberg@nokia.com
-In-Reply-To: <3C1901BC.C5E7936C@welho.com> from "Mika Liljeberg" at Dec 13, 1 09:30:04 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S285079AbRLMTjc>; Thu, 13 Dec 2001 14:39:32 -0500
+Received: from freki.otago.ac.nz ([139.80.32.87]:34958 "EHLO freki.otago.ac.nz")
+	by vger.kernel.org with ESMTP id <S285053AbRLMTjY>;
+	Thu, 13 Dec 2001 14:39:24 -0500
+Date: Fri, 14 Dec 2001 08:39:20 +1300 (NZDT)
+From: Corrin Lakeland <lakeland@cs.otago.ac.nz>
+X-X-Sender: <lakeland@freki.otago.ac.nz>
+Reply-To: <lakeland@acm.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.16 not booting with Athlon optimisations
+Message-ID: <Pine.LNX.4.33.0112140827020.21910-100000@freki.otago.ac.nz>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hello all again,
 
-> have a fairly low RTO. There were no FIN retransmissions, I'm sorry to
-> say.
+Firstly, thanks for the quick responses!
 
-I believe, believe. :-)
+A number of people suggested the problem was the memory write queue, via
+chipset, Athlon bug.  Looking into this I found I have a VIA chipset that
+wasn't supported by 2.4.16 so the workaround wasn't being activated.
 
-It is possible _only_ if rto is at 120 seconds. It is the only case
-when retransmissions do not happen and this would be normal behaviour.
+Last night I applied the 2.4.17-pre8 patch as well as a via-mwq.patch that
+Troels sent me since the mwq appeard to add support for my chipset while
+.17 didn't.  These both applied fine and the machine booted with Duron
+optimisation on :-)  I ran an overnight stress test and it seems to be
+stable.
 
-For now it is the only hypothesis and it will be clear from /proc/net/tcp,
-whether is this right or not.
+So now all I have to do is remove the mwq patch to see if the problem was
+solved just by upgrading to .17.  I'll report back once I've found exactly
+what fixed it.
 
-Alexey
+Many thanks to all
+
+Corrin
+

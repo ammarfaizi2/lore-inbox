@@ -1,73 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263316AbVBDBdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbVBDBjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263316AbVBDBdi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 20:33:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbVBDB2i
+	id S261691AbVBDBjb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 20:39:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVBDBj1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 20:28:38 -0500
-Received: from smtp08.auna.com ([62.81.186.18]:41891 "EHLO smtp08.retemail.es")
-	by vger.kernel.org with ESMTP id S261194AbVBDBO7 (ORCPT
+	Thu, 3 Feb 2005 20:39:27 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:10166 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263312AbVBDBhk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 20:14:59 -0500
-Date: Fri, 04 Feb 2005 01:14:58 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Strange problem with sensors: 0 RPMs ?
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-X-Mailer: Balsa ..
-Message-Id: <1107479698l.5691l.0l@werewolf.able.es>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=PGP-SHA1;
-	protocol="application/pgp-signature"; boundary="=-WiqthHzfRmWqapQm3IRv"
+	Thu, 3 Feb 2005 20:37:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=JSNA5yev8nDz+D+DpNIYbIDYi+yqOIHIkLiIYm1PiPNlblkIV9+7d8jkllPcV+WNLvwzsKiVZScKqmALRJYQNgoOJY836D/sLwxXtHbncT6nnF5nGlCuM7HgR2oyV3OdezE+8P+BT0Y+JfQpErPo0i95UJKEJ1AWMthoIU9Gj5w=
+Message-ID: <58cb370e05020317375ae36558@mail.gmail.com>
+Date: Fri, 4 Feb 2005 02:37:40 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Tejun Heo <tj@home-tj.org>
+Subject: Re: [PATCH 2.6.11-rc2 29/29] ide: make data_phase explicit in NO_DATA cases
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+In-Reply-To: <4202C8EA.7060802@home-tj.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050202024017.GA621@htj.dyndns.org>
+	 <20050202031238.GN1187@htj.dyndns.org>
+	 <58cb370e050203094326ddfce8@mail.gmail.com>
+	 <4202C8EA.7060802@home-tj.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-WiqthHzfRmWqapQm3IRv
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, 04 Feb 2005 09:59:22 +0900, Tejun Heo <tj@home-tj.org> wrote:
+> Bartlomiej Zolnierkiewicz wrote:
+> > On Wed, 2 Feb 2005 12:12:38 +0900, Tejun Heo <tj@home-tj.org> wrote:
+> >
+> >>>29_ide_explicit_TASKFILE_NO_DATA.patch
+> >>>
+> >>>      Make data_phase explicit in NO_DATA cases.
+> >>
+> >>Signed-off-by: Tejun Heo <tj@home-tj.org>
+> >>
+> >>Index: linux-ide-export/drivers/ide/ide-disk.c
+> >>===================================================================
+> >>--- linux-ide-export.orig/drivers/ide/ide-disk.c        2005-02-02 10:28:07.852771465 +0900
+> >>+++ linux-ide-export/drivers/ide/ide-disk.c     2005-02-02 10:28:08.121727827 +0900
+> >>@@ -300,6 +300,7 @@ static unsigned long idedisk_read_native
+> >>        args.tfRegister[IDE_SELECT_OFFSET]      = 0x40;
+> >>        args.tfRegister[IDE_COMMAND_OFFSET]     = WIN_READ_NATIVE_MAX;
+> >>        args.command_type                       = IDE_DRIVE_TASK_NO_DATA;
+> >>+       args.data_phase                         = TASKFILE_NO_DATA;
+> >>        args.handler                            = &task_no_data_intr;
+> >
+> >
+> > Could you add small helper to ide.h for doing this?
+> >
+> > static inline void ide_prep_no_data_cmd(ide_task_t *task)
+> > {
+> >         task->command_type = IDE_DRIVE_TASK_NO_DATA;
+> >         task->data_phase      = TASKFILE_NO_DATA;
+> >         task->handler            = &task_no_data_intr;
+> > }
+> 
+> I am thinking about removing task->handler initialization.  Such that it
+> defaults to task_no_data_intr if data_phase == TASKFILE_NO_DATA and so
+> on for all other data_phases.  Currently, the same information is
+> specified repeatedly.  What do you think?
 
-Hi all...
-
-I have a dual Xeon box. I got tired of the noise of the Intel boxed
-fans and bought a couple of Swiftech 'hedegehogs' and two ThemalTake
-fans.
-Board is an Asus PCDL and sensors chip is a w83627hf (heavily modified by
-Asus, I suppose, because it has 5! fan sensors). With the Intel fans,
-I got both rpm measures OK. With the new fans, the CPU0 fan insists
-it is stopped at 0 RPM. And I see it spinning. It is correctly plugged
-and the Xeon temperature stays nicely at 32=BA C.
-And the more strange thing is that the hardware monitor in the BIOS
-tells me it is spinning at about 2500 RPM !!! And the own BIOS says
-at boot that my CPU FAN IS STOPPED.
-
-Any idea ? Apart from the BIOS POST message, the problem related to kernel
-is: why bios monitor gives 2500 and sensors 0 ?
-
-TIA
-
-Ah, as a collateral damage, I also have one other fan connected to
-SYS_FAN1, for which lm_sensors never gave me an speed, always 0. :(
-What a mess...
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like se=
-x:
-werewolf!able!es                         \         It's better when it's fr=
-ee
-Mandrakelinux release 10.2 (Cooker) for i586
-Linux 2.6.10-jam7 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-3mdk)) #3
-
-
---=-WiqthHzfRmWqapQm3IRv
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCAsySRlIHNEGnKMMRAlp0AJsH6eMxfd3FcLz/YbPUw8leIBThmACggcFK
-/kkglJGiVMF0c4YMtRUxyI8=
-=SGY0
------END PGP SIGNATURE-----
-
---=-WiqthHzfRmWqapQm3IRv--
-
+Please do it.

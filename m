@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265125AbUBEArC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 19:47:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265071AbUBEApv
+	id S265137AbUBEArB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 19:47:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265139AbUBEAqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 19:45:51 -0500
-Received: from fed1mtao03.cox.net ([68.6.19.242]:3789 "EHLO fed1mtao03.cox.net")
-	by vger.kernel.org with ESMTP id S265125AbUBEAcf (ORCPT
+	Wed, 4 Feb 2004 19:46:25 -0500
+Received: from fw.osdl.org ([65.172.181.6]:11758 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265137AbUBEAj3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 19:32:35 -0500
-Date: Wed, 4 Feb 2004 17:32:34 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Paul Mundt <lethal@linux-sh.org>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: kgdb support in vanilla 2.6.2
-Message-ID: <20040205003234.GB5219@smtp.west.cox.net>
-References: <20040204230133.GA8702@elf.ucw.cz> <20040204235215.GA1086@smtp.west.cox.net> <20040205001733.GA31020@linux-sh.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040205001733.GA31020@linux-sh.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 4 Feb 2004 19:39:29 -0500
+Date: Wed, 4 Feb 2004 16:39:22 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Greg KH <greg@kroah.com>, Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] PCI / OF linkage in sysfs
+In-Reply-To: <1075939994.4371.58.camel@gaston>
+Message-ID: <Pine.LNX.4.58.0402041634440.2086@home.osdl.org>
+References: <1075878713.992.3.camel@gaston>  <Pine.LNX.4.58.0402041407160.2086@home.osdl.org>
+  <20040204231324.GA5078@kroah.com>  <Pine.LNX.4.58.0402041522390.2086@home.osdl.org>
+  <1075938633.4029.53.camel@gaston>  <Pine.LNX.4.58.0402041601080.2086@home.osdl.org>
+ <1075939994.4371.58.camel@gaston>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 04, 2004 at 07:17:33PM -0500, Paul Mundt wrote:
-> On Wed, Feb 04, 2004 at 04:52:15PM -0700, Tom Rini wrote:
-> > > +++ b/Documentation/sh/kgdb.txt Tue Feb  3 19:45:43 2004
-> > > @@ -0,0 +1,179 @@
-> > > +
-> > > +This file describes the configuration and behavior of KGDB for the SH
-> > > +kernel. Based on a description from Henry Bell <henry.bell@st.com>, it
-> > > +has been modified to account for quirks in the current implementation.
-> > > +
-> > > 
-> > > That's great, can we get i386 kgdb, too? Or at least amd64 kgdb
-> > > ;-). [Or was it a mistake? It seems unlikely that kgdb could enter
-> > > Linus tree without major flamewar...]
-> > 
-> > FWIW, there has been PPC32 KGDB support in kernel.org for ages.  OTOH,
-> > I'm quite happy that SH kgdb support came in (mental note made to talk
-> > to Henry about the KGDB merging stuffs).
-> > 
-> The SH kgdb work is a combination of effort by Henry Bell and Jeremy Siegel,
-> (ST and MV both had their own versions, Jeremy did the sync work between
-> the two) neither of which have touched it since mid 2.4 or so when it was
-> first merged into the LinuxSH tree.
+
+
+On Thu, 5 Feb 2004, Benjamin Herrenschmidt wrote:
+
+> > Would that suit your needs?
 > 
-> Getting the SH kgdb stuff updated is on my TODO list, I'd definitely be
-> interested in getting this stuff in sync with Amit's work as well. Any
-> pointers?
+> What about adding a pcibios_add_platform_entries(device) called by
+> pci_sysfs then ? By default an empty inline on asm/* and on PPC,
+> I can add my devspec without having OF-aware code in drivers/pci
 
-What Amit has is at http://kgdb.sf.net/
-What I've done on top of this is at bk://ppc.bkbits.net/linux-2.6-kgdb
-and http://www.codemonkey.org.uk/projects/bitkeeper/kgdb .
+Yes.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+> Also, if you prefer a different name for "devspec", speak up now ;)
+
+I have to admit that "devspec" doesn't seem to do much for me, but I don't 
+think we should call it "firmware", since that would (to me) be more about 
+the firmware of the _device_ rather than the platform.
+
+Maybe just "platform-data" or something. But if "devspec" has magic 
+meaning on a Mac, and since this would be inherently platform-specific 
+_anyway_, I don't actually see any reason to not use "devspec".
+
+On some platforms, we might have multiple different entries (eg on a PC we 
+might have pointers to ACPI data, to PnP data and to EFI data, all at the 
+same time. I hope we never will, but maybe there would be reason for it). 
+That would argue _against_ a "generic" name like "platform", and for 
+something that is actually very much specific to the kind of data it 
+points to (eg "of-data" rather than "platform-data").
+
+End result: I don't think we much care about the name. Whatever makes you
+happy. As long as the source code is clean and something like
+"pcibios_add_platform_entries()" at least makes that come true.
+
+		Linus

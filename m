@@ -1,37 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287966AbSAMVNI>; Sun, 13 Jan 2002 16:13:08 -0500
+	id <S288130AbSAMVSH>; Sun, 13 Jan 2002 16:18:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287976AbSAMVM6>; Sun, 13 Jan 2002 16:12:58 -0500
-Received: from int-mail.syd.fl.net.au ([202.181.0.28]:27653 "HELO
-	int-mail.syd.fl.net.au") by vger.kernel.org with SMTP
-	id <S287966AbSAMVMt>; Sun, 13 Jan 2002 16:12:49 -0500
-Subject: Any non-BS VM work queued for 2.5?
-From: Duraid Madina <duraid@fl.net.au>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S288146AbSAMVR5>; Sun, 13 Jan 2002 16:17:57 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2827 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288130AbSAMVRo>; Sun, 13 Jan 2002 16:17:44 -0500
+Subject: Re: Any non-BS VM work queued for 2.5?
+To: duraid@fl.net.au (Duraid Madina)
+Date: Sun, 13 Jan 2002 21:29:18 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1010956364.50291.0.camel@simplex.idesign.fl.net.au> from "Duraid Madina" at Jan 14, 2002 09:12:36 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 14 Jan 2002 09:12:36 +1200
-Message-Id: <1010956364.50291.0.camel@simplex.idesign.fl.net.au>
-Mime-Version: 1.0
+Message-Id: <E16PsBq-00083i-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+> 	Is this true? Judging by the ease with which AA's hackwork made it into
+> 2.4, I think we may all be, well, fucked.
 
-	A good spot o' webtrawling has left me with the impression that Rik
-Riel is Linux's only hope of ever competing with FreeBSD on large jobs
-other than dbench.
-
-	Is this true? Judging by the ease with which AA's hackwork made it into
-2.4, I think we may all be, well, fucked.
-
-	I wonder if Linus has booted 5-CURRENT lately.
-
-	Alarmed,
-
-	Duraid.
-
-
-
+2.4 is now in good hands. Now be careful before the sun comes up and you get
+turned to stone ;)

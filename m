@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266944AbSLKHo5>; Wed, 11 Dec 2002 02:44:57 -0500
+	id <S267005AbSLKHww>; Wed, 11 Dec 2002 02:52:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266991AbSLKHo5>; Wed, 11 Dec 2002 02:44:57 -0500
-Received: from willow.compass.com.ph ([202.70.96.38]:25607 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S266944AbSLKHo4>; Wed, 11 Dec 2002 02:44:56 -0500
-Subject: [FBDEV]: Framebuffer driver for Intel 810/815 chipsets
-From: Antonino Daplas <adaplas@pol.net>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1039603490.1147.80.camel@localhost.localdomain>
+	id <S267014AbSLKHww>; Wed, 11 Dec 2002 02:52:52 -0500
+Received: from front1.mail.megapathdsl.net ([66.80.60.31]:64525 "EHLO
+	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S267005AbSLKHwv>; Wed, 11 Dec 2002 02:52:51 -0500
+Date: Wed, 11 Dec 2002 00:00:33 -0800
+From: TomF <TomF@sjpc.org>
+To: linux-kernel@vger.kernel.org
+Subject: mounting udf DVD-RAM changes owner
+Message-Id: <20021211000033.3b9fe22a.TomF@sjpc.org>
+X-Mailer: Sylpheed version 0.8.6claws (GTK+ 1.2.10; )
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 11 Dec 2002 15:46:21 +0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James,
+I am running Redhat 8.0 plus Win4Lin 4.0.7 on a Pentium III 600Mhz with 768MB RAM, 4 SCSI hard drives, an IDE hard drive, a Panasonic LF-D201 SCSI DVD-RAM, an HP deskjet 6122, and an HP Scanjet 7450C.  The Redhat kernel is 2.4.18-14, and the Win4Lin kernel is a patched version of the Redhat kernel.  I have DVD-RAM cartridges formatted FAT32 under Windows XP, and others formatted by udftools-1.0.0b2/mkudffs.  The fstab entry of interest is
 
-It seems the fbdev framework is stable enough, and already in the
-development tree.  So, I'm submitting a driver for the Intel 810/815 for
-review and perhaps inclusion to your tree (to get more testing), and
-hopefully merge with Linus's tree.
+/dev/scd0               /mnt/dvd             	auto	noauto,users,kudzu,rw,exec,uid=Tom,umask=000 0 0
 
-The patch is against linux-2.5.51, but will not work yet because of 2
-reasons:
+Before I mount a udf cartridge, I get
 
-1. agpgart is not working for the i810
-2. support for early agp initialization needs to be added.
+[Tom@localhost Tom]$ ls -l /mnt
+...
+drwxr-xr-x    2 Tom      root         4096 Nov  5 11:20 dvd
 
-Once #1 is fixed, the driver should work as a module.  And once #2 gets
-included, the driver can be compiled statically.  Dave Jones (thanks for
-the help, by the way) has already #2 in his tree (tested and works), and
-is currently working on #1 (I have a hacked version at home).
+[Tom@localhost Tom]$ mount /mnt/dvd
+[Tom@localhost Tom]$ ls -l /mnt
+...
+drwxr-xr-x    4 root     root          140 Dec  6 19:13 dvd
 
-The driver should be compliant with fbdev-2.5, and should support most
-if not all features that are to be expected (modularity, state saving
-and restoring, full hardware support, etc).  One thing also that's very
-important for many people is that the driver will work with XFree86 with
-its native i810 drivers without further modification, and quite stably
-too.
+[Tom@localhost Tom]$ umount /mnt/dvd
+[Tom@localhost Tom]$ ls -l /mnt
+...
+drwxr-xr-x    2 Tom      root         4096 Nov  5 11:20 dvd
 
-The patch is at
-http://i810fb.sourceforge.net/linux-2.5.51-i810fb.diff.gz
+If I then mount a FAT32 cartridge, I get
 
-Thanks,
-
-Tony
-
+[Tom@localhost Tom]$ mount /mnt/dvd
+[Tom@localhost Tom]$ ls -l /mnt
+...
+drwxrwxrwx    3 Tom      Tom         16384 Dec 31  1969 dvd
+...
+[Tom@localhost Tom]$ mount
+...
+/dev/scd0 on /mnt/dvd type vfat (rw,nosuid,nodev,uid=500,umask=000)
 
 
+Each time I mount a udf cartridge, I have to do su to chown it before I can write to it in user mode.  Both the ownership and the permissions go back to the same root valuse, ignoring the fstab entry, until I do this. The behavior is the same for the Redhat kernel and the Win4Lin kernel. 
 
+I can get around this problem by adding myself to the root group, I think, but changing the permissions does not help.  I found no clues in the mkudffs man page or in the linux-kernel archives.
+
+Is there some trick for configuring to get around this problem?  Is this a bug?

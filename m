@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318691AbSHVJL6>; Thu, 22 Aug 2002 05:11:58 -0400
+	id <S318572AbSHVJLs>; Thu, 22 Aug 2002 05:11:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318693AbSHVJL6>; Thu, 22 Aug 2002 05:11:58 -0400
-Received: from mailserver1.hrz.tu-darmstadt.de ([130.83.126.41]:29967 "EHLO
-	mailserver1.hrz.tu-darmstadt.de") by vger.kernel.org with ESMTP
-	id <S318691AbSHVJL5>; Thu, 22 Aug 2002 05:11:57 -0400
-Message-ID: <3D64AB95.DC8FD965@hrzpub.tu-darmstadt.de>
-Date: Thu, 22 Aug 2002 11:15:01 +0200
-From: Jens Wiesecke <j_wiese@hrzpub.tu-darmstadt.de>
-X-Mailer: Mozilla 4.75 [de] (Windows NT 5.0; U)
-X-Accept-Language: de
+	id <S318691AbSHVJLs>; Thu, 22 Aug 2002 05:11:48 -0400
+Received: from hermes.hrz.uni-giessen.de ([134.176.2.15]:11714 "EHLO
+	hermes.hrz.uni-giessen.de") by vger.kernel.org with ESMTP
+	id <S318572AbSHVJLr> convert rfc822-to-8bit; Thu, 22 Aug 2002 05:11:47 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc Dietrich <Marc.Dietrich@hrz.uni-giessen.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Hyperthreading
+Date: Thu, 22 Aug 2002 11:15:26 +0200
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org, rohan@myeastern.com, jh@ionium.org
-Subject: Re: P4 with i845E not booting with 2.4.19 / 3.5.31
-References: <3D6245DC.3A189656@hrzpub.tu-darmstadt.de>
-		<3D62482D.4030500@myeastern.com>  <3D6355C5.6A51E11E@hrzpub.tu-darmstadt.de> <1029936975.26425.21.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-MailScanner: Found to be clean
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200208221115.26458.marc.dietrich@physik.uni-giessen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Alan Cox wrote:
+On Wed, 21 Aug 2002, Hugh Dickens wrote:
+> On Wed, 21 Aug 2002, James Bourne wrote:
+> > On Wed, 21 Aug 2002, Reed, Timothy A wrote:
+> > > 
+> > > Can anyone lead me to a good source of information on what options > 
+should be
+> > > in the kernel for hyperthreading??  I am still fighting with a
+> > > sub-contractor over kernel options.
+> > 
+> > As long as you have a P4 and use the P4 support you will get
+> > hyperthreading with 2.4.19 (CONFIG_MPENTIUM4=y).  2.4.18 you have to also 
+> > turn it on with a lilo option of acpismp=force on the kernel command line.
 > 
-> On Wed, 2002-08-21 at 09:56, Jens Wiesecke wrote:
-> > Can anybody tell me if there is a possibility to further debug my boot
-> > problem, for example enabling  more verbose boot messages ?
-> 
-> If you have a serial port then yes booting with serial console support
-> enabled and something capturing ttyS0 (COM1) will give you data earlier
-> than the console is initialized
+> You do need CONFIG_SMP and a processor capable of HyperThreading,
+> i.e. Pentium 4 XEON; but CONFIG_MPENTIUM4 is not necessary for HT,
+> just appropriate to that processor in other ways.
 
-... sounds like a very good idea but will take a while since I gave away
-all my serial port stuff ...
+Hi,
 
-I tested several kernels and now I can say that kernels up to
-2.4.19-pre6 do boot on my i845E board (Chaintech 9EJL) only if I pass
-mem=512M as parameter at boot time (I use syslinux 1.75 with a floppy).
-If I use kernels from 2.4.19-pre7 onwards I can't boot at all even if I
-pass mem=512M as parameter. The last kernel I tested was 2.4.20-pre4 and
-the problem is the same. 
+I used KNOPPIX on a 2 way Dell WS 530 (Xeon 2.0 GHz). This distribution has 
+CONFIG_M386 set (as most others also?) and HT was not enabled. I compiled the 
+kernel myself (same config as KNOPPIX but with CONFIG_MPENTIUM4) and HT gets 
+enabled. So is _does_ matter for which processor the kernel is optimized.
 
-This behaviour is totally the same as Justin Heesemann reported with his
-i845G board. For me it seems that the new i845E and i845G chipsets have
-some trouble with the boot code.
-As I'm no kernel expert at all I can't tell you if this is due to some
-hardware problems e.g. buggy BIOS.
+Greetings
 
-So again my question: Can I do anything to help to debug this problem ?
+Marc
 
-Best regards
 -- 
-Jens Wiesecke
-Institute for Macromolecular Chemistry
+Marc Dietrich
 
-e-mail: j_wiese@hrzpub.tu-darmstadt.de

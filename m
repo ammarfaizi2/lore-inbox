@@ -1,47 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286625AbRL0UiP>; Thu, 27 Dec 2001 15:38:15 -0500
+	id <S286613AbRL0UeP>; Thu, 27 Dec 2001 15:34:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286635AbRL0UiG>; Thu, 27 Dec 2001 15:38:06 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36363 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S286625AbRL0Uht>; Thu, 27 Dec 2001 15:37:49 -0500
-Date: Thu, 27 Dec 2001 12:35:38 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] rlimit_nproc
-In-Reply-To: <Pine.LNX.4.33L.0112271816380.12225-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0112271224590.1167-100000@penguin.transmeta.com>
+	id <S286615AbRL0UeG>; Thu, 27 Dec 2001 15:34:06 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61956 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286613AbRL0Udw>; Thu, 27 Dec 2001 15:33:52 -0500
+Subject: Re: The direction linux is taking
+To: lm@bitmover.com (Larry McVoy)
+Date: Thu, 27 Dec 2001 20:43:58 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <20011227121033.F25698@work.bitmover.com> from "Larry McVoy" at Dec 27, 2001 12:10:33 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16JhNe-0006mP-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Huh.  I'm not sure I understand this.  Once you accept a patch into the
+> mainline source, are these people still supposed to maintain that patch?
+> I would think the patch is now sort of dead, and any subsequent changes
 
-On Thu, 27 Dec 2001, Rik van Riel wrote:
->
-> (not yet automated, scripts need to be written ... but the patch
-> below would be a typical candidate ... are you happy with the way
-> the description and patch are combined ?)
+The patch may be dead, but you want a likelyhood that the person who made
+the patch will continue to fix it if it added new stuff. If its a bug fix
+it may well be dead, if its a driver or a chunk of vm code then it needs
+maintaining longer term.
 
-Looks fine, except for the fact that nowhere did it say which kernel
-version the patch was generated against. Which is often a rather important
-clue ;)
-
-Now if you automate this, I would suggest adding a section in between the
-explanation and the patch: the "diffstat" output of the patch. It doesn't
-matter much for this example, because obviously the patch is small enough
-that just scrolling down shows what's up, but..
-
-I would also suggest that whatever activates the patch asks for a
-subject-line that is more than 12 characters long ;)
-
-Also worthwhile for automation is an md5sum or similar (for verifying that
-the mail made it though the mail system unscathed). A pgp signature would
-be even better, of course - especially useful as I suspect it would be
-good to also cc the things to some patch-list, and having a clear identity
-on the sender is always a good idea in these things.
-
-			Linus
-
+Alan

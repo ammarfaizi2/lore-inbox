@@ -1,105 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbTFXJ4P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 05:56:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbTFXJ4P
+	id S261825AbTFXKAq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 06:00:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbTFXKAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 05:56:15 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:4622 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id S261365AbTFXJ4N convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 05:56:13 -0400
-From: vanstadentenbrink@ahcfaust.nl
-To: linux-kernel@vger.kernel.org
-Date: Tue, 24 Jun 2003 12:10:23 +0200
+	Tue, 24 Jun 2003 06:00:46 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:34065 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S261797AbTFXKAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 06:00:39 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.72-mm3 O(1) interactivity enhancements
+Date: Tue, 24 Jun 2003 12:14:21 +0200
+User-Agent: KMail/1.5.2
+References: <1056368505.746.4.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1056368505.746.4.camel@teapot.felipe-alfaro.com>
 MIME-Version: 1.0
-Subject: GPL violations by wireless manufacturers
-Message-ID: <3EF83FAF.24578.38A16F@localhost>
-X-mailer: Pegasus Mail for Windows (v4.11)
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
-Content-description: Mail message body
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306241214.22090.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Please CC replies as I am not subscribed ]
+On Monday 23 June 2003 13:41, Felipe Alfaro Solana wrote:
 
-I have had some luck resolving the GPL violation by wireless 
-manufacturers issue. I have sent letters regarding the issue to 
-Linksys, Belkin and Buffalo. This is the letter I received from 
-Buffalo Technologies and below that is the letter I sent to the three 
-manufacturers:
+Hi Felipe,
 
---------------
-Hi Sir,
- 
-We are aware of these requirements and we have the PDF document 
-(attached) and a statement/notice that will be put onto the website 
-within 48 hours for this product. Please let me know if you require 
-further assistance or if you would like to talk further.
- 
-NOTICE:
-This product uses software of GPL/LGPL.
-You have the right to acquire source code, change it, and re-
-distribute it.
-The warranty on the product is only applicable if the original or an 
-official Buffalo firmware is on the unit.
-Please refer to GNU_LICENSE.PDF.
-We don’t have any obligation to pay if a user has to pay to 
-distribute or change the source code.
- 
-Thanks for your time.
- 
-Craig Reid
-Technical Sales Engineer
------------
+> I have just cooked up a patch which mixes Mike Galbraith's excellent
+> monotonic clock O(1) scheduler changes with another patch I think that
+> came from Ingo Molnar and some scheduler parameter tweaks. This patch is
+> against 2.5.72-mm3, but applies cleanly on top of 2.5.73.
+> For me, it gives impressive interactive behavior. With it applied, I can
+> no longer make XMMS skips sound, moving windows on an X session is
+> perfectly smooth, even when moving them fastly enough for a very long
+> time.
+I am using your patch ontop of 2.5.73-mm1. Only two words: perfectly great!
 
------------
-Dear sirs, 
+> Thanks for listening!
+thanks for the effort and the patch!
 
-Hereby I would like to inform you that the software on at least one  
-of your products is offered in violation of the General Public  
-License (GPL) as published by the GNU Software Foundation.  This may 
-not be known to you due to inclusion of acquired or  licensed 
-technology from third-party manufacturers in your  product.  
+ciao, Marc
 
-The affected product is the Buffalo (Melco) WBR-G54 Wireless  Access 
-Point 
-
-The infringement of the GPL consists of the following: 
-
-Your product makes use of Linux kernel version 2.4.5 and  Busybox 
-software, which are both licensed under GPL  terms and conditions. 
-The GPL allows copying and  distribution of licensed software, 
-provided that the  complete corresponding machine-readable source 
-code or  a written offer to a complete machine-readable copy of the  
-corresponding source code accompanies the product. As  you have 
-fulfilled neither of these obligations, you are in  violation GPL 
-terms and conditions.
- 
-Your product includes a kernel driver module that is  inserted into 
-the GPL licensed Linux kernel when the  product is turned on. There 
-is no possible way for the user  to prevent the insertion of this 
-module into the kernel. It is  also impossible for the user to remove 
-the kernel module  from the running kernel. The operation of the 
-included  software on your product depends on the operation of the  
-kernel module. For these reasons the kernel driver module  is not 
-offered as a separate work as described in Section II  of the GPL and 
-must therefore be distributed under the  terms and conditions of the 
-GPL. As you have not  included the complete corresponding machine-
-readable  source code or a written offer to a complete machine- 
-readable copy of the corresponding source code you are  clearly in 
-violation of GPL terms and conditions.
- 
-
-Because of the huge liability your company could be facing I  advise 
-you to take appropriate measures to cease offering your  product in 
-violation of the GPL.  
-
-
-With Regards, 
-
-
-Richard Ten Brink
---------

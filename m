@@ -1,73 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbTLHVqo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 16:46:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTLHVqn
+	id S261881AbTLHWA7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 17:00:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbTLHWA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 16:46:43 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:980 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261775AbTLHVql (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 16:46:41 -0500
-Subject: Re: balance interrupts
-From: Len Brown <len.brown@intel.com>
-To: Julien Oster <lkml-2315@mc.frodoid.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <frodoid.frodo.8765grkrkb.fsf@usenet.frodoid.org>
-References: <BF1FE1855350A0479097B3A0D2A80EE00184D619@hdsmsx402.hd.intel.com>
-	 <1070911748.2408.39.camel@dhcppc4>
-	 <frodoid.frodo.8765grkrkb.fsf@usenet.frodoid.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1070919984.2551.116.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 08 Dec 2003 16:46:24 -0500
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Dec 2003 17:00:59 -0500
+Received: from imap.gmx.net ([213.165.64.20]:11229 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261881AbTLHWA5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 17:00:57 -0500
+Date: Mon, 8 Dec 2003 23:00:55 +0100 (MET)
+From: "Peter Bergmann" <bergmann.peter@gmx.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, kristian.peters@korseby.net,
+       nfedera@esesix.at, andrea@suse.de, riel@redhat.com
+MIME-Version: 1.0
+References: <Pine.LNX.4.44.0312081512510.1289-100000@logos.cnet>
+Subject: Re: Configurable OOM killer Re: old oom-vm for 2.4.32 (was oom killer in 2.4.23)
+X-Priority: 3 (Normal)
+X-Authenticated: #13246506
+Message-ID: <26836.1070920855@www56.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a tight squeeze.  The system has 13 PCI interrupt inputs, but
-the chip-set has only a single IO-APIC with 8-pins to handle them.
 
-You don't see all the interrupts in /proc/interrupts because there are
-not device drivers attached to all of them -- but if you edit them in
-from lspci output you'd get this:
+> On Sat, 6 Dec 2003, Peter Bergmann wrote:
+> 
+> > > > If anyone  is interested:
+> > > > Norbert Federa sent me this link for a "quick&dirty" patch he made 
+> > > > for 2.4.23-vanilla which rolls back the complete 2.4.22 vm including
+> the
+> > > > old oom-killer  - without guarantee but it does work very well for
+> me
+> > > ...
+> > > 
+> > > I suppose the oom killer is the only reason for you using .22 VM
+> correct?
+> > > 
+> > > Or do you have any other reason for this?
+> > 
+> > No, you're right. The oom killer is the _only_reason. 
+> > I did not succeed in integrating the disabled oom_kill.c in 2.4.23.
+> > The only solution for me is applying Norbert's .22vm patch.
+> 
+> Hi,
+> 
+> The following patch makes OOM killer configurable (its the same as the 
+> other patches posted except its around CONFIG_OOM_KILLER).
+> 
+> I hope the Configure.help entry is clear enough.
+> 
+> Peter, can you please try this.
+> 
+> Comments are appreciated.
 
-  0:   40022145    IO-APIC-edge  timer
-  1:      62950    IO-APIC-edge  i8042
-  2:          0          XT-PIC  cascade
-  8:     681626    IO-APIC-edge  rtc
-  9:          0   IO-APIC-level  acpi
- 12:         55    IO-APIC-edge  i8042
- 14:     968274    IO-APIC-edge  ide0
- 15:    1789182    IO-APIC-edge  ide1
+Great. seems to work very well. Thx.
+Ran some very hungry testprogs (memeat.c), filled a tmpfs with crap, ... 
+I was satisfied with oom's kill decisions.
+And it is/was very easy to modify/extend oom_kill.c  for special needs.
 
- 16:     404489   IO-APIC-level  EMU10K1, eth2
- 17:                             eth3
- 18:     445160   IO-APIC-level  ide2, ide3, eth0
- 19:    1596427   IO-APIC-level  eth1, matrox
- 20:          0   IO-APIC-level  ohci_hcd
- 21:          0   IO-APIC-level  NVidia nForce2 audio, usb
- 22:      36730   IO-APIC-level  ohci_hcd, audio
- 23:                             smbus
+Maybe the Configure.help text should be somewhat more frightening.
+I think aa had good reasons for disabling oom (possibility of lock up) but
+among others 
+I'd prefer to see your patch - a config option (default disabled +
+experimental)  - in 2.4.24.
 
-No, the siimage appears to be a single pci device, so you'll not get to
-split ide2 and ide3.
+Cheers,
+Pet
 
-The ethernets appears to be a quad DEC ethernet card with a PCI bridge. 
-You're using eth0 and eth1.  But if you used eth3 instead of eth0, you'd
-have an ethernet I/F with an interrupt all to itself.
-
-cheers,
--Len
-
-ps. yes, the AML shows these interrupt links are programmable, but it is
-unclear if the BIOS/hardware is capable of programming any of the PCI
-interrupts to unused destinations < 16 when in APIC mode.
-I'd be interested to see the dmesg -s40000 for this box.
-
-pps low hanging fruit = easy to pick
-ppps high rent district = expensive place to live
+-- 
++++ GMX - die erste Adresse für Mail, Message, More +++
+Neu: Preissenkung für MMS und FreeMMS! http://www.gmx.net
 
 

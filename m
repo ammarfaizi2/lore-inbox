@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262402AbTCVMCP>; Sat, 22 Mar 2003 07:02:15 -0500
+	id <S262762AbTCVMHL>; Sat, 22 Mar 2003 07:07:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262409AbTCVMCO>; Sat, 22 Mar 2003 07:02:14 -0500
-Received: from packet.digeo.com ([12.110.80.53]:48356 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262402AbTCVMCN>;
-	Sat, 22 Mar 2003 07:02:13 -0500
-Date: Sat, 22 Mar 2003 04:12:51 -0800
+	id <S262763AbTCVMHL>; Sat, 22 Mar 2003 07:07:11 -0500
+Received: from packet.digeo.com ([12.110.80.53]:50660 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262762AbTCVMHK>;
+	Sat, 22 Mar 2003 07:07:10 -0500
+Date: Sat, 22 Mar 2003 04:17:58 -0800
 From: Andrew Morton <akpm@digeo.com>
-To: Dawson Engler <engler@csl.stanford.edu>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [CHECKER] races in 2.5.65/mm/swapfile.c?
-Message-Id: <20030322041251.7720e42f.akpm@digeo.com>
-In-Reply-To: <200303221145.h2MBjAW09391@csl.stanford.edu>
-References: <200303221145.h2MBjAW09391@csl.stanford.edu>
+To: Jos Hulzink <josh@stack.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.65: oops: EIP at current_kernel_time +0x0f/0x40
+Message-Id: <20030322041758.3ee1fed8.akpm@digeo.com>
+In-Reply-To: <200303221252.12226.josh@stack.nl>
+References: <200303221252.12226.josh@stack.nl>
 X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Mar 2003 12:12:47.0302 (UTC) FILETIME=[59C51E60:01C2F06C]
+X-OriginalArrivalTime: 22 Mar 2003 12:17:55.0081 (UTC) FILETIME=[11387790:01C2F06D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dawson Engler <engler@csl.stanford.edu> wrote:
+Jos Hulzink <josh@stack.nl> wrote:
 >
-> Hi All,
+> Hi,
 > 
-> mm/swapfile.c seems to have three potential races.
+> Here the early oops I'm stuck with in 2.5.65. Had to write it down manually, 
+> so the report is not complete. If I missed something crucial, please ask. The 
+> bug is easy to reproduce, so I can write anything down you need.
 > 
-> The first two are in 
->         linux-2.5.62/mm/swap_state.c:87:add_to_swap_cache
+> exact oops message scrolled away, console isn't set up yet, so I can't scroll 
+> back.
 > 
-> which seems reachable without a lock from the callchain:
+> EIP at current_kernel_time +0x0f/0x40
 > 
->         mm/swapfile.c:sys_swapoff:998->
->               sys_swapoff:1026->
->                 try_to_unuse:591->
->                         mm/swap_state.c:read_swap_cache_async:377->
->                             add_to_swap_cache
-> 
-> add_to_swap_cache increments two global variables without a lock:
->         INC_CACHE_INFO(add_total);
-> and
->         INC_CACHE_INFO(exist_race);
 
-These are just instrumentation.  If they're a bit inaccurate nobody cares,
-and they're not worth locking.
-
-So yes, that is a positive.
-
-> The final one is in
->         linux-2.5.62/mm/swapfile.c:213:swap_entry_free
-> which seems to increment
->         nr_swap_pages++;
-> without a lock.
-
-swap_entry_free() is called after swap_info_get(), which locks the swap
-device list and the particular swap device.
-
+That might be an lfence instruction.  I suspect you've chosen the wrong
+CPU type?

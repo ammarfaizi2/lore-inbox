@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281329AbRKQLKA>; Sat, 17 Nov 2001 06:10:00 -0500
+	id <S281330AbRKQLUu>; Sat, 17 Nov 2001 06:20:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281330AbRKQLJu>; Sat, 17 Nov 2001 06:09:50 -0500
-Received: from cobae1.consultronics.on.ca ([205.210.130.26]:149 "EHLO
-	cobae1.consultronics.on.ca") by vger.kernel.org with ESMTP
-	id <S281329AbRKQLJa>; Sat, 17 Nov 2001 06:09:30 -0500
-Date: Sat, 17 Nov 2001 06:09:26 -0500
-From: Greg Louis <glouis@dynamicro.on.ca>
-To: linux-kernel@vger.kernel.org
-Cc: Tony Reed <Tony@TRLJC.COM>
-Subject: Re: Totally Stumped
-Message-ID: <20011117110925.GA1090@athame.dynamicro.on.ca>
-Reply-To: Greg Louis <glouis@dynamicro.on.ca>
-Mail-Followup-To: linux-kernel@vger.kernel.org, Tony Reed <Tony@TRLJC.COM>
-In-Reply-To: <20011116201702.1317C15B48@kubrick.trljc.com> <E164rg7-0005Mz-00@the-village.bc.nu>
+	id <S281331AbRKQLUb>; Sat, 17 Nov 2001 06:20:31 -0500
+Received: from marao.utad.pt ([193.136.40.3]:31755 "EHLO marao.utad.pt")
+	by vger.kernel.org with ESMTP id <S281330AbRKQLU3> convert rfc822-to-8bit;
+	Sat, 17 Nov 2001 06:20:29 -0500
+Subject: Re: Swap Usage with Kernel 2.4.14
+From: Alvaro Lopes <alvieboy@alvie.com>
+To: war <war@starband.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3BF5B275.215D6D44@starband.net>
+In-Reply-To: <3BF5B275.215D6D44@starband.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.99.0 (Preview Release)
+Date: 17 Nov 2001 11:18:55 +0000
+Message-Id: <1005995937.694.0.camel@dwarf>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <E164rg7-0005Mz-00@the-village.bc.nu>
-Organization: Dynamicro Consulting Limited
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20011116 (Fri) at 2241:43 +0000, Alan Cox wrote:
-> > [1.0] Won't compile 8139too
+On Sáb, 2001-11-17 at 00:42, war wrote:
+> Regular usage on my box, launching netscape, opera, pan, xchat, gaim;
+> the kernel eventually digs into swap.
 > 
-> Please dont use gcc 3.x to compile kernels
+> However, the swap is never released?
 > 
-> >     (nil)) 8139too.c:2432: Internal compiler error in
-> >     reload_cse_simplify_operands, at reload1.c:8355 Please submit a full
-> >     bug report, with preprocessed source if appropriate.  See
-> >     <URL:http://www.gnu.org/software/gcc/bugs.html> for instructions.
+> Mem:   900596K av,  185896K used,  714700K free,       0K shrd,    4172K
+> buff
+> Swap: 2048276K av,   63728K used, 1984548K free                   91176K
+> cached
 > 
-> But do report the data on the compiler failure to the URL above
+> Are there any settings I should have set or be aware of?
+> 
+> I current use 4GB support, 1GB of ram, 2GB of swap.
+> 
+> Having 1GB, I thought I had enough memory for basic operations without
+> the disk swapping like mad.
+> 
 
-Don't bother.  I did, a couple of weeks ago, and was told it had been
-reported before.
+AFAIK with 2.4.14 processes can be in memory and swap at the same time. 
 
--- 
-| G r e g  L o u i s          | gpg public key:      |
-|   http://www.bgl.nu/~glouis |   finger greg@bgl.nu |
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+

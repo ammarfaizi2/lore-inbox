@@ -1,209 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270739AbTGNRWe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 13:22:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270659AbTGNRTu
+	id S270750AbTGNRZf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 13:25:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270748AbTGNRWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 13:19:50 -0400
-Received: from covert.black-ring.iadfw.net ([209.196.123.142]:1031 "EHLO
-	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
-	id S270712AbTGNRQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 13:16:53 -0400
-Date: Mon, 14 Jul 2003 12:31:37 -0500
-From: Art Haas <ahaas@airmail.net>
-To: linux-kernel@vger.kernel.org
-Subject: Trying to get DMA working with IDE alim15x3 controller
-Message-ID: <20030714173137.GB719@artsapartment.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Mon, 14 Jul 2003 13:22:45 -0400
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:47246 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S270700AbTGNRVj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 13:21:39 -0400
+Message-ID: <3F12E8F0.5020107@rackable.com>
+Date: Mon, 14 Jul 2003 10:31:28 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Ruth.Ivimey-Cook@ivimey.org,
+       Chad Kitching <CKitching@powerlandcomputers.com>,
+       Steven Dake <sdake@mvista.com>, linux-kernel@vger.kernel.org
+Subject: Re: IDE/Promise 20276 FastTrack RAID Doesn't work in 2.4.21, patchattached
+ to fix
+References: <Pine.SOL.4.30.0307121754050.19333-100000@mion.elka.pw.edu.pl> <200307121801.03776.ruth@ivimey.org>
+In-Reply-To: <200307121801.03776.ruth@ivimey.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Jul 2003 17:36:27.0685 (UTC) FILETIME=[744FE550:01C34A2E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Ruth Ivimey-Cook wrote:
 
-After recent success with getting a Turtle Beach Malibu sound card
-working on my machine, I'm looking again at trying to get DMA working.
-I've been booting with 'ide=nodma' for a long time now as the boot
-sequence gets stuck after probing for the hard drives and partitions.
-I should clarify "getting stuck" by saying the machine prints out lots
-of "hda: drive not ready" and "hda: lost interrupt" messages but continues 
-limp along.  With the release of 2.6.0-test1 (running it now) I tried again
-to boot without 'ide=nodma' on the command line and sadly still saw the same
-boot problems.
+>On Saturday 12 Jul 2003 5:14 pm, Bartlomiej Zolnierkiewicz wrote:
+>  
+>
+>>I think you just need "pdc_ide=0,force" and "pdc_ide=0,noforce".
+>>No need to complicate things.
+>>Remember that ataraid is only software RAID driver and pdc202xx_new
+>>is a chipset driver.
+>>
 
-Here's some hdparm output describing the machine ...
+  Doesn't the following already work "ide2=0 ide3=0 ...." for the 
+promise binary driver?
 
-$ hdparm /dev/hd?
+>
+>I am not forgetting, but I don't like this idea of 'force' -- it instantly 
+>raises the question 'force what' and then you're in the quagmire again.
+>
+>Better to tell the kernel what you want and let the kernel worry about how to 
+>make it happen.
+>
+>So the "pdc_ide2=jbod"  would be scanned and interpreted as a request to 
+>activate ('force') the drive into IDE mode and not enable any ataraid (jbod 
+>==> just disks),
+>
+>while "pdc_ide3=promise" would let the drive state be, and make the kernel do 
+>a "modprobe promise-ft" (or whatever it's called) to load the rest of the 
+>driver, as is done for 'scsi-hostadapter'. [Would you ever have to force a 
+>promise chip into promise-raid mode?].
+>
 
-/dev/hda:
+  This is getting really complex.  Weren't we trying to make things 
+simple?  The simple solution is to have the single option, and let user 
+space (initrd) determine if you want to load the pdcraid driver. 
 
- Model=ST33232A, FwRev=3.02, SerialNo=GH593339
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs RotSpdTol>.5% }
- RawCHS=6253/16/63, TrkSize=0, SectSize=0, ECCbytes=4
- BuffType=unknown, BuffSize=128kB, MaxMultSect=16, MultSect=off
- CurCHS=6253/16/63, CurSects=6303024, LBA=yes, LBAsects=6303024
- IORDY=on/off, tPIO={min:383,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio3 pio4 
- DMA modes:  mdma0 mdma1 mdma2 
- UDMA modes: udma0 udma1 *udma2 
- AdvancedPM=no
- Drive conforms to: unknown:  0 1 2
+>
+>Do you see what I mean?
+>
+>If you prefer, the string could be "pdc=ide2:ide, ide3:ataraid".
+>
+>  
+>
+>>jbod/raid should be managed by ataraid driver not ide or pdc202xx_new.
+>>    
+>>
+>
+>I was using jbod as just that, not as meaning raid-0 or similar. Perhaps I 
+>should have been clearer. So you've a choice of (just IDE), (RAID via 
+>ataraid) and (RAID via Promise)
+>
+>  
+>
 
+  No you really have only 2 options.
+1)Let linux see the ide controller.
+2)Don't then linux see the ide controller.
 
-/dev/hdb:
+#1 Will only see ataraid partitions if there exists a promise raid 
+configuration, and the pdcraid driver is loaded.
 
- Model=ATAPI CDROM, FwRev=V1.80, SerialNo=
- Config={ Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
- RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
- BuffType=unknown, BuffSize=16384kB, MaxMultSect=0
- (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
- IORDY=yes, tPIO={min:227,w/IORDY:180}, tDMA={min:150,rec:150}
- PIO modes:  pio0 pio1 pio2 pio4 
- DMA modes:  sdma0 sdma1 *sdma2 mdma0 mdma1 
- AdvancedPM=no
-
-
-/dev/hdc:
-
- Model=FUJITSU MPD3084AT, FwRev=DD-03-47, SerialNo=05043987
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
- BuffType=unknown, BuffSize=512kB, MaxMultSect=16, MultSect=off
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=16514064
- IORDY=yes, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4 
- DMA modes:  mdma0 mdma1 mdma2 
- UDMA modes: udma0 udma1 *udma2 udma3 udma4 
- AdvancedPM=yes: disabled (255) WriteCache=enabled
- Drive conforms to: device does not report version:  1 2 3 4
-
-Here's the IDE config bits for my 2.6.0-test1 kernel. I _do_ have the
-alim15x3 driver compiled in ...
-
-....
-#
-# ATA/ATAPI/MFM/RLL support
-#
-CONFIG_IDE=y
-
-#
-# IDE, ATA and ATAPI Block devices
-#
-CONFIG_BLK_DEV_IDE=y
-
-#
-# Please see Documentation/ide.txt for help/info on IDE drives
-#
-# CONFIG_BLK_DEV_HD_IDE is not set
-# CONFIG_BLK_DEV_HD is not set
-CONFIG_BLK_DEV_IDEDISK=y
-# CONFIG_IDEDISK_MULTI_MODE is not set
-# CONFIG_IDEDISK_STROKE is not set
-CONFIG_BLK_DEV_IDECD=m
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-# CONFIG_IDE_TASK_IOCTL is not set
-CONFIG_IDE_TASKFILE_IO=y
-
-#
-# IDE chipset support/bugfixes
-#
-# CONFIG_BLK_DEV_CMD640 is not set
-# CONFIG_BLK_DEV_IDEPNP is not set
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_IDE_TCQ is not set
-# CONFIG_BLK_DEV_OFFBOARD is not set
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_PCI_WIP is not set
-CONFIG_BLK_DEV_ADMA=y
-# CONFIG_BLK_DEV_AEC62XX is not set
-CONFIG_BLK_DEV_ALI15X3=y
-# CONFIG_WDC_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD74XX is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_TRIFLEX is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5520 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-# CONFIG_BLK_DEV_SC1200 is not set
-# CONFIG_BLK_DEV_PIIX is not set
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_PDC202XX_OLD is not set
-# CONFIG_BLK_DEV_PDC202XX_NEW is not set
-# CONFIG_BLK_DEV_RZ1000 is not set
-# CONFIG_BLK_DEV_SVWKS is not set
-# CONFIG_BLK_DEV_SIIMAGE is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-# CONFIG_BLK_DEV_VIA82CXXX is not set
-# CONFIG_IDE_CHIPSETS is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_IDEDMA_IVB is not set
-CONFIG_BLK_DEV_IDE_MODES=y
-...
-
-BTW, the IDE taskfile stuff seems to work here without a problem.
-
-When I boot with the 'ide=nodma' argument the kernel prints out the
-following:
-
-...
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-ALI15X3: IDE controller at PCI slot 0000:00:0b.0
-ALI15X3: chipset revision 32
-ALI15X3: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:pio, hdd:pio
-hda: ST33232A, ATA DISK drive
-hdb: ATAPI CDROM, ATAPI CD/DVD-ROM drive
-anticipatory scheduling elevator
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: FUJITSU MPD3084AT, ATA DISK drive
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: max request size: 128KiB
-hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: task_no_data_intr: error=0x04 { DriveStatusError }
-hda: 6303024 sectors (3227 MB) w/128KiB Cache, CHS=6253/16/63
- hda: hda1 hda2 < hda5 hda6 hda7 >
-hdc: max request size: 128KiB
-hdc: 16514064 sectors (8455 MB) w/512KiB Cache, CHS=16383/16/63
- hdc: hdc1 hdc2 < hdc5 hdc6 > hdc3
-....
-
-I noticed when booting up my new kernel without the 'nodma' argument
-that the /dev/hdc drive seemed to present no problem at all when it was
-being examined. The partition stuff was found quickly, and there was a
-"(U)DMA" at the end of the line giving the sector count, cache size, and
-CHS breakdown of the drive, so it looks like the problem is just
-something regarding the hard drive and cdrom on the ide0 controller.
-Looking at the 'ide.c' file for clues or bootup arguments I don't see a
-way to specify activating DMA on only hda while not on hdb. Maybe it is
-there and I'm missing something.
-
-Perhaps the problem I'm seeing is a bug in the alim15x3 driver? Maybe
-some configuration flag I've missed, or a combination of options given
-in the ide.c file? Something else?
-
-Suggestions welcomed, and any info that I can provide I will.
-
-Thanks in advance.
-
-Art Haas
+>
+>  
+>
+>>>Should I think about coding this?
+>>>      
+>>>
+>>No, think about porting ataraid and pdcraid to 2.5 first.
+>>    
+>>
+>
+>pdcraid == ataraid module for PDC?? Haven't looked at the src yet.
+>  
+>
+  Yes unless you insert the pdcraid module.  Linux will only see the raw 
+drives.  Once you insert pdcraid you can see the raid devices, and raw 
+disks.  Which can cause major issues at times.
 
 -- 
-Man once surrendering his reason, has no remaining guard against absurdities
-the most monstrous, and like a ship without rudder, is the sport of every wind.
+Once you have their hardware. Never give it back.
+(The First Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
 
--Thomas Jefferson to James Smith, 1822
+

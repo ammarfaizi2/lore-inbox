@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262755AbULQGN1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262750AbULQGpj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262755AbULQGN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 01:13:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbULQGN1
+	id S262750AbULQGpj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 01:45:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262759AbULQGpi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 01:13:27 -0500
-Received: from alageremail1.agere.com ([192.19.193.106]:45497 "EHLO
-	alageremail1.agere.com") by vger.kernel.org with ESMTP
-	id S262755AbULQGM4 convert rfc822-to-8bit (ORCPT
+	Fri, 17 Dec 2004 01:45:38 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:17107 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262750AbULQGpd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 01:12:56 -0500
-content-class: urn:content-classes:message
-Subject: Magic Number for New File system
+	Fri, 17 Dec 2004 01:45:33 -0500
+Date: Fri, 17 Dec 2004 01:45:05 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Patrick McHardy <kaber@trash.net>
+cc: Bryan Fulton <bryan@coverity.com>, <netdev@oss.sgi.com>,
+       <netfilter-devel@lists.netfilter.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [Coverity] Untrusted user data in kernel
+In-Reply-To: <41C26DD1.7070006@trash.net>
+Message-ID: <Xine.LNX.4.44.0412170144410.12579-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Date: Fri, 17 Dec 2004 11:42:48 +0530
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-Message-ID: <6E1F4DB94568BB4AA8A30083E67378924BB67C@iiex2ku01.agere.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Magic Number for New File system
-Thread-Index: AcTj/27XWJskvR9xQ4a400Z1PXPqeQ==
-From: "Bhattiprolu, Ravikumar \(Ravikumar\)" <ravikb@agere.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 17 Dec 2004 06:12:55.0398 (UTC) FILETIME=[72B70860:01C4E3FF]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Fri, 17 Dec 2004, Patrick McHardy wrote:
 
-We are planning to write a new file system for our requirements. Is
-there any standard way to allocate a magic number for this new file
-system? Also how to go about writing the new file system?
+> James Morris wrote:
+> 
+> >This at least needs CAP_NET_ADMIN.
+> >
+> It is already checked in do_ip6t_set_ctl(). Otherwise anyone could
+> replace iptables rules :)
 
-thanks and regards,
-Ravi
+That's what I meant, you need the capability to do anything bad :-)
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+

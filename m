@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271108AbRIRNEy>; Tue, 18 Sep 2001 09:04:54 -0400
+	id <S271278AbRIRNYG>; Tue, 18 Sep 2001 09:24:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271278AbRIRNEo>; Tue, 18 Sep 2001 09:04:44 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:24292 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S271226AbRIRNEi>;
-	Tue, 18 Sep 2001 09:04:38 -0400
-Date: Tue, 18 Sep 2001 09:04:57 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: David Chow <davidchow@rcn.com.hk>, linux-kernel@vger.kernel.org
-Subject: Re: EFAULT from file read.
-In-Reply-To: <Pine.LNX.3.95.1010918083824.20907A-100000@chaos.analogic.com>
-Message-ID: <Pine.GSO.4.21.0109180900320.25323-100000@weyl.math.psu.edu>
+	id <S271333AbRIRNX5>; Tue, 18 Sep 2001 09:23:57 -0400
+Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:39934 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S271246AbRIRNXm>; Tue, 18 Sep 2001 09:23:42 -0400
+Importance: Normal
+Subject: Re: Deadlock on the mm->mmap_sem
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        dhowells@redhat.com, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF9C225A25.EEAFFE81-ONC1256ACB.0048279B@de.ibm.com>
+From: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
+Date: Tue, 18 Sep 2001 15:22:54 +0200
+X-MIMETrack: Serialize by Router on D12ML028/12/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 18/09/2001 15:22:54
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Manfred Spraul wrote:
+
+>+   if (retval > count) BUG();
+>+   if (copy_to_user(buf, kbuf, retval)) {
+>+        retval = -EFAULT;
+>+   } else {
+>+        *ppos = (lineno << MAPS_LINE_SHIFT) + loff;
+>    }
+>    up_read(&mm->mmap_sem);
+
+The copy_to_user is still done with the lock held ...  I guess you just
+forgot to move the up_read() up before the copy_to_user(), right?
 
 
-On Tue, 18 Sep 2001, Richard B. Johnson wrote:
+Mit freundlichen Gruessen / Best Regards
 
-> File I/O requires a process context. Your file descriptor means
-> nothing unless associated with the process that opened the file.
+Ulrich Weigand
 
-It fscking doesn't.  He had clearly said that he calls file->f_op->read(),
-which has nothing whatsofuckingever to descriptors.  Sod off and don't
-return until you learn to read.
-
-As for the original question - grep fro set_fs and you'll see what to
-do (basically, set_fs(KERNEL_DS) before the call of ->read() and restore
-afterwards).
+--
+  Dr. Ulrich Weigand
+  Linux for S/390 Design & Development
+  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
+  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
 

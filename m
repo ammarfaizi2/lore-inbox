@@ -1,74 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267844AbTBJNKb>; Mon, 10 Feb 2003 08:10:31 -0500
+	id <S267845AbTBJNQo>; Mon, 10 Feb 2003 08:16:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267845AbTBJNKb>; Mon, 10 Feb 2003 08:10:31 -0500
-Received: from dial-ctb04112.webone.com.au ([210.9.244.112]:2056 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id <S267844AbTBJNK2>;
-	Mon, 10 Feb 2003 08:10:28 -0500
-Message-ID: <3E47A6E6.8070202@cyberone.com.au>
-Date: Tue, 11 Feb 2003 00:19:34 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+	id <S267846AbTBJNQo>; Mon, 10 Feb 2003 08:16:44 -0500
+Received: from 3-157.ctame701-1.telepar.net.br ([200.193.161.157]:50373 "EHLO
+	3-157.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S267845AbTBJNQn>; Mon, 10 Feb 2003 08:16:43 -0500
+Date: Mon, 10 Feb 2003 11:26:01 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Nick Piggin <piggin@cyberone.com.au>, Hans Reiser <reiser@namesys.com>,
+       Andrew Morton <akpm@digeo.com>, "" <jakob@unthought.net>,
+       "" <david.lang@digitalinsight.com>, "" <ckolivas@yahoo.com.au>,
+       "" <linux-kernel@vger.kernel.org>, "" <axboe@suse.de>
+Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK]
+ 2.4.20-ck3 / aa / rmap with contest]
+In-Reply-To: <20030210120006.GC31401@dualathlon.random>
+Message-ID: <Pine.LNX.4.50L.0302101123270.12742-100000@imladris.surriel.com>
+References: <20030210001921.3a0a5247.akpm@digeo.com> <20030210085649.GO31401@dualathlon.random>
+ <20030210010937.57607249.akpm@digeo.com> <3E4779DD.7080402@namesys.com>
+ <20030210101539.GS31401@dualathlon.random> <3E4781A2.8070608@cyberone.com.au>
+ <20030210111017.GV31401@dualathlon.random> <3E478C09.6060508@cyberone.com.au>
+ <20030210113923.GY31401@dualathlon.random> <3E4790F7.2010208@cyberone.com.au>
+ <20030210120006.GC31401@dualathlon.random>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@digeo.com>,
-       jakob@unthought.net, david.lang@digitalinsight.com,
-       riel@conectiva.com.br, ckolivas@yahoo.com.au,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3
- / aa / rmap with contest]
-References: <20030210001921.3a0a5247.akpm@digeo.com> <20030210085649.GO31401@dualathlon.random> <20030210010937.57607249.akpm@digeo.com> <3E4779DD.7080402@namesys.com> <20030210101539.GS31401@dualathlon.random> <3E4781A2.8070608@cyberone.com.au> <20030210111017.GV31401@dualathlon.random> <3E478C09.6060508@cyberone.com.au> <20030210113923.GY31401@dualathlon.random> <20030210034808.7441d611.akpm@digeo.com> <20030210120916.GD31401@dualathlon.random> <3E47A1E5.6020902@namesys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
-
-> Is the following a fair summary?
+On Mon, 10 Feb 2003, Andrea Arcangeli wrote:
+> On Mon, Feb 10, 2003 at 10:45:59PM +1100, Nick Piggin wrote:
+> > perspective it does nullify the need for readahead (though
+> > it is obivously still needed for other reasons).
 >
-> There is a certain minimum size required for the IOs to be cost 
-> effective.  This can be determined by single reader benchmarking.  
-> Only readahead and not anticipatory scheduling addresses that.
+> I'm guessing that physically it may be needed from a head prospective
+> too, I doubt it only has to do with the in-core overhead.  Seeing it all
+> before reaching the seek point might allow the disk to do smarter things
 
-Well as a rule you would gain efficiency the larger your request size gets.
-There will be a point where you make the trade off. And no, anticipatory
-scheduling will not make read request sizes bigger.
+> NOTE: just to be sure, I'm not at all against anticpiatory scheduling,
 
->
->
-> Anticipatory scheduling does not address the application that spends 
-> one minute processing every read that it makes.  Readahead does.
+Most disks seem to have a large cache, but with the cache unit
+for most of the cache being one _track_ at a time.
 
-In the presence of other IO, anticipatory scheduling would help here. In the
-absense of other IO, readahead would not help (past the efficiency problem
-above). However anticipatory scheduling _would_ mean you don't need as much
-RAM tied up doing nothing (or being discarded) for one minute before it
-is needed.
+This has the effect of the disk reading one track in at a time,
+but only being able to cache a few of these tracks in its cache.
 
->
->
-> Anticipatory scheduling does address the application that reads 
-> multiple files that are near each other (because they are in the same 
-> directory), and current readahead implementations (excepting reiser4 
-> in progress vaporware) do not.
+Anticipatory scheduling should reduce any thrashing of this disk
+cache.
 
-File readahead would not help. Anticipatory scheduling can.
+regards,
 
->
->
-> Anticipatory scheduling can do a better job of avoiding unnecessary 
-> reads for workloads with small time gaps between reads than readahead 
-> (it is potentially more accurate for some workloads).
-
-It avoids seeks mainly, but the lesser need for readahead should mean
-the readahead algorithm doesn't need to be very smart.
-
->
->
-> Is this a fair summary?
-
-Well I don't see it so much as readahead vs anticipatory scheduling.
-I know readahead is important.
-
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

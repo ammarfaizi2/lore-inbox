@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293497AbSCASjW>; Fri, 1 Mar 2002 13:39:22 -0500
+	id <S293493AbSCASmM>; Fri, 1 Mar 2002 13:42:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293493AbSCASjM>; Fri, 1 Mar 2002 13:39:12 -0500
-Received: from host-21.50by.nyc.onsiteaccess.net ([216.89.84.21]:6926 "EHLO
-	me-2000.www.com") by vger.kernel.org with ESMTP id <S293498AbSCASiz>;
-	Fri, 1 Mar 2002 13:38:55 -0500
-x-gfisavedcharset: Windows-1252
-Content-Type: text/plain;	charset="iso-8859-1"
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Subject: Re: kernel 2.4.18 final : SET_PERSONALITY fix in rc4 mistake
-From: "Madhav Diwan" <mdiwan@wagweb.com>
-To: "Mark Hahn" <hahn@physics.mcmaster.ca>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0203011324280.20523-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.33.0203011324280.20523-100000@coffee.psychology.mcmaster.ca>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 01 Mar 2002 13:38:46 -0500
-Message-ID: <1015007927.26972.66.camel@fglab>
+	id <S293498AbSCASmC>; Fri, 1 Mar 2002 13:42:02 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:29715 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S293493AbSCASl6>; Fri, 1 Mar 2002 13:41:58 -0500
+Date: Fri, 1 Mar 2002 13:39:59 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Submissions for 2.4.19-pre [sdmany (Richard Gooch)] [Discuss :) ]
+In-Reply-To: <E16gmKy-0003Xa-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.96.1020301133250.7225A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-X-OriginalArrivalTime: 01 Mar 2002 18:29:56.0089 (UTC) FILETIME=[16207E90:01C1C14F]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm good question.. 
+On Fri, 1 Mar 2002, Alan Cox wrote:
 
-Probably because the last list mails in my inbox are from feb 20th and
-dont answer this question. Dont know why I didnt get the mail.. ill have
-to check.
-
-And I see from the website that we are continuing the 2.4 series  so no
-need to answer that.
- But as I said.. whats up with 2.4.18 on the websites? if its fixed 
-could someone remove that update notice in the changelog ?
-
-And Mr, Hahn should probably get out from under the neutrinos, he seems
-a bit testy today.
-
-My apologies to all for my redundancies.
-
-Madhav
-
-
-
-On Fri, 2002-03-01 at 13:24, Mark Hahn wrote:
-> > Has a "good " version of 2.4.18 ( with the fix below added ) been put on
-> > the kernel.org site? if not when can we expect it?
+> > I would say that is a fair question. I find it in the production kernel?
+> > Good, so it was considered ready by someone. Seems to me one of the Redhat
+> > kernels had devfs as a module, they seem to think so.
 > 
-> why don't you actually read the mailing list, rather than just posting noise?
-> 
+> <Red Hat on>We don't ship devfs.</Red Hat>
 
+Thanks, someone has obviously rebuilt the kernel on the machine I was
+considering, possibly even me... :-(
 
+In any case if devfs is stable enough to be in the stable kernel, can we
+really say that something using it isn't (for that reason alone)? I any
+case I'm still interested, TB are not what they used to be.
 
+Okay, I'll look at other solutions, AIX seems able to handle it.
 
-Note: The information contained in this message may be privileged and confidential and protected from disclosure.  If the reader of this message is not the intended recipient, or an employee or agent responsible for delivering this message to the intended recipient, you are hereby notified that any dissemination, distribution or copying of this communication is strictly prohibited. If you have received this communication in error, please notify us immediately by replying to the message and deleting it from your computer.  Thank you.  Wagner Weber & Williams
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

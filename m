@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266362AbUFZGMJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263626AbUFZHSm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266362AbUFZGMJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 02:12:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266930AbUFZGMJ
+	id S263626AbUFZHSm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 03:18:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266014AbUFZHSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 02:12:09 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:14385 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S266362AbUFZGMG convert rfc822-to-8bit (ORCPT
+	Sat, 26 Jun 2004 03:18:42 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:41157 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263626AbUFZHSk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 02:12:06 -0400
-Subject: Re: [PATCH] Breaking ext2 file size limit of 2TB
-Reply-To: goldwyn_r@myrealbox.com
-From: "Goldwyn Rodrigues" <goldwyn_r@myrealbox.com>
-To: jbglaw@lug-owl.de
-CC: linux-kernel@vger.kernel.org
-Date: Sat, 26 Jun 2004 11:41:58 +0530
-X-Mailer: NetMail ModWeb Module
-MIME-Version: 1.0
-Message-ID: <1088230318.9825981cgoldwyn_r@myrealbox.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+	Sat, 26 Jun 2004 03:18:40 -0400
+Subject: Re: 32-bit dma allocations on 64-bit platforms
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: davidm@hpl.hp.com
+Cc: Jeff Garzik <jgarzik@pobox.com>, Terence Ripperda <tripperda@nvidia.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <16605.1055.383447.805653@napali.hpl.hp.com>
+References: <20040623183535.GV827@hygelac> <40D9D7BA.7020702@pobox.com>
+	 <16605.1055.383447.805653@napali.hpl.hp.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-2QOR+p/SZSxE0EqL6M9Z"
+Organization: Red Hat UK
+Message-Id: <1088234187.2805.3.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 26 Jun 2004 09:16:27 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You're using a reserved field; how do you mean "compatible" in this
-> situation? Think of a filesystem with real files > 2TB. How will an
-> unpatched ext3fs driver handle those files? You'll only see the <2TB
-> content, right?
 
+--=-2QOR+p/SZSxE0EqL6M9Z
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-When I say compatible, I mean the the filesystem need not be formatted. All you need to do patch the kernel, and re-coompile the module/kernel, and remove the old module and insert the new one (if you are using ext3 as a module). 
+On Sat, 2004-06-26 at 07:05, David Mosberger wrote:
+> >>>>> On Wed, 23 Jun 2004 15:19:22 -0400, Jeff Garzik <jgarzik@pobox.com>=
+ said:
+>=20
+>   Jeff> swiotlb was a dumb idea when it hit ia64, and it's now been propa=
+gated
+>   Jeff> to x86-64 :(
+>=20
+> If it's such a dumb idea, why not submit a better solution?
 
-Currently there is a function in ext3_max_size() which limits the file size to 2TB because of the number of blocks, namely i_blocks. 
+the real solution is an iommu of course, but the highmem solution has
+quite some merit too..... I know you disagree with me on that one
+though.
 
+--=-2QOR+p/SZSxE0EqL6M9Z
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-> May an unpatched version under any circumstances clear the high-order
-> bits of the newly introduced 64bit integer, just because it doesn't know
-> to preserve this reserved field's value?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-With an unpatched version you would not be able to create a file greater than 2TB at all and considers that all files are below 2TB.
+iD8DBQBA3SLLxULwo51rQBIRArdfAKCnJUgdRiy2G6Rlr8M5dl9fK8VDkQCggm6b
+EWactQ8PsjyA0h2K8cLGLn8=
+=Ojts
+-----END PGP SIGNATURE-----
 
-
-> Being unfamiliar eith ext3's internals, are there other
-> reserved/free-for-future-use fields that don't clash with the HURD?
-
-Andreas has proposed a few fields but I want to make sure that those fields as well are not used.
-
-
-> Are you proposing a patch like this for ext2, too?
-> 
-
-Once approved, it can be used for ext2 as well. Converting the current patch for ext2 would be childs play. ext2 and ext3 use almost the same structures (actually from my point of view, exactly the same but am afraid to use the word "exactly").
-
--- 
-Goldwyn :o)
-
+--=-2QOR+p/SZSxE0EqL6M9Z--
 

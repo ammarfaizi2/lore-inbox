@@ -1,61 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313477AbSFQNhk>; Mon, 17 Jun 2002 09:37:40 -0400
+	id <S313492AbSFQNic>; Mon, 17 Jun 2002 09:38:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313492AbSFQNhj>; Mon, 17 Jun 2002 09:37:39 -0400
-Received: from pa91.banino.sdi.tpnet.pl ([213.76.211.91]:39943 "EHLO
-	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
-	id <S313477AbSFQNhj>; Mon, 17 Jun 2002 09:37:39 -0400
-Subject: PIIX4 IDE tri-state support?
-To: linux-kernel@vger.kernel.org
-Date: Mon, 17 Jun 2002 15:37:37 +0200 (CEST)
-X-Mailer: ELM [version 2.4ME+ PL95 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <E17JwhN-000847-00@alf.amelek.gda.pl>
-From: Marek Michalkiewicz <marekm@amelek.gda.pl>
+	id <S313537AbSFQNib>; Mon, 17 Jun 2002 09:38:31 -0400
+Received: from point41.gts.donpac.ru ([213.59.116.41]:2822 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S313492AbSFQNiZ>;
+	Mon, 17 Jun 2002 09:38:25 -0400
+Date: Mon, 17 Jun 2002 17:36:32 +0400
+From: Andrey Panin <pazke@orbita1.ru>
+To: Dave Jones <davej@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH: NEW SUBARCHITECTURE FOR 2.5.21] support for NCR voyager (3/4/5xxx series)
+Message-ID: <20020617133632.GA3270@pazke.ipt>
+Mail-Followup-To: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
+References: <davej@suse.de> <200206140013.g5E0DQR25561@localhost.localdomain> <20020614024547.H16772@suse.de> <20020614134152.GA1293@pazke.ipt> <20020614154945.M16772@suse.de> <20020614135229.GA313@pazke.ipt> <20020614161627.O16772@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
+Content-Disposition: inline
+In-Reply-To: <20020614161627.O16772@suse.de>
+User-Agent: Mutt/1.4i
+X-Uname: Linux pazke 2.5.21 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-as I can see, there are IDE driver updates in the 2.4.19pre kernels
-including support for bus tri-state feature on some newer chipsets.
-How about the good old PIIX4 chip?  Here is the datasheet:
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-  http://www.intel.com/design/intarch/DATASHTS/29056201.pdf
+On =D0=9F=D1=82=D0=BD, =D0=98=D1=8E=D0=BD 14, 2002 at 04:16:27 +0200, Dave =
+Jones wrote:
+> On Fri, Jun 14, 2002 at 05:52:29PM +0400, Andrey Panin wrote:
+>=20
+>  > >  > "Latest" (2.4.17) visws patch which i'm planning to convert for 2=
+5, uses
+>  > >  > function MP_processor_info() from generic mpparse.c. May be it ma=
+kes sence
+>  > >  > to move to some generic file ?
+>  > > Is that the one from the visws sourceforge project ?
+>  > Yes it is.
+>=20
+> Ah good. *cross item off TODO list*
+=20
+Does it make sense to submit it right now before i386 arch split will
+be completed ?
 
-See page 66, bits 11 and 12 of GENCFG register (function 0, address
-0xb0 in PCI config space).  Is anyone working on supporting this?
+--=20
+Andrey Panin            | Embedded systems software engineer
+pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+--lrZ03NoBR/3+SXJZ
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Sure, hot-swapping IDE disks is still risky, but some people are
-doing it anyway :) so let's make it a little less risky - unmount
-everything, then "hdparm -Y" (flush any write cache, spin down),
-then "hdparm -b0" and only then remove the disk.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Perhaps there should be some higher level logic here, like this:
+iD8DBQE9DeXgBm4rlNOo3YgRApefAJ4tZ1O94T3oiXcQA2gsIrPmbALyRwCbBCOm
+vs6gKqHcaJd2iQsXuDikLlg=
+=gqi0
+-----END PGP SIGNATURE-----
 
- - if no device is found on an IDE bus on startup (or module load),
-   tri-state that bus (so it is "safe" to connect a device later)
-
- - if the driver is told to tri-state an IDE bus, first make sure
-   the devices on that bus are not busy, tell them to go to sleep,
-   unregister them (as they will be removed - if not, the bus will
-   be rescanned later anyway, after it is re-enabled)
-
- - if the driver is told to rescan the bus that was tri-stated,
-   re-enable it first (if no devices found, tri-state it again)
-
- - if the system is being shut down (or driver module is removed),
-   also tri-state the bus (as above, first tell all devices to go to
-   sleep, etc.) - the "go to sleep" part is already being done by
-   the Debian shutdown scripts, as it seems to be the only sure way
-   to flush write caches on some disks before power off.
-
-I admit I haven't looked much at 2.5 yet, so excuse me if parts of
-this are already done.  It's just a few small suggestions...
-
-Thanks,
-Marek
-
+--lrZ03NoBR/3+SXJZ--

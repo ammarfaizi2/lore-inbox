@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262201AbSKYAYB>; Sun, 24 Nov 2002 19:24:01 -0500
+	id <S262130AbSKYAXz>; Sun, 24 Nov 2002 19:23:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262040AbSKYAXA>; Sun, 24 Nov 2002 19:23:00 -0500
-Received: from dp.samba.org ([66.70.73.150]:3514 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S262130AbSKYAWv>;
-	Sun, 24 Nov 2002 19:22:51 -0500
+	id <S262190AbSKYAWy>; Sun, 24 Nov 2002 19:22:54 -0500
+Received: from dp.samba.org ([66.70.73.150]:2234 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262089AbSKYAWu>;
+	Sun, 24 Nov 2002 19:22:50 -0500
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Greg KH <greg@kroah.com>
+To: John Levon <levon@movementarian.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Can't allocate memory when loading a module 2.5.48-bk 
-In-reply-to: Your message of "Wed, 20 Nov 2002 00:43:03 -0800."
-             <20021120084303.GB22936@kroah.com> 
-Date: Mon, 25 Nov 2002 10:34:51 +1100
-Message-Id: <20021125003005.6D43C2C111@lists.samba.org>
+Subject: Re: Module Refcount & Stuff mini-FAQ 
+In-reply-to: Your message of "Tue, 19 Nov 2002 02:40:32 -0000."
+             <20021119024032.GA99837@compsoc.man.ac.uk> 
+Date: Mon, 25 Nov 2002 10:02:00 +1100
+Message-Id: <20021125003005.451342C0E9@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20021120084303.GB22936@kroah.com> you write:
-> With Linus's latest bk tree (plus some USB patches) I get the following
-> error when trying to load the parport.o module:
+In message <20021119024032.GA99837@compsoc.man.ac.uk> you write:
+> On Tue, Nov 19, 2002 at 09:58:56AM +1100, Rusty Russell wrote:
 > 
-> # modprobe parport
-> FATAL: Error inserting /lib/modules/2.5.48/kernel/parport.o: Cannot allocate 
-memory
+> >    The previous code required to implement the two module loading
+> >    system call, the module querying system call, and the /proc/ksyms
+> >    output, required a little more code than the current x86 linker.
 > 
-> Any ideas?
+> This makes it sound like you're not bringing /proc/ksyms back (or an
+> equivalent to let userspace know where modules are loaded). I hope this
+> isn't the case...
 
-No init section, my bad.  Should be fixed in 49.
+I implemented the minimal subset: it's trivial to put back.  The
+important question is why do you want it?  Do you only want it when
+CONFIG_MODULES=y?  Do you only want the exported symbols, or all
+symbols?
+
+If this is for oprofile to figure out where modules are, then an entry
+in /proc/modules seems more appropriate, yes?
 
 Rusty.
 --

@@ -1,93 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269631AbUJFXTM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269613AbUJFXTS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269631AbUJFXTM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 19:19:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269603AbUJFXQr
+	id S269613AbUJFXTS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 19:19:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269617AbUJFXRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 19:16:47 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:62128 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269620AbUJFXOA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 19:14:00 -0400
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Paul Jackson <pj@sgi.com>
-Cc: Simon.Derr@bull.net, "Martin J. Bligh" <mbligh@aracnet.com>,
-       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
-       efocht@hpce.nec.com, LSE Tech <lse-tech@lists.sourceforge.net>,
-       hch@infradead.org, steiner@sgi.com, Jesse Barnes <jbarnes@sgi.com>,
-       sylvain.jeaugey@bull.net, djh@sgi.com,
-       LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       sivanich@sgi.com
-In-Reply-To: <20041005200124.415f39d1.pj@sgi.com>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
-	 <20040805190500.3c8fb361.pj@sgi.com> <247790000.1091762644@[10.10.2.4]>
-	 <200408061730.06175.efocht@hpce.nec.com>
-	 <20040806231013.2b6c44df.pj@sgi.com> <411685D6.5040405@watson.ibm.com>
-	 <20041001164118.45b75e17.akpm@osdl.org>
-	 <20041001230644.39b551af.pj@sgi.com> <20041002145521.GA8868@in.ibm.com>
-	 <415ED3E3.6050008@watson.ibm.com> <415F37F9.6060002@bigpond.net.au>
-	 <821020000.1096814205@[10.10.2.4]> <20041003083936.7c844ec3.pj@sgi.com>
-	 <834330000.1096847619@[10.10.2.4]> <835810000.1096848156@[10.10.2.4]>
-	 <20041003175309.6b02b5c6.pj@sgi.com> <838090000.1096862199@[10.10.2.4]>
-	 <20041003212452.1a15a49a.pj@sgi.com> <843670000.1096902220@[10.10.2.4]>
-	 <Pine.LNX.4.61.0410051111200.19964@openx3.frec.bull.fr>
-	 <1097015619.4065.61.camel@arrakis>  <20041005200124.415f39d1.pj@sgi.com>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1097104367.4907.91.camel@arrakis>
+	Wed, 6 Oct 2004 19:17:04 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:52241 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S269531AbUJFXLZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 19:11:25 -0400
+Date: Thu, 7 Oct 2004 01:11:14 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Martijn Sipkema <martijn@entmoot.nl>, Andries Brouwer <aebr@win.tue.nl>,
+       Joris van Rantwijk <joris@eljakim.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+Message-ID: <20041006231114.GC19761@alpha.home.local>
+References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl> <1097080873.29204.57.camel@localhost.localdomain> <Pine.LNX.4.58.0410061955230.7057@eljakim.netsystem.nl> <20041006193053.GC4523@pclin040.win.tue.nl> <1097090625.29707.9.camel@localhost.localdomain> <00f201c4abf1$0444c3e0$161b14ac@boromir> <1097094326.29871.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 06 Oct 2004 16:12:48 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1097094326.29871.9.camel@localhost.localdomain>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-05 at 20:01, Paul Jackson wrote:
-> Matthew writes:
-> > 
-> > If that's all 'exclusive' means then 'exclusive' is a poor choice of
-> > terminology.  'Exclusive' sounds like it would exclude all tasks it is
-> > possible to exclude from running there (ie: with the exception of
-> > certain necessary kernel threads).
-> 
-> I suspect that my aggressive pushing of mechanism _out_ of the
-> kernel has obscured what's going on here.
-> 
-> The real 'exclusive' use of some set of CPUs and Memory Nodes
-> is provided by the workload managers, PBS and LSF.  They fabricate
-> this out of the kernel cpuset 'exclusive' property, plus other
-> optional user level stuff.
-> 
-> For instance, one doesn't have to follow Simon's example, and leave the
-> classic Unix daemon load running in a cpuset that share resources with
-> all other cpusets.  Instead, one can coral this classic Unix load into a
-> bootcpuset, administratively, at system boot.  All the kernel mechanisms
-> required to support this exist in my current cpuset patch in Andrew's
-> tree.
-> 
-> The kernel cpuset 'mems_exclusive' and 'cpus_exclusive' flags are like
-> vitamin precursors.  They are elements out of which the real nutrative
-> compound is constructed.  Occassionally, as in Simon's configuration,
-> they are actually sufficient in their current state.  Usually, more
-> processing is required.  This processing just isn't visible to the
-> kernel code.
-> 
-> Perhaps these flags should be called:
-> 	mems_exclusive_precursor
-> 	cpus_exclusive_precursor
-> ;).
+Hi,
 
-Ok...  So if we could offer the 'real' exclusion that the PBS and LSF
-workload managers offer directly, would that suffice?  Meaning, could we
-make PBS and LSF work on top of in-kernel mechanisms that offer 'real'
-exclusion.  'Real' exclusion defined as isolated groups of CPUs and
-memory that the kernel can guarantee will not run other processes?  That
-way we can get the job done without having to rely on these external
-workload managers, and be able to offer this dynamic partitioning to all
-users.  Thoughts?
+On Wed, Oct 06, 2004 at 09:25:28PM +0100, Alan Cox wrote:
+ 
+> The current setup has so far been found to break one app, after what
+> three years. It can almost double performance. In this case it is very
+> much POSIX_ME_HARDER, and perhaps longer term suggests the posix/sus
+> people should revisit their API design.
 
--Matt
+Couldn't we simply make recvfrom() return 0 (no data) or -1 (whatever error)
+in a case where select() had a reason to believe that there were data, but
+that the copy function discovered that it was corrupted data ?
+
+This should not impact performance and would let recvfrom() behave in a
+smarter way. After all, I don't see a problem receiving 0 bytes.
+
+Anyway, I'm all for non-blocking I/O, but I can understand the stupidity
+of the situation.
+
+Just a few thoughts, of course.
+Willy
 

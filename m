@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266020AbSKFTkT>; Wed, 6 Nov 2002 14:40:19 -0500
+	id <S266071AbSKFTcQ>; Wed, 6 Nov 2002 14:32:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266023AbSKFTkT>; Wed, 6 Nov 2002 14:40:19 -0500
-Received: from packet.digeo.com ([12.110.80.53]:14534 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266020AbSKFTkQ>;
-	Wed, 6 Nov 2002 14:40:16 -0500
-Message-ID: <3DC9719B.AC139E50@digeo.com>
-Date: Wed, 06 Nov 2002 11:46:35 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
-CC: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, jejb@steeleye.com,
-       Rusty Russell <rusty@rustcorp.com.au>, dipankar@in.ibm.com
-Subject: Re: Strange panic as soon as timer interrupts are enabled (recent 2.5)
-References: Message from "Martin J. Bligh" <Martin.Bligh@us.ibm.com> 
-	   of "Wed, 06 Nov 2002 12:11:09 PST." <116630000.1036613469@flay> <200211061932.gA6JWKa03782@localhost.localdomain>
+	id <S266077AbSKFTcQ>; Wed, 6 Nov 2002 14:32:16 -0500
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:36858 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S266071AbSKFTcP>;
+	Wed, 6 Nov 2002 14:32:15 -0500
+Date: Wed, 6 Nov 2002 14:38:49 -0500
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Clayton Weaver <cgweav@email.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.19] read(2) and page aligned buffers
+Message-ID: <20021106193849.GA640@www.kroptech.com>
+References: <20021106181358.11684.qmail@email.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Nov 2002 19:46:35.0767 (UTC) FILETIME=[37052870:01C285CD]
+Content-Disposition: inline
+In-Reply-To: <20021106181358.11684.qmail@email.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J.E.J. Bottomley" wrote:
-> 
-> Martin.Bligh@us.ibm.com said:
-> > Conversations on IRC revealed that jejb has hit the same thing on
-> > voyager ... as I understood him, he felt the cause was the CPU was
-> > taking an interrupt before cpu_up was called, and the interrupt was
-> > going back through a non existent tasklet structure (tasklets now
-> > have per_cpu areas which are allocated as the cpu comes up) I'll let
-> > him discuss what he did to fix that, but the ensuing discussion made
-> > me think that taking this out to a wider audience for an appropriate
-> > long-term solution would be prudent.
-> 
-> Yes, this caused for me, a completely reliable boot time panic with 2.5.46.
-> The problem is that per_cpu areas aren't initiallised until cpu_up is called,
-> so a cpu cannot now take an interrupt before cpu_up is called.
+On Wed, Nov 06, 2002 at 01:13:57PM -0500, Clayton Weaver wrote:
+> a short count with errno == 0, the wrapper loops
+> and tries to read the rest of the file to the
+> offset into the buffer past what it already read,
+> read() returns 0 with errno still == 0, and of
+> course the wrapper decides that it must be at
+> EOF (read() == 0 && errno == 0) and returns.
 
-Rusty's da man on this, but I think the fix is to not turn on
-the interrupts (at the APIC level) until cpu_up() has called
-__cpu_up().  Look at cpu_up():
+This isn't necessarily the cause of your problem, but your description
+here smells an awful lot like classic errno abuse. errno is only valid
+when read() returns -1. The check you cite in your last sentence is
+illegal.
 
-        ret = notifier_call_chain(&cpu_chain, CPU_UP_PREPARE, hcpu);
-        if (ret == NOTIFY_BAD) {
-                printk("%s: attempt to bring up CPU %u failed\n",
-                                __FUNCTION__, cpu);
-                ret = -EINVAL;
-                goto out_notify;
-        }
+If read() returns 0, you're done. You're at EOF. If you're not actually
+at EOF then *that* is a bug.
 
-        /* Arch-specific enabling code. */
-        ret = __cpu_up(cpu);
+--Adam
 
-The softirq storage is initialised inside the CPU_UP_PREPARE call.
-So we're ready for interrupts on that CPU when your architecture's
-__cpu_up() is called.  And no sooner than this.

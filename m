@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283658AbRLEBN5>; Tue, 4 Dec 2001 20:13:57 -0500
+	id <S283659AbRLEBPr>; Tue, 4 Dec 2001 20:15:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283657AbRLEBNs>; Tue, 4 Dec 2001 20:13:48 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:12561 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S283658AbRLEBNj>; Tue, 4 Dec 2001 20:13:39 -0500
-Message-ID: <3C0D74B8.F3FF439@xs4all.nl>
-Date: Wed, 05 Dec 2001 02:13:28 +0100
-From: Roman Zippel <zippel@xs4all.nl>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: nigel@nrg.org, george anzinger <george@mvista.com>,
+	id <S283657AbRLEBPb>; Tue, 4 Dec 2001 20:15:31 -0500
+Received: from dsl-213-023-038-097.arcor-ip.net ([213.23.38.97]:65298 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S283644AbRLEBPN>;
+	Tue, 4 Dec 2001 20:15:13 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Giacomo Catenazzi <cate@dplanet.ch>, David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+Date: Wed, 5 Dec 2001 02:17:11 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: esr@thyrsus.com, kbuild-devel@lists.sourceforge.net,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] improve spinlock debugging
-In-Reply-To: <Pine.LNX.4.40.0112041321080.595-100000@cosmic.nrg.org> <1007504598.1307.30.camel@phantasy>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20011204111115.A15160@thyrsus.com> <3C0CFF5F.3090404@dplanet.ch> <E16BJiE-0000RR-00@starship.berlin>
+In-Reply-To: <E16BJiE-0000RR-00@starship.berlin>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16BQgT-0000Ua-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Robert Love wrote:
-
-> Right, I meant just the spin_lock_irq case, which would be fine except
-> for the case where:
+On December 4, 2001 06:50 pm, Daniel Phillips wrote:
+> On December 4, 2001 05:52 pm, Giacomo Catenazzi wrote:
+> > I don't think esr changed non problematic rules, but one:
+> > all rules without help become automatically dependent to
+> > CONFIG_EXPERIMENTAL. I don't like it, but I understand why
+> > he makes this decision.
 > 
-> spin_lock_irq
-> spin_unlock
-> restore_irq
-> 
-> to solve this, we need a spin_unlock_irq_on macro that didn't touch the
-> preemption count.
+> I love it.
 
-Has someone a real example of something like this?
-I'd suspect someone is trying a (questionable) micro optimization or is
-holding the lock for too long anyway. Instead of adding more macros,
-maybe it's better to look closely whether something needs fixing.
+Having thought about this a little more, I don't think it's correct.  It's 
+cute and I still love the idea of forcing people to document - I sometimes 
+imagine there exist contributors who make a point of not documenting - but 
+the need for a clean design with as few corner cases as possible trumps that.
 
-bye, Roman
+Suppose I'm working on my patch, doing the part that hooks into config.  It 
+works, I can see my new feature, but for some strange reason the buttons are 
+grayed out.  After I fiddle a while I clue in to the idea that the 
+'experimental' setting might have something to do with it, I turn it on and 
+then my buttons work.  Now, what the?  Eventually I figure out this is 
+supposed to be a feature, not a bug, and that including some help will 
+activate my buttons.  So I curse the author up and down and submit a patch to 
+remove that feature.
+
+This is a admittedly a small point and I'm not going to quibble about it any 
+more.  I'm happy the kbuild process is being cleaned up.  I've wasted too 
+much time due to shortcomings in the old one.
+
+I'll wait until this gets into the tree before submitting my patch ;-)
+
+--
+Daniel

@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267607AbUIBHQW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267721AbUIBHTT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267607AbUIBHQW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 03:16:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267721AbUIBHQV
+	id S267721AbUIBHTT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 03:19:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267747AbUIBHS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 03:16:21 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:29588 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S267607AbUIBHPn (ORCPT
+	Thu, 2 Sep 2004 03:18:56 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:18384 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267721AbUIBHQd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 03:15:43 -0400
-Date: Thu, 2 Sep 2004 09:17:17 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Mark_H_Johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q8
-Message-ID: <20040902071717.GA20148@elte.hu>
-References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu> <1094108653.11364.26.camel@krustophenia.net>
+	Thu, 2 Sep 2004 03:16:33 -0400
+Subject: Re: [CIFS] fix recent cifs symlink change so as not call kfree on
+	null path
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: stevef@stevef95.austin.ibm.com
+In-Reply-To: <200409020707.i82774GW018405@hera.kernel.org>
+References: <200409020707.i82774GW018405@hera.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NIPVQ74zMBUOFMny8S4l"
+Organization: Red Hat UK
+Message-Id: <1094109388.2823.5.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1094108653.11364.26.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 02 Sep 2004 09:16:28 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+--=-NIPVQ74zMBUOFMny8S4l
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> Also there is the rt_garbage_collect issue, previously reported.  I
-> have not seen this lately but I do not remember seeing that it was
-> fixed.
+On Thu, 2004-09-02 at 00:59, Linux Kernel Mailing List wrote:
+> ChangeSet 1.1891, 2004/09/01 17:59:07-05:00, stevef@stevef95.austin.ibm.c=
+om
+>=20
+> 	[CIFS] fix recent cifs symlink change so as not call kfree on null path
+> =09
 
-i dont think it's fixed, please re-report it if it occurs again, there
-have been many changes.
+free(NULL) is perfectly fine...
 
-	Ingo
+--=-NIPVQ74zMBUOFMny8S4l
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBNsjMxULwo51rQBIRAsBfAKCZ97NWytvZsB0d10J2fIkGXWQeFQCfSMO2
+eB3T+NujLiNrwxlvC6/3SKI=
+=cMC6
+-----END PGP SIGNATURE-----
+
+--=-NIPVQ74zMBUOFMny8S4l--
+

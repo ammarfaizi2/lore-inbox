@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRALNNd>; Fri, 12 Jan 2001 08:13:33 -0500
+	id <S131153AbRALNOn>; Fri, 12 Jan 2001 08:14:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131153AbRALNNX>; Fri, 12 Jan 2001 08:13:23 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:55818 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S129183AbRALNNE>;
-	Fri, 12 Jan 2001 08:13:04 -0500
-Date: Fri, 12 Jan 2001 14:13:02 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: shmfs behaviour
-Message-ID: <20010112141302.M441@marowsky-bree.de>
-In-Reply-To: <20010112111039.A2160@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.3i
-In-Reply-To: <20010112111039.A2160@werewolf.able.es>; from "J . A . Magallon" on 2001-01-12T11:10:39
-X-Ctuhulu: HASTUR
+	id <S131451AbRALNOd>; Fri, 12 Jan 2001 08:14:33 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:56219 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S131153AbRALNO0>; Fri, 12 Jan 2001 08:14:26 -0500
+Message-ID: <3A5F04BC.1BD5981C@uow.edu.au>
+Date: Sat, 13 Jan 2001 00:21:00 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: jayts@bigfoot.com, linux-kernel@vger.kernel.org,
+        linux-audio-dev@ginette.musique.umontreal.ca,
+        mcrichto@mpp.ecs.umass.edu
+Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
+In-Reply-To: <3A5D994A.1568A4D5@uow.edu.au> (message from Andrew Morton on
+		Thu, 11 Jan 2001 22:30:18 +1100),
+		<3A57DA3E.6AB70887@uow.edu.au> from "Andrew Morton" at Jan 07, 2001 01:53:50 PM <200101110312.UAA06343@toltec.metran.cx> <3A5D994A.1568A4D5@uow.edu.au> <200101110519.VAA02784@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2001-01-12T11:10:39,
-   "J . A . Magallon" <jamagallon@able.es> said:
+"David S. Miller" wrote:
+> 
+> ...
+> Bug:    In the tcp_minisock.c changes, if you bail out of the loop
+>         early (ie. max_killed=1) you do not decrement tcp_tw_count
+>         by killed, which corrupts the state of the TIME_WAIT socket
+>         reaper.  The fix is simple, just duplicate the tcp_tw_count
+>         decrement into the "if (max_killed)" code block.
 
-> A couple of questions about shm filesystem:
-> - Time ago I remember you could see some dot files inside the /dev/shm
->   filesystem (then, even it was mounted in /var/shm...). No it shows nothing.
->   Is it the supposed behaviour ?
+Well that was moderately stupid.  Thanks.  It doesn't seem to cause
+problems in practice though.  Maybe in the longer term...
 
-AFAIK yes.
+I believe the tcp_minisucks.c code needs redoing irrespective
+of latency stuff.  It can spend several hundred milliseconds
+in a timer handler, which is rather unsociable.
 
-> - By accident (switching between 2.2 and 2.4), i left the shm fs 'commented'
->   (with a fs type of 'ignore'). Kernel 2.4 looked working good. What is
->   /dev/shm for exactly ? Because it looks like I can live without it...
+There are a number of moderately complex ways of smoothing out
+its behaviour, but I'm inclined to just punt the whole thing
+up to process context via schedule_task().
 
-No. You will need it for POSIX shared memory.
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-Perfection is our goal, excellence will be tolerated. -- J. Yahl
-
+We'll see...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,149 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263281AbTFXW7w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 18:59:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263493AbTFXW7v
+	id S262813AbTFXXUQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 19:20:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbTFXXUQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 18:59:51 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:55989 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263281AbTFXW7G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 18:59:06 -0400
-Date: Tue, 24 Jun 2003 16:10:03 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: torvalds@osdl.org, macro@ds2.pg.gda.pl, akpm@digeo.com
-Subject: [PATCH] unexpected IO-APIC update
-Message-Id: <20030624161003.20fbbbd4.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Tue, 24 Jun 2003 19:20:16 -0400
+Received: from 12-226-168-214.client.attbi.com ([12.226.168.214]:63416 "EHLO
+	marta.kurtwerks.com") by vger.kernel.org with ESMTP id S263179AbTFXXUM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 19:20:12 -0400
+Date: Tue, 24 Jun 2003 19:34:16 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 4 is good. .00000001% is good.
+Message-ID: <20030624233416.GB5077@kurtwerks.com>
+References: <fc.0010c7b2009359090010c7b200935909.93590f@capaccess.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <fc.0010c7b2009359090010c7b200935909.93590f@capaccess.org>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.21-krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoth Rick A. Hohensee:
+> Yes, osimplay is probably for 4 people on the planet. The 4 that don't
+> confuse writing an operating system with porting Minix to pmode. All 4 of
+> whom have been ostracized from the Linux Kernel Clique, but who probably
+> still read l-k occaisionally to see what kind of shenanigans Billy's Free
+> Unix Boys are up to, like pretending SMP scales.
+> 
+> By the way, if you don't like the looks of a "bastard offspring of a
+> drunken encounter between Intercal and APL" (Smoorenberg), it's a shell
+> script, moron, so if you're more comfortable, it shouldn't even take a
+> Kernel-cliquer more than a few minutes to make it resemble a cross between
+> Alan Cox, Matthew Wilcox, a plate of bad sushi and a couple hundred
+> ioctls. With more teeth than Torvalds. Just don't leave it where I might
+> get a whiff of it.
 
-Hi,
+I think I shall send your messages to a location where I might get
+a whiff of them.
 
-Recently there has been a rash of Unexpected IO APIC reports on
-the linux-smp mailing list.  Most of the most recent ones are due
-to some newer Intel chipsets (865, 875).
+*plonk*
+-- 
+Cleveland still lives.  God must be dead.
 
-The IO APIC Version register doesn't indicate the differences in
-these IO APICs.
-
-I have an patch that addresses these chipsets.  It has been
-tested by a few people with good results and has been blessed
-by Maciej Rozycki.
-
-Other than conditionally decoding IO APIC registers 2 and 3,
-we could alternately ignore them since Linux doesn't use the values
-for anything other than printing them.
-
-This patch ignores IO APIC register 2 if it's the same value as IO APIC
-register 1.  It also reads IO APIC register 3 if the IO APIC
-version is >= 0x20, but some chipsets don't support this
-register, so it is also ignored if its value if the same as IO APIC
-register 1 or 2.
-
-Another possible(?) alternative is to read the PID/VID of the
-device to determine which registers it supports.  However,
-PCI devices have not been scanned at this point in init, so it
-would require scanning PCI config space directly and I don't
-yet see the point of doing that.
-
-Oh, and the UNEXPECTED_IO_APIC() function doesn't print anything
-in 2.5.current and I didn't change that.
-
-Patch for 2.5.73 is below.  Please apply.
-
---
-~Randy
-~ http://developer.osdl.org/rddunlap/ ~ http://www.xenotime.net/linux/ ~
-
-
-
-patch_name:	ioapic_update_2573.patch
-patch_version:	2003-06-24.15:43:44
-author:		Randy.Dunlap <rddunlap@osdl.org>
-description:	support newer Intel chipset IO APICs;
-product:	Linux
-product_versions: linux-2573
-maintainer:	Maciej W. Rozycki <macro@ds2.pg.gda.pl>
-diffstat:	=
- arch/i386/kernel/io_apic.c |   26 +++++++++++++++++++++++++-
- include/asm-i386/io_apic.h |    5 +++++
- 2 files changed, 30 insertions(+), 1 deletion(-)
-
-
-diff -Naur ./include/asm-i386/io_apic.h~ioap ./include/asm-i386/io_apic.h
---- ./include/asm-i386/io_apic.h~ioap	2003-06-14 12:18:25.000000000 -0700
-+++ ./include/asm-i386/io_apic.h	2003-06-14 20:17:44.000000000 -0700
-@@ -44,6 +44,11 @@
- 		__reserved_1	:  4;
- } __attribute__ ((packed));
- 
-+struct IO_APIC_reg_03 {
-+	__u32	boot_DT		:  1,
-+		__reserved_1	: 31;
-+} __attribute__ ((packed));
-+
- /*
-  * # of IO-APICs and # of IRQ routing registers
-  */
-diff -Naur ./arch/i386/kernel/io_apic.c~ioap ./arch/i386/kernel/io_apic.c
---- ./arch/i386/kernel/io_apic.c~ioap	2003-06-14 12:18:06.000000000 -0700
-+++ ./arch/i386/kernel/io_apic.c	2003-06-14 20:43:19.000000000 -0700
-@@ -1275,6 +1278,7 @@
- 	struct IO_APIC_reg_00 reg_00;
- 	struct IO_APIC_reg_01 reg_01;
- 	struct IO_APIC_reg_02 reg_02;
-+	struct IO_APIC_reg_03 reg_03;
- 	unsigned long flags;
- 
-  	printk(KERN_DEBUG "number of MP IRQ sources: %d.\n", mp_irq_entries);
-@@ -1295,6 +1299,8 @@
- 	*(int *)&reg_01 = io_apic_read(apic, 1);
- 	if (reg_01.version >= 0x10)
- 		*(int *)&reg_02 = io_apic_read(apic, 2);
-+	if (reg_01.version >= 0x20)
-+		*(int *)&reg_03 = io_apic_read(apic, 3);
- 	spin_unlock_irqrestore(&ioapic_lock, flags);
- 
- 	printk("\n");
-@@ -1332,13 +1336,31 @@
- 	if (reg_01.__reserved_1 || reg_01.__reserved_2)
- 		UNEXPECTED_IO_APIC();
- 
--	if (reg_01.version >= 0x10) {
-+	/*
-+	 * Some Intel chipsets with IO APIC VERSION of 0x1? don't have reg_02,
-+	 * but the value of reg_02 is read as the previous read register
-+	 * value, so ignore it if reg_02 == reg_01.
-+	 */
-+	if (reg_01.version >= 0x10 && *(int *)&reg_02 != *(int *)&reg_01) {
- 		printk(KERN_DEBUG ".... register #02: %08X\n", *(int *)&reg_02);
- 		printk(KERN_DEBUG ".......     : arbitration: %02X\n", reg_02.arbitration);
- 		if (reg_02.__reserved_1 || reg_02.__reserved_2)
- 			UNEXPECTED_IO_APIC();
- 	}
- 
-+	/*
-+	 * Some Intel chipsets with IO APIC VERSION of 0x2? don't have reg_02
-+	 * or reg_03, but the value of reg_0[23] is read as the previous read
-+	 * register value, so ignore it if reg_03 == reg_0[12].
-+	 */
-+	if (reg_01.version >= 0x20 && *(int *)&reg_03 != *(int *)&reg_02 &&
-+	    *(int *)&reg_03 != *(int *)&reg_01) {
-+		printk(KERN_DEBUG ".... register #03: %08X\n", *(int *)&reg_03);
-+		printk(KERN_DEBUG ".......     : Boot DT    : %X\n", reg_03.boot_DT);
-+		if (reg_03.__reserved_1)
-+			UNEXPECTED_IO_APIC();
-+	}
-+
- 	printk(KERN_DEBUG ".... IRQ redirection table:\n");
- 
- 	printk(KERN_DEBUG " NR Log Phy Mask Trig IRR Pol"

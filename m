@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbTJHOaH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 10:30:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbTJHOaH
+	id S261606AbTJHOtj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 10:49:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbTJHOtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 10:30:07 -0400
-Received: from mailhost.cs.auc.dk ([130.225.194.6]:58296 "EHLO
-	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S261566AbTJHOaE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 10:30:04 -0400
-Subject: Unable to handle kernel...
-From: Emmanuel Fleury <fleury@cs.auc.dk>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Aalborg University -- Computer Science Dept.
-Message-Id: <1065623368.15369.35.camel@rade7.s.cs.auc.dk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 08 Oct 2003 16:29:28 +0200
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Oct 2003 10:49:39 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:61312 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id S261606AbTJHOti (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 10:49:38 -0400
+Date: Wed, 8 Oct 2003 15:49:34 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Rik van Riel <riel@redhat.com>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Matt Domsch <Matt_Domsch@Dell.com>, <linux-kernel@vger.kernel.org>,
+       <benh@kernel.crashing.org>
+Subject: Re: [PATCH] page->flags corruption fix
+In-Reply-To: <Pine.LNX.4.44.0310071224200.31052-100000@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.44.0310081538170.3028-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 7 Oct 2003, Rik van Riel wrote:
 
-I am pretty new in coding for the kernel and I was wandering what is the
-_deep_ meaning of:
+> In the "better safe than sorry" category. Thanks go out to
+> Matt Domsch and Robert Hentosh. A similar fix went into the
+> 2.6 kernel. Please apply.
 
-"Unable to handle kernel paging request at virtual address XXXX" 
-and 
-"Unable to handle kernel NULL pointer dereference".
+Seven atomic ops in a row, isn't that rather inefficient?
+The 2.6 version clears those PG_flags all together in one
+non-atomic op - but elsewhere, in prep_new_page.
 
-If somebody could explain this to me, I would be very pleased ! :)
+Is there an actual test case for why 2.4 now needs this change?
 
+If there's something trying to lock random pages, of course it would
+be needed; or should that something be taking a reference instead?
 
-
-PS: I know already how to trace an Oops by using ksymoops. But these two
-errors are puzzling me and I would like to understand more about it.
-
-Regards
--- 
-Emmanuel
-
-The tradition of open science has done more to build the modern
-economy than Microsoft ever will.
-  -- Linus Torvalds
+Hugh
 

@@ -1,61 +1,78 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314073AbSDZPzS>; Fri, 26 Apr 2002 11:55:18 -0400
+	id <S312414AbSDZP6j>; Fri, 26 Apr 2002 11:58:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314074AbSDZPzR>; Fri, 26 Apr 2002 11:55:17 -0400
-Received: from slarti.muc.de ([193.149.48.10]:12303 "HELO slarti.muc.de")
-	by vger.kernel.org with SMTP id <S314073AbSDZPzR> convert rfc822-to-8bit;
-	Fri, 26 Apr 2002 11:55:17 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Stephan Maciej <stephan@maciej.muc.de>
-Subject: [BUG] 2.5.10 - kernel hangs after detecting CD/DVD ROM (was: Re: IDE problem:  2.5.10 compiles but hangs during boot)
-Date: Thu, 25 Apr 2002 17:57:07 +0200
-X-Mailer: KMail [version 1.4]
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200204251757.07947.stephan@maciej.muc.de>
+	id <S313422AbSDZP6i>; Fri, 26 Apr 2002 11:58:38 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:56337 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S312414AbSDZP6h>; Fri, 26 Apr 2002 11:58:37 -0400
+Message-Id: <200204261558.g3QFwUq04782@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [BKPATCH] boot hang in migration threads with 2.5.9 and 2.5.10
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 26 Apr 2002 10:58:30 -0500
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 24 April 2002 21:53, Mark Orr wrote:
-> Linux 2.5.10 compiles but doesnt complete boot due to some IDE
-> errors.    Previous working kernel was 2.5.8-pre3.
+This is an obvious and simple one line fix for a missing CPU logical to 
+physical mapping (against 2.5.9).  Without this, my SMP boxes hang forever 
+after printing out the migration thread start information.
 
-On my system, the bootup hangs completely after the kernel has detected my
-CD/DVD ROM. Last working version was 2.5.9. When .9 it comes up, it displays
-(dmesg dump, probably non-useful stuff stripped off):
+James Bottomley
 
-Linux version 2.5.9 (root@maciej) (gcc version 2.95.3 20010315 (SuSE)) #3 Tue
-Apr 23 21:54:54 CEST 2002
-[...]
-Sony Vaio laptop detected.
-Kernel command line: auto BOOT_IMAGE=linux-2.5.9 ro root=301
-[...]
-CPU: AMD Duron(tm) Processor stepping 01
-[...]
-Applying VIA southbridge workaround.
-PCI: Disabling Via external APIC routing
-[...]
-VIA Technologies, Inc. Bus Master IDE: IDE controller on PCI slot 00:07.1
-VIA Technologies, Inc. Bus Master IDE: chipset revision 6
-VIA Technologies, Inc. Bus Master IDE: not 100% native mode: will probe irqs
-later
-VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
-    ide0: BM-DMA at 0x1c40-0x1c47, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0x1c48-0x1c4f, BIOS settings: hdc:DMA, hdd:pio
-hda: HITACHI_DK23CA-20, ATA DISK drive
-hdc: QSI DVD-ROM SDR-081, ATAPI CD/DVD-ROM drive
+===================================================================
 
-That's the last line I see from a 2.5.10 kernel booting up. 2.5.9 does go
-farther:
 
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide: unexpected interrupt 1 15
-ide1 at 0x170-0x177,0x376 on irq 15
-ide: unexpected interrupt 0 14
-[... and so on...]
+ChangeSet@1.531.9.1, 2002-04-26 10:43:28-05:00, jejb@mulgrave.(none)
+  Fix migration task boot hang for machines with different physical
+  and logical CPU numberings.
 
-No OOPS, no BUG, even not a blinking cursor anymore (vesafb).
 
-Stephan
+ sched.c |    2 +-
+ 1 files changed, 1 insertion, 1 deletion
+
+
+diff -Nru a/kernel/sched.c b/kernel/sched.c
+--- a/kernel/sched.c	Fri Apr 26 10:54:56 2002
++++ b/kernel/sched.c	Fri Apr 26 10:54:56 2002
+@@ -1760,7 +1760,7 @@
+ 	current->cpus_allowed = -1L;
+ 
+ 	for (cpu = 0; cpu < smp_num_cpus; cpu++)
+-		while (!cpu_rq(cpu)->migration_thread)
++		while (!cpu_rq(cpu_logical_map(cpu))->migration_thread)
+ 			schedule_timeout(2);
+ }
+ #endif
+
+===================================================================
+
+
+This BitKeeper patch contains the following changesets:
+1.531.9.1
+## Wrapped with gzip_uu ##
+
+
+begin 664 bkpatch2152
+M'XL(`%!XR3P``[64:VO;,!2&/T>_XHQ^:1A1=+,3&U+2RRZEA86.?"Z*?!*[
+ML>7,4M(5_.,GMR5=1Z"L;+9!EG7\ZKQ'CW0$<X=-VKO#NP4Y@J^U\VFOTF6)
+M#[0HJ?.(X16IJ:LP?%/787A862^&W1_#LZOAV?SR^F(@:$1"P$Q[D\,.&Y?V
+M.)7[+_YA@VGOYM.7^?7I#2&3"9SGVJ[P.WJ83(BOFYTN,S?5/B]K2WVCK:O0
+MZV[>=A_:"L9$N",^DBR*6QXS-6H-SSC7BF/&A!K'BF2Z1+,NIK@K7%';P0ZM
+MWS;H#HDI(03GDLDV%D&47`"GD>0TH1R8&#(U%#%PEBJ9BO&`12ECT#F?5MMR
+MU>@=TF-;6^S#1PX#1L[@WUHY)P8^%S^A*L)D/I@!K]T:%F$=H)."9=U`I4U>
+M6'1P7_@<LF*YQ"98ADW^X`JCRZ"A;09EO>IZ<#Z;@]U6"VP*NW*47$$L6<+)
+M[&5-R.`O+T*89N3D#?=K;"R60V=RS*CYO02)3%HU$E*TT6(A)!\)$[-,8B(/
+M5ON@DA(QCV2BDI8SR=0C9:_CWD;M/1F296UR/T7GJ$5#,SR<'4^85%*-6S:.
+MH_@)-$XY%:]!DTFJDK=`X_\%M-,L"Z`Y%[#8P^+K/49@-ELPM>UV=R`Q</-4
+MYV\P:.X?G\#![(^2OX.D"SZ*)7!R^=SV>O=Y42(<?P@)W#8_CKOF.;_;2F^Z
+F?K\_.-GOD5N?-ZBS_LN!%'(Q:[>M)IRI1602)+\`GJW5%_@$````
+`
+end
+
+

@@ -1,40 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267591AbUJLTNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267625AbUJLTNG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267591AbUJLTNF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 15:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267689AbUJLTMJ
+	id S267625AbUJLTNG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 15:13:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267576AbUJLTL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 15:12:09 -0400
-Received: from w130.z209220038.sjc-ca.dsl.cnc.net ([209.220.38.130]:20476 "EHLO
-	mail.inostor.com") by vger.kernel.org with ESMTP id S267607AbUJLTJ6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 15:09:58 -0400
-Message-ID: <416C2BD6.10802@inostor.com>
-Date: Tue, 12 Oct 2004 12:09:10 -0700
-From: Tom Dickson <tdickson@inostor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040920
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Who is working on the Marvell SATA Chipset?
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Oct 2004 15:11:57 -0400
+Received: from cantor.suse.de ([195.135.220.2]:63116 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267625AbUJLTKn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 15:10:43 -0400
+Date: Tue, 12 Oct 2004 21:08:02 +0200
+From: Andi Kleen <ak@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       akpm@digeo.com
+Subject: Re: 4level page tables for Linux II
+Message-ID: <20041012190802.GA14821@wotan.suse.de>
+References: <20041012135919.GB20992@wotan.suse.de> <1097606902.10652.203.camel@localhost> <20041012190346.GA705@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041012190346.GA705@wotan.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Oct 12, 2004 at 09:03:46PM +0200, Andi Kleen wrote:
+> On Tue, Oct 12, 2004 at 11:48:22AM -0700, Dave Hansen wrote:
+> > @@ -110,13 +115,18 @@ int install_file_pte(struct mm_struct *m
+> >                 unsigned long addr, unsigned long pgoff, pgprot_t prot)
+> >  {
+> > ...
+> > +       pml4 = pml4_offset(mm, addr);
+> > +
+> > +       spin_lock(&mm->page_table_lock);
+> > +       pgd = pgd_alloc(mm, pml4, addr);
+> > +       if (!pgd)
+> > +               goto err_unlock;
+> > 
+> > Locking isn't needed for access to the pml4?  This is a wee bit
+> > different from pgd's and I didn't see any documentation about it
+> > anywhere.  Could be confusing.
+> 
+> No, the lock is still needed. Thanks for catching this, that was indeed
+> wrong.
 
-Who is in charge of the "in progress" driver for the Marvell 88SX5040?
+Actually on second though - the code was actually ok. The reason is 
+that the highest page table level never goes away while the process
+exists, and holding a pointer into it is always valid. 
 
-Thank you!
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+Only referencing it needs a lock, but pml4_offset doesn't reference
+anything yet.
 
-iD8DBQFBbCvW2dxAfYNwANIRAsyZAJ9JPEVhetIY91y/XNCUwZw4yv2C4gCdGeaQ
-+UZSfJy22bIVxDEA5VazFu8=
-=KtNL
------END PGP SIGNATURE-----
+The same used to hold for pgds, but the 4level page tables change that. 
+However there was at least one bug in the patchkit in this area 
+which I now fixed.
+
+-Andi

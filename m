@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129588AbRADHPH>; Thu, 4 Jan 2001 02:15:07 -0500
+	id <S129511AbRADHiG>; Thu, 4 Jan 2001 02:38:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129752AbRADHO5>; Thu, 4 Jan 2001 02:14:57 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:46597 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129588AbRADHOp>; Thu, 4 Jan 2001 02:14:45 -0500
-Date: Thu, 4 Jan 2001 03:23:10 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: try_to_swap_out() return value problem?
-In-Reply-To: <Pine.LNX.4.10.10101032047590.8789-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0101040308450.1174-100000@freak.distro.conectiva>
+	id <S129752AbRADHh4>; Thu, 4 Jan 2001 02:37:56 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:19461 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129511AbRADHhs>;
+	Thu, 4 Jan 2001 02:37:48 -0500
+Message-ID: <3A5427A6.26F25A8A@innominate.de>
+Date: Thu, 04 Jan 2001 08:35:02 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-prerelease i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: ludovic fernandez <ludovic.fernandez@sun.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.0-prerelease: preemptive kernel.
+In-Reply-To: <3A53D863.53203DF4@sun.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ludovic fernandez wrote:
+> The following patch makes the kernel preemptable.
+> It is against 2.4.0-prerelease on for i386 only.
+> It should work for UP and SMP even though I
+> didn't validate it on SMP.
+> Comments are welcome.
 
-Hi Linus,
+I was expecting to see this sometime in 2.5, not quite so soon...
 
-Your latest changes to try_to_swap_out() does not seem to be obviously
-correct.
+The key idea here is to disable preemption on spin lock and reenable on
+spin unlock.  That's a practical idea, highly compatible with the
+current way of doing things.  Its a fairly heavy hit on spinlock
+performance, but maybe the overall performance hit is small.  Benchmarks
+are needed.
 
-	-   if (mm->swap_cnt)
-	-       mm->swap_cnt--;
-	+   if (!mm->swap_cnt)
-	+       return 1;
-	+
-	+   mm->swap_cnt--;
+A more ambitious way to proceed is to change spinlocks so they can sleep
+(not in interrupts of course).  There would not be any extra overhead
+for this on spin_lock (because the sleep test is handled off the fast
+path) but spin_unlock gets a little slower - it has to test and jump on
+a flag if there are sleepers.
 
-Having swap_cnt == 0 does not necessarily mean that we successfully freed
-a page (look at the page aging and locking checks in try_to_swap_out).
-
-Now refill_inactive() relies on the assumption that swap_out() returning 
-1 means we successfully freed a page:
-
-                while (swap_out(priority, gfp_mask)) {
-                        made_progress = 1;
-                        if (--count <= 0)
-                                goto done;
-                }
-
-
-
-
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129170AbRBUWr3>; Wed, 21 Feb 2001 17:47:29 -0500
+	id <S129181AbRBUWui>; Wed, 21 Feb 2001 17:50:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129181AbRBUWrS>; Wed, 21 Feb 2001 17:47:18 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:20233 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129170AbRBUWrL>; Wed, 21 Feb 2001 17:47:11 -0500
-Message-ID: <3A944565.79E39CE3@transmeta.com>
-Date: Wed, 21 Feb 2001 14:47:01 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
-MIME-Version: 1.0
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S129183AbRBUWu3>; Wed, 21 Feb 2001 17:50:29 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:781 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S129181AbRBUWuK>; Wed, 21 Feb 2001 17:50:10 -0500
+Date: Wed, 21 Feb 2001 23:50:08 +0100
+From: Martin Mares <mj@suse.cz>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [rfc] Near-constant time directory index for Ext2
-In-Reply-To: <Pine.LNX.4.10.10102211740550.1933-100000@coffee.psychology.mcmaster.ca>
+Message-ID: <20010221235008.A27924@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20010221220835.A8781@atrey.karlin.mff.cuni.cz> <XFMail.20010221132959.davidel@xmailserver.org> <20010221223238.A17903@atrey.karlin.mff.cuni.cz> <971ejs$139$1@cesium.transmeta.com> <20010221233204.A26671@atrey.karlin.mff.cuni.cz> <3A94435D.59A4D729@transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3A94435D.59A4D729@transmeta.com>; from hpa@transmeta.com on Wed, Feb 21, 2001 at 02:38:21PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hahn wrote:
-> 
-> > You're right.  However, for each hash table operation to be O(1) the size
-> > of the hash table must be >> n.
-> 
-> there's at least one kind of HT where the table starts small
-> and gets bigger, but at trivial cost (memcpy).  while those
-> memcpy's are O(n) each time, it's a little misleading to treat
-> them as costing the same as O(n) rehashing.
-> 
+Hello!
 
-memcpy() isn't exactly trivial, especially not when we're talking about
-disk storage.  Note, too, that we're talking about storage in a
-filesystem, and random access a large, growable linear space (i.e. a
-file) in a filesystem is O(log n) because of necessary inode indirection.
+> You're right.  However, for each hash table operation to be O(1) the size
+> of the hash table must be >> n.
 
-That's yet another reason I like the idea of using B-trees over hash
-values: B-trees are O(log n), but do not need the file inode indirection
-to do the job, so what you end up with is very nice and fast.
+If we are talking about average case complexity (which is the only possibility
+with fixed hash function and arbitrary input keys), it suffices to have
+hash table size >= c*n for some constant c which gives O(1/c) cost of
+all operations.
+ 
+> I suggested at one point to use B-trees with a hash value as the key. 
+> B-trees are extremely efficient when used on a small constant-size key.
 
-	-hpa
+Although from asymptotic complexity standpoint hashing is much better
+than B-trees, I'm not sure at all what will give the best performance for
+reasonable directory sizes. Maybe the B-trees are really the better
+alternative as they are updated dynamically and the costs of successive
+operations are similar as opposed to hashing which is occassionally very
+slow due to rehashing unless you try to rehash on-line, but I don't
+know any algorithm for on-line rehashing with both inserts and deletes
+which wouldn't be awfully complex and slow (speaking of multiplicative
+constants, of course -- it's still O(1) per operation, but "the big Oh
+is really big there").
 
+				Have a nice fortnight
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Martin `MJ' Mares <mj@ucw.cz> <mj@suse.cz> http://atrey.karlin.mff.cuni.cz/~mj/
+"#define QUESTION ((bb) || !(bb))"  -- Shakespeare

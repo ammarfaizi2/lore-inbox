@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261413AbREVMcO>; Tue, 22 May 2001 08:32:14 -0400
+	id <S261488AbREVMkf>; Tue, 22 May 2001 08:40:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261417AbREVMcE>; Tue, 22 May 2001 08:32:04 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:36104 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S261413AbREVMbz>;
-	Tue, 22 May 2001 08:31:55 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
+	id <S261471AbREVMk0>; Tue, 22 May 2001 08:40:26 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:22278 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S261423AbREVMkI>; Tue, 22 May 2001 08:40:08 -0400
+Date: Tue, 22 May 2001 14:39:38 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-net@vger.kernel.org, linux-scsi@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-hams@vger.kernel.org,
+        linux-ppp@vger.kernel.org
+Subject: Re: ECN is on!
+Message-ID: <20010522143938.L7958@arthur.ubicom.tudelft.nl>
+In-Reply-To: <15114.18990.597124.656559@pizda.ninka.net> <Pine.LNX.4.30.0105220649530.17291-100000@biglinux.tccw.wku.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15114.23570.934599.543352@tango.paulus.ozlabs.org>
-Date: Tue, 22 May 2001 22:31:14 +1000 (EST)
-To: rjd@xyzzy.clara.co.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SyncPPP IPCP/LCP loop problem and patch
-In-Reply-To: <200105221051.f4MApxE22279@xyzzy.clara.co.uk>
-In-Reply-To: <200105221051.f4MApxE22279@xyzzy.clara.co.uk>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0105220649530.17291-100000@biglinux.tccw.wku.edu>; from brent@biglinux.tccw.wku.edu on Tue, May 22, 2001 at 06:51:57AM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rjd@xyzzy.clara.co.uk writes:
+On Tue, May 22, 2001 at 06:51:57AM -0500, Brent D. Norris wrote:
+> > I veto, the whole point of moving to ECN was to make a statement and
+> > get people to fix their kit.
+> >
+> Isn't this a problem though because the messge saying that ECN was enabled
+> was set after ECN was enabled?  Thus these people have no idea what is
+> going on and they probably won't know what to fix until they do.
 
-> I've hit a problem with the syncPPP module within Linux.
-> 
-> Under certain conditions (hard to quantify exactly, but try several 8Mbps
-> streams hitting a relatively slow, say 200MHz processor) the LCP/IPCP
-> negotiation hits the following loop.
+Not really, Dave Miller warned in advance that vger would enable ECN
+Real Soon Now [tm]. If that wasn't a trigger for people to test if
+their stuff could handle ECN, what does?
 
-[snip]
 
-> My solution in the patch that follows is to detect the flip-flop using a
-> counter and then after three occurrences with no genuine IPCP traffic to
-> modify behavior on receipt of the LCP conf REQ. After three attempts we
-> acknowledge the LCP conf REQ but stay in the opened state rather than
-> dropping back and restarting our own LCP negotiation. This is non-RFC1661
-> behavior unless you consider it part of the general loop avoidance directive.
+Erik
 
-Seems to me that when you get the conf-request in opened state, you
-should send your conf-request before sending the conf-ack to the
-peer's conf-request.  I think this would short-circuit the loop (I
-could be wrong though, it's getting late).
-
-That behaviour would be in line with the FSM in rfc1661, where the
-action for event RCR+ in Opened state is "tld,scr,sca/8", i.e. the one
-action involves sending both the conf-request and the conf-ack.  It is
-debatable to what extent that specifies the order of the messages but
-it does list the conf-request first FWIW.
-
-Paul.
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

@@ -1,32 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292700AbSCSVMM>; Tue, 19 Mar 2002 16:12:12 -0500
+	id <S292829AbSCSVOW>; Tue, 19 Mar 2002 16:14:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292780AbSCSVLx>; Tue, 19 Mar 2002 16:11:53 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:39429 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S292700AbSCSVLs>;
-	Tue, 19 Mar 2002 16:11:48 -0500
-Date: Tue, 19 Mar 2002 14:12:31 -0700
-From: yodaiken@fsmlabs.com
-To: Pavel Machek <pavel@suse.cz>
-Cc: yodaiken@fsmlabs.com, Linus Torvalds <torvalds@transmeta.com>,
-        Andi Kleen <ak@suse.de>, Paul Mackerras <paulus@samba.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-Message-ID: <20020319141231.A22305@hq.fsmlabs.com>
-In-Reply-To: <20020316131219.C20436@hq.fsmlabs.com> <Pine.LNX.4.33.0203161223290.31971-100000@penguin.transmeta.com> <20020316143916.A23204@hq.fsmlabs.com> <20020319120618.GA470@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-Organization: FSM Labs
+	id <S292817AbSCSVOG>; Tue, 19 Mar 2002 16:14:06 -0500
+Received: from prosecco.gmx.net ([213.165.64.8]:60145 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S292836AbSCSVNp>;
+	Tue, 19 Mar 2002 16:13:45 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Felix Seeger <felix.seeger@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: System hanging at boot with ms natural pro keyboard in usb port (2.4.18)
+Date: Tue, 19 Mar 2002 22:04:28 +0100
+X-Mailer: KMail [version 1.4]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200203192204.32846.felix.seeger@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 19, 2002 at 01:06:19PM +0100, Pavel Machek wrote:
-> Hammer is designed for desktop, AFAICT. [Its slightly modified athlon,
-> you see?]
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Thanks for the insight. Only by reading LKM could
-I have found out that AMD doesn't care about server space.
+Hi
+I tried to connect my MS Natural Pro keyboard and than I get this error.
+The Logitech mouse works great ;)
+
+Is this solved in 2.4.19-pre3 ?
+
+The error:
+
+hub.c USB new device connect on bus 1/1, assinged device number 2
+invalid operand: 0000
+CPU:		0
+EIP:		0010:[<d98730a0>] Not tainted
+EELAGS:	0010046
+... write me if you need more ...
+<0> Kernel panic: Aiee, Killing interupt Handler
+In Interupt handler - not syncing
+
+
+I think it is not very good if ther kernel doesn't supports microsoft 
+hardware. If there are problems they will never switch completly from 
+Microsoft to Microhard ;)
+
+I've tried bouth config options:
+Full HID and basic
+
+
+thanks
+have fun
+Felix
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8l6fgS0DOrvdnsewRAs67AJ99JXfWT05oZpHS5oOyId+3/FB5WwCfTMq+
+lo9eZv5tRZxufrJ4oSosXjQ=
+=ikNl
+-----END PGP SIGNATURE-----
 

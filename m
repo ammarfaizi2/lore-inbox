@@ -1,55 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261644AbTADWrY>; Sat, 4 Jan 2003 17:47:24 -0500
+	id <S261686AbTADWs3>; Sat, 4 Jan 2003 17:48:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261660AbTADWrY>; Sat, 4 Jan 2003 17:47:24 -0500
-Received: from cm19173.red.mundo-r.com ([213.60.19.173]:59084 "EHLO
-	demo.mitica") by vger.kernel.org with ESMTP id <S261644AbTADWrX>;
-	Sat, 4 Jan 2003 17:47:23 -0500
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>, bcollins@debian.org
-Subject: [PATCH]: create function with right arguments for sbp2
-X-Url: http://people.mandrakesoft.com/~quintela
-From: Juan Quintela <quintela@mandrakesoft.com>
-Date: 05 Jan 2003 00:03:29 +0100
-Message-ID: <m2r8bsa56m.fsf@demo.mitica>
-MIME-Version: 1.0
+	id <S261693AbTADWs3>; Sat, 4 Jan 2003 17:48:29 -0500
+Received: from radius8.csd.net ([204.151.43.208]:19209 "EHLO
+	bastille.tuells.org") by vger.kernel.org with ESMTP
+	id <S261686AbTADWs0>; Sat, 4 Jan 2003 17:48:26 -0500
+Date: Sat, 4 Jan 2003 15:48:01 -0700
+From: marcus hall <marcus@tuells.org>
+To: linux-kernel@vger.kernel.org
+Subject: Missing interrupts from es1371 sound card
+Message-ID: <20030104224801.GA1034@watermarks.tuells.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am having a terrible time trying to get an Ensoniq es1371 sound card to
+work on my system.  Everything appears to install and load correctly, but
+when I attempt to send a sound to the file, sox writes the data out and
+then hangs in the close() call (presumably waiting for the buffer to
+drain.  I hear no sound.  I see no interrupts accounting on the interrupt
+line, so I am presuming that the interrupt is not ocurring.
 
-Hi
-        The prototypes for this two functions was changed, but not the
-        definitions.  This fix is at least needed for compiling, I
-        don't have the hardware and haven't tested it.
-        Looking at the 2.4.21-pre2 changed, it looks good.
+First off, here's an lspci -vv for the card:
 
-Later, Juan.
+00:0a.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 06)
+	Subsystem: Ensoniq Creative Sound Blaster AudioPCI64V, AudioPCI128
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (3000ns min, 32000ns max)
+	Interrupt: pin A routed to IRQ 5
+	Region 0: I/O ports at d400 [size=64]
+	Capabilities: [dc] Power Management version 1
+		Flags: PMEClk- DSI+ D1- D2+ AuxCurrent=0mA PME(D0+,D1-,D2+,D3hot+,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-diff -urNp --exclude-from=/home/mitica/quintela/config/misc/dontdiff t2/drivers/ieee1394/sbp2.c t1/drivers/ieee1394/sbp2.c
---- t2/drivers/ieee1394/sbp2.c	2002-12-31 18:10:52.000000000 +0100
-+++ t1/drivers/ieee1394/sbp2.c	2003-01-03 19:50:21.000000000 +0100
-@@ -1511,7 +1511,7 @@ static void sbp2_remove_device(struct sb
-  * physical dma in hardware). Mostly just here for debugging...
-  */
- static int sbp2_handle_physdma_write(struct hpsb_host *host, int nodeid, int destid, quadlet_t *data,
--                                     u64 addr, unsigned int length)
-+                                     u64 addr, unsigned int length, u16 flags)
- {
- 
-         /*
-@@ -1527,7 +1527,7 @@ static int sbp2_handle_physdma_write(str
-  * physical dma in hardware). Mostly just here for debugging...
-  */
- static int sbp2_handle_physdma_read(struct hpsb_host *host, int nodeid, quadlet_t *data,
--                                    u64 addr, unsigned int length)
-+                                    u64 addr, unsigned int length, u16 flags)
- {
- 
-         /*
+kernel messages during boot relevant to the card:
+
+es1371: version v0.30 time 12:21:01 Sep  4 2002
+PCI: Found IRQ 5 for device 00:0a.0
+es1371: found chip, vendor id 0x1274 device id 0x1371 revision 0x06
+es1371: found es1371 rev 6 at io 0xd400 irq 5
+es1371: features: joystick 0x0
+PCI: Setting latency timer of device 00:0a.0 to 64
+ac97_codec: AC97  codec, id: 0x0000:0x0000 (Unknown)
+
+Finally, /proc/interrupts shows no activity on irq5:
+
+           CPU0       
+  0:    1181506          XT-PIC  timer
+  1:        624          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  5:          0          XT-PIC  es1371
+  8:          1          XT-PIC  rtc
+  9:      18888          XT-PIC  usb-ohci, DC21041 (eth0)
+ 10:          8          XT-PIC  aic7xxx
+ 12:      61887          XT-PIC  PS/2 Mouse
+ 14:      18025          XT-PIC  ide0
+ 15:          2          XT-PIC  ide1
+NMI:          0 
+ERR:          0
+
+As you can see, the interrupt isn't shared with anything else, so that
+isn't an issue.
+
+I have exchanged the card with another with the same results.  I have
+routed the card's interrupt to IRQ11 with again the same results (this
+also ends up assigning the aic7xxx to irq 5, and I do see interrupts
+tallied there, so the irq line on the motherboard also seems to be
+just fine.)
+
+Under W98 (boo hiss) the card also does not function.  It thinks it is
+playing a sound, but nothing comes out of the card.  So it isn't something
+pecular to linux, but swapping the cards seems to indicate it isn't
+pecular to the sound card either...  The motherboard is an ASUS P5A, if
+there is any known issue with that MB (I'm beginning to think it must be..)
+
+Any suggestions of what to try or where to look deeper?
+
+Thanks!
+
+marcus hall
+marcus@tuells.org
 
 
--- 
-In theory, practice and theory are the same, but in practice they 
-are different -- Larry McVoy

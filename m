@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262772AbTKNQga (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 11:36:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262774AbTKNQga
+	id S262765AbTKNQet (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 11:34:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbTKNQet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 11:36:30 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:48012 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262772AbTKNQg3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 11:36:29 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 14 Nov 2003 08:35:33 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Larry McVoy <lm@bitmover.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel.bkbits.net off the air
-In-Reply-To: <20031114150047.GC30711@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0311140830290.1827-100000@bigblue.dev.mdolabs.com>
+	Fri, 14 Nov 2003 11:34:49 -0500
+Received: from dsl092-073-159.bos1.dsl.speakeasy.net ([66.92.73.159]:32264
+	"EHLO yupa.krose.org") by vger.kernel.org with ESMTP
+	id S262765AbTKNQei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 11:34:38 -0500
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Why "PCI: Cannot allocate resource region..."?
+X-Home-Page: http://www.krose.org/~krose/
+From: Kyle Rose <krose@krose.org>
+Organization: krose.org
+Content-Type: text/plain; charset=US-ASCII
+Date: Fri, 14 Nov 2003 11:34:34 -0500
+Message-ID: <87he16sycl.fsf@nausicaa.krose.org>
+User-Agent: Gnus/5.090024 (Oort Gnus v0.24) XEmacs/21.4 (Reasonable
+ Discussion, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Nov 2003, Larry McVoy wrote:
+I didn't get any response to my previous query, so I figured I'd ask a
+simpler question: why would the kernel say that it cannot allocate a
+memory-mapped I/O resource?
 
-> One of us is not getting it, maybe it's me.  To build something like
-> you describe is pretty easy IF AND ONLY IF all you are asking for is an
-> update mechanism.  As soon as you want revision history, diffs, rollbacks,
-> modifiable files, etc., you have to go to real BK.  Is that OK?  All you
+I looked at /proc/iomem, and none of the regions in question overlap
+with any other device's regions, which presumably means the BIOS is
+doing a good job configuring the devices.  So, again: for what reasons
+*does* the kernel decide it can't do the allocation?  This would
+greatly help my debugging efforts.
 
-Spec for bk-lite:
-
-1) Binary with "no worky on other SCM" kinda license
-2) update+history+diff (no rollbacks, no modifiable files, no etc...)
-
-In that way all current users of bk2cvs, bk2svn, bk2xxx can simply do a 
-pull from a bk repo and have they own scripts on their local machine to do 
-their bk2xxx. It will be a lower headache for you and for kernel.org 
-maintainers. Is it feasible ?
-
-
-
-- Davide
-
-
+Thanks,
+Kyle

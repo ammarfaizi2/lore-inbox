@@ -1,70 +1,121 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261214AbREOSM1>; Tue, 15 May 2001 14:12:27 -0400
+	id <S261213AbREOSM1>; Tue, 15 May 2001 14:12:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261201AbREOSMR>; Tue, 15 May 2001 14:12:17 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:54482 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S261237AbREOSEM>;
-	Tue, 15 May 2001 14:04:12 -0400
-Message-ID: <3B016F9A.360A0CFD@mandrakesoft.com>
-Date: Tue, 15 May 2001 14:04:10 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: James Simmons <jsimmons@transvirtual.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	id <S261237AbREOSMR>; Tue, 15 May 2001 14:12:17 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:13841 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261239AbREOSEj>; Tue, 15 May 2001 14:04:39 -0400
+Date: Tue, 15 May 2001 11:04:27 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: James Simmons <jsimmons@transvirtual.com>
+cc: Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
         "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <Pine.LNX.4.21.0105151031320.2112-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.10.10105151028380.22038-100000@www.transvirtual.com>
+Message-ID: <Pine.LNX.4.21.0105151043360.2112-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> And my opinion is that the "hot-plugged" approach works for devices even
-> if they are soldered down
 
-agreed, as you probably know :)
+On Tue, 15 May 2001, James Simmons wrote:
+> > 
+> > And if write() has too much overhead - we'd better fix _that_, because
+> > it's much more likely hotspot than ioctl ever will be.
+> 
+> I would use write except we use write to draw into the framebuffer. If I
+> write to the framebuffer with that data the only thing that will happen is
+> I will get pretty colors on my screen. 
 
+Note that this was the same argument that the USB people had, and it was
+wrong then. It's wrong now.
 
-> Now, if we just fundamentally try to think about any device as being
-> hot-pluggable, you realize that things like "which PCI slot is this device
-> in" are completely _worthless_ as device identification, because they
-> fundamentally take the wrong approach, and they don't fit the generic
-> approach at all.
+The USB people decided on using ioctl's, because the way USB works you
+send a packet down a "USB pipe", which is identified by the direction, the
+device number and the type (and other details). So what the USB system
+does to expose this to user land is very similar to what you propose for
+ioctl's: a structured ioctl that has a "data" field.
 
-Should I interpret this as you disagreeing with
-exporting-bus-info-to-userspace type additions?  ie. some random
-get-info ioctl spits out pci_dev->slot_name to userspace.
+What Al is saying, and what makes perfect sense is that you generate a
+separate fd for each "pipe". It's even more obvious in the case of USB,
+because, by golly, the things are actually _called_ "pipes" in the USB
+documentation, which should have made people make the immediate
+association. Instead of doing
 
-I believe there are rare cases where this is useful.  When one already
-has the /dev node (via an open fd used for ioctl, usually), additionally
-you need the bus info to make an association between an active device on
-the hardware bus, and an active driver in the kernel.  X could use this
-info to figure out which fbdev devices to avoid.  SCSI is already using
-similar info, as of 2.4.4, as are net devs.  Userspace apps that diddle
-hardware are a definite minority case, but for that case the PCI slot
-info is useful.
+	fd = open("unstructured-name" ...);
+	ioctl(fd, MAGICIOCTL, { structured data });
 
+you do
 
-> This is true to the point that I would not actually think that it is a bad
-> idea to call /sbin/hotplug when we enumerate the motherboard devices.
+	fd = open("/structured/name", ...);
+	write(fd, data, size);
 
-Don't ask for it or you might actually get it.... ;-)  I think having a
-pci_driver for northbridge and southbridge devices would make ACPI-free
-PM easy and achieveable.
+or possibly you take a more socket-like approach and do
 
-	Jeff
+	fd = socket(part-of-the-structure);
+	bind(fd, more-of-the-structure)
+	connect(fd, last-part-of-the-structure);
 
+and use write() there (or use "sendto()" etc which allow more dynamic
+structure constructs - you don't have to statically bind the fd early at
+bind/connect time.
 
--- 
-Jeff Garzik      | Game called on account of naked chick
-Building 1024    |
-MandrakeSoft     |
+See? 
+
+Don't get boxed in by thinking that you only have one fd. Even if you have
+only one _device_node_, you can have multiple fd's. In fact, you can, with
+the Linux VFS layer, fairly easily do things like
+
+	mknod /dev/fd0 c X Y
+
+and then use
+
+	fd = open("/dev/fd0/colourspace", O_RDWR);
+
+and your device just implements some trivial "lookup()" functions (you
+don't _have_ to be a directory to allow name lookups - although right now
+I suspect that you can confuse the VFS layer if you aren't. That's a VFS
+layer deficiency, if so. Nobody has tested it, but it should be really
+easy to fix if somebody is really interested).
+
+Note that with these kinds of things, you don't need ugly ioctl's. The
+code, I bet, would be a LOT more readable. There's nothing fundamentally
+impossible with having
+
+	> /dev/fd0/eject
+
+cause an eject event on /dev/fd0. It would be fairly easy, I bet, to
+expand the current "struct file_operations def_blk_fops" to also include
+_dentry_ operations, and then all of this could be done by fs/block_dev.c,
+with the actual device drivers not having to know about it.
+
+Same thing with character devices. We should be fairly easily able to make
+something like
+
+	fd = open("/dev/fd0/colourspace=1", ...)
+
+be fully parsed by the fs/block_dev.c layer: we could add a nice string to
+"bd_op->open()", to be passed in to the device driver to do with as it
+wishes. That would require _no_ changes from device driver writers except
+the addition of a new argument ("const char * arg") and the choice to
+possibly using that argument for extra structure..
+
+This, btw, is Al Viro's wet dream. But I have to agree: using name spaces
+etc is MUCH preferable to ioctl's, makes code more readable and logical,
+and often makes it possible to do things you couldn't sanely do before
+(control these things from scripts etc).
+
+And using ASCII names ("eject") instead of numbers (see the "FDEJECT" and
+"CDROMEJECT" etc #defines) sure as hell makes for easier maintenance and
+avoids the whole issue of maintaining static numbers (all the same things
+that make me hate device number maintenance makes me also hate the fact
+that we need to maintain this list of ioctl numbers etc). By using
+descriptive names, the "maintenance" simple does not exist.
+
+		Linus
+

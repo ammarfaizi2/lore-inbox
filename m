@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267470AbUHXLIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267464AbUHXLMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267470AbUHXLIM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 07:08:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267482AbUHXLIM
+	id S267464AbUHXLMj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 07:12:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267482AbUHXLMj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 07:08:12 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60391 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267470AbUHXLIL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 07:08:11 -0400
-Date: Tue, 24 Aug 2004 06:35:36 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net,
-       garyhade@us.ibm.com
-Subject: Re: [BK PATCH] PCI Hotplug patches for 2.4.28-pre1
-Message-ID: <20040824093536.GB7028@logos.cnet>
-References: <20040823221925.GA5368@kroah.com>
+	Tue, 24 Aug 2004 07:12:39 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:61920 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S267464AbUHXLMe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 07:12:34 -0400
+Date: Tue, 24 Aug 2004 13:00:24 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Alexander Rauth <Alexander.Rauth@promotion-ie.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: radeonfb problems (console blanking & acpi suspend)
+Message-ID: <20040824110024.GA3502@openzaurus.ucw.cz>
+References: <1093277876.9973.15.camel@pro30.local.promotion-ie.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040823221925.GA5368@kroah.com>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <1093277876.9973.15.camel@pro30.local.promotion-ie.de>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 23, 2004 at 03:19:25PM -0700, Greg KH wrote:
-> Hi,
+Hi!
+
+> 2) after an acpi suspend the backlight goes back on but there is no data
+> displayed on the screen (no X running nor started since boot)
 > 
-> Here are 4 PCI Hotplug patches for 2.4.28-pre1.  Two of them are
-> bugfixes for the different pci hotplug drivers, and the last patch
-> changes the 2.4 PCI Hotplug maintainer to be Gary Hade, instead of
-> myself.
-> 
-> Please pull from:  bk://kernel.bkbits.net/gregkh/linux/pci-2.4
+> If more information is needed for diagnosis then please email me.
 
-Applied.
+Known problem for suspend-to-ram, see Ole Rohne's patches.
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 
-Thanks for this and all your past excellent maintenance work, Greg.
-
-Keep up the good work!

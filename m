@@ -1,77 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262713AbTCYQOM>; Tue, 25 Mar 2003 11:14:12 -0500
+	id <S262706AbTCYQIx>; Tue, 25 Mar 2003 11:08:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262719AbTCYQOM>; Tue, 25 Mar 2003 11:14:12 -0500
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:11027 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id <S262713AbTCYQOK>;
-	Tue, 25 Mar 2003 11:14:10 -0500
-Date: Tue, 25 Mar 2003 17:25:20 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Deprecating .gz format on kernel.org
-Message-ID: <20030325162520.GI949@lug-owl.de>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1048183475.3427.112.camel@biznatch> <Pine.LNX.3.96.1030325110027.1437B-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="N8NGGaQn1mzfvaPg"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1030325110027.1437B-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
+	id <S262708AbTCYQIx>; Tue, 25 Mar 2003 11:08:53 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:14341 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S262706AbTCYQIv>; Tue, 25 Mar 2003 11:08:51 -0500
+Date: Tue, 25 Mar 2003 11:15:42 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Nicholas Wourms <nwourms@myrealbox.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: reiserfs oops [2.5.65]
+In-Reply-To: <3E7CBB27.8090506@myrealbox.com>
+Message-ID: <Pine.LNX.3.96.1030325110717.1437D-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 22 Mar 2003, Nicholas Wourms wrote:
 
---N8NGGaQn1mzfvaPg
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Randy.Dunlap wrote:
+> [SNIP]
+> > 
+> > I've done some 2.5.xyz work on kmsgdump (dump kernel messages to
+> > floppy).  I'll try to get back to it soon.
+> > 
+> 
+> Thank you!  That'd be a god-send for those of us w/o serial 
+> ports and who have very cramped hands from hand-copying 
+> panics :-D.  Frankly, I can't imagine why something a simple 
+> as this isn't in the kernel.  Technically, it isn't a 
+> debugger, so I don't think it violates Linus' "No Kernel 
+> Debuggers in the Kernel" rule.
 
-On Tue, 2003-03-25 11:04:51 -0500, Bill Davidsen <davidsen@tmr.com>
-wrote in message <Pine.LNX.3.96.1030325110027.1437B-100000@gatekeeper.tmr.c=
-om>:
-> On Thu, 20 Mar 2003, Thomas Duffy wrote:
->=20
-> > On Thu, 2003-03-20 at 09:51, Eli Carter wrote:
-> > > So, who can beat his 15.10 bogomips?
-> >=20
-> > my firewall:
->=20
-> At one point I ran Linux on a 386SX-16 with 12MB. That machine ran 1.2.13
-> (IIRC) until Dec 31 1999, when I was afraid it was not Y2k hardened. I
-> still see spam to glacial.tmr.com today. The name was NOT because it was
-> so cool ;-)
->=20
-> I may still have that board, but I'm not about to put it back in service
-> to measure speed. Your firewall is the slowest "real machine" I've seen,
+I have the feeling from Linus' reaction to the "dump to hd partiton"
+feature, that he is all developer with little professional (paid to de
+what someone else wants) admin experience. I tried to explain that
+machines many timezones away in a secured environment make it hard to read
+a console (none), insert a floppy, or use a serial cable. I actually
+looked at serial, it would take (a) a capital budget for the cable, (b) a
+labor budget for a cleared consultant to plug it in, (c) approval of the
+network group because it's a data cable, and (d) a security analysis of
+the risks of connecting two secure machines.
 
-I do have such a system, too (but only 4..8MB RAM) and I'm going to
-install it this evening (or tomorrow). I've just got back a 40GB HDD
-from IBM^WHitachi:) That box should have just about 1.2 BogoMips...
+And of course the identical machines I can touch don't have that failure
+mode :-(
 
-MfG, JBG
+Anyway you are not likely to see that in the official kernel unless Linus
+has a change of heart, but you can patch it in so that's not critical,
+just one more issue if you have to justify Linux vs. AIX or Solaris in a
+bid.
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
---N8NGGaQn1mzfvaPg
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+gILwHb1edYOZ4bsRAvaJAJ4/CHGWilva/IqBOaqVQmZK5lqcaACeMgDB
-hgX8JOzJtdzmzjASibG92L4=
-=mLi7
------END PGP SIGNATURE-----
-
---N8NGGaQn1mzfvaPg--

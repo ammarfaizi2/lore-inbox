@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287550AbRLaPng>; Mon, 31 Dec 2001 10:43:36 -0500
+	id <S287549AbRLaPzH>; Mon, 31 Dec 2001 10:55:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287546AbRLaPnR>; Mon, 31 Dec 2001 10:43:17 -0500
-Received: from oss.sgi.com ([216.32.174.27]:39912 "EHLO oss.sgi.com")
-	by vger.kernel.org with ESMTP id <S287552AbRLaPnL>;
-	Mon, 31 Dec 2001 10:43:11 -0500
-Date: Mon, 31 Dec 2001 00:01:20 -0200
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: Lennert Buytenhek <buytenh@gnu.org>
-Cc: Jeff Dike <jdike@karaya.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] global errno considered harmful
-Message-ID: <20011231000120.B16384@dea.linux-mips.net>
-In-Reply-To: <20011230110623.A17083@gnu.org> <200112301956.OAA02630@ccure.karaya.com> <20011230190020.A14157@dea.linux-mips.net> <20011230205257.A19891@gnu.org>
+	id <S287551AbRLaPy5>; Mon, 31 Dec 2001 10:54:57 -0500
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:23047 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S287549AbRLaPyl>; Mon, 31 Dec 2001 10:54:41 -0500
+Subject: Re: ATA RAID-0 FYI-Did the Impossible.
+From: Miles Lane <miles@megapathdsl.net>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10112310558030.4280-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10112310558030.4280-100000@master.linux-ide.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1.99+cvs.2001.12.29.08.57 (Preview Release)
+Date: 31 Dec 2001 07:55:28 -0800
+Message-Id: <1009814128.1407.59.camel@stomata.megapathdsl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011230205257.A19891@gnu.org>; from buytenh@gnu.org on Sun, Dec 30, 2001 at 08:52:57PM -0500
-X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 30, 2001 at 08:52:57PM -0500, Lennert Buytenhek wrote:
+On Mon, 2001-12-31 at 06:05, Andre Hedrick wrote:
 
-> > As user application are trying to use unistd.h and expect errno to get
-> > set properly unistd.h or at least it's syscallX macros will have to be
-> > made unusable from userspace or silent breakage of such apps rebuild
-> > against new headers will occur.
-> 
-> How about conditionalising definition of_syscallX on __KERNEL_SYSCALLS__?
-> 	(http://www.math.leidenuniv.nl/~buytenh/errno_ectomy-1-to-2.diff)
-> 
-> I guess I'll go ask all arch maintainers' permission now..
+<snip>
 
-Be careful, you'll have to fix at least util-linux (doubleplusyuck) and
-e2fsprogs.
+> If you want your system to have this kind of performance, that raise hell
+> to get the patches adopted into the main kernel.
 
-  Ralf
+Have you asked Linus and Marcelo why your patches aren't being 
+accepted?  Linus and Hans Reiser eventually sorted out what 
+was required for getting reiserfs into the kernel, though it 
+took some negotiation and compromise of the part of the reiserfs
+folks.  I imagine you can do the same.
+
+It's a no-brainer that we all want fast disk I/O.
+
+	Miles
+

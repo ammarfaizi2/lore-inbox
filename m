@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262926AbTEFNEL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 09:04:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263197AbTEFNEL
+	id S263197AbTEFNGO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 09:06:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbTEFNGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 09:04:11 -0400
-Received: from colina.demon.co.uk ([80.177.30.27]:35238 "EHLO
-	colina.demon.co.uk") by vger.kernel.org with ESMTP id S262926AbTEFNEJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 09:04:09 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: The 2.6 kernel, expected to be released by late next month
-References: <freemail.20030406091947.50806@fm9.freemail.hu>
-	<1052220789.28792.37.camel@dhcp22.swansea.linux.org.uk>
-From: Colin Paul Adams <colin@colina.demon.co.uk>
-Date: 06 May 2003 14:16:33 +0100
-In-Reply-To: <1052220789.28792.37.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <ltllxk43m6.fsf@colina.demon.co.uk>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Tue, 6 May 2003 09:06:14 -0400
+Received: from [203.94.130.164] ([203.94.130.164]:62672 "EHLO bad-sports.com")
+	by vger.kernel.org with ESMTP id S263197AbTEFNGM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 09:06:12 -0400
+Date: Tue, 6 May 2003 22:58:01 +1000 (EST)
+From: Brett <generica@email.com>
+X-X-Sender: brett@bad-sports.com
+To: Wichert Akkerman <wichert@wiggy.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69 just doesn't boot (neither does anything > .67)
+In-Reply-To: <20030506125726.GH20419@wiggy.net>
+Message-ID: <Pine.LNX.4.44.0305062256370.2201-100000@bad-sports.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Tue, 6 May 2003, Wichert Akkerman wrote:
 
-    Alan> Wildly improbable. 2.6-test maybe, but there are way too
-    Alan> many bugs left including data corruption.
+> Previously Brett wrote:
+> > linuxfromscratch system
+> > unless they fix the source compilation problem i reported
+> > <http://savannah.gnu.org/bugs/?func=detailbug&bug_id=3343&group_id=68>
+> > then i can't install it
+> 
+> You can always install manually. 
+> 
 
-What sort of data corruption?
+pardon ?
+what do you mean by that
 
-I've just ordered a dual Xeon machine, so I was planning to run 2.5.x
-on it, to maximize throughput, but this sounds worrying. perhaps I'd
-better stick to 2.4.n?
--- 
-Colin Paul Adams
-Preston Lancashire
+> > and anyway, can you provide any backup that this will fix it ?? what 
+> > changed between 2.5.66 and 2.5.67 to stop grub loading the kernel ? why 
+> > hasn't anyone else reported this ???
+> 
+> I couldn't boot 2.5 at all until I upgraded an ancient grub. Having
+> a recent bootloader is never a bad thing though, and 0.92 is pretty
+> old.
+> 
+
+I agree, but like i said
+it fails to compile
+the developers have not responded to my bug report
+the cvs copy i checked out still has the same problem
+
+i fail to see what more i can do
+
+	/ Brett
+

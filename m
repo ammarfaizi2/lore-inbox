@@ -1,63 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312393AbSDCWAj>; Wed, 3 Apr 2002 17:00:39 -0500
+	id <S312354AbSDCWDt>; Wed, 3 Apr 2002 17:03:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312354AbSDCWAT>; Wed, 3 Apr 2002 17:00:19 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:49165 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S312314AbSDCWAI>; Wed, 3 Apr 2002 17:00:08 -0500
-X-Envelope-From: news@bytesex.org
+	id <S312314AbSDCWDk>; Wed, 3 Apr 2002 17:03:40 -0500
+Received: from 213-98-219-83.uc.nombres.ttd.es ([213.98.219.83]:40322 "EHLO
+	pantuflo.bluepotato.org") by vger.kernel.org with ESMTP
+	id <S312238AbSDCWDb>; Wed, 3 Apr 2002 17:03:31 -0500
+Message-ID: <3CAB7C24.58E63B12@unex.es>
+Date: Thu, 04 Apr 2002 00:03:16 +0200
+From: Alfonso Gazo <agazo@unex.es>
+Organization: Universidad de Extremadura
+X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
+X-Accept-Language: es,en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
-Date: 3 Apr 2002 20:35:06 GMT
-Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
-Message-ID: <slrnaamprq.tuj.kraxel@bytesex.org>
-In-Reply-To: <Pine.LNX.4.33.0204031106420.3004-100000@penguin.transmeta.com> <E16sqaK-0004MO-00@the-village.bc.nu>
-NNTP-Posting-Host: localhost
-X-Trace: bytesex.org 1017866106 30972 127.0.0.1 (3 Apr 2002 20:35:06 GMT)
-User-Agent: slrn/0.9.7.1 (Linux)
+Subject: [2.4.18] /proc/stat does not show disk_io stats for all IDE disks
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > The fact that the code was back-ported from 2.5.x and that the _GPL still 
-> > is there too is just a mistake, partly because I've not gotten any updates 
-> > from Ingo..
->  
->  So Linus is allowed to arbitarily export other peoples contributions ? I
->  think we need to clear this one up and understand what people think the
->  actual rules are around here. As I understand it the original code was
->  a) extracted from bttv and is code which I and DaveM partly wrote
->  b) was submitted by Gerd who did the extra work and kept it as _GPL when he 
->     first exported it. (in 2.4 its relevant to expose it as we have the V4L1
->     not V4L2 interface)
+Hi everyone,
 
-No.
+After installing noflushd daemon, I noticed it couldn't access the
+disk_io stats for all IDE disks attached to my system, but only the
+attached to the motherboard IDE controller. The ones that doesn't appear
+in /proc/stat are the disks attached to a Promise Ultra66 PCI IDE card.
+I reproduced this problem with 2.4.18, 2.4.17 and 2.4.7 kernels.
 
-I've only submitted the 2.4.x backport to Marcelo, and the only reason
-I've export it as _GPL there is that it is _GPL in 2.5.x.  Having that
-symbol without _GPL in 2.4 and with _GPL in 2.5 would be very bad style
-and would upset people who start using that function in 2.4 and notice
-later on that it is exported more strict in 2.5 ...
+The dmesg log says:
 
-I'll happily submit a patch to Marcelo to remove the _GPL once it is
-gone in Linus 2.5 tree.
+[snip]
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+PIIX4: IDE controller on PCI bus 00 dev 39
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
+PDC20262: IDE controller on PCI bus 00 dev 60
+PCI: Found IRQ 11 for device 00:0c.0
+PDC20262: chipset revision 1
+PDC20262: not 100% native mode: will probe irqs later
+PDC20262: ROM enabled at 0xe6000000
+PDC20262: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+    ide2: BM-DMA at 0xdc00-0xdc07, BIOS settings: hde:DMA, hdf:DMA
+    ide3: BM-DMA at 0xdc08-0xdc0f, BIOS settings: hdg:DMA, hdh:DMA
+hda: WDC AC26400R, ATA DISK drive
+hdc: Hewlett-Packard CD-Writer Plus 8200a, ATAPI CD/DVD-ROM drive
+hdd: ASUS CD-S500/A, ATAPI CD/DVD-ROM drive
+hde: FUJITSU MPF3204AT, ATA DISK drive
+hdf: SAMSUNG SV1363D, ATA DISK drive
+hdg: ST34321A, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+ide2 at 0xcc00-0xcc07,0xd002 on irq 11
+ide3 at 0xd400-0xd407,0xd802 on irq 11
+hda: 12594960 sectors (6449 MB) w/512KiB Cache, CHS=784/255/63, UDMA(33)
 
-The 2.5.x code (which I grabbed for the backport) was submitted by Ingo
-and updated by Linus says my BK tree changelog.  Ingo obviously did
-*not* a simple cut&paste of DaveM's code from bttv.  The 2.5.x
-vmalloc_to_page() function handles pte-highmem and preemtable kernels,
-that code was never in bttv.
+hde: 40031712 sectors (20496 MB) w/512KiB Cache, CHS=39714/16/63,
+UDMA(66)
+hdf: 26704944 sectors (13673 MB) w/472KiB Cache, CHS=26493/16/63,
+UDMA(66)
+hdg: 8404830 sectors (4303 MB) w/128KiB Cache, CHS=8894/15/63, UDMA(33)
+ide-floppy driver 0.97.sv
+Partition check:
+ /dev/ide/host0/bus0/target0/lun0: p1 p2 p3
+ /dev/ide/host2/bus0/target0/lun0: [PTBL] [2491/255/63] p1 p2
+ /dev/ide/host2/bus0/target1/lun0: [PTBL] [1662/255/63] p1
+ /dev/ide/host2/bus1/target0/lun0: [PTBL] [523/255/63] p1
+[snip]
 
->  Nobody seems to have remembered to ask permission around here
 
-Ingo is happy with removing _GPL, Linus too, where exactly is the
-problem?
 
-  Gerd
+and /proc/stat:
 
--- 
-#include </dev/tty>
+cpu  236858 1312 135141 11160152
+cpu0 236858 1312 135141 11160152
+page 3543213 3135617
+swap 960 6548
+intr 15247980 11533463 5 0 2317048 9 0 6 2 13 38 685775 131102 17694 0
+562825 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+disk_io: (3,0):(563528,191285,4274540,372243,5517288)
+ctxt 20869017
+btime 1017755929
+processes 449083
+
+
+Is there any patch that could be applied to the 2.4.x kernel series to
+get this thing working?
+
+Thanks in advance,
+
+--
+Alfonso
+

@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265094AbUFRKhs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265097AbUFRKje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265094AbUFRKhs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 06:37:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265097AbUFRKhs
+	id S265097AbUFRKje (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 06:39:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265099AbUFRKje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 06:37:48 -0400
-Received: from mail.gbg.bostream.net ([81.26.226.10]:38101 "EHLO
-	mail.gbg.bostream.net") by vger.kernel.org with ESMTP
-	id S265094AbUFRKhq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 06:37:46 -0400
-Date: Fri, 18 Jun 2004 12:37:44 +0200 (CEST)
-From: Thorsten Rhau <t-r@swipnet.se>
-X-X-Sender: readmail@x.home
-To: linux-kernel@vger.kernel.org
-Subject: MISSING: CONFIG_IDEDISK_STROKE
-Message-ID: <Pine.LNX.4.58.0406181229500.4837@x.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 18 Jun 2004 06:39:34 -0400
+Received: from gate.firmix.at ([80.109.18.208]:47758 "EHLO gate.firmix.at")
+	by vger.kernel.org with ESMTP id S265097AbUFRKjc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 06:39:32 -0400
+Subject: Re: Stop the Linux kernel madness
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: 4Front Technologies <dev@opensound.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <40D23701.1030302@opensound.com>
+References: <40D232AD.4020708@opensound.com> <3217460000.1087518092@flay>
+	 <40D23701.1030302@opensound.com>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Message-Id: <1087555159.10026.49.camel@tara.firmix.at>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 18 Jun 2004 12:39:19 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-I have been using the 2.6.x series kernels sence 2.6.2 and everything just
-worked fine for me, great job!
+On Fre, 2004-06-18 at 02:27, 4Front Technologies wrote:
+[...]
+> Our commercial OSS drivers work perfectly with Linux 2.6.5, 2.6.6, 2.6.7
+> and they are failing to install with SuSE's 2.6.5 kernel. The reason is that
+> they have gone and changed the kernel headers which mean that nothing works.
+[ compile errors ]
+> Why is this happening?. It's working fine with Linux 2.6.5 and also worked with
+> Linux 2.6.4 kernels from SuSE 9.1
 
-A few days ago the 2.6.7 kernel was released and of course i tried to
-install it on my system. My problem is that i am not able to find
-"Auto-Geometry Resizing support" in make menuconfig. I think that this
-parameter is called CONFIG_IDEDISK_STROKE in the .config file. I am not
-able to find it in the .config either ...........
+What is SuSEs answer to the question since it it obviously a bug in
+their kernel?
 
-I have tried to locate information about this in the release notes for the
-2.6.7 kernel and on http://www.lkml.org without success.
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-best regards
-/thorsten
-
-root@x:/usr/src/linux-2.6.7# sh scripts/ver_linux
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
-
-Linux x 2.6.6 #1 Mon May 10 14:06:17 CEST 2004 i686 unknown unknown
-GNU/Linux
-
-Gnu C                  3.2.3
-Gnu make               3.80
-binutils               2.14.90.0.6
-util-linux             2.12
-mount                  2.12
-module-init-tools      0.9.14
-e2fsprogs              1.34
-jfsutils               1.1.3
-xfsprogs               2.5.6
-quota-tools            3.09.
-PPP                    2.4.1
-nfs-utils              1.0.6
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Linux C++ Library      5.0.3
-Procps                 2.0.16
-Net-tools              1.60
-Kbd                    1.08
-Sh-utils               5.0
-root@x:/usr/src/linux-2.6.7#

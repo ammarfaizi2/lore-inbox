@@ -1,146 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129507AbQKWMEL>; Thu, 23 Nov 2000 07:04:11 -0500
+        id <S131915AbQKWMIc>; Thu, 23 Nov 2000 07:08:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131997AbQKWMEB>; Thu, 23 Nov 2000 07:04:01 -0500
-Received: from web.sajt.cz ([212.71.160.9]:15879 "EHLO web.sajt.cz")
-        by vger.kernel.org with ESMTP id <S129507AbQKWMDu>;
-        Thu, 23 Nov 2000 07:03:50 -0500
-Date: Thu, 23 Nov 2000 12:32:45 +0100 (CET)
-From: Pavel Rabel <pavel@web.sajt.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] mad16 MPU probing
-Message-ID: <Pine.LNX.4.21.0011231158350.25032-100000@web.sajt.cz>
+        id <S131991AbQKWMIX>; Thu, 23 Nov 2000 07:08:23 -0500
+Received: from pop.gmx.net ([194.221.183.20]:2937 "HELO mail.gmx.net")
+        by vger.kernel.org with SMTP id <S131915AbQKWMIK>;
+        Thu, 23 Nov 2000 07:08:10 -0500
+Content-Type: text/plain;
+  charset="iso8859-1"
+From: Helge Deller <deller@gmx.de>
+To: torvalds@transmeta.com
+Subject: [PATCH]: 2.4.0-test11: sched.h  
+Date: Thu, 23 Nov 2000 12:37:32 +0100
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <00112312373201.00318@P100>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The following patch against 2.4.0-test11 changes INIT_FILES, INIT_MM and 
+INIT_SIGNALS to use named initializers. 
 
-Small cleanup in mad16.c MPU probing code. Against any 2.4 kernel.
-Replacing mad loops with readable switches. Removing unnecessary array
-declarations. Removing variable 'with secret power'. Removing double
-declaration (tmp).
+Please apply,
+Thanks,
 
-Is there a maintainer for this stuff? 
-Whom to feed with this kind of cleanup patches? 
+Helge
 
-Pavel Rabel
-
-
---- drivers/sound/mad16.c.old	Wed Sep 27 20:53:56 2000
-+++ drivers/sound/mad16.c	Thu Nov 23 11:00:47 2000
-@@ -718,13 +718,7 @@
- static int __init probe_mad16_mpu(struct address_info *hw_config)
- {
- 	static int mpu_attached = 0;
--	static int valid_ports[] = {
--		0x330, 0x320, 0x310, 0x300
--	};
--	
--	static short valid_irqs[] = {9, 10, 5, 7};
- 	unsigned char tmp;
--	int i;				/* A variable with secret power */
+--- linux/include/linux/sched.h.org	Tue Nov 21 00:50:43 2000
++++ linux/include/linux/sched.h	Thu Nov 23 10:20:37 2000
+@@ -174,18 +174,19 @@
+ 	struct file * fd_array[NR_OPEN_DEFAULT];
+ };
  
- 	if (!already_initialized)	/* The MSS port must be initialized first */
- 		return 0;
-@@ -737,7 +731,6 @@
- 	{
+-#define INIT_FILES { \
+-	ATOMIC_INIT(1), \
+-	RW_LOCK_UNLOCKED, \
+-	NR_OPEN_DEFAULT, \
+-	__FD_SETSIZE, \
+-	0, \
+-	&init_files.fd_array[0], \
+-	&init_files.close_on_exec_init, \
+-	&init_files.open_fds_init, \
+-	{ { 0, } }, \
+-	{ { 0, } }, \
+-	{ NULL, } \
++#define INIT_FILES \
++{ 							\
++	count:		ATOMIC_INIT(1), 		\
++	file_lock:	RW_LOCK_UNLOCKED, 		\
++	max_fds:	NR_OPEN_DEFAULT, 		\
++	max_fdset:	__FD_SETSIZE, 			\
++	next_fd:	0, 				\
++	fd:		&init_files.fd_array[0], 	\
++	close_on_exec:	&init_files.close_on_exec_init, \
++	open_fds:	&init_files.open_fds_init, 	\
++	close_on_exec_init: { { 0, } }, 		\
++	open_fds_init:	{ { 0, } }, 			\
++	fd_array:	{ NULL, } 			\
+ }
  
- #ifdef CONFIG_MAD16_OLDCARD
--		unsigned char   tmp;
+ /* Maximum number of active map areas.. This is a random (large) number */
+@@ -220,18 +221,19 @@
+ 	void * segments;
+ };
  
- 		tmp = mad_read(MC3_PORT);
+-#define INIT_MM(name) {					\
+-		&init_mmap, NULL, NULL,			\
+-		swapper_pg_dir, 			\
+-		ATOMIC_INIT(2), ATOMIC_INIT(1), 1,	\
+-		__MUTEX_INITIALIZER(name.mmap_sem),	\
+-		SPIN_LOCK_UNLOCKED,			\
+-		0,					\
+-		0, 0, 0, 0,				\
+-		0, 0, 0, 				\
+-		0, 0, 0, 0,				\
+-		0, 0, 0,				\
+-		0, 0, 0, 0, NULL }
++#define INIT_MM(name) \
++{			 				\
++	mmap:		&init_mmap, 			\
++	mmap_avl:	NULL, 				\
++	mmap_cache:	NULL, 				\
++	pgd:		swapper_pg_dir, 		\
++	mm_users:	ATOMIC_INIT(2), 		\
++	mm_count:	ATOMIC_INIT(1), 		\
++	map_count:	1, 				\
++	mmap_sem:	__MUTEX_INITIALIZER(name.mmap_sem), \
++	page_table_lock: SPIN_LOCK_UNLOCKED, 		\
++	segments:	NULL 				\
++}
  
-@@ -787,9 +780,6 @@
- 		 * to set MPU register. TODO - add probing
- 		 */
+ struct signal_struct {
+ 	atomic_t		count;
+@@ -240,10 +242,11 @@
+ };
  
--		
--		unsigned char tmp;
--
- 		tmp = mad_read(MC8_PORT);
  
- 		switch (hw_config->irq)
-@@ -840,42 +830,50 @@
- 	tmp = mad_read(MC6_PORT) & 0x83;
- 	tmp |= 0x80;		/* MPU-401 enable */
+-#define INIT_SIGNALS { \
+-		ATOMIC_INIT(1), \
+-		{ {{0,}}, }, \
+-		SPIN_LOCK_UNLOCKED }
++#define INIT_SIGNALS {	\
++	count:		ATOMIC_INIT(1), 		\
++	action:		{ {{0,}}, }, 			\
++	siglock:	SPIN_LOCK_UNLOCKED 		\
++}
  
--/*
-- * Set the MPU base bits
-- */
-+	/* Set the MPU base bits */
- 
--	for (i = 0; i < 5; i++)
-+	switch (hw_config->io_base)
- 	{
--		if (i > 3)	/* Out of array bounds */
--		{
--			printk(KERN_ERR "MAD16 / Mozart: Invalid MIDI port 0x%x\n", hw_config->io_base);
--			return 0;
--		}
--		if (valid_ports[i] == hw_config->io_base)
--		{
--			tmp |= i << 5;
-+		case 0x300:
-+			tmp |= 0x60;
- 			break;
--		}
-+		case 0x310:
-+			tmp |= 0x40;
-+			break;
-+		case 0x320:
-+			tmp |= 0x20;
-+			break;
-+		case 0x330:
-+			tmp |= 0x00;
-+			break;
-+		default:
-+			printk(KERN_ERR "MAD16: Invalid MIDI port 0x%x\n", hw_config->io_base);
-+			return 0;
- 	}
- 
--/*
-- * Set the MPU IRQ bits
-- */
-+	/* Set the MPU IRQ bits */
- 
--	for (i = 0; i < 5; i++)
-+	switch (hw_config->irq)
- 	{
--		if (i > 3)	/* Out of array bounds */
--		{
--			printk(KERN_ERR "MAD16 / Mozart: Invalid MIDI IRQ %d\n", hw_config->irq);
--			return 0;
--		}
--		if (valid_irqs[i] == hw_config->irq)
--		{
--			tmp |= i << 3;
-+		case 5:
-+			tmp |= 0x10;
-+			break;
-+		case 7:
-+			tmp |= 0x18;
-+			break;
-+		case 9:
-+			tmp |= 0x00;
-+			break;
-+		case 10:
-+			tmp |= 0x08;
-+			break;
-+		default:
-+			printk(KERN_ERR "MAD16: Invalid MIDI IRQ %d\n", hw_config->irq);
- 			break;
--		}
- 	}
-+			
- 	mad_write(MC6_PORT, tmp);	/* Write MPU401 config */
-+
- #ifndef CONFIG_MAD16_OLDCARD
- probe_401:
- #endif
-
+ /*
+  * Some day this will be a full-fledged user tracking system..
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,85 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265887AbUJHVx0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265909AbUJHV4x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265887AbUJHVx0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 17:53:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265805AbUJHVxZ
+	id S265909AbUJHV4x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 17:56:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265805AbUJHV4x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 17:53:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:53424 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265887AbUJHVxV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 17:53:21 -0400
-Date: Fri, 8 Oct 2004 14:52:52 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Jody McIntyre <realtime-lsm@modernduck.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de,
-       "Jack O'Quin" <joq@io.com>
-Subject: Re: [PATCH] Realtime LSM
-Message-ID: <20041008145252.M2357@build.pdx.osdl.net>
-References: <87k6ubcccl.fsf@sulphur.joq.us> <1096663225.27818.12.camel@krustophenia.net> <20041001142259.I1924@build.pdx.osdl.net> <1096669179.27818.29.camel@krustophenia.net> <20041001152746.L1924@build.pdx.osdl.net> <877jq5vhcw.fsf@sulphur.joq.us> <1097193102.9372.25.camel@krustophenia.net> <1097269108.1442.53.camel@krustophenia.net> <20041008144539.K2357@build.pdx.osdl.net> <1097272140.1442.75.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1097272140.1442.75.camel@krustophenia.net>; from rlrevell@joe-job.com on Fri, Oct 08, 2004 at 05:49:03PM -0400
+	Fri, 8 Oct 2004 17:56:53 -0400
+Received: from gizmo10ps.bigpond.com ([144.140.71.20]:52675 "HELO
+	gizmo10ps.bigpond.com") by vger.kernel.org with SMTP
+	id S265943AbUJHV4P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 17:56:15 -0400
+Message-ID: <41670CFC.1020306@bigpond.net.au>
+Date: Sat, 09 Oct 2004 07:56:12 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: colpatch@us.ibm.com
+CC: Nick Piggin <nickpiggin@yahoo.com.au>, Erich Focht <efocht@hpce.nec.com>,
+       LSE Tech <lse-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
+       ckrm-tech@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>,
+       simon.derr@bull.net, frankeh@watson.ibm.com
+Subject: Re: [Lse-tech] [RFC PATCH] scheduler: Dynamic sched_domains
+References: <1097110266.4907.187.camel@arrakis> <200410081214.20907.efocht@hpce.nec.com> <41666E90.2000208@yahoo.com.au> <1097261691.5650.23.camel@arrakis>
+In-Reply-To: <1097261691.5650.23.camel@arrakis>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Lee Revell (rlrevell@joe-job.com) wrote:
-> On Fri, 2004-10-08 at 17:45, Chris Wright wrote:
-> > > --- linux-2.6.8.1/security/realtime.c	Wed Dec 31 18:00:00 1969
-> > > +++ linux-2.6.8.1-rt02/security/realtime.c	Mon Oct  4 21:35:41 2004
-> > > +static int any = 0;			/* if TRUE, any process is realtime */
-> > 
-> > unecessary init to 0
-> > 
+Matthew Dobson wrote:
+> On Fri, 2004-10-08 at 03:40, Nick Piggin wrote:
 > 
-> I think gcc 3.4 complains otherwise.
+>>And so you want to make a partition with CPUs {0,1,2,4,5}, and {3,6,7}
+>>for some crazy reason, the new domains would look like this:
+>>
+>>0 1  2  4 5    3  6 7
+>>---  -  ---    -  ---  <- 0
+>>  |   |   |     |   |
+>>  -----   -     -   -   <- 1
+>>    |     |     |   |
+>>    -------     -----   <- 2 (global, partitioned)
+>>
+>>Agreed? You don't need to get fancier than that, do you?
+>>
+>>Then how to input the partitions... you could have a sysfs entry that
+>>takes the complete partition info in the form:
+>>
+>>0,1,2,3 4,5,6 7,8 ...
+>>
+>>Pretty dumb and simple.
+> 
+> 
+> How do we describe the levels other than the first?  We'd either need
+> to:
+> 1) come up with a language to describe the full tree.  For your example
+> I quoted above:
+>    echo "0,1,2,4,5 3,6 7,8;0,1,2 4,5 3 6,7;0,1 2 4,5 3 6,7" > partitions
 
-Nah, it's fine.
+I think the idea was that the full hierarchy was (automatically) derived 
+from the partition in a way that best matched the physical layout of the 
+machine?
 
-$ grep 'int any' security/realtime.c
-static int any;                 /* if TRUE, any process is realtime */
-$ make security/realtime.o
-  CC      security/realtime.o
-$ gcc --version
-gcc (GCC) 3.4.2 20040907 (Red Hat 3.4.2-2)
+> 
+> 2) have multiple files:
+>    echo "0,1,2,4,5 3,6,7" > level2
+>    echo "0,1,2 4,5 3 6,7" > level1
+>    echo "0,1 2 4,5 3 6,7" > level0
+> 
+> 3) Or do it hierarchically as Paul implemented in cpusets, and as I
+> described in an earlier mail:
+>    mkdir level2
+>    echo "0,1,2,4,5 3,6,7" > level2/partitions
+>    mkdir level1
+>    echo "0,1,2 4,5 3 6,7" > level1/partitions
+>    mkdir level0
+>    echo "0,1 2 4,5 3 6,7" > level0/partitions
+> 
+> I personally like the hierarchical idea.  Machine topologies tend to
+> look tree-like, and every useful sched_domain layout I've ever seen has
+> been tree-like.  I think our interface should match that.
+> 
+> -Matt
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-thanks,
--chris
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Peter Williams                                   pwil3058@bigpond.net.au
 
---- security/realtime.c~orig	2004-10-08 14:27:27.000000000 -0700
-+++ security/realtime.c	2004-10-08 14:52:31.303484080 -0700
-@@ -26,6 +26,7 @@
- #include <linux/netlink.h>
- #include <linux/ptrace.h>
- #include <linux/sysctl.h>
-+#include <linux/moduleparam.h>
- 
- #ifdef CONFIG_SECURITY
- 
-@@ -46,16 +47,16 @@
-  *  each is referenced only once in each function call.  Nothing
-  *  depends on parameters having the same value every time.
-  */
--static int any = 0;			/* if TRUE, any process is realtime */
--MODULE_PARM(any, "i");
-+static int any;			/* if TRUE, any process is realtime */
-+module_param(any, int, 0644);
- MODULE_PARM_DESC(any, " grant realtime privileges to any process.");
- 
- static int gid = -1;			/* realtime group id, or NO_GROUP */
--MODULE_PARM(gid, "i");
-+module_param(gid, int, 0644);
- MODULE_PARM_DESC(gid, " the group ID with access to realtime privileges.");
- 
- static int mlock = 1;			/* enable mlock() privileges */
--MODULE_PARM(mlock, "i");
-+module_param(mlock, int, 0644);
- MODULE_PARM_DESC(mlock, " enable memory locking privileges.");
- 
- /* helper function for testing group membership */
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

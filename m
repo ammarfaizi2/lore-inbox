@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315851AbSEQMbn>; Fri, 17 May 2002 08:31:43 -0400
+	id <S315835AbSEQMec>; Fri, 17 May 2002 08:34:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315374AbSEQMah>; Fri, 17 May 2002 08:30:37 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49674 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315835AbSEQMaH>; Fri, 17 May 2002 08:30:07 -0400
-Subject: Re: Process priority in 2.4.18 (RedHat 7.3)
-To: akpm@zip.com.au (Andrew Morton)
-Date: Fri, 17 May 2002 13:49:21 +0100 (BST)
-Cc: paul@engsoc.org (Paul Faure), andrea@suse.de (Andrea Arcangeli),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3CE46914.F4547F16@zip.com.au> from "Andrew Morton" at May 16, 2002 07:21:08 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S315372AbSEQMdM>; Fri, 17 May 2002 08:33:12 -0400
+Received: from albatross-ext.wise.edt.ericsson.se ([193.180.251.49]:61099 "EHLO
+	albatross.wise.edt.ericsson.se") by vger.kernel.org with ESMTP
+	id <S315835AbSEQMch>; Fri, 17 May 2002 08:32:37 -0400
+Message-ID: <3CE4F864.6E9B93AD@uab.ericsson.se>
+Date: Fri, 17 May 2002 14:32:36 +0200
+From: Sverker Wiberg <Sverker.Wiberg@uab.ericsson.se>
+X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: knfsd misses occasional writes (w/ WORKAROUND)
+In-Reply-To: <3CE250A5.47F71DF@uab.ericsson.se> <15586.20989.992591.474108@notabene.cse.unsw.edu.au> <3CE38E9D.986ACF7F@uab.ericsson.se> <20020516143441.A4322@laclinux.com> <3CE4DD8C.69C34A1B@uab.ericsson.se>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E178hAf-0006PS-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So the problem would appear to be that your networking *requires*
-> ksoftirqd services to function.  Either:
+Sverker Wiberg wrote:
+
+> Over here, we started to log the conversations, and saw the client
+> opening a file, writing 272 bytes into it (one write), and then closing
+> it, with the server replying full success all the time. printk()'s in
+> knfsd and the vfs's generic_write() also reported that 272 bytes had
+> been successfully written. Yet the file was truncated.
 > 
-> 1) The driver is bust - its hard_start_xmit() function is failing
->    frequently, and relying on ksoftirqd to get things done (I think;
->    it's been a while).  Or
+> We switched from soft to hard mount: It didn't help. We are now
+> experimenting with disabling SCSI's disconnect/reconnect feature. Are
+> there any more straws to grasp at?
 
-The ne2k card has little buffering. 
+With one single knfsd thread running, the problem went away (for a price
+in performance). This seems to indicate there is some kind of race
+between the knfsd threads. 
 
-> 2) Something is wrong with the ksoftirqd design.  Or
-
-I think its mostly #2. We invoke ksoftirq far far too easily.
+/Sverker

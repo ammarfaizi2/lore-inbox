@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268039AbTBYTX2>; Tue, 25 Feb 2003 14:23:28 -0500
+	id <S267847AbTBYTTv>; Tue, 25 Feb 2003 14:19:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268126AbTBYTX2>; Tue, 25 Feb 2003 14:23:28 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:22792 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S268039AbTBYTX1>; Tue, 25 Feb 2003 14:23:27 -0500
-Date: Tue, 25 Feb 2003 20:33:42 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: John Clemens <john@deater.net>
-Cc: Dominik Brodowski <linux@brodo.de>, cpufreq@www.linux.org.uk,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: cpufreq: allow user to specify voltage
-Message-ID: <20030225193341.GA19556@atrey.karlin.mff.cuni.cz>
-References: <20030225190949.GM12028@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.44.0302251419290.12073-100000@pianoman.cluster.toy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302251419290.12073-100000@pianoman.cluster.toy>
-User-Agent: Mutt/1.3.28i
+	id <S267927AbTBYTTv>; Tue, 25 Feb 2003 14:19:51 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:44164 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S267847AbTBYTSx>; Tue, 25 Feb 2003 14:18:53 -0500
+Date: Tue, 25 Feb 2003 14:31:48 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Daniel Jacobowitz <dan@debian.org>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: atomic_t (24 bits???)
+In-Reply-To: <20030225191711.GA25331@nevyn.them.org>
+Message-ID: <Pine.LNX.3.95.1030225143137.20279B-100000@chaos>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 25 Feb 2003, Daniel Jacobowitz wrote:
 
-> > So I guess adding /sys/bus/system/devices/cpu0/voltage? Should code to
-> > do that be in kernel/cpufreq.c or is it possible to do sysfs from
-> > powernow-k7 [it does not seem easy]?
->  								Pavel
-> I agree, there shoul dbe a way to add sysfs files from a cpufreq driver
-> module.  I told dave I was looking into overriding the powernow tables,
-> but I can't seem to get enough time away from my day job right now.
+> On Tue, Feb 25, 2003 at 02:11:11PM -0500, Richard B. Johnson wrote:
+> > 
+> > In ../linux/include/asm/atomic.h, for versions 2.4.18 and
+> > above as far as I've checked, there are repeated warnings
+> > "Note that the guaranteed useful range of an atomic_t is
+> > only 24 bits."
+> > 
+> > I fail to see any reason why as atomic_t is typdefed to a
+> > volatile int which, on ix86 seems to be 32 bits.
+> > 
+> > Does anybody know if this is just some old comments from a
+> > previous atomic_t type of, perhaps, char[3]?  
 > 
-> for the powernow driver, and the userspace governor, I'd like to export a
-> file "current_setting" or something that contains:
+> There are other platforms where you can't reliably use the whole word. 
+> Some ARM atomic_t implementations are like this, although I don't know
+> if the one in the kernel is.
 > 
-> <frequency> <voltage> <fsb? maybe for other drivers>
+> -- 
+> Daniel Jacobowitz
+> MontaVista Software                         Debian GNU/Linux Developer
 > 
-> A write to this file of one, two, or three values would result in changing
-> the frequency to the closest standard table match we have.  Unless, the
-> user specifies an "override" flag as a module parameter.  If the override
-> flag is set, then writing to that file will set the speed and voltage to
-> exactly what you specify (within the min/max hardware limits), and
-> basically ignore the standard BIOS table.
+Okay. Thanks.
 
-Actually I think sysfs is trying to get it into one-file-per-value...
 
-...which is going to be problem for writing because it will not be
-able to atomically update different values at once...
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 
-Oh and forget module parameter :-).
-									Pavel
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+

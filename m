@@ -1,71 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbTIYUTk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 16:19:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbTIYUTk
+	id S261874AbTIYUS5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 16:18:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbTIYUS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 16:19:40 -0400
-Received: from [209.195.52.120] ([209.195.52.120]:21467 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S261885AbTIYUTc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 16:19:32 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Date: Thu, 25 Sep 2003 13:15:38 -0700 (PDT)
-Subject: Re: log-buf-len dynamic
-In-Reply-To: <20030925182921.GA18749@work.bitmover.com>
-Message-ID: <Pine.LNX.4.58.0309251313560.7784@dlang.diginsite.com>
-References: <m1n0csiybu.fsf@ebiederm.dsl.xmission.com>
- <Pine.LNX.4.44.0309251026550.29320-100000@home.osdl.org>
- <20030925122838.A16288@discworld.dyndns.org> <20030925182921.GA18749@work.bitmover.com>
+	Thu, 25 Sep 2003 16:18:57 -0400
+Received: from zeke.inet.com ([199.171.211.198]:56238 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id S261874AbTIYUSy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 16:18:54 -0400
+Message-ID: <3F734DAA.5040307@inet.com>
+Date: Thu, 25 Sep 2003 15:18:50 -0500
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030708
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Adarsh Daheriya <AdarshDNet@netscape.net>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: dual ethernet ports problem.
+References: <3F71B513.1000204@netscape.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry, have you or could you publish the BK->?? export code?, This way
-even if you do not host the exported stuff it would be trivial for a
-person who is willing to use bk to setup a server to mirror any 'bk-only'
-project.
+Adarsh Daheriya wrote:
+> hi all,
+> 
+> i have got a system which has 2 eth ports. i use one of them (eth0) to 
+> "network boot" the system
+> using dhcp, tftp and then mount the nfs file system on it.
+> 
+> this leaves the other port (eth1) unusable. i cannot ping to the other 
+> system through it.
+> but when i ping any of the two eth ports from some other system i get 
+> the reply back.
+> but to my amazement the mac entries of both the ports is that of eth0 in 
+> arp table. (arp command)
+> 
+> why and how eth0 is acting as a proxy (perhaps) for both the ports and 
+> how can i disable it?
+> 
+> could anybody please help me in this concern.
 
-David Lang
+Both ports on the same subnet/switch/etc perchance?
 
+Linux replies to an IP address out of any port it cares to.[1]  I've 
+seen this come up a number of times, but I can't seem to find references 
+to it in google.... Ah, wait, try this:
+http://www.cs.helsinki.fi/linux/linux-kernel/2002-16/0676.html
+LWN writeup about this: http://lwn.net/Articles/45373/
+(Google for 'linux-kernel ping route IP MAC wrong' w/o quotes.)
 
-On Thu, 25 Sep 2003, Larry McVoy wrote:
+HTH,
 
-> Date: Thu, 25 Sep 2003 11:29:22 -0700
-> From: Larry McVoy <lm@bitmover.com>
-> To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
->      Larry McVoy <lm@bitmover.com>
-> Subject: Re: log-buf-len dynamic
->
-> On Thu, Sep 25, 2003 at 12:28:38PM -0600, Charles Cazabon wrote:
-> > Perhaps BitMover could release a client that can't do anything but keep a
-> > local (unmodified) tree in sync with a public repository tree, so that the
-> > "politically objectionable" (to some) parts of the BK license don't matter.
-> >
-> > In an idea world, this read-only client could be released in source form, but
-> > I'm under no illusions there :).
->
-> People ask us for this all the time and it just highlights the point that
-> people don't understand how BK works.  It isn't client server, it's peer
-> to peer, every so-called client has to have all the smarts built in that
-> the so-called server has.
->
-> There isn't any way to release a stripped down version that makes sense.
-> If there was, we would.
-> --
-> ---
-> Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Eli
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+[1] Over-simplification to the extreme, and probably wrong to boot. 8)
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
+

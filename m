@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267327AbSKPSQn>; Sat, 16 Nov 2002 13:16:43 -0500
+	id <S267326AbSKPSQg>; Sat, 16 Nov 2002 13:16:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267328AbSKPSQn>; Sat, 16 Nov 2002 13:16:43 -0500
-Received: from pop015pub.verizon.net ([206.46.170.172]:48884 "EHLO
-	pop015.verizon.net") by vger.kernel.org with ESMTP
-	id <S267327AbSKPSQl>; Sat, 16 Nov 2002 13:16:41 -0500
-Date: Sat, 16 Nov 2002 13:22:51 -0500
-From: Akira Tsukamoto <at541@columbia.edu>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [CFT][PATCH]  2.5.47 Athlon/Druon, much faster copy_user function
-Cc: linux-kernel@vger.kernel.org, Hirokazu Takahashi <taka@valinux.co.jp>,
-       Andrew Morton <akpm@digeo.com>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <20021116115652.A26519@wotan.suse.de>
-References: <20021115235234.8DE4.AT541@columbia.edu> <20021116115652.A26519@wotan.suse.de>
-Message-Id: <20021116131403.9FB5.AT541@columbia.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.05.06
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at pop015.verizon.net from [138.89.33.207] at Sat, 16 Nov 2002 12:23:31 -0600
+	id <S267327AbSKPSQg>; Sat, 16 Nov 2002 13:16:36 -0500
+Received: from gasko.hitnet.RWTH-Aachen.DE ([137.226.181.85]:33042 "EHLO
+	moria.gondor.com") by vger.kernel.org with ESMTP id <S267326AbSKPSQf>;
+	Sat, 16 Nov 2002 13:16:35 -0500
+Date: Sat, 16 Nov 2002 19:23:17 +0100
+From: Jan Niehusmann <jan@gondor.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: David.Mosberger@acm.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] remove hugetlb syscalls
+Message-ID: <20021116182317.GA22083@gondor.com>
+References: <Pine.LNX.4.44L.0211132239370.3817-100000@imladris.surriel.com> <08a601c28bbb$2f6182a0$760010ac@edumazet> <20021114141310.A25747@infradead.org> <ugel9oavk4.fsf@panda.mostang.com> <1037298675.16000.47.camel@irongate.swansea.linux.org.uk> <15827.61722.800066.756875@panda.mostang.com> <1037303532.15996.59.camel@irongate.swansea.linux.org.uk> <1037304844.16003.63.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1037304844.16003.63.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Nov 2002 11:56:52 +0100
-Andi Kleen <ak@suse.de> mentioned:
-> 
-> You don't seem to save/restore the FPU state, so it will be likely 
-> corrupted after your copy runs.
+On Thu, Nov 14, 2002 at 08:14:04PM +0000, Alan Cox wrote:
+> On Thu, 2002-11-14 at 19:52, Alan Cox wrote:
+> > On Thu, 2002-11-14 at 18:53, David Mosberger-Tang wrote:
+> > > But that's excactly the point.  The hugepage interface returns a
+> > > different kind of virtual memory.  There are tons of programs out
+> > > there using mmap().  If such a program gets fed a path to the
+> > > hugepagefs, it might end up with huge pages without knowing anything
+> > > about huge pages.  For the most part, that might work fine, but it
+> > > could lead to subtle failures.
+> > 
+> > Your argument makes sense. You are arguing
+> Makes no sense rather 8)
 
-This is the main question for me that I was wondering for all week. 
-My first version was using fsave and frstore, so 
-just changing three lines will accomplish this.
-Is it all I need?  Any thing elase needed to consider using fpu register?
-> 
-> Also I'm pretty sure that using movntq (= forcing destination out of 
-> cache) is not a good strategy for generic copy_from_user(). It may 
-> be a win for the copies in write ( user space -> page cache ),
+Sorry, I didn't follow the whole discussion, so my argument may make no
+sense at all, too. :-)
 
-Yes, that why I included postfetch in the code because movntq does not leave 
-them in the L2 cache.
-Anygood idea to 
-> but 
-> will hurt for all the ioctls and other things that actually need the
-> data in cache afterwards. I am afraid it is not enough to do micro benchmarks
-> here.
+If I understand David correctly, he doesn't worry about programs that
+want to use huge pages, but about programs just using mmap just to
+access some file. If they get called with a file that behaves subtly
+different than usual files, that may lead to failures or even security
+holes.
 
-check above?
+But that's no argument to keep the syscalls, if you decide to implement
+hugepagefs. The existance of the syscalls doesn't prevent bugs created
+or triggered by hugepagefs.
 
-> 
-> 
-> -Andi
-
-
+Jan
 

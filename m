@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbTJ0NJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 08:09:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbTJ0NJ2
+	id S261649AbTJ0NIh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 08:08:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbTJ0NIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 08:09:28 -0500
-Received: from smtp0.libero.it ([193.70.192.33]:27296 "EHLO smtp0.libero.it")
-	by vger.kernel.org with ESMTP id S261681AbTJ0NJ1 convert rfc822-to-8bit
+	Mon, 27 Oct 2003 08:08:37 -0500
+Received: from smtp2.libero.it ([193.70.192.52]:41938 "EHLO smtp2.libero.it")
+	by vger.kernel.org with ESMTP id S261649AbTJ0NIg convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 08:09:27 -0500
-Date: Mon, 27 Oct 2003 14:07:07 +0100
-Message-Id: <HNF33V$7A8BF116115EAA572C3B2EFD08682D88@libero.it>
+	Mon, 27 Oct 2003 08:08:36 -0500
+Date: Mon, 27 Oct 2003 14:07:04 +0100
+Message-Id: <HNF33S$E6957528DC6E481FFBD29C5C275D0823@libero.it>
 Subject: LETTER OF ASSISTANCE
 MIME-Version: 1.0
 X-Sensitivity: 3

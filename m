@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262010AbUKVKAi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262023AbUKVKDI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262010AbUKVKAi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 05:00:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbUKVKAi
+	id S262023AbUKVKDI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 05:03:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbUKVKDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 05:00:38 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:61847 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262010AbUKVKAV
+	Mon, 22 Nov 2004 05:03:08 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:63127 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262023AbUKVKB1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 05:00:21 -0500
+	Mon, 22 Nov 2004 05:01:27 -0500
 X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 22 Nov 2004 10:43:12 +0100
+Date: Mon, 22 Nov 2004 10:53:57 +0100
 From: Gerd Knorr <kraxel@bytesex.org>
-To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: var args in kernel?
-Message-ID: <20041122094312.GC29305@bytesex>
-References: <20041109074909.3f287966.akpm@osdl.org> <1100018489.7011.4.camel@lb.loomes.de> <20041109211107.GB5892@stusta.de> <1100037358.1519.6.camel@lb.loomes.de> <20041110082407.GA23090@bytesex> <1100085569.1591.6.camel@lb.loomes.de> <20041118165853.GA22216@bytesex> <419E689A.5000704@backtobasicsmgmt.com>
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Cc: Michael Hunold <hunold@linuxtv.org>, Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Michael Hunold <hunold@convergence.de>
+Subject: Re: Fw: Re: Linux 2.6.10-rc2 [dvb-bt8xx unload oops]
+Message-ID: <20041122095357.GE29305@bytesex>
+References: <20041116014350.54500549.akpm@osdl.org> <20041118130312.GE19568@bytesex> <419CD8BC.1080401@linuxtv.org> <419EA1DD.2000004@eyal.emu.id.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <419E689A.5000704@backtobasicsmgmt.com>
+In-Reply-To: <419EA1DD.2000004@eyal.emu.id.au>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 19, 2004 at 02:41:46PM -0700, Kevin P. Fleming wrote:
-> Gerd Knorr wrote:
-> >Yet another kobject bug.  It uses the varargs list twice in a illegal
-> >way.  That doesn't harm on i386 by pure luck, but blows things up on
-> >amd64 machines.  The patch below fixes it.
-> 
-> Is this safe? The normal glibc varargs implementation says you can't 
-> even call va_start on the same args list twice, you have to use va_copy 
-> to make a clone and then call va_start on that, _before_ you ever call 
-> va_start the first time.
+> Also, does anyone know how to switch to text console when X locks up (as
+> it does for me)?  sysrq works but does not allow me to switch to another
+> console. Since the hard lock does not log the oops, and I cannot see the
+> text from sysrq, I cannot report the details.
 
-Hmm, maybe.  I'm not sure who actually implements the varargs (gcc?
-Or glibc/kernel?) and whenever the above applies to the kernel as well
-or not ...
+Setting up a serial console works best for that ...
 
-Cc'ing the kernel list for comments.
+> Nov 19 23:37:44 eyal kernel: EIP is at buffer_queue+0x33/0x6f [bttv]
+
+That most likely a bug in bttv, I've pinned it down and queued a patch
+to fix that end of last week.  I've also seen mails from Andrew
+forwarding stuff to Linus on a quick scan of my inbox, so the latest
+-bk snapshots might already have that fix.
 
   Gerd
 

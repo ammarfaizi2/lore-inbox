@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262012AbTCLWHB>; Wed, 12 Mar 2003 17:07:01 -0500
+	id <S261987AbTCLWHw>; Wed, 12 Mar 2003 17:07:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262027AbTCLWHB>; Wed, 12 Mar 2003 17:07:01 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:19455 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S262012AbTCLWG7> convert rfc822-to-8bit;
-	Wed, 12 Mar 2003 17:06:59 -0500
-content-class: urn:content-classes:message
+	id <S262000AbTCLWHw>; Wed, 12 Mar 2003 17:07:52 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:40197 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id <S261987AbTCLWHu>; Wed, 12 Mar 2003 17:07:50 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200303122220.h2CMKShH001833@81-2-122-30.bradfords.org.uk>
+Subject: Re: bio too big device
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Wed, 12 Mar 2003 22:20:28 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0303121111440.15738-100000@home.transmeta.com> from "Linus Torvalds" at Mar 12, 2003 11:14:52 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [BK PATCH] 2.4 ACPI update
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Date: Wed, 12 Mar 2003 14:17:43 -0800
-Message-ID: <3014AAAC8E0930438FD38EBF6DCEB56401338DA2@fmsmsx407.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [BK PATCH] 2.4 ACPI update
-Thread-Index: AcLo33C08k55EZSWSB2LijIYBFyowAAA9JnQ
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Grover, Andrew" <andrew.grover@intel.com>,
-       "Christoph Hellwig" <hch@infradead.org>
-Cc: "Marcelo Tosatti" <marcelo@conectiva.com.br>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 12 Mar 2003 22:17:43.0751 (UTC) FILETIME=[34023570:01C2E8E5]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I agree. 
+> > Couldn't we have a list of known good drives, though, and enable 256
+> > sectors as a special case?
+> 
+> My problem is that I just don't see the point. What's the difference 
+> between 256 and 254 sectors? 128kB vs 127kB? 
 
-The file was replaced basically by 
-	arch/i386/kernel/acpi.c
-and part of the code in acpitable.c was reused there. 
+Ah, I thought there was a reason that it was a Good Thing to keep it
+as a power of 2, which would mean 64kB vs 128kB, but if not then I
+totally agree.
 
-Thanks,
-Jun
+> Also, looking closer, the current limit actually seems to be _controller_
+> dependent, not disk-dependent. I don't know how valid that is, but it
+> looks reasonable at least in theory - while the IDE controller is mostly a
+> passthrough thing, it does end up doing part of the work. So the picture
+> look smore complex than just another drive blacklist.
+> 
+> In short, the headaches just aren't worth the 127->128kB gain.
 
-> -----Original Message-----
-> From: Grover, Andrew
-> Sent: Wednesday, March 12, 2003 1:35 PM
-> To: Christoph Hellwig
-> Cc: Marcelo Tosatti; linux-kernel@vger.kernel.org
-> Subject: RE: [BK PATCH] 2.4 ACPI update
-> 
-> > From: Christoph Hellwig [mailto:hch@infradead.org]
-> > On Wed, Mar 12, 2003 at 11:12:43AM -0800, Grover, Andrew wrote:
-> > >  arch/i386/kernel/acpitable.c            |  554 ----
-> > >  arch/i386/kernel/acpitable.h            |  260 --
-> >
-> > No reason to remove this.
-> 
-> The ACPI patch implements CPU-enum-only support in exactly the same way
-> that 2.5 does, so my thinking was that this code is no longer needed.
-> 
-> If this *has* been the roadblock to 2.4 patch acceptance for the past 16
-> months, then obviously I would be willing to revert that cset and keep
-> it, but I do think the patch does keep the functionality provided by
-> those files - i.e. the ability to get ACPI table parsing for cpu enum
-> without adding the interpreter to the kernel image.
-> 
-> Regards -- Andy
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I wasn't aware of the controller issue - with that thrown in to the
+mix, I see your point.
+
+John.

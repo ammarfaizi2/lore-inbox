@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275919AbSIUPDS>; Sat, 21 Sep 2002 11:03:18 -0400
+	id <S275921AbSIUPTA>; Sat, 21 Sep 2002 11:19:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275920AbSIUPDR>; Sat, 21 Sep 2002 11:03:17 -0400
-Received: from are.twiddle.net ([64.81.246.98]:13465 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S275919AbSIUPDR>;
-	Sat, 21 Sep 2002 11:03:17 -0400
-Date: Sat, 21 Sep 2002 08:08:01 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: george anzinger <george@mvista.com>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, Daniel Jacobowitz <dan@debian.org>,
-       Brian Gerst <bgerst@didntduck.org>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       dvorak <dvorak@xs4all.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Syscall changes registers beyond %eax, on linux-i386
-Message-ID: <20020921080801.A28155@twiddle.net>
-Mail-Followup-To: george anzinger <george@mvista.com>,
-	Mikael Pettersson <mikpe@csd.uu.se>,
-	Daniel Jacobowitz <dan@debian.org>,
-	Brian Gerst <bgerst@didntduck.org>,
-	Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	dvorak <dvorak@xs4all.nl>, linux-kernel@vger.kernel.org
-References: <24181C771D3@vcnet.vc.cvut.cz> <3D8A11BB.4090100@didntduck.org> <20020919192434.GA3286@nevyn.them.org> <15754.12963.763811.307755@kim.it.uu.se> <3D8ADD05.999E4A5C@mvista.com> <20020920231946.B27148@twiddle.net> <3D8C2928.EC37FEC7@mvista.com>
-Mime-Version: 1.0
+	id <S275922AbSIUPTA>; Sat, 21 Sep 2002 11:19:00 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:52204 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S275921AbSIUPS7>; Sat, 21 Sep 2002 11:18:59 -0400
+Date: Sat, 21 Sep 2002 08:21:53 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Greg KH <greg@kroah.com>, "Rhoads, Rob" <rob.rhoads@intel.com>,
+       linux-kernel@vger.kernel.org,
+       hardeneddrivers-discuss@lists.sourceforge.net,
+       cgl_discussion@lists.osdl.org
+Subject: Re: my review of the Device Driver Hardening Design Spec
+Message-ID: <593580073.1032596512@[10.10.2.3]>
+In-Reply-To: <20020921053452.GB26254@kroah.com>
+References: <20020921053452.GB26254@kroah.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D8C2928.EC37FEC7@mvista.com>; from george@mvista.com on Sat, Sep 21, 2002 at 01:09:12AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 21, 2002 at 01:09:12AM -0700, george anzinger wrote:
-> > Except the syscall will restart with the corrupted registers.
-> > 
-> > Hilarity ensues.
-> > 
-> I submit that BOTH of these are problems.  And only  the
-> kernel can fix the latter.
+> What do I think can be salvaged?  Diagnostics are a good idea, and I
+> think they fit into the driver model in 2.5 pretty well.  A lot of
+> kernel janitoring work could be done by the CG team to clean up, and
+> harden (by applying the things in section 2) the existing kernel
+> drivers.  That effort alone would go a long way in helping the stability
+> of Linux, and also introduce the CG developers into the kernel community
+> as active, helping developers.  It would allow the CG developers to
+> learn from the existing developers, as we must be doing something right
+> for Linux to be working as well as it does :)
 
-If the later is fixed, so is the former.
+People with fault injection hardware are also extremely helpful 
+(assuming they do something useful with it). That's not something most 
+of the community would have access to, but the CG-type people probably 
+do. A couple of people who spent their full time kicking the hell out
+of Sequent's fibrechannel system made a massive difference to it's
+quality and reliabilty. 
 
+That's definitely something this project could help by doing ... 
+whatever people feel about the some of more theoretical aspects to 
+their work being discussed, I think few would object to some real-world 
+help from people tracking down and fixing existing bugs, especially in
+the error handling.
 
-r~
+M.
+

@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289046AbSAIWMV>; Wed, 9 Jan 2002 17:12:21 -0500
+	id <S289043AbSAIWNb>; Wed, 9 Jan 2002 17:13:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289045AbSAIWML>; Wed, 9 Jan 2002 17:12:11 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:39575
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S289043AbSAIWMA>; Wed, 9 Jan 2002 17:12:00 -0500
-Date: Wed, 9 Jan 2002 16:56:58 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Doug McNaught <doug@wireboard.com>, linux-kernel@vger.kernel.org,
-        greg@kroah.com, felix-dietlibc@fefe.de
+	id <S289048AbSAIWNN>; Wed, 9 Jan 2002 17:13:13 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:12185 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S289043AbSAIWMu>;
+	Wed, 9 Jan 2002 17:12:50 -0500
+Date: Wed, 09 Jan 2002 22:12:45 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Anton Altaparmakov <aia21@cam.ac.uk>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Cc: Greg KH <greg@kroah.com>, felix-dietlibc@fefe.de,
+        linux-kernel@vger.kernel.org,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
 Subject: Re: initramfs programs (was [RFC] klibc requirements)
-Message-ID: <20020109165658.A31246@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Doug McNaught <doug@wireboard.com>, linux-kernel@vger.kernel.org,
-	greg@kroah.com, felix-dietlibc@fefe.de
-In-Reply-To: <200201092005.g09K5OL28043@snark.thyrsus.com> <m3n0zn6ysr.fsf@varsoon.denali.to> <20020109154425.A28755@thyrsus.com> <20020109230704.A25786@devcon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-ID: <1385616310.1010614365@[195.224.237.69]>
+In-Reply-To: <5.1.0.14.2.20020109213221.02dd5f80@pop.cus.cam.ac.uk>
+In-Reply-To: <5.1.0.14.2.20020109213221.02dd5f80@pop.cus.cam.ac.uk>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020109230704.A25786@devcon.net>; from aferber@techfak.uni-bielefeld.de on Wed, Jan 09, 2002 at 11:07:04PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Ferber <aferber@techfak.uni-bielefeld.de>:
-> Then add an init script and include installation of it to the
-> installation steps of your autoconfigurator (it has to be installed
-> anyway). If a distributor packages your program, he will include the
-> init script into his package and enable it according to his init
-> policy, or write an own init script, if your provided one doesn't
-> fit.
-> 
-> That's the way it works for network daemons etc. for years.
 
-This sounds like good advice.  The autoconfigurator is part of CML2,
-which I expect to be distributed with the kernel.  Does that change 
-your advice at all?
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-"Those who make peaceful revolution impossible 
-will make violent revolution inevitable."
-	-- John F. Kennedy
+--On Wednesday, 09 January, 2002 9:34 PM +0000 Anton Altaparmakov 
+<aia21@cam.ac.uk> wrote:
+
+>> seriously point: ls /sbin gives a /maximum/ range I'd
+>> have thought.
+>
+> Partition discovery is currently done within the kernel itself. The code
+> will effectively 'just' move out into user space.
+
+Apologies - of course; I meant ls /sbin union {anything moved
+out of kernel} gives a maximum range. I could find rationales,
+some more questionable than others, for about half the stuff
+in /sbin (for instance, if you are mounting NFS over IP, you
+/might/ want to have iptables support in there before you start
+playing with ip operations which without them might cause
+a comprimized root to be mounted - I said /might/).
+
+--
+Alex Bligh

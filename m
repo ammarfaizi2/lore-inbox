@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268307AbTBMV3I>; Thu, 13 Feb 2003 16:29:08 -0500
+	id <S268306AbTBMV1f>; Thu, 13 Feb 2003 16:27:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268308AbTBMV3F>; Thu, 13 Feb 2003 16:29:05 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:32714 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S268307AbTBMV3D>;
-	Thu, 13 Feb 2003 16:29:03 -0500
-Date: Thu, 13 Feb 2003 16:38:50 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Paul Larson <plars@linuxtestproject.org>
-Cc: John Bradford <john@grabjohn.com>, davej@codemonkey.org.uk,
-       edesio@ieee.org, lkml <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>, edesio@task.com.br
-Subject: Re: 2.5.60 cheerleading...
-Message-ID: <20030213213850.GA22037@gtf.org>
-References: <200302131823.h1DINeZh016257@darkstar.example.net> <1045170999.28493.57.camel@plars>
+	id <S268307AbTBMV1f>; Thu, 13 Feb 2003 16:27:35 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:61598 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S268306AbTBMV1d>;
+	Thu, 13 Feb 2003 16:27:33 -0500
+Date: Thu, 13 Feb 2003 21:33:15 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Valdis.Kletnieks@vt.edu
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.60-bk pdflush oops.
+Message-ID: <20030213213315.GC24878@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Valdis.Kletnieks@vt.edu,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20030213205608.GB24109@codemonkey.org.uk> <200302132114.h1DLEmFT010583@turing-police.cc.vt.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1045170999.28493.57.camel@plars>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <200302132114.h1DLEmFT010583@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 13, 2003 at 03:16:29PM -0600, Paul Larson wrote:
-> Ideally, there should be no waiting around for replies.  The message is
-> sent, he starts whatever build/boot test cycle, checks for replies when
-> he's done and ready to release.  If nothing looks urgent enough to hold
-> it up, then he pushes the release.  I still don't see how this adds any
-> kind of terrible delay.
+On Thu, Feb 13, 2003 at 04:14:48PM -0500, Valdis.Kletnieks@vt.edu wrote:
+ > > Feb 13 20:30:24 mesh kernel: Call Trace:
+ > > Feb 13 20:30:24 mesh kernel:  [<c014a8b4>] kmem_cache_alloc+0x134/0x140
+ > > Feb 13 20:30:24 mesh kernel:  [<c014916f>] kmem_cache_create+0xbf/0x5a0
+ > > Feb 13 20:30:24 mesh kernel:  [<c0105000>] _stext+0x0/0x30
+ > > Feb 13 20:30:24 mesh kernel: 
+ > > Feb 13 20:30:24 mesh kernel: Dentry cache hash table entries: 16384 (order: 5
+ > , 131072 bytes)
+ > So it's after test_wp_bit() is called, and before security_scaffolding_startup().
+ > 
+ > Interesting that you didn't get the 'sleeping function called' message?
 
-Outside suggestions to "improve" Linus's workflow usually fall upon deaf
-ears...
+Could be that one went out to serial console, but not to the logs
+for some unknown reason. Unfortunatly my serial terminal has no
+docs, and the 'scroll backwards' keys are somewhat not so obvious.
 
-IMO to accomplish your goals, set up a test box with BitKeeper,
-constantly pulling and testing the latest 2.5.x BK trees.  If they
-crash, send full info to lkml.
+		Dave
 
-Enough crash messages, and people will know automatically whether or not
-the kernel is good... and Linus didn't have to be bothered at all.
-
-	Jeff
-
-
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

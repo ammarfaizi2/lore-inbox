@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282968AbRLIEZz>; Sat, 8 Dec 2001 23:25:55 -0500
+	id <S282969AbRLIE3f>; Sat, 8 Dec 2001 23:29:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282969AbRLIEZp>; Sat, 8 Dec 2001 23:25:45 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5393 "EHLO
+	id <S282970AbRLIE30>; Sat, 8 Dec 2001 23:29:26 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8977 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S282968AbRLIEZc>; Sat, 8 Dec 2001 23:25:32 -0500
-Date: Sat, 8 Dec 2001 20:19:44 -0800 (PST)
+	id <S282969AbRLIE3G>; Sat, 8 Dec 2001 23:29:06 -0500
+Date: Sat, 8 Dec 2001 20:22:54 -0800 (PST)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [reiserfs-dev] Re: Ext2 directory index: ALS paper and benchmarks
-In-Reply-To: <E16Cucn-00015D-00@starship.berlin>
-Message-ID: <Pine.LNX.4.33.0112082012330.1344-100000@penguin.transmeta.com>
+To: <Andries.Brouwer@cwi.nl>
+cc: <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
+        <viro@math.psu.edu>
+Subject: Re: Linux/Pro  -- clusters
+In-Reply-To: <UTC200112081726.RAA247456.aeb@cwi.nl>
+Message-ID: <Pine.LNX.4.33.0112082021190.1457-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sun, 9 Dec 2001, Daniel Phillips wrote:
+On Sat, 8 Dec 2001 Andries.Brouwer@cwi.nl wrote:
 >
-> The difference is, there's only one superblock per mount.  There are
-> bazillions of inodes.
+>     Oh, well. It _is_ going to be quite painful to switch things around.
+>
+> I don't understand at all. It is not painful at all.
+> Things are completely straightforward.
+>
+> A kdev_t is a pointer to all information needed, nowhere a lookup,
+> except at open time.
 
-.. and they share buffers.
+No.
 
-I bet that having a pointer to the buffer will _reduce_ average
-average footprint rather than increase it. The inodes are fairly densely
-laid out in the buffers, so I dare you to find any real-world (or even
-very contrieved) usage patterns where it ends up being problematic.
+I refuse to have the same structure for block devices and character
+devices. We already know that they are different.
 
-Remember: we'd save 15*4=60 bytes per inode, at the cost of pinning the
-block the inode is in. But _usually_ we'd have those blocks in memory
-anyway, especially if the inode gets touched (which dirties it, and
-updates atime, which forces us to do writeback). For the initial IO we
-obviously _have_ to have them in memory.
+Which means that I _will_ rename the thing.
 
-And we'll get rid of inodes under memory pressure too, so the pinning will
-go away when memory is really tight. Yes, you can try to "attack" the
-machine by trying to open all the right inodes, but the basic attack is
-there already. ulimit is your friend.
+Which means that the patch will be straightforward, but painful.
 
-> It's worth keeping in mind that tweaking the icache efficiency in this case
-> is really just curing a symptom - the underlying problem is a mismatch
-> between readdir order and inode order.
+> I am sure also Al will tell you that there is no problem.
 
-Well, the inode writeback read-modify-write synchronization and related
-efficiency problems actually has nothing to do with the readdir order.
+To me, touching a few hundred files, even if it's almost a
+search-and-replace operation is always painful. Much more painful than
+touching just one subsystem..
 
-			Linus
+		Linus
 

@@ -1,107 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271829AbTHDPtt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 11:49:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271831AbTHDPtt
+	id S271823AbTHDPpf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 11:45:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271824AbTHDPpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 11:49:49 -0400
-Received: from nika.frontier.iarc.uaf.edu ([137.229.94.16]:26558 "EHLO
-	nika.frontier.iarc.uaf.edu") by vger.kernel.org with ESMTP
-	id S271829AbTHDPtn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 11:49:43 -0400
-Date: Mon, 4 Aug 2003 07:50:26 -0800
-From: Christopher Swingley <cswingle@iarc.uaf.edu>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.6-test1, PCMCIA cards require two insertions
-Message-ID: <20030804155026.GB10269@iarc.uaf.edu>
-Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030725210242.GH15537@iarc.uaf.edu> <20030802173352.A1895@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030802173352.A1895@flint.arm.linux.org.uk>
-X-gpg-fingerprint: B96C 58DC 0643 F8FE C9D0  8F55 1542 1A4F 0698 252E
-X-gpg-key: [http://www.frontier.iarc.uaf.edu/~cswingle/gnupgkey.asc]
-X-URL: [http://www.frontier.iarc.uaf.edu/~cswingle/]
-X-Editor: VIM [http://www.vim.org]
-X-message-flag: Consider Linux: fast, reliable, secure & free!
-User-Agent: Mutt/1.5.4i
+	Mon, 4 Aug 2003 11:45:34 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:10880 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S271823AbTHDPpd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 11:45:33 -0400
+Date: Mon, 4 Aug 2003 11:57:05 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Stephan von Krawczynski <skraw@ithnet.com>
+cc: Jesse Pollard <jesse@cats-chateau.net>, aebr@win.tue.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: FS: hardlinks on directories
+In-Reply-To: <20030804170506.11426617.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.53.0308041142520.802@chaos>
+References: <20030804141548.5060b9db.skraw@ithnet.com> <20030804134415.GA4454@win.tue.nl>
+ <20030804155604.2cdb96e7.skraw@ithnet.com> <03080409334500.03650@tabby>
+ <20030804170506.11426617.skraw@ithnet.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell,
+On Mon, 4 Aug 2003, Stephan von Krawczynski wrote:
 
-Earlier I reported:
+> On Mon, 4 Aug 2003 09:33:44 -0500
+> Jesse Pollard <jesse@cats-chateau.net> wrote:
+>
+> > Find for one. Any application that must scan the tree in a search. Any
+> > application that must backup every file for another (I know, dump bypasses
+> > the filesystem to make backups, tar doesn't).
+>
+> All that can handle symlinks already have the same problem nowadays. Where is
+> the difference? And yet again: it is no _must_ for the feature to use it for
+> creating complete loops inside your fs.
+> You _can_ as well dd if=/dev/zero of=/dev/hda, but of course you shouldn't.
+> Have you therefore deleted dd from your bin ?
+>
+> > It introduces too many unique problems to be easily handled. That is why
+> > symbolic links actually work. Symbolic links are not hard links, therefore
+> > they are not processed as part of the tree. and do not cause loops.
+>
+> tar --dereference loops on symlinks _today_, to name an example.
+> All you have to do is to provide a way to find out if a directory is a
+> hardlink, nothing more. And that should be easy.
+>
+[SNIPPED...]
 
-> On Fri, Jul 25, 2003 at 01:02:42PM -0800, Christopher Swingley wrote:
-> > I'm running 2.6.0-test1 on an SiS based laptop with all the PCMCIA 
-> > network and serial drivers built into the kernel.  When the system boots 
-> > with a PCMCIA cardbus card in place, the card doesn't show up.  I unplug 
-> > the card and plug it back in, and then the kernel "sees" it and it 
-> > works.  If I unplug it again, I have to go through a plug - unplug - 
-> > plug cycle before it recognizes it.  As if it only recognizes the card 
-> > on even numbered insertion events.
+Reading Denis Howe's  Free Online Dictionary of Computing;
+http://burks.bton.ac.uk/burks/foldoc/55/51.html, we see that
+the chief reason for no directory hard-links is that `rm`
+and `rmdir` won't allow you to delete them. There is no
+POSIX requirement for eliminating them, and it is possible
+"Some systems provide link and unlink commands which give
+direct access to the system calls of the same name, for
+which no such restrictions apply."
 
-Still behaves the same way with a stock 2.6.0-test2.  I applied the 
-patch you included to 2.6.0-test2.  Same strange dual-insertion behavior 
-was noted.
+Perhaps Linux does support hard-links to directories?
 
-Also, I have another laptop, Intel based, that doesn't show this 
-behavior.  So it's something to do with this one.
+mkdir("foo", 0644)                      = 0
+link("foo", "bar")                      = -1 EPERM (Operation not permitted)
+_exit(0)                                = ?
 
-> Hmm, weird - I'm not seeing that behaviour here.  Can you report back
-> with kernel messages with the following patch applied please?
+Nah... No such luck. I'll bet it's artificial. I think you
+could remove that S_IFDIR check and get away with it!
 
-Here's what happens on the console.  If you want kern.log, let me know 
-and I'll send that along.  I don't see anything different between them.
-
-After the laptop finishes booting, the PCMCIA network card (tulip 
-driver) is not running.
-
-I remove the card:
-
-    parse_events: socket df5cd82c thread df60e060 events 00000080
-    socket df5cd82c status 00001c00
-
-I insert the card:
-
-    parse_events: socket df5cd82c thread df60e060 events 00000080
-    socket df5cd82c status 00001c80
-    socket_insert: skt df5cd82c
-    socket_setup: skt df5cd82c status 00001c80
-    socket_reset: skt df5cd82c
-    Linux Tulip driver version 1.1.13 (May 11, 2002)
-    <rest of tulip driver stuff snipped>
-
-I remove the card:
-
-    parse_events: socket df5cd82c thread df60e060 events 00000080
-    socket df5cd82c status 00001c00
-    socket_remove: skt df5cd82c
-    socket_shutdown: skt df5cd82c status 00001c80
- 
-I insert the card:
-
-    (nothing at all)
-
-I remove the card:
-
-    parse_events: socket df5cd82c thread df60e060 events 00000080
-    socket df5cd82c status 00001c00
-
-I insert the card:
-
-    parse_events: socket df5cd82c thread df60e060 events 00000080
-    socket df5cd82c status 00001c80
-    socket_insert: skt df5cd82c
-    socket_setup: skt df5cd82c status 00001c80
-    socket_reset: skt df5cd82c
-    Linux Tulip driver version 1.1.13 (May 11, 2002)
-    <rest of tulip driver stuff snipped>
-
-Chris
--- 
-Christopher S. Swingley          email: cswingle@iarc.uaf.edu
-IARC -- Frontier Program         Please use encryption.  GPG key at:
-University of Alaska Fairbanks   www.frontier.iarc.uaf.edu/~cswingle/
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 

@@ -1,92 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbTJXCK1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 22:10:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbTJXCK1
+	id S261940AbTJXCTv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 22:19:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbTJXCTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 22:10:27 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:38902 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261939AbTJXCKZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 22:10:25 -0400
-Message-ID: <3F988A0B.4010803@mvista.com>
-Date: Thu, 23 Oct 2003 19:10:19 -0700
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: Pavel Machek <pavel@suse.cz>, Patrick Mochel <mochel@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [pm] fix time after suspend-to-*
-References: <20031022233306.GA6461@elf.ucw.cz>	 <1066866741.1114.71.camel@cog.beaverton.ibm.com>	 <20031023081750.GB854@openzaurus.ucw.cz>  <3F9838B4.5010401@mvista.com>	 <1066942532.1119.98.camel@cog.beaverton.ibm.com>	 <3F985FB0.1070901@mvista.com> <1066955396.1122.133.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1066955396.1122.133.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Oct 2003 22:19:51 -0400
+Received: from quechua.inka.de ([193.197.184.2]:22217 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261940AbTJXCTu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 22:19:50 -0400
+From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: posix capabilities inheritance
+Organization: Deban GNU/Linux Homesite
+In-Reply-To: <200310240136.h9O1aaOU002931@pasta.boston.redhat.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.2-20031002 ("Berneray") (UNIX) (Linux/2.4.20-xfs (i686))
+Message-Id: <E1ACrXi-0000oW-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Fri, 24 Oct 2003 04:19:10 +0200
+X-Scanner: exiscan *1ACrXi-0000oW-00*MlC1ULdlg7c*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> On Thu, 2003-10-23 at 16:09, George Anzinger wrote:
-> 
->>john stultz wrote:
->>
->>>On Thu, 2003-10-23 at 13:23, George Anzinger wrote:
->>>
->>>>I lost (never saw) the first of this thread, BUT, if this is 2.6, I strongly 
->>>>recommend that settimeofday() NOT be called.  It will try to adjust 
->>>>wall_to_motonoic, but, as this appears to be a correction for time lost while 
->>>>sleeping, wall_to_monotonic should not change.
->>>
->>>While suspended should the notion monotonic time be incrementing? If
->>>we're not incrementing jiffies, then uptime isn't being incremented, so
->>>to me it doesn't follow that the monotonic time should be incrementing
->>>as well. 
->>
->>Uh, not moving jiffies?  What does this say about any timers that may be 
->>pending?  Say for cron or some such?  Like I said, I picked up this thread a bit 
->>late, but, seems to me that if time is passing, it should pass on both the 
->>jiffies AND the wall clocks.
-> 
-> 
-> My understanding is that we are suspending the box (ie: putting your
-> laptop to sleep/hybernate), so for all practical purposes the box is off
-> waiting until it is woken up. During that time I don't believe we
-> receive timer interrupts. When we are woken up, we should update the
-> system time and continue, but as the box wasn't running during the
-> interim we shouldn't be increasing the notion of monotonic time. 
-> 
-> 
->>>It may very well be a POSIX timers spec issue, but it just strikes me as
->>>odd.
->>
->>The spec thing would relate to any sleeps or timers that are pending.  The spec 
->>would seem to say they should complete somewhere near the requested wall time, 
->>but NEVER before.  By not moving jiffies, I think they will be a bit late.  Now, 
->>if they were to complete during the sleep, well those should fire at completion 
->>of the sleep.  If the are to complete after the sleep, then, it seems to me, 
->>they should fire at the requested time.
-> 
-> 
-> Hmmm. That last sentence gives me pause. I guess it comes down to how
-> you request your timer expiration: in wall time or system time.  I
-> always thought it was in system time, but you know this stuff better
-> then I, so I'll defer.
+In article <200310240136.h9O1aaOU002931@pasta.boston.redhat.com> you wrote:
+> However, I agree that it's often not viable to require application
+> changes to achieve the desired result.
 
-The request can be on the wall clock or on clock_monotonic.  Still, we went 
-round and round about how a tick on one should be a tick on the other.  My 
-understanding is that the pm_timer was put in the ACPIC to handle this, but then 
-I don't know how far down power is going, nor for how long.  I would think at 
-some point the discontinuity would be large enough that one would want some user 
-service to run and "fix" all the broken time assumptions.  Some sort of a soft 
-reboot that would kick the ntp code, cron and so on, much as is done at boot.
+What does often mean? This is the Open Source Linux, and here we can do
+changes to the source if it is good for securtiy, architecture, speat,
+whatever.
 
+Of course a solution which does the right thing without programming is even
+better - Watermarking or something. But I guess wie can combine those. The
+typical internet server has already enough cruft for chrooting, priveledge
+dropping and FD passing to work around for example port priveledges, a REAL
+solution wont make it worse.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-
-ps, long week end, out till Tuesday...
-
+Bernd
+y

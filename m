@@ -1,46 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267767AbUHUUZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267766AbUHUUZD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267767AbUHUUZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 16:25:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267787AbUHUUZQ
+	id S267766AbUHUUZD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 16:25:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267787AbUHUUZC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 16:25:16 -0400
-Received: from host4-67.pool80117.interbusiness.it ([80.117.67.4]:916 "EHLO
-	dedasys.com") by vger.kernel.org with ESMTP id S267767AbUHUUYz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 16:24:55 -0400
-To: trelane@digitasaru.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux Incompatibility List
-References: <87r7q0th2n.fsf@dedasys.com>
-	<20040821201632.GA7622@digitasaru.net>
-From: davidw@dedasys.com (David N. Welton)
-Date: 21 Aug 2004 22:22:32 +0200
-In-Reply-To: <20040821201632.GA7622@digitasaru.net>
-Message-ID: <87657ctf5j.fsf@dedasys.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Sat, 21 Aug 2004 16:25:02 -0400
+Received: from holomorphy.com ([207.189.100.168]:21376 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267766AbUHUUYj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 16:24:39 -0400
+Date: Sat, 21 Aug 2004 13:24:35 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1-mm3
+Message-ID: <20040821202435.GA1510@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040820031919.413d0a95.akpm@osdl.org> <20040820115541.3e68c5be.akpm@osdl.org> <20040820200248.GJ11200@holomorphy.com> <200408211559.41655.jbarnes@engr.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408211559.41655.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joseph Pingenot <trelane@digitasaru.net> writes:
+On Friday, August 20, 2004 4:02 pm, William Lee Irwin III wrote:
+>> Parallel compilation is an extremely poor benchmark in general, as the
+>> workload is incapable of being effectively scaled to system sizes, the
+>> linking phase is inherently unparallelizable and the compilation phase
+>> too parallelizable to actually stress anything. There is also precisely
+>> zero relevance the benchmark has to anything real users would do.
 
-> >From David N. Welton on Saturday, 21 August, 2004:
-> >Ideas/comments/suggestions are welcome at this stage.
+On Sat, Aug 21, 2004 at 03:59:41PM -0400, Jesse Barnes wrote:
+> I disagree.  Although I wouldn't expect to try and optimize the system for a 
+> 'make -j 2048', it's important that things not suck when several users do 
+> 'make -j 16' since that *is* a very common operation on machines like this 
+> (though hopefully the runtime is dominated not by compiles but by actual 
+> application runs).
 
-> Sounds interesting; is there a vendor blacklist (i.e. vendors that
-> are either hostile toward or simply don't care about Linux and their
-> products just won't ever work with Linux?)
+Yet this criterion involves no performance metric; if it were a
+benchmark it would quantify performance in a meaningful, reproducible,
+and cross-system comparable way. AFAICT it's just being used as a
+stress test for the dcache RCU issue.
 
-That's part of the idea, but I'd rather stick to "just the facts
-ma'm".  With enough entries, it will be evident who to avoid, so send
-lots of them to get things rolling!
 
-Thanks,
--- 
-David N. Welton
-     Personal: http://www.dedasys.com/davidw/
-Free Software: http://www.dedasys.com/freesoftware/
-   Apache Tcl: http://tcl.apache.org/
-       Photos: http://www.dedasys.com/photos/
+On Friday, August 20, 2004 4:02 pm, William Lee Irwin III wrote:
+>> It sounds like good news to me. The fact we boot at all instead
+>> of spinning in perpetuity on spinlocks in interrupt context is
+>> very good news to me, with a large added bonus of actually making
+>> forward progress on workloads hitting global locks we've taken
+>> steps to mitigate the locking overhead of.
+
+On Sat, Aug 21, 2004 at 03:59:41PM -0400, Jesse Barnes wrote:
+> Yep, I'm very excited about this.  It makes working with such systems to 
+> improve other things infinitely easier (i.e. possible).
+
+Stress test again...
+
+
+On Friday, August 20, 2004 4:02 pm, William Lee Irwin III wrote:
+>> I suppose the unfortunate thing is that we didn't discover anything
+>> new at all, apart from quantifying certain things, e.g. how effective
+>> the RCU improvements have been. IIRC that question was unanswered after
+>> the last round, apart from (maybe) that things stopped livelocking.
+
+On Sat, Aug 21, 2004 at 03:59:41PM -0400, Jesse Barnes wrote:
+> Well, this isn't a very good benchmark for discovering things that we don't 
+> already know (e.g. dcache and RCU issues).  Now that things appear to be 
+> working however, we can start doing more realistic benchmarks.
+
+I'll be happy to see those happen instead of kernel compiles. =)
+
+
+On Friday, August 20, 2004 4:02 pm, William Lee Irwin III wrote:
+>> I suppose another way to answer the question of what's going on is to
+>> fiddle with ia64's implementation of profile_pc(). I suspect something
+>> like this may reveal the offending codepaths.
+
+On Sat, Aug 21, 2004 at 03:59:41PM -0400, Jesse Barnes wrote:
+> Looks interesting.  I'll see if it works next week.
+
+I can take it for a spin here to make sure it does the right thing.
+
+
+-- wli

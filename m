@@ -1,171 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266831AbSKOWUc>; Fri, 15 Nov 2002 17:20:32 -0500
+	id <S266833AbSKOWUg>; Fri, 15 Nov 2002 17:20:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266840AbSKOWUc>; Fri, 15 Nov 2002 17:20:32 -0500
-Received: from dp.samba.org ([66.70.73.150]:42913 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266831AbSKOWU2>;
+	id <S266840AbSKOWUf>; Fri, 15 Nov 2002 17:20:35 -0500
+Received: from dp.samba.org ([66.70.73.150]:44193 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266833AbSKOWU2>;
 	Fri, 15 Nov 2002 17:20:28 -0500
 From: Rusty Russell <rusty@rustcorp.com.au>
 To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Forced module unload
-Date: Sat, 16 Nov 2002 09:06:35 +1100
-Message-Id: <20021115222725.0F7BD2C083@lists.samba.org>
+Subject: [PATCH] PARAM 1/4: strcspn
+Date: Sat, 16 Nov 2002 09:14:04 +1100
+Message-Id: <20021115222725.1A56F2C0FA@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the logical counterpoint to the code which marks modules
-"[unsafe]" when obsolete (racy) interfaces are used.  Allows "just
-remove the damn thing" rmmod -f, and taints the kernel.
+No changes to previous send.  The standard C strcspn function, very
+useful for parsing.
 
 Rusty.
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-Name: Forced Module Unload
+Name: strcspn patch
 Author: Rusty Russell
 Status: Experimental
-Depends: Module/sparc-fixes2.patch.gz
 
-D: Allows the (very dangerous!) "rmmod -f" for kernel developers and
-D: desperate people.
+D: This patch implements a generic strcspn.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .9002-linux-2.5.45/include/linux/kernel.h .9002-linux-2.5.45.updated/include/linux/kernel.h
---- .9002-linux-2.5.45/include/linux/kernel.h	2002-10-19 17:48:10.000000000 +1000
-+++ .9002-linux-2.5.45.updated/include/linux/kernel.h	2002-11-01 11:52:04.000000000 +1100
-@@ -102,6 +102,7 @@ extern const char *print_tainted(void);
- #define TAINT_PROPRIETORY_MODULE	(1<<0)
- #define TAINT_FORCED_MODULE		(1<<1)
- #define TAINT_UNSAFE_SMP		(1<<2)
-+#define TAINT_FORCED_RMMOD		(1<<3)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .17889-2.5.36-param.pre/include/linux/string.h .17889-2.5.36-param/include/linux/string.h
+--- .17889-2.5.36-param.pre/include/linux/string.h	2002-06-06 21:38:40.000000000 +1000
++++ .17889-2.5.36-param/include/linux/string.h	2002-09-19 16:15:20.000000000 +1000
+@@ -15,7 +15,7 @@ extern "C" {
+ extern char * strpbrk(const char *,const char *);
+ extern char * strsep(char **,const char *);
+ extern __kernel_size_t strspn(const char *,const char *);
+-
++extern __kernel_size_t strcspn(const char *,const char *);
  
- extern void dump_stack(void);
+ /*
+  * Include machine specific inline routines
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .17889-2.5.36-param.pre/lib/string.c .17889-2.5.36-param/lib/string.c
+--- .17889-2.5.36-param.pre/lib/string.c	2002-05-24 15:20:35.000000000 +1000
++++ .17889-2.5.36-param/lib/string.c	2002-09-19 16:15:20.000000000 +1000
+@@ -272,6 +272,29 @@ size_t strspn(const char *s, const char 
+ }
+ #endif
  
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .9002-linux-2.5.45/init/Kconfig .9002-linux-2.5.45.updated/init/Kconfig
---- .9002-linux-2.5.45/init/Kconfig	2002-11-01 11:51:08.000000000 +1100
-+++ .9002-linux-2.5.45.updated/init/Kconfig	2002-11-01 11:55:00.000000000 +1100
-@@ -125,6 +125,16 @@ config MODULE_UNLOAD
- 	  anyway), which makes your kernel slightly smaller and
- 	  simpler.  If unsure, say Y.
- 
-+config MODULE_FORCE_UNLOAD
-+	bool "Forced module unloading"
-+	depends on MODULES && EXPERIMENTAL
-+	help
-+	  This option allows you to force a module to unload, even if the
-+	  kernel believes it is unsafe: the kernel will remove the module
-+	  without waiting for anyone to stop using it (using the -f option to
-+	  rmmod).  This is mainly for kernel developers and desparate users.
-+	  If unsure, say N.
-+
- config KMOD
- 	bool "Kernel module loader"
- 	depends on MODULES
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .9002-linux-2.5.45/kernel/module.c .9002-linux-2.5.45.updated/kernel/module.c
---- .9002-linux-2.5.45/kernel/module.c	2002-11-01 11:51:08.000000000 +1100
-+++ .9002-linux-2.5.45.updated/kernel/module.c	2002-11-01 11:52:04.000000000 +1100
-@@ -335,12 +335,24 @@ static unsigned int module_refcount(stru
- /* This exists whether we can unload or not */
- static void free_module(struct module *mod);
- 
-+#ifdef CONFIG_MODULE_FORCE_UNLOAD
-+static inline int try_force(unsigned int flags)
++/**
++ * strcspn - Calculate the length of the initial substring of @s which does
++ * 	not contain letters in @reject
++ * @s: The string to be searched
++ * @reject: The string to avoid
++ */
++size_t strcspn(const char *s, const char *reject)
 +{
-+	return (flags & O_TRUNC);
-+}
-+#else
-+static inline int try_force(unsigned int flags)
-+{
-+	return 0;
-+}
-+#endif /* CONFIG_MODULE_FORCE_UNLOAD */
++	const char *p;
++	const char *r;
++	size_t count = 0;
 +
- asmlinkage long
- sys_delete_module(const char *name_user, unsigned int flags)
- {
- 	struct module *mod;
- 	char name[MODULE_NAME_LEN];
--	int ret;
-+	int ret, forced = 0;
- 
- 	if (!capable(CAP_SYS_MODULE))
- 		return -EPERM;
-@@ -358,24 +370,29 @@ sys_delete_module(const char *name_user,
- 		goto out;
- 	}
- 
-+	if (!list_empty(&mod->modules_which_use_me)) {
-+		/* Other modules depend on us: get rid of them first. */
-+		ret = -EWOULDBLOCK;
-+		goto out;
++	for (p = s; *p != '\0'; ++p) {
++		for (r = reject; *r != '\0'; ++r) {
++			if (*p == *r)
++				return count;
++		}
++		++count;
 +	}
 +
- 	/* Already dying? */
- 	if (!mod->live) {
-+		/* FIXME: if (force), slam module count and wake up
-+                   waiter --RR */
- 		DEBUGP("%s already dying\n", mod->name);
- 		ret = -EBUSY;
- 		goto out;
- 	}
- 
- 	if (!mod->exit || mod->unsafe) {
--		/* This module can't be removed */
--		ret = -EBUSY;
--		goto out;
--	}
--	if (!list_empty(&mod->modules_which_use_me)) {
--		/* Other modules depend on us: get rid of them first. */
--		ret = -EWOULDBLOCK;
--		goto out;
-+		forced = try_force(flags);
-+		if (!forced) {
-+			/* This module can't be removed */
-+			ret = -EBUSY;
-+			goto out;
-+		}
- 	}
--
- 	/* Stop the machine so refcounts can't move: irqs disabled. */
- 	DEBUGP("Stopping refcounts...\n");
- 	ret = stop_refcounts();
-@@ -383,9 +400,11 @@ sys_delete_module(const char *name_user,
- 		goto out;
- 
- 	/* If it's not unused, quit unless we are told to block. */
--	if ((flags & O_NONBLOCK) && module_refcount(mod) != 0)
--		ret = -EWOULDBLOCK;
--	else {
-+	if ((flags & O_NONBLOCK) && module_refcount(mod) != 0) {
-+		forced = try_force(flags);
-+		if (!forced)
-+			ret = -EWOULDBLOCK;
-+	} else {
- 		mod->waiter = current;
- 		mod->live = 0;
- 	}
-@@ -394,6 +413,9 @@ sys_delete_module(const char *name_user,
- 	if (ret != 0)
- 		goto out;
- 
-+	if (forced)
-+		goto destroy;
++	return count;
++}	
 +
- 	/* Since we might sleep for some time, drop the semaphore first */
- 	up(&module_mutex);
- 	for (;;) {
-@@ -408,10 +430,11 @@ sys_delete_module(const char *name_user,
- 	DEBUGP("Regrabbing mutex...\n");
- 	down(&module_mutex);
- 
-+ destroy:
- 	/* Final destruction now noone is using it. */
--	mod->exit();
-+	if (mod->exit)
-+		mod->exit();
- 	free_module(mod);
--	ret = 0;
- 
-  out:
- 	up(&module_mutex);
+ #ifndef __HAVE_ARCH_STRPBRK
+ /**
+  * strpbrk - Find the first occurrence of a set of characters

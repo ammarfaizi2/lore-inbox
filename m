@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261407AbTI3M2b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 08:28:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbTI3M2b
+	id S261409AbTI3M26 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 08:28:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbTI3M26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 08:28:31 -0400
-Received: from rth.ninka.net ([216.101.162.244]:12675 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S261407AbTI3M20 (ORCPT
+	Tue, 30 Sep 2003 08:28:58 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:63718 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261409AbTI3M2f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 08:28:26 -0400
-Date: Tue, 30 Sep 2003 05:28:17 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org
+	Tue, 30 Sep 2003 08:28:35 -0400
+Date: Tue, 30 Sep 2003 14:28:32 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Andreas Steinmetz <ast@domdv.de>, schilling@fokus.fraunhofer.de,
+       linux-kernel@vger.kernel.org
 Subject: Re: Kernel includefile bug not fixed after a year :-(
-Message-Id: <20030930052817.0d0272df.davem@redhat.com>
-In-Reply-To: <20030930120629.GM2908@suse.de>
-References: <200309301157.h8UBvOcd004345@burner.fokus.fraunhofer.de>
-	<20030930120629.GM2908@suse.de>
-X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Message-ID: <20030930122832.GO2908@suse.de>
+References: <200309301144.h8UBiUUF004315@burner.fokus.fraunhofer.de> <20030930115411.GL2908@suse.de> <3F797316.2010401@domdv.de> <20030930052337.444fdac4.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030930052337.444fdac4.davem@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Sep 2003 14:06:29 +0200
-Jens Axboe <axboe@suse.de> wrote:
+On Tue, Sep 30 2003, David S. Miller wrote:
+> On Tue, 30 Sep 2003 14:12:06 +0200
+> Andreas Steinmetz <ast@domdv.de> wrote:
+> 
+> > Then please tell me why PPPIOCNEWUNIT is only defined in linux/if_ppp.h 
+> > and not net/if_ppp.h which is still true for glibc-2.3.2. And please 
+> > don't tell me to ask the glibc folks. There are inconsistencies between 
+> > kernel headers and userland headers which force the inclusion of kernel 
+> > headers in userland applications.
+> 
+> Indeed, and equally someone tell me where all the IPSEC socket
+> interface defines are in glibc?  It doesn't matter which tree
+> you check it won't be there.
 
-> I asked you one simple question: when did the kernel/user interface
-> break, and how?
+Did you notify them of the addition?
 
-I'll answer for him, about 20 or 30 times during IPSEC development.
-It's still possible this could change even some more before 2.6.0
-final is released if a large enough bug in the IPSEC socket APIs are
-found in time.
+> Even if one is of the opinion that nobody should be including the
+> kernel headers, you must fully realize that as a matter of
+> practicality people absolutely must do this to use many kernel
+> interfaces to their full extent.
+> 
+> Suggest changes to fix the problems, but just saying "don't include
+> kernel header in your user apps, NYAH NYAH NYAH!" does not help
+> anyone at all.
 
-But that's not the important issue, the important issue is that
-a huge number of kernel API interfaces have no equivalent in
-whatever you consider to be "user usable non-kernel headers".
+Well then change that to 'if you include kernel headers from your user
+apps, be prepared to pick fix the breakage'.
 
-Find me the API defines for the IPSEC configuration socket interfaces
-in a header file that you think users should be allowed to include.
+Surely the kernel doesn't move at such an accelerated pace that it's
+impossible to keep kernel headers uptodate.
 
-You won't find it Jens, and that's why it drives me nuts when people
-spit out the "no kernel headers" mantra.  Often it simply must be
-done as a matter of practicality.
+-- 
+Jens Axboe
+

@@ -1,78 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbULMPBx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbULMPJT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261230AbULMPBx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 10:01:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbULMPBx
+	id S261234AbULMPJT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 10:09:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbULMPJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 10:01:53 -0500
-Received: from out014pub.verizon.net ([206.46.170.46]:9107 "EHLO
-	out014.verizon.net") by vger.kernel.org with ESMTP id S261230AbULMPBg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 10:01:36 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc3 vs clock
-Date: Mon, 13 Dec 2004 10:01:32 -0500
-User-Agent: KMail/1.7
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, David Weinehall <tao@debian.org>
-References: <200412041111.16055.gene.heskett@verizon.net> <20041213122925.GT27718@khan.acc.umu.se> <200412131504.43239.rjw@sisk.pl>
-In-Reply-To: <200412131504.43239.rjw@sisk.pl>
+	Mon, 13 Dec 2004 10:09:19 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:7897 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261234AbULMPJQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 10:09:16 -0500
+Date: Mon, 13 Dec 2004 16:06:21 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Hans Kristian Rosbach <hk@isphuset.no>
+cc: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       Con Kolivas <kernel@kolivas.org>, andrea@suse.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: dynamic-hz
+In-Reply-To: <1102942270.17225.81.camel@linux.local>
+Message-ID: <Pine.GSO.4.61.0412131605180.16849@waterleaf.sonytel.be>
+References: <20041211142317.GF16322@dualathlon.random> <20041212163547.GB6286@elf.ucw.cz>
+ <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org>
+ <20041213030237.5b6f6178.akpm@osdl.org> <1102936790.17227.24.camel@linux.local>
+ <20041213112229.GS6272@elf.ucw.cz> <1102942270.17225.81.camel@linux.local>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412131001.32695.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [151.205.42.94] at Mon, 13 Dec 2004 09:01:33 -0600
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 December 2004 09:04, Rafael J. Wysocki wrote:
->On Monday 13 of December 2004 13:29, David Weinehall wrote:
->> On Sat, Dec 04, 2004 at 11:11:16AM -0500, Gene Heskett wrote:
->> > At -rc2 my clock kept fairly decent time, but -rc3 is running
->> > fast, about 30 seconds an hour fast.
->>
->> Lucky you. Each time I suspend my laptop the clock speeds up
->> approximately x2...  Usually, the time it takes me to get from
->> home to work means that the computer tells me I arrived half an
->> hour late...
->
->I see something strange that may be related to these issues.  When I
-> turn off my box and turn it on again after a couple of hours, and
-> run Linux, the clock is apparently late, although it shows the
-> right time in the CMOS setup right before booting the kernel.  The
-> amount of time the clock is late (in Linux) depends on how much
-> time the box has been off (it increases about 4 min. for each hour,
-> so the clock is about 30 min. late if the box has been off for 8
-> hours).
->
->This has been present on all kernels since 2.6.8 at least (I did not
-> run earlier kernels on this box), but I haven't tried
-> 2.6.10-rc3-mm1 yet.
+On Mon, 13 Dec 2004, Hans Kristian Rosbach wrote:
+> I'm not sure what the above "scedule_timeout(HZ/10)" is supposed to
+> do, but the parameter it gets in 1000hz is "100" so I assume this
+> is because we want to wait for 100ms, and in 1000hz that equals
+> 100 cycles. Correct?
 
-This is not something I've noted, but then this box is only shut off
-to blow the dirt out and clean & regrease the flower on the cpu at
-about 6 month intervals.
+`schedule_timeout(HZ/x)' lets it wait for 1/x'th second.
 
->> > I've been using ntpdate, is that now officially deprecated?
->>
->> I kind of doubt that...
->
->Me too. ;-)
->
->Greets,
->RJW
+Gr{oetje,eeting}s,
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.30% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

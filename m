@@ -1,65 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270825AbRIVN1u>; Sat, 22 Sep 2001 09:27:50 -0400
+	id <S270314AbRIVNfk>; Sat, 22 Sep 2001 09:35:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270257AbRIVN1k>; Sat, 22 Sep 2001 09:27:40 -0400
-Received: from [217.6.75.131] ([217.6.75.131]:19931 "EHLO
-	mail.internetwork-ag.de") by vger.kernel.org with ESMTP
-	id <S270825AbRIVN13>; Sat, 22 Sep 2001 09:27:29 -0400
-Message-ID: <3BAC93D4.65E17AA6@internetwork-ag.de>
-Date: Sat, 22 Sep 2001 15:36:20 +0200
-From: Till Immanuel Patzschke <tip@internetwork-ag.de>
-Reply-To: tip@prs.de
-Organization: interNetwork AG
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC: laughing@shared-source.org
-Subject: [PATCH] 2.4.10-pre13: ATM drivers cause panic
-In-Reply-To: <E15kU3r-0000bv-00@the-village.bc.nu>
+	id <S271032AbRIVNfa>; Sat, 22 Sep 2001 09:35:30 -0400
+Received: from se1.cogenit.fr ([195.68.53.173]:1193 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S270314AbRIVNfS>;
+	Sat, 22 Sep 2001 09:35:18 -0400
+Date: Sat, 22 Sep 2001 15:35:27 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: Andreas Steinmetz <ast@domdv.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: spurious interrupt with ac kernel but not with vanilla
+Message-ID: <20010922153527.B26955@se1.cogenit.fr>
+In-Reply-To: <41B7E064ABA@vcnet.vc.cvut.cz> <XFMail.20010921192411.ast@domdv.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <XFMail.20010921192411.ast@domdv.de>; from ast@domdv.de on Fri, Sep 21, 2001 at 07:24:11PM +0200
+X-Organisation: Marie's fan club - I
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andreas Steinmetz <ast@domdv.de> :
+[...]
+> Same behaviour on a bunch of EpoX 8KTA+, KT133. Didn't care about it. Doesn't
+> happen on a variety of PIII boards (Intel clones and Asus) so it looks like a
+> KT133 issue. Kernel config is UP with APIC support on all systems.
 
-seems a couple of spin_lock(s) and a spin_unlock was missing.
-Why didn't this problem show up with earlier releases ???
-Anyways, please find a (quick) patch below. It would be great if this patch or
-any other similar could make it into the next release!
-Thanks,
+Got it here on plain old Intel BX (Asus) + PII + vanilla. A few minutes or
+one/two hours after reboot. So far, so good.
 
-Immanuel
-
-
-diff -Naur net/atm/resources.c.bug net/atm/resources.c
---- net/atm/resources.c.bug     Fri Dec 29 23:35:47 2000
-+++ net/atm/resources.c Sat Sep 22 15:31:35 2001
-@@ -76,14 +76,17 @@
- {
-        struct atm_dev *dev;
- 
-+       spin_lock (&atm_dev_lock);
-        dev = alloc_atm_dev(type);
-        if (!dev) {
-                printk(KERN_ERR "atm_dev_register: no space for dev %s\n",
-                    type);
-+               spin_unlock (&atm_dev_lock);
-                return NULL;
-        }
-        if (number != -1) {
-                if (atm_find_dev(number)) {
-+                       spin_unlock (&atm_dev_lock);
-                        free_atm_dev(dev);
-                        return NULL;
-                }
-
-
---
-Till Immanuel Patzschke                 mailto: tip@internetwork-ag.de
-interNetwork AG                         Phone:  +49-(0)611-1731-121
-Bierstadter Str. 7                      Fax:    +49-(0)611-1731-31
-D-65189 Wiesbaden                       Web:    http://www.internetwork-ag.de
+-- 
+Ueimor

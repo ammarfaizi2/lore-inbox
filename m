@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288149AbSBKLiT>; Mon, 11 Feb 2002 06:38:19 -0500
+	id <S288127AbSBKLn3>; Mon, 11 Feb 2002 06:43:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288127AbSBKLh7>; Mon, 11 Feb 2002 06:37:59 -0500
-Received: from [194.234.65.222] ([194.234.65.222]:32998 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S288149AbSBKLhu>; Mon, 11 Feb 2002 06:37:50 -0500
-Date: Mon, 11 Feb 2002 12:37:46 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Jim McDonald <Jim@mcdee.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: paching 2.5.4 to -pre6??? (NOT!)
-In-Reply-To: <1013427078.1496.180.camel@lapcat>
-Message-ID: <Pine.LNX.4.30.0202111236210.27847-100000@mustard.heime.net>
+	id <S288158AbSBKLnT>; Mon, 11 Feb 2002 06:43:19 -0500
+Received: from mta01-svc.ntlworld.com ([62.253.162.41]:52876 "EHLO
+	mta01-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S288127AbSBKLnM>; Mon, 11 Feb 2002 06:43:12 -0500
+Message-ID: <3C67AFD3.722C5471@ntlworld.com>
+Date: Mon, 11 Feb 2002 11:49:39 +0000
+From: SA products <super.aorta@ntlworld.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: faking time
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > # tar xzf ../packed/k/linux-2.5.4.tar.gz
-> > # cd linux-2.4.5
-> ---------------^^^
->
-> ?
 
-er..
+Dear Kernel list,
 
-Just a little mistake ... Didn't see what I did.
+I want to fake the time returned by the time() system call so that for a
+limited number
+of user space programs the time can be set to the future or the past
+without affecting
+other applications and without affecting system time-- Ideally I would
+like to install a
+loadable module to accomplish this- Any hints ? Any starting points?
 
-sorry..
-
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-
-Computers are like air conditioners.
-They stop working when you open Windows.
+Thanks SA
 

@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281160AbRKPHHs>; Fri, 16 Nov 2001 02:07:48 -0500
+	id <S281215AbRKPHSS>; Fri, 16 Nov 2001 02:18:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281215AbRKPHH2>; Fri, 16 Nov 2001 02:07:28 -0500
-Received: from mail.bmlv.gv.at ([193.171.152.34]:6075 "EHLO mail.bmlv.gv.at")
-	by vger.kernel.org with ESMTP id <S281160AbRKPHHU>;
-	Fri, 16 Nov 2001 02:07:20 -0500
-Message-Id: <3.0.6.32.20011116080809.009150b0@pop3.bmlv.gv.at>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Fri, 16 Nov 2001 08:08:09 +0100
-To: linux-kernel@vger.kernel.org
-From: "Ph. Marek" <marek@bmlv.gv.at>
-Subject: Re: Lockup in IDE code
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S281216AbRKPHSI>; Fri, 16 Nov 2001 02:18:08 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:22291 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S281215AbRKPHSD>; Fri, 16 Nov 2001 02:18:03 -0500
+Message-ID: <3BF4BD81.C3E4A4DC@zip.com.au>
+Date: Thu, 15 Nov 2001 23:17:21 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: pmhahn@titan.lahn.de
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: [OOPS] net/8139too
+In-Reply-To: <Pine.LNX.4.33.0111160721120.6043-100000@titan.lahn.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've had the same problem.
+Philipp Matthias Hahn wrote:
+> 
+> Hello LKML!
+> 
+> Since linux-2.4.15-pre[14]+kdb+freeswan I get an oops when stopping my
+> 8139too network:
+> 
+> # ifdown eth0
+> eth0: unable to signal thread
 
-Lockups with 2.4.14pre1 + ext3-patch, sysrq not possible, HD led is on.
+Oh gawd. What now?
 
-This is a 7IXE4 (AMD756), Duron 650, 384MB. 2 HD's, 1 CDROM.
-
-	
-I've noted that on startup I got "spurious 8259A interrupt: IRQ7", and the
-machine locked hard on IDE activity (sometimes).
-after observing the above message and others like 
-	hda: timeout waiting for DMA
-	ide_dmaproc: chipset supported ide_dma timeoutfunc only: 14
-	hda: read_intr: status=0x51
-	hda: read_intr: status=0x04
-	hda: read_intr: status=0x51
-	hda: read_intr: status=0x04
-	hda: read_intr: status=0x51
-	hda: read_intr: status=0x04
-	ide0: reset: success
-
-The I've tested disabling some options.
-So far my best result was disabling APIC on UP (both - IOAPIC and APIC) -
-so far I've had no more lockups.
-
-Will test further, but this seemed to be the problem for me.
+Could you please tell us what the return value is from kill_proc()?
 
 
-Regards,
-
-Phil
-
+--- linux-2.4.15-pre4/drivers/net/8139too.c	Mon Nov 12 11:16:11 2001
++++ linux-akpm/drivers/net/8139too.c	Thu Nov 15 23:14:14 2001
+@@ -2064,7 +2064,7 @@ static int rtl8139_close (struct net_dev
+ 		wmb();
+ 		ret = kill_proc (tp->thr_pid, SIGTERM, 1);
+ 		if (ret) {
+-			printk (KERN_ERR "%s: unable to signal thread\n", dev->name);
++			printk (KERN_ERR "%s: unable to signal thread: %d\n", dev->name, ret);
+ 			return ret;
+ 		}
+ 		wait_for_completion (&tp->thr_exited);
 
 -
-This message is RSA-encrypted: n=33389, e=257
-

@@ -1,75 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268228AbUIWR4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268183AbUIWR5m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268228AbUIWR4V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 13:56:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268235AbUIWR4U
+	id S268183AbUIWR5m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 13:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268159AbUIWR4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 13:56:20 -0400
-Received: from symbion.srrc.usda.gov ([199.133.86.40]:15276 "EHLO
-	node1.cluster.srrc.usda.gov") by vger.kernel.org with ESMTP
-	id S268207AbUIWRz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 13:55:29 -0400
-Subject: RE: 2.6.9-rc2-mm2: 3ware card info not in /proc/scsi
-From: Glenn Johnson <gjohnson@srrc.ars.usda.gov>
-To: Adam Radford <aradford@amcc.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <I4I8RQ00.F30@hadar.amcc.com>
-References: <I4I8RQ00.F30@hadar.amcc.com>
-Content-Type: text/plain
-Organization: USDA, ARS, SRRC
-Message-Id: <1095962127.4467.10.camel@node1.cluster.srrc.usda.gov>
+	Thu, 23 Sep 2004 13:56:45 -0400
+Received: from server133-han.de-nserver.de ([81.3.17.173]:25542 "EHLO
+	server133-han.de-nserver.de") by vger.kernel.org with ESMTP
+	id S268216AbUIWR4E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 13:56:04 -0400
+Date: Thu, 23 Sep 2004 19:58:30 +0200
+From: markus reichelt <ml@bitfalle.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: The Big Patch War
+Message-ID: <20040923175830.GA21188@dantooine>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <bbe6a1c93510aa0975d7ef461fa566cf@localhost.localdomain> <001301c4a184$dea1d7c0$0300a8c0@r000000>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 23 Sep 2004 12:55:27 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+Content-Disposition: inline
+In-Reply-To: <001301c4a184$dea1d7c0$0300a8c0@r000000>
+Organization: still stuck in reorganization mode
+X-Request-PGP: http://bitfalle.org/keys/pubkey.mr.lists.asc
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-23 at 12:32, Adam Radford wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Glenn,
-> 
-> The /proc/scsi interface is being deprecated by the SCSI subsystem maintainers.
+"Mike R." <turbanator1@verizon.net> wrote:
+> This looks like it could wind up starting a big flame war.....
 
-I am aware of that.  I also thought the interface would remain until
-third party vendors had a chance to catch up.
+Oh yes, a big flame war... But please with lots of "patch this!" and
+"patch that!", slowly at first of course, but steadily gathering
+momentum...
 
-> Support for /proc/scsi/3w-xxxx has been removed from the driver and sysfs support
-> has been added. 
+And just when it's ... let's just say most interesting to watch it
+unfold even further, a deep dark voice booms "kids, back to bed... now!"
+- -Al Patchino
 
-Is is possible to have it support both?
+scnr
+- -- 
+Bastard Administrator in $hell
 
-> Please download the newer 3dm2 tools from the 3ware software
-> "In-Engineering Development" website, or, keep your older kernel and tools.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-I am not sure what the "In-Engineering Development" website is but the
-"regular" 3ware Web site only offers 3dm2 for the 9000 series
-controllers, which I do not have.  I suppose I could just try it though.
-  
-> If you have any more questions, please contact 3ware/AMCC support.
-
-I do not know what AMCC brings to the table but I have never gotten
-answers from 3Ware support.
-
-> -Adam
-> 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Glenn Johnson
-> Sent: Thursday, September 23, 2004 9:09 AM
-> To: linux-kernel@vger.kernel.org
-> Subject: 2.6.9-rc2-mm2: 3ware card info not in /proc/scsi
-> 
-> 
-> I have a 3Ware-7500 series card.  I was trying the 2.6.9-rc2-mm2 kernel
-> and discovered that the 3dmd utility was not working.  A little poking
-> around revealed that the cause was because the 3Ware directory was not
-> in /proc/scsi, even though I have CONFIG_SCSI_PROC_FS=y in my config
-> file.  The 3dmd utility works fine with mainline 2.6.9-rc2 and it worked
-> with the 2.6.8-mm series of kernels.  Those kernels have a 3w-xxxx
-> directory in /proc/scsi.
-> 
-> Thanks.
--- 
-Glenn Johnson
-
+iD8DBQFBUw7GLMyTO8Kj/uQRAhgkAJ43QdM7QCAk74+6kaSdCbX6yy7i6wCfUGS/
+h6wx0oXobz3YpJC9Q28Y7sA=
+=mmX1
+-----END PGP SIGNATURE-----

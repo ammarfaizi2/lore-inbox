@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266650AbSLJUti>; Tue, 10 Dec 2002 15:49:38 -0500
+	id <S266794AbSLJUx5>; Tue, 10 Dec 2002 15:53:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266712AbSLJUti>; Tue, 10 Dec 2002 15:49:38 -0500
-Received: from [66.70.28.20] ([66.70.28.20]:9988 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S266650AbSLJUtg>; Tue, 10 Dec 2002 15:49:36 -0500
-Date: Tue, 10 Dec 2002 21:59:06 +0100
-From: DervishD <raul@pleyades.net>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: [BK-2.4] [PATCH] Small do_mmap_pgoff correction
-Message-ID: <20021210205906.GA82@DervishD>
-References: <200212101931.gBAJV1K10639@hera.kernel.org> <20021210.121908.00373632.davem@redhat.com> <20021210204530.GA63@DervishD> <20021210.124740.86261163.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20021210.124740.86261163.davem@redhat.com>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+	id <S266795AbSLJUx5>; Tue, 10 Dec 2002 15:53:57 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:29397 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S266794AbSLJUx4>;
+	Tue, 10 Dec 2002 15:53:56 -0500
+Message-ID: <3DF655DF.1040507@us.ibm.com>
+Date: Tue, 10 Dec 2002 13:00:15 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "dhow >> David Howells" <dhowells@redhat.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix strange stack calculation for secondary cpus
+Content-Type: multipart/mixed;
+ boundary="------------020902030102020404000403"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi David :)
+This is a multi-part message in MIME format.
+--------------020902030102020404000403
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
->    >    + *	NOTE: in this function we rely on TASK_SIZE being lower than
->    >    + *	SIZE_MAX-PAGE_SIZE at least. I'm pretty sure that it is.
->    > This assumption is wrong.
->        OK, then another way of fixing the corner case that exists in
->    do_mmap_pgoff is needed. You cannot mmap a chunk of memory whose size
->    is bigger than SIZE_MAX-PAGE_SIZE, because 'PAGE_ALIGN' will return 0
->    when page-aligning the size.
-> And after your patch, we'd use a zero length.  That is a bug.
+in arch/i386/kernel/smpboot.c:
+stack_start.esp = (void *) (1024 + PAGE_SIZE + (char *)idle);
 
-    With my patch, we don't use a zero length :?? My patch sees if
-PAGE_ALIGN will f*ck the length, and if so, it returns EINVAL. This
-is better than getting '0' as a valid address when specifying a large
-size, don't you think so?
+This causes problems when I switch to 4k stacks?  What is supposed to 
+be going on here?  Why point esp into the middle of the stack?  If you 
+wanted to do that, why not just use PAGE_SIZE>>2?
 
-> Look at what happens, you PAGE_ALIGN(len) after all the range checks
-> then we use a len of '0' for the rest of the function.  How is that
-> supposed to be better?
+In any case, I think THREAD_SIZE needs to be here instead of PAGE_SIZE.
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 
-    Because PAGE_ALIGN won't return 0? I don't see your assumption of
-'len' going to zero due to my patch :?? With my patch, if the
-requested size is '0', then the hint address is returned, and if the
-size is so high that PAGE_ALIGN will barf at it, returning 0 when it
-shouldn't, mmap will return EINVAL. The function never uses a 'len'
-of 0. Never.
+--------------020902030102020404000403
+Content-Type: text/plain;
+ name="fix-esp-2.5.51.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fix-esp-2.5.51.patch"
 
-    Raúl
+--- linux-2.5.50/arch/i386/kernel/smpboot.c.bad	Tue Dec 10 12:56:10 2002
++++ linux-2.5.50/arch/i386/kernel/smpboot.c	Tue Dec 10 12:56:55 2002
+@@ -806,7 +806,7 @@
+ 
+ 	/* So we see what's up   */
+ 	printk("Booting processor %d/%d eip %lx\n", cpu, apicid, start_eip);
+-	stack_start.esp = (void *) (1024 + PAGE_SIZE + (char *)idle->thread_info);
++	stack_start.esp = (void *) (THREAD_SIZE + (char *)idle->thread_info);
+ 
+ 	/*
+ 	 * This grunge runs the startup process for
+
+--------------020902030102020404000403--
+

@@ -1,109 +1,184 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266161AbSKUAYq>; Wed, 20 Nov 2002 19:24:46 -0500
+	id <S265413AbSKUA1q>; Wed, 20 Nov 2002 19:27:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265413AbSKUAYp>; Wed, 20 Nov 2002 19:24:45 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:47784 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S265285AbSKUAYl>; Wed, 20 Nov 2002 19:24:41 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Date: Thu, 21 Nov 2002 11:31:35 +1100
-Message-ID: <15836.10599.736315.623964@notabene.cse.unsw.edu.au>
+	id <S266203AbSKUA1p>; Wed, 20 Nov 2002 19:27:45 -0500
+Received: from fw-az.mvista.com ([65.200.49.158]:21754 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id <S265413AbSKUA1j>; Wed, 20 Nov 2002 19:27:39 -0500
+Message-ID: <3DDC2A6F.2030307@mvista.com>
+Date: Wed, 20 Nov 2002 17:35:59 -0700
+From: Steven Dake <sdake@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+To: Lars Marowsky-Bree <lmb@suse.de>
+CC: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org
 Subject: Re: RFC - new raid superblock layout for md driver
-In-Reply-To: message from Lars Marowsky-Bree on Thursday November 21
 References: <20021120234743.GF29881@marowsky-bree.de>
-X-Mailer: VM 7.07 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday November 21, lmb@suse.de wrote:
->   
-> However, for none-RAID devices like multipathing I believe that activating a
-> drive on multiple hosts should be possible; ie, for these it might not be
-> necessary to scribble to the superblock every time.
-> 
-> (The md patch for 2.4 I sent you already does that; it reconstructs the
-> available paths fully dynamic on startup (by activating all paths present);
-> however it still updates the superblock afterwards)
 
-I haven't thought much about multipat I admit.....
 
-Mt feeling is that a multipath superblock should never be updated.
-Just writen once at creation and left like that (raid0 and linear are
-much the same) The only lose would be the utime update, and I don't
-think that is a real lose.
+Lars Marowsky-Bree wrote:
 
-> >	/* constant this-device information - 64 bytes */
-> >   u64  address of superblock in device
-> >   u32  number of this device in array  /* constant over reconfigurations 
-> >   */
-> >   u32  device_uuid[4]
-> 
-> What is "address of superblock in device" ? Seems redundant, otherwise you
-> would have been unable to read it, or am missing something?
+>>The md driver in linux uses a 'superblock' written to all devices in a
+>>RAID to record the current state and geometry of a RAID and to allow
+>>the various parts to be re-assembled reliably.
+>>
+>>The current superblock layout is sub-optimal.  It contains a lot of
+>>redundancy and wastes space.  In 4K it can only fit 27 component
+>>devices.  It has other limitations.
+>>    
+>>
+>
+>Yes. (In particular, getting all the various counters to agree with each other
+>is a pain ;-)
+>
+>Steven raises the valid point that multihost operation isn't currently
+>possible; I just don't agree with his solution:
+>
+>- Activating a drive only on one host is already entirely possible.
+>  (can be done by device uuid in initrd for example)
+>  
+>
+This technique doesn't work if autostart is set (the partition type is 
+tagged as a RAID volume) or if the user is stupid and starts the wrong 
+uuid by accident.  It also requires the user to keep track of which 
+uuids are used by which hosts, which is a pain.  Trust me, users will 
+start the wrong RAID volume and have a hard time keeping track of the 
+right UUIDs to asssemble.  The technique I use ensures that the RAID 
+volumes can all be set to autostart and only the correct volumes will be 
+started on the correct host.
 
-Suppose I have a device with a partition that ends at the end of the
-device (and starts at a 64k align location).  Then if there is a
-superblock in the whole device, it will also be in the final
-partition... but which is right?  Storing the location of the
-superblock allows us to disambiguate.
+>- Activating a RAID device from multiple hosts is still not possible.
+>  (Requires way more sophisticated locking support than we currently have)
+>  
+>
+The only application where having a RAID volume shareable between two 
+hosts is useful is for a clustering filesystem (GFS comes to mind). 
+ Since RAID is an important need for GFS (if a disk node fails, you 
+don't want ot loose the entire filesystem as you would on GFS) this 
+possibility may be worth exploring.
 
-> 
-> Special case here might be required for multipathing. (ie, device_uuid == 0)
-> 
-> >   u32  pad3[9]
-> >
-> >	/* array state information - 64 bytes */
-> >   u32  utime
-> 
-> Timestamps (also above, ctime) are always difficult. Time might not be set
-> correctly at any given time, in particular during early bootup. This field
-> should only be advisory.
+Since GFS isn't GPL at this point and OpenGFS needs alot of work, I've 
+not spent the time looking at it.
 
-Indeed, they are only advisory.
+Neil have you thought about sharing an active volume between two hosts 
+and what sort of support would be needed in the superblock?
 
-> 
-> >   u32  state    /* clean, resync-in-progress */
-> >   u32  sb_csum
-> >   u64  events
-> >   u64  resync-position	/* flag in state if this is valid)
-> >   u32  number of devices
-> >   u32  pad2[8]
-> >
-> >	/* device state information, indexed by 'number of device in array' 
-> >	   4 bytes per device */
-> >   for each device:
-> >     u16 position     /* in raid array or 0xffff for a spare. */
-> >     u16 state flags  /* error detected,  in-sync */
-> 
-> u16 != u32; your position flags don't match up. I'd like to be able to take
-> the "position in the superblock" as a mapping here so it can be found in this
-> list, or what is the proposed relationship between the two?
+Thanks
+-steve
 
-u16 for device flags.  u32 (over kill for) array flags.  Is there are
-problem that I am missing?
+>However, for none-RAID devices like multipathing I believe that activating a
+>drive on multiple hosts should be possible; ie, for these it might not be
+>necessary to scribble to the superblock every time.
+>
+>(The md patch for 2.4 I sent you already does that; it reconstructs the
+>available paths fully dynamic on startup (by activating all paths present);
+>however it still updates the superblock afterwards)
+>
+>Anyway, on to the format:
+>
+>  
+>
+>>The code in 2.5.lastest has all the superblock handling factored out so
+>>that defining a new format is very straight forward.
+>>
+>>I would like to propose a new layout, and to receive comment on it..
+>>
+>>My current design looks like:
+>>	/* constant array information - 128 bytes */
+>>  u32  md_magic
+>>  u32  major_version == 1
+>>  u32  feature_map     /* bit map of extra features in superblock */
+>>  u32  set_uuid[4]
+>>  u32  ctime
+>>  u32  level
+>>  u32  layout
+>>  u64  size		/* size of component devices, if they are all
+>>			 * required to be the same (Raid 1/5 */
+>>  u32  chunksize
+>>  u32  raid_disks
+>>  char name[32]
+>>  u32  pad1[10];
+>>    
+>>
+>
+>Looks good so far.
+>
+>  
+>
+>>	/* constant this-device information - 64 bytes */
+>>  u64  address of superblock in device
+>>  u32  number of this device in array  /* constant over reconfigurations 
+>>  */
+>>  u32  device_uuid[4]
+>>    
+>>
+>
+>What is "address of superblock in device" ? Seems redundant, otherwise you
+>would have been unable to read it, or am missing something?
+>
+>Special case here might be required for multipathing. (ie, device_uuid == 0)
+>
+>  
+>
+>>  u32  pad3[9]
+>>
+>>	/* array state information - 64 bytes */
+>>  u32  utime
+>>    
+>>
+>
+>Timestamps (also above, ctime) are always difficult. Time might not be set
+>correctly at any given time, in particular during early bootup. This field
+>should only be advisory.
+>
+>  
+>
+>>  u32  state    /* clean, resync-in-progress */
+>>  u32  sb_csum
+>>  u64  events
+>>  u64  resync-position	/* flag in state if this is valid)
+>>  u32  number of devices
+>>  u32  pad2[8]
+>>
+>>	/* device state information, indexed by 'number of device in array' 
+>>	   4 bytes per device */
+>>  for each device:
+>>    u16 position     /* in raid array or 0xffff for a spare. */
+>>    u16 state flags  /* error detected,  in-sync */
+>>    
+>>
+>
+>u16 != u32; your position flags don't match up. I'd like to be able to take
+>the "position in the superblock" as a mapping here so it can be found in this
+>list, or what is the proposed relationship between the two?
+>
+>  
+>
+>>The interpretation of the 'name' field would be up to the user-space
+>>tools and the system administrator.
+>>I imagine having something like:
+>>	host:name
+>>where if "host" isn't the current host name, auto-assembly is not
+>>tried, and if "host" is the current host name then:
+>>    
+>>
+>
+>Oh, well. You seem to sort of have Steven's idea here too ;-) In that case,
+>I'd go with the idea of Steven. Make that field a uuid of the host.
+>
+>
+>
+>Sincerely,
+>    Lars Marowsky-Brée <lmb@suse.de>
+>
+>  
+>
 
-There is an array of
-   struct {
-	u16 position;	/* aka role.  0xffff for spare */
-	u16 state;	/* error/insync */
-   }
-in each copy of the superblock.  It is indexed by 'number of this
-device in array' which is constant for any given device despite any
-configuration changes (until the device is removed from the array).
-If you have two hot spares, then their 'postition' (aka role) will
-initially be 0xffff.  After a failure, one will be swapped in and it's
-position becomes (say) 3.  Once rebuild is complete, the insync flag
-is set and the device becomes fully active.
-
-Does that make it clear?
-
-NeilBrown

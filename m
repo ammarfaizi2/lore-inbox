@@ -1,55 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261686AbUJaXQa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbUJaXRO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261686AbUJaXQa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 18:16:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbUJaXQa
+	id S261688AbUJaXRO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 18:17:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbUJaXRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 18:16:30 -0500
-Received: from inx.pm.waw.pl ([195.116.170.20]:37009 "EHLO inx.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S261688AbUJaXQN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 18:16:13 -0500
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, davem@davemloft.net,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: net: generic netdev_ioaddr
-References: <1099044244.9566.0.camel@localhost>
-	<20041029131607.GU24336@parcelfarce.linux.theplanet.co.uk>
-	<courier.418290EC.00002E85@courier.cs.helsinki.fi>
-	<m3y8hpbaf9.fsf@defiant.pm.waw.pl>
-	<20041029193827.GV24336@parcelfarce.linux.theplanet.co.uk>
-	<m3u0sdb53f.fsf@defiant.pm.waw.pl>
-	<1099129946.10961.9.camel@localhost>
-	<m3r7nfem2v.fsf@defiant.pm.waw.pl>
-	<1099206669.9571.10.camel@localhost>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Mon, 01 Nov 2004 00:14:24 +0100
-In-Reply-To: <1099206669.9571.10.camel@localhost> (Pekka Enberg's message of
- "Sun, 31 Oct 2004 09:11:09 +0200")
-Message-ID: <m3wtx6jx9r.fsf@defiant.pm.waw.pl>
+	Sun, 31 Oct 2004 18:17:13 -0500
+Received: from tron.kn.vutbr.cz ([147.229.191.152]:28432 "EHLO
+	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S261688AbUJaXQz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 18:16:55 -0500
+Message-ID: <4185724B.8090802@stud.feec.vutbr.cz>
+Date: Mon, 01 Nov 2004 00:16:27 +0100
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Ingo Molnar <mingo@elte.hu>
+CC: Lee Revell <rlrevell@joe-job.com>, Florian Schmidt <mista.tapas@gmx.net>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+References: <1099165925.1972.22.camel@krustophenia.net> <20041030221548.5e82fad5@mango.fruits.de> <1099167996.1434.4.camel@krustophenia.net> <20041030231358.6f1eeeac@mango.fruits.de> <1099171567.1424.9.camel@krustophenia.net> <20041030233849.498fbb0f@mango.fruits.de> <20041031120721.GA19450@elte.hu> <20041031124828.GA22008@elte.hu> <1099227269.1459.45.camel@krustophenia.net> <20041031131318.GA23437@elte.hu> <20041031134016.GA24645@elte.hu>
+In-Reply-To: <20041031134016.GA24645@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Flag: NO
+X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
+  identified this incoming email as possible spam.  The original message
+  has been attached to this so you can view it (if it isn't spam) or block
+  similar future email.  If you have any questions, see
+  the administrator of that system for details.
+  ____
+  Content analysis details:   (0.6 points, 6.0 required)
+  ____
+   pts rule name              description
+  ---- ---------------------- --------------------------------------------
+   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
+  -0.1 BAYES_20               BODY: Bayesian spam probability is 20 to 30%
+                              [score: 0.2565]
+  ____
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ingo Molnar wrote:
+> i've just uploaded V0.6.2 that fixes a console-unblanking-timer thinko. 
+> This bug was present for quite some time, but this is the first time it 
+> triggered on my testbox - might be more common on others.
+> 
+> 	Ingo
 
-Pekka Enberg <penberg@cs.helsinki.fi> writes:
+Hi Ingo,
+I finally got to test your patch again. Now I've been running -V0.6.2 
+for almost two hours and have not yet encountered a single deadlock.
+So it seems that the netfilter deadlock, that I could easily reproduce 
+in -V0.4.1, is solved.
 
-> Cops already exposes base address and irq as module parameters and yet
-> it calls netdev_boot_setup_check() to check "netdev=" so I assume
-> there's a reason for that.  Perhaps something like the (untested) patch
-> below would make more sense?
+There is one strange thing, though:
+michich@k4-912b:~$ uptime
+  00:09:17 up  1:49,  7 users,  load average: 707.72, 706.40, 682.16
 
-IMHO partially: base_addr etc should go from the core (to driver's
-local structs if needed). I think no general netdev-setup thing is
-needed, we have module parameters and library functions.
+In fact my computer is mostly idle.
+ps shows no zombies nor any D-state processes. The system runs fine.
 
-No ioctl for such things is needed either.
-/sbin/ifconfig shouldn't mess with hardware data such as I/O address,
-IRQ etc. - it should be a configuration tool for software protocols,
-not for hardware (i.e. as /sbin/ip is).
-
-My opinion of course.
--- 
-Krzysztof Halasa
+Michal

@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278818AbRKXRcC>; Sat, 24 Nov 2001 12:32:02 -0500
+	id <S278928AbRKXRcv>; Sat, 24 Nov 2001 12:32:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278911AbRKXRbv>; Sat, 24 Nov 2001 12:31:51 -0500
-Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:42629 "EHLO
-	mercury.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
-	id <S278818AbRKXRbh>; Sat, 24 Nov 2001 12:31:37 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Journaling pointless with today's hard disks?
-In-Reply-To: <tgpu68gw34.fsf@mercury.rus.uni-stuttgart.de>
-	<Pine.LNX.4.33L.0111241138070.4079-100000@imladris.surriel.com>
-	<20011124103642.A32278@vega.ipal.net>
-From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-Date: 24 Nov 2001 18:31:34 +0100
-In-Reply-To: <20011124103642.A32278@vega.ipal.net> (Phil Howard's message of "Sat, 24 Nov 2001 10:36:42 -0600")
-Message-ID: <tg8zcwgjnt.fsf@mercury.rus.uni-stuttgart.de>
-User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
+	id <S278927AbRKXRcc>; Sat, 24 Nov 2001 12:32:32 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:24068 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S278911AbRKXRcV>;
+	Sat, 24 Nov 2001 12:32:21 -0500
+Date: Sat, 24 Nov 2001 18:32:12 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Anton Altaparmakov <aia21@cam.ac.uk>, war <war@starband.net>,
+        Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Which gcc version?
+In-Reply-To: <E167fN7-0002RA-00@starship.berlin>
+Message-ID: <Pine.LNX.4.33.0111241831000.547-100000@Expansa.sns.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phil Howard <phil-linux-kernel@ipal.net> writes:
 
-> | That seems more like a case of "hard drives being pointless
-> | for people wanting to store their data" ;)
-> 
-> Or at least "powering down IBM DTLA series hard drives is pointless
-> for people wanting to store their data".
 
-We have got a DTLA drive which shows the typical symptoms without
-being powered down regularly.  The defective sectors simply appeared
-during normal operation. But that's not the point, I'm pretty
-convinced that the DTLA problems are not caused by aborted writes.
+On Sat, 24 Nov 2001, Daniel Phillips wrote:
 
-However, I'm scared by a major hard disk manufacturer using such a
-faulty approach, and claiming it's reasonable.  Maybe you can gain
-some performance this way, maybe the firmware is easier to write.  If
-there's such a motivation, other manufacturers will follow and soon,
-there won't be any reliably drives to buy for us (just being a bit
-paranoid...).
+> On November 24, 2001 05:01 pm, Luigi Genoni wrote:
+> > On Fri, 23 Nov 2001, Anton Altaparmakov wrote:
+> > > At 18:30 23/11/01, Daniel Phillips wrote:
+> > > >On November 23, 2001 02:59 pm, Anton Altaparmakov wrote:
+> > > > > gcc-3x OTOH is not a good idea at the moment.
+> > > >
+> > > >Do you have any particular reason for saying that?
+> > >
+> > > I haven't done any measurements myself but from what I have read, gcc-3.x
+> > > produces significantly slower code than gcc-2.96. I know I should try
+> > > myself some time... but if that is indeed true that is a very good reason
+> > > to stick with gcc-2.96.
+> >
+> > I did some serious bench.
+> > On all my codes, using eavilly floating point computation, binaries
+> > built with gcc 3.0.2 are about 5% slower that the ones built with 2.95.3
+> > on athlon processor with athlon optimizzations.
+> > On the other side, on sparclinux, same codes compiled with gcc 3.0.2 are
+> > really faster, about 20%, that with 2.95.3
+>
+> Interesting, but not as interesting as knowing what the results are for
+> non-fp code, since we are talking about kernel compilation.
+>
+on sparc64 nor gcc 2.95.3 nor 3.0.2 can be used to compile the kernel, at
+less for what i know, you have to stay with egcs 64 bit compiler.
 
-> Now I can see a problem if the drive can't flush a write-back cache
-> during the "power fade".  With some pretty big caches many drives
-> have these days (although I wonder just how useful that is with OS
-> caches being as good as they are),
-
-They can reorder writes and eliminate dead writes, breaking journaling
-(especially if the journal is on a different disk than the actual
-data). ;-) In fact, the "cache" is probably just memory used for quite
-a few different purposes: scatter/gather support, command queuing,
-storing the firmware, and so on.
-
-Emptying the caches in time is not a problem, BTW.  You just don't get
-a full write in this case (and lose some data), but you shouldn't see
-any bad sectors.
-
--- 
-Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
-University of Stuttgart           http://cert.uni-stuttgart.de/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

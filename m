@@ -1,174 +1,177 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319139AbSIDL3y>; Wed, 4 Sep 2002 07:29:54 -0400
+	id <S319145AbSIDLfM>; Wed, 4 Sep 2002 07:35:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319142AbSIDL3x>; Wed, 4 Sep 2002 07:29:53 -0400
-Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:16568 "EHLO
-	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S319139AbSIDL3u>; Wed, 4 Sep 2002 07:29:50 -0400
-Date: Wed, 4 Sep 2002 12:58:15 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: linux-kernel@vger.kernel.org
-Subject: I'm collecting linux boot messages. Care to send me some?
-Message-ID: <20020904125815.K781@nightmaster.csn.tu-chemnitz.de>
-Reply-To: boot-messages@rameria.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-X-Spam-Score: -0.1 (/)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *17mYQP-00025I-00*xJyKLSwkEq6*
+	id <S319144AbSIDLfL>; Wed, 4 Sep 2002 07:35:11 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:62729 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S319145AbSIDLfJ>;
+	Wed, 4 Sep 2002 07:35:09 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200209041139.g84Bdb314111@oboe.it.uc3m.es>
+Subject: Re: (fwd) Re: [RFC] mount flag "direct"
+In-Reply-To: <Pine.SOL.3.96.1020904114744.27919B-100000@libra.cus.cam.ac.uk>
+ from Anton Altaparmakov at "Sep 4, 2002 12:05:04 pm"
+To: Anton Altaparmakov <aia21@cantab.net>
+Date: Wed, 4 Sep 2002 13:39:37 +0200 (MET DST)
+Cc: "Peter T. Breuer" <ptb@it.uc3m.es>, Alexander Viro <viro@math.psu.edu>,
+       Xavier Bestel <xavier.bestel@free.fr>, david.lang@digitalinsight.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear mailing list readers,
+"A month of sundays ago Anton Altaparmakov wrote:"
+> On Wed, 4 Sep 2002, Peter T. Breuer wrote:
+> > I suggest that changing FS structure is an operation that is so
+> > relatively rare  in the projected environment (in which gigabytes of
+> > /data/ are streaming through every second) that you can make them as
+> > expensive as you like and nobody will notice. Your frothing at the
+> > mouth about it isn't going to change that. Moreover, _opening_
+> > a file is a rare operation too, relative to all that data thruput.
+> 
+> Sorry but this really shows you lack of understanding for how a file
+> system works. Every time you write a single byte(!!!) to a file, this
+> involves modifying fs structures. Even if you do writes in 1MiB chunks,
 
-I collected already some interesting boot messages posted here.
+OK .. in what way? 
 
-Now I want more ;-)
+> what happens is that all the writes are broken down into buffer head sized
+> portions for the purposes of mapping them to disk (this is optimized by
 
-Care to help? Then read on.
+Well, they'll be broken down, yes, quite probably.
 
-Why boot messages?
+> the get_blocks interface but still it means that every time get_blocks is
 
-   I followed the Linux development since 5 years now (not much,
-   but still) and I'm excited about its widespread use and scalability.
+You mean that the buffer cache is looked up? But we know that we have
+disabled caching on this device ... well, carry on anyway (it does
+no harm to write to an already dirty buffer).
 
-   Linux's boot messages where always fascinating to me, because
-   booting doesn't happen that often here, they tell me so much
-   about my system and give me the good feeling that everything
-   happens like it should and my favorite OS is ready to accept
-   my commands.
+> involved you have to do a full lookup of the logical block and map it to
+> an on disk block). For reading while you are not modifying fs structures
+> you still need to read and parse them for each get_blocks call.
 
-   On other machines they are a simple "proof" that Linux is
-   up and running and detected all the guts of the system while
-   booting.
+I'm not following you. It seems to me that you are discussing the
+process of getting a buffer to write to prior to letting it age and
+float down to the device driver via the block layers. But we have
+disabled caching so we know that get_blocks will deliver a new
+temporary buffer or block or something or at any rate do what it
+should do ... anyway, I mumble.... what you are saying is that you
+think we look up a logical block number and get a physical block
+number and possibly a buffer associated with it. Well, maybe. So?
 
-What kind of boot messages are you interested in?
+> This in turn means that each call to get_blocks within the direct_IO code
+> paths will result in a full block lookup in the filesystem driver.
 
-   Mostly boot messages from machines with interesting or unusal
-   hardware.
+Uh, I'm not sure I understand any of this. You are saying something
+about logical/physical that I don't follow or don't know. In
+direct IO, one of the things that I believe happens is that writes are
+serialized, in order to maintain semantics when we go RWRW (we don't
+want it to work like WRWR or other), so that overlaps cannot happen. 
+We should never be in the situation of having a dirty (or
+cached) buffer that we rewrite before it goes to disk (again).
 
-   To give you examples:
-      - Linux for Palm
-      - Linux for other PDAs
-      - Linux on Playstation 2
-      - Linux on some Wildfire
-      - Linux on 4 x 4 NUMA system
-      - (RT-)Linux on some robot
-      - Linux embedded in a industrial application
-      - Linux as network appliance
-      - Linux on the reference machine of some arch MAINTAINER
+Is that relevant?
 
-   but also
-      - Linux on host with your selfmade hardware controlling
-        your experiment or sth. like that
+> I explained in a previous post how incredibly expensive that is.
 
-      - Linux inside a virtual machine simulating a soon to come
-        processor or machine (IA64 people?)
+Well, I simply don't follow you here. Can you unmuddle my understanding
+of what you are saying about logical/physical?
 
-      - Linux below 1.0 on authentic hardware (I know some guys
-        are working on this ;-))
-        
-      - The boot message of a machine before having an uptime
-        longer than 2 years running Linux. (This is considered
-        rare, because the boot messages are saved away, but not
-        always)
-        
-      - Linux running in interesting situations. Here it is the
-        story/situation that must convince me to include it in
-        the collection.
 
-   Not acceptable are:
-      - Trade secrets.
-      - Military uses of Linux.
-      - Criminal uses of Linux.
-      
-      These can lead me into trouble and might cause the blocking
-      of the whole collection by lawyers or governments. This is
-      considered counter productive by me.
-      
-How to submit?
+> So even though you are streaming GiB of /data/ you will end up streaming
+> TiB of /metadata/ for each GiB of /data/. Is that so difficult to
+> understand?
 
-   Just give me the following information:
+Yep. Can you be concrete about this metadata? I'lll see if I can work
+it out .. what I think you must be saying is that when we write to
+a file, we write to a process address space, and that has to be
+translated into a physical block number on disk. Well, but I imagine
+that the translation was settled at the point that the inode was first
+obtained, and now that we have the inode, data that goes to it gets
+a physical address from the data in the inode. We can even be using an
+inode that is unconnected to the FS, and we will still be writing away
+to disk, and nobody else will be using that space, because the space
+is marked as occupied in the bit map.
 
-   1. the actual boot messages
-      a) How to obtain them:
-         - Do a 'dmesg >/tmp/boot.msg' directly after boot
-         - Look whether /var/log/dmesg or /var/log/boot.msg
-           or sth. like that matches your actual boot
+I see no continuous lookup of metadata.
 
-         - NO syslog mangled messages please! These require me to
-           strip that off. This is only acceptable, if you cannot
-           reproduce the boot.
+> Unless you allow the FS to cache the /metadata/ you have already lost all
 
-      b) How to send them:
-         - I would like to have them as attachment.
-         - If attaching is not possible, please care to NOT wrap
-           lines in these messages and don't replace spaces with
-           tabs or other editor games.
-           
-      c) Timestamp the actual boot. The date is sufficient but
-         more is better. Just call 
+What metadata? I only see the inode, and that's not cached in any
+meaningful sense (i.e. not available to other things) to but simply
+"held" in kmem storage and pointed to.
 
-         date --utc '+%Y-%m-%d %H:%M:%S'
+> your performance and you will never be able to stream at the speads you
+> require.
 
-         as soon as possible after boot. (The format is
-         necessary, because the world as no widely accepted
-         standard on a complete time format).
+Can you be even MORE specific about what this metadata is? Maybe I'll
+get it if you are very very specific.
 
-   2. Additional information
-      a) An informal machine description. 
-         What is important to know about this machine?
-         What patches have to applied in addition to the Linus
-         tree? If this is not the Linus tree, where is the kernel
-         from?
+> So far you are completely ignoring my comments. Is that because you see
+> they are true and cannot come up with a counter argument?
 
-      b) Operational mode and environment.
-         What does this machine and where is it located?
+No, I know of no comments that i have deliberately ignored. Bear in
+mind that I have a plane to catch at 5.30 and an article to finish
+before then :-).
 
-      c) Pictures.
-         Please send a URL to a picture, if you can. Don't send
-         me pictures per e-mail. But note that you have some and
-         roughly what they show. I'll ask you then.
+> > situation. Nobody could care less how long it takes to open a file
+> > or do a mkdir, and even if they did care it would take exactly as long
+> > as it does on my 486 right now, which doesn't scare the pants off me.
+> 
+> We do care about such things a lot! What you are saying is true in you
+> extremely specialised scientific application. In normal usage patterns
 
-      d) A story. 
-         If this machine does sth. that not every machine in this
-         world is doing please tell me. History is also relevant
-         here.
+Well, there are a lot of such scientific applications, and they are
+taking up a good slice of the computing budgets, and a huge number of
+machines ... so I don't think you can ignore them in a meaningful way
+:-).
 
-What about Copyrights?
+> file creation, etc, are crucially important to be fast. For example file
+> servers, email servers, etc create/delete huge amounts of files per
+> second. 
 
-   The boot messages are written by the Linux authors and are
-   just shown to you on boot. They are also reproducible on the
-   right hardware. The authors agreed on the GPL or sth. like
-   that when they submitted their code to Linus' tree.
+Yep.
 
-   So I consider the full boot messages as text without real
-   copyright. I will never ask for any fees to see the boot
-   message collection. 
-   
-   The boot message collection will stay public and people
-   disagreeing here in e-mail or by a letter will be removed from
-   the collection with the comment "(removed)" or none.
 
-   However: The story and the pictures - 2.c) and 2.d) - provided
-   are in fact copyrighted material and the submitter has agreed
-   to have me show his material send to me in my collection by
-   sending it to me until he send me an e-mail or letter telling
-   the opposite.
+> > What we/I want is a simple way to put whatever FS we want on a shared
+> > remote resource. It doesn't matter if you think it's going to be slow
+> > in some aspects, it'll be fast enough, because those aspects merely
+> > have to be correct, not fast.
+> 
+> Well normal users care about fast, sorry. Nobody will agree to making the
 
-   EVERY CONTRIBUTOR IS NAMED with whatever personal information
-   he gives me about him and doesn't exceed around 300 characters
-   (I don't want full CVs there, sorry ;-)). Staying anonymous is
-   ok also, but your contact info is still needed for questions.
-   
-Now let the fun begin ;-)
+Normal users should see no difference, because they won't turn  on
+O_DIRDIRECT, or whatever, and it should make no difference to them
+that the dir cache /can/ be turned off. That should be a goal, anyway.
+Can it be done? I think so, at least if it's restricted to directory
+lookup in the first instance, but I would like your very concrete
+example of what cached metadata is changed when I do a data write.
 
-Thanks for contributing
+> generic kernel cater for your specialised application which will be used
+> on a few systems on the planet when you would penalize 99.99999% of Linux
+> users with your solution.
 
-Regards
+Where is the penalty?
 
-Ingo Oeser
--- 
-Science is what we can tell a computer. Art is everything else. --- D.E.Knuth
+> The only viable solution which can enter the generic kernel is to
+> implement what you suggest at the FS level, not the VFS/block layer
+> levels.
+
+Why? Having VFS ops available does not mean you are obliged to use
+them! And useing them means swapping them in via a pointer indirection,
+not testing a flag always.
+
+> Of course if you intend to maintain your solution outside the kernel as a
+> patch of some description until the end of time then that's fine. It is
+> irrelevant what solution you choose and noone will complain as you are not
+> trying to force it onto anyone else.
+
+I think you are imagining implementation that are simply not the way
+I imagine them. Can you be specific about the exact metadata that is
+changed when a data write is done? That will help me decide.
+
+Thanks!
+
+Peter

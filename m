@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261358AbSIZQDD>; Thu, 26 Sep 2002 12:03:03 -0400
+	id <S261353AbSIZQB7>; Thu, 26 Sep 2002 12:01:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261360AbSIZQDD>; Thu, 26 Sep 2002 12:03:03 -0400
-Received: from relay1.pair.com ([209.68.1.20]:34060 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S261358AbSIZQDA>;
-	Thu, 26 Sep 2002 12:03:00 -0400
-X-pair-Authenticated: 24.126.73.164
-Message-ID: <3D93331C.86F87359@kegel.com>
-Date: Thu, 26 Sep 2002 09:17:32 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-3custom i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel call chain search tool?
-References: <3D913D58.49D855DB@kegel.com> <1033053348.1269.37.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
+	id <S261358AbSIZQB7>; Thu, 26 Sep 2002 12:01:59 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:60665
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261353AbSIZQA5>; Thu, 26 Sep 2002 12:00:57 -0400
+Subject: Re: 2.5.38: modular IDE broken
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bob_Tracy <rct@gherkin.frus.com>
+Cc: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <m17tqRL-0005khC@gherkin.frus.com>
+References: <m17tqRL-0005khC@gherkin.frus.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 26 Sep 2002 17:10:42 +0100
+Message-Id: <1033056642.1269.64.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> On Wed, 2002-09-25 at 05:36, Dan Kegel wrote:
-> > <prelude>
-> > I have a large multithreaded program that has a habit of using too
-> > much memory, and as a safeguard, I want to kill it before it makes
-> > the system unstable.  The OOM killer often guesses wrong, and RLIMIT_AS
-> > kills too soon because of the address space used up by the many thread
-> > stacks.
-> > So I'd like an RLIMIT_RSS that just kills the fat process.
-> 
-> The RSS limit isnt a "kill" limit in Unix. its a residency limit. Its
-> preventing the obese process from getting more than a certain amount of
-> RAM as opposed to swap
+> Specific example: proc_ide_read_geometry has the requisite EXPORT_SYMBOL()
+> wrapper in ide-proc.c, yet, I still end up with proc_ide_read_geometry_R*
+> unresolved at depmod time.  In case anyone is wondering, I *did* do a
+> "make clean", manually cleaned out linux/include/modules to make *sure*
 
-Yeah.  RLIMIT_RSS seemed like something I could hijack for the
-purpose, though.  And the code change was really small
-( http://marc.theaimsgroup.com/?l=linux-kernel&m=103299570928378 ).
+Let me give a simple clear explanation here. I don't give a flying ***k
+about modular IDE until the IDE works. Cleaning up the modular IDE after
+it all works is relatively easy and gets easier the more IDE is cleaned
+up. Until then its not even on the radar unless someone else wants to do
+all the work for 2.4/2.5 and verify/test them
 
-If only the darn program didn't have so many threads, RLIMIT_AS
-or the no-overcommit patch would be perfect.  I unfortunately can't 
-get rid of the threads, so I'm stuck trying to figure out some way
-to kill the right program when the system gets low on memory.
-
-Maybe I should look at giving the OOM killer hints?
-- Dan

@@ -1,73 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131496AbQLVBFE>; Thu, 21 Dec 2000 20:05:04 -0500
+	id <S131549AbQLVBJE>; Thu, 21 Dec 2000 20:09:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131603AbQLVBEq>; Thu, 21 Dec 2000 20:04:46 -0500
-Received: from NS2.pcscs.com ([207.96.110.42]:49417 "EHLO linux01.pcscs.com")
-	by vger.kernel.org with ESMTP id <S131496AbQLVBEd>;
-	Thu, 21 Dec 2000 20:04:33 -0500
-Message-ID: <009501c06bae$e24c32e0$2b6e60cf@pcscs.com>
-From: "Charles Wilkins" <chas@pcscs.com>
-To: "Linux Kernel mailing list" <linux-kernel@vger.kernel.org>
-Subject: max number of ide controllers?
-Date: Thu, 21 Dec 2000 19:34:03 -0500
+	id <S131505AbQLVBIz>; Thu, 21 Dec 2000 20:08:55 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:38920 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131392AbQLVBIk>; Thu, 21 Dec 2000 20:08:40 -0500
+Date: Thu, 21 Dec 2000 16:37:30 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jan Niehusmann <jan@gondor.com>
+cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
+        adilger@turbolinux.com
+Subject: Re: [PATCH] Re: fs corruption with invalidate_buffers()
+In-Reply-To: <20001222010334.A984@gondor.com>
+Message-ID: <Pine.LNX.4.10.10012211634440.945-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0092_01C06B84.F9656200"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
-------=_NextPart_000_0092_01C06B84.F9656200
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
 
-I have been running with the 2 onboard VIA ide hd controllers (ide 0 and =
-ide 1) along with a creative labs ide contoller on a SB32 soundcard (ide =
-3). This has had the cdrom and zip drive.
+On Fri, 22 Dec 2000, Jan Niehusmann wrote:
+> 
+> This is the result - against test12-pre7, but works well with 
+> test13-pre3:
 
-I just added a Promise Ultra100 and it has assumed the role of ide 3 and =
-ide 4. The onboard controllers are still ide 0 and ide 1, but the =
-creative labs controller isnt coming up.
+This looks bogus.
 
-Is there a max number of ide controllers that linux-2.2.18 can support?
+You can't test "bh->b_next!=0", because that is entirely meaningless.
 
-------=_NextPart_000_0092_01C06B84.F9656200
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+b_next can be NULL either because the buffer isn't hashed, or because the
+buffer _is_ hashed, but just happens to be last on the hash chain.
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META content=3D"text/html; charset=3Diso-8859-1" =
-http-equiv=3DContent-Type>
-<META content=3D"MSHTML 5.00.3207.2500" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DArial size=3D2>I have been running with the 2 onboard =
-VIA ide hd=20
-controllers (ide 0 and ide 1) along with a creative labs ide contoller =
-on a SB32=20
-soundcard (ide 3). This has had the cdrom and zip drive.</FONT></DIV>
-<DIV>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>I just added a Promise Ultra100 and it =
-has assumed=20
-the role of ide 3 and ide 4. The onboard controllers are still ide 0 and =
-ide 1,=20
-but the creative labs controller isnt coming up.</FONT></DIV>
-<DIV>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>Is there a max number of ide =
-controllers that=20
-linux-2.2.18 can support?</FONT></DIV></BODY></HTML>
+So testing "bh->b_next" doesn't actually tell you anything at all.
 
-------=_NextPart_000_0092_01C06B84.F9656200--
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

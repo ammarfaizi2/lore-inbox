@@ -1,57 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVAHQSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVAHQSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbVAHQSM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 11:18:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVAHQSM
+	id S261202AbVAHQSv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 11:18:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVAHQSv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 11:18:12 -0500
-Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:9222 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261201AbVAHQSI
+	Sat, 8 Jan 2005 11:18:51 -0500
+Received: from pD9F874CB.dip0.t-ipconnect.de ([217.248.116.203]:7040 "EHLO
+	susi.maya.org") by vger.kernel.org with ESMTP id S261202AbVAHQSl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 11:18:08 -0500
-Date: Sat, 8 Jan 2005 17:20:20 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Simone Piunno <pioppo@ferrara.linux.it>
-Cc: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10-mm2: it87 sensor driver stops CPU fan
-Message-Id: <20050108172020.64999e50.khali@linux-fr.org>
-In-Reply-To: <200501080150.44653.pioppo@ferrara.linux.it>
-References: <200501080150.44653.pioppo@ferrara.linux.it>
-Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 8 Jan 2005 11:18:41 -0500
+From: Andreas Hartmann <andihartmann@01019freenet.de>
+X-Newsgroups: fa.linux.kernel
+Subject: Re: 2.4.x oops with X
+Date: Sat, 08 Jan 2005 17:18:00 +0100
+Organization: privat
+Message-ID: <crp134$sg$1@pD9F874CB.dip0.t-ipconnect.de>
+References: <fa.gv4g3v7.1ng0thr@ifi.uio.no> <fa.kmfmtrp.1a16aaf@ifi.uio.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: abuse@fu.berlin.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.4) Gecko/20041217
+X-Accept-Language: de, en-us, en
+In-Reply-To: <fa.kmfmtrp.1a16aaf@ifi.uio.no>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again Simone,
+Andreas Hartmann schrieb:
+[...]
+> But now, the question is:
+> Why does X crash running kernel 2.4.x with glibc 2.3.4 and not with kernel
+> 2.6.10? Why does X run fine using kernel 2.4 and 2.6 with glibc 2.3.3?
+> 
+> ----------------------------------------------
+> 	|		glibc
+> 	|	2.3.3		2.3.4
+> ------|-------------------------------------
+> kernel|
+> 2.4	|	X ok		X segfaults
+> 2.6	|	X ok		X ok
 
-> Today I've tried 2.6.10-mm2 compiled for x86_64 and found something
-> bad. As soon as I modprobe it87 (one of the i2c sensors drivers) the
-> CPU fan  completely halts and the CPU temperature skyrockets even
-> while idle. For context:
-> I have an Athlon64 3200+ on a Gigabyte K8VT800 motherboard (i2c_viapro
-> module) running Gentoo compiled in x86_64 mode, it87 is controlled
-> through ISA bus,  VT8237 ISA bridge.
 
-I would also be interested in the output of dmidecode [1] for your
-system. This would allow me to add a workaround for your board to the
-it87 driver, since the BIOS seems not to properly intialize the chip.
-Sadly, there are probably many other boards which would need similar
-workarounds for this chips or any other with PWM capabilities, and I
-would better see the bogus BIOSes fixed than as many workarounds in our
-drivers...
+Meanwhile, I could find where X crashes using glibc 2.3.4 with kernel 2.4.
+It's this piece of code in linux_vm86.c:267
 
-BTW, if you don't have the latest version of your motherboard BIOS
-already, it could be worth upgrading, just in case it helps (I wouldn't
-put too much hope there though).
+static int
+vm86_rep(struct vm86_struct *ptr)
+{
+    int __res;
 
-[1] http://www.nongnu.org/dmidecode/
+#ifdef __PIC__
+    /* When compiling with -fPIC, we can't use asm constraint "b" because
+       %ebx is already taken by gcc. */
+    __asm__ __volatile__("pushl %%ebx\n\t"
+                         "movl %2,%%ebx\n\t"
+                         "movl %1,%%eax\n\t"
+                         "int $0x80\n\t"
+                         "popl %%ebx"
+                         :"=a" (__res)
+                         :"n" ((int)113), "r" ((struct vm86_struct *)ptr));
+#else
+    __asm__ __volatile__("int $0x80\n\t"
+                         :"=a" (__res):"a" ((int)113),
+                         "b" ((struct vm86_struct *)ptr));
+#endif
 
-Thanks,
--- 
-Jean Delvare
-http://khali.linux-fr.org/
+            if (__res < 0) {
+                errno = -__res;
+                __res = -1;
+            }
+            else errno = 0;
+            return __res;
+}
+
+
+The function ExecX86int10 (vbe.c) calls do_vm86 (linux_vm86.c), which
+calls vm86_rep (linux_vm86.c).
+
+
+I don't understand, why this piece of assembler code works fine with glibc
+2.3.3, but not with glibc 2.3.4, running kernel 2.4.x. It works fine again
+with kernel 2.6.
+
+
+
+Kind regards,
+Andreas Hartmann

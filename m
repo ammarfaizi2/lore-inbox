@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130094AbRBZAzf>; Sun, 25 Feb 2001 19:55:35 -0500
+	id <S130096AbRBZBSR>; Sun, 25 Feb 2001 20:18:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130091AbRBZAzZ>; Sun, 25 Feb 2001 19:55:25 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:26382 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S130089AbRBZAzK>;
-	Sun, 25 Feb 2001 19:55:10 -0500
-Date: Mon, 26 Feb 2001 01:54:56 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Nate Eldredge <neldredge@hmc.edu>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.2-ac3: loop threads in D state
-Message-ID: <20010226015456.A7830@suse.de>
-In-Reply-To: <20010226014827.Z7830@suse.de> <Pine.GSO.4.21.0102251949390.26808-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
+	id <S130099AbRBZBSI>; Sun, 25 Feb 2001 20:18:08 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:40206 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S130096AbRBZBR5>; Sun, 25 Feb 2001 20:17:57 -0500
+Message-ID: <3A99AE92.E9D2D0E8@eikon.tum.de>
+Date: Mon, 26 Feb 2001 02:17:06 +0100
+From: Mario Hermann <ario@eikon.tum.de>
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.2-ac3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jonathan Oppenheim <jono@Phys.UAlberta.CA>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 242-ac3 loop bug
+In-Reply-To: <Pine.LNX.4.10.10102251701520.2320-100000@dirac.phys.ualberta.ca>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0102251949390.26808-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sun, Feb 25, 2001 at 07:53:03PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 25 2001, Alexander Viro wrote:
-> > What's the worst that can happen? We do an extra up, but loop_thread
-> > will still quit once we hit zero lo_pending. And loop_clr_fd
-> > is still protected by lo_ctl_mutex.
-> 
-> Well, for one thing you'll get some surprises next time you losetup
-> the same device ;-) There are more subtle scenarios, but that one
-> is pretty unpleasant in itself.
+Hi!
 
-Ah ok, but that could be solved by just reiniting the sems on
-each losetup (which probably would be a good idea anyway). But
-ok, I'll shut up now :-)
+Jonathan Oppenheim wrote:
 
--- 
-Jens Axboe
+> i have also been having trouble with many cyphers including
+> blowfish (although twofish and idea worked).  the error seems to be the
+> same in all 2.4.x kernels (i have all the relevant options compiled
+> as modules eg. loopback and ciphers))
+
+I had the same problem today with blowfish. Following mini-diff works for
+blowfish(apply after patch-int-2.4.0.3):
+
+--- crypto/cipher-blowfish.c~   Sun Feb 25 13:33:42 2001
++++ crypto/cipher-blowfish.c    Sun Feb 25 13:48:23 2001
+@@ -404,6 +404,8 @@
+     u32 *P = key2->P;
+     u32 *S = key2->S;
+
++    if (keybytes<=0 || keybytes>32) return(-1);
++
+     /* Copy the initialization s-boxes */
+
+     for (i = 0, count = 0; i < 256; i++)
+
+
+
+
 

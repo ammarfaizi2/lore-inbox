@@ -1,58 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263900AbUCZL3j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 06:29:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264010AbUCZL3j
+	id S264021AbUCZLoe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 06:44:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264022AbUCZLoe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 06:29:39 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:63180 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S263900AbUCZL3h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 06:29:37 -0500
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: trini@kernel.crashing.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20040324195502.00a5b148.akpm@osdl.org>
-References: <20040324235722.QDLK23486.fed1mtao04.cox.net@localhost.localdomain>
-	 <20040324195502.00a5b148.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1080210253.29835.37.camel@hades.cambridge.redhat.com>
+	Fri, 26 Mar 2004 06:44:34 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:37597 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264021AbUCZLo2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 06:44:28 -0500
+Date: Fri, 26 Mar 2004 22:45:05 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, apw@shadowen.org, anton@samba.org,
+       sds@epoch.ncsc.mil, ak@suse.de, raybry@sgi.com,
+       lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, mbligh@aracnet.com
+Subject: Re: [Lse-tech] Re: [PATCH] [0/6] HUGETLB memory commitment
+Message-ID: <20040326171505.GA4390@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20040326085826.GA3332@in.ibm.com> <5310.1080272349@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
-Subject: Re: [patch 1/22] Add __early_param for all arches
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.2) 
-Date: Fri, 26 Mar 2004 11:29:35 +0000
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5310.1080272349@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-03-24 at 19:55 -0800, Andrew Morton wrote:
-> Please tell us a little more about why we need these patches.  (Apart from
-> what seems to be a moderate amount of code consolidation).
+On Fri, Mar 26, 2004 at 02:39:09PM +1100, Keith Owens wrote:
+> On Fri, 26 Mar 2004 14:28:26 +0530, 
+> Suparna Bhattacharya <suparna@in.ibm.com> wrote:
+> >On Thu, Mar 25, 2004 at 04:22:32PM -0800, Andrew Morton wrote:
+> >> Keith Owens <kaos@sgi.com> wrote:
+> >> >
+> >> > FWIW, lkcd (crash dump) treats hugetlb pages as normal kernel pages and
+> >> > dumps them, which is pointless and wastes a lot of time.  To avoid
+> >> > dumping these pages in lkcd, I had to add a PG_hugetlb flag.  lkcd runs
+> >
+> >This should already be fixed in recent versions of lkcd. It uses a
+> >little bit of trickery to avoid an extra page flag -- hugetlb pages are 
+> >detected as "in use" as well as reserved, unlike other reserved pages 
+> >which helps identify them.
+> 
+> Are you sure that this works for hugetlb pages that have been
+> preallocated but not yet mapped?  AFAICT the hugetlb pages start off as
+> reserved with a zero usecount.
+> 
 
-A lot of command line options need checking before we get out of
-setup_arch() into start_kernel() where parse_cmdline() is currently
-called.
+I just realised that hugetlb pages are no longer marked as reserved in
+the current trees, and since they are allocated as compound pages 
+they would show up as being in use and not LRU. So, we do have a problem,
+without PG_hugetlb.
 
-In particular, the only thing stopping us from registering real
-permanent consoles from the moment we hit setup_arch() is the fact that
-we haven't yet handled 'console=' on the command line, and we end up
-enabling the first console registered as if there's no console=
-argument, _despite_ the fact that there _is_ such an argument.
+Regards
+Suparna
 
-> Also, what is different between __setup and __early_setup?  Why is it not
-> possible to make __setup run sufficiently early for whatever application is
-> requiring these changes?
-
-Drivers may require allocation (bootmem not slab). We want to run before
-that's feasible -- before 'mem=', by definition :)
-
-There _are_ a lot of patches but most of them are trivial and were
-separated just for cleanliness. Where they're non-trivial that's because
-there's real consolidation.
+> 
+> 
+> -------------------------------------------------------
+> This SF.Net email is sponsored by: IBM Linux Tutorials
+> Free Linux tutorial presented by Daniel Robbins, President and CEO of
+> GenToo technologies. Learn everything from fundamentals to system
+> administration.http://ads.osdn.com/?ad_id=1470&alloc_id=3638&op=click
+> _______________________________________________
+> Lse-tech mailing list
+> Lse-tech@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/lse-tech
 
 -- 
-dwmw2
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
 

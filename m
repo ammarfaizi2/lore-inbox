@@ -1,825 +1,660 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262424AbTFTHMm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 03:12:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbTFTHMm
+	id S262426AbTFTHUm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 03:20:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbTFTHUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 03:12:42 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:27077 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262424AbTFTHMZ (ORCPT
+	Fri, 20 Jun 2003 03:20:42 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:31941 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S262426AbTFTHU3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 03:12:25 -0400
-Date: Fri, 20 Jun 2003 09:26:13 +0200
+	Fri, 20 Jun 2003 03:20:29 -0400
+Date: Fri, 20 Jun 2003 09:34:17 +0200
 From: Vojtech Pavlik <vojtech@suse.cz>
-To: Lionel Bouton <Lionel.Bouton@inet6.fr>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [SIS IDE] Enhanced SiS96x support
-Message-ID: <20030620092613.A13834@ucw.cz>
-References: <3EF0FC4E.4090805@inet6.fr>
+To: Eric Wong <eric@yhbt.net>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Logitech PS/2++ updates
+Message-ID: <20030620093417.A14236@ucw.cz>
+References: <20030614233909.GA17706@BL4ST> <20030615103908.B29763@ucw.cz> <20030617231649.GA2494@BL4ST>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <3EF0FC4E.4090805@inet6.fr>; from Lionel.Bouton@inet6.fr on Thu, Jun 19, 2003 at 01:57:02AM +0200
+In-Reply-To: <20030617231649.GA2494@BL4ST>; from eric@yhbt.net on Tue, Jun 17, 2003 at 04:16:49PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 19, 2003 at 01:57:02AM +0200, Lionel Bouton wrote:
-> Hi,
+On Tue, Jun 17, 2003 at 04:16:49PM -0700, Eric Wong wrote:
+> Vojtech Pavlik <vojtech@suse.cz> wrote:
+> > On Sat, Jun 14, 2003 at 04:39:09PM -0700, Eric Wong wrote:
+> > > Vojtech Pavlik <vojtech@suse.cz> wrote:
+> > > > On Tue, Mar 25, 2003 at 06:55:38PM -0800, Eric Wong wrote:
+> > 
+> > Ok. How about these two patches against 2.5.71? Your changes are merged
+> > into the second one.
 > 
-> you'll find attached a patch against 2.4.21-ac1 for the SiS IDE driver.
+> Took a few days to find that little PS/2 adapter that came with my
+> mouse, moving sucks :(
 > 
-> This is a 99% Vojtech work :
-> - Independant southbridge detection (no need to add MuTIOL northbridge 
-> PCI ids to the driver),
-> - Lots of code cleanup,
-> - Debug code removed (unused for a while, I will maintain it in my tree 
-> if needed),
+> Two errors I fixed:
+> 1. ps2pp_detect_model needs the *param argument
+> 2. ps2pp_set_smartscroll only works after the Magic Knock has inititialized it
+> 3. Unrelated to PS2++, remove the CONFIG_MOUSE_PS2_SYNAPTICS check in
+> synaptics.h since it's enabled by default.
 > 
-> I changed 2 things :
-> - SiS745 was reported to me as a MuTIOL northbridge chip, it is treated 
-> as such by removing it from the integrated chip table,
+> I've updated the patch and rediffed against 2.5.72, see attachment.
 
-Look at http://www.sis.com/products/chipsets/oa/socketa/745.htm
-The chip has internal MuTIOL, but no 961/2/3 chip can be connected
-to it. I'm not sure, of course, whether the internal IDE of this chip
-behaves like a 961/2/3, though.
+Thanks, I merged the fixes into my kernel tree.
 
-> - the new config_xfer_rate is commented out until ide_find_best_mode is 
-> patched for bad drive handling (until then reverted to the old one using 
-> the config_drive_xfer_rate helper function).
-
-Ok. I'll provide a patch for ide_find_best_mode().
-
-> For the 2.5 tree, I'll check the latest 2.5-bk and 2.5-ac state tomorrow 
-> (need some sleep). I see 2.5-ac is laging behind (.69 vs .72), do you 
-> want me to push a patch to Linus directly or to you first ? If you want 
-> it first, against 2.5-bk or -ac (or both) ?
-> 
-> Thanks to Vojtech,
-> 
-> LB.
-
-> diff -urN -X dontdiff --exclude=tmp_include_depends linux-2.4.21-ac1/drivers/ide/pci/sis5513.c linux-2.4.21-ac1-vojtech/drivers/ide/pci/sis5513.c
-> --- linux-2.4.21-ac1/drivers/ide/pci/sis5513.c	2003-06-18 23:20:46.000000000 +0200
-> +++ linux-2.4.21-ac1-vojtech/drivers/ide/pci/sis5513.c	2003-06-19 00:58:48.000000000 +0200
-> @@ -1,8 +1,9 @@
->  /*
-> - * linux/drivers/ide/pci/sis5513.c		Version 0.14ac	Sept 11, 2002
-> + * linux/drivers/ide/pci/sis5513.c	Version 0.16ac+vp	Jun 18, 2003
->   *
->   * Copyright (C) 1999-2000	Andre Hedrick <andre@linux-ide.org>
->   * Copyright (C) 2002		Lionel Bouton <Lionel.Bouton@inet6.fr>, Maintainer
-> + * Copyright (C) 2003		Vojtech Pavlik <vojtech@suse.cz>
->   * May be copied or modified under the terms of the GNU General Public License
->   *
->   *
-> @@ -14,31 +15,33 @@
->   *			  for checking code correctness, providing patches.
->   *
->   *
-> - * Original tests and design on the SiS620/5513 chipset.
-> - * ATA100 tests and design on the SiS735/5513 chipset.
-> + * Original tests and design on the SiS620 chipset.
-> + * ATA100 tests and design on the SiS735 chipset.
->   * ATA16/33 support from specs
->   * ATA133 support for SiS961/962 by L.C. Chang <lcchang@sis.com.tw>
-> + * ATA133 961/962/963 fixes by Vojtech Pavlik <vojtech@suse.cz>
->   *
->   * Documentation:
-> - *	SiS chipset documentation available under NDA to companies not
-> - *	individuals only.
-> + *	SiS chipset documentation available under NDA to companies only
-> + *      (not to individuals).
->   */
+> diff -ruNp linux-2.5.72-vanilla/drivers/input/mouse/Kconfig linux-2.5.72-np2/drivers/input/mouse/Kconfig
+> --- linux-2.5.72-vanilla/drivers/input/mouse/Kconfig	2003-06-17 13:33:51.000000000 -0700
+> +++ linux-2.5.72-np2/drivers/input/mouse/Kconfig	2003-06-17 14:02:31.000000000 -0700
+> @@ -19,7 +19,7 @@ config MOUSE_PS2
+>  	  Say Y here if you have a PS/2 mouse connected to your system. This
+>  	  includes the standard 2 or 3-button PS/2 mouse, as well as PS/2
+>  	  mice with wheels and extra buttons, Microsoft, Logitech or Genius
+> -	  compatible.
+> +	  compatible. Support for Synaptics TouchPads is also included.
 >  
->  /*
-> - * Notes/Special cases:
-> - * - SiS5513 derivatives usually have the same PCI IDE register layout when
-> - *  supporting the same UDMA modes.
-> - * - There are exceptions :
-> - *  . SiS730 and SiS550 use the same layout than ATA_66 chipsets but support
-> - *   ATA_100
-> - *  . ATA_133 capable chipsets mark a shift in SiS chipset designs : previously
-> - *   south and northbridge were integrated, making IDE (a southbridge function)
-> - *   capabilities easily deduced from the northbridge PCI id. With ATA_133,
-> - *   chipsets started to be split in the usual north/south bridges chips
-> - *   -> the driver needs to detect the correct southbridge when faced to newest
-> - *   northbridges.
-> - *  . On ATA133 capable chipsets when bit 30 of dword at 0x54 is 1 the
-> - *   configuration space is moved from 0x40 to 0x70.
-> + * The original SiS5513 comes from a SiS5511/55112/5513 chipset. The original
-> + * SiS5513 was also used in the SiS5596/5513 chipset. Thus if we see a SiS5511
-> + * or SiS5596, we can assume we see the first MWDMA-16 capable SiS5513 chip.
-> + *
-> + * Later SiS chipsets integrated the 5513 functionality into the NorthBridge,
-> + * starting with SiS5571 and up to SiS745. The PCI ID didn't change, though. We
-> + * can figure out that we have a more modern and more capable 5513 by looking
-> + * for the respective NorthBridge IDs.
-> + *
-> + * Even later (96x family) SiS chipsets use the MuTIOL link and place the 5513
-> + * into the SouthBrige. Here we cannot rely on looking up the NorthBridge PCI
-> + * ID, while the now ATA-133 capable 5513 still has the same PCI ID.
-> + * Fortunately the 5513 can be 'unmasked' by fiddling with some config space
-> + * bits, changing its device id to the true one - 5517 for 961 and 5518 for
-> + * 962/963.
->   */
+>  	  If unsure, say Y.
 >  
->  #include <linux/config.h>
-> @@ -57,94 +60,23 @@
->  #include <linux/init.h>
->  #include <linux/ide.h>
+> @@ -28,19 +28,6 @@ config MOUSE_PS2
+>  	  The module will be called psmouse. If you want to compile it as a
+>  	  module, say M here and read <file:Documentation/modules.txt>.
 >  
-> -#include <asm/io.h>
->  #include <asm/irq.h>
->  
-> +#include "ide-timing.h"
->  #include "ide_modes.h"
->  #include "sis5513.h"
->  
-> -/* When DEBUG is defined it outputs initial PCI config register
-> -   values and changes made to them by the driver */
-> -// #define DEBUG
-> -/* When BROKEN_LEVEL is defined it limits the DMA mode
-> -   at boot time to its value */
-> -// #define BROKEN_LEVEL XFER_SW_DMA_0
+> -config MOUSE_PS2_SYNAPTICS
+> -	bool "Synaptics TouchPad"
+> -	default n
+> -	depends on INPUT && INPUT_MOUSE && SERIO && MOUSE_PS2
+> -	---help---
+> -	  Say Y here if you have a Synaptics TouchPad connected to your system.
+> -	  This touchpad is found on many modern laptop computers.
+> -	  Note that you also need a user space driver to interpret the data
+> -	  generated by the kernel. A compatible driver for XFree86 is available
+> -	  from http://...
 > -
-> -/* Miscellaneous flags */
-> -#define SIS5513_LATENCY		0x01
+> -	  If unsure, say Y.
 > -
->  /* registers layout and init values are chipset family dependant */
-> -/* 1/ define families */
-> -#define ATA_00		0x00
-> +
->  #define ATA_16		0x01
->  #define ATA_33		0x02
->  #define ATA_66		0x03
-> -#define ATA_100a	0x04 // SiS730 is ATA100 with ATA66 layout
-> +#define ATA_100a	0x04 // SiS730/SiS550 is ATA100 with ATA66 layout
->  #define ATA_100		0x05
->  #define ATA_133a	0x06 // SiS961b with 133 support
-> -#define ATA_133		0x07 // SiS962
-> -/* 2/ variable holding the controller chipset family value */
-> -static u8 chipset_family;
-> -
-> -
-> -/*
-> - * Debug code: following IDE config registers' changes
-> - */
-> -#ifdef DEBUG
-> -/* Copy of IDE Config registers fewer will be used
-> - * Some odd chipsets hang if unused registers are accessed
-> - * -> We only access them in #DEBUG code (then we'll see if SiS did
-> - * it right from day one) */
-> -static u8 ide_regs_copy[0xff];
-> -
-> -/* Read config registers, print differences from previous read */
-> -static void sis5513_load_verify_registers(struct pci_dev* dev, char* info) {
-> -	int i;
-> -	u8 reg_val;
-> -	u8 changed=0;
-> -
-> -	printk("SIS5513: %s, changed registers:\n", info);
-> -	for(i=0; i<=0xff; i++) {
-> -		pci_read_config_byte(dev, i, &reg_val);
-> -		if (reg_val != ide_regs_copy[i]) {
-> -			printk("%02x: %02x -> %02x\n",
-> -			       i, ide_regs_copy[i], reg_val);
-> -			ide_regs_copy[i]=reg_val;
-> -			changed=1;
-> -		}
-> -	}
-> -
-> -	if (!changed) {
-> -		printk("none\n");
-> -	}
-> -}
-> -
-> -/* Load config registers, no printing */
-> -static void sis5513_load_registers(struct pci_dev* dev) {
-> -	int i;
-> -
-> -	for(i=0; i<=0xff; i++) {
-> -		pci_read_config_byte(dev, i, &(ide_regs_copy[i]));
-> -	}
-> -}
-> -
-> -/* Print config space registers a la "lspci -vxxx" */
-> -static void sis5513_print_registers(struct pci_dev* dev, char* marker) {
-> -	int i,j;
-> -
-> -	sis5513_load_registers(dev);
-> -	printk("SIS5513 %s\n", marker);
-> -
-> -	for(i=0; i<=0xf; i++) {
-> -		printk("SIS5513 dump: %d" "0:", i);
-> -		for(j=0; j<=0xf; j++) {
-> -			printk(" %02x", ide_regs_copy[(i<<16)+j]);
-> -		}
-> -		printk("\n");
-> -	}
-> -}
-> -#endif
-> +#define ATA_133		0x07 // SiS962/963
+>  config MOUSE_SERIAL
+>  	tristate "Serial mouse"
+>  	depends on INPUT && INPUT_MOUSE && SERIO
+> diff -ruNp linux-2.5.72-vanilla/drivers/input/mouse/Makefile linux-2.5.72-np2/drivers/input/mouse/Makefile
+> --- linux-2.5.72-vanilla/drivers/input/mouse/Makefile	2003-06-17 13:33:51.000000000 -0700
+> +++ linux-2.5.72-np2/drivers/input/mouse/Makefile	2003-06-17 14:02:31.000000000 -0700
+> @@ -14,7 +14,4 @@ obj-$(CONFIG_MOUSE_PC9800)	+= 98busmouse
+>  obj-$(CONFIG_MOUSE_PS2)		+= psmouse.o
+>  obj-$(CONFIG_MOUSE_SERIAL)	+= sermouse.o
 >  
-> +static u8 chipset_family;
->  
->  /*
->   * Devices supported
-> @@ -155,42 +87,37 @@
->  	u8 chipset_family;
->  	u8 flags;
->  } SiSHostChipInfo[] = {
-> -	{ "SiS752",	PCI_DEVICE_ID_SI_752,	ATA_133,	0 },
-> -	{ "SiS751",	PCI_DEVICE_ID_SI_751,	ATA_133,	0 },
-> -	{ "SiS750",	PCI_DEVICE_ID_SI_750,	ATA_133,	0 },
-> -	{ "SiS748",	PCI_DEVICE_ID_SI_748,	ATA_133,	0 },
-> -	{ "SiS746",	PCI_DEVICE_ID_SI_746,	ATA_133,	0 },
-> -	{ "SiS745",	PCI_DEVICE_ID_SI_745,	ATA_133,	0 },
-> -	{ "SiS740",	PCI_DEVICE_ID_SI_740,	ATA_133,	0 },
-> -	{ "SiS735",	PCI_DEVICE_ID_SI_735,	ATA_100,	SIS5513_LATENCY },
-> -	{ "SiS730",	PCI_DEVICE_ID_SI_730,	ATA_100a,	SIS5513_LATENCY },
-> -	{ "SiS655",	PCI_DEVICE_ID_SI_655,	ATA_133,	0 },
-> -	{ "SiS652",	PCI_DEVICE_ID_SI_652,	ATA_133,	0 },
-> -	{ "SiS651",	PCI_DEVICE_ID_SI_651,	ATA_133,	0 },
-> -	{ "SiS650",	PCI_DEVICE_ID_SI_650,	ATA_133,	0 },
-> -	{ "SiS648",	PCI_DEVICE_ID_SI_648,	ATA_133,	0 },
-> -	{ "SiS646",	PCI_DEVICE_ID_SI_646,	ATA_133,	0 },
-> -	{ "SiS645",	PCI_DEVICE_ID_SI_645,	ATA_133,	0 },
-> -	{ "SiS635",	PCI_DEVICE_ID_SI_635,	ATA_100,	SIS5513_LATENCY },
-> -	{ "SiS640",	PCI_DEVICE_ID_SI_640,	ATA_66,		SIS5513_LATENCY },
-> -	{ "SiS630",	PCI_DEVICE_ID_SI_630,	ATA_66,		SIS5513_LATENCY },
-> -	{ "SiS620",	PCI_DEVICE_ID_SI_620,	ATA_66,		SIS5513_LATENCY },
-> -	{ "SiS550",	PCI_DEVICE_ID_SI_550,	ATA_100a,	0},
-> -	{ "SiS540",	PCI_DEVICE_ID_SI_540,	ATA_66,		0},
-> -	{ "SiS530",	PCI_DEVICE_ID_SI_530,	ATA_66,		0},
-> -	{ "SiS5600",	PCI_DEVICE_ID_SI_5600,	ATA_33,		0},
-> -	{ "SiS5598",	PCI_DEVICE_ID_SI_5598,	ATA_33,		0},
-> -	{ "SiS5597",	PCI_DEVICE_ID_SI_5597,	ATA_33,		0},
-> -	{ "SiS5591",	PCI_DEVICE_ID_SI_5591,	ATA_33,		0},
-> -	{ "SiS5513",	PCI_DEVICE_ID_SI_5513,	ATA_16,		0},
-> -	{ "SiS5511",	PCI_DEVICE_ID_SI_5511,	ATA_16,		0},
-> +	{ "SiS735",	PCI_DEVICE_ID_SI_735,	ATA_100  },
-> +	{ "SiS733",	PCI_DEVICE_ID_SI_733,	ATA_100  },
-> +	{ "SiS635",	PCI_DEVICE_ID_SI_635,	ATA_100  },
-> +	{ "SiS633",	PCI_DEVICE_ID_SI_633,	ATA_100  },
-> +
-> +	{ "SiS730",	PCI_DEVICE_ID_SI_730,	ATA_100a },
-> +	{ "SiS550",	PCI_DEVICE_ID_SI_550,	ATA_100a },
-> +
-> +	{ "SiS640",	PCI_DEVICE_ID_SI_640,	ATA_66   },
-> +	{ "SiS630",	PCI_DEVICE_ID_SI_630,	ATA_66   },
-> +	{ "SiS620",	PCI_DEVICE_ID_SI_620,	ATA_66   },
-> +	{ "SiS540",	PCI_DEVICE_ID_SI_540,	ATA_66   },
-> +	{ "SiS530",	PCI_DEVICE_ID_SI_530,	ATA_66   },
-> +
-> +	{ "SiS5600",	PCI_DEVICE_ID_SI_5600,	ATA_33   },
-> +	{ "SiS5598",	PCI_DEVICE_ID_SI_5598,	ATA_33   },
-> +	{ "SiS5597",	PCI_DEVICE_ID_SI_5597,	ATA_33   },
-> +	{ "SiS5591/2",	PCI_DEVICE_ID_SI_5591,	ATA_33   },
-> +	{ "SiS5582",	PCI_DEVICE_ID_SI_5582,	ATA_33   },
-> +	{ "SiS5581",	PCI_DEVICE_ID_SI_5581,	ATA_33   },
-> +
-> +	{ "SiS5596",	PCI_DEVICE_ID_SI_5596,	ATA_16   },
-> +	{ "SiS5571",	PCI_DEVICE_ID_SI_5571,	ATA_16   },
-> +	{ "SiS551x",	PCI_DEVICE_ID_SI_5511,	ATA_16   },
->  };
->  
->  /* Cycle time bits and values vary across chip dma capabilities
->     These three arrays hold the register layout and the values to set.
->     Indexed by chipset_family and (dma_mode - XFER_UDMA_0) */
->  
-> -/* {ATA_00, ATA_16, ATA_33, ATA_66, ATA_100a, ATA_100, ATA_133} */
-> +/* {0, ATA_16, ATA_33, ATA_66, ATA_100a, ATA_100, ATA_133} */
->  static u8 cycle_time_offset[] = {0,0,5,4,4,0,0};
->  static u8 cycle_time_range[] = {0,0,2,3,3,4,4};
->  static u8 cycle_time_value[][XFER_UDMA_6 - XFER_UDMA_0 + 1] = {
-> @@ -249,8 +176,6 @@
->  	{40,12,4,12,5,34,12,5},
->  };
->  
-> -static struct pci_dev *host_dev = NULL;
-> -
->  /*
->   * Printing configuration
->   */
-> @@ -334,6 +259,7 @@
->  		}
->  		pci_read_config_dword(bmide_dev, (unsigned long)drive_pci+4*pos, &regdw0);
->  		pci_read_config_dword(bmide_dev, (unsigned long)drive_pci+4*pos+8, &regdw1);
-> +
->  		p += sprintf(p, "Drive %d:\n", pos);
->  	}
->  
-> @@ -372,11 +298,12 @@
->  		p += sprintf(p, "\n");
->  	}
->  
-> -	if (chipset_family < ATA_133) { /* else case TODO */
-> +
-> +	if (chipset_family < ATA_133) {	/* else case TODO */
-> +
->  /* Data Active */
->  		p += sprintf(p, "                Data Active Time   ");
->  		switch(chipset_family) {
-> -			case ATA_00:
->  			case ATA_16: /* confirmed */
->  			case ATA_33:
->  			case ATA_66:
-> @@ -387,7 +314,6 @@
->  		}
->  		p += sprintf(p, " \t Data Active Time   ");
->  		switch(chipset_family) {
-> -			case ATA_00:
->  			case ATA_16:
->  			case ATA_33:
->  			case ATA_66:
-> @@ -493,39 +419,16 @@
->  
->  	len = (p - buffer) - offset;
->  	*addr = buffer + offset;
-> -	
-> +
->  	return len > count ? count : len;
->  }
->  #endif /* defined(DISPLAY_SIS_TIMINGS) && defined(CONFIG_PROC_FS) */
->  
->  static u8 sis5513_ratemask (ide_drive_t *drive)
->  {
-> -#if 0
->  	u8 rates[] = { 0, 0, 1, 2, 3, 3, 4, 4 };
->  	u8 mode = rates[chipset_family];
-> -#else
-> -	u8 mode;
->  
-> -	switch(chipset_family) {
-> -		case ATA_133:
-> -		case ATA_133a:
-> -			mode = 4;
-> -			break;
-> -		case ATA_100:
-> -		case ATA_100a:
-> -			mode = 3;
-> -			break;
-> -		case ATA_66:
-> -			mode = 2;
-> -			break;
-> -		case ATA_33:
-> -			return 1;
-> -		case ATA_16:
-> -                case ATA_00:	
-> -		default:
-> -			return 0;
-> -	}
-> -#endif
->  	if (!eighty_ninty_three(drive))
->  		mode = min(mode, (u8)1);
->  	return mode;
-> @@ -543,20 +446,12 @@
->  	u8 reg4bh		= 0;
->  	u8 rw_prefetch		= (0x11 << drive->dn);
->  
-> -#ifdef DEBUG
-> -	printk("SIS5513: config_drive_art_rwp, drive %d\n", drive->dn);
-> -	sis5513_load_verify_registers(dev, "config_drive_art_rwp start");
-> -#endif
-> -
->  	if (drive->media != ide_disk)
->  		return;
->  	pci_read_config_byte(dev, 0x4b, &reg4bh);
->  
->  	if ((reg4bh & rw_prefetch) != rw_prefetch)
->  		pci_write_config_byte(dev, 0x4b, reg4bh|rw_prefetch);
-> -#ifdef DEBUG
-> -	sis5513_load_verify_registers(dev, "config_drive_art_rwp end");
-> -#endif
->  }
->  
->  
-> @@ -571,10 +466,6 @@
->  	u16 eide_pio_timing[6] = {600, 390, 240, 180, 120, 90};
->  	u16 xfer_pio = drive->id->eide_pio_modes;
->  
-> -#ifdef DEBUG
-> -	sis5513_load_verify_registers(dev, "config_drive_art_rwp_pio start");
-> -#endif
-> -
->  	config_drive_art_rwp(drive);
->  	pio = ide_get_best_pio_mode(drive, 255, pio, NULL);
->  
-> @@ -594,12 +485,6 @@
->  
->  	timing = (xfer_pio >= pio) ? xfer_pio : pio;
->  
-> -#ifdef DEBUG
-> -	printk("SIS5513: config_drive_art_rwp_pio, "
-> -		"drive %d, pio %d, timing %d\n",
-> -	       drive->dn, pio, timing);
-> -#endif
-> -
->  	/* In pre ATA_133 case, drives sit at 0x40 + 4*drive->dn */
->  	drive_pci = 0x40;
->  	/* In SiS962 case drives sit at (0x40 or 0x70) + 8*drive->dn) */
-> @@ -645,41 +530,24 @@
->  		pci_read_config_dword(dev, drive_pci, &test3);
->  		test3 &= 0xc0c00fff;
->  		if (test3 & 0x08) {
-> -			test3 |= (unsigned long)ini_time_value[ATA_133-ATA_00][timing] << 12;
-> -			test3 |= (unsigned long)act_time_value[ATA_133-ATA_00][timing] << 16;
-> -			test3 |= (unsigned long)rco_time_value[ATA_133-ATA_00][timing] << 24;
-> +			test3 |= (unsigned long)ini_time_value[ATA_133][timing] << 12;
-> +			test3 |= (unsigned long)act_time_value[ATA_133][timing] << 16;
-> +			test3 |= (unsigned long)rco_time_value[ATA_133][timing] << 24;
->  		} else {
-> -			test3 |= (unsigned long)ini_time_value[ATA_100-ATA_00][timing] << 12;
-> -			test3 |= (unsigned long)act_time_value[ATA_100-ATA_00][timing] << 16;
-> -			test3 |= (unsigned long)rco_time_value[ATA_100-ATA_00][timing] << 24;
-> +			test3 |= (unsigned long)ini_time_value[ATA_100][timing] << 12;
-> +			test3 |= (unsigned long)act_time_value[ATA_100][timing] << 16;
-> +			test3 |= (unsigned long)rco_time_value[ATA_100][timing] << 24;
->  		}
->  		pci_write_config_dword(dev, drive_pci, test3);
->  	}
-> -
-> -#ifdef DEBUG
-> -	sis5513_load_verify_registers(dev, "config_drive_art_rwp_pio start");
-> -#endif
->  }
->  
->  static int config_chipset_for_pio (ide_drive_t *drive, u8 pio)
->  {
-> -#if 0
-> +	if (pio == 255)
-> +		pio = ide_find_best_mode(drive, XFER_PIO | XFER_EPIO) - XFER_PIO_0;
->  	config_art_rwp_pio(drive, pio);
-> -	return ide_config_drive_speed(drive, (XFER_PIO_0 + pio));
-> -#else
-> -	u8 speed;
-> -
-> -	switch(pio) {
-> -		case 4:		speed = XFER_PIO_4; break;
-> -		case 3:		speed = XFER_PIO_3; break;
-> -		case 2:		speed = XFER_PIO_2; break;
-> -		case 1:		speed = XFER_PIO_1; break;
-> -		default:	speed = XFER_PIO_0; break;
-> -	}
-> -
-> -	config_art_rwp_pio(drive, pio);
-> -	return ide_config_drive_speed(drive, speed);
-> -#endif
-> +	return ide_config_drive_speed(drive, XFER_PIO_0 + min_t(u8, pio, 4));
->  }
->  
->  static int sis5513_tune_chipset (ide_drive_t *drive, u8 xferspeed)
-> @@ -690,24 +558,8 @@
->  	u8 drive_pci, reg, speed;
->  	u32 regdw;
->  
-> -#ifdef DEBUG
-> -	sis5513_load_verify_registers(dev, "sis5513_tune_chipset start");
-> -#endif
-> -
-> -#ifdef BROKEN_LEVEL
-> -#ifdef DEBUG
-> -	printk("SIS5513: BROKEN_LEVEL activated, speed=%d -> speed=%d\n", xferspeed, BROKEN_LEVEL);
-> -#endif
-> -	if (xferspeed > BROKEN_LEVEL) xferspeed = BROKEN_LEVEL;
-> -#endif
-> -
->  	speed = ide_rate_filter(sis5513_ratemask(drive), xferspeed);
->  
-> -#ifdef DEBUG
-> -	printk("SIS5513: sis5513_tune_chipset, drive %d, speed %d\n",
-> -	       drive->dn, xferspeed);
-> -#endif
-> -
->  	/* See config_art_rwp_pio for drive pci config registers */
->  	drive_pci = 0x40;
->  	if (chipset_family >= ATA_133) {
-> @@ -746,14 +598,14 @@
->  				regdw &= 0xfffff00f;
->  				/* check if ATA133 enable */
->  				if (regdw & 0x08) {
-> -					regdw |= (unsigned long)cycle_time_value[ATA_133-ATA_00][speed-XFER_UDMA_0] << 4;
-> -					regdw |= (unsigned long)cvs_time_value[ATA_133-ATA_00][speed-XFER_UDMA_0] << 8;
-> +					regdw |= (unsigned long)cycle_time_value[ATA_133][speed-XFER_UDMA_0] << 4;
-> +					regdw |= (unsigned long)cvs_time_value[ATA_133][speed-XFER_UDMA_0] << 8;
->  				} else {
->  				/* if ATA133 disable, we should not set speed above UDMA5 */
->  					if (speed > XFER_UDMA_5)
->  						speed = XFER_UDMA_5;
-> -					regdw |= (unsigned long)cycle_time_value[ATA_100-ATA_00][speed-XFER_UDMA_0] << 4;
-> -					regdw |= (unsigned long)cvs_time_value[ATA_100-ATA_00][speed-XFER_UDMA_0] << 8;
-> +					regdw |= (unsigned long)cycle_time_value[ATA_100][speed-XFER_UDMA_0] << 4;
-> +					regdw |= (unsigned long)cvs_time_value[ATA_100][speed-XFER_UDMA_0] << 8;
->  				}
->  				pci_write_config_dword(dev, (unsigned long)drive_pci, regdw);
->  			} else {
-> @@ -763,7 +615,7 @@
->  				reg &= ~((0xFF >> (8 - cycle_time_range[chipset_family]))
->  					 << cycle_time_offset[chipset_family]);
->  				/* set reg cycle time bits */
-> -				reg |= cycle_time_value[chipset_family-ATA_00][speed-XFER_UDMA_0]
-> +				reg |= cycle_time_value[chipset_family][speed-XFER_UDMA_0]
->  					<< cycle_time_offset[chipset_family];
->  				pci_write_config_byte(dev, drive_pci+1, reg);
->  			}
-> @@ -782,9 +634,7 @@
->  		case XFER_PIO_0:
->  		default:	 return((int) config_chipset_for_pio(drive, 0));	
->  	}
-> -#ifdef DEBUG
-> -	sis5513_load_verify_registers(dev, "sis5513_tune_chipset end");
-> -#endif
-> +
->  	return ((int) ide_config_drive_speed(drive, speed));
->  }
->  
-> @@ -863,18 +713,34 @@
->  	return sis5513_config_drive_xfer_rate(drive);
->  }
->  
-> -/* Helper function used at init time
-> - * returns a PCI device revision ID
-> - * (used to detect different IDE controller versions)
-> - */
-> -static u8 __init devfn_rev(int device, int function)
+> -psmouse-objs  := psmouse-base.o
+> -ifeq ($(CONFIG_MOUSE_PS2_SYNAPTICS),y)
+> -        psmouse-objs += synaptics.o
+> -endif
+> +psmouse-objs  := psmouse-base.o logips2pp.o synaptics.o
+> diff -ruNp linux-2.5.72-vanilla/drivers/input/mouse/logips2pp.c linux-2.5.72-np2/drivers/input/mouse/logips2pp.c
+> --- linux-2.5.72-vanilla/drivers/input/mouse/logips2pp.c	1969-12-31 16:00:00.000000000 -0800
+> +++ linux-2.5.72-np2/drivers/input/mouse/logips2pp.c	2003-06-17 16:00:19.000000000 -0700
+> @@ -0,0 +1,228 @@
 > +/*
-> +  Future simpler config_xfer_rate :
-> +   When ide_find_best_mode is made bad-drive aware
-> +   - remove config_drive_xfer_rate and config_chipset_for_dma,
-> +   - replace config_xfer_rate with the following
+> + * Logitech PS/2++ mouse driver
+> + *
+> + * Copyright (c) 1999-2003 Vojtech Pavlik <vojtech@suse.cz>
+> + * Copyright (c) 2003 Eric Wong <eric@yhbt.net>
+> + *
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License version 2 as published by
+> + * the Free Software Foundation.
+> + */
 > +
-> +static int sis5513_config_xfer_rate (ide_drive_t *drive)
->  {
-> -	u8 revision;
-> -	/* Find device */
-> -	struct pci_dev* dev = pci_find_slot(0,PCI_DEVFN(device,function));
-> -	pci_read_config_byte(dev, PCI_REVISION_ID, &revision);
-> -	return revision;
-> +	u16 w80 = HWIF(drive)->udma_four;
-> +	u16 speed;
+> +#include <linux/input.h>
+> +#include "psmouse.h"
+> +#include "logips2pp.h"
 > +
-> +	config_drive_art_rwp(drive);
-> +	config_art_rwp_pio(drive, 5);
+> +/*
+> + * Process a PS2++ or PS2T++ packet.
+> + */
 > +
-> +	speed = ide_find_best_mode(drive,
-> +		XFER_PIO | XFER_EPIO | XFER_SWDMA | XFER_MWDMA |
-> +		(chipset_family >= ATA_33 ? XFER_UDMA : 0) |
-> +		(w80 && chipset_family >= ATA_66 ? XFER_UDMA_66 : 0) |
-> +		(w80 && chipset_family >= ATA_100a ? XFER_UDMA_100 : 0) |
-> +		(w80 && chipset_family >= ATA_133a ? XFER_UDMA_133 : 0));
+> +void ps2pp_process_packet(struct psmouse *psmouse)
+> +{
+> +	struct input_dev *dev = &psmouse->dev;
+> +        unsigned char *packet = psmouse->packet;
 > +
-> +	sis5513_tune_chipset(drive, speed);
+> +	if ((packet[0] & 0x48) == 0x48 && (packet[1] & 0x02) == 0x02) {
 > +
-> +	if (drive->autodma && (speed & XFER_MODE) != XFER_PIO)
-> +		return HWIF(drive)->ide_dma_on(drive);
-> +	return HWIF(drive)->ide_dma_off_quietly(drive);
->  }
-> +*/
->  
->  /* Chip detection and general config */
->  static unsigned int __init init_chipset_sis5513 (struct pci_dev *dev, const char *name)
-> @@ -882,71 +748,86 @@
->  	struct pci_dev *host;
->  	int i = 0;
->  
-> -	/* Find the chip */
-> -	for (i = 0; i < ARRAY_SIZE(SiSHostChipInfo) && !host_dev; i++) {
-> -		host = pci_find_device (PCI_VENDOR_ID_SI,
-> -					SiSHostChipInfo[i].host_id,
-> -					NULL);
-> +	chipset_family = 0;
+> +		switch ((packet[1] >> 4) | (packet[0] & 0x30)) {
 > +
-> +	for (i = 0; i < ARRAY_SIZE(SiSHostChipInfo) && !chipset_family; i++) {
+> +			case 0x0d: /* Mouse extra info */
 > +
-> +		host = pci_find_device(PCI_VENDOR_ID_SI, SiSHostChipInfo[i].host_id, NULL);
+> +				input_report_rel(dev, packet[2] & 0x80 ? REL_HWHEEL : REL_WHEEL,
+> +					(int) (packet[2] & 8) - (int) (packet[2] & 7));
+> +				input_report_key(dev, BTN_SIDE, (packet[2] >> 4) & 1);
+> +				input_report_key(dev, BTN_EXTRA, (packet[2] >> 5) & 1);
 > +
->  		if (!host)
->  			continue;
->  
-> -		host_dev = host;
->  		chipset_family = SiSHostChipInfo[i].chipset_family;
+> +				break;
 > +
-> +		/* Special case for SiS630 : 630S/ET is ATA_100a */
-> +		if (SiSHostChipInfo[i].host_id == PCI_DEVICE_ID_SI_630) {
-> +			u8 hostrev;
-> +			pci_read_config_byte(host, PCI_REVISION_ID, &hostrev);
-> +			if (hostrev >= 0x30)
-> +				chipset_family = ATA_100a;
+> +			case 0x0e: /* buttons 4, 5, 6, 7, 8, 9, 10 info */
+> +
+> +				input_report_key(dev, BTN_SIDE, (packet[2]) & 1);
+> +				input_report_key(dev, BTN_EXTRA, (packet[2] >> 1) & 1);
+> +				input_report_key(dev, BTN_BACK, (packet[2] >> 3) & 1);
+> +				input_report_key(dev, BTN_FORWARD, (packet[2] >> 4) & 1);
+> +				input_report_key(dev, BTN_TASK, (packet[2] >> 2) & 1);
+> +
+> +				break;
+> +
+> +			case 0x0f: /* TouchPad extra info */
+> +
+> +				input_report_rel(dev, packet[2] & 0x08 ? REL_HWHEEL : REL_WHEEL,
+> +					(int) ((packet[2] >> 4) & 8) - (int) ((packet[2] >> 4) & 7));
+> +				packet[0] = packet[2] | 0x08;
+> +				break;
+> +
+> +#ifdef DEBUG
+> +			default:
+> +				printk(KERN_WARNING "psmouse.c: Received PS2++ packet #%x, but don't know how to handle.\n",
+> +					(packet[1] >> 4) | (packet[0] & 0x30));
+> +#endif
 > +		}
->  	
-> -		/* check 100/133 chipset family */
-> -		if (chipset_family == ATA_133) {
-> -			u32 reg54h;
-> -			u16 devid;
-> -			pci_read_config_dword(dev, 0x54, &reg54h);
-> -			/* SiS962 and above report 0x5518 dev id if high bit is cleared */
-> -			pci_write_config_dword(dev, 0x54, (reg54h & 0x7fffffff));
-> -			pci_read_config_word(dev, 0x02, &devid);
-> -			/* restore register 0x54 */
-> -			pci_write_config_dword(dev, 0x54, reg54h);
-> -
-> -			/* devid 5518 here means SiS962 or later
-> -			   which supports ATA133.
-> -			   These are refered by chipset_family = ATA133
-> -			*/
-> -			if (devid != 0x5518) {
-> -				u8 reg49h;
-> -				/* SiS961 family */
-> -				pci_read_config_byte(dev, 0x49, &reg49h);
-> -				/* check isa bridge device rev id */
-> -				if (((devfn_rev(2,0) & 0xff) == 0x10) && (reg49h & 0x80))
-> -					chipset_family = ATA_133a;
-> -				else
-> -					chipset_family = ATA_100;
-> +		printk(KERN_INFO "SIS5513: %s %s controller\n",
-> +			 SiSHostChipInfo[i].name, chipset_capability[chipset_family]);
+> +
+> +		packet[0] &= 0x0f;
+> +		packet[1] = 0;
+> +		packet[2] = 0;
+> +
 > +	}
+> +}
 > +
-> +	if (!chipset_family) { /* Belongs to pci-quirks */
+> +/*
+> + * ps2pp_cmd() sends a PS2++ command, sliced into two bit
+> + * pieces through the SETRES command. This is needed to send extended
+> + * commands to mice on notebooks that try to understand the PS/2 protocol
+> + * Ugly.
+> + */
 > +
-> +			u32 idemisc;
-> +			u16 trueid;
+> +static int ps2pp_cmd(struct psmouse *psmouse, unsigned char *param, unsigned char command)
+> +{
+> +	unsigned char d;
+> +	int i;
 > +
-> +			/* Disable ID masking and register remapping */
-> +			pci_read_config_dword(dev, 0x54, &idemisc);
-> +			pci_write_config_dword(dev, 0x54, (idemisc & 0x7fffffff));
-> +			pci_read_config_word(dev, PCI_DEVICE_ID, &trueid);
-> +			pci_write_config_dword(dev, 0x54, idemisc);
-> +
-> +			if (trueid == 0x5518) {
-> +				printk(KERN_INFO "SIS5513: SiS 962/963 MuTIOL IDE UDMA133 controller\n");
-> +				chipset_family = ATA_133;
->  			}
-> -		}
-> -		printk(SiSHostChipInfo[i].name);
-> -		printk("    %s controller", chipset_capability[chipset_family]);
-> -		printk("\n");
-> +	}
->  
-> -#ifdef DEBUG
-> -		sis5513_print_registers(dev, "pci_init_sis5513 start");
-> -#endif
-> +	if (!chipset_family) { /* Belongs to pci-quirks */
->  
-> -		if (SiSHostChipInfo[i].flags & SIS5513_LATENCY) {
-> -			u8 latency = (chipset_family == ATA_100)? 0x80 : 0x10; /* Lacking specs */
-> -			pci_write_config_byte(dev, PCI_LATENCY_TIMER, latency);
-> -		}
-> +			struct pci_dev *lpc_bridge;
-> +			u16 trueid;
-> +			u8 prefctl;
-> +			u8 idecfg;
-> +			u8 sbrev;
-> +
-> +			pci_read_config_byte(dev, 0x4a, &idecfg);
-> +			pci_write_config_byte(dev, 0x4a, idecfg | 0x10);
-> +			pci_read_config_word(dev, PCI_DEVICE_ID, &trueid);
-> +			pci_write_config_byte(dev, 0x4a, idecfg);
-> +
-> +			if (trueid == 0x5517) { /* SiS 961/961B */
-> +
-> +				lpc_bridge = pci_find_slot(0x00, 0x10); /* Bus 0, Dev 2, Fn 0 */
-> +				pci_read_config_byte(lpc_bridge, PCI_REVISION_ID, &sbrev);
-> +				pci_read_config_byte(dev, 0x49, &prefctl);
->  
-> -		/* Special case for SiS630 : 630S/ET is ATA_100a */
-> -		if (SiSHostChipInfo[i].host_id == PCI_DEVICE_ID_SI_630) {
-> -			/* check host device rev id */
-> -			if (devfn_rev(0,0) >= 0x30) {
-> -				chipset_family = ATA_100a;
-> +				if (sbrev == 0x10 && (prefctl & 0x80)) {
-> +					printk(KERN_INFO "SIS5513: SiS 961B MuTIOL IDE UDMA133 controller\n");
-> +					chipset_family = ATA_133a;
-> +				} else {
-> +					printk(KERN_INFO "SIS5513: SiS 961 MuTIOL IDE UDMA100 controller\n");
-> +					chipset_family = ATA_100;
-> +				}
->  			}
-> -		}
->  	}
->  
-> +	if (!chipset_family)
+> +	if (psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11))
 > +		return -1;
 > +
->  	/* Make general config ops here
->  	   1/ tell IDE channels to operate in Compatibility mode only
->  	   2/ tell old chips to allow per drive IDE timings */
-> -	if (host_dev) {
+> +	for (i = 6; i >= 0; i -= 2) {
+> +		d = (command >> i) & 3;
+> +		if(psmouse_command(psmouse, &d, PSMOUSE_CMD_SETRES))
+> +			return -1;
+> +	}
 > +
-> +	{
->  		u8 reg;
->  		u16 regw;
+> +	if (psmouse_command(psmouse, param, PSMOUSE_CMD_POLL))
+> +		return -1;
 > +
->  		switch(chipset_family) {
->  			case ATA_133:
->  				/* SiS962 operation mode */
-> @@ -959,6 +840,8 @@
->  				break;
->  			case ATA_133a:
->  			case ATA_100:
-> +				/* Fixup latency */
-> +				pci_write_config_byte(dev, PCI_LATENCY_TIMER, 0x80);
->  				/* Set compatibility bit */
->  				pci_read_config_byte(dev, 0x49, &reg);
->  				if (!(reg & 0x01)) {
-> @@ -967,6 +850,9 @@
->  				break;
->  			case ATA_100a:
->  			case ATA_66:
-> +				/* Fixup latency */
-> +				pci_write_config_byte(dev, PCI_LATENCY_TIMER, 0x10);
+> +	return 0;
+> +}
 > +
->  				/* On ATA_66 chips the bit was elsewhere */
->  				pci_read_config_byte(dev, 0x52, &reg);
->  				if (!(reg & 0x04)) {
-> @@ -987,8 +873,6 @@
->  					pci_write_config_byte(dev, 0x52, reg|0x08);
->  				}
->  				break;
-> -			case ATA_00:
-> -			default: break;
->  		}
->  
->  #if defined(DISPLAY_SIS_TIMINGS) && defined(CONFIG_PROC_FS)
-> @@ -999,9 +883,7 @@
->  		}
->  #endif
->  	}
-> -#ifdef DEBUG
-> -	sis5513_load_verify_registers(dev, "pci_init_sis5513 end");
-> -#endif
+> +/*
+> + * SmartScroll / CruiseControl for some newer Logitech mice Defaults to
+> + * enabled if we do nothing to it. Of course I put this in because I want it
+> + * disabled :P
+> + * 1 - enabled (if previously disabled, also default)
+> + * 0/2 - disabled 
+> + */
 > +
->  	return 0;
->  }
+> +static void ps2pp_set_smartscroll(struct psmouse *psmouse)
+> +{
+> +	unsigned char param[4];
+> +
+> +	ps2pp_cmd(psmouse, param, 0x32);
+> +
+> +	param[0] = 0;
+> +	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
+> +	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
+> +	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
+> +
+> +	if (psmouse_smartscroll == 1) 
+> +		param[0] = 1;
+> +	else
+> +	if (psmouse_smartscroll > 2)
+> +		return;
+> +
+> +	/* else leave param[0] == 0 to disable */
+> +	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
+> +}
+> +
+> +/*
+> + * Support 800 dpi resolution _only_ if the user wants it (there are good
+> + * reasons to not use it even if the mouse supports it, and of course there are
+> + * also good reasons to use it, let the user decide).
+> + */
+> +
+> +void ps2pp_set_800dpi(struct psmouse *psmouse)
+> +{
+> +	unsigned char param = 3;
+> +	psmouse_command(psmouse, NULL, PSMOUSE_CMD_SETSCALE11);
+> +	psmouse_command(psmouse, NULL, PSMOUSE_CMD_SETSCALE11);
+> +	psmouse_command(psmouse, NULL, PSMOUSE_CMD_SETSCALE11);
+> +	psmouse_command(psmouse, &param, PSMOUSE_CMD_SETRES);
+> +}
+> +
+> +/*
+> + * Detect the exact model and features of a PS2++ or PS2T++ Logitech mouse or
+> + * touchpad.
+> + */
+> +
+> +int ps2pp_detect_model(struct psmouse *psmouse, unsigned char *param)
+> +{
+> +	int i;
+> +	static int logitech_4btn[] = { 12, 40, 41, 42, 43, 52, 73, 80, -1 };
+> +	static int logitech_wheel[] = { 52, 53, 75, 76, 80, 81, 83, 88, 112, -1 };
+> +	static int logitech_ps2pp[] = { 12, 13, 40, 41, 42, 43, 50, 51, 52, 53, 73, 75,
+> +						76, 80, 81, 83, 88, 96, 97, 112, -1 };
+> +	static int logitech_mx[] = { 112, -1 };
+> +
+> +	psmouse->vendor = "Logitech";
+> +	psmouse->model = ((param[0] >> 4) & 0x07) | ((param[0] << 3) & 0x78);
+> +
+> +	if (param[1] < 3)
+> +		clear_bit(BTN_MIDDLE, psmouse->dev.keybit);
+> +	if (param[1] < 2)
+> +		clear_bit(BTN_RIGHT, psmouse->dev.keybit);
+> +
+> +	psmouse->type = PSMOUSE_PS2;
+> +
+> +	for (i = 0; logitech_ps2pp[i] != -1; i++)
+> +		if (logitech_ps2pp[i] == psmouse->model)
+> +			psmouse->type = PSMOUSE_PS2PP;
+> +
+> +	if (psmouse->type == PSMOUSE_PS2PP) {
+> +
+> +		for (i = 0; logitech_4btn[i] != -1; i++)
+> +			if (logitech_4btn[i] == psmouse->model)
+> +				set_bit(BTN_SIDE, psmouse->dev.keybit);
+> +
+> +		for (i = 0; logitech_wheel[i] != -1; i++)
+> +			if (logitech_wheel[i] == psmouse->model) {
+> +				set_bit(REL_WHEEL, psmouse->dev.relbit);
+> +				psmouse->name = "Wheel Mouse";
+> +			}
+> +
+> +		for (i = 0; logitech_mx[i] != -1; i++)
+> +			if (logitech_mx[i]  == psmouse->model) {
+> +				set_bit(BTN_SIDE, psmouse->dev.keybit);
+> +				set_bit(BTN_EXTRA, psmouse->dev.keybit);
+> +				set_bit(BTN_BACK, psmouse->dev.keybit);
+> +				set_bit(BTN_FORWARD, psmouse->dev.keybit);
+> +				set_bit(BTN_TASK, psmouse->dev.keybit);
+> +				psmouse->name = "MX Mouse";
+> +			}
+> +
+> +/*
+> + * Do Logitech PS2++ / PS2T++ magic init.
+> + */
+> +
+> +		if (psmouse->model == 97) { /* TouchPad 3 */
+> +
+> +			set_bit(REL_WHEEL, psmouse->dev.relbit);
+> +			set_bit(REL_HWHEEL, psmouse->dev.relbit);
+> +
+> +			param[0] = 0x11; param[1] = 0x04; param[2] = 0x68; /* Unprotect RAM */
+> +			psmouse_command(psmouse, param, 0x30d1);
+> +			param[0] = 0x11; param[1] = 0x05; param[2] = 0x0b; /* Enable features */
+> +			psmouse_command(psmouse, param, 0x30d1);
+> +			param[0] = 0x11; param[1] = 0x09; param[2] = 0xc3; /* Enable PS2++ */
+> +			psmouse_command(psmouse, param, 0x30d1);
+> +
+> +			param[0] = 0;
+> +			if (!psmouse_command(psmouse, param, 0x13d1) &&
+> +				param[0] == 0x06 && param[1] == 0x00 && param[2] == 0x14) {
+> +				psmouse->name = "TouchPad 3";
+> +				return PSMOUSE_PS2TPP;
+> +			}
+> +
+> +		} else {
+> +			param[0] = param[1] = param[2] = 0;
+> +
+> +			ps2pp_cmd(psmouse, param, 0x39); /* Magic knock */
+> +			ps2pp_cmd(psmouse, param, 0xDB);
+> +
+> +			ps2pp_set_smartscroll(psmouse);
+> +
+> +			if ((param[0] & 0x78) == 0x48 && (param[1] & 0xf3) == 0xc2 &&
+> +				(param[2] & 3) == ((param[1] >> 2) & 3))
+> +					return PSMOUSE_PS2PP;
+> +		}
+> +	}
+> +
+> +	return 0;
+> +}
+> diff -ruNp linux-2.5.72-vanilla/drivers/input/mouse/logips2pp.h linux-2.5.72-np2/drivers/input/mouse/logips2pp.h
+> --- linux-2.5.72-vanilla/drivers/input/mouse/logips2pp.h	1969-12-31 16:00:00.000000000 -0800
+> +++ linux-2.5.72-np2/drivers/input/mouse/logips2pp.h	2003-06-17 14:04:02.000000000 -0700
+> @@ -0,0 +1,17 @@
+> +/*
+> + * Logitech PS/2++ mouse driver header
+> + *
+> + * Copyright (c) 2003 Vojtech Pavlik <vojtech@suse.cz>
+> + *
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License version 2 as published by
+> + * the Free Software Foundation.
+> + */
+> +
+> +#ifndef _LOGIPS2PP_H
+> +#define _LOGIPS2PP_H
+> +struct psmouse;
+> +void ps2pp_process_packet(struct psmouse *psmouse);
+> +void ps2pp_set_800dpi(struct psmouse *psmouse);
+> +int ps2pp_detect_model(struct psmouse *psmouse, unsigned char *param);
+> +#endif
+> diff -ruNp linux-2.5.72-vanilla/drivers/input/mouse/psmouse-base.c linux-2.5.72-np2/drivers/input/mouse/psmouse-base.c
+> --- linux-2.5.72-vanilla/drivers/input/mouse/psmouse-base.c	2003-06-17 13:33:51.000000000 -0700
+> +++ linux-2.5.72-np2/drivers/input/mouse/psmouse-base.c	2003-06-17 14:04:19.000000000 -0700
+> @@ -19,13 +19,23 @@
+>  #include <linux/init.h>
+>  #include "psmouse.h"
+>  #include "synaptics.h"
+> +#include "logips2pp.h"
 >  
-> @@ -1044,7 +926,7 @@
->  	hwif->mwdma_mask = 0x07;
->  	hwif->swdma_mask = 0x07;
->  
-> -	if (!host_dev)
-> +	if (!chipset_family)
->  		return;
->  
->  	if (!(hwif->udma_four))
-> @@ -1102,7 +984,7 @@
->  module_init(sis5513_ide_init);
->  module_exit(sis5513_ide_exit);
->  
-> -MODULE_AUTHOR("Lionel Bouton, L C Chang, Andre Hedrick");
-> +MODULE_AUTHOR("Lionel Bouton, L C Chang, Andre Hedrick, Vojtech Pavlik");
->  MODULE_DESCRIPTION("PCI driver module for SIS IDE");
+>  MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
+>  MODULE_DESCRIPTION("PS/2 mouse driver");
+>  MODULE_PARM(psmouse_noext, "1i");
+> +MODULE_PARM_DESC(psmouse_noext, "Disable any protocol extensions. Useful for KVM switches.");
+> +MODULE_PARM(psmouse_resolution, "i");
+> +MODULE_PARM_DESC(psmouse_resolution, "Resolution, in dpi.");
+> +MODULE_PARM(psmouse_smartscroll, "i");
+> +MODULE_PARM_DESC(psmouse_smartscroll, "Logitech Smartscroll autorepeat, 1 = enabled (default), 0 = disabled.");
 >  MODULE_LICENSE("GPL");
 >  
-> @@ -1110,13 +992,10 @@
+> +#define PSMOUSE_LOGITECH_SMARTSCROLL	1
+> +
+>  static int psmouse_noext;
+> +int psmouse_resolution;
+> +int psmouse_smartscroll = PSMOUSE_LOGITECH_SMARTSCROLL;
+>  
+>  static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/2", "ImPS/2", "ImExPS/2", "Synaptics"};
+>  
+> @@ -45,43 +55,8 @@ static void psmouse_process_packet(struc
+>   * The PS2++ protocol is a little bit complex
+>   */
+>  
+> -	if (psmouse->type == PSMOUSE_PS2PP || psmouse->type == PSMOUSE_PS2TPP) {
+> -
+> -		if ((packet[0] & 0x40) == 0x40 && abs((int)packet[1] - (((int)packet[0] & 0x10) << 4)) > 191 ) {
+> -
+> -			switch (((packet[1] >> 4) & 0x03) | ((packet[0] >> 2) & 0x0c)) {
+> -
+> -			case 1: /* Mouse extra info */
+> -
+> -				input_report_rel(dev, packet[2] & 0x80 ? REL_HWHEEL : REL_WHEEL,
+> -					(int) (packet[2] & 8) - (int) (packet[2] & 7));
+> -				input_report_key(dev, BTN_SIDE, (packet[2] >> 4) & 1);
+> -				input_report_key(dev, BTN_EXTRA, (packet[2] >> 5) & 1);
+> -					
+> -				break;
+> -
+> -			case 3: /* TouchPad extra info */
+> -
+> -				input_report_rel(dev, packet[2] & 0x08 ? REL_HWHEEL : REL_WHEEL,
+> -					(int) ((packet[2] >> 4) & 8) - (int) ((packet[2] >> 4) & 7));
+> -				packet[0] = packet[2] | 0x08;
+> -
+> -				break;
+> -
+> -#ifdef DEBUG
+> -			default:
+> -				printk(KERN_WARNING "psmouse.c: Received PS2++ packet #%x, but don't know how to handle.\n",
+> -					((packet[1] >> 4) & 0x03) | ((packet[0] >> 2) & 0x0c));
+> -#endif
+> -
+> -			}
+> -
+> -		packet[0] &= 0x0f;
+> -		packet[1] = 0;
+> -		packet[2] = 0;
+> -
+> -		}
+> -	}
+> +	if (psmouse->type == PSMOUSE_PS2PP || psmouse->type == PSMOUSE_PS2TPP)
+> +		ps2pp_process_packet(psmouse);
 >  
 >  /*
->   * TODO:
-> - *	- Get ridden of SisHostChipInfo[] completness dependancy.
-> - *	- Study drivers/ide/ide-timing.h.
-> - *	- Are there pre-ATA_16 SiS5513 chips ? -> tune init code for them
-> - *	  or remove ATA_00 define
-> + *	- CLEANUP
-> + *	- Use drivers/ide/ide-timing.h !
->   *	- More checks in the config registers (force values instead of
->   *	  relying on the BIOS setting them correctly).
->   *	- Further optimisations ?
->   *	  . for example ATA66+ regs 0x48 & 0x4A
+>   * Scroll wheel on IntelliMice, scroll buttons on NetMice
+> @@ -259,33 +234,6 @@ int psmouse_command(struct psmouse *psmo
+>  }
+>  
+>  /*
+> - * psmouse_ps2pp_cmd() sends a PS2++ command, sliced into two bit
+> - * pieces through the SETRES command. This is needed to send extended
+> - * commands to mice on notebooks that try to understand the PS/2 protocol
+> - * Ugly.
+> - */
+> -
+> -static int psmouse_ps2pp_cmd(struct psmouse *psmouse, unsigned char *param, unsigned char command)
+> -{
+> -	unsigned char d;
+> -	int i;
+> -
+> -	if (psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11))
+> -		return -1;
+> -
+> -	for (i = 6; i >= 0; i -= 2) {
+> -		d = (command >> i) & 3;
+> -		if(psmouse_command(psmouse, &d, PSMOUSE_CMD_SETRES))
+> -			return -1;
+> -	}
+> -
+> -	if (psmouse_command(psmouse, param, PSMOUSE_CMD_POLL))
+> -		return -1;
+> -
+> -	return 0;
+> -}
+> -
+> -/*
+>   * psmouse_extensions() probes for any extensions to the basic PS/2 protocol
+>   * the mouse may have.
+>   */
+> @@ -353,73 +301,13 @@ static int psmouse_extensions(struct psm
+>  	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
+>  	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
+>  	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
+> +	param[1] = 0;
+>  	psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
+>  
+>  	if (param[1]) {
+> -
+> -		int i;
+> -		static int logitech_4btn[] = { 12, 40, 41, 42, 43, 52, 73, 80, -1 };
+> -		static int logitech_wheel[] = { 52, 53, 75, 76, 80, 81, 83, 88, -1 };
+> -		static int logitech_ps2pp[] = { 12, 13, 40, 41, 42, 43, 50, 51, 52, 53, 73, 75,
+> -							76, 80, 81, 83, 88, 96, 97, -1 };
+> -		psmouse->vendor = "Logitech";
+> -		psmouse->model = ((param[0] >> 4) & 0x07) | ((param[0] << 3) & 0x78);
+> -
+> -		if (param[1] < 3)
+> -			clear_bit(BTN_MIDDLE, psmouse->dev.keybit);
+> -		if (param[1] < 2)
+> -			clear_bit(BTN_RIGHT, psmouse->dev.keybit);
+> -
+> -		psmouse->type = PSMOUSE_PS2;
+> -
+> -		for (i = 0; logitech_ps2pp[i] != -1; i++)
+> -			if (logitech_ps2pp[i] == psmouse->model)
+> -				psmouse->type = PSMOUSE_PS2PP;
+> -
+> -		if (psmouse->type == PSMOUSE_PS2PP) {
+> -
+> -			for (i = 0; logitech_4btn[i] != -1; i++)
+> -				if (logitech_4btn[i] == psmouse->model)
+> -					set_bit(BTN_SIDE, psmouse->dev.keybit);
+> -
+> -			for (i = 0; logitech_wheel[i] != -1; i++)
+> -				if (logitech_wheel[i] == psmouse->model) {
+> -					set_bit(REL_WHEEL, psmouse->dev.relbit);
+> -					psmouse->name = "Wheel Mouse";
+> -				}
+> -
+> -/*
+> - * Do Logitech PS2++ / PS2T++ magic init.
+> - */
+> -
+> -			if (psmouse->model == 97) { /* TouchPad 3 */
+> -
+> -				set_bit(REL_WHEEL, psmouse->dev.relbit);
+> -				set_bit(REL_HWHEEL, psmouse->dev.relbit);
+> -
+> -				param[0] = 0x11; param[1] = 0x04; param[2] = 0x68; /* Unprotect RAM */
+> -				psmouse_command(psmouse, param, 0x30d1);
+> -				param[0] = 0x11; param[1] = 0x05; param[2] = 0x0b; /* Enable features */
+> -				psmouse_command(psmouse, param, 0x30d1);
+> -				param[0] = 0x11; param[1] = 0x09; param[2] = 0xc3; /* Enable PS2++ */
+> -				psmouse_command(psmouse, param, 0x30d1);
+> -
+> -				param[0] = 0;
+> -				if (!psmouse_command(psmouse, param, 0x13d1) &&
+> -					param[0] == 0x06 && param[1] == 0x00 && param[2] == 0x14)
+> -					return PSMOUSE_PS2TPP;
+> -
+> -			} else {
+> -				param[0] = param[1] = param[2] = 0;
+> -
+> -				psmouse_ps2pp_cmd(psmouse, param, 0x39); /* Magic knock */
+> -				psmouse_ps2pp_cmd(psmouse, param, 0xDB);
+> -
+> -				if ((param[0] & 0x78) == 0x48 && (param[1] & 0xf3) == 0xc2 &&
+> -					(param[2] & 3) == ((param[1] >> 2) & 3))
+> -						return PSMOUSE_PS2PP;
+> -			}
+> -		}
+> +		int type = ps2pp_detect_model(psmouse, param);
+> +		if (type)
+> +			return type;
+>  	}
+>  
+>  /*
+> @@ -508,6 +396,31 @@ static int psmouse_probe(struct psmouse 
+>  }
+>  
+>  /*
+> + * Here we set the mouse resolution.
+> + */
+> +
+> +static void psmouse_set_resolution(struct psmouse *psmouse)
+> +{
+> +	unsigned char param[1];
+> +
+> +	if (psmouse->type == PSMOUSE_PS2PP && psmouse_resolution > 400) {
+> +		ps2pp_set_800dpi(psmouse);
+> +		return;
+> +	}
+> +
+> +	if (!psmouse_resolution || psmouse_resolution >= 200)
+> +		param[0] = 3;
+> +	else if (psmouse_resolution >= 100)
+> +		param[0] = 2;
+> +	else if (psmouse_resolution >= 50)
+> +		param[0] = 1;
+> +	else if (psmouse_resolution)
+> +		param[0] = 0;
+> +
+> +        psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
+> +}
+> +
+> +/*
+>   * psmouse_initialize() initializes the mouse to a sane state.
+>   */
+>  
+> @@ -519,7 +432,6 @@ static void psmouse_initialize(struct ps
+>   * We set the mouse report rate to a highest possible value.
+>   * We try 100 first in case mouse fails to set 200.
 >   */
 > -
-> diff -urN -X dontdiff --exclude=tmp_include_depends linux-2.4.21-ac1/include/linux/pci_ids.h linux-2.4.21-ac1-vojtech/include/linux/pci_ids.h
-> --- linux-2.4.21-ac1/include/linux/pci_ids.h	2003-06-18 23:20:47.000000000 +0200
-> +++ linux-2.4.21-ac1-vojtech/include/linux/pci_ids.h	2003-06-19 01:10:23.000000000 +0200
-> @@ -493,6 +493,7 @@
->  #define PCI_DEVICE_ID_SI_601		0x0601
->  #define PCI_DEVICE_ID_SI_620		0x0620
->  #define PCI_DEVICE_ID_SI_630		0x0630
-> +#define PCI_DEVICE_ID_SI_633		0x0633
->  #define PCI_DEVICE_ID_SI_635		0x0635
->  #define PCI_DEVICE_ID_SI_640		0x0640
->  #define PCI_DEVICE_ID_SI_645		0x0645
-> @@ -503,6 +504,7 @@
->  #define PCI_DEVICE_ID_SI_652		0x0652
->  #define PCI_DEVICE_ID_SI_655		0x0655
->  #define PCI_DEVICE_ID_SI_730		0x0730
-> +#define PCI_DEVICE_ID_SI_733		0x0733
->  #define PCI_DEVICE_ID_SI_630_VGA	0x6300
->  #define PCI_DEVICE_ID_SI_730_VGA	0x7300
->  #define PCI_DEVICE_ID_SI_735		0x0735
-> @@ -520,7 +522,10 @@
->  #define PCI_DEVICE_ID_SI_5513		0x5513
->  #define PCI_DEVICE_ID_SI_5518		0x5518
->  #define PCI_DEVICE_ID_SI_5571		0x5571
-> +#define PCI_DEVICE_ID_SI_5581		0x5581
-> +#define PCI_DEVICE_ID_SI_5582		0x5582
->  #define PCI_DEVICE_ID_SI_5591		0x5591
-> +#define PCI_DEVICE_ID_SI_5596		0x5596
->  #define PCI_DEVICE_ID_SI_5597		0x5597
->  #define PCI_DEVICE_ID_SI_5598		0x5598
->  #define PCI_DEVICE_ID_SI_5600		0x5600
+>  	param[0] = 100;
+>  	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRATE);
+>  
+> @@ -530,8 +442,7 @@ static void psmouse_initialize(struct ps
+>   * We also set the resolution and scaling.
+>   */
+>  
+> -	param[0] = 3;
+> -	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
+> +	psmouse_set_resolution(psmouse);
+>  	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
+>  
+>  /*
+> @@ -638,12 +549,28 @@ static struct serio_dev psmouse_dev = {
+>  };
+>  
+>  #ifndef MODULE
+> -static int __init psmouse_setup(char *str)
+> +static int __init psmouse_noext_setup(char *str)
+>  {
+>  	psmouse_noext = 1;
+>  	return 1;
+>  }
+> -__setup("psmouse_noext", psmouse_setup);
+> +
+> +static int __init psmouse_resolution_setup(char *str)
+> +{
+> +	get_option(&str, &psmouse_resolution);
+> +	return 1;
+> +}
+> +
+> +static int __init psmouse_smartscroll_setup(char *str)
+> +{
+> +	get_option(&str, &psmouse_smartscroll);
+> +	return 1;
+> +}
+> +
+> +__setup("psmouse_noext", psmouse_noext_setup);
+> +__setup("psmouse_res=", psmouse_resolution_setup);
+> +__setup("psmouse_sms=", psmouse_smartscroll_setup);
+> +
+>  #endif
+>  
+>  int __init psmouse_init(void)
+> diff -ruNp linux-2.5.72-vanilla/drivers/input/mouse/psmouse.h linux-2.5.72-np2/drivers/input/mouse/psmouse.h
+> --- linux-2.5.72-vanilla/drivers/input/mouse/psmouse.h	2003-06-17 13:33:51.000000000 -0700
+> +++ linux-2.5.72-np2/drivers/input/mouse/psmouse.h	2003-06-17 14:02:31.000000000 -0700
+> @@ -46,4 +46,6 @@ struct psmouse {
+>  
+>  int psmouse_command(struct psmouse *psmouse, unsigned char *param, int command);
+>  
+> +extern int psmouse_smartscroll;
+> +
+>  #endif /* _PSMOUSE_H */
+> diff -ruNp linux-2.5.72-vanilla/drivers/input/mouse/synaptics.h linux-2.5.72-np2/drivers/input/mouse/synaptics.h
+> --- linux-2.5.72-vanilla/drivers/input/mouse/synaptics.h	2003-06-17 13:33:51.000000000 -0700
+> +++ linux-2.5.72-np2/drivers/input/mouse/synaptics.h	2003-06-17 14:03:26.000000000 -0700
+> @@ -9,21 +9,10 @@
+>  #ifndef _SYNAPTICS_H
+>  #define _SYNAPTICS_H
+>  
+> -#ifdef CONFIG_MOUSE_PS2_SYNAPTICS
+> -
+>  extern void synaptics_process_byte(struct psmouse *psmouse, struct pt_regs *regs);
+>  extern int synaptics_init(struct psmouse *psmouse);
+>  extern void synaptics_disconnect(struct psmouse *psmouse);
+>  
+> -#else
+> -
+> -static inline void synaptics_process_byte(struct psmouse *psmouse, struct pt_regs *regs) {}
+> -static inline int synaptics_init(struct psmouse *psmouse) { return -1; }
+> -static inline void synaptics_disconnect(struct psmouse *psmouse) {}
+> -
+> -#endif
+> -
+> -
+>  /* synaptics queries */
+>  #define SYN_QUE_IDENTIFY		0x00
+>  #define SYN_QUE_MODES			0x01
+> diff -ruNp linux-2.5.72-vanilla/include/linux/input.h linux-2.5.72-np2/include/linux/input.h
+> --- linux-2.5.72-vanilla/include/linux/input.h	2003-06-17 13:33:51.000000000 -0700
+> +++ linux-2.5.72-np2/include/linux/input.h	2003-06-17 14:02:31.000000000 -0700
+> @@ -358,6 +358,7 @@ struct input_absinfo {
+>  #define BTN_EXTRA		0x114
+>  #define BTN_FORWARD		0x115
+>  #define BTN_BACK		0x116
+> +#define BTN_TASK		0x117
+>  
+>  #define BTN_JOYSTICK		0x120
+>  #define BTN_TRIGGER		0x120
 
 
 -- 

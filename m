@@ -1,47 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287045AbSBCMvy>; Sun, 3 Feb 2002 07:51:54 -0500
+	id <S287048AbSBCM4y>; Sun, 3 Feb 2002 07:56:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287048AbSBCMvp>; Sun, 3 Feb 2002 07:51:45 -0500
-Received: from tangens.hometree.net ([212.34.181.34]:8115 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S287045AbSBCMva>; Sun, 3 Feb 2002 07:51:30 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Continuing /dev/random problems with 2.4
-Date: Sun, 3 Feb 2002 12:51:29 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <a3jboh$dtt$1@forge.intermeta.de>
-In-Reply-To: <20020201031744.A32127@asooo.flowerfire.com> <1012582401.813.1.camel@phantasy> <a3enf3$93p$1@cesium.transmeta.com> <20020201124300.G763@lynx.adilger.int>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1012740689 24303 212.34.181.4 (3 Feb 2002 12:51:29 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sun, 3 Feb 2002 12:51:29 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S287106AbSBCM4p>; Sun, 3 Feb 2002 07:56:45 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:34751 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S287048AbSBCM4Z>;
+	Sun, 3 Feb 2002 07:56:25 -0500
+Date: Sun, 3 Feb 2002 15:54:06 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Alpha Beta <abbashake007@lycos.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Qn: kernel_thread() and init
+In-Reply-To: <BNBIFONAELMBOAAA@mailcity.com>
+Message-ID: <Pine.LNX.4.33.0202031552250.11216-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger <adilger@turbolabs.com> writes:
 
->Well, all of the Intel i8XX chipsets have a harware RNG I believe.
+On Sun, 3 Feb 2002, Alpha Beta wrote:
 
-No, only those using the Firmware hub.
+> But at that time, the process 0 which calls kernel_thread is executing
+> in Kernel mode, so why should some process in kernel mode make a
+> system call??
 
-I have an (Original Intel (sic!)) i810 board without Firmware Hub (and
-without RNG).
+it's mainly done to get a clean ptregs variable the new thread can be
+created from. Just calling do_fork() is not enough. It's also a good test
+of the syscall return path.
 
-	Regards
-		Henning
+	Ingo
 
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

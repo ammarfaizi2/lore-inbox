@@ -1,33 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266006AbTATO5G>; Mon, 20 Jan 2003 09:57:06 -0500
+	id <S265872AbTATPS6>; Mon, 20 Jan 2003 10:18:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266010AbTATO5G>; Mon, 20 Jan 2003 09:57:06 -0500
-Received: from vsmtp2.tin.it ([212.216.176.222]:50251 "EHLO smtp2.cp.tin.it")
-	by vger.kernel.org with ESMTP id <S266006AbTATO5F>;
-	Mon, 20 Jan 2003 09:57:05 -0500
-Message-ID: <3E2C10C0.1080606@tin.it>
-Date: Mon, 20 Jan 2003 16:07:44 +0100
-From: AnonimoVeneziano <voloterreno@tin.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Fix for ATAPI CD/DVD-ROMs and burners with vt8235 (and
- other chipsets)
-References: <20021227111116.A2614@ucw.cz>
-In-Reply-To: <20021227111116.A2614@ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S265998AbTATPS5>; Mon, 20 Jan 2003 10:18:57 -0500
+Received: from inet-mail3.oracle.com ([148.87.2.203]:9171 "EHLO
+	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
+	id <S265872AbTATPS5>; Mon, 20 Jan 2003 10:18:57 -0500
+Message-ID: <4245685.1043076182626.JavaMail.nobody@web54.us.oracle.com>
+Date: Mon, 20 Jan 2003 07:23:02 -0800 (PST)
+From: Alessandro Suardi <ALESSANDRO.SUARDI@oracle.com>
+To: mikpe@csd.uu.se
+Subject: Re: "Latitude with broken BIOS" ?
+Cc: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-Mailer: Oracle Webmail Client
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've tried to install 2.4.21-pre3-ac4, that should include these 
-patches, but this doesn't solve the problem as vt8235-atapi does.
+Mikael Pettersson wrote:
 
-So, please , if there is something wrong correct that.
+> Alessandro Suardi wrote:
+>
+> > > Your P4-based Latitude probably has a different BIOS than the buggy
+> > > P3-based ones, and it may work better. Try commenting out the
+> > > local_apic_kills_bios entry for "Dell Latitude" at around line 692
+> > > in arch/i386/kernel/dmi_scan.c and rebuild the kernel. If it
+> > 
+> > (ahem) I had tried that in 2.5.58 already ;)
+> > 
+> > However I rebuilt 2.5.59 with that change, and I'm not going further:
+> > 
+> >  No local APIC present or hardware disabled
+>
+> Ah, your P4 needs another patch. Edit arch/i386/kernel/apic.c, function
+> detect_init_APIC(), at line 631, and remove the "&& cpu_has_apic" after
+> the "boot_cpu_data.x86 == 15" test. (Or check if your BIOS can be set up
+> to boot with the local APIC enabled.)
+>
+> /Mikael
 
-Excuse me please.
+The BIOS doesn't seem to have any such option... and the code change
+ does exactly what you imagined - pull the power cord, instant hang.
 
-Byez
+It seems even BIOS A05 of the C640 is legitimately blacklisted :(
 
+
+Thanks, ciao,
+
+--alessandro

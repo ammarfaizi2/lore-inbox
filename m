@@ -1,76 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261626AbSJJPyc>; Thu, 10 Oct 2002 11:54:32 -0400
+	id <S261646AbSJJP5O>; Thu, 10 Oct 2002 11:57:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261634AbSJJPyc>; Thu, 10 Oct 2002 11:54:32 -0400
-Received: from mta05bw.bigpond.com ([139.134.6.95]:6356 "EHLO
-	mta05bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S261626AbSJJPya>; Thu, 10 Oct 2002 11:54:30 -0400
-Message-ID: <3DA5A42F.6030001@snapgear.com>
-Date: Fri, 11 Oct 2002 02:00:47 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH]: linux-2.5.41uc1 (MMU-less support)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261645AbSJJP5N>; Thu, 10 Oct 2002 11:57:13 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:9743 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S261646AbSJJP5M>; Thu, 10 Oct 2002 11:57:12 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Blinking Keyboard LED after crash?
+Date: 10 Oct 2002 15:55:10 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <ao47su$h0a$1@gatekeeper.tmr.com>
+References: <200210080200.03756.jan-hinnerk_reichert@hamburg.de>
+X-Trace: gatekeeper.tmr.com 1034265310 17418 192.168.12.62 (10 Oct 2002 15:55:10 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+In article <200210080200.03756.jan-hinnerk_reichert@hamburg.de>,
+Jan-Hinnerk Reichert  <jan-hinnerk_reichert@hamburg.de> wrote:
+| Hi,
+| 
+| I have had some total crashes on my box without any output to console. The 
+| kernel just started to blink CapsLock and ScrollLock LEDs.
+| 
+| I wasn't able to find any documentation to these error-codes.
 
-An updated uClinux patch is available at:
-
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc1.patch.gz
-
-This one has the long awaited merge of the mmnommu and mm directories.
-Went pretty smoothly really. The patches are not too bad, but there is
-still some cleaning to do. A couple of files are still heavily #ifdef'ed
-(like mm/mmap.c, mm/swap_state.c and mm/swapfile.c) but I think these
-can ironed out a bit.
-
-
-Changelog:
-
-1. minor v850 fixes
-2. merge of mmnommu and mm dirctories
-3. cleanup stubbed system calls in archiecture system call tables
-
-
-Smaller patches:
-
-. FEC ColdFire 5272 ethernet driver
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc1-fec.patch.gz
-
-. m68k/ColdFire/v850 serial drivers
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc1-serial.patch.gz
-
-. 68328 frame buffer
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc1-fb.patch.gz
-
-. binfmt_flat loader
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc1-binflat.patch.gz
-
-. m68knommu architecture
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc1-m68knommu.patch.gz
-
-. v850 architecture
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc1-v850.patch.gz
-
-. mm (MMU-less) only patch
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc1-mm.patch.gz
-
-Regards
-Greg
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
-
+Perhaps your kernel is compiled with the option to report problems on
+the lights in morse code. No, that's not a joke...
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312558AbSEVVUI>; Wed, 22 May 2002 17:20:08 -0400
+	id <S314551AbSEVVVy>; Wed, 22 May 2002 17:21:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314458AbSEVVUH>; Wed, 22 May 2002 17:20:07 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:1034 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S312558AbSEVVUE>;
-	Wed, 22 May 2002 17:20:04 -0400
-Subject: [ANNOUNCE] fastboot mailing list at OSDL: fastboot@lists.osdl.org
-From: Andy Pfiffer <andyp@osdl.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-        Keith Mannthey <kmannth@us.ibm.com>,
-        Mohamed Abbas <mohamed.abbas@intel.com>,
-        James P Ketrenos <james.p.ketrenos@intel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 22 May 2002 14:19:54 -0700
-Message-Id: <1022102395.19870.78.camel@andyp>
-Mime-Version: 1.0
+	id <S315192AbSEVVVq>; Wed, 22 May 2002 17:21:46 -0400
+Received: from h-64-105-35-18.SNVACAID.covad.net ([64.105.35.18]:58760 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S314458AbSEVVUU>; Wed, 22 May 2002 17:20:20 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Wed, 22 May 2002 14:20:15 -0700
+Message-Id: <200205222120.OAA06088@baldur.yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Subject: Floppy corruption under Linux 2.5.15 - 2.5.17
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OSDL has created a mailing list for discussion of various topics
-relating to "fastboot": reducing enterprise system start & restart time.
+	Under Linux 2.5.17, if I do
 
-Topics of discussion are expected to include:
+		dd if=a_1.44mb_floppy_image of=/dev/floppy/0
 
-	- kexec
-	- Two Kernel Monty
-	- bootimg
-	- and other similar technology
+	on a newly inserted floppy, I will get "read only filesystem"
+error (the write protect tab is not open).  If I then read some data from
+the floppy and try the command again, the dd succeeds the second time
+with no errors, and there is enough floppy disk activity to convince
+me that a full disk image may have been written, but the image is
+incorrect.  I have also reproduced this problem under 2.5.15.  I have
+tried on two different floppy drives.  I have tried booting from the
+floppy using the same drive with which I wrote the floppy, and booting
+from a different floppy drive.  It does not appear to be a hardware
+problem with the drive.  I will probably get to the bottom of this
+in a few days in nobody beats me to it, but I thought I ought to
+pass this information along in the meantime.
 
-Other areas for discussion may include:
-
-	- avoiding reprobe of devices,
-	- fast system initialization after the kernel boots,
-	- system-wide checkpoint/restart.
-
-To subscribe, please visit:
-
-	http://lists.osdl.org/mailman/listinfo/fastboot
-
-
-Regards,
-Andy
---
-Open Software Development Labs, Inc.            a not-for-profit company
-15275SW Koll Parkway, Suite H                   http://www.osdl.org/
-Beaverton, OR  97006                            503-626-2455
-
-
-
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264668AbRFPVzd>; Sat, 16 Jun 2001 17:55:33 -0400
+	id <S264661AbRFPVtC>; Sat, 16 Jun 2001 17:49:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264667AbRFPVzX>; Sat, 16 Jun 2001 17:55:23 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:64016 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S264669AbRFPVzT>;
-	Sat, 16 Jun 2001 17:55:19 -0400
-Date: Sat, 16 Jun 2001 18:54:38 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Daniel Phillips <phillips@bonn-fries.net>
+	id <S264665AbRFPVsw>; Sat, 16 Jun 2001 17:48:52 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:1298 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S264661AbRFPVsn>; Sat, 16 Jun 2001 17:48:43 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: spindown [was Re: 2.4.6-pre2, pre3 VM Behavior]
+Date: Sat, 16 Jun 2001 23:44:57 +0200
+X-Mailer: KMail [version 1.2]
 Cc: Pavel Machek <pavel@suse.cz>, John Stoffel <stoffel@casc.com>,
         Roger Larsson <roger.larsson@norran.net>,
         Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: spindown [was Re: 2.4.6-pre2, pre3 VM Behavior]
-In-Reply-To: <0106162344570L.00879@starship>
-Message-ID: <Pine.LNX.4.21.0106161853510.2056-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+In-Reply-To: <Pine.LNX.4.21.0106161801220.2056-100000@imladris.rielhome.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0106161801220.2056-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <0106162344570L.00879@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Jun 2001, Daniel Phillips wrote:
+On Saturday 16 June 2001 23:06, Rik van Riel wrote:
+> On Sat, 16 Jun 2001, Daniel Phillips wrote:
+> > As a side note, the good old multisecond delay before bdflush kicks in
+> > doesn't really make a lot of sense - when bandwidth is available the
+> > filesystem-initiated writeouts should happen right away.
+>
+> ... thus spinning up the disk ?
 
-> > Does the patch below do anything good for your laptop? ;)
-> 
-> I'll wait for the next one ;-)
+Nope, the disk is already spinning, some other writeouts just finished.
 
-OK, here's one which isn't reversed and should work ;))
+> How about just making sure we write out a bigger bunch
+> of dirty pages whenever one buffer gets too old ?
 
---- fs/buffer.c.orig	Sat Jun 16 18:05:29 2001
-+++ fs/buffer.c	Sat Jun 16 18:05:15 2001
-@@ -2550,7 +2550,8 @@
- 			   if the current bh is not yet timed out,
- 			   then also all the following bhs
- 			   will be too young. */
--			if (time_before(jiffies, bh->b_flushtime))
-+			if (++flushed > bdf_prm.b_un.ndirty &&
-+					time_before(jiffies, bh->b_flushtime))
- 				goto out_unlock;
- 		} else {
- 			if (++flushed > bdf_prm.b_un.ndirty)
+It's simpler than that.  It's basically just: disk traffic low? good, write 
+out all the dirty buffers.  Not quite as crude as that, but nearly.
 
-cheers,
+> Does the patch below do anything good for your laptop? ;)
 
-Rik
+I'll wait for the next one ;-)
+
 --
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+Daniel

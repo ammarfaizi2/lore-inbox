@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264128AbTKTIop (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 03:44:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264143AbTKTIoo
+	id S261567AbTKTIiY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 03:38:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264128AbTKTIiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 03:44:44 -0500
-Received: from ns.schottelius.org ([213.146.113.242]:49598 "HELO
-	ns.schottelius.org") by vger.kernel.org with SMTP id S264128AbTKTIon
+	Thu, 20 Nov 2003 03:38:24 -0500
+Received: from ns.schottelius.org ([213.146.113.242]:47550 "HELO
+	ns.schottelius.org") by vger.kernel.org with SMTP id S261567AbTKTIiX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 03:44:43 -0500
-Date: Thu, 20 Nov 2003 09:44:47 +0100
+	Thu, 20 Nov 2003 03:38:23 -0500
+Date: Thu, 20 Nov 2003 09:38:27 +0100
 From: Nico Schottelius <nico-mutt@schottelius.org>
-To: Matt_Wu@acersoftech.com.cn
-Cc: linux-kernel@vger.kernel.org
-Subject: M5451 / problems adjusting the mixer
-Message-ID: <20031120084447.GM3748@schottelius.org>
+To: Ben Hoskings <ben@jeeves.bpa.nu>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: transmeta cpu code question
+Message-ID: <20031120083827.GL3748@schottelius.org>
+References: <20031120020218.GJ3748@schottelius.org> <200311201210.04780.ben@jeeves.bpa.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200311201210.04780.ben@jeeves.bpa.nu>
 X-Linux-Info: http://linux.schottelius.org/
 X-Operating-System: Linux bruehe 2.6.0-test4
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Matt, List!
+Thank you all guys for your answers, it looks like it was
+more obvious I would like to admit.
 
-I am using the M5451 driver to use sound on my ECS A530:
+So to recapitulate it, the and with the 0xff 8-Bit value
+with an 32Bit Value let's us cut out values, to cut within
+a value 'with a pair of scissors' like this:
 
-00:06.0 Multimedia audio controller: ALi Corporation M5451 PCI AC-Link
-Controller Audio Device (rev 02)
-        Subsystem: Elitegroup Computer Systems: Unknown device 0f22
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR+ <PERR+
-        Latency: 64 (500ns min, 6000ns max)
-        Interrupt: pin A routed to IRQ 5
-        Region 0: I/O ports at d800 [size=256]
-        Region 1: Memory at effac000 (32-bit, non-prefetchable)
-[size=4K]
-        Capabilities: [dc] Power Management version 2
-                Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA
-PME(D0-,D1-,D2+,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+0x AA BB CC DD
+   |  |  |  |  
+   | 0xBB| 0xDD
+  0xAA 0xCC
 
+Have a nice day, I will read on the small transmeta code...
 
-Is it a software bug, a non programmed feauture of this particular
-implementation or a general problem with this hardware?
-
-In any case: Howto fix it? Can I help you with testing drivers here or
-delivering you with hardware information?
-
-Have a nice day,
+I am still interested whether there are possibilities to
+   a) use the crusoe without the morphing software (to use its native
+      command set)
+   b) to fine tune Linux to my specific processor, to make it use all
+      available feautures the processor has.
 
 Nico
+

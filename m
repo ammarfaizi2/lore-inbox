@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264817AbUEVBVo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264798AbUEVBVo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264817AbUEVBVo (ORCPT <rfc822;willy@w.ods.org>);
+	id S264798AbUEVBVo (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 21 May 2004 21:21:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264798AbUEVBSo
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264488AbUEVBS2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 21:18:44 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:59104 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S263614AbUEVBOg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 21:14:36 -0400
-Date: Fri, 21 May 2004 21:14:28 -0400
-From: Tom Vier <tmv@comcast.net>
-To: Corin Langosch <corinl@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: dual opteron problems
-Message-ID: <20040522011428.GC21186@zero>
-Reply-To: Tom Vier <tmv@comcast.net>
-References: <689626123.20040519193732@gmx.de> <200405200521.i4K5Lvlv005934@bach.leonora.org> <859031054.20040521010414@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <859031054.20040521010414@gmx.de>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 21 May 2004 21:18:28 -0400
+Received: from not.theboonies.us ([66.139.79.224]:14027 "EHLO
+	not.theboonies.us") by vger.kernel.org with ESMTP id S264798AbUEVBPr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 21:15:47 -0400
+Message-ID: <1085002775.40abd417121b0@mail.theboonies.us>
+Date: Wed, 19 May 2004 16:39:35 -0500
+To: James Simmons <jsimmons@infradead.org>
+Cc: akpm@osdl.org,
+       Linux Frame Buffer Dev 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Linux-fbdev-devel] FB accel capabilities patch
+References: <Pine.LNX.4.44.0405192026290.28783-100000@phoenix.infradead.org>
+In-Reply-To: <Pine.LNX.4.44.0405192026290.28783-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.3
+X-Originating-IP: 213.197.71.87
+X-Delivery-Agent: TMDA/1.0.2 (Bold Forbes)
+From: David Eger <eger@theboonies.us>
+X-Primary-Address: random@theboonies.us
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 21, 2004 at 01:04:14AM +0200, Corin Langosch wrote:
-> sorry for posting again, but couldn't anyone help me?
-> would be more than nice!!
+Quoting James Simmons <jsimmons@infradead.org>:
 
-i think this is errata 96(?). tyan has a bios upgrade for it, and other
-companies should too.
+> > +/* FBIF = FB_Info.Flags */
+> > +#define FBIF_MODULE		0x0001	/* Low-level driver is a module */
+>
+> Ug. You changed that. Could that remain the same.
 
-i got it when i first put my box together and i haven't seen it since i
-upgraded the bios.
+Will it suffice to add
 
-> CPU 1: Machine Check Exception: 0000000000000000000004
-> Bank 4: b200000000000000000070f0f
-> Kernel panic: CPU context corrupt
+#define FBINFO_FLAG_MODULE FBIF_MODULE
 
--- 
-Tom Vier <tmv@comcast.net>
-DSA Key ID 0x15741ECE
+for backwards compatibility?
+
+I'd prefer the new flags to be FBIF_*, as the identifier
+FBINFO_FLAG_HWACCEL_COPYAREA seems sorta long to me...
+
+I'll sync with linus's bk tomorrow and try to rework my main patch; the
+"mainline" patch I posted was against his bk shortly after 2.6.6...
+
+> I have a patch coming that fixes the mode setting. It changes alot of the
+> core fbcon.c so I will apply your patch to the fbdev-2.5 tree.
+
+I take it this is in addition to your con2fb patch I have posted at that web
+address?
+
+-dte

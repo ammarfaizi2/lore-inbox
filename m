@@ -1,89 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVBACZo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbVBAC2n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261503AbVBACZo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 21:25:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbVBACZo
+	id S261507AbVBAC2n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 21:28:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVBAC2n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 21:25:44 -0500
-Received: from mail.joq.us ([67.65.12.105]:18155 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S261503AbVBACZf (ORCPT
+	Mon, 31 Jan 2005 21:28:43 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:29122 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261507AbVBAC2e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 21:25:35 -0500
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, Alexander Nyberg <alexn@dsv.su.se>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: [PATCH] sched - Implement priority and fifo support for
- SCHED_ISO
-References: <41F76746.5050801@kolivas.org> <87acqpjuoy.fsf@sulphur.joq.us>
-	<41FE9582.7090003@kolivas.org> <87651di55a.fsf@sulphur.joq.us>
-	<41FEB8BA.7000106@kolivas.org>
-From: "Jack O'Quin" <joq@io.com>
-Date: Mon, 31 Jan 2005 20:27:08 -0600
-In-Reply-To: <41FEB8BA.7000106@kolivas.org> (Con Kolivas's message of "Tue,
- 01 Feb 2005 10:01:14 +1100")
-Message-ID: <87fz0hf20z.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 31 Jan 2005 21:28:34 -0500
+Subject: Re: [RFC] shared subtrees
+From: Ram <linuxram@us.ibm.com>
+To: Mike Waychison <Michael.Waychison@Sun.COM>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <41FABD4E.6050701@sun.com>
+References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk>
+	 <41FABD4E.6050701@sun.com>
+Content-Type: text/plain
+Organization: IBM 
+Message-Id: <1107224911.8118.65.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 31 Jan 2005 18:28:31 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Jack O'Quin wrote:
->> The corrected version works noticeably better, but still nowhere near
->> as well as SCHED_FIFO.  The first run had a cluster of really bad
->> xruns.  The second and third were much better, but still with numerous
->> small xruns.
->>
->>   http://www.joq.us/jack/benchmarks/sched-iso-fix/
->>
->> With a compile running in the background it was a complete failure.
->> Some kind of big xrun storm triggered a collapse on every attempt.
->>
->>   http://www.joq.us/jack/benchmarks/sched-iso-fix+compile/
->>
->> The summary statistics are mixed.  The delay_max is noticeably better
->> than before, but still much worse than SCHED_FIFO.  But, the xruns are
->> really bad news...
+On Fri, 2005-01-28 at 14:31, Mike Waychison wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Al Viro wrote:
+> 
+> > OK, here comes the first draft of proposed semantics for subtree
+> > sharing.  What we want is being able to propagate events between
+> > the parts of mount trees.  Below is a description of what I think
+> > might be a workable semantics; it does *NOT* describe the data
+> > structures I would consider final and there are considerable
+> > areas where we still need to figure out the right behaviour.
+> > 
+> 
+> Okay, I'm not convinced that shared subtrees as proposed will work well
+> with autofs.
+> 
+> The idea discussed off-line was this:
+> 
+> When you install an autofs mountpoint, on say /home, a daemon is started
+> to service the requests.  As far as the admin is concerned, an fs is
+> mounted in the current namespace, call it namespaceA.  The daemon
+> actually runs in it's one private namespace: call it namespaceB.
+> namespaceB receives a new autofs filesystem: call it autofsB.  autofsB
+> is in it's own p-node.  namespaceA gets an autofsA on /home as well, and
+> autofsA is 'owned' by autofsB's p-node.
 
-Con Kolivas <kernel@kolivas.org> writes:
-> Believe it or not these look like good results to me. Your XRUNS are
-> happening when the DSP load is >70% which is the iso_cpu % cutoff. Try
-> setting the iso_cpu to 90%
->
-> echo 90 > /proc/sys/kernel/iso_cpu
+Mike, multiple parsing through the problem definition, still did not
+make the problem clear. What problem is autofs trying to solve using
+namespaces?
 
-I ran them again with that setting.  But, don't forget the large
-number of xruns before, even running without the compiles in the
-background.  There are still way too many of those, although the third
-run was clean.  If you can get them all to work like that, we'll
-really have something.
+My guess is you dont want to see a automount taking place in namespaceA,
+when a automount takes place in namespaceB, even though
+the automount-point is in a shared subtree?
 
-  http://www.joq.us/jack/benchmarks/sched-iso-fix.90
+Sorry don't understand automount's requirement in the first place,
+RP
 
-With a compile running in the background, the entire run did not fail
-completely as it had at 70%.  But there are still way too many xruns.
+> 
+> So:
+ ..snip...
 
-  http://www.joq.us/jack/benchmarks/sched-iso-fix.90+compile
-
-I moved a bunch of directories testing older prototypes to a .old
-subdirectory, they no longer clutter up the summary statistics.
-
-  http://www.joq.us/jack/benchmarks/.SUMMARY
-
-The fact that the results did improve with the 90% setting suggests
-that there may be a bug in your throttling or time accounting.  The
-DSP load for this test should hover around 50% when things are working
-properly.  It should never hit a 70% limit, not even momentarily.  The
-background compile should not affect that, either.
-
-Something seems to be causing scheduling delays when the sound card
-interrupt causes jackd to become runnable.  Ingo's nice(-20) patches
-seem to have the same problem, but his RLIMIT_RT_CPU version does not.
-
-This is still not working well enough for JACK users.  Long and
-variable trigger latencies after hardware interrupts are deadly to any
-serious realtime application.
--- 
-  joq

@@ -1,63 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316600AbSE3MJC>; Thu, 30 May 2002 08:09:02 -0400
+	id <S316603AbSE3MMm>; Thu, 30 May 2002 08:12:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316601AbSE3MJB>; Thu, 30 May 2002 08:09:01 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:48079 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S316600AbSE3MI7>;
-	Thu, 30 May 2002 08:08:59 -0400
-Date: Thu, 30 May 2002 22:08:28 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org, Linus <torvalds@transmeta.com>,
-        Trivial Kernel Patches <trivial@rustcorp.com.au>
-Subject: Re: missing bit from signal patches
-Message-Id: <20020530220828.3c3192cd.sfr@canb.auug.org.au>
-In-Reply-To: <Pine.LNX.4.21.0205300959050.17583-100000@serv>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S316602AbSE3MMl>; Thu, 30 May 2002 08:12:41 -0400
+Received: from APuteaux-101-2-1-180.abo.wanadoo.fr ([193.251.40.180]:58893
+	"EHLO inet6.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S316603AbSE3MMk>; Thu, 30 May 2002 08:12:40 -0400
+Date: Thu, 30 May 2002 14:12:25 +0200
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+To: me@vger.org
+Cc: linux-kernel@vger.kernel.org, Andre Hedrick <andre@linux-ide.org>
+Subject: Re: Strange RAID2 behavier...
+Message-ID: <20020530141225.A21429@bouton.inet6-interne.fr>
+Mail-Followup-To: me@vger.org, linux-kernel@vger.kernel.org,
+	Andre Hedrick <andre@linux-ide.org>
+In-Reply-To: <Pine.LNX.4.21.0205301353210.16022-100000@kenny.worldonline.se> <Pine.LNX.4.21.0205301435390.20123-100000@kenny.worldonline.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Roman,
+On jeu, mai 30, 2002 at 02:37:53 +0200, me@vger.org wrote:
+> I made the md2 a linear raid of one drive, now I can stop the md3.
+> This means that for example making md0 and md3 will make md3 unstoppable,
+> has this bug already been reported?
 
-On Thu, 30 May 2002 10:04:03 +0200 (CEST) Roman Zippel <zippel@linux-m68k.org> wrote:
->
-> On Thu, 30 May 2002, Stephen Rothwell wrote:
-> 
-> > The following should allow the affected architectures to build in
-> > 2.5.19 as currently there will be two definitions of
-> > copy_siginfo_to_user.
-> 
-> There are other build problems. m68k doesn't compile, because siginfo_t is
-> defined after the generic include and the inline functions in there access
-> that structure. On the other hand I can't put the include after the
-> definition, as it depends on other defines in the include.
-> I worked around it with some ugly hacks, but a proper fix would be very
-> welcome.
+This could be a bug/constraint in raidtools as said in mad raidtab:
+"the  parsing  code  isn't  overly bright".
 
-Is the following a more ugly hack than yours?
+I've had small glitches when using comments in raidtab. Try removing all
+your commented /dev/md2 related lines instead of building a dumb array.
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
-diff -ruN 2.5.19-si/include/asm-generic/siginfo.h 2.5.19-si.3/include/asm-generic/siginfo.h
---- 2.5.19-si/include/asm-generic/siginfo.h	Thu May 30 09:44:38 2002
-+++ 2.5.19-si.3/include/asm-generic/siginfo.h	Thu May 30 22:04:54 2002
-@@ -64,7 +64,11 @@
- 	} _sifields;
- } siginfo_t;
- 
--#endif
-+#else /* HAVE_ARCH_SIGINFO_T */
-+
-+struct siginfo;
-+
-+#endif /* HAVE_ARCH_SIGINFO_T */
- 
- /*
-  * How these fields are to be accessed.
+LB.

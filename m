@@ -1,66 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbULKW0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262025AbULKWfn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262028AbULKW0U (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 17:26:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbULKW0U
+	id S262025AbULKWfn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 17:35:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbULKWfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 17:26:20 -0500
-Received: from out009pub.verizon.net ([206.46.170.131]:18876 "EHLO
-	out009.verizon.net") by vger.kernel.org with ESMTP id S262028AbULKW0S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 17:26:18 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: Improved console UTF-8 support for the Linux kernel?
-Date: Sat, 11 Dec 2004 17:26:16 -0500
-User-Agent: KMail/1.7
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       David =?iso-8859-1?q?G=F3mez?= <david@pleyades.net>,
-       Simos Xenitellis <simos74@gmx.net>
-References: <1102784797.4410.8.camel@kl> <20041211212533.GA13739@fargo> <Pine.LNX.4.53.0412112234550.2492@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.53.0412112234550.2492@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200412111726.17242.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.42.94] at Sat, 11 Dec 2004 16:26:17 -0600
+	Sat, 11 Dec 2004 17:35:43 -0500
+Received: from bgm-24-94-57-164.stny.rr.com ([24.94.57.164]:23192 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262025AbULKWfb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 17:35:31 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>, Ingo Molnar <mingo@elte.hu>,
+       Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, LKML <linux-kernel@vger.kernel.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+In-Reply-To: <Pine.OSF.4.05.10412112027540.6963-100000@da410.ifa.au.dk>
+References: <Pine.OSF.4.05.10412112027540.6963-100000@da410.ifa.au.dk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Kihon Technologies
+Date: Sat, 11 Dec 2004 17:34:40 -0500
+Message-Id: <1102804480.3691.32.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 11 December 2004 16:39, Jan Engelhardt wrote:
->>Indeed is weird. Are you sure you keyboard is generating an UTF-8
->>enconded "ö"? Just check it with echo:
->>
->>$ echo -n ö | od -t x1
->>
->>0000000 c3 b6
->>0000002
->
->Yes it does generate 0xC3B6 (otherwise it would show up as garbage,
-> because it would not be utf8-compliant if it only output 0xF6)
+On Sat, 2004-12-11 at 20:50 +0100, Esben Nielsen wrote:
+> Linux relies on soft IRQ for delivering packets to the listening
+> protocol stacks. That is a problem because you can't just boost the
+> priority of soft-IRQ without boosting a lot of things.
+> 
+> With IRQ-threading the design could be changed such the IRQ thread does
+> the job directly. But that will make the whole IRQ thread drive the
+> protocol stack as well :-(
+> 
+> It all depends on what your requirements are. Maybe you can handle
+> "driving" the whole IP stack before handling the RT packet - maybe not.
+> 
+> How did you handle it in your thesis?
+> 
 
-Which is exactly (0xF6) what I'm getting.  Kernel version
-2.6.10-rc2-mm3-V0.7.32-18
+I had an irq threaded kernel, and all softirqs where handled by the
+softirqd thread. I created two more threads that would handle the
+sending and receiving of the packets.  Here's how it worked: 
 
-As an american, I've often wondered how to go about getting those
-accented characters out of a std american keyboard.  I used to be
-able to get all those accented and other stuffs out of my amiga's
-keyboard, stuff like the Beta sign and so on.  No can do now, and I
-miss it.
+Each packet had an ip option added that stated the priority of the
+packet. (of course the priorities of each machine connected must have
+this protocol and priorities mean the same).
 
-[...]
+When received, the interrupt (in interrupt context not a thread) would
+look to see if it was an RT packet. If it was, it placed it on a rt
+received queue and woke up the receive thread. If needed it would raise
+the priority of that thread. If the packet was not RT, it went the
+normal route (placed on the queue for the softirq to handle).
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.30% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+The packet queue was a heap queue sorted by priority. The parts of the
+TCP/IP stack was broken up into sections. The receive thread would only
+process the packet on top of the queue. At the end of the section, it
+would check to see if the queue changed and then start processing the
+packet on top, if a higher packet came in at that time.  So the packets
+on the queue had a state attached to them.  When the packet eventually
+made it to the process waiting, it was then handled by that process. So
+if a process was waiting, the process would have been woken up and it
+would handle the rest of the processing. Otherwise the receive thread
+would do it up to where it can drop it off to the processes. I set the
+packet to be once less priority of the process it was sent from and the
+one it was going to.
 
+The sending was done mostly by the process, but if it had to wait for
+some reason, the sending thread would take over.
+
+This was mostly academic in nature, but was a lot of fun and interesting
+to see how results changed with different methods.
+
+
+> 
+> > 
+> > I just wanted to bring up this discussion, I guess a general approach is
+> > too difficult and not worth the effort.
+> >
+> 
+> If you can think up something there is no harm in trying it :-)
+>  
+
+If I ever think of something, I would not hesitate on implementing
+it ;-)
+
+> > Thanks,
+> > 
+> > -- Steve
+> > 
+> Esben
+> 
+> 

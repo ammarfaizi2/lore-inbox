@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276646AbRJ2STM>; Mon, 29 Oct 2001 13:19:12 -0500
+	id <S278690AbRJ2S3o>; Mon, 29 Oct 2001 13:29:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278690AbRJ2STC>; Mon, 29 Oct 2001 13:19:02 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:267 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S276646AbRJ2SSt>; Mon, 29 Oct 2001 13:18:49 -0500
-Date: Mon, 29 Oct 2001 19:17:50 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] Smbfs + preempt on 2.4.10
-In-Reply-To: <01102919120800.05333@nemo>
-Message-ID: <Pine.LNX.4.30.0110291913490.21339-100000@cola.teststation.com>
+	id <S279059AbRJ2S3e>; Mon, 29 Oct 2001 13:29:34 -0500
+Received: from hamachi.synopsys.com ([204.176.20.26]:3819 "EHLO
+	hamachi.synopsys.com") by vger.kernel.org with ESMTP
+	id <S278905AbRJ2S3V>; Mon, 29 Oct 2001 13:29:21 -0500
+Message-ID: <3BDD9FF4.D54DC0C9@Synopsys.COM>
+Date: Mon, 29 Oct 2001 19:29:08 +0100
+From: Harald Dunkel <harri@synopsys.COM>
+Reply-To: harri@synopsys.COM
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.12-preempt i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: 3c59x:command 0x3002 did not complete! Status=0xffff
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Oct 2001, vda wrote:
+Hi folks,
 
-> Hi,
-> 
-> I narrowed down Samba weirdness I observe on 2.4.10 to preempt patch.
-> Plain 2.4.10 works fine, 2.4.10+preempt (with latency measurement turned on)
-> is sometimes oopses, and sometimes reports 'file already exists' when I 
-> attempt to copy a file from WinNT box to Linux. Sometimes it works ok
-> (50% or so...)
+Does anybody know what this message in kern.log means?
 
-Could be that the preempt patch triggers some smbfs bug. Where do I get a
-copy of it?
+	eth0: command 0x3002 did not complete! Status=0xffff
 
-It is of course also possible that the preempt patch is buggy, in which
-case I don't really care :)
+It comes up when I try to setup a pppoe connection to my provider.
+The interface is a 3c59x.
 
 
-> I am very willing to help in curing this coz low latency is great.
+Any help would be highly appreciated
 
-Could you describe the problems you experience with the current code, and
-how the preempt patch helps?
-
-/Urban
-
+Harri

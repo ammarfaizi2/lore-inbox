@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265549AbTFMVl7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 17:41:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265542AbTFMVkQ
+	id S265543AbTFMVkI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 17:40:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265542AbTFMVkH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 17:40:16 -0400
-Received: from aneto.able.es ([212.97.163.22]:10172 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S265544AbTFMVhQ (ORCPT
+	Fri, 13 Jun 2003 17:40:07 -0400
+Received: from 015.atlasinternet.net ([212.9.93.15]:35292 "EHLO minime.uib.es")
+	by vger.kernel.org with ESMTP id S265543AbTFMVga (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 17:37:16 -0400
-Date: Fri, 13 Jun 2003 23:50:59 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Matthias Andree <matthias.andree@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.21 released
-Message-ID: <20030613215059.GA2961@werewolf.able.es>
-References: <200306131453.h5DErX47015940@hera.kernel.org> <20030613165628.GE28609@in-ws-001.cid-net.de> <20030613172226.GB9339@merlin.emma.line.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 13 Jun 2003 17:36:30 -0400
+From: Ricardo Galli <gallir@uib.es>
+To: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.21 released  (acpi)
+Date: Fri, 13 Jun 2003 23:49:20 +0200
+User-Agent: KMail/1.5.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20030613172226.GB9339@merlin.emma.line.org>; from matthias.andree@gmx.de on Fri, Jun 13, 2003 at 19:22:26 +0200
-X-Mailer: Balsa 2.0.11
+Message-Id: <200306132349.22072.gallir@uib.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> If you don't like it, just disable it. For lots of other people with new 
+> laptops the latest ACPI is mandatory.
+...
+>> For me acpid is not workin well. When I use acpid on ECS_L7VTA-00-C (BIOS-1.6)
+>> the network card (integrated with main borad) is not working, DHCPd client is
+>> time outing and there is no routing via that hardware ;-)
+ 
+Not for Dell Latitude (X200), no battery detected, no suspend, button doesn't
+shutdown nicely (it just switches the machine off). So, still surviving with APM, 
+even in 2.5.70.
 
-On 06.13, Matthias Andree wrote:
-> On Fri, 13 Jun 2003, Stefan Foerster wrote:
-> 
-> > * Marcelo Tosatti <marcelo@hera.kernel.org> wrote:
-> > > final:
-> > > 
-> > > - 2.4.21-rc8 was released as 2.4.21 with no changes.
-> > 
-> > Can we expect the latest ACPI and aic7xxx stuff in 2.4.22-pre?
-> 
-> I'd add "XFS merge" to the list:
-> 
+And, yes, I already reported several times since 2.5.68 and 2.4.21-rc2-acX
 
-I have many other, simpler things in my set:
-- Fix for bad AT_PLATFORM on HT Xeons
-- check_gcc for x86
-- separate config option for PII (yes some still have that and does not hurt)
-- CONFIG_NR_CPUS
-- hfsplus driver (first will talk to maintainer if he cares...)
-
-And a ton of possibly fixes I have collected over time, but someone would have
-to review them.
-Don't know if there is any chance to get them in, but...I will send to the list.
+But I vote for XFS.
 
 -- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.21-rc8-jam1 (gcc 3.3 (Mandrake Linux 9.2 3.3-1mdk))
+  ricardo
+

@@ -1,80 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270200AbTGRKZY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 06:25:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270201AbTGRKZY
+	id S270201AbTGRKdM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 06:33:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270203AbTGRKdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 06:25:24 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:37285
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S270200AbTGRKZX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 06:25:23 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Wiktor Wodecki <wodecki@gmx.net>, Wiktor Wodecki <wodecki@gmx.de>,
-       Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH] O6int for interactivity
-Date: Fri, 18 Jul 2003 20:43:05 +1000
-User-Agent: KMail/1.5.2
-Cc: Nick Piggin <piggin@cyberone.com.au>,
-       Davide Libenzi <davidel@xmailserver.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>
-References: <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net> <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net> <20030718103105.GE622@gmx.de>
-In-Reply-To: <20030718103105.GE622@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Jul 2003 06:33:12 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:15375 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S270201AbTGRKdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 06:33:09 -0400
+Date: Fri, 18 Jul 2003 11:48:04 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Vasquez <andrew.vasquez@qlogic.com>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Linux-SCSI <linux-scsi@vger.kernel.org>
+Subject: Re: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b4).
+Message-ID: <20030718114804.A22815@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Vasquez <andrew.vasquez@qlogic.com>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>,
+	Linux-SCSI <linux-scsi@vger.kernel.org>
+References: <B179AE41C1147041AA1121F44614F0B0598B10@AVEXCH02.qlogic.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307182043.06029.kernel@kolivas.org>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <B179AE41C1147041AA1121F44614F0B0598B10@AVEXCH02.qlogic.org>; from andrew.vasquez@qlogic.com on Thu, Jul 17, 2003 at 04:40:00PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Jul 2003 20:31, Wiktor Wodecki wrote:
-> On Fri, Jul 18, 2003 at 12:18:33PM +0200, Mike Galbraith wrote:
-> > That _might_ (add salt) be priorities of kernel threads dropping too low.
-> >
-> > I'm also seeing occasional total stalls under heavy I/O in the order of
-> > 10-12 seconds (even the disk stops).  I have no idea if that's something
-> > in mm or the scheduler changes though, as I've yet to do any isolation
-> > and/or tinkering.  All I know at this point is that I haven't seen it in
-> > stock yet.
->
-> I've seen this too while doing a huge nfs transfer from a 2.6 machine to
-> a 2.4 machine (sparc32). Thought it'd be something with the nfs changes
-> which were recently, might be the scheduler, tho. Ah, and it is fully
-> reproducable.
+On Thu, Jul 17, 2003 at 04:40:00PM -0700, Andrew Vasquez wrote:
+> Finally, regarding some of the more interesting (if not the) question(s)
+> pertaining to the development of qla2xxx:
+> 
+>   o Creation of a single driver module rather than three distinct
+> 	drivers for each ISP type (21xx, 22xx, and 23xx).
+> 
+>   From the technical side, there aren't many compelling reasons for
+>   the change to not occur.  Support for 2k logins on 2300s did
+>   introduce a rather large, but manageable (through the compile-time
+>   preprocessor), interface change between the host driver and
+>   firmware.  The driver could of course manage this during run-time
+>   with some creative structure overlays, etc.  Secondly, bundling
+>   firmware for all ISP types can lead to a rather large binary
+>   module (21xx - ~64kbytes, 22xx - ~90kbytes, 23xx - ~110kbytes).
 
-Well I didn't want to post this yet because I'm not sure if it's a good 
-workaround yet but it looks like a reasonable compromise, and since you have a 
-testcase it will be interesting to see if it addresses it. It's possible that 
-a task is being requeued every millisecond, and this is a little smarter. It 
-allows cpu hogs to run for 100ms before being round robinned, but shorter for 
-interactive tasks. Can you try this O7 which applies on top of O6.1 please:
+Well, support for each of the subtypes can be conditional or even
+in their own submodules that share a common "library" module.
 
-available here:
-http://kernel.kolivas.org/2.5
+>   Unfortunately, it is support that ultimately becomes the
+>   overriding factor in maintaining the three-module build process.
 
-and here:
+Well, the current build process is horrible :)
 
---- linux-2.6.0-test1-mm1/kernel/sched.c	2003-07-17 19:59:16.000000000 +1000
-+++ linux-2.6.0-testck1/kernel/sched.c	2003-07-18 00:10:55.000000000 +1000
-@@ -1310,10 +1310,12 @@ void scheduler_tick(int user_ticks, int 
- 			enqueue_task(p, rq->expired);
- 		} else
- 			enqueue_task(p, rq->active);
--	} else if (p->prio < effective_prio(p)){
-+	} else if (!((task_timeslice(p) - p->time_slice) %
-+		 (MIN_TIMESLICE * (MAX_BONUS + 1 - p->sleep_avg * MAX_BONUS / MAX_SLEEP_AVG)))){
- 		/*
--		 * Tasks that have lowered their priority are put to the end
--		 * of the active array with their remaining timeslice
-+		 * Running tasks get requeued with their remaining timeslice
-+		 * after a period proportional to how cpu intensive they are to
-+		 * minimise the duration one interactive task can starve another
- 		 */
- 		dequeue_task(p, rq->active);
- 		set_tsk_need_resched(p);
+>   By building distinct modules (i.e. qla2300.ko to support ISP2300,
+>   ISP2312, and ISP2322 chips) our DVT group would focus their time and
+>   efforts on testing 23xx HBAs and not on regressing support with
+>   EOL'd products.
+
+Why can't you declare the others unsupported even if they are in
+the same module? You'd have three config option for including support
+for each specific chip type and two of them would be marked unsupported.
+
+> Until a policy change, the 8.x driver in its current form will have
+> the limitation of only one driver, qla2100, qla2200, or qla2300, can
+> be built as part of the kernel at any given time.
+
+This is not acceptable for a driver in mainline, just FYI.
 

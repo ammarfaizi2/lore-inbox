@@ -1,69 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264702AbTBETe3>; Wed, 5 Feb 2003 14:34:29 -0500
+	id <S264716AbTBETcZ>; Wed, 5 Feb 2003 14:32:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264705AbTBETe3>; Wed, 5 Feb 2003 14:34:29 -0500
-Received: from packet.digeo.com ([12.110.80.53]:51097 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264702AbTBETe1>;
-	Wed, 5 Feb 2003 14:34:27 -0500
-Date: Wed, 5 Feb 2003 11:43:53 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: lm@bitmover.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c
-Message-Id: <20030205114353.6591f4c8.akpm@digeo.com>
-In-Reply-To: <20030205184535.GG19678@dualathlon.random>
-References: <20030205174021.GE19678@dualathlon.random>
-	<20030205102308.68899bc3.akpm@digeo.com>
-	<20030205184535.GG19678@dualathlon.random>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S264730AbTBETcZ>; Wed, 5 Feb 2003 14:32:25 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:39400 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP
+	id <S264716AbTBETcY>; Wed, 5 Feb 2003 14:32:24 -0500
+Message-ID: <3E4168F6.4000309@zytor.com>
+Date: Wed, 05 Feb 2003 11:41:42 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: Kasper Dupont <kasperd@daimi.au.dk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: isofs hardlink bug (inode numbers different)
+References: <20030126235556.GA5560@paradise.net.nz> <b1nd5m$rhp$1@cesium.transmeta.com> <3E40F5DC.275FFE9D@daimi.au.dk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Feb 2003 19:43:57.0182 (UTC) FILETIME=[EC1641E0:01C2CD4E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
->
-> In this context I don't mind which is the correct one.
+Kasper Dupont wrote:
+>> 
+>>Second: If there are files on the CD-ROM *without* RockRidge
+>>attributes, you can get collisions with the synthesized inode numbers
+>>for non-RR files.
+>  
+> That can easily be solved. RockRidge inode numbers are multiplied
+> by two, and synthesized inode numbers are all odd. Of course if
+> the multiplication overflows a fallback to synthesized inode
+> numbers would be necesarry. Does any software produce inode
+> numbers large enough to make this a problem?
 > 
-> I only would like to know what is supposed to be stored inside the
-> 2.5.59 tarball on kernel.org and what is supposed to be changed between
-> 2.5.59 and the 1.952.4.2 changeset.
+
+We have no idea, and we will never be able to know.  They certainly 
+*CAN*... they are just anonymous 32-bit values.
+
 > 
-> The one I see in 2.5.59 (I double checked the tar.gz) is this:
+>>Third: If you actually rely on inode numbers to be able to find your
+>>files, like most versions of Unix including old (but not current)
+>>versions of Linux, then they are completely meaningless.
 > 
-> void jfs_truncate(struct inode *ip)
-> {
-> 	jFYI(1, ("jfs_truncate: size = 0x%lx\n", (ulong) ip->i_size));
+> Agreed.
 > 
-> 	block_truncate_page(ip->i_mapping, ip->i_size, jfs_get_block);
+>>There is another way to generate consistent inodes for hard links,
+>>which is to use the data block pointer as the "inode number."  This,
+>>however, has the problem that *ALL* zero-lenght files become "hard
+>>links" to each other.
 > 
-> And I see no changes in this area starting from 2.5.59, until changeset
-> 1.952.4.2. So I deduce my software is right and that either the 2.5.59
-> tarball or the 1.952.4.2 changeset are corrupt.
+> That problem can easily be solved. Simply use different methods
+> for zero-length files and all other files. But there might be
+> other problems with such an approach:
+> 
+> 1) Could two different files have same data block pointer?
+>    (different sizes perhaps?)
 
-OK.  I see.
+Theoretically yes.
 
-No, I cannot explain this either.  Shortly after 2.5.55, this change appears in the
-web interface:
+> 2) Do we need a way to find metadata from the inode number?
 
+Currently we do, but we could rewrite the code not to.
 
-http://linux.bkbits.net:8080/linux-2.5/cset@1.879.43.1?nav=index.html|ChangeSet@-8w
+	-hpa
 
-And revtool shows that change on Jan 09 this year.
-
-But it does not appear in Linus's 2.5.59 tarball, and there appears to be no
-record in bitkeeper of where this change fell out of the tree.
-
-In fact the above URL shows two instances of the same patch, with different
-human-written summaries, on the same day.
-
-I believe that shaggy had some problem with the nobh stuff, so possibly the
-January 9 change was reverted in some manner, and it was reapplied
-post-2.5.59, and the web interface does now show the revert.  Revtool does
-not show it either.  Nor the reapply.
-
-It is quite confusing.  Yes, something might have gone wrong.
 

@@ -1,57 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266562AbUFWQly@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265103AbUFWQvG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266562AbUFWQly (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 12:41:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266576AbUFWQly
+	id S265103AbUFWQvG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 12:51:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266565AbUFWQvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 12:41:54 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:18110 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S266562AbUFWQlv (ORCPT
+	Wed, 23 Jun 2004 12:51:05 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:33714 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S265103AbUFWQvB convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 12:41:51 -0400
-Date: Wed, 23 Jun 2004 12:41:34 -0400
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Andrew Morton <akpm@osdl.org>, Netdev <netdev@oss.sgi.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, prism54-devel@prism54.org,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH 2.4.26] prism54: add prism54 1.2
-Message-ID: <20040623164134.GT6253@ruslug.rutgers.edu>
-Mail-Followup-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Andrew Morton <akpm@osdl.org>, Netdev <netdev@oss.sgi.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	prism54-devel@prism54.org, Jeff Garzik <jgarzik@pobox.com>
-References: <20040623054348.GV6253@ruslug.rutgers.edu> <40D96E10.1060203@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40D96E10.1060203@pobox.com>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: 2.4.18-1-686
-Organization: Rutgers University Student Linux Users Group
-From: mcgrof@studorgs.rutgers.edu (Luis R. Rodriguez)
+	Wed, 23 Jun 2004 12:51:01 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH]2.6.7 MSI-X Update
+Date: Wed, 23 Jun 2004 09:49:29 -0700
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E5024057E5A85@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH]2.6.7 MSI-X Update
+Thread-Index: AcRY1Ivdj6tQO9r3QHGlRz6Yu4KObwAbEicA
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Roland Dreier" <roland@topspin.com>,
+       "long" <tlnguyen@snoqualmie.dp.intel.com>
+Cc: <ak@muc.de>, <akpm@osdl.org>, <greg@kroah.com>, <jgarzik@pobox.com>,
+       <linux-kernel@vger.kernel.org>, <zwane@linuxpower.ca>,
+       <eli@mellanox.co.il>
+X-OriginalArrivalTime: 23 Jun 2004 16:49:31.0256 (UTC) FILETIME=[0E1AAF80:01C45942]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 23, 2004 at 07:48:32AM -0400, Jeff Garzik wrote:
-> mcgrof@ruslug.rutgers.edu wrote:
-> >Andrew,
-> >
-> >2.6.7-bk5 and 2.6.7-mm1 are both in perfect sync with prism54 
-> >cvs tree now. This completes our 1.2 release. As promised, 
-> >the attached patch adds prism54 1.2 to 2.4 kernel tree.
-> 
-> Andrew is a 2.6-only guy.
-> 
-> This is totally up to Marcelo whether to merge this new wireless stuff 
-> or not...
-> 
-> 	Jeff
-> 
-> 
+On Tuesday, June 22, 2004 Roland Dreier wrote: 
+>I think this structure should be defined in a header in include/linux,
+>probably <linux/pci.h>.  We could create a new <linux/msi.h> include
+>but I don't think it's worth it at this point.  Also I don't see any
+>reason to use bitfields or userspace types like __u32 (since no
+>userspace code is going to use this include file).  I would just
+>declare the type as
+>
+>struct msix_entry {
+>       u16 vector;
+>       u16 entry;
+>};
+>
+>  > +int pci_enable_msix(struct pci_dev *dev, u32 *entries, int nvec)
+>
+>Since this function takes an array of struct msix_entry in its entries
+>parameter, I think entries should be declared as struct msix_entry *
+>rather than just u32 *.  That is, I would write the prototype as
+>
+>int pci_enable_msix(struct pci_dev *dev, struct msix_entry *entries,
+>		    int nvec);
+>
 
-Marcelo, 
+Agree. Thanks for your suggestion of defining struct msix_entry in
+<linux/pci.h>.
 
-what do you say?
+>  > +		j = (entries + i)->entry;
+>  > +		(entries + i)->vector = vector;
+>
+>Finally, this is a nitpick, but this just looks odd to me.  Why not
+>write this as
+>
+>                j = entries[i].entry;
+>                entries[i].vector = vector;
+>
 
--- 
-GnuPG Key fingerprint = 113F B290 C6D2 0251 4D84  A34A 6ADD 4937 E20A 525E
+Agree. Thanks.
+
+Thanks,
+Long
+
+

@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263014AbTL2JOG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 04:14:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbTL2JOG
+	id S263015AbTL2JOV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 04:14:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263057AbTL2JOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 04:14:06 -0500
-Received: from smtp1.att.ne.jp ([165.76.15.137]:5045 "EHLO smtp1.att.ne.jp")
-	by vger.kernel.org with ESMTP id S263014AbTL2JOE (ORCPT
+	Mon, 29 Dec 2003 04:14:21 -0500
+Received: from fw.osdl.org ([65.172.181.6]:41924 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263015AbTL2JOT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 04:14:04 -0500
-Message-ID: <00c001c3cdec$10c3f700$2fee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: "Russell King" <rmk+lkml@arm.linux.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0 modules, hotplug, PCMCIA
-Date: Mon, 29 Dec 2003 18:13:25 +0900
+	Mon, 29 Dec 2003 04:14:19 -0500
+Date: Mon, 29 Dec 2003 01:14:03 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: mfedyk@matchmail.com, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Anton Ertl <anton@mips.complang.tuwien.ac.at>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, phillips@arcor.de
+Subject: Re: Page Colouring (was: 2.6.0 Huge pages not working as expected)
+In-Reply-To: <20031229065240.GU22443@holomorphy.com>
+Message-ID: <Pine.LNX.4.58.0312290112450.11299@home.osdl.org>
+References: <179fV-1iK-23@gated-at.bofh.it> <179IS-1VD-13@gated-at.bofh.it>
+ <2003Dec27.212103@a0.complang.tuwien.ac.at> <Pine.LNX.4.58.0312271245370.2274@home.osdl.org>
+ <m1smj596t1.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.58.0312272046400.2274@home.osdl.org>
+ <20031228163952.GQ22443@holomorphy.com> <20031229003631.GE1882@matchmail.com>
+ <20031229025507.GT22443@holomorphy.com> <Pine.LNX.4.58.0312282000390.11299@home.osdl.org>
+ <20031229065240.GU22443@holomorphy.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I replied to Russell King:
 
-> > > 5.  However, file /etc/pcmcia/serial.opts is still getting ignored under
-> > > 2.6.0.
-> > > The modem is detected as containing a TI 16750 UART, and whatever
-> > > the serial driver does then, it causes the modem to hang up.  The serial
-> > > driver in 2.4.20 defaults to the same thing but 2.4.20 reads file
-> > > /etc/pcmcia/serial.opts, obeys the line SERIAL_OPTS="uart 16550A", and lets
-> > > the modem operate at 33% of its rated speed instead of hanging up.
-> >
-> > "hang up"?  Do you mean "on-hook" or do you mean "stop working"?  Is
-> > there anything in /var/log/messages about this
->
-> I think both.  "on-hook" happens immediately, and the only way to try again
-> is to eject the card and reinsert it.
->
-> > On my RH systems, cardmgr logs a fair amount to the system messages log,
->
-> As far as I can tell, in SuSE 8.2 with SuSE's default version of the 2.4.20
-> kernel, this isn't happening, but in 2.6.0 it is happening even when I
-> didn't ask for it.
 
-Sorry for misstating that.  It's actually the other way around.  2.6.0 is
-not giving me a ton of unrequested log syslog messages, but neither is it
-giving any reason for the modem to stop working.  It only observes that the
-modem hung up with no visible reason, and it doesn't even notice that the
-modem cannot be retried until ejection and reinsertion.  In both 2.4.20 and
-2.6.0, the serial_cs driver detects the UART as a TI 16750, which either
-means that the UART really is a 16750 but the chip and the driver don't
-agree on how the chip should be handled, or that the UART is a 16550A (or
-something else) being misdetected.
+On Sun, 28 Dec 2003, William Lee Irwin III wrote:
+> 
+> I did get a positive reaction from you at KS, and I've also been
+> slaving away at keeping this thing current and improving it when I can
+> for a year. Would you mind telling me what the Hell is going on here?
+> 
+> I guess I already know I'm screwed beyond all hope of recovery, but I
+> might as well get official confirmation.
 
-SuSE's 2.4.20 PCMCIA configuration is writing around 6,000 syslog messages
-every time I boot it.  I don't think you want that, especially when it's
-from 2.4.20 which is obeying my addition in file /etc/pcmcia/serial.opts
-saying  SERIAL_OPTS="uart 16550A"
+No, I haven't even _looked_ at any 2.7.x timeframe patches, and I'm not 
+even going to for the next few months. 
 
+I don't care what does it, I want a bigger PAGE_CACHE_SIZE, and working 
+patches are the only thing that matters. But for now, I have my 2.6.x 
+blinders on.
+
+		Linus

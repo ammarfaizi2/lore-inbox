@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264349AbUD0VDz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264352AbUD0VFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264349AbUD0VDz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 17:03:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264352AbUD0VDz
+	id S264352AbUD0VFP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 17:05:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264354AbUD0VFP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 17:03:55 -0400
-Received: from colin2.muc.de ([193.149.48.15]:27140 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S264349AbUD0VDx (ORCPT
+	Tue, 27 Apr 2004 17:05:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:53893 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264352AbUD0VFI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 17:03:53 -0400
-Date: 27 Apr 2004 23:03:52 +0200
-Date: Tue, 27 Apr 2004 23:03:52 +0200
-From: Andi Kleen <ak@muc.de>
-To: Darren Hart <dvhltc@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andi Kleen <ak@muc.de>
-Subject: Re: sched_domains and Stream benchmark
-Message-ID: <20040427210352.GA53718@colin2.muc.de>
-References: <1N7xQ-7fh-29@gated-at.bofh.it> <m3r7uitr1r.fsf@averell.firstfloor.org> <1083018633.3070.8.camel@farah> <20040427023327.GB11321@colin2.muc.de> <1083084439.2733.34.camel@farah>
+	Tue, 27 Apr 2004 17:05:08 -0400
+Date: Tue, 27 Apr 2004 14:05:07 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Erik Jacobson <erikj@subway.americas.sgi.com>
+Cc: Chris Wright <chrisw@osdl.org>, Jesse Barnes <jbarnes@sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Process Aggregates (PAGG) support for the 2.6 kernel
+Message-ID: <20040427140507.Z21045@build.pdx.osdl.net>
+References: <Pine.SGI.4.53.0404261656230.591647@subway.americas.sgi.com> <20040426163955.X21045@build.pdx.osdl.net> <200404261736.47522.jbarnes@sgi.com> <20040426174102.S22989@build.pdx.osdl.net> <Pine.SGI.4.53.0404271552040.632984@subway.americas.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1083084439.2733.34.camel@farah>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.SGI.4.53.0404271552040.632984@subway.americas.sgi.com>; from erikj@subway.americas.sgi.com on Tue, Apr 27, 2004 at 04:00:32PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 27, 2004 at 09:47:19AM -0700, Darren Hart wrote:
-> On Mon, 2004-04-26 at 19:33, Andi Kleen wrote:
-> > > I noticed your binary ran with N=2000000 which is only sufficient for a
-> > > 2 proc 1 MB cache opteron box according to the documentation on the
-> > 
-> > It does not seem to make any difference. 
-> 
-> I was under the impression you didn't change the N value (array size)
-> and ran the benchmark with someone else's precompiled binaries (the ones
-> you sent me).  Did you have two binaries with different array sizes
+* Erik Jacobson (erikj@subway.americas.sgi.com) wrote:
+> I expect the "new" stuff uses the virtual filesystem interface and other
+> things suggested by the API docs they have.
 
-Correct.  I always used 2000000. But it did not seem to make
-any difference in showing the scheduler issues even when going
-to 4 CPUs.
+*nod*
 
-(there were some fluctuations, but much less than the 25% you reported)
+> My first impression is that pagg itself could be used to implement parts of
+> what ckrm is doing if they desired and not necessarily the other way around.
 
-> > > stream faq.  I also noticed wide variation in results (25% or so) when
-> > > running with 4 threads on a 4 proc opteron on linux-2.6.5-mm5.  Can you
-> > > provide me with the specs of the system you ran your tests on?
-> > 
-> > Yes, mm5 is still broken because it has the "tuned to numasaurus" numa
-> > scheduler. Run it on a standard (non mm*) kernel or with Ingo's early 
-> > load balance patch.
-> 
-> I ran it on 2.6.5, 2.6.5-mm5, and 2.6.5-mm5-flat-domains trying to
-> reproduce the results you found (including the poor performance of
-> virgin and mm) so that I can have some context while analyzing the
-> sched_domains topology on x86_64 and its effects on performance.  So
-> that I can see where the differences lie in our tests, could you please
-> provide some of the specs of the system you ran on, such as number of
-> procs, cache size, and amount of RAM.
+Guess the key point is that many folks are interested in some sort of
+aggregate resource container.  QoS on virtual servers, make rlimit type
+of limits acutally useful, your needs, etc.  Be nice to come from
+common infrastructure.
 
-I saw the issue on a wide range of systems, ranging from 2 CPUs to 4 CPUs.
-All hard enough per CPU memory to fit the benchmark.
-
--Andi
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

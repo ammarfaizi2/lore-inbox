@@ -1,31 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262899AbUCWWmp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 17:42:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262900AbUCWWmp
+	id S262909AbUCWWxg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 17:53:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262914AbUCWWxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 17:42:45 -0500
-Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:29138 "EHLO
-	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S262899AbUCWWmo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 17:42:44 -0500
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org
-Subject: Re: Thinkpad 560X w/ 160MB memory (2.4.24 kernel): many segfaults 
-In-Reply-To: Your message of "Tue, 23 Mar 2004 08:47:05 +0200."
-             <200403230847.05533.vda@port.imtp.ilyichevsk.odessa.ua> 
-Date: Tue, 23 Mar 2004 22:42:40 +0000
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Message-Id: <E1B5ubY-0003Om-00@coll.ra.phy.cam.ac.uk>
+	Tue, 23 Mar 2004 17:53:36 -0500
+Received: from e35.marxmeier.com ([194.64.71.4]:61960 "EHLO e35.marxmeier.com")
+	by vger.kernel.org with ESMTP id S262909AbUCWWxf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 17:53:35 -0500
+Message-ID: <4060BFEC.C77CB682@marxmeier.com>
+Date: Tue, 23 Mar 2004 23:53:32 +0100
+From: Michael Marxmeier <mike@marxmeier.com>
+Organization: Marxmeier Software AG
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: ENE CB1410 Cardbus bridge, yenta and ISA IRQ mask
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> burnBX (from cpuburn) could detect the problem within 8 seconds.
-> [or burnMMX]
+Linux 2.4.21 (+SuSE patches)
 
-Thanks for these suggestions.  I ran each for several minutes and got
-no errors.  So I'm still puzzled, but maybe it is a subtle memory
-incompatability that neither program detects (yet somehow Linux works
-the machine so hard and uncovers it?).
+My new laptop uses an ENE CB1410 cardbus bridge.
 
--Sanjoy
+I found that my pcmcia ISDN card (AVM A1 PCMCIA) does not work 
+correctly because yenta does not seem to recognize any ISA interrupts 
+for me and consequently the hisax driver refuses to load.
+
+Mar  9 20:29:38 linux kernel: Yenta IRQ list 0000, PCI irq5
+Mar  9 20:29:38 linux kernel: Socket status: 30000006
+
+The driver in Win XP in this case assigned IRQ 3. By adding a faked
+ISA irq mask to yenta.c i was able to get the card working.
+
+Could this be a problem that the ENE CB1410 needs some fixup during 
+initialization to recognize the ISA IRQs or should i simply change 
+the irq_mask in yenta.c?
+
+I found a datasheet of the ENE CB1410 on the Internet:
+http://ftp.cizgi.com.tr/turknote/CT10/CT10%20Service%20Manual/EnE%20Cardbus%20Controller%20Datasheet.pdf
+
+Would anybody with some more depth in this area feel inclined to 
+look into this? I'm happy to test any changes.
+
+
+Thanks
+Michael

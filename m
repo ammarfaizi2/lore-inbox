@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316490AbSFPSIf>; Sun, 16 Jun 2002 14:08:35 -0400
+	id <S316491AbSFPSQg>; Sun, 16 Jun 2002 14:16:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316491AbSFPSIe>; Sun, 16 Jun 2002 14:08:34 -0400
-Received: from [202.131.151.113] ([202.131.151.113]:26870 "HELO sandstorm.net")
-	by vger.kernel.org with SMTP id <S316490AbSFPSId>;
-	Sun, 16 Jun 2002 14:08:33 -0400
-Date: Fri, 14 Jun 2002 23:13:53 +0530
-From: Abhishek Nayani <abhi@kernelnewbies.org>
-To: linux-kernel@vger.kernel.org
-Subject: Doubt (bug?) in dup_mmap()
-Message-ID: <20020614174353.GA3792@SandStorm.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S316492AbSFPSQf>; Sun, 16 Jun 2002 14:16:35 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3859 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316491AbSFPSQf>; Sun, 16 Jun 2002 14:16:35 -0400
+Date: Sun, 16 Jun 2002 11:16:44 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Peter Osterlund <petero2@telia.com>
+cc: Patrick Mochel <mochel@osdl.org>, Tobias Diedrich <ranma@gmx.at>,
+       Alessandro Suardi <alessandro.suardi@oracle.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.20 - Xircom PCI Cardbus doesn't work
+In-Reply-To: <m2znxvbrir.fsf@ppro.localdomain>
+Message-ID: <Pine.LNX.4.44.0206161115230.3316-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-	In the function dup_mmap() in kernel/fork.c, 
 
-	file = tmp->vm_file;
-	if (file) {
-		struct inode *inode = file->f_dentry->d_inode;
-		get_file(file);
-		if(tmp->vm_flags & VM_DENYWRITE)
-			atomic_dec(&inode->i_writecount);
+On 16 Jun 2002, Peter Osterlund wrote:
+>
+> Sure, with an unpatched 2.5.21 kernel, bringing up eth0 fails during
+> boot. Tobias Diedrich posted a one-line patch that fixes this problem
+> for me:
 
-	After this piece of code, shouldn't there be :
-	
-		else
-			atomic_inc(&inode->i_writecount);
+Ok, that looks correct to me. Good.
 
-	as this is a read-write mapping ?
-	
-				
-					Bye,
-						Abhi.
-	
-Linux Kernel Documentation Project
-http://freesoftware.fsf.org/lkdp
+> All tests I have done so far with 2.5.21 based kernels produce an oops
+> at shutdown, which makes the machine hang instead of rebooting or
+> powering off.
 
-	
---------------------------------------------------------------------------------
-Those who cannot remember the past are condemned to repeat it - George Santayana
---------------------------------------------------------------------------------
-                          Home Page: http://www.abhi.tk
------BEGIN GEEK CODE BLOCK------------------------------------------------------
-GCS d+ s:- a-- C+++ UL P+ L+++ E- W++ N+ o K- w--- O-- M- V- PS PE Y PGP 
-t+ 5 X+ R- tv+ b+++ DI+ D G e++ h! !r y- 
-------END GEEK CODE BLOCK-------------------------------------------------------
+This is an IDE one - the IDE driver puts a device that it never got.
+
+I'll do a 2.5.22 (with Tobias' fix too).
+
+		Linus
 

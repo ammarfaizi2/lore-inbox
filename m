@@ -1,71 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267916AbRG2KVT>; Sun, 29 Jul 2001 06:21:19 -0400
+	id <S267917AbRG2KZt>; Sun, 29 Jul 2001 06:25:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267915AbRG2KU7>; Sun, 29 Jul 2001 06:20:59 -0400
-Received: from smtp014.mail.yahoo.com ([216.136.173.58]:62472 "HELO
-	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S267843AbRG2KUt>; Sun, 29 Jul 2001 06:20:49 -0400
+	id <S267927AbRG2KZj>; Sun, 29 Jul 2001 06:25:39 -0400
+Received: from smtp017.mail.yahoo.com ([216.136.174.114]:36357 "HELO
+	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S267917AbRG2KZ2>; Sun, 29 Jul 2001 06:25:28 -0400
 X-Apparently-From: <kiwiunixman@yahoo.co.nz>
 Content-Type: text/plain; charset=US-ASCII
 From: Matthew Gardiner <kiwiunixman@yahoo.co.nz>
-To: Christoph Hellwig <hch@ns.caldera.de>,
-        kiwiunixman@yahoo.co.nz (Matthew Gardiner)
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-Date: Sun, 29 Jul 2001 22:19:32 +1200
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        rgooch@ras.ucalgary.ca (Richard Gooch)
+Subject: Re: binary modules (was Re: ReiserFS / 2.4.6 / Data Corruption)
+Date: Sun, 29 Jul 2001 22:24:11 +1200
 X-Mailer: KMail [version 1.2]
-Cc: kernel <linux-kernel@vger.kernel.org>, Hans Reiser <reiser@namesys.com>,
-        Joshua Schmidlkofer <menion@srci.iwpsd.org>
-In-Reply-To: <200107281645.f6SGjA620666@ns.caldera.de>
-In-Reply-To: <200107281645.f6SGjA620666@ns.caldera.de>
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        kiwiunixman@yahoo.co.nz (Matthew Gardiner),
+        pauld@egenera.com (Philip R. Auld),
+        linux-kernel@vger.kernel.org (kernel)
+In-Reply-To: <E15QZSA-00083U-00@the-village.bc.nu>
+In-Reply-To: <E15QZSA-00083U-00@the-village.bc.nu>
 MIME-Version: 1.0
-Message-Id: <01072922193201.03891@kiwiunixman.nodomain.nowhere>
+Message-Id: <01072922241102.03891@kiwiunixman.nodomain.nowhere>
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sunday 29 July 2001 04:45, Christoph Hellwig wrote:
-> Hi Matthew,
+On Sunday 29 July 2001 07:08, Alan Cox wrote:
+> > The right answer for vendors who want to ship binary modules is to
+> > ship an Open Source interface layer which shields the vendor from
+> > kernel drift (since users will be able to build the interface layer if
+> > they need to, without waiting for the vendor).
 >
-> In article <01072901450000.02683@kiwiunixman.nodomain.nowhere> you wrote:
-> > Regards to the ReiserFS. Something more spookie, OpenLinux (no boos and
-> > hisses please ;) ), they have ReiserFS as a module, yet, when I have the
-> > root partition as reiser I have no problems, voo doo magic perhaps?
-> > because when I compiled 2.4.7 w/ ReiserFS as a module, the boot forks up.
+> As people have seen from vmware and from the ever growing piles of
+> nvidia crashes the truth about binary modules in general even with glue is
+> pain and suffering.
 >
-> Well, as reiserfs is a module it needs to be on the initrd.  The install
-> of the kernel kernel RPM automatically creates a new initrd which includes
-> the modules in /etc/modules/rootfs.  If you don't create a new initrd your
-> modular reiserfs setup will of course fail.
->
-> > Regarding the last comment, I think Redhat and Caldera have debugging
-> > enable (God knows why?), well, Caldera definately dones, after having a
-> > look at their default kernel configuration, hence, when I recompiled my
-> > kernel to 2.4.7, threw the reiserFS into the guts of the kernel with
-> > debugging turned off, there was a speed increase.
->
-> Reiserfs as implemented in the 2.4.2-based kernel of OpenLinux 3.1 is
-> everything but stable and has a lot of issues (e.g. NFS-exporting doesn't
-> work).  That is the reason why it is a) marked experimental and is
-> completly unsupported (and that is written _big_ _fat_ in manuals and
-> similar stuff) and b) has debugging enabled to have the additional sanity
-> checks that are under this option and give addtional hints if reiserfs
-> fails again.
+> Veritas have some good Linux people though, and while I'm sad they won't
+> open source the core of veritas they do at least appear to have the
+> knowledgebase to do a good job
 
-I've upgraded to 2.4.7 without any problems. 
-
-Regard to the above, that is, moduler ReiserFS, its not really an issue, as 
-compiling into the kernel hasn't caused any problems.
-
-Just a little suggestion. Is it possible to offer "kernel binary upgrades" 
-every other major release, for example, it shipped with 2.4.2, hence, the 
-next upgrade to be release, 2.4.4 then 2.4.6 then 2.4.8. I can compile 
-everthing however, I know a couple of people too scared to get down into the 
-nitty gritty of Linux and compile their own kernel.
+1. With the file system, why not charge for commercial use?
+2. Regards to hardware manufacturers, what have the got to lose from 
+publishing the specs? nothing.
 
 Matthew Gardiner
-
 -- 
 WARNING:
 

@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314411AbSD0Tch>; Sat, 27 Apr 2002 15:32:37 -0400
+	id <S314417AbSD0TgH>; Sat, 27 Apr 2002 15:36:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314420AbSD0Tcd>; Sat, 27 Apr 2002 15:32:33 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:36370 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314411AbSD0Tc3>; Sat, 27 Apr 2002 15:32:29 -0400
-Subject: Re: The tainted message
-To: linux@cabbey.net (Chris Abbey)
-Date: Sat, 27 Apr 2002 20:50:36 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        rthrapp@sbcglobal.net (Richard Thrapp),
-        linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <Pine.LNX.4.33.0204271406010.11653-100000@tweedle.cabbey.net> from "Chris Abbey" at Apr 27, 2002 02:22:16 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S314420AbSD0TgG>; Sat, 27 Apr 2002 15:36:06 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:11153 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S314417AbSD0TgF>;
+	Sat, 27 Apr 2002 15:36:05 -0400
+Date: Thu, 25 Apr 2002 20:50:36 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Mike Fedyk <mfedyk@matchmail.com>, Bill Davidsen <davidsen@tmr.com>,
+        Stephen Samuel <samuel@bcgreen.com>, linux-kernel@vger.kernel.org
+Subject: Re: A CD with errors (scratches etc.) blocks the whole system while reading damadged files
+Message-ID: <20020425205035.A160@toy.ucw.cz>
+In-Reply-To: <20020426040457.GO574@matchmail.com> <Pine.LNX.4.10.10204260028140.10216-100000@master.linux-ide.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E171YDM-0000YJ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 	 author of this module, or duplicate them from a boot without
-> > 	 ever loading this module before reporting them to the community
-> > 	 or your Linux vendor
-> 
-> I think you're making an assumption about the vendor's support statement
-> that may not be valid. If I were a distro I wouldn't appreciate modutils
-> makeing statements about my support policies and confusing the newbies,
-> who are after all the target audience here. I'd take that last "or your
-> Linux vendor." bit off of this.
+Hi!
 
-This message is correct for just about every distribution. Remember vendors can
-and do customise modutils anyway. I don't think its a problem.
+> Basically it is a global design flaw from the beginning, and since I have
+> only 2.4 to address it is a real nasty!  Short version, each subdriver
 
-Alan
+Well, noone prevents you from submitting 2.5 patches to Martin.... Actually,
+his cleanups maybe made that job easier.
+
+								Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

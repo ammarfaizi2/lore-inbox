@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbUFFJwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263191AbUFFJ6g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263159AbUFFJwN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 05:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbUFFJwN
+	id S263191AbUFFJ6g (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 05:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263219AbUFFJ6g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 05:52:13 -0400
-Received: from quechua.inka.de ([193.197.184.2]:47765 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S263159AbUFFJwL (ORCPT
+	Sun, 6 Jun 2004 05:58:36 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:24960 "EHLO cloud.ucw.cz")
+	by vger.kernel.org with ESMTP id S263191AbUFFJ6e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 05:52:11 -0400
-From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: clone() <-> getpid() bug in 2.6?
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <Pine.LNX.4.58.0406052244290.7010@ppc970.osdl.org>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.5 (i686))
-Message-Id: <E1BWuK1-0003PT-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Sun, 06 Jun 2004 11:52:09 +0200
+	Sun, 6 Jun 2004 05:58:34 -0400
+Date: Sun, 6 Jun 2004 11:58:43 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2.6] Mousedev - better button handling under load
+Message-ID: <20040606095843.GC1646@ucw.cz>
+References: <200406050249.02523.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406050249.02523.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.58.0406052244290.7010@ppc970.osdl.org> you wrote:
-> It literally does things like
+On Sat, Jun 05, 2004 at 02:49:00AM -0500, Dmitry Torokhov wrote:
+> Hi,
 > 
->        random = now() + (getpid() << 16);
+> Currently mousedev combines all hardware motion data that arrivers since
+> last time userspace read data into one cooked PS/2 packet. The problem is
+> that under heavy or even moderate load, when userspace can't read data
+> quickly enough, we start loosing valuable data which manifests in:
+> 
+> - ignoring buton presses as by the time userspace gets to read the data
+>   button has already been released;
+> - click starts in wrong place - by the time userspace got aroungd and read
+>   the packet mouse moved half way across the screen.
+> 
+> The patch below corrects the issue - it will start accumulating new packet
+> every time userspace is behind and button set changes. Size of the buffer
+> is 16 packets, i.e. up to 8 pairs of press/release events which should be
+> more than enough.
+> 
+> The patch is against Vojtech's tree and shuld apply to -mm. I also have
+> cumulative mousedev patch done against 2.6.7-pre2 at:
+> 
+> http://www.geocities.com/dt_or/input/misc/mousedev-2.6.7-rc2-cumulative.patch.gz
 
-It does that  for the unique  filenames and id stamps (maildir format and
-message ids). But it should be easy to replace this with a cached getpid
-result, if this is realy a performance problem. On a traditional unix system
-pid and timestamp should be locally unique for non threaded applications.
+Thanks for this. Can I just pull from your tree, or is there more that I
+shouldn't take?
 
-> Anyway, you did find something that used more than a handful of getpid() 
-> calls, but no, it doesn't qualify as performance-critical, and even 
-> despite it's peyote-induced (or hey, some people are just crazy on their 
-> own) getpid() usage, it's not a reason to have a buggy glibc.
-
-I wonder if it easyly would be possible to cache the getpid() result in some
-thread local segment. Is there any, which is present for all clone flags?
-Not tha I care much about this unneeded glibc optimizsation, but more out of
-curiousity about the new threadind functionality.
-
-Greetings
-Bernd
 -- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+Vojtech Pavlik
+SuSE Labs, SuSE CR

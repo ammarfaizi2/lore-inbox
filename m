@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131809AbRAJESn>; Tue, 9 Jan 2001 23:18:43 -0500
+	id <S131888AbRAJETX>; Tue, 9 Jan 2001 23:19:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131946AbRAJESe>; Tue, 9 Jan 2001 23:18:34 -0500
-Received: from web121.mail.yahoo.com ([205.180.60.129]:8713 "HELO
-	web121.yahoomail.com") by vger.kernel.org with SMTP
-	id <S131809AbRAJESR>; Tue, 9 Jan 2001 23:18:17 -0500
-Message-ID: <20010110041815.23159.qmail@web121.yahoomail.com>
-Date: Tue, 9 Jan 2001 20:18:15 -0800 (PST)
-From: Cacophonix <cacophonix@yahoo.com>
-Subject: Re: storage over IP (was Re: [PLEASE-TESTME] Zerocopy networking patch,
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        dean gaudet <dean-list-linux-kernel@arctic.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Rik van Riel <riel@conectiva.com.br>,
-        "David S. Miller" <davem@redhat.com>, hch@caldera.de,
-        netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+	id <S131946AbRAJETQ>; Tue, 9 Jan 2001 23:19:16 -0500
+Received: from mail0.netcom.net.uk ([194.42.236.2]:26018 "EHLO
+	mail0.netcom.net.uk") by vger.kernel.org with ESMTP
+	id <S131888AbRAJES7>; Tue, 9 Jan 2001 23:18:59 -0500
+Message-ID: <3A5BE344.11429FDC@netcomuk.co.uk>
+Date: Wed, 10 Jan 2001 04:21:25 +0000
+From: Bill Crawford <billc@netcomuk.co.uk>
+Organization: Netcom Internet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac4 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: crawford@goingware.com
+Subject: Re: DRI doesn't work on 2.4.0 but does on prerelease-ac5
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I haven't tracked the IP storage group too closely, but was at the San Diego IETF
-where there were some interesting debates about this issue. 
+ The Mesa package in Red Hat 7 won't do DRI with recent XFree86 CVS.
+Michael is quite right in saying he needed to blow it away. The only
+way I could get DRI working until recently was to transplant a copy
+of libGL.so from the XFree86 build tree into /usr/lib, delete or rename
+the Mesa package version out of the way, and run ldconfig.
 
-There is a write-up at http://ips.pdl.cs.cmu.edu/mail/msg02598.html
+ This is being fixed in Red Hat Raw Hide, and someone put up a version
+for download (can't remember where now; will have a look tomorrow and
+let you know).
 
-Now I'm not sure if I agree with some of the assumptions. And I share your concern 
-about using multiple tcp streams.
-
-Thoughts?
-
-cheers,
-karthik
-
-
---- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > <http://www.ietf.org/internet-drafts/draft-ietf-ips-fcovertcpip-01.txt>
-> > show that both use TCP/IP.  TCP/IP has variable length headers (or am i on
-> > crack?), which totally complicates the receive path.
-> 
-> TCP has variable length headers. It also prevents you re-ordering commands
-> in the stream which would be beneficial. I've not checked if the draft uses
-> multiple TCP streams but then you have scaling questions. 
-> 
-> Alan
-> 
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Photos - Share your holiday photos online!
-http://photos.yahoo.com/
+-- 
+/* Bill Crawford, Unix Systems Developer, ebOne, formerly GTS Netcom */
+#include "stddiscl.h"
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

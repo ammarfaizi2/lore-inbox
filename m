@@ -1,62 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270075AbRIESqP>; Wed, 5 Sep 2001 14:46:15 -0400
+	id <S271974AbRIESsH>; Wed, 5 Sep 2001 14:48:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271740AbRIESqG>; Wed, 5 Sep 2001 14:46:06 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:28340 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S270075AbRIESpw>; Wed, 5 Sep 2001 14:45:52 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Alan Shutko" <ats@acm.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Linux 2.4.9-ac6
-Date: Wed, 5 Sep 2001 11:46:11 -0700
-Message-ID: <NOEJJDACGOHCKNCOGFOMMEFEDLAA.davids@webmaster.com>
+	id <S272103AbRIESrs>; Wed, 5 Sep 2001 14:47:48 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:7086 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S271974AbRIESrn>;
+	Wed, 5 Sep 2001 14:47:43 -0400
+Date: Wed, 05 Sep 2001 19:48:00 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: linux-kernel@vger.kernel.org
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Buddy allocator - help! I thought I understood this
+Message-ID: <525190103.999719280@[10.132.112.53]>
+X-Mailer: Mulberry/2.1.0 (Win32)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <87zo8atcvz.fsf@wesley.springies.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I could swear I understood this bit of __free_pages_ok()
+Monday night, but my mind appears to have gone blank.
 
-> "David Schwartz" <davids@webmaster.com> writes:
+As I recall, the memory bitmaps indicate by the
+status a bit op returns whether or not a page
+is on the free list for that particular order
+area.
 
-> > Yes, but even if the module is GPL'd, the module could still cost
-> > $1,000 and you're not entitled to the source if you didn't buy the
-> > module.
+So how does this work (lines from vanilla 2.4.9
+attached). I'm interested particularly in line
+114:
 
-> OTOH, if you're getting a bug report from someone who has a GPLed
-> module, they can get the source and send it to you.
+  if (!__test_and_change_bit(index, area->map))
 
-	Perhaps, but:
+This examines the bitmap entry, in the
+current order being examined bitmap.
 
-	1) They may not have it or know the procedure to get it.
+As the page is being free'd, on the first pass,
+won't the page ALWAYS register as unallocated?
+This claims to test whether the buddy page
+is still allocated. Wouldn't this test be:
 
-	2) The offer for the source may have expired.
+  if (!__test_and_change_bit(index^1, area->map))
 
-	3) This is true whether or not the module is GPLed, they may have the
-source or they may not.
+The annoying thing is I'm SURE I read through
+this and understood it fully Monday night.
 
-	4) Many other licenses may result in publically available source and may
-not, just like the GPL.
+Or is the bitmap trying to tell us whether the
+BUDDY is used? This doesn't seem to be what
+expand et al are doing.
 
-	If you want to make sure the user has the source from which the module was
-built, that can be checked for. (Though it's not simple, unfortunately.)
+Please help - my head hurts.
 
-	What you want to do is make sure the user understands that he had better be
-able to produce the source for any kernel modules loaded at the time of the
-problem. If not, he needs to reproduce the bug on a system without the
-relevant modules.
+(NB, if this is a code bug rather than local brain
+ bug, this explains a lot)
+--
+Alex Bligh
 
-	I think a tag for 'source code is available to anyone for debugging
-purposes, no questions asked' is more what's wanted.
 
-	DS
+
+    99          if (page_idx & ~mask)
+   100                  BUG();
+   101          index = page_idx >> (1 + order);
+   102
+   103          area = zone->free_area + order;
+   104
+   105          spin_lock_irqsave(&zone->lock, flags);
+   106
+   107          zone->free_pages -= mask;
+   108
+   109          while (mask + (1 << (MAX_ORDER-1))) {
+   110                  struct page *buddy1, *buddy2;
+   111
+   112                  if (area >= zone->free_area + MAX_ORDER)
+   113                          BUG();
+   114                  if (!__test_and_change_bit(index, area->map))
+   115                          /*
+   116                           * the buddy page is still allocated.
+   117                           */
+   118                          break;
+   119                  /*
+   120                   * Move the buddy up one level.
+   121                   */
+
 

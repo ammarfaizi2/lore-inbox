@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267761AbUBRSec (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 13:34:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267786AbUBRSec
+	id S267907AbUBRT1s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 14:27:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267909AbUBRT1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 13:34:32 -0500
-Received: from [24.78.220.246] ([24.78.220.246]:49823 "EHLO mail.thock.com")
-	by vger.kernel.org with ESMTP id S267783AbUBRSeb (ORCPT
+	Wed, 18 Feb 2004 14:27:43 -0500
+Received: from sampa7.prodam.sp.gov.br ([200.230.190.107]:13578 "EHLO
+	sampa7.prodam.sp.gov.br") by vger.kernel.org with ESMTP
+	id S267907AbUBRT1e convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 13:34:31 -0500
-Message-ID: <4033B0E0.9080805@thock.com>
-Date: Wed, 18 Feb 2004 12:37:20 -0600
-From: Dylan Griffiths <dylang+kernel@thock.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Updated HFSplus driver for 2.6.3.
-References: <402304F0.1070008@thock.com> <20040205191527.4c7a488e.akpm@osdl.org>
-In-Reply-To: <20040205191527.4c7a488e.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Feb 2004 14:27:34 -0500
+Subject: Re: [REALLY STUPID] Re: Linux 2.6.3
+From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+To: =?ISO-8859-1?Q?Fr=E9d=E9ric?= "L. W. Meunier" <1@pervalidus.net>
+Cc: linux-kernel@vger.kernel.org, fcamara@prefeitura.sp.gov.br
+In-Reply-To: <Pine.LNX.4.58.0402181612140.670@pervalidus.dyndns.org>
+References: <Pine.LNX.4.58.0402172013320.2686@home.osdl.org>
+	 <yw1xad3gd7l5.fsf@ford.guide><200402181417.06553.ianh@iahastie.local.net>
+	 <yw1x1xoscvl8.fsf@ford.guide> <002f01c3f632$29783f90$0e25fe96@pysiak>
+	 <Pine.LNX.4.58.0402181342030.670@pervalidus.dyndns.org>
+	 <1077130933.31049.11.camel@telecentrolivre>
+	 <Pine.LNX.4.58.0402181612140.670@pervalidus.dyndns.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: Governo Eletronico - SP
+Message-Id: <1077132367.30936.16.camel@telecentrolivre>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 18 Feb 2004 16:26:08 -0300
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	I've updated the Linux HFS+ driver to a simple, easy to apply patch to 
-your fresh 2.6.3 kernel; just go into file systems, and turn on HFSPlus 
-(it's right below HFS).  You do need EXPERIMENTAL turned on to compile 
-it.  I've tested it working on x86 for firewire access to an HFS+ 
-formattted iPod.  Naturally, I welcome further testing by a wider 
-selection of hardware combinations :)
+Em Qua, 2004-02-18 às 16:14, Frédéric L. W. Meunier escreveu:
 
-The patch can be found here:
-http://inoshiro.com/devel/linux-2.6.3-hfsplus.patch.gz
+> >  Me and some (brazilian) friends suggest "Cebolinha":
+> >
+> > http://www.kalizinha.net/monica/imagens/monica05.gif
+> >
+> >  It's a comic character created by Mauricio de Sousa. :)
+> 
+> And Cascão for the -mm series ?
+
+:)
+
+> BTW, what about replacing the Tux framebuffer logo with them ?
+
+ Actually, there is license problems with that.
+
+-- 
+Luiz Fernando N. Capitulino
+<lcapitulino@prefeitura.sp.gov.br>
+<http://www.telecentros.sp.gov.br>
+

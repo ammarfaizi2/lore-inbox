@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264093AbTEOPvG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 11:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbTEOPvG
+	id S264096AbTEOP7B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 11:59:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbTEOP7B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 11:51:06 -0400
-Received: from fed1mtao05.cox.net ([68.6.19.126]:62613 "EHLO
-	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S264093AbTEOPvF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 11:51:05 -0400
-Date: Thu, 15 May 2003 09:03:50 -0700
-From: Matt Porter <mporter@kernel.crashing.org>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: [PATCH] IRQ and resource for platform_device
-Message-ID: <20030515090350.A7685@home.com>
-References: <20030515145920.B31491@flint.arm.linux.org.uk>
+	Thu, 15 May 2003 11:59:01 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:27553 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S264096AbTEOP7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 11:59:00 -0400
+Date: Thu, 15 May 2003 11:34:29 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, jsimmons@infradead.org
+Subject: Re: the incredible disappearing cursor.
+Message-ID: <20030515153429.GW433@phunnypharm.org>
+References: <20030515152136.GA6724@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030515145920.B31491@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Thu, May 15, 2003 at 02:59:20PM +0100
+In-Reply-To: <20030515152136.GA6724@suse.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 15, 2003 at 02:59:20PM +0100, Russell King wrote:
-> The location and interrupt of some platform devices are only known by
-> platform specific code.  In order to avoid putting platform specific
-> parameters into drivers, place resource and irq members into struct
-> platform_device.
-> 
-> Discussion point: is one resource and one irq enough?
+On Thu, May 15, 2003 at 04:21:36PM +0100, Dave Jones wrote:
+> I've seen this happen a few times, and it's starting to
+> happen more and more. Boots up, cursor on vesafb is blinking away.
+> X starts, flip back to tty1, cursor still there. sometime later
+> flip to X, flip to tty again, cursor is invisible.
 
-No.
+I've seen the same thing with a mach64. Using a curses app like mutt
+brings the cursor back.
 
-We have the same need for PPC SoC and system controller on-chip
-devices.  Some devices have multiple interrupts and/or resources.
-
-Regards,
 -- 
-Matt Porter
-mporter@kernel.crashing.org
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

@@ -1,152 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261293AbTI3Kwu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 06:52:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbTI3Kwt
+	id S261297AbTI3KzQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 06:55:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbTI3KzQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 06:52:49 -0400
-Received: from gate.perex.cz ([194.212.165.105]:24197 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S261293AbTI3Kwp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 06:52:45 -0400
-Date: Tue, 30 Sep 2003 12:51:52 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [ALSA PATCH] OSS emulation fixes
-Message-ID: <Pine.LNX.4.53.0309301247030.1362@pnote.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 30 Sep 2003 06:55:16 -0400
+Received: from law12-f106.law12.hotmail.com ([64.4.19.106]:44043 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261297AbTI3KzL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 06:55:11 -0400
+X-Originating-IP: [192.6.111.72]
+X-Originating-Email: [a1b2c3d4_66@hotmail.com]
+From: =?iso-8859-1?B?bWFyaW8gY2FtdfFhcw==?= <a1b2c3d4_66@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Is kswapd working right?
+Date: Tue, 30 Sep 2003 10:55:10 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Message-ID: <Law12-F106mnzMdOssA00047399@hotmail.com>
+X-OriginalArrivalTime: 30 Sep 2003 10:55:10.0533 (UTC) FILETIME=[516E8F50:01C38741]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please do a
+Hello:
 
-  bk pull http://linux-sound.bkbits.net/linux-sound
+  Our scenario is the following:
 
-The GNU patch is available at:
+	 One web server runninng kernel 2.4.9-e-12(smp), it is used to host an 
+Apache webserver with an integrated application server. The system has 2Gb 
+of RAM and 2Gb of swap. The last day an strange thing happened. We tried to 
+connect to our system using ssh and we can´t, after many attempts we could 
+connect to the system and saw that we couldn´t connect because there was a 
+lack of memory. Every proccess you tried to start failed  and gave the 
+following error message" fork failed: Can´t allocate memory (errno=12)".
 
-  ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-bk-2003-09-30.patch.gz
+The output of the free -k command showed that the swap space(there was only 
+5 Mb of free RAM) wasn´t being used and we don´t understand why. We have 
+found a lot of similar cases of systems that couldn´t fork but were plenty 
+of unused swap space so we thought we would find answers for this problem 
+but we haven´t found any(although we have looked for one a lot).
 
-Additional notes:
+    We think that perhaps our freepages settings are too low( 1.6-4.5-7.4 
+Mb) and if we merge this low values with an excesive fragmented memory this 
+could explain our memory squeeze problems. Some of us have proposed the 
+theory that everytime a proccess is started it needs a little quantity of 
+contiguous memory and that if the system can´t provide it to the process it 
+dies before the fork is completed. Any idea about what can be happening 
+here?
 
-  Linus, please, merge C: (means changed code block) lines to your
-  release change log too - otherwise it's not much readable. Thank you.
+Regards,
+Mario.
 
-The pull command will update the following files:
+_________________________________________________________________
+Descubre el mayor catálogo de coches de la Red en MSN Motor. 
+http://motor.msn.es/researchcentre/
 
- include/sound/pcm_oss.h      |    1
- include/sound/rawmidi.h      |    1
- sound/core/control.c         |    3 --
- sound/core/hwdep.c           |    3 +-
- sound/core/init.c            |    2 -
- sound/core/oss/pcm_oss.c     |   59 +++++++++++++++++++++++++++++++------------
- sound/core/pcm_lib.c         |    6 +---
- sound/core/pcm_native.c      |    9 ++----
- sound/core/rawmidi.c         |   32 +++++++++++++----------
- sound/core/seq/seq_lock.c    |   38 ---------------------------
- sound/core/timer.c           |    1
- sound/drivers/dummy.c        |   32 +++++++++++++++++++++++
- sound/isa/sb/emu8000_patch.c |    6 ----
- sound/isa/sb/emu8000_pcm.c   |   10 ++-----
- sound/pci/Kconfig            |   12 ++++----
- sound/pci/via82xx.c          |   21 ++++++++-------
- sound/pci/vx222/vx222_ops.c  |    6 ----
- sound/usb/usbaudio.c         |    1
- sound/usb/usbmixer.c         |   10 +++----
- 19 files changed, 132 insertions(+), 121 deletions(-)
-
-through these ChangeSets:
-
-<perex@suse.cz> (03/09/30 1.1457)
-   ALSA CVS update
-   D:2003/09/30 11:15:44
-   C:RawMidi Midlevel
-   A:Takashi Iwai <tiwai@suse.de>
-   F:core/rawmidi.c:1.38->1.39
-   L:fixed typos (open_lock -> open_mutex).
-
-<perex@suse.cz> (03/09/30 1.1456)
-   ALSA CVS update
-   D:2003/09/30 11:12:09
-   C:VIA82xx driver
-   A:Takashi Iwai <tiwai@suse.de>
-   F:pci/via82xx.c:1.52->1.53
-   L:- fixed the detection of VIA8233A (it was overridden by dxs_support
-   L:  option).
-
-<perex@suse.cz> (03/09/30 1.1267.62.6)
-   ALSA CVS update
-   D:2003/09/30 10:28:26
-   C:Control Midlevel,HWDEP Midlevel,ALSA Core,PCM Midlevel,RawMidi Midlevel
-   C:Timer Midlevel,ALSA<-OSS emulation,ALSA sequencer,EMU8000 driver
-   C:Digigram VX222 driver,USB generic driver
-   A:Jaroslav Kysela <perex@suse.cz>
-   F:core/control.c:1.37->1.38
-   F:core/hwdep.c:1.21->1.22
-   F:core/init.c:1.38->1.39
-   F:core/pcm_lib.c:1.43->1.44
-   F:core/pcm_native.c:1.81->1.82
-   F:core/rawmidi.c:1.37->1.38
-   F:core/timer.c:1.46->1.47
-   F:core/oss/pcm_oss.c:1.52->1.53
-   F:core/seq/seq_lock.c:1.7->1.8
-   F:include/rawmidi.h:1.10->1.11
-   F:isa/sb/emu8000_patch.c:1.6->1.7
-   F:isa/sb/emu8000_pcm.c:1.10->1.11
-   F:pci/vx222/vx222_ops.c:1.2->1.3
-   F:usb/usbaudio.c:1.65->1.66
-   L:Revised schedule() and set_current_state() calls.
-   L:Replaced need_resched() with cond_resched() call.
-
-<perex@suse.cz> (03/09/30 1.1267.62.5)
-   ALSA CVS update
-   D:2003/09/30 09:58:53
-   C:Generic drivers
-   A:Jaroslav Kysela <perex@suse.cz>
-   F:drivers/dummy.c:1.25->1.26
-   L:Added emu10k1 emulation by Takashi
-
-<perex@suse.cz> (03/09/30 1.1267.62.4)
-   ALSA CVS update
-   D:2003/09/30 08:54:19
-   C:ALSA<-OSS emulation
-   A:Jaroslav Kysela <perex@suse.cz>
-   F:core/oss/pcm_oss.c:1.51->1.52
-   L:Fixed compilation for the sync code commited by mistake.
-   L:Fixed possible race in sync1 code (schedule call) and used schedule_timeout.
-
-<perex@suse.cz> (03/09/30 1.1267.62.3)
-   ALSA CVS update
-   D:2003/09/29 19:16:18
-   C:ALSA<-OSS emulation
-   A:Jaroslav Kysela <perex@suse.cz>
-   F:core/oss/pcm_oss.c:1.50->1.51
-   F:include/pcm_oss.h:1.7->1.8
-   L:Fixed oops in oss_sync() routine.
-
-<perex@suse.cz> (03/09/30 1.1267.62.2)
-   ALSA CVS update
-   D:2003/09/29 08:31:25
-   C:PCI drivers
-   A:Jaroslav Kysela <perex@suse.cz>
-   F:pci/Kconfig:1.8->1.9
-   L:Removed GAMEPORT dependency (already handled in drivers)
-
-<perex@suse.cz> (03/09/30 1.1267.62.1)
-   ALSA CVS update
-   D:2003/09/26 15:29:05
-   C:USB generic driver
-   A:Takashi Iwai <tiwai@suse.de>
-   F:usb/usbmixer.c:1.23->1.24
-   L:probe units even under a selector unit which is marked as ignored or has
-   L:only a single selector.
-
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs

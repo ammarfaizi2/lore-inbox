@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129534AbQLRFyf>; Mon, 18 Dec 2000 00:54:35 -0500
+	id <S130386AbQLRF7p>; Mon, 18 Dec 2000 00:59:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129610AbQLRFyZ>; Mon, 18 Dec 2000 00:54:25 -0500
-Received: from bootp-83.newpem.brown.edu ([128.148.214.83]:53764 "HELO
-	delta.brown.edu") by vger.kernel.org with SMTP id <S129534AbQLRFyW>;
-	Mon, 18 Dec 2000 00:54:22 -0500
-Message-ID: <3A3D9F7A.40F1004@brown.edu>
-Date: Mon, 18 Dec 2000 00:24:10 -0500
-From: David Feuer <David_Feuer@brown.edu>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-21mdk i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: APM/DPMS lockup on Dell 3800
-In-Reply-To: <3A3D9AE2.8721062F@brown.edu>
+	id <S130379AbQLRF7g>; Mon, 18 Dec 2000 00:59:36 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:65033 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129610AbQLRF73>; Mon, 18 Dec 2000 00:59:29 -0500
+Date: Sun, 17 Dec 2000 23:28:46 -0600
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Monitoring filesystems / blockdevice for errors
+Message-ID: <20001217232846.W3199@cadcamlab.org>
+In-Reply-To: <20001217153453.O5323@marowsky-bree.de> <Pine.LNX.4.10.10012171314050.16143-100000@coffee.psychology.mcmaster.ca> <20001217194334.V5323@marowsky-bree.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001217194334.V5323@marowsky-bree.de>; from lmb@suse.de on Sun, Dec 17, 2000 at 07:43:35PM +0100
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
 
-By the way, I now checked the syslog, and I see that the last cron message
-was logged about an hour before I reset the system.  So it looks like a total
-lockup.
+  [Mark Hahn]
+> > reinventing /proc/kmsg and klogd would be tre gross.
 
+[Lars Marowsky-Bree]
+> Well, only one process can read kmsg and get notified about new
+> messages at any time, so that makes the monitoring depend on
+> klogd/syslogd working, which given a write error by syslog might not
+> be the case...
 
-BTW, what does it mean when this gets logged?
+So rewrite klogd to do something much simpler for serious errors (yes
+they will be tagged as such) before trying to pass them on to syslogd.
+Or does it already do this?  It's a userspace problem.
 
-Dec 17 19:01:09 localhost kernel: eth0: Resetting the Tx ring pointer.
-Dec 17 19:01:09 localhost kernel: eth0: Tx Ring full, refusing to send
-buffer.
-
-
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

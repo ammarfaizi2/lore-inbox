@@ -1,61 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276800AbRJKT7b>; Thu, 11 Oct 2001 15:59:31 -0400
+	id <S276840AbRJKT7v>; Thu, 11 Oct 2001 15:59:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276839AbRJKT7P>; Thu, 11 Oct 2001 15:59:15 -0400
-Received: from mail.scsiguy.com ([63.229.232.106]:23303 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S276831AbRJKT67>; Thu, 11 Oct 2001 15:58:59 -0400
-Message-Id: <200110111959.f9BJxQY99154@aslan.scsiguy.com>
-To: Alexander Feigl <Alexander.Feigl@gmx.de>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: aic7xxx SCSI system hangs 
-In-Reply-To: Your message of "11 Oct 2001 21:44:41 +0200."
-             <1002829481.12402.16.camel@PowerBox.MysticWorld.de> 
-Date: Thu, 11 Oct 2001 13:59:26 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S276824AbRJKT7e>; Thu, 11 Oct 2001 15:59:34 -0400
+Received: from freeside.toyota.com ([63.87.74.7]:19206 "EHLO toyota.com")
+	by vger.kernel.org with ESMTP id <S276836AbRJKT7N>;
+	Thu, 11 Oct 2001 15:59:13 -0400
+Message-ID: <3BC5FA12.F8E5C91E@lexus.com>
+Date: Thu, 11 Oct 2001 12:59:14 -0700
+From: J Sloan <jjs@lexus.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tim Moore <timothymoore@bigfoot.com>
+CC: linux-kernel@vger.kernel.org
+Subject: [OT] Re: Which kernel (Linus or ac)?
+In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org> <3BC5E152.3D81631@bigfoot.com> <3BC5E3AF.588D0A55@lexus.com> <3BC5EB56.21B4EF88@bigfoot.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I am rather sure that the cabling is Ok. Besides I am not a SCSI newbie
->(although I don't have any ideas how it works internally) - everything
->else works without problems. High data rate reading of a CD-ROM,
->ripping, reading the TOC of data CD-ROM and reading the TOC of a CDDA
->with cdda2wav. On my system 3 things have to come together.
->
->1) I use cdrecord -toc to read the TOC
->2) A CDDA disc is inserted in the drive
->3) I use my Plextor PX 32TS drive
->
->The problem is 100% reproducable here. 
+Tim Moore wrote:
 
-That's great and all, but it doesn't change the fact that the
-problem, from the Adaptec chip's perspective, is a protocol
-violation *on the bus*.  I'm willing to believe that there is
-a chip bug in the aic7896/97 if you can provice a SCSI bus trace
-indicating that everything is normal on the SCSI bus.
+> Observations based on Roswell 2 and identical Abit BP6's: faster disk
+> I/O and kernel builds (same options), smoother X11 performance (SVGA),
+> higher LAN network I/O (switched LNE100TX) under heavy loads, and, none
+> of the recent latency or VM issues.
 
->A co-developer of my project has similar problems with reading the TOC.
+You might have a pathological case there, it's
+not unheard of -
 
-On the same or different controller?
+But just out of curiosity, are you comparing the
+stock kernel shipped with roswell, which is of
+necessity safe, bland and generic, to your own
+optimized, hand configured, custom compiled
+2.2 kernel?
 
->> As for why you cannot talk to the device after a while, the device
->> has been set offline.  The controller was unable to talk to it
->> successfully, so the SCSI layer decided to ignore it.
->
->If the device is only set offline it would be a minor problem. Probably
->I could do rmmod/insmod or scsi-remove-single-device and re-add it. As I
->mailed in my first posts even a cdrecord -scanbus or accesses to other
->drives on the same controller hang and will be in uninterruptible state
->after this call. The processes cannot be killed, the module cannot be
->unloaded and I have to reboot to do any SCSI accesses again.
+Just compiling a 2.4.9-ac by hand gave me 30%
+benchmark improvement over the kernel that
+shipped with roswell, so be sure to compare
+apples with apples!
 
-To diagnose why things are hung will require you to grovel around
-in the SCSI data structures to determine why I/O is hung.  Perhaps
-use kdb to change the SCSI loging level after the hangs start, then
-try access to another device and see where the traces lead you?  I
-cannot reproduce the problem here, so it is difficult for me to debug
-it.
+> As for features, I don't need any
+> new feature specific to 2.4.
 
---
-Justin
+iptables is one biggie for me -
+
+> I see your point but everything since 2.2.19p2 been stable for my NFS
+> and app server testing needs as well as primary desktop machine.
+
+As long as it does the job, no rush to upgrade -
+
+I have some very busy servers running 2.2.17,
+which have uptimes near 500 days - I'm in no
+hurry to upgrade those - but for any new installs,
+a Red Hat or Suse 2.4-based distro is the only
+thing that makes any sense to me -
+
+With all the talk about "instability" in the 2.4
+series, the fact is, you run a 2.4 distro kernel
+that has been painstakingly patched & brutally
+QA'd the way e.g. Red Hat does, and you will
+have stability.
+
+cu
+
+jjs
+

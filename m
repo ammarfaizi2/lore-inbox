@@ -1,75 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317851AbSIEQJI>; Thu, 5 Sep 2002 12:09:08 -0400
+	id <S317755AbSIEQTr>; Thu, 5 Sep 2002 12:19:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317852AbSIEQJI>; Thu, 5 Sep 2002 12:09:08 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39436 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317851AbSIEQJG>;
-	Thu, 5 Sep 2002 12:09:06 -0400
-Message-ID: <3D7785B4.A35C9BC8@zip.com.au>
-Date: Thu, 05 Sep 2002 09:26:28 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
+	id <S317799AbSIEQTr>; Thu, 5 Sep 2002 12:19:47 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:39328 "EHLO
+	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S317755AbSIEQTq>; Thu, 5 Sep 2002 12:19:46 -0400
+Message-ID: <3D778527.86F10C10@nortelnetworks.com>
+Date: Thu, 05 Sep 2002 12:24:07 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-6mdkenterprise i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Suparna Bhattacharya <suparna@in.ibm.com>, Jens Axboe <axboe@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: One more bio for for floppy users in 2.5.33..
-References: <20020905123331.A1984@in.ibm.com> <Pine.LNX.4.44.0209050744520.14066-100000@home.transmeta.com>
+To: Andrew Ryan <genanr@emsphone.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ARP and alias IPs
+References: <20020905150949.GA8112@thumper2.emsphone.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Andrew Ryan wrote:
 > 
-> ...
-> I would suggest:
+> The linux implementation of ARP is causing me problems.  Linux sends out an
+> ARP request with the default interface as the sender address, rather than then
+> interface the request came on.
 > 
->  - add a "nr of sectors completed" argument to the "bi_end_io()" function,
->    so that it looks like
+> For example
 > 
->         void xxx_bio_end_io(struct bio *bio, unsigned long completed)
->         {
->                 /*
->                  * Old completion handlers that don't understand it
->                  * should just return immediately for partial bio
->                  * completion notifiers
->                  */
->                 if (bio->b_size)
->                         return;
->                 ...
->         }
+> eth0   10.1.1.100
+> eth0:1 192.16.1.101
 > 
->    which would allow things like mpage_end_io_read() to unlock pages as
->    they complete, instead of unlocking them all in one go.
+> and an ARP is received on 192.16.1.101, linux responds with
+> 10.1.1.100 as the source address in the ARP request, rather than 192.16.1.101
+> (which FreeBSD, Solaris, and tru64 do).  To me, this is just plain wrong.
+> The sender address should be an address on the subnet that the request came
+> from, not a different one.  Is there any way to fix this?
 
-It's a feature!  We don't want to have to soak up 20,000 context
-switches a second just reading a file from an 80MB/sec disk.
 
-> Comments? It looks trivial to do this from a bio level, and it would not
-> be hard to update the existing end_io functions (because you can always
-> just update them with the one-liner "if not totally done, return" to get
-> the old behaviour).
-> 
-> Andrew? I really dislike the lack of concurrency in our current mpage
-> read-ahead thing. Whaddayathink?
+I'm not sure how you're managing to get that behaviour.  I just reproduced the scenario on a 2.2.17
+kernel and logged the output. 47.129.82.232 is configured as eth0:0, with 47.129.82.53 being eth0,
+and pcary1ja maps to 47.129.82.54.
 
-Well it is supposed to lay out two BIOs, but if that happens, it's
-fragile - it relies on BIO_MAX_SIZE=64k and default readahead=128k.
 
-What I think we need to do here is to get Jens' bio_add_page() stuff
-up and running and to then go through the device drivers and set their
-max BIO size to something which is inversely proportional to the
-device's expected bandwidth.
+08:04:59.650707 eth0 > 0:0:0:0:0:0 0:30:65:a0:ff:c6 arp 42: arp who-has 47.129.82.232 tell pcary1ja
+(0:30:65:a0:ff:c6)
+                         0001 0800 0604 0001 0030 65a0 ffc6 2f81
+                         5236 0000 0000 0000 2f81 52e8
+08:04:59.650707 eth0 < 0:30:65:c0:23:c4 0:0:0:0:0:1 arp 64: arp reply 47.129.82.232 is-at
+0:30:65:c0:23:c4 (0:30:65:a0:ff:c6)
+                         0001 0800 0604 0002 0030 65c0 23c4 2f81
+                         52e8 0030 65a0 ffc6 2f81 5236 5555 5555
+                         5555 5555 5555 5555 5555 5555 5555 e796
+                         9051
 
-This way, the floppy readahead would lay out 1- or 2-page BIOs, and
-the honking FC array would lay out 128k or larger BIOs.
+As you can see, the reply is properly sent out with the source IP address of 47.129.82.232.
 
-(In fact, I would prefer that the device's nominal read- and write-
-bandwidths be made available in some manner.  This way the VM can
-make these granularity-size decisions for readahead, and the VM
-can then solve the machine-full-of-dirty-memory-against-a-slow-device
-problem.  But the non-blocking page reclaim code probably solves that
-too).
+Are you sure you aren't misreading something?  If you change the source IP address then the arp
+reply is totally useless as it is a reply to another request entirely.
+
+Chris

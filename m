@@ -1,32 +1,30 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314329AbSD0SNi>; Sat, 27 Apr 2002 14:13:38 -0400
+	id <S314330AbSD0STr>; Sat, 27 Apr 2002 14:19:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314330AbSD0SNh>; Sat, 27 Apr 2002 14:13:37 -0400
-Received: from adsl-64-171-6-36.dsl.sntc01.pacbell.net ([64.171.6.36]:54781
-	"EHLO k2-400.lameter.com") by vger.kernel.org with ESMTP
-	id <S314329AbSD0SNg>; Sat, 27 Apr 2002 14:13:36 -0400
-Date: Sat, 27 Apr 2002 11:13:35 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OFF TOPIC] BK license change
-Message-ID: <Pine.LNX.4.44.0204271103290.5887-100000@k2-400.lameter.com>
+	id <S314339AbSD0STq>; Sat, 27 Apr 2002 14:19:46 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47889 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314330AbSD0STp>; Sat, 27 Apr 2002 14:19:45 -0400
+Subject: Re: linux-2.5.x-dj and SCSI error handling.
+To: Andries.Brouwer@cwi.nl
+Date: Sat, 27 Apr 2002 19:38:23 +0100 (BST)
+Cc: davej@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <UTC200204271630.g3RGUgF04840.aeb@smtp.cwi.nl> from "Andries.Brouwer@cwi.nl" at Apr 27, 2002 06:30:42 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E171X5T-0000Fi-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The best thing would be to stop this egg-dance around open sourceness and
-release BK under GPL. This is wasting too much time. Trying to use a
-non-free product to make sure other peoples source code is available via
-GPL? How imaginative and creative ... Wow...
+> device resets, bus resets making the machine entirely
+> unusable during this time, and often causing an oops
+> in the end, killing off the machine entirely.
+> However, I have no recent experiences here.)
 
-Major organizations (such as Debian and lots of related projects
-committed to free software f.e.) will not use BK with the
-current licensing scheme so why bother with this?
-
-I do not even know how BK works and I am not interested ...
-just offended by ppl making access to development kernel source code
-difficult and offended by someone with a star status apparently being
-able to abuse the system.
-
+The old scsi eh code is dire, the new scsi eh code is currently merely
+bad. However the interface for the newer scsi_eh is probably right, which 
+is the important bit

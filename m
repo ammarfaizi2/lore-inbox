@@ -1,49 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266174AbUHBG0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266296AbUHBGag@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266174AbUHBG0X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 02:26:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266296AbUHBG0W
+	id S266296AbUHBGag (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 02:30:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266304AbUHBGag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 02:26:22 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:51716 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S266174AbUHBG0V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 02:26:21 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-O2
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: lkml@lpbproduction.scom
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, mingo@redhat.com
-In-Reply-To: <200408011644.06537.lkml@lpbproductions.com>
-References: <20040713143947.GG21066@holomorphy.com>
-	 <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu>
-	 <200408011644.06537.lkml@lpbproductions.com>
-Content-Type: text/plain
-Date: Mon, 02 Aug 2004 08:26:04 +0200
-Message-Id: <1091427964.1827.3.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 (1.5.91-1) 
+	Mon, 2 Aug 2004 02:30:36 -0400
+Received: from zmamail03.zma.compaq.com ([161.114.64.103]:32263 "EHLO
+	zmamail03.zma.compaq.com") by vger.kernel.org with ESMTP
+	id S266296AbUHBGae (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 02:30:34 -0400
+Message-ID: <410DDFA2.40107@hp.com>
+Date: Mon, 02 Aug 2004 12:00:58 +0530
+From: "Aneesh Kumar K.V" <aneesh.kumar@hp.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040726 Debian/1.7.1-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-cluster@redhat.com,
+       ssic-linux-devel <ssic-linux-devel@lists.sourceforge.net>
+Subject: Re: [ANNOUNCE] OpenSSI 1.0.0 released!!
+References: <2o0e0-6qx-5@gated-at.bofh.it> <m37jsk42hw.fsf@averell.firstfloor.org>
+In-Reply-To: <m37jsk42hw.fsf@averell.firstfloor.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-08-01 at 16:44 -0700, Matt Heler wrote:
-> Ingo,
+Andi Kleen wrote:
+> "Aneesh Kumar K.V" <aneesh.kumar@hp.com> writes:
 > 
-> I get the following error below on with your patch applied on stock 
-> 2.6.8-rc2 ...
 > 
->   CC      kernel/softirq.o
->   CC      kernel/hardirq.o
-> kernel/hardirq.c:51: error: conflicting types for 'generic_handle_IRQ_event'
-> include/linux/irq.h:78: error: previous declaration of 
-> 'generic_handle_IRQ_event' was here
-> kernel/hardirq.c:51: error: conflicting types for 'generic_handle_IRQ_event'
-> include/linux/irq.h:78: error: previous declaration of 
-> 'generic_handle_IRQ_event' was here
-> make[1]: *** [kernel/hardirq.o] Error 1
-> make: *** [kernel] Error 2
+>>Hi,
+>>
+>>Sorry for the cross post. I came across this on OpenSSI website. I
+>>guess others may also be interested.
+> 
+> 
+> 
+> [....] Congratulations. But I was a bit disappointed that there
+> wasn't a tarball with the kernel patches and other sources.
+> Any chance to add that to the site? 
+> 
+>
 
-Try removing the "asmlinkage" from the definition of
-"generic_handle_IRQ_event" in file "kernel/hardirq.c".
+I have posted  the diff at
+http://www.openssi.org/contrib/linux-ssi.diff.gz
 
+This is against kernel linux-rh-2.4.20-31.9 which can be found in the 
+OpenSSI CVS as srpms/linux-rh-2.4.20-31.9.tar.bz2
+
+$cvs -d:pserver:anonymous@cvs.openssi.org:/cvsroot/ssic-linux login
+$cvs -z3 -d:pserver:anonymous@cvs.openssi.org:/cvsroot/sic-linux co -r 
+OPENSSI-RH  srpms/linux-rh-2.4.20-31.9.tar.bz2
+
+
+This patch include the IPVS, KDB and OpenSSI changes
+
+For 2.6 we are planning to group the changes into small patches that is 
+  easy to review.
+
+
+All the other sources can be found as tar.gz at ( 
+http://www.openssi.org/contrib/debian/openssidebs/sources/ )or better by 
+doing apt-get source package on a debian system :)
+
+-aneesh

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265332AbUAJSXL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 13:23:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265338AbUAJSXL
+	id S265291AbUAJSgE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 13:36:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265297AbUAJSgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 13:23:11 -0500
-Received: from guri.is.scarlet.be ([193.74.71.22]:53681 "EHLO
-	guri.is.scarlet.be") by vger.kernel.org with ESMTP id S265332AbUAJSXI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 13:23:08 -0500
-From: Geek Assault <geekassault@planetinternet.be>
-Reply-To: geekassault@planetinternet.be
-To: linux-kernel@vger.kernel.org
-Subject: rtl8180l status ?
-Date: Sat, 10 Jan 2004 20:56:01 +0100
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200401102054.53387.geekassault@planetinternet.be>
-Cc: jgarzik@pobox.com
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 10 Jan 2004 13:36:04 -0500
+Received: from fw.osdl.org ([65.172.181.6]:2241 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265291AbUAJSgB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 13:36:01 -0500
+Date: Sat, 10 Jan 2004 10:29:12 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Unhork ymfpci broken by hasty janitors
+Message-Id: <20040110102912.78ef218b.rddunlap@osdl.org>
+In-Reply-To: <200401101805.i0AI50x8012960@hera.kernel.org>
+References: <200401101805.i0AI50x8012960@hera.kernel.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Sat, 10 Jan 2004 17:49:31 +0000 Linux Kernel Mailing List <linux-kernel@vger.kernel.org> wrote:
 
-I recently got my hands on a system with a realtek 8180l-based wireless 
-network card (billionton miwlrp, [1]). There is a closed source driver from 
-realtek, however it does not support 2.6 (yet, probably) and seems to be 
-quite buggy.
+| ChangeSet 1.1391, 2004/01/10 15:49:31-02:00, zaitcev@redhat.com
+| 
+| 	[PATCH] Unhork ymfpci broken by hasty janitors
+| 	
+| 	- Do not use schedule_timeout with spinlocks taken.
+| 	- Restore missing kfree's.
 
-Having read a thread [2] about this, in which mr. Jeff Garzik seemed to imply 
-that he was working with the realtek people to create an open source driver, 
-I was wondering if anybody could confirm the existance of such an initiative.
-If it exists I'd like to offer my help, both towards developping (I'm a 
-newbie, but I'd be happy to learn :) and/or testing.
+some janitors maybe.  but "hasty janitors" != "kernel-janitors project".
 
-thanks in advance
+BK shows previous changes here by "alan", "patch", and "torvalds",
+so they must have been made by "patch".  8:)
 
-[1]  http://sup.nl.packardbell.be/pri/
-index.php?PibItemNr=spec_WL_BilliontonMIWLRP
-[2]  http://groups.google.com/
-groups?hl=en&lr=&ie=UTF-8&oe=utf-8&c2coff=1&threadm=Heux.4nY.7%
-40gated-at.bofh.it&rnum=1&prev=/groups%3Fhl%3Den%26lr%3D%26ie%3DUTF-8%26oe%
-3Dutf-8%26c2coff%3D1%26q%3D8180%2Bgarzik%26btnG%3DGoogle%2BSearch
--- 
-Pieter-Augustijn Van Malleghem, aka GeekAssault
-
+--
+~Randy

@@ -1,68 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286249AbRLJN5s>; Mon, 10 Dec 2001 08:57:48 -0500
+	id <S286261AbRLJOHj>; Mon, 10 Dec 2001 09:07:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286261AbRLJN5i>; Mon, 10 Dec 2001 08:57:38 -0500
-Received: from [160.131.145.246] ([160.131.145.246]:4613 "EHLO W20303512")
-	by vger.kernel.org with ESMTP id <S286249AbRLJN52>;
-	Mon, 10 Dec 2001 08:57:28 -0500
-Message-ID: <00df01c18182$63f1ff20$f69183a0@W20303512>
-From: "Wilson" <defiler@null.net>
-To: "Robert Love" <rml@tech9.net>, <linux-kernel@vger.kernel.org>
-Cc: <kpreempt-tech@lists.sourceforge.net>
-In-Reply-To: <1007930466.11789.2.camel@phantasy> <01121008545000.01013@manta> <1007967834.878.30.camel@phantasy>
-Subject: Re: [PATCH] fully preemptible kernel
-Date: Mon, 10 Dec 2001 08:55:53 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S286268AbRLJOHU>; Mon, 10 Dec 2001 09:07:20 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:65288 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S286261AbRLJOHO>;
+	Mon, 10 Dec 2001 09:07:14 -0500
+Date: Mon, 10 Dec 2001 15:07:01 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Stephen Cameron <smcameron@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] cpqfc driver for 2.5.1-pre5 tree
+Message-ID: <20011210140701.GF5095@suse.de>
+In-Reply-To: <20011206164206.58598.qmail@web12304.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011206164206.58598.qmail@web12304.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Robert Love" <rml@tech9.net>
-To: "vda" <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: <linux-kernel@vger.kernel.org>; <kpreempt-tech@lists.sourceforge.net>
-Sent: Monday, December 10, 2001 2:03 AM
-Subject: Re: [PATCH] fully preemptible kernel
+On Thu, Dec 06 2001, Stephen Cameron wrote:
+> 
+> Hi folks, 
+> 
+> Here is a patch for the cpqfc driver to make it compile and run in the 2.5.1-pre5
+> tree.  I feel obligated to mention that I did see messages along the lines
+> of "running *really* low on DMA buffers" coming from scsi_merge.c, but
+> Jens told me not to worry about that, so here's the patch.  
+> 
+> It gets rid of the io_request_lock dependency, and silences a few
+> annoying printks that the driver has been spewing on startup.
 
+Thanks!
 
-> On Mon, 2001-12-10 at 05:54, vda wrote:
->
-> > I reported a problem with preemptible 2.4.13 and Samba server (oops,
-problems
-> > with creation of files from win clients).
-> > Is this issue addressed?
->
-> No, because I could not reproduce it.  Could you see if it occurs on the
-> current kernel with the current patch?  If so, send me the relevant
-> information.
->
-> Robert Love
->
-
-I saw this as well, with 2.4.12-ac3+preempt and Samba 2.2.2.
-Errors like this:
-  ===============================================================
-[2001/10/21 18:53:24, 0] lib/util.c:smb_panic(1055)
-  PANIC: internal error
-[2001/10/21 18:55:56, 0] smbd/nttrans.c:call_nt_transact_ioctl(1762)
-  call_nt_transact_ioctl: Currently not implemented.
-[2001/10/21 21:16:05, 0] lib/fault.c:fault_report(40)
-  ===============================================================
-[2001/10/21 21:16:05, 0] lib/fault.c:fault_report(41)
-  INTERNAL ERROR: Signal 11 in pid 7540 (2.2.2)
-  Please read the file BUGS.txt in the distribution
-[2001/10/21 21:16:05, 0] lib/fault.c:fault_report(43)
-  ===============================================================
-
-I'll recompile 2.4.16 with the new preempt patch, and see if this problem
-has gone away.
-
-
+-- 
+Jens Axboe
 

@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVASTkI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbVASTiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261493AbVASTkI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 14:40:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVASTkI
+	id S261482AbVASTiS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 14:38:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVASTiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 14:40:08 -0500
-Received: from web53803.mail.yahoo.com ([206.190.36.198]:38793 "HELO
-	web53803.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261493AbVASTig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 14:38:36 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=CvPubSWP7u4H4BpAra4vL8WatOsb1zwTZkKut4CFbrstz+kghX+rgC5h3RCw+l2EPjMJQ6sfMuPhKrhy1WIjsgx4uh4runnSsZMenWXTUcIZQ+dSmi1Ypx5SffOin3ncrEFxTh4MD/W6vR8sxNJ4pVfA1H/xDt56AwhFXLfXtDw=  ;
-Message-ID: <20050119193832.34975.qmail@web53803.mail.yahoo.com>
-Date: Wed, 19 Jan 2005 11:38:32 -0800 (PST)
-From: Carl Spalletta <cspalletta@yahoo.com>
-Subject: [ANNOUNCE] Linux-tracecalls, a new tool for Kernel development, released
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Wed, 19 Jan 2005 14:38:18 -0500
+Received: from fw.osdl.org ([65.172.181.6]:7351 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261482AbVASTiG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 14:38:06 -0500
+Date: Wed, 19 Jan 2005 11:38:03 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Jan Knutar <jk-lkml@sci.fi>
+Cc: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] /proc/<pid>/rlimit
+Message-ID: <20050119113803.I469@build.pdx.osdl.net>
+References: <20050118204457.GA7824@ti64.telemetry-investments.com> <200501192131.59252.jk-lkml@sci.fi>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200501192131.59252.jk-lkml@sci.fi>; from jk-lkml@sci.fi on Wed, Jan 19, 2005 at 09:31:58PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From http://www.linuxrd.com/~carl/cgi-bin/lnxtc.pl?help
+* Jan Knutar (jk-lkml@sci.fi) wrote:
+> On Tuesday 18 January 2005 22:44, Bill Rugolsky Jr. wrote:
+> > This patch against 2.6.11-rc1-bk6 adds /proc/<pid>/rlimit to export
+> > per-process resource limit settings.  It was written to help analyze
+> > daemon core dump size settings, but may be more generally useful.
+> > Tested on 2.6.10. Sample output:
+> 
+> A "cool feature" would be if you could do
+> echo nofile 8192 8192 >/proc/`pidof thatserverproess`/rlimit
+> :-)
 
-"'LINUX-TRACECALLS' finds all call chains leading to a given function in the Linux
-kernel, to some arbitrary depth. It consists of two parts - a set of specially
-prepared cscope databases for the kernel source tree, and a perl program, 'lnxtc.pl',
-to do the call chain discovery based on the information in the cscope DBs."
+This is security sensitive, and is currently only expected to be changed
+by current.
 
-"It works, in part, by expanding function-yielding macros and by mangling function names
-with the name of the file containing the function's definition, prior to creating the
-cscope files."
-
-"It is believed to be highly accurate.."
-
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

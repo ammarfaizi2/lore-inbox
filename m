@@ -1,54 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317036AbSGHSQU>; Mon, 8 Jul 2002 14:16:20 -0400
+	id <S317025AbSGHSQy>; Mon, 8 Jul 2002 14:16:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317034AbSGHSQT>; Mon, 8 Jul 2002 14:16:19 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:28803
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S317030AbSGHSQR>; Mon, 8 Jul 2002 14:16:17 -0400
-Date: Mon, 8 Jul 2002 11:18:38 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Riley Williams <rhw@infradead.org>
-Cc: Justin Hibbits <jrh29@po.cwru.edu>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Michael Elizabeth Chastain <mec@shout.net>
-Subject: Re: Patch for Menuconfig script
-Message-ID: <20020708181838.GL695@opus.bloom.county>
-References: <20020708151412.GB695@opus.bloom.county> <Pine.LNX.4.21.0207081841380.9595-100000@Consulate.UFP.CX>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0207081841380.9595-100000@Consulate.UFP.CX>
-User-Agent: Mutt/1.4i
+	id <S317026AbSGHSQx>; Mon, 8 Jul 2002 14:16:53 -0400
+Received: from fe5.rdc-kc.rr.com ([24.94.163.52]:30732 "EHLO mail5.wi.rr.com")
+	by vger.kernel.org with ESMTP id <S317025AbSGHSQv>;
+	Mon, 8 Jul 2002 14:16:51 -0400
+Message-ID: <000d01c226ac$436ad360$8a981d41@wi.rr.com>
+From: "Ted Kaminski" <mouschi@wi.rr.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: ISAPNP SB16 card with IDE interface
+Date: Mon, 8 Jul 2002 13:21:22 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 08, 2002 at 06:44:55PM +0100, Riley Williams wrote:
-> Hi Tom.
-> 
-> >>> This is just a patch to the Menuconfig script (can be easily adapted
-> >>> to the other ones) that allows you to configure the kernel without
-> >>> the requirement of bash (I tested it with ksh, in POSIX-only mode).  
-> >>> Feel free to flame me :P
-> 
-> >> Does it also work in the case where the current shell is csh or tcsh
-> >> (for example)?
-> 
-> > Er.. why wouldn't it?
-> > $ head -1 scripts/Menuconfig 
-> > #! /bin/sh
-> 
-> > So this removes the /bin/sh is not bash test, yes?
-> 
->  Q> # ls -l /bin/sh | tr -s '\t' ' '
->  Q> lrwxrwxrwx 1 root root 4 May 7 1999 /bin/sh -> tcsh
->  Q> #
-> 
-> You tell me - the above is from one of the systems I regularly use,
-> which does not even have bash installed...
+(Please CC to my address)
 
-So does tcsh work as a POSIX-sh when invoked as /bin/sh ?
+I've been trying for weeks now and seem to have exhausted every resource i
+can find, except this one...
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+I trying to get a 486 system booting to a 2.4.18 kernel to recognize a CDROM
+(a 4x one, model CR-581J, creative labs) connected to a ISAPNP Sound Blaster
+16 card with an IDE interface on it. (99% sure actual IDE interface, not one
+of those old non-everything ones, SB is model CT2950)
+
+The system is completely functional running Windows 95, so the hardware
+works.  I've also pretty much ruled out hardware conflicts because I've
+stripped it down to the bare bones...
+
+I can't get all the boot messages here (i have to retype them), but the
+relevant portion is this:
+
+ide3: Creative SB16 PnP IDE interface
+...
+hdg: probing with STATUS(0x00) instead of ALTSTATUS(0x80)
+hdg: MATSHITA CR 581, ATAPI CD/DVD-Rom drive
+...
+ide3 at 0x168-1x16f,0x36e on irq 10
+...(displays CHS stuff for HD)...
+hdg: irq timeout: status=0x51 { DriveReady SeekComplete Error }
+hdg: irq timeout: error=0x60
+hdg: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+hdg: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+hdg: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+hdg: ATAPI reset complete
+
+and it repeats from the irq timeout again before it end_request's
+
+I'm somewhat perplexed, as I have not been able to find a solution to
+this... although i did find this
+
+http://groups.google.com/groups?threadm=linux.kernel.20011203171651.GA2149%4
+0man.beta.es&rnum=1
+
+but my system doesn't have a PnP BIOS, so it seems that i can't
+do that method. !#@
+
+Ted Kaminski
+
+

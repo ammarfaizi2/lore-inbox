@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313424AbSDLHox>; Fri, 12 Apr 2002 03:44:53 -0400
+	id <S313419AbSDLHm4>; Fri, 12 Apr 2002 03:42:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313428AbSDLHow>; Fri, 12 Apr 2002 03:44:52 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62274 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S313424AbSDLHou>; Fri, 12 Apr 2002 03:44:50 -0400
-To: Blue Lang <blue@b-side.org>
-Cc: Michael De Nil <linux@aerythmic.be>,
-        Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: i830M video chip (X driver deficient)
-In-Reply-To: <Pine.LNX.4.30.0204111625260.17120-100000@gib.soccerchix.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 12 Apr 2002 01:37:49 -0600
-Message-ID: <m18z7tl642.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S313421AbSDLHmz>; Fri, 12 Apr 2002 03:42:55 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:62994 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S313419AbSDLHmy>; Fri, 12 Apr 2002 03:42:54 -0400
+Message-ID: <3CB68FA6.F2DACB93@aitel.hist.no>
+Date: Fri, 12 Apr 2002 09:41:26 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.7-dj3 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: linux as a minicomputer ?
+In-Reply-To: <20020411170910.GS612@gallifrey> <20020411191339.B15435@ucw.cz> <20020411174941.GC17962@antefacto.com> <20020411.195921.730560311.rene.rebe@gmx.net> <20020411210606.A15783@ucw.cz>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Blue Lang <blue@b-side.org> writes:
+Vojtech Pavlik wrote:
 
-> On Thu, 11 Apr 2002, Michael De Nil wrote:
+> > It IS the kernel's fault, because only one VT can be active. The
+> > kernel VT stuff needs to be redesigned to hadle multiple VT at the
+> > same time ...
 > 
-> > i searched on the intel-website, which told me hat i should be able to
-> > change this setting in my bios. *not*
-> >
-> > can't i reserve any more ram myselve by selecting linux only to use 256 -
-> > 8 Meg or something @ boot-time ?
-> 
-> the dell c400 has this same problem. there is an excellent web page on one
-> person's experiences with it, but i can't find it right now.. anyways, his
-> result was that the bios was actually broken and that it would take a f/w
-> update from Dell to fix it. a little googling should yield the results you
-> want.
-> 
-> i assume it's probably the same situation with your laptop.
+> Yes and no. You shouldn't need VTs to run Xservers at all.
 
-It isn't memory related at all.  The problem is that the X driver uses 
-the video BIOS to set the display modes, instead of setting the
-display mode by itself as it should.  I don't know if there are enough
-docs available from intel about this but that is the problem.
+Still a kernel problem, what if all the users want to run
+vgacon/fbcon instead of X?  One VT per physical interface
+is what we need, rather than "per machine".
 
-I have a coworker with one of these and I tracked problem down that
-far.  With agpgart the kernel allocates the rest of the memory for X
-as needed.
-
-Eric
+Helge Hafting

@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267489AbTBQVHF>; Mon, 17 Feb 2003 16:07:05 -0500
+	id <S267512AbTBQVMY>; Mon, 17 Feb 2003 16:12:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267492AbTBQVHF>; Mon, 17 Feb 2003 16:07:05 -0500
-Received: from [194.87.44.233] ([194.87.44.233]:27083 "EHLO main.inves.ru")
-	by vger.kernel.org with ESMTP id <S267489AbTBQVHE>;
-	Mon, 17 Feb 2003 16:07:04 -0500
-Date: Tue, 18 Feb 2003 00:17:03 +0300 (MSK)
-From: anton <anton@inves.ru>
-To: linux-kernel@vger.kernel.org
-Subject: about kacpidpc
-Message-ID: <Pine.LNX.3.96.1030218001548.31385C-100000@main.inves.ru>
+	id <S267530AbTBQVMY>; Mon, 17 Feb 2003 16:12:24 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:47510 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S267512AbTBQVMW>;
+	Mon, 17 Feb 2003 16:12:22 -0500
+Date: Mon, 17 Feb 2003 22:22:02 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Franz Sirl <Franz.Sirl-kernel@lauterbach.com>
+cc: Art Haas <ahaas@airmail.net>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux/m68k on Mac <linux-mac68k@mac.linux-m68k.org>,
+       Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: [PATCH] C99 initializers for drivers/macintosh/mac_hid.c
+In-Reply-To: <200302171957.42597@enzo.bigblue.local>
+Message-ID: <Pine.GSO.4.21.0302172221020.25406-100000@vervain.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello everybody! 
- I have two questions conserning the process named kacpidpc:
+On Mon, 17 Feb 2003, Franz Sirl wrote:
+> On Monday 17 February 2003 10:40, Geert Uytterhoeven wrote:
+> > On Sat, 15 Feb 2003, Art Haas wrote:
+> > > This patch converts the file to use C99 initializers to improve
+> > > readability and remove warnings if '-W' is used.
+> > >
+> > > Art Haas
+> > >
+> > > ===== drivers/macintosh/mac_hid.c 1.8 vs edited =====
+> > > --- 1.8/drivers/macintosh/mac_hid.c	Tue Oct  8 05:51:31 2002
+> > > +++ edited/drivers/macintosh/mac_hid.c	Sat Feb 15 13:19:37 2003
+> >
+> > Apparently this file is no longer used? I couldn't find
+> > CONFIG_MAC_EMUMOUSEBTN in any Kconfig, unless it's in the PPC tree only.
+> 
+> Huh? It's in arch/ppc/Kconfig, even in plain Linus tree. Unfortunately it's 
+> still impossible with current input layer (no way to prevent events from 
+> reaching other handlers) to clean it up or move it to userspace, so it has to 
+> stay :-(.
 
-1)what this process is? could anyone answer me or give any reference about
-it.
+Aarghl, I keep on using grep with the CONFIG_ part included...
 
-2)I had a trouble with this process, may be someone could explain me,
-where this problem went from. The problem was:
+Gr{oetje,eeting}s,
 
-I have a server under linux debian 2.4.17 and it happened two times, that
-all my disck space finished, becouse the file pacct grew anormously, if i
-tried to look lastcomm it all was filled with lines like:  
+						Geert
 
-kacpidpc           F    root     ??         0.00 secs Mon Feb 17 23:32
-kacpidpc           F    root     ??         0.00 secs Mon Feb 17 23:32
-kacpidpc           F    root     ??         0.00 secs Mon Feb 17 23:32
-kacpidpc           F    root     ??         0.00 secs Mon Feb 17 23:32
-  
- Thanks in advance, with respect, Anton Lizunov
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

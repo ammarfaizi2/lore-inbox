@@ -1,82 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132755AbRDDQLd>; Wed, 4 Apr 2001 12:11:33 -0400
+	id <S132789AbRDDQLN>; Wed, 4 Apr 2001 12:11:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132784AbRDDQLY>; Wed, 4 Apr 2001 12:11:24 -0400
-Received: from dns-229.dhcp-248.nai.com ([161.69.248.229]:25024 "HELO
-	localdomain") by vger.kernel.org with SMTP id <S132755AbRDDQLM>;
-	Wed, 4 Apr 2001 12:11:12 -0400
-Message-ID: <XFMail.20010404091254.davidel@xmailserver.org>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <Pine.LNX.4.30.0104040835470.1708-100000@elte.hu>
-Date: Wed, 04 Apr 2001 09:12:54 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: a quest for a better scheduler
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>, frankeh@us.ibm.com,
+	id <S132784AbRDDQLD>; Wed, 4 Apr 2001 12:11:03 -0400
+Received: from ns.caldera.de ([212.34.180.1]:33540 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S132755AbRDDQKz>;
+	Wed, 4 Apr 2001 12:10:55 -0400
+Date: Wed, 4 Apr 2001 17:55:44 +0200
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: Khalid Aziz <khalid@fc.hp.com>
+Cc: Hubertus Franke <frankeh@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
         Mike Kravetz <mkravetz@sequent.com>,
-        Fabio Riccardi <fabio@chromium.com>
+        Fabio Riccardi <fabio@chromium.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: a quest for a better scheduler
+Message-ID: <20010404175544.A6240@caldera.de>
+Mail-Followup-To: Khalid Aziz <khalid@fc.hp.com>,
+	Hubertus Franke <frankeh@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+	Mike Kravetz <mkravetz@sequent.com>,
+	Fabio Riccardi <fabio@chromium.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	lse-tech@lists.sourceforge.net
+In-Reply-To: <OF401BD38B.CF3B1E9F-ON85256A24.0048543A@pok.ibm.com> <3ACB4156.160B7937@fc.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <3ACB4156.160B7937@fc.hp.com>; from khalid@fc.hp.com on Wed, Apr 04, 2001 at 09:44:22AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 04, 2001 at 09:44:22AM -0600, Khalid Aziz wrote:
+> Let me stress that HP scheduler is not meant to be a replacement for the
+> current scheduler. The HP scheduler patch allows the current scheduler
+> to be replaced by another scheduler by loading a module in special
+> cases.
 
-On 04-Apr-2001 Ingo Molnar wrote:
-> 
-> On Tue, 3 Apr 2001, Fabio Riccardi wrote:
-> 
->> I've spent my afternoon running some benchmarks to see if MQ patches
->> would degrade performance in the "normal case".
-> 
-> no doubt priority-queue can run almost as fast as the current scheduler.
-> What i'm worried about is the restriction of the 'priority' of processes,
-> it cannot depend on previous processes (and other 'current state')
-> anymore.
-> 
-> to so we have two separate issues:
-> 
->#1: priority-queue: has the fundamental goodness() design limitation.
-> 
->#2: per-CPU-runqueues: changes semantics, makes scheduler less
->     effective due to nonglobal decisions.
-> 
-> about #1: while right now the prev->mm rule appears to be a tiny issue (it
-> might not affect performance significantly), but forbidding it by
-> hardcoding the assumption into data structures is a limitation of *future*
-> goodness() functions. Eg. with the possible emergence of CPU-level
-> threading and other, new multiprocessing technologies, this could be a
-> *big* mistake.
+HP also has a simple mq patch that is _not_ integrated into the pluggable
+scheduler framework, I have used it myself.
 
-This is not correct Ingo. I haven't seen the HP code but if You store processes
-in slots S :
+	Christoph
 
-S = FS( goodness(p, p->processor, p->mm) )
-
-and You start scanning from the higher slots, as soon as you find a task with a
-goodness G' that is equal to the max goodness in slot You can choose that
-process to run.
-Again, if You haven't found such a goodness during the slot scan but You've
-found a task with a goodness G' :
-
-G' >= SG - DD
-
-where :
-
-SG = max slot goodness
-DD = SG(i) - SG(i - 1)
-
-You can select that task as the next to spin.
-This was the behaviour that was implemented in my scheduler patch about 2 years
-ago.
-Beside this, I this that with such loads We've more serious problem to face
-with inside the kernel.
-
-
-
-- Davide
-
+-- 
+Of course it doesn't work. We've performed a software upgrade.

@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267664AbUIOWfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267669AbUIOWiQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267664AbUIOWfh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 18:35:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267690AbUIOWeM
+	id S267669AbUIOWiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 18:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267660AbUIOWfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 18:34:12 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:17093 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S267660AbUIOWcL
+	Wed, 15 Sep 2004 18:35:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54931 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267685AbUIOWbZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 18:32:11 -0400
-Subject: Re: [PATCH] hvc_console fix to protect hvc_write against ldisc
-	write after hvc_close
-From: Ryan Arnold <rsa@us.ibm.com>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040915204107.GA26776@thunk.org>
-References: <1095273835.3294.278.camel@localhost>
-	 <20040915204107.GA26776@thunk.org>
-Content-Type: text/plain
-Organization: IBM
-Message-Id: <1095287748.3294.423.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 15 Sep 2004 17:35:49 -0500
+	Wed, 15 Sep 2004 18:31:25 -0400
+Message-ID: <4148C2B0.20504@pobox.com>
+Date: Wed, 15 Sep 2004 18:31:12 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+CC: alan@lxorguk.ukuu.org.uk, paul@clubi.ie, netdev@oss.sgi.com,
+       leonid.grossman@s2io.com, linux-kernel@vger.kernel.org
+Subject: Re: The ultimate TOE design
+References: <4148991B.9050200@pobox.com>	<Pine.LNX.4.61.0409152102050.23011@fogarty.jakma.org>	<1095275660.20569.0.camel@localhost.localdomain>	<4148A90F.80003@pobox.com>	<20040915140123.14185ede.davem@davemloft.net>	<20040915210818.GA22649@havoc.gtf.org> <20040915141346.5c5e5377.davem@davemloft.net>
+In-Reply-To: <20040915141346.5c5e5377.davem@davemloft.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-15 at 15:41, Theodore Ts'o wrote:
-> The current (I can't speak to what Alan Cox is going to change) rules
-> with tty drivers is that tty drivers are supposed to close the line
-> discpline in their close routines.  That's the much safer and cleaner
-> way of fixing this problem, and it is in line with what most of the
-> other tty drivers are doing.
-				- Ted
+David S. Miller wrote:
+> Plus we have things like TSO too but that doesn't require a full Linux
+> instance to realize on a networking port.
+> Simple silicon implements this already.
+> I don't see how that differs from your "big MTU" ideas.
 
-Thanks for the pointer Ted.  I've looked through the drivers/char
-directory but I must be blind because all I see other drivers doing is
-setting tty->closing = 1 (and then = 0 later) and
-ldsic->flush_buffer().  Is flush_buffer() what you're refering to?  The
-tty->closing variable just seems to prevent the ldisc from reading.
 
-Ryan S. Arnold
-IBM Linux Technology Center
+WRT MTU:  if the card is a buffering endpoint, rather than a 
+passthrough, the card deals with Path MTU and fragmentation, leaving the 
+card<->host MTU at 64K, getting nice big fat frames.
+
+	Jeff
+
 

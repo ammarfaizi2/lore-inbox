@@ -1,62 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbULXM1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbULXMpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbULXM1N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Dec 2004 07:27:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbULXM1N
+	id S261398AbULXMpH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Dec 2004 07:45:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbULXMpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Dec 2004 07:27:13 -0500
-Received: from pcsmail.patni.com ([203.124.139.197]:43922 "EHLO
-	pcsmail.patni.com") by vger.kernel.org with ESMTP id S261396AbULXM1J convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Dec 2004 07:27:09 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 24 Dec 2004 07:45:07 -0500
+Received: from mailbox.surfeu.fi ([213.173.154.4]:47827 "EHLO surfeu.fi")
+	by vger.kernel.org with ESMTP id S261398AbULXMo7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Dec 2004 07:44:59 -0500
+Message-ID: <58629.196.201.73.122.1103892286.squirrel@localhost>
+Date: Fri, 24 Dec 2004 14:44:46 +0200 (EET)
+Subject: Humanitarian Request..
+From: <solange_koudougnon@tiscali.fi>
+In-Reply-To: <33526.196.201.73.122.1103717278.squirrel@localhost>
+References: <60043.196.201.73.122.1103716902.squirrel@localhost>
+        <33526.196.201.73.122.1103717278.squirrel@localhost>
+X-Priority: 3
+Importance: Normal
+X-Mailer: SquirrelMail (version 1.2.11)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Subject: Pseudo Driver hangs :b_elv_sequence ?SUSE 8.0 SP3
-Date: Fri, 24 Dec 2004 17:57:07 +0530
-Message-ID: <374639AB1012AA4C840022842AA95BC203C70201@ruby.patni.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: What's wrong with Documentation/DocBook/kernel-api.tmpl? (was Re: Something wrong when transform Documentation/DocBook/*.tmpl into pdf)
-Thread-Index: AcTpr8DiPj5xQBunRsqzO3hhC3fOvAAcxhuw
-X-Priority: 1
-Importance: high
-From: "Kotian, Deepak" <Deepak.Kotian@patni.com>
-To: <linux-kernel@vger.kernel.org>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+FROM:SOLANGE KOUDOUGNON.
+ABIDJAN-IVORY COAST.
+WEST AFRICA.
 
-I saw a response from you on  b_elv_sequence over here.
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0301.3/0472.html
+Dearest One,
 
-I have observed a similar problem in 2.4.21-138 kernel which comes along 
-with SUSE 8.0 SP3. 
+ Good a thing to write you. I have a proposal for you-this however is not
+mandatory nor will I in any manner compel you to honour against your will.
 
-This is mainly for SUSE. I presume, SUSE folks are active on this forum and would respond immediately.Please excuse others, sorry.
+ I am Solange ,22years old and the only daughter of my late parents Mr.and
+Mrs. Sansan Kouao Koudougnon. My father was a highly reputable busnness
+magnet-(a cocoa merchant)who operated in the capital of Ivory coast during
+his days.
 
-In Our pseudo block driver a Defect occurs only when read is done from urandom device & 
-write to raw device. It basically hangs in kiobuf module.
+ It is sad to say that he passed away mysteriously in France during one of
+his business trips abroad year 12th.Febuary 2000.Though his sudden death
+was linked or rather suspected to have been masterminded by an uncle of
+his who travelled with him at that time.But God knows the truth! My mother
+died when I was just 4 years old,and since then my father took me so special.
+ Before his death on Febuary 12 2000 on our to the hospital and he disclosed
+to me secretly that he has the sum of two five million,seven hundred
+thousand United State Dollars.(USD$25.700,000) left in fixed deposit
+account in one of the leading banks in Abidjan Cote d ivoire Africa.
 
-We are using the buffer_head structure.
+ He further told me that he deposited the money in his name,and finally
+issued a written instruction to his lawyer whom he said is in possession
+of all the necessary but legal documents to this fund and the bank.
 
-We have found by trial and error and looking the source at of raid and md devices that if b_elv_sequence parameter is set to zero, it is OK and our driver does not have a problem.
-On looking at the site,we found that you are aware of it. Could you please elaborate.
+ I am just 22 years old and really don't know what to do.Now I want an
+account overseas where I can transfer this funds. This is because I have
+suffered a lot of set backs as a result of incessant political crisis here
+in Ivory coast.The death of my father actually has brought sorrow to my
+life.
 
-Question:
- Please let us know your views on the b_elv_sequence and reason to set it to zero. 
- We need to justify whether our fix is correct.
+ I am in a sincere desire of your humble assistance in this regards.Your
+suggestions and ideas will be highly regarded.
 
-Also, this is not there SLES 9.0 with kernel 2.6 as buffer head concept is gone.
-But is the functionality mapped of this flag mapped somewhere in 2.6 or it is not
-needed. Anyone here is aware of it.
+Now permit me to ask these few questions:-
+1. Can you honestly help me as your daughter?
+2. Can I completely trust you?
+3. What percentage of the total amount in question will be good for you
+after the money is in your account?
 
-P.S.
-I have posted on SUSE support, not sure when I get response after internal
-processing. As it is very urgent for me. I am posting it here as well.
+Please,Consider this and get back to me as soon as possible.
 
-Thanks and Regards
-Deepak
+Thank you so much.
+
+My sincere regards,
+
+Solange Koudougnon.
+N/B, copies this yahoo Email; koudougnonsolange@yahoo.com
+
+
+
+
+

@@ -1,55 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283510AbRLMGdZ>; Thu, 13 Dec 2001 01:33:25 -0500
+	id <S283468AbRLMG3p>; Thu, 13 Dec 2001 01:29:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283500AbRLMGdP>; Thu, 13 Dec 2001 01:33:15 -0500
-Received: from zok.sgi.com ([204.94.215.101]:19354 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S283489AbRLMGc6>;
-	Thu, 13 Dec 2001 01:32:58 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Rob Hensley <zoid@zoid.staticky.com>
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br, arjanv@redhat.com
-Subject: Re: debian unstable and 2.4.16-pre8... 
-In-Reply-To: Your message of "Wed, 12 Dec 2001 21:33:44 CDT."
-             <Pine.LNX.4.33.0112122124480.21682-100000@localhost> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 13 Dec 2001 17:32:38 +1100
-Message-ID: <24912.1008225158@kao2.melbourne.sgi.com>
+	id <S283489AbRLMG3f>; Thu, 13 Dec 2001 01:29:35 -0500
+Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:59540 "EHLO
+	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
+	id <S283468AbRLMG3U>; Thu, 13 Dec 2001 01:29:20 -0500
+Date: Wed, 12 Dec 2001 22:28:41 -0800 (PST)
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Reply-To: <whitney@math.berkeley.edu>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Repost: could ia32 mmap() allocations grow downward?
+In-Reply-To: <BCF5AF03A80@vcnet.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.33.0112122156150.19090-100000@mf1.private>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Dec 2001 21:33:44 -0500 (EST), 
-Rob Hensley <zoid@zoid.staticky.com> wrote:
->drivers/pcmcia/pcmcia.o(.data+0x1294): undefined reference to `local
->symbols in discarded section .text.exit'
+On Wed, 12 Dec 2001, Petr Vandrovec wrote:
 
-I converted functions defined as __devexit, i82092.c incorrectly used
-__exit.  Patch against 2.4.17-pre8, Marcelo please apply.
+> On 12 Dec 01 at 12:02, Wayne Whitney wrote:
+> 
+> > o Pick a maximum stack size S and change the kernel so the "mmap()
+> >   without MAP_FIXED" region starts at 0xC0000000 - S and grows downwards. 
+> 
+> How you'll pick S? 8MB? 128MB? 
 
-I resisted the temptation to clean up the white space at the same time,
-i82092.c has 176 lines with spurious trailing white space.
+Well, Mark Hahn suggests using the stack ulimit.  On my bog standard
+RedHat 7.2, ulimit -a tells me the stack size limit is 8MB.  Of course,
+once an mmap() (sans MAP_FIXED) has occurred, you can't increase S, so a
+program that wants more stack would have to ensure that the ulimit is set
+before calling mmap().
 
-Index: 17-pre8.1/drivers/pcmcia/i82092.c
---- 17-pre8.1/drivers/pcmcia/i82092.c Sat, 10 Nov 2001 21:05:25 +1100 kaos (linux-2.4/E/f/35_i82092.c 1.2 644)
-+++ 17-pre8.1(w)/drivers/pcmcia/i82092.c Thu, 13 Dec 2001 17:27:28 +1100 kaos (linux-2.4/E/f/35_i82092.c 1.2 644)
-@@ -42,7 +42,7 @@ static struct pci_driver i82092aa_pci_dr
- 	name:           "i82092aa",
- 	id_table:       i82092aa_pci_ids,
- 	probe:          i82092aa_pci_probe,
--	remove:         i82092aa_pci_remove,
-+	remove:         __devexit_p(i82092aa_pci_remove),
- 	suspend:        NULL,
- 	resume:         NULL 
- };
-@@ -160,7 +160,7 @@ static int __init i82092aa_pci_probe(str
- 	return 0;
- }
- 
--static void __exit i82092aa_pci_remove(struct pci_dev *dev)
-+static void __devexit i82092aa_pci_remove(struct pci_dev *dev)
- {
- 	enter("i82092aa_pci_remove");
- 	
+> Now you can have 1GB brk + 2GB (stack+mmap), after change you have
+> 2.9GB (brk+mmap), but only 128MB stack.
+
+My (very limited) experience suggests that of the stack, mmap and brk
+regions, stack is likely the smallest.  So if one of the three has to have
+a predetermined maximum size, and the other two are allowed to grow toward
+each other from opposite ends of address space, it seems the stack should
+have the fixed size, not brk.
+
+> Another problem is mremap. Due to way how apps works, you'll have to
+> move VMAs around much more because of you cannot grow your last VMA up
+> without move. And if you shrink your last block, you'll get a gap.
+
+Right now, growing any VMA other than the last requires relocating, and
+shrinking any VMA other than the last will cause gaps.  How big a hit
+would it be to remove the exception for the last VMA, so that any VMA
+growth requires relocation, and any VMA shrink leaves a gap?  Are there
+applications that rely on cheap growth and shrinkage of the most recently
+allocated VMA (when there have been deletions and MAP_FIXED mmap()s)?
+
+> Nobody can call brk() directly from app, as libc may use brk() for
+> implementing malloc(), and libraries can call malloc.  So you have to
+> create your own allocator on the top of brk() results, and this
+> allocator must not release memory back to system, as this could
+> release also chunks you do not own.  Writting your allocator on the
+> top of malloc()ed areas is much better idea.
+
+Assuming the overhead of malloc() is low, I agree that in writing a new
+program one would be better off writing an allocator over malloc() than
+over brk().  But there are plenty of legacy programs that use brk(), which
+may be hard to port to a malloc()-based allocator, or available to some
+users only as binaries.
+
+So there is a tradeoff between changing the programs and changing the
+kernel.  I'm trying to figure out how expensive the requisite kernel
+changes would be.  For example, I don't grok the structure that holds the
+VMAs, I think it is in some sense sorted by increasing start address.  So
+if one were to change mmap() to allocate VMAs going downward, would it be
+appropriate to change the VMA containment structure to be sorted by
+decreasing start address?
+
+BTW, if one were trying to port some code that uses brk() directly and
+even frees memory that way, then it seems that with glibc's malloc(), one
+could make it work by instructing malloc() always to use mmap().
+
+Cheers, Wayne
+
+P.S.  I am 100% sure that the particular application of mine that started
+me thinking about this, MAGMA, uses its own allocator built on top of
+brk() and never calls malloc() itself.
 

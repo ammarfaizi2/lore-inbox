@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264394AbTLBU6R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 15:58:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264395AbTLBU6R
+	id S264382AbTLBUhs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 15:37:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbTLBUey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 15:58:17 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:8460 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S264394AbTLBU6P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 15:58:15 -0500
-Date: Tue, 2 Dec 2003 19:03:11 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel@vger.kernel.org
+	Tue, 2 Dec 2003 15:34:54 -0500
+Received: from mail3.ithnet.com ([217.64.64.7]:33941 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S264352AbTLBUcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 15:32:31 -0500
+X-Sender-Authentication: net64
+Date: Tue, 2 Dec 2003 21:32:28 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: gene.heskett@verizon.net
+Cc: torvalds@osdl.org, jbglaw@lug-owl.de, linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.4 future
-Message-ID: <20031202210310.GA17773@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Stephan von Krawczynski <skraw@ithnet.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <200312011226.04750.nbensa@gmx.net> <20031202115436.GA10288@physik.tu-cottbus.de> <20031202120315.GK13388@conectiva.com.br> <20031202210904.48706476.skraw@ithnet.com> <20031202202435.GS15165@conectiva.com.br> <20031202214504.713c8a45.skraw@ithnet.com>
+Message-Id: <20031202213228.5747cbfe.skraw@ithnet.com>
+In-Reply-To: <200312021439.52933.gene.heskett@verizon.net>
+References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet>
+	<20031202184513.GU16507@lug-owl.de>
+	<Pine.LNX.4.58.0312021101440.1519@home.osdl.org>
+	<200312021439.52933.gene.heskett@verizon.net>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031202214504.713c8a45.skraw@ithnet.com>
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Tue, Dec 02, 2003 at 09:45:04PM +0100, Stephan von Krawczynski escreveu:
-> On Tue, 2 Dec 2003 18:24:35 -0200
-> Arnaldo Carvalho de Melo <acme@conectiva.com.br> wrote:
-> 
-> > And I was on this list _way_ before 2.4.11, 2.6 has, IMHO, a different story.
-> 
-> A story can only be judged _after_ it is history.
+On Tue, 2 Dec 2003 14:39:52 -0500
+Gene Heskett <gene.heskett@verizon.net> wrote:
 
-What happened up to this point in kernel development hasn't happened? I'm
-comparing what happened up to now with what happened at the same point in
-the 2.4.0-pre days, talking about the past, so, after it is history, I agree
-with you, at least on this :-)
+> [...]
+> Its not your emails (as Linus) to nvidia that will fix that, but a 
+> concerted effort, emailing them for a resolution from everyone who 
+> owns one of their products _might_ eventually make a difference.
 
-- Arnaldo
+Make the difference yourself: don't buy such products. I stopped some time ago
+and I am very happy with _my choice_, not relying on theirs'.
+
+Regards,
+Stephan

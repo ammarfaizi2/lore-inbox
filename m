@@ -1,77 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281079AbRKGXXm>; Wed, 7 Nov 2001 18:23:42 -0500
+	id <S281075AbRKGX3c>; Wed, 7 Nov 2001 18:29:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281084AbRKGXXd>; Wed, 7 Nov 2001 18:23:33 -0500
-Received: from cayuga.grammatech.com ([209.4.89.66]:31236 "EHLO grammatech.com")
-	by vger.kernel.org with ESMTP id <S281079AbRKGXXY>;
-	Wed, 7 Nov 2001 18:23:24 -0500
-Message-ID: <3BE9C261.D7422143@grammatech.com>
-Date: Wed, 07 Nov 2001 18:23:13 -0500
-From: David Chandler <chandler@grammatech.com>
-Organization: GrammaTech, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S281084AbRKGX3X>; Wed, 7 Nov 2001 18:29:23 -0500
+Received: from line205.comsat.net.ar ([200.47.131.205]:62876 "HELO
+	line205.comsat.net.ar") by vger.kernel.org with SMTP
+	id <S281075AbRKGX3O>; Wed, 7 Nov 2001 18:29:14 -0500
+Date: Wed, 7 Nov 2001 20:30:07 -0300
+From: martin sepulveda <msepulveda@labase.com.ar>
 To: linux-kernel@vger.kernel.org
-Subject: Bug Report: Dereferencing a bad pointer
-Content-Type: text/plain; charset=us-ascii
+Subject: 2.4.14 and athlon
+Message-Id: <20011107203007.09d19857.msepulveda@labase.com.ar>
+X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bug Report
+hi
 
-Summary:
-Dereferencing a bad pointer in user space hangs rather than causing a
-segmentation fault in 2.4.x kernels.
+i have a athlon 950 MHz (Via 686 chipset) that's acting
+funny on 2.4.2, 2.4.6, 2.4.10 and 2.4.12-ac3 with Rik's VM.
+512 MB memory, 1 GB swap. all partitions are ext2, and the system
+is a RH 7.1.
 
-Keywords:
-memory protection address dereference segmentation fault SIGSEGV
+after some time running (apache/mysql/bind, not really heavy
+load for the bos, except for backing up sites), load starts
+to go higher and higher, and eventually (after reaching loads
+of 70 - 90), it only responds pings. since it's in a farming
+facility and this behaviour is not predictable (not cron-related,
+for example) i can't see any console output. this happend about dayly
+on 2.4.6, and about weekly now (2.4.12-ac3 rik vm).
 
+i guess it's all VM related, since it seems to get better, with
+the kernel upgrades, but i'm not sure anyway.
 
-Full Description:
+does anyone have any idea of what might i do? i plan to give 2.4.14
+a try, but don't know what patches or options do you believe will
+be better. (no, i dont have another machine at hand to test, and
+yes, it's our production server).
 
-The following one-line C program, when compiled by gcc 2.96 without
-optimization, should produce a SIGSEGV segmentation fault (on a machine
-with 3 or less gigabytes of virtual memory, at least):
+thanks in advance,
 
-        int main() { int k  = *(int *)0xc0000000; }
+M.
 
-However, it does not do so under 2.4.x -- it does cause a seg fault
-under
-2.2.x kernels.
+-- 
+Talent does what it can, genius what it must.
+I do what I get paid to do.
 
-Specifically, no seg fault occurs under kernels 2.4.2-2 (Red Hat build),
-
-2.4.13, 2.4.13UML, 2.4.9UML, or 2.4.8UML.  This one-liner does cause a
-seg fault on 2.2.5-15 (Red Hat build) and 2.2.14-5.0 (Red Hat build).
- All these were run on Pentium II, Pentium III, and Pentium 4 chips.
-The "UML" kernels are Linus's official releases patched with the
-user-mode linux patches and run on a Red Hat 7.1 2.4.2-2 Pentium 4 host;
-
-Tom's rtbt was the UML file system.
-
-Note that UML uses arch/um rather than arch/i386; this seems to remove
-some suspicion from 'arch/i386/mm/fault.c', which has changed
-considerably from 2.2.x to 2.4.x.
-
-Rather than seg faulting, the 2.4.x kernels just sit at the offensive
-dereference until you interrupt the process.  Interruption works
-flawlessly; you can use 'kill -INT', 'kill -SEGV' or 'kill -BUS' to
-interrupt the process.
-
-Please Cc: me on any responses -- the linux-kernel traffic is too much
-for me.
-
-
-David Chandler
-
---
-
-_____
-David L. Chandler.                              GrammaTech, Inc.
-mailto:chandler@grammatech.com         http://www.grammatech.com
-
-
-
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM dpu s+:- a- C++++ UL++++ P++++ L++++ E--- W- N-- o-- K- w-- 
+O---- M-- V-- PS++ PE- Y++ PGP+++ t+ 5 X R+ !tv b+++ DI++ D+++ 
+G++ e++ h++ r+ y++ 
+------END GEEK CODE BLOCK------

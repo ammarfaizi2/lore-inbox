@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263660AbRFMRMv>; Wed, 13 Jun 2001 13:12:51 -0400
+	id <S263480AbRFMRUb>; Wed, 13 Jun 2001 13:20:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263973AbRFMRMl>; Wed, 13 Jun 2001 13:12:41 -0400
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:35490 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S263660AbRFMRMa>; Wed, 13 Jun 2001 13:12:30 -0400
-Date: Wed, 13 Jun 2001 18:07:36 +0100 (BST)
-From: James Sutherland <jas88@cam.ac.uk>
-X-X-Sender: <jas88@orange.csi.cam.ac.uk>
-To: Ralf Baechle <ralf@uni-koblenz.de>
-cc: Ion Badulescu <ionut@moisil.cs.columbia.edu>,
-        Riley Williams <rhw@MemAlpha.CX>, Shawn Starr <spstarr@sh0n.net>,
-        <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Gigabit Intel NIC? - Intel Gigabit Ethernet Pro/1000T
-In-Reply-To: <20010613144017.E31221@bacchus.dhis.org>
-Message-ID: <Pine.SOL.4.33.0106131804480.10878-100000@orange.csi.cam.ac.uk>
+	id <S263473AbRFMRUV>; Wed, 13 Jun 2001 13:20:21 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:20488 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S263480AbRFMRUF>;
+	Wed, 13 Jun 2001 13:20:05 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200106131717.f5DHHRJ295569@saturn.cs.uml.edu>
+Subject: Re: Going beyond 256 PCI buses
+To: tom_gall@vnet.ibm.com (Tom Gall)
+Date: Wed, 13 Jun 2001 13:17:27 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3B273A20.8EE88F8F@vnet.ibm.com> from "Tom Gall" at Jun 13, 2001 05:02:08 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Jun 2001, Ralf Baechle wrote:
+Tom Gall writes:
 
-> On Wed, Jun 13, 2001 at 03:25:22AM -0700, Ion Badulescu wrote:
-> > Date: 	Wed, 13 Jun 2001 03:25:22 -0700
-> > From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-> > To: Riley Williams <rhw@MemAlpha.CX>
-> > Cc: Shawn Starr <spstarr@sh0n.net>, <linux-kernel@vger.kernel.org>,
-> >         Alan Cox <alan@lxorguk.ukuu.org.uk>
-> > Subject: Re: Gigabit Intel NIC? - Intel Gigabit Ethernet Pro/1000T
-> >
-> > On Tue, 12 Jun 2001 18:20:58 +0100 (BST), Riley Williams <rhw@memalpha.cx> wrote:
-> >
-> > > Shawn, I'd suggest you tell the said sales guy that IF he can get you
-> > > the FULL specs TOGETHER WITH permission to freely distribute them, AND
-> >
-> > Permission to freely distribute the specs isn't necessary, although it
-> > is nice indeed. All that's needed is permission to GPL the driver sources
-> > written using knowledge from said specs.
->
-> Which would still be a problem.  You then have a GPL'ed driver which still
-> cannot be sanely modified in the way the GPL would like to guarantee.
+>   I was wondering if there are any other folks out there like me who
+> have the 256 PCI bus limit looking at them straight in the face?
 
-That isn't a problem - the GPL doesn't attempt to guarantee users the
-INFORMATION needed to make sane changes, just that they have the facility
-to do so. Just as the kernel doesn't come with a copy of the POSIX specs,
-the RFCs, etc. - some of the standards the kernel implements aren't
-available publicly, but that doesn't stop the kernel being freely
-modifiable!
+I might. The need to reserve bus numbers for hot-plug looks like
+a quick way to waste all 256 bus numbers.
 
+> each PHB has an
+> additional id, then each PHB can have up to 256 buses.
 
-James.
+Try not to think of him as a PHB with an extra id. Lots of people
+have weird collections. If your boss wants to collect buses, well,
+that's his business. Mine likes boats. It's not a big deal, really.
+
+(Did you not mean your pointy-haired boss has mental problems?)
+
 

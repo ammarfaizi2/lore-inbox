@@ -1,58 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274982AbTHRTev (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 15:34:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274990AbTHRTev
+	id S272280AbTHRTnt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 15:43:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272307AbTHRTnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 15:34:51 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:54691
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S274982AbTHRTet (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 15:34:49 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Russell King <rmk@arm.linux.org.uk>
-Subject: Re: Compiling cardbus devices monolithic doesn't work?
-Date: Mon, 18 Aug 2003 15:34:37 -0400
-User-Agent: KMail/1.5
+	Mon, 18 Aug 2003 15:43:49 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:8713 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S272280AbTHRTnr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 15:43:47 -0400
+Date: Mon, 18 Aug 2003 21:43:45 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Felix von Leitner <felix-kernel@fefe.de>
 Cc: linux-kernel@vger.kernel.org
-References: <200308172158.34498.rob@landley.net> <20030818084411.A26743@flint.arm.linux.org.uk>
-In-Reply-To: <20030818084411.A26743@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: 2.6.0-test3: setuid32(8) returns EAGAIN (WTF?!)
+Message-ID: <20030818214345.A1144@pclin040.win.tue.nl>
+References: <20030817010336.GA12079@codeblau.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308181534.37586.rob@landley.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030817010336.GA12079@codeblau.de>; from felix-kernel@fefe.de on Sun, Aug 17, 2003 at 03:03:36AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ahem, second attempt:
+On Sun, Aug 17, 2003 at 03:03:36AM +0200, Felix von Leitner wrote:
+> I just changed from 2.5.75 to 2.6.0-test3 and suddenly my imap server
+> fails to start (it's dovecot).  It wrote to syslog:
+> 
+> Aug 17 02:58:02 hellhound dovecot: Dovecot starting up
+> Aug 17 02:58:03 hellhound imap-login: setuid(8) failed: Resource temporarily unavailable
+> Aug 17 02:58:03 hellhound dovecot: Login process died too early - shutting down
+> 
+> So I strace -f it, and sure enough, here is what happens:
+> 
+> [init, fork, tzfile...]
+> 8094  chroot("/var/run/dovecot//login") = 0
+> 8094  chdir("/")                        = 0
+> 8094  setuid32(0x8)                     = -1 EAGAIN (Resource temporarily unavailable)
+> 
+> Why is this happening?
 
-On Monday 18 August 2003 03:44, Russell King wrote:
+In sys.c:set_user() we see
 
-> You still need to use cardmgr to bind the driver to the device.
-> It seems to work for me here on SA11x0 platforms, and I'm not aware
-> of it breaking at any point in the 2.5 series.
->
-> While it is true that Cardbus devices plugged into cardbus slots do
-> not need cardmgr, PCMCIA devices still do.
+        if (atomic_read(&new_user->processes) >=
+                                current->rlim[RLIMIT_NPROC].rlim_cur &&
+                        new_user != &root_user) {
+                free_uid(new_user);
+                return -EAGAIN;
+        }
 
-The hotplug scripts from RH9 are there and seem happy, I thought cardmgr was 
-called from them.  (The same setup works in 2.4.21, albeit with modules 
-enabled.  I should compile a monolithic 2.4 kernel and see what it does...)
+which was added in patch-2.6.0-test2.
+No doubt this causes your problem.
 
-> > (P.S.  And while I'm at it, what's the relationship between orinoco_cs,
-> > orinoco, and hermes?  The /proc/modules dependency tree thing says
-> > they're using each other in a chain.  Probably true, just a bit odd, I
-> > thought. Couldn't figure out which driver I needed, compiled all three,
-> > and it loaded ALL of them.  Can't complain, the card works under 2.4. 
-> > This is just a random "huh?")
->
-> IIRC hermes provides the low level interface to the device, orinoco
-> provides the interface between it and the network stack, and orinoco_cs
-> provides a bridge between the PCMCIA subsystem and orinoco.
+You might check what values these variables have for you.
 
-Now I'm confused.  I thought the _cs on the end was short for "cardbus"...
+Andries
 
-Rob

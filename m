@@ -1,70 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135170AbRDZHjc>; Thu, 26 Apr 2001 03:39:32 -0400
+	id <S135180AbRDZIAa>; Thu, 26 Apr 2001 04:00:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135174AbRDZHjW>; Thu, 26 Apr 2001 03:39:22 -0400
-Received: from t2.redhat.com ([199.183.24.243]:6132 "EHLO
-	warthog.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S135170AbRDZHjS>; Thu, 26 Apr 2001 03:39:18 -0400
+	id <S135178AbRDZIAU>; Thu, 26 Apr 2001 04:00:20 -0400
+Received: from hermes.sistina.com ([208.210.145.141]:32521 "HELO sistina.com")
+	by vger.kernel.org with SMTP id <S135180AbRDZIAF>;
+	Thu, 26 Apr 2001 04:00:05 -0400
+Date: Thu, 26 Apr 2001 09:58:16 +0000
+From: "Heinz J. Mauelshagen" <Mauelshagen@Sistina.com>
+To: Chip Salzenberg <chip@valinux.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rw_semaphores, optimisations try #4 
-In-Reply-To: Your message of "Wed, 25 Apr 2001 22:56:21 +0200."
-             <20010425225621.B13531@athlon.random> 
-Date: Thu, 26 Apr 2001 08:39:16 +0100
-Message-ID: <8005.988270756@warthog.cambridge.redhat.com>
-From: David Howells <dhowells@warthog.cambridge.redhat.com>
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Subject: Re: Your message to linux-lvm awaits moderator approval
+Message-ID: <20010426095816.A9770@sistina.com>
+Reply-To: Mauelshagen@Sistina.com
+In-Reply-To: <20010419220326.A9016@caldera.de> <Pine.LNX.4.33.0104191734120.17635-100000@duckman.distro.conectiva> <E14qMEC-0005zd-00@tytlal>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E14qMEC-0005zd-00@tytlal>; from chip@valinux.com on Thu, Apr 19, 2001 at 02:44:40PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
-> It seems more similar to my code btw (you finally killed the useless
-> chmxchg ;).
 
-CMPXCHG ought to make things better by avoiding the XADD(+1)/XADD(-1) loop,
-however, I tried various combinations and XADD beats CMPXCHG significantly.
+As atetd multiple times now...
 
-Here's a quote from Borland assembler manual I managed to dig out, giving i486
-timings on memory access:
+There never has been censorship.
 
-       ADDL/SUBL	3 cycles
-       XADDL		4 cycles
-       CMPXCHG		8 cycles (success) / 10 cycles (failure)
-       LOCK		+1 cycle minimum on this CPU
 
-In reality, however, XADDL gives at least as good a result as ADDL/SUBL, maybe
-just a little bit better, but its hard to say. However, the penalty imposed on
-the other CPU (when it has to flush it's cache) probably more than makes up
-for the difference.
+On Thu, Apr 19, 2001 at 02:44:40PM -0700, Chip Salzenberg wrote:
+> Rik van Riel writes:
+> >[...] Andreas' patches got dropped over and over again and comments
+> >on the LVM code got refused by the moderators at Sistina ...
 
-> I only had a short low at your attached patch, but the results are quite
-> suspect to my eyes beacuse we should still be equally fast in the fast
-> path and I should still beat you on the write fast path because I do a
-> much faster subl; js while you do movl -1; xadd ; js, while according to
-> your results you beat me on both. Do you have an explanation or you
-> don't know the reason either?
+If there's inital trouble with the changed mailer setup,
+please beat us, but let us stop this thread of "assumptions".
 
-	MOVL $1,EDX
-	SUBL EDX,(EAX)
+Thanks a lot.
 
-Works out faster than:
+> 
+> "The Net interprets censorship as damage and routes around it."
+> 	-- John Gilmore
+> 
+> -- 
+> Chip Salzenberg              - a.k.a. -             <chip@valinux.com>
+>  "We have no fuel on board, plus or minus 8 kilograms."  -- NEAR tech
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-	SUBL $1,(EAX)
+-- 
 
-as well... probably due to an avoided stall when the instruction before the
-snippet loads EAX from memory. Oh yes... "STC, SUBL" may also be faster too.
+Regards,
+Heinz    -- The LVM Guy --
 
-> I will re-benchmark the whole thing shortly. But before re-benchmark if you
-> have time could you fix the benchmark to use the variable pointer and send
-> me a new tarball?  For your code it probably doesn't matter because you
-> dereference the pointer by hand anyways, but it matters for mine and we want
-> to benchmark real world fast path of course.
+*** Software bugs are stupid.
+    Nevertheless it needs not so stupid people to solve them ***
 
-No, not till this evening now, I'm afraid.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-As for real-world benchmarks, I suspect the fastpath is going to be
-sufficiently few cycles that it's drowned out by whatever bit of code is
-actually using it, like my Wine server module, which is where all this started
-for me.
-
-David
+Heinz Mauelshagen                                 Sistina Software Inc.
+Senior Consultant/Developer                       Am Sonnenhang 11
+                                                  56242 Marienrachdorf
+                                                  Germany
+Mauelshagen@Sistina.com                           +49 2626 141200
+                                                       FAX 924446
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -1,64 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261798AbVCLAfs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261792AbVCLArv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbVCLAfs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 19:35:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVCLAfr
+	id S261792AbVCLArv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 19:47:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVCLArv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 19:35:47 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:2221 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261798AbVCLAfk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 19:35:40 -0500
-Date: Fri, 11 Mar 2005 16:35:19 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
+	Fri, 11 Mar 2005 19:47:51 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:9401 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261792AbVCLArs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 19:47:48 -0500
+Subject: Re: [2.6 patch] drivers/pnp/: possible cleanups
+From: Adam Belay <abelay@novell.com>
 To: Andrew Morton <akpm@osdl.org>
-cc: davej@redhat.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] mm counter operations through macros
-In-Reply-To: <20050311145226.6ee4a951.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0503111633410.23976@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0503110422150.19280@schroedinger.engr.sgi.com>
- <20050311182500.GA4185@redhat.com> <Pine.LNX.4.58.0503111103200.22240@schroedinger.engr.sgi.com>
- <20050311145226.6ee4a951.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: bunk@stusta.de, perex@suse.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <20050311162320.15007aa3.akpm@osdl.org>
+References: <20050311181606.GC3723@stusta.de>
+	 <1110585763.12485.223.camel@localhost.localdomain>
+	 <20050311162320.15007aa3.akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 11 Mar 2005 19:44:56 -0500
+Message-Id: <1110588297.12485.251.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Mar 2005, Andrew Morton wrote:
-
-> > +#define set_mm_counter(mm, member, value) (mm)->member = (value)
-> > +#define get_mm_counter(mm, member) ((mm)->member)
-> > +#define update_mm_counter(mm, member, value) (mm)->member += (value)
-> > +#define inc_mm_counter(mm, member) (mm)->member++
-> > +#define dec_mm_counter(mm, member) (mm)->member--
-> > +#define MM_COUNTER_T unsigned long
->
-> Would prefer `mm_counter_t' here.
->
-> Why not a typedef?
-
-Ok typedef it is.
-
-> > @@ -231,9 +237,13 @@ struct mm_struct {
-> >  	unsigned long start_code, end_code, start_data, end_data;
-> >  	unsigned long start_brk, brk, start_stack;
-> >  	unsigned long arg_start, arg_end, env_start, env_end;
-> > -	unsigned long rss, anon_rss, total_vm, locked_vm, shared_vm;
-> > +	unsigned long total_vm, locked_vm, shared_vm;
-> >  	unsigned long exec_vm, stack_vm, reserved_vm, def_flags, nr_ptes;
+On Fri, 2005-03-11 at 16:23 -0800, Andrew Morton wrote:
+> Adam Belay <abelay@novell.com> wrote:
 > >
-> > +	/* Special counters protected by the page_table_lock */
-> > +	MM_COUNTER_T rss;
-> > +	MM_COUNTER_T anon_rss;
-> > +
->
-> Why were only two counters converted?
+> > This patch essential makes it impossible for PnP protocols to be
+> > modules.  Currently, they are all in-kernel.  If that is acceptable...,
+> > then this patch looks fine to me.  Any comments?
+> 
+> You're the maintainer...
 
-Because only these two counters are protected by the page table lock.
+I've been holding off on making many changes to PnP at the moment,
+because I have been considering replacing it with a new (more modern and
+ACPI capable) ISA/LPC bridge driver.  This work would likely begin after
+my PCI bridge driver rewrite is finished and merged (as the PCI work is
+in some ways a prerequisite).
 
-> Could I suggest that you rename all these counters, so that code which
-> fails to use the macros won't compile?
+http://marc.theaimsgroup.com/?l=linux-kernel&m=111023821617705&w=2
 
-Ok. will make them mm_xx as they were in previous patches.
+Still, if there are changes to fix actual bugs, then I'm all for them.
+
+Also a few features could be added.  Specifically PnPBIOS
+hotplug/docking station support.  If anyone's interested, I may
+implement it (and it would use some functions that were removed by this
+patch).  Furthermore, ISAPnP could be made a module.  PnPBIOS probably
+couldn't.
+
+> 
+> If someone converts a protocol to be moduar, presumably they will re-add
+> the needed exports to support that.
+
+Correct.
+
+> 
+> Are there likely to be any out-of-tree modular protocols in existence?
+> 
+
+Not that I'm aware of.
+
+So in short, I'd rather not remove them, because they take away from the
+original design of the PnP layer.
+
+Thanks,
+Adam
+
 

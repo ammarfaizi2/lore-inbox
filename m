@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317752AbSHPAGt>; Thu, 15 Aug 2002 20:06:49 -0400
+	id <S317694AbSHPAGs>; Thu, 15 Aug 2002 20:06:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317836AbSHPAGt>; Thu, 15 Aug 2002 20:06:49 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:32656 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S317752AbSHPAGs>;
-	Thu, 15 Aug 2002 20:06:48 -0400
-Date: Fri, 16 Aug 2002 02:11:14 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] user-vm-unlock-2.5.31-A2
-In-Reply-To: <Pine.LNX.4.44.0208151703310.15744-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0208160205190.6746-100000@localhost.localdomain>
+	id <S317836AbSHPAGs>; Thu, 15 Aug 2002 20:06:48 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:12548 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S317694AbSHPAGr>; Thu, 15 Aug 2002 20:06:47 -0400
+Date: Fri, 16 Aug 2002 10:10:18 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Matthew Wilcox <willy@debian.org>
+cc: "David S. Miller" <davem@redhat.com>, <kuznet@ms2.inr.ac.ru>,
+       Andi Kleen <ak@muc.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] sigurg/sigio cleanup for 2.5.31
+In-Reply-To: <20020815200436.E29958@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Mutt.LNX.4.44.0208161004310.30494-100000@blackbird.intercode.com.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 15 Aug 2002, Matthew Wilcox wrote:
 
-On Thu, 15 Aug 2002, Linus Torvalds wrote:
-
-> 	process X
+> In general, this is good... I think it could be better:
 > 
-> 	fork()			
-> 			------->	Process Y
-> 					clone()
-> 								----> thread Z
+> > +	lock_kernel();
+> > +	error = f_setown(filp, current->pid);
+> > +	unlock_kernel();
 > 
-> 					exit()
-> 					THIS MUST NOT
-> 					WRITE TO MEMORY
-> 					IN Z!!
+> There are a lot of these, and you even batch it up as sock_setown()
+> later.  May I suggest renaming f_setown to __setown and sock_setown
+> to f_setown?
 
-i guess i'm just being difficult, but process (thread) Y and thread Z
-share the same VM, right? So it's a threaded application, and as such i'd
-expect it to free its state when exiting. Ie. it must write to memory in
-Z. Now since the ->user_tid address is in thread Y's thread control block
-(or any similar thread state descriptor), i cannot see any problem why
-zeroing this TID value would be incorrect.
+Sounds like a good idea.
 
-> Notice how the exit() in Y will never be able to write into the address
-> space of X - it would only write into the address space of Z, and Z is
-> not expecting that at all!
+> this one's particularly silly -- now you've done the good job of wrapping
+> the security_ops up inside f_setown this can simply be:
+> 
+> 			lock_kernel();
+> 			err = f_setown(filp, arg);
+> 			unlock_kernel();
+> 			break;
 
-i think i see where the misunderstanding comes from: thread Y does not
-want to get into the address space of X - this is how the current
-CLEAR_TID code works and is expected to work. Threads always free their
-*own* thread state descriptor upon exit (eg. they set a flag in their own
-thread descriptor), not some field in the parent's domain. So thread Y
-does not ever want to write into X's address space - it wants to write
-into the VM that it's part of currently - if a fork() created a new VM
-then so be it, it's not attached to X in any way.
+Yep.
 
-	Ingo
+> Might make more sense to refactor as:
+> 
+> void sk_send_sigurg(struct sock *sk)
+> {
+> 	if (!sk->socket || !sk->socket->file)
+> 		return;
+> 	if (send_sigurg(&sk->socket->file->f_owner))
+> 		sk_wake_async(sk, 3, POLL_PRI);
+> }
+> 
+
+Possibly.  I guess it's up to the networking guys -- is there any point in 
+keeping these separate?  I can't see any with the current code.
+
+Thanks for the feedback.
+
+
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
+
 

@@ -1,81 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261173AbRFASke>; Fri, 1 Jun 2001 14:40:34 -0400
+	id <S261254AbRFASry>; Fri, 1 Jun 2001 14:47:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261198AbRFASkX>; Fri, 1 Jun 2001 14:40:23 -0400
-Received: from comverse-in.com ([38.150.222.2]:50908 "EHLO
-	eagle.comverse-in.com") by vger.kernel.org with ESMTP
-	id <S261173AbRFASkF>; Fri, 1 Jun 2001 14:40:05 -0400
-Message-ID: <6B1DF6EEBA51D31182F200902740436802678F10@mail-in.comverse-in.com>
-From: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
-To: "'Mark Frazer'" <mark@somanetworks.com>
-Cc: "'Pete Wyckoff'" <pw@osc.edu>, Linux Kernel <linux-kernel@vger.kernel.org>,
-        "'kaos@ocs.com.au'" <kaos@ocs.com.au>
-Subject: RE: Makefile patch for cscope and saner Ctags
-Date: Fri, 1 Jun 2001 14:39:08 -0400 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S261213AbRFASro>; Fri, 1 Jun 2001 14:47:44 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:20487 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S261217AbRFASr2>; Fri, 1 Jun 2001 14:47:28 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: Alan Cox <laughing@shared-source.org>
+cc: linux-kernel@vger.kernel.org
+Message-ID: <86256A5E.0066F63D.00@smtpnotes.altec.com>
+Date: Fri, 1 Jun 2001 13:45:55 -0500
+Subject: Re: Linux 2.4.5-ac6
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cscope:
 
-Minor stuff:
-1) in cscope.files - I'd be replacing cscope.files with $@ within the rule -
-you don't need a yellow belt to know $@ within a Makefile
-2) /bin/rm vs rm
 
-tags: Not going deep into it, I possibly should say here that hardwiring
-depth 5 is not the best thing probably - once someone extends down to 6,
-this place in the Makefile will for sure not be updated. You can make a loop
-here to max depth, which you can discover right here, rather than the
-current manually unrolled loop.
+The oops problem with the cs46xx in my ThinkPad 600X under -ac4 and -ac5 has
+changed now.  It no longer gives an oops; instead the program trying to access
+the sound card hangs (until I kill it).  Subsequent attempts to access the sound
+card get a "Device or resource busy" error.  There are no messages on the screen
+or sent to syslog (or messages or debug) when the hang occurs.  I don't know if
+it will help or not, but here are the last few lines of an strace of the hanging
+process:
 
-In general, I am not a tags user in the kernel (sticking to local tags +
-global cscope), so I'd be happy if you and 
-Pete could merge together your tags stuff. As for the ignore list, I don't
-see much of maintenance work there - and, if you guys think there is, maybe
-it is just possible to add Pete on the Kernel Build maintainers WRT to that
-file?
+stat("/usr/bin/sox", {st_mode=S_IFREG|0755, st_size=120744, ...}) = 0
+rt_sigprocmask(SIG_BLOCK, ~[], [], 8)   = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+rt_sigprocmask(SIG_BLOCK, [INT CHLD], [], 8) = 0
+fork()                                  = 186
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
+rt_sigaction(SIGINT, {0x806c04c, [], 0x4000000}, {SIG_DFL}, 8) = 0
+wait4(-1, 0xbffff744, 0, NULL)          = ? ERESTARTSYS (To be restarted)
+--- SIGTERM (Terminated) ---
++++ killed by SIGTERM +++
 
-Overall, IMHO, after you give it the last touch (maybe just dismissing my
-present letter :-) ) the cscope stuff is mature enough for going to KO & Co.
-(i.e. the kernel build guys); I don't consider myself a hardcore tags user
-to say so about the tags portion. 
+At the point of the hang, the output stops at "wait4(-1, " and the rest of that
+line (and the next two lines) appears after I kill the process.
 
-Keith, what do you think?
 
-Vassilii
+Here are the last few lines of another strace of the same program under
+2.4.5-ac3, which works fine:
 
-> -----Original Message-----
-> From: Mark Frazer [mailto:mark@somanetworks.com]
-> Sent: Thursday, May 31, 2001 4:45 PM
-> To: Khachaturov, Vassilii
-> Cc: Linux Kernel
-> Subject: Re: Makefile patch for cscope and saner Ctags
-> 
-> 
-> Khachaturov, Vassilii <Vassilii.Khachaturov@comverse.com> 
-> [01/05/31 15:00]:
-> > Don't forget to bug RH package maintainer on that. Whatever 
-> 
-> bugzilla submitted
-> 
-> > I use source-built cscope v.15.1, and -k works for me here, 
-> 
-> works for me too!
-> 
-> > WHY?! Isn't it better to put $(shell cat cscope.files) on 
-> the list of
-> 
-> I only have a yellow belt in makefile kungfu.  These fancy 
-> gnu make things
-> are relatively new to some of us...
-> 
-> The latest patch is attached.  include/linux/compile.h seems to get
-> built whenever I run make, so that's why I've excluded it 
-> from the deps
-> for cscope.out.
-> 
+stat("/usr/bin/sox", {st_mode=S_IFREG|0755, st_size=120744, ...}) = 0
+rt_sigprocmask(SIG_BLOCK, ~[], [], 8)   = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+rt_sigprocmask(SIG_BLOCK, [INT CHLD], [], 8) = 0
+fork()                                  = 435
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
+rt_sigaction(SIGINT, {0x806c04c, [], 0x4000000}, {SIG_DFL}, 8) = 0
+wait4(-1, [WIFEXITED(s) && WEXITSTATUS(s) == 0], 0, NULL) = 435
+rt_sigprocmask(SIG_BLOCK, [CHLD TTOU], [CHLD], 8) = 0
+rt_sigprocmask(SIG_SETMASK, [CHLD], NULL, 8) = 0
+rt_sigprocmask(SIG_BLOCK, [CHLD], [CHLD], 8) = 0
+rt_sigprocmask(SIG_SETMASK, [CHLD], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+--- SIGCHLD (Child exited) ---
+wait4(-1, 0xbffff438, WNOHANG, NULL)    = -1 ECHILD (No child processes)
+sigreturn()                             = ? (mask now [])
+rt_sigaction(SIGINT, {SIG_DFL}, {0x806c04c, [], 0x4000000}, 8) = 0
+rt_sigprocmask(SIG_BLOCK, NULL, [], 8)  = 0
+rt_sigprocmask(SIG_BLOCK, [CHLD TTOU], [], 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+read(255, "", 4472)                     = 0
+_exit(0)                                = ?h
+
+

@@ -1,54 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266716AbSKHCm3>; Thu, 7 Nov 2002 21:42:29 -0500
+	id <S266720AbSKHCsA>; Thu, 7 Nov 2002 21:48:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266719AbSKHCm3>; Thu, 7 Nov 2002 21:42:29 -0500
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:23539 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S266716AbSKHCm3>;
-	Thu, 7 Nov 2002 21:42:29 -0500
-Date: Thu, 7 Nov 2002 21:49:05 -0500
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: MdkDev <mdkdev@starman.ee>, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.46: ide-cd cdrecord success report
-Message-ID: <20021108024905.GA10246@www.kroptech.com>
-References: <32851.62.65.205.175.1036691341.squirrel@webmail.starman.ee> <20021107180709.GB18866@www.kroptech.com> <32894.62.65.205.175.1036692849.squirrel@webmail.starman.ee> <20021108015316.GA1041@www.kroptech.com> <3DCB1D09.EE25507D@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DCB1D09.EE25507D@digeo.com>
-User-Agent: Mutt/1.3.28i
+	id <S266722AbSKHCsA>; Thu, 7 Nov 2002 21:48:00 -0500
+Received: from [192.58.209.91] ([192.58.209.91]:19874 "HELO handhelds.org")
+	by vger.kernel.org with SMTP id <S266720AbSKHCr7>;
+	Thu, 7 Nov 2002 21:47:59 -0500
+From: George France <france@handhelds.org>
+To: Richard Henderson <rth@twiddle.net>,
+       axp-list mailing list <axp-list@redhat.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] eliminate compile warnings
+Date: Thu, 7 Nov 2002 21:54:29 -0500
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="us-ascii"
+References: <20021106214705.A15525@Marvin.DL8BCU.ampr.org> <20021107202855.B17028@Marvin.DL8BCU.ampr.org> <20021107173349.A4017@twiddle.net>
+In-Reply-To: <20021107173349.A4017@twiddle.net>
+Cc: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
+MIME-Version: 1.0
+Message-Id: <02110721542901.28099@shadowfax.middleearth>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 07, 2002 at 06:10:17PM -0800, Andrew Morton wrote:
-> Your bandwidth there fell from 12 megs/sec to around 8.  That is
-> reasonable, I think.  It's just that the read-vs-write balance is
-> wrong for you.
+Hello Richard,
 
-Agreed. I only thought this was a problem because you said it should
-work. ;)
+As I said earlier, I did not have time to look at the patch today, but
+I was going to save it with some other alpha kernel patches and
+was going to look at it next week.  From the snippet of code that
+you included in this e-mail, I agree 100% with your analysis of this
+patch and the correct way to proceed.  I would not want you to
+apply such a jumbo patch.
 
-> Try changing drivers/block/deadline-iosched.c:fifo_batch to 16.
+Today we were mostly absorbed in discussing where  or too whom
+should Thorsten send the patch instead of the patch itself, since
+there is no maintainer in the MAINTAINERS file.
 
-Works! A 12x burn succeeded with a parallell dd *and* and make -j20.
-Overall disk throughput suffered by a couple MB/s but there was a solid
-2 MB/s left for the recorder.
+Thank you very much for taking the time to review and consider
+this patch.
 
-> And the application isn't performing enough caching, perhaps.
+Best Regards,
 
-Perhaps, but it was a steady downward spiral, and with a read 
-throughput far lower than needed I think the application would have
-had to cache the entire image in order to survive.
 
-> The VM could be fairly easily changed to defer writeback if there is
-> read activity happening on the same spindle.  Been thinking about
-> that (and its relative, early flush) a bit.  But that write has
-> to go to disk sometime.
+--George
 
-Sounds interesting. It seems that this is the sort of behavior is
-precisely what some workloads need and precisely the opposite of
-what others need. Such is the life of a vm hacker, I suppose. :/
 
---Adam
-
+On Thursday 07 November 2002 20:33, Richard Henderson wrote:
+> As for the patch itself, it's not correct.  At a glance,
+>
+> > 	addr = arch_get_unmapped_area_1 (PAGE_ALIGN(addr), len, limit);
+> > -	if (addr != -ENOMEM)
+> > +	if (addr != (unsigned) -ENOMEM)
+>
+> addr is unsigned long.  If you truncate -ENOMEM to 32-bits, it will
+> never match.  There appears to be much more int/long confusion later.
+>
+> You have to be /exceedingly/ careful to fix these warnings without
+> introducing new bugs.  If you change the type of a variable, you
+> have to examine each and every use of the variable to determine if
+> the semantics are unchanged.  If you add a cast, you have to be sure
+> that you cast to a type of the correct width.  If you're adding lots
+> of casts, you should think about changing the type of one or more
+> variables.
+>
+> It's enough to make me wish we had -Wno-sign-compare in CFLAGS by
+> default for the nonce.  Which, incidentally, is what I've been doing
+> for my own builds.
+>
+> There's absolutely no way I'm going to apply a jumbo patch that
+> changes hundreds of these at once.  If you still want to fix these,
+> then you'll need to send them one at a time and include analysis of
+> why each change is correct.
+>
+>
+> r~
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131110AbQK3BXu>; Wed, 29 Nov 2000 20:23:50 -0500
+        id <S132309AbQK3CwB>; Wed, 29 Nov 2000 21:52:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131506AbQK3BXm>; Wed, 29 Nov 2000 20:23:42 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:17897 "EHLO math.psu.edu")
-        by vger.kernel.org with ESMTP id <S131110AbQK3BX1>;
-        Wed, 29 Nov 2000 20:23:27 -0500
-Date: Wed, 29 Nov 2000 19:52:56 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Randy Dunlap <randy.dunlap@intel.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: usbdevfs mount 2x, umount 1x
-In-Reply-To: <3A25A39F.3162018E@intel.com>
-Message-ID: <Pine.GSO.4.21.0011291949500.17068-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S131375AbQK3Cvw>; Wed, 29 Nov 2000 21:51:52 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:25107 "EHLO zeus.kernel.org")
+        by vger.kernel.org with ESMTP id <S130372AbQK3Cvq>;
+        Wed, 29 Nov 2000 21:51:46 -0500
+From: Rusty Russell <rusty@linuxcare.com.au>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: another problem disappeared 
+In-Reply-To: Your message of "Thu, 30 Nov 2000 01:28:13 BST."
+             <UTC200011300028.BAA150956.aeb@aak.cwi.nl> 
+Date: Thu, 30 Nov 2000 12:45:11 +1100
+Message-Id: <20001130014521.862D78120@halfway.linuxcare.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <UTC200011300028.BAA150956.aeb@aak.cwi.nl> you write:
+> Recently I muttered a bit about the fact that
+> with 2.4.0test11 masquerading, the first packet
+> that was to be forwarded crashes the kernel. Always.
 
+Yes, I was on the plane when I read your report, but I can't reproduce
+this.  I use masquerading every day (my laptop lives in its own
+masqueraded subnet), currently test10:
 
-On Wed, 29 Nov 2000, Randy Dunlap wrote:
+Linux penicillin 2.4.0-test10 #1 SMP Fri Nov 10 12:31:21 EST 2000 i686 unknown  
+> (I am still a bit curious: did other people see this?
+> Did someone fix a known problem with net(filter) or say /proc?
+> It would be a pity if this disappeared by coincidence
+> and appears again next month.)
 
-> [I reported this a couple of months back.  Got no
-> feedback on it.  If it's just a DDT (don't do that)
-> or a user error, please say so.]
-> 
-> Summary:  After I mount usbdevfs 2 times, and umount it
-> 1 time, the usbcore module use count prevents it from
-> being rmmod-ed.
+I've no other reports, and people are using this in production.
+That's why it was so puzzling...
 
-So umount it twice. And yes, it's "don't do it, then". Every mount()
-increments the use count. Every umount() decrements it. You want it
-to become 0. Draw your conclusions...
-
+Cheers,
+Rusty.
+--
+Hacking time.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

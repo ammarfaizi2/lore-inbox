@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267993AbUI1VTB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268051AbUI1VWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267993AbUI1VTB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 17:19:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267977AbUI1VR5
+	id S268051AbUI1VWE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 17:22:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268049AbUI1VWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 17:17:57 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29199 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S267971AbUI1VQO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 17:16:14 -0400
-Date: Tue, 28 Sep 2004 22:16:00 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: =?iso-8859-1?Q?Roland_Ca=DFebohm?= 
-	<roland.cassebohm@VisionSystems.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Serial driver hangs
-Message-ID: <20040928221600.D14747@flint.arm.linux.org.uk>
-Mail-Followup-To: Paul Fulghum <paulkf@microgate.com>,
-	=?iso-8859-1?Q?Roland_Ca=DFebohm?= <roland.cassebohm@VisionSystems.de>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200409281734.38781.roland.cassebohm@visionsystems.de> <1096405831.2513.37.camel@deimos.microgate.com>
+	Tue, 28 Sep 2004 17:22:04 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:6065 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S268039AbUI1VV2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 17:21:28 -0400
+Subject: Re: [RFC][PATCH] inotify 0.10.0
+From: Robert Love <rml@novell.com>
+To: Ray Lee <ray-lk@madrabbit.org>
+Cc: John McCutchan <ttb@tentacle.dhs.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, gamin-list@gnome.org,
+       viro@parcelfarce.linux.theplanet.co.uk, iggy@gentoo.org
+In-Reply-To: <1096405848.5177.15.camel@issola.madrabbit.org>
+References: <1096250524.18505.2.camel@vertex>
+	 <20040926211758.5566d48a.akpm@osdl.org>
+	 <1096318369.30503.136.camel@betsy.boston.ximian.com>
+	 <1096350328.26742.52.camel@orca.madrabbit.org>
+	 <1096403167.30123.5.camel@vertex>
+	 <1096405848.5177.15.camel@issola.madrabbit.org>
+Content-Type: text/plain
+Date: Tue, 28 Sep 2004 17:20:03 -0400
+Message-Id: <1096406403.4911.73.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1096405831.2513.37.camel@deimos.microgate.com>; from paulkf@microgate.com on Tue, Sep 28, 2004 at 04:10:31PM -0500
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 28, 2004 at 04:10:31PM -0500, Paul Fulghum wrote:
-> On Tue, 2004-09-28 at 10:34, Roland Caßebohm wrote:
-> > I have tried just to read all byte left in the FIFO of the 
-> > UART in that case and throw them away.
-> 
-> In my opinion, this is the correct way to handle the problem.
-> This is what I do in the SyncLink drivers.
+On Tue, 2004-09-28 at 14:10 -0700, Ray Lee wrote:
 
-Some 16x50 ports (most of the ones higher than 16550A) have auto flow
-control, so if this is enabled you really don't want to drop bytes in
-the FIFO on the floor.
+> So, got me. I believe there is some minor confusion going on.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+I think you are both just talking about different things.  John was
+confused about what you were saying, I think.
+
+Right now we limit the filename returned to 256 characters.
+
+And file names can be as large as PATH_MAX-1 (minus one for the root
+slash).
+
+	Robert Love
+
+

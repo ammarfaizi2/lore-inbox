@@ -1,61 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278705AbRJTAh5>; Fri, 19 Oct 2001 20:37:57 -0400
+	id <S278708AbRJTAls>; Fri, 19 Oct 2001 20:41:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278706AbRJTAht>; Fri, 19 Oct 2001 20:37:49 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:11537 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S278705AbRJTAhk>; Fri, 19 Oct 2001 20:37:40 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "M. Edward Borasky" <znmeb@aracnet.com>,
-        "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: Which is better at vm, and why? 2.2 or 2.4
-Date: Sat, 20 Oct 2001 02:38:52 +0200
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <HBEHIIBBKKNOBLMPKCBBKEOIDOAA.znmeb@aracnet.com>
-In-Reply-To: <HBEHIIBBKKNOBLMPKCBBKEOIDOAA.znmeb@aracnet.com>
+	id <S278707AbRJTAl1>; Fri, 19 Oct 2001 20:41:27 -0400
+Received: from octopus.harvestroad.com.au ([203.103.97.30]:65284 "EHLO
+	tetra.cab.ambinet.com.au") by vger.kernel.org with ESMTP
+	id <S278706AbRJTAlY>; Fri, 19 Oct 2001 20:41:24 -0400
+Message-ID: <3BD0C752.F1A001F1@ambinet.com.au>
+Date: Sat, 20 Oct 2001 08:37:38 +0800
+From: Casper Boon <casper@ambinet.com.au>
+Organization: Ambinet Systems
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011020003812Z16243-4005+727@humbolt.nl.linux.org>
+To: linux-kernel@vger.kernel.org
+CC: alan@redhat.com
+Subject: A Little patch for DTC SCSI Controller
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On October 13, 2001 08:06 pm, M. Edward Borasky wrote:
-> Linux certainly has the measurement capabilities; I've been able to find
-> everything I need in /proc for the monitoring and analysis I need to do. On
-> the control knobs, I think Linux falls short relative to, say, Solaris,
-> Tru64, VMS and Windows 2000. Nearly all decisions seem to be "hard-wired" in
-> Linux, for example, the goodness boosts given to processes to promote soft
-> affinity, the time slice, and the fractions of memory allocated to the
-> various functions: buffers, cached, etc. They are set as #defines in header
-> files. Even having them as variables would be an improvement; then they
-> could be examined and modified with a debugger.
+TWIMC
 
-It's because Linus wants it that way, with a view to encouraging the 
-development of algorithms that work well across a broad range of 
-configurations without requiring a lot of tuning.  So it's a case of short 
-term pain for long term gain.
+The patch below is for the DTC3x80 controller which stopped working
+under
+2.4 series.  The change is only to the header and changes readb to
+isa_readb
+and writeb to isa_writeb.  Without this patch the kernel panics at
+startup.
 
-Keep in mind that once you start exposing tuning parameters you tend to get 
-lots of user programs out there that break without the parameters, or if the 
-parameters don't behave the same way across versions.  Official tuning 
-parameters also get in the way of trying out new algorithms, which might not 
-even support the old tweaks, for example.
 
-> I would like to be able to set up a test system in my laboratory, fire up a
-> benchmark that emulates a real-world workload and tweak these parameters
-> somewhere in /proc in real time, while watching the response times of my
-> benchmark transactions. I can do this in Tru64, I can do this in a number of
-> other operating systems. Right now, for all practical purposes, when I want
-> to perform an experiment like this, I need to recompile, quite often, the
-> *entire* kernel, reboot and re-run my benchmark. In other words, if the
-> parameters were tunable, what now takes *days* to do could be accomplished
-> in hours, even minutes, with just a little up-front work.
+========================================================================
+Casper A. Boon                                     casper@ambinet.com.au
+Ambinet Systems                                             0417 171 505
+========================================================================
 
-So then you probably just want to grab one of the many patches that expose 
-things through proc and use it as a jumping-off point to expose your own 
-tweaks.  As you say, much faster than recompiling every time.
-
---
-Daniel
+diff -u linux-2.4.10/drivers/scsi/dtc.h
+linux-2.4.10-cab/drivers/scsi/dtc.h
+--- linux-2.4.10/drivers/scsi/dtc.h     Tue Sep 19 05:12:01 2000
++++ linux-2.4.10-cab/drivers/scsi/dtc.h Sat Oct 13 18:09:01 2001
+@@ -80,29 +80,29 @@
+ #define DTC_address(reg) (base + DTC_5380_OFFSET + reg)
+ 
+ #define
+dbNCR5380_read(reg)                                              \
+-    (rval=readb(DTC_address(reg)), \
++    (rval=isa_readb(DTC_address(reg)), \
+      (((unsigned char) printk("DTC : read register %d at addr %08x is:
+%02x\n"\
+     , (reg), (int)DTC_address(reg), rval)), rval ) )
+ 
+ #define dbNCR5380_write(reg, value) do
+{                                  \
+     printk("DTC : write %02x to register %d at address %08x\n",        
+\
+             (value), (reg), (int)DTC_address(reg));     \
+-    writeb(value, DTC_address(reg));} while(0)
++    isa_writeb(value, DTC_address(reg));} while(0)
+ 
+ 
+ #if !(DTCDEBUG & DTCDEBUG_TRANSFER) 
+-#define NCR5380_read(reg) (readb(DTC_address(reg)))
+-#define NCR5380_write(reg, value) (writeb(value, DTC_address(reg)))
++#define NCR5380_read(reg) (isa_readb(DTC_address(reg)))
++#define NCR5380_write(reg, value) (isa_writeb(value, DTC_address(reg)))
+ #else
+-#define NCR5380_read(reg) (readb(DTC_address(reg)))
++#define NCR5380_read(reg) (isa_readb(DTC_address(reg)))
+ #define xNCR5380_read(reg)                                            
+\
+     (((unsigned char) printk("DTC : read register %d at address
+%08x\n"\
+-    , (reg), DTC_address(reg))), readb(DTC_address(reg)))
++    , (reg), DTC_address(reg))), isa_readb(DTC_address(reg)))
+ 
+ #define NCR5380_write(reg, value) do {                                
+\
+     printk("DTC : write %02x to register %d at address %08x\n",       
+\
+            (value), (reg), (int)DTC_address(reg));     \
+-    writeb(value, DTC_address(reg));} while(0)
++    isa_writeb(value, DTC_address(reg));} while(0)
+ #endif
+ 
+ #define NCR5380_intr dtc_intr

@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132608AbRDBC7R>; Sun, 1 Apr 2001 22:59:17 -0400
+	id <S132607AbRDBC5R>; Sun, 1 Apr 2001 22:57:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132611AbRDBC7I>; Sun, 1 Apr 2001 22:59:08 -0400
-Received: from hyperion.expio.net.nz ([202.27.199.10]:48136 "EHLO expio.co.nz")
-	by vger.kernel.org with ESMTP id <S132608AbRDBC6w>;
-	Sun, 1 Apr 2001 22:58:52 -0400
-Message-ID: <018201c0bb20$ef16f2a0$1400a8c0@expio.net.nz>
-From: "Simon Garner" <sgarner@expio.co.nz>
-To: <linux-kernel@vger.kernel.org>, <linux-smp@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1010401185932.6155D-100000@mandrakesoft.mandrakesoft.com> <014401c0bb0e$a38c6fc0$1400a8c0@expio.net.nz>
-Subject: Re: Asus CUV4X-D, 2.4.3 crashes at boot 
-Date: Mon, 2 Apr 2001 14:57:33 +1200
+	id <S132608AbRDBC5H>; Sun, 1 Apr 2001 22:57:07 -0400
+Received: from mail11.speakeasy.net ([216.254.0.211]:8454 "HELO
+	mail11.speakeasy.net") by vger.kernel.org with SMTP
+	id <S132607AbRDBC4z>; Sun, 1 Apr 2001 22:56:55 -0400
+Message-ID: <3AC7DC85.CED53440@megapathdsl.net>
+Date: Sun, 01 Apr 2001 18:57:25 -0700
+From: Miles Lane <miles@megapathdsl.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2-ac28 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: David Lang <dlang@diginsite.com>
+CC: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: bug database braindump from the kernel summit
+In-Reply-To: <Pine.LNX.4.33.0104011415320.25794-100000@dlang.diginsite.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+David Lang wrote:
+> 
+> On Sun, 1 Apr 2001, Larry McVoy wrote:
+> 
+> when generating the auto bug reports make sure that the system tells the
+> user exactly what data is being sent.
+> 
+> sending a large chunk of unknown data off the machine is a big concern to
+> many people.
 
->
-> However, the machine now crashes at "Configuring Kernel Parameters" during
-> rc initialisation:
->
->
->         Welcome to Red Hat Linux
->     Press 'I' for interactive startup
->
-> Mounting /proc filesystem...        [   OK   ]
-> Configuring Kernel Parameters...
->
->
-> This is if I type "linux noapic" at the Lilo boot prompt.
->
-> Also, what do I lose by running with noapic?
->
->
+Yeah.  This is a good point, although I can't think of info
+about a system's hardware and software configuration that would
+be particularly sensitive, other than files that contain network
+topology or encrypted passwords.  I'm sure others can come up
+with such a list.  One candidate might be the smbfs configuration
+file, since network passwords can live there, right?  tcpdump output
+might also be sensitive, but that type of info would need to get 
+requested by network driver developers after the initial bug report 
+anyhow.  
 
-
-Just discovered the above is not quite correct - it actually says [  OK  ]
-after Configuring Kernel Parameters, and crashes on the next line.
-
-Reading through /etc/rc.d/rc.sysinit, the next line is where it sets the
-system clock. If I comment out the line:
-
-    /sbin/hwclock $CLOCKFLAGS
-
-Then the system will boot OK with 'noapic'. So presumably the system RTC is
-not accessed in a SMP-compatible way without APIC.
-
-Anyway, I'm not too happy about having to run without APIC - seems more of a
-workaround than a fix. I'm happy to test patches etc if anyone has any
-ideas - this problem I presume affects all motherboards using the VIA 694XDP
-chipset.
-
-
-Thanks in advance,
-
-Simon Garner
-
+	Miles

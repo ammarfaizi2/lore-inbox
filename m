@@ -1,53 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269017AbUIMWRG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268907AbUIMWTV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269017AbUIMWRG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 18:17:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269012AbUIMWRG
+	id S268907AbUIMWTV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 18:19:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269003AbUIMWTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 18:17:06 -0400
-Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:45555 "EHLO
-	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S269000AbUIMWQ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 18:16:58 -0400
-From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-To: Jeremy Higdon <jeremy@sgi.com>
-Subject: Re: [patch][2/3] ide: add ide_hwif_t->dma_exec_cmd()
-Date: Tue, 14 Sep 2004 00:11:21 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Mikael Starvik <mikael.starvik@axis.com>,
-       Erik Jacobson <erikj@subway.americas.sgi.com>
-References: <200409130133.55663.bzolnier@elka.pw.edu.pl> <20040913213552.GA95513@sgi.com>
-In-Reply-To: <20040913213552.GA95513@sgi.com>
+	Mon, 13 Sep 2004 18:19:21 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:14060 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S268907AbUIMWTJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 18:19:09 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: aio (maybe XFS) bug?
+Date: Mon, 13 Sep 2004 15:19:02 -0700
+User-Agent: KMail/1.7
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409140011.22047.bzolnier@elka.pw.edu.pl>
+Content-Disposition: inline
+Message-Id: <200409131519.03065.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 September 2004 23:35, Jeremy Higdon wrote:
-> On Mon, Sep 13, 2004 at 01:33:55AM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > 
-> > [patch] ide: add ide_hwif_t->dma_exec_cmd()
-> > 
-> > - split off ->dma_exec_cmd() from ->ide_dma_[read,write] functions
-> > - choose command to execute by ->dma_exec_cmd() in higher layers
-> >   and remove ->ide_dma_[read,write]
-> > 
-> > Some real bugs are also fixed:
-> > - in Etrax ide.c driver REQ_DRIVE_TASKFILE requests weren't
-> >   handled properly for drive->addressing == 0
-> > - in trm290.c read and write commands were interchanged
-> > - in sgiioc4.c commands weren't sent to disk devices
+I just got this panic running aim7 on 2.6.9-rc2, is it a known problem and/or 
+likely to be a generic aio problem?
 
-DMA commands, PIO ones were sent out
+Thanks,
+Jesse
 
-> Sgiioc4 only is used with multimedia devices.  I don't think disks will
-> work with it, even if you do send commands.
+Unable to handle kernel paging request at virtual address 2000000002484000
+ls[29576]: Oops 11046655885316 [1]
+Modules linked in:
 
-It is hard to believe but if this is true it should be documented somewhere.
+Pid: 29576, CPU 7, comm:                   ls
+psr : 0000121008026038 ifs : 800000000000cc18 ip  : [<a0000001003f68d1>]    
+Not tainted
+ip is at __copy_user+0xb1/0x940
+unat: 0000000000000000 pfs : 000000000000058e rsc : 0000000000000003
+rnat: a00000010076fe05 bsps: 0000000000000000 pr  : 00000000056a1495
+ldrs: 0000000000000000 ccv : 0000000000000000 fpsr: 0009804c0270033f
+csd : 0000000000000000 ssd : 0000000000000000
+b0  : a000000100113b10 b6  : a000000100113980 b7  : a000000100002cd0
+f6  : 0ffff8000000000000000 f7  : 000000000000000000000
+f8  : 000000000000000000000 f9  : 1003e000000006ec01d0a
+f10 : 1003e000000030740cb46 f11 : 1003e6db6db6db6db6db7
+r1  : a000000100b8eb00 r2  : e0001bb007428000 r3  : 0000000000000000
+r8  : 0000000000000000 r9  : 0000000000000005 r10 : 0000000000000000
+r11 : 00000000056a15d5 r12 : e00019bc7b55fca0 r13 : e00019bc7b558000
+r14 : 2000000002484000 r15 : e0001bb007428000 r16 : 0000000000000317
+r17 : 2000000002484000 r18 : 2000000002484001 r19 : e0001bb007428080
+r20 : 2000000002484000 r21 : 6db6db6db6db6db7 r22 : 000000030740cb46
+r23 : 000000183a065a30 r24 : a0007fe43b138000 r25 : 0000000000000000
+r26 : e00019bc7b558e40 r27 : 000000000000006c r28 : 0000000000000000
+r29 : 0000000000000000 r30 : 0000000000000008 r31 : 000000000000058e
 
-Anyway my changes don't make it worse. :-)
+Call Trace:
+ [<a000000100017380>] show_stack+0x80/0xa0
+                                sp=e00019bc7b55f830 bsp=e00019bc7b5595a8
+ [<a00000010003d810>] die+0x150/0x200
+                                sp=e00019bc7b55fa00 bsp=e00019bc7b559568
+ [<a00000010005db20>] ia64_do_page_fault+0x8c0/0xbc0
+                                sp=e00019bc7b55fa00 bsp=e00019bc7b559500
+ [<a00000010000f660>] ia64_leave_kernel+0x0/0x270
+                                sp=e00019bc7b55fad0 bsp=e00019bc7b559500
+ [<a0000001003f68d0>] __copy_user+0xb0/0x940
+                                sp=e00019bc7b55fca0 bsp=e00019bc7b559440
+ [<a000000100113b10>] file_read_actor+0x190/0x340
+                                sp=e00019bc7b55fca0 bsp=e00019bc7b5593e0
+ [<a000000100113460>] do_generic_mapping_read+0x2e0/0x800
+                                sp=e00019bc7b55fca0 bsp=e00019bc7b559338
+ [<a000000100117b60>] __generic_file_aio_read+0x360/0x460
+                                sp=e00019bc7b55fd00 bsp=e00019bc7b5592d0
+ [<a0000001003c86f0>] xfs_read+0x250/0x4c0
+                                sp=e00019bc7b55fd20 bsp=e00019bc7b559258
+ [<a0000001003c01e0>] linvfs_read+0x100/0x160
+                                sp=e00019bc7b55fd30 bsp=e00019bc7b559220
+ [<a000000100160640>] do_sync_read+0x140/0x1a0
+                                sp=e00019bc7b55fd40 bsp=e00019bc7b5591d8
+ [<a000000100160860>] vfs_read+0x1c0/0x2e0
+                                sp=e00019bc7b55fe20 bsp=e00019bc7b559188
+ [<a000000100160e70>] sys_read+0x70/0xe0
+                                sp=e00019bc7b55fe20 bsp=e00019bc7b559110
+ [<a00000010000f4c0>] ia64_ret_from_syscall+0x0/0x20
+                                sp=e00019bc7b55fe30 bsp=e00019bc7b559110
+Kernel panic - not syncing: Aiee, killing interrupt handler!
+Rebooting in 5 seconds..

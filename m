@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263510AbTETQto (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 12:49:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbTETQto
+	id S263825AbTETQuk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 12:50:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263837AbTETQuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 12:49:44 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:60065 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263510AbTETQtm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 12:49:42 -0400
-Message-Id: <200305201702.h4KH2V615978@zeus.kernel.org>
-From: "E-mail business" <firehose@mailbox.hu>
-Date: Tue, 20 May 2003 19:02:29 +0200
+	Tue, 20 May 2003 12:50:39 -0400
+Received: from holomorphy.com ([66.224.33.161]:65152 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263825AbTETQui (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 12:50:38 -0400
+Date: Tue, 20 May 2003 10:03:31 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: linux-kernel@vger.kernel.org
-Subject: 
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset="us-ascii"
+Cc: lse-tech@lists.sourceforge.net, kaos@ocs.com.au,
+       James.Bottomley@steeleye.com, mort@wildopensource.com,
+       davidm@napali.hpl.hp.com, jun.nakajima@intel.com, tomita@cinet.co.jp
+Subject: cpu-2.5.69-bk14-1
+Message-ID: <20030520170331.GK29926@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+	kaos@ocs.com.au, James.Bottomley@steeleye.com,
+	mort@wildopensource.com, davidm@napali.hpl.hp.com,
+	jun.nakajima@intel.com, tomita@cinet.co.jp
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Extended cpumasks for larger systems. Now featuring bigsmp, Summit,
+and Voyager updates in addition to PC-compatible, NUMA-Q, and SN2
+bits from SGI.
 
-INDITSA MEG MA EL E-MAIL VALLALKOZASAT! 
+Several minor bugfixes with improper checks of bits and some new
+API pieces: cpumask_of_cpu() and cpus_promote() for replacing
+1 << cpu and promoting "narrow" cpumasks (i.e. unsigned long) to
+full-width, respectively.
 
-ELONYOK, AMELYEKRE SZERT TEHET:Kereshet masodallasban 5.000, Foallasban 10.000 dollart havonta! 
-Ugyfelei azonnal, keszpenzben fizetnek, megrendeleskor! 
-On olyan termeket forgalmaz, amelynek gyakorlatilag nincs eloallitasi koltsege!
-Egyetlen befektetese csupan az On ideje! 
-Kevesebb, mint 25 dollarral elkezdheti! 
-Tobb tizmillio potencialis ugyfel all az on rendelkezesere!
+Successfully runs on 32x NUMA-Q. Successfully compiletested on Voyager,
+Summit, bigsmp, and flat logical SMP, all with typechecking. UP also
+successfully compiletested with and without local APIC and IO-APIC.
+Hopefully I can get my hands on another NUMA-Q quad or two soon.
 
-Tovabbi informaciokhoz juthat a firehose@mailbox.hu e-mail cimen.
-A targykorben jelolje meg a "BUSINESS" jeliget.
+vs. 2.5.69-bk14. The patch (too large to post) can be found at
+ftp://ftp.kernel.org/pub/linux/kernel/people/wli/cpu/cpu-2.5.69-bk14-1.bz2
 
+I'd be much obliged if (sub)arch maintainers could comment.
 
+Tomita, I didn't have a way of building PC98; if you are negatively
+affected somehow I'm interested in hearing of how to fix things up
+or any other special handling PC98 might need here.
 
+David & Martin, I'm not 100% sure wrt. what's going on with the IA64
+pieces of the puzzle. The more I find out about what you want, the
+better.
 
-
-ps: Az Interneten olvastam az On cimet. Amennyiben levelemmel zavartam, kerem a REMOVE ME targgyal kuldjon ures e-mailt a firehose@mailbox.hu cimre, es elnezeset kerem. Sok sikert tovabbi munkajahoz. :-)
-
-
-
-
-START YOUR OWN E-MAIL BUSINESS TODAY!STARTING YOUR OWN E-MAIL BUSINESS WILL ENABLEYOU TO TAKE ADVANTAGE OF THE FOLLOWINGBENEFITS:1. TOP PART-TIME OWNERS HAVE EARNED $5,000+ IN ONE MONTH2. TOP FULL-TIME OWNERS HAVE EARNED $10,000+ IN ONE MONTH3. ALL CUSTOMERS PAY YOU IN CASH!!!4. YOU WILL SELL A PRODUCT WHICH COSTS NOTHING TO PRODUCE!5. YOUR MAIN OVERHEAD IS YOUR TIME!6. YOUR START UP COSTS ARE LESS THAN $257. YOU HAVE MORE THAN 40 MILLION POTENTIAL CUSTOMERSFor additional information please E-mail me at firehose@mailbox.hu, be sure to place the word "BUSINESS" in subject area.
-
-ps. Please E-mail me at firehose@mailbox.hu with REMOVE ME subject for easy removal and sorry. Have a good day :-)
+Thanks.
 
 
-
+-- wli

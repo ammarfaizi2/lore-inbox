@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289026AbSBZXrv>; Tue, 26 Feb 2002 18:47:51 -0500
+	id <S289255AbSBZXuu>; Tue, 26 Feb 2002 18:50:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289631AbSBZXrg>; Tue, 26 Feb 2002 18:47:36 -0500
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:14041 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S289366AbSBZXqm>; Tue, 26 Feb 2002 18:46:42 -0500
-Message-ID: <3C7C1D3B.5050202@drugphish.ch>
-Date: Wed, 27 Feb 2002 00:41:47 +0100
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020126
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
+	id <S289046AbSBZXud>; Tue, 26 Feb 2002 18:50:33 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:40842 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S289484AbSBZXtF>; Tue, 26 Feb 2002 18:49:05 -0500
+Date: Tue, 26 Feb 2002 23:52:25 +0000
+From: Dave Jones <davej@suse.de>
+To: Marcelo Tossati <marcelo@conectiva.com.br>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.5-dj2
-In-Reply-To: <20020226223406.A26905@suse.de> <3C7C1AF0.3000103@drugphish.ch> <20020227003905.C9189@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] 2.4 bluesmoke fixes.
+Message-ID: <20020226235225.A27562@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Marcelo Tossati <marcelo@conectiva.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Yup. All went well until ALSA arrived with its own version.h
->  Before then, I had version.h in my diff exclusion list, and everything
->  'just worked'. Oh well.. I'll add some more magic to autohch.pl[*]
+Seems every time I look at this file I spot something else wrong.
+First bug is a simple ordering problem.
+Second bug already got fixed once recently, and somehow got lost.
 
-Why not include it into /home/davej/.exclude?
+Weird. Applies to 2.4.18, and any derivative thereof.
 
-Regarding ALSA and showing up with their own ``version.h''; what about 
-the others?
 
-o ../arch/i386/math-emu/version.h
-o ../include/pcmcia/version.h
-o ../include/sound/version.h
+diff -urN --exclude-from=/home/davej/.exclude linux-2.4.18-ac2/arch/i386/kernel/bluesmoke.c linux-2.4.18-ac2-dj/arch/i386/kernel/bluesmoke.c
+--- linux-2.4.18-ac2/arch/i386/kernel/bluesmoke.c	Tue Feb 26 23:44:17 2002
++++ linux-2.4.18-ac2-dj/arch/i386/kernel/bluesmoke.c	Tue Feb 26 23:49:15 2002
+@@ -41,13 +41,12 @@
+ 			if(high&(1<<27))
+ 			{
+ 				rdmsr(MSR_IA32_MC0_MISC+i*4, alow, ahigh);
+-				printk("[%08x%08x]", alow, ahigh);
++				printk("[%08x%08x]", ahigh, alow);
+ 			}
+ 			if(high&(1<<26))
+ 			{
+ 				rdmsr(MSR_IA32_MC0_ADDR+i*4, alow, ahigh);
+-				printk(" at %08x%08x", 
+-					high, low);
++				printk(" at %08x%08x", ahigh, alow);
+ 			}
+ 			printk("\n");
+ 			/* Clear it */
 
-Cheers (still waiting for gcc to finish ...),
-Roberto Nibali, ratz
-
+-- 
+Dave Jones.                    http://www.codemonkey.org.uk
+SuSE Labs.

@@ -1,90 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262827AbTIQVdn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 17:33:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262843AbTIQVdm
+	id S262844AbTIQVtw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 17:49:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262845AbTIQVtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 17:33:42 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16134 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262827AbTIQVdj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 17:33:39 -0400
-Date: Wed, 17 Sep 2003 22:33:36 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Sean Estabrooks <seanlkml@rogers.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PCMCIA]  Xircom nic hang on boot since cs.c race condition patch
-Message-ID: <20030917223336.H16045@flint.arm.linux.org.uk>
-Mail-Followup-To: Sean Estabrooks <seanlkml@rogers.com>,
-	linux-kernel@vger.kernel.org
-References: <20030917144406.753953dd.seanlkml@rogers.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030917144406.753953dd.seanlkml@rogers.com>; from seanlkml@rogers.com on Wed, Sep 17, 2003 at 02:44:06PM -0400
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Wed, 17 Sep 2003 17:49:51 -0400
+Received: from deadlock.et.tudelft.nl ([130.161.36.93]:39091 "EHLO
+	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id S262844AbTIQVts convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 17:49:48 -0400
+Date: Wed, 17 Sep 2003 23:49:44 +0200 (CEST)
+From: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       James Simmons <jsimmons@infradead.org>
+Subject: Re: Patch: Make iBook1 work again
+In-Reply-To: <1063833817.585.220.camel@gaston>
+Message-ID: <Pine.LNX.4.44.0309172325160.8954-100000@deadlock.et.tudelft.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 17, 2003 at 02:44:06PM -0400, Sean Estabrooks wrote:
-> [PCMCIA] Fix race condition causing cards to be incorrectly recognised
-> 
-> This patch that went into test5 causes my Toshiba laptop with Xircom 
-> pcmcia nic to freeze on boot at "Socket status: 30000020".  
 
-Unfortunately this patch does two things:
 
-(a) it fixes the problem with PCMCIA cards not being recognised on boot.
-(b) it introduces a deadlock between the PCMCIA layer and the driver
-    model.
+On Wed, 17 Sep 2003, Benjamin Herrenschmidt wrote:
 
-The trace I'm seeing is:
+> On Wed, 2003-09-17 at 23:10, Daniël Mantione wrote:
+> > On Wed, 17 Sep 2003, Benjamin Herrenschmidt wrote:
+> >
+> > > Unfortunately, the wallstreet doesn't work neither. I get something strange on the
+> > > screen. It's somewhat sync'ed but divided in 4 vertical stripes, each one displaying
+> > > the left side of the display (+/- offseted), along with some fuzziness (clock wrong).
+> >
+> > Actually, is the problem perhaps this:
 
-insmod        D C003AC98 28008860   446    422                     (NOTLB)
-[<c003a9fc>] (schedule+0x0/0x368)
-[<c002b4a0>] (__down+0x0/0x108)
-[<bf0059bc>] (pcmcia_register_client+0x0/0x288 [pcmcia_core])
-[<bf012458>] (pcmcia_bus_add_socket+0x0/0x168 [ds])
-[<c00f5c48>] (class_device_add+0x0/0x10c)
-[<bf00395c>] (pcmcia_register_socket+0x0/0x160 [pcmcia_core])
-[<bf016558>] (yenta_probe+0x0/0x238 [yenta_socket])
-[<c00cbc14>] (pci_device_probe_static+0x0/0x68)
-[<c00cbd64>] (__pci_device_probe+0x0/0x58)
-[<c00cbdbc>] (pci_device_probe+0x0/0x44)
-[<c00f50b8>] (bus_match+0x0/0x70)
-[<c00f51b8>] (driver_attach+0x0/0x80)
-[<c00f53d0>] (bus_add_driver+0x0/0x84)
-[<c00f5710>] (driver_register+0x0/0x40)
-[<c00cc018>] (pci_register_driver+0x0/0x88)
-[<c0053a00>] (sys_init_module+0x0/0x308)
-pccardd       D C003AC98 4290282060   448      1                 418 (L-TLB)
-[<c003a9fc>] (schedule+0x0/0x368)
-[<c00c3de8>] (__down_write+0x0/0x98)
-[<c00f52e0>] (bus_add_device+0x0/0x7c)
-[<c00f4454>] (device_add+0x0/0xe4)
-[<c00c8800>] (pci_bus_add_devices+0x0/0xf4)
-[<bf0092e8>] (cb_alloc+0x0/0xd0 [pcmcia_core])
-[<bf0042b0>] (socket_insert+0x0/0x1ec [pcmcia_core])
-[<bf004694>] (socket_detect_change+0x0/0x90 [pcmcia_core])
-[<bf004724>] (pccardd+0x0/0x178 [pcmcia_core])
+> It looks like this indeed. What is the cause you are thining about ?
 
-The problem is that the semaphore which prevents ds interfering with the
-sleepy card initialisation (in pccardd) is blocking insmod.  However,
-the driver is being called with the PCI bus semaphore held.
+It is a misconfigured display fifo. Some of the Mach64 variants calculate
+the parameters for the display fifo automatically, others require the
+driver to do so. It's a very lowlevel kind of stuff and also gives you
+grey hairs quickly.
 
-pccardd in turn discovered a cardbus card, so it is trying to add the
-PCI devices to the PCI bus, which requires the PCI bus semaphore.
+When the CRT controller starts a scanline, it starts at the start of the
+display fifo and treats it as ring buffer. Before the CRT controller
+starts the buffer is filled with data from the framebuffer.
 
-At present, I do not see a sane solution to this problem - we have two
-completely contradictory requirements.  The only way which may work is
-to play tricks like "wait 1 second" and hope pccardd has completed type
-hacks into PCMCIA to get around this, but that's somewhere I _do not_
-want to go.
+You have to program the interval after which the buffer has to be filled
+with the next group of bytes from memory. If it is not calculated well,
+you get these problems.
 
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-Linux kernel maintainer of:
-  2.6 ARM Linux   - http://www.arm.linux.org.uk/
-  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-  2.6 Serial core
+The original display fifo calculation caused problems on my Rage LT pro in
+all 24 and 32 bpp modes. Later it became clear that Geert's VAIO had these
+problems the common video modes like 640x480x8 and I started looking for fixes.
+After a lot of experimenting with the original Atyfb code, ATi's ltmodset program
+and the code in X, it became clear that the X code gave the best results,
+it only failed in VGA text modes at non standard resolutions. I contacted
+Marc Aurele la France about how he wrote them. Marc clearly did understood
+the matter very well and showed me an ATi internal document that
+described the situation a bit in more detail than the official documentation.
+So I decided to use the same code that X uses.
+
+So, to fix this we can look at the X driver, I must have made an error
+somewhere.
+
+Greetings,
+
+Daniël Mantione
+

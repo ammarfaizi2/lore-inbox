@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312684AbSDSQOJ>; Fri, 19 Apr 2002 12:14:09 -0400
+	id <S312680AbSDSQRS>; Fri, 19 Apr 2002 12:17:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312691AbSDSQOI>; Fri, 19 Apr 2002 12:14:08 -0400
-Received: from www.microgate.com ([216.30.46.105]:24848 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP
-	id <S312684AbSDSQOH>; Fri, 19 Apr 2002 12:14:07 -0400
-Subject: [PATCH] 2.4.19-pre7 New Driver synclinkmp.c
-From: Paul Fulghum <paulkf@microgate.com>
-To: marcelo@conectiva.com.br
+	id <S312681AbSDSQRR>; Fri, 19 Apr 2002 12:17:17 -0400
+Received: from ns.suse.de ([213.95.15.193]:25860 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S312680AbSDSQRQ>;
+	Fri, 19 Apr 2002 12:17:16 -0400
+To: Tim Kay <timk@advfn.com>
 Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3.99 
-Date: 19 Apr 2002 11:11:34 -0500
-Message-Id: <1019232694.867.1.camel@diemos.microgate.com>
-Mime-Version: 1.0
+Subject: Re: TCP: Treason uncloaked DoS ??
+In-Reply-To: <200204191512.g3JFCvl18558@mail.advfn.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 19 Apr 2002 18:17:13 +0200
+Message-ID: <p731ydbacja.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A patch that adds a new driver for the SyncLink Multiport
-multiprotocol serial adapter is located at
+Tim Kay <timk@advfn.com> writes:
+> that the connections are kept open if the client connecting doesn't actually 
+> go away so surely lots of these ocurring at once would overload a server. I 
+> have googled this and an occasional instance seems normal and could be down 
+> to a broken client, but lots from different IP addr's at once??
 
-ftp://ftp.microgate.com/linux/patch-synclinkmp-2.4.19-pre7.gz
+It is a TCP bug of the other side.
 
-This patch is against 2.4.19-pre7
+You can safely comment out the printk. It would be interesting however
+to find out what the other side is running and yell at the vendor.
 
-Please apply.
+> I'm a bit concerned that maybe someone is warming up for a hit or something.
 
-The patch is located on our FTP site instead of inline
-as specified by SubmittingPatches documentation for
-large patches.
+More likely someone released a new buggy TCP stack to the world.
 
-
-
-
+-Andi

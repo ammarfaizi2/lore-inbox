@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131305AbQLLAaV>; Mon, 11 Dec 2000 19:30:21 -0500
+	id <S131367AbQLLAhM>; Mon, 11 Dec 2000 19:37:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131367AbQLLAaL>; Mon, 11 Dec 2000 19:30:11 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23569 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131305AbQLLAaE>; Mon, 11 Dec 2000 19:30:04 -0500
-Subject: Re: Enviromental Monitoring
-To: paul@clubi.ie (Paul Jakma)
-Date: Tue, 12 Dec 2000 00:01:47 +0000 (GMT)
-Cc: mhaque@haque.net (Mohammad A. Haque), andrews@stusoft.com (Andrew Stubbs),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <Pine.LNX.4.30.0012110119390.9761-100000@fogarty.jakma.org> from "Paul Jakma" at Dec 11, 2000 01:25:48 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131385AbQLLAhD>; Mon, 11 Dec 2000 19:37:03 -0500
+Received: from mx1.hcvlny.cv.net ([167.206.112.76]:63742 "EHLO
+	mx1.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S131367AbQLLAgq>; Mon, 11 Dec 2000 19:36:46 -0500
+To: James Simmons <jsimmons@suse.com>
+Cc: Pavel Machek <pavel@suse.cz>,
+        "Frédéric L . W . Meunier" <0@pervalidus.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: SysRq behavior
+In-Reply-To: <Pine.LNX.4.21.0012111440460.296-100000@euclid.oak.suse.com>
+From: Alan Shutko <ats@acm.org>
+Date: 11 Dec 2000 19:05:48 -0500
+In-Reply-To: <Pine.LNX.4.21.0012111440460.296-100000@euclid.oak.suse.com>
+Message-ID: <871yve4i77.fsf@wesley.springies.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.92
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E145ctB-0000Ln-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> do these guys /ever/ plan on submitting kernel patches? i used to use
-> lm_sensors on 2.2 cause it was fairly painless - but just havn't
-> bothered with 2.4 cause it was a pita when i tried.
+James Simmons <jsimmons@suse.com> writes:
 
-Its in 2.4 it wont be in 2.2 I suspect
+> Just played with this bug. It doesn't kill a login shell but does any
+> app running on it. I just went looking for where "Quit" is printed
+> out. When I press SysRq Quit is printed on the command line. Any ideas?
 
+Not a bug.  Normally,. PrtSc will generate a ^\, which is the default
+value of stty quit.  Try
 
+stty quit ^A
+cat
+
+and hit PrtSc
+
+-- 
+Alan Shutko <ats@acm.org> - In a variety of flavors!
+If you have to think twice about it, you're wrong.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,69 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266886AbSKOWkt>; Fri, 15 Nov 2002 17:40:49 -0500
+	id <S266911AbSKOWwz>; Fri, 15 Nov 2002 17:52:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266888AbSKOWkt>; Fri, 15 Nov 2002 17:40:49 -0500
-Received: from [216.38.156.94] ([216.38.156.94]:5905 "EHLO mail.networkfab.com")
-	by vger.kernel.org with ESMTP id <S266886AbSKOWkr>;
-	Fri, 15 Nov 2002 17:40:47 -0500
-Subject: Re: lan based kgdb
-From: Dmitri <dmitri@users.sourceforge.net>
-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021115222430.GA1877@tahoe.alcove-fr>
-References: <3DD5591E.A3D0506D@efi.com> <334960000.1037397999@flay>
-	<ar3op8$f20$1@penguin.transmeta.com> 
-	<20021115222430.GA1877@tahoe.alcove-fr>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-x78MtniSiMbt864hy/ls"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 15 Nov 2002 14:47:35 -0800
-Message-Id: <1037400456.1565.38.camel@usb.networkfab.com>
-Mime-Version: 1.0
+	id <S266898AbSKOWwz>; Fri, 15 Nov 2002 17:52:55 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3846 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S266897AbSKOWwx>;
+	Fri, 15 Nov 2002 17:52:53 -0500
+Message-ID: <3DD57C42.3000107@pobox.com>
+Date: Fri, 15 Nov 2002 17:59:14 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Khoa Huynh <khoa@us.ibm.com>
+CC: "David S. Miller" <davem@redhat.com>, ak@suse.de,
+       linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
+       mbligh@aracnet.com
+Subject: Re: Bugzilla bug tracking database for 2.5 now available.
+References: <OFD55E09AF.09FEF8A7-ON85256C72.007B18B9@pok.ibm.com>
+In-Reply-To: <OFD55E09AF.09FEF8A7-ON85256C72.007B18B9@pok.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Khoa Huynh wrote:
 
---=-x78MtniSiMbt864hy/ls
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, 2002-11-15 at 14:24, Stelian Pop wrote:
-
-> Using USB instead of the serial line or the network card would be
-> the best IMHO, because:
->=20
-> 	* many machines have network cards, but all machines have USB
-> 	  (and it's gonna stay this way for some time)
-> 	 =20
-> 	* the USB stack seems simpler than the net stack +=20
-> 	  (eventualy) pcmcia + network card driver.
->=20
-> Maybe the 'simpler' USB protocols (usbkbd and usbmouse) could be
-> used for this, I don't know...
-
-USB hardware and protocols are master-slave, meaning that you can not
-connect another computer to this one directly. What USB *device* would
-you want to see connected?
-
-Of course, a USB-Serial adapter would work, and you can connect any
-serial terminal, but then we are back to using serial ports; it's just
-you will need a different driver for that.
-
-Dmitri
+> David Miller wrote:
+>
+>
+> >mozilla handles it this way: the bug starts as unconfirmed. they have a
+> >  volunteer group of pre screeners. Only when one of these people sets
+> >  it to valid or similar then the owners of the module get mail.
+> >
+> >This sounds like a good idea.
+>
+>
+> Currently in the kernel bugzilla, after a bug is filed, it is initially
+> in the OPEN state -- this is similar to the Unconfirmed state mentioned
+> above.  The screeners (my team and others who volunteer) can get rid of
+> many invalid bugs and dups.  Only valid bugs then go to the ASSIGNED state
+> with correct owners.  Of course, we do not expect to get rid 100% of all
+> the invalids and dups, but at least that should reduce the work of
+> the owners who should only work with bugs in the ASSIGNED state.
 
 
---=-x78MtniSiMbt864hy/ls
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+The bugs assigned to me are all in the 'open' state, with no obvious way 
+to change them to 'assigned'.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+> Also, the bug owner can close MULTIPLE bugs at the same time
+> on Bugzilla.  A bug owner can query all of his bugs which will
+> then be displayed in a list, click the option "Change several bugs
+> at once" at the bottom of the list, select the bugs that he wants
+> to close, and then hit Commit button.  It's pretty simple.  Besides
+> closing the bugs, the owner can make similar changes to several bugs
+> at the same time using the same mechanism.
 
-iD8DBQA91XmHiqqasvm69/IRAhi3AJ4jYhv/xHapX0Y7SlbB9aRiL6NaogCeNbj4
-CBEUpLkP+kKw39pRTl530o4=
-=pu7H
------END PGP SIGNATURE-----
 
---=-x78MtniSiMbt864hy/ls--
+
+The basic point still stands, though, that if the bug owner must close 
+multiple bugs at once, they are likely clearing out garbage and that 
+each individual bug is not necessarily unique or valid...
+
+	Jeff
+
+
 

@@ -1,67 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264231AbUGXL1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268483AbUGXLi0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264231AbUGXL1M (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 07:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268471AbUGXL1M
+	id S268483AbUGXLi0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 07:38:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268484AbUGXLi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 07:27:12 -0400
-Received: from ss1000.ms.mff.cuni.cz ([195.113.20.8]:45014 "EHLO
-	ss1000.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264231AbUGXL1K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 07:27:10 -0400
-Date: Sat, 24 Jul 2004 13:27:06 +0200
-From: Rudo Thomas <rudo@matfyz.cz>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: max request size 1024KiB by default?
-Message-ID: <20040724112706.GA31077@ss1000.ms.mff.cuni.cz>
-Mail-Followup-To: Lee Revell <rlrevell@joe-job.com>,
-	linux-kernel@vger.kernel.org
-References: <20040712174639.38c7cf48.akpm@osdl.org> <1089687168.10777.126.camel@mindpipe> <20040712205917.47d1d58b.akpm@osdl.org> <1089705440.20381.14.camel@mindpipe> <20040719104837.GA9459@elte.hu> <1090301906.22521.16.camel@mindpipe> <20040720061227.GC27118@elte.hu> <20040720121905.GG1651@suse.de> <1090642050.2871.6.camel@mindpipe> <1090647952.1006.7.camel@mindpipe>
+	Sat, 24 Jul 2004 07:38:26 -0400
+Received: from gate.firmix.at ([80.109.18.208]:50087 "EHLO gate.firmix.at")
+	by vger.kernel.org with ESMTP id S268483AbUGXLiX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jul 2004 07:38:23 -0400
+Subject: Re: [patch] kernel events layer
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Robert Love <rml@ximian.com>, Dan Aloni <da-x@gmx.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <4956.1090644161@ocs3.ocs.com.au>
+References: <4956.1090644161@ocs3.ocs.com.au>
+Content-Type: text/plain
+Organization: http://www.firmix.at/
+Message-Id: <1090669060.9040.10.camel@gimli.at.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1090647952.1006.7.camel@mindpipe>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 24 Jul 2004 13:37:41 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> HD info:
-> /dev/hdc:
+On Sat, 2004-07-24 at 06:42, Keith Owens wrote:
+> On Fri, 23 Jul 2004 22:47:06 -0400, 
+> Robert Love <rml@ximian.com> wrote:
+> >On Sat, 2004-07-24 at 00:32 +0300, Dan Aloni wrote:
+> >
+> >> IMHO you either should not assume anything about the length of the object 
+> >> string, _or_ do the complete safe string assembly e.g:
+> >> 
+> >>         len += snprintf(buffer, PAGE_SIZE, "From: %s\nSignal: %s\n", 
+> >>                         object, signal);
+> >> 
+> >
+> >Fair enough.  I guess what we want, exactly, is:
+> >
+> > len = snprintf(buffer, PAGE_SIZE, "From: %s\n", object);
+> > len += snprintf(&buffer[len], PAGE_SIZE - len "Signal: %s\n", signal);
+> >
+> >I will add that to the next revision.
 > 
->  Model=Maxtor 6Y160P0, FwRev=YAR41BW0, SerialNo=Y44K8TZE
->  Config={ Fixed }
->  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
->  BuffType=DualPortCache, BuffSize=7936kB, MaxMultSect=16, MultSect=16
->  CurCHS=4047/16/255, CurSects=16511760, LBA=yes, LBAsects=268435455
->  IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
->  PIO modes:  pio0 pio1 pio2 pio3 pio4 
->  DMA modes:  mdma0 mdma1 mdma2 
->  UDMA modes: udma0 udma1 udma2 udma3 udma4 udma5 *udma6 
->  AdvancedPM=yes: disabled (255) WriteCache=enabled
->  Drive conforms to: (null): 
+> man snprintf
+> 
+>   "If the output was truncated due to this limit then the return value
+>   is the number of characters (not including the trailing '\0') which
+>   would have been written to the final string if enough space had been
+>   available. Thus, a return value of size or more means that the output
+>   was truncated".
+> 
+> Never use the return value from snprintf to work out the next buffer
+> position, it is not reliable when the data is truncated.  The example
+> above uses a second call to snprintf which will generate a warning for
+> truncated data and fail safe, but not all code is that trustworthy.  I
 
-Hello.
+The kernel snprintf() is (and the shown warning is actually debatable.
+Actually snprintf()s interface is not that optimal for easy handling,
+since the size parameter is unsigned and not signed. But it is specified
+in SUSv3 that way.).
 
-I was just wondering why the default max request size is 128KiB on my drive,
-which is almost the same as the one you tested?!
+> always use strlen to get the real buffer length.
+> 
+>   snprintf(buffer, PAGE_SIZE, "From: %s\n", object);
+>   len = strlen(buffer);
+>   snprintf(buffer+len, PAGE_SIZE - len, "Signal: %s\n", signal);
 
-/dev/hda:
+Since "overflows" only occur if the destination buffer is full, one
+could avoid the following snppritnf()s completely. Let alone the call of
+strlen()
+----  snip  ----
+   len = snprintf(buffer, PAGE_SIZE, "From: %s\n", object);
+   if (len < PAGE_SIZE) {
+      len += snprintf(buffer+len, PAGE_SIZE - len,
+                      "Signal: %s\n", signal);
+   }
+----  snip  ----
 
- Model=Maxtor 6Y120P0, FwRev=YAR41BW0, SerialNo=...
- Config={ Fixed }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
- BuffType=DualPortCache, BuffSize=7936kB, MaxMultSect=16, MultSect=off
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=240121728
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  mdma0 mdma1 mdma2
- UDMA modes: udma0 udma1 udma2 udma3 udma4 udma5 *udma6
- AdvancedPM=yes: disabled (255) WriteCache=enabled
- Drive conforms to: (null):
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
- * signifies the current active mode
 
-Thanks.
-
-Rudo.

@@ -1,73 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262292AbTCHXJF>; Sat, 8 Mar 2003 18:09:05 -0500
+	id <S262298AbTCHXNR>; Sat, 8 Mar 2003 18:13:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262296AbTCHXJE>; Sat, 8 Mar 2003 18:09:04 -0500
-Received: from packet.digeo.com ([12.110.80.53]:8627 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262292AbTCHXJD>;
-	Sat, 8 Mar 2003 18:09:03 -0500
-Date: Sat, 8 Mar 2003 15:19:56 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: adilger@clusterfs.com, tytso@mit.edu, bzzz@tmi.comex.ru,
-       mbligh@aracnet.com, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: [Bug 417] New: htree much slower than regular
- ext3
-Message-Id: <20030308151956.5ed1c05a.akpm@digeo.com>
-In-Reply-To: <20030308224956.E1E4FF1859@mx12.arcor-online.net>
-References: <11490000.1046367063@[10.10.2.4]>
-	<20030307214833.00a37e35.akpm@digeo.com>
-	<20030308010424.Z1373@schatzie.adilger.int>
-	<20030308224956.E1E4FF1859@mx12.arcor-online.net>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S262303AbTCHXNR>; Sat, 8 Mar 2003 18:13:17 -0500
+Received: from mailhost.tue.nl ([131.155.2.4]:23051 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S262298AbTCHXNP>;
+	Sat, 8 Mar 2003 18:13:15 -0500
+Date: Sun, 9 Mar 2003 00:23:51 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Harald.Schaefer@gls-germany.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Thomas.Mieslinger@gls-germany.com, linux-kernel@vger.kernel.org,
+       aeb@cwi.nl
+Subject: Re: ide-problem still with 2.4.21-pre5-ac1
+Message-ID: <20030308232351.GA3462@win.tue.nl>
+References: <OFA9D69D12.A2BE6A15-ONC1256CE1.00344A6F-C1256CE1.0039609A@LocalDomain> <Pine.LNX.3.96.1030308172559.4525D-100000@gatekeeper.tmr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Mar 2003 23:19:34.0061 (UTC) FILETIME=[2DDF95D0:01C2E5C9]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.96.1030308172559.4525D-100000@gatekeeper.tmr.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips <phillips@arcor.de> wrote:
->
-> Yes, I think that's exactly what's happening.  There are some questions 
-> remaining, such as why doesn't it happen to akpm.
+On Sat, Mar 08, 2003 at 05:28:10PM -0500, Bill Davidsen wrote:
+> On Thu, 6 Mar 2003 Harald.Schaefer@gls-germany.com wrote:
+> 
+> >  *    1. CHS value set by user       (whatever user sets will be trusted)
+> >  *    2. LBA value from target drive (require new ATA feature)
+> >  *    3. LBA value from system BIOS  (new one is OK, old one may break)
+> >  *    4. CHS value from system BIOS  (traditional style)
+> > 
+> > I think that the priority of LBA from BIOS has to be raised to 2 and the
+> > priority of LBA from drive should be lowered to 3.
+> > The mapping-problem only appreared with very new drives in some
+> > brand-computers using a 240-head mapping from the bios.
+> 
+> I think the chances of a drive knowing its own correct LBA info is far
+> better than the BIOS getting it right. Many BIOS versions don't understand
+> large drives.
 
-Oh but it does.  The 30,000 mkdirs test takes 76 seconds on 1k blocks, 16
-seconds on 4k blocks.
+Maybe time for some preaching again.
 
-With 1k blocks, the journal is 1/4 the size, and there are 4x as many
-blockgroups.
+The above sounds like nonsense,
+"its own correct LBA info" does not refer to anything.
 
-So not only does the fs have to checkpoint 4x as often, it has to seek all
-over the disk to do it.
+A disk that is less than twelve years old does not have a geometry.
+All disks that can handle LBA (that is, all disks less than
+twelve years old) use LBA under Linux.
+Thus, the disk has nothing to tell use except for its total capacity.
 
-If you create a 1k blocksize fs with a 100MB journal, the test takes just
-nine seconds.
+Some silly legacy stuff is interested in a geometry.
+It does not exist, but everybody can invent something,
+Why would one do such a silly thing? Well, the DOS-type partition
+table has fields that are expressed in terms of cyl/heads/secs,
+and these are used by DOS. If one really uses DOS on the same
+disk, then one needs the BIOS values, since DOS uses the BIOS.
 
-But note that after these nine seconds, we were left with 50MB of dirty
-buffercache.  When pdflush later comes along to write that out it takes >30
-seconds, because of the additional fragmentation from the tiny blockgroups.
-So all we've done is to pipeline the pain.
+On a Linux-only system there is never any problem, provided
+one can boot. Don't panic if some ancient fdisk version
+mumbles about unexpected things. 
 
-I suspect the Orlov allocator isn't doing the right thing here - a full
-dumpe2fs of the disk shows that the directories are all over the place. 
-Nodoby has really looked at fine-tuning Orlov.
+Usually people that complain only think they have a problem,
+while in fact all is well. Or they have a problem: the BIOS
+cannot handle the disk and does not boot, but that is not a
+Linux problem.
 
-btw, an `rm -rf' of the dir which holds 30,000 dirs takes 50 seconds system
-time on a 2.7GHz CPU.  What's up with that?
+Now what about Harald.Schaefer's problem? I asked Google
+for his complaint and find
 
-c01945bc str2hashbuf                                9790  61.1875
-c0187064 ext3_htree_store_dirent                   10472  28.7692
-c0154920 __getblk                                  11319 202.1250
-c018d11c dx_probe                                  15934  24.2896
-c018d4d0 ext3_htree_fill_tree                      15984  33.8644
-c0188d3c ext3_get_branch                           18238  81.4196
-c0136388 find_get_page                             18617 202.3587
-c015477c bh_lru_install                            20493  94.8750
-c0194290 TEA_transform                             21463 173.0887
-c01536b0 __find_get_block_slow                     24069  62.6797
-c0154620 __brelse                                  36139 752.8958
-c01893dc ext3_get_block_handle                     43815  49.7898
-c0154854 __find_get_block                          71292 349.4706
+"We create fdisk partitions with linux and run later DOS
+from one of these partitions. DOS gets confused about the
+linux mapping of the partition that is different from the
+BIOS supplied values."
+
+Now guessing what the BIOS will do is a black art,
+and if "kernel 2.2.22 was running fine" it was lucky.
+I see that 2.4.21-pre5 overrides in many cases what
+the BIOS said, so it will be lucky less often.
+But one can always specify an explicit geometry to fdisk.
+(And find out what to say by inspecting the BIOS setup
+screen under "autodetecting hard disks".)
+
+Finally, on the shown hdparm output:
+
+---------------------------------------------------------------------------
+and a bad disk, which is recognized with "bit shift"-mapping from the BIOS:
+
+hdparm -i /dev/hda
+ Model=Maxtor 6E040L0, FwRev=NAR61590, SerialNo=E11G00EE
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=78165360
+
+hdparm -I /dev/hda
+ CurCHS=65535/1/63, CurSects=4128705, LBA=yes, LBAsects=78165360
+
+another disk that doesn't work
+
+hdparm -i /dev/hda
+ Model=FUJITSU MHR2030AT, FwRev=53BB, SerialNo=NJ36T2813MYW
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
+ CurCHS=17475/15/63, CurSects=16513875, LBA=yes, LBAsects=58605120
+
+hdparm -I /dev/hda
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
+ CurCHS=65535/1/63, CurSects=4128705, LBA=yes, LBAsects=58605120
+---------------------------------------------------------------------------
+
+Really strange values, as if someone wanted to force a H=255.
+Must read current 2.4 source some time. What does hdparm say
+under 2.2.22?
+
+Andries
+
 

@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282611AbRKZW0O>; Mon, 26 Nov 2001 17:26:14 -0500
+	id <S282619AbRKZW3e>; Mon, 26 Nov 2001 17:29:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282609AbRKZW0E>; Mon, 26 Nov 2001 17:26:04 -0500
-Received: from tomts15.bellnexxia.net ([209.226.175.3]:46466 "EHLO
-	tomts15-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S282611AbRKZWZw>; Mon, 26 Nov 2001 17:25:52 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Nav Mundi <nmundi@karthika.com>
-To: linux-kernel@vger.kernel.org
-Subject: Intercept block device calls
-Date: Mon, 26 Nov 2001 17:25:22 -0500
-X-Mailer: KMail [version 1.3.2]
+	id <S282613AbRKZW3Y>; Mon, 26 Nov 2001 17:29:24 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:31251 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S282610AbRKZW3N>; Mon, 26 Nov 2001 17:29:13 -0500
+Date: Mon, 26 Nov 2001 14:23:02 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Scalable page cache
+In-Reply-To: <3C02ADF2.E505E672@zip.com.au>
+Message-ID: <Pine.LNX.4.33.0111261421320.10706-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011126222547.NQVM14865.tomts15-srv.bellnexxia.net@there>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I'm trying to create a module that will:
 
-1) intercept System Calls to a Block Device (i.e. no direct communications 
-between the Application and Block Device) and instead
-2) Communicate directly with a Block Device without interference from other 
-layers.
+On Mon, 26 Nov 2001, Andrew Morton wrote:
+>
+> We've called block_prepare_write(), which has done the kmap.
+> But even though block_prepare_write() returned success, this
+> call to the filesystem's ->prepare_write() is about to fail.
 
-In other words, the module will effectively hide all direct communication 
-between the application and block device.
+That's _way_ too intimate knowledge of how block_prepare_write() works (or
+doesn't work).
 
-Please advice.
+How about sending me a patch that removes all the kmap/kunmap crap from
+_both_ ext3 and block_prepare/commit_write.
 
-Thanks
--Nav
+> There have been a number of mistakes made over this particular kmap()
+> operation.  NFS client had it wrong for a while. I think sct had
+> some proposal for making it more robust.
+
+It _is_ more robust. You are only battling remnants from an older age when
+it wasn't.
+
+		Linus
 

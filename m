@@ -1,55 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263437AbTEIUnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 16:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263438AbTEIUnZ
+	id S263438AbTEIUna (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 16:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263440AbTEIUn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 16:43:25 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37133 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263437AbTEIUnY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 16:43:24 -0400
-Message-ID: <3EBC15B5.4070604@zytor.com>
-Date: Fri, 09 May 2003 13:55:17 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en, sv
-MIME-Version: 1.0
-To: Ulrich Drepper <drepper@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: hammer: MAP_32BIT
-References: <3EBB5A44.7070704@redhat.com> <20030509092026.GA11012@averell> <16059.37067.925423.998433@gargle.gargle.HOWL> <20030509113845.GA4586@averell> <b9gr03$42n$1@cesium.transmeta.com> <3EBC0084.4090809@redhat.com>
-In-Reply-To: <3EBC0084.4090809@redhat.com>
-Content-Type: text/plain; charset=us-ascii
+	Fri, 9 May 2003 16:43:29 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:42155 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263438AbTEIUn1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 16:43:27 -0400
+Subject: Re: ext3/lilo/2.5.6[89] (was: [KEXEC][2.5.69] kexec for 2.5.69
+	available)
+From: Andy Pfiffer <andyp@osdl.org>
+To: Christophe Saout <christophe@saout.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1052510656.6334.8.camel@chtephan.cs.pocnet.net>
+References: <1052507057.15923.31.camel@andyp.pdx.osdl.net>
+	 <1052510656.6334.8.camel@chtephan.cs.pocnet.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052513725.15923.45.camel@andyp.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 09 May 2003 13:55:25 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Fri, 2003-05-09 at 13:04, Christophe Saout wrote:
+> Am Fre, 2003-05-09 um 21.04 schrieb Andy Pfiffer:
 > 
-> H. Peter Anvin wrote:
+> > [...]
+> >  I had an unrelated
+> > delay in posting this due to some strange behavior of late with LILO and
+> > my ext3-mounted /boot partition (/sbin/lilo would say that it updated,
+> > but a subsequent reboot would not include my new kernel)
 > 
-> 
->>How about this: since the address argument is basically unused anyway
->>unless MAP_FIXED is set, how about a MAP_MAXADDR which interprets the
->>address argument as the highest permissible address (or lowest
->>nonpermissible address)?
-> 
-> 
-> You miss the point of my initial mail: I need a way to say "preferrably
-> 32bit address, otherwise give me what you have".  MAP_32BIT already
-> provides a way to require 32 bit addresses.
-> 
+> So I'm not the only one having this problem... I think I first saw this
+> with 2.5.68 but I'm not sure.
 
-No, it requires 31-bit addresses, and there was a discussion about how
-some things need 31-bit and some 32-bit addresses.  There might also be
-a need for 39-bit addresses, to be compatible with Linux 2.4.
+Well, that makes two of us for sure.
 
-MAP_MAXADDR_ADVISORY?
+> 
+> My boot partition is a small ext3 partition on a lvm2 volume accessed
+> over device-mapper (I've written a lilo patch for that, but the patch is
+> working and) but I don't think that has something to do with the
+> problem.
+> 
+> When syncing, unmounting and waiting some time after running lilo, the
+> changes sometimes seem correctly written to disk, I don't know when
+> exactly.
 
-	-hpa
+My /boot is an ext3 partition on an IDE disk.  My symptoms and your
+symptoms match -- wait awhile, and it works okay.  If you don't wait
+"long enough" the changes made in /etc/lilo.conf are not reflected in
+the after running /sbin/lilo and rebooting normally.
+
+I have been unable to reproduce this on a uniproc system with SCSI
+disks.
+
+2.5.67 seems to work in this regard as expected.
+
+> Could it be that the location of /boot/map is not written to the
+> partition sector of /dev/hda? Or not flushed correctly or something?
+> 
+> After reboot the old kernel came up again (though it was moved to
+> vmlinuz.old).
+
+I don't know -- I haven't isolated it yet.
+
+Anyone else?
+
 
 

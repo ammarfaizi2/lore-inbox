@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318869AbSIIUkz>; Mon, 9 Sep 2002 16:40:55 -0400
+	id <S318852AbSIIUoy>; Mon, 9 Sep 2002 16:44:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318870AbSIIUjY>; Mon, 9 Sep 2002 16:39:24 -0400
-Received: from [213.4.129.129] ([213.4.129.129]:54602 "EHLO tsmtp10.mail.isp")
-	by vger.kernel.org with ESMTP id <S318869AbSIIUiq>;
-	Mon, 9 Sep 2002 16:38:46 -0400
-Date: Mon, 9 Sep 2002 22:43:43 +0200
-From: Arador <diegocg@teleline.es>
-To: Wade <darthwaderr@netscape.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: XFS?
-Message-Id: <20020909224343.49ac976d.diegocg@teleline.es>
-In-Reply-To: <3D7CFFA6.5080700@netscape.net>
-References: <20020909193820.GA2007@lnuxlab.ath.cx>
-	<3D7CFEE5.3030600@netscape.net>
-	<3D7CFFA6.5080700@netscape.net>
-X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+	id <S318873AbSIIUox>; Mon, 9 Sep 2002 16:44:53 -0400
+Received: from [209.173.6.49] ([209.173.6.49]:9861 "EHLO comet.linuxguru.net")
+	by vger.kernel.org with ESMTP id <S318852AbSIIUow>;
+	Mon, 9 Sep 2002 16:44:52 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [Patch] 2.5.34 IRQ Patch
+In-Reply-To: <20020909191626.GA59685@compsoc.man.ac.uk>
+References: <20020909120451.GA23868@comet> <20020909191626.GA59685@compsoc.man.ac.uk>
+Date: Mon, 9 Sep 2002 09:49:36 -0400
+Message-Id: <E17oOv3-0007Lp-00@comet.linuxguru.net>
+From: James Blackwell <jblack@linuxguru.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Sep 2002 06:08:06 +1000
-Wade <darthwaderr@netscape.net> escribió:
-
-> I've noticed this too. And I must say, ITS QUITE FUCKING RUDE OF
-> LINUS.
-
-Well, you have the patches, so you can't say that you can't use it. If
-you don't like you can make a branch from the 2.5 kernel including xfs.
-
-But personally i don't mind if xfs is not included, I assume that
-there's some reason for not merging it, and i'd be glad to hear the
-reasons for not merging it, insteand of blaming to Linus "The evil
-non-merger" Torvalds
-
-
-
+In lists.linux.kernel.development, you wrote:
+> On Mon, Sep 09, 2002 at 08:04:52AM -0400, James Blackwell wrote:
 > 
-> khromy wrote:
-> > What's up with XFS in linux-2.5? I've seen some patches sent to the
-> > list but I havn't seen any replies from linus.. What needs to be
-> > done to finally
-> > merge it?
-> >
+>> A note to those that are a bit rough on kernel patch newbies.... submitting 
+>> a kernel patch for the very first time is a rather intimidating experience
+>> so please don't chew my head off unless its absolutely necessary. 
 > 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> I didn't look at this particular case, but the fixes are generally
+> not as simple as just replacing them mechanically. You need to ensure
+> that things are still properly locked wrt the interrupt handler since
+> the semantics have changed. See the discussion in the mail archives
+
+
+Do you mean in reference to smp? The reason I ask is that the Toshiba
+module is used to control things such as lcd brightness and cpu speed on
+toshiba laptops and I'm not aware of any smp laptops.
+
+
+Or did you mean in reference to the recent preemptible stuff?
+
+
+
+-- 
+GnuPG fingerprint AAE4 8C76 58DA 5902 761D  247A 8A55 DA73 0635 7400
+James Blackwell  --  Director http://www.linuxguru.net

@@ -1,90 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbVCYF1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbVCYFcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261311AbVCYF1M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 00:27:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVCYF1M
+	id S261294AbVCYFcO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 00:32:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVCYFcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 00:27:12 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:56294 "EHLO vocord.com")
-	by vger.kernel.org with ESMTP id S261294AbVCYF1C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 00:27:02 -0500
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy
-	(2.6.11)
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: David McCullough <davidm@snapgear.com>, cryptoapi@lists.logix.cz,
-       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       Herbert Xu <herbert@gondor.apana.org.au>
-In-Reply-To: <42439839.7060702@pobox.com>
-References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast>
-	 <1111665551.23532.90.camel@uganda> <4242B712.50004@pobox.com>
-	 <20050324132342.GD7115@beast> <1111671993.23532.115.camel@uganda>
-	 <42432972.5020906@pobox.com> <1111725282.23532.130.camel@uganda>
-	 <42439839.7060702@pobox.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Cf/0LQfSfTnM3/Qyc+Hu"
-Organization: MIPT
-Date: Fri, 25 Mar 2005 08:33:24 +0300
-Message-Id: <1111728804.23532.137.camel@uganda>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-1) 
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Fri, 25 Mar 2005 08:26:13 +0300 (MSK)
+	Fri, 25 Mar 2005 00:32:14 -0500
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:45164 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261294AbVCYFcL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 00:32:11 -0500
+Message-ID: <4243A257.8070805@yahoo.com.au>
+Date: Fri, 25 Mar 2005 16:32:07 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: akpm@osdl.org, davem@davemloft.net, tony.luck@intel.com,
+       benh@kernel.crashing.org, ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/6] freepgt: free_pgtables use vma list
+References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com> <Pine.LNX.4.61.0503231710310.15274@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0503231710310.15274@goblin.wat.veritas.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hugh Dickins wrote:
 
---=-Cf/0LQfSfTnM3/Qyc+Hu
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> And the range to sparc64's flush_tlb_pgtables?  It's less clear to me
+> now that we need to do more than is done here - every PMD_SIZE ever
+> occupied will be flushed, do we really have to flush every PGDIR_SIZE
+> ever partially occupied?  A shame to complicate it unnecessarily.
 
-On Thu, 2005-03-24 at 23:48 -0500, Jeff Garzik wrote:
+It looks like sparc64 is the only user of this, so it is up to
+you Dave.
 
-> > And how HIFN driver can contribute entropy?
->=20
-> Use the current chrdev->rngd method.
+I don't think I'd be able to decipher how sparc64 implements this.
 
-Why HIFN must be chardev?
+I think Hugh and I interpreted your message different ways.
 
-> > You may say, that hardware can be broken and thus produces=20
-> > wrong data, but if user want, it can turn it on or off.
->=20
-> The user cannot know the data is bad unless it is constantly being=20
-> validated.
+So, to make the question more concrete: if a pgd_t is freed due
+to freeing the single pmd_t contained within it (which was the
+only part of the pgd's address space that contained a valid mapping)
+Then do you need the full PGDIR_SIZE width passed to
+flush_tlb_pgtables, or just the PMD_SIZE'd start,end that covered
+the freed pmd_t?
 
-The user can not use HW crypto processors, since he does not
-know if HW is broken or not, and thus must validate each crypto
-operation, i.e. reencrypt data in SW.
-
-Not the point.
-
-Validation can be performed in other HW=20
-(like Xilinx which routes HW requests to the real devices),
-or in driver (if it is not FIPS validation).
-
-So I still insist on creating ability to contribute entropy directly,
-without userspace validation.
-It will be turned off by default.
-
-> 	Jeff
-
---=20
-        Evgeniy Polyakov
-
-Crash is better than data corruption -- Arthur Grabowski
-
---=-Cf/0LQfSfTnM3/Qyc+Hu
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBCQ6KkIKTPhE+8wY0RAtDYAKCFnCDI/8Dnnctbh6B6Pwci1WLTYwCfSGwq
-JDY0Xe3vJsXbb+TSo1NgMD4=
-=7Xal
------END PGP SIGNATURE-----
-
---=-Cf/0LQfSfTnM3/Qyc+Hu--
 

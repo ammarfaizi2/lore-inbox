@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbUKIWHD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUKIWIU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261723AbUKIWHD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 17:07:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbUKIWHD
+	id S261724AbUKIWIU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 17:08:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbUKIWIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 17:07:03 -0500
-Received: from ns1.g-housing.de ([62.75.136.201]:58755 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261723AbUKIWGo (ORCPT
+	Tue, 9 Nov 2004 17:08:20 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:2759 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261724AbUKIWIK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 17:06:44 -0500
-Message-ID: <41913F6A.5010806@g-house.de>
-Date: Tue, 09 Nov 2004 23:06:34 +0100
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: de-DE, de, en-us, en
+	Tue, 9 Nov 2004 17:08:10 -0500
+Date: Tue, 09 Nov 2004 14:07:21 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Brent Casavant <bcasavan@sgi.com>, Andi Kleen <ak@suse.de>,
+       "Adam J. Richter" <adam@yggdrasil.com>, colpatch@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] Use MPOL_INTERLEAVE for tmpfs files
+Message-ID: <477220000.1100038041@flay>
+In-Reply-To: <Pine.LNX.4.44.0411092056090.5291-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0411092056090.5291-100000@localhost.localdomain>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
-       Pekka Enberg <penberg@gmail.com>, Matt_Domsch@dell.com
-Subject: Re: [PATCH] kobject: fix double kobject_put() in error path of kobject_add()
-References: <Pine.LNX.4.58.0411071653480.24286@ppc970.osdl.org> <418F6E33.8080808@g-house.de> <Pine.LNX.4.58.0411080951390.2301@ppc970.osdl.org> <418FDE1F.7060804@g-house.de> <419005F2.8080800@g-house.de> <41901DF0.8040302@g-house.de> <84144f02041108234050d0f56d@mail.gmail.com> <4190B910.7000407@g-house.de> <20041109164238.M12639@g-house.de> <Pine.LNX.4.58.0411091026520.2301@ppc970.osdl.org> <20041109190420.GA2498@kroah.com> <Pine.LNX.4.58.0411091108470.2301@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0411091108470.2301@ppc970.osdl.org>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+--On Tuesday, November 09, 2004 21:08:11 +0000 Hugh Dickins <hugh@veritas.com> wrote:
 
-i'm sorry to say that it did not help:
+> On Tue, 9 Nov 2004, Martin J. Bligh wrote:
+>>  
+>> > I'm irritated to realize that we can't change the default for SysV
+>> > shared memory or /dev/zero this way, because that mount is internal.
+>> 
+>> Boggle. shmem I can perfectly understand, and have been intending to
+>> change for a while. But why /dev/zero ? Presumably you'd always want
+>> that local?
+> 
+> I was meaning the mmap shared writable of /dev/zero, to get memory
+> shared between parent and child and descendants, a restricted form
+> of shared memory.  I was thinking of them running on different cpus,
+> you're suggesting they'd at least be on the same node.  I dare say,
+> I don't know.  I'm not desperate to be able to set some other mpol
+> default for all of them (and each object can be set in the established
+> way), just would have been happier if the possibility of doing so came
+> for free with the mount option work.
 
-http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/dmesg-2.6.10-rc1_edd__kobject_put.txt
+Oh yeah ... the anon mem allocator trick. Mmmm. Not sure that should
+have a different default than normal alloced memory, but either way,
+what you're suggesting makes a whole lot more sense to me know than
+just straight /dev/zero ;-)
 
-i'll go on and try to exclude
+Thanks for the explanation.
 
-ChangeSet@1.2000.5.108, 2004-10-20 08:36:22-07:00, Matt_Domsch@dell.com
-	  [PATCH] EDD: use EXTENDED READ command, add CONFIG_EDD_SKIP_MBR
+M.
 
-(or just test /pub/linux/kernel/v2.6/snapshots/old/patch-2.6.9-bk*.gz ...)
-
-thanks,
-Christian.
-- --
-BOFH excuse #200:
-
-The monitor needs another box of pixels.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBkT9q+A7rjkF8z0wRArHjAJ4qSyZf+ioC4VkvPxk2fCNWUrl18QCeLK85
-8e2EyGuWgBviGETlV25t/XE=
-=Qvnz
------END PGP SIGNATURE-----

@@ -1,51 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264097AbRFNV6C>; Thu, 14 Jun 2001 17:58:02 -0400
+	id <S264101AbRFNWCD>; Thu, 14 Jun 2001 18:02:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264101AbRFNV5w>; Thu, 14 Jun 2001 17:57:52 -0400
-Received: from smtp-rt-4.wanadoo.fr ([193.252.19.156]:47345 "EHLO
-	areca.wanadoo.fr") by vger.kernel.org with ESMTP id <S264097AbRFNV5l>;
-	Thu, 14 Jun 2001 17:57:41 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Going beyond 256 PCI buses
-Date: Thu, 14 Jun 2001 23:57:09 +0200
-Message-Id: <20010614215709.23875@smtp.wanadoo.fr>
-In-Reply-To: <15145.12584.339783.786454@pizda.ninka.net>
-In-Reply-To: <15145.12584.339783.786454@pizda.ninka.net>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+	id <S264112AbRFNWBw>; Thu, 14 Jun 2001 18:01:52 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:59919 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264101AbRFNWBn>; Thu, 14 Jun 2001 18:01:43 -0400
+Subject: Re: Gigabit Intel NIC? - Intel Gigabit Ethernet Pro/1000T
+To: mdharm-kernel@one-eyed-alien.net (Matthew Dharm)
+Date: Thu, 14 Jun 2001 22:58:21 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), rhw@MemAlpha.CX (Riley Williams),
+        ionut@moisil.cs.columbia.edu (Ion Badulescu),
+        spstarr@sh0n.net (Shawn Starr), linux-kernel@vger.kernel.org
+In-Reply-To: <20010614145221.H17427@one-eyed-alien.net> from "Matthew Dharm" at Jun 14, 2001 02:52:21 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15Af89-0005VK-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->It really isn't needed, and I understand why Linus didn't like the
->idea either.  Because you can encode the bus etc. info into the
->resource addresses themselves.
->
->On sparc64 we just so happen to stick raw physical addresses into the
->resources, but that is just one way of implementing it.
+> I know, jumping in at this late-stage is bad form... but if we're talking
+> about the Intel 82543GC Gigabit MAC, why doesn't someone just use the
+> FreeBSD if_wx.c driver as a starting point?
 
-That would be fine for PIO on PCI, but still is an issue for
-VGA-like devices that need to issue some "legacy" cycles on
-a given domain. Currently, on PPC, inx/outx will only go to
-one bus (arbitrarily choosen during boot) because of that,
-meaning that we can't have 2 VGA cards on 2 different domains
-
-That's why I'd love to see a review of the "legacy" (ISA) stuff
-in general. I understand that can require a bit of updating of
-a lot of legacy drivers to do the proper ioremap's, but that would
-help a lot, including some weird embedded archs which love using
-those cheap 16 bits devices on all sorts of custom busses. In
-those case, only the probe part will have to be hacked since the
-drivers will all cleanly use a "base" obtained from that probe-time
-ioremap before doing inx/outx.
-
-I'd be happy to help bringing drivers up-to-date (however, I don't
-have an x86 box to test with) once we agree on the way do go.
-
-Ben.
-
-
+Intel have released a BSD like licensed gig-E driver for Linux. It needs a
+serious cleanup but the hardware interface is very very clean so that is a
+doable job. There are some patent related licensing issues but the discussion
+on resolving that and getting them into the kernel does look promising

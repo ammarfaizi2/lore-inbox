@@ -1,30 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267096AbTGTNJ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 09:09:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267123AbTGTNJ4
+	id S267089AbTGTNQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 09:16:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267123AbTGTNQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 09:09:56 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:30593 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S267096AbTGTNJz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 09:09:55 -0400
-Date: Sun, 20 Jul 2003 14:34:28 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200307201334.h6KDYSqC002010@81-2-122-30.bradfords.org.uk>
-To: linux-kernel@vger.kernel.org, pavel@ucw.cz, torvalds@osdl.org
-Subject: Re: Separate ACPI_SLEEP and SOFTWARE_SUSPEND options
+	Sun, 20 Jul 2003 09:16:57 -0400
+Received: from rth.ninka.net ([216.101.162.244]:27587 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S267089AbTGTNQ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 09:16:56 -0400
+Date: Sun, 20 Jul 2003 06:31:37 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: ak@muc.de, linas@austin.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: KDB in the mainstream 2.4.x kernels?
+Message-Id: <20030720063137.3b0f2e14.davem@redhat.com>
+In-Reply-To: <1681.1058705718@ocs3.intra.ocs.com.au>
+References: <m3smp3y38y.fsf@averell.firstfloor.org>
+	<1681.1058705718@ocs3.intra.ocs.com.au>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  	  Right now you may boot without resuming and then later resume but
->  	  in meantime you cannot use those swap partitions/files which were
->  	  involved in suspending. Also in this case there is a risk that buffers
->  	  on disk won't match with saved ones.
+On Sun, 20 Jul 2003 22:55:18 +1000
+Keith Owens <kaos@ocs.com.au> wrote:
 
-What happens on a machine which is sharing swap space between two
-operating systems?  Do we have a way to mark a swap partition which is
-used for suspend data as unusable?  Maybe we could change the
-partition type from 82 to something else.
+> i386 provides no unwind data
 
-John.
+We could tell gcc to emit dwarf2 unwind tables on x86 for debugging
+kernel builds.

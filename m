@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265390AbUA0ROV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 12:14:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265400AbUA0ROV
+	id S265237AbUA0RMq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 12:12:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265390AbUA0RMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 12:14:21 -0500
-Received: from mxfep01.bredband.com ([195.54.107.70]:7625 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S265390AbUA0RNL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 12:13:11 -0500
-Subject: Re: 2.6.1 dual xeon
-From: Alexander Nyberg <alexn@telia.com>
-To: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040127073801.GB9708@favonius>
-References: <20040124203646.A8709@animx.eu.org>
-	 <1074995006.5246.1.camel@localhost> <20040125083712.A9318@animx.eu.org>
-	 <20040127073801.GB9708@favonius>
-Content-Type: text/plain
-Message-Id: <1075223587.1173.5.camel@llhosts>
+	Tue, 27 Jan 2004 12:12:46 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:60545
+	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S265237AbUA0RMY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 12:12:24 -0500
+Date: Tue, 27 Jan 2004 12:25:45 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: Timothy Miller <miller@techsource.com>
+Cc: walt <wa1ter@myrealbox.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Sco
+Message-ID: <20040127122545.A4752@animx.eu.org>
+References: <20040127081506.C4346@animx.eu.org> <40168A38.4010203@myrealbox.com> <40169031.50603@techsource.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 27 Jan 2004 18:13:07 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <40169031.50603@techsource.com>; from Timothy Miller on Tue, Jan 27, 2004 at 11:22:09AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-01-27 at 08:38, Sander wrote:
-> Wakko Warner wrote (ao):
-> > > > I recently aquired a dual xeon system. HT is enabled which shows
-> > > > up as 4 cpus. I noticed that all interrupts are on CPU0. Can
-> > > > anyone tell me why this is?
-> > > 
-> > > The APIC needs to be programmed to deliver interrupts to certain
-> > > processors.
-> > > 
-> > > In 2.6, this is done in user-space via a program called irqbalance:
+> >> There's a new virus out called W32/MyDoom.A that between feb 1st and 
+> >> 12th it
+> >> will DoS www.sco.com.  I didn't see anything on the list about it this
+> >> morning so I thought I'd share.
 > > 
-> > Thanks, working great. (Debian by the way)
-> 
-> Ehm, IIRC the "all interrupts are on CPU0" is how it is supposed to work
-> with a 2.6 kernel? The interrupts should spread if you have _a_lot_ of
-> them. This gives better performance than spreading the interrupts. Did I
-> read this on the list, or am I completely wrong here?
+> > 
+> > So, are you suggesting that we all start using Outlook Express on Jan 31?
 
-Apparently it was way especially better performance wise to have
-interrupts that hit often (ethernet cards ie.) on the same cpu.
+I never said this.  I was only stating that the virus existed.
 
-But I can't see a reason for not dividing the different interrupt on
-different cpu's and letting them stay put. Maybe if you keep all
-interrupts on the same cpu the cache on the other ones will not have to
-be flushed often, which would be a good thing.
+> As much as SCO disturbs me, these kinds of underhanded attacks against 
+> them disgust me.  They stoop to SCO's level, or worse.  SCO can and will 
+> be dealt with properly through the use of FACTS.
 
-How would it be to maybe remove all interrupts from a cpu (except
-between cpu's) and have a few cpu's merely working with data and one "in
-control". Bad idea I guess as I haven't seen any such work.
+I did not imply that the linux community help spread this.  Having to deal
+with windows users (Add 'L's where appropriate), I've been bombarded with
+this thing at work as I receive all virus infected emails.
 
-Alex
+> Besides, DoS attacks against SCO will only be blamed on the Linux 
+> community.  So the developer of that virus is either a complete idiot or 
+> is acting to intentionally hurt our image.
 
+If the former, then this is probably a windows person.  After all, the virus
+is for *windows* and not linux.
+
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262490AbTE2SeB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 14:34:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbTE2SeB
+	id S262489AbTE2Scl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 14:32:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262490AbTE2Scl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 14:34:01 -0400
-Received: from garnet.acns.fsu.edu ([146.201.2.25]:32750 "EHLO
-	garnet.acns.fsu.edu") by vger.kernel.org with ESMTP id S262490AbTE2Sd7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 14:33:59 -0400
-Message-ID: <3ED65593.1080401@cox.net>
-Date: Thu, 29 May 2003 14:46:43 -0400
-From: David van Hoose <davidvh@cox.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Downing, Thomas" <Thomas.Downing@ipc.com>
-CC: Thomas Molina <tmolina@cox.net>, Florin Iucha <florin@iucha.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Is ALSA broken in 2.5.70?
-References: <170EBA504C3AD511A3FE00508BB89A920221E5F9@exnanycmbx4.ipc.com>
-In-Reply-To: <170EBA504C3AD511A3FE00508BB89A920221E5F9@exnanycmbx4.ipc.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 29 May 2003 14:32:41 -0400
+Received: from 213-4-13-153.uc.nombres.ttd.es ([213.4.13.153]:8454 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S262489AbTE2Scl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 14:32:41 -0400
+Subject: Re: 2.5.70-mm2
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030529103628.54d1e4a0.akpm@digeo.com>
+References: <170EBA504C3AD511A3FE00508BB89A920221E5FF@exnanycmbx4.ipc.com>
+	 <20030529103628.54d1e4a0.akpm@digeo.com>
+Content-Type: text/plain
+Message-Id: <1054233955.690.1.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
+Date: 29 May 2003 20:45:56 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Downing, Thomas wrote:
-> -----Original Message-----
-> From: David van Hoose [mailto:davidvh@cox.net]
-> [snip]
+On Thu, 2003-05-29 at 19:36, Andrew Morton wrote:
+> Some of these use fsync()-based synchronisation and won't benefit, but they
+> may have compile-time or runtime options to use O_SYNC instead.
 > 
->>2.4.21-rc5. ALSA on 2.5.70-bk2 reported to be 0.9.2, but everyone says
->>it is 0.9.3c.
 > 
-> [snip]
-> 
-> Might the problem be incompatible versions of the alsa utilities and
-> libs you are using with the alsa modules in the kernel?  I don't know,
-> just a suggestion.  Feel free to flam...
+> Apart from that, just using the kernel in day-to-day activity is the most
+> important thing.  If everyone does that, and everyone is happy then by
+> definition this kernel is a wrap.
 
-I'm using alsa-lib 0.9.3, alsa-utils 0.9.3, alsa-tools 0.9.3 ALSA's OSS 
-compatibility library 0.9.1.
-For 2.4.21-rc5, I'm using 0.9.2 since 0.9.3 does not give me sound.
-For 2.5.70-bk3, I'm using whatever is in it. I believe it is a version 
-of 0.9.2, but I am not entirely sure.
-
-Thanks,
-David
+I'm already happy with 2.5.70 :-)
 

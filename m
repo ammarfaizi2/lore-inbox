@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131506AbQLPHj6>; Sat, 16 Dec 2000 02:39:58 -0500
+	id <S129183AbQLPIHt>; Sat, 16 Dec 2000 03:07:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131483AbQLPHjs>; Sat, 16 Dec 2000 02:39:48 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:1800 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S131509AbQLPHjk>;
-	Sat, 16 Dec 2000 02:39:40 -0500
+	id <S130026AbQLPIHk>; Sat, 16 Dec 2000 03:07:40 -0500
+Received: from icarus.com ([208.36.26.146]:12306 "EHLO icarus.com")
+	by vger.kernel.org with ESMTP id <S129183AbQLPIHc>;
+	Sat, 16 Dec 2000 03:07:32 -0500
+Message-Id: <200012160737.XAA26614@icarus.com>
 X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: USB-related Oops in test12 
-In-Reply-To: Your message of "Fri, 15 Dec 2000 15:37:29 BST."
-             <20001215153729.C829@nightmaster.csn.tu-chemnitz.de> 
+To: linux-kernel@vger.kernel.org
+cc: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Subject: Re: [paperboy@g2news.com: Client Server NEWS FLASH: Linus Savages Red Hat 7.0] 
+In-Reply-To: Message from Stephen Williams <steve@icarus.com> 
+   of "Fri, 15 Dec 2000 22:32:07 PST." <200012160632.WAA26178@icarus.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 16 Dec 2000 18:09:08 +1100
-Message-ID: <13427.976950548@ocs3.ocs-net>
+Date: Fri, 15 Dec 2000 23:37:03 -0800
+From: Stephen Williams <steve@icarus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Dec 2000 15:37:29 +0100, 
-Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de> wrote:
->> Trace; c01091d8 <cpu_idle+38/50>
->
->> Trace; c0105000 <empty_bad_page+0/1000>
->> Trace; c0100191 <L6+0/2>
->
->Once again we have these two symbols on the stack. 
 
-Probably spurious.  Remember that ix86 show stack prints anything that
-looks like a kernel address, whether it is a real return address or
-not, you can get false positives.  kdb goes to a _lot_ more work to get
-a more accurate backtrace and even that sometimes goes wrong.  Always
-assume that any address on an ix86 oops might be irrelevant.
+steve@icarus.com said:
+> As a producer of free software myself (Icarus Verilog) I've come to
+> the conclusion that the mass media is perfectly capable of turning
+> away the idiots that you don't really want as customers anyhow:-) 
 
-In this case L6 is the return address from start_kernel.  start_kernel
-ends up calling cpu_idle.  Everything above cpu_idle will be the
-interrupt handler, ignore anything below cpu_idle.
+Actually, I didn't intend that to go out to a public forum, as I am
+to a (very) small degree a public figure myself (I pressed the wrong
+button) but I stand by my statement. If a person is so easily swayed
+by such trivial propaganda then there is a pretty good chance that this
+same person is better inflicted on Cadence or Synopsys (or whomever is
+the big company in your field) who has people trained and willing to deal
+with this level of support.
+
+For my work, I've been blessed with conscientious feedback, and I've
+run with it. The only compensation I get for my efforts is a PR database
+loaded with bug reports; but somehow a detailed and well thought out bug
+report is so much more satisfying then a hollow pat on the back.
+-- 
+Steve Williams                "The woods are lovely, dark and deep.
+steve@icarus.com              But I have promises to keep,
+steve@picturel.com            and lines to code before I sleep,
+http://www.picturel.com       And lines to code before I sleep."
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

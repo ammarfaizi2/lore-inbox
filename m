@@ -1,47 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261369AbSIWUmB>; Mon, 23 Sep 2002 16:42:01 -0400
+	id <S261391AbSIWVDH>; Mon, 23 Sep 2002 17:03:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261374AbSIWUmB>; Mon, 23 Sep 2002 16:42:01 -0400
-Received: from dsl-213-023-022-250.arcor-ip.net ([213.23.22.250]:28598 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S261369AbSIWUmA>;
-	Mon, 23 Sep 2002 16:42:00 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: davidm@hpl.hp.com, David Mosberger <davidm@napali.hpl.hp.com>,
-       Dave Olien <dmo@osdl.org>
-Subject: Re: DAC960 in 2.5.38, with new changes
-Date: Mon, 23 Sep 2002 22:44:08 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: axboe@suse.de, _deepfire@mail.ru, linux-kernel@vger.kernel.org
-References: <20020923120400.A15452@acpi.pdx.osdl.net> <15759.26918.381273.951266@napali.hpl.hp.com>
-In-Reply-To: <15759.26918.381273.951266@napali.hpl.hp.com>
+	id <S261392AbSIWVDG>; Mon, 23 Sep 2002 17:03:06 -0400
+Received: from smtpout.mac.com ([204.179.120.85]:19943 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id <S261391AbSIWVDD>;
+	Mon, 23 Sep 2002 17:03:03 -0400
+Message-ID: <3D8F82E5.90A64E8@mac.com>
+Date: Mon, 23 Sep 2002 23:08:53 +0200
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@mac.com>
+Organization: B16
+X-Mailer: Mozilla 4.79 [de] (X11; U; Linux 2.4.20-pre7 i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17ta3t-0003bj-00@starship>
+To: Ingo Molnar <mingo@elte.hu>
+CC: Larry McVoy <lm@bitmover.com>, Bill Davidsen <davidsen@tmr.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+References: <Pine.LNX.4.44.0209232233250.2343-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 23 September 2002 21:19, David Mosberger wrote:
-> Hi Dave,
+Ingo Molnar schrieb:
 > 
-> >>>>> On Mon, 23 Sep 2002 12:04:00 -0700, Dave Olien <dmo@osdl.org> said:
+> On Mon, 23 Sep 2002, Peter Waechtler wrote:
 > 
->   Dave> #ifdef __ia64__
->   Dave> -  writeq(Virtual_to_Bus64(CommandMailbox),
->   Dave> +  writeq(CommandMailboxDMA,
->   Dave> ControllerBaseAddress + DAC960_LP_CommandMailboxBusAddressOffset);
->   Dave> #else
->   Dave> -  writel(Virtual_to_Bus32(CommandMailbox),
->   Dave> +  writel(CommandMailboxDMA,
->   Dave> ControllerBaseAddress + DAC960_LP_CommandMailboxBusAddressOffset);
->   Dave> #endif
+> > Getting into kernel is not the same as a context switch. Return EAGAIN
+> > or EWOULDBLOCK is definetly _not_ causing a context switch.
 > 
-> This looks like a porting-nightmare in the making.  There's got to be a
-> better way to determine whether you need a writeq() vs. a writel().
+> this is a common misunderstanding. When switching from thread to thread in
+> the 1:1 model, most of the cost comes from entering/exiting the kernel. So
+> *once* we are in the kernel the cheapest way is not to piggyback to
+> userspace to do some userspace context-switch - but to do it right in the
+> kernel.
+> 
+> in the kernel we can do much higher quality scheduling decisions than in
+> userspace. SMP affinity, various statistics are right available in
+> kernel-space - userspace does not have any of that. Not to talk about
+> preemption.
+> 
 
-Even if an #ifdef is necessary here (and we are in trouble if it is) it
-should not trigger on __ia64__, it should trigger on the size of (long).
+I'm already almost convinced on the NPT way of doing threading.
+But still: the timeslice is per process (and kernel thread).
+You still have other processes running.
+With 1:1 on "hitting" a blocking condition the kernel will
+switch to a different beast (yes, a thread gets a bonus for
+using the same MM and the same cpu).
+But on M:N the "user process" makes some more progress in its
+timeslice (does it get even punished for eating up its 
+timeslice?) I would think that it tends to cause less context
+switches but tends to do more syscalls :-(
 
--- 
-Daniel
+I already had a closer look at NGPT before reading Ulrich's
+comments on the phil-list and on his website. I already thought
+"puh, that's a complicated beast", and as I saw the
+fcntl(GETFL);fcntl(O_NONBLOCK);write();fcntl(oldflags); thingy..
+
+Well, with an O(1) scheduler, faster thread creation and exit
+NPT has good chances to perform faster.
+
+Now I'm just curious about the argument about context switch
+times. Is Linux really that much faster than Solaris, Irix etc.?
+
+Do you have numbers (or a hint) on comparable (ideal: identical) 
+hardware? Is LMbench a good starting point?

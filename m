@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbUK2N7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbUK2OJi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbUK2N7k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 08:59:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUK2N7k
+	id S261249AbUK2OJi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 09:09:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbUK2OJi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 08:59:40 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:4751 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261373AbUK2N7i (ORCPT
+	Mon, 29 Nov 2004 09:09:38 -0500
+Received: from coderock.org ([193.77.147.115]:30654 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261249AbUK2OJg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 08:59:38 -0500
-MIME-Version: 1.0
+	Mon, 29 Nov 2004 09:09:36 -0500
+Date: Mon, 29 Nov 2004 15:09:30 +0100
+From: Domen Puncer <domen@coderock.org>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: janitor@sternwelten.at, linux-kernel@vger.kernel.org, akpm@digeo.com
+Subject: Re: ds1620: replace schedule_timeout() with 	msleep()
+Message-ID: <20041129140929.GC7889@nd47.coderock.org>
+References: <E1C2cAP-0007Rx-JK@sputnik> <Pine.LNX.4.61.0411281835430.3389@dragon.hygekrogen.localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16811.11073.511847.968733@alkaid.it.uu.se>
-Date: Mon, 29 Nov 2004 14:59:29 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Pavel Machek <pavel@ucw.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc1 broke apmd
-In-Reply-To: <20041129125313.GB3291@elf.ucw.cz>
-References: <200411291138.iATBcBiR007342@harpo.it.uu.se>
-	<20041129125313.GB3291@elf.ucw.cz>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0411281835430.3389@dragon.hygekrogen.localhost>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek writes:
- > Hi!
- > 
- > > Starting with 2.6.10-rc1, date and time on my old APM-based
- > > laptop is messed up after a resume. Specifically, Emacs and
- > > xclock both make a huge forward leap and then stop updating
- > > their current time displays.
- > > 
- > > The cause is the "jiffies += sleep_length * HZ;" addition
- > > to arch/i386/kernel/time.c:time_resume() which is in conflict
- > > with the hwlock --hctosys that the APM daemon normally does
- > > at resume.
- > 
- > I do not understand why they interfere... time_resume should fix
- > system time, then userland sets it to the right value, again. Unless
- > these two happen in paralel (they should not), nothing bad should happen.
- > 
- > Can you try to suspend, wait, launch hwclock --hctosys manually?
+On 28/11/04 18:39 +0100, Jesper Juhl wrote:
+> > +++ linux-2.6.9-rc1-bk7-max/drivers/char/ds1620.c	2004-09-01 19:34:43.000000000 +0200
+> > @@ -373,8 +373,7 @@ static int __init ds1620_init(void)
+> >  	th_start.hi = 1;
+> >  	ds1620_write_state(&th_start);
+> >  
+> > -	set_current_state(TASK_INTERRUPTIBLE);
+> > -	schedule_timeout(2*HZ);
+> > +	msleep(2000);
+> >  
+> >  	ds1620_write_state(&th);
+> >  
+> I'm wondering if 2000 is really the value we want here. As far as I can 
+> see, the  schedule_timeout(2*HZ);  line has been there as long back as 
+> since HZ was 100, so back then the delay would have been 200. if 200 is 
+> all it needs, then we are now sleeping 10 times as long as really needed.
+> What is the argument behind the value used?
 
-I disabled apmd's automatic hwlock --hctosys and ran it manually
-after resume + 5 seconds: no problem. I suspect that apmd runs
-really early at resume and that's why it interferes with time_resume.
+It's right:
+schedule_timeout(2*HZ) sleeps for 2 seconds;
+msleep(2000) sleeps for 2000 miliseconds, and does not depend on what
+HZ is.
 
-/Mikael
+
+	Domen

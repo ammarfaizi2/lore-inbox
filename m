@@ -1,95 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbUJZRGv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbUJZRH7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261344AbUJZRGv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 13:06:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbUJZRGv
+	id S261351AbUJZRH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 13:07:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbUJZRH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 13:06:51 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:14752 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261344AbUJZRGq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 13:06:46 -0400
-Message-ID: <417E8422.3020009@comcast.net>
-Date: Tue, 26 Oct 2004 13:06:42 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PROPOSAL:  New NEW development model
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Tue, 26 Oct 2004 13:07:59 -0400
+Received: from wproxy.gmail.com ([64.233.184.202]:50139 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261351AbUJZRHs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 13:07:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=j09lUfUdFgMvkmkK7QTDrPa11lyWuV0brEWyCeyafyvmVQwsDzSwskxr2n47dWls7v9nRSub6QCPwBs0znD5N4BrKJXiKH6WsjCg12Pw8WlnrQ4SJfJfpl1EY2UQGmXHGTmrrT+2JYNopJDp5i3goOmkEeihYlnx05xRjMpFJd4=
+Message-ID: <58cb370e0410261007145fc22c@mail.gmail.com>
+Date: Tue, 26 Oct 2004 19:07:45 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Mathieu Segaud <matt@minas-morgul.org>
+Subject: Re: 2.6.9-mm1: LVM stopped working
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <58cb370e041026070067daa404@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <87oeitdogw.fsf@barad-dur.crans.org>
+	 <58cb370e041026070067daa404@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, 26 Oct 2004 16:00:47 +0200, Bartlomiej Zolnierkiewicz
+<bzolnier@gmail.com> wrote:
+> On Sun, 24 Oct 2004 01:06:07 +0200, Mathieu Segaud
+> <matt@minas-morgul.org> wrote:
+> >
+> > Well, I gave a try to last -mm tree. The bot seemed good till it got to
+> > LVM stuff. Vgchange does not find any volume groups. I can't say much because
+> > lvm is pretty "early stuff" on this box; so it is pretty unusable. All I know
+> > for now, as I changed a little my boot scripts to be more verbose, is that
+> > vgchange -avvv y returns this kind of message:
+> > hdXN: cannot read LABEL
+> > and this message for all parts it can test....
+> > As I need this box up and running, I came back to 2.6.9-rc3-mm3 (it works
+> > pretty well). I will be able to run more tests on it, tomorrow but for now
+> > that's all I can provide.
+> >
+> > Oh and dmesg didn't have any oops or BUG in it, and seemed quite usual,
+> > in IDE detection and settings messages and device-mapper messages.
+> >
+> > However, I use dm-crypt to encrypt my / (no initrd, just initramfs) and
+> > it works under 2.6.9-mm1, so the bug is likely to be in IDE stuff.
+> 
+> prove it ;)
 
-In lieu of the recent unpleasantness[1] about the new development model,
-and of some unexpected nastiness[2] as well, I propose that a very
-slight modification be made to the current development model.  This
-would merge the previous and new development models (as far as my
-understanding is on them) and create a solution for all.
+To make this task easier I prepared 2.6.9-rc3-mm3 to 2.6.9-mm1 IDE patch:
 
-[1] http://lkml.org/lkml/2004/10/22/497
-[2] http://lkml.org/lkml/2004/10/26/155
+http://home.elka.pw.edu.pl/~bzolnier/ide-2.6.9-rc3-mm3-to-2.6.9-mm1.patch.bz2
 
-Previously, there were "Stable" and "Development" branches.  The
-"Stable" branches, such as 2.2 and 2.4, would stagnate, and rarely have
-backported features.  The "Development" branches such as 2.3 and 2.5
-would be hammered and mixed with patches, then cleaned up until they
-were fairly stable.  Then they'd be hammered with more patches, then
-cleaned up, then frozen, cleaned up until "stable" and then released.
+Just revert it from 2.6.9-mm1.
 
-Under the new development model, the "Stable" branch appears to be more
-"volatile."  New patches and heavy VM and scheduling changes are freely
-added, as long as they're stable.  It's not quite "Unstable," but it's
-closer to "Development" than "Stable."
-
-I propose that a new development model involving "Stable" and "Volatile"
-branches be made.  This would allow development to progress, but still
-provide a stable kernel for patch maintainers to work with.
-
-The "Stable" kernel will be the even releases, 2.6 2.8 3.0 and so on.
-These should only have security fixes and bug fixes.  No backporting
-should be done.  Drivers are a grey area; although this development
-model aims to evade the backporting of drivers.
-
-The "Volatile" kernel will be the odd releases, 2.7 2.9 3.1 and so on.
-These should follow the current development model of 2.6; new
-schedulers, new VM, new drivers, new features all around should be
-thrown at the "Volatile" kernel *IF* *THEY* *ARE* *MEANINGFULLY*
-*STABLE*.  In this way, the "Volatile" kernel will be suitable for
-general use, and will remain fairly "stable."
-
-A stable release cycle should be set up.  Approximately once every six
-months, we'll say for example January 31 and July 31 to avoid the whole
-Christmas/New Years holiday glob interfering around Jan., the "Volatile"
-branch should be frozen into "Stable."  At this point, the new "Stable"
-will immediately be equivalent to the latest state of the previous
-"Volatile."  Also, because "Volatile" does not break to wait for
-"Stable" to "Sableize," it would immediately fork to the next "Volatile"
-series.
-
-In effect, there will be no freezes ever.  Once every 6 months, Volatile
-will fork into Stable and the next Volatile simultaneously, without a
-pause.  Because Volatile will be continually kept up as a functional,
-usable kernel as 2.6 is now, there will be no need for a grace period
-for bug fixes.
-
-Comments?
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBfoQihDd4aOud5P8RAvMWAJwKqPxmwD6lMFVchDlhf2RrujhsIwCgkTrZ
-a6uQLECNDF68nfC4mMCTX8g=
-=HLYr
------END PGP SIGNATURE-----
+> There were only minor IDE changes from 2.6.9-rc3-mm3 to 2.6.9-mm1,
+> I don't see any obvious suspects...

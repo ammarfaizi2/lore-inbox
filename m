@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272168AbTG2XHZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 19:07:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272169AbTG2XHZ
+	id S272169AbTG2XP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 19:15:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272216AbTG2XP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 19:07:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:32974 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272168AbTG2XHV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 19:07:21 -0400
-Date: Tue, 29 Jul 2003 16:07:19 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test2-osdl1
-Message-Id: <20030729160719.20e17f3b.shemminger@osdl.org>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.3claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Jul 2003 19:15:27 -0400
+Received: from co239024-a.almel1.ov.home.nl ([217.120.226.100]:6798 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S272169AbTG2XPY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 19:15:24 -0400
+Date: Wed, 30 Jul 2003 01:13:39 +0200 (CEST)
+From: Aschwin Marsman <a.marsman@aYniK.com>
+X-X-Sender: marsman@localhost.localdomain
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.22-pre9
+In-Reply-To: <Pine.LNX.4.55L.0307291700490.24730@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.44.0307300108390.1819-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  http://developer.osdl.org/~shemminger/patches/patch-2.6.0-test2-osdl1.bz2
-  PLM http://www.osdl.org/cgi-bin/getpatch?id=2023
+On Tue, 29 Jul 2003, Marcelo Tosatti wrote:
 
-Added some new patches (from -mm) that relate to large machines.
+> 
+> Hi,
+> 
+> Here goes -pre9, yet another step in 2.4.22 direction.
 
-o Support for >32 cpu's			(Bill Irwin)
-	- had to fix perfctr to handle this
-o 64 bit device number's		(Andries Brower)
+Thanks. When using "make oldconfig", every time I have to press
+enter to continue for:
+  BT848 Video For Linux (CONFIG_VIDEO_BT848) [N/m/?] (NEW) 
+This is the case for the last couple of pre releases I tested (currently using
+pre8 & compiling pre9). It looks like the option is not saved in the
+.config file.
 
-Older patches included:
-o Relayfs				(Tom Zanussi)
-o Performance Counters			(Mikael Pettersson)
-o NUMA text replication			(Dave Hansen)
-o Kexec 				(Eric Biederman, Andy Pfiffer)
-o Linux Trace Toolkit (LTT)             (Karim Yaghmour)
-o Lockmeter				(John Hawkes)
-o Kernel Config (ikconfig)		(Randy Dunlap)
-o RCU statistics               		(Dipankar Sarma)
-o Scheduler tunables            	(Robert Love)
+Otherwise the compilation with my .config works without human intervention.
 
+> It contains a bunch of Netfilter fixes, set of IEEE1394 fixes, couple of
+> knfsd fixes amongst others.
+> 
+> Expect -pre10 tomorrow.
+ 
+I will reserve some CPU cycles.
 
+Have fun,
+ 
+Aschwin Marsman
+ 
+--
+aYniK Software Solutions         all You need is Knowledge
+P.O. box 134                     NL-7600 AC Almelo - the Netherlands
+a.marsman@aYniK.com              http://www.aYniK.com
 

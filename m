@@ -1,50 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135725AbRDZRYG>; Thu, 26 Apr 2001 13:24:06 -0400
+	id <S135793AbRDZR21>; Thu, 26 Apr 2001 13:28:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135738AbRDZRX4>; Thu, 26 Apr 2001 13:23:56 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:12276 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S135725AbRDZRXo>;
-	Thu, 26 Apr 2001 13:23:44 -0400
-Date: Thu, 26 Apr 2001 19:23:31 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200104261723.TAA20960.aeb@vlet.cwi.nl>
-To: dalecki@evision-ventures.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH for 2.4.3 - tinny mount code cleanup (kernel 0.97 compatibility)
+	id <S135738AbRDZR2S>; Thu, 26 Apr 2001 13:28:18 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:29710 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S135766AbRDZR2L>; Thu, 26 Apr 2001 13:28:11 -0400
+Date: Thu, 26 Apr 2001 19:28:09 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [2.4.4pre6] build failure
+Message-ID: <20010426192809.A18660@maggie.dt.e-technik.uni-dortmund.de>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Martin Dalecki <dalecki@evision-ventures.com>
+2.4.4pre6 breaks build on gcc 2.95.2/gnu ld 2.9.5 for x86 with undefined
+__builtin_expect reference when linking for bzImage. Details have been
+discussed dome days ago for some 2.4.3-ac version.
 
-    The attached patch is fixing georgeous "backward compatibility"
-    in the mount system command. It is removing two useless defines in
-    the kernel headers and finally doubles the number of possible
-    flags for the mount command.
-
-    Please apply.
-
-You have it all backwards. Your patch halves the number of
-possible flags. The present kernel can use 32 (or 31) flags.
-
-    @@ -1317,10 +1313,6 @@
-         struct super_block *sb;
-         int retval = 0;
-     
-    -    /* Discard magic */
-    -    if ((flags & MS_MGC_MSK) == MS_MGC_VAL)
-    -        flags &= ~MS_MGC_MSK;
-    - 
-         /* Basic sanity checks */
-     
-         if (!dir_name || !*dir_name || !memchr(dir_name, 0, PAGE_SIZE))
-
-You see what this code does: if the top half has this old magic
-(as it has today in 100% of all Linux installations),
-then the top half is ignored.
-If the value is non-conventional, it can be used to mean something.
-
-Maybe you did not realize that mount still puts that value there?
-The mount we use today will be around for many years to come.
-This "discard magic" part cannot be removed within five years.
-
-Andries
+-- 
+Matthias Andree

@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbVAMONz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVAMOPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261629AbVAMONz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 09:13:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbVAMONz
+	id S261631AbVAMOPn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 09:15:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVAMOPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 09:13:55 -0500
-Received: from news.suse.de ([195.135.220.2]:44167 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261629AbVAMONy (ORCPT
+	Thu, 13 Jan 2005 09:15:43 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:57799 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261631AbVAMOPe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 09:13:54 -0500
-Message-ID: <41E68215.8060004@suse.de>
-Date: Thu, 13 Jan 2005 15:13:41 +0100
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.8a6) Gecko/20041202
-X-Accept-Language: de-de, en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       magnus.damm@gmail.com, DHollenbeck <dick@softplc.com>
-Subject: Re: yenta_socket rapid fires interrupts
-References: <41E2BC77.2090509@softplc.com> <Pine.LNX.4.58.0501101857330.2373@ppc970.osdl.org> <41E42691.3060102@softplc.com> <Pine.LNX.4.58.0501111143370.2373@ppc970.osdl.org> <41E44248.2000500@softplc.com> <Pine.LNX.4.58.0501111322060.2373@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0501111322060.2373@ppc970.osdl.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Jan 2005 09:15:34 -0500
+Date: Thu, 13 Jan 2005 09:15:22 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: propolice support for linux
+Message-ID: <20050113141522.GX10340@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20050113134620.GA14127@boetes.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050113134620.GA14127@boetes.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-
-> What I don't see is why the port changes state, then. Since the yenta 
-> driver doesn't care for the interrupt anyway, it shouldn't be touching the 
-> hardware, and if it doesn't touch the hardware, then the pcmcia thing 
-> should eventually just calm down, even if it were to de-bounce a few 
-> times.
+On Thu, Jan 13, 2005 at 02:45:58PM +0059, Han Boetes wrote:
+> Hi,
 > 
-> The above is what you'd likely see if somebody was forcing a reset on the
-> card or a card voltage re-interrogation all the time, which I don't see
-> why it would happen.
+> The propolice gcc-extension prevents buffer-overflows in binaries:
+> 
+>   http://www.research.ibm.com/trl/projects/security/ssp/
+> 
+> The effect is that all buffer-overflow exploits are turned into a
+> -- logged -- Denial of service.
 
-i have a "feeling" that a weak power supply or a little bit too high 
-current draw from the card may cause something like this. But this is 
-just what i wrote: a feeling from my stomach ;-)
+This is little bit too strong.
+The effect is that it detects some stack buffer-overflow exploits.
 
-Stefan
+	Jakub

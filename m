@@ -1,46 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129260AbQLRRSk>; Mon, 18 Dec 2000 12:18:40 -0500
+	id <S129757AbQLRRTU>; Mon, 18 Dec 2000 12:19:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129455AbQLRRSa>; Mon, 18 Dec 2000 12:18:30 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:21872 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129260AbQLRRST>; Mon, 18 Dec 2000 12:18:19 -0500
-Date: Mon, 18 Dec 2000 17:47:28 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Brady Montz <bradym@balestra.org>, linux-kernel@vger.kernel.org
-Subject: Re: mount and 2.2.18
-Message-ID: <20001218174728.A19845@athlon.random>
-In-Reply-To: <t83dfl3e65.fsf@beaker.balestra.org> <E14837m-0005lq-00@the-village.bc.nu>
+	id <S131143AbQLRRTL>; Mon, 18 Dec 2000 12:19:11 -0500
+Received: from [216.120.107.189] ([216.120.107.189]:46865 "EHLO
+	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id <S129455AbQLRRSz>; Mon, 18 Dec 2000 12:18:55 -0500
+Date: Mon, 18 Dec 2000 08:48:19 -0800
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: set_rtc_mmss: can't update from 0 to 59
+Message-ID: <20001218084819.A17221@one-eyed-alien.net>
+Mail-Followup-To: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <UTC200012181310.OAA170929.aeb@aak.cwi.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="xHFwDpU9dbj6ez1V"
 Content-Disposition: inline
-In-Reply-To: <E14837m-0005lq-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Dec 18, 2000 at 04:26:52PM +0000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <UTC200012181310.OAA170929.aeb@aak.cwi.nl>; from Andries.Brouwer@cwi.nl on Mon, Dec 18, 2000 at 02:10:32PM +0100
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2000 Matthew Dharm, all rights reserved.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 18, 2000 at 04:26:52PM +0000, Alan Cox wrote:
-> > Thomas Pornin <Thomas.Pornin@ens.fr> writes:
-> > 
-> > > But NFSv3 is great; if your server is NFSv3 aware, I suggest you shift
-> > > your client to NFSv3 as well. It rocks.
-> > 
-> > Can anyone point me to some docs describing the benefits of NFSv3? Thanks.
-> 
-> Not off hand but I can give you a very brief summary of the big one - write
-> speed. NFSv2 does synchronous writes with a minimal amount of write ahead.
-> NFSv3 gathers writes on the server and schedules them as the server wishes.
-> The client sends write requests but before it can assume them completed
-> and thus clear that part of its cache has to commit them. Normally the commit
-> is done well after the I/O hit server disks, if not it waits
 
-BTW, another relevant feature is that with 2.4.x and 2.2.18aa2 you also get >2G
-files with NFSv3 (like on top of ext2).
+--xHFwDpU9dbj6ez1V
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Andrea
+Honestly, this is the best solution I've heard.  It seems that the message
+is somewhat bogus, anyway, seeing as how this message is somewhat "normal"
+and just represents the occasional occurance of a fast cmos clock with
+xntpd and running the code near the top of the hour.
+
+Matt
+
+On Mon, Dec 18, 2000 at 02:10:32PM +0100, Andries.Brouwer@cwi.nl wrote:
+>     From mdharm@ziggy.one-eyed-alien.net Mon Dec 18 04:47:51 2000
+>=20
+>     > so if your cmos time is 0.001 sec ahead of your system time
+>     > then around the hour you'll see
+>     >     set_rtc_mmss: can't update from 0 to 59
+>=20
+>     but, the question is, how do we fix this?
+>=20
+> Put #if 0 ... #endif around the printk.
+>=20
+> Andries
+
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
+
+Oh BAY-bee.
+					-- Dust Puppy to Greg
+User Friendly, 12/13/1997
+
+--xHFwDpU9dbj6ez1V
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6Pj/Tz64nssGU+ykRAsjnAKDCK5j7h6QUHFQzu3RmLr2BpKOFDwCgwWfJ
+UF3K+KmfwlpKx7f6Sb3B+7g=
+=ok2e
+-----END PGP SIGNATURE-----
+
+--xHFwDpU9dbj6ez1V--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

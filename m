@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281490AbRKHJRl>; Thu, 8 Nov 2001 04:17:41 -0500
+	id <S281499AbRKHJ0B>; Thu, 8 Nov 2001 04:26:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281486AbRKHJRc>; Thu, 8 Nov 2001 04:17:32 -0500
-Received: from dire.bris.ac.uk ([137.222.10.60]:9434 "EHLO dire.bris.ac.uk")
-	by vger.kernel.org with ESMTP id <S281496AbRKHJRS>;
-	Thu, 8 Nov 2001 04:17:18 -0500
-Date: Thu, 8 Nov 2001 09:16:43 +0000 (GMT)
-From: Matt <madmatt@bits.bris.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: WOL stops working on halt
-Message-ID: <Pine.LNX.4.21.0111080908260.20023-100000@bits.bris.ac.uk>
+	id <S281494AbRKHJZx>; Thu, 8 Nov 2001 04:25:53 -0500
+Received: from david.siemens.de ([192.35.17.14]:49397 "EHLO david.siemens.de")
+	by vger.kernel.org with ESMTP id <S281506AbRKHJZk>;
+	Thu, 8 Nov 2001 04:25:40 -0500
+Message-ID: <3BEA4F90.678EF402@infineon.com>
+Date: Thu, 08 Nov 2001 10:25:36 +0100
+From: Philipp Boerker <philipp.boerker@infineon.com>
+Reply-To: philipp.boerker@infineon.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; SunOS 5.7 sun4u)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.14 does not compile without SMP
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi list,
 
-I have a 3c980 NIC plugged into an Abit KT7-RAID and connected together
-with a WOL cable. I can't seem to get WOL to work using the ether-wake
-utility if I power the box down with shutdown(8). The only way I can
-currently get WOL to work is if I reboot the box, then physically press
-the power button to turn it off.
+Hi all,
 
-I'm loading the 3c59x.o driver using the enable_wol option, but I'm not
-currently using ACPI. Looking through the 3c59x.c code, I notice it relies
-on the box being put into a certain ACPI state. Will the ACPI code do this
-on shutdown?
+I have several problems with the 2.4.14 (and I know about
+the loop.o-fix already ;).
 
-Cheers
+It is normal behaviour that AMP does not work when SMP
+is activated. That's why I don't want any SMP stuff on
+my laptop which would be unnecessary anyway. But 
+deactivating the SMP option causes the compilation to 
+fail:
 
-Matt
+In file included from ksyms.c:17:
+/usr/src/linux-2.4.14/include/linux/kernel_stat.h: 
+In function `kstat_irqs':
+/usr/src/linux-2.4.14/include/linux/kernel_stat.h:48: 
+`smp_num_cpus' undeclared (first use in this function)
+
+
+Do I make something wrong? I replaced smp_num_cpus with 0
+since this seemed to make sense to me as I have a single
+processor machine. The compile continued but aborted with
+another error...
+
+
 -- 
-"Phase plasma rifle in a forty-watt range?"
-"Only what you see on the shelves, buddy."
-
+Philipp Boerker   -   Mixed-signals ICs Design Engineer
+Infineon Technologies AG, COM ANS, MchB/KU II, R.910906
+Rosenheimer Str. 116                     81669 Muenchen
+phone: +49 89 234 54 725         fax: +49 89 234 85 664

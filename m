@@ -1,29 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261777AbTKYAY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 19:24:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbTKYAY2
+	id S261831AbTKYAdc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 19:33:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbTKYAdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 19:24:28 -0500
-Received: from [202.181.197.10] ([202.181.197.10]:59406 "EHLO
-	gandalf.gnupilgrims.org") by vger.kernel.org with ESMTP
-	id S261777AbTKYAYY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 19:24:24 -0500
-Date: Tue, 25 Nov 2003 08:16:09 +0800
+	Mon, 24 Nov 2003 19:33:32 -0500
+Received: from bolt.sonic.net ([208.201.242.18]:42441 "EHLO bolt.sonic.net")
+	by vger.kernel.org with ESMTP id S261831AbTKYAda (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 19:33:30 -0500
+Date: Mon, 24 Nov 2003 16:26:28 -0800
+From: David Hinds <dhinds@sonic.net>
 To: jt@hpl.hp.com
 Cc: linux-pcmcia@lists.infradead.org,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       David Hinds <dahinds@users.sourceforge.net>,
-       Pavel Roskin <proski@gnu.org>
+       David Hinds <dahinds@users.sourceforge.net>
 Subject: Re: [BUG] Ricoh Cardbus -> Can't get interrupts
-Message-ID: <20031125001609.GA10153@gandalf.chinesecodefoo.org>
+Message-ID: <20031124162628.A32213@sonic.net>
 References: <20031124235727.GA2467@bougret.hpl.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20031124235727.GA2467@bougret.hpl.hp.com>
-User-Agent: Mutt/1.3.28i
-From: glee@gnupilgrims.org
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -37,13 +36,10 @@ On Mon, Nov 24, 2003 at 03:57:27PM -0800, Jean Tourrilhes wrote:
 > quick look in yenta_socket failed to show any module options, which
 > seems odd.
 > 	What is the correct way to workaround this stuff ?
-> 
 
+Does this system do ACPI?  Do you have that configured in your kernel?
 
-I have one of these cards.  In 2.4.x I used pci=biosirq to get around
-it. (BTW, this will oops with a 2.2 kernel, just for the record).
+The yenta module doesn't have any options for overriding interrupt
+settings.  It relies on the PCI subsystem has to do the right thing.
 
-	- g.
-
--- 
-geoff.
+-- Dave

@@ -1,70 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282702AbRLFUFa>; Thu, 6 Dec 2001 15:05:30 -0500
+	id <S283924AbRLFUKV>; Thu, 6 Dec 2001 15:10:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284178AbRLFUFQ>; Thu, 6 Dec 2001 15:05:16 -0500
-Received: from auucp0.ams.ops.eu.uu.net ([195.129.70.39]:24202 "EHLO
-	auucp0.ams.ops.eu.uu.net") by vger.kernel.org with ESMTP
-	id <S283924AbRLFUE2>; Thu, 6 Dec 2001 15:04:28 -0500
-Date: Thu, 6 Dec 2001 21:01:59 +0100 (CET)
-From: kees <kees@schoen.nl>
-To: <linux-kernel@vger.kernel.org>
-Subject: Q: device(file) permissions for USB
-Message-ID: <Pine.LNX.4.33.0112062055210.13843-200000@schoen3.schoen.nl>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463801846-915869288-1007668919=:13843"
+	id <S284164AbRLFUKL>; Thu, 6 Dec 2001 15:10:11 -0500
+Received: from bitmover.com ([192.132.92.2]:64642 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S283924AbRLFUKF>;
+	Thu, 6 Dec 2001 15:10:05 -0500
+Date: Thu, 6 Dec 2001 12:10:04 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
+        davidel@xmailserver.org, rusty@rustcorp.com.au,
+        Martin.Bligh@us.ibm.com, riel@conectiva.com.br, lars.spam@nocrew.org,
+        alan@lxorguk.ukuu.org.uk, hps@intermeta.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: SMP/cc Cluster description
+Message-ID: <20011206121004.F27589@work.bitmover.com>
+Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
+	Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
+	davidel@xmailserver.org, rusty@rustcorp.com.au,
+	Martin.Bligh@us.ibm.com, riel@conectiva.com.br,
+	lars.spam@nocrew.org, alan@lxorguk.ukuu.org.uk, hps@intermeta.de,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011206135224.12c4b123.rusty@rustcorp.com.au> <E16C4PM-0000qu-00@starship.berlin> <20011206115338.E27589@work.bitmover.com> <E16C4r8-0000r0-00@starship.berlin>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E16C4r8-0000r0-00@starship.berlin>; from phillips@bonn-fries.net on Thu, Dec 06, 2001 at 09:10:51PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Thu, Dec 06, 2001 at 09:10:51PM +0100, Daniel Phillips wrote:
+> On December 6, 2001 08:53 pm, Larry McVoy wrote:
+> > On Thu, Dec 06, 2001 at 08:42:05PM +0100, Daniel Phillips wrote:
+> > > On December 6, 2001 09:02 am, Larry McVoy wrote:
+> > > > On Wed, Dec 05, 2001 at 11:56:17PM -0800, David S. Miller wrote:
+> > > > > These lockless algorithms, instructions like CAS, DCAS, "infinite
+> > > > > consensus number", it's all crap.  You have to seperate out the access
+> > > > > areas amongst different cpus so they don't collide, and none of these
+> > > > > mechanisms do that.
+> > > > 
+> > > > Err, Dave, that's *exactly* the point of the ccCluster stuff.  You get
+> > > > all that seperation for every data structure for free.  Think about
+> > > > it a bit.  Aren't you going to feel a little bit stupid if you do all
+> > > > this work, one object at a time, and someone can come along and do the
+> > > > whole OS in one swoop?  Yeah, I'm spouting crap, it isn't that easy,
+> > > > but it is much easier than the route you are taking.  
+> > > 
+> > > What I don't get after looking at your material, is how you intend to do the 
+> > > locking.  Sharing a mmap across OS instances is fine, but how do processes on 
+> > > the two different OS's avoid stepping on each other when they access the same 
+> > > file?
+> > 
+> > Exactly the same way they would if they were two processes on a traditional
+> > SMP OS.
+> 
+> They'd use locks internal to the VFS and fs, plus Posix-style locks and
+> assorted other userland serializers, which don't come for free.  As davem 
+> said, you'll have to present a coherent namespace, that's just one of the 
+> annoying details.  So far you haven't said much about how such things are 
+> going to be handled.
 
----1463801846-915869288-1007668919=:13843
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-
-Hi,
-
-I have been playing with an USB camera. I've run into the following
-problem:
-The (default?) permissions for /proc/bus/usb/001/011 (and others) are
-0644. This makes the ioctl (see attached trace to fail). So I have to:
-either chmod the usb device file each time I unplug and replug the camera
-OR make the pencam program SUID root, which is neither comfortable.
-Is there a way to affect the default permissions for the USB devices?
-
-regards
-Kees
-
----1463801846-915869288-1007668919=:13843
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=TRACE_1
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0112062101590.13843@schoen3.schoen.nl>
-Content-Description: 
-Content-Disposition: attachment; filename=TRACE_1
-
-b3BlbigiL3Byb2MvYnVzL3VzYi8wMDIvMDAxIiwgT19SRE9OTFkpID0gNQ0K
-cmVhZCg1LCAiXDIyXDFcMFwxXHRcMFwwXDEwXDBcMFwwXDBcMFwwXDBcMlwx
-XDEiLCAxOCkgPSAxOA0KY2xvc2UoNSkgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgID0gMA0KaXBjX3N1YmNhbGwoMHg0LCAweDgwNGU1NjgsIDB4
-NDAwLCAwKSAgID0gMA0KY2xvc2UoNCkgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgID0gMA0Kb3BlbigiL3Byb2MvYnVzL3VzYi8wMDEvMDExIiwg
-T19SRFdSKSAgID0gLTEgRUFDQ0VTIChQZXJtaXNzaW9uIGRlbmllZCkNCm9w
-ZW4oIi9wcm9jL2J1cy91c2IvMDAxLzAxMSIsIE9fUkRPTkxZKSA9IDQNCmlv
-Y3RsKDQsIDB4ODAwNDU1MDUsIDB4YmZmZmVhZjgpICAgICAgICA9IC0xIEVQ
-RVJNIChPcGVyYXRpb24gbm90IHBlcm1pdHRlZCkNCmZzdGF0NjQoMSwge3N0
-X21vZGU9U19JRkNIUnwwNjIwLCBzdF9yZGV2PW1ha2VkZXYoMTM2LCA3KSwg
-Li4ufSkgPSAwDQpvbGRfbW1hcChOVUxMLCA0MDk2LCBQUk9UX1JFQUR8UFJP
-VF9XUklURSwgTUFQX1BSSVZBVEV8TUFQX0FOT05ZTU9VUywgLTEsIDApID0g
-MHg0MDAxNzAwMA0KaW9jdGwoMSwgVENHRVRTLCB7Qjk2MDAgb3Bvc3QgaXNp
-ZyBpY2Fub24gZWNobyAuLi59KSA9IDANCndyaXRlKDEsICJwZW5jYW1fc2V0
-X2NvbmZpZ3VyYXRpb24gZXJyb3JcbiIsIDMxKSA9IDMxDQppb2N0bCg0LCAw
-eGMwMTA1NTAwLCAweGJmZmZlYWFjKSAgICAgICAgPSAtMSBFUEVSTSAoT3Bl
-cmF0aW9uIG5vdCBwZXJtaXR0ZWQpDQppb2N0bCg0LCAweGMwMTA1NTAwLCAw
-eGJmZmZlYWFjKSAgICAgICAgPSAtMSBFUEVSTSAoT3BlcmF0aW9uIG5vdCBw
-ZXJtaXR0ZWQpDQp3cml0ZSgxLCAiTGFzdCBlcnJvcjogMjU1LCAgY29tbWFu
-ZCA9IDB4ZmYiLi4uLCAzMykgPSAzMw0Kd3JpdGUoMSwgIkNhbWVyYSBwaW5n
-IGZhaWxlZCEhIENoZWNrIGNvbm5lIi4uLiwgNTQpID0gNTQNCndyaXRlKDEs
-ICJFcnJvciBpbml0aWFsaXppbmcgY2FtZXJhISFcbiIsIDI4KSA9IDI4DQpj
-bG9zZSg0KSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPSAwDQo=
----1463801846-915869288-1007668919=:13843--
+Huh?  Of course not, they'd use mutexes in a mmap-ed file, which uses
+the hardware's coherency.  No locks in the vfs or fs, that's all done
+in the mmap/page fault path for sure, but once the data is mapped you
+aren't dealing with the file system at all.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

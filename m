@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132117AbRAIXEr>; Tue, 9 Jan 2001 18:04:47 -0500
+	id <S130018AbRAIXIS>; Tue, 9 Jan 2001 18:08:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129859AbRAIXEh>; Tue, 9 Jan 2001 18:04:37 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:5051 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S132117AbRAIXD7>;
-	Tue, 9 Jan 2001 18:03:59 -0500
-Date: Wed, 10 Jan 2001 00:03:13 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200101092303.AAA149310.aeb@texel.cwi.nl>
-To: mchouque@e-steel.com, viro@math.psu.edu
-Subject: Re: Floppy disk strange behavior
+	id <S129835AbRAIXIJ>; Tue, 9 Jan 2001 18:08:09 -0500
+Received: from kleopatra.acc.umu.se ([130.239.18.150]:6336 "EHLO
+	kleopatra.acc.umu.se") by vger.kernel.org with ESMTP
+	id <S129431AbRAIXHy>; Tue, 9 Jan 2001 18:07:54 -0500
+Date: Wed, 10 Jan 2001 00:07:51 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Ivan Passos <lists@cyclades.com>
 Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Announcement] linux-kernel v2.0.39
+Message-ID: <20010110000751.F18733@khan.acc.umu.se>
+In-Reply-To: <20010109234804.E18733@khan.acc.umu.se> <Pine.LNX.4.10.10101091500120.17710-100000@main.cyclades.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <Pine.LNX.4.10.10101091500120.17710-100000@main.cyclades.com>; from lists@cyclades.com on Tue, Jan 09, 2001 at 03:01:07PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> dd: advancing past 1 blocks in output file `/dev/fd0': Permission denied
+On Tue, Jan 09, 2001 at 03:01:07PM -0800, Ivan Passos wrote:
+> 
+> On Tue, 9 Jan 2001, David Weinehall wrote:
+> 
+> > Everyone laughs, I guess. The 2.0.39final didn't became the final
+> > release (could've told you so...) The good thing? Well, some bugs were
+> > found and removed. But this is it. Enjoy!
+> 
+> <snip>
+> 
+> Well, where is it?? :)
+> 
+> I tried ftp.us.kernel.org, but couldn't find it. Maybe it hasn't
+> propagated thru the mirrors yet ...
 
-> dd bug. It tries to ftruncate() the output file and gets all upset when
-> kernel refuses to truncate a block device (surprise, surprise).
+Well, some mirrors have it already, at least, but not all. Give it some
+time... If you could survive without it for 17 months (or so),
+you can survive another day.
 
-Yes. But EPERM means that something is wrong with privileges.
-One would expect EINVAL or so when something is wrong with the
-way the routine was called.
 
-Let me find my docs :-)
-
-===== austin - d5 ============================================
-...
-If fildes refers to a regular file, the ftruncate( ) function shall cause
-the size of the file to be truncated to length. If the size of the file
-previously exceeded length, the extra data shall no longer be available
-to reads on the file. If the file previously was smaller than this size,
-ftruncate( ) shall either increase the size of the file or fail.
-XSI-conformant systems shall increase the size of the file.
-If the file size is increased, the extended area shall appear as if it
-were zero-filled. The value of the seek pointer shall not be modified
-by a call to ftruncate( ).
-...
-If fildes refers to a directory, ftruncate( ) shall fail.
-...
-If fildes refers to any other file type, except a shared memory object,
-the result is unspecified.
-=============================================================
-
-No info on errors here.
-
-===== Digital Unix man ======================================
-...
-The path parameter must point to a pathname which names
-a regular file for which the calling process has write permission.
-...
-[EINVAL] The file is not a regular file
-=============================================================
-
-So, as was to be expected, other systems use EINVAL in this
-situation, and so should we.
-
-Andries
+/David
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

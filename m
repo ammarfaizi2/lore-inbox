@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283627AbRK3Ll5>; Fri, 30 Nov 2001 06:41:57 -0500
+	id <S283628AbRK3Lo5>; Fri, 30 Nov 2001 06:44:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283625AbRK3Llt>; Fri, 30 Nov 2001 06:41:49 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26383 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S283624AbRK3Llg>; Fri, 30 Nov 2001 06:41:36 -0500
-Subject: Re: kapm-idled no longer idling CPU?
-To: dglidden@illusionary.com (Derek Glidden)
-Date: Fri, 30 Nov 2001 11:50:08 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C06855F.22AD79C4@illusionary.com> from "Derek Glidden" at Nov 29, 2001 01:58:39 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E169mBE-0003Fw-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S283625AbRK3Loh>; Fri, 30 Nov 2001 06:44:37 -0500
+Received: from ncc1701.cistron.net ([195.64.68.38]:59658 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S283624AbRK3Lo3>; Fri, 30 Nov 2001 06:44:29 -0500
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: XT-PIC vs IO-APIC and PCI devices
+Date: Fri, 30 Nov 2001 11:44:28 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <9u7res$3iq$2@ncc1701.cistron.net>
+In-Reply-To: <Pine.LNX.4.33.0111301241410.4564-100000@netfinity.realnet.co.sz>
+X-Trace: ncc1701.cistron.net 1007120668 3674 195.64.65.67 (30 Nov 2001 11:44:28 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> application that uses more than very minor system resources is running,
-> (i.e. mozilla, netscape, xemacs, apache, Tomcat, just to name a few
-> common ones I've seen this behaviour with) kapm-idled no longer receives
-> scheduling time from what I can tell and I assume that means my CPU is
-> never getting idled when nothing is scheduled.
+In article <Pine.LNX.4.33.0111301241410.4564-100000@netfinity.realnet.co.sz>,
+Zwane Mwaikambo  <zwane@linux.realnet.co.sz> wrote:
+>	I'm trying to get a PCI device (network) to work on one of my
+>boxes, and thus far i've only managed to get it to work with "noapic".
+>Without that kernel option the card stops processing interrupts (as can be
+>observed in /proc/interrupts) after about ~100 on each CPU. Are there any
+>things i should look out for when trying to track down the problem?
+>I've tried swapping the card around in different slots just in case it
+>was an IRQ routing problem (as suggested by various folks) to no avail.
+>The box is an IBM Netfinity 3500M20 SMP rig.
 
-kapm_idled will get scheduling time when there is nothing else to run, 
-whether it wants it or is using it is more of the question.
+What does cat /proc/interrupts say in APIC mode? Perhaps it thinks the
+device uses edge-triggered interrupts instead of level-triggered ?
 
-> reporting its time incorrectly since my laptop has gone from about 2-1/2
-> hours of battery life in early 2.4 versions to less than 1 hour of
-> battery life under the same conditions for recent kernels.  Plus, if I
+Mike.
+-- 
+"Only two things are infinite, the universe and human stupidity,
+ and I'm not sure about the former" -- Albert Einstein.
 
-Stick some printk calls in so you can see a count of when the thread runs
-and also see when it decides to ask the BIOS to do idling (and also what
-then occurs).
-
-I fixed one case recently where we would spin calling the bios all the time
-when instead of pausing the bios replied that it had slowed down the
-processor. That however was post 2.4.9 so I dont think its related.
-
-Alan

@@ -1,41 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266175AbTBTROP>; Thu, 20 Feb 2003 12:14:15 -0500
+	id <S266199AbTBTRPd>; Thu, 20 Feb 2003 12:15:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266135AbTBTRNw>; Thu, 20 Feb 2003 12:13:52 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:10124 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S265402AbTBTRNp>;
-	Thu, 20 Feb 2003 12:13:45 -0500
-Date: Thu, 20 Feb 2003 18:23:28 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, Alex Larsson <alexl@redhat.com>,
-       <procps-list@redhat.com>, Alexander Viro <viro@math.psu.edu>
+	id <S266186AbTBTROY>; Thu, 20 Feb 2003 12:14:24 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60426 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265402AbTBTRNz>; Thu, 20 Feb 2003 12:13:55 -0500
+Date: Thu, 20 Feb 2003 09:20:38 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org, Alex Larsson <alexl@redhat.com>,
+       <procps-list@redhat.com>
 Subject: Re: [patch] procfs/procps threading performance speedup, 2.5.62
-In-Reply-To: <Pine.LNX.4.44.0302201810160.32017-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0302201818060.32324-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0302200902260.2493-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0302200918300.2493-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-eg. with 16,000 threads in /proc, "ls /proc" is still fast:
+On Thu, 20 Feb 2003, Linus Torvalds wrote:
+> 
+> It would just be _so_ much nicer if the threads would show up as 
+> subdirectories ie /proc/<tgid>/<tid>/xxx. More scalable, more readable, 
+> and just generally more sane.
 
-     real:0m0.032s   user:0m0.007s   sys:0m0.024s
+It shouldn't even be all that much harder. You only really need to add the 
+"lookup()" and "readdir()" logic to the pid-fd's, and they both should be 
+fairly straightforward, ie something like the appended should do the 
+lookup() part.
 
-without those threads, it's:
+(UNTESTED! NOT COMPILED! PROBABLY HORRIBLY BUGGY! CAVEAT USER! CONCEPTUAL 
+CODE ONLY! YOU GET THE IDEA! I'M GETTING HOARSE FROM ALL THE SHOUTING!)
 
-     real:0m0.014s user:0m0.004s sys:0m0.010s
+		Linus
 
-15 msecs difference. Even simple 'ls' reads the full /proc directory (all
-16K+ entries). So performance-wise there's not a big difference.
-
-architecture-wise there is a difference, and i'd be the last one arguing
-against a tree-based approach to thread groups. It's much easier to find
-threads belonging to a single 'process' via /proc this way - although no
-functionality in procps has or requires such a feature currently.
-
-	Ingo
+---
+===== base.c 1.39 vs edited =====
+--- 1.39/fs/proc/base.c	Sat Feb 15 19:30:17 2003
++++ edited/base.c	Thu Feb 20 09:18:15 2003
+@@ -964,10 +964,15 @@
+ 	struct task_struct *task = proc_task(dir);
+ 	struct pid_entry *p;
+ 	struct proc_inode *ei;
++	unsigned long tid;
+ 
+ 	error = -ENOENT;
+ 	inode = NULL;
+ 
++	tid = name_to_int(dentry);
++	if (tid != ~0U)
++		goto thread_lookup;
++                                
+ 	for (p = base_stuff; p->name; p++) {
+ 		if (p->len != dentry->d_name.len)
+ 			continue;
+@@ -1052,6 +1057,30 @@
+ 	if (!proc_task(dentry->d_inode)->pid)
+ 		d_drop(dentry);
+ 	return NULL;
++
++thread_lookup: {
++	struct task_struct *thread;
++	read_lock(&tasklist_lock);
++	thread = task;
++	while ((thread = next_thread(thread)) != task) {
++		if (thread->pid == tid)
++			goto found_thread;
++	}
++	read_unlock(&tasklist_lock);
++	return ERR_PTR(-ENOENT);
++
++found_thread:
++	get_task_struct(thread);
++	read_unlock(&tasklist_lock);
++
++	inode = proc_pid_make_inode(sb, thread, 0x800000);
++	put_task_struct(thread);
++	if (!inode)
++		ERR_PTR(-ENOENT);
++	dentry->d_op = dentry->d_parent->d_op;
++	d_add(dentry, inode);
++	return NULL;
++}
+ 
+ out:
+ 	return ERR_PTR(error);
 

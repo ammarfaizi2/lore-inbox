@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130294AbRCBDAo>; Thu, 1 Mar 2001 22:00:44 -0500
+	id <S129449AbRCBDdR>; Thu, 1 Mar 2001 22:33:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130301AbRCBDAZ>; Thu, 1 Mar 2001 22:00:25 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:14863 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130294AbRCBDAO>; Thu, 1 Mar 2001 22:00:14 -0500
+	id <S130198AbRCBDdH>; Thu, 1 Mar 2001 22:33:07 -0500
+Received: from ma-northadams1-47.nad.adelphia.net ([24.51.236.47]:4612 "EHLO
+	sparrow.net") by vger.kernel.org with ESMTP id <S129449AbRCBDdD>;
+	Thu, 1 Mar 2001 22:33:03 -0500
+Date: Thu, 1 Mar 2001 22:32:25 -0500
+From: Eric Buddington <eric@sparrow.nad.adelphia.net>
 To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [patch][rfc][rft] vm throughput 2.4.2-ac4
-Date: 1 Mar 2001 18:58:49 -0800
-Organization: Transmeta Corporation
-Message-ID: <97n299$f4l$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0103012021470.1542-100000@mikeg.weiden.de> <Pine.LNX.4.33.0103011747560.1961-100000@duckman.distro.conectiva>
+Subject: 2.4.2-ac7 doesn't boot on K6-2
+Message-ID: <20010301223225.A70@sparrow.nad.adelphia.net>
+Reply-To: ebuddington@wesleyan.edu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: ECS Labs
+X-Eric-Conspiracy: there is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33.0103011747560.1961-100000@duckman.distro.conectiva>,
-Rik van Riel  <riel@conectiva.com.br> wrote:
->
->I haven't tested it yet for a number of reasons. The most
->important one is that the FreeBSD people have been playing
->with this thing for a few years now and Matt Dillon has
->told me the result of their tests ;)
+2.4.2 worked OK, but I needed loopback also, so I tried 2.4.2-ac7.
+I get the "uncompressing... Booting" line, and it hangs there
+(I let it sit for 30s to be sure).
 
-Note that the Linux VM is certainly different enough that I doubt the
-comparisons are all that valid. Especially actual virtual memory mapping
-is basically from another planet altogether, and heuristics that are
-appropriate for *BSD may not really translate all that better.
+System: AMD K6-2/266, ATI Mach64, oldBusLogic SCSI card, almost
+evreything compiled as modules.
 
-I'll take numbers over talk any day.  At least Mike had numbers, and
-possible explanations for them. He also removed more code than he added,
-which is always a good sign. 
+I will try ac-8 once it shows up on the mirrors.
 
-In short, please don't argue against numbers. 
-
-		Linus
+-Eric

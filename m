@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262732AbVBCEGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262654AbVBCEJH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262732AbVBCEGN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 23:06:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262826AbVBCEGN
+	id S262654AbVBCEJH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 23:09:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbVBCEJH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 23:06:13 -0500
-Received: from waste.org ([216.27.176.166]:20187 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262732AbVBCEGF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 23:06:05 -0500
-Date: Wed, 2 Feb 2005 20:05:42 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Christophe Saout <christophe@saout.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Clemens Fruhwirth <clemens@endorphin.org>, dm-crypt@saout.de,
-       Alasdair G Kergon <agk@redhat.com>
-Subject: Re: dm-crypt crypt_status reports key?
-Message-ID: <20050203040542.GQ2493@waste.org>
-References: <20050202211916.GJ2493@waste.org> <1107394381.10497.16.camel@server.cs.pocnet.net> <20050203015236.GO2493@waste.org> <1107398069.11826.16.camel@server.cs.pocnet.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1107398069.11826.16.camel@server.cs.pocnet.net>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 2 Feb 2005 23:09:07 -0500
+Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:29644 "EHLO
+	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S262958AbVBCEIf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 23:08:35 -0500
+Message-ID: <4201A3B4.2040605@austin.rr.com>
+Date: Wed, 02 Feb 2005 22:08:20 -0600
+From: "Jonathan A. George" <jageorge@austin.rr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Please open sysfs symbols to proprietary modules
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 03, 2005 at 03:34:29AM +0100, Christophe Saout wrote:
-> The keyring API seems very flexible. You can define your own type of
-> keys and give them names. Well, the name is probably irrelevant here and
-> should be chosen randomly but it's less likely to collide with someone
-> else.
- 
-Dunno here, seems that having one tool that gave the kernel a key named
-"foo" and then telling dm-crypt to use key "foo" is probably not a bad
-way to go. Then we don't have stuff like "echo <key> | dmsetup create"
-and the like and the key-handling smarts can all be put in one
-separate place.
+As an observation:
 
-Getting from here to there might be interesting though. Perhaps we can
-teach dm-crypt to understand keys of the form "keyname:<foo>"? in
-addition to raw keys to keep compatibility. Might even be possible to
-push this down into crypt_decode_key() (or a smarter variant of same).
+The Linux kernel appears to contain the GPL copyright notice.  This 
+appears to explicitly releases the right to alter anything in a copy 
+written work which shares that copyright notice.  Therefore,  all 
+exported symbols would appear to carry equal weight; thus making the 
+GPL_ prefix a notation of dubious value.   Furthermore, it seems as if 
+that the copyright might allow changing the GPL_ prefix notation to 
+anything including BSD_HOOK_FOR_PORTING_DRIVERS_TO_THE_LINUX_KERNEL_ 
+instead.
 
-Meanwhile, I'd still like to hide the raw key in crypt_status().
+It would seem just as surprising if the U.S. courts were to stop 
+considering history of enforcement in copyright law as it would if they 
+were to start considering in cases of patent law.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+(I would love to see the opinion of an IP lawyer who has conclusively 
+tested these aspects of copyright law in court.)
+
+--------------------
+
+A paranoid approach it to develop your driver targeted at FreeBSD, and 
+then develop a glue layer abstraction for porting to other OS's.  Then 
+you simply might GPL your glue layer code as a module using any symbols 
+you want for your GPL copy written code per the observations earlier in 
+this email.
+
+In this way you will have created a work with no intrinsic dependencies 
+on the Linux kernel which avoids presenting your work as an obvious 
+target for those who prefer to spend their time looking for targets. :-)
+
+--------------------
+
+P.S. Sorry about breaking mailer threading. :-(

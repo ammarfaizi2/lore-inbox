@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314277AbSEPQr3>; Thu, 16 May 2002 12:47:29 -0400
+	id <S314340AbSEPQsy>; Thu, 16 May 2002 12:48:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314340AbSEPQr2>; Thu, 16 May 2002 12:47:28 -0400
-Received: from [63.116.180.23] ([63.116.180.23]:4356 "EHLO
-	EXCHANGE.telegea.com") by vger.kernel.org with ESMTP
-	id <S314277AbSEPQr1>; Thu, 16 May 2002 12:47:27 -0400
-Message-ID: <3CE3E28F.B73D0CDE@telegea.com>
-Date: Thu, 16 May 2002 12:47:11 -0400
-From: Srinivasa Rao Katta <skatta@telegea.com>
-Organization: Telegea
+	id <S314442AbSEPQsx>; Thu, 16 May 2002 12:48:53 -0400
+Received: from penguin-ext.wise.edt.ericsson.se ([193.180.251.47]:36065 "EHLO
+	penguin.wise.edt.ericsson.se") by vger.kernel.org with ESMTP
+	id <S314340AbSEPQsw>; Thu, 16 May 2002 12:48:52 -0400
+Message-ID: <3CE3E2EF.DAEB126@uab.ericsson.se>
+Date: Thu, 16 May 2002 18:48:47 +0200
+From: Sverker Wiberg <Sverker.Wiberg@uab.ericsson.se>
 X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Hi
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: knfsd misses occasional writes
+In-Reply-To: <3CE250A5.47F71DF@uab.ericsson.se>
+		<15586.20989.992591.474108@notabene.cse.unsw.edu.au>
+		<3CE38E9D.986ACF7F@uab.ericsson.se> <15587.39544.81694.975593@notabene.cse.unsw.edu.au>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Neil Brown wrote:
+> 
+> On Thursday May 16, Sverker.Wiberg@uab.ericsson.se wrote:
 
-How are you ?.
+[on soft mount timeouts]
+> > But shouldn't those timeouts become errors over at the clients?
+> 
+> Yes... but "write" won't see an error.  Only 'fsync' or maybe 'close',
+> and many applications ignore errors from these operations.
 
-I have installed Redhat-7.2 on the Dell server.
+How come? Isn't the client side innately synchronous (as RPC clients in
+general)?
+Or is this one of thost thing that are now done differently?
 
-It was running fine.
-
-I am trying to set my nic card to 100MB full-duplex.
-
-But,It was not succeeded.
-
-Here is the my nic card info.
-
-3Com Corporation 3c905C-TX [Fast Etherlink]
-
-Here is my /etc/modules.conf info.
-------------------------------------
-# cat /etc/modules.conf
-alias parport_lowlevel parport_pc
-alias eth0 3c59x
-alias scsi_hostadapter aic7xxx
-alias sound-slot-0 i810_audio
-post-install sound-slot-0 /bin/aumix-minimal -f /etc/.aumixrc -L
->/dev/null 2>&1 || :
-pre-remove sound-slot-0 /bin/aumix-minimal -f /etc/.aumixrc -S
->/dev/null 2>&1 || :
-alias usb-controller usb-uhci
---------------------------------------
-
-Please advice me,How can I set my nic card for 100mb fullduplex.
-
-
-Thanks,
-Srinivas.
-
-
-
+/Sverker

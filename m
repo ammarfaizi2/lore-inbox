@@ -1,94 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbTLHWMG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 17:12:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTLHWMG
+	id S261863AbTLHW1u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 17:27:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTLHW1u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 17:12:06 -0500
-Received: from uucp.cistron.nl ([62.216.30.38]:41659 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S261827AbTLHWMA (ORCPT
+	Mon, 8 Dec 2003 17:27:50 -0500
+Received: from ns.int.pl ([212.106.140.230]:14604 "EHLO novacom.pl")
+	by vger.kernel.org with ESMTP id S261863AbTLHW1s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 17:12:00 -0500
-From: age <ahuisman@cistron.nl>
-Subject: Re: [patch] sched-HT-2.6.0-test11-A5
-Date: Mon, 08 Dec 2003 23:20:24 +0100
-Organization: Cistron
-Message-ID: <br2svf$usb$1@news.cistron.nl>
-References: <20031117021511.GA5682@averell> <Pine.LNX.4.56.0311231300290.16152@earth> <1027750000.1069604762@[10.10.2.4]> <Pine.LNX.4.58.0312011102540.3323@earth> <20031208175622.GY19856@holomorphy.com> <Pine.LNX.4.58.0312081859100.8707@earth>
+	Mon, 8 Dec 2003 17:27:48 -0500
+Date: Mon, 8 Dec 2003 23:28:42 +0100
+From: Rafal Skoczylas <nils@secprog.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.test11 bug
+Message-ID: <20031208222842.GA27131@secprog.org>
+Reply-To: Rafal Skoczylas <nils@secprog.org>
+References: <10kzo-7mZ-11@gated-at.bofh.it> <10m88-2wd-1@gated-at.bofh.it> <10xdJ-28r-23@gated-at.bofh.it> <10xdJ-28r-25@gated-at.bofh.it> <10xdJ-28r-21@gated-at.bofh.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: ncc1701.cistron.net 1070921519 31627 62.216.17.166 (8 Dec 2003 22:11:59 GMT)
-X-Complaints-To: abuse@cistron.nl
-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+In-Reply-To: <10xdJ-28r-21@gated-at.bofh.it>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+On 2003-12-08 17:20 Linus Torvalds wrote:
+> On Mon, 8 Dec 2003, Linus Torvalds wrote:
+>> They all look to be (except for the odd last "bad page state" one, which
+>> is likely just a result of some _other_ earlier corruption) due to the
+>> high bit being cleared. And it's consistent across reboots too, so it's
+>> not just some corruption that stayed around in memory.
 
-> 
-> On Mon, 8 Dec 2003, William Lee Irwin III wrote:
-> 
->> This appears to either leak migration threads or not set
->> rq->cpu[x].migration_thread basically ever for x > 0. Or if they are
->> shut down, how? Also, what makes sure cpu_idx is initialized before they
->> wake? They'll all spin on cpu_rq(0)->lock, no?
-> 
-> yep, it just leaks migration threads. Not a big problem right now, but for
-> hotplug CPU support this needs to be fixed.
-> 
->> Furthermore, sched_map_runqueue() is performed after all the idle
->> threads are running and all the notifiers have kicked the migration
->> threads, but does no locking whatsoever.
-> 
-> yep - at this point nothing else is really supposed to run but you are
-> right it must be locked properly.
-> 
->> Also, does init_idle() need to move into rest_init()? It should be
->> equivalent to its current placement.
-> 
-> this is a leftover of a change that went into 2.6 already. I've removed
-> this change.
-> 
->> Why not per_cpu for __rq_idx[] and __cpu_idx[]? This would have the
->> advantage of residing on node-local memory for sane architectures (and
->> perhaps in the future, some insane ones).
-> 
-> agreed, i've changed them to be per-cpu.
-> 
-> new patch with all your suggestions included is at:
-> 
->   redhat.com/~mingo/O(1)-scheduler/sched-SMT-2.6.0-test11-C1
-> 
-> it also includes the bounce-to-cpu1 fix from/for Anton.
-> 
-> Ingo
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I have already stuffed kernel source with debugging printk's, etc.,
+so hopefully we could more precisely say where the problem is. Anyway
+it will probably take quite a long to determine because (as I previously
+said in our "private" e-mail exchange) it takes long hours to crash.
+(eg. today mlnetd was killed twice but no system crash yet)
+Now, I am starting mlnet in a 'while [ 1 ]; do mlnet; done;' loop just
+in case it gets killed and let's see what will happen during the night.
 
+>> And every time it's "mlnetd" - which may just be a coincidence (possibly
+>> brought on by that being the most commonly run thing on your box), but it
+>> certainly looks like it could also be an indication of the source of the
+>> corruption.
 
-Hi Mingo
+Well, most of the time I use only X11+ctwm+aterm+vim+gcc (and sometimes
+mozilla or xpdf) so the fact is that mlnetd is the best candidate for
+such things since it is the only one on my box which uses resources so
+intensively (a few hundrets open sockets constantly being opened and
+closed, ram usage ~10% of 512MB, cpu usage ~20% of D1200, etc.).
 
-The same trouble:
+>> I'll have to think about this, but quite frankly I'm also hoping to see
+>> more of a pattern about what this is all about. Can you keep your oopses
+>> up somewhere? Maybe opening a bug on bugme.osdl.org? Even though I don't
+>> use bugme personally, it's good to keep the record around when we don't
+>> immediately see the reason for something..
 
-kernel/built-in.o(.text+0x34f): In function `try_to_wake_up':
-: undefined reference to `wake_up_cpu'
-kernel/built-in.o(.text+0x4ad): In function `wake_up_forked_process':
-: undefined reference to `set_task_cpu'
-kernel/built-in.o(.text+0xea1): In function `schedule':
-: undefined reference to `set_task_cpu'
-kernel/built-in.o(.text+0x1203): In function `schedule':
-: undefined reference to `active_load_balance'
-kernel/built-in.o(.init.text+0xaa): In function `init_idle':
-: undefined reference to `set_task_cpu'
-kernel/built-in.o(.init.text+0x1d6): In function `sched_init':
-: undefined reference to `set_task_cpu'
-make: *** [.tmp_vmlinux1] Error 1
+Sure, I will keep all the oopses. For now I'm gonna collect them on
+my webpage in http://secprog.org/who/rs/linux/ (I will report when there
+is something new so there is no need to poll() ;>). And then if you are
+interested in registering them in bugme, will do it.
 
-groetjes,
+Btw. Linus, there is no need CC'ing messages to my e-mail. I will follow
+this thread on lkml.
 
-Age Huisman
-
+nils.
+-- 
+"Blessed is the man, who having nothing to say, abstains from giving wordy
+evidence of the fact."  -- http://secprog.org/who/rs/quote.php?id=1

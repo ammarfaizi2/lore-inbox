@@ -1,84 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270597AbTGTC0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 22:26:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270600AbTGTC0Z
+	id S270604AbTGTChO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 22:37:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270606AbTGTChN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 22:26:25 -0400
-Received: from adsl-67-124-157-42.dsl.pltn13.pacbell.net ([67.124.157.42]:2016
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S270597AbTGTC0D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 22:26:03 -0400
-Date: Sat, 19 Jul 2003 19:41:02 -0700
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test1-mm2
-Message-ID: <20030720024102.GA18576@triplehelix.org>
-References: <20030719174350.7dd8ad59.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3uo+9/B/ebqu+fSQ"
-Content-Disposition: inline
-In-Reply-To: <20030719174350.7dd8ad59.akpm@osdl.org>
-User-Agent: Mutt/1.5.4i
-From: Joshua Kwan <joshk@triplehelix.org>
+	Sat, 19 Jul 2003 22:37:13 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65227 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S270604AbTGTChF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 22:37:05 -0400
+Message-ID: <3F1A03C5.8010705@pobox.com>
+Date: Sat, 19 Jul 2003 22:51:49 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "James H. Cloos Jr." <cloos@jhcloos.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: libata driver update posted
+References: <m3ispyx79n.fsf@lugabout.jhcloos.org>
+In-Reply-To: <m3ispyx79n.fsf@lugabout.jhcloos.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+James H. Cloos Jr. wrote:
+> 00:1f.1 Class 0101: 8086:244a (rev 03)
+>         Subsystem: 8086:4541
+>         Flags: bus master, medium devsel, latency 0
+>         I/O ports at bfa0 [size=16]
+[...]
+> root=/dev/sda3 failed to find the root fs.
+[...]
+> Is my controller among the supported PIIX/ICH PATA chipsets?
 
---3uo+9/B/ebqu+fSQ
-Content-Type: multipart/mixed; boundary="BOKacYhQ+x31HxR3"
-Content-Disposition: inline
+
+Yes, all you need to do is add another PCI id for your chipset to 
+drivers/scsi/ata_piix.c:
+
++ { 0x8086, 0x244a, PCI_ANY_ID, PCI_ANY_ID, 0, 0, piix4_pata },
+
+Once I add cable detection (PATA is currently limited to UDMA/33), this 
+PCI ID entry will change slightly, but the above should get you going.
+
+Note again that ATAPI isn't supported yet...
+
+	Jeff
 
 
---BOKacYhQ+x31HxR3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sat, Jul 19, 2003 at 05:43:50PM -0700, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test1=
-/2.6.0-test1-mm2/
-
-2.6.0-test1-mm2 requires attached patch to build with software suspend.
-
--Josh
-
---=20
-Using words to describe magic is like using a screwdriver to cut roast beef.
-		-- Tom Robbins
-
---BOKacYhQ+x31HxR3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="suspend.patch"
-Content-Transfer-Encoding: quoted-printable
-
---- a/kernel/suspend.c	2003-07-19 19:36:25.000000000 -0700
-+++ b/kernel/suspend.c	2003-07-19 19:37:40.000000000 -0700
-@@ -83,7 +83,7 @@
- #define ADDRESS2(x) __ADDRESS(__pa(x))		/* Needed for x86-64 where some pa=
-ges are in memory twice */
-=20
- /* References to section boundaries */
--extern char _text, _etext, _edata, __bss_start, _end;
-+extern char _text[], _etext[], _edata[], __bss_start[], _end[];
- extern char __nosave_begin, __nosave_end;
-=20
- extern int is_head_of_free_region(struct page *);
-
---BOKacYhQ+x31HxR3--
-
---3uo+9/B/ebqu+fSQ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/GgE+T2bz5yevw+4RAoZIAJ995ICH+8mkX0IGoQVAZpuq2nyJlgCeOwJZ
-v5j9TUrWxrkHeCAsxp5drAI=
-=F0QZ
------END PGP SIGNATURE-----
-
---3uo+9/B/ebqu+fSQ--

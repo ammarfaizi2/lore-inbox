@@ -1,70 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289374AbSAKDcq>; Thu, 10 Jan 2002 22:32:46 -0500
+	id <S289466AbSAKDj3>; Thu, 10 Jan 2002 22:39:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289111AbSAKDcg>; Thu, 10 Jan 2002 22:32:36 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:40876
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S289374AbSAKDc3>; Thu, 10 Jan 2002 22:32:29 -0500
-Date: Thu, 10 Jan 2002 20:32:12 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Torrey Hoffman <torrey.hoffman@myrio.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-        felix-dietlibc@fefe.de, andersen@codepoet.org
-Subject: Re: [RFC] klibc requirements, round 2
-Message-ID: <20020111033212.GI13931@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CB2C@mail0.myrio.com>
+	id <S289470AbSAKDjQ>; Thu, 10 Jan 2002 22:39:16 -0500
+Received: from zero.tech9.net ([209.61.188.187]:30477 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S289466AbSAKDjF>;
+	Thu, 10 Jan 2002 22:39:05 -0500
+Subject: Re: [patch] O(1) scheduler, -H4 - 2.4.17 problems
+From: Robert Love <rml@tech9.net>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Ed Tomlinson <tomlins@cam.org>, Ingo Molnar <mingo@elte.hu>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.40.0201101910260.1493-100000@blue1.dev.mcafeelabs.com>
+In-Reply-To: <Pine.LNX.4.40.0201101910260.1493-100000@blue1.dev.mcafeelabs.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
+Date: 10 Jan 2002 22:41:36 -0500
+Message-Id: <1010720496.814.2.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CB2C@mail0.myrio.com>
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 10, 2002 at 05:50:52PM -0800, Torrey Hoffman wrote:
-> Tom Rini wrote:
-> > On Thu, Jan 10, 2002 at 03:18:49PM -0800, Greg KH wrote:
-> ... 
-> > > 	- image viewer
-> > > 	- mkreiserfs
-> > 
-> > I think these are examples of misunderstanding what initramfs _can do_
-> > with what we (might) need a klibc to do.  
-> ...
-> > These programs _might_ compile with a klibc, but I wouldn't 
-> > worry about
-> > it.  uClibc is what should be used for many of these custom 
-> > applications
-> 
-> Well, as the person who first mentioned mkreiserfs and the like,
-> I agree with you.  For the majority of systems out there which 
-> aren't using initrd now, a minimal klibc for an unmodified 
-> initramfs makes sense.
+On Thu, 2002-01-10 at 22:11, Davide Libenzi wrote:
 
-Okay.
+> Move init_idle() before the first call to kernel_thread().
+> This should fix it.
 
-> My concern is with the minority who are using initrd, and in
-> some cases a very customized initrd.  
+On 2.4.17-pre3, UP, with -H5, the following patch failed to fix the
+problem -- still hardlock on "Starting kswapd".  I still suspect the
+problem is with the init_idle changes, though ...
 
-Right.  And moving that very customized initrd over to an initramfs
-should be painless, once the kinks/bugs are worked out of the yet-to-be
-created programs that exist in the kernel now.
+--- linux-2.4.18-pre3-ingo/init/main.c	Thu Jan 10 21:13:12 2002
++++ linux/init/main.c	Thu Jan 10 22:33:46 2002
+@@ -590,14 +590,14 @@
+ 	check_bugs();
+ 	printk("POSIX conformance testing by UNIFIX\n");
+ 
++	smp_init();
++	init_idle();
+ 	kernel_thread(init, NULL, CLONE_FS | CLONE_FILES | CLONE_SIGNAL);
+ 	/* 
+ 	 *	We count on the initial thread going ok 
+ 	 *	Like idlers init is an unlocked kernel thread, which will
+ 	 *	make syscalls (and thus be locked).
+ 	 */
+-	smp_init();
+-	init_idle();
+ 	unlock_kernel();
+ 	printk("All processors have done init_idle\n");
 
-> The important thing, I think, is that it should be easy for
-> less-than-guru level hackers to add programs to the initramfs,
-> even if the program they want can't be linked with klibc.
-> 
-> This really comes down to: What will the build process be for
-> these initramfs images?
+	Robert Love
 
-It's a cpio archive, occording to the draft spec hpa posted.
-
-> By the way, is initramfs intended to supercede initrd, or will 
-> they co-exist?  
-
-I _think_ co-exist.
-
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/

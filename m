@@ -1,78 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266569AbUG1HFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266789AbUG1HLu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266569AbUG1HFi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 03:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266781AbUG1HFh
+	id S266789AbUG1HLu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 03:11:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266812AbUG1HLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 03:05:37 -0400
-Received: from services.exanet.com ([212.143.73.102]:13888 "EHLO
-	services.exanet.com") by vger.kernel.org with ESMTP id S266569AbUG1HF0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 03:05:26 -0400
-Message-ID: <41075034.7080701@exanet.com>
-Date: Wed, 28 Jul 2004 10:05:24 +0300
-From: Avi Kivity <avi@exanet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031027
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Deadlock during heavy write activity to userspace NFS
- server on local NFS mount
-References: <41050300.90800@exanet.com> <20040726210229.GC21889@openzaurus.ucw.cz> <4106B992.8000703@exanet.com> <20040727203438.GB2149@elf.ucw.cz> <4106C2E8.905@exanet.com> <41070183.5000701@yahoo.com.au> <4107357C.9080108@exanet.com> <410739BD.2040203@yahoo.com.au>
-In-Reply-To: <410739BD.2040203@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Jul 2004 07:05:24.0894 (UTC) FILETIME=[414D7BE0:01C47471]
+	Wed, 28 Jul 2004 03:11:50 -0400
+Received: from ozlabs.org ([203.10.76.45]:63881 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S266789AbUG1HLq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 03:11:46 -0400
+Date: Wed, 28 Jul 2004 16:51:28 +1000
+From: David Gibson <hermes@gibson.dropbear.id.au>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Francois Romieu <romieu@fr.zoreil.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>, jt@hpl.hp.com,
+       Dan Williams <dcbw@redhat.com>, Pavel Roskin <proski@gnu.org>,
+       Orinoco Development List <orinoco-devel@lists.sourceforge.net>
+Subject: [0/15] orinoco merge preliminaries
+Message-ID: <20040728065128.GC16908@zax>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Francois Romieu <romieu@fr.zoreil.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	jt@hpl.hp.com, Dan Williams <dcbw@redhat.com>,
+	Pavel Roskin <proski@gnu.org>,
+	Orinoco Development List <orinoco-devel@lists.sourceforge.net>
+References: <20040712213349.A2540@electric-eye.fr.zoreil.com> <40F57D78.9080609@pobox.com> <20040715010137.GB3697@zax> <41068E4B.2040507@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41068E4B.2040507@pobox.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
+On Tue, Jul 27, 2004 at 01:18:03PM -0400, Jeff Garzik wrote:
+> >I've started to have a look at the patches.  Unfortunately, they're
+> >still not really as logically separated as they should be.  Which I
+> >guess means I wasn't sufficiently disciplined putting them into CVS in
+> >the first place.
+> >
+> >I've started working on my own series of logical patches, starting
+> >with, as you say the "content free" ones first.  Initial set with
+> >series file at
+> >       http://www.ozlabs.org/people/dgibson/orinoco-patches
+> >
+> >Nothing there so far that should cause any functional change.
+> 
+> 
+> Feel free to start emailing them, so I can queue them up.
+> 
+> One email per patch, please.
 
-> Avi Kivity wrote:
->
->> Nick Piggin wrote:
->>
->>>
->>> There is some need arising for a call to set the PF_MEMALLOC flag for
->>> userspace tasks, so you could probably get a patch accepted. Don't
->>> call it KSWAPD_HELPER though, maybe MEMFREE or RECLAIM or 
->>> RECLAIM_HELPER.
->>
->>
->>
->> I don't think my patch is general enough, it deals with only one 
->> level of dependencies, and doesn't work if the NFS server (or other 
->> process that kswapd depends on) depends on kswapd itself. It was 
->> intended more as an RFC than a request for inclusion.
->>
->> It's probably fine for those with the exact same problem as us.
->>
->
-> Well it isn't that you depend on kswapd, but that your task gets called
-> into via page reclaim (to facilitate page reclaim). In which case having
-> the task block in memory allocation can cause a deadlock.
+Ok, patchbombing commences.
 
-In my particular case that's true, so I only depended on kswapd as a 
-side effect of the memory allocation logic. Setting PF_MEMALLOC fixed that.
+Following are 15 patches which make a start on merging the current CVS
+orinoco driver into the mainline tree.  This batch of patches is only
+preliminaries - patches which cause no behavioural change, but which
+should be easy to review and which will reduce meaningless noise in
+the later functional patches.
 
->
-> The solution is that PF_MEMALLOC tasks are allowed to access the reserve
-> pool. Dependencies don't matter to this system. It would be your job to
-> ensure all tasks that might need to allocate memory in order to free
-> memory have the flag set.
+They all represent essentially trivial changes, and with the exception
+of the rearrange patch (which is large because it moves big chunks of
+code around) they should be obvious.  This batch of patches is
+supposed to represent all the trivial, non-behaviour-changing
+differences between orinoco CVS and mainline, though the merge is so
+large, inevitably I will have missed a few.
 
-In the general case that's not sufficient. What if the NFS server wrote 
-to ext3 via the VFS? We might have a ton of ext3 pagecache waiting for 
-kswapd to reclaim NFS memory, while kswapd is waiting on the NFS server 
-writing to ext3.
-
-The patch I posted is simple and quite sufficient for my needs, but I'm 
-sure more convoluted cases will turn up where something more complex is 
-needed. Probably one can construct such cases out of in-kernel 
-components like the loop device, dm, and the NFS client and server.
+Summary of the patches:
+	1/15 orinoco-squash-backwards-compat:
+		Removes old unnecessary backwards compatibility code
+	2/15 orinoco-rearrange:
+		Rearrange code so function order matches new versions
+	3/15 orinoco-netdev-priv:
+		Use netdev_priv() instead of direct dev->priv access
+	4/15 orinoco-ALIGN:
+		Use standard ALIGN macro instead of local versions
+	5/15 orinoco-ARRAY-SIZE:
+		Use ARRAY_SIZE macro instead of local version
+	6/15 orinoco-spam-stoppers:
+		Anti-spam obfuscate email addresses in source
+	7/15 orinoco-comments-whitespace-spelling
+		Whitespace/spelling/capitalisation updates
+	8/15 orinoco-BUG-ON:
+		Use BUG_ON() instead of explicit if () BUG() logic
+	9/15 orinoco-add-statics:
+		Make some functions static that always should have been
+	10/15 orinoco-trivial-cleanup:
+		Tiny changes than don't belong with anything else
+	11/15 orinoco-driver-name-version:
+		Reduce duplication of the driver names/version
+	12/15 orinoco-uneeded-includes:
+		Remove unnecessary #includes
+	13/15 orinoco-no-struct-typedef:
+		Don't use typedefs on simple structues
+	14/15 orinoco-more-hw-data:
+		Extra hw related #defines and structures
+	15/15 orinoco-update-authorship:
+		Update MAINTAINERS, copyright banners, etc.
 
 -- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
-
+David Gibson			| For every complex problem there is a
+david AT gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

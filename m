@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264101AbUENEt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263923AbUENEvz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264101AbUENEt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 00:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264159AbUENEt7
+	id S263923AbUENEvz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 00:51:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbUENEvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 00:49:59 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37608 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264101AbUENEtu (ORCPT
+	Fri, 14 May 2004 00:51:55 -0400
+Received: from fw.osdl.org ([65.172.181.6]:31979 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264159AbUENEvE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 00:49:50 -0400
-Date: Thu, 13 May 2004 21:49:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: [RFC/RFT] [PATCH] EXT3: Retry allocation after
- journal commit
-Message-Id: <20040513214922.24639ae3.akpm@osdl.org>
-In-Reply-To: <20040514043743.GA22593@thunk.org>
-References: <E1BOQmf-0005cP-4Q@thunk.org>
-	<20040513195310.5725fa43.akpm@osdl.org>
-	<20040514043743.GA22593@thunk.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 14 May 2004 00:51:04 -0400
+Date: Thu, 13 May 2004 21:51:02 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Valdis.Kletnieks@vt.edu
+Cc: Chris Wright <chrisw@osdl.org>, Andy Lutomirski <luto@myrealbox.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] capabilites, take 2
+Message-ID: <20040513215102.D22989@build.pdx.osdl.net>
+References: <200405131308.40477.luto@myrealbox.com> <20040513182010.L21045@build.pdx.osdl.net> <200405140135.i4E1Zp7A025139@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200405140135.i4E1Zp7A025139@turing-police.cc.vt.edu>; from Valdis.Kletnieks@vt.edu on Thu, May 13, 2004 at 09:35:51PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Theodore Ts'o" <tytso@mit.edu> wrote:
->
-> On Thu, May 13, 2004 at 07:53:10PM -0700, Andrew Morton wrote:
-> > "Theodore Ts'o" <tytso@mit.edu> wrote:
-> > >
-> > > It is possible for block allocation to fail, even if there is space in
-> > >  the filesystem, because all of the free blocks were recently deleted and
-> > >  so could not be allocated until after the currently running transaction
-> > >  is committed.   This can result in a very strange and surprising result
-> > >  where a system call such as a mkdir() will fail even though there is
-> > >  plenty of disk space apparently available.
-> > 
-> > I merged a little patch for this into post-2.6.6, but that only addresses
-> > prepare_write().
+* Valdis.Kletnieks@vt.edu (Valdis.Kletnieks@vt.edu) wrote:
+> On Thu, 13 May 2004 18:20:10 PDT, Chris Wright said:
 > 
-> Oh, sorry, I didn't see that patch.
+> > I think it still needs more work.  Default behavoiur is changed, like
+> > Inheritble is full rather than clear, setpcap is enabled, etc.  Also,
+> > why do you change from Posix the way exec() updates capabilities?  Sure,
+> > there is no filesystem bits present, so this changes the calculation,
+> > but I'm not convinced it's as secure this way.  At least with newcaps=0.
+> 
+> The last time the "capabilities" thread reared its head a while ago, Andy made
+> a posting that pretty conclusively showed that the Posix way was totally b0rken
+> if you ever intended to support filesystem bits.  So if you wanted to ever have
+> a snowball's chance of supporting something like:
+> 
+> chcap cap_net_raw+ep /bin/ping
 
-Andreas's patch is a bit sneaky: it simply sets ->h_sync on the current
-transaction then does journal_stop().  I think your patch can do the same
-thing?
+It's still not clear that's what we want.  For now, just being able to have
+the sucap equiv to sudo would be nice.  And it's very uncomfortable to
+change mainline in subtle ways that could break security during stable
+series.
 
-again:
-	handle = ext3_journal_start(...);
-
-	...
-
-	if (err == -ENOSPC && ext3_should_retry_alloc(inode, handle, &retry)) {
-		goto again;
-	} else {
-		err2 = ext3_journal_stop(handle);
-		if (!err)
-			err = err2;
-	}
-	return err;
-
-Something like that.
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

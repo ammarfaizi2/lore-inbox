@@ -1,81 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266339AbUG0ICZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266333AbUG0IH1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266339AbUG0ICZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 04:02:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266338AbUG0ICY
+	id S266333AbUG0IH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 04:07:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266335AbUG0IH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 04:02:24 -0400
-Received: from [61.11.73.30] ([61.11.73.30]:40865 "EHLO macaque.cmi.ac.in")
-	by vger.kernel.org with ESMTP id S266333AbUG0IBV (ORCPT
+	Tue, 27 Jul 2004 04:07:27 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:42380 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266333AbUG0IFL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 04:01:21 -0400
-From: Anindya Mozumdar <anindya@cmi.ac.in>
-Date: Tue, 27 Jul 2004 13:31:13 +0530
-To: Patrick Kiwitter - Mailinglist <ccc@devilcode.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [off-topic] book recomandation
-Message-ID: <20040727080113.GA10342@cmi.ac.in>
-References: <410544D1.20405@devilcode.de>
+	Tue, 27 Jul 2004 04:05:11 -0400
+Date: Tue, 27 Jul 2004 10:06:12 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rudo Thomas <rudo@matfyz.cz>
+Cc: Lee Revell <rlrevell@joe-job.com>, Jens Axboe <axboe@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Lenar L?hmus <lenar@vision.ee>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: no luck with max_sectors_kb (Re: voluntary-preempt-2.6.8-rc2-J4)
+Message-ID: <20040727080612.GA7277@elte.hu>
+References: <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <20040726100103.GA29072@elte.hu> <20040726101536.GA29408@elte.hu> <20040726204228.GA1231@ss1000.ms.mff.cuni.cz> <20040726205741.GA27527@elte.hu> <20040726225009.GA2369@ss1000.ms.mff.cuni.cz> <20040727064345.GA5594@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <410544D1.20405@devilcode.de>
-Organization: Chennai Mathematical Institute
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040727064345.GA5594@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   You can also try Robert Love's Linux Kernel Development.
-Anindya.
 
-On Mon, Jul 26, 2004 at 07:52:17PM +0200, Patrick Kiwitter - Mailinglist wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> hello world,
-> 
-> i would like to get an introduction into kernel hacking, so i would like
-> to read kernel hacking related books (ok, i could also read the source
-> directly to learn, but i like books).
-> 
-> so my question, which books are recommended by you?
-> 
-> i've got the first editon of oreillys "understandin the linux kernel"
-> and a german (i am a german guy) c coding book concerning linux system
-> programming (in c of course).
-> 
-> i've heard about the linux kernel development book from love and the
-> advanced unix programming book. what do you think about that?
-> 
-> i would be appreciated to get reply.
-> 
-> regards
-> patrick kiwitter
-> 
-> - --
-> .O.
-> ..O   http://www.catb.org/hacker-emblem/
-> OOO
-> 
-> Administrator of http://www.devilcode.de - the developers community
-> Developer for http://www.lbsdde.de - the localized BSD project
-> 
-> - -----BEGIN GEEK CODE BLOCK-----
-> Version: 3.1
-> GIT d+ dx d s--:-- a-- C+++ UL+++(U-) P+++ L+++
-> E--- W+++ N++ w--- !O++ >V >Y+ b++(+++) h!(*)
-> - ------END GEEK CODE BLOCK------
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.2.4 (GNU/Linux)
-> Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-> 
-> iD8DBQFBBUTRDHDJZHMNHXYRAlw3AKCX1PZ1EBqMLMNqM9q3V8b/ODRsdQCgn711
-> MnFK+Fzq3TXSgfZ2QbNrXdc=
-> =L5n7
-> -----END PGP SIGNATURE-----
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+* Ingo Molnar <mingo@elte.hu> wrote:
+
+> ok, dm (and some other layered block drivers) set q->max_sectors
+> directly instead of using blk_queue_max_sectors().
+
+does the patch below fix your DM problems?
+
+	Ingo
+
+--- linux/drivers/md/dm-table.c.orig	
++++ linux/drivers/md/dm-table.c	
+@@ -825,7 +825,7 @@ void dm_table_set_restrictions(struct dm
+ 	 * Make sure we obey the optimistic sub devices
+ 	 * restrictions.
+ 	 */
+-	q->max_sectors = t->limits.max_sectors;
++	blk_queue_max_sectors(q, t->limits.max_sectors);
+ 	q->max_phys_segments = t->limits.max_phys_segments;
+ 	q->max_hw_segments = t->limits.max_hw_segments;
+ 	q->hardsect_size = t->limits.hardsect_size;

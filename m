@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268190AbRGWK6K>; Mon, 23 Jul 2001 06:58:10 -0400
+	id <S268192AbRGWLFm>; Mon, 23 Jul 2001 07:05:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268187AbRGWK6A>; Mon, 23 Jul 2001 06:58:00 -0400
-Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:3506 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S268186AbRGWK5l>;
-	Mon, 23 Jul 2001 06:57:41 -0400
-Date: Mon, 23 Jul 2001 11:59:16 +0100 (BST)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Hans Reiser <reiser@namesys.com>
-cc: Ian Chilton <ian@ichilton.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: OT: Journaling FS Comparison
-In-Reply-To: <3B5C0049.31DE2ED9@namesys.com>
-Message-ID: <Pine.LNX.4.21.0107231154311.612-100000@penguin.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268191AbRGWLFW>; Mon, 23 Jul 2001 07:05:22 -0400
+Received: from juicer34.bigpond.com ([139.134.6.86]:7415 "EHLO
+	mailin9.bigpond.com") by vger.kernel.org with ESMTP
+	id <S268189AbRGWLFS>; Mon, 23 Jul 2001 07:05:18 -0400
+Message-Id: <m15Obfk-000CD5C@localhost>
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.7 softirq incorrectness. 
+In-Reply-To: Your message of "Mon, 23 Jul 2001 01:34:16 +0200."
+             <20010723013416.B23517@athlon.random> 
+Date: Mon, 23 Jul 2001 19:06:40 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, 23 Jul 2001, Hans Reiser wrote:
-> How much does vxfs cost these days?
+In message <20010723013416.B23517@athlon.random> you write:
+> On Mon, Jul 23, 2001 at 06:44:10AM +1000, Rusty Russell wrote:
+> > This current code is bogus.  Consider:
+> > 	spin_lock_irqsave(flags);	
+> > 	cpu_raise_softirq(this_cpu, NET_RX_SOFTIRQ);
+> > 	spin_unlock_irqrestore(flags);
+> 
+> What kernel are you looking at? There's no such code in 2.4.7, the only
 
-Sorry, I do not know, simply because it is not like a "pound of apples"
-which one can buy in a supermarket, i.e. there are complex things like
-"bundles" and other entities which may contain vxfs (as well as other
-VERITAS products) which one may have to buy to get it.
+Oh, so it's only a trap *waiting* to happen.  That's OK then!
 
-I retained cc:linux-kernel so that people don't think there is something
-secretive going on, but the discussion of proprietary products' pricing is
-most likely offtopic... :)
+> The first netif_rx is required to run from interrupt handler (otherwise
+> we should have executed cpu_raise_softirq and not
+> __cpu_raise_softirq)
 
-Regards,
-Tigran
+Aside: why does it do a local_irq_save() if it's always run from an
+interrupt handler?
 
+> I cannot see any problem.
 
+Why not fix all the cases?  Why have this wierd secret rule that
+cpu_raise_softirq() should not be called with irqs disabled?
+
+Call me old-fashioned, but why not *fix* the problem, if you're going
+to rewrite this code... again...
+
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK

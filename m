@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283340AbSAAS6P>; Tue, 1 Jan 2002 13:58:15 -0500
+	id <S283054AbSAATCf>; Tue, 1 Jan 2002 14:02:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283016AbSAAS6G>; Tue, 1 Jan 2002 13:58:06 -0500
-Received: from mail004.syd.optusnet.com.au ([203.2.75.228]:49040 "EHLO
-	mail004.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id <S283204AbSAAS5v>; Tue, 1 Jan 2002 13:57:51 -0500
-Date: Wed, 2 Jan 2002 05:57:35 +1100
-From: Andrew Clausen <clausen@gnu.org>
-To: linux-kernel@vger.kernel.org
-Cc: bug-parted@gnu.org, evms-devel@lists.sourceforge.net
-Subject: userspace discovery of partitions
-Message-ID: <20020102055735.C472@gnu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Accept-Language: en,pt
+	id <S283097AbSAATCZ>; Tue, 1 Jan 2002 14:02:25 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:46852 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S283054AbSAATCU>; Tue, 1 Jan 2002 14:02:20 -0500
+From: "M. Edward Borasky" <znmeb@aracnet.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Harald Holzer" <harald.holzer@eunet.at>, <linux-kernel@vger.kernel.org>
+Subject: RE: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
+Date: Tue, 1 Jan 2002 11:02:18 -0800
+Message-ID: <HBEHIIBBKKNOBLMPKCBBMEAKEFAA.znmeb@aracnet.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <E16LTvs-00016I-00@the-village.bc.nu>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+> > 2. Isn't the boundary at 2^30 really irrelevant and the three "correct"
+> > zones are (0 - 2^24-1), (2^24 - 2^32-1) and (2^32 - 2^36-1)?
+>
+> Nope. The limit for directly mapped memory is 2^30.
 
-As discussed a while ago (see thread starting at
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0105.2/0659.html), I
-wrote a frontend to libparted that does nothing but probe all
-block devices for partition tables, and tells the kernel what
-partitions it finds.  It optionally prints a short summary.
+Ouch! That makes low memory *extremely* precious. Intuitively, the demand
+for directly mapped memory will be proportional to the demand for all
+memory, with a proportionality constant depending on the purpose for the
+system and the efficiency of the application set. We've seen (apparently --
+I haven't looked at any data, just messages on the list) cases where we can
+force this to happen with benchmarks designed to embarrass the VM :)) but
+have we seen it in real applications?
 
-The hope is to be able to remove partition table parsing from the
-kernel, and share partition table code with libparted.
+Thanks for taking the time to answer these questions. I'm struggling to
+understand where the performance walls are in large i686 systems, in both
+Linux and Windows. In the end, though, relentless application of Moore's Law
+to the IA64 must be the correct answer :)).
+--
+M. Edward Borasky
 
-It's called partprobe, and is distributed with Parted.  Get it from:
-
-	ftp.gnu.org/gnu/parted/devel/parted-1.5.6-pre2.tar.gz
-
-When partprobe/libparted are compiled with --enable-discover-only
---disable-nls etc (see README), it comes to about 73k (35k
-compressed), not including libc or libuuid.  Unfortunately, this is
-still quite large to be including in things like initramfs.  Is
-it worth paying this price?
-
-libparted currently supports 7 partition table formats (vs 11 in
-linux 2.4).  It uses the blkpg interface in 2.4 to communicate
-partition info.  (see libparted/linux.c, linux_disk_commit)
-
-Andrew
+znmeb@borasky-research.net
+http://www.borasky-research.net
 

@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129669AbRABRM0>; Tue, 2 Jan 2001 12:12:26 -0500
+	id <S129729AbRABRSt>; Tue, 2 Jan 2001 12:18:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129568AbRABRMH>; Tue, 2 Jan 2001 12:12:07 -0500
-Received: from alcove.wittsend.com ([130.205.0.20]:49412 "EHLO
-	alcove.wittsend.com") by vger.kernel.org with ESMTP
-	id <S129464AbRABRMD>; Tue, 2 Jan 2001 12:12:03 -0500
-Date: Tue, 2 Jan 2001 11:41:18 -0500
-From: "Michael H. Warfield" <mhw@wittsend.com>
-To: "Timothy A. DeWees" <whtdrgn@mail.cannet.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Good mailing list.
-Message-ID: <20010102114118.D1974@alcove.wittsend.com>
-Mail-Followup-To: "Timothy A. DeWees" <whtdrgn@mail.cannet.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <005001c074c7$ad43f5c0$7930000a@hcd.net>
-Mime-Version: 1.0
+	id <S129911AbRABRSj>; Tue, 2 Jan 2001 12:18:39 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:16650
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129729AbRABRS3>; Tue, 2 Jan 2001 12:18:29 -0500
+Date: Tue, 2 Jan 2001 08:47:40 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: dep <dennispowell@earthlink.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE-DMA Timeout Bug may be dead...
+In-Reply-To: <01010209450300.00545@depoffice.localdomain>
+Message-ID: <Pine.LNX.4.10.10101020847100.25677-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.2i
-In-Reply-To: <005001c074c7$ad43f5c0$7930000a@hcd.net>; from whtdrgn@mail.cannet.com on Tue, Jan 02, 2001 at 09:24:11AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 02, 2001 at 09:24:11AM -0500, Timothy A. DeWees wrote:
-> Hello,
 
->     Since it takes quite a it of time for me to deal with news groups, could
-> someone please point me to a _LINUX_ news group that could help me with
-> password sync between Unix and Windows.  I am using Microsofts password sync
-> tool that comes with SFU 1.2.  I know I sould ask Micr$loth, but I have been
-> for two mounths and thay refuse to help me.  I get ignored in the Micro$loth
-> list, and I have a deadline.  Besides, I have found that most linux hackers
-> know more about Micro$loth then the _GOOD_ people at Micro$sloth.
+Nothing to do with your dirty crosstolak in you ribbon..
 
-	You might be better off asking this up on one of the Samba
-mailing lists.  We have options in Samba for simultaniously changing
-both the Windows NT password hashes and the Unix hashes where Samba
-is providing NT encrypted password authentication.  You can also use
-pam_smb to use the NT password hashes for Unix password validation as
-well.  In either case, it's more a generic Unix thing than it is a
-specific Linux thing and you're more like to find your answers in the
-Samba project.  Try samba@samba.org, samba-techincal@samba.org, or
-samba-ntdom@samba.org.
+On Tue, 2 Jan 2001, dep wrote:
 
-> Thanks, and sorry for any disturbance!
-
-> --
-> Kind Regards,
-> Timothy A. DeWees
+> On Tuesday 02 January 2001 06:00 am, Andre Hedrick wrote:
+> | Doing final tests but it may have come to and end and that deadlock
+> | may be gone in a few hours after some sleep.
 > 
+> if it has anything to do with this, then it's reduced but not gone:
+> 
+> Jan  2 09:42:35 depoffice kernel: hda: dma_intr: status=0x51 { 
+> DriveReady SeekComplete Error }
+> Jan  2 09:42:35 depoffice kernel: hda: dma_intr: error=0x84 { 
+> DriveStatusError BadCRC }
+> 
+> via, w.d. drive, error been around for months, no apparent effect 
+> except to slow things down a tad and fill /var/log/messages.
+> 
+> -- 
+> dep
+> --
+> bipartisanship: an illogical construct not unlike the idea that
+> if half the people like red and half the people like blue, the 
+> country's favorite color is purple.
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > Please read the FAQ at http://www.tux.org/lkml/
+> 
 
--- 
- Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
-  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
-  NIC whois:  MHW9      |  An optimist believes we live in the best of all
- PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
+Andre Hedrick
+CTO Timpanogas Research Group
+EVP Linux Development, TRG
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

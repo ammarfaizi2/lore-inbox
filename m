@@ -1,69 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132767AbRDIPNL>; Mon, 9 Apr 2001 11:13:11 -0400
+	id <S132771AbRDIP0e>; Mon, 9 Apr 2001 11:26:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132769AbRDIPNB>; Mon, 9 Apr 2001 11:13:01 -0400
-Received: from smtpnotes.altec.com ([209.149.164.10]:28938 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S132767AbRDIPMp>; Mon, 9 Apr 2001 11:12:45 -0400
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Joseph Carter <knghtbrd@debian.org>, john slee <indigoid@higherplane.net>,
-        Colonel <klink@clouddancer.com>, linux-kernel@vger.kernel.org
-Message-ID: <86256A29.00538AAD.00@smtpnotes.altec.com>
-Date: Mon, 9 Apr 2001 10:12:24 -0500
-Subject: Re: goodbye
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S132770AbRDIP0Z>; Mon, 9 Apr 2001 11:26:25 -0400
+Received: from colorfullife.com ([216.156.138.34]:8964 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S132772AbRDIP0J>;
+	Mon, 9 Apr 2001 11:26:09 -0400
+Message-ID: <3AD1D4A3.1E7FACD8@colorfullife.com>
+Date: Mon, 09 Apr 2001 17:26:27 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac3 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: softirq buggy
+In-Reply-To: <200104081758.VAA15670@ms2.inr.ac.ru> <3AD0D9A8.189AA43C@colorfullife.com> <20010409155052.H7108@athlon.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-David Woodhouse <dwmw2@infradead.org> wrote:
-
->"self-appointed"
-
+Andrea Arcangeli wrote:
+> 
+> your cpu_is_idle will return 0 in the need_resched != 0 check even if the cpu
+> is idle (because of the -1 trick for avoiding the SMP-IPI to notify the cpu).
 >
->Are you implying that the people who run ORBS and the other RBL lists
->actually hacked into vger.kernel.org and changed the MTA configuration to
->use those lists? I was of the opinion that it was a free choice made by the
->administrators of that machine.
+Fixed.
 
-OK, "self-appointed" was too strong a term.  What ORBS and its ilk do is provide
-a simple, easy-to-use method of blocking large chunks of the net from
-communicating with other large chunks, regardless of whether the systems blocked
-are assisting in spam propagation or not.  The *possibility* of someday being
-guilty is enough to quarantine them.  Granted, it requires the cooperation of
-other administrators to accomplish that.
+> The issue you are addressing is quite londstanding and it is not only related
+> to the loop with an idle cpu.
+> 
+> This is the way I prefer to fix it:
+> 
+>         ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.4pre1/ksoftirqd-1
+>
+The return path to user space checks for pending softirqs. A delay of
+1/HZ is only possible if the cpu loops in kernel space without returning
+to user space - and the functions that can loop check
+'current->need_resched'. That means that either cpu_is_idle() must be
+renamed to schedule_required() and all 'need_resched' users should use
+that function, or something like your patch.
 
-I'm not denying that the administrators of mailing lists have the right to
-control what happens on their lists.  It's just that I'm personally opposed to
-spam-blocking methods that go above the level of a single system, or maybe even
-a single user.  My primary email account gets tons of spam every day.  Often I
-get three or more copies of the same spam, demonstrating both that my address
-has been harvested from multiple locations and that the spammers are clueless
-about managing their own mailing lists.  Yet the only defense I use is my delete
-key (and a personal resolve never to do business with any of those companies
-under any circumstances).  I just accept the fact that only one out of every
-dozen or so emails I receive will be of any interest to me.  The rest vanish
-without wasting more than a few seconds of my day.  It's not even worth setting
-up killfiles, although that would eliminate most of my repeat offenders.
+Is a full thread really necessary? Just setting 'need_resched' should be
+enough, schedule() checks for pending softirqs.
+And do you have a rough idea how often that new thread is scheduled
+under load?
 
-If individual mailing list administrators want to block email from certain sites
-because of spam concerns, fine.  But I still hold organizations like ORBS, that
-encourage such things and make it easy, in contempt.  They conjure up an image
-for me of those annoying "hall monitors" in grade school who were always hoping
-to find someone breaking a rule, so they could tattle on them.
+Btw, you don't schedule the ksoftirqd thread if do_softirq() returns
+from the 'if(in_interrupt())' check.
+I assume that this is the most common case of delayed softirq
+processing:
 
->Can we take this pointlessness off l-k now please?
-
-Your message included l-k in the headers, so my response does also.  But I have
-no intention of carrying on this discussion any further, in public or private,
-so this is the last post you'll see from me on the subject.
-
-Wayne
+; in process context
+spin_lock_bh();
+; hw interrupt arrives
+; do_softirq returns immediately
+spin_unlock_bh();
 
 
+--
+	Manfred

@@ -1,53 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269843AbRHDJsv>; Sat, 4 Aug 2001 05:48:51 -0400
+	id <S269845AbRHDKJM>; Sat, 4 Aug 2001 06:09:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269845AbRHDJsn>; Sat, 4 Aug 2001 05:48:43 -0400
-Received: from [216.101.162.242] ([216.101.162.242]:20873 "EHLO
-	pizda.ninka.net") by vger.kernel.org with ESMTP id <S269843AbRHDJsb>;
-	Sat, 4 Aug 2001 05:48:31 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S269846AbRHDKJD>; Sat, 4 Aug 2001 06:09:03 -0400
+Received: from biltenmail.bilten.metu.edu.tr ([144.122.246.3]:45067 "EHLO
+	biltenmail.bilten.metu.edu.tr") by vger.kernel.org with ESMTP
+	id <S269845AbRHDKI5>; Sat, 4 Aug 2001 06:08:57 -0400
+Message-ID: <3B6BCA1E.F967482A@bilten.metu.edu.tr>
+Date: Sat, 04 Aug 2001 13:10:38 +0300
+From: Muzaffer Ozakca <muzaffer.ozakca@bilten.metu.edu.tr>
+Organization: Tubitak - Bilten
+X-Mailer: Mozilla 4.76 [en] (Win95; U)
+X-Accept-Language: tr
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel list <linux-kernel@vger.kernel.org>
+Subject: [Re: university studies?]
+Content-Type: text/plain; charset=iso-8859-9
 Content-Transfer-Encoding: 7bit
-Message-ID: <15211.50386.927163.766367@pizda.ninka.net>
-Date: Sat, 4 Aug 2001 02:48:02 -0700 (PDT)
-To: NIIBE Yutaka <gniibe@m17n.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The interface of flush_cache_page
-In-Reply-To: <200108040610.f746AlJ19336@mule.m17n.org>
-In-Reply-To: <200108040610.f746AlJ19336@mule.m17n.org>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-NIIBE Yutaka writes:
- > When it is called from vmscan.c:try_to_swap_out, as the PTE is cleared
- > to be zero, we have no way to know what phisical address to match.
-
-That is really an error, and it is only because the last time the
-logic try_to_swap_out() logic got rearranges the cache flush got moved
-lower down.
-
-In fact, several architectures will take a fatal trap due to
-this sequence.  On these systems the tlb must be able to translate the
-virtual address given to it for the flush, and that translation must
-be valid.
-
-Thus, the code there should be:
-
-	flush_cache_page(vma, address);
-	pte = ptep_get_and_clear(page_table);
-	flush_tlb_page(vma, address);
-
-And the flush_cache_page() further down in that function then can be
-removed.
-
-Feel free to send this fix to Linus.  It is probably causing
-HyperSparc sparc32 to fail to work at all once a swap happens,
-if platforms using that chip work at all.
-
-Later,
-David S. Miller
-davem@redhat.com
+Crutcher Dunnavant wrote:
+>
+> ++ 02/08/01 14:36 +0300 - Muzaffer Ozakca:
+> >
+> > > I don't think, one should learn all the "hot" languages of the day to
+> > > become a good programmer. A computer science student should (and will)
+> > > learn the theoretical background that lays beneath. Data structures,
+> > > graph theory, computational linguistics, compiler theory, OS, AI, so on.
+> >
+> > Hmm. Thank you, Knuth.
+ 
+  You're welcome :)
+ 
+> >
+> > > Practical studies such as programming projects will let the students
+> > > solid the theory. These thoughts are not actually mine, most of the
+> > > computer science departments -more or less- follow a cirriculum
+> > > appreciating these ideas, I think. However, a kernel (or systems)
+> > > programmer should also know basics of microprocessors, interrupts, etc.
+> > > and programming in assembly, besides the theory given in a university.
+> >
+> > They also need to understand large parts of security, and system API
+> > design.
+ 
+         Sure things should be added, they were examples..
+ 
+> >
+> > > After getting the theory and completing the understanding by practice,
+> > > learning a programming language is just a detail.
+> >
+> > I disagree. This is equivalent to saying, once I am an archetect, it is
+> > easy for me to build houses. Tools and practices take incredible amounts
+> > of time to master. Languages take years, and learning the
+> > non-algorithmic parts of hacking, like techniques for keeping namespaces
+> > clean, or designing APIs to be extensible, or just tracking code; all
+> > these are time devouring.
+> >
+ 
+         No, I don't say if you know a PL (a tool) then you're a
+programmer (or
+ an architect). Everybody can learn C, it is simple (I like it), if you
+ consider the reserved words, structs, unions, etc. But not everybody
+can
+ program well or right. Tools, of course, take time to learn, what I say
+ is background is more important than "one" or a bunch of tools. No
+ university or school can teach every good tool nor can teach every
+ aspect of kernel programming.
+ 
+         Experience is the way to be a good programmer, nobody is born
+with it.
+ 
+> > > Always solving problems "C" style, may not be the best approach,
+> > > a functional language may better suit the needs -usually not in our course.
+> >
+> > But, ultimately, computers are procedural. FP helps /prove/ algorithms,
+> > but it is a terible way to actually run them.
+> >
+> > --
+> > Crutcher        <crutcher@datastacks.com>
+> > GCS d--- s+:>+:- a-- C++++$ UL++++$ L+++$>++++ !E PS+++ PE Y+ PGP+>++++
+> >     R-(+++) !tv(+++) b+(++++) G+ e>++++ h+>++ r* y+>*$
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> --
+ Muzaffer Ozakca
+ Researcher/Software Engineer  -  muzaffer.ozakca@bilten.metu.edu.tr
+ TUBITAK-Bilten-ODTU - Communications Systems and Comp. Networks Group
+ ODTU, Ankara, Turkey
+ http://www.bilten.metu.edu.tr   tel: +90-312-210 1311

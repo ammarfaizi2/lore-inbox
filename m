@@ -1,44 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277212AbRJDUrk>; Thu, 4 Oct 2001 16:47:40 -0400
+	id <S277220AbRJDUsZ>; Thu, 4 Oct 2001 16:48:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277220AbRJDUra>; Thu, 4 Oct 2001 16:47:30 -0400
-Received: from mailsorter.in.tmpw.net ([63.121.29.25]:22049 "EHLO
-	mailsorter.in.tmpw.net") by vger.kernel.org with ESMTP
-	id <S277212AbRJDUrN>; Thu, 4 Oct 2001 16:47:13 -0400
-Message-ID: <3AB544CBBBE7BF428DA7DBEA1B85C79C011014BC@nocmail.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, igor.mozetic@uni-mb.si
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: i845 anybody?
-Date: Thu, 4 Oct 2001 16:46:44 -0400 
+	id <S277222AbRJDUsL>; Thu, 4 Oct 2001 16:48:11 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46607 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277220AbRJDUsE>; Thu, 4 Oct 2001 16:48:04 -0400
+Subject: Re: Whining about 2.5 (was Re: [PATCH] Re: bug? in using generic read/write functions to read/write block devices in 2.4.11-pre2O
+To: landley@trommello.org
+Date: Thu, 4 Oct 2001 21:53:06 +0100 (BST)
+Cc: riel@conectiva.com.br (Rik van Riel), linux-kernel@vger.kernel.org
+In-Reply-To: <01100318274901.00728@localhost.localdomain> from "Rob Landley" at Oct 03, 2001 06:27:49 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15pFUQ-00045y-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Is there really a NUMA machine out there where you can DMA out of another 
+> node's 16 bit ISA space?  So far the differences in the zones seem to be 
 
->> Has anybody had any success/problems with i845 based mobo?
->> Low-end Pentium IV + a lot of SDRAM seems a good deal at the moment.
-
->i845 doesnt have DDR support, so if you want high memory bandwidth you
->might want to look elsewhere.
-
-A third option, though I am not aware of the status of current kernel
-support for it, is VIA's P4X266 chipset.  Pentium 4 with DDR.  You get some
-bandwith with it, and the P4 needs bandwith.  
-
-> Alternatively, I was considering Athlon + VIA 133A, but I have
-> noticed a number of reported problems on this list.
-> Any comments/suggestions appreciated.
-
-IMHO, I would go with the Athlon/DDR over the Low end P4 with SDRAM
-everyday. ;o)
-
-Good luck though.
-
-Bruce H.
-
+DMA engines are tied to the node the device is tied to not to the processor
+in question in most NUMA systems.
 

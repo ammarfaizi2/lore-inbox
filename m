@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135612AbRDXNgT>; Tue, 24 Apr 2001 09:36:19 -0400
+	id <S135611AbRDXNiu>; Tue, 24 Apr 2001 09:38:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135609AbRDXNgI>; Tue, 24 Apr 2001 09:36:08 -0400
-Received: from memphis.cbn.net.id ([202.158.3.16]:19985 "HELO
-	memphis.cbn.net.id") by vger.kernel.org with SMTP
-	id <S135613AbRDXNf5>; Tue, 24 Apr 2001 09:35:57 -0400
-Date: Tue, 24 Apr 2001 20:37:51 +0700 (JAVT)
-From: <imel96@trustix.co.id>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Single user linux
-In-Reply-To: <Pine.LNX.3.95.1010424090323.12078B-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.33.0104242029140.16230-100000@tessy.trustix.co.id>
+	id <S135610AbRDXNiq>; Tue, 24 Apr 2001 09:38:46 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62731 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135613AbRDXNgv>; Tue, 24 Apr 2001 09:36:51 -0400
+Subject: Re: serial driver not properly detecting modem
+To: srwalter@yahoo.com (Steven Walter)
+Date: Tue, 24 Apr 2001 14:38:08 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010423223847.A3945@hapablap.dyn.dhs.org> from "Steven Walter" at Apr 23, 2001 10:38:48 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14s318-00023o-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I've fixed this here merely by adding an entry to the PCI table of
+> serial.c for PCI_CLASS_COMMUNICATION_OTHER.  Is this the best way to fix
+> this?  Is there some reason that this shouldn't be done in general?  If
+> not, I'd like to see it fix in the kernel proper.
 
+Most class other devices wont be 16x50 compatible.
 
-On Tue, 24 Apr 2001, Richard B. Johnson wrote:
-> You are on the wrong list. You don't modify the kernel to make
-> a "single-user" machine. You modify the password file in /etc/passwd.
-> Until you know, and completely understand this, you will be laughed at.
->
-> When an interactive process is started, /bin/login gets the new
-> process information from the /etc/passwd file just before it gets
-> overwritten (exec) by the shell shown in that same password file.
->
-> If you want your accounts to have root privs, you set the UID and
-> GID fields in the password file to 0 and 0 respectively. I would
-> not suggest that you connect your computer to a network if you
-> do this.
+> It should be noted that the modem is listed in serial.c's pci_boards,
+> perhaps it would be best for the serial driver to list PCI_ID_ANY for a
+> class, and only use pci_boards to further identify serial ports?  Or
+> would this be too inefficient to correct for a few misguided hardware
+> makers?
 
-thank you very much fyi.
-if just you tried to understand it a little further:
-i didn't change all uid/gid to 0!
-
-why? so with that radical patch, users will still have
-uid/gid so programs know the user's profile.
-
-if everyone had 0/0 uid/gid, pine will open /var/spool/mail/root,
-etc.
-
-
-		imel
-
+Probably serial.c should look for class serial || (class_other && in table)
 

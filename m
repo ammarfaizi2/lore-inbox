@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312576AbSDLFp5>; Fri, 12 Apr 2002 01:45:57 -0400
+	id <S312718AbSDLGRM>; Fri, 12 Apr 2002 02:17:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312616AbSDLFp4>; Fri, 12 Apr 2002 01:45:56 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:32773 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S312576AbSDLFp4>;
-	Fri, 12 Apr 2002 01:45:56 -0400
-Date: Fri, 12 Apr 2002 07:40:42 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org,
-        andrea@suse.de
-Subject: Re: [patch 2.5.8] bounce/swap stats
-Message-ID: <20020412054042.GD16203@suse.de>
-In-Reply-To: <Pine.LNX.4.33L2.0204111807070.28475-400000@dragon.pdx.osdl.net> <Pine.LNX.4.21.0204112314290.16284-100000@freak.distro.conectiva>
+	id <S313403AbSDLGRL>; Fri, 12 Apr 2002 02:17:11 -0400
+Received: from violet.setuza.cz ([194.149.118.97]:12563 "EHLO violet.setuza.cz")
+	by vger.kernel.org with ESMTP id <S312718AbSDLGRL>;
+	Fri, 12 Apr 2002 02:17:11 -0400
+Subject: Re: I want to help with 2.5
+From: Frank Schaefer <frank.schafer@setuza.cz>
+To: Linux Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CB599A2.3010908@tabi.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 12 Apr 2002 08:17:11 +0200
+Message-Id: <1018592231.3133.0.camel@ADMIN>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 11 2002, Marcelo Tosatti wrote:
-> On Thu, 11 Apr 2002, Randy.Dunlap wrote:
+On Thu, 2002-04-11 at 16:11, Timur Tabi wrote:
+> Hi,
 > 
-> > I'll generate the patch for 2.4.teens + highmem if anyone
-> > is interested in it, or after highmem is merged into 2.4.
-> > ...it will be added to 2.4, right?
+> I would like to make a meaningful contribution to the 2.5 kernel, so I'm 
+> wondering if anyone out there would like my help.  I would prefer to 
+> work on a component where I could do the majority of the work, rather 
+> than just help out with something massive.  Is there a particular piece 
+> of hardware that needs a device driver that no one is working on?  Is 
+> there some kernel enhancement that no one has gotten around too but 
+> would be a good addition?  Please post or email your suggestion!  Thanks!
 > 
-> highmem IO will be merged in 2.4.20pre1.
+> 
+> --
+> Timur Tabi
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+Get the veryveryvery latest kernel source, and have a look in the MAINAINERS file.
 
-Thanks Marcelo, I'll personally polish a version for you once 2.4.19
-final is out.
+Regards
+Frank
 
--- 
-Jens Axboe
 

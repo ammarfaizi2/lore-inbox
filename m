@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278662AbRKAKm0>; Thu, 1 Nov 2001 05:42:26 -0500
+	id <S278665AbRKAKm6>; Thu, 1 Nov 2001 05:42:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278663AbRKAKmR>; Thu, 1 Nov 2001 05:42:17 -0500
-Received: from hastur.andastra.de ([212.172.44.2]:20490 "HELO mail.andastra.de")
-	by vger.kernel.org with SMTP id <S278662AbRKAKmB>;
-	Thu, 1 Nov 2001 05:42:01 -0500
-Date: Thu, 1 Nov 2001 11:40:08 +0100
-From: Sebastian Benoit <ben-lists@andastra.de>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The good, the bad & the ugly (or VM, block devices, and SCSI :-)
-Message-ID: <20011101114008.A11634@smtp.andastra.de>
-Mail-Followup-To: Sebastian Benoit <ben-lists@andastra.de>,
-	Stephan von Krawczynski <skraw@ithnet.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011031164539.29c04ee0.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011031164539.29c04ee0.skraw@ithnet.com>; from skraw@ithnet.com on Wed, Oct 31, 2001 at 04:45:39PM +0100
-X-Cthulu: HASTUR
+	id <S278664AbRKAKmr>; Thu, 1 Nov 2001 05:42:47 -0500
+Received: from mail209.mail.bellsouth.net ([205.152.58.149]:8101 "EHLO
+	imf09bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S278663AbRKAKmk>; Thu, 1 Nov 2001 05:42:40 -0500
+Message-ID: <3BE1271C.6CDF2738@mandrakesoft.com>
+Date: Thu, 01 Nov 2001 05:42:36 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14-pre6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
+In-Reply-To: <E15zF9H-0000NL-00@wagner>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> No kernel-formatted tables: use a directory.  (eg. kernel symbols
+> become a directory of symbol names, each containing the symbol value).
+> 
+> For cases when you don't want to take the overhead of creating a new
+> proc entry (eg. tcp socket creation), you can create directories on
+> demand when a user reads them using:
+> 
+>         proc_dir("net", "subdir", dirfunc, NULL);
+>         unproc_dir("net", "subdir");
+> 
+> Note that with kbuild 2.5, you can do something like:
+> 
+>         proc(KBUILD_OBJECT, "foo", my_foo, int, 0644);
+> 
+> And with my previous parameter patch:
+>         PARAM(foo, int, 0444);
 
---CE+1k2dSO48ffgeK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Is this designed to replace sysctl?
 
-Stephan von Krawczynski(skraw@ithnet.com)@2001.10.31 16:45:39 +0000:
-> A29160:                                     symbios:
+In general we want to support using sysctl and similar features WITHOUT
+procfs support at all (of any type).  Nice for embedded systems
+especially.
 
-Did you put them in the same PCI slot?
-Whats the output of /proc/interrupts in both cases?
-What motherboard?
+sysctl may be ugly but it provides for a standard way of manipulating
+kernel variables... sysctl(2) or via procfs or via /etc/sysctl.conf.
 
-/B.
+AFAICS your proposal, while nice and clean :), doesn't offer all the
+features that sysctl presently does.
 
---=20
-Sebastian Benoit <ben-lists@andastra.de>
-OpenPGP-Key ID 0x82AE75E4                            =20
-fingerprint 0BDA 0CB7 9BCA AF77 28EE  D91A 396D 93BC 82AE 75E
+	Jeff
 
---CE+1k2dSO48ffgeK
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iD8DBQE74SaHOW2TvIKudeQRAoorAJwOUStXoUe6xIFggvsaNNBW/foExgCfayT7
-EuKCjDdsCrxFaOLLChvJICg=
-=kGKY
------END PGP SIGNATURE-----
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 
---CE+1k2dSO48ffgeK--

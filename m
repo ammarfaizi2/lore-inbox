@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316728AbSEWOVT>; Thu, 23 May 2002 10:21:19 -0400
+	id <S316729AbSEWOV4>; Thu, 23 May 2002 10:21:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316729AbSEWOVS>; Thu, 23 May 2002 10:21:18 -0400
-Received: from srexchimc2.lss.emc.com ([168.159.40.71]:54541 "EHLO
-	srexchimc2.lss.emc.com") by vger.kernel.org with ESMTP
-	id <S316728AbSEWOVS>; Thu, 23 May 2002 10:21:18 -0400
-Message-ID: <FA2F59D0E55B4B4892EA076FF8704F553D1A7A@srgraham.eng.emc.com>
-From: "chen, xiangping" <chen_xiangping@emc.com>
-To: linux-kernel@vger.kernel.org
-Subject: Poor read performance when sequential write presents
-Date: Thu, 23 May 2002 10:20:42 -0400
+	id <S316730AbSEWOVy>; Thu, 23 May 2002 10:21:54 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:64263 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S316729AbSEWOVu>; Thu, 23 May 2002 10:21:50 -0400
+Date: Thu, 23 May 2002 10:16:41 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        William Lee Irwin III <wli@holomorphy.com>,
+        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        "M. Edward Borasky" <znmeb@aracnet.com>, linux-kernel@vger.kernel.org,
+        andrea@suse.de, riel@surriel.com, akpm@zip.com.au
+Subject: Re: Have the 2.4 kernel memory management problems on large machines been fixed?
+In-Reply-To: <Pine.LNX.4.33.0205221048570.23621-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.3.96.1020523101302.11249C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 22 May 2002, Linus Torvalds wrote:
 
-I did a IO test with one sequential read and one sequential write 
-to different files. I expected somewhat similar throughput on read
-and write. But it seemed that the read is blocked until the write
-finishes. After the write process finished, the read process slowly
-picks up the speed. Is Linux buffer cache in favor of write? How
-to tune it?
+> Making the _generic_ code jump through hoops because some stupid special 
+> case that nobody else is interested in is bad. 
 
+Thoughts in no particular order:
+ - set large page size based on file size or mapped section size
+ - set LPS based on a capability on the program
+ - set LPS based on a flag of some nature on the file
+ - set LPS based on the number of processes mapping the file
 
-Thanks,
+I mention these because it would be nice to get better behaviour from
+programs which aren't optimized for Linux and may never be.
 
-Xiangping Chen
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263561AbUDBJcm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 04:32:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbUDBJcl
+	id S263577AbUDBJec (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 04:34:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbUDBJec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 04:32:41 -0500
-Received: from uslink-66.173.43-133.uslink.net ([66.173.43.133]:49832 "EHLO
-	dingdong.cryptoapps.com") by vger.kernel.org with ESMTP
-	id S263571AbUDBJcj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 04:32:39 -0500
-Date: Fri, 2 Apr 2004 01:32:38 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Carsten Gaebler <ezinye-zinto@snakefarm.org>
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: 2.4.25 XFS can't create files
-Message-ID: <20040402093238.GA28931@dingdong.cryptoapps.com>
-References: <406D20FE.8040701@snakefarm.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <406D20FE.8040701@snakefarm.org>
+	Fri, 2 Apr 2004 04:34:32 -0500
+Received: from wiproecmx1.wipro.com ([164.164.31.5]:33664 "EHLO
+	wiproecmx1.wipro.com") by vger.kernel.org with ESMTP
+	id S263574AbUDBJea convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 04:34:30 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: Stack of a thread
+Date: Fri, 2 Apr 2004 15:02:45 +0530
+Message-ID: <B86B0623D89F034AB9CEE1DE2618BC32A97838@webmail.wipro.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Stack of a thread
+Thread-Index: AcQYlZy6l+mMokOuRW20WmbhytcWVA==
+From: <anuya.kulkarni@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 02 Apr 2004 09:33:33.0291 (UTC) FILETIME=[90DE7BB0:01C41895]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(cc-'d to the linux-xfs list)
+Hello,
 
- On Fri, Apr 02, 2004 at 10:14:54AM +0200, Carsten Gaebler wrote:
+I have a doubt regarding stack of a thread.
+I want to know how it is organized ?
 
-> I have somewhat of an esoteric problem. I can create an XFS on an
-> external fibre channel RAID attached to an LSI fibre channel card
-> (Fusion MPT driver) but I can't create files or directories on that
-> filesystem (Permission denied). ext2/ext3 work fine on the same
-> partition, so I suspect this is an XFS+MPT issue.
+Say I have a function with 1 input parameter and 
+1 local veriable. If I know the stack base pointer, 
+can I predict the location of the input parameter and 
+local variable. 
 
-I suspect it's not MPT related.  I'm not farmiliar with stock 2.4.25
-but assume the XFS merge went OK and everything is sane.  Any chance
-you can test with a CVS kernel from oss.sgi.com to rule out the
-(probably minor) differences there?
+I have a POSIX thread with stack base pointer and size of
+stack specified by me. RedHat Linux 7.2 (Kernel 2.4.7-10)
 
-> sq22:~# touch /mnt/xfs/foo
-> touch: creating `/mnt/xfs/foo': Permission denied
-
-strace shows open/creat failing?  there are also no ACLs and/or
-security modules involved are there?
+Also, if I want to copy the snapshot of stack of this thread and 
+map to some memory region on another machine and give this address 
+of this region as stack base for the same thread function to run on
+other 
+machine, will it work as if there is no migration from one machine to 
+other ? Here I assume that transfer of stack across machines and
+privilages are  
+not the issues.
 

@@ -1,45 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265330AbSJXHCg>; Thu, 24 Oct 2002 03:02:36 -0400
+	id <S265333AbSJXHTR>; Thu, 24 Oct 2002 03:19:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265332AbSJXHCg>; Thu, 24 Oct 2002 03:02:36 -0400
-Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:54501 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S265330AbSJXHCf>;
-	Thu, 24 Oct 2002 03:02:35 -0400
-Message-ID: <3DB79C79.9050200@candelatech.com>
-Date: Thu, 24 Oct 2002 00:08:41 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Gilad Ben-Yossef <gilad@benyossef.com>
-CC: jw schultz <jw@pegasys.ws>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: over&out (Re: feature request - why not make netif_rx() a	pointer?)
-References: <20021023003959.GA23155@bougret.hpl.hp.com>	<004c01c27a99$927b8a30$800a140a@SLNW2K> <3DB6AC40.20007@nortelnetworks.com>	<008b01c27ab0$760be900$800a140a@SLNW2K>  <20021023225916.GA6395@pegasys.ws> <1035440743.9164.24.camel@gby.benyossef.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265334AbSJXHTR>; Thu, 24 Oct 2002 03:19:17 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:39613 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265333AbSJXHTP>;
+	Thu, 24 Oct 2002 03:19:15 -0400
+Date: Thu, 24 Oct 2002 13:08:35 +0530
+From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: Richard J Moore <richardj_moore@uk.ibm.com>,
+       Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
+       S Vamsikrishna <vamsi_krishna@in.ibm.com>
+Subject: Re: 2.4 Ready list - Kernel Hooks
+Message-ID: <20021024130835.A30737@in.ibm.com>
+Reply-To: vamsi@in.ibm.com
+References: <OF4A3346AB.B9CBFE3E-ON80256C5B.005B118D@portsmouth.uk.ibm.com> <20021023165009.I1421@almesberger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021023165009.I1421@almesberger.net>; from wa@almesberger.net on Wed, Oct 23, 2002 at 09:50:15PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gilad Ben-Yossef wrote:
 
-> IANAL but AFAIK the GPL V2 requires you to either distribute the
-> source/patch together with the binary or include a *written* obligation
-> valid for three years to supply the sources to any thrid party.
+On Wed, Oct 23, 2002 at 09:50:15PM +0000, Werner Almesberger wrote:
+> Oops, missed that one, sorry ! I was looking at the interface
+> functions, but making the hooks themselves GPL-only is even
+> better.
+>
+Yes, I have done that in the latest patch.
+ 
+> > I don't envisage having an arbitrary set of hook points scattered
+> > throughout the kernel.
 > 
-> So, for example, if you disribute the binary on a CD, or some embedded
-> device, sticking the patch somewhere on your web site with an obscure
-> link pointing to them is technicaly a violation of the GPL.
+> Let's hope you're right :-)
+> 
+kernelhooks is similar to notifier lists (include/linux/notifier.h),
+only much faster when there are no users. This patch does not
+add any hooks itself, I am sure placement of each hook will be
+critically reviewed.
 
-You could hide the source in the documentation, no one ever reads that ;)
+> But wouldn't a small extension of kprobes get you pretty much
+> the same functionality/performance:
+>
+> <snip nice idea>
+>
+Yes, this is possible, but I think using hooks is much cleaner.
 
-Ben
+> The advantage over hooks would be that users of this mechanism
+> wouldn't have to choose between fast but intrusive (hooks) and
+> slow but flexible (probes).
+> 
+As I see it, hooks should be used for allowing other kernel code
+to tap into certain well defined paths in the kernel, say in
+trap 3 or trap 1 handlers in the kernel to allow multiple 
+kernel-level breakpointing tools. Or, certain well defined paths
+(potentially fast paths) for traceing purposes, where it is 
+necessary to ensure that for the most time there are no users 
+of these hooks and their placement alone should place minimal 
+overhead.
 
+So, hooks are designed, placed at well thought-out locations.
+Probes OTOH are mostly ad-hoc. While debugging a problem, if
+you find the need to probe a specific code location for more
+info, put a probe there, on the fly, with out going through 
+the recompile and reboot cycle.
+
+> Now, it's non-trivial to do a "return from caller" with
+> [kd]probes. I haven't looked at that part yet. Do you have the
+> infrastructure for this ?
+> 
+No, returning from caller will be much harder with [kd]probes.
+
+Hope this clarifies the issue.
+
+Thanks,
+Vamsi.
 -- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
-
+Vamsi Krishna S.
+Linux Technology Center,
+IBM Software Lab, Bangalore.
+Ph: +91 80 5044959
+Internet: vamsi@in.ibm.com

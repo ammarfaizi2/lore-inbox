@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266706AbRGXCbJ>; Mon, 23 Jul 2001 22:31:09 -0400
+	id <S266730AbRGXCxP>; Mon, 23 Jul 2001 22:53:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266797AbRGXCat>; Mon, 23 Jul 2001 22:30:49 -0400
-Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:38273 "EHLO
-	pga.intervu.net") by vger.kernel.org with ESMTP id <S266706AbRGXCai>;
-	Mon, 23 Jul 2001 22:30:38 -0400
-Message-ID: <3B5CDFC1.4D954891@randomlogic.com>
-Date: Mon, 23 Jul 2001 19:38:57 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S266738AbRGXCxG>; Mon, 23 Jul 2001 22:53:06 -0400
+Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:5849 "HELO
+	tsunami.webofficenow.com") by vger.kernel.org with SMTP
+	id <S266730AbRGXCw4>; Mon, 23 Jul 2001 22:52:56 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@webofficenow.com>
+Reply-To: landley@webofficenow.com
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: user-mode port 0.44-2.4.7
+Date: Mon, 23 Jul 2001 13:50:37 -0400
+X-Mailer: KMail [version 1.2]
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0107231259520.13272-100000@penguin.transmeta.com> <01072309203206.00996@localhost.localdomain> <20010724002742.J16919@athlon.random>
+In-Reply-To: <20010724002742.J16919@athlon.random>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: AMD-760 MP AGP Support
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01072313503700.06889@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hello, I'm new to the list and I have a question (or two, or three, or... ;)
+On Monday 23 July 2001 18:27, Andrea Arcangeli wrote:
+> On Mon, Jul 23, 2001 at 09:20:32AM -0400, Rob Landley wrote:
+> > On Monday 23 July 2001 18:09, Andrea Arcangeli wrote:
+> > > GCC will obviously _never_ introduce a BUG(), I never said that, the
+> > > above example is only meant to show what GCC is _allowed_ to do and
+> > > what we have to do to write correct C code.
+> >
+> > "Correct" C code as in portable C code?  Standards compliant so it's
+> > portable
+>
+> correct C code _mainly_ for gcc which is very aggressive.
+>
+> Andrea
 
-I just purchased a Tyan K7 Thunder (Dual Athlon motherboard) and I am running dual 1.4GHz Athlons and a GeForce 3 on it. It appears that the current (2.4.7
-kernel) agpgart module does not directly support the AMD-760 MP chipset. I am planning upon modifying agpgart to support it. My question is: Is anyone already
-doing this? I don't want to re-create the wheel, I just want full support on this screaming fast system.
+Very aggressive and very known.
 
-Are there other mailing lists that I might want to join and ask this question on?
+If we know how GCC is going to behave in a given situation (and have a fairly 
+good idea of how it's going to behave in the future), we don't have to worry 
+about theoretical stardards loopholes like it calling BUG(), do we?
 
-Thanks,
+Is there something in the current behavior that's causing trouble (in which 
+case, what exactly is it), or are the gcc guys (who you mentioned earlier*) 
+warning that the behavior of upcoming versions of gcc is likely to break 
+known constructs in the current kernel?
 
-PGA
+Rob
 
-Paul G. Allen
-Akamai Technologies, Inc.
-(www.akamai.com)
-
-I am Paul G. Allen and I don't do Windows!
+(Has the english language officially held a funeral for the word "whom" yet?)

@@ -1,63 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbTLMAE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 19:04:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbTLMAE5
+	id S261552AbTLMAMN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 19:12:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbTLMAMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 19:04:57 -0500
-Received: from dodge.jordet.nu ([217.13.8.142]:49845 "EHLO dodge.jordet.nu")
-	by vger.kernel.org with ESMTP id S261332AbTLMAE4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 19:04:56 -0500
-Subject: Re: PPP over ttyUSB (visor.o, Treo)
-From: Stian Jordet <liste@jordet.nu>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20031212211527.GC2002@kroah.com>
-References: <20031210165540.B26394@fi.muni.cz>
-	 <20031210212807.GA8784@kroah.com> <1071105744.1154.1.camel@chevrolet.hybel>
-	 <1071114290.750.18.camel@chevrolet.hybel> <20031211064441.GA2529@kroah.com>
-	 <1071152620.753.1.camel@chevrolet.hybel>
-	 <1071154385.721.1.camel@chevrolet.hybel>  <20031212211527.GC2002@kroah.com>
-Content-Type: text/plain
-Message-Id: <1071273888.1379.7.camel@chevrolet.hybel>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 13 Dec 2003 01:04:48 +0100
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Dec 2003 19:12:13 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:64519 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261552AbTLMAML
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 19:12:11 -0500
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+References: <3FCDE5CA.2543.3E4EE6AA@localhost>
+	<Pine.LNX.4.58.0312031533530.2055@home.osdl.org>
+	<Pine.LNX.4.58.0312031614000.2055@home.osdl.org>
+	<20031204192452.GC10421@parcelfarce.linux.theplanet.co.uk>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: (setq software-quality (/ 1 number-of-authors))
+Date: Sat, 13 Dec 2003 00:11:58 +0000
+In-Reply-To: <20031204192452.GC10421@parcelfarce.linux.theplanet.co.uk> (viro@parcelfarce.linux.theplanet.co.uk's
+ message of "Thu, 4 Dec 2003 19:27:04 +0000 (UTC)")
+Message-ID: <877k11y3sh.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Reasonable Discussion,
+ linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fre, 12.12.2003 kl. 22.15 skrev Greg KH:
-> On Thu, Dec 11, 2003 at 03:53:06PM +0100, Stian Jordet wrote:
-> > 
-> > I just tried 2.4.24-pre1, and I have the same behaviour, so I guess
-> > either the ftdi_sio or my mouse is b0rked. Weird, though, since they are
-> > connected on two different buses, and I have four other usb devices
-> > connected as well, without problem.
-> I really think you are exceeding the power limits for this hub, or you
-> have a flaky device.
+[catching up with vast backlog]
 
-I really understand if you are too busy answering stupid questions from
-me. But I still hope someone can answer my one question.
+On Thu, 4 Dec 2003, viro@parcelfarce.linux.theplanet.co.uk mused:
+> 	FWIW, it would be very nice if somebody did hard and messy work and
+> produced lists of in-tree modules using given symbols.  Ideally - automated
+> that, but that won't be easy to do (quite a few are used only via inlined
+> wrappers and in some cases - under an ifdef; many arch-specific exports
+> are of that sort).
 
-I have six usb-devices: 3com Bluetooth, HP printer, Epson scanner,
-Logitech keyboard/mouse, Kodak digital camera and a no-name memory card
-reader. My motherboard have six onboard usb-ports.
+ISTM that this could be done quite easily with a hacked-up libcpp that
+does token pasting and #include processing, but does *not* process #if
+statements themselves.
 
-The problem _only_ occur when I have a ppp-connection through the
-ftdi_sio adapter. I tried disconnecting everything except the usb-serial
-adapter and the Logitech. Same problem. Without an active
-ppp-connection. No problems what-so-ever.
+Preprocess every translation unit in the kernel with that, and grep each
+of them for every exported symbol in turn, and bingo. :)
 
-If I use a PS/2 keyboard and mouse, no problems with the rest of the usb
-devices, even with a ppp connection.
+I'll have a hack sometime this weekend if nobody else gets around to it.
 
-Can my usb-serial converter be the flaky device, even though it's the
-Logitech that is complaining, or can it be the motherboard? Since I
-never-ever saw any error messages untill I recently switched my pl2303
-against the ftdi_sio.
+(Of course, this will say that stuff in #if 0's and other #ifdef
+branches that can't be reached is in fact used, but such code isn't
+common.)
 
-Best regards,
-Stian
+> 	Some approximation might be obtained by building all modules and
+> doing nm on them, with manual work for non-obvious cases.
 
+Hang on, surely you can tell which symbols in modules are exported just
+by looking for expansions of EXPORT_SYMBOL{_GPL}? Why is this bit hard?
+
+I think the problem is you're trying to compile rather than doing a
+hacked -E :) we don't need to compile for this, just do most of the
+preprocessing phase.
+
+-- 
+`...some suburbanite DSL customer who thinks kernel patches are some
+ form of military insignia.' --- Bob Apthorpe

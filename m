@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270283AbTG1QXI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 12:23:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270291AbTG1QXI
+	id S270237AbTG1QbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 12:31:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270256AbTG1QbJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 12:23:08 -0400
-Received: from twinlark.arctic.org ([168.75.98.6]:45749 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S270283AbTG1QXG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 12:23:06 -0400
-Date: Mon, 28 Jul 2003 09:38:15 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Stefan Reinauer <stepan@suse.de>
-cc: linux-kernel@vger.kernel.org, Andries Brouwer <aebr@win.tue.nl>
-Subject: Re: 2.6.0-test2 has i8042 mux problems
-In-Reply-To: <20030728142952.GA1341@suse.de>
-Message-ID: <Pine.LNX.4.53.0307280927590.18444@twinlark.arctic.org>
-References: <Pine.LNX.4.53.0307271906020.18444@twinlark.arctic.org>
- <20030728142952.GA1341@suse.de>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 28 Jul 2003 12:31:09 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:59915 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S270237AbTG1QbH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 12:31:07 -0400
+Date: Mon, 28 Jul 2003 18:46:21 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Jack Dennon <jdd@seasurf.net>, linux-kernel@vger.kernel.org
+Subject: Re: The well-factored 386
+Message-ID: <20030728164621.GA1773@win.tue.nl>
+References: <03072809023201.00228@linux24> <20030728093245.60e46186.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030728093245.60e46186.davem@redhat.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jul 2003, Stefan Reinauer wrote:
+On Mon, Jul 28, 2003 at 09:32:45AM -0700, David S. Miller wrote:
 
-> * dean gaudet <dean-list-linux-kernel@arctic.org> [030728 04:13]:
-> > the southbridge in this system is the ali1563.  if it helps i can supply a
-> > complete trace of in/out on ports 0x60 and 0x64.
->
-> I can confirm this. I have an Amilo A laptop with the following sb:
-> 00:07.0 ISA bridge: ALi Corporation M1533 PCI to ISA Bridge [Aladdin IV]
->
-> without "i8042_nomux" the keyboard is recognized fine, but no mouse is
-> found on the mux. With the option everything works fine.
+> > hmm...didn't seem off-topic to me.
+> > Anything about 386 hardware would seem
+> > to be rather closely related to Linux
+> > assembly language programming.
+> 
+> He talks about his x86 emulator he wrote, and people complain to me
+> all the time about his postings.
+> 
+> Nobody ever follows up to any of his postings, he's not even
+> discussing anything, he's just showing how great he thinkgs
+> his x86 emulator is.
+> 
+> linux-kernel is not a bullhorn for people like him to use...
 
-that's slightly different than what i get without i8042_nomux, and a
-keyboard & mouse plugged in, the system crashes and burns badly during
-boot.  without the keyboard and mouse it boots fine.
+Rick A Hohensee is a clown, a joker, a troll.
+One can be amused by his postings, or irritated, or one can
+ignore them.
 
-with i8042_nomux it's a lot happier.
+No need for any formal action.
 
-my system is a test board for a new processor with the ali1563 -- which is
-a newer hypertransport variant of the 1533/1535.  i'm not sure yet if
-there are production boards with the 1563.  but it's nice to know it
-happens with your 1533 as well.
+You on the other hand threaten with censorship.
+That is not funny at all.
+Censorship would explode in a terrible flamewar.
 
-andries -- i'll send you a copy of the in/out traffic (it's a bit large
-for posting).
+There is no need for such censorship.
 
--dean

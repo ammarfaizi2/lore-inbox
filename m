@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278038AbRKDDYA>; Sat, 3 Nov 2001 22:24:00 -0500
+	id <S278085AbRKDDaJ>; Sat, 3 Nov 2001 22:30:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278057AbRKDDXt>; Sat, 3 Nov 2001 22:23:49 -0500
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:23557
-	"HELO gw.goop.org") by vger.kernel.org with SMTP id <S278038AbRKDDXh>;
-	Sat, 3 Nov 2001 22:23:37 -0500
-Subject: Re: Strange memory stats with 2.4.13 and ext3
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        EXT3 Users <ext3-users@redhat.com>
-In-Reply-To: <20011030062318.B1502@redhat.com>
-In-Reply-To: <1004213323.9797.15.camel@ixodes.goop.org> 
-	<20011030062318.B1502@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16 (Preview Release)
-Date: 03 Nov 2001 19:23:35 -0800
-Message-Id: <1004844215.11911.35.camel@ixodes.goop.org>
-Mime-Version: 1.0
+	id <S278099AbRKDD3x>; Sat, 3 Nov 2001 22:29:53 -0500
+Received: from lightning.hereintown.net ([207.196.96.3]:18122 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S278085AbRKDD2q>; Sat, 3 Nov 2001 22:28:46 -0500
+Date: Sat, 3 Nov 2001 22:33:20 -0500 (EST)
+From: Chris Meadors <clubneon@hereintown.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: <andrewm@uow.edu.au>
+Subject: 3c556 basicly not working.
+Message-ID: <Pine.LNX.4.33.0111032221320.10049-100000@clubneon.clubneon.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-10-29 at 22:23, Stephen Tweedie wrote:
-> Hi,
-> 
-> On Sat, Oct 27, 2001 at 01:08:43PM -0700, Jeremy Fitzhardinge wrote:
->  
-> > My gateway/firewall/mailserver machine has been running 2.4.13 for a day
-> > or so now.  Its basically a stock Linus kernel + ext3-0.9.13 patch (for
-> > -pre6, with the rej fixed).
-> 
-> Does this happen with stock 2.4.13?  I don't think ext3 touches
-> anything that could cause this.
+I think I posted a message earily to l-k, but I was really distraced at
+the time, and haven't seen it show up yet, so I probally got something
+wrong.
 
-Someone else reported it happening on stock 2.4.13.  I only mentioned
-ext3 because it was there.  I have a number of ext3 machines, and it
-only happens on one (with the smallest memory).
+Anyway, for a little more information:  I have a 3Com mini-PCI card in my
+laptop.  It is based on the 3c556 chip.  I'm using the 3c59x driver from
+2.4.13-ac5.
 
-	J
+Both compiled into the kernel or as a module I'm having no luck.  The
+driver seems to load without complaints.  But reports the MAC address as
+all Fs.  Actually most information I've seen returned from the card is all
+Fs.
+
+ifconfig does seem to assign an IP to the interface.  But when any traffic
+is generated that tries to access the interface, it seems the machine
+hangs.  It won't even change consoles.  Then I get an error in my logs
+various commands not completing and I can change consoles again.  Basicly
+the machine totally pauses everytime I access the interface but quickly
+resumes when the command fails.
+
+I can get what ever information you'd like to see, but I'll have to get
+another network card back into the machine so I can transfer the data off.
+
+-Chris
+-- 
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
 

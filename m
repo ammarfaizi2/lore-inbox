@@ -1,77 +1,473 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318097AbSGROgQ>; Thu, 18 Jul 2002 10:36:16 -0400
+	id <S318098AbSGROip>; Thu, 18 Jul 2002 10:38:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318098AbSGROgQ>; Thu, 18 Jul 2002 10:36:16 -0400
-Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:44186 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S318097AbSGROgP>;
-	Thu, 18 Jul 2002 10:36:15 -0400
-Message-ID: <3D36D311.2030402@acm.org>
-Date: Thu, 18 Jul 2002 09:39:13 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ben Greear <greearb@candelatech.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How to make a kernel thread sleep for a short amount of time?
-References: <3D24BC95.3030006@candelatech.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S318100AbSGROip>; Thu, 18 Jul 2002 10:38:45 -0400
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:41859 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S318098AbSGROik>; Thu, 18 Jul 2002 10:38:40 -0400
+Date: Thu, 18 Jul 2002 16:41:30 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: input subsystem config ?
+Message-ID: <20020718144130.GB2326@tahoe.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Vojtech Pavlik <vojtech@suse.cz>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20020717120135.A12452@ucw.cz> <20020717101001.GE14581@tahoe.alcove-fr> <20020717140804.B12529@ucw.cz> <20020717132459.GF14581@tahoe.alcove-fr> <20020717154448.A19761@ucw.cz> <20020717135823.GG14581@tahoe.alcove-fr> <20020717162904.B19935@ucw.cz> <20020717145523.GJ14581@tahoe.alcove-fr> <20020717172235.A20474@ucw.cz> <20020717153336.GK14581@tahoe.alcove-fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020717153336.GK14581@tahoe.alcove-fr>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using high-res timers 
-(http://sourceforge.net/projects/high-res-timers) in a driver to do 
-sub-millisecond timing for a driver I am developing.  With high-res 
-timers, I have some code that looks like:
+On Wed, Jul 17, 2002 at 05:33:36PM +0200, Stelian Pop wrote:
 
-#ifdef CONFIG_HIGH_RES_TIMERS
-        /* If the state machine asks for a short delay, then shorten
-           the timer timeout. */
-        if (kcs_result == KCS_CALL_WITH_DELAY) {
-                kcs_timer.sub_expires
-                        += usec_to_arch_cycles(KCS_SHORT_TIMEOUT_USEC);
-                while (kcs_timer.sub_expires >= cycles_per_jiffies) {
-                        kcs_timer.expires++;
-                        kcs_timer.sub_expires -= cycles_per_jiffies;
-                }
-        } else {
-                kcs_timer.expires += KCS_TIMEOUT_JIFFIES;
-         }
-#else
-        kcs_timer.expires += KCS_TIMEOUT_JIFFIES;
-#endif
+> The i8042 version used is the one you send me, plus the #if 0 surrounding
+> the aux probe code.
+> 
+> Result: keyboard works, mouse still doesn't.
+[...]
 
-But the high-res timers are not in the kernel right now, it's a patch 
-you have to add, and the user has to have it configured.
+Ok, I've hacked a bit on the input drivers (trying to look at the
+differences between the pc_keyb.c and the new initialisation sequences),
+with some limited success.
 
--Corey
+What I found out is that the mouse is not responding to any of
+the commands in psmouse.c:psmouse_probe. However, if I comment out
+the 'return -1' statements from this function, the mouse will
+be recognised as a default PS/2 mouse. 
 
-Ben Greear wrote:
+Later, in psmouse_initialise, the PSMOUSE_CMD_ENABLE will fail too
+(no response from the mouse). But since the error is not propagated
+to serio the device remains registered.
 
-> I am re-working the net/core/pktgen code to be a kernel thread.
->
-> It is basically working, but I am having trouble making the thread
-> efficiently sleep for durations in the milisecond and micro-second range.
->
-> I have looked at the udelay and mdelay methods, but they busy
-> wait.
->
-> I do not need absolute real-time precision, so if I ask the thread
-> to sleep for 100 micro-seconds, it is not a big deal if it does
-> not wake up for 5000us.  On average, it should be very close to 100us.
->
-> I believe the answer may be to use some sort of timer and have my
-> thread sleep on this timer, but I cannot find any examples or
-> documentation on how to do this on the web.
->
-> If anyone can point me to some example code or documentation, I
-> would appreciate it.
->
-> Thanks,
-> Ben
->
+And later, the mouse will get enabled somehow and will function
+perfectly. I didn't succed in finding out what exactly enables it,
+even if I strongly suspect some interraction between the keyboard
+enable and aux port enable... 
 
+Any further idea ?
 
+What I also did, maybe you'll find this interesting, is recording 
+the events sent by the pc_keyb.c driver to the i8042 port (by tracing
+the inb/outb in include/asm-i386/keyboard.h):
 
+kbd_read_status: 1c
+kbd_write_command: a7
+kbd_read_status: 1e
+kbd_read_status: 1c
+kbd_write_command: 60
+kbd_read_status: 1e
+kbd_read_status: 1c
+kbd_write_output: 65
+kbd_read_status: 14
+kbd_write_output: ed
+kbd_read_status: 15
+kbd_read_input: fa
+kbd_read_status: 14
+kbd_read_status: 14
+kbd_write_output: 00
+kbd_read_status: 15
+kbd_read_input: fa
+kbd_read_status: 14
+kbd_read_status: 14
+kbd_write_command: a8
+kbd_read_status: 1c
+kbd_write_command: d4
+kbd_read_status: 1e
+kbd_read_status: 1c
+kbd_write_output: f4
+kbd_read_status: 14
+kbd_read_status: 14
+kbd_write_command: 60
+kbd_read_status: 1e
+kbd_read_status: 3d
+kbd_read_input: fa
+kbd_read_status: 3c
+kbd_write_output: 47
+kbd_read_status: 34
+kbd_write_output: f4
+kbd_read_status: 15
+kbd_read_input: fa
+kbd_read_status: 14
+kbd_read_status: 14
+kbd_write_command: d4
+kbd_read_status: 1e
+kbd_read_status: 1c
+kbd_write_output: ffffffff
+kbd_read_status: 35
+kbd_read_input: fa
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: aa
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 34
+kbd_write_command: d4
+kbd_read_status: 3e
+kbd_read_status: 3c
+kbd_write_output: fffffff4
+kbd_read_status: 35
+kbd_read_input: fa
+kbd_read_status: 34
+kbd_read_status: 34
+kbd_write_command: d4
+kbd_read_status: 3e
+kbd_read_status: 3c
+kbd_write_output: fffffff2
+kbd_read_status: 35
+kbd_read_input: fa
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 34
+kbd_write_command: d4
+kbd_read_status: 3e
+kbd_read_status: 3c
+kbd_write_output: fffffff3
+kbd_read_status: 35
+kbd_read_input: fa
+kbd_read_status: 34
+kbd_read_status: 34
+kbd_write_command: d4
+kbd_read_status: 3e
+kbd_read_status: 3c
+kbd_write_output: ffffffc8
+kbd_read_status: 35
+kbd_read_input: fa
+kbd_read_status: 34
+kbd_read_status: 34
+kbd_write_command: d4
+kbd_read_status: 3e
+kbd_read_status: 3c
+kbd_write_output: fffffff3
+kbd_read_status: 35
+kbd_read_input: fa
+kbd_read_status: 34
+kbd_read_status: 34
+kbd_write_command: d4
+kbd_read_status: 3e
+kbd_read_status: 3c
+kbd_write_output: 64
+kbd_read_status: 35
+kbd_read_input: fa
+kbd_read_status: 34
+kbd_read_status: 34
+kbd_write_command: d4
+kbd_read_status: 3e
+kbd_read_status: 3c
+kbd_write_output: fffffff3
+kbd_read_status: 35
+kbd_read_input: fa
+kbd_read_status: 34
+kbd_read_status: 34
+kbd_write_command: d4
+kbd_read_status: 3e
+kbd_read_status: 3c
+kbd_write_output: 50
+kbd_read_status: 35
+kbd_read_input: fa
+kbd_read_status: 34
+kbd_read_status: 34
+kbd_write_command: d4
+kbd_read_status: 3e
+kbd_read_status: 3c
+kbd_write_output: fffffff2
+kbd_read_status: 35
+kbd_read_input: fa
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 34
+kbd_write_command: d4
+kbd_read_status: 3e
+kbd_read_status: 3c
+kbd_write_output: ffffffff
+kbd_read_status: 35
+kbd_read_input: fa
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: aa
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 34
+kbd_write_command: d4
+kbd_read_status: 3e
+kbd_read_status: 3c
+kbd_write_output: fffffff4
+kbd_read_status: 35
+kbd_read_input: fa
+kbd_read_status: 34
+kbd_read_status: 34
+kbd_write_command: d4
+kbd_read_status: 3e
+kbd_read_status: 3c
+kbd_write_output: fffffff2
+kbd_read_status: 35
+kbd_read_input: fa
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 34
+kbd_write_command: 60
+kbd_read_status: 3e
+kbd_read_status: 3c
+kbd_write_output: 65
+kbd_read_status: 34
+kbd_write_command: a7
+kbd_read_status: 3c
+kbd_write_command: a8
+kbd_read_status: 3e
+kbd_read_status: 3c
+kbd_write_command: d4
+kbd_read_status: 3e
+kbd_read_status: 3c
+kbd_write_output: f4
+kbd_read_status: 34
+kbd_read_status: 34
+kbd_write_command: 60
+kbd_read_status: 3e
+kbd_read_status: 3d
+kbd_read_input: fa
+kbd_read_status: 3c
+kbd_write_output: 47
+kbd_read_status: 34
+kbd_write_output: f4
+kbd_read_status: 15
+kbd_read_input: fa
+kbd_read_status: 14
+kbd_read_status: 15
+kbd_read_input: 22
+kbd_read_status: 14
+kbd_read_status: 15
+kbd_read_input: a2
+kbd_read_status: 14
+kbd_read_status: 15
+kbd_read_input: 22
+kbd_read_status: 14
+kbd_read_status: 15
+kbd_read_input: a2
+kbd_read_status: 14
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 02
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 01
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 01
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 03
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 05
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 01
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 06
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 05
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 09
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 09
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 28
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: ff
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 09
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 0a
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 0a
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 28
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 06
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: ff
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 05
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 04
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 01
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 05
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 04
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 01
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 08
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 01
+kbd_read_status: 34
+kbd_read_status: 35
+kbd_read_input: 00
+kbd_read_status: 34
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

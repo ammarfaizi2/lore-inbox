@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318161AbSGWRAR>; Tue, 23 Jul 2002 13:00:17 -0400
+	id <S318140AbSGWQ6T>; Tue, 23 Jul 2002 12:58:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318162AbSGWRAR>; Tue, 23 Jul 2002 13:00:17 -0400
-Received: from pg-fw.paradigmgeo.com ([192.117.235.33]:32858 "EHLO
-	ntserver2.geodepth.com") by vger.kernel.org with ESMTP
-	id <S318161AbSGWRAP>; Tue, 23 Jul 2002 13:00:15 -0400
-Message-ID: <EE83E551E08D1D43AD52D50B9F511092E114A3@ntserver2>
-From: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>
-To: "'Dr. Michael Weller'" <eowmob@exp-math.uni-essen.de>
-Cc: "Linux Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: RE: Problem with msync system call
-Date: Tue, 23 Jul 2002 20:00:55 +0200
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S318141AbSGWQ6T>; Tue, 23 Jul 2002 12:58:19 -0400
+Received: from ns1.systime.ch ([194.147.113.1]:28934 "EHLO mail.systime.ch")
+	by vger.kernel.org with ESMTP id <S318140AbSGWQ6S>;
+	Tue, 23 Jul 2002 12:58:18 -0400
+From: "Martin Brulisauer" <martin@uceb.org>
+To: George France <france@handhelds.org>
+Date: Tue, 23 Jul 2002 19:01:07 +0200
+Subject: Re: kbuild 2.5.26 - arch/alpha
+CC: linux-kernel@vger.kernel.org
+Message-ID: <3D3DA7F3.9275.1480075C@localhost>
+References: <3D3D6B3B.25754.1392D3FD@localhost>
+In-reply-to: <02072311055101.22920@shadowfax.middleearth>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks a lot for your comments.
+On 23 Jul 2002, at 11:05, George France wrote:
+> that version for a while until it is stable.  In the past few months most of 
+> the efforts have been spent on 2.4.9.  Currently there have been discussions 
+> in regard to:
+> 
+> 1) porting all those patches for 2.4.9 forward to 2.4.[18-19] and 2.5.x.  
 
->I must say I have a very uneasy feeling about such a usage and 
->don't know how it is covered by standards (although you claim it works for
-non
->linux). Experience shows that such a construct is very 
->fragile. Note also that NFS file locking is not mandatory, only advisory
-(read: 
->user level) and it is unclear how that will interact with mmap.
+I am currently running 2.4.18 from SuSE without any (major) 
+problems. I found it here:
+ftp://ftp.suse.com/pub/people/sf/axp/7.1/RPMS/kernel-source-
+2.4.18.SuSE-0.alpha.rpm.
+Then I took arch/alpha/kernel/core_cia.c from version 2.4.12
+(the current version does not run on XLT's booting with MILO;
+the latest one is 2.4.12).
 
-I agree that the construction is very fragile, but...
+> 2) taking a look at the latest 2.5.x in the next few weeks, as we are aware 
+> that 2.5.x does not compile on Alpha.
 
-- It's been working on a variety of OSes for years... There is no reason for
-Linux not to support it as a mature operating system.
-- This works for read/write system calls if the file is open with O_SYNC
-flag and NFS is mounted using "sync" option.
-- There has to be something in the OS that users can do to unconditionally
-reread mapped files (no matter if this is NFS or not)
-- Even mandatory locking should be sufficient for mmap interaction if one
-cares to flush information to the disk before the file is unlocked.
-Suprisingly, locking is not the problem here :)
+Hopefully I can fix core_cia.c to run on XLT's (it's hard to find any 
+documentation on this toppic) and arch/alpha/kernel/setup.c for 
+machines booting with linload.exe/MILO because the hwrpb
+struct is built by MILO and does not match the one booting from
+SRM (eg. empty percpu struct resulting in a cpucount of zero
+in /proc/cpuinfo).
 
-Best,
-Giga
+Regards,
+Martin
 

@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317260AbSGHXh4>; Mon, 8 Jul 2002 19:37:56 -0400
+	id <S317264AbSGHXwe>; Mon, 8 Jul 2002 19:52:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317262AbSGHXh4>; Mon, 8 Jul 2002 19:37:56 -0400
-Received: from pD9E238F8.dip.t-dialin.net ([217.226.56.248]:12250 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317260AbSGHXhz>; Mon, 8 Jul 2002 19:37:55 -0400
-Date: Mon, 8 Jul 2002 17:40:35 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Sanctus Evanidus <evanidus@videotron.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch for Menuconfig script
-In-Reply-To: <3D2A1FD9.nailEY1K2ZSH@videotron.ca>
-Message-ID: <Pine.LNX.4.44.0207081740050.10105-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317263AbSGHXwd>; Mon, 8 Jul 2002 19:52:33 -0400
+Received: from ns1.ptt.yu ([212.62.32.1]:56965 "EHLO ns1.ptt.yu")
+	by vger.kernel.org with ESMTP id <S317264AbSGHXwc>;
+	Mon, 8 Jul 2002 19:52:32 -0400
+Subject: Re: system call
+From: Vladimir Zidar <vladimir@mindnever.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L2.0207080808310.7622-100000@dragon.pdx.osdl.net>
+References: <Pine.LNX.4.33L2.0207080808310.7622-100000@dragon.pdx.osdl.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 09 Jul 2002 01:59:42 +0200
+Message-Id: <1026172783.2084.26.camel@server1>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2002-07-08 at 17:16, Randy.Dunlap wrote:
 
-On Mon, 8 Jul 2002, Sanctus Evanidus wrote:
-> I personaly don't think it should be assumed that every systems even has
-> bash installed, but instead that every systems have a POSIX compilant
-> sh.
-> 
-> In other words, without cleanups, someone who want to execute that
-> script would be "forced" to install bash.
 
-Cool. Same discussion as for GCC once.
+>   http://www.xenotime.net/linux/syscall_ex/
+> contains a howto, kernel patch, and test program.
 
-							Regards,
-							Thunder
+ And how to choose goot syscall number ? Are some numbers pre-reserved
+to 'private' syscalls ? What numbers are free to use, without fear that
+new kernel release will just jump over them !?
+ And what about an idea to be able to add syscall by name, from loadab;e
+module of course.  Userland application will then resolve 'name' to
+number at startup, and use it just as ordinary syscall ?
+
+
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+Bye,
+
+ and have a very nice day !
+
+
 

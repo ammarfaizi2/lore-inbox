@@ -1,39 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbUFJMZV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUFJMdw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbUFJMZV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 08:25:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbUFJMZV
+	id S261184AbUFJMdw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 08:33:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUFJMdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 08:25:21 -0400
-Received: from sasami.anime.net ([207.109.251.120]:52951 "EHLO
-	sasami.anime.net") by vger.kernel.org with ESMTP id S261159AbUFJMZS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 08:25:18 -0400
-X-Antispam-Origin-Id: c4dc35da7d5d290438c6d6bdb17308d1
-Date: Thu, 10 Jun 2004 05:25:17 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: linux-kernel@vger.kernel.org
-Subject: random fs corruption with iriver ihp-120, usb2, vfat and 2.6.5
-Message-ID: <Pine.LNX.4.44.0406100516440.31443-100000@sasami.anime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Greylist: Message not sent from an IPv4 address, not delayed by milter-greylist-1.3.8 (sasami.anime.net [0.0.0.0]); Thu, 10 Jun 2004 05:25:17 -0700 (PDT)
+	Thu, 10 Jun 2004 08:33:52 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:46541 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S261184AbUFJMdt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 08:33:49 -0400
+Date: Thu, 10 Jun 2004 13:32:35 +0100
+From: Dave Jones <davej@redhat.com>
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, arjanv@redhat.com,
+       Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
+       tiwai@suse.de
+Subject: Re: [PATCH] ALSA: Remove subsystem-specific malloc (1/8)
+Message-ID: <20040610123235.GA28923@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	dean gaudet <dean-list-linux-kernel@arctic.org>,
+	Pekka Enberg <penberg@cs.helsinki.fi>, arjanv@redhat.com,
+	Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
+	tiwai@suse.de
+References: <200406082124.i58LOuOL016163@melkki.cs.helsinki.fi> <20040609113455.U22989@build.pdx.osdl.net> <1086812001.13026.63.camel@cherry> <1086812486.2810.21.camel@laptop.fenrus.com> <1086814663.13026.70.camel@cherry> <Pine.LNX.4.58.0406092133300.19296@twinlark.arctic.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0406092133300.19296@twinlark.arctic.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reply in email please, i'm not subscribed to l-k.
+On Wed, Jun 09, 2004 at 10:08:34PM -0700, dean gaudet wrote:
 
-I guess I'm seeing the same corruption as reported in this thread:
-http://www.mail-archive.com/linux-usb-users@lists.sourceforge.net/msg10327.html
+ > > +void *kcalloc(size_t n, size_t size, int flags)
+ > > +{
+ > > +	if (n != 0 && size > INT_MAX / n)
+ > > +		return NULL;
+ > 
+ > division isn't very efficient :)  it's typically a 40+ cycle operation.
+ >
+ > there's almost certainly more efficient ways to do this with per-target
+ > assembly... but you should probably just crib the code from glibc which
+ > avoids division for small allocations:
+ > 
+ >   /* size_t is unsigned so the behavior on overflow is defined.  */
+ >   bytes = n * elem_size;
+ > #define HALF_INTERNAL_SIZE_T \
+ >   (((INTERNAL_SIZE_T) 1) << (8 * sizeof (INTERNAL_SIZE_T) / 2))
+ >   if (__builtin_expect ((n | elem_size) >= HALF_INTERNAL_SIZE_T, 0)) {
+ >     if (elem_size != 0 && bytes / elem_size != n) {
+ >       MALLOC_FAILURE_ACTION;
+ >       return 0;
+ >     }
+ >   }
 
-If I copy large files to this device and then read it back, I always 
-get different md5sums. And random filesystem corruption.
+Considering this isn't exactly a cycle-critical piece of code,
+I'd choose readability over saving 40 cycles which is probably
+lost in the noise of every other operation we do in that allocation.
 
-I've learned that the drive in this device, a Toshiba MK2004GAL is 
-connected directly to the usb2.0 via a cypress CY7C68310:
-http://www.cypress.com/products/datasheet.cfm?partnum=CY7C68310
-
-Anyone have a patch I can try to address the errors?
-
--Dan
+		Dave
 

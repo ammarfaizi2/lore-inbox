@@ -1,63 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317525AbSGESN3>; Fri, 5 Jul 2002 14:13:29 -0400
+	id <S317531AbSGESQB>; Fri, 5 Jul 2002 14:16:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317528AbSGESN2>; Fri, 5 Jul 2002 14:13:28 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:47778 "EHLO geena.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S317525AbSGESN0>;
-	Fri, 5 Jul 2002 14:13:26 -0400
-Date: Fri, 5 Jul 2002 11:10:21 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@geena.pdx.osdl.net>
-To: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Device Model Docs
-In-Reply-To: <200207041754.26986.arnd@bergmann-dalldorf.de>
-Message-ID: <Pine.LNX.4.33.0207051101520.8496-100000@geena.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317528AbSGESQA>; Fri, 5 Jul 2002 14:16:00 -0400
+Received: from h186n1fls24o900.telia.com ([213.66.143.186]:23786 "EHLO
+	oden.fish.net") by vger.kernel.org with ESMTP id <S317533AbSGESP6>;
+	Fri, 5 Jul 2002 14:15:58 -0400
+Date: Fri, 5 Jul 2002 20:19:59 +0200
+From: Voluspa <voluspa@bigfoot.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IBM Desktar disk problem?
+Message-Id: <20020705201959.5e43279e.voluspa@bigfoot.com>
+In-Reply-To: <Pine.SOL.4.30.0207052004560.24991-100000@mion.elka.pw.edu.pl>
+References: <20020705200113.21be185f.voluspa@bigfoot.com>
+	<Pine.SOL.4.30.0207052004560.24991-100000@mion.elka.pw.edu.pl>
+Organization: The Foggy One
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 5 Jul 2002 20:05:23 +0200 (MET DST)
+Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
 
-On Thu, 4 Jul 2002, Arnd Bergmann wrote:
+> Overheating?
 
-> On Wednesday 03 July 2002 18:46, Patrick Mochel wrote:
-> 
-> > However, in any class, there may be multiple interfaces available for a
-> > particular device. It's these interfaces that userspace sees. A driver may
-> > implement some or all of those interfaces, and they may or may not be
-> > present based on the configuration of the kernel.
-> 
-> Ah, that's the missing bit, at least the tape driver is no problem then. There 
-> is still a slightly different case that I'm not sure about. In the case of 
-> CTC, the type of a device is determined during probe (depending on what's on 
-> the other side, but the driver handles both tty and network ctc devices. It 
-> seems logical if this type maps to a device class, not an interface, as there 
-> is no network device that ever implements a tty interface or vice versa (in 
-> ppp, you have a parent-child relationship between these, not identity).
-> I suppose then, the ctc module should actually implement two drivers, one
-> for each class and handle detection in the two probe methods, right?
+Yes. First one was like a frying pan on the surface. But the second had a moderate temp. Inside temp of the box, no problem.
 
-Yes, exactly. 
-
-> A similar example is the 'lcs' network driver, whose devices can be either
-> ethernet, token ring or fddi NICs. You said that these would be subclasses
-> of the network class, but could lcs also be simply belong to a non-specific 
-> network driver class and not put each device in the respective sub class?
-> Or would it make more sense to have special subclass just for network
-> drivers with more than one layer-2 protocol?
-
-Thinking about it some more, I'm wondering if we treat them only as 
-belonging to the top-level networking class and have the layer-2 protocols 
-be interfaces to those devices. For most devices, there would be only one 
-interface, but it would also cover the case in which a device supports 
-multiple prototcols. 
-
-This is similar to the input layer. Initially, I had grouped specific 
-devices into subclasses. But, I learned that a device really belongs to 
-multiple subclasses (e.g. evdev and mouse). Hence the concept of one class 
-with multiple interfaces...
-
-	-pat
-
+Regards,
+Mats Johannesson

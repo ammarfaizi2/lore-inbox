@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbUKUPcD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbUKUPeR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261318AbUKUPcD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 10:32:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbUKUPcD
+	id S261368AbUKUPeR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 10:34:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbUKUPeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 10:32:03 -0500
-Received: from web41403.mail.yahoo.com ([66.218.93.69]:37294 "HELO
-	web41403.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261318AbUKUPbz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 10:31:55 -0500
+	Sun, 21 Nov 2004 10:34:04 -0500
+Received: from web41404.mail.yahoo.com ([66.218.93.70]:4479 "HELO
+	web41404.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261323AbUKUPd4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 10:33:56 -0500
 Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com;
-  b=S56cSMAhHj6w0bBzqUoKEPBSp2nboN+dw6A6n3sZnJflDjuKAex3C3WHGuCKDlh8//SpxdMUa3BuITCx7E6rmeRQlLxCx0icFyf4LI9jv5q7exfLF68bjDYBFEfhmA2ZhYPOtsxWu1KIGTF7gFx0akSaxZcc3oDjI2q8MhRc5kQ=  ;
-Message-ID: <20041121153154.85910.qmail@web41403.mail.yahoo.com>
-Date: Sun, 21 Nov 2004 07:31:54 -0800 (PST)
+  b=tzmMuiYzBB3M2l5pYn7kSR7xWwvMt7ECyzqonghx9Y0/v1/4hSzEjrnhjkItLKSviyucx5R3U1T5pmRz7mmxKPUIxjhtByDetLrRzo57ji/JXd4leyfvgaGalPkcr11NoS65hd7a7lA77TnTPje2rcx9p8KJ6+dSaib+g+g4e20=  ;
+Message-ID: <20041121153354.99557.qmail@web41404.mail.yahoo.com>
+Date: Sun, 21 Nov 2004 07:33:54 -0800 (PST)
 From: cranium2003 <cranium2003@yahoo.com>
-Subject: how netfilter handles fragmented packets
+Subject: netfilter query
 To: kernelnewbies@nl.linux.org
 Cc: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org,
        netdev@oss.sgi.com
@@ -26,17 +26,16 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 hello,
-          In ip_output.c file ip_fragmet function when
-create a new fragmented packet given to output(skb)
-function. i want to know which function are actually
-called by output(skb)?
-          Is that function ip_finish_output? if yes
-then fragmented packet has not gone through netfilter
-hooks specially NF_IP_LOCAL_OUT?
-          so does that mean fragmented packets not
-travel through netfilter hooks?
+        how can i use packets in userspace using
+netfilter. i want some sample examples that
+manipulates on packet.
+        Also,which headers are added when packet
+reaches to netfilter hook NF_IP_LOCAL_OUT? I found
+TCP/UDP/ICMP ,IP. Is that correct?
+
 regards,
 cranium
+
 
 
 		

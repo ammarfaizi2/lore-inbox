@@ -1,127 +1,268 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264777AbUGBRbz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264737AbUGBReu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264777AbUGBRbz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 13:31:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264775AbUGBRbz
+	id S264737AbUGBReu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 13:34:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264775AbUGBReu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 13:31:55 -0400
-Received: from pengo.systems.pipex.net ([62.241.160.193]:40410 "EHLO
-	pengo.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S264704AbUGBRbq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 13:31:46 -0400
-Date: Fri, 2 Jul 2004 18:30:21 +0100 (BST)
-From: Tigran Aivazian <tigran@veritas.com>
-X-X-Sender: tigran@einstein.homenet
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-ide@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       <cova@ferrara.linux.it>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: question about SATA and IDE DVD/CD drives.
-In-Reply-To: <40E5950F.2090308@pobox.com>
-Message-ID: <Pine.LNX.4.44.0407021805580.2190-100000@einstein.homenet>
+	Fri, 2 Jul 2004 13:34:50 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:41890 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264737AbUGBRdE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 13:33:04 -0400
+From: Kevin Corry <kevcorry@us.ibm.com>
+To: linux-kernel@vger.kernel.org, DevMapper <dm-devel@redhat.com>
+Subject: Re: [PATCH] 1/1: Device-Mapper: Remove 1024 devices limitation
+Date: Fri, 2 Jul 2004 12:33:09 -0500
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       Alasdair Kergon <agk@redhat.com>
+References: <200407011035.13283.kevcorry@us.ibm.com> <200407012154.16312.kevcorry@us.ibm.com> <20040701203043.08226a0c.akpm@osdl.org>
+In-Reply-To: <20040701203043.08226a0c.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407021233.09610.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Jul 2004, Jeff Garzik wrote:
-> Tigran Aivazian wrote:
-> > On Fri, 2 Jul 2004, Jeff Garzik wrote:
-> > 
-> >>Enable CONFIG_IDE, and disable CONFIG_BLK_DEV_IDE_SATA, and that will 
-> >>fix things I bet.
-> > 
-> > 
-> > Tried this as well on the latest snapshot (2.6.7-bk9) and it failed as 
-> > well. Namely, SATA disk works fine but IDE subsystem doesn't see the DVD 
-> > drive.
-> > 
-> > Are you sure that I only need to enable CONFIG_IDE and not some of the
-> > other IDE options (disk, cdrom, chipset-specific etc)?
-> 
-> Sorry, I was summarizing...  you definitely need a "personality" driver 
-> such as the ide-cdrom driver in order to make use of your DVD drive.
+On Thursday 01 July 2004 10:30 pm, Andrew Morton wrote:
+> Kevin Corry <kevcorry@us.ibm.com> wrote:
+> > > Did you consider going to a different data structure altogether?
+> > >
+> >  > lib/radix-tree.c and lib/idr.c provide appropriate ones.
+> >
+> >  The idr stuff looks promising at first glance. I'll take a better look
+> > at it tomorrow and see if we can switch from a bit-set to one of these
+> > data structures.
+>
+> Yes, idr is the one to use.  That linear search you have in there becomes
+> logarithmic.  Will speed up the registration of 100,000 minors no end ;)
 
-Tried it as well, namely:
+I've got a patch that switches from a bit-set to an IDR structure. The only
+thing I'm slightly uncertain about is the case where we're trying to create
+a device with a specific minor number (when creating a DM device, you have
+the choice to specify a minor number or have DM find the first available
+one). To do this, I call idr_find() with the desired minor. If that returns
+NULL (meaning it's not already in use), then I call idr_get_new_above() with
+that same desired minor. In the cases I've tested, this always chooses the
+desired minor, but can we depend on that behavior? For now I've got a check
+to make sure the idr_get_new_above() call returned the correct value, but if
+we can't be certain that this value will be correct in at least the vast
+majority of the cases, we might want to find an alternate approach.
 
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-# CONFIG_BLK_DEV_IDE_SATA is not set
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_SCSI_SATA=y
-CONFIG_SCSI_ATA_PIIX=y
+Here's the proposed patch. This is in addition to yesterday's, since Linus
+has already picked that one up in his tree. It completely removes the
+realloc_minor_bits() and free_minor_bits() routines, and modifies
+free_minor(), specific_minor() and next_free_minor() to use the IDR
+instead of the bit-set.
 
-and still the same result, i.e. SATA takes the disk but IDE only says 
-this:
-
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-
-and DVD drive is still not seen.
-
-I also tried enabling CONFIG_IDE_GENERIC but then it (IDE) reserves both 
-io ranges and so SATA doesn't work (i.e. ata_piix probe fails with error 
--16).
-
-I also tried not enabling CONFIG_IDE_GENERIC but instead enable PCI:
-
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_BLK_DEV_IDEDMA=y
-
-Same result as the first one, i.e. SATA disk is OK but IDE DVD is not.
-
-(btw there is a bug whereby one cannot disable CONFIG_SCSI_QLA2XXX for 
-some reason)
-
-I also tried passing ide0=noprobe to the IDE driver to make it leave ide0 
-alone. Didn't work either, namely IDE took over both ide0 and ide1 and 
-SATA failed to register both io regions.
-
-So I still have a dilemma of either having a slow hdd or not being able to 
-access DVD. 
-
-Kind regards
-Tigran
-
-PS. Btw, I still get oops on cat /proc/iomem:
-
-Unable to handle kernel paging request at ffffffff00000000 RIP: 
-<ffffffff801cf084>{strnlen+13}
-PML4 103027 PGD 0 
-Oops: 0000 [1] SMP 
-CPU 0 
-Modules linked in: iptable_filter ip_tables
-Pid: 2190, comm: cat Not tainted 2.6.7-bk9
-RIP: 0010:[<ffffffff801cf084>] <ffffffff801cf084>{strnlen+13}
-RSP: 0018:0000010028cbbd60  EFLAGS: 00010297
-RAX: ffffffff00000000 RBX: 0000010023a00014 RCX: 000000000000000a
-RDX: 0000010028cbbeb8 RSI: fffffffffffffffe RDI: ffffffff00000000
-RBP: 0000000000000000 R08: 00000000fffffffe R09: 0000000000000004
-R10: 00000000ffffffff R11: 0000000000000000 R12: 0000010023a00fff
-R13: ffffffff00000000 R14: 00000000ffffffff R15: 0000010028cbbdc8
-FS:  0000002a958624c0(0000) GS:ffffffff803fc600(0000) 
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: ffffffff00000000 CR3: 0000000000101000 CR4: 00000000000006e0
-Process cat (pid: 2190, threadinfo 0000010028cba000, task 
-000001003ec95450)
-Stack: ffffffff801cf9c1 0000010000000001 fffffffffffffff4 0000000000001000 
-       0000010023a00000 ffffffff802c018d 0000010002395400 0000010000002000 
-       0000000000002000 0000000000000400 
-Call Trace:<ffffffff801cf9c1>{vsnprintf+752} 
-<ffffffff80183aa1>{seq_printf+165} 
-       <ffffffff80174944>{link_path_walk+2374} 
-<ffffffff80173b04>{permission+38} 
-       <ffffffff80170198>{cp_new_stat+233} <ffffffff80135a66>{r_show+113} 
-       <ffffffff80183592>{seq_read+273} <ffffffff80167673>{vfs_read+201} 
-       <ffffffff801678c4>{sys_read+73} <ffffffff8010e9d2>{system_call+126} 
-       
-
-Code: 80 3f 00 74 13 48 83 ee 01 48 83 c0 01 48 83 fe ff 74 05 80 
-RIP <ffffffff801cf084>{strnlen+13} RSP <0000010028cbbd60>
-CR2: ffffffff00000000
+-- 
+Kevin Corry
+kevcorry@us.ibm.com
+http://evms.sourceforge.net/
 
 
+Keep track of allocated minor numbers with an IDR instead of a bit-set.
+
+Signed-off-by: Kevin Corry <kevcorry@us.ibm.com>
+
+--- diff/drivers/md/dm.c	2004-07-02 11:48:26.402266784 -0500
++++ source/drivers/md/dm.c	2004-07-02 12:14:12.000000000 -0500
+@@ -15,15 +15,13 @@
+ #include <linux/buffer_head.h>
+ #include <linux/mempool.h>
+ #include <linux/slab.h>
++#include <linux/idr.h>
+ 
+ static const char *_name = DM_NAME;
+ 
+ static unsigned int major = 0;
+ static unsigned int _major = 0;
+ 
+-static int realloc_minor_bits(unsigned long requested_minor);
+-static void free_minor_bits(void);
+-
+ /*
+  * One of these is allocated per bio.
+  */
+@@ -113,19 +111,11 @@
+ 		return -ENOMEM;
+ 	}
+ 
+-	r = realloc_minor_bits(1024);
+-	if (r < 0) {
+-		kmem_cache_destroy(_tio_cache);
+-		kmem_cache_destroy(_io_cache);
+-		return r;
+-	}
+-
+ 	_major = major;
+ 	r = register_blkdev(_major, _name);
+ 	if (r < 0) {
+ 		kmem_cache_destroy(_tio_cache);
+ 		kmem_cache_destroy(_io_cache);
+-		free_minor_bits();
+ 		return r;
+ 	}
+ 
+@@ -139,7 +129,6 @@
+ {
+ 	kmem_cache_destroy(_tio_cache);
+ 	kmem_cache_destroy(_io_cache);
+-	free_minor_bits();
+ 
+ 	if (unregister_blkdev(_major, _name) < 0)
+ 		DMERR("devfs_unregister_blkdev failed");
+@@ -624,59 +613,15 @@
+ }
+ 
+ /*-----------------------------------------------------------------
+- * A bitset is used to keep track of allocated minor numbers.
++ * An IDR is used to keep track of allocated minor numbers.
+  *---------------------------------------------------------------*/
+ static DECLARE_MUTEX(_minor_lock);
+-static unsigned long *_minor_bits = NULL;
+-static unsigned long _max_minors = 0;
+-
+-#define MINORS_SIZE(minors) ((minors / BITS_PER_LONG) * sizeof(unsigned long))
+-
+-static int realloc_minor_bits(unsigned long requested_minor)
+-{
+-	unsigned long max_minors;
+-	unsigned long *minor_bits, *tmp;
+-
+-	if (requested_minor < _max_minors)
+-		return -EINVAL;
+-
+-	/* Round up the requested minor to the next power-of-2. */
+-	max_minors = 1 << fls(requested_minor - 1);
+-	if (max_minors > (1 << MINORBITS))
+-		return -EINVAL;
+-
+-	minor_bits = kmalloc(MINORS_SIZE(max_minors), GFP_KERNEL);
+-	if (!minor_bits)
+-		return -ENOMEM;
+-	memset(minor_bits, 0, MINORS_SIZE(max_minors));
+-
+-	/* Copy the existing bit-set to the new one. */
+-	if (_minor_bits)
+-		memcpy(minor_bits, _minor_bits, MINORS_SIZE(_max_minors));
+-
+-	tmp = _minor_bits;
+-	_minor_bits = minor_bits;
+-	_max_minors = max_minors;
+-	if (tmp)
+-		kfree(tmp);
+-
+-	return 0;
+-}
+-
+-static void free_minor_bits(void)
+-{
+-	down(&_minor_lock);
+-	kfree(_minor_bits);
+-	_minor_bits = NULL;
+-	_max_minors = 0;
+-	up(&_minor_lock);
+-}
++static DEFINE_IDR(_minor_idr);
+ 
+ static void free_minor(unsigned int minor)
+ {
+ 	down(&_minor_lock);
+-	if (minor < _max_minors)
+-		clear_bit(minor, _minor_bits);
++	idr_remove(&_minor_idr, minor);
+ 	up(&_minor_lock);
+ }
+ 
+@@ -685,24 +630,37 @@
+  */
+ static int specific_minor(unsigned int minor)
+ {
+-	int r = 0;
++	int r, m;
+ 
+ 	if (minor > (1 << MINORBITS))
+ 		return -EINVAL;
+ 
+ 	down(&_minor_lock);
+-	if (minor >= _max_minors) {
+-		r = realloc_minor_bits(minor);
+-		if (r) {
+-			up(&_minor_lock);
+-			return r;
+-		}
++
++	if (idr_find(&_minor_idr, minor)) {
++		r = -EBUSY;
++		goto out;
+ 	}
+ 
+-	if (test_and_set_bit(minor, _minor_bits))
++	r = idr_pre_get(&_minor_idr, GFP_KERNEL);
++	if (!r) {
++		r = -ENOMEM;
++		goto out;
++	}
++
++	r = idr_get_new_above(&_minor_idr, specific_minor, minor, &m);
++	if (r) {
++		goto out;
++	}
++
++	if (m != minor) {
++		idr_remove(&_minor_idr, m);
+ 		r = -EBUSY;
+-	up(&_minor_lock);
++		goto out;
++	}
+ 
++out:
++	up(&_minor_lock);
+ 	return r;
+ }
+ 
+@@ -712,21 +670,29 @@
+ 	unsigned int m;
+ 
+ 	down(&_minor_lock);
+-	m = find_first_zero_bit(_minor_bits, _max_minors);
+-	if (m >= _max_minors) {
+-		r = realloc_minor_bits(_max_minors * 2);
+-		if (r) {
+-			up(&_minor_lock);
+-			return r;
+-		}
+-		m = find_first_zero_bit(_minor_bits, _max_minors);
++
++	r = idr_pre_get(&_minor_idr, GFP_KERNEL);
++	if (!r) {
++		r = -ENOMEM;
++		goto out;
++	}
++
++	r = idr_get_new(&_minor_idr, next_free_minor, &m);
++	if (r) {
++		goto out;
++	}
++
++	if (m > (1 << MINORBITS)) {
++		idr_remove(&_minor_idr, m);
++		r = -ENOSPC;
++		goto out;
+ 	}
+ 
+-	set_bit(m, _minor_bits);
+ 	*minor = m;
+-	up(&_minor_lock);
+ 
+-	return 0;
++out:
++	up(&_minor_lock);
++	return r;
+ }
+ 
+ static struct block_device_operations dm_blk_dops;

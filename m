@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261762AbTIPCg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 22:36:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbTIPCg2
+	id S261755AbTIPCjE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 22:39:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbTIPCjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 22:36:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:13991 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261762AbTIPCg1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 22:36:27 -0400
-Date: Mon, 15 Sep 2003 19:36:57 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: M M <mokomull@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.0-test5 Refuses to Boot (ceases after "mice: PS/2
- mouse device common for all mice")
-Message-Id: <20030915193657.483fd953.akpm@osdl.org>
-In-Reply-To: <20030916011825.98277.qmail@web41806.mail.yahoo.com>
-References: <20030916011825.98277.qmail@web41806.mail.yahoo.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Sep 2003 22:39:04 -0400
+Received: from cmu-24-35-14-252.mivlmd.cablespeed.com ([24.35.14.252]:60044
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261755AbTIPCjB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 22:39:01 -0400
+Date: Mon, 15 Sep 2003 22:38:38 -0400 (EDT)
+From: Thomas Molina <tmolina@cablespeed.com>
+X-X-Sender: tmolina@localhost.localdomain
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.7 block ramblings (was Re: DMA for ide-scsi?)
+In-Reply-To: <1063565701.2149.14.camel@dhcp23.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0309152229390.5337-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M M <mokomull@yahoo.com> wrote:
->
-> I've downloaded, configured (make oldconfig using
-> .config from 2.4.21), and compiled kernel 2.6.0-test5,
-> but it just refuses to boot completely.
-> 
-> It prints:
-> drivers/usb/core/usb.c: registered new driver hid
-> drivers/usb/input/hid-core.c: v2.0:USB HID core driver
-> mice: PS/2 mouse device common for all mice
-> 
-> and just stops booting.
-> 
-> Which configuration option(s) did I miss?
+On Sun, 14 Sep 2003, Alan Cox wrote:
 
-Please add `initcall_debug' to your kernel boot comand line.  You will see
-a lot of lines of the form "calling initcall 0xNNNNNNNN".  Write down the
-final address, reboot and look it up in System.map.
+> On Sul, 2003-09-14 at 18:01, Andries Brouwer wrote:
+> > I do not understand your complaint.
+> 
+> I sort of do - several vendor installers use fixed labels so
+> two installs on the same box get very confused. I've seen
+> novices tie themselves in knots with it before. That isn't
+> a problem with LABEL=, its an implementation issue with the
+> vendors install tools, and Red Hat certainly is one of the
+> parties that made this mistake.
 
-Also try disabling ACPI.
+LABEL= is the wrong solution to the right problem, IMHO.  It only seems to 
+make sense if you are a distributor trying to make a one size mostly fits 
+all.  If you tinker with your system it only seems to get in the way.  
+
+It seems to me that if you are in the position of tinkering, and 
+installing an OS you ought to have an understanding of root and boot 
+disks, and what is in your system.  If you don't understand things well 
+enough to specify the proper boot disk and root disk you shouldn't be 
+tinkering and it won't matter how each is specified.
+
+
 

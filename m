@@ -1,33 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272277AbRHXRZx>; Fri, 24 Aug 2001 13:25:53 -0400
+	id <S272274AbRHXRZx>; Fri, 24 Aug 2001 13:25:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272274AbRHXRZo>; Fri, 24 Aug 2001 13:25:44 -0400
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:25945
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S272277AbRHXRZd>; Fri, 24 Aug 2001 13:25:33 -0400
-Date: Fri, 24 Aug 2001 10:25:48 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Samium Gromoff <_deepfire@mail.ru>
-Cc: Florian.Weimer@RUS.Uni-Stuttgart.DE, linux-kernel@vger.kernel.org
-Subject: Re: source control?
-Message-ID: <20010824102548.U25998@work.bitmover.com>
-Mail-Followup-To: Samium Gromoff <_deepfire@mail.ru>,
-	Florian.Weimer@RUS.Uni-Stuttgart.DE, linux-kernel@vger.kernel.org
-In-Reply-To: <E15aKdG-000KU2-00@f12.port.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <E15aKdG-000KU2-00@f12.port.ru>; from _deepfire@mail.ru on Fri, Aug 24, 2001 at 09:20:34PM +0400
+	id <S272273AbRHXRZn>; Fri, 24 Aug 2001 13:25:43 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:15494 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S272274AbRHXRZZ>;
+	Fri, 24 Aug 2001 13:25:25 -0400
+Date: Fri, 24 Aug 2001 18:25:33 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: David Woodhouse <dwmw2@infradead.org>,
+        Tim Walberg <twalberg@mindspring.com>
+Cc: "J. Imlay" <jimlay@u.washington.edu>, linux-kernel@vger.kernel.org,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: macro conflict 
+Message-ID: <2606707256.998677533@[10.132.112.53]>
+In-Reply-To: <14764.998658214@redhat.com>
+In-Reply-To: <14764.998658214@redhat.com>
+X-Mailer: Mulberry/2.1.0b3 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Aegis == good discussion]
-[Aegis == bad discussion]
+># define real_min(x,y) ({ typeof((x)) _x = (x); typeof((y)) _y = (y);
+># (_x>_y)?_y:_x; })
+>
+># define min(x,y) ({ if strcmp(STRINGIFY(typeof(x)), STRINGIFY(typeof(y)))
+># BUG(); realmin(x,y) })
+>
+> /me wonders if gcc would manage to optimise that.
 
-Before people open up this can of worms again, which happens about once a year,
-could you please go search the archives for the discussion of this in the past?
-This always turns into a flame fest and it never resolves anything.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Will this work with things like
+
+void test(unsigned int foo, char bar)
+{
+	printf ("%d %d\n", min(foo, 10), min (bar, 20));
+}
+
+Surely one of those must BUG().
+
+--
+Alex Bligh

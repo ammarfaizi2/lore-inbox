@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263660AbUCUOzd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 09:55:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbUCUOzd
+	id S263659AbUCUOy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 09:54:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263660AbUCUOy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 09:55:33 -0500
-Received: from 1-1-3-7a.rny.sth.bostream.se ([82.182.133.20]:22280 "EHLO
-	pc16.dolda2000.com") by vger.kernel.org with ESMTP id S263660AbUCUOz1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 09:55:27 -0500
-Message-ID: <405DADAC.9010601@dolda2000.com>
-Date: Sun, 21 Mar 2004 09:58:52 -0500
-From: Bruce Park <bpark@dolda2000.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sun, 21 Mar 2004 09:54:57 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:25474
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263659AbUCUOy4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 09:54:56 -0500
+Date: Sun, 21 Mar 2004 15:55:47 +0100
+From: Andrea Arcangeli <andrea@suse.de>
 To: linux-kernel@vger.kernel.org
-Subject: ACPI Shutdown 2.6.3
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: 2.6.5-rc2-aa1
+Message-ID: <20040321145547.GA3649@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear LMKL users,
+This fixes MAP_SHARED|MAP_ANONYMOUS spotted by Jens and Martin, plus it
+avoids vmware to crash (but it only warns about the missing VM_RESERVED
+bitflag).
 
-I'm experiencing a problem with ACPI and it's ability to shutdown the machine. I'm 
-currently using Debian GNU/Linux with the 2.6.3 kernel. Before I go on, if this is 
-the wrong type of material to post on this list, I apologize in advance. Kindly state 
-what I'm doing wrong and I will not make the same mistake.
+URL:
 
-The following information is about my mobo and BIOS:
-Award Modular BIOS v6.0
-04/29/2002 - SiS745
-ASUS A7S333 ACPI BIOS rv 1006
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc2-aa1.gz
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc2-aa1/
 
-When I run the shutdown command, the last thing I see is the following:
-Power Down
-acpi_power_off called
-hwsleep_0265 [24] acpi_enter_sleep_state: Entering sleep state [S5]
+Changelog diff between 2.6.5-rc1-aa3 and 2.6.5-rc2-aa1:
 
-Here is a result of 'grep -i acpi /var/log/kern.log'. After looking at the output, I 
-realized that there was a pattern. I am pasting all the lines that aren't repetitious.
-http://www.dolda2000.com/~bpark/kern.log
+Binary files 2.6.5-rc1-aa3/anon_vma.gz and 2.6.5-rc2-aa1/anon_vma.gz differ
 
-This is just the output of dmesg:
-http://www.dolda2000.com/~bpark/dmesg.txt
+	Fixed silly bug in mmap(MAP_SHARED|MAP_ANONYMOUS) and converted a
+	BUG_ON to a WARN_ON if some device driver passes non-pageable pages
+	to the VM via ->nopage. VM_RESERVED it's not required with current
+	VM, so even if the WARN_ON triggers the machine remains completely
+	stable.
 
-I am using the testing release of Debian along with acpid version 1.0.3-2. The funny 
-thing is, I have used Fedora Core 1 and even Windows 2000 with ACPI and have been 
-able to shutdown the machine without any problems.
+Only in 2.6.5-rc1-aa3: linus.patch.gz
 
-Any help is greatly appreciated.
-
-bp
-
+	Updated to 2.6.5-rc2 so not needed anymore.

@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261747AbTDYM5E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 08:57:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTDYM5E
+	id S261872AbTDYNMK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 09:12:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262663AbTDYNMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 08:57:04 -0400
-Received: from copper.ftech.net ([212.32.16.118]:42379 "EHLO relay5.ftech.net")
-	by vger.kernel.org with ESMTP id S261747AbTDYM5D (ORCPT
+	Fri, 25 Apr 2003 09:12:10 -0400
+Received: from customer204.globaltap.com ([206.104.238.204]:49356 "HELO
+	annexa.net") by vger.kernel.org with SMTP id S261872AbTDYNMJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 08:57:03 -0400
-Message-ID: <7C078C66B7752B438B88E11E5E20E72E25C89B@GENERAL.farsite.co.uk>
-From: Kevin Curtis <kevin.curtis@farsite.co.uk>
-To: "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Building the Kernel on Sparc64
-Date: Fri, 25 Apr 2003 14:09:13 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Fri, 25 Apr 2003 09:12:09 -0400
+Subject: Re: odd gnome-terminal behavior in 2.5.67-mm3
+From: James Strandboge <jamie@tpptraining.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0304241518550.31091-100000@sol.cobite.com>
+References: <Pine.LNX.4.44.0304241518550.31091-100000@sol.cobite.com>
+Content-Type: text/plain
+Organization: Targeted Performance Partners, LLC
+Message-Id: <1051277058.1588.70.camel@sirius.strandboge.cxm>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 25 Apr 2003 09:24:18 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	I have installed Aurora 1.0 on a Sparc Ultra 60 workstation and have
-a command line system running (X doesn't work yet but that's another
-question for later).  
+On Thu, 2003-04-24 at 15:26, David Mansfield wrote:
+> Hi Andrew, list
+> 
+> I've been experiencing some odd behavior running 2.5.67-mm3 on my RH9 
+> based desktop.
+> 
+> It's probably an application bug, but something strange is happening 
+> anyway that doesn't happen in 'stable' kernels.
+> 
+> What happens is that gnome-terminal gets stuck in some sort of 'infinite 
+> loop' when a lot of output is going to the screen and also keypresses are 
+> going in (like paging through a large file - holding down pgup/pgdown).
+> 
+> Xterm doesn't seem to be affected.
 
-I have downloaded the 2.4.20 Kernel from www.kernel.org and started with the
-default config file (defconfig) from the /usr/src/linux/arch/sparc64
-directory.  The first time I built the Kernel all was OK.  However it didn't
-load because the required scsi driver wasn't included.  So I ran make
-xconfig to add it.  But then after a 
-make dep
-make vmlinux
+I'll chime in and mention that I've seen this too, and also doing a
+paste operation via highlight and middle click doesn't work in 2.5
+either.  I assumed it was a libvte bug.
 
-I go an error from fonts.c in driver/video indicating that no fonts were
-defined.
+Jamie
 
-#ifdef NO_FONTS
-#error No fonts configured.
-#endif
+-- 
+James Strandboge
+Targeted Performance Partners, LLC
+Web: http://www.tpptraining.com
+E-mail: jamie@tpptraining.com
+Tel: (585) 271-8370
+Fax: (585) 271-8373
 
-This error wouldn't go away until I did a
-
-make mrproper
-make oldconfig
-make dep
-make vmlinux
-
-I then made another change to the Kernel config and the same thing happened.
-
-Can anyone throw some light on this?
-
-
-Thanks
-
-Kevin

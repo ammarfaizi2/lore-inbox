@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311378AbSCSPJh>; Tue, 19 Mar 2002 10:09:37 -0500
+	id <S311379AbSCSPMH>; Tue, 19 Mar 2002 10:12:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311379AbSCSPJ2>; Tue, 19 Mar 2002 10:09:28 -0500
-Received: from relay1.pair.com ([209.68.1.20]:7173 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S311378AbSCSPJR>;
-	Tue, 19 Mar 2002 10:09:17 -0500
-X-pair-Authenticated: 68.5.32.62
-Content-Type: text/plain; charset=US-ASCII
-From: Shane Nay <shane@minirl.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Nicolas.Turro@sophia.inria.fr (Nicolas Turro)
-Subject: Re: amd nvidia and mem=nopentium
-Date: Tue, 19 Mar 2002 07:11:22 -0800
-X-Mailer: KMail [version 1.3.2]
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        Nicolas.Turro@sophia.inria.fr (Nicolas Turro),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E16nL60-0007uF-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020319150920Z311378-889+124219@vger.kernel.org>
+	id <S311381AbSCSPL5>; Tue, 19 Mar 2002 10:11:57 -0500
+Received: from bitmover.com ([192.132.92.2]:59359 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S311379AbSCSPLv>;
+	Tue, 19 Mar 2002 10:11:51 -0500
+Date: Tue, 19 Mar 2002 07:11:49 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bitkeeper licence issues
+Message-ID: <20020319071149.E19135@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Gerd Knorr <kraxel@bytesex.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020318212617.GA498@elf.ucw.cz> <20020318144255.Y10086@work.bitmover.com> <20020318231427.GF1740@atrey.karlin.mff.cuni.cz> <20020319002241.K17410@suse.de> <20020318180233.D10086@work.bitmover.com> <slrna9dt7c.nqc.kraxel@bytesex.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'd go Athlon
->
-> >  Do you have pointers  showing stability problems when using
-> > XP processor in a multiprocessor context ?
->
-> Remember the XP's haven't been tested in MP configurations (or
-> tested and failed). The same was true of celerons and as most
-> people found the fail rate was pretty low 8)
+On Tue, Mar 19, 2002 at 08:21:00AM +0000, Gerd Knorr wrote:
+> Why don't you ship a tarball with a install script within the tarball
+> (like vmware does for example)?  That would make downloads even smaller
+> for people with bzip2 installed as you can easily provide both .tar.gz
+> and .tar.bz2 ...
 
-You have to bridge L5-4 on the newest XP CPUs though.  My Tyan Tiger 
-boards' BIOS was giving me something like-
-00Error
-  Failed
+If we change our installation at all, it will be to offer RPMs, .deb, etc.
+Other than that, this is how it is.
 
-Turned out it needed those guys bridged up.  It's not that difficult 
-though, I had a circuit pen lying about and just drew in a trace :).  
-(You don't have to fill the cracks like the overclock bridges)
-
-Anyway, it was pretty easy, but I wouldn't suggest it for the faint 
-of heart.  Running 2.4.18 happily now in dual config with no 
-stability problems.  I have compiled the kernel a few times, compiled 
-Qt, all of KDE, xemacs, glibc, gcc, and a couple billion other things 
-that I can't remember right now.  So, no stability problems with the 
-newest XPs and a hand closed L5-4 bridge.  (So far anyway :) )
-
-Thanks,
-Shane Nay.
+I'm not blowing you off, I'm raising your awareness that we are extremely
+busy and that it is actually in your best interest to filter what you 
+ask for so you get the stuff that you really want.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

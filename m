@@ -1,105 +1,210 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264197AbTDJVk5 (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 17:40:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264207AbTDJVk5 (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 17:40:57 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:56581 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264197AbTDJVky (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 17:40:54 -0400
-Date: Thu, 10 Apr 2003 22:52:33 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Siim Vahtre <siim@pld.ttu.ee>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: i810fb problems with 2.5.66-bk10
-In-Reply-To: <Pine.GSO.4.53.0304061743050.17774@pitsa.pld.ttu.ee>
-Message-ID: <Pine.LNX.4.44.0304102252100.23050-100000@phoenix.infradead.org>
+	id S264178AbTDJVoH (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 17:44:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264185AbTDJVoH (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 17:44:07 -0400
+Received: from watch.techsource.com ([209.208.48.130]:20208 "EHLO
+	techsource.com") by vger.kernel.org with ESMTP id S264178AbTDJVoC (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 17:44:02 -0400
+Message-ID: <3E95EB6D.4020004@techsource.com>
+Date: Thu, 10 Apr 2003 18:08:45 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Painlessly shrinking kernel messages (Re: kernel support for non-english
+ user messages)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I took the liberty of reading the FAQ (yeah, I saw 9.16) and joining the 
+list after reading an interesting recent discussion on i18n of kernel 
+messages.  In short, the primary maintainers of the kernel don't want 
+it, and I agree with them.
 
-Try my latest patch at 
-http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+HOWEVER, the discussion inspired me to think about ways of reducing some 
+of the unfortunate but necessary bloat caused by keeping all of those 
+strings in RAM.  Naturally, any way to do this must be absolutely 
+painless, so I came up with the following set of restrictions:
+
+- Absolutely no requirement to change existing strings, unless you feel 
+like it
+- Must be easy to use
+- Must actually shrink the kernel
+- The impact on the way kernel messages appear should be minimized
+
+To be brief, the idea I came up with was to identify the 128 most common 
+words in kernel messages and replace them with single character values 
+above 127 which printk would decode on the way out.  Once the list was 
+determined, there would be a header file people could use, at their 
+leisure, to make stubstitutions.  So, for instance, instead of having this:
+
+    printk("invalid: ...");
+
+We would have this:
+
+    #define MSG_INVALID "\200"
+    ...
+    prink(MSG_INVALID "...");
 
 
-On Sun, 6 Apr 2003, Siim Vahtre wrote:
+To judge the practicality of this, I used 'strings' on an uncompressed 
+kernel image (2.4.20, IIRC) and then ran it through this:
 
-> 
-> First of all, the cursor is playing fool. Sometimes it disappears when I
-> am writing and sometimes it looks normal. Pretty annoying.
-> 
-> And when I did:
-> 
-> modprobe i810fb mtrr=1 accel=1 xres=640 yres=480 hsync1=30 hsync2=60 vsync1=50 vsync2=100 bpp=16 dcolor=1
-> modprobe fbcon
-> 
-> I got:
-> 
-> PCI: Found IRQ 11 for device 00:02.0
-> I810FB: fb0         : Intel(R) 815 (Internal Graphics with AGP)
-> Framebuffer Device v0.9.0
-> I810FB: Video RAM   : 4096K
-> I810FB: Monitor     : H: 30-60 KHz V: 50-100 Hz
-> I810FB: Mode        : 640x480-16bpp@99Hz
-> Unable to handle kernel paging request at virtual address c895d008
->  printing eip:
-> c01d5a60
-> *pde = 011cd067
-> *pte = 00000000
-> Oops: 0000 [#1]
-> CPU:    0
-> EIP:    0060:[<c01d5a60>]    Not tainted
-> EFLAGS: 00010292
-> EIP is at pci_bus_match+0x30/0xb0
-> eax: 00008086   ebx: c7e5b000   ecx: c895d008   edx: 20202020
-> esi: c7e5b04c   edi: ffffffed   ebp: c8985488   esp: c78a9f28
-> ds: 007b   es: 007b   ss: 0068
-> Process modprobe (pid: 148, threadinfo=c78a8000 task=c13c4680)
-> Stack: c8985488 c021343f c7e5b04c c8985488 c7e5b054 c7e5b04c c02feb30
-> c021357c
->        c7e5b04c c8985488 c89854a4 c02feae0 00000000 c02feaa0 c0213870
-> c8985488
->        c02f8c50 c02f8c38 c8985b40 c02f8c38 c0213ce8 c8985488 00000019
-> c7a72860
-> Call Trace:
->  [<c8985488>] +0x28/0x94 [i810fb]
->  [<c021343f>] bus_match+0x2f/0x80
->  [<c8985488>] +0x28/0x94 [i810fb]
->  [<c021357c>] driver_attach+0x5c/0x70
->  [<c8985488>] +0x28/0x94 [i810fb]
->  [<c89854a4>] +0x44/0x94 [i810fb]
->  [<c0213870>] bus_add_driver+0xd0/0xe0
->  [<c8985488>] +0x28/0x94 [i810fb]
->  [<c8985b40>] +0x0/0xe0 [i810fb]
->  [<c0213ce8>] driver_register+0x38/0x40
->  [<c8985488>] +0x28/0x94 [i810fb]
->  [<c01d59db>] pci_register_driver+0x4b/0x60
->  [<c8985488>] +0x28/0x94 [i810fb]
->  [<c895c02a>] init_module+0x3a/0x57 [i810fb]
->  [<c8985460>] +0x0/0x94 [i810fb]
->  [<c0131cad>] sys_init_module+0x11d/0x1d0
->  [<c8985b40>] +0x0/0xe0 [i810fb]
->  [<c01092bb>] syscall_call+0x7/0xb
-> 
-> Code: 8b 01 85 c0 89 c2 75 e8 8b 41 08 85 c0 75 e1 8b 41 14 85 c0
->  Console: switching to colour frame buffer device 80x30
-> agp_allocate_memory: c6e36c60
-> agp_allocate_memory: 00000000
-> agp_allocate_memory: c6e36c20
-> 
-> It didn't stop working, though... and everything else (like switching to X
-> and back) looks nice. (except the cursor..)
-> ---
-> CONFIG_FB=y
-> CONFIG_FB_I810=m
-> CONFIG_FB_I810_GTF=y
-> CONFIG_FRAMEBUFFER_CONSOLE=m
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+tr '[:lower:]' '[:upper:]' | tr '[:blank:]' '\n' | sort | uniq -c | tr ' ' 0
+
+This gave me a list of all words found in the kernel along with their 
+counts.  Then I ran it through a positively awful little C program which 
+I wrote to determine not the 128 most frequent, but rather, the 128 that 
+would result in the maximum shrinkage (maximize count * (length-1)). 
+ The results of that run are given below.  The results of the test are 
+that this approach might save up to 62424 bytes of kernel space which is 
+only about 3% of the kernel image size I got the strings from, but it's 
+nearly 27% of the total output I got from 'strings'.  Is it worth it? 
+ Maybe not yet, but then again, there may be an even more intelligent 
+approach to this compression that we could use, hopefully one which 
+wouldn't require any more effort to use.
+
+Here's are the results:
+
+   count string
+-------- --------
+      37 GIGABIT
+     102 BLOCK
+      62 NULL
+     871 [^_]
+      26 INTERFACE
+      23 MICROSYSTEMS
+      75 RAGE
+     338 SE
+     226 TECH
+     113 DEVICE
+     214 <3>
+     838 PC
+      19 <3>INIT_MODULE:
+      35 REGISTER
+      41 <3>EXT3-FS
+     656 UWVS
+      57 NETWORK
+      32 SUPPORT
+      97 COMPUTER
+     878 [^_
+     137 NET
+     198 MODE
+     534 INC
+      33 INTERNATIONAL
+      59 CARDBUS
+     203 TECHNO
+     119 TECHNOLOGY
+      46 CORP.
+      31 EXT2-FS
+     290 CONTROLLER
+      64 ASSERTION
+      83 DATA/FAX
+     249 DATA
+      60 KERNEL:
+     304 CONTROL
+      33 INVALID
+     322 %D
+     486 PCI
+     185 INC.
+      61 ERROR
+      80 PORT
+     154 IDE
+      74 INODE
+     102 <4>
+      88 KERNEL
+      52 ELECTRONICS
+      44 <3>EXT3
+     117 FAILED
+      70 AUDIO
+      83 HOST
+      27 SEMICONDUCTOR
+      50 CHIPS
+      63 DEVFS
+     117 ETHERNET
+     299 ID
+     291 COM
+      46 CANNOT
+      24 TRANSACTION
+     238 TO
+      79 TECHNOLOGIES
+      63 %08X
+      98 D$$
+      37 PROCESS
+     288 CORP
+      56 DATA/FAX/VOICE
+      39 COMMUNICATIONS
+      44 10/100
+      38 SERIAL
+     146 CORPORATION
+     236 TEC
+     107 MICRO
+      26 MICROSYSTEM
+      95 ADAPTER
+     324 NO
+      50 POWER
+     121 56K
+      27 ACCELERATOR
+      33 RESEARCH
+      21 INTEGRATED
+     271 PRO
+      19 TECHNOLOGIES,
+     237 LT
+      43 CHIPSET
+      28 NETWORKS
+     317 L$
+      40 <3>EXT3-FS:
+    1665 CO
+     192 BRIDGE
+      13 MICROELECTRONICS
+     157 JOURNAL
+     147 FOR
+      91 9D$
+      18 CYBERSERIAL
+      54 CYBER
+      56 MEMORY
+      34 DATA/FAX/VOICE/SPKP
+      49 SMART
+     207 LTD
+     137 TCP
+      57 CACHE
+     407 T$
+     160 <6>
+      26 GRAPHICS
+     888 D$
+     140 SYSTEMS
+     249 AT
+       6 JOURNAL->J_COMMITTING_TRANSACTION
+     142 MODEM
+      32 CHANNEL
+     131 %S:
+     394 %S
+      14 COMMIT_TRANSACTION
+      63 FILE
+      28 SMARTDAA)
+      67 CHIP
+      30 WINMODEM
+     113 NOT
+     139 ETH
+     331 DEV
+     197 FO
+      52 VIDEO
+      73 ELECTRONIC
+      67 EXT3
+      99 CARD
+    1336 IN
+     222 SYSTEM
+     197 AD
+      53 COMMUNICATION
+Total reduction: 62424
+
+Comments?
+
+NOTE:  I realize that some of those words probably aren't actually 
+"strings" in the kernel.  This is a feasibility test, not a suggested list.
+
 

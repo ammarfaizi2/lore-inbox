@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316252AbSEQOsV>; Fri, 17 May 2002 10:48:21 -0400
+	id <S316254AbSEQOwW>; Fri, 17 May 2002 10:52:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316254AbSEQOsT>; Fri, 17 May 2002 10:48:19 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:2688 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S316252AbSEQOsS>; Fri, 17 May 2002 10:48:18 -0400
-Date: Fri, 17 May 2002 10:48:21 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: Halil Demirezen <halild@bilmuh.ege.edu.tr>, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: Just an offer
-In-Reply-To: <20020517141928.GC6613@louise.pinerecords.com>
-Message-ID: <Pine.LNX.3.95.1020517103006.143A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316255AbSEQOwV>; Fri, 17 May 2002 10:52:21 -0400
+Received: from 12-225-96-71.client.attbi.com ([12.225.96.71]:12160 "EHLO
+	p3.coop.hom") by vger.kernel.org with ESMTP id <S316254AbSEQOwU>;
+	Fri, 17 May 2002 10:52:20 -0400
+Date: Fri, 17 May 2002 07:52:35 -0700
+From: Jerry Cooperstein <coop@axian.com>
+To: Manik Raina <EED@ail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: counters
+Message-ID: <20020517075235.A1680@p3.attbi.com>
+In-Reply-To: <3CE3BECB.FF1AE6A@ail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 May 2002, Tomas Szepe wrote:
+This is doable (some other OS's do it) but:
 
-> > The remaining problem is how one trips a reboot if the remote machine
-> > doesn't come up correctly. That problem can be handled by temporarily
-> > changing panic() to a hard reset.
+1) It requires some changes to the basic read/write call to gather
+the statistics.  It also requires stashing the counters somewhere
+such as in the task_struct and thus requires modifying it.
+
+2) It doesn't directly tell you about I/O statistics themselves
+(which are available under  /proc/stat) because the I/O request
+may be gotten from cache, or may never be flushed from cache
+to disk depending on subsequent events, so it will always
+tend to overestimate the amount of real I/O done on the device.
+
+ Jerry Cooperstein       <coop@axian.com>
+ Axian, Inc.      Software Consulting and Training
+ 4800 SW Griffith Dr., Ste. 202, Beaverton, OR  97005 USA
+ http://www.axian.com/ 
+
+
+On Thu, May 16, 2002 at 07:44:35PM +0530, Manik Raina wrote:
+> anyone knows if there are counters in the linux kernel
+> which can be read via /proc like mechanism for the
+> following :
 > 
-> Trouble is, this couldn't "detect" problems like unresolved symbols in
-> ethernet drivers or a troublesome fix that makes init/mount malfunction
-> and many more common issues that make you have to get in the car and
-> drive off to reset the damn beast.
-
-Where there is a will, there is a way. As others have reported, you
-can have an old "always-on" machine at the remote site. You can have
-LILO redirect kernel messages out the serial port to be viewed
-from your always-on machine, you can reset the hung machine with an
-opto-isolator driven off your always-on machine's parallel port, etc.
-
-It you are really serious about doing remote updates, you can also
-boot using initrd, and install a bunch of disk drivers until one
-(or more) don't fail to install, install a bunch of ethernet drivers
-until one (or more) don't fail to install, etc. This can all be
-handled in the initrd boot-script. --And that boot-script can be
-a full-fledged 'C' program that can do anything a root-priviliged
-program can do, including mounting an alternate root file-system
-(maybe a CDROM) if all else fails. You don't have to use the default
-"run-off-the-end-of-the-script" initrd process. Any program that
-you write to replace the ash.static/initrd script has complete
-control of the machine.
-
-Booting an initial RAM-Disk requires NO hardware drivers! The
-thing got loaded by LILO, through the BIOS services, then a
-transition to protected-mode, you don't need anything installed.
-Your program or script can try all possible drivers, trying to
-get a root file-system on-line. The same for a network card.
-
-Anyway, once it boots and you can review what actually got installed
-from the network, you can make a final initrd boot-script.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+> 1. total number of bytes read by process by syscalls
+> like read()
+> 
+> 2. total number of bytes written by each process by
+> syscalls like write()
+> 
+> thanks
+> -

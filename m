@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267084AbSL3VAm>; Mon, 30 Dec 2002 16:00:42 -0500
+	id <S266868AbSL3VGs>; Mon, 30 Dec 2002 16:06:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267083AbSL3VAm>; Mon, 30 Dec 2002 16:00:42 -0500
-Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:58542 "EHLO
-	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S267084AbSL3VAk>; Mon, 30 Dec 2002 16:00:40 -0500
-Subject: Re: [PATCH] 2.5 fix link with fbcon built-in
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, James Simmons <jsimmons@infradead.org>
-In-Reply-To: <Pine.LNX.4.44.0212301201090.2812-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0212301201090.2812-100000@home.transmeta.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1041282678.550.13.camel@zion.wanadoo.fr>
+	id <S267068AbSL3VGs>; Mon, 30 Dec 2002 16:06:48 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30984 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S266868AbSL3VGr>;
+	Mon, 30 Dec 2002 16:06:47 -0500
+Date: Mon, 30 Dec 2002 21:15:09 +0000
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       kernel-janitor-discuss@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Current unclaimed 2.5 bugs on bugme.osdl.org
+Message-ID: <20021230211509.GN721@gallifrey>
+References: <129460000.1041214462@titus> <1041255152.544.14.camel@zion.wanadoo.fr> <299610000.1041267777@titus>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 30 Dec 2002 22:11:19 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <299610000.1041267777@titus>
+User-Agent: Mutt/1.4i
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.4.18 (i686)
+X-Uptime: 21:14:44 up 6 days,  3:39,  1 user,  load average: 0.06, 0.28, 0.57
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-12-30 at 21:03, Linus Torvalds wrote:
-> On 30 Dec 2002, Benjamin Herrenschmidt wrote:
+* Martin J. Bligh (mbligh@aracnet.com) wrote:
+> 
+> >>117 nor mbligh@aracnet.com OPEN build failure: arch/ppc/kernel/process.c
 > >
-> > In current bk 2.5, drivers/video/console/fonts.c exports an
-> > init_module() symbol when built-in, which prevents the kernel from
-> > linking. Here's a quick fix.
+> >Works in current ppc bk tree, probably waiting for next round of merges
+> >by Paul Mackerras to Linus.
 > 
-> This is not correct.
-> 
-> The functions should either be removed completely (preferred, since they 
-> aren't even proper C syntax in the first place - since when do we put 
-> semicolons at the end of a function?) or the file should be taught to use 
-> proper "module_init()/module_exit()" semantics that work _correctly_ for 
-> both modules and built-in.
-> 
-> The patch just hides just _how_ crap this file is, and as such should not 
-> be applied. Crap doesn't get better from being hidden.
+> According to DaveJ, this should be fixed in 51 ... anyone able to test?
 
-Right, though weren't those empty functions just workarounds for a time
-where new module stuff didn't grok modules without module init/exit ? Is
-this still the case ? If not, then we should indeed just remove the
-function completely.
+Yep, this bug is not in 53.
 
-Ben.
-
-
-
+Dave
+ ---------------- Have a happy GNU millennium! ----------------------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262101AbTK1J73 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 04:59:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbTK1J73
+	id S262099AbTK1J4b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 04:56:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbTK1J4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 04:59:29 -0500
-Received: from h192n2fls310o1003.telia.com ([81.224.187.192]:57472 "EHLO
-	cambrant.com") by vger.kernel.org with ESMTP id S262101AbTK1J72
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 04:59:28 -0500
-Date: Fri, 28 Nov 2003 11:57:50 +0100
-From: Tim Cambrant <tim@cambrant.com>
-To: mru@kth.se
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Fri, 28 Nov 2003 04:56:31 -0500
+Received: from compaq.com ([161.114.1.206]:35846 "EHLO
+	ztxmail02.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S262099AbTK1J43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Nov 2003 04:56:29 -0500
+Message-ID: <3FC71C97.8030104@mailandnews.com>
+Date: Fri, 28 Nov 2003 15:29:51 +0530
+From: Raj <raju@mailandnews.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031016
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
 Subject: Re: Strange behavior observed w.r.t 'su' command
-Message-ID: <20031128105750.GA5777@cambrant.com>
-References: <3FC707B6.1070704@mailandnews.com> <yw1xekvs3lbt.fsf@kth.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yw1xekvs3lbt.fsf@kth.se>
-User-Agent: Mutt/1.5.4i
+References: <20031128093929.13486.qmail@web40909.mail.yahoo.com>
+In-Reply-To: <20031128093929.13486.qmail@web40909.mail.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 28, 2003 at 10:15:50AM +0100, M?ns Rullg?rd wrote:
-> I can't reproduce it on Slackware running 2.6.0-test10.  It's probably
-> a redhat thing.
+One more observation:
 
-This problem also appears on Gentoo 1.4 running 2.6.0-test11. I don't
-know about the rest of the environment, but it's definately not just
-a RedHat thing. Could it have something to do with some library-version
-or something?
+This time i wrote two shell functions, one for the user and another for 
+root. I placed them in the .bash_profile
 
--- 
-Tim Cambrant <tim@cambrant.com> 
-GPG KeyID 0x59518702
-Fingerprint: 14FE 03AE C2D1 072A 87D0  BC4D FA9E 02D8 5951 8702
+for root
+z()
+{
+    touch /tmp/createdbyroot
+}
+
+for user
+z()
+{
+    touch /tmp/createdbyuser
+}
+
+I then reproduced the problem, and during the alternation of the 
+prompts, when i was on the user prompt, i ran 'whoami' and it showed me 
+as a normal user. Then i ran 'z'. I expected the filename in /tmp to be 
+'createdbyuser' but it is actually 'createdbyroot' !!!
+
+/Raj
+

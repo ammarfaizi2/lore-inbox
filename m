@@ -1,68 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267435AbUJOIh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266538AbUJOIu4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267435AbUJOIh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 04:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267186AbUJOIh1
+	id S266538AbUJOIu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 04:50:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267186AbUJOIu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 04:37:27 -0400
-Received: from NEUROSIS.MIT.EDU ([18.95.3.133]:5760 "EHLO neurosis.jim.sh")
-	by vger.kernel.org with ESMTP id S266611AbUJOIhY (ORCPT
+	Fri, 15 Oct 2004 04:50:56 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:40072 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S266538AbUJOIux (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 04:37:24 -0400
-Date: Fri, 15 Oct 2004 04:37:22 -0400
-From: Jim Paris <jim@jtan.com>
-To: linux-kernel@vger.kernel.org
-Subject: PCI IRQ problems: "nobody cared!"
-Message-ID: <20041015083722.GA3315@jim.sh>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
+	Fri, 15 Oct 2004 04:50:53 -0400
+Date: Fri, 15 Oct 2004 10:49:17 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: blaisorblade_spam@yahoo.it
+cc: Andrew Morton <akpm@osdl.org>, Jeff Dike <jdike@addtoit.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       User-mode Linux Kernel Development 
+	<user-mode-linux-devel@lists.sourceforge.net>
+Subject: Re: [uml-devel] [patch 1/1] uml: readd linux Makefile target
+In-Reply-To: <20041014220554.0F20244BE@zion.localdomain>
+Message-ID: <Pine.GSO.4.61.0410151047270.10040@waterleaf.sonytel.be>
+References: <20041014220554.0F20244BE@zion.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm having some strange PCI IRQ problems on my new laptop (Panasonic
-Toughbook CF-M34UTVZKM) under 2.6.8-1-686 (Debian).  I'm at a loss to
-figure out their source, other than the fact that Toughbooks seem to
-have a particularly crappy BIOS.
+On Fri, 15 Oct 2004 blaisorblade_spam@yahoo.it wrote:
+> Since people are used to doing "make linux ARCH=um" and to use "linux" as the
+> kernel image, make it be an hard link to vmlinux. This should hurt the less
+> possible the users (actually nothing) while not slowing down the build.
+> 
+> Acked-by: Jeff Dike <jdike@addtoit.com>
+> 
+> Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+> ---
+> 
+>  linux-2.6.9-current-paolo/arch/um/Makefile |   12 ++++++++++++
+>  1 files changed, 12 insertions(+)
+> 
+> diff -puN arch/um/Makefile~uml-readd-linux-target arch/um/Makefile
+> --- linux-2.6.9-current/arch/um/Makefile~uml-readd-linux-target	2004-10-14 22:52:47.274383552 +0200
+> +++ linux-2.6.9-current-paolo/arch/um/Makefile	2004-10-14 22:52:47.276383248 +0200
+> @@ -62,6 +62,18 @@ ifeq ($(CONFIG_MODE_SKAS), y)
+>  $(SYS_HEADERS) : $(ARCH_DIR)/include/skas_ptregs.h
+>  endif
+>  
+> +all: linux
+> +
+> +linux: vmlinux
+> +	$(RM) $@
+> +	ln $< $@
+> +
+> +define archhelp
+> +  echo '* linux		- Binary kernel image (./linux) - for backward'
+> +  echo '		   compatibility only: now you can simply run'
+> +  echo '		   the vmlinux binary you find in the kernel root.'
+> +endef
+> +
 
-The errors are something like this (taken from default.txt, link below):
-irq 9: nobody cared!
- [<c010841a>] __report_bad_irq+0x2a/0x90
- [<c0108510>] note_interrupt+0x70/0xb0
- [<c01087f0>] do_IRQ+0x120/0x130
- [<c0106a20>] common_interrupt+0x18/0x20
- [<c01200fe>] __do_softirq+0x2e/0x80
- [<c01b3b60>] acpi_irq+0x0/0x16
- [<c0120177>] do_softirq+0x27/0x30
- [<c01087cb>] do_IRQ+0xfb/0x130
- [<c0106a20>] common_interrupt+0x18/0x20
- [<c02124a2>] pci_conf1_write+0x92/0xf0
- [<c01b3e86>] acpi_os_write_pci_configuration+0x69/0x76
-...
+What happens if you modify the kernel source and rebuild the kernel?
+I guess vmlinux gets deleted and replaced, but linux is still the old kernel,
+because there's no .phony rule for linux?
 
-It seems that once some particular piece of PCI hardware gets
-initialized, it causes a flood of unexpected interrupts.  The kernel
-then disables IRQ 9, which basically breaks most of my devices because
-that's the one they all share.
+What about using a symbolic link instead? It will always point to the most
+recent kernel.
 
-I captured the following boots for different command lines.  The ACPI
-and non-ACPI cases die at different points, but with the same result.
+Gr{oetje,eeting}s,
 
-root=/dev/hda1 ro console=ttyS0,115200n8
-   https://jim.sh/svn/jim/devl/toughbook/log/default.txt
+						Geert
 
-root=/dev/hda1 ro console=ttyS0,115200n8 acpi=off
-   https://jim.sh/svn/jim/devl/toughbook/log/acpioff.txt
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-root=/dev/hda1 ro console=ttyS0,115200n8 acpi=off pci=usepirqmask
-   https://jim.sh/svn/jim/devl/toughbook/log/usepirqmask.txt
-
-lspci, lspci -vxxxn, and /proc/interrupts:
-   https://jim.sh/svn/jim/devl/toughbook/log/lspci.txt
-
-Could someone who knows more than me about PCI IRQs take a quick look
-at those dumps and tell me if there's anything obvious that I'm
-missing, or some way to work around the problem?
-
--jim
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

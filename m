@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263899AbSLLNHp>; Thu, 12 Dec 2002 08:07:45 -0500
+	id <S264610AbSLLNKl>; Thu, 12 Dec 2002 08:10:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263991AbSLLNHo>; Thu, 12 Dec 2002 08:07:44 -0500
-Received: from comtv.ru ([217.10.32.4]:53401 "EHLO comtv.ru")
-	by vger.kernel.org with ESMTP id <S263899AbSLLNHo>;
-	Thu, 12 Dec 2002 08:07:44 -0500
-X-Comment-To: Stefan Reinauer
-To: Stefan Reinauer <stepan@suse.de>
-Cc: Matt Young <wz6b@arrl.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: grub and 2.5.50
-References: <200212091640.35716.wz6b@arrl.net>
-	<20021211134322.GA23761@suse.de>
-From: Alex Tomas <bzzz@tmi.comex.ru>
-Organization: HOME
-Date: 12 Dec 2002 16:09:09 +0300
-In-Reply-To: <20021211134322.GA23761@suse.de>
-Message-ID: <m3wumfz8ne.fsf@lexa.home.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S264624AbSLLNKl>; Thu, 12 Dec 2002 08:10:41 -0500
+Received: from mg02.austin.ibm.com ([192.35.232.12]:36268 "EHLO
+	mg02.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S264610AbSLLNKk>; Thu, 12 Dec 2002 08:10:40 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <corryk@us.ibm.com>
+Organization: IBM
+To: Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCH] dm.c - device-mapper I/O path fixes
+Date: Thu, 12 Dec 2002 06:30:56 -0600
+X-Mailer: KMail [version 1.2]
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Joe Thornber <joe@fib011235813.fsnet.co.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lvm-devel@sistina.com
+References: <02121016034706.02220@boiler> <02121108060005.29515@boiler> <15863.43576.467511.255317@argo.ozlabs.ibm.com>
+In-Reply-To: <15863.43576.467511.255317@argo.ozlabs.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <02121206305600.05277@boiler>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Stefan Reinauer (SR) writes:
+On Wednesday 11 December 2002 15:12, Paul Mackerras wrote:
+> Kevin Corry writes:
+> > Storing an int is *not* atomic unless it is declared as atomic_t and you
+> > use the appropriate macros (see include/asm-*/atomic.h). Remember, we are
+> > talking about a field in a data structure that can be accessed from
+> > multiple threads on multiple CPUs.
+>
+> As a practical matter, I believe that storing an int to an int-aligned
+> address _is_ actually atomic on any CPU that can run Linux.  The
+> PowerPC architecture spec requires that single-word (i.e. 32-bit)
+> aligned stores are atomic, for instance, and I think that would be the
+> case on any other sane architecture as well.
 
- SR> * Matt Young <wz6b@arrl.net> [021210 01:40]:
- >> These grub commands work with SUSE 2.4.19-4GB:
- >> 
- >> kernel (hd0,0)/bzImage root=/dev/hda3 vga=791 initrd
- >> (hd0,0)/initrd
- >> 
- >> But with 2.5.50 the kernel panics after Freeing the initrd memory
- >> with "Unable te mount root FS, please correct the root= cammand
- >> line"
+Given the constraints of having properly aligned data on an SMP machine with 
+the correct cache-coherency hardware, then yes, I will agree that such stores 
+should be atomic. However, it has been my understanding that these conditions 
+cannot be guaranteed on every architecture. Thus we're stuck with atomic_t's 
+so everyone can play nicely together.
 
- >> I have compiled with the required file systems
- >> (EXT2,EXT3,REISERFS).
-
- SR> Did you also compile in support for the root device itself
- SR> (i.e. ide or scsi driver). These are loaded via the initrd
- SR> normally on SuSE, which will not work, if you did not install
- SR> newer modutils..
-
-First of all, 2.5.10 has sysfs-related bug. try to replace root=/dev/hda3
-by root=303
-
+-- 
+Kevin Corry
+corryk@us.ibm.com
+http://evms.sourceforge.net/

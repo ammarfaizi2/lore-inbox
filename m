@@ -1,54 +1,143 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262358AbTHaPqM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 11:46:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbTHaPqM
+	id S262272AbTHaPmf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 11:42:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbTHaPmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 11:46:12 -0400
-Received: from PACIFIC-CARRIER-ANNEX.MIT.EDU ([18.7.21.83]:57228 "EHLO
-	pacific-carrier-annex.mit.edu") by vger.kernel.org with ESMTP
-	id S262358AbTHaPps (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 11:45:48 -0400
-X-Sieve: CMU Sieve 2.2
-Date: Sat, 30 Aug 2003 13:02:47 -0400
-From: Arvind Sankar <arvinds@MIT.EDU>
-To: linux-fbdev-devel@lists.sourceforge.net
-Cc: arvinds@MIT.EDU
-Subject: questions about fb_pan_display ioctl
-Message-ID: <20030830170247.GA17072@scrubbing-bubbles.mit.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Spam-Score: -5.9
-X-Spam-Flag: NO
+	Sun, 31 Aug 2003 11:42:35 -0400
+Received: from shower.ispgateway.de ([62.67.200.219]:39303 "HELO
+	shower.ispgateway.de") by vger.kernel.org with SMTP id S262272AbTHaPmO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 11:42:14 -0400
+Message-ID: <3F521753.2030705@dot-heine.de>
+Date: Sun, 31 Aug 2003 17:42:11 +0200
+From: Claus-Justus Heine <ch@dot-heine.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030806
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test4: bug WRT lazy FPU switching and CONFIG_PREEMPT
+X-Enigmail-Version: 0.76.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was looking through the source, and am mightily confused as to how this
-works.
+Hi!
 
-1. The FBIOPAN_DISPLAY ioctl does not error-check var.
-2. fb_pan_display uses info->var to bounds-check var->?offset.
-3. fb_pan_display modifies info->var, but var is what is returned by the ioctl.
-4. The function pointer info->fbops->fb_pan_display takes its args in the opposite
-   order to fb_pan_display! Who came up with this?
-5. vesafb_pan_display uses var to bounds-check var->?offset, which is
-   (a) pointless, since fb_pan_display has bounds-checked it already.
-   (b) buggy, since var has never been error-checked, so var->yres could be anything.
-6. How does wrapping work, when fb_pan_display has already made sure that yoffset
-   cannot cause display to go beyond yres_virtual? The checks in vesafb_pan_display
-   do this only when ywrap is disabled, but fb_pan_display always does it.
-7. vesafb never uses more than 16mb of video ram, so wrapping can _never_ happen on
-   boards with more than 16mb of ram, no?
+There seems to be a bug with CONFIG_PREEMPT=y and lazy FPU switching. The following small program just unmasks math exceptions 
+and then continously triggers a divide by zero. When CONFIG_PREEMPT is in effect this eventually leads to other processes 
+inheriting the math-status of this brain-damaged but legal user level program. Especially, their math-exceptions are unmasked 
+and so they might catch an unwanted SIGFPE.
 
-All these comments refer to 2.6.0-test4. Point 6 should apply to all the fb devices,
-not just vesafb.
+######################################### snip ####################################
+#include <signal.h>
+#include <stdio.h>
+#include <fenv.h>
 
-In 2.4.22, there is no fb_pan_display, but vesafb_pan_display is the same, so it
-turns out that wrapping is allowed, but subject to the issues in 5(b) and 7. The issue
-in 7 is actually worse, because unless the vram option is passed, the video size is
-computed from the mode resolution, so it has nothing to do with the actual amount of
-accessible video memory.
+double volatile foobar = 0.0;
 
--- arvind
+static void sigfpe(int sig)
+{
+	static int cnt;
+
+	if (++cnt % 100000 == 0) {
+		fprintf(stderr, ".");
+	}
+}
+
+int main(int argc, char *argv[])
+{
+	signal(SIGFPE, sigfpe);
+	feenableexcept(FE_ALL_EXCEPT);
+	foobar = 1.0/foobar;
+}
+######################################## snap ######################################
+
+The following patch seems to fix the problem. However, I must admit that I didn't fully understand why this happens. The problem 
+seems to be a preemption occuring between the __save_init_fpu() (i.e. fsave/fxsave) and the stts(). But why should this be a 
+problem?
+
+The patch touches two files:
+
+include/asm-i386/i387.h:
+   here save_init_fpu() is defined and this seems to be the location of the problem
+
+arch/i386/kernel/traps.c:
+   by checking for TS_USEDFPU we spare an additional "device not available" fault (with CONFIG_PREEMPT=y) and thereby a 
+superflous math_state_restore(). There is not point in restoring the math-state just to save it again (but this didn't cause the 
+shooting with wild SIGFPEs).
+
+Regards
+
+Claus
+
+######################################### snip ##########################################################################
+diff -u --recursive --new-file linux-2.6.0-test4/arch/i386/kernel/traps.c linux-2.6.0-test4-mine/arch/i386/kernel/traps.c
+--- linux-2.6.0-test4/arch/i386/kernel/traps.c	2003-08-31 15:22:42.000000000 +0200
++++ linux-2.6.0-test4-mine/arch/i386/kernel/traps.c	2003-08-31 15:35:49.000000000 +0200
+@@ -605,7 +605,10 @@
+  	 * Save the info for the exception handler and clear the error.
+  	 */
+  	task = current;
+-	save_init_fpu(task);
++	/* don't trigger an unnecessary math_state_restore() */
++	if (task->thread_info->status & TS_USEDFPU) {
++		save_init_fpu(task);
++	}
+  	task->thread.trap_no = 16;
+  	task->thread.error_code = 0;
+  	info.si_signo = SIGFPE;
+@@ -667,7 +670,10 @@
+  	 * Save the info for the exception handler and clear the error.
+  	 */
+  	task = current;
+-	save_init_fpu(task);
++	/* don't trigger an unnecessary math_state_restore() */
++	if (task->thread_info->status & TS_USEDFPU) {
++		save_init_fpu(task);
++	}
+  	task->thread.trap_no = 19;
+  	task->thread.error_code = 0;
+  	info.si_signo = SIGFPE;
+diff -u --recursive --new-file linux-2.6.0-test4/include/asm-i386/i387.h linux-2.6.0-test4-mine/include/asm-i386/i387.h
+--- linux-2.6.0-test4/include/asm-i386/i387.h	2003-07-27 19:06:54.000000000 +0200
++++ linux-2.6.0-test4-mine/include/asm-i386/i387.h	2003-08-31 15:39:04.000000000 +0200
+@@ -30,7 +30,7 @@
+  static inline void __save_init_fpu( struct task_struct *tsk )
+  {
+  	if ( cpu_has_fxsr ) {
+-		asm volatile( "fxsave %0 ; fnclex"
++		asm volatile( "fxsave %0 ; fclex"
+  			      : "=m" (tsk->thread.i387.fxsave) );
+  	} else {
+  		asm volatile( "fnsave %0 ; fwait"
+@@ -41,8 +41,10 @@
+
+  static inline void save_init_fpu( struct task_struct *tsk )
+  {
++	preempt_disable();
+  	__save_init_fpu(tsk);
+  	stts();
++	preempt_enable_no_resched();
+  }
+
+
+@@ -53,11 +55,13 @@
+
+  #define clear_fpu( tsk )					\
+  do {								\
++	preempt_disable();					\
+  	if ((tsk)->thread_info->status & TS_USEDFPU) {		\
+  		asm volatile("fwait");				\
+  		(tsk)->thread_info->status &= ~TS_USEDFPU;	\
+  		stts();						\
+  	}							\
++	preempt_enable_no_resched();				\
+  } while (0)
+
+  /*
+
+
+

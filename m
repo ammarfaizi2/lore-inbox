@@ -1,100 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261634AbTIOVcO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 17:32:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbTIOVcN
+	id S261645AbTIOVeg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 17:34:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbTIOVeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 17:32:13 -0400
-Received: from fw.osdl.org ([65.172.181.6]:18381 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261634AbTIOVb7 (ORCPT
+	Mon, 15 Sep 2003 17:34:36 -0400
+Received: from ns.suse.de ([195.135.220.2]:2528 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261645AbTIOVec (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 17:31:59 -0400
-Message-Id: <200309152131.h8FLVue10269@mail.osdl.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: linux-kernel@vger.kernel.org
-cc: akpm@osdl.org
-Subject: [osdl-aim-7] 2.6.0-test5-mm2
+	Mon, 15 Sep 2003 17:34:32 -0400
+Date: Mon, 15 Sep 2003 23:34:30 +0200
+From: Olaf Hering <olh@suse.de>
+To: =?utf-8?Q?Dani=C3=ABl?= Mantione <daniel@deadlock.et.tudelft.nl>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.23-pre4: failed at atyfb_base.c
+Message-ID: <20030915213430.GA1833@suse.de>
+References: <20030915210421.GA311@suse.de> <Pine.LNX.4.44.0309152308410.24675-100000@deadlock.et.tudelft.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 15 Sep 2003 14:31:56 -0700
-From: Cliff White <cliffw@osdl.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44.0309152308410.24675-100000@deadlock.et.tudelft.nl>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ On Mon, Sep 15, Daniël Mantione wrote:
 
-Here are results from OSDL's 
-Scalable Test Platform. 
+> 
+> 
+> On Mon, 15 Sep 2003, Olaf Hering wrote:
+> 
+> > pre4 doesnt work on my ibook1, the xclk value is 125, but should be 50.
+> 
+> That is not correct. The default xclk for the Rage Mobility M1 is
+> 125 MHz and this is indeed the case, for example on Geert's VAIO.
+> See also the e-mail below from Vernon Chiang from ATi.
+> 
+> On x86, I usually ask a copy of the video driver to be able to check the
+> driver information table of that particular implementation. Do you have
+> something similair from the Open Firmware?
 
-Performance falls off compared to -test5 on the
-8-cpu machines. 
+This is in the device tree, not very helpful. I'm not sure where XFree86
+gets the value 50. It seems to poke some regs here and there, havent
+looked too closely.
 
-We are also experiencing some warnings on some tests:
-
-Badness in as_dispatch_request at drivers/block/as-iosched.c:1241
-
-And, we have three machines with processes hanging in 'D' state. 
-More data as we get it.
-cliffw
-
------------------------------
-Database workload
-
-stp1 CPU machine
-
-STP id PLM# Kernel Name                    Workfile   MaxJPM  MaxU Change Host 
-   Options
-Newest Kernel - Baseline for % change
-279938 2144 2.6.0-test5-mm2                new_dbase  999.53   17  0.00 
-stp1-001  profile=2
-279569 2112 2.6.0-test5-mm1-fix11.0        new_dbase  990.94   17 -0.86 
-stp1-003  profile=2
-279455 2110 linux-2.6.0-test5              new_dbase  992.06   17 -0.75 
-stp1-003  profile=2
-stp 2-cpu 
-279957 2144 2.6.0-test5-mm2                new_dbase  1306.85   22  0.00 
-stp2-002  profile=2
-279879 2142 2.6.0-test5-O1int20.1-2        new_dbase  1325.89   22  1.46 
-stp2-003  profile=2
-279474 2110 linux-2.6.0-test5              new_dbase  1337.11   22  2.32 
-stp2-000  profile=2
-stp 8-cpu
-279931 2144 2.6.0-test5-mm2                new_dbase  8273.17  136  0.00 
-stp8-003  profile=2 elevator=cfq
-279929 2144 2.6.0-test5-mm2                new_dbase  8309.33  136  0.44 
-stp8-003  profile=2 elevator=deadline
-279927 2144 2.6.0-test5-mm2                new_dbase  8547.23  136  3.31 
-stp8-000  profile=2
-279448 2110 linux-2.6.0-test5              new_dbase  8812.21  144  6.52 
-stp8-000  profile=2 elevator=cfq
-279446 2110 linux-2.6.0-test5              new_dbase  8950.07  144  8.18 
-stp8-002  profile=2 elevator=deadline
-279444 2110 linux-2.6.0-test5              new_dbase  8785.24  144  6.19 
-stp8-002  profile=2
-
-
----------------
-Detail on any run:
-http://khack.osdl.org/stp/<STP id> 
-Hardware details:
-http://khack.osdl.org/stp/<STP id>/environment/machine_info
-More results:
-http://developer.osdl.org/cliffw/reaim/index.html
----------------
-
-Code location:
-bk://developer.osdl.org/osdl-aim-7
-tarball:
-http://sourceforge.net/projects/re-aim-7
-
-Run parameters:
-
-./reaim -s$CPU_COUNT -x -t -i$CPU_COUNT -f workfile.new_dbase -r3 -b 
--l./stp.config
-./reaim -s$CPU_COUNT -q -t -i$CPU_COUNT -f workfile.new_dbase -r3 -b 
--l./stp.config
-(3 runs each, average of all 6 reported) 
-
-cliffw
+olaf@mango:/proc/device-tree/pci@f0000000/ATY,RageM_Lp@10> /sbin/lsprop
+vendor-id        00001002 (4098)
+device-id        00004c4e (19534)
+revision-id      00000064 (100)
+class-code       00030000 (196608)
+interrupts       00000001
+min-grant        00000008
+max-latency      00000000
+devsel-speed     00000001
+fast-back-to-back
+ATY,Status       00000000
+ATY,Flags        00000180 (384)
+width            00000320 (800)
+height           00000258 (600)
+depth            00000008
+linebytes        00000320 (800)
+device_type      "display"
+character-set    "ISO8859-1"
+iso6429-1983-colors
+reg              00008000 00000000 00000000 00000000 00000000
+                 02008030 00000000 00000000 00000000 00020000
+                 02008010 00000000 00000000 00000000 01000000
+                 02008018 00000000 00000000 00000000 00001000
+AGP_Address_Range 00000000 ffffffff
+AGP_Address_Block 02000000 (33554432)
+AGP_Alignment    02000000 (33554432)
+AGP_AllowOverlap 00000001
+name             "ATY,RageM_Lp"
+model            "ATY,RageMobilityL"
+ATY,Rom#         "113-XXXXX-110"
+backlight-control 00000001 00000000
+ATY,Fcode        "1.69"
+assigned-addresses 82008010 00000000 91000000 00000000 01000000
+                 82008030 00000000 90020000 00000000 00020000
+                 82008018 00000000 90000000 00000000 00001000
+AGP_Master
+driverID         "RageMobility_L 1.0b32"
+address          91000000
+AAPL,gray-page   00000000
+linux,phandle    ff93b3f8
 
 
+All I see is that 50 works, 125 gives black/white stripes and a large
+blinking cursor.
 
+-- 
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG

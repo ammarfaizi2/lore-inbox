@@ -1,63 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286221AbSAHKTM>; Tue, 8 Jan 2002 05:19:12 -0500
+	id <S285589AbSAHK3n>; Tue, 8 Jan 2002 05:29:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285130AbSAHKTC>; Tue, 8 Jan 2002 05:19:02 -0500
-Received: from smtp1.ndsu.NoDak.edu ([134.129.111.146]:11271 "EHLO
-	smtp1.ndsu.nodak.edu") by vger.kernel.org with ESMTP
-	id <S284659AbSAHKSu>; Tue, 8 Jan 2002 05:18:50 -0500
-Subject: Re: PCI SCSI interrupt clash
-From: Reid Hekman <reid.hekman@ndsu.nodak.edu>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.0.20020108203421.00af4940@pop-server.bigpond.net.au>
-In-Reply-To: <5.1.0.14.0.20020108203421.00af4940@pop-server.bigpond.net.au>
-Content-Type: text/plain
+	id <S285618AbSAHK3X>; Tue, 8 Jan 2002 05:29:23 -0500
+Received: from smtp1.libero.it ([193.70.192.51]:30659 "EHLO smtp1.libero.it")
+	by vger.kernel.org with ESMTP id <S285589AbSAHK3R>;
+	Tue, 8 Jan 2002 05:29:17 -0500
+Message-ID: <3C3AC9B9.B854859D@alsa-project.org>
+Date: Tue, 08 Jan 2002 11:28:09 +0100
+From: Abramo Bagnara <abramo@alsa-project.org>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i586)
+X-Accept-Language: en, it
+MIME-Version: 1.0
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Jaroslav Kysela <perex@suse.cz>,
+        "J.A. Magallon" <jamagallon@able.es>, Alan Cox <alan@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Christoph Hellwig <hch@ns.caldera.de>, sound-hackers@zabbo.net,
+        linux-sound@vger.rutgers.edu, linux-kernel@vger.kernel.org
+Subject: Re: [s-h] Re: ALSA patch for 2.5.2pre9 kernel
+In-Reply-To: <20020108102833.A2927@werewolf.able.es>
+		<20020108103046.A3545@werewolf.able.es>
+		<3C3AC150.BE4FFAFE@alsa-project.org> <s5hk7utgnh3.wl@alsa1.suse.de>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 08 Jan 2002 04:17:41 -0600
-Message-Id: <1010485105.2044.2.camel@zeus>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-01-08 at 03:46, Glenn Geers wrote:
-> enclose the win2k interrupt allocation for your perusal and comment (it's 
-> weird!)
-...
-> System Information report written at: 08/01/2002 08:44:11 PM
-> [IRQs]
+Takashi Iwai wrote:
 > 
-> IRQ Number    Device
-> 5     Sound Blaster 16 or AWE32 or compatible (WDM)
-> 128   Matrox Millennium G400 DualHead MAX
-> 14    Primary IDE Channel
-> 15    Secondary IDE Channel
-> 11    Intel 82371AB/EB PCI to USB Universal Host Controller
-> 36    Adaptec AHA-2940U2/U2W PCI SCSI Controller
-> 52    Realtek RTL8139/810X Family PCI Fast Ethernet NIC
-> 56    Hauppauge Win/TV 878/9 VFW Video Driver
-> 56    Hauppauge Win/TV 878/9 VFW Audio Driver
-> 60    Creative SB Live! Value (WDM)
-> 64    Texas Instruments OHCI Compliant IEEE 1394 Host Controller
-> 1     PC/AT Enhanced PS/2 Keyboard (101/102-Key)
-> 4     Communications Port (COM1)
-> 3     Communications Port (COM2)
-> 6     Standard floppy disk controller
-> 8     System CMOS/real time clock
-> 13    Numeric data processor
-> 12    Other Logitech Mouse PS/2
+> At Tue, 08 Jan 2002 10:52:16 +0100,
+> Abramo wrote:
+> >
+> >
+> > So we'd have:
+> > sound/
+> > sound/oss_native
+> > sound/oss_emul
+> > sound/synth
+> > sound/include
+> > drivers/sound/i2c
+> > drivers/sound/isa
+> > drivers/sound/pci
+> > drivers/sound/ppc
 > 
-> I hope someone can shed some light on the very high (>20) interrupt 
-> numbers. I'd really like and will help to get to the bottom of the problem.
+> On the list above, to where OSS (hw specific) codes come?  Into a
+> single directory, sound/oss_native?
 
-Win2k with the ACPI HAL will reroute IRQ's to 256 "virtual" IRQ's, hence
-the high numbers.
+Yes
 
-What happens if you twiddle ACPI/PnP OS in the BIOS?
+> Or both ALSA and OSS drivers are
+> mixed into drivers/sound/*?
+> I'd like to see ALSA and OSS codes are separated into different
+> directories...  Otherwise it's too confusing.
 
-And do you really expect a PCI bus overclocked past 37MHz to survive
-with 5 PCI cards? You get 40 lashes with a wet noodle >:-(
+I think that in this way they are separated enough. Do you agree?
 
-Regards,
-Reid
+> 
+> And how about drivers/sound/generic for generic hardware codes such as
+> ac97_codec.c?
 
+Currently Jaroslav has put that in alsa-kernel/pci/ac97. If we follow
+this guideline they go in drivers/pci/ac97 (although I'm not sure
+whether ac97 is PCI only).
+
+-- 
+Abramo Bagnara                       mailto:abramo@alsa-project.org
+
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy
+
+ALSA project               http://www.alsa-project.org
+It sounds good!

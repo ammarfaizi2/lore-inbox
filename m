@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132672AbRDDEEu>; Wed, 4 Apr 2001 00:04:50 -0400
+	id <S132730AbRDDCT1>; Tue, 3 Apr 2001 22:19:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132693AbRDDEEk>; Wed, 4 Apr 2001 00:04:40 -0400
-Received: from mailgw2.netvision.net.il ([194.90.1.9]:15033 "EHLO
-	mailgw2.netvision.net.il") by vger.kernel.org with ESMTP
-	id <S132672AbRDDEE3>; Wed, 4 Apr 2001 00:04:29 -0400
-Message-ID: <3ACA9E89.2ECC89A0@netvision.net.il>
-Date: Wed, 04 Apr 2001 06:09:45 +0200
-From: Amir Hardon <a_hardon@netvision.net.il>
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16 i586)
-X-Accept-Language: en
+	id <S132733AbRDDCTS>; Tue, 3 Apr 2001 22:19:18 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:11396 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S132730AbRDDCTI>;
+	Tue, 3 Apr 2001 22:19:08 -0400
+Date: Tue, 3 Apr 2001 22:18:25 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3-ac2
+In-Reply-To: <E14kbMB-0000r8-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.4.21.0104032216021.17127-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Can't boot with the 2.4.3 kernel.
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-I'm using slackware 7.1 with the 2.2.16 kernel,
-And I'm trying to install the 2.4.3 kernel.
 
-I configured and build it, and all looked OK.
-But when I'm trying to load the new kernel from LILO,
-It uncompressing the kernel, then says Ok, now booting the kernel gives
-some dots,
-and the it gets stucked... nothing happens.
+Alan, please, replace the unmap_buffer() in fs/buffer.c with
 
-Does anyone knows what can cause this?
+static void unmap_buffer(struct buffer_head * bh)
+{
+        if (buffer_mapped(bh)) {
+                mark_buffer_clean(bh);
+                lock_buffer(bh);
+                clear_bit(BH_Uptodate, &bh->b_state);
+                clear_bit(BH_Mapped, &bh->b_state);
+                clear_bit(BH_Req, &bh->b_state);
+                clear_bit(BH_New, &bh->b_state);
+                unlock_buffer(bh);
+        }
+}
+Current tree has wait_on_buffer() instead of lock/unlock, which is racey on
+SMP.
 
-I'm not a member of this mailing list,
-so please respond to my personal mail(a_hardon@netvision.net.il).
-
-Thanks allot!
-	-Amir.

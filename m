@@ -1,112 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129135AbRBOXkK>; Thu, 15 Feb 2001 18:40:10 -0500
+	id <S129080AbRBOXmu>; Thu, 15 Feb 2001 18:42:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129119AbRBOXkA>; Thu, 15 Feb 2001 18:40:00 -0500
-Received: from ns.arraycomm.com ([199.74.167.5]:56977 "HELO
-	bastion.arraycomm.com") by vger.kernel.org with SMTP
-	id <S129321AbRBOXjs>; Thu, 15 Feb 2001 18:39:48 -0500
-Message-Id: <5.0.2.1.2.20010215153520.02498628@pop.arraycomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Thu, 15 Feb 2001 15:38:16 -0800
-To: linux-kernel@vger.kernel.org
-From: Jasmeet Sidhu <jsidhu@arraycomm.com>
-Subject: Re: IDE DMA Problems...system hangs
-In-Reply-To: <E14T8wg-00061Z-00@the-village.bc.nu>
-In-Reply-To: <5.0.2.1.2.20010214123238.023ea9c0@pop.arraycomm.com>
+	id <S129107AbRBOXmk>; Thu, 15 Feb 2001 18:42:40 -0500
+Received: from jalon.able.es ([212.97.163.2]:18321 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129080AbRBOXmb>;
+	Thu, 15 Feb 2001 18:42:31 -0500
+Date: Fri, 16 Feb 2001 00:42:19 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Chip Salzenberg <chip@valinux.com>
+Cc: "Justin T . Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx (and sym53c8xx) plans
+Message-ID: <20010216004219.G995@werewolf.able.es>
+In-Reply-To: <85F1402515F13F498EE9FBBC5E07594220AD85@TTGCS.teamtoolz.net> <200102151747.f1FHlDO64938@aslan.scsiguy.com> <20010215212007.A995@werewolf.able.es> <20010215122836.B30852@valinux.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20010215122836.B30852@valinux.com>; from chip@valinux.com on Thu, Feb 15, 2001 at 21:28:36 +0100
+X-Mailer: Balsa 1.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
- >>I've not changed anything related to DMA handling specifically. The current
- >>-ac does have a fix for a couple of cases where an IDE reset on the promise
- >>could hang the box dead. That may be the problem.
+On 02.15 Chip Salzenberg wrote:
+> According to J . A . Magallon:
+> 
+> Might I suggest that Justin imitate the maintainers of lm_sensors, and
+> create a program (shell script, Perl program, whatever) that *creates*
+> a patch against any given Linux source tree?  Obviously it could break
+> in the face of weird trees, but even minimal flexibility would save him
+> a lot of work ...
 
-I tried the new patches (2.4.1-ac13) and it seemed very stable.  After 
-moving about 50GB of data to the raid5, the system crashed.  here is the 
-syslog... (the system had been up for about 20 hours)
+So you can end with 1Mb of patch doing
 
-Feb 14 03:48:53 bertha kernel: hdo: dma_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Feb 14 03:48:53 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
-BadCRC }
-<snip - about 40 lines exact same hdo: error>
-Feb 14 19:35:52 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
-BadCRC }
-Feb 14 19:35:52 bertha kernel: hdo: dma_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Feb 14 19:35:52 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
-BadCRC }
-Feb 14 20:13:06 bertha kernel: hdi: dma_intr: bad DMA status
-Feb 14 20:13:06 bertha kernel: hdi: dma_intr: status=0x50 { DriveReady 
-SeekComplete }
+-#endif /* Hello */
++#endif Hello
 
-Feb 15 01:26:34 bertha kernel: hdo: dma_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Feb 15 01:26:34 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
-BadCRC }
-Feb 15 01:26:34 bertha kernel: hdo: dma_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Feb 15 01:26:34 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
-BadCRC }
-Feb 15 01:26:38 bertha kernel: hdo: dma_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Feb 15 01:26:38 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
-BadCRC }
-Feb 15 01:45:06 bertha kernel: hdo: dma_intr: status=0x53 { DriveReady 
-SeekComplete Index Error }
-Feb 15 01:45:06 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
-BadCRC }
-Feb 15 01:45:06 bertha kernel: hdo: dma_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Feb 15 01:45:06 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
-BadCRC }
-Feb 15 01:45:06 bertha kernel: hdo: dma_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Feb 15 01:45:06 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
-BadCRC }
-Feb 15 01:54:01 bertha kernel: hdg: timeout waiting for DMA
-<SYSTEM FROZEN>
+like happens in i2c-lm
 
-Jasmeet
+Better a real patch...
+ 
+-- 
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
 
-
-At 08:54 PM 2/14/2001 +0000, Alan Cox wrote:
-> > >You will get horribly bad performance off raid5 if you have stripes on 
-> both
-> > >hda/hdb  or hdc/hdd etc.
-> >
-> > If I am reading this correctly, then by striping on both hda/hdb and
-> > /hdc/hdd you mean that I have two drives per ide channel.  In other words,
-> > you think I have a Master and a Slave type of a setup?  This is
-> > incorrect.  Each drive on the system is a master.  I have 5 promise cards
->
->Ok then your performance should be fine (at least reasonably so, the lack
->of tagged queueing does hurt)
->
-> > ide chanel, the penalty should not be much in terms of performance.  Maybe
-> > its just that the hdparam utility is not a good tool for benchamarking a
-> > raid set?
->
->Its not a good raid benchmark tool but its a good indication of general 
->problems.
->Bonnie is a good tool for accurate assessment.
->
-> > disable DMA if its giving it a lot of problems, but it should not hang.  I
-> > have been experiencing this for quite a while with the newer
-> > kernels.  Should I try the latest ac13 patch?  I glanced of the changes 
-> and
-> > didnt seem like anything had changed regarding the ide subsystem.
->
->I've not changed anything related to DMA handling specifically. The current
->-ac does have a fix for a couple of cases where an IDE reset on the promise
->could hang the box dead. That may be the problem.
->
-> > Is there anyway I can force the kernel to output more messages...maybe 
-> that
-> > could help narrow down the problem?
->
->Ask andre@linux-ide.org. He may know the status of the promise support
+Linux werewolf 2.4.1-ac14 #1 SMP Thu Feb 15 16:05:52 CET 2001 i686
 

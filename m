@@ -1,71 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131831AbRAUAH1>; Sat, 20 Jan 2001 19:07:27 -0500
+	id <S132101AbRAUAI1>; Sat, 20 Jan 2001 19:08:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132101AbRAUAHS>; Sat, 20 Jan 2001 19:07:18 -0500
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:48900 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S131831AbRAUAHH>; Sat, 20 Jan 2001 19:07:07 -0500
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200101210006.BAA06025@green.mif.pg.gda.pl>
-Subject: Re: Linux 2.4.0-ac10
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Sun, 21 Jan 2001 01:06:58 +0100 (CET)
-Cc: linux-kernel@vger.kernel.org (kernel list)
-X-Mailer: ELM [version 2.5 PL0pre8]
-MIME-Version: 1.0
+	id <S132135AbRAUAIS>; Sat, 20 Jan 2001 19:08:18 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:30726 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S132101AbRAUAII>;
+	Sat, 20 Jan 2001 19:08:08 -0500
+Date: Sat, 20 Jan 2001 17:05:27 -0700
+From: yodaiken@fsmlabs.com
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: nigel@nrg.org, "David S. Miller" <davem@redhat.com>,
+        linux-kernel@vger.kernel.org,
+        linux-audio-dev@ginette.musique.umontreal.ca
+Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
+Message-ID: <20010120170527.A15918@hq.fsmlabs.com>
+In-Reply-To: <200101110519.VAA02784@pizda.ninka.net> <Pine.LNX.4.05.10101111233241.5936-100000@cosmic.nrg.org> <3A5F0706.6A8A8141@uow.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.95.4us
+In-Reply-To: <3A5F0706.6A8A8141@uow.edu.au>; from Andrew Morton on Sat, Jan 13, 2001 at 12:30:46AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
 
---- linux-2.4.0-ac9/arch/i386/boot/bootsect.S   Tue Jul 18 23:55:01 2000
-+++ linux-2.4.0-ac10/arch/i386/boot/bootsect.S  Sat Jan 20 02:47:07 2001
-@@ -5,8 +5,12 @@
-  *     modified by Bruce Evans (bde)
-  *     modified by Chris Noe (May 1999) (as86 -> gas)
-  *
-- * bootsect is loaded at 0x7c00 by the bios-startup routines, and moves
-- * itself out of the way to address 0x90000, and jumps there.
-+ * 360k/720k disk support: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Let me just point out that Nigel (I think) has previously stated that
+the purpose of this approach is to bring the stunning success of 
+IRIX style "RT" to Linux. Since some of us believe that IRIX is a virtual
+handbook of OS errors, it really comes down to a design style. I think
+that simplicity and "does the main job well" wins every time over 
+"really cool algorithms" and "does everything badly". Others 
+disagree.
 
-I wonder how this line gets into your patch. Please, remove it (patch follows).
-My bootsector patch is NOT enclosed into 2.4.0-ac10.
 
-Yes, I did rewrite some time ago the bootsect.S to enable booting a kernel
-with (bootsect.o + setup.o) > 4 kB   
-[ it happens eg. when video selection is compiled in ]
-from a 360k/720k (8 sec/track) floppy, but AFAIR it is alredy obsolete and
-has never been ported to 2.4.
+On Sat, Jan 13, 2001 at 12:30:46AM +1100, Andrew Morton wrote:
+> Nigel Gamble wrote:
+> > 
+> > Spinlocks should not be held for lots of time.  This adversely affects
+> > SMP scalability as well as latency.  That's why MontaVista's kernel
+> > preemption patch uses sleeping mutex locks instead of spinlocks for the
+> > long held locks.
+> 
+> Nigel,
+> 
+> what worries me about this is the Apache-flock-serialisation saga.
+> 
+> Back in -test8, kumon@fujitsu demonstrated that changing this:
+> 
+> 	lock_kernel()
+> 	down(sem)
+> 	<stuff>
+> 	up(sem)
+> 	unlock_kernel()
+> 
+> into this:
+> 
+> 	down(sem)
+> 	<stuff>
+> 	up(sem)
+> 
+> had the effect of *decreasing* Apache's maximum connection rate
+> on an 8-way from ~5,000 connections/sec to ~2,000 conn/sec.
+> 
+> That's downright scary.
+> 
+> Obviously, <stuff> was very quick, and the CPUs were passing through
+> this section at a great rate.
+> 
+> How can we be sure that converting spinlocks to semaphores
+> won't do the same thing?  Perhaps for workloads which we
+> aren't testing?
+> 
+> So this needs to be done with caution.
+> 
+> As davem points out, now we know where the problems are
+> occurring, a good next step is to redesign some of those
+> parts of the VM and buffercache.  I don't think this will
+> be too hard, but they have to *want* to change :)
+> 
+> Some of those algorithms are approximately O(N^2), for huge
+> values of N.
+> 
+> 
+> -
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
-Note that it is almost impossible to compile an usable [you must turn off
-networking] i386 2.4 kernel which fits into 360k floppy...
-
-And there are other bootsect.S related unsolved problems [large kernels].
-
-Regards
-   Andrzej
-
-**************************************************
---- arch/i386/boot/bootsect.S.orig	Sat Jan 20 18:36:39 2001
-+++ arch/i386/boot/bootsect.S	Sat Jan 20 18:36:55 2001
-@@ -5,8 +5,6 @@
-  *	modified by Bruce Evans (bde)
-  *	modified by Chris Noe (May 1999) (as86 -> gas)
-  *
-- * 360k/720k disk support: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-- *
-  * BIG FAT NOTE: We're in real mode using 64k segments.  Therefore segment
-  * addresses must be multiplied by 16 to obtain their respective linear
-  * addresses. To avoid confusion, linear addresses are written using leading
-**************************************************
 -- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Technical University of Gdansk
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129521AbQLORrV>; Fri, 15 Dec 2000 12:47:21 -0500
+	id <S129906AbQLOSBg>; Fri, 15 Dec 2000 13:01:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129525AbQLORrL>; Fri, 15 Dec 2000 12:47:11 -0500
-Received: from copper.dcs.qmw.ac.uk ([138.37.88.248]:16143 "EHLO
-	copper.dcs.qmw.ac.uk") by vger.kernel.org with ESMTP
-	id <S129521AbQLORrE>; Fri, 15 Dec 2000 12:47:04 -0500
-Date: Fri, 15 Dec 2000 17:16:18 +0000 (GMT)
-From: Matt Bernstein <matt@theBachChoir.org.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: BOOTP not working in 2.2.18?
-In-Reply-To: <Pine.LNX.4.30.0012151216020.895-100000@r2-pc>
-Message-ID: <Pine.LNX.4.30.0012151713560.15533-100000@lucy>
-X-URL: http://www.theBachChoir.org.uk/
+	id <S129896AbQLOSBZ>; Fri, 15 Dec 2000 13:01:25 -0500
+Received: from msgbas1x.cos.agilent.com ([192.6.9.33]:4073 "HELO
+	msgbas1.cos.agilent.com") by vger.kernel.org with SMTP
+	id <S129614AbQLOSBW>; Fri, 15 Dec 2000 13:01:22 -0500
+Message-ID: <FEEBE78C8360D411ACFD00D0B7477971880909@xsj02.sjs.agilent.com>
+From: hiren_mehta@agilent.com
+To: linux-kernel@vger.kernel.org
+Subject: driver disk
+Date: Fri, 15 Dec 2000 10:30:51 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK this means you need "ip=::::::bootp" on your command-line. I didn't
-spot it documented anywhere :-( and it wasn't obvious the default
-behaviour had changed until I browsed patch-2.2.18 rather than the patched
-file.
+Hi All,
 
-I'd still like the userspace bootpc to do the job though. It just grumbles
-"sendto: network is unreachable."
+Can somebody tell me how to create a driver disk for redhat linux or
+send me a URL where I can find the information on this ? On redhat linux
+I started installation using "export mode" so that I can use my own
+driver to install the linux on the hard disks connected to my SCSI
+adapter and at that time it asks for driver disks. But I don't know
+the format of the driver disk and the files inside it.
 
-At 12:19 -0000 Matt Bernstein wrote:
-
->In the file net/ipv4/ipconfig.c is a variable called ic_enabled which is
->initialised to zero and never set anywhere. a check is made and bootp
->isn't run if its not set. Setting it to 1 before the check makes it appear
->to work.
-
+Thanks
+-hiren
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

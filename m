@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262244AbUCIWph (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 17:45:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbUCIWpg
+	id S262250AbUCIWps (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 17:45:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbUCIWps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 17:45:36 -0500
-Received: from emulex.emulex.com ([138.239.112.1]:33951 "EHLO
-	emulex.emulex.com") by vger.kernel.org with ESMTP id S262238AbUCIWpf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 17:45:35 -0500
-Message-ID: <3356669BBE90C448AD4645C843E2BF2802C014D7@xbl.ma.emulex.com>
-From: "Smart, James" <James.Smart@Emulex.com>
-To: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: [Announce] Emulex LightPulse Device Driver
-Date: Tue, 9 Mar 2004 17:45:26 -0500 
+	Tue, 9 Mar 2004 17:45:48 -0500
+Received: from pop.gmx.de ([213.165.64.20]:52646 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262250AbUCIWpk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 17:45:40 -0500
+X-Authenticated: #4512188
+Message-ID: <404E4913.3020005@gmx.de>
+Date: Tue, 09 Mar 2004 23:45:39 +0100
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040216)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: john stultz <johnstul@us.ibm.com>
+CC: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, len.brown@intel.com
+Subject: Re: ACPI PM Timer vs. C1 halt issue
+References: <404E38B7.5080008@gmx.de> <1078870289.12084.8.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1078870289.12084.8.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+john stultz wrote:
+> On Tue, 2004-03-09 at 13:35, Prakash K. Cheemplavam wrote:
+> 
+>>I found out what causes higher idle temps when using mm-sources and 
+>>2.6.4-rc vanilla sources: If I use PM Timer as timesource, it seems the 
+>>C1 halt isn't properly called, at least CPU disconnect doesn't seem to 
+>>work, thus leaving my CPU as hot as without disconnect.
+[snip]
+> 
+> Sounds like a bug. I'm not very familiar w/ the ACPI cpu power states,
+> is there anything you have to do to trigger C1 Halt? Or is it just
+> called in the idle loop?
 
-Emulex is embarking on an effort to open source the driver for its
-LightPulse Fibre Channel Adapter family. This effort will migrate Emulex's
-current code base to a driver centric to the Linux 2.6 kernel, with the goal
-to eventually gain inclusion in the base Linux kernel.
+It should be called within the idle loop.
 
-A new project has been created on SourceForge to host this effort - see
-http://sourceforge.net/projects/lpfcxxxx/ . Further information, such as the
-lastest FAQ, can be found on the project site.
+bye,
 
-We realize that this will be a significant effort for Emulex. We welcome any
-feedback that the community can provide us.
-
-Thanks,
-
--- James Smart
-   Emulex Corporation
-
+Prakash

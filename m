@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282397AbRK0SjI>; Tue, 27 Nov 2001 13:39:08 -0500
+	id <S281322AbRK0SmS>; Tue, 27 Nov 2001 13:42:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281322AbRK0SjD>; Tue, 27 Nov 2001 13:39:03 -0500
-Received: from mail.gmx.de ([213.165.64.20]:51633 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S282470AbRK0Siy> convert rfc822-to-8bit;
-	Tue, 27 Nov 2001 13:38:54 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Sebastian =?iso-8859-1?q?Dr=F6ge?= <sebastian.droege@gmx.de>
-Reply-To: sebastian.droege@gmx.de
-To: linux-kernel@vger.kernel.org
-Subject: Re: "spurious 8259A interrupt: IRQ7"
-Date: Tue, 27 Nov 2001 19:40:27 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <XFMail.20011127152007.ast@domdv.de> <01112716302905.00872@manta>
-In-Reply-To: <01112716302905.00872@manta>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011127183856Z282470-17408+21175@vger.kernel.org>
+	id <S282492AbRK0SmM>; Tue, 27 Nov 2001 13:42:12 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:34177
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S281322AbRK0Sly>; Tue, 27 Nov 2001 13:41:54 -0500
+Date: Tue, 27 Nov 2001 13:39:44 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: CML2 1.9.1 is available
+Message-ID: <20011127133944.A2554@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+The latest version is always available at http://www.tuxedo.org/~esr/cml2/
 
-Hi,
-I've had this very message, too.
-System is a PII 350, MSI-6151 motherboard with Intel BX chipset
-But it's a time ago I had it ;)
-When I remember right it was the one kernel I've enabled APIC/IO-APIC but I'm
-not sure. Right now I have no APIC/IO-APIC enabled.
-I'll test it later the day
-Bye
+Release 1.9.1: Tue Nov 27 13:29:50 EST 2001
+	* Rulebase and help sync with 2.4.16/2.5.1-pre1 (except for SH port).
+	* APIC rulebase correction by Damian M Gryski <dgryski@uwaterloo.ca>.
+	* It is now possible to selectively suppress the emission of derived
+	  symbols to the configuration file with an unless...suppress.
+	* Improvements to compiler's well-formedness checking.
 
+This folds in a couple of recent feature requests.
 
-Am Dienstag, 27. November 2001 19:30 schrieb vda:
- On Tuesday 27 November 2001 12:20, Andreas Steinmetz wrote:
-> > As far as I remember this was talked about earlier. Different mobos,
-> > chipsets, processor brands, but always IRQ 7. /me wonders. At least it
-> > doesn't do any harm (got this message on nearly all or all of my
-> > systems).
-> >
-> > On 27-Nov-2001 Alan Cox wrote:
-> > >> I get this with 2.4.16 vanilla, though. IRQ 7 appears to be unassigned
-> > >> according to /proc/pci.
-> > >>
-> > >> Machine is a 1ghz Athlon on a VIA VT82C686 mobo and a DEC 21140 NIC.
-> > >>
-> > >> Any pointers appreciated.
-> > >
-> > > IRQ7 is asserted when the PIC sees an interrupt but nobody appears to
-> > > be generating it when it looks.
->
-> I see it too on my home system (Duron 650 + VIA chipset)
+Keith Owens has reported a looping bug I can't reproduce -- the bug
+log suggests that his CML2 rulebase is mis-installed somehow.  The bug
+list is otherwise empty.  The to-do list is empty.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8A94fvIHrJes3kVIRAr3SAKCdcisZj7yfj7mENPSEc2h/Bq+AlQCfVC5i
-/wx+DcuyM4OH29GinxEEnYI=
-=LDkl
------END PGP SIGNATURE-----
+The right of the citizens to keep and bear arms has justly been considered as
+the palladium of the liberties of a republic; since it offers a strong moral
+check against usurpation and arbitrary power of rulers; and will generally,
+even if these are successful in the first instance, enable the people to resist
+and triumph over them."
+        -- Supreme Court Justice Joseph Story of the John Marshall Court

@@ -1,65 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263607AbTKXHFx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 02:05:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263611AbTKXHFw
+	id S263612AbTKXHhg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 02:37:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbTKXHhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 02:05:52 -0500
-Received: from amber.ccs.neu.edu ([129.10.116.51]:5369 "EHLO amber.ccs.neu.edu")
-	by vger.kernel.org with ESMTP id S263607AbTKXHFv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 02:05:51 -0500
-Subject: Re: [OT] Re: Linux 2.6.0-test10
-From: Stan Bubrouski <stan@ccs.neu.edu>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <7vvfpai81r.fsf@assigned-by-dhcp.cox.net>
-References: <Pine.LNX.4.44.0311231804170.17378-100000@home.osdl.org>
-	 <7vvfpai81r.fsf@assigned-by-dhcp.cox.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-D/WXqan2JoeJ0R1DUunb"
-Message-Id: <1069657549.1269.149.camel@duergar>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 24 Nov 2003 02:05:50 -0500
+	Mon, 24 Nov 2003 02:37:36 -0500
+Received: from natsmtp00.rzone.de ([81.169.145.165]:24276 "EHLO
+	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
+	id S263612AbTKXHhd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 02:37:33 -0500
+Message-ID: <3FC1B539.50204@softhome.net>
+Date: Mon, 24 Nov 2003 08:37:29 +0100
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Wuertele <dave-gnus@bfnet.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Do I need kswapd if I don't have swap?
+References: <URy0.Sx.3@gated-at.bofh.it>
+In-Reply-To: <URy0.Sx.3@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-D/WXqan2JoeJ0R1DUunb
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+   Can you try 2.6?
 
-On Mon, 2003-11-24 at 01:40, Junio C Hamano wrote:
-> Sorry for being paranoid, but is this message really from the
-> real Linus?  I have never seen Linus' e-mail with long lines
-> folded with '=3D' at the end of line, nor with charset ISO-8859-1.
->=20
+   AFAIK 2.4 has no callpath to return ENOMEM to user space. (probably 
+in couple of months I will reach this issue on my systems and test it 
+completely).
 
-The message by all indication is from Linus.  I do not see the the lines
-folded with '=3D' as you point out, but I do see the content-type as
-charset ISO-8859-1, but I don't see Linus using Latin 1 as suspicious at
-all.  Finally someone more paranoid than me ;-)
+   kswapd is universal process to write-out information to disk - and in 
+Linux pages has no any difference as kswapd concerned. It just dumbly 
+write them out. If you will disable kswapd - files modified by mean of 
+mmap() most likely will never be written back to disk. (Here I am (most 
+likely) wrong - probably some of the vm gurus can correct me). That's 
+actually why Linux has problems with disk cache and disk cache can 
+easily swap the task doing i/o.
 
--sb
+   If you want to work-around this situation - enable OOM. it will just 
+kill your process instead.
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
-n
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->=20
 
---=-D/WXqan2JoeJ0R1DUunb
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+David Wuertele wrote:
+> Using 2.4.18 on my 32MB RAM embedded MIPS system, malloc() goes
+> bye-bye:
+> 
+>   /* Malloc as much as possible, then return */
+>   #include <stdio.h>
+>   #define UNIT 1024		/* one kilobyte */
+>   int main ()
+>   {
+>     unsigned int j, totalmalloc=0, totalwrote=0, totalread=0;
+>     while (1) {
+>       unsigned char *buf = (unsigned char *) malloc (UNIT);
+>       if (!buf) return 0;
+>       totalmalloc += UNIT; fprintf (stderr, "%u ", totalmalloc);
+>       for (j=0; j<UNIT; j++) buf[j] = j % 256;
+>       totalwrote += UNIT; fprintf (stderr, "%u ", totalwrote);
+>       for (j=0; j<UNIT; j++) if (buf[j] != (j % 256)) return -1;
+>       totalread += UNIT; fprintf (stderr, "%u\n", totalread);
+>     }
+>   }
+> 
+> I expected this program to malloc most of my embedded MIPS's 32MB of
+> system RAM, then eventually return with a -1 or a -2.  Unfortunately,
+> it hangs having finally printed:
+> 
+>   M26916864
+>   W26916864
+>   R26916864
+> 
+> The malloc call isn't even returning.  What could explain that?
+> 
+> I don't have swap space configured, and I notice several kernel
+> threads that I figure might be assuming I have swap.  For example:
+> 
+>       3 root     S    [ksoftirqd_CPU0]
+>       4 root     S    [kswapd]
+>       5 root     S    [bdflush]
+>       6 root     S    [kupdated]
+>       7 root     S    [mtdblockd]
+> 
+> Do I need any of these if I don't have swap?  Are there any special
+> kernel configs I should be doing if I don't have swap?
+> 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/wa3NQHy9+2ztQiARAsjEAKDTWYjK5CA58I1jLIyUnD5PbvOzogCgpdze
-9YuadgW73HYB8vHe+kDM6fw=
-=QwHg
------END PGP SIGNATURE-----
-
---=-D/WXqan2JoeJ0R1DUunb--
 

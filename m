@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280435AbRKKTAG>; Sun, 11 Nov 2001 14:00:06 -0500
+	id <S279556AbRKKTJg>; Sun, 11 Nov 2001 14:09:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280387AbRKKS75>; Sun, 11 Nov 2001 13:59:57 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36109 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280419AbRKKS7n>; Sun, 11 Nov 2001 13:59:43 -0500
-Date: Sun, 11 Nov 2001 10:56:00 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: <linux-kernel@vger.kernel.org>
+	id <S280387AbRKKTJQ>; Sun, 11 Nov 2001 14:09:16 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:17600 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S279741AbRKKTJO>;
+	Sun, 11 Nov 2001 14:09:14 -0500
+Date: Sun, 11 Nov 2001 14:09:09 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: [CFT][PATCH] long-living cache for block devices
-In-Reply-To: <Pine.GSO.4.21.0111092010150.12727-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.33.0111111053160.21663-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0111111053160.21663-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0111111400180.17411-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 9 Nov 2001, Alexander Viro wrote:
-> >
-> > Why do yu care about destroying buffer-heads?
-> >
-> > You might as well leave them active, I don't see what you win from trying
-> > to get rid of them aggressively. They'll go away when the pages go away..
->
-> The simplest way to make sure that all IO is over (including readaheads).
 
-Again - why do you actually care?
+On Sun, 11 Nov 2001, Linus Torvalds wrote:
 
-If we end up removing the module, we'll call "unregister_blockdev()" or
-whatever, which in turn gets rid of _all_ pages, and that that time we
-will correctly get rid of buffers.
+> If we end up removing the module, we'll call "unregister_blockdev()" or
+> whatever, which in turn gets rid of _all_ pages, and that that time we
+> will correctly get rid of buffers.
+> 
+> And before you remove the module I see no advantage to have any guarantees
+> of quiescence and removing the buffer heads. I only see extra code that
+> doesn't seem to have any real purpose..
 
-And before you remove the module I see no advantage to have any guarantees
-of quiescence and removing the buffer heads. I only see extra code that
-doesn't seem to have any real purpose..
+As it is, driver has a right to destroy any internal data structures as
+soon as the last ->release() is called.  None of them expect requests
+coming in after that and frankly, that makes sense.
 
-		Linus
+IOW, if there is any point in _having_ ->release() at all, we'd better
+make sure that nothing will bother the driver between the final ->release()
+and the next ->open().
 

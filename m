@@ -1,36 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318811AbSHLUa5>; Mon, 12 Aug 2002 16:30:57 -0400
+	id <S318818AbSHLU2T>; Mon, 12 Aug 2002 16:28:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318813AbSHLUa5>; Mon, 12 Aug 2002 16:30:57 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:38154 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S318811AbSHLUa5>; Mon, 12 Aug 2002 16:30:57 -0400
-Message-ID: <3D581B9F.20406@namesys.com>
-Date: Tue, 13 Aug 2002 00:33:35 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
+	id <S318819AbSHLU2T>; Mon, 12 Aug 2002 16:28:19 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53009 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318818AbSHLU2S>; Mon, 12 Aug 2002 16:28:18 -0400
+Date: Mon, 12 Aug 2002 13:32:59 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Robert Love <rml@tech9.net>, Skip Ford <skip.ford@verizon.net>,
+       "Adam J. Richter" <adam@yggdrasil.com>, <ryan.flanigan@intel.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.31: modules don't work at all
+In-Reply-To: <3D57F5D6.C54F5A2A@zip.com.au>
+Message-ID: <Pine.LNX.4.33.0208121330310.1289-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: Andrew Morton <akpm@zip.com.au>,
-       Hans Reiser <reiser@bitshadow.namesys.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK] [PATCH] reiserfs changeset 7 of 7 to include into 2.4 tree
-References: <Pine.LNX.4.44.0208121533470.3048-100000@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You'll also find that reiserfs scales much better on machines with many 
-processors with this patch in use.  It still is very coarse grained 
-compared to V4, but the bitmap scanning was consuming so much CPU while 
-locking out other processors that it was a performance problem for one 
-person measuring our performance on 8-way machines.
 
--- 
-Hans
+On Mon, 12 Aug 2002, Andrew Morton wrote:
+> 
+> Gets tricky with nested lock_kernels.
 
+No, lock-kernel already only increments once, at the first lock_kernel. We 
+have a totally separate counter for the BKL depth, see <asm/smplock.h>
 
+		Linus
 

@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265637AbTBFHVh>; Thu, 6 Feb 2003 02:21:37 -0500
+	id <S265667AbTBFHbg>; Thu, 6 Feb 2003 02:31:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265667AbTBFHVh>; Thu, 6 Feb 2003 02:21:37 -0500
-Received: from willow.compass.com.ph ([202.70.96.38]:30728 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S265637AbTBFHVg>; Thu, 6 Feb 2003 02:21:36 -0500
-Subject: Re: [Linux-fbdev-devel] Re: New logo code (fwd)
-From: Antonino Daplas <adaplas@pol.net>
-To: Torrey Hoffman <thoffman@arnor.net>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <1044472678.1321.388.camel@rohan.arnor.net>
-References: <Pine.GSO.4.21.0302051336170.16681-100000@vervain.sonytel.be> 
-	<1044472678.1321.388.camel@rohan.arnor.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1044428655.1169.19.camel@localhost.localdomain>
+	id <S265700AbTBFHbg>; Thu, 6 Feb 2003 02:31:36 -0500
+Received: from packet.digeo.com ([12.110.80.53]:30900 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265667AbTBFHbg>;
+	Thu, 6 Feb 2003 02:31:36 -0500
+Date: Wed, 5 Feb 2003 23:41:39 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Patrick Mau <mau@oscar.ping.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pdflush in D state
+Message-Id: <20030205234139.237887a7.akpm@digeo.com>
+In-Reply-To: <20030205231259.GA5339@oscar.ping.de>
+References: <20030205231259.GA5339@oscar.ping.de>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Feb 2003 15:15:17 +0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Feb 2003 07:41:06.0311 (UTC) FILETIME=[1B724970:01C2CDB3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-02-06 at 03:17, Torrey Hoffman wrote:
-> > > On Sun, 12 Jan 2003, Geert Uytterhoeven wrote:
-> > > > The current logo code is messy, complex, and inflexible. So I decided to
-> > > > rewrite it. My goals were:
-> [ good list ]
+Patrick Mau <mau@oscar.ping.de> wrote:
+>
+> This goes extremly fast, but after a few seconds pdflush
+> gets stuck in D state and tries to write back dirty pages.
+> The machine is completly unresponsive and "top" reports
+> 75 percent IO wait time. The actual build has not even started.
 > 
-> This is wonderful.  I (and some co-conspirators) started a similar
-> project, and put up patches at www.arnor.net/linuxlogo . But yours is up
-> to date, and ours is not (I was waiting until the framebuffer rewrite
-> was done, and then I didn't have time to catch up).  
-> 
-> It would be great if your patch was merged.  If I may offer some
-> suggestions... well, feature requests :-)
-> 
-> It would also be nice to have an option to turn off the blinking cursor
 
-You can control some of the attributes of the cursor in 2.5.  The
-examples illustrated in linux/Documentation/VGA-Softcursor.txt should
-work.  
+At a guess, I'd say that a disk device driver has dropped an interrupt and
+I/O completion has not happened.
 
-Tony
-
-
+Check your kernel log and dmesg output for anything untoward, and then try
+invoking sysrq-P and sysrq-T to find out where everythihg is stuck.
 

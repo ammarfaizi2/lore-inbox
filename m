@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131478AbQLVPeu>; Fri, 22 Dec 2000 10:34:50 -0500
+	id <S131794AbQLVPha>; Fri, 22 Dec 2000 10:37:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131991AbQLVPek>; Fri, 22 Dec 2000 10:34:40 -0500
-Received: from p3EE3CA44.dip.t-dialin.net ([62.227.202.68]:3076 "HELO
-	emma1.emma.line.org") by vger.kernel.org with SMTP
-	id <S131478AbQLVPe2> convert rfc822-to-8bit; Fri, 22 Dec 2000 10:34:28 -0500
-Date: Fri, 22 Dec 2000 15:47:57 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: "Theodore Ts'o" <tytso@valinux.com>,
-        Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
-        Andrea Arcangeli <andrea@suse.de>
-Subject: FAIL: 2.2.18 + AA-VM-global-7 + serial 5.05
-Message-ID: <20001222154757.A1167@emma1.emma.line.org>
-Mail-Followup-To: Theodore Ts'o <tytso@valinux.com>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
-	Andrea Arcangeli <andrea@suse.de>
+	id <S131991AbQLVPhU>; Fri, 22 Dec 2000 10:37:20 -0500
+Received: from alcove.wittsend.com ([130.205.0.20]:62477 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S131830AbQLVPhM>; Fri, 22 Dec 2000 10:37:12 -0500
+Date: Fri, 22 Dec 2000 10:06:11 -0500
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: Alex Buell <alex.buell@tahallah.clara.co.uk>
+Cc: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>,
+        "Mike A. Harris" <mharris@opensourceadvocate.org>
+Subject: Re: The NSA's Security-Enhanced Linux (fwd)
+Message-ID: <20001222100611.D18964@alcove.wittsend.com>
+Mail-Followup-To: Alex Buell <alex.buell@tahallah.clara.co.uk>,
+	Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>,
+	"Mike A. Harris" <mharris@opensourceadvocate.org>
+In-Reply-To: <Pine.LNX.4.31.0012220159400.666-100000@asdf.capslock.lan> <Pine.LNX.4.31.0012221038300.22562-100000@chaos2.bluetone.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.2i
+In-Reply-To: <Pine.LNX.4.31.0012221038300.22562-100000@chaos2.bluetone.net>; from alex.buell@tahallah.clara.co.uk on Fri, Dec 22, 2000 at 10:39:03AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Dec 22, 2000 at 10:39:03AM +0000, Alex Buell wrote:
+> On Fri, 22 Dec 2000, Mike A. Harris wrote:
 
-I have a vanilla 2.2.18 that I patch Andrea Arcangeli's VM-global-7
-patch (for 2.2.18pre25) on top, as well as I²C 2.5.4, the current
---12-09 IDE.2.2.18 patch and ReiserFS 3.5.28. So far, so good. If I now
-patch serial 5.05 on top of that, the kernel itself detects devices, but
-does nothing if it's to boot /sbin/init. ctrl-alt-del and Magic SysRq
-are both functional and can reboot the machine.
+> > The result is available for download at the above URL as well. Has
+> > anyone here toyed with it already ?
 
-Taking out either the VM-global-7 patch or the serial 5.05 update fixes
-this.
+> <paranaoia>
+> I'd eyeball the sources for backdoors, if I were you.
+> </paranaoia>
 
-I suspect that these patches are mutually incompatible.
+	Hey, this is open source here.  We'll "many eyeball the source".
+That's a given...  :-)
 
-Could somebody please have a look at this? I will test or provide more
-information as requested.
+> Cheers,
+> Alex
+> -- 
+> Here, have some homemade chocolate biscuits.
 
+> http://www.tahallah.clara.co.uk
+
+
+	Mike
 -- 
-Matthias Andree
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

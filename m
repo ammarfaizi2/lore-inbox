@@ -1,54 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262912AbTFGJsz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 05:48:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262918AbTFGJsz
+	id S262931AbTFGJzK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 05:55:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbTFGJzK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 05:48:55 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:37269 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262912AbTFGJsy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 05:48:54 -0400
-Date: Sat, 7 Jun 2003 12:02:17 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] 2.5.70-bk11 zlib merge #4 pure magic
-Message-ID: <20030607100217.GB24694@wohnheim.fh-wedel.de>
-References: <20030606183126.GA10487@wohnheim.fh-wedel.de> <20030606183247.GB10487@wohnheim.fh-wedel.de> <20030606183920.GC10487@wohnheim.fh-wedel.de> <20030606185210.GE10487@wohnheim.fh-wedel.de> <20030606192325.GG10487@wohnheim.fh-wedel.de> <20030606192814.GH10487@wohnheim.fh-wedel.de> <20030606200051.GI10487@wohnheim.fh-wedel.de> <20030606201306.GJ10487@wohnheim.fh-wedel.de> <16097.45833.384548.319399@argo.ozlabs.ibm.com>
+	Sat, 7 Jun 2003 05:55:10 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:37593 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262931AbTFGJzG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 05:55:06 -0400
+Date: Sat, 7 Jun 2003 12:08:36 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@digeo.com>, perex@suse.cz, alsa-devel@alsa-project.org
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.5.70-mm5: sound/pcmcia/vx/snd-vx* multiple definitions
+Message-ID: <20030607100836.GE15311@fs.tum.de>
+References: <20030605021231.2b3ebc59.akpm@digeo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <16097.45833.384548.319399@argo.ozlabs.ibm.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030605021231.2b3ebc59.akpm@digeo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 June 2003 19:40:25 +1000, Paul Mackerras wrote:
-> 
-> Your change won't affect PPP, since pppd already refuses to use
-> windowBits == 8 (as a workaround for this bug).
+It seems the following compile error comes from Linus' tree:
 
-Seems like I have misread the ppp code then.  In that case, please
-remove the ppp part from the previous patch or use this one instead,
-Linus.
+<--  snip  -->
 
-Jörn
+...
+  LD      sound/pcmcia/vx/snd-vxpocket.o
+  LD      sound/pcmcia/vx/snd-vxp440.o
+  LD      sound/pcmcia/vx/built-in.o
+sound/pcmcia/vx/snd-vxp440.o(.text+0x160): In function 
+`snd_vxpocket_attach':
+: multiple definition of `snd_vxpocket_attach'
+sound/pcmcia/vx/snd-vxpocket.o(.text+0x160): first defined here
+sound/pcmcia/vx/snd-vxp440.o(.data+0x1a0): multiple definition of 
+`snd_vxpocket_ops'
+sound/pcmcia/vx/snd-vxpocket.o(.data+0x1a0): first defined here
+sound/pcmcia/vx/snd-vxp440.o(.text+0x420): In function 
+`snd_vxpocket_detach':
+: multiple definition of `snd_vxpocket_detach'
+sound/pcmcia/vx/snd-vxpocket.o(.text+0x420): first defined here
+sound/pcmcia/vx/snd-vxp440.o(.text+0x1320): In function 
+`vx_set_mic_boost':
+: multiple definition of `vx_set_mic_boost'
+sound/pcmcia/vx/snd-vxpocket.o(.text+0x1320): first defined here
+sound/pcmcia/vx/snd-vxp440.o(.text+0x4e0): In function 
+`snd_vxpocket_detach_all':
+: multiple definition of `snd_vxpocket_detach_all'
+sound/pcmcia/vx/snd-vxpocket.o(.text+0x4e0): first defined here
+sound/pcmcia/vx/snd-vxp440.o(.text+0x1a60): In function 
+`vxp_add_mic_controls':
+: multiple definition of `vxp_add_mic_controls'
+sound/pcmcia/vx/snd-vxpocket.o(.text+0x1a60): first defined here
+sound/pcmcia/vx/snd-vxp440.o(.text+0x14e0): In function 
+`vx_set_mic_level':
+: multiple definition of `vx_set_mic_level'
+sound/pcmcia/vx/snd-vxpocket.o(.text+0x14e0): first defined here
+make[3]: *** [sound/pcmcia/vx/built-in.o] Error 1
+
+<--  snip  -->
+
+cu
+Adrian
 
 -- 
-A defeated army first battles and then seeks victory.
--- Sun Tzu
 
---- linux-2.5.70-bk11/lib/zlib_deflate/deflate.c~zlib_merge_magic	2003-06-06 20:44:51.000000000 +0200
-+++ linux-2.5.70-bk11/lib/zlib_deflate/deflate.c	2003-06-06 22:05:30.000000000 +0200
-@@ -216,7 +216,7 @@
-         windowBits = -windowBits;
-     }
-     if (memLevel < 1 || memLevel > MAX_MEM_LEVEL || method != Z_DEFLATED ||
--        windowBits < 8 || windowBits > 15 || level < 0 || level > 9 ||
-+        windowBits < 9 || windowBits > 15 || level < 0 || level > 9 ||
- 	strategy < 0 || strategy > Z_HUFFMAN_ONLY) {
-         return Z_STREAM_ERROR;
-     }
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

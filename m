@@ -1,38 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262148AbSJ0ATP>; Sat, 26 Oct 2002 20:19:15 -0400
+	id <S261984AbSJ0ARa>; Sat, 26 Oct 2002 20:17:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262187AbSJ0ATP>; Sat, 26 Oct 2002 20:19:15 -0400
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:56482 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S262148AbSJ0ATO>; Sat, 26 Oct 2002 20:19:14 -0400
-Date: Sat, 26 Oct 2002 17:25:26 -0700
-From: "H. J. Lu" <hjl@lucon.org>
+	id <S262148AbSJ0ARa>; Sat, 26 Oct 2002 20:17:30 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:64786 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S261984AbSJ0AR3>;
+	Sat, 26 Oct 2002 20:17:29 -0400
+Message-ID: <3DBB31D6.90207@domdv.de>
+Date: Sun, 27 Oct 2002 02:22:46 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20021020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: Support PCI device sorting (Re: PCI device order problem)
-Message-ID: <20021026172526.A15641@lucon.org>
-References: <3DBB0A81.6060909@pobox.com> <20021026144441.A13479@lucon.org> <3DBB1150.2030800@pobox.com> <20021026152043.A13850@lucon.org> <3DBB1743.6060309@pobox.com> <20021026155342.A14378@lucon.org> <3DBB1E29.5020402@pobox.com> <20021026165315.A15269@lucon.org> <3DBB2BE7.70208@pobox.com> <3DBB2DB9.3000803@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DBB2DB9.3000803@pobox.com>; from jgarzik@pobox.com on Sat, Oct 26, 2002 at 08:05:13PM -0400
+CC: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: rootfs exposure in /proc/mounts
+References: <Pine.GSO.4.21.0210261458460.29768-100000@steklov.math.psu.edu> <3DBAE931.7000409@domdv.de> <3DBAEC79.5050605@pobox.com>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 26, 2002 at 08:05:13PM -0400, Jeff Garzik wrote:
-> Jeff Garzik wrote:
+Jeff Garzik wrote:
+> Andreas Steinmetz wrote:
 > 
-> > s/__devinit/__init/ and the implementation looks ok to me
+>> Alexander Viro wrote:
+>>
+>>>
+>>> On Sat, 26 Oct 2002, Andreas Steinmetz wrote:
+>>>
+>>>
+>>>> Maybe I do oversee the obious but:
+>>>>
+>>>> can somebody please explain why rootfs is exposed in /proc/mounts (I 
+>>>> do mean the "rootfs / rootfs rw 0 0" entry) and if there is a good 
+>>>> reason for the exposure?
+>>>
+>>>
+>>>
+>>>
+>>> Mostly the fact that it _is_ mounted and special-casing its removal from
+>>> /proc/mounts is more PITA than it's worth.
+>>>
+>> Acceptable but somewhat sad as it confuses e.g. "umount -avt noproc" 
+>> which is somewhat standard in shutdown/reboot scripts (using a 
+>> softlink from /etc/mtab to /proc/mounts).
 > 
 > 
 > 
-> ...except if your patch can be called in hotplug paths...
+> Bug 1 - don't softlink directly to /proc/mounts :)  embedded guys 
+> typically do this, and you see why it bites you in the ass :)
+> 
+> Bug 2 - "noproc" clearly does not avoid ramfs mounts, which is rootfs's 
+> filesystem type.  And more and more ramfs filesystems will be appearing, 
+> so that should be taken into consideration.
+> 
+> Sounds like userspace slackness to me, and nothing that the kernel guys 
+> need to worry about...
+> 
+Only if there's another method to retrieve all filesystems mounted from 
+userspace from the kernel. Though this may not be your view of things it 
+is the only way to ensure that one gets a valid mount list. And as 
+/proc/mounts is an interface to userspace it is my opinion that in 
+kernel private mounts that can't be modified from userspace don't need 
+to be listed there. Not my decision, anyway.
 
-There are plenty of __devini in arch/i386/kernel/pci-pc.c. I will leave
-mine alone.
-
-
-H.J.

@@ -1,39 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbUEOMIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbUEOMPM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262339AbUEOMIt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 08:08:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbUEOMHl
+	id S262356AbUEOMPM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 08:15:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbUEOMPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 08:07:41 -0400
-Received: from ee.oulu.fi ([130.231.61.23]:39097 "EHLO ee.oulu.fi")
-	by vger.kernel.org with ESMTP id S262339AbUEOMGH (ORCPT
+	Sat, 15 May 2004 08:15:12 -0400
+Received: from ee.oulu.fi ([130.231.61.23]:22974 "EHLO ee.oulu.fi")
+	by vger.kernel.org with ESMTP id S262356AbUEOMPB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 08:06:07 -0400
-Date: Sat, 15 May 2004 15:05:19 +0300
+	Sat, 15 May 2004 08:15:01 -0400
+Date: Sat, 15 May 2004 15:11:12 +0300
 From: Pekka Pietikainen <pp@ee.oulu.fi>
 To: Miroslav Zubcic <mvz@nimium.com>
 Cc: linux-kernel@vger.kernel.org, pavel@ucw.cz, netdev@oss.sgi.com,
        jgarzik@pobox.com
-Subject: [PATCH] Re: ethernet/b44: Bug in b44.c:v0.93 (Mar, 2004) ethernet driver in 2.6.6
-Message-ID: <20040515120518.GA9480@ee.oulu.fi>
-References: <lzekpnlxwl.fsf@nimiumvax.nimium.local> <20040514130206.GA9583@ee.oulu.fi>
+Subject: Re: [PATCH] Re: ethernet/b44: Bug in b44.c:v0.93 (Mar, 2004) ethernet driver in 2.6.6
+Message-ID: <20040515121112.GA9579@ee.oulu.fi>
+References: <lzekpnlxwl.fsf@nimiumvax.nimium.local> <20040514130206.GA9583@ee.oulu.fi> <20040515120518.GA9480@ee.oulu.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20040514130206.GA9583@ee.oulu.fi>
+In-Reply-To: <20040515120518.GA9480@ee.oulu.fi>
 User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 14, 2004 at 04:02:06PM +0300, Pekka Pietikainen wrote:
-> haven't put that much effort in tracking the reason what magic
-> "break b44 bit" bit broadcom drivers  set. I suppose I could give it a few 
-> hours this weekend tho... On some machines (I think dells) the timeout
-Could you try this patch? It makes the b44 after bcm4400 scenario work for
-me. What was happening is that the broadcom driver sets a "power off MAC"
-bit, and we didn't remove that when initializing the chip.
-Also added some (a bit ugly, I know :-) ) logic to clear up the address
-filter stuff, which is what recent broadcom drivers do...
+On Sat, May 15, 2004 at 03:05:19PM +0300, Pekka Pietikainen wrote:
+> +	/* Enable CRC32, set proper LED modes and power on MAC */
+> +	bw32(B44_MAC_CTRL, MAC_CTRL_CRC32_ENAB | MAC_CTRL_PHY_LEDCTRL);
+Erk, that comment should of course be "power on PHY". I hate acronyms...
 
 --- linux-2.6.5-1.358/drivers/net/b44.c.orig	2004-05-15 13:59:57.000000000 +0300
 +++ linux-2.6.5-1.358/drivers/net/b44.c	2004-05-15 14:59:39.794720368 +0300
@@ -55,7 +50,7 @@ filter stuff, which is what recent broadcom drivers do...
 -	val = br32(B44_MAC_CTRL);
 -	bw32(B44_MAC_CTRL, val | MAC_CTRL_CRC32_ENAB);
 +
-+	/* Enable CRC32, set proper LED modes and power on MAC */
++	/* Enable CRC32, set proper LED modes and power on PHY */
 +	bw32(B44_MAC_CTRL, MAC_CTRL_CRC32_ENAB | MAC_CTRL_PHY_LEDCTRL);
  	bw32(B44_RCV_LAZY, (1 << RCV_LAZY_FC_SHIFT));
  
@@ -99,3 +94,5 @@ filter stuff, which is what recent broadcom drivers do...
  		bw32(B44_RXCONFIG, val);
          	val = br32(B44_CAM_CTRL);
  	        bw32(B44_CAM_CTRL, val | CAM_CTRL_ENABLE);
+
+

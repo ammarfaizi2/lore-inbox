@@ -1,151 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131736AbRCUTP5>; Wed, 21 Mar 2001 14:15:57 -0500
+	id <S131753AbRCUTRh>; Wed, 21 Mar 2001 14:17:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131742AbRCUTPs>; Wed, 21 Mar 2001 14:15:48 -0500
-Received: from dfw-smtpout3.email.verio.net ([129.250.36.43]:55475 "EHLO
-	dfw-smtpout3.email.verio.net") by vger.kernel.org with ESMTP
-	id <S131736AbRCUTPh>; Wed, 21 Mar 2001 14:15:37 -0500
-Message-ID: <3AB8FDAD.BF71A5F@bigfoot.com>
-Date: Wed, 21 Mar 2001 11:14:53 -0800
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.19pre17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: UDMA 100 / PIIX4 question
-In-Reply-To: <Pine.LNX.4.10.10103201628390.8689-100000@coffee.psychology.mcmaster.ca>
+	id <S131737AbRCUTR3>; Wed, 21 Mar 2001 14:17:29 -0500
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:29571 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S131742AbRCUTRL>; Wed, 21 Mar 2001 14:17:11 -0500
+Date: Wed, 21 Mar 2001 14:16:26 -0500
+To: Josh Grebe <squash@primary.net>
+Cc: linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Question about memory usage in 2.4 vs 2.2
+Message-ID: <20010321141626.A3621@cs.cmu.edu>
+Mail-Followup-To: Josh Grebe <squash@primary.net>,
+	linux-kernel@vger.kernel.org,
+	Manfred Spraul <manfred@colorfullife.com>,
+	Rik van Riel <riel@conectiva.com.br>
+In-Reply-To: <001401c0b1ef$cb22f5e0$5517fea9@local> <Pine.LNX.4.32.0103211127510.2260-100000@scarface.primary.net> <20010320183238.B1508@unthought.net> <Pine.LNX.4.21.0103201156070.2405-100000@scarface.primary.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <Pine.LNX.4.21.0103201156070.2405-100000@scarface.primary.net>; from squash@primary.net on Tue, Mar 20, 2001 at 02:29:47PM -0600
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >    Device Boot    Start       End    Blocks   Id  System
-> > /dev/hda1   *         1       932   7486258+   b  Win95 FAT32
-> > ...
-> > I also ran hdparm -tT /dev/hda1:
-> >
-> > Timing buffer-cache reads:   128 MB in  1.28 seconds =100.00 MB/sec
-> >  Timing buffered disk reads:  64 MB in  4.35 seconds = 14.71 MB/sec
-> >
-> > I then tried hdparm -tT /dev/hda7:
-> >
-> >  Timing buffer-cache reads:   128 MB in  1.28 seconds =100.00 MB/sec
-> >  Timing buffered disk reads:  64 MB in  2.12 seconds = 30.19 MB/sec
+On Wed, Mar 21, 2001 at 11:42:08AM -0600, Josh Grebe wrote:
+> This is what I'm afraid of, in my case we have millions of files that are
+> dealt with in no real order, and if cache fragmentation will keep the
+> memory from being freed, we're in for problems. This reading was taken
+> with the machine having been up for only 5 days. Currently, I show:
 
-Change partition type to 'c' (fat32+LBA); check that BIOS is set for
-(AUTO or USER) and LBA.
+You shouldn't worry too much about fragmentation within the slabcache.
+It actually is designed to limit the amount of fragmentation. And the
+next 100000 dentry/inode allocations will come at no cost ;)
 
+The fact that your icache/dcache slabs are not 100% used indicates that
+shrink_i/dcache_memory actually was triggered a couple of times due to
+free memory shortage. In contrast, on my machine, the available and
+allocated numbers are pretty much always identical. I'm probably not
+putting enough VM pressure on the machine so the normal aging/pageout
+mechanisms manage to free up just enough memory to avoid dentry/inode
+pruning.
 
-Regarding the PIIX4, I reran basic throughput read tests on a more
-recent UDMA5, 5400RPM Maxtor on the PIIX4 and HPT366 (Abit BP6 +
-2.2.19p17 + ide.2.2.18.1221.patch) chipsets.
+> I've had to put my SMTP box back to 2.2 as it was up to 90% memory used,
+> where the others were around 18%. I'm keeping the pop/imap server at 2.4
+> as 44% is standable, while not exactly desirable. I'm
 
-Since pin 30 is plugged on my ATA66 cable, I used an Asus P3B-F as a
-ATA66+PIIX4 sanity check.  Neither the Abit or Asus PIIX4 controller
-would go higher than UDMA2.  Although hdparm -i reported UDMA4, neither
-the -tT or dd tests demonstrated faster results.  The kernel logged
-'ide0: Speed warnings UDMA 3/4/5 is not functional' when attempting a
-setting higher than UDMA2 on the PIIX4.
+Did the SMTP box become unusable? Although the VM ends up working with
+only the memory that is not locked up in slabs, it does a pretty good
+job, as you reported yourself.
 
-Apparently IDE drive technology has improved over the last year,
-however real world PIIX4 speeds are still in the 14-19MB/s range.
+On Tue, Mar 20, 2001 at 02:29:47PM -0600, Josh Grebe wrote:
+> As far as performance goes, I can only say that my max load is slightly
+> lower on the 2.4 box then on the 2.2 boxes. Our average load for yesterday
+> on 2.4 was .23, with a max of 1.11. In comparison, my averages for the
+> other machines are .27, .27, .23, and .23. The maxes are 1.85, 1.33, 2.06,
+> 1.47.
+> 
+> As far as speed goes, I am not able to measure any real difference (only
+> testing pop3) between 2.2 and 2.4. I would blame this on the NAS device, a
+> NetApp Filer F760 being only able to push about 110mbit sustained on the
+> gig-e network.
 
-UDMA2/PIIX4	16-21MB/s
-UDMA4/HPT366	19-28MB/s
+Doing an (intuitive) cost/benefit analysis, throwing out an inode does
+not guarantee to free up any memory. While throwing out clean pages from
+the pagecache will free up some memory and they do not necessarily have
+to be read back in at all (otherwise they would have been 'active').
 
-rgds,
-tim.
+I've been thinking about this a bit and one possible solution would be
+to significantly lower the cost of prune_icache by removing the
+sync_all_inodes and only let it prune inodes that do not have any
+mappings associated with them. Then it might become possible to call it
+more frequently, like every time we hit do_try_free_pages.
 
-[tim@asus tim]# lspci
-00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge
-(rev 03)
-00:01.0 PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge (rev
-03)
-00:07.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
-00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 02)
-00:0d.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev20)
-00:0f.0 VGA compatible unclassified device: 3DLabs Permedia II 2D+3D (rev
-01)
-00:13.0 Unknown mass storage controller: Triones Technologies, Inc. HPT366
-(rev 01)
-00:13.1 Unknown mass storage controller: Triones Technologies, Inc. HPT366
-(rev 01)
+If there is enough memory available in the system, the inodes will have
+mappings and won't be removed. Once memory pressure builds up the
+mappings are cleaned and pruned, by the VM system and removing the
+remains of the inode should be relatively inexpensive. There is probably
+something that I missed, so I should just shut up now and write the code.
 
-PIIX4 -----------------------------
-[tim@asus tim]# hdparm -iv /dev/hdb
+Jan
 
-/dev/hdb:
- multcount    =  0 (off)
- I/O support  =  0 (default 16-bit)
- unmaskirq    =  0 (off)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 2491/255/63, sectors = 40021632, start = 0
-
- Model=Maxtor 32049H2, FwRev=YAH814Y0, SerialNo=L21R7EKC
- Config={ Fixed }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
- BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=off
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=40021632
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4 
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 udma5 
-
-[tim@asus tim]# hdparm -tT /dev/hdb
-
-/dev/hdb:
- Timing buffer-cache reads:   128 MB in  1.47 seconds = 87.07 MB/sec
- Timing buffered disk reads:  64 MB in  3.02 seconds = 21.19 MB/sec
-
-[tim@asus tim]# time dd if=/dev/hdb of=/dev/null bs=1k count=512k
-524288+0 records in
-524288+0 records out
-0.540u 10.520s 0:32.85 33.6%    0+0k 0+0io 115pf+0w
-[tim@asus tim]# echo "514288/32.85" | bc -q
-15655
-
-HPT366 ----------------------------
-[tim@asus tim]# hdparm -iv /dev/hdf
-
-/dev/hdf:
- multcount    =  0 (off)
- I/O support  =  0 (default 16-bit)
- unmaskirq    =  0 (off)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 2491/255/63, sectors = 40021632, start = 0
-
- Model=Maxtor 32049H2, FwRev=YAH814Y0, SerialNo=L21R7EKC
- Config={ Fixed }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
- BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=off
- CurCHS=65535/1/63, CurSects=4128705, LBA=yes, LBAsects=40021632
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4 
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 *udma4 udma5 
-
-[tim@asus tim]# hdparm -tT /dev/hdf
-
-/dev/hdf:
- Timing buffer-cache reads:   128 MB in  1.50 seconds = 85.33 MB/sec
- Timing buffered disk reads:  64 MB in  2.28 seconds = 28.07 MB/sec
-
-[tim@asus tim]# time dd if=/dev/hdf of=/dev/null bs=1k count=512k
-524288+0 records in
-524288+0 records out
-0.530u 11.140s 0:27.45 42.5%    0+0k 0+0io 115pf+0w
-[tim@asus tim]# echo "524288/27.45" | bc -q
-19099
-
-
---

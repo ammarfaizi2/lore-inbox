@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262024AbVBJFr2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbVBJGIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262024AbVBJFr2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 00:47:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVBJFr2
+	id S262026AbVBJGIG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 01:08:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbVBJGIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 00:47:28 -0500
-Received: from smtp.andrew.cmu.edu ([128.2.10.81]:27777 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S262024AbVBJFrY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 00:47:24 -0500
-Message-ID: <420AF563.1030309@andrew.cmu.edu>
-Date: Thu, 10 Feb 2005 00:47:15 -0500
-From: James Bruce <bruce@andrew.cmu.edu>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
+	Thu, 10 Feb 2005 01:08:05 -0500
+Received: from 48.host.terra.es ([213.4.129.48]:10079 "EHLO tfdsmtp2.mail.isp")
+	by vger.kernel.org with ESMTP id S262026AbVBJGH7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 01:07:59 -0500
+From: SGTMDOHERTY <SGTMDOHERTY@terra.es>
+Message-ID: <1e3e5366.53661e3e@teleline.es>
+Date: Wed, 09 Feb 2005 22:07:51 -0800
+X-Mailer: Netscape Webmail
 MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: Stelian Pop <stelian@popies.net>, Francois Romieu <romieu@fr.zoreil.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-References: <20050204160631.GB26748@bitmover.com> <20050204170306.GB3467@crusoe.alcove-fr> <20050204183922.GC27707@bitmover.com> <20050204200507.GE5028@deep-space-9.dsnet> <20050204201157.GN27707@bitmover.com> <20050204214015.GF5028@deep-space-9.dsnet> <20050204233153.GA28731@electric-eye.fr.zoreil.com> <20050205193848.GH5028@deep-space-9.dsnet> <20050205233841.GA20875@bitmover.com> <20050208154343.GH3537@crusoe.alcove-fr> <20050208155845.GB14505@bitmover.com>
-In-Reply-To: <20050208155845.GB14505@bitmover.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Language: es
+Subject: Re: Important Message
+X-Accept-Language: es
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While I agree with your overall sentiment, please compare apples to 
-apples regarding the license.  You said:
+Re: Important Message
+FROM: Sgt. Michael Doherty
+Dear Sir
+Good day to you
 
-Larry McVoy wrote:
-> I don't come here every month and ask for
-> the GPL to be removed from some driver, that's essentially what you are
-> doing and I think pretty much everyone is sick of it.
+My name is Michael Doherty I am an American soldier, i am serving
+in the military of the 1st Armored Division in Iraq, we have just
+been posted to leave Iraq and go back to Germany. I am now in
+Kuwait at the mean time, I and my superior moved funds belonging
+to Saddam Hussein, the total is $25,000,000.00 (Twenty Five
+million US dollars) this money is being kept safe in a security
+company. Click on this link to read about even that took place here
+http://news.bbc.co.uk/2/hi/middle_east/2988455.stm
 
-The GPL doesn't state that "You and anyone at your company are not 
-allowed to work on any operating system software under any non-GPL 
-license."  While that would be a perfectly valid license (just like the 
-BK one), obviously it would generate a fairly steady stream of 
-complaints.  It's not like people have stopped complaining about how the 
-GPL forces them to release any code they link with it.  The boundary of 
-a license will always create friction.  This will be especially true as 
-in the BK license, which was expressly designed to be irritating to a 
-certain class of people (who now whine about it).
+Basically since we are working for the government we cannot keep
+these funds, but we want to transfer and move the funds to you, so
+that you can keep it for us in your safe account or an offshore account.
+We will divide the total funds in three ways, since we are 3 that is 
+involved. This means that you will take 30%, I will take 30%, and my 
+superior will take 30%. 10% will be kept aside for expenses. 
 
-A more directly relevant example would be the following: What if a new 
-version of CVS had a license with a clause stating the following: "Any 
-repository touched by CVS 1.2 may not be imported into into BK, unless 
-you first remove all checkin comments.  This is because we don't help 
-people who are competing with us."  Sure, that's a 100% legitimate 
-license, and binding due to standard copyright goodness, yet I would 
-expect BitMover people to complain about it.  What we have now is 
-exactly the same thing in reverse.  Get used to the complaints because 
-your license is achieving exactly what you meant it to do.
+This business is confidential, and it should not be discussed with 
+anyone. There is no risk involved whatsoever. If you are interested i 
+will send you the full details, my job is to find a good partner that 
+we can trust and that will assist us. Can i trust you? When you receive 
+this letter, kindly send me an e-mail signifying your interest 
+including your most confidential telephone/fax numbers for quick 
+communication also your contact details. This business is risk free.
 
-  - Jim
+Please reply me via this email: 
+sgtmichaeldoherty@usthirdinfantrymail.com
+
+Respectfully submitted
+
+Sgt. Michael Doherty
+
+
+

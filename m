@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277412AbRJJVem>; Wed, 10 Oct 2001 17:34:42 -0400
+	id <S277414AbRJJVkn>; Wed, 10 Oct 2001 17:40:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277413AbRJJVed>; Wed, 10 Oct 2001 17:34:33 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:58295 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S277412AbRJJVeU>; Wed, 10 Oct 2001 17:34:20 -0400
-Message-ID: <3BC4E8AD.72F175E3@us.ibm.com>
-Date: Wed, 10 Oct 2001 14:32:45 -1000
-From: Mingming cao <cmm@us.ibm.com>
-Organization: Linux Technology Center
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S277418AbRJJVkd>; Wed, 10 Oct 2001 17:40:33 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:5639 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S277414AbRJJVkX>;
+	Wed, 10 Oct 2001 17:40:23 -0400
+Date: Wed, 10 Oct 2001 23:40:56 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: war <war@starband.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: AIC7XXX
+In-Reply-To: <3BC45028.C4EE324F@starband.net>
+Message-ID: <Pine.LNX.4.33.0110102340220.2515-100000@Expansa.sns.it>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, viro@math.psu.edu
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH]Fix bug:rmdir could remove current working directory
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, Alan and Al,
+I had similar problems at the beginning, but now this new driver is well
+working, ate less for me.
 
-I found that rmdir(2) could remove current working directory
-successfully.  This happens when the given pathname points to current
-working directory, not ".", but something else. For example, the current
-working directory's absolute pathname.  I read the man page of
-rmdir(2).  It says in this case EBUSY error should be returned.  I
-suspected this is a bug and added a check in vfs_rmdir(). The following
-patch is against 2.4.10 and has been verified.  Please comment and
-apply.
+Luigi
 
--- 
-Mingming Cao
+On Wed, 10 Oct 2001, war wrote:
 
---- linux-2.4.10/fs/namei.c	Tue Sep 18 11:01:47 2001
-+++ /home/ming/linux-tk/fs/namei.c	Tue Oct  9 11:58:50 2001
-@@ -1362,6 +1362,8 @@
- 		error = -ENOENT;
- 	else if (d_mountpoint(dentry))
- 		error = -EBUSY;
-+	else if (dentry == current->fs->pwd)
-+		error = -EBUSY;
- 	else {
- 		lock_kernel();
- 		error = dir->i_op->rmdir(dir, dentry);
+> I'll try the new one out, but when I tried it out when it was first
+> introduced into the kernel, it had a lot of errors accessing my SCSI cdrom
+> drives.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

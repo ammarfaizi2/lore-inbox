@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262451AbTFKAyI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 20:54:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbTFKAyH
+	id S262818AbTFKBAY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 21:00:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263311AbTFKBAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 20:54:07 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:10723
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262451AbTFKAyC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 20:54:02 -0400
-Date: Wed, 11 Jun 2003 03:07:26 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Chris Mason <mason@suse.com>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Georg Nikodym <georgn@somanetworks.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
-Subject: Re: [PATCH] io stalls
-Message-ID: <20030611010726.GP26270@dualathlon.random>
-References: <Pine.LNX.4.55L.0305282019160.321@freak.distro.conectiva> <200306041235.07832.m.c.p@wolk-project.de> <20030604104215.GN4853@suse.de> <200306041246.21636.m.c.p@wolk-project.de> <20030604104825.GR3412@x30.school.suse.de> <3EDDDEBB.4080209@cyberone.com.au> <1055194762.23130.370.camel@tiny.suse.com> <20030611003356.GN26270@dualathlon.random> <3EE67C57.1000303@cyberone.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 10 Jun 2003 21:00:24 -0400
+Received: from itaqui.terra.com.br ([200.176.3.19]:16288 "EHLO
+	itaqui.terra.com.br") by vger.kernel.org with ESMTP id S262818AbTFKBAV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 21:00:21 -0400
+From: Lucas Correia Villa Real <lucasvr@gobolinux.org>
+To: madalin mihailescu <madalinn2000@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Help
+Date: Tue, 10 Jun 2003 22:14:24 -0300
+User-Agent: KMail/1.5.1
+References: <20030606055547.51802.qmail@web11003.mail.yahoo.com>
+In-Reply-To: <20030606055547.51802.qmail@web11003.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <3EE67C57.1000303@cyberone.com.au>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Message-Id: <200306102214.24758.lucasvr@gobolinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 11, 2003 at 10:48:23AM +1000, Nick Piggin wrote:
-> 
-> 
-> Andrea Arcangeli wrote:
-> 
-> >On Mon, Jun 09, 2003 at 05:39:23PM -0400, Chris Mason wrote:
-> >
-> >>+	if (!waitqueue_active(&q->wait_for_requests[rw]))
-> >>+		clear_queue_full(q, rw);
-> >>
-> >
-> >you've an smp race above, the smp safe implementation is this:
-> >
-> >	if (!waitqueue_active(&q->wait_for_requests[rw])) {
-> >		clear_queue_full(q, rw);
-> >		mb();
-> >		if (unlikely(waitqueue_active(&q->wait_for_requests[rw])))
-> >			wake_up(&q->wait_for_requests[rw]);
-> >	}
-> >
-> >I'm also unsure what the "waited" logic does, it doesn't seem necessary.
-> >
-> 
-> When a task is woken up, it is quite likely that the
-> queue is still marked full.
+Hi,
 
-but we don't care if it's marked full, see __get_request. If we cared
-about full it would deadlock anyways (no matter the waited logic)
+You can make use of the __setup() macro. A very simple example is given in the 
+devfs source code, on the base.c file.
 
-Andrea
+Kind regards,
+Lucas
+
+
+On Friday 06 June 2003 02:55, madalin mihailescu wrote:
+> I have a project: implementing four page-out
+> alghorythms. I want to be able to select one of them
+> at reboot as the first thing I do.
+>
+> I’m thinking of using a variable, but I don’t know
+> where to put it.
+>
+> 10x
+>
+> Madalin
+>
+>
+> __________________________________________________
+> Yahoo! Plus - For a better Internet experience
+> http://uk.promotions.yahoo.com/yplus/yoffer.html
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

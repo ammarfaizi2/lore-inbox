@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266196AbUJHXU5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266128AbUJHXVr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266196AbUJHXU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 19:20:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUJHXSc
+	id S266128AbUJHXVr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 19:21:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUJHXVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 19:18:32 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:14568 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266128AbUJHXPl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 19:15:41 -0400
-Subject: Re: [PATCH] Realtime LSM
-From: Lee Revell <rlrevell@joe-job.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Jody McIntyre <realtime-lsm@modernduck.com>,
+	Fri, 8 Oct 2004 19:21:13 -0400
+Received: from fw.osdl.org ([65.172.181.6]:35727 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266195AbUJHXUn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 19:20:43 -0400
+Date: Fri, 8 Oct 2004 16:20:29 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Jody McIntyre <realtime-lsm@modernduck.com>,
        linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de,
        "Jack O'Quin" <joq@io.com>
-In-Reply-To: <20041008161205.T2357@build.pdx.osdl.net>
-References: <877jq5vhcw.fsf@sulphur.joq.us>
-	 <1097193102.9372.25.camel@krustophenia.net>
-	 <1097269108.1442.53.camel@krustophenia.net>
-	 <20041008144539.K2357@build.pdx.osdl.net>
-	 <1097272140.1442.75.camel@krustophenia.net>
-	 <20041008145252.M2357@build.pdx.osdl.net>
-	 <1097273105.1442.78.camel@krustophenia.net>
-	 <20041008151911.Q2357@build.pdx.osdl.net>
-	 <20041008152430.R2357@build.pdx.osdl.net>
-	 <1097276726.1442.82.camel@krustophenia.net>
-	 <20041008161205.T2357@build.pdx.osdl.net>
-Content-Type: text/plain
-Message-Id: <1097277337.1442.90.camel@krustophenia.net>
+Subject: Re: [PATCH] Realtime LSM
+Message-ID: <20041008162028.U2357@build.pdx.osdl.net>
+References: <1097269108.1442.53.camel@krustophenia.net> <20041008144539.K2357@build.pdx.osdl.net> <1097272140.1442.75.camel@krustophenia.net> <20041008145252.M2357@build.pdx.osdl.net> <1097273105.1442.78.camel@krustophenia.net> <20041008151911.Q2357@build.pdx.osdl.net> <20041008152430.R2357@build.pdx.osdl.net> <1097276726.1442.82.camel@krustophenia.net> <20041008161205.T2357@build.pdx.osdl.net> <1097277337.1442.90.camel@krustophenia.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 08 Oct 2004 19:15:37 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1097277337.1442.90.camel@krustophenia.net>; from rlrevell@joe-job.com on Fri, Oct 08, 2004 at 07:15:37PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-08 at 19:12, Chris Wright wrote:
-> * Lee Revell (rlrevell@joe-job.com) wrote:
-> > On Fri, 2004-10-08 at 18:24, Chris Wright wrote:
-> > > (relative to last one)
-> > > 
-> > > use in_group_p
-> > > 
-> > 
-> > Thanks!  These make the patch even smaller and more comprehensible. 
-> > Does this cover all the issues with the patch as I posted it?
-> 
-> The last bit is removing sysctls.  It'll take a bit more effort, as we
-> need a touch of infrastructure for it.  I'm working on that now.  Here's
-> a couple really minor ones.
-> 
-> - make realtime_bprm_set_security static
-> - don't mark exit_security __exit, it's called from an __init function
+* Lee Revell (rlrevell@joe-job.com) wrote:
+> I think the patch is reversed.  It does the opposite of what you say in
+> both cases ;-).  I fixed these by hand.  
 
-I think the patch is reversed.  It does the opposite of what you say in
-both cases ;-).  I fixed these by hand.  
+Ooops, thanks.
 
-Thanks again.
+- rm unecessary #ifdef CONFIG_SECURITY
 
-Lee
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
 
+
+--- security/realtime.c~static_exit	2004-10-08 16:12:14.199873592 -0700
++++ security/realtime.c	2004-10-08 16:15:43.915991896 -0700
+@@ -28,8 +28,6 @@
+ #include <linux/sysctl.h>
+ #include <linux/moduleparam.h>
+ 
+-#ifdef CONFIG_SECURITY
+-
+ #define RT_LSM "Realtime LSM "		/* syslog module name prefix */
+ #define RT_ERR "Realtime: "		/* syslog error message prefix */
+ 
+@@ -231,5 +229,3 @@
+ 
+ MODULE_DESCRIPTION("Realtime Capabilities Security Module");
+ MODULE_LICENSE("GPL");
+-
+-#endif	/* CONFIG_SECURITY */

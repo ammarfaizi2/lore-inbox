@@ -1,75 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbQL1FF1>; Thu, 28 Dec 2000 00:05:27 -0500
+	id <S130893AbQL1FYU>; Thu, 28 Dec 2000 00:24:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130893AbQL1FFR>; Thu, 28 Dec 2000 00:05:17 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:13317 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129511AbQL1FFE>; Thu, 28 Dec 2000 00:05:04 -0500
-Date: Wed, 27 Dec 2000 20:35:56 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Christoph Rohland <cr@sap.com>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] shmem_unuse race fix
-In-Reply-To: <m3ae9haf4x.fsf@linux.local>
-Message-ID: <Pine.LNX.4.21.0012272025190.528-100000@dual.transmeta.com>
+	id <S131040AbQL1FYK>; Thu, 28 Dec 2000 00:24:10 -0500
+Received: from ns1.crl.go.jp ([133.243.3.1]:63453 "EHLO ns1.crl.go.jp")
+	by vger.kernel.org with ESMTP id <S130893AbQL1FYA>;
+	Thu, 28 Dec 2000 00:24:00 -0500
+Date: Thu, 28 Dec 2000 13:53:29 +0900 (JST)
+From: Tom Holroyd <tomh@po.crl.go.jp>
+To: kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: VM: do_try_to_free_pages failed
+Message-ID: <Pine.LNX.4.30.0012281339330.30967-100000@holly.crl.go.jp>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linux 2.2.18, pcmcia-cs-3.1.21, Pentium 75 (100 MHz)
+Toshiba 420CDS Satellite Pro laptop, 40 MB RAM
 
+I can get this to happen reliably:
 
-On 27 Dec 2000, Christoph Rohland wrote:
+kernel: VM: do_try_to_free_pages failed for xntpd...
+kernel: VM: do_try_to_free_pages failed for klogd...
+last message repeated 15 times
+kernel: VM: do_try_to_free_pages failed for tail...
+last message repeated 15 times
+kernel: VM: do_try_to_free_pages failed for init...
+last message repeated 15 times
+kernel: VM: do_try_to_free_pages failed for vmstat...
+...
+etc.
 
-> Marcelo Tosatti <marcelo@conectiva.com.br> writes:
-> 
-> > I think that incrementing the swap entry count will not allow swap from
-> > removing the swap entry (as the comment says)
-> 
-> I think the culprit is somewhere else. The error occurs in nopage of a
-> process, not in swapoff.
+It happens when swap gets full (I have 32 MB swap); I have a particular
+program that thrashes the system (balanced binary tree searching) so
+there's heavy swapping going on.  Once, running 2.2.18pre23, this happened
+when I wasn't looking, and when I came back the system was dead -- I'm not
+sure what the message means or how long it could survive after that, but I
+run apmd/noflushd, and the disk & screen were powered down.  I got the
+disk to spin back up, but nothing else happened.  I just made
+do_try_to_free_pages fail again under 2.2.18, but I quit & rebooted before
+anything else happened.
 
-I think swapoff() should be fixed..
+Can enough do_try_to_free_pages failures do that?  Are they supposed to
+happen at all?  Do I need to configure some out-of-memory thing?
 
-I moved the
-
-	if (PageSwapCache(page))
-		delete_from_swap_cache(page);
-
-thing to _before_ the "unuse_process()" and "shmem_unuse()" code, because
-I wanted to avoid a race on the PageDirty bit that way. However, that
-opens up another race, the one you see with "nopage".
-
-Woul dyou mind testing this alternate fix instead:
-
- - add the lines
-
-	repeat:
-		ClearPageDirty(page);
-
-   to just before the "read_lock(&tasklist_lock);" in try_to_unuse(). We
-   can obviously mark the page clean, because we _are_ going to get rid of
-   it, and in the meantime we have a hold on it by virtue of having raised
-   the page count in "read_swap_cache()".
-
- - move the "delete_from_swap_cache()" call back to _after_ the
-   unuse() calls.
-
- - but just before deleting the entry, we add a new test:
-
-	if (PageDirty(page))
-		goto repeat;
-
-this all should mean that if something moves the dirty bit from a page
-table to the backing store, we will notice, and just re-do the VM scan,
-which will mark the page table entry dirty again. And because we delete it
-from the swap cache late, we aren't severing the link with
-"nopage" handling.
-
-Christoph, how does this sound to you?
-
-		Linus
+Dr. Tom Holroyd
+"I am, as I said, inspired by the biological phenomena in which
+chemical forces are used in repetitious fashion to produce all
+kinds of weird effects (one of which is the author)."
+	-- Richard Feynman, _There's Plenty of Room at the Bottom_
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

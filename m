@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268762AbUIBT5I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268907AbUIBUAD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268762AbUIBT5I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 15:57:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268928AbUIBT5H
+	id S268907AbUIBUAD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 16:00:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268767AbUIBT5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 15:57:07 -0400
-Received: from smtp-out.hotpop.com ([38.113.3.71]:13699 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S268767AbUIBTwc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 15:52:32 -0400
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: Paolo Ornati <ornati@fastwebnet.it>, adaplas@pol.net
-Subject: Re: 2.6.9-rc1: scrolling with tdfxfb 5 times slower
-Date: Fri, 3 Sep 2004 03:52:19 +0800
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <200408312133.40039.ornati@fastwebnet.it> <200409022020.19062.adaplas@hotpop.com> <200409021910.58511.ornati@fastwebnet.it>
-In-Reply-To: <200409021910.58511.ornati@fastwebnet.it>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Sep 2004 15:57:30 -0400
+Received: from holomorphy.com ([207.189.100.168]:4816 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268261AbUIBTw0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 15:52:26 -0400
+Date: Thu, 2 Sep 2004 12:52:19 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] i386 reduce spurious interrupt noise
+Message-ID: <20040902195219.GJ5492@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>
+References: <20040902192820.GA6427@taniwha.stupidest.org> <20040902193454.GI5492@holomorphy.com> <20040902194739.GA6673@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200409030352.19973.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+In-Reply-To: <20040902194739.GA6673@taniwha.stupidest.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 03 September 2004 01:10, Paolo Ornati wrote:
-> On Thursday 02 September 2004 14:20, Antonino A. Daplas wrote:
-> > Just to finalize everything, 2 more things:
-> >
-> > 1. Does changing the resolution affect the vyres upper limit?
->
-> I have tried with 640x480, 800x600 and 1024x768 and the upper limit seems
-> the same (I've also tried some combinations of resolution / BPP)
->
-> > 2. What happens if you comment out banshee_wait_idle in tdfxfb_fillrect,
-> > tdfxfb_copyarea and tdfxfb_imageblit?  Scrolling should go faster but
-> > will removing it cause additional screen corruption?
->
-> scrolling is a bit faster and I don't notice any additional screen
-> corruption
->
-> time cat MAINTAINERS (2.6.9-rc1 + your patch / 800x600 8bpp / YRES 3200)
->
-> normal: ~0.19
-> without banshee_wait_idle in the three functions: ~0.12
+On Thu, Sep 02, 2004 at 12:34:54PM -0700, William Lee Irwin III wrote:
+>> Please check printk_ratelimit().
 
-Thanks for all the help.  I'll finalize a patch soon.
+On Thu, Sep 02, 2004 at 12:47:39PM -0700, Chris Wedgwood wrote:
+> I don't want them displayed by default at *all* --- it wakes up the
+> monitor on console machines and that's annoying.
+> You get about 1 or 2 a day --- rate limiting isn't useful, nor is
+> reporting them IMO.
+>   --cw
 
-Tony
+That's okay. The reason why is that this is in response to an external
+stimulus which can, in principle, scream out of control, so even at
+KERN_DEBUG or other loglevels it's meaningful to rate limit it.
 
 
+-- wli

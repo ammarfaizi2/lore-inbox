@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268054AbUI1V60@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268055AbUI1WBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268054AbUI1V60 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 17:58:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268059AbUI1V60
+	id S268055AbUI1WBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 18:01:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268059AbUI1WBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 17:58:26 -0400
-Received: from coriana6.CIS.McMaster.CA ([130.113.128.17]:33452 "EHLO
-	coriana6.cis.mcmaster.ca") by vger.kernel.org with ESMTP
-	id S268054AbUI1V6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 17:58:19 -0400
-Subject: Re: [patch] inotify: use the idr layer
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: Robert Love <rml@novell.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, iggy@gentoo.org
-In-Reply-To: <1096407964.4911.90.camel@betsy.boston.ximian.com>
-References: <1096250524.18505.2.camel@vertex>
-	 <1096407964.4911.90.camel@betsy.boston.ximian.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1096408694.16622.1.camel@vertex>
+	Tue, 28 Sep 2004 18:01:08 -0400
+Received: from mail.kroah.org ([69.55.234.183]:26283 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268055AbUI1WBE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 18:01:04 -0400
+Date: Tue, 28 Sep 2004 15:00:47 -0700
+From: Greg KH <greg@kroah.com>
+To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Cc: akpm@osdl.org, Ashok Raj <ashok.raj@intel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add hook for PCI resource deallocation
+Message-ID: <20040928220047.GB13816@kroah.com>
+References: <41498CF6.9000808@jp.fujitsu.com> <20040924130251.A26271@unix-os.sc.intel.com> <20040924212208.GD7619@kroah.com> <4157CA04.5050604@jp.fujitsu.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 28 Sep 2004 17:58:14 -0400
-X-PMX-Version-Mac: 4.7.0.111621, Antispam-Engine: 2.0.0.0, Antispam-Data: 2004.9.28.3
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_VERSION 0, __SANE_MSGID 0'
-X-Spam-Flag: NO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4157CA04.5050604@jp.fujitsu.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-+       spin_lock(&dev->lock);
-+       ret = idr_get_new(&dev->idr, watcher, &watcher->wd);
-+       spin_lock(&dev->lock);
+On Mon, Sep 27, 2004 at 05:06:28PM +0900, Kenji Kaneshige wrote:
+> Hi Greg and Andrew,
+> 
+> I'm attaching updated patches for adding pcibiod_disable_device()
+> hook based on the feedback from Ashok (Thank you, Ashok!).
+> 
+> I made two patches, one of them is against 2.6.9-rc2-mm1 and the
+> another is against 2.6.9-rc2-mm4 to which the previous version of
+> the patch has already been applyed. Please use the one convenient
+> for you.
 
-I think you mean spin_unlock on the third line? Other than that I think
-it should work.
+Based on all of the comments, I'll wait for you to incorporate them, so
+I'm not going to apply this one.
 
-John
-On Tue, 2004-09-28 at 17:46, Robert Love wrote:
-> OK, I told John I would post this ASAP, as soon as I finished testing
-> it, but I got backed up, so here it is without much testing.  It does
-> compile fine.
-> 
-> This patch removes our current bitmap-based allocation system and
-> replaces it with the idr layer.  The idr layer allows us to use a radix
-> tree, rooted at each device instance, to trivially map between watcher
-> descriptors and watcher structures.  In idr terminology, the watcher
-> descriptor is the id and the watcher structure is the pointer.
-> 
-> Allocating a new watcher descriptor and associating it with a given
-> watcher structure is done in the same place as before,
-> inotify_dev_get_wd().  The code for doing this is a bit weird.  The idr
-> layer's interface leaves a bit to be desired.
-> 
-> The function dev_find_wd() is used to map from a given watcher
-> descriptor to a watcher structure.  This used to be our least scalable
-> function: O(n), but at a small fixed n, so you could call it O(1).  Now
-> it is O(lg n); n is still fixed, so you can still call it O(1).
-> 
-> I also cleaned up some locking and added some comments.
-> 
-> Like I said, I have not tested this, probably won't until tomorrow, but
-> here it is to play with earlier if anyone so chooses.  The idr layer is
-> rather nice for this sort of thing.
-> 
-> Patch is on top of all of my previous patches.
-> 
-> 	Robert Love
-> 
+thanks,
+
+greg k-h

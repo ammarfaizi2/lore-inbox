@@ -1,213 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVBGSKt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVBGSSx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261215AbVBGSKt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 13:10:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVBGSKt
+	id S261216AbVBGSSx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 13:18:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbVBGSSx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 13:10:49 -0500
-Received: from kludge.physics.uiowa.edu ([128.255.33.129]:23300 "EHLO
-	kludge.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id S261215AbVBGSKU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 13:10:20 -0500
-Date: Mon, 7 Feb 2005 12:09:50 -0600
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: dtor_core@ameritech.net
-Cc: linux-kernel@vger.kernel.org, petero2@telia.com
-Subject: Re: [ATTN: Dmitry Torokhov] About the trackpad and 2.6.11-rc[23] but not -rc1
-Message-ID: <20050207180950.GA12024@digitasaru.net>
-Reply-To: trelane@digitasaru.net
-Mail-Followup-To: dtor_core@ameritech.net, linux-kernel@vger.kernel.org,
-	petero2@telia.com
-References: <20050207154326.GA13539@digitasaru.net> <d120d50005020708512bb09e0@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="X1bOJ3K7DJ5YkBrT"
-Content-Disposition: inline
-In-Reply-To: <d120d50005020708512bb09e0@mail.gmail.com>
-X-School: University of Iowa
-X-vi-or-emacs: vi *and* emacs!
-X-MSMail-Priority: High
-X-Priority: 1 (Highest)
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
-User-Agent: Mutt/1.5.6i
+	Mon, 7 Feb 2005 13:18:53 -0500
+Received: from mx13.sac.fedex.com ([199.81.197.53]:53002 "EHLO
+	mx13.sac.fedex.com") by vger.kernel.org with ESMTP id S261216AbVBGSSv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 13:18:51 -0500
+Message-Id: <200502071818.j17IIW7U002422@mx11.sac.fedex.com>
+From: Sellou <cisse1975@voila.fr>
+To: linux-kernel@silk.corp.fedex.com
+Reply-To: sellou@lycos.it
+Subject: looking for gold buyers. 
+Date: Mon, 07 Feb 2005 19:18:39 +0100
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 02/08/2005
+ 02:18:42 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 02/08/2005
+ 02:18:44 AM,
+	Serialize complete at 02/08/2005 02:18:44 AM
+Content-Type: multipart/mixed; boundary="4044996d-e8eb-4634-8a1f-10b5fc856d7c"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---X1bOJ3K7DJ5YkBrT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This is a multi-part message in MIME format
+--4044996d-e8eb-4634-8a1f-10b5fc856d7c
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
 
->From Dmitry Torokhov on Monday, 07 February, 2005:
->Is that with -rc1 or -rc2?
+Dear Sir,
+Sir, Completement of the season, I have got your contact through your =
+electronic address via the Net, i am are Agent dealing with the sale and =
+purchase of raw materials. We have a great quantity of Dust Gold  which we =
+run out at very accessible prices, looking for a buyer, please answer us if =
+you are interested or you put to us in liaison with any person could be
+interested by our goods, your commission will be 2% is assured ok don't worry =
+about that. thanks in advance of your collaboration. we are waiting to hear =
+from you. Reply to the email address  sellou@lycos.it or  call me at this =
+phone number 0039 3474852078. 
+Best Greetings.
+SELLOU MALEE.  
+--4044996d-e8eb-4634-8a1f-10b5fc856d7c--
 
--rc1.  With -rc3, I get:
-I: Bus=0011 Vendor=0001 Product=0001 Version=ab41
-N: Name="AT Translated Set 2 keyboard"
-P: Phys=isa0060/serio0/input0
-H: Handlers=kbd event0 
-B: EV=120013 
-B: KEY=4 2000000 3802078 f840d001 f2ffffdf ffefffff ffffffff fffffffe 
-B: MSC=10 
-B: LED=7 
-
-I: Bus=0011 Vendor=0002 Product=0008 Version=0000
-N: Name="AlpsPS/2 ALPS TouchPad"
-P: Phys=isa0060/serio1/input0
-H: Handlers=mouse0 event1 
-B: EV=f 
-B: KEY=420 30000 670000 0 0 0 0 0 0 0 0 
-B: REL=3 
-B: ABS=1000003 
-
->Anyway, I think Inspiron 8600 has an ALPS touchpad and externded
->support for it just went in in -rc2. I think if you boot with
->psmouse.proto=exps you will get your mouse back (if your psmouse is
->compiled as a module you'll need to add 'options psmouse proto=exps'
->to your /etc/modprobe.conf).
-
-Indeedy.  I'm in -rc1 atm, so I don't want to reboot yet again to see
-  if that protocol bit works.  If I end up getting curious enough,
-  I'll send word if it works.  :)
-
->Nonetheless it would be nice to see the data stream from the touchpad
->to see why our ALPS support does not work quite right. Could you
->please try booting with "log_buf_len=131072 i8042.debug=1", and
->working the touchpad a bit. then send me the output of "dmesg -s
->131072" (or just /var/log/messages).
-
-dmesg output, non-mouse output trimmed (for obvious reasons, if you think
-  about it ;) is attached.
-
--Joseph
-
--- 
-Joseph===============================================trelane@digitasaru.net
-      Graduate Student in Physics, Freelance Free Software Developer
-
---X1bOJ3K7DJ5YkBrT
-Content-Type: application/x-gunzip
-Content-Disposition: attachment; filename="foo.gz"
-Content-Transfer-Encoding: base64
-
-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
-sYu/TgEA
-
---X1bOJ3K7DJ5YkBrT--

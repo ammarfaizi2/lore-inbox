@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267520AbRHMT0Q>; Mon, 13 Aug 2001 15:26:16 -0400
+	id <S267836AbRHMT0g>; Mon, 13 Aug 2001 15:26:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267836AbRHMT0H>; Mon, 13 Aug 2001 15:26:07 -0400
-Received: from runyon.cygnus.com ([205.180.230.5]:42237 "EHLO cygnus.com")
-	by vger.kernel.org with ESMTP id <S267520AbRHMTZ6>;
-	Mon, 13 Aug 2001 15:25:58 -0400
-To: Mircea Ciocan <mirceac@interplus.ro>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Is there something that can be done against this ???
-In-Reply-To: <E15WK98-0007gd-00@the-village.bc.nu>
-	<3B7822E5.9AE35D4A@interplus.ro>
-Reply-To: drepper@cygnus.com (Ulrich Drepper)
-X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
-X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
-From: Ulrich Drepper <drepper@redhat.com>
-Date: 13 Aug 2001 12:19:44 -0700
-In-Reply-To: Mircea Ciocan's message of "Mon, 13 Aug 2001 21:56:37 +0300"
-Message-ID: <m3itfru5rj.fsf@otr.mynet>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Thelxepeia)
-MIME-Version: 1.0
+	id <S266606AbRHMT02>; Mon, 13 Aug 2001 15:26:28 -0400
+Received: from femail27.sdc1.sfba.home.com ([24.254.60.17]:13565 "EHLO
+	femail27.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S267836AbRHMT0X>; Mon, 13 Aug 2001 15:26:23 -0400
+From: Josh McKinney <forming@home.com>
+Date: Mon, 13 Aug 2001 14:26:09 -0500
+To: Nicholas Knight <tegeran@home.com>, linux-kernel@vger.kernel.org
+Subject: Re: strange gcc crashes...
+Message-ID: <20010813142609.A5700@home.com>
+Mail-Followup-To: josh, Nicholas Knight <tegeran@home.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E15WGJY-000Ecx-00@f12.port.ru> <01081305560700.00343@c779218-a>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01081305560700.00343@c779218-a>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mircea Ciocan <mirceac@interplus.ro> writes:
+> > >>     so it seems to me like kernel problem...
+> > >
+> > >why is that?  I've never seen a sig11 from production >code
+> > >that wasn't caused by flakey ram.  in fact, your >descriptions
+> > >are a perfect example of similar hardware problems.
+> >
+> Synthetic tests are never as good as a real good gcc run, I'd *never* 
+> trust them over the indications given by attempting to compile the kernel 
+> or something big like XFree86.
 
-> 	The attached piece of script kiddie shit is the first one that worked
-> flawlessly on my Mandrake box :((( ( kernel 2.4.7ac2, glibc-2.2.3 ),
-> instant root access !!!.
+I agree.  I had my computer mildy overclocked for a little while.  Everything
+ran just great, I could compile kernels, quake3 timedemo for two days, etc.  
+All was well until I tried to compile gcc itself and I kept getting random
+errors.  I finally opened up the case and bumped it back down, and like magic
+it compiled just fine.  
 
-This is a hoax.  Try doing something with your "exploited" shell.
+So my advice would be to don't overclock.
 
--- 
----------------.                          ,-.   1325 Chesapeake Terrace
-Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
-Red Hat          `--' drepper at redhat.com   `------------------------
+Josh

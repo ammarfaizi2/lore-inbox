@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVAHUdx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbVAHUjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbVAHUdx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 15:33:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261483AbVAHUdx
+	id S261483AbVAHUjS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 15:39:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVAHUjR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 15:33:53 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:8965 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261451AbVAHUdt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 15:33:49 -0500
-To: akpm@osdl.org
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       linux-kernel@vger.kernel.org
-X-Message-Flag: Warning: May contain useful information
-References: <52k6qn229h.fsf@topspin.com>
-	<20050108193101.GD26051@parcelfarce.linux.theplanet.co.uk>
-From: Roland Dreier <roland@topspin.com>
-Date: Sat, 08 Jan 2005 12:33:46 -0800
-In-Reply-To: <20050108193101.GD26051@parcelfarce.linux.theplanet.co.uk> (Al
- Viro's message of "Sat, 8 Jan 2005 19:31:01 +0000")
-Message-ID: <52brbz1x05.fsf_-_@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Sat, 8 Jan 2005 15:39:17 -0500
+Received: from mail5.bluewin.ch ([195.186.1.207]:36848 "EHLO mail5.bluewin.ch")
+	by vger.kernel.org with ESMTP id S261483AbVAHUjP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 15:39:15 -0500
+Message-ID: <41E044F1.1090802@bluewin.ch>
+Date: Sat, 08 Jan 2005 21:39:13 +0100
+From: Mario Vanoni <vanonim@bluewin.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: [PATCH] Export get_sb_pseudo()
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 08 Jan 2005 20:33:48.0298 (UTC) FILETIME=[5B5496A0:01C4F5C1]
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.29-rc1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Al> So feel free to go ahead and export it; as the matter of fact,
-    Al> if you don't do it, I will.
+Seems the best of all 2.4.# kernels, congrats!
 
-Thanks, here's the trivial patch.
+On 7 machines works perfectly,
+and on our production,
+SMP dual Xeon-2800HT it seems to be a bit faster.
 
+On each machine different NIC's (eth 100Mbits/s),
+doing backups every 20 minutes/etc., all 100% perfect.
 
-Export get_sb_pseudo() so that modules can create unmountable
-pseudo-filesystems cleanly.
+Not in LKML, cc if you need/want.
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
+Sincere congrats to Marcelo and to all the programmers.
 
-Index: linux-bk/fs/libfs.c
-===================================================================
---- linux-bk.orig/fs/libfs.c	2004-12-29 22:05:29.000000000 -0800
-+++ linux-bk/fs/libfs.c	2005-01-06 13:13:26.254907840 -0800
-@@ -522,6 +522,7 @@
- EXPORT_SYMBOL(dcache_dir_open);
- EXPORT_SYMBOL(dcache_readdir);
- EXPORT_SYMBOL(generic_read_dir);
-+EXPORT_SYMBOL(get_sb_pseudo);
- EXPORT_SYMBOL(simple_commit_write);
- EXPORT_SYMBOL(simple_dir_inode_operations);
- EXPORT_SYMBOL(simple_dir_operations);
+Mario Vanoni, Switzerland Linux user
+
+PS Using Schilling's cdrtools, with his SCSI problems,
+   I don't think to switch to 2.6.# kernels,
+   all works perfectly now, time is money,
+   and I have _ZERO_ time to experiment.
+

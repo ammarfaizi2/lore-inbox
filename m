@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263529AbTDGQhJ (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 12:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263533AbTDGQhJ (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 12:37:09 -0400
-Received: from smtp02.web.de ([217.72.192.151]:3345 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S263529AbTDGQhI (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 12:37:08 -0400
-From: Michael Buesch <freesoftwaredeveloper@web.de>
-To: Ed Vance <EdV@macrolink.com>
-Subject: Re: modifying line state manually on ttyS
-Date: Mon, 7 Apr 2003 18:48:35 +0200
-User-Agent: KMail/1.5
-References: <11E89240C407D311958800A0C9ACF7D1A33E28@EXCHANGE>
-In-Reply-To: <11E89240C407D311958800A0C9ACF7D1A33E28@EXCHANGE>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id S263533AbTDGQix (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 12:38:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263534AbTDGQix (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 12:38:53 -0400
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:44674 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S263533AbTDGQiw (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 12:38:52 -0400
+Message-ID: <20030407165009.13596.qmail@email.com>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-Message-Id: <200304071848.35857.freesoftwaredeveloper@web.de>
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Clayton Weaver" <cgweav@email.com>
+To: linux-kernel@vger.kernel.org
+Date: Mon, 07 Apr 2003 11:50:08 -0500
+Subject: Re: [PATCH] new syscall: flink
+X-Originating-Ip: 172.147.29.243
+X-Originating-Server: ws3-3.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 07 April 2003 18:22, Ed Vance wrote:
-> No, CTS cannot operate as an output.
->
-> The following ioctl calls are implemented in the generic serial driver,
-> /usr/src/linux*/drivers/char/serial.c:
-> [...]
+Once a process unlinks the last directory entry referencing a particular inode that it has an
+open fd for and then passes the open fd to some other process (regardless of exactly how it does that), it seems to me that it has conceded any interest in the previous security constraints associated with that inode or with the recently
+unlinked last directory entry for it. If the client process subsequently flink()s to the inode, it is merely a zerocopy file copy.
 
-puh, that's very bad. I have to modify the device.
-(Better had informed before building it. :)
+Since the client owns the new directory entry, it can chmod the inode to have any permissions it wants, create or modify an ACL where ACLs are in use, modify a capabilities mask more fine-grained than traditional unix permissions if something like that is in use, etc.
 
-Thanks to all, who helped me (although this was not the
-very correct list :)
+The cases with potential security implications are all in the context of flink()ing to an open fd for an inode that still corresponds to at least one directory entry.
+ 
+Regards,
 
-Regards
-Michael Buesch.
+Clayton Weaver
+<mailto: cgweav@email.com>
+
 
 -- 
-My homepage: http://www.8ung.at/tuxsoft
-fighting for peace is like fu**ing for virginity
+_______________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
 

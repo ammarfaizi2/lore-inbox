@@ -1,37 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262735AbUKMNbS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262755AbUKMNbR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262735AbUKMNbS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 08:31:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262748AbUKMNaK
+	id S262755AbUKMNbR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 08:31:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262735AbUKMNah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 08:30:10 -0500
-Received: from postfix3-2.free.fr ([213.228.0.169]:54967 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S262735AbUKMNXy
+	Sat, 13 Nov 2004 08:30:37 -0500
+Received: from postfix3-2.free.fr ([213.228.0.169]:12985 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S262755AbUKMNYy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 08:23:54 -0500
-Message-ID: <41960AE9.8090409@free.fr>
-Date: Sat, 13 Nov 2004 14:23:53 +0100
+	Sat, 13 Nov 2004 08:24:54 -0500
+Message-ID: <41960B24.9010807@free.fr>
+Date: Sat, 13 Nov 2004 14:24:52 +0100
 From: matthieu castet <castet.matthieu@free.fr>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
 X-Accept-Language: fr-fr, en, en-us
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: Adam Belay <ambx1@neo.rr.com>, bjorn.helgaas@hp.com, vojtech@suse.cz
-Subject: [PATCH] PNP support for i8042 driver
+Cc: Adam Belay <ambx1@neo.rr.com>, "Li, Shaohua" <shaohua.li@intel.com>
+Subject: [PATCH] PNPACPI
 Content-Type: multipart/mixed;
- boundary="------------000602030904060300070109"
+ boundary="------------060607030103090702040803"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------000602030904060300070109
+--------------060607030103090702040803
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
 Hi,
-this patch add PNP support for the i8042 driver in 2.6.10-rc1-mm5. Acpi 
-is try before the pnp driver so if you don't disable ACPI or apply 
-others pnpacpi patches, it won't change anything.
+
+this patch allow to choose the behavior of the pnpacpi driver, it could 
+  don't lock the acpi device like in mm5 or it could lock it like in mm2.
+
+I have add extra check (CRS presence), so it shouldn't lock too much 
+driver like in mm2.
+I also add the hpet id in the blacklist, because we need to do an pnp 
+driver for it.
+
+Battery, Button and Fan may be remove from the blacklist because they 
+don't seem to have CRS.
 
 Please review it and apply if possible
 
@@ -41,176 +49,166 @@ Matthieu CASTET
 
 Signed-Off-By: Matthieu Castet <castet.matthieu@free.fr>
 
---------------000602030904060300070109
+--------------060607030103090702040803
 Content-Type: text/x-patch;
- name="i8042_pnp_acpi2.patch"
+ name="pnpacpi2.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="i8042_pnp_acpi2.patch"
+ filename="pnpacpi2.patch"
 
---- linux-2.6.9/drivers/input/serio/i8042.c.old	2004-11-12 23:00:09.000000000 +0100
-+++ linux-2.6.9/drivers/input/serio/i8042.c	2004-11-12 23:00:39.000000000 +0100
-@@ -61,6 +61,12 @@
- MODULE_PARM_DESC(noacpi, "Do not use ACPI to detect controller settings");
- #endif
+--- linux-2.6.9/drivers/pnp/pnpacpi/core.c.old	2004-11-13 11:53:23.000000000 +0100
++++ linux-2.6.9/drivers/pnp/pnpacpi/core.c	2004-11-13 13:17:53.000000000 +0100
+@@ -26,15 +26,16 @@
  
-+#ifdef CONFIG_PNP
-+static int i8042_nopnp;
-+module_param_named(nopnp, i8042_nopnp, bool, 0);
-+MODULE_PARM_DESC(nopnp, "Do not use PNP to detect controller settings");
-+#endif
-+
- #define DEBUG
- #ifdef DEBUG
- static int i8042_debug;
---- linux-2.6.9/drivers/input/serio/i8042-x86ia64io.h.old	2004-11-12 23:00:02.000000000 +0100
-+++ linux-2.6.9/drivers/input/serio/i8042-x86ia64io.h	2004-11-13 12:42:09.000000000 +0100
-@@ -88,6 +88,116 @@
- };
- #endif
+ static int num = 0;
  
-+#ifdef CONFIG_PNP
-+#include <linux/pnp.h>
-+
-+static int i8042_pnp_kbd_registered;
-+static int i8042_pnp_aux_registered;
-+
-+
-+static int i8042_pnp_kbd_probe(struct pnp_dev *dev, const struct pnp_device_id *did)
-+{
-+	if (pnp_port_valid(dev, 0) && pnp_port_len(dev, 0) == 1)
-+		i8042_data_reg = pnp_port_start(dev, 0);
-+	else
-+		printk(KERN_WARNING "PNP: [%s] has no data port; default is 0x%x\n",
-+			pnp_dev_name(dev), i8042_data_reg);
-+
-+	if (pnp_port_valid(dev, 1) && pnp_port_len(dev, 1) == 1)
-+		i8042_command_reg = pnp_port_start(dev, 1);
-+	else
-+		printk(KERN_WARNING "PNP: [%s] has no command port; default is 0x%x\n",
-+			pnp_dev_name(dev), i8042_command_reg);
-+
-+	if (pnp_irq_valid(dev, 0))
-+		i8042_kbd_irq = pnp_irq(dev, 0);
-+	else
-+		printk(KERN_WARNING "PNP: [%s] has no IRQ; default is %d\n",
-+			pnp_dev_name(dev), i8042_kbd_irq);
-+
-+	printk("PNP: %s [%s] at I/O 0x%x, 0x%x, irq %d\n",
-+		"PS/2 Keyboard Controller", pnp_dev_name(dev),
-+		i8042_data_reg, i8042_command_reg, i8042_kbd_irq);
-+
-+	return 0;
-+}
-+
-+static int i8042_pnp_aux_probe(struct pnp_dev *dev, const struct pnp_device_id *did)
-+{
-+	if (pnp_irq_valid(dev, 0))
-+		i8042_aux_irq = pnp_irq(dev, 0);
-+	else
-+		printk(KERN_WARNING "PNP: [%s] has no IRQ; default is %d\n",
-+			pnp_dev_name(dev), i8042_aux_irq);
-+
-+	printk("PNP: %s [%s] at irq %d\n",
-+		"PS/2 Mouse Controller", pnp_dev_name(dev), i8042_aux_irq);
-+
-+	return 0;
-+}
-+
-+static struct pnp_device_id pnp_kbd_devids[] = {
-+	{ .id = "PNP0303", .driver_data = 0 },
-+	{ .id = "PNP030b", .driver_data = 0 },
-+	{ .id = "", },
-+};
-+
-+static struct pnp_driver i8042_pnp_kbd_driver = {
-+	.name           = "i8042 kbd",
-+	.id_table       = pnp_kbd_devids,
-+	.probe          = i8042_pnp_kbd_probe,
-+};
-+
-+static struct pnp_device_id pnp_aux_devids[] = {
-+	{ .id = "PNP0f13", .driver_data = 0 },
-+	{ .id = "SYN0801", .driver_data = 0 },
-+	{ .id = "", },
-+};
-+
-+static struct pnp_driver i8042_pnp_aux_driver = {
-+	.name           = "i8042 aux",
-+	.id_table       = pnp_aux_devids,
-+	.probe          = i8042_pnp_aux_probe,
-+};
-+
-+static int i8042_pnp_init(void)
-+{
-+	int result;
-+
-+	if (i8042_nopnp) {
-+		printk("i8042: PNP detection disabled\n");
-+		return 0;
-+	}
-+
-+	result = pnp_register_driver(&i8042_pnp_kbd_driver);
-+	if (result < 0)
-+		return result;
-+
-+	if (result == 0) {
-+		pnp_unregister_driver(&i8042_pnp_kbd_driver);
-+		return -ENODEV;
-+	}
-+	i8042_pnp_kbd_registered = 1;
-+
-+	result = pnp_register_driver(&i8042_pnp_aux_driver);
-+	if (result >= 0)
-+		i8042_pnp_aux_registered = 1;
-+	if (result == 0)
-+		i8042_noaux = 1;
-+
-+	return 0;
-+}
-+
-+static void i8042_pnp_exit(void)
-+{
-+	if (i8042_pnp_kbd_registered)
-+		pnp_unregister_driver(&i8042_pnp_kbd_driver);
-+
-+	if (i8042_pnp_aux_registered)
-+		pnp_unregister_driver(&i8042_pnp_aux_driver);
-+}
-+#endif
-+
- #ifdef CONFIG_ACPI
- #include <linux/acpi.h>
- #include <acpi/acpi_bus.h>
-@@ -286,10 +396,17 @@
- 	i8042_aux_irq = I8042_MAP_IRQ(12);
- 
- #ifdef CONFIG_ACPI
--	if (i8042_acpi_init() < 0)
-+	if (i8042_acpi_init() < 0) /*ACPI don't detecte Kdb*/
-+#endif
-+#ifdef CONFIG_PNP
-+		if (i8042_pnp_init())
-+			return -1;
-+#else
-+#ifdef CONFIG_ACPI
- 		return -1;
- #endif
--
-+#endif
-+	
- #if defined(__ia64__)
-         i8042_reset = 1;
- #endif
-@@ -304,6 +421,9 @@
- 
- static inline void i8042_platform_exit(void)
+-static char __initdata excluded_id_list[] =
+-	"PNP0C0A," /* Battery */
+-	"PNP0C0C,PNP0C0E,PNP0C0D," /* Button */
++static char excluded_id_list[] =
++	"PNP0C0A," /* Battery */ /* is there a CRS ?*/
++	"PNP0C0C,PNP0C0E,PNP0C0D," /* Button */ /* is there a CRS ?*/
++	"PNP0C0B," /* Fan */ /* is there a CRS ?*/
+ 	"PNP0C09," /* EC */
+-	"PNP0C0B," /* Fan */
+ 	"PNP0A03," /* PCI root */
+ 	"PNP0C0F," /* Link device */
+ 	"PNP0000," /* PIC */
+ 	"PNP0100," /* Timer */
++	"PNP0103," /* hpet could be converted, but need work on irq/address */
+ 	;
+ static inline int is_exclusive_device(struct acpi_device *dev)
  {
-+#ifdef CONFIG_PNP
-+	i8042_pnp_exit();
-+#endif
+@@ -58,7 +59,7 @@
+ #define TEST_ALPHA(c) \
+ 	if (!('@' <= (c) || (c) <= 'Z')) \
+ 		return 0
+-static int __init ispnpidacpi(char *id)
++static int ispnpidacpi(char *id)
+ {
+ 	TEST_ALPHA(id[0]);
+ 	TEST_ALPHA(id[1]);
+@@ -72,7 +73,7 @@
+ 	return 1;
  }
  
- #endif /* _I8042_X86IA64IO_H */
+-static void __init pnpidacpi_to_pnpid(char *id, char *str)
++static void pnpidacpi_to_pnpid(char *id, char *str)
+ {
+ 	str[0] = id[0];
+ 	str[1] = id[1];
+@@ -131,17 +132,13 @@
+ 	.disable = pnpacpi_disable_resources,
+ };
+ 
+-static int __init pnpacpi_add_device(struct acpi_device *device)
++static int acpi_pnp_add(struct acpi_device *device)
+ {
+ 	acpi_handle temp = NULL;
+ 	acpi_status status;
+ 	struct pnp_id *dev_id;
+ 	struct pnp_dev *dev;
+ 
+-	if (!ispnpidacpi(acpi_device_hid(device)) ||
+-		is_exclusive_device(device))
+-		return 0;
+-
+ 	pnp_dbg("ACPI device : hid %s", acpi_device_hid(device));
+ 	dev =  pnpacpi_kmalloc(sizeof(struct pnp_dev), GFP_KERNEL);
+ 	if (!dev) {
+@@ -221,6 +218,9 @@
+ 	pnp_add_device(dev);
+ 	num ++;
+ 
++#ifndef CONFIG_PNPACPI_NOLOCK
++	acpi_driver_data(device) = dev;
++#endif
+ 	return AE_OK;
+ err1:
+ 	kfree(dev_id);
+@@ -229,15 +229,50 @@
+ 	return -EINVAL;
+ }
+ 
++static int acpi_pnp_match(struct acpi_device *device,
++	struct acpi_driver	*driver)
++{
++	acpi_handle temp = NULL;
++	acpi_status status;
++	/* don't lock non standard pnp device */
++	status = acpi_get_handle(device->handle, "_CRS", &temp);
++	return (ACPI_FAILURE(status) || !ispnpidacpi(acpi_device_hid(device)) ||
++		is_exclusive_device(device));
++}
++
++#ifndef CONFIG_PNPACPI_NOLOCK
++static int acpi_pnp_remove (struct acpi_device *device, int type)
++{
++	struct pnp_dev *dev = acpi_driver_data(device);
++	if (!dev)
++		return AE_ERROR;
++
++	pnp_remove_device(dev);
++	return AE_OK;
++}
++
++/* default acpi PNP device driver, support hotplug */
++static struct acpi_driver acpi_pnp_driver = {
++	.name =		"ACPI PNP Driver",
++	.class =	"acpi_pnp",
++	.ops =		{
++				.add = acpi_pnp_add,
++				.remove = acpi_pnp_remove,
++				.match = acpi_pnp_match,
++			},
++};
++#else
+ static acpi_status __init pnpacpi_add_device_handler(acpi_handle handle,
+ 	u32 lvl, void *context, void **rv)
+ {
+ 	struct acpi_device *device;
+ 
+-	if (!acpi_bus_get_device(handle, &device))
+-		pnpacpi_add_device(device);
++	if (!acpi_bus_get_device(handle, &device) &&
++		!acpi_pnp_match(device, NULL))
++		acpi_pnp_add(device);
+ 	return AE_OK;
+ }
++#endif
+ 
+ int __init pnpacpi_init(void)
+ {
+@@ -247,9 +282,14 @@
+ 	}
+ 	pnp_info("PnP ACPI init");
+ 	pnp_register_protocol(&pnpacpi_protocol);
++#ifndef CONFIG_PNPACPI_NOLOCK
++	if (acpi_bus_register_driver(&acpi_pnp_driver) < 0)
++		return -ENODEV;
++#else
+ 	acpi_walk_namespace(ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT,
+ 			ACPI_UINT32_MAX, pnpacpi_add_device_handler,
+ 			NULL, NULL);
++#endif
+ 	pnp_info("PnP ACPI: found %d devices", num);
+ 	return 0;
+ }
+--- linux-2.6.9/drivers/pnp/pnpacpi/Kconfig.old	2004-11-13 12:04:44.000000000 +0100
++++ linux-2.6.9/drivers/pnp/pnpacpi/Kconfig	2004-11-13 12:20:48.000000000 +0100
+@@ -16,3 +16,13 @@
+           your mainboard devices (on some systems they are disabled by the
+           BIOS) say Y here.  Also the PNPACPI can help prevent resource
+           conflicts between mainboard devices and other bus devices.
++
++config PNPACPI_NOLOCK
++	bool "Don't lock acpi device(OBSOLETE)"
++	depends on PNPACPI
++	default y
++	---help---
++	  This option allow you to don't lock acpi devices that are used
++	  by pnpacpi. It could avoid locking some devices that shouldn't
++	  be locked, or allow to used acpi drivers instead of pnp drivers.
++	  Note that it will disable hotplug support for pnpacpi devices.
 
---------------000602030904060300070109--
+--------------060607030103090702040803--

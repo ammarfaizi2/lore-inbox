@@ -1,37 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261292AbTBUBIs>; Thu, 20 Feb 2003 20:08:48 -0500
+	id <S265865AbTBUBLo>; Thu, 20 Feb 2003 20:11:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265865AbTBUBIs>; Thu, 20 Feb 2003 20:08:48 -0500
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:42890 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id <S261292AbTBUBIs>; Thu, 20 Feb 2003 20:08:48 -0500
-Date: Thu, 20 Feb 2003 20:18:46 -0500
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
-Message-Id: <200302210118.h1L1IkKw011688@locutus.cmf.nrl.navy.mil>
-To: linux-kernel@vger.kernel.org
-Subject: [ATM] who 'owns' the skb created by drivers/atm?
+	id <S266976AbTBUBLo>; Thu, 20 Feb 2003 20:11:44 -0500
+Received: from numenor.qualcomm.com ([129.46.51.58]:11671 "EHLO
+	numenor.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S265865AbTBUBLn>; Thu, 20 Feb 2003 20:11:43 -0500
+Message-Id: <5.1.0.14.2.20030220165016.0d47c688@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 20 Feb 2003 17:17:52 -0800
+To: Rusty Russell <rusty@rustcorp.com.au>
+From: Max Krasnyansky <maxk@qualcomm.com>
+Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family 
+Cc: "David S. Miller" <davem@redhat.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Jean Tourrilhes <jt@bougret.hpl.hp.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030221004041.05C1F2C2D5@lists.samba.org>
+References: <Your message of "Thu, 20 Feb 2003 09:38:50 -0800." <5.1.0.14.2.20030220092216.0d3fefd0@mail1.qualcomm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 04:30 PM 2/20/2003, Rusty Russell wrote:
+>In message <5.1.0.14.2.20030220092216.0d3fefd0@mail1.qualcomm.com> you write:
+>> >There has been talk of this, but OTOH, the admin has explicitly gone
+>> >out of their way to remove this module.  They really don't want anyone
+>> >new using it.  Presumably at this very moment they are killing off all
+>> >the processes they can find with such a socket.
+>> The thing is that once those processes are killed sockets will be 
+>> destroyed and release the module anyway. i.e. There is no reason to
+>> sort of artificially force accept() to fail. Everything will be cleaned 
+>> up once the process is gone.
+>
+>Yes, but in practical terms it's probably going to fork a child with
+>that socket.
+But it will also be killed.
 
-when one of the atm drivers has a skb ready to pass up to the higher 
-layers it may (optionally?) fill in skb->cb.  this usually just holds
-a pointer to the atm_vcc that the skb arrived on.  if this skb is
-destined for an atm socket, all is well.  the trouble arises when the skb
-is bound for the ip layer via lec or clip.  lec or clip just push
-the skb up to the ip layer via netif_rx().  sometimes (particularly true
-on 64-bit platforms) the ip layer will interpret the skb->cb (for ip
-the first 4 bytes of skb->cb are the next hop address which isnt used
-much apparently).
+>> >I think it can be argued both ways, honestly.
+>> Yep. And I'd argue in for of module_get() :)
+>
+>My only real insistence in this is that such an interface be called
+>__try_module_get(), because the "__" warn people that it's a "you'd
+>better know *exactly* what you are doing", even though the "try" is a
+>bit of a misnomer.
+Yeah, I think 'try' is definitely be a misnomer in this case.
+How about something like this ?
 
-its my understanding is that you can't use skb->cb unless you created
-the skb.  well atm created the skb and filled in ->cb.  it seems ip
-doesn't know its sharing this skb with the atm layer and doesnt clone
-the skb in ip_rcv().  there seems to be an implicit understanding that
-skb's created by ethernet drivers are 'owned' by the ip layer and shouldnt
-touch skb->cb.
+static inline void __module_get(struct module *mod)
+{
+#ifdef CONFIG_MODULE_DETECT_API_VIOLATION
+        if (!module_refcount(mod))
+                __unsafe(mod);
+#endif
+        local_inc(&mod->ref[get_cpu()].count);
+        put_cpu();
+}
 
-i would hazard that the atm drivers are not 'owned' by the ip layer --
-any skb's that lec or clip send to the ip layer should first cloned and
-the clone passed to the ip layer?
+We will be able to compile the kernel with CONFIG_MODULE_DETECT_API_VIOLATION
+and easily find all modules that call __module_get() without holding a reference.
+
+Comments ?
+
+Max
+
+
+
+
+

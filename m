@@ -1,54 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275897AbSIULHf>; Sat, 21 Sep 2002 07:07:35 -0400
+	id <S275899AbSIULLC>; Sat, 21 Sep 2002 07:11:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275898AbSIULHf>; Sat, 21 Sep 2002 07:07:35 -0400
-Received: from natwar.webmailer.de ([192.67.198.70]:49026 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S275897AbSIULHf>; Sat, 21 Sep 2002 07:07:35 -0400
-Date: Sat, 21 Sep 2002 13:06:41 +0200
-From: Dominik Brodowski <linux@brodo.de>
-To: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
-Subject: cpufreq for 2.5.37 now available
-Message-ID: <20020921130641.A21823@brodo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
+	id <S275900AbSIULLC>; Sat, 21 Sep 2002 07:11:02 -0400
+Received: from vti01.vertis.nl ([145.66.4.26]:47632 "EHLO vti01.vertis.nl")
+	by vger.kernel.org with ESMTP id <S275899AbSIULLA>;
+	Sat, 21 Sep 2002 07:11:00 -0400
+Date: Sat, 21 Sep 2002 13:14:47 +0200
+From: Rolf Fokkens <fokkensr@fokkensr.vertis.nl>
+Message-Id: <200209211114.g8LBEls02361@fokkensr.vertis.nl>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] timer.c negative shift, kernel 2.5.37
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-Updated patches for CPU frequency and voltage scaling support are now
-available at
+It appears that kernel time keeping may become unpredictable when HZ is
+raised to large values due to negative shift operations in timer.c:
 
-http://www.brodo.de/cpufreq/
+  time_adj = -ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
 
-Changes since the version for 2.5.36:
-- longrun.c: use LRTI for lowest frequency detection if available
-- p4-clockmod.c: allow to run rdmsr/wrmsr on both hyperthreading cores
+Suppose on x86:
+        HZ = 2048
+and     SHIFT_SCALE = 22
+and     SHIFT_UPDATE = (SHIFT_KG + MAXTC) = 12
+then
+        SHIFT_HZ = 11
+and     (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE) = -1
 
-complete patch for kernel 2.5.37:
-http://www.brodo.de/cpufreq/cpufreq-2.5.37-1.gz
+This negative number is a problem for shift operations. The
+following patch takes care of it (I hope).
 
-step-by-step patches for kernel 2.5.37:
-http://www.brodo.de/cpufreq/cpufreq-2.5.37-core-1
-http://www.brodo.de/cpufreq/cpufreq-2.5.37-i386-core-1
-http://www.brodo.de/cpufreq/cpufreq-2.5.37-i386-drivers-1
-http://www.brodo.de/cpufreq/cpufreq-2.5.37-doc-1
-http://www.brodo.de/cpufreq/cpufreq-2.5.37-24api-1
+Rolf Fokkens
+fokkensr@fokkensr.vertis.nl
 
-backport to kernel 2.4.19/2.4.20-pre7:
-http://www.brodo.de/cpufreq/cpufreq-2.4.19-3.gz
-http://www.brodo.de/cpufreq/cpufreq-2.4.20-pre7-3.gz
+(2nd post of this patch)
 
-This cpufreq version is included in 2.4.-ac patchsets since
-2.4.20-pre7-ac1, a few updates for -ac2 and -ac3 can be found here:
-http://www.brodo.de/cpufreq/cpufreq-2.4.20-pre7-ac2-1
-
-Comments welcome; please ensure that the cpufreq development list at
-cpufreq@www.linux.org.uk receives a copy of all comments.
-
-
-	Dominik
+--- linux-2.5.37.orig/kernel/timer.c	Mon Sep 16 20:43:47 2002
++++ linux-2.5.37/kernel/timer.c	Sat Sep 21 13:08:10 2002
+@@ -339,6 +339,11 @@
+ 	run_task_queue(&tq_immediate);
+ }
+ 
++static inline long signedshift (long val, int nshift)
++{
++    return (nshift > 0 ? val << nshift : val >> -nshift);
++}
++
+ /*
+  * this routine handles the overflow of the microsecond field
+  *
+@@ -418,7 +423,7 @@
+ 	if (ltemp > (MAXPHASE / MINSEC) << SHIFT_UPDATE)
+ 	    ltemp = (MAXPHASE / MINSEC) << SHIFT_UPDATE;
+ 	time_offset += ltemp;
+-	time_adj = -ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
++        time_adj = signedshift (-ltemp, SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
+     } else {
+ 	ltemp = time_offset;
+ 	if (!(time_status & STA_FLL))
+@@ -426,7 +431,7 @@
+ 	if (ltemp > (MAXPHASE / MINSEC) << SHIFT_UPDATE)
+ 	    ltemp = (MAXPHASE / MINSEC) << SHIFT_UPDATE;
+ 	time_offset -= ltemp;
+-	time_adj = ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
++        time_adj = signedshift (ltemp, SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
+     }
+ 
+     /*

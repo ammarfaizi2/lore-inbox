@@ -1,87 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264504AbTFBQgo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 12:36:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264505AbTFBQgo
+	id S264683AbTFBQnC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 12:43:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264551AbTFBQnC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 12:36:44 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:24468 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S264504AbTFBQgm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 12:36:42 -0400
-From: Andreas Hartmann <andihartmann@freenet.de>
-X-Newsgroups: fa.linux.kernel
-Subject: Re: [PATCH] rmap 15j for 2.4.21-rc6
-Date: Mon, 02 Jun 2003 18:55:48 +0200
-Organization: privat
-Message-ID: <bbfvik$24e$1@ID-44327.news.dfncis.de>
-References: <fa.hnjaa1v.19gukhb@ifi.uio.no> <fa.h2i5rk8.1c3cq0m@ifi.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: susi.maya.org 1054572948 2190 192.168.1.3 (2 Jun 2003 16:55:48 GMT)
-X-Complaints-To: abuse@fu-berlin.de
-User-Agent: KNode/0.7.2
-To: linux-kernel@vger.kernel.org
+	Mon, 2 Jun 2003 12:43:02 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:22925 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264505AbTFBQm7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 12:42:59 -0400
+Date: Mon, 2 Jun 2003 12:58:42 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Mike Dresser <mdresser_l@windsormachine.com>
+cc: linux-kernel@vger.kernel.org, linux-smp@vger.kernel.org
+Subject: Re: Hyper-threading
+In-Reply-To: <Pine.LNX.4.33.0306021147460.31561-100000@router.windsormachine.com>
+Message-ID: <Pine.LNX.4.53.0306021249430.16702@chaos>
+References: <Pine.LNX.4.33.0306021147460.31561-100000@router.windsormachine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Frank wrote:
+On Mon, 2 Jun 2003, Mike Dresser wrote:
 
-> On Sunday 01 June 2003 19:00, Andreas Hartmann wrote:
->>
->> Well, I did the test with 2.4.21rc6 after patching your script (I got
->> syntax errors):
-> 
-> About your script changes, I like to make it portable, and I use the
-> following versions:
-> 
-> GNU bash, version 2.05b.0(1)-release (i386-redhat-linux-gnu)
+> On Mon, 2 Jun 2003, Richard B. Johnson wrote:
+>
+> > Well it is supposed to. It's a pentium 4 Xeon. If it doesn't
+> > support it, ether the CPU or the motherboard are broken.
+> > I'll bet on the motherboard.
+> > Look further up the dmesg output and you'll see XEON(tm) and
+> > 2 CPUs total.
+>
+> Indeed, I saw that.  On the P4 2.66ghz that you have, the "second" cpu is
+> disabled by intel, as they sell hyperthreading only on the newer Xeon P4
+> (which you don't have), and the new 800FSB (4x200) units, which again
+> you don't have.
+>
 
-2.02.1(1)-release
+Well, the CPU I bought was supposed to support hyper-threading. That's
+what it even says on the box (new Hyper-thread technology)! I guess
+Hyper-thread technology isn't "hyper-thread", only its "technology",
+like it's got some pins and takes power.
 
-> 
-> dd (coreutils) 4.5.3
+> ..... CPU clock speed is 2672.7802 MHz.
+> ..... host bus clock speed is 133.6388 MHz.
+>
+> There is a Xeon 2.66 part, however it has 603 pins, and would not fit on
+> your IC7-G board, which is a P4 board, not a P4 Xeon board,
+>
 
-dd (fileutils) 4.1
+These were purchased together to be a "hyper-thread" board
+for my new system. I have always had two CPUs since SMP became
+available, and I wanted to experiment with the new "single-CPU"
+SMP architecture.
 
-> What shell and coreutils are you using?
+> CPU0: Intel(R) Pentium(R) 4 CPU 2.66GHz stepping 07 is correct.
+>
+> OT:  Are your two 100mbit cards PCI or something?  I noticed the onboard
+> gigabit adapter isn't detected.
+>
+> Mike
+>
 
-They are obviously much older :-).
+I got ripped off. I got sold a board that doesn't have the gigibit
+adapter populated plus, you can't tell from a distance because the
+connector is present, but has some metal tape covering the hole.
 
-> Avoiding short counts is easy but avoiding C-style expressions is
-> primitive
-> 
-> -     count=100K
-> +     count=100000
-> 
-> -   while (( i-- )); do
-> +   while (( i=`expr $i - 1` )); do
-> 
-> In your opinion are your changes more portable across a wide range of
-> systems?
+This board costs $275 plus the CPU was $635. I got badly raped
+and the vendor won't take them back.
 
-I didn't think at portability :-). I only made it working for me. Maybe
-there are other persons out there who do have some old versions too - so
-they can use this patch.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 
->> When I'm using the script as seen in the patch, I'm getting problems with
->> df (it's mostly very lazy, about 20s delay or more), the load is 4, doing
->> an ls on some other directories is extremly slow. Mouse and keyboard are
->> hanging some times.
->> The write speed shown in xosview was between 1 and 15MB/s. Often the HD
->> LED was on, but no data seemed to be put to the HD.
->>
-> 
-> It has a hard time to read anything else, the slower the disk, the worse.
-> 
-> Suppose rmap undoes the fixes introduced in -rc6.
-> 
-> Have you tried -rc6 plain?
-
-Yes - I only tested this kernel.
-
-
-
-Regards,
-Andreas Hartmann

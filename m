@@ -1,49 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268145AbUIBKbo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268147AbUIBKh0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268145AbUIBKbo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 06:31:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268147AbUIBKbo
+	id S268147AbUIBKh0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 06:37:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268132AbUIBKh0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 06:31:44 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:43405 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268145AbUIBKbj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 06:31:39 -0400
-Subject: Re: Driver retries disk errors.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: Romano Giannetti <romano@dea.icai.upco.es>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040901231434.GD28809@bitwizard.nl>
-References: <20040830163931.GA4295@bitwizard.nl>
-	 <1093952715.32684.12.camel@localhost.localdomain>
-	 <20040831135403.GB2854@bitwizard.nl>
-	 <1093961570.597.2.camel@localhost.localdomain>
-	 <20040831155653.GD17261@harddisk-recovery.com>
-	 <1093965233.599.8.camel@localhost.localdomain>
-	 <20040831170016.GF17261@harddisk-recovery.com>
-	 <1093968767.597.14.camel@localhost.localdomain>
-	 <20040901152817.GA4375@pern.dea.icai.upco.es>
-	 <1094049877.2787.1.camel@localhost.localdomain>
-	 <20040901231434.GD28809@bitwizard.nl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094117369.4852.15.camel@localhost.localdomain>
+	Thu, 2 Sep 2004 06:37:26 -0400
+Received: from ozlabs.org ([203.10.76.45]:46735 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268165AbUIBKgc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 06:36:32 -0400
+Date: Thu, 2 Sep 2004 20:32:45 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org, paulus@samba.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [ppc64] update pSeries_defconfig
+Message-ID: <20040902103245.GX26072@krispykreme>
+References: <20040902095035.GW26072@krispykreme> <20040902111634.A22852@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 02 Sep 2004 10:29:29 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040902111634.A22852@infradead.org>
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-09-02 at 00:14, Rogier Wolff wrote:
-> I don't think so. It starts with the ide-cd level driver 
-> doing 8 retries. Most disk we see retry themselves for about  a 
-> 4 second delay before reporting a bad block. A CD taking twice
+ 
+> BTW, g5_defconfig also needs an update :)
 
-"Most", that is the heart of the reason for not taking them out.
+Yep :) Id also like to see arch/ppc64/defconfig be something that boots 
+on both g5 and pseries.
 
-> that much would not sound abnormal. (seeks are about 10 times
-> as expensive on CDs). 8 times 8 seconds is a full minute. 
-
-As I said media players need a way to turn it to no retry
-
+Anton

@@ -1,52 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263798AbTETRWS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 13:22:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263804AbTETRWS
+	id S263804AbTETRaK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 13:30:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263817AbTETRaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 13:22:18 -0400
-Received: from alpham.uni-mb.si ([164.8.1.101]:65274 "EHLO alpham.uni-mb.si")
-	by vger.kernel.org with ESMTP id S263798AbTETRWR (ORCPT
+	Tue, 20 May 2003 13:30:09 -0400
+Received: from [208.186.192.194] ([208.186.192.194]:42140 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263804AbTETRaI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 13:22:17 -0400
-Date: Tue, 20 May 2003 19:34:55 +0200
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Wrong clock initialization
-To: linux-kernel@vger.kernel.org
-Message-id: <3ECA673F.7B3FB388@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
-Content-type: text/plain; charset=iso-8859-2
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en
+	Tue, 20 May 2003 13:30:08 -0400
+Message-Id: <200305201743.h4KHhMC25023@es175.pdx.osdl.net>
+To: akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: re-aim - 2.5.69, -mm6
+Date: Tue, 20 May 2003 10:43:22 -0700
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-When the kernel is booted ( ia32 version at least ) , it reads
-the time from from the hardware CMOS clock , _assumes_ it is in
-UTC and set the system time to it.
-
-As almost nobody runs their clock in UTC, this means that the system
-is running on wrong time until some userspace tool corrects it.
-
-This can lead to situtation when time goes backwards :
-
-timezone is 2hours east of UTC.
-UTC time : 20:00
-local time : 22:00
-
-System time between boot and userspace fix : 22:00UTC
-System time after fix : 20:00UTC
-
-Comments ?
 
 
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill S. Preston, Esq., & "Ted" Theodore
-Logan
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-- - -
+This is the result of running the Reaim test against the 
+2.5.69 and 2.5.69-mm6 kernels. The -mm kernels are a bit
+slower, and i'm wondering if i'm missing a tuning knob somewhere..
+advice appreciated.
+
+Re-aim is a rework of the AIM suite. (locations below)
+
+Two data points i look at-
+1. Maximum jobs per minute  
+2. Number of children when Jobs/second/child less than 1.0. 
+	(convergence)
+
+Load is the new_dbase load. (AIM7 dbase load with less synch IO)
+System is a 4-CPU PIII with 4GB of physical
+memory, test used 4 SCSI disks on a qlogicfc adapter. 
+Test is run with two different convergence methods, 3 runs each.
+Peak load is the average of 3 runs, i pick the best results
+regardless of convergence method. 
+
+Kernel                Peak Load
+2.5.69 - base         5216.68 Jobs/Minute
+2.5.69-mm6(AS)        4963.36 JPM
+2.5.69-mm6(deadline)  4966.71 JPM
+2.5.69-mm7(AS)        4966.86 JPM
+
+Load when JPS/child < 1.0 (c_ times are total for all children)
+Average of six runs
+
+Kernel             Children  JPM       RunTime  c_utime  c_systime
+
+2.5.69 - base      88         5185.88  104.87   376.01   40.28
+2.5.69-mm6(AS)     84         4894.73  106.08   374.91   45.54  
+2.5.69-mm6(deadln) 84         4858.36  106.90   376.55   46.41
+2.5.69-mm7(AS)     84         4853.80  106.95   378.02   46.26
+
+
+Attempting a second pass of -mm7 caused the hang reported earlier. 
+cliffw
+OSDL
+
+report details and profile data at:
+http://www.osdl.org/archive/cliffw/reaim 
+
+Reaim code at:
+http://sourceforge.net/projects/re-aim-7
+or
+bk://bk.osdl.org/aimrework

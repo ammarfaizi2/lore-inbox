@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261545AbVADHuh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbVADHvj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261545AbVADHuh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 02:50:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVADHuh
+	id S261558AbVADHvj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 02:51:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbVADHvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 02:50:37 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:58047 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261545AbVADHu2 (ORCPT
+	Tue, 4 Jan 2005 02:51:38 -0500
+Received: from [81.23.229.73] ([81.23.229.73]:49570 "EHLO mail.eduonline.nl")
+	by vger.kernel.org with ESMTP id S261558AbVADHv1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 02:50:28 -0500
-Date: Tue, 4 Jan 2005 08:46:21 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Diego Calleja <diegocg@teleline.es>,
-       Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com, aebr@win.tue.nl,
-       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Message-ID: <20050104074617.GK2825@suse.de>
-References: <20050103192844.GA29678@suse.de> <41D9C9B2.2070006@tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 4 Jan 2005 02:51:27 -0500
+From: Norbert van Nobelen <norbert-kernel@edusupport.nl>
+Organization: EduSupport BV
+To: jerome lacoste <jerome.lacoste@gmail.com>
+Subject: Re: 50% CPU user usage but top doesn't list any CPU unfriendly task
+Date: Tue, 4 Jan 2005 08:51:23 +0100
+User-Agent: KMail/1.6.2
+References: <5a2cf1f6050103134611114dbd@mail.gmail.com>
+In-Reply-To: <5a2cf1f6050103134611114dbd@mail.gmail.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <41D9C9B2.2070006@tmr.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200501040851.23287.norbert-kernel@edusupport.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 03 2005, Bill Davidsen wrote:
-> Jens Axboe wrote:
-> >On Mon, Jan 03 2005, Bill Davidsen wrote:
-> >
-> >>SCSI command filtering - while I totally support the idea (and always
-> >>have), I miss running cdrecord as a normal user. Multisession doesn't work
-> >>as a normal user (at least if you follow the man page) because only root
-> >>can use -msinfo. There's also some raw mode which got a permission denied,
-> >>don't remember as I was trying something not doing production stuff.
-> >
-> >
-> >So look at dmesg, the kernel will dump the failed command. Send the
-> >result here and we can add that command, done deal. 2.6.10 will do this
-> >by default.
-> >
-> 
-> Is this enough? I'm building 2.6.10-bk6 on a spare machine to try this 
-> on a system with a "scsi" CD interface via USB. The commands appear to 
-> go through the same process, but I'll know in an hour or so.
-> 
-> I was going to look these up before suggesting that they were 
-> trustworthy, but I'll take this as a offer to do that and accept! 
-> Obviously security comes first, if these are not trustworthy I won't 
-> argue for their inclusion.
-> 
-> kjournald starting.  Commit interval 5 seconds
-> EXT3 FS on hdb1, internal journal
-> EXT3-fs: mounted filesystem with ordered data mode.
-> scsi: unknown opcode 0x01
-> scsi: unknown opcode 0x55
-> scsi: unknown opcode 0x1e
-> scsi: unknown opcode 0x35
+The load and the CPU useage are two separate things:
+Load: Defined by a programmer on an estimate on which his program is running 
+100% fulltime, thus consuming little or more CPU/IO.
+The interesting program you mention is the VoIP application. Is this program 
+multithreaded and is every thread using a little bit of CPU? Than it quickly 
+adds up to the mentioned 40%. The load is than also easily reached.
 
-You don't have write permissions on the device.
 
--- 
-Jens Axboe
-
+On Monday 03 January 2005 22:46, jerome lacoste wrote:
+> Hi,
+>
+> on a fairly old box used as a desktop (PII 300 Mhz with 196M RAM), I
+> observe the following strange behavior which I believe comes from the
+> kernel.
+>
+> There's a VoIP known 'P2P' closed source application running, an IP
+> tables based firewall and a remote ssh session initiated. When using
+> top, sorting by CPU usage, no program is using more than a couple of
+> percent of CPU. On the other side, the total CPU user time is at
+> around 40%, with a 1.5 load average. Memory looks OK. The machine is
+> responsive as usual.
+>
+> So I wonder why the cpu user time is at 40% without any particular
+> program showing as using CPU in the top listing. 'Problem' was
+> reproducible with 2.4.x and now with 2.6.8.1.
+>
+> So it this a real problem or is there something that I don't
+> understand in particular? Thanks for the insight.
+>
+> Jerome
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,60 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261896AbULCC7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbULCDBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261896AbULCC7g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 21:59:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbULCC7f
+	id S261913AbULCDBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 22:01:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbULCDBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 21:59:35 -0500
-Received: from smtp1.pp.htv.fi ([213.243.153.34]:37252 "EHLO smtp1.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S261896AbULCC7e (ORCPT
+	Thu, 2 Dec 2004 22:01:08 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:2295 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261907AbULCDAn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 21:59:34 -0500
-Date: Fri, 3 Dec 2004 04:59:32 +0200
-From: Paul Mundt <lethal@linux-sh.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: vlobanov <vlobanov@speakeasy.net>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, kkojima@rr.iij4u.or.jp
-Subject: Re: EXPORT_SYMBOL_NOVERS question
-Message-ID: <20041203025932.GJ867@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	vlobanov <vlobanov@speakeasy.net>,
-	lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, kkojima@rr.iij4u.or.jp
-References: <Pine.LNX.4.58.0411030007220.22814@shell2.speakeasy.net> <1101681740.25347.21.camel@localhost.localdomain>
+	Thu, 2 Dec 2004 22:00:43 -0500
+Subject: Re: do_posix_clock_monotonic_gettime() returns negative nsec
+From: john stultz <johnstul@us.ibm.com>
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       george anzinger <george@mvista.com>
+In-Reply-To: <20041203020357.GA28468@mail.13thfloor.at>
+References: <20041203020357.GA28468@mail.13thfloor.at>
+Content-Type: text/plain
+Message-Id: <1102042850.13294.43.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DWg365Y4B18r8evw"
-Content-Disposition: inline
-In-Reply-To: <1101681740.25347.21.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 02 Dec 2004 19:00:51 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2004-12-02 at 18:03, Herbert Poetzl wrote:
+> recent kernels (tested 2.6.10-rc2 and 2.6.10-rc2-bk15)
+> produce funny output in /proc/uptime like this:
+> 
+> 	# cat /proc/uptime
+> 	  12.4294967218 9.05
+> 	# cat /proc/uptime
+> 	  13.4294967251 10.33
+> 	# cat /proc/uptime
+> 	  14.4294967295 11.73
+> 
+> a short investigation of the issue, ended at
+> do_posix_clock_monotonic_gettime() which can (and 
+> often does) return negative nsec values (within
+> one second), so while the actual 'time' returned
+> is correct, some parts of the kernel assume that
+> those part is within the range (0 - NSEC_PER_SEC)
+> 
+>         len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
+>                         (unsigned long) uptime.tv_sec,
+>                         (uptime.tv_nsec / (NSEC_PER_SEC / 100)),
+> 
+> as the function itself corrects overflows, it would
+> make sense to me to correct underflows too, for 
+> example with the following patch:
+> 
+> --- ./kernel/posix-timers.c.orig	2004-11-19 21:11:05.000000000 +0100
+> +++ ./kernel/posix-timers.c	2004-12-03 02:23:56.000000000 +0100
+> @@ -1208,7 +1208,10 @@ int do_posix_clock_monotonic_gettime(str
+>  	tp->tv_sec += wall_to_mono.tv_sec;
+>  	tp->tv_nsec += wall_to_mono.tv_nsec;
+>  
+> -	if ((tp->tv_nsec - NSEC_PER_SEC) > 0) {
+> +	if (tp->tv_nsec < 0) {
+> +		tp->tv_nsec += NSEC_PER_SEC;
+> +		tp->tv_sec--;
+> +	} else if ((tp->tv_nsec - NSEC_PER_SEC) > 0) {
+>  		tp->tv_nsec -= NSEC_PER_SEC;
+>  		tp->tv_sec++;
+>  	}
 
---DWg365Y4B18r8evw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sounds like its a good fix to me. 
 
-On Mon, Nov 29, 2004 at 09:42:20AM +1100, Rusty Russell wrote:
-> Vadim Lobanov points out that EXPORT_SYMBOL_NOVERS is no longer used;
-> in fact, SH still uses it, but once we fix that, the kernel is clean.
-> Remove it.
->=20
-Looks good to me..
+George: You have any comment?
 
---DWg365Y4B18r8evw
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+thanks
+-john
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
 
-iD8DBQFBr9aU1K+teJFxZ9wRAiOXAJ94ivBdBWIvxl7p0PGdWqDHz5q8+gCggUpc
-Os2GUsd2biYDLpTKMqDOZEA=
-=duw1
------END PGP SIGNATURE-----
-
---DWg365Y4B18r8evw--

@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270032AbTG3KaA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 06:30:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270079AbTG3KaA
+	id S270234AbTG3Kd3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 06:33:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270327AbTG3Kd3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 06:30:00 -0400
-Received: from h234n2fls24o900.bredband.comhem.se ([217.208.132.234]:12769
-	"EHLO oden.fish.net") by vger.kernel.org with ESMTP id S270032AbTG3K37
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 06:29:59 -0400
-Date: Wed, 30 Jul 2003 12:31:22 +0200
-From: Voluspa <lista1@telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O11int for interactivity
-Message-Id: <20030730123122.3970c7bf.lista1@telia.com>
-Organization: The Foggy One
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Jul 2003 06:33:29 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:59873 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S270234AbTG3Kd2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 06:33:28 -0400
+Date: Wed, 30 Jul 2003 12:31:23 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, <linas@austin.ibm.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Race in 2.6.0-test2 timer code
+In-Reply-To: <20030730082848.GC23835@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0307301223450.13299-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2003-07-30 8:41:46 Felipe Alfaro Solana wrote:
+On Wed, 30 Jul 2003, Andrea Arcangeli wrote:
 
-> Wops! Wait a minute! O11.1 is great, but I've had a few XMMS skips
-> that I didn't have with O10. They're really difficult to reproduce,
+> 
+> 	cpu0			cpu1
+> 	------------		--------------------
+> 
+> 	do_setitimer
+> 				it_real_fn
+> 	del_timer_sync		add_timer	-> crash
 
-Can't reproduce your skips here with my light environment and O11.1 (on
-a PII 400, 128 meg mem, no desktop, Enlightenment as wm). Even as I
-write this my machine is under the most extreme load that I have -
-natural, not artificial:
+would you mind to elaborate the precise race? I cannot see how the above
+sequence could crash on current 2.6:
 
-Playing a directory of mp3s with xmms.
+del_timer_sync() takes the base pointer in timer->base and locks it, then
+checks whether the timer has this base or not and repeats the sequence if
+not. add_timer() locks the current CPU's base, then installs the timer and
+sets timer->base. Where's the race?
 
-Backing up the system from hda to a partition on hdc (the mp3s are on
-that drive but another partition). This involves"rm -rf" of the old
-backup, "dd if=/dev/zero of=cleanupfile" as a poor man's wipe, load is
-11 there while producing a 15 gig file. "cp -a" all relevant directories
-of my system, load is 3 to 7. "cp -a" the backup to a copy on the same
-partition. Takes 50 minutes to complete everything.
+	Ingo
 
-During this operation I write a "letter" in OpenOffice 1.1rc2 and browse
-the net with Opera 6.02. Apart from normal delays while swapped out
-things get swapped in (top says 55 megs is swapped), everything is fully
-operational. And no music skips ;-)
-
-As to difference between O10 and O11.1 in feel... No comment. I'm too
-old to catch such small variations.
-
-Mvh
-Mats Johannesson

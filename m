@@ -1,80 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130235AbRAOKnN>; Mon, 15 Jan 2001 05:43:13 -0500
+	id <S130849AbRAOKyO>; Mon, 15 Jan 2001 05:54:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130400AbRAOKnD>; Mon, 15 Jan 2001 05:43:03 -0500
-Received: from shaker.worfie.net ([203.8.161.33]:53000 "HELO mail.worfie.net")
-	by vger.kernel.org with SMTP id <S130235AbRAOKmn>;
-	Mon, 15 Jan 2001 05:42:43 -0500
-Date: Mon, 15 Jan 2001 18:42:40 +0800 (WST)
-From: "J.Brown (Ender/Amigo)" <ender@enderboi.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.0 kernel oops from apt-get (dcache.h)
-Message-ID: <Pine.LNX.4.30.0101151836360.12306-100000@shaker.worfie.net>
+	id <S131042AbRAOKxz>; Mon, 15 Jan 2001 05:53:55 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:17033 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S130686AbRAOKxe>; Mon, 15 Jan 2001 05:53:34 -0500
+Message-ID: <3A62D82F.49BF3693@uow.edu.au>
+Date: Mon, 15 Jan 2001 21:59:59 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Gregory Maxwell <greg@linuxpower.cx>
+CC: lkml <linux-kernel@vger.kernel.org>,
+        lad <linux-audio-dev@ginette.musique.umontreal.ca>
+Subject: Re: low-latency scheduling patch for 2.4.0
+In-Reply-To: <3A57DA3E.6AB70887@uow.edu.au> <3A618F17.FD285E2B@uow.edu.au>,
+		<3A618F17.FD285E2B@uow.edu.au>; from andrewm@uow.edu.au on Sun, Jan 14, 2001 at 10:35:51PM +1100 <20010114093836.C10910@xi.linuxpower.cx>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After manually deleting the apt-get cache in Debian Linux (2.2), apt-get
-consistantly causes a kernel Oops/BUG when installing new packages.
+Gregory Maxwell wrote:
+> 
+> On Sun, Jan 14, 2001 at 10:35:51PM +1100, Andrew Morton wrote:
+> [snip]
+> > - The patch now works properly on SMP.
+> [snip]
+> 
+> Any benchmark results on SMP yet?
 
-This happens in 2.4.0 (With a few basic patches to fix compilation errors)
-and also with the latest PPC bitkeeper tree based off 2.4.1pre1. Dump
-below is with the newer kernel, because it's totally stable at the moment
-(whereas 2.4.0 final still suffers from other unrelated crashes and
-instabilities).
+SMP and UP are much the same.
 
-Transcript:
+Workload is `make -j3 bzImage', the measured time
+is from entry to an ISR to execution of the userspace
+process.  The histogram has 10 microsecond resolution.
 
-sharky:~# apt-get install libqt2-dev
-Reading Package Lists... Done
-Building Dependency Tree... Done
-The following NEW packages will be installed:
-  libqt2-dev
-0 packages upgraded, 1 newly installed, 0 to remove and 39 not upgraded.
-1 packages not fully installed or removed.
-Need to get 3228kB of archives. After unpacking 10.2MB will be used.
-Err ftp://mirror.aarnet.edu.au potato/main libqt2-dev 1:2.0.2-1.1
-  Something wicked happend resolving 'mirror.aarnet.edu.au/ftp'
-Get:1 ftp://mirror.aarnet.edu.au testing/main libqt2-dev 1:2.0.2-1.1 [3228kB]
-99% [1 libqt2-dev 3211264/3228kB 99%]                                                                               52.7kB/s 0s
-kernel BUG at /usr/src/linuxppc_2_4/include/linux/dcache.h:237!
-Oops: Exception in kernel mode, sig: 4
-NIP: C007D930 XER: 00000000 LR: C007D930 SP: C12D1D40 REGS: c12d1c90 TRAP: 0700
-MSR: 00089032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
-TASK = c12d0000[274] 'apt-get' Last syscall: 38
-last math c12d0000 last altivec 00000000
-GPR00: C007D930 C12D1D40 C12D0000 00000040 00001032 00000001 FFFFFFFF 00000000
-GPR08: 00000000 C01E0000 0000001F C12D1C80 22224442 10035E5C 00000001 00000000
-GPR16: 00000000 10030000 10030000 00000000 00000000 C0A91E00 00000000 C0A91820
-GPR24: C0A91A00 C1948E20 C0A91A2C C100C9A0 C01A0000 C1948DA0 C0A91A24 C0A8BE40
-Call backtrace:
-C007D930 C004B38C C004B468 C004B6D0 C000417C 00000000 0FFA5180
-0FFAA928 0FFADC6C 0FF97BFC 0FF97DC4 100090F4 1000DCE0 0FF61C8C
-10016130 0FD22BC8 00000000
-Illegal instruction
-sharky:~#
+SMP
+===
+0:165601 10:17192 20:12769 30:33220 40:59318
+50:60814 60:42915 70:20949 80:8124 90:2590
+100:944 110:397 120:211 130:96 140:51
+150:41 160:36 170:24 180:21 190:15
+200:14 210:12 220:13 230:7 240:11
+250:6 260:3 270:4 280:10 290:6
+300:5 310:3 320:3 330:6 340:1
+350:1 370:1 400:1 620:1
 
+Total samples: 425436
 
-I now have a zombie apt-get process I can't even kill -9..
+So on SMP, latency is < 10 microseconds 165601/425436 = 39% of
+the time.
 
-Also if I try and ls in the /var/cache/apt/archives directory, ls freezes
-likewise (no error message, just an unkillable console-attached zombie).
+UP
+==
 
-I'm not sure if this is a filesystem or memory management issue - but FYI
-anyway, and hoping someone else has encounted a similar problem.
+0:52735 10:33480 20:101199 30:200301 40:135470
+50:9199 60:4356 70:1531 80:770 90:396
+100:288 110:178 120:102 130:100 140:63
+150:45 160:61 170:40 180:30 190:23
+200:29 210:12 220:26 230:10 240:8
+250:6 260:2 300:1
+
+Total samples: 540461
 
 
+In other words:
 
-Regards,
-	 Ender
- _________________________ ______________________________
-|   James 'Ender' Brown   | "Where are we going, and why |
-| http://www.enderboi.com |  am I in this handbasket?!?" |
-+-------------------------+------------------------------+
+SMP
+===
 
+usecs
 
+0  -100:   99.54%
+100-200:    0.43%
+200-300:    0.02%
+300-400:    0.0049%
+620:        0.00023%
+
+UP
+==
+
+0  -100:   99.81%
+100-200:    0.17%
+200-300:    0.017%
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

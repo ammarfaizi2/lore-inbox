@@ -1,99 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbUCGK7P (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 05:59:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbUCGK7P
+	id S261809AbUCGLZb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 06:25:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbUCGLZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 05:59:15 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:27308 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261807AbUCGK7N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 05:59:13 -0500
-Date: Sun, 7 Mar 2004 11:59:11 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Olaf Fr?czyk <olaf@cbk.poznan.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3 BUG - can't write DVD-RAM - reported as write-protected
-Message-ID: <20040307105911.GH23525@suse.de>
-References: <1078434953.1961.13.camel@venus.local.navi.pl> <20040305082350.GO31750@suse.de> <1078487159.3300.23.camel@venus.local.navi.pl>
+	Sun, 7 Mar 2004 06:25:31 -0500
+Received: from prosun.first.gmd.de ([194.95.168.2]:40865 "EHLO
+	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S261809AbUCGLZa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 06:25:30 -0500
+Subject: cryptoloop support broken in 2.6.3-ben2
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1078658565.3047.4.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1078487159.3300.23.camel@venus.local.navi.pl>
+Date: Sun, 07 Mar 2004 12:22:45 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 05 2004, Olaf Fr?czyk wrote:
-> On Fri, 2004-03-05 at 09:23, Jens Axboe wrote:
-> > On Thu, Mar 04 2004, Olaf Fr?czyk wrote:
-> > > Hi,
-> > > I switched to 2.6.3 from 2.4.x serie.
-> > > When I mount DVD-RAM it is mounted read-only:
-> > > 
-> > > [root@venus olaf]# mount /dev/dvdram /mnt/dvdram
-> > > mount: block device /dev/dvdram is write-protected, mounting read-only
-> > > [root@venus olaf]#
-> > > 
-> > > In 2.4 it is mounted correctly as read-write.
-> > > 
-> > > Drive: Panasonic LF-201, reported in Linux as:
-> > > MATSHITA        DVD-RAM LF-D200         A120
-> > > 
-> > > SCSI controller: Adaptec 2940U2W
-> > 
-> > What does cat /proc/sys/dev/cdrom/info say? Do you get any kernel
-> > messages in dmesg when the rw mount fails?
-> 
-> I get nothing in /var/log/dmesg and in /var/log/messages
-> In /proc/sys/dev/cdrom/info I get:
-> [olaf@venus olaf]$ cat /proc/sys/dev/cdrom/info
-> CD-ROM information, Id: cdrom.c 3.20 2003/12/17
->  
-> drive name:             sr1     sr0     hdc
-> drive speed:            0       16      44
-> drive # of slots:       1       1       1
-> Can close tray:         1       1       1
-> Can open tray:          1       1       1
-> Can lock tray:          1       1       1
-> Can change speed:       1       1       1
-> Can select disk:        0       0       0
-> Can read multisession:  1       1       1
-> Can read MCN:           1       1       1
-> Reports media changed:  1       1       1
-> Can play audio:         1       1       1
-> Can write CD-R:         0       1       1
-> Can write CD-RW:        0       1       1
-> Can read DVD:           1       0       0
-> Can write DVD-R:        0       0       0
-> Can write DVD-RAM:      1       0       0
-> Can read MRW:           0       0       1
-> Can write MRW:          0       0       1
-> 
-> The one I'm mounting is /dev/scd1.
-> As there is capablity to write-protect DVD-RAM disk (like a 1.44"
-> Floppy), I think that the linux kernel interprets some message from
-> device in wrong way.
+Hi..
 
-Please repeat with this patch applied and send back the results, thanks.
+copying something to a cryptoloop file crashes the machine (random
+crashes), this is similiar to the report I send for 2.6.0-test11... it
+was working with the 2.6.0-test10-mm1 loop-* patches and IIRC with
+2.6.1.
 
-===== drivers/cdrom/cdrom.c 1.48 vs edited =====
---- 1.48/drivers/cdrom/cdrom.c	Mon Feb  9 21:58:21 2004
-+++ edited/drivers/cdrom/cdrom.c	Sun Mar  7 11:58:40 2004
-@@ -645,9 +645,12 @@
- {
- 	disc_information di;
- 
--	if (cdrom_get_disc_info(cdi, &di))
-+	if (cdrom_get_disc_info(cdi, &di)) {
-+		printk("cdrom: read di failed\n");
- 		return 0;
-+	}
- 
-+	printk("cdrom: erasable: %d\n", di.erasable);
- 	return di.erasable;
- }
- 
+Now it is broken again, not sure whether this is due to the big
+endianness of this machine.
 
--- 
-Jens Axboe
+To crash do:
+
+dd if=/dev/zero of=/file bs=1M count=100
+losetup -e blowfish /dev/loop0 /file
+Password:
+mkfs -t ext3 /dev/loop0
+mount /dev/loop0 /mnt
+cd /mnt  
+dd if=/dev/zero of=bla
+
+Soeren.
 

@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbULHP7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbULHP77@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbULHP7i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 10:59:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbULHP7i
+	id S261243AbULHP77 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 10:59:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbULHP77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 10:59:38 -0500
-Received: from main.gmane.org ([80.91.229.2]:19923 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261239AbULHP7f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 10:59:35 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Subject: Why is "SAMSUNG CD-ROM SC-148F" blacklisted?
-Date: Wed, 08 Dec 2004 20:58:36 +0500
-Message-ID: <cp78ct$d65$1@sea.gmane.org>
+	Wed, 8 Dec 2004 10:59:59 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:10453 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261241AbULHP7x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 10:59:53 -0500
+Subject: RE: How to add/drop SCSI drives from within the driver?
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
+Cc: Matt Domsch <Matt_Domsch@Dell.com>,
+       "'brking@us.ibm.com'" <brking@us.ibm.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+       "'bunk@fs.tum.de'" <bunk@fs.tum.de>, "'Andrew Morton'" <akpm@osdl.org>,
+       "Ju, Seokmann" <sju@lsil.com>, "Doelfel, Hardy" <hdoelfel@lsil.com>,
+       "Mukker, Atul" <Atulm@lsil.com>
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230CA8C@exa-atlanta>
+References: <0E3FA95632D6D047BA649F95DAB60E570230CA8C@exa-atlanta>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 08 Dec 2004 09:59:35 -0600
+Message-Id: <1102521582.2659.2.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 8Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: inet.ycc.ru
-User-Agent: KNode/0.7.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The "SAMSUNG CD-ROM SC-148F" drive is listed in drive_blacklist in
-ide-dma.c. However, this drive worked well with DMA enabled with earlier
-kernel versions (<=2.6.8.1) where the "via82cxxx" driver did not look at
-this blacklist. So the question: what was the reason for blacklisting this
-(apparently working) drive? Is it still valid?
+On Wed, 2004-12-08 at 01:16, Bagalkote, Sreenivas wrote:
+> Adding a drive:- For application to use sysfs to scan newly added drive,
+> it needs to know the HCTL (SCSI address - Host, Channel, Target & Lun)
+> of the drive. Driver is the only one that knows the mapping between a 
+> drive and the corresponding HCTL.
 
-Details on my CD-ROM drive are pasted below.
+The real way I'd like to handle this is via hotplug.  The hotplug event
+would transmit the HCTL in the environment.  Whether the drive actually
+gets incorporated into the system and where is user policy, so it's
+appropriate that it should be in userland.
 
-patrakov@debian:~$ cdrecord -inq dev=/dev/hdb
-Cdrecord-Clone 2.01a34 (i686-pc-linux-gnu) Copyright (C) 1995-2004 Jörg
-Schilling
-NOTE: this version of cdrecord is an inofficial (modified) release of
-cdrecord
-      and thus may have bugs that are not present in the original version.
-      Please send bug reports and support requests to
-<cdrtools@packages.debian.org>.
-      The original author should not be bothered with problems of this
-version.
+This same infrastructure could be used by fibre channel login, scsi
+enclosure events etc.
 
-scsidev: '/dev/hdb'
-devname: '/dev/hdb'
-scsibus: -2 target: -2 lun: -2
-Warning: Open by 'devname' is unintentional and not supported.
-Linux sg driver version: 3.5.27
-Using libscg version 'schily-0.8'.
-cdrecord: Warning: controller returns wrong size for CD capabilities page.
-Device type    : Removable CD-ROM
-Version        : 0
-Response Format: 1
-Vendor_info    : 'SAMSUNG '
-Identifikation : 'CD-ROM SC-148F  '
-Revision       : 'PS05'
-Device seems to be: Generic mmc CD-ROM.
+We have some of the hotplug infrastructure in SCSI, but not quite enough
+for this ... you'll need an additional API.
 
--- 
-Alexander E. Patrakov
+> Removing a drive:- There is no sane way for the application to map out
+> drives to /dev/sd<x>. If application has a way of knowing the HCTL of a
+> deleted drive, then using that HCTL, it can match the corresponding SCSI
+> device name (/dev/sd<x>) and use sysfs to remove that drive.
+
+Since The sysfs device name contains H:C:T:L surely you can just do a
+find on /sys?
+
+James
+
 

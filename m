@@ -1,272 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVB1Elr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbVB1E7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbVB1Elr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 23:41:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVB1Elr
+	id S261555AbVB1E7P (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 23:59:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVB1E7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 23:41:47 -0500
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:42199 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261552AbVB1Ele (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 23:41:34 -0500
-Subject: Re: Update suspend-to-RAM vs. video documentation
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@zip.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050228012218.GA2014@elf.ucw.cz>
-References: <20050228012218.GA2014@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1109565762.16374.9.camel@desktop.cunningham.myip.net.au>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Mon, 28 Feb 2005 15:42:43 +1100
+	Sun, 27 Feb 2005 23:59:14 -0500
+Received: from mail.siliconiriver.com.au ([203.34.93.66]:47745 "EHLO
+	mail.siliconriver.com.au") by vger.kernel.org with ESMTP
+	id S261555AbVB1E7F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 23:59:05 -0500
+From: Jarne Cook <jcook@siliconriver.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Complicated networking problem
+Date: Mon, 28 Feb 2005 14:59:31 +1000
+User-Agent: KMail/1.7.1
+Cc: Jarne Cook <jcook@siliconriver.com.au>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200502281459.31402.jcook@siliconriver.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hello all
 
-A few corrections, nothing major.
+(I am not subscribed. Please CC me)
 
-Nigel
+Please forgive me if I have posed this message in the wrong place.  I have 
+been searching for the answer for days with no resolve.
 
-On Mon, 2005-02-28 at 12:22, Pavel Machek wrote:
-> Hi!
-> 
-> We got quite long list of machines and tricks needed to get them
-> working. Please apply,
-> 							Pavel
-> Signed-off-by: Pavel Machek <pavel@suse.cz>
-> 
-> --- clean-mm/Documentation/power/video.txt	2004-12-25 13:34:57.000000000 +0100
-> +++ linux-mm/Documentation/power/video.txt	2005-02-28 02:01:39.000000000 +0100
-> @@ -1,7 +1,7 @@
->  
->  		Video issues with S3 resume
->  		~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> -		  2003-2004, Pavel Machek
-> +		  2003-2005, Pavel Machek
->  
->  During S3 resume, hardware needs to be reinitialized. For most
->  devices, this is easy, and kernel driver knows how to do
-> @@ -11,33 +11,159 @@
->  driver -- vesafb and vgacon are widely used).
->  
->  This is not problem for swsusp, because during swsusp resume, BIOS is
-> -run normally so video card is normally initialized.
-> +run normally so video card is normally initialized. S3 has absolutely
-> +no change to work with SMP/HT. Be sure it to turn it off before
-> +testing (swsusp should work ok, OTOH).
+The question is: 
 
-I think this should be "no chance of working".
- 
-> -There are three types of systems where video works after S3 resume:
-> +There are few types of systems where video works after S3 resume:
+How do I get eth0 and wlan0 both working together.  
 
-"...a few types..."
- 
-> -* systems where video state is preserved over S3. (Athlon HP Omnibook xe3s)
-> +(1) systems where video state is preserved over S3.
->  
-> -* systems where it is possible to call video bios during S3
-> +(2) systems where it is possible to call video bios during S3
+They are both using dhcp to the same simple network.  That's right.  Same 
+network.  They both end up with gateway=192.168.0.1, netmask=255.255.255.0.  
+But ofcourse they do not have the same IP addresses.
 
-"...call the video bios..."
+I dont know if this matters but im using ISC's dhclient3.
 
->    resume. Unfortunately, it is not correct to call video BIOS at that
->    point, but it happens to work on some machines. Use
-> -  acpi_sleep=s3_bios (Athlon64 desktop system)
-> +  acpi_sleep=s3_bios.
->  
-> -* systems that initialize video card into vga text mode and where BIOS
-> +(3) systems that initialize video card into vga text mode and where BIOS
+This is what it looks like when wlan0 is brought up, followed by eth0.
+------------------------------------------------------------------------------
+i8600:~# ifconfig eth0
+eth0      Link encap:Ethernet  HWaddr 00:11:43:5F:E7:1D
+          inet addr:192.168.0.238  Bcast:192.168.0.255  Mask:255.255.255.0
+          inet6 addr: fe80::211:43ff:fe5f:e71d/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:277 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:60 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:24784 (24.2 KiB)  TX bytes:9278 (9.0 KiB)
+          Interrupt:11
+------------------------------------------------------------------------------
+i8600:~# ifconfig wlan0
+wlan0     Link encap:Ethernet  HWaddr 00:11:F5:0C:D9:A3
+          inet addr:192.168.0.202  Bcast:192.168.0.255  Mask:255.255.255.0
+          inet6 addr: fe80::211:f5ff:fe0c:d9a3/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:1538 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:1085 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:203213 (198.4 KiB)  TX bytes:130588 (127.5 KiB)
+          Interrupt:7 Memory:faff6000-faff7fff
+------------------------------------------------------------------------------
+i8600:~# ip rule list
+0:      from all lookup local
+32766:  from all lookup main
+32767:  from all lookup default
+------------------------------------------------------------------------------
+i8600:~# ip route list table local
+local 192.168.0.238 dev eth0  proto kernel  scope host  src 192.168.0.238
+broadcast 192.168.0.255 dev wlan0  proto kernel  scope link  src 192.168.0.202
+broadcast 192.168.0.255 dev eth0  proto kernel  scope link  src 192.168.0.238
+broadcast 127.255.255.255 dev lo  proto kernel  scope link  src 127.0.0.1
+local 192.168.0.202 dev wlan0  proto kernel  scope host  src 192.168.0.202
+broadcast 192.168.0.0 dev wlan0  proto kernel  scope link  src 192.168.0.202
+broadcast 192.168.0.0 dev eth0  proto kernel  scope link  src 192.168.0.238
+broadcast 127.0.0.0 dev lo  proto kernel  scope link  src 127.0.0.1
+local 127.0.0.1 dev lo  proto kernel  scope host  src 127.0.0.1
+local 127.0.0.0/8 dev lo  proto kernel  scope host  src 127.0.0.1
+------------------------------------------------------------------------------
+i8600:~# ip route list table main
+192.168.0.0/24 dev wlan0  proto kernel  scope link  src 192.168.0.202
+192.168.0.0/24 dev eth0  proto kernel  scope link  src 192.168.0.238
+default via 192.168.0.1 dev eth0
+default via 192.168.0.1 dev wlan0
+------------------------------------------------------------------------------
+i8600:~# ip route list table default
+------------------------------------------------------------------------------
+i8600:~# iptables-save
+------------------------------------------------------------------------------
 
-"...where the BIOS..."
 
->    works well enough to be able to set video mode. Use
-> -  acpi_sleep=s3_mode on these. (Toshiba 4030cdt)
-> +  acpi_sleep=s3_mode on these.
->  
-> -* on some systems s3_bios kicks video into text mode, and
-> -  acpi_sleep=s3_bios,s3_mode is needed (Toshiba Satellite P10-554)
-> +(4) on some systems s3_bios kicks video into text mode, and
-> +  acpi_sleep=s3_bios,s3_mode is needed.
->  
-> -* radeon systems, where X can soft-boot your video card. You'll need
-> +(5) radeon systems, where X can soft-boot your video card. You'll need
->    patched X, and plain text console (no vesafb or radeonfb), see
-> -  http://www.doesi.gmxhome.de/linux/tm800s3/s3.html. (Acer TM 800)
-> +  http://www.doesi.gmxhome.de/linux/tm800s3/s3.html. Actually you
-> +  should probably use vbetool (6) instead.
-> +
-> +(6) other radeon systems, where vbetool is enough to bring system back
-> +  to life. It needs text console to work. Do vbetool vbestate save >
+So.
+Is there a way to allow an application which has bound to wlan0 
+(192.168.0.202) and an application bound to eth0 (192.168.0.238) both have 
+access to the internet at the same time, and not require an application to 
+bind to a different local address?
 
-"...the text console to be working."
+Thanks
 
-> +  /tmp/delme; echo 3 > /proc/acpi/sleep; vbetool post; vbetool
-> +  vbestate restore < /tmp/delme; setfont <whatever>, and your video
-> +  should work.
-> +
-> +(7) on some system, it is possible to boot most of kernel, and then
+Jarne
 
-"on some systems..."
-
-> +  POSTing bios works. Ole Rohne has patch to do just that at
-> +  http://dev.gentoo.org/~marineam/patch-radeonfb-2.6.11-rc2-mm2.
->  
->  Now, if you pass acpi_sleep=something, and it does not work with your
-> -bios, you'll get hard crash during resume. Be carefull.
-> +bios, you'll get hard crash during resume. Be carefull. Also it is
-
-"...a hard crash... careful...
-
-> +safest to do your experiments with plain old VGA console. vesafb and
-
-"... The vesafb..."
-
-> +radeonfb (etc) drivers have tendency to crash the machine during resume.
-
-"...have a tendency..."
- 
->  You may have system where none of above works. At that point you
-
-"...have a system..."
-
->  either invent another ugly hack that works, or write proper driver for
->  your video card (good luck getting docs :-(). Maybe suspending from X
->  (proper X, knowing your hardware, not XF68_FBcon) might have better
->  chance of working.
-> +
-> +Table of known working systems:
-> +
-> +Model                           hack (or "how to do it")
-> +------------------------------------------------------------------------------
-> +Acer Aspire 1406LC		ole's late BIOS init (7), turn off DRI
-> +Acer TM 242FX			vbetool (6)
-> +Acer TM 4052LCi		        s3_bios (2)
-> +Acer TM 636Lci			s3_bios vga=normal (2)
-> +Acer TM 650 (Radeon M7)		vga=normal plus boot-radeon (5) gets text console back
-> +Acer TM 660			??? (*)
-> +Acer TM 800			vga=normal, X patches, see webpage (5)
-> +Arima W730a			vbetool needed (6)
-> +Asus L2400D                     s3_mode (3)(***) (S1 also works OK)
-> +Asus L3800C (Radeon M7)		s3_bios (2) (S1 also works OK)
-> +Asus M6NE			??? (*)
-> +Athlon64 desktop prototype	s3_bios (2)
-> +Compal CL-50			??? (*)
-> +Compaq Armada E500 - P3-700     none (1) (S1 also works OK)
-> +Dell 600m, ATI R250 Lf		none (1), but needs xorg-x11-6.8.1.902-1
-> +Dell D600, ATI RV250            vga=normal (**), or try vbestate (6)
-> +Dell Inspiron 4000		??? (*)
-> +Dell Inspiron 500m		??? (*)
-> +Dell Inspiron 600m		??? (*)
-> +Dell Inspiron 8200		??? (*)
-> +Dell Inspiron 8500		??? (*)
-> +Dell Inspiron 8600		??? (*)
-> +eMachines athlon64 machines	vbetool needed (6) (someone please get me model #s)
-> +HP NC6000			s3_bios, may not use radeonfb (2)
-> +HP NX7000			??? (*)
-> +HP Pavilion ZD7000		vbetool post needed, need open-source nv driver for X
-> +HP Omnibook XE3	  		none (1)
-
-Which XE3? My 4304 revision with an i830 video card doesn't meet this
-category.
-
-> +HP Omnibook XE3GC w/S3 Savage/IX-MV  none (1)
-> +IBM TP A31 / Type 2652-M5G      s3_mode (3) [works ok with BIOS 1.04 2002-08-23, but not at all with BIOS 1.11 2004-11-05 :-(]
-> +IBM TP R32 / Type 2658-MMG      none (1)
-> +IBM TP R40 2722B3G		??? (*)
-> +IBM TP R50p / Type 1832-22U     s3_bios (2)
-> +IBM TP R51			??? (*)
-> +IBM TP T30	236681A		??? (*)
-> +IBM TP T40 / Type 2373-MU4      none (1)
-> +IBM TP T40p			??? (*)
-> +IBM TP T41p			none (1)
-> +IBM TP T42			??? (*)
-> +IBM ThinkPad T42p (2373-GTG)	s3_bios (2)
-> +IBM TP X20			??? (*)
-> +IBM TP X30			??? (*)
-> +IBM TP X31 / Type 2672-XXH      none (1), use radeontool (http://fdd.com/software/radeon/) to turn off backlight.
-> +IBM TP X40			??? (*)
-> +Medion MD4220			??? (*)
-> +Samsung P35			vbetool needed (6)
-> +Sharp PC-AR10 (ATI rage)	none (1)
-> +Sony Vaio PCG-F403		??? (*)
-> +Sony Vaio PCG-N505SN		??? (*)
-> +Sony Vaio vgn-s260		X or boot-radeon can init it (5)
-> +Toshiba Satellite 4030CDT	s3_mode (3)
-> +Toshiba Satellite 4080XCDT      s3_mode (3)
-> +Toshiba Satellite 4090XCDT      ??? (*)
-> +Toshiba Satellite P10-554       s3_bios,s3_mode (4)(****)
-> +Uniwill 244IIO			??? (*)
-> +
-> +
-> +(*) from http://www.ubuntulinux.org/wiki/HoaryPMResults, not sure
-> +    which options to use. If you know, please tell me.
-> +
-> +(**) Text console is "strange" after resume. Backlight is switched on again
-> +     by the X server. X server is:
-> +     | X Window System Version 6.8.1.904 (6.8.2 RC 4)
-> +     | Release Date: 2 February 2005
-> +     | X Protocol Version 11, Revision 0, Release 6.8.1.904
-> +     | Build Operating System: SuSE Linux [ELF] SuSE
-> +     as present in SUSE 9.3preview3.
-> +
-> +(***) To be tested with a newer kernel.
-> +
-> +(****) Not with SMP kernel, UP only.
-> +
-> +VBEtool details
-> +~~~~~~~~~~~~~~~
-> +(with thanks to Carl-Daniel Hailfinger)
-> +
-> +First, boot into X and run the following script ONCE:
-> +#!/bin/bash
-> +statedir=/root/s3/state
-> +mkdir -p $statedir
-> +chvt 2
-> +sleep 1
-> +vbetool vbestate save >$statedir/vbe
-> +
-> +
-> +To suspend and resume properly, call the following script as root:
-> +#!/bin/bash
-> +statedir=/root/s3/state
-> +curcons=`fgconsole`
-> +fuser /dev/tty$curcons 2>/dev/null|xargs ps -o comm= -p|grep -q X && chvt 2
-> +cat /dev/vcsa >$statedir/vcsa
-> +sync
-> +echo 3 >/proc/acpi/sleep
-> +sync
-> +vbetool post
-> +vbetool vbestate restore <$statedir/vbe
-> +cat $statedir/vcsa >/dev/vcsa
-> +rckbd restart
-> +chvt $[curcons%6+1]
-> +chvt $curcons
-> +
-> +
-> +Unless you change your grahics card or other hardware configuration,
-
-"...graphics..."
-
-> +the state once saved will be OK for every resume afterwards.
-> +NOTE: The "rckbd restart" command may be different for your
-> +distribution. Simply replace it with the command you would use to
-> +set the fonts on screen.
-
-Regards,
-
-Nigel
 -- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
-
-Maintainer of Suspend2 Kernel Patches http://softwaresuspend.berlios.de
-
-
+Jarne Cook <jcook@siliconriver.com.au>
+Siliconriver.com.au

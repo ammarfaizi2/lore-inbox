@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264101AbUFFUFo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUFFUFw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264101AbUFFUFo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 16:05:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbUFFUFo
+	id S264098AbUFFUFw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 16:05:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264108AbUFFUFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 16:05:44 -0400
-Received: from spectre.fbab.net ([212.214.165.139]:27884 "HELO mail2.fbab.net")
-	by vger.kernel.org with SMTP id S264101AbUFFUFk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 16:05:40 -0400
-Message-ID: <40C378ED.5050300@fbab.net>
-Date: Sun, 06 Jun 2004 22:05:01 +0200
-From: "Magnus Naeslund(t)" <mag@fbab.net>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: linux crashing on amd athlons?
-References: <001701c44bf7$c8991f20$0200a8c0@laptop> <yw1xhdtov5wf.fsf@kth.se>
-In-Reply-To: <yw1xhdtov5wf.fsf@kth.se>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sun, 6 Jun 2004 16:05:52 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:39866 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S264098AbUFFUFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 16:05:48 -0400
+Date: Sun, 6 Jun 2004 15:20:12 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux1394-devel@lists.sourceforge.net,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: firewire problems with suspend
+Message-ID: <20040606192012.GB9278@phunnypharm.org>
+References: <20040606180925.GA4542@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040606180925.GA4542@elf.ucw.cz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård wrote:
-
-> "Ameer Armaly" <ameer@charter.net> writes:
+On Sun, Jun 06, 2004 at 08:09:25PM +0200, Pavel Machek wrote:
+> Hi!
 > 
+> There are some bad problems with firewire & swsusp. This fixes some,
+> but other remain. If ohci1394 is removed before suspend, then
+> reinserted, then rmmod hangs.
 > 
->>Hi all.
->>While installing linux on an amd athlon, the kernel is oopsing and shuting
->>down the computer at random places  within the install.  This is a custom
->>built kernel off of kernel.org I built, which I optimized for athlon then
->>i386 afterwards, but with no luck.
-> 
-> 
-> Bad memory maybe.
-> 
+> This is certainly better better than what was there, what about
+> applying?
 
-Another tip with Athlons is to make sure that you have a good 
-powersupply. We have had some random crashes with a fileserver using 
-dual Athlons, and it turned out to be underpowered due to the disks 
-taking too much juice...
+Applied, thanks.
 
-Regards
-Magnus
-
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

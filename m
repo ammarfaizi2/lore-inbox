@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264374AbUAGXyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 18:54:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbUAGXyQ
+	id S265629AbUAGX4p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 18:56:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265648AbUAGX4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 18:54:16 -0500
-Received: from smtp3.Stanford.EDU ([171.67.16.117]:50642 "EHLO
-	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S264374AbUAGXyO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 18:54:14 -0500
-Date: Wed, 7 Jan 2004 15:42:39 -0800
-From: David Blackman <david@whizziwig.com>
-To: linux-kernel@vger.kernel.org
-Subject: SYM53C8XX (1010) not working in 2.6.0?
-Message-ID: <20040107234239.GA25196@mort>
-Reply-To: david@whizziwig.com
+	Wed, 7 Jan 2004 18:56:45 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:57614 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S265629AbUAGX4o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 18:56:44 -0500
+Date: Wed, 7 Jan 2004 15:56:33 -0800
+To: Greg KH <greg@kroah.com>
+Cc: Grant Grundler <grundler@parisc-linux.org>,
+       Matthew Wilcox <willy@debian.org>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, jeremy@sgi.com
+Subject: Re: [RFC] Relaxed PIO read vs. DMA write ordering
+Message-ID: <20040107235633.GA7312@sgi.com>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	Grant Grundler <grundler@parisc-linux.org>,
+	Matthew Wilcox <willy@debian.org>,
+	linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+	jeremy@sgi.com
+References: <20040107175801.GA4642@sgi.com> <20040107190206.GK17182@parcelfarce.linux.theplanet.co.uk> <20040107222142.GB14951@colo.lackof.org> <20040107230712.GB6837@sgi.com> <20040107232754.GA2807@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <20040107232754.GA2807@kroah.com>
+User-Agent: Mutt/1.5.4i
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hey all-
+On Wed, Jan 07, 2004 at 03:27:54PM -0800, Greg KH wrote:
+> On Wed, Jan 07, 2004 at 03:07:12PM -0800, Jesse Barnes wrote:
+> > 
+> >   1) add pcix_enable_relaxed() and read_relaxed() (read() would always be
+> >      ordered)
+> 
+> This probably preserves the current situation best, enabling driver
+> writers to be explicit in knowing what is happening.
 
-	I've been trying to get 2.6.0 to work on my desktop and I'm
-having no luck with it. 
+That's what I figured too.  It also seems like it has the lowest
+probability of introducing PIO vs. DMA races, since you have to
+explicitly change a read() call.
 
-	This computer has a "LSI Logic / Symbios Logic 53c1010 Ultra3
-SCSI Adapter" onboard, that works fine in 2.4.x with the SYM53C8XX
-driver. I've compiled 2.6.0 with CONFIG_SCSI_SYM53C8XX_2=y, but it
-doens't seem to work. When I boot, I don't see any scsi
-initialization, and my root drive isn't connected, and I get a vfs
-kernel panic that root can't be mounted.
+What about compatibility though?  How should the interface behave if
+it's accessing a PCI-X device that happens to be in PCI mode?  Ideally,
+we could add these calls in and introduce no penalty for platforms that
+don't support it...
 
-	I'm almost positive no scsi stuff is being done in the kenrel,
-because in 2.4 I could see it pause while it did all the script
-loading stuff, but in 2.6 I see nothing like that, although I never
-get keybaord control to be able to scroll back and see what messages
-the kernel is printing.
-
-	So, two questions -- why does the 2.6 driver work with my
-53c1010 card, and why don't I have keyboard control on boot?
-
-thanks,
---dave
+Thanks,
+Jesse

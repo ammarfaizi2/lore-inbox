@@ -1,51 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbUDIAmI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 20:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbUDIAmI
+	id S261355AbUDIBGE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 21:06:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbUDIBGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 20:42:08 -0400
-Received: from ozlabs.org ([203.10.76.45]:21913 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261210AbUDIAmF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 20:42:05 -0400
-Date: Fri, 9 Apr 2004 10:37:37 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Andy Isaacson <adi@hexapodia.org>
-Cc: Andrew Morton <akpm@osdl.org>, bug-coreutils@gnu.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: dd PATCH: add conv=direct
-Message-ID: <20040409003737.GF18493@krispykreme>
-References: <20040406220358.GE4828@hexapodia.org> <20040406173326.0fbb9d7a.akpm@osdl.org> <20040407173116.GB2814@hexapodia.org> <20040407111841.78ae0021.akpm@osdl.org> <20040407192432.GD2814@hexapodia.org> <20040407123455.0de9ffa9.akpm@osdl.org> <20040407194727.GE2814@hexapodia.org>
+	Thu, 8 Apr 2004 21:06:04 -0400
+Received: from mx02.cybersurf.com ([209.197.145.105]:55193 "EHLO
+	mx02.cybersurf.com") by vger.kernel.org with ESMTP id S261355AbUDIBF6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 21:05:58 -0400
+Subject: RE: IPv4 and IPv6 stack multi-FIB, scalable in the million of
+	entries.
+From: jamal <hadi@cyberus.ca>
+Reply-To: hadi@cyberus.ca
+To: Mathieu Giguere <Mathieu.Giguere@ericsson.ca>
+Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>,
+       ak@muc.de, netdev@oss.sgi.com
+In-Reply-To: <019e01c41da3$36aae260$0348858e@D4SF2B21>
+References: <019e01c41da3$36aae260$0348858e@D4SF2B21>
+Content-Type: text/plain
+Organization: jamalopolis
+Message-Id: <1081472721.1041.99.camel@jzny.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040407194727.GE2814@hexapodia.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 08 Apr 2004 21:05:21 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi,
+Mathieu,
 
-> OK, I can see that one.  But it seems like a pretty small benefit to me
-> -- CPU utilization is already really low.
+What i would recommend to you is the following: Make your algorithm
+changes; test them, come with some perfomance numbers in comparison
+with what Linux already does for the same kernel version. Then you
+have ammunition to use for an arguement.
 
-Maybe not to you but it does make a big difference on our 500 disk setup.
-At the moment we use dd to do an initial sniff, then ext3 utils to do
-O_DIRECT reads/writes. With O_DIRECT read/write in dd we could use it
-instead. (We are basically interested in IO performance that a database
-would see).
+cheers,
+jamal
 
-> Um, that sounds like a bad idea to me.  It seems to me it's the kernel's
-> responsibility to figure out "hey, looks like a streaming read - let's
-> not blow out the buffer cache trying to hold 20GB on a 512M system."  If
-> you're saying that the kernel guys have given up and the established
-> wisdom is now "you gotta use O_DIRECT if you don't want to throw
-> everything else out due to streaming data", well... I'm disappointed.
+On Thu, 2004-04-08 at 15:53, Mathieu Giguere wrote:
+>  Hi,
+> 
+>      Just run the join script on your favorite 2.4 kernel.
+> 
+>  RTNETLINK answers: Cannot allocate memory
+>  RTNETLINK answers: Cannot allocate memory
+>  RTNETLINK answers: Cannot allocate memory
+>  [root@tom tmp]# ip -6 route | wc -l
+>     4094
+>  [root@tom tmp]#
+> 
+> 
+>      And after 4094 IPv6 routes you will the get the same.
+> 
+>      For the PMTU, the info can't be retain in the route himself.  The PTMU
+>  is base on DIP not on the current network routing.  So it must be kept in a
+>  separate hash struct with expire time.  _BUT_ you must not flush all the
+>  entries each time a route is added or  deleted like in the current
+>  implementation.
+> 
+>  /mathieu
+> 
+> 
+>  -------------------------------
+>  #!/bin/csh
+>  echo #!/bin/sh
+>  set addr1=0
+>  set addr2=1
+>  while ($addr1 < 256)
+>    while ($addr2 < 256)
+>      echo ip -f inet6 route add 2000:${addr1}::${addr2}/128 dev eth0
+>      @ addr2++
+>    end
+>    set addr2=0
+>    @ addr1++
+>  end
+> 
+> 
+>  ----- Original Message ----- 
+>  From: "David S. Miller" <davem@redhat.com>
+>  To: "Mathieu Giguere" <Mathieu.Giguere@ericsson.ca>
+>  Cc: <ak@muc.de>; <netdev@oss.sgi.com>; <linux-kernel@vger.kernel.org>
+>  Sent: Thursday, April 08, 2004 2:33 PM
+>  Subject: Re: IPv4 and IPv6 stack multi-FIB, scalable in the million of
+>  entries.
+> 
+> 
+>  > On Thu, 8 Apr 2004 14:10:43 -0400
+>  > "Mathieu Giguere" <Mathieu.Giguere@ericsson.ca> wrote:
+>  >
+>  > > The main goal to remove the routing cache is to avoid to have 4096
+>  routes
+>  > > limitation
+>  >
+>  > This 4K routes limitation is news to everyone who works on this
+>  > code.
+>  >
+>  > When nexthop changes we _MUST_ flush PMTU etc. information because that
+>  > could have changed.  If however, such information is locked into the
+>  > route itself, it will propagate immediately into the routing cache
+>  > entry once recreated.
+>  >
+>  > You seem to be talking about a lot of non-problems, but this may because
+>  > you're not providing enough details.
+>  >
+> 
+> 
+> 
 
-When you start hitting memory bandwidth limits, O_DIRECT will help you.
-Sure it wont be an issue for your dd copy scenario, but I wanted to point
-out there are other valid uses for it.
-
-Anton

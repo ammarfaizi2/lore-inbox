@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288969AbSCKTSk>; Mon, 11 Mar 2002 14:18:40 -0500
+	id <S289025AbSCKTW6>; Mon, 11 Mar 2002 14:22:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289025AbSCKTS3>; Mon, 11 Mar 2002 14:18:29 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:43005 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S288969AbSCKTSX>; Mon, 11 Mar 2002 14:18:23 -0500
-Date: Mon, 11 Mar 2002 14:18:12 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: [bkpatch] do_mmap cleanup
-Message-ID: <20020311141812.A31049@redhat.com>
-In-Reply-To: <20020308185350.E12425@redhat.com> <20020311120818.A38@toy.ucw.cz>
-Mime-Version: 1.0
+	id <S289046AbSCKTWs>; Mon, 11 Mar 2002 14:22:48 -0500
+Received: from sproxy.gmx.net ([213.165.64.20]:47955 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S289025AbSCKTWf>;
+	Mon, 11 Mar 2002 14:22:35 -0500
+Message-ID: <3C8D03F1.CC63C2A1@gmx.net>
+Date: Mon, 11 Mar 2002 20:22:25 +0100
+From: Gunther Mayer <gunther.mayer@gmx.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andre Hedrick <andre@linuxdiskcert.org>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.6 IDE 19, return of taskfile
+In-Reply-To: <Pine.LNX.4.10.10203111112170.10583-100000@master.linux-ide.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020311120818.A38@toy.ucw.cz>; from pavel@suse.cz on Mon, Mar 11, 2002 at 12:08:18PM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 11, 2002 at 12:08:18PM +0000, Pavel Machek wrote:
-> Hi!
-> 
-> > Below is a vm cleanup that can be pulled from bk://bcrlbits.bk.net/vm-2.5 .
-> > The bulk of the patch is moving the down/up_write on mmap_sem into do_mmap 
-> > and removing that from all the callers.  The patch also includes a fix for 
-> > do_mmap which caused mapping of the last page in the address space to fail.
-> 
-> Was not that a workaround for CPU bugs?
+Andre Hedrick wrote:
 
-Not as far as I recall.  In fact it is just leading to more and more 
-duplicated code as every arch writes their own version of the function 
-to allow mapping that last page.  (Cleaning up all the sys_mmap calls 
-is next.)
+> Gunther,
+>
+> http://www.t13.org/technical/d99114r0.pdf
+>
+> See in working documents we use the terms we all know,
 
-		-ben
+d99114r0 does not contain "working documents" references.
+
+It just uses the term "task file", though formal definition is missing (again).
+

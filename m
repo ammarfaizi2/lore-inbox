@@ -1,37 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316258AbSHBRIq>; Fri, 2 Aug 2002 13:08:46 -0400
+	id <S316599AbSHBRVn>; Fri, 2 Aug 2002 13:21:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316322AbSHBRIq>; Fri, 2 Aug 2002 13:08:46 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:58123 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S316258AbSHBRIp>;
-	Fri, 2 Aug 2002 13:08:45 -0400
-Date: Fri, 2 Aug 2002 10:10:22 -0700
-From: Greg KH <greg@kroah.com>
-To: Enugala Venkata Ramana <caps_linux@rediffmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: installation of latest kernel on compaq notebook
-Message-ID: <20020802171022.GA32459@kroah.com>
-References: <20020802141213.31759.qmail@webmail30.rediffmail.com>
-Mime-Version: 1.0
+	id <S316610AbSHBRVn>; Fri, 2 Aug 2002 13:21:43 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:33796 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S316599AbSHBRVm>; Fri, 2 Aug 2002 13:21:42 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020802141213.31759.qmail@webmail30.rediffmail.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Fri, 05 Jul 2002 16:07:28 -0700
+Content-Transfer-Encoding: 7bit
+Message-ID: <15690.49267.930478.333263@laputa.namesys.com>
+Date: Fri, 2 Aug 2002 21:25:07 +0400
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Hans Reiser <reiser@namesys.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, Steve Lord <lord@sgi.com>,
+       Jan Harkes <jaharkes@cs.cmu.edu>, Alexander Viro <viro@math.psu.edu>,
+       "Peter J. Braam" <braam@clusterfs.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BIG files & file systems
+In-Reply-To: <3D4ABAE7.6000709@namesys.com>
+References: <20020731210739.GA15492@ravel.coda.cs.cmu.edu>
+	<Pine.GSO.4.21.0207311711540.8505-100000@weyl.math.psu.edu>
+	<20020801035119.GA21769@ravel.coda.cs.cmu.edu>
+	<1028246981.11223.56.camel@snafu>
+	<20020802135620.GA29534@ravel.coda.cs.cmu.edu>
+	<1028297194.30192.25.camel@jen.americas.sgi.com>
+	<3D4AA0E6.9000904@namesys.com>
+	<shslm7pclrx.fsf@charged.uio.no>
+	<3D4ABAE7.6000709@namesys.com>
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+X-Meat: Chicken Fried Steak
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 02, 2002 at 02:12:13PM -0000, Enugala Venkata Ramana wrote:
-> 
-> Hi Greg,
-> Thanks for response.
-> here i am attaching the usb_devices listing.
+Hans Reiser writes:
+ > Trond Myklebust wrote:
+ > 
+ > >     > 4 billion files is not enough to store the government's XML
+ > >     > databases in.
+ > >
+ > >That's more of a glibc-specific bug. Most other libc implementations
+ > >appear to be quite capable of providing a userspace 'readdir()' which
+ > >doesn't ever use the lseek() syscall.
+ > >
+ > Interesting.  Thanks for the info.
 
-That device should work just fine with the catc.c driver.  Have you
-build that one in your kernel configuration?
+But there still is a problem with applications (if any) calling
+seekdir/telldir directly...
 
-thanks,
+ > 
+ > -- 
+ > Hans
+ > 
 
-greg k-h
+Nikita.
+
+ > 

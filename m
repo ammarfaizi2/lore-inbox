@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272448AbRIFLG6>; Thu, 6 Sep 2001 07:06:58 -0400
+	id <S272449AbRIFLOT>; Thu, 6 Sep 2001 07:14:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272449AbRIFLGs>; Thu, 6 Sep 2001 07:06:48 -0400
-Received: from wildsau.idv-edu.uni-linz.ac.at ([140.78.40.25]:42513 "EHLO
-	wildsau.idv-edu.uni-linz.ac.at") by vger.kernel.org with ESMTP
-	id <S272448AbRIFLGb>; Thu, 6 Sep 2001 07:06:31 -0400
-From: Herbert Rosmanith <herp@wildsau.idv-edu.uni-linz.ac.at>
-Message-Id: <200109061105.f86B5o110740@wildsau.idv-edu.uni-linz.ac.at>
-Subject: errors in tcp.h
-To: linux-kernel@vger.kernel.org
-Date: Thu, 6 Sep 2001 13:05:50 +0200 (MET DST)
-X-Mailer: ELM [version 2.4ME+ PL37 (25)]
+	id <S272450AbRIFLOJ>; Thu, 6 Sep 2001 07:14:09 -0400
+Received: from 202-54-39-145.tatainfotech.co.in ([202.54.39.145]:32782 "EHLO
+	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
+	id <S272449AbRIFLOA>; Thu, 6 Sep 2001 07:14:00 -0400
+Date: Thu, 6 Sep 2001 16:44:59 +0530 (IST)
+From: "SATHISH.J" <sathish.j@tatainfotech.com>
+To: kernelnewbies <kernelnewbies@nl.linux.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Reg failures while installing kdb patch
+Message-ID: <Pine.LNX.4.10.10109061640150.21382-100000@blrmail>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+I was trying to install kdb patch to my 2.2.14-12 kernel
+(kdb_v0.6-2.2.13)and it
+successfully completed the patching operation but had the following error
+messages.
 
-/root/linux-2.4.9/include/net/tcp.h:922:72: macro "min" passed 3 arguments, but takes just 2
-In file included from slhc.c:75:
-/root/linux-2.4.9/include/net/tcp.h: In function `tcp_initialize_rcv_mss':
-/root/linux-2.4.9/include/net/tcp.h:922: `min' undeclared (first use in this function)
-/root/linux-2.4.9/include/net/tcp.h:922: (Each undeclared identifier is reported only once
-/root/linux-2.4.9/include/net/tcp.h:922: for each function it appears in.)
-/root/linux-2.4.9/include/net/tcp.h:924:53: macro "min" passed 3 arguments, but takes just 2
-/root/linux-2.4.9/include/net/tcp.h:926: warning: implicit declaration of function `max'
-/root/linux-2.4.9/include/net/tcp.h:926: parse error before "unsigned"
-/root/linux-2.4.9/include/net/tcp.h:928:55: macro "min" passed 3 arguments, but takes just 2
-In file included from slhc.c:75:
-/root/linux-2.4.9/include/net/tcp.h: In function `tcp_recalc_ssthresh':
-/root/linux-2.4.9/include/net/tcp.h:1080: parse error before "u32"
-/root/linux-2.4.9/include/net/tcp.h: In function `tcp_current_ssthresh':
-/root/linux-2.4.9/include/net/tcp.h:1092: parse error before "u32"
-In file included from slhc.c:75:
-/root/linux-2.4.9/include/net/tcp.h:1130:57: macro "min" passed 3 arguments, but takes just 2
-/root/linux-2.4.9/include/net/tcp.h: In function `__tcp_enter_cwr':
-/root/linux-2.4.9/include/net/tcp.h:1130: `min' undeclared (first use in this function)
-/root/linux-2.4.9/include/net/tcp.h:1496:46: macro "min" passed 3 arguments, but takes just 2
-/root/linux-2.4.9/include/net/tcp.h: In function `tcp_select_initial_window':
-/root/linux-2.4.9/include/net/tcp.h:1496: `min' undeclared (first use in this function)
-/root/linux-2.4.9/include/net/tcp.h:1508:52: macro "min" passed 3 arguments, but takes just 2
-/root/linux-2.4.9/include/net/tcp.h:1517: parse error before "unsigned"
-/root/linux-2.4.9/include/net/tcp.h:1535:73: macro "min" passed 3 arguments, but takes just 2
-/root/linux-2.4.9/include/net/tcp.h:1701:68: macro "min" passed 3 arguments, but takes just 2
-/root/linux-2.4.9/include/net/tcp.h: In function `tcp_moderate_sndbuf':
-/root/linux-2.4.9/include/net/tcp.h:1701: `min' undeclared (first use in this function)
-/root/linux-2.4.9/include/net/tcp.h:1702: parse error before "int"
-make[3]: *** [slhc.o] Error 1
-make[3]: Leaving directory `/root/linux-2.4.9/drivers/net'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/root/linux-2.4.9/drivers/net'
-make[1]: *** [_subdir_net] Error 2
-make[1]: Leaving directory `/root/linux-2.4.9/drivers'
-make: *** [_dir_drivers] Error 2
+[root@juhie linux]# patch -p1 < /home/dssp/kdb_v0.6-2.2.13 patching file
+`Documentation/Configure.help' Hunk #1 succeeded at 10309 with fuzz 2
+(offset 358 lines). patching file `Documentation/kdb/kdb.mm' patching file
+`Documentation/kdb/kdb_bp.man' patching file
+`Documentation/kdb/kdb_bt.man' patching file
+`Documentation/kdb/kdb_env.man' patching file
+`Documentation/kdb/kdb_ll.man' patching file
+`Documentation/kdb/kdb_md.man' patching file
+`Documentation/kdb/kdb_rd.man' patching file
+`Documentation/kdb/kdb_ss.man' patching file `Makefile' Reversed (or
+previously applied) patch detected!  Assume -R? [n] Apply anyway? [n]
+Skipping patch. 5 out of 5 hunks ignored -- saving rejects to Makefile.rej
+patching file `arch/i386/Makefile' patching file
+`arch/i386/boot/compressed/misc.c' Hunk #1 FAILED at 104. 1 out of 1 hunk
+FAILED -- saving rejects to arch/i386/boot/compressed/misc.c.rej patching
+file `arch/i386/config.in' Hunk #1 succeeded at 209 (offset 6 lines).
+patching file `arch/i386/kdb/Makefile' patching file
+`arch/i386/kdb/dis-asm.h'
+.
+.
+.
 
 
-I know how to fix it, but hey ...
-those new macros surely do a good job
-in fixing all those nasty bugs.
+
+What are the reasons for the failure? This is the first time I am
+applying a patch. Please tell me if just compiling the kernel sources and
+booting the machine from the new kernel will have the kdb enabled.
+
+Thanks in advance,
+Warm regards,
+sathish.j
 

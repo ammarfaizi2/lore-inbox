@@ -1,130 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbULAItO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbULAIyV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261331AbULAItO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 03:49:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbULAItO
+	id S261335AbULAIyV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 03:54:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbULAIyV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 03:49:14 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:8177 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261331AbULAItE (ORCPT
+	Wed, 1 Dec 2004 03:54:21 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:7641 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261335AbULAIyS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 03:49:04 -0500
-Date: Wed, 1 Dec 2004 09:48:29 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: vince@arm.linux.org.uk,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: Linux 2.4.29-pre1 (was: Re: [PATCH] vga16fb: Fix frame buffer
- bad memory mapping)
-In-Reply-To: <20041130112947.GB3041@dmt.cyclades>
-Message-ID: <Pine.GSO.4.61.0412010946090.21508@waterleaf.sonytel.be>
-References: <200411252301.iAPN1mo4023046@hera.kernel.org>
- <Pine.GSO.4.61.0411271640560.13674@waterleaf.sonytel.be>
- <20041130112947.GB3041@dmt.cyclades>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 1 Dec 2004 03:54:18 -0500
+Date: Wed, 1 Dec 2004 09:53:37 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Eran Mann <emann@mrv.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-7
+Message-ID: <20041201085337.GB15928@elte.hu>
+References: <36536.195.245.190.93.1101471176.squirrel@195.245.190.93> <20041129111634.GB10123@elte.hu> <41ACB846.40400@free.fr> <20041130081548.GA8707@elte.hu> <41AD8122.4070108@mrv.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41AD8122.4070108@mrv.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Nov 2004, Marcelo Tosatti wrote:
-> On Sat, Nov 27, 2004 at 04:54:12PM +0100, Geert Uytterhoeven wrote:
-> > On Thu, 25 Nov 2004, Linux Kernel Mailing List wrote:
-> > > ChangeSet 1.1543, 2004/11/25 13:16:49-02:00, vince@arm.linux.org.uk
-> > > 
-> > > 	[PATCH] vga16fb: Fix frame buffer bad memory mapping
-> > > 	
-> > > 	The vga16fb driver uses a direct ioremap on 0xa00000 to gain access to
-> > > 	the vga card. This is wrong on architectures other than x86, every
-> > > 	other driver uses VGA_MAP_MEM macro from vga.h to ensure the correct
-> > > 	memory mapping.
-> > > 	
-> > > 	All this patch does is add the mapping macro this has been tested and
-> > > 	works on ARM systems The driver no longer maps parts of kernel
-> > > 	workspace and modifies it.
-> > 
-> > This fix is not correct!
-> > 
-> > > diff -Nru a/drivers/video/vga16fb.c b/drivers/video/vga16fb.c
-> > > --- a/drivers/video/vga16fb.c	2004-11-25 15:01:51 -08:00
-> > > +++ b/drivers/video/vga16fb.c	2004-11-25 15:01:51 -08:00
-> > > @@ -142,7 +142,7 @@
-> > >  	memset(fix, 0, sizeof(struct fb_fix_screeninfo));
-> > >  	strcpy(fix->id,"VGA16 VGA");
-> > >  
-> > > -	fix->smem_start = VGA_FB_PHYS;
-> > > +	fix->smem_start = VGA_MAP_MEM(VGA_FB_PHYS);
-> > >  	fix->smem_len = VGA_FB_PHYS_LEN;
-> > >  	fix->type = FB_TYPE_VGA_PLANES;
-> > >  	fix->visual = FB_VISUAL_PSEUDOCOLOR;
-> > 
-> > fix->smem_start: Although I agree VGA_FB_PHYS is not the correct value on
-> > machines other than PC, VGA_MAP_MEM(VGA_FB_PHYS) is not appropriate either,
-> > because fix->smem_start is supposed to be a CPU _physical_ address, not a
-> > virtual address.
-> > 
-> > However, this value isn't really used, except by (very rare) userspace that
-> > wants to mmap the frame buffer through /dev/mem instead of /dev/fb*, so an
-> > incorrect value doesn't really harm.
-> > 
-> > > @@ -896,7 +896,7 @@
-> > >  
-> > >  	/* XXX share VGA_FB_PHYS region with vgacon */
-> > >  
-> > > -        vga16fb.video_vbase = ioremap(VGA_FB_PHYS, VGA_FB_PHYS_LEN);
-> > > +        vga16fb.video_vbase = ioremap(VGA_MAP_MEM(VGA_FB_PHYS), VGA_FB_PHYS_LEN);
-> > >  	if (!vga16fb.video_vbase) {
-> > >  		printk(KERN_ERR "vga16fb: unable to map device\n");
-> > >  		return -ENOMEM;
-> > 
-> > ioremap(): VGA_MAP_MEM() already a _virtual_ address:
-> > 
-> > | include/asm-alpha/vga.h:#define VGA_MAP_MEM(x)   ((unsigned long) ioremap((x), 0))
-> > | include/asm-arm/vga.h:#define VGA_MAP_MEM(x)     (PCIMEM_BASE + (x))
-> > | include/asm-i386/vga.h:#define VGA_MAP_MEM(x) (unsigned long)phys_to_virt(x)
-> > | include/asm-ia64/vga.h:#define VGA_MAP_MEM(x)    ((unsigned long) ioremap((x), 0))
-> > | include/asm-mips/vga.h:#define VGA_MAP_MEM(x) ((unsigned long)0xb0000000 + (unsigned long)(x))
-> > | include/asm-ppc/vga.h:#define VGA_MAP_MEM(x) (x + vgacon_remap_base)
-> > | include/asm-ppc64/vga.h:#define VGA_MAP_MEM(x) ((unsigned long) ioremap((x), 0))
-> > | include/asm-sparc64/vga.h:#define VGA_MAP_MEM(x) (x)
-> > | include/asm-x86_64/vga.h:#define VGA_MAP_MEM(x) (unsigned long)phys_to_virt(x)
-> > 
-> > Doing a double ioremap(), or ioremap(phys_to_virt()) will break for sure...
-> > 
-> > BTW, on (PReP/CHRP) PPC ioremap() on ISA memory space `just works' because
-> > __ioremap() adds _ISA_MEM_BASE to the passed pointer if it's smaller than
-> > 16*1024*1024. And yes, vga16fb used to work fine on my CHRP LongTrail
-> > (before the machine itself died :-(.
-> > 
-> > Yes, ISA memory space is a mess to do right in a portable way...
+
+* Eran Mann <emann@mrv.com> wrote:
+
+> Seems to be fixed by the patch below:
 > 
-> Geert, 
-> 
-> I'll guest I'll just revert the whole change then... Do you have a
+> --- kernel/latency.c.orig       2004-12-01 10:21:45.000000000 +0200
+> +++ kernel/latency.c    2004-12-01 10:11:37.000000000 +0200
+> @@ -762,7 +762,9 @@
+>         tr->critical_sequence = max_sequence;
+>         tr->preempt_timestamp = cycles();
+>         tr->early_warning = 0;
+> +#ifdef CONFIG_LATENCY_TRACE
+>         __trace(CALLER_ADDR0, parent_eip);
+> +#endif
 
-Yes, please.
+thanks, applied it and uploaded -V0.7.31-16.
 
-> better suggestion? 
-
-Replacing
-
-    vga16fb.video_vbase = ioremap(VGA_FB_PHYS, VGA_FB_PHYS_LEN);
-
-by
-
-    vga16fb.video_vbase = VGA_MAP_MEM(VGA_FB_PHYS);
-
-will probably work, since that's what vgacon does, but I'd like to see it
-tested first anyway.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+	Ingo

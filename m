@@ -1,38 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129030AbRBFPCB>; Tue, 6 Feb 2001 10:02:01 -0500
+	id <S129134AbRBFPDB>; Tue, 6 Feb 2001 10:03:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129172AbRBFPBw>; Tue, 6 Feb 2001 10:01:52 -0500
-Received: from jalon.able.es ([212.97.163.2]:62608 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129030AbRBFPBi>;
-	Tue, 6 Feb 2001 10:01:38 -0500
-Date: Tue, 6 Feb 2001 16:01:10 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: /dev/shm mount visible
-Message-ID: <20010206160110.A4163@werewolf.able.es>
-Mime-Version: 1.0
+	id <S129172AbRBFPCv>; Tue, 6 Feb 2001 10:02:51 -0500
+Received: from ns.sysgo.de ([213.68.67.98]:53749 "EHLO rob.devdep.sysgo.de")
+	by vger.kernel.org with ESMTP id <S129134AbRBFPCr>;
+	Tue, 6 Feb 2001 10:02:47 -0500
+From: Robert Kaiser <rob@sysgo.de>
+Reply-To: rob@sysgo.de
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: Disk is cheap?
+Date: Tue, 6 Feb 2001 15:49:30 +0100
+X-Mailer: KMail [version 1.0.28]
 Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <01013114393200.01502@rob> <200101311612.RAA02360@rob.devdep.sysgo.de> <20010203135518.A1203@bug.ucw.cz>
+In-Reply-To: <20010203135518.A1203@bug.ucw.cz>
+Cc: Patrizio Bruno <patrizio@dada.it>, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <01020616023400.03941@rob>
 Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sam, 03 Feb 2001 you wrote:
+> > Usually most of the startup time is spent by the BIOS doing
+> > extensive self-test stuff and for firing up services (http,
+> > inetd, sendmail, ...) that many embedded systems have little use
+> > for.
+> 
+> Actually, most of that time is spent running bash/sleep 1. Startup
+> scripts tend to be poorly designed.
 
-Just a little question. In previous kernels and shm patches the /dev/shm
-filesytem was invisible under a 'mount' query (just managed like procfs
-or devpts). Now it appears listed under a mount command. Is it normal ?
-Does mount show it coz it is no more 'special' or hidden in any way ?
+Yes!
 
-(now i'm running 2.4.1-ac3)
- 
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
+> > I have a 25MHz 386EX (~2.2 Bogomips) here that boots Linux out of ROM
+> > in roughly 30 seconds. Most of _that_ time however is spent decompressing
+> > the kernel.
+> 
+> You might want to set up XIP and run kernel directly off the ROM...
+> 
 
-Linux werewolf 2.4.1-ac3 #1 SMP Tue Feb 6 01:06:05 CET 2001 i686
+Hmm, that board has only 512KB ROM. I can fit a minimal Linux kernel
+and root-FS in that, but only if it's compressed. ROM, in my experience,
+is more expensive than RAM, so it often makes sense to save ROM space
+even at the expense of using a little more RAM.
 
+But I'm curious: is there a simple procedure to set up a linux Kernel
+to execute from ROM ?
+
+
+----------------------------------------------------------------
+Robert Kaiser                         email: rkaiser@sysgo.de
+SYSGO RTS GmbH
+Am Pfaffenstein 14                    phone: (49) 6136 9948-762
+D-55270 Klein-Winternheim / Germany   fax:   (49) 6136 9948-10
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

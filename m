@@ -1,85 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266755AbSKOVTD>; Fri, 15 Nov 2002 16:19:03 -0500
+	id <S266749AbSKOVWs>; Fri, 15 Nov 2002 16:22:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266765AbSKOVTD>; Fri, 15 Nov 2002 16:19:03 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:65170 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266755AbSKOVTB>;
-	Fri, 15 Nov 2002 16:19:01 -0500
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>,
-       Jeff Garzik <jgarzik@pobox.com>, kniht@us.ibm.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-kernel-owner@vger.kernel.org, mailing-lists@digitaleric.net
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFDE7F70CA.ED358C3F-ON85256C72.00740082@pok.ibm.com>
-From: "Khoa Huynh" <khoa@us.ibm.com>
-Date: Fri, 15 Nov 2002 15:25:24 -0600
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
- and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 11/15/2002 04:25:26 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S266750AbSKOVWs>; Fri, 15 Nov 2002 16:22:48 -0500
+Received: from dp.samba.org ([66.70.73.150]:13697 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266749AbSKOVWp>;
+	Fri, 15 Nov 2002 16:22:45 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Richard Henderson <rth@twiddle.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: in-kernel linking issues 
+In-reply-to: Your message of "Fri, 15 Nov 2002 04:51:46 -0800."
+             <20021115045146.A23944@twiddle.net> 
+Date: Sat, 16 Nov 2002 08:21:32 +1100
+Message-Id: <20021115212941.7336E2C04C@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <20021115045146.A23944@twiddle.net> you write:
+> One more thing:
+> 
+> Are you really REALLY sure you don't want to load ET_DYN or ET_EXEC
+> files (aka shared libraries or executables) instead of ET_REL files
+> (aka .o files)?
 
-Martin wrote:
->I'm not sure we really want this to be 3-level as that'd involve
->replicating all the categories underneath. The OpSys field type
->suggestion as an independant field would be nice, but the Bugzilla
->code will need some tweaking to support possibly different default
->owners dependant on that field.
->
->For now, Jon has created us an "Alternate trees" category, with "ac"
->and "mm" components, with appropriate text in the template to encourage
->people to file bugs that happen (only) on those trees under the
->"tree-specific" categories, and we can move bugs out from there if
->need be. Hopefully that will make people happier for now, there may
->be a cleaner solution long-term, but that needs more thought and more
->work.
+AFAICT, that would hurt some archs.  Of course, you could say "modules
+are meant to be slow" but I don't think that would win you any
+friends 8)
 
-I think the problem with this scheme is that all of the components
-in the -ac or -mm trees are slumped into a single component.
+I haven't thought about it hard: for some archs it might make perfect
+sense, but I'm not sure what more than dropping the hdr->e_type check
+would be required.
 
-If we have to use a 2-level component list, then I'd prefer we
-do the following:
+> This does reduce the freedom to allocate the init sections completely
+> separately from the core sections, but that seems a small price to pay
+> for the extreme reduction in complexity for the in-kernel loader.
 
-Category = 2.5-linus, 2.5-ac, 2.5-mm, etc.
-Component = something like
-      MM-Page allocator
-      MM-Slab allocator
-      MM-NUMA
-      MM-MTTR
-      MM-Others
-      FileSys-devfs
-      FileSys-ext2
-      FileSys-ext3
-      and so on...
+Note: "extreme reduction" is probably overstating.  There are only
+about 300 lines of linker code in the kernel (x86).  The rest of the
+1400 lines is refcount manipulation, usage detection, symbol lookup,
+system call code, /proc stuff.
 
-In other words, we just collapse the original category/component
-list into a single level, and leave the top level to indicate which
-trees.
+But I think you could do this for any arch now by allocating the whole
+module in the core alloc, and returning a pointer the the start of the
+init section for the second "alloc".  The "free" of the init section
+then only frees those trailing pages.
 
-Of course, only components belonging to a selected tree is displayed.
-This would allow each tree to have its own set of components, which
-can have different owners.
+I have no problem with the idea, if we can keep the per-arch
+flexibility.
 
-I have talked to Jon Tollefson and Jon agreed that this approach
-is better.
-
-We need to do it ASAP since the number of bugs (50+ currently) is
-relatively small.  We do NOT want to wait until later to make
-any structural changes to the component list because that would
-be a nightmare to reclassify hundreds of bugs.
-
-Another option would be to use the "group" concept in Bugzilla to
-provide the 3-level component list structure that I described
-previously, but this would require some coding changes.
-
-The above approach does not require any coding changes in Bugzilla
-and is therefore preferrable.
-
-Khoa
-
-
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

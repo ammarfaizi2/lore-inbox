@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289776AbSBOOM1>; Fri, 15 Feb 2002 09:12:27 -0500
+	id <S289803AbSBOO2h>; Fri, 15 Feb 2002 09:28:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289802AbSBOOMR>; Fri, 15 Feb 2002 09:12:17 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:57868 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289776AbSBOOMA>; Fri, 15 Feb 2002 09:12:00 -0500
-Subject: Re: oops with 2.4.18-pre9-mjc2
-To: rj@open-net.org (Robert Jameson)
-Date: Fri, 15 Feb 2002 14:26:01 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020215035135.0c26b130.rj@open-net.org> from "Robert Jameson" at Feb 15, 2002 03:51:35 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S289809AbSBOO2R>; Fri, 15 Feb 2002 09:28:17 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:36114 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S289803AbSBOO2P>; Fri, 15 Feb 2002 09:28:15 -0500
+Date: Fri, 15 Feb 2002 15:28:12 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: <roman@serv>
+To: David Howells <dhowells@redhat.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Roman Zippel <zippel@linux-m68k.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, <davidm@hpl.hp.com>,
+        "David S. Miller" <davem@redhat.com>, <anton@samba.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] move task_struct allocation to arch 
+In-Reply-To: <23760.1013782075@warthog.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.33.0202151522550.1145-100000@serv>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16bjJJ-0003Ig-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have been seeing this oops from 2.4.16 -> 2.4.18-pre9, so here we go!
-> 
-> Reading Oops report from the terminal
-> CPU:    0
-> EIP:    0010:[<dc838114>]    Tainted: P 
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Hi,
 
-What strange modules do you have loaded ?
+On Fri, 15 Feb 2002, David Howells wrote:
 
-If its a binary only one I'd like to know. If its just the base kernel I'd
-appreciate an lsmod so I can find which module is missing a license tag
+> Should I move the convenience bit operations back to the arch header, so that
+> the M68K guys can have byte-sized flags (which they can use TAS/TST on)?
+
+No tas needed, just byte store, so it's not only for m68k, ppc would
+benefit from it too and probably some more.
+
+bye, Roman
+

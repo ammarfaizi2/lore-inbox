@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262410AbTEIJV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 05:21:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262413AbTEIJV7
+	id S262413AbTEIJ2U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 05:28:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbTEIJ2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 05:21:59 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:7886 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S262410AbTEIJV6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 05:21:58 -0400
-Date: Fri, 9 May 2003 11:32:51 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: davem@redhat.com, kernel list <linux-kernel@vger.kernel.org>, ak@suse.de
-Subject: ioctl32_unregister_conversion & modules
-Message-ID: <20030509093250.GA638@elf.ucw.cz>
-Mime-Version: 1.0
+	Fri, 9 May 2003 05:28:20 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:14148 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S262413AbTEIJ2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 05:28:19 -0400
+Date: Fri, 9 May 2003 02:40:51 -0700
+Message-Id: <200305090940.h499ep513112@magilla.sf.frob.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Andrew Morton <akpm@digeo.com>
+X-Fcc: ~/Mail/linus
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 uaccess to fixmap pages
+In-Reply-To: Andrew Morton's message of  Friday, 9 May 2003 02:19:21 -0700 <20030509021921.166f82fc.akpm@digeo.com>
+X-Antipastobozoticataclysm: When George Bush projectile vomits antipasto on the Japanese.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> Nasty.  Maybe the best approach is to mostly uninline the access_ok()
+> check.  Do the check for constant-sized small copies first, so those guys
+> still do the access_ok() check inline; uninline the rest.
 
-...what is the problem?
-
-It seems that function pointers into modules do not need any special
-treatmeant [I *know* there was talk about this on l-k; but I can't
-find anything in Documentation/]:
-
-                if (!capable(CAP_SYS_ADMIN))
-                        return -EACCES;
-                if (disk->fops->ioctl) {
-                        ret = disk->fops->ioctl(inode, file, cmd, arg);
-                        if (ret != -EINVAL)
-                                return ret;
-                }
-
-So... what's the problem with {un}register_ioctl32_conversion being
-called from module_init/module_exit? Drivers in the tree do it
-already...
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+That was the only thing I could think of too.  I haven't made any attempt
+to figure out how much of the code size comes from the various inlined
+user-memory copying functions that call access_ok, and could be reworked
+not to inline any of the uncommon paths, vs direct uses of access_ok in
+miscellaneous code.

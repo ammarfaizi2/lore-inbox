@@ -1,76 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261746AbUDCOMr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 09:12:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbUDCOMr
+	id S261766AbUDCOKr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 09:10:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUDCOKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 09:12:47 -0500
-Received: from webmail.sub.ru ([213.247.139.22]:20743 "HELO techno.sub.ru")
-	by vger.kernel.org with SMTP id S261746AbUDCOMM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 09:12:12 -0500
-Subject: Re: 2.6.4 : 100% CPU use on EIDE disk operarion, VIA chipset
-From: Mikhail Ramendik <mr@ramendik.ru>
-To: Andreas Hartmann <andihartmann@freenet.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <406E9EE5.7030509@A88a2.a.pppool.de>
-References: <fa.ld6rcgc.1lhmd9q@ifi.uio.no>
-	 <406E9EE5.7030509@A88a2.a.pppool.de>
-Content-Type: text/plain
-Message-Id: <1081001524.1061.17.camel@localhost.localdomain>
+	Sat, 3 Apr 2004 09:10:47 -0500
+Received: from fep03.tuttopmi.it ([212.131.248.106]:5322 "EHLO
+	fep03-svc.flexmail.it") by vger.kernel.org with ESMTP
+	id S261746AbUDCOKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 09:10:46 -0500
+Date: Sat, 3 Apr 2004 16:16:05 +0200
+From: Elisabetta Galli <brainfs@tin.it>
+To: linux-kernel@vger.kernel.org
+Message-Id: <20040403161605.665e1a47.brainfs@tin.it>
+Reply-To: brainfs@tin.it
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-6aspMR) 
-Date: Sat, 03 Apr 2004 18:12:05 +0400
+X-SA-Exim-Connect-IP: 192.168.254.1
+X-SA-Exim-Mail-From: brainfs@tin.it
+Subject: SiS 964 serial ata on Asus P4S800D problems
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 4.0 (built Tue, 16 Mar 2004 19:40:56 +0100)
+X-SA-Exim-Scanned: Yes (on mfa.master)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi all!
 
-Andreas Hartmann wrote:
+I'm trying to set up a raid array using two Maxtor DMaxPlus 6Y080M0
+Sata, kernel 2.4.25 with libata 2.4.25-16 including support for Sis 964
+chipset by Uwe Koziolek / Jeff Garzik.
 
-> > It turned out that on disk-intensive operation, the "system" CPU usage
-> > skyrockets. With a mere "cp" of a large file to the same direstory
-> > (tested with ext3fs and FAT32 file systems), it is 100% practically all
-> > of the time !
-> 
-> Which tool do you use for measure? xosview?
+Although Bios recognizes the disks during the post, the kernel doesn't
+see them and gives out this message:
 
-IceWM's monitor. (It just runs all the time, that's how I spotted the
-problem).
+SCSI subsystem driver Revision: 1.00
+libata version 1.02 loaded.
+PCI: Found IRQ 10 for device 00:05.0
+ata1: SATA max UDMA/133 cmd 0xEFF0 ctl 0xEFE6 bmdma 0xEF90 irq 10
+ata2: SATA max UDMA/133 cmd 0xEFA8 ctl 0xEFE2 bmdma 0xEF98 irq 10
+ata1: no device found (phy stat 5dfdfffe)
+ata1: thread exiting
+i8253 count too high! resetting..
+ata2: no device found (phy stat 0094108a)
+ata2: thread exiting
+scsi0 : sata_sis
+scsi1 : sata_sis
+i8253 count too high! resetting..
 
-> I'm having here the same problem. But it depends on the tool which is used 
-> for measuring. If I use top from procps 3.2, I can't see this high system 
-> load. "time" can't see it, too.
-> 
-> This is what top says during cp of 512MB-file:
-> Cpu(s):  2.0% us,  8.3% sy,  0.0% ni,  0.0% id, 89.0% wa,  0.7% hi,  0.0% si
+Could it be a problem with the libata patch? Any suggestions?
 
-I don't have procps 3.2 as yet, will compile it soon; however I think
-it's the same issue.
+Thank you.
 
-I tried the deadline elevator, as suggested by Bill Davidsen down this
-thread. It did not help. In fact the performance fell (the same file
-took a longer time to copy); the CPU use is still 100% (with an
-occasional "dent" or two, but these are very small in duration).
-
-I also tried increasing the read-ahead. It does not help either.
-
-Finally I tried increasing the read-ahead WITH the deadline elevator.
-The performance rose (compared to the one measured with the standard
-read-ahead and the deadline elevator). And the CPU load still did not
-change.
-
-I don't have much CPU to waste (Duron 650 MHz), so I think some
-performance problems I see are linked to this. 
-
-> But you're right, 2.6.4 is slower than 2.4.25. See the thread "Very poor 
-> performance with 2.6.4" here in the list.
-
-I've looked at it. I will try the latest rc-mm kernel and report the
-results.
-
-Yours, Mikhail Ramendik
-
-
-
+Elisa

@@ -1,37 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290731AbSBNHDP>; Thu, 14 Feb 2002 02:03:15 -0500
+	id <S290594AbSBNHLg>; Thu, 14 Feb 2002 02:11:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290594AbSBNHDF>; Thu, 14 Feb 2002 02:03:05 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:42153 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S290731AbSBNHCx>; Thu, 14 Feb 2002 02:02:53 -0500
-Date: Thu, 14 Feb 2002 08:53:59 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Dave Jones <davej@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: portmap problems with 2.5.4-pre5
-In-Reply-To: <20020213192851.C925@suse.de>
-Message-ID: <Pine.LNX.4.44.0202140853110.19317-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290794AbSBNHL0>; Thu, 14 Feb 2002 02:11:26 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:27777 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S290594AbSBNHLO>; Thu, 14 Feb 2002 02:11:14 -0500
+Message-Id: <200202140653.g1E6rHoL005371@tigger.cs.uni-dortmund.de>
+To: James Simmons <jsimmons@transvirtual.com>
+cc: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
+        davej@suse.de, Roman Zippel <zippel@linux-m68k.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] amiga input api drivers 
+In-Reply-To: Message from James Simmons <jsimmons@transvirtual.com> 
+   of "Wed, 13 Feb 2002 11:25:23 PST." <Pine.LNX.4.10.10202131123230.2524-100000@www.transvirtual.com> 
+Date: Thu, 14 Feb 2002 07:53:16 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Feb 2002, Dave Jones wrote:
+James Simmons <jsimmons@transvirtual.com> said:
 
->  Richard Henderson mentioned it yesterday in the Re: thread_info implementation
->  thread. (msgid: 20020211154917.A19367@are.twiddle.net). I've also seen
->  it recently (circa .4pre3), then it went away, and now I have a box thats also
->  doing it repeatedly.
+[...]
+
+> Done. Here is another patch. 
 > 
->  afaik, no-one else has looked at it in detail yet (or seen it?)
+> diff -urN -X /home/jsimmons/dontdiff linux-2.5.4-dj1/arch/m68k/amiga/config.c l
+> inux/arch/m68k/amiga/config.c
+> --- linux-2.5.4-dj1/arch/m68k/amiga/config.c	Wed Jan 16 10:31:50 2002
+> +++ linux/arch/m68k/amiga/config.c	Wed Feb 13 10:26:42 2002
+> @@ -69,11 +69,13 @@
+>  extern char m68k_debug_device[];
+>  
+>  static void amiga_sched_init(void (*handler)(int, void *, struct pt_regs *));
+> +#ifndef CONFIG_KEYBOARD_AMIGA
+>  /* amiga specific keyboard functions */
+>  extern int amiga_keyb_init(void);
+>  extern int amiga_kbdrate (struct kbd_repeat *);
+>  extern int amiga_kbd_translate(unsigned char keycode, unsigned char *keycodep,
+>  			       char raw_mode);
+> +#endif
 
-I think i'll try dig deeper when i get home this evening if no-one else 
-does today.
+The #ifdef isn't needed: As long as the functions aren't used, gcc won't
+mind them declared if they aren't around.
 
-Thanks,
-	Zwane Mwaikambo
+[...]
 
+> --- linux-2.5.4-dj1/arch/ppc/amiga/config.c	Wed Jan 16 10:31:50 2002
+> +++ linux/arch/ppc/amiga/config.c	Wed Feb 13 10:26:42 2002
+> @@ -77,9 +77,11 @@
+>  extern char m68k_debug_device[];
+>  
+>  static void amiga_sched_init(void (*handler)(int, void *, struct pt_regs *));
+> +#ifndef CONFIG_KEYBOARD_AMIGA
+>  /* amiga specific keyboard functions */
+>  extern int amiga_keyb_init(void);
+>  extern int amiga_kbdrate (struct kbd_repeat *);
+> +#endif
 
+As above.
+-- 
+Horst von Brand			     http://counter.li.org # 22616

@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbUKHIqx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261782AbUKHIs5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261813AbUKHIqx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 03:46:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbUKHIqx
+	id S261782AbUKHIs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 03:48:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUKHIs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 03:46:53 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:64423 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S261787AbUKHIo6 (ORCPT
+	Mon, 8 Nov 2004 03:48:57 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:31390 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261782AbUKHIsu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 03:44:58 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: [PATCH 2.6] fix address passing of unknown_bootoption
-Date: Mon, 8 Nov 2004 09:43:43 +0100
-User-Agent: KMail/1.7.1
-References: <200411072247.39841.mbuesch@freenet.de> <20041107164244.34ad8bfd.akpm@osdl.org> <418EC395.3070002@osdl.org>
-In-Reply-To: <418EC395.3070002@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Mon, 8 Nov 2004 03:48:50 -0500
+Date: Mon, 8 Nov 2004 10:50:48 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>,
+       Peter Zijlstra <peter@programming.kicks-ass.net>
+Subject: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.20
+Message-ID: <20041108095048.GA11920@elte.hu>
+References: <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411080943.43734.mbuesch@freenet.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20041108091619.GA9897@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting "Randy.Dunlap" <rddunlap@osdl.org>:
-> > hm, I don't know what happened there.  Maybe the value of pm_idle in
-> > cpu_idle() is garbage.  Or maybe not.
-> 
-> Zwane and someone else had patches for that happening IIRC
-> a month or 2 back.
-> I can dig them out if wanted... Michael, want to try?
 
+i have released the -V0.7.20 Real-Time Preemption patch, which can be
+downloaded from the usual place:
 
-Yes, sure. Please.
+   http://redhat.com/~mingo/realtime-preempt/
 
+this release includes a single fix relative to -V0.7.19: it fixes the
+nondebug build errors reported by Rui Nuno Capela and Peter Zijlstra,
+introduced in -V0.7.18.
 
+to create a -V0.7.20 tree from scratch, the patching order is:
 
-oh, one second before pressing the send button for this mail I had
-another panic. 8-}
+  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.9.tar.bz2
+  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.10-rc1.bz2
+  http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm3/2.6.10-rc1-mm3.bz2
+  http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.10-rc1-mm3-V0.7.20
 
-Unable to handle kernel paging request at virtual address 00020800
- printing eip:
-00020800
-*pde = 00000000
-Oops: 0000 [#1]
-SMP 
-Modules linked in: ipv6 ohci_hcd tuner tvaudio msp3400 bttv video_buf btcx_risc nvidia ehci_hcd uhci_hcd usbcore intel_agp agpgart evdev
-CPU:    0
-EIP:    0060:[<00020800>]    Tainted: P   VLI
-EFLAGS: 00010296   (2.6.9-ck3-ac6-nozeroram) 
-EIP is at 0x20800
-eax: 00000001   ebx: b03e8000   ecx: 00000001   edx: 00000001
-esi: 00099100   edi: b01020a7   ebp: 0045c007   esp: b03e9fec
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 0, threadinfo=b03e8000 task=b034cac0)
-Stack: b03ea81c 000000db b03ea310 b04162a0 b0100211 
-Call Trace:
- [<b03ea81c>] start_kernel+0x139/0x152
- [<b03ea310>] unknown_bootoption+0x0/0x171
-Code:  Bad EIP value.
- <0>Kernel panic - not syncing: Attempted to kill the idle task!
+	Ingo

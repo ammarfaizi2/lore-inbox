@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbUEWJkB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbUEWJuP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261867AbUEWJkB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 05:40:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbUEWJkB
+	id S261752AbUEWJuP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 05:50:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbUEWJuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 05:40:01 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:16363 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261752AbUEWJjw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 05:39:52 -0400
-From: Christian Borntraeger <linux-kernel@borntraeger.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 VS 2.6 fork VS thread creation time test
-Date: Sun, 23 May 2004 11:39:41 +0200
-User-Agent: KMail/1.6.2
-Cc: Gergely Czuczy <phoemix@harmless.hu>, itk-sysadm@ppke.hu
-References: <Pine.LNX.4.60.0405230914330.15840@localhost>
-In-Reply-To: <Pine.LNX.4.60.0405230914330.15840@localhost>
-MIME-Version: 1.0
+	Sun, 23 May 2004 05:50:15 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:23307 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261752AbUEWJuL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 05:50:11 -0400
+Date: Sun, 23 May 2004 11:48:53 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: i486 emu in mainline?
+Message-ID: <20040523094853.GA16448@alpha.home.local>
+References: <20040522234059.GA3735@infradead.org> <1085296400.2781.2.camel@laptop.fenrus.com> <20040523084415.GB16071@alpha.home.local> <20040523091356.GD5889@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405231139.44096.linux-kernel@borntraeger.net>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
+In-Reply-To: <20040523091356.GD5889@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gergely Czuczy wrote:
-> failed. As I told it above all the processes are teminated right after
-> creation, but there were a lot of defunct processes in the system, and
-> they were only gone when the parent termineted.
+On Sun, May 23, 2004 at 11:13:56AM +0200, Arjan van de Ven wrote:
+> On Sun, May 23, 2004 at 10:44:15AM +0200, Willy Tarreau wrote:
+> > Hi Arjan,
+> > 
+> > On Sun, May 23, 2004 at 09:13:20AM +0200, Arjan van de Ven wrote:
+> > > on first look it seems to be missing a bunch of get_user() calls and
+> > > does direct access instead....
+> > 
+> > It was intentional for speed purpose. The areas are checked once with
+> > verify_area() when we need to access memory, then data is copied directly
+> > from/to memory. I don't think there's any risk, but I can be wrong.
+> 
+> it's an oopsable offence; nothing is making sure the memory is actually
+> present for example.
 
-Have you heard of wait, waitpid and pthread_join?
+You mean like when a user does a malloc() and the memory is not physically
+allocated because not used yet ? or even in case memory has been swapped
+out ? I believe I begin to understand, but the corner case is not really
+clear to me. It yet seems strange to me that the user can reference memory
+areas that the kernel cannot access. I'm certainly mistaken somewhere, but
+I don't know where. In fact, if you could give me a simple example which
+puts my original code at fault, it would really help me. Then I'll change
+the code as suggested by Andrew but at least I would understand what I do.
 
-> With a few number of processes I wasn't able to go over 255 threads,
-> after the 255th every creation attempt simply failed.
-
-Your 255 thread limit is propably because you have a stack size of 8192 
-kbytes. (see ulimit). As all threads share the same address space, this 
-address space is the limiting factor. Try ulimit -s 1024 for example.
-
-> It's easy to notice that in case of 2.4 the ratios of the creation times
-> are converges to 1, so it depends on the load, while in case of a 2.6
-> kernel the ratios are mostly fix, about 9. This means that creating a new
-> child process takes much more time than creating a new thread.
-
-Well, the other way around is the correct answer. Processes didnt get 
-slower. Threads are faster than processes in 2.6 because of the NPTL. If 
-you want to slow down threads to process level, just do 
-LD_ASSUME_KERNEL=2.2.5 before running your test program.
-
-cheers
-
-Christian
-
-
-
+Thanks in advance.
+Willy
 

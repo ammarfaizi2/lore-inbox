@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270267AbTGMQZG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 12:25:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270269AbTGMQZG
+	id S270262AbTGMQNW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 12:13:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270263AbTGMQNW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 12:25:06 -0400
-Received: from as6-4-8.rny.s.bonet.se ([217.215.27.171]:51981 "EHLO
-	pc2.dolda2000.com") by vger.kernel.org with ESMTP id S270267AbTGMQZC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 12:25:02 -0400
-From: Fredrik Tolf <fredrik@dolda2000.cjb.net>
+	Sun, 13 Jul 2003 12:13:22 -0400
+Received: from remt29.cluster1.charter.net ([209.225.8.39]:27827 "EHLO
+	remt29.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S270262AbTGMQNP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 12:13:15 -0400
+From: Chris Morgan <cmorgan@alum.wpi.edu>
 To: linux-kernel@vger.kernel.org
-Subject: Input layer demand loading
-Date: Sun, 13 Jul 2003 18:39:49 +0200
-User-Agent: KMail/1.4.3
+Subject: 2.5.XX very sluggish
+Date: Sun, 13 Jul 2003 12:28:00 -0400
+User-Agent: KMail/1.5.2
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_DA2ZQ7K0FMZ5QXS24FC9"
-Message-Id: <200307131839.49112.fredrik@dolda2000.cjb.net>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307131228.00155.cmorgan@alum.wpi.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+1.4Ghz Athlon via 82cxx chipset, software raid 1 scsi drives, currently 
+running 2.4.21
 
---------------Boundary-00=_DA2ZQ7K0FMZ5QXS24FC9
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+With 2.5.73/74/75(the only ones I've tried thus far) the kernel boots fine 
+until it tries to mount the reiserfs partition on the raid1 set.  Replaying 
+the journal takes many times longer than with 2.4.  Once it gets past that 
+point the whole machine appears to be quite sluggish.  Is this a known issue 
+with reiserfs + software raid 1?  What information would be useful to aid in 
+debugging?
 
-Why does the input layer still not have on-demand module loading? How abo=
-ut=20
-applying this?
+I have smp disabled, preemption enabled, tried with generic x86 
+disabled/enabled.
 
-Fredrik Tolf
+Thanks,
+Chris
 
---------------Boundary-00=_DA2ZQ7K0FMZ5QXS24FC9
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="input.c.patch"
-Content-Transfer-Encoding: 7bit
-Content-Description: Patch for 2.5.75
-Content-Disposition: inline; filename="input.c.patch"
 
-cd /usr/src/linux-2.5.75/drivers/input/
-diff -up /usr/src/linux-2.5.75/drivers/input/input.c\~ /usr/src/linux-2.5.75/drivers/input/input.c
---- /usr/src/linux-2.5.75/drivers/input/input.c~	2003-07-13 18:34:09.000000000 +0200
-+++ /usr/src/linux-2.5.75/drivers/input/input.c	2003-07-13 18:34:18.000000000 +0200
-@@ -531,7 +531,13 @@ static int input_open_file(struct inode 
- 	struct file_operations *old_fops, *new_fops = NULL;
- 	int err;
- 
--	/* No load-on-demand here? */
-+	if(!handler)
-+	{
-+		char name[20];
-+		sprintf(name, "input-dev-%i", minor(inode->i_rdev) >> 5);
-+		request_module(name);
-+		handler = input_table[minor(inode->i_rdev) >> 5];
-+	}
- 	if (!handler || !(new_fops = fops_get(handler->fops)))
- 		return -ENODEV;
-
---------------Boundary-00=_DA2ZQ7K0FMZ5QXS24FC9--
+Please cc me on replies, I'm not on the list yet.
 

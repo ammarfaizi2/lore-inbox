@@ -1,71 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315445AbSH0JSD>; Tue, 27 Aug 2002 05:18:03 -0400
+	id <S315449AbSH0J0h>; Tue, 27 Aug 2002 05:26:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315454AbSH0JSC>; Tue, 27 Aug 2002 05:18:02 -0400
-Received: from thales.mathematik.uni-ulm.de ([134.60.66.5]:13311 "HELO
-	thales.mathematik.uni-ulm.de") by vger.kernel.org with SMTP
-	id <S315445AbSH0JSC>; Tue, 27 Aug 2002 05:18:02 -0400
-Message-ID: <20020827092219.27495.qmail@thales.mathematik.uni-ulm.de>
-From: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
-Date: Tue, 27 Aug 2002 11:22:19 +0200
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Daniel Phillips <phillips@arcor.de>, lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: MM patches against 2.5.31
-References: <3D644C70.6D100EA5@zip.com.au> <E17jKlX-0001i0-00@starship> <20020826152950.9929.qmail@thales.mathematik.uni-ulm.de> <E17jO6g-0002XU-00@starship> <3D6A8082.3775C5AB@zip.com.au>
+	id <S315454AbSH0J0h>; Tue, 27 Aug 2002 05:26:37 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48392 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315449AbSH0J0g>; Tue, 27 Aug 2002 05:26:36 -0400
+Date: Tue, 27 Aug 2002 10:30:47 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Jeff Chua <jchua@fedex.com>
+Cc: Erik Andersen <andersen@codepoet.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] initrd >24MB corruption (fwd)
+Message-ID: <20020827103047.A13528@flint.arm.linux.org.uk>
+References: <20020827025616.GA6998@codepoet.org> <Pine.LNX.4.44.0208271648040.26407-100000@boston.corp.fedex.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3D6A8082.3775C5AB@zip.com.au>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0208271648040.26407-100000@boston.corp.fedex.com>; from jchua@fedex.com on Tue, Aug 27, 2002 at 04:55:00PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 26, 2002 at 12:24:50PM -0700, Andrew Morton wrote:
-> The flaw is in doing the put_page_testzero() outside of any locking
-> which would prevent other CPUs from finding and "rescuing" the zero-recount
-> page.
+On Tue, Aug 27, 2002 at 04:55:00PM +0800, Jeff Chua wrote:
+> On Mon, 26 Aug 2002, Erik Andersen wrote:
+> > How much total ram does your system have?
 > 
-> CPUA:
-> 	if (put_page_testzero()) {
-> 		/* Here's the window */
-> 		spin_lock(lru_lock);
-> 		list_del(page->lru);
-> 
-> CPUB:
-> 
-> 	spin_lock(lru_lock);
-> 	page = list_entry(lru);
-> 	page_cache_get(page);	/* If this goes from 0->1, we die */
-> 	...
-> 	page_cache_release(page);	/* double free */
+> 640MB.
 
-So what we want CPUB do instead is
+Its not that problem then. 8)
 
-	spin_lock(lru_lock);
-	page = list_entry(lru)
+I was suspecting that the write() to the ramdisk device was hanging
+(which you could confirm by printk'ing an 'i' before and an 'o' after
+the write call in flush_window() in init/do_mounts.c or
+drivers/block/rd.c.  If you end up with 'i' as the last character, its
+the write that hangs, if its an 'o' then its gunzip itself.)
 
-	START ATOMIC 
-		page_cache_get(page);
-		res = (page_count (page) == 1)
-	END ATOMIC
+The other possibility is this little critter:
 
-	if (res) {
-		atomic_dec (&page->count);
-		continue;  /* with next page */
-	}
-	...
-	page_cache_release (page);
+static int __init fill_inbuf(void)
+{
+        if (exit_code) return -1;
 
-I.e. we want to detect _atomically_ that we just raised the page count
-from zero to one. My patch actually has a solution that implements the
-needed atomic operation above by means of the atomic functions that we
-currently have on all archs (it's called get_page_testzero and
-should probably called get_page_testone).
-The more I think about this the more I think this is the way to go.
+        insize = read(crd_infd, inbuf, INBUFSIZ);
+        if (insize == 0) return -1;
 
-      regards   Christian
+        inptr = 1;
+
+        return inbuf[0];
+}
+
+You could put printks in the paths that return -1 and see if you're
+hitting any of those.
+
+However, returning '-1' is asking for trouble.  When I was looking at
+how to handle the "out of space" in the ramdisk issue, I found that
+there appears to be NO value that fill_inbuf() can return that will
+guarantee to terminate inflate.c at an arbitary point in the
+decompression.
+
+In gzip, we abort the program on error.  In the kernel, we don't
+have that luxury.  (Luckily initramfs uses a cut-down gzip to do
+the decompression, which can exit on error.)
 
 -- 
-THAT'S ALL FOLKS!
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

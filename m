@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261367AbTCaCU1>; Sun, 30 Mar 2003 21:20:27 -0500
+	id <S261373AbTCaC0D>; Sun, 30 Mar 2003 21:26:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261373AbTCaCU1>; Sun, 30 Mar 2003 21:20:27 -0500
-Received: from main.gmane.org ([80.91.224.249]:14052 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S261367AbTCaCU0>;
-	Sun, 30 Mar 2003 21:20:26 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: John Goerzen <jgoerzen@complete.org>
-Subject: Re: Kernel compile error with 2.5.66
-Date: Sun, 30 Mar 2003 20:30:30 -0600
-Organization: Complete.Org
-Message-ID: <873cl4fet5.fsf@complete.org>
-References: <87brztwwaa.fsf@complete.org> <B76E0B36-624D-11D7-9043-00039346F142@mac.com>
+	id <S261374AbTCaC0D>; Sun, 30 Mar 2003 21:26:03 -0500
+Received: from [12.47.58.205] ([12.47.58.205]:5215 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id <S261373AbTCaC0C>; Sun, 30 Mar 2003 21:26:02 -0500
+Date: Sun, 30 Mar 2003 18:37:19 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Wrong comment due to pte_file()
+Message-Id: <20030330183719.325908c1.akpm@digeo.com>
+In-Reply-To: <20030330212201.A4155@devserv.devel.redhat.com>
+References: <20030330212201.A4155@devserv.devel.redhat.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@complete.org
-User-Agent: Gnus/5.090015 (Oort Gnus v0.15) Emacs/21.2
-Cancel-Lock: sha1:2Rb9+G2vIl8ET7kvfFXzQ4zRqdY=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 31 Mar 2003 02:37:16.0320 (UTC) FILETIME=[716B2A00:01C2F72E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stewart Smith <stewartsmith@mac.com> writes:
+Pete Zaitcev <zaitcev@redhat.com> wrote:
+>
+> How about abolishing all comments?
 
-> Yeap, I'm getting this too. There seems to be a whole bunch of changes
-> in include/asm-ppc64/pgtable.h that aren't in
-> include/asm-ppc/pgtable.h
+Or all code.
 
-I should say that after my post, I tried out the linuxppc-2.5 2.5.66
-tree at http://www.penguinppc.org/dev/kernel.shtml, and it did not
-have this problem.
+> --- linux-2.5.66/include/asm-i386/pgtable.h	2003-03-24 14:01:14.000000000 -0800
+> +++ linux-2.5.66-sparc/include/asm-i386/pgtable.h	2003-03-30 16:35:04.000000000 -0800
 
-However, I could not get it to compile for numerous other reasons:
+Thanks.  There's another bogus comment doing the rounds as well:
 
- * If PnP BIOS is enabled, it fails to compile the x86 assembler.
+#define _PAGE_FILE      0x040   /* pagecache or swap */
 
- * All Modules fail to load due to some sort of missing symbol (sorry, I
-   didn't take notes) Q_MODULE or something maybe.
+This is exactly wrong - this bit is used to distinguish pagecache from swap. 
+See handle_pte_fault():
 
- * A non-module-enabled kernel fails to build, complaining of a
-   missing isa_virt_to_bus symbol.  And that happened even after I
-   enabled the unnecessary ISA support.
 
- * hdparm causes a kernel oops and apparent lockup (again, I didn't
-   take notes, I was just trying to make the darn thing boot)
+	if (pte_file(entry))
+		return do_file_page(mm, vma, address, write_access, pte, pmd);
+	return do_swap_page(mm, vma, address, pte, pmd, entry, write_access);
 
-In short, 2.5 on PowerPC does not seem to be in a very good state
-right now.
 
--- John
+Some architectures got sneaky:
+
+#define _PAGE_FILE  0x80000 /* pagecache or swap? */
+
+ah-hah!  That question mark *totally* changes the meaning and reveals all.
+
+Pity those who follow after us.  I shall fix it up.
 

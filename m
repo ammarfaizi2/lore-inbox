@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbULAUPr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261434AbULAUcl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261437AbULAUPr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 15:15:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbULAUPr
+	id S261434AbULAUcl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 15:32:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbULAUch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 15:15:47 -0500
-Received: from clara.xs4all.nl ([194.109.199.28]:56215 "EHLO clara.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261437AbULAUPe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 15:15:34 -0500
-Message-ID: <41AE2661.2040408@lunar-linux.org>
-Date: Wed, 01 Dec 2004 21:15:29 +0100
-From: Auke Kok <sofar@lunar-linux.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, vortex@scyld.com
-Subject: Re: [PATCH][2.4.28-pre3] 3c59x builtin NIC on Asus Pundit-R
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Dec 2004 15:32:37 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59626 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261434AbULAUce
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 15:32:34 -0500
+Date: Wed, 1 Dec 2004 20:32:26 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: "Jose R. Santos" <jrsantos@austin.ibm.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Matthew Wilcox <matthew@wil.cx>
+Subject: Re: phase change messages cusing slowdown with sym53c8xx_2 driver
+Message-ID: <20041201203226.GI5752@parcelfarce.linux.theplanet.co.uk>
+References: <20041130030212.GB22916@austin.ibm.com> <20041201165654.GA32687@rx8.austin.ibm.com> <1101921398.1930.24.camel@mulgrave>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1101921398.1930.24.camel@mulgrave>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 01, 2004 at 12:16:33PM -0500, James Bottomley wrote:
+> does this look like the "drive won't respond properly to PPR if the bus
+> is SE" problem again?
 
-This message is a confirmation on the thread by:
+Thomas Babut who tested that fix reported it didn't solve his problem ;-(
 
-From: Andreas Haumer
-Date: Tue Sep 21 2004 - 04:16:52 EST
-Subject: [PATCH][2.4.28-pre3] 3c59x builtin NIC on Asus Pundit-R
+http://marc.theaimsgroup.com/?l=linux-scsi&m=109968716312783&w=2
+http://marc.theaimsgroup.com/?l=linux-scsi&m=109969829411685&w=2
 
-I have 24 boxes with the same hardware and all require the patch 
-attached to Andreas' e-mail to function. After abusing one of them for 2 
-days continuously the nic hasn't shown a single flaw so far ;^)
+I'm out of ideas for fixing that one.  Would you consider Richard
+Waltham's patch?
 
-I thus would like to conclude that this patch is a valid and worthfull 
-addition to the 2.4.28+ kernels, as it applies cleanly to 2.4.28-final.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109967237930243&w=2
 
-Auke kok
-
-
-PS URL to the patch: 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0409.2/1215/013-3com_ati_radeon.patch
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

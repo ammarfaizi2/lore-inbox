@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261707AbRETObh>; Sun, 20 May 2001 10:31:37 -0400
+	id <S261639AbRETObR>; Sun, 20 May 2001 10:31:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261644AbRETOb2>; Sun, 20 May 2001 10:31:28 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:43981 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261638AbRETObP>;
-	Sun, 20 May 2001 10:31:15 -0400
-Date: Sun, 20 May 2001 10:31:13 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: no ioctls for serial ports? [was Re: LANANA: To Pending Device
- Num
-Message-ID: <Pine.GSO.4.21.0105201030550.8940-100000@weyl.math.psu.edu>
+	id <S261620AbRETObH>; Sun, 20 May 2001 10:31:07 -0400
+Received: from smtp2.libero.it ([193.70.192.52]:5828 "EHLO smtp2.libero.it")
+	by vger.kernel.org with ESMTP id <S261619AbRETOa7>;
+	Sun, 20 May 2001 10:30:59 -0400
+Message-ID: <3B07D519.5184BFA@alsa-project.org>
+Date: Sun, 20 May 2001 16:30:49 +0200
+From: Abramo Bagnara <abramo@alsa-project.org>
+Organization: Opera Unica
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i586)
+X-Accept-Language: it, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alexander Viro <viro@math.psu.edu>
+CC: Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.kernel.org
+Subject: Re: no ioctls for serial ports? [was Re: LANANA: To Pending DeviceNum
+In-Reply-To: <Pine.GSO.4.21.0105200925370.8940-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 May 2001, Tim Jansen wrote:
-
-> That's why I proposed using multi-stream files. With a syscall like
+Alexander Viro wrote:
 > 
-> fd2 = open_substream(fd, "somename")
+> On 20 May 2001, Kai Henningsen wrote:
+> 
+> > I've seen this question several times in this thread. I haven't seen the
+> > obvious answer, though.
+> >
+> > Have a new system call:
+> >
+> > ctlfd = open_device_control_fd(fd);
+> > If fd is something that doesn't have a control interface (say, it already
+> > is a control filehandle), this returns an appropriate error code.
+> 
+> It may have several. Which one?
 
-You also have "streams" thay are related to many device nodes at once. Sorry.
+Can you explain better this?
 
-> you could have several control streams and also be prepared if you want to 
-> support multi-stream filesystems like NTFS in the future...
+-- 
+Abramo Bagnara                       mailto:abramo@alsa-project.org
 
-Let's _not_ bring that into this thread, OK?
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy
 
-
+ALSA project               http://www.alsa-project.org
+It sounds good!

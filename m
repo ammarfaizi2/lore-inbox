@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270007AbUJSWY0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269933AbUJSWau@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270007AbUJSWY0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 18:24:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269926AbUJSWXu
+	id S269933AbUJSWau (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 18:30:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269897AbUJSWY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 18:23:50 -0400
-Received: from relay01.roc.ny.frontiernet.net ([66.133.131.34]:53658 "EHLO
-	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S269928AbUJSWWw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 18:22:52 -0400
-From: Russell Miller <rmiller@duskglow.com>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: 2.6.9 DRM compile problem
-Date: Tue, 19 Oct 2004 17:26:37 -0500
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <200410191613.35691.rmiller@duskglow.com> <1A4F78A9-221D-11D9-8195-000393ACC76E@mac.com>
-In-Reply-To: <1A4F78A9-221D-11D9-8195-000393ACC76E@mac.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Oct 2004 18:24:57 -0400
+Received: from almesberger.net ([63.105.73.238]:11788 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S269289AbUJSWXt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 18:23:49 -0400
+Date: Tue, 19 Oct 2004 19:23:36 -0300
+From: Werner Almesberger <werner@almesberger.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] boot parameters: quoting of environment variables revisited
+Message-ID: <20041019192336.K18873@almesberger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410191726.37695.rmiller@duskglow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 19 October 2004 17:20, Kyle Moffett wrote:
+When passing boot parameters, they can be quoted as follows:
+param="value"
 
->   config DRM_GAMMA
->   	tristate "3dlabs GMX 2000"
-> -	depends on DRM
-> +	depends on DRM && BROKEN
->   	help
->   	  This is the old gamma driver, please tell me if it might actually
->   	  work.
->
-> The gamma driver was broken to restore the sanity of DRM.  In
-> fact, the only way to actually even try to build it is to turn on the
-> config option "Include incomplete/broken drivers"
->
-That does answer my question as to where to find out.  Thanks.
+Unfortunately, when passing environment variables this way, the
+quoting causes confusion: in 2.6.7 (etc.), only the variable name
+was placed in the environment, which caused it to be ignored.
+I've sent a patch that adjusted the name, but this patch was
+dropped. Instead, apparently a different fix was attempted in
+2.6.9, but this now yields param="value in the environment (note
+the embeded double quote), which isn't much better.
 
---Russell
+I've attached a patch for 2.6.9 that fixes this. This time, I'm
+shifting the value. Maybe you like it better this way :-)
+
+- Werner
+
+---------------------------------- cut here -----------------------------------
+
+Signed-off-by: Werner Almesberger <werner@almesberger.net>
+
+--- linux-2.6.9/init/main.c.orig	Tue Oct 19 19:07:45 2004
++++ linux-2.6.9/init/main.c	Tue Oct 19 19:11:05 2004
+@@ -310,6 +310,13 @@
+ 	if (val) {
+ 		/* Environment option */
+ 		unsigned int i;
++
++		/* If the value was quoted, shift it. */
++		if (val[-1] == '"') {
++			memmove(val-1,val,strlen(val)+1);
++			val--;
++		}
++
+ 		for (i = 0; envp_init[i]; i++) {
+ 			if (i == MAX_INIT_ENVS) {
+ 				panic_later = "Too many boot env vars at `%s'";
 
 -- 
-
-Russell Miller - rmiller@duskglow.com - Le Mars, IA
-Duskglow Consulting - Helping companies just like you to succeed for ~ 10 yrs.
-http://www.duskglow.com - 712-546-5886
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

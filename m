@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbTJ2RWY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 12:22:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbTJ2RWY
+	id S261226AbTJ2R0v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 12:26:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbTJ2R0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 12:22:24 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:33987 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261193AbTJ2RWX convert rfc822-to-8bit
+	Wed, 29 Oct 2003 12:26:51 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:8613 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261226AbTJ2R0u
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 12:22:23 -0500
-Content-Type: text/plain;
-  charset="utf-8"
-From: Daniel Stekloff <dsteklof@us.ibm.com>
-To: Andreas Jellinghaus <aj@dungeon.inka.de>, linux-kernel@vger.kernel.org
-Subject: Re: ANNOUNCE: User-space System Device Enumation (uSDE)
-Date: Wed, 29 Oct 2003 09:20:06 -0800
-User-Agent: KMail/1.4.1
-References: <3F9D82F0.4000307@mvista.com> <20031028224416.GA8671@kroah.com> <pan.2003.10.29.14.30.29.628488@dungeon.inka.de>
-In-Reply-To: <pan.2003.10.29.14.30.29.628488@dungeon.inka.de>
+	Wed, 29 Oct 2003 12:26:50 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 29 Oct 2003 09:26:49 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Ben Mansell <ben@zeus.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: epoll gives broken results when interrupted with a signal
+In-Reply-To: <Pine.LNX.4.58.0310291439110.2982@stones.cam.zeus.com>
+Message-ID: <Pine.LNX.4.56.0310290923100.2049@bigblue.dev.mdolabs.com>
+References: <Pine.LNX.4.58.0310291439110.2982@stones.cam.zeus.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200310290920.06056.dsteklof@us.ibm.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 29 October 2003 06:30 am, Andreas Jellinghaus wrote:
-> On Tue, 28 Oct 2003 22:52:33 +0000, Greg KH wrote:
-[snip]
-> > that udev is suffering from "lack of maintainability and bloat" if you
-> > really want :)
+On Wed, 29 Oct 2003, Ben Mansell wrote:
+
+> I'm using the epoll system interface on a 2.6.0-test9 kernel, but I hit
+> a problem if the process calling epoll_wait() gets interrupted. The
+> epoll_wait() returns with several events, but the last event of which
+> contains junk (e.g. typically reports that a file descriptor like
+> -91534560 received an event)
 >
-> bloat. lots of bloat. what is that tdb database for?
-> filesystems are persistent. if you want to save space,
-> create a tar file :-)
+> The epoll is being used to monitor only a handful of file descriptors.
+> Some of these however are TCP network sockets that were bound to a port
+> by a parent process, and then passed on to the process doing the epoll.
+> Another file descriptor is that of a socket connected to the parent
+> process. The epoll failure is brought about when the parent process
+> tries to kill off the child with a SIGTERM. The parent then exits.
+>
+> The final (interrupted) epoll returns two events - the first is that of
+> the socket to the dead parent, receiving EPOLLIN | EPOLLHUP, which seems
+> reasonable. The next event is then random garbage. Perhaps epoll is just
+> returning one too many results?
 
-[snip]
+Is it an UP or an SMP machine? The descriptor is passed how? fork? If I'll
+send you a debug patch for epoll will you be able to run it?
 
 
-The tdb database is for storing current device information, udev needs to 
-reference names to devices. The database also enables an api for applications 
-to query what devices are on the system, their names, and their nodes. 
 
-Using tdb has its advantages too; it's small, it's flexible, it's fast, it can 
-be in memory or on disk, and it has locking for multiple accesses.
+- Davide
 
-IMVHO - tdb isn't bloat.
-
-Thanks,
-
-Dan

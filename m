@@ -1,28 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281297AbRKPK7l>; Fri, 16 Nov 2001 05:59:41 -0500
+	id <S281306AbRKPLSi>; Fri, 16 Nov 2001 06:18:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281299AbRKPK7b>; Fri, 16 Nov 2001 05:59:31 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22789 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281295AbRKPK7N>; Fri, 16 Nov 2001 05:59:13 -0500
-Subject: Re: infinite loop in 3c509 driver IRQ loop?
-To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
-Date: Fri, 16 Nov 2001 11:07:00 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux-Kernel mailing list)
-In-Reply-To: <20011116114902.K5520@emma1.emma.line.org> from "Matthias Andree" at Nov 16, 2001 11:49:02 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S281307AbRKPLS2>; Fri, 16 Nov 2001 06:18:28 -0500
+Received: from shell7.ba.best.com ([206.184.139.138]:5897 "EHLO
+	shell7.ba.best.com") by vger.kernel.org with ESMTP
+	id <S281306AbRKPLSS>; Fri, 16 Nov 2001 06:18:18 -0500
+Date: Fri, 16 Nov 2001 03:17:25 -0800
+From: Nathan Myers <ncm@nospam.cantrip.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] omnibus include/ cleanup, updated to 2.4.15-pre5
+Message-ID: <20011116031725.B6651@shell7.ba.best.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E164gpo-0003fJ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I caught a complaint by Linux 2.2.19 which has a 3C509B that it ran into
-> an infinite loop in its IRQ handler. Driver bug?
+I have updated and regularized the header file cleanup patches located at 
 
-It means the card kept having work left to do - eg because it was under
-extreme load at that point. Its not neccessarily a bug - did the box then
-recover ?
+  http://ncm.best.vwh.net/patch-linux.diff
+  http://ncm.best.vwh.net/patch-includes.diff
+
+to apply properly to 2.4.15-pre5.  (They will still work ok on pre4.)
+
+Nathan Myers
+ncm at cantrip dot org

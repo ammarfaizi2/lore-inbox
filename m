@@ -1,92 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267081AbUBRXVy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 18:21:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267144AbUBRXVr
+	id S267711AbUBSCoy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 21:44:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267712AbUBSCoy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 18:21:47 -0500
-Received: from linux.us.dell.com ([143.166.224.162]:59057 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S266817AbUBRXTf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 18:19:35 -0500
-Date: Wed, 18 Feb 2004 17:18:27 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Matt Mackall <mpm@selenic.com>, akpm@osdl.org,
-       marcelo.tosatti@cyclades.com
-Cc: Clay Haapala <chaapala@cisco.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.1 -- take two] Add CRC32C chksums to crypto and lib routines
-Message-ID: <20040218171827.A4407@lists.us.dell.com>
-References: <yquj4qu8je1m.fsf@chaapala-lnx2.cisco.com> <Xine.LNX.4.44.0402031213120.939-100000@thoron.boston.redhat.com> <20040203175006.GA19751@chaapala-lnx2.cisco.com> <20040203185111.GA31138@waste.org> <yqujad40j7rn.fsf@chaapala-lnx2.cisco.com> <20040203172508.B26222@lists.us.dell.com> <20040203233737.GD31138@waste.org> <yquj4qu6g6ui.fsf@chaapala-lnx2.cisco.com> <20040204172116.GF31138@waste.org> <20040218152403.A30333@lists.us.dell.com>
+	Wed, 18 Feb 2004 21:44:54 -0500
+Received: from [140.239.227.29] ([140.239.227.29]:5251 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S267711AbUBSCov (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 21:44:51 -0500
+Date: Wed, 18 Feb 2004 21:44:26 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: tridge@samba.org
+Cc: Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
+Subject: Re: UTF-8 and case-insensitivity
+Message-ID: <20040219024426.GA3901@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, tridge@samba.org,
+	Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
+References: <1qqzv-2tr-3@gated-at.bofh.it> <1qqJc-2A2-5@gated-at.bofh.it> <1qHAR-2Wm-49@gated-at.bofh.it> <1qIwr-5GB-11@gated-at.bofh.it> <1qIwr-5GB-9@gated-at.bofh.it> <1qIQ1-5WR-27@gated-at.bofh.it> <1qIZt-6b9-11@gated-at.bofh.it> <1qJsF-6Be-45@gated-at.bofh.it> <E1Atbi7-0004tf-O7@localhost> <16436.2817.900018.285167@samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040218152403.A30333@lists.us.dell.com>; from Matt_Domsch@dell.com on Wed, Feb 18, 2004 at 03:24:03PM -0600
+In-Reply-To: <16436.2817.900018.285167@samba.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> After seeking advice from Dell's lawyers, they recommend simply adding
-> the GPL license text to the top of the file and be done with it.
-> It's public domain, we're free to include (and relicense) it as we
-> wish.  If someone else wants to use it in a non-GPL fashion, they'll
-> need to start from the original public domain submission, not this one
-> which clearly has been modified somewhat since we first received it,
-> with faster algorithms, creation of the table at compile time, etc.
+On Thu, Feb 19, 2004 at 12:01:53PM +1100, tridge@samba.org wrote:
+> The problem is that Samba isn't the only program to be accessing these
+> directories. Multi-protocol file servers and file servers where users
+> also have local access are common. That means we can't assume that
+> some other filesystem user hasn't created a file which matches in a
+> case-insensitive manner. That means we need to do an awful lot of
+> directory scans.
 
-Patch below applies to both 2.4.25 and 2.6.3, and replaces the public
-domain statement and non-warranty with the GPL, as is permitted by the
-code being in the public domain, and is done with legal advice.
+Actually, not necessarily.  What if Samba gets notifications of all
+filename renames and creates in the directory, so that after the
+initial directory scan, it can keep track of what filenames are
+present in the directory?  It can then "prove the negative", as you
+put it, without having to continuously do directory scans.
 
-Thanks,
-Matt
+Yeah, there can be some race conditions, but Samba already has to deal
+with the race condition where it tries to create "MaKeFiLe" either
+just before or just after a Posix process creates "Makefile".  
 
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
-
-===== lib/crc32.c 1.11 vs edited =====
---- 1.11/lib/crc32.c	Tue Feb  3 23:29:15 2004
-+++ edited/lib/crc32.c	Wed Feb 18 17:00:27 2004
-@@ -1,6 +1,9 @@
--/* 
-+/*
-  * Oct 15, 2000 Matt Domsch <Matt_Domsch@dell.com>
-  * Nicer crc32 functions/docs submitted by linux@horizon.com.  Thanks!
-+ * Code was from the public domain, copyright abandoned.  Code was
-+ * subsequently included in the kernel, thus was re-licensed under the
-+ * GNU GPL v2.
-  *
-  * Oct 12, 2000 Matt Domsch <Matt_Domsch@dell.com>
-  * Same crc32 function was used in 5 other places in the kernel.
-@@ -12,7 +15,9 @@
-  *   drivers/net/smc9194.c uses seed ~0, doesn't xor with ~0.
-  *   fs/jffs2 uses seed 0, doesn't xor with ~0.
-  *   fs/partitions/efi.c uses seed ~0, xor's with ~0.
-- * 
-+ *
-+ * This source code is licensed under the GNU General Public License,
-+ * Version 2.  See the file COPYING for more details.
-  */
- 
- #include <linux/crc32.h>
-@@ -38,16 +43,10 @@
- #define attribute(x)
- #endif
- 
--/*
-- * This code is in the public domain; copyright abandoned.
-- * Liability for non-performance of this code is limited to the amount
-- * you paid for it.  Since it is distributed for free, your refund will
-- * be very very small.  If it breaks, you get to keep both pieces.
-- */
- 
- MODULE_AUTHOR("Matt Domsch <Matt_Domsch@dell.com>");
- MODULE_DESCRIPTION("Ethernet CRC32 calculations");
--MODULE_LICENSE("GPL and additional rights");
-+MODULE_LICENSE("GPL");
- 
- #if CRC_LE_BITS == 1
- /*
+						- Ted

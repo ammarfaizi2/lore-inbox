@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261904AbTEVOeL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 10:34:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbTEVOeL
+	id S261906AbTEVOmf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 10:42:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbTEVOmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 10:34:11 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:26496 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261904AbTEVOeK (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 10:34:10 -0400
-Message-Id: <200305221447.h4MElAKx003511@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Mike Galbraith <efault@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: web page on O(1) scheduler 
-In-Reply-To: Your message of "Thu, 22 May 2003 07:52:44 +0200."
-             <5.2.0.9.2.20030522063421.00cc3e90@pop.gmx.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <5.2.0.9.2.20030521111037.01ed0d58@pop.gmx.net> <5.2.0.9.2.20030521111037.01ed0d58@pop.gmx.net>
-            <5.2.0.9.2.20030522063421.00cc3e90@pop.gmx.net>
+	Thu, 22 May 2003 10:42:35 -0400
+Received: from holomorphy.com ([66.224.33.161]:140 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261906AbTEVOme (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 10:42:34 -0400
+Date: Thu, 22 May 2003 07:55:31 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.69-mm8
+Message-ID: <20030522145531.GR8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <20030522021652.6601ed2b.akpm@digeo.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-95293826P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 22 May 2003 10:47:10 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030522021652.6601ed2b.akpm@digeo.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-95293826P
-Content-Type: text/plain; charset=us-ascii
+On Thu, May 22, 2003 at 02:16:52AM -0700, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.69/2.5.69-mm8/
+> . One anticipatory scheduler patch, but it's a big one.  I have not stress
+>   tested it a lot.  If it explodes please report it and then boot with
+>   elevator=deadline.
+> . The slab magazine layer code is in its hopefully-final state.
+> . Some VFS locking scalability work - stress testing of this would be
+>   useful.
 
-On Thu, 22 May 2003 07:52:44 +0200, Mike Galbraith said:
 
-> It does consider cpu usage though.  Your run history is right there in your 
-> accumulated sleep_avg.  Unfortunately (in some ways, fortunate in others.. 
-> conflict) that information can be diluted down to nothing instantly by new 
-> input from one wakeup.
+Looks like this bit fell out from mainline; required for CONFIG_NUMA
+to compile and identical to mainline.
 
-Maybe there should be a scheduler tunable that says how much it should be
-diluted?
+-- wli
 
---==_Exmh_-95293826P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+zOLucC3lWbTT17ARArwdAJ4qBW9quX9fmz09kQsZs99EeJ7h+gCg2jsZ
-TuQ1EIowRA1fe4v1rxX9XTE=
-=SjTf
------END PGP SIGNATURE-----
-
---==_Exmh_-95293826P--
+diff -prauN mm8-2.5.69-1/kernel/sched.c mm8-2.5.69-2/kernel/sched.c
+--- mm8-2.5.69-1/kernel/sched.c	2003-05-22 04:54:59.000000000 -0700
++++ mm8-2.5.69-2/kernel/sched.c	2003-05-22 07:35:01.000000000 -0700
+@@ -1084,6 +1084,9 @@ static void balance_node(runqueue_t *thi
+ 
+ static void rebalance_tick(runqueue_t *this_rq, int idle)
+ {
++#ifdef CONFIG_NUMA
++	int this_cpu = smp_processor_id();
++#endif
+ 	unsigned long j = jiffies;
+ 
+ 	/*

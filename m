@@ -1,64 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263377AbSKDHmV>; Mon, 4 Nov 2002 02:42:21 -0500
+	id <S265977AbSKDHrZ>; Mon, 4 Nov 2002 02:47:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263794AbSKDHmV>; Mon, 4 Nov 2002 02:42:21 -0500
-Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:48578 "EHLO
-	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S263377AbSKDHmU>; Mon, 4 Nov 2002 02:42:20 -0500
-From: <benh@kernel.crashing.org>
-To: "Alan Cox" <alan@redhat.com>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Pavel Machek" <pavel@ucw.cz>,
-       "Linus Torvalds" <torvalds@transmeta.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp: don't eat ide disks
-Date: Mon, 4 Nov 2002 08:47:32 +0100
-Message-Id: <20021104074732.3349@smtp.wanadoo.fr>
-In-Reply-To: <200211031636.gA3GakF14660@devserv.devel.redhat.com>
-References: <200211031636.gA3GakF14660@devserv.devel.redhat.com>
-X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S265978AbSKDHrZ>; Mon, 4 Nov 2002 02:47:25 -0500
+Received: from point41.gts.donpac.ru ([213.59.116.41]:31244 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S265977AbSKDHrY>;
+	Mon, 4 Nov 2002 02:47:24 -0500
+Date: Mon, 4 Nov 2002 10:52:52 +0300
+From: Andrey Panin <pazke@orbita1.ru>
+To: linux-kernel@vger.kernel.org
+Subject: [Q] how to mount ext2 partition accidentally mounted as ext3
+Message-ID: <20021104075252.GA575@pazke.ipt>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Uname: Linux pazke 2.2.17 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->Bus ordering applies to power off not to suspend to disk sequence
 
-Sure it does. Drivers have to save & resume state don't they ?
-
-How can a driver save a consistent state if that state isn't
-saved after blocking IOs and how can that be done if childs
-of that device haven't already done their save_state/block
-sequence ?
-
-The problem is tricky with things like USB or FireWire. Basically
-the host chip state save will not save pending requests state (it
-would be way too nasty), so child devices will have to make sure
-they stop any pending request before saving a consistent state.
-
-Later on, during the actual "suspend" phase of the process, the
-child drivers may eventually re-issue a new request, but that
-will not result to a state change in the saved state (as it will
-be too late for suspend to disk typically).
-
-The suspending of tasks etc... as done currently by swsusp makes
-definitely things easier as far as VM & block IO interactions
-are concerned though, I agree. Might be a good idea to keep
-that part "simple" for now as there is still enough work
-with things like USB & 1394.
-
->> Then, I volunteer writing a HOWTO explaining clearly what a
->> driver should do for proper PM, and I'm pretty sure that won't
->> be that nasty and race prone as you are afraid of ;)
->
->Good. It'll be nice to have suspend to disk in 2.7
-
-Well, it's mostly driver work, and the hooks are in there already
-with the device model, so this will be driver updates going to
-2.5/2.6 over time I guess. We just need to get the semantics right.
-
-Ben.
+--dDRMvlgZJXvWKvBx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
+Hello all,
+
+Currently I'm working on resurrection of SGI Visual Workstation support=20
+for 2.5 and some progress was made last week.=20
+VISWS kernel even mounts root fs now (doesn't matter thet framebuffer drive=
+r=20
+can't draw anything on the screen and uhci-hcd doesn't work :))
+
+But I made one stupid mistake: EXT3 filesystem was enabled in .config file
+used for VISWS kernel compilation. So after the first boot of this kernel,
+I found that old 2.2.10 kernel making my VISWS self hosting can't mount
+root fs complaining about nonsupported filesystem feature.
+
+My question is how can I make this fs mountable by 2.2.10 again ?
+
+Best regards.
+
+P.S. Does anyone on this planet owns VISWS datasheets ?
+
+--=20
+Andrey Panin            | Embedded systems software developer
+pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+--dDRMvlgZJXvWKvBx
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9xidUBm4rlNOo3YgRAifDAJ0d6Cr4q3bStkuWM8SfkDadSVSbYQCfQoBJ
+mY2Pu4y9/p8wS5B5/AztJdo=
+=jA96
+-----END PGP SIGNATURE-----
+
+--dDRMvlgZJXvWKvBx--

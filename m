@@ -1,93 +1,154 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281268AbRKZAeR>; Sun, 25 Nov 2001 19:34:17 -0500
+	id <S281232AbRKZAeR>; Sun, 25 Nov 2001 19:34:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281232AbRKZAeJ>; Sun, 25 Nov 2001 19:34:09 -0500
-Received: from grip.panax.com ([63.163.40.2]:65293 "EHLO panax.com")
-	by vger.kernel.org with ESMTP id <S281268AbRKZAd7>;
-	Sun, 25 Nov 2001 19:33:59 -0500
-Date: Sun, 25 Nov 2001 19:31:55 -0500
-From: Patrick McFarland <unknown@panax.com>
-To: J Sloan <jjs@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.16-pre1
-Message-ID: <20011125193155.N238@localhost>
-Mail-Followup-To: J Sloan <jjs@pobox.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0111241311040.2591-100000@penguin.transmeta.com> <20011124205632.C241@localhost> <20011124211204.D241@localhost> <3C0058CF.D97D0E2B@starband.net> <20011124214114.E241@localhost> <3C006F44.201DC73F@pobox.com> <20011125165819.G238@localhost> <3C017740.FB17CD8C@pobox.com> <20011125181146.L238@localhost> <20011125192629.M238@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011125192629.M238@localhost>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.4.14 i686
-X-Distributed: Join the Effort!  http://www.distributed.net/
+	id <S281270AbRKZAeI>; Sun, 25 Nov 2001 19:34:08 -0500
+Received: from sis.com.tw ([203.67.208.3]:5530 "EHLO maillog.sis.com.tw")
+	by vger.kernel.org with ESMTP id <S281232AbRKZAeA>;
+	Sun, 25 Nov 2001 19:34:00 -0500
+From: "kmliu" <kmliu@sis.com.tw>
+To: "Nelson Lee" <nelson@sis.com.tw>, "Krzysztof Oledzki" <ole@ans.pl>
+Cc: "JTLee" <jtlee@sis.com.tw>, <andre@linux-ide.org>,
+        "charles" <charles@sis.com.tw>, <linux-kernel@vger.kernel.org>
+Subject: RE: SiS601?!
+Date: Mon, 26 Nov 2001 08:15:33 +0800
+Message-ID: <NDBBJBFIOLNMNHAELGHFMEGNCJAA.kmliu@sis.com.tw>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="big5"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+In-Reply-To: <Pine.LNX.4.33.0111240137010.21639-100000@dark.pcgames.pl>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id LAA18018
 
-Oh, and I forgot to mention, its usually (imho) the maintainer's job to write.. *gasp* documentation. I know we all hate to do it, but someone has to. And the kernel docs are... enemic, at best.
 
-On 25-Nov-2001, Patrick McFarland wrote:
-> Anyhow, back to the original problem, it seems that everyone thinks you can devlope code and not have to maintain it at the same time. If linus doesnt maintain the 2.5 tree while he develops it, it will turn into an unweildly bloated mess. Now, from what I understand, linus doesnt wanna maintain the code, and thats why I think he should have someone to help him maintain the 2.5 tree while he develops it. As a project gets bigger, no matter if its the stable tree or development tree, it needs to be constantly trimmed and pruned like a real tree. 
-> 
-> 
-> On 25-Nov-2001, Patrick McFarland wrote:
-> > I have an eepro100 in my box, but I dont use it, I dont have a network. =)
-> > Im actually wondering if it works.
-> > 
-> > On 25-Nov-2001, J Sloan wrote:
-> > > Patrick McFarland wrote:
-> > > 
-> > > > So your saying I should actually trust my distro to build a kernel right?
-> > > 
-> > > Depends on how paranoid you are - I find the
-> > > red hat kernels to be a safe, if boring choice.
-> > > 
-> > > > I build my own kernels, I have since day one.
-> > > 
-> > > Sounds like you would have done better to use
-> > > the vendor suppplied kernel in this case -
-> > > 
-> > > > But, heres a semi-key point, what happens to vendor patches? Do they ever get folded back into the main tree?
-> > > 
-> > > Many do, some don't.
-> > > 
-> > > Actual bug fixes get folded into the main tree,
-> > > but things like the e100 driver, the dell perc
-> > > raid drivers, the tux webserver, the linux
-> > > vertual server etc that are all in the red hat
-> > > kernel may never be in mainstream.
-> > > 
-> > > I would sure like to see tux in main kernel,
-> > > since it's superior to the khttpd that's part
-> > > of the mainline tree.
-> > > 
-> > > But things like the e100 driver I could live
-> > > without if eepro100 gets to the point where
-> > > it works just as well.
-> > > 
-> > > cu
-> > > 
-> > > jjs
-> > > 
-> > > 
-> > 
-> > -- 
-> > Patrick "Diablo-D3" McFarland || unknown@panax.com
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
-> -- 
-> Patrick "Diablo-D3" McFarland || unknown@panax.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+SiS406 seems too old to support it.
 
--- 
-Patrick "Diablo-D3" McFarland || unknown@panax.com
+I do not have any idea about SiS406/SiS601.
+
+
+
+-----Original Message-----
+From: Krzysztof Oledzki [mailto:ole@ans.pl]
+Sent: Saturday, November 24, 2001 8:46 AM
+To: Nelson Lee
+Cc: kmliu; linux-kernel@vger.kernel.org; ron; JasonTsai; charles; andre@linux-ide.org
+Subject: Re: SiS601?!
+
+
+
+
+On Fri, 23 Nov 2001, Nelson Lee wrote:
+
+> ----- Original Message -----
+> From: "kmliu" <kmliu@sis.com.tw>
+> Sent: Friday, November 23, 2001 8:11 AM
+>
+> > Hi,
+> >
+> > We do not have any product which name is SiS601,
+> >
+> > The IDE controller is SiS5513, the north bridge is
+> SiS620/530/630/540/550/635/735/730/740/640/645/640.
+> >
+> > Please make sure what is the name of the chipset.
+> >
+> > Nelson:
+> >
+> > Do we have SiS601 in notebook market?
+> K.M.:
+>
+> No, we do not have.
+
+Ok, let's try this:
+
+$ lspci
+00:00.0 Host bridge: Silicon Integrated Systems [SiS] 85C501/2
+00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513 (rev 01)
+00:01.1 IDE interface: Silicon Integrated Systems [SiS] 85C601 (rev 01)
+00:11.0 VGA compatible controller: Trident Microsystems TGUI 9660/968x/968x (rev d3)
+00:13.0 PCMCIA bridge: Cirrus Logic CL 6729 (rev 07)
+
+$ lspci -n
+00:00.0 Class 0600: 1039:0406
+00:01.0 Class 0601: 1039:0008 (rev 01)
+00:01.1 Class 0101: 1039:0601 (rev 01)
+00:11.0 Class 0300: 1023:9660 (rev d3)
+00:13.0 Class 0605: 1013:1100 (rev 07)
+
+$ lspci -v
+00:00.0 Host bridge: Silicon Integrated Systems [SiS] 85C501/2
+        Flags: bus master, fast devsel, latency 0
+
+00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513 (rev 01)
+        Flags: bus master, medium devsel, latency 0
+
+00:01.1 IDE interface: Silicon Integrated Systems [SiS] 85C601 (rev 01)
+(prog-if 00 [])
+        Flags: medium devsel, IRQ 14
+        I/O ports at 0174
+        I/O ports at 01f4
+        I/O ports at 0374
+        I/O ports at 03f4
+
+00:11.0 VGA compatible controller: Trident Microsystems TGUI
+9660/968x/968x (rev d3) (prog-if 00 [VGA])
+        Flags: medium devsel
+        Memory at fe400000 (32-bit, non-prefetchable)
+        Memory at fedf0000 (32-bit, non-prefetchable)
+        Memory at fe800000 (32-bit, non-prefetchable)
+
+00:13.0 PCMCIA bridge: Cirrus Logic CL 6729 (rev 07)
+        Flags: stepping, slow devsel
+        I/O ports at 03e0
+
+$ lspci -s 00:01.1 -vvvxxx
+00:01.1 IDE interface: Silicon Integrated Systems [SiS] 85C601 (rev 01) (prog-if 00 [])
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 14
+	Region 0: I/O ports at 0174
+	Region 1: I/O ports at 01f4
+	Region 2: I/O ports at 0374
+	Region 3: I/O ports at 03f4
+00: 39 10 01 06 01 00 00 02 01 00 01 01 00 00 80 00
+10: 75 01 00 00 f5 01 00 00 75 03 00 00 f5 03 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 0e 01 00 00
+40: f2 f2 f2 f2 00 f3 00 f3 88 00 00 00 00 00 80 00
+50: 75 01 00 00 f5 01 00 00 75 03 00 00 f5 03 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 39 10 01 06 01 00 00 02 01 00 01 01 00 00 80 00
+90: 75 01 00 00 f5 01 00 00 75 03 00 00 f5 03 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 39 10 01 06 01 00 00 02 01 00 01 01 00 00 80 00
+d0: 75 01 00 00 f5 01 00 00 75 03 00 00 f5 03 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+So, you can see that this mus be an IDE interface, it has:
+        Interrupt: pin A routed to IRQ 14
+        Region 0: I/O ports at 0174
+        Region 1: I/O ports at 01f4
+        Region 2: I/O ports at 0374
+        Region 3: I/O ports at 03f4
+
+and according to lspci it is Silicon Integrated Systems [SiS] 85C601 (rev 01).
+
+
+My notebook is ARISTO model FT-9000.
+
+
+Best regards,
+
+
+				Krzysztof Oledzki
+ý:.žË›±Êâmçë¢kaŠÉb²ßìzwm…ébïîžË›±Êâmébžìÿ‘êçz_âžØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Þ—ú+€Ê+zf£¢·hšˆ§~†­†Ûiÿÿïêÿ‘êçz_è®æj:+v‰¨þ)ß£ømšSåy«­æ¶…­†ÛiÿÿðÃí»è®å’i

@@ -1,624 +1,329 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129069AbRBTGAm>; Tue, 20 Feb 2001 01:00:42 -0500
+	id <S129066AbRBTGVm>; Tue, 20 Feb 2001 01:21:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129104AbRBTGAd>; Tue, 20 Feb 2001 01:00:33 -0500
-Received: from [202.102.24.27] ([202.102.24.27]:7868 "HELO mail.jlonline.com")
-	by vger.kernel.org with SMTP id <S129069AbRBTGAY>;
-	Tue, 20 Feb 2001 01:00:24 -0500
+	id <S129161AbRBTGVd>; Tue, 20 Feb 2001 01:21:33 -0500
+Received: from pptp2.speedcast.com ([202.174.129.5]:6673 "EHLO ns.kriljon.ru")
+	by vger.kernel.org with ESMTP id <S129066AbRBTGVP>;
+	Tue, 20 Feb 2001 01:21:15 -0500
+Message-Id: <200102200718.f1K7ICh32337@ns.kriljon.ru>
+Date: Tue, 20 Feb 2001 16:21:20 +1000
+From: Eugene Danilchenko <eugene@kriljon.ru>
 To: linux-kernel@vger.kernel.org
-Subject: Newbie ask for help: cramfs port to isofs
-From: zhaoway <zw@debian.org>
-User-Agent: Header is long! Life is short!
-X-Face: "P0SH::3nH$Qd<"HD?toC5[p@)2)<dOE)UX:p/`Lhzz%R-|Z6)0`[?kZ*#m3A2)%9?H$VwT
- (8f)`[M|:KJU3q8".)KqSMd+'L!=_5u|zNR:Yv{>CH{a+pKXDK@aL@|{DS?#e!-W$>0g0WG6kO&c?`
- +RWoX+bzZ6Vx0h2]]OY5&v4"VK<vjKMJ7,IIq]RDnTTCud;QQ''Dv`58q%J)N[_?LBxQ
-Message-ID: <877l2lyk3j.fsf@debian.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
-Date: 20 Feb 2001 14:03:12 +0800
+Subject: unresloved symbols in 2.4.1
+X-Mailer: stuphead version 0.5.0 (GTK+ 1.2.8; Linux 2.2.17-21mdk; i686)
+Organization: Kriljon
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart_Tue__20_Feb_2001_16:21:20_+1000_08252168"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+This is a multi-part message in MIME format.
 
-I've nearly no prior experience with kernel hacking (nor C if you have
-to ask, haha), sorry in advance for the newbiesh looking. ;-)
+--Multipart_Tue__20_Feb_2001_16:21:20_+1000_08252168
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-See attach for a rough try to port cramfs to isofs which gave me lots
-of oops and reboots and fscks this week. Please if you have some spare
-time to give it a look with your experienced eyes to help me out of
-this helpless state. Thanks alot!
+Hello, 
+i have problem. When i try to install compiled modules (make modules_install) with kernel 2.4.2, i get this message (tail -7): 
 
-I plan to automatically de-compressing ``*.cramed'' files made with
-cramit.c (which is a simplified version of mkcramfs.c also attached
-below) from within isofs.o. This indeed isn't a very clean idea I
-agree. If you have better design, please let me know.
+cd /lib/modules/2.4.1; \
+mkdir -p pcmcia; \
+find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.1; fi
+depmod: *** Unresolved symbols in /lib/modules/2.4.1/kernel/fs/binfmt_elf.o
+depmod:         get_pte_slow
+depmod:         __handle_bad_pmd                                                                              
 
-My problem is that when I after mount ``$ file somefile.not.cram.ed''
-the kernel hangs. And my de-compression code surely has some thing
-severely broken too. Please heeeeelp! ;-)
+System: RedHat 6.2 
+on system installed:
+modutils-2.4.2-1
 
+What does it mean. and what have i to do to avoid it?
+Eugene
+--Multipart_Tue__20_Feb_2001_16:21:20_+1000_08252168
+Content-Type: application/octet-stream;
+ name=".config"
+Content-Disposition: attachment;
+ filename=".config"
+Content-Transfer-Encoding: base64
 
---=-=-=
-Content-Disposition: attachment; filename=dir.c.diff
+IwojIEF1dG9tYXRpY2FsbHkgZ2VuZXJhdGVkIGJ5IG1ha2UgbWVudWNvbmZpZzogZG9uJ3QgZWRp
+dAojCkNPTkZJR19YODY9eQpDT05GSUdfSVNBPXkKIyBDT05GSUdfU0JVUyBpcyBub3Qgc2V0CkNP
+TkZJR19VSUQxNj15CgojCiMgQ29kZSBtYXR1cml0eSBsZXZlbCBvcHRpb25zCiMKQ09ORklHX0VY
+UEVSSU1FTlRBTD15CgojCiMgTG9hZGFibGUgbW9kdWxlIHN1cHBvcnQKIwpDT05GSUdfTU9EVUxF
+Uz15CkNPTkZJR19NT0RWRVJTSU9OUz15CkNPTkZJR19LTU9EPXkKCiMKIyBQcm9jZXNzb3IgdHlw
+ZSBhbmQgZmVhdHVyZXMKIwojIENPTkZJR19NMzg2IGlzIG5vdCBzZXQKIyBDT05GSUdfTTQ4NiBp
+cyBub3Qgc2V0CiMgQ09ORklHX001ODYgaXMgbm90IHNldAojIENPTkZJR19NNTg2VFNDIGlzIG5v
+dCBzZXQKIyBDT05GSUdfTTU4Nk1NWCBpcyBub3Qgc2V0CiMgQ09ORklHX002ODYgaXMgbm90IHNl
+dApDT05GSUdfTVBFTlRJVU1JSUk9eQojIENPTkZJR19NUEVOVElVTTQgaXMgbm90IHNldAojIENP
+TkZJR19NSzYgaXMgbm90IHNldAojIENPTkZJR19NSzcgaXMgbm90IHNldAojIENPTkZJR19NQ1JV
+U09FIGlzIG5vdCBzZXQKIyBDT05GSUdfTVdJTkNISVBDNiBpcyBub3Qgc2V0CiMgQ09ORklHX01X
+SU5DSElQMiBpcyBub3Qgc2V0CiMgQ09ORklHX01XSU5DSElQM0QgaXMgbm90IHNldApDT05GSUdf
+WDg2X1dQX1dPUktTX09LPXkKQ09ORklHX1g4Nl9JTlZMUEc9eQpDT05GSUdfWDg2X0NNUFhDSEc9
+eQpDT05GSUdfWDg2X0JTV0FQPXkKQ09ORklHX1g4Nl9QT1BBRF9PSz15CkNPTkZJR19YODZfTDFf
+Q0FDSEVfU0hJRlQ9NQpDT05GSUdfWDg2X1RTQz15CkNPTkZJR19YODZfR09PRF9BUElDPXkKQ09O
+RklHX1g4Nl9QR0U9eQpDT05GSUdfWDg2X1VTRV9QUFJPX0NIRUNLU1VNPXkKIyBDT05GSUdfVE9T
+SElCQSBpcyBub3Qgc2V0CiMgQ09ORklHX01JQ1JPQ09ERSBpcyBub3Qgc2V0CkNPTkZJR19YODZf
+TVNSPXkKQ09ORklHX1g4Nl9DUFVJRD15CkNPTkZJR19OT0hJR0hNRU09eQojIENPTkZJR19ISUdI
+TUVNNEcgaXMgbm90IHNldAojIENPTkZJR19ISUdITUVNNjRHIGlzIG5vdCBzZXQKIyBDT05GSUdf
+TUFUSF9FTVVMQVRJT04gaXMgbm90IHNldApDT05GSUdfTVRSUj15CiMgQ09ORklHX1NNUCBpcyBu
+b3Qgc2V0CiMgQ09ORklHX1g4Nl9VUF9JT0FQSUMgaXMgbm90IHNldAoKIwojIEdlbmVyYWwgc2V0
+dXAKIwpDT05GSUdfTkVUPXkKIyBDT05GSUdfVklTV1MgaXMgbm90IHNldApDT05GSUdfUENJPXkK
+IyBDT05GSUdfUENJX0dPQklPUyBpcyBub3Qgc2V0CiMgQ09ORklHX1BDSV9HT0RJUkVDVCBpcyBu
+b3Qgc2V0CkNPTkZJR19QQ0lfR09BTlk9eQpDT05GSUdfUENJX0JJT1M9eQpDT05GSUdfUENJX0RJ
+UkVDVD15CkNPTkZJR19QQ0lfTkFNRVM9eQojIENPTkZJR19FSVNBIGlzIG5vdCBzZXQKIyBDT05G
+SUdfTUNBIGlzIG5vdCBzZXQKQ09ORklHX0hPVFBMVUc9eQoKIwojIFBDTUNJQS9DYXJkQnVzIHN1
+cHBvcnQKIwojIENPTkZJR19QQ01DSUEgaXMgbm90IHNldApDT05GSUdfU1lTVklQQz15CkNPTkZJ
+R19CU0RfUFJPQ0VTU19BQ0NUPXkKQ09ORklHX1NZU0NUTD15CkNPTkZJR19LQ09SRV9FTEY9eQoj
+IENPTkZJR19LQ09SRV9BT1VUIGlzIG5vdCBzZXQKQ09ORklHX0JJTkZNVF9BT1VUPXkKQ09ORklH
+X0JJTkZNVF9FTEY9bQpDT05GSUdfQklORk1UX01JU0M9bQojIENPTkZJR19QTSBpcyBub3Qgc2V0
+CiMgQ09ORklHX0FDUEkgaXMgbm90IHNldAojIENPTkZJR19BUE0gaXMgbm90IHNldAoKIwojIE1l
+bW9yeSBUZWNobm9sb2d5IERldmljZXMgKE1URCkKIwojIENPTkZJR19NVEQgaXMgbm90IHNldAoK
+IwojIFBhcmFsbGVsIHBvcnQgc3VwcG9ydAojCiMgQ09ORklHX1BBUlBPUlQgaXMgbm90IHNldAoK
+IwojIFBsdWcgYW5kIFBsYXkgY29uZmlndXJhdGlvbgojCkNPTkZJR19QTlA9eQpDT05GSUdfSVNB
+UE5QPXkKCiMKIyBCbG9jayBkZXZpY2VzCiMKQ09ORklHX0JMS19ERVZfRkQ9eQojIENPTkZJR19C
+TEtfREVWX1hEIGlzIG5vdCBzZXQKIyBDT05GSUdfUEFSSURFIGlzIG5vdCBzZXQKIyBDT05GSUdf
+QkxLX0NQUV9EQSBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19DUFFfQ0lTU19EQSBpcyBub3Qgc2V0
+CiMgQ09ORklHX0JMS19ERVZfREFDOTYwIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9MT09Q
+IGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9OQkQgaXMgbm90IHNldAojIENPTkZJR19CTEtf
+REVWX1JBTSBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfSU5JVFJEIGlzIG5vdCBzZXQKCiMK
+IyBNdWx0aS1kZXZpY2Ugc3VwcG9ydCAoUkFJRCBhbmQgTFZNKQojCkNPTkZJR19NRD15CkNPTkZJ
+R19CTEtfREVWX01EPXkKQ09ORklHX01EX0xJTkVBUj1tCkNPTkZJR19NRF9SQUlEMD1tCkNPTkZJ
+R19NRF9SQUlEMT1tCkNPTkZJR19NRF9SQUlENT1tCkNPTkZJR19CTEtfREVWX0xWTT1tCgojCiMg
+TmV0d29ya2luZyBvcHRpb25zCiMKQ09ORklHX1BBQ0tFVD15CiMgQ09ORklHX1BBQ0tFVF9NTUFQ
+IGlzIG5vdCBzZXQKQ09ORklHX05FVExJTks9eQpDT05GSUdfUlRORVRMSU5LPXkKQ09ORklHX05F
+VExJTktfREVWPW0KQ09ORklHX05FVEZJTFRFUj15CkNPTkZJR19ORVRGSUxURVJfREVCVUc9eQpD
+T05GSUdfRklMVEVSPXkKQ09ORklHX1VOSVg9eQpDT05GSUdfSU5FVD15CkNPTkZJR19JUF9NVUxU
+SUNBU1Q9eQojIENPTkZJR19JUF9BRFZBTkNFRF9ST1VURVIgaXMgbm90IHNldAojIENPTkZJR19J
+UF9QTlAgaXMgbm90IHNldApDT05GSUdfTkVUX0lQSVA9bQpDT05GSUdfTkVUX0lQR1JFPW0KQ09O
+RklHX05FVF9JUEdSRV9CUk9BRENBU1Q9eQojIENPTkZJR19JUF9NUk9VVEUgaXMgbm90IHNldAoj
+IENPTkZJR19BUlBEIGlzIG5vdCBzZXQKIyBDT05GSUdfSU5FVF9FQ04gaXMgbm90IHNldApDT05G
+SUdfU1lOX0NPT0tJRVM9eQoKIwojICAgSVA6IE5ldGZpbHRlciBDb25maWd1cmF0aW9uCiMKQ09O
+RklHX0lQX05GX0NPTk5UUkFDSz1tCkNPTkZJR19JUF9ORl9GVFA9bQpDT05GSUdfSVBfTkZfUVVF
+VUU9bQpDT05GSUdfSVBfTkZfSVBUQUJMRVM9bQpDT05GSUdfSVBfTkZfTUFUQ0hfTElNSVQ9bQpD
+T05GSUdfSVBfTkZfTUFUQ0hfTUFDPW0KQ09ORklHX0lQX05GX01BVENIX01BUks9bQpDT05GSUdf
+SVBfTkZfTUFUQ0hfTVVMVElQT1JUPW0KQ09ORklHX0lQX05GX01BVENIX1RPUz1tCkNPTkZJR19J
+UF9ORl9NQVRDSF9TVEFURT1tCkNPTkZJR19JUF9ORl9NQVRDSF9VTkNMRUFOPW0KQ09ORklHX0lQ
+X05GX01BVENIX09XTkVSPW0KQ09ORklHX0lQX05GX0ZJTFRFUj1tCkNPTkZJR19JUF9ORl9UQVJH
+RVRfUkVKRUNUPW0KQ09ORklHX0lQX05GX1RBUkdFVF9NSVJST1I9bQpDT05GSUdfSVBfTkZfTkFU
+PW0KQ09ORklHX0lQX05GX05BVF9ORUVERUQ9eQpDT05GSUdfSVBfTkZfVEFSR0VUX01BU1FVRVJB
+REU9bQpDT05GSUdfSVBfTkZfVEFSR0VUX1JFRElSRUNUPW0KQ09ORklHX0lQX05GX05BVF9GVFA9
+bQpDT05GSUdfSVBfTkZfTUFOR0xFPW0KQ09ORklHX0lQX05GX1RBUkdFVF9UT1M9bQpDT05GSUdf
+SVBfTkZfVEFSR0VUX01BUks9bQpDT05GSUdfSVBfTkZfVEFSR0VUX0xPRz1tCkNPTkZJR19JUF9O
+Rl9DT01QQVRfSVBDSEFJTlM9bQpDT05GSUdfSVBfTkZfTkFUX05FRURFRD15CiMgQ09ORklHX0lQ
+X05GX0NPTVBBVF9JUEZXQURNIGlzIG5vdCBzZXQKIyBDT05GSUdfSVBWNiBpcyBub3Qgc2V0CiMg
+Q09ORklHX0tIVFRQRCBpcyBub3Qgc2V0CiMgQ09ORklHX0FUTSBpcyBub3Qgc2V0CiMgQ09ORklH
+X0lQWCBpcyBub3Qgc2V0CiMgQ09ORklHX0FUQUxLIGlzIG5vdCBzZXQKIyBDT05GSUdfREVDTkVU
+IGlzIG5vdCBzZXQKIyBDT05GSUdfQlJJREdFIGlzIG5vdCBzZXQKIyBDT05GSUdfWDI1IGlzIG5v
+dCBzZXQKIyBDT05GSUdfTEFQQiBpcyBub3Qgc2V0CiMgQ09ORklHX0xMQyBpcyBub3Qgc2V0CiMg
+Q09ORklHX05FVF9ESVZFUlQgaXMgbm90IHNldAojIENPTkZJR19FQ09ORVQgaXMgbm90IHNldAoj
+IENPTkZJR19XQU5fUk9VVEVSIGlzIG5vdCBzZXQKIyBDT05GSUdfTkVUX0ZBU1RST1VURSBpcyBu
+b3Qgc2V0CiMgQ09ORklHX05FVF9IV19GTE9XQ09OVFJPTCBpcyBub3Qgc2V0CgojCiMgUW9TIGFu
+ZC9vciBmYWlyIHF1ZXVlaW5nCiMKQ09ORklHX05FVF9TQ0hFRD15CkNPTkZJR19ORVRMSU5LPXkK
+Q09ORklHX1JUTkVUTElOSz15CkNPTkZJR19ORVRfU0NIX0NCUT15CkNPTkZJR19ORVRfU0NIX0NT
+Wj15CkNPTkZJR19ORVRfU0NIX1BSSU89eQpDT05GSUdfTkVUX1NDSF9SRUQ9eQpDT05GSUdfTkVU
+X1NDSF9TRlE9eQpDT05GSUdfTkVUX1NDSF9URVFMPXkKQ09ORklHX05FVF9TQ0hfVEJGPXkKQ09O
+RklHX05FVF9TQ0hfR1JFRD15CkNPTkZJR19ORVRfU0NIX0RTTUFSSz15CkNPTkZJR19ORVRfU0NI
+X0lOR1JFU1M9eQpDT05GSUdfTkVUX1FPUz15CkNPTkZJR19ORVRfRVNUSU1BVE9SPXkKQ09ORklH
+X05FVF9DTFM9eQpDT05GSUdfTkVUX0NMU19UQ0lOREVYPXkKQ09ORklHX05FVF9DTFNfUk9VVEU0
+PXkKQ09ORklHX05FVF9DTFNfUk9VVEU9eQpDT05GSUdfTkVUX0NMU19GVz15CkNPTkZJR19ORVRf
+Q0xTX1UzMj15CkNPTkZJR19ORVRfQ0xTX1JTVlA9eQpDT05GSUdfTkVUX0NMU19SU1ZQNj15CkNP
+TkZJR19ORVRfQ0xTX1BPTElDRT15CgojCiMgVGVsZXBob255IFN1cHBvcnQKIwojIENPTkZJR19Q
+SE9ORSBpcyBub3Qgc2V0CiMgQ09ORklHX1BIT05FX0lYSiBpcyBub3Qgc2V0CgojCiMgQVRBL0lE
+RS9NRk0vUkxMIHN1cHBvcnQKIwpDT05GSUdfSURFPXkKCiMKIyBJREUsIEFUQSBhbmQgQVRBUEkg
+QmxvY2sgZGV2aWNlcwojCkNPTkZJR19CTEtfREVWX0lERT15CiMgQ09ORklHX0JMS19ERVZfSERf
+SURFIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9IRCBpcyBub3Qgc2V0CkNPTkZJR19CTEtf
+REVWX0lERURJU0s9eQpDT05GSUdfSURFRElTS19NVUxUSV9NT0RFPXkKIyBDT05GSUdfQkxLX0RF
+Vl9JREVESVNLX1ZFTkRPUiBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfSURFRElTS19GVUpJ
+VFNVIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9JREVESVNLX0lCTSBpcyBub3Qgc2V0CiMg
+Q09ORklHX0JMS19ERVZfSURFRElTS19NQVhUT1IgaXMgbm90IHNldAojIENPTkZJR19CTEtfREVW
+X0lERURJU0tfUVVBTlRVTSBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfSURFRElTS19TRUFH
+QVRFIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9JREVESVNLX1dEIGlzIG5vdCBzZXQKIyBD
+T05GSUdfQkxLX0RFVl9DT01NRVJJQUwgaXMgbm90IHNldAojIENPTkZJR19CTEtfREVWX1RJVk8g
+aXMgbm90IHNldAojIENPTkZJR19CTEtfREVWX0lERUNTIGlzIG5vdCBzZXQKQ09ORklHX0JMS19E
+RVZfSURFQ0Q9eQojIENPTkZJR19CTEtfREVWX0lERVRBUEUgaXMgbm90IHNldAojIENPTkZJR19C
+TEtfREVWX0lERUZMT1BQWSBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfSURFU0NTSSBpcyBu
+b3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfQ01ENjQwIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RF
+Vl9DTUQ2NDBfRU5IQU5DRUQgaXMgbm90IHNldAojIENPTkZJR19CTEtfREVWX0lTQVBOUCBpcyBu
+b3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfUloxMDAwIGlzIG5vdCBzZXQKQ09ORklHX0JMS19ERVZf
+SURFUENJPXkKQ09ORklHX0lERVBDSV9TSEFSRV9JUlE9eQpDT05GSUdfQkxLX0RFVl9JREVETUFf
+UENJPXkKIyBDT05GSUdfQkxLX0RFVl9PRkZCT0FSRCBpcyBub3Qgc2V0CkNPTkZJR19JREVETUFf
+UENJX0FVVE89eQpDT05GSUdfQkxLX0RFVl9JREVETUE9eQojIENPTkZJR19JREVETUFfUENJX1dJ
+UCBpcyBub3Qgc2V0CiMgQ09ORklHX0lERURNQV9ORVdfRFJJVkVfTElTVElOR1MgaXMgbm90IHNl
+dAojIENPTkZJR19CTEtfREVWX0FFQzYyWFggaXMgbm90IHNldAojIENPTkZJR19BRUM2MlhYX1RV
+TklORyBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfQUxJMTVYMyBpcyBub3Qgc2V0CiMgQ09O
+RklHX1dEQ19BTEkxNVgzIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9BTUQ3NDA5IGlzIG5v
+dCBzZXQKIyBDT05GSUdfQU1ENzQwOV9PVkVSUklERSBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19E
+RVZfQ01ENjRYIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9DWTgyQzY5MyBpcyBub3Qgc2V0
+CiMgQ09ORklHX0JMS19ERVZfQ1M1NTMwIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9IUFQz
+NFggaXMgbm90IHNldAojIENPTkZJR19IUFQzNFhfQVVUT0RNQSBpcyBub3Qgc2V0CiMgQ09ORklH
+X0JMS19ERVZfSFBUMzY2IGlzIG5vdCBzZXQKQ09ORklHX0JMS19ERVZfUElJWD15CkNPTkZJR19Q
+SUlYX1RVTklORz15CiMgQ09ORklHX0JMS19ERVZfTlM4NzQxNSBpcyBub3Qgc2V0CiMgQ09ORklH
+X0JMS19ERVZfT1BUSTYyMSBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfUERDMjAyWFggaXMg
+bm90IHNldAojIENPTkZJR19QREMyMDJYWF9CVVJTVCBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19E
+RVZfT1NCNCBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfU0lTNTUxMyBpcyBub3Qgc2V0CiMg
+Q09ORklHX0JMS19ERVZfU0xDOTBFNjYgaXMgbm90IHNldAojIENPTkZJR19CTEtfREVWX1RSTTI5
+MCBpcyBub3Qgc2V0CkNPTkZJR19CTEtfREVWX1ZJQTgyQ1hYWD15CiMgQ09ORklHX0lERV9DSElQ
+U0VUUyBpcyBub3Qgc2V0CkNPTkZJR19JREVETUFfQVVUTz15CiMgQ09ORklHX0lERURNQV9JVkIg
+aXMgbm90IHNldAojIENPTkZJR19ETUFfTk9OUENJIGlzIG5vdCBzZXQKQ09ORklHX0JMS19ERVZf
+SURFX01PREVTPXkKCiMKIyBTQ1NJIHN1cHBvcnQKIwpDT05GSUdfU0NTST1tCkNPTkZJR19CTEtf
+REVWX1NEPW0KQ09ORklHX1NEX0VYVFJBX0RFVlM9NDAKQ09ORklHX0NIUl9ERVZfU1Q9bQpDT05G
+SUdfQ0hSX0RFVl9PU1NUPW0KQ09ORklHX0JMS19ERVZfU1I9bQpDT05GSUdfQkxLX0RFVl9TUl9W
+RU5ET1I9eQpDT05GSUdfU1JfRVhUUkFfREVWUz0yCkNPTkZJR19DSFJfREVWX1NHPW0KQ09ORklH
+X1NDU0lfREVCVUdfUVVFVUVTPXkKQ09ORklHX1NDU0lfTVVMVElfTFVOPXkKQ09ORklHX1NDU0lf
+Q09OU1RBTlRTPXkKIyBDT05GSUdfU0NTSV9MT0dHSU5HIGlzIG5vdCBzZXQKCiMKIyBTQ1NJIGxv
+dy1sZXZlbCBkcml2ZXJzCiMKIyBDT05GSUdfQkxLX0RFVl8zV19YWFhYX1JBSUQgaXMgbm90IHNl
+dAojIENPTkZJR19TQ1NJXzcwMDBGQVNTVCBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfQUNBUkQg
+aXMgbm90IHNldApDT05GSUdfU0NTSV9BSEExNTJYPW0KQ09ORklHX1NDU0lfQUhBMTU0Mj1tCkNP
+TkZJR19TQ1NJX0FIQTE3NDA9bQpDT05GSUdfU0NTSV9BSUM3WFhYPW0KIyBDT05GSUdfQUlDN1hY
+WF9UQ1FfT05fQllfREVGQVVMVCBpcyBub3Qgc2V0CkNPTkZJR19BSUM3WFhYX0NNRFNfUEVSX0RF
+VklDRT04CkNPTkZJR19BSUM3WFhYX1BST0NfU1RBVFM9eQpDT05GSUdfQUlDN1hYWF9SRVNFVF9E
+RUxBWT01CiMgQ09ORklHX1NDU0lfQURWQU5TWVMgaXMgbm90IHNldAojIENPTkZJR19TQ1NJX0lO
+MjAwMCBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfQU01M0M5NzQgaXMgbm90IHNldAojIENPTkZJ
+R19TQ1NJX01FR0FSQUlEIGlzIG5vdCBzZXQKIyBDT05GSUdfU0NTSV9CVVNMT0dJQyBpcyBub3Qg
+c2V0CiMgQ09ORklHX1NDU0lfQ1BRRkNUUyBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfRE1YMzE5
+MUQgaXMgbm90IHNldAojIENPTkZJR19TQ1NJX0RUQzMyODAgaXMgbm90IHNldAojIENPTkZJR19T
+Q1NJX0VBVEEgaXMgbm90IHNldAojIENPTkZJR19TQ1NJX0VBVEFfRE1BIGlzIG5vdCBzZXQKIyBD
+T05GSUdfU0NTSV9FQVRBX1BJTyBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfRlVUVVJFX0RPTUFJ
+TiBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfR0RUSCBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lf
+R0VORVJJQ19OQ1I1MzgwIGlzIG5vdCBzZXQKIyBDT05GSUdfU0NTSV9JUFMgaXMgbm90IHNldAoj
+IENPTkZJR19TQ1NJX0lOSVRJTyBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfSU5JQTEwMCBpcyBu
+b3Qgc2V0CiMgQ09ORklHX1NDU0lfTkNSNTNDNDA2QSBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lf
+TkNSNTNDN3h4IGlzIG5vdCBzZXQKIyBDT05GSUdfU0NTSV9OQ1I1M0M4WFggaXMgbm90IHNldApD
+T05GSUdfU0NTSV9TWU01M0M4WFg9bQpDT05GSUdfU0NTSV9OQ1I1M0M4WFhfREVGQVVMVF9UQUdT
+PTQKQ09ORklHX1NDU0lfTkNSNTNDOFhYX01BWF9UQUdTPTMyCkNPTkZJR19TQ1NJX05DUjUzQzhY
+WF9TWU5DPTIwCiMgQ09ORklHX1NDU0lfTkNSNTNDOFhYX1BST0ZJTEUgaXMgbm90IHNldAojIENP
+TkZJR19TQ1NJX05DUjUzQzhYWF9JT01BUFBFRCBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfTkNS
+NTNDOFhYX1BRU19QRFMgaXMgbm90IHNldAojIENPTkZJR19TQ1NJX05DUjUzQzhYWF9TWU1CSU9T
+X0NPTVBBVCBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfUEFTMTYgaXMgbm90IHNldAojIENPTkZJ
+R19TQ1NJX1BDSTIwMDAgaXMgbm90IHNldAojIENPTkZJR19TQ1NJX1BDSTIyMjBJIGlzIG5vdCBz
+ZXQKIyBDT05GSUdfU0NTSV9QU0kyNDBJIGlzIG5vdCBzZXQKIyBDT05GSUdfU0NTSV9RTE9HSUNf
+RkFTIGlzIG5vdCBzZXQKIyBDT05GSUdfU0NTSV9RTE9HSUNfSVNQIGlzIG5vdCBzZXQKIyBDT05G
+SUdfU0NTSV9RTE9HSUNfRkMgaXMgbm90IHNldAojIENPTkZJR19TQ1NJX1FMT0dJQ18xMjgwIGlz
+IG5vdCBzZXQKIyBDT05GSUdfU0NTSV9TRUFHQVRFIGlzIG5vdCBzZXQKIyBDT05GSUdfU0NTSV9T
+SU03MTAgaXMgbm90IHNldAojIENPTkZJR19TQ1NJX1NZTTUzQzQxNiBpcyBub3Qgc2V0CkNPTkZJ
+R19TQ1NJX0RDMzkwVD1tCiMgQ09ORklHX1NDU0lfREMzOTBUX05PR0VOU1VQUCBpcyBub3Qgc2V0
+CiMgQ09ORklHX1NDU0lfVDEyOCBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfVTE0XzM0RiBpcyBu
+b3Qgc2V0CiMgQ09ORklHX1NDU0lfVUxUUkFTVE9SIGlzIG5vdCBzZXQKIyBDT05GSUdfU0NTSV9E
+RUJVRyBpcyBub3Qgc2V0CgojCiMgSUVFRSAxMzk0IChGaXJlV2lyZSkgc3VwcG9ydAojCiMgQ09O
+RklHX0lFRUUxMzk0IGlzIG5vdCBzZXQKCiMKIyBJMk8gZGV2aWNlIHN1cHBvcnQKIwojIENPTkZJ
+R19JMk8gaXMgbm90IHNldAojIENPTkZJR19JMk9fUENJIGlzIG5vdCBzZXQKIyBDT05GSUdfSTJP
+X0JMT0NLIGlzIG5vdCBzZXQKIyBDT05GSUdfSTJPX0xBTiBpcyBub3Qgc2V0CiMgQ09ORklHX0ky
+T19TQ1NJIGlzIG5vdCBzZXQKIyBDT05GSUdfSTJPX1BST0MgaXMgbm90IHNldAoKIwojIE5ldHdv
+cmsgZGV2aWNlIHN1cHBvcnQKIwpDT05GSUdfTkVUREVWSUNFUz15CgojCiMgQVJDbmV0IGRldmlj
+ZXMKIwojIENPTkZJR19BUkNORVQgaXMgbm90IHNldApDT05GSUdfRFVNTVk9bQojIENPTkZJR19C
+T05ESU5HIGlzIG5vdCBzZXQKIyBDT05GSUdfRVFVQUxJWkVSIGlzIG5vdCBzZXQKIyBDT05GSUdf
+VFVOIGlzIG5vdCBzZXQKIyBDT05GSUdfRVRIRVJUQVAgaXMgbm90IHNldAojIENPTkZJR19ORVRf
+U0IxMDAwIGlzIG5vdCBzZXQKCiMKIyBFdGhlcm5ldCAoMTAgb3IgMTAwTWJpdCkKIwpDT05GSUdf
+TkVUX0VUSEVSTkVUPXkKIyBDT05GSUdfTkVUX1ZFTkRPUl8zQ09NIGlzIG5vdCBzZXQKIyBDT05G
+SUdfTEFOQ0UgaXMgbm90IHNldAojIENPTkZJR19ORVRfVkVORE9SX1NNQyBpcyBub3Qgc2V0CiMg
+Q09ORklHX05FVF9WRU5ET1JfUkFDQUwgaXMgbm90IHNldAojIENPTkZJR19BVDE3MDAgaXMgbm90
+IHNldAojIENPTkZJR19ERVBDQSBpcyBub3Qgc2V0CiMgQ09ORklHX0hQMTAwIGlzIG5vdCBzZXQK
+IyBDT05GSUdfTkVUX0lTQSBpcyBub3Qgc2V0CkNPTkZJR19ORVRfUENJPXkKIyBDT05GSUdfUENO
+RVQzMiBpcyBub3Qgc2V0CiMgQ09ORklHX0FEQVBURUNfU1RBUkZJUkUgaXMgbm90IHNldAojIENP
+TkZJR19BQzMyMDAgaXMgbm90IHNldAojIENPTkZJR19BUFJJQ09UIGlzIG5vdCBzZXQKIyBDT05G
+SUdfQ1M4OXgwIGlzIG5vdCBzZXQKQ09ORklHX1RVTElQPW0KIyBDT05GSUdfREU0WDUgaXMgbm90
+IHNldAojIENPTkZJR19ER1JTIGlzIG5vdCBzZXQKIyBDT05GSUdfRE05MTAyIGlzIG5vdCBzZXQK
+IyBDT05GSUdfRUVQUk8xMDAgaXMgbm90IHNldAojIENPTkZJR19FRVBSTzEwMF9QTSBpcyBub3Qg
+c2V0CiMgQ09ORklHX0xORTM5MCBpcyBub3Qgc2V0CiMgQ09ORklHX05BVFNFTUkgaXMgbm90IHNl
+dApDT05GSUdfTkUyS19QQ0k9bQojIENPTkZJR19ORTMyMTAgaXMgbm90IHNldAojIENPTkZJR19F
+UzMyMTAgaXMgbm90IHNldApDT05GSUdfODEzOVRPTz1tCkNPTkZJR19SVEw4MTI5PW0KIyBDT05G
+SUdfU0lTOTAwIGlzIG5vdCBzZXQKIyBDT05GSUdfRVBJQzEwMCBpcyBub3Qgc2V0CiMgQ09ORklH
+X1NVTkRBTkNFIGlzIG5vdCBzZXQKIyBDT05GSUdfVExBTiBpcyBub3Qgc2V0CiMgQ09ORklHX1ZJ
+QV9SSElORSBpcyBub3Qgc2V0CiMgQ09ORklHX1dJTkJPTkRfODQwIGlzIG5vdCBzZXQKIyBDT05G
+SUdfSEFQUFlNRUFMIGlzIG5vdCBzZXQKIyBDT05GSUdfTkVUX1BPQ0tFVCBpcyBub3Qgc2V0Cgoj
+CiMgRXRoZXJuZXQgKDEwMDAgTWJpdCkKIwojIENPTkZJR19BQ0VOSUMgaXMgbm90IHNldAojIENP
+TkZJR19IQU1BQ0hJIGlzIG5vdCBzZXQKIyBDT05GSUdfWUVMTE9XRklOIGlzIG5vdCBzZXQKIyBD
+T05GSUdfU0s5OExJTiBpcyBub3Qgc2V0CiMgQ09ORklHX0ZEREkgaXMgbm90IHNldAojIENPTkZJ
+R19ISVBQSSBpcyBub3Qgc2V0CkNPTkZJR19QUFA9eQojIENPTkZJR19QUFBfTVVMVElMSU5LIGlz
+IG5vdCBzZXQKQ09ORklHX1BQUF9BU1lOQz15CiMgQ09ORklHX1BQUF9TWU5DX1RUWSBpcyBub3Qg
+c2V0CkNPTkZJR19QUFBfREVGTEFURT15CkNPTkZJR19QUFBfQlNEQ09NUD15CiMgQ09ORklHX1BQ
+UE9FIGlzIG5vdCBzZXQKIyBDT05GSUdfU0xJUCBpcyBub3Qgc2V0CgojCiMgV2lyZWxlc3MgTEFO
+IChub24taGFtcmFkaW8pCiMKIyBDT05GSUdfTkVUX1JBRElPIGlzIG5vdCBzZXQKCiMKIyBUb2tl
+biBSaW5nIGRldmljZXMKIwojIENPTkZJR19UUiBpcyBub3Qgc2V0CiMgQ09ORklHX05FVF9GQyBp
+cyBub3Qgc2V0CiMgQ09ORklHX1JDUENJIGlzIG5vdCBzZXQKIyBDT05GSUdfU0hBUEVSIGlzIG5v
+dCBzZXQKCiMKIyBXYW4gaW50ZXJmYWNlcwojCiMgQ09ORklHX1dBTiBpcyBub3Qgc2V0CgojCiMg
+QW1hdGV1ciBSYWRpbyBzdXBwb3J0CiMKIyBDT05GSUdfSEFNUkFESU8gaXMgbm90IHNldAoKIwoj
+IElyREEgKGluZnJhcmVkKSBzdXBwb3J0CiMKIyBDT05GSUdfSVJEQSBpcyBub3Qgc2V0CgojCiMg
+SVNETiBzdWJzeXN0ZW0KIwojIENPTkZJR19JU0ROIGlzIG5vdCBzZXQKCiMKIyBPbGQgQ0QtUk9N
+IGRyaXZlcnMgKG5vdCBTQ1NJLCBub3QgSURFKQojCiMgQ09ORklHX0NEX05PX0lERVNDU0kgaXMg
+bm90IHNldAoKIwojIElucHV0IGNvcmUgc3VwcG9ydAojCiMgQ09ORklHX0lOUFVUIGlzIG5vdCBz
+ZXQKCiMKIyBDaGFyYWN0ZXIgZGV2aWNlcwojCkNPTkZJR19WVD15CkNPTkZJR19WVF9DT05TT0xF
+PXkKQ09ORklHX1NFUklBTD15CiMgQ09ORklHX1NFUklBTF9DT05TT0xFIGlzIG5vdCBzZXQKIyBD
+T05GSUdfU0VSSUFMX0VYVEVOREVEIGlzIG5vdCBzZXQKIyBDT05GSUdfU0VSSUFMX05PTlNUQU5E
+QVJEIGlzIG5vdCBzZXQKQ09ORklHX1VOSVg5OF9QVFlTPXkKQ09ORklHX1VOSVg5OF9QVFlfQ09V
+TlQ9MjU2CgojCiMgSTJDIHN1cHBvcnQKIwpDT05GSUdfSTJDPW0KQ09ORklHX0kyQ19BTEdPQklU
+PW0KIyBDT05GSUdfSTJDX1BISUxJUFNQQVIgaXMgbm90IHNldApDT05GSUdfSTJDX0VMVj1tCkNP
+TkZJR19JMkNfVkVMTEVNQU49bQpDT05GSUdfSTJDX0FMR09QQ0Y9bQpDT05GSUdfSTJDX0VMRUtU
+T1I9bQpDT05GSUdfSTJDX0NIQVJERVY9bQoKIwojIE1pY2UKIwojIENPTkZJR19CVVNNT1VTRSBp
+cyBub3Qgc2V0CkNPTkZJR19NT1VTRT15CkNPTkZJR19QU01PVVNFPXkKIyBDT05GSUdfODJDNzEw
+X01PVVNFIGlzIG5vdCBzZXQKIyBDT05GSUdfUEMxMTBfUEFEIGlzIG5vdCBzZXQKCiMKIyBKb3lz
+dGlja3MKIwojIENPTkZJR19KT1lTVElDSyBpcyBub3Qgc2V0CiMgQ09ORklHX1FJQzAyX1RBUEUg
+aXMgbm90IHNldAoKIwojIFdhdGNoZG9nIENhcmRzCiMKIyBDT05GSUdfV0FUQ0hET0cgaXMgbm90
+IHNldAojIENPTkZJR19JTlRFTF9STkcgaXMgbm90IHNldAojIENPTkZJR19OVlJBTSBpcyBub3Qg
+c2V0CkNPTkZJR19SVEM9bQojIENPTkZJR19EVExLIGlzIG5vdCBzZXQKIyBDT05GSUdfUjM5NjQg
+aXMgbm90IHNldAojIENPTkZJR19BUFBMSUNPTSBpcyBub3Qgc2V0CgojCiMgRnRhcGUsIHRoZSBm
+bG9wcHkgdGFwZSBkZXZpY2UgZHJpdmVyCiMKIyBDT05GSUdfRlRBUEUgaXMgbm90IHNldAojIENP
+TkZJR19BR1AgaXMgbm90IHNldAojIENPTkZJR19EUk0gaXMgbm90IHNldAoKIwojIE11bHRpbWVk
+aWEgZGV2aWNlcwojCiMgQ09ORklHX1ZJREVPX0RFViBpcyBub3Qgc2V0CgojCiMgRmlsZSBzeXN0
+ZW1zCiMKIyBDT05GSUdfUVVPVEEgaXMgbm90IHNldAojIENPTkZJR19BVVRPRlNfRlMgaXMgbm90
+IHNldApDT05GSUdfQVVUT0ZTNF9GUz15CkNPTkZJR19SRUlTRVJGU19GUz15CiMgQ09ORklHX1JF
+SVNFUkZTX0NIRUNLIGlzIG5vdCBzZXQKIyBDT05GSUdfQURGU19GUyBpcyBub3Qgc2V0CiMgQ09O
+RklHX0FERlNfRlNfUlcgaXMgbm90IHNldAojIENPTkZJR19BRkZTX0ZTIGlzIG5vdCBzZXQKIyBD
+T05GSUdfSEZTX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfQkZTX0ZTIGlzIG5vdCBzZXQKQ09ORklH
+X0ZBVF9GUz15CkNPTkZJR19NU0RPU19GUz15CiMgQ09ORklHX1VNU0RPU19GUyBpcyBub3Qgc2V0
+CkNPTkZJR19WRkFUX0ZTPXkKIyBDT05GSUdfRUZTX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfSkZG
+U19GUyBpcyBub3Qgc2V0CiMgQ09ORklHX0NSQU1GUyBpcyBub3Qgc2V0CiMgQ09ORklHX1JBTUZT
+IGlzIG5vdCBzZXQKQ09ORklHX0lTTzk2NjBfRlM9eQpDT05GSUdfSk9MSUVUPXkKIyBDT05GSUdf
+TUlOSVhfRlMgaXMgbm90IHNldAojIENPTkZJR19OVEZTX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdf
+TlRGU19SVyBpcyBub3Qgc2V0CiMgQ09ORklHX0hQRlNfRlMgaXMgbm90IHNldApDT05GSUdfUFJP
+Q19GUz15CiMgQ09ORklHX0RFVkZTX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfREVWRlNfTU9VTlQg
+aXMgbm90IHNldAojIENPTkZJR19ERVZGU19ERUJVRyBpcyBub3Qgc2V0CkNPTkZJR19ERVZQVFNf
+RlM9eQojIENPTkZJR19RTlg0RlNfRlMgaXMgbm90IHNldAojIENPTkZJR19RTlg0RlNfUlcgaXMg
+bm90IHNldAojIENPTkZJR19ST01GU19GUyBpcyBub3Qgc2V0CkNPTkZJR19FWFQyX0ZTPXkKIyBD
+T05GSUdfU1lTVl9GUyBpcyBub3Qgc2V0CiMgQ09ORklHX1NZU1ZfRlNfV1JJVEUgaXMgbm90IHNl
+dAojIENPTkZJR19VREZfRlMgaXMgbm90IHNldAojIENPTkZJR19VREZfUlcgaXMgbm90IHNldAoj
+IENPTkZJR19VRlNfRlMgaXMgbm90IHNldAojIENPTkZJR19VRlNfRlNfV1JJVEUgaXMgbm90IHNl
+dAoKIwojIE5ldHdvcmsgRmlsZSBTeXN0ZW1zCiMKIyBDT05GSUdfQ09EQV9GUyBpcyBub3Qgc2V0
+CiMgQ09ORklHX05GU19GUyBpcyBub3Qgc2V0CiMgQ09ORklHX05GU19WMyBpcyBub3Qgc2V0CiMg
+Q09ORklHX1JPT1RfTkZTIGlzIG5vdCBzZXQKIyBDT05GSUdfTkZTRCBpcyBub3Qgc2V0CiMgQ09O
+RklHX05GU0RfVjMgaXMgbm90IHNldAojIENPTkZJR19TVU5SUEMgaXMgbm90IHNldAojIENPTkZJ
+R19MT0NLRCBpcyBub3Qgc2V0CkNPTkZJR19TTUJfRlM9eQojIENPTkZJR19TTUJfTkxTX0RFRkFV
+TFQgaXMgbm90IHNldAojIENPTkZJR19OQ1BfRlMgaXMgbm90IHNldAojIENPTkZJR19OQ1BGU19Q
+QUNLRVRfU0lHTklORyBpcyBub3Qgc2V0CiMgQ09ORklHX05DUEZTX0lPQ1RMX0xPQ0tJTkcgaXMg
+bm90IHNldAojIENPTkZJR19OQ1BGU19TVFJPTkcgaXMgbm90IHNldAojIENPTkZJR19OQ1BGU19O
+RlNfTlMgaXMgbm90IHNldAojIENPTkZJR19OQ1BGU19PUzJfTlMgaXMgbm90IHNldAojIENPTkZJ
+R19OQ1BGU19TTUFMTERPUyBpcyBub3Qgc2V0CiMgQ09ORklHX05DUEZTX05MUyBpcyBub3Qgc2V0
+CiMgQ09ORklHX05DUEZTX0VYVFJBUyBpcyBub3Qgc2V0CgojCiMgUGFydGl0aW9uIFR5cGVzCiMK
+IyBDT05GSUdfUEFSVElUSU9OX0FEVkFOQ0VEIGlzIG5vdCBzZXQKQ09ORklHX01TRE9TX1BBUlRJ
+VElPTj15CkNPTkZJR19TTUJfTkxTPXkKQ09ORklHX05MUz15CgojCiMgTmF0aXZlIExhbmd1YWdl
+IFN1cHBvcnQKIwpDT05GSUdfTkxTX0RFRkFVTFQ9Imlzbzg4NTktMSIKIyBDT05GSUdfTkxTX0NP
+REVQQUdFXzQzNyBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19DT0RFUEFHRV83MzcgaXMgbm90IHNl
+dAojIENPTkZJR19OTFNfQ09ERVBBR0VfNzc1IGlzIG5vdCBzZXQKIyBDT05GSUdfTkxTX0NPREVQ
+QUdFXzg1MCBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19DT0RFUEFHRV84NTIgaXMgbm90IHNldApD
+T05GSUdfTkxTX0NPREVQQUdFXzg1NT1tCiMgQ09ORklHX05MU19DT0RFUEFHRV84NTcgaXMgbm90
+IHNldAojIENPTkZJR19OTFNfQ09ERVBBR0VfODYwIGlzIG5vdCBzZXQKIyBDT05GSUdfTkxTX0NP
+REVQQUdFXzg2MSBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19DT0RFUEFHRV84NjIgaXMgbm90IHNl
+dAojIENPTkZJR19OTFNfQ09ERVBBR0VfODYzIGlzIG5vdCBzZXQKIyBDT05GSUdfTkxTX0NPREVQ
+QUdFXzg2NCBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19DT0RFUEFHRV84NjUgaXMgbm90IHNldApD
+T05GSUdfTkxTX0NPREVQQUdFXzg2Nj1tCiMgQ09ORklHX05MU19DT0RFUEFHRV84NjkgaXMgbm90
+IHNldAojIENPTkZJR19OTFNfQ09ERVBBR0VfODc0IGlzIG5vdCBzZXQKIyBDT05GSUdfTkxTX0NP
+REVQQUdFXzkzMiBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19DT0RFUEFHRV85MzYgaXMgbm90IHNl
+dAojIENPTkZJR19OTFNfQ09ERVBBR0VfOTQ5IGlzIG5vdCBzZXQKIyBDT05GSUdfTkxTX0NPREVQ
+QUdFXzk1MCBpcyBub3Qgc2V0CkNPTkZJR19OTFNfSVNPODg1OV8xPXkKIyBDT05GSUdfTkxTX0lT
+Tzg4NTlfMiBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19JU084ODU5XzMgaXMgbm90IHNldAojIENP
+TkZJR19OTFNfSVNPODg1OV80IGlzIG5vdCBzZXQKQ09ORklHX05MU19JU084ODU5XzU9bQojIENP
+TkZJR19OTFNfSVNPODg1OV82IGlzIG5vdCBzZXQKIyBDT05GSUdfTkxTX0lTTzg4NTlfNyBpcyBu
+b3Qgc2V0CiMgQ09ORklHX05MU19JU084ODU5XzggaXMgbm90IHNldAojIENPTkZJR19OTFNfSVNP
+ODg1OV85IGlzIG5vdCBzZXQKIyBDT05GSUdfTkxTX0lTTzg4NTlfMTQgaXMgbm90IHNldAojIENP
+TkZJR19OTFNfSVNPODg1OV8xNSBpcyBub3Qgc2V0CkNPTkZJR19OTFNfS09JOF9SPW0KQ09ORklH
+X05MU19VVEY4PW0KCiMKIyBDb25zb2xlIGRyaXZlcnMKIwpDT05GSUdfVkdBX0NPTlNPTEU9eQpD
+T05GSUdfVklERU9fU0VMRUNUPXkKIyBDT05GSUdfTURBX0NPTlNPTEUgaXMgbm90IHNldAoKIwoj
+IEZyYW1lLWJ1ZmZlciBzdXBwb3J0CiMKIyBDT05GSUdfRkIgaXMgbm90IHNldAoKIwojIFNvdW5k
+CiMKIyBDT05GSUdfU09VTkQgaXMgbm90IHNldAoKIwojIFVTQiBzdXBwb3J0CiMKIyBDT05GSUdf
+VVNCIGlzIG5vdCBzZXQKCiMKIyBLZXJuZWwgaGFja2luZwojCkNPTkZJR19NQUdJQ19TWVNSUT15
+Cg==
 
---- vanilla-2.4.1/fs/isofs/dir.c	Sat Dec 30 01:13:45 2000
-+++ cisofs/fs/isofs/dir.c	Mon Feb 19 18:40:16 2001
-@@ -5,8 +5,11 @@
-  *
-  *  (C) 1991  Linus Torvalds - minix filesystem
-  *
-- *  Steve Beynon		       : Missing last directory entries fixed
-+ *  Steve Beynon                      : Missing last directory entries fixed
-  *  (stephen@askone.demon.co.uk)      : 21st June 1996
-+ *
-+ *  zhaoway                           : Transparent *.cramed uncompressing
-+ *  (zw@debian.org)                   : 15th February 2001
-  * 
-  *  isofs directory handling functions
-  */
-@@ -108,8 +111,7 @@
- 	unsigned int block, offset;
- 	int inode_number = 0;	/* Quiet GCC */
- 	struct buffer_head *bh = NULL;
--	int len;
--	int map;
-+	int len = 0;
- 	int high_sierra;
- 	int first_de = 1;
- 	char *p = NULL;		/* Quiet GCC */
-@@ -181,8 +183,6 @@
- 			continue;
- 		}
- 
--		len = 0;
--
- 		/* Handle the case of the '..' directory */
- 		if (de->name_len[0] == 1 && de->name[0] == 1) {
- 			inode_number = filp->f_dentry->d_parent->d_inode->i_ino;
-@@ -202,32 +202,37 @@
- 			}
- 		}
- 
--		map = 1;
--		if (inode->i_sb->u.isofs_sb.s_rock) {
--			len = get_rock_ridge_filename(de, tmpname, inode);
--			if (len != 0) {		/* may be -1 */
--				p = tmpname;
--				map = 0;
-+		if (inode->i_sb->u.isofs_sb.s_rock &&
-+		    (len = get_rock_ridge_filename(de, tmpname, inode))) { /* may be -1 */
-+#ifdef CONFIG_CISOFS
-+			/* Drop trailing '.cramed' */
-+			if (len > 7 && (! strncmp(&tmpname[len - 7], ".cramed", 7))) {
-+				len -= 7;
-+				tmpname[len] = '\0';
- 			}
--		}
--		if (map) {
--#ifdef CONFIG_JOLIET
--			if (inode->i_sb->u.isofs_sb.s_joliet_level) {
--				len = get_joliet_filename(de, tmpname, inode);
--				p = tmpname;
--			} else
- #endif
--			if (inode->i_sb->u.isofs_sb.s_mapping == 'a') {
--				len = get_acorn_filename(de, tmpname, inode);
--				p = tmpname;
--			} else
--			if (inode->i_sb->u.isofs_sb.s_mapping == 'n') {
--				len = isofs_name_translate(de, tmpname, inode);
--				p = tmpname;
--			} else {
--				p = de->name;
--				len = de->name_len[0];
-+			p = tmpname;
-+#ifdef CONFIG_JOLIET
-+		} else if (inode->i_sb->u.isofs_sb.s_joliet_level) {
-+			len = get_joliet_filename(de, tmpname, inode);
-+# ifdef CONFIG_CISOFS
-+			/* Drop trailing '.cramed' */
-+			if (len > 7 && (! strncmp(&tmpname[len - 7], ".cramed", 7))) {
-+				len -= 7;
-+				tmpname[len] = '\0';
- 			}
-+# endif
-+			p = tmpname;
-+#endif
-+		} else if (inode->i_sb->u.isofs_sb.s_mapping == 'a') {
-+			len = get_acorn_filename(de, tmpname, inode);
-+			p = tmpname;
-+		} else if (inode->i_sb->u.isofs_sb.s_mapping == 'n') {
-+			len = isofs_name_translate(de, tmpname, inode);
-+			p = tmpname;
-+		} else {
-+			p = de->name;
-+			len = de->name_len[0];
- 		}
- 		if (len > 0) {
- 			if (filldir(dirent, p, len, filp->f_pos, inode_number, DT_UNKNOWN) < 0)
-
---=-=-=
-Content-Disposition: attachment; filename=namei.c.diff
-
---- vanilla-2.4.1/fs/isofs/namei.c	Sat Dec 30 01:13:46 2000
-+++ cisofs/fs/isofs/namei.c	Mon Feb 19 18:42:05 2001
-@@ -1,9 +1,9 @@
- /*
-  *  linux/fs/isofs/namei.c
-  *
-- *  (C) 1992  Eric Youngdale Modified for ISO 9660 filesystem.
-- *
-  *  (C) 1991  Linus Torvalds - minix filesystem
-+ *  (C) 1992  Eric Youngdale - Modified for ISO 9660 filesystem.
-+ *  (C) 2001  zhaoway <zw@debian.org> - Transparent *.cramed uncompressing
-  */
- 
- #include <linux/sched.h>
-@@ -57,7 +57,8 @@
-  */
- static unsigned long
- isofs_find_entry(struct inode *dir, struct dentry *dentry,
--	char * tmpname, struct iso_directory_record * tmpde)
-+		 char *tmpname, struct iso_directory_record *tmpde,
-+		 unsigned char *i_compr)
- {
- 	unsigned long inode_number;
- 	unsigned long bufsize = ISOFS_BUFFER_SIZE(dir);
-@@ -74,7 +75,7 @@
- 
- 	while (f_pos < dir->i_size) {
- 		struct iso_directory_record * de;
--		int de_len, match, i, dlen;
-+		int de_len, match, dlen;
- 		char *dpnt;
- 
- 		if (!bh) {
-@@ -116,16 +117,26 @@
- 			de = tmpde;
- 		}
- 
--		dlen = de->name_len[0];
--		dpnt = de->name;
--
- 		if (dir->i_sb->u.isofs_sb.s_rock &&
--		    ((i = get_rock_ridge_filename(de, tmpname, dir)))) {
--			dlen = i; 	/* possibly -1 */
-+		    (dlen = get_rock_ridge_filename(de, tmpname, dir))) { /* may be -1 */
-+#ifdef CONFIG_CISOFS
-+			/* Drop trailing '.cramed' */
-+			if (dlen > 7 && (! strncmp(&tmpname[dlen - 7], ".cramed", 7))) {
-+				dlen -= 7;
-+				tmpname[dlen] = '\0';
-+			}
-+#endif
- 			dpnt = tmpname;
- #ifdef CONFIG_JOLIET
- 		} else if (dir->i_sb->u.isofs_sb.s_joliet_level) {
- 			dlen = get_joliet_filename(de, tmpname, dir);
-+# ifdef CONFIG_CISOFS
-+			/* Drop trailing '.cramed' */
-+			if (dlen > 7 && (! strncmp(&tmpname[dlen - 7], ".cramed", 7))) {
-+				dlen -= 7;
-+				tmpname[dlen] = '\0';
-+			}
-+# endif
- 			dpnt = tmpname;
- #endif
- 		} else if (dir->i_sb->u.isofs_sb.s_mapping == 'a') {
-@@ -134,6 +145,9 @@
- 		} else if (dir->i_sb->u.isofs_sb.s_mapping == 'n') {
- 			dlen = isofs_name_translate(de, tmpname, dir);
- 			dpnt = tmpname;
-+		} else {
-+			dlen = de->name_len[0];
-+			dpnt = de->name;
- 		}
- 
- 		/*
-@@ -160,6 +174,7 @@
- 	unsigned long ino;
- 	struct inode *inode;
- 	struct page *page;
-+	unsigned char i_compr = 0;
- 
- 	dentry->d_op = dir->i_sb->s_root->d_op;
- 
-@@ -168,7 +183,7 @@
- 		return ERR_PTR(-ENOMEM);
- 
- 	ino = isofs_find_entry(dir, dentry, page_address(page),
--			       1024 + page_address(page));
-+			       1024 + page_address(page), &i_compr);
- 	__free_page(page);
- 
- 	inode = NULL;
-@@ -177,6 +192,9 @@
- 		if (!inode)
- 			return ERR_PTR(-EACCES);
- 	}
-+#ifdef CONFIG_CISOFS
-+	inode->u.isofs_i.i_compr = i_compr;
-+#endif
- 	d_add(dentry, inode);
- 	return NULL;
- }
-
---=-=-=
-Content-Disposition: attachment; filename=inode.c.diff
-
---- vanilla-2.4.1/fs/isofs/inode.c	Tue Feb  6 02:17:08 2001
-+++ cisofs/fs/isofs/inode.c	Mon Feb 19 19:45:15 2001
-@@ -7,6 +7,7 @@
-  *      1995  Mark Dobie - allow mounting of some weird VideoCDs and PhotoCDs.
-  *	1997  Gordon Chaffee - Joliet CDs
-  *	1998  Eric Lammerts - ISO 9660 Level 3
-+ *      2001  zhaoway <zw@debian.org> - Transparent *.cramed uncompressing
-  */
- 
- #include <linux/config.h>
-@@ -55,6 +56,12 @@
- static int isofs_dentry_cmp_ms(struct dentry *dentry, struct qstr *a, struct qstr *b);
- #endif
- 
-+#ifdef CONFIG_CISOFS
-+int cisofs_uncompress_block(void *dst, int dstlen, void *src, int srclen);
-+int cisofs_uncompress_init(void);
-+int cisofs_uncompress_exit(void);
-+#endif
-+
- static void isofs_put_super(struct super_block *sb)
- {
- #ifdef CONFIG_JOLIET
-@@ -981,7 +988,97 @@
- 
- static int isofs_readpage(struct file *file, struct page *page)
- {
--	return block_read_full_page(page,isofs_get_block);
-+#ifdef CONFIG_CISOFS
-+	struct inode *inode = page->mapping->host;
-+	
-+	if (! inode->u.isofs_i.i_compr)
-+#endif
-+		return block_read_full_page(page,isofs_get_block);
-+#ifdef CONFIG_CISOFS
-+	else {
-+		u32 bytes_filled, pageptr_offset, pageptr_blk_offset;
-+		u32 start_offset, end_offset, iblk_offset, compr_len;
-+		unsigned long iblk, end_blk;
-+		struct buffer_head *bh = NULL;
-+		char compr[PAGE_CACHE_SIZE * 2];
-+		
-+		unsigned long bufsize = ISOFS_BUFFER_SIZE(inode);
-+		unsigned char bufbits = ISOFS_BUFFER_BITS(inode);
-+		
-+		bytes_filled = 0;
-+		if (page->index > ((inode->i_size + PAGE_CACHE_SIZE - 1) >>
-+				   PAGE_CACHE_SHIFT)) {
-+			printk("cisofs: page->index > maxpage\n");
-+			goto out;
-+		}
-+		
-+#if 1
-+		printk("cisofs: yow! before pageptr bread!\n");
-+#endif
-+		pageptr_offset = page->index * 8;
-+		pageptr_blk_offset = pageptr_offset & (bufsize - 1);
-+		iblk = pageptr_offset >> bufbits;
-+		if (! (bh = isofs_bread(inode, bufsize, iblk))) {
-+			printk("cisofs: bad pageptr bread: %ld\n", iblk);
-+			goto out;
-+		}
-+#if 1
-+		printk("cisofs: yow! after pageptr bread!\n");
-+#endif
-+		start_offset = (u32) bh->b_data[pageptr_blk_offset];
-+		end_offset = (u32) bh->b_data[pageptr_blk_offset + 4];
-+		brelse(bh);
-+		bh = NULL;
-+
-+		end_blk = end_offset >> bufbits;
-+		iblk = start_offset >> bufbits;
-+		iblk_offset = start_offset & (bufsize - 1);
-+
-+		compr_len = end_offset - start_offset;
-+		if (compr_len == 0)
-+			; /* hole */
-+		else {
-+			char *curr = compr;
-+
-+			while (iblk <= end_blk) {
-+				u32 size;
-+
-+				if (! (bh = isofs_bread(inode, bufsize, iblk))) {
-+					printk("cisofs: bad bread: %ld\n", iblk);
-+					goto out;
-+				}
-+#if 1
-+				printk("cisofs: yow! good bread!\n");
-+#endif
-+				if (iblk++ < end_blk)
-+					size = bufsize - iblk_offset;
-+				else
-+					size = (end_offset & (bufsize - 1)) - iblk_offset;
-+				memcpy(curr, bh->b_data + iblk_offset, size);
-+				brelse(bh);
-+				bh = NULL;
-+				curr += size;
-+				iblk_offset = 0;
-+			}
-+
-+			if ((curr - compr) != compr_len) {
-+				printk("cisofs: curr - compr != compr_len\n");
-+				goto out;
-+			}
-+			bytes_filled = cisofs_uncompress_block(page_address(page),
-+							       PAGE_CACHE_SIZE,
-+							       compr, compr_len);
-+		}
-+
-+	out:		
-+		memset(page_address(page) + bytes_filled, 0,
-+		       PAGE_CACHE_SIZE - bytes_filled);
-+		flush_dcache_page(page);
-+		SetPageUptodate(page);
-+		UnlockPage(page);
-+		return 0;
-+	}
-+#endif /* CONFIG_CISOFS */
- }
- 
- static int _isofs_bmap(struct address_space *mapping, long block)
-@@ -1328,11 +1425,17 @@
- 
- static int __init init_iso9660_fs(void)
- {
-+#ifdef CONFIG_CISOFS
-+	cisofs_uncompress_init();
-+#endif
-         return register_filesystem(&iso9660_fs_type);
- }
- 
- static void __exit exit_iso9660_fs(void)
- {
-+#ifdef CONFIG_CISOFS
-+	cisofs_uncompress_exit();
-+#endif
-         unregister_filesystem(&iso9660_fs_type);
- }
- 
-
---=-=-=
-Content-Disposition: attachment; filename=cramit.c
-
-/*
- * cramit -- compress a file one page a time, allow random page access.
- *
- * Copyright (C) 2001  zhaoway <zw@debian.org>
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
-
-/* Shamelessly stolen from Linus' mkcramfs.c */
-
-#include <sys/types.h>
-#include <stdio.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <sys/mman.h>
-#include <sys/fcntl.h>
-#include <dirent.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <string.h>
-#include <zlib.h>
-
-typedef unsigned char u8;
-typedef unsigned short u16;
-typedef unsigned int u32;
-
-static const char *progname = "cramit";
-
-static void usage(void)
-{
-	fprintf(stderr, "Usage: %s infile outfile\n", progname);
-	exit(1);
-}
-
-/*
- * If DO_HOLES is defined, then cramit can create explicit holes in the
- * data, which saves 26 bytes per hole (which is a lot smaller a
- * saving than most filesystems).
- */
-
-/* #define DO_HOLES 1 */
-
-#define PAGE_CACHE_SIZE (4096)
-/* Assumes PAGE_CACHE_SIZE as block size. */
-static unsigned int blksize = PAGE_CACHE_SIZE;
-
-struct entry {
-	unsigned int size;
-	void *uncompressed;
-};
-
-#ifdef DO_HOLES
-/*
- * Returns non-zero iff the first LEN bytes from BEGIN are all NULs.
- */
-static int
-is_zero(char const *begin, unsigned len)
-{
-	return (len-- == 0 ||
-		(begin[0] == '\0' &&
-		 (len-- == 0 ||
-		  (begin[1] == '\0' &&
-		   (len-- == 0 ||
-		    (begin[2] == '\0' &&
-		     (len-- == 0 ||
-		      (begin[3] == '\0' &&
-		       memcmp(begin, begin + 4, len) == 0))))))));
-}
-#else /* !DO_HOLES */
-# define is_zero(_begin,_len) (0)  /* Never create holes. */
-#endif /* !DO_HOLES */
-
-static unsigned int do_compress(char *base, char *uncompressed,	unsigned int size)
-{
-	unsigned long original_size = size;
-	unsigned long new_size;
-	unsigned long blocks = (size - 1) / blksize + 1;
-	unsigned long curr = 4 * blocks;
-	unsigned int offset = 0;
-	int change;
-
-	do {
-		unsigned long len = 2 * blksize;
-		unsigned int input = size;
-
-		*(u32 *) (base + offset) = curr;
-		offset += 4;
-
-		if (input > blksize)
-			input = blksize;
-		size -= input;
-		if (!is_zero (uncompressed, input)) {
-			compress(base + curr, &len, uncompressed, input);
-			curr += len;
-		}
-		uncompressed += input;
-
-		if (len > blksize*2) {
-			/* (I don't think this can happen with zlib.) */
-			printf("AIEEE: block \"compressed\" to > 2*blocklength (%ld)\n",
-			       len);
-			exit(1);
-		}
-
-		*(u32 *) (base + offset) = curr;
-		offset += 4;
-	} while (size);
-
-	curr = (curr + 3) & ~3;
-	new_size = curr;
-	/* TODO: Arguably, original_size in these 2 lines should be
-	   st_blocks * 512.  But if you say that then perhaps
-	   administrative data should also be included in both. */
-	change = new_size - original_size;
-	printf("%6.2f%% (%+d bytes)\n",
-	       (change * 100) / (double) original_size, change);
-
-	return curr;
-}
-
-/*
- * Traverse the entry tree, writing data for every item that has
- * non-null entry->compressed (i.e. every symlink and non-empty
- * regfile).
- */
-static unsigned int write_data(struct entry *entry, char *base)
-{
-	return do_compress(base, entry->uncompressed, entry->size);
-}
-
-/*
- * Usage:
- *      cramit infile outfile
- */
-int main(int argc, char **argv)
-{
-	struct stat st;
-	struct entry *entry;
-	char *outfile;
-	unsigned int offset;
-	ssize_t written;
-	int infd, outfd;
-	char const *dirname;
-
-	if (argc)
-		progname = argv[0];
-	if (argc != 3)
-		usage();
-
-	if (stat(dirname = argv[1], &st) < 0) {
-		perror(argv[1]);
-		exit(1);
-	}
-	outfd = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, 0666);
-
-	entry = calloc(1, sizeof(struct entry));
-	if (!entry) {
-		perror(NULL);
-		exit(5);
-	}
-	entry->size = st.st_size;
-
-	infd = open(argv[1], O_RDONLY);
-	if (infd < 0) {
-		perror("open");
-	}
-	entry->uncompressed = mmap(NULL, entry->size, PROT_READ, MAP_PRIVATE, infd, 0);
-	if (-1 == (int) (long) entry->uncompressed) {
-		perror("mmap");
-		exit(5);
-	}
-	
-	/* TODO: Why do we use a private/anonymous mapping here
-           followed by a write below, instead of just a shared mapping
-           and a couple of ftruncate calls?  Is it just to save us
-           having to deal with removing the file afterwards?  If we
-           really need this huge anonymous mapping, we ought to mmap
-           in smaller chunks, so that the user doesn't need nn MB of
-           RAM free.  If the reason is to be able to write to
-           un-mmappable block devices, then we could try shared mmap
-           and revert to anonymous mmap if the shared mmap fails. */
-	outfile = mmap(NULL, entry->size, PROT_READ | PROT_WRITE,
-			       MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-	if (-1 == (int) (long) outfile) {
-		perror("Compressed file map");
-		exit(1);
-	}
-
-	offset = write_data(entry, outfile);
-
-	/* We always write a multiple of blksize bytes, so that
-           losetup works. */
-	offset = ((offset - 1) | (blksize - 1)) + 1;
-	printf("Everything: %d kilobytes\n", offset >> 10);
-
-	written = write(outfd, outfile, offset);
-	if (written < 0) {
-		perror("Compressed file");
-		exit(1);
-	}
-	if (offset != written) {
-		fprintf(stderr, "Compressed file write failed (%d %d)\n",
-			written, offset);
-		exit(1);
-	}
-
-	return 0;
-}
-
---=-=-=
-Content-Type: text/plain; charset=cn-gb-2312
-Content-Transfer-Encoding: 8bit
-
-
--- 
-утн╣ <http://www.zhaoway.com/>
-
---=-=-=--
+--Multipart_Tue__20_Feb_2001_16:21:20_+1000_08252168--

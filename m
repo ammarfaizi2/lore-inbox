@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314093AbSD0Nv1>; Sat, 27 Apr 2002 09:51:27 -0400
+	id <S314083AbSD0NvQ>; Sat, 27 Apr 2002 09:51:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314096AbSD0NvZ>; Sat, 27 Apr 2002 09:51:25 -0400
-Received: from ns.suse.de ([213.95.15.193]:11794 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S314093AbSD0NvS>;
-	Sat, 27 Apr 2002 09:51:18 -0400
-Date: Sat, 27 Apr 2002 15:51:16 +0200
-From: Dave Jones <davej@suse.de>
-To: Rudmer van Dijk <rudmer@legolas.dynup.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.10-dj1
-Message-ID: <20020427155116.I14743@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Rudmer van Dijk <rudmer@legolas.dynup.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020427030823.GA21608@suse.de> <200204271313.g3RDD4024060@smtp1.wanadoo.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S314093AbSD0NvP>; Sat, 27 Apr 2002 09:51:15 -0400
+Received: from ch-12-44-141-235.lcisp.com ([12.44.141.235]:12417 "EHLO
+	dual.lcisp.com") by vger.kernel.org with ESMTP id <S314083AbSD0NvL>;
+	Sat, 27 Apr 2002 09:51:11 -0400
+From: "Kevin Krieser" <kkrieser_list@footballmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: 48-bit IDE [Re: 160gb disk showing up as 137gb]
+Date: Sat, 27 Apr 2002 08:51:00 -0500
+Message-ID: <NDBBLFLJADKDMBPPNBALAEHKIEAA.kkrieser_list@footballmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20020427125551.GG10849@niksula.cs.hut.fi>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 27, 2002 at 02:51:21PM +0200, Rudmer van Dijk wrote:
+You need an IDE controller that supports ATA133.  For most existing
+computers, that is going to require a new card.-----Original Message-----
 
- > compiled fine, but after booting the system does not respond to the keyboard 
- > (I can see the message "serio: i8042 KBD port at 0x60,0x64 irq 1" om my 
- > screen)
 
-There are some reports that ACPI is having a bad interaction with the
-keyboard controller. For now, disabling it may fix this.
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Ville Herva
+Sent: Saturday, April 27, 2002 7:56 AM
+To: Martin Bene; linux-kernel@vger.kernel.org
+Subject: 48-bit IDE [Re: 160gb disk showing up as 137gb]
 
- > The system also hangs after fscking my root partition (fsck completed without 
- > errors)
- > After my harddisks went to sleep I switched the system off and after booting 
- > the kernel (2.4.19-pre7) panics (and the caps- and scroll-lock leds are 
- > blinking) as it can not mount the root fs due to the following errors:
- > EXT2-fs error (device ide0(3,1)): ext2_check_descriptors: Block bitmap for 
- > group 0 not in group (block 0)!
- > EXT2-fs: group descriptors corrupted!
 
-This is somewhat disturbing. I'll look over the VFS changes, but I'm not
-aware of anything added specifically to my tree that could cause this,
-so it may be either an ext2 issue in mainline, or one of the drivers.
+On Sat, Apr 27, 2002 at 12:16:06PM +0200, you [Martin Bene] wrote:
+>
+> IDE: The kernel IDE driver needs to support 48-bit addresseing to support
+> 160GB.
+>
+> (...) however, you can do something about the linux ATA driver: code
+> is in the 2.4.19-pre tree, it went in with 2.4.19-pre3.
 
-IDE ? SCSI ?
+But which IDE controllers support 48-bit addressing? Not all of them? Does
+linux IDE driver support 48-bit for all of them? Do they require BIOS
+upgrade in order to operate 48-bit?
 
-    Dave.
+Or can I just grab a 160GB Maxtor and 2.4.19-preX, stick them into whatever
+box I have and be done with it?
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+
+

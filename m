@@ -1,58 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131943AbRANUQA>; Sun, 14 Jan 2001 15:16:00 -0500
+	id <S135244AbRANUXM>; Sun, 14 Jan 2001 15:23:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135244AbRANUPv>; Sun, 14 Jan 2001 15:15:51 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:9995 "EHLO
+	id <S135297AbRANUXB>; Sun, 14 Jan 2001 15:23:01 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:21259 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131943AbRANUPk>; Sun, 14 Jan 2001 15:15:40 -0500
-Date: Sun, 14 Jan 2001 12:15:29 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Where did vm_operations_struct->unmap in 2.4.0 go?
-In-Reply-To: <Pine.LNX.4.30.0101141927200.18971-100000@imladris.demon.co.uk>
-Message-ID: <Pine.LNX.4.10.10101141209030.4086-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135244AbRANUWo>; Sun, 14 Jan 2001 15:22:44 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Is sendfile all that sexy?
+Date: 14 Jan 2001 12:22:31 -0800
+Organization: Transmeta Corporation
+Message-ID: <93t1q7$49c$1@penguin.transmeta.com>
+In-Reply-To: <Pine.GSO.4.30.0101141237020.12354-100000@shell.cyberus.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.GSO.4.30.0101141237020.12354-100000@shell.cyberus.ca>,
+jamal  <hadi@cyberus.ca> wrote:
+>
+>Before getting excited i had the courage to give plain 2.4.0-pre3 a whirl
+>and somethings bothered me.
 
+Note that "sendfile(fd, file, len)" is never going to be faster than
+"write(fd, userdata, len)". 
 
-On Sun, 14 Jan 2001, David Woodhouse wrote:
-> 
-> But in the case of the CFI probe code and also I believe DRM, we don't
-> actually know precisely which feature we're going to require until we've
-> done the hardware probe at runtime.
+That's not the point of sendfile(). The point of sendfile() is to be
+faster than the _combination_ of:
 
-That's ok.
+	addr = mmap(file, ...len...);
+	write(fd, addr, len);
 
-This is what "request_module()" and "kmod" is all about. Once we probe the
-hardware, the drievr itself can ask for more drivers.
+or
 
-I completely fail to see the arguments that have been brought up for drm
-doing ugly things. The code should simply do
+	read(file, userdata, len);
+	write(fd, userdata, len);
 
-	drm_agp_head_t * head = inter_module_get("drm_agp");
+and in your case you're not comparing sendfile() against this
+combination.  You're just comparing sendfile() against a simple
+"write()".
 
-	if (!head) {
-		request_module("drm-agp");
-		head = inter_module_get("drm_agp");
-		if (!head)
-			return -ENOAGP;
-	}
+And no, I don't actually hink that sendfile() is all that hot. It was
+_very_ easy to implement, and can be considered a 5-minute hack to give
+a feature that fit very well in the MM architecture, and that the Apache
+folks had already been using on other architectures.
 
-and be done with it. THE ABOVE MAKES SENSE. The code says _exactly_ what
-the module wants to do: it wants to find the AGP support, and if it cannot
-find the AGP support it wants to load them.
+The only obvious use for it is file serving, and as high-performance
+file serving tends to end up as a kernel module in the end anyway (the
+only hold-out is samba, and that's been discussed too), "sendfile()"
+really is more a proof of concept than anything else.
 
-The arguments about how the user should load things in some specific order
-or whatever are complete crap. All the support is there, and whining about
-it is not going to change my opinion in the least.
+Does anybody but apache actually use it?
 
-		Linus
+			Linus
 
+PS.  I still _like_ sendfile(), even if the above sounds negative.  It's
+basically a "cool feature" that has zero negative impact on the design
+of the system.  It uses the same "do_generic_file_read()" that is used
+for normal "read()", and is also used by the loop device and by
+in-kernel fileserving.  But it's not really "important". 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

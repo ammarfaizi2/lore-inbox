@@ -1,66 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263633AbTGCO2s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 10:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263705AbTGCO2s
+	id S263752AbTGCOcF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 10:32:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263782AbTGCOcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 10:28:48 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:39175 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id S263633AbTGCO1r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 10:27:47 -0400
-Date: Thu, 3 Jul 2003 16:41:53 +0200
-From: Jurriaan <thunder7@xs4all.nl>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 868] New: Files missing?
-Message-ID: <20030703144153.GA11767@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-References: <45000000.1057241473@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 3 Jul 2003 10:32:05 -0400
+Received: from smtp018.mail.yahoo.com ([216.136.174.115]:31241 "HELO
+	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263752AbTGCOb5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 10:31:57 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: [patch] Hardly triggered tests in bootmem.c ...
+Date: Thu, 3 Jul 2003 16:46:07 +0200
+User-Agent: KMail/1.5.2
+References: <Pine.LNX.4.55.0307021503490.4840@bigblue.dev.mcafeelabs.com>
+In-Reply-To: <Pine.LNX.4.55.0307021503490.4840@bigblue.dev.mcafeelabs.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <45000000.1057241473@[10.10.2.4]>
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.4i
+Message-Id: <200307031646.18127.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Martin J. Bligh <mbligh@aracnet.com>
-Date: Thu, Jul 03, 2003 at 07:11:13AM -0700
-> http://bugme.osdl.org/show_bug.cgi?id=868
-> 
->            Summary: Files missing?
->     Kernel Version: 2.5.73,2.5.74
->             Status: NEW
->           Severity: normal
->              Owner: bugme-janitors@lists.osdl.org
->          Submitter: midian@ihme.org
-> 
-> 
-> Distribution: Debian
-> Hardware Environment: AMD Athlon 2000+, 512 SDRAM
-> Software Environment:
-> Problem Description: Missing files in kernel?
-> 
-> Steps to reproduce: wget http://www.kernel.org/pub/linux/kernel/v2.5/linux-2.5.
-> 74.tar.bz2 && tar xjvf linux-2.5.74.tar.bz2 && cp linux-2.4.22-pre2/.config 
-> linux-2.5.74/. && cd linux-2.5.74/ && make oldconfig && make menuconfig && make 
-> all (And the same with 2.5.73, I have not tested the earlier versions.)
-> 
-> Error message: CC [M]  drivers/video/pm2fb.o
-> drivers/video/pm2fb.c:44:25: video/fbcon.h: No such file or directory
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This driver hasn't been ported to the new framebuffer api.
+On Thursday 03 July 2003 00:07, Davide Libenzi wrote:
+> I was looking at the bootmem.c source and I found those hardly triggered
+> tests (unsigned long's).
+> (Andrew, sending the patch insted of the note)
+>
+>
+> - Davide
+>
+>
+>
+>
+> --- linux-2.5.73/mm/bootmem.c.orig	2003-07-02 14:55:47.000000000 -0700
+> +++ linux-2.5.73/mm/bootmem.c	2003-07-02 14:56:51.000000000 -0700
+> @@ -84,10 +84,6 @@
+>
+>  	if (!size) BUG();
+>
+> -	if (sidx < 0)
+> -		BUG();
+> -	if (eidx < 0)
+> -		BUG();
+>  	if (sidx >= eidx)
+>  		BUG();
+>  	if ((addr >> PAGE_SHIFT) >= bdata->node_low_pfn)
 
-Perhaps including a video/fbcon.h file which contains
+shouldn't we convert the remaining
+	if (x)
+		BUG();
 
-#error "You are trying to compile a framebuffer which hasn't been ported
-to the new api yet - compilation will fail."
+to
+	BUG_ON(x)
 
-would be a good idea?
+?
 
-Jurriaan
--- 
-To err is human, to forgive, beyond the scope of the Operating System.
-Debian (Unstable) GNU/Linux 2.5.74 4112 bogomips load av: 0.04 0.05 0.01
+- -- 
+Regards Michael Buesch
+http://www.8ung.at/tuxsoft
+ 16:44:38 up  1:00,  1 user,  load average: 1.00, 1.00, 0.95
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/BEG6oxoigfggmSgRAuFAAJ4iJfEdI5J+SBrDQ9CZM3eEwDC6iwCcDyL7
+ssuTGbtylaaqagOLLtYi3ds=
+=4xv5
+-----END PGP SIGNATURE-----
+

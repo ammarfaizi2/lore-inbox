@@ -1,69 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266646AbUIEN3c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266648AbUIENgF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266646AbUIEN3c (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 09:29:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266669AbUIEN3c
+	id S266648AbUIENgF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 09:36:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266669AbUIENgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 09:29:32 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:45991 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S266646AbUIEN32
+	Sun, 5 Sep 2004 09:36:05 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:54402 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S266648AbUIENfs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 09:29:28 -0400
-Date: Sun, 5 Sep 2004 15:28:10 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Oliver Hunt <oliverhunt@gmail.com>
-Cc: Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
-       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives
-Message-ID: <20040905132810.GM26560@thundrix.ch>
-References: <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <20040902002431.GN31934@mail.shareable.org> <413694E6.7010606@slaphack.com> <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org> <4136A14E.9010303@slaphack.com> <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org> <4136C876.5010806@namesys.com> <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org> <4136E0B6.4000705@namesys.com> <4699bb7b04090202121119a57b@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kunpHVz1op/+13PW"
-Content-Disposition: inline
-In-Reply-To: <4699bb7b04090202121119a57b@mail.gmail.com>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+	Sun, 5 Sep 2004 09:35:48 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 5 Sep 2004 06:35:44 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: "Zach, Yoav" <yoav.zach@intel.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Yoav Zach <yoav_zach@yahoo.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: force_sig_info
+In-Reply-To: <2C83850C013A2540861D03054B478C06048FFA9D@hasmsx403.ger.corp.intel.com>
+Message-ID: <Pine.LNX.4.58.0409050630280.11784@bigblue.dev.mdolabs.com>
+References: <2C83850C013A2540861D03054B478C06048FFA9D@hasmsx403.ger.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 5 Sep 2004, Zach, Yoav wrote:
 
---kunpHVz1op/+13PW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> >-----Original Message-----
+> >From: Linus Torvalds [mailto:torvalds@osdl.org] 
+> >Sent: Friday, September 03, 2004 21:12
+> >To: Yoav Zach
+> >Cc: akpm@osdl.org; linux-kernel@vger.kernel.org; Zach, Yoav
+> >Subject: Re: force_sig_info
+> >
+> >
+> >Why are you blocking signals that you want to get? Sounds like 
+> >a bug in 
+> >your program.
+> 
+> It's a translator - it emulates the behavior of the translated
+> 'process', which is the one that sets the signal mask. On the
+> other hand, it has its own logic, which requires handling of
+> certain HW exceptions. In 2.4, signals that were raised due to
+> HW exceptions could be handled by the translator regardless of
+> the mask that was set by the translated process. We lost this
+> ability in 2.6. It will be very good for our product, and I
+> believe any similar product where a native process emulates 
+> behavior of another process, if we could have this ability
+> back.
 
-Salut,
+Below is the latest patch I posted (applies on some Jun 2004 2.6.x) to 
+bring 2.6 back to the 2.4 behaviour, but then it has been decided to leave 
+2.6 as is.
 
-On Thu, Sep 02, 2004 at 09:12:56PM +1200, Oliver Hunt wrote:
-> getNumForks(fileref){ return 1;}=20
 
-Actually it might be even cooler  to have a generic function which you
-can apply to any file on a file system (or whatever) and which returns
-you the  file system's capabilities  (can write, has xattrs,  has acl,
-has multiple  streams, *not* has btree  lookups etc, as  that is *not*
-interesting to userland anyway.)
 
-				Tonnerre
+- Davide
 
---kunpHVz1op/+13PW
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
 
-iD8DBQFBOxRp/4bL7ovhw40RAtm6AKCVXu2FPURiqaOdSxCYJX4NiV+JrACdG0+Z
-p2Jm8Y5p07XEv2tESDGiyUo=
-=VoxE
------END PGP SIGNATURE-----
 
---kunpHVz1op/+13PW--
+--- a/kernel/signal.c	2004-06-28 14:28:51.000000000 -0700
++++ b/kernel/signal.c	2004-06-28 14:29:31.000000000 -0700
+@@ -820,8 +820,9 @@
+ 	int ret;
+ 
+ 	spin_lock_irqsave(&t->sighand->siglock, flags);
+-	if (sigismember(&t->blocked, sig) || t->sighand->action[sig-1].sa.sa_handler == SIG_IGN) {
++	if (t->sighand->action[sig-1].sa.sa_handler == SIG_IGN)
+ 		t->sighand->action[sig-1].sa.sa_handler = SIG_DFL;
++	if (sigismember(&t->blocked, sig)) {
+ 		sigdelset(&t->blocked, sig);
+ 		recalc_sigpending_tsk(t);
+ 	}

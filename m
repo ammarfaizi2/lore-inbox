@@ -1,48 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266915AbUG1Nqx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266916AbUG1Nt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266915AbUG1Nqx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 09:46:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266916AbUG1Nqw
+	id S266916AbUG1Nt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 09:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266919AbUG1Nt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 09:46:52 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:3040 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S266915AbUG1Nqv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 09:46:51 -0400
-Date: Wed, 28 Jul 2004 15:46:40 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Chris Mason <mason@suse.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: writepages drops bh on not uptodate page
-Message-ID: <20040728134640.GI15895@dualathlon.random>
-References: <20040728045156.GH15895@dualathlon.random> <1091019818.6333.84.camel@watt.suse.com>
+	Wed, 28 Jul 2004 09:49:56 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:22946 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266916AbUG1Ntx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 09:49:53 -0400
+Date: Wed, 28 Jul 2004 09:49:10 -0400
+From: Alan Cox <alan@redhat.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: PATCH: Add support for Innovision DM-8401H
+Message-ID: <20040728134910.GA8514@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1091019818.6333.84.camel@watt.suse.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 28, 2004 at 09:03:39AM -0400, Chris Mason wrote:
-> Ahhhh, this really explains it, thanks andrea.  I agree your fix should
-> solve things, but I'm wondering if we shouldn't make readpage[s] do a
-> wait_on_page_writeback().  That might do a better job of protecting us
-> from future variations of this problem.
+This is an SII 680 with strange PCI identifiers it appears
 
-the invariant is that not-fully-uptodate pages needs the bh on them
-while they're under writeback. As far as this holds true, there seems
-not to be other issues since readpage checks the bh, and readpages don't
-need to check for anything since it only does I/O on newly allocated
-pages (which cannot be under writeback). try_to_free_buffers doesn't
-allow the bh to go away under writeback.
+Original patch: Alex Hewson
+Verified by: Alan Cox <alan@redhat.com>
 
-So the other approach would be to wait_on_page_writeback before a
-->readpage (not ->readpages), if we're not in a add_to_page_cache case
-(where we know the page cannot be under writeback).  But that looks less
-efficient and we don't need that as long as we don't break the above
-invariant. Though I certainly agree that adding the
-wait_on_page_writeback in the highlevel code that goes to call readpage
-would have fixed the bug too.
+OSDL Developer Certificate Of Origin included herein by reference
+
+
+--- include/linux/pci_ids.h~	2004-07-28 14:24:18.736251384 +0100
++++ include/linux/pci_ids.h	2004-07-28 14:24:18.736251384 +0100
+@@ -1634,6 +1634,7 @@
+ #define PCI_VENDOR_ID_ITE		0x1283
+ #define PCI_DEVICE_ID_ITE_IT8172G	0x8172
+ #define PCI_DEVICE_ID_ITE_IT8172G_AUDIO 0x0801
++#define PCI_DEVICE_ID_ITE_DM8401	0x8212
+ #define PCI_DEVICE_ID_ITE_8872		0x8872
+ #define PCI_DEVICE_ID_ITE_IT8330G_0	0xe886
+ 
+--- drivers/ide/pci/siimage.c~	2004-07-28 14:23:17.506559712 +0100
++++ drivers/ide/pci/siimage.c	2004-07-28 14:23:17.507559560 +0100
+@@ -19,6 +19,8 @@
+  *	If you have strange problems with nVidia chipset systems please
+  *	see the SI support documentation and update your system BIOS
+  *	if neccessary
++ *
++ *  17/06/2004: Added PCI ID's for Innovision DM-8401H card - mocko@mocko.org.uk
+  */
+ 
+ #include <linux/config.h>
+@@ -50,6 +52,7 @@
+ 		case PCI_DEVICE_ID_SII_1210SA:
+ 			return 1;
+ 		case PCI_DEVICE_ID_SII_680:
++		case PCI_DEVICE_ID_ITE_DM8401:
+ 			return 0;
+ 	}
+ 	BUG();
+@@ -1108,7 +1111,8 @@
+ static ide_pci_device_t siimage_chipsets[] __devinitdata = {
+ 	/* 0 */ DECLARE_SII_DEV("SiI680"),
+ 	/* 1 */ DECLARE_SII_DEV("SiI3112 Serial ATA"),
+-	/* 2 */ DECLARE_SII_DEV("Adaptec AAR-1210SA")
++	/* 2 */ DECLARE_SII_DEV("Adaptec AAR-1210SA"),
++	/* 3 */ DECLARE_SII_DEV("InnoVISION DM8401H")
+ };
+ 
+ /**
+@@ -1132,6 +1136,7 @@
+ 	{ PCI_VENDOR_ID_CMD, PCI_DEVICE_ID_SII_3112, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
+ 	{ PCI_VENDOR_ID_CMD, PCI_DEVICE_ID_SII_1210SA, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 2},
+ #endif
++	{ PCI_VENDOR_ID_ITE, PCI_DEVICE_ID_ITE_DM8401,  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 3},
+ 	{ 0, },
+ };
+ MODULE_DEVICE_TABLE(pci, siimage_pci_tbl);

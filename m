@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266514AbUGPKVi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266525AbUGPLUb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266514AbUGPKVi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 06:21:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266516AbUGPKVi
+	id S266525AbUGPLUb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 07:20:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266528AbUGPLUb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 06:21:38 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:9344 "EHLO dns.toxicfilms.tv")
-	by vger.kernel.org with ESMTP id S266514AbUGPKVf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 06:21:35 -0400
-X-Qmail-Scanner-Mail-From: solt@dns.toxicfilms.tv via dns
-X-Qmail-Scanner-Rcpt-To: linux-kernel@vger.kernel.org
-X-Qmail-Scanner: 1.22 (Clear:RC:0(150.254.37.14):SA:0(0.0/5.0):. Processed in 3.444945 secs)
-Date: Fri, 16 Jul 2004 12:21:32 +0200
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-X-Mailer: SecureBat! Lite (v2.10.02) UNREG / CD5BF9353B3B7091
-Reply-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-X-Priority: 3 (Normal)
-Message-ID: <505216170.20040716122132@dns.toxicfilms.tv>
-To: linux-kernel@vger.kernel.org
-Subject: Re[2]: tcp_window_scaling degrades performance
-In-Reply-To: <m3zn615exj.fsf@averell.firstfloor.org>
-References: <2igbK-82L-13@gated-at.bofh.it>
- <m3zn615exj.fsf@averell.firstfloor.org>
+	Fri, 16 Jul 2004 07:20:31 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:56710 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S266525AbUGPLU2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 07:20:28 -0400
+Date: Fri, 16 Jul 2004 07:19:42 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Stuart Young <cef-lkml@optusnet.com.au>
+cc: linux-kernel@vger.kernel.org,
+       Markus Lidel <Markus.Lidel@shadowconnect.com>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Problem with ioremap which returns NULL in 2.6 kernel
+In-Reply-To: <200406031241.27669.cef-lkml@optusnet.com.au>
+Message-ID: <Pine.LNX.4.53.0407160715210.21606@chaos>
+References: <40BC788A.3020103@shadowconnect.com> <40BDF1AC.7070209@shadowconnect.com>
+ <Pine.LNX.4.53.0406021144280.559@chaos> <200406031241.27669.cef-lkml@optusnet.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-AK> It's pretty easy for you to find out. Do a tcpdump -v or ethereal -v
-AK> from both the side of a host you download from and from the linux side.
-AK> Then compare all packets. If they don't match the firewall is 
-AK> doing something bad. Especially check window values and TCP options
-AK> in the SYN packets
-I will do that for sure, but preliminary investigation shows that
-this behaviour does not show with 2.6.7 and earlier, but appears for sure in
-2.6.7-bk13 (Haven't tried earlier bk snapshots)
+On Thu, 3 Jun 2004, Stuart Young wrote:
 
-AK> It is very very likely the firewall, window scaling works for a lot
-AK> of people.
-It is probable, but here: only 2.6.7+ machines behave like this.
-I also noticed, that turning tcp_window_scaling off does not always
-fix the problem, turning tcp_bic to 0 too helps even more.
+> On Thu, 3 Jun 2004 01:45, Richard B. Johnson wrote:
+> > I asked for the output of `cat /proc/pci` . Unless I get that
+> > information, I can't find the length of the allocation.
+>
+> Is there no way to to get this information out of lspci (eg: lspci -vv)? This
+> is particularly annoying since /proc/pci is depreciated. I know a number of
+> people who simply don't bother turning it on anymore. If there is information
+> in /proc/pci that isn't available through lspci somehow, then I'd call that a
+> nasty regression, which needs to be fixed.
+>
+> Are you sure on this Richard? (No disrespect intended, just want to confirm
+> things).
+>
 
-Regards,
-Maciej
+I didn't say what I was 're-quoted'. That's from somebody else.
+If they are taking away /proc/pci (sniff), you need to use
+`lspci -v` to get the length . If they are taking that way,
+you need to make your own!
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

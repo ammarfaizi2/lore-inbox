@@ -1,62 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264943AbUFGRIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262434AbUFGRXC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264943AbUFGRIa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 13:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264946AbUFGRIa
+	id S262434AbUFGRXC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 13:23:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264946AbUFGRXC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 13:08:30 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:28312 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S264943AbUFGRI0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 13:08:26 -0400
-Date: Mon, 7 Jun 2004 16:19:03 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@infradead.org>,
-       Mike McCormack <mike@codeweavers.com>, linux-kernel@vger.kernel.org
-Subject: Re: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
-Message-ID: <20040607141903.GA20863@elte.hu>
-References: <40C2B51C.9030203@codeweavers.com> <20040606073241.GA6214@infradead.org> <40C2E045.8090708@codeweavers.com> <20040606081021.GA6463@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040606081021.GA6463@infradead.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 7 Jun 2004 13:23:02 -0400
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:57987 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S262434AbUFGRW4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 13:22:56 -0400
+Message-ID: <40C4A471.7070907@blue-labs.org>
+Date: Mon, 07 Jun 2004 13:22:57 -0400
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a2) Gecko/20040605
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       alsa-user@lists.sourceforge.net, linux-usb-devel@lists.sourceforge.net
+Subject: [OOPS-amd64] 2.6.7-rc2, USB
+Content-Type: multipart/mixed;
+ boundary="------------060607040406000706080105"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------060607040406000706080105
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-* Christoph Hellwig <hch@infradead.org> wrote:
+[cc/repost: per request]
 
-> > It seems Linus's kernel does that quite well, but some vendors seem not 
-> > to care too much about breaking Wine.
-> 
-> Why should they?  You need to fix up the broken assumptions in wine.
+The system was fairly idle except for playing mp3s.
 
-for the record, i personally do care about Wine alot, and i'd like to
-repeat that exec-shield did not break any _existing_ binaries. It broke
-_newly_ compiled binaries that got the PT_GNU_STACK flag.
+gcc version 3.3.3 20040412 (Gentoo Linux 3.3.3-r5, ssp-3.3-7, pie-8.7.5.3)
 
-i can very well understand the frustration of the Wine people - dealing
-with such issues doesnt give a feeling of advance, because you are
-working on solving an issue that didnt exist before.
 
-prelink might have broken other assumptions of Wine - one way around
-that is to compile Wine as a PIE binary (or to link it statically). 
-prelink is a very important feature as well, from which Wine does
-benefit as well.
+Jun  6 19:54:58 Scott drivers/usb/media/ov511.c: ERROR: urb->status=-71:
+Bit-stuff error (bad cable?)
+Jun  6 19:54:58 Scott hub 2-1:1.0: port 1 disabled by hub (EMI?),
+re-enabling...<6>usb 2-1.1: USB disconnect,
+address 3
+Jun  6 19:54:58 Scott ALSA sound/pci/via82xx.c:737: invalid
+via82xx_cur_ptr, using last valid pointer
+Jun  6 19:54:58 Scott ALSA sound/pci/via82xx.c:737: invalid
+via82xx_cur_ptr, using last valid pointer
+Jun  6 19:54:58 Scott ALSA sound/pci/via82xx.c:737: invalid
+via82xx_cur_ptr, using last valid pointer
+Jun  6 19:54:58 Scott ALSA sound/pci/via82xx.c:737: invalid
+via82xx_cur_ptr, using last valid pointer
+Jun  6 19:54:58 Scott ALSA sound/pci/via82xx.c:737: invalid
+via82xx_cur_ptr, using last valid pointer
+Jun  6 19:54:58 Scott ALSA sound/pci/via82xx.c:737: invalid
+via82xx_cur_ptr, using last valid pointer
+Jun  6 19:54:58 Scott ALSA sound/pci/via82xx.c:737: invalid
+via82xx_cur_ptr, using last valid pointer
+Jun  6 19:54:58 Scott usb 2-1.1: new low speed USB device using address 6
+Jun  6 19:54:59 Scott hiddev97: USB HID v1.10 Device [APC Back-UPS ES
+350 FW:1.e2.D USB FW:e2] on usb-0000:00:
+10.0-1.1
+Jun  6 19:55:13 Scott Unable to handle kernel paging request at
+0000000000003140 RIP:
+Jun  6 19:55:13 Scott <ffffffff8032ddd6>{hid_open+6}PML4 3dbc7067 PGD
+3db69067 PMD 0
+Jun  6 19:55:13 Scott Oops: 0000 [1]
+Jun  6 19:55:13 Scott CPU 0
+Jun  6 19:55:13 Scott Modules linked in: snd_pcm_oss snd_mixer_oss
+Jun  6 19:55:13 Scott Pid: 6521, comm: apcupsd Not tainted 2.6.7-rc2
+Jun  6 19:55:13 Scott RIP: 0010:[<ffffffff8032ddd6>]
+<ffffffff8032ddd6>{hid_open+6}
+Jun  6 19:55:13 Scott RSP: 0018:000001003d02be48  EFLAGS: 00010246
+Jun  6 19:55:13 Scott RAX: 000001003f53f968 RBX: 0000000000000000 RCX:
+0000000000000000
+Jun  6 19:55:13 Scott RDX: 0000000000000000 RSI: 000001003d518000 RDI:
+0000000000000008
+Jun  6 19:55:13 Scott RBP: 000001003f0d6d80 R08: 0000000000000000 R09:
+000001003df2d868
+Jun  6 19:55:13 Scott R10: 0000000000000400 R11: 0000000000000004 R12:
+00000000ffffffed
+Jun  6 19:55:13 Scott R13: 0000000000000000 R14: 000001003f0d6d80 R15:
+0000000000521010
+Jun  6 19:55:13 Scott FS:  0000002a95cdb4a0(0000)
+GS:ffffffff80752a80(0000) knlGS:0000000000000000
+Jun  6 19:55:13 Scott CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+Jun  6 19:55:13 Scott CR2: 0000000000003140 CR3: 0000000000101000 CR4:
+00000000000006e0
+Jun  6 19:55:13 Scott Process apcupsd (pid: 6521, threadinfo
+000001003d02a000, task 000001003d3947f0)
+Jun  6 19:55:13 Scott Stack: 0000000000000216 ffffffff8032ee52
+000001003ec9d4c0 ffffffff8063fe00
+Jun  6 19:55:13 Scott 000001003f0d6d80 ffffffff80310961 000001003fb15068
+000001003ec9d4c0
+Jun  6 19:55:13 Scott 0000000000000000 ffffffff8016ed31
+Jun  6 19:55:13 Scott Call Trace:<ffffffff8032ee52>{hiddev_open+210}
+<ffffffff80310961>{usb_open+97}
+Jun  6 19:55:13 Scott <ffffffff8016ed31>{chrdev_open+305}
+<ffffffff801662fd>{dentry_open+205}
+Jun  6 19:55:13 Scott <ffffffff80166212>{filp_open+66}
+<ffffffff8013a980>{process_timeout+0}
+Jun  6 19:55:13 Scott <ffffffff801665fc>{sys_open+76}
+<ffffffff801115aa>{system_call+126}
+Jun  6 19:55:13 Scott
+Jun  6 19:55:13 Scott
+Jun  6 19:55:13 Scott Code: 8b 87 38 31 00 00 ff c0 89 87 38 31 00 00 ff
+c8 75 2e 48 8b
+Jun  6 19:55:13 Scott RIP <ffffffff8032ddd6>{hid_open+6} RSP
+<000001003d02be48>
+Jun  6 19:55:13 Scott CR2: 0000000000003140
 
-Wine is in a really difficult position (due to the complex task it
-achieves) and is more sensitive to VM layout changes than other
-applications. So lets try to find the solution that preserves the
-kernel's ability to further optimize the VM layout, while meeting Wine's
-desire to get a simple VM layout that is not mapped in the first 1 GB or
-so.
+Scott root # cat /proc/interrupts
+            CPU0
+   0:   61347434    IO-APIC-edge  timer
+   1:      18918    IO-APIC-edge  i8042
+   8:          0    IO-APIC-edge  rtc
+   9:         16   IO-APIC-level  acpi
+  12:         95    IO-APIC-edge  i8042
+  14:      79967    IO-APIC-edge  ide0
+  15:         32    IO-APIC-edge  ide1
+  16:          2   IO-APIC-level  ohci1394
+  17:     935980   IO-APIC-level  SysKonnect SK-98xx
+  18:          6   IO-APIC-level  intranet
+  21:   12525705   IO-APIC-level  ehci_hcd, uhci_hcd, uhci_hcd, 
+uhci_hcd, uhci_hcd
+  22:      25899   IO-APIC-level  VIA8233
+NMI:       3632
+LOC:   61336867
+ERR:          0
+MIS:          0
 
-	Ingo
+
+[p.s. "intranet" is eth1, a tulip card.  Odd how one interface took on 
+the nameif convention in /proc/interrupts, the other didn't]
+
+
+--------------060607040406000706080105
+Content-Type: text/x-vcard; charset=utf-8;
+ name="david+challenge-response.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="david+challenge-response.vcf"
+
+begin:vcard
+fn:David Ford
+n:Ford;David
+email;internet:david@blue-labs.org
+title:Industrial Geek
+tel;home:Ask please
+tel;cell:(203) 650-3611
+x-mozilla-html:TRUE
+version:2.1
+end:vcard
+
+
+--------------060607040406000706080105--

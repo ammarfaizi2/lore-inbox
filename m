@@ -1,61 +1,67 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314079AbSEYH4f>; Sat, 25 May 2002 03:56:35 -0400
+	id <S314078AbSEYH7h>; Sat, 25 May 2002 03:59:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314082AbSEYH4e>; Sat, 25 May 2002 03:56:34 -0400
-Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:1681 "EHLO
-	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S314078AbSEYH4d>; Sat, 25 May 2002 03:56:33 -0400
-Message-ID: <3CEF4396.8080705@wanadoo.fr>
-Date: Sat, 25 May 2002 09:56:06 +0200
-From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
-X-Accept-Language: en-us, en
+	id <S314082AbSEYH7g>; Sat, 25 May 2002 03:59:36 -0400
+Received: from pD9E23A41.dip.t-dialin.net ([217.226.58.65]:48793 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S314078AbSEYH7g>; Sat, 25 May 2002 03:59:36 -0400
+Date: Sat, 25 May 2002 01:59:10 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Larry McVoy <lm@bitmover.com>
+cc: Karim Yaghmour <karim@opersys.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Andrea Arcangeli <andrea@e-mind.com>, Dan Kegel <dank@kegel.com>,
+        Andrew Morton <akpm@zip.com.au>, Hugh Dickins <hugh@veritas.com>,
+        Christoph Rohland <cr@sap.com>, Jens Axboe <axboe@suse.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
+In-Reply-To: <20020524223950.D22643@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0205250152110.15928-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: 2.5.18 and HPT366
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.18 hangs at partition check. A workaround is to comment hpt366.c:868 
-config_chipset_for_pio(drive) in the function config_chipset_for_dma().
+Hi,
 
-In this case the partition check looks to be done twice :
+On Fri, 24 May 2002, Larry McVoy wrote:
+> Then you have absolutely no beef with the FSMlabs patent.  Let's review:
+> 
+>     a) you get to use it if the stuff built on it, all of it, is GPLed.
+>     b) you build on GPLed stuff.
+> 
+> Seems like you either have no problem or you aren't disclosing the whole
+> story.  I really don't understand why there is a problem here.   100%
+> GPLed is OK, so why do you have a problem?
 
-ATA: Triones Technologies, Inc. HPT366 / HPT370: controller, PCI slot 
-00:13.0
-PCI: Found IRQ 11 for device 00:13.0
-PCI: Sharing IRQ 11 with 00:13.1
-ATA: chipset rev.: 1
-ATA: non-legacy mode: IRQ probe delayed
-     ide2: BM-DMA at 0xd400-0xd407, BIOS settings: hde:DMA, hdf:pio
-ATA: Triones Technologies, Inc. HPT366 / HPT370 (#2): controller, PCI 
-slot 00:13.1
-PCI: Found IRQ 11 for device 00:13.1
-PCI: Sharing IRQ 11 with 00:13.0
-ATA: chipset rev.: 1
-ATA: non-legacy mode: IRQ probe delayed
-     ide3: BM-DMA at 0xe000-0xe007, BIOS settings: hdg:DMA, hdh:pio
-hda: SAMSUNG DVD-ROM SD-616F, ATAPI CD/DVD-ROM drive
-hde: ST310212A, ATA DISK drive
-hdg: SAMSUNG SV0322A, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide2 at 0xcc00-0xcc07,0xd002 on irq 11
-ide3 at 0xd800-0xd807,0xdc02 on irq 11
-  hde: 20005650 sectors w/512KiB Cache, CHS=19846/16/63, UDMA(66)
-Partition check:
-  /dev/ide/host2/bus0/target0/lun0: [PTBL] [1245/255/63] p1 p2 p3 p4
-  hdg: 6250608 sectors w/478KiB Cache, CHS=11024/9/63, UDMA(33)
-  /dev/ide/host3/bus0/target0/lun0: p1
-  /dev/ide/host2/bus0/target0/lun0: p1 p2 p3 p4
-  /dev/ide/host3/bus0/target0/lun0: p1
+I think the point he's tryin' to make is somewhere else than that. There 
+are lots of companies running embedded devices (oh yes, I can tell ;-), 
+and as long as it is a) not clear and/or b) impossible by license to use 
+real time linux w/their licenses, they won't.
 
+Embedded and real time devices are "The Future" for lots of companies. And 
+of course they're going to want to sell it. Currently, they have three 
+ways:
 
-Pierre
+1. They try RTAI and don't have any licensing problems, but they are very 
+   unsure about it, since certain people keep telling that RTAI is crap
+
+2. They get used to RTLinux, where they are altogether forced to use 
+   either GPL or their license. This isn't exactly a way of choice.
+
+3. They go buy another real time os implementation.
+
+Most will decide for 3., since it's the easy and virtually obvious way. 
+Thus, Linux isn't going to get very far in respect to embedded devices. I 
+suppose _THAT'S_ the point he was trying to make.
+
+Regards,
+Thunder
 -- 
-------------------------------------------------
-  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-------------------------------------------------
+Was it a black who passed along in the sand?
+Was it a white who left his footprints?
+Was it an african? An indian?
+Sand says, 'twas human.
 

@@ -1,69 +1,54 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <154181-8093>; Tue, 19 Jan 1999 00:47:32 -0500
-Received: by vger.rutgers.edu id <153990-8100>; Tue, 19 Jan 1999 00:47:23 -0500
-Received: from naughty.monkey.org ([152.160.231.194]:18242 "HELO naughty.monkey.org" ident: "extracurriculum") by vger.rutgers.edu with SMTP id <154141-8100>; Tue, 19 Jan 1999 00:46:57 -0500
-Date: Tue, 19 Jan 1999 00:49:32 -0500 (EST)
-From: Chuck Lever <cel@monkey.org>
-To: lk@winux.com
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.rutgers.edu
-Subject: Re: TCP Splice alleviates proxy bottleneck
-In-Reply-To: <13988.3004.758570.281457@wander.auton.org>
-Message-ID: <Pine.BSF.3.96.990119004333.23449B-100000@naughty.monkey.org>
+Received: by vger.rutgers.edu via listexpand id <160207-8100>; Wed, 20 Jan 1999 21:45:26 -0500
+Received: by vger.rutgers.edu id <155910-8093>; Wed, 20 Jan 1999 17:08:22 -0500
+Received: from lsmls02.we.mediaone.net ([24.130.1.15]:48811 "EHLO lsmls02.we.mediaone.net" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <156670-8100>; Wed, 20 Jan 1999 11:42:02 -0500
+Message-ID: <36A60752.668C9631@alumni.caltech.edu>
+Date: Wed, 20 Jan 1999 08:41:54 -0800
+From: Dan Kegel <dank@alumni.caltech.edu>
+X-Mailer: Mozilla 4.5 [de] (Win95; I)
+X-Accept-Language: de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.rutgers.edu
+Subject: Regression testing?
+References: <19990120031127Z157444-8100+9173@vger.rutgers.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Mon, 18 Jan 1999 lk@winux.com wrote:
+Does anyone have access to some hefty benchmarks
+suites like SPEC's, or regression tests
+like the POSIX compliance test?
+It might be a good idea to run 2.2.0-pre-x
+through these to look for suprises
+before going final with it.
 
-> Date: Mon, 18 Jan 1999 23:36:12 -0500 (EST)
-> From: lk@winux.com
-> To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-> Cc: linux-kernel@vger.rutgers.edu
-> Subject: Re: TCP Splice alleviates proxy bottleneck
-> 
-> Alan Cox writes:
-> > From:	alan@lxorguk.ukuu.org.uk (Alan Cox)
-> > To:	lk@winux.com
-> > Cc:	alan@lxorguk.ukuu.org.uk, linux-kernel@vger.rutgers.edu
-> > Subject: Re: TCP Splice alleviates proxy bottleneck
-> > Date:	Mon, 18 Jan 1999 14:53:14 +0000 (GMT)
-> > 
-> >> Their work on TCP Splice gives the efficiency of IP masquerading, yea, 
-> >> even that of simple IP forwarding, to processes with the capabilities
-> >> of application level proxies.
-> > 
-> > Their ? Having looked at the reference I'd like Larry McVoy's opinion on
-> > its originality 8)
-> 
-> I'm not sure what you mean by this.  Are you referring to Larry McVoy's
-> paper "Splice - a push pull I/O model for Unix" dated 6/24/98 [1]?
-> 
-> If so, the model he presents is a bit different than theirs. A cursory
-> reading of his paper indicates to me that his model is intended to be
-> more general, i.e. not intended purely for TCP/IP, and as such it (rightly)
-> glosses over most of the TCP/IP-specific issues that Pravin and Maltz
-> address in their paper dated 3/17/98 [2].  They also have the advantage of
-> having implemented their ideas.
+The Posix test suite is downloadable from
+http://www.itl.nist.gov/div897/ctg/posix_form.htm
+See also http://www.standards.ieee.org/regauth/posix/
+Even if we didn't actually pass all the tests,
+it'd be good to know that we didn't oops.
 
-Druschel and Pai *have* implemented IO-Lite, which seems similar in spirit
-to McVoy's ideas.  see:
+The SPEC benchmarks can be purchased at
+http://www.spec.org/cgi-bin/osgorder
+for $700 or so.  The hard part is
+actually having the patience to run them.
+(I suspect if Linux or Alan asked nicely, they'd
+donate a benchmark or two.   Or we could take
+up a collection.  Or Alan's boss could pay.)
+Three of the SPEC tests look interesting:
 
-  http://www.cs.rice.edu/~vivek/IO-Lite/TR97-294.ps
+SPECweb96 stresses out HTTP networking.
+SPEC SFS97 stresses out NFS networking.
+SPEC SDM (System Development: Multitasking) 
+stresses the kernel by simulating a large number of 
+users running make, cp, diff, etc.
 
-i think this would be a great starting place for what you have in mind.  a
-combination of the general zero-copy I/O semantics and the TCP-specific
-improvements could be very slick.
-
-> References:
-> 
-> [1] http://www.bitmover.com/lm/papers/splice.ps
-> [2] http://www.cs.umd.edu/users/pravin/TR-21139.ps.gz
-
-	- Chuck Lever
---
-corporate:	<chuckl@netscape.com>
-personal:	<chucklever@netscape.net> or <cel@monkey.org>
-
+The point of running these benchmarks is not really
+to say we're fast, but to see whether we can
+actually get all the way through the benchmark
+(which might take a day to run) without having
+a functional error or a crash.
+- Dan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

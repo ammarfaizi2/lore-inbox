@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129930AbQLIM3Y>; Sat, 9 Dec 2000 07:29:24 -0500
+	id <S129605AbQLIM6Q>; Sat, 9 Dec 2000 07:58:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130483AbQLIM3F>; Sat, 9 Dec 2000 07:29:05 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:56069 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129930AbQLIM2q>; Sat, 9 Dec 2000 07:28:46 -0500
-Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
-To: viro@math.psu.edu (Alexander Viro)
-Date: Sat, 9 Dec 2000 11:59:42 +0000 (GMT)
-Cc: mhaque@haque.net (Mohammad A. Haque), ben@kalifornia.com (Ben Ford),
-        sabre@nondot.org (Chris Lattner), linux-kernel@vger.kernel.org,
-        orbit-list@gnome.org, korbit-cvs@lists.sourceforge.net
-In-Reply-To: <Pine.GSO.4.21.0012090028550.29053-100000@weyl.math.psu.edu> from "Alexander Viro" at Dec 09, 2000 12:39:36 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129744AbQLIM6G>; Sat, 9 Dec 2000 07:58:06 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:45572 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S129605AbQLIM5y>; Sat, 9 Dec 2000 07:57:54 -0500
+Date: Sat, 9 Dec 2000 15:15:49 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: davej@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        mj@suse.cz
+Subject: Re: pdev_enable_device no longer used ?
+Message-ID: <20001209151549.A1729@jurassic.park.msu.ru>
+In-Reply-To: <Pine.LNX.4.21.0012091122460.3465-100000@neo.local> <200012091138.eB9Bc5l29476@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E144ifI-0005IB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <200012091138.eB9Bc5l29476@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Sat, Dec 09, 2000 at 11:38:05AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yeah... "Infinitely extendable API" and all such. Roughly translated
-> as "we can't live without API bloat". Frankly, judging by the GNOME
-> codebase people who designed the thing are culturally incompatible with
-> UNIX.
+On Sat, Dec 09, 2000 at 11:38:05AM +0000, Russell King wrote:
+> davej@suse.de writes:
+> > 2. Why is pdev_device_enable no longer used ?
 
-Oh they are definitely unix people, but ORBit is about solving a very 
-different sort of problem to scribbling bits on a disk, or it was until very
-crazy people got involved
+Right question would be "why is it not used yet?" ;-)
+This routine appeared a while ago in one of test12-pre.
+
+> It is used from pci_assign_unassigned_resources.  iirc, its just that
+> x86 doesn't call this function.
+
+Yes, only alpha, arm and mips are using that code.
+
+Ivan.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

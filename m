@@ -1,56 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267937AbTAHVAZ>; Wed, 8 Jan 2003 16:00:25 -0500
+	id <S267971AbTAHVGp>; Wed, 8 Jan 2003 16:06:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267938AbTAHVAY>; Wed, 8 Jan 2003 16:00:24 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:14215 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S267937AbTAHVAW>;
-	Wed, 8 Jan 2003 16:00:22 -0500
-Date: Wed, 8 Jan 2003 16:09:39 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: "Ruslan U. Zakirov" <cubic@miee.ru>
-Cc: Zwane Mwaikambo <zwane@holomorphy.com>, Jaroslav Kysela <perex@perex.cz>,
+	id <S267972AbTAHVGo>; Wed, 8 Jan 2003 16:06:44 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:505 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S267971AbTAHVGk>;
+	Wed, 8 Jan 2003 16:06:40 -0500
+Message-ID: <3E1C86BB.3D7C3AD7@mvista.com>
+Date: Wed, 08 Jan 2003 12:14:51 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Fleischer, Julie N" <julie.n.fleischer@intel.com>
+CC: high-res-timers-discourse@lists.sourceforge.net,
        linux-kernel@vger.kernel.org
-Subject: Re: [2.5.54][PATCH] SB16 convertation to new PnP layer.
-Message-ID: <20030108160939.GA17701@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	"Ruslan U. Zakirov" <cubic@miee.ru>,
-	Zwane Mwaikambo <zwane@holomorphy.com>,
-	Jaroslav Kysela <perex@perex.cz>, linux-kernel@vger.kernel.org
-References: <Pine.BSF.4.05.10301081959130.88742-100000@wildrose.miee.ru>
-Mime-Version: 1.0
+Subject: Re: [BUG - HRT patch] nanosleep returns 0 on failure
+References: <D9223EB959A5D511A98F00508B68C20C17F1C724@orsmsx108.jf.intel.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.BSF.4.05.10301081959130.88742-100000@wildrose.miee.ru>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 08, 2003 at 08:20:13PM +0300, Ruslan U. Zakirov wrote:
-> Hello Adam and All.
-> Here is patch to sb16.c that makes it posible to compile and use this
-> driver under 2.5.54-vanilla.
-> It working for me as module and built in kernel, but it's need testing.
->                             Ruslan. 
+"Fleischer, Julie N" wrote:
+> 
+> > george anzinger wrote:
+> > If you don't mind, I will add your test code to my
+> > clock_nanosleep test code so this does not creep back in.
+> 
+> Sure.  It's all GPL.  The 6-1.c test case (attached below) probably has the
+> best test because it does multiple values, some < 0, some >= 1000 million.
+> 
+> One other thing I forgot to write in my previous report is that
+> clock_nanosleep() appeared to behave as expected, just nanosleep() showed
+> the issue of returning 0 on failure.
 
-Hi Ruslan,
+Yes, I found the problem.  Thanks for the code and the heads
+up.
 
-I haven't had a chance to test this yet but everything does look ok.  I
-think it will be ready once the below function is completed.  Jaroslav,
-any comments?  Also, if anyone has a built in wavetable, as previously
-mentioned by Zwane, I'd like to hear how this patch works for you.  This
-patch makes full use of pnp card services, which is prefered for cards
-that have several closely related devices, and it would be great to 
-further test those code paths.
+-g
+> 
+> Thanks.
+> - Julie
+> 
+> ----
+> test 6-1.c
+> /*
+>  * Copyright (c) 2002, Intel Corporation. All rights reserved.
+>  * Created by:  julie.n.fleischer REMOVE-THIS AT intel DOT com
+>  * This file is licensed under the GPL license.  For the full content
+>  * of this license, see the COPYING file at the top level of this
+>  * source tree.
+> 
+>  * Test that nanosleep() sets errno to EINVAL if rqtp contained a
+>  * nanosecond value < 0 or >= 1,000 million
+>  */
+> #include <stdio.h>
+> #include <time.h>
+> #include <errno.h>
+> 
+> #define PTS_PASS        0
+> #define PTS_FAIL        1
+> #define PTS_UNRESOLVED  2
+> 
+> #define NUMTESTS 7
+> 
+> int main(int argc, char *argv[])
+> {
+>         struct timespec tssleepfor, tsstorage;
+>         int sleepnsec[NUMTESTS] = {-1, -5, -1000000000, 1000000000,
+>                 1000000001, 2000000000, 2000000000 };
+>         int i;
+>         int failure = 0;
+> 
+>         tssleepfor.tv_sec=0;
+> 
+>         for (i=0; i<NUMTESTS;i++) {
+>                 tssleepfor.tv_nsec=sleepnsec[i];
+>                 printf("sleep %d\n", sleepnsec[i]);
+>                 if (nanosleep(&tssleepfor, &tsstorage) == -1) {
+>                         if (EINVAL != errno) {
+>                                 printf("errno != EINVAL\n");
+>                                 failure = 1;
+>                         }
+>                 } else {
+>                         printf("nanosleep() did not return -1 on
+> failure\n");
+>                         return PTS_UNRESOLVED;
+>                 }
+>         }
+> 
+>         if (failure) {
+>                 printf("At least one test FAILED\n");
+>                 return PTS_FAIL;
+>         } else {
+>                 printf("All tests PASSED\n");
+>                 return PTS_PASS;
+>         }
+> }
+> **These views are not necessarily those of my employer.**
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Thanks,
-Adam
-
->
-> -#endif /* __ISAPNP__ */
-> +static void snd_sb16_isapnp_remove(struct pnp_card * card)
-> +{
-> +	/*FIX ME*/
-> +}
-> +
->
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

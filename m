@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbUCPTb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 14:31:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbUCPT0w
+	id S261410AbUCPT5E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 14:57:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbUCPT4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 14:26:52 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:24462 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S261461AbUCPTZy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 14:25:54 -0500
-Date: Tue, 16 Mar 2004 19:21:01 +0000
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ian Romanick <idr@us.ibm.com>, linux-kernel@vger.kernel.org,
-       dri-devel@lists.sourceforge.net
-Subject: Re: [Dri-devel] Re: DRM reorganization
-Message-ID: <20040316192101.GA17979@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, Ian Romanick <idr@us.ibm.com>,
-	linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
-References: <40562AEC.9080509@us.ibm.com> <20040315152621.43a5bcef.akpm@osdl.org> <40564723.4010105@us.ibm.com> <20040315163131.1b03b49f.akpm@osdl.org>
+	Tue, 16 Mar 2004 14:56:52 -0500
+Received: from fw.osdl.org ([65.172.181.6]:28829 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261410AbUCPTza (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 14:55:30 -0500
+Date: Tue, 16 Mar 2004 11:53:40 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
+       viro@parcelfarce.linux.theplanet.co.uk, bos@serpentine.com,
+       linux-raid@vger.kernel.org
+Subject: Re: [PATCH] klibc update
+Message-Id: <20040316115340.361f2a14.akpm@osdl.org>
+In-Reply-To: <40575631.1080006@pobox.com>
+References: <4056B0DB.9020008@pobox.com>
+	<20040316005229.53e08c0c.akpm@osdl.org>
+	<20040316153719.GA13723@kroah.com>
+	<20040316111026.6729e153.akpm@osdl.org>
+	<40575279.7040408@pobox.com>
+	<20040316192458.GB21172@kroah.com>
+	<40575631.1080006@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040315163131.1b03b49f.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 15, 2004 at 04:31:31PM -0800, Andrew Morton wrote:
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+>  >>Note that it isn't my intention to become klibc maintainer...  just in 
+>  >>case anybody started getting ideas... :)
+>  > 
+>  > 
+>  > I thought hpa was the klibc maintainer, you're just offering a patch to
+>  > add it to the build :)
+> 
+>  Right...  I meant I am not going to become the maintainer of said 
+>  patch/BK tree :)
 
- > I've had a 130k DRM patch in -mm since February 8th.  Presumably it's out
- > of date.  As far as I know nobody is pushing more recent patches upstream.
+It would be rather handy if someone could maintain the definitive tree for
+this work for a while, until we linusify it.
 
-The patch you've been carrying for a while has a number of bogons,
-like duplicating pci.ids inside the radeon driver for no good reason.
-
- > What's the process here, and who should I be dealing with?
-
-In the past most of the merges were done by Linus. I don't recall
-seeing a 'dri maintainer' per se ever sending resync patches.
-
-		Dave
-
+I don't have a feeling for its stability/readiness/desirability/anthingelse
+at this stage.  How mergeable is it?

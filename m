@@ -1,55 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261439AbTI3Mkv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 08:40:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbTI3Mkv
+	id S261419AbTI3MiL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 08:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbTI3MiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 08:40:51 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:44266 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261439AbTI3Mkl (ORCPT
+	Tue, 30 Sep 2003 08:38:11 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:57833 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261419AbTI3MiG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 08:40:41 -0400
-Date: Tue, 30 Sep 2003 14:40:38 +0200
+	Tue, 30 Sep 2003 08:38:06 -0400
+Date: Tue, 30 Sep 2003 14:38:04 +0200
 From: Jens Axboe <axboe@suse.de>
 To: "David S. Miller" <davem@redhat.com>
-Cc: ast@domdv.de, schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org
+Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org
 Subject: Re: Kernel includefile bug not fixed after a year :-(
-Message-ID: <20030930124038.GR2908@suse.de>
-References: <200309301144.h8UBiUUF004315@burner.fokus.fraunhofer.de> <20030930115411.GL2908@suse.de> <3F797316.2010401@domdv.de> <20030930122137.GN2908@suse.de> <20030930053224.030101c5.davem@redhat.com>
+Message-ID: <20030930123804.GQ2908@suse.de>
+References: <200309301157.h8UBvOcd004345@burner.fokus.fraunhofer.de> <20030930120629.GM2908@suse.de> <20030930052817.0d0272df.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030930053224.030101c5.davem@redhat.com>
+In-Reply-To: <20030930052817.0d0272df.davem@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Tue, Sep 30 2003, David S. Miller wrote:
-> On Tue, 30 Sep 2003 14:21:37 +0200
+> On Tue, 30 Sep 2003 14:06:29 +0200
 > Jens Axboe <axboe@suse.de> wrote:
 > 
-> > I will tell you to talk to the glibc folks, because that's where your
-> > problem is.
+> > I asked you one simple question: when did the kernel/user interface
+> > break, and how?
 > 
-> I think it's totally unreasonable to expect the glibc folks
-> to suck in every single new weird API that ends up in the kernel.
-> 
-> Part of this is our job.
+> I'll answer for him, about 20 or 30 times during IPSEC development.
 
-We agree 100% here, have you read any of my emails in this thread?! I'm
-not trying to place blame, it's a joint effort for sure.
+Sorry dave, that's a lame example. The fact that your (and who else did
+ipsec) code/interface wasn't mature and thus changed interfaces in the
+development series is perfectly acceptable in my book. But it sure as
+hell must not happen between 2.4.20 and 2.4.21, for instance.
 
-> But until we have that bit solved, it's irresonsible of us to tell
-> users to go scream at the glibc people.  Rather, we should fix the
-> (really, honestly, incredibly minor) things that prevent these kernel
-> header files from working for users.
+> It's still possible this could change even some more before 2.6.0
+> final is released if a large enough bug in the IPSEC socket APIs are
+> found in time.
 
-Talk to glibc folks: point out the inconsistency. Maybe he'll be a good
-boy and provide a patch, who knows. That's doesn't imply screaming.
+As I wrote in the mail to Joerg, it should basically never happen unless
+there's a damn good reason to. -testX series is still sort-of
+development, so I'd accept such a change right now.
 
-And yes, I'm not on a mission to make sure that kernel headers
-absolutely don't work from user space. And I'm even sure that had Joerg
-provided a patch in his original email, it might even have been included
-in the kernel. The attitude surely doesn't help either.
+> But that's not the important issue, the important issue is that
+> a huge number of kernel API interfaces have no equivalent in
+> whatever you consider to be "user usable non-kernel headers".
+
+And why is that?
+
+> Find me the API defines for the IPSEC configuration socket interfaces
+> in a header file that you think users should be allowed to include.
+
+I wont go chasing your code, sorry. I'm sure you could come up with
+that, if no usable interface exists how on earth are you expected to use
+it from user space?
+
+> You won't find it Jens, and that's why it drives me nuts when people
+> spit out the "no kernel headers" mantra.  Often it simply must be
+> done as a matter of practicality.
+
+This discussion has spun off on a tangent. Joerg asked why that breakage
+has not been fixed, I point out why that is so. I usually make sure that
+whatever headers I mess with _do_ work from user space (cdrom.h is a
+long nasty example), however it's never been guarenteed that this would
+be the case for all kernel headers. Quite the opposite, in fact. And
+back to my previous mail to you: if you do, be prepared to fix the
+breakage yourself.
 
 -- 
 Jens Axboe

@@ -1,64 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266243AbUA3Id4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 03:33:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266303AbUA3Id4
+	id S266303AbUA3IiW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 03:38:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266361AbUA3IiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 03:33:56 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:61418 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266243AbUA3Idy (ORCPT
+	Fri, 30 Jan 2004 03:38:22 -0500
+Received: from cats-mx2.ucsc.edu ([128.114.129.35]:39835 "EHLO ucsc.edu")
+	by vger.kernel.org with ESMTP id S266303AbUA3Ih4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 03:33:54 -0500
-Date: Fri, 30 Jan 2004 03:33:10 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Ulrich Drepper <drepper@redhat.com>, john stultz <johnstul@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
-Message-ID: <20040130083310.GH31589@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <1075344395.1592.87.camel@cog.beaverton.ibm.com> <401894DA.7000609@redhat.com> <20040129132623.GB13225@mail.shareable.org> <40194B6D.6060906@redhat.com> <20040129191500.GA1027@mail.shareable.org> <4019A5D2.7040307@redhat.com> <20040130041708.GA2816@mail.shareable.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040130041708.GA2816@mail.shareable.org>
-User-Agent: Mutt/1.4.1i
+	Fri, 30 Jan 2004 03:37:56 -0500
+To: linux-kernel@vger.kernel.org
+Subject: net-pf-10, 2.6.1
+Message-Id: <E1AmU8a-00005E-00@localhost>
+From: root <root@ohlone.ucsc.edu>
+Date: Fri, 30 Jan 2004 00:36:28 -0800
+X-UCSC-CATS-MailScanner: Found to be clean
+X-UCSC-CATS-MailScanner-SpamCheck: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 30, 2004 at 04:17:08AM +0000, Jamie Lokier wrote:
-> Ulrich Drepper wrote:
-> > > As this is x86, can't the syscall routines in Glibc call directly
-> > > without a PLT entry?
-> > 
-> > No, since this is just an ordinary jump through the PLT.  That the
-> > target DSO is synthesized is irrelevant.  It's ld.so which needs the PIC
-> > setup, not the called DSO.
-> 
-> I have not explained well.  Please read carefully, as I am certain no
-> indirect jumps on the userspace side are needed, including the one
-> currently in libc.
-> 
-> It is possible to compile, assemble and link a shared library with
-> -fno-PIC on x86, and this does work.  I just tested it to make sure.
-> Furthermore, the "prelink" program is effective on these libraries.
 
-Only if there are no prelink conflicts in the read-only sections.
-Furthermore, there is additional overhead of remapping RW and back RX
-and wasted page.  You can get around that by making a RWX section (which
-ends up in the RW segment which gets a PF_X bit set as well), but that means
-all the data in that segment is executable, which is obviously not
-desirable, especially for libc.so.
+Since compiling and installing 2.6.1, I, like many others, get these 
+repeated error messages:
 
-> I'm talking about the "prelink" program.  When you run "prelink" on a
-> libc.so which has direct jump instructions as described above, is
-> patches the libc.so file to contain the address of the kernel entry
-> point at the time "prelink" was run.
+----------------------------------------------------------------------
+Jan 29 22:48:56 kernel: request_module: failed /sbin/modprobe -- net-pf-10. error = 256
+Jan 29 22:53:01 kernel: request_module: failed /sbin/modprobe -- net-pf-10. error = 256
+Jan 29 22:56:28 kernel: request_module: failed /sbin/modprobe -- net-pf-10. error = 256
+Jan 29 23:08:01 kernel: request_module: failed /sbin/modprobe -- net-pf-10. error = 256
+Jan 29 23:14:48 kernel: request_module: failed /sbin/modprobe -- net-pf-10. error = 256
+Jan 29 23:23:01 kernel: request_module: failed /sbin/modprobe -- net-pf-10. error = 256
+Jan 29 23:31:40 kernel: request_module: failed /sbin/modprobe -- net-pf-10. error = 256
+----------------------------------------------------------------------
 
-Prelink ATM doesn't take VDSO into account at all and surely it would
-be best if it did not have to.  For example if VDSO is randomized, userspace
-has no control over its placement like it has for shared libraries
-(if DSO base is NULL, kernel randomizes, if non-NULL (usually means
-prelinked), then does not randomize unless the binary is PIE).
+I do not have ipv6 support in my kernel-config:
 
-	Jakub
+# CONFIG_INET_IPCOMP is not set
+# CONFIG_IPV6 is not set
+# CONFIG_DECNET is not set
+
+The version of module-init-tools is 3.0-pre5-1 from Debian testing.
+
+Is there any guidance about this little annoyance yet? Most of the
+advice I've seen (on other lists) suggests putting the following in
+modprobe.conf:
+
+   install net-pf-10 /bin/true
+
+But this has made no difference for me.
+
+There seems to be a correlation between the issue of the error-message
+and regular exim runs:
+
+Jan 29 22:53:01 ohlone /USR/SBIN/CRON[284]: (mail) CMD (  if [ -x /usr/lib/exim/exim3 -a -f /etc/exim/exim.conf ]; then /usr/lib
+/exim/exim3 -q ; fi)
+Jan 29 22:53:01 ohlone kernel: request_module: failed /sbin/modprobe -- net-pf-10. error = 256
+
+Jan 30 00:23:01 ohlone /USR/SBIN/CRON[311]: (mail) CMD (  if [ -x /usr/lib/exim/exim3 -a -f /etc/exim/exim.conf ]; then /usr/lib/exim/exim3 -q ; fi)
+Jan 30 00:23:01 ohlone kernel: request_module: failed /sbin/modprobe -- net-pf-10. error = 256
+
+Almost all of the error messages from modprobe come exactly on the
+heels of a call from cron to run exim. But why should exim spawn an 
+attempt to load this module? And why just with kernel 2.6.1?
+
+Thanks for any advice,
+
+Jim

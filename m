@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbTEMPEM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 11:04:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbTEMPEM
+	id S261374AbTEMPB6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 11:01:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbTEMPB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 11:04:12 -0400
-Received: from pat.uio.no ([129.240.130.16]:11980 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261387AbTEMPEL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 11:04:11 -0400
+	Tue, 13 May 2003 11:01:58 -0400
+Received: from siaag2af.compuserve.com ([149.174.40.136]:52642 "EHLO
+	siaag2af.compuserve.com") by vger.kernel.org with ESMTP
+	id S261374AbTEMPBb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 11:01:31 -0400
+Date: Tue, 13 May 2003 11:12:06 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: What exactly does "supports Linux" mean?
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200305131114_MC3-1-38B0-3C13@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16065.3159.768256.81302@charged.uio.no>
-Date: Tue, 13 May 2003 17:16:39 +0200
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6 must-fix list, v2
-In-Reply-To: <20030513135756.GA676@suse.de>
-References: <20030512155417.67a9fdec.akpm@digeo.com>
-	<20030512155511.21fb1652.akpm@digeo.com>
-	<shswugvjcy9.fsf@charged.uio.no>
-	<20030513135756.GA676@suse.de>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: Please contact postmaster@uio.no for more information
-X-UiO-MailScanner: Found to be clean
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Dave Jones <davej@codemonkey.org.uk> writes:
+Stephan von Krawczynski wrote:
 
-     > I can still kill an NFS server in under a minute with fsx.
+> My general conclusion would be that something not working with a standard
+> kernel cannot be called "supporting linux", no matter what distros ever are
+> supported. You may call me purist...
 
-I'm more interested in hearing how the client fixes are coping.
-i.e. is the client recovering properly if/when you restart the server
-after such a crash?
-
-Cheers,
-  Trond
+  If their drivers don't come with full source code then their claims
+of supporting Linux are just a bad joke AFAIC.

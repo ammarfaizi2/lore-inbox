@@ -1,120 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261539AbUAXVcm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 16:32:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbUAXVcm
+	id S262687AbUAXVhL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 16:37:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbUAXVhL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 16:32:42 -0500
-Received: from fw.osdl.org ([65.172.181.6]:60108 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261539AbUAXVcj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 16:32:39 -0500
-Date: Sat, 24 Jan 2004 13:32:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Richard Chan <rspchan@starhub.net.sg>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [KBUILD] md/raid6 breaks separate source/object tree
-Message-Id: <20040124133234.41093c17.akpm@osdl.org>
-In-Reply-To: <401260B1.7090909@starhub.net.sg>
-References: <401260B1.7090909@starhub.net.sg>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 24 Jan 2004 16:37:11 -0500
+Received: from smtp.dei.uc.pt ([193.137.203.228]:38805 "EHLO smtp.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S262687AbUAXVhE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 16:37:04 -0500
+Date: Sat, 24 Jan 2004 21:36:26 +0000 (WET)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: Han Boetes <han@mijncomputer.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [OFFTOPIC]   "smack the penguin"
+In-Reply-To: <20040124103029.GL10487@boetes.org>
+Message-ID: <Pine.LNX.4.58.0401242135250.30233@student.dei.uc.pt>
+References: <401177DB.8010901@nortelnetworks.com> <20040124095208.GA20489@zombie.inka.de>
+ <yw1xbrot7j89.fsf@ford.guide> <20040124103029.GL10487@boetes.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
+X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-DEI-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Chan <rspchan@starhub.net.sg> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+
+My record:
+1210.8
+
+Trick:
+http://www.mironov.net/pingu/pingu3.swf
+
+
+Mind Booster Noori
+
+- --
+==================================================
+Marcos Daniel Marado Torres AKA Mind Booster Noori
+/"\               http://student.dei.uc.pt/~marado
+\ /                       marado@student.dei.uc.pt
+ X   ASCII Ribbon Campaign
+/ \  against HTML e-mail and Micro$oft attachments
+==================================================
+
+On Sat, 24 Jan 2004, Han Boetes wrote:
+
+> Måns Rullgård wrote:
+> > Eduard Bloch wrote:
+> > > Chris Friesen wrote:
+> > > > Diversion for friday afternoon...how far can you get?
+> > > >
+> > > > Personal best is 586
+> > >
+> > > Which means that you are playing it either on a Windows box (what a
+> > > shame) or cheating somehow or you have a 5Ghz box or something else
+> > > is wrong on regular Linux systems. I do not any Linux user who got
+> > > more than 325.5 with the Linux version of the Shockwave plugin.
+> >
+> > I've gotten over 500 on my 2 GHz laptop running Linux 2.6.1. Even
+> > this fairly fast machine the flash thing frequently freezes for a
+> > split second.
 >
->  md/raid6 is using an in-tree perl script to generate a C file.
->  This breaks kbuild separate src/obj tree.
-> 
->    CC [M]  drivers/md/raid6main.o
->    CC [M]  drivers/md/raid6algos.o
->    CC [M]  drivers/md/raid6recov.o
->    HOSTCC  drivers/md/mktables
->  drivers/md/mktables > drivers/md/raid6tables.c || ( rm -f 
->  drivers/md/raid6tables.c && exit 1 )
->    CC [M]  drivers/md/raid6tables.o
->  perl drivers/md/unroll.pl 1 < 
->  /usr/src/linux-2.6.2-rc1.1.A/drivers/md/raid6int.uc > 
->  drivers/md/raid6int1.c || ( rm -f drivers/md/raid6int1.c && exit 1 )
->  Can't open perl script "drivers/md/unroll.pl": No such file or directory
-> 
->  Somehow the src in $(PERL) $(src)/drivers/md/unroll.pl is not getting 
->  substituted.
+> If you download the flashfile and then open that file in your browser
+> you'll see a part hidden from the sight by the html-frame. Then you will
+> also understand the freeze. :)
+>
+>
+>
+> # Han
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
 
-Does this patch (from Sam) fix it?
-
---- 25/drivers/md/Makefile~raid-makefile-cleanup	2004-01-24 01:26:56.000000000 -0800
-+++ 25-akpm/drivers/md/Makefile	2004-01-24 01:26:56.000000000 -0800
-@@ -24,26 +24,43 @@ obj-$(CONFIG_MD_MULTIPATH)	+= multipath.
- obj-$(CONFIG_BLK_DEV_MD)	+= md.o
- obj-$(CONFIG_BLK_DEV_DM)	+= dm-mod.o
- 
--# Files generated that shall be removed upon make clean
--clean-files := raid6int*.c raid6tables.c mktables
--
--$(obj)/raid6int1.c:   $(src)/raid6int.uc $(src)/unroll.pl
--	$(PERL) $(src)/unroll.pl 1 < $< > $@ || ( rm -f $@ && exit 1 )
--
--$(obj)/raid6int2.c:   $(src)/raid6int.uc $(src)/unroll.pl
--	$(PERL) $(src)/unroll.pl 2 < $< > $@ || ( rm -f $@ && exit 1 )
--
--$(obj)/raid6int4.c:   $(src)/raid6int.uc $(src)/unroll.pl
--	$(PERL) $(src)/unroll.pl 4 < $< > $@ || ( rm -f $@ && exit 1 )
--
--$(obj)/raid6int8.c:   $(src)/raid6int.uc $(src)/unroll.pl
--	$(PERL) $(src)/unroll.pl 8 < $< > $@ || ( rm -f $@ && exit 1 )
--
--$(obj)/raid6int16.c:  $(src)/raid6int.uc $(src)/unroll.pl
--	$(PERL) $(src)/unroll.pl 16 < $< > $@ || ( rm -f $@ && exit 1 )
--
--$(obj)/raid6int32.c:  $(src)/raid6int.uc $(src)/unroll.pl
--	$(PERL) $(src)/unroll.pl 32 < $< > $@ || ( rm -f $@ && exit 1 )
--
--$(obj)/raid6tables.c: $(obj)/mktables
--	$(obj)/mktables > $@ || ( rm -f $@ && exit 1 )
-+quiet_cmd_unroll = UNROLL  $@
-+      cmd_unroll = $(PERL) $(srctree)/$(src)/unroll.pl $(UNROLL) \
-+                   < $< > $@ || ( rm -f $@ && exit 1 )
-+
-+targets += raid6int1.c
-+$(obj)/raid6int1.c:   UNROLL := 1
-+$(obj)/raid6int1.c:   $(src)/raid6int.uc $(src)/unroll.pl FORCE
-+	$(call if_changed,unroll)
-+
-+targets += raid6int2.c
-+$(obj)/raid6int2.c:   UNROLL := 2
-+$(obj)/raid6int2.c:   $(src)/raid6int.uc $(src)/unroll.pl FORCE
-+	$(call if_changed,unroll)
-+
-+targets += raid6int4.c
-+$(obj)/raid6int4.c:   UNROLL := 4
-+$(obj)/raid6int4.c:   $(src)/raid6int.uc $(src)/unroll.pl FORCE
-+	$(call if_changed,unroll)
-+
-+targets += raid6int8.c
-+$(obj)/raid6int8.c:   UNROLL := 8
-+$(obj)/raid6int8.c:   $(src)/raid6int.uc $(src)/unroll.pl FORCE
-+	$(call if_changed,unroll)
-+
-+targets += raid6int16.c
-+$(obj)/raid6int16.c:  UNROLL := 16
-+$(obj)/raid6int16.c:  $(src)/raid6int.uc $(src)/unroll.pl FORCE
-+	$(call if_changed,unroll)
-+
-+targets += raid6int32.c
-+$(obj)/raid6int32.c:  UNROLL := 32
-+$(obj)/raid6int32.c:  $(src)/raid6int.uc $(src)/unroll.pl FORCE
-+	$(call if_changed,unroll)
-+
-+quiet_cmd_mktable = TABLE   $@
-+      cmd_mktable = $(obj)/mktables > $@ || ( rm -f $@ && exit 1 )
-+
-+targets += raid6tables.c
-+$(obj)/raid6tables.c: $(obj)/mktables FORCE
-+	$(call if_changed,mktable)
-
-_
+iD8DBQFAEuVdmNlq8m+oD34RAuL7AJ4tqiVNDhbwx9U85h3hZ0xzL+45WgCg43UK
+4CtNVx4SlUPRcmFvX4V5j+E=
+=XOFj
+-----END PGP SIGNATURE-----
 

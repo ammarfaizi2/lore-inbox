@@ -1,114 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269994AbUIDANq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269996AbUIDAPR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269994AbUIDANq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 20:13:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269995AbUIDANq
+	id S269996AbUIDAPR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 20:15:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269997AbUIDAPF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 20:13:46 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:58535 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S269994AbUIDANi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 20:13:38 -0400
-Date: Fri, 3 Sep 2004 17:11:37 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: john stultz <johnstul@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       george anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
-       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
-       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
-       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
-       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
-In-Reply-To: <1094252402.29408.35.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.58.0409031701260.14714@schroedinger.engr.sgi.com>
-References: <1094159238.14662.318.camel@cog.beaverton.ibm.com> 
- <1094159379.14662.322.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.58.0409021512360.28532@schroedinger.engr.sgi.com> 
- <1094164096.14662.345.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.58.0409021536450.28532@schroedinger.engr.sgi.com> 
- <1094166858.14662.367.camel@cog.beaverton.ibm.com> 
- <B6E8046E1E28D34EB815A11AC8CA312902CF6059@mtv-atc-605e--n.corp.sgi.com> 
- <1094170054.14662.391.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.58.0409021737310.6412@schroedinger.engr.sgi.com> 
- <1094175004.14662.440.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.58.0409030854480.10947@schroedinger.engr.sgi.com> 
- <1094245233.14662.602.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.58.0409031444580.13729@schroedinger.engr.sgi.com>
- <1094252402.29408.35.camel@cog.beaverton.ibm.com>
+	Fri, 3 Sep 2004 20:15:05 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:1413 "EHLO slaphack.com")
+	by vger.kernel.org with ESMTP id S269996AbUIDANt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 20:13:49 -0400
+Message-ID: <413908AB.90103@slaphack.com>
+Date: Fri, 03 Sep 2004 19:13:31 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040813)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+CC: Spam <spam@tnonline.net>, Paul Jakma <paul@clubi.ie>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jamie Lokier <jamie@shareable.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       Hans Reiser <reiser@namesys.com>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       fsdevel <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives
+References: <20040826150202.GE5733@mail.shareable.org>	 <200408282314.i7SNErYv003270@localhost.localdomain>	 <20040901200806.GC31934@mail.shareable.org>	 <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>	 <1094118362.4847.23.camel@localhost.localdomain>	 <20040902161130.GA24932@mail.shareable.org>	 <Pine.LNX.4.61.0409030028510.23011@fogarty.jakma.org>	 <1835526621.20040903014915@tnonline.net>	 <1094165736.6170.19.camel@localhost.localdomain>	 <32810200.20040903020308@tnonline.net>	 <Pine.LNX.4.61.0409030112080.23011@fogarty.jakma.org>	 <142794710.20040903023906@tnonline.net> <1094216718.2679.30.camel@shaggy.austin.ibm.com>
+In-Reply-To: <1094216718.2679.30.camel@shaggy.austin.ibm.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Sep 2004, john stultz wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > True it is the applications problem if it breaks but we have applications
-> > for SGI systems that demand access to a time source with the least
-> > operating system interference possible.
->
-> Yep, totally fine with that. If application developers will take the
-> risk that's fine. Personally, I'd like the kernel's timeofday function
-> to be fast enough that developers don't feel the need to attempt these
-> special case hacks, but there will always be folks who need to live on
-> the edge.
+Dave Kleikamp wrote:
+| On Thu, 2004-09-02 at 19:39, Spam wrote:
+|
+|>
+|>
+|>
+|>>On Fri, 3 Sep 2004, Spam wrote:
+|>
+|>>> Yes, some archive types can't be partially unzipped either. But my
+|>>> point is that it wouldn't be transparent to the application/user in
+|>>> the same way.
+|>
+|>>It doesnt matter whether it is transparent to the application. It can
+|>>be the application which implements the required level of
+|>>transparency.
+|>
+|>>User doesnt care what provides the transparency or how it's
+|>>implemented.
+|>
+|>  Indeed. I hope I didn't say otherwise :). Just that I think it will
+|>  be very difficult to have this transparency in all apps.
+|
+|
+| You're missing the point.  We don't need transparency in all apps.  You
+| can write an application to be as transparent as you want, but you don't
+| need every app to to understand every file format.
 
-Yeah. I tuned the gettimeofday function on IA64 to be faster than the
-glibc's use of the ITC but there are still some voices that demand a memory mapped
-timer.
+You don't need every app to understand every filesystem, either.  Come
+to think of it, why would I want anything other than CD burning software
+and file browsers to understand a CD drive?
 
-> > Are there any examples where the flexibility is needed?
->
-> I'm a fan of Barbie's law: "Math is hard, let's go shopping!", so
-> forgive my inability to immediately see through the details. In dealing
-> with both high and low res timesources (some with microsecond
-> frequencies, some run in picosecond frequencies), the math can be tuned
-> for each case. Low res time sources are mainly a multiply, and possibly
-> a divide only if it has a non-integer nanosecond per cycle value. For
-> high-res timesources, we have to divide, so we would want to aproximate
-> the frequency and use the multiply and shift as you suggested earlier.
+Let's all just wait -- quietly -- for the powers that be to work out
+whether it's feasable and sane to support it in all apps.  Because
+wouldn't that be better?
 
-A division can always be avoided. This is the equation
+|> Just
+|>  thinking of "nano file.jpg/description.txt" or "ls
+|>  file.tar/untar/*.doc".
+|
+|
+| I don't do much image editting, but I'm sure there are applications that
+| let you edit the description in a text file.  You can even create a
+| script that extracts it, runs nano, and puts it back into the jpeg.
 
-nanoseconds = x / y * timer_value
+That is a PITA.  Because you'll need to make more scripts.  And still more.
 
-where x/y = scaling factor
+Say you want to grep for a jpeg with a particular description.  Say you
+want to copy the description from one jpeg into another.
 
-and one can always set Y = 2^py to substitute a shift instead of
-doing division. Just scale  x also appropriately by 2^px. This works to an
-arbitrary accuracy if one has a long enough integer type. That is why I
-suggested at least the intermediate use of 128bit. 64bit is fine for the
-current cases but I would expect a need for 128bit to arise in the
-future.
+Maybe you could make a general-purpose command, like "jpeg_run", which
+runs a command on the jpeg description, but it'd still be hackish, slow,
+and more to type and remember.  Consider that you might have no idea
+what "jpeg_run" is called, but you can always do "ls file.jpeg/metas" to
+find out how to edit it.
+|
+| This works for me:
+| tar -tf file.tar | grep '\.doc'
 
-Math is sometimes simple and may simplify a lot of things.
+And then you need to run "tar -tf" a minute later, this time looking for
+*.xls.  Maybe file.tar is actually a several gigabyte file.tar.bz2.
 
-> Maybe this is completely able to be generalized and I'm just not sharp
-> enough to see it just yet, but it seems to me that having a timesource
-> specific cyc2ns allows for further optimization then without.
+|> Sure in some environments like Gnome it could
+|>  work, but it still doesn't for the rest of the flora of Linux
+|>  programs.
+|
+|
+| Just choose the right program.  tar groks tar files, not ls.
 
-I have not encountered a case that could not be handled by the above
-mentioned transformation. Mathematically I would think I could say it is
-impossible to find such a case.
+tar groks tar.  bzip2 groks bz2.  gzip groks gz.  "mount -o loop" groks
+images.  zip groks zip.  rar groks rar.  openoffice groks .sxw, unless
+staroffice does.  xmms can read id3 info from mp3s.  gcc compiles C.
 
-> > Are you sure about that readability argument? A single
-> > statement to calculate the delta is much more readable and verifyable
-> > to be correct than a gazillion of small functions that (one  hopes and
-> > prays) all do the same correctly.
->
-> Your point is valid, and in moving the arch specific code into arch
-> independent code, I'm largely trying to reduce the tangle of functions.
-> Having 3 hardware specific functions isn't all that crazy.
+If the file is an object, it's easier.  You can ask the file what it is,
+and what you can do with it.  And you can tell it to do certain standard
+things.  You can do all of this while reading almost no documentation on
+what the file is.  At the end of the day, it won't matter to you whether
+a file is zip, rar, or tar -- it's an archive, and you can extract it by
+copying files out of its /contents directory.
 
-I would rather have only one (the read timer function) and that function
-would be optional for non-well-behaved timer sources.
+Your way (the traditional way) means you have to learn to use which
+program is the right program and how to use that program, and you'll
+have to remember it constantly.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-> Worse case if we cannot come to some agreement on this, there's nothing
-> stopping architectures from keeping their own timeofday subsystem. I'm
-> just tired of implementing the same feature or fixing the same bug over
-> and over and over for each arch.
-
-These are all good reasons for centralizing the functionality instead of
-dispersing it in many functions.
+iQIVAwUBQTkIq3gHNmZLgCUhAQJaNRAAnp/o0Wr+SJK5tkgYFCuc+CKIP+eALJo/
+9wHnqK0nLdnji+vG0Czd9TUj1vWtoMrUichAwFoguMHHg3VeZGu61YwZoZ4idLNM
+QbZ+CuQdUygNmyT0byGMFemP+cSbyvff1PRMy2BlSHKW3gUhvnQyggLGVKxpMRWf
+VNnEHvkvJeA9PpEm6QGi1VRNp5bc0+Ocl4kO4CJk5ZYZ9D+BV6NwN/MZwqwlsu+Y
+RZsYYEa6mLiCnU4rEo0tEAvvwMdC0e/9s9TQMcmJbT6JnybkWIRFMrTS4pmSabKg
+uYGG9p1WrX8/V8WRNnaodlvx35gRPQj5S5SWDBoSWr999nmq31Y5RZ9QwbVj0d+U
+yB4yNu0NpvFBJfwg8nVIKUa+bhPLCkdY5w+GnlEYGweSN20FYOaLiqiPtXBqJm8a
+PP+8OCL35zy+1X7t/tq+JG/K91fYbECPR/qrAyHDXzNSuxdqidvBjfsEPBHOGwu6
+RpsPoKyEvkzdXgauotWbVzWLt1ijGmYd/8Uk19OnmiloggViQhUWAJTIVGcvMNt8
+Tnk8ESQMzGHbbVOIu3gB6DZD6P0IEEN4L6+gOZWoYqe2nvaYKvIL1My/i4BMU5Ml
+cxDkzzeq58iVK07Has8lwgFp0U9iD1LrbIT5p0ZJn/52EXqlX4dJCYSSNaHzUqE8
+hcLG4aDELEI=
+=Wcyv
+-----END PGP SIGNATURE-----

@@ -1,98 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261176AbUCAJir (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 04:38:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUCAJir
+	id S261205AbUCAJkm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 04:40:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUCAJkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 04:38:47 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:18131 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S261176AbUCAJio
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 04:38:44 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: George Anzinger <george@mvista.com>
-Subject: Re: kgdb support in vanilla 2.6.2
-Date: Mon, 1 Mar 2004 15:08:23 +0530
-User-Agent: KMail/1.5
-Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, pavel@ucw.cz,
-       linux-kernel@vger.kernel.org, piggy@timesys.com,
-       trini@kernel.crashing.org
-References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel> <200402061914.38826.amitkale@emsyssoft.com> <403FDB37.2020704@mvista.com>
-In-Reply-To: <403FDB37.2020704@mvista.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Mar 2004 04:40:41 -0500
+Received: from gprs153-254.eurotel.cz ([160.218.153.254]:34944 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261205AbUCAJke (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 04:40:34 -0500
+Date: Mon, 1 Mar 2004 10:40:23 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: M?ns Rullg?rd <mru@kth.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dropping CONFIG_PM_DISK?
+Message-ID: <20040301094023.GF352@elf.ucw.cz>
+References: <1ulUA-33w-3@gated-at.bofh.it> <20040229161721.GA16688@hell.org.pl> <20040229162317.GC283@elf.ucw.cz> <yw1x4qt93i6y.fsf@kth.se> <20040229181053.GD286@elf.ucw.cz> <yw1xznb120zn.fsf@kth.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200403011508.23626.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
+In-Reply-To: <yw1xznb120zn.fsf@kth.se>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 28 Feb 2004 5:35 am, George Anzinger wrote:
-> Amit S. Kale wrote:
-> > On Friday 06 Feb 2004 6:54 pm, Andi Kleen wrote:
-> >>On Fri, 6 Feb 2004 18:35:16 +0530
-> >>
-> >>"Amit S. Kale" <amitkale@emsyssoft.com> wrote:
-> >>>On Friday 06 Feb 2004 5:46 pm, Andi Kleen wrote:
-> >>>>On Fri, 6 Feb 2004 17:28:36 +0530
-> >>>>
-> >>>>"Amit S. Kale" <amitkale@emsyssoft.com> wrote:
-> >>>>>On Friday 06 Feb 2004 7:50 am, Andi Kleen wrote:
-> >>>>>>On Thu, 5 Feb 2004 23:20:04 +0530
-> >>>>>>
-> >>>>>>"Amit S. Kale" <amitkale@emsyssoft.com> wrote:
-> >>>>>>>On Thursday 05 Feb 2004 8:41 am, Andi Kleen wrote:
-> >>>>>>>>Andrew Morton <akpm@osdl.org> writes:
-> >>>>>>>>>need to take a look at such things and really convice
-> >>>>>>>>>ourselves that they're worthwhile.  Personally, I'd only be
-> >>>>>>>>>interested in the basic stub.
-> >>>>>>>>
-> >>>>>>>>What I found always extremly ugly in the i386 stub was that it
-> >>>>>>>>uses magic globals to talk to the page fault handler. For the
-> >>>>>>>>x86-64 version I replaced that by just using __get/__put_user
-> >>>>>>>>in the memory accesses, which is much cleaner. I would suggest
-> >>>>>>>>doing that for i386 too.
-> >>>>>>>
-> >>>>>>>May be I am missing something obvious. When debugging a page
-> >>>>>>>fault handler if kgdb accesses an swapped-out user page doesn't
-> >>>>>>>it deadlock when trying to hold mm semaphore?
-> >>>>>>
-> >>>>>>Modern i386 kernels don't grab the mm semaphore when the access is
-> >>>>>>
-> >>>>>>>= TASK_SIZE and the access came from kernel space (actually I see
-> >>>>>>
-> >>>>>>x86-64 still does, but that's a bug, will fix). You could only see
-> >>>>>>a deadlock when using user addresses and you already hold the mm
-> >>>>>>semaphore for writing (normal read lock is ok). Just don't do that.
-> >>>>>
-> >>>>>OK. It don't deadlock when kgdb accesses kernel addresses.
-> >>>>>
-> >>>>>When a user space address is accessed through kgdb, won't the kernel
-> >>>>>attempt to fault in the user page? We don't want that to happen
-> >>>>>inside kgdb.
-> >>>>
-> >>>>Yes, it will. But I don't think it's a bad thing. If the users doesn't
-> >>>>want that they should not follow user addresses. After all kgdb is for
-> >>>>people who know what they are doing.
-> >>>
-> >>>Let kgdb refuse to access any addresses below TASK_SIZE. That's better
-> >>>than accidentally typing something and getting lost.
-> >>
-> >>That's fine. But can you perhaps add a magic command that enables it
-> >> again?
-> >
-> > Yes. This sounds good.
->
-> This could be a flag in the kgdb_info structure.  See -mm kgdb.  Does not
-> require any new commands as it is just a global the user can change.
+Hi!
 
-Having all user modifiable variables in one place is definitely a good idea.  
-Need to do this sometime.
--Amit
+> >> >> > Would there be any major screaming if I tried to drop CONFIG_PM_DISK?
+> >> >> > It seems noone is maintaining it, equivalent functionality is provided
+> >> >> > by swsusp, and it is confusing users...
+> >> >> 
+> >> >> It may be ugly, it may be unmaintained, but I get the impression that it
+> >> >> works for some people for whom swsusp doesn't. So unless swsusp works for
+> >> >> everyone or Nigel's swsusp2 is merged, I'd suggest leaving that in.
+> >> >
+> >> > Do you have example when pmdisk works and swsusp does not? I'm not
+> >> > aware of any in recent history...
+> >> 
+> >> For me, none of them (pmdisk, swsusp and swsusp2) work.  I did manage
+> >> to get pmdisk to resume once, and swsusp2 makes it half-way through
+> >> the resume.  The old swsusp doesn't even get that far.
+> >
+> > Try current swsusp with minimal drivers, init=/bin/bash.
+> 
+> Well, if I do that it works.  Or at least some old version did, I
+> assume the later ones would too.  However, that sort of removes the
+> whole point.  Taking down the system enough to be able to unload
+> almost everything is as close as rebooting you'll get.
+
+Well, now do a search for "which module/application causes failure".
+
+> BTW, is there some easier way to track the development than using the
+> patches from the web page?  Unpatching after a couple of BK merges
+> isn't the easiest thing.  Is there a BK tree somewhere I can pull
+> from?
+
+Are you using swsusp2? That's _not_ what I'm talking about. swsusp is
+in mainline.
+								Pavel
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

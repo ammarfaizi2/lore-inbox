@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264129AbUGFQPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264097AbUGFQVg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264129AbUGFQPI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 12:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUGFQPH
+	id S264097AbUGFQVg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 12:21:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUGFQVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 12:15:07 -0400
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:8588 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S264097AbUGFQO4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 12:14:56 -0400
-Date: Tue, 6 Jul 2004 18:14:51 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: post 2.6.7 BK change breaks Java?
-Message-ID: <20040706161451.GA26925@merlin.emma.line.org>
-Mail-Followup-To: John Richard Moser <nigelenki@comcast.net>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20040705231131.GA5958@merlin.emma.line.org> <40EACB64.2010503@comcast.net>
+	Tue, 6 Jul 2004 12:21:36 -0400
+Received: from c3-1d224.neo.lrun.com ([24.93.233.224]:12164 "EHLO neo.rr.com")
+	by vger.kernel.org with ESMTP id S264097AbUGFQVe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 12:21:34 -0400
+Date: Tue, 6 Jul 2004 12:17:32 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: caszonyi@rdslink.ro
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-mm[3-4] doesn't boot (alsa or pnp related)
+Message-ID: <20040706121732.GA3150@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, caszonyi@rdslink.ro,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.53.0406300333020.216@grinch.ro>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40EACB64.2010503@comcast.net>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <Pine.LNX.4.53.0406300333020.216@grinch.ro>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 06 Jul 2004, John Richard Moser wrote:
+On Wed, Jun 30, 2004 at 03:40:43AM +0300, caszonyi@rdslink.ro wrote:
+> Hi all
+> I just tried today 2.6.7-mm3 and 2.6.7-mm4.
+> They both stop booting at:
+> Advanced Linux Sound Architecture Driver Version 1.0.5 (Sun May 30
+> 10:49:40 2004 UTC)
+> pnp: Device 01:01.00 activated
+> pnp: Device 01:01.02 activated
+> pnp: Device 01:01.03 activated
+>
+> 
+> on a normal boot it is (vanila 2.6.7):
+>
+> Advanced Linux Sound Architecture Driver Version 1.0.4 (Mon May 17
+> 14:31:44 2004 U
+> TC).
+> pnp: the driver 'cs423x' has been registered
+> pnp: match found with the PnP device '01:01.00' and the driver 'cs423x'
+> pnp: match found with the PnP device '01:01.02' and the driver 'cs423x'
+> pnp: match found with the PnP device '01:01.03' and the driver 'cs423x'
+> pnp: Device 01:01.00 activated.
+> pnp: Device 01:01.02 activated.
+> pnp: Device 01:01.03 activated.
+> ALSA device list:
+>   #0: CS4239 at 0x534, irq 5, dma 1&0
+>   #1: Brooktree Bt878 at 0xe2002000, irq 10
+>
+> config is attached
+>
+> Bye
+> Calin
 
-> The only thing I've seen kill java like that would be NX things, such as
-> the NX patch mentioned in an earlier thread; execshield; or PaX.  I saw
-> some talk about possibly enabling NX by default; but I don't see this in
-> the -mm6 list, and I have no idea where the bk patch list is.  I
-> wouldn't expect either Linus or Andrew to have decided to merge an NX
-> patch in at this stage; but it's a possibility.
+This may be a resource conflict.  Do you have an isapnp modem?  If so, try
+disabling the serial driver.
 
-I've been pointed to the NX feature off-list and investigated, my CPU
-(AMD Athlon XP 2500+ Model 10 "Barton") doesn't support the noexec flag,
-and dmesg does not contain any output that MX was enabled, and the Java
-"Killed" problem persists when the kernel is booted with noexec=off.
-
-It must have entered the tree between v2.6.7 and revision 1.1757 in
-Linus' tree.
-
-BTW, how do I tell BitKeeper "pull up to revision..."?  bk pull and bk
-undo -aREV is a way, but it's wasteful.
-
--- 
-Matthias Andree
-
-Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)
+Thanks,
+Adam

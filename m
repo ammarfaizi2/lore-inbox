@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLPIzN>; Sat, 16 Dec 2000 03:55:13 -0500
+	id <S129183AbQLPJOA>; Sat, 16 Dec 2000 04:14:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129345AbQLPIzE>; Sat, 16 Dec 2000 03:55:04 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:527 "EHLO
+	id <S129345AbQLPJNk>; Sat, 16 Dec 2000 04:13:40 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:23823 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129183AbQLPIys>; Sat, 16 Dec 2000 03:54:48 -0500
-Date: Sat, 16 Dec 2000 00:23:57 -0800 (PST)
+	id <S129183AbQLPJNa>; Sat, 16 Dec 2000 04:13:30 -0500
+Date: Sat, 16 Dec 2000 00:42:53 -0800 (PST)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: "Barry K. Nathan" <barryn@pobox.com>
+To: "Barry K. Nathan" <barryn@pobox.com>, Rusty Russell <rusty@linuxcare.com>,
+        Marc Boucher <marc@mbsi.ca>
 cc: linux-kernel@vger.kernel.org
 Subject: Re: test13pre2 - netfilter modiles compile failure
-In-Reply-To: <200012160806.AAA32686@pobox.com>
-Message-ID: <Pine.LNX.4.10.10012160015521.11822-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.10.10012160015521.11822-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.10.10012160031450.11822-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,35 +21,45 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sat, 16 Dec 2000, Barry K. Nathan wrote:
+On Sat, 16 Dec 2000, Linus Torvalds wrote:
 > 
-> Ok, I tried that, and I tried Andrew Morton's patch as well. Both patches
-> fix the module case, but not the in-kernel case. With Linus' patch, the
-> in-kernel case fails with the error message in my previous mail.
+> So "ip_nf_compat-objs" should really just be
+> 
+> 	ip_nf_compat-objs := ip_fw_compat.o ip_fw_compat_redir.o ip_fw_compat_masq.o
+> 
+> which looks much saner at least for the built-in case (ie no duplicate
+> object files in the multi-lists, and the multi-lists have sane entries).
 
-Ok, the guy who made the netfilter Makefile was probably on some really
-interesting and probably highly illegal drugs when he wrote it. My fairly
-direct conversion to new-style Makefiles failed because there are some
-semantic differences that don't translate well.
+This makes it work when compiled into the kernel.
 
-The first question that pops to mind is, of course, "Where can _I_ get
-some of thos drugs?".
+However, it also makes it fail spectacularly when modular, because it
+appears that what the Makefile tried to do was to have some group of
+object-files be a library that is compiled into all the modules, and the
+above change will basically remove it from the "ip_nf_compat" module -
+making that module not see the routines it wants to see.
 
-The second question is "Hmm.. ipfwadm_core.o seems to show up in multiple
-places, I wonder why?"
+There are two solutions for this:
 
-I suspect that you should remove "ipfwadm_core.o" too from
-"ip_nf_compat-objs", because it's already part of "ipfwadm-objs", and we
-don't want to link it in twice.
+ - the DRM "true library" solution, as shown by drivers/char/drm/Makefile.
 
-So "ip_nf_compat-objs" should really just be
+   This is closest to what the code tried to do before, and might be the
+   right solution for the "ip_nf_compat" module. However, it does result
+   in the same code being duplicated in multiple modules. Not very nice.
 
-	ip_nf_compat-objs := ip_fw_compat.o ip_fw_compat_redir.o ip_fw_compat_masq.o
+ - export more symbols (and mark the object files that export them as
+   "export-objs"), so that they are visible across module boundaries.
+   This is probably worth doing for at least the symbols
 
-which looks much saner at least for the built-in case (ie no duplicate
-object files in the multi-lists, and the multi-lists have sane entries).
+	register_firewall(), ip_fw_masq_timeouts() and
+	unregister_firewall()
 
-Does that work for you?
+   so that "ipchains" and "ipfwadm" could just cleanly be separate modules
+   on top of the "ip_fw_compat" module.
+
+Anyway, these kinds of things are really up to the netfilter people.
+
+Rusty? Help me out, and I won't ever call "netfilter" a heap of stinking
+dung again. Do we have a deal?
 
 		Linus
 

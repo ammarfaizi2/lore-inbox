@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275086AbTHMNov (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 09:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275092AbTHMNou
+	id S274837AbTHMNfN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 09:35:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274961AbTHMNfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 09:44:50 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:5386 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S275086AbTHMNor (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 09:44:47 -0400
-Date: Wed, 13 Aug 2003 09:32:55 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH][2.6-mm] ipmi_kcs_intf.c compile warning
-Message-ID: <Pine.LNX.4.53.0308130931490.4078@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 13 Aug 2003 09:35:12 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:14248 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S274837AbTHMNfG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 09:35:06 -0400
+Date: Wed, 13 Aug 2003 15:34:37 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andre Hedrick <andre@linux-ide.org>, Erik Andersen <andersen@codepoet.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Promise SATA driver GPL'd
+Message-ID: <20030813133437.GA27182@ucw.cz>
+References: <Pine.LNX.4.10.10307221852030.8687-100000@master.linux-ide.org> <1058956331.5520.13.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1058956331.5520.13.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/char/ipmi/ipmi_kcs_intf.c: In function `acpi_find_bmc':
-drivers/char/ipmi/ipmi_kcs_intf.c:1088: warning: long unsigned int format, 
-different type arg (arg 2)
-drivers/char/ipmi/ipmi_kcs_intf.c:1088: warning: long unsigned int format, 
-different type arg (arg 2)
+On Wed, Jul 23, 2003 at 11:32:11AM +0100, Alan Cox wrote:
+> On Mer, 2003-07-23 at 02:59, Andre Hedrick wrote:
+> > I have already cut all ties with Promise so here is the deal.
+> > I no longer have to count the number of fingers on my hand between hand
+> > shakes.  IE no extras and not shortages.
+> 
+> Thats ok - now they are doing GPL drivers themselves they don't need
+> you any more.
+> 
+> Promise did a SCSI CAM driver because their hardware can queue commands
+> without TCQ - which drivers/ide can't cope with. Otherwise I'd just have
+> used the same type of changes the FreeBSD people did for 2037x.
+> 
+> Its also interesting because it has a hardware XOR engine.
 
-Index: linux-2.6.0-test3-mm2-x86_64/drivers/char/ipmi/ipmi_kcs_intf.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.6.0-test3/drivers/char/ipmi/ipmi_kcs_intf.c,v
-retrieving revision 1.1.1.2
-diff -u -p -B -r1.1.1.2 ipmi_kcs_intf.c
---- linux-2.6.0-test3-mm2-x86_64/drivers/char/ipmi/ipmi_kcs_intf.c	13 Aug 2003 13:15:20 -0000	1.1.1.2
-+++ linux-2.6.0-test3-mm2-x86_64/drivers/char/ipmi/ipmi_kcs_intf.c	13 Aug 2003 13:15:31 -0000
-@@ -1085,7 +1085,7 @@ static int acpi_find_bmc(unsigned long *
- 		*port = spmi->addr.address;
- 		printk("ipmi_kcs_intf: Found ACPI-specified state machine"
- 		       " at I/O address 0x%lx\n",
--		       (int) spmi->addr.address);
-+		       (unsigned long) spmi->addr.address);
- 	} else
- 		goto not_found; /* Not an address type we recognise. */
- 
+I don't think it does. The Promise SATA150 SX4 is the one that has the
+XOR engine (and the PDC20621 chip) and that one is not supported by the
+driver.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

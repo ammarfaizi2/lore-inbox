@@ -1,102 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261470AbTDHLcH (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 07:32:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbTDHLcH (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 07:32:07 -0400
-Received: from mail.hot.ee ([194.126.101.94]:23701 "EHLO hot.ee")
-	by vger.kernel.org with ESMTP id S261470AbTDHLcC (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 07:32:02 -0400
-From: Nestor Aaro <lkernel@hot.ee>
-Reply-To: lkernel@hot.ee
-To: linux-kernel@vger.kernel.org
-Subject: PPPoE is not working with 2.5.65-67
-Date: Tue, 8 Apr 2003 14:43:36 +0300
-User-Agent: KMail/1.5.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id S261412AbTDHLdT (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 07:33:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbTDHLdS (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 07:33:18 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:3578 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261382AbTDHLdP (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 07:33:15 -0400
+Date: Tue, 8 Apr 2003 13:44:47 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, dwmw2@redhat.com,
+       trivial@rustcorp.com.au
+Subject: [2.5 patch] fix drivers/mtd/mtdblock.c compile
+Message-ID: <20030408114446.GF5046@fs.tum.de>
+References: <Pine.LNX.4.44.0304071051190.1385-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304081443.36186.lkernel@hot.ee>
+In-Reply-To: <Pine.LNX.4.44.0304071051190.1385-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
-I have problem starting PPPoE (rp-pppoe) on linux-2.5.65-67
+On Mon, Apr 07, 2003 at 10:53:43AM -0700, Linus Torvalds wrote:
+>...
+> Summary of changes from v2.5.66 to v2.5.67
+> ============================================
+>...
+> Jens Axboe:
+>...
+>   o kill blk_queue_empty()
+>...
 
-System:
-Slackware-9.0
-GCC-3.2.2
-Glibc-2.3.1
+This patch causes the following compile error:
 
-Config:
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_MODVERSIONS=y
-# CONFIG_KMOD is not set
------------------------------------------------------
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_VENDOR_3COM=y
-CONFIG_EL3=m
-----------------------------------------------------
-CONFIG_PPP=m
-# CONFIG_PPP_MULTILINK is not set
-# CONFIG_PPP_FILTER is not set
-CONFIG_PPP_ASYNC=m
-CONFIG_PPP_SYNC_TTY=m
-CONFIG_PPP_DEFLATE=m
-CONFIG_PPP_BSDCOMP=m
-# CONFIG_PPPOE is not set #- doesn't need it with rp-pppoe
-# CONFIG_SLIP is not set
-----------------------------------------------------
+<--  snip  -->
 
-# Pseudo filesystems 
-#
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-CONFIG_DEVFS_DEBUG=y
-# CONFIG_DEVPTS_FS is not set
-# CONFIG_TMPFS is not set
-CONFIG_RAMFS=y
-------------------------------------------------------------------------
+...
+  gcc -Wp,-MD,drivers/mtd/.mtdblock.o.d -D__KERNEL__ -Iinclude -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=k6 
+-Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
+-DKBUILD_BASENAME=mtdblock -DKBUILD_MODNAME=mtdblock -c -o 
+drivers/mtd/mtdblock.o drivers/mtd/mtdblock.c
+drivers/mtd/mtdblock.c: In function `handle_mtdblock_request':
+drivers/mtd/mtdblock.c:391: warning: assignment makes pointer from 
+integer without a cast
+drivers/mtd/mtdblock.c:391: syntax error before '{' token
+drivers/mtd/mtdblock.c:394: `p' undeclared (first use in this function)
+drivers/mtd/mtdblock.c:394: (Each undeclared identifier is reported only once
+drivers/mtd/mtdblock.c:394: for each function it appears in.)
+drivers/mtd/mtdblock.c: At top level:
+drivers/mtd/mtdblock.c:442: syntax error before '}' token
+make[2]: *** [drivers/mtd/mtdblock.o] Error 1
 
-LOGS: 
-Kernel messages:
-Apr  8 14:24:12 localhost kernel: eth0: 3c5x9 at 0x300, 10baseT port, address  
-00 a0 24 1d f4 7e, IRQ 10.
-Apr  8 14:24:12 localhost kernel: 3c509.c:1.19b 08Nov2002 becker@scyld.com
-Apr  8 14:24:12 localhost kernel: http://www.scyld.com/network/3c509.html
->
-Apr  8 14:24:22 localhost kernel: eth0: Setting 3c5x9/3c5x9B half-duplex mode 
-if_port: 0, sw_info: 1321
-Apr  8 14:24:22 localhost kernel: CSLIP: code copyright 1989 Regents of the 
-University of California
-Apr  8 14:24:22 localhost kernel: PPP generic driver version 2.4.2
-Apr  8 14:24:22 localhost kernel: Module ppp_async cannot be unloaded due to 
-unsafe usage in include/linux/module.h:428
-
-Syslog:
-Apr  8 14:24:22 localhost kernel: eth0: Setting 3c5x9/3c5x9B half-duplex mode 
-if_port: 0, sw_info: 1321
-Apr  8 14:24:22 localhost kernel: Module ppp_async cannot be unloaded due to 
-unsafe usage in include/linux/module.h:428
-Apr  8 14:24:53 localhost pppd[158]: LCP: timeout sending Config-Requests
-Apr  8 14:24:57 localhost pppoe[159]: Timeout waiting for PADO packets
-Apr  8 14:27:32 localhost pppd[429]: LCP: timeout sending Config-Requests
-Apr  8 14:27:36 localhost pppoe[430]: Timeout waiting for PADO packets
+<--  snip  -->
 
 
---------------------------------------------------------------------------
-All was working fine in 2.5.52
+The fix is simple:
 
-Nastor
+--- linux-2.5.67-notfull/drivers/mtd/mtdblock.c.old	2003-04-08 13:39:46.000000000 +0200
++++ linux-2.5.67-notfull/drivers/mtd/mtdblock.c	2003-04-08 13:41:43.000000000 +0200
+@@ -388,7 +388,7 @@
+ 	struct mtdblk_dev *mtdblk;
+ 	unsigned int res;
+ 
+-	while ((req = elv_next_request(&mtd_queue) != NULL) {
++	while ((req = elv_next_request(&mtd_queue)) != NULL) {
+ 		struct mtdblk_dev **p = req->rq_disk->private_data;
+ 		spin_unlock_irq(mtd_queue.queue_lock);
+ 		mtdblk = *p;
 
 
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

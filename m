@@ -1,122 +1,146 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278358AbRKAM7v>; Thu, 1 Nov 2001 07:59:51 -0500
+	id <S278886AbRKAMst>; Thu, 1 Nov 2001 07:48:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278887AbRKAM7m>; Thu, 1 Nov 2001 07:59:42 -0500
-Received: from [200.248.92.2] ([200.248.92.2]:55813 "EHLO
-	inter.lojasrenner.com.br") by vger.kernel.org with ESMTP
-	id <S278358AbRKAM7c>; Thu, 1 Nov 2001 07:59:32 -0500
-Message-Id: <200111011354.LAA26122@inter.lojasrenner.com.br>
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Andre Margis <andre@sam.com.br>
-Organization: SAM Informatica Ltda
-To: Andreas Hartmann <andihartmann@freenet.de>,
-        Kernel-Mailingliste <linux-kernel@vger.kernel.org>
-Subject: Re: [VM Kernel 2.4.13] Congratulation - first time, backup has been working without break
-Date: Thu, 1 Nov 2001 10:56:18 -0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <3BE13FF0.809@athlon.maya.org>
-In-Reply-To: <3BE13FF0.809@athlon.maya.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S278887AbRKAMsj>; Thu, 1 Nov 2001 07:48:39 -0500
+Received: from hazard.jcu.cz ([160.217.1.6]:52360 "HELO hazard.jcu.cz")
+	by vger.kernel.org with SMTP id <S278886AbRKAMsY>;
+	Thu, 1 Nov 2001 07:48:24 -0500
+Date: Thu, 1 Nov 2001 13:47:42 +0100
+From: Jan Marek <jmarek@jcu.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Problem with yenta.c in 2.4.12
+Message-ID: <20011101134742.V20754@hazard.jcu.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm now testing 2.4.14-pre6, and in at the first time the kswapd is very 
-calm, the performance is very better, my DB ENGINE now run with 4 cpu, 2GB 
-shared memory buffer pool, on a 4 cpu machine and 4GB RAM using the total 
-performance of the machine.
+Hallo l-k,
 
-In 2.4.13-ac3 read data from my STORAGE the maximum I/O performance is 
-40MBytes/s, but in 2.4.14-pre6 this value grows to 60MBytes/s.
+I have problem with PCMCIA kernel package: when i modprobe-ing
+yenta_socket.o, kernel freeze and I get no oops: simply nothing.
+I can't use Magic-SysRQ: keyboard is freeze too...
 
-In 2.4.13-ac3 or 2.4.10-ac7 after hours of uptime the machine lost 
-performance, he enters in "degraded mode", my process run very slow, I need 
-to do a reboot every morning to the performance return to "normal". In 
-2.4.14-pre6 this no happens, at this moment, the machine is 1 day uptime, and 
-I run big select on database and run very faster, no degradation on 
-performance after 1 day of  uptime.
+Kernel:
+2.4.12 (last working kernel was 2.4.10) with xfs support from CVS
+sgi on i386 architecture, but when I get vanilla kernel, I got
+the same behavior...
 
-The swap area remains in  0 KB off use. 
+Compiler:
+gcc -v
+Reading specs from /usr/lib/gcc-lib/i386-linux/2.95.4/specs
+gcc version 2.95.4 20011006 (Debian prerelease)
 
-In the olds versions when I/O grows, the kswapd grows together using 100% of 
-cpu, this not happens in 2.4.14-pre6.
+HW: Compaq Armada M300, lspci:
 
-Yestarday I run a total reorg  in the database for tests and runs OK, in 
-2.4.13 after a while the VM  locks.
+00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge (AGP disabled) (rev 03)
+00:04.0 CardBus bridge: Texas Instruments PCI1211
+00:05.0 VGA compatible controller: ATI Technologies Inc 3D Rage LT Pro (rev dc)
+00:07.0 Bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
+00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
+00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)
+00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 03)
+00:08.0 Multimedia audio controller: ESS Technology ES1978 Maestro 2E (rev 10)
+00:09.0 Communication controller: Lucent Microelectronics WinModem 56k (rev 01)
 
-At this time everything is OK
+Cardbus bridge share IRQ 11 with VGA controller
 
+I tried find, where is problem, then I added some lines to
+yenta.c (yes, some are stupid, I know it ;-))):
 
-Congratulations for all
+--- cut of drivers/pcmcia/yenta.c
+/*
+ * Initialize the standard cardbus registers
+ */
+static void yenta_config_init(pci_socket_t *socket)
+{
+	u16 bridge;
+	struct pci_dev *dev = socket->dev;
 
+	printk("yenta_config_init:\n");
+	pci_set_power_state(socket->dev, 0);
+	printk("- after pci_set_power_state\n");
 
+	config_writel(socket, CB_LEGACY_MODE_BASE, 0);
+	printk("- after 1st config_writel\n");
+	config_writel(socket, PCI_BASE_ADDRESS_0, dev->resource[0].start);
+	printk("- after 2nd config_writel\n");
+	config_writew(socket, PCI_COMMAND,
+			PCI_COMMAND_IO |
+			PCI_COMMAND_MEMORY |
+			PCI_COMMAND_MASTER |
+			PCI_COMMAND_WAIT);
+	printk("- after config_writew\n");
 
-André
+	/* MAGIC NUMBERS! Fixme */
+	config_writeb(socket, PCI_CACHE_LINE_SIZE, L1_CACHE_BYTES / 4);
+	printk("- after 1st config_writeb\n");
+	config_writeb(socket, PCI_LATENCY_TIMER, 168);
+	printk("- after 2nd config_writeb\n");
+	config_writel(socket, PCI_PRIMARY_BUS,
+		(176 << 24) |			   /* sec. latency timer */
+		(dev->subordinate->subordinate << 16) | /* subordinate bus */
+		(dev->subordinate->secondary << 8) |  /* secondary bus */
+		dev->subordinate->primary);		   /* primary bus */
+	printk("- after config_writel\n");
 
+	/*
+	 * Set up the bridging state:
+	 *  - enable write posting.
+	 *  - memory window 0 prefetchable, window 1 non-prefetchable
+	 *  - PCI interrupts enabled if a PCI interrupt exists..
+	 */
+	bridge = config_readw(socket, CB_BRIDGE_CONTROL);
+	printk("- after bridge = config_readw\n");
+	bridge &= ~(CB_BRIDGE_CRST | CB_BRIDGE_PREFETCH1 | CB_BRIDGE_INTR | CB_BRIDGE_ISAEN | CB_BRIDGE_VGAEN);
+	printk("- after bridge &= ~(...\n");
+	bridge |= CB_BRIDGE_PREFETCH0 | CB_BRIDGE_POSTEN;
+	printk("- after bridge |= CB...\n");
+	if (!socket->cb_irq)
+		bridge |= CB_BRIDGE_INTR;
+	printk("- after if...\n");
+	config_writew(socket, CB_BRIDGE_CONTROL, bridge);
+	printk("- after config_writew\n");
 
-Em Qui 01 Nov 2001 10:28, Andreas Hartmann escreveu:
-> Hello all!
->
-> I'm very glad of VM in kernel 2.4.13. It was the first time today, that
-> my backup run without any problem and without massive caching on the
-> backup-Server (only about 10MB during KDE2-session with konqueror,
-> knode, ...) . Working parallel with other applications has acceptable
-> performance.
->
-> Comparison with 2.4.13-ac4:
-> Nearly the same programs running in background, the backup break down
-> after about 60s of getting datas via ethernet. At this point, the swap
-> has been grown over 56Mb!! Normally (= if the backup runs to the end at
-> the second or third try), 300MB swap weren't enough. Working with other
-> applications is impossible or painful.
->
->
-> I do my backups of the whole harddisks (all in one over 20 GB) with
-> rsync (of remote machines too) to another HD on the desktop, which is
-> only used for these backups.
->
->
-> My system:
-> backup-server (also desktop): 512 MB RAM, usually 256 MB cache, Athlon
-> 800 with 2 UDMA4-disks (20 and 45GB).
->
-> lspci
-> 00:00.0 Host bridge: VIA Technologies, Inc. VT8371 [KX133] (rev 02)
-> 00:01.0 PCI bridge: VIA Technologies, Inc. VT8371 [PCI-PCI Bridge]
-> 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev 22)
-> 00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev
-> 10) 00:07.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 10)
-> 00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-> (rev 30)
-> 00:07.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686
-> [Apollo Super AC97/Audio] (rev 20)
-> 00:08.0 Ethernet controller: Silicon Integrated Systems [SiS] SiS900
-> 10/100 Ethernet (rev 02)
-> 00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139
-> (rev 10)
-> 01:00.0 VGA compatible controller: ATI Technologies Inc Rage 128 PF
->
->
-> Unfortunately, there is one great (old) problem with any
-> 2.4.x-vanilla-kernel, which isn't fixed until today and which prevents
-> me of using the vanilla kernel:
-> Usually after some restarts of the X-sserver (4.x.y), my screen (not the
-> monitor itself; no sleep-modus is shown) is beginning to go off and on
-> again (when the mouse is moved) within seconds. You can't get rid of it
-> by restarting X - you have to reboot the machine.
-> This problem doesn't occur with ac-kernels.
-> I'm using DRI - but without DRI, the problem doesn't disappear :-(. I'm
-> using no energy-safing modes - and nothing is configured or compiled
-> thereto.
->
->
-> Regards,
-> Andreas Hartmann
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+	exca_writeb(socket, I365_GBLCTL, 0x00);
+	printk("- after 1st exca_writeb\n");
+	exca_writeb(socket, I365_GENCTL, 0x00);
+	printk("- after 2nd exca_writeb\n");
+
+	/* Redo card voltage interrogation */
+	cb_writel(socket, CB_SOCKET_FORCE, CB_CVSTEST); 
+	printk("- after last cb_writel\n");
+}
+
+/* Called at resume and initialization events */
+static int yenta_init(pci_socket_t *socket)
+{
+	yenta_config_init(socket);
+	printk("yenta_config_init OK!\n");
+	yenta_clear_maps(socket);
+	return 0;
+}
+--- end of part of drivers/pcmcia/yenta.c
+
+but I got strange listing: the last message was:
+- after last cb_writel
+!!!
+
+This is the repeatable behavior.
+
+I mean, that in some function must be overwritten exit address of
+function yenta_config_init()?
+
+I'm sorry, but I'm not subscribed in l-k, can you send CC to me?
+Thank you. I can send other information od demand ;-).
+
+Sincerely
+Jan Marek
+-- 
+Ing. Jan Marek
+University of South Bohemia
+Academic Computer Centre
+Phone: +420-38-7772080

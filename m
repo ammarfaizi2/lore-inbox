@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbUC0Kp0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 05:45:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbUC0Kp0
+	id S261680AbUC0LFA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 06:05:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbUC0LFA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 05:45:26 -0500
-Received: from [66.110.74.53] ([66.110.74.53]:50692 "HELO mail.gotoglobal.com")
-	by vger.kernel.org with SMTP id S261693AbUC0KpV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 05:45:21 -0500
-Date: Sat, 27 Mar 2004 05:45:21 -0500
-Subject: Squirting Orgasmic VidClips linux-kernel
-From: Female Gushers <FemaleGushers@watchsun.com>
-To: linux-kernel@vger.kernel.org
-X-Mailer: Mailer Software (rev. 01/15/2004)
-Message-Id: <hmtsdancwqfzpqdk@mail.gotoglobal.com>
-MIME-version: 1.0
-Content-type: multipart/alternative; boundary="woaxwpcatayzdvat"
+	Sat, 27 Mar 2004 06:05:00 -0500
+Received: from p3EE062D6.dip0.t-ipconnect.de ([62.224.98.214]:64130 "EHLO
+	susi.maya.org") by vger.kernel.org with ESMTP id S261680AbUC0LE6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Mar 2004 06:04:58 -0500
+Message-ID: <40655FCE.4010809@p3EE062D6.dip0.t-ipconnect.de>
+Date: Sat, 27 Mar 2004 12:04:46 +0100
+From: Andreas Hartmann <andihartmann@freenet.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040212
+X-Accept-Language: de, en-us, en
+MIME-Version: 1.0
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Kernels 2.6.4 and 2.6.5rc don't handle HAMA USB device correctly
+References: <40654BC0.3090902@p3EE060C4.dip0.t-ipconnect.de> <20040327095029.GA3583@one-eyed-alien.net>
+In-Reply-To: <20040327095029.GA3583@one-eyed-alien.net>
+X-Enigmail-Version: 0.82.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multipart message in MIME format.
+Hello Matthew,
 
---woaxwpcatayzdvat
-Content-type: text/plain; charset=us-ascii
+Matthew Dharm wrote:
+> Do you have CONFIG_SCSI_MULTI_LUN enabled in 2.6?
 
-Intense Female Orgasmic Ejaculations
-Some of them squirt a FOOT high into
-the air! You will love this:
-
-http://watchsun.com/gushingcunts-ft/?gaid=11&ape=gt2496
-
-ClickABOVE or type it into a browser:
-
-http://watchsun.com/gushingcunts-ft/?gaid=11&ape=gt2496
+No I know, what I have forgotten - you said it!
+Thank you very much for your hint. The device is no working fine!
 
 
-If you don't want any more mail from us:
-http://watchsun.com/nomoremail/
-
---woaxwpcatayzdvat--
-
+Kind regards,
+Andreas Hartmann

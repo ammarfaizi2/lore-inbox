@@ -1,65 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263544AbTBSSXM>; Wed, 19 Feb 2003 13:23:12 -0500
+	id <S264654AbTBSSZP>; Wed, 19 Feb 2003 13:25:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264001AbTBSSXM>; Wed, 19 Feb 2003 13:23:12 -0500
-Received: from [63.205.85.133] ([63.205.85.133]:40196 "EHLO schmee.sfgoth.com")
-	by vger.kernel.org with ESMTP id <S263544AbTBSSXL>;
-	Wed, 19 Feb 2003 13:23:11 -0500
-Date: Wed, 19 Feb 2003 10:33:06 -0800
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: chas@locutus.cmf.nrl.navy.mil, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.5] convert atm_dev_lock from spinlock to semaphore
-Message-ID: <20030219103305.G37577@sfgoth.com>
-References: <1045630056.10926.4.camel@rth.ninka.net> <200302190501.h1J511Gi002225@locutus.cmf.nrl.navy.mil> <20030218.205325.14347725.davem@redhat.com>
+	id <S268389AbTBSSZO>; Wed, 19 Feb 2003 13:25:14 -0500
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:136 "EHLO w-patman.des")
+	by vger.kernel.org with ESMTP id <S264654AbTBSSZN>;
+	Wed, 19 Feb 2003 13:25:13 -0500
+Date: Wed, 19 Feb 2003 10:23:08 -0800
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Thomas Molina <tmolina@cox.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.62]: 2/3: Make SCSI low-level drivers also a seperate, complete selectable submenu
+Message-ID: <20030219102308.A19911@beaverton.ibm.com>
+References: <Pine.LNX.4.44.0302190105370.4923-100000@localhost.localdomain> <Pine.LNX.3.96.1030219084918.9798A-100000@gatekeeper.tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <20030218.205325.14347725.davem@redhat.com>; from davem@redhat.com on Tue, Feb 18, 2003 at 08:53:25PM -0800
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.3.96.1030219084918.9798A-100000@gatekeeper.tmr.com>; from davidsen@tmr.com on Wed, Feb 19, 2003 at 08:55:22AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
->    From: chas williams <chas@locutus.cmf.nrl.navy.mil>
->    Date: Wed, 19 Feb 2003 00:01:01 -0500
->    
->    we (meaning some folks here at nrl) already maintain a seperate 
->    kernel with atm 'enhancements' locally.  we are very interested in keeping
->    linux-atm alive (particularly in the linux kernel) and extending it
->    as well.  i would take the role of maintainer for atm if no one truly
->    wants it.
->    
-> This is the situation.
+On Wed, Feb 19, 2003 at 08:55:22AM -0500, Bill Davidsen wrote:
+> On Wed, 19 Feb 2003, Thomas Molina wrote:
 > 
-> Therefore, please send me a patch to add an appropriate entry
-> to linux/MAINTAINERS.
+> > On Tue, 18 Feb 2003, Bill Davidsen wrote:
+> > 
+> > > On Tue, 18 Feb 2003, Christoph Hellwig wrote:
+> > > 
+> > > > On Tue, Feb 18, 2003 at 02:02:10PM +0100, Marc-Christian Petersen wrote:
+> > > > > so you can disable all SCSI lowlevel drivers at once.
+> > > > 
+> > > > Why? just disable CONFIG_SCSI instead of adding an artifical option
+> > > 
+> > > Isn't that going to disable all of SCSI? I think the intention may be to
+> > > drop hardware drivers and just use ide-scsi, although I might be
+> > > misreading the original intent.
+> > > 
+> > > There are a fair number of tape/CD/DVD devices out there which you might
+> > > run SCSI. I many cases will run SCSI or not at all.
+> > 
+> > I thought the intent was to make it unnecessary to run ide-scsi at all.  
+> 
+> I don't think it matters, the idea is to avoid all the low-level SCSI
+> menus in one place, without disabling the ability to handle ATAPI devices.
+> Using the ide-scsi or not still uses SCSI drivers AFAIK.
 
-Yes, Chas and I have already been discussing moving the maintainership.
-Previously his work has been concentrated on 2.4 but now he's porting
-his updates to 2.5 and will be taking over maintenence of the kernel stuff.
+But as far as linux scsi is concerned, ide-scsi is a low-level SCSI driver. 
 
-As for the locking issues a semaphore is probably the best thing to use
-at the moment.  The *correct* fix would be to have atm_dev's and atm_vcc's
-be reference counted instead so the card's interrupt handlers can safely
-work with them.  This has been well understood for awhile and I was planning
-on implementing it about a year ago for 2.5 but I've had basically zero time
-to devote to linux-atm these days (sorry)  Maybe Chas or I or someone will
-do it for 2.7.  The bad part isn't the atm core code (I could probably do
-that myself in a day) but it would require overhaul of a lot of the ATM
-drivers.  Some of the drivers are pretty scary.
+IDE and USB have there own Kconfig options that enable low-level SCSI
+driver emulation outside of drivers/scsi, pcmcia does not, and there are
+probably other exceptions.
 
-(Side note: basically linux-atm was originally written before SMP support
-existed and made heavy use of cti/sti to make sure the dev's and vcc's
-didn't change underneath the drivers.  Later these became largely spinlocks
-but they never really became SMP safe - even though the core code would
-have proper SMP-exclusion we could have the card doing rx an atm_vcc
-on one CPU while another was closing it.
+The following is simpler, though I'm not suggesting anything like this be
+applied, since we don't have consitency. If all of the low-level scsi
+drivers and options were under drivers/scsi, and we could separate
+emulated versus real, something like this might be OK:
 
-There's some stream-of-consiousness comments about this that I wrote a
-long time ago in drivers/atm/lanai.c around line 616.  They're not 100%
-correct - I was planning on researching the issue more before submitting
-that driver for inclusion into the tree but it lanai.c eventually got
-submitted by someone else without asking me first)
+--- 1.12/drivers/scsi/Kconfig	Sun Feb  9 17:29:49 2003
++++ edited/drivers/scsi/Kconfig	Wed Feb 19 10:19:11 2003
+@@ -170,8 +170,16 @@
+ 	  logging turned off.
+ 
+ 
++config SCSI_LOW_LEVEL
++	bool "SCSI low level drivers"
++
++	help
++	  enables a list of additional SCSI low level drivers
++
++	  If you need one of the drivers here say Y, else say N ;-)
++
+ menu "SCSI low-level drivers"
+-	depends on SCSI!=n
++	depends on SCSI!=n && SCSI_LOW_LEVEL!=n
+ 
+ config SGIWD93_SCSI
+ 	tristate "SGI WD93C93 SCSI Driver"
 
--Mitch
+-- Patrick Mansfield

@@ -1,35 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316258AbSIEGnC>; Thu, 5 Sep 2002 02:43:02 -0400
+	id <S317182AbSIEGub>; Thu, 5 Sep 2002 02:50:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317101AbSIEGnC>; Thu, 5 Sep 2002 02:43:02 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:11238 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316258AbSIEGnC>;
-	Thu, 5 Sep 2002 02:43:02 -0400
-Date: Wed, 04 Sep 2002 23:40:19 -0700 (PDT)
-Message-Id: <20020904.234019.130517085.davem@redhat.com>
-To: bof@bof.de
-Cc: rusty@rustcorp.com.au, ak@suse.de, laforge@gnumonks.org,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
-Subject: Re: ip_conntrack_hash() problem
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020905083932.F19551@oknodo.bof.de>
-References: <20020905083340.E19551@oknodo.bof.de>
-	<20020904.233226.108195359.davem@redhat.com>
-	<20020905083932.F19551@oknodo.bof.de>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S317176AbSIEGub>; Thu, 5 Sep 2002 02:50:31 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26640 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317169AbSIEGua>;
+	Thu, 5 Sep 2002 02:50:30 -0400
+Message-ID: <3D7702BE.85A5D11D@zip.com.au>
+Date: Thu, 05 Sep 2002 00:07:42 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@arcor.de>
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: Race in shrink_cache
+References: <E17mooe-00064m-00@starship> <3D76FB64.7AAB215F@zip.com.au> <E17mqFV-00065Y-00@starship>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Patrick Schaaf <bof@bof.de>
-   Date: Thu, 5 Sep 2002 08:39:32 +0200
-   
-   Sorry, but I was under the impression that code readability was worth
-   the occasional static-global additional 4 bytes. I must have been
-   mistaken.
+Daniel Phillips wrote:
+> 
+> ...
+> /*
+>  * We must not allow an anon page
+>  * with no buffers to be visible on
+>  * the LRU, so we unlock the page after
+>  * taking the lru lock
+>  */
+> 
+> That is, what's scary about an anon page without buffers?
 
-For the level of readability you're pining for, yes you are
-mistaken.
+ooop.  That's an akpm comment.  umm, err..
+
+It solves this BUG:
+
+http://www.cs.helsinki.fi/linux/linux-kernel/2001-37/0594.html
+
+Around the 2.4.10 timeframe, Andrea started putting anon pages
+on the LRU.  Then he backed that out, then put it in again.  I
+think this comment dates from the time when anon pages were
+not on the LRU.  So there's a little window there where the
+page is unlocked, we've just dropped its swapdev buffers, the page is
+on the LRU and pagemap_lru_lock is not held.
+
+So another CPU came in, found the page on the LRU, saw that it had
+no ->mapping and no ->buffers and went BUG.
+
+The fix was to take pagemap_lru_lock before unlocking the page.
+
+The comment is stale.

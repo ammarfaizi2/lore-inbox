@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269021AbRHCM1h>; Fri, 3 Aug 2001 08:27:37 -0400
+	id <S268983AbRHCMpb>; Fri, 3 Aug 2001 08:45:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269002AbRHCM1S>; Fri, 3 Aug 2001 08:27:18 -0400
-Received: from [194.30.80.67] ([194.30.80.67]:5130 "EHLO
-	serv_correo.ingecom.net") by vger.kernel.org with ESMTP
-	id <S269001AbRHCM04>; Fri, 3 Aug 2001 08:26:56 -0400
-Message-ID: <014101c11c17$a6dd21a0$66011ec0@frank>
-From: "Frank Torres" <frank@ingecom.net>
-To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
-Subject: Duplicate console output to a RS232C and keep keyb where it is
-Date: Fri, 3 Aug 2001 14:27:20 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+	id <S269001AbRHCMpW>; Fri, 3 Aug 2001 08:45:22 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:26890 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S268983AbRHCMpQ>; Fri, 3 Aug 2001 08:45:16 -0400
+Date: Fri, 3 Aug 2001 14:45:53 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: changes to kiobuf support in 2.4.(?)4
+Message-ID: <20010803144553.L13067@athlon.random>
+In-Reply-To: <10108012254.ZM192062@classic.engr.sgi.com> <20010802084259.H29065@athlon.random> <slrn9mi3g9.36p.kraxel@bytesex.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <slrn9mi3g9.36p.kraxel@bytesex.org>; from kraxel@bytesex.org on Thu, Aug 02, 2001 at 08:23:37AM +0000
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How do I make Linux to use the serial port RS232C as console and get the
-keyb entry from the normal console?
+On Thu, Aug 02, 2001 at 08:23:37AM +0000, Gerd Knorr wrote:
+> >  The reason of the large allocation and to put the bh inside the kiobuf
+> >  is that if we do a small allocation then we end with a zillion of
+> >  allocations of the bh and freeing of the bh at every I/O!! (not even at
+> >  every read/write syscall, much more frequently)
+> 
+> That is true for block device I/O only.  Current bttv versions are using
+> kiobufs to lock down user pages for DMA.  But I don't need the bh's to
+> transfer the video frames ...
 
-The RS232C is a serial port with 12V and there I have a BA63 20x4 display
-connected. (info worldwide)
-It is setted with the right speed, parity, etc. I use echo whatever
->/dev/ttyS2 and it works.
-If I use the command line parameter everybody says:  (odd and 8 data bits is
-what I use)
-            serial=2,9600o8
-            console=ttyS2,9600o8 console=tty0
-it shows the kernel messages in tty0 and it also sends it to the serial port
-(of course, but without configuring it, though, almost illegible) at the
-point of starting init, it stops the output.
+I guess you use map_user_kiobuf to provide zerocopy to read/write too
+(not just to user-mapped ram allocated by bttv), right?
 
-If I swap the consoles (console=tty0 console=ttyS2,9600o8) it sends the
-kernel messages to both, the tty0 and the ttySn, but when init starts, it
-begins to send the Welcome... adn the Press I to enter... messages
-repetedely each time further one from another. Seldom it continues executing
-rc.sysinit processes, but it never comes to the end. I check it by
-connecting the serial output to a serial input in a PC also running Linux
-and using cat /dev/ttyS0.
+If you allocate the kiobuf not in any fast path the vmalloc and big
+allocation won't be a real issue even now, however I agree it's ok to
+split the bh/block array allocation out of the kiobuf to make it lighter
+(but still it won't be a light thing).
 
-I also used the line s0:1234:respawn .... at inittab,   but it creates a new
-line for loggin where you say it to do it. If I dont change lilo.conf but
-only inittab, I can see the loggin message. I don't want that. I just want
-it to get se loggin from the console I'm working with.
-
-What I expect it to obtain all the console output through the serial port
-and the input through my keyboard using any of the virual consoles (let's
-say tty1), not comming from serial. Is there any way to do that?
-
-Thanx from advance. Frank.
-
+Andrea

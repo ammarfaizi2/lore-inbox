@@ -1,187 +1,161 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319519AbSIGVJX>; Sat, 7 Sep 2002 17:09:23 -0400
+	id <S319520AbSIGVX7>; Sat, 7 Sep 2002 17:23:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319520AbSIGVJX>; Sat, 7 Sep 2002 17:09:23 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:46346 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S319519AbSIGVJV>;
-	Sat, 7 Sep 2002 17:09:21 -0400
-Date: Sat, 7 Sep 2002 23:14:53 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] mount flag "direct"
-Message-ID: <20020907211452.GA24476@marowsky-bree.de>
-References: <20020907164631.GA17696@marowsky-bree.de> <200209071959.g87JxKN17732@oboe.it.uc3m.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200209071959.g87JxKN17732@oboe.it.uc3m.es>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+	id <S319521AbSIGVX7>; Sat, 7 Sep 2002 17:23:59 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:29419 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S319520AbSIGVX5> convert rfc822-to-8bit; Sat, 7 Sep 2002 17:23:57 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Hans-Peter Jansen <hpj@urpla.net>
+To: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre5-ac4
+Date: Sat, 7 Sep 2002 23:28:27 +0200
+User-Agent: KMail/1.4.2
+References: <200209061500.g86F08m12929@devserv.devel.redhat.com>
+In-Reply-To: <200209061500.g86F08m12929@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209072328.27543.hpj@urpla.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-09-07T21:59:20,
-   "Peter T. Breuer" <ptb@it.uc3m.es> said:
+Hi Alan, Andre, and friends,
 
-> > Yes, use a distributed filesystem. There are _many_ out there; GFS, OCFS,
-> > OpenGFS, Compaq has one as part of their SSI, Inter-Mezzo (sort of), Lustre,
-> > PvFS etc.
-> Eh, I thought I saw this - didn't I reply?
+this happens predictably on dvd mount via ide-scsi with 20-pre5-ac4:
 
-No, you didn't.
+udf: registering filesystem
+UDF-fs DEBUG lowlevel.c:57:udf_get_last_session: XA disk: no, vol_desc_start=0
+UDF-fs DEBUG super.c:1421:udf_read_super: Multi-session=0
+UDF-fs DEBUG super.c:410:udf_vrs: Starting at sector 16 (2048 byte sectors)
+kernel BUG at /usr/src/linux/include/linux/blkdev.h:153!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[ide_build_sglist+73/384]    Tainted: PF
+EFLAGS: 00210206
+eax: 0000005a   ebx: effc9000   ecx: c02c73c0   edx: e9445140
+esi: 00000000   edi: e9445140   ebp: e2e11ba0   esp: e2e11b80
+ds: 0018   es: 0018   ss: 0018
+Process mount (pid: 1440, stackpage=e2e11000)
+Stack: effc9000 c02c7470 e9445140 e4448e80 00000003 0000000d c02c7470 c19f6000
+       e2e11bcc c019c4a1 c02c73c0 e9445140 c02c73c0 c02c7470 e9445140 ef57c140
+       00000000 00000000 c02c73c0 e2e11bec c019c97a c02c7470 e9445140 c02c7470
+Call Trace:    [ide_build_dmatable+81/400] [__ide_dma_read+42/288]·
+[nfsd:__insmod_nfsd_O/lib/modules/2.4.20-pre5-ac3/kernel/fs/nfsd/+-30237/96] 
+[nfsd:__insmod_nfsd_O/lib/modules/2.4.20-pre5-ac3/kernel/fs/nfsd/+-29862/96] 
+[start_request+389/480] [ide_do_request+597/672] [ide_do_drive_cmd+204/256] 
+[nfsd:__insmod_nfsd_O/lib/modules/2.4.20-pre5-ac3/kernel/fs/nfsd/+-26784/96] 
+[nfsd:__insmod_nfsd_O/lib/modules/2.4.20-pre5-ac3/kernel/fs/nfsd/+-100640/96] 
+[nfsd:__insmod_nfsd_O/lib/modules/2.4.20-pre5-ac3/kernel/fs/nfsd/+-125027/96] 
+[nfsd:__insmod_nfsd_O/lib/modules/2.4.20-pre5-ac3/kernel/fs/nfsd/+-100096/96]
+[nfsd:__insmod_nfsd_O/lib/modules/2.4.20-pre5-ac3/kernel/fs/nfsd/+-93731/96] 
+[<f29e9ee0>] [generic_unplug_device+34/48] [__run_task_queue+76/96] 
+[__wait_on_buffer+86/144] [bread+79/112] [<f29fa1b1>] [<f29f658f>] [<f29f7b6e>] 
+[<f29f8446>] [<f29fccce>] [<f29fc459>] [<f29fc451>] [<f29fcca8>] 
+[get_sb_bdev+438/544] [<f29fd700>] [<f29fd700>] [alloc_vfsmnt+137/224]
+[do_kern_mount+86/256] [<f29fd700>] [do_add_mount+102/336] [do_mount+317/352] 
+[copy_mount_options+80/176] [sys_mount+124/192] [system_call+51/56]
 
-> > Noone appreciates reinventing the wheel another time, especially if - for
-> > simplification - it starts out as a square.
-> But what I suggest is finding a simple way to turn an existing FS into a 
-> distributed one. I.e. NOT reinventing the wheel. All those other people
-> are reinventing a wheel, for some reason :-).
+Code: 0f 0b 99 00 a0 b8 22 c0 8b 45 08 c7 80 24 04 00 00 01 00 00
 
-Well, actually they aren't exactly. The hard part in a "distributed
-filesystem" isn't the filesystem itself; while it is very necessary of course.
-The locking, synchronization and cluster infrastructure is where the real
-difficulty tends to arise.
+ide config:
 
-Yes, it can be argued whether it is in fact easier to create a filesystem from
-scratch with clustering in mind (so it is "optimised" for being able to do
-fine-grained locking etc), or whether proping a generic clustering layer on
-top of existing ones.
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDECD_BAILOUT=y
+CONFIG_BLK_DEV_IDEDISK=m
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_BLK_DEV_IDEFLOPPY=m
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_IDESCSI=m
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_IDE=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_IDEDISK_STROKE=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_IDE_TASKFILE_IO=y
+CONFIG_IDE_TASK_IOCTL=y
 
-The guesstimate of those involved in the past have seemed to suggest that the
-first is the case. And I also tend to think this to be the case, but I've been
-wrong.
+general setup:
 
-That would - indeed - be very helpful research to do. I would start by
-comparing the places where those specialized fs's actually are doing cluster
-related stuff and checking whether it can be abstracted, generalized and
-improved. In any case, trying to pick apart OpenGFS for example will provide
-you more insight into the problem area that a discussion on l-k.
+CONFIG_EXPERIMENTAL=y
+CONFIG_KMOD=y
+CONFIG_MICROCODE=m
+CONFIG_MK7=y
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_MTRR=y
+CONFIG_NOHIGHMEM=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_UID16=y
+CONFIG_X86=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_CPUID=m
+CONFIG_X86_F00F_WORKS_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_X86_MCE=y
+CONFIG_X86_MSR=m
+CONFIG_X86_PGE=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_TSC=y
+CONFIG_X86_USE_3DNOW=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_XADD=y
 
-If you want to look into "turn a local fs into a cluster fs", SGI has a
-"clustered XFS"; however I'm not too sure how public that extension is. The
-hooks might however be in the common XFS core though.
+dmesg:
 
-Now, going on with the gedankenexperiment, given a distributed lock manager
-(IBM open-sourced one of theirs, though it is not currently perfectly working
-;), the locking primitives in the filesystems could "simply" be changed from
-local-node SMP spinlocks to cluster-wide locks.
+<4>Kernel command line: rw root=/dev/nfs nfsroot=/netboot/%%s,v3 
+   ip=172.16.24.108:172.16.24.102:172.16.24.1:255.255.255.0: 
+   video=matrox:vesa:0x11b,k:200MHz,fh:93kHz,fv:150 hda=ide-scsi hdg=ide-scsi 
+<4>ide_setup: hda=ide-scsi
+<4>ide_setup: hdg=ide-scsi
 
-That _should_ to a large degree take care of the locking.
+<6>Uniform Multi-Platform E-IDE driver Revision: 6.31
+<4>ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+<4>VP_IDE: IDE controller on PCI bus 00 dev 21
+<4>VP_IDE: chipset revision 16
+<4>VP_IDE: not 100%% native mode: will probe irqs later
+<6>VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 controller on pci00:04.1
+<4>    ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:pio
+<4>    ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:DMA, hdd:pio
+<4>PDC20265: IDE controller on PCI bus 00 dev 88
+<6>PCI: Found IRQ 10 for device 00:11.0
+<6>PCI: Sharing IRQ 10 with 00:0b.0
+<4>PDC20265: chipset revision 2
+<4>PDC20265: not 100%% native mode: will probe irqs later
+<4>PDC20265: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+<4>    ide2: BM-DMA at 0x8000-0x8007, BIOS settings: hde:DMA, hdf:pio
+<4>    ide3: BM-DMA at 0x8008-0x800f, BIOS settings: hdg:DMA, hdh:DMA
+<4>hda: TOSHIBA DVD-ROM SD-M1502, ATAPI CD/DVD-ROM drive
+<4>hdc: IBM-DPTA-372050, ATA DISK drive
+<4>hde: IBM-DTLA-307060, ATA DISK drive
+<4>hdg: PLEXTOR CD-R PX-W1210A, ATAPI CD/DVD-ROM drive
+<4>ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+<4>ide1 at 0x170-0x177,0x376 on irq 15
+<4>ide2 at 0x9400-0x9407,0x9002 on irq 10
+<4>ide3 at 0x8800-0x8807,0x8402 on irq 10
 
-What remains is the invalidation of cache pages; I would expect similar
-problems must have arised in NC-NUMA style systems, so looking there should
-provide hints.
+<6>SCSI subsystem driver Revision: 1.00
+<6>scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+<4>  Vendor: TOSHIBA   Model: DVD-ROM SD-M1502  Rev: 1012
+<4>  Type:   CD-ROM                             ANSI SCSI revision: 02
+<4>  Vendor: PLEXTOR   Model: CD-R   PX-W1210A  Rev: 1.05
+<4>  Type:   CD-ROM                             ANSI SCSI revision: 02
+<6>hdc: 40088160 sectors (20525 MB) w/1961KiB Cache, CHS=39770/16/63, UDMA(66)
+<6>hde: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63, UDMA(100)
+<6>Partition check:
+<6> hdc: [PTBL] [2495/255/63] hdc1 hdc2 < hdc5 >
+<6> hde: hde1
 
-> > You fail to give a convincing reason why that must be made to work with
-> > "all" conventional filesystems, especially given the constraints this
-> > implies.
-> Because that's the simplest thing to do.
+Anything missing? Just ask. 18-pre4 does that mount smoothly. Besides this glitch, 
+20-pre5-ac4 "feels" a bit more interactively responsive..
 
-Why? I disagree.
-
-You will have to modify existing file systems quite a bit to work
-_efficiently_ in a cluster environment; not even the on-disk layout is
-guaranteed to stay consistent as soon as you add per-node journals etc. The
-real complexity is in the distributed nature, in particular the recovery (see
-below).
-
-"Simplest thing to do" might be to take your funding and give it to the
-OpenGFS group or have someone fix the Oracle Cluster FS.
-
-> > In particular, they make them useless for the requirements you seem to
-> > have. A petabyte filesystem without journaling? A petabyte filesystem with
-> > a single write lock? Gimme a break.
-> Journalling? Well, now you mention it, that would seem to be nice.
-
-"Nice" ? ;-) You gotta be kidding. If you don't have journaling, distributed
-recovery becomes near impossible - at least I don't have a good idea on how to
-do it if you don't know what the node had been working on prior to its
-failure.
-
-If "take down the entire filesystem on all nodes, run fsck" is your answer to
-that, I will start laughing in your face. Because then your requirements are
-kind of from outer space and will certainly not reflect a large part of the
-user base.
-
-> > Please, do the research and tell us what features you desire to have which
-> > are currently missing, and why implementing them essentially from scratch
-> > is
-> No features.
-
-So they implement what you need, but you don't like them because theres just
-so few of them to chose from? Interesting.
-
-> Just take any FS that corrently works, and see if you can distribute it.
-> Get rid of all fancy features along the way.  The projects involved are
-> huge, and they need to minimize risk, and maximize flexibility. This is
-> CERN, by the way.
-
-Well, you are taking quite a risk trying to run a
-not-aimed-at-distributed-environments fs and trying to make it distributed by
-force. I _believe_ that you are missing where the real trouble lurks.
-
-You maximize flexibility for mediocre solutions; little caching, no journaling
-etc.
-
-What does this supposed "flexibility" buy you? Is there any real value in it
-or is it a "because!" ?
-
-> You mean "what's wrong with X"? Well, it won't be mainstream, for a start,
-> and that's surely enough.
-
-I have pulled these two sentences out because I don't get them. What "X" are
-you referring to?
-
-> of some kind. I need to explore as much as I can and get as much as I
-> can back without "doing it first", because I need the insight you can
-> offer.
-
-The insight I can offer you is look at OpenGFS, see and understand what it
-does, why and how. The try to come up with a generic approach on how to put
-this on top of a generic filesystem, without making it useless.
-
-Then I shall be amazed.
-
-> There is no difficulty with that - there are no distributed locks. All locks
-> are held on the server of the disk (I decided not to be complicated to
-> begine with as a matter of principle early in life ;-).
-
-Maybe you and I have a different idea of "distributed fs". I thought you had a
-central pool of disks.
-
-You want there to be local disks at each server, and other nodes can read
-locally and have it appear as a big, single filesystem? You'll still have to
-deal with node failure though.
-
-Interesting. 
-
-One might consider to peel apart meta-data (which always goes through the
-"home" node) and data (which goes directly to disk via the SAN); if necessary,
-the reply to the meta-data request to the home node could tell the node where
-to write/read. This smells a lot like cXFS and co with a central metadata
-server.
-
-> > recovery. ("Transaction processing" is an exceptionally good book on that
-> > I believe)
-> Thanks but I don't feel like rolling it out and rolling it back!
-
-Please explain how you'll recover anywhere close to "fast" or even
-"acceptable" without transactions. Even if you don't have to fsck the petabyte
-filesystem completely, do a benchmark on how long e2fsck takes on, oh, 50gb
-only.
-
-> Thanks for the input. I don't know what I was supposed to take away
-> from it though!
-
-I apologize and am sorry if you didn't notice.
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-Immortality is an adequate definition of high availability for me.
-	--- Gregory F. Pfister
-
+Hans-Peter

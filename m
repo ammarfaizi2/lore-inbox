@@ -1,71 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317260AbSGCVqn>; Wed, 3 Jul 2002 17:46:43 -0400
+	id <S317261AbSGCVqu>; Wed, 3 Jul 2002 17:46:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317261AbSGCVqm>; Wed, 3 Jul 2002 17:46:42 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:12219 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S317260AbSGCVqk>; Wed, 3 Jul 2002 17:46:40 -0400
-Date: Wed, 3 Jul 2002 23:47:58 +0200
-From: Ulrich Wiederhold <U.Wiederhold@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: nvidia driver won't compile with 2.4.19-rc1
-Message-ID: <20020703214757.GA504@sky.net>
+	id <S317262AbSGCVqt>; Wed, 3 Jul 2002 17:46:49 -0400
+Received: from [207.156.7.21] ([207.156.7.21]:25826 "EHLO
+	mail.hillsboroughcounty.org") by vger.kernel.org with ESMTP
+	id <S317261AbSGCVqr> convert rfc822-to-8bit; Wed, 3 Jul 2002 17:46:47 -0400
+Message-Id: <sd23391a.015@GroupWise>
+X-Mailer: Novell GroupWise Internet Agent 5.5.6.1
+Date: Wed, 03 Jul 2002 17:49:02 -0400
+From: "Brett Simpson" <Simpsonb@hillsboroughcounty.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Osprey 100 won't work with onboard ATI video.
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Debian GNU/Linux 3.0 (Kernel 2.4.19-rc1)
-Organization: Using Linux Only
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-if I make an update-modules, I get:
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.19-rc1/kernel/drivers/scsi/sr_mod.o
+I have an problem where an Osprey 100 video encoder card in a Compaq ML370 will not work with xawtv unless I disable the onboard ATI RageXL video and put in a Cirrus Logic PCI video card. I have noticed this problem with other Compaq servers that have onboard ATI video cards (DL360 & Proliant 1600). In a Compaq Deskpro EN workstation the Osprey works fine with the separate AGP ATI video card.
 
-and if I wanna compile "NVIDIA_kernel-1.0-2880":
+I have tried 2.5.24, 2.4.18, & 2.4.18-03(redhat) kernels on Redhat Linux 7.3 using the bttv.o module.
 
-home:/NVIDIA_kernel-1.0-2880# make
-cc -c -Wall -Wimplicit -Wreturn-type -Wswitch -Wformat -Wchar-subscripts
--Wparentheses -Wpointer-arith -Wcast-qual -Wno-multichar  -O -MD
--D__KERNEL__ -DMODULE -D_LOOSE_KERNEL_NAMES -D_X86=1 -Di386=1 -DUNIX
--DLINUX -DNV4_HW -DNTRM -DRM20 -D_GNU_SOURCE -DRM_HEAPMGR
--D_LOOSE_KERNEL_NAMES -D__KERNEL__ -DMODULE  -DNV_MAJOR_VERSION=1
--DNV_MINOR_VERSION=0 -DNV_PATCHLEVEL=2880   -I.
--I/lib/modules/2.4.19-rc1/build/include -Wno-cast-qual nv.c
-cc -c -Wall -Wimplicit -Wreturn-type -Wswitch -Wformat -Wchar-subscripts
--Wparentheses -Wpointer-arith -Wcast-qual -Wno-multichar  -O -MD
--D__KERNEL__ -DMODULE -D_LOOSE_KERNEL_NAMES -D_X86=1 -Di386=1 -DUNIX
--DLINUX -DNV4_HW -DNTRM -DRM20 -D_GNU_SOURCE -DRM_HEAPMGR
--D_LOOSE_KERNEL_NAMES -D__KERNEL__ -DMODULE  -DNV_MAJOR_VERSION=1
--DNV_MINOR_VERSION=0 -DNV_PATCHLEVEL=2880   -I.
--I/lib/modules/2.4.19-rc1/build/include -Wno-cast-qual os-interface.c
-os-interface.c:1207: warning: `wb_list' defined but not used
-cc -c -Wall -Wimplicit -Wreturn-type -Wswitch -Wformat -Wchar-subscripts
--Wparentheses -Wpointer-arith -Wcast-qual -Wno-multichar  -O -MD
--D__KERNEL__ -DMODULE -D_LOOSE_KERNEL_NAMES -D_X86=1 -Di386=1 -DUNIX
--DLINUX -DNV4_HW -DNTRM -DRM20 -D_GNU_SOURCE -DRM_HEAPMGR
--D_LOOSE_KERNEL_NAMES -D__KERNEL__ -DMODULE  -DNV_MAJOR_VERSION=1
--DNV_MINOR_VERSION=0 -DNV_PATCHLEVEL=2880   -I.
--I/lib/modules/2.4.19-rc1/build/include -Wno-cast-qual os-registry.c
-ld -r -o Module-linux nv.o os-interface.o os-registry.o 
-ld -r -o NVdriver Module-linux Module-nvkernel
-size NVdriver
-   text    data     bss     dec     hex filename
-    779245   52020   52364  883629   d7bad NVdriver
-    depmod: *** Unresolved symbols in
-    /lib/modules/2.4.19-rc1/kernel/drivers/scsi/sr_mod.o
-    make: *** [package-install] Fehler 1
-    home:/home/fzzgrr/NVIDIA_kernel-1.0-2880# update-modules 
-    depmod: *** Unresolved symbols in
-    /lib/modules/2.4.19-rc1/kernel/drivers/scsi/sr_mod.o
+/var/log/messages
+Jul  3 17:41:33 localhost kernel: bttv0: PLL: 28636363 => 35468950 ... ok
+Jul  3 17:41:33 localhost kernel: bttv0: irq: SCERR risc_count=2e765820
+Jul  3 17:41:33 localhost kernel: bttv0: irq: SCERR risc_count=2e765808
+Jul  3 17:41:33 localhost kernel: bttv0: irq: SCERR risc_count=2e765810
+Jul  3 17:41:33 localhost kernel: bttv0: irq: SCERR risc_count=2e765810
+Jul  3 17:41:33 localhost kernel: bttv0: irq: SCERR risc_count=2e765808
+Jul  3 17:41:33 localhost kernel: bttv0: aiee: error loops
+Jul  3 17:41:36 localhost kernel: bttv0: PLL: switching off
+Jul  3 17:41:39 localhost kernel: bttv0: resetting chip
 
-I get the same error. I had no problems compiling them with 2.4.17-rc2.
-Any ideas what to do?
+[root@localhost root]# lspci
+00:00.0 Host bridge: ServerWorks CNB20HE Host Bridge (rev 23)
+00:00.1 Host bridge: ServerWorks CNB20HE Host Bridge (rev 01)
+00:00.2 Host bridge: ServerWorks: Unknown device 0006 (rev 01)
+00:00.3 Host bridge: ServerWorks: Unknown device 0006 (rev 01)
+00:02.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
+00:05.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
+00:06.0 System peripheral: Compaq Computer Corporation Advanced System Management Controller
+00:0f.0 ISA bridge: ServerWorks OSB4 South Bridge (rev 51)
+00:0f.1 IDE interface: ServerWorks OSB4 IDE Controller
+01:02.0 SCSI storage controller: Adaptec AHA-3960D / AIC-7899A U160/m (rev 01)
+01:02.1 SCSI storage controller: Adaptec AHA-3960D / AIC-7899A U160/m (rev 01)
+01:04.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 11)
+01:04.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 11)
+07:07.0 PCI Hot-plug controller: Compaq Computer Corporation PCI Hotplug Controller (rev 12)
+[root@localhost root]#
 
-Uli
-
--- 
-'The box said, 'Requires Windows 95 or better', so i installed Linux - TKK 5

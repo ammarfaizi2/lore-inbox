@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316580AbSHSBCQ>; Sun, 18 Aug 2002 21:02:16 -0400
+	id <S316586AbSHSBNK>; Sun, 18 Aug 2002 21:13:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316586AbSHSBCQ>; Sun, 18 Aug 2002 21:02:16 -0400
-Received: from pcp809445pcs.nrockv01.md.comcast.net ([68.49.82.129]:8325 "EHLO
-	zalem.puupuu.org") by vger.kernel.org with ESMTP id <S316580AbSHSBCQ>;
-	Sun, 18 Aug 2002 21:02:16 -0400
-Date: Sun, 18 Aug 2002 21:06:18 -0400
-From: Olivier Galibert <galibert@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: devfs
-Message-ID: <20020818210618.A1806@zalem.puupuu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	linux-kernel@vger.kernel.org
-References: <1029709596.3331.32.camel@psuedomode> <Pine.GSO.4.21.0208181852450.3920-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0208181852450.3920-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sun, Aug 18, 2002 at 07:03:42PM -0400
+	id <S316588AbSHSBNK>; Sun, 18 Aug 2002 21:13:10 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:58378 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S316586AbSHSBNK>; Sun, 18 Aug 2002 21:13:10 -0400
+Date: Mon, 19 Aug 2002 11:16:32 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Alan Cox <alan@redhat.com>
+cc: Jeff Dike <jdike@karaya.com>, "David S. Miller" <davem@redhat.com>,
+       <kuznet@ms2.inr.ac.ru>, Andi Kleen <ak@muc.de>,
+       <linux-kernel@vger.kernel.org>, Matthew Wilcox <willy@debian.org>
+Subject: Re: [PATCH][RFC] sigurg/sigio cleanup for 2.5.31
+In-Reply-To: <Mutt.LNX.4.44.0208181055390.6481-100000@blackbird.intercode.com.au>
+Message-ID: <Mutt.LNX.4.44.0208191114410.9295-100000@blackbird.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 18, 2002 at 07:03:42PM -0400, Alexander Viro wrote:
-> devfs "mount" option is an idiotic kludge that makes _kernel_ mount
-> it on /dev after the root fs had been mounted.  Why it had been
-> introduced is a great mistery, since the normal way is to have a
-> corresponding line in /etc/fstab and have userland mount whatever
-> it needs.
+On Sun, 18 Aug 2002, James Morris wrote:
 
-I've been wondering, imagine that in the future we have a working
-dynamic device filesystem (be it devfs, driverfs, whatever) nice
-enough that we don't want a disk-based /dev anymore.  How are we
-supposed to mount it so that the kernel's open("/dev/console")
-succeeds?
+> On Sat, 17 Aug 2002, Alan Cox wrote:
+> 
+> > Looks like the lock is needed - oh well
+> > 
+> 
+> It's still lockless in the sigio delivery path, which is where it 
+> matters.
+> 
 
-  OG.
+Ahh, you're right, of course.  Please disregard the last version of the 
+patch.
+
+
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
+
 

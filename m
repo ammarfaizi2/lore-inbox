@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVCKU4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbVCKVEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbVCKU4U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 15:56:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbVCKUzU
+	id S261766AbVCKVEu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 16:04:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVCKVEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 15:55:20 -0500
-Received: from mail.tmr.com ([216.238.38.203]:58372 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S261529AbVCKUxy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 15:53:54 -0500
-Date: Fri, 11 Mar 2005 15:42:04 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Chris Friesen <cfriesen@nortel.com>
-cc: "Justin M. Forbes" <jmforbes@linuxtx.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.Stable and EXTRAVERSION
-In-Reply-To: <423202D2.8000207@nortel.com>
-Message-ID: <Pine.LNX.3.96.1050311154019.20262B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 11 Mar 2005 16:04:10 -0500
+Received: from fed1rmmtao10.cox.net ([68.230.241.29]:61837 "EHLO
+	fed1rmmtao10.cox.net") by vger.kernel.org with ESMTP
+	id S261766AbVCKVA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 16:00:59 -0500
+Date: Fri, 11 Mar 2005 14:00:52 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Sylvain Munaut <tnt@246tNt.com>
+Cc: Kumar Gala <kumar.gala@freescale.com>, LKML <linux-kernel@vger.kernel.org>,
+       Embedded PPC Linux list <linuxppc-embedded@ozlabs.org>
+Subject: Re: [PATCH 1/2] MPC52xx updates : sparse clean-ups
+Message-ID: <20050311210052.GC3098@smtp.west.cox.net>
+References: <4231F9F9.5080506@246tNt.com> <be4da82f8d12e20b54050e15fd27df36@freescale.com> <423203EC.1070003@246tNt.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <423203EC.1070003@246tNt.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Mar 2005, Chris Friesen wrote:
+On Fri, Mar 11, 2005 at 09:47:40PM +0100, Sylvain Munaut wrote:
 
-> Bill Davidsen wrote:
+[snip]
+> static struct hw_interrupt_type mpc52xx_ic = {
+> -       "MPC52xx",
+[snip]
+> +       .typename       = "MPC52xx",
 
-	[...snip...]
-
-> > I think it will confuse scripts which expect something local in the 4th 
-> > field. I confess that I have such, and that field is turned into a 
-> > directory name during builds, so test results are saved in a proper 
-> > place. I think vendors and people who care will just keep three digits, 
-> > and those who want the last can make their EXTRAVERSION
-> >    2.Joes_Bar_&_Grill_486
-> > or whatever is needed.
-> 
-> There's also the LOCALVERSION that can be set in the config file.  I've 
-> switched to using that, since it means one less kernel patch to port.
-
-I have to see what that generates. The problem is LOCALVERSION and current
-use of both 3 and 4 field kernel versions. You need a smarter script to
-handle that.
+Shouldn't that be "  MPC52xx  ", or is that another field I'm thinking
+of?
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Tom Rini
+http://gate.crashing.org/~trini/

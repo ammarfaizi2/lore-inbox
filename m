@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316824AbSFKFBX>; Tue, 11 Jun 2002 01:01:23 -0400
+	id <S316611AbSFKFDt>; Tue, 11 Jun 2002 01:03:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316611AbSFKFBW>; Tue, 11 Jun 2002 01:01:22 -0400
-Received: from adsl-216-62-201-136.dsl.austtx.swbell.net ([216.62.201.136]:8321
-	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S316824AbSFKFBV>; Tue, 11 Jun 2002 01:01:21 -0400
-Subject: Re: Locking CD tray w/o opening device
-From: Austin Gonyou <austin@digitalroadkill.net>
-To: Hank Leininger <hlein@progressive-comp.com>
+	id <S316826AbSFKFDs>; Tue, 11 Jun 2002 01:03:48 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:7927 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S316611AbSFKFDr>; Tue, 11 Jun 2002 01:03:47 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Mon, 10 Jun 2002 23:02:11 -0600
+To: cnliou@eurosport.com
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200206110328.g5B3SgL08447@marc2.theaimsgroup.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 11 Jun 2002 00:00:45 -0500
-Message-Id: <1023771645.1519.3.camel@UberGeek>
+Subject: Re: mke2fs (and mkreiserfs) core dumps
+Message-ID: <20020611050211.GU20388@turbolinux.com>
+Mail-Followup-To: cnliou@eurosport.com, linux-kernel@vger.kernel.org
+In-Reply-To: <200206110201.0ab3@th00.opsion.fr>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You could echo "1" >/proc/sys/dev/cdrom/lock
-
-If you do this, even when a cd is *not* in the drive it will be locked.
-For information like this, it might be best to open xchat, and head to
-openprojects.net and join #linuxhelp. This is a good question, just
-perhaps  not right for the lkml?
-
-:)
-
-
-On Mon, 2002-06-10 at 22:28, Hank Leininger wrote:
-> On 2002-06-11, Nathan Neulinger <nneul@umr.edu> wrote:
+On Jun 11, 2002  02:01 +0000, cnliou@eurosport.com wrote:
+> I am exeperiencing the similar problem in kernel
+> 2.4.18, glibc 2.2.5, and patched gcc 2.95.3
+> (http://ricardo.ecn.wfu.edu/glib-linux-archive/0110/0
+> 007.html).
 > 
-> > Is there any straightforward way of disabling the buttons on the CD and
-> > locking all the time? I'm not averse to an ugly hack to 2.4.18+ source
-> > if necessary.
+> Both of the following commands
 > 
-> I'm not sure exactly what you mean.  If there is a CD in the drive and
-> mounted, the eject button should be software-locked.  Do you mean that this
-> does not happen for you?  ...As long as it does, a stupid workaround would
-> be "leave a CD in the drive mounted all the time".
+> mke2fs /dev/md0
+> mke2fs -j /dev/md0
+> 
+> output
+> 
+> File size limit exceeded
 
--- 
-Austin Gonyou <austin@digitalroadkill.net>
+You must log in directly at the console as root (no su or sudo), or
+disable any ulimit from being set.
+
+Alternately, if you get the very latest e2fsprogs (1.27) then it
+should also be able to work around this problem.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
+

@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262684AbRFRTno>; Mon, 18 Jun 2001 15:43:44 -0400
+	id <S262997AbRFRUhd>; Mon, 18 Jun 2001 16:37:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262702AbRFRTne>; Mon, 18 Jun 2001 15:43:34 -0400
-Received: from customers.imt.ru ([212.16.0.33]:1837 "HELO smtp.direct.ru")
-	by vger.kernel.org with SMTP id <S262684AbRFRTnV>;
-	Mon, 18 Jun 2001 15:43:21 -0400
-Message-ID: <20010618154134.A32175@saw.sw.com.sg>
-Date: Mon, 18 Jun 2001 15:41:34 -0400
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Christian Robottom Reis <kiko@async.com.br>
-Cc: linux-kernel@vger.kernel.org, eepro100@scyld.com
-Subject: Re: eepro100 problems with 2.2.19 _and_ 2.4.0
-In-Reply-To: <Pine.LNX.4.32.0106161923290.339-100000@blackjesus.async.com.br> <Pine.LNX.4.32.0106170037020.191-100000@blackjesus.async.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <Pine.LNX.4.32.0106170037020.191-100000@blackjesus.async.com.br>; from "Christian Robottom Reis" on Sun, Jun 17, 2001 at 12:40:34AM
+	id <S263011AbRFRUhX>; Mon, 18 Jun 2001 16:37:23 -0400
+Received: from [142.176.139.106] ([142.176.139.106]:32772 "EHLO ve1drg.com")
+	by vger.kernel.org with ESMTP id <S262997AbRFRUhL>;
+	Mon, 18 Jun 2001 16:37:11 -0400
+Date: Mon, 18 Jun 2001 17:37:07 -0300 (ADT)
+From: Ted Gervais <ve1drg@ve1drg.com>
+To: J Sloan <jjs@toyota.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: ipchains
+In-Reply-To: <3B2E51E0.92C9D65F@lexus.com>
+Message-ID: <Pine.LNX.4.21.0106181736350.4728-100000@ve1drg.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 17, 2001 at 12:40:34AM -0300, Christian Robottom Reis wrote:
+On Mon, 18 Jun 2001, J Sloan wrote:
+
+> > I just ran into something odd. To me anyways, it was odd.
+> > I just installed and brought up kernel 2.4.5 and my ipchains failed.
+> > So I upgraded to the latest (that I could find) ipchains-1.3.10, and
+> > that also fails.
+> >
+> > Has anyone got any version of ipchains to work with the new(er) kernels?
 > 
-> I am _very_ willing to devote some time to getting this fixed in both the
-> kernel and Donald's drivers if anyone is interested in tracking down the
-> problem. I'm not very familiar with the hardware, but I have a test box I
-> can use freely, a bit of time spare, and I can reproduce the problem
-> easily. I'd hate to see somebody else go through what I have just had to,
-> so it would be nice to see this fixed or documented in an official-ese
-> place.
+> For what it's worth, Red Hat 7.1 ships iptables
+> with ipchains emulation, which works out of the
+> box on their 2.4.2 kernel
 
-I'm obviously interested in tracking it down.
-I'll contact you with what we can test on you comp a couple of days later,
-I'm quite busy right now, ok?
+Yup!  But I am running Slackware7.1 here.
+Thanks anyways..
+---
+Doubt is not a pleasant condition, but certainty is absurd.
+                -- Voltaire
+                
+Ted Gervais <ve1drg@ve1drg.com>
+44.135.34.201 linux.ve1drg.ampr.org
 
-	Andrey
+

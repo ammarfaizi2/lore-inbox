@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264535AbUESUW4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264540AbUESUej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264535AbUESUW4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 16:22:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbUESUW4
+	id S264540AbUESUej (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 16:34:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264543AbUESUej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 16:22:56 -0400
-Received: from pirx.hexapodia.org ([65.103.12.242]:35741 "EHLO
-	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S264530AbUESUWw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 16:22:52 -0400
-Date: Wed, 19 May 2004 15:22:51 -0500
-From: Andy Isaacson <adi@hexapodia.org>
-To: Tobias =?iso-8859-1?Q?Ringstr=F6m?= <tobias@ringstrom.mine.nu>
-Cc: linux-kernel@vger.kernel.org, Christophe Saout <christophe@saout.de>
-Subject: Re: IPsec/crypto kernel panic in 2.6.[456]
-Message-ID: <20040519202251.GA22516@hexapodia.org>
-References: <40ABBA0F.5050805@ringstrom.mine.nu>
+	Wed, 19 May 2004 16:34:39 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:7298 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264540AbUESUeh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 16:34:37 -0400
+Subject: Re: [Ext2-devel] Re: [PATCH] use-before-uninitialized value in
+	ext3(2)_find_ goal
+From: Mingming Cao <cmm@us.ibm.com>
+To: Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
+       marcelo.tosatti@cyclades.com
+Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20040519125328.J22989@build.pdx.osdl.net>
+References: <20040519043235.30d47edb.akpm@osdl.org>
+	<1084992705.15395.1276.camel@w-ming2.beaverton.ibm.com> 
+	<20040519125328.J22989@build.pdx.osdl.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 19 May 2004 13:33:39 -0700
+Message-Id: <1084998821.15395.1287.camel@w-ming2.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <40ABBA0F.5050805@ringstrom.mine.nu>
-User-Agent: Mutt/1.4.1i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 19, 2004 at 09:48:31PM +0200, Tobias Ringström wrote:
-> I get a kernel panic that is very easy to reproduce.  The panic goes 
-> away if I revert the following changeset ("fix in-place de/encryption 
-> bug with highmem"):
+On Wed, 2004-05-19 at 12:53, Chris Wright wrote:
 > 
->     http://linux.bkbits.net:8080/linux-2.5/cset@1.1371.476.15
+> I know it's a slightly bigger patch, but would it make sense to just enforce
+> this as part of api?  Just a thought...(patch untested)
 
-Or,
-http://linux.bkbits.net:8080/linux-2.5/cset@40443186BowXpsBHgFbxClLNqkdCyw
+The patch itself (in both your way and my way) is trivial, so either way
+is okey. 
 
-(need to use "bookmarkable link"; revision numbers change.)
+But the changes it bring up is not trivial, the ext2/3 disk layout for
+random writes could be changed heavily, though that's the expected way
+(and hopefully result in the good direction). We need to benchmark the
+random write on ext2/3 to see what the changes bring about.
 
--andy
+I will try random writes on some benchmark later today.
+
+Mingming
+

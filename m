@@ -1,93 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265317AbUHMNw1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265285AbUHMNye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265317AbUHMNw1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 09:52:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265315AbUHMNw1
+	id S265285AbUHMNye (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 09:54:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265288AbUHMNye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 09:52:27 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:32226 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265288AbUHMNvO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 09:51:14 -0400
-Date: Fri, 13 Aug 2004 15:50:36 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Chris Clayton <chris@theclaytons.giointernet.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CDMRW in 2.6
-Message-ID: <20040813135036.GR2663@suse.de>
-References: <200408091625.31210.chris@theclaytons.giointernet.co.uk> <200408131253.49321.chris@theclaytons.giointernet.co.uk> <20040813115426.GN2663@suse.de> <200408131435.17362.chris@theclaytons.giointernet.co.uk>
+	Fri, 13 Aug 2004 09:54:34 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:43712 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S265285AbUHMNxl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 09:53:41 -0400
+Date: Fri, 13 Aug 2004 15:52:33 +0200
+From: Cornelia Huck <kernel@cornelia-huck.de>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] let W1 select NET
+Message-Id: <20040813155233.04ccac4a@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <20040813105412.GW13377@fs.tum.de>
+References: <20040813101717.GS13377@fs.tum.de>
+	<Pine.LNX.4.58.0408131231480.20635@scrub.home>
+	<20040813105412.GW13377@fs.tum.de>
+X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408131435.17362.chris@theclaytons.giointernet.co.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 13 2004, Chris Clayton wrote:
-> > > I'll try a full (as opposed to quick) blank with cdrwtool plus a
-> > > forced format with cdmrw and report back when that has finished.
-> >
-> > Yes please do that, if that doesn't work it's really screwed.
-> 
-> Ok, here's the results:
-> 
-> [chris:~]$ cdrwtool -t 10 -d /dev/hdc -b full
-> setting speed to 10
-> using device /dev/hdc
-> full blank
-> 1386KB internal buffer
-> setting write speed to 10x
-> 
-> <<no new messages from dmesg>>
-> 
-> [chris:~]$ cdmrw -d /dev/hdc -f full -F
-> not a mrw formatted disc
-> LBA space: DMA
-> 
-> <<no new messages from dmesg>>
-> 
-> [chris:~]$ while cdmrw -d /dev/hdc -f full | grep "mrw format running" ; do 
-> sleep 20; done
-> mrw format running
-> <snip>
-> mrw format running
-> 
-> <<no new messages from dmesg>>
-> 
-> [chris:~]$ mkudffs --media-type=cdrw /dev/hdc
-> start=0, blocks=16, type=RESERVED
-> start=16, blocks=3, type=VRS
-> start=19, blocks=237, type=USPACE
-> start=256, blocks=1, type=ANCHOR
-> start=257, blocks=31, type=USPACE
-> start=288, blocks=32, type=PVDS
-> start=320, blocks=32, type=LVID
-> start=352, blocks=32, type=STABLE
-> start=384, blocks=1024, type=SSPACE
-> start=1408, blocks=256480, type=PSPACE
-> start=257888, blocks=31, type=USPACE
-> start=257919, blocks=1, type=ANCHOR
-> start=257920, blocks=160, type=USPACE
-> start=258080, blocks=32, type=STABLE
-> start=258112, blocks=32, type=RVDS
-> start=258144, blocks=31, type=USPACE
-> start=258175, blocks=1, type=ANCHOR
-> 
-> <<the following new messages from dmesg>>
-> 
-> cdrom: hdc: mrw address space DMA selected
-> cdrom open: mrw_status 'mrw complete'
-> hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-> hdc: command error: error=0x54
+On Fri, 13 Aug 2004 12:54:12 +0200
+Adrian Bunk <bunk@fs.tum.de> wrote:
 
-Ok yes, same error. It's the drive doing something odd, I have no idea
-what...
+> It's also relatively safe since NET itself doesn't has any
+> dependencies.
 
-> I'll try the same process (except the blanking) with a brand new piece of 
-> media and report when that is complete.
+Otherwise, this would be problematic. Consider the following:
 
-I doubt it'll help.
+config FOO
+        bool "foo"
+        select BAR
 
--- 
-Jens Axboe
+config BAR
+        bool
+        depends on BAZ
 
+config BAZ
+        bool
+        default n
+
+You can select FOO, which will select BAR. In your config, you'll end up with
+CONFIG_FOO=y
+CONFIG_BAR=y
+# CONFIG_BAZ is not set
+
+(similar result if you don't specify BAZ at all), which would get you into trouble. (I saw this while looking into what happens if s390 uses drivers/Kconfig, and got a headache why some stuff was selected by
+allyesconfig that depended on pci).
+
+Question: Is this a bug or a feature? If the latter, select should probably not be used on anything that has dependencies...
+
+Regards,
+Cornelia

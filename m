@@ -1,112 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263879AbTEGPJy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 11:09:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263886AbTEGPJy
+	id S264025AbTEGPCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 11:02:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264036AbTEGPCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 11:09:54 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:12276 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S263879AbTEGPJP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 11:09:15 -0400
-Message-ID: <3EB92464.3050306@mvista.com>
-Date: Wed, 07 May 2003 08:21:08 -0700
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       chandra.smurthy@wipro.com
-Subject: Re: [BUG] problem with timer_create(2) for SIGEV_NONE ??
-References: <E935C89216CC5D4AB77D89B253ADED2A92257F@blr-m2-msg.wipro.com>
-In-Reply-To: <E935C89216CC5D4AB77D89B253ADED2A92257F@blr-m2-msg.wipro.com>
-Content-Type: multipart/mixed;
- boundary="------------080100050306030000020906"
+	Wed, 7 May 2003 11:02:09 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:6019 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264025AbTEGPCH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 11:02:07 -0400
+Date: Wed, 07 May 2003 07:06:46 -0700 (PDT)
+Message-Id: <20030507.070646.54208027.davem@redhat.com>
+To: george@mvista.com
+Cc: sam@ravnborg.org, akpm@zip.com.au, kbuild-devel@lists.sourceforge.net,
+       mec@shout.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] asm-generic magic
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3EB92176.8010803@mvista.com>
+References: <3EB8D36E.10206@mvista.com>
+	<20030507143059.GA1057@mars.ravnborg.org>
+	<3EB92176.8010803@mvista.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: george anzinger <george@mvista.com>
+   Date: Wed, 07 May 2003 08:08:38 -0700
+   
+   Also, if you are introducing a file with asm code, you either cause
+   all "other" archs to fail (till they catch up) or you must
+   introduce the simple one line file in each arch.
 
-This is a multi-part message in MIME format.
---------------080100050306030000020906
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+This is desirable behavior, then the arch maintainer sees the breakage
+and if the asm-generic solution is appropriate he makes that
+decision.
 
-Attached is a fix.
+I don't think you want to play expert for port maintainers.
 
-Change log:
+I sense that you want to be able to do "instant ports" to
+some architecture.  This isn't the way to do it.  Instead
+tar up a template set of asm-foo/ header files, and dump that
+into the directory for your new port.
 
-Fix the sig_notify filtering code for the timer_create system call to 
-properly check for the signal number being small enought, but only if 
-SIG_NONE is not specified.
-
-Eliminate useless test of sig_notify.
-
-george
-
-
-Aniruddha M Marathe wrote:
-> George,
-> 
->  timer_create(2) fails in the case where sigev_notify parameter of
-> sigevent structure is SIGEV_NONE. I believe this should not happen.
-> 
-    ~snip~
-
->  
-> Line 377:
-> SIGEV_NONE & ~(SIGEV_SIGNAL | SIGEV_THREAD_ID)
-> = 001 & ~(000 | 100)
-> = 001 & ~(100)
-> = 001 & 011
-> = 001
-> therefore the if condition is true
-> therefore the function returns NULL from line 378.
->  
-> Now in sys_timer_create() at line number 462
-> Process = NULL
->  
-> Now at line 489
-> if (!process) becomes TRUE
-> and function returns with EINVAL
-> 
-> Is my analysis right? If so can you comment on this behaviour?
-> 
-Looks like a bug :(  I feel a patch coming on...
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-
-
-
---------------080100050306030000020906
-Content-Type: text/plain;
- name="hrtimers-fix-signone-2.5.69-1.0.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="hrtimers-fix-signone-2.5.69-1.0.patch"
-
---- linux-2.5.69-org/kernel/posix-timers.c	2003-05-05 15:34:09.000000000 -0700
-+++ linux/kernel/posix-timers.c	2003-05-06 00:24:21.000000000 -0700
-@@ -357,13 +357,10 @@
- 			rtn->tgid != current->tgid))
- 		return NULL;
- 
--	if ((event->sigev_notify & SIGEV_SIGNAL & MIPS_SIGEV) &&
-+	if ((event->sigev_notify & ~SIGEV_NONE & MIPS_SIGEV) &&
- 			((unsigned) (event->sigev_signo > SIGRTMAX)))
- 		return NULL;
- 
--	if (event->sigev_notify & ~(SIGEV_SIGNAL | SIGEV_THREAD_ID))
--		return NULL;
--
- 	return rtn;
- }
- 
-
-
-
---------------080100050306030000020906--
+I see absolutely no value whatsoever to what you are proposing.
+In fact, I frankly think it sucks. :(
 

@@ -1,82 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265305AbTABB3U>; Wed, 1 Jan 2003 20:29:20 -0500
+	id <S265325AbTABBd6>; Wed, 1 Jan 2003 20:33:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265306AbTABB3U>; Wed, 1 Jan 2003 20:29:20 -0500
-Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:21122 "EHLO
-	gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id <S265305AbTABB3S>; Wed, 1 Jan 2003 20:29:18 -0500
-Date: Wed, 1 Jan 2003 17:37:36 -0800
-To: Paul Jakma <paul@clubi.ie>
-Cc: Rik van Riel <riel@conectiva.com.br>, Hell.Surfers@cwctv.net,
-       linux-kernel@vger.kernel.org, rms@gnu.org
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Message-ID: <20030102013736.GA2708@gnuppy.monkey.org>
-References: <Pine.LNX.4.50L.0301011439540.2429-100000@imladris.surriel.com> <Pine.LNX.4.44.0301012356270.8691-100000@fogarty.jakma.org>
+	id <S265355AbTABBd6>; Wed, 1 Jan 2003 20:33:58 -0500
+Received: from 12-224-209-133.client.attbi.com ([12.224.209.133]:3968 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S265325AbTABBd5>; Wed, 1 Jan 2003 20:33:57 -0500
+Subject: Re: Raw data from dedicated kernel bug database
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Larry McVoy <lm@bitmover.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrew Morton <akpm@zip.com.au>, Dave Jones <davej@codemonkey.org.uk>,
+       Randy Dunlap <rddunlap@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1041473017.22606.8.camel@irongate.swansea.linux.org.uk>
+References: <20030101194019.GZ5607@work.bitmover.com>
+	 <12310000.1041456646@titus>  <20030101221510.GG5607@work.bitmover.com>
+	 <1041473017.22606.8.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Open Source Development Lab, Inc.
+Message-Id: <1041467938.1541.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301012356270.8691-100000@fogarty.jakma.org>
-User-Agent: Mutt/1.4i
-From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 01 Jan 2003 16:38:58 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 02, 2003 at 12:31:13AM +0000, Paul Jakma wrote:
-> The NVidia shim makes use of several kernel subsystems, the PCI
-> device layer, the VM, the module system (well really, the kernel
-> makes of use of the functions the module provides :) ), IRQ
-> subsystem, the VFS, etc.. These systems are rather large bodies of
-> code - without which the NVidia kernel driver could not work.
+  The data is there for everybody.  As long as we can automate the
+extraction I don't see any issue with multiple people extracting
+and using with other tools.  Data and manure only work if you
+can spread it around.
 
-Well, no, look at the "nm" dump of the object file. It's got a lot of
-proprietary code that came from what looks like commerical libraries
-that they don't own. Back when they wrote the original drive, the GPL
-equivalents of DRM, AGP, etc... sucked so they had to write their own
-stuff just to get anything basic working.
+  My opinion is that the more uses of the data the better.  So
+the question is, "What does Larry need to make this happen?".
 
-> driver is not a derivative work, and hence it seems to me the NVidia 
-> driver is technically in material breach of GPL.
 
-Their portability layer wraps the low level calls into their own
-terminology and portability API. It's fairly outside of the linux kernel
-itself, internally the object file looks very Win32ish.
+Tim
 
-Obviously a GPL rewrite of this would entail a lot of replicated effort
-and would also depend on things that are incomplete, non-existent and
-don't have a lot direct interest from the GPL community. 3D isn't a hot
-commodity in Linux, FreeBSD unlike with dedicated SGI machines (although
-faded).
-
-It's a very practical solution to do it this way.
-
-> So I am not quite sure on what basis one could argue the NVidia 
+On Wed, 2003-01-01 at 18:03, Alan Cox wrote:
+> On Wed, 2003-01-01 at 22:15, Larry McVoy wrote:
+> > > I'm not sure how other people feel about exporting stuff into bitkeeper
+> > > type-licensed products ... if the non-BK people like Alan and Andrew, and
+> > > the other people who've done lots of the work in the DB like Dave and 
+> > > Randy,
 > 
-> You seem to be basing your opinion on:
-> 
->  "the nvidia driver uses only the standard interfaces to hook into
->  the Linux kernel"
-> 
-> How are the standard interfaces not covered by the GPL? 
-
-All I saw where kernel header files include in the sources, nothing
-more. They have to support multipule architecture and OSes so keeping
-this stuff outside of the driver is a good thing. The GPL-ly stuff is
-publically available as source files.
- 
-> I know Linus' has often posted to l-k that he doesnt care about
-> binary only modules as long as they stick to the exported interfaces.  
-> However, are all the kernel developers agreed on this? And if so, can
-> this exception be formalised and put into the COPYING file? If not, 
-> then is NVidia not in breach of the kernel's licence?
-
-I'd rather have the experts do it at NVidia, than a half completed open
-source implementation that isn't terribly optimized.
-
-Matrix multiplies, T&L, etc... communication between user and kernel
-space that provides this to the OpenGL libraries are all exotic. I'm glad
-that nobody has to deal with this stuff directly and that a vendor is
-willing to provide support for it.
-
-bill
+> I don't care. I care that people have the ability to take the data and
+> do clever stuff with it. I don't care what tools they use so long as
+> they can choose what tools they use.
+-- 
+Timothy D. Witham - Lab Director - wookie@osdlab.org
+Open Source Development Lab Inc - A non-profit corporation
+15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2436     (fax)
 

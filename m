@@ -1,49 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267617AbUH1TJ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267561AbUH1TLI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267617AbUH1TJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 15:09:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267561AbUH1TJ3
+	id S267561AbUH1TLI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 15:11:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267615AbUH1TLI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 15:09:29 -0400
-Received: from verein.lst.de ([213.95.11.210]:56481 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S267626AbUH1TJQ (ORCPT
+	Sat, 28 Aug 2004 15:11:08 -0400
+Received: from gprs214-47.eurotel.cz ([160.218.214.47]:43905 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S267561AbUH1TKy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 15:09:16 -0400
-Date: Sat, 28 Aug 2004 21:09:01 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: flx@msu.ru, Linus Torvalds <torvalds@osdl.org>,
-       Christoph Hellwig <hch@lst.de>, Christophe Saout <christophe@saout.de>,
-       Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: reiser4 plugins (was: silent semantic changes with reiser4)
-Message-ID: <20040828190901.GA18083@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>, flx@msu.ru,
-	Linus Torvalds <torvalds@osdl.org>,
-	Christophe Saout <christophe@saout.de>,
-	Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-	flx@namesys.com, reiserfs-list@namesys.com
-References: <20040826014542.4bfe7cc3.akpm@osdl.org> <1093522729.9004.40.camel@leto.cs.pocnet.net> <20040826124929.GA542@lst.de> <1093525234.9004.55.camel@leto.cs.pocnet.net> <20040826130718.GB820@lst.de> <1093526273.11694.8.camel@leto.cs.pocnet.net> <20040826132439.GA1188@lst.de> <20040828105929.GB6746@alias> <Pine.LNX.4.58.0408281011280.2295@ppc970.osdl.org> <20040828190350.GA14152@alias>
+	Sat, 28 Aug 2004 15:10:54 -0400
+Date: Sat, 28 Aug 2004 21:10:33 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Patrick Mochel <mochel@digitalimplant.org>, JBeulich@novell.com,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: x86 build issue with software suspend code
+Message-ID: <20040828191033.GA14816@elf.ucw.cz>
+References: <20040826191217.4b9b31f1.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040828190350.GA14152@alias>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+In-Reply-To: <20040826191217.4b9b31f1.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 28, 2004 at 11:03:50PM +0400, Alexander Lyamin wrote:
-> And taking on the situation with reiser4 with "smartmost VFS" approach,
-> time should pass and with time and expirience on hands it will be evident what
-> should go in VFS. Now its may be too early.
+Hi!
 > 
-> Considering "amazing PR skills" of Hans Reiser it was the only viable way
-> to get this changes in VFS. Cause, ironically, mr. Hellwig that currently
-> demand it to be scrapped out or go in VFS would instakill Hans Reiser
-> (i know many people would:) if he only touched holy cow of VFS for any
-> reiser4 purpose.
+> A piece of code most like "copy-and-paste"d from x86_64 to i386 caused
+> the section named .data.nosave in arch/i386/power/swsusp.S to become
+> named .data.nosave.1 in arch/i386/power/built-in.o (due to an attribute
+> collision with an identically named section from
+> arch/i386/power/cpu.c),
 
-Could you please stop talking such inproven crap?
+I can't find anything about nosave section in cpu.c... Can you quote it?
 
+> which finally ends up in no-where land (because it doesn't have even the
+> alloc bit set, and the linker script doesn't know about such a section
+> either), resulting in the two variables being accessed at (absolute)
+> addresses 0 and 8 (which shouldn't normally be accessible at all, but
+> perhaps are mapped for whatever reason at the point execution gets
+> there, since otherwise problems with this code path should have been
+> observed much earlier).
+> 
+> The below (also attached for the inline variant most certainly getting
+> incorrectly line wrapped) patch changes the attributes of the section to
+> match those of other instances of the section, so the renaming doesn't
+> happen anymore. It also adds alignment, decreases the fields from 8 to 4
+> bytes and applies these additional changes also to the appearant
+> original x86_64 code.
+
+I do not know that much about linker, but patch looks okay.
+								Pavel
+
+> diff -Napru linux-2.6.8.1/arch/i386/power/swsusp.S
+> 2.6.8.1/arch/i386/power/swsusp.S
+> --- linux-2.6.8.1/arch/i386/power/swsusp.S	2004-08-14
+> 12:55:19.000000000 +0200
+> +++ 2.6.8.1/arch/i386/power/swsusp.S	2004-08-26 15:54:35.420154440
+> +0200
+> @@ -89,9 +89,10 @@ copy_done:
+>  	popl %ebx
+>  	ret
+>  
+> -       .section .data.nosave
+> +       .section .data.nosave, "aw"
+> +       .align 4
+>  loop:
+> -       .quad 0
+> +       .long 0
+>  loop2:
+> -       .quad 0
+> +       .long 0
+>         .previous
+> diff -Napru linux-2.6.8.1/arch/x86_64/kernel/suspend_asm.S
+> 2.6.8.1/arch/x86_64/kernel/suspend_asm.S
+> --- linux-2.6.8.1/arch/x86_64/kernel/suspend_asm.S	2004-08-14
+> 12:56:22.000000000 +0200
+> +++ 2.6.8.1/arch/x86_64/kernel/suspend_asm.S	2004-08-26
+> 15:54:56.446957880 +0200
+> @@ -117,7 +117,8 @@ ENTRY(do_magic)
+>  	addq	$8, %rsp
+>  	jmp	do_magic_resume_2
+>  
+> -	.section .data.nosave
+> +	.section .data.nosave, "aw"
+> +	.align 8
+>  loop:
+>  	.quad 0
+>  loop2:	
+> 
+> 
+
+
+
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

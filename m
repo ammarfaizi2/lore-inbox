@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136074AbRDVMdD>; Sun, 22 Apr 2001 08:33:03 -0400
+	id <S136073AbRDVMeN>; Sun, 22 Apr 2001 08:34:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136073AbRDVMct>; Sun, 22 Apr 2001 08:32:49 -0400
-Received: from www.topmail.de ([212.255.16.226]:28133 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S136071AbRDVMcV>;
-	Sun, 22 Apr 2001 08:32:21 -0400
-Message-ID: <01c901c0cb28$45b67650$de00a8c0@homeip.net>
-From: "mirabilos" <eccesys@topmail.de>
-To: <esr@thyrsus.com>, "Giacomo A. Catenazzi" <cate@dplanet.ch>
-Cc: "CML2" <linux-kernel@vger.kernel.org>,
-        <kbuild-devel@lists.sourceforge.net>
-In-Reply-To: <20010421114942.A26415@thyrsus.com> <3AE1E77C.AF1402F4@dplanet.ch> <20010421155509.B4185@thyrsus.com>
-Subject: Re: [kbuild-devel] Request for comment -- a better attribution system
-Date: Sun, 22 Apr 2001 12:30:15 -0000
-Organization: eccesys.net Linux development
+	id <S136075AbRDVMeD>; Sun, 22 Apr 2001 08:34:03 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:48059 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S136073AbRDVMdu>;
+	Sun, 22 Apr 2001 08:33:50 -0400
+Date: Sun, 22 Apr 2001 08:33:44 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Francois Romieu <romieu@cogenit.fr>
+cc: "Eric S. Raymond" <esr@thyrsus.com>, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: Request for comment -- a better attribution system
+In-Reply-To: <20010422133947.A21908@se1.cogenit.fr>
+Message-ID: <Pine.GSO.4.21.0104220819490.28681-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > It whould nice also if we include the type of the license (GPL,...).
-> > This for a fast parsing (and maybe also to replace the few lines
-> > of license)
-> 
-> Is there any kernel code that isn't GPLed?
 
-It must not, due to the GPL viral effect.
 
-But I know of atleast the BSD compress module.
-Because of the licensing it only can be compiled
-as a module, so it's not part of the kernel which
-if GPL'ed.
+On Sun, 22 Apr 2001, Francois Romieu wrote:
 
--mirabilos
+> Look again at l-k archive: people do global changes (see VFS, network api, 
+> etc...).
 
+And then we have the situation when about a half of filesystems has no
+single maintainer - they are taken care of when needed, but that's it.
+We also have _no_ official maintainer of VFS, and that's the way it's
+gonna be.
+
+Eric, it would save everyone a lot of time if you actually cared to
+pull your head out of your... theoretical constructions and spent
+some efforts figuring out how the things really work. Building
+infrastructure before you get familiar with the problem domain is
+generally considered harmful. That's precisely what you are doing.
+Trust me, it doesn't earn you any respect from people familiar
+with the problem.
 

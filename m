@@ -1,277 +1,236 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbUL3Obx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbUL3Ocv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbUL3Obx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 09:31:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbUL3Obx
+	id S261647AbUL3Ocv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 09:32:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbUL3Ocb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 09:31:53 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:46992 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261642AbUL3Obk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 09:31:40 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH 7/8] s390: new DCSS SHM device driver
-Date: Thu, 30 Dec 2004 15:24:49 +0100
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Carsten Otte <cotte@de.ibm.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-References: <20041228082837.GH7988@osiris.boeblingen.de.ibm.com>
-In-Reply-To: <20041228082837.GH7988@osiris.boeblingen.de.ibm.com>
+	Thu, 30 Dec 2004 09:32:31 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:11139 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S261647AbUL3Obv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Dec 2004 09:31:51 -0500
+X-Qmail-Scanner-Mail-From: solt2@dns.toxicfilms.tv via dns
+X-Qmail-Scanner-Rcpt-To: linux-net@vger.kernel.org,linux-kernel@vger.kernel.org
+X-Qmail-Scanner: 1.23 (Clear:RC:0(213.238.102.201):. Processed in 0.555293 secs)
+Date: Thu, 30 Dec 2004 15:40:20 +0100
+From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Mailer: The Bat! (v3.0.1.33) UNREG / CD5BF9353B3B7091
+Reply-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Priority: 3 (Normal)
+Message-ID: <714805690.20041230154020@dns.toxicfilms.tv>
+To: linux-net@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6] Update to module_params() in 3c59x.c
 MIME-Version: 1.0
-Message-Id: <200412301524.50557.arnd@arndb.de>
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_y+A1BYgvcZHIWAi";
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+ boundary="----------A8F20B36D9BC02"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+------------A8F20B36D9BC02
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
---Boundary-02=_y+A1BYgvcZHIWAi
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi!
 
-On Dinsdag 28 Dezember 2004 09:28, Heiko Carstens wrote:
-> [PATCH 7/8] s390: dcss shared memory.
->=20
-> From: Carsten Otte <cotte@de.ibm.com>
->=20
-> Add support for shared memory using z/VM DCSS.
+This patch:
+1) updates the 3c59x.c driver to use module_param() stuff.
+2) kills a strange character somewhere at the bottom of the patch
 
-I'd rather not see this driver merged at this point. It's completely
-lacking support for class devices, which means it will not work
-with udev. Also, I'm still feeling the interface should much more
-resemble Posix shared memory rather than 'use sysfs to create a
-character device per shared memory segment'.
+I hope it is right, it is my first glance at module_param() :-)
 
-Ideally, we should have some user interface that also makes sense
-for cross-guest shared memory on UML/Xen/etc.
+ 3c59x.c |   67 +++++++++++++++++++++++++++++++---------------------------------
+ 1 files changed, 33 insertions(+), 34 deletions(-)
 
-Regarding the use of sysfs, I also think the memory segment
-'devices' should share the name space with the ones used in dcssblk,
-since they are actually the same resources, just used by different
-device drivers. So instead of having
+Oh, in order to use the module_param() macros i had to move the variable
+before module_param.
 
-/sys/block/dcssblk/dcssblk0/device -> ../../../devices/dcssblk/foo
-/sys/devices/dcssblk/foo/
-/sys/devices/dcssshm/bar/
+Signed-off-by: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
 
-it rather should be
-
-/sys/block/dcssblk/dcssblk0/device -> ../../../devices/dcss/foo
-/sys/class/dcssshm/yourseg/device -> ../../../devices/dcss/bar
-/sys/devices/dcss/foo/
-/sys/devices/dcss/bar/
-
-I'd really like to hear an outside opinion on this.
-
-Since Carsten is currently on vacation, he won't be able to reply
-too soon, so I suggest we postpone this for now.
-
-Carsten, sorry I couldn't look over this before Heiko sent it out,
-the next evening out is on me.
-
-There are also a few smaller nits I'd like to pick:
-
-> +#include <asm/ccwdev.h>  // for s390_root_dev_(un)register()
-
-This seems to be getting out of the original scope. I don't know
-if anything better exists already, but I don't think registering
-bus devices at the /sys/devices should depend on architecture
-specific code. Either we agree that such a function is needed
-for all architectures, or we should stop using it.
-
-> +#define DCSSSHM_DEBUG  /* Debug messages on/off */
-> +#define DCSSSHM_NAME "dcssshm"
-> +#ifdef DCSSSHM_DEBUG
-> +#define PRINT_DEBUG(x...) printk(KERN_DEBUG DCSSSHM_NAME " debug: " x)
-> +#else
-> +#define PRINT_DEBUG(x...) do {} while (0)
-> +#endif
-> +#define PRINT_INFO(x...)  printk(KERN_INFO DCSSSHM_NAME " info: " x)
-> +#define PRINT_WARN(x...)  printk(KERN_WARNING DCSSSHM_NAME " warning: " =
-x)
-> +#define PRINT_ERR(x...)   printk(KERN_ERR DCSSSHM_NAME " error: " x)
-
-IMHO, it would be better to use pr_info/pr_debug for new code.
-
-> +
-> +static ssize_t dcssshm_add_store(struct device * dev, const char * buf,
-> +      size_t count);
-> +static ssize_t dcssshm_remove_store(struct device * dev, const char * bu=
-f,
-> +      size_t count);
-> +static ssize_t dcssshm_save_store(struct device * dev, const char * buf,
-> +      size_t count);
-> +static ssize_t dcssshm_save_show(struct device *dev, char *buf);
-> +static ssize_t dcssshm_shared_store(struct device * dev, const char * bu=
-f,
-> +      size_t count);
-> +static ssize_t dcssshm_shared_show(struct device *dev, char *buf);
-> +
-> +static int   dcssshm_open(struct inode *inode, struct file *filp);
-> +static int   dcssshm_release(struct inode *inode, struct file *filp);
-> +static int dcssshm_mmap(struct file * file, struct vm_area_struct * vma);
-> +static struct page * dcssshm_nopage_in_place(struct vm_area_struct * are=
-a,
-> +          unsigned long address, int* type);
-> +static loff_t dcssshm_llseek (struct file* file, loff_t offset, int orig=
-);
-
-If you move all functions into call graph order, you don't need any forward
-declarations and at the same time it becomes obvious that there are no
-direct recursions.
-
-> +static DEVICE_ATTR(add, S_IWUSR, NULL, dcssshm_add_store);
-> +static DEVICE_ATTR(remove, S_IWUSR, NULL, dcssshm_remove_store);
-
-Maybe it's just me, but these edge-triggered event attributes in sysfs
-feel wrong.
-
-> +struct dcssshm_dev_info {
-> + struct list_head lh;
-> + struct device dev;
-> + struct cdev *cdev;
-> + char segment_name[BUS_ID_SIZE];
-> + atomic_t use_count;
-> + unsigned long start;
-> + unsigned long end;
-> + int segment_type;
-> + unsigned char save_pending;
-> + unsigned char is_shared;
-> + unsigned char is_ro;
-> + int minor;
-> +};
-It may be better to have two structures here, on that embeds the device
-and one that embeds the cdev and class_device.
-
-> +static struct vm_operations_struct dcssshm_vm_ops =3D {
-> + .nopage  =3D dcssshm_nopage_in_place,
-> +};
-> +
-> +static struct file_operations dcssshm_fops =3D
-> +{
-Slightly inconsistent indentation here.
-
-> +static struct list_head dcssshm_devices =3D LIST_HEAD_INIT(dcssshm_devic=
-es);
-> +static struct rw_semaphore dcssshm_devices_sem;
-static LIST_HEAD(dcssshm_devices);
-static DECLARE_MUTEX(dcssshm_devices_sem);
-
-> +/*
-> + * release function for segment device.
-> + */
-> +static void
-> +dcssshm_release_segment(struct device *dev)
-> +{
-> + PRINT_DEBUG("segment release fn called for %s\n", dev->bus_id);
-> + kfree(container_of(dev, struct dcssshm_dev_info, dev));
-> + module_put(THIS_MODULE);
-> +}
-AFAICS, there is still a tiny race against module unload here:
-module_put(THIS_MODULE) is practically always a bug!
-
-> +
-> +/*
-> + * get a minor number. needs to be called with
-> + * down_write(&dcssshm_devices_sem) and the
-> + * device needs to be enqueued before the semaphore is
-> + * freed.
-> + */
-> +static inline int
-> +dcssshm_assign_free_minor(struct dcssshm_dev_info *dev_info)
-> +{
-> + int minor, found;
-
-This can probably be done much simpler using idr.
-
-> + local_buf =3D kmalloc(count + 1, GFP_KERNEL);
-> + if (local_buf =3D=3D NULL) {
-> +  rc =3D -ENOMEM;
-> +  goto out_nobuf;
-> + }
-
-Why use kmalloc for this, when the buffer must not exceed 9 bytes?
+Please review and hopefully apply.
+Regars,
+Maciej
 
 
-> + if (imajor(filp->f_dentry->d_inode) !=3D dcssshm_major)
-> +  return -ENODEV;
+diff -ru linux.orig/drivers/net/3c59x.c linux/drivers/net/3c59x.c
+--- linux.orig/drivers/net/3c59x.c      2004-12-30 15:27:40.000000000 +0100
++++ linux/drivers/net/3c59x.c   2004-12-30 14:33:29.000000000 +0100
+@@ -240,6 +240,7 @@
+ 
+ #include <linux/config.h>
+ #include <linux/module.h>
++#include <linux/moduleparam.h>
+ #include <linux/kernel.h>
+ #include <linux/string.h>
+ #include <linux/timer.h>
+@@ -269,6 +270,23 @@
+ 
+ #include <linux/delay.h>
+ 
++/* This driver uses 'options' to pass the media type, full-duplex flag, etc. */
++/* Option count limit only -- unlimited interfaces are supported. */
++#define MAX_UNITS 8
++static int options[MAX_UNITS] = { -1, -1, -1, -1, -1, -1, -1, -1,};
++static int full_duplex[MAX_UNITS] = {-1, -1, -1, -1, -1, -1, -1, -1};
++static int hw_checksums[MAX_UNITS] = {-1, -1, -1, -1, -1, -1, -1, -1};
++static int flow_ctrl[MAX_UNITS] = {-1, -1, -1, -1, -1, -1, -1, -1};
++static int enable_wol[MAX_UNITS] = {-1, -1, -1, -1, -1, -1, -1, -1};
++static int global_options = -1;
++static int global_full_duplex = -1;
++static int global_enable_wol = -1;
++
++/* #define dev_alloc_skb dev_alloc_skb_debug */
++
++/* Variables to work-around the Compaq PCI BIOS32 problem. */
++static int compaq_ioaddr, compaq_irq, compaq_device_id = 0x5900;
++static struct net_device *compaq_net_device;
+ 
+ static char version[] __devinitdata =
+ DRV_NAME ": Donald Becker and others. www.scyld.com/network/vortex.html\n";
+@@ -279,21 +297,21 @@
+ MODULE_LICENSE("GPL");
+ MODULE_VERSION(DRV_VERSION);
+ 
+-MODULE_PARM(debug, "i");
+-MODULE_PARM(global_options, "i");
+-MODULE_PARM(options, "1-" __MODULE_STRING(8) "i");
+-MODULE_PARM(global_full_duplex, "i");
+-MODULE_PARM(full_duplex, "1-" __MODULE_STRING(8) "i");
+-MODULE_PARM(hw_checksums, "1-" __MODULE_STRING(8) "i");
+-MODULE_PARM(flow_ctrl, "1-" __MODULE_STRING(8) "i");
+-MODULE_PARM(global_enable_wol, "i");
+-MODULE_PARM(enable_wol, "1-" __MODULE_STRING(8) "i");
+-MODULE_PARM(rx_copybreak, "i");
+-MODULE_PARM(max_interrupt_work, "i");
+-MODULE_PARM(compaq_ioaddr, "i");
+-MODULE_PARM(compaq_irq, "i");
+-MODULE_PARM(compaq_device_id, "i");
+-MODULE_PARM(watchdog, "i");
++module_param(debug, int, 0);
++module_param(global_options, int, 0);
++module_param_array(options, int, NULL, 0);
++module_param(global_full_duplex, int, 0);
++module_param_array(full_duplex, int, NULL, 0);
++module_param_array(hw_checksums, int, NULL, 0);
++module_param_array(flow_ctrl, int, NULL, 0);
++module_param(global_enable_wol, int, 0);
++module_param_array(enable_wol, int, NULL, 0);
++module_param(rx_copybreak, int, 0);
++module_param(max_interrupt_work, int, 0);
++module_param(compaq_ioaddr, int, 0);
++module_param(compaq_irq, int, 0);
++module_param(compaq_device_id, int, 0);
++module_param(watchdog, int, 0);
+ MODULE_PARM_DESC(debug, "3c59x debug level (0-6)");
+ MODULE_PARM_DESC(options, "3c59x: Bits 0-3: media type, bit 4: bus mastering, bit 9: full duplex");
+ MODULE_PARM_DESC(global_options, "3c59x: same as options, but applies to all NICs if options is unset");
+@@ -910,25 +928,6 @@
+ static struct ethtool_ops vortex_ethtool_ops;
+ static void set_8021q_mode(struct net_device *dev, int enable);
+ 
+-
+-/* This driver uses 'options' to pass the media type, full-duplex flag, etc. */
+-/* Option count limit only -- unlimited interfaces are supported. */
+-#define MAX_UNITS 8
+-static int options[MAX_UNITS] = { -1, -1, -1, -1, -1, -1, -1, -1,};
+-static int full_duplex[MAX_UNITS] = {-1, -1, -1, -1, -1, -1, -1, -1};
+-static int hw_checksums[MAX_UNITS] = {-1, -1, -1, -1, -1, -1, -1, -1};
+-static int flow_ctrl[MAX_UNITS] = {-1, -1, -1, -1, -1, -1, -1, -1};
+-static int enable_wol[MAX_UNITS] = {-1, -1, -1, -1, -1, -1, -1, -1};
+-static int global_options = -1;
+-static int global_full_duplex = -1;
+-static int global_enable_wol = -1;
+-
+-/* #define dev_alloc_skb dev_alloc_skb_debug */
+-
+-/* Variables to work-around the Compaq PCI BIOS32 problem. */
+-static int compaq_ioaddr, compaq_irq, compaq_device_id = 0x5900;
+-static struct net_device *compaq_net_device;
+-
+ static int vortex_cards_found;
+ 
+ #ifdef CONFIG_NET_POLL_CONTROLLER
 
-huh?
+------------A8F20B36D9BC02
+Content-Type: application/octet-stream; name="3c59x.c.diff"
+Content-transfer-encoding: base64
+Content-Disposition: attachment; filename="3c59x.c.diff"
 
-> +
-> + minor =3D iminor(filp->f_dentry->d_inode);
+ZGlmZiAtcnUgbGludXgub3JpZy9kcml2ZXJzL25ldC8zYzU5eC5jIGxpbnV4L2RyaXZlcnMv
+bmV0LzNjNTl4LmMKLS0tIGxpbnV4Lm9yaWcvZHJpdmVycy9uZXQvM2M1OXguYwkyMDA0LTEy
+LTMwIDE1OjI3OjQwLjAwMDAwMDAwMCArMDEwMAorKysgbGludXgvZHJpdmVycy9uZXQvM2M1
+OXguYwkyMDA0LTEyLTMwIDE0OjMzOjI5LjAwMDAwMDAwMCArMDEwMApAQCAtMjQwLDYgKzI0
+MCw3IEBACiAKICNpbmNsdWRlIDxsaW51eC9jb25maWcuaD4KICNpbmNsdWRlIDxsaW51eC9t
+b2R1bGUuaD4KKyNpbmNsdWRlIDxsaW51eC9tb2R1bGVwYXJhbS5oPgogI2luY2x1ZGUgPGxp
+bnV4L2tlcm5lbC5oPgogI2luY2x1ZGUgPGxpbnV4L3N0cmluZy5oPgogI2luY2x1ZGUgPGxp
+bnV4L3RpbWVyLmg+CkBAIC0yNjksNiArMjcwLDIzIEBACiAKICNpbmNsdWRlIDxsaW51eC9k
+ZWxheS5oPgogCisvKiBUaGlzIGRyaXZlciB1c2VzICdvcHRpb25zJyB0byBwYXNzIHRoZSBt
+ZWRpYSB0eXBlLCBmdWxsLWR1cGxleCBmbGFnLCBldGMuICovCisvKiBPcHRpb24gY291bnQg
+bGltaXQgb25seSAtLSB1bmxpbWl0ZWQgaW50ZXJmYWNlcyBhcmUgc3VwcG9ydGVkLiAqLwor
+I2RlZmluZSBNQVhfVU5JVFMgOAorc3RhdGljIGludCBvcHRpb25zW01BWF9VTklUU10gPSB7
+IC0xLCAtMSwgLTEsIC0xLCAtMSwgLTEsIC0xLCAtMSx9Oworc3RhdGljIGludCBmdWxsX2R1
+cGxleFtNQVhfVU5JVFNdID0gey0xLCAtMSwgLTEsIC0xLCAtMSwgLTEsIC0xLCAtMX07Citz
+dGF0aWMgaW50IGh3X2NoZWNrc3Vtc1tNQVhfVU5JVFNdID0gey0xLCAtMSwgLTEsIC0xLCAt
+MSwgLTEsIC0xLCAtMX07CitzdGF0aWMgaW50IGZsb3dfY3RybFtNQVhfVU5JVFNdID0gey0x
+LCAtMSwgLTEsIC0xLCAtMSwgLTEsIC0xLCAtMX07CitzdGF0aWMgaW50IGVuYWJsZV93b2xb
+TUFYX1VOSVRTXSA9IHstMSwgLTEsIC0xLCAtMSwgLTEsIC0xLCAtMSwgLTF9Oworc3RhdGlj
+IGludCBnbG9iYWxfb3B0aW9ucyA9IC0xOworc3RhdGljIGludCBnbG9iYWxfZnVsbF9kdXBs
+ZXggPSAtMTsKK3N0YXRpYyBpbnQgZ2xvYmFsX2VuYWJsZV93b2wgPSAtMTsKKworLyogI2Rl
+ZmluZSBkZXZfYWxsb2Nfc2tiIGRldl9hbGxvY19za2JfZGVidWcgKi8KKworLyogVmFyaWFi
+bGVzIHRvIHdvcmstYXJvdW5kIHRoZSBDb21wYXEgUENJIEJJT1MzMiBwcm9ibGVtLiAqLwor
+c3RhdGljIGludCBjb21wYXFfaW9hZGRyLCBjb21wYXFfaXJxLCBjb21wYXFfZGV2aWNlX2lk
+ID0gMHg1OTAwOworc3RhdGljIHN0cnVjdCBuZXRfZGV2aWNlICpjb21wYXFfbmV0X2Rldmlj
+ZTsKIAogc3RhdGljIGNoYXIgdmVyc2lvbltdIF9fZGV2aW5pdGRhdGEgPQogRFJWX05BTUUg
+IjogRG9uYWxkIEJlY2tlciBhbmQgb3RoZXJzLiB3d3cuc2N5bGQuY29tL25ldHdvcmsvdm9y
+dGV4Lmh0bWxcbiI7CkBAIC0yNzksMjEgKzI5NywyMSBAQAogTU9EVUxFX0xJQ0VOU0UoIkdQ
+TCIpOwogTU9EVUxFX1ZFUlNJT04oRFJWX1ZFUlNJT04pOwogCi1NT0RVTEVfUEFSTShkZWJ1
+ZywgImkiKTsKLU1PRFVMRV9QQVJNKGdsb2JhbF9vcHRpb25zLCAiaSIpOwotTU9EVUxFX1BB
+Uk0ob3B0aW9ucywgIjEtIiBfX01PRFVMRV9TVFJJTkcoOCkgImkiKTsKLU1PRFVMRV9QQVJN
+KGdsb2JhbF9mdWxsX2R1cGxleCwgImkiKTsKLU1PRFVMRV9QQVJNKGZ1bGxfZHVwbGV4LCAi
+MS0iIF9fTU9EVUxFX1NUUklORyg4KSAiaSIpOwotTU9EVUxFX1BBUk0oaHdfY2hlY2tzdW1z
+LCAiMS0iIF9fTU9EVUxFX1NUUklORyg4KSAiaSIpOwotTU9EVUxFX1BBUk0oZmxvd19jdHJs
+LCAiMS0iIF9fTU9EVUxFX1NUUklORyg4KSAiaSIpOwotTU9EVUxFX1BBUk0oZ2xvYmFsX2Vu
+YWJsZV93b2wsICJpIik7Ci1NT0RVTEVfUEFSTShlbmFibGVfd29sLCAiMS0iIF9fTU9EVUxF
+X1NUUklORyg4KSAiaSIpOwotTU9EVUxFX1BBUk0ocnhfY29weWJyZWFrLCAiaSIpOwotTU9E
+VUxFX1BBUk0obWF4X2ludGVycnVwdF93b3JrLCAiaSIpOwotTU9EVUxFX1BBUk0oY29tcGFx
+X2lvYWRkciwgImkiKTsKLU1PRFVMRV9QQVJNKGNvbXBhcV9pcnEsICJpIik7Ci1NT0RVTEVf
+UEFSTShjb21wYXFfZGV2aWNlX2lkLCAiaSIpOwotTU9EVUxFX1BBUk0od2F0Y2hkb2csICJp
+Iik7Cittb2R1bGVfcGFyYW0oZGVidWcsIGludCwgMCk7Cittb2R1bGVfcGFyYW0oZ2xvYmFs
+X29wdGlvbnMsIGludCwgMCk7Cittb2R1bGVfcGFyYW1fYXJyYXkob3B0aW9ucywgaW50LCBO
+VUxMLCAwKTsKK21vZHVsZV9wYXJhbShnbG9iYWxfZnVsbF9kdXBsZXgsIGludCwgMCk7Citt
+b2R1bGVfcGFyYW1fYXJyYXkoZnVsbF9kdXBsZXgsIGludCwgTlVMTCwgMCk7Cittb2R1bGVf
+cGFyYW1fYXJyYXkoaHdfY2hlY2tzdW1zLCBpbnQsIE5VTEwsIDApOworbW9kdWxlX3BhcmFt
+X2FycmF5KGZsb3dfY3RybCwgaW50LCBOVUxMLCAwKTsKK21vZHVsZV9wYXJhbShnbG9iYWxf
+ZW5hYmxlX3dvbCwgaW50LCAwKTsKK21vZHVsZV9wYXJhbV9hcnJheShlbmFibGVfd29sLCBp
+bnQsIE5VTEwsIDApOworbW9kdWxlX3BhcmFtKHJ4X2NvcHlicmVhaywgaW50LCAwKTsKK21v
+ZHVsZV9wYXJhbShtYXhfaW50ZXJydXB0X3dvcmssIGludCwgMCk7Cittb2R1bGVfcGFyYW0o
+Y29tcGFxX2lvYWRkciwgaW50LCAwKTsKK21vZHVsZV9wYXJhbShjb21wYXFfaXJxLCBpbnQs
+IDApOworbW9kdWxlX3BhcmFtKGNvbXBhcV9kZXZpY2VfaWQsIGludCwgMCk7Cittb2R1bGVf
+cGFyYW0od2F0Y2hkb2csIGludCwgMCk7CiBNT0RVTEVfUEFSTV9ERVNDKGRlYnVnLCAiM2M1
+OXggZGVidWcgbGV2ZWwgKDAtNikiKTsKIE1PRFVMRV9QQVJNX0RFU0Mob3B0aW9ucywgIjNj
+NTl4OiBCaXRzIDAtMzogbWVkaWEgdHlwZSwgYml0IDQ6IGJ1cyBtYXN0ZXJpbmcsIGJpdCA5
+OiBmdWxsIGR1cGxleCIpOwogTU9EVUxFX1BBUk1fREVTQyhnbG9iYWxfb3B0aW9ucywgIjNj
+NTl4OiBzYW1lIGFzIG9wdGlvbnMsIGJ1dCBhcHBsaWVzIHRvIGFsbCBOSUNzIGlmIG9wdGlv
+bnMgaXMgdW5zZXQiKTsKQEAgLTkxMCwyNSArOTI4LDYgQEAKIHN0YXRpYyBzdHJ1Y3QgZXRo
+dG9vbF9vcHMgdm9ydGV4X2V0aHRvb2xfb3BzOwogc3RhdGljIHZvaWQgc2V0XzgwMjFxX21v
+ZGUoc3RydWN0IG5ldF9kZXZpY2UgKmRldiwgaW50IGVuYWJsZSk7CiAKLQwKLS8qIFRoaXMg
+ZHJpdmVyIHVzZXMgJ29wdGlvbnMnIHRvIHBhc3MgdGhlIG1lZGlhIHR5cGUsIGZ1bGwtZHVw
+bGV4IGZsYWcsIGV0Yy4gKi8KLS8qIE9wdGlvbiBjb3VudCBsaW1pdCBvbmx5IC0tIHVubGlt
+aXRlZCBpbnRlcmZhY2VzIGFyZSBzdXBwb3J0ZWQuICovCi0jZGVmaW5lIE1BWF9VTklUUyA4
+Ci1zdGF0aWMgaW50IG9wdGlvbnNbTUFYX1VOSVRTXSA9IHsgLTEsIC0xLCAtMSwgLTEsIC0x
+LCAtMSwgLTEsIC0xLH07Ci1zdGF0aWMgaW50IGZ1bGxfZHVwbGV4W01BWF9VTklUU10gPSB7
+LTEsIC0xLCAtMSwgLTEsIC0xLCAtMSwgLTEsIC0xfTsKLXN0YXRpYyBpbnQgaHdfY2hlY2tz
+dW1zW01BWF9VTklUU10gPSB7LTEsIC0xLCAtMSwgLTEsIC0xLCAtMSwgLTEsIC0xfTsKLXN0
+YXRpYyBpbnQgZmxvd19jdHJsW01BWF9VTklUU10gPSB7LTEsIC0xLCAtMSwgLTEsIC0xLCAt
+MSwgLTEsIC0xfTsKLXN0YXRpYyBpbnQgZW5hYmxlX3dvbFtNQVhfVU5JVFNdID0gey0xLCAt
+MSwgLTEsIC0xLCAtMSwgLTEsIC0xLCAtMX07Ci1zdGF0aWMgaW50IGdsb2JhbF9vcHRpb25z
+ID0gLTE7Ci1zdGF0aWMgaW50IGdsb2JhbF9mdWxsX2R1cGxleCA9IC0xOwotc3RhdGljIGlu
+dCBnbG9iYWxfZW5hYmxlX3dvbCA9IC0xOwotCi0vKiAjZGVmaW5lIGRldl9hbGxvY19za2Ig
+ZGV2X2FsbG9jX3NrYl9kZWJ1ZyAqLwotCi0vKiBWYXJpYWJsZXMgdG8gd29yay1hcm91bmQg
+dGhlIENvbXBhcSBQQ0kgQklPUzMyIHByb2JsZW0uICovCi1zdGF0aWMgaW50IGNvbXBhcV9p
+b2FkZHIsIGNvbXBhcV9pcnEsIGNvbXBhcV9kZXZpY2VfaWQgPSAweDU5MDA7Ci1zdGF0aWMg
+c3RydWN0IG5ldF9kZXZpY2UgKmNvbXBhcV9uZXRfZGV2aWNlOwotCiBzdGF0aWMgaW50IHZv
+cnRleF9jYXJkc19mb3VuZDsKIAogI2lmZGVmIENPTkZJR19ORVRfUE9MTF9DT05UUk9MTEVS
+Cg==
+------------A8F20B36D9BC02--
 
-iminor(inode) ?
-
-> + down_write(&dcssshm_devices_sem);
-> + dev_info =3D dcssshm_get_device_by_minor(minor);
-> + if (!dev_info) {
-> +  rc =3D -ENODEV;
-> +  goto up_read;
-> + }
-> +
-> +
-> + filp->private_data =3D dev_info;
-> + atomic_inc(&dev_info->use_count);
-
-Why the extra use count?
-
-> +
-> + rc =3D 0;
-> +up_read:
-> + up_write(&dcssshm_devices_sem);
-
-Interesting label name 8-)
-
-> +static loff_t
-> +dcssshm_llseek (struct file* file, loff_t offset, int orig)
-> +{
-> + loff_t ret;
-> + struct dcssshm_dev_info *dev_info =3D (struct dcssshm_dev_info*)
-> +      file->private_data;
-
-Is seek actually useful if you don't have read/write?
-
-> + rc =3D device_create_file(dcssshm_root_dev, &dev_attr_remove);
-> + if (rc) {
-> +  PRINT_ERR("device_create_file(remove) failed!\n");
-> +  s390_root_dev_unregister(dcssshm_root_dev);
-> +  return rc;
-> + }
-> + rc =3D alloc_chrdev_region (&dev, 0, 256, "dcssshm");
-> + if (rc) {
-> +         PRINT_ERR("alloc_chrdev_region falied!\n");
-> +  s390_root_dev_unregister(dcssshm_root_dev);
-> +  return rc;
-> + }
-
-Why the limit to 256 segments? The rest of the driver appears
-to be written to avoid such limitations. Also, using goto for
-error handling, like in the other functions, would make this more
-readable.
-
-	Arnd <><
-
-
-
---Boundary-02=_y+A1BYgvcZHIWAi
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBB1A+y5t5GS2LDRf4RApi0AKCMD3V/m1IEhirNLWN5AgHROhfPIgCgnK+9
-Lb0BDHAw4Xdu1HR9R4jOWn0=
-=uKaA
------END PGP SIGNATURE-----
-
---Boundary-02=_y+A1BYgvcZHIWAi--

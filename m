@@ -1,64 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315811AbSENQZw>; Tue, 14 May 2002 12:25:52 -0400
+	id <S315815AbSENQ2X>; Tue, 14 May 2002 12:28:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315812AbSENQZv>; Tue, 14 May 2002 12:25:51 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:61690 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S315811AbSENQZs>; Tue, 14 May 2002 12:25:48 -0400
-Subject: Re: error : preempt_count 1
-From: Robert Love <rml@tech9.net>
-To: vda@port.imtp.ilyichevsk.odessa.ua, torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200205141143.g4EBhEY09631@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 14 May 2002 09:24:57 -0700
-Message-Id: <1021393499.942.24.camel@sinai>
+	id <S315816AbSENQ2W>; Tue, 14 May 2002 12:28:22 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:11411 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S315815AbSENQ1e>;
+	Tue, 14 May 2002 12:27:34 -0400
+Date: Tue, 14 May 2002 18:26:41 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Neil Conway <nconway.list@ukaea.org.uk>,
+        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.15 IDE 61
+Message-ID: <20020514162641.GO17509@suse.de>
+In-Reply-To: <E177dYp-00083c-00@the-village.bc.nu> <3CE11F90.5070701@evision-ventures.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-05-14 at 09:45, Denis Vlasenko wrote:
+On Tue, May 14 2002, Martin Dalecki wrote:
+> Yes thinking about it longer and longer I tend to the same conclusion,
+> that we just shouldn't have per device queue but per channel queues instead.
 
-> On 13 May 2002 14:18, Robert Love wrote:
->
-> > Absolutely nothing bad.  It is a debugging check to catch bad code that
-> > does funny things with locks.  Ideally, every program should call unlock
-> > for each instance it called lock - balancing everything out and giving a
-> > preempt_count of zero.
-> 
-> > Some code in the kernel, knowing it is shutting down, does not bother to
-> > drop any held locks and subsequently you see that message.
-> 
-> > Since it is triggering false positives, I will remove it eventually.
-> 
-> I'd say don't remove it, just omit the 'error:' part - this will
-> reduce panic mails on the subject.
-> 
-> > For now it is incredibly useful for catching real problems.  And the
-> > above, while harmless, could be fixed for "cleanliness" concerns.
+Right, I see that as the only right way to get the right synchronization
+too.
 
-Not a bad idea ;-)
+> The only problem here is the fact that some device properties
+> are attached to the queue right now. Like for example sector size and 
+> friends.
 
-For now this will hopefully curb the inquiries - I can still remove it
-later when I am confident that the core code is sane and if people still
-whine.
+Hmm yes, hardsect_size comes to mind. It will just have to be 'lowest
+common denominator' for a while I suppose.
 
-Thanks,
+> I didn't have a too deep look in to the generic blk layer. But I would
+> rather expect that since the lower layers are allowed to pass
+> an spin lock up to the queue intialization, sharing a spin lock
+> between two request queues should just serialize them with respect to
+> each other. And this is precisely what 63 does.
 
-	Robert Love
+I think you are mixing up two very different serialization issues. A
+shared queue lock will indeed protect however much you want, but only at
+the queue level. It will _not_ provide synchronization for hardware
+access in any sane way, like a shared queue between two devices will.
 
---- linux-2.5.15/kernel/exit.c	Sun May  5 20:37:59 2002
-+++ linux/kernel/exit.c	Tue May 14 09:22:52 2002
-@@ -526,7 +526,7 @@
- 	del_timer_sync(&tsk->real_timer);
- 
- 	if (unlikely(preempt_get_count()))
--		printk(KERN_ERR "error: %s[%d] exited with preempt_count %d\n",
-+		printk(KERN_ERR "%s[%d] exited with preempt_count %d\n",
- 				current->comm, current->pid,
- 				preempt_get_count());
- 
+You could alternatively move requests to an internal queue of your own
+width, that would synchronize drive operations at any level you want
+(you set the rules). The block layer can still sanely handle the locking
+for you, the scope of that lock will just be a bit wider.
+
+-- 
+Jens Axboe
 

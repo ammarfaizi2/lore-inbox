@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264196AbRFTEIg>; Wed, 20 Jun 2001 00:08:36 -0400
+	id <S264436AbRFTEik>; Wed, 20 Jun 2001 00:38:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264232AbRFTEI1>; Wed, 20 Jun 2001 00:08:27 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:6436 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S264196AbRFTEIP>; Wed, 20 Jun 2001 00:08:15 -0400
-Date: Wed, 20 Jun 2001 06:07:53 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
-        kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
-Subject: Re: softirq in pre3 and all linux ports
-Message-ID: <20010620060753.B849@athlon.random>
-In-Reply-To: <20010619210312.Z11631@athlon.random> <15152.6527.366544.713462@cargo.ozlabs.ibm.com> <20010620055413.A849@athlon.random> <15152.8152.177595.177731@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15152.8152.177595.177731@pizda.ninka.net>; from davem@redhat.com on Tue, Jun 19, 2001 at 09:00:24PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S264476AbRFTEi3>; Wed, 20 Jun 2001 00:38:29 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:57102 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S264436AbRFTEiQ>;
+	Wed, 20 Jun 2001 00:38:16 -0400
+From: Andrew Tridgell <tridge@valinux.com>
+To: davem@redhat.com
+Cc: zackw@stanford.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <15152.1911.886630.381952@pizda.ninka.net> (davem@redhat.com)
+Subject: Re: 2.2 PATCH: check return from copy_*_user in fs/pipe.c
+Reply-To: tridge@valinux.com
+In-Reply-To: <20010619184802.D5679@stanford.edu> <15152.1911.886630.381952@pizda.ninka.net>
+Message-Id: <20010620043348.9B597474B@lists.samba.org>
+Date: Tue, 19 Jun 2001 21:33:48 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 19, 2001 at 09:00:24PM -0700, David S. Miller wrote:
+Davem wrote:
+>  > The anonymous pipe code in 2.2 does not check the return value of
+>  > copy_*_user.  This can lead to silent loss of data.
 > 
-> Andrea Arcangeli writes:
->  > I don't have gigabit ethernet so I cannot flood my boxes to death.
->  > But I think it's real, and a softirq marking itself runnable again is
->  > another case to handle without live lockups or starvation.
-> 
-> I think (still) that you're just moving the problem around and
-> not actually changing anything.
+> I remember Andrew Tridgell (cc:'d) spotting this a long time
+> ago, and we didn't fix it, and I forget what the reason was.
 
-something will defintely to change radically if the softirq marks itself
-runnable again. but this to me sounds similar to the other one (irq
-flood that basically left the softirq pending every time you check it).
+Linus didn't want to fix it in pipe.c until copy_from_user was fixed
+on all architectures to zero any parts of the destination that were
+not written to (due to the source being invalid). He didn't want us to
+fix just this one case and then forget about fixing the general case
+by fixing copy_*_user.
 
-Andrea
+I had a sample program that was able to dump all of memory to a file
+as an unprivileged user by using a combination of pipe/fork/mmap in a
+loop. It exploited the fact that a write from NULL on a pipe would end
+up leaving uninitialised data in the pipe buffer which could be read
+by the program. The fork/mmap loop was used to traverse all pages by
+consuming the last freed page after each pipe close. This could then
+be used to grab passwords or other sensitive information from other
+users.
+
+Is copy_from_user now fixed on all architectures? If so, then maybe we
+can finally check the error return in pipe.c. I think that not telling
+a program that a write to a fd failed is pretty bogus.
+
+Cheers, Tridge

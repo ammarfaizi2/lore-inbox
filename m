@@ -1,162 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264289AbTLYLIV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 06:08:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264296AbTLYLIV
+	id S264296AbTLYLhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 06:37:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbTLYLhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 06:08:21 -0500
-Received: from [211.167.76.68] ([211.167.76.68]:54761 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S264289AbTLYLIR (ORCPT
+	Thu, 25 Dec 2003 06:37:16 -0500
+Received: from smtp04.ya.com ([62.151.11.162]:62348 "EHLO smtp.ya.com")
+	by vger.kernel.org with ESMTP id S264296AbTLYLhO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 06:08:17 -0500
-Date: Thu, 25 Dec 2003 18:59:45 +0800
-From: Hugang <hugang@soulinfo.com>
-To: Nikita Danilov <Nikita@Namesys.COM>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] laptop-mode for 2.6, version 2
-Message-Id: <20031225185945.38b55d3f.hugang@soulinfo.com>
-In-Reply-To: <16362.48018.56337.690901@laputa.namesys.com>
-References: <3FE92517.1000306@samwel.tk>
-	<20031224215120.66b74f66.hugang@soulinfo.com>
-	<16361.41348.444243.919179@laputa.namesys.com>
-	<20031225105916.67e74599.hugang@soulinfo.com>
-	<16362.43831.569086.825899@laputa.namesys.com>
-	<20031225174033.1abb5401.hugang@soulinfo.com>
-	<16362.48018.56337.690901@laputa.namesys.com>
-Organization: Beijing Soul
-X-Mailer: Sylpheed version 0.9.7claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Thu__25_Dec_2003_18_59_45_+0800_AvAlx=h_SQ9sPS7x"
+	Thu, 25 Dec 2003 06:37:14 -0500
+Message-ID: <3FEAECA4.6030201@wanadoo.es>
+Date: Thu, 25 Dec 2003 14:56:52 +0100
+From: =?ISO-8859-1?Q?Luis_Miguel_Garc=EDa?= <ktech@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031206 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LINUX KERNEL MAILING LIST <linux-kernel@vger.kernel.org>
+Subject: RE: IDE performance drop between 2.4.23 and 2.6.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hello:
 
---Multipart=_Thu__25_Dec_2003_18_59_45_+0800_AvAlx=h_SQ9sPS7x
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Any of you knows how to look at this results? They still seems very low 
+for me. It's an AMD Athlon 2500+. Hard Disc Seagate Barracuda ATA V. 
+Nforce-2 motherboard.
 
-On Thu, 25 Dec 2003 13:27:30 +0300
-Nikita Danilov <Nikita@Namesys.COM> wrote:
+kernel 2.6.0-test11
 
-> +		if ( val > 0 ) {
-> +			*commit_max_age = val;
-> +		}
-> 
-> here warning should be issued, and mount refused, if val == 0.
+Any tip? Or is this correct?
 
-Adding a message for it. here is it.
+bonnie++
 
-thanks.
---
-Hu Gang / Steve
-RLU#          : 204016 [1999] (Registered Linux user)
-GPG Public Key: http://soulinfo.com/~hugang/HuGang.asc
-
---Multipart=_Thu__25_Dec_2003_18_59_45_+0800_AvAlx=h_SQ9sPS7x
-Content-Type: application/octet-stream;
- name="reiserfs_laptop_mode"
-Content-Disposition: attachment;
- filename="reiserfs_laptop_mode"
-Content-Transfer-Encoding: base64
-
-SW5kZXg6IGxpbnV4LTIuNi4wL2luY2x1ZGUvbGludXgvcmVpc2VyZnNfZnMuaAo9PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-Ci0tLSBsaW51eC0yLjYuMC9pbmNsdWRlL2xpbnV4L3JlaXNlcmZzX2ZzLmgJKHJldmlzaW9uIDk0
-KQorKysgbGludXgtMi42LjAvaW5jbHVkZS9saW51eC9yZWlzZXJmc19mcy5oCSh3b3JraW5nIGNv
-cHkpCkBAIC0xNzE5LDcgKzE3MTksNyBAQAogdm9pZCByZWlzZXJmc19jaGVja19sb2NrX2RlcHRo
-KGNoYXIgKmNhbGxlcikgOwogdm9pZCByZWlzZXJmc19wcmVwYXJlX2Zvcl9qb3VybmFsKHN0cnVj
-dCBzdXBlcl9ibG9jayAqLCBzdHJ1Y3QgYnVmZmVyX2hlYWQgKmJoLCBpbnQgd2FpdCkgOwogdm9p
-ZCByZWlzZXJmc19yZXN0b3JlX3ByZXBhcmVkX2J1ZmZlcihzdHJ1Y3Qgc3VwZXJfYmxvY2sgKiwg
-c3RydWN0IGJ1ZmZlcl9oZWFkICpiaCkgOwotaW50IGpvdXJuYWxfaW5pdChzdHJ1Y3Qgc3VwZXJf
-YmxvY2sgKiwgY29uc3QgY2hhciAqIGpfZGV2X25hbWUsIGludCBvbGRfZm9ybWF0KSA7CitpbnQg
-am91cm5hbF9pbml0KHN0cnVjdCBzdXBlcl9ibG9jayAqLCBjb25zdCBjaGFyICogal9kZXZfbmFt
-ZSwgaW50IG9sZF9mb3JtYXQsIHVuc2lnbmVkIGludCkgOwogaW50IGpvdXJuYWxfcmVsZWFzZShz
-dHJ1Y3QgcmVpc2VyZnNfdHJhbnNhY3Rpb25faGFuZGxlKiwgc3RydWN0IHN1cGVyX2Jsb2NrICop
-IDsKIGludCBqb3VybmFsX3JlbGVhc2VfZXJyb3Ioc3RydWN0IHJlaXNlcmZzX3RyYW5zYWN0aW9u
-X2hhbmRsZSosIHN0cnVjdCBzdXBlcl9ibG9jayAqKSA7CiBpbnQgam91cm5hbF9lbmQoc3RydWN0
-IHJlaXNlcmZzX3RyYW5zYWN0aW9uX2hhbmRsZSAqLCBzdHJ1Y3Qgc3VwZXJfYmxvY2sgKiwgdW5z
-aWduZWQgbG9uZykgOwpJbmRleDogbGludXgtMi42LjAvZnMvcmVpc2VyZnMvc3VwZXIuYwo9PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09Ci0tLSBsaW51eC0yLjYuMC9mcy9yZWlzZXJmcy9zdXBlci5jCShyZXZpc2lvbiA5NCkK
-KysrIGxpbnV4LTIuNi4wL2ZzL3JlaXNlcmZzL3N1cGVyLmMJKHdvcmtpbmcgY29weSkKQEAgLTY0
-NSw3ICs2NDUsOCBAQAogCQkJCSAgICAgIGNvbGxlY3Rpb24gb2YgYml0ZmxhZ3MgZGVmaW5pbmcg
-d2hhdAogCQkJCSAgICAgIG1vdW50IG9wdGlvbnMgd2VyZSBzZWxlY3RlZC4gKi8KIAkJCQkgICB1
-bnNpZ25lZCBsb25nICogYmxvY2tzLCAvKiBzdHJ0b2wtZWQgZnJvbSBOTk4gb2YgcmVzaXplPU5O
-TiAqLwotCQkJCSAgIGNoYXIgKiogamRldl9uYW1lKQorCQkJCSAgIGNoYXIgKiogamRldl9uYW1l
-LCAKKwkJCQkgICB1bnNpZ25lZCBpbnQgKiBjb21taXRfbWF4X2FnZSkKIHsKICAgICBpbnQgYzsK
-ICAgICBjaGFyICogYXJnID0gTlVMTDsKQEAgLTY2Miw2ICs2NjMsNyBAQAogCXsicmVzaXplIiwg
-J3InLCAwLCAwLCAwfSwKIAl7ImpkZXYiLCAnaicsIDAsIDAsIDB9LAogCXsibm9sYXJnZWlvIiwg
-J3cnLCAwLCAwLCAwfSwKKwl7ImNvbW1pdCIsICdjJywgMCwgMCwgMH0sCiAJe05VTEwsIDAsIDAs
-IDAsIDB9CiAgICAgfTsKIAkKQEAgLTY5MCw2ICs2OTIsMjIgQEAKIAkgICAgfQogCX0KIAorCWlm
-ICggYyA9PSAnYycgKSB7CisJCWNoYXIgKnAgPSAwOworCQlpbnQgdmFsID0gc2ltcGxlX3N0cnRv
-dWwgKGFyZywgJnAsIDApOworCisJCWlmICggKnAgIT0gJ1wwJykgeworCQkJcHJpbnRrICgicmVp
-c2VyZnNfcGFyc2Vfb3B0aW9uczogYmFkIHZhbHVlICVzXG4iLCBhcmcpOworCQkJcmV0dXJuIDA7
-CisJCX0KKwkJaWYgKCB2YWwgPT0gMCApIHsKKwkJCXByaW50ayAoInJlaXNlcmZzX3BhcnNlX29w
-dGlvbnM6IGludmFsaWQgY29tbWl0IG1heCBhZ2UsIGlnbm9yZSBpdFxuIik7CisJCX0KKwkJaWYg
-KCB2YWwgPiAwICkgeworCQkJKmNvbW1pdF9tYXhfYWdlID0gdmFsOworCQl9CisJfQorCiAJaWYg
-KCBjID09ICd3JyApIHsKIAkJY2hhciAqcD0wOwogCQlpbnQgdmFsID0gc2ltcGxlX3N0cnRvdWwg
-KGFyZywgJnAsIDApOwpAQCAtNzQzLDEwICs3NjEsMTEgQEAKICAgdW5zaWduZWQgbG9uZyBibG9j
-a3M7CiAgIHVuc2lnbmVkIGxvbmcgbW91bnRfb3B0aW9ucyA9IFJFSVNFUkZTX1NCKHMpLT5zX21v
-dW50X29wdDsKICAgdW5zaWduZWQgbG9uZyBzYWZlX21hc2sgPSAwOworICB1bnNpZ25lZCBpbnQg
-Y29tbWl0X21heF9hZ2UgPSAwOwogCiAgIHJzID0gU0JfRElTS19TVVBFUl9CTE9DSyAocyk7CiAK
-LSAgaWYgKCFyZWlzZXJmc19wYXJzZV9vcHRpb25zKHMsIGFyZywgJm1vdW50X29wdGlvbnMsICZi
-bG9ja3MsIE5VTEwpKQorICBpZiAoIXJlaXNlcmZzX3BhcnNlX29wdGlvbnMocywgYXJnLCAmbW91
-bnRfb3B0aW9ucywgJmJsb2NrcywgTlVMTCwgJmNvbW1pdF9tYXhfYWdlKSkKICAgICByZXR1cm4g
-LUVJTlZBTDsKICAgCiAgIGhhbmRsZV9hdHRycyhzKTsKQEAgLTc2NCw2ICs3ODMsMTAgQEAKICAg
-ICogdGhlIGJpdHMgd2UncmUgbm90IGFsbG93ZWQgdG8gY2hhbmdlIGhlcmUgKi8KICAgUkVJU0VS
-RlNfU0IocyktPnNfbW91bnRfb3B0ID0gKFJFSVNFUkZTX1NCKHMpLT5zX21vdW50X29wdCAmIH5z
-YWZlX21hc2spIHwgIChtb3VudF9vcHRpb25zICYgc2FmZV9tYXNrKTsKIAorICBpZihjb21taXRf
-bWF4X2FnZSAhPSAwKSB7CisJICBTQl9KT1VSTkFMX01BWF9DT01NSVRfQUdFKHMpID0gY29tbWl0
-X21heF9hZ2U7CisgIH0KKwogICBpZihibG9ja3MpIHsKICAgICBpbnQgcmMgPSByZWlzZXJmc19y
-ZXNpemUocywgYmxvY2tzKTsKICAgICBpZiAocmMgIT0gMCkKQEAgLTEyMTMsNiArMTIzNiw3IEBA
-CiAgICAgc3RydWN0IHJlaXNlcmZzX3RyYW5zYWN0aW9uX2hhbmRsZSB0aCA7CiAgICAgaW50IG9s
-ZF9mb3JtYXQgPSAwOwogICAgIHVuc2lnbmVkIGxvbmcgYmxvY2tzOworCXVuc2lnbmVkIGludCBj
-b21taXRfbWF4X2FnZSA9IDA7CiAgICAgaW50IGppbml0X2RvbmUgPSAwIDsKICAgICBzdHJ1Y3Qg
-cmVpc2VyZnNfaWdldF9hcmdzIGFyZ3MgOwogICAgIHN0cnVjdCByZWlzZXJmc19zdXBlcl9ibG9j
-ayAqIHJzOwpAQCAtMTIzNyw3ICsxMjYxLDcgQEAKICAgICBSRUlTRVJGU19TQihzKS0+c19hbGxv
-Y19vcHRpb25zLnByZWFsbG9jc2l6ZSA9IDk7CiAKICAgICBqZGV2X25hbWUgPSBOVUxMOwotICAg
-IGlmIChyZWlzZXJmc19wYXJzZV9vcHRpb25zIChzLCAoY2hhciAqKSBkYXRhLCAmKHNiaS0+c19t
-b3VudF9vcHQpLCAmYmxvY2tzLCAmamRldl9uYW1lKSA9PSAwKSB7CisgICAgaWYgKHJlaXNlcmZz
-X3BhcnNlX29wdGlvbnMgKHMsIChjaGFyICopIGRhdGEsICYoc2JpLT5zX21vdW50X29wdCksICZi
-bG9ja3MsICZqZGV2X25hbWUsICZjb21taXRfbWF4X2FnZSkgPT0gMCkgewogCWdvdG8gZXJyb3I7
-CiAgICAgfQogCkBAIC0xMjc5LDcgKzEzMDMsNyBAQAogI2VuZGlmCiAKICAgICAvLyBzZXRfZGV2
-aWNlX3JvKHMtPnNfZGV2LCAxKSA7Ci0gICAgaWYoIGpvdXJuYWxfaW5pdChzLCBqZGV2X25hbWUs
-IG9sZF9mb3JtYXQpICkgeworICAgIGlmKCBqb3VybmFsX2luaXQocywgamRldl9uYW1lLCBvbGRf
-Zm9ybWF0LCBjb21taXRfbWF4X2FnZSkgKSB7CiAJcHJpbnRrKCJzaC0yMDIyOiByZWlzZXJmc19m
-aWxsX3N1cGVyOiB1bmFibGUgdG8gaW5pdGlhbGl6ZSBqb3VybmFsIHNwYWNlXG4iKSA7CiAJZ290
-byBlcnJvciA7CiAgICAgfSBlbHNlIHsKSW5kZXg6IGxpbnV4LTIuNi4wL2ZzL3JlaXNlcmZzL2pv
-dXJuYWwuYwo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09Ci0tLSBsaW51eC0yLjYuMC9mcy9yZWlzZXJmcy9qb3VybmFsLmMJ
-KHJldmlzaW9uIDk0KQorKysgbGludXgtMi42LjAvZnMvcmVpc2VyZnMvam91cm5hbC5jCSh3b3Jr
-aW5nIGNvcHkpCkBAIC0xOTY3LDcgKzE5NjcsNyBAQAogLyoKICoqIG11c3QgYmUgY2FsbGVkIG9u
-Y2Ugb24gZnMgbW91bnQuICBjYWxscyBqb3VybmFsX3JlYWQgZm9yIHlvdQogKi8KLWludCBqb3Vy
-bmFsX2luaXQoc3RydWN0IHN1cGVyX2Jsb2NrICpwX3Nfc2IsIGNvbnN0IGNoYXIgKiBqX2Rldl9u
-YW1lLCBpbnQgb2xkX2Zvcm1hdCkgeworaW50IGpvdXJuYWxfaW5pdChzdHJ1Y3Qgc3VwZXJfYmxv
-Y2sgKnBfc19zYiwgY29uc3QgY2hhciAqIGpfZGV2X25hbWUsIGludCBvbGRfZm9ybWF0LCB1bnNp
-Z25lZCBpbnQgY29tbWl0X21heF9hZ2UpIHsKICAgICBpbnQgbnVtX2Nub2RlcyA9IFNCX09ORElT
-S19KT1VSTkFMX1NJWkUocF9zX3NiKSAqIDIgOwogICAgIHN0cnVjdCBidWZmZXJfaGVhZCAqYmhq
-aDsKICAgICBzdHJ1Y3QgcmVpc2VyZnNfc3VwZXJfYmxvY2sgKiByczsKQEAgLTIwMzIsNyArMjAz
-MiwxMSBAQAogICAgICAKICAgU0JfSk9VUk5BTF9UUkFOU19NQVgocF9zX3NiKSAgICAgID0gbGUz
-Ml90b19jcHUgKGpoLT5qaF9qb3VybmFsLmpwX2pvdXJuYWxfdHJhbnNfbWF4KTsKICAgU0JfSk9V
-Uk5BTF9NQVhfQkFUQ0gocF9zX3NiKSAgICAgID0gbGUzMl90b19jcHUgKGpoLT5qaF9qb3VybmFs
-LmpwX2pvdXJuYWxfbWF4X2JhdGNoKTsKLSAgU0JfSk9VUk5BTF9NQVhfQ09NTUlUX0FHRShwX3Nf
-c2IpID0gbGUzMl90b19jcHUgKGpoLT5qaF9qb3VybmFsLmpwX2pvdXJuYWxfbWF4X2NvbW1pdF9h
-Z2UpOworICBpZiAoY29tbWl0X21heF9hZ2UgIT0gMCkgeworCSAgU0JfSk9VUk5BTF9NQVhfQ09N
-TUlUX0FHRShwX3Nfc2IpID0gY29tbWl0X21heF9hZ2U7CisgIH0gZWxzZSB7CisJICBTQl9KT1VS
-TkFMX01BWF9DT01NSVRfQUdFKHBfc19zYikgPSBsZTMyX3RvX2NwdSAoamgtPmpoX2pvdXJuYWwu
-anBfam91cm5hbF9tYXhfY29tbWl0X2FnZSk7CisgIH0KICAgU0JfSk9VUk5BTF9NQVhfVFJBTlNf
-QUdFKHBfc19zYikgID0gSk9VUk5BTF9NQVhfVFJBTlNfQUdFOwogCiAgIGlmIChTQl9KT1VSTkFM
-X1RSQU5TX01BWChwX3Nfc2IpKSB7CkluZGV4OiBsaW51eC0yLjYuMC9mcy9yZWlzZXJmcy9wcm9j
-ZnMuYwo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09Ci0tLSBsaW51eC0yLjYuMC9mcy9yZWlzZXJmcy9wcm9jZnMuYwkocmV2
-aXNpb24gOTQpCisrKyBsaW51eC0yLjYuMC9mcy9yZWlzZXJmcy9wcm9jZnMuYwkod29ya2luZyBj
-b3B5KQpAQCAtNDAxLDcgKzQwMSw3IEBACiAgICAgICAgICAgICAgICAgICAgICAgICBESlAoIGpw
-X2pvdXJuYWxfdHJhbnNfbWF4ICksCiAgICAgICAgICAgICAgICAgICAgICAgICBESlAoIGpwX2pv
-dXJuYWxfbWFnaWMgKSwKICAgICAgICAgICAgICAgICAgICAgICAgIERKUCgganBfam91cm5hbF9t
-YXhfYmF0Y2ggKSwKLSAgICAgICAgICAgICAgICAgICAgICAgIERKUCgganBfam91cm5hbF9tYXhf
-Y29tbWl0X2FnZSApLAorICAgICAgICAgICAgICAgICAgICAgICAgU0JfSk9VUk5BTF9NQVhfQ09N
-TUlUX0FHRShzYiksIAogICAgICAgICAgICAgICAgICAgICAgICAgREpQKCBqcF9qb3VybmFsX21h
-eF90cmFuc19hZ2UgKSwKIAogCQkJSkYoIGpfMXN0X3Jlc2VydmVkX2Jsb2NrICksCQkJCg==
-
---Multipart=_Thu__25_Dec_2003_18_59_45_+0800_AvAlx=h_SQ9sPS7x--
+Version  1.03       ------Sequential Output------ --Sequential Input- 
+--Random-
+                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- 
+--Seeks--
+Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  
+/sec %CP
+txiki            2G 21270  87 32856  11 10533   3 10962  51 28744   5 
+157.0   0
+                    ------Sequential Create------ --------Random 
+Create--------
+                    -Create-- --Read--- -Delete-- -Create-- --Read--- 
+-Delete--
+              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  
+/sec %CP
+                 16 21675  96 +++++ +++ 23523 100 23700  99 +++++ +++ 
+13062  61
+txiki,2G,21270,87,32856,11,10533,3,10962,51,28744,5,157.0,0,16,21675,96,+++++,++
++,23523,100,23700,99,+++++,+++,13062,61
+bash-2.05b$

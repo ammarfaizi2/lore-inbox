@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275546AbRJAUyk>; Mon, 1 Oct 2001 16:54:40 -0400
+	id <S275530AbRJAVLI>; Mon, 1 Oct 2001 17:11:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275530AbRJAUyZ>; Mon, 1 Oct 2001 16:54:25 -0400
-Received: from [194.213.32.141] ([194.213.32.141]:3332 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S275529AbRJAUxo>;
-	Mon, 1 Oct 2001 16:53:44 -0400
-Message-ID: <20011001164354.A21715@bug.ucw.cz>
-Date: Mon, 1 Oct 2001 16:43:54 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Robert Love <rml@ufl.edu>, David Wagner <daw@mozart.cs.berkeley.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] Allow net devices to contribute to /dev/random
-In-Reply-To: <1001461026.9352.156.camel@phantasy> <9or70g$i59$1@abraham.cs.berkeley.edu> <1001465531.10701.61.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <1001465531.10701.61.camel@phantasy>; from Robert Love on Tue, Sep 25, 2001 at 08:52:09PM -0400
+	id <S275539AbRJAVK5>; Mon, 1 Oct 2001 17:10:57 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:18340 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S275530AbRJAVKi>;
+	Mon, 1 Oct 2001 17:10:38 -0400
+Date: Mon, 01 Oct 2001 22:11:03 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Nick Craig-Wood <ncw@axis.demon.co.uk>, viro@math.psu.edu,
+        Erik Andersen <andersen@codepoet.org>
+Cc: linux-kernel@vger.kernel.org,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: [CFT][PATCH] cleanup of partition code
+Message-ID: <42604006.1001974263@[195.224.237.69]>
+In-Reply-To: <200110010906.f9196NM32571@irishsea.craig-wood.com>
+In-Reply-To: <200110010906.f9196NM32571@irishsea.craig-wood.com>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Here is my reasoning.  I'd like to quote drivers/char/random.c:
-> >   * add_interrupt_randomness() uses the inter-interrupt timing as random
-> >   * inputs to the entropy pool.  Note that not all interrupts are good
-> >   * sources of randomness!  For example, the timer interrupts is not a
-> >   * good choice, because the periodicity of the interrupts is too
-> >   * regular, and hence predictable to an attacker.  Disk interrupts are
-> >   * a better measure, since the timing of the disk interrupts are more
-> >   * unpredictable.
-> >   * 
-> >   * All of these routines try to estimate how many bits of randomness a
-> >   * particular randomness source.  They do this by keeping track of the
-> >   * first and second order deltas of the event timings.
-> 
-> Obviously the timer interrupt would be the worst idea ever.  Its the
-> same value (HZ) on almost all versions of Linux (Alpha being on example
-> where it is not the same).
 
-Actually, not quite. On 2.4.9 system, console kept interrupts disabled
-for so long that timer interrupt was pretty good source of randomness.
+--On Monday, 01 October, 2001 10:06 AM +0100 Nick Craig-Wood 
+<ncw@axis.demon.co.uk> wrote:
 
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+> I don't think Acorn disks can have sectors
+> bigger than 1k.
+
+>From a very long time in the past when I used
+to write interfaces to ARM stuff, I am /pretty/
+sure I managed to get 4k sectors to work. As
+this is about 10 years ago, and involved
+some editing of some grungy BASIC HD format
+program, I may be either wrong, or out of
+date.
+
+--
+Alex Bligh

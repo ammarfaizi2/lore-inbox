@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266677AbSKHAZ6>; Thu, 7 Nov 2002 19:25:58 -0500
+	id <S266687AbSKHAle>; Thu, 7 Nov 2002 19:41:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266680AbSKHAZ6>; Thu, 7 Nov 2002 19:25:58 -0500
-Received: from dp.samba.org ([66.70.73.150]:62946 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266677AbSKHAZ5>;
-	Thu, 7 Nov 2002 19:25:57 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Module loader against 2.5.46: 9/9 
-In-reply-to: Your message of "Wed, 06 Nov 2002 23:43:40 +1100."
-             <25206.1036586620@ocs3.intra.ocs.com.au> 
-Date: Thu, 07 Nov 2002 22:08:24 +1100
-Message-Id: <20021108003238.B01AD2C04C@lists.samba.org>
+	id <S266689AbSKHAld>; Thu, 7 Nov 2002 19:41:33 -0500
+Received: from packet.digeo.com ([12.110.80.53]:36856 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266687AbSKHAld>;
+	Thu, 7 Nov 2002 19:41:33 -0500
+Message-ID: <3DCB09C3.1EDB05EC@digeo.com>
+Date: Thu, 07 Nov 2002 16:48:03 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: alan@cotse.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARK] 2.5.46-mm1 with contest
+References: <YWxhbg==.5c396bf3e8e65dc7442a4adb6f35702e@1036715544.cotse.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Nov 2002 00:48:07.0250 (UTC) FILETIME=[80CC2320:01C286C0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <25206.1036586620@ocs3.intra.ocs.com.au> you write:
-> On Tue, 05 Nov 2002 11:47:27 +1100, 
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
-> >The new one is:
-> >/* Lookup an address.  modname is set to NULL if it's in the kernel. */
-> >const char *kallsyms_lookup(unsigned long addr,
-> >			    unsigned long *symbolsize,
-> >			    unsigned long *offset,
-> >			    char **modname);
+Alan Willis wrote:
 > 
-> If you are going to change the interface then don't call it kallsyms.
-> kallsyms and that interface were designed to kernel debugging in
-> general and kdb in particular.
+> > Why?  We are preempting during the generic file write/read routines, I
+> > bet, which can otherwise be long periods of latency.  CPU is up and I
+> > bet the throughput is down, but his test is getting the attention it
+> > wants.
+> 
+>   I'm curious, would running contest after a fresh boot and with profile=2
+> provide a profile that tells exactly where time is being spent?  Since
+> about 2.5.45 I've had some strange slow periods, and starting aterm
+> would take a while, redrawing windows in X would slow down, it 'feels'
+> like my workstation becomes a laptop that is just waking up.  Sometimes
+> this is after only a few minutes of inactivity, or after switching
+> virtual desktops in kde, or when I have alot of aterm instances running.
 
-That explains it: I didn't think you were insane 8).  Thanks, I'll
-move it to some other name which just does the "add symbols to oops"
-minimum.
+- Run `vmstat 1', and see if the slowdowns coincide with any unusual
+  IO activity.
 
-Thanks!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+- Could be the scheduler.  Try
+  renice -19 $(pidof X) $(pidof aterm) $(pidof other stuff)

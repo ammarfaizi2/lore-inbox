@@ -1,89 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262528AbUCELsa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 06:48:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbUCELsa
+	id S262550AbUCEMIx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 07:08:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbUCEMIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 06:48:30 -0500
-Received: from stan.yoobay.net ([62.111.67.220]:26631 "EHLO mail.authmail.net")
-	by vger.kernel.org with ESMTP id S262528AbUCELsU (ORCPT
+	Fri, 5 Mar 2004 07:08:53 -0500
+Received: from colino.net ([62.212.100.143]:58099 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S262550AbUCEMIw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 06:48:20 -0500
-Date: Fri, 5 Mar 2004 13:36:08 +0100
-From: Daniel Mack <daniel@zonque.org>
-To: "Randy.Dunlap" <randy.dunlap@verizon.net>
-Cc: lkml <linux-kernel@vger.kernel.org>, daniel@zonque.org,
-       akpm <akpm@osdl.org>
-Subject: Re: [PATCH] 2.6.4-rc2: scripts/modpost.c
-Message-ID: <20040305123608.GJ5569@zonque.dyndns.org>
-References: <20040304172923.6045760e.rddunlap@osdl.org> <20040304212440.30fc8674.randy.dunlap@verizon.net>
+	Fri, 5 Mar 2004 07:08:52 -0500
+Date: Fri, 5 Mar 2004 13:08:03 +0100
+From: Colin Leroy <colin@colino.net>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.6 ide-cd DMA ripping
+Message-Id: <20040305130803.0c01ee83@jack.colino.net>
+Organization: 
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 2.2.4; powerpc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040304212440.30fc8674.randy.dunlap@verizon.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+In-Reply-To: <20040304152840.GL2708@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 04, 2004 at 09:24:40PM -0800, Randy.Dunlap wrote:
-> The comment and code certainly don't match, and your patch makes sense
-> to me.  However, I can't reproduce the problem that you describe.
-> 
-> I built the kernel image and modules in "www.osdl.org/264rc2/build1",
-> and all *.mod.c and *.ko ended up there with no problems.
+Hi,
 
-This only occurs if you try to build kernel modules externally like 
-described in http://linuxdevices.com/articles/AT4389927951.html.
-The DVB driver from CVS does it like this, I'm sure there are many
-more cases where this could lead to problems.
+>I'd appreciate people giving this a test spin. Patch is against
+>2.6.4-rc1 (well current BK, actually).
 
-> Andrew, I applied the patch and didn't have any problems with
-> 'make allyesconfig' like you alluded to.
+Works (on ppc, ibook G4 here). It's indeed faster. But, it breaks direct 
+output to dsp (as in `cdparanoia 1 /dev/dsp`). 
 
-Hmm, here is a compiler warning when builing modpost since my patch
-accesses const char* memory directly (right after malloc()ing it).
-The following patch has exactly the same effect but also makes gcc 
-happy.
-
-
-diff -ru linux-2.6.4-rc2.orig/scripts/modpost.c linux-2.6.4-rc2/scripts/modpost.c
---- linux-2.6.4-rc2.orig/scripts/modpost.c      2004-03-04 11:40:21.000000000 +0100
-+++ linux-2.6.4-rc2/scripts/modpost.c   2004-03-05 12:10:24.000000000 +0100
-@@ -63,17 +63,18 @@
- new_module(char *modname)
- {
-        struct module *mod;
--       char *p;
-+       int len;
- 
-        mod = NOFAIL(malloc(sizeof(*mod)));
-        memset(mod, 0, sizeof(*mod));
--       mod->name = NOFAIL(strdup(modname));
--
-+       len = strlen(modname);
-+
-        /* strip trailing .o */
--       p = strstr(mod->name, ".o");
--       if (p)
--               *p = 0;
--
-+       if (len > 2 && modname[len-2] == '.' && modname[len-1] == 'o')
-+               len -= 2;
-+
-+       mod->name = NOFAIL(strndup(modname, len));
-+
-        /* add to list */
-        mod->next = modules;
-        modules = mod;
-diff -ru linux-2.6.4-rc2.orig/scripts/modpost.h linux-2.6.4-rc2/scripts/modpost.h
---- linux-2.6.4-rc2.orig/scripts/modpost.h      2004-03-04 11:40:21.000000000 +0100
-+++ linux-2.6.4-rc2/scripts/modpost.h   2004-03-05 12:10:51.000000000 +0100
-@@ -1,3 +1,5 @@
-+#define _GNU_SOURCE
-+
- #include <stdio.h>
- #include <stdlib.h>
- #include <stdarg.h>
-
-
-Daniel
+HTH,
+-- 
+Colin

@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274885AbTHSRNp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 13:13:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274881AbTHSRMi
+	id S274859AbTHSRKl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 13:10:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273015AbTHSRIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 13:12:38 -0400
-Received: from dhcp9541093.columbus.rr.com ([24.95.41.93]:9088 "EHLO RMOLIFF")
-	by vger.kernel.org with ESMTP id S274723AbTHSRJc (ORCPT
+	Tue, 19 Aug 2003 13:08:38 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:16011 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S272311AbTHSREI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 13:09:32 -0400
-From: <zetetaSH@mit.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: Your details
-Date: Tue, 19 Aug 2003 13:09:30 --0400
-X-MailScanner: Found to be clean
-Importance: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MSMail-Priority: Normal
-X-Priority: 3 (Normal)
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="_NextPart_000_00AE277B"
-Message-Id: <S274723AbTHSRJc/20030819171033Z+201@vger.kernel.org>
+	Tue, 19 Aug 2003 13:04:08 -0400
+Date: Tue, 19 Aug 2003 09:56:11 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Richard Underwood <richard@aspectgroup.co.uk>
+Cc: skraw@ithnet.com, willy@w.ods.org, alan@lxorguk.ukuu.org.uk,
+       carlosev@newipnet.com, lamont@scriptkiddie.org, davidsen@tmr.com,
+       bloemsaa@xs4all.nl, marcelo@conectiva.com.br, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+Message-Id: <20030819095611.0fb8f9a3.davem@redhat.com>
+In-Reply-To: <353568DCBAE06148B70767C1B1A93E625EAB57@post.pc.aspectgroup.co.uk>
+References: <353568DCBAE06148B70767C1B1A93E625EAB57@post.pc.aspectgroup.co.uk>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multipart message in MIME format
+On Tue, 19 Aug 2003 13:02:20 +0100
+Richard Underwood <richard@aspectgroup.co.uk> wrote:
 
---_NextPart_000_00AE277B
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+> David S. Miller wrote:
+> > Under Linux, by default, IP addresses are owned by the system
+> > not by interfaces.  This increases the likelyhood of successful
+> > communication on a subnet.
+> > 
+> 	This is crap.
 
-See the attached file for details
---_NextPart_000_00AE277B--
+Nope, the RFCs allow this.
 
+So this is where we must agree to disagree.  Because host ownership of
+IP addresses is the basis for all of the arguments and it completely
+justifies Linux's ARP behavior on both sides.

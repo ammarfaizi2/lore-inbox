@@ -1,28 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129050AbQKEKrg>; Sun, 5 Nov 2000 05:47:36 -0500
+	id <S129642AbQKEKsF>; Sun, 5 Nov 2000 05:48:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129642AbQKEKrZ>; Sun, 5 Nov 2000 05:47:25 -0500
-Received: from sj-msg-core-2.cisco.com ([171.69.43.88]:3050 "EHLO
-	sj-msg-core-2.cisco.com") by vger.kernel.org with ESMTP
-	id <S129050AbQKEKrF>; Sun, 5 Nov 2000 05:47:05 -0500
-Message-Id: <4.3.2.7.2.20001105023453.00bcfa70@mira-sjcd-3.cisco.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Sun, 05 Nov 2000 02:38:06 -0800
-To: linux-kernel@vger.kernel.org
-From: Samar Sharma <ssharma@cisco.com>
-Subject: NFS over TCP in linux 
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S129780AbQKEKr6>; Sun, 5 Nov 2000 05:47:58 -0500
+Received: from rigel.cs.pdx.edu ([131.252.208.59]:30181 "EHLO rigel.cs.pdx.edu")
+	by vger.kernel.org with ESMTP id <S129642AbQKEKrr>;
+	Sun, 5 Nov 2000 05:47:47 -0500
+Date: Sun, 5 Nov 2000 02:47:44 -0800 (PST)
+From: Naren Devaiah <naren@cs.pdx.edu>
+To: Tigran Aivazian <tigran@veritas.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Where is __this_module actually defined?
+In-Reply-To: <Pine.LNX.4.21.0011051041310.1171-100000@saturn.homenet>
+Message-ID: <Pine.GSO.4.21.0011050245280.2808-100000@antares.cs.pdx.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Is there a version of the linux code that supports NFS over TCP ?
-Could you please send me a pointer.
+Does this mean that the module structure (struct module) and it's various
+substructures are filled in by insmod?
 
-Thanks.
-Samar
+Regards,
+Naren
+
+On Sun, 5 Nov 2000, Tigran Aivazian wrote:
+
+> On Sun, 5 Nov 2000, Naren Devaiah wrote:
+> 
+> > 
+> > I've looked in the 2.4.0-pre10 source tree and found it defined as 
+> > 	extern struct module __this_module;
+> > in module.h (among other files), but where is it actually defined?
+> > 
+> 
+> it isn't -- it's magic, of course :). The way it works is for insmod to
+> arrange things in such a manner that &__this_module resolves to point to
+> the beginning of module's address space, which happens to contain 'struct
+> module' at the beginning.
+> 
+> Regards,
+> Tigran
+> 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

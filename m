@@ -1,35 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310594AbSCGXxf>; Thu, 7 Mar 2002 18:53:35 -0500
+	id <S292685AbSCGXvg>; Thu, 7 Mar 2002 18:51:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310598AbSCGXxO>; Thu, 7 Mar 2002 18:53:14 -0500
-Received: from austin.greshamstorage.com ([216.143.252.250]:36364 "EHLO
-	austin.openmic.com") by vger.kernel.org with ESMTP
-	id <S310594AbSCGXxI>; Thu, 7 Mar 2002 18:53:08 -0500
-Message-ID: <3C87FD12.8060800@greshamstorage.com>
-Date: Thu, 07 Mar 2002 17:51:46 -0600
-From: "Jonathan A. George" <JGeorge@greshamstorage.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020226
-MIME-Version: 1.0
+	id <S310594AbSCGXvZ>; Thu, 7 Mar 2002 18:51:25 -0500
+Received: from [217.79.102.244] ([217.79.102.244]:56309 "EHLO
+	monkey.beezly.org.uk") by vger.kernel.org with ESMTP
+	id <S292685AbSCGXvM>; Thu, 7 Mar 2002 18:51:12 -0500
+Subject: SUN GEM on 32bit x86 looses connectivity
+From: Beezly <beezly@beezly.org.uk>
 To: linux-kernel@vger.kernel.org
-Subject: Kernel SCM: When does CVS fall down where it REALLY matters?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-NkQvMlngIVPFcpMrlt1r"
+X-Mailer: Evolution/1.0.2 
+Date: 07 Mar 2002 23:51:11 +0000
+Message-Id: <1015545071.4147.23.camel@monkey>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am considering adding some enhancements to CVS to address deficiencies 
-which adversely affect my productivity.  Since it would obviously be 
-nice to have a completely free (or even GPL :-) tool which is not 
-considered to consist of unacceptable compromises in the process of 
-kernel development I would like to know what the Bitkeeper users 
-consider the minimum acceptable set of improvements that CVS would 
-require for broader acceptance.  Obviously the tremendous set of 
-features that Bitkeeper has are nice, but I'd like to narrow the 
-comparative flaws to a manageable set.
 
-Any comments would benefit all of the free SCM projects by at least 
-helping to provide a guiding light.
+--=-NkQvMlngIVPFcpMrlt1r
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
---Jonathan--
+Hi,
 
+after sorting out the non-existant MAC address problem, I've hit another
+road block.
+
+The kernel is 2.4.19-pre1
+
+The GEM card connects fine (although the multiple "Link is up" messages
+might be interesting);
+
+
+sungem.c:v0.96 11/17/01 David S. Miller (davem@redhat.com)
+PCI: Found IRQ 5 for device 00:0a.0
+PCI: Sharing IRQ 5 with 00:0b.1
+eth0: Sun GEM (PCI) 10/100/1000BaseT Ethernet 00:00:00:00:00:00=3D20
+eth0: Link is up at 1000 Mbps, full-duplex.
+eth0: PCS AutoNEG complete.
+eth0: PCS link is now up.
+eth0: Link is up at 1000 Mbps, full-duplex.
+eth0: Link is up at 1000 Mbps, full-duplex.
+eth0: Link is up at 1000 Mbps, full-duplex.
+eth0: Link is up at 1000 Mbps, full-duplex.
+eth0: Link is up at 1000 Mbps, full-duplex.
+eth0: Link is up at 1000 Mbps, full-duplex.
+eth0: Link is up at 1000 Mbps, full-duplex.
+
+Everything appears to work fine; Ping works fine;
+
+But after a short while (usually around a minute), the connection stops
+working.=3D20
+
+ifconfig shows this interesting output;
+
+eth0      Link encap:Ethernet  HWaddr 00:10:5A:41:E6:14 =3D20
+          inet addr:10.0.0.12  Bcast:10.0.0.255  Mask:255.255.255.0
+          inet6 addr: fe80::210:5aff:fe41:e614/10 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:5244 errors:0 dropped:1 overruns:1 frame:1
+          TX packets:5252 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:100=3D20
+          RX bytes:7833582 (7.4 MiB)  TX bytes:7812928 (7.4 MiB)
+          Interrupt:5 Base address:0x8400=3D20
+
+notice the RX - dropped:1 overruns:1 frame:1
+
+I suspect that only RX capability is lost, although I haven't been able
+to check this yet. I believe this because if I ping from the box with
+the GE card in to another box (which is stable), once the GEM stops
+working, TX packets increases, whilst RC packets does not.
+
+I /think/ I can reproduce this problem quicker by doing a ping -f -s
+1472 <somehost> from this host, although this is a purely qualitative
+judgement.
+
+The switch i am connecting to is an extreme summit 48 - which supports
+the 802.1q VLAN protocol, if this has anything to do with the problem.
+
+At the moment, my "workaround" is to ifdown the interface every 30
+seconds, rmmod sungem and then modprobe sungem (auto-reconfiguring the
+interface). This gets the interface going again, but means I loose
+connectivity for about 2 seconds out of 30!
+
+Any help gratefully appreciated,
+
+Beezly
+
+--=-NkQvMlngIVPFcpMrlt1r
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8h/zvXu4ZFsMQjPgRAvdXAJ459x9AbRWxegYl1LuSBIbzTf+3CgCfWLDk
+zr1poKUKEqPMv2UAgcrU3CI=
+=trJr
+-----END PGP SIGNATURE-----
+
+--=-NkQvMlngIVPFcpMrlt1r--

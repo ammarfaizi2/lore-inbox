@@ -1,121 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262671AbSI1BPd>; Fri, 27 Sep 2002 21:15:33 -0400
+	id <S262672AbSI1BSQ>; Fri, 27 Sep 2002 21:18:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262673AbSI1BPc>; Fri, 27 Sep 2002 21:15:32 -0400
-Received: from [24.77.26.115] ([24.77.26.115]:32905 "EHLO completely")
-	by vger.kernel.org with ESMTP id <S262671AbSI1BPb>;
-	Fri, 27 Sep 2002 21:15:31 -0400
-From: Ryan Cumming <ryan@completely.kicks-ass.org>
-To: Andreas Dilger <adilger@clusterfs.com>, "Theodore Ts'o" <tytso@mit.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
-Date: Fri, 27 Sep 2002 18:20:27 -0700
-User-Agent: KMail/1.4.7-cool
-References: <E17uINs-0003bG-00@think.thunk.org> <20020926235741.GC10551@think.thunk.org> <20020927041234.GS22795@clusterfs.com>
-In-Reply-To: <20020927041234.GS22795@clusterfs.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_dPQl9KPVt3r7B0g"
-Message-Id: <200209271820.41906.ryan@completely.kicks-ass.org>
+	id <S262673AbSI1BSP>; Fri, 27 Sep 2002 21:18:15 -0400
+Received: from 12-234-33-29.client.attbi.com ([12.234.33.29]:27200 "HELO
+	laura.worldcontrol.com") by vger.kernel.org with SMTP
+	id <S262672AbSI1BSN>; Fri, 27 Sep 2002 21:18:13 -0400
+From: brian@parcoursesoftware.com
+Date: Fri, 27 Sep 2002 18:23:31 -0700
+To: linux-kernel@vger.kernel.org
+Subject: SWSUSP and occasional keyboard/X locks (not GPM)
+Message-ID: <20020928012331.GA2625@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-No-Archive: yes
+X-Noarchive: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-00=_dPQl9KPVt3r7B0g
-Content-Type: Text/Plain;
-  charset="big5"
-Content-Transfer-Encoding: 8bit
-Content-Description: clearsigned data
-Content-Disposition: inline
+I'm running 2.4.18 vanilla with swsusp patches.  I've disabled GPM
+and suspend/resume works well.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+However, occasionally when my laptop resumes everything appears ok,
+but the keyboard and mouse (touchpad) don't respond.   If I ssh
+in via the ethernet I can kill X and keyboard control comes back.
+(this is the same behavior I saw with GPM was missing things up)
+(I've actually removed the gpm executable from my machine)
 
-On September 26, 2002 21:12, Andreas Dilger wrote:
-> After that, we'd be happy if you could test with a loopback filesystem:
+I use the 'susp' script to suspend the machine which knocks out most
+of the known problems with software suspend.
 
-Okay, got another one:
-"EXT3-fs error (device loop(7,0)): ext3_add_entry: bad entry in directory #2: 
-rec_len is smaller than minimal - offset=0, inode=0, rec_len=8, name_len=0"
-fsck then reported:
-"Directory inode 2, block 166, offset 0: directory corrupted"
+I'm running XFree86 4.2.1.
 
-This is while deleteing an old fsstress directory (a full fsck had been 
-performed since the last time the fsstress directory had been touched) while 
-running a few instances of the attached program.
+My laptop is a Sony VAIO FXA32 w/Duron 900MHz and 384MB RAM.
 
-You guys have any idea what's going on yet? 
+You can have a look at the susp script at
 
-- -Ryan
+    http://www.litzinger.com/susp
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+Any ideas?
 
-iD8DBQE9lQPpLGMzRzbJfbQRAlzdAJ9mbiu8lRBbcFZXE/tD94Ad9DoAowCdFzab
-JkelXV/8C4fsqEqg9TfBvb0=
-=VA58
------END PGP SIGNATURE-----
+-- 
+Brian Litzinger
 
---Boundary-00=_dPQl9KPVt3r7B0g
-Content-Type: text/x-csrc;
-  charset="big5";
-  name="dir-ream.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="dir-ream.c"
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/time.h>
-#include <time.h>
-
-#define MAX_FILE_COUNT	4000000
-
-int main(int argc, char *argv[])
-{
-	while(1) 
-	{
-		unsigned int seed;
-		struct timeval tv;
-		int i;
-		int count;
-
-		gettimeofday(&tv, NULL);
-		seed = tv.tv_usec;
-		count = seed % MAX_FILE_COUNT;
-
-		srand(seed);
-		printf("Creating %i files\n" , count);
-		for(i = 0; i < count;i++)
-		{
-			char filename[32];
-			snprintf(filename, 32, "%x", rand());
-			close(open(filename, O_CREAT | O_RDONLY));
-		}
-
-		printf("Performing %i random lookups\n" , count);
-		for(i = 0; i < count;i++)
-		{
-			char filename[32];
-			struct stat useless;
-
-			snprintf(filename, 32, "%x", rand());
-			stat(filename, &useless);
-		}
-
-		srand(seed);
-		printf("Unlinking %i files\n" , count);
-		for(i = 0; i < count;i++)
-		{
-			char filename[32];
-			snprintf(filename, 32, "%x", rand());
-			unlink(filename);
-		}
-	}
-}
-
---Boundary-00=_dPQl9KPVt3r7B0g--
+ FREE Bug & Support Tracking tool http://www.ParcourseSoftware.com
+ SFA, CRM, HelpDesk, Engineering: Small Company to Multi-National Enterprise
+ Crossplatform: MS Windows, Linux, Solaris, Macintosh, mix & match

@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318455AbSIBULD>; Mon, 2 Sep 2002 16:11:03 -0400
+	id <S318250AbSIBUa5>; Mon, 2 Sep 2002 16:30:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318458AbSIBULD>; Mon, 2 Sep 2002 16:11:03 -0400
-Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:30624
-	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id <S318455AbSIBULC> convert rfc822-to-8bit; Mon, 2 Sep 2002 16:11:02 -0400
-From: Shawn Starr <spstarr@sh0n.net>
-Organization: sh0n.net
-To: linux-kernel@vger.kernel.org
-Subject: Poweroff error from 2.4.20-pre5-ac1 w/ Asus A7M266-D motherboard AND question
-Date: Mon, 2 Sep 2002 16:18:15 -0400
-User-Agent: KMail/1.4.6
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+	id <S317334AbSIBUa5>; Mon, 2 Sep 2002 16:30:57 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:3057 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S316682AbSIBUa4>;
+	Mon, 2 Sep 2002 16:30:56 -0400
+Date: Mon, 2 Sep 2002 22:35:25 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andries.Brouwer@cwi.nl, neilb@cse.unsw.edu.au,
+       <linux-kernel@vger.kernel.org>, <linux-raid@vger.kernel.org>
+Subject: Re: PATCH - change to blkdev->queue calling triggers BUG in md.c
+Message-ID: <20020902203525.GB9328@win.tue.nl>
+References: <UTC200209020853.g828rtj03830.aeb@smtp.cwi.nl> <Pine.LNX.4.44.0209020950500.2452-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200209021618.15767.spstarr@sh0n.net>
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep02-mail.bloor.is.net.cable.rogers.com from [24.100.232.94] using ID <shawn.starr@rogers.com> at Mon, 2 Sep 2002 16:15:19 -0400
+In-Reply-To: <Pine.LNX.4.44.0209020950500.2452-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First the question:
+On Mon, Sep 02, 2002 at 10:01:46AM -0700, Linus Torvalds wrote:
 
-Why does Linux detect my AMD chipset as ONLY the MP and not the MPX? I thought the A7M266-D had the MPX? 
-The manual says it does
+> For example, the higher levels want to do a partition table re-read
+> if the media really has changed.
 
-Secondly the error:
+My original setup made a kernel that does not know anything about
+partition tables. User space would tell the kernel about partitions
+on some block device.
 
-On poweroff: I see:
+Roughly speaking the impact is that there is a partx invocation
+before a mount.
 
-hdc: failed to unregister!
+Now it seems Al is doing all the work, so I can just sit back and watch.
+But I hope he makes precisely this: a kernel that does not do any
+partition reading of its own.
 
-I have mapped hdc to sdc0 (via SCSI Emulation)
+Andries
 
-hdc: YAMAHA CRW2100E, ATAPI CD/DVD-ROM drive
 
-SCSI subsystem driver Revision: 1.00
-scsi0 : SCSI host adapter emulation for IDE ATAPI devices
-Vendor: YAMAHA    Model: CRW2100E          Rev: 1.0N
-Type:   CD-ROM                             ANSI SCSI revision: 02
-Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
-sr0: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
-
-Just to also mention I have enabled the experimental AMD Power Management:
-
-md76x_pm: Version 20020730
-amd76x_pm: Initializing northbridge Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System Controller
-amd76x_pm: Initializing southbridge Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI
+[Yes, it is fundamentally wrong when the kernel starts guessing.
+Guessing filesystem type is bad. Also guessing partition table type
+is bad. Moreover, the kernel probing may lead to device problems
+and even to kernel crashes, as I last observed two days ago.
+Only the user knows what she wants to do with this disk. Format?
+Remove OnTrack Disk Manager? There are all kinds of situations
+where partition table re-read is directly harmful.]

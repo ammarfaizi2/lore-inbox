@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262208AbUC1VI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 16:08:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbUC1VI0
+	id S262073AbUC1VLW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 16:11:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbUC1VLW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 16:08:26 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:29099 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262208AbUC1VIY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 16:08:24 -0500
-Date: Sun, 28 Mar 2004 23:08:13 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-cc: Andrew Morton <akpm@osdl.org>, dwmw2@infradead.org,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove <asm/setup.h> from cmdlinepart.c
-In-Reply-To: <200403251046.45232.bjorn.helgaas@hp.com>
-Message-ID: <Pine.GSO.4.58.0403282307230.364@waterleaf.sonytel.be>
-References: <200403251046.45232.bjorn.helgaas@hp.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 28 Mar 2004 16:11:22 -0500
+Received: from aspfw1.asp-networks.co.uk ([217.169.14.2]:22955 "HELO
+	neptune.asp-networks.co.uk") by vger.kernel.org with SMTP
+	id S262073AbUC1VLU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 16:11:20 -0500
+X-Qmail-Scanner-Mail-From: sasa@kcore.ath.cx via neptune.asp-networks.co.uk
+X-Qmail-Scanner: 1.20 (Clear:RC:0(81.93.80.110):SA:0(-4.9/5.0):. Processed in 1.00842 secs)
+Date: Sun, 28 Mar 2004 23:11:15 +0200
+From: Sasa U <sasa@kcore.ath.cx>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Very poor performance with 2.6.4
+Message-Id: <20040328231115.70b6ffad.sasa@kcore.ath.cx>
+In-Reply-To: <40672F39.5040702@p3EE062D5.dip0.t-ipconnect.de>
+References: <40672F39.5040702@p3EE062D5.dip0.t-ipconnect.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Mar 2004, Bjorn Helgaas wrote:
-> Remove include of <asm/setup.h> from cmdlinepart.c.  This
-> is not be needed for i386 (it builds fine with this patch),
-> and ia64 doesn't supply a setup.h.
->
-> asm/setup.h contains a hodge-podge of stuff with no real
-> consistency between architectures.  It appears to be
-> included mainly by arch-specific drivers:
-> 	acsi (Atari disks)
-> 	amiflop (Amiga floppy)
-> 	z2ram (ZorroII ram disk)
-> 	amiserial (Amiga serial)
-> 	...
-> and under arch-specific #ifdefs:
-> 	fbcon (under __mc68000__ or CONFIG_APUS)
-> 	fonts (ditto)
-> 	logo (CONFIG_M68K)
-> 	...
+Hi,
 
-Indeed, <asm/setup.h> was introduced in the m68k port.
+I also have problems with speed under 2.6 ...
 
-Gr{oetje,eeting}s,
+However, disk I/O is slower under 2.6 ... comparing to 2.4.
 
-						Geert
+I talked to some people about it .. and they have the same experience ...
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Aksed once about that on this mailing list, but didn't get answers ...
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+
+Regards
+S

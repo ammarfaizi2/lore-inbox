@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265260AbUFMUEE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265261AbUFMUHG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265260AbUFMUEE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 16:04:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265261AbUFMUED
+	id S265261AbUFMUHG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 16:07:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265264AbUFMUHG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 16:04:03 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:16293 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S265260AbUFMUEB convert rfc822-to-8bit (ORCPT
+	Sun, 13 Jun 2004 16:07:06 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:18560 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265261AbUFMUHC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 16:04:01 -0400
-Date: Sun, 13 Jun 2004 15:10:12 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Simon Richard Grint <rgrint@compsoc.man.ac.uk>
+	Sun, 13 Jun 2004 16:07:02 -0400
+Date: Sun, 13 Jun 2004 22:07:43 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Tisheng Chen <tishengchen@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Compile failure
-Message-ID: <20040613191012.GE22588@phunnypharm.org>
-References: <20040613171035.GA455@srg.demon.co.uk>
+Subject: Re: Solution to the "1802: Unauthorized network card" problem in recent thinkpad systems
+Message-ID: <20040613200743.GA1251@ucw.cz>
+References: <20040613112051.GA1416@ucw.cz> <20040613191029.85026.qmail@web90108.mail.scd.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20040613171035.GA455@srg.demon.co.uk>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040613191029.85026.qmail@web90108.mail.scd.yahoo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 13, 2004 at 06:10:35PM +0100, Simon Richard Grint wrote:
-> Dear all
-> 
-> I have just downloaded the most recent bk snapshot of 2.6.7rc3 and
-> it fails to compile, instead producing the error:
->   UPD     include/linux/compile.h
->   CC      init/version.o
->   LD      init/built-in.o
->   LD      .tmp_vmlinux1
-> drivers/built-in.o(.text+0xa5c72): In function ci_initialize':
-> : undefined reference to PSB_WARNING'
-> make: *** [.tmp_vmlinux1] Error 1
-> 
-> The linking error seems to stem from a newly implemented
-> packet size check in the ohci_initialize function of 
-> drivers/ieee1394/ohci1394.c not having defined HPSB_WARNING
-> before use.
+On Sun, Jun 13, 2004 at 12:10:29PM -0700, Tisheng Chen wrote:
 
-Fixed. bk pull request sent to Linus/Andrew already.
+> Somebody did succeed with a X31. 
+> As I know, it should works for T30,R40,X31,R40E at
+> least.
+
+Indeed, this version:
+
+#include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+int main(void)
+{
+	int fd;
+	unsigned char data;
+
+	printf("Disabling WiFi whitelist check.\n");
+	fd = open("/dev/nvram", O_RDWR);
+	lseek(fd, 0x5c, SEEK_SET);
+	read(fd, &data, 1);
+	printf("CMOS address 0x5c: %02x->", data);
+	data |= 0x80;
+	printf("%02x\n", data);
+	lseek(fd, 0x5c, SEEK_SET);
+	write(fd, &data, 1);
+	close(fd);
+	printf("Done.\n");
+}
+
+worked just fine, and the notebook no longer complains about an
+unsupported WiFi card! Now if I only can get the card to enable the
+transmitter/receiver. It's a Compaq Atheros card inside an X31 notebook.
 
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+Vojtech Pavlik
+SuSE Labs, SuSE CR

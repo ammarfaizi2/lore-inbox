@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261773AbRESL6Y>; Sat, 19 May 2001 07:58:24 -0400
+	id <S261785AbRESMAy>; Sat, 19 May 2001 08:00:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261775AbRESL6P>; Sat, 19 May 2001 07:58:15 -0400
-Received: from pop.gmx.net ([194.221.183.20]:21298 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S261773AbRESL6H>;
-	Sat, 19 May 2001 07:58:07 -0400
-Message-ID: <3B066184.5A6FA728@gmx.at>
-Date: Sat, 19 May 2001 14:05:24 +0200
-From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
+	id <S261783AbRESMAp>; Sat, 19 May 2001 08:00:45 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:32896 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261775AbRESMAm>;
+	Sat, 19 May 2001 08:00:42 -0400
+Date: Sat, 19 May 2001 08:00:40 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: Andries.Brouwer@cwi.nl, bcrl@redhat.com, torvalds@transmeta.com,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+ in  userspace
+In-Reply-To: <3B065C78.C20BBCA@uow.edu.au>
+Message-ID: <Pine.GSO.4.21.0105190750380.5339-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: VIA/PDC/Athlon - IDE error theory
-In-Reply-To: <E150VHJ-0006Ak-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> > hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+
+
+On Sat, 19 May 2001, Andrew Morton wrote:
+
+> So.  When am I going to be able to:
 > 
-> CRC errors are cable errors so that bit is reasonable in itself
+> 	open("/bin/ls,-l,/etc/passwd", O_RDONLY);
 
-Could this be caused by the RAID configuration? The first sector of the
-first disk holds the partition table. The other disks in the raid have
-no valid partition table:
+You are not. Think for a minute and you'll see why.
 
-dmesg message from Jussi Laako:
- hdf: unknown partition table
- hdg: unknown partition table
- hdh: unknown partition table
-[snip]
+Linus' idea of /dev/tty/<parameters> is marginally sane - it makes sense
+to consider that as configuring-upon-open. You _are_ going to do IO on
+that file.
 
-If there is a raid (1+)0 configured you got a volume that is bigger than
-the first hd. So if you have extended partitions or freebsd slices which
-are located beyond the capacity of the hd, then the partition table
-check would have to read datastructures which have an offset which is to
-high. => read error during partition check => nasty error messages
+Ben's /dev/md0/<living_horror> is ugly - it's open just for side effects,
+with no IO supposed to happen.
 
-I have the error message problem on my box. DMA is disabled because of
-the error on /dev/hda. But a hdparm -d 1 /dev/hda fixes this, and I do
-not get more errors regarding that. Everything works fine. (I did not
-compile with Athlon optimization.)
+His idea of passing file descriptor instead of name makes these side effects
+even messier.
 
-regards,
-Wilfried
+The stuff you've proposed is a perversion worth of Albert. You've introduced
+additional metacharacter into filenames, you will need some form of quoting
+to be able to pass literal commas and you will need to quote slashes. It's
+way past ugly.
+

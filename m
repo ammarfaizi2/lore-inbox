@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269506AbTCDSk0>; Tue, 4 Mar 2003 13:40:26 -0500
+	id <S269512AbTCDSoB>; Tue, 4 Mar 2003 13:44:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269507AbTCDSk0>; Tue, 4 Mar 2003 13:40:26 -0500
-Received: from krynn.axis.se ([193.13.178.10]:63211 "EHLO krynn.axis.se")
-	by vger.kernel.org with ESMTP id <S269506AbTCDSkZ>;
-	Tue, 4 Mar 2003 13:40:25 -0500
-Date: Tue, 4 Mar 2003 19:49:59 +0100 (CET)
-From: Johan Adolfsson <johan.adolfsson@axis.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org, Johan Adolfsson <johan.adolfsson@axis.com>
-Subject: [PATCH] Avoid PC(?) specific cascade dma reservation in kernel/dma.c
-Message-ID: <Pine.LNX.4.21.0303041945590.7198-100000@hydra-11.axis.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269503AbTCDSoB>; Tue, 4 Mar 2003 13:44:01 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:11928 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id <S269512AbTCDSn7>;
+	Tue, 4 Mar 2003 13:43:59 -0500
+Date: Tue, 4 Mar 2003 10:54:28 -0800
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Dominik Brodowski <linux@brodo.de>, torvalds@transmeta.com,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       mika.penttila@kolumbus.fi
+Subject: Re: [PATCH] pcmcia: get initialization ordering right [Was: [PATCH 2.5] : i82365 & platform_bus_type]
+Message-ID: <20030304185428.GA16945@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20030304171640.GA16366@bougret.hpl.hp.com> <Pine.LNX.4.33.0303041123210.992-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0303041123210.992-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I guess the reservation of dma channel 4 for "cascade" is
-PC or chipset specific and we don't have such a thing in the 
-CRIS (ETRAX100LX) chip and channel 4 clashes with external dma0.
-Perhaps a better fix is to #ifdef on something else or remove 
-the cascade stuff entirely from this file, but I leave that
-to those who know better.
-Have no other arch been bitten by this?
+On Tue, Mar 04, 2003 at 11:48:22AM -0600, Patrick Mochel wrote:
+> 
+> Surely you're sore that your code has required some modifications since
+> Dominik has started working on PCMCIA, and I'm sure that no harm was
+> intended. It's had some bumps, but IMO, he's done a great job, and the 
+> result is a vast improvement. The least you could is give the guy some 
+> slack, instead of whining about your own inconveniences. 
 
-Please apply to both 2.4 and 2.5.
+	I don't mind the changes, changes are usually good. In 2.5.X,
+I had to change my code to accomodate the new PCI interface, the
+removal of global IRQ, the new module interface, the various USB API
+changes and other changes. And actually, your work currently hasn't
+had any impact on the source code I follow (yet).
+	What I mind is the lack of basic testing. From your patch, the
+initialisation order mixup and the other obvious bug fix I sent you,
+this code had zero chances of working at all and it's obvious that
+nobody bothered to check if it could work or not for at least two
+kernel releases.
+	Yeah, I know that I should not complain because at least the
+code did compile (modulo other minor obvious fixes that are already in
+Linus BK).
 
-/Johan
+> Thanks,
+> 
+> 	-pat
 
+	Have fun...
 
-diff -u -p -r1.3 dma.c
---- linux/kernel/dma.c	23 Feb 2001 13:50:32 -0000	1.3
-+++ linux/kernel/dma.c	4 Mar 2003 18:46:51 -0000
-@@ -59,7 +59,11 @@ static struct dma_chan dma_chan_busy[MAX
- 	{ 0, 0 },
- 	{ 0, 0 },
- 	{ 0, 0 },
-+#ifndef __CRIS__
- 	{ 1, "cascade" },
-+#else
-+	{ 0, 0 },
-+#endif        
- 	{ 0, 0 },
- 	{ 0, 0 },
- 	{ 0, 0 }
-
+	Jean

@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319223AbSHMX5f>; Tue, 13 Aug 2002 19:57:35 -0400
+	id <S319144AbSHMXFr>; Tue, 13 Aug 2002 19:05:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319224AbSHMX5f>; Tue, 13 Aug 2002 19:57:35 -0400
-Received: from wotug.org ([194.106.52.201]:11570 "EHLO gatemaster.ivimey.org")
-	by vger.kernel.org with ESMTP id <S319223AbSHMX5e>;
-	Tue, 13 Aug 2002 19:57:34 -0400
-Date: Wed, 14 Aug 2002 00:59:27 +0100 (BST)
-From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-X-X-Sender: ruthc@sharra.ivimey.org
-To: linux-kernel@vger.kernel.org
-Subject: RFC: help with pdc202 changes
-Message-ID: <Pine.LNX.4.44.0208140053330.25777-100000@sharra.ivimey.org>
+	id <S319130AbSHMXFS>; Tue, 13 Aug 2002 19:05:18 -0400
+Received: from donkeykong.gpcc.itd.umich.edu ([141.211.2.163]:28924 "EHLO
+	donkeykong.gpcc.itd.umich.edu") by vger.kernel.org with ESMTP
+	id <S319168AbSHMXC4>; Tue, 13 Aug 2002 19:02:56 -0400
+Date: Tue, 13 Aug 2002 19:06:40 -0400 (EDT)
+From: "Kendrick M. Smith" <kmsmith@umich.edu>
+X-X-Sender: kmsmith@rastan.gpcc.itd.umich.edu
+To: linux-kernel@vger.kernel.org, <nfs@lists.sourceforge.net>
+Subject: patch 25/38: SERVER: return err_nofilehandle if missing fh in
+ fh_verify()
+Message-ID: <Pine.SOL.4.44.0208131906180.25942-100000@rastan.gpcc.itd.umich.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks,
 
-As indicated in other mailings, I have been looking at the pdc202xx driver.  
-One 'issue' it has (in common with several other ide controller drivers) is
-that while it exports a /proc entry that describes the configuration of the
-controller, that entry only describes the first controller found. As I have 2
-controllers in my machine (and it could be 3), that's not optimal.
+Return nfserr_nofilehandle (v4 only) in fh_verify() if the filehandle
+has not been set.
 
-I have been working on a patch to fix that. It is now in a state of
-compiles-but-not-tested. Is there anyone who could have a look and see if it
-ought to work? Once I have some confidence in it, I'll give it a go...
+--- old/fs/nfsd/nfsfh.c	Tue Jul 30 22:20:35 2002
++++ new/fs/nfsd/nfsfh.c	Mon Jul 29 12:39:43 2002
+@@ -109,6 +109,8 @@ fh_verify(struct svc_rqst *rqstp, struct
+ 		error = nfserr_stale;
+ 		if (rqstp->rq_vers > 2)
+ 			error = nfserr_badhandle;
++		if (rqstp->rq_vers == 4 && fh->fh_size == 0)
++			return nfserr_nofilehandle;
 
-I am wary of testing it "blind" as I don't have a dedicated test machine, so
-I'd prefer not to play fast and loose with my server :-)
-
-Thanks,
-
-Ruth
-
--- 
-Ruth Ivimey-Cook
-Software engineer and technical writer.
+ 		if (fh->fh_version == 1) {
+ 			datap = fh->fh_auth;
 

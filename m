@@ -1,54 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262191AbVAYWlW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbVAYWmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262191AbVAYWlW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 17:41:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbVAYWlV
+	id S262215AbVAYWmz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 17:42:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbVAYWlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 17:41:21 -0500
-Received: from fmr18.intel.com ([134.134.136.17]:27522 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262191AbVAYWkG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 17:40:06 -0500
-Date: Tue, 25 Jan 2005 14:40:02 -0800
-From: Mitch Williams <mitch.a.williams@intel.com>
-X-X-Sender: mawilli1@mawilli1-desk2.amr.corp.intel.com
-To: linux-kernel@vger.kernel.org
-cc: greg@kroah.com
-Subject: [PATCH 2/2] Disallow seeks on sysfs files.
-Message-ID: <Pine.CYG.4.58.0501251438090.696@mawilli1-desk2.amr.corp.intel.com>
-ReplyTo: "Mitch Williams" <mitch.a.williams@intel.com>
+	Tue, 25 Jan 2005 17:41:51 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:63190 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262212AbVAYWlJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 17:41:09 -0500
+Message-ID: <41F6BCC2.2080609@austin.ibm.com>
+Date: Tue, 25 Jan 2005 15:40:18 -0600
+From: Steven Pratt <slpratt@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Oleg Nesterov <oleg@tv-sign.ru>
+CC: linux-kernel@vger.kernel.org, Ram Pai <linuxram@us.ibm.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/4] page_cache_readahead: unneeded prev_page assignments
+References: <41F6348E.A1CB395C@tv-sign.ru>
+In-Reply-To: <41F6348E.A1CB395C@tv-sign.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch causes an error return if the user attempts to seek on a sysfs
-file.
+Looks fine, thought we had some reason for it in the past, but it will 
+definitly be overwritten.
 
-The patch was generated from 2.6.11-rc1.
+Signed-off-by: Steven Pratt <slpratt@austin.ibm.com>
 
-Signed-off-by:  Mitch Williams <mitch.a.williams@intel.com>
+Oleg Nesterov wrote:
 
-diff -urpN -X dontdiff linux-2.6.11-clean/fs/sysfs/file.c linux-2.6.11/fs/sysfs/file.c
---- linux-2.6.11-clean/fs/sysfs/file.c	2004-12-24 13:33:50.000000000 -0800
-+++ linux-2.6.11/fs/sysfs/file.c	2005-01-25 10:28:25.000000000 -0800
-@@ -307,6 +307,10 @@ static int check_perm(struct inode * ino
- 		file->private_data = buffer;
- 	} else
- 		error = -ENOMEM;
-+
-+	/*  Set mode bits to disallow seeking.  */
-+	file->f_mode &= ~(FMODE_LSEEK | FMODE_PREAD | FMODE_PWRITE);
-+
- 	goto Done;
+>There is no point in setting ra->prev_page before 'goto out',
+>it will be overwritten anyway.
+>
+>Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+>
+>--- 2.6.11-rc2/mm/readahead.c~	Wed Jan 12 11:44:55 2005
+>+++ 2.6.11-rc2/mm/readahead.c	Mon Jan 24 20:19:38 2005
+>@@ -432,7 +432,6 @@ page_cache_readahead(struct address_spac
+> 
+> 	if (newsize == 0 || (ra->flags & RA_FLAG_INCACHE)) {
+> 		newsize = 1;
+>-		ra->prev_page = offset;
+> 		goto out;	/* No readahead or file already in cache */
+> 	}
+> 	/*
+>@@ -443,7 +442,6 @@ page_cache_readahead(struct address_spac
+> 	if ((ra->size == 0 && offset == 0)	/* first io and start of file */
+> 	    || (ra->size == -1 && ra->prev_page == offset - 1)) {
+> 		/* First sequential */
+>-		ra->prev_page  = offset + newsize - 1;
+> 		ra->size = get_init_ra_size(newsize, max);
+> 		ra->start = offset;
+> 		if (!blockable_page_cache_readahead(mapping, filp, offset,
+>@@ -475,7 +473,6 @@ page_cache_readahead(struct address_spac
+> 	 */
+> 	if ((offset != (ra->prev_page+1) || (ra->size == 0))) {
+> 		ra_off(ra);
+>-		ra->prev_page  = offset + newsize - 1;
+> 		blockable_page_cache_readahead(mapping, filp, offset,
+> 				 newsize, ra, 1);
+> 		goto out;
+>@@ -545,7 +542,7 @@ page_cache_readahead(struct address_spac
+> 
+> out:
+> 	ra->prev_page = offset + newsize - 1;
+>-	return(newsize);
+>+	return newsize;
+> }
+> 
+> /*
+>  
+>
 
-  Einval:
-@@ -349,7 +353,7 @@ static int sysfs_release(struct inode *
- struct file_operations sysfs_file_operations = {
- 	.read		= sysfs_read_file,
- 	.write		= sysfs_write_file,
--	.llseek		= generic_file_llseek,
-+	.llseek		= no_llseek,
- 	.open		= sysfs_open_file,
- 	.release	= sysfs_release,
- };

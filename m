@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbTLBP62 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 10:58:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbTLBP62
+	id S262195AbTLBPvX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 10:51:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbTLBPvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 10:58:28 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:1703 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262228AbTLBP6Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 10:58:25 -0500
-Date: Tue, 2 Dec 2003 13:50:08 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Russell Cattelan <cattelan@xfs.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Nathan Scott <nathans@sgi.com>, <linux-kernel@vger.kernel.org>,
-       <linux-xfs@oss.sgi.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: XFS for 2.4
-In-Reply-To: <1070379282.82397.29.camel@lupo.thebarn.com>
-Message-ID: <Pine.LNX.4.44.0312021346530.13692-100000@logos.cnet>
+	Tue, 2 Dec 2003 10:51:23 -0500
+Received: from moutng.kundenserver.de ([212.227.126.188]:19693 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262195AbTLBPvV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 10:51:21 -0500
+From: Christian Borntraeger <kernel@borntraeger.net>
+To: ajbezerra@ufam.edu.br, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.0] Resident memory info in fs/proc/task_mmu.c
+Date: Tue, 2 Dec 2003 16:50:19 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-mm@vger.kernel.org, riel@nl.linux.org
+References: <18562.200.212.156.130.1070375149.squirrel@webmail.ufam.edu.br>
+In-Reply-To: <18562.200.212.156.130.1070375149.squirrel@webmail.ufam.edu.br>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312021650.20036.kernel@borntraeger.net>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ajbezerra@ufam.edu.br wrote:
+> Hi everyone,
+>
+> Here is a suggestion for a patch of fs/proc/task_mm.c which gives
+> more information about resident memory allocation for a given
+> process PID at /proc/PID/status.
+> -       unsigned long data = 0, stack = 0, exec = 0, lib = 0;
+> -       struct vm_area_struct *vma;
+> -
+> -       down_read(&mm->mmap_sem);
+> -       for (vma = mm->mmap; vma; vma = vma->vm_next) {
+[...]
+> +  unsigned long data = 0, stack = 0, exec = 0, lib = 0;
+[...]
+> +  struct vm_area_struct *vma;
+> +  down_read(&mm->mmap_sem);
+[...]
 
+and so on.
 
-On Tue, 2 Dec 2003, Russell Cattelan wrote:
+Why are you breaking the Coding style? Can you keep the standard indentation 
+please? This will make your patch much smaller and easier to see what you 
+actually changed.
 
-> On Tue, 2003-12-02 at 05:18, Marcelo Tosatti wrote:
-> [snip] 
-> > Also I'm not completly sure if the generic changes are fine and I dont
-> > like the XFS code in general.
-> Ahh so the real truth comes out.
-> 
-> 
-> Is there a reason for your sudden dislike of the XFS code?
+cheers
 
-I always disliked the XFS code. 
-
-> or is this just an arbitrary general dislike for unknown or unstated
-> reasons?
-
-I dont like the style of the code. Thats a personal issue, though, and 
-shouldnt matter.
-
-The bigger point is that XFS touches generic code and I'm not sure if that 
-can break something.
-
-Why it matters so much for you to have XFS in 2.4 ? 
-
+Christian
 

@@ -1,75 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129091AbRBVLPb>; Thu, 22 Feb 2001 06:15:31 -0500
+	id <S129078AbRBVL2z>; Thu, 22 Feb 2001 06:28:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129111AbRBVLPV>; Thu, 22 Feb 2001 06:15:21 -0500
-Received: from 209.102.21.2 ([209.102.21.2]:55568 "EHLO dragnet.seagull.net")
-	by vger.kernel.org with ESMTP id <S129091AbRBVLPS>;
-	Thu, 22 Feb 2001 06:15:18 -0500
-Message-ID: <3A94AE02.9ED1C7F6@goingware.com>
-Date: Thu, 22 Feb 2001 06:13:22 +0000
-From: "Michael D. Crawford" <crawford@goingware.com>
-Organization: GoingWare Inc. - Expert Software Development and Consulting
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
+	id <S129111AbRBVL2p>; Thu, 22 Feb 2001 06:28:45 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:1803 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129078AbRBVL2c>; Thu, 22 Feb 2001 06:28:32 -0500
+Date: Thu, 22 Feb 2001 07:41:52 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Jens Axboe <axboe@suse.de>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: ll_rw_block/submit_bh and request limits
+Message-ID: <Pine.LNX.4.21.0102220707380.1694-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Update to kernel test suite article
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After I posted the URL in the comments on tonight's Slashdot article on "Making
-Software Suck Less", I thought I should incorporate some of the comments people
-had made about my article over the past few weeks:
 
-Using Test Suites to Validate the Linux Kernel
-http://linuxquality.sunsite.dk/articles/testsuites/index.html
+Hi, 
 
-I knew I had a couple HTML errors in it, so I ran it through the W3C validation
-service until it came out 4.01-strict clean:
+The following piece of code in ll_rw_block() aims to limit the number of
+locked buffers by making processes throttle on IO if the number of on
+flight requests is bigger than a high watermaker. IO will only start
+again if we're under a low watermark.
 
-http://validator.w3.org/
+                if (atomic_read(&queued_sectors) >= high_queued_sectors) {
+                        run_task_queue(&tq_disk);
+                        wait_event(blk_buffers_wait,
+                        	atomic_read(&queued_sectors) < low_queued_sectors);
+                }
 
-Try the validator on your own pages, it's pretty embarrassing what it can find. 
-On an old page of mine I'd accidentally copied and pasted a whole repetition of
-the <body></body> tags and all the text in between at the end of the file - but
-it didn't show up in any browser.
 
-I added these tests:
+However, if submit_bh() is used to queue IO (which is used by ->readpage()
+for ext2, for example), no throttling happens.
 
-- PostgreSQL's regression tests
-- Mauve
-- VA Linux Cerberus
-- cpuburn
-- Lucifer
+It looks like ll_rw_block() users (writes, metadata reads) can be starved
+by submit_bh() (data reads). 
 
-the last three are hardware stress tests and should be used with caution, and
-probably not on a machine you would be concerned about setting on fire.
+If I'm not missing something, the watermark check should be moved to
+submit_bh(). 
 
-There are a few more suites to be added that I need to dig out of my email.
 
-Fortuitously, while I was editing the new draft, a helpful fellow from IBM
-Israel named Michael Veksler wrote in with some suggestions for improvement of
-some really bad grammar errors I'd committed, and a suggestion that I add some
-comments about test coverage - making sure that all components of the kernel get
-tested by some test or other.  I've taken his grammar suggestions but still need
-to write about the test coverage.
-
-I'm going to write on article on web application testing next.  Besides
-discussing the W3C validation service, I'll also talk about load generators for
-web servers.  A recent client of mine could have avoided hiring me at all if
-he'd gone to http://freshmeat.net and entered the word "stress" into the search
-box.
-
-Regards,
-
-Mike Crawford
--- 
-Michael D. Crawford
-GoingWare Inc. - Expert Software Development and Consulting
-http://www.goingware.com/
-crawford@goingware.com
-
-   Tilting at Windmills for a Better Tomorrow.

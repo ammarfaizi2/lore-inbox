@@ -1,75 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbUKBP5P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262130AbUKBP5L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbUKBP5P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 10:57:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbUKBP5O
+	id S262130AbUKBP5L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 10:57:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbUKBP43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 10:57:14 -0500
-Received: from a26.t1.student.liu.se ([130.236.221.26]:14274 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261420AbUKBPtI
+	Tue, 2 Nov 2004 10:56:29 -0500
+Received: from jade.aracnet.com ([216.99.193.136]:54725 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S261456AbUKBPtY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 10:49:08 -0500
-Message-ID: <4187AC80.6050409@drzeus.cx>
-Date: Tue, 02 Nov 2004 16:49:20 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040919)
-X-Accept-Language: en-us, en
+	Tue, 2 Nov 2004 10:49:24 -0500
+Date: Tue, 02 Nov 2004 07:46:59 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Brent Casavant <bcasavan@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+cc: hugh@veritas.com, ak@suse.de
+Subject: Re: [PATCH] Use MPOL_INTERLEAVE for tmpfs files
+Message-ID: <14340000.1099410418@[10.10.2.4]>
+In-Reply-To: <Pine.SGI.4.58.0411011901540.77038@kzerza.americas.sgi.com>
+References: <Pine.SGI.4.58.0411011901540.77038@kzerza.americas.sgi.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: __GFP flags and kmalloc failures
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to allocate a buffer to be used for ISA DMA and I'm 
-experiencing some difficulties.
+> This patch causes memory allocation for tmpfs files to be distributed
+> evenly across NUMA machines.  In most circumstances today, tmpfs files
+> will be allocated on the same node as the task writing to the file.
+> In many cases, particularly when large files are created, or a large
+> number of files are created by a single task, this leads to a severe
+> imbalance in free memory amongst nodes.  This patch corrects that
+> situation.
 
-I'm allocating a 64kB buffer (max size for low ISA DMA) using:
+Yeah, but it also ruins your locality of reference (in a NUMA sense). 
+Not convinced that's a good idea. You're guaranteeing universally consistent
+worse-case performance for everyone. And you're only looking at a situation
+where there's one allocator on the system, and that's imbalanced.
 
-kmalloc(65536, GFP_KERNEL | GFP_DMA);
+You WANT your data to be local. That's the whole idea.
 
-The choice of flags are from another driver that does ISA DMA so I 
-didn't put too much thought into them at first.
-
-The problem is now that this allocation doesn't always succeed. When it 
-fails I get:
-
-insmod: page allocation failure. order:4, mode:0x11
-
-and a nice little stack dump.
-
-Digging around in gfp.h to see if I have the proper flags I find that I 
-currently have the following:
-
-* __GFP_WAIT : This seems to indicate that the process should be put to 
-sleep until the allocation can succeed. Doesn't seem to work that way 
-though.
-
-* __GFP_IO : What is meant with physical IO? PCI DMA? This buffer needs 
-only be read by the ISA DMA controller and the driver in kernel space. 
-Any useful data is copied to other buffers.
-
-* __GFP_FS : Since the data is copied before use this probably isn't needed.
-
-* __GFP_DMA : From what I've been told, this flags causes the allocator 
-to do the magic required for the buffer to end up i memory accessible 
-from the ISA DMA controller. So this seems to be the only flag that 
-actually does anything useful.
-
-My question is now, why does the allocation fail (sometimes) and what 
-should I do about it?
-
-Memory fragmentation and overusage seems like reasons to why but why 
-doesn't the kernel throw out cache pages and reorganise user pages so 
-that the allocation can succeed?
-
-As for solutions I've tried using __GFP_REPEAT which seems to do the 
-trick. But the double underscore indicates (at least to me) that these 
-are internal defines that shouldn't be used except for very special 
-cases. What is the policy about these?
-
-Rgds
-Pierre
+M.

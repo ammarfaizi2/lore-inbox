@@ -1,75 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbUK3V7W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbUK3WEK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261233AbUK3V7W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 16:59:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbUK3V7V
+	id S261262AbUK3WEK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 17:04:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262347AbUK3WEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 16:59:21 -0500
-Received: from rev.193.226.233.139.euroweb.hu ([193.226.233.139]:63616 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261233AbUK3V7N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 16:59:13 -0500
-To: avi@argo.co.il
-CC: alan@lxorguk.ukuu.org.uk, torvalds@osdl.org, hbryan@us.ibm.com,
-       akpm@osdl.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, pavel@ucw.cz
-In-reply-to: <41ACE816.50104@argo.co.il> (message from Avi Kivity on Tue, 30
-	Nov 2004 23:37:26 +0200)
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com>	 <E1CUq57-00043P-00@dorka.pomaz.szeredi.hu>	 <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org> <1100798975.6018.26.camel@localhost.localdomain> <41A47B67.6070108@argo.co.il> <E1CWwqF-0007Ng-00@dorka.pomaz.szeredi.hu> <41ACBF87.4040206@argo.co.il> <E1CZDUf-0004jM-00@dorka.pomaz.szeredi.hu> <41ACD03C.9010300@argo.co.il> <E1CZFJP-0004uZ-00@dorka.pomaz.szeredi.hu> <41ACE816.50104@argo.co.il>
-Message-Id: <E1CZG1J-0004zW-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 30 Nov 2004 22:58:49 +0100
+	Tue, 30 Nov 2004 17:04:10 -0500
+Received: from mail4.bluewin.ch ([195.186.4.74]:51411 "EHLO mail4.bluewin.ch")
+	by vger.kernel.org with ESMTP id S261262AbUK3WEI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 17:04:08 -0500
+Date: Tue, 30 Nov 2004 23:04:10 +0100
+From: Roger Luethi <rl@hellgate.ch>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] net/via-rhine: convert MODULE_PARM to module_param
+Message-ID: <20041130220410.GB29947@k3.hellgate.ch>
+References: <Pine.LNX.4.61.0411300053190.3432@dragon.hygekrogen.localhost> <20041130140309.GA6568@k3.hellgate.ch> <Pine.LNX.4.61.0411302241260.3635@dragon.hygekrogen.localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0411302241260.3635@dragon.hygekrogen.localhost>
+X-Operating-System: Linux 2.6.10-rc2-bk11 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Looks like we are in a deadlock here :)
-> 
-> However you choose to call it, it is unacceptable IMO.
+On Tue, 30 Nov 2004 22:44:37 +0100, Jesper Juhl wrote:
+> already moved to module_param().  There's one difference though, and I 
+> think it matters; my patch sets the permission bits so that the parameters 
+> get exposed in sysfs (which I think is very useful), the driver in -mm 
+> sets the perms to 0 (zero) so nothing is exposed in sysfs (less useful).
 
-That I can agree with.  I never said that this was a full solution,
-only that this shows, that the deadlock is not inherent in userspace
-filesystems.
+I am not familiar with the issue. Can you work out with the submitter of
+the -mm patch why it was coded that way, and if your version is better?
 
-> So the userspace filesystem would pass that amount to the kernel. It's 
-> not pretty, but it is workable.
-
-Not pretty is an understatement IMO.
-
-> >And this is not unique to userspace filesystems, as Rik van Riel
-> >pointed out earlier, network filesystems are also prone to deadlock:
-> >
-> >http://lkml.org/lkml/2004/11/27/81
-> >
-> >  
-> >
-> This looks like a bug to me. Maybe jiggling the thresholds would help.
-
-Yes, and it's the jiggling I want to avoid.
-
-> The situation with userspace filesystems is:
-> 
->   some process allocates memory, blocking on kswapd as memory is full
->   kswapd calls userspace filesystem to free memory
->   userspace filesystem calls kernel, which allocates memory and blocks 
-> on kswapd
->   eventually all processes in the system block on kswapd
-> 
-> I have observed (and fixed) this on a real system.
-
-I have observed it too (not yet fixed, but working on it).  But
-realize that my proposal would excempt userspace filesystem pages from
-being blocked on by kswapd.  That's a fundamental difference.
-
-Since you don't believe me, I'll have to make an implementation, so
-you can experiment with it.  And if you'll still be able to cause a
-deadlock, I'll subject myself to extreme repentance, and promise never
-to touch an operating system ever again :)
-
-> with ramfs, once it accounts for memory, there would be no deadlock and 
-> no oom.
-
-And once fuse acounts for memory there will be no deadlock and no oom.
-See the symmetry?
-
-Miklos
+Roger

@@ -1,88 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129523AbRAONmu>; Mon, 15 Jan 2001 08:42:50 -0500
+	id <S129789AbRAONlk>; Mon, 15 Jan 2001 08:41:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130219AbRAONmk>; Mon, 15 Jan 2001 08:42:40 -0500
-Received: from femail2.rdc1.on.home.com ([24.2.9.89]:57811 "EHLO
-	femail2.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S129523AbRAONmf>; Mon, 15 Jan 2001 08:42:35 -0500
-Message-ID: <3A62FE09.F33DEB35@home.com>
-Date: Mon, 15 Jan 2001 08:41:29 -0500
-From: John Cavan <johncavan@home.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-ac9 i686)
-X-Accept-Language: en
+	id <S129523AbRAONla>; Mon, 15 Jan 2001 08:41:30 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:57093 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S129867AbRAONlK>; Mon, 15 Jan 2001 08:41:10 -0500
+Date: Mon, 15 Jan 2001 15:40:53 +0200 (EET)
+From: Heikki Lindholm <holindho@mail.niksula.cs.hut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Total loss with 2.4.0 (release)
+Message-ID: <Pine.GSO.4.20.0101151517590.26077-100000@famine.cs.hut.fi>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Networking strangeness 2.4.0-ac9 and earlier
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi all,
 
-I've seen this for a while... the output from netstat and ifconfig do
-not agree on the MTU of the device:
+I managed to kill my dear files and if anyone can help I'd be very
+thankful. The events leading to this were something like:
+Happy system with 2.4.0-test9 -> update to 2.4.0 (release) -> works
+nicely; no complaints of any kind (no crc errors or dma-disabling) ->
+reboot -> play Diablo II for some time (win98) -> restart linux ->
+VFS: cannot mount root. 
+I have two ext2 partitions plus root and one of them is on another disk
+(same ide lead, however) and it survived with no errors.
 
-[root@lion /root]# netstat -r
-Kernel IP routing table
-Destination     Gateway         Genmask         Flags   MSS Window  irtt
-Iface
-10.1.11.0       *               255.255.255.0   U        40 0          0
-eth0
-127.0.0.0       *               255.0.0.0       U        40 0          0
-lo
-default         spqr            0.0.0.0         UG       40 0          0
-eth0
+When I ran e2fsck (1.18) on root partition, in addition to having to
+run it many times before succeeding (segfaulted sometimes), nothing was
+left in the partition except lost+found with lots of
+files. Valid superblock wasn't found at 0, but at 8193.
 
-[root@lion /root]# ifconfig
-eth0      Link encap:Ethernet  HWaddr 00:10:4B:2B:12:80  
-          inet addr:10.1.11.76  Bcast:10.1.11.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:3648 errors:77 dropped:0 overruns:0 frame:144
-          TX packets:3863 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100 
-          Interrupt:11 Base address:0xd800 
+I really don't get what would have caused this or how to cure it. I still
+have my /home in need of repairing, but I won't be running fsck on it with
+this good expectancy-of-recovery (I actually tried once with a backup on
+another disk and it resulted two VERY old directoried, everything else was
+lost...and found(?)).
 
-lo        Link encap:Local Loopback  
-          inet addr:127.0.0.1  Mask:255.0.0.0
-          UP LOOPBACK RUNNING  MTU:16192  Metric:1
-          RX packets:139 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:139 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:0 
+I also updated my machine from VIA MVP3 based K6II to VIA KT133 (with 868B
+southbridge - ATA100, that is) based Duron, but linux (2.4.0-test9) worked
+fine with both configurations. I think this might be some sort of DMA
+problem.  
 
-AFAIK, the MSS value should be about 40 less than the MTU, not 40,
-though on other Linux boxes I have, the MSS column from netstat shows 0
-(both of them are 2.2 kernels and single proc machines). This machine is
-a dual P3-500 with 512mb of RAM and a 3COM 3c905 card. I understand that
-the MSS column should actually read the MTU, but I don't know if that is
-the case. Either way cat /proc/net/route shows:
+I read from kernel notes that ac1 fixes root umount handling. Might that
+be connected with the symptoms I had? If anyone has any suggestions,
+please post them. I would, at least, like to know how could I verify if
+the filesystem is really messed (for example, overwritten with something
+at the bus at the time) or if it's just some minor issue that confuses
+fsck totally.
 
-Iface   Destination     Gateway         Flags   RefCnt  Use     Metric 
-Mask     MTU     Window 
-IRTT                                                       
-eth0    000B010A        00000000        0001    0       0       0      
-00FFFFFF 40      0      
-0                                                                              
-lo      0000007F        00000000        0001    0       0       0      
-000000FF 40      0      
-0                                                                                
-eth0    00000000        FE0B010A        0003    0       0       0      
-00000000 40      0       0
+-- Heikki Lindholm
 
-One of the things that seem to be symptomatic of the problem is web
-browsing to my Ultra 5 (Solaris 2.6 with recommended patches). A single
-web page can take several minutes to load with all images on my local
-LAN, but on the other Linux machines, it blows in before you can blink
-(as would be expected). Similar behaviour can be seen browsing against
-other Linux machines as well, though not as bad. Other network protocols
-are slower as well (FTP, telnet), though not once it gets through the
-firewall, oddly enough.
-
-Any help appreciated.
-
-Thanks,
-John
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

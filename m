@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129304AbRBDRCz>; Sun, 4 Feb 2001 12:02:55 -0500
+	id <S131832AbRBDRDz>; Sun, 4 Feb 2001 12:03:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131832AbRBDRCp>; Sun, 4 Feb 2001 12:02:45 -0500
-Received: from mail.diligo.fr ([194.153.78.251]:47370 "EHLO mail.diligo.fr")
-	by vger.kernel.org with ESMTP id <S129304AbRBDRC3>;
-	Sun, 4 Feb 2001 12:02:29 -0500
-Date: Sun, 4 Feb 2001 17:58:38 +0100
-From: patrick.mourlhon@wanadoo.fr
-To: linux-kernel@vger.kernel.org
-Subject: Re: ATAPI CDRW which doesn't work
-Message-ID: <20010204175838.A2123@MourOnLine.dnsalias.org>
-Reply-To: patrick.mourlhon@wanadoo.fr
-In-Reply-To: <20010203230544.A549@MourOnLine.dnsalias.org> <20010204030644.A23913@l-t.ee> <20010204073352.A529@MourOnLine.dnsalias.org> <20010204172220.B19909@l-t.ee>
-Mime-Version: 1.0
+	id <S132064AbRBDRDf>; Sun, 4 Feb 2001 12:03:35 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34831 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131832AbRBDRDZ>; Sun, 4 Feb 2001 12:03:25 -0500
+Subject: Re: Better battery info/status files
+To: ben@kalifornia.com (Ben Ford)
+Date: Sun, 4 Feb 2001 16:49:11 +0000 (GMT)
+Cc: dwmw2@infradead.org (David Woodhouse), jas88@cam.ac.uk (James Sutherland),
+        rmk@arm.linux.org.uk (Russell King),
+        acahalan@cs.uml.edu (Albert D. Cahalan), pavel@suse.cz (Pavel Machek),
+        andrew.grover@intel.com, linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <3A7D6C66.749318E1@kalifornia.com> from "Ben Ford" at Feb 04, 2001 06:51:18 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010204172220.B19909@l-t.ee>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14PSLi-0001r3-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I've got those kind of message now :
-> > 
-> > Feb  4 07:18:35 Line kernel: scsi : aborting command due to timeout : pid 0, scsi0, channel 0, id 0, lun 0 Read (10) 00 00 00 00 2e 00 00 01 00 
+> > Yeah. We can have this as part of the locale settings, changable by
+> > echoing the desired locale string to /proc/sys/kernel/lc_all.
 > 
-> If this is a correct ISO9660 cd you should not see those
-> messages.  It is either hardware problem (eg IDE cable is badly
-> conencted or CDRW is broken/dusty) or this CD is simply
-> scratched.  Does it work with another CD?
-> 
-> Also try to put it on separate IDE channel than your main HD.
+> Just an idea, . .  but isn't this something better done in userland?
 
-Cable looks ok, removed and reinstalled, used it before with 
-a second hard disk. CDRW may be broken. don't know, but at
-least nothing appear broken all around the device.
-CD was read with an other CDROM reader.
-Never seen CDRW working reliably till now. But never used it
-through Windows, don't have it since 4 years. I might at least
-check if it could work on Windows.
+Please remember this is an international list. For the benefit of certain
+users please mark all sarcasm with the word NOT or a simply face
 
-Whatever thanks a lot for your time, was greatly appreciated,
-
-patrick
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

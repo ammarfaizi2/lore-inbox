@@ -1,27 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbTIZCCc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 22:02:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbTIZCCc
+	id S262331AbTIZCE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 22:04:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbTIZCE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 22:02:32 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:11695 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261256AbTIZCCb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 22:02:31 -0400
-Date: Thu, 25 Sep 2003 19:02:26 -0700
-From: Larry McVoy <lm@bitmover.com>
-Message-Id: <200309260202.h8Q22QZ27505@work.bitmover.com>
-To: bitkeeper-users@bitmover.com, linux-kernel@vger.kernel.org
-Subject: out until Oct 7th
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
-	required 7, AWL)
+	Thu, 25 Sep 2003 22:04:29 -0400
+Received: from dsl093-172-075.pit1.dsl.speakeasy.net ([66.93.172.75]:21142
+	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
+	id S262331AbTIZCE2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 22:04:28 -0400
+Date: Thu, 25 Sep 2003 22:04:42 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SGI linux 2.4 console driver patch
+Message-ID: <20030926020442.GN22041@kurtwerks.com>
+References: <200309251602.h8PG2FA22790@attica.americas.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309251602.h8PG2FA22790@attica.americas.sgi.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.20-xfs
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you need BitKeeper help please use support@bitmover.com, I have 
-some family stuff that is higher priority than work.
+Quoth Pat Gefre:
 
---lm
+Worked like a charm. ;-)
+
+K
+-- 
+"Beware of bugs in the above code; I have only proved it correct, not
+tried it."
+		-- Donald Knuth

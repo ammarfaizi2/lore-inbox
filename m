@@ -1,121 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262424AbTJXRoV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 13:44:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbTJXRoU
+	id S262425AbTJXRqW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 13:46:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbTJXRqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 13:44:20 -0400
-Received: from [64.244.172.35] ([64.244.172.35]:19072 "HELO
-	aslan.cs.westminster.edu") by vger.kernel.org with SMTP
-	id S262424AbTJXRoS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 13:44:18 -0400
-From: "C. David Shaffer" <cdshaffer@acm.org>
+	Fri, 24 Oct 2003 13:46:21 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:26123 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262425AbTJXRqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 13:46:21 -0400
+Date: Fri, 24 Oct 2003 18:46:19 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Andrey Panin <pazke@donpac.ru>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix visws framebuffer 16bpp mode support
+In-Reply-To: <20031024111402.GC31191@pazke>
+Message-ID: <Pine.LNX.4.44.0310241845490.21561-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="UECjhkSEbQ"
-Content-Transfer-Encoding: 7bit
-Message-ID: <16281.25841.66888.498987@aslan.cs.westminster.edu>
-Date: Fri, 24 Oct 2003 13:44:17 -0400
-To: linux-kernel@vger.kernel.org
-Subject: non-root pthread code (attached) "crashes" 2.4.20-8 on Intel...how about 2.4.22
-X-Mailer: VM 7.07 under 21.4 (patch 12) "Portable Code" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---UECjhkSEbQ
-Content-Type: text/plain; charset=us-ascii
-Content-Description: message body text
-Content-Transfer-Encoding: 7bit
+> attached patch (2.6.0-test8) fixes visws framebuffer driver. 
+> With this patch applied XFree86 can use 16bpp video mode.
 
-Attached is an incorrect solution to a classroom problem which
-reliably crashes (more later) every linux machine that I've tried it
-on.  crash = machine becomes unresponsive to user input, no external
-network connections are successful (can't connect to ssh, apache etc)
-but no information is placed in the log.  The program is otherwise
-harmless so I encourage you to try it yourself :-)  Compile with:
-
-gcc -o fibFork fibFork.c -lpthread
-
-Run it with:
-
-./fibFork t 30
+Already applied to BK tree :-)
 
 
-Here is as much info as I could think to provide (as I said, I've
-"crashed" several machines with this but here is one config):
-
-RedHat 9 "server" install
-Intel P3 800MHz
-uname -a: Linux shaffer2.cs.westminster.edu 2.4.20-20.9 #1 Mon Aug 18 11:45:58 EDT 2003 i686 i686 i386 GNU/Linux
-glibc-2.3.2-27.9
-gcc-3.2.2-5
-
-I would be happy to provide more information but I'm hoping that
-you'll be able to reproduce the problem.
-
-David Shaffer
-cdshaffer@acm.org
-
-
---UECjhkSEbQ
-Content-Type: application/octet-stream
-Content-Description: fibFork.c
-Content-Disposition: attachment;
-	filename="fibFork.c"
-Content-Transfer-Encoding: base64
-
-I2luY2x1ZGUgPHN5cy90eXBlcy5oPgojaW5jbHVkZSA8c3lzL3dhaXQuaD4KI2luY2x1ZGUg
-PHVuaXN0ZC5oPgojaW5jbHVkZSA8c3RkaW8uaD4KI2luY2x1ZGUgPHB0aHJlYWQuaD4KCmlu
-dCBzZm9yaygpOwppbnQgZm9ya0ZpYihpbnQgZmliTnVtYmVyKTsKaW50ICp0aHJlYWRGaWIo
-aW50ICpmaWJOdW1iZXIpOwoKaW50IG1haW4oaW50IGFyZ2MsIGNoYXIgKiphcmd2KXsgICAg
-ICAgICAgIAogIGludCBmaWJOdW1iZXI7CiAgaW50IGZpYlJlc3VsdDsKICBpbnQgdGhyZWFk
-UmVzdWx0ID0gMDsKICBpbnQgdGVzdDsKICBjaGFyIHR5cGU7CiAgCiAgaWYgKGFyZ2MgPiAz
-IHx8IGFyZ2MgPCAzKXsKICAgIHByaW50ZigiVXNhZ2U6IGZpYkZvcmsgdHlwZSBmaWJMZW5n
-dGhcbiIpOwogICAgcHJpbnRmKCIgICAgICAgICAgIHR5cGUgPSBmIG9yIHQgKGZvcmsgb3Ig
-dGhyZWFkZWQpXG4iKTsKICAgIHByaW50ZigiICAgICAgICAgICBmaWJMZW5ndGggPSBpbnRl
-Z2VyIHZhbHVlXG4iKTsKICAgIHJldHVybiAxOwogIH0KICBpZiAoc3NjYW5mKGFyZ3ZbMl0s
-ICIlZCIsICZ0ZXN0KSA9PSAwKXsKICAgIHByaW50ZigiVXNhZ2U6IGZpYkZvcmsgdHlwZSBm
-aWJMZW5ndGhcbiIpOwogICAgcHJpbnRmKCIgICAgICAgICAgIHR5cGUgPSBmIG9yIHQgKGZv
-cmtlZCBvciB0aHJlYWRlZClcbiIpOwogICAgcHJpbnRmKCIgICAgICAgICAgIGZpYkxlbmd0
-aCA9IGludGVnZXIgdmFsdWVcbiIpOwogICAgcmV0dXJuIDE7CiAgfQogIGlmIChzdHJsZW4o
-YXJndlsxXSkgPiAxKXsKICAgIHByaW50ZigidHlwZSBtdXN0IGJlIGEgc2luZ2xlIGNoYXJh
-Y3RlciFcbiIpOwogICAgZXhpdCgxKTsKICB9CiAgc3NjYW5mKGFyZ3ZbMV0sICIlYyIsICZ0
-eXBlKTsKICBzc2NhbmYoYXJndlsyXSwgIiVkIiwgJmZpYk51bWJlcik7CiAgCiAgaWYgKHR5
-cGUgPT0gJ3QnKXsKICAgIHRocmVhZFJlc3VsdCA9ICp0aHJlYWRGaWIoJmZpYk51bWJlcik7
-CiAgICBwcmludGYoIkZpYlRocmVhZCA9ICVkXG4iLCB0aHJlYWRSZXN1bHQpOwogIH1lbHNl
-IGlmICh0eXBlID09ICdmJyl7CiAgICBmaWJSZXN1bHQgPSBmb3JrRmliKGZpYk51bWJlcik7
-CiAgICBwcmludGYoIkZJQkZJTkFMOiAlZFxuIiwgZmliUmVzdWx0KTsKICB9ZWxzZXsKICAg
-IHByaW50ZigiVHlwZSBtdXN0IGJlIGYgb3IgdFxuIik7CiAgICBleGl0KDEpOwogIH0KICAK
-ICBwcmludGYoIkRPTkVcbiIpOwogIHJldHVybiAwOwp9CgppbnQgc2ZvcmsoKXsKICBpbnQg
-cGlkOwogIHBpZCA9IGZvcmsoKTsKICBpZiAocGlkID09IC0xKXsKICAgIHBlcnJvcigiRm9y
-ayBlcnJvciIpOwogICAgZXhpdCgxKTsKICB9ZWxzZQogICAgcmV0dXJuIHBpZDsKfQoKaW50
-IGZvcmtGaWIoaW50IGZpYk51bWJlcil7CiAgaW50IHBpZDEgPSAwLCBwaWQyID0gMDsKICBp
-bnQgc3RhdHVzMSwgc3RhdHVzMjsKICAKICBpZihmaWJOdW1iZXIgPT0gMCkKICAgIHJldHVy
-biAwOwogIGVsc2UgaWYgKGZpYk51bWJlciA9PSAxIHx8IGZpYk51bWJlciA9PSAyKQogICAg
-cmV0dXJuIDE7CiAgZWxzZXsKICAgIGlmKChwaWQxPXNmb3JrKCkpID09IDApewogICAgICBl
-eGl0KGZvcmtGaWIoZmliTnVtYmVyLTEpKTsKICAgIH0KICAgIGlmKChwaWQyPXNmb3JrKCkp
-ID09IDApewogICAgICBleGl0KGZvcmtGaWIoZmliTnVtYmVyLTIpKTsKICAgIH0KICAgIHdh
-aXRwaWQocGlkMSwgJnN0YXR1czEsIDApOwogICAgd2FpdHBpZChwaWQyLCAmc3RhdHVzMiwg
-MCk7CiAgICByZXR1cm4gKFdFWElUU1RBVFVTKHN0YXR1czEpICsgV0VYSVRTVEFUVVMoc3Rh
-dHVzMikpOwogIH0KfQoKaW50ICp0aHJlYWRGaWIoaW50ICpmaWJOdW1iZXIpewogIHByaW50
-ZigiRklCIE5VTUJFUjogJWRcbiIsICpmaWJOdW1iZXIpOwogIHB0aHJlYWRfdCB0aHJlYWQx
-LCB0aHJlYWQyOwogIGludCBudW0xLG51bTI7CiAgaW50IHJldFZhbDEsIHJldFZhbDI7CiAg
-aW50ICpyZXR1cm5WYWwxLCAqcmV0dXJuVmFsMjsKICBpbnQgKng7CiAgbnVtMSA9IDA7CiAg
-bnVtMiA9IDA7CiAgcmV0VmFsMSA9IDA7CiAgcmV0VmFsMiA9IDA7CiAgCiAgCiAgaWYgKCpm
-aWJOdW1iZXIgPT0gMCl7CiAgICByZXR1cm4gKGludCopMDsKICB9ZWxzZSBpZiAoKmZpYk51
-bWJlciA9PSAxIHx8ICpmaWJOdW1iZXIgPT0gMil7CiAgICByZXR1cm4gKGludCopMTsKICB9
-ZWxzZXsKICAgIG51bTEgPSAqZmliTnVtYmVyIC0gMTsKICAgIG51bTIgPSAqZmliTnVtYmVy
-IC0gMjsKICAgIHByaW50ZigiRklCMTogJWQgRklCMjogJWRcbiIsIG51bTEsIG51bTIpOwog
-ICAgaWYoKHB0aHJlYWRfY3JlYXRlKCZ0aHJlYWQxLCBOVUxMLCAodm9pZCopdGhyZWFkRmli
-LCAmbnVtMSkpICE9IDApewogICAgICBwZXJyb3IoIlRocmVhZCAxIik7CiAgICAgIGV4aXQo
-MSk7CiAgICB9CiAgICBpZigocHRocmVhZF9jcmVhdGUoJnRocmVhZDIsIE5VTEwsICh2b2lk
-Kil0aHJlYWRGaWIsICZudW0yKSkgIT0gMCl7CiAgICAgIHBlcnJvcigiVGhyZWFkIDIiKTsK
-ICAgICAgZXhpdCgxKTsKICAgIH0KICAgIAogICAgcHRocmVhZF9qb2luKHRocmVhZDEsICh2
-b2lkKiopJnJldHVyblZhbDEpOwogICAgcHJpbnRmKCJUSFJFQUQxIEpvaW5lZFxuIik7CiAg
-ICBwdGhyZWFkX2pvaW4odGhyZWFkMiwgKHZvaWQqKikmcmV0dXJuVmFsMik7CiAgICBwcmlu
-dGYoIlRIUkVBRDIgSm9pbmVkXG4iKTsKICAgIHByaW50ZigiUkVUVkFMMTogJWRcblJFVFZB
-TDI6ICVkXG4iLCByZXR1cm5WYWwxLCByZXR1cm5WYWwyKTsKICAgIHByaW50ZigiQUZURVJU
-SFJFQURTXG4iKTsKICAgICp4ID0gKGludClyZXR1cm5WYWwxICsgKGludClyZXR1cm5WYWwy
-OwogICAgcHJpbnRmKCJCTEFIXG4iKTsKICB9CiAgcHJpbnRmKCJYID0gJWRcbiIsICp4KTsK
-ICByZXR1cm4geDsKfQo=
---UECjhkSEbQ--

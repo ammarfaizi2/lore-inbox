@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131690AbRC0Woh>; Tue, 27 Mar 2001 17:44:37 -0500
+	id <S132005AbRC0Wqs>; Tue, 27 Mar 2001 17:46:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131724AbRC0WoR>; Tue, 27 Mar 2001 17:44:17 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40202 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S131690AbRC0WoN>;
-	Tue, 27 Mar 2001 17:44:13 -0500
-Date: Tue, 27 Mar 2001 23:43:08 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	id <S131733AbRC0Wqh>; Tue, 27 Mar 2001 17:46:37 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:28680 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131724AbRC0WqU>; Tue, 27 Mar 2001 17:46:20 -0500
+Message-ID: <3AC117E3.7ACDF2CD@transmeta.com>
+Date: Tue, 27 Mar 2001 14:44:51 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
+To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Linus Torvalds <torvalds@transmeta.com>, Andries.Brouwer@cwi.nl,
         linux-kernel@vger.kernel.org, tytso@MIT.EDU
 Subject: Re: Larger dev_t
-Message-ID: <20010327234308.B5411@flint.arm.linux.org.uk>
-In-Reply-To: <E14i1ln-0004Tn-00@the-village.bc.nu> <3AC11145.58FDCFBB@transmeta.com>
-Mime-Version: 1.0
+In-Reply-To: <200103272238.QAA38706@tomcat.admin.navo.hpc.mil>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AC11145.58FDCFBB@transmeta.com>; from hpa@transmeta.com on Tue, Mar 27, 2001 at 02:16:37PM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 27, 2001 at 02:16:37PM -0800, H. Peter Anvin wrote:
-> Alan Cox wrote:
-> > A major for 'disk' generically makes total sense. Classing raid controllers
-> > as 'scsi' isnt neccessarily accurate. A major for 'serial ports' would also
-> > solve a lot of misery
+Jesse Pollard wrote:
+> > >
+> > > > high-end-disks. Rather the reverse. I'm advocating the SCSI layer not
+> > > > hogging a major number, but letting low-level drivers get at _their_
+> > > > requests directly.
+> > >
+> > > A major for 'disk' generically makes total sense. Classing raid controllers
+> > > as 'scsi' isnt neccessarily accurate. A major for 'serial ports' would also
+> > > solve a lot of misery
+> > >
+> >
+> > But it might also cause just as much misery, specifically because things
+> > move around too much.
 > 
-> But it might also cause just as much misery, specifically because things
-> move around too much.
+> That can be handled. It calls for using a volume name or UUID on file
+> systems and allowing mount to accept the volume name.
+> 
+> One way would be to add the volume identifier (whatever it ends up being)
+> to the /proc/partitions file. Then mount could search that table for
+> the volume name and use the associated device definitions to accomplish
+> the mount.
+> 
 
-Actually, it probably won't.  As has already been said in the past, the
-names are effectively a user space issue, but major numbers aren't.
+Since when have serial ports had a UUID or volume name?
 
-I for one would like to see a major number for all 'serial ports' whether
-they be embedded ARM serial ports _or_ standard 16550 ports, but at the
-moment its not easily acheivable without introducing more mess.
+Seriously, folks, don't look too much at block devices, especially not
+block devices that are mounted.  That's the easy -- nay, trivial --
+case.  Char devices is where the rubber hits the road.
 
-Ted indicated to me a while ago (just after I wrote serial_core.c for
-yet-another-type-of-ARM-serial-port) his visions of the direction serial
-stuff should take in 2.5; this is obviously one of the things that I'm
-keen to discuss and solve in 2.5.
+	-hpa
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbTD3Qbz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 12:31:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbTD3Qbz
+	id S261383AbTD3Qio (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 12:38:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbTD3Qio
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 12:31:55 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:56531 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S261240AbTD3Qby (ORCPT
+	Wed, 30 Apr 2003 12:38:44 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:61858 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S261383AbTD3Qin (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 12:31:54 -0400
-Date: Wed, 30 Apr 2003 18:41:53 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Some handy scripts if you are using quilt for kernel
-Message-ID: <20030430164153.GA7467@elf.ucw.cz>
+	Wed, 30 Apr 2003 12:38:43 -0400
+Date: Wed, 30 Apr 2003 18:51:03 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: P?l Halvorsen <paalh@ifi.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sendfile
+Message-ID: <20030430165103.GA3060@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	P?l Halvorsen <paalh@ifi.uio.no>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.51.0304301604330.12087@sondrio.ifi.uio.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <Pine.LNX.4.51.0304301604330.12087@sondrio.ifi.uio.no>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Apr 30, 2003 at 04:28:32PM +0200, P?l Halvorsen wrote:
+> Hi!
+> 
+> Does sendfile support UDP connections (SOCK_DGRAM)?
 
-...unfortunately it depends on on-disk layout, so it is really rather
-specialized. First allows to patch to the next Linus kernel with all
-patches applied:
+Try it. I bet it doesn't do so, and certainly not usably. Blasting UDP
+frames is seldomly useful without checks, like NFS performs.
 
-quilt-update-kernel:
-#
-# Run from .pc directory
-for A in *; do ( cd $A; find . | ( while true; do read B || exit; cp /usr/src/clean/$B $B; done ); ); done
+> Does sendfile remove ALL in-memory data copy operations?
 
+Depends. With some network adaptors it might. Definition of 'zero-copy' is
+somewhat misty. Some variants of zero-copy would actually be called
+'one-copy' or 'minus-one-copy' in other contexts.
 
-Second one shows you "what have you done since last quilt refresh". It
-takes time.
+Regards,
 
-quilt-diff:
-#!/bin/bash
-rm -rf /usr/src/tmp/linux
-cp -al /usr/src/clean.2.5 /usr/src/tmp/linux
-cat /usr/src/linux/patches/series | while true; do
-    read PATCHNAME || exit
-    echo Processing $PATCHNAME
-    cd /usr/src/tmp/linux
-    cat /usr/src/linux/patches/$PATCHNAME | patch -Efsp1
-done
-echo Diffing tree
-diff-tree /usr/src/tmp/linux /usr/src/linux | tee /tmp/delme.quilt-diff
+bert
 
-Oh and then my diff-tree script:
-
-diff-tree:
-#!/bin/bash
-diff -ur -x '.dep*' -x '.hdep*' -x '*.[oas]' -x '*~' -x '#*' -x '*CVS*' -x '*.orig' -x '*.rej' -x '*.old' -x '.menu*' -x asm -x local.h -x 'System.map' -x autoconf.h -x compile.h -x version.h -x .version -x defkeymap.c -x uni_hash.tbl -x zImage -x vmlinux -x vmlinuz -x TAGS -x bootsect -x '*RCS*' -x conmakehash -x map -x build -x build -x configure -x '*target*' -x '*.flags' -x '*.bak' -x '*.cmd' $*
-
-I hope its usefull for someone.
-
-								Pavel
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

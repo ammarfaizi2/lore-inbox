@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311948AbSDSJ1a>; Fri, 19 Apr 2002 05:27:30 -0400
+	id <S312194AbSDSJhp>; Fri, 19 Apr 2002 05:37:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312119AbSDSJ13>; Fri, 19 Apr 2002 05:27:29 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1549 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S311948AbSDSJ13>; Fri, 19 Apr 2002 05:27:29 -0400
-Subject: Re: Bio pool & scsi scatter gather pool usage
-To: lord@sgi.com (Stephen Lord)
-Date: Fri, 19 Apr 2002 09:58:36 +0100 (BST)
-Cc: akpm@zip.com.au (Andrew Morton), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        peloquin@us.ibm.com (Mark Peloquin), linux-kernel@vger.kernel.org
-In-Reply-To: <3CBFC755.50106@sgi.com> from "Stephen Lord" at Apr 19, 2002 02:29:25 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S312212AbSDSJho>; Fri, 19 Apr 2002 05:37:44 -0400
+Received: from mons.uio.no ([129.240.130.14]:51343 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S312194AbSDSJho>;
+	Fri, 19 Apr 2002 05:37:44 -0400
+To: "Jehanzeb Hameed" <u990056@giki.edu.pk>
+Cc: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: regarding NFS
+In-Reply-To: <Pine.LNX.4.33.0204181338050.19147-100000@penguin.transmeta.com>
+	<001f01c1e6c6$2d6a9f80$e53ca8c0@hostel6.resnet.giki.edu.pk>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 19 Apr 2002 11:36:35 +0200
+Message-ID: <shs7kn4m3mk.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16yUE0-0006i7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But this gets you lowest common denominator sizes for the whole
-> volume, which is basically the buffer head approach, chop all I/O up
-> into a chunk size we know will always work. Any sort of nasty  boundary
-> condition at one spot in a volume means the whole thing is crippled
-> down to that level. It then becomes a black magic art to configure a
-> volume which is not restricted to a small request size.
+>>>>> " " == Jehanzeb Hameed <u990056@giki.edu.pk> writes:
 
-Its still cheaper to merge bio chains than split them. The VM issues with
-splitting them are not nice at all since you may need to split a bio to
-write out a page and it may be the last page
+     > I was looking at the code and I couldnt find how NFS implements
+     > inode->i_mapping->a_ops->readpage(filp,page) in
+     > used by generic_file_read in mm/filemapc.c. All I could find
+     > was inode->i_op->readpage(filp,page). But NFS uses
+     > generic_file_read....so how does it work out. Kernel 2.4.17??
+
+Look again: there is no such thing as readpage() in the struct
+inode_operations in the 2.4.x kernels. Just grep for 'nfs_file_aops'
+in the source.
+
+Cheers,
+  Trond

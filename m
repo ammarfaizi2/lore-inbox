@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131927AbRAKNPL>; Thu, 11 Jan 2001 08:15:11 -0500
+	id <S130006AbRAKNUW>; Thu, 11 Jan 2001 08:20:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130339AbRAKNPB>; Thu, 11 Jan 2001 08:15:01 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:56330 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S130006AbRAKNOx>;
-	Thu, 11 Jan 2001 08:14:53 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: dwmw2@infradead.org (David Woodhouse),
-        linux-kernel@vger.kernel.org (List Linux-Kernel)
-Subject: Re: Where did vm_operations_struct->unmap in 2.4.0 go? 
-In-Reply-To: Your message of "Thu, 11 Jan 2001 13:09:13 -0000."
-             <E14GhTf-0002CS-00@the-village.bc.nu> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 12 Jan 2001 00:14:44 +1100
-Message-ID: <17544.979218884@ocs3.ocs-net>
+	id <S130130AbRAKNUN>; Thu, 11 Jan 2001 08:20:13 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:16000 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130006AbRAKNUG>;
+	Thu, 11 Jan 2001 08:20:06 -0500
+Date: Wed, 10 Jan 2001 21:19:41 -0800
+Message-Id: <200101110519.VAA02784@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: andrewm@uow.edu.au
+CC: jayts@bigfoot.com, linux-kernel@vger.kernel.org,
+        linux-audio-dev@ginette.musique.umontreal.ca, xpert@xfree86.org,
+        mcrichto@mpp.ecs.umass.edu
+In-Reply-To: <3A5D994A.1568A4D5@uow.edu.au> (message from Andrew Morton on
+	Thu, 11 Jan 2001 22:30:18 +1100)
+Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
+In-Reply-To: <3A57DA3E.6AB70887@uow.edu.au> from "Andrew Morton" at Jan 07, 2001 01:53:50 PM <200101110312.UAA06343@toltec.metran.cx> <3A5D994A.1568A4D5@uow.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Jan 2001 13:09:13 +0000 (GMT), 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->> Stick to one method that works for all routines, dynamic registration.
->> If that imposes the occasional need for a couple of extra calls in some
->> routines and for people to think about initialisation order right from
->> the start then so be it, it is a small price to pay for long term
->> stability and ease of maintenance.
->
->What happens when we get a loop in init order because of binding and other init
->order conflicts?
 
-The kernel does not support circular dependencies between providers and
-consumers.  It does not matter whether they are built into vmlinux or
-loaded as modules, there can be no loops in the directed graph of
-dependencies.  It just does not make sense.
+Just some commentary and a bug report on your patch Andrew:
 
-A while ago there was accidentally a loop between two ppp related
-modules, each needed a routine in the other module.  modprobe would not
-load them.  Even if it could have loaded them, it would have been
-impossible to unload, both modules would have had a use count on the
-other.  The fix was to remove the incorrect loop, it was a programming
-error.
+Opinion: Personally, I think the approach in Andrew's patch
+	 is the way to go.
 
+	 Not because it can give the absolute best results.
+	 But rather, it is because it says "here is where a lot
+         of time is spent".
+
+	 This has two huge benefits:
+	 1) It tells us where possible algorithmic improvements may
+	    be possible.  In some cases we may be able to improve the
+	    code to the point where the pre-emption points are no
+	    longer necessary and can thus be removed.
+	 2) It affects only code which can burn a lot of cpu without
+	    scheduling.  Compare this to schemes which make the kernel
+	    fully pre-emptable, causing _EVERYONE_ to pay the price of
+	    low-latency.  If we were to later fine algorithmic
+	    improvements to the high-latency pieces of code, we
+            couldn't then just "undo" support for pre-emption because
+	    dependencies will have swept across the whole kernel
+	    already.
+
+            Pre-emption, by itself, also doesn't help in situations
+	    where lots of time is spent while holding spinlocks.
+	    There are several other operating systems which support
+	    pre-emption where you will find hard coded calls to the
+	    scheduler in time-consuming code.  Heh, it's almost like,
+	    "what's the frigging point of pre-emption then if you
+	    still have to manually check in some spots?"
+
+Bug:	In the tcp_minisock.c changes, if you bail out of the loop
+	early (ie. max_killed=1) you do not decrement tcp_tw_count
+	by killed, which corrupts the state of the TIME_WAIT socket
+	reaper.  The fix is simple, just duplicate the tcp_tw_count
+	decrement into the "if (max_killed)" code block.
+
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136035AbREHCji>; Mon, 7 May 2001 22:39:38 -0400
+	id <S136148AbREHCsN>; Mon, 7 May 2001 22:48:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136123AbREHCj2>; Mon, 7 May 2001 22:39:28 -0400
-Received: from feeder.cyberbills.com ([64.41.210.81]:7689 "EHLO
-	sjc-smtp2.cyberbills.com") by vger.kernel.org with ESMTP
-	id <S136035AbREHCjR>; Mon, 7 May 2001 22:39:17 -0400
-Date: Mon, 7 May 2001 19:39:10 -0700 (PDT)
-From: "Sergey Kubushin" <ksi@cyberbills.com>
-To: linux-kernel@vger.kernel.org
-Subject: mm: critical shortage of bounce buffers
-Message-ID: <Pine.LNX.4.31ksi3.0105071930590.20449-100000@nomad.cyberbills.com>
+	id <S136738AbREHCsD>; Mon, 7 May 2001 22:48:03 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:22956 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S136148AbREHCr4>;
+	Mon, 7 May 2001 22:47:56 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15095.24153.737361.998494@pizda.ninka.net>
+Date: Mon, 7 May 2001 19:47:53 -0700 (PDT)
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: page_launder() bug
+In-Reply-To: <Pine.LNX.4.21.0105071929190.8237-100000@penguin.transmeta.com>
+In-Reply-To: <15095.15091.45238.172746@pizda.ninka.net>
+	<Pine.LNX.4.21.0105071929190.8237-100000@penguin.transmeta.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can anybody explain what does "mm: critical shortage of bounce buffers"
-mean?
 
-I have a 2xP-III/850 system with 2Gbyte of RAM. I'm trying to run
-ImageMagick on this system with quite big files (convert consumes 1+ Gbyte
-of RAM). The system crushes immediately with that message in log file and a
-whole screen of constantly scrolling allocation failure messages.
+Linus Torvalds writes:
+ > YOUR HEURISTIC IS WRONG!
 
-Should I change some kernel define to be able to use those 2 Gbytes?
+Please start the conversation this way next time.
 
-It does crush even when given "mem=960M" boot option. Both 4 and 64 Gbytes
-RAM configurations do crush. Work like a charm with high memory disabled.
+ > I call that a bug. You don't. Fine.
 
----
-Sergey Kubushin				Sr. Unix Administrator
-CyberBills, Inc.			Phone:	702-567-8857
-874 American Pacific Dr,		Fax:	702-567-8808
-Henderson, NV 89014
+You made it sound like a data corrupter, a kernel crasher, and that
+any bug against a kernel with that patch indicates my patch caused it.
+There is an important distinction between "this is doing something
+silly" and "this will scramble your disk and crash the kernel".
 
+The latter is the conclusion several people came to.
+
+And I wanted a clarification on this, nothing more.
+
+I wanted this clarification from you _BECAUSE_ the original posting in
+this thread saw data corruption which went away after reverting my
+patch.  But there is no possible connection between my patch and the
+crashes he saw.
+
+Many people have already concluded that "Linus says davem's patch is
+crap so it must have been causing the corruptions of the original
+reporter."
+
+Like you and I, most people are lazy.  And a lazy person is likely
+to treat "bug goes away with reverting patch" plus "Linus says the
+patch is crap" as "get rid of the patch, this'll fix the bug".  And
+that'll be the end of it, nobody will investigate the true cause of
+the problem until it shows up again later for some different reason.
+
+ > But that code isn't coming anywhere _close_ to my tree until the two
+ > match. And I stand by my assertion that it should be reverted from Alans
+ > tree too.
+
+I have no intent to ever submit that patch to your tree, I know it's
+not the right way to solve this problem.
+
+In fact I submitted that patch to you as an "[RFC]" a long time ago
+and it fell on deaf ears.  Or perhaps you happened to have laser eye
+surgery that particular day, who knows. :-)
+
+Later,
+David S. Miller
+davem@redhat.com

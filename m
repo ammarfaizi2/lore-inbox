@@ -1,28 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270353AbRHMRzR>; Mon, 13 Aug 2001 13:55:17 -0400
+	id <S270347AbRHMR4h>; Mon, 13 Aug 2001 13:56:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270350AbRHMRzH>; Mon, 13 Aug 2001 13:55:07 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:57095 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270343AbRHMRyw>; Mon, 13 Aug 2001 13:54:52 -0400
-Subject: Re: add Tvia cyberpro 5050 to sound/trident.c
-To: pwaechtler@loewe-komp.de (Peter =?iso-8859-1?Q?W=E4chtler?=)
-Date: Mon, 13 Aug 2001 18:57:28 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (lkml)
-In-Reply-To: <no.id> from "Peter =?iso-8859-1?Q?W=E4chtler?=" at Aug 13, 2001 07:17:32 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
+	id <S270350AbRHMR42>; Mon, 13 Aug 2001 13:56:28 -0400
+Received: from teranet244-12-200.monarch.net ([24.244.12.200]:50426 "HELO
+	lustre.dyn.ca.clusterfilesystem.com") by vger.kernel.org with SMTP
+	id <S270343AbRHMR4K>; Mon, 13 Aug 2001 13:56:10 -0400
+Date: Mon, 13 Aug 2001 11:55:35 -0600
+From: "Peter J. Braam" <braam@clusterfilesystem.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Johannes Erdfelt <johannes@erdfelt.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.8-ac2 USB keyboard capslock hang
+Message-ID: <20010813115535.B1958@lustre.dyn.ca.clusterfilesystem.com>
+In-Reply-To: <20010813131143.G3126@sventech.com> <E15WLxI-0007tC-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15WLxw-0007tL-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15WLxI-0007tC-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Aug 13, 2001 at 06:56:48PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This chip is common in settop boxes. I don't know if you can
-> buy any PCI cards "off the shelf".
-> I think there is still interest in support for this 
-> "old" chip (3 years old), at least in the "embedded market".
 
-Ok then send me diffs
+On Mon, Aug 13, 2001 at 06:56:48PM +0100, Alan Cox wrote:
+
+> Roswell is the Red Hat 7.2 beta, so its probably another bug that was fixed
+> in the USB and input updates in -ac
+
+It hangs on 2.4.8-ac2, so was this bug fix lost perhaps? 
+
+- Peter -

@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262810AbSI3PBd>; Mon, 30 Sep 2002 11:01:33 -0400
+	id <S262442AbSI3Oxo>; Mon, 30 Sep 2002 10:53:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262812AbSI3PBd>; Mon, 30 Sep 2002 11:01:33 -0400
-Received: from landfill.ihatent.com ([217.13.24.22]:39400 "EHLO
-	mail.ihatent.com") by vger.kernel.org with ESMTP id <S262810AbSI3PBc>;
-	Mon, 30 Sep 2002 11:01:32 -0400
-To: linux-kernel@vger.kernel.org
-Subject: CPU/cache detection wrong
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 28 Sep 2002 14:29:31 +0200
-Message-ID: <m3hegaxpp0.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S262452AbSI3Oxo>; Mon, 30 Sep 2002 10:53:44 -0400
+Received: from mg02.austin.ibm.com ([192.35.232.12]:9626 "EHLO
+	mg02.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S262442AbSI3Oxn>; Mon, 30 Sep 2002 10:53:43 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <corryk@us.ibm.com>
+Organization: IBM
+To: Michael Clark <michael@metaparadigm.com>
+Subject: Re: v2.6 vs v3.0
+Date: Mon, 30 Sep 2002 09:26:56 -0500
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200209290114.15994.jdickens@ameritech.net> <02093008055700.15956@boiler> <3D98567E.5010502@metaparadigm.com>
+In-Reply-To: <3D98567E.5010502@metaparadigm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <02093009265603.15956@boiler>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Accroding to my kernel, this is what i got:
+On Monday 30 September 2002 08:49, Michael Clark wrote:
+> On 09/30/02 21:05, Kevin Corry wrote:
+> > EVMS is now up-to-date and running on 2.5.39. You can get the latest
+> > kernel code from CVS (http://sourceforge.net/cvs/?group_id=25076) or
+> > Bitkeepr (http://evms.bkbits.net/). There will be a new, full release
+> > (1.2) coming out this week.
+>
+> Yes, i just booted up with EVMS CVS on 2.5.39. Detected all my LVM LV's
+> fine. After cautious tests with them mounted ro, i then preceded to mount
+> them rw and continued boot up. Working fine so far. Great work.
+>
+> All i needed to do was change my vgscan to evms_vgscan and adjust my mount
+> points to the new style ( /dev/evms/lvm/<vg></<lv> ).
 
-CPU: Before vendor init, caps: 3febf9ff 00000000 00000000, vendor = 0
-CPU: L1 I cache: 0K, L1 D cache: 8K
-CPU: L2 cache: 512K
-CPU: After vendor init, caps: 3febf9ff 00000000 00000000 00000000
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU:     After generic, caps: 3febf9ff 00000000 00000000 00000000
-CPU:             Common caps: 3febf9ff 00000000 00000000 00000000
-CPU: Intel(R) Pentium(R) 4 Mobile CPU 1.70GHz stepping 04
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Checking 'hlt' instruction... OK.
+Instead of using "evms_vgscan", you should probably run "evms_rediscover". 
+But you really only need that if you've compiled EVMS as modules in your 
+kernel.
 
-The machine is a Comapq Evo n800c with a 1.7GHz P4-M in it, and
-according to the BIOS I've got 16kb/512Kb L1/L2-cache. Accroding to
-the 2.4.20-pre7-ac3-kernel. It's been like this at least since
-2.4.19-pre4 or so.
+For volume admin tasks, I would recommend using "evmsgui" if you have X 
+available, or "evmsn" if you need text-mode.
 
-mvh,
-A
+The LVM-style commands (like evms_vgscan) were originally written as testing 
+tools before we had the fully-functional UIs. They were left around as kind 
+of a proof-of-concept that the EVMS engine library API can be used to emulate 
+existing volume management tools.
+
 -- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
+Kevin Corry
+corryk@us.ibm.com
+http://evms.sourceforge.net/

@@ -1,48 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268073AbUIAXV6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268028AbUIAXV5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268073AbUIAXV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 19:21:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268185AbUIAXVH
+	id S268028AbUIAXV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 19:21:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268165AbUIAXTo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 19:21:07 -0400
-Received: from users.linvision.com ([62.58.92.114]:13022 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S267635AbUIAXOf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 19:14:35 -0400
-Date: Thu, 2 Sep 2004 01:14:34 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Romano Giannetti <romano@dea.icai.upco.es>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Driver retries disk errors.
-Message-ID: <20040901231434.GD28809@bitwizard.nl>
-References: <20040830163931.GA4295@bitwizard.nl> <1093952715.32684.12.camel@localhost.localdomain> <20040831135403.GB2854@bitwizard.nl> <1093961570.597.2.camel@localhost.localdomain> <20040831155653.GD17261@harddisk-recovery.com> <1093965233.599.8.camel@localhost.localdomain> <20040831170016.GF17261@harddisk-recovery.com> <1093968767.597.14.camel@localhost.localdomain> <20040901152817.GA4375@pern.dea.icai.upco.es> <1094049877.2787.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1094049877.2787.1.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-Organization: BitWizard.nl
+	Wed, 1 Sep 2004 19:19:44 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:49374 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S267986AbUIAXQG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 19:16:06 -0400
+Subject: [patch 05/14]  radio/radio-cadet: replace 	schedule_timeout() with msleep()
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at
+From: janitor@sternwelten.at
+Date: Thu, 02 Sep 2004 01:16:06 +0200
+Message-ID: <E1C2eKk-0002mz-Gv@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 01, 2004 at 03:44:38PM +0100, Alan Cox wrote:
-> On Mer, 2004-09-01 at 16:28, Romano Giannetti wrote:
-> > Just a question from a kernel-almost-illiterate. Could this explain the
-> > behavior of my laptop yesterday, reading a damaged DVD? I had to wait almost
-> > one full minute of retry until being able to kill xine... 
-> 
-> Thats the block layer. Its actually hard to fix the kill -9 case.
 
-I don't think so. It starts with the ide-cd level driver 
-doing 8 retries. Most disk we see retry themselves for about  a 
-4 second delay before reporting a bad block. A CD taking twice
-that much would not sound abnormal. (seeks are about 10 times
-as expensive on CDs). 8 times 8 seconds is a full minute. 
 
-	Roger.  
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****
+
+
+
+I would appreciate any comments from the janitor@sternweltens list.
+
+Thanks,
+Nish
+
+
+
+Description: Uses msleep() instead of schedule_timeout() so the task
+is guaranteed to delay the desired time.
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+
+
+
+---
+
+ linux-2.6.9-rc1-bk7-max/drivers/media/radio/radio-cadet.c |    6 ++----
+ 1 files changed, 2 insertions(+), 4 deletions(-)
+
+diff -puN drivers/media/radio/radio-cadet.c~msleep-drivers_media_radio-cadet drivers/media/radio/radio-cadet.c
+--- linux-2.6.9-rc1-bk7/drivers/media/radio/radio-cadet.c~msleep-drivers_media_radio-cadet	2004-09-01 19:35:11.000000000 +0200
++++ linux-2.6.9-rc1-bk7-max/drivers/media/radio/radio-cadet.c	2004-09-01 19:35:11.000000000 +0200
+@@ -69,8 +69,7 @@ static int cadet_getrds(void)
+ 	outb(inb(io+1)&0x7f,io+1);  /* Reset RDS detection */
+ 	spin_unlock(&cadet_io_lock);
+ 	
+-	set_current_state(TASK_UNINTERRUPTIBLE);
+-	schedule_timeout(HZ/10);
++	msleep(100);
+ 
+ 	spin_lock(&cadet_io_lock);	
+         outb(3,io);                 /* Select Decoder Control/Status */
+@@ -243,8 +242,7 @@ static void cadet_setfreq(unsigned freq)
+ 		outb(curvol,io+1);
+ 		spin_unlock(&cadet_io_lock);
+ 		
+-		set_current_state(TASK_UNINTERRUPTIBLE);
+-		schedule_timeout(HZ/10);
++		msleep(100);
+ 
+ 		cadet_gettune();
+ 		if((tunestat & 0x40) == 0) {   /* Tuned */
+
+_

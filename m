@@ -1,41 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262584AbVCXQmQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262639AbVCXQnr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262584AbVCXQmQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 11:42:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262639AbVCXQmQ
+	id S262639AbVCXQnr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 11:43:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262867AbVCXQnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 11:42:16 -0500
-Received: from imag.imag.fr ([129.88.30.1]:58326 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S262870AbVCXQmI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 11:42:08 -0500
-Message-ID: <4242EDD3.6040204@imag.fr>
-Date: Thu, 24 Mar 2005 17:41:55 +0100
-From: Raphael Jacquot <raphael.jacquot@imag.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050304
-X-Accept-Language: en-us, en, fr-fr
-MIME-Version: 1.0
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-CC: Asfand Yar Qazi <ay1204@qazi.f2s.com>, linux-kernel@vger.kernel.org
-Subject: Re: How's the nforce4 support in Linux?
-References: <3LwFC-4Ko-15@gated-at.bofh.it> <3LwYW-4Xx-11@gated-at.bofh.it> <3LwYZ-4Xx-25@gated-at.bofh.it> <42428FCE.7070901@qazi.f2s.com> <20050324162946.GK17865@csclub.uwaterloo.ca>
-In-Reply-To: <20050324162946.GK17865@csclub.uwaterloo.ca>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (imag.imag.fr [129.88.30.1]); Thu, 24 Mar 2005 17:41:46 +0100 (CET)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+	Thu, 24 Mar 2005 11:43:47 -0500
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:43736 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S262639AbVCXQno (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 11:43:44 -0500
+Date: Thu, 24 Mar 2005 11:43:13 -0500
+To: Asfand Yar Qazi <ay1204@qazi.f2s.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: How's the nforce4 support in Linux?
+Message-ID: <20050324164313.GL17865@csclub.uwaterloo.ca>
+References: <3Lxis-5a0-29@gated-at.bofh.it> <3Lxis-5a0-31@gated-at.bofh.it> <3Lxis-5a0-33@gated-at.bofh.it> <3Lxis-5a0-27@gated-at.bofh.it> <3LxBD-5wd-9@gated-at.bofh.it> <4242975F.1030203@qazi.f2s.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4242975F.1030203@qazi.f2s.com>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen wrote:
+On Thu, Mar 24, 2005 at 10:33:03AM +0000, Asfand Yar Qazi wrote:
+> No, but I do need NCQ
 
-> Until the OS loads network drivers AND configures IP support AND starts
-> accepting packets in, there is nothing for the firewall to do.
-> Certainly on Linux I can make sure iptables is populated (or least has a
-> sane policy set) before I bring up networking.  In other words: "Who
-> cares".
+Perhaps a stupid question... but: Why do you _need_ NCQ?  If you need it
+that badly (not sure why anyone would), you could always get SCSI or a
+3ware controller.
 
-guess that's a windows thing...
+NCQ is a nice feature, but hardly essential.
+
+Len Sorensen

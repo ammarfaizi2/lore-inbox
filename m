@@ -1,63 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317599AbSGUOO4>; Sun, 21 Jul 2002 10:14:56 -0400
+	id <S317670AbSGUOQi>; Sun, 21 Jul 2002 10:16:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317648AbSGUOO4>; Sun, 21 Jul 2002 10:14:56 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:21231 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S317599AbSGUOO4>; Sun, 21 Jul 2002 10:14:56 -0400
-Date: Sun, 21 Jul 2002 16:17:51 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Marc-Christian Petersen <mcp@linux-systeme.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: heavy Disk I/O and system stops reacting for seconds
-In-Reply-To: <200207211537.03813.mcp@linux-systeme.de>
-Message-ID: <Pine.NEB.4.44.0207211613350.11656-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S317674AbSGUOQi>; Sun, 21 Jul 2002 10:16:38 -0400
+Received: from mail.s3.kth.se ([130.237.48.5]:24584 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id <S317670AbSGUOQg>;
+	Sun, 21 Jul 2002 10:16:36 -0400
+To: Andrew Rodland <arodland@noln.com>
+Cc: mru@users.sourceforge.net (M), linux-kernel@vger.kernel.org
+Subject: Re: memory leak?
+References: <yw1xn0sluqom.fsf@gladiusit.e.kth.se>
+	<20020722100840.2599c2f3.arodland@noln.com>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 21 Jul 2002 16:19:35 +0200
+In-Reply-To: Andrew Rodland's message of "Mon, 22 Jul 2002 10:08:40 -0400"
+Message-ID: <yw1x1y9xups8.fsf@gladiusit.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Jul 2002, Marc-Christian Petersen wrote:
+Andrew Rodland <arodland@noln.com> writes:
 
-> Hi there,
->
-> I think someone else notices this too, but anyway, i write down my
-> experiences.
->
-> I've tested 2.4.19rc[1|2|3], AC tree, AA tree, jam tree and mjc tree
-> All of them shows up the same behaviour. If i do some disk i/o, f.e.:
->
-> tar xzpf linux-2.4.18.tar.gz; rm -rf linux-2.4.18
->
-> the system stopps reacting while untar/ungzipping the file for more than 5
-> seconds. Nothing but the mouse reacts. This does NOT occur with 2.4.18 and
-> early 2.4.19-pre's ...
->...
+> On 21 Jul 2002 16:00:09 +0200
+> mru@users.sourceforge.net (M) wrote:
+> 
+> > 
+> > I noticed that doing lots or file accesses causes the used memory to
+> > increase, *after* subtracting buffers/cache. Here is an example:
+> > 
+> > $ free
+> >              total       used       free     shared    buffers    
+> >              cached
+> > Mem:        773776      30024     743752          0       1992     
+> > 10424-/+ buffers/cache:      17608     756168
+> > Swap:        81904          0      81904
+> > $ du > /dev/null
+> > $ free
+> >              total       used       free     shared    buffers    
+> >              cached
+> > Mem:        773776      78008     695768          0      26328     
+> > 10472-/+ buffers/cache:      41208     732568
+> > Swap:        81904          0      81904
+> > 
+> > Here 24 MB of memory have been used up. Repeating the du seems to have
+> > little effect. This directory has ~3200 subdirs and 13400 files.
+> > 
+> > After a few hours use about 200 MB are used, apperently for
+> > nothing. Killing all processed and unmounting file systems doesn't
+> > help.
+> > 
+> > Is this a memory leak? I get the same results with ext2, ext3,
+> > reiserfs and nfs.
+> 
+> wow!
+> I've been seeing this, too, but I thought I was just reading something
+> wrong. Especially after my nightly cron jobs (which involve a 'find
+> /') run, I'll often find myself with 80% of physical RAM used, and
+> nobody (as far as 'top' can see) using it. You didn't specify which
+> kernel you're using, but I'm running 2.4.19-rc1-ac1 plus some patches,
+> and I've seen it since at least about pre9-ac*. I might try to narrow it
+> down more if it could be useful.
 
-I've seen this the first time four months ago - at that time the problem
-was only present in the -ac kernels (but now it's also present in the -pre
-kernels). My report is at [1]. It seems to be a problem that affects only
-the handling of keyboard events. Quoting from what I wrote at [1]:
-
-<--  snip  -->
-
-I tried to start Gimp from the fvwm menu after I typed a letter - and
-Gimp has completed its startup before the letter arrived in the xterm.
-
-<--  snip  -->
-
-
-cu
-Adrian
-
-[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=101705972802903&w=2
+I forgot to mention the kernel version. It's 2.4.19-rc3. It's been
+going on a while, though, before I took the time start looking for it.
 
 -- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
-
+Måns Rullgård
+mru@users.sf.net

@@ -1,114 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262864AbTJTWEK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 18:04:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbTJTWEK
+	id S262835AbTJTWDg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 18:03:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262844AbTJTWDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 18:04:10 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:29894 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S262864AbTJTWEA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 18:04:00 -0400
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.0-test8-mm1
-Date: Tue, 21 Oct 2003 00:01:01 +0200
-User-Agent: KMail/1.5.9
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20031020020558.16d2a776.akpm@osdl.org> <200310201811.18310.schlicht@uni-mannheim.de> <20031020144836.331c4062.akpm@osdl.org>
-In-Reply-To: <20031020144836.331c4062.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-03=_ksFl/u3rQZn2u7y";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200310210001.08761.schlicht@uni-mannheim.de>
+	Mon, 20 Oct 2003 18:03:36 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:53258 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S262835AbTJTWDe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 18:03:34 -0400
+Date: Mon, 20 Oct 2003 15:03:31 -0700
+From: jw schultz <jw@pegasys.ws>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Uncorrectable Error on IDE, significant accumulation
+Message-ID: <20031020220331.GD11265@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20031020132705.GA1171@synertronixx3> <E1ABaqY-0000jn-NG@rhn.tartu-labor> <20031020145316.GB593@synertronixx3> <3F93FC7C.2090606@inet6.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F93FC7C.2090606@inet6.fr>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: This message may contain content offensive to Atheists and servants of false gods.  Read at your own risk.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 20, 2003 at 05:17:16PM +0200, Lionel Bouton wrote:
+> Konstantin Kletschke wrote the following on 10/20/2003 04:53 PM :
+> 
+> >Can a bad Powersupply or weak mainboard create Uncorrectable Errors on
+> >HDDs? Again only a question to experience of this community...
+> > 
+> >
+> 
+> It certainly can temporarily (under load).
+> 
+> Try offloading some power strain by removing some peripherals (CD-ROM, 
+> non-mandatory disk drive) and see if it solves your problem.
+> 
+> I might be mistaken (don't know the exact behavior of drive electronics) 
+> but it seems unlikely that a bad PSU with underrated voltage could 
+> damage a drive (overrated voltage is another matter). Usually under spec 
+> PSUs fail to produce enough juice under load and the system simply 
+> becomes unstable.
 
---Boundary-03=_ksFl/u3rQZn2u7y
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_dsFl/vYGfSfRo5V"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I don't know the specific drive electronics either.
+It has also been many years since i studied the electrical
+side of this stuff.
 
---Boundary-01=_dsFl/vYGfSfRo5V
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Undervolt, or voltage sag under load, is worse than
+overvolt.  Overvolt can be caught with fuses or voltage
+regulators neither of which can do aught with an undervolt.
+If overvolt does get through things run just a bit warmer.
 
-On Monday 20 October 2003 23:48, Andrew Morton wrote:
-> A colleague here has discovered that this crash is repeatable, but goes
-> away when the radeon driver is disabled.
->
-> Are you using that driver?
+Undervolt on the other hand can cause VCC to drop to the
+level where it can no longer represent a logic high value
+but is instead in the range where it is neither 0 nor 1 and
+logic gates start spending too much time in the transition
+range where they act like amplifiers.  When that happens not
+only do you get data corruption but things start heating up
+big-time and the current drain goes way up.
 
-No, I'm not... I use the vesafb driver. Do you think disabling this could c=
-ure=20
-the Oops?
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-Btw. a similar Oops at the same place occours when the uhci-hcd module is=20
-unloaded...
-
-The attached patch prevents the kernel from Oopsing, so it seems some inode=
-=20
-lists are corrupted (NULL terminated!). Don't know how the FB driver could =
-be=20
-the reason...
-
-Regards
-   Thomas
-
---Boundary-01=_dsFl/vYGfSfRo5V
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="hack-invalidate_list.diff"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline;
-	filename="hack-invalidate_list.diff"
-
-=2D-- linux-2.6.0-test8-mm1/fs/inode.c.orig	Mon Oct 20 20:52:26 2003
-+++ linux-2.6.0-test8-mm1/fs/inode.c	Mon Oct 20 22:43:52 2003
-@@ -292,14 +292,16 @@
- 	int busy =3D 0, count =3D 0;
-=20
- 	next =3D head->next;
-=2D	for (;;) {
-=2D		struct list_head * tmp =3D next;
-+	while (next !=3D head) {
- 		struct inode * inode;
-=2D
-=2D		next =3D next->next;
-=2D		if (tmp =3D=3D head)
-+#if 1
-+		if (!next) {
-+			printk(KERN_ERR "Badness in invalidate_list() !\n");
- 			break;
-=2D		inode =3D list_entry(tmp, struct inode, i_list);
-+		}
-+#endif
-+		inode =3D list_entry(next, struct inode, i_list);
-+		next =3D next->next;
- 		if (inode->i_sb !=3D sb)
- 			continue;
- 		invalidate_inode_buffers(inode);
-
---Boundary-01=_dsFl/vYGfSfRo5V--
-
---Boundary-03=_ksFl/u3rQZn2u7y
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA/lFskYAiN+WRIZzQRAql1AKCQ0xAdDINpDANJsfhyoeCYz/73rwCdF/Mn
-B++kh++gSrj63mAscziiFJs=
-=B76l
------END PGP SIGNATURE-----
-
---Boundary-03=_ksFl/u3rQZn2u7y--
+		Remember Cernan and Schmitt

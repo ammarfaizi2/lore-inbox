@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264843AbUEaWs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbUEaW5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264843AbUEaWs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 18:48:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264839AbUEaWs4
+	id S261787AbUEaW5n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 18:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263154AbUEaW5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 18:48:56 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:14531 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S264830AbUEaWsp (ORCPT
+	Mon, 31 May 2004 18:57:43 -0400
+Received: from vsmtp1b.tin.it ([212.216.176.141]:59880 "EHLO vsmtp1.tin.it")
+	by vger.kernel.org with ESMTP id S261787AbUEaW5m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 18:48:45 -0400
-Date: Tue, 1 Jun 2004 00:48:42 +0200 (MEST)
-Message-Id: <200405312248.i4VMmgFI013049@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: dj@david-web.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: APM Console Blanking lockups with 2.6.6
+	Mon, 31 May 2004 18:57:42 -0400
+Message-ID: <40BBB861.1010002@stanchina.net>
+Date: Tue, 01 Jun 2004 00:57:37 +0200
+From: Flavio Stanchina <flavio@stanchina.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: swappiness=0 makes software suspend fail.
+References: <200405280000.56742.rob@landley.net> <20040529222308.GA1535@elf.ucw.cz> <20040531031743.0d7566e3.akpm@osdl.org> <200405310638.21015.rob@landley.net>
+In-Reply-To: <200405310638.21015.rob@landley.net>
+X-Enigmail-Version: 0.83.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 May 2004 21:43:30 +0100, David Johnson wrote:
->I've been getting frequent lockups with 2.6.6 whenever the machine is left for 
->any period of time. These are hard lockups where I can't even use SysRq to 
->reboot.
->
->After poking around a bit I've isolated this to APM Console Blanking. With  
->console blanking enabled I get a lockup as soon as the console is blanked. 
->With it disabled everything works fine.
->
->But surely if this was a common bug with APM console blanking someone else 
->would have spotted it before now? Is anybody else having problems/using it 
->successfully?
-...
->ACPI: Local APIC address 0xfee00000
->ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
+Rob Landley wrote:
+> Of course, mounting/fscking any of the filesystems in question would kinda 
+> screw that up too, [...]
 
-Note that the mobo BIOS boots with the local APIC enabled,
-thus I don't think that the mobo should be blaimed.
+That reminds me of a question I wanted to ask for a long time.
 
-This is almost certainly the result of a buggy graphics
-card BIOS that can't handle an enabled local APIC.
+Why doesn't suspend just remount everything read-only before saving the
+memory image? Would that be impossible in this context? I find it quite
+scary to have my filesystems dirty *and* part of my files saved in the
+memory image.
 
-The problem is that the APM driver invokes the BIOS without
-disabling the local APIC first. Some BIOSen hang hard if
-there is any local APIC interrupt while they are running.
-In the case of APM's DISPLAY_BLANK, it's the graphics card
-BIOS that's running.
+-- 
+Ciao, Flavio
 
-This is much more likely to occur in 2.6 kernels since they
-by default run the local APIC timer 10 times faster than in
-2.4 kernels.
-
-The workaround is to disable APM's DISPLAY_BLANK and CPU_IDLE
-options, and to not build it as a module.

@@ -1,28 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267043AbTBLMXX>; Wed, 12 Feb 2003 07:23:23 -0500
+	id <S267059AbTBLMn2>; Wed, 12 Feb 2003 07:43:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267050AbTBLMXX>; Wed, 12 Feb 2003 07:23:23 -0500
-Received: from elixir.e.kth.se ([130.237.48.5]:46085 "EHLO elixir.e.kth.se")
-	by vger.kernel.org with ESMTP id <S267043AbTBLMXW>;
-	Wed, 12 Feb 2003 07:23:22 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Promise SATA chips
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 12 Feb 2003 13:33:11 +0100
-Message-ID: <yw1xd6lxadbs.fsf@magnum.e.kth.se>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
+	id <S267065AbTBLMn2>; Wed, 12 Feb 2003 07:43:28 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:35352
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S267059AbTBLMn1>; Wed, 12 Feb 2003 07:43:27 -0500
+Date: Wed, 12 Feb 2003 07:52:03 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Subject: VMWare monitor error on read/modify/write to cr4
+Message-ID: <Pine.LNX.4.50.0302120743430.3518-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+	Current 2.5.60 has code which disables TSC access for tasks 
+running in lower privelege level than ring0 when disabling kernel TSC 
+usage. Doing a read, modify, write with only the TSD bit being set causes 
+it to report a monitor error. This happens before console_init so it hangs 
+on 'Uncompressing Linux... Ok booting the kernel'
 
-Are there any drivers being developed for Promise's SATA chips
-(e.g. the pdc20275 with PCI id 0x3375)?  Or do I have to disassemble
-their driver to use it on non-intel machines?
+To reproduce, build a 2.5.60 i586+ kernel and boot with notsc.
 
+if (tsc_disable && cpu_has_tsc) {
+	printk(KERN_NOTICE "Disabling TSC...\n");
+	/**** FIX-HPA: DOES THIS REALLY BELONG HERE? ****/
+	clear_bit(X86_FEATURE_TSC, boot_cpu_data.x86_capability);
+	set_in_cr4(X86_CR4_TSD);
+}
+
+This isn't a bug report, just an FYI for people using VMWare, and the TSC 
+in vmware does work.
+
+	Zwane
 -- 
-Måns Rullgård
-mru@users.sf.net
+function.linuxpower.ca

@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132821AbRDQTJg>; Tue, 17 Apr 2001 15:09:36 -0400
+	id <S132822AbRDQTLq>; Tue, 17 Apr 2001 15:11:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132822AbRDQTJ0>; Tue, 17 Apr 2001 15:09:26 -0400
-Received: from mail.gci.com ([205.140.80.57]:10766 "EHLO daytona.gci.com")
-	by vger.kernel.org with ESMTP id <S132821AbRDQTJQ>;
-	Tue, 17 Apr 2001 15:09:16 -0400
-Message-ID: <BF9651D8732ED311A61D00105A9CA3150446DA2E@berkeley.gci.com>
-From: Leif Sawyer <lsawyer@gci.com>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
-        Ian.Stirling@tomcat.admin.navo.hpc.mil, root@mauve.demon.co.uk,
-        linux-kernel@vger.kernel.org
-Subject: RE: IP Acounting Idea for 2.5
-Date: Tue, 17 Apr 2001 11:09:09 -0800
+	id <S132824AbRDQTLg>; Tue, 17 Apr 2001 15:11:36 -0400
+Received: from cpe-66-1-218-52.fl.sprintbbd.net ([66.1.218.52]:30990 "EHLO
+	mail.compro.net") by vger.kernel.org with ESMTP id <S132822AbRDQTL1>;
+	Tue, 17 Apr 2001 15:11:27 -0400
+Message-ID: <3ADC957A.4EC55BFA@compro.net>
+Date: Tue, 17 Apr 2001 15:11:54 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: amiga affs support broken in 2.4.x kernels??
+In-Reply-To: <3AD59EB9.35F3A535@compro.net> <3AD9FEDD.2B636582@linux-m68k.org> <3ADAEA9B.D70DC130@compro.net> <3ADB1837.A0AE3020@linux-m68k.org> <3ADC3262.C97B475@compro.net> <3ADC85A1.4755C87F@linux-m68k.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Pollard replies:
-to Leif Sawyer who wrote: 
->> Besides, what would be gained in making the counters RO, if 
->> they were cleared every time the module was loaded/unloaded?
+Roman Zippel wrote:
 > 
-> 1. Knowlege that the module was reloaded.
-> 2. Knowlege that the data being measured is correct
-> 3. Having reliable measures
-> 4. being able to derive valid statistics
-> ....
+> Could you try the attached patch? I forgot to initialize a variable
+> correctly.
+> (I also put a new version at
+> http://www.xs4all.nl/~zippel/affs.010417.tar.gz)
+> 
+> > I beleive the filesystem is ffs
+> > but not exactly sure. How do I tell?
+> 
+> It's printed if you mount with '-overbose', but it shouldn't be needed
+> anymore. :)
+> 
+> bye, Roman
+> 
+>   ------------------------------------------------------------------------
+>                 Name: affs.diff
+>    affs.diff    Type: Plain Text (text/plain)
+>             Encoding: 7bit
+Roman,
+ That seems to have done it. I'm now able to mount,read,and write to
+affs
+file systems. With an scsi zip drive with 3 affs partitions on it and an
+affs hardfile(loop) that I use with UAE occasionally. Looks good to me.
+I'll be using this functionality quite a bit so I'll notify you of any
+anomalies if it's ok. Thank you for your efforts.
 
-Good.  Now that we have valid objectives to reach, which of these
-are NOT met by making the fixes entirely in userspace, say by
-incorporating a wrapper script to ensure that no external applications
-can flush the table counters?
-
-They're still all met, right?
-
-And we haven't had to fill the kernel with more cruft.
-
+Regards
+Mark Hounschell
+markh@compro.net

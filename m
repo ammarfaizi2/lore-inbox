@@ -1,77 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263750AbTCUTTS>; Fri, 21 Mar 2003 14:19:18 -0500
+	id <S263745AbTCUTRr>; Fri, 21 Mar 2003 14:17:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263739AbTCUTSA>; Fri, 21 Mar 2003 14:18:00 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:63245
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S263735AbTCUTRI>; Fri, 21 Mar 2003 14:17:08 -0500
-Subject: Re: [PATCH] arch-independent syscalls to return long
-From: Robert Love <rml@tech9.net>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: akpm@digeo.com, Linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-       ak@suse.de
-In-Reply-To: <1048274593.4908.26.camel@phantasy.awol.org>
-References: <3E7AAD0C.B8CB2926@verizon.net>
-	 <20030320222358.454a1f4f.akpm@digeo.com>
-	 <1048229509.2026.19.camel@phantasy.awol.org>
-	 <20030321104649.5d8f5c62.rddunlap@osdl.org>
-	 <1048274593.4908.26.camel@phantasy.awol.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048274891.4908.28.camel@phantasy.awol.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 21 Mar 2003 14:28:12 -0500
-Content-Transfer-Encoding: 7bit
+	id <S263384AbTCUTRE>; Fri, 21 Mar 2003 14:17:04 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:44164
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262726AbTCUTP7>; Fri, 21 Mar 2003 14:15:59 -0500
+Date: Fri, 21 Mar 2003 20:31:15 GMT
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200303212031.h2LKVF3s026371@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: PATCH: PC9800 system common area definition
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-03-21 at 14:23, Robert Love wrote:
-
-> I always that it did not matter, but Arjan just pointed out
-> otherwise (as you saw).  So I guess these need to be reverted.
-
-And here is a patch to do so.
-
-This patch, against 2.5.65 + the previous two, replaces the missing
-asmlinkage on prototypes.
-
-	Robert Love
-
-
- drivers/message/fusion/mptctl.c |    3 ++-
- net/compat.c                    |    4 ++--
- 2 files changed, 4 insertions(+), 3 deletions(-)
-
-
-diff -urN linux-2.5.65/drivers/message/fusion/mptctl.c linux/drivers/message/fusion/mptctl.c
---- linux-2.5.65/drivers/message/fusion/mptctl.c	2003-03-21 14:23:30.878772704 -0500
-+++ linux/drivers/message/fusion/mptctl.c	2003-03-21 14:24:24.599605896 -0500
-@@ -2743,7 +2743,8 @@
- 						      unsigned long,
- 						      struct file *));
- int unregister_ioctl32_conversion(unsigned int cmd);
--extern long sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg);
-+extern asmlinkage long sys_ioctl(unsigned int fd, unsigned int cmd,
-+				 unsigned long arg);
- 
- /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
- /* sparc32_XXX functions are used to provide a conversion between
-diff -urN linux-2.5.65/net/compat.c linux/net/compat.c
---- linux-2.5.65/net/compat.c	2003-03-21 14:23:31.000000000 -0500
-+++ linux/net/compat.c	2003-03-21 14:25:03.000000000 -0500
-@@ -365,8 +365,8 @@
- 	kmsg->msg_control = (void *) orig_cmsg_uptr;
- }
- 
--extern long sys_setsockopt(int fd, int level, int optname,
--			   char *optval, int optlen);
-+extern asmlinkage long sys_setsockopt(int fd, int level, int optname,
-+				      char *optval, int optlen);
- 
- static int do_netfilter_replace(int fd, int level, int optname,
- 				char *optval, int optlen)
-
-
-
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/include/asm-i386/pc9800_sca.h linux-2.5.65-ac2/include/asm-i386/pc9800_sca.h
+--- linux-2.5.65/include/asm-i386/pc9800_sca.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.5.65-ac2/include/asm-i386/pc9800_sca.h	2003-02-14 23:29:24.000000000 +0000
+@@ -0,0 +1,25 @@
++/*
++ *  System-common area definitions for NEC PC-9800 series
++ *
++ *  Copyright (C) 1999	TAKAI Kousuke <tak@kmc.kyoto-u.ac.jp>,
++ *			Kyoto University Microcomputer Club.
++ */
++
++#ifndef _ASM_I386_PC9800SCA_H_
++#define _ASM_I386_PC9800SCA_H_
++
++#define PC9800SCA_EXPMMSZ		(0x0401)	/* B */
++#define PC9800SCA_SCSI_PARAMS		(0x0460)	/* 8 * 4B */
++#define PC9800SCA_DISK_EQUIPS		(0x0482)	/* B */
++#define PC9800SCA_XROM_ID		(0x04C0)	/* 52B */
++#define PC9800SCA_BIOS_FLAG		(0x0501)	/* B */
++#define PC9800SCA_MMSZ16M		(0x0594)	/* W */
++
++/* PC-9821 have additional system common area in their BIOS-ROM segment. */
++
++#define PC9821SCA__BASE			(0xF8E8 << 4)
++#define PC9821SCA_ROM_ID		(PC9821SCA__BASE + 0x00)
++#define PC9821SCA_ROM_FLAG4		(PC9821SCA__BASE + 0x05)
++#define PC9821SCA_RSFLAGS		(PC9821SCA__BASE + 0x11)	/* B */
++
++#endif /* !_ASM_I386_PC9800SCA_H_ */

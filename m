@@ -1,82 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289285AbSAIJOV>; Wed, 9 Jan 2002 04:14:21 -0500
+	id <S289290AbSAIJRB>; Wed, 9 Jan 2002 04:17:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289286AbSAIJOL>; Wed, 9 Jan 2002 04:14:11 -0500
-Received: from dsl-213-023-043-044.arcor-ip.net ([213.23.43.44]:35853 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289285AbSAIJNy>;
-	Wed, 9 Jan 2002 04:13:54 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Wed, 9 Jan 2002 10:17:01 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Anton Blanchard <anton@samba.org>, Andrea Arcangeli <andrea@suse.de>,
-        Luigi Genoni <kernel@Expansa.sns.it>,
-        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Robert Love <rml@tech9.net>
-In-Reply-To: <20020108030420Z287595-13997+1799@vger.kernel.org> <E16O3L5-0000B8-00@starship.berlin> <3C3B70D7.43786888@zip.com.au>
-In-Reply-To: <3C3B70D7.43786888@zip.com.au>
+	id <S289287AbSAIJQw>; Wed, 9 Jan 2002 04:16:52 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:9225 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S289290AbSAIJQl>;
+	Wed, 9 Jan 2002 04:16:41 -0500
+Message-ID: <3C3C07D1.4090209@evision-ventures.com>
+Date: Wed, 09 Jan 2002 10:05:21 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16OEr0-0000DR-00@starship.berlin>
+To: Greg KH <greg@kroah.com>
+CC: jtv <jtv@xs4all.nl>, Vladimir Kondratiev <vladimir.kondratiev@intel.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: __FUNCTION__
+In-Reply-To: <3C3B664B.3060103@intel.com> <20020108220149.GA15816@kroah.com> <20020108235649.A26154@xs4all.nl> <20020108231147.GA16313@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 8, 2002 11:21 pm, Andrew Morton wrote:
-> Daniel Phillips wrote:
-> > The preemptible kernel can reschedule, on average, sooner than the
-> > scheduling-point kernel, which has to wait for a scheduling point to roll
-> > around.
-> 
-> Yes.  It can also fix problematic areas which my testing
-> didn't cover.
+Greg KH wrote:
 
-I bet, with a minor hack, it can help you *find* those problem areas too.  
-You compile the two patches together and automatically log any event along 
-with the execution address, where your explicit schedule points failed to 
-reschedule in time.  Sort of like a profile but suited exactly to your 
-problem.
+>On Tue, Jan 08, 2002 at 11:56:49PM +0100, jtv wrote:
+>
+>>Don't have a C99 spec, but here's what info gcc has to say about it:
+>>
+>>[...description of "function names" extension as currently found in gcc...]
+>>
+>>   Note that these semantics are deprecated, and that GCC 3.2 will
+>>handle `__FUNCTION__' and `__PRETTY_FUNCTION__' the same way as
+>>`__func__'.  `__func__' is defined by the ISO standard C99:
+>>
+>
+>Any reason _why_ they would want to break tons of existing code in this
+>manner?  Just the fact that the __func__ symbol is there to use?
+>
+String constant coalescing chances. It is a good thing. Anobody who used 
+__FUNCTION__ which was
+neither a proper preprocessor constant nor a proper variable 
+semantically was in problem.
 
-This just detects the problem areas in normal kernel execution, not 
-spinlocks, but that is probably where most of the maintainance will be anyway.
-
-By the way, did you check for latency in directory operations?
-
-> Incidentally, there's the SMP problem.  Suppose we
-> have the code:
-> 
-> 	lock_kernel();
-> 	for (lots) {
-> 		do(something sucky);
-> 		if (current->need_resched)
-> 			schedule();
-> 	}
-> 	unlock_kernel();
-> 
-> This works fine on UP, but not on SMP.  The scenario:
-> 
-> - CPU A runs this loop.
-> 
-> - CPU B is spinning on the lock.
-> 
-> - Interrupt occurs, kernel elects to run RT task on CPU B.
->   CPU A doesn't have need_resched set, and just keeps 
->   on going.  CPU B is stuck spinning on the lock.
-> 
-> This is only an issue for the low-latency patch - all the
-> other approaches still have sufficiently bad worse-case that
-> this scenario isn't worth worrying about.
-> 
-> I toyed with creating spin_lock_while_polling_resched(),
-> but ended up changing the scheduler to set need_resched
-> against _all_ CPUs if an RT task is being woken (yes, yuk).
-
-Heh, subtle.  Thanks for pointing that out and making my head hurt.
-
---
-Daniel

@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262984AbUJ1Lvi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262976AbUJ1Lvh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262984AbUJ1Lvi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 07:51:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbUJ1LsJ
+	id S262976AbUJ1Lvh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 07:51:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262984AbUJ1LtD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 07:48:09 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:12698 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262976AbUJ1Lks (ORCPT
+	Thu, 28 Oct 2004 07:49:03 -0400
+Received: from smtp1.sloane.cz ([62.240.161.228]:2547 "EHLO smtp1.sloane.cz")
+	by vger.kernel.org with ESMTP id S262988AbUJ1Lq4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 07:40:48 -0400
-Date: Thu, 28 Oct 2004 13:40:43 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-cc: Giuliano Pochini <pochini@denise.shiny.it>,
-       Timothy Miller <miller@techsource.com>, Tonnerre <tonnerre@thundrix.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-In-Reply-To: <20041028093752.GB13523@hh.idb.hist.no>
-Message-ID: <Pine.GSO.4.61.0410281339510.7058@waterleaf.sonytel.be>
-References: <4176E08B.2050706@techsource.com> <1098442636l.17554l.0l@hh>
- <20041025152921.GA25154@thundrix.ch> <417D216D.1060206@techsource.com>
- <Pine.LNX.4.58.0410251825480.16966@denise.shiny.it> <20041028093752.GB13523@hh.idb.hist.no>
+	Thu, 28 Oct 2004 07:46:56 -0400
+From: Michal Semler <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: linux-kernel@vger.kernel.org
+Subject: wd module doesn't work in 2.4 and 2.6 ???
+Date: Thu, 28 Oct 2004 13:46:32 +0200
+User-Agent: KMail/1.6.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410281346.32206.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Oct 2004, Helge Hafting wrote:
-> Or one could go the other way - if we use 32 bits, then
-> consider 10 bits per color.  I've always wondered about the purpose
-> of a 8-bit alpha channel.  what exactly is supposed to show
-> in "transparent" places?  Transparency makes sense when talking about 
-> windows - you see the underlying window through a transparent spot.
-> But this is the frame buffer we're talking about - what is
-> supposed to be behind that?  Another frame buffer?
+Hi guys,
 
-Possibly. Or a life video plane.
+I have an old SMC card named SMC EtherCard Plus Elite 16 Combo (WD 8013EW or 
+8013EWC)
 
-Gr{oetje,eeting}s,
+it should work with module wd.
 
-						Geert
+Under win95 :) it works great with
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+io=0x300 irq=15 mem=0xc8000 mem_end=0xcvfff
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+When I modprobe wd with these params, both 2.4 and 2.6 kernels tells me
+
+No wd80x3 card found (io=0x300)
+
+PLS help me. Where is problem???
+
+Michal

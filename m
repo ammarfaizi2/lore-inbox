@@ -1,72 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278665AbRJ1Urm>; Sun, 28 Oct 2001 15:47:42 -0500
+	id <S278673AbRJ1U5z>; Sun, 28 Oct 2001 15:57:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278668AbRJ1Urd>; Sun, 28 Oct 2001 15:47:33 -0500
-Received: from oe49.law11.hotmail.com ([64.4.16.21]:2323 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S278665AbRJ1UrW>;
-	Sun, 28 Oct 2001 15:47:22 -0500
-X-Originating-IP: [64.180.168.53]
-From: "David Grant" <davidgrant79@hotmail.com>
-To: "David Flynn" <Dave@keston.u-net.com>,
-        "linux kernel mailinglist" <linux-kernel@vger.kernel.org>
-In-Reply-To: <045301c15fa7$c2809b70$1901a8c0@node0.idium.eu.org>
-Subject: Re: Via KT133 and 2.4.8 and a hard disk problem ?
-Date: Sun, 28 Oct 2001 12:46:36 -0800
+	id <S278668AbRJ1U5o>; Sun, 28 Oct 2001 15:57:44 -0500
+Received: from smtp03.uc3m.es ([163.117.136.123]:20491 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S278672AbRJ1U5b>;
+	Sun, 28 Oct 2001 15:57:31 -0500
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200110282057.f9SKvxo15573@oboe.it.uc3m.es>
+Subject: Re: Poor floppy performance in kernel 2.4.10
+In-Reply-To: <200110282040.f9SKe6M02113@hitchhiker.org.lu> from "Alain Knaff"
+ at "Oct 28, 2001 09:40:05 pm"
+To: alain@linux.lu
+Date: Sun, 28 Oct 2001 21:57:59 +0100 (MET)
+Cc: "linux kernel" <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
-Message-ID: <OE499R5FyGYPyZ0R7HL00016c26@hotmail.com>
-X-OriginalArrivalTime: 28 Oct 2001 20:47:53.0718 (UTC) FILETIME=[D0C17160:01C15FF1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've had these problems before.  Can you provide a listings of the kernel
-errors you are getting?  I'm curious myself, and I'm sure this would help
-any developers as well.  Also, is it an old KT133 (with vt82c686a chip) or
-KT133A (with vt82c686b chip).
+"A month of sundays ago Alain Knaff wrote:"
+> Appended to this mail is the "long live the struct block_device"
+> patch. It includes the stuff covered in the last patch as well. The
+> issue of stopping transfers in progress is not yet addressed.
 
------ Original Message -----
-From: "David Flynn" <Dave@keston.u-net.com>
-To: "linux kernel mailinglist" <linux-kernel@vger.kernel.org>
-Sent: Sunday, October 28, 2001 3:57 AM
-Subject: Via KT133 and 2.4.8 and a hard disk problem ?
+Errr .. haven't read the patches. But are you doing something so that
+the semantics of the action taken after a media check fails can
+be overridden? The current invalidate_inodes is too strong for me,
+since I am proxying a remote device, and I don't want to kill 
+_all_ the local file descriptors when the remote media disappears. 
+I need to at least continue to send down local ioctls!
 
+No, no suggestions of an extra control device, please. Simplicity.
 
-> All;
->
-> What is the status of the problems with the old KT133 and kernel 2.4.8 ?
->
-> I have a system here which looks to me as if its beginning to suffer from
-> HDD failure, just do anything with the disk for a while and you get disk {
-> busy } errors (and there is an 0x0d error code there somewhere) ... (oh,
-and
-> the HDD light reports no activity) normally, i would view this as a good
-> time to pull all the data off the drive and replace it.
->
-> However, i have noticed that the chipset used is the Via KT133, and am now
-> wondering if this is actually a HDD problem (i still am siding with this)
-or
-> a chipset problem.
->
-> You can guarantee the problem by just running badblocks -sv /dev/hda
->
-> and it will happen at some point, (not always the same place)
->
-> Can anyone offer any advice on this ?
->
-> Thanks,
->
-> Dave
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> +
+>  static struct block_device_operations floppy_fops = {
+>  	open:			floppy_open,
+>  	release:		floppy_release,
+>  	ioctl:			fd_ioctl,
+>  	check_media_change:	check_floppy_change,
+>  	revalidate:		floppy_revalidate,
+> +	can_trust_media_change: floppy_can_trust_media_change
+>  };
+
+and I'd like to have "invalidate" as a method too.
+
+Peter

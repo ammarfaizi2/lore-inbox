@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268458AbTCCQlB>; Mon, 3 Mar 2003 11:41:01 -0500
+	id <S268445AbTCCQjs>; Mon, 3 Mar 2003 11:39:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268560AbTCCQlA>; Mon, 3 Mar 2003 11:41:00 -0500
-Received: from 195-219-31-160.sp-static.linix.net ([195.219.31.160]:54145 "EHLO
-	r2d2.office") by vger.kernel.org with ESMTP id <S268458AbTCCQke>;
-	Mon, 3 Mar 2003 11:40:34 -0500
-Message-ID: <3E6387AE.9080001@walrond.org>
-Date: Mon, 03 Mar 2003 16:49:50 +0000
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Dmesg: Use a PAE enabled kernel
-References: <3E63736F.6090000@walrond.org> <26670000.1046707704@[10.10.2.4]>	 <3E6381B9.4090708@walrond.org> <1046713568.6530.32.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S268458AbTCCQjs>; Mon, 3 Mar 2003 11:39:48 -0500
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:521 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S268445AbTCCQjp>;
+	Mon, 3 Mar 2003 11:39:45 -0500
+Date: Mon, 3 Mar 2003 17:50:11 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Modules broken on alpha ?
+Message-ID: <20030303165011.GE27794@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <wrp1y1p8srx.fsf@hina.wild-wind.fr.eu.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="vmttodhTwj0NAgWp"
+Content-Disposition: inline
+In-Reply-To: <wrp1y1p8srx.fsf@hina.wild-wind.fr.eu.org>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux mail 2.4.18
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Mon, 2003-03-03 at 16:24, Andrew Walrond wrote:
-> 
->>  BIOS-e820: 0000000100000000 - 0000000140000000 (usable)
-> 
-> 
-> This chunk wont get used
-> 
-> 
 
-Ouch
+--vmttodhTwj0NAgWp
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-That accounts for the missing Gb then. I think the warning needs to be 
-more like "WARNING WARNING (WILL ROBINSON)! 1GB of very expensive ram 
-won't be used unless you enable PAE!!!"
+On Sun, 2003-03-02 20:36:50 +0100, Marc Zyngier <mzyngier@freesurf.fr>
+wrote in message <wrp1y1p8srx.fsf@hina.wild-wind.fr.eu.org>:
+> Richard, Rusty,
+>=20
+> I've been trying to use modules on alpha without much success (at
+> least on the latest 2.5.63-bk). Any non-trivial module fails to load
+> with a relocation error :
 
-Just how slow is PAE then ?
+> I'm using module-init-tools from Debian sid (0.9.10-1).
 
-Andrew
+IIRC there was recently a quite small patch flyin' around on LKML.
+<digging...> Ah, look for "[PATCH] alpha modutils update" as a
+subject:-) That was ment to fix it.
 
+MfG, JBG
 
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
+
+--vmttodhTwj0NAgWp
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD4DBQE+Y4fDHb1edYOZ4bsRAjLJAJ0QV6vx6qIrcEeIjjbI0qe7BYX9nwCY2ccL
++3opWlwWC2JQuVyyAa+9ZA==
+=Ufrd
+-----END PGP SIGNATURE-----
+
+--vmttodhTwj0NAgWp--

@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263250AbRFLUu7>; Tue, 12 Jun 2001 16:50:59 -0400
+	id <S263274AbRFLUx3>; Tue, 12 Jun 2001 16:53:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263254AbRFLUut>; Tue, 12 Jun 2001 16:50:49 -0400
-Received: from intranet.resilience.com ([209.245.157.33]:39056 "EHLO
-	intranet.resilience.com") by vger.kernel.org with ESMTP
-	id <S263250AbRFLUuc>; Tue, 12 Jun 2001 16:50:32 -0400
-Message-ID: <3B2681A8.567992F6@resilience.com>
-Date: Tue, 12 Jun 2001 13:55:04 -0700
-From: Jeff Golds <jgolds@resilience.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
+	id <S263269AbRFLUxT>; Tue, 12 Jun 2001 16:53:19 -0400
+Received: from cha213245039048.chello.fr ([213.245.39.48]:64897 "EHLO
+	nostromo.think.fr") by vger.kernel.org with ESMTP
+	id <S263254AbRFLUxL> convert rfc822-to-8bit; Tue, 12 Jun 2001 16:53:11 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: "M.L." <ml@nostromo.sytes.net>
+To: linux-kernel@vger.kernel.org
+Subject: Menuconfig has encountered a possible error...
+Date: Tue, 12 Jun 2001 22:52:39 +0200
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-To: Wakko Warner <wakko@animx.eu.org>
-CC: Bob McElrath <rsmcelrath@students.wisc.edu>,
-        Pierfrancesco Caci <p.caci@seabone.net>, linux-kernel@vger.kernel.org
-Subject: Re: es1371 and recent kernels
-In-Reply-To: <873d95lnqr.fsf@paperino.int-seabone.net> <20010612111503.A870@draal.physics.wisc.edu> <20010612164204.A21504@animx.eu.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01061222523900.32668@nostromo>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wakko Warner wrote:
-> 
-> My ES1370 has done me good.  You might want to try that card.  Yes it's a
-> creative card.  It only has a crackle running 22k 8-bit
-> 
 
-It's probably better because that is the AudioPCI chip from Ensoniq before Creative bought them.  I thought that was a good chip, too.
+  Hello,
 
--Jeff
+         if you want more informations, send me a mail or an icq msg.
 
--- 
-Jeff Golds
-Sr. Software Engineer
-jgolds@resilience.com
+         bye,
+         Mat (ICQ# 23832402).
+
+=======================
+
+Menuconfig has encountered a possible error in one of the kernel's
+configuration files and is unable to continue.  Here is the error
+report:
+ 
+ Q> scripts/Menuconfig: MCmenu53: command not found
+ 
+Please report this to the maintainer <mec@shout.net>.  You may also
+send a problem report to <linux-kernel@vger.kernel.org>.
+ 
+Please indicate the kernel version you are trying to configure and
+which menu you were trying to enter when this error occurred.
+ 
+make: *** [menuconfig] Error 1
+nostromo:/usr/src/linux# uname -a
+Linux nostromo 2.4.5 #10 Sat Jun 9 13:34:54 CEST 2001 i686 unknown
+nostromo:/usr/src/linux#

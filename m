@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264301AbTLKCUc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 21:20:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264303AbTLKCUc
+	id S264326AbTLKCaY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 21:30:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbTLKCaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 21:20:32 -0500
-Received: from fep03-svc.mail.telepac.pt ([194.65.5.202]:47575 "EHLO
-	fep03-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
-	id S264301AbTLKCU1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 21:20:27 -0500
-Subject: pppoe causes oops on 2.6.0-test10
-From: Nuno Ferreira <nuno.ferreira@graycell.biz>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Graycell
-Message-Id: <1071109123.1672.12.camel@taz>
+	Wed, 10 Dec 2003 21:30:24 -0500
+Received: from mtaw6.prodigy.net ([64.164.98.56]:6399 "EHLO mtaw6.prodigy.net")
+	by vger.kernel.org with ESMTP id S264326AbTLKCaW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 21:30:22 -0500
+Date: Wed, 10 Dec 2003 18:30:08 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test11-wli-1
+Message-ID: <20031211023008.GF15401@matchmail.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+References: <20031209233523.GS8039@holomorphy.com> <Pine.LNX.4.58.0312091859330.2313@montezuma.fsmlabs.com> <br8i18$v8s$1@gatekeeper.tmr.com> <20031211021031.GW8039@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 11 Dec 2003 02:18:43 +0000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031211021031.GW8039@holomorphy.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I'm using pppoe to connect to the internet using an Alcatel Speedtouch
-USB ADSL modem. Recently I started getting this oops when connecting, I
-think after upgrading br2684ctl.
-After this happens I can reboot using Magic SysRq bu nothing else.
-I wrote this down on a paper, if this info is not enough I can reproduce
-it and write down the full oops.
-EIP in pfifo_fast_dequeue
+On Wed, Dec 10, 2003 at 06:10:31PM -0800, William Lee Irwin III wrote:
+> You don't have to run into it to report it. =) At any rate, I hope it does
+> prevent confusion elsewhere.
 
-Backtrace
----------
-qdisc_restart
-net_tx_action
-__pollwait
-do_softirq
-packet_poll
-do_select
-__pollwait
-sys_select
-schedule
-syscall_call
-
-Thanks
---
-Nuno
-
+Especially if there is a wli-2 or 3. :)

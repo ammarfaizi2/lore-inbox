@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264058AbTDWPJF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 11:09:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264073AbTDWPJF
+	id S264078AbTDWPE7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 11:04:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264080AbTDWPE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 11:09:05 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:64921 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S264058AbTDWPJE (ORCPT
+	Wed, 23 Apr 2003 11:04:59 -0400
+Received: from tmi.comex.ru ([217.10.33.92]:25567 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S264078AbTDWPE6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 11:09:04 -0400
-Date: Wed, 23 Apr 2003 17:19:20 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andries.Brouwer@cwi.nl,
-       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kdevt-diff
-Message-ID: <20030423151919.GA3035@elf.ucw.cz>
-References: <Pine.LNX.4.44.0304141116020.19302-100000@home.transmeta.com> <Pine.LNX.4.44.0304151445150.5042-100000@serv>
-Mime-Version: 1.0
+	Wed, 23 Apr 2003 11:04:58 -0400
+X-Comment-To: "Martin J. Bligh"
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.68-mm2
+From: Alex Tomas <bzzz@tmi.comex.ru>
+To: linux-kernel@vger.kernel.org
+Organization: HOME
+Date: Wed, 23 Apr 2003 19:14:32 +0400
+In-Reply-To: <18400000.1051109459@[10.10.2.4]> (Martin J. Bligh's message of
+ "Wed, 23 Apr 2003 07:51:00 -0700")
+Message-ID: <m3r87t8cvb.fsf@tmi.comex.ru>
+User-Agent: Gnus/5.090017 (Oort Gnus v0.17) Emacs/21.2 (gnu/linux)
+References: <20030423012046.0535e4fd.akpm@digeo.com>
+	<18400000.1051109459@[10.10.2.4]>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0304151445150.5042-100000@serv>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>>>>> Martin J Bligh (MJB) writes:
 
-> > > Linus, if you still want to go for a single block device major, this patch 
-> > > is bad idea (at least in this form).
-> > 
-> > I disagree.
-> 
-> Ok, here is a compromise proposal. I don't care very much about the MKDEV 
-> macro and almost nobody else should care about it either.
-> My main concern with a larger dev_t is that people start to go wild and 
-> waste the number range with crap. So what I'd like to see is some usage 
-> policy, e.g. nobody should assume a certain dev_t size, so that it's still 
-> possible to scale it down. If the user has only a small number of devices, 
-> they should be addressable even with a 16 bit dev_t.
+ >> . I got tired of the objrmap code going BUG under stress, so it is now in
+ >> disgrace in the experimental/ directory.
 
-What's the point? Its not like 8 bytes are that much... Your "number
-range" is essentially free, and its okay to waste it...
-									Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+ MJB> Any chance of some more info on that? BUG at what point in the code,
+ MJB> and with what test to reproduce?
+
+I've seen this running fsx-linux on ext3
+

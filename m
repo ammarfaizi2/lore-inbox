@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281558AbRLAKeN>; Sat, 1 Dec 2001 05:34:13 -0500
+	id <S284051AbRLAKiN>; Sat, 1 Dec 2001 05:38:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284047AbRLAKeE>; Sat, 1 Dec 2001 05:34:04 -0500
-Received: from news.heim1.tu-clausthal.de ([139.174.234.200]:4413 "EHLO
-	neuemuenze.heim1.tu-clausthal.de") by vger.kernel.org with ESMTP
-	id <S281558AbRLAKdx>; Sat, 1 Dec 2001 05:33:53 -0500
-Date: Sat, 1 Dec 2001 11:34:00 +0100
-From: Sven.Riedel@tu-clausthal.de
-To: Ville Herva <vherva@viasys.com>
+	id <S284050AbRLAKiE>; Sat, 1 Dec 2001 05:38:04 -0500
+Received: from cpe.atm0-0-0-122182.0x3ef30264.bynxx2.customer.tele.dk ([62.243.2.100]:55682
+	"HELO fugmann.dhs.org") by vger.kernel.org with SMTP
+	id <S284053AbRLAKhs>; Sat, 1 Dec 2001 05:37:48 -0500
+Message-ID: <3C08B2FA.10709@fugmann.dhs.org>
+Date: Sat, 01 Dec 2001 11:37:46 +0100
+From: Anders Peter Fugmann <afu@fugmann.dhs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: HPT370 (KT7A-RAID) *corrupts* data - SAMSUNG SV8004H does it as well
-Message-ID: <20011201113400.A629@moog.heim1.tu-clausthal.de>
-In-Reply-To: <20011201115803.B10839@viasys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011201115803.B10839@viasys.com>
-User-Agent: Mutt/1.3.23i
+Subject: Re: Incremental prepatches
+In-Reply-To: <3C089BDB.4020801@zytor.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 01, 2001 at 11:58:03AM +0200, Ville Herva wrote:
-> - how come anyone else is not seeing this corruption (Abit KT7A, nevermind 
->   HPT370 is fairly popular)?
+On 12/01/2001 09:59 AM, H. Peter Anvin wrote:
 
-A friend of mine had an IBM DLTA drive attached to his HPT370
-controller, and this combination proved to produce a whole lot of drive
-errors (I can confirm this first hand), which went away after attaching
-the drive to the main motherboard controller.
-I can't say anything about data corruption though - I just asked him and
-he said he didn't know of any, but that doesn't mean it didn't happen.
+> Hi everyone,
+> 
+> I have created a robot on kernel.org which makes incremental prepatches 
+> available.  It looks for standard-named prepatches in the 
+> /pub/linux/kernel/v*.*/testing directories, and creates incrementals in 
+> the corresponding /pub/linux/kernel/v*.*/testing/incr directory.
+> 
 
-Regs,
-Sven
--- 
-Sven Riedel                      sr@gimp.org
-Osteroeder Str. 6 / App. 13      sven.riedel@tu-clausthal.de
-38678 Clausthal                  "Call me bored, but don't call me boring."
-                                 - Larry Wall 
+Great.
+While you are at it. Could you (when you have the time) extend the 
+system to include a patch between the last pre version and a final 
+version. Something like:
+
+patch-2.5.1-pre8-2.5.2.gz
+(when the time comes :-)
+
+Regards
+Anders Fugmann
+
+
+
+

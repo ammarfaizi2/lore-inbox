@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262618AbVBYAEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262612AbVBYAEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262618AbVBYAEp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 19:04:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262612AbVBYABb
+	id S262612AbVBYAEv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 19:04:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbVBYACE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 19:01:31 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38666 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262564AbVBYAAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 19:00:47 -0500
-Date: Fri, 25 Feb 2005 01:00:37 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/net/ne3210.c: cleanups
-Message-ID: <20050225000037.GG8651@stusta.de>
-References: <20050218234659.GC4337@stusta.de> <42193BFD.9070900@pobox.com> <20050221144809.GC3187@stusta.de> <421A471A.7090503@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <421A471A.7090503@pobox.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 24 Feb 2005 19:02:04 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:29912 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262590AbVBXX7q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 18:59:46 -0500
+To: Chris Friesen <cfriesen@nortel.com>
+cc: nagar@watson.ibm.com, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Rik van Riel <riel@redhat.com>, Chris Mason <mason@suse.com>,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [ckrm-tech] Re: [PATCH] CKRM: 4/10 CKRM: Full rcfs support 
+In-reply-to: Your message of Thu, 24 Feb 2005 17:25:28 CST.
+             <421E6268.2060507@nortel.com> 
+Date: Thu, 24 Feb 2005 15:59:39 -0800
+Message-Id: <E1D4StP-00055x-00@w-gerrit.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 21, 2005 at 03:39:54PM -0500, Jeff Garzik wrote:
-> Adrian Bunk wrote:
-> >@@ -197,7 +194,7 @@
-> > 	ei_status.priv = phys_mem;
-> > 
-> > 	if (ei_debug > 0)
-> >-		printk(version);
-> >+		printk("ne3210 driver");
+
+On Thu, 24 Feb 2005 17:25:28 CST, Chris Friesen wrote:
+> Shailabh Nagar wrote:
 > 
+> > Sounds like a case is being made to make CONFIG_RCFS a "y" and eliminate
+> > the possibility of it being a loadable module ?
 > 
-> missing newline.  Do something like "ns3210 __DATE__ loaded.\n"
-> 
-> Ditto for seeq8002.
+> No, I believe the idea was to make CONFIG_RCFS be automatically set to 
+> the same as CKRM.
 
-Sorry for the missing newline.
+Right, but CONFIG_CKRM is a Y/N, rcfs can be a module which is loaded
+or not, depending on whether someone actually wants to *use* classes
+in CKRM.
 
-I have to admit I still don't see why these printk's have to stay:
-In both files, there are other printk's nearby that print the name of 
-the driver.
+In theory, distros could build with CKRM set to "Y" but leave RCFS
+as a module to simplify testing.  It dosn't matter too much to me but
+it seems like having the flexibility of leaving rcfs as a module
+is a nice capability.
 
-__DATE__ doesn't provide any information that wasn't already available 
-in the first line of the dmesg output.
+I'm willing to be hear all comments.  ;-)
 
-> 	Jeff
-
-cu
-Adrian
-
---
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+gerrit

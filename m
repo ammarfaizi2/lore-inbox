@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266427AbUFUTeO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266434AbUFUTm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266427AbUFUTeO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 15:34:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266434AbUFUTeH
+	id S266434AbUFUTm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 15:42:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266422AbUFUTm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 15:34:07 -0400
-Received: from [80.72.36.106] ([80.72.36.106]:23687 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S266435AbUFUTcU (ORCPT
+	Mon, 21 Jun 2004 15:42:27 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:56999 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S266435AbUFUTln (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 15:32:20 -0400
-Date: Mon, 21 Jun 2004 21:32:15 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Kirill Korotaev <kksx@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: can TSC tick with different speeds on SMP=?koi8-r?Q?=3F?=
-In-Reply-To: <E1BcU4I-000Cj2-00.kksx-mail-ru@f27.mail.ru>
-Message-ID: <Pine.LNX.4.58.0406212112020.28702@alpha.polcom.net>
-References: <E1BcU4I-000Cj2-00.kksx-mail-ru@f27.mail.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 21 Jun 2004 15:41:43 -0400
+Subject: [BKPATCH] ACPI for 2.6
+From: Len Brown <len.brown@intel.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1087846886.4319.184.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 21 Jun 2004 15:41:26 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jun 2004, [koi8-r] "Kirill Korotaev[koi8-r] "  wrote:
+Hi Linus, please do a 
 
-> Hello,
-> 
-> I've got some stupid question to SMP gurus and would be very thankful for the details. I suddenly faced an SMP system where different P4 cpus were installed (with different steppings). This resulted in different CPU clock speeds and different speeds of time stamp counters on these CPUs. I faced the problem during some timings I measured in the kernel.
+	bk pull bk://linux-acpi.bkbits.net/linux-acpi-release-2.6.7
 
-IANSG (= I am not SMP guru).
+thanks,
+-Len
 
-> So the question is "is such system compliant with SMP specification?".
-> In old kernels there was a code to syncronize TSCs and to detect if they were screwed up. Current kernels do not have such code. Is it intentional? I suppose there is some code in kernel which won't work find on such systems (real-time threads timing accounting and so on).
+ps. a plain patch is here:
+http://linux-acpi.bkbits.net:8080/linux-acpi-release-2.6.7/gnupatch@40d735136IS3UC6I-LbwG91v0UYtLw
 
-I have friend. He has SMP system with 2x P III. He put two different CPUs 
-into it (on 700 and one 750). This resulted in fast growing difference 
-between time on them. This can be potentially dangerous to databases or 
-other time driven programs. But there is a fix: boot with notsc kernel 
-parameter. But there is one problem. Everyting is ok as long as you have 
-i386 (that means NOT i686) compiled glibc. If you have not, init will stop 
-with segmentation fault or something like that. But we are using Gentoo, 
-so his glibc was i686 compiled so not working. He do not wanted to 
-recompile it to i386 so I fixed glibc to work with notsc and i686. But I 
-will not provide any patch because I fixed it against some CVS version 
-that Gentoo used at this time. Maybe he has more recent patch. I will ask 
-him and I will post patch if he has any. But the change is very simple. 
-You should grep glibc's sources against tsc related assembly instructions 
-and then kill them in the smart way. I found two places. One was in some 
-malloc debuging code and the other was in header. The header is simple to 
-fix - you should overwrite it with its no-op version from i386 (or 
-something like that) directory. And you should disable the second call in 
-the malloc debuging code (for example by setting define that you have no 
-precise timing source in your machine). Then you should recompile your 
-glibc and you are done. My friend's server has something about 2 moths 
-uptime and no clock problems so this is probably The Right Fix (TM). I am 
-writing this words using it so I know...
+This will update the following files:
+
+ arch/i386/kernel/mpparse.c   |    2 +-
+ arch/x86_64/kernel/mpparse.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+through these ChangeSets:
+
+<len.brown@intel.com> (04/06/21 1.1728.2.3)
+   [ACPI] fix double timer interrupt mapping (Hans-Frieder Vogt)
+   caused by errant fix for OSDL 2835
 
 
-Grzegorz Kulewski
+
 

@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263357AbTKWLlT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Nov 2003 06:41:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbTKWLlT
+	id S263369AbTKWMCK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Nov 2003 07:02:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbTKWMCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Nov 2003 06:41:19 -0500
-Received: from attila.bofh.it ([213.92.8.2]:61639 "EHLO attila.bofh.it")
-	by vger.kernel.org with ESMTP id S263357AbTKWLlR (ORCPT
+	Sun, 23 Nov 2003 07:02:10 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:52899 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263369AbTKWMCI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Nov 2003 06:41:17 -0500
-Date: Sun, 23 Nov 2003 12:40:55 +0100
-From: "Marco d'Itri" <md@Linux.IT>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Len Brown <len.brown@intel.com>, Andi Kleen <ak@muc.de>
-Subject: Re: irq 15: nobody cared! with KT600 chipset and 2.6.0-test9
-Message-ID: <20031123114055.GA1844@wonderland.linux.it>
-References: <20031123021537.GA1816@wonderland.linux.it> <Pine.LNX.4.44.0311221902340.2379-100000@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0311221902340.2379-100000@home.osdl.org>
-User-Agent: Mutt/1.5.4i
+	Sun, 23 Nov 2003 07:02:08 -0500
+Date: Sun, 23 Nov 2003 13:01:27 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Andi Kleen <ak@colin2.muc.de>,
+       Andi Kleen <ak@muc.de>, Con Kolivas <kernel@kolivas.org>,
+       Andrew Morton <akpm@osdl.org>, jbarnes@sgi.com, efocht@hpce.nec.com,
+       John Hawkes <hawkes@sgi.com>, wookie@osdl.org
+Subject: Re: [RFC] generalise scheduling classes
+In-Reply-To: <3FC0A0C2.90800@cyberone.com.au>
+Message-ID: <Pine.LNX.4.56.0311231300290.16152@earth>
+References: <20031117021511.GA5682@averell> <3FB83790.3060003@cyberone.com.au>
+ <20031117141548.GB1770@colin2.muc.de> <Pine.LNX.4.56.0311171638140.29083@earth>
+ <20031118173607.GA88556@colin2.muc.de> <Pine.LNX.4.56.0311181846360.23128@earth>
+ <20031118235710.GA10075@colin2.muc.de> <3FBAF84B.3050203@cyberone.com.au>
+ <501330000.1069443756@flay> <3FBF099F.8070403@cyberone.com.au>
+ <1010800000.1069532100@[10.10.2.4]> <3FC01817.3090705@cyberone.com.au>
+ <3FC0A0C2.90800@cyberone.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 23, Linus Torvalds <torvalds@osdl.org> wrote:
 
- >Marco, can you try this appended (very very stupid) patch with ACPI on, so
- >that we can see where irq15 gets registered? It won't fix anything, but 
- >I'm confused by why IRQ 15 has been registered before we probe for it..
+On Sun, 23 Nov 2003, Nick Piggin wrote:
 
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: IRQ probe failed (0x3cfa: 0). Guessing at 15
-hdc: CD-ROM 50X, ATAPI CD/DVD-ROM drive
-hdd: 32X10, ATAPI CD/DVD-ROM drive
-Badness in request_irq at arch/i386/kernel/irq.c:572
-Call Trace:
- [<c021a770>] ide_intr+0x0/0x130
- [<c010acfc>] request_irq+0xcc/0x100
- [<c021bce6>] init_irq+0x156/0x400
- [<c021a770>] ide_intr+0x0/0x130
- [<c021c376>] hwif_init+0xb6/0x250
- [<c021b9ac>] probe_hwif_init+0x2c/0x80
- [<c022769a>] ide_setup_pci_device+0x7a/0x80
- [<c021906d>] via_init_one+0x3d/0x50
- [<c039791d>] ide_scan_pcidev+0x5d/0x70
- [<c0397976>] ide_scan_pcibus+0x46/0xd0
- [<c0397823>] probe_for_hwifs+0x13/0x20
- [<c0397838>] ide_init_builtin_drivers+0x8/0x20
- [<c0397898>] ide_init+0x48/0x70
- [<c038674b>] do_initcalls+0x2b/0xa0
- [<c01278f2>] init_workqueues+0x12/0x60
- [<c0105097>] init+0x27/0x110
- [<c0105070>] init+0x0/0x110
- [<c01072a9>] kernel_thread_helper+0x5/0xc
+> We still don't have an HT aware scheduler, [...]
 
-irq 15: nobody cared!
-[...]
+uhm, have you seen my HT scheduler patches, in particular the HT scheduler
+in Fedora Core 1, which is on top of a pretty recent 2.6 scheduler? Works
+pretty well.
 
--- 
-ciao, |
-Marco | [3234 aln71JMBJj/2g]
+	Ingo

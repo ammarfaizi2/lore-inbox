@@ -1,173 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267487AbTAGUdO>; Tue, 7 Jan 2003 15:33:14 -0500
+	id <S267443AbTAGU1F>; Tue, 7 Jan 2003 15:27:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267489AbTAGUdC>; Tue, 7 Jan 2003 15:33:02 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:6349 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267487AbTAGUbE>; Tue, 7 Jan 2003 15:31:04 -0500
-Date: Tue, 07 Jan 2003 12:34:12 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] (7/7) nuke clustered_apic_mode and friends
-Message-ID: <603700000.1041971652@titus>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S267449AbTAGU1F>; Tue, 7 Jan 2003 15:27:05 -0500
+Received: from atlrel9.hp.com ([156.153.255.214]:45737 "HELO atlrel9.hp.com")
+	by vger.kernel.org with SMTP id <S267443AbTAGU1D>;
+	Tue, 7 Jan 2003 15:27:03 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Bjorn Helgaas <bjorn_helgaas@hp.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+Subject: [PATCH] AGP 1/7: factor device command updates
+Date: Tue, 7 Jan 2003 13:35:36 -0700
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org, davidm@hpl.hp.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Message-Id: <200301071335.36360.bjorn_helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, the grand finale ... NUMA-Q is now moved into subarch, so we can
-kill off the last vestiges - CONFIG_CLUSTERED_APIC, clustered_apic_mode,
-and smpboot.h (which only contains machine specific stuff now anyway).
-the esr_disable switch was the last bit, that goes to subarch too.
+Here's a series of minor AGP cleanups for 2.5.  The point of
+doing these is to reduce all the code duplication in the agp_enable
+functions.  The next step will be to wean hp-agp from its dependence
+on "fake PCI devices," which requires a new agp_enable function, and
+I didn't have the stomach to copy-n-paste all the stuff in there again.
 
-If you end up with an empty smpboot.h due to patch / bitkeeper interactions,
-please remove it after this ...
+Summary:
+    1:  factor device command updates
+    2:  fix old pci_find_capability merge botch
+    3:  remove unused var in amd-k8-agp.c
+    4:  add generic print of AGP version & mode when programming devices
+    5:  factor device capability collection
+    6:  use PCI_AGP_* constants
+    7:  use pci_find_capability in sworks-agp.c
 
-diff -urpN -X /home/fletch/.diff.exclude 06-smpboot_cam/arch/i386/Kconfig 07-nuke_clustered_apic/arch/i386/Kconfig
---- 06-smpboot_cam/arch/i386/Kconfig	Thu Jan  2 22:04:58 2003
-+++ 07-nuke_clustered_apic/arch/i386/Kconfig	Tue Jan  7 11:11:19 2003
-@@ -456,11 +456,6 @@ config NR_CPUS
- 	  This is purely to save memory - each supported CPU adds
- 	  approximately eight kilobytes to the kernel image.
-
--config CLUSTERED_APIC
--	bool
--	depends on X86_NUMAQ || X86_SUMMIT
--	default y
--
- # Common NUMA Features
- config NUMA
- 	bool "Numa Memory Allocation Support"
-diff -urpN -X /home/fletch/.diff.exclude 06-smpboot_cam/arch/i386/kernel/smp.c 07-nuke_clustered_apic/arch/i386/kernel/smp.c
---- 06-smpboot_cam/arch/i386/kernel/smp.c	Thu Jan  2 22:04:58 2003
-+++ 07-nuke_clustered_apic/arch/i386/kernel/smp.c	Tue Jan  7 11:11:19 2003
-@@ -23,7 +23,6 @@
- #include <asm/mtrr.h>
- #include <asm/pgalloc.h>
- #include <asm/tlbflush.h>
--#include <asm/smpboot.h>
- #include <mach_ipi.h>
-
- /*
-diff -urpN -X /home/fletch/.diff.exclude 06-smpboot_cam/arch/i386/kernel/smpboot.c 07-nuke_clustered_apic/arch/i386/kernel/smpboot.c
---- 06-smpboot_cam/arch/i386/kernel/smpboot.c	Tue Jan  7 10:32:41 2003
-+++ 07-nuke_clustered_apic/arch/i386/kernel/smpboot.c	Tue Jan  7 11:11:19 2003
-@@ -47,7 +47,6 @@
- #include <linux/mc146818rtc.h>
- #include <asm/pgalloc.h>
- #include <asm/tlbflush.h>
--#include <asm/smpboot.h>
- #include <asm/desc.h>
- #include <asm/arch_hooks.h>
- #include "smpboot_hooks.h"
-diff -urpN -X /home/fletch/.diff.exclude 06-smpboot_cam/arch/i386/mach-voyager/voyager_smp.c 07-nuke_clustered_apic/arch/i386/mach-voyager/voyager_smp.c
---- 06-smpboot_cam/arch/i386/mach-voyager/voyager_smp.c	Thu Jan  2 22:04:58 2003
-+++ 07-nuke_clustered_apic/arch/i386/mach-voyager/voyager_smp.c	Tue Jan  7 11:11:19 2003
-@@ -28,7 +28,6 @@
- #include <asm/mtrr.h>
- #include <asm/pgalloc.h>
- #include <asm/tlbflush.h>
--#include <asm/smpboot.h>
- #include <asm/desc.h>
- #include <asm/arch_hooks.h>
-
-diff -urpN -X /home/fletch/.diff.exclude 06-smpboot_cam/arch/i386/pci/numa.c 07-nuke_clustered_apic/arch/i386/pci/numa.c
---- 06-smpboot_cam/arch/i386/pci/numa.c	Sun Nov 17 20:29:27 2002
-+++ 07-nuke_clustered_apic/arch/i386/pci/numa.c	Tue Jan  7 11:11:19 2003
-@@ -127,7 +127,7 @@ static int __init pci_numa_init(void)
- 		return 0;
-
- 	pci_root_bus = pcibios_scan_root(0);
--	if (clustered_apic_mode && (numnodes > 1)) {
-+	if (numnodes > 1) {
- 		for (quad = 1; quad < numnodes; ++quad) {
- 			printk("Scanning PCI bus %d for quad %d\n",
- 				QUADLOCAL2BUS(quad,0), quad);
-diff -urpN -X /home/fletch/.diff.exclude 06-smpboot_cam/include/asm-i386/mach-default/mach_apic.h 07-nuke_clustered_apic/include/asm-i386/mach-default/mach_apic.h
---- 06-smpboot_cam/include/asm-i386/mach-default/mach_apic.h	Tue Jan  7 09:30:08 2003
-+++ 07-nuke_clustered_apic/include/asm-i386/mach-default/mach_apic.h	Tue Jan  7 11:11:19 2003
-@@ -10,6 +10,7 @@
- #endif
-
- #define no_balance_irq (0)
-+#define esr_disable (0)
-
- #define APIC_BROADCAST_ID      0x0F
- #define check_apicid_used(bitmap, apicid) (bitmap & (1 << apicid))
-diff -urpN -X /home/fletch/.diff.exclude 06-smpboot_cam/include/asm-i386/mach-numaq/mach_apic.h 07-nuke_clustered_apic/include/asm-i386/mach-numaq/mach_apic.h
---- 06-smpboot_cam/include/asm-i386/mach-numaq/mach_apic.h	Tue Jan  7 09:30:08 2003
-+++ 07-nuke_clustered_apic/include/asm-i386/mach-numaq/mach_apic.h	Tue Jan  7 11:11:19 2003
-@@ -6,6 +6,7 @@
- #define TARGET_CPUS (0xf)
-
- #define no_balance_irq (1)
-+#define esr_disable (1)
-
- #define APIC_BROADCAST_ID      0x0F
- #define check_apicid_used(bitmap, apicid) ((bitmap) & (1 << (apicid)))
-diff -urpN -X /home/fletch/.diff.exclude 06-smpboot_cam/include/asm-i386/mach-summit/mach_apic.h 07-nuke_clustered_apic/include/asm-i386/mach-summit/mach_apic.h
---- 06-smpboot_cam/include/asm-i386/mach-summit/mach_apic.h	Tue Jan  7 09:30:08 2003
-+++ 07-nuke_clustered_apic/include/asm-i386/mach-summit/mach_apic.h	Tue Jan  7 11:11:19 2003
-@@ -3,6 +3,8 @@
-
- extern int x86_summit;
-
-+#define esr_disable (1)
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.971   -> 1.972  
+#	drivers/char/agp/generic.c	1.10    -> 1.11   
+#	drivers/char/agp/sworks-agp.c	1.12    -> 1.13   
+#	drivers/char/agp/amd-k8-agp.c	1.15    -> 1.16   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/01/07	bjorn_helgaas@hp.com	1.972
+# Factor out updating AGP device command registers.
+# --------------------------------------------
+#
+diff -Nru a/drivers/char/agp/amd-k8-agp.c b/drivers/char/agp/amd-k8-agp.c
+--- a/drivers/char/agp/amd-k8-agp.c	Tue Jan  7 12:51:49 2003
++++ b/drivers/char/agp/amd-k8-agp.c	Tue Jan  7 12:51:49 2003
+@@ -435,11 +435,7 @@
+ 	 *        command registers.
+ 	 */
+ 
+-	pci_for_each_dev(device) {
+-		cap_ptr = pci_find_capability(device, PCI_CAP_ID_AGP);
+-		if (cap_ptr != 0x00)
+-			pci_write_config_dword(device, cap_ptr + 8, command);
+-	}
++	agp_device_command(command);
+ }
+ 
+ 
+diff -Nru a/drivers/char/agp/generic.c b/drivers/char/agp/generic.c
+--- a/drivers/char/agp/generic.c	Tue Jan  7 12:51:49 2003
++++ b/drivers/char/agp/generic.c	Tue Jan  7 12:51:49 2003
+@@ -313,6 +313,20 @@
+ 
+ 
+ /* Generic Agp routines - Start */
 +
- #define XAPIC_DEST_CPUS_MASK    0x0Fu
- #define XAPIC_DEST_CLUSTER_MASK 0xF0u
-
-diff -urpN -X /home/fletch/.diff.exclude 06-smpboot_cam/include/asm-i386/numaq.h 07-nuke_clustered_apic/include/asm-i386/numaq.h
---- 06-smpboot_cam/include/asm-i386/numaq.h	Sun Nov 17 20:29:46 2002
-+++ 07-nuke_clustered_apic/include/asm-i386/numaq.h	Tue Jan  7 11:11:19 2003
-@@ -28,8 +28,6 @@
-
- #ifdef CONFIG_X86_NUMAQ
-
--#include <asm/smpboot.h>
--
- /*
-  * for now assume that 64Gb is max amount of RAM for whole system
-  *    64Gb / 4096bytes/page = 16777216 pages
-diff -urpN -X /home/fletch/.diff.exclude 06-smpboot_cam/include/asm-i386/smp.h 07-nuke_clustered_apic/include/asm-i386/smp.h
---- 06-smpboot_cam/include/asm-i386/smp.h	Tue Jan  7 09:27:26 2003
-+++ 07-nuke_clustered_apic/include/asm-i386/smp.h	Tue Jan  7 11:11:19 2003
-@@ -28,16 +28,6 @@
-  #define INT_DELIVERY_MODE 1     /* logical delivery broadcast to all procs */
- #endif
-
--#ifndef clustered_apic_mode
-- #ifdef CONFIG_CLUSTERED_APIC
--  #define clustered_apic_mode (1)
--  #define esr_disable (1)
-- #else /* !CONFIG_CLUSTERED_APIC */
--  #define clustered_apic_mode (0)
--  #define esr_disable (0)
-- #endif /* CONFIG_CLUSTERED_APIC */
--#endif
--
- #define BAD_APICID 0xFFu
- #ifdef CONFIG_SMP
- #ifndef __ASSEMBLY__
-diff -urpN -X /home/fletch/.diff.exclude 06-smpboot_cam/include/asm-i386/smpboot.h 07-nuke_clustered_apic/include/asm-i386/smpboot.h
---- 06-smpboot_cam/include/asm-i386/smpboot.h	Tue Jan  7 09:30:49 2003
-+++ 07-nuke_clustered_apic/include/asm-i386/smpboot.h	Wed Dec 31 16:00:00 1969
-@@ -1,12 +0,0 @@
--#ifndef __ASM_SMPBOOT_H
--#define __ASM_SMPBOOT_H
--
--#ifndef clustered_apic_mode
-- #ifdef CONFIG_CLUSTERED_APIC
--  #define clustered_apic_mode (1)
-- #else /* !CONFIG_CLUSTERED_APIC */
--  #define clustered_apic_mode (0)
-- #endif /* CONFIG_CLUSTERED_APIC */
--#endif
--
--#endif
++void agp_device_command(u32 command)
++{
++	struct pci_dev *device;
++
++	pci_for_each_dev(device) {
++		u8 agp = pci_find_capability(device, PCI_CAP_ID_AGP);
++		if (!agp)
++			continue;
++
++		pci_write_config_dword(device, agp + 8, command);
++	}
++}
++
+ void agp_generic_agp_enable(u32 mode)
+ {
+ 	struct pci_dev *device = NULL;
+@@ -395,11 +409,7 @@
+ 	 *        command registers.
+ 	 */
+ 
+-	pci_for_each_dev(device) {
+-		cap_ptr = pci_find_capability(device, PCI_CAP_ID_AGP);
+-		if (cap_ptr != 0x00)
+-			pci_write_config_dword(device, cap_ptr + 8, command);
+-	}
++	agp_device_command(command);
+ }
+ 
+ int agp_generic_create_gatt_table(void)
+diff -Nru a/drivers/char/agp/sworks-agp.c b/drivers/char/agp/sworks-agp.c
+--- a/drivers/char/agp/sworks-agp.c	Tue Jan  7 12:51:49 2003
++++ b/drivers/char/agp/sworks-agp.c	Tue Jan  7 12:51:49 2003
+@@ -506,11 +506,7 @@
+ 	 *        command registers.
+ 	 */
+ 
+-	pci_for_each_dev(device) {
+-		cap_ptr = pci_find_capability(device, PCI_CAP_ID_AGP);
+-		if (cap_ptr != 0x00)
+-			pci_write_config_dword(device, cap_ptr + 8, command);
+-	}
++	agp_device_command(command);
+ }
+ 
+ static int __init serverworks_setup (struct pci_dev *pdev)
 

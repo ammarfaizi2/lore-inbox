@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272277AbTHIIOY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 04:14:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272278AbTHIIOY
+	id S272278AbTHIIPc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 04:15:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272284AbTHIIPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 04:14:24 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:14857 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S272277AbTHIIOX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 04:14:23 -0400
-Date: Sat, 9 Aug 2003 10:13:46 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       chip@pobox.com
-Subject: Re: [PATCH] 2.4.22pre10: {,un}likely_p() macros for pointers
-Message-ID: <20030809081346.GC29616@alpha.home.local>
-References: <1060087479.796.50.camel@cube> <20030809002117.GB26375@mail.jlokier.co.uk>
+	Sat, 9 Aug 2003 04:15:32 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:42254 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S272278AbTHIIP3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 04:15:29 -0400
+Date: Sat, 9 Aug 2003 09:15:24 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] More PCI fixes for 2.6.0-test2
+Message-ID: <20030809091524.A13885@flint.arm.linux.org.uk>
+Mail-Followup-To: Greg KH <greg@kroah.com>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <20030809003036.GA3163@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030809002117.GB26375@mail.jlokier.co.uk>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030809003036.GA3163@kroah.com>; from greg@kroah.com on Fri, Aug 08, 2003 at 05:30:36PM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 09, 2003 at 01:21:17AM +0100, Jamie Lokier wrote:
-> Albert Cahalan wrote:
-> > // tell gcc what to expect:   if(unlikely(err)) die(err);
-> > #define likely(x)       __builtin_expect(!!(x),1)
-> > #define unlikely(x)     __builtin_expect(!!(x),0)
-> > #define expected(x,y)   __builtin_expect((x),(y))
-> 
-> You may want to check that GCC generates the same code as for
-> 
-> 	#define likely(x)	__builtin_expect((x),1)
-> 	#define unlikely(x)	__builtin_expect((x),0)
-> 
-> I tried this once, and I don't recall the precise result but I do
-> recall it generating different code (i.e. not optimal for one of the
-> definitions).
+On Fri, Aug 08, 2003 at 05:30:36PM -0700, Greg KH wrote:
+> Here are a few more fixes for the PCI core code for 2.6.0-test2-bk.
+> I've removed all of the struct device.name usages as that field is about
+> to go away, and there is a fix from Ivan in here too.
 
-anyway, in __builtin_expect(!!(x),0) there is a useless conversion, because
-it's totally equivalent to __builtin_expect((x),0) (how could !!x be 0 if x
-isn't ?), but I'm pretty sure that the compiler will add the test.
+When was that decided?  I don't remember seeing any discussion, and since
+it affects more than PCI... Seems like a backwards step to me.
 
-Willy
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

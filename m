@@ -1,107 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269390AbRHLRXA>; Sun, 12 Aug 2001 13:23:00 -0400
+	id <S269392AbRHLRrW>; Sun, 12 Aug 2001 13:47:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269391AbRHLRWu>; Sun, 12 Aug 2001 13:22:50 -0400
-Received: from neon-gw.transmeta.com ([63.209.4.196]:5128 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269390AbRHLRWf>; Sun, 12 Aug 2001 13:22:35 -0400
-Date: Sun, 12 Aug 2001 10:21:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.8aa1
-In-Reply-To: <20010812190202.H737@athlon.random>
-Message-ID: <Pine.LNX.4.33.0108121003520.15697-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269393AbRHLRrM>; Sun, 12 Aug 2001 13:47:12 -0400
+Received: from lilly.ping.de ([62.72.90.2]:49169 "HELO lilly.ping.de")
+	by vger.kernel.org with SMTP id <S269392AbRHLRrF>;
+	Sun, 12 Aug 2001 13:47:05 -0400
+Date: 12 Aug 2001 19:46:18 +0200
+Message-ID: <20010812194618.A880@planetzork.spacenet>
+From: jogi@planetzork.ping.de
+To: "Rik van Riel" <riel@conectiva.com.br>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+        "Mike Galbraith" <mikeg@wen-online.de>,
+        "Steve Kieu" <haiquy@yahoo.com>,
+        "kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: Performance 2.4.8 is worse than 2.4.x<8
+In-Reply-To: <E15VtnT-0005bM-00@the-village.bc.nu> <Pine.LNX.4.33L.0108121053430.6118-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <Pine.LNX.4.33L.0108121053430.6118-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Sun, Aug 12, 2001 at 11:00:31AM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Aug 12, 2001 at 11:00:31AM -0300, Rik van Riel wrote:
+> On Sun, 12 Aug 2001, Alan Cox wrote:
+> 
+> > > Here, disk write throughput seems to want some tweaking, and Bonnie
+> > > doing it's rewrite test triggers a very large and persistant inactive
+> > > shortage which shouldn't be there (imho).
+> >
+> > This is one of the reasons I kept the 2.4.7 vm. The 2.4.8 vm is better
+> > than 2.4.8pre but not actually better than the older VM by feel or
+> > measurement on my test boxes
+> 
+> There are some open-ended questions wrt. the use-once idea,
+> its implementation and the way the thing has been integrated
+> with the rest of the kernel.
+> 
+> Some suspect interactions and some things which just aren't
+> clear yet don't make it seem the best idea to start integrating
+> the use-once idea in mainli^W-ac yet...
 
-On Sun, 12 Aug 2001, Andrea Arcangeli wrote:
->
-> virt_to_bus(page_address(pte_page(pte))) actually returns the right bus
-> address on x86 in a range of 4G,
+Is it possible that this causes the slowdown I see when I benchmark
+kernel compilations? Doing make -j2 bzImage modules on 2.4.7 gives:
 
-No it doesn't.
+        User time (seconds): 279.62
+        System time (seconds): 22.19
+        Percent of CPU this job got: 77%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 6:29.95
+        ...
+        Major (requiring I/O) page faults: 1085696
+        Minor (reclaiming a frame) page faults: 1263226
 
-page_address(page) is (page)->virtual, which is going to be zero for
-non-kmapped pages, and going to ve the virtual mapping of a kmapped page.
-NEITHER of which will translate correctly with "virt_to_bus()".
+With 2.4.8 (default bdflush settings):
 
-In short, "virt_to_bus(page_address(pte_page(pte)))" only works for the
-first 1GB. Always have, always will.
+        User time (seconds): 280.75
+        System time (seconds): 21.46
+        Percent of CPU this job got: 71%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 7:04.14
+        ...
+        Major (requiring I/O) page faults: 1085927
+        Minor (reclaiming a frame) page faults: 1263289
 
-> But of course calling page_address() on anything highmem is ugly like
-> hell even if it ""incidentally"" works on 2.4 up to 4G (it temporarly
-> wraps around in userspace).
+With 2.4.8 (and 50/75 bdflush settings):
 
-It incidentally DOES NOT WORK.
+        User time (seconds): 282.20
+        System time (seconds): 20.82
+        Percent of CPU this job got: 71%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 7:03.27
+        ...
+        Major (requiring I/O) page faults: 1094004
+        Minor (reclaiming a frame) page faults: 1265526
 
-It happens to work for you in the non-highmem case when you disabled
-"page->virtual", but in that case HIGHMEM obviously doesn't work at all,
-so you cannot actually ever _use_ anything but the low 1GB anyway, so it
-ends up not working in practice even then.
+Since 2.4.8 should be better when running short of memory I tried
+make -j bzImage modules also, with 2.4.7:
 
-So stop making these things up.
+        User time (seconds): 294.16
+        System time (seconds): 32.70
+        Percent of CPU this job got: 32%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 16:40.38
+        ...
+        Major (requiring I/O) page faults: 1560301
+        Minor (reclaiming a frame) page faults: 1601194
 
-> For your suggestion of the pte_to_pfn and the reverse I'm not sure why
-> they're needed (of course for the arch is extremely simple to implement
-> pte_to_pfn, on x86 is a shitright of 12, on alpha it's a shiftright of
-> 32, much simpler than pte_page, pte_page has to deal with discontigmem
-> on numa system so it's slower). But in general people shouldn't use
-> pte_page in drivers, they shouldn't walk pagetables, the vm of linux
-> walks pagetables instead.
+and with 2.4.8 (default bdflush)
 
-I agree. However, if you looked at how I used it, it was just as a helper
-function for doing the "struct page -> physical" and "struct page -> bus"
-address calculations, which _are_ valid.
+        User time (seconds): 293.57
+        System time (seconds): 50.55
+        Percent of CPU this job got: 24%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 23:35.30
+        ...
+        Major (requiring I/O) page faults: 1592833
+        Minor (reclaiming a frame) page faults: 1556612
 
-Think of the "page_to_pfn()" as an internal helper routine that avoids the
-overflow thing.
+System is an Athlon-1.2GHz with 256MB DDR-Ram.
 
-But also, there is actually at least one useful case in the VM layer that
-wouldn't mind having it - look at what the VALID_PAGE() users in
-mm/memory.c, and look at the code we generate now (first we do
-"pte_page()", then we take the page and turn it into a PFN, and then we
-compare that PFN against the highest PFN we support - and all without
-realizing that we already _had_ the PFN in the page table and could have
-avoided one conversion altogether).
 
-Also, look at remap_pte_range: it would actually be a _lot_ better off
-using PFN's instead of the current physical addresses. Right now it cannot
-handle 64-bit remapping on x86, and the reason is again that we don't have
-good conversion functions..
+If you want further compilation benchmarks just let me know.
 
-> So I believe a kind of page_to_bus64 should be implemented, and it should
-> possibly return dma64_addr_t typedeffed as 'unsigned long long'.
 
-Fair enough, that sounds like a good idea too.
+Regards,
 
-> But the real problem is how to have the driver understand that on some
-> arch it should keep using the iommu 32bit api instead of DAC because
-> those archs have crappy PCI64 DAC hardware implementation that inhibits
-> pci prefetch cycles or stuff like that that leads to bad performance
-> (DaveM can certainly provide more details). This is the hard part of the
-> API I believe. So we either need the driver to have two explicit cases
-> (then the plain page_to_bus64 would not need other changes), or to hide
-> the iommu stuff inside the page_to_bus64, but in such case it means we
-> also need to have a second function to release the pte ala pci_unmap_*.
+   Jogi
 
-Yes. And we should call them something like "pci_kmap()", "pci_kunmap()",
-because that is exactly what they'd be.
 
-> And what the driver should ever do when its device is 32bit and it gets
-> a bus address out of page_to_bus64 that overflows 32bit and no iommu is
-> available?
+-- 
 
-It shouldn't use page_to_bus64(), I believe. That function only makes
-sense for 64-bit aware drivers.
+Well, yeah ... I suppose there's no point in getting greedy, is there?
 
-32-bit drivers could still use the regular PCI mapping functions, which
-will map it down to 32 bits as far as the driver is concerned, even if the
-"real" unmapped bus address might be >32 bits. Agreed?
-
-		Linus
-
+    << Calvin & Hobbes >>

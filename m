@@ -1,76 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262548AbUCRMCb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 07:02:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbUCRMCb
+	id S262551AbUCRMDV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 07:03:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbUCRMDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 07:02:31 -0500
-Received: from dp.samba.org ([66.70.73.150]:14502 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262548AbUCRMCE (ORCPT
+	Thu, 18 Mar 2004 07:03:21 -0500
+Received: from h42n2fls34o811.telia.com ([217.208.99.42]:36405 "EHLO dmac")
+	by vger.kernel.org with ESMTP id S262551AbUCRMDM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 07:02:04 -0500
-Date: Thu, 18 Mar 2004 23:01:14 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Michael Frank <mhf@linuxmail.org>
-Cc: kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.x atkbd.c moaning
-Message-ID: <20040318120114.GN28212@krispykreme>
-References: <opr41z9zel4evsfm@smtp.pacific.net.th>
+	Thu, 18 Mar 2004 07:03:12 -0500
+Date: Thu, 18 Mar 2004 13:03:11 +0100
+From: Samuel Rydh <samuel@ibrium.se>
+To: Giuliano Pochini <pochini@denise.shiny.it>
+Cc: linux-kernel@vger.kernel.org, Micha? Roszka <michal@roszka.pl>
+Subject: Re: [.config] CONFIG_THERM_WINDTUNNEL
+Message-ID: <20040318120311.GD3686@ibrium.se>
+Mail-Followup-To: Giuliano Pochini <pochini@denise.shiny.it>,
+	linux-kernel@vger.kernel.org, Micha? Roszka <michal@roszka.pl>
+References: <200403180821.44199.michal@roszka.pl> <Pine.LNX.4.58.0403181012300.29633@denise.shiny.it> <20040318112057.GC3686@ibrium.se> <Pine.LNX.4.58.0403181221580.1392@denise.shiny.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <opr41z9zel4evsfm@smtp.pacific.net.th>
+In-Reply-To: <Pine.LNX.4.58.0403181221580.1392@denise.shiny.it>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 18, 2004 at 12:27:28PM +0100, Giuliano Pochini wrote:
+> On Thu, 18 Mar 2004, Samuel Rydh wrote:
+> 
+> > Btw, I would like to get reports about how well this driver works
+> > with respect to noise reduction. I'm in particular interested
+> > in the dual 1.4 GHz model...
+> 
+> The author has a dual-1.2 and I tested it on another dual-1.2. I don't
+> know if it has been tested on other mathines. The driver writes in
+> the system logs the temperature and the fan speed every time they change,
+> so you can check what it's doing (and you can unload the module if you
+> see it does something wrong).
 
-> Why is this and should I investigate further?
-..
- 
-> mice: PS/2 mouse device common for all mice
-> serio: i8042 AUX port at 0x60,0x64 irq 12
-> input: ImExPS/2 Generic Explorer Mouse on isa0060/serio1
-> serio: i8042 KBD port at 0x60,0x64 irq 1
-> input: AT Translated Set 2 keyboard on isa0060/serio0
-> atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0).
+Yes I know... I wrote it :-)
 
-Did this happen recently? If so, does backing out the following patch help?
+It should be perfectly safe to use. It contains a (very conservative)
+fail safe; if the temperature exceeds the working point by a few
+degrees, the hardware overheat protection is programmed to turn
+on the fans 100%. This works even if the kernel has locked up
+solidly.
 
-Anton
+I'm mostly concerned that the working point is set too low for
+the 1.4 Ghz machine. If it is, then there might be some unnecessary
+noise. When the temperature is going down towards the working point,
+the fan speed is increased to remove the last extra heat. 
+The assumption is that some temporary heat generating operation
+has finished (like a CPU intensive calculation or heavy usage of
+the graphics card). This is a good strategy if the working point
+is correct but not-so-good if the working point is higher than
+expected (cyclic fan behavior might occur).
 
+In all cases, it should be an improvement compared to the firmware
+setting which is incredibly noisy and usually causes short period
+fan speed cycling.
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/03/03 15:14:01+01:00 vojtech@suse.cz 
-#   input: i8042.c:
-#     Assume the chip always is in XLATE mode, even when it doesn't
-#     have the XLATE bit set - apparently IBM PS/2 model 70 behaves
-#     this way.
-# 
-# drivers/input/serio/i8042.c
-#   2004/03/03 15:13:56+01:00 vojtech@suse.cz +0 -8
-#   input: i8042.c:
-#     Assume the chip always is in XLATE mode, even when it doesn't
-#     have the XLATE bit set - apparently IBM PS/2 model 70 behaves
-#     this way.
-# 
-diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
---- a/drivers/input/serio/i8042.c	Thu Mar 18 15:06:59 2004
-+++ b/drivers/input/serio/i8042.c	Thu Mar 18 15:06:59 2004
-@@ -722,14 +722,6 @@
- 	}
- 
- /*
-- * If the chip is configured into nontranslated mode by the BIOS, don't
-- * bother enabling translating and be happy.
-- */
--
--	if (~i8042_ctr & I8042_CTR_XLATE)
--		i8042_direct = 1;
--
--/*
-  * Set nontranslated mode for the kbd interface if requested by an option.
-  * After this the kbd interface becomes a simple serial in/out, like the aux
-  * interface is. We don't do this by default, since it can confuse notebook
+/Samuel

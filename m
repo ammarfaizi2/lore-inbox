@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311171AbSCPWWp>; Sat, 16 Mar 2002 17:22:45 -0500
+	id <S311127AbSCPWXP>; Sat, 16 Mar 2002 17:23:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311127AbSCPWWg>; Sat, 16 Mar 2002 17:22:36 -0500
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:11411 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S311166AbSCPWWR>; Sat, 16 Mar 2002 17:22:17 -0500
-Message-Id: <5.1.0.14.2.20020316221729.00a97dd0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 16 Mar 2002 22:22:18 +0000
-To: linux-kernel@vger.kernel.org
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Possible to unbind a raw devices so dvd can be ejected?
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S311166AbSCPWXG>; Sat, 16 Mar 2002 17:23:06 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:49963 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S311127AbSCPWWv>; Sat, 16 Mar 2002 17:22:51 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
+        torvalds@transmeta.com (Linus Torvalds),
+        andersg@0x63.nu (Anders Gustafsson), arjanv@redhat.com,
+        linux-kernel@vger.kernel.org, mochel@osdl.org
+Subject: Re: [PATCH] devexit fixes in i82092.c
+In-Reply-To: <E16mMer-0007Q4-00@the-village.bc.nu>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 16 Mar 2002 15:16:56 -0700
+In-Reply-To: <E16mMer-0007Q4-00@the-village.bc.nu>
+Message-ID: <m1d6y4xinb.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After using: raw /dev/raw/raw1 /dev/hdc I no longer can eject the disk in 
-/dev/hdc. (kernel version 2.4.19-pre7-ac2)
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Using the eject utility I get "device busy" error, obvious as the raw 
-binding has done a bd_get() on the /dev/hdc.
+> > In the general reboot case yes it is a BIOS bug.  In the general Linux
+> > booting Linux case there is no BIOS involved.
+> 
+> In that case yes I can see why you want to turn the bus masters off when you
+> boot the new kernel
 
-But now, how do I unbind it so bd_put is invoked? I don't see any way to do 
-it and the raw ioctl doesn't see to offer that functionality either.
+And in the general case I'd like to what rmmod does so that
+the device is in a sane state so the Linux driver can handle it.
 
-If there is no way this is extremely silly as I need to reboot to switch 
-from one dvd to another.
+Very rarely does rmmod leave a device in a state where you cannot
+run imsmod.
 
-I hope I am missing something...
-
-If not is there a patch expanding the raw ioctl with unbind functionality 
-and if not would one be accepted? I think that we definitely need one...
-
-Best regards,
-
-Anton
-
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+Eric
 

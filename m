@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318752AbSHWLGx>; Fri, 23 Aug 2002 07:06:53 -0400
+	id <S318766AbSHWLRr>; Fri, 23 Aug 2002 07:17:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318756AbSHWLGw>; Fri, 23 Aug 2002 07:06:52 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30993 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318752AbSHWLGw>; Fri, 23 Aug 2002 07:06:52 -0400
-Date: Fri, 23 Aug 2002 12:10:59 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, jgarzik@mandrakesoft.com,
-       ebiederm@xmission.com, linux-kernel@vger.kernel.org
-Subject: Re: IDE-flash device and hard disk on same controller
-Message-ID: <20020823121059.D20963@flint.arm.linux.org.uk>
-References: <200208230654.XAA02328@adam.yggdrasil.com> <Pine.LNX.4.10.10208230022060.14761-100000@master.linux-ide.org>
+	id <S318767AbSHWLRr>; Fri, 23 Aug 2002 07:17:47 -0400
+Received: from harrier.mail.pas.earthlink.net ([207.217.120.12]:10956 "EHLO
+	harrier.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S318766AbSHWLRr>; Fri, 23 Aug 2002 07:17:47 -0400
+Date: Fri, 23 Aug 2002 07:26:01 -0400
+To: dledford@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.5.31 qlogic error "this should not happen"
+Message-ID: <20020823112601.GA6796@rushmore>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.10.10208230022060.14761-100000@master.linux-ide.org>; from andre@linux-ide.org on Fri, Aug 23, 2002 at 12:45:03AM -0700
+User-Agent: Mutt/1.4i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 23, 2002 at 12:45:03AM -0700, Andre Hedrick wrote:
-> This is where JG's hard work and my time with him explaining it will help
-> most.  Also case where RMK's ARM toys do fun things and the assumption by
-> the driver that POST is valid is DEAD WRONG.  I will repeat the assumption
-> of my code about POST is DEAD WRONG!  POST like events happen at different
-> times for various archs.
+> Try applying the attached patch and see if it helps you out any.
 
-Yet more FUD.  Andre - go away and come back once you've calmed down.
+The box locked up while running bonnie++ with the patch.
+One difference was without the patch, it printed the
+"this should not happen" 9 times.  With the patch, it printed
+54 times (6 times more), if that's any kind of clue.
 
-Maybe its because you don't actually understand my IDE hardware.  I
-dunno.  But you are "DEAD WRONG" about the crap you've written above.
-
-Completely.
+I'm trying Eric's suggestion to change QLOGICFC_REQ_QUEUE_LEN
+from 127 to 255 on top of your patch.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
 

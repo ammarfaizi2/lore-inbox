@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263135AbSJBO3P>; Wed, 2 Oct 2002 10:29:15 -0400
+	id <S263132AbSJBOuV>; Wed, 2 Oct 2002 10:50:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263138AbSJBO3P>; Wed, 2 Oct 2002 10:29:15 -0400
-Received: from poup.poupinou.org ([195.101.94.96]:263 "EHLO poup.poupinou.org")
-	by vger.kernel.org with ESMTP id <S263135AbSJBO3N>;
-	Wed, 2 Oct 2002 10:29:13 -0400
-Date: Wed, 2 Oct 2002 16:34:31 +0200
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Nvidia framebuffer in 2.5
-Message-ID: <20021002143431.GA27029@poup.poupinou.org>
-References: <200210012211.59573.ivg2@cornell.edu> <20021002080530.GA780@tapu.f00f.org>
+	id <S263136AbSJBOuU>; Wed, 2 Oct 2002 10:50:20 -0400
+Received: from warrior.services.quay.plus.net ([212.159.14.227]:19628 "HELO
+	warrior.services.quay.plus.net") by vger.kernel.org with SMTP
+	id <S263132AbSJBOuT>; Wed, 2 Oct 2002 10:50:19 -0400
+Date: Wed, 2 Oct 2002 15:45:39 +0100
+From: Stig Brautaset <stig@brautaset.org>
+To: Nick Sanders <sandersn@btinternet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.40: menuconfig: no choice of keyboards
+Message-ID: <20021002144539.GA827@arwen.brautaset.org>
+References: <20021002113053.GA482@arwen.brautaset.org> <200210021431.25941.sandersn@btinternet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021002080530.GA780@tapu.f00f.org>
+In-Reply-To: <200210021431.25941.sandersn@btinternet.com>
 User-Agent: Mutt/1.3.28i
-From: Ducrot Bruno <poup@poupinou.org>
+X-Location: London, UK
+X-URL: http://brautaset.org
+X-KeyServer: wwwkeys.nl.pgp.net
+X-PGP/GnuPG-Key: 9336ADC1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 02, 2002 at 01:05:30AM -0700, Chris Wedgwood wrote:
-> On Tue, Oct 01, 2002 at 10:11:59PM -0400, Ivan Gyurdiev wrote:
-> 
-> > This stopped working many kernels ago, and I thought perhaps it's
-> > being converted to a different API... but it hasn't been fixed
-> > yet..is it a bug?
-> 
-> That are patches floating about to make it work for 2.5.x; however it
-> has some 'schedule while holding locks' issues which may not be fixed
-> anytime soon.
-> 
-> Bug nVIDIA :)
+On Oct 02 2002, Nick was overheard saying:
+> On Wednesday 02 October 2002 12:30 pm, Stig Brautaset wrote:
+> > Nothing happens if I go to the "Input Device Support" section in
+> > menuconf, and pick "Keyboards"; I get no new options. Got around it by
+> > manually selecting a keyboard in .config to be able to test it further.
+> > Either I chose the wrong one, or it just doesn't build it anyway, 'cause
+> > the machine would not respond on boot.
 
-This is the rivafb driver.  Not the binary provided by nvidia.
+> I think you need 'Serial i/o support' just above the 'Keyboards' option
 
+You were indeed right. Sorry for the waste of bandwidth :)
+
+Got it up and running now; a few warnings about unnused variables, but I
+guess you guys don't want those reported... or what? :)
+
+Stig, the embarrased one
 -- 
-Ducrot Bruno
-http://www.poupinou.org        Page profaissionelle
-http://toto.tu-me-saoules.com  Haume page
+brautaset.org

@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310142AbSCAWsX>; Fri, 1 Mar 2002 17:48:23 -0500
+	id <S310144AbSCAWyn>; Fri, 1 Mar 2002 17:54:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310144AbSCAWsN>; Fri, 1 Mar 2002 17:48:13 -0500
-Received: from gremlin.ics.uci.edu ([128.195.1.70]:56556 "HELO
-	gremlin.ics.uci.edu") by vger.kernel.org with SMTP
-	id <S310142AbSCAWsI>; Fri, 1 Mar 2002 17:48:08 -0500
-Date: Fri, 1 Mar 2002 14:48:03 -0800 (PST)
-From: Lei Wang <wangglei@cse1u.ICS.UCI.EDU>
+	id <S310146AbSCAWye>; Fri, 1 Mar 2002 17:54:34 -0500
+Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:63664 "HELO
+	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with SMTP
+	id <S310144AbSCAWyS>; Fri, 1 Mar 2002 17:54:18 -0500
 To: linux-kernel@vger.kernel.org
-Subject: How to get kernel data using /proc system?
-In-Reply-To: <1015022109.11499.47.camel@phantasy>
-Message-ID: <Pine.SOL.4.20.0203011440520.29286-100000@cse1u.ics.uci.edu>
+Subject: Re: SSSCA: We're in trouble now
+In-Reply-To: <3C7FDAB1.6F687440@randomlogic.com>
+	<1015014449.16520.9.camel@unaropia> <1015014637.811.0.camel@bip>
+	<1015018176.16520.66.camel@unaropia>
+From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
+Date: Fri, 01 Mar 2002 23:47:25 +0100
+In-Reply-To: <1015018176.16520.66.camel@unaropia> (Shawn Starr's message of
+ "01 Mar 2002 16:29:08 -0500")
+Message-ID: <87henzoqgy.fsf@CERT.Uni-Stuttgart.DE>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1 (i686-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, everyone, could anybody help me out of this? Any help would be
-highly appreciated. Thanks!
+Shawn Starr <spstarr@sh0n.net> writes:
 
-I want to read out some kernel data. But I searched the web a lot and
-all the methods I found in using /proc filesystem seem to be out of
-date. Does anybody know how to do this in Linux 2.4 or 2.2? 
+> Linux doesnt use the BIOS if you tell it not to, if it can avoid using
+> it. It will :)
 
-Also, are other ways to get access to kernel data than using
-/proc?
+The problem is that if you don't follow the Trusted Computing Platform
+Alliance booting procedure, you won't see much mass-compatible content
+on the Internet any longer.
 
-Thanks a lot!
+The solution is simple: go and create your own content, and share it
+with your friends. But you won't get Hollywood movies this way.
 
-
+-- 
+Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
+University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
+RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

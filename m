@@ -1,30 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271981AbRH2Of6>; Wed, 29 Aug 2001 10:35:58 -0400
+	id <S271982AbRH2Oi7>; Wed, 29 Aug 2001 10:38:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271982AbRH2Ofs>; Wed, 29 Aug 2001 10:35:48 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61190 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271981AbRH2Ofj>; Wed, 29 Aug 2001 10:35:39 -0400
-Subject: Re: IDE drive won't come back after power down
-To: andre@aslab.com (Andre Hedrick)
-Date: Wed, 29 Aug 2001 15:38:08 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        RossBoylan@stanfordalumni.org (Ross Boylan), sfr@canb.auug.org.au,
-        andre@suse.com (Andre Hedrick), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.31.0108261844570.12817-100000@postbox.aslab.com> from "Andre Hedrick" at Aug 28, 2001 09:29:38 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S271986AbRH2Oit>; Wed, 29 Aug 2001 10:38:49 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:20240 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S271985AbRH2Oip>; Wed, 29 Aug 2001 10:38:45 -0400
+Date: Wed, 29 Aug 2001 11:38:34 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andi Kleen <ak@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: page_launder() on 2.4.9/10 issue
+In-Reply-To: <Pine.LNX.4.33.0108290648420.8173-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0108291137330.30199-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15c6To-0007iA-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That is the prefered location; however, setting/writing up hold over code
-> that will be deleted in 2.5 is silly.  The basics are the non-data
-> taskfile registers operations.
+On Wed, 29 Aug 2001, Linus Torvalds wrote:
 
-Well if you can do it already in userspace via ioctl clearly the needed
-kernel code is small
+> Rik, look again: kswapd _does_ wait on IO these days.
+
+Indeed, I missed the magic in sync_page_buffers().
+
+regards,
+
+Rik
+--
+IA64: a worthy successor to the i860.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+
